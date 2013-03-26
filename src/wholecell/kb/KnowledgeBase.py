@@ -7,7 +7,7 @@ Whole-cell knowledge base
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/22/2013
+@date: Created 3/26/2013
 """
 
 import os.path
