@@ -117,3 +117,49 @@ class Test_randStream(unittest.TestCase):
                 gene["seq"]
 			)
 		self.assertEqual("MG_001", gene["rnaId"])
+
+	def test_rnas(self):
+		kb = self.kb
+
+		self.assertEqual(525, len(kb.rnas))
+
+		rna = next((x for x in kb.rnas if x["id"] == "MG_001"), None)
+		self.assertNotEqual(rna, None)
+		self.assertEqual(dict, type(rna))
+		self.assertEqual("MG_001", rna["id"])
+		self.assertEqual("DNA polymerase III, beta subunit", rna["name"])
+		self.assertEqual("mRNA", rna["type"])
+		self.assertAlmostEqual(8.8983e-5, rna["exp"], places = 9)
+		self.assertAlmostEqual(146.9388, rna["halfLife"], places = 4)
+		self.assertEqual(
+			    "UACUUUUAUAAUUAAUUAUUUUCACUUAACUUAUUUUAAAACUUUUUUUA" +
+                "CUUAUUGCAAUAAUAAAGGUUAUUGUUUUAUUUUGGUGUAGUAAGUAUAA" +
+                "AAAAUUAUCUCCGUUUUCUUUUUCUUUAUUUGAAAAUACGAUUGUUACUU" +
+                "AUGAAAAGACAGUUUACAUUAAAUUUAUUUUUAUAACUAUAAGAACUUGU" +
+                "UCCGAGGAAUUAACAAUUUCCUUUUUAAAAAUUGCUAGAAUAAUUACCGU" +
+                "AUUUUCUUCUCUAAUAAUGAUAAGUUCUUUUUCUAGUUUGUGAAAACCAA" +
+                "UUUUGUUUUUUUUGUUCAUAAUUAAAUUUGUGUUAAUUACACUUACUUAA" +
+                "AGGUUCUUAUUCCAAAUUACUUUUUUUGCUAAAUUCACUUAAAUUAGUUA" +
+                "AGUUUUAUUUAAUAAGUGAAAAUCAUUUUCCGUAAUUUUUUUAAAAAGUG" +
+                "AGUCAAAGUUUAUUAGCACUUUAUAGAAGAUUUAAAUUACCUCAUUUAAA" +
+                "GUUACCUAGGUUACCUUUUCUUUAUAAAAAUCUUCGAAGACUGUGAAUAU" +
+                "UUGAUAGACAAAAACUCUAUUUCGUUCUUUGUCUUGGUAAACUAAAGUAA" +
+                "AACCUCUCAUUAAAUGAAUCAAAGUAAUUAAGAAAAUUAGGACUUCUUCU" +
+                "AUUUAGAUAACAAAAAAUAAUGUCUUUUCUAUUAUUUCUAUCGAAAUCAU" +
+                "GUCUUUACAACUAAAGUUACCUAUUGAAAUACUAAUCAAUGUGUAGCCAA" +
+                "UUACUUUUUAAAGGUCUCCAUUUGAUGAAAAAACUUAAACUUGGACUUUG" +
+                "AUUUUAUCAACAAGUUUUUUUACUUAAUUUUCUACGUGAAGUUUCUUAAG" +
+                "UUUGAAACCGAGUUUUACUUUCUUGAAAAAAUACGCUAUACGUUUAAUUG" +
+                "UCAAGACUUAAUUUUUAUUCUCGAUAACAAUUAUUAUAGCCUUUAAGAGA" +
+                "ACUCCUUUAAAGAACAGAAUUUAAACUUCCAAUAUUUGAAUUAUAAAGAA" +
+                "AAUUGGGUUCAAGAGAUAAUCUAGUGUAUCUCAGAAAACUUAGUUUACUU" +
+                "UAUUUAAAACUAAAGGUUCCUUUAUCAUUCAUAAAAAACUAUUGGAGAUU" +
+                "UUCACUUGGACUUGAAUUCGUUUAUAACCAAGGAAGUUCUAUU",
+                rna["seq"]
+			)
+
+		self.assertEqual([rna["seq"].count("A"), rna["seq"].count("C"), rna["seq"].count("G"), rna["seq"].count("U")], rna["ntCount"])
+		self.assertAlmostEqual(362601.870000, rna["mw"], places = 6)
+		self.assertEqual("MG_001", rna["geneId"])
+		self.assertEqual("MG_001_MONOMER", rna["monomerId"])
+		
