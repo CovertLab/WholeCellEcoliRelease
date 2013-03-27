@@ -16,6 +16,7 @@ import Bio.SeqIO
 import Bio.Seq
 import Bio.Alphabet.IUPAC
 import Bio.SeqUtils.ProtParam
+import re
 
 class KnowledgeBase(object):
 	""" KnowledgeBase """
@@ -45,6 +46,8 @@ class KnowledgeBase(object):
 
 		self.metabolites = []
 		for row in ws:
+			if row == ():
+				continue
 			m = {
 				"id": row[0].internal_value,
 				"name": row[1].internal_value,
@@ -90,6 +93,8 @@ class KnowledgeBase(object):
 		self.rnas = []
 		self.proteins = []
 		for row in ws:
+			if row == ():
+				continue
 			# Gene
 			g = {
 				"id": row[0].internal_value,
@@ -106,8 +111,6 @@ class KnowledgeBase(object):
 				g["name"] = ""
 			if g["symbol"] == None:
 				g["symbol"] = ""
-			# import ipdb
-			# ipdb.set_trace()
 			g["seq"] = self.genomeSeq[(g["start"] - 1) : (g["start"] + g["len"] - 1)]
 			if not g["dir"]:
 				g["seq"] = Bio.Seq.Seq(g["seq"]).reverse_complement().tostring()
@@ -142,7 +145,7 @@ class KnowledgeBase(object):
 					"seq": "",
 					"aaCount": "",
 					"ntCount": "",
-					"mw": "",
+					"mw": -1,
 					"geneId": g["id"],
 					"rnaId": g["id"]
 				}
@@ -164,7 +167,86 @@ class KnowledgeBase(object):
 				self.proteins.append(p)
 
 	def loadComplexes(self):
-		pass
+		wb = xl.load_workbook(filename = self.dataFileName, use_iterators = True)
+		ws = wb.get_sheet_by_name("Complexes").iter_rows()
+
+		# Skip the first row
+		ws.next()
+
+		for row in ws:
+			if row == ():
+				continue
+			p = {
+				"id": row[0].internal_value,
+				"name": row[1].internal_value,
+				"monomer": False,
+				"composition": [],
+				"compartment": "",
+				"formationProcess": row[3].internal_value,
+				"seq": "",
+				"aaCount": "",
+				"ntCount": "",
+				"mw": -1,
+				"geneId": "",
+				"rnaId": ""
+			}
+			self.proteins.append(p)
+
+		metIds = [x["id"] for x in self.metabolites]
+		rnaIds = [x["id"] for x in self.rnas]
+		protIds = [x["id"] for x in self.proteins]
+
+
+		ws = wb.get_sheet_by_name("Complexes").iter_rows()
+
+		# Skip the first row
+		ws.next()
+
+		for row in ws:
+			if row == ():
+				continue
+
+			p = filter(lambda proteins, thisId = row[0].internal_value: proteins["id"] == thisId, self.proteins)[0]
+
+			p["composition"] = self.parseReaction(row[2].internal_value)[0]
+
 
 	def loadReactions(self):
 		pass
+
+	def parseReaction(self, reactionStr):
+		match = re.match("^\[(?P<comp>.*?)\]: (?P<stoich>.*)$", reactionStr)
+		if match != None:
+			globalComp = match.group("comp")
+			stoich = match.group("stoich")
+		else:
+			globalComp = ""
+			stoich = reactionStr
+
+		match = re.match("^(?P<lefts>.*) (?P<dir><*==>*) (?P<rights>.*)$", stoich)
+		if match == None:
+			raise Exception, "Invalid stoichiometry: %s" % (stoich)
+
+		if match.group("dir") == "==>":
+			reactionDir = 1
+		elif match.group("dir") == "<==":
+			reactionDir = -1
+		elif match.group("dir") == "<==>":
+			reactionDir = 0
+
+		stoich = []
+
+		lefts = match.group("lefts").split(" + ")
+		for componentStr in lefts:
+			coeff, mol, form, comp, thisType = self.parseReactionComponent(componentStr, globalComp)
+			stoich.append({ "coeff": -coeff, "compartment": comp, "molecule": mol, "form": form, "type": thisType })
+
+		rights = match.group("rights").split(" + ")
+		for componentStr in rights:
+			coeff, mol, form, comp, thisType = self.parseReactionComponent(componentStr, globalComp)
+			stoich.append({ "coeff": coeff, "compartment": comp, "molecule": mol, "form": form, "type": thisType })
+
+		return stoich, reactionDir
+
+	def parseReactionComponent(self, componentStr, globalComp):
+		return 0, 0, 0, 0, 0
