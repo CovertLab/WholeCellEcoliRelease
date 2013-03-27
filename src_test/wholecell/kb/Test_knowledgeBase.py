@@ -161,3 +161,44 @@ class Test_randStream(unittest.TestCase):
 		self.assertAlmostEqual(362601.870000, rna["mw"], places = 6)
 		self.assertEqual("MG_001", rna["geneId"])
 		self.assertEqual("MG_001_MONOMER", rna["monomerId"])
+
+	def test_proteins(self):
+		kb = self.kb
+
+		# TODO: Uncomment after loadComplexes() has been written
+		# self.assertEqual(482 + 164, len(kb.proteins))
+		self.assertEqual(482, len([x for x in kb.proteins if x["monomer"] == True]))
+		# self.assertEqual(164, len([x for x in kb.proteins if x["monomer"] == False]))
+
+		# Monomers
+		mon = next((x for x in kb.proteins if x["id"] == "MG_001_MONOMER"), None)
+		self.assertNotEqual(mon, None)
+		self.assertTrue(dict, type(mon))
+		self.assertEqual("DNA polymerase III, beta subunit", mon["name"])
+		self.assertTrue(mon["monomer"])
+		self.assertEqual(0, len(mon["composition"]))
+		self.assertEqual("c", mon["compartment"])
+		self.assertEqual(0, len(mon["formationProcess"]))
+		self.assertEqual(
+	            "MKILINKSELNKILKKMNNVIISNNKIKPHHSYFLIEAKEKEINFYANNE" +
+                "YFSVKCNLNKNIDILEQGSLIVKGKIFNDLINGIKEEIITIQEKDQTLLV" +
+                "KTKKTSINLNTINVNEFPRIRFNEKNDLSEFNQFKINYSLLVKGIKKIFH" +
+                "SVSNNREISSKFNGVNFNGSNGKEIFLEASDTYKLSVFEIKQETEPFDFI" +
+                "LESNLLSFINSFNPEEDKSIVFYYRKDNKDSFSTEMLISMDNFMISYTSV" +
+                "NEKFPEVNYFFEFEPETKIVVQKNELKDALQRIQTLAQNERTFLCDMQIN" +
+                "SSELKIRAIVNNIGNSLEEISCLKFEGYKLNISFNPSSLLDHIESFESNE" +
+                "INFDFQGNSKYFLITSKSEPELKQILVPSR",
+                mon["seq"]
+			)
+		self.assertEqual(
+			[	mon["seq"].count("A"), mon["seq"].count("R"), mon["seq"].count("N"), mon["seq"].count("D"), mon["seq"].count("C"),
+				mon["seq"].count("E"), mon["seq"].count("Q"), mon["seq"].count("G"), mon["seq"].count("H"), mon["seq"].count("I"),
+				mon["seq"].count("L"), mon["seq"].count("K"), mon["seq"].count("M"), mon["seq"].count("F"), mon["seq"].count("P"),
+				mon["seq"].count("S"), mon["seq"].count("T"), mon["seq"].count("W"), mon["seq"].count("Y"), mon["seq"].count("V")],
+				mon["aaCount"]
+			)
+		self.assertAlmostEqual(44317.8348 - (177.22 - 149.21), mon["mw"], delta = 1e-4 * mon["mw"])
+		self.assertEqual("MG_001", mon["geneId"])
+		self.assertEqual("MG_001", mon["rnaId"])
+
+		

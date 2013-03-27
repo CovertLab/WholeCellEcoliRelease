@@ -15,7 +15,7 @@ import openpyxl as xl
 import Bio.SeqIO
 import Bio.Seq
 import Bio.Alphabet.IUPAC
-
+import Bio.SeqUtils.ProtParam
 
 class KnowledgeBase(object):
 	""" KnowledgeBase """
@@ -130,6 +130,38 @@ class KnowledgeBase(object):
 			r["ntCount"] = [r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")]
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			self.rnas.append(r)
+
+			if g["type"] == "mRNA":
+				p = {
+					"id": g["id"] + "_MONOMER",
+					"name": g["name"],
+					"monomer": True,
+					"composition": [],
+					"compartment": row[9].internal_value,
+					"formationProcess": "",
+					"seq": "",
+					"aaCount": "",
+					"ntCount": "",
+					"mw": "",
+					"geneId": g["id"],
+					"rnaId": g["id"]
+				}
+				p["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self.translationTable).tostring()
+				p["seq"] = p["seq"][:p["seq"].find('*')]
+				p["aaCount"] = [p["seq"].count("A"), p["seq"].count("R"), p["seq"].count("N"), p["seq"].count("D"), p["seq"].count("C"),
+								p["seq"].count("E"), p["seq"].count("Q"), p["seq"].count("G"), p["seq"].count("H"), p["seq"].count("I"),
+								p["seq"].count("L"), p["seq"].count("K"), p["seq"].count("M"), p["seq"].count("F"), p["seq"].count("P"),
+								p["seq"].count("S"), p["seq"].count("T"), p["seq"].count("W"), p["seq"].count("Y"), p["seq"].count("V")
+								]
+				tmp = Bio.SeqUtils.ProtParam.ProteinAnalysis(p["seq"]).count_amino_acids()
+				p["aaCount"] = [tmp["A"], tmp["R"], tmp["N"], tmp["D"], tmp["C"],
+								tmp["E"], tmp["Q"], tmp["G"], tmp["H"], tmp["I"],
+								tmp["L"], tmp["K"], tmp["M"], tmp["F"], tmp["P"],
+								tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
+								]
+
+				p["mw"] = Bio.SeqUtils.ProtParam.ProteinAnalysis(p["seq"]).molecular_weight()
+				self.proteins.append(p)
 
 	def loadComplexes(self):
 		pass
