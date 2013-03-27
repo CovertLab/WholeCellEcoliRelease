@@ -12,6 +12,7 @@ Whole-cell knowledge base
 
 import os.path
 import openpyxl as xl
+import Bio.SeqIO
 
 
 class KnowledgeBase(object):
@@ -72,10 +73,9 @@ class KnowledgeBase(object):
 				m["maxExchangeRate"] = row[11].internal_value
 			self.metabolites.append(m)
 
-
-
 	def loadGenome(self):
-		pass
+		self.translationTable = 4 # E. coli is 11
+		self.genomeSeq = Bio.SeqIO.parse(self.seqFileName, "fasta").next().seq.tostring()
 
 	def loadGenes(self):
 		pass

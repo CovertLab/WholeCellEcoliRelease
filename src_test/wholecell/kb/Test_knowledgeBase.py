@@ -60,3 +60,13 @@ class Test_randStream(unittest.TestCase):
 		met = next((x for x in kb.metabolites if x["id"] == "AC"), None)
 		self.assertAlmostEqual(0.304758, met["mediaConc"], places = 6)
 		
+	def test_geneticCode(self):
+		kb = self.kb
+
+		self.assertEqual(4, kb.translationTable)
+
+	def test_genome(self):
+		kb = self.kb
+
+		self.assertEqual(580076, len(kb.genomeSeq))
+		self.assertEqual("ACGT", "".join(sorted(list(set(kb.genomeSeq)))))
