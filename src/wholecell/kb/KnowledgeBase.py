@@ -91,15 +91,15 @@ class KnowledgeBase(object):
 		for row in ws:
 			# Gene
 			g = {
-			"id": row[0].internal_value,
-			"name": row[1].internal_value,
-			"symbol": row[2].internal_value,
-			"type": row[3].internal_value,
-			"start": int(row[4].internal_value),
-			"len": int(row[5].internal_value),
-			"dir": row[6].internal_value == "forward",
-			"seq": "",
-			"rnaId": row[0].internal_value
+				"id": row[0].internal_value,
+				"name": row[1].internal_value,
+				"symbol": row[2].internal_value,
+				"type": row[3].internal_value,
+				"start": int(row[4].internal_value),
+				"len": int(row[5].internal_value),
+				"dir": row[6].internal_value == "forward",
+				"seq": "",
+				"rnaId": row[0].internal_value
 			}
 			if g["name"] == None:
 				g["name"] = ""
