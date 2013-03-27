@@ -13,6 +13,7 @@ Whole-cell knowledge base
 import os.path
 import openpyxl as xl
 import Bio.SeqIO
+import Bio.Seq
 
 
 class KnowledgeBase(object):
@@ -78,7 +79,38 @@ class KnowledgeBase(object):
 		self.genomeSeq = Bio.SeqIO.parse(self.seqFileName, "fasta").next().seq.tostring()
 
 	def loadGenes(self):
-		pass
+		wb = xl.load_workbook(filename = self.dataFileName, use_iterators = True)
+		ws = wb.get_sheet_by_name("Genes").iter_rows()
+
+		# Skip the first row
+		ws.next()
+
+		self.genes = []
+		self.rnas = []
+		self.proteins = []
+		for row in ws:
+			# Gene
+			g = {
+			"id": row[0].internal_value,
+			"name": row[1].internal_value,
+			"symbol": row[2].internal_value,
+			"type": row[3].internal_value,
+			"start": int(row[4].internal_value),
+			"len": int(row[5].internal_value),
+			"dir": row[6].internal_value == "forward",
+			"seq": "",
+			"rnaId": row[0].internal_value
+			}
+			if g["name"] == None:
+				g["name"] = ""
+			if g["symbol"] == None:
+				g["symbol"] = ""
+			# import ipdb
+			# ipdb.set_trace()
+			g["seq"] = self.genomeSeq[(g["start"] - 1) : (g["start"] + g["len"] - 1)]
+			if not g["dir"]:
+				g["seq"] = Bio.Seq.Seq(g["seq"]).reverse_complement().tostring()
+			self.genes.append(g)
 
 	def loadComplexes(self):
 		pass

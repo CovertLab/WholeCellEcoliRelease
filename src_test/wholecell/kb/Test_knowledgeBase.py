@@ -70,3 +70,50 @@ class Test_randStream(unittest.TestCase):
 
 		self.assertEqual(580076, len(kb.genomeSeq))
 		self.assertEqual("ACGT", "".join(sorted(list(set(kb.genomeSeq)))))
+
+	def test_genes(self):
+		kb = self.kb
+
+		self.assertEqual(525, len(kb.genes))
+		self.assertEqual(482, len([x for x in kb.genes if x["type"] == "mRNA"]))
+		self.assertEqual(3, len([x for x in kb.genes if x["type"] == "rRNA"]))
+		self.assertEqual(4, len([x for x in kb.genes if x["type"] == "sRNA"]))
+		self.assertEqual(36, len([x for x in kb.genes if x["type"] == "tRNA"]))
+
+		gene = next((x for x in kb.genes if x["id"] == "MG_001"), None)
+		self.assertNotEqual(gene, None)
+		self.assertEqual(dict, type(gene))
+		self.assertEqual("MG_001", gene["id"])
+		self.assertEqual("DNA polymerase III, beta subunit", gene["name"])
+		self.assertEqual("dnaN", gene["symbol"])
+		self.assertEqual("mRNA", gene["type"])
+		self.assertEqual(686, gene["start"])
+		self.assertEqual(1143, gene["len"])
+		self.assertTrue(gene["dir"])
+		self.assertEqual(
+                "ATGAAAATATTAATTAATAAAAGTGAATTGAATAAAATTTTGAAAAAAAT" +
+                "GAATAACGTTATTATTTCCAATAACAAAATAAAACCACATCATTCATATT" +
+                "TTTTAATAGAGGCAAAAGAAAAAGAAATAAACTTTTATGCTAACAATGAA" +
+                "TACTTTTCTGTCAAATGTAATTTAAATAAAAATATTGATATTCTTGAACA" +
+                "AGGCTCCTTAATTGTTAAAGGAAAAATTTTTAACGATCTTATTAATGGCA" +
+                "TAAAAGAAGAGATTATTACTATTCAAGAAAAAGATCAAACACTTTTGGTT" +
+                "AAAACAAAAAAAACAAGTATTAATTTAAACACAATTAATGTGAATGAATT" +
+                "TCCAAGAATAAGGTTTAATGAAAAAAACGATTTAAGTGAATTTAATCAAT" +
+                "TCAAAATAAATTATTCACTTTTAGTAAAAGGCATTAAAAAAATTTTTCAC" +
+                "TCAGTTTCAAATAATCGTGAAATATCTTCTAAATTTAATGGAGTAAATTT" +
+                "CAATGGATCCAATGGAAAAGAAATATTTTTAGAAGCTTCTGACACTTATA" +
+                "AACTATCTGTTTTTGAGATAAAGCAAGAAACAGAACCATTTGATTTCATT" +
+                "TTGGAGAGTAATTTACTTAGTTTCATTAATTCTTTTAATCCTGAAGAAGA" +
+                "TAAATCTATTGTTTTTTATTACAGAAAAGATAATAAAGATAGCTTTAGTA" +
+                "CAGAAATGTTGATTTCAATGGATAACTTTATGATTAGTTACACATCGGTT" +
+                "AATGAAAAATTTCCAGAGGTAAACTACTTTTTTGAATTTGAACCTGAAAC" +
+                "TAAAATAGTTGTTCAAAAAAATGAATTAAAAGATGCACTTCAAAGAATTC" +
+                "AAACTTTGGCTCAAAATGAAAGAACTTTTTTATGCGATATGCAAATTAAC" +
+                "AGTTCTGAATTAAAAATAAGAGCTATTGTTAATAATATCGGAAATTCTCT" +
+                "TGAGGAAATTTCTTGTCTTAAATTTGAAGGTTATAAACTTAATATTTCTT" +
+                "TTAACCCAAGTTCTCTATTAGATCACATAGAGTCTTTTGAATCAAATGAA" +
+                "ATAAATTTTGATTTCCAAGGAAATAGTAAGTATTTTTTGATAACCTCTAA" +
+                "AAGTGAACCTGAACTTAAGCAAATATTGGTTCCTTCAAGATAA",
+                gene["seq"]
+			)
+		self.assertEqual("MG_001", gene["rnaId"])
