@@ -157,9 +157,7 @@ class Test_randStream(unittest.TestCase):
                 "UUCACUUGGACUUGAAUUCGUUUAUAACCAAGGAAGUUCUAUU",
                 rna["seq"]
 			)
-
 		self.assertEqual([rna["seq"].count("A"), rna["seq"].count("C"), rna["seq"].count("G"), rna["seq"].count("U")], rna["ntCount"])
 		self.assertAlmostEqual(362601.870000, rna["mw"], places = 6)
 		self.assertEqual("MG_001", rna["geneId"])
 		self.assertEqual("MG_001_MONOMER", rna["monomerId"])
-		

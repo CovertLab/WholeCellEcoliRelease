@@ -125,6 +125,7 @@ class KnowledgeBase(object):
 				"geneId": g["id"],
 				"monomerId": g["id"] + "_MONOMER"
 			}
+			# TODO: Figure out why we're taking the complement
 			r["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).complement().transcribe().tostring()
 			r["ntCount"] = [r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")]
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
