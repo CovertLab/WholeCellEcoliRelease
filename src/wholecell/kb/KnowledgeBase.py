@@ -151,11 +151,6 @@ class KnowledgeBase(object):
 				}
 				p["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self.translationTable).tostring()
 				p["seq"] = p["seq"][:p["seq"].find('*')]
-				p["aaCount"] = [p["seq"].count("A"), p["seq"].count("R"), p["seq"].count("N"), p["seq"].count("D"), p["seq"].count("C"),
-								p["seq"].count("E"), p["seq"].count("Q"), p["seq"].count("G"), p["seq"].count("H"), p["seq"].count("I"),
-								p["seq"].count("L"), p["seq"].count("K"), p["seq"].count("M"), p["seq"].count("F"), p["seq"].count("P"),
-								p["seq"].count("S"), p["seq"].count("T"), p["seq"].count("W"), p["seq"].count("Y"), p["seq"].count("V")
-								]
 				tmp = Bio.SeqUtils.ProtParam.ProteinAnalysis(p["seq"]).count_amino_acids()
 				p["aaCount"] = [tmp["A"], tmp["R"], tmp["N"], tmp["D"], tmp["C"],
 								tmp["E"], tmp["Q"], tmp["G"], tmp["H"], tmp["I"],
@@ -249,4 +244,48 @@ class KnowledgeBase(object):
 		return stoich, reactionDir
 
 	def parseReactionComponent(self, componentStr, globalComp):
-		return 0, 0, 0, 0, 0
+		if globalComp == "":
+			tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*\[(?P<comp>.+)\]$", componentStr)
+			if tmp == None:
+				raise Exception, "Invalid stoichiometry: %s" % (stoich)
+			if tmp.group("coeff") == None:
+				coeff = 1.0
+			else:
+				coeff = float(tmp.group("coeff")[1:-2])
+
+			mol = tmp.group("mol")
+
+			if tmp.group("form") == None:
+				form = "mature"
+			else:
+				form = tmp.group("form")[1:]
+
+			comp = tmp.group("comp")
+		else:
+			tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*$", componentStr)
+			if tmp == None:
+				raise Exception, "Invalid stoichiometry: %s" % (stoich)
+			if tmp.group("coeff") == None:
+				coeff = 1.0
+			else:
+				coeff = float(tmp.group("coeff")[1:-2])
+
+			mol = tmp.group("mol")
+
+			if tmp.group("form") == None:
+				form = "mature"
+			else:
+				form = tmp.group("form")[1:]
+
+			comp = globalComp
+
+		if any(x["id"] == mol for x in self.metabolites):
+			thisType = "metabolite"
+		elif any(x["id"] == mol for x in self.rnas):
+			thisType = "rna"
+		elif any(x["id"] == mol for x in self.proteins):
+			thisType = "protein"
+		else:
+			raise Exception, "Undefined molecule: %s" % (mol)
+
+		return coeff, mol, form, comp, thisType
