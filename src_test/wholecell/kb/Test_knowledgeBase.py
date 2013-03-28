@@ -43,7 +43,7 @@ class Test_randStream(unittest.TestCase):
 		self.assertEqual(640, len([x for x in kb.metabolites if x["hydrophobic"] == False]))
 
 		met = next((x for x in kb.metabolites if x["id"] == "ACCOA"), None)
-		self.assertNotEqual(met, None)
+		self.assertNotEqual(None, met)
 		self.assertEqual(dict, type(met))
 		self.assertEqual("ACCOA", met["id"])
 		self.assertEqual("Acetyl-CoA", met["name"])
@@ -81,7 +81,7 @@ class Test_randStream(unittest.TestCase):
 		self.assertEqual(36, len([x for x in kb.genes if x["type"] == "tRNA"]))
 
 		gene = next((x for x in kb.genes if x["id"] == "MG_001"), None)
-		self.assertNotEqual(gene, None)
+		self.assertNotEqual(None, gene)
 		self.assertEqual(dict, type(gene))
 		self.assertEqual("MG_001", gene["id"])
 		self.assertEqual("DNA polymerase III, beta subunit", gene["name"])
@@ -124,7 +124,7 @@ class Test_randStream(unittest.TestCase):
 		self.assertEqual(525, len(kb.rnas))
 
 		rna = next((x for x in kb.rnas if x["id"] == "MG_001"), None)
-		self.assertNotEqual(rna, None)
+		self.assertNotEqual(None, rna)
 		self.assertEqual(dict, type(rna))
 		self.assertEqual("MG_001", rna["id"])
 		self.assertEqual("DNA polymerase III, beta subunit", rna["name"])
@@ -157,7 +157,7 @@ class Test_randStream(unittest.TestCase):
                 "UUCACUUGGACUUGAAUUCGUUUAUAACCAAGGAAGUUCUAUU",
                 rna["seq"]
 			)
-		self.assertEqual([rna["seq"].count("A"), rna["seq"].count("C"), rna["seq"].count("G"), rna["seq"].count("U")], rna["ntCount"])
+		self.assertTrue(numpy.array_equal([rna["seq"].count("A"), rna["seq"].count("C"), rna["seq"].count("G"), rna["seq"].count("U")], rna["ntCount"]))
 		self.assertAlmostEqual(362601.870000, rna["mw"], places = 6)
 		self.assertEqual("MG_001", rna["geneId"])
 		self.assertEqual("MG_001_MONOMER", rna["monomerId"])
@@ -165,14 +165,13 @@ class Test_randStream(unittest.TestCase):
 	def test_proteins(self):
 		kb = self.kb
 
-		# TODO: Uncomment after loadComplexes() has been written
-		# self.assertEqual(482 + 164, len(kb.proteins))
+		self.assertEqual(482 + 164, len(kb.proteins))
 		self.assertEqual(482, len([x for x in kb.proteins if x["monomer"] == True]))
-		# self.assertEqual(164, len([x for x in kb.proteins if x["monomer"] == False]))
+		self.assertEqual(164, len([x for x in kb.proteins if x["monomer"] == False]))
 
 		# Monomers
 		mon = next((x for x in kb.proteins if x["id"] == "MG_001_MONOMER"), None)
-		self.assertNotEqual(mon, None)
+		self.assertNotEqual(None, mon)
 		self.assertTrue(dict, type(mon))
 		self.assertEqual("DNA polymerase III, beta subunit", mon["name"])
 		self.assertTrue(mon["monomer"])
@@ -190,15 +189,46 @@ class Test_randStream(unittest.TestCase):
                 "INFDFQGNSKYFLITSKSEPELKQILVPSR",
                 mon["seq"]
 			)
-		self.assertEqual(
-			[	mon["seq"].count("A"), mon["seq"].count("R"), mon["seq"].count("N"), mon["seq"].count("D"), mon["seq"].count("C"),
+		self.assertTrue(
+			numpy.array_equal(
+				[mon["seq"].count("A"), mon["seq"].count("R"), mon["seq"].count("N"), mon["seq"].count("D"), mon["seq"].count("C"),
 				mon["seq"].count("E"), mon["seq"].count("Q"), mon["seq"].count("G"), mon["seq"].count("H"), mon["seq"].count("I"),
 				mon["seq"].count("L"), mon["seq"].count("K"), mon["seq"].count("M"), mon["seq"].count("F"), mon["seq"].count("P"),
 				mon["seq"].count("S"), mon["seq"].count("T"), mon["seq"].count("W"), mon["seq"].count("Y"), mon["seq"].count("V")],
-				mon["aaCount"]
+				mon["aaCount"])
 			)
 		self.assertAlmostEqual(44317.8348 - (177.22 - 149.21), mon["mw"], delta = 1e-4 * mon["mw"])
 		self.assertEqual("MG_001", mon["geneId"])
 		self.assertEqual("MG_001", mon["rnaId"])
 
-		
+		# Complexes
+		cpx = next((x for x in kb.proteins if x["id"] == "DNA_GYRASE"), None)
+		self.assertNotEqual(None, cpx)
+		self.assertTrue(dict, type(cpx))
+		self.assertEqual("DNA_GYRASE", cpx["id"])
+		self.assertEqual("DNA gyrase", cpx["name"])
+		self.assertFalse(cpx["monomer"])
+		self.assertEqual([
+			{"molecule": "MG_003_MONOMER", "compartment": "c", "coeff": -2, "form": "mature", "type": "protein"},
+			{"molecule": "MG_004_MONOMER", "compartment": "c", "coeff": -2, "form": "mature", "type": "protein"},
+			{"molecule": "DNA_GYRASE", "compartment": "c", "coeff": 1, "form": "mature", "type": "protein"},
+			], cpx["composition"]
+			)
+		self.assertEqual("c", cpx["compartment"])
+		self.assertEqual("Complexation", cpx["formationProcess"])
+		self.assertEqual("", cpx["seq"])
+		self.assertTrue(
+			numpy.array_equal(
+				2 * next((x for x in kb.proteins if x["id"] == "MG_003_MONOMER"), None)["aaCount"] +
+				2 * next((x for x in kb.proteins if x["id"] == "MG_004_MONOMER"), None)["aaCount"],
+				cpx["aaCount"])
+			)
+
+		self.assertTrue(numpy.array_equal(numpy.zeros(4), cpx["ntCount"]))
+		self.assertAlmostEqual(334028.2216, cpx["mw"], delta = 1e-2 * cpx["mw"])
+		self.assertEqual("", cpx["geneId"])
+		self.assertEqual("", cpx["rnaId"])
+
+		cpx = next((x for x in kb.proteins if x["id"] == "MG_014_015_DIMER"), None)
+		self.assertNotEqual(None, cpx)
+		self.assertEqual("m", cpx["compartment"])

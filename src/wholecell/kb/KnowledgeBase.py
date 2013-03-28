@@ -17,6 +17,7 @@ import Bio.Seq
 import Bio.Alphabet.IUPAC
 import Bio.SeqUtils.ProtParam
 import re
+import numpy
 
 class KnowledgeBase(object):
 	""" KnowledgeBase """
@@ -130,7 +131,7 @@ class KnowledgeBase(object):
 			}
 			# TODO: Figure out why we're taking the complement
 			r["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).complement().transcribe().tostring()
-			r["ntCount"] = [r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")]
+			r["ntCount"] = numpy.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			self.rnas.append(r)
 
@@ -143,8 +144,8 @@ class KnowledgeBase(object):
 					"compartment": row[9].internal_value,
 					"formationProcess": "",
 					"seq": "",
-					"aaCount": "",
-					"ntCount": "",
+					"aaCount": numpy.zeros(20),
+					"ntCount": numpy.zeros(4),
 					"mw": -1,
 					"geneId": g["id"],
 					"rnaId": g["id"]
@@ -152,11 +153,11 @@ class KnowledgeBase(object):
 				p["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self.translationTable).tostring()
 				p["seq"] = p["seq"][:p["seq"].find('*')]
 				tmp = Bio.SeqUtils.ProtParam.ProteinAnalysis(p["seq"]).count_amino_acids()
-				p["aaCount"] = [tmp["A"], tmp["R"], tmp["N"], tmp["D"], tmp["C"],
+				p["aaCount"] = numpy.array([tmp["A"], tmp["R"], tmp["N"], tmp["D"], tmp["C"],
 								tmp["E"], tmp["Q"], tmp["G"], tmp["H"], tmp["I"],
 								tmp["L"], tmp["K"], tmp["M"], tmp["F"], tmp["P"],
 								tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
-								]
+								])
 
 				p["mw"] = Bio.SeqUtils.ProtParam.ProteinAnalysis(p["seq"]).molecular_weight()
 				self.proteins.append(p)
@@ -179,8 +180,8 @@ class KnowledgeBase(object):
 				"compartment": "",
 				"formationProcess": row[3].internal_value,
 				"seq": "",
-				"aaCount": "",
-				"ntCount": "",
+				"aaCount": numpy.zeros(20),
+				"ntCount": numpy.zeros(4),
 				"mw": -1,
 				"geneId": "",
 				"rnaId": ""
@@ -201,9 +202,32 @@ class KnowledgeBase(object):
 			if row == ():
 				continue
 
-			p = filter(lambda proteins, thisId = row[0].internal_value: proteins["id"] == thisId, self.proteins)[0]
+			p = filter(lambda protein, thisId = row[0].internal_value: protein["id"] == thisId, self.proteins)[0]
 
 			p["composition"] = self.parseReaction(row[2].internal_value)[0]
+			for stoichComponent in p["composition"]:
+				if p["id"] == stoichComponent["molecule"]:
+					p["compartment"] = stoichComponent["compartment"]
+				else:
+					metList = filter(lambda metabolite, thisId = stoichComponent["molecule"]: metabolite["id"] == thisId, self.metabolites)
+					rnaList = filter(lambda rna, thisId = stoichComponent["molecule"]: rna["id"] == thisId, self.rnas)
+					protList = filter(lambda protein, thisId = stoichComponent["molecule"]: protein["id"] == thisId, self.proteins)
+
+					if len(metList) > 0:
+						subunitMw = metList[0]["mw"]
+						# TODO: p["metCount"]
+					elif len(rnaList) > 0:
+						subunitMw = rnaList[0]["mw"]
+						p["ntCount"] -= stoichComponent["coeff"] * rnaList[0]["ntCount"]
+					elif len(protList) > 0:
+						subunitMw = protList[0]["mw"]
+						p["aaCount"] -= stoichComponent["coeff"] * protList[0]["aaCount"]
+					else:
+						raise Exception, "Undefined subunit: %s" % stoichComponent["molecule"]
+
+					p["mw"] -= stoichComponent["coeff"] * subunitMw
+
+
 
 
 	def loadReactions(self):
