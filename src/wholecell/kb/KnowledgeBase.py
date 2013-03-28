@@ -231,8 +231,48 @@ class KnowledgeBase(object):
 
 
 	def loadReactions(self):
-		pass
+		wb = xl.load_workbook(filename = self.dataFileName, use_iterators = True)
+		ws = wb.get_sheet_by_name("Reactions").iter_rows()
 
+		# Skip the first row
+		ws.next()
+
+		self.reactions = []
+		for row in ws:
+			if row == ():
+				continue
+			r = {
+				"id": row[0].internal_value,
+				"name": row[1].internal_value,
+				"process": row[2].internal_value,
+				"ec": row[3].internal_value,
+				"dir": "",
+				"stoichiometry": [],
+				"enzyme": []
+			}
+
+			if r["name"] == None:
+				r["name"] = ""
+			if r["ec"] == None:
+				r["ec"] = ""
+
+			r["stoichiometry"], r["dir"] = self.parseReaction(row[4].internal_value)
+			if row[5].internal_value != None:
+				r["enzyme"] = {"id": [], "compartment": [], "kCatFor": [], "kCatRev": []}
+				match = re.match("^(?P<id>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*", row[5].internal_value)
+				r["enzyme"]["id"] = match.group("id")
+				if match.group("form") == None:
+					r["enzyme"]["form"] = "mature"
+				else:
+					r["enzyme"]["form"] = match.group("form")
+				r["enzyme"]["compartment"] = match.group("compartment")[1:-1]
+				r["enzyme"]["kCatFor"] = self.calcKCat(r["enzyme"]["id"], row[6].internal_value, row[7].internal_value)
+				r["enzyme"]["kCatRev"] = self.calcKCat(r["enzyme"]["id"], row[8].internal_value, row[9].internal_value)
+
+			self.reactions.append(r)
+
+
+	
 	def parseReaction(self, reactionStr):
 		match = re.match("^\[(?P<comp>.*?)\]: (?P<stoich>.*)$", reactionStr)
 		if match != None:
@@ -313,3 +353,17 @@ class KnowledgeBase(object):
 			raise Exception, "Undefined molecule: %s" % (mol)
 
 		return coeff, mol, form, comp, thisType
+
+	def calcKCat(self, enzId, vMax, units):
+		if enzId == None or vMax == None:
+			return numpy.NaN
+
+		if units == "U/mg":
+			prot = next((x for x in self.proteins if x["id"] == enzId), None)
+			if prot == None:
+				raise Exception, "Undefined enzyme: %s" % (enzId)
+			return vMax / 60.0 * 1e-3 * prot["mw"]
+		elif units == "1/min":
+			return vMax / 60.0
+		else:
+			raise Exception, "Invalid kCat units: %s" % (units)

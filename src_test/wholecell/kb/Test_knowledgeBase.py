@@ -211,7 +211,7 @@ class Test_randStream(unittest.TestCase):
 		self.assertEqual([
 			{"molecule": "MG_003_MONOMER", "compartment": "c", "coeff": -2, "form": "mature", "type": "protein"},
 			{"molecule": "MG_004_MONOMER", "compartment": "c", "coeff": -2, "form": "mature", "type": "protein"},
-			{"molecule": "DNA_GYRASE", "compartment": "c", "coeff": 1, "form": "mature", "type": "protein"},
+			{"molecule": "DNA_GYRASE", "compartment": "c", "coeff": 1, "form": "mature", "type": "protein"}
 			], cpx["composition"]
 			)
 		self.assertEqual("c", cpx["compartment"])
@@ -232,3 +232,41 @@ class Test_randStream(unittest.TestCase):
 		cpx = next((x for x in kb.proteins if x["id"] == "MG_014_015_DIMER"), None)
 		self.assertNotEqual(None, cpx)
 		self.assertEqual("m", cpx["compartment"])
+
+	def test_reactions(self):
+		kb = self.kb
+
+		self.assertEqual(643, len(kb.reactions))
+
+		rxn = next((x for x in kb.reactions if x["id"] == "AckA"), None)
+		self.assertNotEqual(None, rxn)
+		self.assertEqual(dict, type(rxn))
+		self.assertEqual("AckA", rxn["id"])
+		self.assertEqual("acetate kinase", rxn["name"])
+		self.assertEqual("Metabolism", rxn["process"])
+		self.assertEqual("2.7.2.1", rxn["ec"])
+		self.assertEqual(0, rxn["dir"])
+		self.assertEqual([
+			{"molecule": "ACTP", "form": "mature", "compartment": "c", "coeff": -1, "type": "metabolite"},
+			{"molecule": "ADP", "form": "mature", "compartment": "c", "coeff": -1, "type": "metabolite"},
+			{"molecule": "AC", "form": "mature", "compartment": "c", "coeff": 1, "type": "metabolite"},
+			{"molecule": "ATP", "form": "mature", "compartment": "c", "coeff": 1, "type": "metabolite"}
+			], rxn["stoichiometry"]
+			)
+		self.assertEqual(
+			{"id": "MG_357_DIMER", "form": "mature", "compartment": "c",
+			 "kCatFor": 68.0 / 60.0 * 1e-3 * next((x for x in kb.proteins if x["id"] == "MG_357_DIMER"), None)["mw"],
+			 "kCatRev": 70.0 / 60.0 * 1e-3 * next((x for x in kb.proteins if x["id"] == "MG_357_DIMER"), None)["mw"]
+			}, rxn["enzyme"]
+			)
+
+		rxn = next((x for x in kb.reactions if x["id"] == "Aas1"), None)
+		self.assertEqual(1, rxn["dir"])
+
+		rxn = next((x for x in kb.reactions if x["id"] == "Cls1"), None)
+		self.assertEqual([
+			{"molecule": "PG160", "form": "mature", "compartment": "m", "coeff": -2, "type": "metabolite"},
+			{"molecule": "CL160", "form": "mature", "compartment": "m", "coeff": 1, "type": "metabolite"},
+			{"molecule": "GL", "form": "mature", "compartment": "c", "coeff": 1, "type": "metabolite"}
+			], rxn["stoichiometry"]
+			)
