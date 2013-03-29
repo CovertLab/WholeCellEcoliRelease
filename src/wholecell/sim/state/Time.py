@@ -24,14 +24,17 @@ class Time(wholecell.sim.state.State.State):
 		"units": {"value": "s"}
 	}
 
+	# Constructor
 	def __init__(self, *args, **kwargs):
 		self.value = None
 		super(Time, self).__init__(*args, **kwargs)
 
+	# Allocate memory
 	def allocate(self):
 		super(Time, self).allocate()
 
 		self.value = numpy.zeros(1)
 
+	# Calculate initial conditions
 	def calcInitialConditions(self):
 		self.value = 0
