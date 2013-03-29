@@ -3,7 +3,7 @@
 """
 State
 
-State variable base class. Defines the interface states expose to the simulation and processes
+State variable base class. Defines the interface states expose to the simulation and processes.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
