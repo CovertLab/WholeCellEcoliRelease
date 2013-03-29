@@ -18,14 +18,14 @@ class Logger(object):
 	@abc.abstractmethod
 	def initialize(self, sim):
 		""" initialize -- called at beginning of simulation """
-		pass
+		return
 
 	@abc.abstractmethod
 	def append(self, sim):
 		""" append -- called at each iteration of simulation """
-		pass
+		return
 
 	@abc.abstractmethod
 	def finalize(self, sim):
 		""" finalize -- called at end of simulation """
-		pass
+		return
