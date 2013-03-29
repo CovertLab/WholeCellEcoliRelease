@@ -23,8 +23,11 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 	def __init__(self, metadata = {}, outDir = "", segmentLen = 1000):
 		
-		if not isMetadataValid(metadata):
+		if not self.isMetadataValid(metadata):
 			raise Exception, "Metadata invalid: %s" % (metadata)
+
+		if outDir == "" or type(dir) != str:
+			raise Exception, "outDir invalid: %s" % (outDir)
 
 		self.metadata = metadata
 		self.outDir = outDir
