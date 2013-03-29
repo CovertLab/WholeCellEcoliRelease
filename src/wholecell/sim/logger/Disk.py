@@ -156,6 +156,7 @@ class Disk(wholecell.sim.logger.Logger):
 		cPickle.dump(options, os.path.join(self.outDir, "options.cPickle"), protocol = cPickle.HIGHEST_PROTOCOL)
 		cPickle.dump(parameters, os.path.join(self.outDir, "parameters.cPickle"), protocol = cPickle.HIGHEST_PROTOCOL)
 
+	# TODO: Write this method after we actually have some data to work with
 	@classmethod
 	def load(cls, dir, state, prop):
 		pass
