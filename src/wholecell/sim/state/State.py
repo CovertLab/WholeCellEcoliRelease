@@ -15,8 +15,6 @@ import inspect
 class State(object):
 	""" State """
 
-	__metaclass__ = abc.ABCMeta
-
 	# Metadata: id, name, list of dynamic properties, units
 	meta = {}
 
