@@ -16,9 +16,9 @@ import os.path
 import time
 import cPickle # TODO: Consider using shelve
 
-import wholecell.sim.logger
+import wholecell.sim.logger.Logger
 
-class Disk(wholecell.sim.logger.Logger):
+class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
 	def __init__(self, metadata = {}, outDir = "", segmentLen = 1000):
@@ -73,7 +73,7 @@ class Disk(wholecell.sim.logger.Logger):
 		self.copyDataFromStates(sim)
 
 		# Rotate segment
-		if self.iStep == self.segmentLen
+		if self.iStep == self.segmentLen:
 			# Save segment to disk
 			self.saveSegmentToDisk()
 
