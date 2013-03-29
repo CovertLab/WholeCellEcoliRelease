@@ -26,7 +26,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		if not self.isMetadataValid(metadata):
 			raise Exception, "Metadata invalid: %s" % (metadata)
 
-		if outDir == "" or type(dir) != str:
+		if outDir == "" or type(outDir) != str:
 			raise Exception, "outDir invalid: %s" % (outDir)
 
 		self.metadata = metadata
