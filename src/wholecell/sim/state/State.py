@@ -10,7 +10,6 @@ State variable base class. Defines the interface states expose to the simulation
 @date: Created 3/29/2013
 """
 
-import abc
 import inspect
 
 class State(object):
@@ -19,9 +18,7 @@ class State(object):
 	__metaclass__ = abc.ABCMeta
 
 	# Metadata: id, name, list of dynamic properties, units
-	@abc.abstractproperty
-	def meta(self):
-		return
+	meta = {}
 
 	# Constructor
 	def __init__(self, propVals = {}):
