@@ -61,7 +61,7 @@ class Mass(wholecell.sim.state.State.State):
 
 	# Allocate memory
 	def allocate(self):
-		super(Time, self).allocate()
+		super(Mass, self).allocate()
 
 		self.total = numpy.zeros((1, len(self.compartments)))
 		self.cell = numpy.zeros((1, len(self.compartments)))
