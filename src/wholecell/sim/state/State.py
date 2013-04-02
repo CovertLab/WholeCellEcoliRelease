@@ -112,7 +112,7 @@ class State(object):
 	def setOptions(self, val):
 		keys = val.keys()
 		if not self.meta.has_key("options") or not all(set(keys).issubset(set(self.meta["options"]))):
-			raise Expception, "Invalid option"
+			raise Exception, "Invalid option"
 
 		for key in keys:
 			setattr(self, key, val[key])
@@ -126,7 +126,7 @@ class State(object):
 	def setParameters(self, val):
 		keys = val.keys()
 		if not self.meta.has_key("parameters") or not all(set(keys).issubset(set(self.meta["parameters"]))):
-			raise Expception, "Invalid parameter"
+			raise Exception, "Invalid parameter"
 
 		for key in keys:
 			setattr(self, key, val[key])
@@ -139,7 +139,7 @@ class State(object):
 	def setDynamics(self, val):
 		keys = val.keys()
 		if not self.meta.has_key("dynamics") or not all(set(keys).issubset(set(self.meta["dynamics"]))):
-			raise Expception, "Invalid dynamics"
+			raise Exception, "Invalid dynamics"
 
 		for key in keys:
 			setattr(self, key, val[key])
