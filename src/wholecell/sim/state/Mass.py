@@ -36,7 +36,7 @@ class Mass(wholecell.sim.state.State.State):
 		{"id": "e", "name": "Extracellular space"},
 		{"id": "m", "name": "Membrane"}
 	]
-	cIdx = {"c": 1, "e": 2, "m": 3}
+	cIdx = {"c": 0, "e": 1, "m": 2}
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
@@ -72,7 +72,7 @@ class Mass(wholecell.sim.state.State.State):
 
 	# Calculate (and cache) any dependent properties
 	def calculate(self):
-		from wholecell.sim.util.Constants import Constants
+		from wholecell.util.Constants import Constants
 
 		mc = self.moleculeCounts
 
