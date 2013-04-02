@@ -33,7 +33,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.cellCycleLength = 9 * 3600		# s
 		self.elngRate = 50					# nt/s
 		self.rnaLens = None					# RNA lengths
-		self.rnaNtCounts = None				# RNA nucleotide counts [nt x RNA]
+		self.rnaNtCounts = None				# RNA nucleotide counts [nt x RNA] <-- TODO: Check this
 		self.rnaSynthProb = None			# Relative RNA synthesis rates
 
 		super(Transcription, self).__init__()
@@ -61,7 +61,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNA_POLYMERASE:mature[c]"], @self.calcReqEnzyme)
+		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNA_POLYMERASE:mature[c]"], self.calcReqEnzyme)
 		self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNA_POLYMERASE:mature[c]"])
 
 	# Calculate needed metabolites
