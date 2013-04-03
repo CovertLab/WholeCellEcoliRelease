@@ -81,6 +81,7 @@ class Translation(wholecell.sim.process.Process.Process):
 			])
 		val[self.metabolite.idx["aas"]] = elng / self.metabolite.idx["aas"].size
 		val[[self.metabolite.idx["gtp"], self.metabolite.idx["h2o"]]] = 4 * 2 * elng
+		return val
 
 	# Calculate needed mRNA
 	def calcReqMrna(self):
