@@ -48,10 +48,10 @@ class Transcription(wholecell.sim.process.Process.Process):
 			"PPI[c]", "H2O[c]", "H[c]",
 			], self.calcReqMetabolites)
 
-		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.metabolite.idx["ppi"] = self.metabolite.getIndex(["PPI[c]"])
-		self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])
-		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])
+		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
+		self.metabolite.idx["ppi"] = self.metabolite.getIndex(["PPI[c]"])[0]
+		self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])[0]
+		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
 
 		# RNA
 		self.rna = sim.getState("MoleculeCounts").addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
@@ -62,7 +62,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 		# Enzymes
 		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNA_POLYMERASE:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNA_POLYMERASE:mature[c]"])
+		self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNA_POLYMERASE:mature[c]"])[0]
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):

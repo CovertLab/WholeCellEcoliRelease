@@ -234,7 +234,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		partition.idx = {}
 
 		# Set child properties for mapping to parent
-		iMolFormComp, iMolForm = self.getIndex(reqMols)
+		iMolFormComp, iMolForm = self.getIndex(reqMols)[0:2]
 		if len(set(iMolFormComp)) < len(iMolFormComp):
 			raise Exception, "Partition request cannot contain duplicate ids"
 
@@ -313,7 +313,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		if self.parentState == None:
 			return self.getIndex_parent(ids)
 		else:
-			idxs = numpy.array([self.mapping.index(x) for x in self.parentState.getIndex(ids)])
+			idxs = numpy.array([self.mapping.index(x) for x in self.parentState.getIndex(ids)[0]])
 			compIdxs = numpy.ones(idxs.shape)
 			if not numpy.all(idxs):
 				raise Exception, "Invalid ids:\n%s" % ", ".join(ids[idxs == 0])	 # TODO: Probably need to fix this line

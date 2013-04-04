@@ -44,9 +44,9 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, [
 			"AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]", "H2O[c]", "H[c]"
 			], self.calcReqMetabolites)
-		self.metabolite.idx["nmps"] = self.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
-		self.metabolite.idx["h2o"] = self.metabolite.getIndex("H2O[c]")
-		self.metabolite.idx["h"] = self.metabolite.getIndex("H[c]")
+		self.metabolite.idx["nmps"] = self.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[0]
+		self.metabolite.idx["h2o"] = self.metabolite.getIndex("H2O[c]")[0]
+		self.metabolite.idx["h"] = self.metabolite.getIndex("H[c]")[0]
 
 		# Rna
 		self.rna = sim.getState("MoleculeCounts").addPartition(self, 
@@ -64,7 +64,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		# Proteins
 		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["MG_104_MONOMER:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["rnaseR"] = self.enzyme.getIndex(["MG_104_MONOMER:mature[c]"])
+		self.enzyme.idx["rnaseR"] = self.enzyme.getIndex(["MG_104_MONOMER:mature[c]"])[0]
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):

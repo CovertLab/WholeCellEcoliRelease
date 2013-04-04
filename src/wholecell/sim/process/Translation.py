@@ -52,12 +52,12 @@ class Translation(wholecell.sim.process.Process.Process):
 		self.metabolite.idx["aas"] = self.metabolite.getIndex([
 			"ALA[c]", "ARG[c]", "ASN[c]", "ASP[c]", "CYS[c]", "GLU[c]", "GLN[c]", "GLY[c]", "HIS[c]", "ILE[c]",  "LEU[c]",
 			"LYS[c]", "MET[c]", "PHE[c]", "PRO[c]", "SER[c]", "THR[c]", "TRP[c]", "TYR[c]", "VAL[c]",
-			])
-		self.metabolite.idx["gtp"] = self.metabolite.getIndex(["GTP[c]"])
-		self.metabolite.idx["gdp"] = self.metabolite.getIndex(["GDP[c]"])
-		self.metabolite.idx["pi"] = self.metabolite.getIndex(["PI[c]"])
-		self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])
-		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])
+			])[0]
+		self.metabolite.idx["gtp"] = self.metabolite.getIndex(["GTP[c]"])[0]
+		self.metabolite.idx["gdp"] = self.metabolite.getIndex(["GDP[c]"])[0]
+		self.metabolite.idx["pi"] = self.metabolite.getIndex(["PI[c]"])[0]
+		self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])[0]
+		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
 
 		# mRNA, protein monomer
 		mrnas = [x for x in kb.rnas if x["type"] == "mRNA"]
@@ -69,7 +69,7 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# Enzymes
 		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RIBOSOME_70S:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["ribosome70S"] = self.enzyme.getIndex("RIBOSOME_70S:mature[c]")
+		self.enzyme.idx["ribosome70S"] = self.enzyme.getIndex("RIBOSOME_70S:mature[c]")[0]
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):

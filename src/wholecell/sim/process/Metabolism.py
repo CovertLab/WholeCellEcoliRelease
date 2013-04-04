@@ -83,14 +83,14 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, enzIds, self.calcReqEnzyme)
 		self.mass = sim.getState("Mass").addPartition(self)
 
-		this.metabolite.idx["atpHydrolysis"] = this.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
-		this.metabolite.idx["ntps"] = this.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		this.metabolite.idx["ndps"] = this.metabolite.getIndex(["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"])
-		this.metabolite.idx["nmps"] = this.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
-		this.metabolite.idx["ppi"]  = this.metabolite.getIndex("PPI[c]")
-		this.metabolite.idx["pi"]   = this.metabolite.getIndex("PI[c]")
-		this.metabolite.idx["h2o"]  = this.metabolite.getIndex("H2O[c]")
-		this.metabolite.idx["h"]    = this.metabolite.getIndex("H[c]")
+		this.metabolite.idx["atpHydrolysis"] = this.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
+		this.metabolite.idx["ntps"] = this.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
+		this.metabolite.idx["ndps"] = this.metabolite.getIndex(["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"])[0]
+		this.metabolite.idx["nmps"] = this.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[0]
+		this.metabolite.idx["ppi"]  = this.metabolite.getIndex("PPI[c]")[0]
+		this.metabolite.idx["pi"]   = this.metabolite.getIndex("PI[c]")[0]
+		this.metabolite.idx["h2o"]  = this.metabolite.getIndex("H2O[c]")[0]
+		this.metabolite.idx["h"]    = this.metabolite.getIndex("H[c]")[0]
 
 		# Indices
 		nExchangeConstraints = 7
@@ -172,28 +172,28 @@ class Metabolism(wholecell.sim.process.Process.Process):
 				self.bounds["thermodynamic"]["lo"][rIdx] = 0
 			elif r["dir"] == -1:
 				self.bounds["thermodynamic"]["up"][rIdx] = 0
-			mIdx = self.metIdx.real[numpy.array(self.metabolite.getIndex([x[0] for x in tmpSMat]))]
+			mIdx = self.metIdx.real[numpy.array(self.metabolite.getIndex([x[0] for x in tmpSMat])[0])]
 			self.sMat[mIdx, numpy.array([x[1] for x in tmpSMat])] = numpy.array([x[2] for x in tmpSMat])
 
-			eIdx = numpy.array(self.enzyme.getIndex([x[0] for x in tmpEMat]))
+			eIdx = numpy.array(self.enzyme.getIndex([x[0] for x in tmpEMat])[0])
 			self.eMat[[x[1] for x in tmpEmat], eIdx] = 1.0
 
 			# exchange
 			metIds = [x["id"] + ":mature[e]" for x in kb.metabolites if x["id"] in molIds]
 			metExs = numpy.array([x["maxExchangeRate"] for x in kb.metabolites if x["id"] in molIds])
 
-			metIdxs = numpy.array(self.metabolite.getIndex(metIds))
+			metIdxs = numpy.array(self.metabolite.getIndex(metIds)[0])
 			self.bounds["exchange"]["lo"][self.rxnIdx["exchange"][metIdxs]] = -metExs
 			self.bounds["exchange"]["up"][self.rxnIdx["exchange"][metIdxs]] =  metExs
 
 			# exchange constraints
-			self.sMat[self.metIdx["exchangeConstraints"][0], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["ATP[c]", "ADP[c]", "AMP[c]"]))]] = 1.0
-			self.sMat[self.metIdx["exchangeConstraints"][1], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["CTP[c]", "CDP[c]", "CMP[c]"]))]] = 1.0
-			self.sMat[self.metIdx["exchangeConstraints"][2], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["GTP[c]", "GDP[c]", "GMP[c]"]))]] = 1.0
-			self.sMat[self.metIdx["exchangeConstraints"][3], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["UTP[c]", "UDP[c]", "UMP[c]"]))]] = 1.0
-			self.sMat[self.metIdx["exchangeConstraints"][4], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "THF[c]"]))]] = 1.0
-			self.sMat[self.metIdx["exchangeConstraints"][5], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "FOR[c]", "FMET[c]"]))]] = 1.0
-			self.sMat[self.metIdx["exchangeConstraints"][6], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["MET[c]", "FMET[c]"]))]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][0], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["ATP[c]", "ADP[c]", "AMP[c]"])[0])]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][1], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["CTP[c]", "CDP[c]", "CMP[c]"])[0])]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][2], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["GTP[c]", "GDP[c]", "GMP[c]"])[0])]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][3], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["UTP[c]", "UDP[c]", "UMP[c]"])[0])]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][4], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "THF[c]"])[0])]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][5], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "FOR[c]", "FMET[c]"])[0])]] = 1.0
+			self.sMat[self.metIdx["exchangeConstraints"][6], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["MET[c]", "FMET[c]"])[0])]] = 1.0
 
 			# objective
 			objMets = [x for x in kb.metabolites if x["metabolismNewFlux"] != 0 or x["metabolismRecyclingFlux"] != 0]
