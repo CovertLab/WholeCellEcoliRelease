@@ -82,7 +82,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 	# Calculate constants
 	def initialize(self, sim, kb):
-		super(Mass, self).initialize(sim, kb)
+		super(MoleculeCounts, self).initialize(sim, kb)
 
 		self.complexation = sim.getProcess("Complexation")
 
