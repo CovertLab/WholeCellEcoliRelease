@@ -11,6 +11,7 @@ State which represents the copy numbers of a class of molecules as an array
 """
 
 import numpy
+import re
 
 import wholecell.sim.state.State
 
