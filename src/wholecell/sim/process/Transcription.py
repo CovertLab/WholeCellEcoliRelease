@@ -17,13 +17,13 @@ import wholecell.sim.process.Process
 class Transcription(wholecell.sim.process.Process.Process):
 	""" Transcription """
 
-	meta = {
-		"id": "Transcription",
-		"name": "Transcription"
-	}
-
 	# Constructor
 	def __init__(self):
+		self.meta = {
+		"id": "Transcription",
+		"name": "Transcription"
+		}
+		
 		# References to states
 		self.metabolite = None
 		self.rna = None

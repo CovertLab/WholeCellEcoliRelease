@@ -17,18 +17,17 @@ import wholecell.sim.state.State
 class Metabolism(wholecell.sim.state.State.State):
 	""" Metabolism """
 
-	meta = {
-		"id": "Metabolism",
-		"name": "Metabolism",
-		"dynamics": ["growth", "fluxes"],
-		"units": {
-			"growth": "fg/h",
-			"fluxes": "reactions/s"
-			}
-	}
-
 	# Constructor
 	def __init__(self, *args, **kwargs):
+		self.meta = {
+			"id": "Metabolism",
+			"name": "Metabolism",
+			"dynamics": ["growth", "fluxes"],
+			"units": {
+				"growth": "fg/h",
+				"fluxes": "reactions/s"
+				}
+		}
 		# State, process references
 		self.moleculeCounts = None
 		self.metabolism = None

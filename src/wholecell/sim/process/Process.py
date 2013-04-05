@@ -15,10 +15,11 @@ import inspect
 class Process(object):
 	""" Process """
 
-	meta = {}
-
 	# Constructor
 	def __init__(self):
+		if not hasattr(self, "meta"):
+			self.meta = {}
+
 		# Constants
 		self.timeStepSec = None
 

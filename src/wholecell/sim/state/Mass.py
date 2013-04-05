@@ -17,20 +17,6 @@ import wholecell.sim.state.State
 class Mass(wholecell.sim.state.State.State):
 	""" Mass """
 
-	meta = {
-		"id": "Mass",
-		"name": "Mass",
-		"dynamics": ["total", "cell", "cellDry", "metabolite", "rna", "protein"],
-		"units": {
-			"total": "fg",
-			"cell": "fg",
-			"cellDry": "fg",
-			"metabolite": "fg",
-			"rna": "fg",
-			"protein": "fg"
-			}
-	}
-
 	compartments = [
 		{"id": "c", "name": "Cytosol"},
 		{"id": "e", "name": "Extracellular space"},
@@ -40,6 +26,20 @@ class Mass(wholecell.sim.state.State.State):
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
+		self.meta = {
+			"id": "Mass",
+			"name": "Mass",
+			"dynamics": ["total", "cell", "cellDry", "metabolite", "rna", "protein"],
+			"units": {
+				"total": "fg",
+				"cell": "fg",
+				"cellDry": "fg",
+				"metabolite": "fg",
+				"rna": "fg",
+				"protein": "fg"
+				}
+		}
+
 		# References to other states
 		self.moleculeCounts = None
 

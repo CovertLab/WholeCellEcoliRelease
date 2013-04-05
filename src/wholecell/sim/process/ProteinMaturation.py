@@ -17,13 +17,13 @@ import wholecell.sim.process.Process
 class ProteinMaturation(wholecell.sim.process.Process.Process):
 	""" ProteinMaturation """
 
-	meta = {
-		"id": "ProteinMaturation",
-		"name": "ProteinMaturation",
-	}
-
 	# Constructor
 	def __init__(self):
+		self.meta = {
+			"id": "ProteinMaturation",
+			"name": "ProteinMaturation",
+		}
+
 		# References to states
 		self.nascentProteinMonomer = None
 		self.matureProteinMonomer = None

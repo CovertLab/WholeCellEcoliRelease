@@ -17,13 +17,13 @@ import wholecell.sim.process.Process
 class RnaDegradation(wholecell.sim.process.Process.Process):
 	""" RnaDegradation """
 
-	meta = {
-		"id": "RnaDegradation",
-		"name": "RNA degradation"
-	}
-
 	# Constructor
 	def __init__(self):
+		self.meta = {
+			"id": "RnaDegradation",
+			"name": "RNA degradation"
+		}
+
 		# References to states
 		self.metabolite = None
 		self.rna = None
@@ -57,8 +57,8 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		self.rnaLens = numpy.sum(numpy.array([x["ntCount"] for x in kb.rnas] * 2), axis = 1)
 
-		self.rnaDegSMat = numpy.zeros(len(self.metabolite.ids), len(self.rna.ids))
-		self.rnaDegSMat[self.metabolite.idx["nmps"], :] = numpy.array([x["ntCount"] for x in kb.rnas] * 2)
+		self.rnaDegSMat = numpy.zeros((len(self.metabolite.ids), len(self.rna.ids)))
+		self.rnaDegSMat[self.metabolite.idx["nmps"], :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
 		self.rnaDegSMat[self.metabolite.idx["h2o"], :]  = -(numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
 		self.rnaDegSMat[self.metabolite.idx["h"], :]    =  (numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
 

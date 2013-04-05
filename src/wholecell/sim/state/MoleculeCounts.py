@@ -18,15 +18,6 @@ import wholecell.sim.state.State
 class MoleculeCounts(wholecell.sim.state.State.State):
 	""" MoleculeCounts """
 
-	meta = {
-		"id": "MoleculeCounts",
-		"name": "Molecule Counts",
-		"dynamics": ["counts"],
-		"units": {"counts": "molecules"}
-	}
-
-
-
 	compartments = [
 		{"id": "c", "name": "Cytosol"},
 		{"id": "e", "name": "Extracellular space"},
@@ -40,6 +31,13 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
+		self.meta = {
+			"id": "MoleculeCounts",
+			"name": "Molecule Counts",
+			"dynamics": ["counts"],
+			"units": {"counts": "molecules"}
+		}
+
 		# References to processes
 		self.complexation = None
 
@@ -239,11 +237,11 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		if len(set(iMolFormComp)) < len(iMolFormComp):
 			raise Exception, "Partition request cannot contain duplicate ids"
 
-		partition.ids = self.ids[iMolForm]
-		partition.names = self.names[iMolForm]
-		partition.forms = self.forms[iMolForm]
-		partition.types = self.types[iMolForm]
-		partition.mws = self.mws[iMolForm]
+		partition.ids = [self.ids[i] for i in iMolForm]
+		partition.names = [self.ids[i] for i in iMolForm]
+		partition.forms = [self.forms[i] for i in iMolForm]
+		partition.types = [self.types[i] for i in iMolForm]
+		partition.mws = [self.mws[i] for i in iMolForm]
 
 		partition.mapping = iMolFormComp
 		partition.reqFunc = reqFunc
@@ -314,10 +312,12 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		if self.parentState == None:
 			return self.getIndex_parent(ids)
 		else:
-			idxs = numpy.array([self.mapping.index(x) for x in self.parentState.getIndex(ids)[0]])
+			mappingList = list(self.mapping)
+			try:
+				idxs = numpy.array([mappingList.index(x) for x in self.parentState.getIndex(ids)[0]])
+			except ValueError, e:
+				raise Exception, "Invalid index:\n%s" % x
 			compIdxs = numpy.ones(idxs.shape)
-			if not numpy.all(idxs):
-				raise Exception, "Invalid ids:\n%s" % ", ".join(ids[idxs == 0])	 # TODO: Probably need to fix this line
 			return idxs, idxs, compIdxs
 
 	def getIndex_parent(self, ids):
@@ -332,7 +332,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 				raise Exception, "Invalid id: %s" % thisId
 			
 			if match.group("form") == None:
-				idForm = [match.group("molecule"), 1]
+				idForm = [match.group("molecule"), 0]
 			else:
 				idForm = [match.group("molecule"), self.formVals[match.group("form")[1:]]]
 			idForms.append(idForm)
@@ -343,18 +343,19 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 				comps.append(match.group("compartment")[1:-1])
 
 		compIds =[x["id"] for x in self.compartments] 
-		compIdxs = numpy.array([compIds.index(x) for x in comps])
-		if not numpy.all(compIdxs):
-			raise Exception, "Invalid compartment"
+		try:
+			compIdxs = numpy.array([compIds.index(x) for x in comps])
+		except ValueError, e:
+			raise Exception, "Invalid compartment: \n%s" % x
 
 		idFormStr = [x[0] + ":" + str(x[1]) for x in idForms]
 		allIds = [x[0] + ":" + str(x[1]) for x in zip(self.ids, self.forms)]
-		idFormIdxs = [allIds.index(x) for x in idFormStr]
-		if not numpy.all(idFormIdxs):
-			badIdFormStr = [x[0] + ":" + str(x[1]) for x in zip(idForms, idFormIdxs) if idFormIdxs == 0]
-			raise Exception, "Invalid id/form: \n%s" % ", ".join(badIdFormStr)
+		try:
+			idFormIdxs = [allIds.index(x) for x in idFormStr]
+		except Exception, e:
+			raise Exception, "Invalid id/form: \n%s" % x
 
-		idxs = numpy.ravel_multi_index(numpy.array(idFormIdxs, compIdxs), (len(self.ids), len(self.compartments)))
-		idxs = numpy.reshape(idxs, ids.shape)
+		idxs = numpy.ravel_multi_index(numpy.array([idFormIdxs, compIdxs]), (len(self.ids), len(self.compartments)))
+		#idxs = numpy.reshape(idxs, ids.shape)
 
 		return idxs, idFormIdxs, compIdxs

@@ -17,13 +17,13 @@ import wholecell.sim.process.Process
 class Complexation(wholecell.sim.process.Process.Process):
 	""" Complexation """
 
-	meta = {
-		"id": "Complexation",
-		"name": "Macromolecular complexation",
-	}
-
 	# Constructor
 	def __init__(self):
+		self.meta = {
+			"id": "Complexation",
+			"name": "Macromolecular complexation",
+		}
+
 		# References to states
 		self.subunit = None
 		self.complex = None
@@ -35,7 +35,7 @@ class Complexation(wholecell.sim.process.Process.Process):
 		super(Complexation, self).initialize(sim, kb)
 
 		# Complex
-		complexes = [x for x in kb.proteins if x["monomer"] == "False" and x["formationProcess"] == self.meta["id"]]
+		complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]
 		self.complex = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":mature[" + x["compartment"] + "]" for x in complexes],
 			self.calcReqComplex)
@@ -57,7 +57,7 @@ class Complexation(wholecell.sim.process.Process.Process):
 				tmpSMat.append([s["molecule"] + ":mature[" + s["compartment"] + "]", iComplex, -s["coeff"]])
 
 		subIdx = self.subunit.getIndex([x[0] for x in tmpSMat])[0]
-		self.sMat = numpy.zeros(len(subIdComps), len(complexes))
+		self.sMat = numpy.zeros((len(subIdComps), len(complexes)))
 		self.sMat[subIdx, numpy.array([x[1] for x in tmpSMat])] = numpy.array([x[2] for x in tmpSMat])
 
 	# Calculate needed proteins (subunits)

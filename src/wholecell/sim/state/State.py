@@ -11,15 +11,17 @@ State variable base class. Defines the interface states expose to the simulation
 """
 
 import inspect
+import copy
 
 class State(object):
 	""" State """
 
-	# Metadata: id, name, list of dynamic properties, units
-	meta = {}
-
 	# Constructor
 	def __init__(self, propVals = {}):
+		# Metadata: id, name, list of dynamic properties, units
+		if not hasattr(self, "meta"):
+			self.meta = {}
+
 		# -- Partitioning --
 		# Used by parent
 		self.partitions = []
@@ -57,11 +59,15 @@ class State(object):
 
 		# TODO: May need to modify this depending on how concrete states are implemented (e.g. dependent variables)
 		for prop, data in inspect.getmembers(self):
-			if not callable(data):
-				propVals[name] = data
+			if not callable(data) and (prop[0:2] != "__" and prop[-2:] != "__") and prop != "partitions":
+				if not "wholecell" in str(type(data)):
+					print "Deep copying property [%s] in state %s for process %s" % (prop, self.meta["name"], process.meta["name"])
+					propVals[prop] = copy.deepcopy(data)
+				else:
+					propVals[prop] = data
 
-		propVals["meta"]["id"] = "%s_%s" % (propVals["meta"]["id"], process["meta"]["id"])
-		propVals["meta"]["name"] = "%s - %s" % (propVals["meta"]["name"], process["meta"]["name"])
+		propVals["meta"]["id"] = "%s_%s" % (propVals["meta"]["id"], process.meta["id"])
+		propVals["meta"]["name"] = "%s - %s" % (propVals["meta"]["name"], process.meta["name"])
 
 		propVals["partitions"] = []
 		propVals["parentState"] = self

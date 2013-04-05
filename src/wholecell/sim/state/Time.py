@@ -17,15 +17,15 @@ import wholecell.sim.state.State
 class Time(wholecell.sim.state.State.State):
 	""" Time """
 
-	meta = {
-		"id": "Time",
-		"name": "Time",
-		"dynamics": ["value"],
-		"units": {"value": "s"}
-	}
-
 	# Constructor
 	def __init__(self, *args, **kwargs):
+		self.meta = {
+			"id": "Time",
+			"name": "Time",
+			"dynamics": ["value"],
+			"units": {"value": "s"}
+		}
+
 		self.value = None
 		super(Time, self).__init__(*args, **kwargs)
 

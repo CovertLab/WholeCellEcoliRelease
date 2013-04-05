@@ -17,13 +17,13 @@ import wholecell.sim.process.Process
 class Translation(wholecell.sim.process.Process.Process):
 	""" Translation """
 
-	meta = {
-		"id": "Translation",
-		"name": "Translation"
-	}
-
 	# Constructor
 	def __init__(self):
+		self.meta = {
+			"id": "Translation",
+			"name": "Translation"
+		}
+		
 		# References to states
 		self.metabolite = None
 		self.mrna = None

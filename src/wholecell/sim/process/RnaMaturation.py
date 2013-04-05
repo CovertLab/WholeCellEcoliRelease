@@ -17,13 +17,13 @@ import wholecell.sim.process.Process
 class RnaMaturation(wholecell.sim.process.Process.Process):
 	""" RnaMaturation """
 
-	meta = {
-		"id": "RnaMaturation",
-		"name": "RNA maturation"
-	}
-
 	# Constructor
 	def __init__(self):
+		self.meta = {
+			"id": "RnaMaturation",
+			"name": "RNA maturation"
+		}
+
 		# References to states
 		self.nascentRna = None
 		self.matureRna = None
