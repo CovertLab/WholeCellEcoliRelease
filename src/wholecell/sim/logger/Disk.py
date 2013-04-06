@@ -124,7 +124,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		for state in sim.states:
 			stateId = state.meta["id"]
 			self.stateLog[stateId] = {}
-			for prop in s.meta["dynamics"]:
+			for prop in state.meta["dynamics"]:
 				self.stateLog[stateId][prop] = numpy.zeros(numpy.shape(state[prop]) + (nSteps,))
 
 		# Random stream

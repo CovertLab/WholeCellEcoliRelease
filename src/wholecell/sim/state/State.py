@@ -12,6 +12,7 @@ State variable base class. Defines the interface states expose to the simulation
 
 import inspect
 import copy
+import numpy
 
 class State(object):
 	""" State """
@@ -61,7 +62,7 @@ class State(object):
 		for prop, data in inspect.getmembers(self):
 			if not callable(data) and (prop[0:2] != "__" and prop[-2:] != "__") and prop != "partitions":
 				if not "wholecell" in str(type(data)):
-					print "Deep copying property [%s] in state %s for process %s" % (prop, self.meta["name"], process.meta["name"])
+					# print "Deep copying property [%s] in state %s for process %s" % (prop, self.meta["name"], process.meta["name"])
 					propVals[prop] = copy.deepcopy(data)
 				else:
 					propVals[prop] = data
@@ -92,7 +93,7 @@ class State(object):
 			nNewVal = 0
 
 			for partition in self.partitions:
-				if oldVal != getattr(partition, dynamic):
+				if not numpy.array_equal(oldVal, getattr(partition, dynamic)):
 					newVal = getattr(partition, dynamic)
 					nNewVal += 1
 

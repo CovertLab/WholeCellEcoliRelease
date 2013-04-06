@@ -74,15 +74,21 @@ class Complexation(wholecell.sim.process.Process.Process):
 
 	# Gillespie-like algorithm
 	def calcNewComplexes(self, subunits, complexes, leap):
+		import warnings
+		warnings.simplefilter("ignore", RuntimeWarning)	# Supress warnings about divide by zero
 		# TODO: Implement tau leaping correctly
 		while True:
 			# Calculate rates
-			rates = numpy.floor(numpy.nanmin(		# For each complex, set its rate to be that of its limiting subunit
-				subunits / self.sMat				# Note: Numpy's broadcasting mechanisms tile subunits to be the shape of sMat
+			rates = numpy.floor(numpy.nanmin(			# For each complex, set its rate to be that of its limiting subunit
+				subunits.reshape((-1,1)) / self.sMat	# Note: Numpy's broadcasting mechanisms tile subunits to be the shape of sMat
 				, axis = 0))
 			totRate = numpy.sum(rates)
 			rates /= totRate
-			if totRate < 0:
+			# i += 1
+			# if i > 50:
+			# 	import ipdb
+			# 	ipdb.set_trace()
+			if totRate <= 0:
 				break
 
 			# Check if sufficient metabolic resources to make protein
@@ -95,3 +101,4 @@ class Complexation(wholecell.sim.process.Process.Process):
 
 			# Increment complexes
 			complexes += newCnts
+		return subunits, complexes

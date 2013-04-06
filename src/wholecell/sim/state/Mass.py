@@ -63,12 +63,12 @@ class Mass(wholecell.sim.state.State.State):
 	def allocate(self):
 		super(Mass, self).allocate()
 
-		self.total = numpy.zeros((1, len(self.compartments)))
-		self.cell = numpy.zeros((1, len(self.compartments)))
-		self.cellDry = numpy.zeros((1, len(self.compartments)))
-		self.metabolite = numpy.zeros((1, len(self.compartments)))
-		self.rna = numpy.zeros((1, len(self.compartments)))
-		self.protein = numpy.zeros((1, len(self.compartments)))
+		self.total = numpy.zeros(len(self.compartments))
+		self.cell = numpy.zeros(len(self.compartments))
+		self.cellDry = numpy.zeros(len(self.compartments))
+		self.metabolite = numpy.zeros(len(self.compartments))
+		self.rna = numpy.zeros(len(self.compartments))
+		self.protein = numpy.zeros(len(self.compartments))
 
 	# Calculate (and cache) any dependent properties
 	def calculate(self):
@@ -80,14 +80,16 @@ class Mass(wholecell.sim.state.State.State):
 		self.total = ( numpy.dot(mc.mws, mc.counts) ) / Constants.nAvogadro * 1e15
 
 		# Cell
-		self.metabolite = ( numpy.dot(mc.mws[mc.types == mc.typeVals.metabolite], mc.counts[mc.types == mc.typeVals.metabolite]) ) / Constants.nAvogadro * 1e15
-		self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals.rna       ], mc.counts[mc.types == mc.typeVals.rna       ]) ) / Constants.nAvogadro * 1e15
-		self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals.protein   ], mc.counts[mc.types == mc.typeVals.protein   ]) ) / Constants.nAvogadro * 1e15
+		# import ipdb
+		# ipdb.set_trace()
+		self.metabolite = ( numpy.dot(mc.mws[mc.types == mc.typeVals["metabolite"]], mc.counts[mc.types == mc.typeVals["metabolite"]]) ) / Constants.nAvogadro * 1e15
+		self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals["rna"]       ], mc.counts[mc.types == mc.typeVals["rna"]       ]) ) / Constants.nAvogadro * 1e15
+		self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals["protein"]   ], mc.counts[mc.types == mc.typeVals["protein"]   ]) ) / Constants.nAvogadro * 1e15
 
-		cIdxs = numpy.array([self.cIdx.c, self.cIdx.m])
+		cIdxs = numpy.array([self.cIdx["c"], self.cIdx["m"]])
 
 		self.cell[:] = 0
-		this.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
+		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
-		self.cellDry[cIdxs] = self.cell[cIdxs] - ( numpy.dot(mc.mws[mc.idx.h2o], mc.counts[mc.idx.h2o, cIdxs]) ) / Constants.nAvogadro * 1e15
+		self.cellDry[cIdxs] -= ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15

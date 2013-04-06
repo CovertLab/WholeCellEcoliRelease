@@ -241,7 +241,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Calculate flux bounds
-		bounds = self.calcFluxBounds[self.metabolite.counts, self.enzyme.counts]
+		bounds = self.calcFluxBounds(self.metabolite.counts, self.enzyme.counts)
 
 		# Calculate growth rate
 		self.metabolism.growth, self.metabolism.fluxes, exRates = self.calcGrowthRate(bounds)
@@ -260,13 +260,13 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			+ numpy.array([-1.0, -1.0, 1.0, 1.0, 1.0]) * self.randStream.stochasticRound(self.unaccountedEnergyConsumption * growth_cellPerSec * self.timeStepSec)
 
 		# Make copy numbers positive
-		self.metabolite.counts = numpy.max(0, self.metabolite.counts)
+		self.metabolite.counts = numpy.maximum(0, self.metabolite.counts)
 
 	def calcGrowthRate(self, bounds):
 		import wholecell.util.linearProgramming as linearProgramming
 
 		# Cap bounds
-		bounds["lo"] = numpy.mininum(0, numpy.maximum(bounds["lo"] * self.timeStepSec, -self.realMax))
+		bounds["lo"] = numpy.minimum(0, numpy.maximum(bounds["lo"] * self.timeStepSec, -self.realMax))
 		bounds["up"] = numpy.maximum(0, numpy.minimum(bounds["up"] * self.timeStepSec,  self.realMax))
 
 		# Flux-balance analysis
@@ -281,9 +281,9 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		# extract growth, real fluxes
 		x /= self.timeStepSec
-		growth = x[self.rxnIdx["growth"]] * 3600 * self.avgCellInitMass
-		fluxes = x[self.rxnIdx["real"]]
-		exchangeRates = x[self.rxnIdx["exchange"]]
+		growth = x[self.rxnIdx["growth"]].reshape(-1) * 3600 * self.avgCellInitMass
+		fluxes = x[self.rxnIdx["real"]].reshape(-1)
+		exchangeRates = x[self.rxnIdx["exchange"]].reshape(-1)
 
 		return growth, fluxes, exchangeRates
 

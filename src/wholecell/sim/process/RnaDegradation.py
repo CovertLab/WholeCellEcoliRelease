@@ -87,5 +87,5 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 			return
 
 		# Degrade RNA
-		self.metabolite.counts += self.rnaDegSMat * self.rna.counts
+		self.metabolite.counts += numpy.dot(self.rnaDegSMat, self.rna.counts)
 		self.rna.counts[:] = 0

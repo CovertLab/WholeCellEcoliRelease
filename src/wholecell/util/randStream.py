@@ -139,7 +139,7 @@ class randStream(object):
 		roundUp = self.rand(valueRavel.size) < (valueRavel % 1)
 		valueRavel[roundUp] = numpy.ceil(valueRavel[roundUp])
 		valueRavel[~roundUp] = numpy.floor(valueRavel[~roundUp])
-		if valueShape != ():
+		if valueShape != () and len(valueShape) > 1:
 			return numpy.unravel_index(valueRavel, valueShape)
 		else:
 			return valueRavel

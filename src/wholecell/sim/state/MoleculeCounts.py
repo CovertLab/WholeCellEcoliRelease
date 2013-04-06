@@ -114,13 +114,13 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			[x["name"] for x in kb.proteins] + \
 			[x["name"] for x in kb.proteins]
 		
-		self.mws = \
+		self.mws = numpy.array(
 			[x["mw"] for x in kb.metabolites] + \
 			[x["mw"] for x in kb.rnas] + \
 			[x["mw"] for x in kb.rnas] + \
 			[x["mw"] for x in kb.proteins] + \
 			[x["mw"] for x in kb.proteins]
-		
+		)
 
 		self.idx["ntps"] = self.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[1]
 		self.idx["ndps"] = self.getIndex(["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"])[1]
@@ -210,15 +210,15 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		# Macromolecular complexation
 		c = self.complexation
 
-		c.subunit.counts = self.counts[c.subunit.mapping]
-		c.complex.counts = self.counts[c.complex.mapping]
+		c.subunit.counts = self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)]
+		c.complex.counts = self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)]
 
 		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 100)
 		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 10)
 		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1)
 
-		self.counts[c.subunit.mapping] = c.subunit.counts
-		self.counts[c.complex.mapping] = c.complex.counts
+		self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)] = c.subunit.counts
+		self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)] = c.complex.counts
 
 	# -- Partitioning into substates --
 
@@ -241,7 +241,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		partition.names = [self.ids[i] for i in iMolForm]
 		partition.forms = [self.forms[i] for i in iMolForm]
 		partition.types = [self.types[i] for i in iMolForm]
-		partition.mws = [self.mws[i] for i in iMolForm]
+		partition.mws = numpy.array([self.mws[i] for i in iMolForm])
 
 		partition.mapping = iMolFormComp
 		partition.reqFunc = reqFunc
@@ -252,35 +252,35 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 	# Prepare to partition state among processes
 	def prepartition(self):
 		for partition in self.partitions:
-			partition.fullCounts = self.counts(partition.mapping)
+			partition.fullCounts = self.counts[numpy.unravel_index(partition.mapping, self.counts.shape)]
 
 	# Partition state among processes
 	def partition(self):
 		# Calculate requests
-		touchs = numpy.zeros(self.counts.shape + (len(partitions),))
-		reqs = numpy.zeros(self.counts.shape + (len(partitions),))
+		touchs = numpy.zeros(self.counts.shape + (len(self.partitions),))
+		reqs = numpy.zeros(self.counts.shape + (len(self.partitions),))
 
 		for iPartition in xrange(len(self.partitions)):
 			partition = self.partitions[iPartition]
 
 			if not partition.isReqAbs:
 				touch = numpy.zeros(self.counts.shape)
-				touch[partition.mapping] = 1
+				touch[numpy.unravel_index(partition.mapping, touch.shape)] = 1
 				touchs[:, :, iPartition] = touch
 
 			req = numpy.zeros(self.counts.shape)
-			req[partition.mapping] = numpy.maximum(0, partition.reqFunc())	# TODO: Fix this line depending on reqFunc's return statement
+			req[numpy.unravel_index(partition.mapping, req.shape)] = numpy.maximum(0, partition.reqFunc())	# TODO: Fix this line depending on reqFunc's return statement
 			reqs[:, :, iPartition] = req
 
 		tmp = numpy.array([x.isReqAbs for x in self.partitions])
 		absReqs = numpy.sum(reqs[:, :, tmp], axis = 2)
 		relReqs = numpy.sum(reqs[:, :, numpy.logical_not(tmp)], axis = 2)
 
-		absScale = numpy.maximum(0, numpy.minimum(numpy.minimum(self.counts, absReqs) / absReqs, 1))
-		relScale = numpy.maximum(0, numpy.maximum(0, self.counts - absReqs) / relReqs)
+		absScale = numpy.fmax(0, numpy.minimum(numpy.minimum(self.counts, absReqs) / absReqs, 1))
+		relScale = numpy.fmax(0, numpy.maximum(0, self.counts - absReqs) / relReqs)
 		relScale[relReqs == 0] = 0
 
-		unReqs = numpy.maximum(0, self.counts - absReqs) / numpy.sum(touchs, axis = 2) * relReqs == 0
+		unReqs = numpy.fmax(0, self.counts - absReqs) / numpy.sum(touchs, axis = 2) * (relReqs == 0)
 		unReqs[numpy.sum(touchs, axis = 2) == 0] = 0
 
 		for iPartition in xrange(len(self.partitions)):
@@ -293,17 +293,17 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 			alloc = numpy.floor(reqs[:, :, iPartition] * scale + unReqs * touchs[:, :, iPartition])
 			self.partitionedCounts[:, :, iPartition] = alloc
-			partition.counts = alloc[partition.mapping]
+			partition.counts = alloc[numpy.unravel_index(partition.mapping, alloc.shape)]
 
 			# TODO: Allocate unpartitioned molecules
-			self.unpartitionedCounts = self.counts - numpy.sum(partitionedCounts, axis = 2)
+			self.unpartitionedCounts = self.counts - numpy.sum(self.partitionedCounts, axis = 2)
 
 	# Merge sub-states partitioned to processes
 	def merge(self):
 		self.counts = self.unpartitionedCounts
 		for partition in self.partitions:
 			cnt = numpy.zeros(self.counts.shape)
-			cnt[partition.mapping] = partition.counts
+			cnt[numpy.unravel_index(partition.mapping, cnt.shape)] = partition.counts
 			self.counts += cnt
 
 

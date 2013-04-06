@@ -20,6 +20,7 @@ Example call (trivial solution):
 """
 
 import cvxopt
+import cvxopt.solvers
 import numpy
 
 def linearProgramming(maximizeFlag, f, A, b, lb, ub, constraintTypes, variableTypes, options):
