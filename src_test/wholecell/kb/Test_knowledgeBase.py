@@ -10,6 +10,8 @@ import unittest
 import warnings
 
 import numpy
+import cPickle
+import os
 import wholecell.kb.KnowledgeBase
 
 class Test_randStream(unittest.TestCase):
@@ -23,9 +25,11 @@ class Test_randStream(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		# TODO: Load fixture instead
-		self.kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
-															 seqFileName = "data/KnowledgeBase.fna")
+		self.kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
+		
+		# To load from the "raw" data, uncomment the following:
+		# self.kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
+		# 													 seqFileName = "data/KnowledgeBase.fna")
 
 	def tearDown(self):
 		pass
