@@ -14,7 +14,7 @@ import cPickle
 import os
 import wholecell.kb.KnowledgeBase
 
-class Test_randStream(unittest.TestCase):
+class Test_KnowledgeBase(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
@@ -26,7 +26,7 @@ class Test_randStream(unittest.TestCase):
 
 	def setUp(self):
 		self.kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
-		
+
 		# To load from the "raw" data, uncomment the following:
 		# self.kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
 		# 													 seqFileName = "data/KnowledgeBase.fna")
