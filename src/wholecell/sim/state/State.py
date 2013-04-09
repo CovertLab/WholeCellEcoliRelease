@@ -112,8 +112,9 @@ class State(object):
 
 	def getOptions(self):
 		val = {}
-		for opt in self.meta["options"]:
-			val[opt] = getattr(self, opt)
+		if self.meta.has_key("options"):
+			for opt in self.meta["options"]:
+				val[opt] = getattr(self, opt)
 		return val
 
 	def setOptions(self, val):
@@ -126,8 +127,9 @@ class State(object):
 
 	def getParameters(self):
 		val = {}
-		for param in self.meta["parameters"]:
-			val[param] = getattr(self, param)
+		if self.meta.has_key("parameters"):
+			for param in self.meta["parameters"]:
+				val[param] = getattr(self, param)
 		return val
 
 	def setParameters(self, val):

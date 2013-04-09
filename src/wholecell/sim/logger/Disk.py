@@ -15,6 +15,7 @@ import os
 import os.path
 import time
 import cPickle # TODO: Consider using shelve
+import numpy
 
 import wholecell.sim.logger.Logger
 
@@ -33,7 +34,8 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		self.outDir = outDir
 		self.segmentLen = segmentLen
 
-		os.makedirs(self.outDir)
+		if not os.path.exists(self.outDir):
+			os.makedirs(self.outDir)
 
 		for f in os.listdir(self.outDir):
 			if f.lower().endswith(".cpickle"):
@@ -125,7 +127,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 			stateId = state.meta["id"]
 			self.stateLog[stateId] = {}
 			for prop in state.meta["dynamics"]:
-				self.stateLog[stateId][prop] = numpy.zeros(numpy.shape(state[prop]) + (nSteps,))
+				self.stateLog[stateId][prop] = [] #numpy.zeros(numpy.shape(getattr(state, prop)) + (nSteps,))
 
 		# Random stream
 		self.randStreamLog = []
@@ -141,23 +143,26 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		for state in sim.states:
 			stateId = state.meta["id"]
 			for prop in state.meta["dynamics"]:
-				self.stateLog[stateId][prop][:, :, self.iStep] = getattr(state, prop)
+				if self.stateLog[stateId][prop] == []:
+					self.stateLog[stateId][prop] = getattr(state, prop)
+				else:
+					self.stateLog[stateId][prop] = numpy.dstack((self.stateLog[stateId][prop], getattr(state, prop)))
 
 		# Random stream
 		self.randStreamLog.append(sim.randStream.state)
 
 	def saveSegmentToDisk(self):
 		# Dynamics
-		cPickle.dump(self.stateLog, os.path.join(self.outDir, "state-%d.cPickle" % (self.iSegment)), protocol = cPickle.HIGHEST_PROTOCOL)
+		cPickle.dump(self.stateLog, open(os.path.join(self.outDir, "state-%d.cPickle" % (self.iSegment)), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 		# Random stream
-		cPickle.dump(self.randStreamLog, os.path.join(self.outDir, "randStream-%d.cPickle" % (self.iSegment)), protocol = cPickle.HIGHEST_PROTOCOL)
+		cPickle.dump(self.randStreamLog, open(os.path.join(self.outDir, "randStream-%d.cPickle" % (self.iSegment)), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	def saveMetadata(self, options, parameters):
 		metadata = self.metadata
-		cPickle.dump(metadata, os.path.join(self.outDir, "metadata.cPickle"), protocol = cPickle.HIGHEST_PROTOCOL)
-		cPickle.dump(options, os.path.join(self.outDir, "options.cPickle"), protocol = cPickle.HIGHEST_PROTOCOL)
-		cPickle.dump(parameters, os.path.join(self.outDir, "parameters.cPickle"), protocol = cPickle.HIGHEST_PROTOCOL)
+		cPickle.dump(metadata, open(os.path.join(self.outDir, "metadata.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
+		cPickle.dump(options, open(os.path.join(self.outDir, "options.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
+		cPickle.dump(parameters, open(os.path.join(self.outDir, "parameters.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	# TODO: Write this method after we actually have some data to work with
 	@classmethod
