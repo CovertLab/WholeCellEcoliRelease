@@ -177,11 +177,12 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 	def allocate(self):
 		super(MoleculeCounts, self).allocate()
 
-		self.counts = numpy.zeros((len(self.ids), len(self.compartments)))
 		if self.parentState == None:
+			self.counts = numpy.zeros((len(self.ids), len(self.compartments)))
 			self.partitionedCounts = numpy.zeros((len(self.ids), len(self.compartments), len(self.partitions)))
 			self.unpartitionedCounts = numpy.zeros((len(self.ids), len(self.compartments)))
 		else:
+			self.counts = numpy.zeros(len(self.ids))
 			self.fullCounts = numpy.zeros((len(self.ids), len(self.compartments)))
 	
 	# Calculate initial conditions

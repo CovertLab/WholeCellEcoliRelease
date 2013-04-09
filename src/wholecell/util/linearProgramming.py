@@ -45,7 +45,7 @@ def linearProgramming(maximizeFlag, f, A, b, lb, ub, constraintTypes, variableTy
 		raise Exception, "Passing GLPK options is not currently supported."
 
 	if maximizeFlag.lower() == "maximize":
-		f *= -1.0
+		f = f * (-1.0)			# DO *****NOT***** DO "*=" AS THAT WILL PERFORM MODIFICATION IN PLACE
 
 	m, n = A.shape
 	G = numpy.concatenate([numpy.identity(n), -1 * numpy.identity(n)], axis = 0)

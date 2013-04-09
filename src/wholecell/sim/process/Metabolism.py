@@ -74,8 +74,8 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			e = r["enzyme"]
 			if type(e) == dict:
 				enzIds.append("%s:%s[%s]" % (e["id"], e["form"], e["compartment"]))
-		molIds = list(set(molIds))
-		enzIds = list(set(enzIds))
+		molIds = sorted(list(set(molIds)))
+		enzIds = sorted(list(set(enzIds)))
 
 		# Partitions
 		self.metabolism = sim.getState("Metabolism").addPartition(self)
