@@ -228,7 +228,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		partition = super(MoleculeCounts, self).addPartition(process)
 
 		# Clear inherited properties only valid on parent
-		partition.compartments = {"id": "merged__", "name": "merged"}
+		partition.compartments = {"id": "merged__", "name": "merged"}			# TODO: Make this a list and fix allocate()
 		partition.partitionedCounts = None
 		partition.unpartitionedCounts = None
 		partition.idx = {}

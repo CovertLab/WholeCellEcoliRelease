@@ -80,8 +80,6 @@ class Mass(wholecell.sim.state.State.State):
 		self.total = ( numpy.dot(mc.mws, mc.counts) ) / Constants.nAvogadro * 1e15
 
 		# Cell
-		# import ipdb
-		# ipdb.set_trace()
 		self.metabolite = ( numpy.dot(mc.mws[mc.types == mc.typeVals["metabolite"]], mc.counts[mc.types == mc.typeVals["metabolite"]]) ) / Constants.nAvogadro * 1e15
 		self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals["rna"]       ], mc.counts[mc.types == mc.typeVals["rna"]       ]) ) / Constants.nAvogadro * 1e15
 		self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals["protein"]   ], mc.counts[mc.types == mc.typeVals["protein"]   ]) ) / Constants.nAvogadro * 1e15
@@ -92,4 +90,4 @@ class Mass(wholecell.sim.state.State.State):
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
-		self.cellDry[cIdxs] -= ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15
+		self.cellDry[cIdxs] = self.cell[cIdxs] - ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15

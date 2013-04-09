@@ -62,7 +62,5 @@ class Metabolism(wholecell.sim.state.State.State):
 		bounds = met.calcFluxBounds(
 			mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[numpy.unravel_index(met.enzyme.mapping, mc.counts.shape)]
 			)
-		import ipdb
-		ipdb.set_trace()
 
 		self.growth, self.fluxes = met.calcGrowthRate(bounds)[0:2]
