@@ -108,9 +108,9 @@ class Transcription(wholecell.sim.process.Process.Process):
 					break
 
 			# Update metabolites
-			self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :]
+			self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 			self.metabolite.counts[self.metabolite.idx["h2o"]] -= 1
-			self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens(newIdx)
+			self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens[newIdx]
 			self.metabolite.counts[self.metabolite.idx["h"]] += 1
 
 			# Increment RNA
