@@ -180,7 +180,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		# exchange
 		metIds = [x["id"] + ":mature[e]" for x in kb.metabolites if x["id"] + ":mature[e]" in molIds]
-		metExs = numpy.array([x["maxExchangeRate"] for x in kb.metabolites if x["id"] in molIds])
+		metExs = numpy.array([x["maxExchangeRate"] for x in kb.metabolites if x["id"] + ":mature[e]" in molIds])
 
 		metIdxs = numpy.array(self.metabolite.getIndex(metIds)[0])
 		self.bounds["exchange"]["lo"][self.rxnIdx["exchange"][metIdxs]] = -metExs
