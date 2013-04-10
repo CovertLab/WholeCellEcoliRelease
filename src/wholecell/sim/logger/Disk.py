@@ -47,7 +47,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		self.metadata["endTime"] = []
 		self.metadata["lengthSec"] = []
 		self.metadata["timeStepSec"] = []
-		self.metadata["segmentLen"] = []
+		self.metadata["segmentLen"] = self.segmentLen
 
 		# -- Save initial state --
 		# Setup segment, step counters
@@ -132,6 +132,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		# Random stream
 		self.randStreamLog = []
 
+	# TODO: Is this function necessary since we're just doing dstack?
 	def contractSegment(self, sim):
 		# State
 		for state in sim.states:
@@ -143,7 +144,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		for state in sim.states:
 			stateId = state.meta["id"]
 			for prop in state.meta["dynamics"]:
-				if self.stateLog[stateId][prop] == []:
+				if self.iStep == 1:
 					self.stateLog[stateId][prop] = getattr(state, prop)
 				else:
 					self.stateLog[stateId][prop] = numpy.dstack((self.stateLog[stateId][prop], getattr(state, prop)))
@@ -164,7 +165,21 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		cPickle.dump(options, open(os.path.join(self.outDir, "options.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 		cPickle.dump(parameters, open(os.path.join(self.outDir, "parameters.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
-	# TODO: Write this method after we actually have some data to work with
 	@classmethod
-	def load(cls, dir, state, prop):
-		pass
+	def load(cls, folder, state, prop):
+		# Load metadata
+		md = cPickle.load(open(os.path.join(folder, "metadata.cPickle"), "r"))
+
+		# Load first time point
+		tmp = cPickle.load(open(os.path.join(folder, "state-0.cPickle"), "r"))
+
+		# Store initial segment
+		value = tmp[state][prop]
+
+		# Load and store subsequent segments
+		for iTime in xrange(int(md["timeStepSec"]), int(md["lengthSec"]), int(md["segmentLen"] * md["timeStepSec"])):
+			iSegment = (iTime - md["timeStepSec"]) / (md["timeStepSec"] * md["segmentLen"]) + 1
+			tmp = cPickle.load(open(os.path.join(folder, "state-%d.cPickle" % iSegment), "r"))
+			value = numpy.dstack((value, tmp[state][prop]))
+
+		return value
