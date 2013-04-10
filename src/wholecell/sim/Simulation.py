@@ -256,6 +256,7 @@ class Simulation(object):
 		val = {}
 		for state in self.states:
 			val[state.meta["id"]] = state.getDynamics()
+		return val
 
 	def setDynamics(self, val):
 		for key in val.keys():

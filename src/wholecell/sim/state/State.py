@@ -144,6 +144,7 @@ class State(object):
 		val = {}
 		for prop in self.meta["dynamics"]:
 			val[prop] = getattr(self, prop)
+		return val
 
 	def setDynamics(self, val):
 		keys = val.keys()
