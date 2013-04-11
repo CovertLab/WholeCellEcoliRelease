@@ -93,12 +93,13 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			[x["id"] for x in kb.proteins] + \
 			[x["id"] for x in kb.proteins]
 		
-		self.forms = \
+		self.forms = numpy.array(
 			[self.formVals["mature"]] * len(kb.metabolites) + \
 			[self.formVals["nascent"]] * len(kb.rnas) + \
 			[self.formVals["mature"]] * len(kb.rnas) + \
 			[self.formVals["nascent"]] * len(kb.proteins) + \
 			[self.formVals["mature"]] * len(kb.proteins)
+		)
 		
 		self.types = numpy.array(
 			[self.typeVals["metabolite"]] * len(kb.metabolites) + \
@@ -107,6 +108,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			[self.typeVals["protein"]] * len(kb.proteins) + \
 			[self.typeVals["protein"]] * len(kb.proteins) 
 		)
+		
 		self.names = \
 			[x["name"] for x in kb.metabolites] + \
 			[x["name"] for x in kb.rnas] + \
