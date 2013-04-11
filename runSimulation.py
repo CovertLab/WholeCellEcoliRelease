@@ -14,8 +14,6 @@ Example:
 """
 
 import numpy
-import matplotlib
-matplotlib.use("agg")
 import matplotlib.pyplot as plt
 
 def runSimulation(simOpts = None, diskOpts = None, kbOpts = None):
