@@ -47,6 +47,18 @@ class parse_genes:
 
 
 	def parseGeneInformation(self):
+		unmodifiedForm = {}
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_mod_tree.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t')
+
+			for row in csvreader:
+
+				if row[2] != '':
+					unmodifiedForm[row[1]] = True
+				else:
+					unmodifiedForm[row[1]] = False
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
 			for row in csvreader:
@@ -61,19 +73,31 @@ class parse_genes:
 					newGene.length = None
 				newGene.direction = row[4]
 
+				allProducts = self.splitBigBracket(row[5])
+
+				for product in allProducts:
+					props = self.splitSmallBracket(product)
+
+					if not unmodifiedForm[props['frameId']]:
+						if newGene.productFrameId != None:
+							raise Exception, 'More than one unmodified product!'
+						newGene.productFrameId = props['frameId']
+
 				self.geneDict[newGene.frameId] = newGene
 
 
-	def splitBigBracket(self, s, info):
+	def splitBigBracket(self, s):
 		s = s[2:-2]
 		s = s.replace('"','')
 		s = s.split(') (')
+		return s
 
 
 	def splitSmallBracket(self, s):
 		s = s.split(', ')
 		frameId = s[0]
 		description = s[1]
+		return {'frameId' : frameId, 'description' : description}
 
 	def loadHalfLife(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Bernstein 2002.csv'),'rb') as csvfile:
@@ -115,14 +139,14 @@ class parse_genes:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'genes.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-			csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Localization', 'Coments'])
+			csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Localization', 'Product','Coments'])
 
 			keys = self.geneDict.keys()
 			keys.sort()
 
 			for key in keys:
 				g = self.geneDict[key]
-				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, g.expression, g.halfLife, g.localization])
+				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, g.expression, g.halfLife, g.localization, g.productFrameId])
 
 
 class gene:
@@ -137,5 +161,4 @@ class gene:
 		self.expression = None
 		self.halfLife = None
 		self.localization = None
-
-		self.hasMultProd = False
+		self.productFrameId = None
