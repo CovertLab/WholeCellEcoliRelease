@@ -48,6 +48,7 @@ class parse_genes:
 
 	def parseGeneInformation(self):
 		unmodifiedForm = {}
+		rnaType = {}
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_mod_tree.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
@@ -62,10 +63,16 @@ class parse_genes:
 			csvreader = csv.reader(csvfile, delimiter='\t')
 
 			for row in csvreader:
-				if row[4] != '':
-					unmodifiedForm[row[1]] = True
-				else:
-					unmodifiedForm[row[1]] = False
+				if row[3] != '':
+					if row[4] != '':
+						unmodifiedForm[row[1]] = True
+					else:
+						unmodifiedForm[row[1]] = False
+
+					if row[1].count('RRNA') > 0:
+						rnaType[row[1]] = 'rRNA'
+					if row[1].count('tRNA') > 0 and not unmodifiedForm[row[1]]:
+						rnaType[row[1]] = 'tRNA'
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
@@ -92,6 +99,8 @@ class parse_genes:
 							self.geneDict[newGene.frameId + str(count)] = newGene
 						else:
 							self.geneDict[newGene.frameId] = newGene
+
+
 
 	def splitBigBracket(self, s):
 		s = s[2:-2]
