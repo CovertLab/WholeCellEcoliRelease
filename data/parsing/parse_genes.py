@@ -70,29 +70,28 @@ class parse_genes:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
 			for row in csvreader:
-				newGene = gene()
-				newGene.frameId = row[0]
-				newGene.symbol = row[1]
-				if row[2] != '':
-					newGene.coordinate = int(row[2])
-					newGene.length = int(row[3]) - int(row[2])
-				else:
-					newGene.coordinate = None
-					newGene.length = None
-				newGene.direction = row[4]
-
 				allProducts = self.splitBigBracket(row[5])
-
 				for product in allProducts:
 					props = self.splitSmallBracket(product)
-
 					if not unmodifiedForm[props['frameId']]:
-						if newGene.productFrameId != None:
-							raise Exception, 'More than one unmodified product!'
+						newGene = gene()
 						newGene.productFrameId = props['frameId']
-
-				self.geneDict[newGene.frameId] = newGene
-
+						newGene.frameId = row[0]
+						newGene.symbol = row[1]
+						if row[2] != '':
+							newGene.coordinate = int(row[2])
+							newGene.length = int(row[3]) - int(row[2])
+						else:
+							newGene.coordinate = None
+							newGene.length = None
+						newGene.direction = row[4]
+						if self.geneDict.has_key(newGene.frameId):
+							count = 0
+							while self.geneDict.has_key(newGene.frameId + str(count)):
+								count += 1
+							self.geneDict[newGene.frameId + str(count)] = newGene
+						else:
+							self.geneDict[newGene.frameId] = newGene
 
 	def splitBigBracket(self, s):
 		s = s[2:-2]
