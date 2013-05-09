@@ -139,7 +139,6 @@ class parse_genes:
 						break
 
 					self.geneDict[geneName].halfLife = halfLife
-					print halfLife
 
 
 	def writeGeneCSV(self):
