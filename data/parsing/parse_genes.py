@@ -2,15 +2,20 @@
 
 import csv
 import os
+import ipdb
 
-class parse_genes(Object):
+class parse_genes:
 	def __init__(self):
 		self.synDict = {}
 		self.synDictFrameId = {}
 
+		self.geneDict = {}
+
 		self.loadSynDict()
+		self.parseGeneInformation()
 		self.loadHalfLife()
 
+		self.writeGeneCSV()
 
 	def loadSynDict(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')) as csvfile:
@@ -42,9 +47,33 @@ class parse_genes(Object):
 
 
 	def parseGeneInformation(self):
-		pass
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t')
+			for row in csvreader:
+				newGene = gene()
+				newGene.frameId = row[0]
+				newGene.symbol = row[1]
+				if row[2] != '':
+					newGene.coordinate = int(row[2])
+					newGene.length = int(row[3]) - int(row[2])
+				else:
+					newGene.coordinate = None
+					newGene.length = None
+				newGene.direction = row[4]
+
+				self.geneDict[newGene.frameId] = newGene
 
 
+	def splitBigBracket(self, s, info):
+		s = s[2:-2]
+		s = s.replace('"','')
+		s = s.split(') (')
+
+
+	def splitSmallBracket(self, s):
+		s = s.split(', ')
+		frameId = s[0]
+		description = s[1]
 
 	def loadHalfLife(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Bernstein 2002.csv'),'rb') as csvfile:
@@ -71,16 +100,32 @@ class parse_genes(Object):
 					name = [read_bnum, read_name]
 					halfLife = float(read_halfLife)
 
-class gene(Object):
+
+	def writeGeneCSV(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'genes.csv'),'wb') as csvfile:
+			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+			csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Localization', 'Coments'])
+
+			keys = self.geneDict.keys()
+			keys.sort()
+
+			for key in keys:
+				g = self.geneDict[key]
+				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, g.expression, g.halfLife, g.localization])
+
+
+class gene:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
 		self.symbol = None
 		self.type = None
-		self.e = None
+		self.coordinate = None
 		self.length = None
 		self.direction = None
 		self.expression = None
 		self.halfLife = None
 		self.localization = None
-		
+
+		self.hasMultProd = False
