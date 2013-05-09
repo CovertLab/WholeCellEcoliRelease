@@ -99,6 +99,10 @@ class parse_genes:
 							self.geneDict[newGene.frameId + str(count)] = newGene
 						else:
 							self.geneDict[newGene.frameId] = newGene
+						if rnaType.has_key(newGene.productFrameId):
+							newGene.type = rnaType[newGene.productFrameId]
+						else:
+							newGene.type = 'mRNA'
 
 
 
