@@ -53,8 +53,16 @@ class parse_genes:
 			csvreader = csv.reader(csvfile, delimiter='\t')
 
 			for row in csvreader:
-
 				if row[2] != '':
+					unmodifiedForm[row[1]] = True
+				else:
+					unmodifiedForm[row[1]] = False
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_mod_tree.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t')
+
+			for row in csvreader:
+				if row[4] != '':
 					unmodifiedForm[row[1]] = True
 				else:
 					unmodifiedForm[row[1]] = False
