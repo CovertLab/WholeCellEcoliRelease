@@ -100,6 +100,16 @@ class parse_genes:
 					name = [read_bnum, read_name]
 					halfLife = float(read_halfLife)
 
+					if self.synDictFrameId.has_key(name[0].lower()):
+						geneName = self.synDictFrameId[name[0].lower()]
+					elif self.synDictFrameId.has_key(name[1].lower()):
+						geneName = self.synDictFrameId[name[1].lower()]
+					else:
+						break
+
+					self.geneDict[geneName].halfLife = halfLife
+					print halfLife
+
 
 	def writeGeneCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'genes.csv'),'wb') as csvfile:
