@@ -17,6 +17,7 @@ class parse_genes:
 		self.parseLocations()
 		self.parseGeneInformation()
 		self.loadHalfLife()
+		self.loadExpression()
 
 		self.writeGeneCSV()
 
@@ -66,7 +67,7 @@ class parse_genes:
 		locationSet = sets.Set(locationList)
 		for item in locationSet:
 			if item == 'CCO-RIBOSOME':
-				locationDict[item] = ['CCO-CYTOSOL']
+				locationDict[item] = 'CCO-CYTOSOL'
 			else:
 				locationDict[item] = item
 
@@ -80,11 +81,12 @@ class parse_genes:
 				for loc in locations:
 					if loc != '':
 						param = self.splitSmallBracket(loc)
-						locString += locationDict[param['description']]
+						leader = ''
+						if locString != '':
+							leader = ':'
+						locString += leader + locationDict[param['description']]
 
-				self.protLocDict[protFrameId] = param['description']
-		ipdb.set_trace()
-
+				self.protLocDict[protFrameId] = locString
 
 	def parseGeneInformation(self):
 		unmodifiedForm = {}
@@ -111,27 +113,38 @@ class parse_genes:
 
 					if row[1].count('RRNA') > 0:
 						rnaType[row[1]] = 'rRNA'
-					if row[1].count('tRNA') > 0 and not unmodifiedForm[row[1]]:
+					elif row[1].count('tRNA') > 0 and not unmodifiedForm[row[1]]:
 						rnaType[row[1]] = 'tRNA'
+					elif not unmodifiedForm[row[1]]:
+						rnaType[row[1]] = 'miscRNA'
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
 			for row in csvreader:
+				# Check for products. One gene --> one product (even if gene is duplicated in name)
 				allProducts = self.splitBigBracket(row[5])
 				for product in allProducts:
 					props = self.splitSmallBracket(product)
 					if not unmodifiedForm[props['frameId']]:
+						# If there is no unmodified form then it is the base product of a gene
+						# Build new gene
 						newGene = gene()
+						# Add names
 						newGene.productFrameId = props['frameId']
+						newGene.name = props['description']
 						newGene.frameId = row[0]
 						newGene.symbol = row[1]
+						# Add locations
 						if row[2] != '':
 							newGene.coordinate = int(row[2])
 							newGene.length = int(row[3]) - int(row[2])
 						else:
 							newGene.coordinate = None
 							newGene.length = None
+						# Add direction
 						newGene.direction = row[4]
+						# Pick new gene name for product if gene name is already used
+						# for another valid product
 						if self.geneDict.has_key(newGene.frameId):
 							count = 0
 							while self.geneDict.has_key(newGene.frameId + str(count)):
@@ -139,13 +152,14 @@ class parse_genes:
 							self.geneDict[newGene.frameId + str(count)] = newGene
 						else:
 							self.geneDict[newGene.frameId] = newGene
+						# Add RNA type
 						if rnaType.has_key(newGene.productFrameId):
 							newGene.type = rnaType[newGene.productFrameId]
 						else:
 							newGene.type = 'mRNA'
-
-
-
+						# Add localization
+						if self.protLocDict.has_key(newGene.productFrameId):
+							newGene.localization = self.protLocDict[newGene.productFrameId]
 
 
 	def splitBigBracket(self, s):
@@ -195,7 +209,7 @@ class parse_genes:
 					elif self.synDictFrameId.has_key(name[1].lower()):
 						geneName = self.synDictFrameId[name[1].lower()]
 					else:
-						print 'Gene not found ' + name[0] + ' ' + name[1]
+						print 'Gene half life not found ' + name[0] + ' ' + name[1]
 						break
 
 					if self.geneDict[geneName].type == 'rRNA':
@@ -206,6 +220,40 @@ class parse_genes:
 						mRNAhl.append(halfLife)
 
 					self.geneDict[geneName].halfLife = halfLife
+
+	def loadExpression(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Blattner 2005.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+			lineCnt = 0
+			startRead = False
+			for row in csvreader:
+				if not startRead:
+					lineCnt += 1
+					if lineCnt >= 98:
+						startRead = True
+				else:
+					skip = False
+					if row[27] == '':
+						skip = True
+
+					if not skip:
+						bnum = row[27]
+						name = row[1]
+						glucoseValues = row[2:7]
+						glucoseValues = [float(x) for x in glucoseValues]
+
+					if self.synDictFrameId.has_key(name.lower()):
+						geneName = self.synDictFrameId[name.lower()]
+					elif self.synDictFrameId.has_key(bnum.lower()):
+						geneName = self.synDictFrameId[bnum.lower()]
+					else:
+						print 'Gene expression not found ' + name + ' ' + bnum
+						break
+
+					self.geneDict[geneName].expression = glucoseValues
+
+
 
 	def writeGeneCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
