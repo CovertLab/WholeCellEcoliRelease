@@ -24,11 +24,11 @@ class parse_genes:
 
 		self.writeGeneCSV()
 
-	def loadConstantData(self):
+	def loadConstants(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-				for row in csvreader:
-					self.parameters[row[0]] = {'value' : row[1], 'units' : row[2]}
+			for row in csvreader:
+				self.parameters[row[0]] = {'value' : row[1], 'units' : row[2]}
 
 
 	def loadSynDict(self):
@@ -232,6 +232,8 @@ class parse_genes:
 					self.geneDict[geneName].halfLife = halfLife
 
 	def loadExpression(self):
+		expressionDict = {}
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Blattner 2005.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
@@ -262,7 +264,14 @@ class parse_genes:
 						print 'Gene expression not found ' + name + ' ' + bnum
 						break
 
-					self.geneDict[geneName].expression = expression
+					expressionDict[geneName] = expression
+
+		total = np.sum(expressionDict.values())
+
+		for key in expressionDict.iterkeys():
+			self.geneDict[key].expression = expressionDict[key] / total
+
+
 
 	def writeGeneCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
