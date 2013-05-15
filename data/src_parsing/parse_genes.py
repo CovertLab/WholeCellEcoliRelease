@@ -188,6 +188,7 @@ class parse_genes:
 	def loadHalfLife(self):
 		rRNAhl = []
 		tRNAhl = []
+		miscRNAhl = []
 		mRNAhl = []
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Bernstein 2002.csv'),'rb') as csvfile:
@@ -212,27 +213,66 @@ class parse_genes:
 					read_halfLife = row[4]
 
 					name = [read_bnum, read_name]
-					halfLife = float(read_halfLife)*60 # seconds
+					halfLife = float(read_halfLife)*60. # seconds
 
-					if self.synDictFrameId.has_key(name[0].lower()):
-						geneName = self.synDictFrameId[name[0].lower()]
-					elif self.synDictFrameId.has_key(name[1].lower()):
-						geneName = self.synDictFrameId[name[1].lower()]
+					if self.synDictFrameId.has_key(read_bnum.lower()):
+						geneName = self.synDictFrameId[read_bnum.lower()]
+					elif self.synDictFrameId.has_key(read_name.lower()):
+						geneName = self.synDictFrameId[read_name.lower()]
 					else:
-						print 'Gene half life not found ' + name[0] + ' ' + name[1]
-						break
-
-					if self.geneDict[geneName].type == 'rRNA':
-						rRNAhl.append(self.parameters['rRNA half life']*3600*24)
-					elif self.geneDict[geneName].type == 'tRNA':
-						tRNAhl.append(self.parameters['tRNA half life']*3600*24)
-					else:
-						mRNAhl.append(halfLife)
+						print 'Gene half life not found ' + read_name + ' ' + read_bnum
 
 					self.geneDict[geneName].halfLife = halfLife
 
+					# Calculate average half lives of each type of gene
+					if self.geneDict[geneName].type == 'rRNA':
+						rRNAhl.append(halfLife)
+					elif self.geneDict[geneName].type == 'tRNA':
+						tRNAhl.append(halfLife)
+					elif self.geneDict[geneName].type == 'miscRNA':
+						miscRNAhl.append(halfLife)
+					else:
+						mRNAhl.append(halfLife)
+
+			print 'Half lives found for ' + str(len(mRNAhl)) + ' mRNAs'
+			print 'Half lives found for ' + str(len(rRNAhl)) + ' rRNAs'
+			print 'Half lives found for ' + str(len(tRNAhl)) + ' tRNAs'
+			print 'Half lives found for ' + str(len(miscRNAhl)) + ' miscRNAs'
+
+
+			# Average half lives added for genes that half life was not measured
+			mrnaAverage = np.around(np.average(mRNAhl),decimals=2)
+
+			if len(rRNAhl) == 0:
+				print 'No rRNA half lives measured. Using parameter.'
+				rrnaAverage = self.parameters['rRNA half life']
+			if len(tRNAhl) == 0:
+				print 'No tRNA half lives measured. Using parameter.'
+				trnaAverage = self.parameters['tRNA half life']
+			if len(miscRNAhl) == 0:
+				print 'No miscRNA half lives measured. Using parameter.'
+				miscrnaAverage = mrnaAverage
+
+			for geneId in self.geneDict.iterkeys():
+				gene = self.geneDict[geneId]
+
+				if gene.halfLife == None:
+					if gene.type == 'rRNA':
+						gene.halfLife = rrnaAverage
+					if gene.type == 'tRNA':
+						gene.halfLife = trnaAverage
+					if gene.type == 'miscRNA':
+						gene.halfLife = mrnaAverage
+					if gene.type == 'mRNA':
+						gene.halfLife = mrnaAverage
+
 	def loadExpression(self):
 		expressionDict = {}
+
+		rRNAexp = []
+		tRNAexp = []
+		miscRNAexp = []
+		mRNAexp = []
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Blattner 2005.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -262,16 +302,59 @@ class parse_genes:
 						geneName = self.synDictFrameId[bnum.lower()]
 					else:
 						print 'Gene expression not found ' + name + ' ' + bnum
-						break
 
 					expressionDict[geneName] = expression
+
+					# Calculat average expression for each type of RNA
+					if self.geneDict[geneName].type == 'rRNA':
+						rRNAexp.append(expression)
+					elif self.geneDict[geneName].type == 'tRNA':
+						tRNAexp.append(expression)
+					elif self.geneDict[geneName].type == 'miscRNA':
+						miscRNAexp.append(expression)
+					else:
+						mRNAexp.append(expression)
+
+		print 'Expression found for ' + str(len(mRNAexp)) + ' mRNAs'
+		print 'Expression found for ' + str(len(rRNAexp)) + ' rRNAs'
+		print 'Expression found for ' + str(len(tRNAexp)) + ' tRNAs'
+		print 'Expression found for ' + str(len(miscRNAexp)) + ' miscRNAs'
+
+		# Average expression for gene types where expression was not measured
+		mrnaAverage = np.around(np.average(mRNAexp),decimals=2)
+
+		if len(rRNAexp) == 0:
+			print 'No rRNA expression measured.'
+			rrnaAverage = mrnaAverage
+		else:
+			rrnaAverage = np.average(rRNAexp)
+		if len(tRNAexp) == 0:
+			print 'No tRNA expression measured.'
+			trnaAverage = mrnaAverage
+		else:
+			trnaAverage = np.average(tRNAexp)
+		if len(miscRNAexp) == 0:
+			print 'No miscRNA expression measured.'
+			miscrnaAverage = mrnaAverage
+		else:
+			miscrnaAverage = np.average(miscRNAexp)
+
+
+		for geneId in self.geneDict.iterkeys():
+			if not expressionDict.has_key(geneId):
+				if self.geneDict[geneId].type == 'mRNA':
+					expressionDict[geneId] = mrnaAverage
+				elif self.geneDict[geneId].type == 'rRNA':
+					expressionDict[geneId] = rrnaAverage
+				elif self.geneDict[geneId].type == 'tRNA':
+					expressionDict[geneId] = trnaAverage
+				elif self.geneDict[geneId].type == 'miscRNA':
+					expressionDict[geneId] = miscrnaAverage
 
 		total = np.sum(expressionDict.values())
 
 		for key in expressionDict.iterkeys():
 			self.geneDict[key].expression = expressionDict[key] / total
-
-
 
 	def writeGeneCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
@@ -282,10 +365,11 @@ class parse_genes:
 			keys = self.geneDict.keys()
 			keys.sort()
 
+			some = 0
 			for key in keys:
 				g = self.geneDict[key]
 				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, g.expression, g.halfLife, g.localization, g.productFrameId])
-
+				some += g.expression
 
 class gene:
 	def __init__(self):
