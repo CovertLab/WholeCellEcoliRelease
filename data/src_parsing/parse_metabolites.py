@@ -21,6 +21,7 @@ class parse_metabolites:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
+			
 			csvwriter.writerow(['ID', 'frameId', 'Empirical formula', 'Type', 'SMILES', 'Charge', 'Weight', 'Hydophobic', 'Media concentration', 'Maximum exchange rate (mmol/gDCW/h)','Comments'])
 
 
