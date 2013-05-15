@@ -4,6 +4,7 @@ import csv
 import os
 import ipdb
 import sets
+import numpy as np
 
 class parse_genes:
 	def __init__(self):
@@ -12,7 +13,9 @@ class parse_genes:
 
 		self.geneDict = {}
 		self.protLocDict = {}
+		self.parameters = {}
 
+		self.loadConstants()
 		self.loadSynDict()
 		self.parseLocations()
 		self.parseGeneInformation()
@@ -20,6 +23,13 @@ class parse_genes:
 		self.loadExpression()
 
 		self.writeGeneCSV()
+
+	def loadConstantData(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+				for row in csvreader:
+					self.parameters[row[0]] = {'value' : row[1], 'units' : row[2]}
+
 
 	def loadSynDict(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')) as csvfile:
@@ -213,9 +223,9 @@ class parse_genes:
 						break
 
 					if self.geneDict[geneName].type == 'rRNA':
-						rRNAhl.append(halfLife)
+						rRNAhl.append(self.parameters['rRNA half life']*3600*24)
 					elif self.geneDict[geneName].type == 'tRNA':
-						tRNAhl.append(halfLife)
+						tRNAhl.append(self.parameters['tRNA half life']*3600*24)
 					else:
 						mRNAhl.append(halfLife)
 
@@ -242,6 +252,7 @@ class parse_genes:
 						name = row[1]
 						glucoseValues = row[2:7]
 						glucoseValues = [float(x) for x in glucoseValues]
+						expression = np.average(glucoseValues)
 
 					if self.synDictFrameId.has_key(name.lower()):
 						geneName = self.synDictFrameId[name.lower()]
@@ -251,9 +262,7 @@ class parse_genes:
 						print 'Gene expression not found ' + name + ' ' + bnum
 						break
 
-					self.geneDict[geneName].expression = glucoseValues
-
-
+					self.geneDict[geneName].expression = expression
 
 	def writeGeneCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
