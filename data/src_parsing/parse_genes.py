@@ -370,6 +370,22 @@ class parse_genes:
 				g = self.geneDict[key]
 				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, g.expression, g.halfLife, g.localization, g.productFrameId])
 				some += g.expression
+			print 'Expression sums to ' + str(some)
+
+		expCheck = 0
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			firstLine = True
+			for row in csvreader:
+				if firstLine:
+					firstLine = False
+				else:
+					expCheck += float(row[7])
+
+		print 'Expression readback sums to: ' + str(expCheck)
+
+
+
 
 class gene:
 	def __init__(self):
