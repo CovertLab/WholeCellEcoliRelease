@@ -384,9 +384,6 @@ class parse_genes:
 
 		print 'Expression readback sums to: ' + str(expCheck)
 
-
-
-
 class gene:
 	def __init__(self):
 		self.frameId = None
