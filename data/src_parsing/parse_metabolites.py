@@ -40,7 +40,7 @@ class parse_metabolites:
 						met.metId = row[0][:-2]
 						met.name = row[1]
 						met.empricalFormula = row[2]
-						self.compartments
+						met.compartments[self.compartmentDict[row[5]]] = {'charge' int(row[4]): , 'charged form' : row[3]}
 
 
 	def writeMetaboliteCSV(self):
@@ -58,10 +58,13 @@ class metabolite:
 		self.metId = None
 		self.name = None
 		self.empiricalFormula = None
-		self.SMILES = None
-		self.charge = None
-		self.weight = None
+		self.compartments = {}
 		self.hydrophobic = None
 		self.mediaConc = None
 		self.biomassConc = None
 		self.exchangeRate = None
+
+		self.SMILES = None
+		self.weight = None
+
+
