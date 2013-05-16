@@ -14,6 +14,7 @@ class parse_metabolites:
 
 		self.defineCompartments()
 		self.loadOrthData()
+		self.loadEcocycData()
 
 		self.writeMetaboliteCSV()
 
@@ -45,18 +46,27 @@ class parse_metabolites:
 
 					self.metDict[met.metId] = met
 
+	def loadEcocycData(self):
+		knownFormula = [x.empiricalFormula for x in [self.metDict[key] for key in self.metDict.iterkeys()]]
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_metabolites.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+			for row in csvreader:
+				
+
 
 	def writeMetaboliteCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-			csvwriter.writerow(['ID', 'frameId', 'Empirical formula', 'Compartment data', 'Weight', 'SMILES', 'Hydrophobic', 'Media concentration', 'Maximum exchange rate (mmol/gDCW/h)','Comments'])
+			csvwriter.writerow(['ID', 'Name', 'frameId', 'Empirical formula', 'Compartment data', 'Weight', 'SMILES', 'Hydrophobic', 'Media concentration', 'Maximum exchange rate (mmol/gDCW/h)','Comments'])
 			
 			keys = self.metDict.keys()
 			keys.sort()
 			for key in keys:
 				m = self.metDict[key]
-				csvwriter.writerow([m.metId, m.frameId, m.empiricalFormula, json.dumps(m.compartments), m.weight, m.SMILES, m.hydrophobic, m.mediaConc, m.biomassConc, m.exchangeRate])
+				csvwriter.writerow([m.metId, m.name, m.frameId, m.empiricalFormula, json.dumps(m.compartments), m.weight, m.SMILES, m.hydrophobic, m.mediaConc, m.biomassConc, m.exchangeRate])
 
 
 
