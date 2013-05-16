@@ -5,6 +5,7 @@ import os
 import ipdb
 import sets
 import numpy as np
+import json
 
 class parse_genes:
 	def __init__(self):
@@ -87,16 +88,13 @@ class parse_genes:
 			for row in csvreader:
 				protFrameId = row[1]
 				locations = self.splitBigBracket(row[2])
-				locString = ''
+				locL= []
 				for loc in locations:
 					if loc != '':
 						param = self.splitSmallBracket(loc)
-						leader = ''
-						if locString != '':
-							leader = ':'
-						locString += leader + locationDict[param['description']]
+						locL.append(locationDict[param['description']])
 
-				self.protLocDict[protFrameId] = locString
+				self.protLocDict[protFrameId] = locL
 
 	def parseGeneInformation(self):
 		unmodifiedForm = {}
@@ -368,7 +366,7 @@ class parse_genes:
 			some = 0
 			for key in keys:
 				g = self.geneDict[key]
-				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.localization, g.productFrameId])
+				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId])
 				some += g.expression
 			print 'Expression sums to ' + str(some)
 
