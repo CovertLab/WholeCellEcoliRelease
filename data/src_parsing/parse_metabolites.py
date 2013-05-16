@@ -32,15 +32,15 @@ class parse_metabolites:
 				if firstRow:
 					firstRow = False
 				else:
-					metId = row[0][:-2]
+					metId = row[0][:-3]
 					if self.metDict.has_key(metId):
 						# Append this badboy
 						pass
 					else:
 						met = metabolite()
-						met.metId = row[0][:-2]
+						met.metId = row[0][:-3]
 						met.name = row[1]
-						met.empricalFormula = row[2]
+						met.empiricalFormula = row[2]
 						met.compartments[self.compartmentDict[row[5]]] = {'charge' : int(row[4]), 'charged form' : row[3]}
 
 					self.metDict[met.metId] = met
