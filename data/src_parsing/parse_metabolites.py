@@ -58,6 +58,7 @@ class parse_metabolites:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 			usedMetId = []
+			notUsedMetId = []
 			for row in csvreader:
 				iupacName = re.sub('<[^<]+?>', '', row[0]).lower()
 				otherNames = re.sub('<[^<]+?>', '', row[1][1:-1]).split(', ')
@@ -66,13 +67,16 @@ class parse_metabolites:
 				if self.equivDict.has_key(iupacName):
 					if self.equivDict[iupacName] not in usedMetId:
 						usedMetId.append(self.equivDict[iupacName])
+						metId = self.equivDict[iupacName]
+						self.metDict[metId].frameId = row[2]
+						self.metDict[metId].SMILES = row[4]
 
 				else:
-					for name in otherNames:
-						if self.equivDict.has_key(name):
-							if self.equivDict[name] not in usedMetId:
-								usedMetId.append(self.equivDict[name])
-
+					notUsedMetId.append(iupacName)
+					# for name in otherNames:
+					# 	if self.equivDict.has_key(name):
+					# 		if self.equivDict[name] not in usedMetId:
+					# 			usedMetId.append(self.equivDict[name])
 
 			print len(usedMetId)
 			ipdb.set_trace()
