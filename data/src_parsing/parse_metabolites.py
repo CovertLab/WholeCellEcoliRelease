@@ -6,10 +6,12 @@ import ipdb
 import sets
 import numpy as np
 import json
+import re
 
 class parse_metabolites:
 	def __init__(self):
 		self.metDict = {}
+		self.equivDict = {}
 		self.compartmentDict = {}
 
 		self.defineCompartments()
@@ -45,15 +47,38 @@ class parse_metabolites:
 						met.compartments[self.compartmentDict[row[5]]] = {'charge' : int(row[4]), 'charged form' : row[3]}
 
 					self.metDict[met.metId] = met
+					self.equivDict[met.name.lower()] = met.metId
+
+					synL = row[8].split('/ ')
+					for syn in synL:
+						self.equivDict[syn.lower()] = met.metId
 
 	def loadEcocycData(self):
-		knownFormula = [x.empiricalFormula for x in [self.metDict[key] for key in self.metDict.iterkeys()]]
-
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_metabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
+			usedMetId = []
 			for row in csvreader:
-				
+				iupacName = re.sub('<[^<]+?>', '', row[0]).lower()
+				otherNames = re.sub('<[^<]+?>', '', row[1][1:-1]).split(', ')
+				otherNames = [name.lower() for name in otherNames]
+
+				if self.equivDict.has_key(iupacName):
+					if self.equivDict[iupacName] not in usedMetId:
+						usedMetId.append(self.equivDict[iupacName])
+
+				else:
+					for name in otherNames:
+						if self.equivDict.has_key(name):
+							if self.equivDict[name] not in usedMetId:
+								usedMetId.append(self.equivDict[name])
+
+
+			print len(usedMetId)
+			ipdb.set_trace()
+
+
+
 
 
 	def writeMetaboliteCSV(self):
