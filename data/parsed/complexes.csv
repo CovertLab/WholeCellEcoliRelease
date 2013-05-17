@@ -1,0 +1,1002 @@
+frameId	Name	Composition	Formation process	Comments
+1-PFK	1-phosphofructokinase	"{""reactant"": {""1-PFK-MONOMER"": 2}, ""product"": {""1-PFK"": 1}}"	Complexation
+2OXOGLUTARATEDEH-CPLX	2-oxoglutarate dehydrogenase complex	"{""reactant"": {""E3-CPLX"": 1, ""E3-MONOMER"": 2, ""E2O-MONOMER"": 24, ""E1O-MONOMER"": 12, ""E1O"": 1, ""E2O"": 1}, ""product"": {""2OXOGLUTARATEDEH-CPLX"": 1}}"	Complexation
+3-ISOPROPYLMALDEHYDROG-CPLX	3-isopropylmalate dehydrogenase	"{""reactant"": {""3-ISOPROPYLMALDEHYDROG-MONOMER"": 2}, ""product"": {""3-ISOPROPYLMALDEHYDROG-CPLX"": 1}}"	Complexation
+3-ISOPROPYLMALISOM-CPLX	isopropylmalate isomerase	"{""reactant"": {""LEUC-MONOMER"": 1, ""LEUD-MONOMER"": 1}, ""product"": {""3-ISOPROPYLMALISOM-CPLX"": 1}}"	Complexation
+3-METHYL-2-OXOBUT-OHCH3XFER-CPLX	3-methyl-2-oxobutanoate hydroxymethyltransferase	"{""reactant"": {""3-CH3-2-OXOBUTANOATE-OH-CH3-XFER-MONOMER"": 10}, ""product"": {""3-METHYL-2-OXOBUT-OHCH3XFER-CPLX"": 1}}"	Complexation
+3-OXOACYL-ACP-SYNTHII-CPLX	KASII	"{""reactant"": {""3-OXOACYL-ACP-SYNTHII-MONOMER"": 2}, ""product"": {""3-OXOACYL-ACP-SYNTHII-CPLX"": 1}}"	Complexation
+6PFK-1-CPX	6-phosphofructokinase I	"{""reactant"": {""6PFK-1-MONOMER"": 4}, ""product"": {""6PFK-1-CPX"": 1}}"	Complexation
+6PFK-2-CPX	6-phosphofructokinase II	"{""reactant"": {""6PFK-2-MONOMER"": 2}, ""product"": {""6PFK-2-CPX"": 1}}"	Complexation
+6PGLUCONDEHYDROG-CPLX	6-phosphogluconate dehydrogenase (decarboxylating)	"{""reactant"": {""6PGLUCONDEHYDROG-MONOMER"": 2}, ""product"": {""6PGLUCONDEHYDROG-CPLX"": 1}}"	Complexation
+7-ALPHA-HYDROXYSTEROID-DEH-CPLX	7-&alpha;-hydroxysteroid dehydrogenase	"{""reactant"": {""7-ALPHA-HYDROXYSTEROID-DEH-MONOMER"": 4}, ""product"": {""7-ALPHA-HYDROXYSTEROID-DEH-CPLX"": 1}}"	Complexation
+7KAPSYN-CPLX	8-amino-7-oxononanoate synthase	"{""reactant"": {""7KAPSYN-MONOMER"": 2}, ""product"": {""7KAPSYN-CPLX"": 1}}"	Complexation
+ABC-10-CPLX	ferric enterobactin ABC transporter	"{""reactant"": {""FEPG-MONOMER"": 1, ""FEPD-MONOMER"": 1, ""FEPC-MONOMER"": 2, ""FEPB-MONOMER"": 1}, ""product"": {""ABC-10-CPLX"": 1}}"	Complexation
+ABC-11-CPLX	iron (III) hydroxamate ABC transporter	"{""reactant"": {""FHUC-MONOMER"": 2, ""FHUB-MONOMER"": 2, ""FHUD-MONOMER"": 1}, ""product"": {""ABC-11-CPLX"": 1}}"	Complexation
+ABC-12-CPLX	glutamine ABC transporter	"{""reactant"": {""GLNP-MONOMER"": 2, ""GLNQ-MONOMER"": 2, ""GLNH-MONOMER"": 1}, ""product"": {""ABC-12-CPLX"": 1}}"	Complexation
+ABC-13-CPLX	glutamate / aspartate ABC transporter	"{""reactant"": {""GLTL-MONOMER"": 1, ""G6359-MONOMER"": 1, ""GLTK-MONOMER"": 1, ""GLTJ-MONOMER"": 1}, ""product"": {""ABC-13-CPLX"": 1}}"	Complexation
+ABC-14-CPLX	histidine ABC transporter	"{""reactant"": {""HISP-MONOMER"": 2, ""HISQ-MONOMER"": 1, ""HISJ-MONOMER"": 1, ""HISM-MONOMER"": 1}, ""product"": {""ABC-14-CPLX"": 1}}"	Complexation
+ABC-15-CPLX	branched chain amino acid ABC transporter	"{""reactant"": {""LIVJ-MONOMER"": 1, ""LIVH-MONOMER"": 1, ""LIVG-MONOMER"": 1, ""LIVF-MONOMER"": 1, ""LIVM-MONOMER"": 1}, ""product"": {""ABC-15-CPLX"": 1}}"	Complexation
+ABC-16-CPLX	maltose ABC transporter	"{""reactant"": {""MALK-MONOMER"": 2, ""MALF-MONOMER"": 1, ""MALG-MONOMER"": 1, ""MALE-MONOMER"": 1}, ""product"": {""ABC-16-CPLX"": 1}}"	Complexation
+ABC-18-CPLX	methyl-&beta;-D-galactoside / galactose ABC transporter	"{""reactant"": {""MGLA-MONOMER"": 2, ""MGLB-MONOMER"": 1, ""MGLC-MONOMER"": 2}, ""product"": {""ABC-18-CPLX"": 1}}"	Complexation
+ABC-19-CPLX	molybdate ABC transporter	"{""reactant"": {""MODA-MONOMER"": 1, ""MODB-MONOMER"": 2, ""MODC-MONOMER"": 2}, ""product"": {""ABC-19-CPLX"": 1}}"	Complexation
+ABC-2-CPLX	arabinose ABC transporter	"{""reactant"": {""ARAF-MONOMER"": 1, ""ARAG-MONOMER"": 2, ""ARAH-MONOMER"": 2}, ""product"": {""ABC-2-CPLX"": 1}}"	Complexation
+ABC-20-CPLX	nickel ABC transporter	"{""reactant"": {""NIKD-MONOMER"": 1, ""NIKE-MONOMER"": 1, ""NIKB-MONOMER"": 1, ""NIKC-MONOMER"": 1, ""NIKA-MONOMER"": 1}, ""product"": {""ABC-20-CPLX"": 1}}"	Complexation
+ABC-21-CPLX	YadG/YadH ABC transporter	"{""reactant"": {""YADG-MONOMER"": 2, ""YADH-MONOMER"": 2}, ""product"": {""ABC-21-CPLX"": 1}}"	Complexation
+ABC-22-CPLX	peptide ABC transporter OppABCDF	"{""reactant"": {""OPPD-MONOMER"": 1, ""OPPF-MONOMER"": 1, ""OPPA-MONOMER"": 1, ""OPPC-MONOMER"": 1, ""OPPB-MONOMER"": 1}, ""product"": {""ABC-22-CPLX"": 1}}"	Complexation
+ABC-23-CPLX	phosphonate ABC transporter	"{""reactant"": {""PHNC-MONOMER"": 2, ""PHND-MONOMER"": 1, ""PHNE-MONOMER"": 2}, ""product"": {""ABC-23-CPLX"": 1}}"	Complexation
+ABC-24-CPLX	putrescine / spermidine ABC transporter	"{""reactant"": {""POTC-MONOMER"": 1, ""POTB-MONOMER"": 1, ""POTA-MONOMER"": 2, ""POTD-MONOMER"": 1}, ""product"": {""ABC-24-CPLX"": 1}}"	Complexation
+ABC-25-CPLX	putrescine ABC transporter	"{""reactant"": {""POTI-MONOMER"": 1, ""POTH-MONOMER"": 1, ""POTG-MONOMER"": 2, ""POTF-MONOMER"": 1}, ""product"": {""ABC-25-CPLX"": 1}}"	Complexation
+ABC-26-CPLX	glycine betaine / proline ABC transporter	"{""reactant"": {""PROX-MONOMER"": 1, ""PROW-MONOMER"": 2, ""PROV-MONOMER"": 2}, ""product"": {""ABC-26-CPLX"": 1}}"	Complexation
+ABC-27-CPLX	phosphate ABC transporter	"{""reactant"": {""PSTC-MONOMER"": 1, ""PSTS-MONOMER"": 1, ""PSTB-MONOMER"": 2, ""PSTA-MONOMER"": 1}, ""product"": {""ABC-27-CPLX"": 1}}"	Complexation
+ABC-28-CPLX	ribose ABC transporter	"{""reactant"": {""RBSA-MONOMER"": 2, ""RBSC-MONOMER"": 2, ""RBSB-MONOMER"": 1}, ""product"": {""ABC-28-CPLX"": 1}}"	Complexation
+ABC-29-CPLX	peptide ABC transporter SapABCDF	"{""reactant"": {""SAPA-MONOMER"": 1, ""SAPB-MONOMER"": 1, ""SAPC-MONOMER"": 1, ""SAPD-MONOMER"": 1, ""SAPF-MONOMER"": 1}, ""product"": {""ABC-29-CPLX"": 1}}"	Complexation
+ABC-3-CPLX	lysine / arginine / ornithine ABC transporter	"{""reactant"": {""ARGT-MONOMER"": 1, ""HISP-MONOMER"": 2, ""HISM-MONOMER"": 1, ""HISQ-MONOMER"": 1}, ""product"": {""ABC-3-CPLX"": 1}}"	Complexation
+ABC-304-CPLX	leucine ABC transporter	"{""reactant"": {""LIVK-MONOMER"": 1, ""LIVH-MONOMER"": 1, ""LIVG-MONOMER"": 1, ""LIVF-MONOMER"": 1, ""LIVM-MONOMER"": 1}, ""product"": {""ABC-304-CPLX"": 1}}"	Complexation
+ABC-32-CPLX	thiamin ABC transporter	"{""reactant"": {""SFUA-MONOMER"": 1, ""SFUB-MONOMER"": 2, ""SFUC-MONOMER"": 2}, ""product"": {""ABC-32-CPLX"": 1}}"	Complexation
+ABC-33-CPLX	xylose ABC transporter	"{""reactant"": {""XYLG-MONOMER"": 2, ""XYLF-MONOMER"": 1, ""XYLH-MONOMER"": 2}, ""product"": {""ABC-33-CPLX"": 1}}"	Complexation
+ABC-34-CPLX	glycerol-3-phosphate / glycerol-2-phosphate ABC transporter	"{""reactant"": {""UGPA-MONOMER"": 1, ""UGPB-MONOMER"": 1, ""UGPC-MONOMER"": 2, ""UGPE-MONOMER"": 1}, ""product"": {""ABC-34-CPLX"": 1}}"	Complexation
+ABC-35-CPLX	protoheme IX ABC transporter	"{""reactant"": {""CCMA-MONOMER"": 2, ""CCMB-MONOMER"": 1, ""CCME-MONOMER"": 1, ""CPLX0-7656"": 1, ""EG12169-MONOMER"": 1, ""CCMC-MONOMER"": 1}, ""product"": {""ABC-35-CPLX"": 1}}"	Complexation
+ABC-4-CPLX	arginine ABC transporter	"{""reactant"": {""ARTM-MONOMER"": 1, ""ARTQ-MONOMER"": 1, ""ARTI-MONOMER"": 1, ""ARTP-MONOMER"": 2, ""ARTJ-MONOMER"": 1}, ""product"": {""ABC-4-CPLX"": 1}}"	Complexation
+ABC-40-CPLX	YehW/YehX/YehY/YehZ ABC transporter	"{""reactant"": {""YEHW-MONOMER"": 1, ""YEHZ-MONOMER"": 1, ""YEHX-MONOMER"": 2, ""YEHY-MONOMER"": 1}, ""product"": {""ABC-40-CPLX"": 1}}"	Complexation
+ABC-41-CPLX	peptide ABC transporter YejABEF	"{""reactant"": {""YEJA-MONOMER"": 1, ""YEJB-MONOMER"": 1, ""YEJE-MONOMER"": 1, ""YEJF-MONOMER"": 2}, ""product"": {""ABC-41-CPLX"": 1}}"	Complexation
+ABC-42-CPLX	D-allose ABC transporter	"{""reactant"": {""YJCX-MONOMER"": 1, ""YJCV-MONOMER"": 2, ""YJCW-MONOMER"": 2}, ""product"": {""ABC-42-CPLX"": 1}}"	Complexation
+ABC-45-CPLX	phospholipid ABC transporter	"{""reactant"": {""G7659-MONOMER"": 1, ""YRBE-MONOMER"": 2, ""EG12799-MONOMER"": 1, ""G7658-MONOMER"": 2, ""YRBF-MONOMER"": 2}, ""product"": {""ABC-45-CPLX"": 1}}"	Complexation
+ABC-46-CPLX	galactofuranose / galactopyranose ABC transporter	"{""reactant"": {""YTFQ-MONOMER"": 1, ""YJFF-MONOMER"": 1, ""YTFR-MONOMER"": 1, ""YTFT-MONOMER"": 2}, ""product"": {""ABC-46-CPLX"": 1}}"	Complexation
+ABC-48-CPLX	YnjC/YnjD ABC transporter	"{""reactant"": {""YNJD-MONOMER"": 2, ""YNJC-MONOMER"": 2}, ""product"": {""ABC-48-CPLX"": 1}}"	Complexation
+ABC-49-CPLX	glutathione ABC transporter	"{""reactant"": {""YLID-MONOMER"": 1, ""YLIA-MONOMER"": 2, ""YLIB-MONOMER"": 1, ""YLIC-MONOMER"": 1}, ""product"": {""ABC-49-CPLX"": 1}}"	Complexation
+ABC-5-CPLX	vitamin B12 ABC transporter	"{""reactant"": {""BTUC-MONOMER"": 2, ""BTUD-MONOMER"": 2, ""EG12334-MONOMER"": 1}, ""product"": {""ABC-5-CPLX"": 1}}"	Complexation
+ABC-51-CPLX	YdcS/YdcT/YdcV/YdcU ABC transporter	"{""reactant"": {""YDCS-MONOMER"": 1, ""YDCV-MONOMER"": 1, ""YDCT-MONOMER"": 2, ""YDCU-MONOMER"": 1}, ""product"": {""ABC-51-CPLX"": 1}}"	Complexation
+ABC-52-CPLX	YhdW/YhdX/YhdY/YhdZ ABC transporter	"{""reactant"": {""YHDW-MONOMER"": 1, ""YHDZ-MONOMER"": 2, ""YHDY-MONOMER"": 1, ""YHDX-MONOMER"": 1}, ""product"": {""ABC-52-CPLX"": 1}}"	Complexation
+ABC-53-CPLX	LptBFG ABC transporter	"{""reactant"": {""G7889-MONOMER"": 1, ""YHBG-MONOMER"": 2, ""G7888-MONOMER"": 1}, ""product"": {""ABC-53-CPLX"": 1}}"	Complexation
+ABC-54-CPLX	FtsE/FtsX ABC transporter	"{""reactant"": {""FTSX-MONOMER"": 2, ""FTSE-MONOMER"": 2}, ""product"": {""ABC-54-CPLX"": 1}}"	Complexation
+ABC-55-CPLX	YcjN/YcjO/YcjP ABC transporter	"{""reactant"": {""YCJN-MONOMER"": 1, ""YCJO-MONOMER"": 1, ""YCJP-MONOMER"": 1}, ""product"": {""ABC-55-CPLX"": 1}}"	Complexation
+ABC-56-CPLX	aliphatic sulfonate ABC transporter	"{""reactant"": {""YCBM-MONOMER"": 2, ""YCBE-MONOMER"": 2, ""G6478-MONOMER"": 1}, ""product"": {""ABC-56-CPLX"": 1}}"	Complexation
+ABC-57-CPLX	YbhF/YbhR/YbhS ABC transporter	"{""reactant"": {""YBHS-MONOMER"": 1, ""YBHR-MONOMER"": 1, ""YBHF-MONOMER"": 2}, ""product"": {""ABC-57-CPLX"": 1}}"	Complexation
+ABC-58-CPLX	autoinducer-2 ABC transporter	"{""reactant"": {""YDEX-MONOMER"": 2, ""YDEY-MONOMER"": 1, ""YDEZ-MONOMER"": 1, ""YNEA-MONOMER"": 1}, ""product"": {""ABC-58-CPLX"": 1}}"	Complexation
+ABC-59-CPLX	YddO/YddP/YddQ/YddR/YddS ABC transporter	"{""reactant"": {""YDDS-MONOMER"": 1, ""YDDR-MONOMER"": 1, ""YDDQ-MONOMER"": 1, ""YDDP-MONOMER"": 1, ""YDDO-MONOMER"": 1}, ""product"": {""ABC-59-CPLX"": 1}}"	Complexation
+ABC-6-CPLX	glutathione / L-cysteine  efflux transporter CydDC	"{""reactant"": {""CYDD-MONOMER"": 2, ""CYDC-MONOMER"": 2}, ""product"": {""ABC-6-CPLX"": 1}}"	Complexation
+ABC-60-CPLX	YphD/YphE/YphF ABC transporter	"{""reactant"": {""G7342-MONOMER"": 1, ""YPHE-MONOMER"": 2, ""YPHD-MONOMER"": 2}, ""product"": {""ABC-60-CPLX"": 1}}"	Complexation
+ABC-61-CPLX	YbbA/YbbP ABC transporter	"{""reactant"": {""YBBA-MONOMER"": 2, ""YBBP-MONOMER"": 2}, ""product"": {""ABC-61-CPLX"": 1}}"	Complexation
+ABC-62-CPLX	LolCDE ABC lipoprotein transporter	"{""reactant"": {""YCFV-MONOMER"": 2, ""YCFW-MONOMER"": 1, ""YCFU-MONOMER"": 1}, ""product"": {""ABC-62-CPLX"": 1}}"	Complexation
+ABC-63-CPLX	Zn2+ ABC transporter	"{""reactant"": {""ZNUC-MONOMER"": 2, ""ZNUB-MONOMER"": 2, ""ZNUA-MONOMER"": 1}, ""product"": {""ABC-63-CPLX"": 1}}"	Complexation
+ABC-64-CPLX	taurine ABC transporter	"{""reactant"": {""TAUB-MONOMER"": 2, ""TAUC-MONOMER"": 2, ""TAUA-MONOMER"": 1}, ""product"": {""ABC-64-CPLX"": 1}}"	Complexation
+ABC-7-CPLX	sulfate / thiosulfate / selenite / selenate  ABC transporter  CysAUWCysP	"{""reactant"": {""CYSA-MONOMER"": 2, ""CYSP-MONOMER"": 1, ""CYST-MONOMER"": 1, ""CYSW-MONOMER"": 1}, ""product"": {""ABC-7-CPLX"": 1}}"	Complexation
+ABC-70-CPLX	sulfate / thiosulfate / selenate / selenite ABC transporter CysAUWSbp	"{""reactant"": {""CYSA-MONOMER"": 2, ""SBP-MONOMER"": 1, ""CYST-MONOMER"": 1, ""CYSW-MONOMER"": 1}, ""product"": {""ABC-70-CPLX"": 1}}"	Complexation
+ABC-8-CPLX	dipeptide ABC transporter	"{""reactant"": {""DPPD-MONOMER"": 1, ""DPPF-MONOMER"": 1, ""DPPA-MONOMER"": 1, ""DPPB-MONOMER"": 1, ""DPPC-MONOMER"": 1}, ""product"": {""ABC-8-CPLX"": 1}}"	Complexation
+ABC-9-CPLX	ferric dicitrate ABC transporter	"{""reactant"": {""FECB-MONOMER"": 1, ""FECC-MONOMER"": 1, ""FECD-MONOMER"": 1, ""FECE-MONOMER"": 2}, ""product"": {""ABC-9-CPLX"": 1}}"	Complexation
+ACECITLY-CPLX	citrate lyase	"{""reactant"": {""CITRYLY-CPLX"": 1, ""CITRYLY-MONOMER"": 6, ""ACPSUB-MONOMER"": 6, ""ACPSUB-CPLX"": 1, ""CITTRANS-MONOMER"": 6, ""CITTRANS-CPLX"": 1}, ""product"": {""ACECITLY-CPLX"": 1}}"	Complexation
+ACETOACETYL-COA-TRANSFER-CPLX	acetoacetyl-CoA transferase	"{""reactant"": {""ATOD-MONOMER"": 2, ""ATOD-CPLX"": 1, ""ATOA-CPLX"": 1, ""ATOA-MONOMER"": 2}, ""product"": {""ACETOACETYL-COA-TRANSFER-CPLX"": 1}}"	Complexation
+ACETOLACTSYNI-CPLX	acetohydroxybutanoate synthase / acetolactate synthase	"{""reactant"": {""LARGEILVB-MONOMER"": 2, ""SMALLILVN-MONOMER"": 2}, ""product"": {""ACETOLACTSYNI-CPLX"": 1}}"	Complexation
+ACETOLACTSYNII-CPLX	acetohydroxybutanoate synthase / acetolactate synthase	"{""reactant"": {""SMALLILVM-MONOMER"": 1, ""LARGEILVG-MONOMER"": 1, ""G8221-MONOMER"": 1}, ""product"": {""ACETOLACTSYNII-CPLX"": 1}}"	Complexation
+ACETOLACTSYNIII-CPLX	acetolactate synthase / acetohydroxybutanoate synthase	"{""reactant"": {""ACETOLACTSYNIII-HCHAIN-MONOMER"": 2, ""ACETOLACTSYNIII-ICHAIN-MONOMER"": 2}, ""product"": {""ACETOLACTSYNIII-CPLX"": 1}}"	Complexation
+ACETYL-COA-ACETYLTRANSFER-CPLX	acetyl-CoA acetyltransferase	"{""reactant"": {""ACETYL-COA-ACETYLTRANSFER-MONOMER"": 4}, ""product"": {""ACETYL-COA-ACETYLTRANSFER-CPLX"": 1}}"	Complexation
+ACETYL-COA-CARBOXYLMULTI-CPLX	acetyl-CoA carboxylase	"{""reactant"": {""BCCP-BIOTIN"": 2, ""BIOTIN-CARBOXYL-CPLX"": 1, ""BIOTIN-CARBOXYL-MONOMER"": 2, ""ACETYL-COA-CARBOXYLTRANSFER-CPLX"": 1, ""CARBOXYL-TRANSFERASE-BETA-MONOMER"": 2, ""BCCP-CPLX"": 1, ""CARBOXYL-TRANSFERASE-ALPHA-MONOMER"": 2}, ""product"": {""ACETYL-COA-CARBOXYLMULTI-CPLX"": 1}}"	Complexation
+ACETYL-COA-CARBOXYLTRANSFER-CPLX	acetyl-CoA carboxyltransferase	"{""reactant"": {""CARBOXYL-TRANSFERASE-ALPHA-MONOMER"": 2, ""CARBOXYL-TRANSFERASE-BETA-MONOMER"": 2}, ""product"": {""ACETYL-COA-CARBOXYLTRANSFER-CPLX"": 1}}"	Complexation
+ACETYLGLUTKIN-CPLX	acetylglutamate kinase	"{""reactant"": {""ACETYLGLUTKIN-MONOMER"": 2}, ""product"": {""ACETYLGLUTKIN-CPLX"": 1}}"	Complexation
+ACETYLORNDEACET-CPLX	acetylornithine deacetylase	"{""reactant"": {""ACETYLORNDEACET-MONOMER"": 2}, ""product"": {""ACETYLORNDEACET-CPLX"": 1}}"	Complexation
+ACETYLORNTRANSAM-CPLX	N-succinyldiaminopimelate-aminotransferase / acetylornithine transaminase	"{""reactant"": {""ACETYLORNTRANSAM-MONOMER"": 2}, ""product"": {""ACETYLORNTRANSAM-CPLX"": 1}}"	Complexation
+ACNEULY-CPLX	N-acetylneuraminate lyase	"{""reactant"": {""ACNEULY-MONOMER"": 4}, ""product"": {""ACNEULY-CPLX"": 1}}"	Complexation
+ACPSUB-CPLX	citrate lyase [acyl carrier protein] component	"{""reactant"": {""ACPSUB-MONOMER"": 6}, ""product"": {""ACPSUB-CPLX"": 1}}"	Complexation
+ACSERLYA-CPLX	cysteine synthase A	"{""reactant"": {""ACSERLYA-MONOMER"": 2}, ""product"": {""ACSERLYA-CPLX"": 1}}"	Complexation
+ACSERLYB-CPLX	cysteine synthase B	"{""reactant"": {""ACSERLYB-MONOMER"": 2}, ""product"": {""ACSERLYB-CPLX"": 1}}"	Complexation
+ACYLCOASYN-CPLX	fatty acyl-CoA synthetase	"{""reactant"": {""ACYLCOASYN-MONOMER"": 2}, ""product"": {""ACYLCOASYN-CPLX"": 1}}"	Complexation
+ADCLY-CPLX	aminodeoxychorismate lyase	"{""reactant"": {""ADCLY-MONOMER"": 2}, ""product"": {""ADCLY-CPLX"": 1}}"	Complexation
+ADENPRIBOSYLTRAN-CPLX	adenine phosphoribosyltransferase	"{""reactant"": {""ADENPRIBOSYLTRAN-MONOMER"": 2}, ""product"": {""ADENPRIBOSYLTRAN-CPLX"": 1}}"	Complexation
+ADENYLOSUCCINATE-SYN-DIMER	adenylosuccinate synthetase	"{""reactant"": {""ADENYLOSUCCINATE-SYN-MONOMER"": 2}, ""product"": {""ADENYLOSUCCINATE-SYN-DIMER"": 1}}"	Complexation
+ADENYLYLSULFKIN-CPLX	adenylylsulfate kinase	"{""reactant"": {""ADENYLYLSULFKIN-MONOMER"": 2}, ""product"": {""ADENYLYLSULFKIN-CPLX"": 1}}"	Complexation
+ADHC-CPLX	formaldehyde dehydrogenase, glutathione-dependent	"{""reactant"": {""ADHC-MONOMER"": 2}, ""product"": {""ADHC-CPLX"": 1}}"	Complexation
+ADHE-CPLX	pyruvate formate-lyase deactivase [multifunctional]	"{""reactant"": {""ADHE-MONOMER"": 40}, ""product"": {""ADHE-CPLX"": 1}}"	Complexation
+AERGLYC3PDEHYDROG-CPLX	glycerol-3-phosphate dehydrogenase, aerobic	"{""reactant"": {""AERGLYC3PDEHYDROG-MONOMER"": 2}, ""product"": {""AERGLYC3PDEHYDROG-CPLX"": 1}}"	Complexation
+AGMATIN-CPLX	agmatinase	"{""reactant"": {""AGMATIN-MONOMER"": 2}, ""product"": {""AGMATIN-CPLX"": 1}}"	Complexation
+AIRS-CPLX	phosphoribosylformylglycinamide cyclo-ligase	"{""reactant"": {""AIRS-MONOMER"": 2}, ""product"": {""AIRS-CPLX"": 1}}"	Complexation
+AKBLIG-CPLX	2-amino-3-ketobutyrate CoA ligase	"{""reactant"": {""AKBLIG-MONOMER"": 2}, ""product"": {""AKBLIG-CPLX"": 1}}"	Complexation
+ALAS-CPLX	alanyl-tRNA synthetase and DNA-binding transcriptional repressor	"{""reactant"": {""ALAS-MONOMER"": 2}, ""product"": {""ALAS-CPLX"": 1}}"	Complexation
+ALD-CPLX	aldehyde dehydrogenase A, NAD-linked	"{""reactant"": {""LACTALDDEHYDROG-MONOMER"": 4}, ""product"": {""ALD-CPLX"": 1}}"	Complexation
+ALKAPHOSPHA-CPLX	alkaline phosphatase	"{""reactant"": {""ALKAPHOSPHA-MONOMER"": 2}, ""product"": {""ALKAPHOSPHA-CPLX"": 1}}"	Complexation
+ALPHA-SUBUNIT-CPLX	trimer complex of formate dehydrogenase-N &alpha;, &beta; and &gamma; subunits	"{""reactant"": {""FDNG-MONOMER"": 1, ""FDNH-MONOMER"": 1, ""FDNI-MONOMER"": 1}, ""product"": {""ALPHA-SUBUNIT-CPLX"": 1}}"	Complexation
+ALPHAGALACTOSID-CPLX	&alpha;-galactosidase	"{""reactant"": {""ALPHAGALACTOSID-MONOMER"": 2}, ""product"": {""ALPHAGALACTOSID-CPLX"": 1}}"	Complexation
+AMINEOXID-CPLX	copper-containing amine oxidase	"{""reactant"": {""AMINEOXID-MONOMER"": 2}, ""product"": {""AMINEOXID-CPLX"": 1}}"	Complexation
+AMP-NUCLEOSID-CPLX	AMP nucleosidase	"{""reactant"": {""AMP-NUCLEOSID-MONOMER"": 6}, ""product"": {""AMP-NUCLEOSID-CPLX"": 1}}"	Complexation
+ANGLYC3PDEHYDROG-CPLX	glycerol-3-phosphate-dehydrogenase, anaerobic	"{""reactant"": {""ANGLYC3PDEHYDROGSUBUNITA-MONOMER"": 1, ""ANGLYC3PDEHYDROGSUBUNITC-MONOMER"": 1, ""ANGLYC3PDEHYDROGSUBUNITB-MONOMER"": 1}, ""product"": {""ANGLYC3PDEHYDROG-CPLX"": 1}}"	Complexation
+ANSA-CPLX	asparaginase I	"{""reactant"": {""ANSA-MONOMER"": 4}, ""product"": {""ANSA-CPLX"": 1}}"	Complexation
+ANSB-CPLX	asparaginase II	"{""reactant"": {""ANSB-MONOMER"": 4}, ""product"": {""ANSB-CPLX"": 1}}"	Complexation
+ANTHRANSYN-CPLX	anthranilate synthase	"{""reactant"": {""ANTHRANSYNCOMPI-MONOMER"": 2, ""ANTHRANSYNCOMPII-MONOMER"": 2}, ""product"": {""ANTHRANSYN-CPLX"": 1}}"	Complexation
+APHA-CPLX	acid phosphatase/phosphotransferase	"{""reactant"": {""APHA-MONOMER"": 4}, ""product"": {""APHA-CPLX"": 1}}"	Complexation
+APO-ENTB	apo-EntB multimer	"{""reactant"": {""ENTB-MONOMER"": 2}, ""product"": {""APO-ENTB"": 1}}"	Complexation
+APORNAP-CPLX	RNA polymerase, core enzyme	"{""reactant"": {""RPOC-MONOMER"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""APORNAP-CPLX"": 1}}"	Complexation
+APP-UBIOX-CPLX	cytochrome bd-II terminal oxidase	"{""reactant"": {""APPC-MONOMER"": 1, ""APPB-MONOMER"": 1}, ""product"": {""APP-UBIOX-CPLX"": 1}}"	Complexation
+ARABISOM-CPLX	L-arabinose isomerase	"{""reactant"": {""ARABISOM-MONOMER"": 6}, ""product"": {""ARABISOM-CPLX"": 1}}"	Complexation
+ARCB-CPLX	ArcB sensory histidine kinase	"{""reactant"": {""ARCB-MONOMER"": 2}, ""product"": {""ARCB-CPLX"": 1}}"	Complexation
+ARGDECARBOXBIO-CPLX	arginine decarboxylase, biosynthetic	"{""reactant"": {""ARGDECARBOXBIO-MONOMER"": 4}, ""product"": {""ARGDECARBOXBIO-CPLX"": 1}}"	Complexation
+ARGDECARBOXDEG-CPLX	arginine decarboxylase, degradative	"{""reactant"": {""ARGDECARBOXDEG-MONOMER"": 10}, ""product"": {""ARGDECARBOXDEG-CPLX"": 1}}"	Complexation
+AROC-CPLX	chorismate synthase	"{""reactant"": {""AROC-MONOMER"": 4}, ""product"": {""AROC-CPLX"": 1}}"	Complexation
+AROD-CPLX	3-dehydroquinate dehydratase	"{""reactant"": {""AROD-MONOMER"": 2}, ""product"": {""AROD-CPLX"": 1}}"	Complexation
+AROF-CPLX	2-dehydro-3-deoxyphosphoheptonate aldolase	"{""reactant"": {""AROF-MONOMER"": 2}, ""product"": {""AROF-CPLX"": 1}}"	Complexation
+AROG-CPLX	2-dehydro-3-deoxyphosphoheptonate aldolase	"{""reactant"": {""AROG-MONOMER"": 4}, ""product"": {""AROG-CPLX"": 1}}"	Complexation
+AROH-CPLX	2-dehydro-3-deoxyphosphoheptonate aldolase	"{""reactant"": {""AROH-MONOMER"": 2}, ""product"": {""AROH-CPLX"": 1}}"	Complexation
+ASNS-CPLX	asparaginyl-tRNA synthetase	"{""reactant"": {""ASNS-MONOMER"": 2}, ""product"": {""ASNS-CPLX"": 1}}"	Complexation
+ASNSYNA-CPLX	asparagine synthetase A	"{""reactant"": {""ASNSYNA-MONOMER"": 2}, ""product"": {""ASNSYNA-CPLX"": 1}}"	Complexation
+ASNSYNB-CPLX	asparagine synthetase B	"{""reactant"": {""ASNSYNB-MONOMER"": 2}, ""product"": {""ASNSYNB-CPLX"": 1}}"	Complexation
+ASP-SEMIALDEHYDE-DEHYDROGENASE-CPLX	aspartate semialdehyde dehydrogenase	"{""reactant"": {""ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER"": 2}, ""product"": {""ASP-SEMIALDEHYDE-DEHYDROGENASE-CPLX"": 1}}"	Complexation
+ASPAMINOTRANS-DIMER	aspartate aminotransferase, PLP-dependent	"{""reactant"": {""ASPAMINOTRANS-MONOMER"": 2}, ""product"": {""ASPAMINOTRANS-DIMER"": 1}}"	Complexation
+ASPARTASE-CPLX	aspartate ammonia-lyase	"{""reactant"": {""ASPARTASE-MONOMER"": 4}, ""product"": {""ASPARTASE-CPLX"": 1}}"	Complexation
+ASPCARBCAT-TRIMER	aspartate carbamoyltransferase, catalytic subunit	"{""reactant"": {""ASPCARBCAT-MONOMER"": 3}, ""product"": {""ASPCARBCAT-TRIMER"": 1}}"	Complexation
+ASPCARBREG-DIMER	aspartate carbamoyltransferase, regulatory subunit	"{""reactant"": {""ASPCARBREG-MONOMER"": 2}, ""product"": {""ASPCARBREG-DIMER"": 1}}"	Complexation
+ASPCARBTRANS-CPLX	aspartate transcarbamylase	"{""reactant"": {""ASPCARBREG-DIMER"": 3, ""ASPCARBREG-MONOMER"": 6, ""ASPCARBCAT-TRIMER"": 2, ""ASPCARBCAT-MONOMER"": 6}, ""product"": {""ASPCARBTRANS-CPLX"": 1}}"	Complexation
+ASPKINIHOMOSERDEHYDROGI-CPLX	aspartate kinase / homoserine dehydrogenase	"{""reactant"": {""ASPKINIHOMOSERDEHYDROGI-MONOMER"": 4}, ""product"": {""ASPKINIHOMOSERDEHYDROGI-CPLX"": 1}}"	Complexation
+ASPKINIIHOMOSERDEHYDROGII-CPLX	aspartate kinase / homoserine dehydrogenase	"{""reactant"": {""ASPKINIIHOMOSERDEHYDROGII-MONOMER"": 2}, ""product"": {""ASPKINIIHOMOSERDEHYDROGII-CPLX"": 1}}"	Complexation
+ASPKINIII-CPLX	aspartate kinase III	"{""reactant"": {""ASPKINIII-MONOMER"": 2}, ""product"": {""ASPKINIII-CPLX"": 1}}"	Complexation
+ASPS-CPLX	aspartyl-tRNA synthetase	"{""reactant"": {""ASPS-MONOMER"": 2}, ""product"": {""ASPS-CPLX"": 1}}"	Complexation
+ATOA-CPLX	&beta; complex	"{""reactant"": {""ATOA-MONOMER"": 2}, ""product"": {""ATOA-CPLX"": 1}}"	Complexation
+ATOD-CPLX	&alpha; complex	"{""reactant"": {""ATOD-MONOMER"": 2}, ""product"": {""ATOD-CPLX"": 1}}"	Complexation
+ATPA-CPLX	ATP synthase F1 complex - alpha subunit	"{""reactant"": {""ATPA-MONOMER"": 3}, ""product"": {""ATPA-CPLX"": 1}}"	Complexation
+ATPASE-1-CPLX	K+ transporting ATPase	"{""reactant"": {""MONOMER0-12"": 1, ""EG10515-MONOMER"": 1, ""EG10513-MONOMER"": 1, ""KDPB-MONOMER"": 1}, ""product"": {""ATPASE-1-CPLX"": 1}}"	Complexation
+ATPD-CPLX	ATP synthase F1 complex - beta subunit	"{""reactant"": {""ATPD-MONOMER"": 3}, ""product"": {""ATPD-CPLX"": 1}}"	Complexation
+ATPE-CPLX	ATP synthase F0 complex - subunit c	"{""reactant"": {""ATPE-MONOMER"": 10}, ""product"": {""ATPE-CPLX"": 1}}"	Complexation
+ATPF-CPLX	ATP synthase F0 complex - b subunit	"{""reactant"": {""ATPF-MONOMER"": 2}, ""product"": {""ATPF-CPLX"": 1}}"	Complexation
+ATPSYN-CPLX	ATP synthase	"{""reactant"": {""ATPE-CPLX"": 1, ""ATPH-MONOMER"": 1, ""ATPG-MONOMER"": 1, ""F-O-CPLX"": 1, ""ATPD-MONOMER"": 3, ""ATPC-MONOMER"": 1, ""ATPB-MONOMER"": 1, ""ATPA-MONOMER"": 3, ""ATPA-CPLX"": 1, ""ATPD-CPLX"": 1, ""ATPF-MONOMER"": 2, ""ATPE-MONOMER"": 10, ""F-1-CPLX"": 1, ""ATPF-CPLX"": 1}, ""product"": {""ATPSYN-CPLX"": 1}}"	Complexation
+B1-CPLX	ribonucleoside diphosphate reductase 1, &alpha; subunit dimer	"{""reactant"": {""NRDA-MONOMER"": 2}, ""product"": {""B1-CPLX"": 1}}"	Complexation
+B2-CPLX	ribonucleoside diphosphate reductase 1, &beta; subunit dimer	"{""reactant"": {""NRDB-MONOMER"": 2}, ""product"": {""B2-CPLX"": 1}}"	Complexation
+BADH-CPLX	betaine aldehyde dehydrogenase	"{""reactant"": {""BADH-MONOMER"": 4}, ""product"": {""BADH-CPLX"": 1}}"	Complexation
+BCCP-CPLX	biotin carboxyl carrier protein (dimer)	"{""reactant"": {""BCCP-BIOTIN"": 2}, ""product"": {""BCCP-CPLX"": 1}}"	Complexation
+BETAGALACTOSID-CPLX	&beta;-galactosidase	"{""reactant"": {""BETAGALACTOSID-MONOMER"": 4}, ""product"": {""BETAGALACTOSID-CPLX"": 1}}"	Complexation
+BIOTIN-CARBOXYL-CPLX	biotin carboxylase	"{""reactant"": {""BIOTIN-CARBOXYL-MONOMER"": 2}, ""product"": {""BIOTIN-CARBOXYL-CPLX"": 1}}"	Complexation
+BIOTIN-SYN-CPLX	biotin synthase	"{""reactant"": {""BIOTIN-SYN-MONOMER"": 2}, ""product"": {""BIOTIN-SYN-CPLX"": 1}}"	Complexation
+BRANCHED-CHAINAMINOTRANSFER-CPLX	branched-chain amino-acid aminotransferase	"{""reactant"": {""BRANCHED-CHAINAMINOTRANSFER-MONOMER"": 6}, ""product"": {""BRANCHED-CHAINAMINOTRANSFER-CPLX"": 1}}"	Complexation
+CARBODEHYDRAT-CPLX	carbonic anhydrase 1	"{""reactant"": {""CARBODEHYDRAT-MONOMER"": 2}, ""product"": {""CARBODEHYDRAT-CPLX"": 1}}"	Complexation
+CARBPSYN-CPLX	carbamoyl phosphate synthetase	"{""reactant"": {""CARBPSYN-LARGE"": 2, ""CARBPSYN-SMALL"": 2}, ""product"": {""CARBPSYN-CPLX"": 1}}"	Complexation
+CARNDEHYDRA-CPLX	&gamma;-butyrobetainyl-CoA:carnitine CoA transferase	"{""reactant"": {""CARNDEHYDRA-MONOMER"": 2}, ""product"": {""CARNDEHYDRA-CPLX"": 1}}"	Complexation
+CFA-CPLX	cyclopropane fatty acyl phospholipid synthase	"{""reactant"": {""CFA-MONOMER"": 2}, ""product"": {""CFA-CPLX"": 1}}"	Complexation
+CHEA-CPLX	CheA(L) histidine kinase	"{""reactant"": {""PROTEIN-CHEA"": 2}, ""product"": {""CHEA-CPLX"": 1}}"	Complexation
+CHEZ-CPLX	CheZ	"{""reactant"": {""CHEZ-MONOMER"": 2}, ""product"": {""CHEZ-CPLX"": 1}}"	Complexation
+CHORISMUTPREPHENDEHYDRAT-CPLX	chorismate mutase / prephenate dehydratase	"{""reactant"": {""CHORISMUTPREPHENDEHYDRAT-MONOMER"": 2}, ""product"": {""CHORISMUTPREPHENDEHYDRAT-CPLX"": 1}}"	Complexation
+CHORISMUTPREPHENDEHYDROG-CPLX	chorismate mutase / prephenate dehydrogenase	"{""reactant"": {""CHORISMUTPREPHENDEHYDROG-MONOMER"": 2}, ""product"": {""CHORISMUTPREPHENDEHYDROG-CPLX"": 1}}"	Complexation
+CITLY-CPLX	citrate lyase, inactive	"{""reactant"": {""CITRYLY-CPLX"": 1, ""CITRYLY-MONOMER"": 6, ""ACPSUB-MONOMER"": 6, ""ACPSUB-CPLX"": 1, ""CITTRANS-MONOMER"": 6, ""CITTRANS-CPLX"": 1}, ""product"": {""CITLY-CPLX"": 1}}"	Complexation
+CITRATE-SI-SYNTHASE	citrate synthase	"{""reactant"": {""CITSYN-MONOMER"": 6}, ""product"": {""CITRATE-SI-SYNTHASE"": 1}}"	Complexation
+CITRYLY-CPLX	citrate lyase, citryl-ACP lyase component	"{""reactant"": {""CITRYLY-MONOMER"": 6}, ""product"": {""CITRYLY-CPLX"": 1}}"	Complexation
+CITTRANS-CPLX	citrate lyase, citrate-ACP transferase component	"{""reactant"": {""CITTRANS-MONOMER"": 6}, ""product"": {""CITTRANS-CPLX"": 1}}"	Complexation
+COADTRI-CPLX	phosphopantetheine adenylyltransferase	"{""reactant"": {""PANTEPADENYLYLTRAN-MONOMER"": 6}, ""product"": {""COADTRI-CPLX"": 1}}"	Complexation
+COBU-CPLX	cobinamide-P guanylyltransferase / cobinamide kinase	"{""reactant"": {""COBU-MONOMER"": 2}, ""product"": {""COBU-CPLX"": 1}}"	Complexation
+CPLX-153	&beta;-glucoside PTS permease AscF - cryptic	"{""reactant"": {""ASCF-MONOMER"": 2}, ""product"": {""CPLX-153"": 1}}"	Complexation
+CPLX-154	&beta;-glucoside PTS permease BglF - cryptic	"{""reactant"": {""BGLF-MONOMER"": 2}, ""product"": {""CPLX-154"": 1}}"	Complexation
+CPLX-155	chitobiose / cellobiose PTS permease	"{""reactant"": {""CELA-MONOMER"": 1, ""CELB-MONOMER"": 2, ""CELC-MONOMER"": 1}, ""product"": {""CPLX-155"": 1}}"	Complexation
+CPLX-156	mannitol PTS permease - cryptic	"{""reactant"": {""CMTA-MONOMER"": 2, ""CMTB-MONOMER"": 1}, ""product"": {""CPLX-156"": 1}}"	Complexation
+CPLX-157	glucose PTS permease	"{""reactant"": {""PTSG-MONOMER"": 2, ""CRR-MONOMER"": 1}, ""product"": {""CPLX-157"": 1}}"	Complexation
+CPLX-158	fructose PTS permease	"{""reactant"": {""FRUB-MONOMER"": 1, ""FRUA-MONOMER"": 2}, ""product"": {""CPLX-158"": 1}}"	Complexation
+CPLX-159	PTS permease - unknown specificity	"{""reactant"": {""FRVB-MONOMER"": 2, ""FRVA-MONOMER"": 1}, ""product"": {""CPLX-159"": 1}}"	Complexation
+CPLX-160	PTS permease - unknown specificity	"{""reactant"": {""EG11912-MONOMER"": 1, ""FRWC-MONOMER"": 2, ""FRWB-MONOMER"": 1}, ""product"": {""CPLX-160"": 1}}"	Complexation
+CPLX-163	2-O-&alpha;-mannosyl-D-glycerate PTS permease	"{""reactant"": {""HRSA-MONOMER"": 2}, ""product"": {""CPLX-163"": 1}}"	Complexation
+CPLX-164	maltose / glucose PTS permease	"{""reactant"": {""MALX-MONOMER"": 2, ""CRR-MONOMER"": 1}, ""product"": {""CPLX-164"": 1}}"	Complexation
+CPLX-165	mannose PTS permease	"{""reactant"": {""MANX-MONOMER"": 2, ""MANY-MONOMER"": 1, ""MANZ-MONOMER"": 2}, ""product"": {""CPLX-165"": 1}}"	Complexation
+CPLX-166	mannitol PTS permease	"{""reactant"": {""MTLA-MONOMER"": 2}, ""product"": {""CPLX-166"": 1}}"	Complexation
+CPLX-167	N-acetylglucosamine PTS permease	"{""reactant"": {""NAGE-MONOMER"": 2}, ""product"": {""CPLX-167"": 1}}"	Complexation
+CPLX-168	trehalose PTS permease	"{""reactant"": {""CRR-MONOMER"": 1, ""TREB-MONOMER"": 2}, ""product"": {""CPLX-168"": 1}}"	Complexation
+CPLX-169	glucitol/sorbitol PTS permease	"{""reactant"": {""G8210-MONOMER"": 1, ""GUTA-MONOMER"": 1, ""GUTB-MONOMER"": 1}, ""product"": {""CPLX-169"": 1}}"	Complexation
+CPLX-170	galactosamine PTS permease - cryptic	"{""reactant"": {""AGAD-MONOMER"": 1, ""AGAC-MONOMER"": 2, ""AGAB-MONOMER"": 1}, ""product"": {""CPLX-170"": 1}}"	Complexation
+CPLX-171	hydroxypyruvate isomerase	"{""reactant"": {""G6277-MONOMER"": 2}, ""product"": {""CPLX-171"": 1}}"	Complexation
+CPLX-3942	sulfur transfer protein complex	"{""reactant"": {""G7714-MONOMER"": 2, ""G7713-MONOMER"": 2, ""G7712-MONOMER"": 2}, ""product"": {""CPLX-3942"": 1}}"	Complexation
+CPLX-3944	FecAR Signal Transduction System	"{""reactant"": {""EG10292-MONOMER"": 1, ""EG10286-MONOMER"": 1}, ""product"": {""CPLX-3944"": 1}}"	Complexation
+CPLX-3945	curli secretion and assembly complex	"{""reactant"": {""G6543-MONOMER"": 1, ""G6545-MONOMER"": 1, ""G6544-MONOMER"": 1}, ""product"": {""CPLX-3945"": 1}}"	Complexation
+CPLX-3946	exonuclease VII	"{""reactant"": {""EG11098-MONOMER"": 4, ""EG11072-MONOMER"": 1}, ""product"": {""CPLX-3946"": 1}}"	Complexation
+CPLX-63	trimethylamine N-oxide reductase III	"{""reactant"": {""G7023-MONOMER"": 1, ""G7022-MONOMER"": 1}, ""product"": {""CPLX-63"": 1}}"	Complexation
+CPLX-64	allantoinase	"{""reactant"": {""G6281-MONOMER"": 4}, ""product"": {""CPLX-64"": 1}}"	Complexation
+CPLX-7	arsenite:H+ antiporter	"{""reactant"": {""ARSF-MONOMER"": 2}, ""product"": {""CPLX-7"": 1}}"	Complexation
+CPLX-722	acid phosphatase	"{""reactant"": {""APPA-MONOMER"": 2}, ""product"": {""CPLX-722"": 1}}"	Complexation
+CPLX-7524	allantoate amidohydrolase	"{""reactant"": {""G6285-MONOMER"": 2}, ""product"": {""CPLX-7524"": 1}}"	Complexation
+CPLX-8029	thiazole synthase	"{""reactant"": {""THIG-MONOMER"": 6, ""THIH-MONOMER"": 6, ""CPLX0-3949"": 6}, ""product"": {""CPLX-8029"": 1}}"	Complexation
+CPLX-8331	MoaC dimer	"{""reactant"": {""EG11666-MONOMER"": 2}, ""product"": {""CPLX-8331"": 1}}"	Complexation
+CPLX-8332	MoaC hexamer	"{""reactant"": {""CPLX-8331"": 3, ""EG11666-MONOMER"": 6}, ""product"": {""CPLX-8332"": 1}}"	Complexation
+CPLX-8401	predicted 5-keto 4-deoxyuronate isomerase	"{""reactant"": {""G7463-MONOMER"": 6}, ""product"": {""CPLX-8401"": 1}}"	Complexation
+CPLX0-0	DnaT	"{""reactant"": {""EG10244-MONOMER"": 3}, ""product"": {""CPLX0-0"": 1}}"	Complexation
+CPLX0-1	reduced flavorubredoxin	"{""reactant"": {""G7413-MONOMER"": 4}, ""product"": {""CPLX0-1"": 1}}"	Complexation
+CPLX0-1021	2-methylisocitrate lyase	"{""reactant"": {""G6196-MONOMER"": 4}, ""product"": {""CPLX0-1021"": 1}}"	Complexation
+CPLX0-1081	RNase PH	"{""reactant"": {""EG10863-MONOMER"": 1}, ""product"": {""CPLX0-1081"": 1}}"	Complexation
+CPLX0-1101	tRNA-guanine transglycosylase	"{""reactant"": {""EG10996-MONOMER"": 3}, ""product"": {""CPLX0-1101"": 1}}"	Complexation
+CPLX0-1121	23S rRNA 2'-O-ribose G2251 methyltransferase	"{""reactant"": {""G7845-MONOMER"": 2}, ""product"": {""CPLX0-1121"": 1}}"	Complexation
+CPLX0-1141	selenocysteine synthase	"{""reactant"": {""EG10941-MONOMER"": 10}, ""product"": {""CPLX0-1141"": 1}}"	Complexation
+CPLX0-1142	formyl-CoA transferase	"{""reactant"": {""G7237-MONOMER"": 2}, ""product"": {""CPLX0-1142"": 1}}"	Complexation
+CPLX0-1161	HslU hexamer	"{""reactant"": {""EG11881-MONOMER"": 6}, ""product"": {""CPLX0-1161"": 1}}"	Complexation
+CPLX0-1162	HslV hexamer	"{""reactant"": {""EG11676-MONOMER"": 6}, ""product"": {""CPLX0-1162"": 1}}"	Complexation
+CPLX0-1163	HslVU protease	"{""reactant"": {""CPLX0-1162"": 2, ""EG11676-MONOMER"": 12, ""CPLX0-1161"": 2, ""EG11881-MONOMER"": 12}, ""product"": {""CPLX0-1163"": 1}}"	Complexation
+CPLX0-1221	ADP-sugar pyrophosphorylase	"{""reactant"": {""G7740-MONOMER"": 2}, ""product"": {""CPLX0-1221"": 1}}"	Complexation
+CPLX0-1241	MazF toxin of the MazF-MazE toxin-antitoxin system that exhibits ribonuclease activity	"{""reactant"": {""EG11249-MONOMER"": 2}, ""product"": {""CPLX0-1241"": 1}}"	Complexation
+CPLX0-1242	MazE-MazF antitoxin/toxin complex and DNA-binding transcriptional repressor	"{""reactant"": {""EG11249-MONOMER"": 4, ""EG10571-MONOMER"": 2, ""CPLX0-841"": 1, ""CPLX0-1241"": 2}, ""product"": {""CPLX0-1242"": 1}}"	Complexation
+CPLX0-1261	transketolase II	"{""reactant"": {""TRANSKETOII-MONOMER"": 1}, ""product"": {""CPLX0-1261"": 1}}"	Complexation
+CPLX0-1262	D-arabinose 5-phosphate isomerase	"{""reactant"": {""G7662-MONOMER"": 4}, ""product"": {""CPLX0-1262"": 1}}"	Complexation
+CPLX0-1321	HflK-HflC complex; regulator of FtsH protease	"{""reactant"": {""EG10436-MONOMER"": 1, ""EG10435-MONOMER"": 1}, ""product"": {""CPLX0-1321"": 1}}"	Complexation
+CPLX0-1341	SufBC2D Fe-S cluster scaffold complex	"{""reactant"": {""G6909-MONOMER"": 1, ""G6908-MONOMER"": 2, ""G6907-MONOMER"": 1}, ""product"": {""CPLX0-1341"": 1}}"	Complexation
+CPLX0-1342	SufE homodimer	"{""reactant"": {""G6905-MONOMER"": 2}, ""product"": {""CPLX0-1342"": 1}}"	Complexation
+CPLX0-1401	2,3-diaminopropionate ammonia-lyase	"{""reactant"": {""G7490-MONOMER"": 2}, ""product"": {""CPLX0-1401"": 1}}"	Complexation
+CPLX0-1421	bacterioferritin	"{""reactant"": {""EG10113-MONOMER"": 24}, ""product"": {""CPLX0-1421"": 1}}"	Complexation
+CPLX0-1441	ecotin homodimer; serine protease inhibitor	"{""reactant"": {""EG10255-MONOMER"": 2}, ""product"": {""CPLX0-1441"": 1}}"	Complexation
+CPLX0-1461	HF-I, host factor for RNA phage Q &beta; replication	"{""reactant"": {""EG10438-MONOMER"": 6}, ""product"": {""CPLX0-1461"": 1}}"	Complexation
+CPLX0-1521	Dps complex; stationary phase nucleoid component that sequesters iron and protects DNA from damage	"{""reactant"": {""EG11415-MONOMER"": 12}, ""product"": {""CPLX0-1521"": 1}}"	Complexation
+CPLX0-1541	5'-methylthioadenosine/S-adenosylhomocysteine nucleosidase	"{""reactant"": {""EG11090-MONOMER"": 2}, ""product"": {""CPLX0-1541"": 1}}"	Complexation
+CPLX0-1581	palmitoyl transferase for Lipid A	"{""reactant"": {""EG12180-MONOMER"": 2}, ""product"": {""CPLX0-1581"": 1}}"	Complexation
+CPLX0-1601	putative selenate reductase	"{""reactant"": {""G6845-MONOMER"": 1, ""G6846-MONOMER"": 1, ""G6847-MONOMER"": 1, ""G6848-MONOMER"": 1}, ""product"": {""CPLX0-1601"": 1}}"	Complexation
+CPLX0-1621	ribonuclease G (RNAse G)	"{""reactant"": {""EG11299-MONOMER"": 2}, ""product"": {""CPLX0-1621"": 1}}"	Complexation
+CPLX0-1642	ribonuclease E inhibitor protein A	"{""reactant"": {""EG11879-MONOMER"": 3}, ""product"": {""CPLX0-1642"": 1}}"	Complexation
+CPLX0-1666	FadJ component of anaerobic fatty acid oxidation complex	"{""reactant"": {""G7212-MONOMER"": 2}, ""product"": {""CPLX0-1666"": 1}}"	Complexation
+CPLX0-1667	Fad I component of anaerobic fatty acid oxidation complex	"{""reactant"": {""G7213-MONOMER"": 2}, ""product"": {""CPLX0-1667"": 1}}"	Complexation
+CPLX0-1668	anaerobic fatty acid oxidation complex	"{""reactant"": {""G7212-MONOMER"": 2, ""G7213-MONOMER"": 2, ""CPLX0-1667"": 1, ""CPLX0-1666"": 1}, ""product"": {""CPLX0-1668"": 1}}"	Complexation
+CPLX0-1669	short chain acyl-CoA synthetase	"{""reactant"": {""EG12357-MONOMER"": 2}, ""product"": {""CPLX0-1669"": 1}}"	Complexation
+CPLX0-1683	cryptic adenine deaminase	"{""reactant"": {""EG11692-MONOMER"": 2}, ""product"": {""CPLX0-1683"": 1}}"	Complexation
+CPLX0-1721	copper / silver efflux transport system	"{""reactant"": {""YBDE-MONOMER"": 3, ""G6321-MONOMER"": 1, ""G6320-MONOMER"": 3, ""G6322-MONOMER"": 6}, ""product"": {""CPLX0-1721"": 1}}"	Complexation
+CPLX0-1762	ring 1,2-phenylacetyl-CoA epoxidase	"{""reactant"": {""G6710-MONOMER"": 1, ""G6711-MONOMER"": 1, ""G6713-MONOMER"": 1, ""G6709-MONOMER"": 1}, ""product"": {""CPLX0-1762"": 1}}"	Complexation
+CPLX0-1821	oligoribonuclease	"{""reactant"": {""G7842-MONOMER"": 2}, ""product"": {""CPLX0-1821"": 1}}"	Complexation
+CPLX0-1841	predicted xanthine dehydrogenase	"{""reactant"": {""G7500-MONOMER"": 1, ""G7499-MONOMER"": 1}, ""product"": {""CPLX0-1841"": 1}}"	Complexation
+CPLX0-1862	vitamin B12 transport system	"{""reactant"": {""EG11012-MONOMER"": 1, ""CPLX0-1924"": 1, ""CPLX0-1923"": 1, ""ABC-5-CPLX"": 1, ""BTUC-MONOMER"": 2, ""EG10272-MONOMER"": 1, ""EG10271-MONOMER"": 1, ""EG10126-MONOMER"": 1, ""EG12334-MONOMER"": 1, ""BTUD-MONOMER"": 2}, ""product"": {""CPLX0-1862"": 1}}"	Complexation
+CPLX0-1863	conserved metal-binding protein	"{""reactant"": {""G6379-MONOMER"": 6}, ""product"": {""CPLX0-1863"": 1}}"	Complexation
+CPLX0-1881	predicted enamine/imine deaminase	"{""reactant"": {""G7877-MONOMER"": 3}, ""product"": {""CPLX0-1881"": 1}}"	Complexation
+CPLX0-1923	TonB energy transducing system	"{""reactant"": {""EG10271-MONOMER"": 1, ""EG11012-MONOMER"": 1, ""EG10272-MONOMER"": 1}, ""product"": {""CPLX0-1923"": 1}}"	Complexation
+CPLX0-1924	vitamin B12 outer membrane transport complex	"{""reactant"": {""EG11012-MONOMER"": 1, ""EG10271-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""CPLX0-1923"": 1, ""EG10126-MONOMER"": 1}, ""product"": {""CPLX0-1924"": 1}}"	Complexation
+CPLX0-1941	ferric enterobactin outer membrane transport complex	"{""reactant"": {""EG10293-MONOMER"": 1, ""EG11012-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""CPLX0-1923"": 1, ""EG10271-MONOMER"": 1}, ""product"": {""CPLX0-1941"": 1}}"	Complexation
+CPLX0-1942	ferrichrome outer membrane transport complex	"{""reactant"": {""EG11012-MONOMER"": 1, ""EG10271-MONOMER"": 1, ""EG10302-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""CPLX0-1923"": 1}, ""product"": {""CPLX0-1942"": 1}}"	Complexation
+CPLX0-1943	ferric citrate outer membrane transport complex	"{""reactant"": {""EG11012-MONOMER"": 1, ""EG10271-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""CPLX0-1923"": 1, ""EG10286-MONOMER"": 1}, ""product"": {""CPLX0-1943"": 1}}"	Complexation
+CPLX0-1944	ferric enterobactin transport system	"{""reactant"": {""EG11012-MONOMER"": 1, ""FEPD-MONOMER"": 1, ""CPLX0-1923"": 1, ""EG10271-MONOMER"": 1, ""ABC-10-CPLX"": 1, ""EG10272-MONOMER"": 1, ""FEPC-MONOMER"": 2, ""CPLX0-1941"": 1, ""FEPB-MONOMER"": 1, ""EG10293-MONOMER"": 1, ""FEPG-MONOMER"": 1}, ""product"": {""CPLX0-1944"": 1}}"	Complexation
+CPLX0-1962	3-hydroxy acid dehydrogenase	"{""reactant"": {""EG12345-MONOMER"": 4}, ""product"": {""CPLX0-1962"": 1}}"	Complexation
+CPLX0-1981	ferrichrome transport system	"{""reactant"": {""EG11012-MONOMER"": 1, ""FHUC-MONOMER"": 2, ""EG10302-MONOMER"": 1, ""CPLX0-1923"": 1, ""EG10271-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""CPLX0-1942"": 1, ""ABC-11-CPLX"": 1, ""FHUB-MONOMER"": 2, ""FHUD-MONOMER"": 1}, ""product"": {""CPLX0-1981"": 1}}"	Complexation
+CPLX0-2	oxidized flavorubredoxin	"{""reactant"": {""G7413-MONOMER"": 4}, ""product"": {""CPLX0-2"": 1}}"	Complexation
+CPLX0-2001	ferric dicitrate transport system	"{""reactant"": {""EG11012-MONOMER"": 1, ""FECC-MONOMER"": 1, ""FECD-MONOMER"": 1, ""CPLX0-1923"": 1, ""FECE-MONOMER"": 2, ""EG10271-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""ABC-9-CPLX"": 1, ""CPLX0-1943"": 1, ""FECB-MONOMER"": 1, ""EG10286-MONOMER"": 1}, ""product"": {""CPLX0-2001"": 1}}"	Complexation
+CPLX0-201	fructose 6-phosphate aldolase 1	"{""reactant"": {""G6428-MONOMER"": 10}, ""product"": {""CPLX0-201"": 1}}"	Complexation
+CPLX0-2021	HU DNA-binding transcriptional dual regulator	"{""reactant"": {""EG10466-MONOMER"": 1, ""EG10467-MONOMER"": 1}, ""product"": {""CPLX0-2021"": 1}}"	Complexation
+CPLX0-2061	2,3-diketo-L-gulonate reductase	"{""reactant"": {""EG12279-MONOMER"": 2}, ""product"": {""CPLX0-2061"": 1}}"	Complexation
+CPLX0-2081	dihydroxyacetone kinase	"{""reactant"": {""MONOMER0-1261"": 1, ""G6627-MONOMER"": 2, ""EG12399-MONOMER"": 2}, ""product"": {""CPLX0-2081"": 1}}"	Complexation
+CPLX0-2121	EmrAB-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""EG11354-MONOMER"": 1, ""EG11009-MONOMER"": 3, ""EMRB-MONOMER"": 1}, ""product"": {""CPLX0-2121"": 1}}"	Complexation
+CPLX0-2141	AcrEF-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""ACRF-MONOMER"": 1, ""EG10266-MONOMER"": 1, ""EG11009-MONOMER"": 3}, ""product"": {""CPLX0-2141"": 1}}"	Complexation
+CPLX0-2161	EmrKY-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""EG11009-MONOMER"": 3, ""EMRY-MONOMER"": 1, ""G7233-MONOMER"": 1}, ""product"": {""CPLX0-2161"": 1}}"	Complexation
+CPLX0-2201	The Tol-Pal Cell Envelope Complex	"{""reactant"": {""EG10684-MONOMER"": 1, ""EG12854-MONOMER"": 1, ""EG11010-MONOMER"": 1, ""EG11011-MONOMER"": 1, ""EG11008-MONOMER"": 1, ""EG11007-MONOMER"": 1}, ""product"": {""CPLX0-2201"": 1}}"	Complexation
+CPLX0-2202	Colicin S4 Transport System	"{""reactant"": {""EG10684-MONOMER"": 1, ""EG11011-MONOMER"": 1, ""CPLX0-2201"": 1, ""EG11124-MONOMER"": 1, ""EG11010-MONOMER"": 1, ""EG12854-MONOMER"": 1, ""EG11008-MONOMER"": 1, ""EG11007-MONOMER"": 1}, ""product"": {""CPLX0-2202"": 1}}"	Complexation
+CPLX0-221	RNA polymerase sigma 19	"{""reactant"": {""RPOC-MONOMER"": 1, ""PD00440"": 1, ""APORNAP-CPLX"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""CPLX0-221"": 1}}"	Complexation
+CPLX0-222	RNA polymerase sigma 28	"{""reactant"": {""EG11355-MONOMER"": 1, ""APORNAP-CPLX"": 1, ""RPOC-MONOMER"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""CPLX0-222"": 1}}"	Complexation
+CPLX0-2221	The Colicin A Import System	"{""reactant"": {""EG10684-MONOMER"": 1, ""EG10126-MONOMER"": 1, ""EG11011-MONOMER"": 1, ""CPLX0-2201"": 1, ""CPLX0-7534"": 1, ""EG11010-MONOMER"": 1, ""EG12854-MONOMER"": 1, ""EG10671-MONOMER"": 3, ""EG11008-MONOMER"": 1, ""EG11007-MONOMER"": 1}, ""product"": {""CPLX0-2221"": 1}}"	Complexation
+CPLX0-224	NADP(H)-dependent FMN reductase	"{""reactant"": {""MONOMER0-146"": 2}, ""product"": {""CPLX0-224"": 1}}"	Complexation
+CPLX0-225	alkanesulfonate monooxygenase, FMNH2-dependent	"{""reactant"": {""MONOMER-162"": 4}, ""product"": {""CPLX0-225"": 1}}"	Complexation
+CPLX0-227	taurine dioxygenase	"{""reactant"": {""MONOMER0-147"": 2}, ""product"": {""CPLX0-227"": 1}}"	Complexation
+CPLX0-229	ribonucleoside triphosphate reductase activase	"{""reactant"": {""RNTRACTIV-MONOMER"": 2}, ""product"": {""CPLX0-229"": 1}}"	Complexation
+CPLX0-230	isocitrate dehydrogenase phosphatase / isocitrate dehydrogenase kinase	"{""reactant"": {""ICITDEHASE-KIN-PHOSPHA"": 2}, ""product"": {""CPLX0-230"": 1}}"	Complexation
+CPLX0-231	galactitol PTS permease	"{""reactant"": {""GATA-MONOMER"": 1, ""GATB-MONOMER"": 1, ""GATC-MONOMER"": 2}, ""product"": {""CPLX0-231"": 1}}"	Complexation
+CPLX0-232	PTS permease - unknown specificity	"{""reactant"": {""GLVC-MONOMER"": 2, ""GLVB-MONOMER"": 1}, ""product"": {""CPLX0-232"": 1}}"	Complexation
+CPLX0-234	4-diphosphocytidyl-2C-methyl-D-erythritol synthase	"{""reactant"": {""G7423-MONOMER"": 2}, ""product"": {""CPLX0-234"": 1}}"	Complexation
+CPLX0-235	glyoxylate reductase [multifunctional]	"{""reactant"": {""MONOMER-43"": 2}, ""product"": {""CPLX0-235"": 1}}"	Complexation
+CPLX0-236	N-hydroxyarylamine O-acetyltransferase	"{""reactant"": {""G6770-MONOMER"": 2}, ""product"": {""CPLX0-236"": 1}}"	Complexation
+CPLX0-2361	DNA polymerase III, core enzyme	"{""reactant"": {""EG11505-MONOMER"": 1, ""EG10238-MONOMER"": 1, ""EG10243-MONOMER"": 1}, ""product"": {""CPLX0-2361"": 1}}"	Complexation
+CPLX0-237	serine acetyltransferase	"{""reactant"": {""SERINE-O-ACETTRAN-MONOMER"": 6}, ""product"": {""CPLX0-237"": 1}}"	Complexation
+CPLX0-238	argininosuccinate synthase	"{""reactant"": {""ARGSUCCINSYN-MONOMER"": 4}, ""product"": {""CPLX0-238"": 1}}"	Complexation
+CPLX0-2381	degradosome	"{""reactant"": {""CPLX0-3461"": 1, ""EG10859-MONOMER"": 4, ""EG10743-MONOMER"": 3, ""CPLX0-3541"": 1, ""EG10844-MONOMER"": 2, ""CPLX0-3521"": 1, ""PPK-CPLX"": 1, ""PPK-MONOMER"": 4, ""ENOLASE-MONOMER"": 2, ""ENOLASE-CPLX"": 1}, ""product"": {""CPLX0-2381"": 1}}"	Complexation
+CPLX0-240	tagatose-1,6-bisphosphate aldolase 1	"{""reactant"": {""G7631-MONOMER"": 1, ""TAGAALDOL1-MONOMER"": 1}, ""product"": {""CPLX0-240"": 1}}"	Complexation
+CPLX0-2401	tryptophan synthase, &beta; subunit dimer	"{""reactant"": {""TRYPSYN-BPROTEIN"": 2}, ""product"": {""CPLX0-2401"": 1}}"	Complexation
+CPLX0-241	tagatose-1,6-bisphosphate aldolase 2	"{""reactant"": {""TAGAALDOL2-MONOMER"": 1, ""G7128-MONOMER"": 1}, ""product"": {""CPLX0-241"": 1}}"	Complexation
+CPLX0-242	thiosulfate sulfurtransferase	"{""reactant"": {""EG10395-MONOMER"": 2}, ""product"": {""CPLX0-242"": 1}}"	Complexation
+CPLX0-2423	dimer of topoisomerase IV subunit A	"{""reactant"": {""EG10686-MONOMER"": 2}, ""product"": {""CPLX0-2423"": 1}}"	Complexation
+CPLX0-2424	topoisomerase IV	"{""reactant"": {""EG10686-MONOMER"": 2, ""EG10687-MONOMER"": 2, ""CPLX0-2423"": 1}, ""product"": {""CPLX0-2424"": 1}}"	Complexation
+CPLX0-2425	DNA gyrase	"{""reactant"": {""EG10424-MONOMER"": 2, ""EG10423-MONOMER"": 2}, ""product"": {""CPLX0-2425"": 1}}"	Complexation
+CPLX0-243	inorganic pyrophosphatase	"{""reactant"": {""INORGPYROPHOSPHAT-MONOMER"": 6}, ""product"": {""CPLX0-243"": 1}}"	Complexation
+CPLX0-244	NADPH nitroreductase NfsA	"{""reactant"": {""EG11261-MONOMER"": 2}, ""product"": {""CPLX0-244"": 1}}"	Complexation
+CPLX0-2441	transcription termination factor Rho	"{""reactant"": {""EG10845-MONOMER"": 6}, ""product"": {""CPLX0-2441"": 1}}"	Complexation
+CPLX0-245	alkylhydroperoxide reductase	"{""reactant"": {""EG11384-MONOMER"": 1, ""EG11385-MONOMER"": 1}, ""product"": {""CPLX0-245"": 1}}"	Complexation
+CPLX0-246	L-cysteine desulfurase	"{""reactant"": {""G6906-MONOMER"": 2}, ""product"": {""CPLX0-246"": 1}}"	Complexation
+CPLX0-248	cysteine desulfurase	"{""reactant"": {""G7325-MONOMER"": 2}, ""product"": {""CPLX0-248"": 1}}"	Complexation
+CPLX0-250	hydrogenase 4	"{""reactant"": {""MONOMER0-143"": 1, ""MONOMER0-142"": 1, ""MONOMER0-141"": 1, ""MONOMER0-153"": 1, ""MONOMER0-154"": 1, ""MONOMER0-144"": 1, ""MONOMER0-150"": 1, ""MONOMER0-151"": 1, ""MONOMER0-152"": 1}, ""product"": {""CPLX0-250"": 1}}"	Complexation
+CPLX0-2502	molybdopterin synthase	"{""reactant"": {""EG11598-MONOMER"": 2, ""EG11597-MONOMER"": 2}, ""product"": {""CPLX0-2502"": 1}}"	Complexation
+CPLX0-251	2-methylcitrate synthase	"{""reactant"": {""G6198-MONOMER"": 2}, ""product"": {""CPLX0-251"": 1}}"	Complexation
+CPLX0-252	KASIII	"{""reactant"": {""FABH-MONOMER"": 2}, ""product"": {""CPLX0-252"": 1}}"	Complexation
+CPLX0-2521	molybdopterin biosynthesis protein B	"{""reactant"": {""MONOMER0-1501"": 6}, ""product"": {""CPLX0-2521"": 1}}"	Complexation
+CPLX0-253	NADPH quinone reductase	"{""reactant"": {""EG12656-MONOMER"": 2}, ""product"": {""CPLX0-253"": 1}}"	Complexation
+CPLX0-254	methylmalonyl-CoA decarboxylase	"{""reactant"": {""G7516-MONOMER"": 6}, ""product"": {""CPLX0-254"": 1}}"	Complexation
+CPLX0-2541	ModE transcriptional dual regulator	"{""reactant"": {""MONOMER0-185"": 2}, ""product"": {""CPLX0-2541"": 1}}"	Complexation
+CPLX0-255	phenylhydantoinase	"{""reactant"": {""G7492-MONOMER"": 4}, ""product"": {""CPLX0-255"": 1}}"	Complexation
+CPLX0-2561	bacterial condensin MukBEF	"{""reactant"": {""CPLX0-7696"": 1, ""CPLX0-7697"": 1, ""EG10618-MONOMER"": 2, ""CPLX0-7698"": 1, ""EG11252-MONOMER"": 4, ""EG12165-MONOMER"": 2}, ""product"": {""CPLX0-2561"": 1}}"	Complexation
+CPLX0-2621	Gef dimer	"{""reactant"": {""MONOMER0-1564"": 2}, ""product"": {""CPLX0-2621"": 1}}"	Complexation
+CPLX0-263	isoaspartyl dipeptidase / asparaginase III	"{""reactant"": {""MONOMER0-2"": 2, ""MONOMER0-3"": 2}, ""product"": {""CPLX0-263"": 1}}"	Complexation
+CPLX0-2641	molecular chaperone, HSP90 family	"{""reactant"": {""EG10461-MONOMER"": 2}, ""product"": {""CPLX0-2641"": 1}}"	Complexation
+CPLX0-2661	McrBC restriction endonuclease	"{""reactant"": {""EG10574-MONOMER"": 1, ""EG10575-MONOMER"": 1}, ""product"": {""CPLX0-2661"": 1}}"	Complexation
+CPLX0-2681	ClpXP protease specificity-enhancing factor	"{""reactant"": {""EG10978-MONOMER"": 2}, ""product"": {""CPLX0-2681"": 1}}"	Complexation
+CPLX0-2802	chaperone with DnaK; curved DNA-binding protein	"{""reactant"": {""EG12193-MONOMER"": 2}, ""product"": {""CPLX0-2802"": 1}}"	Complexation
+CPLX0-2821	TorR-TorI	"{""reactant"": {""TORR-MONOMER"": 2}, ""product"": {""CPLX0-2821"": 1}}"	Complexation
+CPLX0-2861	BglG transcriptional antiterminator	"{""reactant"": {""EG10116-MONOMER"": 2}, ""product"": {""CPLX0-2861"": 1}}"	Complexation
+CPLX0-2881	DNA-binding, ATP-dependent protease La	"{""reactant"": {""EG10542-MONOMER"": 4}, ""product"": {""CPLX0-2881"": 1}}"	Complexation
+CPLX0-2901	aspartate 1-decarboxylase	"{""reactant"": {""MONOMER0-1842"": 4, ""MONOMER0-1843"": 4}, ""product"": {""CPLX0-2901"": 1}}"	Complexation
+CPLX0-2921	serine protease Do	"{""reactant"": {""EG10463-MONOMER"": 6}, ""product"": {""CPLX0-2921"": 1}}"	Complexation
+CPLX0-2941	protease IV, a signal peptide peptidase	"{""reactant"": {""EG10968-MONOMER"": 4}, ""product"": {""CPLX0-2941"": 1}}"	Complexation
+CPLX0-2982	HflB, integral membrane ATP-dependent zinc metallopeptidase	"{""reactant"": {""EG10436-MONOMER"": 6, ""EG10435-MONOMER"": 6, ""CPLX0-1321"": 6, ""EG11506-MONOMER"": 6}, ""product"": {""CPLX0-2982"": 1}}"	Complexation
+CPLX0-3	primosomal replication protein N	"{""reactant"": {""EG10764-MONOMER"": 2}, ""product"": {""CPLX0-3"": 1}}"	Complexation
+CPLX0-3001	peptidase D	"{""reactant"": {""EG10695-MONOMER"": 2}, ""product"": {""CPLX0-3001"": 1}}"	Complexation
+CPLX0-301	3-octaprenyl-4-hydroxybenzoate carboxy-lyase	"{""reactant"": {""EG11396-MONOMER"": 6}, ""product"": {""CPLX0-301"": 1}}"	Complexation
+CPLX0-3021	isoaspartyl dipeptidase	"{""reactant"": {""G7925-MONOMER"": 8}, ""product"": {""CPLX0-3021"": 1}}"	Complexation
+CPLX0-303	fructose 1,6-bisphosphatase II	"{""reactant"": {""EG11517-MONOMER"": 2}, ""product"": {""CPLX0-303"": 1}}"	Complexation
+CPLX0-3041	peptidase T	"{""reactant"": {""EG11549-MONOMER"": 2}, ""product"": {""CPLX0-3041"": 1}}"	Complexation
+CPLX0-3061	aminopeptidase A/I and DNA-binding transcriptional repressor	"{""reactant"": {""EG10694-MONOMER"": 6}, ""product"": {""CPLX0-3061"": 1}}"	Complexation
+CPLX0-3081	proline aminopeptidase P II	"{""reactant"": {""EG10697-MONOMER"": 4}, ""product"": {""CPLX0-3081"": 1}}"	Complexation
+CPLX0-3101	ClpP serine protease	"{""reactant"": {""EG10158-MONOMER"": 14}, ""product"": {""CPLX0-3101"": 1}}"	Complexation
+CPLX0-3102	ClpX ATP-dependent protease specificity component and chaperone	"{""reactant"": {""EG10159-MONOMER"": 6}, ""product"": {""CPLX0-3102"": 1}}"	Complexation
+CPLX0-3104	ClpAP	"{""reactant"": {""CPLX0-881"": 2, ""EG10156-MONOMER"": 12, ""CPLX0-3101"": 1, ""EG10158-MONOMER"": 14}, ""product"": {""CPLX0-3104"": 1}}"	Complexation
+CPLX0-3107	ClpXP	"{""reactant"": {""CPLX0-3102"": 2, ""CPLX0-3101"": 1, ""EG10158-MONOMER"": 14, ""EG10159-MONOMER"": 12}, ""product"": {""CPLX0-3107"": 1}}"	Complexation
+CPLX0-3108	ClpAXP	"{""reactant"": {""EG10158-MONOMER"": 14, ""CPLX0-881"": 1, ""EG10159-MONOMER"": 6, ""CPLX0-3102"": 1, ""EG10156-MONOMER"": 6, ""CPLX0-3101"": 1}, ""product"": {""CPLX0-3108"": 1}}"	Complexation
+CPLX0-3121	chromate reductase	"{""reactant"": {""EG11723-MONOMER"": 2}, ""product"": {""CPLX0-3121"": 1}}"	Complexation
+CPLX0-3141	quinol monooxygenase	"{""reactant"": {""EG12657-MONOMER"": 2}, ""product"": {""CPLX0-3141"": 1}}"	Complexation
+CPLX0-3161	N-succinyl-L-diaminopimelate desuccinylase	"{""reactant"": {""MONOMER0-1981"": 4}, ""product"": {""CPLX0-3161"": 1}}"	Complexation
+CPLX0-3181	tetrahydrodipicolinate succinylase	"{""reactant"": {""MONOMER0-2001"": 2}, ""product"": {""CPLX0-3181"": 1}}"	Complexation
+CPLX0-3201	murein DD-endopeptidase, penicillin-insensitive	"{""reactant"": {""EG10580-MONOMER"": 2}, ""product"": {""CPLX0-3201"": 1}}"	Complexation
+CPLX0-321	pyridoxine 5'-phosphate synthase	"{""reactant"": {""PDXJ-MONOMER"": 8}, ""product"": {""CPLX0-321"": 1}}"	Complexation
+CPLX0-322	inosine-guanosine kinase	"{""reactant"": {""GSK-MONOMER"": 2}, ""product"": {""CPLX0-322"": 1}}"	Complexation
+CPLX0-3221	DnaA initiator-associating factor for replication initiation	"{""reactant"": {""YRAO-MONOMER"": 2}, ""product"": {""CPLX0-3221"": 1}}"	Complexation
+CPLX0-3241	NapGH, alternative quinol dehydrogenase	"{""reactant"": {""NAPH-MONOMER"": 1, ""NAPG-MONOMER"": 1}, ""product"": {""CPLX0-3241"": 1}}"	Complexation
+CPLX0-3281	RNase III	"{""reactant"": {""EG10857-MONOMER"": 2}, ""product"": {""CPLX0-3281"": 1}}"	Complexation
+CPLX0-3301	DNA replication inhibitor	"{""reactant"": {""EG11111-MONOMER"": 2}, ""product"": {""CPLX0-3301"": 1}}"	Complexation
+CPLX0-3323	CcmEFGH holocytochrome c synthetase	"{""reactant"": {""CCME-MONOMER"": 1, ""EG12054-MONOMER"": 1, ""EG12053-MONOMER"": 1, ""EG12052-MONOMER"": 1}, ""product"": {""CPLX0-3323"": 1}}"	Complexation
+CPLX0-3361	soluble NADH dehydrogenase fragment	"{""reactant"": {""NUOF-MONOMER"": 1, ""NUOG-MONOMER"": 1, ""NUOE-MONOMER"": 1}, ""product"": {""CPLX0-3361"": 1}}"	Complexation
+CPLX0-3362	connecting fragment of NADH dehydrogenase I	"{""reactant"": {""NUOB-MONOMER"": 1, ""NUOC-MONOMER"": 1, ""NUOI-MONOMER"": 1}, ""product"": {""CPLX0-3362"": 1}}"	Complexation
+CPLX0-3382	GspC-O secreton  complex	"{""reactant"": {""G7708-MONOMER"": 1, ""G7703-MONOMER"": 1, ""G7711-MONOMER"": 1, ""G7704-MONOMER"": 1, ""G7702-MONOMER"": 1, ""EG11359-MONOMER"": 1, ""G7705-MONOMER"": 1, ""G7707-MONOMER"": 1, ""G7709-MONOMER"": 1, ""G7710-MONOMER"": 1, ""EG12173-MONOMER"": 1, ""G7706-MONOMER"": 1}, ""product"": {""CPLX0-3382"": 1}}"	Complexation
+CPLX0-3401	fimbrial complex	"{""reactant"": {""EG10308-MONOMER"": 1, ""EG10314-MONOMER"": 1, ""EG10315-MONOMER"": 1, ""EG10313-MONOMER"": 1}, ""product"": {""CPLX0-3401"": 1}}"	Complexation
+CPLX0-341	fused 4'-phosphopantothenoylcysteine decarboxylase and phosphopantothenoylcysteine synthetase	"{""reactant"": {""EG10004-MONOMER"": 12}, ""product"": {""CPLX0-341"": 1}}"	Complexation
+CPLX0-3461	ribonuclease E	"{""reactant"": {""EG10859-MONOMER"": 4}, ""product"": {""CPLX0-3461"": 1}}"	Complexation
+CPLX0-3482	acetaldehyde dehydrogenase	"{""reactant"": {""ALDDEHYDROGB-MONOMER"": 4}, ""product"": {""CPLX0-3482"": 1}}"	Complexation
+CPLX0-3501	7-cyano-7-deazaguanine reductase	"{""reactant"": {""G7452-MONOMER"": 2}, ""product"": {""CPLX0-3501"": 1}}"	Complexation
+CPLX0-3521	polynucleotide phosphorylase	"{""reactant"": {""EG10743-MONOMER"": 3}, ""product"": {""CPLX0-3521"": 1}}"	Complexation
+CPLX0-3541	RhlB, ATP-dependent RNA helicase of the RNA degradosome	"{""reactant"": {""EG10844-MONOMER"": 2}, ""product"": {""CPLX0-3541"": 1}}"	Complexation
+CPLX0-3561	GTP hydrolase involved in nickel liganding into hydrogenases	"{""reactant"": {""EG10484-MONOMER"": 2}, ""product"": {""CPLX0-3561"": 1}}"	Complexation
+CPLX0-3581	D-Tyr-tRNATyr deacylase	"{""reactant"": {""EG11852-MONOMER"": 2}, ""product"": {""CPLX0-3581"": 1}}"	Complexation
+CPLX0-3601	RNase BN	"{""reactant"": {""G7175-MONOMER"": 2}, ""product"": {""CPLX0-3601"": 1}}"	Complexation
+CPLX0-3602	RNase T	"{""reactant"": {""EG11547-MONOMER"": 2}, ""product"": {""CPLX0-3602"": 1}}"	Complexation
+CPLX0-3621	replicative DNA helicase	"{""reactant"": {""EG10236-MONOMER"": 6}, ""product"": {""CPLX0-3621"": 1}}"	Complexation
+CPLX0-3641	&gamma;-aminobutyraldehyde dehydrogenase	"{""reactant"": {""G6755-MONOMER"": 4}, ""product"": {""CPLX0-3641"": 1}}"	Complexation
+CPLX0-3661	fused heptose 7-phosphate kinase/heptose 1-phosphate adenyltransferase	"{""reactant"": {""G7590-MONOMER"": 2}, ""product"": {""CPLX0-3661"": 1}}"	Complexation
+CPLX0-3681	ADP-L-glycero-D-mannoheptose-6-epimerase	"{""reactant"": {""EG10838-MONOMER"": 5}, ""product"": {""CPLX0-3681"": 1}}"	Complexation
+CPLX0-3721	ADP-sugar pyrophosphatase	"{""reactant"": {""EG12633-MONOMER"": 2}, ""product"": {""CPLX0-3721"": 1}}"	Complexation
+CPLX0-3741	glutamyl-tRNA reductase	"{""reactant"": {""GLUTRNAREDUCT-MONOMER"": 2}, ""product"": {""CPLX0-3741"": 1}}"	Complexation
+CPLX0-3761	DNA polymerase III, &beta; subunit	"{""reactant"": {""EG10242-MONOMER"": 2}, ""product"": {""CPLX0-3761"": 1}}"	Complexation
+CPLX0-3781	YefM-YoeB antitoxin/toxin complex and DNA-binding transcriptional repressor	"{""reactant"": {""EG12844-MONOMER"": 2, ""MONOMER0-1041"": 1}, ""product"": {""CPLX0-3781"": 1}}"	Complexation
+CPLX0-3801	DNA polymerase III, preinitiation complex	"{""reactant"": {""EG11500-MONOMER"": 1, ""EG10245-MONOMER"": 3, ""EG11412-MONOMER"": 1}, ""product"": {""CPLX0-3801"": 1}}"	Complexation
+CPLX0-3802	DNA polymerase III, &tau; subunit dimer	"{""reactant"": {""EG10245-MONOMER"": 2}, ""product"": {""CPLX0-3802"": 1}}"	Complexation
+CPLX0-3803	DNA polymerase III, holoenzyme	"{""reactant"": {""EG11500-MONOMER"": 1, ""EG10245-MONOMER"": 5, ""EG10238-MONOMER"": 3, ""CPLX0-3761"": 2, ""CPLX0-2361"": 3, ""CPLX0-3802"": 1, ""CPLX0-3801"": 1, ""EG11413-MONOMER"": 4, ""EG10242-MONOMER"": 4, ""EG10243-MONOMER"": 3, ""EG11414-MONOMER"": 4, ""EG11412-MONOMER"": 1, ""CPLX0-7910"": 4, ""EG11505-MONOMER"": 3}, ""product"": {""CPLX0-3803"": 1}}"	Complexation
+CPLX0-3821	HypA-HypB heterodimer	"{""reactant"": {""EG10484-MONOMER"": 1, ""EG10483-MONOMER"": 1}, ""product"": {""CPLX0-3821"": 1}}"	Complexation
+CPLX0-3841	4-diphosphocytidyl-2-C-methylerythritol kinase	"{""reactant"": {""EG11294-MONOMER"": 2}, ""product"": {""CPLX0-3841"": 1}}"	Complexation
+CPLX0-3861	fructoselysine 3-epimerase	"{""reactant"": {""G7724-MONOMER"": 8}, ""product"": {""CPLX0-3861"": 1}}"	Complexation
+CPLX0-3881	GDP-fucose synthase	"{""reactant"": {""FCL-MONOMER"": 2}, ""product"": {""CPLX0-3881"": 1}}"	Complexation
+CPLX0-3901	&alpha;-D-xyloside xylohydrolase	"{""reactant"": {""EG11685-MONOMER"": 6}, ""product"": {""CPLX0-3901"": 1}}"	Complexation
+CPLX0-3921	heat shock protein, hemimethylated DNA-binding protein	"{""reactant"": {""G6500-MONOMER"": 2}, ""product"": {""CPLX0-3921"": 1}}"	Complexation
+CPLX0-3922	primosome	"{""reactant"": {""EG10236-MONOMER"": 6, ""CPLX0-3"": 1, ""EG10765-MONOMER"": 1, ""EG10763-MONOMER"": 1, ""CPLX0-0"": 1, ""EG10244-MONOMER"": 3, ""EG10239-MONOMER"": 1, ""EG10764-MONOMER"": 2, ""CPLX0-3621"": 1}, ""product"": {""CPLX0-3922"": 1}}"	Complexation
+CPLX0-3923	predicted monooxygenase	"{""reactant"": {""G6895-MONOMER"": 2}, ""product"": {""CPLX0-3923"": 1}}"	Complexation
+CPLX0-3924	FKBP-type peptidyl-prolyl cis-trans isomerase (rotamase)	"{""reactant"": {""G7865-MONOMER"": 2}, ""product"": {""CPLX0-3924"": 1}}"	Complexation
+CPLX0-3925	DNA polymerase V	"{""reactant"": {""EG11056-MONOMER"": 1, ""EG11057-MONOMER"": 2}, ""product"": {""CPLX0-3925"": 1}}"	Complexation
+CPLX0-3927	regulatory ATPase	"{""reactant"": {""EG11731-MONOMER"": 6}, ""product"": {""CPLX0-3927"": 1}}"	Complexation
+CPLX0-3929	D-arabinose 5-phosphate isomerase	"{""reactant"": {""EG10973-MONOMER"": 4}, ""product"": {""CPLX0-3929"": 1}}"	Complexation
+CPLX0-3930	FlhDC DNA-binding transcriptional dual regulator	"{""reactant"": {""MONOMER0-2488"": 2, ""EG10320-MONOMER"": 4}, ""product"": {""CPLX0-3930"": 1}}"	Complexation
+CPLX0-3931	Rep helicase, a single-stranded DNA dependent ATPase	"{""reactant"": {""EG10837-MONOMER"": 2}, ""product"": {""CPLX0-3931"": 1}}"	Complexation
+CPLX0-3932	AcrAD-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""EG11703-MONOMER"": 1, ""ACRD-MONOMER"": 1, ""EG11009-MONOMER"": 3}, ""product"": {""CPLX0-3932"": 1}}"	Complexation
+CPLX0-3933	Outer Membrane Protein Assembly Complex	"{""reactant"": {""EG10658-MONOMER"": 1, ""G6093-MONOMER"": 1, ""G7352-MONOMER"": 1, ""G7320-MONOMER"": 1, ""EG10952-MONOMER"": 1}, ""product"": {""CPLX0-3933"": 1}}"	Complexation
+CPLX0-3934	GroEL-GroES chaperonin complex	"{""reactant"": {""EG10600-MONOMER"": 7, ""EG10599-MONOMER"": 14}, ""product"": {""CPLX0-3934"": 1}}"	Complexation
+CPLX0-3936	dihydroneopterin aldolase	"{""reactant"": {""H2NEOPTERINALDOL-MONOMER"": 8}, ""product"": {""CPLX0-3936"": 1}}"	Complexation
+CPLX0-3937	evolved &beta;-D-galactosidase	"{""reactant"": {""EG10253-MONOMER"": 4, ""EG10252-MONOMER"": 4}, ""product"": {""CPLX0-3937"": 1}}"	Complexation
+CPLX0-3938	copper binding protein CutA	"{""reactant"": {""EG12177-MONOMER"": 3}, ""product"": {""CPLX0-3938"": 1}}"	Complexation
+CPLX0-3939	universal stress protein UP12	"{""reactant"": {""G6334-MONOMER"": 2}, ""product"": {""CPLX0-3939"": 1}}"	Complexation
+CPLX0-3941	hydroxyphenylacetyl-CoA thioesterase	"{""reactant"": {""G6717-MONOMER"": 4}, ""product"": {""CPLX0-3941"": 1}}"	Complexation
+CPLX0-3943	&gamma;-glutamyl-&gamma;-aminobutyrate hydrolase	"{""reactant"": {""G6645-MONOMER"": 2}, ""product"": {""CPLX0-3943"": 1}}"	Complexation
+CPLX0-3948	XTPase / ITPase	"{""reactant"": {""EG12600-MONOMER"": 2}, ""product"": {""CPLX0-3948"": 1}}"	Complexation
+CPLX0-3949	thiazole synthase	"{""reactant"": {""THIG-MONOMER"": 1, ""THIH-MONOMER"": 1}, ""product"": {""CPLX0-3949"": 1}}"	Complexation
+CPLX0-3950	tRNA m1G37 methyltransferase	"{""reactant"": {""EG11023-MONOMER"": 2}, ""product"": {""CPLX0-3950"": 1}}"	Complexation
+CPLX0-3951	penicillin-binding protein 1B	"{""reactant"": {""EG10605-MONOMER"": 2}, ""product"": {""CPLX0-3951"": 1}}"	Complexation
+CPLX0-3952	riboflavin synthase	"{""reactant"": {""RIBOFLAVIN-SYN-MONOMER"": 3}, ""product"": {""CPLX0-3952"": 1}}"	Complexation
+CPLX0-3954	S-lactoylglutathione hydrolase / S-formylglutathione hydrolase	"{""reactant"": {""EG12026-MONOMER"": 4}, ""product"": {""CPLX0-3954"": 1}}"	Complexation
+CPLX0-3955	50S ribosomal subunit protein L7/L12 dimer	"{""reactant"": {""EG10873-MONOMER"": 2}, ""product"": {""CPLX0-3955"": 1}}"	Complexation
+CPLX0-3956	50S ribosomal protein complex L8	"{""reactant"": {""CPLX0-3955"": 2, ""EG10873-MONOMER"": 4, ""EG10871-MONOMER"": 1}, ""product"": {""CPLX0-3956"": 1}}"	Complexation
+CPLX0-3957	SbcCD ATP-dependent dsDNA exonuclease	"{""reactant"": {""EG10927-MONOMER"": 1, ""EG11094-MONOMER"": 1}, ""product"": {""CPLX0-3957"": 1}}"	Complexation
+CPLX0-3958	EcoKI restriction-modification system	"{""reactant"": {""EG10460-MONOMER"": 1, ""EG10459-MONOMER"": 2, ""EG10458-MONOMER"": 2}, ""product"": {""CPLX0-3958"": 1}}"	Complexation
+CPLX0-3959	Xer site-specific recombination system	"{""reactant"": {""EG11071-MONOMER"": 1, ""EG11069-MONOMER"": 1}, ""product"": {""CPLX0-3959"": 1}}"	Complexation
+CPLX0-3961	transthyretin-related protein	"{""reactant"": {""G7058-MONOMER"": 4}, ""product"": {""CPLX0-3961"": 1}}"	Complexation
+CPLX0-3969	ferritin iron-storage complex	"{""reactant"": {""EG10921-MONOMER"": 24}, ""product"": {""CPLX0-3969"": 1}}"	Complexation
+CPLX0-3970	murein tripeptide ABC transporter OppBCDFMppA	"{""reactant"": {""OPPD-MONOMER"": 1, ""OPPF-MONOMER"": 1, ""G6665-MONOMER"": 1, ""OPPC-MONOMER"": 1, ""OPPB-MONOMER"": 1}, ""product"": {""CPLX0-3970"": 1}}"	Complexation
+CPLX0-3971	GDP-mannose hydrolase	"{""reactant"": {""EG12410-MONOMER"": 2}, ""product"": {""CPLX0-3971"": 1}}"	Complexation
+CPLX0-3976	Enterobacterial Common Antigen Biosynthesis Protein Complex	"{""reactant"": {""EG11295-MONOMER"": 1, ""FUC4NACTRANS-MONOMER"": 1, ""EG11486-MONOMER"": 1}, ""product"": {""CPLX0-3976"": 1}}"	Complexation
+CPLX0-4	hydroxylated aromatic carboxylic acid efflux transporter	"{""reactant"": {""G7685-MONOMER"": 1, ""G7686-MONOMER"": 1}, ""product"": {""CPLX0-4"": 1}}"	Complexation
+CPLX0-5	EntS-TolC Enterobactin Efflux Transport System	"{""reactant"": {""CPLX0-7964"": 1, ""YBDA-MONOMER"": 1, ""EG11009-MONOMER"": 3}, ""product"": {""CPLX0-5"": 1}}"	Complexation
+CPLX0-661	predicted hydrolase	"{""reactant"": {""EG11241-MONOMER"": 8}, ""product"": {""CPLX0-661"": 1}}"	Complexation
+CPLX0-682	NAD kinase	"{""reactant"": {""MONOMER0-541"": 6}, ""product"": {""CPLX0-682"": 1}}"	Complexation
+CPLX0-7	N-acetylmuramic acid PTS permease	"{""reactant"": {""CRR-MONOMER"": 1, ""MONOMER0-5"": 1}, ""product"": {""CPLX0-7"": 1}}"	Complexation
+CPLX0-721	2C-methyl-D-erythritol 2,4-cyclodiphosphate synthase	"{""reactant"": {""EG11816-MONOMER"": 3}, ""product"": {""CPLX0-721"": 1}}"	Complexation
+CPLX0-7415	lipid A disaccharide synthase	"{""reactant"": {""LIPIDADISACCHARIDESYNTH-MONOMER"": 2}, ""product"": {""CPLX0-7415"": 1}}"	Complexation
+CPLX0-7417	IS2 insertion element repressor InsA	"{""reactant"": {""G6212-MONOMER"": 2}, ""product"": {""CPLX0-7417"": 1}}"	Complexation
+CPLX0-7418	MprA DNA-binding transcriptional repressor	"{""reactant"": {""EG10603-MONOMER"": 2}, ""product"": {""CPLX0-7418"": 1}}"	Complexation
+CPLX0-7420	tRNA Um32 methyltransferase / tRNA Cm32 methyltransferase	"{""reactant"": {""G7327-MONOMER"": 2}, ""product"": {""CPLX0-7420"": 1}}"	Complexation
+CPLX0-7421	tRNA (cytidine/uridine-2'-O)-ribose methyltransferase	"{""reactant"": {""EG11888-MONOMER"": 2}, ""product"": {""CPLX0-7421"": 1}}"	Complexation
+CPLX0-7422	predicted rRNA methyltransferase	"{""reactant"": {""EG12309-MONOMER"": 2}, ""product"": {""CPLX0-7422"": 1}}"	Complexation
+CPLX0-7423	23S rRNA m3&Psi;1915 methyltransferase	"{""reactant"": {""EG11254-MONOMER"": 2}, ""product"": {""CPLX0-7423"": 1}}"	Complexation
+CPLX0-7425	HipB-HipA antitoxin/toxin complex and DNA-binding transcriptional repressor	"{""reactant"": {""EG10442-MONOMER"": 2, ""EG10443-MONOMER"": 2, ""CPLX0-7757"": 1}, ""product"": {""CPLX0-7425"": 1}}"	Complexation
+CPLX0-7426	octaprenyl diphosphate synthase	"{""reactant"": {""OPPSYN-MONOMER"": 2}, ""product"": {""CPLX0-7426"": 1}}"	Complexation
+CPLX0-7428	sulfate adenylyltransferase	"{""reactant"": {""CYSN-MONOMER"": 4, ""SULFATE-ADENYLYLTRANS-CPLX"": 4, ""CYSD-MONOMER"": 4}, ""product"": {""CPLX0-7428"": 1}}"	Complexation
+CPLX0-743	1-deoxyxylulose-5-phosphate synthase	"{""reactant"": {""DXS-MONOMER"": 2}, ""product"": {""CPLX0-743"": 1}}"	Complexation
+CPLX0-7444	putative structural protein	"{""reactant"": {""EG11126-MONOMER"": 2}, ""product"": {""CPLX0-7444"": 1}}"	Complexation
+CPLX0-7450	Flagellar Motor Switch Complex	"{""reactant"": {""FLIM-FLAGELLAR-C-RING-SWITCH"": 34, ""FLIN-FLAGELLAR-C-RING-SWITCH"": 1, ""FLIG-FLAGELLAR-SWITCH-PROTEIN"": 26}, ""product"": {""CPLX0-7450"": 1}}"	Complexation
+CPLX0-7451	Flagellar Export Apparatus	"{""reactant"": {""EG11656-MONOMER"": 12, ""G378-MONOMER"": 1, ""G377-MONOMER"": 6, ""EG11977-MONOMER"": 1, ""EG11975-MONOMER"": 1, ""EG11976-MONOMER"": 1, ""EG11224-MONOMER"": 1, ""G7028-MONOMER"": 1, ""G370-MONOMER"": 1}, ""product"": {""CPLX0-7451"": 1}}"	Complexation
+CPLX0-7452	Flagellum	"{""reactant"": {""EG11977-MONOMER"": 1, ""FLGG-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""FLGC-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""FLGB-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""MOTB-FLAGELLAR-MOTOR-STATOR-PROTEIN"": 1, ""FLIM-FLAGELLAR-C-RING-SWITCH"": 34, ""G370-MONOMER"": 1, ""FLIN-FLAGELLAR-C-RING-SWITCH"": 1, ""G378-MONOMER"": 1, ""G377-MONOMER"": 6, ""FLGF-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""G361-MONOMER"": 120, ""EG11656-MONOMER"": 12, ""G7028-MONOMER"": 1, ""FLIF-FLAGELLAR-MS-RING"": 1, ""FLGH-FLAGELLAR-L-RING"": 1, ""EG10841-MONOMER"": 5, ""CPLX0-7450"": 1, ""CPLX0-7451"": 1, ""EG11545-MONOMER"": 1, ""MOTA-FLAGELLAR-MOTOR-STATOR-PROTEIN"": 1, ""FLAGELLAR-MOTOR-COMPLEX"": 1, ""EG11346-MONOMER"": 1, ""EG11967-MONOMER"": 1, ""EG10321-MONOMER"": 1, ""EG11975-MONOMER"": 1, ""EG11976-MONOMER"": 1, ""EG11224-MONOMER"": 1, ""FLIG-FLAGELLAR-SWITCH-PROTEIN"": 26, ""FLGI-FLAGELLAR-P-RING"": 1}, ""product"": {""CPLX0-7452"": 1}}"	Complexation
+CPLX0-7458	glycolate oxidase	"{""reactant"": {""G7544-MONOMER"": 1, ""G7545-MONOMER"": 1, ""MONOMER0-561"": 1}, ""product"": {""CPLX0-7458"": 1}}"	Complexation
+CPLX0-7462	shikimate dehydrogenase / quinate dehydrogenase	"{""reactant"": {""EG11234-MONOMER"": 2}, ""product"": {""CPLX0-7462"": 1}}"	Complexation
+CPLX0-7465	alanine racemase 2, PLP-binding	"{""reactant"": {""ALARACECAT-MONOMER"": 2}, ""product"": {""CPLX0-7465"": 1}}"	Complexation
+CPLX0-7466	xylulokinase	"{""reactant"": {""XYLULOKIN-MONOMER"": 2}, ""product"": {""CPLX0-7466"": 1}}"	Complexation
+CPLX0-7520	cyanase	"{""reactant"": {""CYANLY-MONOMER"": 10, ""CYANLY-CPLX"": 5}, ""product"": {""CPLX0-7520"": 1}}"	Complexation
+CPLX0-7521	carbonic anhydrase 2	"{""reactant"": {""EG12319-MONOMER"": 4}, ""product"": {""CPLX0-7521"": 1}}"	Complexation
+CPLX0-7525	2-succinyl-5-enolpyruvyl-6-hydroxy-3-cyclohexene-1-carboxylate synthase	"{""reactant"": {""MEND-MONOMER"": 2}, ""product"": {""CPLX0-7525"": 1}}"	Complexation
+CPLX0-7529	capsular polysaccharide export apparatus	"{""reactant"": {""G7107-MONOMER"": 8, ""G7105-MONOMER"": 4}, ""product"": {""CPLX0-7529"": 1}}"	Complexation
+CPLX0-7530	outer membrane porin E	"{""reactant"": {""MONOMER0-282"": 3}, ""product"": {""CPLX0-7530"": 1}}"	Complexation
+CPLX0-7532	ammonia / ammonium transporter	"{""reactant"": {""AMTB-MONOMER"": 3}, ""product"": {""CPLX0-7532"": 1}}"	Complexation
+CPLX0-7533	outer membrane porin C	"{""reactant"": {""EG10670-MONOMER"": 3}, ""product"": {""CPLX0-7533"": 1}}"	Complexation
+CPLX0-7534	outer membrane porin F	"{""reactant"": {""EG10671-MONOMER"": 3}, ""product"": {""CPLX0-7534"": 1}}"	Complexation
+CPLX0-7535	AdiC arginine:agmatine antiporter	"{""reactant"": {""YJDE-MONOMER"": 2}, ""product"": {""CPLX0-7535"": 1}}"	Complexation
+CPLX0-7536	FKBP-type peptidyl prolyl cis-trans isomerase	"{""reactant"": {""EG11663-MONOMER"": 2}, ""product"": {""CPLX0-7536"": 1}}"	Complexation
+CPLX0-7538	cell division factor ZapA, localizes to the cytokinetic ring	"{""reactant"": {""EG12878-MONOMER"": 4}, ""product"": {""CPLX0-7538"": 1}}"	Complexation
+CPLX0-7561	ChpB-ChpS complex	"{""reactant"": {""EG11250-MONOMER"": 1, ""EG12096-MONOMER"": 1}, ""product"": {""CPLX0-7561"": 1}}"	Complexation
+CPLX0-7564	1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate reductase	"{""reactant"": {""EG11081-MONOMER"": 2}, ""product"": {""CPLX0-7564"": 1}}"	Complexation
+CPLX0-7597	protein involved in a tRNA modification pathway	"{""reactant"": {""EG10375-MONOMER"": 2}, ""product"": {""CPLX0-7597"": 1}}"	Complexation
+CPLX0-7608	GTP-binding protein with a role in modification of tRNA	"{""reactant"": {""EG10997-MONOMER"": 2}, ""product"": {""CPLX0-7608"": 1}}"	Complexation
+CPLX0-7609	complex involved in modification of tRNA	"{""reactant"": {""CPLX0-7608"": 1, ""EG10375-MONOMER"": 2, ""CPLX0-7597"": 1, ""EG10997-MONOMER"": 2}, ""product"": {""CPLX0-7609"": 1}}"	Complexation
+CPLX0-761	xanthine dehydrogenase	"{""reactant"": {""G7487-MONOMER"": 1, ""G7486-MONOMER"": 1, ""G7485-MONOMER"": 1}, ""product"": {""CPLX0-761"": 1}}"	Complexation
+CPLX0-7610	N-acetyl-D-galactosamine PTS transporter	"{""reactant"": {""G7632-MONOMER"": 1, ""G7633-MONOMER"": 1}, ""product"": {""CPLX0-7610"": 1}}"	Complexation
+CPLX0-7613	predicted carboxysome structural protein	"{""reactant"": {""G7286-MONOMER"": 6}, ""product"": {""CPLX0-7613"": 1}}"	Complexation
+CPLX0-7614	ATP phosphoribosyltransferase	"{""reactant"": {""ATPPHOSRIBOSTRANS-MONOMER"": 2}, ""product"": {""CPLX0-7614"": 1}}"	Complexation
+CPLX0-7615	&alpha;-dehydro-&beta;-deoxy-D-glucarate aldolase	"{""reactant"": {""KDGALDOL-MONOMER"": 6}, ""product"": {""CPLX0-7615"": 1}}"	Complexation
+CPLX0-7616	tartronate semialdehyde reductase 2	"{""reactant"": {""G6278-MONOMER"": 4}, ""product"": {""CPLX0-7616"": 1}}"	Complexation
+CPLX0-7617	essential respiratory protein A	"{""reactant"": {""EG12332-MONOMER"": 2}, ""product"": {""CPLX0-7617"": 1}}"	Complexation
+CPLX0-7622	L-serine deaminase III	"{""reactant"": {""LSERINEDEAM3-MONOMER"": 2}, ""product"": {""CPLX0-7622"": 1}}"	Complexation
+CPLX0-7623	regulator of acid resistance, influenced by indole	"{""reactant"": {""G6606-MONOMER"": 2}, ""product"": {""CPLX0-7623"": 1}}"	Complexation
+CPLX0-7624	PrlF-YhaV antitoxin-toxin complex	"{""reactant"": {""EG10955-MONOMER"": 2, ""G7629-MONOMER"": 4}, ""product"": {""CPLX0-7624"": 1}}"	Complexation
+CPLX0-7625	dCMP phosphohydrolase	"{""reactant"": {""G7185-MONOMER"": 2}, ""product"": {""CPLX0-7625"": 1}}"	Complexation
+CPLX0-7626	mechanosensitive channel MscS	"{""reactant"": {""EG11160-MONOMER"": 7}, ""product"": {""CPLX0-7626"": 1}}"	Complexation
+CPLX0-7627	mechanosensitive channel MscL	"{""reactant"": {""EG11180-MONOMER"": 5}, ""product"": {""CPLX0-7627"": 1}}"	Complexation
+CPLX0-7628	outer membrane lipopolysaccharide transport and assembly complex	"{""reactant"": {""EG10855-MONOMER"": 1, ""EG11569-MONOMER"": 1}, ""product"": {""CPLX0-7628"": 1}}"	Complexation
+CPLX0-7629	sodium:H+ antiporter NhaA	"{""reactant"": {""NHAA-MONOMER"": 2}, ""product"": {""CPLX0-7629"": 1}}"	Complexation
+CPLX0-7630	multifunctional acyl-CoA thioesterase I and protease I and lysophospholipase L1	"{""reactant"": {""THIOESTERI-MONOMER"": 4}, ""product"": {""CPLX0-7630"": 1}}"	Complexation
+CPLX0-7631	L-fucose isomerase	"{""reactant"": {""FUCISOM-MONOMER"": 6}, ""product"": {""CPLX0-7631"": 1}}"	Complexation
+CPLX0-7632	NAD(P)H:quinone oxidoreductase	"{""reactant"": {""PD01343"": 4}, ""product"": {""CPLX0-7632"": 1}}"	Complexation
+CPLX0-7633	L-fuculose-phosphate aldolase	"{""reactant"": {""FUCPALDOL-MONOMER"": 4}, ""product"": {""CPLX0-7633"": 1}}"	Complexation
+CPLX0-7639	Fur-Fe2+ DNA-binding transcriptional dual regulator	"{""reactant"": {""FE+2"": 2, ""CPLX0-7620"": 2, ""PD00260"": 2}, ""product"": {""CPLX0-7639"": 1}}"	Complexation
+CPLX0-7641	Zn2+ / Fe2+ / Cd2+ efflux transporter FieF	"{""reactant"": {""YIIP-MONOMER"": 2}, ""product"": {""CPLX0-7641"": 1}}"	Complexation
+CPLX0-7642	osmolyte:H+ symporter ProP	"{""reactant"": {""PROP-MONOMER"": 2}, ""product"": {""CPLX0-7642"": 1}}"	Complexation
+CPLX0-7643	acetohydroxy acid isomeroreductase	"{""reactant"": {""KETOLREDUCTOISOM-MONOMER"": 4}, ""product"": {""CPLX0-7643"": 1}}"	Complexation
+CPLX0-7644	EfeU/EfeO/EfeB ferrous iron transporter; cryptic	"{""reactant"": {""G6527-MONOMER"": 1, ""G6525-MONOMER"": 1, ""EG11735-MONOMER"": 1}, ""product"": {""CPLX0-7644"": 1}}"	Complexation
+CPLX0-7645	L-fucose mutarotase	"{""reactant"": {""EG10355-MONOMER"": 6}, ""product"": {""CPLX0-7645"": 1}}"	Complexation
+CPLX0-7646	ribose pyranase	"{""reactant"": {""EG10817-MONOMER"": 10}, ""product"": {""CPLX0-7646"": 1}}"	Complexation
+CPLX0-7647	ribokinase	"{""reactant"": {""RIBOKIN-MONOMER"": 2}, ""product"": {""CPLX0-7647"": 1}}"	Complexation
+CPLX0-7648	anti-sigma factor	"{""reactant"": {""G7348-MONOMER"": 2}, ""product"": {""CPLX0-7648"": 1}}"	Complexation
+CPLX0-7649	L-rhamnose mutarotase	"{""reactant"": {""EG11865-MONOMER"": 2}, ""product"": {""CPLX0-7649"": 1}}"	Complexation
+CPLX0-7652	L-rhamnose isomerase	"{""reactant"": {""RHAMNISOM-MONOMER"": 4}, ""product"": {""CPLX0-7652"": 1}}"	Complexation
+CPLX0-7653	water channel AqpZ	"{""reactant"": {""AQPZ-MONOMER"": 4}, ""product"": {""CPLX0-7653"": 1}}"	Complexation
+CPLX0-7654	glycerol channel GlpF	"{""reactant"": {""GLPF-MONOMER"": 4}, ""product"": {""CPLX0-7654"": 1}}"	Complexation
+CPLX0-7655	maltose outer membrane porin / phage lambda receptor protein	"{""reactant"": {""EG10528-MONOMER"": 3}, ""product"": {""CPLX0-7655"": 1}}"	Complexation
+CPLX0-7656	CcmCDE protoheme IX reservoir complex	"{""reactant"": {""CCMC-MONOMER"": 1, ""CCME-MONOMER"": 1, ""EG12169-MONOMER"": 1}, ""product"": {""CPLX0-7656"": 1}}"	Complexation
+CPLX0-7657	BglG-phosphate	"{""reactant"": {""EG10116-MONOMER"": 2}, ""product"": {""CPLX0-7657"": 1}}"	Complexation
+CPLX0-7658	N-acetylneuraminate mutarotase	"{""reactant"": {""G7920-MONOMER"": 2}, ""product"": {""CPLX0-7658"": 1}}"	Complexation
+CPLX0-7659	fused diaminohydroxyphosphoribosylaminopyrimidine deaminase / 5-amino-6-(5-phosphoribosylamino)uracil reductase	"{""reactant"": {""RIBOFLAVINSYNDEAM-MONOMER"": 2}, ""product"": {""CPLX0-7659"": 1}}"	Complexation
+CPLX0-7660	D-sedoheptulose 7-phosphate isomerase	"{""reactant"": {""G6106-MONOMER"": 4}, ""product"": {""CPLX0-7660"": 1}}"	Complexation
+CPLX0-7662	&beta;-D-glucuronidase	"{""reactant"": {""BETA-GLUCURONID-MONOMER"": 4}, ""product"": {""CPLX0-7662"": 1}}"	Complexation
+CPLX0-7666	CaiF transcriptional activator	"{""reactant"": {""G6088-MONOMER"": 2}, ""product"": {""CPLX0-7666"": 1}}"	Complexation
+CPLX0-7667	NADP-dependent aldehyde reductase	"{""reactant"": {""G7564-MONOMER"": 2}, ""product"": {""CPLX0-7667"": 1}}"	Complexation
+CPLX0-7668	predicted oxidoreductase	"{""reactant"": {""EG11134-MONOMER"": 2}, ""product"": {""CPLX0-7668"": 1}}"	Complexation
+CPLX0-7669	ArgP DNA-binding transcriptional activator	"{""reactant"": {""EG10490-MONOMER"": 2}, ""product"": {""CPLX0-7669"": 1}}"	Complexation
+CPLX0-7672	MntR-Mn2+ DNA-binding transcriptional dual regulator	"{""reactant"": {""CPLX0-7701"": 2, ""MN+2"": 2, ""G6420-MONOMER"": 2}, ""product"": {""CPLX0-7672"": 1}}"	Complexation
+CPLX0-7674	K+ channel Kch	"{""reactant"": {""KCH-MONOMER"": 4}, ""product"": {""CPLX0-7674"": 1}}"	Complexation
+CPLX0-7675	2Fe-2S cluster-containing protein	"{""reactant"": {""G6988-MONOMER"": 3}, ""product"": {""CPLX0-7675"": 1}}"	Complexation
+CPLX0-7678	ZntR-Zn2+ DNA-binding transcriptional activator	"{""reactant"": {""ZN+2"": 2, ""EG11969-MONOMER"": 2, ""CPLX0-7677"": 2}, ""product"": {""CPLX0-7678"": 1}}"	Complexation
+CPLX0-7679	Zur transcriptional repressor	"{""reactant"": {""EG11929-MONOMER"": 2}, ""product"": {""CPLX0-7679"": 1}}"	Complexation
+CPLX0-7682	iron-sulfur cluster scaffold protein	"{""reactant"": {""G7748-MONOMER"": 2}, ""product"": {""CPLX0-7682"": 1}}"	Complexation
+CPLX0-7683	mannose isomerase	"{""reactant"": {""EG11845-MONOMER"": 6}, ""product"": {""CPLX0-7683"": 1}}"	Complexation
+CPLX0-7684	L-valine efflux transporter	"{""reactant"": {""G7406-MONOMER"": 1, ""G7405-MONOMER"": 1}, ""product"": {""CPLX0-7684"": 1}}"	Complexation
+CPLX0-7685	hypoxanthine phosphoribosyltransferase	"{""reactant"": {""HYPOXANPRIBOSYLTRAN-MONOMER"": 4}, ""product"": {""CPLX0-7685"": 1}}"	Complexation
+CPLX0-7686	cell division factor ZapB	"{""reactant"": {""EG11878-MONOMER"": 2}, ""product"": {""CPLX0-7686"": 1}}"	Complexation
+CPLX0-7687	NAD+-dependent succinate semialdehyde dehydrogenase	"{""reactant"": {""G6811-MONOMER"": 2}, ""product"": {""CPLX0-7687"": 1}}"	Complexation
+CPLX0-7688	succinate-semialdehyde dehydrogenase (NADP+)	"{""reactant"": {""SUCCSEMIALDDEHYDROG-MONOMER"": 4}, ""product"": {""CPLX0-7688"": 1}}"	Complexation
+CPLX0-7691	isovaleryl-CoA dehydrogenase and DNA-binding transcriptional repressor	"{""reactant"": {""EG11811-MONOMER"": 4}, ""product"": {""CPLX0-7691"": 1}}"	Complexation
+CPLX0-7692	nucleoside triphosphate pyrophosphohydrolase	"{""reactant"": {""EG10572-MONOMER"": 2}, ""product"": {""CPLX0-7692"": 1}}"	Complexation
+CPLX0-7693	NADH:quinone reductase, FMN dependent / NADH-azoreductase	"{""reactant"": {""G6731-MONOMER"": 2}, ""product"": {""CPLX0-7693"": 1}}"	Complexation
+CPLX0-7694	glutaminase	"{""reactant"": {""G6261-MONOMER"": 4}, ""product"": {""CPLX0-7694"": 1}}"	Complexation
+CPLX0-7695	glutaminase	"{""reactant"": {""G6810-MONOMER"": 2}, ""product"": {""CPLX0-7695"": 1}}"	Complexation
+CPLX0-7696	cell division protein involved in chromosome partitioning	"{""reactant"": {""EG10618-MONOMER"": 2}, ""product"": {""CPLX0-7696"": 1}}"	Complexation
+CPLX0-7697	MukEF complex	"{""reactant"": {""CPLX0-7698"": 1, ""EG11252-MONOMER"": 4, ""EG12165-MONOMER"": 2}, ""product"": {""CPLX0-7697"": 1}}"	Complexation
+CPLX0-7698	MukF dimer	"{""reactant"": {""EG12165-MONOMER"": 2}, ""product"": {""CPLX0-7698"": 1}}"	Complexation
+CPLX0-7704	lipopolysaccharide ABC transporter	"{""reactant"": {""EG10613-MONOMER"": 2}, ""product"": {""CPLX0-7704"": 1}}"	Complexation
+CPLX0-7705	Fis DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00196"": 2}, ""product"": {""CPLX0-7705"": 1}}"	Complexation
+CPLX0-7707	NikR-Ni DNA binding transcriptional repressor	"{""reactant"": {""NI+2"": 4, ""MONOMER0-1781"": 4, ""EG11519-MONOMER"": 4}, ""product"": {""CPLX0-7707"": 1}}"	Complexation
+CPLX0-7708	CueR-Cu+ DNA-binding transcriptional dual regulator	"{""reactant"": {""CPLX0-7702"": 2, ""CU+"": 2, ""G6263-MONOMER"": 2}, ""product"": {""CPLX0-7708"": 1}}"	Complexation
+CPLX0-7709	glutamate-putrescine ligase	"{""reactant"": {""G6644-MONOMER"": 12}, ""product"": {""CPLX0-7709"": 1}}"	Complexation
+CPLX0-7710	MarR DNA-binding transcriptional repressor	"{""reactant"": {""PD00364"": 2}, ""product"": {""CPLX0-7710"": 1}}"	Complexation
+CPLX0-7711	Skp periplasmic chaperone	"{""reactant"": {""EG10455-MONOMER"": 3}, ""product"": {""CPLX0-7711"": 1}}"	Complexation
+CPLX0-7712	GDP-mannose mannosyl hydrolase	"{""reactant"": {""GDPMANMANHYDRO-MONOMER"": 2}, ""product"": {""CPLX0-7712"": 1}}"	Complexation
+CPLX0-7713	DsdC DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00297"": 2}, ""product"": {""CPLX0-7713"": 1}}"	Complexation
+CPLX0-7717	penicillin-binding protein 1A	"{""reactant"": {""EG10748-MONOMER"": 2}, ""product"": {""CPLX0-7717"": 1}}"	Complexation
+CPLX0-7718	UDP-L-Ara4N formyltransferase / UDP-GlcA C-4\-decarboxylase	"{""reactant"": {""G7168-MONOMER"": 6}, ""product"": {""CPLX0-7718"": 1}}"	Complexation
+CPLX0-7719	quinolinate synthase	"{""reactant"": {""QUINOLINATE-SYNTHA-MONOMER"": 2}, ""product"": {""CPLX0-7719"": 1}}"	Complexation
+CPLX0-7720	undecaprenyl-phosphate-&alpha;-L-Ara4N flippase	"{""reactant"": {""MONOMER0-2682"": 1, ""G7171-MONOMER"": 1}, ""product"": {""CPLX0-7720"": 1}}"	Complexation
+CPLX0-7721	DcuR-Phosphorylated DNA-binding transcriptional activator	"{""reactant"": {""PHOSPHO-DCUR-MONOMER"": 2}, ""product"": {""CPLX0-7721"": 1}}"	Complexation
+CPLX0-7722	L-rhamnonate dehydratase	"{""reactant"": {""G7160-MONOMER"": 8}, ""product"": {""CPLX0-7722"": 1}}"	Complexation
+CPLX0-7723	2-keto-3-deoxy-L-rhamnonate aldolase	"{""reactant"": {""G7158-MONOMER"": 6}, ""product"": {""CPLX0-7723"": 1}}"	Complexation
+CPLX0-7724	formate dehydrogenase formation protein	"{""reactant"": {""EG10284-MONOMER"": 2}, ""product"": {""CPLX0-7724"": 1}}"	Complexation
+CPLX0-7725	CRISPR-associated complex for antiviral defense	"{""reactant"": {""G7427-MONOMER"": 1, ""G7426-MONOMER"": 1, ""G7429-MONOMER"": 2, ""G7428-MONOMER"": 6, ""G7430-MONOMER"": 1}, ""product"": {""CPLX0-7725"": 1}}"	Complexation
+CPLX0-7726	23S rRNA m5C1962 methyltransferase	"{""reactant"": {""G6501-MONOMER"": 2}, ""product"": {""CPLX0-7726"": 1}}"	Complexation
+CPLX0-7727	16S rRNA m3U1498 methyltransferase	"{""reactant"": {""EG12366-MONOMER"": 2}, ""product"": {""CPLX0-7727"": 1}}"	Complexation
+CPLX0-7728	tRNA pseudouridine synthase I	"{""reactant"": {""EG10454-MONOMER"": 2}, ""product"": {""CPLX0-7728"": 1}}"	Complexation
+CPLX0-7731	PaaX DNA-binding transcriptional repressor	"{""reactant"": {""G6720-MONOMER"": 2}, ""product"": {""CPLX0-7731"": 1}}"	Complexation
+CPLX0-7732	N-acetylmuramic acid 6-phosphate etherase	"{""reactant"": {""G7263-MONOMER"": 2}, ""product"": {""CPLX0-7732"": 1}}"	Complexation
+CPLX0-7733	AsnC DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00250"": 2}, ""product"": {""CPLX0-7733"": 1}}"	Complexation
+CPLX0-7734	ArsR DNA-binding transcriptional repressor	"{""reactant"": {""EG12235-MONOMER"": 2}, ""product"": {""CPLX0-7734"": 1}}"	Complexation
+CPLX0-7740	CytR DNA-binding transcriptional repressor	"{""reactant"": {""PD04028"": 2}, ""product"": {""CPLX0-7740"": 1}}"	Complexation
+CPLX0-7741	methylmalonyl-CoA mutase	"{""reactant"": {""METHYLMALONYL-COA-MUT-MONOMER"": 2}, ""product"": {""CPLX0-7741"": 1}}"	Complexation
+CPLX0-7744	3-keto-L-gulonate 6-phosphate decarboxylase	"{""reactant"": {""G7858-MONOMER"": 2}, ""product"": {""CPLX0-7744"": 1}}"	Complexation
+CPLX0-7745	MurR DNA-binding transcriptional dual regulator	"{""reactant"": {""G7262-MONOMER"": 4}, ""product"": {""CPLX0-7745"": 1}}"	Complexation
+CPLX0-7747	lipid hydroperoxide peroxidase	"{""reactant"": {""G6660-MONOMER"": 2}, ""product"": {""CPLX0-7747"": 1}}"	Complexation
+CPLX0-7748	CpxR-Pasp DNA-binding transcriptional dual regulator	"{""reactant"": {""PHOSPHO-CPXR"": 2}, ""product"": {""CPLX0-7748"": 1}}"	Complexation
+CPLX0-7754	UhpA-Phosphorylated DNA-binding transcriptional activator	"{""reactant"": {""PHOSPHO-UHPA"": 2}, ""product"": {""CPLX0-7754"": 1}}"	Complexation
+CPLX0-7755	purine nucleoside phosphoramidase	"{""reactant"": {""EG12172-MONOMER"": 2}, ""product"": {""CPLX0-7755"": 1}}"	Complexation
+CPLX0-7756	NsrR DNA-binding transcriptional repressor	"{""reactant"": {""EG11212-MONOMER"": 2}, ""product"": {""CPLX0-7756"": 1}}"	Complexation
+CPLX0-7757	HipB antitoxin and DNA-binding transcriptional repressor	"{""reactant"": {""EG10442-MONOMER"": 2}, ""product"": {""CPLX0-7757"": 1}}"	Complexation
+CPLX0-7758	O-acetyl-ADP-ribose deacetylase, regulator of RNase III activity	"{""reactant"": {""G6550-MONOMER"": 2}, ""product"": {""CPLX0-7758"": 1}}"	Complexation
+CPLX0-7759	MetR DNA-binding transcriptional dual regulator	"{""reactant"": {""PD03938"": 2}, ""product"": {""CPLX0-7759"": 1}}"	Complexation
+CPLX0-7760	aconitate hydratase 1	"{""reactant"": {""ACONITASE-MONOMER"": 2}, ""product"": {""CPLX0-7760"": 1}}"	Complexation
+CPLX0-7761	bifunctional aconitate hydratase 2 and 2-methylisocitrate dehydratase	"{""reactant"": {""ACONITATEDEHYDRB-MONOMER"": 2}, ""product"": {""CPLX0-7761"": 1}}"	Complexation
+CPLX0-7766	proofreading thioesterase in enterobactin biosynthesis	"{""reactant"": {""EG11105-MONOMER"": 4}, ""product"": {""CPLX0-7766"": 1}}"	Complexation
+CPLX0-7776	fructose-1,6-bisphosphatase	"{""reactant"": {""EG11245-MONOMER"": 2}, ""product"": {""CPLX0-7776"": 1}}"	Complexation
+CPLX0-7787	DinJ-YafQ antitoxin/toxin complex and DNA-binding transcriptional repressor	"{""reactant"": {""G6109-MONOMER"": 1, ""G6110-MONOMER"": 1}, ""product"": {""CPLX0-7787"": 1}}"	Complexation
+CPLX0-7788	NAD-dependent dihydropyrimidine dehydrogenase	"{""reactant"": {""EG11289-MONOMER"": 2, ""G7145-MONOMER"": 2}, ""product"": {""CPLX0-7788"": 1}}"	Complexation
+CPLX0-7789	macrodomain Ter protein	"{""reactant"": {""EG12855-MONOMER"": 2}, ""product"": {""CPLX0-7789"": 1}}"	Complexation
+CPLX0-7791	RelB-RelE antitoxin/toxin complex and DNA-binding transcriptional repressor	"{""reactant"": {""EG11131-MONOMER"": 4, ""EG10836-MONOMER"": 4}, ""product"": {""CPLX0-7791"": 1}}"	Complexation
+CPLX0-7794	succinate semialdehyde reductase	"{""reactant"": {""EG11847-MONOMER"": 4}, ""product"": {""CPLX0-7794"": 1}}"	Complexation
+CPLX0-7795	KdpE-Phosphorylated DNA-binding transcriptional activator	"{""reactant"": {""PHOSPHO-KDPE"": 2}, ""product"": {""CPLX0-7795"": 1}}"	Complexation
+CPLX0-7796	MetJ-S-adenosylmethionine DNA-binding transcriptional repressor	"{""reactant"": {""PD04032"": 2, ""S-ADENOSYLMETHIONINE"": 2, ""MONOMER0-157"": 2}, ""product"": {""CPLX0-7796"": 1}}"	Complexation
+CPLX0-7797	FNR DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00197"": 2}, ""product"": {""CPLX0-7797"": 1}}"	Complexation
+CPLX0-7798	protein involved in threonylcarbamoyladenosine biosynthesis	"{""reactant"": {""EG11757-MONOMER"": 2}, ""product"": {""CPLX0-7798"": 1}}"	Complexation
+CPLX0-7799	protein involved in threonylcarbamoyladenosine biosynthesis	"{""reactant"": {""G6991-MONOMER"": 2}, ""product"": {""CPLX0-7799"": 1}}"	Complexation
+CPLX0-7800	protein involved in threonylcarbamoyladenosine biosynthesis	"{""reactant"": {""EG11171-MONOMER"": 2}, ""product"": {""CPLX0-7800"": 1}}"	Complexation
+CPLX0-7801	predicted structural protein, ethanolamine utilization microcompartment	"{""reactant"": {""G7271-MONOMER"": 3}, ""product"": {""CPLX0-7801"": 1}}"	Complexation
+CPLX0-7802	diguanylate cyclase	"{""reactant"": {""EG11643-MONOMER"": 2}, ""product"": {""CPLX0-7802"": 1}}"	Complexation
+CPLX0-7805	aldehyde dehydrogenase	"{""reactant"": {""G6156-MONOMER"": 1, ""G6157-MONOMER"": 1, ""G6155-MONOMER"": 1}, ""product"": {""CPLX0-7805"": 1}}"	Complexation
+CPLX0-7806	disulfide reductase	"{""reactant"": {""G7194-MONOMER"": 2}, ""product"": {""CPLX0-7806"": 1}}"	Complexation
+CPLX0-7807	SdsRQP multidrug efflux system	"{""reactant"": {""YJCQ-MONOMER"": 1, ""EG11952-MONOMER"": 1, ""EG11954-MONOMER"": 1}, ""product"": {""CPLX0-7807"": 1}}"	Complexation
+CPLX0-7808	coproporphyrinogen III oxidase	"{""reactant"": {""COPROGENOXI-MONOMER"": 2}, ""product"": {""CPLX0-7808"": 1}}"	Complexation
+CPLX0-7810	EfeB dimer	"{""reactant"": {""EG11735-MONOMER"": 2}, ""product"": {""CPLX0-7810"": 1}}"	Complexation
+CPLX0-7811	protoporphyrinogen oxidase	"{""reactant"": {""PROTOPORGENOXI-MONOMER"": 4}, ""product"": {""CPLX0-7811"": 1}}"	Complexation
+CPLX0-7816	conserved DNA-binding protein	"{""reactant"": {""EG11100-MONOMER"": 2}, ""product"": {""CPLX0-7816"": 1}}"	Complexation
+CPLX0-7817	glutaredoxin 4	"{""reactant"": {""EG12181-MONOMER"": 2}, ""product"": {""CPLX0-7817"": 1}}"	Complexation
+CPLX0-7819	K+ : H+ antiporter KefC	"{""reactant"": {""KEFC-MONOMER"": 2}, ""product"": {""CPLX0-7819"": 1}}"	Complexation
+CPLX0-782	lipoate synthase	"{""reactant"": {""EG11306-MONOMER"": 2}, ""product"": {""CPLX0-782"": 1}}"	Complexation
+CPLX0-7820	predicted class I aldolase	"{""reactant"": {""G6804-MONOMER"": 10}, ""product"": {""CPLX0-7820"": 1}}"	Complexation
+CPLX0-7822	MqsA-MqsR antitoxin/toxin complex	"{""reactant"": {""G7572-MONOMER"": 4, ""G7571-MONOMER"": 2}, ""product"": {""CPLX0-7822"": 1}}"	Complexation
+CPLX0-7823	DosC-DosP complex	"{""reactant"": {""G6784-MONOMER"": 1, ""G6783-MONOMER"": 1}, ""product"": {""CPLX0-7823"": 1}}"	Complexation
+CPLX0-7824	Fe-S transport protein in Fe-S cluster assembly	"{""reactant"": {""EG11378-MONOMER"": 2}, ""product"": {""CPLX0-7824"": 1}}"	Complexation
+CPLX0-7826	dITP/XTP pyrophosphatase	"{""reactant"": {""G7530-MONOMER"": 2}, ""product"": {""CPLX0-7826"": 1}}"	Complexation
+CPLX0-7827	carboxylate-amine ligase	"{""reactant"": {""G6326-MONOMER"": 2}, ""product"": {""CPLX0-7827"": 1}}"	Complexation
+CPLX0-7835	predicted structural protein, ethanolamine utilization microcompartment	"{""reactant"": {""G7287-MONOMER"": 6}, ""product"": {""CPLX0-7835"": 1}}"	Complexation
+CPLX0-7836	predicted structural protein, ethanolamine utilization microcompartment	"{""reactant"": {""G7292-MONOMER"": 6}, ""product"": {""CPLX0-7836"": 1}}"	Complexation
+CPLX0-7837	PEP synthetase regulatory protein	"{""reactant"": {""EG11132-MONOMER"": 4}, ""product"": {""CPLX0-7837"": 1}}"	Complexation
+CPLX0-7838	cysteine sulfinate desulfinase	"{""reactant"": {""G7454-MONOMER"": 2}, ""product"": {""CPLX0-7838"": 1}}"	Complexation
+CPLX0-7839	CSD sulfur transfer protein	"{""reactant"": {""G7455-MONOMER"": 2}, ""product"": {""CPLX0-7839"": 1}}"	Complexation
+CPLX0-7841	sulfite reductase, flavoprotein subunit complex	"{""reactant"": {""ALPHACOMP-MONOMER"": 8}, ""product"": {""CPLX0-7841"": 1}}"	Complexation
+CPLX0-7843	formate channel FocA	"{""reactant"": {""FOCA-MONOMER"": 5}, ""product"": {""CPLX0-7843"": 1}}"	Complexation
+CPLX0-7844	p-aminobenzoyl-glutamate hydrolase	"{""reactant"": {""G6669-MONOMER"": 2, ""G6670-MONOMER"": 2}, ""product"": {""CPLX0-7844"": 1}}"	Complexation
+CPLX0-7847	4-hydroxy-L-threonine phosphate dehydrogenase, NAD-dependent	"{""reactant"": {""PDXA-MONOMER"": 2}, ""product"": {""CPLX0-7847"": 1}}"	Complexation
+CPLX0-7848	L-ascorbate 6-phosphate lactonase	"{""reactant"": {""G7855-MONOMER"": 6}, ""product"": {""CPLX0-7848"": 1}}"	Complexation
+CPLX0-7849	aryl-EntB	"{""reactant"": {}, ""product"": {""CPLX0-7849"": 1}}"	Complexation
+CPLX0-7852	GadE-RcsB DNA binding transcriptional activator	"{""reactant"": {""EG11544-MONOMER"": 1, ""RCSB-MONOMER"": 1}, ""product"": {""CPLX0-7852"": 1}}"	Complexation
+CPLX0-7853	GAP-like protein that activates GTPase activity of Der	"{""reactant"": {""EG11835-MONOMER"": 2}, ""product"": {""CPLX0-7853"": 1}}"	Complexation
+CPLX0-7854	TreR DNA-binding transcriptional repressor	"{""reactant"": {""EG12202-MONOMER"": 2}, ""product"": {""CPLX0-7854"": 1}}"	Complexation
+CPLX0-7870	AtoS sensory histidine kinase	"{""reactant"": {""ATOS-MONOMER"": 2}, ""product"": {""CPLX0-7870"": 1}}"	Complexation
+CPLX0-7877	phosphoglucose isomerase	"{""reactant"": {""PGLUCISOM"": 2}, ""product"": {""CPLX0-7877"": 1}}"	Complexation
+CPLX0-7878	oxalyl-CoA decarboxylase	"{""reactant"": {""G7236-MONOMER"": 4}, ""product"": {""CPLX0-7878"": 1}}"	Complexation
+CPLX0-7879	NusB-NusE complex	"{""reactant"": {""EG10909-MONOMER"": 1, ""EG10666-MONOMER"": 1}, ""product"": {""CPLX0-7879"": 1}}"	Complexation
+CPLX0-7882	1,4-dihydroxy-2-naphthoyl-CoA synthase	"{""reactant"": {""NAPHTHOATE-SYN-MONOMER"": 6}, ""product"": {""CPLX0-7882"": 1}}"	Complexation
+CPLX0-7884	RcsB-phosphorylated DNA-binding transcriptional activator	"{""reactant"": {""PHOSPHO-RCSB"": 2}, ""product"": {""CPLX0-7884"": 1}}"	Complexation
+CPLX0-7885	&gamma;-glutamyltranspeptidase	"{""reactant"": {""MONOMER0-4195"": 1, ""MONOMER0-4196"": 1}, ""product"": {""CPLX0-7885"": 1}}"	Complexation
+CPLX0-7887	glutamate-pyruvate aminotransferase	"{""reactant"": {""G7242-MONOMER"": 2}, ""product"": {""CPLX0-7887"": 1}}"	Complexation
+CPLX0-7888	glutamate-pyruvate aminotransferase	"{""reactant"": {""G7184-MONOMER"": 2}, ""product"": {""CPLX0-7888"": 1}}"	Complexation
+CPLX0-7889	EF-P-lysine lysyltransferase	"{""reactant"": {""EG11211-MONOMER"": 2}, ""product"": {""CPLX0-7889"": 1}}"	Complexation
+CPLX0-7904	ribonucleoside hydrolase 2 (pyrimidine-specific)	"{""reactant"": {""EG12030-MONOMER"": 4}, ""product"": {""CPLX0-7904"": 1}}"	Complexation
+CPLX0-7906	L-carnitine : &gamma;-butyrobetaine antiporter	"{""reactant"": {""CAIT-MONOMER"": 3}, ""product"": {""CPLX0-7906"": 1}}"	Complexation
+CPLX0-7908	iron-sulfur cluster assembly protein	"{""reactant"": {""EG12132-MONOMER"": 4}, ""product"": {""CPLX0-7908"": 1}}"	Complexation
+CPLX0-7909	RnlA-RnlB toxin-antitoxin complex	"{""reactant"": {""G7366-MONOMER"": 1, ""G7365-MONOMER"": 1}, ""product"": {""CPLX0-7909"": 1}}"	Complexation
+CPLX0-7910	DNA polymerase III, &psi;-&chi; subunit	"{""reactant"": {""EG11414-MONOMER"": 1, ""EG11413-MONOMER"": 1}, ""product"": {""CPLX0-7910"": 1}}"	Complexation
+CPLX0-7912	phosphate acetyltransferase	"{""reactant"": {""G7288-MONOMER"": 2}, ""product"": {""CPLX0-7912"": 1}}"	Complexation
+CPLX0-7913	tellurite methyltransferase	"{""reactant"": {""EG11884-MONOMER"": 2}, ""product"": {""CPLX0-7913"": 1}}"	Complexation
+CPLX0-7914	multifunctional nuclease	"{""reactant"": {""G7425-MONOMER"": 2}, ""product"": {""CPLX0-7914"": 1}}"	Complexation
+CPLX0-7916	RcsB-BglJ DNA-binding transcriptional activator	"{""reactant"": {""G7948-MONOMER"": 1, ""RCSB-MONOMER"": 1}, ""product"": {""CPLX0-7916"": 1}}"	Complexation
+CPLX0-7917	disulfide reductase / organic hydroperoxide reductase	"{""reactant"": {""G7553-MONOMER"": 2}, ""product"": {""CPLX0-7917"": 1}}"	Complexation
+CPLX0-7921	mannose PTS permease - ManX subunit	"{""reactant"": {""MANX-MONOMER"": 2}, ""product"": {""CPLX0-7921"": 1}}"	Complexation
+CPLX0-7922	cell division inhibitor, nucleoid occlusion	"{""reactant"": {""EG11191-MONOMER"": 2}, ""product"": {""CPLX0-7922"": 1}}"	Complexation
+CPLX0-7923	ATP independent periplasmic chaperone	"{""reactant"": {""G6939-MONOMER"": 2}, ""product"": {""CPLX0-7923"": 1}}"	Complexation
+CPLX0-7927	NADPH-dependent curcumin/dihydrocurcumin reductase	"{""reactant"": {""G6760-MONOMER"": 2}, ""product"": {""CPLX0-7927"": 1}}"	Complexation
+CPLX0-7928	RelB-antitoxin and DNA-binding transcriptional repressor	"{""reactant"": {""EG10836-MONOMER"": 4}, ""product"": {""CPLX0-7928"": 1}}"	Complexation
+CPLX0-7929	YefM-antitoxin DNA-binding transcriptional repressor	"{""reactant"": {""EG12844-MONOMER"": 2}, ""product"": {""CPLX0-7929"": 1}}"	Complexation
+CPLX0-7932	cytosine deaminase	"{""reactant"": {""CYTDEAM-MONOMER"": 6}, ""product"": {""CPLX0-7932"": 1}}"	Complexation
+CPLX0-7933	predicted carbamoyltransferase	"{""reactant"": {""G7489-MONOMER"": 3}, ""product"": {""CPLX0-7933"": 1}}"	Complexation
+CPLX0-7934	FtsLBQ cell division complex	"{""reactant"": {""G7424-MONOMER"": 1, ""EG11086-MONOMER"": 1, ""EG10342-MONOMER"": 1}, ""product"": {""CPLX0-7934"": 1}}"	Complexation
+CPLX0-7935	predicted carbon-phosphorous lyase complex	"{""reactant"": {""PHNK-MONOMER"": 1, ""EG10718-MONOMER"": 2, ""EG10719-MONOMER"": 2, ""EG10716-MONOMER"": 4, ""EG10717-MONOMER"": 2}, ""product"": {""CPLX0-7935"": 1}}"	Complexation
+CPLX0-7936	5-phospho-&alpha;-D-ribosyl 1,2-cyclic phosphate phosphodiesterase	"{""reactant"": {""EG10725-MONOMER"": 2}, ""product"": {""CPLX0-7936"": 1}}"	Complexation
+CPLX0-7938	PTS enzyme I	"{""reactant"": {""PTSI-MONOMER"": 2}, ""product"": {""CPLX0-7938"": 1}}"	Complexation
+CPLX0-7939	regulator of KefC-mediated potassium transport and quinone oxidoreductase	"{""reactant"": {""EG11568-MONOMER"": 2}, ""product"": {""CPLX0-7939"": 1}}"	Complexation
+CPLX0-7940	CP4-6 prophage; probable 2-keto-3-deoxygluconate aldolase	"{""reactant"": {""G6140-MONOMER"": 4}, ""product"": {""CPLX0-7940"": 1}}"	Complexation
+CPLX0-7942	Grx4-BolA complex	"{""reactant"": {""EG12181-MONOMER"": 1, ""EG10125-MONOMER"": 1}, ""product"": {""CPLX0-7942"": 1}}"	Complexation
+CPLX0-7944	outer membrane phospholipase	"{""reactant"": {""MONOMER0-341"": 2}, ""product"": {""CPLX0-7944"": 1}}"	Complexation
+CPLX0-7945	zinc-binding phosphatase	"{""reactant"": {""G6540-MONOMER"": 3}, ""product"": {""CPLX0-7945"": 1}}"	Complexation
+CPLX0-7946	ribosomal protein S6 modification protein	"{""reactant"": {""EG10852-MONOMER"": 4}, ""product"": {""CPLX0-7946"": 1}}"	Complexation
+CPLX0-7947	succinylarginine dihydrolase	"{""reactant"": {""SUCCARGDIHYDRO-MONOMER"": 2}, ""product"": {""CPLX0-7947"": 1}}"	Complexation
+CPLX0-7950	2-hydroxy-6-oxononatrienedioate hydrolase	"{""reactant"": {""MHPCHYDROL-MONOMER"": 2}, ""product"": {""CPLX0-7950"": 1}}"	Complexation
+CPLX0-7951	2-hydroxypentadienoate hydratase	"{""reactant"": {""MHPDHYDROL-MONOMER"": 5}, ""product"": {""CPLX0-7951"": 1}}"	Complexation
+CPLX0-7952	ferric coprogen outer membrane transport complex	"{""reactant"": {""EG11012-MONOMER"": 1, ""EG10271-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""CPLX0-1923"": 1, ""EG10306-MONOMER"": 1}, ""product"": {""CPLX0-7952"": 1}}"	Complexation
+CPLX0-7954	ferric coprogen transport system	"{""reactant"": {""EG11012-MONOMER"": 1, ""FHUC-MONOMER"": 2, ""CPLX0-7952"": 1, ""CPLX0-1923"": 1, ""EG10306-MONOMER"": 1, ""EG10271-MONOMER"": 1, ""EG10272-MONOMER"": 1, ""ABC-11-CPLX"": 1, ""FHUB-MONOMER"": 2, ""FHUD-MONOMER"": 1}, ""product"": {""CPLX0-7954"": 1}}"	Complexation
+CPLX0-7955	acetate / glycolate transporter	"{""reactant"": {""YJCG-MONOMER"": 2}, ""product"": {""CPLX0-7955"": 1}}"	Complexation
+CPLX0-7956	CsrA dimer	"{""reactant"": {""EG11447-MONOMER"": 2}, ""product"": {""CPLX0-7956"": 1}}"	Complexation
+CPLX0-7957	selenide, water dikinase	"{""reactant"": {""EG10943-MONOMER"": 2}, ""product"": {""CPLX0-7957"": 1}}"	Complexation
+CPLX0-7958	methylphosphonate degradation complex	"{""reactant"": {""EG10718-MONOMER"": 1, ""EG10716-MONOMER"": 1, ""EG10717-MONOMER"": 1, ""PHNL-MONOMER"": 1}, ""product"": {""CPLX0-7958"": 1}}"	Complexation
+CPLX0-7959	adenylosuccinate lyase	"{""reactant"": {""ASL-MONOMER"": 4}, ""product"": {""CPLX0-7959"": 1}}"	Complexation
+CPLX0-7960	chaperone, protecting proteins in response to oxidative stress	"{""reactant"": {""HMP-KIN-MONOMER"": 2}, ""product"": {""CPLX0-7960"": 1}}"	Complexation
+CPLX0-7961	chloride:H+ antiporter ClcA	"{""reactant"": {""YADQ-MONOMER"": 2}, ""product"": {""CPLX0-7961"": 1}}"	Complexation
+CPLX0-7962	L-amino acid N-acyltransferase	"{""reactant"": {""G6759-MONOMER"": 2}, ""product"": {""CPLX0-7962"": 1}}"	Complexation
+CPLX0-7963	multidrug / betaine / choline efflux transporter EmrE	"{""reactant"": {""EMRE-MONOMER"": 2}, ""product"": {""CPLX0-7963"": 1}}"	Complexation
+CPLX0-7964	TolC outer membrane channel	"{""reactant"": {""EG11009-MONOMER"": 3}, ""product"": {""CPLX0-7964"": 1}}"	Complexation
+CPLX0-7970	YjiE DNA-binding transcriptional dual regulator	"{""reactant"": {""G7924-MONOMER"": 2}, ""product"": {""CPLX0-7970"": 1}}"	Complexation
+CPLX0-7973	cell division factor ZapD	"{""reactant"": {""EG12313-MONOMER"": 2}, ""product"": {""CPLX0-7973"": 1}}"	Complexation
+CPLX0-7974	NADH pyrophosphatase	"{""reactant"": {""EG11702-MONOMER"": 2}, ""product"": {""CPLX0-7974"": 1}}"	Complexation
+CPLX0-7975	NadR DNA-binding transcriptional repressor and NMN adenylyltransferase	"{""reactant"": {""PD04413"": 4}, ""product"": {""CPLX0-7975"": 1}}"	Complexation
+CPLX0-7976	translocation and assembly module	"{""reactant"": {""G7874-MONOMER"": 1, ""G7875-MONOMER"": 1}, ""product"": {""CPLX0-7976"": 1}}"	Complexation
+CPLX0-7977	16S rRNA m4C1402 methyltransferase	"{""reactant"": {""EG11085-MONOMER"": 2}, ""product"": {""CPLX0-7977"": 1}}"	Complexation
+CPLX0-7978	RcsB-P-phosphate	"{""reactant"": {""PHOSPHO-RCSB"": 2}, ""product"": {""CPLX0-7978"": 1}}"	Complexation
+CPLX0-7979	monoacetylchitobiose-6-phosphate hydrolase	"{""reactant"": {""EG10144-MONOMER"": 4}, ""product"": {""CPLX0-7979"": 1}}"	Complexation
+CPLX0-7981	mechanosensitive channel of miniconductance YbdG	"{""reactant"": {""G6323-MONOMER"": 7}, ""product"": {""CPLX0-7981"": 1}}"	Complexation
+CPLX0-7982	mechanosensitive channel YnaI	"{""reactant"": {""MONOMER0-82"": 7}, ""product"": {""CPLX0-7982"": 1}}"	Complexation
+CPLX0-7983	mechanosensitive channel YbiO	"{""reactant"": {""G6417-MONOMER"": 7}, ""product"": {""CPLX0-7983"": 1}}"	Complexation
+CPLX0-7984	S-glutathionyl-(chloro)hydroquinone reductase	"{""reactant"": {""G7616-MONOMER"": 2}, ""product"": {""CPLX0-7984"": 1}}"	Complexation
+CPLX0-7985	mechanosensitive channel of miniconductance	"{""reactant"": {""G7840-MONOMER"": 7}, ""product"": {""CPLX0-7985"": 1}}"	Complexation
+CPLX0-7986	HypCD complex involved in hydrogenase maturation	"{""reactant"": {""EG10486-MONOMER"": 1, ""EG10485-MONOMER"": 1}, ""product"": {""CPLX0-7986"": 1}}"	Complexation
+CPLX0-7987	predicted enamine/imine deaminase	"{""reactant"": {""G7626-MONOMER"": 3}, ""product"": {""CPLX0-7987"": 1}}"	Complexation
+CPLX0-7988	PaaF-PaaG hydratase-isomerase complex	"{""reactant"": {""G6714-MONOMER"": 6, ""G6715-MONOMER"": 6}, ""product"": {""CPLX0-7988"": 1}}"	Complexation
+CPLX0-7989	murein tripeptide amidase A	"{""reactant"": {""G6662-MONOMER"": 2}, ""product"": {""CPLX0-7989"": 1}}"	Complexation
+CPLX0-7990	dTDP-4-dehydro-6-deoxy-D-glucose transaminase	"{""reactant"": {""RFFTRANS-MONOMER"": 4}, ""product"": {""CPLX0-7990"": 1}}"	Complexation
+CPLX0-7992	lipopolysaccharide transport system	"{""reactant"": {""ABC-53-CPLX"": 1, ""CPLX0-7628"": 1, ""YHBG-MONOMER"": 2, ""G7664-MONOMER"": 1, ""EG10855-MONOMER"": 1, ""G7888-MONOMER"": 1, ""EG11569-MONOMER"": 1, ""YHBN-MONOMER"": 1, ""G7889-MONOMER"": 1}, ""product"": {""CPLX0-7992"": 1}}"	Complexation
+CPLX0-7993	ureidoglycolate dehydrogenase	"{""reactant"": {""G6286-MONOMER"": 2}, ""product"": {""CPLX0-7993"": 1}}"	Complexation
+CPLX0-7994	poly-&beta;-1,6-N-acetyl-D-glucosamine synthase	"{""reactant"": {""G6529-MONOMER"": 1, ""G6528-MONOMER"": 1}, ""product"": {""CPLX0-7994"": 1}}"	Complexation
+CPLX0-8	longitudinal peptidoglycan synthesis/chromosome segregation-directing complex	"{""reactant"": {""EG10608-MONOMER"": 1, ""EG10609-MONOMER"": 1, ""EG10610-MONOMER"": 1}, ""product"": {""CPLX0-8"": 1}}"	Complexation
+CPLX0-801	HdeA dimer, inactive form of acid-resistance protein	"{""reactant"": {""EG11398-MONOMER"": 2}, ""product"": {""CPLX0-801"": 1}}"	Complexation
+CPLX0-821	fructoselysine 6-phosphate deglycase	"{""reactant"": {""G7723-MONOMER"": 12}, ""product"": {""CPLX0-821"": 1}}"	Complexation
+CPLX0-841	MazE antitoxin of the MazF-MazE toxin-antitoxin system	"{""reactant"": {""EG10571-MONOMER"": 2}, ""product"": {""CPLX0-841"": 1}}"	Complexation
+CPLX0-861	glyoxalase III, Hsp31 molecular chaperone	"{""reactant"": {""G7055-MONOMER"": 2}, ""product"": {""CPLX0-861"": 1}}"	Complexation
+CPLX0-881	ClpA ATP-dependent protease specificity component and chaperone	"{""reactant"": {""EG10156-MONOMER"": 6}, ""product"": {""CPLX0-881"": 1}}"	Complexation
+CPLX0-901	tRNA-specific adenosine deaminase	"{""reactant"": {""EG11372-MONOMER"": 2}, ""product"": {""CPLX0-901"": 1}}"	Complexation
+CPLX0-902	probable 4-oxalocrotonate tautomerase (4-OT)	"{""reactant"": {""EG11761-MONOMER"": 2}, ""product"": {""CPLX0-902"": 1}}"	Complexation
+CPLX0-921	inhibitor of vertebrate C-type lysozyme	"{""reactant"": {""G6104-MONOMER"": 2}, ""product"": {""CPLX0-921"": 1}}"	Complexation
+CPLX0-961	PspC transcriptional regulator; toxin of a PspC-PspB toxin-antitoxin pair	"{""reactant"": {""EG10778-MONOMER"": 2}, ""product"": {""CPLX0-961"": 1}}"	Complexation
+CPLX0-981	PspF DNA-binding transcriptional dual regulator	"{""reactant"": {""EG12344-MONOMER"": 6}, ""product"": {""CPLX0-981"": 1}}"	Complexation
+CPLXECOLI-7943	NMN amidohydrolase	"{""reactant"": {""G7409-MONOMER"": 2}, ""product"": {""CPLXECOLI-7943"": 1}}"	Complexation
+CREC-CPLX	CreC sensory histidine kinase	"{""reactant"": {""CREC-MONOMER"": 2}, ""product"": {""CREC-CPLX"": 1}}"	Complexation
+CTPSYN-CPLX	CTP synthase	"{""reactant"": {""CTPSYN-MONOMER"": 4}, ""product"": {""CTPSYN-CPLX"": 1}}"	Complexation
+CYANLY-CPLX	cyanase dimer	"{""reactant"": {""CYANLY-MONOMER"": 2}, ""product"": {""CYANLY-CPLX"": 1}}"	Complexation
+CYSSYNMULTI-CPLX	bifunctional CysEK cysteine biosynthesis complex	"{""reactant"": {""SERINE-O-ACETTRAN-MONOMER"": 6, ""CPLX0-237"": 1, ""ACSERLYA-MONOMER"": 2, ""ACSERLYA-CPLX"": 1}, ""product"": {""CYSSYNMULTI-CPLX"": 1}}"	Complexation
+CYSTATHIONINE-BETA-LYASE-CPLX	L-cysteine desulfhydrase / cystathionine-&beta;-lyase	"{""reactant"": {""CYSTATHIONINE-BETA-LYASE-MONOMER"": 4}, ""product"": {""CYSTATHIONINE-BETA-LYASE-CPLX"": 1}}"	Complexation
+CYT-D-UBIOX-CPLX	cytochrome bd-I terminal oxidase	"{""reactant"": {""CYDA-MONOMER"": 1, ""CYDB-MONOMER"": 1}, ""product"": {""CYT-D-UBIOX-CPLX"": 1}}"	Complexation
+CYT-O-UBIOX-CPLX	cytochrome bo terminal oxidase	"{""reactant"": {""CYOD-MONOMER"": 1, ""CYOA-MONOMER"": 1, ""CYOC-MONOMER"": 1, ""CYOB-MONOMER"": 1}, ""product"": {""CYT-O-UBIOX-CPLX"": 1}}"	Complexation
+CYTIDEAM-CPLX	cytidine deaminase	"{""reactant"": {""CYTIDEAM-MONOMER"": 2}, ""product"": {""CYTIDEAM-CPLX"": 1}}"	Complexation
+DALADALALIGB-CPLX	D-alanine-D-alanine ligase B	"{""reactant"": {""DALADALALIGB-MONOMER"": 2}, ""product"": {""DALADALALIGB-CPLX"": 1}}"	Complexation
+DALADEHYDROG-CPLX	D-amino acid dehydrogenase	"{""reactant"": {""DALADEHYDROGA-MONOMER"": 2}, ""product"": {""DALADEHYDROG-CPLX"": 1}}"	Complexation
+DAPASYN-CPLX	7,8-diaminopelargonic acid synthase	"{""reactant"": {""DAPASYN-MONOMER"": 2}, ""product"": {""DAPASYN-CPLX"": 1}}"	Complexation
+DCTP-DEAM-CPLX	dCTP deaminase	"{""reactant"": {""DCTP-DEAM-MONOMER"": 3}, ""product"": {""DCTP-DEAM-CPLX"": 1}}"	Complexation
+DCYSDESULF-CPLX	D-cysteine desulfhydrase, PLP-dependent / 3-chloro-D-alanine dehydrochlorinase	"{""reactant"": {""DCYSDESULF-MONOMER"": 2}, ""product"": {""DCYSDESULF-CPLX"": 1}}"	Complexation
+DEOA-CPLX	thymidine phosphorylase / uracil phosphorylase	"{""reactant"": {""DEOA-MONOMER"": 2}, ""product"": {""DEOA-CPLX"": 1}}"	Complexation
+DEOD-CPLX	purine nucleoside phosphorylase	"{""reactant"": {""DEOD-MONOMER"": 6}, ""product"": {""DEOD-CPLX"": 1}}"	Complexation
+DETHIOBIOTIN-SYN-CPLX	dethiobiotin synthetase	"{""reactant"": {""DETHIOBIOTIN-SYN-MONOMER"": 2}, ""product"": {""DETHIOBIOTIN-SYN-CPLX"": 1}}"	Complexation
+DGTPTRIPHYDRO-CPLX	deoxyguanosine triphosphate triphosphohydrolase	"{""reactant"": {""DGTPTRIPHYDRO-MONOMER"": 4}, ""product"": {""DGTPTRIPHYDRO-CPLX"": 1}}"	Complexation
+DHHB-METHYLTRANSFER-CPLX	bifunctional 3-demethylubiquinone-8 3-O-methyltransferase and 2-octaprenyl-6-hydroxyphenol methylase	"{""reactant"": {""DHHB-METHYLTRANSFER-MONOMER"": 2}, ""product"": {""DHHB-METHYLTRANSFER-CPLX"": 1}}"	Complexation
+DHPDIOXYGEN-CPLX	2,3-dihydroxyphenylpropionate 1,2-dioxygenase	"{""reactant"": {""DHPDIOXYGEN-MONOMER"": 4}, ""product"": {""DHPDIOXYGEN-CPLX"": 1}}"	Complexation
+DIACYLGLYKIN-CPLX	diacylglycerol kinase	"{""reactant"": {""DIACYLGLYKIN-MONOMER"": 3}, ""product"": {""DIACYLGLYKIN-CPLX"": 1}}"	Complexation
+DIAMINOPIMDECARB-CPLX	diaminopimelate decarboxylase	"{""reactant"": {""DIAMINOPIMDECARB-MONOMER"": 4}, ""product"": {""DIAMINOPIMDECARB-CPLX"": 1}}"	Complexation
+DIHYDRODIPICSYN-CPLX	4-hydroxy-tetrahydrodipicolinate synthase	"{""reactant"": {""DIHYDRODIPICSYN-MONOMER"": 4}, ""product"": {""DIHYDRODIPICSYN-CPLX"": 1}}"	Complexation
+DIHYDROOROT-CPLX	dihydroorotase	"{""reactant"": {""DIHYDROOROT-MONOMER"": 2}, ""product"": {""DIHYDROOROT-CPLX"": 1}}"	Complexation
+DIHYDROPICRED-CPLX	4-hydroxy-tetrahydrodipicolinate reductase	"{""reactant"": {""DIHYDROPICRED-MONOMER"": 4}, ""product"": {""DIHYDROPICRED-CPLX"": 1}}"	Complexation
+DIHYDROPTERIREDUCT-CPLX	NAD(P)H nitroreductase NfsB	"{""reactant"": {""DIHYDROPTERIREDUCT-MONOMER"": 2}, ""product"": {""DIHYDROPTERIREDUCT-CPLX"": 1}}"	Complexation
+DIHYDROXYACIDDEHYDRAT-CPLX	dihydroxy acid dehydratase	"{""reactant"": {""DIHYDROXYACIDDEHYDRAT-MONOMER"": 2}, ""product"": {""DIHYDROXYACIDDEHYDRAT-CPLX"": 1}}"	Complexation
+DIMESULFREDUCT-CPLX	dimethyl sulfoxide reductase	"{""reactant"": {""DMSA-MONOMER"": 1, ""DMSB-MONOMER"": 1, ""DMSC-MONOMER"": 1}, ""product"": {""DIMESULFREDUCT-CPLX"": 1}}"	Complexation
+DIOHBUTANONEPSYN-CPLX	3,4-dihydroxy-2-butanone 4-phosphate synthase	"{""reactant"": {""DIOHBUTANONEPSYN-MONOMER"": 2}, ""product"": {""DIOHBUTANONEPSYN-CPLX"": 1}}"	Complexation
+DMBPPRIBOSYLTRANS-CPLX	nicotinate-nucleotide dimethylbenzimidazole phosphoribosyltransferase	"{""reactant"": {""DMBPPRIBOSYLTRANS-MONOMER"": 2}, ""product"": {""DMBPPRIBOSYLTRANS-CPLX"": 1}}"	Complexation
+DSBC-CPLX	protein disulfide isomerase / protein disulfide oxidoreductase	"{""reactant"": {""DSBC-MONOMER"": 2}, ""product"": {""DSBC-CPLX"": 1}}"	Complexation
+DSBG-CPLX	periplasmic protein disulfide isomerase / protein disulfide oxidoreductase	"{""reactant"": {""DSBG-MONOMER"": 2}, ""product"": {""DSBG-CPLX"": 1}}"	Complexation
+DTDPGLUCDEHYDRAT-CPLX	dTDP-glucose 4,6-dehydratase	"{""reactant"": {""DTDPGLUCDEHYDRAT-MONOMER"": 2}, ""product"": {""DTDPGLUCDEHYDRAT-CPLX"": 1}}"	Complexation
+DTDPRHAMSYNTHMULTI-CPLX	dTDP-L-rhamnose synthetase	"{""reactant"": {""DTDPDEHYDRHAMEPIM-MONOMER"": 1, ""DTDPDEHYRHAMREDUCT-MONOMER"": 1}, ""product"": {""DTDPRHAMSYNTHMULTI-CPLX"": 1}}"	Complexation
+DUTP-PYROP-CPLX	deoxyuridine triphosphatase	"{""reactant"": {""DUTP-PYROP-MONOMER"": 3}, ""product"": {""DUTP-PYROP-CPLX"": 1}}"	Complexation
+DXPREDISOM-CPLX	1-deoxy-D-xylulose 5-phosphate reductoisomerase	"{""reactant"": {""DXPREDISOM-MONOMER"": 2}, ""product"": {""DXPREDISOM-CPLX"": 1}}"	Complexation
+E1O	2-oxoglutarate decarboxylase, thiamine-requiring	"{""reactant"": {""E1O-MONOMER"": 12}, ""product"": {""E1O"": 1}}"	Complexation
+E1P-CPLX	pyruvate dehydrogenase	"{""reactant"": {""E1P-MONOMER"": 2}, ""product"": {""E1P-CPLX"": 1}}"	Complexation
+E2O	dihydrolipoyltranssuccinylase	"{""reactant"": {""E2O-MONOMER"": 24}, ""product"": {""E2O"": 1}}"	Complexation
+E3-CPLX	lipoamide dehydrogenase	"{""reactant"": {""E3-MONOMER"": 2}, ""product"": {""E3-CPLX"": 1}}"	Complexation
+ECNAB-CPLX	entericidin toxin-antitoxin complex	"{""reactant"": {""MONOMER0-1563"": 1, ""MONOMER0-1562"": 1}, ""product"": {""ECNAB-CPLX"": 1}}"	Complexation
+EIISGA	L-ascorbate PTS permease	"{""reactant"": {""YJFU-MONOMER"": 1, ""YJFT-MONOMER"": 1, ""SGAT-MONOMER"": 2}, ""product"": {""EIISGA"": 1}}"	Complexation
+EIISGC	PTS permease - unknown specificity	"{""reactant"": {""SGCC-MONOMER"": 1, ""SGCA-MONOMER"": 1, ""MONOMER0-2121"": 1}, ""product"": {""EIISGC"": 1}}"	Complexation
+ENOLASE-CPLX	enolase	"{""reactant"": {""ENOLASE-MONOMER"": 2}, ""product"": {""ENOLASE-CPLX"": 1}}"	Complexation
+ENTA-CPLX	2,3-dihydro-2,3-dihydroxybenzoate dehydrogenase	"{""reactant"": {""ENTA-MONOMER"": 8}, ""product"": {""ENTA-CPLX"": 1}}"	Complexation
+ENTB-CPLX	EntB isochorismatase / aryl-carrier protein	"{""reactant"": {""ENTB-MONOMER"": 2}, ""product"": {""ENTB-CPLX"": 1}}"	Complexation
+ENTE-CPLX	2,3-dihydroxybenzoate-AMP ligase	"{""reactant"": {""ENTE-MONOMER"": 2}, ""product"": {""ENTE-CPLX"": 1}}"	Complexation
+ENTMULTI-CPLX	enterobactin synthase	"{""reactant"": {""ENTE-MONOMER"": 2, ""ENTB-CPLX"": 1, ""ENTF-PANT"": 1, ""ENTD-MONOMER"": 1, ""ENTB-MONOMER"": 2, ""ENTE-CPLX"": 1}, ""product"": {""ENTMULTI-CPLX"": 1}}"	Complexation
+ENVZ-CPLX	EnvZ sensory histidine kinase	"{""reactant"": {""ENVZ-MONOMER"": 2}, ""product"": {""ENVZ-CPLX"": 1}}"	Complexation
+ERYTH4PDEHYDROG-CPLX	erythrose 4-phosphate dehydrogenase	"{""reactant"": {""ERYTH4PDEHYDROG-MONOMER"": 4}, ""product"": {""ERYTH4PDEHYDROG-CPLX"": 1}}"	Complexation
+ETHAMLY-CPLX	ethanolamine ammonia-lyase	"{""reactant"": {""EUTB-MONOMER"": 6, ""EUTC-MONOMER"": 6}, ""product"": {""ETHAMLY-CPLX"": 1}}"	Complexation
+F-1-CPLX	ATP synthase F1 complex	"{""reactant"": {""ATPH-MONOMER"": 1, ""ATPD-CPLX"": 1, ""ATPD-MONOMER"": 3, ""ATPC-MONOMER"": 1, ""ATPA-MONOMER"": 3, ""ATPA-CPLX"": 1, ""ATPG-MONOMER"": 1}, ""product"": {""F-1-CPLX"": 1}}"	Complexation
+F-O-CPLX	ATP synthase F0 complex	"{""reactant"": {""ATPF-MONOMER"": 2, ""ATPE-MONOMER"": 10, ""ATPE-CPLX"": 1, ""ATPB-MONOMER"": 1, ""ATPF-CPLX"": 1}, ""product"": {""F-O-CPLX"": 1}}"	Complexation
+F16B-CPLX	fructose-1,6-bisphosphatase I	"{""reactant"": {""F16B-MONOMER"": 4}, ""product"": {""F16B-CPLX"": 1}}"	Complexation
+FABA-CPLX	3-hydroxydecanoyl-[acp] dehydrase	"{""reactant"": {""FABA-MONOMER"": 2}, ""product"": {""FABA-CPLX"": 1}}"	Complexation
+FABB-CPLX	KASI	"{""reactant"": {""FABB-MONOMER"": 2}, ""product"": {""FABB-CPLX"": 1}}"	Complexation
+FABZ-CPLX	3-hydroxy-acyl-[acyl-carrier-protein] dehydratase	"{""reactant"": {""FABZ-MONOMER"": 1}, ""product"": {""FABZ-CPLX"": 1}}"	Complexation
+FADA-CPLX	fatty acid oxidation complex, &beta; component	"{""reactant"": {""FADA-MONOMER"": 2}, ""product"": {""FADA-CPLX"": 1}}"	Complexation
+FADB-CPLX	fatty acid oxidation complex, &alpha; component	"{""reactant"": {""FADB-MONOMER"": 2}, ""product"": {""FADB-CPLX"": 1}}"	Complexation
+FAO-CPLX	aerobic fatty acid oxidation complex	"{""reactant"": {""FADB-CPLX"": 1, ""FADB-MONOMER"": 2, ""FADA-MONOMER"": 2, ""FADA-CPLX"": 1}, ""product"": {""FAO-CPLX"": 1}}"	Complexation
+FHLMULTI-CPLX	formate hydrogenlyase complex	"{""reactant"": {""HYCC-MONOMER"": 1, ""HYCD-MONOMER"": 1, ""HYCF-MONOMER"": 1, ""HYCELARGE-MONOMER"": 1, ""HYDROG3-CPLX"": 1, ""HYCG-MONOMER"": 1, ""HYCBSMALL-MONOMER"": 1, ""FORMATEDEHYDROGH-MONOMER"": 1}, ""product"": {""FHLMULTI-CPLX"": 1}}"	Complexation
+FLAGELLAR-MOTOR-COMPLEX	Flagellar Motor Complex	"{""reactant"": {""CPLX0-7450"": 1, ""FLIN-FLAGELLAR-C-RING-SWITCH"": 1, ""FLGG-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""FLGF-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""FLGC-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""EG11346-MONOMER"": 1, ""MOTA-FLAGELLAR-MOTOR-STATOR-PROTEIN"": 1, ""FLGB-FLAGELLAR-MOTOR-ROD-PROTEIN"": 1, ""FLIG-FLAGELLAR-SWITCH-PROTEIN"": 26, ""MOTB-FLAGELLAR-MOTOR-STATOR-PROTEIN"": 1, ""FLIM-FLAGELLAR-C-RING-SWITCH"": 34, ""FLIF-FLAGELLAR-MS-RING"": 1, ""FLGH-FLAGELLAR-L-RING"": 1, ""FLGI-FLAGELLAR-P-RING"": 1}, ""product"": {""FLAGELLAR-MOTOR-COMPLEX"": 1}}"	Complexation
+FOLD-CPLX	bifunctional 5,10-methylene-tetrahydrofolate dehydrogenase/ 5,10-methylene-tetrahydrofolate cyclohydrolase	"{""reactant"": {""FOLD-MONOMER"": 2}, ""product"": {""FOLD-CPLX"": 1}}"	Complexation
+FOLE-CPLX	GTP cyclohydrolase I	"{""reactant"": {""GTP-CYCLOHYDRO-I-MONOMER"": 10}, ""product"": {""FOLE-CPLX"": 1}}"	Complexation
+FOLXTET-CPLX	dihydroneopterin triphosphate 2'-epimerase	"{""reactant"": {""H2NTPEPIM-MONOMER"": 8}, ""product"": {""FOLXTET-CPLX"": 1}}"	Complexation
+FORMATEDEHYDROGN-CPLX	formate dehydrogenase-N	"{""reactant"": {""FDNG-MONOMER"": 3, ""FDNH-MONOMER"": 3, ""FDNI-MONOMER"": 3, ""ALPHA-SUBUNIT-CPLX"": 3}, ""product"": {""FORMATEDEHYDROGN-CPLX"": 1}}"	Complexation
+FORMATEDEHYDROGO-CPLX	formate dehydrogenase-O	"{""reactant"": {""FDOG-MONOMER"": 1, ""FDOI-MONOMER"": 1, ""FDOH-MONOMER"": 1}, ""product"": {""FORMATEDEHYDROGO-CPLX"": 1}}"	Complexation
+FORMHYDROG2-CPLX	hydrogenase 2	"{""reactant"": {""HYBC-MONOMER"": 1, ""HYBA-MONOMER"": 1, ""EG11800-MONOMER"": 1, ""MONOMER0-145"": 1}, ""product"": {""FORMHYDROG2-CPLX"": 1}}"	Complexation
+FORMHYDROGI-CPLX	hydrogenase 1	"{""reactant"": {""HYAB-MONOMER"": 1, ""HYAC-MONOMER"": 1, ""HYAA-MONOMER"": 1}, ""product"": {""FORMHYDROGI-CPLX"": 1}}"	Complexation
+FORMYLTHFDEFORMYL-CPLX	formyltetrahydrofolate deformylase	"{""reactant"": {""FORMYLTHFDEFORMYL-MONOMER"": 6}, ""product"": {""FORMYLTHFDEFORMYL-CPLX"": 1}}"	Complexation
+FRUCBISALD-CLASSI	fructose bisphosphate aldolase class I	"{""reactant"": {""FRUCBISALD-CLASSI-MONOMER"": 10}, ""product"": {""FRUCBISALD-CLASSI"": 1}}"	Complexation
+FRUCBISALD-CLASSII	fructose bisphosphate aldolase class II	"{""reactant"": {""FRUCTBISALD-CLASSII-MONOMER"": 2}, ""product"": {""FRUCBISALD-CLASSII"": 1}}"	Complexation
+FUMARASE-A	fumarase A	"{""reactant"": {""FUMA-MONOMER"": 2}, ""product"": {""FUMARASE-A"": 1}}"	Complexation
+FUMARASE-B	fumarase B	"{""reactant"": {""FUMB-MONOMER"": 2}, ""product"": {""FUMARASE-B"": 1}}"	Complexation
+FUMARASE-C	fumarase C	"{""reactant"": {""FUMC-MONOMER"": 4}, ""product"": {""FUMARASE-C"": 1}}"	Complexation
+FUMARATE-REDUCTASE	fumarate reductase	"{""reactant"": {""FUM-FLAVO"": 1, ""FUM-MEMB2"": 1, ""FUM-MEMB1"": 1, ""FUM-FE-S"": 1}, ""product"": {""FUMARATE-REDUCTASE"": 1}}"	Complexation
+GABATRANSAM-CPLX	4-aminobutyrate transaminase	"{""reactant"": {""GABATRANSAM-MONOMER"": 2}, ""product"": {""GABATRANSAM-CPLX"": 1}}"	Complexation
+GALACTOACETYLTRAN-CPLX	galactoside O-acetyltransferase	"{""reactant"": {""GALACTOACETYLTRAN-MONOMER"": 3}, ""product"": {""GALACTOACETYLTRAN-CPLX"": 1}}"	Complexation
+GALACTURIDYLYLTRANS-CPLX	galactose-1-phosphate uridylyltransferase	"{""reactant"": {""GALACTURIDYLYLTRANS-MONOMER"": 2}, ""product"": {""GALACTURIDYLYLTRANS-CPLX"": 1}}"	Complexation
+GAPDH-A-CPLX	glyceraldehyde 3-phosphate dehydrogenase-A complex	"{""reactant"": {""GAPDH-A-MONOMER"": 4}, ""product"": {""GAPDH-A-CPLX"": 1}}"	Complexation
+GCVMULTI-CPLX	glycine cleavage system	"{""reactant"": {""E3-CPLX"": 1, ""LIPOYL-GCVH"": 1, ""E3-MONOMER"": 2, ""GCVT-MONOMER"": 1, ""GCVP-MONOMER"": 2, ""GCVP-CPLX"": 1}, ""product"": {""GCVMULTI-CPLX"": 1}}"	Complexation
+GCVP-CPLX	glycine decarboxylase	"{""reactant"": {""GCVP-MONOMER"": 2}, ""product"": {""GCVP-CPLX"": 1}}"	Complexation
+GDHA-CPLX	glutamate dehydrogenase	"{""reactant"": {""GDHA-MONOMER"": 6}, ""product"": {""GDHA-CPLX"": 1}}"	Complexation
+GDPMANDEHYDRA-CPLX	GDP-mannose 4,6-dehydratase	"{""reactant"": {""GDPMANDEHYDRA-MONOMER"": 2}, ""product"": {""GDPMANDEHYDRA-CPLX"": 1}}"	Complexation
+GLNG-CPLX	NtrC transcriptional dual regulator	"{""reactant"": {""PROTEIN-NRI"": 2}, ""product"": {""GLNG-CPLX"": 1}}"	Complexation
+GLNL-CPLX	NtrB sensory histidine kinase	"{""reactant"": {""PROTEIN-NRII"": 2}, ""product"": {""GLNL-CPLX"": 1}}"	Complexation
+GLUC1PADENYLTRANS-CPLX	glucose-1-phosphate adenylyltransferase	"{""reactant"": {""GLUC1PADENYLTRANS-MONOMER"": 4}, ""product"": {""GLUC1PADENYLTRANS-CPLX"": 1}}"	Complexation
+GLUCONOKINII-CPLX	D-gluconate kinase, thermostable	"{""reactant"": {""GLUCONOKINII-MONOMER"": 3}, ""product"": {""GLUCONOKINII-CPLX"": 1}}"	Complexation
+GLUCOSAMINE-6-P-DEAMIN-CPLX	glucosamine-6-phosphate deaminase	"{""reactant"": {""GLUCOSAMINE-6-P-DEAMIN-MONOMER"": 6}, ""product"": {""GLUCOSAMINE-6-P-DEAMIN-CPLX"": 1}}"	Complexation
+GLUCOSE-1-PHOSPHAT-CPLX	3-phytase / glucose-1-phosphatase	"{""reactant"": {""GLUCOSE-1-PHOSPHAT-MONOMER"": 2}, ""product"": {""GLUCOSE-1-PHOSPHAT-CPLX"": 1}}"	Complexation
+GLUTAMATESYN-CPLX	glutamate synthase	"{""reactant"": {""GLUTAMATESYN-DIMER"": 4, ""GLUSYNSMALL-MONOMER"": 4, ""GLUSYNLARGE-MONOMER"": 4}, ""product"": {""GLUTAMATESYN-CPLX"": 1}}"	Complexation
+GLUTAMATESYN-DIMER	glutamate synthase	"{""reactant"": {""GLUSYNLARGE-MONOMER"": 1, ""GLUSYNSMALL-MONOMER"": 1}, ""product"": {""GLUTAMATESYN-DIMER"": 1}}"	Complexation
+GLUTAMIDOTRANS-CPLX	imidazole glycerol phosphate synthase	"{""reactant"": {""CYCLASE-MONOMER"": 1, ""GLUTAMIDOTRANS-MONOMER"": 1}, ""product"": {""GLUTAMIDOTRANS-CPLX"": 1}}"	Complexation
+GLUTAMINA-CPLX	glutaminase A	"{""reactant"": {""GLUTAMINA-MONOMER"": 4}, ""product"": {""GLUTAMINA-CPLX"": 1}}"	Complexation
+GLUTAMINB-CPLX	glutaminase B	"{""reactant"": {""GLUTAMINB-MONOMER"": 4}, ""product"": {""GLUTAMINB-CPLX"": 1}}"	Complexation
+GLUTAMINESYN-OLIGOMER	glutamine synthetase	"{""reactant"": {""GLUTAMINESYN-MONOMER"": 12}, ""product"": {""GLUTAMINESYN-OLIGOMER"": 1}}"	Complexation
+GLUTATHIONE-REDUCT-NADPH-CPLX	glutathione reductase	"{""reactant"": {""GLUTATHIONE-REDUCT-NADPH-MONOMER"": 2}, ""product"": {""GLUTATHIONE-REDUCT-NADPH-CPLX"": 1}}"	Complexation
+GLUTATHIONE-SYN-CPLX	glutathione synthetase	"{""reactant"": {""GLUTATHIONE-SYN-MONOMER"": 4}, ""product"": {""GLUTATHIONE-SYN-CPLX"": 1}}"	Complexation
+GLUTDECARBOXA-CPLX	glutamate decarboxylase A	"{""reactant"": {""GLUTDECARBOXA-MONOMER"": 6}, ""product"": {""GLUTDECARBOXA-CPLX"": 1}}"	Complexation
+GLUTDECARBOXB-CPLX	glutamate decarboxylase B	"{""reactant"": {""GLUTDECARBOXB-MONOMER"": 6}, ""product"": {""GLUTDECARBOXB-CPLX"": 1}}"	Complexation
+GLUTKIN-CPLX	&gamma;-glutamyl kinase	"{""reactant"": {""GLUTKIN-MONOMER"": 4}, ""product"": {""GLUTKIN-CPLX"": 1}}"	Complexation
+GLUTRACE-CPLX	glutamate racemase	"{""reactant"": {""GLUTRACE-MONOMER"": 2}, ""product"": {""GLUTRACE-CPLX"": 1}}"	Complexation
+GLUTSEMIALDEHYDROG-CPLX	glutamate-5-semialdehyde dehydrogenase	"{""reactant"": {""GLUTSEMIALDEHYDROG-MONOMER"": 4}, ""product"": {""GLUTSEMIALDEHYDROG-CPLX"": 1}}"	Complexation
+GLYC3PDEHYDROGBIOSYN-CPLX	glycerol-3-phosphate dehydrogenase, biosynthetic	"{""reactant"": {""GLYC3PDEHYDROGBIOSYN-MONOMER"": 2}, ""product"": {""GLYC3PDEHYDROGBIOSYN-CPLX"": 1}}"	Complexation
+GLYCDEH-CPLX	L-1,2-propanediol dehydrogenase / glycerol dehydrogenase	"{""reactant"": {""GLYCDEH-MONOMER"": 8}, ""product"": {""GLYCDEH-CPLX"": 1}}"	Complexation
+GLYCEROL-KIN-CPLX	glycerol kinase	"{""reactant"": {""GLYCEROL-KIN-MONOMER"": 4}, ""product"": {""GLYCEROL-KIN-CPLX"": 1}}"	Complexation
+GLYCOPHOSPHORYL-CPLX	glycogen phosphorylase	"{""reactant"": {""GLYCOPHOSPHORYL-MONOMER"": 2}, ""product"": {""GLYCOPHOSPHORYL-CPLX"": 1}}"	Complexation
+GLYCPDIESTER-PERI-CPLX	glycerophosphoryl diester phosphodiesterase, periplasmic	"{""reactant"": {""GLYCPDIESTER-PERI-MONOMER"": 2}, ""product"": {""GLYCPDIESTER-PERI-CPLX"": 1}}"	Complexation
+GLYOCARBOLIG-CPLX	glyoxylate carboligase	"{""reactant"": {""GLYOCARBOLIG-MONOMER"": 2}, ""product"": {""GLYOCARBOLIG-CPLX"": 1}}"	Complexation
+GLYOHMETRANS-CPLX	serine hydroxymethyltransferase	"{""reactant"": {""GLYOHMETRANS-MONOMER"": 2}, ""product"": {""GLYOHMETRANS-CPLX"": 1}}"	Complexation
+GLYOXI-CPLX	glyoxalase I	"{""reactant"": {""GLYOXI-MONOMER"": 2}, ""product"": {""GLYOXI-CPLX"": 1}}"	Complexation
+GLYS-CPLX	glycyl-tRNA synthetase	"{""reactant"": {""GLYS-MONOMER"": 2, ""GLYQ-MONOMER"": 2}, ""product"": {""GLYS-CPLX"": 1}}"	Complexation
+GMP-REDUCT-CPLX	GMP reductase	"{""reactant"": {""GMP-REDUCT-MONOMER"": 4}, ""product"": {""GMP-REDUCT-CPLX"": 1}}"	Complexation
+GMP-SYN-CPLX	GMP synthetase	"{""reactant"": {""GMP-SYN-MONOMER"": 2}, ""product"": {""GMP-SYN-CPLX"": 1}}"	Complexation
+GPT-CPLX	xanthine-guanine phosphoribosyltransferase	"{""reactant"": {""GPT-MONOMER"": 4}, ""product"": {""GPT-CPLX"": 1}}"	Complexation
+GSAAMINOTRANS-CPLX	glutamate-1-semialdehyde aminotransferase	"{""reactant"": {""GSAAMINOTRANS-MONOMER"": 2}, ""product"": {""GSAAMINOTRANS-CPLX"": 1}}"	Complexation
+GSP-CPLX	fused glutathionylspermidine amidase / glutathionylspermidine synthetase	"{""reactant"": {""GSP-MONOMER"": 2}, ""product"": {""GSP-CPLX"": 1}}"	Complexation
+GST-CPLX	glutathione S-transferase	"{""reactant"": {""GST-MONOMER"": 2}, ""product"": {""GST-CPLX"": 1}}"	Complexation
+GTP-CYCLOHYDRO-II-CPLX	GTP cyclohydrolase II	"{""reactant"": {""GTP-CYCLOHYDRO-II-MONOMER"": 2}, ""product"": {""GTP-CYCLOHYDRO-II-CPLX"": 1}}"	Complexation
+GUANYL-KIN-CPLX	guanylate kinase	"{""reactant"": {""GUANYL-KIN-MONOMER"": 2}, ""product"": {""GUANYL-KIN-CPLX"": 1}}"	Complexation
+H2PTEROATESYNTH-CPLX	dihydropteroate synthase	"{""reactant"": {""H2PTEROATESYNTH-MONOMER"": 2}, ""product"": {""H2PTEROATESYNTH-CPLX"": 1}}"	Complexation
+HCAMULTI-CPLX	3-phenylpropionate dioxygenase system	"{""reactant"": {""HCAA2-MONOMER"": 1, ""PHENYLPRODIOXY-MONOMER"": 1, ""HCAC-MONOMER"": 1, ""HCAD-MONOMER"": 1}, ""product"": {""HCAMULTI-CPLX"": 1}}"	Complexation
+HISS-CPLX	histidyl-tRNA synthetase	"{""reactant"": {""HISS-MONOMER"": 2}, ""product"": {""HISS-CPLX"": 1}}"	Complexation
+HISTDEHYD-CPLX	histidinal dehydrogenase / histidinol dehydrogenase	"{""reactant"": {""HISTDEHYD-MONOMER"": 2}, ""product"": {""HISTDEHYD-CPLX"": 1}}"	Complexation
+HISTPHOSTRANS-CPLX	histidinol-phosphate aminotransferase	"{""reactant"": {""HISTPHOSTRANS-MONOMER"": 2}, ""product"": {""HISTPHOSTRANS-CPLX"": 1}}"	Complexation
+HMP-P-KIN-CPLX	hydroxymethylpyrimidine kinase / phosphohydroxymethylpyrimidine kinase	"{""reactant"": {""HMP-P-KIN-MONOMER"": 4}, ""product"": {""HMP-P-KIN-CPLX"": 1}}"	Complexation
+HOLO-ACP-SYNTH-CPLX	holo-[acyl-carrier-protein] synthase	"{""reactant"": {""HOLO-ACP-SYNTH-MONOMER"": 2}, ""product"": {""HOLO-ACP-SYNTH-CPLX"": 1}}"	Complexation
+HOMOSERKIN-CPLX	homoserine kinase	"{""reactant"": {""HOMOSERKIN-MONOMER"": 2}, ""product"": {""HOMOSERKIN-CPLX"": 1}}"	Complexation
+HOMSUCTRAN-CPLX	homoserine O-succinyltransferase	"{""reactant"": {""HOMSUCTRAN-MONOMER"": 2}, ""product"": {""HOMSUCTRAN-CPLX"": 1}}"	Complexation
+HSP70-CPLX	DnaK-DnaJ-GrpE chaperone system	"{""reactant"": {""EG10240-MONOMER"": 1, ""EG10241-MONOMER"": 1, ""EG10416-MONOMER"": 1}, ""product"": {""HSP70-CPLX"": 1}}"	Complexation
+HYDROG3-CPLX	hydrogenase 3	"{""reactant"": {""HYCELARGE-MONOMER"": 1, ""HYCD-MONOMER"": 1, ""HYCF-MONOMER"": 1, ""HYCC-MONOMER"": 1, ""HYCG-MONOMER"": 1, ""HYCBSMALL-MONOMER"": 1}, ""product"": {""HYDROG3-CPLX"": 1}}"	Complexation
+HYDROPEROXIDI-CPLX	hydroperoxidase I	"{""reactant"": {""HYDROPEROXIDI-MONOMER"": 4}, ""product"": {""HYDROPEROXIDI-CPLX"": 1}}"	Complexation
+HYDROPEROXIDII-CPLX	catalase II	"{""reactant"": {""HYDROPEROXIDII-MONOMER"": 4}, ""product"": {""HYDROPEROXIDII-CPLX"": 1}}"	Complexation
+IMIDHISTID-CPLX	imidazoleglycerol-phosphate dehydratase / histidinol-phosphatase	"{""reactant"": {""IMIDPHOSPHADEHYDHISTIDPHOSPHA-MONOMER"": 2}, ""product"": {""IMIDHISTID-CPLX"": 1}}"	Complexation
+IMP-DEHYDROG-CPLX	IMP dehydrogenase	"{""reactant"": {""IMP-DEHYDROG-MONOMER"": 4}, ""product"": {""IMP-DEHYDROG-CPLX"": 1}}"	Complexation
+ISOCIT-LYASE	isocitrate lyase	"{""reactant"": {""ISOCIT-LYASE-MONOMER"": 4}, ""product"": {""ISOCIT-LYASE"": 1}}"	Complexation
+ISOCITHASE-CPLX	isocitrate dehydrogenase	"{""reactant"": {""ISOCITDEH-SUBUNIT"": 2}, ""product"": {""ISOCITHASE-CPLX"": 1}}"	Complexation
+ISOCITHASE-P	isocitrate dehydrogenase-P	"{""reactant"": {""ISOCITDEH-SUBUNIT"": 2}, ""product"": {""ISOCITHASE-P"": 1}}"	Complexation
+KDO-8PPHOSPHAT-CPLX	3-deoxy-D-manno-octulosonate 8-phosphate phosphatase	"{""reactant"": {""G7663-MONOMER"": 4}, ""product"": {""KDO-8PPHOSPHAT-CPLX"": 1}}"	Complexation
+KDO-8PSYNTH-CPLX	3-deoxy-D-manno-octulosonate 8-phosphate synthase	"{""reactant"": {""KDO-8PSYNTH-MONOMER"": 4}, ""product"": {""KDO-8PSYNTH-CPLX"": 1}}"	Complexation
+KDPD-CPLX	KdpD sensory histidine kinase	"{""reactant"": {""KDPD-MONOMER"": 2}, ""product"": {""KDPD-CPLX"": 1}}"	Complexation
+KDPGALDOL-4OH2OXOGLUTARALDOL-CPLX	multifunctional 2-keto-3-deoxygluconate 6-phosphate aldolase and 2-keto-4-hydroxyglutarate aldolase and oxaloacetate decarboxylase	"{""reactant"": {""KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER"": 3}, ""product"": {""KDPGALDOL-4OH2OXOGLUTARALDOL-CPLX"": 1}}"	Complexation
+L-GLN-FRUCT-6-P-AMINOTRANS-CPLX	L-glutamine:D-fructose-6-phosphate aminotransferase	"{""reactant"": {""L-GLN-FRUCT-6-P-AMINOTRANS-MONOMER"": 2}, ""product"": {""L-GLN-FRUCT-6-P-AMINOTRANS-CPLX"": 1}}"	Complexation
+LACTALDREDUCT-CPLX	L-1,2-propanediol oxidoreductase	"{""reactant"": {""LACTALDREDUCT-MONOMER"": 2}, ""product"": {""LACTALDREDUCT-CPLX"": 1}}"	Complexation
+LDC2-CPLX	lysine decarboxylase 2	"{""reactant"": {""LDC2-MONOMER"": 10}, ""product"": {""LDC2-CPLX"": 1}}"	Complexation
+LTAA-CPLX	low-specificity L-threonine aldolase	"{""reactant"": {""LTAA-MONOMER"": 4}, ""product"": {""LTAA-CPLX"": 1}}"	Complexation
+LTARTDEHYDRA-CPLX	L-tartrate dehydratase	"{""reactant"": {""TTDA-CPLX"": 1, ""TTDA-MONOMER"": 2, ""TTDB-MONOMER"": 2, ""TTDB-CPLX"": 1}, ""product"": {""LTARTDEHYDRA-CPLX"": 1}}"	Complexation
+LUMAZINESYN-CPLX	6,7-dimethyl-8-ribityllumazine synthase	"{""reactant"": {""LUMAZINESYN-MONOMER"": 60}, ""product"": {""LUMAZINESYN-CPLX"": 1}}"	Complexation
+LYSDECARBOX-CPLX	lysine decarboxylase 1	"{""reactant"": {""LYSDECARBOX-MONOMER"": 10}, ""product"": {""LYSDECARBOX-CPLX"": 1}}"	Complexation
+LYSS-CPLX	lysyl-tRNA synthetase, constitutive	"{""reactant"": {""LYSS-MONOMER"": 2}, ""product"": {""LYSS-CPLX"": 1}}"	Complexation
+LYSU-CPLX	Ap3A synthetase / Ap4A synthetase / lysyl-tRNA synthetase	"{""reactant"": {""LYSU-MONOMER"": 2}, ""product"": {""LYSU-CPLX"": 1}}"	Complexation
+LYXK-CPLX	L-xylulose kinase	"{""reactant"": {""LYXK-MONOMER"": 2}, ""product"": {""LYXK-CPLX"": 1}}"	Complexation
+MALATE-DEHASE	malate dehydrogenase	"{""reactant"": {""MALATE-DEHASE-MONOMER"": 2}, ""product"": {""MALATE-DEHASE"": 1}}"	Complexation
+MALDEXPHOSPHORYL-CPLX	maltodextrin phosphorylase	"{""reactant"": {""MALDEXPHOSPHORYL-MONOMER"": 2}, ""product"": {""MALDEXPHOSPHORYL-CPLX"": 1}}"	Complexation
+MALIC-NAD-CPLX	malate dehydrogenase, NAD-requiring	"{""reactant"": {""MALIC-NAD-MONOMER"": 4}, ""product"": {""MALIC-NAD-CPLX"": 1}}"	Complexation
+MALIC-NADP-CPLX	malate dehydrogenase	"{""reactant"": {""MALIC-NADP-MONOMER"": 6}, ""product"": {""MALIC-NADP-CPLX"": 1}}"	Complexation
+MALTACETYLTRAN-CPLX	maltose acetyltransferase	"{""reactant"": {""MALTACETYLTRAN-MONOMER"": 2}, ""product"": {""MALTACETYLTRAN-CPLX"": 1}}"	Complexation
+MENE-CPLX	o-succinylbenzoate-CoA ligase	"{""reactant"": {""O-SUCCINYLBENZOATE-COA-LIG-MONOMER"": 4}, ""product"": {""MENE-CPLX"": 1}}"	Complexation
+MENF-CPLX	isochorismate synthase 2	"{""reactant"": {""MENF-MONOMER"": 2}, ""product"": {""MENF-CPLX"": 1}}"	Complexation
+METG-CPLX	methionyl-tRNA synthetase	"{""reactant"": {""METG-MONOMER"": 2}, ""product"": {""METG-CPLX"": 1}}"	Complexation
+METHGLYSYN-CPLX	methylglyoxal synthase	"{""reactant"": {""METHGLYSYN-MONOMER"": 6}, ""product"": {""METHGLYSYN-CPLX"": 1}}"	Complexation
+METHYLENETHFREDUCT-CPLX	5,10-methylenetetrahydrofolate reductase	"{""reactant"": {""METHYLENETHFREDUCT-MONOMER"": 4}, ""product"": {""METHYLENETHFREDUCT-CPLX"": 1}}"	Complexation
+METNIQ-METHIONINE-ABC-CPLX	L-methionine / D-methionine ABC transporter	"{""reactant"": {""ABC-MONOMER"": 2, ""METI-MONOMER"": 1, ""METQ-MONOMER"": 1}, ""product"": {""METNIQ-METHIONINE-ABC-CPLX"": 1}}"	Complexation
+MONOMER0-1761	MalT-MalK	"{""reactant"": {""MALK-MONOMER"": 1, ""PD00237"": 1}, ""product"": {""MONOMER0-1761"": 1}}"	Complexation
+MONOMER0-2863	oxidized ribonucleoside-triphosphate reductase	"{""reactant"": {""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER"": 2}, ""product"": {""MONOMER0-2863"": 1}}"	Complexation
+MUTHLS-CPLX	MutHLS complex, methyl-directed mismatch repair	"{""reactant"": {""EG10624-MONOMER"": 1, ""EG10625-MONOMER"": 1, ""EG11281-MONOMER"": 1}, ""product"": {""MUTHLS-CPLX"": 1}}"	Complexation
+N-ACETYLTRANSFER-CPLX	N-acetylglutamate synthase	"{""reactant"": {""N-ACETYLTRANSFER-MONOMER"": 6}, ""product"": {""N-ACETYLTRANSFER-CPLX"": 1}}"	Complexation
+NAD-SYNTH-CPLX	NAD synthetase, NH3-dependent	"{""reactant"": {""NAD-SYNTH-MONOMER"": 2}, ""product"": {""NAD-SYNTH-CPLX"": 1}}"	Complexation
+NADH-DHI-CPLX	NADH:ubiquinone oxidoreductase I	"{""reactant"": {""NUOG-MONOMER"": 1, ""NUOA-MONOMER"": 1, ""NUON-MONOMER"": 1, ""NUOM-MONOMER"": 1, ""NUOJ-MONOMER"": 1, ""NUOK-MONOMER"": 1, ""NUOH-MONOMER"": 1, ""NUOF-MONOMER"": 1, ""NUOE-MONOMER"": 1, ""NUOB-MONOMER"": 1, ""NUOC-MONOMER"": 1, ""CPLX0-3362"": 1, ""NUOL-MONOMER"": 1, ""CPLX0-3361"": 1, ""NUOI-MONOMER"": 1}, ""product"": {""NADH-DHI-CPLX"": 1}}"	Complexation
+NAG1P-URIDYLTRANS-CPLX	fused N-acetylglucosamine-1-phosphate uridyltransferase and glucosamine-1-phosphate acetyltransferase	"{""reactant"": {""NAG1P-URIDYLTRANS-MONOMER"": 3}, ""product"": {""NAG1P-URIDYLTRANS-CPLX"": 1}}"	Complexation
+NAG6PDEACET-CPLX	N-acetylglucosamine-6-phosphate deacetylase	"{""reactant"": {""NAG6PDEACET-MONOMER"": 4}, ""product"": {""NAG6PDEACET-CPLX"": 1}}"	Complexation
+NAP-CPLX	periplasmic nitrate reductase	"{""reactant"": {""NAPB-MONOMER"": 1, ""NAPA-MONOMER"": 1, ""NAPH-MONOMER"": 1, ""NAPC-MONOMER"": 1, ""NAPG-MONOMER"": 1, ""CPLX0-3241"": 1}, ""product"": {""NAP-CPLX"": 1}}"	Complexation
+NARQ-CPLX	NarQ sensory histidine kinase	"{""reactant"": {""NARQ-MONOMER"": 2}, ""product"": {""NARQ-CPLX"": 1}}"	Complexation
+NARX-CPLX	NarX sensory histidine kinase	"{""reactant"": {""NARX-MONOMER"": 2}, ""product"": {""NARX-CPLX"": 1}}"	Complexation
+NIRB-CPLX	dimer of large subunit of nitrite reductase	"{""reactant"": {""NIRB-MONOMER"": 2}, ""product"": {""NIRB-CPLX"": 1}}"	Complexation
+NITRATREDUCTA-CPLX	nitrate reductase A	"{""reactant"": {""NARI-MONOMER"": 1, ""NARH-MONOMER"": 1, ""NARG-MONOMER"": 1}, ""product"": {""NITRATREDUCTA-CPLX"": 1}}"	Complexation
+NITRATREDUCTZ-CPLX	nitrate reductase Z	"{""reactant"": {""NARY-MONOMER"": 1, ""NARZ-MONOMER"": 1, ""NARV-MONOMER"": 1}, ""product"": {""NITRATREDUCTZ-CPLX"": 1}}"	Complexation
+NITRITREDUCT-CPLX	nitrite reductase	"{""reactant"": {""NIRB-CPLX"": 1, ""NIRB-MONOMER"": 2, ""NIRD-MONOMER"": 1}, ""product"": {""NITRITREDUCT-CPLX"": 1}}"	Complexation
+NQOR-CPLX	NADH dehydrogenase (quinone)	"{""reactant"": {""NQOR-MONOMER"": 2}, ""product"": {""NQOR-CPLX"": 1}}"	Complexation
+NRDACTMULTI-CPLX	anaerobic nucleoside-triphosphate reductase activating system	"{""reactant"": {""FLAVONADPREDUCT-MONOMER"": 1, ""RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"": 1, ""CPLX0-229"": 1, ""RNTRACTIV-MONOMER"": 2, ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER"": 2}, ""product"": {""NRDACTMULTI-CPLX"": 1}}"	Complexation
+NRDE-CPLX	ribonucleoside-diphosphate reductase 2, &alpha; subunit dimer	"{""reactant"": {""NRDE-MONOMER"": 2}, ""product"": {""NRDE-CPLX"": 1}}"	Complexation
+NRDF-CPLX	ribonucleoside-diphosphate reductase 2, &beta; subunit dimer	"{""reactant"": {""NRDF-MONOMER"": 2}, ""product"": {""NRDF-CPLX"": 1}}"	Complexation
+NRFMULTI-CPLX	formate dependent nitrite reductase	"{""reactant"": {""NRFC-MONOMER"": 1, ""CYTOCHROMEC552-MONOMER"": 1, ""CYTOCHROMEC-MONOMER"": 1, ""NRFD-MONOMER"": 1}, ""product"": {""NRFMULTI-CPLX"": 1}}"	Complexation
+NUCLEOSIDE-DIP-KIN-CPLX	nucleoside diphosphate kinase	"{""reactant"": {""NUCLEOSIDE-DIP-KIN-MONOMER"": 4}, ""product"": {""NUCLEOSIDE-DIP-KIN-CPLX"": 1}}"	Complexation
+O-SUCCHOMOSERLYASE-CPLX	O-succinylhomoserine lyase / O-succinylhomoserine(thiol)-lyase	"{""reactant"": {""O-SUCCHOMOSERLYASE-MONOMER"": 4}, ""product"": {""O-SUCCHOMOSERLYASE-CPLX"": 1}}"	Complexation
+ORNCARBAMTRANSFERF-CPLX	ornithine carbamoyltransferase chain F	"{""reactant"": {""CHAINF-MONOMER"": 3}, ""product"": {""ORNCARBAMTRANSFERF-CPLX"": 1}}"	Complexation
+ORNCARBAMTRANSFERI-CPLX	ornithine carbamoyltransferase chain I	"{""reactant"": {""CHAINI-MONOMER"": 3}, ""product"": {""ORNCARBAMTRANSFERI-CPLX"": 1}}"	Complexation
+ORNDECARBOX-BIO-CPLX	ornithine decarboxylase, biosynthetic	"{""reactant"": {""ORNDECARBOX-BIO-MONOMER"": 2}, ""product"": {""ORNDECARBOX-BIO-CPLX"": 1}}"	Complexation
+ORNDECARBOXDEG-CPLX	ornithine decarboxylase, degradative	"{""reactant"": {""ORNDECARBOXDEG-MONOMER"": 2}, ""product"": {""ORNDECARBOXDEG-CPLX"": 1}}"	Complexation
+OROPRIBTRANS-CPLX	orotate phosphoribosyltransferase	"{""reactant"": {""OROPRIBTRANS-MONOMER"": 2}, ""product"": {""OROPRIBTRANS-CPLX"": 1}}"	Complexation
+OROTPDECARB-CPLX	orotidine-5'-phosphate decarboxylase	"{""reactant"": {""OROTPDECARB-MONOMER"": 2}, ""product"": {""OROTPDECARB-CPLX"": 1}}"	Complexation
+PABASYN-CPLX	4-amino-4-deoxychorismate synthase	"{""reactant"": {""PABASYN-COMPII-MONOMER"": 1, ""PABASYN-COMPI-MONOMER"": 1}, ""product"": {""PABASYN-CPLX"": 1}}"	Complexation
+PABSYNMULTI-CPLX	para-aminobenzoate synthase multi-enzyme complex	"{""reactant"": {""PABASYN-CPLX"": 1, ""PABASYN-COMPI-MONOMER"": 1, ""ADCLY-MONOMER"": 2, ""ADCLY-CPLX"": 1, ""PABASYN-COMPII-MONOMER"": 1}, ""product"": {""PABSYNMULTI-CPLX"": 1}}"	Complexation
+PANTOATE-BETA-ALANINE-LIG-CPLX	pantothenate synthetase	"{""reactant"": {""PANTOATE-BETA-ALANINE-LIG-MONOMER"": 2}, ""product"": {""PANTOATE-BETA-ALANINE-LIG-CPLX"": 1}}"	Complexation
+PANTOTHENATE-KIN-CPLX	pantothenate kinase	"{""reactant"": {""PANTOTHENATE-KIN-MONOMER"": 2}, ""product"": {""PANTOTHENATE-KIN-CPLX"": 1}}"	Complexation
+PAPSSULFOTRANS-CPLX	3'-phospho-adenylylsulfate reductase	"{""reactant"": {""PAPSSULFOTRANS-MONOMER"": 2}, ""product"": {""PAPSSULFOTRANS-CPLX"": 1}}"	Complexation
+PC00003	AraC DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00242"": 2}, ""product"": {""PC00003"": 1}}"	Complexation
+PC00004	CRP transcriptional dual regulator	"{""reactant"": {""PD00257"": 2}, ""product"": {""PC00004"": 1}}"	Complexation
+PC00005	ArgR transcriptional dual regulator	"{""reactant"": {""PD00194"": 6}, ""product"": {""PC00005"": 1}}"	Complexation
+PC00007	TrpR transcriptional repressor	"{""reactant"": {""PD00423"": 2}, ""product"": {""PC00007"": 1}}"	Complexation
+PC00010	LexA DNA-binding transcriptional repressor	"{""reactant"": {""PD00205"": 2}, ""product"": {""PC00010"": 1}}"	Complexation
+PC00027	IHF DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00347"": 1, ""PD00348"": 1}, ""product"": {""PC00027"": 1}}"	Complexation
+PC00033	PurR transcriptional repressor	"{""reactant"": {""PD00219"": 2}, ""product"": {""PC00033"": 1}}"	Complexation
+PC00040	CysB transcriptional dual regulator	"{""reactant"": {""PD00232"": 4}, ""product"": {""PC00040"": 1}}"	Complexation
+PC00061	Cra DNA-binding transcriptional dual regulator	"{""reactant"": {""PD00521"": 4}, ""product"": {""PC00061"": 1}}"	Complexation
+PC00063	GatR DNA-binding transcriptional repressor	"{""reactant"": {""PD00338"": 1, ""PD02366"": 1}, ""product"": {""PC00063"": 1}}"	Complexation
+PC00084	RcsAB DNA-binding transcriptional dual regulator	"{""reactant"": {""PD02233"": 1, ""RCSB-MONOMER"": 1}, ""product"": {""PC00084"": 1}}"	Complexation
+PC00086	RhaS transcriptional activator	"{""reactant"": {""PD00221"": 2}, ""product"": {""PC00086"": 1}}"	Complexation
+PC00103	MngR DNA-binding transcriptional repressor	"{""reactant"": {""PD01103"": 2}, ""product"": {""PC00103"": 1}}"	Complexation
+PDXH-CPLX	pyridoxine 5'-phosphate oxidase / pyridoxamine 5'-phosphate oxidase	"{""reactant"": {""PDXH-MONOMER"": 2}, ""product"": {""PDXH-CPLX"": 1}}"	Complexation
+PDXK-CPLX	pyridoxamine kinase / hydroxymethylpyrimidine kinase / pyridoxal kinase	"{""reactant"": {""PDXK-MONOMER"": 4}, ""product"": {""PDXK-CPLX"": 1}}"	Complexation
+PEPCARBOX-CPLX	phosphoenolpyruvate carboxylase	"{""reactant"": {""PEPCARBOX-MONOMER"": 4}, ""product"": {""PEPCARBOX-CPLX"": 1}}"	Complexation
+PEPSYNTH-CPLX	phosphoenolpyruvate synthetase	"{""reactant"": {""PEPSYNTH-MONOMER"": 2}, ""product"": {""PEPSYNTH-CPLX"": 1}}"	Complexation
+PGLYCDEHYDROG-CPLX	&alpha;-ketoglutarate reductase / D-3-phosphoglycerate dehydrogenase	"{""reactant"": {""PGLYCDEHYDROG-MONOMER"": 4}, ""product"": {""PGLYCDEHYDROG-CPLX"": 1}}"	Complexation
+PHENDEHYD-CPLX	phenylacetaldehyde dehydrogenase	"{""reactant"": {""PHENDEHYD-MONOMER"": 2}, ""product"": {""PHENDEHYD-CPLX"": 1}}"	Complexation
+PHES-CPLX	phenylalanyl-tRNA synthetase	"{""reactant"": {""PHET-MONOMER"": 2, ""PHES-MONOMER"": 2}, ""product"": {""PHES-CPLX"": 1}}"	Complexation
+PHOR-CPLX	PhoR sensory histidine kinase	"{""reactant"": {""PHOR-MONOMER"": 2}, ""product"": {""PHOR-CPLX"": 1}}"	Complexation
+PHOSACETYLTRANS-CPLX	phosphate acetyltransferase / phosphate propionyltransferase	"{""reactant"": {""PHOSACETYLTRANS-MONOMER"": 6}, ""product"": {""PHOSACETYLTRANS-CPLX"": 1}}"	Complexation
+PHOSGLYCMUTASE	2,3-bisphosphoglycerate-dependent phosphoglycerate mutase	"{""reactant"": {""GPMA-MONOMER"": 2}, ""product"": {""PHOSGLYCMUTASE"": 1}}"	Complexation
+PHOSPHASERDECARB-CPLX	phosphatidylserine decarboxylase	"{""reactant"": {""PHOSPHASERDECARB-BETA-MONOMER"": 1, ""PHOSPHASERDECARB-DIMER"": 1, ""PHOSPHASERDECARB-ALPHA-MONOMER"": 1}, ""product"": {""PHOSPHASERDECARB-CPLX"": 1}}"	Complexation
+PHOSPHASERDECARB-DIMER	phosphatidylserine decarboxylase, heterodimer	"{""reactant"": {""PHOSPHASERDECARB-BETA-MONOMER"": 1, ""PHOSPHASERDECARB-ALPHA-MONOMER"": 1}, ""product"": {""PHOSPHASERDECARB-DIMER"": 1}}"	Complexation
+PHOSPHASERSYN-CPLX	phosphatidylserine synthase	"{""reactant"": {""PHOSPHASERSYN-MONOMER"": 1}, ""product"": {""PHOSPHASERSYN-CPLX"": 1}}"	Complexation
+PHOSPHO-ENVZ	EnvZ sensory histidine kinase - phosphorylated	"{""reactant"": {""ENVZ-MONOMER"": 2}, ""product"": {""PHOSPHO-ENVZ"": 1}}"	Complexation
+PHOSPHO-OMPR	OmpR-Phosphorylated DNA-binding transcriptional dual regulator	"{""reactant"": {""PHOSPHO-OMPR-MONOMER"": 2}, ""product"": {""PHOSPHO-OMPR"": 1}}"	Complexation
+PHOSPHO-TORR	TorR-Phosphorylated DNA-binding transcriptional dual regulator	"{""reactant"": {""TORR-MONOMER"": 2}, ""product"": {""PHOSPHO-TORR"": 1}}"	Complexation
+PII2-CPLX	nitrogen regulatory protein GlnK	"{""reactant"": {""PROTEIN-PII2"": 3}, ""product"": {""PII2-CPLX"": 1}}"	Complexation
+PIIPROTEIN-CPLX	nitrogen regulatory protein P-II 1	"{""reactant"": {""PROTEIN-PII"": 3}, ""product"": {""PIIPROTEIN-CPLX"": 1}}"	Complexation
+PKI-COMPLEX	pyruvate kinase I	"{""reactant"": {""PKI-MONOMER"": 4}, ""product"": {""PKI-COMPLEX"": 1}}"	Complexation
+PKII-CPLX	pyruvate kinase II	"{""reactant"": {""PKII-MONOMER"": 4}, ""product"": {""PKII-CPLX"": 1}}"	Complexation
+PORPHOBILSYNTH-CPLX	porphobilinogen synthase	"{""reactant"": {""PORPHOBILSYNTH-MONOMER"": 8}, ""product"": {""PORPHOBILSYNTH-CPLX"": 1}}"	Complexation
+PPK-CPLX	polyphosphate kinase	"{""reactant"": {""PPK-MONOMER"": 4}, ""product"": {""PPK-CPLX"": 1}}"	Complexation
+PPPGPPHYDRO-CPLX	guanosine-5'-triphosphate, 3'-diphosphate pyrophosphatase	"{""reactant"": {""PPPGPPHYDRO-MONOMER"": 2}, ""product"": {""PPPGPPHYDRO-CPLX"": 1}}"	Complexation
+PPX-CPLX	exopolyphosphatase	"{""reactant"": {""PPX-MONOMER"": 2}, ""product"": {""PPX-CPLX"": 1}}"	Complexation
+PROLINEMULTI-CPLX	&gamma;-glutamyl kinase-GP-reductase multienzyme complex	"{""reactant"": {""GLUTSEMIALDEHYDROG-MONOMER"": 4, ""GLUTSEMIALDEHYDROG-CPLX"": 1, ""GLUTKIN-MONOMER"": 4, ""GLUTKIN-CPLX"": 1}, ""product"": {""PROLINEMULTI-CPLX"": 1}}"	Complexation
+PROS-CPLX	prolyl-tRNA synthetase	"{""reactant"": {""PROS-MONOMER"": 2}, ""product"": {""PROS-CPLX"": 1}}"	Complexation
+PROTEIN-NRIIP	NtrB sensory histidine kinase - phosphorylated	"{""reactant"": {""PROTEIN-NRII"": 2}, ""product"": {""PROTEIN-NRIIP"": 1}}"	Complexation
+PROTEIN-NRIP	NtrC-Phosphorylated DNA-binding transcriptional dual regulator	"{""reactant"": {""MONOMER0-4198"": 8}, ""product"": {""PROTEIN-NRIP"": 1}}"	Complexation
+PRPPAMIDOTRANS-CPLX	amidophosphoribosyl transferase	"{""reactant"": {""PRPPAMIDOTRANS-MONOMER"": 4}, ""product"": {""PRPPAMIDOTRANS-CPLX"": 1}}"	Complexation
+PSERTRANSAM-CPLX	phosphohydroxythreonine aminotransferase / 3-phosphoserine aminotransferase	"{""reactant"": {""PSERTRANSAM-MONOMER"": 2}, ""product"": {""PSERTRANSAM-CPLX"": 1}}"	Complexation
+PURE-CPLX	N5-carboxyaminoimidazole ribonucleotide mutase	"{""reactant"": {""PURE-MONOMER"": 8}, ""product"": {""PURE-CPLX"": 1}}"	Complexation
+PURK-CPLX	N5-carboxyaminoimidazole ribonucleotide synthetase	"{""reactant"": {""PURK-MONOMER"": 2}, ""product"": {""PURK-CPLX"": 1}}"	Complexation
+PUTA-CPLX	fused PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase	"{""reactant"": {""PUTA-MONOMER"": 2}, ""product"": {""PUTA-CPLX"": 1}}"	Complexation
+PYRNUTRANSHYDROGEN-CPLX	pyridine nucleotide transhydrogenase	"{""reactant"": {""PNTB-MONOMER"": 2, ""PNTA-MONOMER"": 2}, ""product"": {""PYRNUTRANSHYDROGEN-CPLX"": 1}}"	Complexation
+PYRROLINECARBREDUCT-CPLX	pyrroline-5-carboxylate reductase	"{""reactant"": {""PYRROLINECARBREDUCT-MONOMER"": 10}, ""product"": {""PYRROLINECARBREDUCT-CPLX"": 1}}"	Complexation
+PYRUVATEDEH-CPLX	pyruvate dehydrogenase	"{""reactant"": {""E2P-MONOMER"": 24, ""E3-MONOMER"": 12, ""E3-CPLX"": 6, ""E1P-CPLX"": 12, ""E1P-MONOMER"": 24}, ""product"": {""PYRUVATEDEH-CPLX"": 1}}"	Complexation
+PYRUVFORMLY-CPLX	pyruvate formate-lyase / 2-ketobutyrate formate-lyase	"{""reactant"": {""PYRUVFORMLY-MONOMER"": 2}, ""product"": {""PYRUVFORMLY-CPLX"": 1}}"	Complexation
+PYRUVFORMLY-INACTIVE-CPLX	pyruvate formate-lyase (inactive)	"{""reactant"": {""PYRUVFORMLY-MONOMER"": 2}, ""product"": {""PYRUVFORMLY-INACTIVE-CPLX"": 1}}"	Complexation
+PYRUVOXID-CPLX	acetoin synthesis / pyruvate oxidase	"{""reactant"": {""PYRUVOXID-MONOMER"": 4}, ""product"": {""PYRUVOXID-CPLX"": 1}}"	Complexation
+QOR-CPLX	quinone oxidoreductase	"{""reactant"": {""QOR-MONOMER"": 2}, ""product"": {""QOR-CPLX"": 1}}"	Complexation
+QUINOPRIBOTRANS-CPLX	quinolinate phosphoribosyltransferase	"{""reactant"": {""QUINOPRIBOTRANS-MONOMER"": 2}, ""product"": {""QUINOPRIBOTRANS-CPLX"": 1}}"	Complexation
+RECBCD	RecBCD	"{""reactant"": {""EG10824-MONOMER"": 1, ""EG10825-MONOMER"": 1, ""EG10826-MONOMER"": 1}, ""product"": {""RECBCD"": 1}}"	Complexation
+RECFOR-CPLX	RecFOR complex	"{""reactant"": {""EG10828-MONOMER"": 1, ""EG10832-MONOMER"": 1, ""EG10834-MONOMER"": 1}, ""product"": {""RECFOR-CPLX"": 1}}"	Complexation
+RHAMNULPALDOL-CPLX	rhamnulose-1-phosphate aldolase	"{""reactant"": {""RHAMNULPALDOL-MONOMER"": 4}, ""product"": {""RHAMNULPALDOL-CPLX"": 1}}"	Complexation
+RIB5PISOMA-CPLX	ribose-5-phosphate isomerase A	"{""reactant"": {""RIB5PISOMA-MONOMER"": 2}, ""product"": {""RIB5PISOMA-CPLX"": 1}}"	Complexation
+RIB5PISOMB-CPLX	allose-6-phosphate isomerase / ribose-5-phosphate isomerase B	"{""reactant"": {""RIB5PISOMB-MONOMER"": 2}, ""product"": {""RIB5PISOMB-CPLX"": 1}}"	Complexation
+RIBONUCLEOSIDE-DIP-REDUCTI-CPLX	ribonucleoside diphosphate reductase 1	"{""reactant"": {""B1-CPLX"": 1, ""B2-CPLX"": 1, ""NRDA-MONOMER"": 2, ""NRDB-MONOMER"": 2}, ""product"": {""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"": 1}}"	Complexation
+RIBONUCLEOSIDE-DIP-REDUCTII-CPLX	ribonucleoside-diphosphate reductase 2	"{""reactant"": {""NRDE-MONOMER"": 2, ""NRDF-MONOMER"": 2, ""NRDF-CPLX"": 1, ""NRDE-CPLX"": 1}, ""product"": {""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX"": 1}}"	Complexation
+RIBONUCLEOSIDE-TRIP-REDUCT-CPLX	ribonucleoside-triphosphate reductase	"{""reactant"": {""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER"": 2}, ""product"": {""RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"": 1}}"	Complexation
+RIBULOKIN-CPLX	L-ribulokinase	"{""reactant"": {""RIBULOKIN-MONOMER"": 2}, ""product"": {""RIBULOKIN-CPLX"": 1}}"	Complexation
+RIBULPEPIM-CPLX	L-ribulose 5-phosphate 4-epimerase	"{""reactant"": {""RIBULPEPIM-MONOMER"": 4}, ""product"": {""RIBULPEPIM-CPLX"": 1}}"	Complexation
+RNAP32-CPLX	RNA polymerase sigma 32	"{""reactant"": {""APORNAP-CPLX"": 1, ""RPOC-MONOMER"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2, ""RPOH-MONOMER"": 1}, ""product"": {""RNAP32-CPLX"": 1}}"	Complexation
+RNAP54-CPLX	RNA polymerase sigma 54	"{""reactant"": {""RPON-MONOMER"": 1, ""APORNAP-CPLX"": 1, ""RPOC-MONOMER"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""RNAP54-CPLX"": 1}}"	Complexation
+RNAP70-CPLX	RNA polymerase sigma 70	"{""reactant"": {""RPOC-MONOMER"": 1, ""RPOD-MONOMER"": 1, ""APORNAP-CPLX"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""RNAP70-CPLX"": 1}}"	Complexation
+RNAPE-CPLX	RNA polymerase sigma 24	"{""reactant"": {""RPOE-MONOMER"": 1, ""APORNAP-CPLX"": 1, ""RPOC-MONOMER"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""RNAPE-CPLX"": 1}}"	Complexation
+RNAPS-CPLX	RNA polymerase sigma 38	"{""reactant"": {""RPOC-MONOMER"": 1, ""APORNAP-CPLX"": 1, ""RPOS-MONOMER"": 1, ""RPOB-MONOMER"": 1, ""EG10893-MONOMER"": 2}, ""product"": {""RNAPS-CPLX"": 1}}"	Complexation
+RUVABC-CPLX	resolvasome	"{""reactant"": {""EG10925-MONOMER"": 2, ""EG10924-MONOMER"": 4, ""EG10923-MONOMER"": 12}, ""product"": {""RUVABC-CPLX"": 1}}"	Complexation
+S-ADENMETSYN-CPLX	methionine adenosyltransferase	"{""reactant"": {""S-ADENMETSYN-MONOMER"": 4}, ""product"": {""S-ADENMETSYN-CPLX"": 1}}"	Complexation
+SAICARSYN-CPLX	phosphoribosylaminoimidazole-succinocarboxamide synthase	"{""reactant"": {""SAICARSYN-MONOMER"": 3}, ""product"": {""SAICARSYN-CPLX"": 1}}"	Complexation
+SAMDECARB-CPLX	adenosylmethionine decarboxylase	"{""reactant"": {""SAMDC-ALPHA-MONOMER"": 4, ""SAMDC-BETA-MONOMER"": 4}, ""product"": {""SAMDECARB-CPLX"": 1}}"	Complexation
+SEC-SECRETION-CPLX	Sec Translocation Complex	"{""reactant"": {""SECA"": 1, ""YIDC"": 1, ""SECB"": 1, ""SECE"": 1, ""SECD"": 1, ""SECG"": 1, ""SECF"": 1, ""SECE-G-Y-CPLX"": 1, ""EG11096-MONOMER"": 1, ""SECD-SECF-YAJC-YIDC-CPLX"": 1, ""SECY"": 1}, ""product"": {""SEC-SECRETION-CPLX"": 1}}"	Complexation
+SECD-SECF-YAJC-YIDC-CPLX	SecD-SecF-YajC-YidC Secretion Complex	"{""reactant"": {""YIDC"": 1, ""EG11096-MONOMER"": 1, ""SECD"": 1, ""SECF"": 1}, ""product"": {""SECD-SECF-YAJC-YIDC-CPLX"": 1}}"	Complexation
+SECE-G-Y-CPLX	SecYEG translocase	"{""reactant"": {""SECY"": 1, ""SECE"": 1, ""SECG"": 1}, ""product"": {""SECE-G-Y-CPLX"": 1}}"	Complexation
+SERS-CPLX	seryl-tRNA synthetase	"{""reactant"": {""SERS-MONOMER"": 2}, ""product"": {""SERS-CPLX"": 1}}"	Complexation
+SIROHEMESYN-CPLX	uroporphyrin III C-methyltransferase [multifunctional]	"{""reactant"": {""SIROHEMESYN-MONOMER"": 2}, ""product"": {""SIROHEMESYN-CPLX"": 1}}"	Complexation
+SORB6PDEHYDROG-CPLX	sorbitol-6-phosphate dehydrogenase	"{""reactant"": {""SORB6PDEHYDROG-MONOMER"": 4}, ""product"": {""SORB6PDEHYDROG-CPLX"": 1}}"	Complexation
+SPERMACTRAN-CPLX	spermidine acetyltransferase	"{""reactant"": {""SPERMACTRAN-MONOMER"": 4}, ""product"": {""SPERMACTRAN-CPLX"": 1}}"	Complexation
+SPERMIDINESYN-CPLX	spermidine synthase	"{""reactant"": {""SPERMIDINESYN-MONOMER"": 2}, ""product"": {""SPERMIDINESYN-CPLX"": 1}}"	Complexation
+SUCC-DEHASE	succinate dehydrogenase	"{""reactant"": {""SDH-MEMB1"": 1, ""SDH-MEMB2"": 1, ""SDH-FE-S"": 1, ""SDH-FLAVO"": 1}, ""product"": {""SUCC-DEHASE"": 1}}"	Complexation
+SUCCCOASYN	succinyl-CoA synthetase	"{""reactant"": {""SUCCCOASYN-ALPHA"": 2, ""SUCCCOASYN-BETA"": 2}, ""product"": {""SUCCCOASYN"": 1}}"	Complexation
+SUCCORNTRANSAM-CPLX	succinylornithine transaminase	"{""reactant"": {""SUCCORNTRANSAM-MONOMER"": 2}, ""product"": {""SUCCORNTRANSAM-CPLX"": 1}}"	Complexation
+SULFATE-ADENYLYLTRANS-CPLX	sulfate adenylyltransferase	"{""reactant"": {""CYSD-MONOMER"": 1, ""CYSN-MONOMER"": 1}, ""product"": {""SULFATE-ADENYLYLTRANS-CPLX"": 1}}"	Complexation
+SULFITE-REDUCT-CPLX	sulfite reductase	"{""reactant"": {""CPLX0-7841"": 1, ""ALPHACOMP-MONOMER"": 8, ""BETACOMP-MONOMER"": 4}, ""product"": {""SULFITE-REDUCT-CPLX"": 1}}"	Complexation
+SUPEROX-DISMUTFE-CPLX	superoxide dismutase (Fe)	"{""reactant"": {""SUPEROX-DISMUTFE-MONOMER"": 2}, ""product"": {""SUPEROX-DISMUTFE-CPLX"": 1}}"	Complexation
+SUPEROX-DISMUTMN-CPLX	superoxide dismutase (Mn)	"{""reactant"": {""SUPEROX-DISMUTMN-MONOMER"": 2}, ""product"": {""SUPEROX-DISMUTMN-CPLX"": 1}}"	Complexation
+TAP-CPLX	chemotaxis signaling complex - dipeptide sensing	"{""reactant"": {""TAP-MONOMER"": 2, ""CHEA-CPLX"": 1, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAP-CPLX"": 1}}"	Complexation
+TAP-GLN	Tapgln	"{""reactant"": {""TAP-MONOMER"": 2, ""CHEA-CPLX"": 1, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAP-GLN"": 1}}"	Complexation
+TAP-GLU	Tapglu	"{""reactant"": {""TAP-MONOMER"": 2, ""CHEA-CPLX"": 1, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAP-GLU"": 1}}"	Complexation
+TAP-GLUME	Tapglu-Me	"{""reactant"": {""TAP-MONOMER"": 2, ""CHEA-CPLX"": 1, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAP-GLUME"": 1}}"	Complexation
+TAR-CPLX	chemotaxis signaling complex - aspartate sensing	"{""reactant"": {""CHEA-CPLX"": 1, ""TAR-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAR-CPLX"": 1}}"	Complexation
+TAR-GLN	Targln	"{""reactant"": {""CHEA-CPLX"": 1, ""TAR-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAR-GLN"": 1}}"	Complexation
+TAR-GLU	Targlu	"{""reactant"": {""CHEA-CPLX"": 1, ""TAR-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAR-GLU"": 1}}"	Complexation
+TAR-GLUME	Targlu-Me	"{""reactant"": {""CHEA-CPLX"": 1, ""TAR-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TAR-GLUME"": 1}}"	Complexation
+TATABCE-CPLX	TatABCE protein export complex	"{""reactant"": {""EG11479-MONOMER"": 1, ""EG11305-MONOMER"": 1, ""TATA"": 1, ""G7808-MONOMER"": 1}, ""product"": {""TATABCE-CPLX"": 1}}"	Complexation
+THIOESTERII-CPLX	thioesterase II	"{""reactant"": {""THIOESTERII-MONOMER"": 4}, ""product"": {""THIOESTERII-CPLX"": 1}}"	Complexation
+THIOREDOXIN-REDUCT-NADPH-CPLX	thioredoxin reductase	"{""reactant"": {""THIOREDOXIN-REDUCT-NADPH-MONOMER"": 2}, ""product"": {""THIOREDOXIN-REDUCT-NADPH-CPLX"": 1}}"	Complexation
+THREDEHYDCAT-CPLX	catabolic threonine dehydratase	"{""reactant"": {""THREDEHYDCAT-MONOMER"": 4}, ""product"": {""THREDEHYDCAT-CPLX"": 1}}"	Complexation
+THREDEHYDSYN-CPLX	threonine deaminase	"{""reactant"": {""THREDEHYDSYN-MONOMER"": 4}, ""product"": {""THREDEHYDSYN-CPLX"": 1}}"	Complexation
+THREODEHYD-CPLX	threonine dehydrogenase	"{""reactant"": {""THREODEHYD-MONOMER"": 4}, ""product"": {""THREODEHYD-CPLX"": 1}}"	Complexation
+THRS-CPLX	threonyl-tRNA synthetase	"{""reactant"": {""THRS-MONOMER"": 2}, ""product"": {""THRS-CPLX"": 1}}"	Complexation
+THYMIDYLATESYN-CPLX	thymidylate synthase	"{""reactant"": {""THYMIDYLATESYN-MONOMER"": 2}, ""product"": {""THYMIDYLATESYN-CPLX"": 1}}"	Complexation
+TMAOREDUCTI-CPLX	trimethylamine N-oxide reductase I	"{""reactant"": {""TORA-MONOMER"": 2, ""EG11815-MONOMER"": 1}, ""product"": {""TMAOREDUCTI-CPLX"": 1}}"	Complexation
+TORR-CPLX	TorR transcriptional dual regulator	"{""reactant"": {""TORR-MONOMER"": 2}, ""product"": {""TORR-CPLX"": 1}}"	Complexation
+TORS-CPLX	TorS sensory histidine kinase	"{""reactant"": {""TORS-MONOMER"": 2}, ""product"": {""TORS-CPLX"": 1}}"	Complexation
+TPI	triose phosphate isomerase	"{""reactant"": {""TPI-MONOMER"": 2}, ""product"": {""TPI"": 1}}"	Complexation
+TRANS-200-CPLX	MacAB-TolC macrolide efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""EG11009-MONOMER"": 3, ""MACB"": 2, ""MACA"": 1}, ""product"": {""TRANS-200-CPLX"": 1}}"	Complexation
+TRANS-CPLX-201	AcrAB-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""EG11009-MONOMER"": 3, ""ACRB-MONOMER"": 3, ""EG11703-MONOMER"": 1}, ""product"": {""TRANS-CPLX-201"": 1}}"	Complexation
+TRANS-CPLX-202	MdtABC-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""MDTA"": 1, ""EG11009-MONOMER"": 3, ""B2075-MONOMER"": 2, ""B2076-MONOMER"": 1}, ""product"": {""TRANS-CPLX-202"": 1}}"	Complexation
+TRANS-CPLX-203	2,3-diketo-L-gulonate:Na+ symporter	"{""reactant"": {""EG12282-MONOMER"": 1, ""EG12283-MONOMER"": 1, ""MONOMER0-422"": 1}, ""product"": {""TRANS-CPLX-203"": 1}}"	Complexation
+TRANS-CPLX-204	MdtEF-TolC multidrug efflux transport system	"{""reactant"": {""CPLX0-7964"": 1, ""EG11009-MONOMER"": 3, ""EG12240-MONOMER"": 3, ""YHIV-MONOMER"": 3}, ""product"": {""TRANS-CPLX-204"": 1}}"	Complexation
+TRANSALDOLB-CPLX	transaldolase B	"{""reactant"": {""TRANSALDOLB-MONOMER"": 2}, ""product"": {""TRANSALDOLB-CPLX"": 1}}"	Complexation
+TRANSENOYLCOARED-CPLX	trans-2-enoyl-CoA reductase (NADPH)	"{""reactant"": {""TRANSENOYLCOARED-MONOMER"": 2}, ""product"": {""TRANSENOYLCOARED-CPLX"": 1}}"	Complexation
+TRANSKETOI-CPLX	transketolase I	"{""reactant"": {""TRANSKETOI-MONOMER"": 2}, ""product"": {""TRANSKETOI-CPLX"": 1}}"	Complexation
+TRG-CPLX	chemotaxis signaling complex - ribose/galactose/glucose sensing	"{""reactant"": {""CHEA-CPLX"": 1, ""TRG-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TRG-CPLX"": 1}}"	Complexation
+TRG-GLN	Trggln	"{""reactant"": {""CHEA-CPLX"": 1, ""TRG-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TRG-GLN"": 1}}"	Complexation
+TRG-GLU	Trgglu	"{""reactant"": {""CHEA-CPLX"": 1, ""TRG-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TRG-GLU"": 1}}"	Complexation
+TRG-GLUME	Trgglu-Me	"{""reactant"": {""CHEA-CPLX"": 1, ""TRG-MONOMER"": 2, ""CHEW-MONOMER"": 2, ""PROTEIN-CHEA"": 2}, ""product"": {""TRG-GLUME"": 1}}"	Complexation
+TRPS-CPLX	tryptophanyl-tRNA synthetase	"{""reactant"": {""TRPS-MONOMER"": 2}, ""product"": {""TRPS-CPLX"": 1}}"	Complexation
+TRYPSYN	tryptophan synthase	"{""reactant"": {""TRYPSYN-APROTEIN"": 2, ""CPLX0-2401"": 1, ""TRYPSYN-BPROTEIN"": 2}, ""product"": {""TRYPSYN"": 1}}"	Complexation
+TRYPTOPHAN-CPLX	tryptophanase / L-cysteine desulfhydrase	"{""reactant"": {""TRYPTOPHAN-MONOMER"": 4}, ""product"": {""TRYPTOPHAN-CPLX"": 1}}"	Complexation
+TSR-CPLX	chemotaxis signaling complex - serine sensing	"{""reactant"": {""TSR-MONOMER"": 2, ""CHEA-CPLX"": 1, ""PROTEIN-CHEA"": 2, ""CHEW-MONOMER"": 2}, ""product"": {""TSR-CPLX"": 1}}"	Complexation
+TSR-GLN	Tsrgln	"{""reactant"": {""TSR-MONOMER"": 2, ""CHEA-CPLX"": 1, ""PROTEIN-CHEA"": 2, ""CHEW-MONOMER"": 2}, ""product"": {""TSR-GLN"": 1}}"	Complexation
+TSR-GLU	Tsrglu	"{""reactant"": {""TSR-MONOMER"": 2, ""CHEA-CPLX"": 1, ""PROTEIN-CHEA"": 2, ""CHEW-MONOMER"": 2}, ""product"": {""TSR-GLU"": 1}}"	Complexation
+TSR-GLUME	Tsrglu-Me	"{""reactant"": {""TSR-MONOMER"": 2, ""CHEA-CPLX"": 1, ""PROTEIN-CHEA"": 2, ""CHEW-MONOMER"": 2}, ""product"": {""TSR-GLUME"": 1}}"	Complexation
+TTDA-CPLX	&alpha; subunit complex	"{""reactant"": {""TTDA-MONOMER"": 2}, ""product"": {""TTDA-CPLX"": 1}}"	Complexation
+TTDB-CPLX	&beta; subunit complex	"{""reactant"": {""TTDB-MONOMER"": 2}, ""product"": {""TTDB-CPLX"": 1}}"	Complexation
+TYRB-DIMER	tyrosine aminotransferase	"{""reactant"": {""TYRB-MONOMER"": 2}, ""product"": {""TYRB-DIMER"": 1}}"	Complexation
+TYRS-CPLX	tyrosyl-tRNA synthetase	"{""reactant"": {""TYRS-MONOMER"": 2}, ""product"": {""TYRS-CPLX"": 1}}"	Complexation
+UDHA-CPLX	pyridine nucleotide transhydrogenase	"{""reactant"": {""UDHA-MONOMER"": 8}, ""product"": {""UDHA-CPLX"": 1}}"	Complexation
+UDPGLUCEPIM-CPLX	UDP-glucose 4-epimerase	"{""reactant"": {""UDPGLUCEPIM-MONOMER"": 2}, ""product"": {""UDPGLUCEPIM-CPLX"": 1}}"	Complexation
+UDPNACETYLGLUCOSAMACYLTRANS-CPLX	UDP-N-acetylglucosamine acyltransferase	"{""reactant"": {""UDPNACETYLGLUCOSAMACYLTRANS-MONOMER"": 3}, ""product"": {""UDPNACETYLGLUCOSAMACYLTRANS-CPLX"": 1}}"	Complexation
+UMPKI-CPLX	UMP kinase	"{""reactant"": {""UMPKI-MONOMER"": 6}, ""product"": {""UMPKI-CPLX"": 1}}"	Complexation
+UPPSYN-CPLX	undecaprenyl diphosphate synthase	"{""reactant"": {""UPPSYN-MONOMER"": 2}, ""product"": {""UPPSYN-CPLX"": 1}}"	Complexation
+URACIL-PRIBOSYLTRANS-CPLX	uracil phosphoribosyltransferase	"{""reactant"": {""URACIL-PRIBOSYLTRANS-MONOMER"": 3}, ""product"": {""URACIL-PRIBOSYLTRANS-CPLX"": 1}}"	Complexation
+URPHOS-CPLX	uridine phosphorylase	"{""reactant"": {""URPHOS-MONOMER"": 6}, ""product"": {""URPHOS-CPLX"": 1}}"	Complexation
+UVRABC-CPLX	UvrABC Nucleotide Excision Repair Complex	"{""reactant"": {""EG11064-MONOMER"": 1, ""EG11063-MONOMER"": 1, ""EG11062-MONOMER"": 1, ""EG11061-MONOMER"": 1}, ""product"": {""UVRABC-CPLX"": 1}}"	Complexation
+XANTHOSINEPHOSPHORY-CPLX	xanthosine phosphorylase	"{""reactant"": {""XANTHOSINEPHOSPHORY-MONOMER"": 6}, ""product"": {""XANTHOSINEPHOSPHORY-CPLX"": 1}}"	Complexation
+XYLISOM-CPLX	xylose isomerase	"{""reactant"": {""XYLISOM-MONOMER"": 4}, ""product"": {""XYLISOM-CPLX"": 1}}"	Complexation
+YDGEF-CPLX	spermidine efflux transporter	"{""reactant"": {""B1600-MONOMER"": 1, ""B1599-MONOMER"": 1}, ""product"": {""YDGEF-CPLX"": 1}}"	Complexation
