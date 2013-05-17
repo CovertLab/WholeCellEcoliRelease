@@ -24,12 +24,18 @@ class parse_complexes:
 				comp.frameId = row[0]
 				comp.name = re.sub('<[^<]+?>', '', row[1])
 
-				print row[2][1:-1]
-
-
-
-
-
+				components = row[2][2:-2].split(') (')
+				if components[0] != '':
+					for c in components:
+						info = c.split(', ')
+						frameId = info[0]
+						try:
+							stoich = int(info[1])
+						except:
+							ipdb.set_trace()
+						comp.addReactant(frameId, stoich)
+				comp.addProduct(comp.frameId, 1)
+				self.complexDict[comp.frameId] = comp
 
 	def writeComplexesCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'complexes.csv'),'wb') as csvfile:
