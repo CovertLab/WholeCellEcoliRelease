@@ -12,7 +12,23 @@ class parse_complexes:
 	def __init__(self):
 		self.complexDict = {}
 
+		self.loadComplexData()
 		self.writeComplexesCSV()
+
+	def loadComplexData(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+			for row in csvreader:
+				comp = proteinComplex()
+				comp.frameId = row[0]
+				comp.name = re.sub('<[^<]+?>', '', row[1])
+
+				print row[2][1:-1]
+
+
+
+
 
 
 	def writeComplexesCSV(self):
