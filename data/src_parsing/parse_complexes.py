@@ -45,10 +45,15 @@ class parse_complexes:
 
 
 
-class complex:
+class proteinComplex:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
-		self.composition = None
+		self.composition = {'reactant' : {}, 'product' : {}}
 		self.formationProcess = 'Complexation'
-		
+
+	def addReactant(self, name, stoich):
+		self.composition['reactant'][name] = stoich
+
+	def addProduct(self, name, stoich):
+		self.composition['product'][name] = stoich
