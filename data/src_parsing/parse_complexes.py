@@ -35,6 +35,7 @@ class parse_complexes:
 							ipdb.set_trace()
 						comp.addReactant(frameId, stoich)
 				comp.addProduct(comp.frameId, 1)
+				self.buildStringComposition()
 				self.complexDict[comp.frameId] = comp
 
 	def writeComplexesCSV(self):
@@ -56,6 +57,7 @@ class proteinComplex:
 		self.frameId = None
 		self.name = None
 		self.composition = {'reactant' : {}, 'product' : {}}
+		self.compositionString = ''
 		self.formationProcess = 'Complexation'
 
 	def addReactant(self, name, stoich):
@@ -63,3 +65,18 @@ class proteinComplex:
 
 	def addProduct(self, name, stoich):
 		self.composition['product'][name] = stoich
+
+	def buildStringComposition(self):
+		s = ''
+		subComp = self.composition['reactant'].keys()
+		for i in range(len(subComp)):
+			if self.composition['reactant'][subComp[i]] == 1:
+				s += c + ' '
+			if i != len(subComp) - 1:
+				s += '+ '
+			else:
+				s += '==> ' + self.frameId
+		self.compositionString = s
+
+
+
