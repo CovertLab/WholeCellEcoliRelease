@@ -6,6 +6,7 @@ import ipdb
 import sets
 import numpy as np
 import json
+import re
 
 class parse_genes:
 	def __init__(self):
@@ -36,7 +37,7 @@ class parse_genes:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')) as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
-				name = row[0]
+				name = re.sub('<[^<]+?>', '', row[0])
 				name = name.replace('-','')
 				frameId = row[1]
 				synRaw = row[2]
