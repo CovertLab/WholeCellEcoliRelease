@@ -40,8 +40,8 @@ class parse_complexes:
 			keys = self.complexDict.keys()
 			keys.sort()
 			for key in keys:
-				m = self.complexDict[key]
-				#csvwriter.writerow([m.metId, m.name, m.frameId, m.empiricalFormula, json.dumps(m.compartments), m.weight, m.SMILES, m.hydrophobic, m.mediaConc, m.biomassConc, m.exchangeRate])
+				c = self.complexDict[key]
+				csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition), c.formationProcess])
 
 
 
