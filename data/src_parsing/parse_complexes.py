@@ -12,8 +12,20 @@ class parse_complexes:
 	def __init__(self):
 		self.complexDict = {}
 
+		self.geneProdLocalDict = {}
+
+		self.loadMonomerData()
 		self.loadComplexData()
 		self.writeComplexesCSV()
+
+	def loadMonomerData(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+			for row in csvreader:
+				product = row[10]
+				compartment = json.loads(row[9])
+				self.geneProdLocalDict[product] = compartment
 
 	def loadComplexData(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_complexes.csv'),'rb') as csvfile:
