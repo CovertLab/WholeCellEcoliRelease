@@ -75,7 +75,8 @@ class proteinComplex:
 		self.composition['reactant'][name]['compartment'] = self.geneProdLocalDict[name]
 
 	def addProduct(self, name, stoich):
-		self.composition['product'][name] = stoich
+		self.composition['product'][name]['stoichiometry'] = stoich
+		self.composition['product'][name]['compartment'] = ''
 
 	def buildStringComposition(self):
 		s = ''
