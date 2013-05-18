@@ -41,10 +41,7 @@ class parse_complexes:
 					for c in components:
 						info = c.split(', ')
 						frameId = info[0]
-						try:
-							stoich = int(info[1])
-						except:
-							ipdb.set_trace()
+						stoich = int(info[1])
 						comp.addReactant(frameId, stoich)
 				comp.addProduct(comp.frameId, 1)
 				comp.buildStringComposition()
