@@ -80,12 +80,13 @@ class proteinComplex:
 	def buildStringComposition(self):
 		s = ''
 		subComp = self.composition['reactant'].keys()
+
 		for i in range(len(subComp)):
 			c = subComp[i]
-			if self.composition['reactant'][c] == 1:
+			if self.composition['reactant'][c]['stoichiometry'] == 1:
 				s += c + ' '
 			else:
-				stoich = self.composition['reactant'][c]
+				stoich = self.composition['reactant'][c]['stoichiometry']
 				s += '(' + str(stoich) + ') ' + c + ' '
 			if i != len(subComp) - 1:
 				s += '+ '
