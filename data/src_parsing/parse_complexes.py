@@ -47,7 +47,7 @@ class parse_complexes:
 							ipdb.set_trace()
 						comp.addReactant(frameId, stoich)
 				comp.addProduct(comp.frameId, 1)
-				self.buildStringComposition()
+				comp.buildStringComposition()
 				self.complexDict[comp.frameId] = comp
 
 	def writeComplexesCSV(self):
