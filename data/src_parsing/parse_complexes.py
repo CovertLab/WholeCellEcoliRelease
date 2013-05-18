@@ -42,13 +42,13 @@ class parse_complexes:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'complexes.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-			csvwriter.writerow(['frameId', 'Name', 'Composition', 'Formation process', 'Comments'])
+			csvwriter.writerow(['frameId', 'Name', 'Composition', 'Composition', 'Formation process', 'Comments'])
 			
 			keys = self.complexDict.keys()
 			keys.sort()
 			for key in keys:
 				c = self.complexDict[key]
-				csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition), c.formationProcess])
+				csvwriter.writerow([c.frameId, c.name, c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 
 
