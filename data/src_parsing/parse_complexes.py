@@ -42,7 +42,8 @@ class parse_complexes:
 						info = c.split(', ')
 						frameId = info[0]
 						stoich = int(info[1])
-						comp.addReactant(frameId, stoich)
+						location = self.geneProdLocalDict[frameId]
+						comp.addReactant(frameId, stoich, location)
 				comp.addProduct(comp.frameId, 1)
 				comp.buildStringComposition()
 				self.complexDict[comp.frameId] = comp
@@ -69,8 +70,9 @@ class proteinComplex:
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
 
-	def addReactant(self, name, stoich):
-		self.composition['reactant'][name] = stoich
+	def addReactant(self, name, stoich, location):
+		self.composition['reactant'][name]['stoichiometry'] = stoich
+		self.composition['reactant'][name]['compartment'] = self.geneProdLocalDict[name]
 
 	def addProduct(self, name, stoich):
 		self.composition['product'][name] = stoich
