@@ -84,15 +84,18 @@ class proteinComplex:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
+		self.location = None
 		self.composition = {'reactant' : {}, 'product' : {}}
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
 
 	def addReactant(self, name, stoich, location):
+		self.composition['reactant'][name] = {'stoichiometry' : None, 'compartment' : None}
 		self.composition['reactant'][name]['stoichiometry'] = stoich
-		self.composition['reactant'][name]['compartment'] = self.geneProdLocalDict[name]
+		self.composition['reactant'][name]['compartment'] = location
 
 	def addProduct(self, name, stoich):
+		self.composition['product'][name] = {'stoichiometry' : None, 'compartment' : None}
 		self.composition['product'][name]['stoichiometry'] = stoich
 		self.composition['product'][name]['compartment'] = ''
 
