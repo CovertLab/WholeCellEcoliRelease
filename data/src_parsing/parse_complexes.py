@@ -33,6 +33,8 @@ class parse_complexes:
 					self.geneProdLocalDict[product] = compartment
 
 	def loadComplexData(self):
+		rowsToDo = []
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
@@ -41,17 +43,28 @@ class parse_complexes:
 				comp.frameId = row[0]
 				comp.name = re.sub('<[^<]+?>', '', row[1])
 
+				foundAllSubunits = True
 				components = row[2][2:-2].split(') (')
 				if components[0] != '':
 					for c in components:
 						info = c.split(', ')
 						frameId = info[0]
 						stoich = int(info[1])
-						location = self.geneProdLocalDict[frameId]
-						comp.addReactant(frameId, stoich, location)
+						if self.geneProdLocalDict.has_key(frameId):
+							location = self.geneProdLocalDict[frameId]
+							comp.addReactant(frameId, stoich, location)
+						else:
+							rowsToDo.append(row)
+							foundAllSubunits = False
+							break
+
 				comp.addProduct(comp.frameId, 1)
 				comp.buildStringComposition()
-				self.complexDict[comp.frameId] = comp
+				comp.calculateLoaction()
+
+				if foundAllSubunits:
+					self.complexDict[comp.frameId] = comp
+		ipdb.set_trace()
 
 	def writeComplexesCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'complexes.csv'),'wb') as csvfile:
