@@ -53,14 +53,17 @@ class parse_complexes:
 						if self.geneProdLocalDict.has_key(frameId):
 							location = self.geneProdLocalDict[frameId]
 							comp.addReactant(frameId, stoich, location)
-						else:
+						elif row[3] == '':
 							rowsToDo.append(row)
 							foundAllSubunits = False
 							break
 
 				comp.addProduct(comp.frameId, 1)
 				comp.buildStringComposition()
-				comp.calculateLoaction()
+				if row[3] == '':
+					comp.calculateLocation()
+				else:
+					comp.location = row[3][1:-1].split(' ')
 
 				if foundAllSubunits:
 					self.complexDict[comp.frameId] = comp
@@ -116,5 +119,18 @@ class proteinComplex:
 				s += '==> ' + self.frameId
 		self.compositionString = s
 
+	def calculateLocation(self):
+		location = None
+		sameLocation = True
+		for reactantId in self.composition['reactant'].iterkeys():
+			if location == None:
+				location = self.composition['reactant'][reactantId]['compartment']
+			elif location != self.composition['reactant'][reactantId]['compartment']:
+				sameLocation = False
+				break
+		if sameLocation:
+			self.location = location
+		else:
+			print self.frameId
 
 
