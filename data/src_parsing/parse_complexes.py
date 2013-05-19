@@ -22,10 +22,15 @@ class parse_complexes:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
+			firstRow = True
+
 			for row in csvreader:
-				product = row[10]
-				compartment = json.loads(row[9])
-				self.geneProdLocalDict[product] = compartment
+				if firstRow:
+					firstRow = False
+				else:
+					product = row[10]
+					compartment = json.loads(row[9])
+					self.geneProdLocalDict[product] = compartment
 
 	def loadComplexData(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_complexes.csv'),'rb') as csvfile:
