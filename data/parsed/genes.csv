@@ -252,7 +252,7 @@ EG10254	EbgR DNA-binding transcriptional repressor	ebgR	mRNA	3219488	983	forward
 EG10255	ecotin monomer; serine protease inhibitor	eco	mRNA	2301927	488	forward	0.0000378115	486.0	"[""CCO-PERI-BAC""]"	EG10255-MONOMER	
 EG10256	Eda	eda	mRNA	1930139	641	reverse	0.0001492481	516.0	"[""CCO-MEMBRANE"", ""CCO-CYTOSOL""]"	KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER	
 EG10257	phosphogluconate dehydratase	edd	mRNA	1930817	1811	reverse	0.0003488281	438.0	"[""CCO-CYTOSOL""]"	PGLUCONDEHYDRAT-MONOMER	No localization known in Ecocyc. Assume cytosol.
-EG10258	Eno	eno	mRNA	2904665	1298	reverse	0.0013276456	282.0	"[""CCO-CYTOSOL"", ""CCO-MEMBRANE"", ""CCO-EXTRACELLULAR"", ""CCO-CYTOSKELETON""]"	ENOLASE-MONOMER	
+EG10258	Eno	eno	mRNA	2904665	1298	reverse	0.0013276456	282.0	"[""CCO-CYTOSOL"", ""CCO-MEMBRANE"", ""CCO-EXTRACELLULAR"", ""CCO-CYTOSOL""]"	ENOLASE-MONOMER	
 EG10259	EntA	entA	mRNA	627774	746	forward	0.0000045207	168.0	"[""CCO-CYTOSOL""]"	ENTA-MONOMER	No localization known in Ecocyc. Assume cytosol.
 EG10260	EntB monomer	entB	mRNA	626917	857	forward	0.0000638375	162.0	"[""CCO-PM-BAC-NEG"", ""CCO-CYTOSOL""]"	ENTB-MONOMER	
 EG10261	isochorismate synthase 1	entC	mRNA	624108	1175	forward	0.0000379294	138.0	"[""CCO-CYTOSOL""]"	ENTC-MONOMER	No localization known in Ecocyc. Assume cytosol.
@@ -273,7 +273,7 @@ EG10275	biotin carboxyl carrier protein	accB	mRNA	3403458	470	forward	0.00055558
 EG10276	AccC	accC	mRNA	3403939	1349	forward	0.0002419688	156.0	"[""CCO-CYTOSOL""]"	BIOTIN-CARBOXYL-MONOMER	
 EG10277	FabH	fabH	mRNA	1147982	953	forward	0.0003206379	144.0	"[""CCO-CYTOSOL""]"	FABH-MONOMER	
 EG10278	3-ketoacyl-CoA thiolase	fadA	mRNA	4025632	1163	reverse	0.0000350561	288.0	"[""CCO-CYTOSOL""]"	FADA-MONOMER	
-EG10279	dodecenoyl-CoA &delta;-isomerase	fadB	mRNA	4026805	2189	reverse	0.0000244868	408.0	"[""CCO-CYTOSOL"", ""CCO-MIT-LUM""]"	FADB-MONOMER	
+EG10279	dodecenoyl-CoA &delta;-isomerase	fadB	mRNA	4026805	2189	reverse	0.0000244868	408.0	"[""CCO-CYTOSOL"", ""CCO-CYTOSOL""]"	FADB-MONOMER	
 EG10280	long-chain fatty acid outer membrane porin; bacteriophage T2 binding	fadL	mRNA	2459322	1346	forward	0.0000343858	258.0	"[""CCO-PM-BAC-NEG"", ""CCO-OUTER-MEM""]"	EG10280-MONOMER	
 EG10281	FadR DNA-binding transcriptional dual regulator	fadR	mRNA	1234161	719	forward	0.0000498845	228.0	"[""CCO-CYTOSOL""]"	PD01520	
 EG10282	fructose bisphosphate aldolase monomer	fbaA	mRNA	3068187	1079	reverse	0.0003026002	432.0	"[""CCO-CYTOSOL""]"	FRUCTBISALD-CLASSII-MONOMER	No localization known in Ecocyc. Assume cytosol.
@@ -601,7 +601,7 @@ EG10604	phospho-N-acetylmuramoyl-pentapeptide transferase	mraY	mRNA	96002	1082	f
 EG10605	MrcB	mrcB	mRNA	164730	2534	forward	0.0000433562	344.81999999999999	"[""CCO-CW-BAC-NEG"", ""CCO-PM-BAC-NEG""]"	EG10605-MONOMER	
 EG10606	cell shape; peptidoglycan synthetase; penicillin-binding protein 2	mrdA	mRNA	665539	1901	reverse	0.0000511201	282.0	"[""CCO-PM-BAC-NEG""]"	EG10606-MONOMER	
 EG10607	rod shape-determining membrane protein; sensitivity to radiation and drugs	mrdB	mRNA	664424	1112	reverse	0.0000880610	294.0	"[""CCO-PM-BAC-NEG""]"	EG10607-MONOMER	
-EG10608	MreB	mreB	mRNA	3398066	1043	reverse	0.0004162722	210.0	"[""CCO-CYTOSKELETON""]"	EG10608-MONOMER	
+EG10608	MreB	mreB	mRNA	3398066	1043	reverse	0.0004162722	210.0	"[""CCO-CYTOSOL""]"	EG10608-MONOMER	
 EG10609	MreC	mreC	mRNA	3396897	1103	reverse	0.0000937543	270.0	"[""CCO-PM-BAC-NEG""]"	EG10609-MONOMER	
 EG10610	MreD	mreD	mRNA	3396409	488	reverse	0.0000805733	222.0	"[""CCO-PM-BAC-NEG""]"	EG10610-MONOMER	
 EG10611	putative ATPase	mrp	mRNA	2191081	1109	reverse	0.0001599741	222.0	"[""CCO-CYTOSOL""]"	EG10611-MONOMER	No localization known in Ecocyc. Assume cytosol.
@@ -1271,7 +1271,7 @@ EG11295	Enterobacterial Common Antigen (ECA) polysaccharide chain length modulat
 EG11296	DNA recombination protein	radA	mRNA	4623935	1382	forward	0.0000929031	186.0	"[""CCO-CYTOSOL""]"	EG11296-MONOMER	No localization known in Ecocyc. Assume cytosol.
 EG11297	protein disulfide oxidoreductase	dsbA	mRNA	4041441	626	forward	0.0001662343	234.0	"[""CCO-PERI-BAC""]"	DISULFOXRED-MONOMER	
 EG11298	conserved protein	yhdE	mRNA	3395807	593	reverse	0.0001532245	174.0	"[""CCO-CYTOSOL""]"	EG11298-MONOMER	
-EG11299	ribonuclease G (RNAse G) monomer	rng	mRNA	3394348	1469	reverse	0.0000794815	156.0	"[""CCO-CYTOSOL"", ""CCO-CYTOSKELETON""]"	EG11299-MONOMER	
+EG11299	ribonuclease G (RNAse G) monomer	rng	mRNA	3394348	1469	reverse	0.0000794815	156.0	"[""CCO-CYTOSOL"", ""CCO-CYTOSOL""]"	EG11299-MONOMER	
 EG11300	Qin prophage; predicted protein	ydfA	mRNA	1646532	155	forward	0.0000096907	420.0	"[""CCO-CYTOSOL""]"	EG11300-MONOMER	No localization known in Ecocyc. Assume cytosol.
 EG11301	Qin prophage; small protein	ydfB	mRNA	1646689	128	forward	0.0000107034	312.0	"[""CCO-CYTOSOL""]"	EG11301-MONOMER	
 EG11302	Qin prophage; predicted protein	rzpQ	mRNA	1646847	218	forward	0.0000100266	414.0	"[""CCO-CYTOSOL""]"	EG11302-MONOMER	No localization known in Ecocyc. Assume cytosol.
@@ -1990,7 +1990,7 @@ EG12081	conserved protein	ppdA	mRNA	2961729	470	reverse	0.0000084099	396.0	"[""C
 EG12082	NADH:ubiquinone oxidoreductase	nuoA	mRNA	2402651	443	reverse	0.0003118629	264.0	"[""CCO-PM-BAC-NEG""]"	NUOA-MONOMER	
 EG12083	NADH:ubiquinone oxidoreductase	nuoB	mRNA	2401973	662	reverse	0.0003375982	186.0	"[""CCO-PM-BAC-NEG""]"	NUOB-MONOMER	
 EG12084	NADH:ubiquinone oxidoreductase	nuoC	mRNA	2400077	1790	reverse	0.0002669675	156.0	"[""CCO-PM-BAC-NEG""]"	NUOC-MONOMER	
-EG12086	NADH:ubiquinone oxidoreductase	nuoE	mRNA	2399574	500	reverse	0.0005858433	162.0	"[""CCO-MIT-MEM"", ""CCO-PM-BAC-NEG""]"	NUOE-MONOMER	
+EG12086	NADH:ubiquinone oxidoreductase	nuoE	mRNA	2399574	500	reverse	0.0005858433	162.0	"[""CCO-PM-BAC-NEG"", ""CCO-PM-BAC-NEG""]"	NUOE-MONOMER	
 EG12087	NADH:ubiquinone oxidoreductase	nuoG	mRNA	2395461	2726	reverse	0.0002195396	252.0	"[""CCO-PM-BAC-NEG""]"	NUOG-MONOMER	
 EG12088	NADH:ubiquinone oxidoreductase	nuoH	mRNA	2394487	977	reverse	0.0002324509	402.0	"[""CCO-PM-BAC-NEG""]"	NUOH-MONOMER	
 EG12089	NADH:ubiquinone oxidoreductase	nuoI	mRNA	2393930	542	reverse	0.0002816522	344.81999999999999	"[""CCO-PM-BAC-NEG""]"	NUOI-MONOMER	
