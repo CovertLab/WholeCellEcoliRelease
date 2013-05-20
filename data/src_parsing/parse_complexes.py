@@ -111,7 +111,7 @@ class parse_complexes:
 			keys.sort()
 			for key in keys:
 				c = self.complexDict[key]
-				csvwriter.writerow([c.frameId, c.name, json.dumps(c.location), c.compositionString, json.dumps(c.composition), c.formationProcess])
+				csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 
 
