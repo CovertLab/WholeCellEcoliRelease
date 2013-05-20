@@ -19,6 +19,7 @@ class parse_locations:
 	def parseLocations(self):
 		# Finds unique set of location frameId's in Ecocyc. Creates a dict so that any locaitons
 		# read from another file can be translated into the ones used in the model.
+		locationList = []
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_locations.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
 
@@ -72,5 +73,18 @@ class parse_locations:
 				csvwriter.writerow([key, abbrevDict[key]])
 
 	def writeLocationsDict(self):
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations_dict.csv'),'wb') as jsonfile:
-			jsonfile.write(jsons.dumps(self.locationDict))
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations_dict.txt'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(self.locationDict))
+
+	def splitBigBracket(self, s):
+		s = s[2:-2]
+		s = s.replace('"','')
+		s = s.split(') (')
+		return s
+
+
+	def splitSmallBracket(self, s):
+		s = s.split(', ')
+		frameId = s[0]
+		description = s[1]
+		return {'frameId' : frameId, 'description' : description}
