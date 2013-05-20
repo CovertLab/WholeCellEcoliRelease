@@ -29,6 +29,9 @@ class parse_genes:
 		self.writeGeneCSV()
 
 	def loadConstants(self):
+		# Loads constant single values
+		# Currently just half lives for rRNA and tRNA
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
@@ -36,6 +39,11 @@ class parse_genes:
 
 
 	def loadSynDict(self):
+		# Loads synonym dictionary and stores it as instance variable
+		# name --> frameId
+		# blattner number --> frameId
+		# any other ascention known --> frameId
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')) as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
