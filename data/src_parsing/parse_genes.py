@@ -93,9 +93,10 @@ class parse_genes:
 				for loc in locations:
 					if loc != '':
 						param = self.splitSmallBracket(loc)
-						locL.append(locationDict[param['description']])
+						if param['description'] != []:
+							locL.append(locationDict[param['description']])
 
-				self.protLocDict[protFrameId] = locL
+						self.protLocDict[protFrameId] = locL
 
 	def parseGeneInformation(self):
 		unmodifiedForm = {}
@@ -169,6 +170,9 @@ class parse_genes:
 						# Add localization
 						if self.protLocDict.has_key(newGene.productFrameId):
 							newGene.localization = self.protLocDict[newGene.productFrameId]
+						else:
+							newGene.localization = ['CCO-CYTOSOL']
+							newGene.comments = 'No localization known in Ecocyc. Assume cytosol.'
 
 
 	def splitBigBracket(self, s):
@@ -364,24 +368,9 @@ class parse_genes:
 			keys = self.geneDict.keys()
 			keys.sort()
 
-			some = 0
 			for key in keys:
 				g = self.geneDict[key]
-				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId])
-				some += g.expression
-			print 'Expression sums to ' + str(some)
-
-		expCheck = 0
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			firstLine = True
-			for row in csvreader:
-				if firstLine:
-					firstLine = False
-				else:
-					expCheck += float(row[7])
-
-		print 'Expression readback sums to: ' + str(expCheck)
+				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId, g.comments])
 
 class gene:
 	def __init__(self):
@@ -396,3 +385,4 @@ class gene:
 		self.halfLife = None
 		self.localization = None
 		self.productFrameId = None
+		self.comments = None
