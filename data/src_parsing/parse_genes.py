@@ -7,6 +7,7 @@ import sets
 import numpy as np
 import json
 import re
+import copy
 
 class parse_genes:
 	def __init__(self):
@@ -16,6 +17,7 @@ class parse_genes:
 		self.geneDict = {}
 		self.protLocDict = {}
 		self.parameters = {}
+		self.locationDict = {}
 
 		self.loadConstants()
 		self.loadSynDict()
@@ -25,6 +27,7 @@ class parse_genes:
 		self.loadExpression()
 
 		self.writeGeneCSV()
+		self.writeLocationsCSV()
 
 	def loadConstants(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
@@ -63,7 +66,6 @@ class parse_genes:
 
 	def parseLocations(self):
 		locationList = []
-		locationDict = {}
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_locations.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
@@ -79,9 +81,17 @@ class parse_genes:
 		locationSet = sets.Set(locationList)
 		for item in locationSet:
 			if item == 'CCO-RIBOSOME':
-				locationDict[item] = 'CCO-CYTOSOL'
+				self.locationDict[item] = 'CCO-CYTOSOL'
+			elif item == 'CCO-MIT-LUM':
+				self.locationDict[item] = 'CCO-CYTOSOL'
+			elif item == 'CCO-MIT-MEM':
+				self.locationDict[item] = 'CCO-PM-BAC-NEG'
+			elif item == 'CCO-CYTOSKELETON':
+				self.locationDict[item] = 'CCO-CYTOSOL'
+			elif item == 'CCO-ENVELOPE':
+				self.locationDict[item] = 'CCO-OUTER-MEM'
 			else:
-				locationDict[item] = item
+				self.locationDict[item] = item
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_location.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
@@ -94,7 +104,7 @@ class parse_genes:
 					if loc != '':
 						param = self.splitSmallBracket(loc)
 						if param['description'] != []:
-							locL.append(locationDict[param['description']])
+							locL.append(self.locationDict[param['description']])
 
 						self.protLocDict[protFrameId] = locL
 
@@ -371,6 +381,33 @@ class parse_genes:
 			for key in keys:
 				g = self.geneDict[key]
 				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId, g.comments])
+
+	def writeLocationsCSV(self):
+
+		toRemove = ['CCO-RIBOSOME', 'CCO-MIT-LUM', 'CCO-MIT-MEM', 'CCO-CYTOSKELETON', 'CCO-ENVELOPE']
+		abbrevDict = {'CCO-BAC-NUCLEOID' 		: 'n',
+						'CCO-CELL-PROJECTION' 	: 'j',
+						'CCO-CW-BAC-NEG' 		: 'w',
+						'CCO-CYTOSOL'			: 'c',
+						'CCO-EXTRACELLULAR'		: 'e',
+						'CCO-MEMBRANE'			: 'm',
+						'CCO-OUTER-MEM' 		: 'o',
+						'CCO-PERI-BAC'			: 'p',
+						'CCO-PILUS'				: 'l',
+						'CCO-PM-BAC-NEG'		: 'i'}
+
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'compartments.csv'),'wb') as csvfile:
+			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+			toPrintDict = copy.copy(self.locationDict)
+			for item in toRemove:
+				toPrintDict.pop(item)
+			keys = toPrintDict.keys()
+			keys.sort()
+			csvwriter.writerow(['ID', 'Abbreviation'])
+			for key in keys:
+				csvwriter.writerow([key, abbrevDict[key]])
 
 class gene:
 	def __init__(self):
