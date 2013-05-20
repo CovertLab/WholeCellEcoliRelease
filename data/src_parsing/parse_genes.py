@@ -182,7 +182,7 @@ class parse_genes:
 							newGene.localization = self.protLocDict[newGene.productFrameId]
 						else:
 							newGene.localization = ['CCO-CYTOSOL']
-							newGene.comments = 'No localization known in Ecocyc. Assume cytosol.'
+							newGene.comments = 'No localization known. Assume CO-CYTOSOL.\n'
 
 
 	def splitBigBracket(self, s):
