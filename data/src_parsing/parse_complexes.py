@@ -58,28 +58,28 @@ class parse_complexes:
 							foundAllSubunits = False
 							break
 
-				comp.addProduct(comp.frameId, 1)
-				comp.buildStringComposition()
-				if row[3] == '':
-					comp.calculateLocation()
-				else:
-					comp.location = row[3][1:-1].split(' ')
-
 				if foundAllSubunits:
+					comp.addProduct(comp.frameId, 1)
+					comp.buildStringComposition()
+					if row[3] == '':
+						comp.calculateLocation()
+					else:
+						comp.location = row[3][1:-1].split(' ')
+
 					self.complexDict[comp.frameId] = comp
-		ipdb.set_trace()
+		#ipdb.set_trace()
 
 	def writeComplexesCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'complexes.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-			csvwriter.writerow(['frameId', 'Name', 'Composition', 'Composition', 'Formation process', 'Comments'])
+			csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Formation process', 'Comments'])
 			
 			keys = self.complexDict.keys()
 			keys.sort()
 			for key in keys:
 				c = self.complexDict[key]
-				csvwriter.writerow([c.frameId, c.name, c.compositionString, json.dumps(c.composition), c.formationProcess])
+				csvwriter.writerow([c.frameId, c.name, json.dumps(c.location), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 
 
@@ -120,17 +120,14 @@ class proteinComplex:
 		self.compositionString = s
 
 	def calculateLocation(self):
-		location = None
-		sameLocation = True
+		location = []
 		for reactantId in self.composition['reactant'].iterkeys():
-			if location == None:
-				location = self.composition['reactant'][reactantId]['compartment']
-			elif location != self.composition['reactant'][reactantId]['compartment']:
-				sameLocation = False
-				break
-		if sameLocation:
-			self.location = location
-		else:
-			print self.frameId
+			location.append(self.composition['reactant'][reactantId]['compartment'])
+
+		locationSet = sets.Set(location)
+		locationList = []
+		for item in locationSet:
+			locationList.append(item)
+		self.location = locationList
 
 
