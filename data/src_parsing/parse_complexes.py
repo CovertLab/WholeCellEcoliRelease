@@ -119,7 +119,6 @@ class proteinComplex:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
-		self.location = None
 		self.composition = {'reactant' : {}, 'product' : {}}
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
@@ -132,11 +131,18 @@ class proteinComplex:
 	def addProduct(self, name, stoich):
 		self.composition['product'][name] = {'stoichiometry' : None, 'compartment' : None}
 		self.composition['product'][name]['stoichiometry'] = stoich
-		self.composition['product'][name]['compartment'] = ''
+		self.composition['product'][name]['compartment'] = None
 
-	def buildStringComposition(self):
+	def buildStringComposition(self, compartmentDict):
 		s = ''
 		subComp = self.composition['reactant'].keys()
+
+		sameLocation = False
+		if len(self.composition['product'][self.frameId]['compartment']) == 1:
+			sameLocation = True
+
+		if sameLocation:
+			s += '[' + compartmentDict[self.composition['product'][self.frameId]['compartment'][0]] + ']: '
 
 		for i in range(len(subComp)):
 			c = subComp[i]
@@ -154,12 +160,15 @@ class proteinComplex:
 	def calculateLocation(self):
 		location = []
 		for reactantId in self.composition['reactant'].iterkeys():
-			location.append(self.composition['reactant'][reactantId]['compartment'])
+			reactantLocation = self.composition['reactant'][reactantId]['compartment']
+			for loc in reactantLocation:
+				location.append(loc)
 
 		locationSet = sets.Set(location)
 		locationList = []
 		for item in locationSet:
 			locationList.append(item)
-		self.location = locationList
+
+		self.composition['product'][self.frameId]['compartment'] = locationList
 
 
