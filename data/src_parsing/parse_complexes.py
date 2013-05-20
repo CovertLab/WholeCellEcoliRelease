@@ -13,10 +13,25 @@ class parse_complexes:
 		self.complexDict = {}
 
 		self.geneProdLocalDict = {}
+		self.compartmentDict = {}
 
+		self.loadCompartmentData()
 		self.loadMonomerData()
 		self.loadComplexData()
 		self.writeComplexesCSV()
+
+	def loadCompartmentData(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'compartments.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+			firstRow = True
+			for row in csvreader:
+				if firstRow:
+					firstRow = False
+				else:
+					compartmentId = row[0]
+					compartmentAbbrev = row[1]
+					self.compartmentDict[compartmentId] = compartmentAbbrev
 
 	def loadMonomerData(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
