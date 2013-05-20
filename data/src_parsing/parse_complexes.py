@@ -75,14 +75,31 @@ class parse_complexes:
 
 				if foundAllSubunits:
 					comp.addProduct(comp.frameId, 1)
-					comp.buildStringComposition()
 					if row[3] == '':
 						comp.calculateLocation()
 					else:
-						comp.location = row[3][1:-1].split(' ')
+						location = row[3][1:-1].split(' ')
 
+						if location == ['CCO-RIBOSOME']:
+							location = ['CCO-CYTOSOL']
+						elif location == ['CCO-MIT-LUM']:
+							location = ['CCO-CYTOSOL']
+						elif location == ['CCO-MIT-MEM']:
+							location = ['CCO-PM-BAC-NEG']
+						elif location == ['CCO-CYTOSKELETON']:
+							location = ['CCO-CYTOSOL']
+						elif location == ['CCO-ENVELOPE']:
+							location = ['CCO-OUTER-MEM']
+
+						comp.composition['product'][comp.frameId]['compartment'] = location
+
+					# Build string output
+					comp.buildStringComposition(self.compartmentDict)
+					# Save in dict
 					self.complexDict[comp.frameId] = comp
-		#ipdb.set_trace()
+
+		# TODO: Still need to go back and build all the ones that have subunits that are complexes!
+		ipdb.set_trace()
 
 	def writeComplexesCSV(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'complexes.csv'),'wb') as csvfile:
