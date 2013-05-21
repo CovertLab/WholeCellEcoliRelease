@@ -471,12 +471,24 @@ def parseProteinMonomers():
 				proteinMonomerDict[pMono.frameId] = pMono
 
 
+
+
 	# # Add localization
 	# if self.protLocDict.has_key(newGene.productFrameId):
 	# 	newGene.localization = self.protLocDict[newGene.productFrameId]
 	# else:
 	# 	newGene.localization = ['CCO-CYTOSOL']
 	# 	newGene.comments = 'No localization known. Assume CO-CYTOSOL.\n'
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = proteinMonomerDict.keys()
+		keys.sort()
+		csvwriter.writerow(['ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
+		for key in keys:
+			pm = proteinMonomerDict[key]
+			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
 
 
 # Utility functions
@@ -514,6 +526,7 @@ class proteinMonomer:
 		self.location = None
 		self.gene = None
 		self.modifiedForm = None
+		self.comments = None
 
 if __name__ == "__main__":
     main()
