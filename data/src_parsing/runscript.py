@@ -436,7 +436,17 @@ def parseLocations():
 
 # Parse protein monomers
 def parseProteinMonomers():
-	pass
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		# Skip header
+		csvreader.next()
+
+		for row in csvreader:
+			pMono = proteinMonomer()
+
+
+
 	# # Add localization
 	# if self.protLocDict.has_key(newGene.productFrameId):
 	# 	newGene.localization = self.protLocDict[newGene.productFrameId]
@@ -478,6 +488,8 @@ class proteinMonomer:
 		self.frameId = None
 		self.name = None
 		self.location = None
+		self.gene = None
+		self.modifiedForm = None
 
 if __name__ == "__main__":
     main()
