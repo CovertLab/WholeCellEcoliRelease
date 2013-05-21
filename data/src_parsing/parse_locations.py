@@ -82,7 +82,6 @@ class parse_locations:
 		s = s.split(') (')
 		return s
 
-
 	def splitSmallBracket(self, s):
 		s = s.split(', ')
 		frameId = s[0]
