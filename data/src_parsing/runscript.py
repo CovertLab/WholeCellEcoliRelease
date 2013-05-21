@@ -216,5 +216,21 @@ def splitSmallBracket(s):
 	description = s[1]
 	return {'frameId' : frameId, 'description' : description}
 
+# Define data type classes
+class gene:
+	def __init__(self):
+		self.frameId = None
+		self.name = None
+		self.symbol = None
+		self.type = None
+		self.coordinate = None
+		self.length = None
+		self.direction = None
+		self.expression = 0.
+		self.halfLife = None
+		self.localization = None
+		self.productFrameId = None
+		self.comments = None
+
 if __name__ == "__main__":
     main()
