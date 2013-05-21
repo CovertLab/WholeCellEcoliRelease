@@ -272,7 +272,94 @@ def parseGenes():
 					geneOfInterest.halfLife = mrnaAverage
 
 	# Parse expression information
+	expressionDict = {}
 
+	rRNAexp = []
+	tRNAexp = []
+	miscRNAexp = []
+	mRNAexp = []
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Blattner 2005.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		lineCnt = 0
+		startRead = False
+		for row in csvreader:
+			if not startRead:
+				lineCnt += 1
+				if lineCnt >= 98:
+					startRead = True
+			else:
+				skip = False
+				if row[27] == '':
+					skip = True
+
+				if not skip:
+					bnum = row[27]
+					name = row[1]
+					glucoseValues = row[2:7]
+					glucoseValues = [float(x) for x in glucoseValues]
+					expression = np.average(glucoseValues)
+
+				if synDictFrameId.has_key(name.lower()):
+					geneName = synDictFrameId[name.lower()]
+				elif synDictFrameId.has_key(bnum.lower()):
+					geneName = synDictFrameId[bnum.lower()]
+				else:
+					print 'Gene expression not found ' + name + ' ' + bnum
+
+				expressionDict[geneName] = expression
+
+				# Calculat average expression for each type of RNA
+				if geneDict[geneName].type == 'rRNA':
+					rRNAexp.append(expression)
+				elif geneDict[geneName].type == 'tRNA':
+					tRNAexp.append(expression)
+				elif geneDict[geneName].type == 'miscRNA':
+					miscRNAexp.append(expression)
+				else:
+					mRNAexp.append(expression)
+
+	print 'Expression found for ' + str(len(mRNAexp)) + ' mRNAs'
+	print 'Expression found for ' + str(len(rRNAexp)) + ' rRNAs'
+	print 'Expression found for ' + str(len(tRNAexp)) + ' tRNAs'
+	print 'Expression found for ' + str(len(miscRNAexp)) + ' miscRNAs'
+
+	# Average expression for gene types where expression was not measured
+	mrnaAverage = np.around(np.average(mRNAexp),decimals=2)
+
+	if len(rRNAexp) == 0:
+		print 'No rRNA expression measured.'
+		rrnaAverage = mrnaAverage
+	else:
+		rrnaAverage = np.average(rRNAexp)
+	if len(tRNAexp) == 0:
+		print 'No tRNA expression measured.'
+		trnaAverage = mrnaAverage
+	else:
+		trnaAverage = np.average(tRNAexp)
+	if len(miscRNAexp) == 0:
+		print 'No miscRNA expression measured.'
+		miscrnaAverage = mrnaAverage
+	else:
+		miscrnaAverage = np.average(miscRNAexp)
+
+
+	for geneId in geneDict.iterkeys():
+		if not expressionDict.has_key(geneId):
+			if geneDict[geneId].type == 'mRNA':
+				expressionDict[geneId] = mrnaAverage
+			elif geneDict[geneId].type == 'rRNA':
+				expressionDict[geneId] = rrnaAverage
+			elif geneDict[geneId].type == 'tRNA':
+				expressionDict[geneId] = trnaAverage
+			elif geneDict[geneId].type == 'miscRNA':
+				expressionDict[geneId] = miscrnaAverage
+
+	total = np.sum(expressionDict.values())
+
+	for key in expressionDict.iterkeys():
+		geneDict[key].expression = expressionDict[key] / total
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
