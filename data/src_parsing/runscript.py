@@ -473,5 +473,11 @@ class gene:
 		self.productFrameId = None
 		self.comments = None
 
+class proteinMonomer:
+	def __init__(self):
+		self.frameId = None
+		self.name = None
+		self.location = None
+
 if __name__ == "__main__":
     main()
