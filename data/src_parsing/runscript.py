@@ -5,12 +5,14 @@ import csv
 import re
 import numpy as np
 import sets
+import ipdb
 
 def main():
 	parseIntermediateFiles()
 
 	parseGenes()
 	parseLocations()
+	parseProteinMonomers()
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -436,15 +438,30 @@ def parseLocations():
 
 # Parse protein monomers
 def parseProteinMonomers():
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
+	proteinMonomerDict = {}
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		# Skip header
 		csvreader.next()
 
 		for row in csvreader:
-			pMono = proteinMonomer()
+			# Check for unmodified forms. If they exist then skip it.
+			# Check for a known associated gene. If one does not exist skip it.
+			if row[2] == '' and row[6] != '':
+				pMono = proteinMonomer()
 
+				pMono.frameId = row[1][:-1]
+				pMono.name = re.sub('<[^<]+?>', '', row[0])
+				pMono.gene = row[7][2:-2]
+
+				modifiedForm = row[5][2:-2].split('" "')
+				if modifiedForm == ['']:
+					modifiedForm = []
+				pMono.modifiedForm = modifiedForm
+
+				proteinMonomerDict[pMono.frameId] = pMono
 
 
 	# # Add localization
