@@ -3,6 +3,7 @@ import os
 import json
 import csv
 import re
+import numpy as np
 
 
 def main():
@@ -131,8 +132,15 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'rb') as jsonfile:
 		rnaType = json.loads(jsonfile.read())
 
+	# Load synonym dictionaries
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
+		synDict = json.loads(jsonfile.read())
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+		synDictFrameId = json.loads(jsonfile.read())
+
 	# Parse basic information, RNA type, and product
 	geneDict = {}
+	parameters = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 		for row in csvreader:
@@ -177,6 +185,94 @@ def parseGenes():
 						newGene.type = rnaType[newGene.productFrameId]
 					else:
 						newGene.type = 'mRNA'
+	
+	# Parse half life information
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			parameters[row[0]] = {'value' : row[1], 'units' : row[2]}
+
+	rRNAhl = []
+	tRNAhl = []
+	miscRNAhl = []
+	mRNAhl = []
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Bernstein 2002.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		lineCnt = 0
+		startRead = False
+		for row in csvreader:
+			if not startRead:
+				lineCnt += 1
+				if lineCnt >= 9:
+					startRead = True
+			elif row[4] != '':
+				read_bnum = row[0].lower()
+				read_name = row[1].lower()
+				same = False
+				if read_name == read_bnum:
+					same = True
+				read_bnum = 'b' + read_bnum[1:]
+				if same:
+					read_name = 'b' + read_name[1:]
+				read_halfLife = row[4]
+
+				name = [read_bnum, read_name]
+				halfLife = float(read_halfLife)*60. # seconds
+
+				if synDictFrameId.has_key(read_bnum.lower()):
+					geneName = synDictFrameId[read_bnum.lower()]
+				elif synDictFrameId.has_key(read_name.lower()):
+					geneName = synDictFrameId[read_name.lower()]
+				else:
+					print 'Gene half life not found ' + read_name + ' ' + read_bnum
+
+				geneDict[geneName].halfLife = halfLife
+
+				# Calculate average half lives of each type of gene
+				if geneDict[geneName].type == 'rRNA':
+					rRNAhl.append(halfLife)
+				elif geneDict[geneName].type == 'tRNA':
+					tRNAhl.append(halfLife)
+				elif geneDict[geneName].type == 'miscRNA':
+					miscRNAhl.append(halfLife)
+				else:
+					mRNAhl.append(halfLife)
+
+		print 'Half lives found for ' + str(len(mRNAhl)) + ' mRNAs'
+		print 'Half lives found for ' + str(len(rRNAhl)) + ' rRNAs'
+		print 'Half lives found for ' + str(len(tRNAhl)) + ' tRNAs'
+		print 'Half lives found for ' + str(len(miscRNAhl)) + ' miscRNAs'
+
+		# Average half lives added for genes that half life was not measured
+		mrnaAverage = np.around(np.average(mRNAhl),decimals=2)
+
+		if len(rRNAhl) == 0:
+			print 'No rRNA half lives measured. Using parameter.'
+			rrnaAverage = parameters['rRNA half life']
+		if len(tRNAhl) == 0:
+			print 'No tRNA half lives measured. Using parameter.'
+			trnaAverage = parameters['tRNA half life']
+		if len(miscRNAhl) == 0:
+			print 'No miscRNA half lives measured. Using parameter.'
+			miscrnaAverage = mrnaAverage
+
+		for geneId in geneDict.iterkeys():
+			geneOfInterest = geneDict[geneId]
+
+			if geneOfInterest.halfLife == None:
+				if geneOfInterest.type == 'rRNA':
+					geneOfInterest.halfLife = rrnaAverage
+				if geneOfInterest.type == 'tRNA':
+					geneOfInterest.halfLife = trnaAverage
+				if geneOfInterest.type == 'miscRNA':
+					geneOfInterest.halfLife = mrnaAverage
+				if geneOfInterest.type == 'mRNA':
+					geneOfInterest.halfLife = mrnaAverage
+
+	# Parse expression information
+
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
