@@ -120,6 +120,89 @@ def parseRnaTypes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(rnaType))
 
+
+# Parse genes
+def parseGenes():
+	# Load unmodified forms of RNA and proteins
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
+		unmodifiedForm = json.loads(jsonfile.read())
+
+	# Load RNA types
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'rb') as jsonfile:
+		rnaType = json.loads(jsonfile.read())
+
+	# Parse basic information, RNA type, and product
+	geneDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t')
+		for row in csvreader:
+			# Check for products. One gene --> one product (even if gene is duplicated in name)
+			allProducts = splitBigBracket(row[5])
+			for product in allProducts:
+				props = splitSmallBracket(product)
+				if not unmodifiedForm[props['frameId']]:
+					# If there is no unmodified form then it is the base product of a gene
+					# Build new gene
+					newGene = gene()
+
+					# Add names
+					newGene.productFrameId = props['frameId']
+					newGene.name = props['description']
+					newGene.frameId = row[0]
+					newGene.symbol = row[1]
+
+					# Add locations
+					if row[2] != '':
+						newGene.coordinate = int(row[2])
+						newGene.length = int(row[3]) - int(row[2])
+					else:
+						newGene.coordinate = None
+						newGene.length = None
+
+					# Add direction
+					newGene.direction = row[4]
+
+					# Pick new gene name for product if gene name is already used
+					# for another valid product
+					if geneDict.has_key(newGene.frameId):
+						count = 0
+						while geneDict.has_key(newGene.frameId + str(count)):
+							count += 1
+						geneDict[newGene.frameId + str(count)] = newGene
+					else:
+						geneDict[newGene.frameId] = newGene
+
+					# Add RNA type
+					if rnaType.has_key(newGene.productFrameId):
+						newGene.type = rnaType[newGene.productFrameId]
+					else:
+						newGene.type = 'mRNA'
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Localization', 'Product','Comments'])
+
+		keys = geneDict.keys()
+		keys.sort()
+
+		for key in keys:
+			g = geneDict[key]
+			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId, g.comments])
+
+
+
+def parseProteinMonomers():
+	pass
+	# # Add localization
+	# if self.protLocDict.has_key(newGene.productFrameId):
+	# 	newGene.localization = self.protLocDict[newGene.productFrameId]
+	# else:
+	# 	newGene.localization = ['CCO-CYTOSOL']
+	# 	newGene.comments = 'No localization known. Assume CO-CYTOSOL.\n'
+
+
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
