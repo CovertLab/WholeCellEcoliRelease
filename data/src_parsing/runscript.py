@@ -4,12 +4,13 @@ import json
 import csv
 import re
 import numpy as np
-
+import sets
 
 def main():
 	parseIntermediateFiles()
 
 	parseGenes()
+	parseLocations()
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -120,7 +121,6 @@ def parseRnaTypes():
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(rnaType))
-
 
 # Parse genes
 def parseGenes():
@@ -365,16 +365,73 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Localization', 'Product','Comments'])
+		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product','Comments'])
 
 		keys = geneDict.keys()
 		keys.sort()
 
 		for key in keys:
 			g = geneDict[key]
-			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId, g.comments])
+			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, g.comments])
 
+def parseLocations():
+	locationDict = {}
+	# Finds unique set of location frameId's in Ecocyc. Creates a dict so that any locaitons
+	# read from another file can be translated into the ones used in the model.
+	locationList = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_locations.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t')
 
+		for row in csvreader:
+			if row != []:
+				locations = splitBigBracket(row[0])
+
+				for location in locations:
+					param = splitSmallBracket(location)
+					locationList.append(param['description'])
+
+	locationSet = sets.Set(locationList)
+	for item in locationSet:
+		if item == 'CCO-RIBOSOME':
+			locationDict[item] = 'CCO-CYTOSOL'
+		elif item == 'CCO-MIT-LUM':
+			locationDict[item] = 'CCO-CYTOSOL'
+		elif item == 'CCO-MIT-MEM':
+			locationDict[item] = 'CCO-PM-BAC-NEG'
+		elif item == 'CCO-CYTOSKELETON':
+			locationDict[item] = 'CCO-CYTOSOL'
+		elif item == 'CCO-ENVELOPE':
+			locationDict[item] = 'CCO-OUTER-MEM'
+		else:
+			locationDict[item] = item
+
+	# Location keys to remove
+	toRemove = ['CCO-RIBOSOME', 'CCO-MIT-LUM', 'CCO-MIT-MEM', 'CCO-CYTOSKELETON', 'CCO-ENVELOPE']
+	# Assign one letter abbreviations to locations
+	abbrevDict = {'CCO-BAC-NUCLEOID' 		: 'n',
+					'CCO-CELL-PROJECTION' 	: 'j',
+					'CCO-CW-BAC-NEG' 		: 'w',
+					'CCO-CYTOSOL'			: 'c',
+					'CCO-EXTRACELLULAR'		: 'e',
+					'CCO-MEMBRANE'			: 'm',
+					'CCO-OUTER-MEM' 		: 'o',
+					'CCO-PERI-BAC'			: 'p',
+					'CCO-PILUS'				: 'l',
+					'CCO-PM-BAC-NEG'		: 'i'}
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'wb') as jsonfile:
+		jsonfile.write(json.dumps(locationDict))
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		for item in toRemove:
+			locationDict.pop(item)
+		keys = locationDict.keys()
+		keys.sort()
+		csvwriter.writerow(['ID', 'Abbreviation'])
+		for key in keys:
+			csvwriter.writerow([key, abbrevDict[key]])
 
 def parseProteinMonomers():
 	pass
@@ -411,7 +468,6 @@ class gene:
 		self.direction = None
 		self.expression = 0.
 		self.halfLife = None
-		self.localization = None
 		self.productFrameId = None
 		self.comments = None
 
