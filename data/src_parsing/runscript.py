@@ -90,7 +90,7 @@ def parseGeneProductUnmodifiedForm():
 				else:
 					unmodifiedForm[row[1]] = False
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_mod_tree.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 
 		for row in csvreader:
