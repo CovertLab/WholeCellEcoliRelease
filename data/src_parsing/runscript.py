@@ -438,8 +438,15 @@ def parseLocations():
 
 # Parse protein monomers
 def parseProteinMonomers():
-	proteinMonomerDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
+		synDict = json.loads(jsonfile.read())
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+		synDictFrameId = json.loads(jsonfile.read())
+	# TODO: Might not need to use this last dict depending on the datasource
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'rb') as jsonfile:
+		locationEquivDict = json.loads(jsonfile.read())
 
+	proteinMonomerDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
