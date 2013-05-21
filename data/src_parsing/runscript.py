@@ -374,6 +374,7 @@ def parseGenes():
 			g = geneDict[key]
 			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, g.comments])
 
+# Parse Locations
 def parseLocations():
 	locationDict = {}
 	# Finds unique set of location frameId's in Ecocyc. Creates a dict so that any locaitons
@@ -433,6 +434,7 @@ def parseLocations():
 		for key in keys:
 			csvwriter.writerow([key, abbrevDict[key]])
 
+# Parse protein monomers
 def parseProteinMonomers():
 	pass
 	# # Add localization
