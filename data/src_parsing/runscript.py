@@ -508,7 +508,7 @@ def parseProteinMonomers():
 			if geneToProteinMonomerDict.has_key(geneFrameId):
 				proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
 			else:
-				print 'Location parsing: No name found for gene ' + geneFrameId
+				print 'Location parsing Lopez Campistrous 2005: No name found for gene ' + geneFrameId
 
 			location = row[2]
 			if location != '?':
@@ -518,12 +518,13 @@ def parseProteinMonomers():
 				location = []
 			proteinMonomerDict[proteinMonomerFrameId].location = location
 
+	print 'Locations found in E. coli K-12 for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+
 	# Fill in more with locaitons computationally inferred in E. coli B
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Han 2011.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		# Skip header
 		csvreader.next()
-
 		for row in csvreader:
 			hasData = True
 			if row[0] == '' and row[1] == '':
@@ -555,6 +556,7 @@ def parseProteinMonomers():
 						location = []
 					proteinMonomerDict[proteinMonomerFrameId].location = location
 
+	print 'Locations found in E. coli K-12 and B for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
