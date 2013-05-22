@@ -470,7 +470,7 @@ def parseProteinMonomers():
 				pMono.name = re.sub('<[^<]+?>', '', row[0])
 				pMono.gene = row[7][1:-1]
 
-				modifiedForm = row[5][2:-2].split('" "')
+				modifiedForm = row[5][1:-1].split('" "')
 				if modifiedForm == ['']:
 					modifiedForm = []
 				pMono.modifiedForm = modifiedForm

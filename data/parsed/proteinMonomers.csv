@@ -190,9 +190,9 @@ ARAH-MONOMER	arabinose ABC transporter - membrane subunit	EG10059	"[""CCO-PM-BAC
 "
 ARAJ-MONOMER	putative arabinose efflux transporter	EG10060	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-ARCA-MONOMER	ArcA transcriptional dual regulator	EG10061	"[""CCO-CYTOSOL""]"	"[""HOSPHO-ARC""]"	"Location information from Han 2011.
+ARCA-MONOMER	ArcA transcriptional dual regulator	EG10061	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-ARCA""]"	"Location information from Han 2011.
 "
-ARCB-MONOMER	ArcB sensory histidine kinase	EG10062	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-ARCB717 PHOSPHO-ARCB-ASP PHOSPHO-ARCB-HI""]"	"Location information from Han 2011.
+ARCB-MONOMER	ArcB sensory histidine kinase	EG10062	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-ARCB717 PHOSPHO-ARCB-ASP PHOSPHO-ARCB-HIS""]"	"Location information from Han 2011.
 "
 ARCD-MONOMER	ArcD APC transporter	G6861	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -266,7 +266,7 @@ ASPCARBCAT-MONOMER	aspartate carbamoyltransferase, PyrB subunit	EG10805	"[""CCO-
 "
 ASPCARBREG-MONOMER	aspartate carbamoyltransferase, PyrI subunit	EG10811	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-ASPDECARBOX-MONOMER	PanD proenzyme, &pi; protein	EG11747	"[""CCO-CYTOSOL""]"	"[""ONOMER0-1843 MONOMER0-184""]"	"Location information from Han 2011.
+ASPDECARBOX-MONOMER	PanD proenzyme, &pi; protein	EG11747	"[""CCO-CYTOSOL""]"	"[""MONOMER0-1843 MONOMER0-1842""]"	"Location information from Han 2011.
 "
 ASPKINIHOMOSERDEHYDROGI-MONOMER	ThrA	EG10998	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -278,7 +278,7 @@ ASPS-MONOMER	aspartyl-tRNA synthetase	EG10097	"[""CCO-CYTOSOL""]"	[]	"Location i
 "
 ATOA-MONOMER	acetyl-CoA:acetoacetyl-CoA transferase, &beta; subunit	EG11670	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-ATOC-MONOMER	AtoC transcriptional activator; Az protein inhibitor of ODC	EG11668	"[""CCO-CYTOSOL""]"	"[""HOSPHO-ATO""]"	"Location information from Han 2011.
+ATOC-MONOMER	AtoC transcriptional activator; Az protein inhibitor of ODC	EG11668	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-ATOC""]"	"Location information from Han 2011.
 "
 ATOD-MONOMER	acetyl-CoA:acetoacetyl-CoA transferase, &alpha; subunit	EG11669	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -385,17 +385,17 @@ B4141-MONOMER	YjeH  APC transporter	G7833	"[""CCO-PM-BAC-NEG""]"	[]	"Location in
 "
 BADH-MONOMER	BetB	EG10110	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-BAER-MONOMER	BaeR transcriptional regulator	EG11618	"[""CCO-CYTOSOL""]"	"[""HOSPHO-BAE""]"	"Location information from Han 2011.
+BAER-MONOMER	BaeR transcriptional regulator	EG11618	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-BAER""]"	"Location information from Han 2011.
 "
-BAES-MONOMER	BaeS sensory histidine kinase	EG11617	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-BAE""]"	"Location information from Han 2011.
+BAES-MONOMER	BaeS sensory histidine kinase	EG11617	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-BAES""]"	"Location information from Han 2011.
 "
-BARA-MONOMER	BarA sensory histidine kinase	EG11367	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-4210 PHOSPHO-BARA-ASP PHOSPHO-BARA-HI""]"	"Location information from Han 2011.
+BARA-MONOMER	BarA sensory histidine kinase	EG11367	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4210 PHOSPHO-BARA-ASP PHOSPHO-BARA-HIS""]"	"Location information from Han 2011.
 "
-BASR-MONOMER	BasR transcriptional regulator	EG11615	"[""CCO-CYTOSOL""]"	"[""HOSPHO-BAS""]"	"Location information from Han 2011.
+BASR-MONOMER	BasR transcriptional regulator	EG11615	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-BASR""]"	"Location information from Han 2011.
 "
-BASS-MONOMER	BasS sensory histidine kinase	EG11614	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-BAS""]"	"Location information from Han 2011.
+BASS-MONOMER	BasS sensory histidine kinase	EG11614	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-BASS""]"	"Location information from Han 2011.
 "
-BCCP-MONOMER	biotin carboxyl carrier protein	EG10275	"[""CCO-CYTOSOL""]"	"[""CCP-BIOTI""]"	"Location information from Lopez Campistrous 2005.
+BCCP-MONOMER	biotin carboxyl carrier protein	EG10275	"[""CCO-CYTOSOL""]"	"[""BCCP-BIOTIN""]"	"Location information from Lopez Campistrous 2005.
 "
 BCR-MONOMER	multidrug efflux transporter Bcr	EG11419	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -477,13 +477,13 @@ CHD-MONOMER	choline dehydrogenase	EG10109	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 CHEA-SMALL	CheA(S)	EG10146	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-CHEB-MONOMER	CheB	EG10147	"[""CCO-CYTOSOL""]"	"[""HOSPHO-CHE""]"	"Location information from Han 2011.
+CHEB-MONOMER	CheB	EG10147	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-CHEB""]"	"Location information from Han 2011.
 "
 CHER-MONOMER	chemotaxis protein methyltransferase	EG10148	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 CHEW-MONOMER	CheW	EG10149	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-CHEY-MONOMER	chemotaxis regulator transmitting signal to flagellar motor component	EG10150	"[""CCO-CYTOSOL""]"	"[""ONOMER0-4170 PHOSPHO-CHE""]"	"Location information from Han 2011.
+CHEY-MONOMER	chemotaxis regulator transmitting signal to flagellar motor component	EG10150	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4170 PHOSPHO-CHEY""]"	"Location information from Han 2011.
 "
 CHEZ-MONOMER	CheZ	EG10151	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -525,11 +525,11 @@ CPDB-MONOMER	2',3'-cyclic AMP 3'-nucleohydrolase [multifunctional]	EG10160	"[""C
 "
 CPM-KDOSYNTH-MONOMER	3-deoxy-D-manno-octulosonate cytidylyltransferase	EG10519	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-CPXA-MONOMER	CpxA sensory histidine kinase	EG10163	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-CPX""]"	"Location information from Han 2011.
+CPXA-MONOMER	CpxA sensory histidine kinase	EG10163	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-CPXA""]"	"Location information from Han 2011.
 "
-CPXR-MONOMER	CpxR transcriptional dual regulator	EG10020	"[""CCO-CYTOSOL""]"	"[""HOSPHO-CPX""]"	"Location information from Han 2011.
+CPXR-MONOMER	CpxR transcriptional dual regulator	EG10020	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-CPXR""]"	"Location information from Han 2011.
 "
-CREB-MONOMER	CreB transcriptional regulator	EG11218	"[""CCO-CYTOSOL""]"	"[""HOSPHO-CRE""]"	"Location information from Han 2011.
+CREB-MONOMER	CreB transcriptional regulator	EG11218	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-CREB""]"	"Location information from Han 2011.
 "
 CREC-MONOMER	CreC	EG10730	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -608,9 +608,9 @@ DCUB-MONOMER	dicarboxylate transporter DcuB	EG10006	"[""CCO-PM-BAC-NEG""]"	[]	"L
 "
 DCUC-MONOMER	dicarboxylate transporter DcuC	G6347	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-DCUR-MONOMER	DcuR transcriptional activator	G7826	"[""CCO-CYTOSOL""]"	"[""HOSPHO-DCUR-MONOME""]"	"Location information from Han 2011.
+DCUR-MONOMER	DcuR transcriptional activator	G7826	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-DCUR-MONOMER""]"	"Location information from Han 2011.
 "
-DCUS-MONOMER	DcuS sensory histidine kinase	G7827	[]	"[""HOSPHO-DCUS-MONOME""]"	
+DCUS-MONOMER	DcuS sensory histidine kinase	G7827	[]	"[""PHOSPHO-DCUS-MONOMER""]"	
 DCYSDESULF-MONOMER	D-cysteine desulfhydrase monomer	G7038	[]	[]	
 DEHYDDEOXGALACTKIN-MONOMER	2-dehydro-3-deoxygalactonate kinase	EG20051	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -658,7 +658,7 @@ DINF-MONOMER	DinF MATE Transporter	EG11491	"[""CCO-PM-BAC-NEG""]"	[]	"Location i
 "
 DIOHBUTANONEPSYN-MONOMER	3,4-dihydroxy-2-butanone 4-phosphate synthase	EG10465	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-DISULFOXRED-MONOMER	protein disulfide oxidoreductase	EG11297	"[""CCO-PERI-BAC""]"	"[""ONOMER0-415""]"	"Location information from Lopez Campistrous 2005.
+DISULFOXRED-MONOMER	protein disulfide oxidoreductase	EG11297	"[""CCO-PERI-BAC""]"	"[""MONOMER0-4152""]"	"Location information from Lopez Campistrous 2005.
 "
 DLACTDEHYDROGFAD-MONOMER	D-lactate dehydrogenase	EG10231	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -684,13 +684,13 @@ DPPD-MONOMER	dipeptide ABC transporter - putative ATP binding subunit	EG12627	"[
 "
 DPPF-MONOMER	dipeptide ABC transporter - putative ABC binding subunit	EG12628	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-DSBBPROT-MONOMER	DsbBreduced	EG11393	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-414""]"	"Location information from Han 2011.
+DSBBPROT-MONOMER	DsbBreduced	EG11393	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4142""]"	"Location information from Han 2011.
 "
-DSBC-MONOMER	DsbCreduced	EG11070	"[""CCO-PERI-BAC""]"	"[""SBCOX-MONOME""]"	"Location information from Lopez Campistrous 2005.
+DSBC-MONOMER	DsbCreduced	EG11070	"[""CCO-PERI-BAC""]"	"[""DSBCOX-MONOMER""]"	"Location information from Lopez Campistrous 2005.
 "
-DSBD-MONOMER	disulfide oxidoreductase DsbD	EG12178	"[""CCO-PM-BAC-NEG""]"	"[""SBDOXI-MONOME""]"	"Location information from Han 2011.
+DSBD-MONOMER	disulfide oxidoreductase DsbD	EG12178	"[""CCO-PM-BAC-NEG""]"	"[""DSBDOXI-MONOMER""]"	"Location information from Han 2011.
 "
-DSBG-MONOMER	DsbGreduced	G6333	"[""CCO-PERI-BAC""]"	"[""SBGOXI-MONOME""]"	"Location information from Han 2011.
+DSBG-MONOMER	DsbGreduced	G6333	"[""CCO-PERI-BAC""]"	"[""DSBGOXI-MONOMER""]"	"Location information from Han 2011.
 "
 DSDX-MONOMER	D-serine transporter	EG10250	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -720,9 +720,9 @@ E1O-MONOMER	subunit of E1(0) component of 2-oxoglutarate dehydrogenase	EG10979	"
 "
 E1P-MONOMER	subunit of E1p component of pyruvate dehydrogenase complex	EG10024	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-E2O-MONOMER	SucB	EG10980	"[""CCO-CYTOSOL""]"	"[""UCB-DIHYDROLIPOATE SUCB-S-SUCCINYLDIHYDROLIPOATE SUCB-LIPOAT""]"	"Location information from Lopez Campistrous 2005.
+E2O-MONOMER	SucB	EG10980	"[""CCO-CYTOSOL""]"	"[""SUCB-DIHYDROLIPOATE SUCB-S-SUCCINYLDIHYDROLIPOATE SUCB-LIPOATE""]"	"Location information from Lopez Campistrous 2005.
 "
-E2P-MONOMER	AceF	EG10025	"[""CCO-CYTOSOL""]"	"[""CEF-DIHYDROLIPOATE ACEF-S-ACETYLDIHYDROLIPOATE ACEF-LIPOAT""]"	"Location information from Han 2011.
+E2P-MONOMER	AceF	EG10025	"[""CCO-CYTOSOL""]"	"[""ACEF-DIHYDROLIPOATE ACEF-S-ACETYLDIHYDROLIPOATE ACEF-LIPOATE""]"	"Location information from Han 2011.
 "
 E3-MONOMER	E3 monomer	EG10543	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -942,7 +942,7 @@ EG10370-MONOMER	1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate synthase	EG10370	
 "
 EG10373-MONOMER	regulatory peptide whose translation enables hokC (gef) expression	EG10373	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG10374-MONOMER	&gamma;-glutamyltranspeptidase	EG10374	"[""CCO-PERI-BAC""]"	"[""ONOMER0-4196 MONOMER0-419""]"	"Location information from Han 2011.
+EG10374-MONOMER	&gamma;-glutamyltranspeptidase	EG10374	"[""CCO-PERI-BAC""]"	"[""MONOMER0-4196 MONOMER0-4195""]"	"Location information from Han 2011.
 "
 EG10375-MONOMER	protein involved in a tRNA modification pathway	EG10375	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -977,7 +977,7 @@ EG10439-MONOMER	haemolysin expression modulating protein	EG10439	"[""CCO-CYTOSOL
 "
 EG10442-MONOMER	HipB	EG10442	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10443-MONOMER	serine/threonine kinase HipA	EG10443	"[""CCO-CYTOSOL""]"	"[""IPA-""]"	"Location information from Han 2011.
+EG10443-MONOMER	serine/threonine kinase HipA	EG10443	"[""CCO-CYTOSOL""]"	"[""HIPA-P""]"	"Location information from Han 2011.
 "
 EG10454-MONOMER	tRNA pseudouridine synthase I	EG10454	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -1019,7 +1019,7 @@ EG10485-MONOMER	HypC, protein involved in hydrogenase 3 maturation	EG10485	"[""C
 "
 EG10486-MONOMER	HypD, protein involved in maturation of hydrogenase isoenzymes	EG10486	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10487-MONOMER	hydrogenase maturation protein, carbamoyl dehydratase	EG10487	"[""CCO-CYTOSOL""]"	"[""ONOMER0-416""]"	"Location information from Han 2011.
+EG10487-MONOMER	hydrogenase maturation protein, carbamoyl dehydratase	EG10487	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4166""]"	"Location information from Han 2011.
 "
 EG10488-MONOMER	alkaline phosphatase isozyme conversion protein	EG10488	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
@@ -1331,7 +1331,7 @@ EG10871-MONOMER	50S ribosomal subunit protein L10	EG10871	"[""CCO-CYTOSOL""]"	[]
 "
 EG10872-MONOMER	50S ribosomal subunit protein L11	EG10872	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10873-MONOMER	50S ribosomal subunit protein L12	EG10873	"[""CCO-CYTOSOL""]"	"[""ONOMER0-281""]"	"Location information from Lopez Campistrous 2005.
+EG10873-MONOMER	50S ribosomal subunit protein L12	EG10873	"[""CCO-CYTOSOL""]"	"[""MONOMER0-2811""]"	"Location information from Lopez Campistrous 2005.
 "
 EG10874-MONOMER	50S ribosomal subunit protein L13	EG10874	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -1633,7 +1633,7 @@ EG11137-MONOMER	conserved protein	EG11137	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11139-MONOMER	conserved metal-binding protein	EG11139	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11140-MONOMER	UvrY transcriptional regulator	EG11140	"[""CCO-CYTOSOL""]"	"[""ONOMER0-""]"	"Location information from Han 2011.
+EG11140-MONOMER	UvrY transcriptional regulator	EG11140	"[""CCO-CYTOSOL""]"	"[""MONOMER0-1""]"	"Location information from Han 2011.
 "
 EG11141-MONOMER	putative membrane transport protein	EG11141	[]	[]	
 EG11142-MONOMER	predicted protein	EG11142	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -1829,7 +1829,7 @@ EG11280-MONOMER	leu operon leader peptide	EG11280	"[""CCO-CYTOSOL""]"	[]	"Locati
 "
 EG11281-MONOMER	MutL	EG11281	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11285-MONOMER	GlrR DNA-binding transcriptional activator	EG11285	"[""CCO-CYTOSOL""]"	"[""ONOMER0-414""]"	"Location information from Han 2011.
+EG11285-MONOMER	GlrR DNA-binding transcriptional activator	EG11285	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4147""]"	"Location information from Han 2011.
 "
 EG11287-MONOMER	predicted protein	EG11287	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -2150,7 +2150,7 @@ EG11594-MONOMER	predicted DNA-binding transcriptional regulator, LYSR-type	EG115
 "
 EG11595-MONOMER	molybdopterin biosynthesis protein A	EG11595	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11597-MONOMER	molybdopterin synthase small subunit	EG11597	"[""CCO-CYTOSOL""]"	"[""ONOMER0-412""]"	"Location information from Han 2011.
+EG11597-MONOMER	molybdopterin synthase small subunit	EG11597	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4125""]"	"Location information from Han 2011.
 "
 EG11598-MONOMER	molybdopterin synthase large subunit	EG11598	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -2634,9 +2634,9 @@ EG12004-MONOMER	conserved protein	EG12004	"[""CCO-PERI-BAC""]"	[]	"Location info
 "
 EG12005-MONOMER	conserved protein	EG12005	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12006-MONOMER	YehT	EG12006	"[""CCO-CYTOSOL""]"	"[""ONOMER0-427""]"	"Location information from Han 2011.
+EG12006-MONOMER	YehT	EG12006	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4276""]"	"Location information from Han 2011.
 "
-EG12007-MONOMER	YehU sensory histidine kinase in two-component system with YehT	EG12007	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-427""]"	"Location information from Han 2011.
+EG12007-MONOMER	YehU sensory histidine kinase in two-component system with YehT	EG12007	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4279""]"	"Location information from Han 2011.
 "
 EG12008-MONOMER	MlrA DNA binding transcriptional activator	EG12008	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -2712,7 +2712,7 @@ EG12097-MONOMER	conserved protein	EG12097	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12098-MONOMER	23S rRNA pseudouridine synthase	EG12098	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12099-MONOMER	protein chain elongation factor EF-P	EG12099	"[""CCO-CYTOSOL""]"	"[""ONOMER0-420""]"	"Location information from Han 2011.
+EG12099-MONOMER	protein chain elongation factor EF-P	EG12099	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4200""]"	"Location information from Han 2011.
 "
 EG12101-MONOMER	ferrous iron transport protein A	EG12101	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -2746,7 +2746,7 @@ EG12119-MONOMER	conserved protein	EG12119	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12120-MONOMER	conserved protein	EG12120	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12121-MONOMER	regulator of RpoS	EG12121	"[""CCO-CYTOSOL""]"	"[""SSB-""]"	"Location information from Han 2011.
+EG12121-MONOMER	regulator of RpoS	EG12121	"[""CCO-CYTOSOL""]"	"[""RSSB-P""]"	"Location information from Han 2011.
 "
 EG12122-MONOMER	conserved protein	EG12122	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3067,7 +3067,7 @@ EG12379-MONOMER	conserved protein	EG12379	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12384-MONOMER	predicted carbamate kinase	EG12384	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12385-MONOMER	RcsD phosphotransferase	EG12385	[]	"[""ONOMER0-418""]"	
+EG12385-MONOMER	RcsD phosphotransferase	EG12385	[]	"[""MONOMER0-4189""]"	
 EG12386-MONOMER	CsiR DNA-binding transcriptional repressor	EG12386	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12387-MONOMER	L-2-hydroxyglutarate oxidase	EG12387	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3098,7 +3098,7 @@ EG12405-MONOMER	predicted invasin	EG12405	"[""CCO-OUTER-MEM""]"	[]	"Location inf
 "
 EG12406-MONOMER	predicted DNA-binding transcriptional regulator	EG12406	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12407-MONOMER	IaaA	EG12407	"[""CCO-CYTOSOL""]"	"[""ONOMER0-3 MONOMER0-""]"	"Location information from Han 2011.
+EG12407-MONOMER	IaaA	EG12407	"[""CCO-CYTOSOL""]"	"[""MONOMER0-3 MONOMER0-2""]"	"Location information from Han 2011.
 "
 EG12409-MONOMER	putative oxidoreductase,  Fe-S subunit	EG12409	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3163,7 +3163,7 @@ EG12656-MONOMER	NADPH quinone reductase monomer	EG12656	"[""CCO-CYTOSOL""]"	[]	"
 "
 EG12657-MONOMER	quinol monooxygenase monomer	EG12657	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12658-MONOMER	QseC sensory histidine kinase	EG12658	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-417""]"	"Location information from Han 2011.
+EG12658-MONOMER	QseC sensory histidine kinase	EG12658	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4171""]"	"Location information from Han 2011.
 "
 EG12666-MONOMER	UDP-2,3-diacylglucosamine hydrolase	EG12666	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3177,7 +3177,7 @@ EG12692-MONOMER	predicted oxidoreductase	EG12692	"[""CCO-CYTOSOL""]"	[]	"Locatio
 "
 EG12693-MONOMER	predicted NUDIX hydrolase with low 3-phosphohydroxypyruvate phosphatase activity	EG12693	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12694-MONOMER	Dan	EG12694	"[""CCO-CYTOSOL""]"	"[""ONOMER0-411""]"	"Location information from Han 2011.
+EG12694-MONOMER	Dan	EG12694	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4119""]"	"Location information from Han 2011.
 "
 EG12702-MONOMER	conserved protein	EG12702	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3265,7 +3265,7 @@ EG50001-MONOMER	50S ribosomal subunit protein L21	EG50001	"[""CCO-CYTOSOL""]"	[]
 "
 EG50002-MONOMER	50S ribosomal subunit protein L27	EG50002	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG50003-MONOMER	apo-[acyl carrier protein]	EG50003	"[""CCO-CYTOSOL""]"	"[""CTANOYL-ACP SUCC-ACP CIS-DELTA3-DECENOYL-ACP 2-HEXADECENOYL-ACP CIS-3-4-DEHYDRODECANOYL-ACP 3R-3-HYDROXYOCTANOYL-ACP LIPOYL-ACP BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP BETA-KETO-CIS-DELTA5-DODECENOYL-ACP BUT-2-ENOYL-ACP CIS-DELTA5-DODECENOYL-ACP MONOMER-4565 MONOMER-4603 R-3-HYDROXYPALMITOYL-ACP TRANS-DELTA3-CIS-DELTA5-DODECENOYL-ACP ACP-MONOME""]"	"Location information from Han 2011.
+EG50003-MONOMER	apo-[acyl carrier protein]	EG50003	"[""CCO-CYTOSOL""]"	"[""OCTANOYL-ACP SUCC-ACP CIS-DELTA3-DECENOYL-ACP 2-HEXADECENOYL-ACP CIS-3-4-DEHYDRODECANOYL-ACP 3R-3-HYDROXYOCTANOYL-ACP LIPOYL-ACP BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP BETA-KETO-CIS-DELTA5-DODECENOYL-ACP BUT-2-ENOYL-ACP CIS-DELTA5-DODECENOYL-ACP MONOMER-4565 MONOMER-4603 R-3-HYDROXYPALMITOYL-ACP TRANS-DELTA3-CIS-DELTA5-DODECENOYL-ACP ACP-MONOMER""]"	"Location information from Han 2011.
 "
 EG50004-MONOMER	ribosome modulation factor	EG50004	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3291,7 +3291,7 @@ ENTD-MONOMER	phosphopantetheinyl transferase	EG10262	"[""CCO-CYTOSOL""]"	[]	"Loc
 "
 ENTE-MONOMER	EntE	EG10263	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-ENTF-MONOMER	apo-serine activating enzyme	EG10264	"[""CCO-CYTOSOL""]"	"[""NTF-PAN""]"	"Location information from Han 2011.
+ENTF-MONOMER	apo-serine activating enzyme	EG10264	"[""CCO-CYTOSOL""]"	"[""ENTF-PANT""]"	"Location information from Han 2011.
 "
 ENVZ-MONOMER	EnvZ	EG10269	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -3303,9 +3303,9 @@ EUTB-MONOMER	ethanolamine ammonia-lyase, &alpha; subunit	EG50006	"[""CCO-CYTOSOL
 "
 EUTC-MONOMER	ethanolamine ammonia-lyase, &beta; subunit	EG50007	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EVGA-MONOMER	EvgA transcriptional regulator	EG11609	"[""CCO-CYTOSOL""]"	"[""HOSPHO-EVG""]"	"Location information from Han 2011.
+EVGA-MONOMER	EvgA transcriptional regulator	EG11609	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-EVGA""]"	"Location information from Han 2011.
 "
-EVGS-MONOMER	EvgS sensory histidine kinase	EG11610	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-4185 MONOMER0-4184 PHOSPHO-EVG""]"	"Location information from Han 2011.
+EVGS-MONOMER	EvgS sensory histidine kinase	EG11610	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4185 MONOMER0-4184 PHOSPHO-EVGS""]"	"Location information from Han 2011.
 "
 EXUT-MONOMER	hexuronate transporter	EG12738	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -3355,7 +3355,7 @@ FEPD-MONOMER	ferric enterobactin ABC transporter - membrane subunit	EG10296	"[""
 "
 FEPG-MONOMER	ferric enterobactin ABC transporter - membrane subunit	EG10298	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-FERREDOXIN-MONOMER	reduced ferredoxin	EG11328	"[""CCO-CYTOSOL""]"	"[""X-FERREDOXI""]"	"Location information from Han 2011.
+FERREDOXIN-MONOMER	reduced ferredoxin	EG11328	"[""CCO-CYTOSOL""]"	"[""OX-FERREDOXIN""]"	"Location information from Han 2011.
 "
 FGAMSYN-MONOMER	phosphoribosylformylglycinamide synthetase	EG10797	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3365,9 +3365,9 @@ FHUC-MONOMER	iron (III) hydroxamate ABC transporter - ATP binding subunit	EG1030
 "
 FHUD-MONOMER	iron (III) hydroxamate ABC transporter - periplasmic binding protein	EG10305	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-FLAVODOXIN1-MONOMER	flavodoxin 1	EG10318	"[""CCO-CYTOSOL""]"	"[""X-FLAVODOXIN""]"	"Location information from Lopez Campistrous 2005.
+FLAVODOXIN1-MONOMER	flavodoxin 1	EG10318	"[""CCO-CYTOSOL""]"	"[""OX-FLAVODOXIN1""]"	"Location information from Lopez Campistrous 2005.
 "
-FLAVODOXIN2-MONOMER	flavodoxin 2	EG12697	"[""CCO-CYTOSOL""]"	"[""X-FLAVODOXIN""]"	"Location information from Han 2011.
+FLAVODOXIN2-MONOMER	flavodoxin 2	EG12697	"[""CCO-CYTOSOL""]"	"[""OX-FLAVODOXIN2""]"	"Location information from Han 2011.
 "
 FLAVONADPREDUCT-MONOMER	flavodoxin NADP+ reductase	EG10628	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3775,9 +3775,9 @@ G6314-MONOMER	DLP12 prophage; predicted protein	G6314	"[""CCO-CYTOSOL""]"	[]	"Lo
 G6315-MONOMER	DLP12 prophage; predicted tail fiber assembly protein	G6315	[]	[]	
 G6316-MONOMER	DLP12 prophage; predicted SAM-dependent methyltransferase	G6316	[]	[]	
 G6317-MONOMER	DLP12 prophage; predicted protein	G6317	[]	[]	
-G6318-MONOMER	CusS sensory histidine kinase	G6318	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-417""]"	"Location information from Han 2011.
+G6318-MONOMER	CusS sensory histidine kinase	G6318	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4178""]"	"Location information from Han 2011.
 "
-G6319-MONOMER	CusR	G6319	"[""CCO-CYTOSOL""]"	"[""ONOMER0-418""]"	"Location information from Han 2011.
+G6319-MONOMER	CusR	G6319	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4180""]"	"Location information from Han 2011.
 "
 G6320-MONOMER	copper / silver efflux transport system - outer membrane porin	G6320	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
@@ -3810,9 +3810,9 @@ G6339-MONOMER	triphosphoribosyl-dephospho-CoA synthase	G6339	"[""CCO-CYTOSOL""]"
 "
 G6340-MONOMER	apo-citrate lyase phosphoribosyl-dephospho-CoA transferase	G6340	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6345-MONOMER	DpiB sensory histidine kinase	G6345	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-DPI""]"	"Location information from Han 2011.
+G6345-MONOMER	DpiB sensory histidine kinase	G6345	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-DPIB""]"	"Location information from Han 2011.
 "
-G6346-MONOMER	DpiA	G6346	"[""CCO-CYTOSOL""]"	"[""HOSPHO-DPI""]"	"Location information from Han 2011.
+G6346-MONOMER	DpiA	G6346	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-DPIA""]"	"Location information from Han 2011.
 "
 G6348-MONOMER	predicted protein of C-N hydrolase superfamily, C-terminal fragment	G6348	[]	[]	
 G6351-MONOMER	conserved protein	G6351	[]	[]	
@@ -5139,9 +5139,9 @@ G7240-MONOMER	predicted inner membrane protein	G7240	"[""CCO-PM-BAC-NEG""]"	[]	"
 "
 G7242-MONOMER	glutamate-pyruvate aminotransferase	G7242	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7243-MONOMER	YpdA sensory histidine kinase	G7243	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-428""]"	"Location information from Han 2011.
+G7243-MONOMER	YpdA sensory histidine kinase	G7243	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4287""]"	"Location information from Han 2011.
 "
-G7244-MONOMER	YpdB transcriptional regulator	G7244	"[""CCO-CYTOSOL""]"	"[""ONOMER0-428""]"	"Location information from Han 2011.
+G7244-MONOMER	YpdB transcriptional regulator	G7244	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4288""]"	"Location information from Han 2011.
 "
 G7245-MONOMER	predicted ARAC-type regulatory protein	G7245	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -5282,7 +5282,7 @@ G7343-MONOMER	conserved protein	G7343	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G7344-MONOMER	predicted DNA-binding transcriptional regulator, NAGC-like	G7344	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7345-MONOMER	GlrK sensory histidine kinase	G7345	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-414""]"	"Location information from Han 2011.
+G7345-MONOMER	GlrK sensory histidine kinase	G7345	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4141""]"	"Location information from Han 2011.
 "
 G7346-MONOMER	predicted 4Fe-4S cluster-containing protein	G7346	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -5621,7 +5621,7 @@ G7573-MONOMER	YgiV DNA-binding transcriptional repressor	G7573	"[""CCO-CYTOSOL""
 "
 G7574-MONOMER	stress-induced protein	G7574	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G7575-MONOMER	QseB transcriptional activator	G7575	"[""CCO-CYTOSOL""]"	"[""ONOMER0-274""]"	"Location information from Han 2011.
+G7575-MONOMER	QseB transcriptional activator	G7575	"[""CCO-CYTOSOL""]"	"[""MONOMER0-2741""]"	"Location information from Han 2011.
 "
 G7577-MONOMER	conserved inner membrane protein	G7577	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -5954,7 +5954,7 @@ G7814-MONOMER	predicted outer membrane porin L	G7814	"[""CCO-OUTER-MEM""]"	[]	"L
 "
 G7816-MONOMER	regulator of the Cpx response and possible chaperone involved in resistance to extracytoplasmic stress	G7816	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7821-MONOMER	AlsR DNA-binding transcriptional repressor	G7821	"[""CCO-CYTOSOL""]"	"[""ONOMER0-248""]"	"Location information from Han 2011.
+G7821-MONOMER	AlsR DNA-binding transcriptional repressor	G7821	"[""CCO-CYTOSOL""]"	"[""MONOMER0-2482""]"	"Location information from Han 2011.
 "
 G7822-MONOMER	phosphonate/organophosphate ester transporter (pseudogene)	G7822	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -6208,7 +6208,7 @@ GATB-MONOMER	galactitol PTS permease - GatB subunit	EG12415	"[""CCO-CYTOSOL""]"	
 "
 GATC-MONOMER	galactitol PTS permease - GatC subunit	EG12416	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-GCVH-MONOMER	glycine cleavage system H protein	EG10371	"[""CCO-CYTOSOL""]"	"[""MINOMETHYLDIHYDROLIPOYL-GCVH DIHYDROLIPOYL-GCVH LIPOYL-GCV""]"	"Location information from Han 2011.
+GCVH-MONOMER	glycine cleavage system H protein	EG10371	"[""CCO-CYTOSOL""]"	"[""AMINOMETHYLDIHYDROLIPOYL-GCVH DIHYDROLIPOYL-GCVH LIPOYL-GCVH""]"	"Location information from Han 2011.
 "
 GCVP-MONOMER	glycine decarboxylase	EG11810	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6279,7 +6279,7 @@ GLUSYNSMALL-MONOMER	glutamate synthase, small subunit	EG10404	"[""CCO-CYTOSOL""]
 "
 GLUTAMIDOTRANS-MONOMER	imidazole glycerol phosphate synthase, HisH subunit	EG10450	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-GLUTAMINESYN-MONOMER	GlnA	EG10383	"[""CCO-CYTOSOL""]"	"[""DENYLYL-G""]"	"Location information from Lopez Campistrous 2005.
+GLUTAMINESYN-MONOMER	GlnA	EG10383	"[""CCO-CYTOSOL""]"	"[""ADENYLYL-GS""]"	"Location information from Lopez Campistrous 2005.
 "
 GLUTATHIONE-REDUCT-NADPH-MONOMER	glutathione reductase (NADPH)	EG10412	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6352,9 +6352,9 @@ GPMA-MONOMER	2,3-bisphosphoglycerate-dependent phosphoglycerate mutase monomer	E
 "
 GPT-MONOMER	Gpt	EG10414	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-GRXB-MONOMER	reduced glutaredoxin 2	EG12688	"[""CCO-CYTOSOL""]"	"[""X-GLUTAREDOXIN-""]"	"Location information from Han 2011.
+GRXB-MONOMER	reduced glutaredoxin 2	EG12688	"[""CCO-CYTOSOL""]"	"[""OX-GLUTAREDOXIN-B""]"	"Location information from Han 2011.
 "
-GRXC-MONOMER	reduced glutaredoxin 3	EG12294	"[""CCO-CYTOSOL""]"	"[""X-GLUTAREDOXIN-""]"	"Location information from Han 2011.
+GRXC-MONOMER	reduced glutaredoxin 3	EG12294	"[""CCO-CYTOSOL""]"	"[""OX-GLUTAREDOXIN-C""]"	"Location information from Han 2011.
 "
 GSAAMINOTRANS-MONOMER	glutamate-1-semialdehyde aminotransferase	EG10432	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6451,9 +6451,9 @@ HYCF-MONOMER	formate hydrogenlyase complex iron-sulfur protein	EG10479	"[""CCO-P
 "
 HYCG-MONOMER	hydrogenase 3 and formate hydrogenlyase complex, HycG subunit	EG10480	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-HYDG-MONOMER	ZraR transcriptional activator	EG10482	"[""CCO-CYTOSOL""]"	"[""HOSPHO-HYD""]"	"Location information from Han 2011.
+HYDG-MONOMER	ZraR transcriptional activator	EG10482	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-HYDG""]"	"Location information from Han 2011.
 "
-HYDH-MONOMER	ZraS sensory histidine kinase	EG10008	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-HYD""]"	"Location information from Han 2011.
+HYDH-MONOMER	ZraS sensory histidine kinase	EG10008	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-HYDH""]"	"Location information from Han 2011.
 "
 HYDROPEROXIDI-MONOMER	hydroperoxidase I	EG10511	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6493,7 +6493,7 @@ KDPB-MONOMER	K+ transporting ATPase - ATP binding subunit	EG10514	"[""CCO-PM-BAC
 "
 KDPD-MONOMER	KdpD	EG10516	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-KDPE-MONOMER	KdpE transcriptional activator	EG10517	"[""CCO-CYTOSOL""]"	"[""HOSPHO-KDP""]"	"Location information from Han 2011.
+KDPE-MONOMER	KdpE transcriptional activator	EG10517	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-KDPE""]"	"Location information from Han 2011.
 "
 KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER	Eda	EG10256	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -6503,7 +6503,7 @@ KEFB-MONOMER	K+ : H+ antiporter KefB	EG20110	"[""CCO-PM-BAC-NEG""]"	[]	"Location
 "
 KEFC-MONOMER	KefC	EG10521	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-KETOBUTFORMLY-INACT-MONOMER	2-ketobutyrate formate-lyase/pyruvate formate-lyase 4, inactive	G7627	"[""CCO-CYTOSOL""]"	"[""ETOBUTFORMLY-MONOME""]"	"Location information from Han 2011.
+KETOBUTFORMLY-INACT-MONOMER	2-ketobutyrate formate-lyase/pyruvate formate-lyase 4, inactive	G7627	"[""CCO-CYTOSOL""]"	"[""KETOBUTFORMLY-MONOMER""]"	"Location information from Han 2011.
 "
 KETOLREDUCTOISOM-MONOMER	IlvC	EG10495	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7003,11 +7003,11 @@ NARJ-MONOMER	molybdenum cofactor assembly chaperone subunit (&delta; subunit) of
 "
 NARK-MONOMER	nitrate / nitrite transporter NarK	EG10642	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-NARL-MONOMER	NarL	EG10643	"[""CCO-CYTOSOL""]"	"[""HOSPHO-NAR""]"	"Location information from Han 2011.
+NARL-MONOMER	NarL	EG10643	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-NARL""]"	"Location information from Han 2011.
 "
-NARP-MONOMER	NarP	EG11527	"[""CCO-CYTOSOL""]"	"[""HOSPHO-NAR""]"	"Location information from Han 2011.
+NARP-MONOMER	NarP	EG11527	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-NARP""]"	"Location information from Han 2011.
 "
-NARQ-MONOMER	NarQ	EG11460	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-NAR""]"	"Location information from Han 2011.
+NARQ-MONOMER	NarQ	EG11460	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-NARQ""]"	"Location information from Han 2011.
 "
 NARU-MONOMER	nitrate / nitrite transporter NarU	EG12153	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -7015,7 +7015,7 @@ NARV-MONOMER	nitrate reductase Z, &gamma; subunit	EG10644	"[""CCO-PM-BAC-NEG""]"
 "
 NARW-MONOMER	NarW, probable private chaperone for NarZ nitrate reductase subunit	EG10645	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-NARX-MONOMER	NarX	EG10646	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-NAR""]"	"Location information from Han 2011.
+NARX-MONOMER	NarX	EG10646	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-NARX""]"	"Location information from Han 2011.
 "
 NARY-MONOMER	nitrate reductase Z, &beta; subunit	EG10647	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -7103,7 +7103,7 @@ OCTAPRENYL-METHYL-METHOXY-BENZOQ-OH-MON	2-octaprenyl-3-methyl-6-methoxy-1,4-benz
 "
 OHMETHYLBILANESYN-MONOMER	hydroxymethylbilane synthase	EG10429	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-OMPR-MONOMER	OmpR	EG10672	"[""CCO-CYTOSOL""]"	"[""HOSPHO-OMPR-MONOME""]"	"Location information from Han 2011.
+OMPR-MONOMER	OmpR	EG10672	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-OMPR-MONOMER""]"	"Location information from Han 2011.
 "
 OPPA-MONOMER	peptide ABC transporter - periplasmic binding protein	EG10674	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -7316,7 +7316,7 @@ PGLUCONDEHYDRAT-MONOMER	phosphogluconate dehydratase	EG10257	"[""CCO-CYTOSOL""]"
 "
 PGLYCDEHYDROG-MONOMER	SerA	EG10944	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-PGLYCEROLTRANSI-MONOMER	phosphoglycerol transferase I	EG12591	"[""CCO-PM-BAC-NEG""]"	"[""GLYCEROLTRANSII-MONOME""]"	"Location information from Han 2011.
+PGLYCEROLTRANSI-MONOMER	phosphoglycerol transferase I	EG12591	"[""CCO-PM-BAC-NEG""]"	"[""PGLYCEROLTRANSII-MONOMER""]"	"Location information from Han 2011.
 "
 PGMI-MONOMER	2,3-bisphosphoglycerate-independent phosphoglycerate mutase	EG12296	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7345,11 +7345,11 @@ PHNK-MONOMER	predicted carbon-phosphorous lyase subunit	EG10720	"[""CCO-CYTOSOL"
 "
 PHNL-MONOMER	PhnL subunit of methylphosphonate degradation complex	EG10721	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-PHOB-MONOMER	PhoB transcriptional dual regulator	EG10728	"[""CCO-CYTOSOL""]"	"[""HOSPHO-PHO""]"	"Location information from Han 2011.
+PHOB-MONOMER	PhoB transcriptional dual regulator	EG10728	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-PHOB""]"	"Location information from Han 2011.
 "
-PHOP-MONOMER	PhoP	EG10731	"[""CCO-CYTOSOL""]"	"[""HOSPHO-PHO""]"	"Location information from Han 2011.
+PHOP-MONOMER	PhoP	EG10731	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-PHOP""]"	"Location information from Han 2011.
 "
-PHOQ-MONOMER	PhoQ sensory histidine kinase	EG10732	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-PHO""]"	"Location information from Han 2011.
+PHOQ-MONOMER	PhoQ sensory histidine kinase	EG10732	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-PHOQ""]"	"Location information from Han 2011.
 "
 PHOR-MONOMER	PhoR	EG10733	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -7419,14 +7419,14 @@ PROPKIN-MONOMER	propionate kinase	EG11172	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 PROS-MONOMER	prolyl-tRNA synthetase	EG10770	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-PROTEIN-CHEA	CheA	EG10146	[]	"[""ONOMER0-420""]"	
-PROTEIN-NRI	NtrC transcriptional dual regulator	EG10385	"[""CCO-CYTOSOL""]"	"[""ONOMER0-419""]"	"Location information from Han 2011.
+PROTEIN-CHEA	CheA	EG10146	[]	"[""MONOMER0-4206""]"	
+PROTEIN-NRI	NtrC transcriptional dual regulator	EG10385	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4198""]"	"Location information from Han 2011.
 "
 PROTEIN-NRII	NtrB	EG10387	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-PROTEIN-PII	PII	EG10384	"[""CCO-CYTOSOL""]"	"[""RIDYLYL-PI""]"	"Location information from Lopez Campistrous 2005.
+PROTEIN-PII	PII	EG10384	"[""CCO-CYTOSOL""]"	"[""URIDYLYL-PII""]"	"Location information from Lopez Campistrous 2005.
 "
-PROTEIN-PII2	GlnK	EG12191	"[""CCO-CYTOSOL""]"	"[""RIDYLYL-PII""]"	"Location information from Han 2011.
+PROTEIN-PII2	GlnK	EG12191	"[""CCO-CYTOSOL""]"	"[""URIDYLYL-PII2""]"	"Location information from Han 2011.
 "
 PROTOHEME-FERROCHELAT-MONOMER	ferrochelatase	EG10431	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7444,7 +7444,7 @@ PRPPAMIDOTRANS-MONOMER	PurF	EG10794	"[""CCO-CYTOSOL""]"	[]	"Location information
 "
 PRPPSYN-MONOMER	ribose-phosphate diphosphokinase	EG10774	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-PSD-MONOMER	phosphatidylserine decarboxylase, proenzyme	EG10775	"[""CCO-CYTOSOL""]"	"[""HOSPHASERDECARB-BETA-MONOMER PHOSPHASERDECARB-ALPHA-MONOME""]"	"Location information from Han 2011.
+PSD-MONOMER	phosphatidylserine decarboxylase, proenzyme	EG10775	"[""CCO-CYTOSOL""]"	"[""PHOSPHASERDECARB-BETA-MONOMER PHOSPHASERDECARB-ALPHA-MONOMER""]"	"Location information from Han 2011.
 "
 PSERPHOSPHA-MONOMER	phosphoserine phosphatase	EG10945	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7460,7 +7460,7 @@ PSTS-MONOMER	phosphate ABC transporter - periplasmic binding protein	EG10734	"["
 "
 PTSG-MONOMER	glucose PTS permease - PtsG subunit	EG10787	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-PTSH-MONOMER	HPr	EG10788	"[""CCO-CYTOSOL""]"	"[""TSH-PHOSPHORYLATE""]"	"Location information from Han 2011.
+PTSH-MONOMER	HPr	EG10788	"[""CCO-CYTOSOL""]"	"[""PTSH-PHOSPHORYLATED""]"	"Location information from Han 2011.
 "
 PTSI-MONOMER	PTS enzyme I	EG10789	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -7490,16 +7490,16 @@ RBSB-MONOMER	ribose ABC transporter - putative periplasmic binding protein	EG108
 "
 RBSC-MONOMER	ribose ABC transporter - membrane subunit	EG10816	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-RCSB-MONOMER	RcsB	EG10821	[]	"[""HOSPHO-RCS""]"	
-RCSC-MONOMER	RcsC sensory histidine kinase	EG10822	"[""CCO-PM-BAC-NEG""]"	"[""ONOMER0-4194 PHOSPHO-RCS""]"	"Location information from Han 2011.
+RCSB-MONOMER	RcsB	EG10821	[]	"[""PHOSPHO-RCSB""]"	
+RCSC-MONOMER	RcsC sensory histidine kinase	EG10822	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4194 PHOSPHO-RCSC""]"	"Location information from Han 2011.
 "
 RCSF-MONOMER	RcsF outer membrane lipoprotein	EG11502	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-RED-GLUTAREDOXIN	reduced glutaredoxin 1	EG10417	"[""CCO-CYTOSOL""]"	"[""LUTAREDOXIN-MONOME""]"	"Location information from Han 2011.
+RED-GLUTAREDOXIN	reduced glutaredoxin 1	EG10417	"[""CCO-CYTOSOL""]"	"[""GLUTAREDOXIN-MONOMER""]"	"Location information from Han 2011.
 "
-RED-THIOREDOXIN-MONOMER	thioredoxin 1	EG11031	"[""CCO-CYTOSOL""]"	"[""X-THIOREDOXIN-MONOME""]"	"Location information from Lopez Campistrous 2005.
+RED-THIOREDOXIN-MONOMER	thioredoxin 1	EG11031	"[""CCO-CYTOSOL""]"	"[""OX-THIOREDOXIN-MONOMER""]"	"Location information from Lopez Campistrous 2005.
 "
-RED-THIOREDOXIN2-MONOMER	reduced thioredoxin 2	EG11887	"[""CCO-PM-BAC-NEG""]"	"[""X-THIOREDOXIN2-MONOME""]"	"Location information from Han 2011.
+RED-THIOREDOXIN2-MONOMER	reduced thioredoxin 2	EG11887	"[""CCO-PM-BAC-NEG""]"	"[""OX-THIOREDOXIN2-MONOMER""]"	"Location information from Han 2011.
 "
 RELA-MONOMER	GDP pyrophosphokinase / GTP pyrophosphokinase	EG10835	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7558,9 +7558,9 @@ RPON-MONOMER	RNA polymerase, sigma 54 (sigma N) factor	EG10898	"[""CCO-CYTOSOL""
 "
 RPOS-MONOMER	RNA polymerase, sigma S (sigma 38) factor	EG10510	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-RSTA-MONOMER	RstA transcriptional regulator	G6864	"[""CCO-CYTOSOL""]"	"[""HOSPHO-RST""]"	"Location information from Han 2011.
+RSTA-MONOMER	RstA transcriptional regulator	G6864	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-RSTA""]"	"Location information from Han 2011.
 "
-RSTB-MONOMER	RstB sensory histidine kinase	EG11233	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-RST""]"	"Location information from Han 2011.
+RSTB-MONOMER	RstB sensory histidine kinase	EG11233	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-RSTB""]"	"Location information from Han 2011.
 "
 S-ADENMETSYN-MONOMER	methionine adenosyltransferase	EG10589	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -7634,7 +7634,7 @@ SMALLILVN-MONOMER	IlvN	EG10502	"[""CCO-CYTOSOL""]"	[]	"Location information from
 "
 SORB6PDEHYDROG-MONOMER	SrlD	EG10971	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-SPED-MONOMER	adenosylmethionine decarboxylase, proenzyme	EG10962	"[""CCO-CYTOSOL""]"	"[""AMDC-ALPHA-MONOMER SAMDC-BETA-MONOME""]"	"Location information from Han 2011.
+SPED-MONOMER	adenosylmethionine decarboxylase, proenzyme	EG10962	"[""CCO-CYTOSOL""]"	"[""SAMDC-ALPHA-MONOMER SAMDC-BETA-MONOMER""]"	"Location information from Han 2011.
 "
 SPERMACTRAN-MONOMER	SpeG	G6842	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7710,7 +7710,7 @@ THIOESTERII-MONOMER	TesB	EG10995	"[""CCO-CYTOSOL""]"	[]	"Location information fr
 "
 THIOREDOXIN-REDUCT-NADPH-MONOMER	thioredoxin reductase monomer	EG11032	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-THIS-MONOMER	ThiS protein	G1	"[""CCO-CYTOSOL""]"	"[""HIS-COSH-MONOMER THIS-COAMP-MONOME""]"	"Location information from Han 2011.
+THIS-MONOMER	ThiS protein	G1	"[""CCO-CYTOSOL""]"	"[""THIS-COSH-MONOMER THIS-COAMP-MONOMER""]"	"Location information from Han 2011.
 "
 THREDEHYDCAT-MONOMER	TdcB	EG10990	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7732,9 +7732,9 @@ TORA-MONOMER	trimethylamine N-oxide reductase, catalytic subunit	EG11814	"[""CCO
 "
 TORR-MONOMER	TorR	EG12615	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-TORS-MONOMER	TorS monomer	G6514	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-TORS850 PHOSPHO-TORASP PHOSPHO-TOR""]"	"Location information from Han 2011.
+TORS-MONOMER	TorS monomer	G6514	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-TORS850 PHOSPHO-TORASP PHOSPHO-TORS""]"	"Location information from Han 2011.
 "
-TORT-MONOMER	periplasmic sensory protein associated with the TorRS two-component regulatory system	G6515	"[""CCO-PERI-BAC""]"	"[""OUND-TOR""]"	"Location information from Han 2011.
+TORT-MONOMER	periplasmic sensory protein associated with the TorRS two-component regulatory system	G6515	"[""CCO-PERI-BAC""]"	"[""BOUND-TORT""]"	"Location information from Han 2011.
 "
 TPI-MONOMER	triose phosphate isomerase monomer	EG11015	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -7830,11 +7830,11 @@ UGPC-MONOMER	glycerol-3-phosphate / glycerol-2-phosphate ABC transporter - putat
 "
 UGPE-MONOMER	glycerol-3-phosphate / glycerol-2-phosphate ABC transporter - putative membrane subunit	EG11049	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-UHPA-MONOMER	UhpA transcriptional activator	EG11051	"[""CCO-CYTOSOL""]"	"[""HOSPHO-UHP""]"	"Location information from Han 2011.
+UHPA-MONOMER	UhpA transcriptional activator	EG11051	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-UHPA""]"	"Location information from Han 2011.
 "
-UHPB-MONOMER	UhpB sensory histidine kinase	EG11052	"[""CCO-PM-BAC-NEG""]"	"[""HOSPHO-UHP""]"	"Location information from Han 2011.
+UHPB-MONOMER	UhpB sensory histidine kinase	EG11052	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-UHPB""]"	"Location information from Han 2011.
 "
-UHPC-MONOMER	inner membrane protein sensing glucose-6-phosphate	EG11053	"[""CCO-PM-BAC-NEG""]"	"[""LU-UHP""]"	"Location information from Han 2011.
+UHPC-MONOMER	inner membrane protein sensing glucose-6-phosphate	EG11053	"[""CCO-PM-BAC-NEG""]"	"[""GLU-UHPC""]"	"Location information from Han 2011.
 "
 UHPT-MONOMER	hexose-6-phosphate:phosphate antiporter	EG11054	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
