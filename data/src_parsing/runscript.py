@@ -500,7 +500,7 @@ def parseProteinMonomers():
 			elif synDictFrameId.has_key(bnum):
 				geneFrameId = synDictFrameId[bnum]
 			else:
-				print 'Location parsing: No name found for ' + name + ' ' + bnum
+				print 'Location parsing Lopez Campistrous 2005: No name found for ' + name + ' ' + bnum
 
 			if geneToProteinMonomerDict.has_key(geneFrameId):
 				proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
@@ -516,7 +516,33 @@ def parseProteinMonomers():
 			proteinMonomerDict[proteinMonomerFrameId].location = location
 
 	# Fill in more with locaitons computationally inferred in E. coli B
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Han 2011.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
 
+		hasData = True
+		if row[0] == '' and row[1] == '':
+			hasData = False
+
+		if hasData:
+			name = row[0].lower()
+			bnum = row[1].lower()
+
+			if synDictFrameId.has_key(name):
+				geneFrameId = synDictFrameId[name]
+			elif synDictFrameId.has_key(bnum):
+				geneFrameId = synDictFrameId[bnum]
+			else:
+				print 'Location parsing Han 2011: No name found for ' + name + ' ' + bnum
+			
+			location = row[2]
+			if proteinMonomerDict[proteinMonomerFrameId].location == []:
+				if location != '?':
+					location = [locationSynDict[location]]
+					proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.\n'
+				else:
+					location = []
+				proteinMonomerDict[proteinMonomerFrameId].location = location
 
 
 	# Write output
