@@ -562,7 +562,7 @@ class proteinMonomer:
 		self.location = []
 		self.gene = None
 		self.modifiedForm = None
-		self.comments = None
+		self.comments = ''
 
 if __name__ == "__main__":
     main()
