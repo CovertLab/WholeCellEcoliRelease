@@ -546,14 +546,16 @@ def parseProteinMonomers():
 							break
 				if not found:
 					print 'Location parsing Han 2011: No name found for ' + name + ' ' + bnum
-				
+
+				if geneToProteinMonomerDict.has_key(geneFrameId):
+					proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
+				else:
+					print 'Location parsing Han 2011: No name found for gene ' + geneFrameId
+
 				location = row[2]
 				if proteinMonomerDict[proteinMonomerFrameId].location == []:
-					if location != '?':
-						location = [locationSynDict[location]]
-						proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.\n'
-					else:
-						location = []
+					location = [locationSynDict[location]]
+					proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.\n'
 					proteinMonomerDict[proteinMonomerFrameId].location = location
 
 	print 'Locations found in E. coli K-12 and B for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
