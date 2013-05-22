@@ -484,7 +484,10 @@ def parseProteinMonomers():
 	locationSynDict = {'C'	:	'CCO-CYTOSOL',
 						'IM':	'CCO-PM-BAC-NEG',
 						'OM':	'CCO-OUTER-MEM',
-						'P'	:	'CCO-PERI-BAC'}
+						'P'	:	'CCO-PERI-BAC',
+						'F'	:	'CCO-CELL-PROJECTION',
+						'BF':	'CCO-CELL-PROJECTION',
+						'E'	:	'CCO-EXTRACELLULAR'}
 
 	# Start with experimentally determined locations in E. coli K-12
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Lopez Campistrous 2005.csv'),'rb') as csvfile:
