@@ -5,14 +5,19 @@ ID	Name	Gene	Location	Modified form	Comments
 2-ISOPROPYLMALATESYN-MONOMER	2-isopropylmalate synthase	EG11226	[]	[]	
 2-OCTAPRENYL-METHOXY-BENZOQ-METH-MONOMER	bifunctional 2-octaprenyl-6-methoxy-1,4-benzoquinone methylase and S-adenosylmethionine:2-DMK methyltransferase	EG11473	[]	[]	
 2-OCTAPRENYLPHENOL-HYDROX-MONOMER	2-octaprenylphenol hydroxylase	EG11476	[]	[]	
-3-CH3-2-OXOBUTANOATE-OH-CH3-XFER-MONOMER	3-methyl-2-oxobutanoate hydroxymethyltransferase monomer	EG11675	"[""CCO-CYTOSOL""]"	[]	
+3-CH3-2-OXOBUTANOATE-OH-CH3-XFER-MONOMER	3-methyl-2-oxobutanoate hydroxymethyltransferase monomer	EG11675	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 3-ISOPROPYLMALDEHYDROG-MONOMER	LeuB	EG11577	[]	[]	
-3-OXOACYL-ACP-REDUCT-MONOMER	3-oxo-acyl-[acyl-carrier-protein] reductase	EG11318	"[""CCO-CYTOSOL""]"	[]	
-3-OXOACYL-ACP-SYNTHII-MONOMER	FabF	EG12606	"[""CCO-PERI-BAC""]"	[]	
+3-OXOACYL-ACP-REDUCT-MONOMER	3-oxo-acyl-[acyl-carrier-protein] reductase	EG11318	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+3-OXOACYL-ACP-SYNTHII-MONOMER	FabF	EG12606	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 4OHBENZOATE-OCTAPRENYLTRANSFER-MONOMER	4-hydroxybenzoate octaprenyltransferase	EG11370	[]	[]	
 6PFK-1-MONOMER	6-phosphofructokinase-1 monomer	EG10699	[]	[]	
-6PFK-2-MONOMER	6-phosphofructokinase-2 monomer	EG10700	"[""CCO-CYTOSOL""]"	[]	
-6PGLUCONDEHYDROG-MONOMER	Gnd	EG10411	"[""CCO-CYTOSOL""]"	[]	
+6PFK-2-MONOMER	6-phosphofructokinase-2 monomer	EG10700	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+6PGLUCONDEHYDROG-MONOMER	Gnd	EG10411	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 6PGLUCONOLACT-MONOMER	6-phosphogluconolactonase	G6397	[]	[]	
 7-ALPHA-HYDROXYSTEROID-DEH-MONOMER	HdhA	EG10425	[]	[]	
 7KAPSYN-MONOMER	8-amino-7-oxononanoate synthase monomer	EG10121	[]	[]	
@@ -28,42 +33,50 @@ ACETYLORNDEACET-MONOMER	ArgE	EG11286	[]	[]
 ACETYLORNTRANSAM-MONOMER	ArgD	EG10066	[]	[]	
 ACNEULY-MONOMER	NanA	EG10637	[]	[]	
 ACONITASE-MONOMER	aconitate hydratase 1	EG11325	[]	[]	
-ACONITATEDEHYDRB-MONOMER	bifunctional aconitate hydratase 2 and 2-methylisocitrate dehydratase	EG12316	"[""CCO-CYTOSOL""]"	[]	
+ACONITATEDEHYDRB-MONOMER	bifunctional aconitate hydratase 2 and 2-methylisocitrate dehydratase	EG12316	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ACPSUB-MONOMER	citrate lyase, acyl carrier &gamma; subunit	G6343	[]	[]	
 ACRB-MONOMER	AcrB RND-type permease	EG11704	[]	[]	
 ACRD-MONOMER	AcrAD-TolC multidrug efflux transport system - permease subunit	EG10014	[]	[]	
 ACRF-MONOMER	AcrEF-TolC multidrug efflux transport system - permease subunit	EG10267	[]	[]	
 ACS-MONOMER	acetyl-CoA synthetase (AMP-forming)	EG11448	[]	[]	
-ACSERLYA-MONOMER	CysK	EG10192	"[""CCO-CYTOSOL""]"	[]	
+ACSERLYA-MONOMER	CysK	EG10192	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ACSERLYB-MONOMER	CysM	EG10193	[]	[]	
 ACYLCOADEHYDROG-MONOMER	acyl-CoA dehydrogenase	G6105	[]	[]	
 ACYLCOASYN-MONOMER	FadD	EG11530	[]	[]	
 ADCLY-MONOMER	pabC	EG11493	[]	[]	
 ADENODEAMIN-MONOMER	adenosine deaminase	EG10030	[]	[]	
-ADENPRIBOSYLTRAN-MONOMER	adenine phosphoribosyltransferase	EG10051	"[""CCO-CYTOSOL""]"	[]	
+ADENPRIBOSYLTRAN-MONOMER	adenine phosphoribosyltransferase	EG10051	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ADENYL-KIN-MONOMER	adenylate kinase	EG10032	[]	[]	
 ADENYLATECYC-MONOMER	adenylate cyclase	EG10170	[]	[]	
 ADENYLOSUCCINATE-SYN-MONOMER	PurA	EG10790	[]	[]	
 ADENYLYLSULFKIN-MONOMER	CysC	EG10185	[]	[]	
 ADHC-MONOMER	FrmA	EG50010	[]	[]	
-ADHE-MONOMER	AdhE	EG10031	"[""CCO-CYTOSOL""]"	[]	
+ADHE-MONOMER	AdhE	EG10031	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ADHP-MONOMER	ethanol dehydrogenase / alcohol dehydrogenase	G6775	[]	[]	
-AERGLYC3PDEHYDROG-MONOMER	GlpD	EG10394	"[""CCO-PM-BAC-NEG""]"	[]	
+AERGLYC3PDEHYDROG-MONOMER	GlpD	EG10394	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 AGAA-MONOMER	predicted truncated N-acetylgalactosamine-6-phosphate deacetylase	EG12766	[]	[]	
 AGAB-MONOMER	AgaB	EG12769	[]	[]	
 AGAC-MONOMER	AgaC	EG12770	[]	[]	
 AGAD-MONOMER	AgaD	G7635	[]	[]	
 AGAX-MONOMER	AgaX	EG12322	[]	[]	
 AGMATIN-MONOMER	SpeB	EG10960	[]	[]	
-AICARTRANSIMPCYCLO-CPLX	AICAR transformylase / IMP cyclohydrolase	EG10795	"[""CCO-CYTOSOL""]"	[]	
-AIRS-MONOMER	PurM	EG10798	"[""CCO-CYTOSOL""]"	[]	
+AICARTRANSIMPCYCLO-CPLX	AICAR transformylase / IMP cyclohydrolase	EG10795	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+AIRS-MONOMER	PurM	EG10798	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 AKBLIG-MONOMER	Kbl	EG10512	[]	[]	
 ALARACEBIOSYN-MONOMER	alanine racemase 1, PLP-binding, biosynthetic	EG10001	[]	[]	
 ALARACECAT-MONOMER	DadX	EG11408	[]	[]	
 ALAS-MONOMER	alanyl-tRNA synthetase	EG10034	[]	[]	
 ALDDEHYDROGB-MONOMER	AldB	EG12292	[]	[]	
 ALDHDEHYDROG-MONOMER	&gamma;-glutamyl-&gamma;-aminobutyraldehyde dehydrogenase	EG10036	[]	[]	
-ALDOSE1EPIM-MONOMER	galactose-1-epimerase	EG11698	"[""CCO-CYTOSOL""]"	[]	
+ALDOSE1EPIM-MONOMER	galactose-1-epimerase	EG11698	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ALKAPHOSPHA-MONOMER	PhoA	EG10727	[]	[]	
 ALPHA-AMYL-CYTO-MONOMER	&alpha;-amylase	EG11387	[]	[]	
 ALPHA-AMYL-PERI-MONOMER	&alpha;-amylase	EG11316	[]	[]	
@@ -108,31 +121,40 @@ ARGT-MONOMER	lysine / arginine / ornithine ABC transporter - periplasmic binding
 AROA-MONOMER	3-phosphoshikimate-1-carboxyvinyltransferase	EG10073	[]	[]	
 AROB-MONOMER	3-dehydroquinate synthase	EG10074	[]	[]	
 AROC-MONOMER	AroC	EG10075	[]	[]	
-AROD-MONOMER	AroD	EG10076	"[""CCO-CYTOSOL""]"	[]	
+AROD-MONOMER	AroD	EG10076	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 AROE-MONOMER	shikimate dehydrogenase	EG10077	[]	[]	
 AROF-MONOMER	AroF	EG10078	[]	[]	
-AROG-MONOMER	AroG	EG10079	"[""CCO-CYTOSOL""]"	[]	
+AROG-MONOMER	AroG	EG10079	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 AROH-MONOMER	AroH	EG10080	[]	[]	
 AROK-MONOMER	shikimate kinase I	EG10081	[]	[]	
 AROL-MONOMER	shikimate kinase II	EG10082	[]	[]	
 AROP-MONOMER	aromatic amino acid:H+ symporter AroP	EG10084	[]	[]	
 ARSF-MONOMER	ArsB	EG12236	[]	[]	
-ARTI-MONOMER	arginine ABC transporter - uncharacterised subunit	EG11625	"[""CCO-PERI-BAC""]"	[]	
+ARTI-MONOMER	arginine ABC transporter - uncharacterised subunit	EG11625	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ARTJ-MONOMER	arginine ABC transporter - periplasmic binding protein	EG11628	[]	[]	
 ARTM-MONOMER	arginine ABC transporter - membrane subunit	EG11627	[]	[]	
-ARTP-MONOMER	arginine ABC transporter - ATP binding subunit	EG11624	"[""CCO-PM-BAC-NEG""]"	[]	
+ARTP-MONOMER	arginine ABC transporter - ATP binding subunit	EG11624	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ARTQ-MONOMER	arginine ABC transporter - membrane subunit	EG11626	[]	[]	
 ARYLSULFAT-MONOMER	arylsulfatase	EG10089	[]	[]	
 ASCF-MONOMER	AscF	EG10086	[]	[]	
-ASL-MONOMER	adenylosuccinate lyase	EG11314	"[""CCO-CYTOSOL""]"	[]	
+ASL-MONOMER	adenylosuccinate lyase	EG11314	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ASNS-MONOMER	asparaginyl-tRNA synthetase	EG10094	[]	[]	
 ASNSYNA-MONOMER	AsnA	EG10091	[]	[]	
 ASNSYNB-MONOMER	AsnB	EG10092	[]	[]	
-ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER	Asd	EG10088	"[""CCO-CYTOSOL""]"	[]	
-ASPAMINOTRANS-MONOMER	AspC	EG10096	"[""CCO-PERI-BAC""]"	[]	
+ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER	Asd	EG10088	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+ASPAMINOTRANS-MONOMER	AspC	EG10096	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ASPARTASE-MONOMER	AspA	EG10095	[]	[]	
-ASPCARBCAT-MONOMER	aspartate carbamoyltransferase, PyrB subunit	EG10805	"[""CCO-CYTOSOL""]"	[]	
-ASPCARBREG-MONOMER	aspartate carbamoyltransferase, PyrI subunit	EG10811	"[""CCO-PM-BAC-NEG""]"	[]	
+ASPCARBCAT-MONOMER	aspartate carbamoyltransferase, PyrB subunit	EG10805	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+ASPCARBREG-MONOMER	aspartate carbamoyltransferase, PyrI subunit	EG10811	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ASPDECARBOX-MONOMER	PanD proenzyme, &pi; protein	EG11747	[]	"[""ONOMER0-1843 MONOMER0-184""]"	
 ASPKINIHOMOSERDEHYDROGI-MONOMER	ThrA	EG10998	[]	[]	
 ASPKINIIHOMOSERDEHYDROGII-MONOMER	MetL	EG10590	[]	[]	
@@ -142,15 +164,18 @@ ATOA-MONOMER	acetyl-CoA:acetoacetyl-CoA transferase, &beta; subunit	EG11670	[]	[
 ATOC-MONOMER	AtoC transcriptional activator; Az protein inhibitor of ODC	EG11668	[]	"[""HOSPHO-ATO""]"	
 ATOD-MONOMER	acetyl-CoA:acetoacetyl-CoA transferase, &alpha; subunit	EG11669	[]	[]	
 ATOS-MONOMER	AtoS	EG11667	[]	[]	
-ATPA-MONOMER	ATP synthase F1 complex - alpha subunit	EG10098	"[""CCO-PM-BAC-NEG""]"	[]	
+ATPA-MONOMER	ATP synthase F1 complex - alpha subunit	EG10098	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ATPB-MONOMER	ATP synthase F0 complex - a subunit	EG10099	[]	[]	
 ATPC-MONOMER	ATP synthase F1 complex - epsilon subunit	EG10100	[]	[]	
-ATPD-MONOMER	ATP synthase F1 complex - beta subunit	EG10101	"[""CCO-PM-BAC-NEG""]"	[]	
+ATPD-MONOMER	ATP synthase F1 complex - beta subunit	EG10101	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ATPE-MONOMER	AtpE	EG10102	[]	[]	
 ATPF-MONOMER	ATP synthase F0 complex - b subunit	EG10103	[]	[]	
 ATPG-MONOMER	ATP synthase F1 complex - gamma subunit	EG10104	[]	[]	
 ATPH-MONOMER	ATP synthase F1 complex - delta subunit	EG10105	[]	[]	
-ATPPHOSRIBOSTRANS-MONOMER	HisG	EG10449	"[""CCO-CYTOSOL""]"	[]	
+ATPPHOSRIBOSTRANS-MONOMER	HisG	EG10449	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 B0070-MONOMER	sugar / lactose efflux transporter SetA	EG11754	[]	[]	
 B0260-MONOMER	S-methyl-L-methionine transporter	G6135	[]	[]	
 B0270-MONOMER	YagG GPH Transporter	G6142	[]	[]	
@@ -199,14 +224,16 @@ BAES-MONOMER	BaeS sensory histidine kinase	EG11617	[]	"[""HOSPHO-BAE""]"
 BARA-MONOMER	BarA sensory histidine kinase	EG11367	[]	"[""ONOMER0-4210 PHOSPHO-BARA-ASP PHOSPHO-BARA-HI""]"	
 BASR-MONOMER	BasR transcriptional regulator	EG11615	[]	"[""HOSPHO-BAS""]"	
 BASS-MONOMER	BasS sensory histidine kinase	EG11614	[]	"[""HOSPHO-BAS""]"	
-BCCP-MONOMER	biotin carboxyl carrier protein	EG10275	"[""CCO-CYTOSOL""]"	"[""CCP-BIOTI""]"	
+BCCP-MONOMER	biotin carboxyl carrier protein	EG10275	"[""CCO-CYTOSOL""]"	"[""CCP-BIOTI""]"	"Location information from Lopez Campistrous 2005.
+"
 BCR-MONOMER	multidrug efflux transporter Bcr	EG11419	[]	[]	
 BETA-GLUCURONID-MONOMER	&beta;-D-glucuronidase	EG11055	[]	[]	
 BETACOMP-MONOMER	sulfite reductase, hemoprotein subunit	EG10190	[]	[]	
 BETAGALACTOSID-MONOMER	&beta;-galactosidase monomer	EG10527	[]	[]	
 BETT-MONOMER	choline:H+ symporter	EG10112	[]	[]	
 BGLF-MONOMER	BglF	EG10115	[]	[]	
-BIOTIN-CARBOXYL-MONOMER	AccC	EG10276	"[""CCO-CYTOSOL""]"	[]	
+BIOTIN-CARBOXYL-MONOMER	AccC	EG10276	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 BIOTIN-SYN-MONOMER	biotin synthase monomer	EG10118	[]	[]	
 BIOTINLIG-MONOMER	bifunctional biotin-[acetyl-CoA-carboxylase] ligase and transcriptional repressor	EG10123	[]	[]	
 BRANCHED-CHAINAMINOTRANSFER-MONOMER	IlvE	EG10497	[]	[]	
@@ -219,10 +246,13 @@ CAIC-MONOMER	carnitine-CoA ligase	EG11558	[]	[]
 CAIE-MONOMER	predicted acyl transferase	EG12608	[]	[]	
 CAIT-MONOMER	CaiT	EG11561	[]	[]	
 CARBODEHYDRAT-MONOMER	carbonic anhydrase monomer	EG10176	[]	[]	
-CARBOXYL-TRANSFERASE-ALPHA-MONOMER	acetyl-CoA carboxyltransferase, &alpha; subunit	EG11647	"[""CCO-CYTOSOL""]"	[]	
-CARBOXYL-TRANSFERASE-BETA-MONOMER	acetyl-CoA carboxyltransferase, &beta; subunit	EG10217	"[""CCO-CYTOSOL""]"	[]	
+CARBOXYL-TRANSFERASE-ALPHA-MONOMER	acetyl-CoA carboxyltransferase, &alpha; subunit	EG11647	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+CARBOXYL-TRANSFERASE-BETA-MONOMER	acetyl-CoA carboxyltransferase, &beta; subunit	EG10217	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 CARBPSYN-LARGE	CarB	EG10135	[]	[]	
-CARBPSYN-SMALL	CarA	EG10134	"[""CCO-CYTOSOL""]"	[]	
+CARBPSYN-SMALL	CarA	EG10134	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 CARDIOLIPSYN-MONOMER	cardiolipin synthase 1	EG11608	[]	[]	
 CARNDEHYDRA-MONOMER	CaiB monomer	EG11559	[]	[]	
 CARNRACE-MONOMER	crotonobetainyl-CoA hydratase	EG11557	[]	[]	
@@ -251,9 +281,11 @@ CHORISMUTPREPHENDEHYDROG-MONOMER	TyrA	EG11039	[]	[]
 CHORPYRLY-MONOMER	chorismate lyase	EG11369	[]	[]	
 CITC-MONOMER	citrate lyase synthetase	G6344	[]	[]	
 CITRYLY-MONOMER	citrate lyase, citryl-ACP lyase &beta; subunit	G6342	[]	[]	
-CITSYN-MONOMER	citrate synthase monomer	EG10402	"[""CCO-CYTOSOL""]"	[]	
+CITSYN-MONOMER	citrate synthase monomer	EG10402	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 CITTRANS-MONOMER	citrate lyase, citrate-ACP transferase &alpha; subunit	G6341	[]	[]	
-CMPKI-MONOMER	(d)CMP kinase	EG11265	"[""CCO-CYTOSOL""]"	[]	
+CMPKI-MONOMER	(d)CMP kinase	EG11265	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 CMR-MONOMER	multidrug efflux transporter MdfA	G6440	[]	[]	
 CMTA-MONOMER	mannitol PTS permease (cryptic) - CmtA subunit	EG11792	[]	[]	
 CMTB-MONOMER	mannitol PTS permease (cryptic) - CmtB subunit	EG11791	[]	[]	
@@ -270,11 +302,14 @@ CPXR-MONOMER	CpxR transcriptional dual regulator	EG10020	[]	"[""HOSPHO-CPX""]"
 CREB-MONOMER	CreB transcriptional regulator	EG11218	[]	"[""HOSPHO-CRE""]"	
 CREC-MONOMER	CreC	EG10730	[]	[]	
 CROBETREDUCT-MONOMER	crotonobetainyl-CoA reductase	EG11560	[]	[]	
-CRR-MONOMER	Crr	EG10165	"[""CCO-CYTOSOL""]"	[]	
-CTPSYN-MONOMER	PyrG	EG10810	"[""CCO-CYTOSOL""]"	[]	
+CRR-MONOMER	Crr	EG10165	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+CTPSYN-MONOMER	PyrG	EG10810	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 CYANLY-MONOMER	cyanase monomer	EG10175	[]	[]	
 CYCA-MONOMER	serine / alanine / glycine / cycloserine:H+symporter	EG12504	[]	[]	
-CYCLASE-MONOMER	imidazole glycerol phosphate synthase, HisF subunit	EG10448	"[""CCO-CYTOSOL""]"	[]	
+CYCLASE-MONOMER	imidazole glycerol phosphate synthase, HisF subunit	EG10448	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 CYDA-MONOMER	cytochrome bd-I terminal oxidase subunit I	EG10173	[]	[]	
 CYDB-MONOMER	cytochrome bd-I terminal oxidase subunit II	EG10174	[]	[]	
 CYDC-MONOMER	glutathione / L-cysteine efflux transporter - CydC subunit	EG10012	[]	[]	
@@ -324,16 +359,20 @@ DIACYLGLYKIN-MONOMER	DgkA	EG10224	[]	[]
 DIAMINOPIMDECARB-MONOMER	LysA	EG10549	[]	[]	
 DIAMINOPIMEPIM-MONOMER	diaminopimelate epimerase	EG10209	[]	[]	
 DIENOYLCOAREDUCT-MONOMER	2,4-dienoyl-CoA reductase	G36	[]	[]	
-DIHYDRODIPICSYN-MONOMER	DapA	EG10205	"[""CCO-CYTOSOL""]"	[]	
+DIHYDRODIPICSYN-MONOMER	DapA	EG10205	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 DIHYDROFOLATEREDUCT-MONOMER	dihydrofolate reductase	EG10326	[]	[]	
 DIHYDROOROT-MONOMER	PyrC	EG10806	[]	[]	
-DIHYDROOROTOX-MONOMER	dihydroorotate dehydrogenase, type 2	EG10807	"[""CCO-CYTOSOL""]"	[]	
+DIHYDROOROTOX-MONOMER	dihydroorotate dehydrogenase, type 2	EG10807	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 DIHYDROPICRED-MONOMER	DapB	EG10206	[]	[]	
-DIHYDROPTERIREDUCT-MONOMER	NfsB monomer	EG50005	"[""CCO-CYTOSOL""]"	[]	
+DIHYDROPTERIREDUCT-MONOMER	NfsB monomer	EG50005	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 DIHYDROXYACIDDEHYDRAT-MONOMER	IlvD	EG10496	[]	[]	
 DINF-MONOMER	DinF MATE Transporter	EG11491	[]	[]	
 DIOHBUTANONEPSYN-MONOMER	3,4-dihydroxy-2-butanone 4-phosphate synthase	EG10465	[]	[]	
-DISULFOXRED-MONOMER	protein disulfide oxidoreductase	EG11297	"[""CCO-PERI-BAC""]"	"[""ONOMER0-415""]"	
+DISULFOXRED-MONOMER	protein disulfide oxidoreductase	EG11297	"[""CCO-PERI-BAC""]"	"[""ONOMER0-415""]"	"Location information from Lopez Campistrous 2005.
+"
 DLACTDEHYDROGFAD-MONOMER	D-lactate dehydrogenase	EG10231	[]	[]	
 DLACTDEHYDROGNAD-MONOMER	D-lactate dehydrogenase - fermentative	G592	[]	[]	
 DMBPPRIBOSYLTRANS-MONOMER	CobT	EG12151	[]	[]	
@@ -341,32 +380,39 @@ DMK-MONOMER	1,4-dihydroxy-2-naphthoate octaprenyltransferase	EG11880	[]	[]
 DMSA-MONOMER	dimethyl sulfoxide reductase, chain A	EG10232	[]	[]	
 DMSB-MONOMER	dimethyl sulfoxide reductase, chain B	EG10233	[]	[]	
 DMSC-MONOMER	dimethyl sulfoxide reductase, chain C	EG10234	[]	[]	
-DPPA-MONOMER	dipeptide ABC transporter - periplasmic binding protein	EG10248	"[""CCO-PERI-BAC""]"	[]	
+DPPA-MONOMER	dipeptide ABC transporter - periplasmic binding protein	EG10248	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 DPPB-MONOMER	dipeptide ABC transporter - putative membrane subunit	EG12625	[]	[]	
 DPPC-MONOMER	dipeptide ABC transporter - putative membrane subunit	EG12626	[]	[]	
 DPPD-MONOMER	dipeptide ABC transporter - putative ATP binding subunit	EG12627	[]	[]	
 DPPF-MONOMER	dipeptide ABC transporter - putative ABC binding subunit	EG12628	[]	[]	
 DSBBPROT-MONOMER	DsbBreduced	EG11393	[]	"[""ONOMER0-414""]"	
-DSBC-MONOMER	DsbCreduced	EG11070	"[""CCO-PERI-BAC""]"	"[""SBCOX-MONOME""]"	
+DSBC-MONOMER	DsbCreduced	EG11070	"[""CCO-PERI-BAC""]"	"[""SBCOX-MONOME""]"	"Location information from Lopez Campistrous 2005.
+"
 DSBD-MONOMER	disulfide oxidoreductase DsbD	EG12178	[]	"[""SBDOXI-MONOME""]"	
 DSBG-MONOMER	DsbGreduced	G6333	[]	"[""SBGOXI-MONOME""]"	
 DSDX-MONOMER	D-serine transporter	EG10250	[]	[]	
 DSERDEAM-MONOMER	D-serine ammonia-lyase	EG10249	[]	[]	
-DTDPDEHYDRHAMEPIM-MONOMER	dTDP-4-dehydrorhamnose 3,5-epimerase	EG11979	"[""CCO-CYTOSOL""]"	[]	
+DTDPDEHYDRHAMEPIM-MONOMER	dTDP-4-dehydrorhamnose 3,5-epimerase	EG11979	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 DTDPDEHYRHAMREDUCT-MONOMER	dTDP-4-dehydrorhamnose reductase	EG12411	[]	[]	
 DTDPGLUCDEHYDRAT-MONOMER	RmlB	EG12412	[]	[]	
 DTDPGLUCDEHYDRAT2-MONOMER	dTDP-glucose 4,6-dehydratase 2	EG11453	[]	[]	
 DTDPGLUCOSEPP-MONOMER	dTDP-glucose pyrophosphorylase	EG11978	[]	[]	
 DTDPGLUCOSEPP2-MONOMER	dTDP-glucose pyrophosphorylase 2	EG11454	[]	[]	
 DTMPKI-MONOMER	dTMP kinase	EG12302	[]	[]	
-DUTP-PYROP-MONOMER	Dut	EG10251	"[""CCO-CYTOSOL""]"	[]	
+DUTP-PYROP-MONOMER	Dut	EG10251	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 DXPREDISOM-MONOMER	Dxr	EG12715	[]	[]	
 DXS-MONOMER	Dxs	G6237	[]	[]	
 E1O-MONOMER	subunit of E1(0) component of 2-oxoglutarate dehydrogenase	EG10979	[]	[]	
-E1P-MONOMER	subunit of E1p component of pyruvate dehydrogenase complex	EG10024	"[""CCO-PM-BAC-NEG""]"	[]	
-E2O-MONOMER	SucB	EG10980	"[""CCO-CYTOSOL""]"	"[""UCB-DIHYDROLIPOATE SUCB-S-SUCCINYLDIHYDROLIPOATE SUCB-LIPOAT""]"	
+E1P-MONOMER	subunit of E1p component of pyruvate dehydrogenase complex	EG10024	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+E2O-MONOMER	SucB	EG10980	"[""CCO-CYTOSOL""]"	"[""UCB-DIHYDROLIPOATE SUCB-S-SUCCINYLDIHYDROLIPOATE SUCB-LIPOAT""]"	"Location information from Lopez Campistrous 2005.
+"
 E2P-MONOMER	AceF	EG10025	[]	"[""CEF-DIHYDROLIPOATE ACEF-S-ACETYLDIHYDROLIPOATE ACEF-LIPOAT""]"	
-E3-MONOMER	E3 monomer	EG10543	"[""CCO-CYTOSOL""]"	[]	
+E3-MONOMER	E3 monomer	EG10543	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10003-MONOMER	predicted inner membrane protein	EG10003	[]	[]	
 EG10004-MONOMER	Dfp	EG10004	[]	[]	
 EG10010-MONOMER	RhsE protein in rhs element	EG10010	[]	[]	
@@ -388,7 +434,8 @@ EG10085-MONOMER	6-phospho-&beta;-glucosidase; cryptic	EG10085	[]	[]
 EG10087-MONOMER	AscG DNA-binding transcriptional repressor	EG10087	[]	[]	
 EG10090-MONOMER	predicted anaerobic sulfatase maturation enzyme	EG10090	[]	[]	
 EG10106-MONOMER	AtpI	EG10106	[]	[]	
-EG10108-MONOMER	thiol peroxidase	EG10108	"[""CCO-CYTOSOL""]"	[]	
+EG10108-MONOMER	thiol peroxidase	EG10108	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10113-MONOMER	bacterioferritin monomer	EG10113	[]	[]	
 EG10114-MONOMER	6-phospho-&beta;-glucosidase B; cryptic	EG10114	[]	[]	
 EG10116-MONOMER	BglG transcriptional antiterminator (monomer)	EG10116	[]	[]	
@@ -396,7 +443,8 @@ EG10119-MONOMER	malonyl-[acp] methyltransferase	EG10119	[]	[]
 EG10122-MONOMER	pimeloyl-[acp] methyl ester esterase	EG10122	[]	[]	
 EG10124-MONOMER	biotin sulfoxide reductase	EG10124	[]	[]	
 EG10125-MONOMER	BolA DNA-binding transcriptional dual regulator	EG10125	[]	[]	
-EG10126-MONOMER	vitamin B12 / E colicin / bacteriophage BF23 outer membrane porin BtuB	EG10126	"[""CCO-CYTOSOL""]"	[]	
+EG10126-MONOMER	vitamin B12 / E colicin / bacteriophage BF23 outer membrane porin BtuB	EG10126	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10136-MONOMER	fused tRNA nucleotidyltransferase / 2',3'-cyclic phosphodiesterase / 2' nucleotidase and phosphatase	EG10136	[]	[]	
 EG10143-MONOMER	ChbR DNA-binding transcriptional dual regulator	EG10143	[]	[]	
 EG10144-MONOMER	monoacetylchitobiose-6-phosphate hydrolase	EG10144	[]	[]	
@@ -405,8 +453,10 @@ EG10153-MONOMER	molybdenum::molybdopterin ligase	EG10153	[]	[]
 EG10154-MONOMER	molybdopterin-synthase adenylyltransferase	EG10154	[]	[]	
 EG10155-MONOMER	outer membrane receptor involved in uptake of ferric dihyroxybenzoylserine	EG10155	[]	[]	
 EG10156-MONOMER	ClpA	EG10156	[]	[]	
-EG10157-MONOMER	ClpB chaperone	EG10157	"[""CCO-CYTOSOL""]"	[]	
-EG10158-MONOMER	ClpP	EG10158	"[""CCO-OUTER-MEM""]"	[]	
+EG10157-MONOMER	ClpB chaperone	EG10157	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG10158-MONOMER	ClpP	EG10158	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10159-MONOMER	ClpX	EG10159	[]	[]	
 EG10167-MONOMER	peptide transporter induced by carbon starvation	EG10167	[]	[]	
 EG10168-MONOMER	apolipoprotein N-acyltransferase	EG10168	[]	[]	
@@ -431,7 +481,8 @@ EG10237-MONOMER	chromosome replication; initiation and chain elongation	EG10237	
 EG10238-MONOMER	DNA polymerase III, &alpha; subunit	EG10238	[]	[]	
 EG10239-MONOMER	DNA primase	EG10239	[]	[]	
 EG10240-MONOMER	chaperone protein DnaJ	EG10240	[]	[]	
-EG10241-MONOMER	chaperone protein DnaK	EG10241	"[""CCO-CYTOSOL""]"	[]	
+EG10241-MONOMER	chaperone protein DnaK	EG10241	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10242-MONOMER	DnaN	EG10242	[]	[]	
 EG10243-MONOMER	DNA polymerase III, &epsilon; subunit	EG10243	[]	[]	
 EG10244-MONOMER	DnaT	EG10244	[]	[]	
@@ -444,15 +495,18 @@ EG10266-MONOMER	AcrEF-TolC multidrug efflux transport system - membrane fusion p
 EG10270-MONOMER	GTP-binding protein	EG10270	[]	[]	
 EG10271-MONOMER	TonB energy transducing system - ExbB subunit	EG10271	[]	[]	
 EG10272-MONOMER	tonB energy transducing system - ExbD subunit	EG10272	[]	[]	
-EG10280-MONOMER	long-chain fatty acid outer membrane porin; bacteriophage T2 binding	EG10280	"[""CCO-OUTER-MEM""]"	[]	
+EG10280-MONOMER	long-chain fatty acid outer membrane porin; bacteriophage T2 binding	EG10280	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10284-MONOMER	formate dehydrogenase formation protein	EG10284	[]	[]	
-EG10286-MONOMER	ferric citrate outer membrane porin FecA	EG10286	"[""CCO-OUTER-MEM""]"	[]	
+EG10286-MONOMER	ferric citrate outer membrane porin FecA	EG10286	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10292-MONOMER	regulator for fec operon, periplasmic	EG10292	[]	[]	
 EG10293-MONOMER	ferric enterobactin / colicin B / colicin D outer membrane porin FepA	EG10293	[]	[]	
 EG10297-MONOMER	ferric enterobactin (enterochelin) transport	EG10297	[]	[]	
 EG10299-MONOMER	enterochelin esterase	EG10299	[]	[]	
 EG10300-MONOMER	protein component of the signal recognition particle (SRP)	EG10300	[]	[]	
-EG10302-MONOMER	ferrichrome / phage / antibiotic outer membrane porin FhuA	EG10302	"[""CCO-OUTER-MEM""]"	[]	
+EG10302-MONOMER	ferrichrome / phage / antibiotic outer membrane porin FhuA	EG10302	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10306-MONOMER	ferric coprogen outer membrane porin FhuE	EG10306	[]	[]	
 EG10307-MONOMER	stationary-phase protein with possible role in p-aminobenzoate or folate biosynthesis	EG10307	[]	[]	
 EG10308-MONOMER	major type 1 subunit fimbrin (pilin)	EG10308	[]	[]	
@@ -467,17 +521,21 @@ EG10320-MONOMER	FlhD	EG10320	[]	[]
 EG10321-MONOMER	flagellar biosynthesis; flagellin, filament structural protein	EG10321	[]	[]	
 EG10322-MONOMER	flagellar biosynthesis	EG10322	[]	[]	
 EG10329-MONOMER	formamidopyrimidine DNA glycosylase	EG10329	[]	[]	
-EG10335-MONOMER	ribosome recycling factor	EG10335	"[""CCO-CYTOSOL""]"	[]	
+EG10335-MONOMER	ribosome recycling factor	EG10335	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10339-MONOMER	essential cell division protein FtsA	EG10339	[]	[]	
 EG10341-MONOMER	essential cell division protein FtsI; penicillin-binding protein 3	EG10341	[]	[]	
 EG10342-MONOMER	essential cell division protein FtsQ	EG10342	[]	[]	
 EG10343-MONOMER	16S rRNA m2G966 methyltransferase	EG10343	[]	[]	
 EG10344-MONOMER	essential cell division protein FtsW; lipid II flippase	EG10344	[]	[]	
 EG10346-MONOMER	SRP receptor	EG10346	[]	[]	
-EG10347-MONOMER	essential cell division protein FtsZ	EG10347	"[""CCO-PERI-BAC""]"	[]	
+EG10347-MONOMER	essential cell division protein FtsZ	EG10347	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10355-MONOMER	L-fucose mutarotase	EG10355	[]	[]	
-EG10360-MONOMER	elongation factor G	EG10360	"[""CCO-CYTOSOL""]"	[]	
-EG10370-MONOMER	1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate synthase	EG10370	"[""CCO-CYTOSOL""]"	[]	
+EG10360-MONOMER	elongation factor G	EG10360	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG10370-MONOMER	1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate synthase	EG10370	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10373-MONOMER	regulatory peptide whose translation enables hokC (gef) expression	EG10373	[]	[]	
 EG10374-MONOMER	&gamma;-glutamyltranspeptidase	EG10374	[]	"[""ONOMER0-4196 MONOMER0-419""]"	
 EG10375-MONOMER	protein involved in a tRNA modification pathway	EG10375	[]	[]	
@@ -486,7 +544,8 @@ EG10381-MONOMER	glycogen phosphorylase-limit dextrin &alpha;-1,6-glucohydrolase	
 EG10395-MONOMER	GlpE	EG10395	[]	[]	
 EG10397-MONOMER	intramembrane serine protease GlpG	EG10397	[]	[]	
 EG10415-MONOMER	transcription elongation factor GreA	EG10415	[]	[]	
-EG10416-MONOMER	nucleotide exchange factor GrpE	EG10416	"[""CCO-CYTOSOL""]"	[]	
+EG10416-MONOMER	nucleotide exchange factor GrpE	EG10416	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10423-MONOMER	DNA gyrase, subunit A	EG10423	[]	[]	
 EG10424-MONOMER	DNA gyrase, subunit B	EG10424	[]	[]	
 EG10426-MONOMER	DNA helicase IV	EG10426	[]	[]	
@@ -504,9 +563,11 @@ EG10456-MONOMER	nitric oxide dioxygenase	EG10456	[]	[]
 EG10458-MONOMER	host modification; DNA methylase M	EG10458	[]	[]	
 EG10459-MONOMER	host restriction; endonuclease R	EG10459	[]	[]	
 EG10460-MONOMER	specificity determinant for hsdM and hsdR	EG10460	[]	[]	
-EG10461-MONOMER	HtpG monomer	EG10461	"[""CCO-CYTOSOL""]"	[]	
+EG10461-MONOMER	HtpG monomer	EG10461	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10462-MONOMER	heat shock protein, integral membrane protein	EG10462	[]	[]	
-EG10463-MONOMER	DegP	EG10463	"[""CCO-CYTOSOL""]"	[]	
+EG10463-MONOMER	DegP	EG10463	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10466-MONOMER	transcriptional dual regulator HU-&alpha; (HU-2)	EG10466	[]	[]	
 EG10467-MONOMER	transcriptional dual regulator HU-&beta;, NS1 (HU-1)	EG10467	[]	[]	
 EG10471-MONOMER	protein involved in processing of HyaA and HyaB proteins	EG10471	[]	[]	
@@ -528,13 +589,15 @@ EG10507-MONOMER	DLP12 prophage; predicted integrase	EG10507	[]	[]
 EG10513-MONOMER	K+ transporting ATPase - K+ channel forming subunit	EG10513	[]	[]	
 EG10515-MONOMER	K+ transporting ATPase - KdpC subunit	EG10515	[]	[]	
 EG10523-MONOMER	16S rRNA m62A1518,m62A1519 dimethyltransferase	EG10523	[]	[]	
-EG10528-MONOMER	LamB	EG10528	"[""CCO-OUTER-MEM""]"	[]	
+EG10528-MONOMER	LamB	EG10528	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10529-MONOMER	elongation factor 4	EG10529	[]	[]	
 EG10530-MONOMER	leader peptidase (signal peptidase I)	EG10530	[]	[]	
 EG10534-MONOMER	DNA ligase	EG10534	[]	[]	
 EG10535-MONOMER	Lit, cell death peptidase; phage exclusion; e14 prophage	EG10535	[]	[]	
 EG10542-MONOMER	Lon	EG10542	[]	[]	
-EG10544-MONOMER	murein lipoprotein	EG10544	"[""CCO-OUTER-MEM""]"	[]	
+EG10544-MONOMER	murein lipoprotein	EG10544	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10548-MONOMER	prolipoprotein signal peptidase II	EG10548	[]	[]	
 EG10559-MONOMER	maltose regulon periplasmic protein	EG10559	[]	[]	
 EG10564-MONOMER	bifunctional &beta;-cystathionase, PLP-dependent and regulator of maltose regulon	EG10564	[]	[]	
@@ -549,8 +612,10 @@ EG10595-MONOMER	tRNA(i6A37) synthase	EG10595	[]	[]
 EG10596-MONOMER	cell division inhibitor of the MinC-MinD-MinE and DicB-MinC systems that regulate septum placement	EG10596	[]	[]	
 EG10597-MONOMER	membrane ATPase of the MinC-MinD-MinE system that regulates septum placement	EG10597	[]	[]	
 EG10598-MONOMER	cell division topological specificity factor and inhibitory component of the MinC-MinD-MinE system that regulates septum placement	EG10598	[]	[]	
-EG10599-MONOMER	GroEL, chaperone Hsp60, peptide-dependent ATPase, heat shock protein	EG10599	"[""CCO-CYTOSOL""]"	[]	
-EG10600-MONOMER	GroES, chaperone binds to Hsp60 in pres. Mg-ATP, suppressing its ATPase activity	EG10600	"[""CCO-CYTOSOL""]"	[]	
+EG10599-MONOMER	GroEL, chaperone Hsp60, peptide-dependent ATPase, heat shock protein	EG10599	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG10600-MONOMER	GroES, chaperone binds to Hsp60 in pres. Mg-ATP, suppressing its ATPase activity	EG10600	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10603-MONOMER	MprA	EG10603	[]	[]	
 EG10605-MONOMER	MrcB	EG10605	[]	[]	
 EG10606-MONOMER	cell shape; peptidoglycan synthetase; penicillin-binding protein 2	EG10606	[]	[]	
@@ -558,7 +623,8 @@ EG10607-MONOMER	rod shape-determining membrane protein; sensitivity to radiation
 EG10608-MONOMER	MreB	EG10608	[]	[]	
 EG10609-MONOMER	MreC	EG10609	[]	[]	
 EG10610-MONOMER	MreD	EG10610	[]	[]	
-EG10611-MONOMER	putative ATPase	EG10611	"[""CCO-CYTOSOL""]"	[]	
+EG10611-MONOMER	putative ATPase	EG10611	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10612-MONOMER	restriction of methylated adenine	EG10612	[]	[]	
 EG10613-MONOMER	ATP-binding lipopolysaccharide transport protein	EG10613	[]	[]	
 EG10618-MONOMER	cell division protein involved in chromosome partitioning	EG10618	[]	[]	
@@ -575,24 +641,31 @@ EG10659-MONOMER	outer membrane porin protein; locus of qsr prophage	EG10659	[]	[
 EG10662-MONOMER	endonuclease III; specific for apurinic and/or apyrimidinic sites	EG10662	[]	[]	
 EG10665-MONOMER	transcription termination/antitermination L factor	EG10665	[]	[]	
 EG10666-MONOMER	transcription antitermination protein NusB	EG10666	[]	[]	
-EG10667-MONOMER	transcription termination factor NusG	EG10667	"[""CCO-CYTOSOL""]"	[]	
+EG10667-MONOMER	transcription termination factor NusG	EG10667	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10668-MONOMER	Ogt	EG10668	[]	[]	
-EG10669-MONOMER	outer membrane protein 3a (II*;G;d)	EG10669	"[""CCO-PM-BAC-NEG""]"	[]	
+EG10669-MONOMER	outer membrane protein 3a (II*;G;d)	EG10669	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10670-MONOMER	OmpC	EG10670	[]	[]	
-EG10671-MONOMER	OmpF	EG10671	"[""CCO-OUTER-MEM""]"	[]	
-EG10673-MONOMER	outer membrane protease VII (outer membrane protein 3b)	EG10673	"[""CCO-OUTER-MEM""]"	[]	
+EG10671-MONOMER	OmpF	EG10671	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG10673-MONOMER	outer membrane protease VII (outer membrane protein 3b)	EG10673	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10679-MONOMER	OsmB osmotically inducible lipoprotein	EG10679	[]	[]	
 EG10680-MONOMER	osmotically inducible peroxidase OsmC	EG10680	[]	[]	
-EG10684-MONOMER	Pal	EG10684	"[""CCO-OUTER-MEM""]"	[]	
+EG10684-MONOMER	Pal	EG10684	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10686-MONOMER	topoisomerase IV subunit A	EG10686	[]	[]	
 EG10687-MONOMER	topoisomerase IV subunit B	EG10687	[]	[]	
 EG10689-MONOMER	L-isoaspartate protein carboxylmethyltransferase type II	EG10689	[]	[]	
 EG10690-MONOMER	poly(A) polymerase I	EG10690	[]	[]	
 EG10694-MONOMER	aminopeptidase A/I	EG10694	[]	[]	
-EG10695-MONOMER	peptidase D	EG10695	"[""CCO-CYTOSOL""]"	[]	
+EG10695-MONOMER	peptidase D	EG10695	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10696-MONOMER	aminopeptidase N	EG10696	[]	[]	
 EG10697-MONOMER	PepP	EG10697	[]	[]	
-EG10698-MONOMER	proline dipeptidase	EG10698	"[""CCO-CYTOSOL""]"	[]	
+EG10698-MONOMER	proline dipeptidase	EG10698	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10711-MONOMER	conserved protein	EG10711	[]	[]	
 EG10712-MONOMER	conserved protein	EG10712	[]	[]	
 EG10715-MONOMER	PhnF predicted transcriptional regulator	EG10715	[]	[]	
@@ -614,10 +687,12 @@ EG10746-MONOMER	DNA polymerase I, 5' --> 3' polymerase, 5' --> 3'  and 3' --> 5'
 EG10747-MONOMER	DNA polymerase II	EG10747	[]	[]	
 EG10748-MONOMER	peptidoglycan synthetase; penicillin-binding protein 1A	EG10748	[]	[]	
 EG10757-MONOMER	peptidyl-prolyl cis-trans isomerase A (rotamase A)	EG10757	[]	[]	
-EG10758-MONOMER	peptidyl-prolyl cis-trans isomerase B (rotamase B)	EG10758	"[""CCO-CYTOSOL""]"	[]	
+EG10758-MONOMER	peptidyl-prolyl cis-trans isomerase B (rotamase B)	EG10758	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10760-MONOMER	tail-specific protease	EG10760	[]	[]	
 EG10761-MONOMER	peptide chain release factor RF1	EG10761	[]	[]	
-EG10762-MONOMER	peptide chain release factor RF2	EG10762	"[""CCO-CYTOSOL""]"	[]	
+EG10762-MONOMER	peptide chain release factor RF2	EG10762	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10763-MONOMER	primosome factor N'	EG10763	[]	[]	
 EG10764-MONOMER	PriB	EG10764	[]	[]	
 EG10765-MONOMER	primosomal replication protein N''	EG10765	[]	[]	
@@ -645,11 +720,13 @@ EG10833-MONOMER	ATP-dependent DNA helicase	EG10833	[]	[]
 EG10834-MONOMER	recombination and repair	EG10834	[]	[]	
 EG10836-MONOMER	RelB Qin prophage; antitoxin of the RelE-RelB toxin-antitoxin system and DNA binding transcriptional repressor	EG10836	[]	[]	
 EG10837-MONOMER	rep	EG10837	[]	[]	
-EG10838-MONOMER	ADP-L-glycero-D-mannoheptose-6-epimerase	EG10838	"[""CCO-CYTOSOL""]"	[]	
+EG10838-MONOMER	ADP-L-glycero-D-mannoheptose-6-epimerase	EG10838	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10839-MONOMER	RfaH transcriptional antiterminator	EG10839	[]	[]	
 EG10841-MONOMER	flagellar cap protein FliD; filament capping protein; enables filament assembly	EG10841	[]	[]	
 EG10844-MONOMER	RhlB	EG10844	[]	[]	
-EG10845-MONOMER	transcription termination factor Rho monomer;  polarity suppressor	EG10845	"[""CCO-CYTOSOL""]"	[]	
+EG10845-MONOMER	transcription termination factor Rho monomer;  polarity suppressor	EG10845	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10846-MONOMER	RhsA protein in rhs element	EG10846	[]	[]	
 EG10847-MONOMER	RhsB protein in rhs element	EG10847	[]	[]	
 EG10848-MONOMER	RhsC protein in rhs element	EG10848	[]	[]	
@@ -661,26 +738,32 @@ EG10853-MONOMER	ribosomal-protein-L12-serine acetyltransferase	EG10853	[]	[]
 EG10854-MONOMER	rare lipoprotein RlpA	EG10854	[]	[]	
 EG10855-MONOMER	outer membrane lipopolysaccharide transport and assembly complex - LptE subunit	EG10855	[]	[]	
 EG10856-MONOMER	RNase I, cleaves phosphodiester bond between any two nucleotides	EG10856	[]	[]	
-EG10857-MONOMER	RNase III	EG10857	"[""CCO-CYTOSOL""]"	[]	
+EG10857-MONOMER	RNase III	EG10857	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10858-MONOMER	RNase D	EG10858	[]	[]	
 EG10859-MONOMER	RNase E	EG10859	[]	[]	
 EG10860-MONOMER	RNase HI, degrades RNA of DNA-RNA hybrids, participates in DNA replication	EG10860	[]	[]	
 EG10861-MONOMER	RNAse HII,  degrades RNA of DNA-RNA hybrids	EG10861	[]	[]	
 EG10862-MONOMER	RNase P protein component; processes tRNA, 4.5S RNA	EG10862	[]	[]	
 EG10863-MONOMER	RNase PH monomer	EG10863	[]	[]	
-EG10864-MONOMER	50S ribosomal subunit protein L1	EG10864	"[""CCO-CYTOSOL""]"	[]	
+EG10864-MONOMER	50S ribosomal subunit protein L1	EG10864	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10865-MONOMER	50S ribosomal subunit protein L2	EG10865	[]	[]	
 EG10866-MONOMER	50S ribosomal subunit protein L3	EG10866	[]	[]	
 EG10867-MONOMER	50S ribosomal subunit protein L4	EG10867	[]	[]	
 EG10868-MONOMER	50S ribosomal subunit protein L5	EG10868	[]	[]	
 EG10869-MONOMER	50S ribosomal subunit protein L6	EG10869	[]	[]	
-EG10870-MONOMER	50S ribosomal subunit protein L9	EG10870	"[""CCO-CYTOSOL""]"	[]	
-EG10871-MONOMER	50S ribosomal subunit protein L10	EG10871	"[""CCO-CYTOSOL""]"	[]	
+EG10870-MONOMER	50S ribosomal subunit protein L9	EG10870	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG10871-MONOMER	50S ribosomal subunit protein L10	EG10871	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10872-MONOMER	50S ribosomal subunit protein L11	EG10872	[]	[]	
-EG10873-MONOMER	50S ribosomal subunit protein L12	EG10873	"[""CCO-CYTOSOL""]"	"[""ONOMER0-281""]"	
+EG10873-MONOMER	50S ribosomal subunit protein L12	EG10873	"[""CCO-CYTOSOL""]"	"[""ONOMER0-281""]"	"Location information from Lopez Campistrous 2005.
+"
 EG10874-MONOMER	50S ribosomal subunit protein L13	EG10874	[]	[]	
 EG10875-MONOMER	50S ribosomal subunit protein L14	EG10875	[]	[]	
-EG10876-MONOMER	50S ribosomal subunit protein L15	EG10876	"[""CCO-OUTER-MEM""]"	[]	
+EG10876-MONOMER	50S ribosomal subunit protein L15	EG10876	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10877-MONOMER	50S ribosomal subunit protein L16	EG10877	[]	[]	
 EG10878-MONOMER	50S ribosomal subunit protein L17	EG10878	[]	[]	
 EG10879-MONOMER	50S ribosomal subunit protein L18	EG10879	[]	[]	
@@ -699,8 +782,10 @@ EG10891-MONOMER	50S ribosomal subunit protein L33	EG10891	[]	[]
 EG10892-MONOMER	50S ribosomal subunit protein L34	EG10892	[]	[]	
 EG10893-MONOMER	RNA polymerase, &alpha; subunit	EG10893	[]	[]	
 EG10899-MONOMER	RNA polymerase, &omega; subunit	EG10899	[]	[]	
-EG10900-MONOMER	30S ribosomal subunit protein S1	EG10900	"[""CCO-CYTOSOL""]"	[]	
-EG10901-MONOMER	30S ribosomal subunit protein S2	EG10901	"[""CCO-CYTOSOL""]"	[]	
+EG10900-MONOMER	30S ribosomal subunit protein S1	EG10900	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG10901-MONOMER	30S ribosomal subunit protein S2	EG10901	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10902-MONOMER	30S ribosomal subunit protein S3	EG10902	[]	[]	
 EG10903-MONOMER	30S ribosomal subunit protein S4	EG10903	[]	[]	
 EG10904-MONOMER	30S ribosomal subunit protein S5	EG10904	[]	[]	
@@ -728,7 +813,8 @@ EG10926-MONOMER	exonuclease I, 3' --> 5' specific; deoxyribophosphodiesterase	EG
 EG10927-MONOMER	ATP-dependent dsDNA exonuclease	EG10927	[]	[]	
 EG10941-MONOMER	selenocysteine synthase	EG10941	[]	[]	
 EG10942-MONOMER	selenocysteyl-tRNA-specific translation elongation factor	EG10942	[]	[]	
-EG10943-MONOMER	selenide, water dikinase	EG10943	"[""CCO-CYTOSOL""]"	[]	
+EG10943-MONOMER	selenide, water dikinase	EG10943	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10949-MONOMER	predicted DNA-binding transcriptional regulator of maltose metabolism	EG10949	[]	[]	
 EG10950-MONOMER	soluble lytic murein transglycosylase	EG10950	[]	[]	
 EG10951-MONOMER	membrane protein	EG10951	[]	[]	
@@ -740,19 +826,24 @@ EG10968-MONOMER	protease IV	EG10968	[]	[]
 EG10973-MONOMER	D-arabinose 5-phosphate isomerase	EG10973	[]	[]	
 EG10975-MONOMER	SrmB, DEAD-box RNA helicase	EG10975	[]	[]	
 EG10976-MONOMER	ssDNA-binding protein	EG10976	[]	[]	
-EG10977-MONOMER	stringent starvation protein A	EG10977	"[""CCO-CYTOSOL""]"	[]	
+EG10977-MONOMER	stringent starvation protein A	EG10977	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10978-MONOMER	SspB	EG10978	[]	[]	
 EG10983-MONOMER	inositol monophosphatase	EG10983	[]	[]	
 EG10984-MONOMER	SOS cell division inhibitor	EG10984	[]	[]	
-EG10985-MONOMER	peptidyl-prolyl cis-trans isomerase (PPIase)	EG10985	"[""CCO-PERI-BAC""]"	[]	
+EG10985-MONOMER	peptidyl-prolyl cis-trans isomerase (PPIase)	EG10985	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG10986-MONOMER	3-methyl-adenine DNA glycosylase I, constitutive	EG10986	[]	[]	
 EG10996-MONOMER	tRNA-guanine transglycosylase monomer	EG10996	[]	[]	
 EG10997-MONOMER	GTP-binding protein with a role in modification of tRNA	EG10997	[]	[]	
-EG11003-MONOMER	trigger factor; a molecular chaperone involved in cell division	EG11003	"[""CCO-CYTOSOL""]"	[]	
+EG11003-MONOMER	trigger factor; a molecular chaperone involved in cell division	EG11003	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11004-MONOMER	oligopeptidase B	EG11004	[]	[]	
 EG11007-MONOMER	TolA	EG11007	[]	[]	
-EG11008-MONOMER	TolB	EG11008	"[""CCO-PERI-BAC""]"	[]	
-EG11009-MONOMER	TolC monomer	EG11009	"[""CCO-OUTER-MEM""]"	[]	
+EG11008-MONOMER	TolB	EG11008	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG11009-MONOMER	TolC monomer	EG11009	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11010-MONOMER	TolQ	EG11010	[]	[]	
 EG11011-MONOMER	TolR	EG11011	[]	[]	
 EG11012-MONOMER	TonB energy transducing system - TonB subunit	EG11012	[]	[]	
@@ -761,15 +852,18 @@ EG11014-MONOMER	DNA topoisomerase III	EG11014	[]	[]
 EG11016-MONOMER	predicted protamine-like protein	EG11016	[]	[]	
 EG11022-MONOMER	tRNA m5U54 methyltransferase	EG11022	[]	[]	
 EG11023-MONOMER	TrmD	EG11023	[]	[]	
-EG11033-MONOMER	protein chain elongation factor EF-Ts	EG11033	"[""CCO-CYTOSOL""]"	[]	
+EG11033-MONOMER	protein chain elongation factor EF-Ts	EG11033	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11035-MONOMER	nucleoside channel; receptor of phage T6 and colicin K	EG11035	[]	[]	
-EG11036-MONOMER	elongation factor Tu	EG11036	"[""CCO-PM-BAC-NEG""]"	[]	
+EG11036-MONOMER	elongation factor Tu	EG11036	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11037-MONOMER	elongation factor Tu	EG11037	[]	[]	
 EG11038-MONOMER	DNA-binding protein; inhibition of replication at Ter sites	EG11038	[]	[]	
 EG11056-MONOMER	SOS mutagenesis and repair	EG11056	[]	[]	
 EG11057-MONOMER	SOS mutagenesis; error-prone repair; processed to UmuD'; forms complex with UmuC	EG11057	[]	[]	
 EG11058-MONOMER	uracil-DNA glycosylase	EG11058	[]	[]	
-EG11059-MONOMER	predicted semialdehyde dehydrogenase	EG11059	"[""CCO-CYTOSOL""]"	[]	
+EG11059-MONOMER	predicted semialdehyde dehydrogenase	EG11059	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11061-MONOMER	excision nuclease subunit A	EG11061	[]	[]	
 EG11062-MONOMER	DNA repair; excision nuclease subunit B	EG11062	[]	[]	
 EG11063-MONOMER	excinuclease ABC, subunit C; repair of UV damage to DNA	EG11063	[]	[]	
@@ -789,7 +883,8 @@ EG11086-MONOMER	essential cell division protein FtsL	EG11086	[]	[]
 EG11087-MONOMER	secretion monitor that regulates SecA translation (General Secretory Pathway)	EG11087	[]	[]	
 EG11088-MONOMER	PdhR DNA-binding transcriptional dual regulator	EG11088	[]	[]	
 EG11089-MONOMER	predicted protein	EG11089	[]	[]	
-EG11090-MONOMER	5'-methylthioadenosine/S-adenosylhomocysteine nucleosidase monomer	EG11090	"[""CCO-CYTOSOL""]"	[]	
+EG11090-MONOMER	5'-methylthioadenosine/S-adenosylhomocysteine nucleosidase monomer	EG11090	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11091-MONOMER	fermentation/respiration switch protein	EG11091	[]	[]	
 EG11092-MONOMER	Crl transcriptional regulator	EG11092	[]	[]	
 EG11093-MONOMER	predicted protein	EG11093	[]	[]	
@@ -811,7 +906,8 @@ EG11113-MONOMER	putative carrier/transport protein; substrate or modulator of Ft
 EG11116-MONOMER	conserved protein	EG11116	[]	[]	
 EG11117-MONOMER	predicted lipoprotein	EG11117	[]	[]	
 EG11118-MONOMER	23S rRNA pseudouridine synthase	EG11118	[]	[]	
-EG11119-MONOMER	conserved protein	EG11119	"[""CCO-CYTOSOL""]"	[]	
+EG11119-MONOMER	conserved protein	EG11119	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11120-MONOMER	e14 prophage; predicted tail fiber assembly protein	EG11120	[]	[]	
 EG11121-MONOMER	acyl-CoA thioesterase	EG11121	[]	[]	
 EG11122-MONOMER	predicted inner membrane protein	EG11122	[]	[]	
@@ -826,7 +922,8 @@ EG11130-MONOMER	Qin prophage; small toxic polypeptide	EG11130	[]	[]
 EG11131-MONOMER	Qin prophage; toxin of the RelE-RelB toxin-antitoxin system and cofactor to enhance the repressor activity of RelB	EG11131	[]	[]	
 EG11132-MONOMER	PEP synthetase regulatory protein	EG11132	[]	[]	
 EG11133-MONOMER	NlpC-putative lipoprotein hydrolase	EG11133	[]	[]	
-EG11134-MONOMER	predicted oxidoreductase	EG11134	"[""CCO-CYTOSOL""]"	[]	
+EG11134-MONOMER	predicted oxidoreductase	EG11134	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11136-MONOMER	predicted protein	EG11136	[]	[]	
 EG11137-MONOMER	conserved protein	EG11137	[]	[]	
 EG11139-MONOMER	conserved metal-binding protein	EG11139	[]	[]	
@@ -872,7 +969,8 @@ EG11189-MONOMER	ADP-heptose:LPS heptosyltransferase I	EG11189	[]	[]
 EG11191-MONOMER	cell division inhibitor, nucleoid occlusion	EG11191	[]	[]	
 EG11192-MONOMER	conserved protein	EG11192	[]	[]	
 EG11193-MONOMER	DNA-damage-inducible protein	EG11193	[]	[]	
-EG11195-MONOMER	sugar phosphatase	EG11195	"[""CCO-CYTOSOL""]"	[]	
+EG11195-MONOMER	sugar phosphatase	EG11195	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11196-MONOMER	conserved protein	EG11196	[]	[]	
 EG11199-MONOMER	flavoprotein involved in biotin synthesis	EG11199	[]	[]	
 EG11201-MONOMER	conserved protein	EG11201	[]	[]	
@@ -988,13 +1086,17 @@ EG11373-MONOMER	membrane-bound lytic murein transglycosylase F	EG11373	[]	[]
 EG11376-MONOMER	cell division protein required during stress conditions	EG11376	[]	[]	
 EG11378-MONOMER	Fe-S cluster assembly, scaffold protein	EG11378	[]	[]	
 EG11381-MONOMER	predicted glycogen synthesis protein	EG11381	[]	[]	
-EG11383-MONOMER	isoprenoid biosynthesis protein with amidotransferase-like domain	EG11383	"[""CCO-CYTOSOL""]"	[]	
-EG11384-MONOMER	alkyl hydroperoxide reductase, AhpC component	EG11384	"[""CCO-CYTOSOL""]"	[]	
-EG11385-MONOMER	AhpF component	EG11385	"[""CCO-CYTOSOL""]"	[]	
+EG11383-MONOMER	isoprenoid biosynthesis protein with amidotransferase-like domain	EG11383	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG11384-MONOMER	alkyl hydroperoxide reductase, AhpC component	EG11384	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+EG11385-MONOMER	AhpF component	EG11385	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11386-MONOMER	conserved protein	EG11386	[]	[]	
 EG11388-MONOMER	flagellar biosynthesis protein FliS	EG11388	[]	[]	
 EG11389-MONOMER	flagellar biosynthesis protein FliT	EG11389	[]	[]	
-EG11390-MONOMER	universal stress global stress response regulator	EG11390	"[""CCO-PM-BAC-NEG""]"	[]	
+EG11390-MONOMER	universal stress global stress response regulator	EG11390	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11391-MONOMER	hyperosmotically inducible periplasmic protein	EG11391	[]	[]	
 EG11394-MONOMER	FabR DNA-binding transcriptional repressor	EG11394	[]	[]	
 EG11395-MONOMER	conserved inner membrane protein	EG11395	[]	[]	
@@ -1003,7 +1105,8 @@ EG11398-MONOMER	acid-resistance protein, possible chaperone	EG11398	[]	[]
 EG11399-MONOMER	acid stress chaperone	EG11399	[]	[]	
 EG11400-MONOMER	predicted Mg(2+) transport ATPase	EG11400	[]	[]	
 EG11401-MONOMER	conserved protein	EG11401	[]	[]	
-EG11404-MONOMER	ribosome-binding ATPase, inhibitor of catalase activity	EG11404	"[""CCO-CYTOSOL""]"	[]	
+EG11404-MONOMER	ribosome-binding ATPase, inhibitor of catalase activity	EG11404	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11410-MONOMER	putative alpha-helix protein	EG11410	[]	[]	
 EG11412-MONOMER	DNA polymerase III, &delta; subunit	EG11412	[]	[]	
 EG11413-MONOMER	DNA polymerase III, &chi; subunit	EG11413	[]	[]	
@@ -1132,7 +1235,8 @@ EG11659-MONOMER	predicted protein	EG11659	[]	[]
 EG11660-MONOMER	predicted inner membrane protein	EG11660	[]	[]	
 EG11661-MONOMER	conserved protein	EG11661	[]	[]	
 EG11662-MONOMER	predicted protein	EG11662	[]	[]	
-EG11663-MONOMER	FKBP-type peptidyl prolyl cis-trans isomerase	EG11663	"[""CCO-CYTOSOL""]"	[]	
+EG11663-MONOMER	FKBP-type peptidyl prolyl cis-trans isomerase	EG11663	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG11664-MONOMER	host factor for lysis of &phi;X174 infection	EG11664	[]	[]	
 EG11665-MONOMER	undecaprenyl pyrophosphate phosphatase	EG11665	[]	[]	
 EG11666-MONOMER	MoaC monomer	EG11666	[]	[]	
@@ -1377,11 +1481,13 @@ EG12028-MONOMER	predicted kinase	EG12028	[]	[]
 EG12030-MONOMER	ribonucleoside hydrolase 2 (pyrimidine-specific)	EG12030	[]	[]	
 EG12031-MONOMER	YeiL DNA-binding transcriptional activator	EG12031	[]	[]	
 EG12033-MONOMER	predicted pseudouridine 5'-phosphate glycosidase	EG12033	[]	[]	
-EG12035-MONOMER	predicted dehydrogenase, NAD-dependent	EG12035	"[""CCO-CYTOSOL""]"	[]	
+EG12035-MONOMER	predicted dehydrogenase, NAD-dependent	EG12035	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12036-MONOMER	predicted dehydrogenase, NAD-dependent	EG12036	[]	[]	
 EG12042-MONOMER	predicted protein	EG12042	[]	[]	
 EG12043-MONOMER	conserved protein	EG12043	[]	[]	
-EG12044-MONOMER	16S rRNA pseudouridine 516 synthase	EG12044	"[""CCO-CYTOSOL""]"	[]	
+EG12044-MONOMER	16S rRNA pseudouridine 516 synthase	EG12044	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12045-MONOMER	predicted ATP-dependent helicase	EG12045	[]	[]	
 EG12048-MONOMER	DNA-associated protein	EG12048	[]	[]	
 EG12049-MONOMER	predicted hydrolase, inner membrane	EG12049	[]	[]	
@@ -1408,10 +1514,12 @@ EG12108-MONOMER	NorR DNA-binding transcriptional dual regulator	EG12108	[]	[]
 EG12110-MONOMER	conserved protein	EG12110	[]	[]	
 EG12111-MONOMER	NlpD putative outer membrane lipoprotein	EG12111	[]	[]	
 EG12113-MONOMER	protein involved in utilization of DNA as a carbon source	EG12113	[]	[]	
-EG12114-MONOMER	peptide chain release factor RF3	EG12114	"[""CCO-CYTOSOL""]"	[]	
+EG12114-MONOMER	peptide chain release factor RF3	EG12114	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12115-MONOMER	pyrimidine nucleotidase	EG12115	[]	[]	
 EG12116-MONOMER	AcrR DNA-binding transcriptional repressor	EG12116	[]	[]	
-EG12117-MONOMER	outer membrane protein X	EG12117	"[""CCO-OUTER-MEM""]"	[]	
+EG12117-MONOMER	outer membrane protein X	EG12117	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12119-MONOMER	conserved protein	EG12119	[]	[]	
 EG12120-MONOMER	conserved protein	EG12120	[]	[]	
 EG12121-MONOMER	regulator of RpoS	EG12121	[]	"[""SSB-""]"	
@@ -1460,7 +1568,8 @@ EG12200-MONOMER	actin family protein	EG12200	[]	[]
 EG12201-MONOMER	predicted protein	EG12201	[]	[]	
 EG12202-MONOMER	TreR transcriptional repressor	EG12202	[]	[]	
 EG12203-MONOMER	Qin prophage; cold shock protein; predicted DNA-binding transcriptional regulator	EG12203	[]	[]	
-EG12204-MONOMER	stress protein, member of the CspA family; predicted DNA-binding transcriptional regulator	EG12204	"[""CCO-CYTOSOL""]"	[]	
+EG12204-MONOMER	stress protein, member of the CspA family; predicted DNA-binding transcriptional regulator	EG12204	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12205-MONOMER	Qin prophage; cold shock protein	EG12205	[]	[]	
 EG12207-MONOMER	23S rRNA m1G745 methyltransferase	EG12207	[]	[]	
 EG12208-MONOMER	predicted protein of C-N hydrolase superfamily, N-terminal fragment	EG12208	[]	[]	
@@ -1546,7 +1655,8 @@ EG12327-MONOMER	predicted fimbrial-like adhesin protein	EG12327	[]	[]
 EG12328-MONOMER	predicted fimbrial-like adhesin protein	EG12328	[]	[]	
 EG12329-MONOMER	predicted ATP-dependent helicase	EG12329	[]	[]	
 EG12330-MONOMER	2'-5' RNA ligase	EG12330	[]	[]	
-EG12332-MONOMER	essential respiratory protein A	EG12332	"[""CCO-CYTOSOL""]"	[]	
+EG12332-MONOMER	essential respiratory protein A	EG12332	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12333-MONOMER	conserved inner membrane protein	EG12333	[]	[]	
 EG12334-MONOMER	vitamin B12 ABC transporter - periplasmic binding protein	EG12334	[]	[]	
 EG12335-MONOMER	CdaR DNA-binding transcriptional activator	EG12335	[]	[]	
@@ -1588,7 +1698,8 @@ EG12394-MONOMER	methionine sulfoxide reductase B	EG12394	[]	[]
 EG12395-MONOMER	putative lipoprotein	EG12395	[]	[]	
 EG12396-MONOMER	predicted diguanylate cyclase	EG12396	[]	[]	
 EG12397-MONOMER	predicted periplasmic pilin chaperone	EG12397	[]	[]	
-EG12399-MONOMER	dihydroxyacetone kinase subunit M	EG12399	"[""CCO-CYTOSOL""]"	[]	
+EG12399-MONOMER	dihydroxyacetone kinase subunit M	EG12399	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12401-MONOMER	23S rRNA m2A2503 methyltransferase and tRNA m2A37 methyltransferase	EG12401	[]	[]	
 EG12402-MONOMER	predicted cation transport regulator	EG12402	[]	[]	
 EG12403-MONOMER	predicted cation transport protein	EG12403	[]	[]	
@@ -1615,7 +1726,8 @@ EG12444-MONOMER	predicted protein	EG12444	[]	[]
 EG12445-MONOMER	O-Acetylserine/Cysteine Efflux Permease	EG12445	[]	[]	
 EG12446-MONOMER	putative lipoprotein	EG12446	[]	[]	
 EG12448-MONOMER	predicted protein	EG12448	[]	[]	
-EG12449-MONOMER	protein-glutamine N-methyltransferase	EG12449	"[""CCO-CYTOSOL""]"	[]	
+EG12449-MONOMER	protein-glutamine N-methyltransferase	EG12449	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12450-MONOMER	flavorubredoxin reductase	EG12450	[]	[]	
 EG12454-MONOMER	Cys-tRNAPro and Cys-tRNACys deacylase	EG12454	[]	[]	
 EG12455-MONOMER	lysophospholipid transporter	EG12455	[]	[]	
@@ -1645,7 +1757,8 @@ EG12707-MONOMER	conserved inner membrane protein	EG12707	[]	[]
 EG12708-MONOMER	conserved inner membrane protein	EG12708	[]	[]	
 EG12709-MONOMER	conserved inner membrane protein	EG12709	[]	[]	
 EG12710-MONOMER	predicted phosphohydrolase	EG12710	[]	[]	
-EG12712-MONOMER	S-ribosylhomocysteine lyase	EG12712	"[""CCO-CYTOSOL""]"	[]	
+EG12712-MONOMER	S-ribosylhomocysteine lyase	EG12712	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EG12713-MONOMER	aromatic amino acid exporter	EG12713	[]	[]	
 EG12717-MONOMER	stationary phase mismatch/uracil DNA glycosylase	EG12717	[]	[]	
 EG12794-MONOMER	predicted RNA-binding protein	EG12794	[]	[]	
@@ -1689,7 +1802,8 @@ EMRB-MONOMER	EmrAB-TolC multidrug efflux transport system - membrane subunit	EG1
 EMRD-MONOMER	multidrug efflux transporter EmrD	EG11693	[]	[]	
 EMRE-MONOMER	EmrE	EG10629	[]	[]	
 EMRY-MONOMER	EmrKY putative multidrug efflux transporter - membrane subunit	EG13283	[]	[]	
-ENOLASE-MONOMER	Eno	EG10258	"[""CCO-CYTOSOL""]"	[]	
+ENOLASE-MONOMER	Eno	EG10258	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ENOYL-ACP-REDUCT-NADH-MONOMER	enoyl-[acyl-carrier-protein] reductase	EG11528	[]	[]	
 ENTA-MONOMER	EntA	EG10259	[]	[]	
 ENTB-MONOMER	EntB monomer	EG10260	[]	[]	
@@ -1699,17 +1813,22 @@ ENTE-MONOMER	EntE	EG10263	[]	[]
 ENTF-MONOMER	apo-serine activating enzyme	EG10264	[]	"[""NTF-PAN""]"	
 ENVZ-MONOMER	EnvZ	EG10269	[]	[]	
 ERYTH4PDEHYDROG-MONOMER	Epd	EG10368	[]	[]	
-ERYTHRON4PDEHYDROG-MONOMER	erythronate-4-phosphate dehydrogenase	G0-9461	"[""CCO-CYTOSOL""]"	[]	
+ERYTHRON4PDEHYDROG-MONOMER	erythronate-4-phosphate dehydrogenase	G0-9461	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 EUTB-MONOMER	ethanolamine ammonia-lyase, &alpha; subunit	EG50006	[]	[]	
 EUTC-MONOMER	ethanolamine ammonia-lyase, &beta; subunit	EG50007	[]	[]	
 EVGA-MONOMER	EvgA transcriptional regulator	EG11609	[]	"[""HOSPHO-EVG""]"	
 EVGS-MONOMER	EvgS sensory histidine kinase	EG11610	[]	"[""ONOMER0-4185 MONOMER0-4184 PHOSPHO-EVG""]"	
 EXUT-MONOMER	hexuronate transporter	EG12738	[]	[]	
-F16B-MONOMER	fructose-1,6-bisphosphatase monomer	EG10283	"[""CCO-CYTOSOL""]"	[]	
+F16B-MONOMER	fructose-1,6-bisphosphatase monomer	EG10283	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 FABA-MONOMER	FabA	EG10273	[]	[]	
-FABB-MONOMER	FabB	EG10274	"[""CCO-CYTOSOL""]"	[]	
-FABH-MONOMER	FabH	EG10277	"[""CCO-CYTOSOL""]"	[]	
-FABZ-MONOMER	FabZ	EG11284	"[""CCO-PM-BAC-NEG""]"	[]	
+FABB-MONOMER	FabB	EG10274	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+FABH-MONOMER	FabH	EG10277	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+FABZ-MONOMER	FabZ	EG11284	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 FADA-MONOMER	3-ketoacyl-CoA thiolase	EG10278	[]	[]	
 FADB-MONOMER	dodecenoyl-CoA &delta;-isomerase, enoyl-CoA hydratase, 3-hydroxybutyryl-CoA epimerase, 3-hydroxyacyl-CoA dehydrogenase	EG10279	[]	[]	
 FCL-MONOMER	Fcl	EG11788	[]	[]	
@@ -1733,7 +1852,8 @@ FGAMSYN-MONOMER	phosphoribosylformylglycinamide synthetase	EG10797	[]	[]
 FHUB-MONOMER	iron (III) hydroxamate ABC transporter - membrane subunit	EG10303	[]	[]	
 FHUC-MONOMER	iron (III) hydroxamate ABC transporter - ATP binding subunit	EG10304	[]	[]	
 FHUD-MONOMER	iron (III) hydroxamate ABC transporter - periplasmic binding protein	EG10305	[]	[]	
-FLAVODOXIN1-MONOMER	flavodoxin 1	EG10318	"[""CCO-CYTOSOL""]"	"[""X-FLAVODOXIN""]"	
+FLAVODOXIN1-MONOMER	flavodoxin 1	EG10318	"[""CCO-CYTOSOL""]"	"[""X-FLAVODOXIN""]"	"Location information from Lopez Campistrous 2005.
+"
 FLAVODOXIN2-MONOMER	flavodoxin 2	EG12697	[]	"[""X-FLAVODOXIN""]"	
 FLAVONADPREDUCT-MONOMER	flavodoxin NADP+ reductase	EG10628	[]	[]	
 FLGB-FLAGELLAR-MOTOR-ROD-PROTEIN	flagellar basal-body rod protein FlgB	G358	[]	[]	
@@ -1779,7 +1899,8 @@ FUMB-MONOMER	fumarase B monomer	EG10357	[]	[]
 FUMC-MONOMER	fumarase C monomer	EG10358	[]	[]	
 G357-MONOMER	flagellar biosynthesis; assembly of basal-body periplasmic P ring	G357	[]	[]	
 G360-MONOMER	flagellar biosynthesis, initiation of hook assembly	G360	[]	[]	
-G361-MONOMER	flagellar hook protein FlgE	G361	"[""CCO-CYTOSOL""]"	[]	
+G361-MONOMER	flagellar hook protein FlgE	G361	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G366-MONOMER	FlgJ	G366	[]	[]	
 G369-MONOMER	anti-sigma factor for FliA (sigma 28)	G369	[]	[]	
 G370-MONOMER	flagellar biosynthesis protein FlhA	G370	[]	[]	
@@ -1793,7 +1914,8 @@ G6083-MONOMER	IS186/IS421 transposase	G6083	[]	[]
 G6086-MONOMER	IS1 protein InsA	G6086	[]	[]	
 G6087-MONOMER	predicted protein	G6087	[]	[]	
 G6088-MONOMER	CaiF	G6088	[]	[]	
-G6093-MONOMER	Outer Membrane Protein Assembly Complex - BamA subunit	G6093	"[""CCO-PM-BAC-NEG""]"	[]	
+G6093-MONOMER	Outer Membrane Protein Assembly Complex - BamA subunit	G6093	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6095-MONOMER	predicted lyase	G6095	[]	[]	
 G6096-MONOMER	tRNAIle-lysidine synthetase	G6096	[]	[]	
 G6097-MONOMER	modulator of Rho-dependent transcription termination	G6097	[]	[]	
@@ -1803,7 +1925,8 @@ G6101-MONOMER	predicted aminopeptidase	G6101	[]	[]
 G6102-MONOMER	predicted inner membrane protein	G6102	[]	[]	
 G6103-MONOMER	predicted C-N hydrolase family amidase, NAD(P)-binding	G6103	[]	[]	
 G6104-MONOMER	inhibitor of vertebrate C-type lysozyme	G6104	[]	[]	
-G6106-MONOMER	D-sedoheptulose 7-phosphate isomerase	G6106	"[""CCO-CYTOSOL""]"	[]	
+G6106-MONOMER	D-sedoheptulose 7-phosphate isomerase	G6106	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6107-MONOMER	predicted amidotransferase	G6107	[]	[]	
 G6108-MONOMER	conserved protein	G6108	[]	[]	
 G6109-MONOMER	toxin of the YafQ-DinJ toxin-antitoxin system	G6109	[]	[]	
@@ -1925,7 +2048,8 @@ G6263-MONOMER	CueR transcriptional dual regulator	G6263	[]	[]
 G6264-MONOMER	conserved inner membrane protein	G6264	[]	[]	
 G6265-MONOMER	predicted protease, membrane anchored	G6265	[]	[]	
 G6267-MONOMER	putative metal resistance protein	G6267	[]	[]	
-G6268-MONOMER	chaperone and weak protein oxidoreductase	G6268	"[""CCO-CYTOSOL""]"	[]	
+G6268-MONOMER	chaperone and weak protein oxidoreductase	G6268	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6269-MONOMER	predicted oxidoreductase with NAD(P)-binding Rossmann-fold domain	G6269	[]	[]	
 G6271-MONOMER	conserved protein, rhs-like	G6271	[]	[]	
 G6273-MONOMER	predicted DNA-binding transcriptional regulator	G6273	[]	[]	
@@ -1994,7 +2118,8 @@ G6355-MONOMER	predicted tRNA ligase	G6355	[]	[]
 G6356-MONOMER	Hsc56, co-chaperone of Hsc62	G6356	[]	[]	
 G6357-MONOMER	Hsc62, Hsp70 family chaperone, binds to RpoD and inhibits transcription	G6357	[]	[]	
 G6358-MONOMER	ribonucleoside hydrolase 1 (pyrimidine-specific)	G6358	[]	[]	
-G6359-MONOMER	glutamate / aspartate ABC transporter - periplasmic binding protein	G6359	"[""CCO-PERI-BAC""]"	[]	
+G6359-MONOMER	glutamate / aspartate ABC transporter - periplasmic binding protein	G6359	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6361-MONOMER	predicted ion transport protein	G6361	[]	[]	
 G6362-MONOMER	conserved protein involved in translation	G6362	[]	[]	
 G6363-MONOMER	predicted protein with nucleoside triphosphate hydrolase domain	G6363	[]	[]	
@@ -2004,7 +2129,8 @@ G6371-MONOMER	predicted lipoprotein	G6371	[]	[]
 G6374-MONOMER	putative pectinase	G6374	[]	[]	
 G6376-MONOMER	conserved protein, rhs-like	G6376	[]	[]	
 G6377-MONOMER	predicted transposase; receptor protein	G6377	[]	[]	
-G6379-MONOMER	conserved metal-binding protein	G6379	"[""CCO-CYTOSOL""]"	[]	
+G6379-MONOMER	conserved metal-binding protein	G6379	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6380-MONOMER	putative carboxylase	G6380	[]	[]	
 G6381-MONOMER	putative carboxylase	G6381	[]	[]	
 G6382-MONOMER	predicted lactam utilization protein	G6382	[]	[]	
@@ -2078,7 +2204,8 @@ G6471-MONOMER	conserved protein	G6471	[]	[]
 G6472-MONOMER	conserved protein	G6472	[]	[]	
 G6473-MONOMER	conserved protein	G6473	[]	[]	
 G6474-MONOMER	conserved protein	G6474	[]	[]	
-G6475-MONOMER	predicted metal-binding enzyme	G6475	"[""CCO-CYTOSOL""]"	[]	
+G6475-MONOMER	predicted metal-binding enzyme	G6475	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6478-MONOMER	aliphatic sulfonate ABC transporter - periplasmic binding protein	G6478	[]	[]	
 G6480-MONOMER	fimbrial-like adhesin protein	G6480	[]	[]	
 G6481-MONOMER	predicted periplasmic pilin chaperone	G6481	[]	[]	
@@ -2119,7 +2246,8 @@ G6521-MONOMER	predicted aminoacrylate peracid reductase	G6521	[]	[]
 G6522-MONOMER	peroxyureidoacrylate / ureidoacrylate amido hydrolase	G6522	[]	[]	
 G6523-MONOMER	pyrimidine oxygenase	G6523	[]	[]	
 G6525-MONOMER	hypothetical protein of the OFeT transport family	G6525	[]	[]	
-G6527-MONOMER	conserved protein	G6527	"[""CCO-PERI-BAC""]"	[]	
+G6527-MONOMER	conserved protein	G6527	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6528-MONOMER	poly-&beta;-1,6-N-acetyl-D-glucosamine synthase - PgaD subunit	G6528	[]	[]	
 G6529-MONOMER	poly-&beta;-1,6-N-acetyl-D-glucosamine synthase - PgaC subunit	G6529	[]	[]	
 G6530-MONOMER	poly-&beta;-1,6-N-acetyl-D-glucosamine N-deacetylase	G6530	[]	[]	
@@ -2152,7 +2280,8 @@ G6563-MONOMER	predicted protein	G6563	[]	[]
 G6564-MONOMER	predicted protein	G6564	[]	[]	
 G6565-MONOMER	outer membrane lipoprotein - activator of PBP1B activity	G6565	[]	[]	
 G6567-MONOMER	&beta;-N-acetylhexosaminidase	G6567	[]	[]	
-G6568-MONOMER	conserved protein	G6568	"[""CCO-CYTOSOL""]"	[]	
+G6568-MONOMER	conserved protein	G6568	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6569-MONOMER	ComR DNA-binding transcriptional repressor	G6569	[]	[]	
 G6570-MONOMER	outer membrane protein involved in copper permeability, stress resistance and biofilm formation	G6570	[]	[]	
 G6571-MONOMER	L,D-transpeptidase YcfS	G6571	[]	[]	
@@ -2216,7 +2345,8 @@ G6634-MONOMER	conserved protein	G6634	[]	[]
 G6635-MONOMER	conserved protein	G6635	[]	[]	
 G6636-MONOMER	predicted inner membrane protein	G6636	[]	[]	
 G6637-MONOMER	conserved inner membrane protein	G6637	[]	[]	
-G6638-MONOMER	DNA-binding transcriptional regulator	G6638	"[""CCO-CYTOSOL""]"	[]	
+G6638-MONOMER	DNA-binding transcriptional regulator	G6638	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6639-MONOMER	modulator of RNase II stability	G6639	[]	[]	
 G6640-MONOMER	predicted oxidoreductase	G6640	[]	[]	
 G6641-MONOMER	conserved protein	G6641	[]	[]	
@@ -2233,7 +2363,8 @@ G6655-MONOMER	&beta;-phosphoglucomutase	G6655	[]	[]
 G6657-MONOMER	outer membrane porin OmpG	G6657	[]	[]	
 G6658-MONOMER	predicted DNA-binding transcriptional regulator, LacI type	G6658	[]	[]	
 G6659-MONOMER	conserved protein	G6659	[]	[]	
-G6660-MONOMER	lipid hydroperoxide peroxidase	G6660	"[""CCO-CYTOSOL""]"	[]	
+G6660-MONOMER	lipid hydroperoxide peroxidase	G6660	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6661-MONOMER	L-Ala-D/L-Glu epimerase	G6661	[]	[]	
 G6662-MONOMER	murein tripeptide amidase A	G6662	[]	[]	
 G6663-MONOMER	predicted hydrolase	G6663	[]	[]	
@@ -2316,7 +2447,8 @@ G6759-MONOMER	L-amino acid N-acyltransferase	G6759	[]	[]
 G6760-MONOMER	NADPH-dependent curcumin/dihydrocurcumin reductase subunit	G6760	[]	[]	
 G6761-MONOMER	McbR DNA-binding transcriptional dual regulator	G6761	[]	[]	
 G6762-MONOMER	probable TonB-dependent receptor	G6762	[]	[]	
-G6763-MONOMER	conserved protein	G6763	"[""CCO-PERI-BAC""]"	[]	
+G6763-MONOMER	conserved protein	G6763	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6765-MONOMER	predicted enzyme	G6765	[]	[]	
 G6766-MONOMER	hypothetical protein	G6766	[]	[]	
 G6767-MONOMER	predicted protein	G6767	[]	[]	
@@ -2393,7 +2525,8 @@ G6853-MONOMER	predicted DNA-binding transcriptional regulator	G6853	[]	[]
 G6855-MONOMER	acid shock protein	G6855	[]	[]	
 G6856-MONOMER	predicted peptidase	G6856	[]	[]	
 G6859-MONOMER	quorum signal AI-2 exporter	G6859	[]	[]	
-G6860-MONOMER	predicted protein	G6860	"[""CCO-CYTOSOL""]"	[]	
+G6860-MONOMER	predicted protein	G6860	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6862-MONOMER	dihydromonapterin reductase / dihydrofolate reductase	G6862	[]	[]	
 G6863-MONOMER	hypothetical protein	G6863	[]	[]	
 G6865-MONOMER	conserved protein	G6865	[]	[]	
@@ -2409,7 +2542,8 @@ G6874-MONOMER	integral membrane protein of SoxR-reducing complex	G6874	[]	[]
 G6875-MONOMER	member of SoxR-reducing complex	G6875	[]	[]	
 G6876-MONOMER	integral membrane protein of SoxR-reducing complex	G6876	[]	[]	
 G6880-MONOMER	anhydro-N-acetylmuramic acid kinase	G6880	[]	[]	
-G6881-MONOMER	outer membrane lipoprotein	G6881	"[""CCO-PM-BAC-NEG""]"	[]	
+G6881-MONOMER	outer membrane lipoprotein	G6881	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6882-MONOMER	SlyA DNA-binding transcriptional activator	G6882	[]	[]	
 G6883-MONOMER	predicted inner membrane protein	G6883	[]	[]	
 G6884-MONOMER	conserved protein	G6884	[]	[]	
@@ -2480,9 +2614,11 @@ G6960-MONOMER	predicted aldolase	G6960	[]	[]
 G6961-MONOMER	predicted oxidoreductase, Zn-dependent and NAD(P)-binding	G6961	[]	[]	
 G6963-MONOMER	predicted oxidoreductase, Zn-dependent and NAD(P)-binding	G6963	[]	[]	
 G6964-MONOMER	conserved protein	G6964	[]	[]	
-G6966-MONOMER	conserved protein	G6966	"[""CCO-CYTOSOL""]"	[]	
+G6966-MONOMER	conserved protein	G6966	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6967-MONOMER	methylglyoxal reductase	G6967	[]	[]	
-G6968-MONOMER	scaffolding protein that interacts with murein polymerase and murein hydrolase	G6968	"[""CCO-OUTER-MEM""]"	[]	
+G6968-MONOMER	scaffolding protein that interacts with murein polymerase and murein hydrolase	G6968	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G6969-MONOMER	protein kinase	G6969	[]	[]	
 G6970-MONOMER	conserved protein	G6970	[]	[]	
 G6971-MONOMER	predicted diguanylate cyclase	G6971	[]	[]	
@@ -2578,7 +2714,8 @@ G7074-MONOMER	CP4-44 prophage; IS5 transposase and trans-activator	G7074	[]	[]
 G7075-MONOMER	CP4-44 prophage; predicted disrupted hemin or colicin receptor	G7075	[]	[]	
 G7078-MONOMER	hypothetical protein	G7078	[]	[]	
 G7079-MONOMER	CP4-44 prophage; predicted GTP-binding protein	G7079	[]	[]	
-G7080-MONOMER	CP4-44 prophage; antigen 43 (Ag43) phase-variable biofilm formation autotransporter	G7080	"[""CCO-OUTER-MEM""]"	[]	
+G7080-MONOMER	CP4-44 prophage; antigen 43 (Ag43) phase-variable biofilm formation autotransporter	G7080	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7081-MONOMER	CP4-44 prophage; predicted membrane protein	G7081	[]	[]	
 G7082-MONOMER	CP4-44 prophage; predicted DNA repair protein	G7082	[]	[]	
 G7083-MONOMER	CP4-44 prophage; predicted protein	G7083	[]	[]	
@@ -2774,11 +2911,14 @@ G7316-MONOMER	predicted lipoprotein	G7316	[]	[]
 G7317-MONOMER	conserved protein, involved in DNA damage response	G7317	[]	[]	
 G7318-MONOMER	predicted protein	G7318	[]	[]	
 G7319-MONOMER	50S ribosomal subunit stability factor	G7319	[]	[]	
-G7320-MONOMER	Outer Membrane Protein Assembly Complex - BamB subunit	G7320	"[""CCO-OUTER-MEM""]"	[]	
-G7321-MONOMER	conserved protein	G7321	"[""CCO-PM-BAC-NEG""]"	[]	
+G7320-MONOMER	Outer Membrane Protein Assembly Complex - BamB subunit	G7320	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+G7321-MONOMER	conserved protein	G7321	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7322-MONOMER	peptidoglycan glycosyltransferase	G7322	[]	[]	
 G7323-MONOMER	&alpha;-macroglobulin	G7323	[]	[]	
-G7324-MONOMER	scaffold protein for iron-sulfur cluster assembly	G7324	"[""CCO-CYTOSOL""]"	[]	
+G7324-MONOMER	scaffold protein for iron-sulfur cluster assembly	G7324	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7325-MONOMER	cysteine desulfurase monomer	G7325	[]	[]	
 G7326-MONOMER	IscR DNA-binding transcriptional dual regulator	G7326	[]	[]	
 G7327-MONOMER	tRNA Cm32/Um32 methyltransferase	G7327	[]	[]	
@@ -2934,7 +3074,8 @@ G7505-MONOMER	predicted oxidoreductase,  4Fe-4S ferredoxin-type subunit	G7505	[]
 G7506-MONOMER	fused predicted oxidoreductase, Fe-S subunit and nucleotide-binding subunit	G7506	[]	[]	
 G7509-MONOMER	toxin of the CptA-CptB toxin-antitoxin system	G7509	[]	[]	
 G7510-MONOMER	antitoxin of the CptA-CptB toxin-antitoxin system	G7510	[]	[]	
-G7511-MONOMER	folate-binding protein	G7511	"[""CCO-CYTOSOL""]"	[]	
+G7511-MONOMER	folate-binding protein	G7511	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7512-MONOMER	predicted oxidoreductase, inner membrane subunit	G7512	[]	[]	
 G7513-MONOMER	conserved protein	G7513	[]	[]	
 G7514-MONOMER	predicted NAD(P)-binding oxidoreductase with NAD(P)-binding Rossmann-fold domain	G7514	[]	[]	
@@ -2946,7 +3087,8 @@ G7520-MONOMER	predicted dehydrogenase	G7520	[]	[]
 G7521-MONOMER	small protein involved in the acid stress response	G7521	[]	[]	
 G7522-MONOMER	predicted protein	G7522	[]	[]	
 G7523-MONOMER	hypothetical protein	G7523	[]	[]	
-G7524-MONOMER	predicted protein	G7524	"[""CCO-CYTOSOL""]"	[]	
+G7524-MONOMER	predicted protein	G7524	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7525-MONOMER	predicted transcription antitermination factor	G7525	[]	[]	
 G7526-MONOMER	predicted transporter	G7526	[]	[]	
 G7527-MONOMER	predicted enzyme	G7527	[]	[]	
@@ -3058,7 +3200,8 @@ G7655-MONOMER	predicted hydrolase, inner membrane	G7655	[]	[]
 G7656-MONOMER	GTPase involved in chromosome partitioning and ribosome assembly	G7656	[]	[]	
 G7657-MONOMER	predicted DNA-binding transcriptional regulator	G7657	[]	[]	
 G7658-MONOMER	MlaB	G7658	[]	[]	
-G7659-MONOMER	MlaC	G7659	"[""CCO-PERI-BAC""]"	[]	
+G7659-MONOMER	MlaC	G7659	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7662-MONOMER	D-arabinose 5-phosphate isomerase	G7662	[]	[]	
 G7663-MONOMER	3-deoxy-D-manno-octulosonate 8-phosphate phosphatase monomer	G7663	[]	[]	
 G7664-MONOMER	LptC	G7664	[]	[]	
@@ -3073,14 +3216,16 @@ G7675-MONOMER	conserved protein	G7675	[]	[]
 G7678-MONOMER	NanR DNA-binding transcriptional dual regulator	G7678	[]	[]	
 G7680-MONOMER	conserved protein with nucleoside triphosphate hydrolase domain	G7680	[]	[]	
 G7681-MONOMER	conserved protein	G7681	[]	[]	
-G7682-MONOMER	serine endoprotease, periplasmic	G7682	"[""CCO-CYTOSOL""]"	[]	
+G7682-MONOMER	serine endoprotease, periplasmic	G7682	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7683-MONOMER	stress-induced protein	G7683	[]	[]	
 G7684-MONOMER	predicted barnase inhibitor	G7684	[]	[]	
 G7685-MONOMER	hydroxylated, aromatic carboxylic acid efflux transporter - putative membrane subunit	G7685	[]	[]	
 G7686-MONOMER	hydroxylated, aromatic carboxylic acid efflux transporter - putative membrane fusion protein	G7686	[]	[]	
 G7687-MONOMER	hypothetical protein	G7687	[]	[]	
 G7688-MONOMER	quorum sensing transcriptional regulator of LYSR-type	G7688	[]	[]	
-G7689-MONOMER	protease involved in Microcin B17 maturation and in sensitivity to the DNA gyrase inhibitor LetD	G7689	"[""CCO-CYTOSOL""]"	[]	
+G7689-MONOMER	protease involved in Microcin B17 maturation and in sensitivity to the DNA gyrase inhibitor LetD	G7689	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7690-MONOMER	conserved membrane protein, predicted transporter	G7690	[]	[]	
 G7693-MONOMER	conserved inner membrane protein	G7693	[]	[]	
 G7694-MONOMER	predicted membrane protein	G7694	[]	[]	
@@ -3104,7 +3249,8 @@ G7712-MONOMER	sulfur transfer protein complex, TusB subunit	G7712	[]	[]
 G7713-MONOMER	sulfur transfer protein complex, TusC subunit	G7713	[]	[]	
 G7714-MONOMER	sulfur transfer protein complex, TusD subunit	G7714	[]	[]	
 G7715-MONOMER	predicted DNA-binding transcriptional regulator	G7715	[]	[]	
-G7716-MONOMER	peptidyl-prolyl cis-trans isomerase; in protein folding	G7716	"[""CCO-PERI-BAC""]"	[]	
+G7716-MONOMER	peptidyl-prolyl cis-trans isomerase; in protein folding	G7716	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7717-MONOMER	protein required for KefB activity	G7717	[]	[]	
 G7718-MONOMER	predicted hydrolase	G7718	[]	[]	
 G7719-MONOMER	conserved protein	G7719	[]	[]	
@@ -3130,11 +3276,13 @@ G7740-MONOMER	NudE	G7740	[]	[]
 G7741-MONOMER	putative dehydrogenase	G7741	[]	[]	
 G7742-MONOMER	purine nucleotidase	G7742	[]	[]	
 G7743-MONOMER	heat shock protein Hsp15 involved in ribosome recycling	G7743	[]	[]	
-G7744-MONOMER	molecular chaperone Hsp33	G7744	"[""CCO-CYTOSOL""]"	[]	
+G7744-MONOMER	molecular chaperone Hsp33	G7744	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7745-MONOMER	putative transport protein	G7745	[]	[]	
 G7746-MONOMER	predicted transcriptional accessory protein	G7746	[]	[]	
 G7747-MONOMER	protein involved in utilization of DNA as a carbon source	G7747	[]	[]	
-G7748-MONOMER	iron-sulfur cluster scaffold protein	G7748	"[""CCO-CYTOSOL""]"	[]	
+G7748-MONOMER	iron-sulfur cluster scaffold protein	G7748	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7750-MONOMER	RNA 3'-terminal phosphate cyclase	G7750	[]	[]	
 G7751-MONOMER	RNA ligase	G7751	[]	[]	
 G7752-MONOMER	predicted protein	G7752	[]	[]	
@@ -3175,7 +3323,8 @@ G7838-MONOMER	predicted protein	G7838	[]	[]
 G7839-MONOMER	conserved inner membrane protein	G7839	[]	[]	
 G7840-MONOMER	mechanosensitive channel of miniconductance McsM monomer	G7840	[]	[]	
 G7841-MONOMER	ribosome small subunit-dependent GTPase A	G7841	[]	[]	
-G7842-MONOMER	oligoribonuclease monomer	G7842	"[""CCO-CYTOSOL""]"	[]	
+G7842-MONOMER	oligoribonuclease monomer	G7842	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7843-MONOMER	epoxyqueuosine reductase	G7843	[]	[]	
 G7844-MONOMER	conserved inner membrane protein	G7844	[]	[]	
 G7845-MONOMER	23S rRNA 2'-O-ribose G2251 methyltransferase monomer	G7845	[]	[]	
@@ -3196,7 +3345,8 @@ G7861-MONOMER	predicted protein	G7861	[]	[]
 G7862-MONOMER	predicted protein	G7862	[]	[]	
 G7863-MONOMER	predicted transcriptional regulator	G7863	[]	[]	
 G7864-MONOMER	predicted cell envelope opacity-associated protein	G7864	[]	[]	
-G7865-MONOMER	FKBP-type peptidyl-prolyl cis-trans isomerase (rotamase)	G7865	"[""CCO-CYTOSOL""]"	[]	
+G7865-MONOMER	FKBP-type peptidyl-prolyl cis-trans isomerase (rotamase)	G7865	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 G7866-MONOMER	protein involved in repair of stress-damaged iron-sulfur clusters	G7866	[]	[]	
 G7867-MONOMER	inner membrane protein	G7867	[]	[]	
 G7868-MONOMER	NAD(P)H:quinone oxidoreductase	G7868	[]	[]	
@@ -3294,7 +3444,8 @@ GALACTONATE-DEHYDRATASE-MONOMER	D-galactonate dehydratase	GB4478	[]	[]
 GALACTURIDYLYLTRANS-MONOMER	galactose-1-phosphate uridylyltransferase	EG10366	[]	[]	
 GALP-MONOMER	galactose:H+ symporter	EG12148	[]	[]	
 GALPMUT-MONOMER	UDP-galactopyranose mutase	EG11981	[]	[]	
-GAPDH-A-MONOMER	glyceraldehyde 3-phosphate dehydrogenase-A monomer	EG10367	"[""CCO-CYTOSOL""]"	[]	
+GAPDH-A-MONOMER	glyceraldehyde 3-phosphate dehydrogenase-A monomer	EG10367	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GART-MONOMER	phosphoribosylglycinamide formyltransferase 1	EG10799	[]	[]	
 GARTRANSFORMYL2-MONOMER	phosphoribosylglycinamide formyltransferase 2	EG11809	[]	[]	
 GATA-MONOMER	galactitol PTS permease - GatA subunit	EG12414	[]	[]	
@@ -3302,18 +3453,23 @@ GATB-MONOMER	galactitol PTS permease - GatB subunit	EG12415	[]	[]
 GATC-MONOMER	galactitol PTS permease - GatC subunit	EG12416	[]	[]	
 GCVH-MONOMER	glycine cleavage system H protein	EG10371	[]	"[""MINOMETHYLDIHYDROLIPOYL-GCVH DIHYDROLIPOYL-GCVH LIPOYL-GCV""]"	
 GCVP-MONOMER	glycine decarboxylase	EG11810	[]	[]	
-GCVT-MONOMER	aminomethyltransferase	EG11442	"[""CCO-CYTOSOL""]"	[]	
-GDHA-MONOMER	GdhA	EG10372	"[""CCO-CYTOSOL""]"	[]	
+GCVT-MONOMER	aminomethyltransferase	EG11442	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+GDHA-MONOMER	GdhA	EG10372	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GDPMANDEHYDRA-MONOMER	GDP-mannose 4,6-dehydratase	EG11787	[]	[]	
 GDPMANMANHYDRO-MONOMER	Gmm	EG11789	[]	[]	
 GKI-MONOMER	glycerate kinase I	EG11175	[]	[]	
 GLCNACPTRANS-MONOMER	undecaprenyl-phosphate &alpha;-N-acetylglucosaminyl transferase	EG10840	[]	[]	
 GLND-MONOMER	[protein-PII] uridylyltransferase	EG11411	[]	[]	
 GLNE-MONOMER	glutamine synthetase adenylyltransferase [multifunctional]	EG11602	[]	[]	
-GLNH-MONOMER	glutamine ABC transporter - periplasmic binding protein	EG10386	"[""CCO-PERI-BAC""]"	[]	
+GLNH-MONOMER	glutamine ABC transporter - periplasmic binding protein	EG10386	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLNP-MONOMER	glutamine ABC transporter - membrane subunit	EG10388	[]	[]	
-GLNQ-MONOMER	glutamine ABC transporter - ATP binding subunit	EG10389	"[""CCO-PM-BAC-NEG""]"	[]	
-GLNS-MONOMER	glutaminyl-tRNA synthetase	EG10390	"[""CCO-CYTOSOL""]"	[]	
+GLNQ-MONOMER	glutamine ABC transporter - ATP binding subunit	EG10389	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+GLNS-MONOMER	glutaminyl-tRNA synthetase	EG10390	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLPF-MONOMER	GlpF	EG10396	[]	[]	
 GLPT-MONOMER	glycerol-3-phosphate:phosphate antiporter	EG10401	[]	[]	
 GLTJ-MONOMER	glutamate / aspartate ABC transporter - membrane subunit	EG12661	[]	[]	
@@ -3332,20 +3488,24 @@ GLUCONOKINII-MONOMER	GntK	EG12629	[]	[]
 GLUCONREDUCT-MONOMER	5-keto-D-gluconate 5-reductase	G7892	[]	[]	
 GLUCOSAMINE-6-P-DEAMIN-MONOMER	NagB	EG10633	[]	[]	
 GLUCOSE-1-PHOSPHAT-MONOMER	Agp	EG10033	[]	[]	
-GLURS-MONOMER	glutamyl-tRNA synthetase	EG10407	"[""CCO-CYTOSOL""]"	[]	
+GLURS-MONOMER	glutamyl-tRNA synthetase	EG10407	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLUSYNLARGE-MONOMER	glutamate synthase, large subunit	EG10403	[]	[]	
 GLUSYNSMALL-MONOMER	glutamate synthase, small subunit	EG10404	[]	[]	
 GLUTAMIDOTRANS-MONOMER	imidazole glycerol phosphate synthase, HisH subunit	EG10450	[]	[]	
-GLUTAMINESYN-MONOMER	GlnA	EG10383	"[""CCO-CYTOSOL""]"	"[""DENYLYL-G""]"	
+GLUTAMINESYN-MONOMER	GlnA	EG10383	"[""CCO-CYTOSOL""]"	"[""DENYLYL-G""]"	"Location information from Lopez Campistrous 2005.
+"
 GLUTATHIONE-REDUCT-NADPH-MONOMER	glutathione reductase (NADPH)	EG10412	[]	[]	
-GLUTATHIONE-SYN-MONOMER	glutathione synthetase monomer	EG10419	"[""CCO-CYTOSOL""]"	[]	
+GLUTATHIONE-SYN-MONOMER	glutathione synthetase monomer	EG10419	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLUTCYSLIG-MONOMER	&gamma;-glutamate-cysteine ligase	EG10418	[]	[]	
 GLUTDECARBOXA-MONOMER	glutamate decarboxylase A subunit	EG50009	[]	[]	
 GLUTDECARBOXB-MONOMER	glutamate decarboxylase B subunit	EG11490	[]	[]	
 GLUTKIN-MONOMER	ProB	EG10768	[]	[]	
 GLUTRACE-MONOMER	MurI	EG11204	[]	[]	
 GLUTRNAREDUCT-MONOMER	HemA	EG10427	[]	[]	
-GLUTSEMIALDEHYDROG-MONOMER	ProA	EG10767	"[""CCO-CYTOSOL""]"	[]	
+GLUTSEMIALDEHYDROG-MONOMER	ProA	EG10767	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLVB-MONOMER	GlvB	EG11709	[]	[]	
 GLVC-MONOMER	GlvC	EG11710	[]	[]	
 GLY3KIN-MONOMER	glycerate kinase II	G6283	[]	[]	
@@ -3358,20 +3518,24 @@ GLYCOGENSYN-MONOMER	glycogen synthase	EG10377	[]	[]
 GLYCOPHOSPHORYL-MONOMER	GlgP	EG10380	[]	[]	
 GLYCPDIESTER-CYTO-MONOMER	glycerophosphodiester phosphodiesterase, cytosolic	EG11050	[]	[]	
 GLYCPDIESTER-PERI-MONOMER	GlpQ	EG10399	[]	[]	
-GLYCRIBONUCSYN-MONOMER	phosphoribosylamine-glycine ligase	EG10792	"[""CCO-PERI-BAC""]"	[]	
+GLYCRIBONUCSYN-MONOMER	phosphoribosylamine-glycine ligase	EG10792	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLYOCARBOLIG-MONOMER	Gcl	EG11583	[]	[]	
-GLYOHMETRANS-MONOMER	GlyA	EG10408	"[""CCO-CYTOSOL""]"	[]	
+GLYOHMETRANS-MONOMER	GlyA	EG10408	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GLYOXI-MONOMER	GloA	G6891	[]	[]	
 GLYOXII-MONOMER	glyoxalase II	G6099	[]	[]	
 GLYQ-MONOMER	glycyl-tRNA synthetase, &alpha; subunit	EG10409	[]	[]	
-GLYS-MONOMER	glycyl-tRNA synthetase, &beta; subunit	EG10410	"[""CCO-CYTOSOL""]"	[]	
+GLYS-MONOMER	glycyl-tRNA synthetase, &beta; subunit	EG10410	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GMP-REDUCT-MONOMER	GuaC	EG10422	[]	[]	
 GMP-SYN-MONOMER	GMP synthetase	EG10420	[]	[]	
 GNTP-MONOMER	gluconate / fructuronate  transporter GntP	EG12563	[]	[]	
 GNTT-MONOMER	gluconate transporter GntT	EG12380	[]	[]	
 GNTU-MONOMER	gluconate transporter GntU	EG12631	[]	[]	
 GPH-MONOMER	phosphoglycolate phosphatase	EG11871	[]	[]	
-GPMA-MONOMER	2,3-bisphosphoglycerate-dependent phosphoglycerate mutase monomer	EG11699	"[""CCO-CYTOSOL""]"	[]	
+GPMA-MONOMER	2,3-bisphosphoglycerate-dependent phosphoglycerate mutase monomer	EG11699	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 GPT-MONOMER	Gpt	EG10414	[]	[]	
 GRXB-MONOMER	reduced glutaredoxin 2	EG12688	[]	"[""X-GLUTAREDOXIN-""]"	
 GRXC-MONOMER	reduced glutaredoxin 3	EG12294	[]	"[""X-GLUTAREDOXIN-""]"	
@@ -3395,21 +3559,26 @@ HCAD-MONOMER	3-phenylpropionate dioxygenase, predicted ferredoxin reductase subu
 HCAT-MONOMER	HcaT MFS transporter	G7330	[]	[]	
 HEMEOSYN-MONOMER	heme O synthase	EG10182	[]	[]	
 HEMN-MONOMER	coproporphyrinogen III dehydrogenase	EG11836	[]	[]	
-HEMX-MONOMER	conserved protein	EG10433	"[""CCO-PM-BAC-NEG""]"	[]	
-HISJ-MONOMER	histidine ABC transporter - periplasmic binding protein	EG12124	"[""CCO-PERI-BAC""]"	[]	
+HEMX-MONOMER	conserved protein	EG10433	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+HISJ-MONOMER	histidine ABC transporter - periplasmic binding protein	EG12124	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 HISM-MONOMER	lysine/arginine/ornithine ABC transporter / histidine ABC transporter - membrane subunit	EG10007	[]	[]	
 HISP-MONOMER	lysine / arginine / ornithine ABC transporter / histidine ABC transporter - ATP binding subunit	EG10452	[]	[]	
 HISQ-MONOMER	lysine / arginine / ornithine ABC transporter / histidine ABC transporter - membrane subunit	EG12125	[]	[]	
-HISS-MONOMER	histidyl-tRNA synthetase	EG10453	"[""CCO-CYTOSOL""]"	[]	
+HISS-MONOMER	histidyl-tRNA synthetase	EG10453	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 HISTCYCLOPRATPPHOS	phosphoribosyl-AMP cyclohydrolase / phosphoribosyl-ATP pyrophosphatase	EG10451	[]	[]	
-HISTDEHYD-MONOMER	HisD	EG10447	"[""CCO-CYTOSOL""]"	[]	
+HISTDEHYD-MONOMER	HisD	EG10447	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 HISTPHOSTRANS-MONOMER	HisC	EG10446	[]	[]	
 HMP-KIN-MONOMER	chaperone, protecting proteins in response to oxidative stress	G198	[]	[]	
 HMP-P-KIN-MONOMER	ThiD	G7135	[]	[]	
 HOLO-ACP-SYNTH-MONOMER	AcpS	EG10247	[]	[]	
 HOMOCYSMET-MONOMER	cobalamin-independent homocysteine transmethylase	EG10584	[]	[]	
 HOMOCYSMETB12-MONOMER	cobalamin-dependent methionine synthase	EG10587	[]	[]	
-HOMOSERKIN-MONOMER	ThrB	EG10999	"[""CCO-CYTOSOL""]"	[]	
+HOMOSERKIN-MONOMER	ThrB	EG10999	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 HOMSUCTRAN-MONOMER	MetA	EG10581	[]	[]	
 HRSA-MONOMER	MngA	EG13235	[]	[]	
 HYAA-MONOMER	hydrogenase 1, small subunit	EG10468	[]	[]	
@@ -3427,25 +3596,30 @@ HYDG-MONOMER	ZraR transcriptional activator	EG10482	[]	"[""HOSPHO-HYD""]"
 HYDH-MONOMER	ZraS sensory histidine kinase	EG10008	[]	"[""HOSPHO-HYD""]"	
 HYDROPEROXIDI-MONOMER	hydroperoxidase I	EG10511	[]	[]	
 HYDROPEROXIDII-MONOMER	catalase II	EG10509	[]	[]	
-HYPOXANPRIBOSYLTRAN-MONOMER	hypoxanthine-guanine phosphoribosyltransferase	EG20098	"[""CCO-CYTOSOL""]"	[]	
+HYPOXANPRIBOSYLTRAN-MONOMER	hypoxanthine-guanine phosphoribosyltransferase	EG20098	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 ICITDEHASE-KIN-PHOSPHA	AceK	EG10026	[]	[]	
 IDONDEHYD-MONOMER	L-idonate 5-dehydrogenase	G7893	[]	[]	
 ILES-MONOMER	isoleucyl-tRNA synthetase	EG10492	[]	[]	
 IMIDPHOSPHADEHYDHISTIDPHOSPHA-MONOMER	HisB	EG10445	[]	[]	
-IMP-DEHYDROG-MONOMER	GuaB	EG10421	"[""CCO-CYTOSOL""]"	[]	
+IMP-DEHYDROG-MONOMER	GuaB	EG10421	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 INORGPYROPHOSPHAT-MONOMER	Ppa	EG10755	[]	[]	
 IPPISOM-MONOMER	isopentenyl diphosphate isomerase	G7508	[]	[]	
 ISOCIT-LYASE-MONOMER	isocitrate lyase monomer	EG10022	[]	[]	
-ISOCITDEH-SUBUNIT	Icd	EG10489	"[""CCO-CYTOSOL""]"	[]	
+ISOCITDEH-SUBUNIT	Icd	EG10489	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 KCH-MONOMER	K+ channel Kch monomer	EG11606	[]	[]	
 KDGALDOL-MONOMER	GarL	EG10016	[]	[]	
 KDGT-MONOMER	2-dehydro-3-deoxy-D-gluconate:H+ symporter	EG11869	[]	[]	
-KDO-8PSYNTH-MONOMER	3-deoxy-D-manno-octulosonate 8-phosphate synthase	EG10518	"[""CCO-CYTOSOL""]"	[]	
+KDO-8PSYNTH-MONOMER	3-deoxy-D-manno-octulosonate 8-phosphate synthase	EG10518	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 KDOTRANS-MONOMER	KDO transferase	EG10520	[]	[]	
 KDPB-MONOMER	K+ transporting ATPase - ATP binding subunit	EG10514	[]	[]	
 KDPD-MONOMER	KdpD	EG10516	[]	[]	
 KDPE-MONOMER	KdpE transcriptional activator	EG10517	[]	"[""HOSPHO-KDP""]"	
-KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER	Eda	EG10256	"[""CCO-CYTOSOL""]"	[]	
+KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER	Eda	EG10256	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 KDUD-MONOMER	2-deoxy-D-gluconate 3-dehydrogenase	EG12361	[]	[]	
 KEFB-MONOMER	K+ : H+ antiporter KefB	EG20110	[]	[]	
 KEFC-MONOMER	KefC	EG10521	[]	[]	
@@ -3456,7 +3630,8 @@ KUP-MONOMER	K+ transporter Kup	EG11541	[]	[]
 L-ASPARTATE-OXID-MONOMER	L-aspartate oxidase	EG10631	[]	[]	
 L-GLN-FRUCT-6-P-AMINOTRANS-MONOMER	GlmS	EG10382	[]	[]	
 L-LACTDEHYDROGFMN-MONOMER	L-lactate dehydrogenase	EG11963	[]	[]	
-LACTALDDEHYDROG-MONOMER	AldA	EG10035	"[""CCO-CYTOSOL""]"	[]	
+LACTALDDEHYDROG-MONOMER	AldA	EG10035	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 LACTALDREDUCT-MONOMER	L-1,2-propanediol oxidoreductase monomer	EG10351	[]	[]	
 LACY-MONOMER	lactose / melibiose:H+ symporter LacY	EG10526	[]	[]	
 LARGEILVB-MONOMER	IlvB	EG10494	[]	[]	
@@ -3464,21 +3639,26 @@ LARGEILVG-MONOMER	acetolactate synthase II, large subunit, C-ter fragment (pseud
 LAUROYLACYLTRAN-MONOMER	lauroyl acyltransferase	EG10464	[]	[]	
 LCTP-MONOMER	(R)-lactate / (S)-lactate / glycolate:H+ symporter LldP	EG11961	[]	[]	
 LDC2-MONOMER	LdcC	G6094	[]	[]	
-LEUC-MONOMER	LeuC	EG11576	"[""CCO-CYTOSOL""]"	[]	
-LEUD-MONOMER	LeuD	EG11575	"[""CCO-CYTOSOL""]"	[]	
+LEUC-MONOMER	LeuC	EG11576	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+LEUD-MONOMER	LeuD	EG11575	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 LEUS-MONOMER	leucyl-tRNA synthetase	EG10532	[]	[]	
 LIPIDADISACCHARIDESYNTH-MONOMER	LpxB	EG10546	[]	[]	
 LIVF-MONOMER	branched chain amino acid ABC transporter - ATP binding subunit	EG10536	[]	[]	
 LIVG-MONOMER	branched chain amino acid transporter - ATP binding subunit	EG10537	[]	[]	
 LIVH-MONOMER	branched chain amino acid transporter - membrane subunit	EG10538	[]	[]	
-LIVJ-MONOMER	branched chain amino acid ABC transporter - periplasmic binding protein	EG10539	"[""CCO-PERI-BAC""]"	[]	
-LIVK-MONOMER	leucine ABC transporter - periplasmic binding protein	EG10540	"[""CCO-PERI-BAC""]"	[]	
+LIVJ-MONOMER	branched chain amino acid ABC transporter - periplasmic binding protein	EG10539	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+LIVK-MONOMER	leucine ABC transporter - periplasmic binding protein	EG10540	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 LIVM-MONOMER	branched chain amino acid transporter - membrane subunit	EG10541	[]	[]	
 LSERINEDEAM1-MONOMER	L-serine deaminase I	EG10930	[]	[]	
 LSERINEDEAM2-MONOMER	L-serine deaminase II	EG11623	[]	[]	
 LSERINEDEAM3-MONOMER	L-serine deaminase III	G7624	[]	[]	
 LTAA-MONOMER	LtaE	G6455	[]	[]	
-LUMAZINESYN-MONOMER	RibE	EG11322	"[""CCO-CYTOSOL""]"	[]	
+LUMAZINESYN-MONOMER	RibE	EG11322	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 LYSDECARBOX-MONOMER	CadA	EG10131	[]	[]	
 LYSP-MONOMER	lysine:H+ symporter	EG11337	[]	[]	
 LYSS-MONOMER	lysyl tRNA synthetase (LysRSs), constitutive	EG10552	[]	[]	
@@ -3489,13 +3669,15 @@ MACB	MacAB-TolC macrolide efflux transport system - membrane subunit	G6462	[]	[]
 MALATE-DEHASE-MONOMER	Mdh	EG10576	[]	[]	
 MALATE-SYNTHASE	malate synthase A	EG10023	[]	[]	
 MALDEXPHOSPHORYL-MONOMER	maltodextrin phosphorylase monomer	EG10560	[]	[]	
-MALE-MONOMER	maltose ABC transporter - periplasmic binding protein	EG10554	"[""CCO-PERI-BAC""]"	[]	
+MALE-MONOMER	maltose ABC transporter - periplasmic binding protein	EG10554	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 MALF-MONOMER	maltose ABC transporter - membrane subunit	EG10555	[]	[]	
 MALG-MONOMER	maltose ABC transporter - membrane subunit	EG10556	[]	[]	
 MALIC-NAD-MONOMER	malate dehydrogenase, NAD-requiring	EG10948	[]	[]	
 MALIC-NADP-MONOMER	MaeB	G7293	[]	[]	
 MALK-MONOMER	maltose ABC transporter - ATP binding subunit	EG10558	[]	[]	
-MALONYL-COA-ACP-TRANSACYL-MONOMER	malonyl-CoA-ACP transacylase	EG11317	"[""CCO-CYTOSOL""]"	[]	
+MALONYL-COA-ACP-TRANSACYL-MONOMER	malonyl-CoA-ACP transacylase	EG11317	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 MALSYNG-MONOMER	malate synthase G	EG20080	[]	[]	
 MALTACETYLTRAN-MONOMER	Maa	G58	[]	[]	
 MALTODEXGLUCOSID-MONOMER	maltodextrin glucosidase	EG10565	[]	[]	
@@ -3505,7 +3687,8 @@ MANNONOXIDOREDUCT-MONOMER	D-mannonate oxidoreductase	EG20248	[]	[]
 MANNPDEHYDROG-MONOMER	mannitol-1-phosphate 5-dehydrogenase	EG10616	[]	[]	
 MANNPGUANYLTRANGDP-MONOMER	mannose-1-phosphate guanylyltransferase	EG10161	[]	[]	
 MANNPISOM-MONOMER	mannose-6-phosphate isomerase	EG10566	[]	[]	
-MANX-MONOMER	ManX	EG10567	"[""CCO-PM-BAC-NEG""]"	[]	
+MANX-MONOMER	ManX	EG10567	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 MANY-MONOMER	mannose PTS permease - ManY subunit	EG10568	[]	[]	
 MANZ-MONOMER	mannose PTS permease - ManZ subunit	EG10569	[]	[]	
 MDLA-MONOMER	predicted multidrug transporter subunit of ABC superfamily: ATP-binding component	G6248	[]	[]	
@@ -3514,14 +3697,17 @@ MDTA	MdtABC-TolC multidrug efflux transport system - putative membrane fusion pr
 MELB-MONOMER	melibiose:H+/Na+/Li+ symporter	EG10578	[]	[]	
 MEND-MONOMER	MenD	EG10579	[]	[]	
 MENF-MONOMER	MenF	EG12362	[]	[]	
-METG-MONOMER	methionyl-tRNA synthetase	EG10586	"[""CCO-OUTER-MEM""]"	[]	
+METG-MONOMER	methionyl-tRNA synthetase	EG10586	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 METHGLYSYN-MONOMER	methylglyoxal synthase	G6497	[]	[]	
 METHYLENETHFREDUCT-MONOMER	MetF	EG10585	[]	[]	
 METHYLMALONYL-COA-MUT-MONOMER	ScpA	EG11444	[]	[]	
 METI-MONOMER	L-methionine / D-methionine ABC transporter - membrane subunit	EG11737	[]	[]	
-METQ-MONOMER	l-methionine / D-methionine ABC transporter - periplasmic binding protein	EG11504	"[""CCO-PM-BAC-NEG""]"	[]	
+METQ-MONOMER	l-methionine / D-methionine ABC transporter - periplasmic binding protein	EG11504	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 MGLA-MONOMER	galactose ABC transporter - ATP binding subunit	EG10592	[]	[]	
-MGLB-MONOMER	galactose ABC transporter - periplasmic binding protein	EG10593	"[""CCO-PERI-BAC""]"	[]	
+MGLB-MONOMER	galactose ABC transporter - periplasmic binding protein	EG10593	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 MGLC-MONOMER	galactose ABC transporter - membrane subunit	EG10594	[]	[]	
 MGTA-MONOMER	Mg2+ / Ni2+ transporting ATPase	EG12525	[]	[]	
 MHPCHYDROL-MONOMER	2-hydroxy-6-ketonona-2,4-dienedioate hydrolase	M012	[]	[]	
@@ -3574,7 +3760,8 @@ MONOMER0-185	ModE	G6395	[]	[]
 MONOMER0-1922	toxic peptide TisB	G0-9962	[]	[]	
 MONOMER0-1941	damage-inducible protein	G0-9981	[]	[]	
 MONOMER0-1981	N-succinyl-L-diaminopimelate desuccinylase subunit	EG10208	[]	[]	
-MONOMER0-2001	tetrahydrodipicolinate succinylase subunit	EG10207	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2001	tetrahydrodipicolinate succinylase subunit	EG10207	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 MONOMER0-2121	predicted enzyme IIB component of PTS	G0-10241	[]	[]	
 MONOMER0-2141	inner membrane protein that interacts with cell division proteins	G0-10261	[]	[]	
 MONOMER0-2383	DNA polymerase III, &gamma; subunit	EG10245	[]	[]	
@@ -3748,7 +3935,8 @@ NACMURLALAAMI1-MONOMER	N-acetylmuramoyl-L-alanine amidase 1	EG11823	[]	[]
 NACMURLALAAMI2-MONOMER	N-acetylmuramoyl-L-alanine amidase 2	EG11363	[]	[]	
 NAD-SYNTH-MONOMER	NadE	EG10663	[]	[]	
 NADH-DHII-MONOMER	NADH:ubiquinone oxidoreductase II	EG10649	[]	[]	
-NAG1P-URIDYLTRANS-MONOMER	GlmU	EG11198	"[""CCO-CYTOSOL""]"	[]	
+NAG1P-URIDYLTRANS-MONOMER	GlmU	EG11198	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 NAG6PDEACET-MONOMER	NagA	EG10632	[]	[]	
 NAGE-MONOMER	NagE	EG10635	[]	[]	
 NANE-MONOMER	predicted N-acetylmannosamine-6-phosphate epimerase	G7677	[]	[]	
@@ -3797,7 +3985,8 @@ NRFC-MONOMER	formate-dependent nitrite reductase, 4Fe-4S subunit	EG11946	[]	[]
 NRFD-MONOMER	formate dependent nitrate reductase - NrfD subunit	EG11947	[]	[]	
 NUCLEOSIDE-DIP-KIN-MONOMER	Ndk	EG10650	[]	[]	
 NUOA-MONOMER	NADH:ubiquinone oxidoreductase, membrane subunit A	EG12082	[]	[]	
-NUOB-MONOMER	NADH:ubiquinone oxidoreductase, chain B	EG12083	"[""CCO-PM-BAC-NEG""]"	[]	
+NUOB-MONOMER	NADH:ubiquinone oxidoreductase, chain B	EG12083	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 NUOC-MONOMER	NADH:ubiquinone oxidoreductase, chain CD	EG12084	[]	[]	
 NUOE-MONOMER	NADH:ubiquinone oxidoreductase, chain E	EG12086	[]	[]	
 NUOF-MONOMER	NADH:ubiquinone oxidoreductase, chain F	EG11774	[]	[]	
@@ -3818,7 +4007,8 @@ OCTAPRENYL-METHOXYPHENOL-OH-MONOMER	2-octaprenyl-6-methoxyphenol hydroxylase	EG1
 OCTAPRENYL-METHYL-METHOXY-BENZOQ-OH-MON	2-octaprenyl-3-methyl-6-methoxy-1,4-benzoquinone hydroxylase	G6365	[]	[]	
 OHMETHYLBILANESYN-MONOMER	hydroxymethylbilane synthase	EG10429	[]	[]	
 OMPR-MONOMER	OmpR	EG10672	[]	"[""HOSPHO-OMPR-MONOME""]"	
-OPPA-MONOMER	peptide ABC transporter - periplasmic binding protein	EG10674	"[""CCO-PERI-BAC""]"	[]	
+OPPA-MONOMER	peptide ABC transporter - periplasmic binding protein	EG10674	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 OPPB-MONOMER	murein tripeptide ABC transporter / peptide ABC transporter - putative membrane subunit	EG10675	[]	[]	
 OPPC-MONOMER	murein tripeptide ABC transporter / peptide ABC transporter - putative membrane subunit	EG10676	[]	[]	
 OPPD-MONOMER	murein tripeptide ABC transporter / peptide ABC transporter - putative ATP binding subunit	EG10677	[]	[]	
@@ -3918,7 +4108,8 @@ PDXJ-MONOMER	PdxJ	EG10693	[]	[]
 PDXK-MONOMER	PdxK	G7259	[]	[]	
 PDXY-MONOMER	pyridoxal kinase 2	G6879	[]	[]	
 PEPCARBOX-MONOMER	Ppc	EG10756	[]	[]	
-PEPCARBOXYKIN-MONOMER	phosphoenolpyruvate carboxykinase (ATP)	EG10688	"[""CCO-CYTOSOL""]"	[]	
+PEPCARBOXYKIN-MONOMER	phosphoenolpyruvate carboxykinase (ATP)	EG10688	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PEPSYNTH-MONOMER	phosphoenolpyruvate synthetase	EG10759	[]	[]	
 PFLACTENZ-MONOMER	pyruvate formate-lyase activating enzyme	EG10028	[]	[]	
 PGAM2-MONOMER	predicted phosphoglycerate mutase 2	EG12164	[]	[]	
@@ -3946,15 +4137,18 @@ PHOP-MONOMER	PhoP	EG10731	[]	"[""HOSPHO-PHO""]"
 PHOQ-MONOMER	PhoQ sensory histidine kinase	EG10732	[]	"[""HOSPHO-PHO""]"	
 PHOR-MONOMER	PhoR	EG10733	[]	[]	
 PHOSACETYLTRANS-MONOMER	Pta	EG20173	[]	[]	
-PHOSGLUCOSAMINEMUT-MONOMER	phosphoglucosamine mutase	EG11553	"[""CCO-CYTOSOL""]"	[]	
+PHOSGLUCOSAMINEMUT-MONOMER	phosphoglucosamine mutase	EG11553	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PHOSMANMUT-MONOMER	phosphomannomutase	EG10162	[]	[]	
 PHOSNACMURPENTATRANS-MONOMER	phospho-N-acetylmuramoyl-pentapeptide transferase	EG10604	[]	[]	
 PHOSPHAGLYPSYN-MONOMER	phosphatidylglycerophosphate synthase	EG10706	[]	[]	
 PHOSPHASERSYN-MONOMER	PssA	EG10781	[]	[]	
-PHOSPHOGLUCMUT-MONOMER	phosphoglucomutase	EG12144	"[""CCO-CYTOSOL""]"	[]	
+PHOSPHOGLUCMUT-MONOMER	phosphoglucomutase	EG12144	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PITA-MONOMER	phosphate / arsenate:H+ symporter PitA	EG12230	[]	[]	
 PITB-MONOMER	phosphate transporter	EG12883	[]	[]	
-PKI-MONOMER	pyruvate kinase I monomer	EG10804	"[""CCO-CYTOSOL""]"	[]	
+PKI-MONOMER	pyruvate kinase I monomer	EG10804	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PKII-MONOMER	pyruvate kinase II monomer	EG10803	[]	[]	
 PNTA-MONOMER	pyridine nucleotide transhydrogenase, &alpha; subunit	EG10744	[]	[]	
 PNTB-MONOMER	pyridine nucleotide transhydrogenase, &beta; subunit	EG10745	[]	[]	
@@ -3963,7 +4157,8 @@ PORPHOBILSYNTH-MONOMER	porphobilinogen synthase	EG10428	[]	[]
 POTA-MONOMER	putrescine / spermidine ABC transporter - ATP binding subunit	EG10749	[]	[]	
 POTB-MONOMER	putrescine / spermidine ABC transporter - membrane subunit	EG10750	[]	[]	
 POTC-MONOMER	putrescine / spermidine ABC transporter - membrane subunit	EG10751	[]	[]	
-POTD-MONOMER	putrescine / spermidine ABC transporter - periplasmic binding protein	EG10752	"[""CCO-PERI-BAC""]"	[]	
+POTD-MONOMER	putrescine / spermidine ABC transporter - periplasmic binding protein	EG10752	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 POTE-MONOMER	putrescine:H+ symporter / putrescine:ornithine antiporter PotE	EG10753	[]	[]	
 POTF-MONOMER	putrescine ABC transporter - periplasmic binding protein	EG11629	[]	[]	
 POTG-MONOMER	putrescine ABC transporter - ATP binding subunit	EG11630	[]	[]	
@@ -3974,14 +4169,17 @@ PPK-MONOMER	Ppk	EG11510	[]	[]
 PPPGPPHYDRO-MONOMER	Gpp	EG10413	[]	[]	
 PPX-MONOMER	exopolyphosphatase monomer	EG11403	[]	[]	
 PRAI-IGPS	indole-3-glycerol phosphate synthase / phosphoribosylanthranilate isomerase	EG11026	[]	[]	
-PRIBFAICARPISOM-MONOMER	N-(5'-phospho-L-ribosyl-formimino)-5-amino-1-(5'-phosphoribosyl)-4-imidazolecarboxamide isomerase	EG10444	"[""CCO-CYTOSOL""]"	[]	
+PRIBFAICARPISOM-MONOMER	N-(5'-phospho-L-ribosyl-formimino)-5-amino-1-(5'-phosphoribosyl)-4-imidazolecarboxamide isomerase	EG10444	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PROP-MONOMER	ProP	EG11612	[]	[]	
 PROPKIN-MONOMER	propionate kinase	EG11172	[]	[]	
-PROS-MONOMER	prolyl-tRNA synthetase	EG10770	"[""CCO-CYTOSOL""]"	[]	
+PROS-MONOMER	prolyl-tRNA synthetase	EG10770	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PROTEIN-CHEA	CheA	EG10146	[]	"[""ONOMER0-420""]"	
 PROTEIN-NRI	NtrC transcriptional dual regulator	EG10385	[]	"[""ONOMER0-419""]"	
 PROTEIN-NRII	NtrB	EG10387	[]	[]	
-PROTEIN-PII	PII	EG10384	"[""CCO-CYTOSOL""]"	"[""RIDYLYL-PI""]"	
+PROTEIN-PII	PII	EG10384	"[""CCO-CYTOSOL""]"	"[""RIDYLYL-PI""]"	"Location information from Lopez Campistrous 2005.
+"
 PROTEIN-PII2	GlnK	EG12191	[]	"[""RIDYLYL-PII""]"	
 PROTOHEME-FERROCHELAT-MONOMER	ferrochelatase	EG10431	[]	[]	
 PROTOPORGENOXI-MONOMER	HemG	EG11485	[]	[]	
@@ -3990,35 +4188,42 @@ PROW-MONOMER	glycine betaine / proline ABC transporter - membrane subunit	EG1077
 PROX-MONOMER	glycine betaine / proline ABC transporter - periplasmic binding protein	EG10773	[]	[]	
 PROY-MONOMER	proline:H+ symporter  - cryptic	G6233	[]	[]	
 PRPPAMIDOTRANS-MONOMER	PurF	EG10794	[]	[]	
-PRPPSYN-MONOMER	ribose-phosphate diphosphokinase	EG10774	"[""CCO-CYTOSOL""]"	[]	
+PRPPSYN-MONOMER	ribose-phosphate diphosphokinase	EG10774	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PSD-MONOMER	phosphatidylserine decarboxylase, proenzyme	EG10775	[]	"[""HOSPHASERDECARB-BETA-MONOMER PHOSPHASERDECARB-ALPHA-MONOME""]"	
 PSERPHOSPHA-MONOMER	phosphoserine phosphatase	EG10945	[]	[]	
-PSERTRANSAM-MONOMER	SerC	EG10946	"[""CCO-CYTOSOL""]"	[]	
+PSERTRANSAM-MONOMER	SerC	EG10946	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PSTA-MONOMER	phosphate ABC transporter - membrane subunit	EG10782	[]	[]	
 PSTB-MONOMER	phosphate ABC transporter - ATP binding subunit	EG10783	[]	[]	
 PSTC-MONOMER	phosphate ABC transporter - membrane subunit	EG10784	[]	[]	
 PSTS-MONOMER	phosphate ABC transporter - periplasmic binding protein	EG10734	[]	[]	
 PTSG-MONOMER	glucose PTS permease - PtsG subunit	EG10787	[]	[]	
 PTSH-MONOMER	HPr	EG10788	[]	"[""TSH-PHOSPHORYLATE""]"	
-PTSI-MONOMER	PTS enzyme I	EG10789	"[""CCO-CYTOSOL""]"	[]	
-PURE-MONOMER	PurE	EG10793	"[""CCO-CYTOSOL""]"	[]	
+PTSI-MONOMER	PTS enzyme I	EG10789	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+PURE-MONOMER	PurE	EG10793	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PURK-MONOMER	N5-carboxyaminoimidazole ribonucleotide synthetase monomer	EG10796	[]	[]	
 PUTA-MONOMER	fused PutA transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase	EG10801	[]	[]	
 PUTP-MONOMER	proline:Na+ symporter	EG10802	[]	[]	
 PYRROLINECARBREDUCT-MONOMER	pyrroline-5-carboxylate reductase monomer	EG10769	[]	[]	
-PYRUVFORMLY-MONOMER	PflB	EG10701	"[""CCO-CYTOSOL""]"	[]	
+PYRUVFORMLY-MONOMER	PflB	EG10701	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 PYRUVOXID-MONOMER	pyruvate oxidase monomer	EG10754	[]	[]	
 QOR-MONOMER	Qor	EG11492	[]	[]	
 QUINOLINATE-SYNTHA-MONOMER	NadA	EG10630	[]	[]	
 QUINOPRIBOTRANS-MONOMER	quinolinate phosphoribosyltransferase (decarboxylating) monomer	EG11546	[]	[]	
 RBSA-MONOMER	ribose ABC transporter - putative ATP binding subunit	EG10814	[]	[]	
-RBSB-MONOMER	ribose ABC transporter - putative periplasmic binding protein	EG10815	"[""CCO-PERI-BAC""]"	[]	
+RBSB-MONOMER	ribose ABC transporter - putative periplasmic binding protein	EG10815	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 RBSC-MONOMER	ribose ABC transporter - membrane subunit	EG10816	[]	[]	
 RCSB-MONOMER	RcsB	EG10821	[]	"[""HOSPHO-RCS""]"	
 RCSC-MONOMER	RcsC sensory histidine kinase	EG10822	[]	"[""ONOMER0-4194 PHOSPHO-RCS""]"	
 RCSF-MONOMER	RcsF outer membrane lipoprotein	EG11502	[]	[]	
 RED-GLUTAREDOXIN	reduced glutaredoxin 1	EG10417	[]	"[""LUTAREDOXIN-MONOME""]"	
-RED-THIOREDOXIN-MONOMER	thioredoxin 1	EG11031	"[""CCO-CYTOSOL""]"	"[""X-THIOREDOXIN-MONOME""]"	
+RED-THIOREDOXIN-MONOMER	thioredoxin 1	EG11031	"[""CCO-CYTOSOL""]"	"[""X-THIOREDOXIN-MONOME""]"	"Location information from Lopez Campistrous 2005.
+"
 RED-THIOREDOXIN2-MONOMER	reduced thioredoxin 2	EG11887	[]	"[""X-THIOREDOXIN2-MONOME""]"	
 RELA-MONOMER	GDP pyrophosphokinase / GTP pyrophosphokinase	EG10835	[]	[]	
 RFBX-MONOMER	O-antigen flippase	EG11980	[]	[]	
@@ -4029,7 +4234,8 @@ RHAMNULPALDOL-MONOMER	rhamnulose-1-phosphate aldolase monomer	EG11866	[]	[]
 RHAT-MONOMER	rhamnose / lyxose:H+ symporter	EG11313	[]	[]	
 RHTB-MONOMER	homoserine / homoserine lactone efflux transporter	EG11469	[]	[]	
 RHTC-MONOMER	RhtC threonine Rht Transporter	EG11468	[]	[]	
-RIB5PISOMA-MONOMER	ribose-5-phosphate isomerase A	EG11443	"[""CCO-CYTOSOL""]"	[]	
+RIB5PISOMA-MONOMER	ribose-5-phosphate isomerase A	EG11443	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 RIB5PISOMB-MONOMER	allose-6-phosphate isomerase / ribose-5-phosphate isomerase B monomer	EG11827	[]	[]	
 RIBAZOLEPHOSPHAT-MONOMER	predicted adenosylcobalamin phosphatase/&alpha;-ribazole phosphatase	G6349	[]	[]	
 RIBF-MONOMER	bifunctional riboflavin kinase / FMN adenylyltransferase	EG11079	[]	[]	
@@ -4038,11 +4244,13 @@ RIBOFLAVINSYNDEAM-MONOMER	fused diaminohydroxyphosphoribosylaminopyrimidine deam
 RIBOKIN-MONOMER	ribokinase	EG10818	[]	[]	
 RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER	ribonucleoside-triphosphate reductase	EG11417	[]	[]	
 RIBULOKIN-MONOMER	L-ribulokinase monomer	EG10053	[]	[]	
-RIBULP3EPIM-MONOMER	ribulose-5-phosphate 3-epimerase	M004	"[""CCO-CYTOSOL""]"	[]	
+RIBULP3EPIM-MONOMER	ribulose-5-phosphate 3-epimerase	M004	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 RIBULPEPIM-MONOMER	L-ribulose 5-phosphate 4-epimerase monomer	EG10055	[]	[]	
 RNTRACTIV-MONOMER	NrdG	G812	[]	[]	
 RPOA-MONOMER	DD-carboxypeptidase, penicillin-binding protein 6b	EG11893	[]	[]	
-RPOB-MONOMER	RNA polymerase, &beta; subunit	EG10894	"[""CCO-CYTOSOL""]"	[]	
+RPOB-MONOMER	RNA polymerase, &beta; subunit	EG10894	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 RPOC-MONOMER	RNA polymerase, &beta;' subunit	EG10895	[]	[]	
 RPOD-MONOMER	RNA polymerase, sigma 70 (sigma D) factor	EG10896	[]	[]	
 RPOE-MONOMER	RNA polymerase, sigma 24 (sigma E) factor	EG11897	[]	[]	
@@ -4051,8 +4259,10 @@ RPON-MONOMER	RNA polymerase, sigma 54 (sigma N) factor	EG10898	[]	[]
 RPOS-MONOMER	RNA polymerase, sigma S (sigma 38) factor	EG10510	[]	[]	
 RSTA-MONOMER	RstA transcriptional regulator	G6864	[]	"[""HOSPHO-RST""]"	
 RSTB-MONOMER	RstB sensory histidine kinase	EG11233	[]	"[""HOSPHO-RST""]"	
-S-ADENMETSYN-MONOMER	methionine adenosyltransferase	EG10589	"[""CCO-CYTOSOL""]"	[]	
-SAICARSYN-MONOMER	PurC	EG10791	"[""CCO-CYTOSOL""]"	[]	
+S-ADENMETSYN-MONOMER	methionine adenosyltransferase	EG10589	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+SAICARSYN-MONOMER	PurC	EG10791	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 SAPA-MONOMER	peptide ABC transporter SapABCDF - periplasmic binding protein	G2002	[]	[]	
 SAPB-MONOMER	peptide ABC transporter SapABCDF - membrane subunit	G2001	[]	[]	
 SAPC-MONOMER	peptide ABC transporter SapABCDF - membrane subunit	G2000	[]	[]	
@@ -4062,7 +4272,8 @@ SARCOX-MONOMER	N-methyltryptophan oxidase	G6556	[]	[]
 SBMA-MONOMER	peptide antibiotic transporter	EG10928	[]	[]	
 SBP-MONOMER	sulfate / thiosulfate ABC transporter - periplasmic binding protein Sbp	EG10929	[]	[]	
 SDAC-MONOMER	serine:H+ symporter SdaC	EG12142	[]	[]	
-SDH-FE-S	succinate dehydrogenase iron-sulfur protein	EG10932	"[""CCO-PM-BAC-NEG""]"	[]	
+SDH-FE-S	succinate dehydrogenase iron-sulfur protein	EG10932	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 SDH-FLAVO	succinate dehydrogenase flavoprotein	EG10931	[]	[]	
 SDH-MEMB1	succinate dehydrogenase membrane protein	EG10933	[]	[]	
 SDH-MEMB2	succinate dehydrogenase membrane protein	EG10934	[]	[]	
@@ -4089,10 +4300,12 @@ SMALLILVN-MONOMER	IlvN	EG10502	[]	[]
 SORB6PDEHYDROG-MONOMER	SrlD	EG10971	[]	[]	
 SPED-MONOMER	adenosylmethionine decarboxylase, proenzyme	EG10962	[]	"[""AMDC-ALPHA-MONOMER SAMDC-BETA-MONOME""]"	
 SPERMACTRAN-MONOMER	SpeG	G6842	[]	[]	
-SPERMIDINESYN-MONOMER	SpeE	EG10963	"[""CCO-CYTOSOL""]"	[]	
+SPERMIDINESYN-MONOMER	SpeE	EG10963	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 SPOT-MONOMER	guanosine 3'-diphosphate 5'-triphosphate 3'-diphosphatase [multifunctional]	EG10966	[]	[]	
 SUCCARGDIHYDRO-MONOMER	AstB	G6941	[]	[]	
-SUCCCOASYN-ALPHA	succinyl-CoA synthetase, &alpha; subunit	EG10982	"[""CCO-CYTOSOL""]"	[]	
+SUCCCOASYN-ALPHA	succinyl-CoA synthetase, &alpha; subunit	EG10982	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 SUCCCOASYN-BETA	succinyl-CoA synthetase, &beta; subunit	EG10981	[]	[]	
 SUCCGLUALDDEHYD-MONOMER	aldehyde dehydrogenase	G6942	[]	[]	
 SUCCGLUDESUCC-MONOMER	succinylglutamate desuccinylase	G6940	[]	[]	
@@ -4116,15 +4329,18 @@ TEHA-MONOMER	tellurite resistance protein / ethidium efflux transporter	EG11883	
 TETRAACYLDISACC4KIN-MONOMER	tetraacyldisaccharide 4'-kinase	EG11409	[]	[]	
 THI-P-KIN-MONOMER	thiamin monophosphate kinase	G6234	[]	[]	
 THIC-MONOMER	thiamin biosynthesis protein ThiC	EG11585	[]	[]	
-THIE-MONOMER	thiamine phosphate synthase	EG11586	"[""CCO-CYTOSOL""]"	[]	
+THIE-MONOMER	thiamine phosphate synthase	EG11586	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 THIF-MONOMER	sulfur carrier protein ThiS adenylyltransferase	EG11587	[]	[]	
-THIG-MONOMER	thiazole synthase	EG11589	"[""CCO-CYTOSOL""]"	[]	
+THIG-MONOMER	thiazole synthase	EG11589	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 THIH-MONOMER	tyrosine lyase	EG11590	[]	[]	
 THII-MONOMER	ThiI	G6238	[]	[]	
 THIKIN-MONOMER	thiamin kinase	G6566	[]	[]	
 THIOESTERI-MONOMER	TesA	EG11542	[]	[]	
 THIOESTERII-MONOMER	TesB	EG10995	[]	[]	
-THIOREDOXIN-REDUCT-NADPH-MONOMER	thioredoxin reductase monomer	EG11032	"[""CCO-CYTOSOL""]"	[]	
+THIOREDOXIN-REDUCT-NADPH-MONOMER	thioredoxin reductase monomer	EG11032	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 THIS-MONOMER	ThiS protein	G1	[]	"[""HIS-COSH-MONOMER THIS-COAMP-MONOME""]"	
 THREDEHYDCAT-MONOMER	TdcB	EG10990	[]	[]	
 THREDEHYDSYN-MONOMER	IlvA	EG10493	[]	[]	
@@ -4140,8 +4356,10 @@ TORS-MONOMER	TorS monomer	G6514	[]	"[""HOSPHO-TORS850 PHOSPHO-TORASP PHOSPHO-TOR
 TORT-MONOMER	periplasmic sensory protein associated with the TorRS two-component regulatory system	G6515	[]	"[""OUND-TOR""]"	
 TPI-MONOMER	triose phosphate isomerase monomer	EG11015	[]	[]	
 TRANSALDOLA-MONOMER	transaldolase A	EG11797	[]	[]	
-TRANSALDOLB-MONOMER	transaldolase B	EG11556	"[""CCO-CYTOSOL""]"	[]	
-TRANSKETOI-MONOMER	transketolase I	EG11427	"[""CCO-CYTOSOL""]"	[]	
+TRANSALDOLB-MONOMER	transaldolase B	EG11556	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+TRANSKETOI-MONOMER	transketolase I	EG11427	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 TRANSKETOII-MONOMER	transketolase II	EG12100	[]	[]	
 TRE6PHYDRO-MONOMER	trehalose-6-phosphate hydrolase	EG11402	[]	[]	
 TREB-MONOMER	trehalose PTS permease - TreB subunit	EG12127	[]	[]	
@@ -4153,9 +4371,12 @@ TRG-MONOMER	methyl accepting chemotaxis protein - ribose/galactose/glucose sensi
 TRKA-MONOMER	NAD-binding component of TrK potassium transporter	EG11019	[]	[]	
 TRKG-MONOMER	K+ transporter TrkG	EG11020	[]	[]	
 TRKH-MONOMER	K+ transporter TrkH	EG11021	[]	[]	
-TRPS-MONOMER	tryptophanyl-tRNA synthetase	EG11030	"[""CCO-CYTOSOL""]"	[]	
-TRYPSYN-APROTEIN	tryptophan synthase, &alpha; subunit	EG11024	"[""CCO-CYTOSOL""]"	[]	
-TRYPSYN-BPROTEIN	tryptophan synthase, &beta; subunit	EG11025	"[""CCO-CYTOSOL""]"	[]	
+TRPS-MONOMER	tryptophanyl-tRNA synthetase	EG11030	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+TRYPSYN-APROTEIN	tryptophan synthase, &alpha; subunit	EG11024	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
+TRYPSYN-BPROTEIN	tryptophan synthase, &beta; subunit	EG11025	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 TRYPTOPHAN-MONOMER	TnaA	EG11005	[]	[]	
 TSA-REDUCT-MONOMER	tartronate semialdehyde reductase	EG11176	[]	[]	
 TSR-MONOMER	methyl accepting chemotaxis protein - serine sensing	EG11034	[]	[]	
@@ -4190,13 +4411,15 @@ UHPB-MONOMER	UhpB sensory histidine kinase	EG11052	[]	"[""HOSPHO-UHP""]"
 UHPC-MONOMER	inner membrane protein sensing glucose-6-phosphate	EG11053	[]	"[""LU-UHP""]"	
 UHPT-MONOMER	hexose-6-phosphate:phosphate antiporter	EG11054	[]	[]	
 UIDB-MONOMER	glucuronide:H+ symporter	EG11658	[]	[]	
-UMPKI-MONOMER	PyrH	EG11539	"[""CCO-CYTOSOL""]"	[]	
+UMPKI-MONOMER	PyrH	EG11539	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 UPPSYN-MONOMER	subunit of undecaprenyl diphosphate synthase	G6092	[]	[]	
 URAA-MONOMER	uracil:H+ symporter	EG12129	[]	[]	
 URACIL-PRIBOSYLTRANS-MONOMER	Upp	EG11332	[]	[]	
 UROGENDECARBOX-MONOMER	uroporphyrinogen decarboxylase	EG11543	[]	[]	
 UROGENIIISYN-MONOMER	uroporphyrinogen III synthase	EG10430	[]	[]	
-URPHOS-MONOMER	Udp	EG11045	"[""CCO-CYTOSOL""]"	[]	
+URPHOS-MONOMER	Udp	EG11045	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 USHA-MONOMER	5'-nucleotidase / UDP-sugar hydrolase	EG11060	[]	[]	
 UUP-MONOMER	ATP-binding protein with possible role in replication	G6489	[]	[]	
 UXAC-MONOMER	D-glucuronate isomerase / D-galacturonate isomerase	G81	[]	[]	
@@ -4283,7 +4506,8 @@ YGJU-MONOMER	serine / threonine:Na+ symporter	EG12732	[]	[]
 YHAO-MONOMER	YhaO STP transporter	EG12754	[]	[]	
 YHAU-MONOMER	galactarate / glucarate / glycerate:H+ symporter GarP	EG12760	[]	[]	
 YHBG-MONOMER	LptB	EG11680	[]	[]	
-YHBN-MONOMER	LptA	G7665	"[""CCO-PERI-BAC""]"	[]	
+YHBN-MONOMER	LptA	G7665	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+"
 YHCL-MONOMER	YhcL DcuC transporter	G7679	[]	[]	
 YHDW-MONOMER	YhdW	EG12834	[]	[]	
 YHDX-MONOMER	YhdX	EG12835	[]	[]	
