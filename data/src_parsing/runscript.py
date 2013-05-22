@@ -674,5 +674,14 @@ class proteinMonomer:
 		self.modifiedForm = None
 		self.comments = ''
 
+class rna:
+	def __init__(self):
+		self.frameId = None
+		self.name = None
+		self.location = []
+		self.gene = None
+		self.modifiedForm = None
+		self.comments = ''
+
 if __name__ == "__main__":
     main()
