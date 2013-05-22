@@ -480,12 +480,13 @@ def parseProteinMonomers():
 				proteinMonomerDict[pMono.frameId] = pMono
 				geneToProteinMonomerDict[pMono.gene] = pMono.frameId
 
-	# Start with experimentally determined locations in E. coli K-12
+	# Add location information
 	locationSynDict = {'C'	:	'CCO-CYTOSOL',
 						'IM':	'CCO-PM-BAC-NEG',
 						'OM':	'CCO-OUTER-MEM',
 						'P'	:	'CCO-PERI-BAC'}
 
+	# Start with experimentally determined locations in E. coli K-12
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Lopez Campistrous 2005.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
