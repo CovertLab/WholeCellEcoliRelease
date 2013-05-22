@@ -455,9 +455,6 @@ def parseProteinMonomers():
 		csvreader.next()
 
 		for row in csvreader:
-			if row[1] == 'G7804-MONOMER':
-				ipdb.set_trace()
-
 			# Check for unmodified forms. If they exist then skip it.
 			unmodifiedForms = True
 			if row[2] == '':
@@ -508,7 +505,6 @@ def parseProteinMonomers():
 				proteinMonomerName = geneToProteinMonomerDict[geneFrameId]
 			else:
 				print 'Location parsing: No name found for gene ' + geneFrameId
-	ipdb.set_trace()
 
 
 	# # Add localization
