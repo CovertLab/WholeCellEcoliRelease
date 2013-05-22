@@ -486,10 +486,10 @@ def parseProteinMonomers():
 			name = row[0].lower()
 			bnum = row[1].lower()
 
-			if synDict.has_key(name):
-				geneFrameId = synDictFrameId[synDict[name].lower()]
-			elif synDict.has_key(bnum):
-				geneFrameId = synDictFrameId[synDict[bnum].lower()]
+			if synDictFrameId.has_key(name):
+				geneFrameId = synDictFrameId[name]
+			elif synDictFrameId.has_key(bnum):
+				geneFrameId = synDictFrameId[name]
 			else:
 				print 'Location parsing: No name found for ' + name + ' ' + bnum
 
