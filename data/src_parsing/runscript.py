@@ -598,6 +598,9 @@ def parseRna():
 					modifiedForm = []
 				r.modifiedForm = modifiedForm
 
+				r.location = ['CCO-CYTOSOL']
+				r.comments += 'Assumed in CCO-CYTOSOL\n'
+
 				rnaDict[r.frameId] = r
 
 	# Write output
