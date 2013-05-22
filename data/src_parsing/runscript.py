@@ -455,11 +455,14 @@ def parseProteinMonomers():
 		csvreader.next()
 
 		for row in csvreader:
+			if row[1] == 'G7804-MONOMER':
+				ipdb.set_trace()
+
 			# Check for unmodified forms. If they exist then skip it.
 			unmodifiedForms = True
 			if row[2] == '':
 				unmodifiedForms = False
-				
+
 			# Check for a known associated gene. If one does not exist skip it.
 			knownGene = True
 			if row[6] == '':
@@ -468,9 +471,9 @@ def parseProteinMonomers():
 			if not unmodifiedForms and knownGene:
 				pMono = proteinMonomer()
 
-				pMono.frameId = row[1][:-1]
+				pMono.frameId = row[1]
 				pMono.name = re.sub('<[^<]+?>', '', row[0])
-				pMono.gene = row[7][2:-2]
+				pMono.gene = row[7][1:-1]
 
 				modifiedForm = row[5][2:-2].split('" "')
 				if modifiedForm == ['']:
