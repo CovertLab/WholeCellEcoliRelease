@@ -13,6 +13,7 @@ def main():
 	parseGenes()
 	parseLocations()
 	parseProteinMonomers()
+	parseRna()
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -82,7 +83,7 @@ def parseProteionMonomerLocations():
 
 def parseGeneProductUnmodifiedForm():
 	unmodifiedForm = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_mod_tree.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 
 		for row in csvreader:
@@ -109,7 +110,7 @@ def parseRnaTypes():
 		unmodifiedForm = json.loads(jsonfile.read())
 
 	rnaType = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_mod_tree.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 
 		for row in csvreader:
@@ -567,6 +568,10 @@ def parseProteinMonomers():
 		for key in keys:
 			pm = proteinMonomerDict[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
+
+
+def parseRna():
+	pass
 
 
 def lifeSucks():
