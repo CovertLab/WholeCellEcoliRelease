@@ -571,7 +571,45 @@ def parseProteinMonomers():
 
 
 def parseRna():
-	pass
+	rnaDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in csvreader:
+			# Check for unmodified forms. If they exist then skip it.
+			unmodifiedForms = True
+			if row[4] == '':
+				unmodifiedForms = False
+
+			# Check for a known associated gene. If one does not exist skip it.
+			knownGene = True
+			if row[3] == '':
+				knownGene = False
+
+			if not unmodifiedForms and knownGene:
+				r = rna()
+
+				r.frameId = row[1]
+				r.name = re.sub('<[^<]+?>', '', row[0])
+				r.gene = row[3][1:-1]
+
+				modifiedForm = row[7][1:-1].split('" "')
+				if modifiedForm == ['']:
+					modifiedForm = []
+				r.modifiedForm = modifiedForm
+
+				rnaDict[r.frameId] = r
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = rnaDict.keys()
+		keys.sort()
+		csvwriter.writerow(['ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
+		for key in keys:
+			rnaToPrint = rnaDict[key]
+			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
 
 
 def lifeSucks():
