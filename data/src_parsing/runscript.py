@@ -456,8 +456,16 @@ def parseProteinMonomers():
 
 		for row in csvreader:
 			# Check for unmodified forms. If they exist then skip it.
+			unmodifiedForms = True
+			if row[2] == '':
+				unmodifiedForms = False
+				
 			# Check for a known associated gene. If one does not exist skip it.
-			if row[2] == '' and row[6] != '':
+			knownGene = True
+			if row[6] == '':
+				knownGene = False
+
+			if not unmodifiedForms and knownGene:
 				pMono = proteinMonomer()
 
 				pMono.frameId = row[1][:-1]
@@ -489,7 +497,7 @@ def parseProteinMonomers():
 			if synDictFrameId.has_key(name):
 				geneFrameId = synDictFrameId[name]
 			elif synDictFrameId.has_key(bnum):
-				geneFrameId = synDictFrameId[name]
+				geneFrameId = synDictFrameId[bnum]
 			else:
 				print 'Location parsing: No name found for ' + name + ' ' + bnum
 
