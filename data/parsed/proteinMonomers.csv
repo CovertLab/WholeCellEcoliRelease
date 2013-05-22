@@ -3303,7 +3303,8 @@ G7797-MONOMER	conserved protein	G7797	[]	[]
 G7798-MONOMER	conserved protein	G7798	[]	[]	
 G7800-MONOMER	4-acetamido-4,6-dideoxy-D-galactose transferase	G7800	[]	[]	
 G7802-MONOMER	predicted protein	G7802	[]	[]	
-G7804-MONOMER	predicted hydrolase	G7804	[]	[]	
+G7804-MONOMER	predicted hydrolase	G7804	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
+"
 G7808-MONOMER	TatB	G7808	[]	[]	
 G7814-MONOMER	predicted outer membrane porin L	G7814	[]	[]	
 G7816-MONOMER	regulator of the Cpx response and possible chaperone involved in resistance to extracytoplasmic stress	G7816	[]	[]	
