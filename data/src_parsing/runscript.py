@@ -447,6 +447,7 @@ def parseProteinMonomers():
 		locationEquivDict = json.loads(jsonfile.read())
 
 	proteinMonomerDict = {}
+	geneToProteinMonomerDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
@@ -469,8 +470,34 @@ def parseProteinMonomers():
 				pMono.modifiedForm = modifiedForm
 
 				proteinMonomerDict[pMono.frameId] = pMono
+				geneToProteinMonomerDict[pMono.gene] = pMono.frameId
 
+	# Start with experimentally determined locations in E. coli K-12
+	locationSynDict = {'C'	:	'CCO-CYTOSOL',
+						'IM':	'CCO-PM-BAC-NEG',
+						'OM':	'CCO-OUTER-MEM',
+						'P'	:	'CCO-PERI-BAC'}
 
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Lopez Campistrous 2005.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+
+		for row in csvreader:
+			name = row[0].lower()
+			bnum = row[1].lower()
+
+			if synDict.has_key(name):
+				geneFrameId = synDictFrameId[synDict[name].lower()]
+			elif synDict.has_key(bnum):
+				geneFrameId = synDictFrameId[synDict[bnum].lower()]
+			else:
+				print 'Location parsing: No name found for ' + name + ' ' + bnum
+
+			if geneToProteinMonomerDict.has_key(geneFrameId):
+				proteinMonomerName = geneToProteinMonomerDict[geneFrameId]
+			else:
+				print 'Location parsing: No name found for gene ' + geneFrameId
+	ipdb.set_trace()
 
 
 	# # Add localization
