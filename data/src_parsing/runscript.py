@@ -503,17 +503,18 @@ def parseProteinMonomers():
 				print 'Location parsing: No name found for ' + name + ' ' + bnum
 
 			if geneToProteinMonomerDict.has_key(geneFrameId):
-				proteinMonomerName = geneToProteinMonomerDict[geneFrameId]
+				proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
 			else:
 				print 'Location parsing: No name found for gene ' + geneFrameId
 
+			location = row[2]
+			if location != '?':
+				location = [locationSynDict[location]]
+				proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Lopez Campistrous 2005.\n'
+			else:
+				location = []
+			proteinMonomerDict[proteinMonomerFrameId].location = location
 
-	# # Add localization
-	# if self.protLocDict.has_key(newGene.productFrameId):
-	# 	newGene.localization = self.protLocDict[newGene.productFrameId]
-	# else:
-	# 	newGene.localization = ['CCO-CYTOSOL']
-	# 	newGene.comments = 'No localization known. Assume CO-CYTOSOL.\n'
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
@@ -558,7 +559,7 @@ class proteinMonomer:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
-		self.location = None
+		self.location = []
 		self.gene = None
 		self.modifiedForm = None
 		self.comments = None
