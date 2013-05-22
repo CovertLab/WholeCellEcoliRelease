@@ -451,9 +451,6 @@ def parseProteinMonomers():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
-		# Skip header
-		csvreader.next()
-
 		for row in csvreader:
 			# Check for unmodified forms. If they exist then skip it.
 			unmodifiedForms = True
