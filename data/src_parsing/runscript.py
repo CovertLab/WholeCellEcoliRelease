@@ -515,7 +515,11 @@ def parseProteinMonomers():
 				location = []
 			proteinMonomerDict[proteinMonomerFrameId].location = location
 
+	# Fill in more with locaitons computationally inferred in E. coli B
 
+
+
+	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
@@ -525,6 +529,8 @@ def parseProteinMonomers():
 		for key in keys:
 			pm = proteinMonomerDict[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
+
+
 
 
 # Utility functions
