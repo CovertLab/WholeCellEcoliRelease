@@ -131,7 +131,8 @@ ALDOSE1EPIM-MONOMER	galactose-1-epimerase	EG11698	"[""CCO-CYTOSOL""]"	[]	"Locati
 "
 ALKAPHOSPHA-MONOMER	PhoA	EG10727	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-ALPHA-AMYL-CYTO-MONOMER	&alpha;-amylase	EG11387	[]	[]	
+ALPHA-AMYL-CYTO-MONOMER	&alpha;-amylase	EG11387	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 ALPHA-AMYL-PERI-MONOMER	&alpha;-amylase	EG11316	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 ALPHACOMP-MONOMER	sulfite reductase, flavoprotein subunit	EG10191	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -304,8 +305,10 @@ ATPPHOSRIBOSTRANS-MONOMER	HisG	EG10449	"[""CCO-CYTOSOL""]"	[]	"Location informat
 "
 B0070-MONOMER	sugar / lactose efflux transporter SetA	EG11754	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-B0260-MONOMER	S-methyl-L-methionine transporter	G6135	[]	[]	
-B0270-MONOMER	YagG GPH Transporter	G6142	[]	[]	
+B0260-MONOMER	S-methyl-L-methionine transporter	G6135	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+B0270-MONOMER	YagG GPH Transporter	G6142	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 B0427-MONOMER	YajR MFS transporter	G6241	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 B0486-MONOMER	YbaT APC transporter	G6262	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -342,7 +345,8 @@ B1634-MONOMER	tripeptide / dipeptide:H+ symporter	G6877	"[""CCO-PM-BAC-NEG""]"	[
 "
 B1657-MONOMER	YdhP	G6893	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-B1690-MONOMER	predicted transporter	G6916	[]	[]	
+B1690-MONOMER	predicted transporter	G6916	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 B1691-MONOMER	uncharacterised inner membrane protein YdiN	G6917	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 B1775-MONOMER	predicted transporter	G6962	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -445,7 +449,8 @@ CARBPSYN-SMALL	CarA	EG10134	"[""CCO-CYTOSOL""]"	[]	"Location information from Lo
 "
 CARDIOLIPSYN-MONOMER	cardiolipin synthase 1	EG11608	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-CARNDEHYDRA-MONOMER	CaiB monomer	EG11559	[]	[]	
+CARNDEHYDRA-MONOMER	CaiB monomer	EG11559	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 CARNRACE-MONOMER	crotonobetainyl-CoA hydratase	EG11557	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 CCMA-MONOMER	protoheme IX ABC transporter - ATP binding subunit	EG12059	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -470,7 +475,8 @@ CFA-MONOMER	cyclopropane fatty acyl phospholipid synthase	EG11531	"[""CCO-CYTOSO
 "
 CHAA-MONOMER	Na+ / K+:H+ antiporter ChaA	EG11753	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-CHAINF-MONOMER	ArgF	EG10067	[]	[]	
+CHAINF-MONOMER	ArgF	EG10067	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 CHAINI-MONOMER	ArgI	EG10069	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 CHD-MONOMER	choline dehydrogenase	EG10109	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -585,7 +591,8 @@ CYTIDEAM-MONOMER	Cdd	EG10137	"[""CCO-CYTOSOL""]"	[]	"Location information from H
 "
 CYTOCHROME-B561-MONOMER	cytochrome b561	EG10172	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-CYTOCHROME-B562-MONOMER	cytochrome b562 (soluble)	EG50008	[]	[]	
+CYTOCHROME-B562-MONOMER	cytochrome b562 (soluble)	EG50008	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 CYTOCHROMEC-MONOMER	formate-dependent nitrite reductase - penta-heme cytochrome c	EG11945	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 CYTOCHROMEC552-MONOMER	formate dependent nitrite reductase - NrfA subunit	EG11781	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -610,8 +617,10 @@ DCUC-MONOMER	dicarboxylate transporter DcuC	G6347	"[""CCO-PM-BAC-NEG""]"	[]	"Loc
 "
 DCUR-MONOMER	DcuR transcriptional activator	G7826	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-DCUR-MONOMER""]"	"Location information from Han 2011.
 "
-DCUS-MONOMER	DcuS sensory histidine kinase	G7827	[]	"[""PHOSPHO-DCUS-MONOMER""]"	
-DCYSDESULF-MONOMER	D-cysteine desulfhydrase monomer	G7038	[]	[]	
+DCUS-MONOMER	DcuS sensory histidine kinase	G7827	"[""CCO-PM-BAC-NEG""]"	"[""PHOSPHO-DCUS-MONOMER""]"	"Localization generated from unambiguous Ecocyc data.
+"
+DCYSDESULF-MONOMER	D-cysteine desulfhydrase monomer	G7038	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 DEHYDDEOXGALACTKIN-MONOMER	2-dehydro-3-deoxygalactonate kinase	EG20051	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 DEHYDDEOXPHOSGALACT-ALDOL-MONOMER	2-oxo-3-deoxygalactonate 6-phosphate aldolase	EG20049	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -792,7 +801,8 @@ EG10143-MONOMER	ChbR DNA-binding transcriptional dual regulator	EG10143	"[""CCO-
 "
 EG10144-MONOMER	monoacetylchitobiose-6-phosphate hydrolase	EG10144	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10145-MONOMER	predicted inner membrane protein	EG10145	[]	[]	
+EG10145-MONOMER	predicted inner membrane protein	EG10145	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10153-MONOMER	molybdenum::molybdopterin ligase	EG10153	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10154-MONOMER	molybdopterin-synthase adenylyltransferase	EG10154	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -807,7 +817,8 @@ EG10158-MONOMER	ClpP	EG10158	"[""CCO-OUTER-MEM""]"	[]	"Location information from
 "
 EG10159-MONOMER	ClpX	EG10159	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10167-MONOMER	peptide transporter induced by carbon starvation	EG10167	[]	[]	
+EG10167-MONOMER	peptide transporter induced by carbon starvation	EG10167	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10168-MONOMER	apolipoprotein N-acyltransferase	EG10168	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG10169-MONOMER	membrane protein required for colicin V production	EG10169	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -822,7 +833,8 @@ EG10204-MONOMER	DNA adenine methyltransferase	EG10204	"[""CCO-CYTOSOL""]"	[]	"Lo
 "
 EG10210-MONOMER	ATP-dependent RNA helicase, specific for 23S rRNA	EG10210	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10211-MONOMER	DNA-cytosine methyltransferase	EG10211	[]	[]	
+EG10211-MONOMER	DNA-cytosine methyltransferase	EG10211	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10212-MONOMER	dipeptidyl carboxypeptidase II	EG10212	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10215-MONOMER	DeaD, DEAD-box RNA helicase	EG10215	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -899,7 +911,8 @@ EG10307-MONOMER	stationary-phase protein with possible role in p-aminobenzoate o
 "
 EG10308-MONOMER	major type 1 subunit fimbrin (pilin)	EG10308	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
-EG10309-MONOMER	regulator for fimA	EG10309	[]	[]	
+EG10309-MONOMER	regulator for fimA	EG10309	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10310-MONOMER	periplasmic chaperone, required for type 1 fimbriae	EG10310	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 EG10311-MONOMER	outer membrane protein; export and assembly of type 1 fimbriae	EG10311	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
@@ -946,7 +959,8 @@ EG10374-MONOMER	&gamma;-glutamyltranspeptidase	EG10374	"[""CCO-PERI-BAC""]"	"[""
 "
 EG10375-MONOMER	protein involved in a tRNA modification pathway	EG10375	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10376-MONOMER	16S rRNA m7G527 methyltransferase	EG10376	[]	[]	
+EG10376-MONOMER	16S rRNA m7G527 methyltransferase	EG10376	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10381-MONOMER	glycogen phosphorylase-limit dextrin &alpha;-1,6-glucohydrolase	EG10381	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10395-MONOMER	GlpE	EG10395	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1047,7 +1061,8 @@ EG10530-MONOMER	leader peptidase (signal peptidase I)	EG10530	"[""CCO-PM-BAC-NEG
 "
 EG10534-MONOMER	DNA ligase	EG10534	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10535-MONOMER	Lit, cell death peptidase; phage exclusion; e14 prophage	EG10535	[]	[]	
+EG10535-MONOMER	Lit, cell death peptidase; phage exclusion; e14 prophage	EG10535	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10542-MONOMER	Lon	EG10542	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10544-MONOMER	murein lipoprotein	EG10544	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -1272,7 +1287,8 @@ EG10838-MONOMER	ADP-L-glycero-D-mannoheptose-6-epimerase	EG10838	"[""CCO-CYTOSOL
 "
 EG10839-MONOMER	RfaH transcriptional antiterminator	EG10839	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10841-MONOMER	flagellar cap protein FliD; filament capping protein; enables filament assembly	EG10841	[]	[]	
+EG10841-MONOMER	flagellar cap protein FliD; filament capping protein; enables filament assembly	EG10841	"[""CCO-EXTRACELLULAR""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG10844-MONOMER	RhlB	EG10844	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10845-MONOMER	transcription termination factor Rho monomer;  polarity suppressor	EG10845	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -1493,7 +1509,8 @@ EG11013-MONOMER	DNA topoisomerase I	EG11013	"[""CCO-CYTOSOL""]"	[]	"Location inf
 "
 EG11014-MONOMER	DNA topoisomerase III	EG11014	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11016-MONOMER	predicted protamine-like protein	EG11016	[]	[]	
+EG11016-MONOMER	predicted protamine-like protein	EG11016	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11022-MONOMER	tRNA m5U54 methyltransferase	EG11022	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11023-MONOMER	TrmD	EG11023	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1620,7 +1637,8 @@ EG11129-MONOMER	Qin prophage; predicted protein	EG11129	"[""CCO-CYTOSOL""]"	[]	"
 "
 EG11130-MONOMER	Qin prophage; small toxic polypeptide	EG11130	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG11131-MONOMER	Qin prophage; toxin of the RelE-RelB toxin-antitoxin system and cofactor to enhance the repressor activity of RelB	EG11131	[]	[]	
+EG11131-MONOMER	Qin prophage; toxin of the RelE-RelB toxin-antitoxin system and cofactor to enhance the repressor activity of RelB	EG11131	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11132-MONOMER	PEP synthetase regulatory protein	EG11132	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11133-MONOMER	NlpC-putative lipoprotein hydrolase	EG11133	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
@@ -1635,14 +1653,16 @@ EG11139-MONOMER	conserved metal-binding protein	EG11139	"[""CCO-CYTOSOL""]"	[]	"
 "
 EG11140-MONOMER	UvrY transcriptional regulator	EG11140	"[""CCO-CYTOSOL""]"	"[""MONOMER0-1""]"	"Location information from Han 2011.
 "
-EG11141-MONOMER	putative membrane transport protein	EG11141	[]	[]	
+EG11141-MONOMER	putative membrane transport protein	EG11141	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11142-MONOMER	predicted protein	EG11142	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11144-MONOMER	conserved inner membrane structural protein	EG11144	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11145-MONOMER	predicted diguanylate cyclase	EG11145	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG11146-MONOMER	XapR transcriptional activator	EG11146	[]	[]	
+EG11146-MONOMER	XapR transcriptional activator	EG11146	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11147-MONOMER	conserved protein	EG11147	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11149-MONOMER	GcvR predicted transcriptional regulator	EG11149	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1729,7 +1749,8 @@ EG11203-MONOMER	cell division protein; predicted checkpoint GTPase	EG11203	"[""C
 EG11206-MONOMER	stress response protein	EG11206	[]	[]	
 EG11207-MONOMER	predicted acetyltransferase	EG11207	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11208-MONOMER	regulator of acetyl CoA synthetase	EG11208	[]	[]	
+EG11208-MONOMER	regulator of acetyl CoA synthetase	EG11208	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11209-MONOMER	predicted phosphate starvation-inducible protein	EG11209	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11210-MONOMER	conserved protein with nucleoside triphosphate hydrolase domain	EG11210	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1856,7 +1877,8 @@ EG11298-MONOMER	conserved protein	EG11298	"[""CCO-CYTOSOL""]"	[]	"Location infor
 EG11299-MONOMER	ribonuclease G (RNAse G) monomer	EG11299	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11300-MONOMER	Qin prophage; predicted protein	EG11300	[]	[]	
-EG11301-MONOMER	Qin prophage; small protein	EG11301	[]	[]	
+EG11301-MONOMER	Qin prophage; small protein	EG11301	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11302-MONOMER	Qin prophage; predicted protein	EG11302	[]	[]	
 EG11303-MONOMER	Qin prophage; predicted protein	EG11303	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -1899,15 +1921,18 @@ EG11344-MONOMER	tRNA-specific 2-thiouridylase	EG11344	"[""CCO-CYTOSOL""]"	[]	"Lo
 "
 EG11345-MONOMER	lysogenization regulator	EG11345	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11346-MONOMER	flagellar basal-body protein FliE	EG11346	[]	[]	
-EG11350-MONOMER	lipopolysaccharide core biosynthesis protein	EG11350	[]	[]	
+EG11346-MONOMER	flagellar basal-body protein FliE	EG11346	"[""CCO-CELL-PROJECTION""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+EG11350-MONOMER	lipopolysaccharide core biosynthesis protein	EG11350	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11351-MONOMER	UDP-D-galactose:(glucosyl)lipopolysaccharide-1,6-D-galactosyltransferase	EG11351	[]	[]	
 EG11352-MONOMER	UDP-D-glucose:(glucosyl)LPS &alpha;-1,3-glucosyltransferase	EG11352	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11353-MONOMER	UDP-glucose:(glucosyl)LPS &alpha;-1,2-glucosyltransferase	EG11353	[]	[]	
 EG11354-MONOMER	EmrAB-TolC multidrug efflux transport system - membrane fusion protein	EG11354	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG11355-MONOMER	RNA polymerase, sigma 28 (sigma F) factor	EG11355	[]	[]	
+EG11355-MONOMER	RNA polymerase, sigma 28 (sigma F) factor	EG11355	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11356-MONOMER	FliZ DNA-binding transcriptional regulator	EG11356	[]	[]	
 EG11357-MONOMER	ATP-dependent helicase	EG11357	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -1939,8 +1964,10 @@ EG11384-MONOMER	alkyl hydroperoxide reductase, AhpC component	EG11384	"[""CCO-CY
 EG11385-MONOMER	AhpF component	EG11385	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 EG11386-MONOMER	conserved protein	EG11386	[]	[]	
-EG11388-MONOMER	flagellar biosynthesis protein FliS	EG11388	[]	[]	
-EG11389-MONOMER	flagellar biosynthesis protein FliT	EG11389	[]	[]	
+EG11388-MONOMER	flagellar biosynthesis protein FliS	EG11388	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+EG11389-MONOMER	flagellar biosynthesis protein FliT	EG11389	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11390-MONOMER	universal stress global stress response regulator	EG11390	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 EG11391-MONOMER	hyperosmotically inducible periplasmic protein	EG11391	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -1973,12 +2000,14 @@ EG11415-MONOMER	stationary phase nucleoid protein that sequesters iron and prote
 "
 EG11422-MONOMER	pH-inducible protein involved in stress response	EG11422	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11423-MONOMER	lipopolysaccharide core biosynthesis; heptosyl transferase IV; probably hexose transferase	EG11423	[]	[]	
+EG11423-MONOMER	lipopolysaccharide core biosynthesis; heptosyl transferase IV; probably hexose transferase	EG11423	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11424-MONOMER	O-antigen ligase	EG11424	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11425-MONOMER	lipopolysaccharide core heptose (II) kinase	EG11425	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11426-MONOMER	protein involved in KdoIII attachment during lipopolysaccharide core biosynthesis	EG11426	[]	[]	
+EG11426-MONOMER	protein involved in KdoIII attachment during lipopolysaccharide core biosynthesis	EG11426	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11429-MONOMER	conserved protein	EG11429	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11430-MONOMER	conserved protein	EG11430	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2067,7 +2096,8 @@ EG11511-MONOMER	MogA	EG11511	"[""CCO-CYTOSOL""]"	[]	"Location information from H
 EG11512-MONOMER	conserved inner membrane protein associated with acetate transport	EG11512	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11514-MONOMER	periplasmic protein	EG11514	[]	[]	
-EG11515-MONOMER	predicted periplasmic chaperone protein	EG11515	[]	[]	
+EG11515-MONOMER	predicted periplasmic chaperone protein	EG11515	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11516-MONOMER	conserved protein	EG11516	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11517-MONOMER	fructose 1,6-bisphosphatase II	EG11517	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2200,9 +2230,12 @@ EG11652-MONOMER	DegS serine endoprotease	EG11652	"[""CCO-PERI-BAC""]"	[]	"Locati
 "
 EG11653-MONOMER	frataxin, iron-binding and oxidizing protein	EG11653	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11656-MONOMER	flagellar biosynthesis protein FliH	EG11656	[]	[]	
-EG11659-MONOMER	predicted protein	EG11659	[]	[]	
-EG11660-MONOMER	predicted inner membrane protein	EG11660	[]	[]	
+EG11656-MONOMER	flagellar biosynthesis protein FliH	EG11656	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+EG11659-MONOMER	predicted protein	EG11659	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+EG11660-MONOMER	predicted inner membrane protein	EG11660	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11661-MONOMER	conserved protein	EG11661	[]	[]	
 EG11662-MONOMER	predicted protein	EG11662	[]	[]	
 EG11663-MONOMER	FKBP-type peptidyl prolyl cis-trans isomerase	EG11663	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -2298,7 +2331,8 @@ EG11736-MONOMER	D,D-heptose 1,7-bisphosphate phosphatase	EG11736	"[""CCO-CYTOSOL
 "
 EG11738-MONOMER	stationary phase protein, binds sigma 70 RNA polymerase subunit	EG11738	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11739-MONOMER	bacteriophage N4 receptor, inner membrane subunit	EG11739	[]	[]	
+EG11739-MONOMER	bacteriophage N4 receptor, inner membrane subunit	EG11739	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11740-MONOMER	bacteriophage N4 receptor, outer membrane protein	EG11740	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 EG11741-MONOMER	EnvR DNA-binding transcriptional repressor	EG11741	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2349,7 +2383,8 @@ EG11778-MONOMER	predicted protein	EG11778	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11779-MONOMER	tRNA (m7G46) methyltransferase	EG11779	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11780-MONOMER	predicted lipoprotein	EG11780	[]	[]	
+EG11780-MONOMER	predicted lipoprotein	EG11780	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11782-MONOMER	small protein B	EG11782	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11783-MONOMER	CP4-57 prophage; integrase	EG11783	[]	[]	
@@ -2440,7 +2475,8 @@ EG11849-MONOMER	predicted DNA-binding transcriptional regulator	EG11849	"[""CCO-
 "
 EG11850-MONOMER	&alpha;-D-glucose-1-phosphatase	EG11850	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11851-MONOMER	predicted inner membrane protein	EG11851	[]	[]	
+EG11851-MONOMER	predicted inner membrane protein	EG11851	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11852-MONOMER	D-Tyr-tRNATyr deacylase	EG11852	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11853-MONOMER	predicted acetyltransferase	EG11853	[]	[]	
@@ -2564,7 +2600,8 @@ EG11936-MONOMER	conserved protein	EG11936	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11937-MONOMER	predicted inner membrane protein	EG11937	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG11938-MONOMER	predicted c-di-GMP-specific phosphodiesterase	EG11938	[]	[]	
+EG11938-MONOMER	predicted c-di-GMP-specific phosphodiesterase	EG11938	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11939-MONOMER	predicted permease	EG11939	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11941-MONOMER	conserved protein	EG11941	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2601,21 +2638,28 @@ EG11970-MONOMER	conserved protein	EG11970	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11972-MONOMER	putative outer membrane usher protein	EG11972	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-EG11973-MONOMER	probable pilin chaperone similar to PapD	EG11973	[]	[]	
+EG11973-MONOMER	probable pilin chaperone similar to PapD	EG11973	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11974-MONOMER	fimbrial protein	EG11974	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
 EG11975-MONOMER	flagellar biosynthesis protein FliP	EG11975	[]	[]	
 EG11976-MONOMER	flagellar biosynthesis protein FliQ	EG11976	[]	[]	
 EG11977-MONOMER	flagellar biosynthesis protein FliR	EG11977	[]	[]	
-EG11982-MONOMER	predicted O-antigen polymerase	EG11982	[]	[]	
-EG11983-MONOMER	&beta;-1,6-galactofuranosyltransferase	EG11983	[]	[]	
+EG11982-MONOMER	predicted O-antigen polymerase	EG11982	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+EG11983-MONOMER	&beta;-1,6-galactofuranosyltransferase	EG11983	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11984-MONOMER	predicted acyl transferase	EG11984	[]	[]	
-EG11985-MONOMER	predicted lipopolysaccharide biosynthesis protein	EG11985	[]	[]	
+EG11985-MONOMER	predicted lipopolysaccharide biosynthesis protein	EG11985	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11986-MONOMER	lipopolysaccharide biosynthesis protein, N-ter fragment	EG11986	[]	[]	
-EG11987-MONOMER	putative  type-1 fimbrial protein	EG11987	[]	[]	
+EG11987-MONOMER	putative  type-1 fimbrial protein	EG11987	"[""CCO-PILUS""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11988-MONOMER	putative outer membrane usher protein	EG11988	[]	[]	
-EG11989-MONOMER	putative fimbrial chaperone	EG11989	[]	[]	
-EG11990-MONOMER	predicted fimbrial-like adhesin protein	EG11990	[]	[]	
+EG11989-MONOMER	putative fimbrial chaperone	EG11989	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+EG11990-MONOMER	predicted fimbrial-like adhesin protein	EG11990	"[""CCO-PILUS""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG11991-MONOMER	predicted protein	EG11991	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 EG11992-MONOMER	molybdate metabolism regulator, interrupted	EG11992	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2836,10 +2880,12 @@ EG12201-MONOMER	predicted protein	EG12201	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12202-MONOMER	TreR transcriptional repressor	EG12202	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12203-MONOMER	Qin prophage; cold shock protein; predicted DNA-binding transcriptional regulator	EG12203	[]	[]	
+EG12203-MONOMER	Qin prophage; cold shock protein; predicted DNA-binding transcriptional regulator	EG12203	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG12204-MONOMER	stress protein, member of the CspA family; predicted DNA-binding transcriptional regulator	EG12204	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-EG12205-MONOMER	Qin prophage; cold shock protein	EG12205	[]	[]	
+EG12205-MONOMER	Qin prophage; cold shock protein	EG12205	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG12207-MONOMER	23S rRNA m1G745 methyltransferase	EG12207	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12208-MONOMER	predicted protein of C-N hydrolase superfamily, N-terminal fragment	EG12208	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2915,7 +2961,8 @@ EG12259-MONOMER	cellulose biosynthesis protein	EG12259	"[""CCO-PM-BAC-NEG""]"	[]
 "
 EG12260-MONOMER	cellulose synthase, catalytic subunit	EG12260	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG12261-MONOMER	predicted cellulose biosynthesis protein	EG12261	[]	[]	
+EG12261-MONOMER	predicted cellulose biosynthesis protein	EG12261	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG12262-MONOMER	conserved protein	EG12262	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12263-MONOMER	conserved protein	EG12263	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3027,7 +3074,8 @@ EG12344-MONOMER	PspF transcriptional dual regulator	EG12344	"[""CCO-CYTOSOL""]"	
 "
 EG12345-MONOMER	3-hydroxy acid dehydrogenase monomer	EG12345	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12347-MONOMER	predicted transporter subunit: ATP-binding component of ABC superfamily	EG12347	[]	[]	
+EG12347-MONOMER	predicted transporter subunit: ATP-binding component of ABC superfamily	EG12347	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG12352-MONOMER	peptidyl-prolyl cis-trans isomerase C (rotamase C)	EG12352	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12354-MONOMER	peptidyl-tRNA hydrolase, ribosome rescue factor	EG12354	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3067,7 +3115,8 @@ EG12379-MONOMER	conserved protein	EG12379	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12384-MONOMER	predicted carbamate kinase	EG12384	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12385-MONOMER	RcsD phosphotransferase	EG12385	[]	"[""MONOMER0-4189""]"	
+EG12385-MONOMER	RcsD phosphotransferase	EG12385	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4189""]"	"Localization generated from unambiguous Ecocyc data.
+"
 EG12386-MONOMER	CsiR DNA-binding transcriptional repressor	EG12386	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12387-MONOMER	L-2-hydroxyglutarate oxidase	EG12387	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3191,7 +3240,8 @@ EG12707-MONOMER	conserved inner membrane protein	EG12707	"[""CCO-PM-BAC-NEG""]"	
 "
 EG12708-MONOMER	conserved inner membrane protein	EG12708	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG12709-MONOMER	conserved inner membrane protein	EG12709	[]	[]	
+EG12709-MONOMER	conserved inner membrane protein	EG12709	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 EG12710-MONOMER	predicted phosphohydrolase	EG12710	[]	[]	
 EG12712-MONOMER	S-ribosylhomocysteine lyase	EG12712	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -3425,10 +3475,12 @@ FTSE-MONOMER	cell division protein FtsE	EG10340	"[""CCO-PM-BAC-NEG""]"	[]	"Locat
 "
 FTSX-MONOMER	cell division protein FtsX	EG10345	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-FUC4NACTRANS-MONOMER	predicted Wzy protein involved in ECA polysaccharide chain elongation	EG11457	[]	[]	
+FUC4NACTRANS-MONOMER	predicted Wzy protein involved in ECA polysaccharide chain elongation	EG11457	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 FUCISOM-MONOMER	FucI	EG10349	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-FUCP-MONOMER	fucose:H+ symporter	EG10352	[]	[]	
+FUCP-MONOMER	fucose:H+ symporter	EG10352	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 FUCPALDOL-MONOMER	FucA	EG10348	[]	[]	
 FUCULOKIN-MONOMER	L-fuculokinase	EG10350	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -3460,7 +3512,8 @@ G370-MONOMER	flagellar biosynthesis protein FlhA	G370	"[""CCO-PM-BAC-NEG""]"	[]	
 "
 G377-MONOMER	flagellum-specific ATP synthase FliI	G377	[]	[]	
 G378-MONOMER	flagellar biosynthesis protein FliJ	G378	[]	[]	
-G379-MONOMER	flagellar hook-length control protein FliK	G379	[]	[]	
+G379-MONOMER	flagellar hook-length control protein FliK	G379	"[""CCO-CELL-PROJECTION""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G495-MONOMER	6-phospho-&beta;-glucosidase A	G495	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6081-MONOMER	predicted protein	G6081	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -3486,7 +3539,8 @@ G6100-MONOMER	predicted S-adenosyl-L-methionine-dependent methyltransferase	G610
 "
 G6101-MONOMER	predicted aminopeptidase	G6101	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G6102-MONOMER	predicted inner membrane protein	G6102	[]	[]	
+G6102-MONOMER	predicted inner membrane protein	G6102	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6103-MONOMER	predicted C-N hydrolase family amidase, NAD(P)-binding	G6103	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6104-MONOMER	inhibitor of vertebrate C-type lysozyme	G6104	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -3505,8 +3559,10 @@ G6111-MONOMER	predicted lipoprotein and C40 family peptidase	G6111	"[""CCO-PERI-
 "
 G6112-MONOMER	REP-associated tyrosine transposase	G6112	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6113-MONOMER	flagellar system protein, promoterless fragment	G6113	[]	[]	
-G6114-MONOMER	flagellar system protein, promoterless fragment	G6114	[]	[]	
+G6113-MONOMER	flagellar system protein, promoterless fragment	G6113	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G6114-MONOMER	flagellar system protein, promoterless fragment	G6114	"[""CCO-OUTER-MEM""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6115-MONOMER	DNA polymerase IV (Y-family DNA polymerase; translesion DNA synthesis)	G6115	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6116-MONOMER	antitoxin of the YafO-YafN toxin-antitoxin system	G6116	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3523,7 +3579,8 @@ G6122-MONOMER	CP4-6 prophage; predicted DNA repair protein	G6122	[]	[]
 G6123-MONOMER	CP4-6 prophage; predicted protein	G6123	[]	[]	
 G6124-MONOMER	CP4-6 prophage; predicted protein	G6124	[]	[]	
 G6125-MONOMER	CP4-6 prophage; predicted protein	G6125	[]	[]	
-G6126-MONOMER	CP4-6 prophage; inner membrane lipoprotein	G6126	[]	[]	
+G6126-MONOMER	CP4-6 prophage; inner membrane lipoprotein	G6126	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6127-MONOMER	CP4-6 prophage; conserved protein	G6127	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6128-MONOMER	CP4-6 prophage; predicted GTP-binding protein	G6128	[]	[]	
@@ -3532,10 +3589,12 @@ G6130-MONOMER	CP4-6 prophage; partial regulator of insertion element IS911A	G613
 G6131-MONOMER	transposase of IS30	G6131	[]	[]	
 G6132-MONOMER	CP4-6 prophage; partial transposase of insertion element IS911A, interrupted by insertion of IS30 element	G6132	[]	[]	
 G6133-MONOMER	CP4-6 prophage; conserved protein	G6133	[]	[]	
-G6137-MONOMER	AfuB	G6137	[]	[]	
+G6137-MONOMER	AfuB	G6137	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6138-MONOMER	IS1 protein InsB	G6138	[]	[]	
 G6139-MONOMER	IS1 protein InsA	G6139	[]	[]	
-G6140-MONOMER	CP4-6 prophage; probable 2-keto-3-deoxygluconate aldolase	G6140	[]	[]	
+G6140-MONOMER	CP4-6 prophage; probable 2-keto-3-deoxygluconate aldolase	G6140	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6141-MONOMER	CP4-6 prophage; predicted dehydratase	G6141	[]	[]	
 G6143-MONOMER	putative &beta;-xylosidase	G6143	[]	[]	
 G6144-MONOMER	CP4-6 prophage; predicted DNA-binding transcriptional regulator	G6144	[]	[]	
@@ -4089,7 +4148,8 @@ G6532-MONOMER	diguanylate cyclase	G6532	"[""CCO-PM-BAC-NEG""]"	[]	"Location info
 "
 G6534-MONOMER	IS3 element protein InsE	G6168	[]	[]	
 G6535-MONOMER	predicted protein	G6535	[]	[]	
-G6536-MONOMER	predicted inner membrane protein	G6536	[]	[]	
+G6536-MONOMER	predicted inner membrane protein	G6536	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6539-MONOMER	glyoxylate reductase / hydroxypyruvate reductase	G6539	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6540-MONOMER	zinc-binding phosphatase	G6540	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4147,7 +4207,8 @@ G6571-MONOMER	L,D-transpeptidase YcfS	G6571	"[""CCO-OUTER-MEM""]"	[]	"Location i
 "
 G6572-MONOMER	putative transport protein	G6572	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6576-MONOMER	N-acetyl-D-glucosamine kinase	G6576	[]	[]	
+G6576-MONOMER	N-acetyl-D-glucosamine kinase	G6576	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6577-MONOMER	protein deacetylase, Sir2 homolog	G6577	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6578-MONOMER	predicted inner membrane protein	G6578	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -4159,9 +4220,11 @@ G6580-MONOMER	HMP-PP hydrolase /thiamin pyrophosphate hydrolase [multifunctional
 G6581-MONOMER	23S rRNA pseudouridine 2457 synthase	G6581	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6582-MONOMER	e14 prophage; predicted SAM-dependent methyltransferase	G6582	[]	[]	
-G6583-MONOMER	e14 prophage; predicted inner membrane protein	G6583	[]	[]	
+G6583-MONOMER	e14 prophage; predicted inner membrane protein	G6583	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6585-MONOMER	e14 prophage; predicted excisionase	G6585	[]	[]	
-G6586-MONOMER	e14 prophage; predicted protein	G6586	[]	[]	
+G6586-MONOMER	e14 prophage; predicted protein	G6586	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6587-MONOMER	e14 prophage; predicted protein	G6587	[]	[]	
 G6588-MONOMER	e14 prophage; predicted protein	G6588	[]	[]	
 G6589-MONOMER	e14 prophage; predicted repressor protein	G6589	[]	[]	
@@ -4169,7 +4232,8 @@ G6590-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G659
 G6591-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6591	[]	[]	
 G6592-MONOMER	e14 prophage; predicted protein	G6592	[]	[]	
 G6593-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6593	[]	[]	
-G6594-MONOMER	e14 prophage; predicted protein	G6594	[]	[]	
+G6594-MONOMER	e14 prophage; predicted protein	G6594	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6595-MONOMER	e14 prophage; conserved protein	G6595	[]	[]	
 G6596-MONOMER	e14 prophage; conserved protein	G6596	[]	[]	
 G6597-MONOMER	e14 prophage; conserved protein	G6597	[]	[]	
@@ -4461,9 +4525,12 @@ G6795-MONOMER	predicted protein	G6795	"[""CCO-OUTER-MEM""]"	[]	"Location informa
 "
 G6796-MONOMER	predicted transcriptional regulator	G6796	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
-G6797-MONOMER	conserved protein	G6797	[]	[]	
-G6798-MONOMER	autoinducer-2 kinase	G6798	[]	[]	
-G6799-MONOMER	LsrR DNA-binding transcriptional repressor	G6799	[]	[]	
+G6797-MONOMER	conserved protein	G6797	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G6798-MONOMER	autoinducer-2 kinase	G6798	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G6799-MONOMER	LsrR DNA-binding transcriptional repressor	G6799	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6804-MONOMER	predicted class I aldolase	G6804	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6805-MONOMER	Autoinducer 2-degrading protein	G6805	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4741,7 +4808,8 @@ G6972-MONOMER	predicted diguanylate cyclase	G6972	"[""CCO-PM-BAC-NEG""]"	[]	"Loc
 "
 G6973-MONOMER	conserved protein	G6973	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6974-MONOMER	predicted protein	G6974	[]	[]	
+G6974-MONOMER	predicted protein	G6974	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G6975-MONOMER	conserved inner membrane protein	G6975	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G6976-MONOMER	predicted DNA-binding transcriptional regulator	G6976	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4848,19 +4916,25 @@ G7035-MONOMER	predicted protein	G7035	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G7036-MONOMER	predicted protein	G7036	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7037-MONOMER	predicted transporter subunit: membrane component of ABC superfamily	G7037	[]	[]	
-G7039-MONOMER	periplasmic cystine-binding protein; member of extracellular bacterial solute-binding protein family III	G7039	[]	[]	
+G7037-MONOMER	predicted transporter subunit: membrane component of ABC superfamily	G7037	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G7039-MONOMER	periplasmic cystine-binding protein; member of extracellular bacterial solute-binding protein family III	G7039	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7040-MONOMER	predicted acyltransferase	G7040	[]	[]	
 G7041-MONOMER	predicted protein, N-ter fragment	G7041	[]	[]	
 G7042-MONOMER	predicted protein, C-ter fragment	G7042	[]	[]	
 G7043-MONOMER	conserved protein	G7043	[]	[]	
 G7044-MONOMER	predicted defective phage integrase	G7044	[]	[]	
-G7045-MONOMER	hypothetical protein; transcription is regulated by RpoS and  DsrA RNA	G7045	[]	[]	
+G7045-MONOMER	hypothetical protein; transcription is regulated by RpoS and  DsrA RNA	G7045	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7046-MONOMER	stress-induced protein	G7046	[]	[]	
-G7048-MONOMER	predicted phosphatase	G7048	[]	[]	
-G7049-MONOMER	predicted diguanylate cyclase	G7049	[]	[]	
+G7048-MONOMER	predicted phosphatase	G7048	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G7049-MONOMER	predicted diguanylate cyclase	G7049	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7050-MONOMER	predicted protein	G7050	[]	[]	
-G7051-MONOMER	predicted inner membrane protein	G7051	[]	[]	
+G7051-MONOMER	predicted inner membrane protein	G7051	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7052-MONOMER	predicted protein, N-ter fragment	G7052	[]	[]	
 G7053-MONOMER	predicted protein, middle fragment	G7053	[]	[]	
 G7054-MONOMER	predicted protein, C-ter fragment	G7054	[]	[]	
@@ -4895,7 +4969,8 @@ G7072-MONOMER	Nac DNA-binding transcriptional dual regulator	G7072	"[""CCO-CYTOS
 G7073-MONOMER	L,D-transpeptidase ErfK	G7073	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 G7074-MONOMER	CP4-44 prophage; IS5 transposase and trans-activator	G7074	[]	[]	
-G7075-MONOMER	CP4-44 prophage; predicted disrupted hemin or colicin receptor	G7075	[]	[]	
+G7075-MONOMER	CP4-44 prophage; predicted disrupted hemin or colicin receptor	G7075	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7078-MONOMER	hypothetical protein	G7078	[]	[]	
 G7079-MONOMER	CP4-44 prophage; predicted GTP-binding protein	G7079	[]	[]	
 G7080-MONOMER	CP4-44 prophage; antigen 43 (Ag43) phase-variable biofilm formation autotransporter	G7080	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -4981,9 +5056,12 @@ G7133-MONOMER	predicted DNA-binding transcriptional regulator	G7133	"[""CCO-CYTO
 "
 G7134-MONOMER	predicted hydrolase	G7134	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G7137-MONOMER	RcnR DNA-binding transcriptional repressor	G7137	[]	[]	
-G7138-MONOMER	membrane protein conferring nickel and cobalt resistance	G7138	[]	[]	
-G7139-MONOMER	periplasmic protein involved in nickel/cobalt efflux	G7139	[]	[]	
+G7137-MONOMER	RcnR DNA-binding transcriptional repressor	G7137	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G7138-MONOMER	membrane protein conferring nickel and cobalt resistance	G7138	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G7139-MONOMER	periplasmic protein involved in nickel/cobalt efflux	G7139	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7144-MONOMER	predicted inner membrane protein	G7144	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7145-MONOMER	NADH-dependent dihydropyrimidine dehydrogenase subunit	G7145	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5040,7 +5118,8 @@ G7175-MONOMER	Rbn	G7175	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 20
 G7176-MONOMER	deubiquitinase	G7176	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7177-MONOMER	putative lipoprotein	G7177	[]	[]	
-G7178-MONOMER	predicted peptidase	G7178	[]	[]	
+G7178-MONOMER	predicted peptidase	G7178	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7179-MONOMER	predicted protein	G7179	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7180-MONOMER	predicted protein	G7180	[]	[]	
@@ -5109,9 +5188,12 @@ G7216-MONOMER	MlaA	G7216	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han
 G7217-MONOMER	predicted inner membrane protein	G7217	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7218-MONOMER	CPS-53 (KpLE1) prophage; prophage CPS-53 integrase	G7218	[]	[]	
-G7219-MONOMER	CPS-53 (KpLE1) prophage; predicted bactoprenol-linked glucose translocase (flippase)	G7219	[]	[]	
-G7220-MONOMER	CPS-53 (KpLE1) prophage; bactoprenyl glucosyl transferase	G7220	[]	[]	
-G7221-MONOMER	CPS-53 (KpLE1) prophage; predicted inner membrane protein	G7221	[]	[]	
+G7219-MONOMER	CPS-53 (KpLE1) prophage; predicted bactoprenol-linked glucose translocase (flippase)	G7219	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G7220-MONOMER	CPS-53 (KpLE1) prophage; bactoprenyl glucosyl transferase	G7220	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+G7221-MONOMER	CPS-53 (KpLE1) prophage; predicted inner membrane protein	G7221	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7222-MONOMER	CPS-53 (KpLE1) prophage; tail fiber assembly protein fragment	G7222	[]	[]	
 G7223-MONOMER	CPS-53 (KpLE1) prophage; conserved protein	G7223	[]	[]	
 G7224-MONOMER	CPS-53 (KpLE1) prophage; conserved protein	G7224	[]	[]	
@@ -5158,7 +5240,8 @@ G7251-MONOMER	predicted ion channel protein	G7251	"[""CCO-PM-BAC-NEG""]"	[]	"Loc
 G7252-MONOMER	conserved protein	G7252	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 G7255-MONOMER	predicted IS186/IS421 transposase	G7255	[]	[]	
-G7256-MONOMER	conserved outer membrane protein	G7256	[]	[]	
+G7256-MONOMER	conserved outer membrane protein	G7256	"[""CCO-OUTER-MEM""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7257-MONOMER	predicted DNA-binding transcriptional regulator, LYSR-type	G7257	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7258-MONOMER	essential cell division protein ZipA	G7258	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -5314,17 +5397,21 @@ G7363-MONOMER	CP4-57 prophage; predicted protein	G7363	[]	[]
 G7364-MONOMER	CP4-57 prophage; predicted protein	G7364	[]	[]	
 G7365-MONOMER	CP4-57 prophage; RNase LS	G7365	[]	[]	
 G7366-MONOMER	CP4-57 prophage; antitoxin of the RnlA-RnlB toxin-antitoxin system	G7366	[]	[]	
-G7367-MONOMER	CP4-57 prophage; predicted GTP-binding protein	G7367	[]	[]	
+G7367-MONOMER	CP4-57 prophage; predicted GTP-binding protein	G7367	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7368-MONOMER	CP4-57 prophage; predicted protein	G7368	[]	[]	
 G7369-MONOMER	CP4-57 prophage; predicted DNA-binding transcriptional regulator	G7369	[]	[]	
 G7370-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7370	[]	[]	
-G7371-MONOMER	CP4-57 prophage; inner membrane lipoprotein YfjS	G7371	[]	[]	
+G7371-MONOMER	CP4-57 prophage; inner membrane lipoprotein YfjS	G7371	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7372-MONOMER	CP4-57 prophage; predicted protein	G7372	[]	[]	
 G7373-MONOMER	CP4-57 prophage; conserved protein	G7373	[]	[]	
 G7374-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7374	[]	[]	
-G7375-MONOMER	CP4-57 prophage; predicted protein	G7375	[]	[]	
+G7375-MONOMER	CP4-57 prophage; predicted protein	G7375	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7376-MONOMER	CP4-57 prophage; predicted protein	G7376	[]	[]	
-G7377-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7377	[]	[]	
+G7377-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7377	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7378-MONOMER	CP4-57 prophage; predicted antirestriction protein	G7378	[]	[]	
 G7379-MONOMER	CP4-57 prophage; predicted DNA repair protein	G7379	[]	[]	
 G7380-MONOMER	CP4-57 prophage; predicted antitoxin of the YpjF-YfjZ toxin-antitoxin system	G7380	[]	[]	
@@ -5353,7 +5440,8 @@ G7401-MONOMER	glutaredoxin-like protein	G7401	"[""CCO-CYTOSOL""]"	[]	"Location i
 "
 G7402-MONOMER	flavodoxin involved in dimanganese-tyrosyl radical cofactor maintenance for ribonucleotide reductase	G7402	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7404-MONOMER	predicted transporter	G7404	[]	[]	
+G7404-MONOMER	predicted transporter	G7404	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7405-MONOMER	L-valine efflux transporter - YgaZ subunit	G7405	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7406-MONOMER	L-valine efflux transporter - YgaH subunit	G7406	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -5388,7 +5476,8 @@ G7423-MONOMER	4-diphosphocytidyl-2C-methyl-D-erythritol synthetase monomer	G7423
 "
 G7424-MONOMER	essential cell division protein FtsB	G7424	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G7425-MONOMER	multifunctional nuclease	G7425	[]	[]	
+G7425-MONOMER	multifunctional nuclease	G7425	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7426-MONOMER	crRNA endonuclease	G7426	[]	[]	
 G7427-MONOMER	Cascade subunit D	G7427	[]	[]	
 G7428-MONOMER	Cascade subunit C	G7428	[]	[]	
@@ -5455,13 +5544,16 @@ G7464-MONOMER	predicted acyltransferase	G7464	"[""CCO-CYTOSOL""]"	[]	"Location i
 G7466-MONOMER	conserved protein with bipartite regulator domain	G7466	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7467-MONOMER	predicted transcriptional regulator	G7467	[]	[]	
-G7468-MONOMER	predicted protein	G7468	[]	[]	
+G7468-MONOMER	predicted protein	G7468	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7469-MONOMER	predicted protein	G7469	[]	[]	
 G7470-MONOMER	predicted protein	G7470	[]	[]	
 G7471-MONOMER	predicted chaperone	G7471	[]	[]	
-G7472-MONOMER	predicted transcriptional regulator	G7472	[]	[]	
+G7472-MONOMER	predicted transcriptional regulator	G7472	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7473-MONOMER	predicted protein	G7473	[]	[]	
-G7474-MONOMER	predicted peptidoglycan-binding enzyme	G7474	[]	[]	
+G7474-MONOMER	predicted peptidoglycan-binding enzyme	G7474	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7475-MONOMER	predicted DNA-binding transcriptional regulator	G7475	[]	[]	
 G7476-MONOMER	predicted protein	G7476	[]	[]	
 G7477-MONOMER	predicted protein	G7477	[]	[]	
@@ -5979,7 +6071,8 @@ G7836-MONOMER	lysine 2,3-aminomutase	G7836	"[""CCO-CYTOSOL""]"	[]	"Location info
 G7837-MONOMER	Blc outer membrane lipoprotein (lipocalin)	G7837	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 G7838-MONOMER	predicted protein	G7838	[]	[]	
-G7839-MONOMER	conserved inner membrane protein	G7839	[]	[]	
+G7839-MONOMER	conserved inner membrane protein	G7839	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7840-MONOMER	mechanosensitive channel of miniconductance McsM monomer	G7840	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7841-MONOMER	ribosome small subunit-dependent GTPase A	G7841	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6020,7 +6113,8 @@ G7860-MONOMER	L-ribulose 5-phosphate 4-epimerase	G7860	"[""CCO-CYTOSOL""]"	[]	"L
 "
 G7861-MONOMER	predicted protein	G7861	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G7862-MONOMER	predicted protein	G7862	[]	[]	
+G7862-MONOMER	predicted protein	G7862	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7863-MONOMER	predicted transcriptional regulator	G7863	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7864-MONOMER	predicted cell envelope opacity-associated protein	G7864	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
@@ -6075,7 +6169,8 @@ G7891-MONOMER	IdnR transcriptional regulator	G7891	"[""CCO-CYTOSOL""]"	[]	"Locat
 "
 G7896-MONOMER	KpLE2 phage-like element; predicted protein	G7896	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7897-MONOMER	KpLE2 phage-like element; predicted protein	G7897	[]	[]	
+G7897-MONOMER	KpLE2 phage-like element; predicted protein	G7897	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7898-MONOMER	KpLE2 phage-like element; predicted protein, N-ter fragment	G7898	[]	[]	
 G7899-MONOMER	KpLE2 phage-like element; predicted protein	G7899	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6084,14 +6179,16 @@ G7900-MONOMER	IS1 predicted transposase	G7900	"[""CCO-CYTOSOL""]"	[]	"Location i
 G7901-MONOMER	KpLE2 phage-like element; predicted oxidoreductase	G7901	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 G7902-MONOMER	KpLE2 phage-like element; predicted protein	G7902	[]	[]	
-G7903-MONOMER	KpLE2 phage-like element; predicted membrane protein (pseudogene)	G7903	[]	[]	
+G7903-MONOMER	KpLE2 phage-like element; predicted membrane protein (pseudogene)	G7903	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7904-MONOMER	KpLE2 phage-like element; partial regulator of insertion element IS911B (interrupted)	G7904	[]	[]	
 G7906-MONOMER	KpLE2 phage-like element; partial transposase	G7906	[]	[]	
 G7907-MONOMER	KpLE2 phage-like element; predicted protein	G7907	[]	[]	
 G7908-MONOMER	KpLE2 phage-like element; IS1 repressor protein InsA	G7908	[]	[]	
 G7909-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7909	[]	[]	
 G7910-MONOMER	KpLE2 phage-like element; predicted dehydratase	G7910	[]	[]	
-G7911-MONOMER	predicted lyase/synthase	G7911	[]	[]	
+G7911-MONOMER	predicted lyase/synthase	G7911	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G7912-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7912	[]	[]	
 G7913-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7913	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6170,7 +6267,8 @@ G7954-MONOMER	predicted protein	G7954	"[""CCO-CYTOSOL""]"	[]	"Location informati
 G8202-MONOMER	predicted protein	G8202	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 G8204-MONOMER	predicted outer membrane protein, C-ter fragment	G8204	[]	[]	
-G8205-MONOMER	split glyceraldehyde 3-phosphate dehydrogenase C	G8205	[]	[]	
+G8205-MONOMER	split glyceraldehyde 3-phosphate dehydrogenase C	G8205	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 G8208-MONOMER	twice split molybdate metabolism regulator	G8208	[]	[]	
 G8209-MONOMER	twice split molybdate metabolism regulator	G8209	[]	[]	
 G8210-MONOMER	glucitol/sorbitol PTS permease - SrlA subunit	G8210	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6301,7 +6399,8 @@ GLUTSEMIALDEHYDROG-MONOMER	ProA	EG10767	"[""CCO-CYTOSOL""]"	[]	"Location informa
 "
 GLVB-MONOMER	GlvB	EG11709	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-GLVC-MONOMER	GlvC	EG11710	[]	[]	
+GLVC-MONOMER	GlvC	EG11710	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 GLY3KIN-MONOMER	glycerate kinase II	G6283	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 GLYC3PDEHYDROGBIOSYN-MONOMER	glycerol-3-phosphate dehydrogenase	EG20091	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6682,7 +6781,8 @@ MONOMER0-1001	Rac prophage; zinc-binding protein	G0-9081	"[""CCO-CYTOSOL""]"	[]	
 MONOMER0-1041	toxin of the YoeB-YefM toxin-antitoxin pair	G0-9121	[]	[]	
 MONOMER0-12	K+ transporting ATPase - KdpF subunit	G0-10439	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-1241	glutamate-pyruvate aminotransferase	G0-9281	[]	[]	
+MONOMER0-1241	glutamate-pyruvate aminotransferase	G0-9281	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-1261	dihydroxyacetone kinase subunit L	G6626	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-141	hydrogenase 4, component D	G7301	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6712,7 +6812,8 @@ MONOMER0-152	hydrogenase 4, component A	EG11150	"[""CCO-PM-BAC-NEG""]"	[]	"Locat
 "
 MONOMER0-153	hydrogenase 4, component B	EG11282	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-154	hydrogenase 4, component C	G7300	[]	[]	
+MONOMER0-154	hydrogenase 4, component C	G7300	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-1541	conserved protein	G0-9541	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-1561	&beta;-lactam resistance protein	G0-9561	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6740,8 +6841,10 @@ MONOMER0-1701	predicted regulator of phosphatidylethanolamine synthesis	G0-9662	
 "
 MONOMER0-185	ModE	G6395	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-1922	toxic peptide TisB	G0-9962	[]	[]	
-MONOMER0-1941	damage-inducible protein	G0-9981	[]	[]	
+MONOMER0-1922	toxic peptide TisB	G0-9962	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-1941	damage-inducible protein	G0-9981	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-1981	N-succinyl-L-diaminopimelate desuccinylase subunit	EG10208	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2001	tetrahydrodipicolinate succinylase subunit	EG10207	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -6783,7 +6886,8 @@ MONOMER0-2672	predicted protein	G0-10450	"[""CCO-PERI-BAC""]"	[]	"Location infor
 "
 MONOMER0-2673	toxin of the HicA-HicB toxin-antitoxin system	G0-10451	[]	[]	
 MONOMER0-2674	Qin prophage; predicted protein	G0-10452	[]	[]	
-MONOMER0-2675	small predicted membrane protein	G0-10453	[]	[]	
+MONOMER0-2675	small predicted membrane protein	G0-10453	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2676	predicted protein	G0-10454	[]	[]	
 MONOMER0-2677	predicted protein	G0-10455	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6808,7 +6912,8 @@ MONOMER0-2692	inner membrane protein insertion factor	G0-10470	"[""CCO-CYTOSOL""
 "
 MONOMER0-2693	predicted lipoprotein	G0-10471	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2694	predicted protein	G0-10472	[]	[]	
+MONOMER0-2694	predicted protein	G0-10472	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2695	conserved protein	G0-10473	[]	[]	
 MONOMER0-2696	predicted protein	G0-10474	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -6830,18 +6935,21 @@ MONOMER0-2779	predicted transposase, C-ter fragment	G0-10557	[]	[]
 MONOMER0-2780	predicted transposase, N-ter fragment	G0-10558	[]	[]	
 MONOMER0-2781	predicted protein	G0-10559	[]	[]	
 MONOMER0-2801	RyhB-regulated fur leader peptide	G0-10580	[]	[]	
-MONOMER0-2812	hypothetical protein	G0-10583	[]	[]	
+MONOMER0-2812	hypothetical protein	G0-10583	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2813	DLP12 prophage; hypothetical protein	G0-10584	[]	[]	
 MONOMER0-2814	hypothetical protein	G0-10585	[]	[]	
 MONOMER0-2815	hypothetical protein	G0-10586	[]	[]	
-MONOMER0-2817	small outer membrane protein	G0-10588	[]	[]	
+MONOMER0-2817	small outer membrane protein	G0-10588	"[""CCO-OUTER-MEM""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2818	hypothetical protein	G0-10589	[]	[]	
 MONOMER0-2819	hypothetical protein	G0-10590	[]	[]	
 MONOMER0-282	PhoE	EG10729	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2820	hypothetical protein	G0-10591	[]	[]	
 MONOMER0-2821	small predicted membrane protein	G0-10593	[]	[]	
-MONOMER0-2822	small stress response membrane protein	G0-10594	[]	[]	
+MONOMER0-2822	small stress response membrane protein	G0-10594	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2823	hypothetical protein	G0-10595	[]	[]	
 MONOMER0-2824	hypothetical protein	G0-10596	[]	[]	
 MONOMER0-2825	hypothetical protein	G0-10601	[]	[]	
@@ -6849,31 +6957,42 @@ MONOMER0-2826	hypothetical protein	G0-10603	[]	[]
 MONOMER0-2827	hypothetical protein	G0-10605	[]	[]	
 MONOMER0-2828	hypothetical protein	G0-10606	[]	[]	
 MONOMER0-2829	hypothetical protein	G0-10607	[]	[]	
-MONOMER0-2830	hypothetical protein	G0-10608	[]	[]	
-MONOMER0-2840	small predicted membrane protein	G0-10616	[]	[]	
-MONOMER0-2841	two-component system connector protein	G6790	[]	[]	
+MONOMER0-2830	hypothetical protein	G0-10608	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-2840	small predicted membrane protein	G0-10616	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-2841	two-component system connector protein	G6790	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2842	SgrT, regulator of PtsG activity	G0-10617	[]	[]	
 MONOMER0-2851	IS150 protein InsAB	G0-10624	[]	[]	
 MONOMER0-2855	toxic peptide IbsE	G0-10629	[]	[]	
-MONOMER0-2856	predicted toxic peptide IbsD	G0-10630	[]	[]	
+MONOMER0-2856	predicted toxic peptide IbsD	G0-10630	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2857	toxic peptide IbsC	G0-10631	[]	[]	
 MONOMER0-2858	predicted toxic peptide IbsB	G0-10632	[]	[]	
 MONOMER0-2859	toxic peptide IbsA	G0-10633	[]	[]	
-MONOMER0-2860	toxic peptide ShoB	G0-10634	[]	[]	
+MONOMER0-2860	toxic peptide ShoB	G0-10634	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2868	small protein	G0-10641	[]	[]	
 MONOMER0-2869	small protein	G0-10642	[]	[]	
 MONOMER0-2870	small protein	G0-10643	[]	[]	
 MONOMER0-2871	small protein	G0-10644	[]	[]	
 MONOMER0-2872	small protein	G0-10645	[]	[]	
 MONOMER0-2873	small protein	G0-10646	[]	[]	
-MONOMER0-2874	small membrane protein	G0-10647	[]	[]	
-MONOMER0-2875	small membrane protein	G0-10648	[]	[]	
-MONOMER0-2876	small membrane protein	G0-10649	[]	[]	
+MONOMER0-2874	small membrane protein	G0-10647	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-2875	small membrane protein	G0-10648	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-2876	small membrane protein	G0-10649	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2877	small protein	G0-10650	[]	[]	
 MONOMER0-2878	small protein	G0-10651	[]	[]	
-MONOMER0-2879	small membrane protein	G0-10652	[]	[]	
-MONOMER0-2880	small membrane protein	G0-10653	[]	[]	
-MONOMER0-2881	small membrane protein	G0-10654	[]	[]	
+MONOMER0-2879	small membrane protein	G0-10652	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-2880	small membrane protein	G0-10653	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-2881	small membrane protein	G0-10654	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-2882	small protein involved in the cell envelope stress response	G0-10655	[]	[]	
 MONOMER0-2883	small predicted membrane protein	G0-10656	[]	[]	
 MONOMER0-2884	small predicted membrane protein	G0-10657	[]	[]	
@@ -6933,10 +7052,13 @@ MONOMER0-6	predicted enzyme IIC component of PTS	G7249	"[""CCO-PM-BAC-NEG""]"	[]
 "
 MONOMER0-741	conserved protein	G372	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-761	small membrane protein	G0-8887	[]	[]	
-MONOMER0-762	small protein	G0-8888	[]	[]	
+MONOMER0-761	small membrane protein	G0-8887	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+MONOMER0-762	small protein	G0-8888	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-765	conserved protein	G0-8891	[]	[]	
-MONOMER0-766	small membrane protein	G0-8892	[]	[]	
+MONOMER0-766	small membrane protein	G0-8892	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 MONOMER0-82	mechanosensitive channel YnaI monomer	G6666	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-921	LdrD peptide of the LdrD-RdlD toxin-antitoxin system	G0-9041	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7250,8 +7372,10 @@ PD01520	FadR DNA-binding transcriptional dual regulator	EG10281	"[""CCO-CYTOSOL"
 "
 PD01896	Mlc DNA-binding transcriptional repressor	G6852	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-PD02198	SdiA DNA-binding transcriptional dual regulator	EG10935	[]	[]	
-PD02233	positive DNA-binding transcriptional regulator of capsular polysaccharide synthesis, activates its own expression	EG10820	[]	[]	
+PD02198	SdiA DNA-binding transcriptional dual regulator	EG10935	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+PD02233	positive DNA-binding transcriptional regulator of capsular polysaccharide synthesis, activates its own expression	EG10820	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 PD02366	negative DNA-binding transcriptional regulator of galactitol metabolism	G8207	[]	[]	
 PD02850	AlpA DNA-binding transcriptional activator; CP4-57 prophage	EG12112	[]	[]	
 PD02936	FhlA transcriptional activator	EG10301	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -7340,7 +7464,8 @@ PHNC-MONOMER	phosphonate ABC transporter - ATP binding subunit	EG10713	"[""CCO-P
 "
 PHND-MONOMER	phosphonate ABC transporter - periplasmic binding protein	EG10714	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-PHNE-MONOMER	phosphonate ABC transporter - membrane subunit	EG11283	[]	[]	
+PHNE-MONOMER	phosphonate ABC transporter - membrane subunit	EG11283	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 PHNK-MONOMER	predicted carbon-phosphorous lyase subunit	EG10720	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 PHNL-MONOMER	PhnL subunit of methylphosphonate degradation complex	EG10721	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7419,7 +7544,8 @@ PROPKIN-MONOMER	propionate kinase	EG11172	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 PROS-MONOMER	prolyl-tRNA synthetase	EG10770	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-PROTEIN-CHEA	CheA	EG10146	[]	"[""MONOMER0-4206""]"	
+PROTEIN-CHEA	CheA	EG10146	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4206""]"	"Localization generated from unambiguous Ecocyc data.
+"
 PROTEIN-NRI	NtrC transcriptional dual regulator	EG10385	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4198""]"	"Location information from Han 2011.
 "
 PROTEIN-NRII	NtrB	EG10387	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7490,7 +7616,8 @@ RBSB-MONOMER	ribose ABC transporter - putative periplasmic binding protein	EG108
 "
 RBSC-MONOMER	ribose ABC transporter - membrane subunit	EG10816	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-RCSB-MONOMER	RcsB	EG10821	[]	"[""PHOSPHO-RCSB""]"	
+RCSB-MONOMER	RcsB	EG10821	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-RCSB""]"	"Localization generated from unambiguous Ecocyc data.
+"
 RCSC-MONOMER	RcsC sensory histidine kinase	EG10822	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4194 PHOSPHO-RCSC""]"	"Location information from Han 2011.
 "
 RCSF-MONOMER	RcsF outer membrane lipoprotein	EG11502	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7503,7 +7630,8 @@ RED-THIOREDOXIN2-MONOMER	reduced thioredoxin 2	EG11887	"[""CCO-PM-BAC-NEG""]"	"[
 "
 RELA-MONOMER	GDP pyrophosphokinase / GTP pyrophosphokinase	EG10835	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-RFBX-MONOMER	O-antigen flippase	EG11980	[]	[]	
+RFBX-MONOMER	O-antigen flippase	EG11980	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 RFFTRANS-MONOMER	dTDP-4-dehydro-6-deoxy-D-glucose transaminase	EG11456	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 RHAMNISOM-MONOMER	L-rhamnose isomerase	EG11867	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -7864,8 +7992,10 @@ VALINE-PYRUVATE-AMINOTRANSFER-MONOMER	valine-pyruvate aminotransferase	EG10107	"
 "
 VALS-MONOMER	valyl-tRNA synthetase	EG11067	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-XANTHOSINEPHOSPHORY-MONOMER	XapA	G85	[]	[]	
-XAPB-MONOMER	xanthosine:H+ symporter XapB	EG13159	[]	[]	
+XANTHOSINEPHOSPHORY-MONOMER	XapA	G85	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
+XAPB-MONOMER	xanthosine:H+ symporter XapB	EG13159	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 XASA-MONOMER	glutamic acid:4-aminobutyrate antiporter	G6786	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 XYLE-MONOMER	xylose:H+ symporter	EG11076	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7961,7 +8091,8 @@ YDEA-MONOMER	arabinose efflux transporter	EG11636	"[""CCO-PM-BAC-NEG""]"	[]	"Loc
 YDEF-MONOMER	predicted transport protein YdeE	EG11640	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 YDEX-MONOMER	AI-2 ABC transporter - ATP binding subunit	G6800	[]	[]	
-YDEY-MONOMER	Autoinducer-2 ABC transporter - membrane subunit	G6801	[]	[]	
+YDEY-MONOMER	Autoinducer-2 ABC transporter - membrane subunit	G6801	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 YDEZ-MONOMER	Autoinducer-2 ABC transporter - membrane subunit	G6802	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 YDHC-MONOMER	predicted transport protein YdhC	EG12141	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -8112,7 +8243,8 @@ YJGT-MONOMER	L-idonate / 5-ketogluconate / gluconate transporter IdnT	EG12539	"[
 "
 YJHB-MONOMER	YjhB  MFS transporter	EG12544	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-YJHF-MONOMER	YjhF Gnt tranporter	EG12548	[]	[]	
+YJHF-MONOMER	YjhF Gnt tranporter	EG12548	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
+"
 YJIO-MONOMER	multidrug efflux transporter MdtM	EG12576	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 YJIZ-MONOMER	galactonate:H+ symporter	EG12587	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
