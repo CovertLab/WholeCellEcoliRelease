@@ -19,7 +19,6 @@ def main():
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
 	parseGeneSynonymDictionary()
-	parseProteionMonomerLocations()
 	parseGeneProductUnmodifiedForm()
 	parseRnaTypes()
 
@@ -59,27 +58,6 @@ def parseGeneSynonymDictionary():
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(synDictFrameId))
-
-def parseProteionMonomerLocations():
-	proteinLocationDict = {}
-
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_location.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t')
-
-		for row in csvreader:
-			protFrameId = row[1]
-			locationInformation = splitBigBracket(row[2])
-			locationList= []
-			for loc in locationInformation:
-				if loc != '':
-					param = splitSmallBracket(loc)
-					if param['description'] != []:
-						locationList.append(param['description'])
-
-					proteinLocationDict[protFrameId] = locationList
-
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinLocations.json'),'wb') as jsonfile:
-		jsonfile.write(json.dumps(proteinLocationDict))
 
 def parseGeneProductUnmodifiedForm():
 	unmodifiedForm = {}
@@ -557,6 +535,44 @@ def parseProteinMonomers():
 					proteinMonomerDict[proteinMonomerFrameId].location = location
 
 	print 'Locations found in E. coli K-12 and B for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+
+	# Fill in rest from Ecocyc that are possible
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in csvreader:
+			# Check for unmodified forms. If they exist then skip it.
+			unmodifiedForms = True
+			if row[2] == '':
+				unmodifiedForms = False
+
+			# Check for a known associated gene. If one does not exist skip it.
+			knownGene = True
+			if row[6] == '':
+				knownGene = False
+
+			if not unmodifiedForms and knownGene:
+				frameId = row[1]
+				rawLocations = splitBigBracket(row[8])
+				parsedLocations= []
+				for loc in rawLocations:
+					if loc != '':
+						param = splitSmallBracket(loc)
+						if param['description'] != []:
+							parsedLocations.append(locationEquivDict[param['description']])
+				if len(parsedLocations) == 1:
+					if proteinMonomerDict[frameId].location == []:
+						proteinMonomerDict[frameId].location = parsedLocations
+						proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.\n'
+
+
+	# Fill in the rest assuming they are in the cytosol
+	count = 0
+	for key in proteinMonomerDict.iterkeys():
+		if proteinMonomerDict[key].location == []:
+			print proteinMonomerDict[key].frameId + '\t\t\t' + proteinMonomerDict[key].name
+			count += 1
+	print count
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
