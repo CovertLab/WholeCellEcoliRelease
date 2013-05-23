@@ -28,6 +28,14 @@ def main():
 def loadSequence():
 	seq_record = SeqIO.read(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt'), "fasta", IUPAC.unambiguous_dna)
 	return seq_record.seq
+
+class proteinMonomer():
+	def __init__(self):
+		self.frameId = ''
+		self.sequence = ''
+		self.coordinate = 0
+		self.length = 0
+		self.direction = ''
 	
 if __name__ == "__main__":
     main()
