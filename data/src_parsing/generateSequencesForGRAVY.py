@@ -12,14 +12,17 @@ from Bio import SeqIO
 def main():
 	sequence = loadSequence()
 
-	geneDict = {}
+	proteinMonomerDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 		csvreader.next()
 		for row in csvreader:
-			pass
-
-
+			if row[3] == 'mRNA':
+				pM = proteinMonomer()
+				pM.frameId = row[7]
+				pM.coordinate = int(row[4])
+				pM.length = int(row[5])
+				pM.direction = row[6]
 
 
 def loadSequence():
