@@ -4,10 +4,15 @@ import os
 import csv
 import ipdb
 
+from Bio.Seq import Seq
+from Bio.Alphabet import IUPAC
+from Bio import SeqIO
+
+
 def main():
 	sequence = loadSequence()
 
-	geneDict
+	geneDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 		csvreader.next()
@@ -15,18 +20,11 @@ def main():
 			pass
 
 
+
+
 def loadSequence():
-	sequence = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt')) as txtfile:
-		firstLine = True
-		for row in txtfile:
-			if firstLine:
-				firstLine = False
-			else:
-				sequence.append(row.strip())
-	return "".join(sequence)
-
-
+	seq_record = SeqIO.read(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt'), "fasta", IUPAC.unambiguous_dna)
+	return seq_record.seq
 	
 if __name__ == "__main__":
     main()
