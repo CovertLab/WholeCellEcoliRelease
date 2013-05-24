@@ -19,10 +19,17 @@ def main():
 		for row in csvreader:
 			if row[3] == 'mRNA':
 				pM = proteinMonomer()
-				pM.frameId = row[7]
-				pM.coordinate = int(row[4])
-				pM.length = int(row[5])
+				pM.frameId = row[9]
+				if row[4] != '':
+					pM.coordinate = int(row[4])
+					pM.length = int(row[5])
 				pM.direction = row[6]
+
+				if pM.direction == 'forward':
+					pM.sequence = sequence[pM.coordinate: pM.coordinate + pM.length]
+
+				proteinMonomerDict[pM.frameId] = pM
+	ipdb.set_trace()
 
 
 def loadSequence():
