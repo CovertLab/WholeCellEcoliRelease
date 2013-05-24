@@ -7,6 +7,7 @@ import sets
 import numpy as np
 import json
 import re
+import urllib
 
 class parse_metabolites:
 	def __init__(self):
@@ -26,6 +27,13 @@ class parse_metabolites:
 		self.compartmentDict['Periplasm'] = 'CCO-PERI-BAC'
 		self.compartmentDict['Extra-organism'] = 'CCO-EXTRACELLULAR'
 
+	def kegg2eco(self, query):
+		h = urllib.urlopen("http://ecocyc.org/ECOLI/ajax-frame-search?type=COMPOUND&max=2000&object=%s" % query)
+		try:
+			return json.loads(h.read())["Results"][0]["id"]
+		except TypeError, e:
+			return None
+
 	def loadOrthData(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Orth_metabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -38,9 +46,11 @@ class parse_metabolites:
 					metId = row[0][:-3]
 					if self.metDict.has_key(metId):
 						# Append this badboy
-						pass
+						met = self.metDict[metId]
+						met.compartments[self.compartmentDict[row[5]]] = {'charge' : int(row[4]), 'charged form' : row[3]}
 					else:
 						met = metabolite()
+						met.frameId = self.kegg2eco(row[6])
 						met.metId = row[0][:-3]
 						met.name = row[1]
 						met.empiricalFormula = row[2]
@@ -48,6 +58,7 @@ class parse_metabolites:
 
 					self.metDict[met.metId] = met
 					self.equivDict[met.name.lower()] = met.metId
+					self.equivDict[met.frameId] = met.metId
 
 					synL = row[8].split('/ ')
 					for syn in synL:
@@ -63,14 +74,19 @@ class parse_metabolites:
 				iupacName = re.sub('<[^<]+?>', '', row[0]).lower()
 				otherNames = re.sub('<[^<]+?>', '', row[1][1:-1]).split(', ')
 				otherNames = [name.lower() for name in otherNames]
+				frameId = row[2]
 
 				if self.equivDict.has_key(iupacName):
 					if self.equivDict[iupacName] not in usedMetId:
 						usedMetId.append(self.equivDict[iupacName])
 						metId = self.equivDict[iupacName]
-						self.metDict[metId].frameId = row[2]
+						# self.metDict[metId].frameId = row[2]
 						self.metDict[metId].SMILES = row[4]
-
+				elif self.equivDict.has_key(frameId):
+					if self.equivDict[frameId] not in usedMetId:
+						usedMetId.append(self.equivDict[frameId])
+						metId = self.equivDict[frameId]
+						self.metDict[metId].SMILES = row[4]
 				else:
 					notUsedMetId.append(iupacName)
 					# for name in otherNames:
