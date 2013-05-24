@@ -140,16 +140,20 @@ def parseGenes():
 					newGene.frameId = row[0]
 					newGene.symbol = row[1]
 
+					# Add direction
+					newGene.direction = row[4]
+
 					# Add locations
 					if row[2] != '':
-						newGene.coordinate = int(row[2])
-						newGene.length = int(row[3]) - int(row[2])
+						if newGene.direction == 'forward':
+							newGene.coordinate = int(row[2])
+							newGene.length = int(row[3]) - int(row[2])
+						else:
+							newGene.coordinate = int(row[3])
+							newGene.length = int(row[3]) - int(row[2])
 					else:
 						newGene.coordinate = None
 						newGene.length = None
-
-					# Add direction
-					newGene.direction = row[4]
 
 					# Pick new gene name for product if gene name is already used
 					# for another valid product
