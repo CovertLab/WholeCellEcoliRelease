@@ -20,10 +20,18 @@ def main():
 			if row[3] == 'mRNA':
 				pM = proteinMonomer()
 				pM.frameId = row[9]
+
 				if row[4] != '':
-					pM.coordinate = int(row[4])
-					pM.length = int(row[5])
-				pM.direction = row[6]
+					coordinate = int(row[4])
+					length = int(row[5])
+					pM.direction = row[6]
+
+				if pM.direction == 'forward':
+					pM.left = coordinate
+					pM.right = coordinate + length
+				elif pM.direction == 'right':
+					pM.left = coordinate - length
+					pM.right = coordinate
 
 				if pM.direction == 'forward':
 					pM.sequence = sequence[pM.coordinate - 1: pM.coordinate + pM.length].transcribe().translate(table = 'Bacterial')
