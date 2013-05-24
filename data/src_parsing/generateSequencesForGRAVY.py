@@ -34,11 +34,11 @@ def main():
 					pM.right = coordinate
 
 				if pM.direction == 'forward':
-					pM.sequence = sequence[pM.coordinate - 1: pM.coordinate + pM.length].transcribe().translate(table = 'Bacterial')
+					pM.sequence = sequence[pM.left - 1: pM.right].transcribe().translate(table = 11)
 				elif pM.direction == 'reverse':
-					pM.sequence = sequence[pM.coordinate - pM.length - 1: pM.coordinate].reverse_complement()#.transcribe()#.translate(table = 'Bacterial')
+					pM.sequence = sequence[pM.left - 1: pM.right].reverse_complement()#.transcribe()#.translate(table = 11)
 
-				if pM.coordinate != 0:
+				if row[4] != '':
 					print pM.frameId + '\t\t' + pM.direction + '\t\t' + pM.sequence
 					proteinMonomerDict[pM.frameId] = pM
 	ipdb.set_trace()
@@ -52,9 +52,9 @@ class proteinMonomer():
 	def __init__(self):
 		self.frameId = ''
 		self.sequence = ''
-		self.coordinate = 0
-		self.length = 0
 		self.direction = ''
+		self.left = 0
+		self.right = 0
 	
 if __name__ == "__main__":
     main()
