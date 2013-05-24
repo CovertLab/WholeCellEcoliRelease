@@ -26,18 +26,18 @@ def main():
 				pM.direction = row[6]
 
 				if pM.direction == 'forward':
-					pM.sequence = sequence[pM.coordinate: pM.coordinate + pM.length].transcribe()
+					pM.sequence = sequence[pM.coordinate: pM.coordinate + pM.length].transcribe().translate(table = 'Bacterial')
 				elif pM.direction == 'reverse':
-					pM.sequence = sequence[pM.coordinate - pM.length: pM.coordinate].reverse_complement().transcribe()
+					pM.sequence = sequence[pM.coordinate - pM.length: pM.coordinate].reverse_complement().transcribe().translate(table = 'Bacterial')
 
 				if pM.coordinate != 0:
-					print pM.frameId + '\t\t' + pM.sequence.tostring()
+					print pM.frameId + '\t\t' + pM.sequence
 					proteinMonomerDict[pM.frameId] = pM
 	ipdb.set_trace()
 
 
 def loadSequence():
-	seq_record = SeqIO.read(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt'), "fasta", IUPAC.unambiguous_dna)
+	seq_record = SeqIO.read(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt'), "fasta", IUPAC.ambiguous_dna)
 	return seq_record.seq
 
 class proteinMonomer():
