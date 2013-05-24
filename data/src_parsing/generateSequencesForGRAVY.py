@@ -30,8 +30,9 @@ def main():
 				elif pM.direction == 'reverse':
 					pM.sequence = sequence[pM.coordinate - pM.length: pM.coordinate].reverse_complement().transcribe()
 
-				print pM.frameId + '\t\t' + pM.sequence.tostring()
-				proteinMonomerDict[pM.frameId] = pM
+				if pM.coordinate != 0:
+					print pM.frameId + '\t\t' + pM.sequence.tostring()
+					proteinMonomerDict[pM.frameId] = pM
 	ipdb.set_trace()
 
 
