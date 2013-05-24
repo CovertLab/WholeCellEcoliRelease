@@ -13,7 +13,7 @@ def main():
 	sequence = loadSequence()
 
 	proteinMonomerDict = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_genes.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 		csvreader.next()
 		for row in csvreader:
