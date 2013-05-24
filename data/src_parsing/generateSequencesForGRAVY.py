@@ -26,8 +26,11 @@ def main():
 				pM.direction = row[6]
 
 				if pM.direction == 'forward':
-					pM.sequence = sequence[pM.coordinate: pM.coordinate + pM.length]
+					pM.sequence = sequence[pM.coordinate: pM.coordinate + pM.length].transcribe()
+				elif pM.direction == 'reverse':
+					pM.sequence = sequence[pM.coordinate - pM.length: pM.coordinate].reverse_complement().transcribe()
 
+				print pM.frameId + '\t\t' + pM.sequence.tostring()
 				proteinMonomerDict[pM.frameId] = pM
 	ipdb.set_trace()
 
