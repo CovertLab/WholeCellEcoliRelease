@@ -26,12 +26,12 @@ def main():
 				pM.direction = row[6]
 
 				if pM.direction == 'forward':
-					pM.sequence = sequence[pM.coordinate: pM.coordinate + pM.length].transcribe().translate(table = 'Bacterial')
+					pM.sequence = sequence[pM.coordinate - 1: pM.coordinate + pM.length].transcribe().translate(table = 'Bacterial')
 				elif pM.direction == 'reverse':
-					pM.sequence = sequence[pM.coordinate - pM.length: pM.coordinate].reverse_complement().transcribe().translate(table = 'Bacterial')
+					pM.sequence = sequence[pM.coordinate - pM.length - 1: pM.coordinate].reverse_complement()#.transcribe()#.translate(table = 'Bacterial')
 
 				if pM.coordinate != 0:
-					print pM.frameId + '\t\t' + pM.sequence
+					print pM.frameId + '\t\t' + pM.direction + '\t\t' + pM.sequence
 					proteinMonomerDict[pM.frameId] = pM
 	ipdb.set_trace()
 
