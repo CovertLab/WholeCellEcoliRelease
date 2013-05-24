@@ -151,25 +151,22 @@ def parseGenes():
 						else:
 							newGene.coordinate = int(row[3])
 							newGene.length = int(row[3]) - int(row[2])
-					else:
-						newGene.coordinate = None
-						newGene.length = None
 
-					# Pick new gene name for product if gene name is already used
-					# for another valid product
-					if geneDict.has_key(newGene.frameId):
-						count = 0
-						while geneDict.has_key(newGene.frameId + str(count)):
-							count += 1
-						geneDict[newGene.frameId + str(count)] = newGene
-					else:
-						geneDict[newGene.frameId] = newGene
+						# Pick new gene name for product if gene name is already used
+						# for another valid product
+						if geneDict.has_key(newGene.frameId):
+							count = 0
+							while geneDict.has_key(newGene.frameId + str(count)):
+								count += 1
+							geneDict[newGene.frameId + str(count)] = newGene
+						else:
+							geneDict[newGene.frameId] = newGene
 
-					# Add RNA type
-					if rnaType.has_key(newGene.productFrameId):
-						newGene.type = rnaType[newGene.productFrameId]
-					else:
-						newGene.type = 'mRNA'
+						# Add RNA type
+						if rnaType.has_key(newGene.productFrameId):
+							newGene.type = rnaType[newGene.productFrameId]
+						else:
+							newGene.type = 'mRNA'
 	
 	# Parse half life information
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
