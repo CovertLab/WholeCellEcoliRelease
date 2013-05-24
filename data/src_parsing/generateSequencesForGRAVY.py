@@ -29,7 +29,7 @@ def main():
 				if pM.direction == 'forward':
 					pM.left = coordinate
 					pM.right = coordinate + length
-				elif pM.direction == 'right':
+				elif pM.direction == 'reverse':
 					pM.left = coordinate - length
 					pM.right = coordinate
 
