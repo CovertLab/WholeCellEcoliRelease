@@ -35,9 +35,11 @@ def main():
 					pM.right = coordinate
 
 				if pM.direction == 'forward':
-					pM.sequence = sequence[pM.left - 1: pM.right].transcribe().translate(table = 11)
+					pM.ntSequence = sequence[pM.left - 1: pM.right]
+					pM.sequence = sequence[pM.left - 1: pM.right].transcribe().translate(table = 11)[:-1]
 				elif pM.direction == 'reverse':
-					pM.sequence = sequence[pM.left - 1: pM.right].reverse_complement().transcribe().translate(table = 11)
+					pM.ntSequence = sequence[pM.left - 1: pM.right].reverse_complement()
+					pM.sequence = sequence[pM.left - 1: pM.right].reverse_complement().transcribe().translate(table = 11)[:-1]
 
 				if row[4] != '':
 					#print pM.frameId + '\t\t' + pM.direction + '\t\t' + pM.sequence
@@ -78,15 +80,19 @@ def calculateGravy(pMObj):
 						'V' : 4.200}
 
 	value = 0.
-	for i in range(len(pM.sequence)):
-		value += hydropathyValue[pM.sequence[i]]
-	value = value / len(pM.sequence)
+	for i in range(len(pMObj.sequence)):
+		try:
+			value += hydropathyValue[pMObj.sequence[i]]
+		except:
+			ipdb.set_trace()
+	value = value / len(pMObj.sequence)
 	return value
 
 class proteinMonomer():
 	def __init__(self):
 		self.frameId = ''
 		self.sequence = ''
+		self.ntSequence = ''
 		self.direction = ''
 		self.left = 0
 		self.right = 0
