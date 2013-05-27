@@ -360,6 +360,13 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(geneDict.keys()))
 
+	calculateGravy()
+
+
+def calculateGravy():
+	pass
+
+
 # Parse Locations
 def parseLocations():
 	locationDict = {}
@@ -595,7 +602,7 @@ def parseProteinMonomers():
 			pm = proteinMonomerDict[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
 
-
+# Parse RNA
 def parseRna():
 	rnaDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna.csv'),'rb') as csvfile:
@@ -692,6 +699,7 @@ class gene:
 		self.expression = 0.
 		self.halfLife = None
 		self.productFrameId = None
+		self.sequenceIndicies = ''
 		self.comments = None
 
 class proteinMonomer:
