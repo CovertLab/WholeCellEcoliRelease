@@ -46,7 +46,7 @@ def main():
 					proteinMonomerDict[pM.frameId] = pM
 
 
-	badSeq = [actPm.frameId for actPm in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if actPm.sequence.count('*') > 1]
+	badSeq = [actPm.frameId for actPm in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if actPm.sequence.count('*') > 0]
 	badSeq.sort()
 	
 	for bS in badSeq:
@@ -59,7 +59,6 @@ def main():
 	# 	frameId = record.id.split('|')[-1]
 	# 	toCompareProteinMonomerDict[frameId] = record.seq
 	# handle.close()
-
 
 	# notMatchSeq = []
 	# for frameId in proteinMonomerDict.iterkeys():
