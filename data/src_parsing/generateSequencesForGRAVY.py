@@ -78,7 +78,17 @@ def main():
 	for protId in proteinMonomerDict.iterkeys():
 		gravy = calculateGravy(proteinMonomerDict[protId])
 		proteinMonomerDict[protId].gravy = gravy
-	ipdb.set_trace()
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = proteinMonomerDict.keys()
+		keys.sort()
+		csvwriter.writerow(['ID', 'GRAVY'])
+		for key in keys:
+			pm = proteinMonomerDict[key]
+			csvwriter.writerow([pm.frameId, "%0.10000f" % pm.gravy])
 
 def loadSequence():
 	seq_record = SeqIO.read(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt'), "fasta", IUPAC.ambiguous_dna)
@@ -125,6 +135,6 @@ class proteinMonomer():
 		self.left = 0
 		self.right = 0
 		self.gravy = 0.
-	
+
 if __name__ == "__main__":
     main()
