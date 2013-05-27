@@ -48,6 +48,7 @@ def main():
 
 	badSeq = [actPm.frameId for actPm in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if actPm.sequence.count('*') > 0]
 	badSeq.sort()
+	print badSeq
 	
 	for bS in badSeq:
 		proteinMonomerDict.pop(bS)
