@@ -445,7 +445,9 @@ def parseProteinMonomers():
 
 			# Check for a known associated gene. If one does not exist skip it.
 			knownGene = True
-			if row[6] == '':
+			if row[7] == '':
+				knownGene = False
+			elif row[7][1:-1] not in geneIdList:
 				knownGene = False
 
 			if not unmodifiedForms and knownGene:
@@ -568,9 +570,10 @@ def parseProteinMonomers():
 						if param['description'] != []:
 							parsedLocations.append(locationEquivDict[param['description']])
 				if len(parsedLocations) == 1:
-					if proteinMonomerDict[frameId].location == []:
-						proteinMonomerDict[frameId].location = parsedLocations
-						proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.\n'
+					if proteinMonomerDict.has_key(frameId):
+						if proteinMonomerDict[frameId].location == []:
+							proteinMonomerDict[frameId].location = parsedLocations
+							proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.\n'
 
 
 	# Fill in the rest assuming they are in the cytosol

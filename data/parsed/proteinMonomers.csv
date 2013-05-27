@@ -6781,8 +6781,6 @@ MONOMER0-1001	Rac prophage; zinc-binding protein	G0-9081	"[""CCO-CYTOSOL""]"	[]	
 MONOMER0-1041	toxin of the YoeB-YefM toxin-antitoxin pair	G0-9121	[]	[]	
 MONOMER0-12	K+ transporting ATPase - KdpF subunit	G0-10439	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-1241	glutamate-pyruvate aminotransferase	G0-9281	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
-"
 MONOMER0-1261	dihydroxyacetone kinase subunit L	G6626	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-141	hydrogenase 4, component D	G7301	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7005,7 +7003,6 @@ MONOMER0-4214	conserved protein	G0-10707	[]	[]
 MONOMER0-4216	small protein MntS	G0-10715	[]	[]	
 MONOMER0-422	2,3-diketo-L-gulonate:Na+ symporter - membrane subunit	EG12281	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-4223	D-galactose 1-dehydrogenase	G26	[]	[]	
 MONOMER0-4224	small protein IroK	G0-10716	[]	[]	
 MONOMER0-4225	IS1 protein InsA	G7030	[]	[]	
 MONOMER0-4226	IS1 protein InsA	G7761	[]	[]	
