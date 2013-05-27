@@ -356,6 +356,10 @@ def parseGenes():
 			g = geneDict[key]
 			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, g.comments])
 
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
+		jsonfile.write(json.dumps(geneDict.keys()))
+
 # Parse Locations
 def parseLocations():
 	locationDict = {}
@@ -422,6 +426,8 @@ def parseProteinMonomers():
 		synDict = json.loads(jsonfile.read())
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 		synDictFrameId = json.loads(jsonfile.read())
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'rb') as jsonfile:
+		geneIdList = json.loads(jsonfile.read())
 	# TODO: Might not need to use this last dict depending on the datasource
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'rb') as jsonfile:
 		locationEquivDict = json.loads(jsonfile.read())
