@@ -112,10 +112,7 @@ def calculateGravy(pMObj):
 
 	value = 0.
 	for i in range(len(pMObj.sequence)):
-		try:
-			value += hydropathyValue[pMObj.sequence[i]]
-		except:
-			ipdb.set_trace()
+		value += hydropathyValue[pMObj.sequence[i]]
 	value = value / len(pMObj.sequence)
 	return value
 
