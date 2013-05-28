@@ -167,7 +167,7 @@ def parseGenes():
 							newGene.type = rnaType[newGene.productFrameId]
 						else:
 							newGene.type = 'mRNA'
-	
+
 	# Parse half life information
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -359,13 +359,6 @@ def parseGenes():
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(geneDict.keys()))
-
-	calculateGravy()
-
-
-def calculateGravy():
-	pass
-
 
 # Parse Locations
 def parseLocations():
