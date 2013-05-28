@@ -15,6 +15,10 @@ def main():
 		geneId = row[0]
 		print geneId
 		geneInfo = ecosplice(geneId)
+		# If ecocyc puts up one of it's "Pathway Tools Tip" divs, the regular expressions in ecosplice() don't work
+		# One way to check if this has occurred is to see if the geneId is in the returned string
+		while geneId in geneInfo:
+			geneInfo = ecosplice(geneId)
 		csvwriter.writerow([geneId, geneInfo])
 		print geneInfo
 
