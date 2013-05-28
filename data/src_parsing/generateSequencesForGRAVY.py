@@ -50,6 +50,8 @@ def main():
 	badSeq.sort()
 	print badSeq
 	
+	ipdb.set_trace()
+
 	for bS in badSeq:
 		proteinMonomerDict.pop(bS)
 
