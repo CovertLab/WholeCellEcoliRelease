@@ -168,6 +168,27 @@ def parseGenes():
 						else:
 							newGene.type = 'mRNA'
 
+	# Parse splicing information
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'geneCoordinates.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t')
+
+		for row in csvreader:
+			frameId = row[0]
+			coord = row[1]
+			if 'join' in coord:
+				spliceCoordsRaw = re.findall("(?P<numbers>[0-9]+\.\.[0-9]+)", coord)
+				allSplices = []
+				for s in spliceCoordsRaw:
+					splitString = s.split('..')
+					splice = [int(splitString[0]), int(splitString[1])]
+					splice.sort()
+					splice = tuple(splice)
+					allSplices.append(splice)
+
+				allSplices.sort()
+				allSplices = tuple(allSplices)
+				geneDict[frameId].splices = allSplices
+
 	# Parse half life information
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -347,14 +368,14 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product','Comments'])
+		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product','Splices', 'Comments'])
 
 		keys = geneDict.keys()
 		keys.sort()
 
 		for key in keys:
 			g = geneDict[key]
-			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, g.comments])
+			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), g.comments])
 
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
@@ -640,7 +661,6 @@ def parseRna():
 			rnaToPrint = rnaDict[key]
 			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
 
-
 def lifeSucks():
 	proMonoGenesList = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
@@ -692,7 +712,7 @@ class gene:
 		self.expression = 0.
 		self.halfLife = None
 		self.productFrameId = None
-		self.sequenceIndicies = ''
+		self.splices = ()
 		self.comments = None
 
 class proteinMonomer:
