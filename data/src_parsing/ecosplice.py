@@ -5,10 +5,10 @@ import csv
 
 def main():
 
-	csvInfile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb')
-	csvreader = csv.reader(csvInfile, delimiter='\t')
-	csvOutfile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'geneCoordinates.csv'),'wb')
-	csvwriter = csv.writer(csvOutfile, delimiter='\t', quotechar='"')
+	csvInFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb')
+	csvreader = csv.reader(csvInFile, delimiter='\t')
+	csvOutFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'geneCoordinates.csv'),'wb')
+	csvwriter = csv.writer(csvOutFile, delimiter='\t', quotechar='"')
 
 	csvreader.next()
 	for row in csvreader:
