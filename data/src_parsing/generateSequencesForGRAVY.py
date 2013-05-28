@@ -41,9 +41,9 @@ def main():
 				if pM.splice == None:
 					baseSequence = sequence[pM.left - 1: pM.right]
 				else:
-					s = Seq('', IUPAC.ambiguous_dna)
+					baseSequence = Seq('', IUPAC.ambiguous_dna)
 					for splice in pM.splice:
-						s += sequence[splice[0] - 1: splice[1]]
+						baseSequence += sequence[splice[0] - 1: splice[1]]
 
 				if pM.direction == 'forward':
 					pM.ntSequence = baseSequence
