@@ -3,6 +3,7 @@
 import os
 import csv
 import ipdb
+import json
 
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
@@ -34,12 +35,22 @@ def main():
 					pM.left = coordinate - length
 					pM.right = coordinate
 
+				if row[10] != '[]':
+					pM.splice = json.loads(row[10])
+
+				if pM.splice == None:
+					baseSequence = sequence[pM.left - 1: pM.right]
+				else:
+					s = Seq('', IUPAC.ambiguous_dna)
+					for splice in pM.splice:
+						s += sequence[splice[0] - 1: splice[1]]
+
 				if pM.direction == 'forward':
-					pM.ntSequence = sequence[pM.left - 1: pM.right]
-					pM.sequence = sequence[pM.left - 1: pM.right].transcribe().translate(table = 11)[:-1]
+					pM.ntSequence = baseSequence
+					pM.sequence = baseSequence.transcribe().translate(table = 11)[:-1]
 				elif pM.direction == 'reverse':
-					pM.ntSequence = sequence[pM.left - 1: pM.right].reverse_complement()
-					pM.sequence = sequence[pM.left - 1: pM.right].reverse_complement().transcribe().translate(table = 11)[:-1]
+					pM.ntSequence = baseSequence.reverse_complement()
+					pM.sequence = baseSequence.reverse_complement().transcribe().translate(table = 11)[:-1]
 
 				if row[4] != '':
 					#print pM.frameId + '\t\t' + pM.direction + '\t\t' + pM.sequence
@@ -138,6 +149,7 @@ class proteinMonomer():
 		self.left = 0
 		self.right = 0
 		self.gravy = 0.
+		self.splice = None
 
 if __name__ == "__main__":
     main()
