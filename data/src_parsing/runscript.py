@@ -189,6 +189,16 @@ def parseGenes():
 				allSplices = tuple(allSplices)
 				geneDict[frameId].splices = allSplices
 
+	# Write random sequence modification information manually
+	# 'EG11227' has a selenocystine in place of a stop codon
+	geneDict['EG11227'].sequenceSubstitution = (196, '*', 'U')
+	# 'EG11858' has a selenocystine in place of a stop codon
+	geneDict['EG11858'].sequenceSubstitution = (196, '*', 'U')
+	# 'EG10285' has a selenocystine in place of a stop codon
+	geneDict['EG10285'].sequenceSubstitution = (140, '*', 'U')
+	# 'G8205' has a sequence conflict
+	geneDict['G8205'].sequenceSubstitution = (38, '*', 'Y')
+
 	# Parse half life information
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -368,14 +378,14 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product','Splices', 'Comments'])
+		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
 
 		keys = geneDict.keys()
 		keys.sort()
 
 		for key in keys:
 			g = geneDict[key]
-			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), g.comments])
+			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
 
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
@@ -713,6 +723,7 @@ class gene:
 		self.halfLife = None
 		self.productFrameId = None
 		self.splices = ()
+		self.sequenceSubstitution = ()
 		self.comments = None
 
 class proteinMonomer:
