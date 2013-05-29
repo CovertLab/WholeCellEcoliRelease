@@ -731,6 +731,7 @@ def parseProteinComplexes():
 
 	# Parse protein complex information
 	proCompDict = {}
+	hasComplexSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
