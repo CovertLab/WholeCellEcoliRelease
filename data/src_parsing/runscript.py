@@ -377,8 +377,11 @@ def parseGenes():
 		geneDict[key].expression = expressionDict[key] / total
 
 	# Calculate GRAVY and save output
-	print 'Calculating gravy for all genes'
-	gravy.main()
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv')):
+		print 'Calculating gravy for all genes'
+		gravy.main()
+	else:
+		print 'Gravy already exists'
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
