@@ -4538,7 +4538,7 @@ G81	D-glucuronate isomerase / D-galacturonate isomerase	uxaC	mRNA	3242763	1412	r
 G812	NrdG	nrdG	mRNA	4458387	464	reverse	0.0000141207	378.0	RNTRACTIV-MONOMER	[]	[]	
 G8202	predicted protein	yaaI	mRNA	11786	404	reverse	0.0000132758	366.0	G8202-MONOMER	[]	[]	
 G8204	predicted outer membrane protein	ydbA_2	mRNA	1468714	3323	forward	0.0000404365	288.0	G8204-MONOMER	[]	[]	
-G8205	split glyceraldehyde 3-phosphate dehydrogenase C	gapC_1	mRNA	1488737	752	reverse	0.0000887791	344.81999999999999	G8205-MONOMER	[]	"[38, ""*"", ""Y""]"	
+G8205	split glyceraldehyde 3-phosphate dehydrogenase C	gapC_1	mRNA	1488737	752	reverse	0.0000887791	344.81999999999999	G8205-MONOMER	[]	"[39, ""*"", ""Y""]"	
 G8207	negative DNA-binding transcriptional regulator of galactitol metabolism	gatR_1	mRNA	2168163	446	reverse	0.0000089609	306.0	PD02366	[]	[]	
 G8208	twice split molybdate metabolism regulator	molR_2	mRNA	2195432	1937	forward	0.0001052276	558.0	G8208-MONOMER	[]	[]	
 G8209	twice split molybdate metabolism regulator	molR_3	mRNA	2197344	947	forward	0.0001052276	720.0	G8209-MONOMER	[]	[]	

@@ -197,7 +197,7 @@ def parseGenes():
 	# 'EG10285' has a selenocystine in place of a stop codon
 	geneDict['EG10285'].sequenceSubstitution = (140, '*', 'U')
 	# 'G8205' has a sequence conflict
-	geneDict['G8205'].sequenceSubstitution = (38, '*', 'Y')
+	geneDict['G8205'].sequenceSubstitution = (39, '*', 'Y')
 
 	# Parse half life information
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
