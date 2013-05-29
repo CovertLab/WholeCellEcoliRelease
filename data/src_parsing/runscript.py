@@ -739,21 +739,41 @@ def parseProteinComplexes():
 			comp.frameId = row[0]
 			comp.name = re.sub('<[^<]+?>', '', row[1])
 
+			foundAllComponents = False
 			components = row[2][2:-2].split(') (')
-			if components[0] != '':
+			if row[2] != '':
 				for c in components:
 					info = c.split(', ')
 					frameId = info[0]
 					stoich = int(info[1])
-					if frameId in proteinComplexes or frameId in rnaProteinComplexes or frameId in smallMolecProteinComplexes:
+					if (frameId in proteinComplexes) or (frameId in rnaProteinComplexes) or (frameId in smallMolecProteinComplexes):
 						hasComplexSubunit.append(frameId)
 						break
-					else:
+					elif monomerCompartment.has_key(frameId):
 						location = monomerCompartment[frameId]
 						comp.addReactant(frameId, stoich, location)
+						foundAllComponents = True
+					else:
+						print 'Did not create a complex for ' + comp.frameId
 
-		ipdb.set_trace()
+			if foundAllComponents:
+				comp.addProduct(comp.frameId, 1)
+				comp.calculateLocation()
 
+				proCompDict[comp.frameId] = comp
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Formation process', 'Comments'])
+		
+		keys = proCompDict.keys()
+		keys.sort()
+		for key in keys:
+			c = proCompDict[key]
+			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
+
+	ipdb.set_trace()
 
 
 
