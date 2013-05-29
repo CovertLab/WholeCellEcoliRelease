@@ -734,20 +734,20 @@ def parseProteinComplexes():
 			comp.frameId = row[0]
 			comp.name = re.sub('<[^<]+?>', '', row[1])
 
-			foundAllSubunits = True
 			components = row[2][2:-2].split(') (')
 			if components[0] != '':
 				for c in components:
 					info = c.split(', ')
 					frameId = info[0]
 					stoich = int(info[1])
-					if self.geneProdLocalDict.has_key(frameId):
-						location = self.geneProdLocalDict[frameId]
-						comp.addReactant(frameId, stoich, location)
-					elif row[3] == '':
-						rowsToDo.append(row)
-						foundAllSubunits = False
+					if frameId in proteinComplexes or frameId in rnaProteinComplexes or frameId in smallMolecProteinComplexes:
+						hasComplexSubunit.append(frameId)
 						break
+					else:
+						location = monomerCompartment[frameId]
+						comp.addReactant(frameId, stoich, location)
+
+		ipdb.set_trace()
 
 
 
