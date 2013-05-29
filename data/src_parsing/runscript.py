@@ -732,7 +732,9 @@ def parseProteinComplexes():
 
 	# Parse protein complex information
 	proCompDict = {}
-	hasComplexSubunit = []
+	hasProteinComplexSubunit = []
+	hasRnaProteinComplexSubunit = []
+	hasSmallMolecProteinComplexSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
@@ -747,8 +749,14 @@ def parseProteinComplexes():
 					info = c.split(', ')
 					frameId = info[0]
 					stoich = int(info[1])
-					if (frameId in proteinComplexes) or (frameId in rnaProteinComplexes) or (frameId in smallMolecProteinComplexes):
-						hasComplexSubunit.append(frameId)
+					if (frameId in proteinComplexes):
+						hasProteinComplexSubunit.append(frameId)
+						break
+					elif (frameId in rnaProteinComplexes):
+						hasRnaProteinComplexSubunit.append(frameId)
+						break
+					elif (frameId in smallMolecProteinComplexes):
+						hasSmallMolecProteinComplexSubunit.append(frameId)
 						break
 					elif monomerCompartment.has_key(frameId):
 						location = monomerCompartment[frameId]
