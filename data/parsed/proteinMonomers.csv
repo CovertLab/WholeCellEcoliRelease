@@ -843,7 +843,8 @@ EG10216-MONOMER	conserved inner membrane protein	EG10216	"[""CCO-PM-BAC-NEG""]"	
 "
 EG10218-MONOMER	cell division protein DedD	EG10218	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG10226-MONOMER	DicA DNA-binding transcriptional dual regulator	EG10226	"[""CCO-CYTOSOL""]"	[]	
+EG10226-MONOMER	DicA DNA-binding transcriptional dual regulator	EG10226	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10227-MONOMER	Qin prophage; cell division inhibition protein	EG10227	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10228-MONOMER	Qin prophage; DNA-binding transcriptional regulator for DicB	EG10228	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -870,7 +871,8 @@ EG10243-MONOMER	DNA polymerase III, &epsilon; subunit	EG10243	"[""CCO-CYTOSOL""]
 "
 EG10244-MONOMER	DnaT	EG10244	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10245-MONOMER	DNA polymerase III, &tau; subunit	EG10245	"[""CCO-CYTOSOL""]"	[]	
+EG10245-MONOMER	DNA polymerase III, &tau; subunit	EG10245	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10246-MONOMER	membrane-bound lytic murein transglycosylase D	EG10246	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
 EG10252-MONOMER	evolved &beta;-D-galactosidase, &alpha; subunit; cryptic gene	EG10252	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -927,8 +929,10 @@ EG10315-MONOMER	minor fimbrial subunit, D-mannose specific adhesin	EG10315	"[""C
 "
 EG10320-MONOMER	FlhD	EG10320	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10321-MONOMER	flagellar biosynthesis; flagellin, filament structural protein	EG10321	"[""CCO-CYTOSOL""]"	[]	
-EG10322-MONOMER	flagellar biosynthesis	EG10322	"[""CCO-MEMBRANE""]"	[]	
+EG10321-MONOMER	flagellar biosynthesis; flagellin, filament structural protein	EG10321	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG10322-MONOMER	flagellar biosynthesis	EG10322	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10329-MONOMER	formamidopyrimidine DNA glycosylase	EG10329	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10335-MONOMER	ribosome recycling factor	EG10335	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -1079,7 +1083,8 @@ EG10571-MONOMER	MazE antitoxin of the MazF-MazE toxin-antitoxin system	EG10571	"
 "
 EG10572-MONOMER	nucleoside triphosphate pyrophosphohydrolase	EG10572	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10573-MONOMER	restriction of DNA at 5-methylcytosine residues	EG10573	"[""CCO-CYTOSOL""]"	[]	
+EG10573-MONOMER	restriction of DNA at 5-methylcytosine residues	EG10573	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10574-MONOMER	MrcB subunit of 5-methylcytosine restriction system	EG10574	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10575-MONOMER	MrcC subunit of 5-methylcytosine restriction system	EG10575	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1138,7 +1143,8 @@ EG10657-MONOMER	lipoprotein-28	EG10657	"[""CCO-PERI-BAC""]"	[]	"Location informa
 "
 EG10658-MONOMER	Outer Membrane Protein Assembly Complex - BamC subunit	EG10658	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-EG10659-MONOMER	outer membrane porin protein; locus of qsr prophage	EG10659	"[""CCO-CYTOSOL""]"	[]	
+EG10659-MONOMER	outer membrane porin protein; locus of qsr prophage	EG10659	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10662-MONOMER	endonuclease III; specific for apurinic and/or apyrimidinic sites	EG10662	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG10665-MONOMER	transcription termination/antitermination L factor	EG10665	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1207,7 +1213,8 @@ EG10735-MONOMER	PhoU phosphate transport system protein	EG10735	"[""CCO-CYTOSOL"
 "
 EG10736-MONOMER	deoxyribodipyrimidine photolyase (photoreactivation)	EG10736	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10737-MONOMER	e14 prophage; site-specific DNA recombinase	EG10737	"[""CCO-CYTOSOL""]"	[]	
+EG10737-MONOMER	e14 prophage; site-specific DNA recombinase	EG10737	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10739-MONOMER	lysophospholipase L(2)	EG10739	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG10741-MONOMER	protease involved in Microcin B17 maturation and in sensitivity to the DNA gyrase inhibitor LetD	EG10741	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1280,7 +1287,8 @@ EG10833-MONOMER	ATP-dependent DNA helicase	EG10833	"[""CCO-CYTOSOL""]"	[]	"Locat
 "
 EG10834-MONOMER	recombination and repair	EG10834	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10836-MONOMER	RelB Qin prophage; antitoxin of the RelE-RelB toxin-antitoxin system and DNA binding transcriptional repressor	EG10836	"[""CCO-CYTOSOL""]"	[]	
+EG10836-MONOMER	RelB Qin prophage; antitoxin of the RelE-RelB toxin-antitoxin system and DNA binding transcriptional repressor	EG10836	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG10837-MONOMER	rep	EG10837	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG10838-MONOMER	ADP-L-glycero-D-mannoheptose-6-epimerase	EG10838	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -1541,7 +1549,8 @@ EG11063-MONOMER	excinuclease ABC, subunit C; repair of UV damage to DNA	EG11063	
 "
 EG11064-MONOMER	DNA-dependent ATPase I and helicase II	EG11064	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11068-MONOMER	DNA mismatch endonuclease of the very short patch (VSP) mismatch repair pathway	EG11068	"[""CCO-CYTOSOL""]"	[]	
+EG11068-MONOMER	DNA mismatch endonuclease of the very short patch (VSP) mismatch repair pathway	EG11068	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11069-MONOMER	site-specific recombinase, acts on cer sequence of ColE1,  effects chromosome segregation at cell division	EG11069	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11071-MONOMER	site-specific recombinase	EG11071	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1580,7 +1589,8 @@ EG11093-MONOMER	predicted protein	EG11093	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11094-MONOMER	ATP-dependent dsDNA exonuclease	EG11094	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11095-MONOMER	acyl carrier protein phosphodiesterase	EG11095	"[""CCO-CYTOSOL""]"	[]	
+EG11095-MONOMER	acyl carrier protein phosphodiesterase	EG11095	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11096-MONOMER	YajC	EG11096	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11097-MONOMER	conserved protein	EG11097	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1725,7 +1735,8 @@ EG11186-MONOMER	conserved inner membrane protein	EG11186	"[""CCO-PM-BAC-NEG""]"	
 "
 EG11187-MONOMER	predicted lyase containing HEAT-repeat	EG11187	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11188-MONOMER	involved in lipopolysaccharide biosynthesis	EG11188	"[""CCO-CYTOSOL""]"	[]	
+EG11188-MONOMER	involved in lipopolysaccharide biosynthesis	EG11188	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11189-MONOMER	ADP-heptose:LPS heptosyltransferase I	EG11189	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11191-MONOMER	cell division inhibitor, nucleoid occlusion	EG11191	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1746,7 +1757,8 @@ EG11202-MONOMER	FMN phosphatase	EG11202	"[""CCO-CYTOSOL""]"	[]	"Location informa
 "
 EG11203-MONOMER	cell division protein; predicted checkpoint GTPase	EG11203	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11206-MONOMER	stress response protein	EG11206	"[""CCO-MEMBRANE""]"	[]	
+EG11206-MONOMER	stress response protein	EG11206	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11207-MONOMER	predicted acetyltransferase	EG11207	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11208-MONOMER	regulator of acetyl CoA synthetase	EG11208	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
@@ -1759,7 +1771,8 @@ EG11211-MONOMER	EF-P-lysine lysyltransferase	EG11211	"[""CCO-CYTOSOL""]"	[]	"Loc
 "
 EG11212-MONOMER	NsrR	EG11212	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11213-MONOMER	predicted protein	EG11213	"[""CCO-CYTOSOL""]"	[]	
+EG11213-MONOMER	predicted protein	EG11213	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11214-MONOMER	conserved protein	EG11214	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 EG11215-MONOMER	conserved inner membrane protein	EG11215	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -1770,7 +1783,8 @@ EG11219-MONOMER	hypothetical protein	EG11219	"[""CCO-PERI-BAC""]"	[]	"Location i
 "
 EG11222-MONOMER	3-methyl-adenine DNA glycosylase II, inducible	EG11222	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11224-MONOMER	flagellar biosynthesis protein FliO	EG11224	"[""CCO-MEMBRANE""]"	[]	
+EG11224-MONOMER	flagellar biosynthesis protein FliO	EG11224	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11231-MONOMER	50S ribosomal subunit protein L35	EG11231	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11232-MONOMER	50S ribosomal subunit protein L36	EG11232	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1799,7 +1813,8 @@ EG11247-MONOMER	23S rRNA m5U1939 methyltransferase	EG11247	"[""CCO-CYTOSOL""]"	[
 "
 EG11249-MONOMER	MazF toxin of the MazF-MazE toxin-antitoxin system that exhibits ribonuclease activity	EG11249	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11250-MONOMER	ChpS antitoxin of the ChpB-ChpS toxin-antitoxin system	EG11250	"[""CCO-CYTOSOL""]"	[]	
+EG11250-MONOMER	ChpS antitoxin of the ChpB-ChpS toxin-antitoxin system	EG11250	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11251-MONOMER	predicted transcriptional regulator	EG11251	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11252-MONOMER	protein involved in chromosome partitioning	EG11252	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1876,10 +1891,12 @@ EG11298-MONOMER	conserved protein	EG11298	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11299-MONOMER	ribonuclease G (RNAse G) monomer	EG11299	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11300-MONOMER	Qin prophage; predicted protein	EG11300	"[""CCO-CYTOSOL""]"	[]	
+EG11300-MONOMER	Qin prophage; predicted protein	EG11300	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11301-MONOMER	Qin prophage; small protein	EG11301	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11302-MONOMER	Qin prophage; predicted protein	EG11302	"[""CCO-CYTOSOL""]"	[]	
+EG11302-MONOMER	Qin prophage; predicted protein	EG11302	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11303-MONOMER	Qin prophage; predicted protein	EG11303	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11304-MONOMER	Qin prophage; predicted protein	EG11304	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1894,7 +1911,8 @@ EG11310-MONOMER	protein involved in detoxification of methylglyoxal	EG11310	"[""
 "
 EG11311-MONOMER	tRNA-dihydrouridine synthase B	EG11311	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11312-MONOMER	hypothetical protein	EG11312	"[""CCO-CYTOSOL""]"	[]	
+EG11312-MONOMER	hypothetical protein	EG11312	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11315-MONOMER	predicted oxidoreductase, NAD(P)-binding	EG11315	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11320-MONOMER	NrdR	EG11320	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1925,15 +1943,18 @@ EG11346-MONOMER	flagellar basal-body protein FliE	EG11346	"[""CCO-CELL-PROJECTIO
 "
 EG11350-MONOMER	lipopolysaccharide core biosynthesis protein	EG11350	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11351-MONOMER	UDP-D-galactose:(glucosyl)lipopolysaccharide-1,6-D-galactosyltransferase	EG11351	"[""CCO-CYTOSOL""]"	[]	
+EG11351-MONOMER	UDP-D-galactose:(glucosyl)lipopolysaccharide-1,6-D-galactosyltransferase	EG11351	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11352-MONOMER	UDP-D-glucose:(glucosyl)LPS &alpha;-1,3-glucosyltransferase	EG11352	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11353-MONOMER	UDP-glucose:(glucosyl)LPS &alpha;-1,2-glucosyltransferase	EG11353	"[""CCO-CYTOSOL""]"	[]	
+EG11353-MONOMER	UDP-glucose:(glucosyl)LPS &alpha;-1,2-glucosyltransferase	EG11353	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11354-MONOMER	EmrAB-TolC multidrug efflux transport system - membrane fusion protein	EG11354	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11355-MONOMER	RNA polymerase, sigma 28 (sigma F) factor	EG11355	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11356-MONOMER	FliZ DNA-binding transcriptional regulator	EG11356	"[""CCO-CYTOSOL""]"	[]	
+EG11356-MONOMER	FliZ DNA-binding transcriptional regulator	EG11356	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11357-MONOMER	ATP-dependent helicase	EG11357	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11359-MONOMER	leader peptidase, integral membrane protein	EG11359	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -1950,7 +1971,8 @@ EG11371-MONOMER	phosphatidylglycerophosphatase C	EG11371	"[""CCO-PM-BAC-NEG""]"	
 "
 EG11372-MONOMER	tRNA-specific adenosine deaminase monomer	EG11372	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11373-MONOMER	membrane-bound lytic murein transglycosylase F	EG11373	"[""CCO-CYTOSOL""]"	[]	
+EG11373-MONOMER	membrane-bound lytic murein transglycosylase F	EG11373	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11376-MONOMER	cell division protein required during stress conditions	EG11376	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 EG11378-MONOMER	Fe-S cluster assembly, scaffold protein	EG11378	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -1963,7 +1985,8 @@ EG11384-MONOMER	alkyl hydroperoxide reductase, AhpC component	EG11384	"[""CCO-CY
 "
 EG11385-MONOMER	AhpF component	EG11385	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-EG11386-MONOMER	conserved protein	EG11386	"[""CCO-CYTOSOL""]"	[]	
+EG11386-MONOMER	conserved protein	EG11386	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11388-MONOMER	flagellar biosynthesis protein FliS	EG11388	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 EG11389-MONOMER	flagellar biosynthesis protein FliT	EG11389	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
@@ -2090,12 +2113,14 @@ EG11507-MONOMER	23S rRNA 2'-O-ribose U2552 methyltransferase	EG11507	"[""CCO-CYT
 "
 EG11508-MONOMER	30S ribosomal subunit protein S22	EG11508	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11509-MONOMER	predicted DNA-binding transcriptional regulator	EG11509	"[""CCO-MEMBRANE""]"	[]	
+EG11509-MONOMER	predicted DNA-binding transcriptional regulator	EG11509	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11511-MONOMER	MogA	EG11511	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11512-MONOMER	conserved inner membrane protein associated with acetate transport	EG11512	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG11514-MONOMER	periplasmic protein	EG11514	"[""CCO-MEMBRANE""]"	[]	
+EG11514-MONOMER	periplasmic protein	EG11514	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11515-MONOMER	predicted periplasmic chaperone protein	EG11515	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 EG11516-MONOMER	conserved protein	EG11516	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2198,14 +2223,16 @@ EG11605-MONOMER	conserved protein	EG11605	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG11607-MONOMER	predicted enzyme	EG11607	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11611-MONOMER	predicted protein	EG11611	"[""CCO-CYTOSOL""]"	[]	
+EG11611-MONOMER	predicted protein	EG11611	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11613-MONOMER	predicted metal-dependent hydrolase	EG11613	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11619-MONOMER	transcription-repair coupling factor	EG11619	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11620-MONOMER	ribonuclease II	EG11620	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11634-MONOMER	Qin prophage; predicted packaging protein	EG11634	"[""CCO-CYTOSOL""]"	[]	
+EG11634-MONOMER	Qin prophage; predicted packaging protein	EG11634	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11635-MONOMER	DLP12 prophage; DNA packaging protein	EG11635	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11637-MONOMER	predicted transporter	EG11637	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -2236,8 +2263,10 @@ EG11659-MONOMER	predicted protein	EG11659	"[""CCO-PM-BAC-NEG""]"	[]	"Localizatio
 "
 EG11660-MONOMER	predicted inner membrane protein	EG11660	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11661-MONOMER	conserved protein	EG11661	"[""CCO-CYTOSOL""]"	[]	
-EG11662-MONOMER	predicted protein	EG11662	"[""CCO-CYTOSOL""]"	[]	
+EG11661-MONOMER	conserved protein	EG11661	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG11662-MONOMER	predicted protein	EG11662	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11663-MONOMER	FKBP-type peptidyl prolyl cis-trans isomerase	EG11663	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 EG11664-MONOMER	host factor for lysis of &phi;X174 infection	EG11664	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2290,7 +2319,8 @@ EG11707-MONOMER	putative ARAC-type regulatory protein	EG11707	"[""CCO-CYTOSOL""]
 "
 EG11708-MONOMER	predicted phospho-glucosidase, truncated	EG11708	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11711-MONOMER	predicted DNA-binding transcriptional regulator	EG11711	"[""CCO-CYTOSOL""]"	[]	
+EG11711-MONOMER	predicted DNA-binding transcriptional regulator	EG11711	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11712-MONOMER	conserved outer membrane protein	EG11712	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11713-MONOMER	conserved protein	EG11713	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2387,7 +2417,8 @@ EG11780-MONOMER	predicted lipoprotein	EG11780	"[""CCO-PM-BAC-NEG""]"	[]	"Localiz
 "
 EG11782-MONOMER	small protein B	EG11782	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11783-MONOMER	CP4-57 prophage; integrase	EG11783	"[""CCO-CYTOSOL""]"	[]	
+EG11783-MONOMER	CP4-57 prophage; integrase	EG11783	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11784-MONOMER	stress-induced alternate pyruvate formate-lyase subunit	EG11784	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11785-MONOMER	predicted DNA-binding transcriptional regulator LYSR-type	EG11785	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2436,7 +2467,8 @@ EG11822-MONOMER	&gamma;-glutamylputrescine oxidase	EG11822	"[""CCO-CYTOSOL""]"	[
 "
 EG11824-MONOMER	conserved inner membrane protein	EG11824	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG11825-MONOMER	conserved protein	EG11825	"[""CCO-CYTOSOL""]"	[]	
+EG11825-MONOMER	conserved protein	EG11825	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11826-MONOMER	autophosphorylating protein tyrosine kinase	EG11826	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 EG11828-MONOMER	molybdopterin-guanine dinucleotide biosynthesis protein B	EG11828	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2479,7 +2511,8 @@ EG11851-MONOMER	predicted inner membrane protein	EG11851	"[""CCO-PM-BAC-NEG""]"	
 "
 EG11852-MONOMER	D-Tyr-tRNATyr deacylase	EG11852	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG11853-MONOMER	predicted acetyltransferase	EG11853	"[""CCO-CYTOSOL""]"	[]	
+EG11853-MONOMER	predicted acetyltransferase	EG11853	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11854-MONOMER	predicted transcriptional regulator	EG11854	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG11855-MONOMER	conserved protein	EG11855	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2642,20 +2675,26 @@ EG11973-MONOMER	probable pilin chaperone similar to PapD	EG11973	"[""CCO-PERI-BA
 "
 EG11974-MONOMER	fimbrial protein	EG11974	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
-EG11975-MONOMER	flagellar biosynthesis protein FliP	EG11975	"[""CCO-MEMBRANE""]"	[]	
-EG11976-MONOMER	flagellar biosynthesis protein FliQ	EG11976	"[""CCO-MEMBRANE""]"	[]	
-EG11977-MONOMER	flagellar biosynthesis protein FliR	EG11977	"[""CCO-MEMBRANE""]"	[]	
+EG11975-MONOMER	flagellar biosynthesis protein FliP	EG11975	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG11976-MONOMER	flagellar biosynthesis protein FliQ	EG11976	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG11977-MONOMER	flagellar biosynthesis protein FliR	EG11977	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11982-MONOMER	predicted O-antigen polymerase	EG11982	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 EG11983-MONOMER	&beta;-1,6-galactofuranosyltransferase	EG11983	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11984-MONOMER	predicted acyl transferase	EG11984	"[""CCO-MEMBRANE""]"	[]	
+EG11984-MONOMER	predicted acyl transferase	EG11984	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11985-MONOMER	predicted lipopolysaccharide biosynthesis protein	EG11985	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11986-MONOMER	lipopolysaccharide biosynthesis protein, N-ter fragment	EG11986	"[""CCO-CYTOSOL""]"	[]	
+EG11986-MONOMER	lipopolysaccharide biosynthesis protein, N-ter fragment	EG11986	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11987-MONOMER	putative  type-1 fimbrial protein	EG11987	"[""CCO-PILUS""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11988-MONOMER	putative outer membrane usher protein	EG11988	"[""CCO-CYTOSOL""]"	[]	
+EG11988-MONOMER	putative outer membrane usher protein	EG11988	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG11989-MONOMER	putative fimbrial chaperone	EG11989	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 EG11990-MONOMER	predicted fimbrial-like adhesin protein	EG11990	"[""CCO-PILUS""]"	[]	"Localization generated from unambiguous Ecocyc data.
@@ -2696,7 +2735,8 @@ EG12019-MONOMER	predicted oxidoreductase with NAD(P)-binding Rossmann-fold domai
 "
 EG12020-MONOMER	putative channel/filament protein	EG12020	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-EG12021-MONOMER	conserved protein	EG12021	"[""CCO-CYTOSOL""]"	[]	
+EG12021-MONOMER	conserved protein	EG12021	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12022-MONOMER	tRNA-dihydrouridine synthase C	EG12022	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12023-MONOMER	conserved inner membrane protein	EG12023	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -2751,7 +2791,8 @@ EG12081-MONOMER	conserved protein	EG12081	"[""CCO-PM-BAC-NEG""]"	[]	"Location in
 "
 EG12094-MONOMER	SgrR DNA-binding transcriptional dual regulator	EG12094	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12096-MONOMER	ChpB toxin of the ChpB-ChpS toxin-antitoxin system	EG12096	"[""CCO-MEMBRANE""]"	[]	
+EG12096-MONOMER	ChpB toxin of the ChpB-ChpS toxin-antitoxin system	EG12096	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12097-MONOMER	conserved protein	EG12097	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12098-MONOMER	23S rRNA pseudouridine synthase	EG12098	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -2916,7 +2957,8 @@ EG12225-MONOMER	predicted protein	EG12225	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12226-MONOMER	predicted protein	EG12226	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12227-MONOMER	predicted protein	EG12227	"[""CCO-CYTOSOL""]"	[]	
+EG12227-MONOMER	predicted protein	EG12227	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12229-MONOMER	predicted oxidoreductase with FAD/NAD(P)-binding domain	EG12229	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 EG12231-MONOMER	predicted universal stress (ethanol tolerance) protein B	EG12231	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -3065,11 +3107,14 @@ EG12336-MONOMER	conserved protein	EG12336	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12337-MONOMER	phosphodiesterase	EG12337	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG12338-MONOMER	CP4-6 prophage; predicted DNA-binding transcriptional regulator	EG12338	"[""CCO-CYTOSOL""]"	[]	
-EG12339-MONOMER	CP4-6 prophage; conserved protein	EG12339	"[""CCO-CYTOSOL""]"	[]	
+EG12338-MONOMER	CP4-6 prophage; predicted DNA-binding transcriptional regulator	EG12338	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG12339-MONOMER	CP4-6 prophage; conserved protein	EG12339	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12341-MONOMER	anti-sigma factor	EG12341	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12342-MONOMER	predicted DNA-binding transcriptional regulator	EG12342	"[""CCO-CYTOSOL""]"	[]	
+EG12342-MONOMER	predicted DNA-binding transcriptional regulator	EG12342	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12344-MONOMER	PspF transcriptional dual regulator	EG12344	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12345-MONOMER	3-hydroxy acid dehydrogenase monomer	EG12345	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3096,7 +3141,8 @@ EG12365-MONOMER	predicted phosphoribulokinase	EG12365	"[""CCO-CYTOSOL""]"	[]	"Lo
 "
 EG12366-MONOMER	16S rRNA m3U1498 methyltransferase monomer	EG12366	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12370-MONOMER	e14 prophage; predicted integrase	EG12370	"[""CCO-CYTOSOL""]"	[]	
+EG12370-MONOMER	e14 prophage; predicted integrase	EG12370	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12371-MONOMER	lipoprotein involved in cell division	EG12371	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 EG12372-MONOMER	YgdG	EG12372	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3201,13 +3247,16 @@ EG12605-MONOMER	conserved protein	EG12605	"[""CCO-CYTOSOL""]"	[]	"Location infor
 "
 EG12609-MONOMER	23S rRNA and tRNA pseudouridine synthase	EG12609	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12610-MONOMER	predicted protein	EG12610	"[""CCO-CYTOSOL""]"	[]	
-EG12611-MONOMER	predicted protein	EG12611	"[""CCO-CYTOSOL""]"	[]	
+EG12610-MONOMER	predicted protein	EG12610	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG12611-MONOMER	predicted protein	EG12611	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12624-MONOMER	predicted transcriptional regulator	EG12624	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12633-MONOMER	ADP- sugar pyrophosphatase	EG12633	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12634-MONOMER	protein involved in CRISPR R-loop formation and dissociation	EG12634	"[""CCO-CYTOSOL""]"	[]	
+EG12634-MONOMER	protein involved in CRISPR R-loop formation and dissociation	EG12634	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12656-MONOMER	NADPH quinone reductase monomer	EG12656	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12657-MONOMER	quinol monooxygenase monomer	EG12657	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3242,7 +3291,8 @@ EG12708-MONOMER	conserved inner membrane protein	EG12708	"[""CCO-PM-BAC-NEG""]"	
 "
 EG12709-MONOMER	conserved inner membrane protein	EG12709	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG12710-MONOMER	predicted phosphohydrolase	EG12710	"[""CCO-CYTOSOL""]"	[]	
+EG12710-MONOMER	predicted phosphohydrolase	EG12710	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12712-MONOMER	S-ribosylhomocysteine lyase	EG12712	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 EG12713-MONOMER	aromatic amino acid exporter	EG12713	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -3259,8 +3309,10 @@ EG12842-MONOMER	predicted inner membrane protein	EG12842	"[""CCO-PM-BAC-NEG""]"	
 "
 EG12843-MONOMER	conserved inner membrane protein	EG12843	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-EG12844-MONOMER	YefM antitoxin of the YoeB-YefM toxin-antitoxin pair and DNA binding transcriptional repressor	EG12844	"[""CCO-CYTOSOL""]"	[]	
-EG12845-MONOMER	predicted endoribonuclease	EG12845	"[""CCO-MEMBRANE""]"	[]	
+EG12844-MONOMER	YefM antitoxin of the YoeB-YefM toxin-antitoxin pair and DNA binding transcriptional repressor	EG12844	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+EG12845-MONOMER	predicted endoribonuclease	EG12845	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12850-MONOMER	adhesin	EG12850	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 EG12851-MONOMER	conserved protein	EG12851	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3275,7 +3327,8 @@ EG12859-MONOMER	glucan biosynthesis protein D	EG12859	"[""CCO-PERI-BAC""]"	[]	"L
 "
 EG12860-MONOMER	predicted DNA-binding transcriptional regulator	EG12860	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12861-MONOMER	predicted protein	EG12861	"[""CCO-CYTOSOL""]"	[]	
+EG12861-MONOMER	predicted protein	EG12861	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12865-MONOMER	predicted protein	EG12865	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12866-MONOMER	RNA chaperone, involved in posttranscriptional control of ProP levels	EG12866	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3292,7 +3345,8 @@ EG12875-MONOMER	outer membrane lipoprotein	EG12875	"[""CCO-EXTRACELLULAR""]"	[]	
 "
 EG12876-MONOMER	sulfur transfer protein	EG12876	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12877-MONOMER	e14 prophage; predicted protein	EG12877	"[""CCO-CYTOSOL""]"	[]	
+EG12877-MONOMER	e14 prophage; predicted protein	EG12877	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 EG12878-MONOMER	cell division factor ZapA, localizes to the cytokinetic ring	EG12878	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 EG12879-MONOMER	predicted RNA-binding protein	EG12879	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3433,10 +3487,14 @@ FLGH-FLAGELLAR-L-RING	flagellar L-ring protein FlgH; basal-body outer-membrane L
 "
 FLGI-FLAGELLAR-P-RING	flagellar P-ring protein FlgI	G365	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-FLIF-FLAGELLAR-MS-RING	flagellar M-ring protein FliF; basal-body MS(membrane and supramembrane)-ring and collar protein	EG11347	"[""CCO-CYTOSOL""]"	[]	
-FLIG-FLAGELLAR-SWITCH-PROTEIN	flagellar motor switch protein FliG	EG11654	"[""CCO-CYTOSOL""]"	[]	
-FLIM-FLAGELLAR-C-RING-SWITCH	flagellar motor switch protein FliM	EG10323	"[""CCO-CYTOSOL""]"	[]	
-FLIN-FLAGELLAR-C-RING-SWITCH	flagellar motor switch protein FliN	EG10324	"[""CCO-CYTOSOL""]"	[]	
+FLIF-FLAGELLAR-MS-RING	flagellar M-ring protein FliF; basal-body MS(membrane and supramembrane)-ring and collar protein	EG11347	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+FLIG-FLAGELLAR-SWITCH-PROTEIN	flagellar motor switch protein FliG	EG11654	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+FLIM-FLAGELLAR-C-RING-SWITCH	flagellar motor switch protein FliM	EG10323	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+FLIN-FLAGELLAR-C-RING-SWITCH	flagellar motor switch protein FliN	EG10324	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 FMNREDUCT-MONOMER	riboflavin reductase [NAD(P)H] / FMN reductase	EG10334	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 FOCA-MONOMER	FocA	EG11258	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -3481,7 +3539,8 @@ FUCISOM-MONOMER	FucI	EG10349	"[""CCO-CYTOSOL""]"	[]	"Location information from H
 "
 FUCP-MONOMER	fucose:H+ symporter	EG10352	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-FUCPALDOL-MONOMER	FucA	EG10348	"[""CCO-CYTOSOL""]"	[]	
+FUCPALDOL-MONOMER	FucA	EG10348	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 FUCULOKIN-MONOMER	L-fuculokinase	EG10350	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 FUM-FE-S	fumarate reductase iron-sulfur protein	EG10331	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -3510,17 +3569,22 @@ G369-MONOMER	anti-sigma factor for FliA (sigma 28)	G369	"[""CCO-CYTOSOL""]"	[]	"
 "
 G370-MONOMER	flagellar biosynthesis protein FlhA	G370	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G377-MONOMER	flagellum-specific ATP synthase FliI	G377	"[""CCO-CYTOSOL""]"	[]	
-G378-MONOMER	flagellar biosynthesis protein FliJ	G378	"[""CCO-CYTOSOL""]"	[]	
+G377-MONOMER	flagellum-specific ATP synthase FliI	G377	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G378-MONOMER	flagellar biosynthesis protein FliJ	G378	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G379-MONOMER	flagellar hook-length control protein FliK	G379	"[""CCO-CELL-PROJECTION""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G495-MONOMER	6-phospho-&beta;-glucosidase A	G495	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6081-MONOMER	predicted protein	G6081	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G6082-MONOMER	conserved protein	G6082	"[""CCO-CYTOSOL""]"	[]	
-G6083-MONOMER	IS186/IS421 transposase	G6083	"[""CCO-CYTOSOL""]"	[]	
-G6086-MONOMER	IS1 protein InsA	G6086	"[""CCO-CYTOSOL""]"	[]	
+G6082-MONOMER	conserved protein	G6082	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6083-MONOMER	IS186/IS421 transposase	G6083	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6086-MONOMER	IS1 protein InsA	G6086	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6087-MONOMER	predicted protein	G6087	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6088-MONOMER	CaiF	G6088	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3573,37 +3637,60 @@ G6118-MONOMER	predicted acyltransferase with acyl-CoA N-acyltransferase domain	G
 "
 G6119-MONOMER	conserved protein	G6119	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6120-MONOMER	toxin of the YkfI-YafW toxin-antitoxin pair	G6120	"[""CCO-CYTOSOL""]"	[]	
-G6121-MONOMER	antitoxin of the YkfI-YafW toxin-antitoxin pair	G6121	"[""CCO-CYTOSOL""]"	[]	
-G6122-MONOMER	CP4-6 prophage; predicted DNA repair protein	G6122	"[""CCO-CYTOSOL""]"	[]	
-G6123-MONOMER	CP4-6 prophage; predicted protein	G6123	"[""CCO-CYTOSOL""]"	[]	
-G6124-MONOMER	CP4-6 prophage; predicted protein	G6124	"[""CCO-CYTOSOL""]"	[]	
-G6125-MONOMER	CP4-6 prophage; predicted protein	G6125	"[""CCO-CYTOSOL""]"	[]	
+G6120-MONOMER	toxin of the YkfI-YafW toxin-antitoxin pair	G6120	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6121-MONOMER	antitoxin of the YkfI-YafW toxin-antitoxin pair	G6121	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6122-MONOMER	CP4-6 prophage; predicted DNA repair protein	G6122	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6123-MONOMER	CP4-6 prophage; predicted protein	G6123	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6124-MONOMER	CP4-6 prophage; predicted protein	G6124	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6125-MONOMER	CP4-6 prophage; predicted protein	G6125	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6126-MONOMER	CP4-6 prophage; inner membrane lipoprotein	G6126	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G6127-MONOMER	CP4-6 prophage; conserved protein	G6127	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6128-MONOMER	CP4-6 prophage; predicted GTP-binding protein	G6128	"[""CCO-MEMBRANE""]"	[]	
-G6129-MONOMER	PerR transcriptional regulator	G6129	"[""CCO-CYTOSOL""]"	[]	
-G6130-MONOMER	CP4-6 prophage; partial regulator of insertion element IS911A	G6130	"[""CCO-CYTOSOL""]"	[]	
-G6131-MONOMER	transposase of IS30	G6131	"[""CCO-CYTOSOL""]"	[]	
-G6132-MONOMER	CP4-6 prophage; partial transposase of insertion element IS911A, interrupted by insertion of IS30 element	G6132	"[""CCO-CYTOSOL""]"	[]	
-G6133-MONOMER	CP4-6 prophage; conserved protein	G6133	"[""CCO-CYTOSOL""]"	[]	
+G6128-MONOMER	CP4-6 prophage; predicted GTP-binding protein	G6128	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6129-MONOMER	PerR transcriptional regulator	G6129	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6130-MONOMER	CP4-6 prophage; partial regulator of insertion element IS911A	G6130	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6131-MONOMER	transposase of IS30	G6131	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6132-MONOMER	CP4-6 prophage; partial transposase of insertion element IS911A, interrupted by insertion of IS30 element	G6132	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6133-MONOMER	CP4-6 prophage; conserved protein	G6133	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6137-MONOMER	AfuB	G6137	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G6138-MONOMER	IS1 protein InsB	G6138	"[""CCO-CYTOSOL""]"	[]	
-G6139-MONOMER	IS1 protein InsA	G6139	"[""CCO-CYTOSOL""]"	[]	
+G6138-MONOMER	IS1 protein InsB	G6138	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6139-MONOMER	IS1 protein InsA	G6139	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6140-MONOMER	CP4-6 prophage; probable 2-keto-3-deoxygluconate aldolase	G6140	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G6141-MONOMER	CP4-6 prophage; predicted dehydratase	G6141	"[""CCO-CYTOSOL""]"	[]	
-G6143-MONOMER	putative &beta;-xylosidase	G6143	"[""CCO-CYTOSOL""]"	[]	
-G6144-MONOMER	CP4-6 prophage; predicted DNA-binding transcriptional regulator	G6144	"[""CCO-CYTOSOL""]"	[]	
-G6147-MONOMER	CP4-6 prophage; predicted protein	G6147	"[""CCO-CYTOSOL""]"	[]	
-G6148-MONOMER	CP4-6 prophage; conserved protein	G6148	"[""CCO-CYTOSOL""]"	[]	
-G6149-MONOMER	CP4-6 prophage; DNA-binding protein	G6149	"[""CCO-CYTOSOL""]"	[]	
-G6150-MONOMER	CP4-6 prophage; predicted protein	G6150	"[""CCO-CYTOSOL""]"	[]	
-G6151-MONOMER	CP4-6 prophage; predicted protein	G6151	"[""CCO-CYTOSOL""]"	[]	
-G6152-MONOMER	CP4-6 prophage; predicted phage integrase	G6152	"[""CCO-CYTOSOL""]"	[]	
+G6141-MONOMER	CP4-6 prophage; predicted dehydratase	G6141	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6143-MONOMER	putative &beta;-xylosidase	G6143	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6144-MONOMER	CP4-6 prophage; predicted DNA-binding transcriptional regulator	G6144	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6147-MONOMER	CP4-6 prophage; predicted protein	G6147	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6148-MONOMER	CP4-6 prophage; conserved protein	G6148	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6149-MONOMER	CP4-6 prophage; DNA-binding protein	G6149	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6150-MONOMER	CP4-6 prophage; predicted protein	G6150	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6151-MONOMER	CP4-6 prophage; predicted protein	G6151	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6152-MONOMER	CP4-6 prophage; predicted phage integrase	G6152	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6153-MONOMER	predicted transcriptional regulator LYSR-type	G6153	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6154-MONOMER	conserved protein	G6154	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3698,14 +3785,20 @@ G6209-MONOMER	regulator protein	G6209	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G6210-MONOMER	outer membrane protein	G6210	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G6211-MONOMER	predicted acyl transferase (pseudogene)	G6211	"[""CCO-CYTOSOL""]"	[]	
-G6212-MONOMER	IS2 element protein InsA	G6212	"[""CCO-CYTOSOL""]"	[]	
-G6214-MONOMER	predicted protein	G6214	"[""CCO-MEMBRANE""]"	[]	
-G6215-MONOMER	predicted glucosyltransferase	G6215	"[""CCO-MEMBRANE""]"	[]	
-G6216-MONOMER	conserved protein	G6216	"[""CCO-CYTOSOL""]"	[]	
+G6211-MONOMER	predicted acyl transferase (pseudogene)	G6211	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6212-MONOMER	IS2 element protein InsA	G6212	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6214-MONOMER	predicted protein	G6214	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6215-MONOMER	predicted glucosyltransferase	G6215	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6216-MONOMER	conserved protein	G6216	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6222-MONOMER	predicted protein	G6222	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G6225-MONOMER	predicted protein	G6225	"[""CCO-CYTOSOL""]"	[]	
+G6225-MONOMER	predicted protein	G6225	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6226-MONOMER	predicted DNA-binding transcriptional regulator	G6226	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6227-MONOMER	predicted DNA-binding transcriptional regulator	G6227	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -3790,7 +3883,8 @@ G6286-MONOMER	ureidoglycolate dehydrogenase	G6286	"[""CCO-CYTOSOL""]"	[]	"Locati
 "
 G6287-MONOMER	predicted acyl-CoA synthetase with NAD(P)-binding Rossmann-fold domain	G6287	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6288-MONOMER	predicted protein, C-ter fragment	G6288	"[""CCO-MEMBRANE""]"	[]	
+G6288-MONOMER	predicted protein, C-ter fragment	G6288	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6289-MONOMER	conserved protein	G6289	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6290-MONOMER	predicted fimbrial-like adhesin protein	G6290	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
@@ -3801,7 +3895,8 @@ G6292-MONOMER	predicted outer membrane export usher protein	G6292	"[""CCO-OUTER-
 "
 G6293-MONOMER	predicted fimbrial-like adhesin protein	G6293	"[""CCO-CELL-PROJECTION""]"	[]	"Location information from Han 2011.
 "
-G6295-MONOMER	DLP12 prophage; predicted exonuclease	G6295	"[""CCO-CYTOSOL""]"	[]	
+G6295-MONOMER	DLP12 prophage; predicted exonuclease	G6295	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6298-MONOMER	DLP12 prophage; predicted protein	G6298	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6300-MONOMER	DLP12 prophage; predicted recombinase	G6300	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3828,12 +3923,16 @@ G6311-MONOMER	DLP12 prophage; predicted murein endopeptidase	G6311	"[""CCO-PM-BA
 "
 G6312-MONOMER	bacteriophage lambda Bor protein homolog	G6312	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6313-MONOMER	DLP12 prophage; predicted protein	G6313	"[""CCO-CYTOSOL""]"	[]	
+G6313-MONOMER	DLP12 prophage; predicted protein	G6313	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6314-MONOMER	DLP12 prophage; predicted protein	G6314	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6315-MONOMER	DLP12 prophage; predicted tail fiber assembly protein	G6315	"[""CCO-CYTOSOL""]"	[]	
-G6316-MONOMER	DLP12 prophage; predicted SAM-dependent methyltransferase	G6316	"[""CCO-CYTOSOL""]"	[]	
-G6317-MONOMER	DLP12 prophage; predicted protein	G6317	"[""CCO-CYTOSOL""]"	[]	
+G6315-MONOMER	DLP12 prophage; predicted tail fiber assembly protein	G6315	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6316-MONOMER	DLP12 prophage; predicted SAM-dependent methyltransferase	G6316	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6317-MONOMER	DLP12 prophage; predicted protein	G6317	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6318-MONOMER	CusS sensory histidine kinase	G6318	"[""CCO-PM-BAC-NEG""]"	"[""MONOMER0-4178""]"	"Location information from Han 2011.
 "
 G6319-MONOMER	CusR	G6319	"[""CCO-CYTOSOL""]"	"[""MONOMER0-4180""]"	"Location information from Han 2011.
@@ -3858,7 +3957,8 @@ G6330-MONOMER	conserved protein	G6330	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G6331-MONOMER	conserved protein	G6331	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6332-MONOMER	predicted DNA-binding transcriptional regulator LYSR-type	G6332	"[""CCO-CYTOSOL""]"	[]	
+G6332-MONOMER	predicted DNA-binding transcriptional regulator LYSR-type	G6332	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6334-MONOMER	universal stress protein UP12	G6334	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6335-MONOMER	predicted oxidoreductase, Zn-dependent and NAD(P)-binding	G6335	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3873,13 +3973,18 @@ G6345-MONOMER	DpiB sensory histidine kinase	G6345	"[""CCO-PM-BAC-NEG""]"	"[""PHO
 "
 G6346-MONOMER	DpiA	G6346	"[""CCO-CYTOSOL""]"	"[""PHOSPHO-DPIA""]"	"Location information from Han 2011.
 "
-G6348-MONOMER	predicted protein of C-N hydrolase superfamily, C-terminal fragment	G6348	"[""CCO-MEMBRANE""]"	[]	
-G6351-MONOMER	conserved protein	G6351	"[""CCO-CYTOSOL""]"	[]	
+G6348-MONOMER	predicted protein of C-N hydrolase superfamily, C-terminal fragment	G6348	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6351-MONOMER	conserved protein	G6351	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6352-MONOMER	predicted protein	G6352	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6353-MONOMER	predicted chaperone	G6353	"[""CCO-CYTOSOL""]"	[]	
-G6354-MONOMER	conserved outer membrane protein	G6354	"[""CCO-CYTOSOL""]"	[]	
-G6355-MONOMER	predicted tRNA ligase	G6355	"[""CCO-CYTOSOL""]"	[]	
+G6353-MONOMER	predicted chaperone	G6353	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6354-MONOMER	conserved outer membrane protein	G6354	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6355-MONOMER	predicted tRNA ligase	G6355	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6356-MONOMER	Hsc56, co-chaperone of Hsc62	G6356	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6357-MONOMER	Hsc62, Hsp70 family chaperone, binds to RpoD and inhibits transcription	G6357	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -3904,7 +4009,8 @@ G6374-MONOMER	putative pectinase	G6374	"[""CCO-PERI-BAC""]"	[]	"Location informa
 "
 G6376-MONOMER	conserved protein, rhs-like	G6376	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6377-MONOMER	predicted transposase; receptor protein	G6377	"[""CCO-CYTOSOL""]"	[]	
+G6377-MONOMER	predicted transposase; receptor protein	G6377	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6379-MONOMER	conserved metal-binding protein	G6379	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 G6380-MONOMER	putative carboxylase	G6380	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4111,7 +4217,8 @@ G6507-MONOMER	predicted outer membrane lipoprotein	G6507	"[""CCO-PM-BAC-NEG""]"	
 "
 G6508-MONOMER	predicted protein	G6508	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6509-MONOMER	IS1 protein InsB	G6509	"[""CCO-CYTOSOL""]"	[]	
+G6509-MONOMER	IS1 protein InsB	G6509	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6510-MONOMER	stress protein, member of the CspA family	G6510	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6511-MONOMER	cold shock protein CspG	G6511	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4146,8 +4253,10 @@ G6531-MONOMER	partially N-deacetylated poly-&beta;-1,6-N-acetyl-D-glucosamine ou
 "
 G6532-MONOMER	diguanylate cyclase	G6532	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6534-MONOMER	IS3 element protein InsE	G6168	"[""CCO-CYTOSOL""]"	[]	
-G6535-MONOMER	predicted protein	G6535	"[""CCO-CYTOSOL""]"	[]	
+G6534-MONOMER	IS3 element protein InsE	G6168	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6535-MONOMER	predicted protein	G6535	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6536-MONOMER	predicted inner membrane protein	G6536	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G6539-MONOMER	glyoxylate reductase / hydroxypyruvate reductase	G6539	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4190,7 +4299,8 @@ G6561-MONOMER	lipid II flippase	G6561	"[""CCO-PM-BAC-NEG""]"	[]	"Location inform
 "
 G6562-MONOMER	flagellar biosynthesis protein FlgN	G6562	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6563-MONOMER	predicted protein	G6563	"[""CCO-CYTOSOL""]"	[]	
+G6563-MONOMER	predicted protein	G6563	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6564-MONOMER	predicted protein	G6564	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 G6565-MONOMER	outer membrane lipoprotein - activator of PBP1B activity	G6565	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -4219,26 +4329,40 @@ G6580-MONOMER	HMP-PP hydrolase /thiamin pyrophosphate hydrolase [multifunctional
 "
 G6581-MONOMER	23S rRNA pseudouridine 2457 synthase	G6581	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6582-MONOMER	e14 prophage; predicted SAM-dependent methyltransferase	G6582	"[""CCO-CYTOSOL""]"	[]	
+G6582-MONOMER	e14 prophage; predicted SAM-dependent methyltransferase	G6582	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6583-MONOMER	e14 prophage; predicted inner membrane protein	G6583	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G6585-MONOMER	e14 prophage; predicted excisionase	G6585	"[""CCO-CYTOSOL""]"	[]	
+G6585-MONOMER	e14 prophage; predicted excisionase	G6585	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6586-MONOMER	e14 prophage; predicted protein	G6586	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G6587-MONOMER	e14 prophage; predicted protein	G6587	"[""CCO-CYTOSOL""]"	[]	
-G6588-MONOMER	e14 prophage; predicted protein	G6588	"[""CCO-CYTOSOL""]"	[]	
-G6589-MONOMER	e14 prophage; predicted repressor protein	G6589	"[""CCO-CYTOSOL""]"	[]	
-G6590-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6590	"[""CCO-CYTOSOL""]"	[]	
-G6591-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6591	"[""CCO-CYTOSOL""]"	[]	
-G6592-MONOMER	e14 prophage; predicted protein	G6592	"[""CCO-CYTOSOL""]"	[]	
-G6593-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6593	"[""CCO-CYTOSOL""]"	[]	
+G6587-MONOMER	e14 prophage; predicted protein	G6587	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6588-MONOMER	e14 prophage; predicted protein	G6588	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6589-MONOMER	e14 prophage; predicted repressor protein	G6589	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6590-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6590	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6591-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6591	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6592-MONOMER	e14 prophage; predicted protein	G6592	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6593-MONOMER	e14 prophage; predicted DNA-binding transcriptional regulator	G6593	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6594-MONOMER	e14 prophage; predicted protein	G6594	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G6595-MONOMER	e14 prophage; conserved protein	G6595	"[""CCO-CYTOSOL""]"	[]	
-G6596-MONOMER	e14 prophage; conserved protein	G6596	"[""CCO-CYTOSOL""]"	[]	
-G6597-MONOMER	e14 prophage; conserved protein	G6597	"[""CCO-CYTOSOL""]"	[]	
-G6598-MONOMER	e14 prophage; predicted protein	G6598	"[""CCO-CYTOSOL""]"	[]	
-G6599-MONOMER	e14 prophage; predicted side tail fiber protein fragment	G6599	"[""CCO-CYTOSOL""]"	[]	
+G6595-MONOMER	e14 prophage; conserved protein	G6595	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6596-MONOMER	e14 prophage; conserved protein	G6596	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6597-MONOMER	e14 prophage; conserved protein	G6597	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6598-MONOMER	e14 prophage; predicted protein	G6598	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6599-MONOMER	e14 prophage; predicted side tail fiber protein fragment	G6599	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6600-MONOMER	inhibitor of &sigma;S proteolysis	G6600	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6601-MONOMER	predicted protein	G6601	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4257,11 +4381,14 @@ G6607-MONOMER	protein involved in biofilm formation	G6607	"[""CCO-CYTOSOL""]"	[]
 "
 G6608-MONOMER	conserved inner membrane protein	G6608	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6609-MONOMER	conserved protein; member of the Autotransporter family	G6609	"[""CCO-CYTOSOL""]"	[]	
-G6610-MONOMER	conserved protein; member of the Autotransporter family	G6610	"[""CCO-CYTOSOL""]"	[]	
+G6609-MONOMER	conserved protein; member of the Autotransporter family	G6609	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6610-MONOMER	conserved protein; member of the Autotransporter family	G6610	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6611-MONOMER	predicted protein	G6611	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G6612-MONOMER	predicted protein	G6612	"[""CCO-MEMBRANE""]"	[]	
+G6612-MONOMER	predicted protein	G6612	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6613-MONOMER	predicted protein	G6613	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 G6614-MONOMER	predicted protein	G6614	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -4274,7 +4401,8 @@ G6617-MONOMER	predicted isomerase/hydrolase	G6617	"[""CCO-CYTOSOL""]"	[]	"Locati
 "
 G6618-MONOMER	conserved protein	G6618	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6619-MONOMER	hemolysin E	G6619	"[""CCO-CYTOSOL""]"	[]	
+G6619-MONOMER	hemolysin E	G6619	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6621-MONOMER	L,D-carboxypeptidase A	G6621	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6622-MONOMER	lytic murein transglycosylase E	G6622	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
@@ -4293,15 +4421,18 @@ G6629-MONOMER	putative adhesion and penetration protein	G6629	"[""CCO-OUTER-MEM"
 "
 G6630-MONOMER	predicted transcriptional regulator	G6630	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6631-MONOMER	predicted protein	G6631	"[""CCO-MEMBRANE""]"	[]	
-G6632-MONOMER	predicted protein, N-terminal fragment	G6632	"[""CCO-CYTOSOL""]"	[]	
+G6631-MONOMER	predicted protein	G6631	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6632-MONOMER	predicted protein, N-terminal fragment	G6632	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6633-MONOMER	predicted protein	G6633	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6634-MONOMER	conserved protein	G6634	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6635-MONOMER	conserved protein	G6635	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6636-MONOMER	predicted inner membrane protein	G6636	"[""CCO-CYTOSOL""]"	[]	
+G6636-MONOMER	predicted inner membrane protein	G6636	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6637-MONOMER	conserved inner membrane protein	G6637	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G6638-MONOMER	DNA-binding transcriptional regulator	G6638	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
@@ -4372,25 +4503,36 @@ G6677-MONOMER	Rac prophage; conserved protein	G6677	"[""CCO-CYTOSOL""]"	[]	"Loca
 "
 G6679-MONOMER	Rac prophage; small protein	G6679	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6680-MONOMER	Rac prophage; predicted DNA-binding transcriptional regulator	G6680	"[""CCO-CYTOSOL""]"	[]	
-G6681-MONOMER	Rac prophage; predicted DNA-binding transcriptional regulator	G6681	"[""CCO-CYTOSOL""]"	[]	
-G6682-MONOMER	Rac prophage; predicted protein	G6682	"[""CCO-CYTOSOL""]"	[]	
-G6683-MONOMER	Rac prophage; conserved protein	G6683	"[""CCO-CYTOSOL""]"	[]	
-G6684-MONOMER	Rac prophage; predicted DNA replication protein	G6684	"[""CCO-CYTOSOL""]"	[]	
-G6685-MONOMER	Rac prophage; predicted DNA-binding protein	G6685	"[""CCO-CYTOSOL""]"	[]	
+G6680-MONOMER	Rac prophage; predicted DNA-binding transcriptional regulator	G6680	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6681-MONOMER	Rac prophage; predicted DNA-binding transcriptional regulator	G6681	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6682-MONOMER	Rac prophage; predicted protein	G6682	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6683-MONOMER	Rac prophage; conserved protein	G6683	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6684-MONOMER	Rac prophage; predicted DNA replication protein	G6684	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6685-MONOMER	Rac prophage; predicted DNA-binding protein	G6685	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6686-MONOMER	Rac prophage; predicted defective peptidase	G6686	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6688-MONOMER	Rac prophage; conserved protein	G6688	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6689-MONOMER	Rac prophage; predicted protein	G6689	"[""CCO-CYTOSOL""]"	[]	
-G6691-MONOMER	Rac prophage; predicted tail protein	G6691	"[""CCO-CYTOSOL""]"	[]	
+G6689-MONOMER	Rac prophage; predicted protein	G6689	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6691-MONOMER	Rac prophage; predicted tail protein	G6691	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6692-MONOMER	Rac prophage; predicted protein, N-ter fragment	G6692	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G6693-MONOMER	Rac prophage; IS5 transposase and trans-activator	G6693	"[""CCO-CYTOSOL""]"	[]	
-G6694-MONOMER	Rac prophage; predicted protein, C-ter fragment	G6694	"[""CCO-CYTOSOL""]"	[]	
+G6693-MONOMER	Rac prophage; IS5 transposase and trans-activator	G6693	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6694-MONOMER	Rac prophage; predicted protein, C-ter fragment	G6694	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6695-MONOMER	putative membrane protein	G6695	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6696-MONOMER	Rac prophage; predicted tail fiber assembly protein	G6696	"[""CCO-CYTOSOL""]"	[]	
+G6696-MONOMER	Rac prophage; predicted tail fiber assembly protein	G6696	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6697-MONOMER	Rac prophage; predicted site-specific recombinase	G6697	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6698-MONOMER	Rac prophage; cold shock protein, function unknown	G6698	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4411,22 +4553,38 @@ G6705-MONOMER	conserved protein	G6705	"[""CCO-PERI-BAC""]"	[]	"Location informat
 "
 G6706-MONOMER	FeaR DNA-binding transcriptional activator	G6706	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6708-MONOMER	oxepin-CoA hydrolase/3-oxo-5,6-dehydrosuberyl-CoA semialdehyde dehydrogenase	G6708	"[""CCO-CYTOSOL""]"	[]	
-G6709-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase, monooxygenase subunit	G6709	"[""CCO-CYTOSOL""]"	[]	
-G6710-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase subunit	G6710	"[""CCO-CYTOSOL""]"	[]	
-G6711-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase, structural subunit	G6711	"[""CCO-CYTOSOL""]"	[]	
-G6712-MONOMER	phenylacetate degradation protein	G6712	"[""CCO-CYTOSOL""]"	[]	
-G6713-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase, reductase subunit	G6713	"[""CCO-CYTOSOL""]"	[]	
-G6714-MONOMER	predicted 2,3-dehydroadipyl-CoA hydratase	G6714	"[""CCO-MEMBRANE""]"	[]	
-G6715-MONOMER	predicted ring 1,2-epoxyphenylacetyl-CoA isomerase (oxepin-CoA forming)	G6715	"[""CCO-CYTOSOL""]"	[]	
-G6716-MONOMER	3-hydroxyadipyl-CoA dehydrogenase (NAD+)	G6716	"[""CCO-MEMBRANE""]"	[]	
-G6717-MONOMER	hydroxyphenylacetyl-CoA thioesterase	G6717	"[""CCO-CYTOSOL""]"	[]	
-G6718-MONOMER	&beta;-ketoadipyl-CoA thiolase	G6718	"[""CCO-MEMBRANE""]"	[]	
-G6719-MONOMER	phenylacetate-CoA ligase	G6719	"[""CCO-CYTOSOL""]"	[]	
-G6720-MONOMER	PaaX	G6720	"[""CCO-MEMBRANE""]"	[]	
-G6721-MONOMER	predicted hexapeptide repeat acetyltransferase	G6721	"[""CCO-CYTOSOL""]"	[]	
-G6722-MONOMER	predicted outer membrane protein, N-ter fragment	G6722	"[""CCO-CYTOSOL""]"	[]	
-G6725-MONOMER	transposase of IS30	G6725	"[""CCO-CYTOSOL""]"	[]	
+G6708-MONOMER	oxepin-CoA hydrolase/3-oxo-5,6-dehydrosuberyl-CoA semialdehyde dehydrogenase	G6708	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6709-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase, monooxygenase subunit	G6709	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6710-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase subunit	G6710	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6711-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase, structural subunit	G6711	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6712-MONOMER	phenylacetate degradation protein	G6712	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6713-MONOMER	ring 1,2-phenylacetyl-CoA epoxidase, reductase subunit	G6713	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6714-MONOMER	predicted 2,3-dehydroadipyl-CoA hydratase	G6714	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6715-MONOMER	predicted ring 1,2-epoxyphenylacetyl-CoA isomerase (oxepin-CoA forming)	G6715	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6716-MONOMER	3-hydroxyadipyl-CoA dehydrogenase (NAD+)	G6716	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6717-MONOMER	hydroxyphenylacetyl-CoA thioesterase	G6717	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6718-MONOMER	&beta;-ketoadipyl-CoA thiolase	G6718	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6719-MONOMER	phenylacetate-CoA ligase	G6719	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6720-MONOMER	PaaX	G6720	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6721-MONOMER	predicted hexapeptide repeat acetyltransferase	G6721	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6722-MONOMER	predicted outer membrane protein, N-ter fragment	G6722	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6725-MONOMER	transposase of IS30	G6725	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6727-MONOMER	YnbA	G6727	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G6728-MONOMER	predicted CDP-diglyceride synthase	G6728	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -4483,8 +4641,10 @@ G6765-MONOMER	predicted enzyme	G6765	"[""CCO-CYTOSOL""]"	[]	"Location informatio
 "
 G6766-MONOMER	hypothetical protein	G6766	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6767-MONOMER	predicted protein	G6767	"[""CCO-CYTOSOL""]"	[]	
-G6768-MONOMER	predicted protein	G6768	"[""CCO-CYTOSOL""]"	[]	
+G6767-MONOMER	predicted protein	G6767	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6768-MONOMER	predicted protein	G6768	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6769-MONOMER	conserved protein	G6769	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6770-MONOMER	NhoA	G6770	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4561,9 +4721,12 @@ G6818-MONOMER	Qin prophage; cold shock gene, predicted DNA-binding transcription
 "
 G6819-MONOMER	Qin prophage; predicted site-specific recombinase	G6819	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6820-MONOMER	Qin prophage; predicted tail fibre assembly protein	G6820	"[""CCO-CYTOSOL""]"	[]	
-G6821-MONOMER	Qin prophage; predicted side tail fibre assembly protein	G6821	"[""CCO-CYTOSOL""]"	[]	
-G6822-MONOMER	Qin prophage; predicted protein	G6822	"[""CCO-CYTOSOL""]"	[]	
+G6820-MONOMER	Qin prophage; predicted tail fibre assembly protein	G6820	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6821-MONOMER	Qin prophage; predicted side tail fibre assembly protein	G6821	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6822-MONOMER	Qin prophage; predicted protein	G6822	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6823-MONOMER	Qin prophage; predicted protein	G6823	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6824-MONOMER	Qin prophage; predicted protein	G6824	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4578,17 +4741,22 @@ G6828-MONOMER	Qin prophage; predicted protein	G6828	"[""CCO-CYTOSOL""]"	[]	"Loca
 "
 G6829-MONOMER	Qin prophage; predicted S lysis protein	G6829	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6830-MONOMER	Qin prophage; predicted antitermination protein Q	G6830	"[""CCO-CYTOSOL""]"	[]	
+G6830-MONOMER	Qin prophage; predicted antitermination protein Q	G6830	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6831-MONOMER	Qin prophage; predicted protein	G6831	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6832-MONOMER	Qin prophage; predicted protein	G6832	"[""CCO-MEMBRANE""]"	[]	
-G6833-MONOMER	Qin prophage; predicted protein	G6833	"[""CCO-CYTOSOL""]"	[]	
-G6834-MONOMER	Qin prophage; predicted protein	G6834	"[""CCO-CYTOSOL""]"	[]	
+G6832-MONOMER	Qin prophage; predicted protein	G6832	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6833-MONOMER	Qin prophage; predicted protein	G6833	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6834-MONOMER	Qin prophage; predicted protein	G6834	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6835-MONOMER	Qin prophage; predicted protein	G6835	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6836-MONOMER	Qin prophage; predicted transposase	G6836	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6837-MONOMER	Qin prophage; predicted defective integrase	G6837	"[""CCO-CYTOSOL""]"	[]	
+G6837-MONOMER	Qin prophage; predicted defective integrase	G6837	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6838-MONOMER	predicted oxidoreductase, Zn-dependent and NAD(P)-binding	G6838	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G6839-MONOMER	mannonate/altronate dehydratase	G6839	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4733,8 +4901,10 @@ G6924-MONOMER	conserved protein	G6924	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G6925-MONOMER	anti-FlhDC factor	G6925	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G6926-MONOMER	predicted protein, N-ter fragment	G6926	"[""CCO-CYTOSOL""]"	[]	
-G6927-MONOMER	predicted protein, C-ter fragment	G6927	"[""CCO-MEMBRANE""]"	[]	
+G6926-MONOMER	predicted protein, N-ter fragment	G6926	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G6927-MONOMER	predicted protein, C-ter fragment	G6927	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6928-MONOMER	conserved protein	G6928	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 G6929-MONOMER	predicted protein	G6929	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4761,7 +4931,8 @@ G6939-MONOMER	Spy	G6939	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2
 "
 G6945-MONOMER	predicted inner membrane protein	G6945	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6946-MONOMER	predicted protein	G6946	"[""CCO-CYTOSOL""]"	[]	
+G6946-MONOMER	predicted protein	G6946	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G6947-MONOMER	conserved inner membrane protein	G6947	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G6948-MONOMER	conserved protein	G6948	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4920,24 +5091,34 @@ G7037-MONOMER	predicted transporter subunit: membrane component of ABC superfami
 "
 G7039-MONOMER	periplasmic cystine-binding protein; member of extracellular bacterial solute-binding protein family III	G7039	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7040-MONOMER	predicted acyltransferase	G7040	"[""CCO-CYTOSOL""]"	[]	
-G7041-MONOMER	predicted protein, N-ter fragment	G7041	"[""CCO-CYTOSOL""]"	[]	
-G7042-MONOMER	predicted protein, C-ter fragment	G7042	"[""CCO-MEMBRANE""]"	[]	
-G7043-MONOMER	conserved protein	G7043	"[""CCO-CYTOSOL""]"	[]	
-G7044-MONOMER	predicted defective phage integrase	G7044	"[""CCO-CYTOSOL""]"	[]	
+G7040-MONOMER	predicted acyltransferase	G7040	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7041-MONOMER	predicted protein, N-ter fragment	G7041	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7042-MONOMER	predicted protein, C-ter fragment	G7042	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7043-MONOMER	conserved protein	G7043	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7044-MONOMER	predicted defective phage integrase	G7044	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7045-MONOMER	hypothetical protein; transcription is regulated by RpoS and  DsrA RNA	G7045	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7046-MONOMER	stress-induced protein	G7046	"[""CCO-CYTOSOL""]"	[]	
+G7046-MONOMER	stress-induced protein	G7046	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7048-MONOMER	predicted phosphatase	G7048	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G7049-MONOMER	predicted diguanylate cyclase	G7049	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7050-MONOMER	predicted protein	G7050	"[""CCO-CYTOSOL""]"	[]	
+G7050-MONOMER	predicted protein	G7050	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7051-MONOMER	predicted inner membrane protein	G7051	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7052-MONOMER	predicted protein, N-ter fragment	G7052	"[""CCO-CYTOSOL""]"	[]	
-G7053-MONOMER	predicted protein, middle fragment	G7053	"[""CCO-CYTOSOL""]"	[]	
-G7054-MONOMER	predicted protein, C-ter fragment	G7054	"[""CCO-CYTOSOL""]"	[]	
+G7052-MONOMER	predicted protein, N-ter fragment	G7052	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7053-MONOMER	predicted protein, middle fragment	G7053	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7054-MONOMER	predicted protein, C-ter fragment	G7054	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7055-MONOMER	glyoxalase III, Hsp31 molecular chaperone	G7055	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7056-MONOMER	predicted sensory kinase in two-component regulatory system with YedW	G7056	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -4958,8 +5139,10 @@ G7063-MONOMER	Mlc titration factor	G7063	"[""CCO-CYTOSOL""]"	[]	"Location inform
 "
 G7064-MONOMER	adhesin	G7064	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G7065-MONOMER	predicted protein, C-terminal fragment	G7065	"[""CCO-MEMBRANE""]"	[]	
-G7066-MONOMER	predicted protein, N-terminal fragment	G7066	"[""CCO-MEMBRANE""]"	[]	
+G7065-MONOMER	predicted protein, C-terminal fragment	G7065	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7066-MONOMER	predicted protein, N-terminal fragment	G7066	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7068-MONOMER	conserved protein	G7068	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7071-MONOMER	Cbl DNA-binding transcriptional activator	G7071	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -4968,11 +5151,14 @@ G7072-MONOMER	Nac DNA-binding transcriptional dual regulator	G7072	"[""CCO-CYTOS
 "
 G7073-MONOMER	L,D-transpeptidase ErfK	G7073	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G7074-MONOMER	CP4-44 prophage; IS5 transposase and trans-activator	G7074	"[""CCO-CYTOSOL""]"	[]	
+G7074-MONOMER	CP4-44 prophage; IS5 transposase and trans-activator	G7074	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7075-MONOMER	CP4-44 prophage; predicted disrupted hemin or colicin receptor	G7075	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7078-MONOMER	hypothetical protein	G7078	"[""CCO-CYTOSOL""]"	[]	
-G7079-MONOMER	CP4-44 prophage; predicted GTP-binding protein	G7079	"[""CCO-CYTOSOL""]"	[]	
+G7078-MONOMER	hypothetical protein	G7078	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7079-MONOMER	CP4-44 prophage; predicted GTP-binding protein	G7079	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7080-MONOMER	CP4-44 prophage; antigen 43 (Ag43) phase-variable biofilm formation autotransporter	G7080	"[""CCO-OUTER-MEM""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 G7081-MONOMER	CP4-44 prophage; predicted membrane protein	G7081	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -5029,7 +5215,8 @@ G7108-MONOMER	putative transport protein	G7108	"[""CCO-PM-BAC-NEG""]"	[]	"Locati
 "
 G7109-MONOMER	conserved protein	G7109	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7110-MONOMER	predicted protein	G7110	"[""CCO-CYTOSOL""]"	[]	
+G7110-MONOMER	predicted protein	G7110	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7111-MONOMER	predicted protein	G7111	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7112-MONOMER	conserved protein	G7112	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5046,8 +5233,10 @@ G7122-MONOMER	predicted protein	G7122	"[""CCO-PERI-BAC""]"	[]	"Location informat
 "
 G7123-MONOMER	lipid kinase	G7123	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7126-MONOMER	IS3 element protein InsF	G6169	"[""CCO-CYTOSOL""]"	[]	
-G7128-MONOMER	GatZ	G7128	"[""CCO-CYTOSOL""]"	[]	
+G7126-MONOMER	IS3 element protein InsF	G6169	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7128-MONOMER	GatZ	G7128	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7131-MONOMER	predicted hydrolase	G7131	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7132-MONOMER	predicted kinase	G7132	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5078,7 +5267,8 @@ G7153-MONOMER	predicted protein	G7153	"[""CCO-PERI-BAC""]"	[]	"Location informat
 "
 G7154-MONOMER	predicted protein, C-ter fragment	G7154	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
-G7155-MONOMER	predicted protein, N-ter fragment	G7155	"[""CCO-CYTOSOL""]"	[]	
+G7155-MONOMER	predicted protein, N-ter fragment	G7155	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7156-MONOMER	predicted protein	G7156	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7158-MONOMER	2-keto-3-deoxy-L-rhamnonate aldolase	G7158	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5117,14 +5307,18 @@ G7175-MONOMER	Rbn	G7175	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 20
 "
 G7176-MONOMER	deubiquitinase	G7176	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7177-MONOMER	putative lipoprotein	G7177	"[""CCO-CYTOSOL""]"	[]	
+G7177-MONOMER	putative lipoprotein	G7177	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7178-MONOMER	predicted peptidase	G7178	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G7179-MONOMER	predicted protein	G7179	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7180-MONOMER	predicted protein	G7180	"[""CCO-CYTOSOL""]"	[]	
-G7181-MONOMER	predicted protein	G7181	"[""CCO-CYTOSOL""]"	[]	
-G7182-MONOMER	predicted protein	G7182	"[""CCO-CYTOSOL""]"	[]	
+G7180-MONOMER	predicted protein	G7180	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7181-MONOMER	predicted protein	G7181	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7182-MONOMER	predicted protein	G7182	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7184-MONOMER	glutamate-pyruvate aminotransferase	G7184	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7185-MONOMER	dCMP phosphohydrolase	G7185	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5171,7 +5365,8 @@ G7207-MONOMER	predicted periplasmic pilus chaperone	G7207	"[""CCO-PERI-BAC""]"	[
 "
 G7208-MONOMER	fimbrial usher protein, C-terminal fragment	G7208	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G7209-MONOMER	fimbrial usher protein, N-terminal fragment	G7209	"[""CCO-CYTOSOL""]"	[]	
+G7209-MONOMER	fimbrial usher protein, N-terminal fragment	G7209	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7210-MONOMER	predicted fimbrial-like adhesin protein	G7210	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
 G7211-MONOMER	phosphohistidine phosphatase	G7211	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5182,29 +5377,42 @@ G7213-MONOMER	FadI monomer	G7213	"[""CCO-CYTOSOL""]"	[]	"Location information fr
 "
 G7214-MONOMER	conserved protein	G7214	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7215-MONOMER	predicted protein	G7215	"[""CCO-CYTOSOL""]"	[]	
+G7215-MONOMER	predicted protein	G7215	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7216-MONOMER	MlaA	G7216	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
 G7217-MONOMER	predicted inner membrane protein	G7217	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G7218-MONOMER	CPS-53 (KpLE1) prophage; prophage CPS-53 integrase	G7218	"[""CCO-CYTOSOL""]"	[]	
+G7218-MONOMER	CPS-53 (KpLE1) prophage; prophage CPS-53 integrase	G7218	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7219-MONOMER	CPS-53 (KpLE1) prophage; predicted bactoprenol-linked glucose translocase (flippase)	G7219	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G7220-MONOMER	CPS-53 (KpLE1) prophage; bactoprenyl glucosyl transferase	G7220	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G7221-MONOMER	CPS-53 (KpLE1) prophage; predicted inner membrane protein	G7221	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7222-MONOMER	CPS-53 (KpLE1) prophage; tail fiber assembly protein fragment	G7222	"[""CCO-CYTOSOL""]"	[]	
-G7223-MONOMER	CPS-53 (KpLE1) prophage; conserved protein	G7223	"[""CCO-CYTOSOL""]"	[]	
-G7224-MONOMER	CPS-53 (KpLE1) prophage; conserved protein	G7224	"[""CCO-MEMBRANE""]"	[]	
-G7225-MONOMER	CPS-53 (KpLE1) prophage; predicted methyltransferase	G7225	"[""CCO-CYTOSOL""]"	[]	
-G7226-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7226	"[""CCO-CYTOSOL""]"	[]	
-G7227-MONOMER	CPS-53 (KpLE1) prophage; predicted defective phage replication protein O	G7227	"[""CCO-CYTOSOL""]"	[]	
-G7228-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7228	"[""CCO-CYTOSOL""]"	[]	
-G7229-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7229	"[""CCO-CYTOSOL""]"	[]	
-G7230-MONOMER	CPS-53 (KpLE1) prophage; deoxyribonucleoside 5'-monophosphate phosphatase	G7230	"[""CCO-CYTOSOL""]"	[]	
-G7231-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7231	"[""CCO-CYTOSOL""]"	[]	
-G7232-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7232	"[""CCO-CYTOSOL""]"	[]	
+G7222-MONOMER	CPS-53 (KpLE1) prophage; tail fiber assembly protein fragment	G7222	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7223-MONOMER	CPS-53 (KpLE1) prophage; conserved protein	G7223	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7224-MONOMER	CPS-53 (KpLE1) prophage; conserved protein	G7224	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7225-MONOMER	CPS-53 (KpLE1) prophage; predicted methyltransferase	G7225	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7226-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7226	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7227-MONOMER	CPS-53 (KpLE1) prophage; predicted defective phage replication protein O	G7227	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7228-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7228	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7229-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7229	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7230-MONOMER	CPS-53 (KpLE1) prophage; deoxyribonucleoside 5'-monophosphate phosphatase	G7230	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7231-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7231	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7232-MONOMER	CPS-53 (KpLE1) prophage; predicted protein	G7232	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7233-MONOMER	EmrKY-TolC multidrug efflux transport system - membrane fusion protein	G7233	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7234-MONOMER	predicted CoA transferase, NAD(P)-binding	G7234	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5239,7 +5447,8 @@ G7251-MONOMER	predicted ion channel protein	G7251	"[""CCO-PM-BAC-NEG""]"	[]	"Loc
 "
 G7252-MONOMER	conserved protein	G7252	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G7255-MONOMER	predicted IS186/IS421 transposase	G7255	"[""CCO-CYTOSOL""]"	[]	
+G7255-MONOMER	predicted IS186/IS421 transposase	G7255	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7256-MONOMER	conserved outer membrane protein	G7256	"[""CCO-OUTER-MEM""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G7257-MONOMER	predicted DNA-binding transcriptional regulator, LYSR-type	G7257	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5268,15 +5477,24 @@ G7270-MONOMER	predicted structural protein, ethanolamine utilization microcompar
 "
 G7271-MONOMER	predicted structural protein, ethanolamine utilization microcompartment	G7271	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7272-MONOMER	CPZ-55 prophage; predicted integrase	G7272	"[""CCO-CYTOSOL""]"	[]	
-G7273-MONOMER	CPZ-55 prophage; predicted protein	G7273	"[""CCO-CYTOSOL""]"	[]	
-G7274-MONOMER	CPZ-55 prophage; predicted protein	G7274	"[""CCO-CYTOSOL""]"	[]	
-G7275-MONOMER	CPZ-55 prophage; predicted protein	G7275	"[""CCO-CYTOSOL""]"	[]	
-G7276-MONOMER	CPZ-55 prophage; predicted protein	G7276	"[""CCO-CYTOSOL""]"	[]	
-G7277-MONOMER	CPZ-55 prophage; predicted protein	G7277	"[""CCO-CYTOSOL""]"	[]	
-G7278-MONOMER	CPZ-55 prophage; predicted protein	G7278	"[""CCO-MEMBRANE""]"	[]	
-G7279-MONOMER	CPZ-55 prophage; predicted protein	G7279	"[""CCO-CYTOSOL""]"	[]	
-G7280-MONOMER	CPZ-55 prophage; predicted protein	G7280	"[""CCO-CYTOSOL""]"	[]	
+G7272-MONOMER	CPZ-55 prophage; predicted integrase	G7272	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7273-MONOMER	CPZ-55 prophage; predicted protein	G7273	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7274-MONOMER	CPZ-55 prophage; predicted protein	G7274	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7275-MONOMER	CPZ-55 prophage; predicted protein	G7275	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7276-MONOMER	CPZ-55 prophage; predicted protein	G7276	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7277-MONOMER	CPZ-55 prophage; predicted protein	G7277	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7278-MONOMER	CPZ-55 prophage; predicted protein	G7278	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7279-MONOMER	CPZ-55 prophage; predicted protein	G7279	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7280-MONOMER	CPZ-55 prophage; predicted protein	G7280	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7281-MONOMER	reactivating factor for ethanolamine ammonia-lyase EutBC	G7281	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7282-MONOMER	predicted inner membrane protein	G7282	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -5389,41 +5607,68 @@ G7357-MONOMER	predicted protein	G7357	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G7358-MONOMER	50S ribosomal subunit-binding toxin of a predicted toxin-antitoxin pair	G7358	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7359-MONOMER	CP4-57 prophage; predicted protein	G7359	"[""CCO-CYTOSOL""]"	[]	
-G7360-MONOMER	CP4-57 prophage; predicted protein	G7360	"[""CCO-CYTOSOL""]"	[]	
-G7361-MONOMER	CP4-57 prophage; predicted protein	G7361	"[""CCO-CYTOSOL""]"	[]	
-G7362-MONOMER	CP4-57 prophage; conserved protein	G7362	"[""CCO-CYTOSOL""]"	[]	
-G7363-MONOMER	CP4-57 prophage; predicted protein	G7363	"[""CCO-CYTOSOL""]"	[]	
-G7364-MONOMER	CP4-57 prophage; predicted protein	G7364	"[""CCO-CYTOSOL""]"	[]	
-G7365-MONOMER	CP4-57 prophage; RNase LS	G7365	"[""CCO-CYTOSOL""]"	[]	
-G7366-MONOMER	CP4-57 prophage; antitoxin of the RnlA-RnlB toxin-antitoxin system	G7366	"[""CCO-MEMBRANE""]"	[]	
+G7359-MONOMER	CP4-57 prophage; predicted protein	G7359	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7360-MONOMER	CP4-57 prophage; predicted protein	G7360	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7361-MONOMER	CP4-57 prophage; predicted protein	G7361	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7362-MONOMER	CP4-57 prophage; conserved protein	G7362	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7363-MONOMER	CP4-57 prophage; predicted protein	G7363	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7364-MONOMER	CP4-57 prophage; predicted protein	G7364	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7365-MONOMER	CP4-57 prophage; RNase LS	G7365	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7366-MONOMER	CP4-57 prophage; antitoxin of the RnlA-RnlB toxin-antitoxin system	G7366	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7367-MONOMER	CP4-57 prophage; predicted GTP-binding protein	G7367	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7368-MONOMER	CP4-57 prophage; predicted protein	G7368	"[""CCO-CYTOSOL""]"	[]	
-G7369-MONOMER	CP4-57 prophage; predicted DNA-binding transcriptional regulator	G7369	"[""CCO-MEMBRANE""]"	[]	
-G7370-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7370	"[""CCO-MEMBRANE""]"	[]	
+G7368-MONOMER	CP4-57 prophage; predicted protein	G7368	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7369-MONOMER	CP4-57 prophage; predicted DNA-binding transcriptional regulator	G7369	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7370-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7370	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7371-MONOMER	CP4-57 prophage; inner membrane lipoprotein YfjS	G7371	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7372-MONOMER	CP4-57 prophage; predicted protein	G7372	"[""CCO-CYTOSOL""]"	[]	
-G7373-MONOMER	CP4-57 prophage; conserved protein	G7373	"[""CCO-CYTOSOL""]"	[]	
-G7374-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7374	"[""CCO-MEMBRANE""]"	[]	
+G7372-MONOMER	CP4-57 prophage; predicted protein	G7372	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7373-MONOMER	CP4-57 prophage; conserved protein	G7373	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7374-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7374	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7375-MONOMER	CP4-57 prophage; predicted protein	G7375	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7376-MONOMER	CP4-57 prophage; predicted protein	G7376	"[""CCO-MEMBRANE""]"	[]	
+G7376-MONOMER	CP4-57 prophage; predicted protein	G7376	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7377-MONOMER	CP4-57 prophage; predicted inner membrane protein	G7377	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7378-MONOMER	CP4-57 prophage; predicted antirestriction protein	G7378	"[""CCO-CYTOSOL""]"	[]	
-G7379-MONOMER	CP4-57 prophage; predicted DNA repair protein	G7379	"[""CCO-CYTOSOL""]"	[]	
-G7380-MONOMER	CP4-57 prophage; predicted antitoxin of the YpjF-YfjZ toxin-antitoxin system	G7380	"[""CCO-CYTOSOL""]"	[]	
-G7381-MONOMER	CP4-57 prophage; toxin of the YpjF-YfjZ toxin-antitoxin system	G7381	"[""CCO-CYTOSOL""]"	[]	
-G7382-MONOMER	adhesin-like autotransporter	G7382	"[""CCO-CYTOSOL""]"	[]	
-G7383-MONOMER	predicted invertase fragment	G7383	"[""CCO-MEMBRANE""]"	[]	
-G7384-MONOMER	predicted protein	G7384	"[""CCO-CYTOSOL""]"	[]	
-G7385-MONOMER	predicted protein	G7385	"[""CCO-CYTOSOL""]"	[]	
-G7389-MONOMER	predicted protein	G7389	"[""CCO-CYTOSOL""]"	[]	
-G7390-MONOMER	predicted protein	G7391	"[""CCO-CYTOSOL""]"	[]	
-G7392-MONOMER	conserved protein	G7392	"[""CCO-CYTOSOL""]"	[]	
-G7393-MONOMER	conserved protein	G7393	"[""CCO-CYTOSOL""]"	[]	
+G7378-MONOMER	CP4-57 prophage; predicted antirestriction protein	G7378	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7379-MONOMER	CP4-57 prophage; predicted DNA repair protein	G7379	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7380-MONOMER	CP4-57 prophage; predicted antitoxin of the YpjF-YfjZ toxin-antitoxin system	G7380	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7381-MONOMER	CP4-57 prophage; toxin of the YpjF-YfjZ toxin-antitoxin system	G7381	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7382-MONOMER	adhesin-like autotransporter	G7382	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7383-MONOMER	predicted invertase fragment	G7383	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7384-MONOMER	predicted protein	G7384	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7385-MONOMER	predicted protein	G7385	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7389-MONOMER	predicted protein	G7389	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7390-MONOMER	predicted protein	G7391	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7392-MONOMER	conserved protein	G7392	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7393-MONOMER	conserved protein	G7393	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7394-MONOMER	predicted protein	G7394	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7395-MONOMER	predicted protein	G7395	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -5478,11 +5723,16 @@ G7424-MONOMER	essential cell division protein FtsB	G7424	"[""CCO-PM-BAC-NEG""]"	
 "
 G7425-MONOMER	multifunctional nuclease	G7425	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7426-MONOMER	crRNA endonuclease	G7426	"[""CCO-CYTOSOL""]"	[]	
-G7427-MONOMER	Cascade subunit D	G7427	"[""CCO-CYTOSOL""]"	[]	
-G7428-MONOMER	Cascade subunit C	G7428	"[""CCO-CYTOSOL""]"	[]	
-G7429-MONOMER	Cascade subunit B	G7429	"[""CCO-CYTOSOL""]"	[]	
-G7430-MONOMER	Cascade subunit A	G7430	"[""CCO-CYTOSOL""]"	[]	
+G7426-MONOMER	crRNA endonuclease	G7426	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7427-MONOMER	Cascade subunit D	G7427	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7428-MONOMER	Cascade subunit C	G7428	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7429-MONOMER	Cascade subunit B	G7429	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7430-MONOMER	Cascade subunit A	G7430	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7431-MONOMER	6-carboxy-5,6,7,8-tetrahydropterin synthase	G7431	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7432-MONOMER	predicted oxidoreductase with FAD/NAD(P)-binding domain	G7432	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5543,24 +5793,36 @@ G7464-MONOMER	predicted acyltransferase	G7464	"[""CCO-CYTOSOL""]"	[]	"Location i
 "
 G7466-MONOMER	conserved protein with bipartite regulator domain	G7466	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7467-MONOMER	predicted transcriptional regulator	G7467	"[""CCO-CYTOSOL""]"	[]	
+G7467-MONOMER	predicted transcriptional regulator	G7467	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7468-MONOMER	predicted protein	G7468	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7469-MONOMER	predicted protein	G7469	"[""CCO-CYTOSOL""]"	[]	
-G7470-MONOMER	predicted protein	G7470	"[""CCO-CYTOSOL""]"	[]	
-G7471-MONOMER	predicted chaperone	G7471	"[""CCO-CYTOSOL""]"	[]	
+G7469-MONOMER	predicted protein	G7469	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7470-MONOMER	predicted protein	G7470	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7471-MONOMER	predicted chaperone	G7471	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7472-MONOMER	predicted transcriptional regulator	G7472	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7473-MONOMER	predicted protein	G7473	"[""CCO-CYTOSOL""]"	[]	
+G7473-MONOMER	predicted protein	G7473	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7474-MONOMER	predicted peptidoglycan-binding enzyme	G7474	"[""CCO-PERI-BAC""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7475-MONOMER	predicted DNA-binding transcriptional regulator	G7475	"[""CCO-CYTOSOL""]"	[]	
-G7476-MONOMER	predicted protein	G7476	"[""CCO-MEMBRANE""]"	[]	
-G7477-MONOMER	predicted protein	G7477	"[""CCO-CYTOSOL""]"	[]	
-G7478-MONOMER	predicted protein	G7478	"[""CCO-CYTOSOL""]"	[]	
-G7479-MONOMER	predicted protein	G7479	"[""CCO-CYTOSOL""]"	[]	
-G7480-MONOMER	IS2 element protein	G6213	"[""CCO-CYTOSOL""]"	[]	
-G7482-MONOMER	predicted protein	G7482	"[""CCO-CYTOSOL""]"	[]	
+G7475-MONOMER	predicted DNA-binding transcriptional regulator	G7475	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7476-MONOMER	predicted protein	G7476	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7477-MONOMER	predicted protein	G7477	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7478-MONOMER	predicted protein	G7478	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7479-MONOMER	predicted protein	G7479	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7480-MONOMER	IS2 element protein	G6213	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7482-MONOMER	predicted protein	G7482	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7483-MONOMER	predicted protein	G7483	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 G7484-MONOMER	putative lipoprotein; predicted DNA-binding transcriptional regulator	G7484	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -5657,7 +5919,8 @@ G7534-MONOMER	putative transport protein	G7534	"[""CCO-PM-BAC-NEG""]"	[]	"Locati
 "
 G7535-MONOMER	predicted secretion pathway protein, M-type protein, membrane anchored	G7535	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7536-MONOMER	predicted secretion pathway protein, L-type protein	G7536	"[""CCO-CYTOSOL""]"	[]	
+G7536-MONOMER	predicted secretion pathway protein, L-type protein	G7536	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7537-MONOMER	predicted secretion pathway protein, C-type protein	G7537	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7538-MONOMER	putative lipoprotein	G7538	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
@@ -5690,7 +5953,8 @@ G7555-MONOMER	predicted protein	G7555	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G7556-MONOMER	predicted hydrolase	G7556	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7557-MONOMER	predicted hydrolase	G7557	"[""CCO-CYTOSOL""]"	[]	
+G7557-MONOMER	predicted hydrolase	G7557	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7558-MONOMER	L-glyceraldehyde 3-phosphate reductase	G7558	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7559-MONOMER	conserved inner membrane protein	G7559	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -5869,9 +6133,12 @@ G7668-MONOMER	biosynthetic peptidoglycan transglycosylase	G7668	"[""CCO-PM-BAC-N
 "
 G7669-MONOMER	predicted Fe-S oxidoreductase	G7669	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7670-MONOMER	predicted outer membrane protein	G7670	"[""CCO-CYTOSOL""]"	[]	
-G7671-MONOMER	predicted protein, N-ter fragment (pseudogene)	G7671	"[""CCO-CYTOSOL""]"	[]	
-G7673-MONOMER	predicted transcriptional regulator	G7673	"[""CCO-MEMBRANE""]"	[]	
+G7670-MONOMER	predicted outer membrane protein	G7670	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7671-MONOMER	predicted protein, N-ter fragment (pseudogene)	G7671	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7673-MONOMER	predicted transcriptional regulator	G7673	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7674-MONOMER	conserved protein	G7674	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7675-MONOMER	conserved protein	G7675	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -5964,7 +6231,8 @@ G7726-MONOMER	fructoselysine 6-kinase	G7726	"[""CCO-CYTOSOL""]"	[]	"Location inf
 "
 G7727-MONOMER	predicted DNA-binding transcriptional regulator	G7727	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7728-MONOMER	conserved protein	G7728	"[""CCO-MEMBRANE""]"	[]	
+G7728-MONOMER	conserved protein	G7728	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7729-MONOMER	predicted inner membrane protein	G7729	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7730-MONOMER	predicted protein	G7730	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6009,7 +6277,8 @@ G7750-MONOMER	RNA 3'-terminal phosphate cyclase	G7750	"[""CCO-CYTOSOL""]"	[]	"Lo
 "
 G7751-MONOMER	RNA ligase	G7751	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7752-MONOMER	predicted protein	G7752	"[""CCO-MEMBRANE""]"	[]	
+G7752-MONOMER	predicted protein	G7752	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7753-MONOMER	predicted inner membrane protein	G7753	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G7756-MONOMER	pirin-like protein	G7756	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6022,18 +6291,24 @@ G7759-MONOMER	conserved protein	G7759	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G7760-MONOMER	conserved protein	G7760	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7762-MONOMER	IS1 protein InsB	G6085	"[""CCO-CYTOSOL""]"	[]	
+G7762-MONOMER	IS1 protein InsB	G6085	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7763-MONOMER	predicted protein with chaperone-like activity	G7763	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7767-MONOMER	conserved protein involved in bacteriophage adsorption	G7767	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G7769-MONOMER	CP4-6 prophage; IS5 transposase and trans-activator	G6134	"[""CCO-CYTOSOL""]"	[]	
-G7776-MONOMER	IS150 protein InsA	G7776	"[""CCO-CYTOSOL""]"	[]	
-G7777-MONOMER	IS150 conserved protein InsB	G7777	"[""CCO-CYTOSOL""]"	[]	
+G7769-MONOMER	CP4-6 prophage; IS5 transposase and trans-activator	G6134	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7776-MONOMER	IS150 protein InsA	G7776	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7777-MONOMER	IS150 conserved protein InsB	G7777	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7790-MONOMER	predicted DNA-binding transcriptional regulator	G7789	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7797-MONOMER	conserved protein	G7797	"[""CCO-CYTOSOL""]"	[]	
-G7798-MONOMER	conserved protein	G7798	"[""CCO-CYTOSOL""]"	[]	
+G7797-MONOMER	conserved protein	G7797	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7798-MONOMER	conserved protein	G7798	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7800-MONOMER	4-acetamido-4,6-dideoxy-D-galactose transferase	G7800	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7802-MONOMER	predicted protein	G7802	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6070,7 +6345,8 @@ G7836-MONOMER	lysine 2,3-aminomutase	G7836	"[""CCO-CYTOSOL""]"	[]	"Location info
 "
 G7837-MONOMER	Blc outer membrane lipoprotein (lipocalin)	G7837	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G7838-MONOMER	predicted protein	G7838	"[""CCO-CYTOSOL""]"	[]	
+G7838-MONOMER	predicted protein	G7838	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7839-MONOMER	conserved inner membrane protein	G7839	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 G7840-MONOMER	mechanosensitive channel of miniconductance McsM monomer	G7840	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6129,7 +6405,8 @@ G7868-MONOMER	NAD(P)H:quinone oxidoreductase	G7868	"[""CCO-CYTOSOL""]"	[]	"Locat
 "
 G7869-MONOMER	predicted transcriptional regulator	G7869	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7870-MONOMER	predicted protein	G7870	"[""CCO-CYTOSOL""]"	[]	
+G7870-MONOMER	predicted protein	G7870	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7871-MONOMER	conserved protein	G7871	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
 "
 G7872-MONOMER	conserved protein	G7872	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6140,7 +6417,8 @@ G7874-MONOMER	translocation and assembly module - TamA subunit	G7874	"[""CCO-OUT
 "
 G7875-MONOMER	translocation and assembly module - TamB subunit	G7875	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G7876-MONOMER	conserved protein	G7876	"[""CCO-CYTOSOL""]"	[]	
+G7876-MONOMER	conserved protein	G7876	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7877-MONOMER	predicted enamine/imine deaminase	G7877	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7879-MONOMER	predicted mRNA endoribonuclease	G7879	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6171,25 +6449,34 @@ G7896-MONOMER	KpLE2 phage-like element; predicted protein	G7896	"[""CCO-CYTOSOL"
 "
 G7897-MONOMER	KpLE2 phage-like element; predicted protein	G7897	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7898-MONOMER	KpLE2 phage-like element; predicted protein, N-ter fragment	G7898	"[""CCO-MEMBRANE""]"	[]	
+G7898-MONOMER	KpLE2 phage-like element; predicted protein, N-ter fragment	G7898	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7899-MONOMER	KpLE2 phage-like element; predicted protein	G7899	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7900-MONOMER	IS1 predicted transposase	G7900	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7901-MONOMER	KpLE2 phage-like element; predicted oxidoreductase	G7901	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G7902-MONOMER	KpLE2 phage-like element; predicted protein	G7902	"[""CCO-CYTOSOL""]"	[]	
+G7902-MONOMER	KpLE2 phage-like element; predicted protein	G7902	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7903-MONOMER	KpLE2 phage-like element; predicted membrane protein (pseudogene)	G7903	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7904-MONOMER	KpLE2 phage-like element; partial regulator of insertion element IS911B (interrupted)	G7904	"[""CCO-CYTOSOL""]"	[]	
-G7906-MONOMER	KpLE2 phage-like element; partial transposase	G7906	"[""CCO-CYTOSOL""]"	[]	
-G7907-MONOMER	KpLE2 phage-like element; predicted protein	G7907	"[""CCO-CYTOSOL""]"	[]	
-G7908-MONOMER	KpLE2 phage-like element; IS1 repressor protein InsA	G7908	"[""CCO-CYTOSOL""]"	[]	
-G7909-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7909	"[""CCO-CYTOSOL""]"	[]	
-G7910-MONOMER	KpLE2 phage-like element; predicted dehydratase	G7910	"[""CCO-CYTOSOL""]"	[]	
+G7904-MONOMER	KpLE2 phage-like element; partial regulator of insertion element IS911B (interrupted)	G7904	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7906-MONOMER	KpLE2 phage-like element; partial transposase	G7906	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7907-MONOMER	KpLE2 phage-like element; predicted protein	G7907	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7908-MONOMER	KpLE2 phage-like element; IS1 repressor protein InsA	G7908	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7909-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7909	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7910-MONOMER	KpLE2 phage-like element; predicted dehydratase	G7910	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7911-MONOMER	predicted lyase/synthase	G7911	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G7912-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7912	"[""CCO-CYTOSOL""]"	[]	
+G7912-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7912	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7913-MONOMER	KpLE2 phage-like element; predicted DNA-binding transcriptional regulator	G7913	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7914-MONOMER	KpLE2 phage-like element; predicted epimerase	G7914	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6200,7 +6487,8 @@ G7916-MONOMER	KpLE2 phage-like element; predicted methyltransferase	G7916	"[""CC
 "
 G7917-MONOMER	KpLE2 phage-like element; predicted acetyltransferase	G7917	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7918-MONOMER	KpLE2 phage-like element; predicted frameshift suppressor	G7918	"[""CCO-CYTOSOL""]"	[]	
+G7918-MONOMER	KpLE2 phage-like element; predicted frameshift suppressor	G7918	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7919-MONOMER	probable 9-O-acetyl-N-acetylneuraminate esterase	G7919	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7920-MONOMER	N-acetylneuraminate mutarotase	G7920	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
@@ -6233,17 +6521,22 @@ G7933-MONOMER	hypothetical protein	G7933	"[""CCO-PM-BAC-NEG""]"	[]	"Location inf
 "
 G7934-MONOMER	predicted transposase	G7934	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-G7935-MONOMER	predicted transposase	G7935	"[""CCO-CYTOSOL""]"	[]	
-G7936-MONOMER	putative regulator	G7936	"[""CCO-CYTOSOL""]"	[]	
-G7937-MONOMER	conserved protein	G7937	"[""CCO-CYTOSOL""]"	[]	
-G7938-MONOMER	conserved protein	G7938	"[""CCO-CYTOSOL""]"	[]	
+G7935-MONOMER	predicted transposase	G7935	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7936-MONOMER	putative regulator	G7936	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7937-MONOMER	conserved protein	G7937	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G7938-MONOMER	conserved protein	G7938	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7940-MONOMER	toxin-like protein of the SOS response	G7940	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7941-MONOMER	conserved protein	G7941	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7942-MONOMER	predicted inner membrane protein	G7942	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G7944-MONOMER	predicted DNA-binding transcriptional regulator	G7944	"[""CCO-CYTOSOL""]"	[]	
+G7944-MONOMER	predicted DNA-binding transcriptional regulator	G7944	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G7945-MONOMER	predicted L-galactonate oxidoreductase	G7945	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 G7946-MONOMER	predicted inner membrane structural protein	G7946	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6266,11 +6559,14 @@ G7954-MONOMER	predicted protein	G7954	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 G8202-MONOMER	predicted protein	G8202	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-G8204-MONOMER	predicted outer membrane protein, C-ter fragment	G8204	"[""CCO-CYTOSOL""]"	[]	
+G8204-MONOMER	predicted outer membrane protein, C-ter fragment	G8204	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G8205-MONOMER	split glyceraldehyde 3-phosphate dehydrogenase C	G8205	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-G8208-MONOMER	twice split molybdate metabolism regulator	G8208	"[""CCO-CYTOSOL""]"	[]	
-G8209-MONOMER	twice split molybdate metabolism regulator	G8209	"[""CCO-CYTOSOL""]"	[]	
+G8208-MONOMER	twice split molybdate metabolism regulator	G8208	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+G8209-MONOMER	twice split molybdate metabolism regulator	G8209	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 G8210-MONOMER	glucitol/sorbitol PTS permease - SrlA subunit	G8210	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 G8221-MONOMER	acetolactate synthase II, large subunit, N-ter fragment (pseudogene)	G8221	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6293,7 +6589,8 @@ GALACTURIDYLYLTRANS-MONOMER	galactose-1-phosphate uridylyltransferase	EG10366	"[
 "
 GALP-MONOMER	galactose:H+ symporter	EG12148	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-GALPMUT-MONOMER	UDP-galactopyranose mutase	EG11981	"[""CCO-CYTOSOL""]"	[]	
+GALPMUT-MONOMER	UDP-galactopyranose mutase	EG11981	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 GAPDH-A-MONOMER	glyceraldehyde 3-phosphate dehydrogenase-A monomer	EG10367	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
 GART-MONOMER	phosphoribosylglycinamide formyltransferase 1	EG10799	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6342,7 +6639,8 @@ GLTJ-MONOMER	glutamate / aspartate ABC transporter - membrane subunit	EG12661	"[
 "
 GLTK-MONOMER	glutamate / aspartate ABC transporter - membrane subunit	EG12662	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-GLTL-MONOMER	glutamate / aspartate ABC transporter - ATP binding subunit	EG12663	"[""CCO-CYTOSOL""]"	[]	
+GLTL-MONOMER	glutamate / aspartate ABC transporter - ATP binding subunit	EG12663	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 GLTP-MONOMER	glutamate / aspartate : H+ symporter GltP	EG10405	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 GLTS-MONOMER	glutamate:sodium symporter	EG10406	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6513,7 +6811,8 @@ HISTDEHYD-MONOMER	HisD	EG10447	"[""CCO-CYTOSOL""]"	[]	"Location information from
 "
 HISTPHOSTRANS-MONOMER	HisC	EG10446	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-HMP-KIN-MONOMER	chaperone, protecting proteins in response to oxidative stress	G198	"[""CCO-MEMBRANE""]"	[]	
+HMP-KIN-MONOMER	chaperone, protecting proteins in response to oxidative stress	G198	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 HMP-P-KIN-MONOMER	ThiD	G7135	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 HOLO-ACP-SYNTH-MONOMER	AcpS	EG10247	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6624,7 +6923,8 @@ LACY-MONOMER	lactose / melibiose:H+ symporter LacY	EG10526	"[""CCO-PM-BAC-NEG""]
 "
 LARGEILVB-MONOMER	IlvB	EG10494	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-LARGEILVG-MONOMER	acetolactate synthase II, large subunit, C-ter fragment (pseudogene)	EG10498	"[""CCO-CYTOSOL""]"	[]	
+LARGEILVG-MONOMER	acetolactate synthase II, large subunit, C-ter fragment (pseudogene)	EG10498	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 LAUROYLACYLTRAN-MONOMER	lauroyl acyltransferase	EG10464	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 LCTP-MONOMER	(R)-lactate / (S)-lactate / glycolate:H+ symporter LldP	EG11961	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6763,7 +7063,8 @@ MHPHYDROXY-MONOMER	3-(3-hydroxyphenyl)propionate 2-hydroxylase	M010	"[""CCO-CYTO
 "
 MHPT-MONOMER	3-hydroxyphenylpropionate / 3-hydroxycinnamate:H+ symporter	G6206	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MMUM-MONOMER	homocysteine methyltransferase	G6136	"[""CCO-CYTOSOL""]"	[]	
+MMUM-MONOMER	homocysteine methyltransferase	G6136	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MODA-MONOMER	molybdate ABC transporter - periplasmic binding protein	EG12427	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
 MODB-MONOMER	molybdate ABC transporter - membrane subunit	EG10002	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -6778,7 +7079,8 @@ MONOMER-43	GhrB	EG12272	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 20
 "
 MONOMER0-1001	Rac prophage; zinc-binding protein	G0-9081	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-1041	toxin of the YoeB-YefM toxin-antitoxin pair	G0-9121	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-1041	toxin of the YoeB-YefM toxin-antitoxin pair	G0-9121	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-12	K+ transporting ATPase - KdpF subunit	G0-10439	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-1261	dihydroxyacetone kinase subunit L	G6626	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6791,7 +7093,8 @@ MONOMER0-143	hydrogenase 4, component F	G7303	"[""CCO-PM-BAC-NEG""]"	[]	"Locatio
 "
 MONOMER0-144	hydrogenase 4, component H	G7305	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-145	hydrogenase 2, small subunit	G7554	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-145	hydrogenase 2, small subunit	G7554	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-146	NAD(P)H-dependent FMN reductase monomer	G6479	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-147	taurine dioxygenase monomer	EG12423	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6834,7 +7137,8 @@ MONOMER0-1604	small toxic membrane polypeptide	G0-9610	"[""CCO-PM-BAC-NEG""]"	[]
 "
 MONOMER0-1605	small toxic membrane polypeptide	G0-9613	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-1641	prophage excisionase and response regulator inhibitor	G0-9621	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-1641	prophage excisionase and response regulator inhibitor	G0-9621	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-1701	predicted regulator of phosphatidylethanolamine synthesis	G0-9662	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-185	ModE	G6395	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -6857,188 +7161,294 @@ MONOMER0-2488	FlhC	EG10319	"[""CCO-CYTOSOL""]"	[]	"Location information from Han
 "
 MONOMER0-2489	inner membrane protein with a role in acid resistance	EG12228	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2653	conserved protein	G0-10431	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2654	predicted protein	G0-10432	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2653	conserved protein	G0-10431	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2654	predicted protein	G0-10432	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2655	predicted IS protein	G0-10433	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2656	predicted ribosomal protein	G0-10434	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2656	predicted ribosomal protein	G0-10434	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2657	DLP12 prophage; small protein	G0-10435	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2658	DLP12 prophage; predicted lipoprotein	G0-10436	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2658	DLP12 prophage; predicted lipoprotein	G0-10436	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2659	MbtH-like protein that enhances the catalytic function of EntF	G0-10437	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2660	conserved protein	G0-10438	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2662	predicted transposase	G0-10440	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2662	predicted transposase	G0-10440	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2663	small membrane protein	G0-10441	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2665	conserved protein	G0-10443	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2666	predicted protein	G0-10444	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2667	predicted protein	G0-10445	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2668	predicted oxidoreductase	G0-10446	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2666	predicted protein	G0-10444	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2667	predicted protein	G0-10445	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2668	predicted oxidoreductase	G0-10446	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2670	Rac prophage; predicted protein	G0-10448	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2671	Rac prophage; predicted lipoprotein	G0-10449	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2671	Rac prophage; predicted lipoprotein	G0-10449	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2672	predicted protein	G0-10450	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2673	toxin of the HicA-HicB toxin-antitoxin system	G0-10451	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2674	Qin prophage; predicted protein	G0-10452	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2673	toxin of the HicA-HicB toxin-antitoxin system	G0-10451	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2674	Qin prophage; predicted protein	G0-10452	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2675	small predicted membrane protein	G0-10453	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2676	predicted protein	G0-10454	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2676	predicted protein	G0-10454	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2677	predicted protein	G0-10455	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2678	conserved protein	G0-10456	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2678	conserved protein	G0-10456	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2680	predicted protein	G0-10458	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2681	small predicted membrane protein	G0-10459	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2681	small predicted membrane protein	G0-10459	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2682	undecaprenyl-phosphate-&alpha;-L-Ara4N flippase - ArnE subunit	G0-10460	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2683	predicted protein	G0-10461	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2683	predicted protein	G0-10461	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2684	predicted protein	G0-10462	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2685	predicted protein	G0-10463	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2686	CP4-57 prophage; predicted protein	G0-10464	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2685	predicted protein	G0-10463	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2686	CP4-57 prophage; predicted protein	G0-10464	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2687	ribosome rescue factor	G0-10465	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2688	predicted protein	G0-10466	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2689	predicted protein	G0-10467	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2690	predicted protein	G0-10468	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2691	predicted protein	G0-10469	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2688	predicted protein	G0-10466	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2689	predicted protein	G0-10467	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2690	predicted protein	G0-10468	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2691	predicted protein	G0-10469	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2692	inner membrane protein insertion factor	G0-10470	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2693	predicted lipoprotein	G0-10471	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2694	predicted protein	G0-10472	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2695	conserved protein	G0-10473	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2695	conserved protein	G0-10473	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2696	predicted protein	G0-10474	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2697	predicted protein	G0-10475	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-2726	conserved protein	G0-10511	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2748	IS3 element transposase	G0-10525	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2755	InsAB' transposase	G0-10535	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2756	InsAB' transposase	G0-10536	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2757	InsAB' transposase	G0-10537	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2761	IS2 element transposase InsAB'	G0-10541	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2772	predicted protein	G0-10550	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2748	IS3 element transposase	G0-10525	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2755	InsAB' transposase	G0-10535	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2756	InsAB' transposase	G0-10536	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2757	InsAB' transposase	G0-10537	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2761	IS2 element transposase InsAB'	G0-10541	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2772	predicted protein	G0-10550	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2776	predicted protein, N-ter fragment	G0-10554	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2777	DLP12 prophage; predicted replication protein fragment	G0-10555	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2778	conserved protein	G0-10556	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2779	predicted transposase, C-ter fragment	G0-10557	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2780	predicted transposase, N-ter fragment	G0-10558	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2781	predicted protein	G0-10559	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2801	RyhB-regulated fur leader peptide	G0-10580	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2777	DLP12 prophage; predicted replication protein fragment	G0-10555	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2778	conserved protein	G0-10556	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2779	predicted transposase, C-ter fragment	G0-10557	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2780	predicted transposase, N-ter fragment	G0-10558	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2781	predicted protein	G0-10559	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2801	RyhB-regulated fur leader peptide	G0-10580	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2812	hypothetical protein	G0-10583	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2813	DLP12 prophage; hypothetical protein	G0-10584	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2814	hypothetical protein	G0-10585	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2815	hypothetical protein	G0-10586	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2813	DLP12 prophage; hypothetical protein	G0-10584	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2814	hypothetical protein	G0-10585	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2815	hypothetical protein	G0-10586	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2817	small outer membrane protein	G0-10588	"[""CCO-OUTER-MEM""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2818	hypothetical protein	G0-10589	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2819	hypothetical protein	G0-10590	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2818	hypothetical protein	G0-10589	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2819	hypothetical protein	G0-10590	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-282	PhoE	EG10729	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-2820	hypothetical protein	G0-10591	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2821	small predicted membrane protein	G0-10593	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2820	hypothetical protein	G0-10591	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2821	small predicted membrane protein	G0-10593	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2822	small stress response membrane protein	G0-10594	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2823	hypothetical protein	G0-10595	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2824	hypothetical protein	G0-10596	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2825	hypothetical protein	G0-10601	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2826	hypothetical protein	G0-10603	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2827	hypothetical protein	G0-10605	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2828	hypothetical protein	G0-10606	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2829	hypothetical protein	G0-10607	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2823	hypothetical protein	G0-10595	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2824	hypothetical protein	G0-10596	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2825	hypothetical protein	G0-10601	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2826	hypothetical protein	G0-10603	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2827	hypothetical protein	G0-10605	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2828	hypothetical protein	G0-10606	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2829	hypothetical protein	G0-10607	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2830	hypothetical protein	G0-10608	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-2840	small predicted membrane protein	G0-10616	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-2841	two-component system connector protein	G6790	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2842	SgrT, regulator of PtsG activity	G0-10617	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2851	IS150 protein InsAB	G0-10624	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2855	toxic peptide IbsE	G0-10629	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2842	SgrT, regulator of PtsG activity	G0-10617	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2851	IS150 protein InsAB	G0-10624	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2855	toxic peptide IbsE	G0-10629	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2856	predicted toxic peptide IbsD	G0-10630	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2857	toxic peptide IbsC	G0-10631	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2858	predicted toxic peptide IbsB	G0-10632	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2859	toxic peptide IbsA	G0-10633	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2857	toxic peptide IbsC	G0-10631	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2858	predicted toxic peptide IbsB	G0-10632	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2859	toxic peptide IbsA	G0-10633	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2860	toxic peptide ShoB	G0-10634	"[""CCO-MEMBRANE""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2868	small protein	G0-10641	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2869	small protein	G0-10642	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2870	small protein	G0-10643	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2871	small protein	G0-10644	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2872	small protein	G0-10645	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-2873	small protein	G0-10646	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2868	small protein	G0-10641	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2869	small protein	G0-10642	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2870	small protein	G0-10643	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2871	small protein	G0-10644	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2872	small protein	G0-10645	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2873	small protein	G0-10646	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2874	small membrane protein	G0-10647	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-2875	small membrane protein	G0-10648	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-2876	small membrane protein	G0-10649	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2877	small protein	G0-10650	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2878	small protein	G0-10651	"[""CCO-MEMBRANE""]"	[]	
+MONOMER0-2877	small protein	G0-10650	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2878	small protein	G0-10651	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-2879	small membrane protein	G0-10652	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-2880	small membrane protein	G0-10653	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-2881	small membrane protein	G0-10654	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-2882	small protein involved in the cell envelope stress response	G0-10655	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2883	small predicted membrane protein	G0-10656	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2884	small predicted membrane protein	G0-10657	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2885	small predicted membrane protein	G0-10512	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-2886	predicted protein	G0-10513	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-2882	small protein involved in the cell envelope stress response	G0-10655	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2883	small predicted membrane protein	G0-10656	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2884	small predicted membrane protein	G0-10657	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2885	small predicted membrane protein	G0-10512	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-2886	predicted protein	G0-10513	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-341	PldA	EG10738	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-4201	predicted leader peptide	G0-10689	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4214	conserved protein	G0-10707	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-4216	small protein MntS	G0-10715	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-4201	predicted leader peptide	G0-10689	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4214	conserved protein	G0-10707	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4216	small protein MntS	G0-10715	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-422	2,3-diketo-L-gulonate:Na+ symporter - membrane subunit	EG12281	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-MONOMER0-4224	small protein IroK	G0-10716	"[""CCO-MEMBRANE""]"	[]	
-MONOMER0-4225	IS1 protein InsA	G7030	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4226	IS1 protein InsA	G7761	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4227	IS1 protein InsA	G6146	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4228	IS1 protein InsA	G0-10430	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4229	InsAB' transposase	G0-10539	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4230	InsAB' transposase	G0-10540	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4231	InsAB' transposase	G0-10538	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4232	IS186/IS421 transposase	G6327	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4233	KpLE2 phage-like element; IS30 transposase	G7905	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4234	DLP12 prophage; IS5 transposase and trans-activator	G6308	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4235	IS5 transposase and trans-activator	G6360	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4236	IS5 transposase and trans-activator	G6667	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4237	IS5 transposase and trans-activator	G7092	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4238	IS5 transposase and trans-activator	G7150	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4239	IS5 transposase and trans-activator	G7548	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4240	IS5 transposase and trans-activator	G7672	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4241	IS5 transposase and trans-activator	G7769	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4242	IS3 element protein InsE	G6224	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4243	DLP12 prophage; IS3 element protein InsE	G6296	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4244	IS3 element protein InsE	G6534	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4245	IS3 element protein InsE	G7125	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4246	IS3 element transposase	G0-10529	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4247	IS3 element transposase	G0-10530	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4248	IS3 element transposase	G0-10531	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4249	IS3 element transposase	G0-10528	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4250	IS2 insertion element repressor InsA	G6724	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4251	CP4-44 prophage; IS2 insertion element repressor InsA	G7077	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4252	IS2 insertion element repressor InsA	G7481	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4253	IS2 insertion element repressor InsA	G7583	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4254	KpLE2 phage-like element; IS2 insertion element repressor InsA	G7894	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4255	IS2 element transposase InsAB'	G0-10542	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4256	IS2 element transposase InsAB'	G0-10543	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4257	IS2 element transposase InsAB'	G0-10544	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4258	IS2 element transposase InsAB'	G0-10545	"[""CCO-CYTOSOL""]"	[]	
-MONOMER0-4259	IS2 element transposase InsAB'	G0-10546	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-4224	small protein IroK	G0-10716	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4225	IS1 protein InsA	G7030	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4226	IS1 protein InsA	G7761	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4227	IS1 protein InsA	G6146	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4228	IS1 protein InsA	G0-10430	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4229	InsAB' transposase	G0-10539	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4230	InsAB' transposase	G0-10540	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4231	InsAB' transposase	G0-10538	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4232	IS186/IS421 transposase	G6327	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4233	KpLE2 phage-like element; IS30 transposase	G7905	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4234	DLP12 prophage; IS5 transposase and trans-activator	G6308	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4235	IS5 transposase and trans-activator	G6360	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4236	IS5 transposase and trans-activator	G6667	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4237	IS5 transposase and trans-activator	G7092	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4238	IS5 transposase and trans-activator	G7150	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4239	IS5 transposase and trans-activator	G7548	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4240	IS5 transposase and trans-activator	G7672	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4241	IS5 transposase and trans-activator	G7769	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4242	IS3 element protein InsE	G6224	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4243	DLP12 prophage; IS3 element protein InsE	G6296	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4244	IS3 element protein InsE	G6534	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4245	IS3 element protein InsE	G7125	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4246	IS3 element transposase	G0-10529	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4247	IS3 element transposase	G0-10530	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4248	IS3 element transposase	G0-10531	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4249	IS3 element transposase	G0-10528	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4250	IS2 insertion element repressor InsA	G6724	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4251	CP4-44 prophage; IS2 insertion element repressor InsA	G7077	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4252	IS2 insertion element repressor InsA	G7481	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4253	IS2 insertion element repressor InsA	G7583	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4254	KpLE2 phage-like element; IS2 insertion element repressor InsA	G7894	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4255	IS2 element transposase InsAB'	G0-10542	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4256	IS2 element transposase InsAB'	G0-10543	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4257	IS2 element transposase InsAB'	G0-10544	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4258	IS2 element transposase InsAB'	G0-10545	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+MONOMER0-4259	IS2 element transposase InsAB'	G0-10546	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-5	N-acetylmuramic acid PTS permease - MurP subunit	G7264	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 MONOMER0-541	NAD kinase monomer	EG12192	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -7053,7 +7463,8 @@ MONOMER0-761	small membrane protein	G0-8887	"[""CCO-PM-BAC-NEG""]"	[]	"Localizat
 "
 MONOMER0-762	small protein	G0-8888	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-MONOMER0-765	conserved protein	G0-8891	"[""CCO-CYTOSOL""]"	[]	
+MONOMER0-765	conserved protein	G0-8891	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 MONOMER0-766	small membrane protein	G0-8892	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 MONOMER0-82	mechanosensitive channel YnaI monomer	G6666	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7310,7 +7721,8 @@ PD00291	CynR DNA-binding transcriptional repressor	EG11421	"[""CCO-CYTOSOL""]"	[
 "
 PD00297	DsdC DNA-binding transcriptional dual regulator	EG13161	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-PD00338	GatR_2	EG12162	"[""CCO-CYTOSOL""]"	[]	
+PD00338	GatR_2	EG12162	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 PD00339	GcvA DNA-binding transcriptional dual regulator	EG11795	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 PD00345	GutM DNA-binding transcriptional activator	EG10972	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
@@ -7373,8 +7785,10 @@ PD02198	SdiA DNA-binding transcriptional dual regulator	EG10935	"[""CCO-CYTOSOL"
 "
 PD02233	positive DNA-binding transcriptional regulator of capsular polysaccharide synthesis, activates its own expression	EG10820	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-PD02366	negative DNA-binding transcriptional regulator of galactitol metabolism	G8207	"[""CCO-MEMBRANE""]"	[]	
-PD02850	AlpA DNA-binding transcriptional activator; CP4-57 prophage	EG12112	"[""CCO-CYTOSOL""]"	[]	
+PD02366	negative DNA-binding transcriptional regulator of galactitol metabolism	G8207	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
+PD02850	AlpA DNA-binding transcriptional activator; CP4-57 prophage	EG12112	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 PD02936	FhlA transcriptional activator	EG10301	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
 PD03028	GalR DNA-binding transcriptional dual regulator	EG10364	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -7999,7 +8413,8 @@ XYLE-MONOMER	xylose:H+ symporter	EG11076	"[""CCO-PM-BAC-NEG""]"	[]	"Location inf
 "
 XYLF-MONOMER	xylose ABC transporter - periplasmic binding protein	EG20252	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
-XYLG-MONOMER	xylose ABC transporter - ATP binding subunit	EG12275	"[""CCO-CYTOSOL""]"	[]	
+XYLG-MONOMER	xylose ABC transporter - ATP binding subunit	EG12275	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 XYLH-MONOMER	xylose ABC transporter - membrane subunit	EG12276	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 XYLISOM-MONOMER	XylA	EG11074	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -8016,7 +8431,8 @@ YADH-MONOMER	YadH	EG12321	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from H
 "
 YADQ-MONOMER	ClcA	EG12331	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-YAGC-MONOMER	CP4-6 prophage; predicted ferric transporter subunit/ATP-binding component of ABC superfamily	EG12340	"[""CCO-CYTOSOL""]"	[]	
+YAGC-MONOMER	CP4-6 prophage; predicted ferric transporter subunit/ATP-binding component of ABC superfamily	EG12340	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 YBAL-MONOMER	YbaL CPA2 transporter	EG12623	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
 YBBA-MONOMER	YbbA	EG11657	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
@@ -8087,7 +8503,8 @@ YDEA-MONOMER	arabinose efflux transporter	EG11636	"[""CCO-PM-BAC-NEG""]"	[]	"Loc
 "
 YDEF-MONOMER	predicted transport protein YdeE	EG11640	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-YDEX-MONOMER	AI-2 ABC transporter - ATP binding subunit	G6800	"[""CCO-CYTOSOL""]"	[]	
+YDEX-MONOMER	AI-2 ABC transporter - ATP binding subunit	G6800	"[""CCO-CYTOSOL""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+"
 YDEY-MONOMER	Autoinducer-2 ABC transporter - membrane subunit	G6801	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
 YDEZ-MONOMER	Autoinducer-2 ABC transporter - membrane subunit	G6802	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.

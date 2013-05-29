@@ -629,6 +629,7 @@ def parseProteinMonomers():
 				proteinMonomerDict[key].location = ['CCO-CYTOSOL']
 			else:
 				proteinMonomerDict[key].location = ['CCO-MEMBRANE']
+			proteinMonomerDict[key].comments = 'Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.\n'
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
