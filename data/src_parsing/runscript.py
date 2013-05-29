@@ -610,14 +610,20 @@ def parseProteinMonomers():
 							proteinMonomerDict[frameId].location = parsedLocations
 							proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.\n'
 
+	# Fill in the rest using GRAVY calculation
+	gravy = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			gravy[row[0]] = float(row[1])
 
-	# Fill in the rest assuming they are in the cytosol
-	count = 0
 	for key in proteinMonomerDict.iterkeys():
 		if proteinMonomerDict[key].location == []:
-			print proteinMonomerDict[key].frameId + '\t\t\t' + proteinMonomerDict[key].name
-			count += 1
-	print count
+			if gravy[key] < 0:
+				proteinMonomerDict[key].location = ['CCO-CYTOSOL']
+			else:
+				proteinMonomerDict[key].location = ['CCO-MEMBRANE']
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
