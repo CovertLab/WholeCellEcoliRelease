@@ -681,31 +681,6 @@ def parseRna():
 			rnaToPrint = rnaDict[key]
 			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
 
-def lifeSucks():
-	proMonoGenesList = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			proMonoGenesList.append(row[2])
-	genesList = []
-	geneTypeDict = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			genesList.append(row[0])
-			geneTypeDict[row[0]] = row[3]
-
-	proMonoGenesSet = sets.Set(proMonoGenesList)
-	genesSet = sets.Set(genesList)
-
-	toCheck = []
-	for item in genesSet.difference(proMonoGenesSet):
-		if geneTypeDict[item] == 'mRNA':
-			print item
-	ipdb.set_trace()
-
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
