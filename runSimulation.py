@@ -21,6 +21,7 @@ def runSimulation(simOpts = None, diskOpts = None, kbOpts = None):
 	import wholecell.sim.logger.Disk
 	import wholecell.sim.logger.Shell
 	import wholecell.sim.Simulation
+	import wholecell.kb.KnowledgeBase
 
 	simOpts = simOpts or {}
 	diskOpts = diskOpts or {}
