@@ -6,6 +6,8 @@ import ipdb
 import sets
 import numpy as np
 import json
+import re
+import copy
 
 class parse_genes:
 	def __init__(self):
@@ -15,6 +17,7 @@ class parse_genes:
 		self.geneDict = {}
 		self.protLocDict = {}
 		self.parameters = {}
+		self.locationDict = {}
 
 		self.loadConstants()
 		self.loadSynDict()
@@ -26,6 +29,9 @@ class parse_genes:
 		self.writeGeneCSV()
 
 	def loadConstants(self):
+		# Loads constant single values
+		# Currently just half lives for rRNA and tRNA
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','other_parameters.csv')) as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
@@ -33,10 +39,15 @@ class parse_genes:
 
 
 	def loadSynDict(self):
+		# Loads synonym dictionary and stores it as instance variable
+		# name --> frameId
+		# blattner number --> frameId
+		# any other ascention known --> frameId
+
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')) as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
-				name = row[0]
+				name = re.sub('<[^<]+?>', '', row[0])
 				name = name.replace('-','')
 				frameId = row[1]
 				synRaw = row[2]
@@ -62,25 +73,9 @@ class parse_genes:
 
 	def parseLocations(self):
 		locationList = []
-		locationDict = {}
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_locations.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t')
-
-			for row in csvreader:
-				if row != []:
-					locations = self.splitBigBracket(row[0])
-
-					for location in locations:
-						param = self.splitSmallBracket(location)
-						locationList.append(param['description'])
-
-		locationSet = sets.Set(locationList)
-		for item in locationSet:
-			if item == 'CCO-RIBOSOME':
-				locationDict[item] = 'CCO-CYTOSOL'
-			else:
-				locationDict[item] = item
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_dict.txt'),'rb') as jsonfile:
+			self.locationDict = json.loads(jsonfile.read())
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_location.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t')
@@ -92,9 +87,10 @@ class parse_genes:
 				for loc in locations:
 					if loc != '':
 						param = self.splitSmallBracket(loc)
-						locL.append(locationDict[param['description']])
+						if param['description'] != []:
+							locL.append(self.locationDict[param['description']])
 
-				self.protLocDict[protFrameId] = locL
+						self.protLocDict[protFrameId] = locL
 
 	def parseGeneInformation(self):
 		unmodifiedForm = {}
@@ -168,6 +164,9 @@ class parse_genes:
 						# Add localization
 						if self.protLocDict.has_key(newGene.productFrameId):
 							newGene.localization = self.protLocDict[newGene.productFrameId]
+						else:
+							newGene.localization = ['CCO-CYTOSOL']
+							newGene.comments = 'No localization known. Assume CO-CYTOSOL.\n'
 
 
 	def splitBigBracket(self, s):
@@ -363,24 +362,9 @@ class parse_genes:
 			keys = self.geneDict.keys()
 			keys.sort()
 
-			some = 0
 			for key in keys:
 				g = self.geneDict[key]
-				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId])
-				some += g.expression
-			print 'Expression sums to ' + str(some)
-
-		expCheck = 0
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			firstLine = True
-			for row in csvreader:
-				if firstLine:
-					firstLine = False
-				else:
-					expCheck += float(row[7])
-
-		print 'Expression readback sums to: ' + str(expCheck)
+				csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, json.dumps(g.localization), g.productFrameId, g.comments])
 
 class gene:
 	def __init__(self):
@@ -395,3 +379,4 @@ class gene:
 		self.halfLife = None
 		self.localization = None
 		self.productFrameId = None
+		self.comments = None
