@@ -15,6 +15,7 @@ def main():
 	parseLocations()
 	parseProteinMonomers()
 	parseRna()
+	parseProteinComplexes()
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -682,6 +683,51 @@ def parseRna():
 			rnaToPrint = rnaDict[key]
 			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
 
+# Parse protein complexes
+def parseProteinComplexes():
+	# Load compartment id --> single letter abbreviation data
+	compartmentAbbrev = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			compartmentAbbrev[row[0]] = row[1]
+
+	# Load monomer localization
+	monomerCompartment = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			monomerCompartment[row[0]] = row[3]
+
+	# Parse protein complexes
+	monomerCompartment = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			comp = proteinComplex()
+			comp.frameId = row[0]
+			comp.name = re.sub('<[^<]+?>', '', row[1])
+
+			foundAllSubunits = True
+			components = row[2][2:-2].split(') (')
+			if components[0] != '':
+				for c in components:
+					info = c.split(', ')
+					frameId = info[0]
+					stoich = int(info[1])
+					if self.geneProdLocalDict.has_key(frameId):
+						location = self.geneProdLocalDict[frameId]
+						comp.addReactant(frameId, stoich, location)
+					elif row[3] == '':
+						rowsToDo.append(row)
+						foundAllSubunits = False
+						break
+
+
+
+
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
@@ -729,6 +775,63 @@ class rna:
 		self.gene = None
 		self.modifiedForm = None
 		self.comments = ''
+
+class proteinComplex:
+	def __init__(self):
+		self.frameId = None
+		self.name = None
+		self.location = []
+		self.composition = {'reactant' : {}, 'product' : {}}
+		self.compositionString = ''
+		self.formationProcess = 'Complexation'
+
+	def addReactant(self, name, stoich, location):
+		self.composition['reactant'][name] = {'stoichiometry' : None, 'compartment' : None}
+		self.composition['reactant'][name]['stoichiometry'] = stoich
+		self.composition['reactant'][name]['compartment'] = location
+
+	def addProduct(self, name, stoich):
+		self.composition['product'][name] = {'stoichiometry' : None, 'compartment' : None}
+		self.composition['product'][name]['stoichiometry'] = stoich
+		self.composition['product'][name]['compartment'] = None
+
+	def buildStringComposition(self, compartmentDict):
+		s = ''
+		subComp = self.composition['reactant'].keys()
+
+		sameLocation = False
+		if len(self.composition['product'][self.frameId]['compartment']) == 1:
+			sameLocation = True
+
+		if sameLocation:
+			s += '[' + compartmentDict[self.composition['product'][self.frameId]['compartment'][0]] + ']: '
+
+		for i in range(len(subComp)):
+			c = subComp[i]
+			if self.composition['reactant'][c]['stoichiometry'] == 1:
+				s += c + ' '
+			else:
+				stoich = self.composition['reactant'][c]['stoichiometry']
+				s += '(' + str(stoich) + ') ' + c + ' '
+			if i != len(subComp) - 1:
+				s += '+ '
+			else:
+				s += '==> ' + self.frameId
+		self.compositionString = s
+
+	def calculateLocation(self):
+		location = []
+		for reactantId in self.composition['reactant'].iterkeys():
+			reactantLocation = self.composition['reactant'][reactantId]['compartment']
+			for loc in reactantLocation:
+				location.append(loc)
+
+		locationSet = sets.Set(location)
+		locationList = []
+		for item in locationSet:
+			locationList.append(item)
+
+		self.composition['product'][self.frameId]['compartment'] = locationList
 
 if __name__ == "__main__":
     main()
