@@ -750,15 +750,18 @@ def parseProteinComplexes():
 					frameId = info[0]
 					stoich = int(info[1])
 					if (frameId in proteinComplexes):
-						hasProteinComplexSubunit.append((frameId,row))
+						if frameId not in [x[0] for x in hasProteinComplexSubunit]:
+							hasProteinComplexSubunit.append((frameId,row))
 						foundAllComponents = False
 						break
 					elif (frameId in rnaProteinComplexes):
-						hasRnaProteinComplexSubunit.append((frameId,row))
+						if frameId not in [x[0] for x in hasRnaProteinComplexSubunit]:
+							hasRnaProteinComplexSubunit.append((frameId,row))
 						foundAllComponents = False
 						break
 					elif (frameId in smallMolecProteinComplexes):
-						hasSmallMolecProteinComplexSubunit.append((frameId,row))
+						if frameId not in [x[0] for x in hasSmallMolecProteinComplexSubunit]:
+							hasSmallMolecProteinComplexSubunit.append((frameId,row))
 						foundAllComponents = False
 						break
 					elif monomerCompartment.has_key(frameId):
@@ -777,6 +780,10 @@ def parseProteinComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					proCompDict[comp.frameId] = comp
+
+	pcSubunit = sets.Set([x[0] for x in hasProteinComplexSubunit])
+	rpcSubunit = sets.Set([x[0] for x in hasRnaProteinComplexSubunit])
+	smpcSubunit = sets.Set([x[0] for x in hasSmallMolecProteinComplexSubunit])
 
 
 
