@@ -6,6 +6,7 @@ import re
 import numpy as np
 import sets
 import ipdb
+import generateSequencesForGRAVY as g
 
 def main():
 	parseIntermediateFiles()
@@ -373,6 +374,9 @@ def parseGenes():
 
 	for key in expressionDict.iterkeys():
 		geneDict[key].expression = expressionDict[key] / total
+
+	# Calculate GRAVY and save output
+	g.main()
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
