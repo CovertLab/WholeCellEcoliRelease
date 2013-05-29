@@ -869,14 +869,16 @@ class proteinComplex:
 				compartment = '[' + compartmentDict[self.composition['reactant'][c]['compartment'][0]] + ']'
 
 			if self.composition['reactant'][c]['stoichiometry'] == 1:
-				s += c + ' '
+				s += c + compartment + ' '
 			else:
 				stoich = self.composition['reactant'][c]['stoichiometry']
 				s += '(' + str(stoich) + ') ' + c + compartment + ' '
 			if i != len(subComp) - 1:
 				s += '+ '
-			else:
+			elif sameLocation:
 				s += '==> ' + self.frameId
+			else:
+				s += '==> ' + self.frameId + '[' + compartmentDict[self.composition['product'][self.frameId]['compartment'][0]] + ']'
 		self.compositionString = s
 
 	def calculateLocation(self):
