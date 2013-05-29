@@ -869,18 +869,33 @@ class proteinComplex:
 		self.compositionString = s
 
 	def calculateLocation(self):
-		location = []
+		locationPossible = []
 		for reactantId in self.composition['reactant'].iterkeys():
 			reactantLocation = self.composition['reactant'][reactantId]['compartment']
 			for loc in reactantLocation:
-				location.append(loc)
+				locationPossible.append(loc)
 
-		locationSet = sets.Set(location)
+		locationSet = sets.Set(locationPossible)
 		locationList = []
 		for item in locationSet:
 			locationList.append(item)
 
-		self.composition['product'][self.frameId]['compartment'] = locationList
+		if len(locationList) == 1:
+			location = locationList[0]
+		elif 'CCO-PM-BAC-NEG' in locationList:
+			location = 'CCO-PM-BAC-NEG'
+		elif 'CCO-OUTER-MEM' in locationList:
+			location = 'CCO-OUTER-MEM'
+		elif 'CCO-CW-BAC-NEG' in locationList:
+			location = 'CCO-CW-BAC-NEG'
+		elif 'CCO-MEMBRANE' in locationList:
+			location = 'CCO-MEMBRANE'
+		elif 'CCO-CELL-PROJECTION' in locationList:
+			location = 'CCO-CELL-PROJECTION'
+		else:
+			print 'NEED LOCATION HIERARCHY FOR ' + self.frameId
+
+		self.composition['product'][self.frameId]['compartment'] = [location]
 
 if __name__ == "__main__":
     main()
