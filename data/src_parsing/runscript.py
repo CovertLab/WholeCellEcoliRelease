@@ -704,8 +704,29 @@ def parseProteinComplexes():
 		for row in csvreader:
 			monomerCompartment[row[0]] = row[3]
 
-	# Parse protein complexes
-	monomerCompartment = {}
+	# Build list of protein-protein complexes
+	proteinComplexes = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			proteinComplexes.append(row[0])
+
+	# Build list of protein-rna complexes
+	rnaProteinComplexes = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			rnaProteinComplexes.append(row[0])
+
+	# Build list of protein-small molecule complexes
+	smallMolecProteinComplexes = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_small_molecule_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			smallMolecProteinComplexes.append(row[0])
+
+	# Parse protein complex information
+	proCompDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
