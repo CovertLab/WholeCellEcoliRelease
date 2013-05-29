@@ -779,43 +779,7 @@ def parseProteinComplexes():
 					proCompDict[comp.frameId] = comp
 
 
-	# Build protein complexes that have other protein complexes as a subunit
-	# lifesucks = []
-	# for pCTuple in hasProteinComplexSubunit:
-	# 	row = pCTuple[1]
 
-	# 	comp = proteinComplexes()
-	# 	comp.frameId = row[0]
-	# 	comp.name = re.sub('<[^<]+?>', '', row[1])
-
-	# 	foundAllComponents = False
-	# 	components = row[2][2:-2].split(') (')
-	# 	for c in components:
-	# 		info = c.split(', ')
-	# 		frameId = info[0]
-	# 		stoich = int(info[1])
-	# 		if (frameId in rnaProteinComplexes):
-	# 			lifesucks.append((frameId,row))
-	# 			break
-	# 		elif (frameId in smallMolecProteinComplexes):
-	# 			lifesucks.append((frameId,row))
-	# 			break
-	# 		elif monomerCompartment.has_key(frameId):
-	# 			location = monomerCompartment[frameId]
-	# 			comp.addReactant(frameId, stoich, location)
-	# 			foundAllComponents = True
-	# 		elif proCompDict.has_key(frameId):
-
-
-	# 		else:
-	# 			print 'Did not create a complex for ' + comp.frameId
-
-	# 	if foundAllComponents:
-	# 		comp.addProduct(comp.frameId, 1)
-	# 		comp.calculateLocation()
-	# 		comp.buildStringComposition(compartmentAbbrev)
-
-	# 		proCompDict[comp.frameId] = comp
 
 
 
