@@ -52,6 +52,20 @@ def main():
 					pM.ntSequence = baseSequence.reverse_complement()
 					pM.sequence = baseSequence.reverse_complement().transcribe().translate(table = 11)[:-1]
 
+				if row[11] != '[]':
+					subRaw = json.loads(row[11])
+					position = subRaw[0]
+					before = subRaw[1]
+					after = subRaw[2]
+
+					saveSequence = list(pM.sequence.tostring())
+					if saveSequence[position - 1] != before:
+						ipdb.set_trace()
+					else:
+						saveSequence[position - 1] = after
+					newSequence = ''.join(saveSequence)
+					pM.sequence = Seq(newSequence, IUPAC.protein)
+
 				if row[4] != '':
 					#print pM.frameId + '\t\t' + pM.direction + '\t\t' + pM.sequence
 					proteinMonomerDict[pM.frameId] = pM
