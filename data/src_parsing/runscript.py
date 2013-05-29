@@ -764,6 +764,9 @@ def parseProteinComplexes():
 					elif monomerCompartment.has_key(frameId):
 						location = monomerCompartment[frameId]
 						comp.addReactant(frameId, stoich, location)
+					elif proCompDict.has_key(frameId):
+						location = proCompDict[frameId].composition['product'][frameId]['compartment'][0]
+						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
 						print 'Did not create a complex for ' + comp.frameId
