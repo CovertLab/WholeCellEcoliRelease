@@ -760,6 +760,7 @@ def parseProteinComplexes():
 			if foundAllComponents:
 				comp.addProduct(comp.frameId, 1)
 				comp.calculateLocation()
+				comp.buildStringComposition(compartmentAbbrev)
 
 				proCompDict[comp.frameId] = comp
 
@@ -849,8 +850,12 @@ class proteinComplex:
 		s = ''
 		subComp = self.composition['reactant'].keys()
 
+		locationSet = [self.composition['reactant'][key]['compartment'][0] for key in self.composition['reactant'].iterkeys()]
+		locationSetProduct = [self.composition['product'][key]['compartment'][0] for key in self.composition['product'].iterkeys()]
+		locationSet.extend(locationSetProduct)
+		locationSet = sets.Set(locationSet)
 		sameLocation = False
-		if len(self.composition['product'][self.frameId]['compartment']) == 1:
+		if len(locationSet) == 1:
 			sameLocation = True
 
 		if sameLocation:
@@ -858,11 +863,16 @@ class proteinComplex:
 
 		for i in range(len(subComp)):
 			c = subComp[i]
+			if sameLocation:
+				compartment = ''
+			else:
+				compartment = '[' + compartmentDict[self.composition['reactant'][c]['compartment'][0]] + ']'
+
 			if self.composition['reactant'][c]['stoichiometry'] == 1:
 				s += c + ' '
 			else:
 				stoich = self.composition['reactant'][c]['stoichiometry']
-				s += '(' + str(stoich) + ') ' + c + ' '
+				s += '(' + str(stoich) + ') ' + c + compartment + ' '
 			if i != len(subComp) - 1:
 				s += '+ '
 			else:
