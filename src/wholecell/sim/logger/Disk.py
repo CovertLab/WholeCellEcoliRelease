@@ -93,7 +93,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 			self.contractSegment(sim)
 
 			# Save last segment to disk
-			self.saveSegmentToDisk
+			self.saveSegmentToDisk()
 
 		# -- Metadata --
 		# Record
@@ -136,6 +136,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 	def contractSegment(self, sim):
 		# State
 		for state in sim.states:
+			stateId = state.meta["id"]
 			for prop in state.meta["dynamics"]:
 				self.stateLog[stateId][prop] = self.stateLog[stateId][prop][:, :, 0:(self.iStep + 1)]
 
