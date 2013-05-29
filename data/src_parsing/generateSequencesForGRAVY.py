@@ -73,35 +73,9 @@ def main():
 
 	badSeq = [actPm.frameId for actPm in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if actPm.sequence.count('*') > 0]
 	badSeq.sort()
-	print badSeq
 	
-	ipdb.set_trace()
-
 	for bS in badSeq:
 		proteinMonomerDict.pop(bS)
-
-
-	# toCompareProteinMonomerDict = {}
-	# handle = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'protseq.fasta'), "rU")
-	# for record in SeqIO.parse(handle, "fasta") :
-	# 	frameId = record.id.split('|')[-1]
-	# 	toCompareProteinMonomerDict[frameId] = record.seq
-	# handle.close()
-
-	# notMatchSeq = []
-	# for frameId in proteinMonomerDict.iterkeys():
-	# 	if not toCompareProteinMonomerDict.has_key(frameId):
-	# 		print 'fasta does not exist for ' + frameId
-
-	# 	elif toCompareProteinMonomerDict[frameId] != proteinMonomerDict[frameId].sequence:
-	# 		notMatchSeq.append(frameId)
-
-	# notMatchSeq.sort()
-	# print notMatchSeq
-	# ipdb.set_trace()
-
-
-
 
 	for protId in proteinMonomerDict.iterkeys():
 		gravy = calculateGravy(proteinMonomerDict[protId])
@@ -146,7 +120,8 @@ def calculateGravy(pMObj):
 						'T' : -0.700,
 						'W' : -0.900,
 						'Y' : -1.300,
-						'V' : 4.200}
+						'V' : 4.200,
+						'U' : 0.}
 
 	value = 0.
 	for i in range(len(pMObj.sequence)):
