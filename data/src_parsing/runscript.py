@@ -702,7 +702,11 @@ def parseProteinComplexes():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
-			monomerCompartment[row[0]] = row[3]
+			monomerCompartment[row[0]] = json.loads(row[3])
+			modifiedForm = json.loads(row[4])
+			if modifiedForm != []:
+				for m in modifiedForm:
+					monomerCompartment[m] = json.loads(row[3])
 
 	# Build list of protein-protein complexes
 	proteinComplexes = []
