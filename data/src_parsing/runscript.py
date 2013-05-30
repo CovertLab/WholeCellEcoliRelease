@@ -7,9 +7,10 @@ import numpy as np
 import sets
 import ipdb
 import generateSequencesForGRAVY as gravy
+import urllib
 
 def main():
-	generateEcocycFlatFiles()
+	getEcocyc(fetchNew = True)
 	parseIntermediateFiles()
 
 	parseGenes()
@@ -28,7 +29,15 @@ def generateEcocycFlatFile(query, outFile):
 	s = re.sub("^\"", "", re.sub("\n\"", "\n", re.sub("\"\t", "\t", re.sub("\t\"", "\t", h.read()))))
 	f = open(outFile, "w")
 	f.write(s)
+	f.close()
 
+def getEcocyc(fetchNew = False):
+	if not fetchNew:
+		return
+	# Build protein complexes
+	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_complexes.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -991,6 +1000,7 @@ class proteinComplex:
 			location = 'CCO-CELL-PROJECTION'
 		else:
 			print 'NEED LOCATION HIERARCHY FOR ' + self.frameId
+
 		self.composition['product'][self.frameId]['compartment'] = [location]
 
 if __name__ == "__main__":
