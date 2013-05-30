@@ -774,7 +774,7 @@ def parseProteinComplexes():
 						location = monomerCompartment[frameId]
 						comp.addReactant(frameId, stoich, location)
 					elif proCompDict.has_key(frameId):
-						location = proCompDict[frameId].composition['product'][frameId]['compartment'][0]
+						location = proCompDict[frameId].composition['product'][frameId]['compartment']
 						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
