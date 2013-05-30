@@ -791,9 +791,54 @@ def parseProteinComplexes():
 	rpcSubunit = sets.Set([x[0] for x in hasRnaProteinComplexSubunit])
 	smpcSubunit = sets.Set([x[0] for x in hasSmallMolecProteinComplexSubunit])
 
+	if len(pcSubunit.intersection(smpcSubunit)) != 0:
+		ipdb.set_trace()
 
+	np.random.seed(0)
+	prev = 0
+	breakCount = 0
+	while len(hasProteinComplexSubunit):
+		np.random.shuffle(hasProteinComplexSubunit)
+		this = len(hasProteinComplexSubunit)
+		print this
+		if prev == this:
+			breakCount += 1
+		if breakCount > 10000:
+			ipdb.set_trace()
+		prev = this
 
+		row = hasProteinComplexSubunit[0][1]
 
+		comp = proteinComplex()
+		comp.frameId = hasProteinComplexSubunit[-1][0]
+		comp.name = re.sub('<[^<]+?>', '', row[1])
+
+		foundAllComponents = True
+		components = row[2][2:-2].split(') (')
+		if row[2] != '':
+			for c in components:
+				info = c.split(', ')
+				frameId = info[0]
+				stoich = int(info[1])
+
+				if monomerCompartment.has_key(frameId):
+					location = monomerCompartment[frameId]
+					comp.addReactant(frameId, stoich, location)
+				elif proCompDict.has_key(frameId):
+					location = proCompDict[frameId].composition['product'][frameId]['compartment']
+					comp.addReactant(frameId, stoich, location)
+				else:
+					foundAllComponents = False
+					np.random.shuffle(hasProteinComplexSubunit)
+
+			if foundAllComponents:
+				comp.addProduct(comp.frameId, 1)
+				comp.calculateLocation()
+				comp.buildStringComposition(compartmentAbbrev)
+
+				proCompDict[comp.frameId] = comp
+				hasProteinComplexSubunit.pop(0)
+	np.random.seed()
 
 
 
