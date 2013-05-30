@@ -9,6 +9,7 @@ import ipdb
 import generateSequencesForGRAVY as gravy
 
 def main():
+	generateEcocycFlatFiles()
 	parseIntermediateFiles()
 
 	parseGenes()
@@ -16,6 +17,11 @@ def main():
 	parseProteinMonomers()
 	parseRna()
 	parseProteinComplexes()
+
+# Ecocyc flat file creation
+# TODO: Make this not a system hack
+def generateEcocycFlatFiles():
+	os.system('curl --data-urlencode \'object=("TABULATED" "[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]")\' http://ecocyc.org/query | sed \'s/"+"/"forward"/\' | sed \'s/"-"/"reverse"/\' | sed \'s/\t"/\t/g\' | sed \'s/"\t/\t/g\' | sed \'s/^"//\' > Ecocyc_protein_complexes.csv')
 
 # Intermediate file functions
 def parseIntermediateFiles():
