@@ -19,9 +19,16 @@ def main():
 	parseProteinComplexes()
 
 # Ecocyc flat file creation
-# TODO: Make this not a system hack
-def generateEcocycFlatFiles():
-	os.system('curl --data-urlencode \'object=("TABULATED" "[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]")\' http://ecocyc.org/query | sed \'s/"+"/"forward"/\' | sed \'s/"-"/"reverse"/\' | sed \'s/\t"/\t/g\' | sed \'s/"\t/\t/g\' | sed \'s/^"//\' > Ecocyc_protein_complexes.csv')
+# In lieu of:
+# os.system('curl --data-urlencode \'object=("TABULATED" "[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]")\' http://ecocyc.org/query | sed \'s/"+"/"forward"/\' | sed \'s/"-"/"reverse"/\' | sed \'s/\t"/\t/g\' | sed \'s/"\t/\t/g\' | sed \'s/^"//\' > Ecocyc_protein_complexes.csv')
+def generateEcocycFlatFile(query, outFile):
+	# TODO: Use ecocyc web services (http://ecocyc.org/web-services.shtml)
+	params = urllib.urlencode({"object": "(\"TABULATED\" \"%s\")" % query})
+	h = urllib.urlopen("http://ecocyc.org/query", params)
+	s = re.sub("^\"", "", re.sub("\n\"", "\n", re.sub("\"\t", "\t", re.sub("\t\"", "\t", h.read()))))
+	f = open(outFile, "w")
+	f.write(s)
+
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -153,7 +160,7 @@ def parseGenes():
 
 					# Add locations
 					if row[2] != '':
-						if newGene.direction == 'forward':
+						if newGene.direction == '+':
 							newGene.coordinate = int(row[2])
 							newGene.length = int(row[3]) - int(row[2])
 						else:
