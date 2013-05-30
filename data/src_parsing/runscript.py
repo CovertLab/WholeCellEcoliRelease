@@ -765,7 +765,7 @@ def parseProteinComplexes():
 			comp.name = re.sub('<[^<]+?>', '', row[1])
 
 			foundAllComponents = True
-			components = row[2][2:-2].split(') (')
+			components = row[2][2:-2].replace('"','').split(') (')
 			if row[2] != '':
 				for c in components:
 					info = c.split(', ')
