@@ -88,10 +88,10 @@ def parseGeneSynonymDictionary():
 						synDictFrameId[syn.lower()] = frameId
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'wb') as jsonfile:
-		jsonfile.write(json.dumps(synDict))
+		jsonfile.write(json.dumps(synDict, indent = 4))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'wb') as jsonfile:
-		jsonfile.write(json.dumps(synDictFrameId))
+		jsonfile.write(json.dumps(synDictFrameId, indent = 4))
 
 def parseGeneProductUnmodifiedForm():
 	unmodifiedForm = {}
