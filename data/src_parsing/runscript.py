@@ -8,8 +8,12 @@ import sets
 import ipdb
 import generateSequencesForGRAVY as gravy
 import urllib
+import time
+
+t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
 def main():
+	initalizeLog()
 	getEcocyc(fetchNew = True)
 	parseIntermediateFiles()
 
@@ -18,6 +22,13 @@ def main():
 	parseProteinMonomers()
 	parseRna()
 	parseProteinComplexes()
+
+def initalizeLog():
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
+		os.makedirs(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log'))
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'wb') as txtfile:
+		txtfile.write(t + '\n')
 
 # Ecocyc flat file creation
 def generateEcocycFlatFile(query, outFile):
@@ -139,6 +150,9 @@ def parseRnaTypes():
 
 # Parse genes
 def parseGenes():
+	# Open log file
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+
 	# Load unmodified forms of RNA and proteins
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
 		unmodifiedForm = json.loads(jsonfile.read())
@@ -273,7 +287,8 @@ def parseGenes():
 				elif synDictFrameId.has_key(read_name.lower()):
 					geneName = synDictFrameId[read_name.lower()]
 				else:
-					print 'Gene half life not found ' + read_name + ' ' + read_bnum
+					s = 'Gene half life not found ' + read_name + ' ' + read_bnum
+					writeOut(s, logFile)
 
 				geneDict[geneName].halfLife = halfLife
 
@@ -287,22 +302,29 @@ def parseGenes():
 				else:
 					mRNAhl.append(halfLife)
 
-		print 'Half lives found for ' + str(len(mRNAhl)) + ' mRNAs'
-		print 'Half lives found for ' + str(len(rRNAhl)) + ' rRNAs'
-		print 'Half lives found for ' + str(len(tRNAhl)) + ' tRNAs'
-		print 'Half lives found for ' + str(len(miscRNAhl)) + ' miscRNAs'
+		s = 'Half lives found for ' + str(len(mRNAhl)) + ' mRNAs'
+		writeOut(s, logFile)
+		s = 'Half lives found for ' + str(len(rRNAhl)) + ' rRNAs'
+		writeOut(s, logFile)
+		s = 'Half lives found for ' + str(len(tRNAhl)) + ' tRNAs'
+		writeOut(s, logFile)
+		s = 'Half lives found for ' + str(len(miscRNAhl)) + ' miscRNAs'
+		writeOut(s, logFile)
 
 		# Average half lives added for genes that half life was not measured
 		mrnaAverage = np.around(np.average(mRNAhl),decimals=2)
 
 		if len(rRNAhl) == 0:
-			print 'No rRNA half lives measured. Using parameter.'
+			s = 'No rRNA half lives measured. Using parameter.'
+			writeOut(s, logFile)
 			rrnaAverage = parameters['rRNA half life']
 		if len(tRNAhl) == 0:
-			print 'No tRNA half lives measured. Using parameter.'
+			s = 'No tRNA half lives measured. Using parameter.'
+			writeOut(s, logFile)
 			trnaAverage = parameters['tRNA half life']
 		if len(miscRNAhl) == 0:
-			print 'No miscRNA half lives measured. Using parameter.'
+			s = 'No miscRNA half lives measured. Using parameter.'
+			writeOut(s, logFile)
 			miscrnaAverage = mrnaAverage
 
 		for geneId in geneDict.iterkeys():
@@ -353,7 +375,9 @@ def parseGenes():
 				elif synDictFrameId.has_key(bnum.lower()):
 					geneName = synDictFrameId[bnum.lower()]
 				else:
-					print 'Gene expression not found ' + name + ' ' + bnum
+					s = 'Gene expression not found ' + name + ' ' + bnum
+					writeOut(s, logFile)
+
 
 				expressionDict[geneName] = expression
 
@@ -367,26 +391,33 @@ def parseGenes():
 				else:
 					mRNAexp.append(expression)
 
-	print 'Expression found for ' + str(len(mRNAexp)) + ' mRNAs'
-	print 'Expression found for ' + str(len(rRNAexp)) + ' rRNAs'
-	print 'Expression found for ' + str(len(tRNAexp)) + ' tRNAs'
-	print 'Expression found for ' + str(len(miscRNAexp)) + ' miscRNAs'
+	s = 'Expression found for ' + str(len(mRNAexp)) + ' mRNAs'
+	writeOut(s, logFile)
+	s = 'Expression found for ' + str(len(rRNAexp)) + ' rRNAs'
+	writeOut(s, logFile)
+	s = 'Expression found for ' + str(len(tRNAexp)) + ' tRNAs'
+	writeOut(s, logFile)
+	s = 'Expression found for ' + str(len(miscRNAexp)) + ' miscRNAs'
+	writeOut(s, logFile)
 
 	# Average expression for gene types where expression was not measured
 	mrnaAverage = np.around(np.average(mRNAexp),decimals=2)
 
 	if len(rRNAexp) == 0:
-		print 'No rRNA expression measured.'
+		s = 'No rRNA expression measured.'
+		writeOut(s, logFile)
 		rrnaAverage = mrnaAverage
 	else:
 		rrnaAverage = np.average(rRNAexp)
 	if len(tRNAexp) == 0:
-		print 'No tRNA expression measured.'
+		s = 'No tRNA expression measured.'
+		writeOut(s, logFile)
 		trnaAverage = mrnaAverage
 	else:
 		trnaAverage = np.average(tRNAexp)
 	if len(miscRNAexp) == 0:
-		print 'No miscRNA expression measured.'
+		s = 'No miscRNA expression measured.'
+		writeOut(s, logFile)
 		miscrnaAverage = mrnaAverage
 	else:
 		miscrnaAverage = np.average(miscRNAexp)
@@ -410,10 +441,12 @@ def parseGenes():
 
 	# Calculate GRAVY and save output
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv')):
-		print 'Calculating gravy for all genes'
+		s = 'Calculating gravy for all genes'
+		writeOut(s, logFile)
 		gravy.main()
 	else:
-		print 'Gravy already exists'
+		s = 'Gravy already exists'
+		writeOut(s, logFile)
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
@@ -431,6 +464,8 @@ def parseGenes():
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(geneDict.keys()))
+
+	logFile.close()
 
 # Parse Locations
 def parseLocations():
@@ -894,6 +929,10 @@ def splitSmallBracket(s):
 	frameId = s[0]
 	description = s[1]
 	return {'frameId' : frameId, 'description' : description}
+
+def writeOut(s, file):
+	print s
+	file.write(s + '\n')
 
 # Define data type classes
 class gene:
