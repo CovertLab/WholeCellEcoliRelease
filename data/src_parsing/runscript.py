@@ -815,6 +815,7 @@ def parseProteinComplexes():
 
 	# Parse protein complex information
 	proCompDict = {}
+	saveRow = {}
 	hasProteinComplexSubunit = []
 	hasRnaProteinComplexSubunit = []
 	hasSmallMolecProteinComplexSubunit = []
@@ -834,17 +835,20 @@ def parseProteinComplexes():
 					stoich = int(info[1])
 					if (frameId in proteinComplexes):
 						if frameId not in [x[0] for x in hasProteinComplexSubunit]:
-							hasProteinComplexSubunit.append((frameId,row))
+							hasProteinComplexSubunit.append(comp.frameId)
+							saveRow[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif (frameId in rnaProteinComplexes):
 						if frameId not in [x[0] for x in hasRnaProteinComplexSubunit]:
-							hasRnaProteinComplexSubunit.append((frameId,row))
+							hasRnaProteinComplexSubunit.append(comp.crameId)
+							saveRow[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif (frameId in smallMolecProteinComplexes):
 						if frameId not in [x[0] for x in hasSmallMolecProteinComplexSubunit]:
-							hasSmallMolecProteinComplexSubunit.append((frameId,row))
+							hasSmallMolecProteinComplexSubunit.append(comp.frameId)
+							saveRow[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif monomerCompartment.has_key(frameId):
@@ -865,18 +869,16 @@ def parseProteinComplexes():
 
 					proCompDict[comp.frameId] = comp
 
-	pcSubunit = sets.Set([x[0] for x in hasProteinComplexSubunit])
-	rpcSubunit = sets.Set([x[0] for x in hasRnaProteinComplexSubunit])
-	smpcSubunit = sets.Set([x[0] for x in hasSmallMolecProteinComplexSubunit])
+	pcSubunit = sets.Set(hasProteinComplexSubunit)
+	rpcSubunit = sets.Set(hasRnaProteinComplexSubunit)
+	smpcSubunit = sets.Set(hasSmallMolecProteinComplexSubunit)
 
 	if len(pcSubunit.intersection(smpcSubunit)) != 0:
 		ipdb.set_trace()
-
-	np.random.seed(0)
+	
 	prev = 0
 	breakCount = 0
 	while len(hasProteinComplexSubunit):
-		np.random.shuffle(hasProteinComplexSubunit)
 		this = len(hasProteinComplexSubunit)
 		print this
 		if prev == this:
@@ -885,10 +887,10 @@ def parseProteinComplexes():
 			ipdb.set_trace()
 		prev = this
 
-		row = hasProteinComplexSubunit[0][1]
+		row = saveRow[hasProteinComplexSubunit[0]]
 
 		comp = proteinComplex()
-		comp.frameId = hasProteinComplexSubunit[-1][0]
+		comp.frameId = hasProteinComplexSubunit[0]
 		comp.name = re.sub('<[^<]+?>', '', row[1])
 
 		foundAllComponents = True
@@ -907,7 +909,8 @@ def parseProteinComplexes():
 					comp.addReactant(frameId, stoich, location)
 				else:
 					foundAllComponents = False
-					np.random.shuffle(hasProteinComplexSubunit)
+					savePC = hasProteinComplexSubunit.pop(0)
+					hasProteinComplexSubunit.append(savePC)
 
 			if foundAllComponents:
 				comp.addProduct(comp.frameId, 1)
@@ -916,9 +919,6 @@ def parseProteinComplexes():
 
 				proCompDict[comp.frameId] = comp
 				hasProteinComplexSubunit.pop(0)
-	np.random.seed()
-
-
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
