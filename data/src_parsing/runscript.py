@@ -20,8 +20,6 @@ def main():
 	parseProteinComplexes()
 
 # Ecocyc flat file creation
-# In lieu of:
-# os.system('curl --data-urlencode \'object=("TABULATED" "[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]")\' http://ecocyc.org/query | sed \'s/"+"/"forward"/\' | sed \'s/"-"/"reverse"/\' | sed \'s/\t"/\t/g\' | sed \'s/"\t/\t/g\' | sed \'s/^"//\' > Ecocyc_protein_complexes.csv')
 def generateEcocycFlatFile(query, outFile):
 	# TODO: Use ecocyc web services (http://ecocyc.org/web-services.shtml)
 	params = urllib.urlencode({"object": "(\"TABULATED\" \"%s\")" % query})
