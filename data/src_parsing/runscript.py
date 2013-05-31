@@ -21,7 +21,7 @@ def main():
 	parseLocations()
 	parseProteinMonomers()
 	parseRna()
-	parseProteinComplexes()
+	parseComplexes()
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -768,7 +768,7 @@ def parseRna():
 			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
 
 # Parse protein complexes
-def parseProteinComplexes():
+def parseComplexes():
 	# Open log file
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
 
@@ -869,6 +869,7 @@ def parseProteinComplexes():
 
 					proCompDict[comp.frameId] = comp
 
+	# Deal with protein complexes that have other protein complexes as subunits
 	pcSubunit = sets.Set(hasProteinComplexSubunit)
 	rpcSubunit = sets.Set(hasRnaProteinComplexSubunit)
 	smpcSubunit = sets.Set(hasSmallMolecProteinComplexSubunit)
