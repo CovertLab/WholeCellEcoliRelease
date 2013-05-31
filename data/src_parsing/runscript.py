@@ -24,7 +24,7 @@ def generateEcocycFlatFile(query, outFile):
 	# TODO: Use ecocyc web services (http://ecocyc.org/web-services.shtml)
 	params = urllib.urlencode({"object": "(\"TABULATED\" \"%s\")" % query})
 	h = urllib.urlopen("http://ecocyc.org/query", params)
-	s = re.sub("\"\n", "\n", re.sub("^\"", "", re.sub("\n\"", "\n", re.sub("\"\t", "\t", re.sub("\t\"", "\t", h.read())))))
+	s = re.sub("\"", "", h.read())
 	f = open(outFile, "w")
 	f.write(s)
 	f.close()
