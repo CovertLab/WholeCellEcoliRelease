@@ -169,10 +169,10 @@ def parseGenes():
 					if row[2] != '':
 						if newGene.direction == '+':
 							newGene.coordinate = int(row[2])
-							newGene.length = int(row[3]) - int(row[2])
+							newGene.length = int(row[3]) - int(row[2]) + 1
 						else:
 							newGene.coordinate = int(row[3])
-							newGene.length = int(row[3]) - int(row[2])
+							newGene.length = int(row[3]) - int(row[2]) + 1
 
 						# Pick new gene name for product if gene name is already used
 						# for another valid product
