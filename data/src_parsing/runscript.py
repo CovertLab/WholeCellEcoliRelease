@@ -42,6 +42,11 @@ def getEcocyc(fetchNew = False):
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_genes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
+	bioVeloQuery = '[(G^NAME, G^FRAME-ID, G^SYNONYMS, G^ACCESSION-1, G^ACCESSION-2) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
+
+
 # Intermediate file functions
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
@@ -64,6 +69,8 @@ def parseGeneSynonymDictionary():
 			synRaw = synRaw.replace('"', '')
 			synRaw = synRaw.replace('-', '')
 			synList = synRaw.split(' ')
+			if synList == ['']:
+				synList = []
 			if len(row) > 3:
 				synList.append(row[3].lower())
 			if len(row) > 4:
