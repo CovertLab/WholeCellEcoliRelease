@@ -469,6 +469,9 @@ def parseGenes():
 
 # Parse Locations
 def parseLocations():
+	# Open log file
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+
 	locationDict = {}
 	# Finds unique set of location frameId's in Ecocyc. Creates a dict so that any locaitons
 	# read from another file can be translated into the ones used in the model.
@@ -529,6 +532,9 @@ def parseLocations():
 
 # Parse protein monomers
 def parseProteinMonomers():
+	# Open log file
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
@@ -600,7 +606,8 @@ def parseProteinMonomers():
 			if geneToProteinMonomerDict.has_key(geneFrameId):
 				proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
 			else:
-				print 'Location parsing Lopez Campistrous 2005: No name found for gene ' + geneFrameId
+				s = 'Location parsing Lopez Campistrous 2005: No name found for gene ' + geneFrameId
+				writeOut(s, logFile)
 
 			location = row[2]
 			if location != '?':
@@ -637,12 +644,14 @@ def parseProteinMonomers():
 							found = True
 							break
 				if not found:
-					print 'Location parsing Han 2011: No name found for ' + name + ' ' + bnum
+					s = 'Location parsing Han 2011: No name found for ' + name + ' ' + bnum
+					writeOut(s, logFile)
 
 				if geneToProteinMonomerDict.has_key(geneFrameId):
 					proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
 				else:
-					print 'Location parsing Han 2011: No name found for gene ' + geneFrameId
+					s = 'Location parsing Han 2011: No name found for gene ' + geneFrameId
+					writeOut(s, logFile)
 
 				location = row[2]
 				if proteinMonomerDict[proteinMonomerFrameId].location == []:
@@ -708,6 +717,7 @@ def parseProteinMonomers():
 		for key in keys:
 			pm = proteinMonomerDict[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
+	logFile.close()
 
 # Parse RNA
 def parseRna():
@@ -756,6 +766,9 @@ def parseRna():
 
 # Parse protein complexes
 def parseProteinComplexes():
+	# Open log file
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+
 	# Load compartment id --> single letter abbreviation data
 	compartmentAbbrev = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
@@ -839,7 +852,8 @@ def parseProteinComplexes():
 						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
-						print 'Did not create a complex for ' + comp.frameId
+						s = 'Did not create a complex for ' + comp.frameId
+						writeOut(s, logFile)
 
 				if foundAllComponents:
 					comp.addProduct(comp.frameId, 1)
@@ -914,6 +928,7 @@ def parseProteinComplexes():
 			c = proCompDict[key]
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
+	logFile.close()
 	ipdb.set_trace()
 
 
