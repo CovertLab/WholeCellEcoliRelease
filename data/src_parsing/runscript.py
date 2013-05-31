@@ -57,7 +57,6 @@ def getEcocyc(fetchNew = False):
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
-
 # Intermediate file functions
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
@@ -82,6 +81,7 @@ def parseGeneSynonymDictionary():
 			synList = synRaw.split(' ')
 			if synList == ['']:
 				synList = []
+
 			if len(row) > 3:
 				synList.append(row[3].lower())
 			if len(row) > 4:
@@ -91,12 +91,13 @@ def parseGeneSynonymDictionary():
 			synDictFrameId[name.lower()] = frameId
 			if synList != ['']:
 				for syn in synList:
-					# Make sure names are not a key and a value
-					if synDict.has_key(syn.lower()):
-						pass
-					else:
-						synDict[syn.lower()] = name.lower()
-						synDictFrameId[syn.lower()] = frameId
+					if syn != '':
+						# Make sure names are not a key and a value
+						if synDict.has_key(syn.lower()):
+							pass
+						else:
+							synDict[syn.lower()] = name.lower()
+							synDictFrameId[syn.lower()] = frameId
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(synDict, indent = 4))
@@ -626,6 +627,7 @@ def parseProteinMonomers():
 		csvreader.next()
 		for row in csvreader:
 			hasData = True
+			# Checks to make sure that it either has a gene name or a Blattner number
 			if row[0] == '' and row[1] == '':
 				hasData = False
 
@@ -634,6 +636,7 @@ def parseProteinMonomers():
 				bnumList = row[1].lower().split('-')
 
 				found = False
+				geneFrameId = None
 				if synDictFrameId.has_key(name):
 					geneFrameId = synDictFrameId[name]
 					found = True
@@ -647,14 +650,14 @@ def parseProteinMonomers():
 					s = 'Location parsing Han 2011: No name found for ' + name + ' ' + bnum
 					writeOut(s, logFile)
 
-				if geneToProteinMonomerDict.has_key(geneFrameId):
+				if geneToProteinMonomerDict.has_key(geneFrameId) and found:
 					proteinMonomerFrameId = geneToProteinMonomerDict[geneFrameId]
-				else:
-					s = 'Location parsing Han 2011: No name found for gene ' + geneFrameId
+				elif found:
+					s = 'Location parsing Han 2011: Gene found but no corresponding protein monomer for ' + geneFrameId + ' ' + name + ' ' + str(bnumList)
 					writeOut(s, logFile)
 
 				location = row[2]
-				if proteinMonomerDict[proteinMonomerFrameId].location == []:
+				if proteinMonomerDict[proteinMonomerFrameId].location == [] and found:
 					location = [locationSynDict[location]]
 					proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.\n'
 					proteinMonomerDict[proteinMonomerFrameId].location = location
