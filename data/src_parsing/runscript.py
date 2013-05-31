@@ -48,9 +48,14 @@ def getEcocyc(fetchNew = False):
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
-	# Build protein-small molecule complexes
+	# Build protein-rna complexes
 	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna_protein_complexes.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
+
+	# Build protein-small molecule complexes
+	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-Small-Molecule-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_small_molecule_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
 	# Build genes
@@ -813,7 +818,7 @@ def parseComplexes():
 
 	# Build list of protein-small molecule complexes
 	smallMolecProteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_small_molecule_complexes.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			smallMolecProteinComplexes.append(row[0])
@@ -887,7 +892,7 @@ def parseComplexes():
 	breakCount = 0
 	while len(hasProteinComplexSubunit):
 		this = len(hasProteinComplexSubunit)
-		print this
+		#print this
 		if prev == this:
 			breakCount += 1
 		if breakCount > 10000:
@@ -926,6 +931,64 @@ def parseComplexes():
 
 				proCompDict[comp.frameId] = comp
 				hasProteinComplexSubunit.pop(0)
+
+	# Parse small-molecule-protein complxes
+	smallMolecProCompDict = {}
+	saveRow = {}
+	hasProteinComplexSubunit = []
+	hasRnaProteinComplexSubunit = []
+	hasSmallMolecProteinComplexSubunit = []
+
+	# with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
+	# 	csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+	# 	for row in csvreader:
+	# 		comp = proteinComplex()
+	# 		comp.frameId = row[0]
+	# 		comp.name = re.sub('<[^<]+?>', '', row[1])
+
+	# 		foundAllComponents = True
+	# 		components = row[2][2:-2].replace('"','').split(') (')
+	# 		if row[2] != '':
+	# 			for c in components:
+	# 				info = c.split(', ')
+	# 				frameId = info[0]
+	# 				stoich = int(info[1])
+	# 				if (frameId in proteinComplexes):
+	# 					if frameId not in [x[0] for x in hasProteinComplexSubunit]:
+	# 						hasProteinComplexSubunit.append(comp.frameId)
+	# 						saveRow[comp.frameId] = row
+	# 					foundAllComponents = False
+	# 					break
+	# 				elif (frameId in rnaProteinComplexes):
+	# 					if frameId not in [x[0] for x in hasRnaProteinComplexSubunit]:
+	# 						hasRnaProteinComplexSubunit.append(comp.crameId)
+	# 						saveRow[comp.frameId] = row
+	# 					foundAllComponents = False
+	# 					break
+	# 				elif (frameId in smallMolecProteinComplexes):
+	# 					if frameId not in [x[0] for x in hasSmallMolecProteinComplexSubunit]:
+	# 						hasSmallMolecProteinComplexSubunit.append(comp.frameId)
+	# 						saveRow[comp.frameId] = row
+	# 					foundAllComponents = False
+	# 					break
+	# 				elif monomerCompartment.has_key(frameId):
+	# 					location = monomerCompartment[frameId]
+	# 					comp.addReactant(frameId, stoich, location)
+	# 				elif proCompDict.has_key(frameId):
+	# 					location = proCompDict[frameId].composition['product'][frameId]['compartment']
+	# 					comp.addReactant(frameId, stoich, location)
+	# 				else:
+	# 					foundAllComponents = False
+	# 					s = 'Did not create a complex for ' + comp.frameId
+	# 					writeOut(s, logFile)
+
+	# 			if foundAllComponents:
+	# 				comp.addProduct(comp.frameId, 1)
+	# 				comp.calculateLocation()
+	# 				comp.buildStringComposition(compartmentAbbrev)
+
+	# 				proCompDict[comp.frameId] = comp
+
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
