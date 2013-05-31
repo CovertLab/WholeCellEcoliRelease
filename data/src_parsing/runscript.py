@@ -43,9 +43,14 @@ def generateEcocycFlatFile(query, outFile):
 def getEcocyc(fetchNew = False):
 	if not fetchNew:
 		return
-	# Build protein complexes
+	# Build protein-protein complexes
 	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_complexes.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
+
+	# Build protein-small molecule complexes
+	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
 	# Build genes
@@ -874,7 +879,8 @@ def parseComplexes():
 	rpcSubunit = sets.Set(hasRnaProteinComplexSubunit)
 	smpcSubunit = sets.Set(hasSmallMolecProteinComplexSubunit)
 
-	if len(pcSubunit.intersection(smpcSubunit)) != 0:
+	if len(pcSubunit.intersection(smpcSubunit)) != 0 or len(pcSubunit.intersection(rpcSubunit)) != 0:
+		# Make sure that rna-protein complexes and small molecule-protein complexes do not depend on protein-protein complexes
 		ipdb.set_trace()
 	
 	prev = 0
