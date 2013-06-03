@@ -1116,16 +1116,20 @@ def parseComplexes():
 				PPC_hasSMPCSubunit.pop(0)
 
 
-
+	# Write protein-protein complexes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Formation process', 'Comments'])
 		
 		keys = proCompDict.keys()
+		keys.extend(smallMolecProCompDict.keys())
 		keys.sort()
 		for key in keys:
-			c = proCompDict[key]
+			if proCompDict.has_key(key):
+				c = proCompDict[key]
+			elif smallMolecProCompDict.has_key(key):
+				c = smallMolecProCompDict[key]
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 	logFile.close()
