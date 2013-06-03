@@ -961,13 +961,7 @@ def parseComplexes():
 					info = c.split(', ')
 					frameId = info[0]
 					stoich = int(info[1])
-					if (frameId in proteinComplexes):
-						if frameId not in [x[0] for x in hasProteinComplexSubunit]:
-							hasProteinComplexSubunit.append(comp.frameId)
-							saveRow[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in rnaProteinComplexes):
+					if (frameId in rnaProteinComplexes):
 						if frameId not in [x[0] for x in hasRnaProteinComplexSubunit]:
 							hasRnaProteinComplexSubunit.append(comp.crameId)
 							saveRow[comp.frameId] = row
