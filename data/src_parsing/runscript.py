@@ -1010,7 +1010,58 @@ def parseComplexes():
 		# Make sure that rna-protein complexes and small molecule-protein complexes do not depend on protein-protein complexes
 		ipdb.set_trace()
 
+	prev = 0
+	breakCount = 0
+	while len(hasSmallMolecProteinComplexSubunit):
+		this = len(hasSmallMolecProteinComplexSubunit)
+		#print this
+		if prev == this:
+			breakCount += 1
+		if breakCount > 100:
+			ipdb.set_trace()
+		prev = this
+
+		row = saveRow[hasSmallMolecProteinComplexSubunit[0]]
+
+		comp = proteinComplex()
+		comp.frameId = hasSmallMolecProteinComplexSubunit[0]
+		comp.name = re.sub('<[^<]+?>', '', row[1])
+
+		foundAllComponents = True
+		components = row[2][2:-2].split(') (')
+		if row[2] != '':
+			for c in components:
+				info = c.split(', ')
+				frameId = info[0]
+				stoich = int(info[1])
+
+				if monomerCompartment.has_key(frameId):
+					location = monomerCompartment[frameId]
+					comp.addReactant(frameId, stoich, location)
+				elif proCompDict.has_key(frameId):
+					location = proCompDict[frameId].composition['product'][frameId]['compartment']
+					comp.addReactant(frameId, stoich, location)
+				elif smallMolecProCompDict.has_key(frameId):
+					location = smallMolecProCompDict[frameId].composition['product'][frameId]['compartment']
+					comp.addReactant(frameId, stoich, location)
+				elif ecocycToFeistId.has_key(frameId):
+					# TODO: Check location is correct
+					location = ['CCO-CYTOSOL']
+					comp.addReactant(ecocycToFeistId[frameId], stoich, location)
+				else:
+					foundAllComponents = False
+					savePC = hasSmallMolecProteinComplexSubunit.pop(0)
+					hasSmallMolecProteinComplexSubunit.append(savePC)
+
+			if foundAllComponents:
+				comp.addProduct(comp.frameId, 1)
+				comp.calculateLocation()
+				comp.buildStringComposition(compartmentAbbrev)
+
+				proCompDict[comp.frameId] = comp
+				hasSmallMolecProteinComplexSubunit.pop(0)
 	
+	# Finished parsing small-molecule-protein complexes COMPLETELY!
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
