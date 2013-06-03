@@ -978,6 +978,9 @@ def parseComplexes():
 						# TODO: Check location is correct
 						location = ['CCO-CYTOSOL']
 						comp.addReactant(ecocycToFeistId[frameId], stoich, location)
+					elif proCompDict.has_key(frameId):
+						location = proCompDict[frameId].composition['product'][frameId]['compartment']
+						comp.addReactant(frameId, stoich, location)
 					elif monomerCompartment.has_key(frameId):
 						location = monomerCompartment[frameId]
 						comp.addReactant(frameId, stoich, location)
