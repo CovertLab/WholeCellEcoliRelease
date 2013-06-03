@@ -869,7 +869,7 @@ def parseComplexes():
 						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
-						s = 'Did not create a complex for ' + comp.frameId
+						s = 'Did not create a protein-protein complex for ' + comp.frameId
 						writeOut(s, logFile)
 
 				if foundAllComponents:
@@ -988,7 +988,7 @@ def parseComplexes():
 						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
-						s = 'Did not create a complex for ' + comp.frameId + ' could not find ' + frameId
+						s = 'Did not create a small molecule-protein complex for ' + comp.frameId + ' could not find ' + frameId
 						writeOut(s, logFile)
 
 				if foundAllComponents:
