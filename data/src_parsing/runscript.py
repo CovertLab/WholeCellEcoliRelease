@@ -1060,10 +1060,60 @@ def parseComplexes():
 				comp.buildStringComposition(compartmentAbbrev)
 
 				smallMolecProCompDict[comp.frameId] = comp
-				hasSmallMolecProteinComplexSubunit.pop(0)
+				SMPC_hasSMPCSubunit.pop(0)
 
 	# Finished parsing small-molecule-protein complexes COMPLETELY!
 	# Now can finish parsing protein-protein complexes where one of the proteins is a small moelcule - protein complex
+	prev = 0
+	breakCount = 0
+	while len(PPC_hasSMPCSubunit):
+		this = len(PPC_hasSMPCSubunit)
+		#print this
+		if prev == this:
+			breakCount += 1
+		if breakCount > 100:
+			ipdb.set_trace()
+		prev = this
+
+		row = saveRowPPC[PPC_hasSMPCSubunit[0]]
+
+		comp = proteinComplex()
+		comp.frameId = PPC_hasSMPCSubunit[0]
+		comp.name = re.sub('<[^<]+?>', '', row[1])
+
+		foundAllComponents = True
+		components = row[2][2:-2].split(') (')
+		if row[2] != '':
+			for c in components:
+				info = c.split(', ')
+				frameId = info[0]
+				stoich = int(info[1])
+
+				if monomerCompartment.has_key(frameId):
+					location = monomerCompartment[frameId]
+					comp.addReactant(frameId, stoich, location)
+				elif proCompDict.has_key(frameId):
+					location = proCompDict[frameId].composition['product'][frameId]['compartment']
+					comp.addReactant(frameId, stoich, location)
+				elif smallMolecProCompDict.has_key(frameId):
+					location = smallMolecProCompDict[frameId].composition['product'][frameId]['compartment']
+					comp.addReactant(frameId, stoich, location)
+				elif ecocycToFeistId.has_key(frameId):
+					# TODO: Check location is correct
+					location = ['CCO-CYTOSOL']
+					comp.addReactant(ecocycToFeistId[frameId], stoich, location)
+				else:
+					foundAllComponents = False
+					savePC = PPC_hasSMPCSubunit.pop(0)
+					PPC_hasSMPCSubunit.append(savePC)
+
+			if foundAllComponents:
+				comp.addProduct(comp.frameId, 1)
+				comp.calculateLocation()
+				comp.buildStringComposition(compartmentAbbrev)
+
+				proCompDict[comp.frameId] = comp
+				PPC_hasSMPCSubunit.pop(0)
 
 
 
