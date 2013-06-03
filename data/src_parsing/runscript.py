@@ -1058,7 +1058,7 @@ def parseComplexes():
 				comp.calculateLocation()
 				comp.buildStringComposition(compartmentAbbrev)
 
-				proCompDict[comp.frameId] = comp
+				smallMolecProCompDict[comp.frameId] = comp
 				hasSmallMolecProteinComplexSubunit.pop(0)
 	
 	# Finished parsing small-molecule-protein complexes COMPLETELY!
