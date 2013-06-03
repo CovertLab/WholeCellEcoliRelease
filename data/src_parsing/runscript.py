@@ -896,7 +896,7 @@ def parseComplexes():
 		#print this
 		if prev == this:
 			breakCount += 1
-		if breakCount > 10000:
+		if breakCount > 100:
 			ipdb.set_trace()
 		prev = this
 
