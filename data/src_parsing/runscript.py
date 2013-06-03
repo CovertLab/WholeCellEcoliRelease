@@ -825,7 +825,7 @@ def parseComplexes():
 
 	# Parse protein complex information
 	proCompDict = {}
-	saveRow = {}
+	saveRowPPC = {}
 	hasProteinComplexSubunit = []
 	hasRnaProteinComplexSubunit = []
 	hasSmallMolecProteinComplexSubunit = []
@@ -843,22 +843,23 @@ def parseComplexes():
 					info = c.split(', ')
 					frameId = info[0]
 					stoich = int(info[1])
+
 					if (frameId in proteinComplexes):
 						if frameId not in [x[0] for x in hasProteinComplexSubunit]:
 							hasProteinComplexSubunit.append(comp.frameId)
-							saveRow[comp.frameId] = row
+							saveRowPPC[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif (frameId in rnaProteinComplexes):
 						if frameId not in [x[0] for x in hasRnaProteinComplexSubunit]:
 							hasRnaProteinComplexSubunit.append(comp.crameId)
-							saveRow[comp.frameId] = row
+							saveRowPPC[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif (frameId in smallMolecProteinComplexes):
 						if frameId not in [x[0] for x in hasSmallMolecProteinComplexSubunit]:
 							hasSmallMolecProteinComplexSubunit.append(comp.frameId)
-							saveRow[comp.frameId] = row
+							saveRowPPC[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif monomerCompartment.has_key(frameId):
@@ -900,7 +901,7 @@ def parseComplexes():
 			ipdb.set_trace()
 		prev = this
 
-		row = saveRow[hasProteinComplexSubunit[0]]
+		row = saveRowPPC[hasProteinComplexSubunit[0]]
 
 		comp = proteinComplex()
 		comp.frameId = hasProteinComplexSubunit[0]
@@ -944,7 +945,7 @@ def parseComplexes():
 				ecocycToFeistId[row[0]] = row[1]
 
 	smallMolecProCompDict = {}
-	saveRow = {}
+	saveRowSMPC = {}
 	hasProteinComplexSubunit = []
 	hasRnaProteinComplexSubunit = []
 	hasSmallMolecProteinComplexSubunit = []
@@ -965,13 +966,13 @@ def parseComplexes():
 					if (frameId in rnaProteinComplexes):
 						if frameId not in [x[0] for x in hasRnaProteinComplexSubunit]:
 							hasRnaProteinComplexSubunit.append(comp.crameId)
-							saveRow[comp.frameId] = row
+							saveRowSMPC[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif (frameId in smallMolecProteinComplexes):
 						if frameId not in [x[0] for x in hasSmallMolecProteinComplexSubunit]:
 							hasSmallMolecProteinComplexSubunit.append(comp.frameId)
-							saveRow[comp.frameId] = row
+							saveRowSMPC[comp.frameId] = row
 						foundAllComponents = False
 						break
 
@@ -1021,7 +1022,7 @@ def parseComplexes():
 			ipdb.set_trace()
 		prev = this
 
-		row = saveRow[hasSmallMolecProteinComplexSubunit[0]]
+		row = saveRowSMPC[hasSmallMolecProteinComplexSubunit[0]]
 
 		comp = proteinComplex()
 		comp.frameId = hasSmallMolecProteinComplexSubunit[0]
@@ -1060,8 +1061,11 @@ def parseComplexes():
 
 				smallMolecProCompDict[comp.frameId] = comp
 				hasSmallMolecProteinComplexSubunit.pop(0)
-	
+
 	# Finished parsing small-molecule-protein complexes COMPLETELY!
+	# Now can finish parsing protein-protein complexes where one of the proteins is a small moelcule - protein complex
+
+
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
