@@ -933,6 +933,15 @@ def parseComplexes():
 				hasProteinComplexSubunit.pop(0)
 
 	# Parse small-molecule-protein complxes
+	ecocycToFeistId = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				ecocycToFeistId[row[0]] = row[0]
+			else:
+				ecocycToFeistId[row[0]] = row[1]
+
 	smallMolecProCompDict = {}
 	saveRow = {}
 	hasProteinComplexSubunit = []
