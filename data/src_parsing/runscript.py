@@ -880,6 +880,7 @@ def parseComplexes():
 					proCompDict[comp.frameId] = comp
 
 	# Deal with protein complexes that have other protein complexes as subunits
+	# BUT NOT ones with RNA-protein or small molecule - protein subunits.
 	pcSubunit = sets.Set(hasProteinComplexSubunit)
 	rpcSubunit = sets.Set(hasRnaProteinComplexSubunit)
 	smpcSubunit = sets.Set(hasSmallMolecProteinComplexSubunit)
@@ -998,6 +999,18 @@ def parseComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					smallMolecProCompDict[comp.frameId] = comp
+
+	# Deal with small molecule-protein complexes that have other small-molecule protein as subunits
+	# BUT NOT ones with RNA-protein
+	pcSubunit = sets.Set(hasProteinComplexSubunit)
+	rpcSubunit = sets.Set(hasRnaProteinComplexSubunit)
+	smpcSubunit = sets.Set(hasSmallMolecProteinComplexSubunit)
+
+	if len(smpcSubunit.intersection(pcSubunit)) != 0 or len(smpcSubunit.intersection(rpcSubunit)) != 0:
+		# Make sure that rna-protein complexes and small molecule-protein complexes do not depend on protein-protein complexes
+		ipdb.set_trace()
+
+	
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
