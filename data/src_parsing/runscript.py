@@ -1195,8 +1195,6 @@ def parseComplexes():
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 	logFile.close()
-	ipdb.set_trace()
-
 
 # Utility functions
 def splitBigBracket(s):
