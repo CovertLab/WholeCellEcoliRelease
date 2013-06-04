@@ -750,21 +750,21 @@ def parseRna():
 				knownGene = False
 
 			if not unmodifiedForms and knownGene:
-				r = rna()
+				newRna = rna()
 
-				r.frameId = row[1]
-				r.name = re.sub('<[^<]+?>', '', row[0])
-				r.gene = row[3][1:-1]
+				newRna.frameId = row[1]
+				newRna.name = re.sub('<[^<]+?>', '', row[0])
+				newRna.gene = row[3][1:-1]
 
-				modifiedForm = row[7][1:-1].split('" "')
+				modifiedForm = row[7][1:-1].split(' ')
 				if modifiedForm == ['']:
 					modifiedForm = []
-				r.modifiedForm = modifiedForm
+				newRna.modifiedForm = modifiedForm
 
-				r.location = ['CCO-CYTOSOL']
-				r.comments += 'Assumed in CCO-CYTOSOL\n'
+				newRna.location = ['CCO-CYTOSOL']
+				newRna.comments += 'Assumed in CCO-CYTOSOL\n'
 
-				rnaDict[r.frameId] = r
+				rnaDict[newRna.frameId] = newRna
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'wb') as csvfile:
