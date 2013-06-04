@@ -1174,7 +1174,6 @@ def parseComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					rnaProtCompDict[comp.frameId] = comp
-	ipdb.set_trace()
 
 	# Write complexes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
@@ -1184,12 +1183,15 @@ def parseComplexes():
 		
 		keys = proCompDict.keys()
 		keys.extend(smallMolecProCompDict.keys())
+		keys.extend(rnaProtCompDict.keys())
 		keys.sort()
 		for key in keys:
 			if proCompDict.has_key(key):
 				c = proCompDict[key]
 			elif smallMolecProCompDict.has_key(key):
 				c = smallMolecProCompDict[key]
+			elif rnaProtCompDict.has_key(key):
+				c = rnaProtCompDict[key]
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 	logFile.close()
