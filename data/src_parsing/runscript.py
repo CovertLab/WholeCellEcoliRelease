@@ -1153,7 +1153,7 @@ def parseComplexes():
 						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
-						s = 'Did not create a rna-protein complex for ' + comp.frameId + ' could not find ' + frameId
+						s = 'Did not create a rna-protein complex for ' + comp.frameId + '/' + comp.name + ' could not find ' + frameId
 						writeOut(s, logFile)
 
 				if foundAllComponents:
