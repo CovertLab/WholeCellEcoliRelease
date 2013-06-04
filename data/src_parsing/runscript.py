@@ -1128,6 +1128,8 @@ def parseComplexes():
 					rnaList.append(mf)
 
 	rnaProtCompDict = {}
+	saveRowRPC = {}
+	RPC_hasRPSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
@@ -1142,11 +1144,21 @@ def parseComplexes():
 					info = c.split(', ')
 					frameId = info[0]
 					stoich = int(info[1])
-					if (frameId in rnaList):
+					
+					if (frameId in rnaProteinComplexes):
+						if frameId not in [x[0] for x in RPC_hasRPSubunit]:
+							RPC_hasRPSubunit.append(comp.frameId)
+							saveRowRPC[comp.frameId] = row
+						foundAllComponents = False
+						break
+					elif (frameId in rnaList):
 						location = ['CCO-CYTOSOL']
 						comp.addReactant(frameId, stoich, location)
 					elif monomerCompartment.has_key(frameId):
 						location = monomerCompartment[frameId]
+						comp.addReactant(frameId, stoich, location)
+					elif proCompDict.has_key(frameId):
+						location = proCompDict[frameId].composition['product'][frameId]['compartment']
 						comp.addReactant(frameId, stoich, location)
 					elif rnaProtCompDict.has_key(frameId):
 						location = rnaProtCompDict[frameId].composition['product'][frameId]['compartment']
