@@ -72,6 +72,16 @@ def getEcocyc(fetchNew = False):
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_locations.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
+	# Build RNA
+	bioVeloQuery = '[(Z1^NAME, Z1^FRAME-ID, Z1^GENE, [G^FRAME-ID : G <- Z1^GENE], Z1^UNMODIFIED-FORM, [UM^FRAME-ID : UM <- Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [UZ^FRAME-ID : UZ <- Z1^MODIFIED-FORM]) :  Z1<-ECOLI^^RNAs]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
+
+	# Build protein monomers
+	bioVeloQuery = '[(Z1^NAME, Z1^FRAME-ID, Z1^UNMODIFIED-FORM, [U^FRAME-ID: U<-Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [M^FRAME-ID: M<-Z1^MODIFIED-FORM], Z1^GENE, [G^FRAME-ID: G<-Z1^GENE], [(U^NAME, U^FRAME-ID): U<-Z1^LOCATIONS]): Z1<-ECOLI^^Proteins]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_proteins.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
+
 # Intermediate file functions
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
