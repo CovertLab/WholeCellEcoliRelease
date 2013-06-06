@@ -628,7 +628,8 @@ def parseProteinMonomers():
 				location = []
 			proteinMonomerDict[proteinMonomerFrameId].location = location
 
-	print 'Locations found in E. coli K-12 for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+	s = 'Locations found in E. coli K-12 for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+	writeOut(s, logFile)
 
 	# Fill in more with locaitons computationally inferred in E. coli B
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Han 2011.csv'),'rb') as csvfile:
@@ -672,7 +673,8 @@ def parseProteinMonomers():
 					proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.\n'
 					proteinMonomerDict[proteinMonomerFrameId].location = location
 
-	print 'Locations found in E. coli K-12 and B for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+	s = 'Locations found in E. coli K-12 and B for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+	writeOut(s, logFile)
 
 	# Fill in rest from Ecocyc that are possible
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
@@ -704,6 +706,9 @@ def parseProteinMonomers():
 							proteinMonomerDict[frameId].location = parsedLocations
 							proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.\n'
 
+	s = 'Unambiguous locations found in Ecocyc for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+	writeOut(s, logFile)
+
 	# Fill in the rest using GRAVY calculation
 	gravy = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv'),'rb') as csvfile:
@@ -719,6 +724,9 @@ def parseProteinMonomers():
 			else:
 				proteinMonomerDict[key].location = ['CCO-MEMBRANE']
 			proteinMonomerDict[key].comments = 'Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.\n'
+
+	s = 'Gravy used to fill in rest ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
+	writeOut(s, logFile)
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
