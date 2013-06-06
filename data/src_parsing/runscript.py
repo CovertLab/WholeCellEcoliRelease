@@ -82,6 +82,11 @@ def getEcocyc(fetchNew = False):
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_proteins.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
+	# Build transcription units
+	bioVeloQuery = '[(t^name,t^FRAME-ID,[c^FRAME-ID : c <- t^components, c isa promoters],[c^FRAME-ID : c <- t^components, c isa terminators],[c^name : c <- t^components, c isa all-genes],[c^FRAME-ID : c <- t^components, c isa all-genes]) : t <- ecoli^^transcription-units]'
+	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv')
+	generateEcocycFlatFile(bioVeloQuery, outFile)
+
 # Intermediate file functions
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
