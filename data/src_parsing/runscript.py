@@ -1258,6 +1258,21 @@ class gene:
 		self.sequenceSubstitution = ()
 		self.comments = None
 
+class transcriptionUnit:
+	def __init__(self):
+		self.frameId = None
+		self.name = None
+
+		self.genes = []
+		self.promoter = None
+		self.terminators = []
+
+		self.left = 0
+		self.right = 0
+		self.strand = ''
+		self.start = 0
+		self.end = 0
+
 class proteinMonomer:
 	def __init__(self):
 		self.frameId = None
