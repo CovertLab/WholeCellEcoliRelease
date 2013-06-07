@@ -14,7 +14,7 @@ t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
 def main():
 	initalizeLog()
-	getEcocyc(fetchNew = True)
+	getEcocyc(fetchNew = False)
 	parseIntermediateFiles()
 
 	parseGenes()
@@ -60,7 +60,7 @@ def getEcocyc(fetchNew = False):
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
 	# Build genes
-	bioVeloQuery = '[(G^FRAME-ID, G^NAME, G^LEFT-END-POSITION, G^RIGHT-END-POSITION, G^TRANSCRIPTION-DIRECTION, [(TMP^FRAME-ID, TMP^NAME): TMP <- P]) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
+	bioVeloQuery = '[(G^FRAME-ID, G^NAME, G^LEFT-END-POSITION, G^RIGHT-END-POSITION, G^TRANSCRIPTION-DIRECTION, [(TMP^FRAME-ID, TMP^NAME): TMP <- P], [c^FRAME-ID : c <- G^component-of, c isa transcription-units]) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_genes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
@@ -1231,7 +1231,10 @@ def parseComplexes():
 	logFile.close()
 
 def parseTranscriptionUnits():
-	pass
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+		pass
+
 
 # Utility functions
 def splitBigBracket(s):
