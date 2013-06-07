@@ -1278,6 +1278,27 @@ class transcriptionUnit:
 		self.start = 0
 		self.end = 0
 
+class promoter:
+	def __init__(self):
+		self.name = None
+		self.strand = ''
+		self.tssLocation = 0
+		self.frameId = None
+		self.cmpOf = []
+
+		self.sigma = sigma
+		self.affinity = affinity
+		self.rnas = {}
+
+class terminator:
+	def __init__(self):
+		self.name = None
+		self.strand = ''
+		self.left = 0
+		self.right = 0
+		self.frameId = frameId
+		self.cmpOf = []
+
 class proteinMonomer:
 	def __init__(self):
 		self.frameId = None
