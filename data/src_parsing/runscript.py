@@ -1246,9 +1246,28 @@ def parseComplexes():
 	logFile.close()
 
 def parseTranscriptionUnits():
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'wb') as csvfile:
-		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
-		pass
+	transcriptionUnitDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newTU = transcriptionUnit()
+			newTU.frameId = row[0]
+			newTU.name = row[1]
+
+			ipdb.set_trace()
+			if row[2] != '':
+				newPro = promoter()
+				promoterInfo = row[2][2:-2].replace(' ','').split(',')
+				newPro.frameId = promoterInfo[0]
+				newPro.sigma = promoterInfo[1]
+				newPro.tssLocation = promoterInfo[2]
+				
+			else:
+				pass
+
+
+
+				newTU.promoter = promoter[0]
 
 
 # Utility functions
