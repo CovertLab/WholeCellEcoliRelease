@@ -44,54 +44,69 @@ def generateEcocycFlatFile(query, outFile):
 def getEcocyc(fetchNew = False):
 	if not fetchNew:
 		return
+	# Open log file
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+
 	# Build protein-protein complexes
 	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build protein-rna complexes
 	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build protein-small molecule complexes
 	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-Small-Molecule-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_small_molecule_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build genes
 	bioVeloQuery = '[(G^FRAME-ID, G^NAME, G^LEFT-END-POSITION, G^RIGHT-END-POSITION, G^TRANSCRIPTION-DIRECTION, [(TMP^FRAME-ID, TMP^NAME): TMP <- P], [c^FRAME-ID : c <- G^component-of, c isa transcription-units]) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_genes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	bioVeloQuery = '[(G^NAME, G^FRAME-ID, G^SYNONYMS, G^ACCESSION-1, G^ACCESSION-2) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build locations
 	bioVeloQuery = '{([(U^NAME, U^FRAME-ID): U<-Z1^LOCATIONS]): Z1<-ECOLI^^Proteins}'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_locations.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build RNA
 	bioVeloQuery = '[(Z1^NAME, Z1^FRAME-ID, Z1^GENE, [G^FRAME-ID : G <- Z1^GENE], Z1^UNMODIFIED-FORM, [UM^FRAME-ID : UM <- Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [UZ^FRAME-ID : UZ <- Z1^MODIFIED-FORM]) :  Z1<-ECOLI^^RNAs]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build protein monomers
 	bioVeloQuery = '[(Z1^NAME, Z1^FRAME-ID, Z1^UNMODIFIED-FORM, [U^FRAME-ID: U<-Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [M^FRAME-ID: M<-Z1^MODIFIED-FORM], Z1^GENE, [G^FRAME-ID: G<-Z1^GENE], [(U^NAME, U^FRAME-ID): U<-Z1^LOCATIONS]): Z1<-ECOLI^^Proteins]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_proteins.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build transcription units
 	bioVeloQuery = '[(t^name,t^FRAME-ID,[(c^FRAME-ID,c^BINDS-SIGMA-FACTOR,c^ABSOLUTE-PLUS-1-POS) : c <- t^components, c isa promoters],[(c^FRAME-ID,c^LEFT-END-POSITION,c^RIGHT-END-POSITION) : c <- t^components, c isa terminators],[c^name : c <- t^components, c isa all-genes],[c^FRAME-ID : c <- t^components, c isa all-genes]) : t <- ecoli^^transcription-units]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
 
 	# Build promoters
 	s = '[(Z1^NAME, Z1^BINDS-SIGMA-FACTOR, Z1^ABSOLUTE-PLUS-1-POS, Z1^FRAME-ID, Z1^COMPONENT-OF, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Promoters]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_promoters.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
+	writeOut(bioVeloQuery, logFile)
+
+	logFile.close()
 
 # Intermediate file functions
 def parseIntermediateFiles():
