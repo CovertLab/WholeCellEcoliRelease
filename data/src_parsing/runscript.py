@@ -22,6 +22,7 @@ def main():
 	parseProteinMonomers()
 	parseRna()
 	parseComplexes()
+	parseTranscriptionUnits()
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -1223,6 +1224,10 @@ def parseComplexes():
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
 
 	logFile.close()
+
+def parseTranscriptionUnits():
+	pass
+
 
 # Utility functions
 def splitBigBracket(s):
