@@ -298,8 +298,8 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			self.partitionedCounts[:, :, iPartition] = alloc
 			partition.counts = alloc[numpy.unravel_index(partition.mapping, alloc.shape)]
 
-			# TODO: Allocate unpartitioned molecules
-			self.unpartitionedCounts = self.counts - numpy.sum(self.partitionedCounts, axis = 2)
+		# TODO: Allocate unpartitioned molecules
+		self.unpartitionedCounts = self.counts - numpy.sum(self.partitionedCounts, axis = 2)
 
 	# Merge sub-states partitioned to processes
 	def merge(self):
