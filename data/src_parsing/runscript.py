@@ -84,7 +84,7 @@ def getEcocyc(fetchNew = False):
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
 	# Build transcription units
-	bioVeloQuery = '[(t^name,t^FRAME-ID,[c^FRAME-ID : c <- t^components, c isa promoters],[c^FRAME-ID : c <- t^components, c isa terminators],[c^name : c <- t^components, c isa all-genes],[c^FRAME-ID : c <- t^components, c isa all-genes]) : t <- ecoli^^transcription-units]'
+	bioVeloQuery = '[(t^name,t^FRAME-ID,[(c^FRAME-ID,c^BINDS-SIGMA-FACTOR,c^ABSOLUTE-PLUS-1-POS) : c <- t^components, c isa promoters],[(c^FRAME-ID,c^LEFT-END-POSITION,c^RIGHT-END-POSITION) : c <- t^components, c isa terminators],[c^name : c <- t^components, c isa all-genes],[c^FRAME-ID : c <- t^components, c isa all-genes]) : t <- ecoli^^transcription-units]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 
