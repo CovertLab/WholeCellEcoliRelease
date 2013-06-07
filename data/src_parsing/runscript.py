@@ -1233,7 +1233,6 @@ def parseComplexes():
 def parseTranscriptionUnits():
 	pass
 
-
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
@@ -1250,6 +1249,15 @@ def splitSmallBracket(s):
 def writeOut(s, file):
 	print s
 	file.write(s + '\n')
+
+class featureDictionary(dict):
+	def __init__(self):
+		self.count = 0
+
+def generateUniqueFrame(self, startStr, featureDict):
+	frameId = startStr + str(featureDict.count)
+	featureDict.count += 1
+	return frameId
 
 # Define data type classes
 class gene:
