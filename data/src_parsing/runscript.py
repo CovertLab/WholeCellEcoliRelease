@@ -1296,6 +1296,13 @@ def generateUniqueFrame(self, startStr, featureDict):
 	featureDict.count += 1
 	return frameId
 
+def parseSigmaFactors(self, line):
+	if line == '':
+		return []
+	else:
+		a = re.findall("sigma (?P<name>[A-Z]+)", line)
+		return a
+
 # Define data type classes
 class gene:
 	def __init__(self):
