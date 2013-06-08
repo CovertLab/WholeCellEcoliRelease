@@ -1255,21 +1255,16 @@ def parseTranscriptionUnits():
 			newTU.name = row[1]
 
 			if row[2] != '':
+				# If promoter information is known
 				newPro = promoter()
 				promoterInfo = row[2][2:-2].replace(' ','').split(',')
 				newPro.frameId = promoterInfo[0]
-				if newPro.frameId == 'PM933':
-					ipdb.set_trace()
-				newPro.sigma = promoterInfo[1]
+				newPro.sigma = parseSigmaFactors(row[2])
 				newPro.tssLocation = promoterInfo[2]
 				
 			else:
+				# No promoter information known. Create promoter
 				pass
-
-
-
-				newTU.promoter = promoter[0]
-
 
 # Utility functions
 def splitBigBracket(s):
