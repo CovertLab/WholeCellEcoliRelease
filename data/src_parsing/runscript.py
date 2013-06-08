@@ -1297,7 +1297,7 @@ def generateUniqueFrame(self, startStr, featureDict):
 	featureDict.count += 1
 	return frameId
 
-def parseSigmaFactors(self, line):
+def parseSigmaFactors(line):
 	if line == '':
 		return []
 	else:
