@@ -1246,6 +1246,26 @@ def parseComplexes():
 	logFile.close()
 
 def parseTranscriptionUnits():
+	# Load necessary gene information
+	geneDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			newGene = gene()
+			newGene.frameId = row[0]
+			newGene.coordinate = int(row[4])
+			newGene.length = int(row[5])
+			newGene.direction = row[6]
+			if newGene.direction == '+':
+				newGene.left = newGene.coordinate
+				newGene.right = newGene.coordinate + newGene.length
+			else:
+				newGene.left = newGene.coordinate - newGene.length
+				newGene.right = newGene.coordinate
+			geneDict[newGene.frameId] = newGene
+
+	# Load transcription units
 	transcriptionUnitDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
