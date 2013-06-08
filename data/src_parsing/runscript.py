@@ -1258,6 +1258,8 @@ def parseTranscriptionUnits():
 				newPro = promoter()
 				promoterInfo = row[2][2:-2].replace(' ','').split(',')
 				newPro.frameId = promoterInfo[0]
+				if newPro.frameId == 'PM933':
+					ipdb.set_trace()
 				newPro.sigma = promoterInfo[1]
 				newPro.tssLocation = promoterInfo[2]
 				
