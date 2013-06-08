@@ -1278,9 +1278,11 @@ def parseTranscriptionUnits():
 
 			newTU.genes = row[5][1:-1].split(' ')
 
+			if transcriptionUnitDict.has_key(newTU.frameId):
+				raise chromosomeException, 'ID already used!\n'
+
 			if row[2] != '':
 				# If promoter information is known
-				newPro = promoter()
 				promoterInfo = row[2][2:-2].replace(' ','').split(',')
 				newPro.frameId = promoterInfo[0]
 				newPro.sigma = parseSigmaFactors(row[2])
