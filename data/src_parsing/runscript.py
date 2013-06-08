@@ -1266,9 +1266,9 @@ def parseTranscriptionUnits():
 			geneDict[newGene.frameId] = newGene
 
 	# Load transcription units
-	transcriptionUnitDict = {}
-	promoterDict = {}
-	terminatorDict = {}
+	transcriptionUnitDict = featureDictionary()
+	promoterDict = featureDictionary()
+	terminatorDict = featureDictionary()
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
