@@ -14,7 +14,7 @@ t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
 def main():
 	initalizeLog()
-	getEcocyc(fetchNew = True)
+	getEcocyc(fetchNew = False)
 	parseIntermediateFiles()
 
 	parseGenes()
