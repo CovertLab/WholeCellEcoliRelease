@@ -1281,10 +1281,12 @@ def parseTranscriptionUnits():
 				newPro.frameId = promoterInfo[0]
 				newPro.sigma = parseSigmaFactors(row[2])
 				newPro.tssLocation = promoterInfo[2]
-				
+
 			else:
 				# No promoter information known. Create promoter
 				pass
+
+			newTU.promoter = newPro
 
 # Utility functions
 def splitBigBracket(s):
