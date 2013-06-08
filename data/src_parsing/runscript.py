@@ -1342,8 +1342,8 @@ class promoter:
 		self.frameId = None
 		self.cmpOf = []
 
-		self.sigma = sigma
-		self.affinity = affinity
+		self.sigma = []
+		self.affinity = 0
 		self.rnas = {}
 
 class terminator:
