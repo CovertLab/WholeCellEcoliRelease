@@ -1274,6 +1274,8 @@ def parseTranscriptionUnits():
 			newTU.frameId = row[0]
 			newTU.name = row[1]
 
+			newTU.genes = row[5][1:-1].split(' ')
+
 			if row[2] != '':
 				# If promoter information is known
 				newPro = promoter()
