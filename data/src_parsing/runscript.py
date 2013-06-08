@@ -1254,7 +1254,6 @@ def parseTranscriptionUnits():
 			newTU.frameId = row[0]
 			newTU.name = row[1]
 
-			ipdb.set_trace()
 			if row[2] != '':
 				newPro = promoter()
 				promoterInfo = row[2][2:-2].replace(' ','').split(',')
