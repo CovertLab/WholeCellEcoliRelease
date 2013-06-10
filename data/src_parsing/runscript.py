@@ -1339,7 +1339,7 @@ def parseTranscriptionUnits():
 				terminatorList = row[3][1:-1].split(' ')
 				terminatorList = [terminatorDict[x] for x in terminatorList]
 			else:
-				terminatorList = None
+				terminatorList = []
 			# Check if TU name already used
 			if transcriptionUnitDict.has_key(frameId):
 				raise chromosomeException, 'ID already used!\n'
