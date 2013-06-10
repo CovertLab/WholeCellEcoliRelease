@@ -1272,37 +1272,37 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
-			newTU = transcriptionUnit()
-			newTU.frameId = row[0]
-			newTU.name = row[1]
+			TUframeId = row[0]
+			TUname = row[1]
+			TUgenes = row[5][1:-1].split(' ')
 
-			newTU.genes = row[5][1:-1].split(' ')
-
-			if transcriptionUnitDict.has_key(newTU.frameId):
+			if transcriptionUnitDict.has_key(TUframeId):
 				raise chromosomeException, 'ID already used!\n'
+
 
 			if row[2] != '':
 				# If promoter information is known
 				promoterInfo = row[2][2:-2].replace(' ','').split(',')
-				newPro = promoter()
-				newPro.frameId = promoterInfo[0]
-				newPro.sigma = parseSigmaFactors(row[2])
-				newPro.tssLocation = promoterInfo[2]
+				ProFrameId = promoterInfo[0]
+				ProSigma = parseSigmaFactors(row[2])
+				ProTss = int(promoterInfo[2])
+				ipdb.set_trace()
 
-			else:
-				# No promoter information known. Create promoter
-				newPro = promoter()
+
 
 
 			newTU.promoter = newPro
 
-def buildTranscriptionUnit(tuName, tuFrameId, promoterId, tss, terminatorIds, genes):
+def buildTranscriptionUnit(tuName, tuFrameId, promoterId, sigma, tss, terminatorIds, genes):
 	# Check which components are known from Ecocyc
 	hasPromoter = False
+	hasSigma = False
 	hasTss = False
-	if promoterId != None:
+	if promoterId != []:
 		hasPromoter = True
-	if hasPromoter and tss != None:
+	if hasPromoter and sigma != []:
+		hasSigma = True
+	if hasPromoter and tss != []:
 		hasTss = True
 
 	hasTerminator = False
