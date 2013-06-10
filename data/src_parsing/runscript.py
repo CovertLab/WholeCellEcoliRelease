@@ -1295,8 +1295,30 @@ def parseTranscriptionUnits():
 
 	# Load terminators
 	terminatorDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoIndepTerm.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
+		for row in csvreader:
+			newTerm = terminator()
+			newTerm.name = row[1]
+			newTerm.frameId = row[0]
+			newTerm.left = int(row[2])
+			newTerm.right = int(row[3])
+			newTerm.cmpOf = row[4][1:-1].split(' ')
+			terminatorDict[newTerm.frameId] = newTerm
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoDepTerm.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
+		for row in csvreader:
+			newTerm = terminator()
+			newTerm.name = row[1]
+			newTerm.frameId = row[0]
+			newTerm.left = int(row[2])
+			newTerm.right = int(row[3])
+			newTerm.cmpOf = row[4][1:-1].split(' ')
+			terminatorDict[newTerm.frameId] = newTerm
+
+	ipdb.set_trace()
 
 	# Load transcription units
 	transcriptionUnitDict = featureDictionary()
@@ -1450,11 +1472,11 @@ class promoter:
 class terminator:
 	def __init__(self):
 		self.name = None
-		self.strand = ''
 		self.left = 0
 		self.right = 0
-		self.frameId = frameId
+		self.frameId = None
 		self.cmpOf = []
+		self.rho = None
 
 class proteinMonomer:
 	def __init__(self):
