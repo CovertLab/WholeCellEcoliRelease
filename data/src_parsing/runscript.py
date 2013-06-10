@@ -1510,7 +1510,7 @@ class transcriptionUnit:
 class promoter:
 	def __init__(self):
 		self.name = None
-		self.strand = ''
+		self.direction = ''
 		self.tss = None
 		self.frameId = None
 		self.cmpOf = []
