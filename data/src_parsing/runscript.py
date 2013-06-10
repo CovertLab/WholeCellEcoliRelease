@@ -101,18 +101,18 @@ def getEcocyc(fetchNew = False):
 	writeOut(bioVeloQuery, logFile)
 
 	# Build promoters
-	s = '[(Z1^FRAME-ID, Z1^NAME, Z1^BINDS-SIGMA-FACTOR, Z1^ABSOLUTE-PLUS-1-POS, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Promoters]'
+	bioVeloQuery = '[(Z1^FRAME-ID, Z1^NAME, Z1^BINDS-SIGMA-FACTOR, Z1^ABSOLUTE-PLUS-1-POS, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Promoters]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_promoters.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build terminators
-	s = '[(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Independent-Terminators]'
+	bioVeloQuery = '[(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Independent-Terminators]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoIndepTerm.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
-	s = '[(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Dependent-Terminators]'
+	bioVeloQuery = '[(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Dependent-Terminators]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoDepTerm.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
