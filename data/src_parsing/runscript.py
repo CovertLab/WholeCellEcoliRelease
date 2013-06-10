@@ -1364,11 +1364,11 @@ def parseSigmaFactors(line):
 		a = re.findall("sigma (?P<name>[A-Z]+)", line)
 		return a
 
-def getMinCoord(transUnit, geneDict):
-	return min([geneDict[x].left for x in transUnit.genes])
+def getMinCoord(geneList):
+	return min([geneList[x].left for x in geneList])
 
-def getMaxCoord(transUnit, geneDict):
-	return max([geneDict[x].right for x in transUnit.genes])
+def getMaxCoord(geneList):
+	return max([geneList[x].right for x in geneList])
 
 # Define data type classes
 class gene:
