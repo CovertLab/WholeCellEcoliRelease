@@ -1318,37 +1318,30 @@ def parseTranscriptionUnits():
 			newTerm.cmpOf = row[4][1:-1].split(' ')
 			terminatorDict[newTerm.frameId] = newTerm
 
-	ipdb.set_trace()
-
 	# Load transcription units
 	transcriptionUnitDict = featureDictionary()
-	promoterDict = featureDictionary()
-	terminatorDict = featureDictionary()
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
-			TUframeId = row[0]
-			TUname = row[1]
-			TUgenes = row[5][1:-1].split(' ')
-
-			if transcriptionUnitDict.has_key(TUframeId):
+			# Get name/frameId
+			frameId = row[0]
+			tuName = row[1]
+			# Get genes
+			geneIdsList = row[5][1:-1].split(' ')
+			geneList = [geneDict[x] for x in geneList]
+			# Get promoter
+			pro = promoterDict[row[2][1:-1]]
+			# Get terminator
+			terminatorList = row[3][1:-1].split(' ')
+			terminatorList = [terminatorDict[x] for x in terminatorList]
+			# Check if TU name already used
+			if transcriptionUnitDict.has_key(frameId):
 				raise chromosomeException, 'ID already used!\n'
+			# Build transcription unit
+			buildTranscriptionUnit(tuName, frameId, pro, terminatorList, geneList)
 
 
-			if row[2] != '':
-				# If promoter information is known
-				promoterInfo = row[2][2:-2].replace(' ','').split(',')
-				ProFrameId = promoterInfo[0]
-				ProSigma = parseSigmaFactors(row[2])
-				ProTss = int(promoterInfo[2])
-				ipdb.set_trace()
-
-
-
-
-			newTU.promoter = newPro
-
-def buildTranscriptionUnit(tuName, tuFrameId, promoterId, sigma, tss, terminatorIds, genes):
+def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 	# Check which components are known from Ecocyc
 	hasPromoter = False
 	hasSigma = False
