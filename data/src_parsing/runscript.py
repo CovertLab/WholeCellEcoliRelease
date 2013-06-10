@@ -1277,13 +1277,22 @@ def parseTranscriptionUnits():
 			geneDict[newGene.frameId] = newGene
 
 	# Load promoters
+	# Ignore promoters that are not associated with any transcription units
 	promoterDict = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_promoters.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
-			newPro = promoter()
-			
+			if row[4] != '':
+				newPro = promoter()
+				newPro.name = row[0]
+				newPro.frameId = row[2]
+				newPro.sigma = parseSigmaFactors(row[2][1:-1])
+				if row[3] != '':
+					newPro.tss = int(row[3])
+				newPro.cmpOf = row[4][1:-1].split(' ')
+				promoterDict[newPro.frameId] = newPro
+	ipdb.set_trace()
 
 	# Load terminators
 	terminatorDict = {}
@@ -1431,7 +1440,7 @@ class promoter:
 	def __init__(self):
 		self.name = None
 		self.strand = ''
-		self.tssLocation = 0
+		self.tss = None
 		self.frameId = None
 		self.cmpOf = []
 
