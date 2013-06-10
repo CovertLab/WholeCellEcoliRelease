@@ -1445,7 +1445,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 			newPro.direction = newTU.direction
 			newPro.tss = newTU.start
 			newPro.sigma = ['D']
-			newPro.cmpOf = [newTu.frameId]
+			newPro.cmpOf = [newTU.frameId]
 			newTU.promoter = newPro.frameId
 			promoterDict[newPro.frameId] = newPro
 
