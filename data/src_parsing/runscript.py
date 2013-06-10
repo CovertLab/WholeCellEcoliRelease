@@ -1352,7 +1352,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 	hasPromoter = False
 	hasSigma = False
 	hasTss = False
-	if promoterId != None:
+	if pro != None:
 		hasPromoter = True
 	if hasPromoter and len(pro.sigma):
 		hasSigma = True
@@ -1374,56 +1374,58 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 	for gene in geneList:
 		newTU.genes.append(gene.frameId)
 
-	# Figure out strand, left, and right from genes
+	# Figure out direction, left, and right from genes
 	# Assume:
-	# - that TU strand is the same as first gene
+	# - that TU direction is the same as first gene
 	# - if TSS is known that TU start is at TSS
 	# - if no TSS is known for promoter that it is the first nucleotide of the first gene
 	# - if no terminator known then end of TU is end of last gene
 	# - if terminator is known then and of TU is end of last terminator
 
 	if hasGenes:
-		newTU.strand = genes[0].strand
+		newTU.direction = geneList[0].direction
 
 		# Figure out start
 		if hasPromoter and hasTss:
-			if newTU.strand == '+':
+			if newTU.direction == '+':
 				newTU.left = pro.tss
 				newTU.start = newTU.left
-			elif newTU.strand == '-':
+			elif newTU.direction == '-':
 				newTU.right = pro.tss
 				newTU.start = newTU.right
 		elif hasPromoter and not hasTss:
-			if newTU.strand == '+':
+			if newTU.direction == '+':
 				newTU.left = getMinCoord(geneList)
 				newTU.start = newTU.left
 				pro.tss = newTU.start
-			elif newTU.strand == '-':
+			elif newTU.direction == '-':
 				newTU.right = getMaxCoord(geneList)
 				newTU.start = newTU.right
 				pro.tss = newTU.start
 		else:
-			if newTU.strand == '+':
+			if newTU.direction == '+':
 				newTU.left = getMinCoord(geneList)
 				newTU.start = newTU.left
-			elif newTU.strand == '-':
+			elif newTU.direction == '-':
 				newTU.right = getMaxCoord(geneList)
 				newTU.start = newTU.right
 		# Figure out end
 		if hasTerminator:
-			if newTU.strand == '+':
+			if newTU.direction == '+':
 				newTU.right = max([term.right for term in terminatorList])
 				newTU.end = newTU.right
-			elif newTU.strand == '-':
+			elif newTU.direction == '-':
 				newTU.left = min([term.left for term in terminatorList])
 				newTU.end = newTU.left
 		else:
-			if newTU.strand == '+':
+			if newTU.direction == '+':
 				newTU.right = getMaxCoord(geneList) + 1
 				newTU.end = newTU.right
-			elif newTU.strand == '-':
+			elif newTU.direction == '-':
 				newTU.left = getMinCoord(geneList)- 1
 				newTU.end = newTU.left
+	else:
+		ipdb.set_trace()
 
 
 # Utility functions
@@ -1502,7 +1504,7 @@ class transcriptionUnit:
 
 		self.left = 0
 		self.right = 0
-		self.strand = ''
+		self.direction = ''
 		self.start = 0
 		self.end = 0
 
