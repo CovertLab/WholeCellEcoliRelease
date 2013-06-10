@@ -1285,6 +1285,9 @@ def parseTranscriptionUnits():
 			newPro = promoter()
 			
 
+	# Load terminators
+	terminatorDict = {}
+
 
 
 	# Load transcription units
