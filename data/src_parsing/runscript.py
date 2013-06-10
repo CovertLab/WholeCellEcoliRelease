@@ -1344,10 +1344,10 @@ def parseTranscriptionUnits():
 			if transcriptionUnitDict.has_key(frameId):
 				raise chromosomeException, 'ID already used!\n'
 			# Build transcription unit
-			buildTranscriptionUnit(tuName, frameId, pro, terminatorList, geneList)
+			buildTranscriptionUnit(tuName, frameId, pro, terminatorList, geneList, promoterDict, terminatorDict)
 
 
-def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
+def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, promoterDict, terminatorDict):
 	# Check which components are known from Ecocyc
 	hasPromoter = False
 	hasSigma = False
@@ -1382,6 +1382,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 	# - if no terminator known then end of TU is end of last gene
 	# - if terminator is known then and of TU is end of last terminator
 	# - TU with only psuedo-genes in them are not included
+	# - If no sigma factor is known then assume it is Sigma D
 
 	if hasGenes:
 		newTU.direction = geneList[0].direction
@@ -1425,6 +1426,26 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 			elif newTU.direction == '-':
 				newTU.left = getMinCoord(geneList)- 1
 				newTU.end = newTU.left
+
+		# Add promoter
+		if hasPromoter:
+			# If a promoter exists for this transcription unit use it
+			newTU.promoter = pro
+			pro.direction = newTU.direction
+			pro.cmpOf.append(newTU.frameId)
+			if not hasSigma:
+				pro.sigma = ['D']
+		else:
+			# Otherwise place upstream of first gene by one nucleotide
+			newPro = promoter()
+			newPro.name = 'p_WC_' + newTU.name
+			newPro.frameId = generatePromoterFrame()
+			newPro.direction = newTU.direction
+			newPro.tss = newTU.start
+			newPro.sigma = ['D']
+			newPro.cmpOf = [newTu.frameId]
+			newTU.promoter = newPro.frameId
+			promoterDict[newPro.frameId] = newPro
 
 
 # Utility functions
