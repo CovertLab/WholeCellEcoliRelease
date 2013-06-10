@@ -1330,10 +1330,16 @@ def parseTranscriptionUnits():
 			geneIdsList = row[5][1:-1].split(' ')
 			geneList = [geneDict[x] for x in geneList]
 			# Get promoter
-			pro = promoterDict[row[2][1:-1]]
+			if row[2] != '':
+				pro = promoterDict[row[2][1:-1]]
+			else:
+				pro = None
 			# Get terminator
-			terminatorList = row[3][1:-1].split(' ')
-			terminatorList = [terminatorDict[x] for x in terminatorList]
+			if row[3] != '':
+				terminatorList = row[3][1:-1].split(' ')
+				terminatorList = [terminatorDict[x] for x in terminatorList]
+			else:
+				terminatorList = None
 			# Check if TU name already used
 			if transcriptionUnitDict.has_key(frameId):
 				raise chromosomeException, 'ID already used!\n'
