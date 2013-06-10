@@ -1328,7 +1328,7 @@ def parseTranscriptionUnits():
 			tuName = row[0]
 			# Get genes
 			geneIdsList = row[4][1:-1].split(' ')
-			geneList = [geneDict[x] for x in geneIdsList]
+			geneList = [geneDict[x] for x in geneIdsList if geneDict.has_key(x)]
 			# Get promoter
 			if row[2] != '':
 				pro = promoterDict[row[2][1:-1]]
@@ -1381,6 +1381,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 	# - if no TSS is known for promoter that it is the first nucleotide of the first gene
 	# - if no terminator known then end of TU is end of last gene
 	# - if terminator is known then and of TU is end of last terminator
+	# - TU with only psuedo-genes in them are not included
 
 	if hasGenes:
 		newTU.direction = geneList[0].direction
@@ -1424,8 +1425,6 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 			elif newTU.direction == '-':
 				newTU.left = getMinCoord(geneList)- 1
 				newTU.end = newTU.left
-	else:
-		ipdb.set_trace()
 
 
 # Utility functions
