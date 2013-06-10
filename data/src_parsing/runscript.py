@@ -1441,7 +1441,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 			# Otherwise place upstream of first gene by one nucleotide
 			newPro = promoter()
 			newPro.name = 'p_WC_' + newTU.name
-			newPro.frameId = generatePromoterFrame()
+			newPro.frameId = generatePromoterFrame(promoterDict)
 			newPro.direction = newTU.direction
 			newPro.tss = newTU.start
 			newPro.sigma = ['D']
