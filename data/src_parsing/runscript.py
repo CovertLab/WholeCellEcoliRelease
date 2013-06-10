@@ -1375,6 +1375,56 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 		newTU.genes.append(gene.frameId)
 
 	# Figure out strand, left, and right from genes
+	# Assume:
+	# - that TU strand is the same as first gene
+	# - if TSS is known that TU start is at TSS
+	# - if no TSS is known for promoter that it is the first nucleotide of the first gene
+	# - if no terminator known then end of TU is end of last gene
+	# - if terminator is known then and of TU is end of last terminator
+
+	if hasGenes:
+		newTU.strand = genes[0].strand
+
+		# Figure out start
+		if hasPromoter and hasTss:
+			if newTU.strand == '+':
+				newTU.left = pro.tss
+				newTU.start = newTU.left
+			elif newTU.strand == '-':
+				newTU.right = pro.tss
+				newTU.start = newTU.right
+		elif hasPromoter and not hasTss:
+			if newTU.strand == '+':
+				newTU.left = getMinCoord(geneList)
+				newTU.start = newTU.left
+				pro.tss = newTU.start
+			elif newTU.strand == '-':
+				newTU.right = getMaxCoord(geneList)
+				newTU.start = newTU.right
+				pro.tss = newTU.start
+		else:
+			if newTU.strand == '+':
+				newTU.left = getMinCoord(geneList)
+				newTU.start = newTU.left
+			elif newTU.strand == '-':
+				newTU.right = getMaxCoord(geneList)
+				newTU.start = newTU.right
+		# Figure out end
+		if hasTerminator:
+			if newTU.strand == '+':
+				newTU.right = max([term.right for term in terminatorList])
+				newTU.end = newTU.right
+			elif newTU.strand == '-':
+				newTU.left = min([term.left for term in terminatorList])
+				newTU.end = newTU.left
+		else:
+			if newTU.strand == '+':
+				newTU.right = getMaxCoord(geneList) + 1
+				newTU.end = newTU.right
+			elif newTU.strand == '-':
+				newTU.left = getMinCoord(geneList)- 1
+				newTU.end = newTU.left
+
 
 # Utility functions
 def splitBigBracket(s):
