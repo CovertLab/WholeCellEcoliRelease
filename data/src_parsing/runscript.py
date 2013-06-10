@@ -1284,13 +1284,15 @@ def parseTranscriptionUnits():
 			if row[2] != '':
 				# If promoter information is known
 				promoterInfo = row[2][2:-2].replace(' ','').split(',')
+				newPro = promoter()
 				newPro.frameId = promoterInfo[0]
 				newPro.sigma = parseSigmaFactors(row[2])
 				newPro.tssLocation = promoterInfo[2]
 
 			else:
 				# No promoter information known. Create promoter
-				pass
+				newPro = promoter()
+
 
 			newTU.promoter = newPro
 
