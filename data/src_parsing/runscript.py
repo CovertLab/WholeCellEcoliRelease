@@ -1327,8 +1327,8 @@ def parseTranscriptionUnits():
 			frameId = row[0]
 			tuName = row[1]
 			# Get genes
-			geneIdsList = row[5][1:-1].split(' ')
-			geneList = [geneDict[x] for x in geneList]
+			geneIdsList = row[4][1:-1].split(' ')
+			geneList = [geneDict[x] for x in geneIdsList]
 			# Get promoter
 			if row[2] != '':
 				pro = promoterDict[row[2][1:-1]]
