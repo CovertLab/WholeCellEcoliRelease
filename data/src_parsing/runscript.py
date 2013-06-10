@@ -1449,6 +1449,27 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 			newTU.promoter = newPro.frameId
 			promoterDict[newPro.frameId] = newPro
 
+		# Add terminator
+		if hasTerminator:
+			for term in terminatorList:
+				newTU.terminators.append(term.frameId)
+			for term in terminatorList:
+				term.cmpOf.append(newTU.frameId)
+		else:
+			# If we are building terminator here it is only associated
+			# with this transcription unit so direction is known.
+			newTerm = terminator()
+			newTerm.name = 'TERM_WC_' + newTU.name
+			newTerm.frameId = generateTerminatorFrame(terminatorDict)
+			if newTU.direction == '+':
+				newTerm.left = newTU.right + 1
+				newTerm.right = newTU.left
+			elif newTU.direction == '-':
+				newTerm.left = newTU.left - 1
+				newTerm.right = newTU.left
+			newTerm.cmpOf = [newTU.frameId]
+			newTU.terminators.append(newTerm.frameId)
+			terminatorDict[newTerm.frameId] = newTerm
 
 # Utility functions
 def splitBigBracket(s):
