@@ -1469,14 +1469,11 @@ class featureDictionary(dict):
 	def __init__(self):
 		self.count = 0
 
-def generateTranscriptionUnitFrame(transUnitFeatureDict):
-	return self.generateUniqueFrame('TU_WC-', transUnitFeatureDict)
-
 def generatePromoterFrame(promoterFeatureDict):
-	return self.generateUniqueFrame('PM_WC-', promoterFeatureDict)
+	return generateUniqueFrame('PM_WC-', promoterFeatureDict)
 
 def generateTerminatorFrame(terminatorFeatureDict):
-	return self.generateUniqueFrame('TERM_WC-', terminatorFeatureDict)
+	return generateUniqueFrame('TERM_WC-', terminatorFeatureDict)
 
 def generateUniqueFrame(startStr, featureDict):
 	frameId = startStr + str(featureDict.count)
