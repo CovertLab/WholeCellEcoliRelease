@@ -1369,6 +1369,8 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 
 	# Create new transcription unit
 	newTU = transcriptionUnit()
+	newTU.name = tuName
+	newTU.frameId = tuFrameId
 
 	# Add genes
 	for gene in geneList:
