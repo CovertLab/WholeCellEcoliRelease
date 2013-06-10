@@ -1285,14 +1285,13 @@ def parseTranscriptionUnits():
 		for row in csvreader:
 			if row[4] != '':
 				newPro = promoter()
-				newPro.name = row[0]
-				newPro.frameId = row[2]
+				newPro.name = row[1]
+				newPro.frameId = row[0]
 				newPro.sigma = parseSigmaFactors(row[2][1:-1])
 				if row[3] != '':
 					newPro.tss = int(row[3])
 				newPro.cmpOf = row[4][1:-1].split(' ')
 				promoterDict[newPro.frameId] = newPro
-	ipdb.set_trace()
 
 	# Load terminators
 	terminatorDict = {}
