@@ -1278,7 +1278,7 @@ def parseTranscriptionUnits():
 
 	# Load promoters
 	# Ignore promoters that are not associated with any transcription units
-	promoterDict = {}
+	promoterDict = featureDictionary()
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_promoters.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
@@ -1294,7 +1294,7 @@ def parseTranscriptionUnits():
 				promoterDict[newPro.frameId] = newPro
 
 	# Load terminators
-	terminatorDict = {}
+	terminatorDict = featureDictionary()
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoIndepTerm.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
