@@ -1296,6 +1296,32 @@ def parseTranscriptionUnits():
 
 			newTU.promoter = newPro
 
+def buildTranscriptionUnit(tuName, tuFrameId, promoterId, tss, terminatorIds, genes):
+	# Check which components are known from Ecocyc
+	hasPromoter = False
+	hasTss = False
+	if promoterId != None:
+		hasPromoter = True
+	if hasPromoter and tss != None:
+		hasTss = True
+
+	hasTerminator = False
+	if len(terminatorIds):
+		hasTerminator = True
+
+	hasGenes = False
+	if len(genes):
+		hasGenes = True
+
+	# Create new transcription unit
+	newTU = transcriptionUnit()
+
+	# Add genes
+	for gene in genes:
+		newTU.genes.append(gene.frameId)
+
+	# Figure out strand, left, and right from genes
+
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
