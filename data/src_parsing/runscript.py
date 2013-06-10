@@ -1276,6 +1276,17 @@ def parseTranscriptionUnits():
 				newGene.right = newGene.coordinate
 			geneDict[newGene.frameId] = newGene
 
+	# Load promoters
+	promoterDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in csvreader:
+			newPro = promoter()
+			
+
+
+
 	# Load transcription units
 	transcriptionUnitDict = featureDictionary()
 	promoterDict = featureDictionary()
