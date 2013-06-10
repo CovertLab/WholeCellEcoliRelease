@@ -1352,26 +1352,26 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList):
 	hasPromoter = False
 	hasSigma = False
 	hasTss = False
-	if promoterId != []:
+	if promoterId != None:
 		hasPromoter = True
-	if hasPromoter and sigma != []:
+	if hasPromoter and len(pro.sigma):
 		hasSigma = True
-	if hasPromoter and tss != []:
+	if hasPromoter and pro.tss != None:
 		hasTss = True
 
 	hasTerminator = False
-	if len(terminatorIds):
+	if len(terminatorList):
 		hasTerminator = True
 
 	hasGenes = False
-	if len(genes):
+	if len(geneList):
 		hasGenes = True
 
 	# Create new transcription unit
 	newTU = transcriptionUnit()
 
 	# Add genes
-	for gene in genes:
+	for gene in geneList:
 		newTU.genes.append(gene.frameId)
 
 	# Figure out strand, left, and right from genes
