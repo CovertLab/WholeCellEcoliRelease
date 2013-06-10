@@ -1471,10 +1471,10 @@ def parseSigmaFactors(line):
 		return a
 
 def getMinCoord(geneList):
-	return min([geneList[x].left for x in geneList])
+	return min([gene.left for gene in geneList])
 
 def getMaxCoord(geneList):
-	return max([geneList[x].right for x in geneList])
+	return max([gene.right for gene in geneList])
 
 # Define data type classes
 class gene:
