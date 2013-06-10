@@ -1324,8 +1324,8 @@ def parseTranscriptionUnits():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			# Get name/frameId
-			frameId = row[0]
-			tuName = row[1]
+			frameId = row[1]
+			tuName = row[0]
 			# Get genes
 			geneIdsList = row[4][1:-1].split(' ')
 			geneList = [geneDict[x] for x in geneIdsList]
