@@ -1290,7 +1290,6 @@ def parseTranscriptionUnits():
 				newPro.sigma = parseSigmaFactors(row[2][1:-1])
 				if row[3] != '':
 					newPro.tss = int(row[3])
-				newPro.cmpOf = row[4][1:-1].split(' ')
 				promoterDict[newPro.frameId] = newPro
 
 	# Load terminators
@@ -1348,7 +1347,21 @@ def parseTranscriptionUnits():
 			if newTU != None:
 				transcriptionUnitDict[newTU.frameId] = newTU
 
-	# Write complexes
+	# Write promoters
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'promoters.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['frameId', 'Name', 'Absolute +1 Position', 'Sigma', 'Direction', 'Component of'])
+		
+		keys = promoterDict.keys()
+		keys.sort()
+		for key in keys:
+			p = promoterDict[key]
+			csvwriter.writerow([p.frameId, p.name, p.tss, json.dumps(p.sigma), p.direction, json.dumps(p.cmpOf)])
+
+	# Write terminators
+
+	# Write TUs
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'transcriptionUnits.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
