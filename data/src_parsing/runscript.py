@@ -23,6 +23,7 @@ def main():
 	parseRna()
 	parseComplexes()
 	parseTranscriptionUnits()
+	parseMetabolites
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -1256,6 +1257,7 @@ def parseComplexes():
 
 	logFile.close()
 
+# Parse transcription units
 def parseTranscriptionUnits():
 	# Load necessary gene information
 	geneDict = {}
@@ -1383,7 +1385,6 @@ def parseTranscriptionUnits():
 			t = transcriptionUnitDict[key]
 			csvwriter.writerow([t.frameId, t.name, t.left, t.right, t.direction, json.dumps(t.genes), t.promoter, json.dumps(t.terminators)])
 
-
 def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, promoterDict, terminatorDict):
 	# Check which components are known from Ecocyc
 	hasPromoter = False
@@ -1509,6 +1510,10 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 			terminatorDict[newTerm.frameId] = newTerm
 
 		return newTU
+
+# Parse metabolites
+def parseMetabolites():
+	pass
 
 # Utility functions
 def splitBigBracket(s):
