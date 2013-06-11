@@ -1303,7 +1303,7 @@ def parseTranscriptionUnits():
 			newTerm.frameId = row[0]
 			newTerm.left = int(row[2])
 			newTerm.right = int(row[3])
-			newTerm.cmpOf = row[4][1:-1].split(' ')
+			newTerm.rho = False
 			terminatorDict[newTerm.frameId] = newTerm
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoDepTerm.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -1314,7 +1314,7 @@ def parseTranscriptionUnits():
 			newTerm.frameId = row[0]
 			newTerm.left = int(row[2])
 			newTerm.right = int(row[3])
-			newTerm.cmpOf = row[4][1:-1].split(' ')
+			newTerm.rho = True
 			terminatorDict[newTerm.frameId] = newTerm
 
 	# Load transcription units
@@ -1360,6 +1360,16 @@ def parseTranscriptionUnits():
 			csvwriter.writerow([p.frameId, p.name, p.tss, json.dumps(p.sigma), p.direction, json.dumps(p.cmpOf)])
 
 	# Write terminators
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'terminators.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['frameId', 'Name', 'Left', 'Right', 'Rho Dependent', 'Component of'])
+		
+		keys = terminatorDict.keys()
+		keys.sort()
+		for key in keys:
+			t = terminatorDict[key]
+			csvwriter.writerow([t.frameId, t.name, t.left, t.right, t.rho, json.dumps(t.cmpOf)])
 
 	# Write TUs
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'transcriptionUnits.csv'),'wb') as csvfile:
