@@ -1567,6 +1567,36 @@ def getMaxCoord(geneList):
 	return max([gene.right for gene in geneList])
 
 # Define data type classes
+class metabolite:
+	def __init__(self):
+		# Read in properties
+		self.frameId = None
+		self.metId = None
+		self.name = None
+		self.empiricalFormula = None
+		self.pHProps = {}
+		self.hydrophobic = None
+		self.mediaConc = None
+		self.biomassConc = None
+		self.exchangeRate = None
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
+			self.elementDict = json.loads(jsonfile.read())
+
+	def addPHProp(self, pH, formula, charge, weight):
+		self.pHProps[pH] = {'formula' : formula, 'charge' : charge, 'weight' : self.calculateWeight(formula)}
+
+	def calculateWeight(self, formula):
+		weight = 0.
+		element_stoich = re.findall("[A-Z][a-z]*[0-9]*", formula)
+
+		for value in element_stoich:
+			m = re.search("(?P<letters>[A-Za-z]*)(?P<numbers>[0-9]*)", value)
+			element = m.group('letters')
+			stoich = m.group('numbers')
+			weight += int(stoich) * self.elementDict[element]['mass']
+		return weight
+
 class gene:
 	def __init__(self):
 		self.frameId = None
