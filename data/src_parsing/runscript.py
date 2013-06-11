@@ -1513,7 +1513,13 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 
 # Parse metabolites
 def parseMetabolites():
-	pass
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_metabolites.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+
+		for row in csvreader:
+
+
 
 # Utility functions
 def splitBigBracket(s):
