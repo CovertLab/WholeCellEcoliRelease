@@ -1357,8 +1357,7 @@ def parseTranscriptionUnits():
 		keys = transcriptionUnitDict.keys()
 		keys.sort()
 		for key in keys:
-			if transcriptionUnitDict.has_key(key):
-				t = transcriptionUnitDict[key]
+			t = transcriptionUnitDict[key]
 			csvwriter.writerow([t.frameId, t.name, t.left, t.right, t.direction, json.dumps(t.genes), t.promoter, json.dumps(t.terminators)])
 
 
