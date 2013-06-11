@@ -1432,7 +1432,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 		# Add promoter
 		if hasPromoter:
 			# If a promoter exists for this transcription unit use it
-			newTU.promoter = pro
+			newTU.promoter = pro.frameId
 			pro.direction = newTU.direction
 			pro.cmpOf.append(newTU.frameId)
 			if not hasSigma:
