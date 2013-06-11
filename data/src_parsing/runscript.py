@@ -1344,7 +1344,22 @@ def parseTranscriptionUnits():
 			if transcriptionUnitDict.has_key(frameId):
 				raise chromosomeException, 'ID already used!\n'
 			# Build transcription unit
-			buildTranscriptionUnit(tuName, frameId, pro, terminatorList, geneList, promoterDict, terminatorDict)
+			newTU = buildTranscriptionUnit(tuName, frameId, pro, terminatorList, geneList, promoterDict, terminatorDict)
+			if newTU != None:
+				transcriptionUnitDict[newTU.frameId] = newTU
+
+	# Write complexes
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'transcriptionUnits.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['frameId', 'Name', 'Left', 'Right', 'Direction', 'Genes', 'Promoter', 'Terminators'])
+		
+		keys = transcriptionUnitDict.keys()
+		keys.sort()
+		for key in keys:
+			if transcriptionUnitDict.has_key(key):
+				t = transcriptionUnitDict[key]
+			csvwriter.writerow([t.frameId, t.name, t.left, t.right, t.direction, json.dumps(t.genes), t.promoter, json.dumps(t.terminators)])
 
 
 def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, promoterDict, terminatorDict):
