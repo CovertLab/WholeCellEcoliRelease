@@ -1486,6 +1486,8 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 			newTU.terminators.append(newTerm.frameId)
 			terminatorDict[newTerm.frameId] = newTerm
 
+		return newTU
+
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
