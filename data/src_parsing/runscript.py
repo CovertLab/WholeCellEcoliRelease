@@ -1616,7 +1616,11 @@ class metabolite:
 		for value in element_stoich:
 			m = re.search("(?P<letters>[A-Za-z]*)(?P<numbers>[0-9]*)", value)
 			element = m.group('letters')
+			if not self.elementDict.has_key(element):
+				return -1
 			stoich = m.group('numbers')
+			if stoich == '':
+				stoich = 1
 			weight += int(stoich) * self.elementDict[element]['mass']
 		return weight
 
