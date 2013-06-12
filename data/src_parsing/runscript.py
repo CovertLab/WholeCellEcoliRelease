@@ -1606,8 +1606,8 @@ class metabolite:
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
 			self.elementDict = json.loads(jsonfile.read())
 
-	def addPHProp(self, pH, formula, charge, weight):
-		self.pHProps[pH] = {'formula' : formula, 'charge' : charge, 'weight' : self.calculateWeight(formula)}
+	def addPHProp(self, pH, formula, charge):
+		self.pHProps[pH] = {'formula' : formula, 'charge' : int(charge), 'weight' : "%0.10f" % self.calculateWeight(formula)}
 
 	def calculateWeight(self, formula):
 		weight = 0.
