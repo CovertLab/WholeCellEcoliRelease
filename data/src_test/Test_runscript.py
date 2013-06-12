@@ -21,5 +21,5 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	def test_construction(self):
-		pass
+	def test_runscript(self):
+		r.main()
