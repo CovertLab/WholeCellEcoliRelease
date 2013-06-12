@@ -47,4 +47,5 @@ class Test_Simulation(unittest.TestCase):
 
 	def test_calculateWeight(self):
 		met = r.metabolite()
-		self.assertAlmostEqual(180.16, met.calculateWeight('C6H12O6'))
+		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
+		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
