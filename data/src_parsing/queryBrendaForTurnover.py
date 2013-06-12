@@ -1,4 +1,5 @@
 import string
+import re
 from SOAPpy import WSDL
 wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
 client = WSDL.Proxy(wsdl)
