@@ -1513,13 +1513,36 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 
 # Parse metabolites
 def parseMetabolites():
+	metDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 
 		for row in csvreader:
+			newMet = metabolite()
+			newMet.frameId = row[0]
+			newMet.name = row[1]
+			if row[5] != '':
+				newMet.neutralFormula = row[5]
+			else:
+				newMet.neutralFormula = row[2]
+			# Properties at pH 7
+			newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
+			# Properties at pH 7.2
+			newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
 
+			metDict[newMet.frameId] = newMet
 
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = metDict.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutrial formula', 'pH dependent properties', 'Media Concentration', 'Biomass concentration', 'Exchange rate', 'Comments'])
+		for key in keys:
+			m = metDict[key]
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.comments])
 
 # Utility functions
 def splitBigBracket(s):
