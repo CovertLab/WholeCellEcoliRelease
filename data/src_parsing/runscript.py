@@ -1594,14 +1594,14 @@ class metabolite:
 	def __init__(self):
 		# Read in properties
 		self.frameId = None
-		self.metId = None
 		self.name = None
-		self.empiricalFormula = None
+		self.neutralFormula = None
 		self.pHProps = {}
-		self.hydrophobic = None
+
 		self.mediaConc = None
 		self.biomassConc = None
 		self.exchangeRate = None
+		self.comments = ''
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
 			self.elementDict = json.loads(jsonfile.read())
