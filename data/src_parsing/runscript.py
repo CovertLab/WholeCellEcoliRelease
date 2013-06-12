@@ -23,7 +23,7 @@ def main():
 	parseRna()
 	parseComplexes()
 	parseTranscriptionUnits()
-	parseMetabolites
+	parseMetabolites()
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
