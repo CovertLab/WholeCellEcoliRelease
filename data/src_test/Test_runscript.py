@@ -42,5 +42,9 @@ class Test_Simulation(unittest.TestCase):
 		maxCoord = r.getMinCoord(geneList = gL)
 		self.assertEqual(maxCoord, 30)
 
+	def test_parseSigmaFactors(self):
+		self.assertEqual(['S','D'], r.parseSigmaFactors('(RNA polymerase, sigma S (sigma 38) factor RNA polymerase, sigma 70 (sigma D) factor)'))
+
 	def test_calculateWeight(self):
-		pass	
+		met = r.metabolite()
+		self.assertAlmostEqual(180.16, met.calculateWeight('C6H12O6'))
