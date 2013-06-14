@@ -121,48 +121,71 @@ Frame ID	Name	Neutrial formula	pH dependent properties	Media Concentration (mM)	
 3dhq	3-Dehydroquinate	C7H10O6	"{""7.2"": {""formula"": ""C7H9O6"", ""charge"": -1, ""weight"": ""189.1421000000""}, ""7"": {""formula"": ""C7H9O6"", ""charge"": -1, ""weight"": ""189.1421000000""}}"						
 3dhsk	3-Dehydroshikimate	C7H8O5	"{""7.2"": {""formula"": ""C7H7O5"", ""charge"": -1, ""weight"": ""171.1273000000""}, ""7"": {""formula"": ""C7H7O5"", ""charge"": -1, ""weight"": ""171.1273000000""}}"						
 3gmp	3'-GMP	C10H14N5O8P	"{""7.2"": {""formula"": ""C10H13N5O8P"", ""charge"": -1, ""weight"": ""362.2137000000""}, ""7"": {""formula"": ""C10H13N5O8P"", ""charge"": -1, ""weight"": ""362.2137000000""}}"						
-3haACP	(3R)-3-Hydroxyacyl-[acyl-carrier protein]	C15H27N2O9PRS	"{""7.2"": {""formula"": ""C15H27N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H27N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3haACP	(3R)-3-Hydroxyacyl-[acyl-carrier protein]	C15H27N2O9PRS	"{""7.2"": {""formula"": ""C15H27N2O9PRS"", ""charge"": -1, ""weight"": ""442.4173000000""}, ""7"": {""formula"": ""C15H27N2O9PRS"", ""charge"": -1, ""weight"": ""442.4173000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hbcoa	(S)-3-Hydroxybutanoyl-CoA	C25H42N7O18P3S	"{""7.2"": {""formula"": ""C25H39N7O18P3S"", ""charge"": -3, ""weight"": ""850.5961000000""}, ""7"": {""formula"": ""C25H39N7O18P3S"", ""charge"": -3, ""weight"": ""850.5961000000""}}"						
-3hcddec5eACP	(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H41N2O9PRS	"{""7.2"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3hcddec5eACP	(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H41N2O9PRS	"{""7.2"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""552.6159000000""}, ""7"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""552.6159000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hcinnm	3-hydroxycinnamic acid	C9H7O3	"{""7.2"": {""formula"": ""C9H7O3"", ""charge"": -1, ""weight"": ""163.1513000000""}, ""7"": {""formula"": ""C9H7O3"", ""charge"": -1, ""weight"": ""163.1513000000""}}"						
-3hcmrs7eACP	(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H45N2O9PRS	"{""7.2"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3hcpalm9eACP	(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]	C27H49N2O9PRS	"{""7.2"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3hcvac11eACP	(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H53N2O9PRS	"{""7.2"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3hcmrs7eACP	(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H45N2O9PRS	"{""7.2"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""580.6695000000""}, ""7"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""580.6695000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3hcpalm9eACP	(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]	C27H49N2O9PRS	"{""7.2"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""608.7231000000""}, ""7"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""608.7231000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3hcvac11eACP	(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H53N2O9PRS	"{""7.2"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""636.7767000000""}, ""7"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""636.7767000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hdcoa	(S)-3-Hydroxydecanoyl-CoA	C31H54N7O18P3S	"{""7.2"": {""formula"": ""C31H51N7O18P3S"", ""charge"": -3, ""weight"": ""934.7569000000""}, ""7"": {""formula"": ""C31H51N7O18P3S"", ""charge"": -3, ""weight"": ""934.7569000000""}}"						
 3hddcoa	(S)-3-Hydroxydodecanoyl-CoA	C33H58N7O18P3S	"{""7.2"": {""formula"": ""C33H55N7O18P3S"", ""charge"": -3, ""weight"": ""962.8105000000""}, ""7"": {""formula"": ""C33H55N7O18P3S"", ""charge"": -3, ""weight"": ""962.8105000000""}}"						
-3hddecACP	(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]	C23H43N2O9PRS	"{""7.2"": {""formula"": ""C23H43N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H43N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3hdecACP	(R)-3-Hydroxydecanoyl-[acyl-carrier protein]	C21H39N2O9PRS	"{""7.2"": {""formula"": ""C21H39N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C21H39N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3hddecACP	(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]	C23H43N2O9PRS	"{""7.2"": {""formula"": ""C23H43N2O9PRS"", ""charge"": -1, ""weight"": ""554.6317000000""}, ""7"": {""formula"": ""C23H43N2O9PRS"", ""charge"": -1, ""weight"": ""554.6317000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3hdecACP	(R)-3-Hydroxydecanoyl-[acyl-carrier protein]	C21H39N2O9PRS	"{""7.2"": {""formula"": ""C21H39N2O9PRS"", ""charge"": -1, ""weight"": ""526.5781000000""}, ""7"": {""formula"": ""C21H39N2O9PRS"", ""charge"": -1, ""weight"": ""526.5781000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hhcoa	(S)-3-Hydroxyhexanoyl-CoA	C27H46N7O18P3S	"{""7.2"": {""formula"": ""C27H43N7O18P3S"", ""charge"": -3, ""weight"": ""878.6497000000""}, ""7"": {""formula"": ""C27H43N7O18P3S"", ""charge"": -3, ""weight"": ""878.6497000000""}}"						
 3hhdcoa	(S)-3-Hydroxyhexadecanoyl-CoA	C37H66N7O18P3S	"{""7.2"": {""formula"": ""C37H63N7O18P3S"", ""charge"": -3, ""weight"": ""1018.9177000000""}, ""7"": {""formula"": ""C37H63N7O18P3S"", ""charge"": -3, ""weight"": ""1018.9177000000""}}"						
-3hhexACP	(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]	C17H31N2O9PRS	"{""7.2"": {""formula"": ""C17H31N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C17H31N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3hmrsACP	(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	C25H47N2O9PRS	"{""7.2"": {""formula"": ""C25H47N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H47N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3hhexACP	(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]	C17H31N2O9PRS	"{""7.2"": {""formula"": ""C17H31N2O9PRS"", ""charge"": -1, ""weight"": ""470.4709000000""}, ""7"": {""formula"": ""C17H31N2O9PRS"", ""charge"": -1, ""weight"": ""470.4709000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3hmrsACP	(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	C25H47N2O9PRS	"{""7.2"": {""formula"": ""C25H47N2O9PRS"", ""charge"": -1, ""weight"": ""582.6853000000""}, ""7"": {""formula"": ""C25H47N2O9PRS"", ""charge"": -1, ""weight"": ""582.6853000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hocoa	(S)-3-Hydroxyoctanoyl-CoA	C29H50N7O18P3S	"{""7.2"": {""formula"": ""C29H47N7O18P3S"", ""charge"": -3, ""weight"": ""906.7033000000""}, ""7"": {""formula"": ""C29H47N7O18P3S"", ""charge"": -3, ""weight"": ""906.7033000000""}}"						
-3hoctACP	(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	C19H35N2O9PRS	"{""7.2"": {""formula"": ""C19H35N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H35N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3hoctaACP	(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]	C29H55N2O9PRS	"{""7.2"": {""formula"": ""C29H55N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H55N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3hoctACP	(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	C19H35N2O9PRS	"{""7.2"": {""formula"": ""C19H35N2O9PRS"", ""charge"": -1, ""weight"": ""498.5245000000""}, ""7"": {""formula"": ""C19H35N2O9PRS"", ""charge"": -1, ""weight"": ""498.5245000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3hoctaACP	(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]	C29H55N2O9PRS	"{""7.2"": {""formula"": ""C29H55N2O9PRS"", ""charge"": -1, ""weight"": ""638.7925000000""}, ""7"": {""formula"": ""C29H55N2O9PRS"", ""charge"": -1, ""weight"": ""638.7925000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hodcoa	(S)-3-Hydroxyoctadecanoyl-CoA	C39H66N7O18P3S	"{""7.2"": {""formula"": ""C39H67N7O18P3S"", ""charge"": -3, ""weight"": ""1046.9713000000""}, ""7"": {""formula"": ""C39H67N7O18P3S"", ""charge"": -3, ""weight"": ""1046.9713000000""}}"						
-3hpalmACP	R-3-hydroxypalmitoyl-[acyl-carrier protein]	C27H51N2O9PRS	"{""7.2"": {""formula"": ""C27H51N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H51N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3hpalmACP	R-3-hydroxypalmitoyl-[acyl-carrier protein]	C27H51N2O9PRS	"{""7.2"": {""formula"": ""C27H51N2O9PRS"", ""charge"": -1, ""weight"": ""610.7389000000""}, ""7"": {""formula"": ""C27H51N2O9PRS"", ""charge"": -1, ""weight"": ""610.7389000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3hpppn	3-(3-hydroxy-phenyl)propionate	C9H9O3	"{""7.2"": {""formula"": ""C9H9O3"", ""charge"": -1, ""weight"": ""165.1671000000""}, ""7"": {""formula"": ""C9H9O3"", ""charge"": -1, ""weight"": ""165.1671000000""}}"						
 3htdcoa	(S)-3-Hydroxytetradecanoyl-CoA	C35H62N7O18P3S	"{""7.2"": {""formula"": ""C35H59N7O18P3S"", ""charge"": -3, ""weight"": ""990.8641000000""}, ""7"": {""formula"": ""C35H59N7O18P3S"", ""charge"": -3, ""weight"": ""990.8641000000""}}"						
 3ig3p	C'-(3-Indolyl)-glycerol 3-phosphate	C11H14NO6P	"{""7.2"": {""formula"": ""C11H13NO6P"", ""charge"": -1, ""weight"": ""286.1987000000""}, ""7"": {""formula"": ""C11H13NO6P"", ""charge"": -1, ""weight"": ""286.1987000000""}}"						
 3mob	3-Methyl-2-oxobutanoate	C5H8O3	"{""7.2"": {""formula"": ""C5H7O3"", ""charge"": -1, ""weight"": ""115.1073000000""}, ""7"": {""formula"": ""C5H7O3"", ""charge"": -1, ""weight"": ""115.1073000000""}}"						
 3mop	(S)-3-Methyl-2-oxopentanoate	C6H10O3	"{""7.2"": {""formula"": ""C6H9O3"", ""charge"": -1, ""weight"": ""129.1341000000""}, ""7"": {""formula"": ""C6H9O3"", ""charge"": -1, ""weight"": ""129.1341000000""}}"						
-3ocddec5eACP	3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H39N2O9PRS	"{""7.2"": {""formula"": ""C23H39N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H39N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3ocmrs7eACP	3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H43N2O9PRS	"{""7.2"": {""formula"": ""C25H43N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H43N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3ocpalm9eACP	3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]	C27H47N2O9PRS	"{""7.2"": {""formula"": ""C27H47N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H47N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3ocvac11eACP	3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H51N2O9PRS	"{""7.2"": {""formula"": ""C29H51N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H51N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3ocddec5eACP	3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H39N2O9PRS	"{""7.2"": {""formula"": ""C23H39N2O9PRS"", ""charge"": -1, ""weight"": ""550.6001000000""}, ""7"": {""formula"": ""C23H39N2O9PRS"", ""charge"": -1, ""weight"": ""550.6001000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3ocmrs7eACP	3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H43N2O9PRS	"{""7.2"": {""formula"": ""C25H43N2O9PRS"", ""charge"": -1, ""weight"": ""578.6537000000""}, ""7"": {""formula"": ""C25H43N2O9PRS"", ""charge"": -1, ""weight"": ""578.6537000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3ocpalm9eACP	3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]	C27H47N2O9PRS	"{""7.2"": {""formula"": ""C27H47N2O9PRS"", ""charge"": -1, ""weight"": ""606.7073000000""}, ""7"": {""formula"": ""C27H47N2O9PRS"", ""charge"": -1, ""weight"": ""606.7073000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3ocvac11eACP	3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H51N2O9PRS	"{""7.2"": {""formula"": ""C29H51N2O9PRS"", ""charge"": -1, ""weight"": ""634.7609000000""}, ""7"": {""formula"": ""C29H51N2O9PRS"", ""charge"": -1, ""weight"": ""634.7609000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3odcoa	3-Oxodecanoyl-CoA	C31H52N7O18P3S	"{""7.2"": {""formula"": ""C31H49N7O18P3S"", ""charge"": -3, ""weight"": ""932.7411000000""}, ""7"": {""formula"": ""C31H49N7O18P3S"", ""charge"": -3, ""weight"": ""932.7411000000""}}"						
 3oddcoa	3-Oxododecanoyl-CoA	C33H56N7O18P3S	"{""7.2"": {""formula"": ""C33H53N7O18P3S"", ""charge"": -3, ""weight"": ""960.7947000000""}, ""7"": {""formula"": ""C33H53N7O18P3S"", ""charge"": -3, ""weight"": ""960.7947000000""}}"						
-3oddecACP	3-Oxododecanoyl-[acyl-carrier protein]	C23H41N2O9PRS	"{""7.2"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3odecACP	3-Oxodecanoyl-[acyl-carrier protein]	C21H37N2O9PRS	"{""7.2"": {""formula"": ""C21H37N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C21H37N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3oddecACP	3-Oxododecanoyl-[acyl-carrier protein]	C23H41N2O9PRS	"{""7.2"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""552.6159000000""}, ""7"": {""formula"": ""C23H41N2O9PRS"", ""charge"": -1, ""weight"": ""552.6159000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3odecACP	3-Oxodecanoyl-[acyl-carrier protein]	C21H37N2O9PRS	"{""7.2"": {""formula"": ""C21H37N2O9PRS"", ""charge"": -1, ""weight"": ""524.5623000000""}, ""7"": {""formula"": ""C21H37N2O9PRS"", ""charge"": -1, ""weight"": ""524.5623000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3ohcoa	3-Oxohexanoyl-CoA	C27H44N7O18P3S	"{""7.2"": {""formula"": ""C27H41N7O18P3S"", ""charge"": -3, ""weight"": ""876.6339000000""}, ""7"": {""formula"": ""C27H41N7O18P3S"", ""charge"": -3, ""weight"": ""876.6339000000""}}"						
 3ohdcoa	3-Oxohexadecanoyl-CoA	C37H64N7O18P3S	"{""7.2"": {""formula"": ""C37H61N7O18P3S"", ""charge"": -3, ""weight"": ""1016.9019000000""}, ""7"": {""formula"": ""C37H61N7O18P3S"", ""charge"": -3, ""weight"": ""1016.9019000000""}}"						
-3ohexACP	3-Oxohexanoyl-[acyl-carrier protein]	C17H29N2O9PRS	"{""7.2"": {""formula"": ""C17H29N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C17H29N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3omrsACP	3-Oxotetradecanoyl-[acyl-carrier protein]	C25H45N2O9PRS	"{""7.2"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3ohexACP	3-Oxohexanoyl-[acyl-carrier protein]	C17H29N2O9PRS	"{""7.2"": {""formula"": ""C17H29N2O9PRS"", ""charge"": -1, ""weight"": ""468.4551000000""}, ""7"": {""formula"": ""C17H29N2O9PRS"", ""charge"": -1, ""weight"": ""468.4551000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3omrsACP	3-Oxotetradecanoyl-[acyl-carrier protein]	C25H45N2O9PRS	"{""7.2"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""580.6695000000""}, ""7"": {""formula"": ""C25H45N2O9PRS"", ""charge"": -1, ""weight"": ""580.6695000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3oocoa	3-Oxooctanoyl-CoA	C29H48N7O18P3S	"{""7.2"": {""formula"": ""C29H45N7O18P3S"", ""charge"": -3, ""weight"": ""904.6875000000""}, ""7"": {""formula"": ""C29H45N7O18P3S"", ""charge"": -3, ""weight"": ""904.6875000000""}}"						
-3ooctACP	3-Oxooctanoyl-[acyl-carrier protein]	C19H33N2O9PRS	"{""7.2"": {""formula"": ""C19H33N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H33N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	"{""7.2"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3ooctACP	3-Oxooctanoyl-[acyl-carrier protein]	C19H33N2O9PRS	"{""7.2"": {""formula"": ""C19H33N2O9PRS"", ""charge"": -1, ""weight"": ""496.5087000000""}, ""7"": {""formula"": ""C19H33N2O9PRS"", ""charge"": -1, ""weight"": ""496.5087000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	"{""7.2"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""636.7767000000""}, ""7"": {""formula"": ""C29H53N2O9PRS"", ""charge"": -1, ""weight"": ""636.7767000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3oodcoa	3-Oxooctadecanoyl-CoA	C39H68N7O18P3S	"{""7.2"": {""formula"": ""C39H65N7O18P3S"", ""charge"": -3, ""weight"": ""1044.9555000000""}, ""7"": {""formula"": ""C39H65N7O18P3S"", ""charge"": -3, ""weight"": ""1044.9555000000""}}"						
-3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	"{""7.2"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	"{""7.2"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""608.7231000000""}, ""7"": {""formula"": ""C27H49N2O9PRS"", ""charge"": -1, ""weight"": ""608.7231000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 3ophb	3-Octaprenyl-4-hydroxybenzoate	C47H70O3	"{""7.2"": {""formula"": ""C47H69O3"", ""charge"": -1, ""weight"": ""682.0591000000""}, ""7"": {""formula"": ""C47H69O3"", ""charge"": -1, ""weight"": ""682.0591000000""}}"						
 3otdcoa	3-Oxotetradecanoyl-CoA	C35H60N7O18P3S	"{""7.2"": {""formula"": ""C35H57N7O18P3S"", ""charge"": -3, ""weight"": ""988.8483000000""}, ""7"": {""formula"": ""C35H57N7O18P3S"", ""charge"": -3, ""weight"": ""988.8483000000""}}"						
 3pg	3-Phospho-D-glycerate	C3H7O7P	"{""7.2"": {""formula"": ""C3H5O7P"", ""charge"": -2, ""weight"": ""184.0395000000""}, ""7"": {""formula"": ""C3H5O7P"", ""charge"": -2, ""weight"": ""184.0395000000""}}"						
@@ -209,7 +232,8 @@ Frame ID	Name	Neutrial formula	pH dependent properties	Media Concentration (mM)	
 6pgc	6-Phospho-D-gluconate	C6H13O10P	"{""7.2"": {""formula"": ""C6H11O10P"", ""charge"": -2, ""weight"": ""274.1169000000""}, ""7"": {""formula"": ""C6H11O10P"", ""charge"": -2, ""weight"": ""274.1169000000""}}"						
 6pgl	6-phospho-D-glucono-1,5-lactone	C6H11O9P	"{""7.2"": {""formula"": ""C6H10O9P"", ""charge"": -1, ""weight"": ""257.1100000000""}, ""7"": {""formula"": ""C6H10O9P"", ""charge"": -1, ""weight"": ""257.1100000000""}}"						
 8aonn	8-Amino-7-oxononanoate	C9H17NO3	"{""7.2"": {""formula"": ""C9H17NO3"", ""charge"": 0, ""weight"": ""187.2373000000""}, ""7"": {""formula"": ""C9H17NO3"", ""charge"": 0, ""weight"": ""187.2373000000""}}"						
-ACP	acyl carrier protein	C11H21N2O7PRS	"{""7.2"": {""formula"": ""C11H21N2O7PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C11H21N2O7PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+ACP	acyl carrier protein	C11H21N2O7PRS	"{""7.2"": {""formula"": ""C11H21N2O7PRS"", ""charge"": -1, ""weight"": ""356.3279000000""}, ""7"": {""formula"": ""C11H21N2O7PRS"", ""charge"": -1, ""weight"": ""356.3279000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 LalaDglu	L-alanine-D-glutamate	C8H14N2O5	"{""7.2"": {""formula"": ""C8H13N2O5"", ""charge"": -1, ""weight"": ""217.1997000000""}, ""7"": {""formula"": ""C8H13N2O5"", ""charge"": -1, ""weight"": ""217.1997000000""}}"						
 LalaDgluMdap	L-alanine-D-glutamate-meso-2,6-diaminoheptanedioate	C15H26N4O8	"{""7.2"": {""formula"": ""C15H25N4O8"", ""charge"": -1, ""weight"": ""389.3825000000""}, ""7"": {""formula"": ""C15H25N4O8"", ""charge"": -1, ""weight"": ""389.3825000000""}}"						
 LalaDgluMdapDala	L-alanine-D-glutamate-meso-2,6-diaminoheptanedioate-D-alanine	C18H31N5O9	"{""7.2"": {""formula"": ""C18H30N5O9"", ""charge"": -1, ""weight"": ""460.4610000000""}, ""7"": {""formula"": ""C18H30N5O9"", ""charge"": -1, ""weight"": ""460.4610000000""}}"						
@@ -221,7 +245,8 @@ aacald	Aminoacetaldehyde	C2H5NO	"{""7.2"": {""formula"": ""C2H6NO"", ""charge"":
 aacoa	Acetoacetyl-CoA	C25H40N7O18P3S	"{""7.2"": {""formula"": ""C25H37N7O18P3S"", ""charge"": -3, ""weight"": ""848.5803000000""}, ""7"": {""formula"": ""C25H37N7O18P3S"", ""charge"": -3, ""weight"": ""848.5803000000""}}"						
 aact	Aminoacetone	C3H7NO	"{""7.2"": {""formula"": ""C3H8NO"", ""charge"": 1, ""weight"": ""74.1022000000""}, ""7"": {""formula"": ""C3H8NO"", ""charge"": 1, ""weight"": ""74.1022000000""}}"						
 ac	Acetate	C2H4O2	"{""7.2"": {""formula"": ""C2H3O2"", ""charge"": -1, ""weight"": ""59.0437000000""}, ""7"": {""formula"": ""C2H3O2"", ""charge"": -1, ""weight"": ""59.0437000000""}}"						
-acACP	Acetyl-ACP	C13H23N2O8PRS	"{""7.2"": {""formula"": ""C13H23N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C13H23N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+acACP	Acetyl-ACP	C13H23N2O8PRS	"{""7.2"": {""formula"": ""C13H23N2O8PRS"", ""charge"": -1, ""weight"": ""398.3647000000""}, ""7"": {""formula"": ""C13H23N2O8PRS"", ""charge"": -1, ""weight"": ""398.3647000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 acac	Acetoacetate	C4H5O3	"{""7.2"": {""formula"": ""C4H5O3"", ""charge"": -1, ""weight"": ""101.0805000000""}, ""7"": {""formula"": ""C4H5O3"", ""charge"": -1, ""weight"": ""101.0805000000""}}"						
 acald	Acetaldehyde	C2H4O	"{""7.2"": {""formula"": ""C2H4O"", ""charge"": 0, ""weight"": ""44.0526000000""}, ""7"": {""formula"": ""C2H4O"", ""charge"": 0, ""weight"": ""44.0526000000""}}"						
 acanth	N-Acetylanthranilate	C9H9NO3	"{""7.2"": {""formula"": ""C9H8NO3"", ""charge"": -1, ""weight"": ""178.1662000000""}, ""7"": {""formula"": ""C9H8NO3"", ""charge"": -1, ""weight"": ""178.1662000000""}}"						
@@ -248,7 +273,8 @@ acon-T	trans-Aconitate	C6H6O6	"{""7.2"": {""formula"": ""C6H3O6"", ""charge"": -
 aconm	E-3-carboxy-2-pentenedioate 6-methyl ester	C7H6O6	"{""7.2"": {""formula"": ""C7H6O6"", ""charge"": -2, ""weight"": ""186.1184000000""}, ""7"": {""formula"": ""C7H6O6"", ""charge"": -2, ""weight"": ""186.1184000000""}}"						
 acorn	N2-Acetyl-L-ornithine	C7H14N2O3	"{""7.2"": {""formula"": ""C7H14N2O3"", ""charge"": 0, ""weight"": ""174.1986000000""}, ""7"": {""formula"": ""C7H14N2O3"", ""charge"": 0, ""weight"": ""174.1986000000""}}"						
 acser	O-Acetyl-L-serine	C5H9NO4	"{""7.2"": {""formula"": ""C5H9NO4"", ""charge"": 0, ""weight"": ""147.1291000000""}, ""7"": {""formula"": ""C5H9NO4"", ""charge"": 0, ""weight"": ""147.1291000000""}}"						
-actACP	Acetoacetyl-ACP	C15H25N2O9PRS	"{""7.2"": {""formula"": ""C15H25N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H25N2O9PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+actACP	Acetoacetyl-ACP	C15H25N2O9PRS	"{""7.2"": {""formula"": ""C15H25N2O9PRS"", ""charge"": -1, ""weight"": ""440.4015000000""}, ""7"": {""formula"": ""C15H25N2O9PRS"", ""charge"": -1, ""weight"": ""440.4015000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 actp	Acetyl phosphate	C2H5O5P	"{""7.2"": {""formula"": ""C2H3O5P"", ""charge"": -2, ""weight"": ""138.0147000000""}, ""7"": {""formula"": ""C2H4O5P"", ""charge"": -1, ""weight"": ""139.0226000000""}}"						
 ade	Adenine	C5H5N5	"{""7.2"": {""formula"": ""C5H5N5"", ""charge"": 0, ""weight"": ""135.1295000000""}, ""7"": {""formula"": ""C5H5N5"", ""charge"": 0, ""weight"": ""135.1295000000""}}"						
 adn	Adenosine	C10H13N5O4	"{""7.2"": {""formula"": ""C10H13N5O4"", ""charge"": 0, ""weight"": ""267.2437000000""}, ""7"": {""formula"": ""C10H13N5O4"", ""charge"": 0, ""weight"": ""267.2437000000""}}"						
@@ -273,13 +299,15 @@ ala-D	D-Alanine	C3H7NO2	"{""7.2"": {""formula"": ""C3H7NO2"", ""charge"": 0, ""w
 ala-L	L-Alanine	C3H7NO2	"{""7.2"": {""formula"": ""C3H7NO2"", ""charge"": 0, ""weight"": ""89.0933000000""}, ""7"": {""formula"": ""C3H7NO2"", ""charge"": 0, ""weight"": ""89.0933000000""}}"		86587417.83999997				
 alaala	D-Alanyl-D-alanine	C6H12N2O3	"{""7.2"": {""formula"": ""C6H12N2O3"", ""charge"": 0, ""weight"": ""160.1718000000""}, ""7"": {""formula"": ""C6H12N2O3"", ""charge"": 0, ""weight"": ""160.1718000000""}}"						
 alac-S	(S)-2-Acetolactate	C5H8O4	"{""7.2"": {""formula"": ""C5H7O4"", ""charge"": -1, ""weight"": ""131.1063000000""}, ""7"": {""formula"": ""C5H7O4"", ""charge"": -1, ""weight"": ""131.1063000000""}}"						
-alatrna	L-Alanyl-tRNA(Ala)	C3H6NOR	"{""7.2"": {""formula"": ""C13H18N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C13H18N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+alatrna	L-Alanyl-tRNA(Ala)	C3H6NOR	"{""7.2"": {""formula"": ""C13H18N6O4R"", ""charge"": 1, ""weight"": ""322.3232000000""}, ""7"": {""formula"": ""C13H18N6O4R"", ""charge"": 1, ""weight"": ""322.3232000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 all-D	D-Allose	C6H12O6	"{""7.2"": {""formula"": ""C6H12O6"", ""charge"": 0, ""weight"": ""180.1548000000""}, ""7"": {""formula"": ""C6H12O6"", ""charge"": 0, ""weight"": ""180.1548000000""}}"						
 all6p	D-Allose 6-phosphate	C6H13O9P	"{""7.2"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}, ""7"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}}"						
 alltn	Allantoin	C4H6N4O3	"{""7.2"": {""formula"": ""C4H6N4O3"", ""charge"": 0, ""weight"": ""158.1164000000""}, ""7"": {""formula"": ""C4H6N4O3"", ""charge"": 0, ""weight"": ""158.1164000000""}}"						
 alltt	Allantoate	C4H8N4O4	"{""7.2"": {""formula"": ""C4H7N4O4"", ""charge"": -1, ""weight"": ""175.1233000000""}, ""7"": {""formula"": ""C4H7N4O4"", ""charge"": -1, ""weight"": ""175.1233000000""}}"						
 allul6p	Allulose 6-phosphate	C6H13O9P	"{""7.2"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}, ""7"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}}"						
-alpp	applipoprotein	X	"{""7.2"": {""formula"": ""C3H6NOR2S"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C3H6NOR2S"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+alpp	applipoprotein	X	"{""7.2"": {""formula"": ""C3H6NOR2S"", ""charge"": 1, ""weight"": ""104.1464000000""}, ""7"": {""formula"": ""C3H6NOR2S"", ""charge"": 1, ""weight"": ""104.1464000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 altrn	D-Altronate	C6H12O7	"{""7.2"": {""formula"": ""C6H11O7"", ""charge"": -1, ""weight"": ""195.1459000000""}, ""7"": {""formula"": ""C6H11O7"", ""charge"": -1, ""weight"": ""195.1459000000""}}"						
 amet	S-Adenosyl-L-methionine	C15H23N6O5S	"{""7.2"": {""formula"": ""C15H23N6O5S"", ""charge"": 1, ""weight"": ""399.4437000000""}, ""7"": {""formula"": ""C15H23N6O5S"", ""charge"": 1, ""weight"": ""399.4437000000""}}"		37588.87999999999				
 ametam	S-Adenosylmethioninamine	C14H24N6O3S	"{""7.2"": {""formula"": ""C14H24N6O3S"", ""charge"": 2, ""weight"": ""356.4426000000""}, ""7"": {""formula"": ""C14H24N6O3S"", ""charge"": 2, ""weight"": ""356.4426000000""}}"						
@@ -301,7 +329,8 @@ apg160	acyl phosphatidylglycerol (n-C16:0)	C54H105O11P	"{""7.2"": {""formula"": 
 apg161	acyl phosphatidylglycerol (n-C16:1)	C54H99O11P	"{""7.2"": {""formula"": ""C54H98O11P"", ""charge"": -1, ""weight"": ""954.3312000000""}, ""7"": {""formula"": ""C54H98O11P"", ""charge"": -1, ""weight"": ""954.3312000000""}}"						
 apg180	acyl phosphatidylglycerol (n-C18:0)	C60H116O11P	"{""7.2"": {""formula"": ""C60H116O11P"", ""charge"": -1, ""weight"": ""1044.5394000000""}, ""7"": {""formula"": ""C60H116O11P"", ""charge"": -1, ""weight"": ""1044.5394000000""}}"						
 apg181	acyl phosphatidylglycerol (n-C18:1)	C60H111O11P	"{""7.2"": {""formula"": ""C60H110O11P"", ""charge"": -1, ""weight"": ""1038.4920000000""}, ""7"": {""formula"": ""C60H110O11P"", ""charge"": -1, ""weight"": ""1038.4920000000""}}"						
-apoACP	apoprotein [acyl carrier protein]	RHO	"{""7.2"": {""formula"": ""HOR"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""HOR"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+apoACP	apoprotein [acyl carrier protein]	RHO	"{""7.2"": {""formula"": ""HOR"", ""charge"": 0, ""weight"": ""17.0069000000""}, ""7"": {""formula"": ""HOR"", ""charge"": 0, ""weight"": ""17.0069000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 aps	Adenosine 5'-phosphosulfate	C10H14N5O10PS	"{""7.2"": {""formula"": ""C10H12N5O10PS"", ""charge"": -2, ""weight"": ""425.2638000000""}, ""7"": {""formula"": ""C10H12N5O10PS"", ""charge"": -2, ""weight"": ""425.2638000000""}}"						
 ara5p	D-Arabinose 5-phosphate	C5H11O8P	"{""7.2"": {""formula"": ""C5H10O8P"", ""charge"": -1, ""weight"": ""229.1000000000""}, ""7"": {""formula"": ""C5H10O8P"", ""charge"": -1, ""weight"": ""229.1000000000""}}"						
 arab-L	L-Arabinose	C5H10O5	"{""7.2"": {""formula"": ""C5H10O5"", ""charge"": 0, ""weight"": ""150.1290000000""}, ""7"": {""formula"": ""C5H10O5"", ""charge"": 0, ""weight"": ""150.1290000000""}}"						
@@ -311,16 +340,19 @@ arbtn	aerobactin minus Fe3	C22H36N4O13	"{""7.2"": {""formula"": ""C22H33N4O13"",
 arbtn-fe3	Aerobactin	C22H33FeN4O13	"{""7.2"": {""formula"": ""C22H33FeN4O13"", ""charge"": 0, ""weight"": ""617.3647000000""}, ""7"": {""formula"": ""C22H33FeN4O13"", ""charge"": 0, ""weight"": ""617.3647000000""}}"						
 arg-L	L-Arginine	C6H14N4O2	"{""7.2"": {""formula"": ""C6H15N4O2"", ""charge"": 1, ""weight"": ""175.2105000000""}, ""7"": {""formula"": ""C6H15N4O2"", ""charge"": 1, ""weight"": ""175.2105000000""}}"		49858699.519999996				
 argsuc	N(omega)-(L-Arginino)succinate	C10H18N4O6	"{""7.2"": {""formula"": ""C10H17N4O6"", ""charge"": -1, ""weight"": ""289.2663000000""}, ""7"": {""formula"": ""C10H17N4O6"", ""charge"": -1, ""weight"": ""289.2663000000""}}"						
-argtrna	L-Arginyl-tRNA(Arg)	C6H14N4OR	"{""7.2"": {""formula"": ""C16H26N9O4R"", ""charge"": 2, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C16H26N9O4R"", ""charge"": 2, ""weight"": ""-1.0000000000""}}"						
+argtrna	L-Arginyl-tRNA(Arg)	C6H14N4OR	"{""7.2"": {""formula"": ""C16H26N9O4R"", ""charge"": 2, ""weight"": ""408.4404000000""}, ""7"": {""formula"": ""C16H26N9O4R"", ""charge"": 2, ""weight"": ""408.4404000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 ascb-L	L-Ascorbate	C6H8O6	"{""7.2"": {""formula"": ""C6H7O6"", ""charge"": -1, ""weight"": ""175.1153000000""}, ""7"": {""formula"": ""C6H7O6"", ""charge"": -1, ""weight"": ""175.1153000000""}}"						
 ascb6p	L-ascorbate-6-phosphate	C6H9O9P	"{""7.2"": {""formula"": ""C6H7O9P"", ""charge"": -2, ""weight"": ""254.0863000000""}, ""7"": {""formula"": ""C6H7O9P"", ""charge"": -2, ""weight"": ""254.0863000000""}}"						
 asn-L	L-Asparagine	C4H8N2O3	"{""7.2"": {""formula"": ""C4H8N2O3"", ""charge"": 0, ""weight"": ""132.1182000000""}, ""7"": {""formula"": ""C4H8N2O3"", ""charge"": 0, ""weight"": ""132.1182000000""}}"		40632230.79999999				
-asntrna	L-Asparaginyl-tRNA(Asn)	C4H7N2O2R	"{""7.2"": {""formula"": ""C14H19N7O5R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C14H19N7O5R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+asntrna	L-Asparaginyl-tRNA(Asn)	C4H7N2O2R	"{""7.2"": {""formula"": ""C14H19N7O5R"", ""charge"": 1, ""weight"": ""365.3481000000""}, ""7"": {""formula"": ""C14H19N7O5R"", ""charge"": 1, ""weight"": ""365.3481000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 aso3	arsenite	H3AsO3	"{""7.2"": {""formula"": ""H3O3As"", ""charge"": 0, ""weight"": ""125.9427000000""}, ""7"": {""formula"": ""H3O3As"", ""charge"": 0, ""weight"": ""125.9427000000""}}"						
 aso4	arsenate	H3AsO4	"{""7.2"": {""formula"": ""HO4As"", ""charge"": -2, ""weight"": ""139.9259000000""}, ""7"": {""formula"": ""HO4As"", ""charge"": -2, ""weight"": ""139.9259000000""}}"						
 asp-L	L-Aspartate	C4H7NO4	"{""7.2"": {""formula"": ""C4H6NO4"", ""charge"": -1, ""weight"": ""132.0944000000""}, ""7"": {""formula"": ""C4H6NO4"", ""charge"": -1, ""weight"": ""132.0944000000""}}"		40632230.79999999				
 aspsa	L-Aspartate 4-semialdehyde	C4H7NO3	"{""7.2"": {""formula"": ""C4H7NO3"", ""charge"": 0, ""weight"": ""117.1033000000""}, ""7"": {""formula"": ""C4H7NO3"", ""charge"": 0, ""weight"": ""117.1033000000""}}"						
-asptrna	L-Aspartyl-tRNA(Asp)	C4H5NO3R	"{""7.2"": {""formula"": ""C14H17N6O6R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C14H17N6O6R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+asptrna	L-Aspartyl-tRNA(Asp)	C4H5NO3R	"{""7.2"": {""formula"": ""C14H17N6O6R"", ""charge"": 0, ""weight"": ""365.3243000000""}, ""7"": {""formula"": ""C14H17N6O6R"", ""charge"": 0, ""weight"": ""365.3243000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 athr-L	L-Allo-threonine	C4H9NO3	"{""7.2"": {""formula"": ""C4H9NO3"", ""charge"": 0, ""weight"": ""119.1191000000""}, ""7"": {""formula"": ""C4H9NO3"", ""charge"": 0, ""weight"": ""119.1191000000""}}"						
 atp	ATP	C10H16N5O13P3	"{""7.2"": {""formula"": ""C10H13N5O13P3"", ""charge"": -3, ""weight"": ""504.1567000000""}, ""7"": {""formula"": ""C10H13N5O13P3"", ""charge"": -3, ""weight"": ""504.1567000000""}}"		10081573599.999998				
 b2coa	Crotonoyl-CoA	C25H40N7O17P3S	"{""7.2"": {""formula"": ""C25H37N7O17P3S"", ""charge"": -3, ""weight"": ""832.5813000000""}, ""7"": {""formula"": ""C25H37N7O17P3S"", ""charge"": -3, ""weight"": ""832.5813000000""}}"						
@@ -332,8 +364,10 @@ btcoa	Butanoyl-CoA	C25H42N7O17P3S	"{""7.2"": {""formula"": ""C25H39N7O17P3S"", "
 btn	Biotin	C10H16N2O3S	"{""7.2"": {""formula"": ""C10H15N2O3S"", ""charge"": -1, ""weight"": ""243.2995000000""}, ""7"": {""formula"": ""C10H15N2O3S"", ""charge"": -1, ""weight"": ""243.2995000000""}}"						
 btnso	d-biotin d-sulfoxide	C10H16N2O4S	"{""7.2"": {""formula"": ""C10H15N2O4S"", ""charge"": -1, ""weight"": ""259.2985000000""}, ""7"": {""formula"": ""C10H15N2O4S"", ""charge"": -1, ""weight"": ""259.2985000000""}}"						
 but	Butyrate (n-C4:0)	C4H8O2	"{""7.2"": {""formula"": ""C4H7O2"", ""charge"": -1, ""weight"": ""87.0973000000""}, ""7"": {""formula"": ""C4H7O2"", ""charge"": -1, ""weight"": ""87.0973000000""}}"						
-but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	"{""7.2"": {""formula"": ""C15H25N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H25N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	"{""7.2"": {""formula"": ""C15H27N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H27N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	"{""7.2"": {""formula"": ""C15H25N2O8PRS"", ""charge"": -1, ""weight"": ""424.4025000000""}, ""7"": {""formula"": ""C15H25N2O8PRS"", ""charge"": -1, ""weight"": ""424.4025000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	"{""7.2"": {""formula"": ""C15H27N2O8PRS"", ""charge"": -1, ""weight"": ""426.4183000000""}, ""7"": {""formula"": ""C15H27N2O8PRS"", ""charge"": -1, ""weight"": ""426.4183000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 butso3	butanesulfonate	C4H10O3S	"{""7.2"": {""formula"": ""C4H9O3S"", ""charge"": -1, ""weight"": ""137.1721000000""}, ""7"": {""formula"": ""C4H9O3S"", ""charge"": -1, ""weight"": ""137.1721000000""}}"						
 ca2	Calcium	Ca	"{""7.2"": {""formula"": ""Ca"", ""charge"": 2, ""weight"": ""40.0800000000""}, ""7"": {""formula"": ""Ca"", ""charge"": 2, ""weight"": ""40.0800000000""}}"		798468.7199999997				
 camp	cAMP	C10H11N5O6P	"{""7.2"": {""formula"": ""C10H11N5O6P"", ""charge"": -1, ""weight"": ""328.1999000000""}, ""7"": {""formula"": ""C10H11N5O6P"", ""charge"": -1, ""weight"": ""328.1999000000""}}"						
@@ -342,8 +376,10 @@ cbi	Cobinamide	C48H72CoN11O8	"{""7.2"": {""formula"": ""C48H72CoN11O8"", ""charg
 cbl1	Cob(I)alamin	C62H88CoN13O14P	"{""7.2"": {""formula"": ""C62H88CoN13O14P"", ""charge"": -1, ""weight"": ""1329.3612000000""}, ""7"": {""formula"": ""C62H88CoN13O14P"", ""charge"": -1, ""weight"": ""1329.3612000000""}}"						
 cbp	Carbamoyl phosphate	CH4NO5P	"{""7.2"": {""formula"": ""CH2NO5P"", ""charge"": -2, ""weight"": ""139.0028000000""}, ""7"": {""formula"": ""CH2NO5P"", ""charge"": -2, ""weight"": ""139.0028000000""}}"						
 cd2	Cadmium	Cd	"{""7.2"": {""formula"": ""Cd"", ""charge"": 2, ""weight"": ""112.4100000000""}, ""7"": {""formula"": ""Cd"", ""charge"": 2, ""weight"": ""112.4100000000""}}"						
-cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	"{""7.2"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	"{""7.2"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	"{""7.2"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""536.6169000000""}, ""7"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""536.6169000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	"{""7.2"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""508.5633000000""}, ""7"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""508.5633000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 cdp	CDP	C9H15N3O11P2	"{""7.2"": {""formula"": ""C9H13N3O11P2"", ""charge"": -2, ""weight"": ""401.1597000000""}, ""7"": {""formula"": ""C9H13N3O11P2"", ""charge"": -2, ""weight"": ""401.1597000000""}}"						
 cdpdddecg	CDP-1,2-didodecanoylglycerol	C36H65N3O15P2	"{""7.2"": {""formula"": ""C36H63N3O15P2"", ""charge"": -2, ""weight"": ""839.8477000000""}, ""7"": {""formula"": ""C36H63N3O15P2"", ""charge"": -2, ""weight"": ""839.8477000000""}}"						
 cdpdhdec9eg	CDP-1,2-dihexadec-9-enoylglycerol	C44H77N3O15P2	"{""7.2"": {""formula"": ""C44H75N3O15P2"", ""charge"": -2, ""weight"": ""948.0305000000""}, ""7"": {""formula"": ""C44H75N3O15P2"", ""charge"": -2, ""weight"": ""948.0305000000""}}"						
@@ -396,7 +432,8 @@ cynt	Cyanate	CHNO	"{""7.2"": {""formula"": ""CNO"", ""charge"": -1, ""weight"": 
 cys-D	D-Cysteine	C3H7NO2S	"{""7.2"": {""formula"": ""C3H7NO2S"", ""charge"": 0, ""weight"": ""121.1533000000""}, ""7"": {""formula"": ""C3H7NO2S"", ""charge"": 0, ""weight"": ""121.1533000000""}}"						
 cys-L	L-Cysteine	C3H7NO2S	"{""7.2"": {""formula"": ""C3H7NO2S"", ""charge"": 0, ""weight"": ""121.1533000000""}, ""7"": {""formula"": ""C3H7NO2S"", ""charge"": 0, ""weight"": ""121.1533000000""}}"		15436724.799999995				
 cyst-L	L-Cystathionine	C7H14N2O4S	"{""7.2"": {""formula"": ""C7H14N2O4S"", ""charge"": 0, ""weight"": ""222.2576000000""}, ""7"": {""formula"": ""C7H14N2O4S"", ""charge"": 0, ""weight"": ""222.2576000000""}}"						
-cystrna	L-Cysteinyl-tRNA(Cys)	C3H6NOSR	"{""7.2"": {""formula"": ""C13H17N6O4RS"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C13H18N6O4RS"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+cystrna	L-Cysteinyl-tRNA(Cys)	C3H6NOSR	"{""7.2"": {""formula"": ""C13H17N6O4RS"", ""charge"": 0, ""weight"": ""353.3753000000""}, ""7"": {""formula"": ""C13H18N6O4RS"", ""charge"": 1, ""weight"": ""354.3832000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 cytd	Cytidine	C9H13N3O5	"{""7.2"": {""formula"": ""C9H13N3O5"", ""charge"": 0, ""weight"": ""243.2177000000""}, ""7"": {""formula"": ""C9H13N3O5"", ""charge"": 0, ""weight"": ""243.2177000000""}}"						
 dad-2	Deoxyadenosine	C10H13N5O3	"{""7.2"": {""formula"": ""C10H13N5O3"", ""charge"": 0, ""weight"": ""251.2447000000""}, ""7"": {""formula"": ""C10H13N5O3"", ""charge"": 0, ""weight"": ""251.2447000000""}}"						
 dad-5	5'-Deoxyadenosine	C10H13N5O3	"{""7.2"": {""formula"": ""C10H13N5O3"", ""charge"": 0, ""weight"": ""251.2447000000""}, ""7"": {""formula"": ""C10H13N5O3"", ""charge"": 0, ""weight"": ""251.2447000000""}}"						
@@ -407,7 +444,8 @@ datp	dATP	C10H16N5O12P3	"{""7.2"": {""formula"": ""C10H13N5O12P3"", ""charge"": 
 db4p	3,4-dihydroxy-2-butanone 4-phosphate	C4H9O6P	"{""7.2"": {""formula"": ""C4H8O6P"", ""charge"": -1, ""weight"": ""183.0752000000""}, ""7"": {""formula"": ""C4H8O6P"", ""charge"": -1, ""weight"": ""183.0752000000""}}"						
 dc2coa	trans-Dec-2-enoyl-CoA	C31H52N7O17P3S	"{""7.2"": {""formula"": ""C31H49N7O17P3S"", ""charge"": -3, ""weight"": ""916.7421000000""}, ""7"": {""formula"": ""C31H49N7O17P3S"", ""charge"": -3, ""weight"": ""916.7421000000""}}"						
 dca	Decanoate (n-C10:0)	C10H20O2	"{""7.2"": {""formula"": ""C10H19O2"", ""charge"": -1, ""weight"": ""171.2581000000""}, ""7"": {""formula"": ""C10H19O2"", ""charge"": -1, ""weight"": ""171.2581000000""}}"						
-dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	"{""7.2"": {""formula"": ""C21H39N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C21H39N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	"{""7.2"": {""formula"": ""C21H39N2O8PRS"", ""charge"": -1, ""weight"": ""510.5791000000""}, ""7"": {""formula"": ""C21H39N2O8PRS"", ""charge"": -1, ""weight"": ""510.5791000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 dcacoa	Decanoyl-CoA (n-C10:0CoA)	C31H54N7O17P3S	"{""7.2"": {""formula"": ""C31H51N7O17P3S"", ""charge"": -3, ""weight"": ""918.7579000000""}, ""7"": {""formula"": ""C31H51N7O17P3S"", ""charge"": -3, ""weight"": ""918.7579000000""}}"						
 dcamp	N6-(1,2-Dicarboxyethyl)-AMP	C14H18N5O11P	"{""7.2"": {""formula"": ""C14H15N5O11P"", ""charge"": -3, ""weight"": ""460.2705000000""}, ""7"": {""formula"": ""C14H15N5O11P"", ""charge"": -3, ""weight"": ""460.2705000000""}}"						
 dcdp	dCDP	C9H15N3O10P2	"{""7.2"": {""formula"": ""C9H13N3O10P2"", ""charge"": -2, ""weight"": ""385.1607000000""}, ""7"": {""formula"": ""C9H13N3O10P2"", ""charge"": -2, ""weight"": ""385.1607000000""}}"						
@@ -416,7 +454,8 @@ dctp	dCTP	C9H16N3O13P3	"{""7.2"": {""formula"": ""C9H13N3O13P3"", ""charge"": -3
 dcyt	Deoxycytidine	C9H13N3O4	"{""7.2"": {""formula"": ""C9H13N3O4"", ""charge"": 0, ""weight"": ""227.2187000000""}, ""7"": {""formula"": ""C9H13N3O4"", ""charge"": 0, ""weight"": ""227.2187000000""}}"						
 dd2coa	trans-Dodec-2-enoyl-CoA	C33H56N7O17P3S	"{""7.2"": {""formula"": ""C33H53N7O17P3S"", ""charge"": -3, ""weight"": ""944.7957000000""}, ""7"": {""formula"": ""C33H53N7O17P3S"", ""charge"": -3, ""weight"": ""944.7957000000""}}"						
 ddca	Dodecanoate (n-C12:0)	C12H24O2	"{""7.2"": {""formula"": ""C12H23O2"", ""charge"": -1, ""weight"": ""199.3117000000""}, ""7"": {""formula"": ""C12H23O2"", ""charge"": -1, ""weight"": ""199.3117000000""}}"						
-ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	"{""7.2"": {""formula"": ""C23H43N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H43N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	"{""7.2"": {""formula"": ""C23H43N2O8PRS"", ""charge"": -1, ""weight"": ""538.6327000000""}, ""7"": {""formula"": ""C23H43N2O8PRS"", ""charge"": -1, ""weight"": ""538.6327000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 ddcacoa	Dodecanoyl-CoA (n-C12:0CoA)	C33H58N7O17P3S	"{""7.2"": {""formula"": ""C33H55N7O17P3S"", ""charge"": -3, ""weight"": ""946.8115000000""}, ""7"": {""formula"": ""C33H55N7O17P3S"", ""charge"": -3, ""weight"": ""946.8115000000""}}"						
 dgdp	dGDP	C10H12N5O10P2	"{""7.2"": {""formula"": ""C10H13N5O10P2"", ""charge"": -2, ""weight"": ""425.1857000000""}, ""7"": {""formula"": ""C10H13N5O10P2"", ""charge"": -2, ""weight"": ""425.1857000000""}}"						
 dgmp	dGMP	C10H14N5O7P	"{""7.2"": {""formula"": ""C10H13N5O7P"", ""charge"": -1, ""weight"": ""346.2147000000""}, ""7"": {""formula"": ""C10H13N5O7P"", ""charge"": -1, ""weight"": ""346.2147000000""}}"						
@@ -447,14 +486,22 @@ dmso	Dimethyl sulfoxide	C2H6OS	"{""7.2"": {""formula"": ""C2H6OS"", ""charge"": 
 dnad	Deamino-NAD+	C21H27N6O15P2	"{""7.2"": {""formula"": ""C21H24N6O15P2"", ""charge"": -2, ""weight"": ""662.3956000000""}, ""7"": {""formula"": ""C21H24N6O15P2"", ""charge"": -2, ""weight"": ""662.3956000000""}}"						
 dopa	Dopamine	C8H11NO2	"{""7.2"": {""formula"": ""C8H12NO2"", ""charge"": 1, ""weight"": ""154.1878000000""}, ""7"": {""formula"": ""C8H12NO2"", ""charge"": 1, ""weight"": ""154.1878000000""}}"						
 dpcoa	Dephospho-CoA	C21H35N7O13P2S	"{""7.2"": {""formula"": ""C21H33N7O13P2S"", ""charge"": -2, ""weight"": ""685.5357000000""}, ""7"": {""formula"": ""C21H33N7O13P2S"", ""charge"": -2, ""weight"": ""685.5357000000""}}"						
-dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbard	periplasmic protein disulfide isomerase I (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbcox	protein disulfide isomerase II (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbcrd	protein disulfide isomerase II (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbdox	fused thiol:disulfide interchange protein (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbdrd	fused thiol:disulfide interchange protein (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbard	periplasmic protein disulfide isomerase I (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbcox	protein disulfide isomerase II (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbcrd	protein disulfide isomerase II (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbdox	fused thiol:disulfide interchange protein (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbdrd	fused thiol:disulfide interchange protein (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 dscl	dihydrosirohydrochlorin	C42H48N4O16	"{""7.2"": {""formula"": ""C42H41N4O16"", ""charge"": -7, ""weight"": ""857.7979000000""}, ""7"": {""formula"": ""C42H41N4O16"", ""charge"": -7, ""weight"": ""857.7979000000""}}"						
 dtbt	Dethiobiotin	C10H18N2O3	"{""7.2"": {""formula"": ""C10H17N2O3"", ""charge"": -1, ""weight"": ""213.2553000000""}, ""7"": {""formula"": ""C10H17N2O3"", ""charge"": -1, ""weight"": ""213.2553000000""}}"						
 dtdp	dTDP	C10H16N2O11P2	"{""7.2"": {""formula"": ""C10H14N2O11P2"", ""charge"": -2, ""weight"": ""400.1716000000""}, ""7"": {""formula"": ""C10H14N2O11P2"", ""charge"": -2, ""weight"": ""400.1716000000""}}"						
@@ -503,9 +550,12 @@ feenter	Fe-enterobactin	C30H24FeN3O15	"{""7.2"": {""formula"": ""C30H27FeN3O15""
 feoxam	ferroxamine	C25H45FeN6O8	"{""7.2"": {""formula"": ""C25H46FeN6O8"", ""charge"": 1, ""weight"": ""614.5194000000""}, ""7"": {""formula"": ""C25H46FeN6O8"", ""charge"": 1, ""weight"": ""614.5194000000""}}"						
 feoxam-un	ferroxamine minus Fe(3)	C25H48N6O8	"{""7.2"": {""formula"": ""C25H49N6O8"", ""charge"": 1, ""weight"": ""561.6961000000""}, ""7"": {""formula"": ""C25H49N6O8"", ""charge"": 1, ""weight"": ""561.6961000000""}}"						
 fgam	N2-Formyl-N1-(5-phospho-D-ribosyl)glycinamide	C8H15N2O9P	"{""7.2"": {""formula"": ""C8H14N2O9P"", ""charge"": -1, ""weight"": ""313.1776000000""}, ""7"": {""formula"": ""C8H14N2O9P"", ""charge"": -1, ""weight"": ""313.1776000000""}}"						
-fldox	flavodoxin (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-fldrd	flavodoxin (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-fmettrna	N-Formylmethionyl-tRNA	C6H9NO2SR	"{""7.2"": {""formula"": ""C16H21N6O5RS"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C16H21N6O5RS"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+fldox	flavodoxin (oxidized)	X	"{""7.2"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}, ""7"": {""formula"": ""X"", ""charge"": 0, ""weight"": ""0.0000000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+fldrd	flavodoxin (reduced)	XH2	"{""7.2"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}, ""7"": {""formula"": ""XH2"", ""charge"": 0, ""weight"": ""2.0158000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+fmettrna	N-Formylmethionyl-tRNA	C6H9NO2SR	"{""7.2"": {""formula"": ""C16H21N6O5RS"", ""charge"": 0, ""weight"": ""409.4389000000""}, ""7"": {""formula"": ""C16H21N6O5RS"", ""charge"": 0, ""weight"": ""409.4389000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 fmn	FMN	C17H21N4O9P	"{""7.2"": {""formula"": ""C17H20N4O9P"", ""charge"": -1, ""weight"": ""455.3380000000""}, ""7"": {""formula"": ""C17H20N4O9P"", ""charge"": -1, ""weight"": ""455.3380000000""}}"						
 fmnh2	Reduced FMN	C17H21N4O9P	"{""7.2"": {""formula"": ""C17H22N4O9P"", ""charge"": -1, ""weight"": ""457.3538000000""}, ""7"": {""formula"": ""C17H22N4O9P"", ""charge"": -1, ""weight"": ""457.3538000000""}}"						
 for	Formate	CH2O2	"{""7.2"": {""formula"": ""CHO2"", ""charge"": -1, ""weight"": ""45.0169000000""}, ""7"": {""formula"": ""CHO2"", ""charge"": -1, ""weight"": ""45.0169000000""}}"						
@@ -562,14 +612,16 @@ glcr	D-Glucarate	C6H10O8	"{""7.2"": {""formula"": ""C6H8O8"", ""charge"": -2, ""
 glcur	D-Glucuronate	C6H10O7	"{""7.2"": {""formula"": ""C6H9O7"", ""charge"": -1, ""weight"": ""193.1301000000""}, ""7"": {""formula"": ""C6H9O7"", ""charge"": -1, ""weight"": ""193.1301000000""}}"						
 glcur1p	D-Glucuronate 1-phosphate	C6H8O10P	"{""7.2"": {""formula"": ""C6H9O10P"", ""charge"": -2, ""weight"": ""272.1011000000""}, ""7"": {""formula"": ""C6H9O10P"", ""charge"": -2, ""weight"": ""272.1011000000""}}"						
 gln-L	L-Glutamine	C5H10N2O3	"{""7.2"": {""formula"": ""C5H10N2O3"", ""charge"": 0, ""weight"": ""146.1450000000""}, ""7"": {""formula"": ""C5H10N2O3"", ""charge"": 0, ""weight"": ""146.1450000000""}}"		44358249.599999994				
-glntrna	L-Glutaminyl-tRNA(Gln)	C5H9N2O2R	"{""7.2"": {""formula"": ""C15H21N7O5R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H21N7O5R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+glntrna	L-Glutaminyl-tRNA(Gln)	C5H9N2O2R	"{""7.2"": {""formula"": ""C15H21N7O5R"", ""charge"": 1, ""weight"": ""379.3749000000""}, ""7"": {""formula"": ""C15H21N7O5R"", ""charge"": 1, ""weight"": ""379.3749000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 glu-D	D-Glutamate	C5H9NO4	"{""7.2"": {""formula"": ""C5H8NO4"", ""charge"": -1, ""weight"": ""146.1212000000""}, ""7"": {""formula"": ""C5H8NO4"", ""charge"": -1, ""weight"": ""146.1212000000""}}"						
 glu-L	L-Glutamate	C5H9NO4	"{""7.2"": {""formula"": ""C5H8NO4"", ""charge"": -1, ""weight"": ""146.1212000000""}, ""7"": {""formula"": ""C5H8NO4"", ""charge"": -1, ""weight"": ""146.1212000000""}}"		44358249.599999994				
 glu1sa	L-Glutamate 1-semialdehyde	C5H9NO3	"{""7.2"": {""formula"": ""C5H9NO3"", ""charge"": 0, ""weight"": ""131.1301000000""}, ""7"": {""formula"": ""C5H9NO3"", ""charge"": 0, ""weight"": ""131.1301000000""}}"						
 glu5p	L-Glutamate 5-phosphate	C5H10NO7P	"{""7.2"": {""formula"": ""C5H8NO7P"", ""charge"": -2, ""weight"": ""225.0922000000""}, ""7"": {""formula"": ""C5H9NO7P"", ""charge"": -1, ""weight"": ""226.1001000000""}}"						
 glu5sa	L-Glutamate 5-semialdehyde	C5H9NO3	"{""7.2"": {""formula"": ""C5H9NO3"", ""charge"": 0, ""weight"": ""131.1301000000""}, ""7"": {""formula"": ""C5H9NO3"", ""charge"": 0, ""weight"": ""131.1301000000""}}"						
 glucys	gamma-L-Glutamyl-L-cysteine	C8H14N2O5S	"{""7.2"": {""formula"": ""C8H13N2O5S"", ""charge"": -1, ""weight"": ""249.2597000000""}, ""7"": {""formula"": ""C8H13N2O5S"", ""charge"": -1, ""weight"": ""249.2597000000""}}"						
-glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	"{""7.2"": {""formula"": ""C15H19N6O6R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H19N6O6R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	"{""7.2"": {""formula"": ""C15H19N6O6R"", ""charge"": 0, ""weight"": ""379.3511000000""}, ""7"": {""formula"": ""C15H19N6O6R"", ""charge"": 0, ""weight"": ""379.3511000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 glx	Glyoxylate	C2H2O3	"{""7.2"": {""formula"": ""C2HO3"", ""charge"": -1, ""weight"": ""73.0269000000""}, ""7"": {""formula"": ""C2HO3"", ""charge"": -1, ""weight"": ""73.0269000000""}}"						
 gly	Glycine	C2H5NO2	"{""7.2"": {""formula"": ""C2H5NO2"", ""charge"": 0, ""weight"": ""75.0665000000""}, ""7"": {""formula"": ""C2H5NO2"", ""charge"": 0, ""weight"": ""75.0665000000""}}"		103266261.27999997				
 glyald	D-Glyceraldehyde	C3H6O3	"{""7.2"": {""formula"": ""C3H6O3"", ""charge"": 0, ""weight"": ""90.0774000000""}, ""7"": {""formula"": ""C3H6O3"", ""charge"": 0, ""weight"": ""90.0774000000""}}"						
@@ -580,15 +632,18 @@ glyc2p	Glycerol 2-phosphate	C3H9O6P	"{""7.2"": {""formula"": ""C3H8O6P"", ""char
 glyc3p	Glycerol 3-phosphate	C3H9O6P	"{""7.2"": {""formula"": ""C3H8O6P"", ""charge"": -1, ""weight"": ""171.0642000000""}, ""7"": {""formula"": ""C3H8O6P"", ""charge"": -1, ""weight"": ""171.0642000000""}}"						
 glyclt	Glycolate	C2H4O3	"{""7.2"": {""formula"": ""C2H3O3"", ""charge"": -1, ""weight"": ""75.0427000000""}, ""7"": {""formula"": ""C2H3O3"", ""charge"": -1, ""weight"": ""75.0427000000""}}"						
 glycogen	glycogen	C6H10O5	"{""7.2"": {""formula"": ""C6H10O5"", ""charge"": 0, ""weight"": ""162.1400000000""}, ""7"": {""formula"": ""C6H10O5"", ""charge"": 0, ""weight"": ""162.1400000000""}}"						
-glytrna	Glycyl-tRNA(Gly)	C2H4NOR	"{""7.2"": {""formula"": ""C12H15N6O4R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C12H16N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+glytrna	Glycyl-tRNA(Gly)	C2H4NOR	"{""7.2"": {""formula"": ""C12H15N6O4R"", ""charge"": 0, ""weight"": ""307.2885000000""}, ""7"": {""formula"": ""C12H16N6O4R"", ""charge"": 1, ""weight"": ""308.2964000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 gmhep17bp	D-Glycero-D-manno-heptose 1,7-bisphosphate	C7H12O13P2	"{""7.2"": {""formula"": ""C7H14O13P2"", ""charge"": -2, ""weight"": ""368.1226000000""}, ""7"": {""formula"": ""C7H14O13P2"", ""charge"": -2, ""weight"": ""368.1226000000""}}"						
 gmhep1p	D-Glycero-D-manno-heptose 1-phosphate	C7H13O10P	"{""7.2"": {""formula"": ""C7H14O10P"", ""charge"": -1, ""weight"": ""289.1516000000""}, ""7"": {""formula"": ""C7H14O10P"", ""charge"": -1, ""weight"": ""289.1516000000""}}"						
 gmhep7p	D-Glycero-D-manno-heptose 7-phosphate	C7H13O10P	"{""7.2"": {""formula"": ""C7H14O10P"", ""charge"": -1, ""weight"": ""289.1516000000""}, ""7"": {""formula"": ""C7H14O10P"", ""charge"": -1, ""weight"": ""289.1516000000""}}"						
 gmp	GMP	C10H12N5O8P	"{""7.2"": {""formula"": ""C10H13N5O8P"", ""charge"": -1, ""weight"": ""362.2137000000""}, ""7"": {""formula"": ""C10H13N5O8P"", ""charge"": -1, ""weight"": ""362.2137000000""}}"						
 gp4g	P1,P4-Bis(5'-guanosyl) tetraphosphate	C20H24N10O21P4	"{""7.2"": {""formula"": ""C20H24N10O21P4"", ""charge"": -4, ""weight"": ""864.3546000000""}, ""7"": {""formula"": ""C20H24N10O21P4"", ""charge"": -4, ""weight"": ""864.3546000000""}}"						
 grdp	Geranyl diphosphate	C10H20O7P2	"{""7.2"": {""formula"": ""C10H18O7P2"", ""charge"": -2, ""weight"": ""312.1932000000""}, ""7"": {""formula"": ""C10H18O7P2"", ""charge"": -2, ""weight"": ""312.1932000000""}}"						
-grxox	glutaredoxin (oxidized)	X	"{""7.2"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-grxrd	glutaredoxin (reduced)	XH2	"{""7.2"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+grxox	glutaredoxin (oxidized)	X	"{""7.2"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""189.2463000000""}, ""7"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""189.2463000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+grxrd	glutaredoxin (reduced)	XH2	"{""7.2"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""191.2621000000""}, ""7"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""191.2621000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 gsn	Guanosine	C10H13N5O5	"{""7.2"": {""formula"": ""C10H13N5O5"", ""charge"": 0, ""weight"": ""283.2427000000""}, ""7"": {""formula"": ""C10H13N5O5"", ""charge"": 0, ""weight"": ""283.2427000000""}}"						
 gthox	Oxidized glutathione	C20H32N6O12S2	"{""7.2"": {""formula"": ""C20H30N6O12S2"", ""charge"": -2, ""weight"": ""610.6070000000""}, ""7"": {""formula"": ""C20H30N6O12S2"", ""charge"": -2, ""weight"": ""610.6070000000""}}"						
 gthrd	Reduced glutathione	C10H17N3O6S	"{""7.2"": {""formula"": ""C10H16N3O6S"", ""charge"": -1, ""weight"": ""306.3114000000""}, ""7"": {""formula"": ""C10H16N3O6S"", ""charge"": -1, ""weight"": ""306.3114000000""}}"						
@@ -609,15 +664,18 @@ hdca	Hexadecanoate (n-C16:0)	C16H32O2	"{""7.2"": {""formula"": ""C16H31O2"", ""c
 hdcea	Hexadecenoate (n-C16:1)	C16H30O2	"{""7.2"": {""formula"": ""C16H29O2"", ""charge"": -1, ""weight"": ""253.4031000000""}, ""7"": {""formula"": ""C16H29O2"", ""charge"": -1, ""weight"": ""253.4031000000""}}"						
 hdcoa	Hexadecenoyl-CoA (n-C16:1CoA)	C37H60N7O17P3S	"{""7.2"": {""formula"": ""C37H61N7O17P3S"", ""charge"": -3, ""weight"": ""1000.9029000000""}, ""7"": {""formula"": ""C37H61N7O17P3S"", ""charge"": -3, ""weight"": ""1000.9029000000""}}"						
 hdd2coa	trans-Hexadec-2-enoyl-CoA	C37H64N7O17P3S	"{""7.2"": {""formula"": ""C37H61N7O17P3S"", ""charge"": -3, ""weight"": ""1000.9029000000""}, ""7"": {""formula"": ""C37H61N7O17P3S"", ""charge"": -3, ""weight"": ""1000.9029000000""}}"						
-hdeACP	cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)	C27H49N2O8PRS	"{""7.2"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+hdeACP	cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)	C27H49N2O8PRS	"{""7.2"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""592.7241000000""}, ""7"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""592.7241000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 hemeO	Heme O	C49H58FeN4O5	"{""7.2"": {""formula"": ""C49H56FeN4O5"", ""charge"": -2, ""weight"": ""836.8514000000""}, ""7"": {""formula"": ""C49H56FeN4O5"", ""charge"": -2, ""weight"": ""836.8514000000""}}"						
-hexACP	Hexanoyl-ACP (n-C6:0ACP)	C17H31N2O8PRS	"{""7.2"": {""formula"": ""C17H31N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C17H31N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+hexACP	Hexanoyl-ACP (n-C6:0ACP)	C17H31N2O8PRS	"{""7.2"": {""formula"": ""C17H31N2O8PRS"", ""charge"": -1, ""weight"": ""454.4719000000""}, ""7"": {""formula"": ""C17H31N2O8PRS"", ""charge"": -1, ""weight"": ""454.4719000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 hg2	Hg2+	Hg	"{""7.2"": {""formula"": ""Hg"", ""charge"": 2, ""weight"": ""200.5900000000""}, ""7"": {""formula"": ""Hg"", ""charge"": 2, ""weight"": ""200.5900000000""}}"						
 hhlipa	heptosyl-heptosyl-kdo2-lipidA	C124H226N2O51P2	"{""7.2"": {""formula"": ""C124H222N2O51P2"", ""charge"": -4, ""weight"": ""2619.0288000000""}, ""7"": {""formula"": ""C124H222N2O51P2"", ""charge"": -4, ""weight"": ""2619.0288000000""}}"						
 his-L	L-Histidine	C6H9N3O2	"{""7.2"": {""formula"": ""C6H9N3O2"", ""charge"": 0, ""weight"": ""155.1561000000""}, ""7"": {""formula"": ""C6H9N3O2"", ""charge"": 0, ""weight"": ""155.1561000000""}}"		15969037.279999996				
 hisp	L-Histidinol phosphate	C6H12N3O4P	"{""7.2"": {""formula"": ""C6H12N3O4P"", ""charge"": 0, ""weight"": ""221.1518000000""}, ""7"": {""formula"": ""C6H12N3O4P"", ""charge"": 0, ""weight"": ""221.1518000000""}}"						
 histd	L-Histidinol	C6H11N3O	"{""7.2"": {""formula"": ""C6H12N3O"", ""charge"": 1, ""weight"": ""142.1808000000""}, ""7"": {""formula"": ""C6H13N3O"", ""charge"": 2, ""weight"": ""143.1887000000""}}"						
-histrna	L-Histidyl-tRNA(His)	C6H8N3OR	"{""7.2"": {""formula"": ""C16H19N8O4R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C16H20N8O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+histrna	L-Histidyl-tRNA(His)	C6H8N3OR	"{""7.2"": {""formula"": ""C16H19N8O4R"", ""charge"": 0, ""weight"": ""387.3781000000""}, ""7"": {""formula"": ""C16H20N8O4R"", ""charge"": 1, ""weight"": ""388.3860000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 hkndd	2-Hydroxy-6-oxonona-2,4-diene-1,9-dioate	C9H8O6	"{""7.2"": {""formula"": ""C9H8O6"", ""charge"": -2, ""weight"": ""212.1562000000""}, ""7"": {""formula"": ""C9H8O6"", ""charge"": -2, ""weight"": ""212.1562000000""}}"						
 hkntd	2-hydroxy-6-ketononatrienedioate	C9H6O6	"{""7.2"": {""formula"": ""C9H6O6"", ""charge"": -2, ""weight"": ""210.1404000000""}, ""7"": {""formula"": ""C9H6O6"", ""charge"": -2, ""weight"": ""210.1404000000""}}"						
 hlipa	heptosyl-kdo2-lipidA	C117H214N2O45P2	"{""7.2"": {""formula"": ""C117H210N2O45P2"", ""charge"": -4, ""weight"": ""2426.8630000000""}, ""7"": {""formula"": ""C117H210N2O45P2"", ""charge"": -4, ""weight"": ""2426.8630000000""}}"						
@@ -639,7 +697,8 @@ icolipa	inner core oligosaccharide lipid A (E coli)	C145H262N2O74P4	"{""7.2"": {
 idon-L	L-Idonate	C6H11O7	"{""7.2"": {""formula"": ""C6H11O7"", ""charge"": -1, ""weight"": ""195.1459000000""}, ""7"": {""formula"": ""C6H11O7"", ""charge"": -1, ""weight"": ""195.1459000000""}}"						
 idp	IDP	C10H14N4O11P2	"{""7.2"": {""formula"": ""C10H12N4O11P2"", ""charge"": -2, ""weight"": ""426.1698000000""}, ""7"": {""formula"": ""C10H12N4O11P2"", ""charge"": -2, ""weight"": ""426.1698000000""}}"						
 ile-L	L-Isoleucine	C6H13NO2	"{""7.2"": {""formula"": ""C6H13NO2"", ""charge"": 0, ""weight"": ""131.1737000000""}, ""7"": {""formula"": ""C6H13NO2"", ""charge"": 0, ""weight"": ""131.1737000000""}}"		48971568.23999998				
-iletrna	L-Isoleucyl-tRNA(Ile)	C6H12NOR	"{""7.2"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+iletrna	L-Isoleucyl-tRNA(Ile)	C6H12NOR	"{""7.2"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""364.4036000000""}, ""7"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""364.4036000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 imacp	3-(Imidazol-4-yl)-2-oxopropyl phosphate	C6H9N2O5P	"{""7.2"": {""formula"": ""C6H8N2O5P"", ""charge"": -1, ""weight"": ""219.1122000000""}, ""7"": {""formula"": ""C6H8N2O5P"", ""charge"": -1, ""weight"": ""219.1122000000""}}"						
 imp	IMP	C10H13N4O8P	"{""7.2"": {""formula"": ""C10H12N4O8P"", ""charge"": -1, ""weight"": ""347.1988000000""}, ""7"": {""formula"": ""C10H12N4O8P"", ""charge"": -1, ""weight"": ""347.1988000000""}}"						
 indole	Indole	C8H7N	"{""7.2"": {""formula"": ""C8H7N"", ""charge"": 0, ""weight"": ""117.1503000000""}, ""7"": {""formula"": ""C8H7N"", ""charge"": 0, ""weight"": ""117.1503000000""}}"						
@@ -662,20 +721,24 @@ lald-D	D-Lactaldehyde	C3H6O2	"{""7.2"": {""formula"": ""C3H6O2"", ""charge"": 0,
 lald-L	L-Lactaldehyde	C3H6O2	"{""7.2"": {""formula"": ""C3H6O2"", ""charge"": 0, ""weight"": ""74.0784000000""}, ""7"": {""formula"": ""C3H6O2"", ""charge"": 0, ""weight"": ""74.0784000000""}}"						
 lcts	Lactose	C12H22O11	"{""7.2"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}, ""7"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}}"						
 leu-L	L-Leucine	C6H13NO2	"{""7.2"": {""formula"": ""C6H13NO2"", ""charge"": 0, ""weight"": ""131.1737000000""}, ""7"": {""formula"": ""C6H13NO2"", ""charge"": 0, ""weight"": ""131.1737000000""}}"		75941505.35999998				
-leutrna	L-Leucyl-tRNA(Leu)	C6H12NOR	"{""7.2"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+leutrna	L-Leucyl-tRNA(Leu)	C6H12NOR	"{""7.2"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""364.4036000000""}, ""7"": {""formula"": ""C16H24N6O4R"", ""charge"": 1, ""weight"": ""364.4036000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 lgt-S	(R)-S-Lactoylglutathione	C13H21N3O8S	"{""7.2"": {""formula"": ""C13H20N3O8S"", ""charge"": -1, ""weight"": ""378.3740000000""}, ""7"": {""formula"": ""C13H20N3O8S"", ""charge"": -1, ""weight"": ""378.3740000000""}}"						
 lipa	KDO(2)-lipid (A)	C110H196N2O39P2	"{""7.2"": {""formula"": ""C110H198N2O39P2"", ""charge"": -4, ""weight"": ""2234.6972000000""}, ""7"": {""formula"": ""C110H198N2O39P2"", ""charge"": -4, ""weight"": ""2234.6972000000""}}"						
 lipa_cold	cold adapted KDO(2)-lipid (A)	C114H202N2O39P2	"{""7.2"": {""formula"": ""C114H204N2O39P2"", ""charge"": -4, ""weight"": ""2288.7886000000""}, ""7"": {""formula"": ""C114H204N2O39P2"", ""charge"": -4, ""weight"": ""2288.7886000000""}}"						
 lipidA	2,3,2'3'-Tetrakis(beta-hydroxymyristoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1,4'-bisphosphate	C68H130N2O23P2	"{""7.2"": {""formula"": ""C68H128N2O23P2"", ""charge"": -2, ""weight"": ""1403.6982000000""}, ""7"": {""formula"": ""C68H128N2O23P2"", ""charge"": -2, ""weight"": ""1403.6982000000""}}"						
 lipidAds	Lipid A Disaccharide	C68H127N2O20P	"{""7.2"": {""formula"": ""C68H128N2O20P"", ""charge"": -1, ""weight"": ""1324.7272000000""}, ""7"": {""formula"": ""C68H128N2O20P"", ""charge"": -1, ""weight"": ""1324.7272000000""}}"						
 lipidX	2,3-Bis(3-hydroxytetradecanoyl)-beta-D-glucosaminyl 1-phosphate	C34H66NO12P	"{""7.2"": {""formula"": ""C34H65NO12P"", ""charge"": -1, ""weight"": ""710.8565000000""}, ""7"": {""formula"": ""C34H65NO12P"", ""charge"": -1, ""weight"": ""710.8565000000""}}"						
-lpp	lipoprotein	XC16H30O1	"{""7.2"": {""formula"": ""C19H35NO2R2S"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H35NO2R2S"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+lpp	lipoprotein	XC16H30O1	"{""7.2"": {""formula"": ""C19H35NO2R2S"", ""charge"": 0, ""weight"": ""341.5505000000""}, ""7"": {""formula"": ""C19H35NO2R2S"", ""charge"": 0, ""weight"": ""341.5505000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 lys-L	L-Lysine	C6H14N2O2	"{""7.2"": {""formula"": ""C6H15N2O2"", ""charge"": 1, ""weight"": ""147.1965000000""}, ""7"": {""formula"": ""C6H15N2O2"", ""charge"": 1, ""weight"": ""147.1965000000""}}"		57843218.15999998				
-lystrna	L-Lysine-tRNA (Lys)	C6H14N2OR	"{""7.2"": {""formula"": ""C16H26N7O4R"", ""charge"": 2, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C16H26N7O4R"", ""charge"": 2, ""weight"": ""-1.0000000000""}}"						
+lystrna	L-Lysine-tRNA (Lys)	C6H14N2OR	"{""7.2"": {""formula"": ""C16H26N7O4R"", ""charge"": 2, ""weight"": ""380.4264000000""}, ""7"": {""formula"": ""C16H26N7O4R"", ""charge"": 2, ""weight"": ""380.4264000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 lyx-L	L-Lyxose	C5H10O5	"{""7.2"": {""formula"": ""C5H10O5"", ""charge"": 0, ""weight"": ""150.1290000000""}, ""7"": {""formula"": ""C5H10O5"", ""charge"": 0, ""weight"": ""150.1290000000""}}"						
 mal-D	D-Malate	C4H6O5	"{""7.2"": {""formula"": ""C4H4O5"", ""charge"": -2, ""weight"": ""132.0706000000""}, ""7"": {""formula"": ""C4H4O5"", ""charge"": -2, ""weight"": ""132.0706000000""}}"						
 mal-L	L-Malate	C4H6O5	"{""7.2"": {""formula"": ""C4H4O5"", ""charge"": -2, ""weight"": ""132.0706000000""}, ""7"": {""formula"": ""C4H4O5"", ""charge"": -2, ""weight"": ""132.0706000000""}}"						
-malACP	Malonyl-[acyl-carrier protein]	C3H3O3R	"{""7.2"": {""formula"": ""C14H22N2O10PRS"", ""charge"": -2, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C14H22N2O10PRS"", ""charge"": -2, ""weight"": ""-1.0000000000""}}"						
+malACP	Malonyl-[acyl-carrier protein]	C3H3O3R	"{""7.2"": {""formula"": ""C14H22N2O10PRS"", ""charge"": -2, ""weight"": ""441.3658000000""}, ""7"": {""formula"": ""C14H22N2O10PRS"", ""charge"": -2, ""weight"": ""441.3658000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 malcoa	Malonyl-CoA	C24H38N7O19P3S	"{""7.2"": {""formula"": ""C24H34N7O19P3S"", ""charge"": -4, ""weight"": ""849.5446000000""}, ""7"": {""formula"": ""C24H34N7O19P3S"", ""charge"": -4, ""weight"": ""849.5446000000""}}"						
 malt	Maltose	C12H22O11	"{""7.2"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}, ""7"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}}"						
 malt6p	Maltose 6'-phosphate	C12H23O14P	"{""7.2"": {""formula"": ""C12H22O14P"", ""charge"": -1, ""weight"": ""421.2658000000""}, ""7"": {""formula"": ""C12H22O14P"", ""charge"": -1, ""weight"": ""421.2658000000""}}"						
@@ -697,7 +760,8 @@ met-L	L-Methionine	C5H11NO2S	"{""7.2"": {""formula"": ""C5H11NO2S"", ""charge"":
 methf	5,10-Methenyltetrahydrofolate	C20H22N7O6	"{""7.2"": {""formula"": ""C20H20N7O6"", ""charge"": -1, ""weight"": ""454.4210000000""}, ""7"": {""formula"": ""C20H20N7O6"", ""charge"": -1, ""weight"": ""454.4210000000""}}"						
 metsox-R-L	L-methionine-R-sulfoxide	C5H11NO3S	"{""7.2"": {""formula"": ""C5H11NO3S"", ""charge"": 0, ""weight"": ""165.2059000000""}, ""7"": {""formula"": ""C5H11NO3S"", ""charge"": 0, ""weight"": ""165.2059000000""}}"						
 metsox-S-L	L-Methionine Sulfoxide	C5H11NO3S	"{""7.2"": {""formula"": ""C5H11NO3S"", ""charge"": 0, ""weight"": ""165.2059000000""}, ""7"": {""formula"": ""C5H11NO3S"", ""charge"": 0, ""weight"": ""165.2059000000""}}"						
-mettrna	L-Methionyl-tRNA (Met)	C5H10NOSR	"{""7.2"": {""formula"": ""C15H22N6O4RS"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H22N6O4RS"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+mettrna	L-Methionyl-tRNA (Met)	C5H10NOSR	"{""7.2"": {""formula"": ""C15H22N6O4RS"", ""charge"": 1, ""weight"": ""382.4368000000""}, ""7"": {""formula"": ""C15H22N6O4RS"", ""charge"": 1, ""weight"": ""382.4368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 mg2	magnesium	Mg	"{""7.2"": {""formula"": ""Mg"", ""charge"": 2, ""weight"": ""24.3050000000""}, ""7"": {""formula"": ""Mg"", ""charge"": 2, ""weight"": ""24.3050000000""}}"		1330781.1999999995				
 mi1p-D	1D-myo-Inositol 1-phosphate	C6H11O9P	"{""7.2"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}, ""7"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}}"						
 micit	methylisocitrate	C7H7O7	"{""7.2"": {""formula"": ""C7H7O7"", ""charge"": -3, ""weight"": ""203.1253000000""}, ""7"": {""formula"": ""C7H7O7"", ""charge"": -3, ""weight"": ""203.1253000000""}}"						
@@ -729,7 +793,8 @@ murein5p5p5p	three linked disacharide pentapeptide murein units (uncrosslinked, 
 murein5px3p	two disacharide linked murein units, pentapeptide corsslinked tripeptide (A2pm->A2pm) (middle of chain)	C74H116N14O39	"{""7.2"": {""formula"": ""C74H112N14O39"", ""charge"": -4, ""weight"": ""1821.7578000000""}, ""7"": {""formula"": ""C74H112N14O39"", ""charge"": -4, ""weight"": ""1821.7578000000""}}"						
 murein5px4p	two disacharide linked murein units, pentapeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)	C77H121N15O40	"{""7.2"": {""formula"": ""C77H117N15O40"", ""charge"": -4, ""weight"": ""1892.8363000000""}, ""7"": {""formula"": ""C77H117N15O40"", ""charge"": -4, ""weight"": ""1892.8363000000""}}"		2341972.6399999997				
 murein5px4px4p	three disacharide linked murein units (pentapeptide crosslinked tetrapeptide (A2pm->D-ala) tetrapeptide corsslinked tetrapeptide (A2pm->D-ala)) (middle of chain)	C114H178N22O59	"{""7.2"": {""formula"": ""C114H172N22O59"", ""charge"": -6, ""weight"": ""2794.7078000000""}, ""7"": {""formula"": ""C114H172N22O59"", ""charge"": -6, ""weight"": ""2794.7078000000""}}"						
-myrsACP	Myristoyl-ACP (n-C14:0ACP)	C25H47N2O8PRS	"{""7.2"": {""formula"": ""C25H47N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H47N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+myrsACP	Myristoyl-ACP (n-C14:0ACP)	C25H47N2O8PRS	"{""7.2"": {""formula"": ""C25H47N2O8PRS"", ""charge"": -1, ""weight"": ""566.6863000000""}, ""7"": {""formula"": ""C25H47N2O8PRS"", ""charge"": -1, ""weight"": ""566.6863000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 n2o	Nitrous oxide	N2O	"{""7.2"": {""formula"": ""HN2O"", ""charge"": 1, ""weight"": ""45.0209000000""}, ""7"": {""formula"": ""HN2O"", ""charge"": 1, ""weight"": ""45.0209000000""}}"						
 n8aspmd	N8-Acetylspermidine	C9H21N3O	"{""7.2"": {""formula"": ""C9H23N3O"", ""charge"": 2, ""weight"": ""189.3007000000""}, ""7"": {""formula"": ""C9H23N3O"", ""charge"": 2, ""weight"": ""189.3007000000""}}"						
 na1	Sodium	Na	"{""7.2"": {""formula"": ""Na"", ""charge"": 1, ""weight"": ""22.9900000000""}, ""7"": {""formula"": ""Na"", ""charge"": 1, ""weight"": ""22.9900000000""}}"						
@@ -755,14 +820,17 @@ o2	O2	O2	"{""7.2"": {""formula"": ""O2"", ""charge"": 0, ""weight"": ""31.998000
 o2s	Superoxide anion	O2	"{""7.2"": {""formula"": ""O2"", ""charge"": -1, ""weight"": ""31.9980000000""}, ""7"": {""formula"": ""O2"", ""charge"": -1, ""weight"": ""31.9980000000""}}"						
 oaa	Oxaloacetate	C4H4O5	"{""7.2"": {""formula"": ""C4H2O5"", ""charge"": -2, ""weight"": ""130.0548000000""}, ""7"": {""formula"": ""C4H2O5"", ""charge"": -2, ""weight"": ""130.0548000000""}}"						
 oc2coa	trans-Oct-2-enoyl-CoA	C29H48N7O18P3S	"{""7.2"": {""formula"": ""C29H45N7O17P3S"", ""charge"": -3, ""weight"": ""888.6885000000""}, ""7"": {""formula"": ""C29H45N7O17P3S"", ""charge"": -3, ""weight"": ""888.6885000000""}}"						
-ocACP	Octanoyl-ACP (n-C8:0ACP)	C19H35N2O8PRS	"{""7.2"": {""formula"": ""C19H35N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H35N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+ocACP	Octanoyl-ACP (n-C8:0ACP)	C19H35N2O8PRS	"{""7.2"": {""formula"": ""C19H35N2O8PRS"", ""charge"": -1, ""weight"": ""482.5255000000""}, ""7"": {""formula"": ""C19H35N2O8PRS"", ""charge"": -1, ""weight"": ""482.5255000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 occoa	Octanoyl-CoA (n-C8:0CoA)	C29H50N7O17P3S	"{""7.2"": {""formula"": ""C29H47N7O17P3S"", ""charge"": -3, ""weight"": ""890.7043000000""}, ""7"": {""formula"": ""C29H47N7O17P3S"", ""charge"": -3, ""weight"": ""890.7043000000""}}"						
 ocdca	octadecanoate (n-C18:0)	C18H36O2	"{""7.2"": {""formula"": ""C18H35O2"", ""charge"": -1, ""weight"": ""283.4725000000""}, ""7"": {""formula"": ""C18H35O2"", ""charge"": -1, ""weight"": ""283.4725000000""}}"						
-ocdcaACP	Octadecanoyl-ACP (n-C18:0ACP)	C29H55N2O8PRS	"{""7.2"": {""formula"": ""C29H55N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H55N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+ocdcaACP	Octadecanoyl-ACP (n-C18:0ACP)	C29H55N2O8PRS	"{""7.2"": {""formula"": ""C29H55N2O8PRS"", ""charge"": -1, ""weight"": ""622.7935000000""}, ""7"": {""formula"": ""C29H55N2O8PRS"", ""charge"": -1, ""weight"": ""622.7935000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 ocdcea	octadecenoate (n-C18:1)	C18H34O2	"{""7.2"": {""formula"": ""C18H33O2"", ""charge"": -1, ""weight"": ""281.4567000000""}, ""7"": {""formula"": ""C18H33O2"", ""charge"": -1, ""weight"": ""281.4567000000""}}"						
 octa	octanoate (n-C8:0)	C8H16O2	"{""7.2"": {""formula"": ""C8H15O2"", ""charge"": -1, ""weight"": ""143.2045000000""}, ""7"": {""formula"": ""C8H15O2"", ""charge"": -1, ""weight"": ""143.2045000000""}}"						
 octdp	all-trans-Octaprenyl diphosphate	C40H68O7P2	"{""7.2"": {""formula"": ""C40H66O7P2"", ""charge"": -2, ""weight"": ""720.9024000000""}, ""7"": {""formula"": ""C40H66O7P2"", ""charge"": -2, ""weight"": ""720.9024000000""}}"						
-octeACP	cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)	C29H53N2O8PRS	"{""7.2"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+octeACP	cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)	C29H53N2O8PRS	"{""7.2"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""620.7777000000""}, ""7"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""620.7777000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 od2coa	trans-Octadec-2-enoyl-CoA	C39H68N7O17P3S	"{""7.2"": {""formula"": ""C39H65N7O17P3S"", ""charge"": -3, ""weight"": ""1028.9565000000""}, ""7"": {""formula"": ""C39H65N7O17P3S"", ""charge"": -3, ""weight"": ""1028.9565000000""}}"						
 odecoa	Octadecenoyl-CoA (n-C18:1CoA)	C39H64N7O17P3S	"{""7.2"": {""formula"": ""C39H65N7O17P3S"", ""charge"": -3, ""weight"": ""1028.9565000000""}, ""7"": {""formula"": ""C39H65N7O17P3S"", ""charge"": -3, ""weight"": ""1028.9565000000""}}"						
 ohpb	2-Oxo-3-hydroxy-4-phosphobutanoate	C4H4O8P	"{""7.2"": {""formula"": ""C4H5O8P"", ""charge"": -2, ""weight"": ""212.0495000000""}, ""7"": {""formula"": ""C4H5O8P"", ""charge"": -2, ""weight"": ""212.0495000000""}}"						
@@ -781,7 +849,8 @@ pa180	1,2-dioctadecanoyl-sn-glycerol 3-phosphate	C39H77O8P1	"{""7.2"": {""formul
 pa181	1,2-dioctadec-11-enoyl-sn-glycerol 3-phosphate	C39H73O8P1	"{""7.2"": {""formula"": ""C39H72O8P"", ""charge"": -1, ""weight"": ""699.9638000000""}, ""7"": {""formula"": ""C39H72O8P"", ""charge"": -1, ""weight"": ""699.9638000000""}}"						
 pac	Phenylacetic acid	C8H7O2	"{""7.2"": {""formula"": ""C8H7O2"", ""charge"": -1, ""weight"": ""135.1413000000""}, ""7"": {""formula"": ""C8H7O2"", ""charge"": -1, ""weight"": ""135.1413000000""}}"						
 pacald	Phenylacetaldehyde	C8H8O	"{""7.2"": {""formula"": ""C8H8O"", ""charge"": 0, ""weight"": ""120.1502000000""}, ""7"": {""formula"": ""C8H8O"", ""charge"": 0, ""weight"": ""120.1502000000""}}"						
-palmACP	Palmitoyl-ACP (n-C16:0ACP)	C27H51N2O8PRS	"{""7.2"": {""formula"": ""C27H51N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H51N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+palmACP	Palmitoyl-ACP (n-C16:0ACP)	C27H51N2O8PRS	"{""7.2"": {""formula"": ""C27H51N2O8PRS"", ""charge"": -1, ""weight"": ""594.7399000000""}, ""7"": {""formula"": ""C27H51N2O8PRS"", ""charge"": -1, ""weight"": ""594.7399000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 pan4p	Pantetheine 4'-phosphate	C11H23N2O7PS	"{""7.2"": {""formula"": ""C11H22N2O7PS"", ""charge"": -1, ""weight"": ""357.3358000000""}, ""7"": {""formula"": ""C11H22N2O7PS"", ""charge"": -1, ""weight"": ""357.3358000000""}}"						
 pant-R	(R)-Pantoate	C6H12O4	"{""7.2"": {""formula"": ""C6H11O4"", ""charge"": -1, ""weight"": ""147.1489000000""}, ""7"": {""formula"": ""C6H11O4"", ""charge"": -1, ""weight"": ""147.1489000000""}}"						
 pap	Adenosine 3',5'-bisphosphate	C10H15N5O10P2	"{""7.2"": {""formula"": ""C10H13N5O10P2"", ""charge"": -2, ""weight"": ""425.1857000000""}, ""7"": {""formula"": ""C10H13N5O10P2"", ""charge"": -2, ""weight"": ""425.1857000000""}}"						
@@ -813,7 +882,8 @@ pgp181	Phosphatidylglycerophosphate (dioctadec-11-enoyl, n-C18:1)	C42H80O13P2	"{
 phaccoa	Phenylacetyl-CoA	C29H42N7O17P3S	"{""7.2"": {""formula"": ""C29H39N7O17P3S"", ""charge"": -3, ""weight"": ""882.6411000000""}, ""7"": {""formula"": ""C29H39N7O17P3S"", ""charge"": -3, ""weight"": ""882.6411000000""}}"						
 phe-L	L-Phenylalanine	C9H11NO2	"{""7.2"": {""formula"": ""C9H11NO2"", ""charge"": 0, ""weight"": ""165.1909000000""}, ""7"": {""formula"": ""C9H11NO2"", ""charge"": 0, ""weight"": ""165.1909000000""}}"		31228268.4				
 pheme	Protoheme	C34H32FeN4O4	"{""7.2"": {""formula"": ""C34H30FeN4O4"", ""charge"": -2, ""weight"": ""614.4820000000""}, ""7"": {""formula"": ""C34H30FeN4O4"", ""charge"": -2, ""weight"": ""614.4820000000""}}"		37588.87999999999				
-phetrna	L-Phenylalanyl-tRNA(Phe)	C9H10NOR	"{""7.2"": {""formula"": ""C19H21N6O4R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H22N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+phetrna	L-Phenylalanyl-tRNA(Phe)	C9H10NOR	"{""7.2"": {""formula"": ""C19H21N6O4R"", ""charge"": 0, ""weight"": ""397.4129000000""}, ""7"": {""formula"": ""C19H22N6O4R"", ""charge"": 1, ""weight"": ""398.4208000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 phhlipa	phospho-heptosyl-heptosyl-kdo2-lipidA	C124H227N2O54P3	"{""7.2"": {""formula"": ""C124H222N2O54P3"", ""charge"": -5, ""weight"": ""2697.9998000000""}, ""7"": {""formula"": ""C124H222N2O54P3"", ""charge"": -5, ""weight"": ""2697.9998000000""}}"						
 phom	O-Phospho-L-homoserine	C4H10NO6P	"{""7.2"": {""formula"": ""C4H9NO6P"", ""charge"": -1, ""weight"": ""198.0901000000""}, ""7"": {""formula"": ""C4H9NO6P"", ""charge"": -1, ""weight"": ""198.0901000000""}}"						
 phphhlipa	phospho-heptosyl-phospho-heptosyl-heptosyl-kdo2-lipidA	C131H240N2O63P4	"{""7.2"": {""formula"": ""C131H233N2O63P4"", ""charge"": -7, ""weight"": ""2968.1287000000""}, ""7"": {""formula"": ""C131H233N2O63P4"", ""charge"": -7, ""weight"": ""2968.1287000000""}}"						
@@ -844,7 +914,8 @@ prfp	1-(5-Phosphoribosyl)-5-[(5-phosphoribosylamino)methylideneamino]imidazole-4
 prlp	5-[(5-phospho-1-deoxyribulos-1-ylamino)methylideneamino]-1-(5-phosphoribosyl)imidazole-4-carboxamide	C15H25N5O15P2	"{""7.2"": {""formula"": ""C15H23N5O15P2"", ""charge"": -2, ""weight"": ""575.3147000000""}, ""7"": {""formula"": ""C15H23N5O15P2"", ""charge"": -2, ""weight"": ""575.3147000000""}}"						
 pro-L	L-Proline	C5H9NO2	"{""7.2"": {""formula"": ""C5H9NO2"", ""charge"": 0, ""weight"": ""115.1311000000""}, ""7"": {""formula"": ""C5H8NO2"", ""charge"": -1, ""weight"": ""114.1232000000""}}"		37261030.8				
 progly	L-Prolinylglycine	C7H12N2O3	"{""7.2"": {""formula"": ""C7H12N2O3"", ""charge"": 0, ""weight"": ""172.1828000000""}, ""7"": {""formula"": ""C7H11N2O3"", ""charge"": -1, ""weight"": ""171.1749000000""}}"						
-protrna	L-Prolyl-tRNA(Pro)	C5H8NOR	"{""7.2"": {""formula"": ""C15H20N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H19N6O4R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+protrna	L-Prolyl-tRNA(Pro)	C5H8NOR	"{""7.2"": {""formula"": ""C15H20N6O4R"", ""charge"": 1, ""weight"": ""348.3610000000""}, ""7"": {""formula"": ""C15H19N6O4R"", ""charge"": 0, ""weight"": ""347.3531000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 prpp	5-Phospho-alpha-D-ribose 1-diphosphate	C5H13O14P3	"{""7.2"": {""formula"": ""C5H10O14P3"", ""charge"": -3, ""weight"": ""387.0420000000""}, ""7"": {""formula"": ""C5H10O14P3"", ""charge"": -3, ""weight"": ""387.0420000000""}}"						
 ps120	phosphatidylserine (didodecanoyl, n-C12:0)	C30H58N1O10P1	"{""7.2"": {""formula"": ""C30H56NO10P"", ""charge"": -2, ""weight"": ""621.7434000000""}, ""7"": {""formula"": ""C30H56NO10P"", ""charge"": -2, ""weight"": ""621.7434000000""}}"						
 ps140	phosphatidylserine (ditetradecanoyl, n-C14:0)	C34H66N1O10P1	"{""7.2"": {""formula"": ""C34H64NO10P"", ""charge"": -2, ""weight"": ""677.8506000000""}, ""7"": {""formula"": ""C34H64NO10P"", ""charge"": -2, ""weight"": ""677.8506000000""}}"						
@@ -887,14 +958,17 @@ sbt-D	D-Sorbitol	C6H14O6	"{""7.2"": {""formula"": ""C6H14O6"", ""charge"": 0, ""
 sbt6p	D-Sorbitol 6-phosphate	C6H15O9P	"{""7.2"": {""formula"": ""C6H14O9P"", ""charge"": -1, ""weight"": ""261.1416000000""}, ""7"": {""formula"": ""C6H14O9P"", ""charge"": -1, ""weight"": ""261.1416000000""}}"						
 sbzcoa	O-Succinylbenzoyl-CoA	C32H44N7O20P3S	"{""7.2"": {""formula"": ""C32H40N7O20P3S"", ""charge"": -4, ""weight"": ""967.6790000000""}, ""7"": {""formula"": ""C32H40N7O20P3S"", ""charge"": -4, ""weight"": ""967.6790000000""}}"						
 scl	sirohydrochlorin	C42H46N4O16	"{""7.2"": {""formula"": ""C42H39N4O16"", ""charge"": -7, ""weight"": ""855.7821000000""}, ""7"": {""formula"": ""C42H39N4O16"", ""charge"": -7, ""weight"": ""855.7821000000""}}"						
-sectrna	L-Selenocysteinyl-tRNA(Sec)	C3H6NOSeR	"{""7.2"": {""formula"": ""C3H6NOSeR"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C3H6NOSeR"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+sectrna	L-Selenocysteinyl-tRNA(Sec)	C3H6NOSeR	"{""7.2"": {""formula"": ""C3H6NOSeR"", ""charge"": 1, ""weight"": ""151.0464000000""}, ""7"": {""formula"": ""C3H6NOSeR"", ""charge"": 1, ""weight"": ""151.0464000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 seln	Selenide	H2Se	"{""7.2"": {""formula"": ""HSe"", ""charge"": -1, ""weight"": ""79.9679000000""}, ""7"": {""formula"": ""HSe"", ""charge"": -1, ""weight"": ""79.9679000000""}}"						
 selnp	Selenophosphate	H3O3PSe	"{""7.2"": {""formula"": ""H2O3PSe"", ""charge"": -1, ""weight"": ""159.9468000000""}, ""7"": {""formula"": ""H2O3PSe"", ""charge"": -1, ""weight"": ""159.9468000000""}}"						
 ser-D	D-Serine	C3H7NO3	"{""7.2"": {""formula"": ""C3H7NO3"", ""charge"": 0, ""weight"": ""105.0923000000""}, ""7"": {""formula"": ""C3H7NO3"", ""charge"": 0, ""weight"": ""105.0923000000""}}"						
 ser-L	L-Serine	C3H7NO3	"{""7.2"": {""formula"": ""C3H7NO3"", ""charge"": 0, ""weight"": ""105.0923000000""}, ""7"": {""formula"": ""C3H7NO3"", ""charge"": 0, ""weight"": ""105.0923000000""}}"		36373899.519999996				
 seramp	L-seryl-AMP	C13H19N6O9P	"{""7.2"": {""formula"": ""C13H20N6O9P"", ""charge"": 1, ""weight"": ""435.3080000000""}, ""7"": {""formula"": ""C13H20N6O9P"", ""charge"": 1, ""weight"": ""435.3080000000""}}"						
-sertrna	L-Seryl-tRNA(Ser)	C3H6NO2R	"{""7.2"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-sertrna(sec)	L-Seryl-tRNA(Sec)	C3H6NO2R	"{""7.2"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+sertrna	L-Seryl-tRNA(Ser)	C3H6NO2R	"{""7.2"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""337.3143000000""}, ""7"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""337.3143000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+sertrna(sec)	L-Seryl-tRNA(Sec)	C3H6NO2R	"{""7.2"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""337.3143000000""}, ""7"": {""formula"": ""C13H17N6O5R"", ""charge"": 0, ""weight"": ""337.3143000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 sheme	Siroheme	C42H46FeN4O16	"{""7.2"": {""formula"": ""C42H36FeN4O16"", ""charge"": -8, ""weight"": ""908.6054000000""}, ""7"": {""formula"": ""C42H36FeN4O16"", ""charge"": -8, ""weight"": ""908.6054000000""}}"		37588.87999999999				
 skm	Shikimate	C7H10O5	"{""7.2"": {""formula"": ""C7H9O5"", ""charge"": -1, ""weight"": ""173.1431000000""}, ""7"": {""formula"": ""C7H9O5"", ""charge"": -1, ""weight"": ""173.1431000000""}}"						
 skm5p	Shikimate 5-phosphate	C7H11O8P	"{""7.2"": {""formula"": ""C7H9O8P"", ""charge"": -2, ""weight"": ""252.1141000000""}, ""7"": {""formula"": ""C7H9O8P"", ""charge"": -2, ""weight"": ""252.1141000000""}}"						
@@ -918,10 +992,14 @@ sucorn	N2-Succinyl-L-ornithine	C9H16N2O5	"{""7.2"": {""formula"": ""C9H15N2O5"",
 sucr	Sucrose	C12H22O11	"{""7.2"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}, ""7"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}}"						
 sucsal	Succinic semialdehyde	C4H6O3	"{""7.2"": {""formula"": ""C4H5O3"", ""charge"": -1, ""weight"": ""101.0805000000""}, ""7"": {""formula"": ""C4H5O3"", ""charge"": -1, ""weight"": ""101.0805000000""}}"						
 sulfac	sulfoacetate	C2H4O5S	"{""7.2"": {""formula"": ""C2H2O5S"", ""charge"": -2, ""weight"": ""138.0928000000""}, ""7"": {""formula"": ""C2H2O5S"", ""charge"": -2, ""weight"": ""138.0928000000""}}"						
-t3c11vaceACP	trans-3-cis-11-vacceoyl-[acyl-carrier protein]	C29H51N2O8PRS	"{""7.2"": {""formula"": ""C29H51N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H51N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-t3c5ddeceACP	trans-3-cis-5-dodecenoyl-[acyl-carrier protein]	C23H39N2O8PRS	"{""7.2"": {""formula"": ""C23H39N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H39N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-t3c7mrseACP	trans-3-cis-7-myristoleoyl-[acyl-carrier protein]	C25H43N2O8PRS	"{""7.2"": {""formula"": ""C25H43N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H43N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-t3c9palmeACP	trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]	C27H47N2O8PRS	"{""7.2"": {""formula"": ""C27H47N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H47N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+t3c11vaceACP	trans-3-cis-11-vacceoyl-[acyl-carrier protein]	C29H51N2O8PRS	"{""7.2"": {""formula"": ""C29H51N2O8PRS"", ""charge"": -1, ""weight"": ""618.7619000000""}, ""7"": {""formula"": ""C29H51N2O8PRS"", ""charge"": -1, ""weight"": ""618.7619000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+t3c5ddeceACP	trans-3-cis-5-dodecenoyl-[acyl-carrier protein]	C23H39N2O8PRS	"{""7.2"": {""formula"": ""C23H39N2O8PRS"", ""charge"": -1, ""weight"": ""534.6011000000""}, ""7"": {""formula"": ""C23H39N2O8PRS"", ""charge"": -1, ""weight"": ""534.6011000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+t3c7mrseACP	trans-3-cis-7-myristoleoyl-[acyl-carrier protein]	C25H43N2O8PRS	"{""7.2"": {""formula"": ""C25H43N2O8PRS"", ""charge"": -1, ""weight"": ""562.6547000000""}, ""7"": {""formula"": ""C25H43N2O8PRS"", ""charge"": -1, ""weight"": ""562.6547000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+t3c9palmeACP	trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]	C27H47N2O8PRS	"{""7.2"": {""formula"": ""C27H47N2O8PRS"", ""charge"": -1, ""weight"": ""590.7083000000""}, ""7"": {""formula"": ""C27H47N2O8PRS"", ""charge"": -1, ""weight"": ""590.7083000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 tag6p-D	D-Tagatose 6-phosphate	C6H11O9P	"{""7.2"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}, ""7"": {""formula"": ""C6H12O9P"", ""charge"": -1, ""weight"": ""259.1258000000""}}"						
 tagdp-D	D-Tagatose 1,6-biphosphate	C6H14O12P2	"{""7.2"": {""formula"": ""C6H12O12P2"", ""charge"": -2, ""weight"": ""338.0968000000""}, ""7"": {""formula"": ""C6H12O12P2"", ""charge"": -2, ""weight"": ""338.0968000000""}}"						
 tagur	D-Tagaturonate	C6H10O7	"{""7.2"": {""formula"": ""C6H9O7"", ""charge"": -1, ""weight"": ""193.1301000000""}, ""7"": {""formula"": ""C6H9O7"", ""charge"": -1, ""weight"": ""193.1301000000""}}"						
@@ -930,54 +1008,87 @@ taur	Taurine	C2H7NO3S	"{""7.2"": {""formula"": ""C2H7NO3S"", ""charge"": 0, ""we
 tcynt	Thiocyanate	CHNS	"{""7.2"": {""formula"": ""CNS"", ""charge"": -1, ""weight"": ""58.0780000000""}, ""7"": {""formula"": ""CNS"", ""charge"": -1, ""weight"": ""58.0780000000""}}"						
 td2coa	trans-Tetradec-2-enoyl-CoA	C35H60N7O17P3S	"{""7.2"": {""formula"": ""C35H57N7O17P3S"", ""charge"": -3, ""weight"": ""972.8493000000""}, ""7"": {""formula"": ""C35H57N7O17P3S"", ""charge"": -3, ""weight"": ""972.8493000000""}}"						
 tdcoa	Tetradecanoyl-CoA (n-C14:0CoA)	C35H62N7O17P3S	"{""7.2"": {""formula"": ""C35H59N7O17P3S"", ""charge"": -3, ""weight"": ""974.8651000000""}, ""7"": {""formula"": ""C35H59N7O17P3S"", ""charge"": -3, ""weight"": ""974.8651000000""}}"						
-tddec2eACP	trans-Dodec-2-enoyl-[acyl-carrier protein]	C23H41N2O8PRS	"{""7.2"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-tdeACP	cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)	C25H45N2O8PRS	"{""7.2"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-tdec2eACP	trans-Dec-2-enoyl-[acyl-carrier protein]	C21H37N2O8PRS	"{""7.2"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+tddec2eACP	trans-Dodec-2-enoyl-[acyl-carrier protein]	C23H41N2O8PRS	"{""7.2"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""536.6169000000""}, ""7"": {""formula"": ""C23H41N2O8PRS"", ""charge"": -1, ""weight"": ""536.6169000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+tdeACP	cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)	C25H45N2O8PRS	"{""7.2"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""564.6705000000""}, ""7"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""564.6705000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+tdec2eACP	trans-Dec-2-enoyl-[acyl-carrier protein]	C21H37N2O8PRS	"{""7.2"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""508.5633000000""}, ""7"": {""formula"": ""C21H37N2O8PRS"", ""charge"": -1, ""weight"": ""508.5633000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 tdecoa	Tetradecenoyl-CoA (n-C14:1CoA)	C35H56N7O17P3S	"{""7.2"": {""formula"": ""C35H57N7O17P3S"", ""charge"": -3, ""weight"": ""972.8493000000""}, ""7"": {""formula"": ""C35H57N7O17P3S"", ""charge"": -3, ""weight"": ""972.8493000000""}}"						
 thdp	2,3,4,5-Tetrahydrodipicolinate	C7H9NO4	"{""7.2"": {""formula"": ""C7H7NO4"", ""charge"": -2, ""weight"": ""169.1353000000""}, ""7"": {""formula"": ""C7H7NO4"", ""charge"": -2, ""weight"": ""169.1353000000""}}"						
-thex2eACP	trans-Hex-2-enoyl-[acyl-carrier protein]	C17H29N2O8PRS	"{""7.2"": {""formula"": ""C17H29N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C17H29N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
+thex2eACP	trans-Hex-2-enoyl-[acyl-carrier protein]	C17H29N2O8PRS	"{""7.2"": {""formula"": ""C17H29N2O8PRS"", ""charge"": -1, ""weight"": ""452.4561000000""}, ""7"": {""formula"": ""C17H29N2O8PRS"", ""charge"": -1, ""weight"": ""452.4561000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 thf	5,6,7,8-Tetrahydrofolate	C19H23N7O6	"{""7.2"": {""formula"": ""C19H21N7O6"", ""charge"": -2, ""weight"": ""443.4179000000""}, ""7"": {""formula"": ""C19H21N7O6"", ""charge"": -2, ""weight"": ""443.4179000000""}}"		37588.87999999999				
 thm	Thiamin	C12H17N4OS	"{""7.2"": {""formula"": ""C12H17N4OS"", ""charge"": 1, ""weight"": ""265.3533000000""}, ""7"": {""formula"": ""C12H17N4OS"", ""charge"": 1, ""weight"": ""265.3533000000""}}"						
 thmmp	Thiamin monophosphate	C12H16N4O4PS	"{""7.2"": {""formula"": ""C12H17N4O4PS"", ""charge"": 0, ""weight"": ""344.3243000000""}, ""7"": {""formula"": ""C12H17N4O4PS"", ""charge"": 0, ""weight"": ""344.3243000000""}}"						
 thmpp	Thiamine diphosphate	C12H19N4O7P2S	"{""7.2"": {""formula"": ""C12H17N4O7P2S"", ""charge"": -1, ""weight"": ""423.2953000000""}, ""7"": {""formula"": ""C12H17N4O7P2S"", ""charge"": -1, ""weight"": ""423.2953000000""}}"		37588.87999999999				
 thr-L	L-Threonine	C4H9NO3	"{""7.2"": {""formula"": ""C4H9NO3"", ""charge"": 0, ""weight"": ""119.1191000000""}, ""7"": {""formula"": ""C4H9NO3"", ""charge"": 0, ""weight"": ""119.1191000000""}}"		42761480.71999999				
 thrp	L-Threonine O-3-phosphate	C4H10NO6P	"{""7.2"": {""formula"": ""C4H9NO6P"", ""charge"": -1, ""weight"": ""198.0901000000""}, ""7"": {""formula"": ""C4H9NO6P"", ""charge"": -1, ""weight"": ""198.0901000000""}}"						
-thrtrna	L-Threonyl-tRNA(Thr)	C4H8NO2R	"{""7.2"": {""formula"": ""C14H19N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C14H19N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+thrtrna	L-Threonyl-tRNA(Thr)	C4H8NO2R	"{""7.2"": {""formula"": ""C14H19N6O5R"", ""charge"": 0, ""weight"": ""351.3411000000""}, ""7"": {""formula"": ""C14H19N6O5R"", ""charge"": 0, ""weight"": ""351.3411000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 thym	Thymine	C5H6N2O2	"{""7.2"": {""formula"": ""C5H6N2O2"", ""charge"": 0, ""weight"": ""126.1144000000""}, ""7"": {""formula"": ""C5H6N2O2"", ""charge"": 0, ""weight"": ""126.1144000000""}}"						
 thymd	Thymidine	C10H14N2O5	"{""7.2"": {""formula"": ""C10H14N2O5"", ""charge"": 0, ""weight"": ""242.2296000000""}, ""7"": {""formula"": ""C10H14N2O5"", ""charge"": 0, ""weight"": ""242.2296000000""}}"						
 tma	trimethylamine	C3H9N	"{""7.2"": {""formula"": ""C3H10N"", ""charge"": 1, ""weight"": ""60.1190000000""}, ""7"": {""formula"": ""C3H10N"", ""charge"": 1, ""weight"": ""60.1190000000""}}"						
 tmao	Trimethylamine N-oxide	C3H9NO	"{""7.2"": {""formula"": ""C3H10NO"", ""charge"": 1, ""weight"": ""76.1180000000""}, ""7"": {""formula"": ""C3H10NO"", ""charge"": 1, ""weight"": ""76.1180000000""}}"						
-tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	"{""7.2"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	"{""7.2"": {""formula"": ""C19H33N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H33N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	"{""7.2"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	"{""7.2"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""-1.0000000000""}}"						
-trdox	Oxidized thioredoxin	X	"{""7.2"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trdrd	Reduced thioredoxin	XH2	"{""7.2"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	"{""7.2"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""564.6705000000""}, ""7"": {""formula"": ""C25H45N2O8PRS"", ""charge"": -1, ""weight"": ""564.6705000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	"{""7.2"": {""formula"": ""C19H33N2O8PRS"", ""charge"": -1, ""weight"": ""480.5097000000""}, ""7"": {""formula"": ""C19H33N2O8PRS"", ""charge"": -1, ""weight"": ""480.5097000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	"{""7.2"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""620.7777000000""}, ""7"": {""formula"": ""C29H53N2O8PRS"", ""charge"": -1, ""weight"": ""620.7777000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	"{""7.2"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""592.7241000000""}, ""7"": {""formula"": ""C27H49N2O8PRS"", ""charge"": -1, ""weight"": ""592.7241000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trdox	Oxidized thioredoxin	X	"{""7.2"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""189.2463000000""}, ""7"": {""formula"": ""C6H7NO2R2S2"", ""charge"": 0, ""weight"": ""189.2463000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trdrd	Reduced thioredoxin	XH2	"{""7.2"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""191.2621000000""}, ""7"": {""formula"": ""C6H9NO2R2S2"", ""charge"": 0, ""weight"": ""191.2621000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 tre	Trehalose	C12H22O11	"{""7.2"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}, ""7"": {""formula"": ""C12H22O11"", ""charge"": 0, ""weight"": ""342.2948000000""}}"						
 tre6p	alpha,alpha'-Trehalose 6-phosphate	C12H23O14P	"{""7.2"": {""formula"": ""C12H22O14P"", ""charge"": -1, ""weight"": ""421.2658000000""}, ""7"": {""formula"": ""C12H22O14P"", ""charge"": -1, ""weight"": ""421.2658000000""}}"						
-trnaala	tRNA(Ala)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaarg	tRNA(Arg)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaasn	tRNA(Asn)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaasp	tRNA(Asp)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnacys	tRNA(Cys)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnagln	tRNA(Gln)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaglu	tRNA (Glu)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnagly	tRNA(Gly)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnahis	tRNA(His)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaile	tRNA(Ile)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaleu	tRNA(Leu)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnalys	tRNA(Lys)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnamet	tRNA(Met)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaphe	tRNA(Phe)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnapro	tRNA(Pro)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnasecys	tRNA(SeCys)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaser	tRNA(Ser)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnathr	tRNA(Thr)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnatrp	tRNA(Trp)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnatyr	tRNA(Tyr)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
-trnaval	tRNA(Val)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""-1.0000000000""}}"						
+trnaala	tRNA(Ala)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaarg	tRNA(Arg)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaasn	tRNA(Asn)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaasp	tRNA(Asp)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnacys	tRNA(Cys)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnagln	tRNA(Gln)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaglu	tRNA (Glu)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnagly	tRNA(Gly)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnahis	tRNA(His)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaile	tRNA(Ile)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaleu	tRNA(Leu)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnalys	tRNA(Lys)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnamet	tRNA(Met)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaphe	tRNA(Phe)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnapro	tRNA(Pro)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnasecys	tRNA(SeCys)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaser	tRNA(Ser)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnathr	tRNA(Thr)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnatrp	tRNA(Trp)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnatyr	tRNA(Tyr)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
+trnaval	tRNA(Val)	R	"{""7.2"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}, ""7"": {""formula"": ""C10H12N5O3R"", ""charge"": 0, ""weight"": ""250.2368000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 trp-L	L-Tryptophan	C11H12N2O2	"{""7.2"": {""formula"": ""C11H12N2O2"", ""charge"": 0, ""weight"": ""204.2278000000""}, ""7"": {""formula"": ""C11H12N2O2"", ""charge"": 0, ""weight"": ""204.2278000000""}}"		9581456.079999998				
-trptrna	L-Tryptophanyl-tRNA(Trp)	C11H11N2OR	"{""7.2"": {""formula"": ""C21H22N7O4R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C21H23N7O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+trptrna	L-Tryptophanyl-tRNA(Trp)	C11H11N2OR	"{""7.2"": {""formula"": ""C21H22N7O4R"", ""charge"": 0, ""weight"": ""436.4498000000""}, ""7"": {""formula"": ""C21H23N7O4R"", ""charge"": 1, ""weight"": ""437.4577000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 tsul	Thiosulfate	H2O3S2	"{""7.2"": {""formula"": ""HO3S2"", ""charge"": -1, ""weight"": ""113.1249000000""}, ""7"": {""formula"": ""HO3S2"", ""charge"": -1, ""weight"": ""113.1249000000""}}"						
 ttdca	tetradecanoate (n-C14:0)	C14H28O2	"{""7.2"": {""formula"": ""C14H27O2"", ""charge"": -1, ""weight"": ""227.3653000000""}, ""7"": {""formula"": ""C14H27O2"", ""charge"": -1, ""weight"": ""227.3653000000""}}"						
 ttdcea	tetradecenoate (n-C14:1)	C14H25O2	"{""7.2"": {""formula"": ""C14H25O2"", ""charge"": -1, ""weight"": ""225.3495000000""}, ""7"": {""formula"": ""C14H25O2"", ""charge"": -1, ""weight"": ""225.3495000000""}}"						
@@ -985,7 +1096,8 @@ tungs	tungstate	H2O4W1	"{""7.2"": {""formula"": ""O4W1"", ""charge"": -2, ""weig
 tym	Tyramine	C8H11NO	"{""7.2"": {""formula"": ""C8H12NO"", ""charge"": 1, ""weight"": ""138.1888000000""}, ""7"": {""formula"": ""C8H12NO"", ""charge"": 1, ""weight"": ""138.1888000000""}}"						
 tyr-L	L-Tyrosine	C9H11NO3	"{""7.2"": {""formula"": ""C9H11NO3"", ""charge"": 0, ""weight"": ""181.1899000000""}, ""7"": {""formula"": ""C9H11NO3"", ""charge"": 0, ""weight"": ""181.1899000000""}}"		23243749.759999994				
 tyrp	Phosphotyrosine	C9H12NO6P	"{""7.2"": {""formula"": ""C9H11NO6P"", ""charge"": -1, ""weight"": ""260.1609000000""}, ""7"": {""formula"": ""C9H11NO6P"", ""charge"": -1, ""weight"": ""260.1609000000""}}"						
-tyrtrna	L-Tyrosyl-tRNA(Tyr)	C9H10NO2R	"{""7.2"": {""formula"": ""C19H21N6O5R"", ""charge"": 0, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C19H22N6O5R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+tyrtrna	L-Tyrosyl-tRNA(Tyr)	C9H10NO2R	"{""7.2"": {""formula"": ""C19H21N6O5R"", ""charge"": 0, ""weight"": ""413.4119000000""}, ""7"": {""formula"": ""C19H22N6O5R"", ""charge"": 1, ""weight"": ""414.4198000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 u23ga	UDP-2,3-bis(3-hydroxytetradecanoyl)glucosamine	C43H77N3O20P2	"{""7.2"": {""formula"": ""C43H75N3O20P2"", ""charge"": -2, ""weight"": ""1016.0145000000""}, ""7"": {""formula"": ""C43H75N3O20P2"", ""charge"": -2, ""weight"": ""1016.0145000000""}}"						
 u3aga	UDP-3-O-(3-hydroxytetradecanoyl)-N-acetylglucosamine	C31H53N3O19P2	"{""7.2"": {""formula"": ""C31H51N3O19P2"", ""charge"": -2, ""weight"": ""831.6939000000""}, ""7"": {""formula"": ""C31H51N3O19P2"", ""charge"": -2, ""weight"": ""831.6939000000""}}"						
 u3hga	UDP-3-O-(3-hydroxytetradecanoyl)-D-glucosamine	C29H51N3O18P2	"{""7.2"": {""formula"": ""C29H50N3O18P2"", ""charge"": -1, ""weight"": ""790.6650000000""}, ""7"": {""formula"": ""C29H50N3O18P2"", ""charge"": -1, ""weight"": ""790.6650000000""}}"						
@@ -1026,7 +1138,8 @@ urea	Urea	CH4N2O	"{""7.2"": {""formula"": ""CH4N2O"", ""charge"": 0, ""weight"":
 uri	Uridine	C9H12N2O6	"{""7.2"": {""formula"": ""C9H12N2O6"", ""charge"": 0, ""weight"": ""244.2018000000""}, ""7"": {""formula"": ""C9H12N2O6"", ""charge"": 0, ""weight"": ""244.2018000000""}}"						
 utp	UTP	C9H15N2O15P3	"{""7.2"": {""formula"": ""C9H12N2O15P3"", ""charge"": -3, ""weight"": ""481.1148000000""}, ""7"": {""formula"": ""C9H12N2O15P3"", ""charge"": -3, ""weight"": ""481.1148000000""}}"		24290170.24				
 val-L	L-Valine	C5H11NO2	"{""7.2"": {""formula"": ""C5H11NO2"", ""charge"": 0, ""weight"": ""117.1469000000""}, ""7"": {""formula"": ""C5H11NO2"", ""charge"": 0, ""weight"": ""117.1469000000""}}"		71328186.71999998				
-valtrna	L-Valyl-tRNA(Val)	C5H10NOR	"{""7.2"": {""formula"": ""C15H22N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}, ""7"": {""formula"": ""C15H22N6O4R"", ""charge"": 1, ""weight"": ""-1.0000000000""}}"						
+valtrna	L-Valyl-tRNA(Val)	C5H10NOR	"{""7.2"": {""formula"": ""C15H22N6O4R"", ""charge"": 1, ""weight"": ""350.3768000000""}, ""7"": {""formula"": ""C15H22N6O4R"", ""charge"": 1, ""weight"": ""350.3768000000""}}"						"Non-element in formula. Weight calculated for known elements.
+"
 xan	Xanthine	C5H4N4O2	"{""7.2"": {""formula"": ""C5H4N4O2"", ""charge"": 0, ""weight"": ""152.1126000000""}, ""7"": {""formula"": ""C5H4N4O2"", ""charge"": 0, ""weight"": ""152.1126000000""}}"						
 xdp	XDP	C10H14N4O12P2	"{""7.2"": {""formula"": ""C10H12N4O12P2"", ""charge"": -2, ""weight"": ""442.1688000000""}, ""7"": {""formula"": ""C10H12N4O12P2"", ""charge"": -2, ""weight"": ""442.1688000000""}}"						
 xmp	Xanthosine 5'-phosphate	C10H13N4O9P	"{""7.2"": {""formula"": ""C10H12N4O9P"", ""charge"": -1, ""weight"": ""363.1978000000""}, ""7"": {""formula"": ""C10H12N4O9P"", ""charge"": -1, ""weight"": ""363.1978000000""}}"						

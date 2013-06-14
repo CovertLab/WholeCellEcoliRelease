@@ -1636,16 +1636,17 @@ class metabolite:
 	def calculateWeight(self, formula):
 		weight = 0.
 		element_stoich = re.findall("[A-Z][a-z]*[0-9]*", formula)
-
 		for value in element_stoich:
 			m = re.search("(?P<letters>[A-Za-z]*)(?P<numbers>[0-9]*)", value)
 			element = m.group('letters')
-			if not self.elementDict.has_key(element):
-				return -1
 			stoich = m.group('numbers')
 			if stoich == '':
 				stoich = 1
-			weight += int(stoich) * self.elementDict[element]['mass']
+			if self.elementDict.has_key(element):
+				weight += int(stoich) * self.elementDict[element]['mass']
+			else:
+				if 'Non-element in formula. Weight calculated for known elements.\n' not in self.comments:
+					self.comments += 'Non-element in formula. Weight calculated for known elements.\n'
 		return weight
 
 class gene:
