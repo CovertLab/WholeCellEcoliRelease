@@ -17,23 +17,23 @@
 "CHOLINE"	"chol"					
 "CO+2"	"cobalt2"					
 "CPD-10551"	"+"	"C5H9O7P"	"C5H7O7P"	-2	"C5H7O7P"	-2
-"CPD-110"	"+"					
-"CPD-12800"	"+"					
+"CPD-110"	"+"	"C7H6O3"	"C7H5O3"	-1	"C7H5O3"	-1
+"CPD-12800"	"+"	"OHCl"	"OCl"	-1	"OCl"	-1
 "CPD-207"	"phaccoa"					
 "CPD-3"	"mobd"					
-"CPD-6"	"+"					
-"CPD-622"	"2mcit"					
+"CPD-6"	"+"	"S2Fe2"	"S2Fe2"	0	"S2Fe2"	0
+"CPD-622"	"2mcit"	"C7H10O7"	"C7H7O7"	-3	"C7H7O7"	-3
 "CPD-69"	"cyan"					
 "CPD-763"	"aso3"					
-"CPD-7970"	"+"					
-"CPD-8179"	"+"					
-"CPD0-1938"	"+"					
-"CPD0-2342"	"+"					
+"CPD-7970"	"+"	"C9H5N4Cl"	"C9H5N4Cl"	0	"C9H5N4Cl"	0
+"CPD-8179"	"+"	"C6H6N2O5"	"C6H3N2O5"	-3	"C6H3N2O5"	-3
+"CPD0-1938"	"+"		"C21H20N3"	1	"C21H20N3"	1
+"CPD0-2342"	"+"	"C6H12O6R"	"C6H12O6R"	0	"C6H12O6R"	0
 "CPD0-881"	"acmum6p"					
 "CU+"	"cu2"					
 "CYTIDINE"	"cytd"					
 "D-SERINE"	"ser-D"					
-"DIACETYLCHITOBIOSE-6-PHOSPHATE"	"+"					
+"DIACETYLCHITOBIOSE-6-PHOSPHATE"	"+"	"C16H29N2O14P"	"C16H27N2O14P"	-2	"C16H27N2O14P"	-2
 "DIHYDROXYPENTANEDIONE"	"dhptd"					
 "FE+2"	"fe2"					
 "FORMATE"	"for"					
@@ -62,7 +62,7 @@
 "MN+2"	"mg2"					
 "N-ACETYL-D-GLUCOSAMINE-6-P"	"6pgc"					
 "N-ACETYLNEURAMINATE"	"acnam"					
-"N-ETHYLMALEIMIDE"	"+"					
+"N-ETHYLMALEIMIDE"	"+"	"C6H7NO2"	"C6H7NO2"	0	"C6H7NO2"	0
 "NA+"	"na1"					
 "NI+2"	"ni2"					
 "NITRIC-OXIDE"	"no"					
