@@ -1514,6 +1514,7 @@ def buildTranscriptionUnit(tuName, tuFrameId, pro, terminatorList, geneList, pro
 # Parse metabolites
 def parseMetabolites():
 	metDict = {}
+	# Parse Feist metabolites
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
@@ -1532,6 +1533,25 @@ def parseMetabolites():
 			newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
 
 			metDict[newMet.frameId] = newMet
+
+	# Parse metabolites in Ecocyc and needed for complexation but not in Feist
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in csvreader:
+			if row[2] != '':
+				newMet = metabolite()
+				newMet.frameId = row[0]
+				if row[2] != '':
+					newMet.neutralFormula = row[2]
+				else:
+					newMet.neutralFormula = row[3]
+				# Properties at pH 7
+				newMet.addPHProp(pH = 7,formula = row[3], charge = row[4])
+				# Properties at pH 7.2
+				newMet.addPHProp(pH = 7.2, formula = row[5], charge = row[6])
+
+				metDict[newMet.frameId] = newMet
 
 	# Parse objective function
 	# - Reactants
