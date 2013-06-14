@@ -24,6 +24,7 @@ def main():
 	parseComplexes()
 	parseTranscriptionUnits()
 	parseMetabolites()
+	parseReactions()
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -1597,6 +1598,10 @@ def parseMetabolites():
 		for key in keys:
 			m = metDict[key]
 			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.comments])
+
+# Parse reactions
+def parseReactions():
+	pass
 
 # Utility functions
 def splitBigBracket(s):
