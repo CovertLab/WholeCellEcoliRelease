@@ -1552,8 +1552,20 @@ def parseMetabolites():
 				break
 
 	# - Products
-	# TODO: Finish!
-
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_objective.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for i in range(70):
+			csvreader.next()
+		for row in csvreader:
+			metId = row[7].replace('*','')
+			objectiveRead = float(row[6]) # mmol/gDSW
+			g1 = 10**-3 # mol/mmol
+			g2 = 6.02*(10**23) # molecules/mol
+			g3 = 2.8*(10**-13) # gDSW/cell
+			objective = objectiveRead * g1 * g2 * g3 * (-1.) # molecules / cell
+			metDict[metId].biomassConc = objective
+			if metId == 'pi':
+				break
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
