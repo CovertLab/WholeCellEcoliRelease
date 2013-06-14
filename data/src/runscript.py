@@ -1573,10 +1573,10 @@ def parseMetabolites():
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutrial formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Metabolic new flux (molecules/cell cycle)',  'Metabolic recycling flux (molecules/cell cycle)','Maximum exchange rate (mmol/gDSW/hr)', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutrial formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Comments'])
 		for key in keys:
 			m = metDict[key]
-			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.biomassNewFlux, m.biomassRecycle, m.exchangeRate, m.comments])
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.comments])
 
 # Utility functions
 def splitBigBracket(s):
