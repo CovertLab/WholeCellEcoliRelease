@@ -1661,6 +1661,22 @@ class metabolite:
 					self.comments += 'Non-element in formula. Weight calculated for known elements.\n'
 		return weight
 
+class reaction:
+	def __init__(self):
+		self.frameId = None
+		self.name = None
+		self.process = None
+		self.EC = None
+		self.stoich = {}
+		self.enzyme = None
+		self.forward = 0.
+		self.forwardUnits = None
+		self.reverse = 0.
+		self.reverseUnits = None
+
+	def addCompartment(self):
+		pass
+
 class gene:
 	def __init__(self):
 		self.frameId = None
