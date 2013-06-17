@@ -1613,11 +1613,20 @@ def parseReactions():
 		csvreader.next()
 		for row in csvreader:
 			if not protMonomerFrameId.has_key(row[2]):
-				protMonomerFrameId[row[2]] = [row[0]]
+				protMonomerFrameId[row[2]] = row[0]
 			else:
-				protMonomerFrameId[row[2]].append(row[0])
+				# TODO: Deal with this
+				print 'already has protein monomer!'
 
 			protMonomerLocations[row[0]] = json.loads(row[3])
+
+	# Load location abbreviations
+	locationAbbrev = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			locationAbbrev[row[0]] = row[1]
 
 	# Load reactions
 	reactDict = {}
@@ -1644,22 +1653,22 @@ def parseReactions():
 				if synDictFrameId.has_key(bnum):
 					geneFrameId = synDictFrameId[bnum]
 				else:
-					print 'bnum not found'
+					print 'bnum not found for ' + bnum
 
 				if protMonomerFrameId.has_key(geneFrameId):
 					pMFrameId = protMonomerFrameId[geneFrameId]
 				else:
-					print 'protein monomer not found'
-
-				if len(pMFrameId) == 1:
-					pMFrameId = pMFrameId[0]
-				else:
-					print 'more than one prot monomer'
+					print 'protein monomer not found for ' + geneFrameId
 
 				if protMonomerLocations.has_key(pMFrameId):
-					pMLocation = protMonomerLocations[pMFrameId]
+					pMLocation = protMonomerLocations[pMFrameId][0]
 				else:
-					print 'location not found'
+					print 'location not found for ' + pMFrameId
+
+				reac.enzyme = pMFrameId + '[' + locationAbbrev[pMLocation] + ']'
+			else:
+				
+
 
 			reactDict[reac.frameId] = reac
 
