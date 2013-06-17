@@ -1601,6 +1601,24 @@ def parseMetabolites():
 
 # Parse reactions
 def parseReactions():
+	# Load gene frameId synonym dictionary for blatter numbers in Fiest 
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+		synDictFrameId = json.loads(jsonfile.read())
+
+	# Load gene frameId --> protein monomer frameId dictionary
+	protMonomerFrameId = {}
+	protMonomerLocations = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if not protMonomerFrameId.has_key(row[2]):
+				protMonomerFrameId[row[2]] = [row[0]]
+			else:
+				protMonomerFrameId[row[2]].append(row[0])
+
+			protMonomerLocations[row[0]] = json.loads(row[3])
+
+	# Load reactions
 	reactDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -1614,8 +1632,33 @@ def parseReactions():
 			if row[5] != '':
 				reac.EC = row[5]
 			reac.stoich = row[2]
-			reac.enzyme = 'FILL IN'
 			reac.direction = row[3]
+
+			# Figure out enzymes
+			if row[6] == '':
+				# Nothin known
+				reac.enzyme = None
+			elif re.match("b([0-9])", row[6]) != None:
+				bnum = row[6]
+				if synDictFrameId.has_key(bnum):
+					geneFrameId = synDictFrameId[bnum]
+				else:
+					print 'bnum not found'
+
+				if protMonomerFrameId.has_key(geneFrameId):
+					pMFrameId = protMonomerFrameId[geneFrameId]
+				else:
+					print 'protein monomer not found'
+
+				if len(pMFrameId) == 1:
+					pMFrameId = pMFrameId[0]
+				else:
+					print 'more than one prot monomer'
+
+				if protMonomerLocations.has_key(pMFrameId):
+					pMLocation = protMonomerLocations[pMFrameId]
+				else:
+					print 'location not found'
 
 			reactDict[reac.frameId] = reac
 
