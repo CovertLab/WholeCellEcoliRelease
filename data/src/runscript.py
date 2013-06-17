@@ -1610,6 +1610,7 @@ def parseReactions():
 	protMonomerLocations = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
 		for row in csvreader:
 			if not protMonomerFrameId.has_key(row[2]):
 				protMonomerFrameId[row[2]] = [row[0]]
