@@ -1667,8 +1667,7 @@ def parseReactions():
 
 				reac.enzyme = pMFrameId + '[' + locationAbbrev[pMLocation] + ']'
 			else:
-				pass
-
+				parseRecursiveBracket(row[6][1:-1])
 
 			reactDict[reac.frameId] = reac
 
@@ -1682,6 +1681,17 @@ def parseReactions():
 		for key in keys:
 			r = reactDict[key]
 			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+
+def parseRecursiveBracket(line):
+	brackets = re.findall("\(([^\)]+)\)", line)
+	if len brackets:
+		for b in brackets:
+			parseRecursiveBracket(b)
+	else:
+		if line.count('and'):
+			pass
+		elif line.count('or'):
+			pass
 
 
 # Utility functions
