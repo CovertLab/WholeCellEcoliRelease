@@ -1617,16 +1617,18 @@ def parseReactions():
 			reac.enzyme = 'FILL IN'
 			reac.direction = row[3]
 
+			reactDict[reac.frameId] = reac
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
 
 
 # Utility functions
