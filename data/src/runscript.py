@@ -1601,7 +1601,33 @@ def parseMetabolites():
 
 # Parse reactions
 def parseReactions():
-	pass
+	reactDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+
+		for row in csvreader:
+			reac = reaction()
+			reac.frameId = row[0]
+			reac.name = row[1]
+			reac.process = 'Metabolism'
+			if row[5] != '':
+				reac.EC = row[5]
+			reac.stoich = row[2]
+			reac.enzyme = 'FILL IN'
+			reac.direction = row[3]
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = reactDict.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
+		for key in keys:
+			r = reactDict[key]
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+
 
 # Utility functions
 def splitBigBracket(s):
