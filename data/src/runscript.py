@@ -1725,7 +1725,7 @@ class reaction:
 		self.forwardUnits = None
 		self.reverse = None
 		self.reverseUnits = None
-		self.comments
+		self.comments = ''
 
 class gene:
 	def __init__(self):
