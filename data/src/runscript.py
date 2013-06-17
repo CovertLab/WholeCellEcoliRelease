@@ -1692,15 +1692,14 @@ class reaction:
 		self.name = None
 		self.process = None
 		self.EC = None
-		self.stoich = {}
+		self.stoich = None
 		self.enzyme = None
-		self.forward = 0.
+		self.direction = None
+		self.forward = None
 		self.forwardUnits = None
-		self.reverse = 0.
+		self.reverse = None
 		self.reverseUnits = None
-
-	def addCompartment(self):
-		pass
+		self.comments
 
 class gene:
 	def __init__(self):
