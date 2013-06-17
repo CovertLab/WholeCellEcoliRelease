@@ -30,7 +30,7 @@ def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
 		os.makedirs(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log'))
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'wb') as txtfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'wb') as txtfile:
 		txtfile.write(t + '\n')
 
 # Ecocyc flat file creation
@@ -47,7 +47,7 @@ def getEcocyc(fetchNew = False):
 	if not fetchNew:
 		return
 	# Open log file
-	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Build protein-protein complexes
 	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
@@ -216,7 +216,7 @@ def parseRnaTypes():
 # Parse genes
 def parseGenes():
 	# Open log file
-	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Load unmodified forms of RNA and proteins
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
@@ -535,7 +535,7 @@ def parseGenes():
 # Parse Locations
 def parseLocations():
 	# Open log file
-	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	locationDict = {}
 	# Finds unique set of location frameId's in Ecocyc. Creates a dict so that any locaitons
@@ -598,7 +598,7 @@ def parseLocations():
 # Parse protein monomers
 def parseProteinMonomers():
 	# Open log file
-	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
@@ -842,7 +842,7 @@ def parseRna():
 # Parse protein complexes
 def parseComplexes():
 	# Open log file
-	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.txt'),'a')
+	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Load compartment id --> single letter abbreviation data
 	compartmentAbbrev = {}
