@@ -1667,7 +1667,7 @@ def parseReactions():
 
 				reac.enzyme = pMFrameId + '[' + locationAbbrev[pMLocation] + ']'
 			else:
-				
+				pass
 
 
 			reactDict[reac.frameId] = reac
