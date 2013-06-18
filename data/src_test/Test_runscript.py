@@ -49,3 +49,12 @@ class Test_Simulation(unittest.TestCase):
 		met = r.metabolite()
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
+
+	@noseAttrib.attr('focusTest')
+	def test_parseReactionScript(self):
+		rp = r.reactionParser()
+
+		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
+
+		rp.parseRecursiveBracket(line[1:-1])
+		

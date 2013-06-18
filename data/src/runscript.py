@@ -1632,7 +1632,7 @@ def parseReactions():
 				reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
 			else:
 				pass
-				#parseRecursiveBracket(row[6][1:-1])
+				#rp.parseRecursiveBracket(row[6][1:-1])
 
 			reactDict[reac.frameId] = reac
 
@@ -1835,7 +1835,7 @@ class reactionParser:
 			for bra in brackets:
 				parseRecursiveBracket(bra)
 		else:
-			parseBracket(line)
+			return parseBracket(line)
 
 	def parseBracket(line):
 		bnums = re.findall("(b[0-9]+)", line)
@@ -1844,6 +1844,7 @@ class reactionParser:
 
 		if line.count('or'):
 			pass
+
 		elif line.count('and'):
 			monomers = []
 			for b in bnums:
