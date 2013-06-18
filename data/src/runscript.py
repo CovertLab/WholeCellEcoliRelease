@@ -1832,9 +1832,9 @@ class reactionParser:
 		brackets = re.findall("\(([^\)]+)\)", line)
 		if len(brackets):
 			for bra in brackets:
-				parseRecursiveBracket(bra)
+				self.parseRecursiveBracket(bra)
 		else:
-			return parseBracket(line)
+			return self.parseBracket(line)
 
 	def parseBracket(self, line):
 		bnums = re.findall("(b[0-9]+)", line)
@@ -1847,7 +1847,7 @@ class reactionParser:
 		elif line.count('and'):
 			monomers = []
 			for b in bnums:
-				monomers.append(getPMFrame(b))
+				monomers.append(self.getPMFrame(b))
 			monomers.sort()
 			cplx = self.monomerToComplex[monomers]
 			return cplx
