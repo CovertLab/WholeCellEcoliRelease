@@ -1601,33 +1601,6 @@ def parseMetabolites():
 
 # Parse reactions
 def parseReactions():
-	# Load gene frameId synonym dictionary for blatter numbers in Fiest 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
-		synDictFrameId = json.loads(jsonfile.read())
-
-	# Load gene frameId --> protein monomer frameId dictionary
-	protMonomerFrameId = {}
-	protMonomerLocations = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			if not protMonomerFrameId.has_key(row[2]):
-				protMonomerFrameId[row[2]] = row[0]
-			else:
-				# TODO: Deal with this
-				print 'already has protein monomer!'
-
-			protMonomerLocations[row[0]] = json.loads(row[3])
-
-	# Load location abbreviations
-	locationAbbrev = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			locationAbbrev[row[0]] = row[1]
-
 	# Load reactions
 	reactDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
@@ -1651,11 +1624,11 @@ def parseReactions():
 			elif re.match("b([0-9])", row[6]) != None:
 				bnum = row[6]
 
-				pMFrameId = getPMFrame(bnum, synDictFrameId, protMonomerFrameId)
+				pMFrameId = reac.getPMFrame(bnum)
 
-				pMLocation = getLocation(pMFrameId, protMonomerLocations)
+				pMLocation = reac.getLocation(pMFrameId)
 
-				reac.enzyme = [pMFrameId + '[' + locationAbbrev[pMLocation] + ']']
+				reac.enzyme = [pMFrameId + '[' + reac.locationAbbrev[pMLocation] + ']']
 			else:
 				pass
 				#parseRecursiveBracket(row[6][1:-1])
@@ -1689,29 +1662,6 @@ def parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations)
 		pass
 	else:
 		raise Exception, 'Error: No && or ||'
-
-def getPMFrame(bnum, synDictFrameId, protMonomerFrameId):
-	if synDictFrameId.has_key(bnum):
-		geneFrameId = synDictFrameId[bnum]
-	else:
-		print 'bnum not found for ' + bnum
-		return
-
-	if protMonomerFrameId.has_key(geneFrameId):
-		pMFrameId = protMonomerFrameId[geneFrameId]
-	else:
-		print 'protein monomer not found for ' + geneFrameId
-		return
-
-	return pMFrameId
-
-def getLocation(pMFrameId, protMonomerLocations):
-	if protMonomerLocations.has_key(pMFrameId):
-		pMLocation = protMonomerLocations[pMFrameId][0]
-	else:
-		print 'location not found for ' + pMFrameId
-		return
-	return pMLocation
 
 
 # Utility functions
@@ -1811,6 +1761,73 @@ class reaction:
 		self.reverse = None
 		self.reverseUnits = None
 		self.comments = ''
+
+		self.locationAbbrev = self.loadLocationAbbrev()
+		self.synDictFrameId = self.loadSynDict()
+		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
+		self.protMonomerLocations = self.loadProteinMonomerLocation()
+
+	def loadLocationAbbrev(self):
+		# Load location abbreviations
+		locationAbbrev = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				locationAbbrev[row[0]] = row[1]
+		return locationAbbrev
+
+	def loadSynDict(self):
+		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+			synDictFrameId = json.loads(jsonfile.read())
+		return synDictFrameId
+
+	def loadProteinMonomerFrameIds(self):
+		protMonomerFrameId = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				if not protMonomerFrameId.has_key(row[2]):
+					protMonomerFrameId[row[2]] = row[0]
+				else:
+					# TODO: Deal with this
+					print 'already has protein monomer!'
+		return protMonomerFrameId
+
+	def loadProteinMonomerLocation(self):
+		protMonomerLocations = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				protMonomerLocations[row[0]] = json.loads(row[3])
+		return protMonomerLocations
+
+	def getPMFrame(self, bnum):
+		if self.synDictFrameId.has_key(bnum):
+			geneFrameId = self.synDictFrameId[bnum]
+		else:
+			print 'bnum not found for ' + bnum
+			return
+
+		if self.protMonomerFrameId.has_key(geneFrameId):
+			pMFrameId = self.protMonomerFrameId[geneFrameId]
+		else:
+			print 'protein monomer not found for ' + geneFrameId
+			return
+
+		return pMFrameId
+
+	def getLocation(self, pMFrameId):
+		if self.protMonomerLocations.has_key(pMFrameId):
+			pMLocation = self.protMonomerLocations[pMFrameId][0]
+		else:
+			print 'location not found for ' + pMFrameId
+			return
+		return pMLocation
+
 
 class gene:
 	def __init__(self):
