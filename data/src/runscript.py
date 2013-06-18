@@ -1828,8 +1828,7 @@ class reactionParser:
 			return
 		return pMLocation
 
-
-	def parseRecursiveBracket(line):
+	def parseRecursiveBracket(self, line):
 		brackets = re.findall("\(([^\)]+)\)", line)
 		if len(brackets):
 			for bra in brackets:
@@ -1837,7 +1836,7 @@ class reactionParser:
 		else:
 			return parseBracket(line)
 
-	def parseBracket(line):
+	def parseBracket(self, line):
 		bnums = re.findall("(b[0-9]+)", line)
 		if line.count('or') and line.count('and'):
 			raise Exception, 'Line has && and ||'
