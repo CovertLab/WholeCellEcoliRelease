@@ -1837,6 +1837,7 @@ class reactionParser:
 			return self.parseBracket(line)
 
 	def parseBracket(self, line):
+		print line
 		bnums = re.findall("(b[0-9]+)", line)
 		if line.count('or') and line.count('and'):
 			raise Exception, 'Line has && and ||'
