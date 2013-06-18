@@ -1603,6 +1603,7 @@ def parseMetabolites():
 def parseReactions():
 	# Load reactions
 	reactDict = {}
+	rp = reactionParser()
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
@@ -1624,16 +1625,18 @@ def parseReactions():
 			elif re.match("b([0-9])", row[6]) != None:
 				bnum = row[6]
 
-				pMFrameId = reac.getPMFrame(bnum)
+				pMFrameId = rp.getPMFrame(bnum)
 
-				pMLocation = reac.getLocation(pMFrameId)
+				pMLocation = rp.getLocation(pMFrameId)
 
-				reac.enzyme = [pMFrameId + '[' + reac.locationAbbrev[pMLocation] + ']']
+				reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
 			else:
 				pass
 				#parseRecursiveBracket(row[6][1:-1])
 
 			reactDict[reac.frameId] = reac
+
+	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
@@ -1762,6 +1765,9 @@ class reaction:
 		self.reverseUnits = None
 		self.comments = ''
 
+
+class reactionParser:
+	def __init__(self):
 		self.locationAbbrev = self.loadLocationAbbrev()
 		self.synDictFrameId = self.loadSynDict()
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
@@ -1792,7 +1798,6 @@ class reaction:
 				if not protMonomerFrameId.has_key(row[2]):
 					protMonomerFrameId[row[2]] = row[0]
 				else:
-					# TODO: Deal with this
 					print 'already has protein monomer!'
 		return protMonomerFrameId
 
@@ -1827,7 +1832,6 @@ class reaction:
 			print 'location not found for ' + pMFrameId
 			return
 		return pMLocation
-
 
 class gene:
 	def __init__(self):
