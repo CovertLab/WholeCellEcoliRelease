@@ -1845,9 +1845,12 @@ class reactionParser:
 		if line.count('or'):
 			pass
 		elif line.count('and'):
-			
-
-
+			monomers = []
+			for b in bnums:
+				monomers.append(getPMFrame(b))
+			monomers.sort()
+			cplx = self.monomerToComplex[monomers]
+			return cplx
 		else:
 			raise Exception, 'No && or ||'
 
