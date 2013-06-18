@@ -1839,6 +1839,9 @@ class reactionParser:
 
 	def parseBracket(line):
 		bnums = re.findall("(b[0-9]+)", line)
+		if line.count('or') and line.count('and'):
+			raise Exception, 'Line has && and ||'
+
 		if line.count('or'):
 			pass
 		elif line.count('and'):
@@ -1846,7 +1849,7 @@ class reactionParser:
 
 
 		else:
-			raise Exception, 'Error: No && or ||'
+			raise Exception, 'No && or ||'
 
 class gene:
 	def __init__(self):
