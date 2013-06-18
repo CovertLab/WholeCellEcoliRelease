@@ -1649,24 +1649,6 @@ def parseReactions():
 			r = reactDict[key]
 			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
 
-def parseRecursiveBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
-	brackets = re.findall("\(([^\)]+)\)", line)
-	if len(brackets):
-		for b in brackets:
-			parseRecursiveBracket(b, synDictFrameId, protMonomerFrameId, protMonomerLocations)
-	else:
-		parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations)
-
-def parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
-	bnums = re.findall("(b[0-9]+)", line)
-	if line.count('or'):
-		pass
-	elif line.count('and'):
-		pass
-	else:
-		raise Exception, 'Error: No && or ||'
-
-
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
@@ -1845,6 +1827,26 @@ class reactionParser:
 			print 'location not found for ' + pMFrameId
 			return
 		return pMLocation
+
+
+	def parseRecursiveBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
+		brackets = re.findall("\(([^\)]+)\)", line)
+		if len(brackets):
+			for b in brackets:
+				parseRecursiveBracket(b, synDictFrameId, protMonomerFrameId, protMonomerLocations)
+		else:
+			parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations)
+
+	def parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
+		bnums = re.findall("(b[0-9]+)", line)
+		if line.count('or'):
+			pass
+		elif line.count('and'):
+			pass
+
+
+		else:
+			raise Exception, 'Error: No && or ||'
 
 class gene:
 	def __init__(self):
