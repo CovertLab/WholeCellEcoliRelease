@@ -1849,6 +1849,7 @@ class reactionParser:
 			for b in bnums:
 				monomers.append(self.getPMFrame(b))
 			monomers.sort()
+			monomers = tuple(monomers)
 			cplx = self.monomerToComplex[monomers]
 			return cplx
 		else:
