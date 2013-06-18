@@ -1753,7 +1753,7 @@ class reactionParser:
 		self.synDictFrameId = self.loadSynDict()
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
 		self.protMonomerLocations = self.loadProteinMonomerLocation()
-		self.monomerToCompex = self.loadMonomerToComplex()
+		self.monomerToComplex = self.loadMonomerToComplex()
 
 	def loadLocationAbbrev(self):
 		# Load location abbreviations
