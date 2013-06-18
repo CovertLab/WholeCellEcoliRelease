@@ -1829,20 +1829,20 @@ class reactionParser:
 		return pMLocation
 
 
-	def parseRecursiveBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
+	def parseRecursiveBracket(line):
 		brackets = re.findall("\(([^\)]+)\)", line)
 		if len(brackets):
-			for b in brackets:
-				parseRecursiveBracket(b, synDictFrameId, protMonomerFrameId, protMonomerLocations)
+			for bra in brackets:
+				parseRecursiveBracket(bra)
 		else:
-			parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations)
+			parseBracket(line)
 
-	def parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
+	def parseBracket(line):
 		bnums = re.findall("(b[0-9]+)", line)
 		if line.count('or'):
 			pass
 		elif line.count('and'):
-			pass
+			
 
 
 		else:
