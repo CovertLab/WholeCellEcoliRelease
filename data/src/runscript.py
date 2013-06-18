@@ -1650,15 +1650,8 @@ def parseReactions():
 				reac.enzyme = None
 			elif re.match("b([0-9])", row[6]) != None:
 				bnum = row[6]
-				if synDictFrameId.has_key(bnum):
-					geneFrameId = synDictFrameId[bnum]
-				else:
-					print 'bnum not found for ' + bnum
 
-				if protMonomerFrameId.has_key(geneFrameId):
-					pMFrameId = protMonomerFrameId[geneFrameId]
-				else:
-					print 'protein monomer not found for ' + geneFrameId
+				pMFrameId = getPMFrame(bnum, synDictFrameId, protMonomerFrameId)
 
 				if protMonomerLocations.has_key(pMFrameId):
 					pMLocation = protMonomerLocations[pMFrameId][0]
@@ -1667,7 +1660,8 @@ def parseReactions():
 
 				reac.enzyme = pMFrameId + '[' + locationAbbrev[pMLocation] + ']'
 			else:
-				parseRecursiveBracket(row[6][1:-1])
+				pass
+				#parseRecursiveBracket(row[6][1:-1])
 
 			reactDict[reac.frameId] = reac
 
@@ -1684,14 +1678,37 @@ def parseReactions():
 
 def parseRecursiveBracket(line):
 	brackets = re.findall("\(([^\)]+)\)", line)
-	if len brackets:
+	if len(brackets):
 		for b in brackets:
 			parseRecursiveBracket(b)
 	else:
-		if line.count('and'):
-			pass
-		elif line.count('or'):
-			pass
+		pass
+
+def parseBracket(line):
+	bnums = re.findall("(b[0-9]+)", line)
+	if line.count('or'):
+		pass
+	elif line.count('and'):
+		pass
+	else:
+		raise Exception, 'Error: No && or ||'
+
+def getPMFrame(bnum, synDictFrameId, protMonomerFrameId):
+	if synDictFrameId.has_key(bnum):
+		geneFrameId = synDictFrameId[bnum]
+	else:
+		print 'bnum not found for ' + bnum
+		return
+
+	if protMonomerFrameId.has_key(geneFrameId):
+		pMFrameId = protMonomerFrameId[geneFrameId]
+	else:
+		print 'protein monomer not found for ' + geneFrameId
+		return
+
+	return pMFrameId
+
+
 
 
 # Utility functions
