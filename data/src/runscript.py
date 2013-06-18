@@ -1673,15 +1673,15 @@ def parseReactions():
 			r = reactDict[key]
 			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
 
-def parseRecursiveBracket(line):
+def parseRecursiveBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
 	brackets = re.findall("\(([^\)]+)\)", line)
 	if len(brackets):
 		for b in brackets:
-			parseRecursiveBracket(b)
+			parseRecursiveBracket(b, synDictFrameId, protMonomerFrameId, protMonomerLocations)
 	else:
-		pass
+		parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations)
 
-def parseBracket(line):
+def parseBracket(line, synDictFrameId, protMonomerFrameId, protMonomerLocations):
 	bnums = re.findall("(b[0-9]+)", line)
 	if line.count('or'):
 		pass
