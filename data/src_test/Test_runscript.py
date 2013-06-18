@@ -56,13 +56,13 @@ class Test_Simulation(unittest.TestCase):
 
 		# Basic complex with and
 		line = '( b1252  and  b3005  and  b3006 )'
-		self.assertEqual('CPLX0-1923', rp.parseBracket(line))
+		self.assertEqual(['CPLX0-1923'], rp.parseBracket(line))
 		line = '( b2677  and  b2678  and  b2679 )'
-		self.assertEqual('ABC-26-CPLX', rp.parseBracket(line))
+		self.assertEqual(['ABC-26-CPLX'], rp.parseBracket(line))
 
 		# Basic or
 		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
-		print rp.parseBracket(line)
+		self.assertEqual(['EG10670-MONOMER', 'EG10671-MONOMER', 'G6700-MONOMER', 'MONOMER0-282'], rp.parseBracket(line))
 
 
 		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
