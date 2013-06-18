@@ -1655,7 +1655,7 @@ def parseReactions():
 
 				pMLocation = getLocation(pMFrameId, protMonomerLocations)
 
-				reac.enzyme = pMFrameId + '[' + locationAbbrev[pMLocation] + ']'
+				reac.enzyme = [pMFrameId + '[' + locationAbbrev[pMLocation] + ']']
 			else:
 				pass
 				#parseRecursiveBracket(row[6][1:-1])
@@ -1671,7 +1671,7 @@ def parseReactions():
 		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
 
 def parseRecursiveBracket(line):
 	brackets = re.findall("\(([^\)]+)\)", line)
@@ -1712,8 +1712,6 @@ def getLocation(pMFrameId, protMonomerLocations):
 		print 'location not found for ' + pMFrameId
 		return
 	return pMLocation
-
-
 
 
 # Utility functions
