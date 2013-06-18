@@ -1765,13 +1765,13 @@ class reaction:
 		self.reverseUnits = None
 		self.comments = ''
 
-
 class reactionParser:
 	def __init__(self):
 		self.locationAbbrev = self.loadLocationAbbrev()
 		self.synDictFrameId = self.loadSynDict()
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
 		self.protMonomerLocations = self.loadProteinMonomerLocation()
+		self.monomerToCompex = self.loadMonomerToComplex()
 
 	def loadLocationAbbrev(self):
 		# Load location abbreviations
@@ -1809,6 +1809,19 @@ class reactionParser:
 			for row in csvreader:
 				protMonomerLocations[row[0]] = json.loads(row[3])
 		return protMonomerLocations
+
+	def loadMonomerToComplex(self):
+		monomerToComplex = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				compositionDict = json.loads(row[4])
+				monomers = compositionDict['reactant'].keys()
+				monomers.sort()
+				monomers = tuple(monomers)
+				monomerToComplex[monomers] = row[0]
+		return monomerToComplex
 
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
