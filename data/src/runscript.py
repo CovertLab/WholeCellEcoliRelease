@@ -1653,10 +1653,7 @@ def parseReactions():
 
 				pMFrameId = getPMFrame(bnum, synDictFrameId, protMonomerFrameId)
 
-				if protMonomerLocations.has_key(pMFrameId):
-					pMLocation = protMonomerLocations[pMFrameId][0]
-				else:
-					print 'location not found for ' + pMFrameId
+				pMLocation = getLocation(pMFrameId, protMonomerLocations)
 
 				reac.enzyme = pMFrameId + '[' + locationAbbrev[pMLocation] + ']'
 			else:
@@ -1707,6 +1704,14 @@ def getPMFrame(bnum, synDictFrameId, protMonomerFrameId):
 		return
 
 	return pMFrameId
+
+def getLocation(pMFrameId, protMonomerLocations):
+	if protMonomerLocations.has_key(pMFrameId):
+		pMLocation = protMonomerLocations[pMFrameId][0]
+	else:
+		print 'location not found for ' + pMFrameId
+		return
+	return pMLocation
 
 
 
