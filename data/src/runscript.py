@@ -1837,21 +1837,26 @@ class reactionParser:
 			return self.parseBracket(line)
 
 	def parseBracket(self, line):
-		bnums = re.findall("(b[0-9]+)", line)
+		# Input check
 		if line.count('or') and line.count('and'):
 			raise Exception, 'Line has && and ||'
 
-		if line.count('or'):
-			pass
+		# Find all bnumbers and the corresponding monomers
+		bnums = re.findall("(b[0-9]+)", line)
+		monomers = []
+		for b in bnums:
+			monomers.append(self.getPMFrame(b))
+		monomers.sort()
 
+		# Return list of monomers
+		if line.count('or'):
+			return monomers
+
+		# Return list of complexe
 		elif line.count('and'):
-			monomers = []
-			for b in bnums:
-				monomers.append(self.getPMFrame(b))
-			monomers.sort()
 			monomers = tuple(monomers)
 			cplx = self.monomerToComplex[monomers]
-			return cplx
+			return [cplx]
 		else:
 			raise Exception, 'No && or ||'
 
