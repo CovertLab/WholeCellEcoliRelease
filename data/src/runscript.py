@@ -1841,6 +1841,11 @@ class reactionParser:
 		rawOut = self.stackParser(line)
 		maxDepth = max([x[0] for x in rawOut])
 
+		replaceDict = {}
+		for element in rawOut:
+			if element[0] == maxDepth:
+				replaceDict[element[1]] = parseBracket[element[1]]
+
 
 	def stackParser(self, string):
 		"""Generate parenthesized contents in string as pairs (level, contents)."""
@@ -1854,10 +1859,6 @@ class reactionParser:
 				yield (len(stack), string[start + 1: i])
 
 	def parseBracket(self, line):
-		# Input check
-		if line.count('or') and line.count('and'):
-			raise Exception, 'Line has && and ||'
-
 		# Find all bnumbers and the corresponding monomers
 		bnums = re.findall("(b[0-9]+)", line)
 		monomers = []
@@ -1865,17 +1866,10 @@ class reactionParser:
 			monomers.append(self.getPMFrame(b))
 		monomers.sort()
 
-		# Return list of monomers
-		if line.count('or'):
-			return monomers
-
-		# Return list of complexe
-		elif line.count('and'):
-			monomers = tuple(monomers)
-			cplx = self.monomerToComplex[monomers]
-			return [cplx]
-		else:
-			raise Exception, 'No && or ||'
+		# Return complex
+		monomers = tuple(monomers)
+		cplx = self.monomerToComplex[monomers]
+		return cplx
 
 
 class gene:

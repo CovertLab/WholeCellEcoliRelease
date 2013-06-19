@@ -59,18 +59,14 @@ class Test_Simulation(unittest.TestCase):
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual(['ABC-26-CPLX'], rp.parseBracket(line))
 
-		# Basic or
-		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
-		self.assertEqual(['EG10670-MONOMER', 'EG10671-MONOMER', 'G6700-MONOMER', 'MONOMER0-282'], rp.parseBracket(line))
-
-
 
 		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
+		rp.findEnzyme(line)
+		ipdb.set_trace()
 
 
 
 		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
-		ipdb.set_trace()
 
 		nick = rp.parseRecursiveBracket(line[1:-1], [])
 
