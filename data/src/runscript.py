@@ -1841,10 +1841,17 @@ class reactionParser:
 		rawOut = list(self.stackParser(line))
 		maxDepth = max([x[0] for x in rawOut])
 
-		replaceDict = {}
+		replaceDict = {'(' : '', ')' : ''}
 		for element in rawOut:
 			if element[0] == maxDepth:
 				replaceDict[element[1]] = self.parseBracket(element[1])
+
+		for element in rawOut:
+			if element[0] == (maxDepth - 1):
+				x = element[1]
+				for key in replaceDict.iterkeys():
+					x = x.replace(key, replaceDict[key])
+				replaceDict[element[1]] = x
 
 		ipdb.set_trace()
 
