@@ -1837,6 +1837,17 @@ class reactionParser:
 			lst.append(self.parseBracket(line))
 			return lst
 
+	def stackParser(self, string):
+		"""Generate parenthesized contents in string as pairs (level, contents)."""
+		string = string.replace('  ', ' ')
+		stack = []
+		for i, c in enumerate(string):
+			if c == '(':
+				stack.append(i)
+			elif c == ')' and stack:
+				start = stack.pop()
+				yield (len(stack), string[start + 1: i])
+
 	def parseBracket(self, line):
 		# Input check
 		if line.count('or') and line.count('and'):
