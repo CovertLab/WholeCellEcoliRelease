@@ -65,8 +65,14 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(['EG10670-MONOMER', 'EG10671-MONOMER', 'G6700-MONOMER', 'MONOMER0-282'], rp.parseBracket(line))
 
 
+
+
+
+
+
 		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
 
-		rp.parseRecursiveBracket(line[1:-1])
+		nick = rp.parseRecursiveBracket(line[1:-1], [])
+		ipdb.set_trace()
 
 
