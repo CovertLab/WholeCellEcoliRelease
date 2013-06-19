@@ -1870,7 +1870,11 @@ class reactionParser:
 
 		# Return complex
 		monomers = tuple(monomers)
-		cplx = self.monomerToComplex[monomers]
+		if self.monomerToComplex.has_key(monomers):
+			cplx = self.monomerToComplex[monomers]
+		else:
+			print 'Unknown complex with subunits ' + str(monomers)
+			cplx = 'UNKNOWN'
 		return cplx
 
 
