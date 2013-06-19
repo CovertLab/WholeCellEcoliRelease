@@ -1844,7 +1844,9 @@ class reactionParser:
 		replaceDict = {}
 		for element in rawOut:
 			if element[0] == maxDepth:
-				replaceDict[element[1]] = parseBracket[element[1]]
+				replaceDict[element[1]] = self.parseBracket(element[1])
+
+		ipdb.set_trace()
 
 
 	def stackParser(self, string):
