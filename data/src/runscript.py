@@ -1837,6 +1837,11 @@ class reactionParser:
 			lst.append(self.parseBracket(line))
 			return lst
 
+	def findEnzyme(self, line):
+		rawOut = self.stackParser(line)
+		maxDepth = max([x[0] for x in rawOut])
+
+
 	def stackParser(self, string):
 		"""Generate parenthesized contents in string as pairs (level, contents)."""
 		string = string.replace('  ', ' ')
