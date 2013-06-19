@@ -66,13 +66,13 @@ class Test_Simulation(unittest.TestCase):
 
 
 
-
+		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
 
 
 
 		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
+		ipdb.set_trace()
 
 		nick = rp.parseRecursiveBracket(line[1:-1], [])
-		ipdb.set_trace()
 
 
