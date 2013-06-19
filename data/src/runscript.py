@@ -1838,7 +1838,7 @@ class reactionParser:
 			return lst
 
 	def findEnzyme(self, line):
-		rawOut = self.stackParser(line)
+		rawOut = list(self.stackParser(line))
 		maxDepth = max([x[0] for x in rawOut])
 
 		replaceDict = {}
