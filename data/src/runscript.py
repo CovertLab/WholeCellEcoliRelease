@@ -1872,6 +1872,7 @@ class reactionParser:
 		else:
 			raise Exception, 'No && or ||'
 
+
 class gene:
 	def __init__(self):
 		self.frameId = None
