@@ -1815,6 +1815,13 @@ class reactionParser:
 
 		return monomerToComplex
 
+	def iterateTree(self, cmplxFrameId, monomers, monomerOrComplexToComplex):
+		for subunit in monomerOrComplexToComplex[cmplxFrameId]:
+			if monomerOrComplexToComplex.has_key(subunit):
+				self.iterateTree(subunit, monomers, monomerOrComplexToComplex)
+			else:
+				monomers.append(subunit)
+
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
 			geneFrameId = self.synDictFrameId[bnum]
