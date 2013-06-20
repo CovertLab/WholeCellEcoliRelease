@@ -1859,18 +1859,6 @@ class reactionParser:
 
 		ipdb.set_trace()
 
-
-	def stackParser(self, string):
-		"""Generate parenthesized contents in string as pairs (level, contents)."""
-		string = string.replace('  ', ' ')
-		stack = []
-		for i, c in enumerate(string):
-			if c == '(':
-				stack.append(i)
-			elif c == ')' and stack:
-				start = stack.pop()
-				yield (len(stack), string[start + 1: i])
-
 	def parseBracket(self, line):
 		# Find all bnumbers and the corresponding monomers
 		bnums = re.findall("(b[0-9]+)", line)
