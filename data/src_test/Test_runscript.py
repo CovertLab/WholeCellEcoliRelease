@@ -50,7 +50,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
 
-	@noseAttrib.attr('focusTest')
 	def test_parseReactionScript(self):
 		rp = r.reactionParser()
 
@@ -71,4 +70,25 @@ class Test_Simulation(unittest.TestCase):
 
 		nick = rp.parseRecursiveBracket(line[1:-1], [])
 
+	@noseAttrib.attr('focusTest')
+	def test_iterateTree(self):
+		rp = r.reactionParser()
 
+		cmplxFrameId = 'C1'
+		monomers = []
+		monomerOrComplexToComplex = {'C1' : ['M1', 'M2']}
+		rp.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
+		self.assertEqual(['M1', 'M2'], monomers)
+
+		cmplxFrameId = 'C1'
+		monomers = []
+		monomerOrComplexToComplex = {'C1' : ['M1', 'C2'], 'C2' : ['M2', 'M3']}
+		rp.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
+		self.assertEqual(['M1','M2','M3'].sort(), monomers.sort())
+
+
+		cmplxFrameId = 'C1'
+		monomers = []
+		monomerOrComplexToComplex = {'C1' : ['M1', 'C2'], 'C2' : ['C3', 'C4'], 'C3' : ['M2','M3'], 'C4' : ['M4','M5']}
+		rp.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
+		self.assertEqual(['M1','M2','M3','M4','M5'].sort(), monomers.sort())
