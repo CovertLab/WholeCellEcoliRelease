@@ -1793,16 +1793,26 @@ class reactionParser:
 		return protMonomerLocations
 
 	def loadMonomerToComplex(self):
-		monomerToComplex = {}
+		monomerOrComplexToComplex = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			for row in csvreader:
 				compositionDict = json.loads(row[4])
-				monomers = compositionDict['reactant'].keys()
-				monomers.sort()
-				monomers = tuple(monomers)
-				monomerToComplex[monomers] = row[0]
+				subunits = compositionDict['reactant'].keys()
+
+				cmplxFrameId = row[0]
+				monomerOrComplexToComplex[cmplxFrameId] = subunits
+		
+		monomerToComplex = {}
+		for cmplxFrameId in monomerOrComplexToComplex.iterkeys():
+			monomers = []
+			# Edits monomers in place recursivly
+			self.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
+			monomers.sort()
+			monomers = tuple(monomers)
+			monomerToComplex[cmplxFrameId] = monomers
+
 		return monomerToComplex
 
 	def getPMFrame(self, bnum):
