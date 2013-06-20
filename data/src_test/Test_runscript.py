@@ -55,10 +55,10 @@ class Test_Simulation(unittest.TestCase):
 		rp = r.reactionParser()
 
 		# Basic complex with and
-		line = '( b1252  and  b3005  and  b3006 )'
-		self.assertEqual('CPLX0-1923', rp.parseBracket(line))
-		line = '( b2677  and  b2678  and  b2679 )'
-		self.assertEqual('ABC-26-CPLX', rp.parseBracket(line))
+		# line = '( b1252  and  b3005  and  b3006 )'
+		# self.assertEqual('CPLX0-1923', rp.parseBracket(line))
+		# line = '( b2677  and  b2678  and  b2679 )'
+		# self.assertEqual('ABC-26-CPLX', rp.parseBracket(line))
 
 
 		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
