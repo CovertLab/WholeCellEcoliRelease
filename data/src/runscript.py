@@ -1864,20 +1864,31 @@ class reactionParser:
 			return
 		return pMLocation
 
-	def findEnzyme(self, line):
+	def findEnzyme(self, line, row):
 		enzymes = []
 		enzymesRaw = line.split('or')
 		for e in enzymesRaw:
-			bnums = re.findall("(b[0-9]+)", e)
-			monomers = []
-			for b in bnums:
-				monomers.append(self.getPMFrame(b))
-			monomers.sort()
-			monomers = tuple(monomers)
-			if self.monomerToComplex.has_key(monomers):
-				enzymes.append(self.monomerToComplex[monomers])
+			if e.count('s0001') == 0:
+				bnums = re.findall("(b[0-9]+)", e)
+				monomers = []
+				for b in bnums:
+					monomers.append(self.getPMFrame(b))
+
+				monomers.sort()
+				monomers = tuple(monomers)
+
+				if self.monomerToComplex.has_key(monomers) and len(bnums) > 1:
+					# If this is actually a complex formed from more than on bnumber
+					enzymes.append(self.monomerToComplex[monomers])
+				elif len(bnums) == 1:
+					# This is just a monomer in an OR statement
+					enzymes.append(monomers[0])
+				else:
+					enzymes.append('UNKNOWN')
+					print 'No enzyme found for: ' + str(monomers)
+					print row
 			else:
-				enzymes.append('UNKNOWN')
+				enzymes.append('SPONTANEOUS')
 		return enzymes
 
 class gene:
