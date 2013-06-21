@@ -62,7 +62,8 @@ class Test_Simulation(unittest.TestCase):
 
 
 		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
-		rp.findEnzyme(line)
+		enzymes = rp.findEnzyme(line)
+		self.assertEqual(['ATPSYN-CPLX','UNKNOWN'], enzymes)
 		ipdb.set_trace()
 
 
