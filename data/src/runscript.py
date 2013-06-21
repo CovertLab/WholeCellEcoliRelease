@@ -1632,7 +1632,6 @@ def parseReactions():
 				reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
 			else:
 				pass
-				#rp.parseRecursiveBracket(row[6][1:-1], [])
 
 			reactDict[reac.frameId] = reac
 
@@ -1844,15 +1843,6 @@ class reactionParser:
 			print 'location not found for ' + pMFrameId
 			return
 		return pMLocation
-
-	def parseRecursiveBracket(self, line, lst):
-		brackets = re.findall("\(([^\)]+)\)", line)
-		if len(brackets):
-			for bra in brackets:
-				lst.append(self.parseRecursiveBracket(bra, lst))
-		else:
-			lst.append(self.parseBracket(line))
-			return lst
 
 	def findEnzyme(self, line):
 		
