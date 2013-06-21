@@ -23,6 +23,7 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('focusTest')
 	def test_runscript(self):
 		r.main()
 	
@@ -50,26 +51,27 @@ class Test_Simulation(unittest.TestCase):
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
 
-	@noseAttrib.attr('focusTest')
 	def test_parseReactionScript(self):
 		rp = r.reactionParser()
 
 		# Basic complex with and
-		# line = '( b1252  and  b3005  and  b3006 )'
-		# self.assertEqual('CPLX0-1923', rp.parseBracket(line))
-		# line = '( b2677  and  b2678  and  b2679 )'
-		# self.assertEqual('ABC-26-CPLX', rp.parseBracket(line))
+		line = '( b1252  and  b3005  and  b3006 )'
+		self.assertEqual(['CPLX0-1923'], rp.findEnzyme(line))
+		line = '( b2677  and  b2678  and  b2679 )'
+		self.assertEqual(['ABC-26-CPLX'], rp.findEnzyme(line))
 
+		# Simple OR
+		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
+		self.assertEqual(['CPLX0-7530', 'CPLX0-7534', 'UNKNOWN', 'CPLX0-7533'], rp.findEnzyme(line))
 
+		# Simple and/OR
+		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
+		self.assertEqual(['ACETOLACTSYNI-CPLX', 'ACETOLACTSYNIII-CPLX'], rp.findEnzyme(line))
+
+		# Complicated complex with OR
 		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
 		enzymes = rp.findEnzyme(line)
 		self.assertEqual(['ATPSYN-CPLX','UNKNOWN'], enzymes)
-		ipdb.set_trace()
-
-
-
-		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
-
 
 	def test_iterateTree(self):
 		rp = r.reactionParser()
