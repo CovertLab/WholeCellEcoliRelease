@@ -1808,9 +1808,11 @@ class reactionParser:
 			monomers = []
 			# Edits monomers in place recursivly
 			self.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
+			monomers = set(monomers)
+			monomers = list(monomers)
 			monomers.sort()
 			monomers = tuple(monomers)
-			monomerToComplex[cmplxFrameId] = monomers
+			monomerToComplex[monomers] = cmplxFrameId
 
 		return monomerToComplex
 
