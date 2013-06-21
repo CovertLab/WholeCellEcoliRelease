@@ -1594,10 +1594,10 @@ def parseMetabolites():
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutrial formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutrial formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Comments'])
 		for key in keys:
 			m = metDict[key]
-			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.comments])
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.comments])
 
 # Parse reactions
 def parseReactions():
@@ -1718,6 +1718,7 @@ class metabolite:
 		self.biomassNewFlux = None
 		self.biomassRecycle = None
 		self.exchangeRate = None
+		self.notRealMetabolte = None
 		self.comments = ''
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
@@ -1740,6 +1741,7 @@ class metabolite:
 			else:
 				if 'Non-element in formula. Weight calculated for known elements.\n' not in self.comments:
 					self.comments += 'Non-element in formula. Weight calculated for known elements.\n'
+					self.notRealMetabolte = True
 		return weight
 
 class reaction:
