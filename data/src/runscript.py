@@ -1888,8 +1888,10 @@ class reactionParser:
 					enzymes.append(monomers[0])
 				else:
 					enzymes.append('UNKNOWN')
-					print 'No enzyme found for: ' + str(monomers)
-					print row
+					print 'No enzyme complex found for subunits: ' + str(monomers)
+					print str(row[:3])
+					print str(row[6])
+					print '---'
 			else:
 				enzymes.append('SPONTANEOUS')
 		return enzymes
