@@ -1631,7 +1631,18 @@ def parseReactions():
 
 				reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
 			else:
-				pass
+				#print row[:7]
+				enzymes = rp.findEnzyme(row[6], row)
+				reac.enzyme = []
+				for e in enzymes:
+					if e == 'UNKNOWN':
+						pass
+					elif e == 'SPONTANEOUS':
+						reac.enzyme.append('SPONTANEOUS')
+					else:
+						location = rp.getLocation(e)
+						reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
+				reac.enzyme.sort()
 
 			reactDict[reac.frameId] = reac
 
