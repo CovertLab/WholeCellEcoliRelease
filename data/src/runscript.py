@@ -1857,8 +1857,8 @@ class reactionParser:
 		return pMFrameId
 
 	def getLocation(self, pMFrameId):
-		if self.protMonomerLocations.has_key(pMFrameId):
-			pMLocation = self.protMonomerLocations[pMFrameId][0]
+		if self.proteinLocations.has_key(pMFrameId):
+			pMLocation = self.proteinLocations[pMFrameId][0]
 		else:
 			print 'location not found for ' + pMFrameId
 			return
