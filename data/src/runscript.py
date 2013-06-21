@@ -1762,7 +1762,7 @@ class reactionParser:
 		self.locationAbbrev = self.loadLocationAbbrev()
 		self.synDictFrameId = self.loadSynDict()
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
-		self.protMonomerLocations = self.loadProteinMonomerLocation()
+		self.proteinLocations = self.loadProteinMonomerLocation()
 		self.monomerToComplex = self.loadMonomerToComplex()
 
 	def loadLocationAbbrev(self):
@@ -1794,13 +1794,20 @@ class reactionParser:
 		return protMonomerFrameId
 
 	def loadProteinMonomerLocation(self):
-		protMonomerLocations = {}
+		proteinLocations = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			for row in csvreader:
-				protMonomerLocations[row[0]] = json.loads(row[3])
-		return protMonomerLocations
+				proteinLocations[row[0]] = json.loads(row[3])
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				proteinLocations[row[0]] = json.loads(row[2])
+
+		return proteinLocations
 
 	def loadMonomerToComplex(self):
 		monomerOrComplexToComplex = {}
