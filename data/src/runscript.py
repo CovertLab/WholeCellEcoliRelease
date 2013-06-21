@@ -1862,25 +1862,6 @@ class reactionParser:
 				enzymes.append('UNKNOWN')
 		return enzymes
 
-
-	def parseBracket(self, line):
-		# Find all bnumbers and the corresponding monomers
-		bnums = re.findall("(b[0-9]+)", line)
-		monomers = []
-		for b in bnums:
-			monomers.append(self.getPMFrame(b))
-		monomers.sort()
-
-		# Return complex
-		monomers = tuple(monomers)
-		if self.monomerToComplex.has_key(monomers):
-			cplx = self.monomerToComplex[monomers]
-		else:
-			print 'Unknown complex with subunits ' + str(monomers)
-			cplx = 'UNKNOWN'
-		return cplx
-
-
 class gene:
 	def __init__(self):
 		self.frameId = None
