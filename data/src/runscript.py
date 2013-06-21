@@ -1847,9 +1847,21 @@ class reactionParser:
 		return pMLocation
 
 	def findEnzyme(self, line):
-		
+		enzymes = []
+		enzymesRaw = line.split('or')
+		for e in enzymesRaw:
+			bnums = re.findall("(b[0-9]+)", e)
+			monomers = []
+			for b in bnums:
+				monomers.append(self.getPMFrame(b))
+			monomers.sort()
+			monomers = tuple(monomers)
+			if self.monomerToComplex.has_key(monomers):
+				enzymes.append(self.monomerToComplex[monomers])
+			else:
+				enzymes.append('UNKNOWN')
+		return enzymes
 
-		ipdb.set_trace()
 
 	def parseBracket(self, line):
 		# Find all bnumbers and the corresponding monomers
