@@ -1650,7 +1650,9 @@ def parseReactions():
 				reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
 			else:
 				#print row[:7]
-				enzymes = rp.findEnzyme(row[6], row)
+				enzymeInfo = rp.findEnzyme(row[6], row)
+				enzymes = enzymeInfo['enzymes']
+				cofactors = enzymeInfo['cofactors']
 				reac.enzyme = []
 				for e in enzymes:
 					if e == 'UNKNOWN':
@@ -1935,7 +1937,7 @@ class reactionParser:
 					print '---'
 			else:
 				enzymes.append('SPONTANEOUS')
-		return enzymes, cofactors
+		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 class gene:
 	def __init__(self):
