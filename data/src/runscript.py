@@ -1900,21 +1900,31 @@ class reactionParser:
 
 	def findEnzyme(self, line, row):
 		enzymes = []
+		cofactors = []
 		enzymesRaw = line.split('or')
 		for e in enzymesRaw:
+			# Check for spontanious reaction
 			if e.count('s0001') == 0:
+				# Find all bnumbers and their corresponding monomers
 				bnums = re.findall("(b[0-9]+)", e)
 				monomers = []
 				for b in bnums:
 					monomers.append(self.getPMFrame(b))
 
+				# Check to see if any monomers are actually fake metabolites/cofactors
+				for i,m in enumerate(monomers):
+					if m in self.fakeMetabolites:
+						cofac = monomers.pop(i)
+						cofactors.append(cofac)
+
+				# Sort monomers and cast to tuple for hash
 				monomers.sort()
 				monomers = tuple(monomers)
 
-				if self.monomerToComplex.has_key(monomers) and len(bnums) > 1:
+				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
 					enzymes.append(self.monomerToComplex[monomers])
-				elif len(bnums) == 1:
+				elif len(monomers) == 1:
 					# This is just a monomer in an OR statement
 					enzymes.append(monomers[0])
 				else:
@@ -1925,7 +1935,7 @@ class reactionParser:
 					print '---'
 			else:
 				enzymes.append('SPONTANEOUS')
-		return enzymes
+		return enzymes, cofactors
 
 class gene:
 	def __init__(self):
