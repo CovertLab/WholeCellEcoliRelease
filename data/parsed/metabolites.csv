@@ -1,4 +1,4 @@
-Frame ID	Name	Neutrial formula	pH dependent properties	Media Concentration (mM)	Biomass concentration (molecules/cell)	Maximum exchange rate (mmol/gDSW/hr)	Fake metabolite	Comments
+Frame ID	Name	Neutral formula	pH dependent properties	Media Concentration (mM)	Biomass concentration (molecules/cell)	Maximum exchange rate (mmol/gDSW/hr)	Fake metabolite	Comments
 10fthf	10-Formyltetrahydrofolate	C20H23N7O7	"{""7.2"": {""formula"": ""C20H21N7O7"", ""charge"": -2, ""weight"": ""471.4279000000""}, ""7"": {""formula"": ""C20H21N7O7"", ""charge"": -2, ""weight"": ""471.4279000000""}}"		37588.87999999999			
 12dgr120	1,2-Diacyl-sn-glycerol (didodecanoyl, n-C12:0)	C27H52O5	"{""7.2"": {""formula"": ""C27H52O5"", ""charge"": 0, ""weight"": ""456.7028000000""}, ""7"": {""formula"": ""C27H52O5"", ""charge"": 0, ""weight"": ""456.7028000000""}}"					
 12dgr140	1,2-Diacyl-sn-glycerol (ditetradecanoyl, n-C14:0)	C31H60O5	"{""7.2"": {""formula"": ""C31H60O5"", ""charge"": 0, ""weight"": ""512.8100000000""}, ""7"": {""formula"": ""C31H60O5"", ""charge"": 0, ""weight"": ""512.8100000000""}}"					
