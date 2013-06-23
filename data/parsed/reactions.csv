@@ -124,15 +124,15 @@ Frame ID	Name	Process	EC	Stoichiometry (pH 7.2)	Enzyme	Required cofactors/protei
 5DGLCNtex	5-Dehydro-D-gluconate transport via diffusion (extracellular to periplasm)	Metabolism		5dglcn[e] <==> 5dglcn[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	null	reversible					
 5DOAN	5'-deoxyadenosine nuclosidase	Metabolism		[c] : dad-5 + h2o --> 5drib + ade	"[""EG11090-MONOMER[c]""]"	null	forward only					
 A5PISO	arabinose-5-phosphate isomerase	Metabolism	5.3.1.13	[c] : ru5p-D <==> ara5p	"[""EG10973-MONOMER[c]"", ""G7662-MONOMER[c]""]"	null	reversible					
-AACPS1	acyl-[acyl-carrier-protein] synthetase (n-C14:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdca --> amp + myrsACP + ppi	[]	null	forward only					
-AACPS2	acyl-[acyl-carrier-protein] synthetase  (n-C14:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdcea --> amp + ppi + tdeACP	[]	null	forward only					
-AACPS3	acyl-[acyl-carrier-protein] synthetase  (n-C16:0)	Metabolism	6.2.1.20	[c] : ACP + atp + hdca --> amp + palmACP + ppi	[]	null	forward only					
-AACPS4	acyl-[acyl-carrier-protein] synthetase  (n-C16:1)	Metabolism	6.2.1.20	[c] : ACP + atp + hdcea --> amp + hdeACP + ppi	[]	null	forward only					
-AACPS5	acyl-[acyl-carrier-protein] synthetase  (n-C18:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdcea --> amp + octeACP + ppi	[]	null	forward only					
-AACPS6	acyl-[acyl-carrier-protein] synthetase  (n-C18:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdca --> amp + ocdcaACP + ppi	[]	null	forward only					
-AACPS7	acyl-[acyl-carrier-protein] synthetase  (n-C12:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ddca --> amp + ddcaACP + ppi	[]	null	forward only					
-AACPS8	acyl-[acyl-carrier-protein] synthetase  (n-C10:0)	Metabolism	6.2.1.20	[c] : ACP + atp + dca --> amp + dcaACP + ppi	[]	null	forward only					
-AACPS9	acyl-[acyl-carrier-protein] synthetase  (n-C8:0)	Metabolism	6.2.1.20	[c] : ACP + atp + octa --> amp + ocACP + ppi	[]	null	forward only					
+AACPS1	acyl-[acyl-carrier-protein] synthetase (n-C14:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdca --> amp + myrsACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS2	acyl-[acyl-carrier-protein] synthetase  (n-C14:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdcea --> amp + ppi + tdeACP	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS3	acyl-[acyl-carrier-protein] synthetase  (n-C16:0)	Metabolism	6.2.1.20	[c] : ACP + atp + hdca --> amp + palmACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS4	acyl-[acyl-carrier-protein] synthetase  (n-C16:1)	Metabolism	6.2.1.20	[c] : ACP + atp + hdcea --> amp + hdeACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS5	acyl-[acyl-carrier-protein] synthetase  (n-C18:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdcea --> amp + octeACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS6	acyl-[acyl-carrier-protein] synthetase  (n-C18:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdca --> amp + ocdcaACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS7	acyl-[acyl-carrier-protein] synthetase  (n-C12:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ddca --> amp + ddcaACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS8	acyl-[acyl-carrier-protein] synthetase  (n-C10:0)	Metabolism	6.2.1.20	[c] : ACP + atp + dca --> amp + dcaACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
+AACPS9	acyl-[acyl-carrier-protein] synthetase  (n-C8:0)	Metabolism	6.2.1.20	[c] : ACP + atp + octa --> amp + ocACP + ppi	"[""AAS-MONOMER[i]""]"	null	forward only					
 AACTOOR	Aminoacetone:oxygen oxidoreductase(deaminating)(flavin-containing)	Metabolism		[c] : aact + h2o + o2 --> h2o2 + mthgxl + nh4	null	null	forward only					
 AADDGT	dTDP-N-4-acetamido-4,6-dideoxy-D-galactose transferase	Metabolism		[c] : dtdp4aaddg + unagamu --> dtdp + h + unagamuf	"[""G7800-MONOMER[c]""]"	null	forward only					
 AAMYL	alpha-amylase	Metabolism		[c] : 14glucan --> malthx	"[""ALPHA-AMYL-CYTO-MONOMER[c]""]"	null	forward only					
@@ -184,7 +184,7 @@ ACOAD5f	acyl-CoA dehydrogenase (dodecanoyl-CoA)	Metabolism	1.3.99.3	[c] : ddcaco
 ACOAD6f	acyl-CoA dehydrogenase (tetradecanoyl-CoA)	Metabolism	1.3.99.3	[c] : fad + tdcoa <==> fadh2 + td2coa	"[""ACYLCOADEHYDROG-MONOMER[i]""]"	null	reversible					
 ACOAD7f	acyl-CoA dehydrogenase (hexadecanoyl-CoA)	Metabolism	1.3.99.3	[c] : fad + pmtcoa <==> fadh2 + hdd2coa	"[""ACYLCOADEHYDROG-MONOMER[i]""]"	null	reversible					
 ACOAD8f	acyl-CoA dehydrogenase (octadecanoyl-CoA)	Metabolism	1.3.99.3	[c] : fad + stcoa <==> fadh2 + od2coa	"[""ACYLCOADEHYDROG-MONOMER[i]""]"	null	reversible					
-ACOATA	Acetyl-CoA ACP transacylase	Metabolism	2.3.1.38	[c] : ACP + accoa <==> acACP + coa	[]	null	reversible					
+ACOATA	Acetyl-CoA ACP transacylase	Metabolism	2.3.1.38	[c] : ACP + accoa <==> acACP + coa	"[""FABH-MONOMER[c]""]"	null	reversible					
 ACODA	acetylornithine deacetylase	Metabolism	3.5.1.16	[c] : acorn + h2o --> ac + orn	"[""ACETYLORNDEACET-MONOMER[c]""]"	null	forward only					
 ACOLIPAtex	arabinose modified core oligosaccharide lipid A transport via vector (periplasm to extracellular)	Metabolism		acolipa[p] --> acolipa[e]	null	null	forward only					
 ACONIs	aconitate isomerase (spontaneous)	Metabolism	5.3.3.7	[c] : acon-T <==> acon-C	"[""SPONTANEOUS""]"	null	reversible					
@@ -1605,7 +1605,7 @@ MANtex	D-mannose transport via diffusion (extracellular to periplasm)	Metabolism
 MCITD	2-methylcitrate dehydratase	Metabolism	4.2.1.79	[c] : 2mcit --> 2mcacn + h2o	"[""G6199-MONOMER[c]""]"	null	forward only					
 MCITL2	methylisocitrate lyase	Metabolism	4.1.3.30	[c] : micit <==> pyr + succ	"[""G6196-MONOMER[c]""]"	null	reversible					
 MCITS	2-methylcitrate synthase	Metabolism	4.1.3.31	[c] : h2o + oaa + ppcoa --> 2mcit + coa + h	"[""G6198-MONOMER[c]""]"	null	forward only					
-MCOATA	Malonyl-CoA-ACP transacylase	Metabolism	2.3.1.39	[c] : ACP + malcoa <==> coa + malACP	[]	null	reversible					
+MCOATA	Malonyl-CoA-ACP transacylase	Metabolism	2.3.1.39	[c] : ACP + malcoa <==> coa + malACP	"[""MALONYL-COA-ACP-TRANSACYL-MONOMER[c]""]"	null	reversible					
 MCPST	3-mercaptopyruvate sulfurtransferase	Metabolism	2.8.1.2	[c] : cyan + mercppyr --> h + pyr + tcynt	"[""EG11600-MONOMER[c]""]"	null	forward only					
 MCTP1App	murein crosslinking transpeptidase 1A:(A2pm->D-ala) (periplasm)	Metabolism		[p] : murein5p5p --> ala-D + murein5px4p	"[""EG10341-MONOMER[i]"", ""EG10605-MONOMER[i]"", ""EG10606-MONOMER[i]"", ""EG10748-MONOMER[i]""]"	null	forward only					
 MCTP1Bpp	murein crosslinking transpeptidase 1B:(A2pm->A2pm) (periplasm)	Metabolism		[p] : murein5p5p --> alaala + murein5px3p	"[""EG10605-MONOMER[i]"", ""EG10748-MONOMER[i]""]"	null	forward only					
@@ -2295,7 +2295,7 @@ UACGAMPpp	UDP-N-acetyl-D-glucosamine pyrophosphohydrolase (periplasm)	Metabolism
 UACGAMtex	UDP-N-acetyl-D-glucosamine transport via diffusion (extracellular to periplasm)	Metabolism		uacgam[e] <==> uacgam[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	null	reversible					
 UACMAMO	UDP-N-acetyl-D-mannosamine oxidoreductase	Metabolism		[c] : h2o + (2) nad + uacmam --> (3) h + (2) nadh + uacmamu	"[""UDPMANNACADEHYDROG-MONOMER[c]""]"	null	forward only					
 UAG2E	UDP-N-acetylglucosamine 2-epimerase	Metabolism	5.1.3.14	[c] : uacgam <==> uacmam	"[""UDPGLCNACEPIM-MONOMER[c]""]"	null	reversible					
-UAGAAT	UDP-N-acetylglucosamine acyltransferase	Metabolism	2.3.1.129	[c] : 3hmrsACP + uacgam <==> ACP + u3aga	[]	null	reversible					
+UAGAAT	UDP-N-acetylglucosamine acyltransferase	Metabolism	2.3.1.129	[c] : 3hmrsACP + uacgam <==> ACP + u3aga	"[""UDPNACETYLGLUCOSAMACYLTRANS-MONOMER[c]""]"	null	reversible					
 UAGCVT	UDP-N-acetylglucosamine 1-carboxyvinyltransferase	Metabolism	2.5.1.7	[c] : pep + uacgam --> pi + uaccg	"[""UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER[c]""]"	null	forward only					
 UAGDP	UDP-N-acetylglucosamine diphosphorylase	Metabolism	2.7.7.23	[c] : acgam1p + h + utp --> ppi + uacgam	"[""NAG1P-URIDYLTRANS-MONOMER[c]""]"	null	forward only					
 UAGPT3	UDP-N-acetylglucosamine-N-acetylmuramyl-(pentapeptide)pyrophosphoryl-undecaprenol N-acetylglucosamine transferase	Metabolism		[c] : uacgam + uagmda --> h + uaagmda + udp	"[""NACGLCTRANS-MONOMER[c]""]"	null	forward only					
