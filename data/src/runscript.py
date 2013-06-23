@@ -1785,6 +1785,7 @@ class reactionParser:
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
 		self.proteinLocations = self.loadProteinMonomerLocation()
 		self.monomerToComplex = self.loadMonomerToComplex()
+		self.fakeMetabolites = self.loadFakeMetabolites()
 
 	def loadLocationAbbrev(self):
 		# Load location abbreviations
@@ -1862,6 +1863,18 @@ class reactionParser:
 			else:
 				monomers.append(subunit)
 
+	def loadFakeMetabolites(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			frameIdList = []
+			for row in csvreader:
+				frameId = row[4]
+				frameIdList.append(frameId)
+		frameIdSet = set(frameIdList)
+		uniqueFrameIdList = list(frameIdSet)
+		return uniqueFrameIdList
+
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
 			geneFrameId = self.synDictFrameId[bnum]
@@ -1908,7 +1921,7 @@ class reactionParser:
 					enzymes.append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
 					print str(row[:3])
-					print str(row[6])
+					print str(e)
 					print '---'
 			else:
 				enzymes.append('SPONTANEOUS')
