@@ -1599,6 +1599,24 @@ def parseMetabolites():
 			m = metDict[key]
 			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.comments])
 
+	# Write a file of all the fake metabolites
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = metDict.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula','Cofactor frame ID'])
+		for key in keys:
+			m = metDict[key]
+			if m.notRealMetabolte == True:
+				cofactorName = None
+				cofactorFrameId = None
+				if m.frameId != None:
+					if m.frameId.count('ACP'):
+						cofactorName = 'ACP'
+						cofactorFrameId = 'EG50003-MONOMER'
+				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, cofactorFrameId])
+
 # Parse reactions
 def parseReactions():
 	# Load reactions
