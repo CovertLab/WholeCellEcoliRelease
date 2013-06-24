@@ -1934,10 +1934,12 @@ class reactionParser:
 			csvreader.next()
 			frameIdList = []
 			for row in csvreader:
-				frameId = row[4]
-				frameIdList.extend(frameId)
+				frameId = json.loads(row[4])
+				if frameId != None:
+					frameIdList.extend(frameId)
 		frameIdSet = set(frameIdList)
 		uniqueFrameIdList = list(frameIdSet)
+		ipdb.set_trace()
 		return uniqueFrameIdList
 
 	def getPMFrame(self, bnum):
