@@ -1653,7 +1653,6 @@ def parseReactions():
 				enzymeInfo = rp.findEnzyme(row[6], row)
 				enzymes = enzymeInfo['enzymes']
 				cofactors = enzymeInfo['cofactors']
-				reac.enzyme = []
 				for e in enzymes:
 					if e == 'UNKNOWN':
 						pass
@@ -1771,8 +1770,8 @@ class reaction:
 		self.process = None
 		self.EC = None
 		self.stoich = None
-		self.enzyme = None
-		self.requiredCofactors = None
+		self.enzyme = []
+		self.requiredCofactors = []
 		self.direction = None
 		self.forward = None
 		self.forwardUnits = None
