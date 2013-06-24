@@ -1727,6 +1727,14 @@ def parseReactions():
 					reac.requiredCofactors.append(c)
 				reac.enzyme.sort()
 
+			# Figure out if any reactants or products are fake metabolite cofactors
+			for fakeMet in rp.fakeMetaboliteDict.iterkeys():
+				if reac.stoich.count(' ' + fakeMet + ' '):
+					if rp.fakeMetaboliteDict[fakeMet] != None:
+						reac.requiredCofactors.extend(rp.fakeMetaboliteDict[fakeMet])
+
+			reac.requiredCofactors = list(set(reac.requiredCofactors)).sort()
+
 			reactDict[reac.frameId] = reac
 
 	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
@@ -1850,7 +1858,8 @@ class reactionParser:
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
 		self.proteinLocations = self.loadProteinMonomerLocation()
 		self.monomerToComplex = self.loadMonomerToComplex()
-		self.fakeMetabolites = self.loadFakeMetabolites()
+		self.fakeMetaboliteFrameIds = self.loadFakeMetaboliteFrameIds()
+		self.fakeMetaboliteDict = self.loadFakeMetabolites()
 
 	def loadLocationAbbrev(self):
 		# Load location abbreviations
@@ -1928,7 +1937,7 @@ class reactionParser:
 			else:
 				monomers.append(subunit)
 
-	def loadFakeMetabolites(self):
+	def loadFakeMetaboliteFrameIds(self):
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
@@ -1940,6 +1949,15 @@ class reactionParser:
 		frameIdSet = set(frameIdList)
 		uniqueFrameIdList = list(frameIdSet)
 		return uniqueFrameIdList
+
+	def loadFakeMetabolites(self):
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			fakeMetaboliteDict = {}
+			for row in csvreader:
+				fakeMetaboliteDict[row[0]] = json.loads(row[4])
+		return fakeMetaboliteDict
 
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
@@ -1979,7 +1997,7 @@ class reactionParser:
 
 				# Check to see if any monomers are actually fake metabolites/cofactors
 				for i,m in enumerate(monomers):
-					if m in self.fakeMetabolites:
+					if m in self.fakeMetaboliteFrameIds:
 						cofac = monomers.pop(i)
 						cofactors.append(cofac)
 
