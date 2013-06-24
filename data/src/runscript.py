@@ -1939,7 +1939,6 @@ class reactionParser:
 					frameIdList.extend(frameId)
 		frameIdSet = set(frameIdList)
 		uniqueFrameIdList = list(frameIdSet)
-		ipdb.set_trace()
 		return uniqueFrameIdList
 
 	def getPMFrame(self, bnum):
