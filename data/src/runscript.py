@@ -1614,8 +1614,70 @@ def parseMetabolites():
 				if m.frameId != None:
 					if m.frameId.count('ACP'):
 						cofactorName = 'ACP'
-						cofactorFrameId = 'EG50003-MONOMER'
-				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, cofactorFrameId])
+						cofactorFrameId = ['EG50003-MONOMER']
+
+					if m.frameId == 'alpp':
+						cofactorName = 'apolipoprotein'
+						cofactorFrameId = ['EG10544']
+
+					# if m.frameId == 'argtrna':
+					# 	cofactorName = 'Arg-tRNA'
+					# 	cofactorFrameId = ['charged-argQ-tRNA','charged-argU-tRNA','charged-argV-tRNA','charged-argW-tRNA','charged-argX-tRNA','charged-argY-tRNA','charged-argZ-tRNA']
+
+					if m.frameId == 'dsbdrd':
+						cofactors = 'dsbD'
+						cofactorFrameId = ['DSBD-MONOMER']
+					if m.frameId == 'dsbdox':
+						cofactors = 'dsbD'
+						cofactorFrameId = ['DSBDOXI-MONOMER']
+
+					if m.frameId == 'dsbard':
+						cofactors = 'dsbA'
+						cofactorFrameId = ['DISULFOXRED-MONOMER']
+					if m.frameId == 'dsbaox':
+						cofactors = 'dsbA'
+						cofactorFrameId = ['MONOMER0-4152']
+
+					if m.frameId == 'dsbcrd':
+						cofactorName = 'dsbC'
+						cofactorFrameId = ['DSBC-CPLX']
+					if m.frameId == 'dsbcox':
+						cofactorName = 'dsbC'
+						cofactorFrameId = ['CPLX0-8002']
+
+					if m.frameId == 'dsbgrd':
+						cofactorName = 'dsbG'
+						cofactorFrameId = ['DSBG-CPLX']
+					if m.frameId == 'dsbgox':
+						cofactorName = 'dsbG'
+						cofactorFrameId = ['CPLX0-8004']
+
+					if m.frameId == 'fldox':
+						cofactorName = 'flavodoxin'
+						cofactorFrameId = ['OX-FLAVODOXIN1','OX-FLAVODOXIN2']
+					if m.frameId == 'fldrd':
+						cofactorName = 'flavodixin'
+						cofactorFrameId = ['FLAVODOXIN1-MONOMER','FLAVODOXIN2-MONOMER']
+
+					if m.frameId == 'grxox':
+						cofactorName = 'glutaredoxin'
+						cofactorFrameId = ['GLUTAREDOXIN-MONOMER','OX-GLUTAREDOXIN-B','OX-GLUTAREDOXIN-C','EG12181-MONOMER']
+					if m.frameId == 'grxrd':
+						cofactorName = 'glutaredoxin'
+						cofactorFrameId = ['RED-GLUTAREDOXIN','GRXB-MONOMER','GRXC-MONOMER','EG12181-MONOMER']
+
+					if m.frameId == 'lpp':
+						cofactorName = 'lipoprotein'
+						cofactorFrameId = ['G7644-MONOMER']
+
+					if m.frameId == 'trdox':
+						cofactorName = 'thioredoxin'
+						cofactorFrameId = ['Ox-thioredoxins-1','Ox-thioredoxins-2','Ox-thioredoxins-3']
+					if m.frameId == 'trdrd':
+						cofactorName = 'thioredoxin'
+						cofactorFrameId = ['Red-thioredoxins-1','Red-thioredoxins-2','Red-thioredoxins-3']
+
+				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId)])
 
 # Parse reactions
 def parseReactions():
@@ -1661,6 +1723,8 @@ def parseReactions():
 					else:
 						location = rp.getLocation(e)
 						reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
+				for c in cofactors:
+					reac.requiredCofactors.append(c)
 				reac.enzyme.sort()
 
 			reactDict[reac.frameId] = reac
@@ -1871,7 +1935,7 @@ class reactionParser:
 			frameIdList = []
 			for row in csvreader:
 				frameId = row[4]
-				frameIdList.append(frameId)
+				frameIdList.extend(frameId)
 		frameIdSet = set(frameIdList)
 		uniqueFrameIdList = list(frameIdSet)
 		return uniqueFrameIdList
