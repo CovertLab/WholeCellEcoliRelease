@@ -1993,6 +1993,8 @@ class reactionParser:
 				elif len(monomers) == 1:
 					# This is just a monomer in an OR statement
 					enzymes.append(monomers[0])
+				elif len(monomers) == 0 and len(cofactors) > 0:
+					pass
 				else:
 					enzymes.append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
