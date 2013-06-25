@@ -1605,7 +1605,7 @@ def parseMetabolites():
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula','Cofactor frame ID'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula','What is this?','Cofactor frame ID'])
 		for key in keys:
 			m = metDict[key]
 			if m.notRealMetabolte == True:
