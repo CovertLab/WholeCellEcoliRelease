@@ -1621,83 +1621,108 @@ def parseMetabolites():
 				if m.frameId == 'alpp':
 					cofactorName = 'apolipoprotein'
 					exchangeFrameId = ['EG10544']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'glutrna':
 					cofactorName = 'Glu-tRNA'
 					exchangeFrameId = ['charged-gltT-tRNA','charged-gltU-tRNA','charged-gltV-tRNA','charged-gltW-tRNA']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'trnaglu':
 					cofactorName = 'Glu-tRNA'
 					exchangeFrameId = ['gltT-tRNA','gltU-tRNA','gltV-tRNA','gltW-tRNA']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'CPD0-2342':
 					cofactorName = 'CPD0-2342'
 					exchangeFrameId = ['CPD0-2342']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbdrd':
 					cofactorName = 'dsbD'
 					exchangeFrameId = ['DSBD-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbdox':
 					cofactorName = 'dsbD'
 					exchangeFrameId = ['DSBDOXI-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbard':
 					cofactorName = 'dsbA'
 					exchangeFrameId = ['DISULFOXRED-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbaox':
 					cofactorName = 'dsbA'
 					exchangeFrameId = ['MONOMER0-4152']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbcrd':
 					cofactorName = 'dsbC'
 					exchangeFrameId = ['DSBC-CPLX']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbcox':
 					cofactorName = 'dsbC'
 					exchangeFrameId = ['CPLX0-8002']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbgrd':
 					cofactorName = 'dsbG'
 					exchangeFrameId = ['DSBG-CPLX']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbgox':
 					cofactorName = 'dsbG'
 					exchangeFrameId = ['CPLX0-8004']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'fldox':
 					cofactorName = 'flavodoxin'
 					exchangeFrameId = ['OX-FLAVODOXIN1','OX-FLAVODOXIN2']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'fldrd':
 					cofactorName = 'flavodixin'
 					exchangeFrameId = ['FLAVODOXIN1-MONOMER','FLAVODOXIN2-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'grxox':
 					cofactorName = 'glutaredoxin'
 					exchangeFrameId = ['GLUTAREDOXIN-MONOMER','OX-GLUTAREDOXIN-B','OX-GLUTAREDOXIN-C','EG12181-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'grxrd':
 					cofactorName = 'glutaredoxin'
 					exchangeFrameId = ['RED-GLUTAREDOXIN','GRXB-MONOMER','GRXC-MONOMER','EG12181-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'lpp':
 					cofactorName = 'lipoprotein'
 					exchangeFrameId = ['G7644-MONOMER']
+					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'trdox':
 					cofactorName = 'thioredoxin'
 					exchangeFrameId = ['OX-THIOREDOXINS-1','OX-THIOREDOXINS-2','OX-THIOREDOXINS-3']
+					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'trdrd':
 					cofactorName = 'thioredoxin'
 					exchangeFrameId = ['RED-THIOREDOXINS-1','RED-THIOREDOXINS-2','RED-THIOREDOXINS-3']
+					m.equivalentEnzyme = exchangeFrameId
 
 				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId), json.dumps(exchangeFrameId)])
 
-	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			metDict[row[0]].equivalentEnzyme = json.loads(row[5])
+
+	# Write output for metabolites
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
 		for key in keys:
 			m = metDict[key]
-			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.comments])
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.equivalentEnzyme, m.comments])
 
 # Parse reactions
 def parseReactions():
@@ -1836,6 +1861,7 @@ class metabolite:
 		self.biomassRecycle = None
 		self.exchangeRate = None
 		self.notRealMetabolte = None
+		self.equivalentEnzyme = None
 		self.comments = ''
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
