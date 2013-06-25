@@ -1745,8 +1745,10 @@ def parseReactions():
 							location = rp.getLocation(e)
 							reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
 					for c in cofactors:
-						reac.requiredCofactors.append(c)
+						location = rp.locationAbbrev[rp.getLocation(c)]
+						reac.requiredCofactors.append(c + '[' + rp.locationAbbrev[rp.getLocation(c)] + ']')
 					reac.enzyme.sort()
+					reac.requiredCofactors.sort()
 
 				# TODO: Figure out
 				# # Figure out if any reactants or products are fake metabolite cofactors

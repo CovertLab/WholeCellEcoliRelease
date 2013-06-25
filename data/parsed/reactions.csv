@@ -124,15 +124,15 @@ Frame ID	Name	Process	EC	Stoichiometry (pH 7.2)	Enzyme	Required cofactors/protei
 5DGLCNtex	5-Dehydro-D-gluconate transport via diffusion (extracellular to periplasm)	Metabolism		5dglcn[e] <==> 5dglcn[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	[]	reversible					
 5DOAN	5'-deoxyadenosine nuclosidase	Metabolism		[c] : dad-5 + h2o --> 5drib + ade	"[""EG11090-MONOMER[c]""]"	[]	forward only					
 A5PISO	arabinose-5-phosphate isomerase	Metabolism	5.3.1.13	[c] : ru5p-D <==> ara5p	"[""EG10973-MONOMER[c]"", ""G7662-MONOMER[c]""]"	[]	reversible					
-AACPS1	acyl-[acyl-carrier-protein] synthetase (n-C14:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdca --> amp + myrsACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS2	acyl-[acyl-carrier-protein] synthetase  (n-C14:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdcea --> amp + ppi + tdeACP	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS3	acyl-[acyl-carrier-protein] synthetase  (n-C16:0)	Metabolism	6.2.1.20	[c] : ACP + atp + hdca --> amp + palmACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS4	acyl-[acyl-carrier-protein] synthetase  (n-C16:1)	Metabolism	6.2.1.20	[c] : ACP + atp + hdcea --> amp + hdeACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS5	acyl-[acyl-carrier-protein] synthetase  (n-C18:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdcea --> amp + octeACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS6	acyl-[acyl-carrier-protein] synthetase  (n-C18:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdca --> amp + ocdcaACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS7	acyl-[acyl-carrier-protein] synthetase  (n-C12:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ddca --> amp + ddcaACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS8	acyl-[acyl-carrier-protein] synthetase  (n-C10:0)	Metabolism	6.2.1.20	[c] : ACP + atp + dca --> amp + dcaACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
-AACPS9	acyl-[acyl-carrier-protein] synthetase  (n-C8:0)	Metabolism	6.2.1.20	[c] : ACP + atp + octa --> amp + ocACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER""]"	forward only					
+AACPS1	acyl-[acyl-carrier-protein] synthetase (n-C14:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdca --> amp + myrsACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS2	acyl-[acyl-carrier-protein] synthetase  (n-C14:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ttdcea --> amp + ppi + tdeACP	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS3	acyl-[acyl-carrier-protein] synthetase  (n-C16:0)	Metabolism	6.2.1.20	[c] : ACP + atp + hdca --> amp + palmACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS4	acyl-[acyl-carrier-protein] synthetase  (n-C16:1)	Metabolism	6.2.1.20	[c] : ACP + atp + hdcea --> amp + hdeACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS5	acyl-[acyl-carrier-protein] synthetase  (n-C18:1)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdcea --> amp + octeACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS6	acyl-[acyl-carrier-protein] synthetase  (n-C18:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ocdca --> amp + ocdcaACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS7	acyl-[acyl-carrier-protein] synthetase  (n-C12:0)	Metabolism	6.2.1.20	[c] : ACP + atp + ddca --> amp + ddcaACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS8	acyl-[acyl-carrier-protein] synthetase  (n-C10:0)	Metabolism	6.2.1.20	[c] : ACP + atp + dca --> amp + dcaACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
+AACPS9	acyl-[acyl-carrier-protein] synthetase  (n-C8:0)	Metabolism	6.2.1.20	[c] : ACP + atp + octa --> amp + ocACP + ppi	"[""AAS-MONOMER[i]""]"	"[""EG50003-MONOMER[c]""]"	forward only					
 AACTOOR	Aminoacetone:oxygen oxidoreductase(deaminating)(flavin-containing)	Metabolism		[c] : aact + h2o + o2 --> h2o2 + mthgxl + nh4	null	[]	forward only					
 AADDGT	dTDP-N-4-acetamido-4,6-dideoxy-D-galactose transferase	Metabolism		[c] : dtdp4aaddg + unagamu --> dtdp + h + unagamuf	"[""G7800-MONOMER[c]""]"	[]	forward only					
 AAMYL	alpha-amylase	Metabolism		[c] : 14glucan --> malthx	"[""ALPHA-AMYL-CYTO-MONOMER[c]""]"	[]	forward only					
@@ -184,7 +184,7 @@ ACOAD5f	acyl-CoA dehydrogenase (dodecanoyl-CoA)	Metabolism	1.3.99.3	[c] : ddcaco
 ACOAD6f	acyl-CoA dehydrogenase (tetradecanoyl-CoA)	Metabolism	1.3.99.3	[c] : fad + tdcoa <==> fadh2 + td2coa	"[""ACYLCOADEHYDROG-MONOMER[i]""]"	[]	reversible					
 ACOAD7f	acyl-CoA dehydrogenase (hexadecanoyl-CoA)	Metabolism	1.3.99.3	[c] : fad + pmtcoa <==> fadh2 + hdd2coa	"[""ACYLCOADEHYDROG-MONOMER[i]""]"	[]	reversible					
 ACOAD8f	acyl-CoA dehydrogenase (octadecanoyl-CoA)	Metabolism	1.3.99.3	[c] : fad + stcoa <==> fadh2 + od2coa	"[""ACYLCOADEHYDROG-MONOMER[i]""]"	[]	reversible					
-ACOATA	Acetyl-CoA ACP transacylase	Metabolism	2.3.1.38	[c] : ACP + accoa <==> acACP + coa	"[""FABH-MONOMER[c]""]"	"[""EG50003-MONOMER""]"	reversible					
+ACOATA	Acetyl-CoA ACP transacylase	Metabolism	2.3.1.38	[c] : ACP + accoa <==> acACP + coa	"[""FABH-MONOMER[c]""]"	"[""EG50003-MONOMER[c]""]"	reversible					
 ACODA	acetylornithine deacetylase	Metabolism	3.5.1.16	[c] : acorn + h2o --> ac + orn	"[""ACETYLORNDEACET-MONOMER[c]""]"	[]	forward only					
 ACOLIPAtex	arabinose modified core oligosaccharide lipid A transport via vector (periplasm to extracellular)	Metabolism		acolipa[p] --> acolipa[e]	null	[]	forward only					
 ACONIs	aconitate isomerase (spontaneous)	Metabolism	5.3.3.7	[c] : acon-T <==> acon-C	"[""SPONTANEOUS""]"	[]	reversible					
@@ -365,7 +365,7 @@ ASPt2_2pp	Aspartate transport via proton symport (2 H) (periplasm)	Metabolism		a
 ASPt2_3pp	L-asparate transport via proton symport (3 H) (periplasm)	Metabolism		asp-L[p] + (3) h[p] --> asp-L[c] + (3) h[c]	"[""DCUA-MONOMER[i]"", ""DCUB-MONOMER[i]""]"	[]	forward only					
 ASPt2pp	L-aspartate transport in via proton symport (periplasm)	Metabolism		asp-L[p] + h[p] --> asp-L[c] + h[c]	"[""GLTP-MONOMER[i]""]"	[]	forward only					
 ASPtex	L-aspartate transport via diffusion (extracellular to periplasm)	Metabolism		asp-L[e] <==> asp-L[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	[]	reversible					
-ASR	arsenate reductase	Metabolism		[c] : aso4 + (2) gthrd --> aso3 + gthox + h2o	"[""EG12237-MONOMER[c]""]"	"[""GRXB-MONOMER""]"	forward only					
+ASR	arsenate reductase	Metabolism		[c] : aso4 + (2) gthrd --> aso3 + gthox + h2o	[]	[]	forward only					
 AST	Arginine succinyltransferase	Metabolism	2.3.1.109	[c] : arg-L + succoa --> coa + h + sucarg	"[""ARGSUCCTRAN-MONOMER[c]""]"	[]	forward only					
 ATHRDHr	L-allo-threonine dehydrogenase	Metabolism		[c] : athr-L + nadp <==> 2aobut + h + nadph	"[""EG12345-MONOMER[c]""]"	[]	reversible					
 ATPHs	ATP amine hydrolysis (spontaneous)	Metabolism		[c] : atp + h + h2o --> itp + nh4	"[""SPONTANEOUS""]"	[]	forward only					
@@ -623,10 +623,10 @@ DOPAtex	dopamine transport via diffusion (extracellular to periplasm)	Metabolism
 DPCOAK	dephospho-CoA kinase	Metabolism	2.7.1.24	[c] : atp + dpcoa --> adp + coa + h	"[""EG12312-MONOMER[c]""]"	[]	forward only					
 DPR	2-dehydropantoate 2-reductase	Metabolism	1.1.1.169	[c] : 2dhp + h + nadph --> nadp + pant-R	"[""2-DEHYDROPANTOATE-REDUCT-MONOMER[c]"", ""KETOLREDUCTOISOM-MONOMER[c]""]"	[]	forward only					
 DRPA	deoxyribose-phosphate aldolase	Metabolism	4.1.2.4	[c] : 2dr5p --> acald + g3p	"[""DEOXYRIBOSE-P-ALD-MONOMER[c]""]"	[]	forward only					
-DSBAO1	DsbA protein reoxidation reaction (aerobic)	Metabolism		dsbard[p] + q8[c] --> dsbaox[p] + q8h2[c]	"[""DSBBPROT-MONOMER[i]""]"	"[""DISULFOXRED-MONOMER""]"	forward only					
-DSBAO2	DsbA protein reoxidation reaction (anaerobic)	Metabolism		dsbard[p] + mqn8[c] --> dsbaox[p] + mql8[c]	"[""DSBBPROT-MONOMER[i]""]"	"[""DISULFOXRED-MONOMER""]"	forward only					
+DSBAO1	DsbA protein reoxidation reaction (aerobic)	Metabolism		dsbard[p] + q8[c] --> dsbaox[p] + q8h2[c]	[]	[]	forward only					
+DSBAO2	DsbA protein reoxidation reaction (anaerobic)	Metabolism		dsbard[p] + mqn8[c] --> dsbaox[p] + mql8[c]	[]	[]	forward only					
 DSBCGT	DsbC:glutathione thiotransferase	Metabolism		[p] : dsbcox + (2) gthrd --> dsbcrd + gthox	"[""DSBC-MONOMER[p]""]"	[]	forward only					
-DSBDR	DsbD reductase	Metabolism		[c] : dsbdox + trdrd --> dsbdrd + trdox	"[""RED-THIOREDOXIN-MONOMER[c]"", ""RED-THIOREDOXIN2-MONOMER[i]""]"	"[""DSBD-MONOMER"", ""DSBD-MONOMER""]"	forward only					
+DSBDR	DsbD reductase	Metabolism		[c] : dsbdox + trdrd --> dsbdrd + trdox	[]	[]	forward only					
 DSBGGT	DsbG:glutathione thiotransferase	Metabolism		[p] : dsbgox + (2) gthrd --> dsbgrd + gthox	"[""DSBG-MONOMER[p]""]"	[]	forward only					
 DSERDHr	D-serine dehydrogenase	Metabolism		[c] : nadp + ser-D <==> 2amsa + h + nadph	"[""EG12345-MONOMER[c]""]"	[]	reversible					
 DSERt2pp	D-serine transport in via proton symport (periplasm)	Metabolism		h[p] + ser-D[p] --> h[c] + ser-D[c]	"[""CYCA-MONOMER[i]""]"	[]	forward only					
@@ -1096,7 +1096,7 @@ FEOXAMtonex	ferroxamine transport via ton system (extracellular)	Metabolism		feo
 FEROpp	ferroxidase	Metabolism	1.16.3.1	[p] : (4) fe2 + (4) h + o2 --> (4) fe3 + (2) h2o	"[""EG12318-MONOMER[p]""]"	[]	forward only					
 FFSD	beta-fructofuranosidase	Metabolism	3.2.1.26	[c] : h2o + suc6p --> fru + g6p	null	[]	forward only					
 FHL	Formate-hydrogen lyase	Metabolism		[c] : for + h --> co2 + h2	"[""FHLMULTI-CPLX[i]""]"	[]	forward only					
-FLDR	flavodoxin reductase (NADPH)	Metabolism	1.18.1.2	[c] : fldox + h + nadph --> fldrd + nadp	"[""FLAVONADPREDUCT-MONOMER[c]"", ""FLAVONADPREDUCT-MONOMER[c]""]"	"[""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER""]"	forward only					
+FLDR	flavodoxin reductase (NADPH)	Metabolism	1.18.1.2	[c] : fldox + h + nadph --> fldrd + nadp	[]	[]	forward only					
 FLVR	flavin reductase	Metabolism	1.5.1.30	[c] : h + nadph + ribflv --> nadp + rbflvrd	"[""FMNREDUCT-MONOMER[c]"", ""SULFITE-REDUCT-CPLX[c]""]"	[]	forward only					
 FLVRx	flavin reductase (NAD)	Metabolism	1.5.1.30	[c] : h + nadh + ribflv --> nad + rbflvrd	"[""FMNREDUCT-MONOMER[c]""]"	[]	forward only					
 FMNAT	FMN adenylyltransferase	Metabolism	2.7.7.2	[c] : atp + fmn + h --> fad + ppi	"[""RIBF-MONOMER[c]""]"	[]	forward only					
@@ -1305,7 +1305,7 @@ GPDDA4pp	Glycerophosphodiester phosphodiesterase (Glycerophosphoglycerol)	Metabo
 GPDDA5	Glycerophosphodiester phosphodiesterase (Glycerophosphoinositol)	Metabolism	3.1.4.46	[c] : g3pi + h2o --> glyc3p + h + inost	"[""GLYCPDIESTER-CYTO-MONOMER[c]""]"	[]	forward only					
 GPDDA5pp	Glycerophosphodiester phosphodiesterase (Glycerophosphoinositol)	Metabolism	3.1.4.46	[p] : g3pi + h2o --> glyc3p + h + inost	"[""GLYCPDIESTER-PERI-MONOMER[o]""]"	[]	forward only					
 GRTT	geranyltranstransferase	Metabolism	2.5.1.10	[c] : grdp + ipdp --> frdp + ppi	"[""FPPSYN-MONOMER[c]""]"	[]	forward only					
-GRXR	glutaredoxin reductase	Metabolism	1.8.4.2	[c] : grxox + (2) gthrd --> grxrd + gthox	[]	"[""GRXC-MONOMER"", ""RED-GLUTAREDOXIN"", ""EG12181-MONOMER"", ""GRXB-MONOMER""]"	forward only					
+GRXR	glutaredoxin reductase	Metabolism	1.8.4.2	[c] : grxox + (2) gthrd --> grxrd + gthox	"[""EG12181-MONOMER[c]"", ""GRXB-MONOMER[c]"", ""GRXC-MONOMER[c]"", ""RED-GLUTAREDOXIN[c]""]"	[]	forward only					
 GSNK	guanosine kinase	Metabolism		[c] : atp + gsn --> adp + gmp + h	"[""GSK-MONOMER[c]""]"	[]	forward only					
 GSNt2pp	guanosine transport in via proton symport (periplasm)	Metabolism		gsn[p] + h[p] --> gsn[c] + h[c]	"[""NUPG-MONOMER[i]""]"	[]	forward only					
 GSNtex	guanosine transport via diffusion (extracellular to periplasm)	Metabolism		gsn[e] <==> gsn[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	[]	reversible					
@@ -1593,7 +1593,7 @@ MANtex	D-mannose transport via diffusion (extracellular to periplasm)	Metabolism
 MCITD	2-methylcitrate dehydratase	Metabolism	4.2.1.79	[c] : 2mcit --> 2mcacn + h2o	"[""G6199-MONOMER[c]""]"	[]	forward only					
 MCITL2	methylisocitrate lyase	Metabolism	4.1.3.30	[c] : micit <==> pyr + succ	"[""G6196-MONOMER[c]""]"	[]	reversible					
 MCITS	2-methylcitrate synthase	Metabolism	4.1.3.31	[c] : h2o + oaa + ppcoa --> 2mcit + coa + h	"[""G6198-MONOMER[c]""]"	[]	forward only					
-MCOATA	Malonyl-CoA-ACP transacylase	Metabolism	2.3.1.39	[c] : ACP + malcoa <==> coa + malACP	"[""MALONYL-COA-ACP-TRANSACYL-MONOMER[c]""]"	"[""EG50003-MONOMER""]"	reversible					
+MCOATA	Malonyl-CoA-ACP transacylase	Metabolism	2.3.1.39	[c] : ACP + malcoa <==> coa + malACP	"[""MALONYL-COA-ACP-TRANSACYL-MONOMER[c]""]"	"[""EG50003-MONOMER[c]""]"	reversible					
 MCPST	3-mercaptopyruvate sulfurtransferase	Metabolism	2.8.1.2	[c] : cyan + mercppyr --> h + pyr + tcynt	"[""EG11600-MONOMER[c]""]"	[]	forward only					
 MCTP1App	murein crosslinking transpeptidase 1A:(A2pm->D-ala) (periplasm)	Metabolism		[p] : murein5p5p --> ala-D + murein5px4p	"[""EG10341-MONOMER[i]"", ""EG10605-MONOMER[i]"", ""EG10606-MONOMER[i]"", ""EG10748-MONOMER[i]""]"	[]	forward only					
 MCTP1Bpp	murein crosslinking transpeptidase 1B:(A2pm->A2pm) (periplasm)	Metabolism		[p] : murein5p5p --> alaala + murein5px3p	"[""EG10605-MONOMER[i]"", ""EG10748-MONOMER[i]""]"	[]	forward only					
@@ -1872,7 +1872,7 @@ PAPA181	Phosphatidate phosphatase (n-C18:1)	Metabolism	3.1.3.4	[c] : h2o + pa181
 PAPA181pp	Phosphatidate phosphatase (periplasmic, n-C18:1)	Metabolism	3.1.3.4	[p] : h2o + pa181 --> 12dgr181 + pi	"[""PGPPHOSPHAB-MONOMER[i]""]"	[]	forward only					
 PAPPT3	phospho-N-acetylmuramoyl-pentapeptide-transferase (meso-2,6-diaminopimelate)	Metabolism	2.7.8.13	[c] : udcpp + ugmda --> uagmda + ump	"[""PHOSNACMURPENTATRANS-MONOMER[i]""]"	[]	forward only					
 PAPSR	phosphoadenylyl-sulfate reductase (thioredoxin)	Metabolism	1.8.4.8	[c] : paps + trdrd --> (2) h + pap + so3 + trdox	[]	[]	forward only					
-PAPSR2	phosphoadenylyl-sulfate reductase (glutaredoxin)	Metabolism	1.8.4.8	[c] : grxrd + paps --> grxox + (2) h + pap + so3	"[""PAPSSULFOTRANS-MONOMER[c]"", ""PAPSSULFOTRANS-MONOMER[c]"", ""PAPSSULFOTRANS-MONOMER[c]"", ""PAPSSULFOTRANS-MONOMER[c]""]"	"[""RED-GLUTAREDOXIN"", ""GRXB-MONOMER"", ""EG12181-MONOMER"", ""GRXC-MONOMER""]"	forward only					
+PAPSR2	phosphoadenylyl-sulfate reductase (glutaredoxin)	Metabolism	1.8.4.8	[c] : grxrd + paps --> grxox + (2) h + pap + so3	[]	[]	forward only					
 PDE1	3',5'-cyclic-nucleotide phosphodiesterase	Metabolism	3.1.4.17	[c] : camp + h2o --> amp + h	"[""G6783-MONOMER[i]""]"	[]	forward only					
 PDH	pyruvate dehydrogenase	Metabolism		[c] : coa + nad + pyr --> accoa + co2 + nadh	"[""PYRUVATEDEH-CPLX[i]""]"	[]	forward only					
 PDX5PO2	pyridoxine 5'-phosphate oxidase (anaerboic	Metabolism		[c] : nad + pdx5p --> h + nadh + pydx5p	null	[]	forward only					
@@ -2109,17 +2109,17 @@ RMNtex	L-rhamnose transport via diffusion (extracellular to periplasm)	Metabolis
 RMNtpp	L-rhamnose transport via proton symport (periplasm)	Metabolism		h[p] + rmn[p] --> h[c] + rmn[c]	"[""RHAT-MONOMER[i]""]"	[]	forward only					
 RMPA	Rhamnulose-1-phosphate aldolase	Metabolism	4.1.2.19	[c] : rml1p <==> dhap + lald-L	"[""RHAMNULPALDOL-MONOMER[c]""]"	[]	reversible					
 RNDR1	ribonucleoside-diphosphate reductase (ADP)	Metabolism	1.17.4.1	[c] : adp + trdrd --> dadp + h2o + trdox	[]	[]	forward only					
-RNDR1b	ribonucleoside-diphosphate reductase (ADP) (glutaredoxin)	Metabolism		[c] : adp + grxrd --> dadp + grxox + h2o	"[""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]""]"	"[""EG12181-MONOMER"", ""RED-GLUTAREDOXIN"", ""GRXB-MONOMER"", ""GRXC-MONOMER""]"	forward only					
+RNDR1b	ribonucleoside-diphosphate reductase (ADP) (glutaredoxin)	Metabolism		[c] : adp + grxrd --> dadp + grxox + h2o	[]	[]	forward only					
 RNDR2	ribonucleoside-diphosphate reductase (GDP)	Metabolism	1.17.4.1	[c] : gdp + trdrd --> dgdp + h2o + trdox	[]	[]	forward only					
-RNDR2b	ribonucleoside-diphosphate reductase (GDP) (glutaredoxin)	Metabolism		[c] : gdp + grxrd --> dgdp + grxox + h2o	"[""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]""]"	"[""GRXC-MONOMER"", ""GRXB-MONOMER"", ""EG12181-MONOMER"", ""RED-GLUTAREDOXIN""]"	forward only					
+RNDR2b	ribonucleoside-diphosphate reductase (GDP) (glutaredoxin)	Metabolism		[c] : gdp + grxrd --> dgdp + grxox + h2o	[]	[]	forward only					
 RNDR3	ribonucleoside-diphosphate reductase (CDP)	Metabolism	1.17.4.1	[c] : cdp + trdrd --> dcdp + h2o + trdox	[]	[]	forward only					
-RNDR3b	ribonucleoside-diphosphate reductase (CDP) (glutaredoxin)	Metabolism		[c] : cdp + grxrd --> dcdp + grxox + h2o	"[""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]""]"	"[""EG12181-MONOMER"", ""GRXB-MONOMER"", ""RED-GLUTAREDOXIN"", ""GRXC-MONOMER""]"	forward only					
+RNDR3b	ribonucleoside-diphosphate reductase (CDP) (glutaredoxin)	Metabolism		[c] : cdp + grxrd --> dcdp + grxox + h2o	[]	[]	forward only					
 RNDR4	ribonucleoside-diphosphate reductase (UDP)	Metabolism	1.17.4.1	[c] : trdrd + udp --> dudp + h2o + trdox	[]	[]	forward only					
-RNDR4b	ribonucleoside-diphosphate reductase (UDP) (glutaredoxin)	Metabolism		[c] : grxrd + udp --> dudp + grxox + h2o	"[""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]"", ""RIBONUCLEOSIDE-DIP-REDUCTII-CPLX[c]""]"	"[""GRXB-MONOMER"", ""GRXC-MONOMER"", ""EG12181-MONOMER"", ""RED-GLUTAREDOXIN""]"	forward only					
-RNTR1c	ribonucleoside-triphosphate reductase (ATP) (flavodoxin)	Metabolism		[c] : atp + fldrd --> datp + fldox + h2o	"[""NRDACTMULTI-CPLX[c]"", ""NRDACTMULTI-CPLX[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]""]"	"[""FLAVODOXIN2-MONOMER"", ""FLAVODOXIN2-MONOMER"", ""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN1-MONOMER""]"	forward only					
-RNTR2c	ribonucleoside-triphosphate reductase (GTP) (flavodoxin)	Metabolism		[c] : fldrd + gtp --> dgtp + fldox + h2o	"[""NRDACTMULTI-CPLX[c]"", ""NRDACTMULTI-CPLX[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]""]"	"[""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER"", ""FLAVODOXIN2-MONOMER"", ""FLAVODOXIN1-MONOMER""]"	forward only					
-RNTR3c	ribonucleoside-triphosphate reductase (CTP) (flavodoxin)	Metabolism		[c] : ctp + fldrd --> dctp + fldox + h2o	"[""NRDACTMULTI-CPLX[c]"", ""NRDACTMULTI-CPLX[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]""]"	"[""FLAVODOXIN2-MONOMER"", ""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER""]"	forward only					
-RNTR4c	ribonucleoside-triphosphate reductase (UTP) (flavodoxin)	Metabolism		[c] : fldrd + utp --> dutp + fldox + h2o	"[""NRDACTMULTI-CPLX[c]"", ""NRDACTMULTI-CPLX[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]""]"	"[""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER"", ""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER""]"	forward only					
+RNDR4b	ribonucleoside-diphosphate reductase (UDP) (glutaredoxin)	Metabolism		[c] : grxrd + udp --> dudp + grxox + h2o	[]	[]	forward only					
+RNTR1c	ribonucleoside-triphosphate reductase (ATP) (flavodoxin)	Metabolism		[c] : atp + fldrd --> datp + fldox + h2o	[]	[]	forward only					
+RNTR2c	ribonucleoside-triphosphate reductase (GTP) (flavodoxin)	Metabolism		[c] : fldrd + gtp --> dgtp + fldox + h2o	[]	[]	forward only					
+RNTR3c	ribonucleoside-triphosphate reductase (CTP) (flavodoxin)	Metabolism		[c] : ctp + fldrd --> dctp + fldox + h2o	[]	[]	forward only					
+RNTR4c	ribonucleoside-triphosphate reductase (UTP) (flavodoxin)	Metabolism		[c] : fldrd + utp --> dutp + fldox + h2o	[]	[]	forward only					
 RPE	ribulose 5-phosphate 3-epimerase	Metabolism	5.1.3.1	[c] : ru5p-D <==> xu5p-D	"[""G7914-MONOMER[c]"", ""RIBULP3EPIM-MONOMER[c]""]"	[]	reversible					
 RPI	ribose-5-phosphate isomerase	Metabolism	5.3.1.6	[c] : r5p <==> ru5p-D	"[""RIB5PISOMA-MONOMER[c]"", ""RIB5PISOMB-MONOMER[c]""]"	[]	reversible					
 RZ5PP	alpha-ribazole 5-phosphate phosphatase	Metabolism		[c] : 5prdmbz + h2o --> pi + rdmbzi	"[""RIBAZOLEPHOSPHAT-MONOMER[c]""]"	[]	forward only					
@@ -2198,8 +2198,8 @@ TDPDRE	dTDP-4-dehydrorhamnose 3,5-epimerase	Metabolism	5.1.3.13	[c] : dtdp4d6dg 
 TDPDRR	dTDP-4-dehydrorhamnose reductase	Metabolism	1.1.1.133	[c] : dtdp4d6dm + h + nadph --> dtdprmn + nadp	"[""DTDPDEHYRHAMREDUCT-MONOMER[c]""]"	[]	forward only					
 TDPGDH	dTDPglucose 4,6-dehydratase	Metabolism	4.2.1.46	[c] : dtdpglu --> dtdp4d6dg + h2o	"[""DTDPGLUCDEHYDRAT-MONOMER[c]"", ""DTDPGLUCDEHYDRAT2-MONOMER[c]""]"	[]	forward only					
 TDSK	Tetraacyldisaccharide 4'kinase	Metabolism	2.7.1.130	[c] : atp + lipidAds --> adp + h + lipidA	"[""TETRAACYLDISACC4KIN-MONOMER[i]""]"	[]	forward only					
-TDSR1	thiol:disulfide reductase (DsbC)	Metabolism		dsbcox[p] + dsbdrd[c] --> dsbcrd[p] + dsbdox[c]	"[""DSBC-MONOMER[p]""]"	"[""DSBD-MONOMER""]"	forward only					
-TDSR2	thiol:disulfide reductase (DsbG)	Metabolism		dsbdrd[c] + dsbgox[p] --> dsbdox[c] + dsbgrd[p]	"[""DSBG-MONOMER[p]""]"	"[""DSBD-MONOMER""]"	forward only					
+TDSR1	thiol:disulfide reductase (DsbC)	Metabolism		dsbcox[p] + dsbdrd[c] --> dsbcrd[p] + dsbdox[c]	[]	[]	forward only					
+TDSR2	thiol:disulfide reductase (DsbG)	Metabolism		dsbdrd[c] + dsbgox[p] --> dsbdox[c] + dsbgrd[p]	[]	[]	forward only					
 TGBPA	Tagatose-bisphosphate aldolase	Metabolism	4.1.2.40	[c] : tagdp-D <==> dhap + g3p	"[""CPLX0-240[c]"", ""CPLX0-241[c]""]"	[]	reversible					
 THD2pp	NAD(P) transhydrogenase (periplasm)	Metabolism	1.6.1.1	(2) h[p] + nadh[c] + nadp[c] --> (2) h[c] + nad[c] + nadph[c]	"[""PYRNUTRANSHYDROGEN-CPLX[i]""]"	[]	forward only					
 THDPS	tetrahydrodipicolinate succinylase	Metabolism	2.3.1.117	[c] : h2o + succoa + thdp --> coa + sl2a6o	"[""MONOMER0-2001[c]""]"	[]	forward only					
@@ -2275,7 +2275,7 @@ UACGAMPpp	UDP-N-acetyl-D-glucosamine pyrophosphohydrolase (periplasm)	Metabolism
 UACGAMtex	UDP-N-acetyl-D-glucosamine transport via diffusion (extracellular to periplasm)	Metabolism		uacgam[e] <==> uacgam[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	[]	reversible					
 UACMAMO	UDP-N-acetyl-D-mannosamine oxidoreductase	Metabolism		[c] : h2o + (2) nad + uacmam --> (3) h + (2) nadh + uacmamu	"[""UDPMANNACADEHYDROG-MONOMER[c]""]"	[]	forward only					
 UAG2E	UDP-N-acetylglucosamine 2-epimerase	Metabolism	5.1.3.14	[c] : uacgam <==> uacmam	"[""UDPGLCNACEPIM-MONOMER[c]""]"	[]	reversible					
-UAGAAT	UDP-N-acetylglucosamine acyltransferase	Metabolism	2.3.1.129	[c] : 3hmrsACP + uacgam <==> ACP + u3aga	"[""UDPNACETYLGLUCOSAMACYLTRANS-MONOMER[c]""]"	"[""EG50003-MONOMER""]"	reversible					
+UAGAAT	UDP-N-acetylglucosamine acyltransferase	Metabolism	2.3.1.129	[c] : 3hmrsACP + uacgam <==> ACP + u3aga	"[""UDPNACETYLGLUCOSAMACYLTRANS-MONOMER[c]""]"	"[""EG50003-MONOMER[c]""]"	reversible					
 UAGCVT	UDP-N-acetylglucosamine 1-carboxyvinyltransferase	Metabolism	2.5.1.7	[c] : pep + uacgam --> pi + uaccg	"[""UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER[c]""]"	[]	forward only					
 UAGDP	UDP-N-acetylglucosamine diphosphorylase	Metabolism	2.7.7.23	[c] : acgam1p + h + utp --> ppi + uacgam	"[""NAG1P-URIDYLTRANS-MONOMER[c]""]"	[]	forward only					
 UAGPT3	UDP-N-acetylglucosamine-N-acetylmuramyl-(pentapeptide)pyrophosphoryl-undecaprenol N-acetylglucosamine transferase	Metabolism		[c] : uacgam + uagmda --> h + uaagmda + udp	"[""NACGLCTRANS-MONOMER[c]""]"	[]	forward only					
