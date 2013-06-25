@@ -1621,80 +1621,83 @@ def parseMetabolites():
 			if m.notRealMetabolte == True:
 				cofactorName = None
 				cofactorFrameId = None
-				if m.frameId != None:
-					if m.frameId.count('ACP'):
-						cofactorName = 'ACP'
-						cofactorFrameId = ['EG50003-MONOMER']
+				exchangeFrameId = None
 
-					if m.frameId == 'alpp':
-						cofactorName = 'apolipoprotein'
-						cofactorFrameId = ['EG10544']
+				# Cofactors - Need to check that these proteins are present for reaction to occur
+				if m.frameId.count('ACP'):
+					cofactorName = 'ACP'
+					cofactorFrameId = ['EG50003-MONOMER']
 
-					if m.frameId == 'glutrna':
-						cofactorName = 'Glu-tRNA'
-						cofactorFrameId = ['charged-gltT-tRNA','charged-gltU-tRNA','charged-gltV-tRNA','charged-gltW-tRNA']
-					if m.frameId == 'trnaglu':
-						cofactorName = 'Glu-tRNA'
-						cofactorFrameId = ['gltT-tRNA','gltU-tRNA','gltV-tRNA','gltW-tRNA']
+				# Pseudo-metabolite - Need to add exchange reaction with cytoplasm or whichever compartment is required
+				if m.frameId == 'alpp':
+					cofactorName = 'apolipoprotein'
+					exchangeFrameId = ['EG10544']
 
-					if m.frameId == 'CPD0-2342':
-						cofactorName = 'CPD0-2342'
-						cofactorFrameId = ['CPD0-2342']
+				if m.frameId == 'glutrna':
+					cofactorName = 'Glu-tRNA'
+					exchangeFrameId = ['charged-gltT-tRNA','charged-gltU-tRNA','charged-gltV-tRNA','charged-gltW-tRNA']
+				if m.frameId == 'trnaglu':
+					cofactorName = 'Glu-tRNA'
+					exchangeFrameId = ['gltT-tRNA','gltU-tRNA','gltV-tRNA','gltW-tRNA']
 
-					if m.frameId == 'dsbdrd':
-						cofactorName = 'dsbD'
-						cofactorFrameId = ['DSBD-MONOMER']
-					if m.frameId == 'dsbdox':
-						cofactorName = 'dsbD'
-						cofactorFrameId = ['DSBDOXI-MONOMER']
+				if m.frameId == 'CPD0-2342':
+					cofactorName = 'CPD0-2342'
+					exchangeFrameId = ['CPD0-2342']
 
-					if m.frameId == 'dsbard':
-						cofactorName = 'dsbA'
-						cofactorFrameId = ['DISULFOXRED-MONOMER']
-					if m.frameId == 'dsbaox':
-						cofactorName = 'dsbA'
-						cofactorFrameId = ['MONOMER0-4152']
+				if m.frameId == 'dsbdrd':
+					cofactorName = 'dsbD'
+					exchangeFrameId = ['DSBD-MONOMER']
+				if m.frameId == 'dsbdox':
+					cofactorName = 'dsbD'
+					exchangeFrameId = ['DSBDOXI-MONOMER']
 
-					if m.frameId == 'dsbcrd':
-						cofactorName = 'dsbC'
-						cofactorFrameId = ['DSBC-CPLX']
-					if m.frameId == 'dsbcox':
-						cofactorName = 'dsbC'
-						cofactorFrameId = ['CPLX0-8002']
+				if m.frameId == 'dsbard':
+					cofactorName = 'dsbA'
+					exchangeFrameId = ['DISULFOXRED-MONOMER']
+				if m.frameId == 'dsbaox':
+					cofactorName = 'dsbA'
+					exchangeFrameId = ['MONOMER0-4152']
 
-					if m.frameId == 'dsbgrd':
-						cofactorName = 'dsbG'
-						cofactorFrameId = ['DSBG-CPLX']
-					if m.frameId == 'dsbgox':
-						cofactorName = 'dsbG'
-						cofactorFrameId = ['CPLX0-8004']
+				if m.frameId == 'dsbcrd':
+					cofactorName = 'dsbC'
+					exchangeFrameId = ['DSBC-CPLX']
+				if m.frameId == 'dsbcox':
+					cofactorName = 'dsbC'
+					exchangeFrameId = ['CPLX0-8002']
 
-					if m.frameId == 'fldox':
-						cofactorName = 'flavodoxin'
-						cofactorFrameId = ['OX-FLAVODOXIN1','OX-FLAVODOXIN2']
-					if m.frameId == 'fldrd':
-						cofactorName = 'flavodixin'
-						cofactorFrameId = ['FLAVODOXIN1-MONOMER','FLAVODOXIN2-MONOMER']
+				if m.frameId == 'dsbgrd':
+					cofactorName = 'dsbG'
+					exchangeFrameId = ['DSBG-CPLX']
+				if m.frameId == 'dsbgox':
+					cofactorName = 'dsbG'
+					exchangeFrameId = ['CPLX0-8004']
 
-					if m.frameId == 'grxox':
-						cofactorName = 'glutaredoxin'
-						cofactorFrameId = ['GLUTAREDOXIN-MONOMER','OX-GLUTAREDOXIN-B','OX-GLUTAREDOXIN-C','EG12181-MONOMER']
-					if m.frameId == 'grxrd':
-						cofactorName = 'glutaredoxin'
-						cofactorFrameId = ['RED-GLUTAREDOXIN','GRXB-MONOMER','GRXC-MONOMER','EG12181-MONOMER']
+				if m.frameId == 'fldox':
+					cofactorName = 'flavodoxin'
+					exchangeFrameId = ['OX-FLAVODOXIN1','OX-FLAVODOXIN2']
+				if m.frameId == 'fldrd':
+					cofactorName = 'flavodixin'
+					exchangeFrameId = ['FLAVODOXIN1-MONOMER','FLAVODOXIN2-MONOMER']
 
-					if m.frameId == 'lpp':
-						cofactorName = 'lipoprotein'
-						cofactorFrameId = ['G7644-MONOMER']
+				if m.frameId == 'grxox':
+					cofactorName = 'glutaredoxin'
+					exchangeFrameId = ['GLUTAREDOXIN-MONOMER','OX-GLUTAREDOXIN-B','OX-GLUTAREDOXIN-C','EG12181-MONOMER']
+				if m.frameId == 'grxrd':
+					cofactorName = 'glutaredoxin'
+					exchangeFrameId = ['RED-GLUTAREDOXIN','GRXB-MONOMER','GRXC-MONOMER','EG12181-MONOMER']
 
-					if m.frameId == 'trdox':
-						cofactorName = 'thioredoxin'
-						cofactorFrameId = ['OX-THIOREDOXINS-1','OX-THIOREDOXINS-2','OX-THIOREDOXINS-3']
-					if m.frameId == 'trdrd':
-						cofactorName = 'thioredoxin'
-						cofactorFrameId = ['RED-THIOREDOXINS-1','RED-THIOREDOXINS-2','RED-THIOREDOXINS-3']
+				if m.frameId == 'lpp':
+					cofactorName = 'lipoprotein'
+					exchangeFrameId = ['G7644-MONOMER']
 
-				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId)])
+				if m.frameId == 'trdox':
+					cofactorName = 'thioredoxin'
+					exchangeFrameId = ['OX-THIOREDOXINS-1','OX-THIOREDOXINS-2','OX-THIOREDOXINS-3']
+				if m.frameId == 'trdrd':
+					cofactorName = 'thioredoxin'
+					exchangeFrameId = ['RED-THIOREDOXINS-1','RED-THIOREDOXINS-2','RED-THIOREDOXINS-3']
+
+				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId), json.dumps(exchangeFrameId)])
 
 # Parse reactions
 def parseReactions():
