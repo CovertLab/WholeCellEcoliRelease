@@ -1637,18 +1637,22 @@ def parseMetabolites():
 						cofactorName = 'Glu-tRNA'
 						cofactorFrameId = ['gltT-tRNA','gltU-tRNA','gltV-tRNA','gltW-tRNA']
 
+					if m.frameId == 'CPD0-2342':
+						cofactorName = 'CPD0-2342'
+						cofactorFrameId = ['CPD0-2342']
+
 					if m.frameId == 'dsbdrd':
-						cofactors = 'dsbD'
+						cofactorName = 'dsbD'
 						cofactorFrameId = ['DSBD-MONOMER']
 					if m.frameId == 'dsbdox':
-						cofactors = 'dsbD'
+						cofactorName = 'dsbD'
 						cofactorFrameId = ['DSBDOXI-MONOMER']
 
 					if m.frameId == 'dsbard':
-						cofactors = 'dsbA'
+						cofactorName = 'dsbA'
 						cofactorFrameId = ['DISULFOXRED-MONOMER']
 					if m.frameId == 'dsbaox':
-						cofactors = 'dsbA'
+						cofactorName = 'dsbA'
 						cofactorFrameId = ['MONOMER0-4152']
 
 					if m.frameId == 'dsbcrd':
