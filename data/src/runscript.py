@@ -1672,10 +1672,10 @@ def parseMetabolites():
 
 					if m.frameId == 'trdox':
 						cofactorName = 'thioredoxin'
-						cofactorFrameId = ['Ox-thioredoxins-1','Ox-thioredoxins-2','Ox-thioredoxins-3']
+						cofactorFrameId = ['OX-THIOREDOXINS-1','OX-THIOREDOXINS-2','OX-THIOREDOXINS-3']
 					if m.frameId == 'trdrd':
 						cofactorName = 'thioredoxin'
-						cofactorFrameId = ['Red-thioredoxins-1','Red-thioredoxins-2','Red-thioredoxins-3']
+						cofactorFrameId = ['RED-THIOREDOXINS-1','RED-THIOREDOXINS-2','RED-THIOREDOXINS-3']
 
 				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId)])
 
