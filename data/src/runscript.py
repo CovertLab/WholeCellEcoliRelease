@@ -1521,19 +1521,29 @@ def parseMetabolites():
 		csvreader.next()
 
 		for row in csvreader:
-			newMet = metabolite()
-			newMet.frameId = row[0]
-			newMet.name = row[1]
-			if row[5] != '':
-				newMet.neutralFormula = row[5]
-			else:
-				newMet.neutralFormula = row[2]
-			# Properties at pH 7
-			newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
-			# Properties at pH 7.2
-			newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
+			istrna = False
+			keeptrna = False
+			if row[0].count('trna'):
+				istrna = True
+			if istrna and row[0] == 'trnaglu' or row[0] == 'glutrna':
+				keeptrna = True
 
-			metDict[newMet.frameId] = newMet
+			if istrna and not keeptrna:
+				pass
+			else:
+				newMet = metabolite()
+				newMet.frameId = row[0]
+				newMet.name = row[1]
+				if row[5] != '':
+					newMet.neutralFormula = row[5]
+				else:
+					newMet.neutralFormula = row[2]
+				# Properties at pH 7
+				newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
+				# Properties at pH 7.2
+				newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
+
+				metDict[newMet.frameId] = newMet
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
@@ -1689,53 +1699,57 @@ def parseReactions():
 		csvreader.next()
 
 		for row in csvreader:
-			reac = reaction()
-			reac.frameId = row[0]
-			reac.name = row[1]
-			reac.process = 'Metabolism'
-			if row[5] != '':
-				reac.EC = row[5]
-			reac.stoich = row[2]
-			reac.direction = row[3]
+			if row[4] != 'tRNA Charging':
+				reac = reaction()
+				reac.frameId = row[0]
+				reac.name = row[1]
+				reac.process = 'Metabolism'
+				if row[5] != '':
+					reac.EC = row[5]
+				reac.stoich = row[2]
+				reac.direction = row[3]
 
-			# Figure out enzymes
-			if row[6] == '':
-				# Nothin known
-				reac.enzyme = None
-			elif re.match("b([0-9])", row[6]) != None:
-				bnum = row[6]
+				# Figure out enzymes
+				if row[6] == '':
+					# Nothin known
+					reac.enzyme = None
+				elif re.match("b([0-9])", row[6]) != None:
+					bnum = row[6]
 
-				pMFrameId = rp.getPMFrame(bnum)
+					pMFrameId = rp.getPMFrame(bnum)
 
-				pMLocation = rp.getLocation(pMFrameId)
+					pMLocation = rp.getLocation(pMFrameId)
 
-				reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
-			else:
-				#print row[:7]
-				enzymeInfo = rp.findEnzyme(row[6], row)
-				enzymes = enzymeInfo['enzymes']
-				cofactors = enzymeInfo['cofactors']
-				for e in enzymes:
-					if e == 'UNKNOWN':
-						pass
-					elif e == 'SPONTANEOUS':
-						reac.enzyme.append('SPONTANEOUS')
-					else:
-						location = rp.getLocation(e)
-						reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
-				for c in cofactors:
-					reac.requiredCofactors.append(c)
-				reac.enzyme.sort()
+					reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
+				else:
+					#print row[:7]
+					enzymeInfo = rp.findEnzyme(row[6], row)
+					enzymes = enzymeInfo['enzymes']
+					cofactors = enzymeInfo['cofactors']
+					for e in enzymes:
+						if e == 'UNKNOWN':
+							pass
+						elif e == 'SPONTANEOUS':
+							reac.enzyme.append('SPONTANEOUS')
+						else:
+							location = rp.getLocation(e)
+							reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
+					for c in cofactors:
+						reac.requiredCofactors.append(c)
+					reac.enzyme.sort()
 
-			# Figure out if any reactants or products are fake metabolite cofactors
-			for fakeMet in rp.fakeMetaboliteDict.iterkeys():
-				if reac.stoich.count(' ' + fakeMet + ' '):
-					if rp.fakeMetaboliteDict[fakeMet] != None:
-						reac.requiredCofactors.extend(rp.fakeMetaboliteDict[fakeMet])
+				# TODO: Figure out
+				# # Figure out if any reactants or products are fake metabolite cofactors
+				# for fakeMet in rp.fakeMetaboliteDict.iterkeys():
+				# 	if reac.stoich.count(' ' + fakeMet + ' '):
+				# 		if rp.fakeMetaboliteDict[fakeMet] != None:
+				# 			reac.requiredCofactors.extend(rp.fakeMetaboliteDict[fakeMet])
 
-			reac.requiredCofactors = list(set(reac.requiredCofactors)).sort()
+				# reac.requiredCofactors = [x for x in set(reac.requiredCofactors)]
+				# reac.requiredCofactors = [x + '[' + rp.locationAbbrev[rp.getLocation(x)] + ']' for x in reac.requiredCofactors]
+				# reac.requiredCofactors.sort()
 
-			reactDict[reac.frameId] = reac
+				reactDict[reac.frameId] = reac
 
 	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
 
