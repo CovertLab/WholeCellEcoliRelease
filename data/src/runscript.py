@@ -1630,9 +1630,12 @@ def parseMetabolites():
 						cofactorName = 'apolipoprotein'
 						cofactorFrameId = ['EG10544']
 
-					# if m.frameId == 'argtrna':
-					# 	cofactorName = 'Arg-tRNA'
-					# 	cofactorFrameId = ['charged-argQ-tRNA','charged-argU-tRNA','charged-argV-tRNA','charged-argW-tRNA','charged-argX-tRNA','charged-argY-tRNA','charged-argZ-tRNA']
+					if m.frameId == 'glutrna':
+						cofactorName = 'Glu-tRNA'
+						cofactorFrameId = ['charged-gltT-tRNA','charged-gltU-tRNA','charged-gltV-tRNA','charged-gltW-tRNA']
+					if m.frameId == 'trnaglu':
+						cofactorName = 'Glu-tRNA'
+						cofactorFrameId = ['gltT-tRNA','gltU-tRNA','gltV-tRNA','gltW-tRNA']
 
 					if m.frameId == 'dsbdrd':
 						cofactors = 'dsbD'
