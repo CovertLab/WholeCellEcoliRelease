@@ -1598,17 +1598,6 @@ def parseMetabolites():
 			if metId == 'pi':
 				break
 
-	# Write output
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
-		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
-
-		keys = metDict.keys()
-		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Comments'])
-		for key in keys:
-			m = metDict[key]
-			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.comments])
-
 	# Write a file of all the fake metabolites
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
@@ -1698,6 +1687,17 @@ def parseMetabolites():
 					exchangeFrameId = ['RED-THIOREDOXINS-1','RED-THIOREDOXINS-2','RED-THIOREDOXINS-3']
 
 				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId), json.dumps(exchangeFrameId)])
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = metDict.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH dependent properties', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Comments'])
+		for key in keys:
+			m = metDict[key]
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, json.dumps(m.pHProps), m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.comments])
 
 # Parse reactions
 def parseReactions():
