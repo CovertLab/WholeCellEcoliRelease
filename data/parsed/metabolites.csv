@@ -318,7 +318,7 @@ all6p	D-Allose 6-phosphate	C6H13O9P	C6H12O9P	-1	259.1258000000
 alltn	Allantoin	C4H6N4O3	C4H6N4O3	0	158.1164000000						
 alltt	Allantoate	C4H8N4O4	C4H7N4O4	-1	175.1233000000						
 allul6p	Allulose 6-phosphate	C6H13O9P	C6H12O9P	-1	259.1258000000						
-alpp	applipoprotein	X	C3H6NOR2S	1	104.1464000000				True	[u'EG10544']	"Non-element in formula. Weight calculated for known elements.
+alpp	applipoprotein	X	C3H6NOR2S	1	104.1464000000				True	[u'EG10544-MONOMER']	"Non-element in formula. Weight calculated for known elements.
 "
 altrn	D-Altronate	C6H12O7	C6H11O7	-1	195.1459000000						
 amet	S-Adenosyl-L-methionine	C15H23N6O5S	C15H23N6O5S	1	399.4437000000		37588.87999999999				
