@@ -1973,11 +1973,10 @@ class reactionParser:
 			csvreader.next()
 			for row in csvreader:
 				proteinLocations[row[0]] = json.loads(row[2])
-				modifiedForm = json.loads(row[4])
+				modifiedForm = json.loads(row[5])
 				if len(modifiedForm):
 					for m in modifiedForm:
 						proteinLocations[m] = json.loads(row[2])
-
 		return proteinLocations
 
 	def loadMonomerToComplex(self):
