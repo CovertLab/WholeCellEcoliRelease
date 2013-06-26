@@ -50,19 +50,19 @@ def getEcocyc(fetchNew = False):
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Build protein-protein complexes
-	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	bioVeloQuery = '[(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build protein-rna complexes
-	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	bioVeloQuery = '[(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build protein-small molecule complexes
-	bioVeloQuery = '[(x^frame-id, x^name, components): x <- ecoli^^Protein-Small-Molecule-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	bioVeloQuery = '[(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^Protein-Small-Molecule-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_small_molecule_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
@@ -897,6 +897,9 @@ def parseComplexes():
 			comp = proteinComplex()
 			comp.frameId = row[0]
 			comp.name = re.sub('<[^<]+?>', '', row[1])
+			comp.modifiedForm = row[3][1:-1].split(' ')
+			if comp.modifiedForm == [""]:
+				comp.modifiedForm = []
 
 			foundAllComponents = True
 			components = row[2][2:-2].replace('"','').split(') (')
@@ -1017,6 +1020,9 @@ def parseComplexes():
 			comp = proteinComplex()
 			comp.frameId = row[0]
 			comp.name = re.sub('<[^<]+?>', '', row[1])
+			comp.modifiedForm = row[3][1:-1].split(' ')
+			if comp.modifiedForm == [""]:
+				comp.modifiedForm = []
 
 			foundAllComponents = True
 			components = row[2][2:-2].replace('"','').split(') (')
@@ -1089,6 +1095,9 @@ def parseComplexes():
 		comp = proteinComplex()
 		comp.frameId = SMPC_hasSMPCSubunit[0]
 		comp.name = re.sub('<[^<]+?>', '', row[1])
+		comp.modifiedForm = row[3][1:-1].split(' ')
+		if comp.modifiedForm == [""]:
+			comp.modifiedForm = []
 
 		foundAllComponents = True
 		components = row[2][2:-2].split(') (')
@@ -1142,6 +1151,9 @@ def parseComplexes():
 		comp = proteinComplex()
 		comp.frameId = PPC_hasSMPCSubunit[0]
 		comp.name = re.sub('<[^<]+?>', '', row[1])
+		comp.modifiedForm = row[3][1:-1].split(' ')
+		if comp.modifiedForm == [""]:
+			comp.modifiedForm = []
 
 		foundAllComponents = True
 		components = row[2][2:-2].split(') (')
@@ -1198,6 +1210,9 @@ def parseComplexes():
 			comp = proteinComplex()
 			comp.frameId = row[0]
 			comp.name = re.sub('<[^<]+?>', '', row[1])
+			comp.modifiedForm = row[3][1:-1].split(' ')
+			if comp.modifiedForm == [""]:
+				comp.modifiedForm = []
 
 			foundAllComponents = True
 			components = row[2][2:-2].replace('"','').split(') (')
@@ -1241,7 +1256,7 @@ def parseComplexes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Formation process', 'Comments'])
+		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Modified form', 'Formation process', 'Comments'])
 		
 		keys = proCompDict.keys()
 		keys.extend(smallMolecProCompDict.keys())
@@ -1254,7 +1269,7 @@ def parseComplexes():
 				c = smallMolecProCompDict[key]
 			elif rnaProtCompDict.has_key(key):
 				c = rnaProtCompDict[key]
-			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.formationProcess])
+			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.modifiedForm, c.formationProcess, c.comments])
 
 	logFile.close()
 
@@ -2157,6 +2172,8 @@ class proteinComplex:
 		self.composition = {'reactant' : {}, 'product' : {}}
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
+		self.modifiedForm = []
+		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
 		self.composition['reactant'][name] = {'stoichiometry' : None, 'compartment' : None}
