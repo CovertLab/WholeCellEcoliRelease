@@ -1977,6 +1977,17 @@ class reactionParser:
 				if len(modifiedForm):
 					for m in modifiedForm:
 						proteinLocations[m] = json.loads(row[2])
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				proteinLocations[row[0]] = json.loads(row[3])
+				modifiedForm = json.loads(row[4])
+				if len(modifiedForm):
+					for m in modifiedForm:
+						proteinLocations[m] = json.loads(row[3])
+
 		return proteinLocations
 
 	def loadMonomerToComplex(self):
