@@ -1014,9 +1014,9 @@ toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	C29H53N2O8
 "
 tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	C27H49N2O8PRS	-1	592.7241000000				True		"Non-element in formula. Weight calculated for known elements.
 "
-trdox	Oxidized thioredoxin	X	C6H7NO2R2S2	0	189.2463000000				True	[u'OX-THIOREDOXINS-1', u'OX-THIOREDOXINS-2', u'OX-THIOREDOXINS-3']	"Non-element in formula. Weight calculated for known elements.
+trdox	Oxidized thioredoxin	X	C6H7NO2R2S2	0	189.2463000000				True	[u'OX-THIOREDOXIN-MONOMER', u'OX-THIOREDOXIN2-MONOMER']	"Non-element in formula. Weight calculated for known elements.
 "
-trdrd	Reduced thioredoxin	XH2	C6H9NO2R2S2	0	191.2621000000				True	[u'RED-THIOREDOXINS-1', u'RED-THIOREDOXINS-2', u'RED-THIOREDOXINS-3']	"Non-element in formula. Weight calculated for known elements.
+trdrd	Reduced thioredoxin	XH2	C6H9NO2R2S2	0	191.2621000000				True	[u'RED-THIOREDOXIN-MONOMER', u'RED-THIOREDOXIN2-MONOMER']	"Non-element in formula. Weight calculated for known elements.
 "
 tre	Trehalose	C12H22O11	C12H22O11	0	342.2948000000						
 tre6p	alpha,alpha'-Trehalose 6-phosphate	C12H23O14P	C12H22O14P	-1	421.2658000000						
