@@ -1713,11 +1713,11 @@ def parseMetabolites():
 
 				if m.frameId == 'trdox':
 					cofactorName = 'thioredoxin'
-					exchangeFrameId = ['OX-THIOREDOXINS-1','OX-THIOREDOXINS-2','OX-THIOREDOXINS-3']
+					exchangeFrameId = ['OX-THIOREDOXIN-MONOMER','OX-THIOREDOXIN2-MONOMER']
 					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'trdrd':
 					cofactorName = 'thioredoxin'
-					exchangeFrameId = ['RED-THIOREDOXINS-1','RED-THIOREDOXINS-2','RED-THIOREDOXINS-3']
+					exchangeFrameId = ['RED-THIOREDOXIN-MONOMER','RED-THIOREDOXIN2-MONOMER']
 					m.equivalentEnzyme = exchangeFrameId
 
 				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId), json.dumps(exchangeFrameId)])

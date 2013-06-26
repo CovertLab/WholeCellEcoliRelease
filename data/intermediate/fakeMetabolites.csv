@@ -68,6 +68,6 @@ tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	ACP	"[""EG
 toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
 toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
 tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-trdox	Oxidized thioredoxin	X	thioredoxin	null	"[""OX-THIOREDOXINS-1"", ""OX-THIOREDOXINS-2"", ""OX-THIOREDOXINS-3""]"
-trdrd	Reduced thioredoxin	XH2	thioredoxin	null	"[""RED-THIOREDOXINS-1"", ""RED-THIOREDOXINS-2"", ""RED-THIOREDOXINS-3""]"
+trdox	Oxidized thioredoxin	X	thioredoxin	null	"[""OX-THIOREDOXIN-MONOMER"", ""OX-THIOREDOXIN2-MONOMER""]"
+trdrd	Reduced thioredoxin	XH2	thioredoxin	null	"[""RED-THIOREDOXIN-MONOMER"", ""RED-THIOREDOXIN2-MONOMER""]"
 trnaglu	tRNA (Glu)	R	Glu-tRNA	null	"[""gltT-tRNA"", ""gltU-tRNA"", ""gltV-tRNA"", ""gltW-tRNA""]"
