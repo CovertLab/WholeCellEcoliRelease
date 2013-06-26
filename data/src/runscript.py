@@ -1966,7 +1966,7 @@ class reactionParser:
 				modifiedForm = json.loads(row[4])
 				if len(modifiedForm):
 					for m in modifiedForm:
-						proteinLocations[m] = json.loads(row[2])
+						proteinLocations[m] = json.loads(row[3])
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
