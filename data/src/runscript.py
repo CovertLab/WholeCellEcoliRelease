@@ -1269,7 +1269,7 @@ def parseComplexes():
 				c = smallMolecProCompDict[key]
 			elif rnaProtCompDict.has_key(key):
 				c = rnaProtCompDict[key]
-			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), c.modifiedForm, c.formationProcess, c.comments])
+			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), json.dumps(c.modifiedForm), c.formationProcess, c.comments])
 
 	logFile.close()
 
