@@ -26,7 +26,7 @@ ACP	acyl carrier protein	C11H21N2O7PRS	ACP	"[""EG50003-MONOMER""]"	null
 CPD0-2342		C6H12O6R	CPD0-2342	null	"[""CPD0-2342""]"
 acACP	Acetyl-ACP	C13H23N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
 actACP	Acetoacetyl-ACP	C15H25N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-alpp	applipoprotein	X	apolipoprotein	null	"[""EG10544""]"
+alpp	applipoprotein	X	apolipoprotein	null	"[""EG10544-MONOMER""]"
 apoACP	apoprotein [acyl carrier protein]	RHO	ACP	"[""EG50003-MONOMER""]"	null
 but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
 butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null

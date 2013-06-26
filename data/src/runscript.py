@@ -1620,7 +1620,7 @@ def parseMetabolites():
 				# Pseudo-metabolite - Need to add exchange reaction with cytoplasm or whichever compartment is required
 				if m.frameId == 'alpp':
 					cofactorName = 'apolipoprotein'
-					exchangeFrameId = ['EG10544']
+					exchangeFrameId = ['EG10544-MONOMER']
 					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'glutrna':
