@@ -51,7 +51,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
 
-	@noseAttrib.attr('focusTest')
+	#@noseAttrib.attr('focusTest')
 	def test_parseReactionScript(self):
 		rp = r.reactionParser()
 
