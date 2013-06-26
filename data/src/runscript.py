@@ -1801,6 +1801,22 @@ def parseReactions():
 				# reac.requiredCofactors = [x + '[' + rp.locationAbbrev[rp.getLocation(x)] + ']' for x in reac.requiredCofactors]
 				# reac.requiredCofactors.sort()
 
+				# Add exchange reactions for fake metabolites that require it
+				with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+					csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+					csvreader.next()
+					for row in csvreader:
+						addImport = json.loads(row[5])
+						if addImport != None:
+							locations = []
+							for enzyme in addImport:
+								if enzyme == 'CPD0-2342':
+									locationAbbrev = 'c'
+								else:
+									location = rp.getLocation(enzyme)
+									locationAbbrev = rp.locationAbbrev[location]
+								locations.append(locationAbbrev)
+
 				reactDict[reac.frameId] = reac
 
 	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
