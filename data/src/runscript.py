@@ -1614,6 +1614,8 @@ def parseMetabolites():
 				break
 
 	# Write a file of all the fake metabolites
+	proteinLocations = loadMonomerAndComplexLocations()
+	locationAbbrev = loadLocationAbbrev()
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
@@ -1636,97 +1638,77 @@ def parseMetabolites():
 				if m.frameId == 'alpp':
 					cofactorName = 'apolipoprotein'
 					exchangeFrameId = ['EG10544-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'glutrna':
 					cofactorName = 'Glu-tRNA'
 					exchangeFrameId = ['charged-gltT-tRNA','charged-gltU-tRNA','charged-gltV-tRNA','charged-gltW-tRNA']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'trnaglu':
 					cofactorName = 'Glu-tRNA'
 					exchangeFrameId = ['gltT-tRNA','gltU-tRNA','gltV-tRNA','gltW-tRNA']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'CPD0-2342':
 					cofactorName = 'CPD0-2342'
 					exchangeFrameId = ['CPD0-2342']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbdrd':
 					cofactorName = 'dsbD'
 					exchangeFrameId = ['DSBD-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbdox':
 					cofactorName = 'dsbD'
 					exchangeFrameId = ['DSBDOXI-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbard':
 					cofactorName = 'dsbA'
 					exchangeFrameId = ['DISULFOXRED-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbaox':
 					cofactorName = 'dsbA'
 					exchangeFrameId = ['MONOMER0-4152']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbcrd':
 					cofactorName = 'dsbC'
 					exchangeFrameId = ['DSBC-CPLX']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbcox':
 					cofactorName = 'dsbC'
 					exchangeFrameId = ['CPLX0-8002']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'dsbgrd':
 					cofactorName = 'dsbG'
 					exchangeFrameId = ['DSBG-CPLX']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'dsbgox':
 					cofactorName = 'dsbG'
 					exchangeFrameId = ['CPLX0-8004']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'fldox':
 					cofactorName = 'flavodoxin'
 					exchangeFrameId = ['OX-FLAVODOXIN1','OX-FLAVODOXIN2']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'fldrd':
 					cofactorName = 'flavodixin'
 					exchangeFrameId = ['FLAVODOXIN1-MONOMER','FLAVODOXIN2-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'grxox':
 					cofactorName = 'glutaredoxin'
 					exchangeFrameId = ['GLUTAREDOXIN-MONOMER','OX-GLUTAREDOXIN-B','OX-GLUTAREDOXIN-C','EG12181-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'grxrd':
 					cofactorName = 'glutaredoxin'
 					exchangeFrameId = ['RED-GLUTAREDOXIN','GRXB-MONOMER','GRXC-MONOMER','EG12181-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'lpp':
 					cofactorName = 'lipoprotein'
 					exchangeFrameId = ['G7644-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 
 				if m.frameId == 'trdox':
 					cofactorName = 'thioredoxin'
 					exchangeFrameId = ['OX-THIOREDOXIN-MONOMER','OX-THIOREDOXIN2-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
 				if m.frameId == 'trdrd':
 					cofactorName = 'thioredoxin'
 					exchangeFrameId = ['RED-THIOREDOXIN-MONOMER','RED-THIOREDOXIN2-MONOMER']
-					m.equivalentEnzyme = exchangeFrameId
+				
+				if exchangeFrameId != None:
+					for ee in exchangeFrameId:
+						location = locationAbbrev[proteinLocations[ee][0]]
+						m.equivalentEnzyme.append(ee + '[' + location + ']')
 
 				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId), json.dumps(exchangeFrameId)])
-
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			metDict[row[0]].equivalentEnzyme = json.loads(row[5])
 
 	# Write output for metabolites
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
@@ -1738,6 +1720,51 @@ def parseMetabolites():
 		for key in keys:
 			m = metDict[key]
 			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.equivalentEnzyme, m.comments])
+
+def loadMonomerAndComplexLocations():
+	proteinLocations = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			proteinLocations[row[0]] = json.loads(row[3])
+			modifiedForm = json.loads(row[4])
+			if len(modifiedForm):
+				for m in modifiedForm:
+					proteinLocations[m] = json.loads(row[3])
+	proteinLocations['CPD0-2342'] = ['CCO-CYTOSOL']
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			proteinLocations[row[0]] = json.loads(row[2])
+			modifiedForm = json.loads(row[5])
+			if len(modifiedForm):
+				for m in modifiedForm:
+					proteinLocations[m] = json.loads(row[2])
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			proteinLocations[row[0]] = json.loads(row[3])
+			modifiedForm = json.loads(row[4])
+			if len(modifiedForm):
+				for m in modifiedForm:
+					proteinLocations[m] = json.loads(row[3])
+
+	return proteinLocations
+
+def loadLocationAbbrev():
+	# Load location abbreviations
+	locationAbbrev = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			locationAbbrev[row[0]] = row[1]
+	return locationAbbrev
 
 # Parse reactions
 def parseReactions():
@@ -1800,22 +1827,6 @@ def parseReactions():
 				# reac.requiredCofactors = [x for x in set(reac.requiredCofactors)]
 				# reac.requiredCofactors = [x + '[' + rp.locationAbbrev[rp.getLocation(x)] + ']' for x in reac.requiredCofactors]
 				# reac.requiredCofactors.sort()
-
-				# Add exchange reactions for fake metabolites that require it
-				with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
-					csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-					csvreader.next()
-					for row in csvreader:
-						addImport = json.loads(row[5])
-						if addImport != None:
-							locations = []
-							for enzyme in addImport:
-								if enzyme == 'CPD0-2342':
-									locationAbbrev = 'c'
-								else:
-									location = rp.getLocation(enzyme)
-									locationAbbrev = rp.locationAbbrev[location]
-								locations.append(locationAbbrev)
 
 				reactDict[reac.frameId] = reac
 
@@ -1892,7 +1903,7 @@ class metabolite:
 		self.biomassRecycle = None
 		self.exchangeRate = None
 		self.notRealMetabolte = None
-		self.equivalentEnzyme = None
+		self.equivalentEnzyme = []
 		self.comments = ''
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
