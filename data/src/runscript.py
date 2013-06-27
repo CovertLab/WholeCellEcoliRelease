@@ -1815,17 +1815,6 @@ def parseReactions():
 					reac.enzyme.sort()
 					reac.requiredCofactors.sort()
 
-				# TODO: Figure out
-				# # Figure out if any reactants or products are fake metabolite cofactors
-				# for fakeMet in rp.fakeMetaboliteDict.iterkeys():
-				# 	if reac.stoich.count(' ' + fakeMet + ' '):
-				# 		if rp.fakeMetaboliteDict[fakeMet] != None:
-				# 			reac.requiredCofactors.extend(rp.fakeMetaboliteDict[fakeMet])
-
-				# reac.requiredCofactors = [x for x in set(reac.requiredCofactors)]
-				# reac.requiredCofactors = [x + '[' + rp.locationAbbrev[rp.getLocation(x)] + ']' for x in reac.requiredCofactors]
-				# reac.requiredCofactors.sort()
-
 				reactDict[reac.frameId] = reac
 
 	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
