@@ -1,73 +1,73 @@
-Frame ID	Name	Neutral formula	What is this?	Cofactor frame ID	Import/export frame ID
-3haACP	(3R)-3-Hydroxyacyl-[acyl-carrier protein]	C15H27N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hcddec5eACP	(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H41N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hcmrs7eACP	(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H45N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hcpalm9eACP	(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]	C27H49N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hcvac11eACP	(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H53N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hddecACP	(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]	C23H43N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hdecACP	(R)-3-Hydroxydecanoyl-[acyl-carrier protein]	C21H39N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hhexACP	(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]	C17H31N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hmrsACP	(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	C25H47N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hoctACP	(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	C19H35N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hoctaACP	(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]	C29H55N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3hpalmACP	R-3-hydroxypalmitoyl-[acyl-carrier protein]	C27H51N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ocddec5eACP	3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H39N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ocmrs7eACP	3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H43N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ocpalm9eACP	3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]	C27H47N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ocvac11eACP	3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H51N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3oddecACP	3-Oxododecanoyl-[acyl-carrier protein]	C23H41N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3odecACP	3-Oxodecanoyl-[acyl-carrier protein]	C21H37N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ohexACP	3-Oxohexanoyl-[acyl-carrier protein]	C17H29N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3omrsACP	3-Oxotetradecanoyl-[acyl-carrier protein]	C25H45N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ooctACP	3-Oxooctanoyl-[acyl-carrier protein]	C19H33N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-ACP	acyl carrier protein	C11H21N2O7PRS	ACP	"[""EG50003-MONOMER""]"	null
-CPD0-2342		C6H12O6R	CPD0-2342	null	"[""CPD0-2342""]"
-acACP	Acetyl-ACP	C13H23N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-actACP	Acetoacetyl-ACP	C15H25N2O9PRS	ACP	"[""EG50003-MONOMER""]"	null
-alpp	applipoprotein	X	apolipoprotein	null	"[""EG10544-MONOMER""]"
-apoACP	apoprotein [acyl carrier protein]	RHO	ACP	"[""EG50003-MONOMER""]"	null
-but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	dsbA	null	"[""MONOMER0-4152""]"
-dsbard	periplasmic protein disulfide isomerase I (reduced)	XH2	dsbA	null	"[""DISULFOXRED-MONOMER""]"
-dsbcox	protein disulfide isomerase II (oxidized)	X	dsbC	null	"[""CPLX0-8002""]"
-dsbcrd	protein disulfide isomerase II (reduced)	XH2	dsbC	null	"[""DSBC-CPLX""]"
-dsbdox	fused thiol:disulfide interchange protein (oxidized)	X	dsbD	null	"[""DSBDOXI-MONOMER""]"
-dsbdrd	fused thiol:disulfide interchange protein (reduced)	XH2	dsbD	null	"[""DSBD-MONOMER""]"
-dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	dsbG	null	"[""CPLX0-8004""]"
-dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	dsbG	null	"[""DSBG-CPLX""]"
-fldox	flavodoxin (oxidized)	X	flavodoxin	null	"[""OX-FLAVODOXIN1"", ""OX-FLAVODOXIN2""]"
-fldrd	flavodoxin (reduced)	XH2	flavodixin	null	"[""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER""]"
-glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	Glu-tRNA	null	"[""charged-gltT-tRNA"", ""charged-gltU-tRNA"", ""charged-gltV-tRNA"", ""charged-gltW-tRNA""]"
-grxox	glutaredoxin (oxidized)	X	glutaredoxin	null	"[""GLUTAREDOXIN-MONOMER"", ""OX-GLUTAREDOXIN-B"", ""OX-GLUTAREDOXIN-C"", ""EG12181-MONOMER""]"
-grxrd	glutaredoxin (reduced)	XH2	glutaredoxin	null	"[""RED-GLUTAREDOXIN"", ""GRXB-MONOMER"", ""GRXC-MONOMER"", ""EG12181-MONOMER""]"
-hdeACP	cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)	C27H49N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-hexACP	Hexanoyl-ACP (n-C6:0ACP)	C17H31N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-lpp	lipoprotein	XC16H30O1	lipoprotein	null	"[""G7644-MONOMER""]"
-malACP	Malonyl-[acyl-carrier protein]	C3H3O3R	ACP	"[""EG50003-MONOMER""]"	null
-myrsACP	Myristoyl-ACP (n-C14:0ACP)	C25H47N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-ocACP	Octanoyl-ACP (n-C8:0ACP)	C19H35N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-ocdcaACP	Octadecanoyl-ACP (n-C18:0ACP)	C29H55N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-octeACP	cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)	C29H53N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-palmACP	Palmitoyl-ACP (n-C16:0ACP)	C27H51N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-t3c11vaceACP	trans-3-cis-11-vacceoyl-[acyl-carrier protein]	C29H51N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-t3c5ddeceACP	trans-3-cis-5-dodecenoyl-[acyl-carrier protein]	C23H39N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-t3c7mrseACP	trans-3-cis-7-myristoleoyl-[acyl-carrier protein]	C25H43N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-t3c9palmeACP	trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]	C27H47N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-tddec2eACP	trans-Dodec-2-enoyl-[acyl-carrier protein]	C23H41N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-tdeACP	cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)	C25H45N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-tdec2eACP	trans-Dec-2-enoyl-[acyl-carrier protein]	C21H37N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-thex2eACP	trans-Hex-2-enoyl-[acyl-carrier protein]	C17H29N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	ACP	"[""EG50003-MONOMER""]"	null
-trdox	Oxidized thioredoxin	X	thioredoxin	null	"[""OX-THIOREDOXIN-MONOMER"", ""OX-THIOREDOXIN2-MONOMER""]"
-trdrd	Reduced thioredoxin	XH2	thioredoxin	null	"[""RED-THIOREDOXIN-MONOMER"", ""RED-THIOREDOXIN2-MONOMER""]"
-trnaglu	tRNA (Glu)	R	Glu-tRNA	null	"[""gltT-tRNA"", ""gltU-tRNA"", ""gltV-tRNA"", ""gltW-tRNA""]"
+Frame ID	Name	Neutral formula	What is this?	Import/export frame ID
+3haACP	(3R)-3-Hydroxyacyl-[acyl-carrier protein]	C15H27N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hcddec5eACP	(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H41N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hcmrs7eACP	(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H45N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hcpalm9eACP	(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]	C27H49N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hcvac11eACP	(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H53N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hddecACP	(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]	C23H43N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hdecACP	(R)-3-Hydroxydecanoyl-[acyl-carrier protein]	C21H39N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hhexACP	(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]	C17H31N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hmrsACP	(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	C25H47N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hoctACP	(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	C19H35N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hoctaACP	(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]	C29H55N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3hpalmACP	R-3-hydroxypalmitoyl-[acyl-carrier protein]	C27H51N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ocddec5eACP	3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H39N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ocmrs7eACP	3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H43N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ocpalm9eACP	3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]	C27H47N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ocvac11eACP	3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H51N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3oddecACP	3-Oxododecanoyl-[acyl-carrier protein]	C23H41N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3odecACP	3-Oxodecanoyl-[acyl-carrier protein]	C21H37N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ohexACP	3-Oxohexanoyl-[acyl-carrier protein]	C17H29N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3omrsACP	3-Oxotetradecanoyl-[acyl-carrier protein]	C25H45N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ooctACP	3-Oxooctanoyl-[acyl-carrier protein]	C19H33N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+ACP	acyl carrier protein	C11H21N2O7PRS	ACP	"[""EG50003-MONOMER""]"
+CPD0-2342		C6H12O6R	CPD0-2342	"[""CPD0-2342""]"
+acACP	Acetyl-ACP	C13H23N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+actACP	Acetoacetyl-ACP	C15H25N2O9PRS	ACP	"[""EG50003-MONOMER""]"
+alpp	applipoprotein	X	apolipoprotein	"[""EG10544-MONOMER""]"
+apoACP	apoprotein [acyl carrier protein]	RHO	ACP	"[""EG50003-MONOMER""]"
+but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	dsbA	"[""MONOMER0-4152""]"
+dsbard	periplasmic protein disulfide isomerase I (reduced)	XH2	dsbA	"[""DISULFOXRED-MONOMER""]"
+dsbcox	protein disulfide isomerase II (oxidized)	X	dsbC	"[""CPLX0-8002""]"
+dsbcrd	protein disulfide isomerase II (reduced)	XH2	dsbC	"[""DSBC-CPLX""]"
+dsbdox	fused thiol:disulfide interchange protein (oxidized)	X	dsbD	"[""DSBDOXI-MONOMER""]"
+dsbdrd	fused thiol:disulfide interchange protein (reduced)	XH2	dsbD	"[""DSBD-MONOMER""]"
+dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	dsbG	"[""CPLX0-8004""]"
+dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	dsbG	"[""DSBG-CPLX""]"
+fldox	flavodoxin (oxidized)	X	flavodoxin	"[""OX-FLAVODOXIN1"", ""OX-FLAVODOXIN2""]"
+fldrd	flavodoxin (reduced)	XH2	flavodixin	"[""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER""]"
+glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	Glu-tRNA	"[""charged-gltT-tRNA"", ""charged-gltU-tRNA"", ""charged-gltV-tRNA"", ""charged-gltW-tRNA""]"
+grxox	glutaredoxin (oxidized)	X	glutaredoxin	"[""GLUTAREDOXIN-MONOMER"", ""OX-GLUTAREDOXIN-B"", ""OX-GLUTAREDOXIN-C"", ""EG12181-MONOMER""]"
+grxrd	glutaredoxin (reduced)	XH2	glutaredoxin	"[""RED-GLUTAREDOXIN"", ""GRXB-MONOMER"", ""GRXC-MONOMER"", ""EG12181-MONOMER""]"
+hdeACP	cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)	C27H49N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+hexACP	Hexanoyl-ACP (n-C6:0ACP)	C17H31N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+lpp	lipoprotein	XC16H30O1	lipoprotein	"[""G7644-MONOMER""]"
+malACP	Malonyl-[acyl-carrier protein]	C3H3O3R	ACP	"[""EG50003-MONOMER""]"
+myrsACP	Myristoyl-ACP (n-C14:0ACP)	C25H47N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+ocACP	Octanoyl-ACP (n-C8:0ACP)	C19H35N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+ocdcaACP	Octadecanoyl-ACP (n-C18:0ACP)	C29H55N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+octeACP	cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)	C29H53N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+palmACP	Palmitoyl-ACP (n-C16:0ACP)	C27H51N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+t3c11vaceACP	trans-3-cis-11-vacceoyl-[acyl-carrier protein]	C29H51N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+t3c5ddeceACP	trans-3-cis-5-dodecenoyl-[acyl-carrier protein]	C23H39N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+t3c7mrseACP	trans-3-cis-7-myristoleoyl-[acyl-carrier protein]	C25H43N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+t3c9palmeACP	trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]	C27H47N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+tddec2eACP	trans-Dodec-2-enoyl-[acyl-carrier protein]	C23H41N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+tdeACP	cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)	C25H45N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+tdec2eACP	trans-Dec-2-enoyl-[acyl-carrier protein]	C21H37N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+thex2eACP	trans-Hex-2-enoyl-[acyl-carrier protein]	C17H29N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+trdox	Oxidized thioredoxin	X	thioredoxin	"[""OX-THIOREDOXIN-MONOMER"", ""OX-THIOREDOXIN2-MONOMER""]"
+trdrd	Reduced thioredoxin	XH2	thioredoxin	"[""RED-THIOREDOXIN-MONOMER"", ""RED-THIOREDOXIN2-MONOMER""]"
+trnaglu	tRNA (Glu)	R	Glu-tRNA	"[""gltT-tRNA"", ""gltU-tRNA"", ""gltV-tRNA"", ""gltW-tRNA""]"

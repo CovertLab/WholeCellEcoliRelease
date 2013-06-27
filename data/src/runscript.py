@@ -1621,20 +1621,18 @@ def parseMetabolites():
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula','What is this?','Cofactor frame ID','Import/export frame ID'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula','What is this?','Import/export frame ID'])
 		for key in keys:
 			m = metDict[key]
 			if m.notRealMetabolte == True:
 				cofactorName = None
-				cofactorFrameId = None
 				exchangeFrameId = None
 
-				# Cofactors - Need to check that these proteins are present for reaction to occur
+				# Pseudo-metabolite - Need to add exchange reaction with cytoplasm or whichever compartment is required
 				if m.frameId.count('ACP'):
 					cofactorName = 'ACP'
-					cofactorFrameId = ['EG50003-MONOMER']
+					exchangeFrameId = ['EG50003-MONOMER']
 
-				# Pseudo-metabolite - Need to add exchange reaction with cytoplasm or whichever compartment is required
 				if m.frameId == 'alpp':
 					cofactorName = 'apolipoprotein'
 					exchangeFrameId = ['EG10544-MONOMER']
@@ -1708,7 +1706,7 @@ def parseMetabolites():
 						location = locationAbbrev[proteinLocations[ee][0]]
 						m.equivalentEnzyme.append(ee + '[' + location + ']')
 
-				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(cofactorFrameId), json.dumps(exchangeFrameId)])
+				csvwriter.writerow([m.frameId, m.name, m.neutralFormula, cofactorName, json.dumps(exchangeFrameId)])
 
 	# Write output for metabolites
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'wb') as csvfile:
