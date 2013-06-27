@@ -1838,10 +1838,10 @@ def parseReactions():
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Required cofactors/proteins', 'Direction', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), json.dumps(r.requiredCofactors), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
 
 # Utility functions
 def splitBigBracket(s):
