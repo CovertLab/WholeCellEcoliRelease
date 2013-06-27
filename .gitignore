@@ -39,6 +39,8 @@ documentation/reconstruction/sub-models/Translation/Translation.aux
 
 *.pickle
 
+*.log
+
 src/Ecoli/sandbox/metabolism/fluxComparison.pdf
 
 src/Ecoli/sandbox/metabolism/biomassMetComparison.pdf
