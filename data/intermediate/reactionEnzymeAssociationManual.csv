@@ -1,2 +1,3 @@
 "Reaction ID"	"Enzyme"	"Comments"
-"ACCOAC"	"[“ACETYL-COA-CARBOXYLMULTI-CPLX”]"	
+"ACCOAC"	"ACETYL-COA-CARBOXYLMULTI-CPLX"	
+"ACGAptspp"	"(CPLX-167 or (CPLX-157 and PTSH-MONOMER and CPLX0-7938))"	"PTS system for N-acetyl-D-glucosamine, PTS system for glucose + general PTS components"
