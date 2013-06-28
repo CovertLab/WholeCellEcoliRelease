@@ -1,3 +1,6 @@
 "Reaction ID"	"Enzyme"	"Comments"
 "ACCOAC"	"ACETYL-COA-CARBOXYLMULTI-CPLX"	
-"ACGAptspp"	"(CPLX-167 or (CPLX-157 and PTSH-MONOMER and CPLX0-7938))"	"PTS system for N-acetyl-D-glucosamine, PTS system for glucose + general PTS components"
+"ACGAptspp"	"((CPLX-167 or CPLX-157) and PTSH-MONOMER and CPLX0-7938))"	"(PTS system for N-acetyl-D-glucosamine OR PTS system for glucose) AND general PTS components"
+"ACMANAptspp"	"(CPLX-165 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for mannose AND general PTS components"
+"ACMUMptspp"	"(CPLX0-7 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for murine AND general PTS components"
+"ASCBptspp"	"(EIISGA and PTSH-MONOMER and CPLX0-7938)"	"L-ascorbate PTS permiase AND general PTS components"
