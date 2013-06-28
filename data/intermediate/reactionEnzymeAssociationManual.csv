@@ -11,3 +11,7 @@
 "ECAP2pp"	"CPLX0-3976"	"Enterobacterial Common Antigen Biosynthesis Protein Complex"
 "ECAP3pp"	"CPLX0-3976"	"Enterobacterial Common Antigen Biosynthesis Protein Complex"
 "FE3DHBZStonex"	"((CPLX0-1923 and G6414-MONOMER) or (CPLX0-1923 and EG10155-MONOMER))"	"Ton transport system and fiu or ton transport system and cirA"
+"FHL"	"((FHLMULTI-CPLX and G7307-MONOMER) or (CPLX0-250 and G7307-MONOMER))"	"formate dehydrogenase 3 and hyfJ or formate dehydrogenase 4 and hyfJ. Changed from Feist rules to make sense."
+"FRUpts2pp"	"(CPLX-165 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for mannose AND general PTS components"
+"FRUptspp"	"(CPLX-158 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for fructose AND general PTS components"
+"GALTptspp"	"(CPLX0-231 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for galactose AND general PTS components"
