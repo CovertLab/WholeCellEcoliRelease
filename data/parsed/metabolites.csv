@@ -558,6 +558,10 @@ fldox	flavodoxin (oxidized)	X	X	0	0.0000000000				True	['OX-FLAVODOXIN1[c]', 'OX
 "
 fldrd	flavodoxin (reduced)	XH2	XH2	0	2.0158000000				True	['FLAVODOXIN1-MONOMER[c]', 'FLAVODOXIN2-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
 "
+flvubrdox		X	X	0	0.0000000000				True	['CPLX0-2[c]', 'CPLX0-1[c]']	"Non-element in formula. Weight calculated for known elements.
+"
+flvubrdrd		XH2	XH2	0	2.0158000000				True	['CPLX0-2[c]', 'CPLX0-1[c]']	"Non-element in formula. Weight calculated for known elements.
+"
 fmn	FMN	C17H21N4O9P	C17H20N4O9P	-1	455.3380000000					[]	
 fmnh2	Reduced FMN	C17H21N4O9P	C17H22N4O9P	-1	457.3538000000					[]	
 for	Formate	CH2O2	CHO2	-1	45.0169000000					[]	

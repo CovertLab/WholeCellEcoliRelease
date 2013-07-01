@@ -1001,7 +1001,7 @@ def parseComplexes():
 
 	# Parse small-molecule-protein complxes
 	ecocycToFeistId = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
@@ -1560,8 +1560,8 @@ def parseMetabolites():
 
 				metDict[newMet.frameId] = newMet
 
-	# Parse metabolites in Ecocyc and needed for complexation but not in Feist
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
+	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
@@ -1700,6 +1700,13 @@ def parseMetabolites():
 				if m.frameId == 'trdrd':
 					cofactorName = 'thioredoxin'
 					exchangeFrameId = ['RED-THIOREDOXIN-MONOMER','RED-THIOREDOXIN2-MONOMER']
+
+				if m.frameId == 'flvubrdox':
+					cofactorName = 'flavorubredoxin'
+					exchangeFrameId = ['CPLX0-2','CPLX0-1']
+				if m.frameId == 'flvubrdrd':
+					cofactorName = 'flavorubredoxin'
+					exchangeFrameId = ['CPLX0-2','CPLX0-1']
 				
 				if exchangeFrameId != None:
 					for ee in exchangeFrameId:
