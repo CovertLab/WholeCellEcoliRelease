@@ -1799,9 +1799,10 @@ def parseReactions():
 	# Remove reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
 		for row in csvreader:
 			reactDict.pop(row[0])
-	
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
