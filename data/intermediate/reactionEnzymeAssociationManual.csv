@@ -28,3 +28,7 @@
 "MANGLYCptspp"	"(CPLX-163 and PTSH-MONOMER and CPLX0-7938)"	"2-O-α-mannosyl-D-glycerate PTS permease AND general PTS components"
 "MANptspp"	"(CPLX-165 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for mannose AND general PTS components"
 "MNLptspp"	"(CPLX-166 and PTSH-MONOMER and CPLX0-7938)"	"mannitol PTS permease AND general PTS components"
+"NO3R1pp"	"((NARW-MONOMER and NITRATREDUCTZ-CPLX) or (NARJ-MONOMER and NITRATREDUCTA-CPLX))"	
+"NO3R2bpp"	"NAP-CPLX"	"Added NapG and NapH to complex"
+"NO3R2pp"	"((NARW-MONOMER and NITRATREDUCTZ-CPLX) or (NARJ-MONOMER and NITRATREDUCTA-CPLX))"	
+"O16AP1pp"		
