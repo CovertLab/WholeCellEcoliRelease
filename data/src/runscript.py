@@ -1824,7 +1824,6 @@ def parseReactions():
 
 				reactDict[reac.frameId] = reac
 
-	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
