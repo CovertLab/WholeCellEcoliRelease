@@ -22,4 +22,4 @@
 "HYD2pp"	"FORMHYDROG2-CPLX"	"Hydrogenase 2. Changed form Feist to require the full complex."
 "HYD2pp"	"FORMHYDROG2-CPLX"	"Hydrogenase 2. Changed form Feist to require the full complex."
 "INDOLEt2pp"		"Removed complex based on literature. (http://jb.asm.org/content/193/8/1793.full.pdf)"
-"Kabcpp"		
+"Kabcpp"	"ATPASE-1-CPLX"	"Potassium transporting ATPase"
