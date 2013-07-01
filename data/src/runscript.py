@@ -1776,6 +1776,7 @@ def parseReactions():
 	# Load reactions
 	reactDict = {}
 	rp = reactionParser()
+	# Add Feist reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
@@ -1785,8 +1786,22 @@ def parseReactions():
 				reac = buildReaction(rp,row)
 				reactDict[reac.frameId] = reac
 
+	# Add reactions not in Fesit
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_add.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
 
+		for row in csvreader:
+			if row[4] != 'tRNA Charging':
+				reac = buildReaction(rp,row)
+				reactDict[reac.frameId] = reac
 
+	# Remove reactions
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			reactDict.pop(row[0])
+	
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
