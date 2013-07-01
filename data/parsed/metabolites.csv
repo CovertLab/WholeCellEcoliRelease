@@ -121,70 +121,70 @@ Frame ID	Name	Neutral formula	pH 7.2 formula	pH 7.2 charge	pH 7.2 Weight	Media C
 3dhq	3-Dehydroquinate	C7H10O6	C7H9O6	-1	189.1421000000					[]	
 3dhsk	3-Dehydroshikimate	C7H8O5	C7H7O5	-1	171.1273000000					[]	
 3gmp	3'-GMP	C10H14N5O8P	C10H13N5O8P	-1	362.2137000000					[]	
-3haACP	(3R)-3-Hydroxyacyl-[acyl-carrier protein]	C15H27N2O9PRS	C15H27N2O9PRS	-1	442.4173000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3haACP	(3R)-3-Hydroxyacyl-[acyl-carrier protein]	C15H27N2O9PRS	C15H27N2O9PRS	-1	442.4173000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hbcoa	(S)-3-Hydroxybutanoyl-CoA	C25H42N7O18P3S	C25H39N7O18P3S	-3	850.5961000000					[]	
-3hcddec5eACP	(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H41N2O9PRS	C23H41N2O9PRS	-1	552.6159000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hcddec5eACP	(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H41N2O9PRS	C23H41N2O9PRS	-1	552.6159000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hcinnm	3-hydroxycinnamic acid	C9H7O3	C9H7O3	-1	163.1513000000					[]	
-3hcmrs7eACP	(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H45N2O9PRS	C25H45N2O9PRS	-1	580.6695000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hcmrs7eACP	(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H45N2O9PRS	C25H45N2O9PRS	-1	580.6695000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3hcpalm9eACP	(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]	C27H49N2O9PRS	C27H49N2O9PRS	-1	608.7231000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hcpalm9eACP	(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]	C27H49N2O9PRS	C27H49N2O9PRS	-1	608.7231000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3hcvac11eACP	(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H53N2O9PRS	C29H53N2O9PRS	-1	636.7767000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hcvac11eACP	(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H53N2O9PRS	C29H53N2O9PRS	-1	636.7767000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hdcoa	(S)-3-Hydroxydecanoyl-CoA	C31H54N7O18P3S	C31H51N7O18P3S	-3	934.7569000000					[]	
 3hddcoa	(S)-3-Hydroxydodecanoyl-CoA	C33H58N7O18P3S	C33H55N7O18P3S	-3	962.8105000000					[]	
-3hddecACP	(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]	C23H43N2O9PRS	C23H43N2O9PRS	-1	554.6317000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hddecACP	(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]	C23H43N2O9PRS	C23H43N2O9PRS	-1	554.6317000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3hdecACP	(R)-3-Hydroxydecanoyl-[acyl-carrier protein]	C21H39N2O9PRS	C21H39N2O9PRS	-1	526.5781000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hdecACP	(R)-3-Hydroxydecanoyl-[acyl-carrier protein]	C21H39N2O9PRS	C21H39N2O9PRS	-1	526.5781000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hhcoa	(S)-3-Hydroxyhexanoyl-CoA	C27H46N7O18P3S	C27H43N7O18P3S	-3	878.6497000000					[]	
 3hhdcoa	(S)-3-Hydroxyhexadecanoyl-CoA	C37H66N7O18P3S	C37H63N7O18P3S	-3	1018.9177000000					[]	
-3hhexACP	(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]	C17H31N2O9PRS	C17H31N2O9PRS	-1	470.4709000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hhexACP	(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]	C17H31N2O9PRS	C17H31N2O9PRS	-1	470.4709000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3hmrsACP	(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	C25H47N2O9PRS	C25H47N2O9PRS	-1	582.6853000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hmrsACP	(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	C25H47N2O9PRS	C25H47N2O9PRS	-1	582.6853000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hocoa	(S)-3-Hydroxyoctanoyl-CoA	C29H50N7O18P3S	C29H47N7O18P3S	-3	906.7033000000					[]	
-3hoctACP	(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	C19H35N2O9PRS	C19H35N2O9PRS	-1	498.5245000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hoctACP	(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	C19H35N2O9PRS	C19H35N2O9PRS	-1	498.5245000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3hoctaACP	(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]	C29H55N2O9PRS	C29H55N2O9PRS	-1	638.7925000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hoctaACP	(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]	C29H55N2O9PRS	C29H55N2O9PRS	-1	638.7925000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hodcoa	(S)-3-Hydroxyoctadecanoyl-CoA	C39H66N7O18P3S	C39H67N7O18P3S	-3	1046.9713000000					[]	
-3hpalmACP	R-3-hydroxypalmitoyl-[acyl-carrier protein]	C27H51N2O9PRS	C27H51N2O9PRS	-1	610.7389000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3hpalmACP	R-3-hydroxypalmitoyl-[acyl-carrier protein]	C27H51N2O9PRS	C27H51N2O9PRS	-1	610.7389000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3hpppn	3-(3-hydroxy-phenyl)propionate	C9H9O3	C9H9O3	-1	165.1671000000					[]	
 3htdcoa	(S)-3-Hydroxytetradecanoyl-CoA	C35H62N7O18P3S	C35H59N7O18P3S	-3	990.8641000000					[]	
 3ig3p	C'-(3-Indolyl)-glycerol 3-phosphate	C11H14NO6P	C11H13NO6P	-1	286.1987000000					[]	
 3mob	3-Methyl-2-oxobutanoate	C5H8O3	C5H7O3	-1	115.1073000000					[]	
 3mop	(S)-3-Methyl-2-oxopentanoate	C6H10O3	C6H9O3	-1	129.1341000000					[]	
-3ocddec5eACP	3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H39N2O9PRS	C23H39N2O9PRS	-1	550.6001000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ocddec5eACP	3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]	C23H39N2O9PRS	C23H39N2O9PRS	-1	550.6001000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3ocmrs7eACP	3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H43N2O9PRS	C25H43N2O9PRS	-1	578.6537000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ocmrs7eACP	3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]	C25H43N2O9PRS	C25H43N2O9PRS	-1	578.6537000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3ocpalm9eACP	3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]	C27H47N2O9PRS	C27H47N2O9PRS	-1	606.7073000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ocpalm9eACP	3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]	C27H47N2O9PRS	C27H47N2O9PRS	-1	606.7073000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3ocvac11eACP	3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H51N2O9PRS	C29H51N2O9PRS	-1	634.7609000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ocvac11eACP	3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]	C29H51N2O9PRS	C29H51N2O9PRS	-1	634.7609000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3odcoa	3-Oxodecanoyl-CoA	C31H52N7O18P3S	C31H49N7O18P3S	-3	932.7411000000					[]	
 3oddcoa	3-Oxododecanoyl-CoA	C33H56N7O18P3S	C33H53N7O18P3S	-3	960.7947000000					[]	
-3oddecACP	3-Oxododecanoyl-[acyl-carrier protein]	C23H41N2O9PRS	C23H41N2O9PRS	-1	552.6159000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3oddecACP	3-Oxododecanoyl-[acyl-carrier protein]	C23H41N2O9PRS	C23H41N2O9PRS	-1	552.6159000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3odecACP	3-Oxodecanoyl-[acyl-carrier protein]	C21H37N2O9PRS	C21H37N2O9PRS	-1	524.5623000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3odecACP	3-Oxodecanoyl-[acyl-carrier protein]	C21H37N2O9PRS	C21H37N2O9PRS	-1	524.5623000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3ohcoa	3-Oxohexanoyl-CoA	C27H44N7O18P3S	C27H41N7O18P3S	-3	876.6339000000					[]	
 3ohdcoa	3-Oxohexadecanoyl-CoA	C37H64N7O18P3S	C37H61N7O18P3S	-3	1016.9019000000					[]	
-3ohexACP	3-Oxohexanoyl-[acyl-carrier protein]	C17H29N2O9PRS	C17H29N2O9PRS	-1	468.4551000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ohexACP	3-Oxohexanoyl-[acyl-carrier protein]	C17H29N2O9PRS	C17H29N2O9PRS	-1	468.4551000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3omrsACP	3-Oxotetradecanoyl-[acyl-carrier protein]	C25H45N2O9PRS	C25H45N2O9PRS	-1	580.6695000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3omrsACP	3-Oxotetradecanoyl-[acyl-carrier protein]	C25H45N2O9PRS	C25H45N2O9PRS	-1	580.6695000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3oocoa	3-Oxooctanoyl-CoA	C29H48N7O18P3S	C29H45N7O18P3S	-3	904.6875000000					[]	
-3ooctACP	3-Oxooctanoyl-[acyl-carrier protein]	C19H33N2O9PRS	C19H33N2O9PRS	-1	496.5087000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ooctACP	3-Oxooctanoyl-[acyl-carrier protein]	C19H33N2O9PRS	C19H33N2O9PRS	-1	496.5087000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	C29H53N2O9PRS	-1	636.7767000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	C29H53N2O9PRS	-1	636.7767000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3oodcoa	3-Oxooctadecanoyl-CoA	C39H68N7O18P3S	C39H65N7O18P3S	-3	1044.9555000000					[]	
-3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	C27H49N2O9PRS	-1	608.7231000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	C27H49N2O9PRS	-1	608.7231000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 3ophb	3-Octaprenyl-4-hydroxybenzoate	C47H70O3	C47H69O3	-1	682.0591000000					[]	
 3otdcoa	3-Oxotetradecanoyl-CoA	C35H60N7O18P3S	C35H57N7O18P3S	-3	988.8483000000					[]	
@@ -232,7 +232,7 @@ Frame ID	Name	Neutral formula	pH 7.2 formula	pH 7.2 charge	pH 7.2 Weight	Media C
 6pgc	6-Phospho-D-gluconate	C6H13O10P	C6H11O10P	-2	274.1169000000					[]	
 6pgl	6-phospho-D-glucono-1,5-lactone	C6H11O9P	C6H10O9P	-1	257.1100000000					[]	
 8aonn	8-Amino-7-oxononanoate	C9H17NO3	C9H17NO3	0	187.2373000000					[]	
-ACP	acyl carrier protein	C11H21N2O7PRS	C11H21N2O7PRS	-1	356.3279000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+ACP	acyl carrier protein	C11H21N2O7PRS	C11H21N2O7PRS	-1	356.3279000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 ALLOLACTOSE		C12H22O11	C12H22O11	0	342.2948000000					[]	
 ANTIMONITE		H3O3Sb	O3Sb	-3	169.7470000000					[]	
@@ -244,7 +244,7 @@ CPD-6		S2Fe2	S2Fe2	0	175.8140000000					[]
 CPD-622		C7H10O7	C7H7O7	-3	203.1253000000					[]	
 CPD-7970		C9H5N4Cl	C9H5N4Cl	0	204.6195000000					[]	
 CPD-8179		C6H6N2O5	C6H3N2O5	-3	183.0987000000					[]	
-CPD0-2342		C6H12O6R	C6H12O6R	0	180.1548000000				True	['CPD0-2342[c]']	"Non-element in formula. Weight calculated for known elements.
+CPD0-2342		C6H12O6R	C6H12O6R	0	180.1548000000				True	"[""CPD0-2342[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 DIACETYLCHITOBIOSE-6-PHOSPHATE		C16H29N2O14P	C16H27N2O14P	-2	502.3633000000					[]	
 LalaDglu	L-alanine-D-glutamate	C8H14N2O5	C8H13N2O5	-1	217.1997000000					[]	
@@ -259,7 +259,7 @@ aacald	Aminoacetaldehyde	C2H5NO	C2H6NO	1	60.0754000000					[]
 aacoa	Acetoacetyl-CoA	C25H40N7O18P3S	C25H37N7O18P3S	-3	848.5803000000					[]	
 aact	Aminoacetone	C3H7NO	C3H8NO	1	74.1022000000					[]	
 ac	Acetate	C2H4O2	C2H3O2	-1	59.0437000000					[]	
-acACP	Acetyl-ACP	C13H23N2O8PRS	C13H23N2O8PRS	-1	398.3647000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+acACP	Acetyl-ACP	C13H23N2O8PRS	C13H23N2O8PRS	-1	398.3647000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 acac	Acetoacetate	C4H5O3	C4H5O3	-1	101.0805000000					[]	
 acald	Acetaldehyde	C2H4O	C2H4O	0	44.0526000000					[]	
@@ -287,7 +287,7 @@ acon-T	trans-Aconitate	C6H6O6	C6H3O6	-3	171.0837000000					[]
 aconm	E-3-carboxy-2-pentenedioate 6-methyl ester	C7H6O6	C7H6O6	-2	186.1184000000					[]	
 acorn	N2-Acetyl-L-ornithine	C7H14N2O3	C7H14N2O3	0	174.1986000000					[]	
 acser	O-Acetyl-L-serine	C5H9NO4	C5H9NO4	0	147.1291000000					[]	
-actACP	Acetoacetyl-ACP	C15H25N2O9PRS	C15H25N2O9PRS	-1	440.4015000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+actACP	Acetoacetyl-ACP	C15H25N2O9PRS	C15H25N2O9PRS	-1	440.4015000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 actp	Acetyl phosphate	C2H5O5P	C2H3O5P	-2	138.0147000000					[]	
 ade	Adenine	C5H5N5	C5H5N5	0	135.1295000000					[]	
@@ -318,7 +318,7 @@ all6p	D-Allose 6-phosphate	C6H13O9P	C6H12O9P	-1	259.1258000000					[]
 alltn	Allantoin	C4H6N4O3	C4H6N4O3	0	158.1164000000					[]	
 alltt	Allantoate	C4H8N4O4	C4H7N4O4	-1	175.1233000000					[]	
 allul6p	Allulose 6-phosphate	C6H13O9P	C6H12O9P	-1	259.1258000000					[]	
-alpp	applipoprotein	X	C3H6NOR2S	1	104.1464000000				True	['EG10544-MONOMER[o]']	"Non-element in formula. Weight calculated for known elements.
+alpp	applipoprotein	X	C3H6NOR2S	1	104.1464000000				True	"[""EG10544-MONOMER[o]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 altrn	D-Altronate	C6H12O7	C6H11O7	-1	195.1459000000					[]	
 amet	S-Adenosyl-L-methionine	C15H23N6O5S	C15H23N6O5S	1	399.4437000000		37588.87999999999			[]	
@@ -341,7 +341,7 @@ apg160	acyl phosphatidylglycerol (n-C16:0)	C54H105O11P	C54H104O11P	-1	960.378600
 apg161	acyl phosphatidylglycerol (n-C16:1)	C54H99O11P	C54H98O11P	-1	954.3312000000					[]	
 apg180	acyl phosphatidylglycerol (n-C18:0)	C60H116O11P	C60H116O11P	-1	1044.5394000000					[]	
 apg181	acyl phosphatidylglycerol (n-C18:1)	C60H111O11P	C60H110O11P	-1	1038.4920000000					[]	
-apoACP	apoprotein [acyl carrier protein]	RHO	HOR	0	17.0069000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+apoACP	apoprotein [acyl carrier protein]	RHO	HOR	0	17.0069000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 aps	Adenosine 5'-phosphosulfate	C10H14N5O10PS	C10H12N5O10PS	-2	425.2638000000					[]	
 ara5p	D-Arabinose 5-phosphate	C5H11O8P	C5H10O8P	-1	229.1000000000					[]	
@@ -370,9 +370,9 @@ btcoa	Butanoyl-CoA	C25H42N7O17P3S	C25H39N7O17P3S	-3	834.5971000000					[]
 btn	Biotin	C10H16N2O3S	C10H15N2O3S	-1	243.2995000000					[]	
 btnso	d-biotin d-sulfoxide	C10H16N2O4S	C10H15N2O4S	-1	259.2985000000					[]	
 but	Butyrate (n-C4:0)	C4H8O2	C4H7O2	-1	87.0973000000					[]	
-but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	C15H25N2O8PRS	-1	424.4025000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	C15H25N2O8PRS	-1	424.4025000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	C15H27N2O8PRS	-1	426.4183000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	C15H27N2O8PRS	-1	426.4183000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 butso3	butanesulfonate	C4H10O3S	C4H9O3S	-1	137.1721000000					[]	
 ca2	Calcium	Ca	Ca	2	40.0800000000		798468.7199999997			[]	
@@ -382,9 +382,9 @@ cbi	Cobinamide	C48H72CoN11O8	C48H72CoN11O8	0	990.0988000000					[]
 cbl1	Cob(I)alamin	C62H88CoN13O14P	C62H88CoN13O14P	-1	1329.3612000000					[]	
 cbp	Carbamoyl phosphate	CH4NO5P	CH2NO5P	-2	139.0028000000					[]	
 cd2	Cadmium	Cd	Cd	2	112.4100000000					[]	
-cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	C23H41N2O8PRS	-1	536.6169000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	C23H41N2O8PRS	-1	536.6169000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	C21H37N2O8PRS	-1	508.5633000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	C21H37N2O8PRS	-1	508.5633000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 cdp	CDP	C9H15N3O11P2	C9H13N3O11P2	-2	401.1597000000					[]	
 cdpdddecg	CDP-1,2-didodecanoylglycerol	C36H65N3O15P2	C36H63N3O15P2	-2	839.8477000000					[]	
@@ -448,7 +448,7 @@ datp	dATP	C10H16N5O12P3	C10H13N5O12P3	-3	488.1577000000		4410540.959999999			[]
 db4p	3,4-dihydroxy-2-butanone 4-phosphate	C4H9O6P	C4H8O6P	-1	183.0752000000					[]	
 dc2coa	trans-Dec-2-enoyl-CoA	C31H52N7O17P3S	C31H49N7O17P3S	-3	916.7421000000					[]	
 dca	Decanoate (n-C10:0)	C10H20O2	C10H19O2	-1	171.2581000000					[]	
-dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	C21H39N2O8PRS	-1	510.5791000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	C21H39N2O8PRS	-1	510.5791000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 dcacoa	Decanoyl-CoA (n-C10:0CoA)	C31H54N7O17P3S	C31H51N7O17P3S	-3	918.7579000000					[]	
 dcamp	N6-(1,2-Dicarboxyethyl)-AMP	C14H18N5O11P	C14H15N5O11P	-3	460.2705000000					[]	
@@ -458,7 +458,7 @@ dctp	dCTP	C9H16N3O13P3	C9H13N3O13P3	-3	464.1317000000		4553985.519999999			[]
 dcyt	Deoxycytidine	C9H13N3O4	C9H13N3O4	0	227.2187000000					[]	
 dd2coa	trans-Dodec-2-enoyl-CoA	C33H56N7O17P3S	C33H53N7O17P3S	-3	944.7957000000					[]	
 ddca	Dodecanoate (n-C12:0)	C12H24O2	C12H23O2	-1	199.3117000000					[]	
-ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	C23H43N2O8PRS	-1	538.6327000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	C23H43N2O8PRS	-1	538.6327000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 ddcacoa	Dodecanoyl-CoA (n-C12:0CoA)	C33H58N7O17P3S	C33H55N7O17P3S	-3	946.8115000000					[]	
 dgdp	dGDP	C10H12N5O10P2	C10H13N5O10P2	-2	425.1857000000					[]	
@@ -490,21 +490,21 @@ dmso	Dimethyl sulfoxide	C2H6OS	C2H6OS	0	78.1284000000					[]
 dnad	Deamino-NAD+	C21H27N6O15P2	C21H24N6O15P2	-2	662.3956000000					[]	
 dopa	Dopamine	C8H11NO2	C8H12NO2	1	154.1878000000					[]	
 dpcoa	Dephospho-CoA	C21H35N7O13P2S	C21H33N7O13P2S	-2	685.5357000000					[]	
-dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	X	0	0.0000000000				True	['MONOMER0-4152[p]']	"Non-element in formula. Weight calculated for known elements.
+dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	X	0	0.0000000000				True	"[""MONOMER0-4152[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbard	periplasmic protein disulfide isomerase I (reduced)	XH2	XH2	0	2.0158000000				True	['DISULFOXRED-MONOMER[p]']	"Non-element in formula. Weight calculated for known elements.
+dsbard	periplasmic protein disulfide isomerase I (reduced)	XH2	XH2	0	2.0158000000				True	"[""DISULFOXRED-MONOMER[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbcox	protein disulfide isomerase II (oxidized)	X	X	0	0.0000000000				True	['CPLX0-8002[p]']	"Non-element in formula. Weight calculated for known elements.
+dsbcox	protein disulfide isomerase II (oxidized)	X	X	0	0.0000000000				True	"[""CPLX0-8002[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbcrd	protein disulfide isomerase II (reduced)	XH2	XH2	0	2.0158000000				True	['DSBC-CPLX[p]']	"Non-element in formula. Weight calculated for known elements.
+dsbcrd	protein disulfide isomerase II (reduced)	XH2	XH2	0	2.0158000000				True	"[""DSBC-CPLX[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbdox	fused thiol:disulfide interchange protein (oxidized)	X	X	0	0.0000000000				True	['DSBDOXI-MONOMER[i]']	"Non-element in formula. Weight calculated for known elements.
+dsbdox	fused thiol:disulfide interchange protein (oxidized)	X	X	0	0.0000000000				True	"[""DSBDOXI-MONOMER[i]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbdrd	fused thiol:disulfide interchange protein (reduced)	XH2	XH2	0	2.0158000000				True	['DSBD-MONOMER[i]']	"Non-element in formula. Weight calculated for known elements.
+dsbdrd	fused thiol:disulfide interchange protein (reduced)	XH2	XH2	0	2.0158000000				True	"[""DSBD-MONOMER[i]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	X	0	0.0000000000				True	['CPLX0-8004[p]']	"Non-element in formula. Weight calculated for known elements.
+dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	X	0	0.0000000000				True	"[""CPLX0-8004[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	XH2	0	2.0158000000				True	['DSBG-CPLX[p]']	"Non-element in formula. Weight calculated for known elements.
+dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	XH2	0	2.0158000000				True	"[""DSBG-CPLX[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 dscl	dihydrosirohydrochlorin	C42H48N4O16	C42H41N4O16	-7	857.7979000000					[]	
 dtbt	Dethiobiotin	C10H18N2O3	C10H17N2O3	-1	213.2553000000					[]	
@@ -554,13 +554,13 @@ feenter	Fe-enterobactin	C30H24FeN3O15	C30H27FeN3O15	3	725.3963000000					[]
 feoxam	ferroxamine	C25H45FeN6O8	C25H46FeN6O8	1	614.5194000000					[]	
 feoxam-un	ferroxamine minus Fe(3)	C25H48N6O8	C25H49N6O8	1	561.6961000000					[]	
 fgam	N2-Formyl-N1-(5-phospho-D-ribosyl)glycinamide	C8H15N2O9P	C8H14N2O9P	-1	313.1776000000					[]	
-fldox	flavodoxin (oxidized)	X	X	0	0.0000000000				True	['OX-FLAVODOXIN1[c]', 'OX-FLAVODOXIN2[c]']	"Non-element in formula. Weight calculated for known elements.
+fldox	flavodoxin (oxidized)	X	X	0	0.0000000000				True	"[""OX-FLAVODOXIN1[c]"", ""OX-FLAVODOXIN2[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-fldrd	flavodoxin (reduced)	XH2	XH2	0	2.0158000000				True	['FLAVODOXIN1-MONOMER[c]', 'FLAVODOXIN2-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+fldrd	flavodoxin (reduced)	XH2	XH2	0	2.0158000000				True	"[""FLAVODOXIN1-MONOMER[c]"", ""FLAVODOXIN2-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-flvubrdox		X	X	0	0.0000000000				True	['CPLX0-2[c]', 'CPLX0-1[c]']	"Non-element in formula. Weight calculated for known elements.
+flvubrdox		X	X	0	0.0000000000				True	"[""CPLX0-2[c]"", ""CPLX0-1[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-flvubrdrd		XH2	XH2	0	2.0158000000				True	['CPLX0-2[c]', 'CPLX0-1[c]']	"Non-element in formula. Weight calculated for known elements.
+flvubrdrd		XH2	XH2	0	2.0158000000				True	"[""CPLX0-2[c]"", ""CPLX0-1[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 fmn	FMN	C17H21N4O9P	C17H20N4O9P	-1	455.3380000000					[]	
 fmnh2	Reduced FMN	C17H21N4O9P	C17H22N4O9P	-1	457.3538000000					[]	
@@ -624,7 +624,7 @@ glu1sa	L-Glutamate 1-semialdehyde	C5H9NO3	C5H9NO3	0	131.1301000000					[]
 glu5p	L-Glutamate 5-phosphate	C5H10NO7P	C5H8NO7P	-2	225.0922000000					[]	
 glu5sa	L-Glutamate 5-semialdehyde	C5H9NO3	C5H9NO3	0	131.1301000000					[]	
 glucys	gamma-L-Glutamyl-L-cysteine	C8H14N2O5S	C8H13N2O5S	-1	249.2597000000					[]	
-glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	C15H19N6O6R	0	379.3511000000				True	['charged-gltT-tRNA[c]', 'charged-gltU-tRNA[c]', 'charged-gltV-tRNA[c]', 'charged-gltW-tRNA[c]']	"Non-element in formula. Weight calculated for known elements.
+glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	C15H19N6O6R	0	379.3511000000				True	"[""charged-gltT-tRNA[c]"", ""charged-gltU-tRNA[c]"", ""charged-gltV-tRNA[c]"", ""charged-gltW-tRNA[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 glx	Glyoxylate	C2H2O3	C2HO3	-1	73.0269000000					[]	
 gly	Glycine	C2H5NO2	C2H5NO2	0	75.0665000000		103266261.27999997			[]	
@@ -642,9 +642,9 @@ gmhep7p	D-Glycero-D-manno-heptose 7-phosphate	C7H13O10P	C7H14O10P	-1	289.1516000
 gmp	GMP	C10H12N5O8P	C10H13N5O8P	-1	362.2137000000					[]	
 gp4g	P1,P4-Bis(5'-guanosyl) tetraphosphate	C20H24N10O21P4	C20H24N10O21P4	-4	864.3546000000					[]	
 grdp	Geranyl diphosphate	C10H20O7P2	C10H18O7P2	-2	312.1932000000					[]	
-grxox	glutaredoxin (oxidized)	X	C6H7NO2R2S2	0	189.2463000000				True	['GLUTAREDOXIN-MONOMER[c]', 'OX-GLUTAREDOXIN-B[c]', 'OX-GLUTAREDOXIN-C[c]', 'EG12181-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+grxox	glutaredoxin (oxidized)	X	C6H7NO2R2S2	0	189.2463000000				True	"[""GLUTAREDOXIN-MONOMER[c]"", ""OX-GLUTAREDOXIN-B[c]"", ""OX-GLUTAREDOXIN-C[c]"", ""EG12181-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-grxrd	glutaredoxin (reduced)	XH2	C6H9NO2R2S2	0	191.2621000000				True	['RED-GLUTAREDOXIN[c]', 'GRXB-MONOMER[c]', 'GRXC-MONOMER[c]', 'EG12181-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+grxrd	glutaredoxin (reduced)	XH2	C6H9NO2R2S2	0	191.2621000000				True	"[""RED-GLUTAREDOXIN[c]"", ""GRXB-MONOMER[c]"", ""GRXC-MONOMER[c]"", ""EG12181-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 gsn	Guanosine	C10H13N5O5	C10H13N5O5	0	283.2427000000					[]	
 gthox	Oxidized glutathione	C20H32N6O12S2	C20H30N6O12S2	-2	610.6070000000					[]	
@@ -666,10 +666,10 @@ hdca	Hexadecanoate (n-C16:0)	C16H32O2	C16H31O2	-1	255.4189000000					[]
 hdcea	Hexadecenoate (n-C16:1)	C16H30O2	C16H29O2	-1	253.4031000000					[]	
 hdcoa	Hexadecenoyl-CoA (n-C16:1CoA)	C37H60N7O17P3S	C37H61N7O17P3S	-3	1000.9029000000					[]	
 hdd2coa	trans-Hexadec-2-enoyl-CoA	C37H64N7O17P3S	C37H61N7O17P3S	-3	1000.9029000000					[]	
-hdeACP	cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)	C27H49N2O8PRS	C27H49N2O8PRS	-1	592.7241000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+hdeACP	cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)	C27H49N2O8PRS	C27H49N2O8PRS	-1	592.7241000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 hemeO	Heme O	C49H58FeN4O5	C49H56FeN4O5	-2	836.8514000000					[]	
-hexACP	Hexanoyl-ACP (n-C6:0ACP)	C17H31N2O8PRS	C17H31N2O8PRS	-1	454.4719000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+hexACP	Hexanoyl-ACP (n-C6:0ACP)	C17H31N2O8PRS	C17H31N2O8PRS	-1	454.4719000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 hg2	Hg2+	Hg	Hg	2	200.5900000000					[]	
 hhlipa	heptosyl-heptosyl-kdo2-lipidA	C124H226N2O51P2	C124H222N2O51P2	-4	2619.0288000000					[]	
@@ -725,13 +725,13 @@ lipa_cold	cold adapted KDO(2)-lipid (A)	C114H202N2O39P2	C114H204N2O39P2	-4	2288.
 lipidA	2,3,2'3'-Tetrakis(beta-hydroxymyristoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1,4'-bisphosphate	C68H130N2O23P2	C68H128N2O23P2	-2	1403.6982000000					[]	
 lipidAds	Lipid A Disaccharide	C68H127N2O20P	C68H128N2O20P	-1	1324.7272000000					[]	
 lipidX	2,3-Bis(3-hydroxytetradecanoyl)-beta-D-glucosaminyl 1-phosphate	C34H66NO12P	C34H65NO12P	-1	710.8565000000					[]	
-lpp	lipoprotein	XC16H30O1	C19H35NO2R2S	0	341.5505000000				True	['G7644-MONOMER[p]']	"Non-element in formula. Weight calculated for known elements.
+lpp	lipoprotein	XC16H30O1	C19H35NO2R2S	0	341.5505000000				True	"[""G7644-MONOMER[p]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 lys-L	L-Lysine	C6H14N2O2	C6H15N2O2	1	147.1965000000		57843218.15999998			[]	
 lyx-L	L-Lyxose	C5H10O5	C5H10O5	0	150.1290000000					[]	
 mal-D	D-Malate	C4H6O5	C4H4O5	-2	132.0706000000					[]	
 mal-L	L-Malate	C4H6O5	C4H4O5	-2	132.0706000000					[]	
-malACP	Malonyl-[acyl-carrier protein]	C3H3O3R	C14H22N2O10PRS	-2	441.3658000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+malACP	Malonyl-[acyl-carrier protein]	C3H3O3R	C14H22N2O10PRS	-2	441.3658000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 malcoa	Malonyl-CoA	C24H38N7O19P3S	C24H34N7O19P3S	-4	849.5446000000					[]	
 malt	Maltose	C12H22O11	C12H22O11	0	342.2948000000					[]	
@@ -785,7 +785,7 @@ murein5p5p5p	three linked disacharide pentapeptide murein units (uncrosslinked, 
 murein5px3p	two disacharide linked murein units, pentapeptide corsslinked tripeptide (A2pm->A2pm) (middle of chain)	C74H116N14O39	C74H112N14O39	-4	1821.7578000000					[]	
 murein5px4p	two disacharide linked murein units, pentapeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)	C77H121N15O40	C77H117N15O40	-4	1892.8363000000		2341972.6399999997			[]	
 murein5px4px4p	three disacharide linked murein units (pentapeptide crosslinked tetrapeptide (A2pm->D-ala) tetrapeptide corsslinked tetrapeptide (A2pm->D-ala)) (middle of chain)	C114H178N22O59	C114H172N22O59	-6	2794.7078000000					[]	
-myrsACP	Myristoyl-ACP (n-C14:0ACP)	C25H47N2O8PRS	C25H47N2O8PRS	-1	566.6863000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+myrsACP	Myristoyl-ACP (n-C14:0ACP)	C25H47N2O8PRS	C25H47N2O8PRS	-1	566.6863000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 n2o	Nitrous oxide	N2O	HN2O	1	45.0209000000					[]	
 n8aspmd	N8-Acetylspermidine	C9H21N3O	C9H23N3O	2	189.3007000000					[]	
@@ -812,16 +812,16 @@ o2	O2	O2	O2	0	31.9980000000					[]
 o2s	Superoxide anion	O2	O2	-1	31.9980000000					[]	
 oaa	Oxaloacetate	C4H4O5	C4H2O5	-2	130.0548000000					[]	
 oc2coa	trans-Oct-2-enoyl-CoA	C29H48N7O18P3S	C29H45N7O17P3S	-3	888.6885000000					[]	
-ocACP	Octanoyl-ACP (n-C8:0ACP)	C19H35N2O8PRS	C19H35N2O8PRS	-1	482.5255000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+ocACP	Octanoyl-ACP (n-C8:0ACP)	C19H35N2O8PRS	C19H35N2O8PRS	-1	482.5255000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 occoa	Octanoyl-CoA (n-C8:0CoA)	C29H50N7O17P3S	C29H47N7O17P3S	-3	890.7043000000					[]	
 ocdca	octadecanoate (n-C18:0)	C18H36O2	C18H35O2	-1	283.4725000000					[]	
-ocdcaACP	Octadecanoyl-ACP (n-C18:0ACP)	C29H55N2O8PRS	C29H55N2O8PRS	-1	622.7935000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+ocdcaACP	Octadecanoyl-ACP (n-C18:0ACP)	C29H55N2O8PRS	C29H55N2O8PRS	-1	622.7935000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 ocdcea	octadecenoate (n-C18:1)	C18H34O2	C18H33O2	-1	281.4567000000					[]	
 octa	octanoate (n-C8:0)	C8H16O2	C8H15O2	-1	143.2045000000					[]	
 octdp	all-trans-Octaprenyl diphosphate	C40H68O7P2	C40H66O7P2	-2	720.9024000000					[]	
-octeACP	cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)	C29H53N2O8PRS	C29H53N2O8PRS	-1	620.7777000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+octeACP	cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)	C29H53N2O8PRS	C29H53N2O8PRS	-1	620.7777000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 od2coa	trans-Octadec-2-enoyl-CoA	C39H68N7O17P3S	C39H65N7O17P3S	-3	1028.9565000000					[]	
 odecoa	Octadecenoyl-CoA (n-C18:1CoA)	C39H64N7O17P3S	C39H65N7O17P3S	-3	1028.9565000000					[]	
@@ -841,7 +841,7 @@ pa180	1,2-dioctadecanoyl-sn-glycerol 3-phosphate	C39H77O8P1	C39H76O8P	-1	703.995
 pa181	1,2-dioctadec-11-enoyl-sn-glycerol 3-phosphate	C39H73O8P1	C39H72O8P	-1	699.9638000000					[]	
 pac	Phenylacetic acid	C8H7O2	C8H7O2	-1	135.1413000000					[]	
 pacald	Phenylacetaldehyde	C8H8O	C8H8O	0	120.1502000000					[]	
-palmACP	Palmitoyl-ACP (n-C16:0ACP)	C27H51N2O8PRS	C27H51N2O8PRS	-1	594.7399000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+palmACP	Palmitoyl-ACP (n-C16:0ACP)	C27H51N2O8PRS	C27H51N2O8PRS	-1	594.7399000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 pan4p	Pantetheine 4'-phosphate	C11H23N2O7PS	C11H22N2O7PS	-1	357.3358000000					[]	
 pant-R	(R)-Pantoate	C6H12O4	C6H11O4	-1	147.1489000000					[]	
@@ -974,13 +974,13 @@ sucorn	N2-Succinyl-L-ornithine	C9H16N2O5	C9H15N2O5	-1	231.2265000000					[]
 sucr	Sucrose	C12H22O11	C12H22O11	0	342.2948000000					[]	
 sucsal	Succinic semialdehyde	C4H6O3	C4H5O3	-1	101.0805000000					[]	
 sulfac	sulfoacetate	C2H4O5S	C2H2O5S	-2	138.0928000000					[]	
-t3c11vaceACP	trans-3-cis-11-vacceoyl-[acyl-carrier protein]	C29H51N2O8PRS	C29H51N2O8PRS	-1	618.7619000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+t3c11vaceACP	trans-3-cis-11-vacceoyl-[acyl-carrier protein]	C29H51N2O8PRS	C29H51N2O8PRS	-1	618.7619000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-t3c5ddeceACP	trans-3-cis-5-dodecenoyl-[acyl-carrier protein]	C23H39N2O8PRS	C23H39N2O8PRS	-1	534.6011000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+t3c5ddeceACP	trans-3-cis-5-dodecenoyl-[acyl-carrier protein]	C23H39N2O8PRS	C23H39N2O8PRS	-1	534.6011000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-t3c7mrseACP	trans-3-cis-7-myristoleoyl-[acyl-carrier protein]	C25H43N2O8PRS	C25H43N2O8PRS	-1	562.6547000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+t3c7mrseACP	trans-3-cis-7-myristoleoyl-[acyl-carrier protein]	C25H43N2O8PRS	C25H43N2O8PRS	-1	562.6547000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-t3c9palmeACP	trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]	C27H47N2O8PRS	C27H47N2O8PRS	-1	590.7083000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+t3c9palmeACP	trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]	C27H47N2O8PRS	C27H47N2O8PRS	-1	590.7083000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 tag6p-D	D-Tagatose 6-phosphate	C6H11O9P	C6H12O9P	-1	259.1258000000					[]	
 tagdp-D	D-Tagatose 1,6-biphosphate	C6H14O12P2	C6H12O12P2	-2	338.0968000000					[]	
@@ -990,15 +990,15 @@ taur	Taurine	C2H7NO3S	C2H7NO3S	0	125.1413000000					[]
 tcynt	Thiocyanate	CHNS	CNS	-1	58.0780000000					[]	
 td2coa	trans-Tetradec-2-enoyl-CoA	C35H60N7O17P3S	C35H57N7O17P3S	-3	972.8493000000					[]	
 tdcoa	Tetradecanoyl-CoA (n-C14:0CoA)	C35H62N7O17P3S	C35H59N7O17P3S	-3	974.8651000000					[]	
-tddec2eACP	trans-Dodec-2-enoyl-[acyl-carrier protein]	C23H41N2O8PRS	C23H41N2O8PRS	-1	536.6169000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+tddec2eACP	trans-Dodec-2-enoyl-[acyl-carrier protein]	C23H41N2O8PRS	C23H41N2O8PRS	-1	536.6169000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-tdeACP	cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)	C25H45N2O8PRS	C25H45N2O8PRS	-1	564.6705000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+tdeACP	cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)	C25H45N2O8PRS	C25H45N2O8PRS	-1	564.6705000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-tdec2eACP	trans-Dec-2-enoyl-[acyl-carrier protein]	C21H37N2O8PRS	C21H37N2O8PRS	-1	508.5633000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+tdec2eACP	trans-Dec-2-enoyl-[acyl-carrier protein]	C21H37N2O8PRS	C21H37N2O8PRS	-1	508.5633000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 tdecoa	Tetradecenoyl-CoA (n-C14:1CoA)	C35H56N7O17P3S	C35H57N7O17P3S	-3	972.8493000000					[]	
 thdp	2,3,4,5-Tetrahydrodipicolinate	C7H9NO4	C7H7NO4	-2	169.1353000000					[]	
-thex2eACP	trans-Hex-2-enoyl-[acyl-carrier protein]	C17H29N2O8PRS	C17H29N2O8PRS	-1	452.4561000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+thex2eACP	trans-Hex-2-enoyl-[acyl-carrier protein]	C17H29N2O8PRS	C17H29N2O8PRS	-1	452.4561000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 thf	5,6,7,8-Tetrahydrofolate	C19H23N7O6	C19H21N7O6	-2	443.4179000000		37588.87999999999			[]	
 thm	Thiamin	C12H17N4OS	C12H17N4OS	1	265.3533000000					[]	
@@ -1010,21 +1010,21 @@ thym	Thymine	C5H6N2O2	C5H6N2O2	0	126.1144000000					[]
 thymd	Thymidine	C10H14N2O5	C10H14N2O5	0	242.2296000000					[]	
 tma	trimethylamine	C3H9N	C3H10N	1	60.1190000000					[]	
 tmao	Trimethylamine N-oxide	C3H9NO	C3H10NO	1	76.1180000000					[]	
-tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	C25H45N2O8PRS	-1	564.6705000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+tmrs2eACP	trans-Tetradec-2-enoyl-[acyl-carrier protein]	C25H45N2O8PRS	C25H45N2O8PRS	-1	564.6705000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	C19H33N2O8PRS	-1	480.5097000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+toct2eACP	trans-Oct-2-enoyl-[acyl-carrier protein]	C19H33N2O8PRS	C19H33N2O8PRS	-1	480.5097000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	C29H53N2O8PRS	-1	620.7777000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+toctd2eACP	trans-octadec-2-enoyl-[acyl-carrier protein]	C29H53N2O8PRS	C29H53N2O8PRS	-1	620.7777000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	C27H49N2O8PRS	-1	592.7241000000				True	['EG50003-MONOMER[c]']	"Non-element in formula. Weight calculated for known elements.
+tpalm2eACP	trans-Hexadec-2-enoyl-[acyl-carrier protein]	C27H49N2O8PRS	C27H49N2O8PRS	-1	592.7241000000				True	"[""EG50003-MONOMER[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-trdox	Oxidized thioredoxin	X	C6H7NO2R2S2	0	189.2463000000				True	['OX-THIOREDOXIN-MONOMER[c]', 'OX-THIOREDOXIN2-MONOMER[i]']	"Non-element in formula. Weight calculated for known elements.
+trdox	Oxidized thioredoxin	X	C6H7NO2R2S2	0	189.2463000000				True	"[""OX-THIOREDOXIN-MONOMER[c]"", ""OX-THIOREDOXIN2-MONOMER[i]""]"	"Non-element in formula. Weight calculated for known elements.
 "
-trdrd	Reduced thioredoxin	XH2	C6H9NO2R2S2	0	191.2621000000				True	['RED-THIOREDOXIN-MONOMER[c]', 'RED-THIOREDOXIN2-MONOMER[i]']	"Non-element in formula. Weight calculated for known elements.
+trdrd	Reduced thioredoxin	XH2	C6H9NO2R2S2	0	191.2621000000				True	"[""RED-THIOREDOXIN-MONOMER[c]"", ""RED-THIOREDOXIN2-MONOMER[i]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 tre	Trehalose	C12H22O11	C12H22O11	0	342.2948000000					[]	
 tre6p	alpha,alpha'-Trehalose 6-phosphate	C12H23O14P	C12H22O14P	-1	421.2658000000					[]	
-trnaglu	tRNA (Glu)	R	C10H12N5O3R	0	250.2368000000				True	['gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]', 'gltW-tRNA[c]']	"Non-element in formula. Weight calculated for known elements.
+trnaglu	tRNA (Glu)	R	C10H12N5O3R	0	250.2368000000				True	"[""gltT-tRNA[c]"", ""gltU-tRNA[c]"", ""gltV-tRNA[c]"", ""gltW-tRNA[c]""]"	"Non-element in formula. Weight calculated for known elements.
 "
 trp-L	L-Tryptophan	C11H12N2O2	C11H12N2O2	0	204.2278000000		9581456.079999998			[]	
 tsul	Thiosulfate	H2O3S2	HO3S2	-1	113.1249000000					[]	

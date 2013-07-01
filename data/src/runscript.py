@@ -1724,7 +1724,7 @@ def parseMetabolites():
 		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH 7.2 formula', 'pH 7.2 charge', 'pH 7.2 Weight', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
 		for key in keys:
 			m = metDict[key]
-			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.equivalentEnzyme, m.comments])
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, json.dumps(m.equivalentEnzyme), m.comments])
 
 def loadMonomerAndComplexLocations():
 	proteinLocations = {}
