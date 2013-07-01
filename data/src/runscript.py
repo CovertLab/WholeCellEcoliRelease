@@ -125,7 +125,7 @@ def getEcocyc(fetchNew = False):
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
 	parseGeneSynonymDictionary()
-	parseGeneProductUnmodifiedForm()
+ 	parseGeneProductUnmodifiedForm()
 	parseRnaTypes()
 
 def parseGeneSynonymDictionary():
@@ -517,7 +517,7 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
+		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life (s)', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
 
 		keys = geneDict.keys()
 		keys.sort()
