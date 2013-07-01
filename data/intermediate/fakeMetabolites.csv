@@ -44,6 +44,8 @@ dsbgox	periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)	X	dsb
 dsbgrd	periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)	XH2	dsbG	"[""DSBG-CPLX""]"
 fldox	flavodoxin (oxidized)	X	flavodoxin	"[""OX-FLAVODOXIN1"", ""OX-FLAVODOXIN2""]"
 fldrd	flavodoxin (reduced)	XH2	flavodixin	"[""FLAVODOXIN1-MONOMER"", ""FLAVODOXIN2-MONOMER""]"
+flvubrdox		X	flavorubredoxin	"[""CPLX0-2"", ""CPLX0-1""]"
+flvubrdrd		XH2	flavorubredoxin	"[""CPLX0-2"", ""CPLX0-1""]"
 glutrna	L-Glutamyl-tRNA(Glu)	C5H7NO3R	Glu-tRNA	"[""charged-gltT-tRNA"", ""charged-gltU-tRNA"", ""charged-gltV-tRNA"", ""charged-gltW-tRNA""]"
 grxox	glutaredoxin (oxidized)	X	glutaredoxin	"[""GLUTAREDOXIN-MONOMER"", ""OX-GLUTAREDOXIN-B"", ""OX-GLUTAREDOXIN-C"", ""EG12181-MONOMER""]"
 grxrd	glutaredoxin (reduced)	XH2	glutaredoxin	"[""RED-GLUTAREDOXIN"", ""GRXB-MONOMER"", ""GRXC-MONOMER"", ""EG12181-MONOMER""]"

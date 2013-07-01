@@ -125,7 +125,7 @@ def getEcocyc(fetchNew = False):
 def parseIntermediateFiles():
 	# Load and save gene synonym dictionary
 	parseGeneSynonymDictionary()
-	parseGeneProductUnmodifiedForm()
+ 	parseGeneProductUnmodifiedForm()
 	parseRnaTypes()
 
 def parseGeneSynonymDictionary():
@@ -517,7 +517,7 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
+		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life (s)', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
 
 		keys = geneDict.keys()
 		keys.sort()
@@ -1001,7 +1001,7 @@ def parseComplexes():
 
 	# Parse small-molecule-protein complxes
 	ecocycToFeistId = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
@@ -1560,8 +1560,8 @@ def parseMetabolites():
 
 				metDict[newMet.frameId] = newMet
 
-	# Parse metabolites in Ecocyc and needed for complexation but not in Feist
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_to_Feist.csv'),'rb') as csvfile:
+	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
@@ -1700,6 +1700,13 @@ def parseMetabolites():
 				if m.frameId == 'trdrd':
 					cofactorName = 'thioredoxin'
 					exchangeFrameId = ['RED-THIOREDOXIN-MONOMER','RED-THIOREDOXIN2-MONOMER']
+
+				if m.frameId == 'flvubrdox':
+					cofactorName = 'flavorubredoxin'
+					exchangeFrameId = ['CPLX0-2','CPLX0-1']
+				if m.frameId == 'flvubrdrd':
+					cofactorName = 'flavorubredoxin'
+					exchangeFrameId = ['CPLX0-2','CPLX0-1']
 				
 				if exchangeFrameId != None:
 					for ee in exchangeFrameId:
@@ -1717,7 +1724,7 @@ def parseMetabolites():
 		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH 7.2 formula', 'pH 7.2 charge', 'pH 7.2 Weight', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
 		for key in keys:
 			m = metDict[key]
-			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, m.equivalentEnzyme, m.comments])
+			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.exchangeRate, m.notRealMetabolte, json.dumps(m.equivalentEnzyme), m.comments])
 
 def loadMonomerAndComplexLocations():
 	proteinLocations = {}
