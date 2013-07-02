@@ -1776,55 +1776,32 @@ def parseReactions():
 	# Load reactions
 	reactDict = {}
 	rp = reactionParser()
+	# Add Feist reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 
 		for row in csvreader:
 			if row[4] != 'tRNA Charging':
-				reac = reaction()
-				reac.frameId = row[0]
-				reac.name = row[1]
-				reac.process = 'Metabolism'
-				if row[5] != '':
-					reac.EC = row[5]
-				reac.stoich = row[2]
-				reac.direction = row[3]
-
-				# Figure out enzymes
-				if row[6] == '':
-					# Nothin known
-					reac.enzyme = None
-				elif re.match("b([0-9])", row[6]) != None:
-					bnum = row[6]
-
-					pMFrameId = rp.getPMFrame(bnum)
-
-					pMLocation = rp.getLocation(pMFrameId)
-
-					reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
-				else:
-					#print row[:7]
-					enzymeInfo = rp.findEnzyme(row[6], row)
-					enzymes = enzymeInfo['enzymes']
-					cofactors = enzymeInfo['cofactors']
-					for e in enzymes:
-						if e == 'UNKNOWN':
-							pass
-						elif e == 'SPONTANEOUS':
-							reac.enzyme.append('SPONTANEOUS')
-						else:
-							location = rp.getLocation(e)
-							reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
-					for c in cofactors:
-						location = rp.locationAbbrev[rp.getLocation(c)]
-						reac.requiredCofactors.append(c + '[' + rp.locationAbbrev[rp.getLocation(c)] + ']')
-					reac.enzyme.sort()
-					reac.requiredCofactors.sort()
-
+				reac = buildReaction(rp,row)
 				reactDict[reac.frameId] = reac
 
-	# TODO: Notice reactions with non-metabolite components (ACP etc.) and add a comment
+	# Add reactions not in Fesit
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_add.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+
+		for row in csvreader:
+			if row[4] != 'tRNA Charging':
+				reac = buildReaction(rp,row)
+				reactDict[reac.frameId] = reac
+
+	# Remove reactions
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			reactDict.pop(row[0])
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
@@ -1836,6 +1813,49 @@ def parseReactions():
 		for key in keys:
 			r = reactDict[key]
 			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+
+def buildReaction(rp,row):
+	reac = reaction()
+	reac.frameId = row[0]
+	reac.name = row[1]
+	reac.process = 'Metabolism'
+	if row[5] != '':
+		reac.EC = row[5]
+	reac.stoich = row[2]
+	reac.direction = row[3]
+
+	# Figure out enzymes
+	if row[6] == '':
+		# Nothin known
+		reac.enzyme = None
+	elif re.match("b([0-9])", row[6]) != None:
+		bnum = row[6]
+
+		pMFrameId = rp.getPMFrame(bnum)
+
+		pMLocation = rp.getLocation(pMFrameId)
+
+		reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
+	else:
+		#print row[:7]
+		enzymeInfo = rp.findEnzyme(row[6], row)
+		enzymes = enzymeInfo['enzymes']
+		cofactors = enzymeInfo['cofactors']
+		for e in enzymes:
+			if e == 'UNKNOWN':
+				pass
+			elif e == 'SPONTANEOUS':
+				reac.enzyme.append('SPONTANEOUS')
+			else:
+				location = rp.getLocation(e)
+				reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
+		for c in cofactors:
+			location = rp.locationAbbrev[rp.getLocation(c)]
+			reac.requiredCofactors.append(c + '[' + rp.locationAbbrev[rp.getLocation(c)] + ']')
+		reac.enzyme.sort()
+		reac.requiredCofactors.sort()
+	return reac
+
 
 # Utility functions
 def splitBigBracket(s):

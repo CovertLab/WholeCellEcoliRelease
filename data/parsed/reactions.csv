@@ -1725,7 +1725,6 @@ NDPK7	nucleoside-diphosphate kinase (ATP:dCDP)	Metabolism	2.7.4.6	[c] : atp + dc
 NDPK8	nucleoside-diphosphate kinase (ATP:dADP)	Metabolism	2.7.4.6	[c] : atp + dadp <==> adp + datp	"[""ADENYL-KIN-MONOMER[c]"", ""NUCLEOSIDE-DIP-KIN-MONOMER[c]""]"	reversible					
 NH4tex	ammonia transport via diffusion (extracellular to periplasm)	Metabolism		nh4[e] <==> nh4[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	reversible					
 NH4tpp	ammonia reversible transport (periplasm)	Metabolism		nh4[p] <==> nh4[c]	"[""AMTB-MONOMER[i]"", ""SPONTANEOUS""]"	reversible					
-NHFRBO	NADH:flavorubredoxin oxidoreductase	Metabolism		[c] : h + nadh + (2) no --> h2o + n2o + nad	[]	forward only					
 NI2abcpp	Nickle (Ni+2) ABC transporter (periplasm)	Metabolism		atp[c] + h2o[c] + ni2[c] --> adp[c] + h[c] + ni2[p] + pi[c]	"[""YHHO-MONOMER[i]""]"	forward only					
 NI2t3pp	nickle (Ni+2) transport out via proton antiport (periplasm)	Metabolism		h[p] + ni2[c] --> h[c] + ni2[p]	"[""B0752-MONOMER[i]"", ""YIIP-MONOMER[i]""]"	forward only					
 NI2tex	nickel transport via diffusion (extracellular to periplasm)	Metabolism		ni2[e] <==> ni2[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	reversible					
@@ -2122,6 +2121,8 @@ RNTR3c	ribonucleoside-triphosphate reductase (CTP) (flavodoxin)	Metabolism		[c] 
 RNTR4c	ribonucleoside-triphosphate reductase (UTP) (flavodoxin)	Metabolism		[c] : fldrd + utp --> dutp + fldox + h2o	"[""NRDACTMULTI-CPLX[c]"", ""NRDACTMULTI-CPLX[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]"", ""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER[c]""]"	forward only					
 RPE	ribulose 5-phosphate 3-epimerase	Metabolism	5.1.3.1	[c] : ru5p-D <==> xu5p-D	"[""G7914-MONOMER[c]"", ""RIBULP3EPIM-MONOMER[c]""]"	reversible					
 RPI	ribose-5-phosphate isomerase	Metabolism	5.3.1.6	[c] : r5p <==> ru5p-D	"[""RIB5PISOMA-MONOMER[c]"", ""RIB5PISOMB-MONOMER[c]""]"	reversible					
+RXN_WC_1	flavorubredoxin reductase	Metabolism		[c] : h + nadh + flvubrdox --> nad + flvubrdrd	[]	forward only					
+RXN_WC_2	NADH:flavorubredoxin oxidoreductase	Metabolism		[c] : h + flvubrdrd + (2) no --> h2o + n2o + flvubrdox	null	forward only					
 RZ5PP	alpha-ribazole 5-phosphate phosphatase	Metabolism		[c] : 5prdmbz + h2o --> pi + rdmbzi	"[""RIBAZOLEPHOSPHAT-MONOMER[c]""]"	forward only					
 S7PI	sedoheptulose 7-phosphate isomerase	Metabolism		[c] : s7p --> gmhep7p	"[""G6106-MONOMER[c]""]"	forward only					
 SADH	Succinylarginine dihydrolase	Metabolism	2.6.1.69	[c] : (2) h + (2) h2o + sucarg --> co2 + (2) nh4 + sucorn	"[""SUCCARGDIHYDRO-MONOMER[c]""]"	forward only					
