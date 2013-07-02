@@ -1836,7 +1836,10 @@ def buildReaction(rp,row):
 
 		reac.enzyme = [pMFrameId]
 	else:
-		enzymeInfo = rp.findEnzyme(row[6], row)
+		if rp.manualAnnotationDict.has_key(row[0]):
+			enzymeInfo = rp.findEnzyme(row[6])
+		else:
+			enzymeInfo = rp.findEnzyme(row[6], row)
 		enzymes = enzymeInfo['enzymes']
 		cofactors = enzymeInfo['cofactors']
 		for i,e in enumerate(enzymes):
@@ -2115,6 +2118,8 @@ class reactionParser:
 			else:
 				enzymes.append([])
 				enzymes.append('or')
+		return {'enzymes' : enzymes, 'cofactors' : cofactors}
+
 
 class gene:
 	def __init__(self):

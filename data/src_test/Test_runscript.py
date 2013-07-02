@@ -23,6 +23,7 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('focusTest')
 	def test_runscript(self):
 		r.main()
 	
@@ -54,8 +55,6 @@ class Test_Simulation(unittest.TestCase):
 	def test_parseReactionScript(self):
 		rp = r.reactionParser()
 
-
-
 		# Simple OR
 		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
 		self.assertEqual(['MONOMER0-282', 'EG10671-MONOMER', 'G6700-MONOMER', 'EG10670-MONOMER'], rp.findEnzyme(line, 'hi')['enzymes'])
@@ -82,7 +81,6 @@ class Test_Simulation(unittest.TestCase):
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
 
-	@noseAttrib.attr('focusTest')
 	def test_findEnzymeManual(self):
 		rp = r.reactionParser()
 
