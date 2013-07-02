@@ -41,3 +41,6 @@
 "RIBabcpp"	"(ABC-28-CPLX and CPLX0-7646)"	"Taken from Feist"
 "SBTptspp"	"(CPLX-169 and PTSH-MONOMER and CPLX0-7938)"	"glucitol/sorbitol PTS permease AND general PTS components"
 "SUCptspp"	"(CPLX0-7 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for murine AND general PTS components"
+"THZPSN"	"(CPLX0-248 and THIF-MONOMER and CPLX-8029 and THII-MONOMER)"	"Taken from Feist"
+"TRDR"	"THIOREDOXIN-REDUCT-NADPH-CPLX"	"Removed thioredoxin"
+"TREptspp"	"(CPLX-168 and PTSH-MONOMER and CPLX0-7938)"	"trehalose PTS permease AND general PTS components"
