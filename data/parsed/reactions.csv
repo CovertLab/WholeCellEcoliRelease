@@ -2176,7 +2176,6 @@ SUCDi	succinate dehydrogenase (irreversible)	Metabolism	1.3.99.1	[c] : q8 + succ
 SUCFUMtpp	succinate:fumarate antiporter (periplasm)	Metabolism		fum[p] + succ[c] <==> fum[c] + succ[p]	"[""DCUA-MONOMER[i]"", ""DCUB-MONOMER[i]"", ""DCUC-MONOMER[i]""]"	reversible					
 SUCOAS	succinyl-CoA synthetase (ADP-forming)	Metabolism	6.2.1.5	[c] : atp + coa + succ <==> adp + pi + succoa	"[""SUCCCOASYN[c]""]"	reversible					
 SUCRtex	sucrose transport transport via diffusion (extracellular to periplasm)	Metabolism		sucr[e] <==> sucr[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	reversible					
-SUCptspp	sucrose transport via PEP:Pyr  (periplasm)	Metabolism		pep[c] + sucr[p] --> pyr[c] + suc6p[c]	[]	forward only					
 SULFACabcpp	sulfoacetate transport via ABC system (periplasm)	Metabolism		atp[c] + h2o[c] + sulfac[p] --> adp[c] + h[c] + pi[c] + sulfac[c]	"[""ABC-56-CPLX[i]""]"	forward only					
 SULFACtex	sulfoaceate transport via diffusion (extracellular to periplasm)	Metabolism		sulfac[e] <==> sulfac[p]	"[""EG10670-MONOMER[o]"", ""EG10671-MONOMER[o]"", ""G6700-MONOMER[o]"", ""MONOMER0-282[o]""]"	reversible					
 SULRi	sulfite reductase (NADPH2)	Metabolism	1.8.2.2	[c] : (5) h + (3) nadph + so3 --> (3) h2o + h2s + (3) nadp	"[""SULFITE-REDUCT-CPLX[c]""]"	forward only					

@@ -382,11 +382,11 @@ def parseGenes():
 		if len(rRNAhl) == 0:
 			s = 'No rRNA half lives measured. Using parameter.'
 			writeOut(s, logFile)
-			rrnaAverage = parameters['rRNA half life']
+			rrnaAverage = int(parameters['rRNA half life']['value'])*24*60*60 # seconds
 		if len(tRNAhl) == 0:
 			s = 'No tRNA half lives measured. Using parameter.'
 			writeOut(s, logFile)
-			trnaAverage = parameters['tRNA half life']
+			trnaAverage = int(parameters['tRNA half life']['value'])*24*60*60 # seconds
 		if len(miscRNAhl) == 0:
 			s = 'No miscRNA half lives measured. Using parameter.'
 			writeOut(s, logFile)
