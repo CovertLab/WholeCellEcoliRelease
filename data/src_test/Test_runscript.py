@@ -23,7 +23,6 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('focusTest')
 	def test_runscript(self):
 		r.main()
 	
@@ -55,11 +54,7 @@ class Test_Simulation(unittest.TestCase):
 	def test_parseReactionScript(self):
 		rp = r.reactionParser()
 
-		# Basic complex with and
-		line = '( b1252  and  b3005  and  b3006 )'
-		self.assertEqual(['CPLX0-1923'], rp.findEnzyme(line, 'hi')['enzymes'])
-		line = '( b2677  and  b2678  and  b2679 )'
-		self.assertEqual(['ABC-26-CPLX'], rp.findEnzyme(line, 'hi')['enzymes'])
+
 
 		# Simple OR
 		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
@@ -73,6 +68,20 @@ class Test_Simulation(unittest.TestCase):
 		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
 		enzymes = rp.findEnzyme(line, 'hi')['enzymes']
 		self.assertEqual(['ATPSYN-CPLX','UNKNOWN'], enzymes)
+
+	@noseAttrib.attr('focusTest')
+	def test_findEnzyme(self):
+		rp = r.reactionParser()
+
+		# Basic reaction with 'or'
+		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
+		self.assertEqual([['MONOMER0-282'], 'or', ['EG10671-MONOMER'], 'or', ['G6700-MONOMER'], 'or', ['EG10670-MONOMER']], rp.findEnzyme(line)['enzymes'])
+
+		# Basic complex with and
+		line = '( b1252  and  b3005  and  b3006 )'
+		self.assertEqual([['CPLX0-1923']], rp.findEnzyme(line)['enzymes'])
+		line = '( b2677  and  b2678  and  b2679 )'
+		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
 
 	def test_iterateTree(self):
 		rp = r.reactionParser()
