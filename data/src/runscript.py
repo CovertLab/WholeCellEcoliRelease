@@ -1776,6 +1776,7 @@ def parseReactions():
 	# Load reactions
 	reactDict = {}
 	rp = reactionParser()
+
 	# Add Feist reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -1833,11 +1834,8 @@ def buildReaction(rp,row):
 
 		pMFrameId = rp.getPMFrame(bnum)
 
-		pMLocation = rp.getLocation(pMFrameId)
-
-		reac.enzyme = [pMFrameId + '[' + rp.locationAbbrev[pMLocation] + ']']
+		reac.enzyme = [pMFrameId]
 	else:
-		#print row[:7]
 		enzymeInfo = rp.findEnzyme(row[6], row)
 		enzymes = enzymeInfo['enzymes']
 		cofactors = enzymeInfo['cofactors']
@@ -1850,12 +1848,9 @@ def buildReaction(rp,row):
 				location = rp.getLocation(e)
 				reac.enzyme.append(e + '[' + rp.locationAbbrev[location] + ']')
 		for c in cofactors:
-			location = rp.locationAbbrev[rp.getLocation(c)]
-			reac.requiredCofactors.append(c + '[' + rp.locationAbbrev[rp.getLocation(c)] + ']')
-		reac.enzyme.sort()
+			reac.requiredCofactors.append(c)
 		reac.requiredCofactors.sort()
 	return reac
-
 
 # Utility functions
 def splitBigBracket(s):
@@ -1961,23 +1956,11 @@ class reaction:
 
 class reactionParser:
 	def __init__(self):
-		self.locationAbbrev = self.loadLocationAbbrev()
 		self.synDictFrameId = self.loadSynDict()
 		self.protMonomerFrameId = self.loadProteinMonomerFrameIds()
-		self.proteinLocations = self.loadProteinMonomerLocation()
 		self.monomerToComplex = self.loadMonomerToComplex()
 		self.fakeMetaboliteFrameIds = self.loadFakeMetaboliteFrameIds()
 		self.fakeMetaboliteDict = self.loadFakeMetabolites()
-
-	def loadLocationAbbrev(self):
-		# Load location abbreviations
-		locationAbbrev = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			csvreader.next()
-			for row in csvreader:
-				locationAbbrev[row[0]] = row[1]
-		return locationAbbrev
 
 	def loadSynDict(self):
 		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
@@ -1996,40 +1979,6 @@ class reactionParser:
 				else:
 					print 'already has protein monomer!'
 		return protMonomerFrameId
-
-	def loadProteinMonomerLocation(self):
-		proteinLocations = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			csvreader.next()
-			for row in csvreader:
-				proteinLocations[row[0]] = json.loads(row[3])
-				modifiedForm = json.loads(row[4])
-				if len(modifiedForm):
-					for m in modifiedForm:
-						proteinLocations[m] = json.loads(row[3])
-
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			csvreader.next()
-			for row in csvreader:
-				proteinLocations[row[0]] = json.loads(row[2])
-				modifiedForm = json.loads(row[5])
-				if len(modifiedForm):
-					for m in modifiedForm:
-						proteinLocations[m] = json.loads(row[2])
-
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			csvreader.next()
-			for row in csvreader:
-				proteinLocations[row[0]] = json.loads(row[3])
-				modifiedForm = json.loads(row[4])
-				if len(modifiedForm):
-					for m in modifiedForm:
-						proteinLocations[m] = json.loads(row[3])
-
-		return proteinLocations
 
 	def loadMonomerToComplex(self):
 		monomerOrComplexToComplex = {}
@@ -2100,15 +2049,7 @@ class reactionParser:
 
 		return pMFrameId
 
-	def getLocation(self, pMFrameId):
-		if self.proteinLocations.has_key(pMFrameId):
-			pMLocation = self.proteinLocations[pMFrameId][0]
-		else:
-			print 'location not found for ' + pMFrameId
-			return
-		return pMLocation
-
-	def findEnzyme(self, line, row):
+	def findEnzyme(self, line, row = 'No row specified', manualAnnotateDict = {}):
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
