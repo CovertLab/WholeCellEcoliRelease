@@ -1836,7 +1836,7 @@ def buildReaction(rp,row):
 
 		reac.enzyme = [pMFrameId]
 	else:
-		enzymeInfo = rp.findEnzyme(row[6], row)
+		enzymeInfo = rp.findEnzyme(row[6], row[0], row)
 		enzymes = enzymeInfo['enzymes']
 		cofactors = enzymeInfo['cofactors']
 		for e in enzymes:
@@ -2060,7 +2060,7 @@ class reactionParser:
 
 		return pMFrameId
 
-	def findEnzyme(self, line, row = 'No row specified', manualAnnotateDict = {}):
+	def findEnzyme(self, line, reactionName, row = 'No row specified', manualAnnotateDict = {}):
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
