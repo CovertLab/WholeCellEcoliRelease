@@ -1961,6 +1961,7 @@ class reactionParser:
 		self.monomerToComplex = self.loadMonomerToComplex()
 		self.fakeMetaboliteFrameIds = self.loadFakeMetaboliteFrameIds()
 		self.fakeMetaboliteDict = self.loadFakeMetabolites()
+		self.manualAnnotationDict = self.loadManualAnnotation()
 
 	def loadSynDict(self):
 		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
@@ -2033,6 +2034,16 @@ class reactionParser:
 			for row in csvreader:
 				fakeMetaboliteDict[row[0]] = json.loads(row[4])
 		return fakeMetaboliteDict
+
+	def loadManualAnnotation(self):
+		# Add manual annotation of reactino enzymes from Feist
+		manualAnnotateDict = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactionEnzymeAssociationManual.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				manualAnnotateDict[row[0]] = {'annotation' : row[1], 'comments' : row[2]}
+		return manualAnnotateDict
 
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
