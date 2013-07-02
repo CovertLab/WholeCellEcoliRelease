@@ -2060,7 +2060,7 @@ class reactionParser:
 
 		return pMFrameId
 
-	def findEnzyme(self, line, reactionName, row = 'No row specified', manualAnnotateDict = {}):
+	def findEnzyme(self, line, reactionName, row = 'No row specified'):
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
