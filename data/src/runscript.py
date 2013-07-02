@@ -2101,6 +2101,9 @@ class reactionParser:
 				enzymes.append('SPONTANEOUS')
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
+		def findEnzymeManualCuration(self, line, reactionName):
+			pass
+
 class gene:
 	def __init__(self):
 		self.frameId = None

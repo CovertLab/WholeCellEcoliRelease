@@ -69,7 +69,6 @@ class Test_Simulation(unittest.TestCase):
 		enzymes = rp.findEnzyme(line, 'hi')['enzymes']
 		self.assertEqual(['ATPSYN-CPLX','UNKNOWN'], enzymes)
 
-	@noseAttrib.attr('focusTest')
 	def test_findEnzyme(self):
 		rp = r.reactionParser()
 
@@ -82,6 +81,14 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual([['CPLX0-1923']], rp.findEnzyme(line)['enzymes'])
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
+
+	@noseAttrib.attr('focusTest')
+	def test_findEnzymeManual(self):
+		rp = r.reactionParser()
+
+		line = 'ATPASE-1-CPLX'
+
+		line = '((PYRUVFORMLY-CPLX and EG11784-MONOMER) or PYRUVFORMLY-CPLX or KETOBUTFORMLY-MONOMER)'
 
 	def test_iterateTree(self):
 		rp = r.reactionParser()
