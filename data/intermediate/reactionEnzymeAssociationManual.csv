@@ -23,7 +23,7 @@
 "HYD2pp"	"FORMHYDROG2-CPLX"	"Hydrogenase 2. Changed form Feist to require the full complex."
 "INDOLEt2pp"		"Removed complex based on literature. (http://jb.asm.org/content/193/8/1793.full.pdf)"
 "Kabcpp"	"ATPASE-1-CPLX"	"Potassium transporting ATPase"
-"Kt2pp"	"(SAPD-MONOMER and TRKA-MONOMER and TRKG-MONOMER) or (SAPD-MONOMER and TRKA-MONOMER and TRKH-MONOMER)"	"Taken directly from Feist. Does not form complex and SAPD-MONOMER forms a peptide ABC transporter complex."
+"Kt2pp"	"((SAPD-MONOMER and TRKA-MONOMER and TRKG-MONOMER) or (SAPD-MONOMER and TRKA-MONOMER and TRKH-MONOMER))"	"Taken directly from Feist. Does not form complex and SAPD-MONOMER forms a peptide ABC transporter complex."
 "MALTptspp"	"(CPLX-164 and PTSH-MONOMER and CPLX0-7938)"	"Maltose/glucose PTS permiase AND general PTS components"
 "MANGLYCptspp"	"(CPLX-163 and PTSH-MONOMER and CPLX0-7938)"	"2-O-α-mannosyl-D-glycerate PTS permease AND general PTS components"
 "MANptspp"	"(CPLX-165 and PTSH-MONOMER and CPLX0-7938)"	"PTS system for mannose AND general PTS components"
