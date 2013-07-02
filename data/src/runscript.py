@@ -2101,8 +2101,16 @@ class reactionParser:
 				enzymes.append('SPONTANEOUS')
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
-		def findEnzymeManualCuration(self, line, reactionName):
-			pass
+	def findEnzymeManualCuration(self, line, reactionName):
+		enzymes = []
+		cofactors = []
+		enzymesRaw = line.split('or')
+		for i in range(len(enzymesRaw)):
+			if i == len(enzymesRaw)-1:
+				enzymes.append([])
+			else:
+				enzymes.append([])
+				enzymes.append('or')
 
 class gene:
 	def __init__(self):
