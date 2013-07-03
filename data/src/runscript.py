@@ -225,7 +225,7 @@ def parseGenes():
 	# Load RNA types
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'rb') as jsonfile:
 		rnaType = json.loads(jsonfile.read())
-
+	
 	# Load synonym dictionaries
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
@@ -1565,7 +1565,7 @@ def parseMetabolites():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
-			if row[2] != '':
+			if row[3] != '':
 				newMet = metabolite()
 				newMet.frameId = row[0]
 				if row[2] != '':
