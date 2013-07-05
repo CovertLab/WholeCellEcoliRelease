@@ -269,9 +269,10 @@ def parseGenes():
 						# for another valid product
 						if geneDict.has_key(newGene.frameId):
 							count = 0
-							while geneDict.has_key(newGene.frameId + str(count)):
+							while geneDict.has_key(newGene.frameId + '_' + str(count)):
 								count += 1
-							geneDict[newGene.frameId + str(count)] = newGene
+							geneDict[newGene.frameId + '_' + str(count)] = newGene
+							newGene.frameId = newGene.frameId + '_' + str(count)
 						else:
 							geneDict[newGene.frameId] = newGene
 
