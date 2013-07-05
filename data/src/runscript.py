@@ -205,7 +205,7 @@ def parseRnaTypes():
 			if row[3] != '':
 				if row[1].count('RRNA') > 0:
 					rnaType[row[1]] = 'rRNA'
-				elif row[1].count('tRNA') > 0 and not unmodifiedForm[row[1]]:
+				elif (row[1].count('tRNA') > 0 or row[0].count('tRNA')) and not unmodifiedForm[row[1]]:
 					rnaType[row[1]] = 'tRNA'
 				elif not unmodifiedForm[row[1]]:
 					rnaType[row[1]] = 'miscRNA'
