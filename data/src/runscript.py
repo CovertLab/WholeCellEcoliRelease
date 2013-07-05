@@ -205,7 +205,7 @@ def parseRnaTypes():
 			if row[3] != '':
 				if row[1].count('RRNA') > 0:
 					rnaType[row[1]] = 'rRNA'
-				elif row[1].count('tRNA') > 0 and not unmodifiedForm[row[1]]:
+				elif (row[1].count('tRNA') > 0 or row[0].count('tRNA')) and not unmodifiedForm[row[1]]:
 					rnaType[row[1]] = 'tRNA'
 				elif not unmodifiedForm[row[1]]:
 					rnaType[row[1]] = 'miscRNA'
@@ -269,9 +269,10 @@ def parseGenes():
 						# for another valid product
 						if geneDict.has_key(newGene.frameId):
 							count = 0
-							while geneDict.has_key(newGene.frameId + str(count)):
+							while geneDict.has_key(newGene.frameId + '_' + str(count)):
 								count += 1
-							geneDict[newGene.frameId + str(count)] = newGene
+							geneDict[newGene.frameId + '_' + str(count)] = newGene
+							newGene.frameId = newGene.frameId + '_' + str(count)
 						else:
 							geneDict[newGene.frameId] = newGene
 
@@ -1837,11 +1838,12 @@ def buildReaction(rp,row):
 		reac.enzyme = [pMFrameId]
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
-			enzymeInfo = rp.findEnzyme(row[6])
+			enzymes = rp.findEnzymeManualCuration(row[6])
+			cofactors = []
 		else:
 			enzymeInfo = rp.findEnzyme(row[6], row)
-		enzymes = enzymeInfo['enzymes']
-		cofactors = enzymeInfo['cofactors']
+			enzymes = enzymeInfo['enzymes']
+			cofactors = enzymeInfo['cofactors']
 		for i,e in enumerate(enzymes):
 			if i%2 == 0:
 				reac.enzyme.append(e)
@@ -2108,7 +2110,7 @@ class reactionParser:
 				enzymes[idx].append('SPONTANEOUS')
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
-	def findEnzymeManualCuration(self, line, reactionName):
+	def findEnzymeManualCuration(self, line):
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
@@ -2118,8 +2120,23 @@ class reactionParser:
 			else:
 				enzymes.append([])
 				enzymes.append('or')
-		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
+		for i,e_raw in enumerate(enzymesRaw):
+			idx = i*2
+			e_raw = e_raw.replace(' ','')
+			e_raw = e_raw.replace('(','')
+			e_raw = e_raw.replace(')','')
+			if e_raw.count('and') == 0:
+				enzymes[idx].append(e_raw)
+			else:
+				e_raw = e_raw.split('and')
+				e_final = []
+				for j,e in enumerate(e_raw):
+					e_final.append([e])
+					if j%2 == 0:
+						e_final.append('and')
+				enzymes[idx].append(e_final)
+		return enzymes
 
 class gene:
 	def __init__(self):
