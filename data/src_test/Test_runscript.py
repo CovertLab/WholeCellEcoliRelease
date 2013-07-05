@@ -85,8 +85,15 @@ class Test_Simulation(unittest.TestCase):
 		rp = r.reactionParser()
 
 		line = 'ATPASE-1-CPLX'
+		print rp.findEnzymeManualCuration(line)
+
+		line = '((FHLMULTI-CPLX and G7307-MONOMER) or (CPLX0-250 and G7307-MONOMER))'
+		print rp.findEnzymeManualCuration(line)
 
 		line = '((PYRUVFORMLY-CPLX and EG11784-MONOMER) or PYRUVFORMLY-CPLX or KETOBUTFORMLY-MONOMER)'
+		print rp.findEnzymeManualCuration(line)
+
+		line = '((SAPD-MONOMER and TRKA-MONOMER and TRKG-MONOMER) or (SAPD-MONOMER and TRKA-MONOMER and TRKH-MONOMER))'
 
 	def test_iterateTree(self):
 		rp = r.reactionParser()
