@@ -1537,29 +1537,19 @@ def parseMetabolites():
 		csvreader.next()
 
 		for row in csvreader:
-			istrna = False
-			keeptrna = False
-			if row[0].count('trna'):
-				istrna = True
-			if istrna and row[0] == 'trnaglu' or row[0] == 'glutrna':
-				keeptrna = True
-
-			if istrna and not keeptrna:
-				pass
+			newMet = metabolite()
+			newMet.frameId = row[0]
+			newMet.name = row[1]
+			if row[5] != '':
+				newMet.neutralFormula = row[5]
 			else:
-				newMet = metabolite()
-				newMet.frameId = row[0]
-				newMet.name = row[1]
-				if row[5] != '':
-					newMet.neutralFormula = row[5]
-				else:
-					newMet.neutralFormula = row[2]
-				# Properties at pH 7
-				newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
-				# Properties at pH 7.2
-				newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
+				newMet.neutralFormula = row[2]
+			# Properties at pH 7
+			newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
+			# Properties at pH 7.2
+			newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
 
-				metDict[newMet.frameId] = newMet
+			metDict[newMet.frameId] = newMet
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
@@ -1579,6 +1569,13 @@ def parseMetabolites():
 				newMet.addPHProp(pH = 7.2, formula = row[5], charge = row[6])
 
 				metDict[newMet.frameId] = newMet
+
+	# Remove metabolites not being modeled as metabolites
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_to_remove.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			metDict.pop(row[0])
 
 	# Parse objective function
 	# - Reactants
