@@ -2265,7 +2265,6 @@ TYROXDApp	Tyramine:oxygen oxidoreductase(deaminating)(flavin-containing) (peripl
 TYRPpp	phospho-L-tyrosine phosphatase (periplasmic)	Metabolism		[p] : h2o + tyrp --> pi + tyr-L	"[""APHA-MONOMER""]"	forward only					
 TYRPtex	phopho-L-tyrosine transport via diffusion (extracellular to periplasm)	Metabolism		tyrp[e] <==> tyrp[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
 TYRTA	tyrosine transaminase	Metabolism	2.6.1.5	[c] : akg + tyr-L <==> 34hpp + glu-L	"[[""TYRB-MONOMER""], [""ASPAMINOTRANS-MONOMER""]]"	reversible					
-TYRTRS	tyrosyl-tRNA synthetase	Metabolism	6.1.1.1	[c] : atp + trnatyr + tyr-L --> amp + ppi + tyrtrna	"[""TYRS-MONOMER""]"	forward only					
 TYRt2rpp	L-tyrosine reversible transport via proton symport (periplasm)	Metabolism		h[p] + tyr-L[p] <==> h[c] + tyr-L[c]	"[[""TYRP-MONOMER""], [""AROP-MONOMER""], [""PHEP-MONOMER""]]"	reversible					
 TYRtex	L-tyrosine transport via diffusion (extracellular to periplasm)	Metabolism		tyr-L[e] <==> tyr-L[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
 U23GAAT	UDP-3-O-(3-hydroxymyristoyl)glucosamine acyltransferase	Metabolism		[c] : 3hmrsACP + u3hga --> ACP + h + u23ga	"[""UDPHYDROXYMYRGLUCOSAMNACETYLTRANS-MONO""]"	forward only					
@@ -2331,7 +2330,6 @@ URIt2rpp	uridine transport in via proton symport, reversible (periplasm)	Metabol
 URItex	uridine transport via diffusion (extracellular to periplasm)	Metabolism		uri[e] <==> uri[p]	"[""EG11035-MONOMER""]"	reversible					
 USHD	UDP-sugar hydrolase	Metabolism		[c] : h2o + u23ga --> (2) h + lipidX + ump	"[""EG12666-MONOMER""]"	forward only					
 VALTA	valine transaminase	Metabolism	2.6.1.42	[c] : akg + val-L <==> 3mob + glu-L	"[""BRANCHED-CHAINAMINOTRANSFER-MONOMER""]"	reversible					
-VALTRS	Valyl-tRNA synthetase	Metabolism	6.1.1.9	[c] : atp + trnaval + val-L --> amp + ppi + valtrna	"[""VALS-MONOMER""]"	forward only					
 VALabcpp	L-valine transport via ABC system (periplasm)	Metabolism		atp[c] + h2o[c] + val-L[p] --> adp[c] + h[c] + pi[c] + val-L[c]	"[[""ABC-15-CPLX""]]"	forward only					
 VALt2rpp	L-valine reversible transport via proton symport (periplasm)	Metabolism		h[p] + val-L[p] <==> h[c] + val-L[c]	"[""BRNQ-MONOMER""]"	reversible					
 VALtex	L-valine transport via diffusion (extracellular to periplasm)	Metabolism		val-L[e] <==> val-L[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					

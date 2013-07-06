@@ -1781,9 +1781,8 @@ def parseReactions():
 		csvreader.next()
 
 		for row in csvreader:
-			if row[4] != 'tRNA Charging':
-				reac = buildReaction(rp,row)
-				reactDict[reac.frameId] = reac
+			reac = buildReaction(rp,row)
+			reactDict[reac.frameId] = reac
 
 	# Add reactions not in Fesit
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_add.csv'),'rb') as csvfile:
@@ -1791,9 +1790,8 @@ def parseReactions():
 		csvreader.next()
 
 		for row in csvreader:
-			if row[4] != 'tRNA Charging':
-				reac = buildReaction(rp,row)
-				reactDict[reac.frameId] = reac
+			reac = buildReaction(rp,row)
+			reactDict[reac.frameId] = reac
 
 	# Remove reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
