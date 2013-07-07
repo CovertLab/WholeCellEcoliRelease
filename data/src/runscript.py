@@ -2110,27 +2110,15 @@ class reactionParser:
 		cofactors = []
 		enzymesRaw = line.split('or')
 		for i in range(len(enzymesRaw)):
-			if i == len(enzymesRaw)-1:
-				enzymes.append([])
-			else:
-				enzymes.append([])
-				enzymes.append('or')
+			enzymes.append([])
 
 		for i,e_raw in enumerate(enzymesRaw):
-			idx = i*2
 			e_raw = e_raw.replace(' ','')
 			e_raw = e_raw.replace('(','')
 			e_raw = e_raw.replace(')','')
-			if e_raw.count('and') == 0:
-				enzymes[idx].append(e_raw)
-			else:
-				e_raw = e_raw.split('and')
-				e_final = []
-				for j,e in enumerate(e_raw):
-					e_final.append([e])
-					if j%2 == 0:
-						e_final.append('and')
-				enzymes[idx].append(e_final)
+			e_final = e_raw.split('and')
+			for ee in e_final:
+				enzymes[i].append(ee)
 		return enzymes
 
 class gene:

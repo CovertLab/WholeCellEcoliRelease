@@ -23,7 +23,6 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('focusTest')
 	def test_runscript(self):
 		r.main()
 	
@@ -81,19 +80,22 @@ class Test_Simulation(unittest.TestCase):
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
 
+	@noseAttrib.attr('focusTest')
 	def test_findEnzymeManual(self):
 		rp = r.reactionParser()
 
 		line = 'ATPASE-1-CPLX'
-		print rp.findEnzymeManualCuration(line)
+		self.assertEqual([['ATPASE-1-CPLX']], rp.findEnzymeManualCuration(line))
 
 		line = '((FHLMULTI-CPLX and G7307-MONOMER) or (CPLX0-250 and G7307-MONOMER))'
-		print rp.findEnzymeManualCuration(line)
+		self.assertEqual([['FHLMULTI-CPLX', 'G7307-MONOMER'], ['CPLX0-250', 'G7307-MONOMER']],rp.findEnzymeManualCuration(line))
 
 		line = '((PYRUVFORMLY-CPLX and EG11784-MONOMER) or PYRUVFORMLY-CPLX or KETOBUTFORMLY-MONOMER)'
-		print rp.findEnzymeManualCuration(line)
+		self.assertEqual([['PYRUVFORMLY-CPLX', 'EG11784-MONOMER'], ['PYRUVFORMLY-CPLX'], ['KETOBUTFORMLY-MONOMER']], rp.findEnzymeManualCuration(line))
 
 		line = '((SAPD-MONOMER and TRKA-MONOMER and TRKG-MONOMER) or (SAPD-MONOMER and TRKA-MONOMER and TRKH-MONOMER))'
+		self.assertEqual([['SAPD-MONOMER', 'TRKA-MONOMER', 'TRKG-MONOMER'], ['SAPD-MONOMER', 'TRKA-MONOMER', 'TRKH-MONOMER']], rp.findEnzymeManualCuration(line))
+
 
 	def test_iterateTree(self):
 		rp = r.reactionParser()
