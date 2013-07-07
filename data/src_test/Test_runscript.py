@@ -23,6 +23,7 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('focusTest')
 	def test_runscript(self):
 		r.main()
 	
@@ -80,7 +81,6 @@ class Test_Simulation(unittest.TestCase):
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
 
-	@noseAttrib.attr('focusTest')
 	def test_findEnzymeManual(self):
 		rp = r.reactionParser()
 
