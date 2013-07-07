@@ -1537,29 +1537,19 @@ def parseMetabolites():
 		csvreader.next()
 
 		for row in csvreader:
-			istrna = False
-			keeptrna = False
-			if row[0].count('trna'):
-				istrna = True
-			if istrna and row[0] == 'trnaglu' or row[0] == 'glutrna':
-				keeptrna = True
-
-			if istrna and not keeptrna:
-				pass
+			newMet = metabolite()
+			newMet.frameId = row[0]
+			newMet.name = row[1]
+			if row[5] != '':
+				newMet.neutralFormula = row[5]
 			else:
-				newMet = metabolite()
-				newMet.frameId = row[0]
-				newMet.name = row[1]
-				if row[5] != '':
-					newMet.neutralFormula = row[5]
-				else:
-					newMet.neutralFormula = row[2]
-				# Properties at pH 7
-				newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
-				# Properties at pH 7.2
-				newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
+				newMet.neutralFormula = row[2]
+			# Properties at pH 7
+			newMet.addPHProp(pH = 7,formula = row[8], charge = row[9])
+			# Properties at pH 7.2
+			newMet.addPHProp(pH = 7.2, formula = row[11], charge = row[12])
 
-				metDict[newMet.frameId] = newMet
+			metDict[newMet.frameId] = newMet
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
@@ -1579,6 +1569,13 @@ def parseMetabolites():
 				newMet.addPHProp(pH = 7.2, formula = row[5], charge = row[6])
 
 				metDict[newMet.frameId] = newMet
+
+	# Remove metabolites not being modeled as metabolites
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_to_remove.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			metDict.pop(row[0])
 
 	# Parse objective function
 	# - Reactants
@@ -1784,9 +1781,8 @@ def parseReactions():
 		csvreader.next()
 
 		for row in csvreader:
-			if row[4] != 'tRNA Charging':
-				reac = buildReaction(rp,row)
-				reactDict[reac.frameId] = reac
+			reac = buildReaction(rp,row)
+			reactDict[reac.frameId] = reac
 
 	# Add reactions not in Fesit
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_add.csv'),'rb') as csvfile:
@@ -1794,9 +1790,8 @@ def parseReactions():
 		csvreader.next()
 
 		for row in csvreader:
-			if row[4] != 'tRNA Charging':
-				reac = buildReaction(rp,row)
-				reactDict[reac.frameId] = reac
+			reac = buildReaction(rp,row)
+			reactDict[reac.frameId] = reac
 
 	# Remove reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
@@ -1838,7 +1833,7 @@ def buildReaction(rp,row):
 		reac.enzyme = [pMFrameId]
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
-			enzymes = rp.findEnzymeManualCuration(row[6])
+			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
 			cofactors = []
 		else:
 			enzymeInfo = rp.findEnzyme(row[6], row)
@@ -2115,27 +2110,15 @@ class reactionParser:
 		cofactors = []
 		enzymesRaw = line.split('or')
 		for i in range(len(enzymesRaw)):
-			if i == len(enzymesRaw)-1:
-				enzymes.append([])
-			else:
-				enzymes.append([])
-				enzymes.append('or')
+			enzymes.append([])
 
 		for i,e_raw in enumerate(enzymesRaw):
-			idx = i*2
 			e_raw = e_raw.replace(' ','')
 			e_raw = e_raw.replace('(','')
 			e_raw = e_raw.replace(')','')
-			if e_raw.count('and') == 0:
-				enzymes[idx].append(e_raw)
-			else:
-				e_raw = e_raw.split('and')
-				e_final = []
-				for j,e in enumerate(e_raw):
-					e_final.append([e])
-					if j%2 == 0:
-						e_final.append('and')
-				enzymes[idx].append(e_final)
+			e_final = e_raw.split('and')
+			for ee in e_final:
+				enzymes[i].append(ee)
 		return enzymes
 
 class gene:
