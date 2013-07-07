@@ -1833,7 +1833,7 @@ def buildReaction(rp,row):
 		reac.enzyme = [pMFrameId]
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
-			enzymes = rp.findEnzymeManualCuration(row[6])
+			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
 			cofactors = []
 		else:
 			enzymeInfo = rp.findEnzyme(row[6], row)
