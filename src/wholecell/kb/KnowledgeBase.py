@@ -531,12 +531,12 @@ class KnowledgeBase(object):
 		lefts = match.group("lefts").split(" + ")
 		for componentStr in lefts:
 			coeff, mol, form, comp, thisType = self.parseReactionComponent(componentStr, globalComp)
-			stoich.append({ "coeff": -coeff, "compartment": comp, "molecule": mol, "form": form, "type": thisType })
+			stoich.append({ "coeff": -coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
 
 		rights = match.group("rights").split(" + ")
 		for componentStr in rights:
 			coeff, mol, form, comp, thisType = self.parseReactionComponent(componentStr, globalComp)
-			stoich.append({ "coeff": coeff, "compartment": comp, "molecule": mol, "form": form, "type": thisType })
+			stoich.append({ "coeff": coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
 
 		return stoich, reactionDir
 
