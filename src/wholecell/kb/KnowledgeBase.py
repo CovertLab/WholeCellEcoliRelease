@@ -48,14 +48,11 @@ class KnowledgeBase(object):
 		self.loadMetabolites()
 		self.loadGenome()
 		self.loadGenes()
-		import ipdb
-		ipdb.set_trace()
 		self.loadRnas()
 		self.loadProteinMonomers()
 		self.createModifiedForms()
 		self.loadComplexes()
 		self.loadReactions()
-		ipdb.set_trace()
 
 	def loadCompartments(self):
 		fileName = self.dataFileDir + os.sep + "locations.csv"
@@ -547,8 +544,6 @@ class KnowledgeBase(object):
 		if globalComp == "":
 			tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*\[(?P<comp>.+)\]$", componentStr)
 			if tmp == None:
-				import ipdb
-				ipdb.set_trace()
 				raise Exception, "Invalid stoichiometry: %s." % (componentStr)
 			if tmp.group("coeff") == None:
 				coeff = 1.0
