@@ -43,15 +43,15 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# Metabolites
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, [
-				"ALA[c]", "ARG[c]", "ASN[c]", "ASP[c]", "CYS[c]", "GLU[c]", "GLN[c]", "GLY[c]", "HIS[c]", "ILE[c]",  "LEU[c]",
-				"LYS[c]", "MET[c]", "PHE[c]", "PRO[c]", "SER[c]", "THR[c]", "TRP[c]", "TYR[c]", "VAL[c]",
-				"FMET[c]",
+				"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+				"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+				#"FMET[c]", # TODO: Re-add
 				"GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
 			], self.calcReqMetabolites)
 
 		self.metabolite.idx["aas"] = self.metabolite.getIndex([
-			"ALA[c]", "ARG[c]", "ASN[c]", "ASP[c]", "CYS[c]", "GLU[c]", "GLN[c]", "GLY[c]", "HIS[c]", "ILE[c]",  "LEU[c]",
-			"LYS[c]", "MET[c]", "PHE[c]", "PRO[c]", "SER[c]", "THR[c]", "TRP[c]", "TYR[c]", "VAL[c]",
+			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 			])[0]
 		self.metabolite.idx["gtp"] = self.metabolite.getIndex(["GTP[c]"])[0]
 		self.metabolite.idx["gdp"] = self.metabolite.getIndex(["GDP[c]"])[0]
@@ -60,7 +60,7 @@ class Translation(wholecell.sim.process.Process.Process):
 		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
 
 		# mRNA, protein monomer
-		mrnas = [x for x in kb.rnas if x["type"] == "mRNA"]
+		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if x["monomer"] == True]
 		self.mrna = sim.getState("MoleculeCounts").addPartition(self,[x["id"] + ":mature[c]" for x in mrnas], self.calcReqMrna)
 		self.mrna = sim.getState("MoleculeCounts").addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
@@ -68,8 +68,8 @@ class Translation(wholecell.sim.process.Process.Process):
 		self.proteinLens = numpy.sum(self.proteinAaCounts, axis = 1)
 
 		# Enzymes
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RIBOSOME_70S:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["ribosome70S"] = self.enzyme.getIndex("RIBOSOME_70S:mature[c]")[0]
+		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["CPLX0-3962:mature[c]"], self.calcReqEnzyme)
+		self.enzyme.idx["ribosome70S"] = self.enzyme.getIndex("CPLX0-3962:mature[c]")[0] # TODO: This is really the 50S subunit...ask for the 30S as well
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):

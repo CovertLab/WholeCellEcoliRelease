@@ -41,7 +41,7 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 			self.calcReqNascentProteinMonomer)
 
 		self.matureProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
-			[x["id"] + ":mature[" + x["compartment"] + "]" for x in monomers],
+			[x["id"] + ":mature[" + x["location"] + "]" for x in monomers],
 			self.calcReqMatureProteinMonomer)
 
 	# Calculate needed proteins

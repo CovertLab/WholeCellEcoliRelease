@@ -21,9 +21,16 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 	compartments = [
 		{"id": "c", "name": "Cytosol"},
 		{"id": "e", "name": "Extracellular space"},
-		{"id": "m", "name": "Membrane"}
+		{"id": "i", "name": "Inner membrane"},
+		{"id": "j", "name": "Projection"},
+		{"id": "l", "name": "Pilus"},
+		{"id": "m", "name": "Membrane"},
+		{"id": "n", "name": "Nucleoid"},
+		{"id": "o", "name": "Outer membrane"},
+		{"id": "p", "name": "Periplasm"},
+		{"id": "w", "name": "Cell wall"}
 	]
-	cIdx = {"c": 0, "e": 1, "m": 2}
+	cIdx = {"c": 0, "e": 1, "i": 2, "j": 3, "l": 4, "m": 5, "n": 6, "o": 7, "p": 8, "w": 9}
 
 	# Form values
 	formVals = {"nascent": 1, "mature": 0}
@@ -117,7 +124,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			[x["name"] for x in kb.proteins]
 		
 		self.mws = numpy.array(
-			[x["mw"] for x in kb.metabolites] + \
+			[x["mw7.2"] for x in kb.metabolites] + \
 			[x["mw"] for x in kb.rnas] + \
 			[x["mw"] for x in kb.rnas] + \
 			[x["mw"] for x in kb.proteins] + \
@@ -128,16 +135,17 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.idx["ndps"] = self.getIndex(["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"])[1]
 		self.idx["nmps"] = self.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[1]
 		self.idx["aas"] = self.getIndex([
-			"ALA[c]", "ARG[c]", "ASN[c]", "ASP[c]", "CYS[c]", "GLU[c]", "GLN[c]", "GLY[c]", "HIS[c]", "ILE[c]",  "LEU[c]",
-			"LYS[c]", "MET[c]", "PHE[c]", "PRO[c]", "SER[c]", "THR[c]", "TRP[c]", "TYR[c]", "VAL[c]"
+			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
 			])[1]
 		self.idx["h2o"] = self.getIndex("H2O[c]")[1]
 
 		# Localizations
-		metLocs = numpy.zeros(len(kb.metabolites))
-		metLocs[numpy.array([x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["m"]
-		metLocs[numpy.array([not x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["c"]
-		protLocs = numpy.array(map(lambda x, lookupTable = self.cIdx: lookupTable[x], [x["compartment"] for x in kb.proteins]))
+		metLocs = -1 * numpy.ones(len(kb.metabolites))
+		# metLocs[numpy.array([x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["m"]
+		# metLocs[numpy.array([not x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["c"]
+		protLocs = numpy.array(map(lambda x, lookupTable = self.cIdx: lookupTable[x], [x["location"] for x in kb.proteins]))
+		# protLocs = numpy.array(map(lambda x, lookupTable = self.cIdx: lookupTable[x], [x["compartment"] for x in kb.proteins]))
 		self.localizations = numpy.concatenate((
 			metLocs,
 			numpy.array([self.cIdx["c"]] * len(kb.rnas)),
@@ -148,7 +156,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		# Composition
 		self.rnaLens = map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas)
-		self.rnaExp = numpy.array([x["exp"] for x in kb.rnas])
+		self.rnaExp = numpy.array([x["expression"] for x in kb.rnas])
 		self.rnaExp /= numpy.sum(self.rnaExp)
 		self.idx["nascentRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["nascent"]: 
 													tup[0] == typeVal and tup[1] == formVal, 
@@ -156,21 +164,21 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.idx["matureRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"]:
 													tup[0] == typeVal and tup[1] == formVal,
 												zip(self.types, self.forms)))[0]
-		self.idx["nascentMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["nascent"], validIds = [x["id"] for x in kb.rnas if x["type"] == "mRNA"]:
+		self.idx["nascentMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["nascent"], validIds = [x["id"] for x in kb.rnas if x["monomerId"] != None]:
 													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
 												zip(self.types, self.forms, self.ids)))[0]
-		self.idx["matureMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"], validIds = [x["id"] for x in kb.rnas if x["type"] == "mRNA"]:
+		self.idx["matureMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"], validIds = [x["id"] for x in kb.rnas if x["monomerId"] != None]:
 													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
 												zip(self.types, self.forms, self.ids)))[0]
 
-		mons = [x for x in kb.proteins if x["monomer"] == True]
+		mons = [x for x in kb.proteins if x["monomer"] == True and x["modifiedForm"] == False]
 		self.monLens = map(lambda mon: numpy.sum(mon["aaCount"]), mons)
-		self.monExp = numpy.array([x["exp"] for x in kb.rnas if x["type"] == "mRNA"])
+		self.monExp = numpy.array([x["expression"] for x in kb.rnas if x["monomerId"] != None])
 		self.monExp /= numpy.sum(self.monExp)
-		self.idx["matureMonomers"] = self.getIndex([x["id"] + ":mature[" + x["compartment"] + "]" for x in mons])[1]
+		self.idx["matureMonomers"] = self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1]
 
 		cpxs = [x for x in kb.proteins if x["monomer"] == False]
-		self.idx["matureComplexes"] = self.getIndex([x["id"] + ":mature[" + x["compartment"] + "]" for x in cpxs])[1]
+		self.idx["matureComplexes"] = self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in cpxs])[1]
 
 		self.metMediaConc = numpy.array([x["mediaConc"] for x in kb.metabolites])
 		self.metBiomassConc = numpy.array([x["biomassConc"] for x in kb.metabolites])
@@ -197,8 +205,9 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.counts[self.types == self.typeVals["metabolite"], self.cIdx["e"]] = numpy.round(self.metMediaConc * self.chamberVolume * Constants.nAvogadro * 1e-3)
 
 		# Biomass metabolites
-		metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
-		self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
+		# TODO: Fix this initialization
+		# metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
+		# self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
 
 		# RNA
 		rnaCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeNMPs) * numpy.sum(self.counts[self.idx["nmps"], self.cIdx["c"]]) / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
