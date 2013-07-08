@@ -59,8 +59,12 @@ class Metabolism(wholecell.sim.state.State.State):
 		mc = self.moleculeCounts
 		met = self.metabolism
 
+		# TODO: Fix
+		# bounds = met.calcFluxBounds(
+		# 	mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[numpy.unravel_index(met.enzyme.mapping, mc.counts.shape)]
+		# 	)
 		bounds = met.calcFluxBounds(
-			mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[numpy.unravel_index(met.enzyme.mapping, mc.counts.shape)]
+			mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], numpy.zeros(1), applyKineticBounds = False, applyExchangeBounds = False
 			)
 
 		self.growth, self.fluxes = met.calcGrowthRate(bounds)[0:2]
