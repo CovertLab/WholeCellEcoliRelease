@@ -97,7 +97,7 @@ class KnowledgeBase(object):
 			for row in dr:
 				# Metabolite
 				m = {
-					"id": row["id"],
+					"id": row["id"].upper(),
 					"name": row["name"],
 					"formulaNeutral": row["formulaNeutral"],
 					"formula7.2": row["formula7.2"],
@@ -581,7 +581,8 @@ class KnowledgeBase(object):
 
 			comp = globalComp
 
-		if any(x["id"] == mol for x in self.metabolites):
+		if any(x["id"] == mol.upper() for x in self.metabolites):
+			mol = mol.upper()
 			thisType = "metabolite"
 		elif any(x["id"] == mol for x in self.rnas):
 			thisType = "rna"
