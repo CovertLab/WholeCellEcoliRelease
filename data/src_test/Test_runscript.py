@@ -57,7 +57,7 @@ class Test_Simulation(unittest.TestCase):
 
 		# Basic reaction with 'or'
 		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
-		self.assertEqual([['MONOMER0-282'], 'or', ['EG10671-MONOMER'], 'or', ['G6700-MONOMER'], 'or', ['EG10670-MONOMER']], rp.findEnzyme(line)['enzymes'])
+		self.assertEqual([['MONOMER0-282'],['EG10671-MONOMER'],['G6700-MONOMER'],['EG10670-MONOMER']], rp.findEnzyme(line)['enzymes'])
 
 		# Basic complex with and
 		line = '( b1252  and  b3005  and  b3006 )'
