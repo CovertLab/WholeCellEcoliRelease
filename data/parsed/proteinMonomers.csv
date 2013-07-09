@@ -17,7 +17,8 @@ ID	Name	Gene	Location	Modified form	Comments
 "
 3-OXOACYL-ACP-REDUCT-MONOMER	3-oxo-acyl-[acyl-carrier-protein] reductase	EG11318	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-3-OXOACYL-ACP-SYNTHII-MONOMER	FabF	EG12606	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+3-OXOACYL-ACP-SYNTHII-MONOMER	FabF	EG12606	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+Location manually re-set.
 "
 4OHBENZOATE-OCTAPRENYLTRANSFER-MONOMER	4-hydroxybenzoate octaprenyltransferase	EG11370	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
@@ -259,7 +260,8 @@ ASNSYNB-MONOMER	AsnB	EG10092	"[""CCO-CYTOSOL""]"	[]	"Location information from H
 "
 ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER	Asd	EG10088	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
-ASPAMINOTRANS-MONOMER	AspC	EG10096	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+ASPAMINOTRANS-MONOMER	AspC	EG10096	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+Location manually re-set.
 "
 ASPARTASE-MONOMER	AspA	EG10095	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -789,7 +791,8 @@ EG10119-MONOMER	malonyl-[acp] methyltransferase	EG10119	"[""CCO-CYTOSOL""]"	[]	"
 "
 EG10122-MONOMER	pimeloyl-[acp] methyl ester esterase	EG10122	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG10124-MONOMER	biotin sulfoxide reductase	EG10124	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
+EG10124-MONOMER	biotin sulfoxide reductase	EG10124	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
 EG10125-MONOMER	BolA DNA-binding transcriptional dual regulator	EG10125	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -2685,7 +2688,8 @@ EG11982-MONOMER	predicted O-antigen polymerase	EG11982	"[""CCO-PM-BAC-NEG""]"	[]
 "
 EG11983-MONOMER	&beta;-1,6-galactofuranosyltransferase	EG11983	"[""CCO-CYTOSOL""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
-EG11984-MONOMER	predicted acyl transferase	EG11984	"[""CCO-MEMBRANE""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+EG11984-MONOMER	predicted acyl transferase	EG11984	"[""CCO-PM-BAC-NEG""]"	[]	"Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.
+Location manually re-set.
 "
 EG11985-MONOMER	predicted lipopolysaccharide biosynthesis protein	EG11985	"[""CCO-PM-BAC-NEG""]"	[]	"Localization generated from unambiguous Ecocyc data.
 "
@@ -2723,7 +2727,8 @@ EG12007-MONOMER	YehU sensory histidine kinase in two-component system with YehT	
 "
 EG12008-MONOMER	MlrA DNA binding transcriptional activator	EG12008	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-EG12013-MONOMER	&beta;-D-glucoside glucohydrolase, periplasmic	EG12013	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
+EG12013-MONOMER	&beta;-D-glucoside glucohydrolase, periplasmic	EG12013	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
 EG12015-MONOMER	penicillin-binding protein 7	EG12015	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
 "
@@ -4047,7 +4052,8 @@ G6404-MONOMER	conserved inner membrane protein	G6404	"[""CCO-PM-BAC-NEG""]"	[]	"
 "
 G6405-MONOMER	conserved inner membrane protein	G6405	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
 "
-G6406-MONOMER	cardiolipin synthase 2	G6406	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
+G6406-MONOMER	cardiolipin synthase 2	G6406	"[""CCO-PM-BAC-NEG""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
 G6407-MONOMER	predicted DNase	G6407	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -5777,7 +5783,8 @@ G7456-MONOMER	tRNA threonylcarbamoyladenosine dehydratase	G7456	"[""CCO-CYTOSOL"
 "
 G7457-MONOMER	membrane-bound lytic murein transglycosylase A	G7457	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-G7458-MONOMER	N-acetylmuramyl-L-alanine amidase	G7458	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
+G7458-MONOMER	N-acetylmuramyl-L-alanine amidase	G7458	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
 G7459-MONOMER	RNA pyrophosphohydrolase	G7459	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6719,7 +6726,8 @@ GLYCPDIESTER-CYTO-MONOMER	glycerophosphodiester phosphodiesterase, cytosolic	EG1
 "
 GLYCPDIESTER-PERI-MONOMER	GlpQ	EG10399	"[""CCO-OUTER-MEM""]"	[]	"Location information from Han 2011.
 "
-GLYCRIBONUCSYN-MONOMER	phosphoribosylamine-glycine ligase	EG10792	"[""CCO-PERI-BAC""]"	[]	"Location information from Lopez Campistrous 2005.
+GLYCRIBONUCSYN-MONOMER	phosphoribosylamine-glycine ligase	EG10792	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
+Location manually re-set.
 "
 GLYOCARBOLIG-MONOMER	Gcl	EG11583	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
@@ -6855,7 +6863,8 @@ HYDH-MONOMER	ZraS sensory histidine kinase	EG10008	"[""CCO-PM-BAC-NEG""]"	"[""PH
 "
 HYDROPEROXIDI-MONOMER	hydroperoxidase I	EG10511	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-HYDROPEROXIDII-MONOMER	catalase II	EG10509	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
+HYDROPEROXIDII-MONOMER	catalase II	EG10509	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
 HYPOXANPRIBOSYLTRAN-MONOMER	hypoxanthine-guanine phosphoribosyltransferase	EG20098	"[""CCO-CYTOSOL""]"	[]	"Location information from Lopez Campistrous 2005.
 "
@@ -7487,9 +7496,11 @@ N-ACETYLTRANSFER-MONOMER	ArgA	EG10063	"[""CCO-CYTOSOL""]"	[]	"Location informati
 "
 NACGLCTRANS-MONOMER	N-acetylglucosaminyl transferase	EG10623	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "
-NACMURLALAAMI1-MONOMER	N-acetylmuramoyl-L-alanine amidase 1	EG11823	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
+NACMURLALAAMI1-MONOMER	N-acetylmuramoyl-L-alanine amidase 1	EG11823	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
-NACMURLALAAMI2-MONOMER	N-acetylmuramoyl-L-alanine amidase 2	EG11363	"[""CCO-EXTRACELLULAR""]"	[]	"Location information from Han 2011.
+NACMURLALAAMI2-MONOMER	N-acetylmuramoyl-L-alanine amidase 2	EG11363	"[""CCO-PERI-BAC""]"	[]	"Location information from Han 2011.
+Location manually re-set.
 "
 NAD-SYNTH-MONOMER	NadE	EG10663	"[""CCO-CYTOSOL""]"	[]	"Location information from Han 2011.
 "

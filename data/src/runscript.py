@@ -783,6 +783,14 @@ def parseProteinMonomers():
 	s = 'Gravy used to fill in rest ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
 	writeOut(s, logFile)
 
+	# Manually set some locations
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Manual_protein_location.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			proteinMonomerDict[row[0]].location = [row[1]]
+			proteinMonomerDict[row[0]].comments += 'Location manually re-set.\n'
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
