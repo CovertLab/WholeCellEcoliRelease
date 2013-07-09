@@ -778,7 +778,7 @@ def parseProteinMonomers():
 				proteinMonomerDict[key].location = ['CCO-CYTOSOL']
 			else:
 				proteinMonomerDict[key].location = ['CCO-MEMBRANE']
-			proteinMonomerDict[key].comments = 'Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.\n'
+			proteinMonomerDict[key].comments += 'Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.\n'
 
 	s = 'Gravy used to fill in rest ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
 	writeOut(s, logFile)
