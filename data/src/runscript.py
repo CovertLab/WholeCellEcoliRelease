@@ -1600,7 +1600,7 @@ def parseMetabolites():
 			elif row[8] == 'extra-cellular face':
 				bmc = 'o'
 			elif row[8] == 'cytoplasm / periplasm':
-				bmc = 'c,p'
+				bmc = 'c'
 			metDict[metId].biomassCompartment = bmc
 			if metId == 'h2o':
 				break
@@ -1626,7 +1626,7 @@ def parseMetabolites():
 			elif row[8] == 'extra-cellular face':
 				bmc = 'o'
 			elif row[8] == 'cytoplasm / periplasm':
-				bmc = 'c,p'
+				bmc = 'c'
 			metDict[metId].biomassCompartment = bmc
 			if metId == 'pi':
 				break
