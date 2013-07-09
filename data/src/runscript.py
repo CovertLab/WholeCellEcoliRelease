@@ -1592,7 +1592,16 @@ def parseMetabolites():
 			g3 = 2.8*(10**-13) # gDSW/cell
 			objective = objectiveRead * g1 * g2 * g3 # molecules / cell
 			metDict[metId].biomassConc = objective
-			metDict[metId].biomassCompartment = None
+			bmc = None
+			if row[8] == 'cytoplasm':
+				bmc = 'c'
+			elif row[8] == 'periplasm':
+				bmc = 'p'
+			elif row[8] == 'extra-cellular face':
+				bmc = 'o'
+			elif row[8] == 'cytoplasm / periplasm':
+				bmc = 'c,p'
+			metDict[metId].biomassCompartment = bmc
 			if metId == 'h2o':
 				break
 
@@ -1609,7 +1618,16 @@ def parseMetabolites():
 			g3 = 2.8*(10**-13) # gDSW/cell
 			objective = objectiveRead * g1 * g2 * g3 * (-1.) # molecules / cell
 			metDict[metId].biomassConc = objective
-			metDict[metId].biomassCompartment = None
+			bmc = None
+			if row[8] == 'cytoplasm':
+				bmc = 'c'
+			elif row[8] == 'periplasm':
+				bmc = 'p'
+			elif row[8] == 'extra-cellular face':
+				bmc = 'o'
+			elif row[8] == 'cytoplasm / periplasm':
+				bmc = 'c,p'
+			metDict[metId].biomassCompartment = bmc
 			if metId == 'pi':
 				break
 
