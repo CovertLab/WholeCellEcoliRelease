@@ -257,7 +257,6 @@ AIRC3	phosphoribosylaminoimidazole carboxylase (mutase rxn)	Metabolism		[c] : 5a
 AKGDH	2-Oxogluterate dehydrogenase	Metabolism		[c] : akg + coa + nad --> co2 + nadh + succoa	"[[""2OXOGLUTARATEDEH-CPLX""]]"	forward only					
 AKGt2rpp	2-oxoglutarate reversible transport via symport (periplasm)	Metabolism		akg[p] + h[p] <==> akg[c] + h[c]	"[""KGTP-MONOMER""]"	reversible					
 AKGtex	alpha-ketoglutarate transport via diffusion (extracellular to periplasm)	Metabolism		akg[e] <==> akg[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
-ALAALAD	D-alanine-D-alanine dipeptidase	Metabolism	3.4.17.14	[c] : alaala + h2o --> (2) ala-D	"[""G6782-MONOMER""]"	forward only					
 ALAALAabcpp	D-alanyl-D-alanine (DalaDala) transport via ABC system (periplasm)	Metabolism		alaala[p] + atp[c] + h2o[c] --> adp[c] + alaala[c] + h[c] + pi[c]	"[[""ABC-8-CPLX""], [""ABC-59-CPLX""]]"	forward only					
 ALAALAr	D-alanine-D-alanine ligase (reversible)	Metabolism	6.3.2.4	[c] : (2) ala-D + atp <==> adp + alaala + h + pi	"[[""DALADALALIGA-MONOMER""], [""DALADALALIGB-MONOMER""]]"	reversible					
 ALAALAtex	D-alanyl-D-alanine (DalaDala) transport via diffusion (extracellular to periplasm)	Metabolism		alaala[e] <==> alaala[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
@@ -2123,6 +2122,7 @@ RPE	ribulose 5-phosphate 3-epimerase	Metabolism	5.1.3.1	[c] : ru5p-D <==> xu5p-D
 RPI	ribose-5-phosphate isomerase	Metabolism	5.3.1.6	[c] : r5p <==> ru5p-D	"[[""RIB5PISOMA-MONOMER""], [""RIB5PISOMB-MONOMER""]]"	reversible					
 RXN_WC_1	flavorubredoxin reductase	Metabolism		[c] : h + nadh + flvubrdox --> nad + flvubrdrd	"[[""UNKNOWN""]]"	forward only					
 RXN_WC_2	NADH:flavorubredoxin oxidoreductase	Metabolism		[c] : h + flvubrdrd + (2) no --> h2o + n2o + flvubrdox	null	forward only					
+RXN_WC_3	D-alanine-D-alanine dipeptidase	Metabolism	3.4.17.14	[p] : alaala + h2o --> (2) ala-D	"[""G6782-MONOMER""]"	forward only					
 RZ5PP	alpha-ribazole 5-phosphate phosphatase	Metabolism		[c] : 5prdmbz + h2o --> pi + rdmbzi	"[""RIBAZOLEPHOSPHAT-MONOMER""]"	forward only					
 S7PI	sedoheptulose 7-phosphate isomerase	Metabolism		[c] : s7p --> gmhep7p	"[""G6106-MONOMER""]"	forward only					
 SADH	Succinylarginine dihydrolase	Metabolism	2.6.1.69	[c] : (2) h + (2) h2o + sucarg --> co2 + (2) nh4 + sucorn	"[""SUCCARGDIHYDRO-MONOMER""]"	forward only					
