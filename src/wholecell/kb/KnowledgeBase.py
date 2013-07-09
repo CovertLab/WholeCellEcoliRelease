@@ -88,7 +88,7 @@ class KnowledgeBase(object):
 			# Skip the first row
 			csvfile.next()
 
-			fieldnames = ["id", "name", "formulaNeutral", "formula7.2", "charge7.2", "mw7.2", "mediaConc", "biomassConc", "maxExchange", "fakeMet", "equivEnzIds", "comments"]
+			fieldnames = ["id", "name", "formulaNeutral", "formula7.2", "charge7.2", "mw7.2", "mediaConc", "biomassConc", "biomassLoc", "maxExchange", "fakeMet", "equivEnzIds", "comments"]
 			dr = csv.DictReader(csvfile, fieldnames = fieldnames, delimiter = "\t")
 
 			for row in dr:
@@ -102,6 +102,7 @@ class KnowledgeBase(object):
 					"mw7.2": float(row["mw7.2"]),
 					"mediaConc": 0,
 					"biomassConc": 0,
+					"biomassLoc": None,
 					"maxExchange": 0,
 					"fakeMet": False,
 					"equivEnzIds": None,
@@ -109,6 +110,7 @@ class KnowledgeBase(object):
 				}
 				if row["mediaConc"]: m["mediaConc"] = float(row["mediaConc"])
 				if row["biomassConc"]: m["biomassConc"] = float(row["biomassConc"])
+				if row["biomassLoc"]: m["biomassLoc"] = row["biomassLoc"]
 				if row["maxExchange"]: m["maxExchange"] = float(row["maxExchange"])
 				if row["fakeMet"]: m["fakeMet"] = row["fakeMet"]
 				if row["equivEnzIds"] != "[]": m["equivEnzIds"] = json.loads(row["equivEnzIds"])
@@ -448,8 +450,12 @@ class KnowledgeBase(object):
 				else:
 					rList = []
 					enzList = json.loads(row["enzyme"])
-					if len(enzList) == 1:
-						if type(enzList[0]) == str:
+					if type(enzList) == str:
+						r["id"] += "_" + enzList
+						r["catBy"] = [enzList]
+						rList.append(r)
+					elif len(enzList) == 1:
+						if type(enzList[0]) == str or type(enzList[0]) == unicode:
 							r["id"] += "_" + enzList[0]
 							r["catBy"] = enzList
 						else:
