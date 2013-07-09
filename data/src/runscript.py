@@ -1867,8 +1867,12 @@ def buildReaction(rp,row):
 			enzymeInfo = rp.findEnzyme(row[6], row)
 			enzymes = enzymeInfo['enzymes']
 			cofactors = enzymeInfo['cofactors']
-		for i,e in enumerate(enzymes):
-			reac.enzyme.append(e)
+		if len(enzymes[0]):
+			for i,e in enumerate(enzymes):
+				reac.enzyme.append(e)
+		else:
+			# Catches spontanious reactions
+			reac.enzyme = None
 		for c in cofactors:
 			reac.requiredCofactors.append(c)
 		reac.requiredCofactors.sort()
@@ -2123,8 +2127,6 @@ class reactionParser:
 					print str(row[:3])
 					print str(e)
 					print '---'
-			else:
-				enzymes[i].append('SPONTANEOUS')
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 	def findEnzymeManualCuration(self, line):
