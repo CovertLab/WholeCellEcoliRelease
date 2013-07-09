@@ -1868,8 +1868,7 @@ def buildReaction(rp,row):
 			enzymes = enzymeInfo['enzymes']
 			cofactors = enzymeInfo['cofactors']
 		for i,e in enumerate(enzymes):
-			if i%2 == 0:
-				reac.enzyme.append(e)
+			reac.enzyme.append(e)
 		for c in cofactors:
 			reac.requiredCofactors.append(c)
 		reac.requiredCofactors.sort()
@@ -2089,15 +2088,9 @@ class reactionParser:
 		cofactors = []
 		enzymesRaw = line.split('or')
 		for i in range(len(enzymesRaw)):
-			if i == len(enzymesRaw)-1:
-				enzymes.append([])
-			else:
-				enzymes.append([])
-				enzymes.append('or')
+			enzymes.append([])
 
 		for i,e in enumerate(enzymesRaw):
-			# Calculate index in enzymes (taking into account 'or' statements)
-			idx = i*2
 			# Check for spontanious reaction
 			if e.count('s0001') == 0:
 				# Find all bnumbers and their corresponding monomers
@@ -2107,9 +2100,9 @@ class reactionParser:
 					monomers.append(self.getPMFrame(b))
 
 				# Check to see if any monomers are actually fake metabolites/cofactors
-				for i,m in enumerate(monomers):
+				for j,m in enumerate(monomers):
 					if m in self.fakeMetaboliteFrameIds:
-						cofac = monomers.pop(i)
+						cofac = monomers.pop(j)
 						cofactors.append(cofac)
 
 				# Sort monomers and cast to tuple for hash
@@ -2118,20 +2111,20 @@ class reactionParser:
 
 				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
-					enzymes[idx].append(self.monomerToComplex[monomers])
+					enzymes[i].append(self.monomerToComplex[monomers])
 				elif len(monomers) == 1:
 					# This is just a monomer in an OR statement
-					enzymes[idx].append(monomers[0])
+					enzymes[i].append(monomers[0])
 				elif len(monomers) == 0 and len(cofactors) > 0:
 					pass
 				else:
-					enzymes[idx].append('UNKNOWN')
+					enzymes[i].append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
 					print str(row[:3])
 					print str(e)
 					print '---'
 			else:
-				enzymes[idx].append('SPONTANEOUS')
+				enzymes[i].append('SPONTANEOUS')
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 	def findEnzymeManualCuration(self, line):
