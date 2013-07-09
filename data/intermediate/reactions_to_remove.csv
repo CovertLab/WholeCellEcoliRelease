@@ -23,4 +23,5 @@
 "TRPTRS"	"tRNA synthetase not modeled in metabolism"
 "TYRTRS"	"tRNA synthetase not modeled in metabolism"
 "VALTRS"	"tRNA synthetase not modeled in metabolism"
-"ALAALAD"	"Moving reaction from cytosol to periplasm"
+"ALAALAD"	"Moving reaction from cytosol to periplasm based on enzyme location information"
+"GALM2pp"	"Moving reaction from periplasm to cytosol based on enzyme location information"
