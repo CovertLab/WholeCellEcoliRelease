@@ -50,24 +50,8 @@ class Test_Simulation(unittest.TestCase):
 		met = r.metabolite()
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
-
-	#@noseAttrib.attr('focusTest')
-	def test_parseReactionScript(self):
-		rp = r.reactionParser()
-
-		# Simple OR
-		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
-		self.assertEqual(['MONOMER0-282', 'EG10671-MONOMER', 'G6700-MONOMER', 'EG10670-MONOMER'], rp.findEnzyme(line, 'hi')['enzymes'])
-
-		# Simple and/OR
-		line = '( ( b3670  and  b3671 )  or  ( b0077  and  b0078 ) )'
-		self.assertEqual(['ACETOLACTSYNI-CPLX', 'ACETOLACTSYNIII-CPLX'], rp.findEnzyme(line, 'hi')['enzymes'])
-
-		# Complicated complex with OR
-		line = '( ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 ) )  or  ( ( b3736  and  b3737  and  b3738 )  and  ( b3731  and  b3732  and  b3733  and  b3734  and  b3735 )  and  b3739 ) )'
-		enzymes = rp.findEnzyme(line, 'hi')['enzymes']
-		self.assertEqual(['ATPSYN-CPLX','UNKNOWN'], enzymes)
-
+	
+	@noseAttrib.attr('focusTest')
 	def test_findEnzyme(self):
 		rp = r.reactionParser()
 
