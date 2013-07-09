@@ -70,17 +70,17 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		enzIds = []
 		for r in kb.reactions:
 			for s in r["stoichiometry"]:
-				molIds.append("%s:%s[%s]" % (s["molecule"], s["form"], s["compartment"]))
-			e = r["enzyme"]
+				molIds.append("%s:%s[%s]" % (s["molecule"], s["form"], s["location"]))
+			e = r["catBy"]
 			if type(e) == dict:
-				enzIds.append("%s:%s[%s]" % (e["id"], e["form"], e["compartment"]))
+				enzIds.append("%s:%s[%s]" % (e["id"], e["form"], e["location"]))
 		molIds = sorted(list(set(molIds)))
 		enzIds = sorted(list(set(enzIds)))
 
 		# Partitions
 		self.metabolism = sim.getState("Metabolism").addPartition(self)
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, molIds, self.calcReqMetabolites)
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, enzIds, self.calcReqEnzyme)
+		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, enzIds, self.calcReqEnzyme)
 		self.mass = sim.getState("Mass").addPartition(self)
 
 		self.metabolite.idx["atpHydrolysis"] = self.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
@@ -153,13 +153,13 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 			# stoichiometry
 			for s in r["stoichiometry"]:
-				tmpSMat.append(["%s:%s[%s]" % (s["molecule"], s["form"], s["compartment"]), rIdx, s["coeff"]])
+				tmpSMat.append(["%s:%s[%s]" % (s["molecule"], s["form"], s["location"]), rIdx, s["coeff"]])
 
 			# enzyme
-			if type(r["enzyme"]) == dict:
+			if type(r["catBy"]) == dict:
 				# Catalysis
-				e = r["enzyme"]
-				tmpEMat.append(["%s:%s[%s]" % (e["id"], e["form"], e["compartment"]), rIdx])
+				e = r["catBy"]
+				tmpEMat.append(["%s:%s[%s]" % (e["id"], e["form"], e["location"]), rIdx])
 
 				# Kinetics
 				if not numpy.isnan(e["kCatRev"]):
@@ -175,47 +175,47 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		mIdx = self.metIdx["real"][numpy.array(self.metabolite.getIndex([x[0] for x in tmpSMat])[0])]
 		self.sMat[mIdx, numpy.array([x[1] for x in tmpSMat])] = numpy.array([x[2] for x in tmpSMat])
 
-		eIdx = numpy.array(self.enzyme.getIndex([x[0] for x in tmpEMat])[0])
-		self.eMat[[x[1] for x in tmpEMat], eIdx] = 1.0
+#		eIdx = numpy.array(self.enzyme.getIndex([x[0] for x in tmpEMat])[0])
+#		self.eMat[[x[1] for x in tmpEMat], eIdx] = 1.0
 
 		# exchange
 		metIds = [x["id"] + ":mature[e]" for x in kb.metabolites if x["id"] + ":mature[e]" in molIds]
-		metExs = numpy.array([x["maxExchangeRate"] for x in kb.metabolites if x["id"] + ":mature[e]" in molIds])
+		metExs = 12 * numpy.ones(len([x["maxExchange"] for x in kb.metabolites if x["id"] + ":mature[e]" in molIds]))
 
 		metIdxs = numpy.array(self.metabolite.getIndex(metIds)[0])
 		self.bounds["exchange"]["lo"][self.rxnIdx["exchange"][metIdxs]] = -metExs
 		self.bounds["exchange"]["up"][self.rxnIdx["exchange"][metIdxs]] =  metExs
 
-		# exchange constraints
-		self.sMat[self.metIdx["exchangeConstraints"][0], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["ATP[c]", "ADP[c]", "AMP[c]"])[0])]] = 1.0
-		self.sMat[self.metIdx["exchangeConstraints"][1], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["CTP[c]", "CDP[c]", "CMP[c]"])[0])]] = 1.0
-		self.sMat[self.metIdx["exchangeConstraints"][2], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["GTP[c]", "GDP[c]", "GMP[c]"])[0])]] = 1.0
-		self.sMat[self.metIdx["exchangeConstraints"][3], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["UTP[c]", "UDP[c]", "UMP[c]"])[0])]] = 1.0
-		self.sMat[self.metIdx["exchangeConstraints"][4], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "THF[c]"])[0])]] = 1.0
-		self.sMat[self.metIdx["exchangeConstraints"][5], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "FOR[c]", "FMET[c]"])[0])]] = 1.0
-		self.sMat[self.metIdx["exchangeConstraints"][6], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["MET[c]", "FMET[c]"])[0])]] = 1.0
+		# # exchange constraints
+		# self.sMat[self.metIdx["exchangeConstraints"][0], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["ATP[c]", "ADP[c]", "AMP[c]"])[0])]] = 1.0
+		# self.sMat[self.metIdx["exchangeConstraints"][1], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["CTP[c]", "CDP[c]", "CMP[c]"])[0])]] = 1.0
+		# self.sMat[self.metIdx["exchangeConstraints"][2], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["GTP[c]", "GDP[c]", "GMP[c]"])[0])]] = 1.0
+		# self.sMat[self.metIdx["exchangeConstraints"][3], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["UTP[c]", "UDP[c]", "UMP[c]"])[0])]] = 1.0
+		# self.sMat[self.metIdx["exchangeConstraints"][4], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "THF[c]"])[0])]] = 1.0
+		# self.sMat[self.metIdx["exchangeConstraints"][5], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["FTHF10[c]", "FOR[c]", "FMET[c]"])[0])]] = 1.0
+		# self.sMat[self.metIdx["exchangeConstraints"][6], self.rxnIdx["exchange"][numpy.array(self.metabolite.getIndex(["MET[c]", "FMET[c]"])[0])]] = 1.0
 
 		# objective
-		objMets = [x for x in kb.metabolites if x["metabolismNewFlux"] != 0 or x["metabolismRecyclingFlux"] != 0]
+		# objMets = [x for x in kb.metabolites if x["metabolismNewFlux"] != 0 or x["metabolismRecyclingFlux"] != 0]
 
-		metComps = ["m" if x["hydrophobic"] == True else "c" for x in objMets]
+		# metComps = ["m" if x["hydrophobic"] == True else "c" for x in objMets]
 
-		realMetIds = [x[0] + "[" + x[1] + "]" for x in zip([x["id"] for x in objMets], metComps)]
-		realMetIdxs = numpy.array(self.metabolite.getIndex(realMetIds)[0])
+		# realMetIds = [x[0] + "[" + x[1] + "]" for x in zip([x["id"] for x in objMets], metComps)]
+		# realMetIdxs = numpy.array(self.metabolite.getIndex(realMetIds)[0])
 
-		self.rxnNewFlux = numpy.zeros(nMet)
-		self.rxnRecycFlux = numpy.zeros(nMet)
-		self.rxnNewFlux[self.metIdx["real"][realMetIdxs]] = numpy.array([x[0]["metabolismNewFlux"] for x in zip(objMets, realMetIdxs) if x[1] != 0])
-		self.rxnRecycFlux[self.metIdx["real"][realMetIdxs]] = numpy.array([x[0]["metabolismRecyclingFlux"] for x in zip(objMets, realMetIdxs) if x[1] != 0])
+		# self.rxnNewFlux = numpy.zeros(nMet)
+		# self.rxnRecycFlux = numpy.zeros(nMet)
+		# self.rxnNewFlux[self.metIdx["real"][realMetIdxs]] = numpy.array([x[0]["metabolismNewFlux"] for x in zip(objMets, realMetIdxs) if x[1] != 0])
+		# self.rxnRecycFlux[self.metIdx["real"][realMetIdxs]] = numpy.array([x[0]["metabolismRecyclingFlux"] for x in zip(objMets, realMetIdxs) if x[1] != 0])
 
-		self.rxnIdx["internalNoRecycExchange"] = numpy.intersect1d(self.rxnIdx["exchange"][self.rxnRecycFlux[self.rxnIdx["real"]] == 0], self.rxnIdx["internalExchange"])
-		self.rxnIdx["internalRecycExchange"] = numpy.intersect1d(self.rxnIdx["exchange"][self.rxnRecycFlux[self.rxnIdx["real"]] < 0], self.rxnIdx["internalExchange"])
+		# self.rxnIdx["internalNoRecycExchange"] = numpy.intersect1d(self.rxnIdx["exchange"][self.rxnRecycFlux[self.rxnIdx["real"]] == 0], self.rxnIdx["internalExchange"])
+		# self.rxnIdx["internalRecycExchange"] = numpy.intersect1d(self.rxnIdx["exchange"][self.rxnRecycFlux[self.rxnIdx["real"]] < 0], self.rxnIdx["internalExchange"])
 
-		self.sMat[self.metIdx["real"], self.rxnIdx["growth"]] = -self.rxnNewFlux[self.metIdx["real"]]
+		# self.sMat[self.metIdx["real"], self.rxnIdx["growth"]] = -self.rxnNewFlux[self.metIdx["real"]]
 
 		self.objective = numpy.zeros(nRxn)
 		self.objective[self.rxnIdx["growth"]] = 1e3
-		self.objective[self.rxnIdx["internalRecycExchange"]] = 1.0 / numpy.sum(numpy.minimum(0, self.rxnNewFlux))
+		# self.objective[self.rxnIdx["internalRecycExchange"]] = 1.0 / numpy.sum(numpy.minimum(0, self.rxnNewFlux))
 
 		# dConc/dt
 		self.dConc_dt = numpy.zeros(nMet)

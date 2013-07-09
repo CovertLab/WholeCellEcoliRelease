@@ -63,8 +63,8 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.rnaDegSMat[self.metabolite.idx["h"], :]    =  (numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
 
 		# Proteins
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["MG_104_MONOMER:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["rnaseR"] = self.enzyme.getIndex(["MG_104_MONOMER:mature[c]"])[0]
+		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
+		self.enzyme.idx["rnaseR"] = self.enzyme.getIndex(["EG11259-MONOMER:mature[c]"])[0]
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):

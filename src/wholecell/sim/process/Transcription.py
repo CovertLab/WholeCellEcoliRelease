@@ -57,12 +57,12 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.rna = sim.getState("MoleculeCounts").addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
 		self.rnaNtCounts = numpy.array([x["ntCount"] for x in kb.rnas])
 		self.rnaLens = numpy.sum(self.rnaNtCounts, axis = 1)
-		self.rnaSynthProb =  numpy.array([x["exp"] for x in kb.rnas]) * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
+		self.rnaSynthProb =  numpy.array([x["expression"] for x in kb.rnas]) * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
 		self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNA_POLYMERASE:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNA_POLYMERASE:mature[c]"])[0]
+		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX:mature[c]"], self.calcReqEnzyme)
+		self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX:mature[c]"])[0]
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):
