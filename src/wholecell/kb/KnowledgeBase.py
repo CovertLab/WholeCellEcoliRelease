@@ -450,8 +450,12 @@ class KnowledgeBase(object):
 				else:
 					rList = []
 					enzList = json.loads(row["enzyme"])
-					if len(enzList) == 1:
-						if type(enzList[0]) == str:
+					if type(enzList) == str:
+						r["id"] += "_" + enzList
+						r["catBy"] = [enzList]
+						rList.append(r)
+					elif len(enzList) == 1:
+						if type(enzList[0]) == str or type(enzList[0]) == unicode:
 							r["id"] += "_" + enzList[0]
 							r["catBy"] = enzList
 						else:
