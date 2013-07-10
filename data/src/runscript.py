@@ -2130,6 +2130,9 @@ class reactionParser:
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 	def findEnzymeManualCuration(self, line):
+		if line == '':
+			# Catches reactions where enzyme was removed
+			return [[]]
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')

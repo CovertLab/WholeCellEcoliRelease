@@ -1423,7 +1423,7 @@ ILEtex	L-isoleucine transport via diffusion (extracellular to periplasm)	Metabol
 IMPC	IMP cyclohydrolase	Metabolism	3.5.4.10	[c] : h2o + imp <==> fprica	"[""AICARTRANSIMPCYCLO-CPLX""]"	reversible					
 IMPD	IMP dehydrogenase	Metabolism	1.1.1.205	[c] : h2o + imp + nad --> h + nadh + xmp	"[""IMP-DEHYDROG-MONOMER""]"	forward only					
 IMPtex	IMP transport via diffusion (extracellular to periplasm)	Metabolism		imp[e] <==> imp[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
-INDOLEt2pp	Indole transport via proton symport, irreversible (periplasm)	Metabolism		h[c] + indole[c] --> h[p] + indole[p]	"[[""""]]"	forward only					
+INDOLEt2pp	Indole transport via proton symport, irreversible (periplasm)	Metabolism		h[c] + indole[c] --> h[p] + indole[p]	null	forward only					
 INDOLEt2rpp	Indole transport via proton symport, reversible (periplasm)	Metabolism		h[p] + indole[p] <==> h[c] + indole[c]	"[""MTR-MONOMER""]"	reversible					
 INDOLEtex	Indole transport via diffusion (extracellular to periplasm)	Metabolism		indole[e] <==> indole[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
 INOSTt4pp	Na+/myo-inositol symporter (periplasm)	Metabolism		inost[p] + na1[p] --> inost[c] + na1[c]	"[""YIDK-MONOMER""]"	forward only					
