@@ -2119,7 +2119,7 @@ RNTR3c	ribonucleoside-triphosphate reductase (CTP) (flavodoxin)	Metabolism		[c] 
 RNTR4c	ribonucleoside-triphosphate reductase (UTP) (flavodoxin)	Metabolism		[c] : fldrd + utp --> dutp + fldox + h2o	"[[""NRDACTMULTI-CPLX""], [""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER""], [""RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER""], [""NRDACTMULTI-CPLX""]]"	forward only					
 RPE	ribulose 5-phosphate 3-epimerase	Metabolism	5.1.3.1	[c] : ru5p-D <==> xu5p-D	"[[""G7914-MONOMER""], [""RIBULP3EPIM-MONOMER""]]"	reversible					
 RPI	ribose-5-phosphate isomerase	Metabolism	5.3.1.6	[c] : r5p <==> ru5p-D	"[[""RIB5PISOMA-MONOMER""], [""RIB5PISOMB-MONOMER""]]"	reversible					
-RXN_WC_1	flavorubredoxin reductase	Metabolism		[c] : h + nadh + flvubrdox --> nad + flvubrdrd	"[[""UNKNOWN""]]"	forward only					
+RXN_WC_1	flavorubredoxin reductase	Metabolism		[c] : h + nadh + flvubrdox --> nad + flvubrdrd	"[""EG12450-MONOMER""]"	forward only					
 RXN_WC_2	NADH:flavorubredoxin oxidoreductase	Metabolism		[c] : h + flvubrdrd + (2) no --> h2o + n2o + flvubrdox	null	forward only					
 RXN_WC_3	D-alanine-D-alanine dipeptidase	Metabolism	3.4.17.14	[p] : alaala + h2o --> (2) ala-D	"[""G6782-MONOMER""]"	forward only					
 RXN_WC_4	aldose-1-epimerase	Metabolism	5.1.3.3	[c] : gal-bD --> gal	"[""ALDOSE1EPIM-MONOMER""]"	forward only					
