@@ -1399,7 +1399,7 @@ HXCT	Acetyl-CoA:hexanoate-CoA transferase	Metabolism	2.8.3.8	[c] : accoa + hxa -
 HXPRT	hypoxanthine phosphoribosyltransferase (Hypoxanthine)	Metabolism	2.4.2.8	[c] : hxan + prpp --> imp + ppi	"[[""GPT-MONOMER""], [""HYPOXANPRIBOSYLTRAN-MONOMER""]]"	forward only					
 HYD1pp	hydrogenase (ubiquinone-8: 2 protons) (periplasm)	Metabolism	1.18.99.1	(2) h[c] + h2[c] + q8[c] --> (2) h[p] + q8h2[c]	"[[""FORMHYDROG2-CPLX""]]"	forward only					
 HYD2pp	Hydrogenase (menaquinone8: 2 protons) (periplasm)	Metabolism	1.18.99.1	(2) h[c] + h2[c] + mqn8[c] --> (2) h[p] + mql8[c]	"[[""FORMHYDROG2-CPLX""]]"	forward only					
-HYD3pp	Hydrogenase (Demethylmenaquinone-8: 2 protons) (periplasm)	Metabolism	1.18.99.1	2dmmq8[c] + (2) h[c] + h2[c] --> 2dmmql8[c] + (2) h[p]	"[[""FORMHYDROGI-CPLX""], [""UNKNOWN""]]"	forward only					
+HYD3pp	Hydrogenase (Demethylmenaquinone-8: 2 protons) (periplasm)	Metabolism	1.18.99.1	2dmmq8[c] + (2) h[c] + h2[c] --> 2dmmql8[c] + (2) h[p]	"[[""FORMHYDROG2-CPLX""]]"	forward only					
 HYPOE	hypothetical enyme	Metabolism		[c] : h2o + pyam5p --> pi + pydam	null	forward only					
 HYXNtex	Hypoxanthine transport via diffusion (extracellular to periplasm)	Metabolism		hxan[e] <==> hxan[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible					
 HYXNtpp	Hypoxanthine transport (periplasm)	Metabolism		hxan[p] <==> hxan[c]	null	reversible					
