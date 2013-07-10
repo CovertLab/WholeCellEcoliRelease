@@ -25,6 +25,7 @@ def main():
 	parseTranscriptionUnits()
 	parseMetabolites()
 	parseReactions()
+	parseEnzymeKinetics()
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -1834,10 +1835,10 @@ def parseReactions():
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction', 'Vmax forward', 'Vmax forward unitsw', 'Vmax reverse', 'Vmax reverse units','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.forward, r.forwardUnits, r.reverse, r.reverseUnits, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
 
 def buildReaction(rp,row):
 	reac = reaction()
@@ -1877,6 +1878,22 @@ def buildReaction(rp,row):
 			reac.requiredCofactors.append(c)
 		reac.requiredCofactors.sort()
 	return reac
+
+
+# Parse enzyme kinetics
+def parseEnzymeKinetics():
+	enzKinDict = {}
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'kinetics.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = enzKinDict.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'kcat forward', 'kcat forward units', 'kcat reverse', 'kcat reverse units','Comments'])
+		for key in keys:
+			e = enzKinDict[key]
+			csvwriter.writerow([e.frameId, e.kcat_forward, e.forward_units, e.kcat_reverse, e.reverse_units, e.comments])
 
 # Utility functions
 def splitBigBracket(s):
@@ -1924,6 +1941,15 @@ def getMaxCoord(geneList):
 	return max([gene.right for gene in geneList])
 
 # Define data type classes
+class enzyme:
+	def __init__(self):
+		self.frameId = None
+		self.kcat_forward = None
+		self.kcat_reverse = None
+		self.forward_units = None
+		self.reverse_units = None
+		self.comments = ''
+
 class metabolite:
 	def __init__(self):
 		# Read in properties
@@ -1975,10 +2001,6 @@ class reaction:
 		self.enzyme = []
 		self.requiredCofactors = []
 		self.direction = None
-		self.forward = None
-		self.forwardUnits = None
-		self.reverse = None
-		self.reverseUnits = None
 		self.comments = ''
 
 class reactionParser:
