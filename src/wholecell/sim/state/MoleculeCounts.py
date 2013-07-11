@@ -141,7 +141,8 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.idx["h2o"] = self.getIndex("H2O[c]")[1]
 
 		# Localizations
-		metLocs = -1 * numpy.ones(len(kb.metabolites))
+		metLocs = numpy.array([self.cIdx[x["biomassLoc"]] if x["biomassConc"] > 0 else self.cIdx["c"] for x in kb.metabolites])
+		# metLocs = -1 * numpy.ones(len(kb.metabolites))
 		# metLocs[numpy.array([x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["m"]
 		# metLocs[numpy.array([not x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["c"]
 		protLocs = numpy.array(map(lambda x, lookupTable = self.cIdx: lookupTable[x], [x["location"] for x in kb.proteins]))
@@ -181,7 +182,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.idx["matureComplexes"] = self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in cpxs])[1]
 
 		self.metMediaConc = numpy.array([x["mediaConc"] for x in kb.metabolites])
-		self.metBiomassConc = numpy.array([x["biomassConc"] for x in kb.metabolites])
+		self.metBiomassConc = numpy.array([x["biomassConc"] if x["id"] != "ATP" else x["biomassConc"] * 0.174 for x in kb.metabolites])
 
 	# Allocate memory
 	def allocate(self):
@@ -206,8 +207,8 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		# Biomass metabolites
 		# TODO: Fix this initialization
-		# metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
-		# self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
+		metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
+		self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
 
 		# RNA
 		rnaCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeNMPs) * numpy.sum(self.counts[self.idx["nmps"], self.cIdx["c"]]) / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
