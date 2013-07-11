@@ -141,7 +141,6 @@ def getBRENDA(fetchNew = False):
 
 	# Query BRENDA for data on all EC numbers
 	reac = parseBrendaReaction("ecNumber*2.3.1.40#organism*Escherichia coli")
-	ipdb.set_trace()
 	result = client.getTurnoverNumber("ecNumber*2.3.1.40#organism*Escherichia coli")
 	ipdb.set_trace()
 
@@ -170,6 +169,10 @@ class BRENDA_reaction():
 		self.commentary = None
 		self.literature = None
 		self.organism = None
+
+class BRENDA_turnover():
+	def __init__(self):
+		pass
 
 # Intermediate file functions
 def parseIntermediateFiles():
