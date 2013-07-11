@@ -68,19 +68,36 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		# List of metabolites, enzymes
 		molIds = []
 		enzIds = []
+		enzLocLookup = dict([(x["id"], x["location"]) for x in kb.proteins])
+
 		for r in kb.reactions:
 			for s in r["stoichiometry"]:
 				molIds.append("%s:%s[%s]" % (s["molecule"], s["form"], s["location"]))
-			e = r["catBy"]
-			if type(e) == dict:
-				enzIds.append("%s:%s[%s]" % (e["id"], e["form"], e["location"]))
+			enzList = r["catBy"]
+			if len(enzList) > 0:
+				for enz in enzList:
+					enzIds.append("%s:%s[%s]" % (enz, "mature", enzLocLookup[enz]))
+			# if type(e) == dict:
+			# 	enzIds.append("%s:%s[%s]" % (e["id"], e["form"], e["location"]))
+
+		bioIds = []
+		bioConc = []
+		for m in kb.metabolites:
+			if m["biomassConc"] > 0:
+				bioIds.append("%s:%s[%s]" % (m["id"], "mature", m["biomassLoc"]))
+				bioConc.append(m["biomassConc"])
+
+		enzIds = sorted(list(set(enzIds)))
 		molIds = sorted(list(set(molIds)))
 		enzIds = sorted(list(set(enzIds)))
+		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
+		bioConc = numpy.array(bioConc)
+
 
 		# Partitions
 		self.metabolism = sim.getState("Metabolism").addPartition(self)
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, molIds, self.calcReqMetabolites)
-		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, enzIds, self.calcReqEnzyme)
+		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, enzIdsFlat, self.calcReqEnzyme)
 		self.mass = sim.getState("Mass").addPartition(self)
 
 		self.metabolite.idx["atpHydrolysis"] = self.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
@@ -91,6 +108,96 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		self.metabolite.idx["pi"]   = self.metabolite.getIndex("PI[c]")[0]
 		self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
 		self.metabolite.idx["h"]    = self.metabolite.getIndex("H[c]")[0]
+
+
+		## Indices
+
+		# nRows
+		# * Each molecule
+		# * Rows to take difference b/t ATP and biomass metabolites
+		nRows = len(molIds) + (len(bioIds) - 1)		# Each molecule + differences b/t biomass metabolites and ATP
+		self.rowIds = self.metabolite.ids + ["(atp-" + x + ")" for x in bioIds]
+		self.rowNames = self.metabolite.ids + ["(atp - " + x + ")" for x in bioIds]
+		self.rowIdx = {}
+		self.rowIdx["real"] = numpy.arange(len(molIds))
+		self.rowIdx["atpDiff"] = numpy.array(self.rowIdx["real"][-1] + 1 + numpy.arange(len(bioIds) - 1))
+		self.rowIdx["exchangedExternal"] = [molIds.index(x) for x in molIds if x[-3:] == "[e]"]
+		self.rowIdx["exchangedSink"] = [molIds.index(x) for x in ["4HBA:mature[c]", "5DRIB:mature[c]", "AACALD:mature[c]", "HMFURN:mature[c]", "OXAM:mature[c]"]]
+		self.rowIdx["biomass"] = [molIds.index(x) for x in bioIds]
+		# Extracellular exchanged
+		# Intracellularly exchanged
+
+		# nCols
+		# * Reactions
+		# * Media exchange
+		# * Feist internal exchange (sinks)
+		# * Traditional growth (the traditional biomass objective, 1 column)
+		# * Biomass reactants
+		# * Biomass products
+		# * Cols to take difference b/t ATP and biomass metabolites
+		mediaExchangeIds = ["EX_" + x for x in molIds if x[-3:] == "[e]"]
+		sinkExchIds = ["DM_4HBA", "DM_5DRIB", "DM_AACALD", "DM_HMFURN", "DM_OXAM"]
+		growthTradIds = ["EX_FRAC_GROWTH_TRADITIONAL"]
+		bmReactantsIds = ["EX_FRAC_R_" + x for x in bioIds]
+		bmProductsIds = ["EX_FRAC_P_" + x for x in bioIds]
+		diffATPIds = ["DIFF_ATP-" + x for x in bioIds if x["id"] != "ATP"]
+		nCols = \
+			len(kb.reactions) + len(mediaExchangeIds) + len(sinkExchIds) + len(growthTradIds) + \
+			len(bmReactantsIds) + len(bmProductsIds) + len(diffATPIds)
+		self.colIds = \
+			self.metabolism.reactionIds + \
+			mediaExchangeIds + \
+			sinkExchIds + \
+			growthTradIds + \
+			bmReactantsIds + \
+			bmProductsIds + \
+			diffATPIds
+		self.colNames = \
+			self.metabolism.reactionIds + \
+			mediaExchangeIds + \
+			sinkExchIds + \
+			growthTradIds + \
+			bmReactantsIds + \
+			bmProductsIds + \
+			diffATPIds
+		self.colIdx = {}
+		self.colIdx["real"] = numpy.arange(len(kb.reactions))
+		self.colIdx["mediaExchange"] = numpy.arange(self.rxnIdx["real"][-1] + 1 + numpy.arange(len(mediaExchangeIds)))
+		self.colIdx["sinkExchange"] = numpy.arange(self.rxnIdx["mediaExchange"][-1] + 1 + numpy.arange(len(sinkExchIds)))
+		self.colIdx["growthTrad"] = numpy.arange(self.rxnIdx["sinkExchange"][-1] + 1 + numpy.arange(len(growthTradIds)))
+		self.colIdx["bmReactants"] = numpy.arange(self.rxnIdx["growthTrad"][-1] + 1 + numpy.arange(len(bmReactantsIds)))
+		self.colIdx["bmProducts"] = numpy.arange(self.rxnIdx["bmReactants"][-1] + 1 + numpy.arange(len(bmProductsIds)))
+		self.colIdx["diffATP"] = numpy.arange(self.rxnIdx["bmProducts"][-1] + 1 + numpy.arange(len(diffATPIds)))
+
+		self.colIdx["bmReactant_ATP"] = numpy.array(self.colIds.index("r_ATP:mature[c]"))
+		self.colIdx["bmReactants_notATP"] = numpy.setdiff1d(self.rxnIdx["bmReactants"], self.rxnIdx["bmReactant_ATP"])
+
+		nEnz = len(enzIds)
+
+		# S matrix, E Matrix
+		self.sMat = numpy.zeros((nRows, nCols))
+		self.sMat[self.rowIdx["exchangedExternal"], self.colIdx["mediaExchange"]] = -1
+		self.sMat[self.rowIdx["exchangedSink"], self.colIdx["sinkExchange"]] = -1
+		self.sMat[self.rowIdx["biomass"], self.colIdx["growthTrad"]] = -1.0 * bioConc # Maybe someday these won't be fixed numbers
+		self.sMat[self.rowIdx["biomass"], self.colIdx["bmReactants"]] = -1.0 * bioConc # Maybe someday these won't be fixed numbers
+		self.sMat[self.rowIdx["biomass"], self.colIdx["bmProducts"]] = -1.0
+		self.sMat[self.rowIdx["atpDiff"], self.colIdx["bmReactant_ATP"]] = 1.0
+		self.sMat[self.rowIdx["atpDiff"], self.colIdx["bmReactants_notATP"]] = -1.0
+		self.sMat[self.rowIdx["atpDiff"], self.colIdx["diffATP"]] = -1.0
+
+		self.eMat = numpy.zeros((nEnz, nCols))
+
+		self.bounds = {
+			"kinetic": {"lo": -numpy.ones(nCols) * numpy.Inf, "up": numpy.ones(nCols) * numpy.Inf},
+			"thermodynamic": {"lo": -numpy.ones(nCols) * numpy.Inf, "up": numpy.ones(nCols) * numpy.Inf},
+			"exchange": {"lo": -numpy.ones(nCols) * numpy.Inf, "up": numpy.ones(nCols) * numpy.Inf},
+			"valuedMet": {"lo": -numpy.ones(nCols) * numpy.Inf, "up": numpy.ones(nCols) * numpy.Inf}
+		}
+		self.bounds["thermodynamic"]["lo"][self.colIdx["growthTrad"]] = 0.
+		self.bounds["thermodynamic"]["lo"][self.colIdx["bmReactants"]] = 0.
+#		self.bounds["thermodynamic"]["up"][self.colIdx["bmReactants"]] = 1.
+		self.bounds["thermodynamic"]["up"][self.colIdx["bmProducts"]] = 0.
+		self.bounds["valuedMet"]["lo"][self.colIdx["diffATP"]] = 0.
 
 		# Indices
 		nExchangeConstraints = 7
