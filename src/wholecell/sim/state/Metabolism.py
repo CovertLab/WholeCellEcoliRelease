@@ -52,7 +52,7 @@ class Metabolism(wholecell.sim.state.State.State):
 		super(Metabolism, self).allocate()
 
 		self.growth = numpy.zeros(1)
-		self.fluxes = numpy.zeros(len(self.reactionIds))
+		self.fluxes = numpy.zeros(len(self.reactionIds)) # Note: Probably not the right size
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
