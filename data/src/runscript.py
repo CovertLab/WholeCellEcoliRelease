@@ -9,12 +9,14 @@ import ipdb
 import generateSequencesForGRAVY as gravy
 import urllib
 import time
+from SOAPpy import WSDL
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
+	getBRENDA(fetchNew = True)
 	parseIntermediateFiles()
 
 	parseGenes()
@@ -121,6 +123,25 @@ def getEcocyc(fetchNew = False):
 	writeOut(bioVeloQuery, logFile)
 
 	logFile.close()
+
+def getBRENDA(fetchNew = False):
+	if not fetchNew:
+		return
+
+	# Build complete list of EC numbers in Feist
+	ECnumbers = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Feist_reactions.csv')) as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+	
+		for row in dictreader:
+			if row['proteinClass'] != '':
+				ECnumbers.append(row['proteinClass'])
+		ipdb.set_trace()
+		ECnumbers = set(ECnumbers)
+		ECnumbers = list(ECnumbers)
+
+	# Query BRENDA for data on all EC numbers
+
 
 # Intermediate file functions
 def parseIntermediateFiles():
@@ -1835,10 +1856,10 @@ def parseReactions():
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction', 'EC number', 'Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.EC, r.comments])
 
 def buildReaction(rp,row):
 	reac = reaction()
