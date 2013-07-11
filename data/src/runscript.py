@@ -1856,10 +1856,10 @@ def parseReactions():
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction', 'EC number', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.EC, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
 
 def buildReaction(rp,row):
 	reac = reaction()
