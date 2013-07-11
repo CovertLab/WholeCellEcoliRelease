@@ -77,7 +77,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		bioConc = numpy.array(bioConc)
 
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
-		self.bioProd = bioProd
+		self.bioProd = bioConc
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):
