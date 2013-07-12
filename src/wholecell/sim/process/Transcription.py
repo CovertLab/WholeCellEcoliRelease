@@ -92,6 +92,8 @@ class Transcription(wholecell.sim.process.Process.Process):
 			self.enzyme.counts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec			# Polymerization by all available RNA Polymerases
 			) / numpy.dot(self.rnaLens, self.rnaSynthProb)												# Normalize by expected NTP usage
 
+		import ipdb
+		ipdb.set_trace()
 		# Gillespie-like algorithm
 		t = 0
 		while True:
