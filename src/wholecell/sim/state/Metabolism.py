@@ -68,3 +68,9 @@ class Metabolism(wholecell.sim.state.State.State):
 		# 	)
 
 		# self.growth, self.fluxes = met.calcGrowthRate(bounds)[0:2]
+
+	def pytablesCreate(self, h5file, sim):
+		pass
+
+	def pytablesAppend(self, h5file, sim):
+		pass
