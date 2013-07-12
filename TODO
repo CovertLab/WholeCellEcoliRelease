@@ -34,3 +34,8 @@ Note that `(EG10893-MONOMER, 2) (RPOC-MONOMER, 1) (RPOB-MONOMER, 1))` are the su
 So the subunits are getting double-counted.
 
 ----------
+
+Priority: Medium
+
+Look up turnover numbers for ACP attachment/unattachment enzyme
+Look up turnover numbers for redox protein reductases
