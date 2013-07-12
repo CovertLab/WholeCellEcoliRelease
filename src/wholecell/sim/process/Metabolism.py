@@ -77,6 +77,8 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		bioConc = numpy.array(bioConc)
 
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
+		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
+		self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
 		self.bioProd = bioConc
 
 	# Calculate needed metabolites
