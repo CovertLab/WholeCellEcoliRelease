@@ -91,3 +91,50 @@ class Mass(wholecell.sim.state.State.State):
 
 		self.cellDry[:] = 0
 		self.cellDry[cIdxs] = self.cell[cIdxs] - ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15
+
+	def pytablesCreate(self, h5file, sim):
+		import tables
+
+		# Columns
+		d = {
+			"time": tables.Int64Col(),
+			"compartment": tables.StringCol(max([len(x) for x in self.cIdx.keys()])),
+			"total": tables.Float64Col(),
+			"cell": tables.Float64Col(),
+			"cellDry": tables.Float64Col(),
+			"metabolite": tables.Float64Col(),
+			"rna": tables.Float64Col(),
+			"protein": tables.Float64Col(),
+			}
+
+		# Create table
+		# TODO: Add compression options (using filters)
+		t = h5file.create_table(h5file.root, self.meta["id"], d, title = self.meta["name"], filters = tables.Filters(complevel = 9, complib="zlib"))
+
+		# Store units as metadata
+		t.attrs.total_units = self.meta["units"]["total"]
+		t.attrs.cell_units = self.meta["units"]["cell"]
+		t.attrs.cellDry_units = self.meta["units"]["cellDry"]
+		t.attrs.metabolite_units = self.meta["units"]["metabolite"]
+		t.attrs.rna_units = self.meta["units"]["rna"]
+		t.attrs.protein_units = self.meta["units"]["protein"]
+
+	def pytablesAppend(self, h5file, sim):
+		import tables
+
+		simTime = sim.getState("Time").value
+		t = h5file.get_node("/", self.meta["id"])
+		entry = t.row
+
+		for i in xrange(len(self.cIdx.keys())):
+				entry["time"] = simTime
+				entry["compartment"] = [key for key,val in self.cIdx.iteritems() if val == i][0]
+				entry["total"] = self.total[i]
+				entry["cell"] = self.cell[i]
+				entry["cellDry"] = self.cellDry[i]
+				entry["metabolite"] = self.metabolite[i]
+				entry["rna"] = self.rna[i] # Ha! RNAi!
+				entry["protein"] = self.protein[i]
+				entry.append()
+
+		t.flush()
