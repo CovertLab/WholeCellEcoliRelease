@@ -93,7 +93,7 @@ RNA0-304	tRNAasnW	G7069	"[""CCO-CYTOSOL""]"	"[""RNA0-310""]"	"Assumed in CCO-CYT
 "
 RNA0-305	tRNAileY	G7387	"[""CCO-CYTOSOL""]"	"[""RNA0-309""]"	"Assumed in CCO-CYTOSOL
 "
-RNA0-306	tRNAmetV	EG30060	"[""CCO-CYTOSOL""]"	"[""RNA0-321 CHARGED-FMETV-TRNA""]"	"Assumed in CCO-CYTOSOL
+RNA0-306	tRNAmetV	EG30060	"[""CCO-CYTOSOL""]"	"[""RNA0-321"", ""CHARGED-FMETV-TRNA""]"	"Assumed in CCO-CYTOSOL
 "
 RNA0-327	regulator of OmpA and OmpC expression	G0-10574	"[""CCO-CYTOSOL""]"	[]	"Assumed in CCO-CYTOSOL
 "
@@ -349,11 +349,11 @@ metT-tRNA	tRNAmetT	EG30058	"[""CCO-CYTOSOL""]"	"[""charged-metT-tRNA""]"	"Assume
 "
 metU-tRNA	tRNAmetU	EG30059	"[""CCO-CYTOSOL""]"	"[""charged-metU-tRNA""]"	"Assumed in CCO-CYTOSOL
 "
-metW-tRNA	tRNAmetW	EG31117	"[""CCO-CYTOSOL""]"	"[""RNA0-319 CHARGED-FMETW-TRNA""]"	"Assumed in CCO-CYTOSOL
+metW-tRNA	tRNAmetW	EG31117	"[""CCO-CYTOSOL""]"	"[""RNA0-319"", ""CHARGED-FMETW-TRNA""]"	"Assumed in CCO-CYTOSOL
 "
-metY-tRNA	tRNAmetY	EG30061	"[""CCO-CYTOSOL""]"	"[""RNA0-322 CHARGED-FMETY-TRNA""]"	"Assumed in CCO-CYTOSOL
+metY-tRNA	tRNAmetY	EG30061	"[""CCO-CYTOSOL""]"	"[""RNA0-322"", ""CHARGED-FMETY-TRNA""]"	"Assumed in CCO-CYTOSOL
 "
-metZ-tRNA	tRNAmetZ	EG30062	"[""CCO-CYTOSOL""]"	"[""RNA0-323 CHARGED-FMETZ-TRNA""]"	"Assumed in CCO-CYTOSOL
+metZ-tRNA	tRNAmetZ	EG30062	"[""CCO-CYTOSOL""]"	"[""RNA0-323"", ""CHARGED-FMETZ-TRNA""]"	"Assumed in CCO-CYTOSOL
 "
 pheU-tRNA	tRNApheU	EG30064	"[""CCO-CYTOSOL""]"	"[""charged-pheU-tRNA""]"	"Assumed in CCO-CYTOSOL
 "
@@ -365,7 +365,7 @@ proL-tRNA	tRNAproL	EG30067	"[""CCO-CYTOSOL""]"	"[""charged-proL-tRNA""]"	"Assume
 "
 proM-tRNA	tRNAproM	EG30068	"[""CCO-CYTOSOL""]"	"[""charged-proM-tRNA""]"	"Assumed in CCO-CYTOSOL
 "
-selC-tRNA	tRNAsec	EG30092	"[""CCO-CYTOSOL""]"	"[""modified-charged-selC-tRNA charged-selC-tRNA""]"	"Assumed in CCO-CYTOSOL
+selC-tRNA	tRNAsec	EG30092	"[""CCO-CYTOSOL""]"	"[""modified-charged-selC-tRNA"", ""charged-selC-tRNA""]"	"Assumed in CCO-CYTOSOL
 "
 serT-tRNA	tRNAserT	EG30093	"[""CCO-CYTOSOL""]"	"[""charged-serT-tRNA""]"	"Assumed in CCO-CYTOSOL
 "

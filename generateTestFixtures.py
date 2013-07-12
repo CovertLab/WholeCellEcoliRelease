@@ -53,7 +53,7 @@ def generateTestFixtures():
 		os.makedirs(outDir)
 
 	# Construct KB
-	kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx", seqFileName = "data/KnowledgeBase.fna")
+	kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileDir = "data/parsed/", seqFileName = "data/raw/sequence.txt")
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	# Construct simulation

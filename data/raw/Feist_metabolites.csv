@@ -1,0 +1,1040 @@
+"abbreviation   "	"officialName   "	"formula        "	"charge"	"casNumber   "	"formulaNeutral"	"CompoundNames"	"KeggID   "	"marvin formula (pH 7)"	"marvin charge (pH 7)"	"MW (pH 7)"	"marvin formula (pH 7.2)"	"marvin charge (pH 7.2)"	"MW (pH 7.2)"	"formation delta G (pH 7)"	"uncertainty in delta G (95% ci)"				
+"10fthf"	"10-Formyltetrahydrofolate"	"C20H21N7O7"	-2		"C20H23N7O7"	"10-Formyl-THF"	"C00234"	"C20H21N7O7"	-2	471	"C20H21N7O7"	-2	471	-144.3	9.3		"total"	1039	"percentage"
+"12dgr120"	"1,2-Diacyl-sn-glycerol (didodecanoyl, n-C12:0)"	"C27H52O5"	0		"C27H52O5"	"1,2-Diacylglycerol;/ D-1,2-Diacylglycerol"	"C00641"	"C27H52O5"	0	456	"C27H52O5"	0	456	-157.9	5.4		"formation delta G - not calculated"	167	16.00%
+"12dgr140"	"1,2-Diacyl-sn-glycerol (ditetradecanoyl, n-C14:0)"	"C31H60O5"	0		"C31H60O5"	"D-1,2-Diacylglycerol/ 1,2-Diacylglycerol;"	"C00641"	"C31H60O5"	0	512	"C31H60O5"	0	512	-151.3	6.2		"formation delta G - calculated"	872	84.00%
+"12dgr141"	"1,2-Diacyl-sn-glycerol (ditetradec-7-enoyl, n-C14:1)"	"C31H56O5"	0		"C31H56O5"	"D-1,2-Diacylglycerol/ 1,2-Diacylglycerol;"	"C00641"	"C31H56O5"	0	508	"C31H56O5"	0	508	-106.6	6.1				
+"12dgr160"	"1,2-Diacyl-sn-glycerol (dihexadecanoyl, n-C16:0)"	"C35H68O5"	0		"C35H68O5"	"D-1,2-Diacylglycerol/ 1,2-Diacylglycerol;"	"C00641"	"C35H68O5"	0	568	"C35H68O5"	0	568	-144.7	7				
+"12dgr161"	"1,2-Diacyl-sn-glycerol (dihexadec-9-enoyl, n-C16:1)"	"C35H64O5"	0		"C35H64O5"	"D-1,2-Diacylglycerol/ 1,2-Diacylglycerol;"	"C00641"	"C35H64O5"	0	564	"C35H64O5"	0	564	-100	6.8				
+"12dgr180"	"1,2-Diacyl-sn-glycerol (dioctadecanoyl, n-C18:0)"	"C39H76O5"	0		"C39H76O5"	"D-1,2-Diacylglycerol/ 1,2-Diacylglycerol;"	"C00641"	"C39H76O5"	0	624	"C39H76O5"	0	624	-138.1	7.8				
+"12dgr181"	"1,2-Diacyl-sn-glycerol (dioctadec-11-enoyl, n-C18:1)"	"C39H72O5"	0		"C39H72O5"	"1,2-Diacylglycerol;/ D-1,2-Diacylglycerol"	"C00641"	"C39H72O5"	0	620	"C39H72O5"	0	620	-93.5	7.5				
+"12ppd-R"	"(R)-Propane-1,2-diol"	"C3H8O2"	0	"4254-14-2"		"(R)-1,2-Propanediol/ (R)-Propylene glycol/ D-1,2-propanediol"	"C02912"	"C3H8O2"	0	76	"C3H8O2"	0	76	-79.7	0.9				
+"12ppd-S"	"(S)-Propane-1,2-diol"	"C3H8O2"	0	"4254-14-3"		"(S)-1,2-Propanediol/ (S)-Propylene glycol/ L-1,2-propanediol"	"C02917"	"C3H8O2"	0	76	"C3H8O2"	0	76	-79.7	0.9				
+"13dpg"	"3-Phospho-D-glyceroyl phosphate"	"C3H4O10P2"	-4		"C3H8O10P2"	"1,3-bis-phosphoglycerate/ 3-Phospho-D-glyceroyl phosphate/ (R)-2-Hydroxy-3-(phosphonooxy)-1-monoanhydride with phosphoric propanoic acid/ 1,3-bisphosphoglycerate"	"C00236"	"C3H6O10P2"	-2	264	"C3H5O10P2"	-3	263	-585.8	1				
+"14glucan"	"1,4-alpha-D-glucan"	"C36H62O31"	0					"C36H62O31"	0	990	"C36H62O31"	0	990	-1006.5	25.5				
+"15dap"	"1,5-Diaminopentane"	"C5H16N2"	2	"462-94-2"		"Cadaverine/ 1,5-Pentanediamine/ Pentamethylenediamine"	"C01672"	"C5H16N2"	2	104	"C5H16N2"	2	104	-4.4	1.5				
+"1agpe120"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C12:0)"	"C17H36NO7P1"	0		"C17H36NO7P1"	"L-2-Lysophosphatidylethanolamine/ 1-Acyl-sn-glycero-3-phosphoethanolamine"	"C04438"	"C17H36NO7P"	0	397	"C17H36NO7P"	0	397	-331.9	3.6				
+"1agpe140"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C14:0)"	"C19H40NO7P1"	0		"C19H40NO7P1"	"1-Acyl-sn-glycero-3-phosphoethanolamine/ L-2-Lysophosphatidylethanolamine"	"C04438"	"C19H40NO7P"	0	425	"C19H40NO7P"	0	425	-328.6	4				
+"1agpe141"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C14:1)"	"C19H38NO7P1"	0		"C19H38NO7P1"	"1-Acyl-sn-glycero-3-phosphoethanolamine/ L-2-Lysophosphatidylethanolamine"	"C04438"	"C19H38NO7P"	0	423	"C19H38NO7P"	0	423	-307.1	3.9				
+"1agpe160"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C16:0)"	"C21H44NO7P1"	0		"C21H44NO7P1"	"1-Acyl-sn-glycero-3-phosphoethanolamine/ L-2-Lysophosphatidylethanolamine"	"C04438"	"C21H44NO7P"	0	453	"C21H44NO7P"	0	453	-325.3	4.4				
+"1agpe161"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C16:1)"	"C21H42NO7P1"	0		"C21H42NO7P1"	"1-Acyl-sn-glycero-3-phosphoethanolamine/ L-2-Lysophosphatidylethanolamine"	"C04438"	"C21H42NO7P"	0	451	"C21H42NO7P"	0	451	-303	4.2				
+"1agpe180"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C18:0)"	"C23H48NO7P1"	0		"C23H48NO7P1"	"1-Acyl-sn-glycero-3-phosphoethanolamine/ L-2-Lysophosphatidylethanolamine"	"C04438"	"C23H48NO7P"	0	481	"C23H48NO7P"	0	481	-322	4.7				
+"1agpe181"	"1-Acyl-sn-glycero-3-phosphoethanolamine (n-C18:1)"	"C23H46NO7P1"	0		"C23H46NO7P1"	"1-Acyl-sn-glycero-3-phosphoethanolamine/ L-2-Lysophosphatidylethanolamine"	"C04438"	"C23H46NO7P"	0	479	"C23H46NO7P"	0	479	-299.7	4.6				
+"1agpg120"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C12:0)"	"C18H36O9P1"	-1		"C18H37O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C18H36O9P"	-1	427	"C18H36O9P"	-1	427	-403.3	3.8				
+"1agpg140"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C14:0)"	"C20H40O9P1"	-1		"C20H41O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C20H40O9P"	-1	455	"C20H40O9P"	-1	455	-400	4.1				
+"1agpg141"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C14:1)"	"C20H38O9P1"	-1		"C20H39O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C20H38O9P"	-1	453	"C20H38O9P"	-1	453	-378.5	4.1				
+"1agpg160"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C16:0)"	"C22H44O9P1"	-1		"C22H45O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C22H44O9P"	-1	483	"C22H44O9P"	-1	483	-396.7	4.5				
+"1agpg161"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C16:1)"	"C22H42O9P1"	-1		"C22H43O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C22H42O9P"	-1	481	"C22H42O9P"	-1	481	-374.4	4.3				
+"1agpg180"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C18:0)"	"C24H48O9P1"	-1		"C24H48O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C24H48O9P"	-1	511	"C24H48O9P"	-1	511	-393.4	4.9				
+"1agpg181"	"1-Acyl-sn-glycero-3-phosphoglycerol (n-C18:1)"	"C24H46O9P1"	-1		"C24H47O9P1"	"L-2-lysophosphatidylglycerol/ 1-acyl-glycerophosphoglycerol"		"C24H46O9P"	-1	509	"C24H46O9P"	-1	509	-371.1	4.7				
+"1ddecg3p"	"1-dodecanoyl-sn-glycerol 3-phosphate"	"C15H29O7P1"	-2		"C15H31O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C12:0)"	"C00681"	"C15H30O7P"	-1	353	"C15H30O7P"	-1	353	-348.8	3				
+"1hdec9eg3p"	"1-hexadec-9-enoyl-sn-glycerol 3-phosphate"	"C19H35O7P1"	-2		"C19H37O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C16:1)"		"C19H36O7P"	-1	407	"C19H36O7P"	-1	407	-319.9	3.6				
+"1hdecg3p"	"1-hexadecanoyl-sn-glycerol 3-phosphate"	"C19H37O7P1"	-2		"C19H39O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C16:0)"	"C00681"	"C19H38O7P"	-1	409	"C19H38O7P"	-1	409	-342.2	3.8				
+"1odec11eg3p"	"1-octadec-11-enoyl-sn-glycerol 3-phosphate"	"C21H39O7P1"	-2		"C21H41O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C18:1)"		"C21H40O7P"	-1	435	"C21H40O7P"	-1	435	-316.6	4				
+"1odecg3p"	"1-octadecanoyl-sn-glycerol 3-phosphate"	"C21H41O7P1"	-2		"C21H43O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C18:0)"	"C00681"	"C21H42O7P"	-1	437	"C21H42O7P"	-1	437	-338.9	4.2				
+"1pyr5c"	"1-Pyrroline-5-carboxylate"	"C5H6NO2"	-1		"C5H7NO2"	"(S)-1-Pyrroline-5-carboxylate/ L-1-Pyrroline-5-carboxylate/ 1-Pyrroline-5-carboxylic acid"	"C03912"	"C5H6NO2"	-1	112	"C5H6NO2"	-1	112	-60.3	2.4				
+"1tdec7eg3p"	"1-tetradec-7-enoyl-sn-glycerol 3-phosphate"	"C17H31O7P1"	-2		"C17H33O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C14:1)"	"C00681"	"C17H32O7P"	-1	379	"C17H32O7P"	-1	379	-323.1	3.3				
+"1tdecg3p"	"1-tetradecanoyl-sn-glycerol 3-phosphate"	"C17H33O7P1"	-2		"C17H35O7P1"	"1-Acyl-sn-glycerol 3-phosphate (n-C14:0)"	"C00681"	"C17H34O7P"	-1	381	"C17H34O7P"	-1	381	-345.5	3.4				
+"23camp"	"2',3'-Cyclic AMP"	"C10H11N5O6P"	-1		"C10H12N5O6P"	"Adenosine-2’,3’-cyclicmonophosphate"	"C02353"	"C10H11N5O6P"	-1	328	"C10H11N5O6P"	-1	328	-193.6	10.9				
+"23ccmp"	"2',3'-Cyclic CMP"	"C9H11N3O7P"	-1		"C9H12N3O7P"		"C02354"	"C9H11N3O7P"	-1	304	"C9H11N3O7P"	-1	304	-281.1	8.6				
+"23cgmp"	"2',3'-Cyclic GMP"	"C10H11N5O7P"	-1		"C10H12N5O7P"		"C06194"	"C10H11N5O7P"	-1	344	"C10H11N5O7P"	-1	344	-243.4	10.3				
+"23cump"	"2',3'-Cyclic UMP"	"C9H10N2O8P"	-1		"C9H11N2O8P"		"C02355"	"C9H10N2O8P"	-1	305	"C9H10N2O8P"	-1	305	-332.9	8.5				
+"23dappa"	"2,3-diaminopropionate"	"C3H9N2O2"	1		"C3H8N2O2"	"2,3-Diaminopropionic acid/ 2,3-Diaminopropanoate/ 2,3-Diaminopropanoic acid/ 2,3-Diaminopropionate"	"C06393"	"C3H9N2O2"	1	105	"C3H9N2O2"	1	105	-89	1.2				
+"23ddhb"	"2,3-Dihydro-2,3-dihydroxybenzoate"	"C7H7O4"	-1		"C7H8O4"	"2,3-Dihydroxy-2,3-dihydrobenzoate"	"C04171"	"C7H7O4"	-1	155	"C7H7O4"	-1	155	-126.8	3.2				
+"23dhb"	"2,3-Dihydroxybenzoate"	"C7H5O4"	-1	"303-38-8"	"C7H6O4"	"2,3-Dihydroxybenzoic acid"	"C00196"	"C7H5O4"	-1	153	"C7H5O4"	-1	153	-131.6	3.2				
+"23dhba"	"(2,3-Dihydroxybenzoyl)adenylate"	"C17H17N5O10P"	-1		"C17H18N5O10P"		"C04030"	"C17H17N5O10P"	-1	482	"C17H17N5O10P"	-1	482	-335.8	9.4				
+"23dhbzs"	"2,3-dihydroxybenzoylserine"	"C10H10NO6"	-1		"C10H11NO6"	"N-(2,3-dihydroxybenzoyl)-L-serine/ 2-(2,3-dihydroxybenzoyl)amino-3-hydroxy-propanoic acid"		"C10H10NO6"	-1	240	"C10H10NO6"	-1	240	-198.7	3.8				
+"23dhdp"	"2,3-Dihydrodipicolinate"	"C7H5NO4"	-2		"C7H7NO4"	"Dihydrodipicolinic acid"	"C03340"	"C7H5NO4"	-2	167	"C7H5NO4"	-2	167	-134.6	3.9				
+"23dhmb"	"(R)-2,3-Dihydroxy-3-methylbutanoate"	"C5H9O4"	-1		"C5H10O4"	"(R)-2,3-Dihydroxy-isovaleric acid/ (R)-2,3-Dihydroxy-isovalerate"	"C04272"	"C5H9O4"	-1	133	"C5H9O4"	-1	133	-160.8	1.4				
+"23dhmp"	"(R)-2,3-Dihydroxy-3-methylpentanoate"	"C6H11O4"	-1		"C6H12O4"	"2,3-Dihydroxy-3-methylvalerate"	"C06007"	"C6H11O4"	-1	147	"C6H11O4"	-1	147	-159.1	1.4				
+"23doguln"	"2,3-Dioxo-L-gulonate"	"C6H7O7"	-1			"DKG/ diketogulonate/ 2,3-diketo-gulonic acid/ 2,3-diketogulonate"	"C05409"	"C6H7O7"	-1	191	"C6H7O7"	-1	191	-247.2	2				
+"25aics"	"(S)-2-[5-Amino-1-(5-phospho-D-ribosyl)imidazole-4-carboxamido]succinate"	"C13H15N4O12P"	-4		"C13H19N4O12P"	"1-(5'-Phosphoribosyl)-5-amino-4-(N-succinocarboxamide)-imidazole/ 1-(5'-Phosphoribosyl)-4-(N-succinocarboxamide)-5-aminoimidazole/ 5'-Phosphoribosyl-4-(N-succinocarboxamide)-5-aminoimidazole"	"C04823"	"C13H16N4O12P"	-3	451	"C13H16N4O12P"	-3	451	-486.9	5.5				
+"25dkglcn"	"2,5-diketo-D-gluconate"	"C6H7O7"	-1			"2,5-Didehydro-D-gluconate;/ 2,5-Diketogluconic acid/ 2-Dehydro-L-idonate;"	"C02780"	"C6H7O7"	-1	191	"C6H7O7"	-1	191	-249.7	1.8				
+"25drapp"	"2,5-Diamino-6-(ribosylamino)-4-(3H)-pyrimidinone 5'-phosphate"	"C9H14N5O8P"	-2					"C9H15N5O8P"	-1	352	"C9H15N5O8P"	-1	352	-326.2	7				
+"26dap-LL"	"LL-2,6-Diaminoheptanedioate"	"C7H14N2O4"	0	"583-93-7"	"C7H14N2O4"	"LL-2,6-Diaminopimelic acid/ LL-2,6-Diaminopimelate"	"C00666"	"C7H14N2O4"	0	190	"C7H14N2O4"	0	190	-163.7	1.6				
+"26dap-M"	"meso-2,6-Diaminoheptanedioate"	"C7H14N2O4"	0		"C7H14N2O4"	"meso-2,6-Diaminopimelic acid/ meso-2,6-Diaminopimelate"	"C00680"	"C7H14N2O4"	0	190	"C7H14N2O4"	0	190	-163.7	1.6				
+"2agpe120"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C12:0)"	"C17H36NO7P1"	0		"C17H36NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C17H36NO7P"	0	397	"C17H36NO7P"	0	397	-331.9	3.6				
+"2agpe140"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C14:0)"	"C19H40NO7P1"	0		"C19H40NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C19H40NO7P"	0	425	"C19H40NO7P"	0	425	-328.6	4				
+"2agpe141"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C14:1)"	"C19H38NO7P1"	0		"C19H38NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C19H38NO7P"	0	423	"C19H38NO7P"	0	423	-306.3	3.9				
+"2agpe160"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C16:0)"	"C21H44NO7P1"	0		"C21H44NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C21H44NO7P"	0	453	"C21H44NO7P"	0	453	-325.3	4.4				
+"2agpe161"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C16:1)"	"C21H42NO7P1"	0		"C21H42NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C21H42NO7P"	0	451	"C21H42NO7P"	0	451	-303	4.2				
+"2agpe180"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C18:0)"	"C23H48NO7P1"	0		"C23H48NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C23H48NO7P"	0	481	"C23H48NO7P"	0	481	-322	4.7				
+"2agpe181"	"2-Acyl-sn-glycero-3-phosphoethanolamine (n-C18:1)"	"C23H46NO7P1"	0		"C23H46NO7P1"	"L-1-Lysophosphatidylethanolamine/ 2-acyl-glycerophosphoethanolamine"	"C05973"	"C23H46NO7P"	0	479	"C23H46NO7P"	0	479	-299.7	4.6				
+"2agpg120"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C12:0)"	"C18H36O9P1"	-1		"C18H37O9P1"	"2-acyl-glycerophosphoglycerol/ L-1-Lysophosphatidylglycerol"		"C18H36O9P"	-1	427	"C18H36O9P"	-1	427	-403.3	3.8				
+"2agpg140"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C14:0)"	"C20H40O9P1"	-1		"C20H41O9P1"	"2-acyl-glycerophosphoglycerol/ L-1-Lysophosphatidylglycerol"		"C20H40O9P"	-1	455	"C20H40O9P"	-1	455	-400	4.1				
+"2agpg141"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C14:1)"	"C20H38O9P1"	-1		"C20H39O9P1"	"2-acyl-glycerophosphoglycerol/ L-1-Lysophosphatidylglycerol"		"C20H38O9P"	-1	453	"C20H38O9P"	-1	453	-377.7	4				
+"2agpg160"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C16:0)"	"C22H44O9P1"	-1		"C22H45O9P1"	"L-1-Lysophosphatidylglycerol/ 2-acyl-glycerophosphoglycerol"		"C22H44O9P"	-1	483	"C22H44O9P"	-1	483	-396.7	4.5				
+"2agpg161"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C16:1)"	"C22H42O9P1"	-1		"C22H43O9P1"	"L-1-Lysophosphatidylglycerol/ 2-acyl-glycerophosphoglycerol"		"C22H42O9P"	-1	481	"C22H42O9P"	-1	481	-374.4	4.3				
+"2agpg180"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C18:0)"	"C24H48O9P1"	-1		"C24H49O9P1"	"2-acyl-glycerophosphoglycerol/ L-1-Lysophosphatidylglycerol"		"C24H48O9P"	-1	511	"C24H48O9P"	-1	511	-393.4	4.9				
+"2agpg181"	"2-Acyl-sn-glycero-3-phosphoglycerol (n-C18:1)"	"C24H46O9P1"	-1		"C24H47O9P1"	"2-acyl-glycerophosphoglycerol/ L-1-Lysophosphatidylglycerol"		"C24H46O9P"	-1	509	"C24H46O9P"	-1	509	-371.1	4.7				
+"2ahbut"	"(S)-2-Aceto-2-hydroxybutanoate"	"C6H9O4"	-1		"C6H10O4"		"C06006"	"C6H9O4"	-1	145	"C6H9O4"	-1	145	-151.1	1.3				
+"2amsa"	"2-Aminomalonate semialdehyde"	"C3H5NO3"	0		"C3H5NO3"	"2-Ammoniomalonate semialdehyde"	"C11822"	"C3H5NO3"	0	103	"C3H4NO3"	-1	102	-114.7	0.9				
+"2aobut"	"L-2-Amino-3-oxobutanoate"	"C4H7NO3"	0		"C4H7NO3"	"L-2-Amino-acetoacetate"	"C03508"	"C4H7NO3"	0	117	"C4H7NO3"	0	117	-116.2	1				
+"2cpr5p"	"1-(2-Carboxyphenylamino)-1-deoxy-D-ribulose 5-phosphate"	"C12H13NO9P"	-3		"C12H16NO9P"		"C01302"	"C12H14NO9P"	-2	347	"C12H14NO9P"	-2	347	-391.6	3.3				
+"2dda7p"	"2-Dehydro-3-deoxy-D-arabino-heptonate 7-phosphate"	"C7H10O10P"	-3		"C7H13O10P"		"C04691"	"C7H11O10P"	-2	286	"C7H11O10P"	-2	286	-467.9	1.9				
+"2ddecg3p"	"2-dodecanoyl-sn-glycerol 3-phosphate"	"C15H30O7P1"	-1		"C15H31O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C12:0)"	"C03974"	"C15H30O7P"	-1	353	"C15H30O7P"	-1	353	-348.8	3				
+"2ddg6p"	"2-Dehydro-3-deoxy-D-gluconate 6-phosphate"	"C6H8O9P"	-3		"C6H11O9P"	"2-Dehydro-3-deoxy-6-phospho-D-gluconate/ 6-Phospho-2-dehydro-3-deoxy-D-gluconate/ 2-Keto-3-deoxy-6-phosphogluconate"	"C04442"	"C6H9O9P"	-2	256	"C6H9O9P"	-2	256	-431.6	1.5				
+"2ddglcn"	"2-Dehydro-3-deoxy-D-gluconate"	"C6H9O6"	-1		"C6H10O6"	"2-Keto-3-deoxy-D-gluconate"	"C00204"	"C6H9O6"	-1	177	"C6H9O6"	-1	177	-222.2	1.5				
+"2dh3dgal"	"2-Dehydro-3-deoxy-D-galactonate"	"C6H9O6"	-1				"C01216"	"C6H9O6"	-1	177	"C6H9O6"	-1	177	-219.7	1.6				
+"2dh3dgal6p"	"2-Dehydro-3-deoxy-D-galactonate 6-phosphate"	"C6H8O9P"	-3				"C01286"	"C6H9O9P"	-2	256	"C6H9O9P"	-2	256	-431.6	1.5				
+"2dhglcn"	"2-Dehydro-D-gluconate"	"C6H9O7"	-1				"C00629"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-257.7	2				
+"2dhguln"	"2-Dehydro-L-gulonate"	"C6H9O7"	-1					"C6H9O7"	-1	193	"C6H9O7"	-1	193	-257.7	2				
+"2dhp"	"2-Dehydropantoate"	"C6H9O4"	-1		"C6H10O4"	"alpha-ketopantoate"	"C00966"	"C6H9O4"	-1	145	"C6H9O4"	-1	145	-148.7	1.4				
+"2dmmq8"	"2-Demethylmenaquinone 8"	"C50H70O2"	0				"C05818"	"C50H70O2"	0	702	"C50H70O2"	0	702	208.5	12.5				
+"2dmmql8"	"2-Demethylmenaquinol 8"	"C50H72O2"	0					"C50H72O2"	0	704	"C50H72O2"	0	704	184.1	13.1				
+"2dr1p"	"2-Deoxy-D-ribose 1-phosphate"	"C5H9O7P"	-2		"C5H11O7P"	"Deoxy-ribose 1-phosphate"	"C00672"	"C5H10O7P"	-1	213	"C5H10O7P"	-1	213	-352.9	3.3				
+"2dr5p"	"2-Deoxy-D-ribose 5-phosphate"	"C5H9O7P"	-2	"102916-66-5"	"C5H11O7P"		"C00673"	"C5H10O7P"	-1	213	"C5H10O7P"	-1	213	-352.9	3.3				
+"2h3oppan"	"2-Hydroxy-3-oxopropanoate"	"C3H3O4"	-1			"Tartronate semialdehyde"	"C01146"	"C3H3O4"	-1	103	"C3H3O4"	-1	103	-149.8	0.8				
+"2hdec9eg3p"	"2-hexadec-9-enoyl-sn-glycerol 3-phosphate"	"C19H36O7P1"	-1		"C19H37O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C16:1)"	"C03974"	"C19H36O7P"	-1	407	"C19H36O7P"	-1	407	-319.9	3.6				
+"2hdecg3p"	"2-hexadecanoyl-sn-glycerol 3-phosphate"	"C19H38O7P1"	-1		"C19H39O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C16:0)"	"C03974"	"C19H38O7P"	-1	409	"C19H38O7P"	-1	409	-342.2	3.8				
+"2ippm"	"2-Isopropylmaleate"	"C7H8O4"	-2		"C7H10O4"	"beta-isopropylmaleate"	"C02631"	"C7H8O4"	-2	156	"C7H8O4"	-2	156	-142.7	2.2				
+"2kmb"	"2-keto-4-methylthiobutyrate"	"C5H7O3S"	-1		"C5H8O3S"	"4-methylthio-2-oxobutanoate/ 2-oxo-4-(methylthio)butyrate"		"C5H7O3S"	-1	147	"C5H7O3S"	-1	147	-100.4	2.3				
+"2mahmp"	"2-Methyl-4-amino-5-hydroxymethylpyrimidine diphosphate"	"C6H8N3O7P2"	-3	"745-65-3"	"C6H11N3O7P2"	"4-amino-2-methyl 5-hydroxymethylpyrimidine pyrophosphate/ HMP-PP"	"C04752"	"C6H9N3O7P2"	-2	297	"C6H9N3O7P2"	-2	297	-412.4	4.9				
+"2mcacn"	"cis-2-Methylaconitate"	"C7H5O6"	-3	"99-98-9"		"(Z)-But-2-ene-1,2,3-tricarboxylate/ cis-2-Methylaconitate"	"C04225"	"C7H5O6"	-3	185	"C7H5O6"	-3	185	-222.6	2.8				
+"2mcit"	"2-Methylcitrate"	"C7H7O7"	-3	"96-17-3"			"C02225"	"C7H7O7"	-3	203	"C7H7O7"	-3	203	-280.4	1.4				
+"2me4p"	"2-C-methyl-D-erythritol 4-phosphate"	"C5H11O7P"	-2		"C5H13O7P"		"C11434"	"C5H12O7P"	-1	215	"C5H12O7P"	-1	215	-365.5	1.6				
+"2mecdp"	"2-C-methyl-D-erythritol 2,4-cyclodiphosphate"	"C5H10O9P2"	-2		"C5H12O9P2"		"C11453"	"C5H10O9P2"	-2	276	"C5H10O9P2"	-2	276	"Not calculated"	"Not calculated"				
+"2obut"	"2-Oxobutanoate"	"C4H5O3"	-1	"600-18-0"	"C4H6O3"	"2-Ketobutyric acid/ 2-Oxobutyric acid/ 2-Oxobutyrate/ 2-Oxobutanoic acid/ alpha-Ketobutyrate"	"C00109"	"C4H5O3"	-1	101	"C4H5O3"	-1	101	-110.9	0.9				
+"2odec11eg3p"	"2-octadec-11-enoyl-sn-glycerol 3-phosphate"	"C21H40O7P1"	-1		"C21H41O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C18:1)"	"C03974"	"C21H40O7P"	-1	435	"C21H40O7P"	-1	435	-316.6	4				
+"2odecg3p"	"2-octadecanoyl-sn-glycerol 3-phosphate"	"C21H42O7P1"	-1		"C21H43O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C18:0)"	"C03974"	"C21H42O7P"	-1	437	"C21H42O7P"	-1	437	-338.9	4.2				
+"2ohph"	"2-Octaprenyl-6-hydroxyphenol"	"C46H70O2"	0				"C05811"	"C46H70O2"	0	654	"C46H70O2"	0	654	175.3	11.9				
+"2ombzl"	"2-Octaprenyl-6-methoxy-1,4-benzoquinol"	"C47H72O3"	0					"C47H72O3"	0	684	"C47H72O3"	0	684	150.8	12.2				
+"2omhmbl"	"2-Octaprenyl-3-methyl-5-hydroxy-6-methoxy-1,4-benzoquinol"	"C48H74O4"	0					"C48H74O4"	0	714	"C48H74O4"	0	714	109.8	13				
+"2ommbl"	"2-Octaprenyl-3-methyl-6-methoxy- 1,4-benzoquinol"	"C48H74O3"	0					"C48H74O3"	0	698	"C48H74O3"	0	698	149.2	12.6				
+"2omph"	"2-Octaprenyl-6-methoxyphenol"	"C47H72O2"	0				"C05812"	"C47H72O2"	0	668	"C47H72O2"	0	668	190.2	12				
+"2oph"	"2-Octaprenylphenol"	"C46H70O"	0				"C05810"	"C46H70O"	0	638	"C46H70O"	0	638	214.7	11.8				
+"2p4c2me"	"2-phospho-4-(cytidine 5'-diphospho)-2-C-methyl-D-erythritol"	"C14H22N3O17P3"	-4		"C14H26N3O17P3"	"2C-methyl-D-erythritol 2,4-cyclodiphosphate"		"C14H23N3O17P3"	-3	598	"C14H23N3O17P3"	-3	598	-857	5.9				
+"2pg"	"D-Glycerate 2-phosphate"	"C3H4O7P"	-3		"C3H7O7P"	"2-phosphoglyceric acid/ 2-Phospho-D-glycerate"	"C00631"	"C3H5O7P"	-2	184	"C3H5O7P"	-2	184	-371.1	0.8				
+"2pglyc"	"2-Phosphoglycolate"	"C2H2O6P"	-3		"C2H5O6P"	"2-phosphoglycolic acid/ Phosphoglycolic acid"	"C00988"	"C2H3O6P"	-2	154	"C2H3O6P"	-2	154	-334.8	0.6				
+"2shchc"	"2-Succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate"	"C11H10O6"	-2		"C11H12O6"		"C05817"	"C11H10O6"	-2	238	"C11H10O6"	-2	238	-193.5	3.3				
+"2tdec7eg3p"	"2-tetradec-7-enoyl-sn-glycerol 3-phosphate"	"C17H32O7P1"	-1		"C17H33O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C14:1)"	"C03974"	"C17H32O7P"	-1	379	"C17H32O7P"	-1	379	-323.1	3.3				
+"2tdecg3p"	"2-tetradecanoyl-sn-glycerol 3-phosphate"	"C17H34O7P1"	-1		"C17H35O7P1"	"2-Acyl-sn-glycerol 3-phosphate (n-C14:0)"	"C03974"	"C17H34O7P"	-1	381	"C17H34O7P"	-1	381	-345.5	3.4				
+"2tpr3dpcoa"	"2'-(5''-triphosphoribosyl)-3'-dephospho-CoA"	"C26H40N7O26P5S"	-6		"C26H46N7O26P5S"			"C26H41N7O26P5S"	-5	1054	"C26H41N7O26P5S"	-5	1054	-1297.1	11.8				
+"34dhpac"	"3,4-Dihydroxyphenylacetaldehyde"	"C8H8O3"	0		"C8H8O3"	"3,4-Dihydroxyphenylacetaldehyde/ Protocatechuatealdehyde"	"C04043"	"C8H8O3"	0	152	"C8H8O3"	0	152	-75.7	3.1				
+"34hpp"	"3-(4-Hydroxyphenyl)pyruvate"	"C9H7O4"	-1		"C9H8O4"	"4-Hydroxyphenylpyruvate/ p-Hydroxyphenylpyruvic acid"	"C01179"	"C9H7O4"	-1	179	"C9H7O4"	-1	179	-114.9	2.6				
+"3amp"	"3'-AMP"	"C10H12N5O7P"	-2	"84-21-9"	"C10H14N5O7P"	"3'-Adenylic acid/ 3'-Adenosine monophosphate/ AMP 3'-phosphate/ Adenosine-3'-monophosphate/ Adenosine 3'-phosphate"	"C01367"	"C10H13N5O7P"	-1	346	"C10H13N5O7P"	-1	346	-257.3	8.7				
+"3c2hmp"	"3-Carboxy-2-hydroxy-4-methylpentanoate"	"C7H10O5"	-2		"C7H12O5"	"3-Isopropylmalate/ 2-D-threo-hydroxy-3-carboxy-isocaproate"	"C04411"	"C7H10O5"	-2	174	"C7H10O5"	-2	174	-199.5	1.6				
+"3c3hmp"	"3-Carboxy-3-hydroxy-4-methylpentanoate"	"C7H10O5"	-2		"C7H12O5"	"2-Isopropylmalate/ 2-Isopropylmalic acid/ 3-Carboxy-3-hydroxy-isocaproate/ 3-Carboxy-3-hydroxyisocaproate"	"C02504"	"C7H10O5"	-2	174	"C7H10O5"	-2	174	-199.5	1.6				
+"3c4mop"	"3-Carboxy-4-methyl-2-oxopentanoate"	"C7H8O5"	-2		"C7H10O5"	"2-Oxo-4-methyl-3-carboxypentanoate/ (2S)-2-Isopropyl-3-oxosuccinate"	"C04236"	"C7H8O5"	-2	172	"C7H8O5"	-2	172	-189.1	1.4				
+"3cmp"	"3'-cmp"	"C9H12N3O8P"	-2		"C9H14N3O8P"	"cytidine-3'-phosphate/ cytidine-3'-monophosphate"	"C05822"	"C9H13N3O8P"	-1	322	"C9H13N3O8P"	-1	322	-344.7	5.5				
+"3dhguln"	"3-Dehydro-L-gulonate"	"C6H9O7"	-1		"C6H10O7"	"3-keto-L-gulonate"	"C00618"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-260.2	2				
+"3dhgulnp"	"3-keto-L-gulonate-6-phosphate"	"C6H8O10P"	-3			"3-dehydro-L-gulonate phosphate"		"C6H9O10P"	-2	272	"C6H9O10P"	-2	272	-472	1.8				
+"3dhq"	"3-Dehydroquinate"	"C7H9O6"	-1		"C7H10O6"	"5-Dehydroquinate/ 3-Dehydroquinic acid/ 5-Dehydroquinic acid"	"C00944"	"C7H9O6"	-1	189	"C7H9O6"	-1	189	-215.1	2.6				
+"3dhsk"	"3-Dehydroshikimate"	"C7H7O5"	-1		"C7H8O5"		"C02637"	"C7H7O5"	-1	171	"C7H7O5"	-1	171	-166.8	2.6				
+"3gmp"	"3'-GMP"	"C10H12N5O8P"	-2		"C10H14N5O8P"	"Guanosine 3'-phosphate/ 3'-Guanylic acid/ Guo-3'-P/ Gp"	"C06193"	"C10H13N5O8P"	-1	362	"C10H13N5O8P"	-1	362	-307	7.9				
+"3haACP"	"(3R)-3-Hydroxyacyl-[acyl-carrier protein]"	"C15H27N2O9PRS"	-1			"(R)-3-Hydroxyacyl-[acyl-carrier protein]"	"C01271"	"C15H27N2O9PRS"	-1	443	"C15H27N2O9PRS"	-1	443	"Not calculated"	"Not calculated"				
+"3hbcoa"	"(S)-3-Hydroxybutanoyl-CoA"	"C25H38N7O18P3S"	-4		"C25H42N7O18P3S"	"(S)-3-Hydroxybutyryl-CoA"	"C01144"	"C25H39N7O18P3S"	-3	850	"C25H39N7O18P3S"	-3	850	-819.3	10.2				
+"3hcddec5eACP"	"(R)-3-hydroxy-cis-dodec-5-enoyl-[acyl-carrier protein]"	"C23H41N2O9PRS"	-1					"C23H41N2O9PRS"	-1	553	"C23H41N2O9PRS"	-1	553	"Not calculated"	"Not calculated"				
+"3hcinnm"	"3-hydroxycinnamic acid"	"C9H7O3"	-1			"3-hydroxycinnamate"		"C9H7O3"	-1	163	"C9H7O3"	-1	163	-71.3	3.2				
+"3hcmrs7eACP"	"(R)-3-hydroxy-cis-myristol-7-eoyl-[acyl-carrier protein]"	"C25H45N2O9PRS"	-1					"C25H45N2O9PRS"	-1	581	"C25H45N2O9PRS"	-1	581	"Not calculated"	"Not calculated"				
+"3hcpalm9eACP"	"(R)-3-hydroxy-cis-palm-9-eoyl-[acyl-carrier protein]"	"C27H49N2O9PRS"	-1					"C27H49N2O9PRS"	-1	609	"C27H49N2O9PRS"	-1	609	"Not calculated"	"Not calculated"				
+"3hcvac11eACP"	"(R)-3-hydroxy-cis-vacc-11-enoyl-[acyl-carrier protein]"	"C29H53N2O9PRS"	-1					"C29H53N2O9PRS"	-1	637	"C29H53N2O9PRS"	-1	637	"Not calculated"	"Not calculated"				
+"3hdcoa"	"(S)-3-Hydroxydecanoyl-CoA"	"C31H50N7O18P3S"	-4		"C31H54N7O18P3S"	"(S)-Hydroxydecanoyl-CoA"	"C05264"	"C31H51N7O18P3S"	-3	934	"C31H51N7O18P3S"	-3	934	-809.4	10.5				
+"3hddcoa"	"(S)-3-Hydroxydodecanoyl-CoA"	"C33H54N7O18P3S"	-4		"C33H58N7O18P3S"		"C05262"	"C33H55N7O18P3S"	-3	962	"C33H55N7O18P3S"	-3	962	-806.1	10.6				
+"3hddecACP"	"(R)-3-Hydroxydodecanoyl-[acyl-carrier protein]"	"C23H43N2O9PRS"	-1	08/06/83		"(R)-3-Hydroxydodecanoyl-[acp]/ D-3-Hydroxydodecanoyl-[acp]/ D-3-Hydroxydodecanoyl-[acyl-carrier protein]"	"C05757"	"C23H43N2O9PRS"	-1	555	"C23H43N2O9PRS"	-1	555	"Not calculated"	"Not calculated"				
+"3hdecACP"	"(R)-3-Hydroxydecanoyl-[acyl-carrier protein]"	"C21H39N2O9PRS"	-1	"320-77-4"		"(3R)-3-Hydroxydecanoyl-[acyl-carrier protein]"	"C04619"	"C21H39N2O9PRS"	-1	527	"C21H39N2O9PRS"	-1	527	"Not calculated"	"Not calculated"				
+"3hhcoa"	"(S)-3-Hydroxyhexanoyl-CoA"	"C27H42N7O18P3S"	-4		"C27H46N7O18P3S"	"(S)-Hydroxyhexanoyl-CoA"	"C05268"	"C27H43N7O18P3S"	-3	878	"C27H43N7O18P3S"	-3	878	-816	10.3				
+"3hhdcoa"	"(S)-3-Hydroxyhexadecanoyl-CoA"	"C37H62N7O18P3S"	-4		"C37H66N7O18P3S"		"C05258"	"C37H63N7O18P3S"	-3	1018	"C37H63N7O18P3S"	-3	1018	-799.5	10.9				
+"3hhexACP"	"(R)-3-Hydroxyhexanoyl-[acyl-carrier protein]"	"C17H31N2O9PRS"	-1	08/06/83		"(R)-3-Hydroxyhexanoyl-[acp]/ D-3-Hydroxyhexanoyl-[acp]/ D-3-Hydroxyhexanoyl-[acyl-carrier protein]"	"C05747"	"C17H31N2O9PRS"	-1	471	"C17H31N2O9PRS"	-1	471	"Not calculated"	"Not calculated"				
+"3hmrsACP"	"(R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]"	"C25H47N2O9PRS"	-1			"(3R)-3-Hydroxytetradecanoyl-[acyl-carrier protein];/ HMA/ beta-Hydroxymyristyl-[acyl-carrier protein];"	"C04688"	"C25H47N2O9PRS"	-1	583	"C25H47N2O9PRS"	-1	583	"Not calculated"	"Not calculated"				
+"3hocoa"	"(S)-3-Hydroxyoctanoyl-CoA"	"C29H46N7O18P3S"	-4		"C29H50N7O18P3S"	"(S)-Hydroxyoctanoyl-CoA"	"C05266"	"C29H47N7O18P3S"	-3	906	"C29H47N7O18P3S"	-3	906	-812.7	10.3				
+"3hoctaACP"	"(R)-3-Hydroxyoctadecanoyl-[acyl-carrier protein]"	"C29H55N2O9PRS"	-1					"C29H55N2O9PRS"	-1	639	"C29H55N2O9PRS"	-1	639	"Not calculated"	"Not calculated"				
+"3hoctACP"	"(R)-3-Hydroxyoctanoyl-[acyl-carrier protein]"	"C19H35N2O9PRS"	-1			"(3R)-3-Hydroxyoctanoyl-[acyl-carrier protein];"	"C04620"	"C19H35N2O9PRS"	-1	499	"C19H35N2O9PRS"	-1	499	"Not calculated"	"Not calculated"				
+"3hodcoa"	"(S)-3-Hydroxyoctadecanoyl-CoA"	"C39H66N7O18P3S"	-4					"C39H67N7O18P3S"	-3	1046	"C39H67N7O18P3S"	-3	1046	-796.3	11.1				
+"3hpalmACP"	"R-3-hydroxypalmitoyl-[acyl-carrier protein]"	"C27H51N2O9PRS"	-1			"(R)-3-Hydroxyhexadecanoyl-[acyl-carrier protein]/ (3R)-3-Hydroxypalmitoyl-[acyl-carrier protein];/ (R)-3-Hydroxypalmitoyl-[acyl-carrier protein];/ (3R)-3-Hydroxyhexadecanoyl-[acyl-carrier protein];"	"C04633"	"C27H51N2O9PRS"	-1	611	"C27H51N2O9PRS"	-1	611	"Not calculated"	"Not calculated"				
+"3hpppn"	"3-(3-hydroxy-phenyl)propionate"	"C9H9O3"	-1					"C9H9O3"	-1	165	"C9H9O3"	-1	165	-87.4	2.5				
+"3htdcoa"	"(S)-3-Hydroxytetradecanoyl-CoA"	"C35H58N7O18P3S"	-4		"C35H62N7O18P3S"		"C05260"	"C35H59N7O18P3S"	-3	990	"C35H59N7O18P3S"	-3	990	-802.8	10.7				
+"3ig3p"	"C'-(3-Indolyl)-glycerol 3-phosphate"	"C11H12NO6P"	-2		"C11H14NO6P"	"Indoleglycerol phosphate/ 1-(Indol-3-yl)glycerol 3-phosphate/ (3-Indolyl)-glycerol phosphate"	"C03506"	"C11H13NO6P"	-1	286	"C11H13NO6P"	-1	286	-267.3	4.3				
+"3mob"	"3-Methyl-2-oxobutanoate"	"C5H7O3"	-1		"C5H8O3"	"2-Oxo-3-methylbutanoate/ 2-Oxoisopentanoate/ 3-Methyl-2-oxobutyric acid/ 2-Ketovaline/ 2-Keto-3-methylbutyric acid/ 2-Oxoisovalerate/ alpha-Ketovaline"	"C00141"	"C5H7O3"	-1	115	"C5H7O3"	-1	115	-111	1.1				
+"3mop"	"(S)-3-Methyl-2-oxopentanoate"	"C6H9O3"	-1		"C6H10O3"	"(R)-2-oxo-3-methylpentanoate/ 2-oxo-3-methylpentanoate/ alpha-keto-beta-methylvalerate/ (S)-2-oxo-3-methylpentanoate/ ketoisoleucine/ alpha-oxo-beta-methylvalerate"	"C00671"	"C6H9O3"	-1	129	"C6H9O3"	-1	129	-109.4	1.1				
+"3ocddec5eACP"	"3-oxo-cis-dodec-5-enoyl-[acyl-carrier protein]"	"C23H39N2O9PRS"	-1					"C23H39N2O9PRS"	-1	551	"C23H39N2O9PRS"	-1	551	"Not calculated"	"Not calculated"				
+"3ocmrs7eACP"	"3-oxo-cis-myristol-7-eoyl-[acyl-carrier protein]"	"C25H43N2O9PRS"	-1					"C25H43N2O9PRS"	-1	579	"C25H43N2O9PRS"	-1	579	"Not calculated"	"Not calculated"				
+"3ocpalm9eACP"	"3-oxo-cis-palm-9-eoyl-[acyl-carrier protein]"	"C27H47N2O9PRS"	-1					"C27H47N2O9PRS"	-1	607	"C27H47N2O9PRS"	-1	607	"Not calculated"	"Not calculated"				
+"3ocvac11eACP"	"3-oxo-cis-vacc-11-enoyl-[acyl-carrier protein]"	"C29H51N2O9PRS"	-1					"C29H51N2O9PRS"	-1	635	"C29H51N2O9PRS"	-1	635	"Not calculated"	"Not calculated"				
+"3odcoa"	"3-Oxodecanoyl-CoA"	"C31H48N7O18P3S"	-4		"C31H52N7O18P3S"		"C05265"	"C31H49N7O18P3S"	-3	932	"C31H49N7O18P3S"	-3	932	-801.4	10.5				
+"3oddcoa"	"3-Oxododecanoyl-CoA"	"C33H52N7O18P3S"	-4		"C33H56N7O18P3S"		"C05263"	"C33H53N7O18P3S"	-3	960	"C33H53N7O18P3S"	-3	960	-798.1	10.6				
+"3oddecACP"	"3-Oxododecanoyl-[acyl-carrier protein]"	"C23H41N2O9PRS"	-1	08/06/83		"3-Oxododecanoyl-[acp]"	"C05756"	"C23H41N2O9PRS"	-1	553	"C23H41N2O9PRS"	-1	553	"Not calculated"	"Not calculated"				
+"3odecACP"	"3-Oxodecanoyl-[acyl-carrier protein]"	"C21H37N2O9PRS"	-1	08/06/83		"3-Oxodecanoyl-[acp]"	"C05753"	"C21H37N2O9PRS"	-1	525	"C21H37N2O9PRS"	-1	525	"Not calculated"	"Not calculated"				
+"3ohcoa"	"3-Oxohexanoyl-CoA"	"C27H40N7O18P3S"	-4	"5096-70-8"	"C27H44N7O18P3S"	"3-ketohexanoyl-CoA"	"C05269"	"C27H41N7O18P3S"	-3	876	"C27H41N7O18P3S"	-3	876	-808	10.3				
+"3ohdcoa"	"3-Oxohexadecanoyl-CoA"	"C37H60N7O18P3S"	-4		"C37H64N7O18P3S"		"C05259"	"C37H61N7O18P3S"	-3	1016	"C37H61N7O18P3S"	-3	1016	-791.6	10.9				
+"3ohexACP"	"3-Oxohexanoyl-[acyl-carrier protein]"	"C17H29N2O9PRS"	-1	08/06/83		"3-Oxohexanoyl-[acp]"	"C05746"	"C17H29N2O9PRS"	-1	469	"C17H29N2O9PRS"	-1	469	"Not calculated"	"Not calculated"				
+"3omrsACP"	"3-Oxotetradecanoyl-[acyl-carrier protein]"	"C25H45N2O9PRS"	-1	08/06/83		"3-Oxotetradecanoyl-[acp]"	"C05759"	"C25H45N2O9PRS"	-1	581	"C25H45N2O9PRS"	-1	581	"Not calculated"	"Not calculated"				
+"3oocoa"	"3-Oxooctanoyl-CoA"	"C29H44N7O18P3S"	-4		"C29H48N7O18P3S"		"C05267"	"C29H45N7O18P3S"	-3	904	"C29H45N7O18P3S"	-3	904	-804.7	10.4				
+"3ooctACP"	"3-Oxooctanoyl-[acyl-carrier protein]"	"C19H33N2O9PRS"	-1	08/06/83		"3-Oxooctanoyl-[acp]"	"C05750"	"C19H33N2O9PRS"	-1	497	"C19H33N2O9PRS"	-1	497	"Not calculated"	"Not calculated"				
+"3ooctdACP"	"3-Oxooctadecanoyl-[acyl-carrier protein]"	"C29H53N2O9PRS"	-1			"3-Oxooctadecanoyl-[acp]"		"C29H53N2O9PRS"	-1	637	"C29H53N2O9PRS"	-1	637	"Not calculated"	"Not calculated"				
+"3oodcoa"	"3-Oxooctadecanoyl-CoA"	"C39H64N7O18P3S"	-4		"C39H68N7O18P3S"			"C39H65N7O18P3S"	-3	1044	"C39H65N7O18P3S"	-3	1044	-788.3	11.1				
+"3opalmACP"	"3-Oxohexadecanoyl-[acyl-carrier protein]"	"C27H49N2O9PRS"	-1	08/06/83		"3-Oxohexadecanoyl-[acp]"	"C05762"	"C27H49N2O9PRS"	-1	609	"C27H49N2O9PRS"	-1	609	"Not calculated"	"Not calculated"				
+"3ophb"	"3-Octaprenyl-4-hydroxybenzoate"	"C47H69O3"	-1		"C47H70O3"		"C05809"	"C47H69O3"	-1	681	"C47H69O3"	-1	681	132	11.9				
+"3otdcoa"	"3-Oxotetradecanoyl-CoA"	"C35H56N7O18P3S"	-4		"C35H60N7O18P3S"		"C05261"	"C35H57N7O18P3S"	-3	988	"C35H57N7O18P3S"	-3	988	-794.8	10.8				
+"3pg"	"3-Phospho-D-glycerate"	"C3H4O7P"	-3		"C3H7O7P"	"D-Glycerate 3-phosphate/ 3-Phosphoglycerate/ 3-phosphoglyceric acid"	"C00197"	"C3H5O7P"	-2	184	"C3H5O7P"	-2	184	-371.1	0.8				
+"3php"	"3-Phosphohydroxypyruvate"	"C3H2O7P"	-3		"C3H5O7P"	"3-Phosphonooxypyruvate/ 3-Phosphonooxypyruvic acid/ 3-Phosphohydroxypyruvic acid"	"C03232"	"C3H3O7P"	-2	182	"C3H3O7P"	-2	182	-360.7	0.9				
+"3psme"	"5-O-(1-Carboxyvinyl)-3-phosphoshikimate"	"C10H9O10P"	-4		"C10H13O10P"	"3-Phosphate-shikimate/ O5-(1-Carboxyvinyl)-3-phosphoshikimate"	"C01269"	"C10H10O10P"	-3	321	"C10H10O10P"	-3	321	-427.4	3.4				
+"3sala"	"3-Sulfino-L-alanine"	"C3H5NO4S"	-2	"1115-65-7"	"C3H7NO4S"	"L-Cysteinesulfinic acid/ 3-sulphino-L-alanine/ 3-Sulfinoalanine/ L-Cysteine sulfinic acid"	"C00606"	"C3H6NO4S"	-1	152	"C3H6NO4S"	-1	152	"Not calculated"	"Not calculated"				
+"3ump"	"3'-UMP"	"C9H11N2O9P"	-2	"35170-03-7"	"C9H13N2O9P"	"Uridine 3'-monophosphate/ Uridine 3'-phosphate"	"C01368"	"C9H12N2O9P"	-1	323	"C9H12N2O9P"	-1	323	-396.5	5.3				
+"4abut"	"4-Aminobutanoate"	"C4H9NO2"	0	12/02/56	"C4H9NO2"	"GABA/ 4-Aminobutanoic acid/ 4-Aminobutylate/ 4-Aminobutyric acid/ gamma-Aminobutyric acid/ (4-Aminobutyl)guanidine"	"C00334"	"C4H9NO2"	0	103	"C4H9NO2"	0	103	-84.5	0.9				
+"4abutn"	"4-Aminobutanal"	"C4H10NO"	1		"C4H9NO"	"gamma-aminobutanal/ 4-Aminobutyraldehyde/ 4-amino-Butyraldehyde"	"C00555"	"C4H10NO"	1	88	"C4H10NO"	1	88	-31.7	1				
+"4abz"	"4-Aminobenzoate"	"C7H6NO2"	-1	"150-13-0"	"C7H7NO2"	"p-Aminobenzoate/ PABA/ 4-Aminobenzoic acid/ 4-Aminobenzoate/ ABEE/ p-Aminobenzoic acid"	"C00568"	"C7H6NO2"	-1	136	"C7H6NO2"	-1	136	-48.7	2.7				
+"4adcho"	"4-amino-4-deoxychorismate"	"C10H10NO5"	-1		"C10H11NO5"		"C11355"	"C10H10NO5"	-1	224	"C10H10NO5"	-1	224	-135.1	3.9				
+"4ahmmp"	"4-Amino-5-hydroxymethyl-2-methylpyrimidine"	"C6H9N3O"	0	"73-67-6"		"Toxopyrimidine/ 4-Amino-2-methyl-5-pyrimidinemethanol"	"C01279"	"C6H9N3O"	0	139	"C6H9N3O"	0	139	7.6	4.9				
+"4ampm"	"4-Amino-2-methyl-5-phosphomethylpyrimidine"	"C6H8N3O4P"	-2		"C6H10N3O4P"	"4-Amino-5-phosphomethyl-2-methylpyrimidine/ 4-amino-2-methyl 5-hydroxymethylpyrimidine phosphate;/ HMP-P;"	"C04556"	"C6H9N3O4P"	-1	218	"C6H9N3O4P"	-1	218	-204.3	4.9				
+"4c2me"	"4-(cytidine 5'-diphospho)-2-C-methyl-D-erythritol"	"C14H23N3O14P2"	-2		"C14H25N3O14P2"		"C11435"	"C14H23N3O14P2"	-2	519	"C14H23N3O14P2"	-2	519	-645.1	5.9				
+"4h2opntn"	"4-Hydroxy-2-oxopentanoate"	"C5H7O4"	-1	"111844-33-8"		"4-Hydroxy-2-oxopentanoate/ 4-Hydroxy-2-oxovalerate"	"C03589"	"C5H7O4"	-1	131	"C5H7O4"	-1	131	-147.2	1				
+"4hba"	"4-Hydroxy-benzyl alcohol"	"C7H8O2"	0			"p-hydroxybenzyl alcohol"		"C7H8O2"	0	124	"C7H8O2"	0	124	-47.3	2.6				
+"4hbz"	"4-Hydroxybenzoate"	"C7H5O3"	-1	"99-96-7"	"C7H6O3"	"Hydroxybenzenecarboxylic acid/ Hydroxybenzoic acid/ 4-Hydroxybenzoic acid"	"C00156"	"C7H5O3"	-1	137	"C7H5O3"	-1	137	-92.2	2.6				
+"4hoxpacd"	"4-Hydroxyphenylacetaldehyde"	"C8H8O2"	0	11/07/60	"C8H8O2"	"2-(4-Hydroxyphenyl)acetaldehyde"	"C03765"	"C8H8O2"	0	136	"C8H8O2"	0	136	-36.2	2.5				
+"4hthr"	"4-Hydroxy-L-threonine"	"C4H9NO4"	0		"C4H9NO4"		"C06056"	"C4H9NO4"	0	135	"C4H9NO4"	0	135	-160.4	1.3				
+"4mhetz"	"4-Methyl-5-(2-hydroxyethyl)-thiazole"	"C6H9NOS"	0	"137-00-8"		"5-(2-Hydroxyethyl)-4-methylthiazole/ 4-Methyl-5-(2'-hydroxyethyl)-thiazole"	"C04294"	"C6H9NOS"	0	143	"C6H9NOS"	0	143	-5.4	3.4				
+"4mop"	"4-Methyl-2-oxopentanoate"	"C6H9O3"	-1		"C6H10O3"	"2-Oxoisocaproate/ alpha-ketoisocaproate"	"C00233"	"C6H9O3"	-1	129	"C6H9O3"	-1	129	-109.4	1.1				
+"4mpetz"	"4-Methyl-5-(2-phosphoethyl)-thiazole"	"C6H8NO4PS"	-2		"C6H10NO4PS"	"4-Methyl-5-(2-phosphono-oxyethyl)-thiazole"	"C04327"	"C6H9NO4PS"	-1	222	"C6H9NO4PS"	-1	222	-217.3	3.4				
+"4pasp"	"4-Phospho-L-aspartate"	"C4H6NO7P"	-2		"C4H8NO7P"	"L-4-Aspartyl phosphate"	"C03082"	"C4H7NO7P"	-1	212	"C4H6NO7P"	-2	211	-380.5	1.1				
+"4per"	"4-Phospho-D-erythronate"	"C4H6O8P"	-3		"C4H9O8P"		"C03393"	"C4H7O8P"	-2	214	"C4H7O8P"	-2	214	-407.4	1.2				
+"4ppan"	"D-4'-Phosphopantothenate"	"C9H15NO8P"	-3		"C9H18NO8P"	"(R)-4'-Phosphopantothenate"	"C03492"	"C9H16NO8P"	-2	297	"C9H16NO8P"	-2	297	-400.2	2.4				
+"4ppcys"	"N-((R)-4-Phosphopantothenoyl)-L-cysteine"	"C12H20N2O9PS"	-3		"C12H23N2O9PS"	"(R)-4'-Phosphopantothenoyl-L-cysteine"	"C04352"	"C12H21N2O9PS"	-2	400	"C12H21N2O9PS"	-2	400	-426.5	4.4				
+"4r5au"	"4-(1-D-Ribitylamino)-5-aminouracil"	"C9H16N4O6"	0		"C9H16N4O6"	"4-(1-D-Ribitylamino)-5-amino-2,6-dihydroxypyrimidine/ 5-amino-6-ribitylamino-2,4(1H,3H)-pyrimidinedione"	"C04732"	"C9H16N4O6"	0	276	"C9H16N4O6"	0	276	-189.2	5.3				
+"5aizc"	"5-amino-1-(5-phospho-D-ribosyl)imidazole-4-carboxylate"	"C9H11N3O9P"	-3		"C9H14N3O9P"	"1-(5-Phospho-D-ribosyl)-5-amino-4-imidazolecarboxylate/ 1-(5'-Phosphoribosyl)-5-amino-4-imidazolecarboxylate/ 1-(5'-Phosphoribosyl)-5-amino-4-carboxyimidazole/ 5'-Phosphoribosyl-5-amino-4-imidazolecarboxylate/ 1-(5'-Phosphoribosyl)-4-carboxy-5-aminoimidazole/ 5'-Phosphoribosyl-4-carboxy-5-aminoimidazole"	"C04751"	"C9H13N3O9P"	-1	338	"C9H12N3O9P"	-2	337	-374.1	6				
+"5aop"	"5-Amino-4-oxopentanoate"	"C5H9NO3"	0	"106-60-5"	"C5H9NO3"	"5-Aminolevulinate/ 5-Amino-4-oxovaleric acid"	"C00430"	"C5H9NO3"	0	131	"C5H9NO3"	0	131	-112.8	1				
+"5aprbu"	"5-Amino-6-(5'-phosphoribitylamino)uracil"	"C9H15N4O9P"	-2		"C9H17N4O9P"	"5-amino-6-ribitylamino-2,4(1H,3H)-pyrimidinedione 5'-phosphate"	"C04454"	"C9H16N4O9P"	-1	355	"C9H16N4O9P"	-1	355	-401	5.3				
+"5apru"	"5-Amino-6-(5'-phosphoribosylamino)uracil"	"C9H13N4O9P"	-2		"C9H15N4O9P"	"5-Amino-6-(ribosylamino)-2,4-(1H,3H)-pyrimidinedione 5'-phosphate"	"C01268"	"C9H14N4O9P"	-1	353	"C9H14N4O9P"	-1	353	-393.5	6.2				
+"5caiz"	"5-phosphoribosyl-5-carboxyaminoimidazole"	"C9H11N3O9P"	-3		"C9H14N3O9P"	"NCAIR"		"C9H13N3O9P"	-1	338	"C9H12N3O9P"	-2	337	-374.1	6				
+"5dglcn"	"5-Dehydro-D-gluconate"	"C6H9O7"	-1			"5-k-gluconate/ 5-ketogluconate/ 5-Dehydrogluconate/ 5-keto-D-gluconate"	"C01062"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-260.2	2				
+"5dh4dglc"	"5-Dehydro-4-deoxy-D-glucarate"	"C6H6O7"	-2				"C00679"	"C6H6O7"	-2	190	"C6H6O7"	-2	190	-263.1	1.5				
+"5drib"	"5'-deoxyribose"	"C5H10O4"	0		"C5H10O4"			"C5H10O4"	0	134	"C5H10O4"	0	134	-144.8	3.7				
+"5mdr1p"	"5-Methylthio-5-deoxy-D-ribose 1-phosphate"	"C6H11O7PS"	-2		"C6H13O7PS"	"5-Methylthio-D-ribose 1-phosphate/ S5-Methyl-5-thio-D-ribose 1-phosphate"	"C04188"	"C6H12O7PS"	-1	259	"C6H12O7PS"	-1	259	-346.1	4.2				
+"5mdru1p"	"5-Methylthio-5-deoxy-D-ribulose 1-phosphate"	"C6H11O7PS"	-2		"C6H13O7PS"		"C04582"	"C6H12O7PS"	-1	259	"C6H12O7PS"	-1	259	-345.6	2.5				
+"5mta"	"5-Methylthioadenosine"	"C11H15N5O3S"	0	"2457-80-9"	"C11H15N5O3S"	"5'-S-Methylthioadenosine/ 5'-Methylthioadenosine/ Methylthioadenosine/ 5'-Deoxy-5'-(methylthio)adenosine"	"C00170"	"C11H15N5O3S"	0	297	"C11H15N5O3S"	0	297	1.4	8.9				
+"5mthf"	"5-Methyltetrahydrofolate"	"C20H24N7O6"	-1		"C20H25N7O6"	"N5-methyl-tetrahydrofolate/ N5-methyl-5,6,7,8-tetrahydrofolate/ 5-methyl-5,6,7,8-tetrahydrofolate"	"C00440"	"C20H23N7O6"	-2	457	"C20H23N7O6"	-2	457	-101.4	8.2				
+"5mtr"	"5-Methylthio-D-ribose"	"C6H12O4S"	0			"S5-Methyl-5-thio-D-ribose"	"C03089"	"C6H12O4S"	0	180	"C6H12O4S"	0	180	-134.2	4.2				
+"5prdmbz"	"N1-(5-Phospho-alpha-D-ribosyl)-5,6-dimethylbenzimidazole"	"C14H17N2O7P"	-2		"C14H19N2O7P"		"C04778"	"C14H18N2O7P"	-1	357	"C14H18N2O7P"	-1	357	-289.3	5.9				
+"6hmhpt"	"6-hydroxymethyl dihydropterin"	"C7H9N5O2"	0		"C7H9N5O2"	"6-hydroxymethyl-7,8-dihydropterin"		"C7H9N5O2"	0	195	"C7H9N5O2"	0	195	-3	7.4				
+"6hmhptpp"	"6-hydroxymethyl-dihydropterin pyrophosphate"	"C7H8N5O8P2"	-3		"C7H11N5O8P2"	"6-hydroxymethyl-7,8-dihydropterin pyrophosphate"		"C7H9N5O8P2"	-2	353	"C7H9N5O8P2"	-2	353	-423.1	7.4				
+"6pgc"	"6-Phospho-D-gluconate"	"C6H10O10P"	-3		"C6H13O10P"	"6-phosphogluconic acid/ D-gluconate 6-phosphate"	"C00345"	"C6H11O10P"	-2	274	"C6H11O10P"	-2	274	-480	2.2				
+"6pgl"	"6-phospho-D-glucono-1,5-lactone"	"C6H9O9P"	-2		"C6H11O9P"	"D-Glucono-1,5-lactone 6-phosphate"	"C01236"	"C6H10O9P"	-1	257	"C6H10O9P"	-1	257	-427.5	3.5				
+"8aonn"	"8-Amino-7-oxononanoate"	"C9H17NO3"	0		"C9H17NO3"	"7-keto-8-aminopelargonate"	"C01092"	"C9H17NO3"	0	187	"C9H17NO3"	0	187	-108	1.5				
+"aacald"	"Aminoacetaldehyde"	"C2H6NO"	1	"452-86-8"	"C2H5NO"	"Aminoacetaldehyde"	"C06735"	"C2H6NO"	1	60	"C2H6NO"	1	60	-35	0.8				
+"aacoa"	"Acetoacetyl-CoA"	"C25H36N7O18P3S"	-4	"1420-36-6"	"C25H40N7O18P3S"	"3-ketobutanoyl-CoA/ 3-oxobutyroyl-CoA/ 3-acetoacetyl-CoA/ 3-ketobutyroyl-CoA/ 3-oxobutanoyl-CoA/ Acetoacetyl coenzyme A"	"C00332"	"C25H37N7O18P3S"	-3	848	"C25H37N7O18P3S"	-3	848	-811.3	10.2				
+"aact"	"Aminoacetone"	"C3H8NO"	1	08/08/98	"C3H7NO"	"1-Amino-2-propanone"	"C01888"	"C3H8NO"	1	74	"C3H8NO"	1	74	-36.6	0.8				
+"ac"	"Acetate"	"C2H3O2"	-1	"71-50-1"	"C2H4O2"	"vinegar/ Ethylic acid/ Vinegar acid/ Methanecarboxylic acid/ Acetic acid/ Ethanoic acid"	"C00033"	"C2H3O2"	-1	59	"C2H3O2"	-1	59	-88.3	1.5				
+"acac"	"Acetoacetate"	"C4H5O3"	-1	"541-50-4"		"Acetoacetic acid/ beta-Ketobutyric acid/ 3-Oxobutanoic acid"	"C00164"	"C4H5O3"	-1	101	"C4H5O3"	-1	101	-113.4	0.7				
+"acACP"	"Acetyl-ACP"	"C13H23N2O8PRS"	-1					"C13H23N2O8PRS"	-1	399	"C13H23N2O8PRS"	-1	399	"Not calculated"	"Not calculated"				
+"acald"	"Acetaldehyde"	"C2H4O"	0	"75-07-0"		"Ethanal/ Aldehyde C(2)/ acetylaldehyde/ Aceteldehyde/ Acetic aldehyde/ Ethyl aldehyde/ Aldehyde"	"C00084"	"C2H4O"	0	44	"C2H4O"	0	44	-33.4	1.5				
+"acanth"	"N-Acetylanthranilate"	"C9H8NO3"	-1	"89-52-1"	"C9H9NO3"	"2-(Acetylamino)-benzoic acid/ 3-acetylaminobenzoic acid/ 3-Acetamidobenzoic acid"	"C06332"	"C9H8NO3"	-1	178	"C9H8NO3"	-1	178	-86.8	3.2				
+"accoa"	"Acetyl-CoA"	"C23H34N7O17P3S"	-4	"72-89-9"	"C23H38N7O17P3S"	"Acetyl coenzyme A"	"C00024"	"C23H35N7O17P3S"	-3	806	"C23H35N7O17P3S"	-3	806	-784.6	10.1				
+"acetol"	"Acetol"	"C3H6O2"	0	09/06/16		"Hydroxyacetone/ 1-Hydroxy-2-propanone/ 2-Ketopropyl alcohol/ Acetone alcohol/ Pyruvinalcohol/ Pyruvic alcohol/ Methylketol"	"C05235"	"C3H6O2"	0	74	"C3H6O2"	0	74	-71.7	0.7				
+"acg5p"	"N-Acetyl-L-glutamyl 5-phosphate"	"C7H9NO8P"	-3		"C7H12NO8P"	"N-Acetyl-L-glutamate 5-phosphate"	"C04133"	"C7H10NO8P"	-2	267	"C7H9NO8P"	-3	266	-408.6	2.1				
+"acg5sa"	"N-Acetyl-L-glutamate 5-semialdehyde"	"C7H10NO4"	-1		"C7H11NO4"	"2-Acetamido-5-oxopentanoate"	"C01250"	"C7H10NO4"	-1	172	"C7H10NO4"	-1	172	-141.1	2.1				
+"acgal"	"N-Acetyl-D-galactosamine"	"C8H15NO6"	0	"14215-68-0"		"N-Acetyl-D-chondrosamine/ 2-Acetamido-2-deoxy-D-galactose/ GalNAc"	"C01132"	"C8H15NO6"	0	221	"C8H15NO6"	0	221	-212.4	4.6				
+"acgal1p"	"N-Acetyl-D-galactosamine 1-phosphate"	"C8H14NO9P"	-2		"C8H16NO9P"			"C8H15NO9P"	-1	300	"C8H15NO9P"	-1	300	-424.2	4.5				
+"acgam"	"N-Acetyl-D-glucosamine"	"C8H15NO6"	0	"7512-17-6"		"N-Acetylchitosamine/ 2-Acetamido-2-deoxy-D-glucose/ GlcNAc"	"C00140"	"C8H15NO6"	0	221	"C8H15NO6"	0	221	-212.4	4.6				
+"acgam1p"	"N-Acetyl-D-glucosamine 1-phosphate"	"C8H14NO9P"	-2		"C8H16NO9P"		"C04256"	"C8H15NO9P"	-1	300	"C8H15NO9P"	-1	300	-424.2	4.5				
+"acgam6p"	"N-Acetyl-D-glucosamine 6-phosphate"	"C8H14NO9P"	-2	"102029-88-9"	"C8H16NO9P"		"C00357"	"C8H15NO9P"	-1	300	"C8H15NO9P"	-1	300	-424.2	4.5				
+"acglc-D"	"6-Acetyl-D-glucose"	"C8H14O7"	0	"107-85-7"	"C8H14O7"		"C02655"	"C8H14O7"	0	222	"C8H14O7"	0	222	-255.2	4.4				
+"acglu"	"N-Acetyl-L-glutamate"	"C7H9NO5"	-2	"1188-37-0"	"C7H11NO5"	"N-Acetyl-L-glutamic acid"	"C00624"	"C7H9NO5"	-2	187	"C7H9NO5"	-2	187	-193.9	2.1				
+"acmalt"	"Acetyl-maltose"	"C14H24O12"	0				"C02130"	"C14H24O12"	0	384	"C14H24O12"	0	384	-412.9	8.5				
+"acmana"	"N-Acetyl-D-mannosamine"	"C8H15NO6"	0	"3615-17-6"		"2-Acetamido-2-deoxy-D-monnose"	"C00645"	"C8H15NO6"	0	221	"C8H15NO6"	0	221	-212.4	4.6				
+"acmanap"	"N-Acetyl-D-mannosamine 6-phosphate"	"C8H14NO9P"	-2	"157296-99-6"	"C8H16NO9P"	"N-Acetyl-D-mannosamine 6-phosphate/ N-Acetylmannosamine 6-phosphate"	"C04257"	"C8H15NO9P"	-1	300	"C8H15NO9P"	-1	300	-424.2	4.5				
+"acmum"	"N-Acetylmuramate"	"C11H18NO8"	-1	"61633-75-8"	"C11H19NO8"	"N-Acetylmuramate/ N-Acetylmuramic acid"	"C02713"	"C11H18NO8"	-1	292	"C11H18NO8"	-1	292	-275.4	4.7				
+"acmum6p"	"N-acetylmuramate 6-phosphate"	"C11H17NO11P"	-3		"C11H20NO11P"	"N-Acetylmuramate-6-phosphate/ MurNAc-6-p"		"C11H18NO11P"	-2	371	"C11H18NO11P"	-2	371	-487.3	4.7				
+"acnam"	"N-Acetylneuraminate"	"C11H18NO9"	-1	"131-48-6"	"C11H19NO9"	"5-Acetamido-3,5-dideoxy-D-glycero-D-galacto-2-nonulosonic acid/ N-Acetylneuraminic acid/ Neu5Ac"	"C00270"	"C11H18NO9"	-1	308	"C11H18NO9"	-1	308	-325.9	4.4				
+"acolipa"	"4-Amino-4-deoxy-L-arabinose modified core oligosaccharide lipid A"	"C181H314N3O103P4"	-9		"C181H323N3O103P4"	"L-Ara4N core oligosaccharide lipid A"		"C181H317N3O103P4"	-6	4303	"C181H317N3O103P4"	-6	4303	-3715.6	63.3				
+"acon-C"	"cis-Aconitate"	"C6H3O6"	-3	"585-84-2"	"C6H6O6"	"cis-1,2,3-Propenetricarboxylic acid/ (Z)-1-Propene-1,2,3-tricarboxylic acid/ cis-Aconitic acid"	"C00417"	"C6H3O6"	-3	171	"C6H3O6"	-3	171	-222.1	2.1				
+"aconm"	"E-3-carboxy-2-pentenedioate 6-methyl ester"	"C7H6O6"	-2			"6-methyl ester of trans-aconitate"		"C7H6O6"	-2	186	"C7H6O6"	-2	186	-217.9	2.4				
+"acon-T"	"trans-Aconitate"	"C6H3O6"	-3	"4023-65-8"	"C6H6O6"	"trans-1,2,3-Propenetricarboxylic acid/ trans-Aconitic acid"	"C02341"	"C6H3O6"	-3	171	"C6H3O6"	-3	171	-222.1	2.1				
+"acorn"	"N2-Acetyl-L-ornithine"	"C7H14N2O3"	0		"C7H14N2O3"		"C00437"	"C7H14N2O3"	0	174	"C7H14N2O3"	0	174	-115.5	2.1				
+"ACP"	"acyl carrier protein"	"C11H21N2O7PRS"	-1				"C00229"	"C11H21N2O7PRS"	-1	357	"C11H21N2O7PRS"	-1	357	"Not calculated"	"Not calculated"				
+"acser"	"O-Acetyl-L-serine"	"C5H9NO4"	0	"66638-22-0"	"C5H9NO4"	"O3-Acetyl-L-serine"	"C00979"	"C5H9NO4"	0	147	"C5H9NO4"	0	147	-161.6	1.5				
+"actACP"	"Acetoacetyl-ACP"	"C15H25N2O9PRS"	-1				"C05744"	"C15H25N2O9PRS"	-1	441	"C15H25N2O9PRS"	-1	441	"Not calculated"	"Not calculated"				
+"actp"	"Acetyl phosphate"	"C2H3O5P"	-2	"19926-71-7"	"C2H5O5P"		"C00227"	"C2H4O5P"	-1	139	"C2H3O5P"	-2	138	-301.4	0.8				
+"ade"	"Adenine"	"C5H5N5"	0	"73-24-5"		"6-Aminopurine/ A/ Ade/ 1H-Purin-6-amine/ Adeninimine/ Vitamin B4"	"C00147"	"C5H5N5"	0	135	"C5H5N5"	0	135	78	7.8				
+"adn"	"Adenosine"	"C10H13N5O4"	0	"58-61-7"		"Adenine riboside/ 9-beta-D-Ribofuranosyladenine/ Adenocard/ 9-B-D-ribofuranosyl-9H-purin-6-amine/ rA"	"C00212"	"C10H13N5O4"	0	267	"C10H13N5O4"	0	267	-45.4	8.7				
+"adocbi"	"Adenosyl cobinamide"	"C58H84CoN16O11"	1			"Adenosyl cobinamide"	"C06508"	"C58H84CoN16O11"	1	1239	"C58H84CoN16O11"	1	1239	"Not calculated"	"Not calculated"				
+"adocbip"	"Adenosyl cobinamide phosphate"	"C58H83CoN16O14P"	-1			"Adenosyl cobinamide phosphate"	"C06509"	"C58H83CoN16O14P"	-1	1317	"C58H83CoN16O14P"	-1	1317	"Not calculated"	"Not calculated"				
+"adocbl"	"Adenosylcobalamin"	"C72H100CoN18O17P"	0	"13870-90-1"		"Adenosylcobalamin/ Deoxyadenosylcobalamin/ Cobamamide/ Vitamin B12 coenzyme/ (5'-Deoxy-5'-adenosyl)cobamide coenzyme/ 5'-Deoxy-5'-adenosylcobalamin/ 5'-Deoxy-5'-adenosyl vitamin B12/ Calomide/ Cobalamin coenzyme/ Coenzyme B12/ DMBC coenzyme/ Dibencozide/ Funacomide/ 6-Dimethylbenzimidazolyl-5-deoxyadenosyl-cobamide/ 6-dimethylbenzimidazolyl)cobamide coenzyme/ 5'-Deoxy-5'-adenosyl-5/ 6-Dimethylbenzimidazolyl-Co-5'-deoxy-5'-adenosylcobamide/ 6-dimethylbenzimidazolylcobamide/ 6-Dimethylbenzimidazolyl)cobamide coenzyme"	"C00194"	"C72H100CoN18O17P"	0	1578	"C72H100CoN18O17P"	0	1578	"Not calculated"	"Not calculated"				
+"adp"	"ADP"	"C10H12N5O10P2"	-3	"58-64-0"	"C10H15N5O10P2"	"Adenosine 5'-diphosphate"	"C00008"	"C10H13N5O10P2"	-2	425	"C10H13N5O10P2"	-2	425	-465.4	8.7				
+"adpglc"	"ADPglucose"	"C16H23N5O15P2"	-2		"C16H25N5O15P2"	"Adenosine diphosphoglucose"	"C00498"	"C16H23N5O15P2"	-2	587	"C16H23N5O15P2"	-2	587	-621.8	11.2				
+"adphep-DD"	"ADP-D-glycero-D-manno-heptose"	"C17H25N5O16P2"	-2	"119-61-9"	"C17H27N5016P2"	"ADP-D-glycero-D-manno-heptose"	"C06397"	"C17H25N5O16P2"	-2	617	"C17H25N5O16P2"	-2	617	-658.1	11.2				
+"adphep-LD"	"ADP-L-glycero-D-manno-heptose"	"C17H25N5O16P2"	-2		"C17H27N5O16P2"		"C06398"	"C17H25N5O16P2"	-2	617	"C17H25N5O16P2"	-2	617	-658.1	11.2				
+"adprib"	"ADPribose"	"C15H21N5O14P2"	-2		"C15H23N5O14P2"	"ADP-D-ribose/ ADP-ribose/ adenosine diphosphate ribose/ adenine-diphosphate-ribose"	"C00301"	"C15H21N5O14P2"	-2	557	"C15H21N5O14P2"	-2	557	-585	10.8				
+"ag"	"silver"	"Ag"	1	"7440-22-4"		"Argentum/ Ag/ Ag+"	"C06710"	"Ag"	1	108	"Ag"	1	108	"Not calculated"	"Not calculated"				
+"agdpcbi"	"Adenosine-GDP-cobinamide"	"C68H95CoN21O21P2"	-1			"Adenosine-GDP-cobinamide"	"C06510"	"C68H95CoN21O21P2"	-1	1662	"C68H95CoN21O21P2"	-1	1662	"Not calculated"	"Not calculated"				
+"agm"	"Agmatine"	"C5H16N4"	2	"306-60-5"	"C5H14N4"	"(4-Aminobutyl) guanidine"	"C00179"	"C5H16N4"	2	132	"C5H16N4"	2	132	6.6	4.5				
+"ahcys"	"S-Adenosyl-L-homocysteine"	"C14H20N6O5S"	0	"979-92-0"	"C14H20N6O5S"	"S-Adenosylhomocysteine"	"C00021"	"C14H20N6O5S"	0	384	"C14H20N6O5S"	0	384	-76.1	9				
+"ahdt"	"2-Amino-4-hydroxy-6-(erythro-1,2,3-trihydroxypropyl)dihydropteridine triphosphate"	"C9H12N5O13P3"	-4		"C9H16N5O13P3"	"6-(L-erythro-1,2-Dihydroxypropyl 3-triphosphate)-7,8-dihydropterin;/ 2-Amino-4-hydroxy-6-(erythro-1,2,3-trihydroxypropyl)dihydropteridine triphosphate;/ 6-[(1S,2R)-1,2-Dihydroxy-3-triphosphooxypropyl]-7,8-dihydropterin/ dihydroneopterin triphosphate/ H2-neopterin triphosphate"	"C04895"	"C9H12N5O13P3"	-4	492	"C9H12N5O13P3"	-4	492	-694.3	7.5				
+"aicar"	"5-Amino-1-(5-Phospho-D-ribosyl)imidazole-4-carboxamide"	"C9H13N4O8P"	-2	"3031-94-5"	"C9H15N4O8P"	"5-Phosphoribosyl-4-carbamoyl-5-aminoimidazole/ 1-(5'-Phosphoribosyl)-5-amino-4-imidazolecarboxamide/ 5'-Phosphoribosyl-5-amino-4-imidazolecarboxamide/ 5'-Phospho-ribosyl-5-amino-4-imidazole carboxamide/ AICAR/ 5-Aminoimidazole-4-carboxamide ribotide"	"C04677"	"C9H14N4O8P"	-1	337	"C9H14N4O8P"	-1	337	-335.5	5.5				
+"air"	"5-amino-1-(5-phospho-D-ribosyl)imidazole"	"C8H12N3O7P"	-2	"25635-88-5"	"C8H14N3O7P"	"Aminoimidazole ribotide/ AIR/ 1-(5'-Phosphoribosyl)-5-aminoimidazole/ 5'-Phosphoribosyl-5-aminoimidazole/ 1-(5-Phospho-D-ribosyl)-5-aminoimidazole"	"C03373"	"C8H13N3O7P"	-1	294	"C8H14N3O7P"	0	295	-296.9	4.9				
+"akg"	"2-Oxoglutarate"	"C5H4O5"	-2	"328-50-7"	"C5H6O5"	"Oxoglutaric acid/ 2-Ketoglutaric acid/ alpha-Ketoglutarate/ alpha-Ketoglutaric Acid"	"C00026"	"C5H4O5"	-2	144	"C5H4O5"	-2	144	-188.8	1.1				
+"alaala"	"D-Alanyl-D-alanine"	"C6H12N2O3"	0	"923-16-0"	"C6H12N2O3"	"DalaDala/ D-ala-D-ala"	"C00993"	"C6H12N2O3"	0	160	"C6H12N2O3"	0	160	-118.9	2.2				
+"ala-B"	"beta-Alanine"	"C3H7NO2"	0	"107-95-9"	"C3H7NO2"	"3-aminopropionic acid/ 3-Aminopropanoate"	"C00099"	"C3H7NO2"	0	89	"C3H7NO2"	0	89	-86.2	0.8				
+"alac-S"	"(S)-2-Acetolactate"	"C5H7O4"	-1		"C5H8O4"	"(S)-2-Hydroxy-2-methyl-3-oxobutanoate"	"C06010"	"C5H7O4"	-1	131	"C5H7O4"	-1	131	-152.8	1.3				
+"ala-D"	"D-Alanine"	"C3H7NO2"	0	"338-69-2"	"C3H7NO2"	"D-2-Aminopropionic acid"	"C00133"	"C3H7NO2"	0	89	"C3H7NO2"	0	89	-87.9	0.8				
+"ala-L"	"L-Alanine"	"C3H7NO2"	0	"56-41-7"	"C3H7NO2"	"L-2-Aminopropionic acid/ L-alpha-Alanine"	"C00041"	"C3H7NO2"	0	89	"C3H7NO2"	0	89	-87.9	0.8				
+"alatrna"	"L-Alanyl-tRNA(Ala)"	"C3H6NOR"	1			"L-Alanyl-tRNA"	"C00886"	"C13H18N6O4R"	1	323	"C13H18N6O4R"	1	323	"Not calculated"	"Not calculated"				
+"all6p"	"D-Allose 6-phosphate"	"C6H11O9P"	-2	"147-94-4"	"C6H13O9P"	"D-Allose 6-phosphate"	"C02962"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-429.6	4.2				
+"all-D"	"D-Allose"	"C6H12O6"	0	"2595-97-3"		"D-Allose"	"C01487"	"C6H12O6"	0	180	"C6H12O6"	0	180	-217.7	4.3				
+"alltn"	"Allantoin"	"C4H6N4O3"	0	"97-59-6"		"5-Ureidohydantoin/ Glyoxyldiureide/ Ureidohydantoin/ Paxyl/ Hemocane"	"C01551"	"C4H6N4O3"	0	158	"C4H6N4O3"	0	158	-116.2	5.7				
+"alltt"	"Allantoate"	"C4H7N4O4"	-1	"99-16-1"	"C4H8N4O4"	"Allantoic acid"	"C00499"	"C4H7N4O4"	-1	175	"C4H7N4O4"	-1	175	-167.4	5.5				
+"allul6p"	"Allulose 6-phosphate"	"C6H11O9P"	-2		"C6H13O9P"			"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-428.7	2				
+"alpp"	"applipoprotein"	"X"	0		"X"		"C01834"	"C3H6NOR2S"	1	106	"C3H6NOR2S"	1	106	"Not calculated"	"Not calculated"				
+"altrn"	"D-Altronate"	"C6H11O7"	-1		"C6H12O7"		"C00817"	"C6H11O7"	-1	195	"C6H11O7"	-1	195	-268.1	2.4				
+"amet"	"S-Adenosyl-L-methionine"	"C15H23N6O5S"	1	"29908-03-0"	"C15H23N6O5S"	"S-Adenosylmethionine/ Acylcarnitine"	"C00019"	"C15H23N6O5S"	1	399	"C15H23N6O5S"	1	399	-66.5	10.6				
+"ametam"	"S-Adenosylmethioninamine"	"C14H24N6O3S"	2			"S-Adenosyl-L-methioninamine/ (5-Deoxy-5-adenosyl)(3-aminopropyl)methylsulfonium salt"	"C01137"	"C14H24N6O3S"	2	356	"C14H24N6O3S"	2	356	13.2	10.6				
+"amob"	"S-Adenosyl-4-methylthio-2-oxobutanoate"	"C15H19N5O6S"	0		"C15H20N5O6S"		"C04425"	"C15H19N5O6S"	0	397	"C15H19N5O6S"	0	397	-91.1	10.7				
+"amp"	"AMP"	"C10H12N5O7P"	-2	"61-19-8"	"C10H14N5O7P"	"Adenosine 5'-monophosphate/ Adenylic acid/ Adenylate/ 5'-AMP/ 5'-Adenylic acid/ 5'-Adenosine monophosphate/ Adenosine 5'-phosphate"	"C00020"	"C10H13N5O7P"	-1	346	"C10H13N5O7P"	-1	346	-257.3	8.7				
+"anhgm"	"N-Acetyl-D-glucosamine(anhydrous)N-Acetylmuramic acid"	"C19H29N2O12"	-1		"C19H30N2O12"	"GlcNAc(anh)MurNAc"		"C19H29N2O12"	-1	477	"C19H29N2O12"	-1	477	-375.8	8.6				
+"anhgm3p"	"N-Acetyl-D-glucosamine(anhydrous)N-Acetylmuramyl-tripeptide"	"C34H52N6O19"	-2		"C34H54N6O19"	"GlcNAc(anh)MurNAcLalaDgluMdap"		"C34H52N6O19"	-2	848	"C34H52N6O19"	-2	848	-620.6	12.5				
+"anhgm4p"	"N-Acetyl-D-glucosamine(anhydrous)N-Acetylmuramyl-tetrapeptide"	"C37H57N7O20"	-2		"C37H59N7O20"	"GlcNAc(anh)MurNAcLalaDgluMdapDala"		"C37H57N7O20"	-2	919	"C37H57N7O20"	-2	919	-651.5	14				
+"anhm"	"1,6-anhydrous-N-Acetylmuramate"	"C11H16NO7"	-1		"C11H17NO7"	"(anh)MurNAc/ 1,6-anhydrous-N-Acetylmuramic acid"		"C11H16NO7"	-1	274	"C11H16NO7"	-1	274	-223.4	4.2				
+"anhm3p"	"1,6-anhydrous-N-Acetylmuramyl-tripeptide"	"C26H39N5O14"	-2		"C26H41N5O14"	"(anh)MurNAcLalaDgluMdap"		"C26H39N5O14"	-2	645	"C26H39N5O14"	-2	645	-468.2	8.8				
+"anhm4p"	"1,6-anhydrous-N-Acetylmuramyl-tetrapeptide"	"C29H44N6O15"	-2		"C29H46N6O15"	"(anh)MurNAcLalaDgluMdapDala"		"C29H44N6O15"	-2	716	"C29H44N6O15"	-2	716	-499.1	10.5				
+"anth"	"Anthranilate"	"C7H6NO2"	-1	"118-92-3"	"C7H7NO2"	"Anthranilic acid/ o-Aminobenzoic acid/ Vitamin L1/ 2-Aminobenzoate/ Vitamin L"	"C00108"	"C7H6NO2"	-1	136	"C7H6NO2"	-1	136	-48.7	2.7				
+"ap4a"	"P1,P4-Bis(5'-adenosyl) tetraphosphate"	"C20H24N10O19P4"	-4			"AppppA"	"C01260"	"C20H24N10O19P4"	-4	832	"C20H24N10O19P4"	-4	832	-865.7	17.4				
+"ap5a"	"P1,P5-Bis(5'-adenosyl) pentaphosphate"	"C20H24N10O22P5"	-5	"4637-56-3"		"Bis(5'-adenosyl) pentaphosphate/ P1,P5-Bis(5'-adenosyl) pentaphosphate"	"C04058"	"C20H24N10O22P5"	-5	911	"C20H24N10O22P5"	-5	911	-1073.8	17.5				
+"apg120"	"acyl phosphatidylglycerol (n-C12:0)"	"C42H80O11P"	-1		"C42H81O11P"	"X-3-phosphatidyl-1'-(3'-acyl)-glycerol/ 3-sn-phosphatidyl-1'-(3'-acyl)-glycerol"		"C42H80O11P"	-1	791	"C42H80O11P"	-1	791	-445.3	8.4				
+"apg140"	"acyl phosphatidylglycerol (n-C14:0)"	"C48H92O11P"	-1		"C48H93O11P"	"3-sn-phosphatidyl-1'-(3'-acyl)-glycerol/ X-3-phosphatidyl-1'-(3'-acyl)-glycerol"		"C48H92O11P"	-1	875	"C48H92O11P"	-1	875	-435.4	9.6				
+"apg141"	"acyl phosphatidylglycerol (n-C14:1)"	"C48H86O11P"	-1		"C48H87O11P"	"X-3-phosphatidyl-1'-(3'-acyl)-glycerol/ 3-sn-phosphatidyl-1'-(3'-acyl)-glycerol"		"C48H86O11P"	-1	869	"C48H86O11P"	-1	869	-368.4	9.4				
+"apg160"	"acyl phosphatidylglycerol (n-C16:0)"	"C54H104O11P"	-1		"C54H105O11P"	"X-3-phosphatidyl-1'-(3'-acyl)-glycerol/ 3-sn-phosphatidyl-1'-(3'-acyl)-glycerol"		"C54H104O11P"	-1	959	"C54H104O11P"	-1	959	-425.6	10.8				
+"apg161"	"acyl phosphatidylglycerol (n-C16:1)"	"C54H98O11P"	-1		"C54H99O11P"	"X-3-phosphatidyl-1'-(3'-acyl)-glycerol/ 3-sn-phosphatidyl-1'-(3'-acyl)-glycerol"		"C54H98O11P"	-1	953	"C54H98O11P"	-1	953	-358.5	10.5				
+"apg180"	"acyl phosphatidylglycerol (n-C18:0)"	"C60H116O11P"	-1			"X-3-phosphatidyl-1'-(3'-acyl)-glycerol/ 3-sn-phosphatidyl-1'-(3'-acyl)-glycerol"		"C60H116O11P"	-1	1043	"C60H116O11P"	-1	1043	-415.7	12				
+"apg181"	"acyl phosphatidylglycerol (n-C18:1)"	"C60H110O11P"	-1		"C60H111O11P"	"X-3-phosphatidyl-1'-(3'-acyl)-glycerol/ 3-sn-phosphatidyl-1'-(3'-acyl)-glycerol"		"C60H110O11P"	-1	1037	"C60H110O11P"	-1	1037	-348.7	11.6				
+"apoACP"	"apoprotein [acyl carrier protein]"	"RHO"	0					"HOR"	0	18	"HOR"	0	18	"Not calculated"	"Not calculated"				
+"aps"	"Adenosine 5'-phosphosulfate"	"C10H12N5O10PS"	-2		"C10H14N5O10PS"	"APS/ Adenylylsulfate"	"C00224"	"C10H12N5O10PS"	-2	425	"C10H12N5O10PS"	-2	425	-368.2	8.9				
+"ara5p"	"D-Arabinose 5-phosphate"	"C5H9O8P"	-2		"C5H11O8P"		"C01112"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-390.9	1.8				
+"arab-L"	"L-Arabinose"	"C5H10O5"	0	"147-81-9"			"C00259"	"C5H10O5"	0	150	"C5H10O5"	0	150	-179.4	3.9				
+"aragund"	"O-acetyl-rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	"C71H115N1O17P2"	-2		"C71H117N1O17P2"			"C71H115NO17P2"	-2	1315	"C71H115NO17P2"	-2	1315	-464	18.2				
+"arbt6p"	"Arbutin 6-phosphate"	"C12H15O10P"	-2		"C12H17O10P"	"Arbutin-6P"	"C06187"	"C12H16O10P"	-1	351	"C12H16O10P"	-1	351	-418.6	5				
+"arbtn"	"aerobactin minus Fe3"	"C22H33N4O13"	-3		"C22H36N4O13"	"aerobactin - a siderophore (Fe3 -scavenging molecule)"		"C22H33N4O13"	-3	561	"C22H33N4O13"	-3	561	-448.2	9				
+"arbtn-fe3"	"Aerobactin"	"C22H33FeN4O13"	0	"61-33-6"	"C22H33FeN4O13"		"C05554"	"C22H33FeN4O13"	0	617	"C22H33FeN4O13"	0	617	"Not calculated"	"Not calculated"				
+"arg-L"	"L-Arginine"	"C6H15N4O2"	1	"74-79-3"	"C6H14N4O2"	"(S)-2-Amino-5-guanidinovaleric acid/ Arginine/ Arg"	"C00062"	"C6H15N4O2"	1	175	"C6H15N4O2"	1	175	-73	4.5				
+"argsuc"	"N(omega)-(L-Arginino)succinate"	"C10H17N4O6"	-1		"C10H18N4O6"	"N-(L-Arginino)succinate/ L-Argininosuccinate/ L-Argininosuccinic acid/ L-Arginosuccinic acid"	"C03406"	"C10H17N4O6"	-1	289	"C10H17N4O6"	-1	289	-224.5	5.2				
+"argtrna"	"L-Arginyl-tRNA(Arg)"	"C6H14N4OR"	2			"L-Arginyl-tRNA"	"C02163"	"C16H26N9O4R"	2	409	"C16H26N9O4R"	2	409	"Not calculated"	"Not calculated"				
+"ascb6p"	"L-ascorbate-6-phosphate"	"C6H7O9P"	-2		"C6H9O9P"			"C6H7O9P"	-2	254	"C6H7O9P"	-2	254	-405.6	4.4				
+"ascb-L"	"L-Ascorbate"	"C6H8O6"	0	"50-81-7"	"C6H8O6"	"Ascorbate/ Ascorbic acid/ L-Ascorbic acid/ Vitamin C"	"C00072"	"C6H7O6"	-1	175	"C6H7O6"	-1	175	-193.8	4.4				
+"asn-L"	"L-Asparagine"	"C4H8N2O3"	0	"70-47-3"	"C4H8N2O3"	"Arg/ 2-Amino-3-carbamoylpropanoic acid/ 2-Aminosuccinamic acid"	"C00152"	"C4H8N2O3"	0	132	"C4H8N2O3"	0	132	-123.2	1.7				
+"asntrna"	"L-Asparaginyl-tRNA(Asn)"	"C4H7N2O2R"	1				"C03402"	"C14H19N7O5R"	1	366	"C14H19N7O5R"	1	366	"Not calculated"	"Not calculated"				
+"aso3"	"arsenite"	"AsO3"	-3		"H3AsO3"	"arsenite"	"C06697"	"H3O3As"	0	126	"H3O3As"	0	126	"Not calculated"	"Not calculated"				
+"aso4"	"arsenate"	"AsO4"	-3	"7778-39-4"	"H3AsO4"	"Arsenate/ Arsenic acid/ Orthoarsenic acid"	"C01478"	"HO4As"	-2	140	"HO4As"	-2	140	"Not calculated"	"Not calculated"				
+"asp-L"	"L-Aspartate"	"C4H6NO4"	-1	"56-84-8"	"C4H7NO4"	"L-Aspartic acid/ 2-aminosuccinic acid/ Asp"	"C00049"	"C4H6NO4"	-1	132	"C4H6NO4"	-1	132	-165.9	0.9				
+"aspsa"	"L-Aspartate 4-semialdehyde"	"C4H7NO3"	0		"C4H7NO3"	"Aspartate beta-semialdehyde/ L-Aspartic 4-semialdehyde"	"C00441"	"C4H7NO3"	0	117	"C4H7NO3"	0	117	-113.1	0.9				
+"asptrna"	"L-Aspartyl-tRNA(Asp)"	"C4H5NO3R"	0				"C02984"	"C14H17N6O6R"	0	366	"C14H17N6O6R"	0	366	"Not calculated"	"Not calculated"				
+"athr-L"	"L-Allo-threonine"	"C4H9NO3"	0	"28954-12-3"	"C4H9NO3"	"L-Allothreonine"	"C05519"	"C4H9NO3"	0	119	"C4H9NO3"	0	119	-124.2	1.1				
+"atp"	"ATP"	"C10H12N5O13P3"	-4	"56-65-5"	"C10H16N5O13P3"	"Adenosine 5'-triphosphate/ 5'-adenylate triphosphate"	"C00002"	"C10H13N5O13P3"	-3	504	"C10H13N5O13P3"	-3	504	-673.5	8.7				
+"b2coa"	"Crotonoyl-CoA"	"C25H36N7O17P3S"	-4	"102680-35-3"	"C25H40N7O17P3S"	"2-Butenoyl-CoA/ But-2-enoyl-CoA/ Crotonyl-CoA/ trans-But-2-enoyl-CoA"	"C00877"	"C25H37N7O17P3S"	-3	832	"C25H37N7O17P3S"	-3	832	-760.5	10.2				
+"bbtcoa"	"gamma-butyrobetainyl-CoA"	"C28H46N8O17P3S"	-3			"4-N-trimethylamino-butyrate CoA"		"C28H47N8O17P3S"	-2	892	"C28H47N8O17P3S"	-2	892	-725.7	11.8				
+"betald"	"Betaine aldehyde"	"C5H12NO"	1				"C00576"	"C5H12NO"	1	102	"C5H12NO"	1	102	21.7	5.9				
+"bglycogen"	"branching glycogen"	"C6H10O5"	0		"C6H10O5"			"C6H10O5"	0	162	"C6H10O5"	0	162	-167.2	17				
+"btal"	"Butanal"	"C4H8O"	0	"123-72-8"		"Butyraldehyde"	"C01412"	"C4H8O"	0	72	"C4H8O"	0	72	-30.7	0.7				
+"btcoa"	"Butanoyl-CoA"	"C25H38N7O17P3S"	-4		"C25H42N7O17P3S"	"Butyryl-CoA"	"C00136"	"C25H39N7O17P3S"	-3	834	"C25H39N7O17P3S"	-3	834	-781.3	10.2				
+"btn"	"Biotin"	"C10H15N2O3S"	-1	"58-85-5"	"C10H16N2O3S"	"Vitamin B7/ D-Biotin/ Vitamin H/ Coenzyme R"	"C00120"	"C10H15N2O3S"	-1	243	"C10H15N2O3S"	-1	243	-109.8	6.4				
+"btnso"	"d-biotin d-sulfoxide"	"C10H15N2O4S"	-1		"C10H16N2O4S"			"C10H15N2O4S"	-1	259	"C10H15N2O4S"	-1	259	"Not calculated"	"Not calculated"				
+"but"	"Butyrate (n-C4:0)"	"C4H7O2"	-1	"107-92-6"	"C4H8O2"	"Butanoate/ Butyric acid/ Butanoic acid"	"C00246"	"C4H7O2"	-1	87	"C4H7O2"	-1	87	-83.5	0.6				
+"but2eACP"	"But-2-enoyl-[acyl-carrier protein]"	"C15H25N2O8PRS"	-1	"128-33-6"			"C04246"	"C15H25N2O8PRS"	-1	425	"C15H25N2O8PRS"	-1	425	"Not calculated"	"Not calculated"				
+"butACP"	"Butyryl-ACP (n-C4:0ACP)"	"C15H27N2O8PRS"	-1	08/06/83		"Butyryl-[acp]/ Butyryl-[acyl-carrier protein]"	"C05745"	"C15H27N2O8PRS"	-1	427	"C15H27N2O8PRS"	-1	427	"Not calculated"	"Not calculated"				
+"butso3"	"butanesulfonate"	"C4H9O3S"	-1		"C4H10O3S"			"C4H9O3S"	-1	137	"C4H9O3S"	-1	137	-122.4	2.3				
+"ca2"	"Calcium"	"Ca"	2	"7440-70-2"		"Ca2+"	"C00076"	"Ca"	2	40	"Ca"	2	40	"Not calculated"	"Not calculated"				
+"camp"	"cAMP"	"C10H11N5O6P"	-1			"Adenosine 3[-,5[-cyclic monophosphate/ Cyclic adenylic acid/ 3',5'-Cyclic AMP"	"C00575"	"C10H11N5O6P"	-1	328	"C10H11N5O6P"	-1	328	-192.1	10.9				
+"cbasp"	"N-Carbamoyl-L-aspartate"	"C5H6N2O5"	-2		"C5H8N2O5"		"C00438"	"C5H6N2O5"	-2	174	"C5H6N2O5"	-2	174	-204.2	2.8				
+"cbi"	"Cobinamide"	"C48H72CoN11O8"	0	"1867-62-5"		"Cobinamide"	"C05774"	"C48H72CoN11O8"	0	989	"C48H72CoN11O8"	0	989	"Not calculated"	"Not calculated"				
+"cbl1"	"Cob(I)alamin"	"C62H88CoN13O14P"	-1	"18534-66-2"		"Cbl/ Vitamin B12s"	"C00853"	"C62H88CoN13O14P"	-1	1328	"C62H88CoN13O14P"	-1	1328	"Not calculated"	"Not calculated"				
+"cbp"	"Carbamoyl phosphate"	"CH2NO5P"	-2		"CH4NO5P"		"C00169"	"CH2NO5P"	-2	140	"CH2NO5P"	-2	140	-300.6	1.6				
+"cd2"	"Cadmium"	"Cd"	2		"Cd"		"C01413"	"Cd"	2	112	"Cd"	2	112	"Not calculated"	"Not calculated"				
+"cddec5eACP"	"cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)"	"C23H41N2O8PRS"	-1					"C23H41N2O8PRS"	-1	537	"C23H41N2O8PRS"	-1	537	"Not calculated"	"Not calculated"				
+"cdec3eACP"	"cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)"	"C21H37N2O8PRS"	-1					"C21H37N2O8PRS"	-1	509	"C21H37N2O8PRS"	-1	509	"Not calculated"	"Not calculated"				
+"cdp"	"CDP"	"C9H12N3O11P2"	-3	"63-38-7"	"C9H15N3O11P2"	"Cytidine 5'-diphosphate/ Cytidine diphosphate"	"C00112"	"C9H13N3O11P2"	-2	401	"C9H13N3O11P2"	-2	401	-552.8	5.5				
+"cdpdddecg"	"CDP-1,2-didodecanoylglycerol"	"C36H63N3O15P2"	-2		"C36H65N3O15P2"	"CDP-1,2-diacylglycerol;/ CDPdiacylglycerol;/ 1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate"	"C00269"	"C36H63N3O15P2"	-2	839	"C36H63N3O15P2"	-2	839	-649.4	7.9				
+"cdpdhdec9eg"	"CDP-1,2-dihexadec-9-enoylglycerol"	"C44H75N3O15P2"	-2		"C44H77N3O15P2"	"1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate/ CDP-1,2-diacylglycerol;/ CDPdiacylglycerol;"	"C00269"	"C44H75N3O15P2"	-2	947	"C44H75N3O15P2"	-2	947	-591.5	8.9				
+"cdpdhdecg"	"CDP-1,2-dihexadecanoylglycerol"	"C44H79N3O15P2"	-2		"C44H81N3O15P2"	"CDP-1,2-diacylglycerol;/ CDPdiacylglycerol;/ 1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate"	"C00269"	"C44H79N3O15P2"	-2	951	"C44H79N3O15P2"	-2	951	-636.2	9.1				
+"cdpdodec11eg"	"CDP-1,2-dioctadec-11-enoylglycerol"	"C48H83N3O15P2"	-2		"C48H85N3O15P2"	"CDPdiacylglycerol;/ 1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate/ CDP-1,2-diacylglycerol;"	"C00269"	"C48H83N3O15P2"	-2	1003	"C48H83N3O15P2"	-2	1003	-584.9	9.5				
+"cdpdodecg"	"CDP-1,2-dioctadecanoylglycerol"	"C48H87N3O15P2"	-2		"C48H89N3O15P2"	"1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate/ CDPdiacylglycerol;/ CDP-1,2-diacylglycerol;"	"C00269"	"C48H87N3O15P2"	-2	1007	"C48H87N3O15P2"	-2	1007	-629.6	9.8				
+"cdpdtdec7eg"	"CDP-1,2-ditetradec-7-enoylglycerol"	"C40H67N3O15P2"	-2		"C40H69N3O15P2"	"CDPdiacylglycerol;/ CDP-1,2-diacylglycerol;/ 1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate"	"C00269"	"C40H67N3O15P2"	-2	891	"C40H67N3O15P2"	-2	891	-598.1	8.4				
+"cdpdtdecg"	"CDP-1,2-ditetradecanoylglycerol"	"C40H71N3O15P2"	-2		"C40H73N3O15P2"	"CDP-1,2-diacylglycerol;/ 1,2-Diacyl-sn-glycero-3-cytidine-5'-diphosphate/ CDPdiacylglycerol;"	"C00269"	"C40H71N3O15P2"	-2	895	"C40H71N3O15P2"	-2	895	-642.8	8.5				
+"cechddd"	"cis-3-(3-carboxyethyl)-3,5-cyclohexadiene-1,2-diol"	"C9H11O4"	-1					"C9H11O4"	-1	183	"C9H11O4"	-1	183	-122	3.1				
+"cenchddd"	"cis-3-(3-carboxyethenyl)-3,5-cyclohexadiene-1,2-diol"	"C9H9O4"	-1					"C9H9O4"	-1	181	"C9H9O4"	-1	181	-105.9	4.1				
+"cgly"	"Cys-Gly"	"C5H10N2O3S"	0	"19246-18-5"		"L-Cysteinylglycine"	"C01419"	"C5H10N2O3S"	0	178	"C5H10N2O3S"	0	178	-114.1	2.7				
+"chol"	"Choline"	"C5H14NO"	1	"123-41-1"		"Bilineurine"	"C00114"	"C5H14NO"	1	104	"C5H14NO"	1	104	12.2	5.9				
+"chor"	"chorismate"	"C10H8O6"	-2	"55508-12-8"	"C10H10O6"	"chorismic acid"	"C00251"	"C10H8O6"	-2	224	"C10H8O6"	-2	224	-170.3	3.9				
+"cinnm"	"trans-Cinnamate"	"C9H7O2"	-1	10/03/40		"trans-Cinnamic acid"	"C00423"	"C9H7O2"	-1	147	"C9H7O2"	-1	147	-31.9	3				
+"cit"	"Citrate"	"C6H5O7"	-3	"77-92-9"	"C6H8O7"	"Citric acid/ 2-Hydroxytricarballylic acid/ 2/ 2-Hydroxy-1/ 3-propanetricarboxylic acid"	"C00158"	"C6H5O7"	-3	189	"C6H5O7"	-3	189	-280.3	1.4				
+"citr-L"	"L-Citrulline"	"C6H13N3O3"	0	"372-75-8"	"C6H13N3O3"	"2-Amino-5-ureidovaleric acid/ N5-(aminocarbonyl)-L-Ornithine/ Citrulline"	"C00327"	"C6H13N3O3"	0	175	"C6H13N3O3"	0	175	-124.1	2.9				
+"ckdo"	"CMP-3-deoxy-D-manno-octulosonate"	"C17H24N3O15P"	-2			"CMP-KDO"		"C17H24N3O15P"	-2	541	"C17H24N3O15P"	-2	541	-578.4	8.3				
+"cl"	"Chloride"	"Cl"	-1			"Cl-"	"C00115"	"Cl"	-1	35	"Cl"	-1	35	"Not calculated"	"Not calculated"				
+"clpn120"	"cardiolipin (tetradodecanoyl, n-C12:0)"	"C57H108O17P2"	-2		"C57H110O17P2"	"Diphosphatidylglycerol;/ 1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol"	"C05980"	"C57H108O17P2"	-2	1126	"C57H108O17P2"	-2	1126	-732.7	11.5				
+"clpn140"	"cardiolipin (tetratetradecanoyl, n-C14:0)"	"C65H124O17P2"	-2		"C65H126O17P2"	"1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol/ Diphosphatidylglycerol;"	"C05980"	"C65H124O17P2"	-2	1238	"C65H124O17P2"	-2	1238	-719.6	13				
+"clpn141"	"cardiolipin (tetratetradec-7-enoyl, n-C14:1)"	"C65H116O17P2"	-2		"C65H118O17P2"	"1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol/ Diphosphatidylglycerol;"	"C05980"	"C65H116O17P2"	-2	1230	"C65H116O17P2"	-2	1230	-630.2	12.8				
+"clpn160"	"cardiolipin (tetrahexadecanoyl, n-C16:0)"	"C73H140O17P2"	-2		"C73H142O17P2"	"Diphosphatidylglycerol;/ 1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol"	"C05980"	"C73H140O17P2"	-2	1350	"C73H140O17P2"	-2	1350	-706.4	14.6				
+"clpn161"	"cardiolipin (tetrahexadec-9-enoyl, n-C16:1)"	"C73H132O17P2"	-2		"C73H134O17P2"	"Diphosphatidylglycerol;/ 1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol"	"C05980"	"C73H132O17P2"	-2	1342	"C73H132O17P2"	-2	1342	-617.1	14.2				
+"clpn180"	"cardiolipin (tetraoctadecanoyl, n-C18:0)"	"C81H156O17P2"	-2		"C81H158O17P2"	"Diphosphatidylglycerol;/ 1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol"	"C05980"	"C81H156O17P2"	-2	1462	"C81H156O17P2"	-2	1462	-693.3	16.2				
+"clpn181"	"cardiolipin (tetraoctadec-11-enoyl, n-C18:1)"	"C81H148O17P2"	-2		"C81H150O17P2"	"1',3'-Bis(1,2-diacyl-sn-glycero-3-phospho)-sn-glycerol/ Diphosphatidylglycerol;"	"C05980"	"C81H148O17P2"	-2	1454	"C81H148O17P2"	-2	1454	-603.9	15.6				
+"cmp"	"CMP"	"C9H12N3O8P"	-2		"C9H14N3O8P"	"Cytidine-5'-monophosphate/ Cytidylic acid/ 3'-Cytidylic Acid/ Cytidine-2'(3')-monophosphoric acid/ Cytidine-2[(3[)-monophosphoric acid"	"C00055"	"C9H13N3O8P"	-1	322	"C9H13N3O8P"	-1	322	-344.7	5.5				
+"co2"	"CO2"	"CO2"	0	"124-38-9"		"Carbonic anhydride/ Carbon dioxide"	"C00011"	"CO2"	0	44	"CO2"	0	44	-92.3	1.5				
+"coa"	"Coenzyme A"	"C21H32N7O16P3S"	-4	"85-61-0"	"C21H36N7O16P3S"	"CoA/ CoA-SH/ CoASH"	"C00010"	"C21H33N7O16P3S"	-3	764	"C21H33N7O16P3S"	-3	764	-750.9	9.8				
+"cobalt2"	"Co2+"	"Co"	2	"7440-48-4"		"Cobalt"	"C00175"	"Co"	2	59	"Co"	2	59	"Not calculated"	"Not calculated"				
+"colipa"	"core oligosaccharide lipid A"	"C176H303N2O100P4"	-11		"C176H314N2O100P4"	"hgggagicolipa/ heptosyl-(1->6)-glucosyl-(1->2)-glucosyl-(1->3)/galactosyl-(1->6)-glucosyl-(1->3)-inner core oligosaccharide lipid A"		"C176H307N2O100P4"	-7	4171	"C176H307N2O100P4"	-7	4171	-3632.6	60				
+"cpe160"	"cyclopropane phosphatidylethanolamine (dihexadec-9,10-cyclo-anoyl, n-C16:0 cyclo)"	"C39H74N1O8P1"	0		"C39H74N1O8P1"			"C39H73NO8P"	-1	714	"C39H73NO8P"	-1	714	-265.2	12.1				
+"cpe180"	"cyclopropane phosphatidylethanolamine (dioctadec-11,12-cyclo-anoyl, n-C18:0 cyclo)"	"C43H82N1O8P1"	0		"C43H82N1O8P1"			"C43H81NO8P"	-1	770	"C43H81NO8P"	-1	770	-258.6	12.6				
+"cpg160"	"cyclopropane phosphatidylglycerol (dihexadec-9,10-cyclo-anoyl, n-C16:0 cyclo)"	"C40H74O10P1"	-1		"C40H75O10P1"			"C40H74O10P"	-1	745	"C40H74O10P"	-1	745	-364.2	11.9				
+"cpg180"	"cyclopropane phosphatidylglycerol (dioctadec-11,12-cyclo-anoyl, n-C18:0 cyclo)"	"C44H82O10P1"	-1		"C44H83O10P1"			"C44H82O10P"	-1	801	"C44H82O10P"	-1	801	-357.6	12.3				
+"cpgn"	"coprogen"	"C35H52N6O13Fe"	-1		"C35H53N6O13Fe"			"C35H52N6O13Fe"	-1	820	"C35H52N6O13Fe"	-1	820	"Not calculated"	"Not calculated"				
+"cpgn-un"	"coprogen unloaded (no Fe(III))"	"C35H52N6O13"	-4					"C35H56N6O13"	0	768	"C35H56N6O13"	0	768	-339.2	13.8				
+"cpppg3"	"Coproporphyrinogen III"	"C36H40N4O8"	-4	"2624-63-7"	"C36H44N4O8"		"C03263"	"C36H40N4O8"	-4	656	"C36H40N4O8"	-4	656	"Not calculated"	"Not calculated"				
+"crn"	"L-Carnitine"	"C7H15NO3"	0	"541-15-1"	"C7H15NO3"	"L-gamma-Trimethyl-beta-hydroxybutyrobetaine/ Vitamin BT/ (S)-Carnitine/ 3-Carboxy-2-hydroxy-N/ N-trimethyl-1-propanaminium"	"C00318"	"C7H15NO3"	0	161	"C7H15NO3"	0	161	-65.8	5.9				
+"crncoa"	"L-Carnitinyl-CoA"	"C28H46N8O18P3S"	-3					"C28H47N8O18P3S"	-2	908	"C28H47N8O18P3S"	-2	908	-763.7	11.8				
+"crn-D"	"D-Carnitine"	"C7H15NO3"	0		"C7H15NO3"	"gamma-Trimethyl-hydroxybutyrobetaine;/ Carnitine;/ 3-Hydroxy-4-trimethylammoniobutanoate"	"C00487"	"C7H15NO3"	0	161	"C7H15NO3"	0	161	-65.8	5.9				
+"crnDcoa"	"D-carnitinyl-CoA"	"C28H46N8O18P3S"	-3					"C28H47N8O18P3S"	-2	908	"C28H47N8O18P3S"	-2	908	-763.7	11.8				
+"csn"	"Cytosine"	"C4H5N3O"	0	"71-30-7"			"C00380"	"C4H5N3O"	0	111	"C4H5N3O"	0	111	-9.5	4				
+"ctbt"	"crotonobetaine"	"C7H13NO2"	0	"6666-46-2"		"4-(Trimethylammonio)but-2-enoate"	"C04114"	"C7H13NO2"	0	143	"C7H13NO2"	0	143	-7	6.1				
+"ctbtcoa"	"crotonobetainyl-CoA"	"C28H44N8O17P3S"	-3			"4-N-trimethylamino-2-butenoate CoA"		"C28H45N8O17P3S"	-2	890	"C28H45N8O17P3S"	-2	890	-704.9	11.8				
+"ctp"	"CTP"	"C9H12N3O14P3"	-4	"65-47-4"	"C9H16N3O14P3"	"Cytidine 5'-triphosphate/ Cytidine triphosphate"	"C00063"	"C9H12N3O14P3"	-4	480	"C9H12N3O14P3"	-4	480	-751.4	5.5				
+"cu"	"Cu+"	"Cu"	1			"Copper"		"Cu"	1	63	"Cu"	1	63	"Not calculated"	"Not calculated"				
+"cu2"	"Cu2+"	"Cu"	2			"Copper"		"Cu"	2	63	"Cu"	2	63	"Not calculated"	"Not calculated"				
+"cyan"	"Hydrogen cyanide"	"CHN"	0	12/05/57	"CHN"	"CN-/ Cyano"	"C01326"	"CHN"	0	27	"CHN"	0	27	28.6	19.3				
+"cynt"	"Cyanate"	"CNO"	-1	05/03/20	"CHNO"	"Cyanate/ Cyanic acid"	"C01417"	"CNO"	-1	42	"CNO"	-1	42	-23.3	15				
+"cys-D"	"D-Cysteine"	"C3H7NO2S"	0	01/07/21	"C3H7NO2S"	"D-Amino-3-mercaptopropionic acid"	"C00793"	"C3H7NO2S"	0	121	"C3H7NO2S"	0	121	-83.3	1.9				
+"cys-L"	"L-Cysteine"	"C3H7NO2S"	0	"52-90-4"	"C3H7NO2S"	"L-2-Amino-3-mercaptopropionic acid/ Cys"	"C00097"	"C3H7NO2S"	0	121	"C3H7NO2S"	0	121	-83.3	1.9				
+"cyst-L"	"L-Cystathionine"	"C7H14N2O4S"	0	"56-88-2"	"C7H14N2O4S"		"C02291"	"C7H14N2O4S"	0	222	"C7H14N2O4S"	0	222	-154.8	2.6				
+"cystrna"	"L-Cysteinyl-tRNA(Cys)"	"C3H6NOSR"	1				"C03125"	"C13H18N6O4RS"	1	355	"C13H17N6O4RS"	0	354	"Not calculated"	"Not calculated"				
+"cytd"	"Cytidine"	"C9H13N3O5"	0	"65-46-3"		"1-beta-ribofuranosylosine/ cytosine riboside/ 4-amino-1-beta-D-ribofuranosyl-2(1H)-pyrimidinone"	"C00475"	"C9H13N3O5"	0	243	"C9H13N3O5"	0	243	-132.8	5.5				
+"dad-2"	"Deoxyadenosine"	"C10H13N5O3"	0	09/08/58		"dA/ 2'-Deoxyadenosine"	"C00559"	"C10H13N5O3"	0	251	"C10H13N5O3"	0	251	-5.4	8.6				
+"dad-5"	"5'-Deoxyadenosine"	"C10H13N5O3"	0				"C05198"	"C10H13N5O3"	0	251	"C10H13N5O3"	0	251	-9.2	8.7				
+"dadp"	"dADP"	"C10H12N5O9P2"	-3		"C10H15N5O9P2"	"2'-Deoxyadenosine 5'-diphosphate"	"C00206"	"C10H13N5O9P2"	-2	409	"C10H13N5O9P2"	-2	409	-425.4	8.6				
+"damp"	"dAMP"	"C10H12N5O6P"	-2	"653-63-4"	"C10H14N5O6P"	"2'-Deoxyadenosine 5'-phosphate/ 2'-Deoxyadenosine 5'-monophosphate/ Deoxyadenylic acid/ Deoxyadenosine monophosphate"	"C00360"	"C10H13N5O6P"	-1	330	"C10H13N5O6P"	-1	330	-217.3	8.6				
+"dann"	"7,8-Diaminononanoate"	"C9H21N2O2"	1		"C9H20N2O2"		"C01037"	"C9H21N2O2"	1	189	"C9H21N2O2"	1	189	-80.9	1.8				
+"datp"	"dATP"	"C10H12N5O12P3"	-4	"1927-31-7"	"C10H16N5O12P3"	"2'-Deoxyadenosine 5'-triphosphate/ Deoxyadenosine 5'-triphosphate/ Deoxyadenosine triphosphate"	"C00131"	"C10H13N5O12P3"	-3	488	"C10H13N5O12P3"	-3	488	-633.6	8.6				
+"db4p"	"3,4-dihydroxy-2-butanone 4-phosphate"	"C4H7O6P"	-2		"C4H9O6P"			"C4H8O6P"	-1	183	"C4H8O6P"	-1	183	-319.9	0.9				
+"dc2coa"	"trans-Dec-2-enoyl-CoA"	"C31H48N7O17P3S"	-4		"C31H52N7O17P3S"	"(2E)-Decenoyl-CoA"	"C05275"	"C31H49N7O17P3S"	-3	916	"C31H49N7O17P3S"	-3	916	-750.7	10.5				
+"dca"	"Decanoate (n-C10:0)"	"C10H19O2"	-1	"334-48-5"	"C10H20O2"	"n-Capric acid/ Decylic acid/ Decanoic acid"	"C01571"	"C10H19O2"	-1	171	"C10H19O2"	-1	171	-73.6	1.8				
+"dcaACP"	"Decanoyl-ACP (n-C10:0ACP)"	"C21H39N2O8PRS"	-1			"Decanoyl-[acyl-carrier protein]/ Decanoyl-[acp]"	"C05755"	"C21H39N2O8PRS"	-1	511	"C21H39N2O8PRS"	-1	511	"Not calculated"	"Not calculated"				
+"dcacoa"	"Decanoyl-CoA (n-C10:0CoA)"	"C31H50N7O17P3S"	-4		"C31H54N7O17P3S"		"C05274"	"C31H51N7O17P3S"	-3	918	"C31H51N7O17P3S"	-3	918	-771.5	10.5				
+"dcamp"	"N6-(1,2-Dicarboxyethyl)-AMP"	"C14H14N5O11P"	-4		"C14H18N5O11P"	"Adenylosuccinate/ Adenylosuccinic acid"	"C03794"	"C14H15N5O11P"	-3	460	"C14H15N5O11P"	-3	460	-408.7	8.8				
+"dcdp"	"dCDP"	"C9H12N3O10P2"	-3		"C9H15N3O10P2"	"2'-Deoxycytidine diphosphate/ 2'-Deoxycytidine 5'-diphosphate"	"C00705"	"C9H13N3O10P2"	-2	385	"C9H13N3O10P2"	-2	385	-512.9	5.2				
+"dcmp"	"dCMP"	"C9H12N3O7P"	-2	"1032-65-1"	"C9H14N3O7P"	"Deoxycytidylic acid/ Deoxycytidine monophosphate/ Deoxycytidylate/ 2'-Deoxycytidine 5'-monophosphate"	"C00239"	"C9H13N3O7P"	-1	306	"C9H13N3O7P"	-1	306	-304.8	5.2				
+"dctp"	"dCTP"	"C9H12N3O13P3"	-4	"2056-98-6"	"C9H16N3O13P3"	"Deoxycytidine 5'-triphosphate/ Deoxycytidine triphosphate/ 2'-Deoxycytidine 5'-triphosphate"	"C00458"	"C9H13N3O13P3"	-3	464	"C9H13N3O13P3"	-3	464	-721	5.3				
+"dcyt"	"Deoxycytidine"	"C9H13N3O4"	0	"951-77-9"		"dC/ 2'-Deoxycytidine"	"C00881"	"C9H13N3O4"	0	227	"C9H13N3O4"	0	227	-92.9	5.2				
+"dd2coa"	"trans-Dodec-2-enoyl-CoA"	"C33H52N7O17P3S"	-4		"C33H56N7O17P3S"	"2-trans-Dodecenoyl-CoA"	"C03221"	"C33H53N7O17P3S"	-3	944	"C33H53N7O17P3S"	-3	944	-747.4	10.6				
+"ddca"	"Dodecanoate (n-C12:0)"	"C12H23O2"	-1	07/07/43	"C12H24O2"	"Dodecylcarboxylate/ Lauric acid/ Dodecanoic acid"	"C02679"	"C12H23O2"	-1	199	"C12H23O2"	-1	199	-70.3	2.2				
+"ddcaACP"	"Dodecanoyl-ACP (n-C12:0ACP)"	"C23H43N2O8PRS"	-1			"Dodecanoyl-[acyl-carrier protein]/ Fatty Acid C12 ACP/ Lauroyl ACP/ Dodecanoyl-[acp]"	"C05223"	"C23H43N2O8PRS"	-1	539	"C23H43N2O8PRS"	-1	539	"Not calculated"	"Not calculated"				
+"ddcacoa"	"Dodecanoyl-CoA (n-C12:0CoA)"	"C33H54N7O17P3S"	-4	"6244-92-4"	"C33H58N7O17P3S"	"Lauroyl-CoA/ Lauroyl coenzyme A"	"C01832"	"C33H55N7O17P3S"	-3	946	"C33H55N7O17P3S"	-3	946	-768.2	10.6				
+"dgdp"	"dGDP"	"C10H12N5O10P2"	-3			"2'-Deoxyguanosine 5'-diphosphate"	"C00361"	"C10H13N5O10P2"	-2	425	"C10H13N5O10P2"	-2	425	-475.2	7.7				
+"dgmp"	"dGMP"	"C10H12N5O7P"	-2	04/05/02	"C10H14N5O7P"	"2'-Deoxyguanosine 5'-monophosphate/ 2'-Deoxyguanosine 5'-phosphate/ Deoxyguanylic acid/ Deoxyguanosine monophosphate"	"C00362"	"C10H13N5O7P"	-1	346	"C10H13N5O7P"	-1	346	-267	7.7				
+"dgsn"	"Deoxyguanosine"	"C10H13N5O4"	0	07/09/61		"2'-deoxyguanosine hemihydrate/ 2'-Deoxyguanosine"	"C00330"	"C10H13N5O4"	0	267	"C10H13N5O4"	0	267	-55.1	7.7				
+"dgtp"	"dGTP"	"C10H12N5O13P3"	-4	"2564-35-4"	"C10H16N5O13P3"	"2'-Deoxyguanosine 5'-triphosphate/ Deoxyguanosine 5'-triphosphate/ Deoxyguanosine triphosphate"	"C00286"	"C10H12N5O13P3"	-4	504	"C10H12N5O13P3"	-4	504	-673.8	7.7				
+"dha"	"Dihydroxyacetone"	"C3H6O3"	0	"96-26-4"		"Glycerone/ 1/ 3-Dihydroxyacetone/ 3-Dihydroxy-2-propanone/ 3-Dihydroxypropan-2-one"	"C00184"	"C3H6O3"	0	90	"C3H6O3"	0	90	-107.9	1				
+"dhap"	"Dihydroxyacetone phosphate"	"C3H5O6P"	-2	04/05/57	"C3H7O6P"	"Glycerone phosphate"	"C00111"	"C3H6O6P"	-1	169	"C3H6O6P"	-1	169	-319.8	0.9				
+"dhcinnm"	"2,3-dihydroxicinnamic acid"	"C9H7O4"	-1					"C9H7O4"	-1	179	"C9H7O4"	-1	179	-110.7	3.7				
+"dhf"	"7,8-Dihydrofolate"	"C19H19N7O6"	-2	"4033-27-6"	"C19H21N7O6"	"7,8-Dihydrofolic acid/ Dihydrofolate/ Dihydrofolic acid"	"C00415"	"C19H19N7O6"	-2	441	"C19H19N7O6"	-2	441	-109.4	8.7				
+"dhmptp"	"dihydromonapterin-triphosphate"	"C9H12N5O13P3"	-4		"C9H16N5O13P3"	"6-(L-threo-1',2',3'-trihydroxypropyl)-7,8-dihydropterin-3'-triphosphate/ H2MTP"		"C9H12N5O13P3"	-4	492	"C9H12N5O13P3"	-4	492	-694.3	7.5				
+"dhna"	"1,4-Dihydroxy-2-naphthoate"	"C11H7O4"	-1		"C11H8O4"		"C03657"	"C11H7O4"	-1	203	"C11H7O4"	-1	203	-122.8	6.3				
+"dhnpt"	"Dihydroneopterin"	"C9H13N5O4"	0		"C9H13N5O4"	"2-Amino-4-hydroxy-6-(D-erythro-1,2,3-trihydroxypropyl)-7,8-dihydropteridine/ 7,8-dihydronepterin"	"C04874"	"C9H13N5O4"	0	255	"C9H13N5O4"	0	255	-75.6	7.5				
+"dhor-S"	"(S)-Dihydroorotate"	"C5H5N2O4"	-1	"5988-19-2"	"C5H6N2O4"	"L-Dihydroorotate/ L-Dihydroorotic acid/ Dihydro-L-orotic acid/ (S)-4/ 5-Dihydroorotate"	"C00337"	"C5H5N2O4"	-1	157	"C5H5N2O4"	-1	157	-151.5	4.2				
+"dhpmp"	"Dihydroneopterin monophosphate"	"C9H12N5O7P"	-2		"C9H14N5O7P"	"Dihydroneopterin phosphate/ 7' 8-dihydronepterin 3'-phosphate/ 2-Amino-4-hydroxy-6-(erythro-1,2,3-trihydroxypropyl)"	"C05925"	"C9H13N5O7P"	-1	334	"C9H13N5O7P"	-1	334	-287.5	7.5				
+"dhpppn"	"3-(2,3-Dihydroxyphenyl)propanoate"	"C9H9O4"	-1			"3-(2,3-Dihydroxyphenyl)propanoate"	"C04044"	"C9H9O4"	-1	181	"C9H9O4"	-1	181	-126.8	3.1				
+"dhpt"	"Dihydropteroate"	"C14H13N6O3"	-1		"C14H14N6O3"	"7,8-Dihydropteroate"	"C00921"	"C14H13N6O3"	-1	313	"C14H13N6O3"	-1	313	-2.2	8				
+"dhptd"	"4,5-dihydroxy-2,3-pentanedione"	"C5H8O4"	0				"C11838"	"C5H8O4"	0	132	"C5H8O4"	0	132	-133.8	1.5				
+"didp"	"dIDP"	"C10H11N4O10P2"	-3		"C10H14N4O10P2"	"2'-Deoxyinosine-5'-diphosphate/ 2'-Deoxyinosine 5'-diphosphate"	"C01344"	"C10H12N4O10P2"	-2	410	"C10H12N4O10P2"	-2	410	-480.7	7.7				
+"dimp"	"dIMP"	"C10H11N4O7P"	-2		"C10H13N4O7P"	"2'-Deoxyinosine 5'-phosphate"	"C06196"	"C10H13N4O7P"	0	332	"C10H13N4O7P"	0	332	-268.2	7.9				
+"din"	"Deoxyinosine"	"C10H12N4O4"	0	"890-38-0"		"2'-deoxy-inosine"	"C05512"	"C10H12N4O4"	0	252	"C10H12N4O4"	0	252	-60.7	7.7				
+"ditp"	"dITP"	"C10H11N4O13P3"	-4		"C10H15N4O13P3"	"2'-Deoxyinosine-5'-triphosphate/ 2'-Deoxyinosine 5'-triphosphate"	"C01345"	"C10H12N4O13P3"	-3	489	"C10H12N4O13P3"	-3	489	-688.8	7.7				
+"dkmpp"	"2,3-diketo-5-methylthio-1-phosphopentane"	"C6H9O6PS"	-2			"1-phospho-2,3-diketo-5-methylthiopentane"		"C6H10O6PS"	-1	241	"C6H10O6PS"	-1	241	-297.2	2.5				
+"dmbzid"	"5,6-Dimethylbenzimidazole"	"C9H10N2"	0	"582-60-5"		"Dimethylbenzimidazole"	"C03114"	"C9H10N2"	0	146	"C9H10N2"	0	146	45.9	4.6				
+"dmlz"	"6,7-Dimethyl-8-(1-D-ribityl)lumazine"	"C13H18N4O6"	0				"C04332"	"C13H18N4O6"	0	326	"C13H18N4O6"	0	326	-137.7	7.6				
+"dmpp"	"Dimethylallyl diphosphate"	"C5H9O7P2"	-3	"358-71-4"	"C5H12O7P2"	"2-Isopentenyl diphosphate/ delta2-Isopentenyl diphosphate/ Prenyl diphosphate/ dimethylallyl pyrophosphate"	"C00235"	"C5H10O7P2"	-2	244	"C5H10O7P2"	-2	244	-438.3	1.6				
+"dms"	"Dimethyl sulfide"	"C2H6S"	0	"75-18-3"		"Methyl sulfide/ Methyl thioether"	"C00580"	"C2H6S"	0	62	"C2H6S"	0	62	1.7	2.1				
+"dmso"	"Dimethyl sulfoxide"	"C2H6OS"	0				"C11143"	"C2H6OS"	0	78	"C2H6OS"	0	78	"Not calculated"	"Not calculated"				
+"dnad"	"Deamino-NAD+"	"C21H24N6O15P2"	-2		"C21H27N6O15P2"	"Deamido-NAD+"	"C00857"	"C21H24N6O15P2"	-2	662	"C21H24N6O15P2"	-2	662	-571.6	12.1				
+"dopa"	"Dopamine"	"C8H12NO2"	1	"51-61-6"	"C8H11NO2"	"4-(2-Aminoethyl)-1,2-benzenediol/ 4-(2-Aminoethyl)benzene-1,2-diol/ 3,4-Dihydroxyphenethylamine/ 2-(3,4-Dihydroxyphenyl)ethylamine"	"C03758"	"C8H12NO2"	1	154	"C8H12NO2"	1	154	-50	3.2				
+"dpcoa"	"Dephospho-CoA"	"C21H33N7O13P2S"	-2		"C21H35N7O13P2S"		"C00882"	"C21H33N7O13P2S"	-2	685	"C21H33N7O13P2S"	-2	685	-539	9.9				
+"dsbaox"	"periplasmic protein disulfide isomerase I (oxidized)"	"X"	0		"X"	"gene product of dsbA"		"X"	0	1	"X"	0	1	"Not calculated"	"Not calculated"				
+"dsbard"	"periplasmic protein disulfide isomerase I (reduced)"	"XH2"	0		"XH2"	"gene product of dsbA"		"XH2"	0	3	"XH2"	0	3	"Not calculated"	"Not calculated"				
+"dsbcox"	"protein disulfide isomerase II (oxidized)"	"X"	0		"X"	"gene product of dsbC"		"X"	0	1	"X"	0	1	"Not calculated"	"Not calculated"				
+"dsbcrd"	"protein disulfide isomerase II (reduced)"	"XH2"	0		"XH2"	"gene product of dsbC"		"XH2"	0	3	"XH2"	0	3	"Not calculated"	"Not calculated"				
+"dsbdox"	"fused thiol:disulfide interchange protein (oxidized)"	"X"	0		"X"	"gene product of dsbD"		"X"	0	1	"X"	0	1	"Not calculated"	"Not calculated"				
+"dsbdrd"	"fused thiol:disulfide interchange protein (reduced)"	"XH2"	0		"XH2"	"gene product of dsbD"		"XH2"	0	3	"XH2"	0	3	"Not calculated"	"Not calculated"				
+"dsbgox"	"periplasmic disulfide isomerase/thiol-disulphide oxidase (oxidized)"	"X"	0		"X"	"gene product of dsbG"		"X"	0	1	"X"	0	1	"Not calculated"	"Not calculated"				
+"dsbgrd"	"periplasmic disulfide isomerase/thiol-disulphide oxidase (reduced)"	"XH2"	0		"XH2"	"gene product of dsbG"		"XH2"	0	3	"XH2"	0	3	"Not calculated"	"Not calculated"				
+"dscl"	"dihydrosirohydrochlorin"	"C42H41N4O16"	-7	"65207-12-7"	"C42H48N4O16"	"Precorrin 2"	"C02463"	"C42H41N4O16"	-7	857	"C42H41N4O16"	-7	857	"Not calculated"	"Not calculated"				
+"dtbt"	"Dethiobiotin"	"C10H17N2O3"	-1		"C10H18N2O3"	"Desthiobiotin"	"C01909"	"C10H17N2O3"	-1	213	"C10H17N2O3"	-1	213	-115.3	4.2				
+"dtdp"	"dTDP"	"C10H13N2O11P2"	-3		"C10H16N2O11P2"	"Thymidine 5'-diphosphate"	"C00363"	"C10H14N2O11P2"	-2	400	"C10H14N2O11P2"	-2	400	-564.8	5.1				
+"dtdp4aaddg"	"dTDP-4-acetamido-4,6-dideoxy-D-galactose"	"C18H27N3O15P2"	-2		"C18H29N3O15P2"			"C18H27N3O15P2"	-2	587	"C18H27N3O15P2"	-2	587	-679.6	8.7				
+"dtdp4addg"	"dTDP-4-amino-4,6-dideoxy-D-galactose"	"C16H26N3O14P2"	-1		"C16H27N3O14P2"	"dTDP-D-fucosamine"	"C04268"	"C16H26N3O14P2"	-1	546	"C16H26N3O14P2"	-1	546	-649.9	8.3				
+"dtdp4d6dg"	"dTDP-4-dehydro-6-deoxy-D-glucose"	"C16H22N2O15P2"	-2		"C16H24N2O15P2"	"dTDP-4-oxo-6-deoxy-D-glucose"	"C00687"	"C16H22N2O15P2"	-2	544	"C16H22N2O15P2"	-2	544	-678.3	8.2				
+"dtdp4d6dm"	"dTDP-4-dehydro-6-deoxy-L-mannose"	"C16H22N2O15P2"	-2		"C16H24N2O15P2"	"dTDP-4-oxo-6-deoxy-L-mannose/ dTDP-4-oxo-L-rhamnose"	"C00688"	"C16H22N2O15P2"	-2	544	"C16H22N2O15P2"	-2	544	-678.3	8.2				
+"dtdpglu"	"dTDPglucose"	"C16H24N2O16P2"	-2	"2009-24-7"	"C16H26N2O16P2"	"dTDP-D-glucose"	"C00842"	"C16H24N2O16P2"	-2	562	"C16H24N2O16P2"	-2	562	-721.2	8.4				
+"dtdprmn"	"dTDP-L-rhamnose"	"C16H24N2O15P2"	-2	"572-96-3"	"C16H26N2O15P2"	"dTDP-6-deoxy-L-mannose/ dTDP-L-rhamnose"	"C03319"	"C16H24N2O15P2"	-2	546	"C16H24N2O15P2"	-2	546	-685	8.3				
+"dtmp"	"dTMP"	"C10H13N2O8P"	-2	07/01/65	"C10H15N2O8P"	"Thymidine 5'-phosphate/ Deoxythymidine 5'-phosphate/ Thymidylic acid/ 5'-Thymidylic acid/ Thymidine monophosphate/ Deoxythymidylic acid/ Thymidylate"	"C00364"	"C10H14N2O8P"	-1	321	"C10H14N2O8P"	-1	321	-356.7	5.1				
+"dttp"	"dTTP"	"C10H13N2O14P3"	-4		"C10H17N2O14P3"	"Thymidine triphosphate/ Thymidine 5'-triphosphate/ TTP"	"C00459"	"C10H14N2O14P3"	-3	479	"C10H14N2O14P3"	-3	479	-772.9	5.1				
+"dudp"	"dUDP"	"C9H11N2O11P2"	-3		"C9H14N2O11P2"	"2'-Deoxyuridine 5'-diphosphate"	"C01346"	"C9H12N2O11P2"	-2	386	"C9H12N2O11P2"	-2	386	-564.7	5.1				
+"dump"	"dUMP"	"C9H11N2O8P"	-2	"964-26-1"	"C9H13N2O8P"	"Deoxyuridylic acid/ Deoxyuridine monophosphate/ Deoxyuridine 5'-phosphate/ 2'-Deoxyuridine 5'-phosphate"	"C00365"	"C9H12N2O8P"	-1	307	"C9H12N2O8P"	-1	307	-356.6	5.1				
+"duri"	"Deoxyuridine"	"C9H12N2O5"	0	"951-78-0"		"2-Deoxyuridine/ 2'-Deoxyuridine"	"C00526"	"C9H12N2O5"	0	228	"C9H12N2O5"	0	228	-144.7	5.1				
+"dutp"	"dUTP"	"C9H11N2O14P3"	-4		"C9H15N2O14P3"	"2'-Deoxyuridine 5'-triphosphate"	"C00460"	"C9H12N2O14P3"	-3	465	"C9H12N2O14P3"	-3	465	-772.9	5.2				
+"dxyl"	"1-deoxy-D-xylulose"	"C5H10O4"	0			"1-deoxy-D-threo-2-pentulose"	"C06257"	"C5H10O4"	0	134	"C5H10O4"	0	134	-144	3.3				
+"dxyl5p"	"1-deoxy-D-xylulose 5-phosphate"	"C5H9O7P"	-2		"C5H11O7P"		"C11437"	"C5H10O7P"	-1	213	"C5H10O7P"	-1	213	-356.2	1.3				
+"e4p"	"D-Erythrose 4-phosphate"	"C4H7O7P"	-2	"585-18-2"	"C4H9O7P"	"4-phospho D-erythrose"	"C00279"	"C4H8O7P"	-1	199	"C4H8O7P"	-1	199	-354.6	1.3				
+"eca2und"	"(enterobacterial common antigen)x2 undecaprenyl-diphosphate"	"C103H162N6O37P2"	-4		"C103H165N6O37P2"			"C103H162N6O37P2"	-4	2136	"C103H162N6O37P2"	-4	2136	-1081.1	31.9				
+"eca3und"	"(enterobacterial common antigen)x3 undecaprenyl-diphosphate"	"C127H198N9O52P2"	-5		"C127H198N9O52P2"			"C127H198N9O52P2"	-5	2742	"C127H198N9O52P2"	-5	2742	-1545.4	44.4				
+"eca4colipa"	"(enterobacterial common antigen)x4 core oligosaccharide lipid A"	"C272H447N14O160P4"	-15		"C272H462N14O160P4"			"C272H451N14O160P4"	-11	6595	"C272H451N14O160P4"	-11	6595	-5489.7	111.6				
+"eca4und"	"(enterobacterial common antigen)x4 undecaprenyl-diphosphate"	"C151H234N12O67P2"	-6		"C151H240N12O67P2"			"C151H234N12O67P2"	-6	3348	"C151H234N12O67P2"	-6	3348	-2009.7	57.4				
+"eig3p"	"D-erythro-1-(Imidazol-4-yl)glycerol 3-phosphate"	"C6H9N2O6P"	-2		"C6H11N2O6P"	"D-erythro-Imidazole-glycerol 3-phosphate/ D-erythro-Imidazole-glycerol phosphate"	"C04666"	"C6H10N2O6P"	-1	237	"C6H10N2O6P"	-1	237	-288	3.3				
+"enlipa"	"phosphoethanolamine KDO(2)-lipid (A)"	"C112H202N3O42P3"	-6		"C112H208N3O42P3"	"pEtN-KDO2-lipidA/ phosphoethanolamine KDO2-lipid (A)"		"C112H204N3O42P3"	-4	2355	"C112H204N3O42P3"	-4	2355	-1640	22.9				
+"enter"	"Enterochelin"	"C30H27N3O15"	0		"C30H27N3O15"	"tri-(2,3-dihydroxy-N-benzoyl-L-serine)-ester/ Enterobactin/ tri-(N-(2,3-dihydroxybenzoyl)-L-serine)-ester"		"C30H27N3O15"	0	669	"C30H27N3O15"	0	669	"Not calculated"	"Not calculated"				
+"etha"	"Ethanolamine"	"C2H8NO"	1	"141-43-5"	"C2H7NO"	"Aminoethanol/ Hydroxyethylamine"	"C00189"	"C2H8NO"	1	62	"C2H8NO"	1	62	-44.5	0.8				
+"ethso3"	"ethanesulfonate"	"C2H5O3S"	-1		"C2H6O3S"			"C2H5O3S"	-1	109	"C2H5O3S"	-1	109	-125.7	2.2				
+"etoh"	"Ethanol"	"C2H6O"	0	"64-17-5"		"Ethyl alcohol/ Methylcarbinol"	"C00469"	"C2H6O"	0	46	"C2H6O"	0	46	-43.4	1.5				
+"f1p"	"D-Fructose 1-phosphate"	"C6H11O9P"	-2	"15978-08-2"	"C6H13O9P"	"Fructose 1-phosphate/ Fructofuranose 1-phosphate"	"C02976"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-430.4	3.7				
+"f6p"	"D-Fructose 6-phosphate"	"C6H11O9P"	-2	"643-13-0"	"C6H13O9P"	"D-Fructose 6-phosphoric acid/ Neuberg ester/ beta-D-Fructose 6-phosphate"	"C00085"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-430.4	3.7				
+"fad"	"Flavin adenine dinucleotide oxidized"	"C27H31N9O15P2"	-2	"146-14-5"	"C27H33N9O15P2"	"FAD/ Flavin adenine dinucleotide/ Riboflavine 5'-adenosine diphosphate"	"C00016"	"C27H31N9O15P2"	-2	783	"C27H31N9O15P2"	-2	783	-528.5	15.4				
+"fadh2"	"Flavin adenine dinucleotide reduced"	"C27H33N9O15P2"	-2		"C27H35N9O15P2"	"flavin adenine dinucleotide (reduced form)"	"C01352"	"C27H33N9O15P2"	-2	785	"C27H33N9O15P2"	-2	785	-536.5	14.6				
+"fald"	"Formaldehyde"	"CH2O"	0	"50-00-0"	"CH2O"	"Methanal/ Oxomethane/ Oxomethylene/ Methylene oxide/ Formalin"	"C00067"	"CH2O"	0	30	"CH2O"	0	30	-31.2	1.5				
+"fc1p"	"L-Fuculose 1-phosphate"	"C6H11O8P"	-2		"C6H13O8P"		"C01099"	"C6H12O8P"	-1	243	"C6H12O8P"	-1	243	-393.4	4.1				
+"fcl-L"	"L-fuculose"	"C6H12O5"	0				"C01721"	"C6H12O5"	0	164	"C6H12O5"	0	164	-181.5	4.2				
+"fdp"	"D-Fructose 1,6-bisphosphate"	"C6H10O12P2"	-4	"488-69-7"	"C6H14O12P2"	"fructose-1,6-bisphosphate/ fructose diphosphate/ beta-D-fructofuranose-1,6-diphosphate/ fbp"	"C00354"	"C6H12O12P2"	-2	338	"C6H12O12P2"	-2	338	-642.3	3.7				
+"fe2"	"Fe2+"	"Fe"	2			"Iron/ Reduced Iron/ Iron dication/ Fe(II)"	"C00023"	"Fe"	2	56	"Fe"	2	56	-18.9	1.5				
+"fe3"	"Fe3+"	"Fe"	3			"Iron trication/ Fe(III)"		"Fe"	3	56	"Fe"	3	56	-1.1	1.5				
+"fe3dcit"	"Fe(III)dicitrate"	"C12H10FeO14"	-3			"Iron(III)dicitrate"	"C06229"	"C12H10FeO14"	-3	434	"C12H10FeO14"	-3	434	"Not calculated"	"Not calculated"				
+"fe3dhbzs"	"ferric 2,3-dihydroxybenzoylserine"	"C10H10NO6Fe"	2					"C10H10NO6Fe"	2	296	"C10H10NO6Fe"	2	296	"Not calculated"	"Not calculated"				
+"fe3hox"	"Fe(III)hydroxamate"	"C9H18O6N3Fe"	0			"Fe(III)hydroxamic acid"	"C06227"	"C9H18O6N3Fe"	0	320	"C9H18O6N3Fe"	0	320	"Not calculated"	"Not calculated"				
+"fe3hox-un"	"Fe(III)hydoxamate, unloaded"	"C9H18O6N3"	-3		"C9H21O6N3"			"C9H23N3O6"	0	269	"C9H23N3O6"	0	269	-134.5	6.6				
+"fecrm"	"Ferrichrome"	"C27H42FeN9O12"	0				"C06228"	"C27H42FeN9O12"	0	740	"C27H42FeN9O12"	0	740	"Not calculated"	"Not calculated"				
+"fecrm-un"	"Ferrichrome minus Fe(III)"	"C27H42N9O12"	-3		"C27H45N9O12"			"C27H47N9O12"	0	689	"C27H47N9O12"	0	689	"Not calculated"	"Not calculated"				
+"feenter"	"Fe-enterobactin"	"C30H27FeN3O15"	3		"C30H24FeN3O15"	"Fe-enterochlin"	"C06230"	"C30H27FeN3O15"	3	725	"C30H27FeN3O15"	3	725	"Not calculated"	"Not calculated"				
+"feoxam"	"ferroxamine"	"C25H46FeN6O8"	1		"C25H45FeN6O8"	"Ferrioxamine B"		"C25H46FeN6O8"	1	614	"C25H46FeN6O8"	1	614	"Not calculated"	"Not calculated"				
+"feoxam-un"	"ferroxamine minus Fe(3)"	"C25H46N6O8"	-2		"C25H48N6O8"			"C25H49N6O8"	1	561	"C25H49N6O8"	1	561	-222.3	12.5				
+"fgam"	"N2-Formyl-N1-(5-phospho-D-ribosyl)glycinamide"	"C8H13N2O9P"	-2		"C8H15N2O9P"	"5'-Phosphoribosyl-N-formylglycinamide/ N-Formyl-GAR/ N-Formylglycinamide ribonucleotide"	"C04376"	"C8H14N2O9P"	-1	313	"C8H14N2O9P"	-1	313	-416.7	5.2				
+"fldox"	"flavodoxin (oxidized)"	"X"	0				"C02869"	"X"	0	1	"X"	0	1	"Not calculated"	"Not calculated"				
+"fldrd"	"flavodoxin (reduced)"	"XH2"	0				"C02745"	"XH2"	0	3	"XH2"	0	3	"Not calculated"	"Not calculated"				
+"fmettrna"	"N-Formylmethionyl-tRNA"	"C6H9NO2SR"	0				"C03294"	"C16H21N6O5RS"	0	410	"C16H21N6O5RS"	0	410	"Not calculated"	"Not calculated"				
+"fmn"	"FMN"	"C17H19N4O9P"	-2	"146-17-8"	"C17H21N4O9P"	"Riboflavin-5-phosphate/ Flavin mononucleotide"	"C00061"	"C17H20N4O9P"	-1	455	"C17H20N4O9P"	-1	455	-336.3	8.2				
+"fmnh2"	"Reduced FMN"	"C17H21N4O9P"	-2	"67-63-0"		"Reduced flavin mononucleotide"		"C17H22N4O9P"	-1	457	"C17H22N4O9P"	-1	457	-344.4	8.7				
+"for"	"Formate"	"CH1O2"	-1	"64-18-6"	"CH2O2"	"Methanoic acid/ Formic acid/ Hydrogencarboxylic acid/ aminic acid"	"C00058"	"CHO2"	-1	45	"CHO2"	-1	45	-83.9	1.5				
+"fpram"	"2-(Formamido)-N1-(5-phospho-D-ribosyl)acetamidine"	"C8H15N3O8P"	-1		"C8H16N3O8P"	"2-(Formamido)-N1-(5'-phosphoribosyl)acetamidine/ 1-(5'-Phosphoribosyl)-N-formylglycinamidine/ 5'-Phosphoribosyl-N-formylglycinamidine/ 5'-Phosphoribosylformylglycinamidine"	"C04640"	"C8H15N3O8P"	-1	312	"C8H15N3O8P"	-1	312	-379.6	6.6				
+"fprica"	"5-Formamido-1-(5-phospho-D-ribosyl)imidazole-4-carboxamide"	"C10H13N4O9P"	-2		"C10H15N4O9P"	"1-(5'-Phosphoribosyl)-5-formamido-4-imidazolecarboxamide/ 5'-Phosphoribosyl-5-formamido-4-imidazolecarboxamide/ 5-Formamido-1-(5-phosphoribosyl)imidazole-4-carboxamide"	"C04734"	"C10H14N4O9P"	-1	365	"C10H14N4O9P"	-1	365	-372	5.8				
+"frdp"	"Farnesyl diphosphate"	"C15H25O7P2"	-3	"13058-04-3"	"C15H28O7P2"	"Farnesyl pyrophosphate/ FPP/ 2-trans,6-trans-Farnesyl diphosphate/ trans,trans-Farnesyl diphosphate"	"C00448"	"C15H26O7P2"	-2	380	"C15H26O7P2"	-2	380	-381.4	4.4				
+"fru"	"D-Fructose"	"C6H12O6"	0	"57-48-7"		"Levulose/ Fruit sugar/ D-Arabino-hexulose"	"C00095"	"C6H12O6"	0	180	"C6H12O6"	0	180	-218.5	3.8				
+"frulys"	"fructoselysine"	"C12H25N2O7"	1		"C12H24N2O7"	"N-epsilon-(1-deoxyfructose)-lysine"		"C12H25N2O7"	1	309	"C12H25N2O7"	1	309	-247.9	5				
+"frulysp"	"fructoselysine Phosphate"	"C12H24N2O10P"	-1		"C12H25N2O10P"			"C12H25N2O10P"	0	388	"C12H25N2O10P"	0	388	-459.8	5				
+"fruur"	"D-Fructuronate"	"C6H9O7"	-1	"669-90-9"	"C6H10O7"		"C00905"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-261.9	3.7				
+"fuc-L"	"L-Fucose"	"C6H12O5"	0	"2438-80-4"		"6-Deoxy-L-galactose"	"C01019"	"C6H12O5"	0	164	"C6H12O5"	0	164	-181.5	4.2				
+"fum"	"Fumarate"	"C4H2O4"	-2	"110-17-8"	"C4H4O4"	"boletic acid/ allomaleic acid/ Fumaric acid/ Trans-butenedioic acid"	"C00122"	"C4H2O4"	-2	114	"C4H2O4"	-2	114	-143.7	2.1				
+"g1p"	"D-Glucose 1-phosphate"	"C6H11O9P"	-2	"59-56-3"	"C6H13O9P"	"Cori ester/ alpha-D-Glucose 1-phosphate/ Glucose 1-phosphate"	"C00103"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-429.6	4.2				
+"g3p"	"Glyceraldehyde 3-phosphate"	"C3H5O6P"	-2	10/09/42	"C3H7O6P"	"D-glyceraldehyde 3-phosphate/ (2R)-2-Hydroxy-3-(phosphonooxy)-propanal"	"C00661"	"C3H6O6P"	-1	169	"C3H6O6P"	-1	169	-318.3	0.9				
+"g3pc"	"sn-Glycero-3-phosphocholine"	"C8H20NO6P"	0			"Glycerophosphocholine"	"C00670"	"C8H20NO6P"	0	257	"C8H20NO6P"	0	257	-254.2	6.1				
+"g3pe"	"sn-Glycero-3-phosphoethanolamine"	"C5H14NO6P"	0		"C5H14NO6P"	"Glycerophosphoethanolamine"	"C01233"	"C5H14NO6P"	0	215	"C5H14NO6P"	0	215	-310.9	1.8				
+"g3pg"	"Glycerophosphoglycerol"	"C6H14O8P"	-1	"11034-93-8"		"Glycerophosphoglycerol"	"C03274"	"C6H14O8P"	-1	245	"C6H14O8P"	-1	245	-382.3	2.2				
+"g3pi"	"sn-Glycero-3-phospho-1-inositol"	"C9H18O11P"	-1				"C01225"	"C9H18O11P"	-1	333	"C9H18O11P"	-1	333	-487.1	4.6				
+"g3ps"	"Glycerophosphoserine"	"C6H13NO8P"	-1		"C6H14NO8P"			"C6H13NO8P"	-1	258	"C6H13NO8P"	-1	258	-390.6	1.9				
+"g6p"	"D-Glucose 6-phosphate"	"C6H11O9P"	-2	"56-73-5"	"C6H13O9P"	"Glucose 6-phosphate/ Robinson ester/ alpha-D-Glucose 6-phosphate"	"C00092"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-429.6	4.2				
+"gagicolipa"	"galactosyl-glucosyl-inner core oligosaccharide lipid A"	"C157H271N2O84P4"	-11		"C157H282N2O84P4"	"galactosyl-(1->6)-glucosyl-(1->3)-inner core oligosaccharide lipid A"		"C157H275N2O84P4"	-7	3655	"C157H275N2O84P4"	-7	3655	-3123	47.7				
+"gal"	"D-Galactose"	"C6H12O6"	0	"59-23-4"		"alpha-Galactose(D)/ Galactose"	"C00124"	"C6H12O6"	0	180	"C6H12O6"	0	180	-217.7	4.3				
+"gal1p"	"alpha-D-Galactose 1-phosphate"	"C6H11O9P"	-2	"2255-14-3"	"C6H13O9P"	"D-Galactose 1-phosphate/ alpha-D-Galactose 1-phosphate"	"C00446"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-429.6	4.2				
+"gal-bD"	"beta D-Galactose"	"C6H12O6"	0	"33419-42-0"			"C01582"	"C6H12O6"	0	180	"C6H12O6"	0	180	-217.7	4.3				
+"galct-D"	"D-Galactarate"	"C6H8O8"	-2	"526-99-8"		"D-Mucic acid/ D-Galactaric acid"	"C00879"	"C6H8O8"	-2	208	"C6H8O8"	-2	208	-311.5	2.2				
+"galctn-D"	"D-Galactonate"	"C6H11O7"	-1		"C6H12O7"	"D-Galactonic acid"	"C00880"	"C6H11O7"	-1	195	"C6H11O7"	-1	195	-268.1	2.4				
+"galctn-L"	"L-Galactonate"	"C6H11O7"	-1		"C6H12O7"	"L-Galactonic acid"		"C6H11O7"	-1	195	"C6H11O7"	-1	195	-268.1	2.4				
+"galt"	"Galactitol"	"C6H14O6"	0	"608-66-2"		"Dulcitol/ Dulcose"	"C01697"	"C6H14O6"	0	182	"C6H14O6"	0	182	-224.8	2.7				
+"galt1p"	"Galactitol 1-phosphate"	"C6H13O9P"	-2		"C6H15O9P"	"D-Galactitol 1-phosphate/ L-Galactitol 6-phosphate"	"C06311"	"C6H14O9P"	-1	261	"C6H14O9P"	-1	261	-436.7	2.5				
+"galur"	"D-Galacturonate"	"C6H9O7"	-1	"685-73-4"	"C6H10O7"	"alpha-D-galacturonopyranose/ D-Galacturonic acid"	"C00333"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-261.1	4.2				
+"gam"	"D-Glucosamine"	"C6H14NO5"	1	"3416-24-8"	"C6H13NO5"	"Chitosamine/ 2-Amino-2-deoxy-D-glucose/ GlcN"	"C00329"	"C6H14NO5"	1	180	"C6H14NO5"	1	180	-182.6	4.2				
+"gam1p"	"D-Glucosamine 1-phosphate"	"C6H13NO8P"	-1		"C6H14NO8P"		"C06156"	"C6H14NO8P"	0	259	"C6H14NO8P"	0	259	-394.5	4.2				
+"gam6p"	"D-Glucosamine 6-phosphate"	"C6H13NO8P"	-1	"3616-42-0"	"C6H14NO8P"	"D-Glucosamine phosphate"	"C00352"	"C6H14NO8P"	0	259	"C6H14NO8P"	0	259	-394.5	4.2				
+"gar"	"N1-(5-Phospho-D-ribosyl)glycinamide"	"C7H14N2O8P"	-1		"C7H15N2O8P"	"5'-Phosphoribosylglycinamide/ GAR/ Glycinamide ribonucleotide"	"C03838"	"C7H15N2O8P"	0	286	"C7H15N2O8P"	0	286	-388.5	4.1				
+"garagund"	"glucosyl-O-acetyl-rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	"C77H125N1O22P2"	-2		"C77H127N1O22P2"			"C77H125NO22P2"	-2	1477	"C77H125NO22P2"	-2	1477	-621.7	20.5				
+"gbbtn"	"gamma-butyrobetaine"	"C7H15NO2"	0					"C7H15NO2"	0	145	"C7H15NO2"	0	145	-27.8	5.9				
+"gcald"	"Glycolaldehyde"	"C2H4O2"	0			"Hydroxyacetaldehyde"	"C00266"	"C2H4O2"	0	60	"C2H4O2"	0	60	-70.2	0.6				
+"gdp"	"GDP"	"C10H12N5O11P2"	-3	"146-91-8"	"C10H15N5O11P2"	"Guanosine 5'-diphosphate/ Guanosine diphosphate"	"C00035"	"C10H13N5O11P2"	-2	441	"C10H13N5O11P2"	-2	441	-515.1	7.9				
+"gdpddman"	"GDP-4-dehydro-6-deoxy-D-mannose"	"C16H21N5O15P2"	-2		"C16H23N5O15P2"	"GDP-4-dehydro-6-deoxy-D-mannose/ GDP-4-dehydro-6-deoxy-D-talose/ GDP-4-oxo-6-deoxy-D-mannose/ GDP-4-dehydro-D-rhamnose"	"C01222"	"C16H21N5O15P2"	-2	585	"C16H21N5O15P2"	-2	585	-628.6	10.2				
+"gdpfuc"	"GDP-L-fucose"	"C16H23N5O15P2"	-2				"C00325"	"C16H23N5O15P2"	-2	587	"C16H23N5O15P2"	-2	587	-635.3	10.5				
+"gdpmann"	"GDP-D-mannose"	"C16H23N5O16P2"	-2		"C16H25N5O16P2"		"C00096"	"C16H23N5O16P2"	-2	603	"C16H23N5O16P2"	-2	603	-671.5	10.5				
+"gdpofuc"	"GDP-4-oxo-L-fucose"	"C16H21N5O15P2"	-2		"C16H23N5O15P2"	"GDP-4-oxo-L-fucose/ GDP-4-dehydro-L-fucose/ GDP-4-dehydro-6-L-deoxygalactose (not positive)"		"C16H21N5O15P2"	-2	585	"C16H21N5O15P2"	-2	585	-628.6	10.2				
+"gdptp"	"Guanosine 3'-diphosphate 5'-triphosphate"	"C10H11N5O20P5"	-7		"C10H18N5O20P5"	"guanosine 5'-diphosphate 3'-triphosphate/ pppGpp"	"C04494"	"C10H12N5O20P5"	-6	678	"C10H13N5O20P5"	-5	679	-1133.7	8				
+"gfgaragund"	"galactofuranosyl-glucosyl-O-acetyl-rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	"C83H135N1O27P2"	-2		"C83H137N1O27P2"			"C83H135NO27P2"	-2	1639	"C83H135NO27P2"	-2	1639	-779	23.1				
+"gg4abut"	"gamma-glutamyl-gamma aminobutyric acid"	"C9H15O5N2"	-1		"C9H16O5N2"	"gamma-glutamyl-GABA/ y-glu-GABA"		"C9H15N2O5"	-1	231	"C9H15N2O5"	-1	231	-191.7	2.3				
+"ggagicolipa"	"glucosyl-galactosyl-glucosyl-inner core oligosaccharide lipid A"	"C163H281N2O89P4"	-11		"C163H292N2O89P4"	"glucosyl-(1->3)/galactosyl-(1->6)-glucosyl-(1->3)-inner core oligosaccharide lipid A"		"C163H285N2O89P4"	-7	3817	"C163H285N2O89P4"	-7	3817	-3280.8	51.8				
+"ggbutal"	"gamma-glutamyl-gamma-butyraldehyde"	"C9H16O4N2"	0		"C9H16O4N2"	"gamma-glutamyl-gamma-aminobutyraldehyde"		"C9H16N2O4"	0	216	"C9H16N2O4"	0	216	-138.9	2.3				
+"gggagicolipa"	"glucosyl-glucosyl-galactosyl-glucosyl-inner core oligosaccharide lipid A"	"C169H291N2O94P4"	-11		"C169H302N2O94P4"	"glucosyl-(1->2)-glucosyl-(1->3)/galactosyl-(1->6)-glucosyl-(1->3)-inner core oligosaccharide lipid A"		"C169H295N2O94P4"	-7	3979	"C169H295N2O94P4"	-7	3979	-3438.5	55.8				
+"ggptrc"	"gamma-glutamyl-putrescine"	"C9H20O3N3"	1		"C9H19O3N3"			"C9H20N3O3"	1	218	"C9H20N3O3"	1	218	-113.2	2.6				
+"gicolipa"	"glucosyl-inner core oligosaccharide lipid A"	"C151H261N2O79P4"	-11		"C151H272N2O79P4"	"glucosyl-(1->3)-inner core oligosaccharide lipid A"		"C151H265N2O79P4"	-7	3493	"C151H265N2O79P4"	-7	3493	-2965.3	43.8				
+"glc-D"	"D-Glucose"	"C6H12O6"	0	"50-99-7"		"Grape sugar/ Dextrose/ alpha-D-Glucose/ beta-D-Glucose/ Glucose"	"C00031"	"C6H12O6"	0	180	"C6H12O6"	0	180	-217.7	4.3				
+"glcn"	"D-Gluconate"	"C6H11O7"	-1	"526-95-4"	"C6H12O7"	"Dextronic Acid/ D-Gluconic acid/ D-Gluco-hexonic acid"	"C00257"	"C6H11O7"	-1	195	"C6H11O7"	-1	195	-268.1	2.4				
+"glcr"	"D-Glucarate"	"C6H8O8"	-2	"87-73-0"	"C6H10O8"	"D-Saccharic acid/ L-Gularic acid/ D-Glucosaccharic acid/ D-Glucaric acid"	"C00818"	"C6H8O8"	-2	208	"C6H8O8"	-2	208	-311.5	2.2				
+"glcur"	"D-Glucuronate"	"C6H9O7"	-1	12/03/56	"C6H10O7"	"Glucuronic acid/ Glucuronate/ GlcA"	"C00191"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-261.1	4.2				
+"glcur1p"	"D-Glucuronate 1-phosphate"	"C6H8O10P"	-3			"GlcA-1P"	"C05385"	"C6H9O10P"	-2	272	"C6H9O10P"	-2	272	-473	4.1				
+"gln-L"	"L-Glutamine"	"C5H10N2O3"	0	"56-85-9"	"C5H10N2O3"	"L-2-Aminoglutaramic acid/ Gln"	"C00064"	"C5H10N2O3"	0	146	"C5H10N2O3"	0	146	-121.6	1.7				
+"glntrna"	"L-Glutaminyl-tRNA(Gln)"	"C5H9N2O2R"	1			"Glutaminyl-tRNA"	"C02282"	"C15H21N7O5R"	1	380	"C15H21N7O5R"	1	380	"Not calculated"	"Not calculated"				
+"glu1sa"	"L-Glutamate 1-semialdehyde"	"C5H9NO3"	0		"C5H9NO3"	"(S)-4-Amino-5-oxopentanoate"	"C03741"	"C5H9NO3"	0	131	"C5H9NO3"	0	131	-111.4	1				
+"glu5p"	"L-Glutamate 5-phosphate"	"C5H8NO7P"	-2		"C5H10NO7P"	"L-Glutamyl 5-phosphate"	"C03287"	"C5H9NO7P"	-1	226	"C5H8NO7P"	-2	225	-378.9	1.1				
+"glu5sa"	"L-Glutamate 5-semialdehyde"	"C5H9NO3"	0		"C5H9NO3"	"L-Glutamate gamma-semialdehyde"	"C01165"	"C5H9NO3"	0	131	"C5H9NO3"	0	131	-111.4	1				
+"glucys"	"gamma-L-Glutamyl-L-cysteine"	"C8H13N2O5S"	-1	"686-58-8"	"C8H14N2O5S"	"L-gamma-Glutamylcysteine/ 5-L-Glutamyl-L-cysteine"	"C00669"	"C8H13N2O5S"	-1	249	"C8H13N2O5S"	-1	249	-190.5	2.9				
+"glu-D"	"D-Glutamate"	"C5H8NO4"	-1	"6893-26-1"	"C5H9NO4"	"Glu/ D-Glutamic acid/ D-Glutaminic acid/ D-2-Aminoglutaric acid"	"C00217"	"C5H8NO4"	-1	146	"C5H8NO4"	-1	146	-164.2	1				
+"glu-L"	"L-Glutamate"	"C5H8NO4"	-1	"56-86-0"	"C5H9NO4"	"L-Glutamic acid/ L-Glutaminic acid/ Glu"	"C00025"	"C5H8NO4"	-1	146	"C5H8NO4"	-1	146	-164.2	1				
+"glutrna"	"L-Glutamyl-tRNA(Glu)"	"C5H7NO3R"	0		"C5H7NO3R"		"C02987"	"C15H19N6O6R"	0	380	"C15H19N6O6R"	0	380	"Not calculated"	"Not calculated"				
+"glx"	"Glyoxylate"	"C2H1O3"	-1	12/04/98	"C2H2O3"	"Glyoxalate/ Glyoxylic acid/ Acetic acid"	"C00048"	"C2HO3"	-1	73	"C2HO3"	-1	73	-111	0.8				
+"gly"	"Glycine"	"C2H5NO2"	0	"56-40-6"	"C2H5NO2"	"Aminoacetic acid/ Gly"	"C00037"	"C2H5NO2"	0	75	"C2H5NO2"	0	75	-87.8	0.7				
+"glyald"	"D-Glyceraldehyde"	"C3H6O3"	0	"453-17-8"		"(R)-glyceraldehyde"	"C00577"	"C3H6O3"	0	90	"C3H6O3"	0	90	-106.5	1				
+"glyb"	"Glycine betaine"	"C5H11NO2"	0	"107-43-7"		"Trimethylaminoacetate/ Betaine"	"C00719"	"C5H11NO2"	0	117	"C5H11NO2"	0	117	-31.1	5.9				
+"glyc"	"Glycerol"	"C3H8O3"	0	"56-81-5"		"3-propanetriol/ 1,2,3-trihydroxypropane/ Glycerin"	"C00116"	"C3H8O3"	0	92	"C3H8O3"	0	92	-115.9	1.2				
+"glyc2p"	"Glycerol 2-phosphate"	"C3H7O6P"	-2	"3249-68-1"	"C3H9O6P"		"C02979"	"C3H8O6P"	-1	171	"C3H8O6P"	-1	171	-327.8	1				
+"glyc3p"	"Glycerol 3-phosphate"	"C3H7O6P"	-2		"C3H9O6P"	"Glycerophosphoric acid/ sn-Gro-1-P/ Phosphatidyl glycerol/ sn-Glycerol 3-phosphate"	"C00093"	"C3H8O6P"	-1	171	"C3H8O6P"	-1	171	-327.8	1				
+"glyclt"	"Glycolate"	"C2H3O3"	-1	"79-14-1"	"C2H4O3"	"Glycolic acid/ Hydroxyacetic acid"	"C00160"	"C2H3O3"	-1	75	"C2H3O3"	-1	75	-122.9	0.5				
+"glycogen"	"glycogen"	"C6H10O5"	0				"C00182"	"C6H10O5"	0	162	"C6H10O5"	0	162	-167.2	16.98741				
+"glyc-R"	"(R)-Glycerate"	"C3H5O4"	-1	"473-81-4"	"C3H6O4"	"D-Glycerate/ Glycerate/ Glyceric acid"	"C00258"	"C3H5O4"	-1	105	"C3H5O4"	-1	105	-159.2	0.9				
+"glytrna"	"Glycyl-tRNA(Gly)"	"C2H4NOR"	1				"C02412"	"C12H16N6O4R"	1	309	"C12H15N6O4R"	0	308	"Not calculated"	"Not calculated"				
+"gmhep17bp"	"D-Glycero-D-manno-heptose 1,7-bisphosphate"	"C7H12O13P2"	-4				"C11472"	"C7H14O13P2"	-2	368	"C7H14O13P2"	-2	368	-677.8	4.3				
+"gmhep1p"	"D-Glycero-D-manno-heptose 1-phosphate"	"C7H13O10P"	-2				"C07838"	"C7H14O10P"	-1	289	"C7H14O10P"	-1	289	-465.9	4.4				
+"gmhep7p"	"D-Glycero-D-manno-heptose 7-phosphate"	"C7H13O10P"	-2				"C07836"	"C7H14O10P"	-1	289	"C7H14O10P"	-1	289	-465.9	4.4				
+"gmp"	"GMP"	"C10H12N5O8P"	-2	"85-32-5"		"Guanosine 5'-phosphate/ Guanosine monophosphate/ Guanosine 5'-monophosphate/ Guanylic acid"	"C00144"	"C10H13N5O8P"	-1	362	"C10H13N5O8P"	-1	362	-307	7.9				
+"gp4g"	"P1,P4-Bis(5'-guanosyl) tetraphosphate"	"C20H24N10O21P4"	-4			"GppppG/ Bis(5'-guanosyl) tetraphosphate"	"C01261"	"C20H24N10O21P4"	-4	864	"C20H24N10O21P4"	-4	864	-965.1	15.8				
+"grdp"	"Geranyl diphosphate"	"C10H17O7P2"	-3		"C10H20O7P2"	"GPP"	"C00341"	"C10H18O7P2"	-2	312	"C10H18O7P2"	-2	312	-409.8	2.9				
+"grxox"	"glutaredoxin (oxidized)"	"X"	0					"C6H7NO2R2S2"	0	191	"C6H7NO2R2S2"	0	191	"Not calculated"	"Not calculated"				
+"grxrd"	"glutaredoxin (reduced)"	"XH2"	0					"C6H9NO2R2S2"	0	193	"C6H9NO2R2S2"	0	193	"Not calculated"	"Not calculated"				
+"gsn"	"Guanosine"	"C10H13N5O5"	0	"118-00-3"		"rG/ Guanine riboside"	"C00387"	"C10H13N5O5"	0	283	"C10H13N5O5"	0	283	-95.1	7.9				
+"gthox"	"Oxidized glutathione"	"C20H30N6O12S2"	-2		"C20H32N6O12S2"	"L-Glutathione oxidized/ Glutathione disulfide"	"C00127"	"C20H30N6O12S2"	-2	610	"C20H30N6O12S2"	-2	610	-435.6	8.6				
+"gthrd"	"Reduced glutathione"	"C10H16N3O6S"	-1	"70-18-8"	"C10H17N3O6S"	"Glutathione/ 5-L-Glutamyl-L-cysteinylglycine/ N-(N-gamma-L-Glutamyl-L-cysteinyl)glycine/ gamma-L-Glutamyl-L-cysteinyl-glycine"	"C00051"	"C10H16N3O6S"	-1	306	"C10H16N3O6S"	-1	306	-221.3	4.4				
+"gtp"	"GTP"	"C10H12N5O14P3"	-4	01/01/86	"C10H16N5O14P3"	"Guanosine 5'-triphosphate"	"C00044"	"C10H12N5O14P3"	-4	520	"C10H12N5O14P3"	-4	520	-713.7	7.9				
+"gtspmd"	"Glutathionylspermidine"	"C17H36N6O5S"	2	08/06/83	"C17H34N6O5S"	"Glutathionylspermidine/ N1-(gamma-L-Glutamyl-L-cysteinyl-glycyl)-spermidine"	"C05730"	"C17H36N6O5S"	2	436	"C17H36N6O5S"	2	436	-159.2	6.9				
+"gua"	"Guanine"	"C5H5N5O"	0	"73-40-5"		"2-Aminohypoxanthine/ G/ 2-Amino-6-hydroxypurine"	"C00242"	"C5H5N5O"	0	151	"C5H4N5O"	-1	150	28.3	7.3				
+"h"	"H+"	"H"	1	"12408-02-5"		"Hydrogen Ion/ Proton"	"C00080"	"H"	1	1	"H"	1	1	-9.5	0				
+"h2"	"H2"	"H2"	0	"1333-74-0"		"Hydrogen"	"C00282"	"H2"	0	2	"H2"	0	2	4.2	1.5				
+"h2mb4p"	"1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate"	"C5H9O8P2"	-3				"C11811"	"C5H10O8P2"	-2	260	"C5H10O8P2"	-2	260	-474.5	1.6				
+"h2o"	"H2O"	"H2O"	0	"7732-18-5"		"Water/ Dihydrogen oxide"	"C00001"	"H2O"	0	18	"H2O"	0	18	-56.7	1.5				
+"h2o2"	"Hydrogen peroxide"	"H2O2"	0	"7722-84-1"		"H2O2/ peroxide/ hydrogen dioxide"	"C00027"	"H2O2"	0	34	"H2O2"	0	34	-32.1	1.5				
+"h2s"	"Hydrogen sulfide"	"H2S"	0	06/04/83		"H2S/ Hydrogen-sulfide/ sulfide"	"C00283"	"H2S"	0	34	"HS"	-1	33	-6.7	1.5				
+"hacolipa"	"hepta-acylated core oligosaccharide lipid A (E. coli)"	"C192H333N2O101P4"	-11					"C192H337N2O101P4"	-7	4409	"C192H337N2O101P4"	-7	4409	-3647	61				
+"halipa"	"hepta-acylated KDO(2)-lipid (A)"	"C126H226N2O40P2"	-6		"C126H232N2O40P2"			"C126H228N2O40P2"	-4	2470	"C126H228N2O40P2"	-4	2470	-1459.4	25				
+"hco3"	"Bicarbonate"	"CHO3"	-1	"71-52-3"		"HCO3-/ Hydrogencarbonate/ Acid carbonate"	"C00288"	"CHO3"	-1	61	"CHO3"	-1	61	-140.3	1.5				
+"hcys-L"	"L-Homocysteine"	"C4H9NO2S"	0	"6027-13-0"	"C4H9NO2S"	"L-2-Amino-4-mercaptobutyric acid/ L-Homocysteine"	"C00155"	"C4H9NO2S"	0	135	"C4H9NO2S"	0	135	-81.7	1.9				
+"hdca"	"Hexadecanoate (n-C16:0)"	"C16H31O2"	-1	10/03/57	"C16H32O2"	"palmitate/ Palmitic acid/ Hexadecylic acid/ Cetylic acid/ Hexadecanoic acid"	"C00249"	"C16H31O2"	-1	255	"C16H31O2"	-1	255	-63.7	3.1				
+"hdcea"	"Hexadecenoate (n-C16:1)"	"C16H29O2"	-1		"C16H30O2"	"hexadecenoic acid/ (9Z)-Hexadecenoic acid/ cis-9-Hexadecenoic acid/ Palmitoleic acid"		"C16H29O2"	-1	253	"C16H29O2"	-1	253	-41.4	3				
+"hdcoa"	"Hexadecenoyl-CoA (n-C16:1CoA)"	"C37H60N7O17P3S"	-4			"palmitoleic coenzyme A/ trans-Hexadec-2-enoyl-CoA/ trans-2-Hexadecenoyl-CoA/ (2E)-Hexadecenoyl-CoA"		"C37H61N7O17P3S"	-3	1000	"C37H61N7O17P3S"	-3	1000	-739.3	10.8				
+"hdd2coa"	"trans-Hexadec-2-enoyl-CoA"	"C37H60N7O17P3S"	-4		"C37H64N7O17P3S"		"C05272"	"C37H61N7O17P3S"	-3	1000	"C37H61N7O17P3S"	-3	1000	-740.8	10.9				
+"hdeACP"	"cis-hexadec-9-enoyl-[acyl-carrier protein] (n-C16:1)"	"C27H49N2O8PRS"	-1			"cis-palmitol-9-eoyl-[acyl-carrier protein] (n-C16:1)/ Hexadecenoyl-ACP (n-C16:1ACP)"		"C27H49N2O8PRS"	-1	593	"C27H49N2O8PRS"	-1	593	"Not calculated"	"Not calculated"				
+"hemeO"	"Heme O"	"C49H56FeN4O5"	-2		"C49H58FeN4O5"			"C49H56FeN4O5"	-2	836	"C49H56FeN4O5"	-2	836	"Not calculated"	"Not calculated"				
+"hexACP"	"Hexanoyl-ACP (n-C6:0ACP)"	"C17H31N2O8PRS"	-1	08/06/83		"Hexanoyl-[acp]/ Hexanoyl-[acyl-carrier protein]"	"C05749"	"C17H31N2O8PRS"	-1	455	"C17H31N2O8PRS"	-1	455	"Not calculated"	"Not calculated"				
+"hg2"	"Hg2+"	"Hg"	2			"mercury(II)/ mercury/ HHg"	"C00703"	"Hg"	2	201	"Hg"	2	201	"Not calculated"	"Not calculated"				
+"hhlipa"	"heptosyl-heptosyl-kdo2-lipidA"	"C124H220N2O51P2"	-6		"C124H226N2O51P2"	"heptosyl-(1->3)-heptosyl-(1->5)-kdo2-lipidA"		"C124H222N2O51P2"	-4	2616	"C124H222N2O51P2"	-4	2616	-1833.1	29.4				
+"his-L"	"L-Histidine"	"C6H9N3O2"	0	"71-00-1"	"C6H9N3O2"	"(S)-alpha-Amino-1H-imidazole-4-propionic acid/ His/ Glyoxaline-5-alanine"	"C00135"	"C6H9N3O2"	0	155	"C6H9N3O2"	0	155	-46.4	3.2				
+"hisp"	"L-Histidinol phosphate"	"C6H11N3O4P"	-1	"25679-93-0"	"C6H12N3O4P"		"C01100"	"C6H12N3O4P"	0	221	"C6H12N3O4P"	0	221	-214.9	3.2				
+"histd"	"L-Histidinol"	"C6H12N3O"	1		"C6H11N3O"		"C00860"	"C6H13N3O"	2	143	"C6H12N3O"	1	142	0.9	4.4				
+"histrna"	"L-Histidyl-tRNA(His)"	"C6H8N3OR"	1				"C02988"	"C16H20N8O4R"	1	389	"C16H19N8O4R"	0	388	"Not calculated"	"Not calculated"				
+"hkndd"	"2-Hydroxy-6-oxonona-2,4-diene-1,9-dioate"	"C9H8O6"	-2	"53-42-9"		"2-Hydroxy-6-oxonona-2,4-diene-1,9-dioate/ 2-hydroxy-6-ketononadienedioate"	"C04479"	"C9H8O6"	-2	212	"C9H8O6"	-2	212	-186.2	3.2				
+"hkntd"	"2-hydroxy-6-ketononatrienedioate"	"C9H6O6"	-2					"C9H6O6"	-2	210	"C9H6O6"	-2	210	-166.9	4.8				
+"hlipa"	"heptosyl-kdo2-lipidA"	"C117H208N2O45P2"	-6		"C117H214N2O45P2"	"heptosyl-(1->5)-kdo2-lipidA"		"C117H210N2O45P2"	-4	2424	"C117H210N2O45P2"	-4	2424	-1639	25.8				
+"hmbil"	"Hydroxymethylbilane"	"C40H38N4O17"	-8	"73023-76-4"	"C40H46N4O17"		"C01024"	"C40H38N4O17"	-8	846	"C40H38N4O17"	-8	846	-478.7	17.9				
+"hmfurn"	"4-hydroxy-5-methyl-3(2H)-furanone"	"C5H6O3"	0					"C5H5O3"	-1	113	"C5H5O3"	-1	113	-76.8	4.5				
+"hmgth"	"hydroxymethylglutathione"	"C11H18N3O7S"	-1		"C11H19N3O7S"	"HMGSH/ GS-CH2-OH/ S-(hydroxymethyl)glutathione/ HM-GSH"		"C11H18N3O7S"	-1	336	"C11H18N3O7S"	-1	336	-251.6	4.6				
+"hom-L"	"L-Homoserine"	"C4H9NO3"	0	"672-15-1"	"C4H9NO3"	"2-Amino-4-hydroxybutyric acid"	"C00263"	"C4H9NO3"	0	119	"C4H9NO3"	0	119	-122.5	0.9				
+"hphhlipa"	"heptosyl-phospho-heptosyl-heptosyl-kdo2-lipidA"	"C131H231N2O60P3"	-8		"C131H239N2O60P3"	"heptosyl-(1->7)-heptosyl-(1->3)-phospho-(->4)-heptosyl-(1->5)-kdo2-lipidA"		"C131H234N2O60P3"	-5	2887	"C131H234N2O60P3"	-5	2887	-2239	33				
+"hpyr"	"Hydroxypyruvate"	"C3H3O4"	-1	"1113-60-6"	"C3H4O4"	"Hydroxypyruvic acid/ 3-Hydroxypyruvate/ 3-Hydroxypyruvic acid"	"C00168"	"C3H3O4"	-1	103	"C3H3O4"	-1	103	-148.8	0.9				
+"hqn"	"Hydroquinone"	"C6H6O2"	0	"123-31-9"		"p-Benzenediol/ Quinol/ 4-Benzenediol/ Benzene-1/ 4-Dihydroxybenzene/ 1/ 4-diol"	"C00530"	"C6H6O2"	0	110	"C6H6O2"	0	110	-49	2.5				
+"hx2coa"	"trans-Hex-2-enoyl-CoA"	"C27H40N7O17P3S"	-4		"C27H44N7O17P3S"		"C05271"	"C27H41N7O17P3S"	-3	860	"C27H41N7O17P3S"	-3	860	-757.2	10.3				
+"hxa"	"Hexanoate (n-C6:0)"	"C6H11O2"	-1	"142-62-1"	"C6H12O2"	"Hexylic acid/ Hexanoic acid/ n-Caproic acid"	"C01585"	"C6H11O2"	-1	115	"C6H11O2"	-1	115	-80.2	1				
+"hxan"	"Hypoxanthine"	"C5H4N4O"	0	"68-94-0"		"1,7-Dihydro-6H-purin-6-one/ Purine-6-ol/ 6-Hydroxypurine"	"C00262"	"C5H4N4O"	0	136	"C5H3N4O"	-1	135	22.7	7.2				
+"hxcoa"	"Hexanoyl-CoA (n-C6:0CoA)"	"C27H42N7O17P3S"	-4		"C27H46N7O18P3S"		"C05270"	"C27H43N7O17P3S"	-3	862	"C27H43N7O17P3S"	-3	862	-778.1	10.2				
+"iasp"	"Iminoaspartate"	"C4H3NO4"	-2		"C4H5NO4"		"C05840"	"C4H3NO4"	-2	129	"C4H3NO4"	-2	129	-172.8	4.9				
+"ichor"	"Isochorismate"	"C10H8O6"	-2		"C10H10O6"	"Isochorismic acid"	"C00885"	"C10H8O6"	-2	224	"C10H8O6"	-2	224	-170.3	3.9				
+"icit"	"Isocitrate"	"C6H5O7"	-3	"30810-51-6"	"C6H8O7"	"Isocitric acid/ 1-Hydroxytricarballylic acid/ 2/ 3-tricarboxylic acid/ 1-Hydroxypropane-1"	"C00311"	"C6H5O7"	-3	189	"C6H5O7"	-3	189	-279	1.3				
+"icolipa"	"inner core oligosaccharide lipid A (E coli)"	"C145H251N2O74P4"	-11		"C145H262N2O74P4"	"phospho-(->4)-heptosyl-(1->7)-heptosyl-(1->3)-phospho-(->4)[-heptosyl-(1->5)/kdo-(2->4)/L-Rha-(1->5)]-kdo2-lipidA/ rkphphhlipa"		"C145H255N2O74P4"	-7	3331	"C145H255N2O74P4"	-7	3331	-2807.5	39.9				
+"idon-L"	"L-Idonate"	"C6H11O7"	-1	"1114-17-6"			"C00770"	"C6H11O7"	-1	195	"C6H11O7"	-1	195	-268.1	2.4				
+"idp"	"IDP"	"C10H11N4O11P2"	-3	04/04/86	"C10H14N4O11P2"	"Inosine 5'-diphosphate/ Inosine diphosphate/ 5'-inosinate diphosphate"	"C00104"	"C10H12N4O11P2"	-2	426	"C10H12N4O11P2"	-2	426	-520.6	7.8				
+"ile-L"	"L-Isoleucine"	"C6H13NO2"	0	"73-32-5"	"C6H13NO2"	"Ile/ 2-Amino-3-methylvaleric acid"	"C00407"	"C6H13NO2"	0	131	"C6H13NO2"	0	131	-84.8	1.2				
+"iletrna"	"L-Isoleucyl-tRNA(Ile)"	"C6H12NOR"	1				"C03127"	"C16H24N6O4R"	1	365	"C16H24N6O4R"	1	365	"Not calculated"	"Not calculated"				
+"imacp"	"3-(Imidazol-4-yl)-2-oxopropyl phosphate"	"C6H7N2O5P"	-2		"C6H9N2O5P"	"Imidazole-acetol phosphate"	"C01267"	"C6H8N2O5P"	-1	219	"C6H8N2O5P"	-1	219	-242.1	3.2				
+"imp"	"IMP"	"C10H11N4O8P"	-2	"131-99-7"	"C10H13N4O8P"	"Inosinic acid/ Inosine monophosphate/ Inosine 5'-monophosphate/ Inosine 5'-phosphate/ 5'-Inosinate/ 5'-Inosinic acid/ 5'-Inosine monophosphate"	"C00130"	"C10H12N4O8P"	-1	347	"C10H12N4O8P"	-1	347	-312.5	7.8				
+"indole"	"Indole"	"C8H7N"	0	"120-72-9"	"C8H7N"	"2,3-Benzopyrrole"	"C00463"	"C8H7N"	0	117	"C8H7N"	0	117	53.5	4.2				
+"inost"	"myo-Inositol"	"C6H12O6"	0	"87-89-8"		"D-myo-Inositol/ 1D-myo-Inositol/ L-myo-Inositol/ 1L-myo-Inositol/ meso-Inositol/ Inositol/ Dambose/ Cyclohexitol/ Meat sugar/ Bios I"	"C00137"	"C6H12O6"	0	180	"C6H12O6"	0	180	-220.7	4.2				
+"ins"	"Inosine"	"C10H12N4O5"	0	"58-63-9"		"Hypoxanthine ribonucleoside"	"C00294"	"C10H12N4O5"	0	268	"C10H12N4O5"	0	268	-100.6	7.9				
+"ipdp"	"Isopentenyl diphosphate"	"C5H9O7P2"	-3		"C5H12O7P2"	"delta3-Isopentenyl diphosphate/ delta3-methyl-3-butenyl diphosphate/ Isoprenyl pyrophosphate/ Isopentenyl pyrophosphate"	"C00129"	"C5H10O7P2"	-2	244	"C5H10O7P2"	-2	244	-439.1	1.6				
+"isetac"	"Isethionic acid"	"C2H5O4S"	-1	"107-36-8"	"C2H6O4S"	"2-Hydroxyethanesulfonate/ 2-Hydroxyethanesulfonic acid/ 2-Hydroxyethane-1-sulfonic acid/ Isethionate"	"C05123"	"C2H5O4S"	-1	125	"C2H5O4S"	-1	125	-161.9	2.3				
+"itp"	"ITP"	"C10H11N4O14P3"	-4	06/09/32	"C10H15N4O14P3"	"Inosine 5'-triphosphate/ Inosine triphosphate/ Inosine tripolyphosphate"	"C00081"	"C10H12N4O14P3"	-3	505	"C10H12N4O14P3"	-3	505	-728.8	7.9				
+"k"	"potassium"	"K"	1			"Potassium/ K+"	"C00238"	"K"	1	39	"K"	1	39	"Not calculated"	"Not calculated"				
+"kdo"	"3-Deoxy-D-manno-2-octulosonate"	"C8H13O8"	-1		"C8H14O8"	"3-Deoxy-D-manno-octulosonate/ KDO/ 2-Dehydro-3-deoxy-D-octonate/ 3-Deoxyoctulosonic acid"	"C01187"	"C8H13O8"	-1	237	"C8H13O8"	-1	237	-292.3	2.6				
+"kdo2lipid4"	"KDO(2)-lipid IV(A)"	"C84H148N2O37P2"	-6				"C06025"	"C84H150N2O37P2"	-4	1840	"C84H150N2O37P2"	-4	1840	-1406.3	19.3				
+"kdo2lipid4L"	"KDO(2)-lipid IV(A) with laurate"	"C96H170N2O38P2"	-6				"C06251"	"C96H172N2O38P2"	-4	2022	"C96H172N2O38P2"	-4	2022	-1427.3	20.7				
+"kdo2lipid4p"	"KDO(2)-lipid IV(A) with palmitoleoyl"	"C100H176N2O38P2"	-6					"C100H178N2O38P2"	-4	2076	"C100H178N2O38P2"	-4	2076	-1398.4	21				
+"kdo8p"	"3-Deoxy-D-manno-octulosonate 8-phosphate"	"C8H12O11P"	-3		"C8H15O11P"	"2-Dehydro-3-deoxy-D-octonate 8-phosphate"	"C04478"	"C8H13O11P"	-2	316	"C8H13O11P"	-2	316	-506.9	3.8				
+"kdolipid4"	"KDO-lipid IV(A)"	"C76H137N2O30P2"	-5				"C06024"	"C76H139N2O30P2"	-3	1621	"C76H139N2O30P2"	-3	1621	-1171.2	16.4				
+"kphphhlipa"	"kdo-phospho-heptosyl-phospho-heptosyl-heptosyl-kdo2-lipidA"	"C139H241N2O70P4"	-11		"C139H252N2O70P4"	"phospho-(->4)-heptosyl-(1->7)-heptosyl-(1->3)-phospho-(->4)[-heptosyl-(1->5)-kdo-(2->4)]-kdo2-lipidA"		"C139H245N2O70P4"	-7	3185	"C139H245N2O70P4"	-7	3185	-2686	36.2				
+"lac-D"	"D-Lactate"	"C3H5O3"	-1	"10326-41-7"	"C3H6O3"	"(R)-Lactate/ D-Lactic acid/ D-2-Hydroxypropanoic acid/ D-2-Hydroxypropionic acid"	"C00256"	"C3H5O3"	-1	89	"C3H5O3"	-1	89	-123.1	0.7				
+"lac-L"	"L-Lactate"	"C3H5O3"	-1	"79-33-4"	"C3H6O3"	"(S)-Lactate/ L-Lactic acid/ Hydroxypropionic acid"	"C00186"	"C3H5O3"	-1	89	"C3H5O3"	-1	89	-123.1	0.7				
+"LalaDglu"	"L-alanine-D-glutamate"	"C8H13N2O5"	-1		"C8H14N2O5"	"ala-L-glu-D/ alaglu"		"C8H13N2O5"	-1	217	"C8H13N2O5"	-1	217	-195.1	2.3				
+"LalaDgluMdap"	"L-alanine-D-glutamate-meso-2,6-diaminoheptanedioate"	"C15H25N4O8"	-1		"C15H26N4O8"	"ala-L-glu-D-A2pm"		"C15H25N4O8"	-1	389	"C15H25N4O8"	-1	389	-301.8	4.5				
+"LalaDgluMdapDala"	"L-alanine-D-glutamate-meso-2,6-diaminoheptanedioate-D-alanine"	"C18H30N5O9"	-1		"C18H31N5O9"	"ala-L-glu-D-A2pm-ala-D"		"C18H30N5O9"	-1	460	"C18H30N5O9"	-1	460	-332.7	6.3				
+"LalaLglu"	"L-alanine-L-glutamate"	"C8H13N2O5"	-1		"C8H14N2O5"	"ala-L-glu-L"		"C8H13N2O5"	-1	217	"C8H13N2O5"	-1	217	-195.1	2.3				
+"lald-D"	"D-Lactaldehyde"	"C3H6O2"	0			"(R)-Lactaldehyde/ D-2-Hydroxypropionaldehyde"	"C00937"	"C3H6O2"	0	74	"C3H6O2"	0	74	-70.3	0.8				
+"lald-L"	"L-Lactaldehyde"	"C3H6O2"	0	"598-35-6"		"(S)-Lactaldehyde/ L-2-Hydroxypropionaldehyde"	"C00424"	"C3H6O2"	0	74	"C3H6O2"	0	74	-70.3	0.8				
+"lcts"	"Lactose"	"C12H22O11"	0	"63-42-3"		"lactobiose/ 1-beta-D-Galactopyranosyl-4-alpha-D-glucopyranose/ Milk sugar"	"C00243"	"C12H22O11"	0	342	"C12H22O11"	0	342	-375.5	8.5				
+"leu-L"	"L-Leucine"	"C6H13NO2"	0	"61-90-5"	"C6H13NO2"	"Leu/ 2-amino-4-methylvaleric acid"	"C00123"	"C6H13NO2"	0	131	"C6H13NO2"	0	131	-84.8	1.2				
+"leutrna"	"L-Leucyl-tRNA(Leu)"	"C6H12NOR"	1			"L-Leucyl-tRNA"	"C02047"	"C16H24N6O4R"	1	365	"C16H24N6O4R"	1	365	"Not calculated"	"Not calculated"				
+"lgt-S"	"(R)-S-Lactoylglutathione"	"C13H20N3O8S"	-1	"59-85-8"	"C13H21N3O8S"		"C03451"	"C13H20N3O8S"	-1	378	"C13H20N3O8S"	-1	378	-291.4	5				
+"lipa"	"KDO(2)-lipid (A)"	"C110H196N2O39P2"	-6			"Di[3-deoxy-D-manno-octulosonyl]-lipid A/ KDO2-lipid (A)"	"C06026"	"C110H198N2O39P2"	-4	2232	"C110H198N2O39P2"	-4	2232	-1445	22.6				
+"lipa_cold"	"cold adapted KDO(2)-lipid (A)"	"C114H202N2O39P2"	-6			"cold adapted lipid A"		"C114H204N2O39P2"	-4	2286	"C114H204N2O39P2"	-4	2286	-1416.1	22.9				
+"lipidA"	"2,3,2'3'-Tetrakis(beta-hydroxymyristoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1,4'-bisphosphate"	"C68H126N2O23P2"	-4		"C68H130N2O23P2"	"Lipid IV(A)/ 2,3,2`3`-Tetrakis(3-hydroxytetradecanoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1,4`-bisphosphate/ 2,3,2`3`-Tetrakis(3-hydroxy-tetradecanoyl)-D-glucosaminyl-1,6-D-glucosamine 1,4`-bisphosphate/ 2,3,2`,3`-tetrakis(3-hydroxytetradecanoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1,4`-bisphosphate/ Lipid A disaccharide bisphosphate/ 2,3,2`3`-Tetrakis(beta-hydroxymyristoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1,4`-bisphosphate"		"C68H128N2O23P2"	-2	1402	"C68H128N2O23P2"	-2	1402	-936.2	13.9				
+"lipidAds"	"Lipid A Disaccharide"	"C68H127N2O20P"	-2			"2,3-Bis-(beta-hydroxymyristoyl)-D-glucosaminyl-(beta-D-1,6)-2,3-bis(beta-hydroxymyristoyl)-D-glucosaminyl beta-phosphate/ 2,3-Bis-(3-hydroxytetradecanoyl)-D-glucosaminyl-(beta-D-1,6)-2,3-bis(3-hydroxy-tetradecanoyl)-D-glucosaminyl beta-phosphate/ 2,3-Bis(3-hydroxytetradecanoyl)-D-glucosaminyl-1,6-beta-D-2,3-bis(3-hydroxytetradecanoyl)-beta-D-glucosaminyl 1-phosphate/ 2,3,2',3'-Tetrakis(3-hydroxytetradecanoyl)-D-glucosaminyl-1,6-beta-D-glucosamine 1-phosphate"	"C04932"	"C68H128N2O20P"	-1	1323	"C68H128N2O20P"	-1	1323	-724.3	13.9				
+"lipidX"	"2,3-Bis(3-hydroxytetradecanoyl)-beta-D-glucosaminyl 1-phosphate"	"C34H64NO12P"	-2		"C34H66NO12P"	"2,3-Bis(beta-hydoroxymyristoyl)-beta-D-glucosaminyl 1-phosphate/ Lipid X"	"C04824"	"C34H65NO12P"	-1	710	"C34H65NO12P"	-1	710	-498.1	7				
+"lpp"	"lipoprotein"	"XC16H30O1"	0		"XC16H30O1"		"C01834"	"C19H35NO2R2S"	0	343	"C19H35NO2R2S"	0	343	"Not calculated"	"Not calculated"				
+"lys-L"	"L-Lysine"	"C6H15N2O2"	1	"56-87-1"	"C6H14N2O2"	"2,6-diaminohexanoic acid/ Lysine acid/ Lys"	"C00047"	"C6H15N2O2"	1	147	"C6H15N2O2"	1	147	-84.1	1.5				
+"lystrna"	"L-Lysine-tRNA (Lys)"	"C6H14N2OR"	2			"L-Lysyl-tRNA"	"C01931"	"C16H26N7O4R"	2	381	"C16H26N7O4R"	2	381	"Not calculated"	"Not calculated"				
+"lyx-L"	"L-Lyxose"	"C5H10O5"	0	"1949-78-6"	"C5H10O5"	"L-Lyxose"	"C01508"	"C5H10O5"	0	150	"C5H10O5"	0	150	-179.4	3.9				
+"malACP"	"Malonyl-[acyl-carrier protein]"	"C14H22N2O10PRS"	-2		"C3H3O3R"		"C01209"	"C14H22N2O10PRS"	-2	442	"C14H22N2O10PRS"	-2	442	"Not calculated"	"Not calculated"				
+"malcoa"	"Malonyl-CoA"	"C24H33N7O19P3S"	-5	"524-14-1"	"C24H38N7O19P3S"	"Malonyl coenzyme A"	"C00083"	"C24H34N7O19P3S"	-4	849	"C24H34N7O19P3S"	-4	849	-862.5	10.1				
+"mal-D"	"D-Malate"	"C4H4O5"	-2	"636-61-3"	"C4H6O5"	"D-Hydroxysuccinic acid/ (R)-Malate/ D-Malic acid"	"C00497"	"C4H4O5"	-2	132	"C4H4O5"	-2	132	-201	0.8				
+"mal-L"	"L-Malate"	"C4H4O5"	-2	"97-67-6"	"C4H6O5"	"(S)-Malate/ L-Apple acid/ L-Malic acid/ L-2-Hydroxybutanedioic acid/ Malate"	"C00149"	"C4H4O5"	-2	132	"C4H4O5"	-2	132	-201	0.8				
+"malt"	"Maltose"	"C12H22O11"	0	"69-79-4"		"Malt sugar/ 1-alpha-D-Glucopyranosyl-4-alpha-D-glucopyranose"	"C00208"	"C12H22O11"	0	342	"C12H22O11"	0	342	-375.5	8.5				
+"malt6p"	"Maltose 6'-phosphate"	"C12H21O14P"	-2		"C12H23O14P"		"C02995"	"C12H22O14P"	-1	421	"C12H22O14P"	-1	421	-587.4	8.4				
+"malthp"	"Maltoheptaose"	"C42H72O36"	0					"C42H72O36"	0	1152	"C42H72O36"	0	1152	-1164.3	29.8				
+"malthx"	"Maltohexaose"	"C36H62O31"	0	"34620-77-4"		"Maltohexaose"	"C01936"	"C36H62O31"	0	990	"C36H62O31"	0	990	-1006.5	25.5				
+"maltpt"	"Maltopentaose"	"C30H52O26"	0					"C30H52O26"	0	828	"C30H52O26"	0	828	-848.7	21.2				
+"malttr"	"Maltotriose"	"C18H32O16"	0	"1109-28-0"		"Maltotriose/ Amylotriose"	"C01835"	"C18H32O16"	0	504	"C18H32O16"	0	504	-533.2	12.7				
+"maltttr"	"Maltotetraose"	"C24H42O21"	0	"34612-38-9"		"Maltotetraose"	"C02052"	"C24H42O21"	0	666	"C24H42O21"	0	666	-691	17				
+"man"	"D-Mannose"	"C6H12O6"	0	"3458-28-4"		"Mannose/ Seminose/ Carubinose"	"C00159"	"C6H12O6"	0	180	"C6H12O6"	0	180	-217.7	4.3				
+"man1p"	"D-Mannose 1-phosphate"	"C6H11O9P"	-2		"C6H13O9P"	"alpha-D-Mannose 1-phosphate"	"C03812"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-429.6	4.2				
+"man6p"	"D-Mannose 6-phosphate"	"C6H11O9P"	-2		"C6H13O9P"		"C00275"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-429.6	4.2				
+"man6pglyc"	"2(alpha-D-Mannosyl-6-phosphate)-D-glycerate"	"C9H14O12P"	-3		"C9H17O12P"	"2-O-alpha-mannosyl-6-phosphate-D-glycerate"		"C9H15O12P"	-2	346	"C9H15O12P"	-2	346	-528.9	4.4				
+"mana"	"D-Mannonate"	"C6H11O7"	-1		"C6H12O7"		"C00514"	"C6H11O7"	-1	195	"C6H11O7"	-1	195	-268.1	2.4				
+"manglyc"	"2(alpha-D-Mannosyl)-D-glycerate"	"C9H15O9"	-1		"C9H16O9"	"2-O-alpha-mannosyl-D-glycerate/ alpha-Mannosylglycerate"	"C11544"	"C9H15O9"	-1	267	"C9H15O9"	-1	267	-317	4.5				
+"melib"	"Melibiose"	"C12H22O11"	0	"585-99-9"		"6-O-(alpha-D-Galactopyranosyl)-D-glucopyranose"	"C05402"	"C12H22O11"	0	342	"C12H22O11"	0	342	-375.5	8.5				
+"mercppyr"	"Mercaptopyruvate"	"C3H3O3S"	-1		"C3H4O3S"	"3-Mercaptopyruvate"	"C00957"	"C3H3O3S"	-1	119	"C3H3O3S"	-1	119	-108	1.9				
+"met-D"	"D-Methionine"	"C5H10NO2S"	0	"348-67-4"	"C5H11NO2S"	"D-2-Amino-4-(methylthio)butyric acid"	"C00855"	"C5H11NO2S"	0	149	"C5H11NO2S"	0	149	-75.7	2.2				
+"methf"	"5,10-Methenyltetrahydrofolate"	"C20H20N7O6"	-1		"C20H22N7O6"	"5,10-methenyltetrahydrofolate/ N5,N10-methenyl-5,6,7,8-tetrahydrofolate/ N5,N10-methenyl-tetrahydrofolate/ (6R)-5,10-methenyltetrahydrofolate"	"C00445"	"C20H20N7O6"	-1	454	"C20H20N7O6"	-1	454	-96.6	9				
+"met-L"	"L-Methionine"	"C5H11NO2S"	0	"63-68-3"	"C5H11NO2S"	"L-2-Amino-4methylthiobutyric acid/ Met"	"C00073"	"C5H11NO2S"	0	149	"C5H11NO2S"	0	149	-75.7	2.2				
+"metsox-R-L"	"L-methionine-R-sulfoxide"	"C5H11NO3S"	0		"C5H11NO3S"			"C5H11NO3S"	0	165	"C5H11NO3S"	0	165	"Not calculated"	"Not calculated"				
+"metsox-S-L"	"L-Methionine Sulfoxide"	"C5H11NO3S"	0		"C5H11NO3S"	"L-methionine-S-sulfoxide/ L-methionine S-oxide/ methionine sulfoxide"	"C02989"	"C5H11NO3S"	0	165	"C5H11NO3S"	0	165	"Not calculated"	"Not calculated"				
+"mettrna"	"L-Methionyl-tRNA (Met)"	"C5H10NOSR"	1			"L-Methionyl-tRNA"	"C02430"	"C15H22N6O4RS"	1	383	"C15H22N6O4RS"	1	383	"Not calculated"	"Not calculated"				
+"mg2"	"magnesium"	"Mg"	2		"Mg"	"Mg"	"C00305"	"Mg"	2	24	"Mg"	2	24	"Not calculated"	"Not calculated"				
+"mi1p-D"	"1D-myo-Inositol 1-phosphate"	"C6H11O9P"	-2			"Inositol 1-phosphate/ D-myo-Inositol 1-phosphate/ L-myo-Inositol 1-phosphate/ myo-Inositol 1-phosphate/ 1D-myo-Inositol 1-monophosphate/ 1L-myo-Inositol 1-phosphate"	"C01177"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-432.6	4				
+"micit"	"methylisocitrate"	"C7H7O7"	-3	"20298-95-7"		"Methylisocitric acid/ (2S,3R)-3-Hydroxybutane-1,2,3-tricarboxylate/ Methylisocitrate"	"C04593"	"C7H7O7"	-3	203	"C7H7O7"	-3	203	-280.4	1.4				
+"minohp"	"myo-Inositol hexakisphosphate"	"C6H6O24P6"	-12		"C6H18O24P6"	"Phytate;/ Inositol 1,2,3,4,5,6-hexakisphosphate/ Phytic acid;/ myo-Inositol 1,2,3,4,5,6-hexakisphosphate;/ D-myo-Inositol 1,2,3,4,5,6-hexakisphosphate;/ 1D-myo-Inositol 1,2,3,4,5,6-hexakisphosphate;"	"C01204"	"C6H12O24P6"	-6	654	"C6H12O24P6"	-6	654	-1492.1	4.5				
+"mlthf"	"5,10-Methylenetetrahydrofolate"	"C20H21N7O6"	-2		"C20H23N7O6"	"N5,N10-methylene-tetrahydrofolate/ N5,N10-methylene-5,6,7,8-tetrahydrofolate/ 5,10-methylene-5,6,7,8-tetrahydrofolate"	"C00143"	"C20H21N7O6"	-2	455	"C20H21N7O6"	-2	455	-93.5	8.9				
+"mmcoa-R"	"(R)-Methylmalonyl-CoA"	"C25H35N7O19P3S"	-5		"C25H40N7O19P3S"	"(R)-2-Methyl-3-oxopropionyl-CoA/ (R)-2-Methyl-3-oxopropanoyl-CoA/ (R)-3-Oxo-2-methylpropanoyl-CoA"	"C01213"	"C25H36N7O19P3S"	-4	863	"C25H36N7O19P3S"	-4	863	-862.7	10.1				
+"mmcoa-S"	"(S)-Methylmalonyl-CoA"	"C25H35N7O19P3S"	-5		"C25H40N7O19P3S"	"(S)-2-Methyl-3-oxopropanoyl-CoA/ (S)-2-Methyl-3-oxopropionyl-CoA/ (S)-Methylmalonyl-coenzyme A/ (S)-3-oxo-2-methylpropanoyl-CoA"	"C00683"	"C25H36N7O19P3S"	-4	863	"C25H36N7O19P3S"	-4	863	-862.7	10.1				
+"mmet"	"S-Methyl-L-methionine"	"C6H14NO2S"	1				"C03172"	"C6H14NO2S"	1	164	"C6H14NO2S"	1	164	-66.2	6.2				
+"mn2"	"Mn2+"	"Mn"	2			"Manganese dication/ Mn(II)/ Manganese"	"C00034"	"Mn"	2	55	"Mn"	2	55	"Not calculated"	"Not calculated"				
+"mnl"	"D-Mannitol"	"C6H14O6"	0	"69-65-8"			"C00392"	"C6H14O6"	0	182	"C6H14O6"	0	182	-224.8	2.7				
+"mnl1p"	"D-Mannitol 1-phosphate"	"C6H13O9P"	-2		"C6H15O9P"		"C00644"	"C6H14O9P"	-1	261	"C6H14O9P"	-1	261	-436.7	2.5				
+"mobd"	"Molybdate"	"MoO4"	-2		"H2MoO4"		"C06232"	"MoO4"	-2	160	"MoO4"	-2	160	"Not calculated"	"Not calculated"				
+"mql8"	"Menaquinol 8"	"C51H74O2"	0				"C05819"	"C51H74O2"	0	718	"C51H74O2"	0	718	182.5	13.3				
+"mqn8"	"Menaquinone 8"	"C51H72O2"	0	"84-81-1"		"Vitamin K2"	"C00828"	"C51H72O2"	0	716	"C51H72O2"	0	716	208.4	12.7				
+"mso3"	"methanesulfonate"	"CH3O3S"	-1		"CH4O3S"	"MethaneSulfonic Acid"		"CH3O3S"	-1	95	"CH3O3S"	-1	95	-127.4	2.2				
+"mthgxl"	"Methylglyoxal"	"C3H4O2"	0	"78-98-8"		"Pyruvaldehyde/ Pyruvic aldehyde/ 2-Ketopropionaldehyde/ 2-Oxopropanal"	"C00546"	"C3H4O2"	0	72	"C3H4O2"	0	72	-59.8	0.9				
+"murein3p3p"	"two linked disacharide tripeptide murein units (uncrosslinked, middle of chain)"	"C68H104N12O38"	-4		"C68H108N12O38"			"C68H104N12O38"	-4	1696	"C68H104N12O38"	-4	1696	-1233.2	25.5				
+"murein3px3p"	"two disacharide linked murein units, tripeptide crosslinked tripeptide (A2pm->A2pm) (middle of chain)"	"C68H102N12O37"	-4		"C68H106N12O37"			"C68H102N12O37"	-4	1678	"C68H102N12O37"	-4	1678	-1176.1	26.9				
+"murein3px4p"	"two disacharide linked murein units, tripeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)"	"C71H107N13O38"	-4		"C71H111N13O38"			"C71H107N13O38"	-4	1749	"C71H107N13O38"	-4	1749	-1207.1	28.4				
+"murein4p3p"	"two linked disacharide tetrapeptide and tripeptide murein units (uncrosslinked, middle of chain)"	"C71H109N13O39"	-4		"C71H113N13O39"			"C71H109N13O39"	-4	1767	"C71H109N13O39"	-4	1767	-1264.1	27				
+"murein4p4p"	"two linked disacharide tetrapeptide murein units (uncrosslinked, middle of chain)"	"C74H114N14O40"	-4		"C74H118N14O40"			"C74H114N14O40"	-4	1838	"C74H114N14O40"	-4	1838	-1295	28.6				
+"murein4px4p"	"two disacharide linked murein units, tetrapeptide corsslinked tetrapeptide (A2pm->D-ala) (middle of chain)"	"C74H112N14O39"	-4		"C74H116N14O39"			"C74H112N14O39"	-4	1820	"C74H112N14O39"	-4	1820	-1238	30				
+"murein4px4p4p"	"three disacharide linked murein units (tetrapeptide crosslinked tetrapeptide (A2pm->D-ala), one uncrosslinked tetrapaptide) (middle of chain)"	"C111H169N21O59"	-6		"C111H175N21O59"			"C111H169N21O59"	-6	2739	"C111H169N21O59"	-6	2739	-1881.5	44.6				
+"murein4px4px4p"	"three disacharide linked murein units (tetrapeptide crosslinked tetrapeptide (A2pm->D-ala) & tetrapeptide corsslinked tetrapeptide (A2pm->D-ala)) (middle of chain)"	"C111H167N21O58"	-6		"C111H173N21O58"			"C111H167N21O58"	-6	2721	"C111H167N21O58"	-6	2721	-1824.4	46.1				
+"murein5p3p"	"two linked disacharide pentapeptide and tripeptide murein units (uncrosslinked, middle of chain)"	"C74H114N14O40"	-4		"C74H118N14O40"			"C74H114N14O40"	-4	1838	"C74H114N14O40"	-4	1838	-1295	28.6				
+"murein5p4p"	"two linked disacharide pentapeptide and tetrapeptide murein units (uncrosslinked, middle of chain)"	"C77H119N15O41"	-4		"C77H123N15O41"			"C77H119N15O41"	-4	1909	"C77H119N15O41"	-4	1909	-1325.9	30.2				
+"murein5p5p"	"two linked disacharide pentapeptide murein units (uncrosslinked, middle of chain)"	"C80H124N16O42"	-4		"C80H128N16O42"	"GlcNac-MurNac-pentapeptide (x2)/ [GlcNac-MurNac-pentapeptide(beta1->4)GlcNac-MurNac-pentapeptide] unit"		"C80H124N16O42"	-4	1980	"C80H124N16O42"	-4	1980	-1356.8	31.8				
+"murein5p5p5p"	"three linked disacharide pentapeptide murein units (uncrosslinked, middle of chain)"	"C120H186N24O63"	-6		"C120H192N24O63"	"GlcNac-MurNac-pentapeptide (x3)/ [GlcNac-MurNac-pentapeptide(beta1->4)GlcNac-MurNac-pentapeptide(beta1->4)GlcNac-MurNac-pentapeptide] unit"		"C120H186N24O63"	-6	2970	"C120H186N24O63"	-6	2970	-2031.2	48				
+"murein5px3p"	"two disacharide linked murein units, pentapeptide corsslinked tripeptide (A2pm->A2pm) (middle of chain)"	"C74H112N14O39"	-4		"C74H116N14O39"			"C74H112N14O39"	-4	1820	"C74H112N14O39"	-4	1820	-1238	30				
+"murein5px4p"	"two disacharide linked murein units, pentapeptide crosslinked tetrapeptide (A2pm->D-ala) (middle of chain)"	"C77H117N15O40"	-4		"C77H121N15O40"			"C77H117N15O40"	-4	1891	"C77H117N15O40"	-4	1891	-1268.9	31.6				
+"murein5px4px4p"	"three disacharide linked murein units (pentapeptide crosslinked tetrapeptide (A2pm->D-ala) tetrapeptide corsslinked tetrapeptide (A2pm->D-ala)) (middle of chain)"	"C114H172N22O59"	-6		"C114H178N22O59"			"C114H172N22O59"	-6	2792	"C114H172N22O59"	-6	2792	-1855.4	47.7				
+"myrsACP"	"Myristoyl-ACP (n-C14:0ACP)"	"C25H47N2O8PRS"	-1			"Tetradecanoyl-[acyl-carrier protein]/ Tetradecanoyl-[acp]/ Fatty acid C14:0 ACP"	"C05761"	"C25H47N2O8PRS"	-1	567	"C25H47N2O8PRS"	-1	567	"Not calculated"	"Not calculated"				
+"N1aspmd"	"N1-Acetylspermidine"	"C9H23N3O"	2	"34450-16-3"	"C9H21N3O"		"C00612"	"C9H23N3O"	2	189	"C9H23N3O"	2	189	-24.7	3.5				
+"n2o"	"Nitrous oxide"	"N2O"	0	"10024-97-2"		"Dinitrogen monoxide/ Dinitrogen oxide"	"C00887"	"HN2O"	1	45	"HN2O"	1	45	18.3	4.6				
+"n8aspmd"	"N8-Acetylspermidine"	"C9H23N3O"	2	"34450-15-2"	"C9H21N3O"		"C01029"	"C9H23N3O"	2	189	"C9H23N3O"	2	189	-24.7	3.5				
+"na1"	"Sodium"	"Na"	1	"7440-23-5"		"Na/ Natrium"	"C01330"	"Na"	1	23	"Na"	1	23	"Not calculated"	"Not calculated"				
+"nac"	"Nicotinate"	"C6H4NO2"	-1	"59-67-6"	"C6H5NO2"	"Niacin/ Nicotinic acid/ 3-Pyridinecarboxylic acid"	"C00253"	"C6H4NO2"	-1	122	"C6H4NO2"	-1	122	-38.4	3.8				
+"nad"	"Nicotinamide adenine dinucleotide"	"C21H26N7O14P2"	-1	"53-84-9"	"C21H28N7O14P2"	"NAD+/ NAD/ beta-Diphosphopyridine Nucleotide/ beta-NAD/ beta-Nicotinamide adenine dinucleotide"	"C00003"	"C21H26N7O14P2"	-1	662	"C21H26N7O14P2"	-1	662	-529	12.3				
+"nadh"	"Nicotinamide adenine dinucleotide - reduced"	"C21H27N7O14P2"	-2	"58-68-4"	"C21H29N7O14P2"	"DPNH/ NADH"	"C00004"	"C21H27N7O14P2"	-2	663	"C21H27N7O14P2"	-2	663	-523.8	12.1				
+"nadp"	"Nicotinamide adenine dinucleotide phosphate"	"C21H25N7O17P3"	-3	"53-59-8"		"NADP/ beta-Nicotinamide adenine dinucleotide phosphate/ NADP+"	"C00006"	"C21H26N7O17P3"	-2	741	"C21H26N7O17P3"	-2	741	-740.9	12.2				
+"nadph"	"Nicotinamide adenine dinucleotide phosphate - reduced"	"C21H26N7O17P3"	-4	"2646-71-1"	"C21H30N7O17P3"	"TPNH/ beta-triphosphopyridine nucleotide/ NADPH"	"C00005"	"C21H26N7O17P3"	-4	742	"C21H27N7O17P3"	-3	743	-726.2	12.1				
+"ncam"	"Nicotinamide"	"C6H6N2O"	0	"98-92-0"	"C6H6N2O"	"Nicotinic acid amide/ Niacinamide/ Vitamin PP"	"C00153"	"C6H6N2O"	0	122	"C6H6N2O"	0	122	4.3	4.1				
+"nh4"	"Ammonium"	"H4N"	1	"14798-03-9"	"H3N"	"NH3"	"C01342"	"H4N"	1	18	"H4N"	1	18	-19	1.5				
+"ni2"	"nickel"	"Ni"	2			"Nickel/ Ni2+"	"C00291"	"Ni"	2	59	"Ni"	2	59	"Not calculated"	"Not calculated"				
+"nicrnt"	"Nicotinate D-ribonucleotide"	"C11H12NO9P"	-2		"C11H15NO9P"	"Nicotinate ribonucleotide/ Nicotinic acid ribonucleotide/ beta-Nicotinate D-ribonucleotide"	"C01185"	"C11H13NO9P"	-1	334	"C11H13NO9P"	-1	334	-379.4	5.4				
+"nmn"	"NMN"	"C11H14N2O8P"	-1	"1094-61-7"		"Nicotinamide D-ribonucleotide/ Nicotinamide mononucleotide/ Nicotinamide ribonucleotide"	"C00455"	"C11H15N2O8P"	0	334	"C11H15N2O8P"	0	334	-336.8	5.5				
+"Nmtrp"	"N-Methyltryptophan"	"C12H14N2O2"	0	"526-31-8"	"C12H14N2O2"	"L-2-Methyltryptophan/ Abrine/ L-Abrine"	"C02983"	"C12H14N2O2"	0	218	"C12H14N2O2"	0	218	-16.8	4.9				
+"no"	"Nitric oxide"	"NO"	0	"10102-43-9"		"NO/ Nitrogen monoxide"	"C00533"	"NO"	0	30	"NO"	0	30	"Not calculated"	"Not calculated"				
+"no2"	"Nitrite"	"NO2"	-1	"7697-37-2"	"HNO2"	"Nitric acid"	"C00088"	"NO2"	-1	46	"NO2"	-1	46	-8.9	1.5				
+"no3"	"Nitrate"	"NO3"	-1		"HNO3"	"Nitric acid"	"C00244"	"NO3"	-1	62	"NO3"	-1	62	-26.6	1.5				
+"o16a2und"	"(O16 antigen)x2 undecaprenyl diphosphate"	"C123H200N2O57P2"	-2		"C123H202N2O57P2"			"C123H200N2O57P2"	-2	2678	"C123H200N2O57P2"	-2	2678	-1720.9	44.7				
+"o16a3und"	"(O16 antigen)x3 undecaprenyl diphosphate"	"C157H255N3O82P2"	-2		"C157H257N3O82P2"			"C157H255N3O82P2"	-2	3555	"C157H255N3O82P2"	-2	3555	-2505	64.6				
+"o16a4colipa"	"(O16 antigen)x4 core oligosaccharide lipid A"	"C312H523N6O200P4"	-11		"C312H534N6O200P4"			"C312H527N6O200P4"	-7	7679	"C312H527N6O200P4"	-7	7679	-6769.2	142				
+"o16a4und"	"(O16 antigen)x4 undecaprenyl diphosphate"	"C191H310N4O107P2"	-2		"C191H312N4O107P2"			"C191H310N4O107P2"	-2	4432	"C191H310N4O107P2"	-2	4432	-3289.2	84.9				
+"o16aund"	"O16 antigen undecaprenyl diphosphate"	"C89H145N1O32P2"	-2		"C89H147N1O32P2"	"ggfgaragund"		"C89H145NO32P2"	-2	1801	"C89H145NO32P2"	-2	1801	-936.7	26.3				
+"o2"	"O2"	"O2"	0	"7782-44-7"		"Oxygen/ dioxygen"	"C00007"	"O2"	0	32	"O2"	0	32	3.9	1.5				
+"o2s"	"Superoxide anion"	"O2"	-1			"O2.-/ O2 free radical"	"C00704"	"O2"	-1	32	"O2"	-1	32	6.9	1.5				
+"oaa"	"Oxaloacetate"	"C4H2O5"	-2	"328-42-7"	"C4H4O5"	"Oxalacetic acid/ Oxaloacetic acid/ 2-oxobutanedioic acid/ Oxosuccinic acid"	"C00036"	"C4H2O5"	-2	130	"C4H2O5"	-2	130	-190.5	1				
+"oc2coa"	"trans-Oct-2-enoyl-CoA"	"C29H44N7O17P3S"	-4		"C29H48N7O18P3S"		"C05276"	"C29H45N7O17P3S"	-3	888	"C29H45N7O17P3S"	-3	888	-753.9	10.4				
+"ocACP"	"Octanoyl-ACP (n-C8:0ACP)"	"C19H35N2O8PRS"	-1			"Octanoyl-[acyl-carrier protein]/ Octanoyl-[acp]"	"C05752"	"C19H35N2O8PRS"	-1	483	"C19H35N2O8PRS"	-1	483	"Not calculated"	"Not calculated"				
+"occoa"	"Octanoyl-CoA (n-C8:0CoA)"	"C29H46N7O17P3S"	-4		"C29H50N7O17P3S"		"C01944"	"C29H47N7O17P3S"	-3	890	"C29H47N7O17P3S"	-3	890	-774.8	10.3				
+"ocdca"	"octadecanoate (n-C18:0)"	"C18H35O2"	-1	11/04/57	"C18H36O2"	"Stearate/ Stearic acid/ Octadecanoic acid"	"C01530"	"C18H35O2"	-1	283	"C18H35O2"	-1	283	-60.4	3.5				
+"ocdcaACP"	"Octadecanoyl-ACP (n-C18:0ACP)"	"C29H55N2O8PRS"	-1			"stearoyl-ACP"		"C29H55N2O8PRS"	-1	623	"C29H55N2O8PRS"	-1	623	"Not calculated"	"Not calculated"				
+"ocdcea"	"octadecenoate (n-C18:1)"	"C18H33O2"	-1		"C18H34O2"	"octadecenoic acid/ oleate/ (9Z)-Octadecenoic acid/ (Z)-Octadec-9-enoic acid/ Oleic acid"		"C18H33O2"	-1	281	"C18H33O2"	-1	281	-38.1	3.4				
+"octa"	"octanoate (n-C8:0)"	"C8H15O2"	-1	07/02/24	"C8H16O2"	"Caprylic acid/ Octanoic acid/ Octylic acid"	"C06423"	"C8H15O2"	-1	143	"C8H15O2"	-1	143	-76.9	1.4				
+"octdp"	"all-trans-Octaprenyl diphosphate"	"C40H65O7P2"	-3		"C40H68O7P2"	"Farnesylfarnesylgeraniol"	"C04146"	"C40H66O7P2"	-2	720	"C40H66O7P2"	-2	720	-239.2	11.5				
+"octeACP"	"cis-octadec-11-enoyl-[acyl-carrier protein] (n-C18:1)"	"C29H53N2O8PRS"	-1			"cis-vacc-11-enoyl-[acyl-carrier protein] (n-C18:1)/ Octadecenoyl-ACP (n-C18:1ACP)"		"C29H53N2O8PRS"	-1	621	"C29H53N2O8PRS"	-1	621	"Not calculated"	"Not calculated"				
+"od2coa"	"trans-Octadec-2-enoyl-CoA"	"C39H64N7O17P3S"	-4		"C39H68N7O17P3S"	"elaidic acid coenzyme A"		"C39H65N7O17P3S"	-3	1028	"C39H65N7O17P3S"	-3	1028	-737.5	11				
+"odecoa"	"Octadecenoyl-CoA (n-C18:1CoA)"	"C39H64N7O17P3S"	-4			"Oleoyl-CoA"		"C39H65N7O17P3S"	-3	1028	"C39H65N7O17P3S"	-3	1028	-737.5	11				
+"ohpb"	"2-Oxo-3-hydroxy-4-phosphobutanoate"	"C4H4O8P"	-3			"alpha-Keto-3-hydroxy-4-phosphobutyrate"	"C06054"	"C4H5O8P"	-2	212	"C4H5O8P"	-2	212	-397	1.1				
+"op4en"	"2-Oxopent-4-enoate"	"C5H5O3"	-1			"Oxopent-4-enoate/ 2-Hydroxypenta-2,4-dienoate/ 2-Hydroxy-2,4-pentadienoate/ cis-2-Hydroxypenta-2,4-dienoate/ 2-keto-4-pentenoate"	"C00596"	"C5H5O3"	-1	113	"C5H5O3"	-1	113	-82.6	2.5				
+"orn"	"Ornithine"	"C5H13N2O2"	1	"70-26-8"	"C5H12N2O2"	"2,5-Diaminovaleric acid/ 2,5-Diaminopentanoic acid/ 2,5-Diaminopentanoate/ L-Ornithine"	"C01602"	"C5H13N2O2"	1	133	"C5H13N2O2"	1	133	-85.7	1.4				
+"orot"	"Orotate"	"C5H3N2O4"	-1	"65-86-1"	"C5H4N2O4"	"Orotic acid/ Uracil-6-carboxylic acid"	"C00295"	"C5H3N2O4"	-1	155	"C5H3N2O4"	-1	155	-142.5	4.5				
+"orot5p"	"Orotidine 5'-phosphate"	"C10H10N2O11P"	-3	"2149-82-8"	"C10H13N2O11P"	"Orotidylic acid"	"C01103"	"C10H11N2O11P"	-2	366	"C10H11N2O11P"	-2	366	-477.7	5.4				
+"oxam"	"Oxamate"	"C2H2NO3"	-1	"471-47-6"	"C2H3NO3"	"Oxamate/ Oxamic acid/ Oxalic monoamide"	"C01444"	"C2H2NO3"	-1	88	"C2H2NO3"	-1	88	-121.2	1.6				
+"oxur"	"Oxalureate"	"C3H3N2O4"	-1	05/07/85	"C3H4N2O4"	"Oxaluric acid/ Monooxalylurea"	"C00802"	"C3H3N2O4"	-1	131	"C3H3N2O4"	-1	131	-153.7	2.9				
+"pa120"	"1,2-didodecanoyl-sn-glycerol 3-phosphate"	"C27H51O8P1"	-2		"C27H53O8P1"	"Phosphatidate;/ Phosphatidic acid;/ 1,2-Diacyl-sn-glycerol 3-phosphate;/ 3-sn-Phosphatidate"	"C00416"	"C27H52O8P"	-1	535	"C27H52O8P"	-1	535	-369.8	5.4				
+"pa140"	"1,2-ditetradecanoyl-sn-glycerol 3-phosphate"	"C31H59O8P1"	-2		"C31H61O8P1"	"Phosphatidic acid;/ Phosphatidate;/ 3-sn-Phosphatidate/ 1,2-Diacyl-sn-glycerol 3-phosphate;"	"C00416"	"C31H60O8P"	-1	591	"C31H60O8P"	-1	591	-363.2	6.2				
+"pa141"	"1,2-ditetradec-7-enoyl-sn-glycerol 3-phosphate"	"C31H55O8P1"	-2		"C31H57O8P1"	"Phosphatidate;/ Phosphatidic acid;/ 1,2-Diacyl-sn-glycerol 3-phosphate;/ 3-sn-Phosphatidate"	"C00416"	"C31H56O8P"	-1	587	"C31H56O8P"	-1	587	-318.5	6.1				
+"pa160"	"1,2-dihexadecanoyl-sn-glycerol 3-phosphate"	"C35H67O8P1"	-2		"C35H69O8P1"	"1,2-Diacyl-sn-glycerol 3-phosphate;/ Phosphatidate;/ Phosphatidic acid;/ 3-sn-Phosphatidate"	"C00416"	"C35H68O8P"	-1	647	"C35H68O8P"	-1	647	-356.6	7				
+"pa161"	"1,2-dihexadec-9-enoyl-sn-glycerol 3-phosphate"	"C35H63O8P1"	-2		"C35H67O8P1"	"Phosphatidate;/ 1,2-Diacyl-sn-glycerol 3-phosphate;/ 3-sn-Phosphatidate/ Phosphatidic acid;"	"C00416"	"C35H64O8P"	-1	643	"C35H64O8P"	-1	643	-311.9	6.8				
+"pa180"	"1,2-dioctadecanoyl-sn-glycerol 3-phosphate"	"C39H75O8P1"	-2		"C39H77O8P1"	"Phosphatidate;/ 1,2-Diacyl-sn-glycerol 3-phosphate;/ 3-sn-Phosphatidate/ Phosphatidic acid;"	"C00416"	"C39H76O8P"	-1	703	"C39H76O8P"	-1	703	-350	7.8				
+"pa181"	"1,2-dioctadec-11-enoyl-sn-glycerol 3-phosphate"	"C39H71O8P1"	-2		"C39H73O8P1"	"1,2-Diacyl-sn-glycerol 3-phosphate;/ Phosphatidate;/ Phosphatidic acid;/ 3-sn-Phosphatidate"	"C00416"	"C39H72O8P"	-1	699	"C39H72O8P"	-1	699	-305.4	7.5				
+"pac"	"Phenylacetic acid"	"C8H7O2"	-1	"103-82-2"		"Benzeneacetiic acid/ Phenylacetate/ Benzylformic acid"	"C07086"	"C8H7O2"	-1	135	"C8H7O2"	-1	135	-49.6	2.3				
+"pacald"	"Phenylacetaldehyde"	"C8H8O"	0	"122-78-1"		"alpha-Tolualdehyde"	"C00601"	"C8H8O"	0	120	"C8H8O"	0	120	3.2	2.3				
+"palmACP"	"Palmitoyl-ACP (n-C16:0ACP)"	"C27H51N2O8PRS"	-1			"Hexadecanoyl-[acp]/ Hexadecanoyl-[acyl-carrier protein]/ fa8-ACP/ hexadecanoyl-ACP"	"C05764"	"C27H51N2O8PRS"	-1	595	"C27H51N2O8PRS"	-1	595	"Not calculated"	"Not calculated"				
+"pan4p"	"Pantetheine 4'-phosphate"	"C11H21N2O7PS"	-2		"C11H23N2O7PS"	"4'-Phosphopantetheine/ Phosphopantetheine"	"C01134"	"C11H22N2O7PS"	-1	357	"C11H22N2O7PS"	-1	357	-346.8	4.4				
+"pant-R"	"(R)-Pantoate"	"C6H11O4"	-1	"470-29-1"	"C6H12O4"	"D-pantoate/ Pantoate/ Pantoic acid"	"C00522"	"C6H11O4"	-1	147	"C6H11O4"	-1	147	-159.1	1.4				
+"pap"	"Adenosine 3',5'-bisphosphate"	"C10H11N5O10P2"	-4	"1053-73-2"	"C10H15N5O10P2"	"PAP/ 3'-Phosphoadenylate/ Phosphoadenosine phosphate"	"C00054"	"C10H13N5O10P2"	-2	425	"C10H13N5O10P2"	-2	425	-469.2	8.7				
+"paps"	"3'-Phosphoadenylyl sulfate"	"C10H11N5O13P2S"	-4	"482-67-7"	"C10H15N5O13P2S"	"3'-Phospho-5'-adenylyl sulfate/ PAPS/ 3'-Phosphoadenosine 5'-phosphosulfate"	"C00053"	"C10H12N5O13P2S"	-3	504	"C10H12N5O13P2S"	-3	504	-580.1	8.9				
+"pdx5p"	"Pyridoxine 5'-phosphate"	"C8H10NO6P"	-2	05/02/47	"C8H12NO6P"	"Pyridoxine 5-phosphate/ Pyridoxine phosphate"	"C00627"	"C8H11NO6P"	-1	248	"C8H11NO6P"	-1	248	-279.6	4.8				
+"pe120"	"phosphatidylethanolamine (didodecanoyl, n-C12:0)"	"C29H58N1O8P1"	0		"C29H58N1O8P1"	"Cephalin/ (3-Phosphatidyl)ethanolamine;/ (3-Phosphatidyl)-ethanolamine;"	"C00350"	"C29H58NO8P"	0	579	"C29H58NO8P"	0	579	-352.9	6				
+"pe140"	"phosphatidylethanolamine (ditetradecanoyl, n-C14:0)"	"C33H66N1O8P1"	0		"C33H66N1O8P1"	"(3-Phosphatidyl)ethanolamine;/ Cephalin/ (3-Phosphatidyl)-ethanolamine;"	"C00350"	"C33H66NO8P"	0	635	"C33H66NO8P"	0	635	-346.3	6.7				
+"pe141"	"phosphatidylethanolamine (ditetradec-7-enoyl, n-C14:1)"	"C33H62N1O8P1"	0		"C33H62N1O8P1"	"(3-Phosphatidyl)ethanolamine;/ (3-Phosphatidyl)-ethanolamine;/ Cephalin"	"C00350"	"C33H62NO8P"	0	631	"C33H62NO8P"	0	631	-301.6	6.6				
+"pe160"	"phosphatidylethanolamine (dihexadecanoyl, n-C16:0)"	"C37H74N1O8P1"	0		"C37H74N1O8P1"	"Cephalin/ (3-Phosphatidyl)-ethanolamine;/ (3-Phosphatidyl)ethanolamine;"	"C00350"	"C37H74NO8P"	0	691	"C37H74NO8P"	0	691	-339.7	7.5				
+"pe161"	"phosphatidylethanolamine (dihexadec-9enoyl, n-C16:1)"	"C37H70N1O8P1"	0		"C37H70N1O8P1"	"(3-Phosphatidyl)ethanolamine;/ (3-Phosphatidyl)-ethanolamine;/ Cephalin"	"C00350"	"C37H70NO8P"	0	687	"C37H70NO8P"	0	687	-295.1	7.3				
+"pe180"	"phosphatidylethanolamine (dioctadecanoyl, n-C18:0)"	"C41H82N1O8P1"	0		"C41H82N1O8P1"	"Cephalin/ (3-Phosphatidyl)-ethanolamine;/ (3-Phosphatidyl)ethanolamine;"	"C00350"	"C41H82NO8P"	0	747	"C41H82NO8P"	0	747	-333.2	8.3				
+"pe181"	"phosphatidylethanolamine (dioctadec-11-enoyl, n-C18:1)"	"C41H78N1O8P1"	0		"C41H78N1O8P1"	"(3-Phosphatidyl)-ethanolamine;/ (3-Phosphatidyl)ethanolamine;/ Cephalin"	"C00350"	"C41H78NO8P"	0	743	"C41H78NO8P"	0	743	-288.5	8				
+"peamn"	"Phenethylamine"	"C8H12N"	1	"64-04-0"	"C8H11N"	"Phenethylamine/ 2-Phenylethylamine/ beta-Phenylethylamine/ Phenylethylamine"	"C05332"	"C8H12N"	1	122	"C8H12N"	1	122	28.9	2.3				
+"pep"	"Phosphoenolpyruvate"	"C3H2O6P"	-3	08/09/38	"C3H5O6P"	"Phosphoenolpyruvic acid/ PEP"	"C00074"	"C3H3O6P"	-2	166	"C3H3O6P"	-2	166	-315.4	1.7				
+"pg120"	"Phosphatidylglycerol (didodecanoyl, n-C12:0)"	"C30H58O10P1"	-1		"C30H59O10P1"	"Phosphatidylglycerol;/ 3-(3-sn-Phosphatidyl)glycerol;/ 3(3-Phosphatidyl-)glycerol;/ PtdGro"	"C00344"	"C30H58O10P"	-1	609	"C30H58O10P"	-1	609	-424.3	6				
+"pg140"	"Phosphatidylglycerol (ditetradecanoyl, n-C14:0)"	"C34H66O10P1"	-1		"C34H67O10P1"	"3(3-Phosphatidyl-)glycerol;/ PtdGro/ 3-(3-sn-Phosphatidyl)glycerol;/ Phosphatidylglycerol;"	"C00344"	"C34H66O10P"	-1	665	"C34H66O10P"	-1	665	-417.7	6.8				
+"pg141"	"Phosphatidylglycerol (ditetradec-7-enoyl, n-C14:1)"	"C34H62O10P1"	-1		"C34H63O10P1"	"PtdGro/ Phosphatidylglycerol;/ 3(3-Phosphatidyl-)glycerol;/ 3-(3-sn-Phosphatidyl)glycerol;"	"C00344"	"C34H62O10P"	-1	661	"C34H62O10P"	-1	661	-373	6.6				
+"pg160"	"Phosphatidylglycerol (dihexadecanoyl, n-C16:0)"	"C38H74O10P1"	-1		"C38H75O10P1"	"3(3-Phosphatidyl-)glycerol;/ Phosphatidylglycerol;/ PtdGro/ 3-(3-sn-Phosphatidyl)glycerol;"	"C00344"	"C38H74O10P"	-1	721	"C38H74O10P"	-1	721	-411.2	7.6				
+"pg161"	"Phosphatidylglycerol (dihexadec-9-enoyl, n-C16:1)"	"C38H70O10P1"	-1		"C38H71O10P1"	"Phosphatidylglycerol;/ 3(3-Phosphatidyl-)glycerol;/ PtdGro/ 3-(3-sn-Phosphatidyl)glycerol;"	"C00344"	"C38H70O10P"	-1	717	"C38H70O10P"	-1	717	-366.5	7.3				
+"pg180"	"Phosphatidylglycerol (dioctadecanoyl, n-C18:0)"	"C42H82O10P1"	-1		"C42H83O10P1"	"3(3-Phosphatidyl-)glycerol;/ 3-(3-sn-Phosphatidyl)glycerol;/ Phosphatidylglycerol;/ PtdGro"	"C00344"	"C42H82O10P"	-1	777	"C42H82O10P"	-1	777	-404.6	8.4				
+"pg181"	"Phosphatidylglycerol (dioctadec-11-enoyl, n-C18:1)"	"C42H78O10P1"	-1		"C42H79O10P1"	"PtdGro/ 3(3-Phosphatidyl-)glycerol;/ Phosphatidylglycerol;"	"C00344"	"C42H78O10P"	-1	773	"C42H78O10P"	-1	773	-359.9	8.1				
+"pgp120"	"Phosphatidylglycerophosphate (didodecanoyl, n-C12:0)"	"C30H57O13P2"	-3		"C30H60O13P2"	"3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;/ 3(3-Phosphatidyl-)L-glycerol 1-phosphate;/ 1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate"	"C03892"	"C30H58O13P2"	-2	688	"C30H58O13P2"	-2	688	-636.2	6				
+"pgp140"	"Phosphatidylglycerophosphate (ditetradecanoyl, n-C14:0)"	"C34H65O13P2"	-3		"C34H68O13P2"	"1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate/ 3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;/ 3(3-Phosphatidyl-)L-glycerol 1-phosphate;"	"C03892"	"C34H66O13P2"	-2	744	"C34H66O13P2"	-2	744	-629.6	6.8				
+"pgp141"	"Phosphatidylglycerophosphate (ditetradec-7-enoyl, n-C14:1)"	"C34H61O13P2"	-3		"C34H64O13P2"	"3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;/ 1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate/ 3(3-Phosphatidyl-)L-glycerol 1-phosphate;"	"C03892"	"C34H62O13P2"	-2	740	"C34H62O13P2"	-2	740	-584.9	6.6				
+"pgp160"	"Phosphatidylglycerophosphate (dihexadecanoyl, n-C16:0)"	"C38H73O13P2"	-3		"C38H76O13P2"	"1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate/ 3(3-Phosphatidyl-)L-glycerol 1-phosphate;/ 3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;"	"C03892"	"C38H74O13P2"	-2	800	"C38H74O13P2"	-2	800	-623	7.6				
+"pgp161"	"Phosphatidylglycerophosphate (dihexadec-9-enoyl, n-C16:1)"	"C38H69O13P2"	-3		"C38H72O13P2"	"3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;/ 3(3-Phosphatidyl-)L-glycerol 1-phosphate;/ 1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate"		"C38H70O13P2"	-2	796	"C38H70O13P2"	-2	796	-578.4	7.3				
+"pgp180"	"Phosphatidylglycerophosphate (dioctadecanoyl, n-C18:0)"	"C42H81O13P2"	-3		"C42H84O13P2"	"3(3-Phosphatidyl-)L-glycerol 1-phosphate;/ 1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate/ 3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;"	"C03892"	"C42H82O13P2"	-2	856	"C42H82O13P2"	-2	856	-616.5	8.4				
+"pgp181"	"Phosphatidylglycerophosphate (dioctadec-11-enoyl, n-C18:1)"	"C42H77O13P2"	-3		"C42H80O13P2"	"3(3-Phosphatidyl-)L-glycerol 1-phosphate;/ 3(3-sn-Phosphatidyl)-sn-glycerol 1-phosphate;/ 1,2-Diacyl-sn-glycero-3-phospho-sn-glycerol 3'-phosphate"	"C03892"	"C42H78O13P2"	-2	852	"C42H78O13P2"	-2	852	-571.8	8				
+"phaccoa"	"Phenylacetyl-CoA"	"C29H38N7O17P3S"	-4		"C29H42N7O17P3S"		"C00582"	"C29H39N7O17P3S"	-3	882	"C29H39N7O17P3S"	-3	882	-747.5	10.3				
+"phe-L"	"L-Phenylalanine"	"C9H11NO2"	0	"63-91-2"	"C9H11NO2"	"(S)-alpha-amino-beta-phenylpropionic acid/ 3-phenylalanine/ (S)-Phenylalanine"	"C00079"	"C9H11NO2"	0	165	"C9H11NO2"	0	165	-50.8	2.4				
+"pheme"	"Protoheme"	"C34H30FeN4O4"	-2	"14875-96-8"	"C34H32FeN4O4"	"Heme/ Haem/ Heme B/ hemeB"	"C00032"	"C34H30FeN4O4"	-2	614	"C34H30FeN4O4"	-2	614	"Not calculated"	"Not calculated"				
+"phetrna"	"L-Phenylalanyl-tRNA(Phe)"	"C9H10NOR"	1				"C03511"	"C19H22N6O4R"	1	399	"C19H21N6O4R"	0	398	"Not calculated"	"Not calculated"				
+"phhlipa"	"phospho-heptosyl-heptosyl-kdo2-lipidA"	"C124H219N2O54P3"	-8		"C124H227N2O54P3"	"heptosyl-(1->3)-phospho-(->4)-heptosyl-(1->5)-kdo2-lipidA"		"C124H222N2O54P3"	-5	2695	"C124H222N2O54P3"	-5	2695	-2045	29.3				
+"phom"	"O-Phospho-L-homoserine"	"C4H8NO6P"	-2		"C4H10NO6P"		"C01102"	"C4H9NO6P"	-1	198	"C4H9NO6P"	-1	198	-334.4	1				
+"phphhlipa"	"phospho-heptosyl-phospho-heptosyl-heptosyl-kdo2-lipidA"	"C131H230N2O63P4"	-10		"C131H240N2O63P4"	"phospho-(->4)-heptosyl-(1->7)-heptosyl-(1->3)-phospho-(->4)-heptosyl-(1->5)-kdo2-lipidA"		"C131H233N2O63P4"	-7	2966	"C131H233N2O63P4"	-7	2966	-2441.4	33				
+"phpyr"	"Phenylpyruvate"	"C9H7O3"	-1	06/09/56	"C9H8O3"	"Phenylpyruvic acid/ alpha-Ketohydrocinnamic acid/ keto-Phenylpyruvate/ 3-Phenyl-2-oxopropanoate"	"C00166"	"C9H7O3"	-1	163	"C9H7O3"	-1	163	-75.4	2.4				
+"phthr"	"O-Phospho-4-hydroxy-L-threonine"	"C4H8NO7P"	-2		"C4H10NO7P"	"4-(Phosphonooxy)-threonine/ 4-(Phosphonooxy)-L-threonine"	"C06055"	"C4H9NO7P"	-1	214	"C4H9NO7P"	-1	214	-372.3	1.2				
+"pi"	"Phosphate"	"HO4P"	-2	"14265-44-2"	"H3O4P"	"Pi/ Orthophosphate/ Phosphoric acid"	"C00009"	"HO4P"	-2	96	"HO4P"	-2	96	-262	1.5				
+"pmcoa"	"Pimeloyl-CoA"	"C28H41N7O19P3S"	-5		"C28H46N7O19P3S"	"6-Carboxyhexanoyl-CoA"	"C01063"	"C28H42N7O19P3S"	-4	905	"C28H42N7O19P3S"	-4	905	-856	10.3				
+"pmtcoa"	"Palmitoyl-CoA (n-C16:0CoA)"	"C37H62N7O17P3S"	-4		"C37H66N7O17P3S"	"Hexadecanoyl-CoA"	"C00154"	"C37H63N7O17P3S"	-3	1002	"C37H63N7O17P3S"	-3	1002	-761.6	10.9				
+"pnto-R"	"(R)-Pantothenate"	"C9H16NO5"	-1	"79-83-4"	"C9H17NO5"	"D-Pantothenate/ Pantothenate/ Pantothenic acid"	"C00864"	"C9H16NO5"	-1	218	"C9H16NO5"	-1	218	-188.3	2.4				
+"ppa"	"Propionate (n-C3:0)"	"C3H5O2"	-1	09/04/79	"C3H6O2"	"Propanoate/ Propanoic acid/ Propionic acid"	"C00163"	"C3H5O2"	-1	73	"C3H5O2"	-1	73	-85.1	0.5				
+"ppal"	"Propanal"	"C3H6O"	0	"123-38-6"		"Propionaldehyde"	"C00479"	"C3H6O"	0	58	"C3H6O"	0	58	-32.3	0.6				
+"ppap"	"Propanoyl phosphate"	"C3H5O5P"	-2			"Propanoyl phosphate/ Propionyl phosphate"	"C02876"	"C3H6O5P"	-1	153	"C3H5O5P"	-2	152	-299.8	0.8				
+"ppbng"	"Porphobilinogen"	"C10H13N2O4"	-1	"487-90-1"	"C10H14N2O4"		"C00931"	"C10H13N2O4"	-1	225	"C10H13N2O4"	-1	225	-118.3	3.9				
+"ppcoa"	"Propanoyl-CoA"	"C24H36N7O17P3S"	-4	"317-66-8"	"C24H40N7O17P3S"	"Propionyl-CoA/ Propionyl coenzyme A"	"C00100"	"C24H37N7O17P3S"	-3	820	"C24H37N7O17P3S"	-3	820	-783	10.1				
+"ppgpp"	"Guanosine 3',5'-bis(diphosphate)"	"C10H11N5O17P4"	-6		"C10H17N5O17P4"	"Guanosine 3'-diphosphate 5'-diphosphate/ Guanosine 5'-diphosphate,3'-diphosphate/ gdpdp/ ppGpp"	"C01228"	"C10H12N5O17P4"	-5	599	"C10H12N5O17P4"	-5	599	-925.6	7.9				
+"pphn"	"Prephenate"	"C10H8O6"	-2	"126-49-8"	"C10H10O6"	"Prephenic acid"	"C00254"	"C10H8O6"	-2	224	"C10H8O6"	-2	224	-187.7	3.4				
+"ppi"	"Diphosphate"	"HO7P2"	-3	09/03/66	"H4O7P2"	"PPi/ Pyrophosphate/ Pyrophosphoric acid"	"C00013"	"H2O7P2"	-2	176	"H2O7P2"	-2	176	-480.9	1.5				
+"ppp9"	"Protoporphyrin"	"C34H32N4O4"	-2	12/08/53	"C34H34N4O4"	"Protoporphyrin IX/ Porphyrinogen IX"	"C02191"	"C34H32N4O4"	-2	560	"C34H32N4O4"	-2	560	"Not calculated"	"Not calculated"				
+"pppg9"	"Protoporphyrinogen IX"	"C34H38N4O4"	-2		"C34H40N4O4"		"C01079"	"C34H38N4O4"	-2	566	"C34H38N4O4"	-2	566	"Not calculated"	"Not calculated"				
+"pppi"	"Inorganic triphosphate"	"HO10P3"	-4		"H5O10P3"		"C03279"	"H2O10P3"	-3	254	"H2O10P3"	-3	254	"Not calculated"	"Not calculated"				
+"pppn"	"Phenylpropanoate"	"C9H9O2"	-1	"2628-17-3"		"Phenylpropanoate/ 3-phenylpropionate"	"C05629"	"C9H9O2"	-1	149	"C9H9O2"	-1	149	-48	2.3				
+"ppt"	"Phosphonate"	"HO3P"	-2	"13598-36-2"	"H3O3P"	"Phosphonate/ Phosphorous acid/ Phosphonic acid/ Phosphite"	"C06701"	"H2O3P"	-1	81	"H2O3P"	-1	81	"Not calculated"	"Not calculated"				
+"pram"	"5-Phospho-beta-D-ribosylamine"	"C5H11NO7P"	-1		"C5H12NO7P"	"5-Phospho-D-ribosylamine/ 5-Phosphoribosyl-1-amine/ 5-Phosphoribosylamine"	"C03090"	"C5H12NO7P"	0	229	"C5H12NO7P"	0	229	-357.7	3.7				
+"pran"	"N-(5-Phospho-D-ribosyl)anthranilate"	"C12H13NO9P"	-3		"C12H16NO9P"	"N-(5-Phospho-beta-D-ribosyl)anthranilate/ N-(5-Phosphoribosyl)anthranilic acid"	"C04302"	"C12H14NO9P"	-2	347	"C12H14NO9P"	-2	347	-392.1	4.7				
+"prbamp"	"1-(5-Phosphoribosyl)-AMP"	"C15H19N5O14P2"	-4		"C15H23N5O14P2"	"Phosphoribosyl)-AMP"	"C02741"	"C15H22N5O14P2"	-1	558	"C15H22N5O14P2"	-1	558	-598.3	10.3				
+"prbatp"	"1-(5-Phosphoribosyl)-ATP"	"C15H19N5O20P4"	-6		"C15H25N5O20P4"	"Phosphoribosyl-ATP/ N1-(5-Phospho-D-ribosyl)-ATP"	"C02739"	"C15H22N5O20P4"	-3	716	"C15H22N5O20P4"	-3	716	-1014.6	10.3				
+"prfp"	"1-(5-Phosphoribosyl)-5-[(5-phosphoribosylamino)methylideneamino]imidazole-4-carboxamide"	"C15H21N5O15P2"	-4		"C15H25N5O15P2"	"N-(5'-Phospho-D-ribosylformimino)-5-amino-1-(5''-phospho-D-ribosyl)-4-imidazolecarboxamide/ 5-(5-Phospho-D-ribosylaminoformimino)-1-(5-phosphoribosyl)-imidazole-4-carboxamide/ 5-[(5-Phospho-1-deoxyribulos-1-ylamino)methylideneamino]-1-(5-phosphoribosyl)imidazole-4-carboxamide/ N-(5'-Phosphoribosylformimino)-5-amino-1-(5''-phosphoribosyl)-4-imidazolecarboxamide/ Phosphoribosyl-formimino-AICAR-phosphate"	"C04896"	"C15H23N5O15P2"	-2	575	"C15H23N5O15P2"	-2	575	-649.7	12.2				
+"prlp"	"5-[(5-phospho-1-deoxyribulos-1-ylamino)methylideneamino]-1-(5-phosphoribosyl)imidazole-4-carboxamide"	"C15H21N5O15P2"	-4		"C15H25N5O15P2"	"N-(5'-Phosphoribulosylformimino)-5-amino-1-(5''-phosphoribosyl)-4-imidazolecarboxamide/ N-(5'-Phospho-D-1'-ribulosylformimino)-5-amino-1-(5''-phospho-D-ribosyl)-4-imidazolecarboxamide/ Phosphoribulosyl-formimino-AICAR-phosphate"	"C04916"	"C15H23N5O15P2"	-2	575	"C15H23N5O15P2"	-2	575	-649.3	10.7				
+"progly"	"L-Prolinylglycine"	"C7H12N2O3"	0		"C7H12N2O3"	"Pro-Gly/ L-Pro-GLy"		"C7H11N2O3"	-1	171	"C7H12N2O3"	0	172	-93.6	3.3				
+"pro-L"	"L-Proline"	"C5H9NO2"	0	"147-85-3"	"C5H9NO2"	"2-Pyrrolidinecarboxylic acid/ Pro"	"C00148"	"C5H8NO2"	-1	114	"C5H9NO2"	0	115	-62.7	2.7				
+"protrna"	"L-Prolyl-tRNA(Pro)"	"C5H8NOR"	1				"C02702"	"C15H19N6O4R"	0	348	"C15H20N6O4R"	1	349	"Not calculated"	"Not calculated"				
+"prpp"	"5-Phospho-alpha-D-ribose 1-diphosphate"	"C5H8O14P3"	-5		"C5H13O14P3"	"5-Phosphoribosyl 1-pyrophosphate/ 5-Phosphoribosyl diphosphate/ PRPP"	"C00119"	"C5H10O14P3"	-3	387	"C5H10O14P3"	-3	387	-812.9	3.7				
+"ps120"	"phosphatidylserine (didodecanoyl, n-C12:0)"	"C30H57N1O10P1"	-1		"C30H58N1O10P1"	"Phosphatidyl-L-serine;/ 3-O-sn-Phosphatidyl-L-serine;/ 1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ O3-Phosphatidyl-L-serine"	"C02737"	"C30H56NO10P"	-2	621	"C30H56NO10P"	-2	621	-433.9	6.2				
+"ps140"	"phosphatidylserine (ditetradecanoyl, n-C14:0)"	"C34H65N1O10P1"	-1		"C34H66N1O10P1"	"Phosphatidyl-L-serine;/ O3-Phosphatidyl-L-serine/ 1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ 3-O-sn-Phosphatidyl-L-serine;"	"C02737"	"C34H64NO10P"	-2	677	"C34H64NO10P"	-2	677	-427.3	6.9				
+"ps141"	"phosphatidylserine (ditetradec-7-enoyl, n-C14:1)"	"C34H61N1O10P1"	-1		"C34H62N1O10P1"	"Phosphatidyl-L-serine;/ 1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ O3-Phosphatidyl-L-serine/ 3-O-sn-Phosphatidyl-L-serine;"	"C02737"	"C34H60NO10P"	-2	673	"C34H60NO10P"	-2	673	-382.6	6.8				
+"ps160"	"phosphatidylserine (dihexadecanoyl, n-C16:0)"	"C38H73N1O10P1"	-1		"C38H74N1O10P1"	"1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ O3-Phosphatidyl-L-serine/ Phosphatidyl-L-serine;/ 3-O-sn-Phosphatidyl-L-serine;"	"C02737"	"C38H72NO10P"	-2	733	"C38H72NO10P"	-2	733	-420.7	7.7				
+"ps161"	"phosphatidylserine (dihexadec-9-enoyl, n-C16:1)"	"C38H69N1O10P1"	-1		"C38H70N1O10P1"	"Phosphatidyl-L-serine;/ 3-O-sn-Phosphatidyl-L-serine;/ 1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ O3-Phosphatidyl-L-serine"	"C02737"	"C38H68NO10P"	-2	729	"C38H68NO10P"	-2	729	-376	7.5				
+"ps180"	"phosphatidylserine (dioctadecanoyl, n-C18:0)"	"C42H81N1O10P1"	-1		"C42H82N1O10P1"	"Phosphatidyl-L-serine;/ 1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ O3-Phosphatidyl-L-serine/ 3-O-sn-Phosphatidyl-L-serine;"	"C02737"	"C42H80NO10P"	-2	789	"C42H80NO10P"	-2	789	-414.1	8.5				
+"ps181"	"phosphatidylserine (dioctadec-11-enoyl, n-C18:1)"	"C42H77N1O10P1"	-1		"C42H78N1O10P1"	"1,2-Diacyl-sn-glycerol 3-phospho-L-serine;/ Phosphatidyl-L-serine;/ O3-Phosphatidyl-L-serine/ 3-O-sn-Phosphatidyl-L-serine;"	"C02737"	"C42H76NO10P"	-2	785	"C42H76NO10P"	-2	785	-369.4	8.2				
+"psclys"	"psicoselysine"	"C12H25N2O7"	1		"C12H24N2O7"			"C12H25N2O7"	1	309	"C12H25N2O7"	1	309	-247.9	5				
+"pser-L"	"O-Phospho-L-serine"	"C3H6NO6P"	-2	"407-41-0"	"C3H8NO6P"	"3-Phosphoserine"	"C01005"	"C3H7NO6P"	-1	184	"C3H7NO6P"	-1	184	-336	0.9				
+"ptrc"	"Putrescine"	"C4H14N2"	2	"110-60-1"	"C4H12N2"	"1,4-Diaminobutane/ 1,4-Butanediamine/ Tetramethylenediamine"	"C00134"	"C4H14N2"	2	90	"C4H14N2"	2	90	-6.1	1.4				
+"pyam5p"	"Pyridoxamine 5'-phosphate"	"C8H12N2O5P"	-1	"529-96-4"	"C8H13N2O5P"	"Pyridoxamine 5-phosphate/ Pyridoxamine phosphate"	"C00647"	"C8H13N2O5P"	0	248	"C8H13N2O5P"	0	248	-244.5	4.8				
+"pydam"	"Pyridoxamine"	"C8H13N2O2"	1	"85-87-0"	"C8H12N2O2"	"PM"	"C00534"	"C8H13N2O2"	1	169	"C8H13N2O2"	1	169	-32.6	4.8				
+"pydx"	"Pyridoxal"	"C8H9NO3"	0	"66-72-8"	"C8H9NO3"		"C00250"	"C8H9NO3"	0	167	"C8H9NO3"	0	167	-59.8	4.8				
+"pydx5p"	"Pyridoxal 5'-phosphate"	"C8H8NO6P"	-2	"54-47-7"	"C8H10NO6P"	"Pyridoxal phosphate/ Pyridoxal 5-phosphate"	"C00018"	"C8H9NO6P"	-1	246	"C8H9NO6P"	-1	246	-271.7	4.8				
+"pydxn"	"Pyridoxine"	"C8H11NO3"	0	"65-23-6"		"Pyridoxol/ vitamin b6"	"C00314"	"C8H11NO3"	0	169	"C8H11NO3"	0	169	-67.7	4.8				
+"pyr"	"Pyruvate"	"C3H3O3"	-1	"127-17-3"	"C3H4O3"	"Pyruvic acid/ 2-Oxopropanoate/ 2-Oxopropanoic acid/ Pyroracemic acid/ alpha-Ketopropionic acid/ 2-Ketopropionic Acid"	"C00022"	"C3H3O3"	-1	87	"C3H3O3"	-1	87	-112.6	0.9				
+"q8"	"Ubiquinone-8"	"C49H74O4"	0	"1339-63-5"			"C00399"	"C49H74O4"	0	726	"C49H74O4"	0	726	146.2	13.1				
+"q8h2"	"Ubiquinol-8"	"C49H76O4"	0				"C00390"	"C49H76O4"	0	728	"C49H76O4"	0	728	124.7	13.2				
+"quln"	"Quinolinate"	"C7H3NO4"	-2	"89-00-9"	"C7H5NO4"	"Quinolinic acid/ 2,3-Pyridinedicarboxylic acid/ Pyridine-2,3-dicarboxylate"	"C03722"	"C7H3NO4"	-2	165	"C7H3NO4"	-2	165	-119.5	3.9				
+"r15bp"	"D-Ribose 1,5-bisphosphate"	"C5H8O11P2"	-4		"C5H12O11P2"		"C01151"	"C5H10O11P2"	-2	308	"C5H10O11P2"	-2	308	-604.7	3.7				
+"r1p"	"alpha-D-Ribose 1-phosphate"	"C5H9O8P"	-2	"58459-37-3"	"C5H11O8P"	"D-Ribose 1-phosphate/ Ribose 1-phosphate"	"C00442"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-392.8	3.7				
+"r5p"	"alpha-D-Ribose 5-phosphate"	"C5H9O8P"	-2	"4300-28-1"	"C5H11O8P"	"D-Ribose 5-phosphate/ D-Ribose-5-phosphate/ Ribose 5-phosphate"	"C00117"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-392.8	3.7				
+"ragund"	"rhamanosyl-N-acetylglucosamyl-undecaprenyl diphosphate"	"C69H113N1O16P2"	-2		"C69H115N1O16P2"			"C69H113NO16P2"	-2	1273	"C69H113NO16P2"	-2	1273	-426.5	18.1				
+"rbflvrd"	"Reduced riboflavin"	"C17H22N4O6"	0				"C01007"	"C17H22N4O6"	0	378	"C17H22N4O6"	0	378	-134.2	7				
+"rbl-L"	"L-Ribulose"	"C5H10O5"	0			"L-Erythro-pentulose/ L-Arabinoketose/ L-Arabinulose/ L-Riboketose"	"C00508"	"C5H10O5"	0	150	"C5H10O5"	0	150	-180.2	3.4				
+"rdmbzi"	"N1-(alpha-D-ribosyl)-5,6-dimethylbenzimidazole"	"C14H18N2O4"	0			"alpha-Ribazole"	"C05775"	"C14H18N2O4"	0	278	"C14H18N2O4"	0	278	-77.4	5.9				
+"rhcys"	"S-Ribosyl-L-homocysteine"	"C9H17NO6S"	0	"37558-16-0"	"C9H17NO6S"	"S-Ribosyl-L-homocysteine/ S-D-Ribosyl-L-homocysteine"	"C03539"	"C9H17NO6S"	0	267	"C9H17NO6S"	0	267	-211.7	4.3				
+"rib-D"	"D-Ribose"	"C5H10O5"	0	"50-69-1"			"C00121"	"C5H10O5"	0	150	"C5H10O5"	0	150	-181	3.8				
+"ribflv"	"Riboflavin"	"C17H20N4O6"	0	"83-88-5"		"7,8-Dimethyl-10-ribitylisoalloxazine/ Lactoflavin/ Vitamin B2"	"C00255"	"C17H20N4O6"	0	376	"C17H20N4O6"	0	376	-124.4	8.2				
+"rml"	"L-Rhamnulose"	"C6H12O5"	0				"C00861"	"C6H12O5"	0	164	"C6H12O5"	0	164	-180.6	2				
+"rml1p"	"L-Rhamnulose 1-phosphate"	"C6H11O8P"	-2		"C6H13O8P"		"C01131"	"C6H12O8P"	-1	243	"C6H12O8P"	-1	243	-392.5	1.8				
+"rmn"	"L-Rhamnose"	"C6H12O5"	0	"3615-41-6"		"6-Deoxy-L-mannose/ L-Mannomethylose"	"C00507"	"C6H12O5"	0	164	"C6H12O5"	0	164	-181.5	4.2				
+"ru5p-D"	"D-Ribulose 5-phosphate"	"C5H9O8P"	-2	"4151-19-3"	"C5H11O8P"		"C00199"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-392.4	1.5				
+"ru5p-L"	"L-Ribulose 5-phosphate"	"C5H9O8P"	-2		"C5H11O8P"		"C01101"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-392.4	1.5				
+"s"	"Sulfur"	"S"	0	"7704-34-9"		"S"	"C00087"	"S"	0	32	"S"	0	32	0	1.5				
+"s7p"	"Sedoheptulose 7-phosphate"	"C7H13O10P"	-2		"C7H15O10P"	"altro-Heptulose 7-phosphate"	"C00281"	"C7H14O10P"	-1	289	"C7H14O10P"	-1	289	-465	2.5				
+"sarcs"	"Sarcosine"	"C3H7NO2"	0	"107-97-1"	"C3H7NO2"	"N-Methylglycine"	"C00213"	"C3H7NO2"	0	89	"C3H7NO2"	0	89	-79	2.5				
+"sbt6p"	"D-Sorbitol 6-phosphate"	"C6H13O9P"	-2	"108392-12-7"	"C6H15O9P"	"D-glucitol 6-phosphate/ Sorbitol 6-phosphate"	"C01096"	"C6H14O9P"	-1	261	"C6H14O9P"	-1	261	-436.7	2.5				
+"sbt-D"	"D-Sorbitol"	"C6H14O6"	0	"50-70-4"		"D-Sorbitol/ Gulitol/ D-Sorbit/ Sorbite/ Glucitol/ Clucitol/ L-gulitol/ D-Glucitol"	"C00794"	"C6H14O6"	0	182	"C6H14O6"	0	182	-224.8	2.7				
+"sbzcoa"	"O-Succinylbenzoyl-CoA"	"C32H39N7O20P3S"	-5		"C32H44N7O20P3S"	"2-Succinylbenzoyl-CoA/ Succinylbenzoyl-CoA"	"C03160"	"C32H40N7O20P3S"	-4	967	"C32H40N7O20P3S"	-4	967	-858.3	10.6				
+"scl"	"sirohydrochlorin"	"C42H39N4O16"	-7		"C42H46N4O16"		"C05778"	"C42H39N4O16"	-7	855	"C42H39N4O16"	-7	855	"Not calculated"	"Not calculated"				
+"sectrna"	"L-Selenocysteinyl-tRNA(Sec)"	"C3H6NOSeR"	1				"C05173"	"C3H6NOSeR"	1	152	"C3H6NOSeR"	1	152	"Not calculated"	"Not calculated"				
+"seln"	"Selenide"	"HSe"	-1	"531-44-2"	"H2Se"	"Selenide/ Hydrogen selenide"	"C01528"	"HSe"	-1	80	"HSe"	-1	80	"Not calculated"	"Not calculated"				
+"selnp"	"Selenophosphate"	"H2O3PSe"	-1		"H3O3PSe"	"Selenophosphate"	"C05172"	"H2O3PSe"	-1	160	"H2O3PSe"	-1	160	"Not calculated"	"Not calculated"				
+"seramp"	"L-seryl-AMP"	"C13H19N6O9P"	0		"C13H19N6O9P"			"C13H20N6O9P"	1	435	"C13H20N6O9P"	1	435	-338	8.2				
+"ser-D"	"D-Serine"	"C3H7NO3"	0	"312-84-5"	"C3H7NO3"	"D-2-Amino-3-hydroxypropanoic acid"	"C00740"	"C3H7NO3"	0	105	"C3H7NO3"	0	105	-124.1	0.9				
+"ser-L"	"L-Serine"	"C3H7NO3"	0	"56-45-1"	"C3H7NO3"	"L-2-Amino-3-hydroxypropionic acid/ L-3-Hydroxy-alanine/ Ser"	"C00065"	"C3H7NO3"	0	105	"C3H7NO3"	0	105	-124.1	0.9				
+"sertrna"	"L-Seryl-tRNA(Ser)"	"C3H6NO2R"	1				"C02553"	"C13H17N6O5R"	0	338	"C13H17N6O5R"	0	338	"Not calculated"	"Not calculated"				
+"sertrna(sec)"	"L-Seryl-tRNA(Sec)"	"C3H6NO2R"	1					"C13H17N6O5R"	0	338	"C13H17N6O5R"	0	338	"Not calculated"	"Not calculated"				
+"Sfglutth"	"S-Formylglutathione"	"C11H16N3O7S"	-1				"C01031"	"C11H16N3O7S"	-1	334	"C11H16N3O7S"	-1	334	-253.5	4.7				
+"sheme"	"Siroheme"	"C42H36FeN4O16"	-8		"C42H46FeN4O16"	"Sirohaem"	"C00748"	"C42H36FeN4O16"	-8	908	"C42H36FeN4O16"	-8	908	"Not calculated"	"Not calculated"				
+"skm"	"Shikimate"	"C7H9O5"	-1	"138-59-0"	"C7H10O5"	"3,4,5-Trihydroxy-1-cyclohexenecarboxylic acid/ Shikimic acid"	"C00493"	"C7H9O5"	-1	173	"C7H9O5"	-1	173	-172	2.7				
+"skm5p"	"Shikimate 5-phosphate"	"C7H8O8P"	-3		"C7H11O8P"	"Shikimate 3-phosphate"	"C03175"	"C7H9O8P"	-2	252	"C7H9O8P"	-2	252	-383.9	2.6				
+"sl26da"	"N-Succinyl-LL-2,6-diaminoheptanedioate"	"C11H16N2O7"	-2		"C11H18N2O7"	"N-Succinyl-LL-2,6-diaminopimelate/ N-Succinyl-L-2,6-diaminoheptanedioate/ N-Succinyl-L-2,6-diaminopimelate"	"C04421"	"C11H16N2O7"	-2	288	"C11H16N2O7"	-2	288	-269.7	2.5				
+"sl2a6o"	"N-Succinyl-2-L-amino-6-oxoheptanedioate"	"C11H12NO8"	-3		"C11H15NO8"	"N-Succinyl-L-2-amino-6-oxoheptanedioate/ N-Succinyl-L-2-amino-6-oxopimelate/ N-Succinyl-2-amino-6-oxo-L-pimelic acid/ N-Succinyl-epsilon-keto-L-aminopimelic acid"	"C04462"	"C11H12NO8"	-3	286	"C11H12NO8"	-3	286	-294.4	2.6				
+"so2"	"sulfur dioxide"	"O2S"	0		"O2S"		"C09306"	"O2S"	0	64	"O2S"	0	64	-71.9	1.5				
+"so3"	"Sulfite"	"O3S"	-2	"7782-99-2"	"H2O3S"	"Sulfurous acid"	"C00094"	"HO3S"	-1	81	"HO3S"	-1	81	-126.2	1.5				
+"so4"	"Sulfate"	"O4S"	-2	"7664-93-9"	"H2O4S"	"Sulfuric acid"	"C00059"	"O4S"	-2	96	"O4S"	-2	96	-178	1.5				
+"spmd"	"Spermidine"	"C7H22N3"	3	"124-20-9"	"C7H19N3"	"N-(3-Aminopropyl)-1,4-butane-diamine"	"C00315"	"C7H22N3"	3	148	"C7H22N3"	3	148	5	3.1				
+"ssaltpp"	"Succinate semialdehyde-thiamin diphosphate anion"	"C16H21N4O10P2S"	-3				"C05816"	"C16H22N4O10P2S"	-2	524	"C16H22N4O10P2S"	-2	524	-462.3	7.3				
+"stcoa"	"Stearoyl-CoA (n-C18:0CoA)"	"C39H66N7O17P3S"	-4	"362-66-3"		"Stearyl-CoA/ Octadecanoyl-CoA"	"C00412"	"C39H67N7O17P3S"	-3	1030	"C39H67N7O17P3S"	-3	1030	-758.3	11.1				
+"suc6p"	"Sucrose 6-phosphate"	"C12H21O14P"	-2		"C12H23O14P"	"Sugar 1-phosphate"	"C02591"	"C12H22O14P"	-1	421	"C12H22O14P"	-1	421	-588.2	7.7				
+"sucarg"	"N2-Succinyl-L-arginine"	"C10H17N4O5"	-1	"1758-80-1"	"C10H18N4O5"	"N2-Succinyl-L-arginine"	"C03296"	"C10H17N4O5"	-1	273	"C10H17N4O5"	-1	273	-179	5.3				
+"sucbz"	"o-Succinylbenzoate"	"C11H8O5"	-2		"C11H10O5"	"2-Succinylbenzoate/ Succinylbenzoate"	"C02730"	"C11H8O5"	-2	220	"C11H8O5"	-2	220	-160.5	3				
+"succ"	"Succinate"	"C4H4O4"	-2	"110-15-6"	"C4H6O4"	"Succinic acid/ Butanedionic acid/ Ethylenesuccinic acid"	"C00042"	"C4H4O4"	-2	116	"C4H4O4"	-2	116	-163	0.7				
+"succoa"	"Succinyl-CoA"	"C25H35N7O19P3S"	-5	"604-98-8"	"C25H40N7O19P3S"	"Succinyl coenzyme A/ succino-1-yl-coenzymeA"	"C00091"	"C25H36N7O19P3S"	-4	863	"C25H36N7O19P3S"	-4	863	-860.9	10.1				
+"sucglu"	"N2-Succinyl-L-glutamate"	"C9H10NO7"	-3	"33981-72-5"	"C9H13NO7"	"N2-Succinyl-L-glutamate"	"C05931"	"C9H10NO7"	-3	244	"C9H10NO7"	-3	244	-270.2	2.3				
+"sucgsa"	"N2-Succinyl-L-glutamate 5-semialdehyde"	"C9H11NO6"	-2		"C9H13NO6"	"N2-Succinyl-L-glutamate 5-semialdehyde"	"C05932"	"C9H11NO6"	-2	229	"C9H11NO6"	-2	229	-217.4	2.2				
+"suchms"	"O-Succinyl-L-homoserine"	"C8H12NO6"	-1	"1492-23-5"	"C8H13NO6"		"C01118"	"C8H12NO6"	-1	218	"C8H12NO6"	-1	218	-236.2	1.8				
+"sucorn"	"N2-Succinyl-L-ornithine"	"C9H15N2O5"	-1	"80102-04-1"	"C9H16N2O5"	"N2-Succinyl-L-ornithine"	"C03415"	"C9H15N2O5"	-1	231	"C9H15N2O5"	-1	231	-191.7	2.3				
+"sucr"	"Sucrose"	"C12H22O11"	0	"57-50-1"		"Cane sugar/ Saccharose/ Sugar/ 1-alpha-D-glucopyranosyl-2-beta-D-fructofuranoside"	"C00089"	"C12H22O11"	0	342	"C12H22O11"	0	342	-376.3	7.8				
+"sucsal"	"Succinic semialdehyde"	"C4H5O3"	-1	"692-29-5"	"C4H6O3"	"Succinate semialdehyde/ 4-Oxobutanoate"	"C00232"	"C4H5O3"	-1	101	"C4H5O3"	-1	101	-110.2	0.7				
+"sulfac"	"sulfoacetate"	"C2H2O5S"	-2		"C2H4O5S"			"C2H2O5S"	-2	138	"C2H2O5S"	-2	138	-205.3	2.2				
+"t3c11vaceACP"	"trans-3-cis-11-vacceoyl-[acyl-carrier protein]"	"C29H51N2O8PRS"	-1					"C29H51N2O8PRS"	-1	619	"C29H51N2O8PRS"	-1	619	"Not calculated"	"Not calculated"				
+"t3c5ddeceACP"	"trans-3-cis-5-dodecenoyl-[acyl-carrier protein]"	"C23H39N2O8PRS"	-1					"C23H39N2O8PRS"	-1	535	"C23H39N2O8PRS"	-1	535	"Not calculated"	"Not calculated"				
+"t3c7mrseACP"	"trans-3-cis-7-myristoleoyl-[acyl-carrier protein]"	"C25H43N2O8PRS"	-1					"C25H43N2O8PRS"	-1	563	"C25H43N2O8PRS"	-1	563	"Not calculated"	"Not calculated"				
+"t3c9palmeACP"	"trans-3-cis-9-palmitoleoyl-[acyl-carrier protein]"	"C27H47N2O8PRS"	-1					"C27H47N2O8PRS"	-1	591	"C27H47N2O8PRS"	-1	591	"Not calculated"	"Not calculated"				
+"tag6p-D"	"D-Tagatose 6-phosphate"	"C6H11O9P"	-2				"C01097"	"C6H12O9P"	-1	259	"C6H12O9P"	-1	259	-430.4	3.7				
+"tagdp-D"	"D-Tagatose 1,6-biphosphate"	"C6H10O12P2"	-4		"C6H14O12P2"		"C03785"	"C6H12O12P2"	-2	338	"C6H12O12P2"	-2	338	-642.3	3.7				
+"tagur"	"D-Tagaturonate"	"C6H9O7"	-1		"C6H10O7"		"C00558"	"C6H9O7"	-1	193	"C6H9O7"	-1	193	-261.9	3.7				
+"tartr-L"	"L-tartrate"	"C4H4O6"	-2	"87-69-4"		"L-Tartaric acid/ (R,R)-Tartaric acid/ (R,R)-Tartrate"	"C00898"	"C4H4O6"	-2	148	"C4H4O6"	-2	148	-238.9	1.2				
+"taur"	"Taurine"	"C2H7NO3S"	0	"107-35-7"	"C2H7NO3S"	"2-Aminoethanesulfonic acid"	"C00245"	"C2H7NO3S"	0	125	"C2H7NO3S"	0	125	-126.8	2.3				
+"tcynt"	"Thiocyanate"	"CNS"	-1	"463-56-9"	"CHNS"	"Thiocyanate/ Thiocyanic acid"	"C01755"	"CNS"	-1	58	"CNS"	-1	58	22.2	17.1				
+"td2coa"	"trans-Tetradec-2-enoyl-CoA"	"C35H56N7O17P3S"	-4		"C35H60N7O17P3S"		"C05273"	"C35H57N7O17P3S"	-3	972	"C35H57N7O17P3S"	-3	972	-744.1	10.7				
+"tdcoa"	"Tetradecanoyl-CoA (n-C14:0CoA)"	"C35H58N7O17P3S"	-4		"C35H62N7O17P3S"	"Myristoyl-CoA"	"C02593"	"C35H59N7O17P3S"	-3	974	"C35H59N7O17P3S"	-3	974	-764.9	10.7				
+"tddec2eACP"	"trans-Dodec-2-enoyl-[acyl-carrier protein]"	"C23H41N2O8PRS"	-1	08/06/83		"trans-Dodec-2-enoyl-[acp]"	"C05758"	"C23H41N2O8PRS"	-1	537	"C23H41N2O8PRS"	-1	537	"Not calculated"	"Not calculated"				
+"tdeACP"	"cis-tetradec-7-enoyl-[acyl-carrier protein] (n-C14:1)"	"C25H45N2O8PRS"	-1			"cis-myristol-7-eoyl-[acyl-carrier protein] (n-C14:1)/ Tetradecenoyl-ACP (n-C14:1ACP)"		"C25H45N2O8PRS"	-1	565	"C25H45N2O8PRS"	-1	565	"Not calculated"	"Not calculated"				
+"tdec2eACP"	"trans-Dec-2-enoyl-[acyl-carrier protein]"	"C21H37N2O8PRS"	-1	08/06/83		"trans-Dec-2-enoyl-[acp]"	"C05754"	"C21H37N2O8PRS"	-1	509	"C21H37N2O8PRS"	-1	509	"Not calculated"	"Not calculated"				
+"tdecoa"	"Tetradecenoyl-CoA (n-C14:1CoA)"	"C35H56N7O17P3S"	-4					"C35H57N7O17P3S"	-3	972	"C35H57N7O17P3S"	-3	972	-742.6	10.7				
+"thdp"	"2,3,4,5-Tetrahydrodipicolinate"	"C7H7NO4"	-2		"C7H9NO4"	"(R)-2,3,4,5-tetrahydropyridine-2,6-dicarboxylate/ delta1-Piperidine-2,6-dicarboxylate"	"C03972"	"C7H7NO4"	-2	169	"C7H7NO4"	-2	169	-139.4	3.5				
+"thex2eACP"	"trans-Hex-2-enoyl-[acyl-carrier protein]"	"C17H29N2O8PRS"	-1	08/06/83		"trans-Hex-2-enoyl-[acp]"	"C05748"	"C17H29N2O8PRS"	-1	453	"C17H29N2O8PRS"	-1	453	"Not calculated"	"Not calculated"				
+"thf"	"5,6,7,8-Tetrahydrofolate"	"C19H21N7O6"	-2	"135-16-0"	"C19H23N7O6"	"Tetrahydrofolic acid/ THF/ Tetrahydrofolate/ (6S)-Tetrahydrofolic acid/ (6S)-THFA/ (6S)-Tetrahydrofolate"	"C00101"	"C19H21N7O6"	-2	443	"C19H21N7O6"	-2	443	-113.9	8.7				
+"thm"	"Thiamin"	"C12H17N4OS"	1	03/08/67	"C12H17N4OS"	"Thiamine/ Vitamin B1/ Aneurin/ Antiberiberi factor"	"C00378"	"C12H17N4OS"	1	265	"C12H17N4OS"	1	265	54	7.1				
+"thmmp"	"Thiamin monophosphate"	"C12H16N4O4PS"	-1	"532-40-1"		"Thiamin phosphate/ Thiamine phosphate/ TMP/ Thiamine monophosphate"	"C01081"	"C12H17N4O4PS"	0	344	"C12H17N4O4PS"	0	344	-157.9	7.2				
+"thmpp"	"Thiamine diphosphate"	"C12H16N4O7P2S"	-2	"154-87-0"	"C12H19N4O7P2S"	"Thiamin diphosphate/ TPP/ ThPP/ Thiamin pyrophosphate/ cocarboxylase"	"C00068"	"C12H17N4O7P2S"	-1	423	"C12H17N4O7P2S"	-1	423	-366	7.2				
+"thr-L"	"L-Threonine"	"C4H9NO3"	0	"72-19-5"	"C4H9NO3"	"2-Amino-3-hydroxybutyric acid/ Thr"	"C00188"	"C4H9NO3"	0	119	"C4H9NO3"	0	119	-124.2	1.1				
+"thrp"	"L-Threonine O-3-phosphate"	"C4H8NO6P"	-2		"C4H10NO6P"	"L-Threonine phosphate"	"C12147"	"C4H9NO6P"	-1	198	"C4H9NO6P"	-1	198	-336.1	1.2				
+"thrtrna"	"L-Threonyl-tRNA(Thr)"	"C4H8NO2R"	1				"C02992"	"C14H19N6O5R"	0	352	"C14H19N6O5R"	0	352	"Not calculated"	"Not calculated"				
+"thym"	"Thymine"	"C5H6N2O2"	0	"65-71-4"		"T/ 2,4-Dihydroxy-5-methylpyrimidine/ Thy"	"C00178"	"C5H6N2O2"	0	126	"C5H6N2O2"	0	126	-61.4	4.3				
+"thymd"	"Thymidine"	"C10H14N2O5"	0	"50-89-5"		"dT/ 2'-Deoxythymidine/ Deoxythymidine"	"C00214"	"C10H14N2O5"	0	242	"C10H14N2O5"	0	242	-144.8	5.1				
+"tma"	"trimethylamine"	"C3H10N"	1	"75-50-3"	"C3H9N"	"(CH3)3N/ N/ N-Dimethylmethanamine"	"C00565"	"C3H10N"	1	60	"C3H10N"	1	60	5.8	3.1				
+"tmao"	"Trimethylamine N-oxide"	"C3H9NO"	0	"1184-78-7"	"C3H9NO"	"(CH3)3NO"	"C01104"	"C3H10NO"	1	76	"C3H10NO"	1	76	8.9	5.9				
+"tmrs2eACP"	"trans-Tetradec-2-enoyl-[acyl-carrier protein]"	"C25H45N2O8PRS"	-1	08/06/83		"trans-Tetradec-2-enoyl-[acp]"	"C05760"	"C25H45N2O8PRS"	-1	565	"C25H45N2O8PRS"	-1	565	"Not calculated"	"Not calculated"				
+"toct2eACP"	"trans-Oct-2-enoyl-[acyl-carrier protein]"	"C19H33N2O8PRS"	-1	08/06/83		"trans-Oct-2-enoyl-[acp]"	"C05751"	"C19H33N2O8PRS"	-1	481	"C19H33N2O8PRS"	-1	481	"Not calculated"	"Not calculated"				
+"toctd2eACP"	"trans-octadec-2-enoyl-[acyl-carrier protein]"	"C29H53N2O8PRS"	-1			"trans-octadec-2-enoyl-[acp]"		"C29H53N2O8PRS"	-1	621	"C29H53N2O8PRS"	-1	621	"Not calculated"	"Not calculated"				
+"tpalm2eACP"	"trans-Hexadec-2-enoyl-[acyl-carrier protein]"	"C27H49N2O8PRS"	-1	08/06/83		"trans-Hexadec-2-enoyl-[acp]"	"C05763"	"C27H49N2O8PRS"	-1	593	"C27H49N2O8PRS"	-1	593	"Not calculated"	"Not calculated"				
+"trdox"	"Oxidized thioredoxin"	"X"	0				"C00343"	"C6H7NO2R2S2"	0	191	"C6H7NO2R2S2"	0	191	"Not calculated"	"Not calculated"				
+"trdrd"	"Reduced thioredoxin"	"XH2"	0				"C00342"	"C6H9NO2R2S2"	0	193	"C6H9NO2R2S2"	0	193	"Not calculated"	"Not calculated"				
+"tre"	"Trehalose"	"C12H22O11"	0	"99-20-7"		"alpha,alpha-Trehalose/ alpha, alpha'-Trehalose;"	"C01083"	"C12H22O11"	0	342	"C12H22O11"	0	342	-375.5	8.5				
+"tre6p"	"alpha,alpha'-Trehalose 6-phosphate"	"C12H21O14P"	-2	"4484-88-2"	"C12H23O14P"	"Trehalose 6-phosphate"	"C00689"	"C12H22O14P"	-1	421	"C12H22O14P"	-1	421	-587.4	8.4				
+"trnaala"	"tRNA(Ala)"	"R"	0				"C01635"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaarg"	"tRNA(Arg)"	"R"	0				"C01636"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaasn"	"tRNA(Asn)"	"R"	0				"C01637"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaasp"	"tRNA(Asp)"	"R"	0				"C01638"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnacys"	"tRNA(Cys)"	"R"	0				"C01639"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnagln"	"tRNA(Gln)"	"R"	0				"C01640"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaglu"	"tRNA (Glu)"	"R"	0				"C01641"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnagly"	"tRNA(Gly)"	"R"	0				"C01642"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnahis"	"tRNA(His)"	"R"	0				"C01643"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaile"	"tRNA(Ile)"	"R"	0				"C01644"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaleu"	"tRNA(Leu)"	"R"	0				"C01645"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnalys"	"tRNA(Lys)"	"R"	0				"C01646"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnamet"	"tRNA(Met)"	"R"	0				"C01647"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaphe"	"tRNA(Phe)"	"R"	0				"C01648"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnapro"	"tRNA(Pro)"	"R"	0				"C01649"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnasecys"	"tRNA(SeCys)"	"R"	0			"L-Selenocysteinyl-tRNA"		"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaser"	"tRNA(Ser)"	"R"	0				"C01650"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnathr"	"tRNA(Thr)"	"R"	0				"C01651"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnatrp"	"tRNA(Trp)"	"R"	0				"C01652"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnatyr"	"tRNA(Tyr)"	"R"	0				"C00787"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trnaval"	"tRNA(Val)"	"R"	0				"C01653"	"C10H12N5O3R"	0	251	"C10H12N5O3R"	0	251	"Not calculated"	"Not calculated"				
+"trp-L"	"L-Tryptophan"	"C11H12N2O2"	0	"73-22-3"	"C11H12N2O2"	"(S)-alpha-amino-beta-(3-indolyl)-propionic acid"	"C00078"	"C11H12N2O2"	0	204	"C11H12N2O2"	0	204	-25.7	4.2				
+"trptrna"	"L-Tryptophanyl-tRNA(Trp)"	"C11H11N2OR"	1				"C03512"	"C21H23N7O4R"	1	438	"C21H22N7O4R"	0	437	"Not calculated"	"Not calculated"				
+"tsul"	"Thiosulfate"	"O3S2"	-2		"H2O3S2"	"Hyposulfite"	"C00320"	"HO3S2"	-1	112	"HO3S2"	-1	112	-132.2	1.5				
+"ttdca"	"tetradecanoate (n-C14:0)"	"C14H27O2"	-1	"544-63-8"	"C14H28O2"	"emery 655;/ Myristic Acid;/ crodacid;/ n-tetradecoic acid;/ hystrene 9014/ neo-fat 14;/ hydrofol acid 1495;/ n-Tetradecanoic Acid;/ univol u 3165;/ 1-tridecanecarboxylic acid;/ myristic acid/ Myristic acid/ Tetradecanoate;/ Myristate"	"C06424"	"C14H27O2"	-1	227	"C14H27O2"	-1	227	-67	2.6				
+"ttdcea"	"tetradecenoate (n-C14:1)"	"C14H25O2"	-1			"tetradecenoic acid"		"C14H25O2"	-1	225	"C14H25O2"	-1	225	-45.5	2.7				
+"tungs"	"tungstate"	"O4W1"	-2		"H2O4W1"			"O4W1"	-2	65	"O4W1"	-2	65	"Not calculated"	"Not calculated"				
+"tym"	"Tyramine"	"C8H12NO"	1	"51-67-2"	"C8H11NO"	"2-(p-Hydroxyphenyl)ethylamine"	"C00483"	"C8H12NO"	1	138	"C8H12NO"	1	138	-10.6	2.6				
+"tyr-L"	"L-Tyrosine"	"C9H11NO3"	0	"60-18-4"	"C9H11NO3"	"(S)-3-(p-Hydroxyphenyl)alanine/ (S)-2-Amino-3-(p-hydroxyphenyl)propionic acid"	"C00082"	"C9H11NO3"	0	181	"C9H11NO3"	0	181	-90.2	2.6				
+"tyrp"	"Phosphotyrosine"	"C9H10NO6P"	-2		"C9H12NO6P"	"Phosphonotyrosine"	"C06501"	"C9H11NO6P"	-1	260	"C9H11NO6P"	-1	260	-302.1	2.6				
+"tyrtrna"	"L-Tyrosyl-tRNA(Tyr)"	"C9H10NO2R"	1				"C02839"	"C19H22N6O5R"	1	415	"C19H21N6O5R"	0	414	"Not calculated"	"Not calculated"				
+"u23ga"	"UDP-2,3-bis(3-hydroxytetradecanoyl)glucosamine"	"C43H75N3O20P2"	-2		"C43H77N3O20P2"	"UDP-2,3-bis(beta-hydroxymyristoyl)-D-glucosamine/ UDP-2,3-bis(3-hydroxytetradecanoyl)-D-glucosamine"	"C04652"	"C43H75N3O20P2"	-2	1015	"C43H75N3O20P2"	-2	1015	-829.5	10.7				
+"u3aga"	"UDP-3-O-(3-hydroxytetradecanoyl)-N-acetylglucosamine"	"C31H51N3O19P2"	-2		"C31H53N3O19P2"	"UDP-3-O-(beta-hydroxymyristoyl)-N-acetylglucosamine"	"C04738"	"C31H51N3O19P2"	-2	831	"C31H51N3O19P2"	-2	831	-811.3	9.7				
+"u3hga"	"UDP-3-O-(3-hydroxytetradecanoyl)-D-glucosamine"	"C29H50N3O18P2"	-1		"C29H51N3O18P2"	"UDP-3-O-(beta-hydroxymyristoyl)-D-glucosamine"	"C06022"	"C29H50N3O18P2"	-1	790	"C29H50N3O18P2"	-1	790	-781.6	9.3				
+"uaagmda"	"Undecaprenyl-diphospho-N-acetylmuramoyl-(N-acetylglucosamine)-L-ala-D-glu-meso-2,6-diaminopimeloyl-D-ala-D-ala"	"C95H152N8O28P2"	-4		"C95H156N8O28P2"	"Peptidoglycan Unit (tv)"	"C05898"	"C95H152N8O28P2"	-4	1914	"C95H152N8O28P2"	-4	1914	-827	23.1				
+"uaccg"	"UDP-N-acetyl-3-O-(1-carboxyvinyl)-D-glucosamine"	"C20H26N3O19P2"	-3		"C20H29N3O19P2"	"UDP-N-acetyl-3-(1-carboxyvinyl)-D-glucosamine/ UDP-N-acetylglucosamine-3-O-pyruvateether/ common abbr: UDP-NAcGlc-enolpyruvate"	"C04631"	"C20H26N3O19P2"	-3	674	"C20H26N3O19P2"	-3	674	-799.1	9.4				
+"uacgam"	"UDP-N-acetyl-D-glucosamine"	"C17H25N3O17P2"	-2		"C17H27N3O17P2"	"UDP-N-acetylglucosamine/ common abbr: UDP-NAcGlc/ UDP-GlcNAc"	"C00043"	"C17H25N3O17P2"	-2	605	"C17H25N3O17P2"	-2	605	-755.7	9.2				
+"uacmam"	"UDP-N-acetyl-D-mannosamine"	"C17H25N3O17P2"	-2		"C17H27N3O17P2"	"UDP-ManNAc"	"C01170"	"C17H25N3O17P2"	-2	605	"C17H25N3O17P2"	-2	605	-755.7	9.2				
+"uacmamu"	"UDP-N-acetyl-D-mannosaminouronate"	"C17H22N3O18P2"	-3		"C17H25N3O18P2"	"UDP-N-acetyl-D-mannosaminouronate/ UDP-N-acetyl-2-amino-2-deoxy-D-mannuronate"	"C06240"	"C17H22N3O18P2"	-3	618	"C17H22N3O18P2"	-3	618	-799	9.1				
+"uagmda"	"Undecaprenyl-diphospho-N-acetylmuramoyl-L-alanyl-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine"	"C87H139N7O23P2"	-4		"C87H143N7O23P2"	"N-acetylmuramoyl-L-alanyl-D-glutamyl-meso-2,6-diaminoheptane- D-alanyl-D-alanine-diphosphoundecaprenol"	"C05897"	"C87H139N7O23P2"	-4	1711	"C87H139N7O23P2"	-4	1711	-674.6	20.8				
+"uama"	"UDP-N-acetylmuramoyl-L-alanine"	"C23H33N4O20P2"	-3		"C23H36N4O20P2"	"common abbr: UDP-NAcMur-(L)-Ala"	"C01212"	"C23H33N4O20P2"	-3	747	"C23H33N4O20P2"	-3	747	-849.7	10				
+"uamag"	"UDP-N-acetylmuramoyl-L-alanyl-D-glutamate"	"C28H39N5O23P2"	-4		"C28H43N5O23P2"		"C00692"	"C28H39N5O23P2"	-4	875	"C28H39N5O23P2"	-4	875	-956.8	11.1				
+"uamr"	"UDP-N-acetylmuramate"	"C20H28N3O19P2"	-3		"C20H31N3O19P2"	"UDP-MurNac/ common abbr: UDP-NAcMur"	"C01050"	"C20H28N3O19P2"	-3	676	"C20H28N3O19P2"	-3	676	-818.7	9.2				
+"udcpdp"	"Undecaprenyl diphosphate"	"C55H89O7P2"	-3		"C55H92O7P2"	"Undecaprenyl pyrophosphate"	"C03543"	"C55H90O7P2"	-2	924	"C55H90O7P2"	-2	924	-154	15.8				
+"udcpp"	"Undecaprenyl phosphate"	"C55H89O4P"	-2		"C55H91O4P"		"C00348"	"C55H90O4P"	-1	845	"C55H90O4P"	-1	845	54.2	15.8				
+"udp"	"UDP"	"C9H11N2O12P2"	-3	"58-98-0"	"C9H14N2O12P2"	"Uridine 5'-diphosphate/ uridine diphosphate/ 5'-uridylate diphosphate"	"C00015"	"C9H12N2O12P2"	-2	402	"C9H12N2O12P2"	-2	402	-604.7	5.4				
+"udpacgal"	"UDP-N-acetyl-D-galactosamine"	"C17H25N3O17P2"	-2		"C17H27N3O17P2"	"UDP-GalNAc"	"C00203"	"C17H25N3O17P2"	-2	605	"C17H25N3O17P2"	-2	605	-755.7	9.2				
+"udpg"	"UDPglucose"	"C15H22N2O17P2"	-2		"C15H24N2O17P2"	"UDP-D-glucose"	"C00029"	"C15H22N2O17P2"	-2	564	"C15H22N2O17P2"	-2	564	-761.1	8.8				
+"udpgal"	"UDPgalactose"	"C15H22N2O17P2"	-2		"C15H24N2O17P2"	"UDP-D-galactose/ UDP-D-galactopyranose"	"C00052"	"C15H22N2O17P2"	-2	564	"C15H22N2O17P2"	-2	564	-761.1	8.8				
+"udpgalfur"	"UDP-D-galacto-1,4-furanose"	"C15H22N2O17P2"	-2	"638-23-3"	"C15H24N2O17P2"		"C03733"	"C15H22N2O17P2"	-2	564	"C15H22N2O17P2"	-2	564	-760.6	8.5				
+"udpglcur"	"UDP-D-glucuronate"	"C15H19N2O18P2"	-3		"C15H22N2O18P2"	"UDPglucuronate/ UDP-GlcA"	"C00167"	"C15H19N2O18P2"	-3	577	"C15H19N2O18P2"	-3	577	-804.4	8.7				
+"udpLa4fn"	"uridine 5''-diphospho-{beta}-4-deoxy-4-formamido-L-arabinose"	"C15H21N3O16P2"	-2		"C15H23N3O16P2"	"UDP-L-Ara4-Formyl-N/ UDP-L-Ara4FN"		"C15H22N3O16P2"	-1	562	"C15H22N3O16P2"	-1	562	-715.8	8.1				
+"udpLa4n"	"uridine 5''-diphospho-{beta}-4-deoxy-4-amino-L-arabinose"	"C14H22N3O15P2"	-1		"C14H23N3O15P2"	"UDP-4-amino-4-deoxy-L-arabinose/ UDP-L-Ara4N"		"C14H22N3O15P2"	-1	534	"C14H22N3O15P2"	-1	534	-687.7	8.4				
+"udpLa4o"	"UDP-4-keto-pyranose"	"C14H18N2O16P2"	-2		"C14H20N2O16P2"	"uridine 5'-ß-L-threo-pentapyranosyl-4-ulose diphosphate/ UDP-L-Ara4O"""		"C14H18N2O16P2"	-2	532	"C14H18N2O16P2"	-2	532	-716.1	8.2				
+"ugmd"	"UDP-N-acetylmuramoyl-L-alanyl-D-gamma-glutamyl-meso-2,6-diaminopimelate"	"C35H51N7O26P2"	-4		"C35H55N7O26P2"	"UDP-N-acetylmuramoyl-L-alanyl-D-gamma-glutamyl-meso-2,6-diaminoheptanedioate/ UDP-MurNac-tripeptide"	"C04877"	"C35H51N7O26P2"	-4	1047	"C35H51N7O26P2"	-4	1047	-1063.5	12.5				
+"ugmda"	"UDP-N-acetylmuramoyl-L-alanyl-D-glutamyl-meso-2,6-diaminopimeloyl-D-alanyl-D-alanine"	"C41H61N9O28P2"	-4		"C41H65N9O28P2"	"UDP-N-acetylmuramoyl-L-alanyl-D-glutamyl-6-carboxy-L-lysyl-D-alanyl-D-alanine"	"C04882"	"C41H61N9O28P2"	-4	1189	"C41H61N9O28P2"	-4	1189	-1125.4	15.5				
+"uLa4fn"	"undecaprenyl phosphate-4-amino-4-formyl-L-arabinose"	"C61H99N1O8P1"	-1		"C61H100N1O8P1"			"C61H100NO8P"	0	1005	"C61H99NO8P"	-1	1004	-56.9	16.2				
+"uLa4n"	"undecaprenyl phosphate-4-amino-4-deoxy-L-arabinose"	"C60H100N1O7P1"	0		"C60H100N1O7P1"	"undecaprenyl phosphate-L-Ara4N"		"C60H100NO7P"	0	977	"C60H100NO7P"	0	977	-28.8	16.3				
+"um4p"	"UDP-N-acetylmuramoyl-L-alanyl-D-gamma-glutamyl-meso-2,6-diaminopimelate-D-alanine"	"C38H56N8O27P2"	-4		"C38H60N8O27P2"	"UDP-N-acetylmuramoyl-tetrapeptide"		"C38H56N8O27P2"	-4	1118	"C38H56N8O27P2"	-4	1118	-1094.5	14				
+"ump"	"UMP"	"C9H11N2O9P"	-2	"58-97-9"	"C9H13N2O9P"	"Uridylic acid/ Uridine monophosphate/ Uridine 5'-monophosphate/ 5'Uridylic acid"	"C00105"	"C9H12N2O9P"	-1	323	"C9H12N2O9P"	-1	323	-396.5	5.3				
+"unaga"	"Undecaprenyl diphospho N-acetyl-glucosamine"	"C63H103NO12P2"	-2			"Lipid I in Enterobacterial Common Antigen"		"C63H103NO12P2"	-2	1127	"C63H103NO12P2"	-2	1127	-305	16.6				
+"unagamu"	"Undecaprenyl-diphospho-N-acetylglucosamine-N-acetylmannosaminuronate"	"C71H113N2O18P2"	-3			"Lipid II in Enterobacterial Common Antigen"		"C71H113N2O18P2"	-3	1343	"C71H113N2O18P2"	-3	1343	-500.7	18.4				
+"unagamuf"	"Undecaprenyl-diphospho N-acetylglucosamine-N-acetylmannosaminuronate-N-acetamido-4,6-dideoxy-D-galactose"	"C79H126N3O22P2"	-3			"Lipid III in Enterobacterial Common Antigen/ ECA"		"C79H126N3O22P2"	-3	1530	"C79H126N3O22P2"	-3	1530	-616.9	21.1				
+"uppg3"	"Uroporphyrinogen III"	"C40H36N4O16"	-8	"1976-85-8"	"C40H44N4O16"		"C01051"	"C40H36N4O16"	-8	828	"C40H36N4O16"	-8	828	"Not calculated"	"Not calculated"				
+"ura"	"Uracil"	"C4H4N2O2"	0	"66-22-8"		"2,4-dioxy pyrimidine/ 2,4-Dihydroxypyrimidine/ U/ 2,4(1H,3H)-Pyrimidinedione"	"C00106"	"C4H4N2O2"	0	112	"C4H4N2O2"	0	112	-61.3	4.4				
+"urate"	"Urate"	"C5H4N4O3"	0	"69-93-2"		"2,6,8-trioxypurine/ Uric oxide/ Lithic acid/ 8-Hydroxyxanthine/ Uric acid"	"C00366"	"C5H4N4O3"	0	168	"C5H4N4O3"	0	168	-89.8	9.4				
+"urdglyc"	"(-)-Ureidoglycolate"	"C3H5N2O4"	-1		"C3H5N2O4"	"(S)-Ureidoglycolate"	"C00603"	"C3H5N2O4"	-1	133	"C3H5N2O4"	-1	133	-164.1	2.8				
+"urea"	"Urea"	"CH4N2O"	0	"57-13-6"		"Carbamide/ Carbonyl diamine/ Carbamimidic acid/ aquadrate/ Isourea"	"C00086"	"CH4N2O"	0	60	"CH4N2O"	0	60	-48.7	1.5				
+"uri"	"Uridine"	"C9H12N2O6"	0	"58-96-8"			"C00299"	"C9H12N2O6"	0	244	"C9H12N2O6"	0	244	-184.7	5.4				
+"utp"	"UTP"	"C9H11N2O15P3"	-4	"63-39-8"	"C9H15N2O15P3"	"Uridine 5'-triphosphate/ Uridine triphosphate/ rUTP/ 5'-uridylate triphosphate"	"C00075"	"C9H12N2O15P3"	-3	481	"C9H12N2O15P3"	-3	481	-812.8	5.4				
+"val-L"	"L-Valine"	"C5H11NO2"	0	"72-18-4"	"C5H11NO2"	"2-Amino-3-methylbutyric acid/ 2-Aminoisovaleric acid/ Val"	"C00183"	"C5H11NO2"	0	117	"C5H11NO2"	0	117	-86.4	1.2				
+"valtrna"	"L-Valyl-tRNA(Val)"	"C5H10NOR"	1				"C02554"	"C15H22N6O4R"	1	351	"C15H22N6O4R"	1	351	"Not calculated"	"Not calculated"				
+"xan"	"Xanthine"	"C5H4N4O2"	0	"69-89-6"		"2,6-Dioxopurine"	"C00385"	"C5H4N4O2"	0	152	"C5H4N4O2"	0	152	-27.3	7.7				
+"xdp"	"XDP"	"C10H11N4O12P2"	-3		"C10H14N4O12P2"		"C01337"	"C10H12N4O12P2"	-2	442	"C10H12N4O12P2"	-2	442	-570.6	8				
+"xmp"	"Xanthosine 5'-phosphate"	"C10H11N4O9P"	-2	"523-98-8"	"C10H13N4O9P"	"XMP/ Xanthylic acid/ (9-D-Ribosylxanthine)-5'-phosphate"	"C00655"	"C10H12N4O9P"	-1	363	"C10H12N4O9P"	-1	363	-362.5	8				
+"xtp"	"XTP"	"C10H11N4O15P3"	-4		"C10H15N4O15P3"		"C00700"	"C10H12N4O15P3"	-3	521	"C10H12N4O15P3"	-3	521	-778.8	8				
+"xtsn"	"Xanthosine"	"C10H12N4O6"	0	"146-80-5"			"C01762"	"C10H12N4O6"	0	284	"C10H12N4O6"	0	284	-150.6	8				
+"xu5p-D"	"D-Xylulose 5-phosphate"	"C5H9O8P"	-2		"C5H11O8P"		"C00231"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-392.4	1.5				
+"xu5p-L"	"L-Xylulose 5-phosphate"	"C5H9O8P"	-2		"C5H11O8P"		"C03291"	"C5H10O8P"	-1	229	"C5H10O8P"	-1	229	-392.4	1.5				
+"xyl-D"	"D-Xylose"	"C5H10O5"	0	"58-86-6"		"Wood sugar"	"C00181"	"C5H10O5"	0	150	"C5H10O5"	0	150	-179.4	3.9				
+"xylu-D"	"D-Xylulose"	"C5H10O5"	0	"551-84-8"		"D-threo-Pentulose/ D-Lyxulose"	"C00310"	"C5H10O5"	0	150	"C5H10O5"	0	150	-180.2	3.4				
+"xylu-L"	"L-Xylulose"	"C5H10O5"	0	"527-50-4"		"L-threo-Pentulose/ L-Lyxulose"	"C00312"	"C5H10O5"	0	150	"C5H10O5"	0	150	-180.2	3.4				
+"zn2"	"Zinc"	"Zn"	2	"7440-66-6"		"Zn2+/ Zn(II)"	"C00038"	"Zn"	2	65	"Zn"	2	65	"Not calculated"	"Not calculated"				

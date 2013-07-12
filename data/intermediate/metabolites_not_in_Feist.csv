@@ -1,0 +1,87 @@
+"2-ACETO-LACTATE"	"alac-S"					
+"3-HYDROXYPHENYL-PROPIONATE"	"3hpppn"					
+"3-PHENYLPROPIONATE"	"pppn"					
+"ACETYLSERINE"	"acser"					
+"ACYL-COA"	"accoa"					
+"ALLANTOIN"	"alltn"					
+"ALLOLACTOSE"	"+"	"C12H22O11"	"C12H22O11"	0	"C12H22O11"	0
+"ANTIMONITE"	"+"	"H3O3Sb"	"O3Sb"	-3	"O3Sb"	-3
+"APS"	"aps"					
+"ARABINOSE"	"arab-L"					
+"ARG"	"arg-L"					
+"ASN"	"asn-L"					
+"ATP"	"atp"					
+"BIO-5-AMP"	"+"	"C20H28N7O9PS"	"C20H27N7O9PS"	-1	"C20H27N7O9PS"	-1
+"CAMP"	"camp"					
+"CARNITINE"	"crn"					
+"CHOLINE"	"chol"					
+"CO+2"	"cobalt2"					
+"CPD-10551"	"+"	"C5H9O7P"	"C5H7O7P"	-2	"C5H7O7P"	-2
+"CPD-110"	"+"	"C7H6O3"	"C7H5O3"	-1	"C7H5O3"	-1
+"CPD-12800"	"+"	"OHCl"	"OCl"	-1	"OCl"	-1
+"CPD-207"	"phaccoa"					
+"CPD-3"	"mobd"					
+"CPD-6"	"+"	"S2Fe2"	"S2Fe2"	0	"S2Fe2"	0
+"CPD-622"	"2mcit"	"C7H10O7"	"C7H7O7"	-3	"C7H7O7"	-3
+"CPD-69"	"cyan"					
+"CPD-763"	"aso3"					
+"CPD-7970"	"+"	"C9H5N4Cl"	"C9H5N4Cl"	0	"C9H5N4Cl"	0
+"CPD-8179"	"+"	"C6H6N2O5"	"C6H3N2O5"	-3	"C6H3N2O5"	-3
+"CPD0-1938"	"+"		"C21H20N3"	1	"C21H20N3"	1
+"CPD0-2342"	"+"	"C6H12O6R"	"C6H12O6R"	0	"C6H12O6R"	0
+"CPD0-881"	"acmum6p"					
+"CU+"	"cu2"					
+"CYTIDINE"	"cytd"					
+"D-SERINE"	"ser-D"					
+"DIACETYLCHITOBIOSE-6-PHOSPHATE"	"+"	"C16H29N2O14P"	"C16H27N2O14P"	-2	"C16H27N2O14P"	-2
+"DIHYDROXYPENTANEDIONE"	"dhptd"					
+"FE+2"	"fe2"					
+"FORMATE"	"for"					
+"FRU1P"	"f1p"					
+"FRUCTOSE-16-DIPHOSPHATE"	"fdp"					
+"FRUCTURONATE"	"fruur"					
+"FUCULOSE-1P"	"fc1p"					
+"GALACTOSE"	"gal"					
+"GLUCONATE"	"glcn"					
+"GLY"	"gly"					
+"GLYCEROL"	"glyc"					
+"GLYCEROL-3P"	"glyc3p"					
+"GLYCOLLATE"	"glyclt"					
+"GLYOX"	"glx"					
+"GUANOSINE-5DP-3DP"	"ppgpp"					
+"HOMO-CYS"	"hcys-L"					
+"HYPOXANTHINE"	"hxan"					
+"L-ALPHA-ALANINE"	"ala-L"					
+"L-ASCORBATE-6-PHOSPHATE"	"ascb6p"					
+"L-LACTATE"	"lac-L"					
+"LEU"	"leu-L"					
+"LYS"	"lys-L"					
+"MALTOTRIOSE"	"malttr"					
+"MANNITOL"	"mnl"					
+"MELIBIOSE"	"melib"					
+"MN+2"	"mg2"					
+"N-ACETYL-D-GLUCOSAMINE-6-P"	"6pgc"					
+"N-ACETYLNEURAMINATE"	"acnam"					
+"N-ETHYLMALEIMIDE"	"+"	"C6H7NO2"	"C6H7NO2"	0	"C6H7NO2"	0
+"NA+"	"na1"					
+"NI+2"	"ni2"					
+"NITRIC-OXIDE"	"no"					
+"PHE"	"phe-L"					
+"PHOSPHO-ENOL-PYRUVATE"	"pep"					
+"PYRUVATE"	"pyr"					
+"RHAMNOSE"	"rmn"					
+"RIBOSE"	"rib-D"					
+"S-ADENOSYLMETHIONINE"	"amet"					
+"S-ALLANTOIN"	"alltn"					
+"SORBITOL"	"sbt-D"					
+"TARTRATE"	"tartr-L"					
+"THYMINE"	"thym"					
+"TREHALOSE-6P"	"tre6p"					
+"TRP"	"trp-L"					
+"TYR"	"tyr-L"					
+"URACIL"	"ura"					
+"XANTHOSINE"	"xtsn"					
+"XYLOSE"	"xyl-D"					
+"ZN+2"	"zn2"					
+"flvubrdrd"	"+"	"XH2"	"XH2"	0	"XH2"	0
+"flvubrdox"	"+"	"X"	"X"	0	"X"	0

@@ -52,15 +52,19 @@ class Metabolism(wholecell.sim.state.State.State):
 		super(Metabolism, self).allocate()
 
 		self.growth = numpy.zeros(1)
-		self.fluxes = numpy.zeros(len(self.reactionIds))
+		self.fluxes = numpy.zeros(len(self.reactionIds)) # Note: Probably not the right size
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
 		mc = self.moleculeCounts
 		met = self.metabolism
 
+		# TODO: Fix
+		# bounds = met.calcFluxBounds(
+		# 	mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[numpy.unravel_index(met.enzyme.mapping, mc.counts.shape)]
+		# 	)
 		bounds = met.calcFluxBounds(
-			mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[numpy.unravel_index(met.enzyme.mapping, mc.counts.shape)]
+			mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], numpy.zeros(1), applyKineticBounds = False, applyExchangeBounds = False
 			)
 
 		self.growth, self.fluxes = met.calcGrowthRate(bounds)[0:2]
