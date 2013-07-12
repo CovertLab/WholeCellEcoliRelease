@@ -203,6 +203,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			self.counts = numpy.zeros((len(self.ids), len(self.compartments)))
 			self.partitionedCounts = numpy.zeros((len(self.ids), len(self.compartments), len(self.partitions)))
 			self.unpartitionedCounts = numpy.zeros((len(self.ids), len(self.compartments)))
+			self.requestedCounts = numpy.zeros((len(self.ids), len(self.compartments)))
 		else:
 			self.counts = numpy.zeros(len(self.ids))
 			self.fullCounts = numpy.zeros((len(self.ids), len(self.compartments)))
@@ -329,6 +330,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			partition.counts = alloc[numpy.unravel_index(partition.mapping, alloc.shape)]
 
 		# TODO: Allocate unpartitioned molecules
+		self.requestedCounts = numpy.sum(reqs, axis = 2)
 		self.unpartitionedCounts = self.counts - numpy.sum(self.partitionedCounts, axis = 2)
 
 	# Merge sub-states partitioned to processes
@@ -392,3 +394,52 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		#idxs = numpy.reshape(idxs, ids.shape)
 
 		return idxs, idFormIdxs, compIdxs
+
+	def pytablesCreate(self, h5file, sim):
+		import tables
+
+		# TODO: Look into using enumerated data types in PyTables
+
+		# Columns
+		d = {
+			"time": tables.Int64Col(),
+			"id": tables.StringCol(max([len(x) for x in self.ids])),
+			"form": tables.StringCol(max([len(x) for x in self.formVals.keys()])),
+			"type": tables.StringCol(max([len(x) for x in self.typeVals.keys()])),
+			"name": tables.StringCol(max([len(x) for x in self.names if x != None])),
+			"compartment": tables.StringCol(max([len(x) for x in self.cIdx.keys()])),
+			"counts": tables.Float64Col(),
+			"requested": tables.Float64Col()
+			}
+
+		# Create table
+		# TODO: Add compression options (using filters)
+		t = h5file.create_table(h5file.root, self.meta["id"], d, title = self.meta["name"], filters = tables.Filters(complevel = 9, complib="zlib"))
+
+		# The following lines make querying much faster, but make simulation run-time considerably slower
+		# t.cols.id.create_index()
+		# t.cols.compartment.create_index()
+
+		# Store units as metadata
+		t.attrs.counts_units = self.meta["units"]["counts"]
+
+	def pytablesAppend(self, h5file, sim):
+		import tables
+
+		simTime = sim.getState("Time").value
+		t = h5file.get_node("/", self.meta["id"])
+		entry = t.row
+
+		for i in xrange(self.counts.shape[0]):
+			for j in xrange(self.counts.shape[1]):
+				entry["time"] = simTime
+				entry["id"] = self.ids[i]
+				entry["form"] = [key for key,val in self.formVals.iteritems() if val == self.forms[i]][0] # TODO: maybe create another dictionary to avoid this
+				entry["type"] = [key for key,val in self.typeVals.iteritems() if val == self.types[i]][0] # TODO: maybe create another dictionary to avoid this
+				# entry["name"] = self.names[i].encode("ascii", "ignore")
+				entry["compartment"] = [key for key,val in self.cIdx.iteritems() if val == j][0]
+				entry["counts"] = self.counts[i, j]
+				entry["requested"] = self.requestedCounts[i, j]
+				entry.append()
+
+		t.flush()
