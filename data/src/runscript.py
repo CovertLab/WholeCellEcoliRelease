@@ -9,12 +9,14 @@ import ipdb
 import generateSequencesForGRAVY as gravy
 import urllib
 import time
+from SOAPpy import WSDL
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
+	#temp()
 	parseIntermediateFiles()
 
 	parseGenes()
