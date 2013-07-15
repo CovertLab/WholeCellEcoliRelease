@@ -29,6 +29,50 @@ def main():
 	parseReactions()
 	parseEnzymeKinetics()
 
+def temp():
+	enzymeDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		dictreader.next()
+		for row in dictreader:
+			if row['EC'] != '' and row['Enzyme'] != 'null':
+				enzymes = json.loads(row['Enzyme'])
+				for e in enzymes:
+					if isinstance(e, list):
+						print row
+					else:
+						if not enzymeDict.has_key(e):
+							newEnzyme = tempClass()
+							enzymeDict[e] = newEnzyme
+						enzymeDict[e].EC.append(row['EC'])
+						enzymeDict[e].reacID.append(row['Frame ID'])
+						enzymeDict[e].reacStoich.append(row['Stoichiometry (pH 7.2)'])
+						enzymeDict[e].direction.append(row['Direction'])
+		ipdb.set_trace()
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['Enzyme Frame ID', 'Enzyme Name','EC', 'Reaction name', 'Reaction stoichiometry', 'Direction', 'Turnover (s^-1)', 'Comments'])
+
+		# keys = geneDict.keys()
+		# keys.sort()
+
+		# for key in keys:
+		# 	g = geneDict[key]
+		# 	csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
+
+
+
+class tempClass():
+	def __init__(self):
+		self.frameId = None
+		self.EC = []
+		self.reacID = []
+		self.reacStoich = []
+		self.direction = []
+
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
 		os.makedirs(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log'))
