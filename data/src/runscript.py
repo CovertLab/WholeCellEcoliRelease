@@ -947,26 +947,10 @@ def parseComplexes():
 		for row in csvreader:
 			proteinComplexes.append(row[0])
 
-	# Build list of protein-rna complexes
-	rnaProteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			rnaProteinComplexes.append(row[0])
-
-	# Build list of protein-small molecule complexes
-	smallMolecProteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			smallMolecProteinComplexes.append(row[0])
-
 	# Parse protein complex information
 	proCompDict = {}
-	saveRowPPC = {}
-	PPC_hasPPCSubunit = []
-	PPC_hasRPSubunit = []
-	PPC_hasSMPCSubunit = []
+	saveRow = {}
+	hasComplexSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
@@ -986,21 +970,9 @@ def parseComplexes():
 					stoich = int(info[1])
 
 					if (frameId in proteinComplexes):
-						if frameId not in [x[0] for x in PPC_hasPPCSubunit]:
-							PPC_hasPPCSubunit.append(comp.frameId)
-							saveRowPPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in rnaProteinComplexes):
-						if frameId not in [x[0] for x in PPC_hasRPSubunit]:
-							PPC_hasRPSubunit.append(comp.crameId)
-							saveRowPPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in smallMolecProteinComplexes):
-						if frameId not in [x[0] for x in PPC_hasSMPCSubunit]:
-							PPC_hasSMPCSubunit.append(comp.frameId)
-							saveRowPPC[comp.frameId] = row
+						if frameId not in [x[0] for x in hasComplexSubunit]:
+							hasComplexSubunit.append(comp.frameId)
+							saveRow[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif monomerCompartment.has_key(frameId):
