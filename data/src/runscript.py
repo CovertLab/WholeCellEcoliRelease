@@ -876,6 +876,26 @@ def parseComplexes():
 				for m in modifiedForm:
 					monomerCompartment[m] = json.loads(row[3])
 
+	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
+	newRows = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newRows.append(row)
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newRows.append(row)
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newRows.append(row)
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+		csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
+		for row in newRows:
+			csvwriter.writerow(row)
+
 	# Build list of protein-protein complexes
 	proteinComplexes = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
