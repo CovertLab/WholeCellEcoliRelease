@@ -975,6 +975,7 @@ def parseComplexes():
 	hasComplexSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
 		for row in csvreader:
 			comp = proteinComplex()
 			comp.frameId = row[0]
