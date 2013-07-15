@@ -2156,7 +2156,6 @@ class reactionParser:
 				# Sort monomers and cast to tuple for hash
 				monomers.sort()
 				monomers = tuple(monomers)
-
 				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
 					enzymes[i].append(self.monomerToComplex[monomers])
