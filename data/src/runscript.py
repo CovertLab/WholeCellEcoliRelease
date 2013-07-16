@@ -29,6 +29,50 @@ def main():
 	parseReactions()
 	parseEnzymeKinetics()
 
+def temp():
+	enzymeDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		dictreader.next()
+		for row in dictreader:
+			if row['EC'] != '' and row['Enzyme'] != 'null':
+				enzymes = json.loads(row['Enzyme'])
+				for e in enzymes:
+					if isinstance(e, list):
+						print row
+					else:
+						if not enzymeDict.has_key(e):
+							newEnzyme = tempClass()
+							enzymeDict[e] = newEnzyme
+						enzymeDict[e].EC.append(row['EC'])
+						enzymeDict[e].reacID.append(row['Frame ID'])
+						enzymeDict[e].reacStoich.append(row['Stoichiometry (pH 7.2)'])
+						enzymeDict[e].direction.append(row['Direction'])
+		ipdb.set_trace()
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['Enzyme Frame ID', 'Enzyme Name','EC', 'Reaction name', 'Reaction stoichiometry', 'Direction', 'Turnover (s^-1)', 'Comments'])
+
+		# keys = geneDict.keys()
+		# keys.sort()
+
+		# for key in keys:
+		# 	g = geneDict[key]
+		# 	csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
+
+
+
+class tempClass():
+	def __init__(self):
+		self.frameId = None
+		self.EC = []
+		self.reacID = []
+		self.reacStoich = []
+		self.direction = []
+
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
 		os.makedirs(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log'))
@@ -876,35 +920,62 @@ def parseComplexes():
 				for m in modifiedForm:
 					monomerCompartment[m] = json.loads(row[3])
 
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
+	# Build list of RNAs that could be included in complexes
+	rnaList = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
+		for row in csvreader:
+			rnaList.append(row[0])
+			modifiedForm = json.loads(row[4])
+			if modifiedForm != []:
+				for mf in modifiedForm:
+					rnaList.append(mf)
+
+	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
+	newRows = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newRows.append(row)
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newRows.append(row)
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			newRows.append(row)
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+		csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
+		for row in newRows:
+			csvwriter.writerow(row)
+
 	# Build list of protein-protein complexes
 	proteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			proteinComplexes.append(row[0])
 
-	# Build list of protein-rna complexes
-	rnaProteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			rnaProteinComplexes.append(row[0])
-
-	# Build list of protein-small molecule complexes
-	smallMolecProteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			smallMolecProteinComplexes.append(row[0])
-
 	# Parse protein complex information
 	proCompDict = {}
-	saveRowPPC = {}
-	PPC_hasPPCSubunit = []
-	PPC_hasRPSubunit = []
-	PPC_hasSMPCSubunit = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+	saveRow = {}
+	hasComplexSubunit = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader.next()
 		for row in csvreader:
 			comp = proteinComplex()
 			comp.frameId = row[0]
@@ -922,21 +993,9 @@ def parseComplexes():
 					stoich = int(info[1])
 
 					if (frameId in proteinComplexes):
-						if frameId not in [x[0] for x in PPC_hasPPCSubunit]:
-							PPC_hasPPCSubunit.append(comp.frameId)
-							saveRowPPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in rnaProteinComplexes):
-						if frameId not in [x[0] for x in PPC_hasRPSubunit]:
-							PPC_hasRPSubunit.append(comp.crameId)
-							saveRowPPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in smallMolecProteinComplexes):
-						if frameId not in [x[0] for x in PPC_hasSMPCSubunit]:
-							PPC_hasSMPCSubunit.append(comp.frameId)
-							saveRowPPC[comp.frameId] = row
+						if frameId not in [x[0] for x in hasComplexSubunit]:
+							hasComplexSubunit.append(comp.frameId)
+							saveRow[comp.frameId] = row
 						foundAllComponents = False
 						break
 					elif monomerCompartment.has_key(frameId):
@@ -944,6 +1003,13 @@ def parseComplexes():
 						comp.addReactant(frameId, stoich, location)
 					elif proCompDict.has_key(frameId):
 						location = proCompDict[frameId].composition['product'][frameId]['compartment']
+						comp.addReactant(frameId, stoich, location)
+					elif metaboliteEcocycToFeistIdConversion.has_key(frameId):
+						# TODO: Check location is correct
+						location = ['CCO-CYTOSOL']
+						comp.addReactant(metaboliteEcocycToFeistIdConversion[frameId], stoich, location)
+					elif (frameId in rnaList):
+						location = ['CCO-CYTOSOL']
 						comp.addReactant(frameId, stoich, location)
 					else:
 						foundAllComponents = False
@@ -958,19 +1024,10 @@ def parseComplexes():
 					proCompDict[comp.frameId] = comp
 
 	# Deal with protein complexes that have other protein complexes as subunits
-	# BUT NOT ones with RNA-protein or small molecule - protein subunits.
-	pcSubunit = sets.Set(PPC_hasPPCSubunit)
-	rpcSubunit = sets.Set(PPC_hasRPSubunit)
-	smpcSubunit = sets.Set(PPC_hasSMPCSubunit)
-
-	if len(pcSubunit.intersection(smpcSubunit)) != 0 or len(pcSubunit.intersection(rpcSubunit)) != 0:
-		# Make sure that rna-protein complexes and small molecule-protein complexes do not depend on protein-protein complexes
-		ipdb.set_trace()
-	
 	prev = 0
 	breakCount = 0
-	while len(PPC_hasPPCSubunit):
-		this = len(PPC_hasPPCSubunit)
+	while len(hasComplexSubunit):
+		this = len(hasComplexSubunit)
 		#print this
 		if prev == this:
 			breakCount += 1
@@ -978,10 +1035,10 @@ def parseComplexes():
 			ipdb.set_trace()
 		prev = this
 
-		row = saveRowPPC[PPC_hasPPCSubunit[0]]
+		row = saveRow[hasComplexSubunit[0]]
 
 		comp = proteinComplex()
-		comp.frameId = PPC_hasPPCSubunit[0]
+		comp.frameId = hasComplexSubunit[0]
 		comp.name = re.sub('<[^<]+?>', '', row[1])
 
 		foundAllComponents = True
@@ -998,10 +1055,17 @@ def parseComplexes():
 				elif proCompDict.has_key(frameId):
 					location = proCompDict[frameId].composition['product'][frameId]['compartment']
 					comp.addReactant(frameId, stoich, location)
+				elif metaboliteEcocycToFeistIdConversion.has_key(frameId):
+					# TODO: Check location is correct
+					location = ['CCO-CYTOSOL']
+					comp.addReactant(metaboliteEcocycToFeistIdConversion[frameId], stoich, location)
+				elif (frameId in rnaList):
+					location = ['CCO-CYTOSOL']
+					comp.addReactant(frameId, stoich, location)
 				else:
 					foundAllComponents = False
-					savePC = PPC_hasPPCSubunit.pop(0)
-					PPC_hasPPCSubunit.append(savePC)
+					savePC = hasComplexSubunit.pop(0)
+					hasComplexSubunit.append(savePC)
 
 			if foundAllComponents:
 				comp.addProduct(comp.frameId, 1)
@@ -1009,260 +1073,7 @@ def parseComplexes():
 				comp.buildStringComposition(compartmentAbbrev)
 
 				proCompDict[comp.frameId] = comp
-				PPC_hasPPCSubunit.pop(0)
-
-	# Parse small-molecule-protein complxes
-	ecocycToFeistId = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				ecocycToFeistId[row[0]] = row[0]
-			else:
-				ecocycToFeistId[row[0]] = row[1]
-
-	smallMolecProCompDict = {}
-	saveRowSMPC = {}
-	SMPC_hasPPCSubunit = []
-	SMPC_hasRPSubunit = []
-	SMPC_hasSMPCSubunit = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			comp = proteinComplex()
-			comp.frameId = row[0]
-			comp.name = re.sub('<[^<]+?>', '', row[1])
-			comp.modifiedForm = row[3][1:-1].split(' ')
-			if comp.modifiedForm == [""]:
-				comp.modifiedForm = []
-
-			foundAllComponents = True
-			components = row[2][2:-2].replace('"','').split(') (')
-			if row[2] != '':
-				for c in components:
-					info = c.split(', ')
-					frameId = info[0]
-					stoich = int(info[1])
-					if (frameId in rnaProteinComplexes):
-						if frameId not in [x[0] for x in SMPC_hasRPSubunit]:
-							SMPC_hasRPSubunit.append(comp.crameId)
-							saveRowSMPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in smallMolecProteinComplexes):
-						if frameId not in [x[0] for x in SMPC_hasSMPCSubunit]:
-							SMPC_hasSMPCSubunit.append(comp.frameId)
-							saveRowSMPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-
-					elif ecocycToFeistId.has_key(frameId):
-						# TODO: Check location is correct
-						location = ['CCO-CYTOSOL']
-						comp.addReactant(ecocycToFeistId[frameId], stoich, location)
-					elif proCompDict.has_key(frameId):
-						location = proCompDict[frameId].composition['product'][frameId]['compartment']
-						comp.addReactant(frameId, stoich, location)
-					elif monomerCompartment.has_key(frameId):
-						location = monomerCompartment[frameId]
-						comp.addReactant(frameId, stoich, location)
-					elif smallMolecProCompDict.has_key(frameId):
-						location = smallMolecProCompDict[frameId].composition['product'][frameId]['compartment']
-						comp.addReactant(frameId, stoich, location)
-					else:
-						foundAllComponents = False
-						s = 'Did not create a small molecule-protein complex for ' + comp.frameId + ' could not find ' + frameId
-						writeOut(s, logFile)
-
-				if foundAllComponents:
-					comp.addProduct(comp.frameId, 1)
-					comp.calculateLocation()
-					comp.buildStringComposition(compartmentAbbrev)
-
-					smallMolecProCompDict[comp.frameId] = comp
-
-	# Deal with small molecule-protein complexes that have other small-molecule protein as subunits
-	# BUT NOT ones with RNA-protein
-	pcSubunit = sets.Set(SMPC_hasPPCSubunit)
-	rpcSubunit = sets.Set(SMPC_hasRPSubunit)
-	smpcSubunit = sets.Set(SMPC_hasSMPCSubunit)
-
-	if len(smpcSubunit.intersection(pcSubunit)) != 0 or len(smpcSubunit.intersection(rpcSubunit)) != 0:
-		# Make sure that rna-protein complexes and small molecule-protein complexes do not depend on protein-protein complexes
-		ipdb.set_trace()
-
-	prev = 0
-	breakCount = 0
-	while len(SMPC_hasSMPCSubunit):
-		this = len(SMPC_hasSMPCSubunit)
-		#print this
-		if prev == this:
-			breakCount += 1
-		if breakCount > 100:
-			ipdb.set_trace()
-		prev = this
-
-		row = saveRowSMPC[SMPC_hasSMPCSubunit[0]]
-
-		comp = proteinComplex()
-		comp.frameId = SMPC_hasSMPCSubunit[0]
-		comp.name = re.sub('<[^<]+?>', '', row[1])
-		comp.modifiedForm = row[3][1:-1].split(' ')
-		if comp.modifiedForm == [""]:
-			comp.modifiedForm = []
-
-		foundAllComponents = True
-		components = row[2][2:-2].split(') (')
-		if row[2] != '':
-			for c in components:
-				info = c.split(', ')
-				frameId = info[0]
-				stoich = int(info[1])
-
-				if monomerCompartment.has_key(frameId):
-					location = monomerCompartment[frameId]
-					comp.addReactant(frameId, stoich, location)
-				elif proCompDict.has_key(frameId):
-					location = proCompDict[frameId].composition['product'][frameId]['compartment']
-					comp.addReactant(frameId, stoich, location)
-				elif smallMolecProCompDict.has_key(frameId):
-					location = smallMolecProCompDict[frameId].composition['product'][frameId]['compartment']
-					comp.addReactant(frameId, stoich, location)
-				elif ecocycToFeistId.has_key(frameId):
-					# TODO: Check location is correct
-					location = ['CCO-CYTOSOL']
-					comp.addReactant(ecocycToFeistId[frameId], stoich, location)
-				else:
-					foundAllComponents = False
-					savePC = SMPC_hasSMPCSubunit.pop(0)
-					SMPC_hasSMPCSubunit.append(savePC)
-
-			if foundAllComponents:
-				comp.addProduct(comp.frameId, 1)
-				comp.calculateLocation()
-				comp.buildStringComposition(compartmentAbbrev)
-
-				smallMolecProCompDict[comp.frameId] = comp
-				SMPC_hasSMPCSubunit.pop(0)
-
-	# Finished parsing small-molecule-protein complexes COMPLETELY!
-	# Now can finish parsing protein-protein complexes where one of the proteins is a small moelcule - protein complex
-	prev = 0
-	breakCount = 0
-	while len(PPC_hasSMPCSubunit):
-		this = len(PPC_hasSMPCSubunit)
-		#print this
-		if prev == this:
-			breakCount += 1
-		if breakCount > 100:
-			ipdb.set_trace()
-		prev = this
-
-		row = saveRowPPC[PPC_hasSMPCSubunit[0]]
-
-		comp = proteinComplex()
-		comp.frameId = PPC_hasSMPCSubunit[0]
-		comp.name = re.sub('<[^<]+?>', '', row[1])
-		comp.modifiedForm = row[3][1:-1].split(' ')
-		if comp.modifiedForm == [""]:
-			comp.modifiedForm = []
-
-		foundAllComponents = True
-		components = row[2][2:-2].split(') (')
-		if row[2] != '':
-			for c in components:
-				info = c.split(', ')
-				frameId = info[0]
-				stoich = int(info[1])
-
-				if monomerCompartment.has_key(frameId):
-					location = monomerCompartment[frameId]
-					comp.addReactant(frameId, stoich, location)
-				elif proCompDict.has_key(frameId):
-					location = proCompDict[frameId].composition['product'][frameId]['compartment']
-					comp.addReactant(frameId, stoich, location)
-				elif smallMolecProCompDict.has_key(frameId):
-					location = smallMolecProCompDict[frameId].composition['product'][frameId]['compartment']
-					comp.addReactant(frameId, stoich, location)
-				elif ecocycToFeistId.has_key(frameId):
-					# TODO: Check location is correct
-					location = ['CCO-CYTOSOL']
-					comp.addReactant(ecocycToFeistId[frameId], stoich, location)
-				else:
-					foundAllComponents = False
-					savePC = PPC_hasSMPCSubunit.pop(0)
-					PPC_hasSMPCSubunit.append(savePC)
-
-			if foundAllComponents:
-				comp.addProduct(comp.frameId, 1)
-				comp.calculateLocation()
-				comp.buildStringComposition(compartmentAbbrev)
-
-				proCompDict[comp.frameId] = comp
-				PPC_hasSMPCSubunit.pop(0)
-
-	# Parse RNA-protein complexes
-	rnaList = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			rnaList.append(row[0])
-			modifiedForm = json.loads(row[4])
-			if modifiedForm != []:
-				for mf in modifiedForm:
-					rnaList.append(mf)
-
-	rnaProtCompDict = {}
-	saveRowRPC = {}
-	RPC_hasRPSubunit = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			comp = proteinComplex()
-			comp.frameId = row[0]
-			comp.name = re.sub('<[^<]+?>', '', row[1])
-			comp.modifiedForm = row[3][1:-1].split(' ')
-			if comp.modifiedForm == [""]:
-				comp.modifiedForm = []
-
-			foundAllComponents = True
-			components = row[2][2:-2].replace('"','').split(') (')
-			if row[2] != '':
-				for c in components:
-					info = c.split(', ')
-					frameId = info[0]
-					stoich = int(info[1])
-					
-					if (frameId in rnaProteinComplexes):
-						if frameId not in [x[0] for x in RPC_hasRPSubunit]:
-							RPC_hasRPSubunit.append(comp.frameId)
-							saveRowRPC[comp.frameId] = row
-						foundAllComponents = False
-						break
-					elif (frameId in rnaList):
-						location = ['CCO-CYTOSOL']
-						comp.addReactant(frameId, stoich, location)
-					elif monomerCompartment.has_key(frameId):
-						location = monomerCompartment[frameId]
-						comp.addReactant(frameId, stoich, location)
-					elif proCompDict.has_key(frameId):
-						location = proCompDict[frameId].composition['product'][frameId]['compartment']
-						comp.addReactant(frameId, stoich, location)
-					elif rnaProtCompDict.has_key(frameId):
-						location = rnaProtCompDict[frameId].composition['product'][frameId]['compartment']
-						comp.addReactant(frameId, stoich, location)
-					else:
-						foundAllComponents = False
-						s = 'Did not create a rna-protein complex for ' + comp.frameId + '/' + comp.name + ' could not find ' + frameId
-						writeOut(s, logFile)
-
-				if foundAllComponents:
-					comp.addProduct(comp.frameId, 1)
-					comp.calculateLocation()
-					comp.buildStringComposition(compartmentAbbrev)
-
-					rnaProtCompDict[comp.frameId] = comp
+				hasComplexSubunit.pop(0)
 
 	# Write complexes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
@@ -1271,16 +1082,9 @@ def parseComplexes():
 		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Modified form', 'Formation process', 'Comments'])
 		
 		keys = proCompDict.keys()
-		keys.extend(smallMolecProCompDict.keys())
-		keys.extend(rnaProtCompDict.keys())
 		keys.sort()
 		for key in keys:
-			if proCompDict.has_key(key):
-				c = proCompDict[key]
-			elif smallMolecProCompDict.has_key(key):
-				c = smallMolecProCompDict[key]
-			elif rnaProtCompDict.has_key(key):
-				c = rnaProtCompDict[key]
+			c = proCompDict[key]
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), json.dumps(c.modifiedForm), c.formationProcess, c.comments])
 
 	logFile.close()
@@ -2136,7 +1940,6 @@ class reactionParser:
 				# Sort monomers and cast to tuple for hash
 				monomers.sort()
 				monomers = tuple(monomers)
-
 				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
 					enzymes[i].append(self.monomerToComplex[monomers])
