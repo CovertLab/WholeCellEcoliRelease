@@ -25,10 +25,13 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('focusTest')
 	def test_runscript(self):
 		r.main()
 	
+	@noseAttrib.attr('focusTest')
+	def test_temp(self):
+		r.temp()
+
 	def test_getminCoord(self):
 		gL = []
 		for i in range(3):

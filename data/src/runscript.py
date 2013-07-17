@@ -41,7 +41,6 @@ def getEcocycComplexComponents(cmplx):
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
-	#temp()
 	parseIntermediateFiles()
 
 	parseGenes()
