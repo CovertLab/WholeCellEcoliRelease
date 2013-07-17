@@ -84,7 +84,10 @@ def temp():
 		for key in keys:
 			e = enzymeDict[key]
 			for i in range(len(e.EC)):
-				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i]])
+				reverseSet = None
+				if e.direction[i] == 'forward only':
+					reverseSet = 0
+				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], None, reverseSet])
 
 
 
