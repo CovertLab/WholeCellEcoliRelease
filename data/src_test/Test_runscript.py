@@ -53,7 +53,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
 	
-	@noseAttrib.attr('focusTest')
 	def test_allComplexesCreated(self):
 		Ecocyc_complexFrameIds = []
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
