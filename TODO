@@ -1,16 +1,3 @@
-
-
-----------
-
-Priority: Medium
-Some complexes are missing
-
-For example, in `raw/Ecocyc_rna_protein_complexes.csv` the complex `CPLX0-3964` exists.  Sadly, it does not exist in `proteinComplexes.csv`.
-
-However, the complex `CPLX0-3962` does exist in `raw/Ecocyc_rna_protein_complexes.csv` and in `proteinComplexes.csv`, so it's not just a careless omission.
-
-----------
-
 Priority: High
 Stoichiometry of complexes is wrong
 
