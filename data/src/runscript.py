@@ -60,32 +60,31 @@ def temp():
 		dictreader.next()
 		for row in dictreader:
 			if row['EC'] != '' and row['Enzyme'] != 'null':
-				enzymes = json.loads(row['Enzyme'])
-				for e in enzymes:
-					if isinstance(e, list):
-						print row
-					else:
-						if not enzymeDict.has_key(e):
-							newEnzyme = tempClass()
-							enzymeDict[e] = newEnzyme
-						enzymeDict[e].EC.append(row['EC'])
-						enzymeDict[e].reacID.append(row['Frame ID'])
-						enzymeDict[e].reacStoich.append(row['Stoichiometry (pH 7.2)'])
-						enzymeDict[e].direction.append(row['Direction'])
-		ipdb.set_trace()
+				isozymes = json.loads(row['Enzyme'])
+				for iso in isozymes:
+					iso = tuple(iso)
+					if not enzymeDict.has_key(iso):
+						newEnzyme = tempClass()
+						enzymeDict[iso] = newEnzyme
+					enzymeDict[iso].frameId = iso
+					enzymeDict[iso].EC.append(row['EC'])
+					enzymeDict[iso].reacID.append(row['Frame ID'])
+					enzymeDict[iso].reacStoich.append(row['Stoichiometry (pH 7.2)'])
+					enzymeDict[iso].direction.append(row['Direction'])
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['Enzyme Frame ID', 'Enzyme Name','EC', 'Reaction name', 'Reaction stoichiometry', 'Direction', 'Turnover (s^-1)', 'Comments'])
+		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Turnover (s^-1)', 'Comments'])
 
-		# keys = geneDict.keys()
-		# keys.sort()
+		keys = enzymeDict.keys()
+		keys.sort()
 
-		# for key in keys:
-		# 	g = geneDict[key]
-		# 	csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
+		for key in keys:
+			e = enzymeDict[key]
+			for i in range(len(e.EC)):
+				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i]])
 
 
 
