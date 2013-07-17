@@ -76,7 +76,7 @@ def temp():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Turnover (s^-1)', 'Comments'])
+		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Turnover Forward (s^-1)', 'Turnover Reverse (s^-1)', 'Comments'])
 
 		keys = enzymeDict.keys()
 		keys.sort()
