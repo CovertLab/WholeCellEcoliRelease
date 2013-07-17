@@ -2,6 +2,8 @@
 import nose.plugins.attrib as noseAttrib
 import nose.tools as noseTools
 import unittest
+import os
+import csv
 
 import data.src.runscript as r
 
@@ -52,6 +54,31 @@ class Test_Simulation(unittest.TestCase):
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
 	
 	@noseAttrib.attr('focusTest')
+	def test_allComplexesCreated(self):
+		Ecocyc_complexFrameIds = []
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				Ecocyc_complexFrameIds.append(row[0])
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				Ecocyc_complexFrameIds.append(row[0])
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				Ecocyc_complexFrameIds.append(row[0])
+		Ecocyc_complexFrameIds = set(Ecocyc_complexFrameIds)
+
+		Parsed_complexFrameIds = []
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				Parsed_complexFrameIds.append(row[0])
+		Parsed_complexFrameIds = set(Parsed_complexFrameIds)
+		self.assertEqual(len(Parsed_complexFrameIds.difference(Ecocyc_complexFrameIds)), 0)
+
 	def test_findEnzyme(self):
 		rp = r.reactionParser()
 
