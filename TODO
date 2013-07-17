@@ -26,10 +26,3 @@ Priority: Medium
 
 Look up turnover numbers for ACP attachment/unattachment enzyme
 Look up turnover numbers for redox protein reductases
-
-
-----------
-
-Priority: Medium
-
-Some reaction rules have brackets around each enzyme and other do not (findEnzyme function)
