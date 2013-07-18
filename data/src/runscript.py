@@ -14,30 +14,6 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
-def getEcocycComplexComponents(cmplx):
-	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
-	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
-	L = []
-	for component in dom.getElementsByTagName("component"):
-		elemProt = component.getElementsByTagName("Protein")
-		elemRna = component.getElementsByTagName("RNA")
-		elemCmpnd = component.getElementsByTagName("Compound")
-		if len(elemProt) > 0:
-			fId = elemProt[0].getAttribute("frameid")
-		elif len(elemRna) > 0:
-			fId = elemRna[0].getAttribute("frameid")
-		elif len(elemCmpnd) > 0:
-			fId = elemCmpnd[0].getAttribute("frameid")
-		else:
-			raise Exception, "Don't have a frame id."
-		elemCoeff = component.getElementsByTagName("coefficient")
-		if len(elemCoeff) > 0:
-			coeff = elemCoeff[0].childNodes[0].data
-		else:
-			coeff = u"1"
-		L.append((fId, coeff))
-	return L
-
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
@@ -1068,6 +1044,30 @@ def parseComplexes():
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), json.dumps(c.modifiedForm), c.formationProcess, c.comments])
 
 	logFile.close()
+
+def getEcocycComplexComponents(cmplx):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+	L = []
+	for component in dom.getElementsByTagName("component"):
+		elemProt = component.getElementsByTagName("Protein")
+		elemRna = component.getElementsByTagName("RNA")
+		elemCmpnd = component.getElementsByTagName("Compound")
+		if len(elemProt) > 0:
+			fId = elemProt[0].getAttribute("frameid")
+		elif len(elemRna) > 0:
+			fId = elemRna[0].getAttribute("frameid")
+		elif len(elemCmpnd) > 0:
+			fId = elemCmpnd[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a frame id."
+		elemCoeff = component.getElementsByTagName("coefficient")
+		if len(elemCoeff) > 0:
+			coeff = elemCoeff[0].childNodes[0].data
+		else:
+			coeff = u"1"
+		L.append((fId, coeff))
+	return L
 
 # Parse transcription units
 def parseTranscriptionUnits():
