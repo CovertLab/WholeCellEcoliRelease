@@ -135,3 +135,12 @@ class Test_Simulation(unittest.TestCase):
 		monomerOrComplexToComplex = {'C1' : ['M1', 'C2'], 'C2' : ['C3', 'C4'], 'C3' : ['M2','M3'], 'C4' : ['M4','M5']}
 		rp.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
 		self.assertEqual(['M1','M2','M3','M4','M5'].sort(), monomers.sort())
+
+	@noseAttrib.attr('parseTest')
+	def test_getEcocycComplexComponents(self):
+		complexName = 'CPLX0-221'
+
+		info = r.getEcocycComplexComponents(complexName)
+		self.assertEqual(len(info), 2)
+		self.assertEqual(info[0], ('APORNAP-CPLX', '1'))
+		self.assertEqual(info[1], ('PD00440', '1'))
