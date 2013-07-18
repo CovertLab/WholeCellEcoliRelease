@@ -25,13 +25,11 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('parseTest')
 	def test_runscript(self):
 		r.main()
-	
-	@noseAttrib.attr('focusTest')
-	def test_temp(self):
-		r.temp()
 
+	@noseAttrib.attr('parseTest')
 	def test_getminCoord(self):
 		gL = []
 		for i in range(3):
@@ -40,6 +38,7 @@ class Test_Simulation(unittest.TestCase):
 		minCoord = r.getMinCoord(geneList = gL)
 		self.assertEqual(minCoord, 10)
 
+	@noseAttrib.attr('parseTest')
 	def tet_getmaxCoord(self):
 		gL = []
 		for i in range(3):
@@ -48,14 +47,17 @@ class Test_Simulation(unittest.TestCase):
 		maxCoord = r.getMinCoord(geneList = gL)
 		self.assertEqual(maxCoord, 30)
 
+	@noseAttrib.attr('parseTest')
 	def test_parseSigmaFactors(self):
 		self.assertEqual(['S','D'], r.parseSigmaFactors('(RNA polymerase, sigma S (sigma 38) factor RNA polymerase, sigma 70 (sigma D) factor)'))
 
+	@noseAttrib.attr('parseTest')
 	def test_calculateWeight(self):
 		met = r.metabolite()
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
-	
+
+	@noseAttrib.attr('parseTest')
 	def test_allComplexesCreated(self):
 		Ecocyc_complexFrameIds = []
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
@@ -81,6 +83,7 @@ class Test_Simulation(unittest.TestCase):
 		Parsed_complexFrameIds = set(Parsed_complexFrameIds)
 		self.assertEqual(len(Parsed_complexFrameIds.difference(Ecocyc_complexFrameIds)), 0)
 
+	@noseAttrib.attr('parseTest')
 	def test_findEnzyme(self):
 		rp = r.reactionParser()
 
@@ -94,6 +97,7 @@ class Test_Simulation(unittest.TestCase):
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
 
+	@noseAttrib.attr('parseTest')
 	def test_findEnzymeManual(self):
 		rp = r.reactionParser()
 
@@ -109,7 +113,7 @@ class Test_Simulation(unittest.TestCase):
 		line = '((SAPD-MONOMER and TRKA-MONOMER and TRKG-MONOMER) or (SAPD-MONOMER and TRKA-MONOMER and TRKH-MONOMER))'
 		self.assertEqual([['SAPD-MONOMER', 'TRKA-MONOMER', 'TRKG-MONOMER'], ['SAPD-MONOMER', 'TRKA-MONOMER', 'TRKH-MONOMER']], rp.findEnzymeManualCuration(line))
 
-
+	@noseAttrib.attr('parseTest')
 	def test_iterateTree(self):
 		rp = r.reactionParser()
 
