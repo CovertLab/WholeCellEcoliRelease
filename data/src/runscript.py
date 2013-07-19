@@ -10,13 +10,13 @@ import generateSequencesForGRAVY as gravy
 import urllib
 import time
 from SOAPpy import WSDL
+import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
-	#temp()
 	parseIntermediateFiles()
 
 	parseGenes()
@@ -28,50 +28,6 @@ def main():
 	parseMetabolites()
 	parseReactions()
 	parseEnzymeKinetics()
-
-def temp():
-	enzymeDict = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
-		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
-		dictreader.next()
-		for row in dictreader:
-			if row['EC'] != '' and row['Enzyme'] != 'null':
-				enzymes = json.loads(row['Enzyme'])
-				for e in enzymes:
-					if isinstance(e, list):
-						print row
-					else:
-						if not enzymeDict.has_key(e):
-							newEnzyme = tempClass()
-							enzymeDict[e] = newEnzyme
-						enzymeDict[e].EC.append(row['EC'])
-						enzymeDict[e].reacID.append(row['Frame ID'])
-						enzymeDict[e].reacStoich.append(row['Stoichiometry (pH 7.2)'])
-						enzymeDict[e].direction.append(row['Direction'])
-		ipdb.set_trace()
-
-	# Write output
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
-		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
-
-		csvwriter.writerow(['Enzyme Frame ID', 'Enzyme Name','EC', 'Reaction name', 'Reaction stoichiometry', 'Direction', 'Turnover (s^-1)', 'Comments'])
-
-		# keys = geneDict.keys()
-		# keys.sort()
-
-		# for key in keys:
-		# 	g = geneDict[key]
-		# 	csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
-
-
-
-class tempClass():
-	def __init__(self):
-		self.frameId = None
-		self.EC = []
-		self.reacID = []
-		self.reacStoich = []
-		self.direction = []
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -93,6 +49,7 @@ def generateEcocycFlatFile(query, outFile):
 def getEcocyc(fetchNew = False):
 	if not fetchNew:
 		return
+
 	# Open log file
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
@@ -943,28 +900,69 @@ def parseComplexes():
 					rnaList.append(mf)
 
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
-	newRows = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			newRows.append(row)
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			newRows.append(row)
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			newRows.append(row)
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'wb') as csvfile:
-		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
-		csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
-		for row in newRows:
-			csvwriter.writerow(row)
+	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
+	rebuild = False
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
+		brokenXML = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'broken_xml_complexes.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				brokenXML[row['Frame ID']] = row['Stoichiometry']
+		
+		newRows = []
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				newRows.append(row)
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				newRows.append(row)
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				newRows.append(row)
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_raw.csv'),'wb') as csvfile:
+			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
+			for row in newRows:
+				csvwriter.writerow(row)
+
+		rebuiltRow = []
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_raw.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if not brokenXML.has_key(row['Frame ID']):
+					subunits = getEcocycComplexComponents(row['Frame ID'])
+					if subunits == []:
+						print 'ERROR!!! ' + row['Frame ID']
+					print 'fetched subunits for ' + row['Frame ID']
+					subunit_string = '('
+					for i,s in enumerate(subunits):
+						subunit_string += '('
+						subunit_string += s[0]
+						subunit_string += ', '
+						subunit_string += str(s[1])
+						if i == len(subunits) - 1:
+							subunit_string += ')'
+						else:
+							subunit_string += ') '
+					subunit_string += ')'
+				else:
+					subunit_string = brokenXML[row['Frame ID']]
+				row['Stoichiometry'] = subunit_string
+				rebuiltRow.append([row['Frame ID'], row['Name'], row['Stoichiometry'], row['Modified form']])
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'wb') as csvfile:
+			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
+			rebuiltRow.sort()
+			for row in rebuiltRow:
+				csvwriter.writerow(row)
 
 	# Build list of protein-protein complexes
 	proteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			proteinComplexes.append(row[0])
@@ -973,7 +971,7 @@ def parseComplexes():
 	proCompDict = {}
 	saveRow = {}
 	hasComplexSubunit = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -1022,6 +1020,8 @@ def parseComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					proCompDict[comp.frameId] = comp
+			else:
+				raise Exception, 'No stoichiometry found!\n'
 
 	# Deal with protein complexes that have other protein complexes as subunits
 	prev = 0
@@ -1088,6 +1088,30 @@ def parseComplexes():
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), json.dumps(c.modifiedForm), c.formationProcess, c.comments])
 
 	logFile.close()
+
+def getEcocycComplexComponents(cmplx):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+	L = []
+	for component in dom.getElementsByTagName("component"):
+		elemProt = component.getElementsByTagName("Protein")
+		elemRna = component.getElementsByTagName("RNA")
+		elemCmpnd = component.getElementsByTagName("Compound")
+		if len(elemProt) > 0:
+			fId = elemProt[0].getAttribute("frameid")
+		elif len(elemRna) > 0:
+			fId = elemRna[0].getAttribute("frameid")
+		elif len(elemCmpnd) > 0:
+			fId = elemCmpnd[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a frame id."
+		elemCoeff = component.getElementsByTagName("coefficient")
+		if len(elemCoeff) > 0:
+			coeff = elemCoeff[0].childNodes[0].data
+		else:
+			coeff = u"1"
+		L.append((fId, coeff))
+	return L
 
 # Parse transcription units
 def parseTranscriptionUnits():
@@ -1665,7 +1689,7 @@ def buildReaction(rp,row):
 
 		pMFrameId = rp.getPMFrame(bnum)
 
-		reac.enzyme = [pMFrameId]
+		reac.enzyme = [[pMFrameId]]
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
 			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])

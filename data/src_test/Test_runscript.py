@@ -2,6 +2,8 @@
 import nose.plugins.attrib as noseAttrib
 import nose.tools as noseTools
 import unittest
+import os
+import csv
 
 import data.src.runscript as r
 
@@ -23,10 +25,11 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('focusTest')
+	@noseAttrib.attr('parseTest')
 	def test_runscript(self):
 		r.main()
-	
+
+	@noseAttrib.attr('parseTest')
 	def test_getminCoord(self):
 		gL = []
 		for i in range(3):
@@ -35,6 +38,7 @@ class Test_Simulation(unittest.TestCase):
 		minCoord = r.getMinCoord(geneList = gL)
 		self.assertEqual(minCoord, 10)
 
+	@noseAttrib.attr('parseTest')
 	def tet_getmaxCoord(self):
 		gL = []
 		for i in range(3):
@@ -43,15 +47,43 @@ class Test_Simulation(unittest.TestCase):
 		maxCoord = r.getMinCoord(geneList = gL)
 		self.assertEqual(maxCoord, 30)
 
+	@noseAttrib.attr('parseTest')
 	def test_parseSigmaFactors(self):
 		self.assertEqual(['S','D'], r.parseSigmaFactors('(RNA polymerase, sigma S (sigma 38) factor RNA polymerase, sigma 70 (sigma D) factor)'))
 
+	@noseAttrib.attr('parseTest')
 	def test_calculateWeight(self):
 		met = r.metabolite()
 		self.assertLess(abs(180.16 - met.calculateWeight('C6H12O6')), 0.006)
 		self.assertLess(abs(18.01528 - met.calculateWeight('H2O')), 0.006)
-	
-	@noseAttrib.attr('focusTest')
+
+	@noseAttrib.attr('parseTest')
+	def test_allComplexesCreated(self):
+		Ecocyc_complexFrameIds = []
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				Ecocyc_complexFrameIds.append(row[0])
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				Ecocyc_complexFrameIds.append(row[0])
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			for row in csvreader:
+				Ecocyc_complexFrameIds.append(row[0])
+		Ecocyc_complexFrameIds = set(Ecocyc_complexFrameIds)
+
+		Parsed_complexFrameIds = []
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+			csvreader.next()
+			for row in csvreader:
+				Parsed_complexFrameIds.append(row[0])
+		Parsed_complexFrameIds = set(Parsed_complexFrameIds)
+		self.assertEqual(len(Parsed_complexFrameIds.difference(Ecocyc_complexFrameIds)), 0)
+
+	@noseAttrib.attr('parseTest')
 	def test_findEnzyme(self):
 		rp = r.reactionParser()
 
@@ -65,6 +97,7 @@ class Test_Simulation(unittest.TestCase):
 		line = '( b2677  and  b2678  and  b2679 )'
 		self.assertEqual([['ABC-26-CPLX']], rp.findEnzyme(line)['enzymes'])
 
+	@noseAttrib.attr('parseTest')
 	def test_findEnzymeManual(self):
 		rp = r.reactionParser()
 
@@ -80,7 +113,7 @@ class Test_Simulation(unittest.TestCase):
 		line = '((SAPD-MONOMER and TRKA-MONOMER and TRKG-MONOMER) or (SAPD-MONOMER and TRKA-MONOMER and TRKH-MONOMER))'
 		self.assertEqual([['SAPD-MONOMER', 'TRKA-MONOMER', 'TRKG-MONOMER'], ['SAPD-MONOMER', 'TRKA-MONOMER', 'TRKH-MONOMER']], rp.findEnzymeManualCuration(line))
 
-
+	@noseAttrib.attr('parseTest')
 	def test_iterateTree(self):
 		rp = r.reactionParser()
 
@@ -102,3 +135,12 @@ class Test_Simulation(unittest.TestCase):
 		monomerOrComplexToComplex = {'C1' : ['M1', 'C2'], 'C2' : ['C3', 'C4'], 'C3' : ['M2','M3'], 'C4' : ['M4','M5']}
 		rp.iterateTree(cmplxFrameId, monomers, monomerOrComplexToComplex)
 		self.assertEqual(['M1','M2','M3','M4','M5'].sort(), monomers.sort())
+
+	@noseAttrib.attr('parseTest')
+	def test_getEcocycComplexComponents(self):
+		complexName = 'CPLX0-221'
+
+		info = r.getEcocycComplexComponents(complexName)
+		self.assertEqual(len(info), 2)
+		self.assertEqual(info[0], ('APORNAP-CPLX', '1'))
+		self.assertEqual(info[1], ('PD00440', '1'))

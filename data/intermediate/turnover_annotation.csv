@@ -1,0 +1,1152 @@
+Enzyme Frame ID	EC	Reaction ID	Reaction stoichiometry	Direction	Turnover Forward (s^-1)	Organism	Forward Comments	Turnover Reverse (s^-1)	Organism	Reverse Comments	Comments
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT120	[c] : 1ddecg3p + ddcaACP --> ACP + pa120	forward only				0
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT140	[c] : 1tdecg3p + myrsACP --> ACP + pa140	forward only				0
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT141	[c] : 1tdec7eg3p + tdeACP --> ACP + pa141	forward only				0
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT160	[c] : 1hdecg3p + palmACP --> ACP + pa160	forward only				0
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT161	[c] : 1hdec9eg3p + hdeACP --> ACP + pa161	forward only				0
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT180	[c] : 1odecg3p + ocdcaACP --> ACP + pa180	forward only				0
+"[""1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.51	AGPAT181	[c] : 1odec11eg3p + octeACP --> ACP + pa181	forward only				0
+"[""1-PFK-MONOMER""]"	2.7.1.56	FRUK	[c] : atp + f1p --> adp + fdp + h	forward only				0
+"[""2-DEHYDROPANTOATE-REDUCT-MONOMER""]"	1.1.1.169	DPR	[c] : 2dhp + h + nadph --> nadp + pant-R	forward only				0
+"[""2-ISOPROPYLMALATESYN-MONOMER""]"	4.1.3.12	IPPS	[c] : 3mob + accoa + h2o --> 3c3hmp + coa + h	forward only				0
+"[""3-CH3-2-OXOBUTANOATE-OH-CH3-XFER-MONOMER""]"	2.1.2.11	MOHMT	[c] : 3mob + h2o + mlthf --> 2dhp + thf	forward only				0
+"[""3-ISOPROPYLMALDEHYDROG-MONOMER""]"	1.1.1.85	IPMD	[c] : 3c2hmp + nad --> 3c4mop + h + nadh	forward only				0
+"[""3-ISOPROPYLMALISOM-CPLX""]"	4.2.1.33	IPPMIa	[c] : 3c2hmp <==> 2ippm + h2o	reversible				
+"[""3-ISOPROPYLMALISOM-CPLX""]"	4.2.1.33	IPPMIb	[c] : 2ippm + h2o <==> 3c3hmp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR100	[c] : 3odecACP + h + nadph <==> 3hdecACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR120	[c] : 3oddecACP + h + nadph <==> 3hddecACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR121	[c] : 3ocddec5eACP + h + nadph --> 3hcddec5eACP + nadp	forward only				0
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR140	[c] : 3omrsACP + h + nadph <==> 3hmrsACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR141	[c] : 3ocmrs7eACP + h + nadph --> 3hcmrs7eACP + nadp	forward only				0
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR160	[c] : 3opalmACP + h + nadph <==> 3hpalmACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR161	[c] : 3ocpalm9eACP + h + nadph --> 3hcpalm9eACP + nadp	forward only				0
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR180	[c] : 3ooctdACP + h + nadph <==> 3hoctaACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR181	[c] : 3ocvac11eACP + h + nadph --> 3hcvac11eACP + nadp	forward only				0
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR40	[c] : actACP + h + nadph <==> 3haACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR60	[c] : 3ohexACP + h + nadph <==> 3hhexACP + nadp	reversible				
+"[""3-OXOACYL-ACP-REDUCT-MONOMER""]"	1.1.1.100	3OAR80	[c] : 3ooctACP + h + nadph <==> 3hoctACP + nadp	reversible				
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS100	[c] : h + malACP + ocACP --> 3odecACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS120	[c] : dcaACP + h + malACP --> 3oddecACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS140	[c] : ddcaACP + h + malACP --> 3omrsACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS160	[c] : h + malACP + myrsACP --> 3opalmACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS180	[c] : h + malACP + palmACP --> 3ooctdACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS181	[c] : h + hdeACP + malACP --> 3ocvac11eACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS60	[c] : butACP + h + malACP --> 3ohexACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	3OAS80	[c] : h + hexACP + malACP --> 3ooctACP + ACP + co2	forward only				0
+"[""3-OXOACYL-ACP-SYNTHII-MONOMER""]"	2.3.1.41	KAS14	[c] : acACP + h + malACP --> ACP + actACP + co2	forward only				0
+"[""6PFK-1-MONOMER""]"	2.7.1.11	PFK	[c] : atp + f6p --> adp + fdp + h	forward only				0
+"[""6PFK-1-MONOMER""]"	2.7.1.11	PFK_2	[c] : atp + tag6p-D --> adp + h + tagdp-D	forward only				0
+"[""6PFK-2-MONOMER""]"	2.7.1.11	PFK	[c] : atp + f6p --> adp + fdp + h	forward only				0
+"[""6PGLUCONDEHYDROG-MONOMER""]"	1.1.1.44	GND	[c] : 6pgc + nadp --> co2 + nadph + ru5p-D	forward only				0
+"[""6PGLUCONOLACT-MONOMER""]"	3.1.1.31	PGL	[c] : 6pgl + h2o --> 6pgc + h	forward only				0
+"[""7KAPSYN-MONOMER""]"	2.3.1.47	AOXSr	[c] : ala-L + h + pmcoa <==> 8aonn + co2 + coa	reversible				
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT120	[c] : 2agpe120 + atp + ddca --> amp + pe120 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT140	[c] : 2agpe140 + atp + ttdca --> amp + pe140 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT141	[c] : 2agpe141 + atp + ttdcea --> amp + pe141 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT160	[c] : 2agpe160 + atp + hdca --> amp + pe160 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT161	[c] : 2agpe161 + atp + hdcea --> amp + pe161 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT180	[c] : 2agpe180 + atp + ocdca --> amp + pe180 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPEAT181	[c] : 2agpe181 + atp + ocdcea --> amp + pe181 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT120	[c] : 2agpg120 + atp + ddca --> amp + pg120 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT140	[c] : 2agpg140 + atp + ttdca --> amp + pg140 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT141	[c] : 2agpg141 + atp + ttdcea --> amp + pg141 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT160	[c] : 2agpg160 + atp + hdca --> amp + pg160 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT161	[c] : 2agpg161 + atp + hdcea --> amp + pg161 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT180	[c] : 2agpg180 + atp + ocdca --> amp + pg180 + ppi	forward only				0
+"[""AAS-MONOMER""]"	2.3.1.40	2AGPGAT181	[c] : 2agpg181 + atp + ocdcea --> amp + pg181 + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS1	[c] : ACP + atp + ttdca --> amp + myrsACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS2	[c] : ACP + atp + ttdcea --> amp + ppi + tdeACP	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS3	[c] : ACP + atp + hdca --> amp + palmACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS4	[c] : ACP + atp + hdcea --> amp + hdeACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS5	[c] : ACP + atp + ocdcea --> amp + octeACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS6	[c] : ACP + atp + ocdca --> amp + ocdcaACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS7	[c] : ACP + atp + ddca --> amp + ddcaACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS8	[c] : ACP + atp + dca --> amp + dcaACP + ppi	forward only				0
+"[""AAS-MONOMER""]"	6.2.1.20	AACPS9	[c] : ACP + atp + octa --> amp + ocACP + ppi	forward only				0
+"[""ACECITLY-CPLX"", ""G6340-MONOMER""]"	4.1.3.6	CITL	[c] : cit --> ac + oaa	forward only				0
+"[""ACETATEKINA-MONOMER""]"	2.7.2.1	ACKr	[c] : ac + atp <==> actp + adp	reversible				
+"[""ACETOACETYL-COA-TRANSFER-CPLX""]"	2.8.3.8	BUTCT	[c] : accoa + but --> ac + btcoa	forward only				0
+"[""ACETOACETYL-COA-TRANSFER-CPLX""]"	2.8.3.8	HXCT	[c] : accoa + hxa --> ac + hxcoa	forward only				0
+"[""ACETOLACTSYNI-CPLX""]"	4.1.3.18	ACLS	[c] : h + (2) pyr --> alac-S + co2	forward only				0
+"[""ACETOLACTSYNIII-CPLX""]"	4.1.3.18	ACLS	[c] : h + (2) pyr --> alac-S + co2	forward only				0
+"[""ACETYL-COA-ACETYLTRANSFER-MONOMER""]"	2.3.1.9	ACACT1r	[c] : (2) accoa <==> aacoa + coa	reversible				
+"[""ACETYL-COA-CARBOXYLMULTI-CPLX""]"	6.4.1.2	ACCOAC	[c] : accoa + atp + hco3 --> adp + h + malcoa + pi	forward only				0
+"[""ACETYLGLUTKIN-MONOMER""]"	2.7.2.8	ACGK	[c] : acglu + atp --> acg5p + adp	forward only				0
+"[""ACETYLORNDEACET-MONOMER""]"	3.5.1.16	ACODA	[c] : acorn + h2o --> ac + orn	forward only				0
+"[""ACETYLORNTRANSAM-MONOMER""]"	2.6.1.11	ACOTA	[c] : acorn + akg <==> acg5sa + glu-L	reversible				
+"[""ACETYLORNTRANSAM-MONOMER""]"	2.6.1.17	SDPTA	[c] : akg + sl26da <==> glu-L + sl2a6o	reversible				
+"[""ACNEULY-MONOMER""]"	4.1.3.3	ACNML	[c] : acnam --> acmana + pyr	forward only				0
+"[""ACONITASE-MONOMER""]"	4.2.1.3	ACONTa	[c] : cit <==> acon-C + h2o	reversible				
+"[""ACONITASE-MONOMER""]"	4.2.1.3	ACONTb	[c] : acon-C + h2o <==> icit	reversible				
+"[""ACONITATEDEHYDRB-MONOMER""]"	4.2.1.3	ACONTa	[c] : cit <==> acon-C + h2o	reversible				
+"[""ACONITATEDEHYDRB-MONOMER""]"	4.2.1.3	ACONTb	[c] : acon-C + h2o <==> icit	reversible				
+"[""ACONITATEDEHYDRB-MONOMER""]"	4.2.1.99	MICITD	[c] : 2mcacn + h2o --> micit	forward only				0
+"[""ACS-MONOMER""]"	6.2.1.1	ACS	[c] : ac + atp + coa --> accoa + amp + ppi	forward only				0
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.2	ACOAD1f	[c] : btcoa + fad <==> b2coa + fadh2	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD2f	[c] : fad + hxcoa <==> fadh2 + hx2coa	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD3f	[c] : fad + occoa <==> fadh2 + oc2coa	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD4f	[c] : dcacoa + fad <==> dc2coa + fadh2	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD5f	[c] : ddcacoa + fad <==> dd2coa + fadh2	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD6f	[c] : fad + tdcoa <==> fadh2 + td2coa	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD7f	[c] : fad + pmtcoa <==> fadh2 + hdd2coa	reversible				
+"[""ACYLCOADEHYDROG-MONOMER""]"	1.3.99.3	ACOAD8f	[c] : fad + stcoa <==> fadh2 + od2coa	reversible				
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL100t2pp	atp[c] + coa[c] + dca[p] + h[p] --> amp[c] + dcacoa[c] + h[c] + ppi[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL120t2pp	atp[c] + coa[c] + ddca[p] + h[p] --> amp[c] + ddcacoa[c] + h[c] + ppi[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL140t2pp	atp[c] + coa[c] + h[p] + ttdca[p] --> amp[c] + h[c] + ppi[c] + tdcoa[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL141t2pp	atp[c] + coa[c] + h[p] + ttdcea[p] --> amp[c] + h[c] + ppi[c] + tdecoa[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL160t2pp	atp[c] + coa[c] + h[p] + hdca[p] --> amp[c] + h[c] + pmtcoa[c] + ppi[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL161t2pp	atp[c] + coa[c] + h[p] + hdcea[p] --> amp[c] + h[c] + hdcoa[c] + ppi[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL180t2pp	atp[c] + coa[c] + h[p] + ocdca[p] --> amp[c] + h[c] + ppi[c] + stcoa[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL181t2pp	atp[c] + coa[c] + h[p] + ocdcea[p] --> amp[c] + h[c] + odecoa[c] + ppi[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL60t2pp	atp[c] + coa[c] + h[p] + hxa[p] --> amp[c] + h[c] + hxcoa[c] + ppi[c]	forward only				0
+"[""ACYLCOASYN-MONOMER""]"	6.2.1.3	FACOAL80t2pp	atp[c] + coa[c] + h[p] + octa[p] --> amp[c] + h[c] + occoa[c] + ppi[c]	forward only				0
+"[""ADENODEAMIN-MONOMER""]"	3.5.4.4	ADA	[c] : adn + h + h2o --> ins + nh4	forward only				0
+"[""ADENPRIBOSYLTRAN-MONOMER""]"	2.4.2.7	ADPT	[c] : ade + prpp --> amp + ppi	forward only				0
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.3	ADK1	[c] : amp + atp <==> (2) adp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.1.20	ADNK1	[c] : adn + atp --> adp + amp + h	forward only				0
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.11	DADK	[c] : atp + damp <==> adp + dadp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK1	[c] : atp + gdp <==> adp + gtp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK2	[c] : atp + udp <==> adp + utp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK3	[c] : atp + cdp <==> adp + ctp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK4	[c] : atp + dtdp <==> adp + dttp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK5	[c] : atp + dgdp <==> adp + dgtp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK6	[c] : atp + dudp <==> adp + dutp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK7	[c] : atp + dcdp <==> adp + dctp	reversible				
+"[""ADENYL-KIN-MONOMER""]"	2.7.4.6	NDPK8	[c] : atp + dadp <==> adp + datp	reversible				
+"[""ADENYLATECYC-MONOMER""]"	4.6.1.1	ADNCYC	[c] : atp --> camp + ppi	forward only				0
+"[""ADENYLOSUCCINATE-SYN-MONOMER""]"	6.3.4.4	ADSS	[c] : asp-L + gtp + imp --> dcamp + gdp + (2) h + pi	forward only				0
+"[""ADENYLYLSULFKIN-MONOMER""]"	2.7.1.25	ADSK	[c] : aps + atp --> adp + h + paps	forward only				0
+"[""ADHC-MONOMER""]"	1.1.1.1	ALCD19	[c] : glyald + h + nadh <==> glyc + nad	reversible				
+"[""ADHC-MONOMER""]"	1.1.1.1	ALCD2x	[c] : etoh + nad <==> acald + h + nadh	reversible				
+"[""ADHE-MONOMER""]"	1.2.1.10	ACALD	[c] : acald + coa + nad <==> accoa + h + nadh	reversible				
+"[""ADHE-MONOMER""]"	1.1.1.1	ALCD2x	[c] : etoh + nad <==> acald + h + nadh	reversible				
+"[""ADHP-MONOMER""]"	1.1.1.1	ALCD2x	[c] : etoh + nad <==> acald + h + nadh	reversible				
+"[""AERGLYC3PDEHYDROG-MONOMER""]"	1.1.99.5	G3PD5	[c] : glyc3p + q8 --> dhap + q8h2	forward only				0
+"[""AGMATIN-MONOMER""]"	3.5.3.11	AGMT	[c] : agm + h2o --> ptrc + urea	forward only				0
+"[""AICARTRANSIMPCYCLO-CPLX""]"	2.1.2.3	AICART	[c] : 10fthf + aicar <==> fprica + thf	reversible				
+"[""AICARTRANSIMPCYCLO-CPLX""]"	3.5.4.10	IMPC	[c] : h2o + imp <==> fprica	reversible				
+"[""AIRS-MONOMER""]"	6.3.3.1	PRAIS	[c] : atp + fpram --> adp + air + (2) h + pi	forward only				0
+"[""AKBLIG-MONOMER""]"	2.3.1.29	GLYAT	[c] : accoa + gly <==> 2aobut + coa	reversible				
+"[""ALARACEBIOSYN-MONOMER""]"	5.1.1.1	ALAR	[c] : ala-L <==> ala-D	reversible				
+"[""ALARACECAT-MONOMER""]"	5.1.1.1	ALAR	[c] : ala-L <==> ala-D	reversible				
+"[""ALDDEHYDROGB-MONOMER""]"	1.2.1.4	ALDD2y	[c] : acald + h2o + nadp --> ac + (2) h + nadph	forward only				0
+"[""ALDHDEHYDROG-MONOMER""]"	1.2.1.3	ALDD2x	[c] : acald + h2o + nad --> ac + (2) h + nadh	forward only				0
+"[""ALDOSE1EPIM-MONOMER""]"	5.1.3.3	RXN_WC_4	[c] : gal-bD --> gal	forward only				0
+"[""ALPHAGALACTOSID-MONOMER""]"	3.2.1.22	GALS3	[c] : h2o + melib --> gal + glc-D	forward only				0
+"[""ALTRO-OXIDOREDUCT-MONOMER""]"	1.1.1.58	TAGURr	[c] : altrn + nad <==> h + nadh + tagur	reversible				
+"[""ALTRODEHYDRAT-MONOMER""]"	4.2.1.7	ALTRH	[c] : altrn --> 2ddglcn + h2o	forward only				0
+"[""AMINEOXID-MONOMER""]"	1.4.3.6	42A12BOOXpp	[p] : dopa + h2o + o2 --> 34dhpac + h2o2 + nh4	forward only				0
+"[""AMINEOXID-MONOMER""]"	1.4.3.6	PEAMNOpp	[p] : h2o + o2 + peamn --> h2o2 + nh4 + pacald	forward only				0
+"[""AMINEOXID-MONOMER""]"	1.4.3.6	TYROXDApp	[p] : h2o + o2 + tym --> 4hoxpacd + h2o2 + nh4	forward only				0
+"[""AMP-NUCLEOSID-MONOMER""]"	3.2.2.4	AMPN	[c] : amp + h2o --> ade + r5p	forward only				0
+"[""AMYLOMALT-MONOMER""]"	2.4.1.25	AMALT1	[c] : malt + malttr --> glc-D + maltttr	forward only				0
+"[""AMYLOMALT-MONOMER""]"	2.4.1.25	AMALT2	[c] : malt + maltttr --> glc-D + maltpt	forward only				0
+"[""AMYLOMALT-MONOMER""]"	2.4.1.25	AMALT3	[c] : malt + maltpt --> glc-D + malthx	forward only				0
+"[""AMYLOMALT-MONOMER""]"	2.4.1.25	AMALT4	[c] : malt + malthx --> glc-D + malthp	forward only				0
+"[""ANGLYC3PDEHYDROG-CPLX""]"	1.1.99.5	G3PD5	[c] : glyc3p + q8 --> dhap + q8h2	forward only				0
+"[""ANGLYC3PDEHYDROG-CPLX""]"	1.1.99.5	G3PD6	[c] : glyc3p + mqn8 --> dhap + mql8	forward only				0
+"[""ANGLYC3PDEHYDROG-CPLX""]"	1.1.99.5	G3PD7	[c] : 2dmmq8 + glyc3p --> 2dmmql8 + dhap	forward only				0
+"[""ANSA-MONOMER""]"	3.5.1.1	ASNN	[c] : asn-L + h2o --> asp-L + nh4	forward only				0
+"[""ANSB-MONOMER""]"	3.5.1.1	ASNNpp	[p] : asn-L + h2o --> asp-L + nh4	forward only				0
+"[""ANSB-MONOMER""]"	3.5.1.2	GLUNpp	[p] : gln-L + h2o --> glu-L + nh4	forward only				0
+"[""ANTHRANSYN-CPLX""]"	4.1.3.27	ANS	[c] : chor + gln-L --> anth + glu-L + h + pyr	forward only				0
+"[""ANTHRANSYNCOMPII-MONOMER""]"	2.4.2.18	ANPRT	[c] : anth + prpp --> ppi + pran	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD10pp	[p] : h2o + xmp --> pi + xtsn	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD11pp	[p] : h2o + imp --> ins + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD12pp	[p] : dimp + h2o --> din + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD1pp	[p] : dump + h2o --> duri + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD2pp	[p] : h2o + ump --> pi + uri	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD3pp	[p] : dcmp + h2o --> dcyt + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD4pp	[p] : cmp + h2o --> cytd + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD5pp	[p] : dtmp + h2o --> pi + thymd	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD6pp	[p] : damp + h2o --> dad-2 + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD7pp	[p] : amp + h2o --> adn + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD8pp	[p] : dgmp + h2o --> dgsn + pi	forward only				0
+"[""APHA-MONOMER""]"	3.1.3.5	NTD9pp	[p] : gmp + h2o --> gsn + pi	forward only				0
+"[""APPA-MONOMER""]"	3.6.1.15	NTP3pp	[p] : gtp + h2o --> gdp + h + pi	forward only				0
+"[""ARABISOM-MONOMER""]"	5.3.1.4	ARAI	[c] : arab-L <==> rbl-L	reversible				
+"[""ARGDECARBOXBIO-MONOMER""]"	4.1.1.19	ARGDCpp	[p] : arg-L + h --> agm + co2	forward only				0
+"[""ARGDECARBOXDEG-MONOMER""]"	4.1.1.19	ARGDC	[c] : arg-L + h --> agm + co2	forward only				0
+"[""ARGSUCCINLYA-MONOMER""]"	4.3.2.1	ARGSL	[c] : argsuc <==> arg-L + fum	reversible				
+"[""ARGSUCCINSYN-MONOMER""]"	6.3.4.5	ARGSS	[c] : asp-L + atp + citr-L --> amp + argsuc + h + ppi	forward only				0
+"[""ARGSUCCTRAN-MONOMER""]"	2.3.1.109	AST	[c] : arg-L + succoa --> coa + h + sucarg	forward only				0
+"[""AROA-MONOMER""]"	2.5.1.19	PSCVT	[c] : pep + skm5p <==> 3psme + pi	reversible				
+"[""AROC-MONOMER""]"	4.2.3.5	CHORS	[c] : 3psme --> chor + pi	forward only				0
+"[""AROD-MONOMER""]"	4.2.1.10	DHQTi	[c] : 3dhq --> 3dhsk + h2o	forward only				0
+"[""AROE-MONOMER""]"	1.1.1.25	SHK3Dr	[c] : 3dhsk + h + nadph <==> nadp + skm	reversible				
+"[""AROF-MONOMER""]"	4.1.2.15	DDPA	[c] : e4p + h2o + pep --> 2dda7p + pi	forward only				0
+"[""AROG-MONOMER""]"	4.1.2.15	DDPA	[c] : e4p + h2o + pep --> 2dda7p + pi	forward only				0
+"[""AROH-MONOMER""]"	4.1.2.15	DDPA	[c] : e4p + h2o + pep --> 2dda7p + pi	forward only				0
+"[""AROK-MONOMER""]"	2.7.1.71	SHKK	[c] : atp + skm --> adp + h + skm5p	forward only				0
+"[""AROL-MONOMER""]"	2.7.1.71	SHKK	[c] : atp + skm --> adp + h + skm5p	forward only				0
+"[""ASL-MONOMER""]"	4.3.2.2	ADSL1r	[c] : dcamp <==> amp + fum	reversible				
+"[""ASL-MONOMER""]"	4.3.2.2	ADSL2r	[c] : 25aics <==> aicar + fum	reversible				
+"[""ASNSYNA-MONOMER""]"	6.3.1.1	ASNS2	[c] : asp-L + atp + nh4 --> amp + asn-L + h + ppi	forward only				0
+"[""ASNSYNB-MONOMER""]"	6.3.5.4	ASNS1	[c] : asp-L + atp + gln-L + h2o --> amp + asn-L + glu-L + h + ppi	forward only				0
+"[""ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER""]"	1.2.1.11	ASAD	[c] : aspsa + nadp + pi <==> 4pasp + h + nadph	reversible				
+"[""ASPAMINOTRANS-MONOMER""]"	2.6.1.1	ASPTA	[c] : akg + asp-L <==> glu-L + oaa	reversible				
+"[""ASPAMINOTRANS-MONOMER""]"	2.6.1.58	PHETA1	[c] : akg + phe-L <==> glu-L + phpyr	reversible				
+"[""ASPAMINOTRANS-MONOMER""]"	2.6.1.5	TYRTA	[c] : akg + tyr-L <==> 34hpp + glu-L	reversible				
+"[""ASPARTASE-MONOMER""]"	4.3.1.1	ASPT	[c] : asp-L --> fum + nh4	forward only				0
+"[""ASPCARBTRANS-CPLX""]"	2.1.3.2	ASPCT	[c] : asp-L + cbp --> cbasp + h + pi	forward only				0
+"[""ASPDECARBOX-MONOMER""]"	4.1.1.11	ASP1DC	[c] : asp-L + h --> ala-B + co2	forward only				0
+"[""ASPKINIHOMOSERDEHYDROGI-MONOMER""]"	2.7.2.4	ASPK	[c] : asp-L + atp <==> 4pasp + adp	reversible				
+"[""ASPKINIHOMOSERDEHYDROGI-MONOMER""]"	1.1.1.3	HSDy	[c] : hom-L + nadp <==> aspsa + h + nadph	reversible				
+"[""ASPKINIIHOMOSERDEHYDROGII-MONOMER""]"	2.7.2.4	ASPK	[c] : asp-L + atp <==> 4pasp + adp	reversible				
+"[""ASPKINIIHOMOSERDEHYDROGII-MONOMER""]"	1.1.1.3	HSDy	[c] : hom-L + nadp <==> aspsa + h + nadph	reversible				
+"[""ASPKINIII-MONOMER""]"	2.7.2.4	ASPK	[c] : asp-L + atp <==> 4pasp + adp	reversible				
+"[""ATPPHOSRIBOSTRANS-MONOMER""]"	2.4.2.17	ATPPRT	[c] : atp + prpp --> ppi + prbatp	forward only				0
+"[""ATPSYN-CPLX""]"	3.6.3.14	ATPS4rpp	adp[c] + (4) h[p] + pi[c] <==> atp[c] + (3) h[c] + h2o[c]	reversible				
+"[""ATPSYN-CPLX"", ""EG10106-MONOMER""]"	3.6.3.14	ATPS4rpp	adp[c] + (4) h[p] + pi[c] <==> atp[c] + (3) h[c] + h2o[c]	reversible				
+"[""BADH-MONOMER""]"	1.2.1.8	BETALDHx	[c] : betald + h2o + nad --> glyb + (2) h + nadh	forward only				0
+"[""BADH-MONOMER""]"	1.2.1.8	BETALDHy	[c] : betald + h2o + nadp --> glyb + (2) h + nadph	forward only				0
+"[""BETAGALACTOSID-MONOMER""]"	3.2.1.23	LACZ	[c] : h2o + lcts --> gal + glc-D	forward only				0
+"[""BIOTIN-SYN-MONOMER""]"	2.8.1.6	BTS4	[c] : amet + dtbt + s --> btn + dad-5 + h + met-L	forward only				0
+"[""BRANCHED-CHAINAMINOTRANSFER-MONOMER""]"	2.6.1.42	ILETA	[c] : akg + ile-L <==> 3mop + glu-L	reversible				
+"[""BRANCHED-CHAINAMINOTRANSFER-MONOMER""]"	2.6.1.42	LEUTAi	[c] : 4mop + glu-L --> akg + leu-L	forward only				0
+"[""BRANCHED-CHAINAMINOTRANSFER-MONOMER""]"	2.6.1.58	PHETA1	[c] : akg + phe-L <==> glu-L + phpyr	reversible				
+"[""BRANCHED-CHAINAMINOTRANSFER-MONOMER""]"	2.6.1.42	VALTA	[c] : akg + val-L <==> 3mob + glu-L	reversible				
+"[""CARBODEHYDRAT-MONOMER""]"	4.2.1.1	HCO3E	[c] : co2 + h2o <==> h + hco3	reversible				
+"[""CARBPSYN-CPLX""]"	6.3.5.5	CBPS	[c] : (2) atp + gln-L + h2o + hco3 --> (2) adp + cbp + glu-L + (2) h + pi	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA120	[c] : cdpdddecg + h2o --> cmp + (2) h + pa120	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA140	[c] : cdpdtdecg + h2o --> cmp + (2) h + pa140	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA141	[c] : cdpdtdec7eg + h2o --> cmp + (2) h + pa141	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA160	[c] : cdpdhdecg + h2o --> cmp + (2) h + pa160	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA161	[c] : cdpdhdec9eg + h2o --> cmp + (2) h + pa161	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA180	[c] : cdpdodecg + h2o --> cmp + (2) h + pa180	forward only				0
+"[""CDPDIGLYPYPHOSPHA-MONOMER""]"	3.6.1.26	CDAPPA181	[c] : cdpdodec11eg + h2o --> cmp + (2) h + pa181	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN120	[c] : ctp + h + pa120 --> cdpdddecg + ppi	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN140	[c] : ctp + h + pa140 --> cdpdtdecg + ppi	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN141	[c] : ctp + h + pa141 --> cdpdtdec7eg + ppi	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN160	[c] : ctp + h + pa160 --> cdpdhdecg + ppi	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN161	[c] : ctp + h + pa161 --> cdpdhdec9eg + ppi	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN180	[c] : ctp + h + pa180 --> cdpdodecg + ppi	forward only				0
+"[""CDPDIGLYSYN-MONOMER""]"	2.7.7.41	DASYN181	[c] : ctp + h + pa181 --> cdpdodec11eg + ppi	forward only				0
+"[""CFA-MONOMER""]"	2.1.1.79	CFAS160E	[c] : (2) amet + pe161 --> (2) ahcys + cpe160 + (2) h	forward only				0
+"[""CFA-MONOMER""]"	2.1.1.79	CFAS160G	[c] : (2) amet + pg161 --> (2) ahcys + cpg160 + (2) h	forward only				0
+"[""CFA-MONOMER""]"	2.1.1.79	CFAS180E	[c] : (2) amet + pe181 --> (2) ahcys + cpe180 + (2) h	forward only				0
+"[""CFA-MONOMER""]"	2.1.1.79	CFAS180G	[c] : (2) amet + pg181 --> (2) ahcys + cpg180 + (2) h	forward only				0
+"[""CHAINF-MONOMER""]"	2.1.3.3	OCBT	[c] : cbp + orn <==> citr-L + h + pi	reversible				
+"[""CHAINI-MONOMER""]"	2.1.3.3	OCBT	[c] : cbp + orn <==> citr-L + h + pi	reversible				
+"[""CHORISMUTPREPHENDEHYDRAT-MONOMER""]"	5.4.99.5	CHORM	[c] : chor --> pphn	forward only				0
+"[""CHORISMUTPREPHENDEHYDRAT-MONOMER""]"	4.2.1.51	PPNDH	[c] : h + pphn --> co2 + h2o + phpyr	forward only				0
+"[""CHORISMUTPREPHENDEHYDROG-MONOMER""]"	5.4.99.5	CHORM	[c] : chor --> pphn	forward only				0
+"[""CHORISMUTPREPHENDEHYDROG-MONOMER""]"	1.3.1.12	PPND	[c] : nad + pphn --> 34hpp + co2 + nadh	forward only				0
+"[""CMPKI-MONOMER""]"	2.7.4.14	CYTK1	[c] : atp + cmp <==> adp + cdp	reversible				
+"[""CMPKI-MONOMER""]"	2.7.4.14	CYTK2	[c] : atp + dcmp <==> adp + dcdp	reversible				
+"[""CMPKI-MONOMER""]"	2.7.4.14	UMPK	[c] : atp + ump <==> adp + udp	reversible				
+"[""COBALADENOSYLTRANS-MONOMER""]"	2.5.1.17	CBIAT	[c] : atp + cbi + h <==> adocbi + pppi	reversible				
+"[""COBALADENOSYLTRANS-MONOMER""]"	2.5.1.17	CBLAT	[c] : atp + cbl1 + h <==> adocbl + pppi	reversible				
+"[""COPROGENOXI-MONOMER""]"	1.3.3.3	CPPPGO	[c] : cpppg3 + (2) h + o2 --> (2) co2 + (2) h2o + pppg9	forward only				0
+"[""CPDB-MONOMER""]"	3.1.4.16	23PDE2pp	[p] : 23cump + h2o --> 3ump + h	forward only				0
+"[""CPDB-MONOMER""]"	3.1.4.16	23PDE4pp	[p] : 23ccmp + h2o --> 3cmp + h	forward only				0
+"[""CPDB-MONOMER""]"	3.1.4.16	23PDE7pp	[p] : 23camp + h2o --> 3amp + h	forward only				0
+"[""CPDB-MONOMER""]"	3.1.4.16	23PDE9pp	[p] : 23cgmp + h2o --> 3gmp + h	forward only				0
+"[""CPLX0-240""]"	4.1.2.40	TGBPA	[c] : tagdp-D <==> dhap + g3p	reversible				
+"[""CPLX0-241""]"	4.1.2.40	TGBPA	[c] : tagdp-D <==> dhap + g3p	reversible				
+"[""CPLX0-761""]"	1.1.1.204	XAND	[c] : h2o + nad + xan --> h + nadh + urate	forward only				0
+"[""CPM-KDOSYNTH-MONOMER""]"	2.7.7.38	KDOCT2	[c] : ctp + kdo --> ckdo + ppi	forward only				0
+"[""CTPSYN-MONOMER""]"	6.3.4.2	CTPS2	[c] : atp + gln-L + h2o + utp --> adp + ctp + glu-L + (2) h + pi	forward only				0
+"[""CYSTATHIONINE-BETA-LYASE-MONOMER""]"	4.1.99.1	CYSDS	[c] : cys-L + h2o --> h2s + nh4 + pyr	forward only				0
+"[""CYSTATHIONINE-BETA-LYASE-MONOMER""]"	4.4.1.8	CYSTL	[c] : cyst-L + h2o --> hcys-L + nh4 + pyr	forward only				0
+"[""CYTDEAM-MONOMER""]"	3.5.4.1	CSND	[c] : csn + h + h2o --> nh4 + ura	forward only				0
+"[""CYTIDEAM-MONOMER""]"	3.5.4.5	CYTD	[c] : cytd + h + h2o --> nh4 + uri	forward only				0
+"[""CYTIDEAM-MONOMER""]"	3.5.4.14	DCYTD	[c] : dcyt + h + h2o --> duri + nh4	forward only				0
+"[""DALADALALIGA-MONOMER""]"	6.3.2.4	ALAALAr	[c] : (2) ala-D + atp <==> adp + alaala + h + pi	reversible				
+"[""DALADALALIGB-MONOMER""]"	6.3.2.4	ALAALAr	[c] : (2) ala-D + atp <==> adp + alaala + h + pi	reversible				
+"[""DALADEHYDROGA-MONOMER""]"	1.4.99.1	DAAD	[c] : ala-D + fad + h2o --> fadh2 + nh4 + pyr	forward only				0
+"[""DAPASYN-MONOMER""]"	2.6.1.62	AMAOTr	[c] : 8aonn + amet <==> amob + dann	reversible				
+"[""DCTP-DEAM-MONOMER""]"	3.5.4.13	DCTPD	[c] : dctp + h + h2o --> dutp + nh4	forward only				0
+"[""DCYSDESULF-MONOMER""]"	4.4.1.15	CYSDDS	[c] : cys-D + h2o --> h2s + nh4 + pyr	forward only				0
+"[""DEHYDDEOXGALACTKIN-MONOMER""]"	2.7.1.58	DDGALK	[c] : 2dh3dgal + atp --> 2dh3dgal6p + adp + h	forward only				0
+"[""DEHYDDEOXPHOSGALACT-ALDOL-MONOMER""]"	4.1.2.21	DDPGALA	[c] : 2dh3dgal6p <==> g3p + pyr	reversible				
+"[""DEOA-MONOMER""]"	2.4.2.4	TMDPP	[c] : pi + thymd <==> 2dr1p + thym	reversible				
+"[""DEOD-MONOMER""]"	2.4.2.1	PUNP1	[c] : adn + pi <==> ade + r1p	reversible				
+"[""DEOD-MONOMER""]"	2.4.2.1	PUNP2	[c] : dad-2 + pi <==> 2dr1p + ade	reversible				
+"[""DEOD-MONOMER""]"	2.4.2.1	PUNP3	[c] : gsn + pi <==> gua + r1p	reversible				
+"[""DEOD-MONOMER""]"	2.4.2.1	PUNP4	[c] : dgsn + pi <==> 2dr1p + gua	reversible				
+"[""DEOD-MONOMER""]"	2.4.2.1	PUNP5	[c] : ins + pi <==> hxan + r1p	reversible				
+"[""DEOD-MONOMER""]"	2.4.2.1	PUNP6	[c] : din + pi <==> 2dr1p + hxan	reversible				
+"[""DEOXYGLUCONOKIN-MONOMER""]"	2.7.1.45	DDGLK	[c] : 2ddglcn + atp --> 2ddg6p + adp + h	forward only				0
+"[""DEOXYRIBOSE-P-ALD-MONOMER""]"	4.1.2.4	DRPA	[c] : 2dr5p --> acald + g3p	forward only				0
+"[""DETHIOBIOTIN-SYN-MONOMER""]"	6.3.3.3	DBTS	[c] : atp + co2 + dann --> adp + dtbt + (3) h + pi	forward only				0
+"[""DGTPTRIPHYDRO-MONOMER""]"	3.1.5.1	NTPTP1	[c] : dgtp + h2o --> dgsn + pppi	forward only				0
+"[""DGTPTRIPHYDRO-MONOMER""]"	3.1.5.1	NTPTP2	[c] : gtp + h2o --> gsn + pppi	forward only				0
+"[""DHPDIOXYGEN-MONOMER""]"	1.13.11.16	HPPPNDO	[c] : dhpppn + o2 --> h + hkndd	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK120	[c] : 12dgr120 + atp --> adp + h + pa120	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK140	[c] : 12dgr140 + atp --> adp + h + pa140	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK141	[c] : 12dgr141 + atp --> adp + h + pa141	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK160	[c] : 12dgr160 + atp --> adp + h + pa160	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK161	[c] : 12dgr161 + atp --> adp + h + pa161	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK180	[c] : 12dgr180 + atp --> adp + h + pa180	forward only				0
+"[""DIACYLGLYKIN-MONOMER""]"	2.7.1.107	DAGK181	[c] : 12dgr181 + atp --> adp + h + pa181	forward only				0
+"[""DIAMINOPIMDECARB-MONOMER""]"	4.1.1.20	DAPDC	[c] : 26dap-M + h --> co2 + lys-L	forward only				0
+"[""DIAMINOPIMEPIM-MONOMER""]"	5.1.1.7	DAPE	[c] : 26dap-LL <==> 26dap-M	reversible				
+"[""DIHYDRODIPICSYN-MONOMER""]"	4.2.1.52	DHDPS	[c] : aspsa + pyr --> 23dhdp + h + (2) h2o	forward only				0
+"[""DIHYDROFOLATEREDUCT-MONOMER""]"	1.5.1.3	DHFR	[c] : dhf + h + nadph <==> nadp + thf	reversible				
+"[""DIHYDROOROT-MONOMER""]"	3.5.2.3	DHORTS	[c] : dhor-S + h2o <==> cbasp + h	reversible				
+"[""DIHYDROOROTOX-MONOMER""]"	1.3.3.1	DHORD2	[c] : dhor-S + q8 --> orot + q8h2	forward only				0
+"[""DIHYDROOROTOX-MONOMER""]"	1.3.3.1	DHORD5	[c] : dhor-S + mqn8 --> mql8 + orot	forward only				0
+"[""DIHYDROPICRED-MONOMER""]"	1.3.1.26	DHDPRy	[c] : 23dhdp + h + nadph --> nadp + thdp	forward only				0
+"[""DIHYDROXYACIDDEHYDRAT-MONOMER""]"	4.2.1.9	DHAD1	[c] : 23dhmb --> 3mob + h2o	forward only				0
+"[""DLACTDEHYDROGFAD-MONOMER""]"	1.1.1.28	LDH_D	[c] : lac-D + nad <==> h + nadh + pyr	reversible				
+"[""DLACTDEHYDROGFAD-MONOMER""]"	1.1.2.4	LDH_D2	[c] : lac-D + q8 --> pyr + q8h2	forward only				0
+"[""DLACTDEHYDROGNAD-MONOMER""]"	1.1.1.28	LDH_D	[c] : lac-D + nad <==> h + nadh + pyr	reversible				
+"[""DTDPDEHYDRHAMEPIM-MONOMER""]"	5.1.3.13	TDPDRE	[c] : dtdp4d6dg --> dtdp4d6dm	forward only				0
+"[""DTDPDEHYRHAMREDUCT-MONOMER""]"	1.1.1.133	TDPDRR	[c] : dtdp4d6dm + h + nadph --> dtdprmn + nadp	forward only				0
+"[""DTDPGLUCDEHYDRAT-MONOMER""]"	4.2.1.46	TDPGDH	[c] : dtdpglu --> dtdp4d6dg + h2o	forward only				0
+"[""DTDPGLUCDEHYDRAT2-MONOMER""]"	4.2.1.46	TDPGDH	[c] : dtdpglu --> dtdp4d6dg + h2o	forward only				0
+"[""DTDPGLUCOSEPP-MONOMER""]"	2.7.7.24	G1PTT	[c] : dttp + g1p + h --> dtdpglu + ppi	forward only				0
+"[""DTDPGLUCOSEPP2-MONOMER""]"	2.7.7.24	G1PTT	[c] : dttp + g1p + h --> dtdpglu + ppi	forward only				0
+"[""DTMPKI-MONOMER""]"	2.7.4.9	DTMPK	[c] : atp + dtmp <==> adp + dtdp	reversible				
+"[""DUTP-PYROP-MONOMER""]"	3.6.1.23	DUTPDP	[c] : dutp + h2o --> dump + h + ppi	forward only				0
+"[""EG10004-MONOMER""]"	4.1.1.36	PPCDC	[c] : 4ppcys + h --> co2 + pan4p	forward only				0
+"[""EG10004-MONOMER""]"	6.3.2.5	PPNCL2	[c] : 4ppan + ctp + cys-L --> 4ppcys + cmp + h + ppi	forward only				0
+"[""EG10048-MONOMER""]"	3.6.1.41	AP4AH	[c] : ap4a + h2o --> (2) adp + (2) h	forward only				0
+"[""EG10201-MONOMER""]"	3.4.16.4	MDDCP1pp	[p] : h2o + murein5px4p --> ala-D + murein4px4p	forward only				0
+"[""EG10201-MONOMER""]"	3.4.16.4	MDDCP2pp	[p] : h2o + murein5px4px4p --> ala-D + murein4px4px4p	forward only				0
+"[""EG10201-MONOMER""]"	3.4.16.4	MDDCP3pp	[p] : h2o + murein5p5p --> ala-D + murein5p4p	forward only				0
+"[""EG10201-MONOMER""]"	3.4.16.4	MDDCP4pp	[p] : h2o + murein5p4p --> ala-D + murein4p4p	forward only				0
+"[""EG10201-MONOMER""]"	3.4.16.4	MDDCP5pp	[p] : h2o + murein5p3p --> ala-D + murein4p3p	forward only				0
+"[""EG10202-MONOMER""]"	3.4.16.4	MDDCP1pp	[p] : h2o + murein5px4p --> ala-D + murein4px4p	forward only				0
+"[""EG10202-MONOMER""]"	3.4.16.4	MDDCP2pp	[p] : h2o + murein5px4px4p --> ala-D + murein4px4px4p	forward only				0
+"[""EG10202-MONOMER""]"	3.4.16.4	MDDCP3pp	[p] : h2o + murein5p5p --> ala-D + murein5p4p	forward only				0
+"[""EG10202-MONOMER""]"	3.4.16.4	MDDCP4pp	[p] : h2o + murein5p4p --> ala-D + murein4p4p	forward only				0
+"[""EG10202-MONOMER""]"	3.4.16.4	MDDCP5pp	[p] : h2o + murein5p3p --> ala-D + murein4p3p	forward only				0
+"[""EG10203-MONOMER""]"	3.4.16.4	MDDCP1pp	[p] : h2o + murein5px4p --> ala-D + murein4px4p	forward only				0
+"[""EG10203-MONOMER""]"	3.4.16.4	MDDCP2pp	[p] : h2o + murein5px4px4p --> ala-D + murein4px4px4p	forward only				0
+"[""EG10203-MONOMER""]"	3.4.16.4	MDDCP3pp	[p] : h2o + murein5p5p --> ala-D + murein5p4p	forward only				0
+"[""EG10203-MONOMER""]"	3.4.16.4	MDDCP4pp	[p] : h2o + murein5p4p --> ala-D + murein4p4p	forward only				0
+"[""EG10203-MONOMER""]"	3.4.16.4	MDDCP5pp	[p] : h2o + murein5p3p --> ala-D + murein4p3p	forward only				0
+"[""EG10395-MONOMER""]"	2.8.1.1	CYANST	[c] : cyan + tsul --> h + so3 + tcynt	forward only				0
+"[""EG10456-MONOMER""]"	1.14.12.17	NODOx	[c] : nadh + (2) no + (2) o2 --> h + nad + (2) no3	forward only				0
+"[""EG10456-MONOMER""]"	1.14.12.17	NODOy	[c] : nadph + (2) no + (2) o2 --> h + nadp + (2) no3	forward only				0
+"[""EG10534-MONOMER""]"	3.6.1.22	NADDP	[c] : h2o + nad --> amp + (2) h + nmn	forward only				0
+"[""EG10564-MONOMER""]"	4.4.1.8	CYSTL	[c] : cyst-L + h2o --> hcys-L + nh4 + pyr	forward only				0
+"[""EG10694-MONOMER""]"	3.4.11.2	AMPTASECG	[c] : cgly + h2o --> cys-L + gly	forward only				0
+"[""EG10694-MONOMER""]"	3.4.11.2	AMPTASEPG	[c] : h2o + progly --> gly + pro-L	forward only				0
+"[""EG10695-MONOMER""]"	3.4.11.2	AMPTASECG	[c] : cgly + h2o --> cys-L + gly	forward only				0
+"[""EG10695-MONOMER""]"	3.4.11.2	AMPTASEPG	[c] : h2o + progly --> gly + pro-L	forward only				0
+"[""EG10696-MONOMER""]"	3.4.11.2	AMPTASECG	[c] : cgly + h2o --> cys-L + gly	forward only				0
+"[""EG10696-MONOMER""]"	3.4.11.2	AMPTASEPG	[c] : h2o + progly --> gly + pro-L	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A120	[c] : 2ddecg3p + h2o --> ddca + glyc3p + (2) h	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A140	[c] : 2tdecg3p + h2o --> glyc3p + (2) h + ttdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A141	[c] : 2tdec7eg3p + h2o --> glyc3p + (2) h + ttdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A160	[c] : 2hdecg3p + h2o --> glyc3p + (2) h + hdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A161	[c] : 2hdec9eg3p + h2o --> glyc3p + (2) h + hdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A180	[c] : 2odecg3p + h2o --> glyc3p + (2) h + ocdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2A181	[c] : 2odec11eg3p + h2o --> glyc3p + (2) h + ocdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E120	[c] : 2agpe120 + h2o --> ddca + g3pe + h	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E140	[c] : 2agpe140 + h2o --> g3pe + h + ttdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E141	[c] : 2agpe141 + h2o --> g3pe + h + ttdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E160	[c] : 2agpe160 + h2o --> g3pe + h + hdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E161	[c] : 2agpe161 + h2o --> g3pe + h + hdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E180	[c] : 2agpe180 + h2o --> g3pe + h + ocdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2E181	[c] : 2agpe181 + h2o --> g3pe + h + ocdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G120	[c] : 2agpg120 + h2o --> ddca + g3pg + h	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G140	[c] : 2agpg140 + h2o --> g3pg + h + ttdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G141	[c] : 2agpg141 + h2o --> g3pg + h + ttdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G160	[c] : 2agpg160 + h2o --> g3pg + h + hdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G161	[c] : 2agpg161 + h2o --> g3pg + h + hdcea	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G180	[c] : 2agpg180 + h2o --> g3pg + h + ocdca	forward only				0
+"[""EG10739-MONOMER""]"	3.1.1.5	LPLIPAL2G181	[c] : 2agpg181 + h2o --> g3pg + h + ocdcea	forward only				0
+"[""EG10780-MONOMER""]"	2.8.1.1	CYANSTpp	[p] : cyan + tsul --> h + so3 + tcynt	forward only				0
+"[""EG10838-MONOMER""]"	5.1.3.20	AGMHE	[c] : adphep-DD --> adphep-LD	forward only				0
+"[""EG10943-MONOMER""]"	2.7.9.3	SELNPS	[c] : atp + h2o + seln --> amp + pi + selnp	forward only				0
+"[""EG10973-MONOMER""]"	5.3.1.13	A5PISO	[c] : ru5p-D <==> ara5p	reversible				
+"[""EG10983-MONOMER""]"	3.1.3.25	MI1PP	[c] : h2o + mi1p-D --> inost + pi	forward only				0
+"[""EG11082-MONOMER""]"	3.2.2.8	ADNUC	[c] : adn + h2o --> ade + rib-D	forward only				0
+"[""EG11082-MONOMER""]"	3.2.2.8	CYTDH	[c] : cytd + h2o --> csn + rib-D	forward only				0
+"[""EG11082-MONOMER""]"	3.2.2.8	INSH	[c] : h2o + ins --> hxan + rib-D	forward only				0
+"[""EG11082-MONOMER""]"	3.2.2.8	URIH	[c] : h2o + uri --> rib-D + ura	forward only				0
+"[""EG11082-MONOMER""]"	3.2.2.8	XTSNH	[c] : h2o + xtsn --> rib-D + xan	forward only				0
+"[""EG11090-MONOMER""]"	3.2.2.9	AHCYSNS	[c] : ahcys + h2o --> ade + rhcys	forward only				0
+"[""EG11090-MONOMER""]"	3.2.2.16	MTAN	[c] : 5mta + h2o --> 5mtr + ade	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA100ACPHi	[c] : dcaACP + h2o --> ACP + dca + h	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA120ACPHi	[c] : ddcaACP + h2o --> ACP + ddca + h	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA140ACPHi	[c] : h2o + myrsACP --> ACP + h + ttdca	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA141ACPHi	[c] : h2o + tdeACP --> ACP + h + ttdcea	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA160ACPHi	[c] : h2o + palmACP --> ACP + h + hdca	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA161ACPHi	[c] : h2o + hdeACP --> ACP + h + hdcea	forward only				0
+"[""EG11095-MONOMER""]"	3.1.2.14	FA80ACPHi	[c] : h2o + ocACP --> ACP + h + octa	forward only				0
+"[""EG11234-MONOMER""]"	1.1.1.25	SHK3Dr	[c] : 3dhsk + h + nadph <==> nadp + skm	reversible				
+"[""EG11288-MONOMER""]"	2.7.1.1	HEX7	[c] : atp + fru --> adp + f6p + h	forward only				0
+"[""EG11433-MONOMER""]"	1.8.4.5	METSOXR1	[c] : metsox-S-L + trdrd --> h2o + met-L + trdox	forward only				0
+"[""EG11433-MONOMER""]"	1.8.4.5	METSOXR1	[c] : metsox-S-L + trdrd --> h2o + met-L + trdox	forward only				0
+"[""EG11517-MONOMER""]"	3.1.3.11	FBP	[c] : fdp + h2o --> f6p + pi	forward only				0
+"[""EG11600-MONOMER""]"	2.8.1.2	MCPST	[c] : cyan + mercppyr --> h + pyr + tcynt	forward only				0
+"[""EG11665-MONOMER""]"	3.6.1.27	UDCPDP	[c] : h2o + udcpdp --> h + pi + udcpp	forward only				0
+"[""EG11665-MONOMER""]"	3.6.1.27	UDCPDPpp	[p] : h2o + udcpdp --> h + pi + udcpp	forward only				0
+"[""EG11692-MONOMER""]"	3.5.4.2	ADD	[c] : ade + h + h2o --> hxan + nh4	forward only				0
+"[""EG11702-MONOMER""]"	3.6.1.22	NADDP	[c] : h2o + nad --> amp + (2) h + nmn	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD1	[c] : dump + h2o --> duri + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD10	[c] : h2o + xmp --> pi + xtsn	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD11	[c] : h2o + imp --> ins + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD12	[c] : dimp + h2o --> din + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD2	[c] : h2o + ump --> pi + uri	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD3	[c] : dcmp + h2o --> dcyt + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD4	[c] : cmp + h2o --> cytd + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD5	[c] : dtmp + h2o --> pi + thymd	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD6	[c] : damp + h2o --> dad-2 + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD7	[c] : amp + h2o --> adn + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD8	[c] : dgmp + h2o --> dgsn + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.1.3.5	NTD9	[c] : gmp + h2o --> gsn + pi	forward only				0
+"[""EG11817-MONOMER""]"	3.6.1.1	PPA	[c] : h2o + ppi --> h + (2) pi	forward only				0
+"[""EG11817-MONOMER""]"	3.6.1.1	PPA2	[c] : h2o + pppi --> h + pi + ppi	forward only				0
+"[""EG12013-MONOMER""]"	3.2.1.108	LACZpp	[p] : h2o + lcts --> gal + glc-D	forward only				0
+"[""EG12026-MONOMER""]"	3.1.2.12	SFGTHi	[c] : Sfglutth + h2o --> for + gthrd + h	forward only				0
+"[""EG12030-MONOMER""]"	3.2.2.8	CYTDH	[c] : cytd + h2o --> csn + rib-D	forward only				0
+"[""EG12030-MONOMER""]"	3.2.2.8	URIH	[c] : h2o + uri --> rib-D + ura	forward only				0
+"[""EG12069-MONOMER""]"	1.1.99.16	MDH2	[c] : mal-L + q8 --> oaa + q8h2	forward only				0
+"[""EG12069-MONOMER""]"	1.1.99.16	MDH3	[c] : mal-L + mqn8 --> mql8 + oaa	forward only				0
+"[""EG12115-MONOMER""]"	3.1.3.5	NTD1	[c] : dump + h2o --> duri + pi	forward only				0
+"[""EG12115-MONOMER""]"	3.1.3.5	NTD2	[c] : h2o + ump --> pi + uri	forward only				0
+"[""EG12115-MONOMER""]"	3.1.3.5	NTD5	[c] : dtmp + h2o --> pi + thymd	forward only				0
+"[""EG12221-MONOMER""]"	2.7.8.7	ACPS1	[c] : apoACP + coa --> ACP + h + pap	forward only				0
+"[""EG12287-MONOMER""]"	5.1.3.4	RBP4E	[c] : ru5p-L <==> xu5p-D	reversible				
+"[""EG12310-MONOMER""]"	3.4.11.2	AMPTASECG	[c] : cgly + h2o --> cys-L + gly	forward only				0
+"[""EG12310-MONOMER""]"	3.4.11.2	AMPTASEPG	[c] : h2o + progly --> gly + pro-L	forward only				0
+"[""EG12312-MONOMER""]"	2.7.1.24	DPCOAK	[c] : atp + dpcoa --> adp + coa + h	forward only				0
+"[""EG12318-MONOMER""]"	1.16.3.1	FEROpp	[p] : (4) fe2 + (4) h + o2 --> (4) fe3 + (2) h2o	forward only				0
+"[""EG12319-MONOMER""]"	4.2.1.1	HCO3E	[c] : co2 + h2o <==> h + hco3	reversible				
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL100t2pp	atp[c] + coa[c] + dca[p] + h[p] --> amp[c] + dcacoa[c] + h[c] + ppi[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL120t2pp	atp[c] + coa[c] + ddca[p] + h[p] --> amp[c] + ddcacoa[c] + h[c] + ppi[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL140t2pp	atp[c] + coa[c] + h[p] + ttdca[p] --> amp[c] + h[c] + ppi[c] + tdcoa[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL141t2pp	atp[c] + coa[c] + h[p] + ttdcea[p] --> amp[c] + h[c] + ppi[c] + tdecoa[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL160t2pp	atp[c] + coa[c] + h[p] + hdca[p] --> amp[c] + h[c] + pmtcoa[c] + ppi[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL161t2pp	atp[c] + coa[c] + h[p] + hdcea[p] --> amp[c] + h[c] + hdcoa[c] + ppi[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL180t2pp	atp[c] + coa[c] + h[p] + ocdca[p] --> amp[c] + h[c] + ppi[c] + stcoa[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL181t2pp	atp[c] + coa[c] + h[p] + ocdcea[p] --> amp[c] + h[c] + odecoa[c] + ppi[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL60t2pp	atp[c] + coa[c] + h[p] + hxa[p] --> amp[c] + h[c] + hxcoa[c] + ppi[c]	forward only				0
+"[""EG12357-MONOMER""]"	6.2.1.3	FACOAL80t2pp	atp[c] + coa[c] + h[p] + octa[p] --> amp[c] + h[c] + occoa[c] + ppi[c]	forward only				0
+"[""EG12384-MONOMER""]"	2.7.2.2	CBMKr	[c] : atp + co2 + nh4 <==> adp + cbp + (2) h	reversible				
+"[""EG12407-MONOMER""]"	3.5.1.1	ASNN	[c] : asn-L + h2o --> asp-L + nh4	forward only				0
+"[""EG12600-MONOMER""]"	3.6.1.15	NTP10	[c] : h2o + itp --> h + idp + pi	forward only				0
+"[""EG12600-MONOMER""]"	3.6.1.15	NTP11	[c] : ditp + h2o --> didp + h + pi	forward only				0
+"[""EG12600-MONOMER""]"	3.6.1.15	NTP12	[c] : h2o + xtp --> h + pi + xdp	forward only				0
+"[""EG12656-MONOMER""]"	1.6.99.6	NADPHQR2	[c] : h + nadph + q8 --> nadp + q8h2	forward only				0
+"[""EG12656-MONOMER""]"	1.6.99.6	NADPHQR3	[c] : h + mqn8 + nadph --> mql8 + nadp	forward only				0
+"[""EG12656-MONOMER""]"	1.6.99.6	NADPHQR4	[c] : 2dmmq8 + h + nadph --> 2dmmql8 + nadp	forward only				0
+"[""ENOLASE-MONOMER""]"	4.2.1.11	ENO	[c] : 2pg <==> h2o + pep	reversible				
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR100x	[c] : h + nadh + tdec2eACP --> dcaACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR100y	[c] : h + nadph + tdec2eACP --> dcaACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR120x	[c] : h + nadh + tddec2eACP --> ddcaACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR120y	[c] : h + nadph + tddec2eACP --> ddcaACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR121x	[c] : h + nadh + t3c5ddeceACP --> cddec5eACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR121y	[c] : h + nadph + t3c5ddeceACP --> cddec5eACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR140x	[c] : h + nadh + tmrs2eACP --> myrsACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR140y	[c] : h + nadph + tmrs2eACP --> myrsACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR141x	[c] : h + nadh + t3c7mrseACP --> nad + tdeACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR141y	[c] : h + nadph + t3c7mrseACP --> nadp + tdeACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR160x	[c] : h + nadh + tpalm2eACP --> nad + palmACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR160y	[c] : h + nadph + tpalm2eACP --> nadp + palmACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR161x	[c] : h + nadh + t3c9palmeACP --> hdeACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR161y	[c] : h + nadph + t3c9palmeACP --> hdeACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR180x	[c] : h + nadh + toctd2eACP --> nad + ocdcaACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR180y	[c] : h + nadph + toctd2eACP --> nadp + ocdcaACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR181x	[c] : h + nadh + t3c11vaceACP --> nad + octeACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR181y	[c] : h + nadph + t3c11vaceACP --> nadp + octeACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR40x	[c] : but2eACP + h + nadh --> butACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR40y	[c] : but2eACP + h + nadph --> butACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR60x	[c] : h + nadh + thex2eACP --> hexACP + nad	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR60y	[c] : h + nadph + thex2eACP --> hexACP + nadp	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.9	EAR80x	[c] : h + nadh + toct2eACP --> nad + ocACP	forward only				0
+"[""ENOYL-ACP-REDUCT-NADH-MONOMER""]"	1.3.1.10	EAR80y	[c] : h + nadph + toct2eACP --> nadp + ocACP	forward only				0
+"[""ENTA-MONOMER""]"	1.3.1.28	DHBD	[c] : 23ddhb + nad <==> 23dhb + h + nadh	reversible				
+"[""ENTB-MONOMER""]"	3.3.2.1	ICHORT	[c] : h2o + ichor --> 23ddhb + pyr	forward only				0
+"[""ENTE-MONOMER""]"	2.7.7.58	DHBS	[c] : 23dhb + atp + h --> 23dhba + ppi	forward only				0
+"[""ETHAMLY-CPLX""]"	4.3.1.7	ETHAAL	[c] : etha --> acald + nh4	forward only				0
+"[""F16B-MONOMER""]"	3.1.3.11	FBP	[c] : fdp + h2o --> f6p + pi	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.60	3HAD100	[c] : 3hdecACP --> h2o + tdec2eACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD120	[c] : 3hddecACP --> h2o + tddec2eACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD121	[c] : 3hcddec5eACP --> h2o + t3c5ddeceACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD140	[c] : 3hmrsACP --> h2o + tmrs2eACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD141	[c] : 3hcmrs7eACP --> h2o + t3c7mrseACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD160	[c] : 3hpalmACP --> h2o + tpalm2eACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD161	[c] : 3hcpalm9eACP --> h2o + t3c9palmeACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD180	[c] : 3hoctaACP --> h2o + toctd2eACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.61	3HAD181	[c] : 3hcvac11eACP --> h2o + t3c11vaceACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.58	3HAD40	[c] : 3haACP --> but2eACP + h2o	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.58	3HAD60	[c] : 3hhexACP --> h2o + thex2eACP	forward only				0
+"[""FABA-MONOMER""]"	4.2.1.58	3HAD80	[c] : 3hoctACP --> h2o + toct2eACP	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS100	[c] : h + malACP + ocACP --> 3odecACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS120	[c] : dcaACP + h + malACP --> 3oddecACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS121	[c] : cdec3eACP + h + malACP --> 3ocddec5eACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS140	[c] : ddcaACP + h + malACP --> 3omrsACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS141	[c] : cddec5eACP + h + malACP --> 3ocmrs7eACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS160	[c] : h + malACP + myrsACP --> 3opalmACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS161	[c] : h + malACP + tdeACP --> 3ocpalm9eACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS180	[c] : h + malACP + palmACP --> 3ooctdACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS60	[c] : butACP + h + malACP --> 3ohexACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	3OAS80	[c] : h + hexACP + malACP --> 3ooctACP + ACP + co2	forward only				0
+"[""FABB-MONOMER""]"	2.3.1.41	KAS14	[c] : acACP + h + malACP --> ACP + actACP + co2	forward only				0
+"[""FABH-MONOMER""]"	2.3.1.38	ACOATA	[c] : ACP + accoa <==> acACP + coa	reversible				
+"[""FABZ-MONOMER""]"	4.2.1.60	3HAD100	[c] : 3hdecACP --> h2o + tdec2eACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD120	[c] : 3hddecACP --> h2o + tddec2eACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD121	[c] : 3hcddec5eACP --> h2o + t3c5ddeceACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD140	[c] : 3hmrsACP --> h2o + tmrs2eACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD141	[c] : 3hcmrs7eACP --> h2o + t3c7mrseACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD160	[c] : 3hpalmACP --> h2o + tpalm2eACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD161	[c] : 3hcpalm9eACP --> h2o + t3c9palmeACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD180	[c] : 3hoctaACP --> h2o + toctd2eACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.61	3HAD181	[c] : 3hcvac11eACP --> h2o + t3c11vaceACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.58	3HAD40	[c] : 3haACP --> but2eACP + h2o	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.58	3HAD60	[c] : 3hhexACP --> h2o + thex2eACP	forward only				0
+"[""FABZ-MONOMER""]"	4.2.1.58	3HAD80	[c] : 3hoctACP --> h2o + toct2eACP	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT1	[c] : aacoa + coa --> (2) accoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT2	[c] : 3ohcoa + coa --> accoa + btcoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT3	[c] : 3oocoa + coa --> accoa + hxcoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT4	[c] : 3odcoa + coa --> accoa + occoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT5	[c] : 3oddcoa + coa --> accoa + dcacoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT6	[c] : 3otdcoa + coa --> accoa + ddcacoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT7	[c] : 3ohdcoa + coa --> accoa + tdcoa	forward only				0
+"[""FADA-MONOMER""]"	2.3.1.16	KAT8	[c] : 3oodcoa + coa --> accoa + pmtcoa	forward only				0
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH1	[c] : 3hbcoa <==> b2coa + h2o	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH2	[c] : 3hhcoa <==> h2o + hx2coa	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH3	[c] : 3hocoa <==> h2o + oc2coa	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH4	[c] : 3hdcoa <==> dc2coa + h2o	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH5	[c] : 3hddcoa <==> dd2coa + h2o	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH6	[c] : 3htdcoa <==> h2o + td2coa	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH7	[c] : 3hhdcoa <==> h2o + hdd2coa	reversible				
+"[""FADB-MONOMER""]"	4.2.1.17	ECOAH8	[c] : 3hodcoa <==> h2o + od2coa	reversible				
+"[""FADB-MONOMER""]"	1.1.1.35	HACD1i	[c] : 3hbcoa + nad --> aacoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD2i	[c] : 3hhcoa + nad --> 3ohcoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD3i	[c] : 3hocoa + nad --> 3oocoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD4i	[c] : 3hdcoa + nad --> 3odcoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD5i	[c] : 3hddcoa + nad --> 3oddcoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD6i	[c] : 3htdcoa + nad --> 3otdcoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD7i	[c] : 3hhdcoa + nad --> 3ohdcoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	1.1.1.35	HACD8i	[c] : 3hodcoa + nad --> 3oodcoa + h + nadh	forward only				0
+"[""FADB-MONOMER""]"	5.3.3.8	HDCOAI	[c] : hdcoa --> hdd2coa	forward only				0
+"[""FADB-MONOMER""]"	5.3.3.8	ODECOAI	[c] : odecoa --> od2coa	forward only				0
+"[""FADB-MONOMER""]"	5.3.3.8	TDECOAI	[c] : tdecoa --> td2coa	forward only				0
+"[""FGAMSYN-MONOMER""]"	6.3.5.3	PRFGS	[c] : atp + fgam + gln-L + h2o --> adp + fpram + glu-L + h + pi	forward only				0
+"[""FLAVONADPREDUCT-MONOMER""]"	1.18.1.2	FLDR	[c] : fldox + h + nadph --> fldrd + nadp	forward only				0
+"[""FLAVONADPREDUCT-MONOMER""]"	1.18.1.2	FLDR	[c] : fldox + h + nadph --> fldrd + nadp	forward only				0
+"[""FMNREDUCT-MONOMER""]"	1.5.1.30	FLVR	[c] : h + nadph + ribflv --> nadp + rbflvrd	forward only				0
+"[""FMNREDUCT-MONOMER""]"	1.5.1.30	FLVRx	[c] : h + nadh + ribflv --> nad + rbflvrd	forward only				0
+"[""FOLC-MONOMER""]"	6.3.2.12	DHFS	[c] : atp + dhpt + glu-L --> adp + dhf + h + pi	forward only				0
+"[""FOLD-MONOMER""]"	3.5.4.9	MTHFC	[c] : h2o + methf <==> 10fthf + h	reversible				
+"[""FOLD-MONOMER""]"	1.5.1.5	MTHFD	[c] : mlthf + nadp <==> methf + nadph	reversible				
+"[""FORMATEDEHYDROGN-CPLX""]"	1.2.2.1	FDH4pp	for[p] + (2) h[c] + q8[c] --> co2[c] + h[p] + q8h2[c]	forward only				0
+"[""FORMATEDEHYDROGN-CPLX""]"	1.2.2.1	FDH5pp	for[p] + (2) h[c] + mqn8[c] --> co2[c] + h[p] + mql8[c]	forward only				0
+"[""FORMATEDEHYDROGO-CPLX""]"	1.2.2.1	FDH4pp	for[p] + (2) h[c] + q8[c] --> co2[c] + h[p] + q8h2[c]	forward only				0
+"[""FORMATEDEHYDROGO-CPLX""]"	1.2.2.1	FDH5pp	for[p] + (2) h[c] + mqn8[c] --> co2[c] + h[p] + mql8[c]	forward only				0
+"[""FORMHYDROG2-CPLX""]"	1.18.99.1	HYD1pp	(2) h[c] + h2[c] + q8[c] --> (2) h[p] + q8h2[c]	forward only				0
+"[""FORMHYDROG2-CPLX""]"	1.18.99.1	HYD2pp	(2) h[c] + h2[c] + mqn8[c] --> (2) h[p] + mql8[c]	forward only				0
+"[""FORMHYDROG2-CPLX""]"	1.18.99.1	HYD3pp	2dmmq8[c] + (2) h[c] + h2[c] --> 2dmmql8[c] + (2) h[p]	forward only				0
+"[""FORMYLTHFDEFORMYL-MONOMER""]"	3.5.1.10	FTHFD	[c] : 10fthf + h2o --> for + h + thf	forward only				0
+"[""FPPSYN-MONOMER""]"	2.5.1.1	DMATT	[c] : dmpp + ipdp --> grdp + ppi	forward only				0
+"[""FPPSYN-MONOMER""]"	2.5.1.10	GRTT	[c] : grdp + ipdp --> frdp + ppi	forward only				0
+"[""FRUCBISALD-CLASSI-MONOMER""]"	4.1.2.13	FBA	[c] : fdp <==> dhap + g3p	reversible				
+"[""FRUCTBISALD-CLASSII-MONOMER""]"	4.1.2.13	FBA	[c] : fdp <==> dhap + g3p	reversible				
+"[""FUCISOM-MONOMER""]"	5.3.1.25	FCI	[c] : fuc-L <==> fcl-L	reversible				
+"[""FUCPALDOL-MONOMER""]"	4.1.2.17	FCLPA	[c] : fc1p <==> dhap + lald-L	reversible				
+"[""FUCULOKIN-MONOMER""]"	2.7.1.51	FCLK	[c] : atp + fcl-L --> adp + fc1p + h	forward only				0
+"[""FUMA-MONOMER""]"	4.2.1.2	FUM	[c] : fum + h2o <==> mal-L	reversible				
+"[""FUMARATE-REDUCTASE""]"	1.3.99.1	FRD2	[c] : fum + mql8 --> mqn8 + succ	forward only				0
+"[""FUMARATE-REDUCTASE""]"	1.3.99.1	FRD3	[c] : 2dmmql8 + fum --> 2dmmq8 + succ	forward only				0
+"[""FUMB-MONOMER""]"	4.2.1.2	FUM	[c] : fum + h2o <==> mal-L	reversible				
+"[""FUMC-MONOMER""]"	4.2.1.2	FUM	[c] : fum + h2o <==> mal-L	reversible				
+"[""G495-MONOMER""]"	3.2.1.86	AB6PGH	[c] : arbt6p + h2o --> g6p + hqn	forward only				0
+"[""G6188-MONOMER""]"	2.7.2.2	CBMKr	[c] : atp + co2 + nh4 <==> adp + cbp + (2) h	reversible				
+"[""G6196-MONOMER""]"	4.1.3.30	MCITL2	[c] : micit <==> pyr + succ	reversible				
+"[""G6198-MONOMER""]"	4.1.3.31	MCITS	[c] : h2o + oaa + ppcoa --> 2mcit + coa + h	forward only				0
+"[""G6199-MONOMER""]"	4.2.1.79	MCITD	[c] : 2mcit --> 2mcacn + h2o	forward only				0
+"[""G6200-MONOMER""]"	6.2.1.13	ACCOAL	[c] : atp + coa + ppa --> adp + pi + ppcoa	forward only				0
+"[""G6208-MONOMER""]"	3.1.2.12	SFGTHi	[c] : Sfglutth + h2o --> for + gthrd + h	forward only				0
+"[""G6261-MONOMER""]"	3.5.1.2	GLUN	[c] : gln-L + h2o --> glu-L + nh4	forward only				0
+"[""G6275-MONOMER""]"	3.5.3.19	UGLYCH	[c] : (2) h + h2o + urdglyc --> co2 + glx + (2) nh4	forward only				0
+"[""G6277-MONOMER""]"	5.3.1.22	HPYRI	[c] : hpyr <==> 2h3oppan	reversible				
+"[""G6278-MONOMER""]"	1.1.1.60	TRSARr	[c] : 2h3oppan + h + nadh <==> glyc-R + nad	reversible				
+"[""G6281-MONOMER""]"	3.5.2.5	ALLTN	[c] : alltn + h2o --> alltt + h	forward only				0
+"[""G6285-MONOMER""]"	3.5.3.9	ALLTAMH	[c] : alltt + (2) h + (2) h2o --> co2 + (2) nh4 + urdglyc	forward only				0
+"[""G6286-MONOMER""]"	1.1.1.154	URDGLYCD	[c] : nad + urdglyc --> h + nadh + oxur	forward only				0
+"[""G6357-MONOMER""]"	3.6.1.15	NTP1	[c] : atp + h2o --> adp + h + pi	forward only				0
+"[""G6358-MONOMER""]"	3.2.2.8	CYTDH	[c] : cytd + h2o --> csn + rib-D	forward only				0
+"[""G6358-MONOMER""]"	3.2.2.8	URIH	[c] : h2o + uri --> rib-D + ura	forward only				0
+"[""G6425-MONOMER""]"	3.1.3.9	G6PP	[c] : g6p + h2o --> glc-D + pi	forward only				0
+"[""G6439-MONOMER""]"	3.6.1.27	UDCPDP	[c] : h2o + udcpdp --> h + pi + udcpp	forward only				0
+"[""G6439-MONOMER""]"	3.6.1.27	UDCPDPpp	[p] : h2o + udcpdp --> h + pi + udcpp	forward only				0
+"[""G6539-MONOMER""]"	1.1.1.26	GLYCLTDy	[c] : glx + h + nadph --> glyclt + nadp	forward only				0
+"[""G6576-MONOMER""]"	2.7.1.59	ACGAMK	[c] : acgam + atp --> acgam6p + adp + h	forward only				0
+"[""G6580-MONOMER""]"	3.6.1.15	TDP	[c] : h2o + thmpp --> h + pi + thmmp	forward only				0
+"[""G6644-MONOMER""]"	6.3.1.2	GLNS	[c] : atp + glu-L + nh4 --> adp + gln-L + h + pi	forward only				0
+"[""G6646-MONOMER""]"	2.6.1.19	ABTA	[c] : 4abut + akg --> glu-L + sucsal	forward only				0
+"[""G6719-MONOMER""]"	6.2.1.30	PACCOAL	[c] : atp + coa + pac --> amp + phaccoa + ppi	forward only				0
+"[""G6755-MONOMER""]"	1.2.1.19	ABUTD	[c] : 4abutn + h2o + nad --> 4abut + (2) h + nadh	forward only				0
+"[""G6770-MONOMER""]"	2.3.1.118	ACANTHAT	[c] : accoa + anth --> acanth + coa	forward only				0
+"[""G6782-MONOMER""]"	3.4.17.14	RXN_WC_3	[p] : alaala + h2o --> (2) ala-D	forward only				0
+"[""G6783-MONOMER""]"	3.1.4.17	PDE1	[c] : camp + h2o --> amp + h	forward only				0
+"[""G6810-MONOMER""]"	3.5.1.2	GLUN	[c] : gln-L + h2o --> glu-L + nh4	forward only				0
+"[""G6862-MONOMER""]"	1.5.1.3	DHFR	[c] : dhf + h + nadph <==> nadp + thf	reversible				
+"[""G6886-MONOMER""]"	1.15.1.1	SPODMpp	[p] : (2) h + (2) o2s --> h2o2 + o2	forward only				0
+"[""G6960-MONOMER""]"	4.1.2.13	FBA	[c] : fdp <==> dhap + g3p	reversible				
+"[""G6986-MONOMER""]"	1.1.1.83	MALDDH	[c] : mal-D + nad --> co2 + nadh + pyr	forward only				0
+"[""G7096-MONOMER""]"	2.7.1.6	GALKr	[c] : atp + gal <==> adp + gal1p + h	reversible				
+"[""G7164-MONOMER""]"	3.6.1.23	DUTPDP	[c] : dutp + h2o --> dump + h + ppi	forward only				0
+"[""G7185-MONOMER""]"	3.1.3.5	NTD1	[c] : dump + h2o --> duri + pi	forward only				0
+"[""G7185-MONOMER""]"	3.1.3.5	NTD12	[c] : dimp + h2o --> din + pi	forward only				0
+"[""G7185-MONOMER""]"	3.1.3.5	NTD3	[c] : dcmp + h2o --> dcyt + pi	forward only				0
+"[""G7185-MONOMER""]"	3.1.3.5	NTD5	[c] : dtmp + h2o --> pi + thymd	forward only				0
+"[""G7185-MONOMER""]"	3.1.3.5	NTD6	[c] : damp + h2o --> dad-2 + pi	forward only				0
+"[""G7185-MONOMER""]"	3.1.3.5	NTD8	[c] : dgmp + h2o --> dgsn + pi	forward only				0
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH1	[c] : 3hbcoa <==> b2coa + h2o	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH2	[c] : 3hhcoa <==> h2o + hx2coa	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH3	[c] : 3hocoa <==> h2o + oc2coa	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH4	[c] : 3hdcoa <==> dc2coa + h2o	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH5	[c] : 3hddcoa <==> dd2coa + h2o	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH6	[c] : 3htdcoa <==> h2o + td2coa	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH7	[c] : 3hhdcoa <==> h2o + hdd2coa	reversible				
+"[""G7212-MONOMER""]"	4.2.1.17	ECOAH8	[c] : 3hodcoa <==> h2o + od2coa	reversible				
+"[""G7212-MONOMER""]"	1.1.1.35	HACD1i	[c] : 3hbcoa + nad --> aacoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD2i	[c] : 3hhcoa + nad --> 3ohcoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD3i	[c] : 3hocoa + nad --> 3oocoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD4i	[c] : 3hdcoa + nad --> 3odcoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD5i	[c] : 3hddcoa + nad --> 3oddcoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD6i	[c] : 3htdcoa + nad --> 3otdcoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD7i	[c] : 3hhdcoa + nad --> 3ohdcoa + h + nadh	forward only				0
+"[""G7212-MONOMER""]"	1.1.1.35	HACD8i	[c] : 3hodcoa + nad --> 3oodcoa + h + nadh	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT1	[c] : aacoa + coa --> (2) accoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT2	[c] : 3ohcoa + coa --> accoa + btcoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT3	[c] : 3oocoa + coa --> accoa + hxcoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT4	[c] : 3odcoa + coa --> accoa + occoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT5	[c] : 3oddcoa + coa --> accoa + dcacoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT6	[c] : 3otdcoa + coa --> accoa + ddcacoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT7	[c] : 3ohdcoa + coa --> accoa + tdcoa	forward only				0
+"[""G7213-MONOMER""]"	2.3.1.16	KAT8	[c] : 3oodcoa + coa --> accoa + pmtcoa	forward only				0
+"[""G7288-MONOMER""]"	2.3.1.8	PTAr	[c] : accoa + pi <==> actp + coa	reversible				
+"[""G7408-MONOMER""]"	5.4.2.2	PGMT	[c] : g1p <==> g6p	reversible				
+"[""G7419-MONOMER""]"	4.1.2.17	FCLPA	[c] : fc1p <==> dhap + lald-L	reversible				
+"[""G7446-MONOMER""]"	4.2.1.40	GLCRD	[c] : glcr --> 5dh4dglc + h2o	forward only				0
+"[""G7454-MONOMER""]"	4.1.1.12	CYSSADS	[c] : 3sala + (2) h --> ala-L + so2	forward only				0
+"[""G7490-MONOMER""]"	4.3.1.15	DAPAL	[c] : 23dappa + h2o --> (2) nh4 + pyr	forward only				0
+"[""G7493-MONOMER""]"	2.7.2.2	CBMKr	[c] : atp + co2 + nh4 <==> adp + cbp + (2) h	reversible				
+"[""G7502-MONOMER""]"	3.5.4.3	GUAD	[c] : gua + h + h2o --> nh4 + xan	forward only				0
+"[""G7516-MONOMER""]"	4.1.1.41	MMCD	[c] : h + mmcoa-S --> co2 + ppcoa	forward only				0
+"[""G7530-MONOMER""]"	3.6.1.19	NTPP10	[c] : ditp + h2o --> dimp + h + ppi	forward only				0
+"[""G7530-MONOMER""]"	3.6.1.19	NTPP11	[c] : h2o + xtp --> h + ppi + xmp	forward only				0
+"[""G7530-MONOMER""]"	3.6.1.19	NTPP9	[c] : h2o + itp --> h + imp + ppi	forward only				0
+"[""G7596-MONOMER""]"	2.6.1.29	PTRCTA	[c] : akg + ptrc --> 4abutn + glu-L	forward only				0
+"[""G7662-MONOMER""]"	5.3.1.13	A5PISO	[c] : ru5p-D <==> ara5p	reversible				
+"[""G7663-MONOMER""]"	3.1.3.45	KDOPP	[c] : h2o + kdo8p --> kdo + pi	forward only				0
+"[""G7732-MONOMER""]"	5.4.2.7	PPM	[c] : r1p <==> r5p	reversible				
+"[""G7740-MONOMER""]"	3.6.1.13	ADPRDP	[c] : adprib + h2o --> amp + (2) h + r5p	forward only				0
+"[""G7841-MONOMER""]"	3.6.1.15	NTP1	[c] : atp + h2o --> adp + h + pi	forward only				0
+"[""G7841-MONOMER""]"	3.6.1.15	NTP10	[c] : h2o + itp --> h + idp + pi	forward only				0
+"[""G7841-MONOMER""]"	3.6.1.15	NTP3	[c] : gtp + h2o --> gdp + h + pi	forward only				0
+"[""G7841-MONOMER""]"	3.6.1.15	NTP5	[c] : ctp + h2o --> cdp + h + pi	forward only				0
+"[""G7860-MONOMER""]"	5.1.3.4	RBP4E	[c] : ru5p-L <==> xu5p-D	reversible				
+"[""G7914-MONOMER""]"	5.1.3.1	RPE	[c] : ru5p-D <==> xu5p-D	reversible				
+"[""GABATRANSAM-MONOMER""]"	2.6.1.19	ABTA	[c] : 4abut + akg --> glu-L + sucsal	forward only				0
+"[""GALACTARDEHYDRA-MONOMER""]"	4.2.1.42	GALCTD	[c] : galct-D --> 5dh4dglc + h2o	forward only				0
+"[""GALACTOKIN-MONOMER""]"	2.7.1.6	GALKr	[c] : atp + gal <==> adp + gal1p + h	reversible				
+"[""GALACTONATE-DEHYDRATASE-MONOMER""]"	4.2.1.6	GALCTND	[c] : galctn-D --> 2dh3dgal + h2o	forward only				0
+"[""GALACTURIDYLYLTRANS-MONOMER""]"	2.7.7.12	UGLT	[c] : gal1p + udpg <==> g1p + udpgal	reversible				
+"[""GALPMUT-MONOMER""]"	5.4.99.9	UDPGALM	[c] : udpgal --> udpgalfur	forward only				0
+"[""GAPDH-A-MONOMER""]"	1.2.1.12	GAPD	[c] : g3p + nad + pi <==> 13dpg + h + nadh	reversible				
+"[""GART-MONOMER""]"	2.1.2.2	GARFT	[c] : 10fthf + gar <==> fgam + h + thf	reversible				
+"[""GARTRANSFORMYL2-MONOMER""]"	2.7.2.1	ACKr	[c] : ac + atp <==> actp + adp	reversible				
+"[""GDHA-MONOMER""]"	1.4.1.4	GLUDy	[c] : glu-L + h2o + nadp <==> akg + h + nadph + nh4	reversible				
+"[""GDPMANDEHYDRA-MONOMER""]"	4.2.1.47	GMAND	[c] : gdpmann --> gdpddman + h2o	forward only				0
+"[""GKI-MONOMER""]"	2.7.1.31	GLYCK2	[c] : atp + glyc-R --> 2pg + adp + h	forward only				0
+"[""GLU6PDEHYDROG-MONOMER""]"	1.1.1.49	G6PDH2r	[c] : g6p + nadp <==> 6pgl + h + nadph	reversible				
+"[""GLUC1PADENYLTRANS-MONOMER""]"	2.7.7.27	GLGC	[c] : atp + g1p + h --> adpglc + ppi	forward only				0
+"[""GLUC1PURIDYLTRANS-MONOMER""]"	2.7.7.9	GALUi	[c] : g1p + h + utp --> ppi + udpg	forward only				0
+"[""GLUCARDEHYDRA-MONOMER""]"	4.2.1.40	GLCRD	[c] : glcr --> 5dh4dglc + h2o	forward only				0
+"[""GLUCOKIN-MONOMER""]"	2.7.1.1	HEX1	[c] : atp + glc-D --> adp + g6p + h	forward only				0
+"[""GLUCONOKINI-MONOMER""]"	2.7.1.12	GNK	[c] : atp + glcn --> 6pgc + adp + h	forward only				0
+"[""GLUCONOKINII-MONOMER""]"	2.7.1.12	GNK	[c] : atp + glcn --> 6pgc + adp + h	forward only				0
+"[""GLUCONREDUCT-MONOMER""]"	1.1.1.69	5DGLCNR	[c] : 5dglcn + h + nadph <==> glcn + nadp	reversible				
+"[""GLUCOSAMINE-6-P-DEAMIN-MONOMER""]"	3.5.99.6	G6PDA	[c] : gam6p + h2o --> f6p + nh4	forward only				0
+"[""GLUCOSE-1-PHOSPHAT-MONOMER""]"	3.1.3.10	G1PPpp	[p] : g1p + h2o --> glc-D + pi	forward only				0
+"[""GLUCOSE-1-PHOSPHAT-MONOMER""]"	3.1.3.10	GAL1PPpp	[p] : gal1p + h2o --> gal + pi	forward only				0
+"[""GLURS-MONOMER""]"	6.1.1.17	GLUTRS	[c] : atp + glu-L + trnaglu --> amp + glutrna + ppi	forward only				0
+"[""GLUTAMATESYN-DIMER""]"	1.4.1.13	GLUSy	[c] : akg + gln-L + h + nadph --> (2) glu-L + nadp	forward only				0
+"[""GLUTAMINESYN-MONOMER""]"	6.3.1.2	GLNS	[c] : atp + glu-L + nh4 --> adp + gln-L + h + pi	forward only				0
+"[""GLUTATHIONE-REDUCT-NADPH-MONOMER""]"	1.8.1.7	GTHOr	[c] : gthox + h + nadph <==> (2) gthrd + nadp	reversible				
+"[""GLUTATHIONE-SYN-MONOMER""]"	6.3.2.3	GTHS	[c] : atp + glucys + gly --> adp + gthrd + h + pi	forward only				0
+"[""GLUTCYSLIG-MONOMER""]"	6.3.2.2	GLUCYS	[c] : atp + cys-L + glu-L --> adp + glucys + h + pi	forward only				0
+"[""GLUTDECARBOXA-MONOMER""]"	4.1.1.15	GLUDC	[c] : glu-L + h --> 4abut + co2	forward only				0
+"[""GLUTDECARBOXB-MONOMER""]"	4.1.1.15	GLUDC	[c] : glu-L + h --> 4abut + co2	forward only				0
+"[""GLUTKIN-MONOMER""]"	2.7.2.11	GLU5K	[c] : atp + glu-L --> adp + glu5p	forward only				0
+"[""GLUTRACE-MONOMER""]"	5.1.1.3	GLUR	[c] : glu-D <==> glu-L	reversible				
+"[""GLUTSEMIALDEHYDROG-MONOMER""]"	1.2.1.41	G5SD	[c] : glu5p + h + nadph --> glu5sa + nadp + pi	forward only				0
+"[""GLY3KIN-MONOMER""]"	2.7.1.31	GLYCK	[c] : atp + glyc-R --> 3pg + adp + h	forward only				0
+"[""GLYC3PDEHYDROGBIOSYN-MONOMER""]"	1.1.1.94	G3PD2	[c] : glyc3p + nadp <==> dhap + h + nadph	reversible				
+"[""GLYCDEH-MONOMER""]"	1.1.1.6	GLYCDx	[c] : glyc + nad --> dha + h + nadh	forward only				0
+"[""GLYCDEH-MONOMER""]"	1.1.1.21	LALDO2x	[c] : h + mthgxl + nadh --> lald-D + nad	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT120	[c] : ddcaACP + glyc3p --> 1ddecg3p + ACP	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT140	[c] : glyc3p + myrsACP --> 1tdecg3p + ACP	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT141	[c] : glyc3p + tdeACP --> 1tdec7eg3p + ACP	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT160	[c] : glyc3p + palmACP --> 1hdecg3p + ACP	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT161	[c] : glyc3p + hdeACP --> 1hdec9eg3p + ACP	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT180	[c] : glyc3p + ocdcaACP --> 1odecg3p + ACP	forward only				0
+"[""GLYCEROL-3-P-ACYLTRANSFER-MONOMER""]"	2.3.1.15	G3PAT181	[c] : glyc3p + octeACP --> 1odec11eg3p + ACP	forward only				0
+"[""GLYCEROL-KIN-MONOMER""]"	2.7.1.30	GLYK	[c] : atp + glyc --> adp + glyc3p + h	forward only				0
+"[""GLYCOGEN-BRANCH-MONOMER""]"	2.4.1.18	GLBRAN2	[c] : glycogen --> bglycogen	forward only				0
+"[""GLYCOGENSYN-MONOMER""]"	2.4.1.21	GLCS1	[c] : adpglc --> adp + glycogen + h	forward only				0
+"[""GLYCOPHOSPHORYL-MONOMER""]"	2.4.1.1	GLCP	[c] : glycogen + pi --> g1p	forward only				0
+"[""GLYCOPHOSPHORYL-MONOMER""]"	2.4.1.1	GLCP2	[c] : bglycogen + pi --> g1p	forward only				0
+"[""GLYCPDIESTER-CYTO-MONOMER""]"	3.1.4.46	GPDDA1	[c] : g3pc + h2o --> chol + glyc3p + h	forward only				0
+"[""GLYCPDIESTER-CYTO-MONOMER""]"	3.1.4.46	GPDDA2	[c] : g3pe + h2o --> etha + glyc3p + h	forward only				0
+"[""GLYCPDIESTER-CYTO-MONOMER""]"	3.1.4.46	GPDDA3	[c] : g3ps + h2o --> glyc3p + h + ser-L	forward only				0
+"[""GLYCPDIESTER-CYTO-MONOMER""]"	3.1.4.46	GPDDA4	[c] : g3pg + h2o --> glyc + glyc3p + h	forward only				0
+"[""GLYCPDIESTER-CYTO-MONOMER""]"	3.1.4.46	GPDDA5	[c] : g3pi + h2o --> glyc3p + h + inost	forward only				0
+"[""GLYCPDIESTER-PERI-MONOMER""]"	3.1.4.46	GPDDA1pp	[p] : g3pc + h2o --> chol + glyc3p + h	forward only				0
+"[""GLYCPDIESTER-PERI-MONOMER""]"	3.1.4.46	GPDDA2pp	[p] : g3pe + h2o --> etha + glyc3p + h	forward only				0
+"[""GLYCPDIESTER-PERI-MONOMER""]"	3.1.4.46	GPDDA3pp	[p] : g3ps + h2o --> glyc3p + h + ser-L	forward only				0
+"[""GLYCPDIESTER-PERI-MONOMER""]"	3.1.4.46	GPDDA4pp	[p] : g3pg + h2o --> glyc + glyc3p + h	forward only				0
+"[""GLYCPDIESTER-PERI-MONOMER""]"	3.1.4.46	GPDDA5pp	[p] : g3pi + h2o --> glyc3p + h + inost	forward only				0
+"[""GLYCRIBONUCSYN-MONOMER""]"	6.3.4.13	PRAGSr	[c] : atp + gly + pram <==> adp + gar + h + pi	reversible				
+"[""GLYOCARBOLIG-MONOMER""]"	4.1.1.47	GLXCL	[c] : (2) glx + h --> 2h3oppan + co2	forward only				0
+"[""GLYOHMETRANS-MONOMER""]"	2.1.2.1	GHMT2r	[c] : ser-L + thf <==> gly + h2o + mlthf	reversible				
+"[""GLYOHMETRANS-MONOMER""]"	4.1.2.5	THRA2i	[c] : athr-L --> acald + gly	forward only				0
+"[""GLYOHMETRANS-MONOMER""]"	4.1.2.5	THRAi	[c] : thr-L --> acald + gly	forward only				0
+"[""GLYOXI-MONOMER""]"	4.4.1.5	LGTHL	[c] : gthrd + mthgxl --> lgt-S	forward only				0
+"[""GLYOXII-MONOMER""]"	3.1.2.6	GLYOX	[c] : h2o + lgt-S --> gthrd + h + lac-D	forward only				0
+"[""GMP-REDUCT-MONOMER""]"	1.7.1.7	GMPR	[c] : gmp + (2) h + nadph --> imp + nadp + nh4	forward only				0
+"[""GMP-SYN-MONOMER""]"	6.3.5.2	GMPS2	[c] : atp + gln-L + h2o + xmp --> amp + glu-L + gmp + (2) h + ppi	forward only				0
+"[""GPH-MONOMER""]"	3.1.3.18	PGLYCP	[c] : 2pglyc + h2o --> glyclt + pi	forward only				0
+"[""GPMA-MONOMER""]"	5.4.2.1	PGM	[c] : 2pg <==> 3pg	reversible				
+"[""GPT-MONOMER""]"	2.4.2.8	GUAPRT	[c] : gua + prpp --> gmp + ppi	forward only				0
+"[""GPT-MONOMER""]"	2.4.2.8	HXPRT	[c] : hxan + prpp --> imp + ppi	forward only				0
+"[""GPT-MONOMER""]"	2.4.2.22	XPPT	[c] : prpp + xan --> ppi + xmp	forward only				0
+"[""GSAAMINOTRANS-MONOMER""]"	5.4.3.8	G1SAT	[c] : glu1sa <==> 5aop	reversible				
+"[""GSK-MONOMER""]"	2.7.1.73	INSK	[c] : atp + ins --> adp + h + imp	forward only				0
+"[""GSP-MONOMER""]"	3.5.1.78	GSPMDA	[c] : gtspmd + h2o --> gthrd + spmd	forward only				0
+"[""GSP-MONOMER""]"	6.3.1.8	GSPMDS	[c] : atp + gthrd + spmd --> adp + gtspmd + h + pi	forward only				0
+"[""GTP-CYCLOHYDRO-I-MONOMER""]"	3.5.4.16	GTPCI	[c] : gtp + h2o --> ahdt + for + h	forward only				0
+"[""GUANYL-KIN-MONOMER""]"	2.7.4.8	DGK1	[c] : atp + dgmp <==> adp + dgdp	reversible				
+"[""GUANYL-KIN-MONOMER""]"	2.7.4.8	GK1	[c] : atp + gmp <==> adp + gdp	reversible				
+"[""H2PTEROATESYNTH-MONOMER""]"	2.5.1.15	DHPS2	[c] : 4abz + 6hmhptpp --> dhpt + ppi	forward only				0
+"[""HEMX-MONOMER""]"	2.1.1.107	UPP3MT	[c] : (2) amet + uppg3 --> (2) ahcys + dscl + h	forward only				0
+"[""HISTCYCLOPRATPPHOS""]"	3.5.4.19	PRAMPC	[c] : h2o + prbamp --> prfp	forward only				0
+"[""HISTCYCLOPRATPPHOS""]"	3.6.1.31	PRATPP	[c] : h2o + prbatp --> h + ppi + prbamp	forward only				0
+"[""HISTDEHYD-MONOMER""]"	1.1.1.23	HISTD	[c] : h2o + histd + (2) nad --> (3) h + his-L + (2) nadh	forward only				0
+"[""HISTPHOSTRANS-MONOMER""]"	2.6.1.9	HSTPT	[c] : glu-L + imacp --> akg + hisp	forward only				0
+"[""HMP-P-KIN-MONOMER""]"	2.7.1.49	HMPK1	[c] : 4ahmmp + atp --> 4ampm + adp + h	forward only				0
+"[""HMP-P-KIN-MONOMER""]"	2.7.4.7	PMPK	[c] : 4ampm + atp --> 2mahmp + adp	forward only				0
+"[""HOLO-ACP-SYNTH-MONOMER""]"	2.7.8.7	ACPS1	[c] : apoACP + coa --> ACP + h + pap	forward only				0
+"[""HOMOCYSMET-MONOMER""]"	2.1.1.13	METS	[c] : 5mthf + hcys-L --> h + met-L + thf	forward only				0
+"[""HOMOCYSMETB12-MONOMER""]"	2.1.1.13	METS	[c] : 5mthf + hcys-L --> h + met-L + thf	forward only				0
+"[""HOMOSERKIN-MONOMER""]"	2.7.1.39	HSK	[c] : atp + hom-L --> adp + h + phom	forward only				0
+"[""HOMSUCTRAN-MONOMER""]"	2.3.1.46	HSST	[c] : hom-L + succoa --> coa + suchms	forward only				0
+"[""HYDROPEROXIDI-MONOMER""]"	1.11.1.6	CAT	[c] : (2) h2o2 --> (2) h2o + o2	forward only				0
+"[""HYDROPEROXIDII-MONOMER""]"	1.11.1.6	CAT	[c] : (2) h2o2 --> (2) h2o + o2	forward only				0
+"[""HYPOXANPRIBOSYLTRAN-MONOMER""]"	2.4.2.8	GUAPRT	[c] : gua + prpp --> gmp + ppi	forward only				0
+"[""HYPOXANPRIBOSYLTRAN-MONOMER""]"	2.4.2.8	HXPRT	[c] : hxan + prpp --> imp + ppi	forward only				0
+"[""IMIDPHOSPHADEHYDHISTIDPHOSPHA-MONOMER""]"	3.1.3.15	HISTP	[c] : h2o + hisp --> histd + pi	forward only				0
+"[""IMIDPHOSPHADEHYDHISTIDPHOSPHA-MONOMER""]"	4.2.1.19	IGPDH	[c] : eig3p --> h2o + imacp	forward only				0
+"[""IMP-DEHYDROG-MONOMER""]"	1.1.1.205	IMPD	[c] : h2o + imp + nad --> h + nadh + xmp	forward only				0
+"[""INORGPYROPHOSPHAT-MONOMER""]"	3.6.1.1	PPA	[c] : h2o + ppi --> h + (2) pi	forward only				0
+"[""IPPISOM-MONOMER""]"	5.3.3.2	IPDDI	[c] : ipdp <==> dmpp	reversible				
+"[""ISOCIT-LYASE-MONOMER""]"	4.1.3.1	ICL	[c] : icit --> glx + succ	forward only				0
+"[""ISOCITDEH-SUBUNIT""]"	1.1.1.42	ICDHyr	[c] : icit + nadp <==> akg + co2 + nadph	reversible				
+"[""KDGALDOL-MONOMER""]"	4.1.2.20	GLCRAL	[c] : 5dh4dglc --> 2h3oppan + pyr	forward only				0
+"[""KDO-8PSYNTH-MONOMER""]"	4.1.2.16	KDOPS	[c] : ara5p + h2o + pep --> kdo8p + pi	forward only				0
+"[""KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER""]"	4.1.2.14	EDA	[c] : 2ddg6p --> g3p + pyr	forward only				0
+"[""KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER""]"	4.1.1.3	OAADC	[c] : h + oaa --> co2 + pyr	forward only				0
+"[""KETOLREDUCTOISOM-MONOMER""]"	1.1.1.169	DPR	[c] : 2dhp + h + nadph --> nadp + pant-R	forward only				0
+"[""KETOLREDUCTOISOM-MONOMER""]"	1.1.1.86	KARA1	[c] : 23dhmb + nadp <==> alac-S + h + nadph	reversible				
+"[""KETOLREDUCTOISOM-MONOMER""]"	1.1.1.86	KARA2	[c] : 2ahbut + h + nadph <==> 23dhmp + nadp	reversible				
+"[""L-GLN-FRUCT-6-P-AMINOTRANS-MONOMER""]"	2.6.1.16	GF6PTA	[c] : f6p + gln-L --> gam6p + glu-L	forward only				0
+"[""L-LACTDEHYDROGFMN-MONOMER""]"	1.1.2.3	L-LACD2	[c] : lac-L + q8 --> pyr + q8h2	forward only				0
+"[""L-LACTDEHYDROGFMN-MONOMER""]"	1.1.2.3	L-LACD3	[c] : lac-L + mqn8 --> mql8 + pyr	forward only				0
+"[""LACTALDDEHYDROG-MONOMER""]"	1.2.1.21	GCALDD	[c] : gcald + h2o + nad --> glyclt + (2) h + nadh	forward only				0
+"[""LACTALDDEHYDROG-MONOMER""]"	1.2.1.21	LCADi	[c] : h2o + lald-L + nad --> (2) h + lac-L + nadh	forward only				0
+"[""LACTALDREDUCT-MONOMER""]"	1.1.1.77	LCARS	[c] : h + lald-L + nadh <==> 12ppd-S + nad	reversible				
+"[""LDC2-MONOMER""]"	4.1.1.18	LYSDC	[c] : h + lys-L --> 15dap + co2	forward only				0
+"[""LIPIDADISACCHARIDESYNTH-MONOMER""]"	2.4.1.182	LPADSS	[c] : lipidX + u23ga --> h + lipidAds + udp	forward only				0
+"[""LSERINEDEAM1-MONOMER""]"	4.3.1.17	SERD_L	[c] : ser-L --> nh4 + pyr	forward only				0
+"[""LSERINEDEAM2-MONOMER""]"	4.3.1.17	SERD_L	[c] : ser-L --> nh4 + pyr	forward only				0
+"[""LSERINEDEAM3-MONOMER""]"	4.3.1.17	SERD_L	[c] : ser-L --> nh4 + pyr	forward only				0
+"[""LTAA-MONOMER""]"	4.1.2.5	THRA2i	[c] : athr-L --> acald + gly	forward only				0
+"[""LTAA-MONOMER""]"	4.1.2.5	THRAi	[c] : thr-L --> acald + gly	forward only				0
+"[""LTARTDEHYDRA-CPLX""]"	4.2.1.32	TARTD	[c] : tartr-L --> h2o + oaa	forward only				0
+"[""LUMAZINESYN-MONOMER""]"	2.5.1.9	RBFSb	[c] : (2) dmlz --> 4r5au + ribflv	forward only				0
+"[""LYSDECARBOX-MONOMER""]"	4.1.1.18	LYSDC	[c] : h + lys-L --> 15dap + co2	forward only				0
+"[""LYXK-MONOMER""]"	2.7.1.53	XYLK2	[c] : atp + xylu-L --> adp + h + xu5p-L	forward only				0
+"[""MALATE-DEHASE-MONOMER""]"	1.1.1.37	MDH	[c] : mal-L + nad <==> h + nadh + oaa	reversible				
+"[""MALATE-SYNTHASE""]"	4.1.3.2	MALS	[c] : accoa + glx + h2o --> coa + h + mal-L	forward only				0
+"[""MALDEXPHOSPHORYL-MONOMER""]"	2.4.1.1	GLCP	[c] : glycogen + pi --> g1p	forward only				0
+"[""MALDEXPHOSPHORYL-MONOMER""]"	2.4.1.1	GLCP2	[c] : bglycogen + pi --> g1p	forward only				0
+"[""MALIC-NAD-MONOMER""]"	1.1.1.38	ME1	[c] : mal-L + nad --> co2 + nadh + pyr	forward only				0
+"[""MALIC-NADP-MONOMER""]"	1.1.1.40	ME2	[c] : mal-L + nadp --> co2 + nadph + pyr	forward only				0
+"[""MALONYL-COA-ACP-TRANSACYL-MONOMER""]"	2.3.1.39	MCOATA	[c] : ACP + malcoa <==> coa + malACP	reversible				
+"[""MALSYNG-MONOMER""]"	4.1.3.2	MALS	[c] : accoa + glx + h2o --> coa + h + mal-L	forward only				0
+"[""MALTACETYLTRAN-MONOMER""]"	2.3.1.79	GLCATr	[c] : accoa + glc-D <==> acglc-D + coa	reversible				
+"[""MALTACETYLTRAN-MONOMER""]"	2.3.1.79	MALTATr	[c] : accoa + malt <==> acmalt + coa	reversible				
+"[""MANNONDEHYDRAT-MONOMER""]"	4.2.1.8	MNNH	[c] : mana --> 2ddglcn + h2o	forward only				0
+"[""MANNONOXIDOREDUCT-MONOMER""]"	1.1.1.57	MANAO	[c] : mana + nad <==> fruur + h + nadh	reversible				
+"[""MANNPDEHYDROG-MONOMER""]"	1.1.1.17	M1PD	[c] : mnl1p + nad <==> f6p + h + nadh	reversible				
+"[""MANNPGUANYLTRANGDP-MONOMER""]"	2.7.7.22	MAN1PT2	[c] : gdp + h + man1p --> gdpmann + pi	forward only				0
+"[""MANNPISOM-MONOMER""]"	5.3.1.8	MAN6PI	[c] : man6p <==> f6p	reversible				
+"[""MEND-MONOMER""]"	4.1.1.71	OXGDC2	[c] : akg + h + thmpp --> co2 + ssaltpp	forward only				0
+"[""MENF-MONOMER""]"	5.4.99.6	ICHORS	[c] : chor <==> ichor	reversible				
+"[""METHGLYSYN-MONOMER""]"	4.2.3.3	MGSA	[c] : dhap --> mthgxl + pi	forward only				0
+"[""METHYLMALONYL-COA-MUT-MONOMER""]"	5.4.99.2	MMM2	[c] : succoa --> mmcoa-R	forward only				0
+"[""MHPDHYDROL-MONOMER""]"	4.2.1.80	OP4ENH	[c] : h2o + op4en --> 4h2opntn	forward only				0
+"[""MHPF-MONOMER""]"	1.2.1.10	ACALD	[c] : acald + coa + nad <==> accoa + h + nadh	reversible				
+"[""MMUM-MONOMER""]"	2.1.1.10	HCYSMT	[c] : amet + hcys-L --> ahcys + h + met-L	forward only				0
+"[""MONOMER-43""]"	1.1.1.215	2DGLCNRy	[c] : 2dhglcn + h + nadph --> glcn + nadp	forward only				0
+"[""MONOMER-43""]"	1.1.1.26	GLYCLTDy	[c] : glx + h + nadph --> glyclt + nadp	forward only				0
+"[""MONOMER0-147""]"	1.14.11.17	TAUDO	[c] : akg + o2 + taur --> aacald + co2 + h + so3 + succ	forward only				0
+"[""MONOMER0-1981""]"	3.5.1.18	SDPDS	[c] : h2o + sl26da --> 26dap-LL + succ	forward only				0
+"[""MONOMER0-2001""]"	2.3.1.117	THDPS	[c] : h2o + succoa + thdp --> coa + sl2a6o	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A120pp	[p] : h2o + pa120 --> 2ddecg3p + ddca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A140pp	[p] : h2o + pa140 --> 2tdecg3p + ttdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A141pp	[p] : h2o + pa141 --> 2tdec7eg3p + ttdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A160pp	[p] : h2o + pa160 --> 2hdecg3p + hdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A161pp	[p] : h2o + pa161 --> 2hdec9eg3p + hdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A180pp	[p] : h2o + pa180 --> 2odecg3p + ocdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1A181pp	[p] : h2o + pa181 --> 2odec11eg3p + ocdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E120pp	[p] : h2o + pe120 --> 2agpe120 + ddca + h	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E140pp	[p] : h2o + pe140 --> 2agpe140 + h + ttdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E141pp	[p] : h2o + pe141 --> 2agpe141 + h + ttdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E160pp	[p] : h2o + pe160 --> 2agpe160 + h + hdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E161pp	[p] : h2o + pe161 --> 2agpe161 + h + hdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E180pp	[p] : h2o + pe180 --> 2agpe180 + h + ocdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1E181pp	[p] : h2o + pe181 --> 2agpe181 + h + ocdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G120pp	[p] : h2o + pg120 --> 2agpg120 + ddca + h	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G140pp	[p] : h2o + pg140 --> 2agpg140 + h + ttdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G141pp	[p] : h2o + pg141 --> 2agpg141 + h + ttdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G160pp	[p] : h2o + pg160 --> 2agpg160 + h + hdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G161pp	[p] : h2o + pg161 --> 2agpg161 + h + hdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G180pp	[p] : h2o + pg180 --> 2agpg180 + h + ocdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.32	PLIPA1G181pp	[p] : h2o + pg181 --> 2agpg181 + h + ocdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A120pp	[p] : h2o + pa120 --> 1ddecg3p + ddca + h	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A140pp	[p] : h2o + pa140 --> 1tdecg3p + h + ttdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A141pp	[p] : h2o + pa141 --> 1tdec7eg3p + h + ttdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A160pp	[p] : h2o + pa160 --> 1hdecg3p + h + hdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A161pp	[p] : h2o + pa161 --> 1hdec9eg3p + h + hdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A180pp	[p] : h2o + pa180 --> 1odecg3p + h + ocdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2A181pp	[p] : h2o + pa181 --> 1odec11eg3p + h + ocdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E120pp	[p] : h2o + pe120 --> 1agpe120 + ddca + h	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E140pp	[p] : h2o + pe140 --> 1agpe140 + h + ttdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E141pp	[p] : h2o + pe141 --> 1agpe141 + h + ttdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E160pp	[p] : h2o + pe160 --> 1agpe160 + h + hdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E161pp	[p] : h2o + pe161 --> 1agpe161 + h + hdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E180pp	[p] : h2o + pe180 --> 1agpe180 + h + ocdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2E181pp	[p] : h2o + pe181 --> 1agpe181 + h + ocdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G120pp	[p] : h2o + pg120 --> 1agpg120 + ddca + h	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G140pp	[p] : h2o + pg140 --> 1agpg140 + h + ttdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G141pp	[p] : h2o + pg141 --> 1agpg141 + h + ttdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G160pp	[p] : h2o + pg160 --> 1agpg160 + h + hdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G161pp	[p] : h2o + pg161 --> 1agpg161 + h + hdcea	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G180pp	[p] : h2o + pg180 --> 1agpg180 + h + ocdca	forward only				0
+"[""MONOMER0-341""]"	3.1.1.4	PLIPA2G181pp	[p] : h2o + pg181 --> 1agpg181 + h + ocdcea	forward only				0
+"[""MONOMER0-541""]"	2.7.1.23	NADK	[c] : atp + nad --> adp + h + nadp	forward only				0
+"[""N-ACETYLGLUTPREDUCT-MONOMER""]"	1.2.1.38	AGPR	[c] : acg5sa + nadp + pi <==> acg5p + h + nadph	reversible				
+"[""N-ACETYLTRANSFER-MONOMER""]"	2.3.1.1	ACGS	[c] : accoa + glu-L --> acglu + coa + h	forward only				0
+"[""NAD-SYNTH-MONOMER""]"	6.3.1.5	NADS1	[c] : atp + dnad + nh4 --> amp + h + nad + ppi	forward only				0
+"[""NADH-DHI-CPLX""]"	1.6.5.3	NADH16pp	(4) h[c] + nadh[c] + q8[c] --> (3) h[p] + nad[c] + q8h2[c]	forward only				0
+"[""NADH-DHI-CPLX""]"	1.6.5.3	NADH17pp	(4) h[c] + mqn8[c] + nadh[c] --> (3) h[p] + mql8[c] + nad[c]	forward only				0
+"[""NADH-DHI-CPLX""]"	1.6.5.3	NADH18pp	2dmmq8[c] + (4) h[c] + nadh[c] --> 2dmmql8[c] + (3) h[p] + nad[c]	forward only				0
+"[""NADH-DHII-MONOMER""]"	1.6.5.3	NADH10	[c] : h + mqn8 + nadh --> mql8 + nad	forward only				0
+"[""NADH-DHII-MONOMER""]"	1.6.5.3	NADH5	[c] : h + nadh + q8 --> nad + q8h2	forward only				0
+"[""NADH-DHII-MONOMER""]"	1.6.5.3	NADH9	[c] : 2dmmq8 + h + nadh --> 2dmmql8 + nad	forward only				0
+"[""NAG1P-URIDYLTRANS-MONOMER""]"	2.3.1.157	G1PACT	[c] : accoa + gam1p --> acgam1p + coa + h	forward only				0
+"[""NAG1P-URIDYLTRANS-MONOMER""]"	2.7.7.23	UAGDP	[c] : acgam1p + h + utp --> ppi + uacgam	forward only				0
+"[""NAG6PDEACET-MONOMER""]"	3.5.1.25	AGDC	[c] : acgam6p + h2o --> ac + gam6p	forward only				0
+"[""NANK-MONOMER""]"	2.7.1.60	AMANK	[c] : acmana + atp --> acmanap + adp + h	forward only				0
+"[""NAP-CPLX""]"	1.7.99.4	NO3R1bpp	no3[p] + q8h2[c] --> h2o[p] + no2[p] + q8[c]	forward only				0
+"[""NAP-CPLX""]"	1.7.99.4	NO3R2bpp	mql8[c] + no3[p] --> h2o[p] + mqn8[c] + no2[p]	forward only				0
+"[""NAPHTHOATE-SYN-MONOMER""]"	4.1.3.36	NPHS	[c] : sbzcoa --> coa + dhna	forward only				0
+"[""NARJ-MONOMER"", ""NITRATREDUCTA-CPLX""]"	1.7.99.4	NO3R1pp	(2) h[c] + no3[c] + q8h2[c] --> (2) h[p] + h2o[c] + no2[c] + q8[c]	forward only				0
+"[""NARW-MONOMER"", ""NITRATREDUCTZ-CPLX""]"	1.7.99.4	NO3R1pp	(2) h[c] + no3[c] + q8h2[c] --> (2) h[p] + h2o[c] + no2[c] + q8[c]	forward only				0
+"[""NICONUCADENYLYLTRAN-MONOMER""]"	2.7.7.1	NMNAT	[c] : atp + h + nmn --> nad + ppi	forward only				0
+"[""NICONUCADENYLYLTRAN-MONOMER""]"	2.7.7.18	NNATr	[c] : atp + h + nicrnt <==> dnad + ppi	reversible				
+"[""NICOTINAMID-MONOMER""]"	3.5.1.19	NNAM	[c] : h2o + ncam --> nac + nh4	forward only				0
+"[""NICOTINATEPRIBOSYLTRANS-MONOMER""]"	2.4.2.11	NAMNPP	[c] : atp + h2o + nac + prpp --> adp + nicrnt + pi + ppi	forward only				0
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK1	[c] : atp + gdp <==> adp + gtp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK2	[c] : atp + udp <==> adp + utp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK3	[c] : atp + cdp <==> adp + ctp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK4	[c] : atp + dtdp <==> adp + dttp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK5	[c] : atp + dgdp <==> adp + dgtp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK6	[c] : atp + dudp <==> adp + dutp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK7	[c] : atp + dcdp <==> adp + dctp	reversible				
+"[""NUCLEOSIDE-DIP-KIN-MONOMER""]"	2.7.4.6	NDPK8	[c] : atp + dadp <==> adp + datp	reversible				
+"[""O-SUCCHOMOSERLYASE-MONOMER""]"	4.2.99.9	SHSL1	[c] : cys-L + suchms --> cyst-L + h + succ	forward only				0
+"[""O-SUCCINYLBENZOATE-COA-LIG-MONOMER""]"	6.2.1.26	SUCBZL	[c] : atp + coa + sucbz --> amp + ppi + sbzcoa	forward only				0
+"[""OHMETHYLBILANESYN-MONOMER""]"	4.3.1.8	HMBS	[c] : h2o + (4) ppbng --> hmbil + (4) nh4	forward only				0
+"[""ORNDECARBOX-BIO-MONOMER""]"	4.1.1.17	ORNDC	[c] : h + orn --> co2 + ptrc	forward only				0
+"[""ORNDECARBOXDEG-MONOMER""]"	4.1.1.17	ORNDC	[c] : h + orn --> co2 + ptrc	forward only				0
+"[""OROPRIBTRANS-MONOMER""]"	2.4.2.10	ORPT	[c] : orot5p + ppi <==> orot + prpp	reversible				
+"[""OROTPDECARB-MONOMER""]"	4.1.1.23	OMPDC	[c] : h + orot5p --> co2 + ump	forward only				0
+"[""PABASYN-COMPI-MONOMER""]"	3.5.1.2	GLUN	[c] : gln-L + h2o --> glu-L + nh4	forward only				0
+"[""PANTEPADENYLYLTRAN-MONOMER""]"	2.7.7.3	PTPATi	[c] : atp + h + pan4p --> dpcoa + ppi	forward only				0
+"[""PANTOATE-BETA-ALANINE-LIG-MONOMER""]"	6.3.2.1	PANTS	[c] : ala-B + atp + pant-R --> amp + h + pnto-R + ppi	forward only				0
+"[""PANTOTHENATE-KIN-MONOMER""]"	2.7.1.33	PNTK	[c] : atp + pnto-R --> 4ppan + adp + h	forward only				0
+"[""PAPSSULFOTRANS-MONOMER""]"	1.8.4.8	PAPSR	[c] : paps + trdrd --> (2) h + pap + so3 + trdox	forward only				0
+"[""PAPSSULFOTRANS-MONOMER""]"	1.8.4.8	PAPSR	[c] : paps + trdrd --> (2) h + pap + so3 + trdox	forward only				0
+"[""PAPSSULFOTRANS-MONOMER""]"	1.8.4.8	PAPSR2	[c] : grxrd + paps --> grxox + (2) h + pap + so3	forward only				0
+"[""PAPSSULFOTRANS-MONOMER""]"	1.8.4.8	PAPSR2	[c] : grxrd + paps --> grxox + (2) h + pap + so3	forward only				0
+"[""PAPSSULFOTRANS-MONOMER""]"	1.8.4.8	PAPSR2	[c] : grxrd + paps --> grxox + (2) h + pap + so3	forward only				0
+"[""PAPSSULFOTRANS-MONOMER""]"	1.8.4.8	PAPSR2	[c] : grxrd + paps --> grxox + (2) h + pap + so3	forward only				0
+"[""PD04413""]"	2.7.7.1	NMNAT	[c] : atp + h + nmn --> nad + ppi	forward only				0
+"[""PDXH-MONOMER""]"	1.4.3.5	PDX5POi	[c] : o2 + pdx5p --> h2o2 + pydx5p	forward only				0
+"[""PDXH-MONOMER""]"	1.4.3.5	PYAM5PO	[c] : h2o + o2 + pyam5p --> h2o2 + nh4 + pydx5p	forward only				0
+"[""PDXK-MONOMER""]"	2.7.1.49	HMPK1	[c] : 4ahmmp + atp --> 4ampm + adp + h	forward only				0
+"[""PDXK-MONOMER""]"	2.7.1.35	PYDAMK	[c] : atp + pydam --> adp + h + pyam5p	forward only				0
+"[""PDXK-MONOMER""]"	2.7.1.35	PYDXK	[c] : atp + pydx --> adp + h + pydx5p	forward only				0
+"[""PDXK-MONOMER""]"	2.7.1.35	PYDXNK	[c] : atp + pydxn --> adp + h + pdx5p	forward only				0
+"[""PDXY-MONOMER""]"	2.7.1.35	PYDXK	[c] : atp + pydx --> adp + h + pydx5p	forward only				0
+"[""PEPCARBOX-MONOMER""]"	4.1.1.31	PPC	[c] : co2 + h2o + pep --> h + oaa + pi	forward only				0
+"[""PEPCARBOXYKIN-MONOMER""]"	4.1.1.49	PPCK	[c] : atp + oaa --> adp + co2 + pep	forward only				0
+"[""PEPSYNTH-MONOMER""]"	2.7.9.2	PPS	[c] : atp + h2o + pyr --> amp + (2) h + pep + pi	forward only				0
+"[""PGAM2-MONOMER""]"	5.4.2.1	PGM	[c] : 2pg <==> 3pg	reversible				
+"[""PGK""]"	2.7.2.3	PGK	[c] : 3pg + atp <==> 13dpg + adp	reversible				
+"[""PGLUCISOM""]"	5.3.1.9	PGI	[c] : g6p <==> f6p	reversible				
+"[""PGLUCONDEHYDRAT-MONOMER""]"	4.2.1.12	EDD	[c] : 6pgc --> 2ddg6p + h2o	forward only				0
+"[""PGLYCDEHYDROG-MONOMER""]"	1.1.1.95	PGCD	[c] : 3pg + nad --> 3php + h + nadh	forward only				0
+"[""PGMI-MONOMER""]"	5.4.2.1	PGM	[c] : 2pg <==> 3pg	reversible				
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP120	[c] : h2o + pgp120 --> pg120 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP120pp	[p] : h2o + pgp120 --> pg120 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP140	[c] : h2o + pgp140 --> pg140 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP140pp	[p] : h2o + pgp140 --> pg140 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP141	[c] : h2o + pgp141 --> pg141 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP141pp	[p] : h2o + pgp141 --> pg141 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP160	[c] : h2o + pgp160 --> pg160 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP160pp	[p] : h2o + pgp160 --> pg160 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP161	[c] : h2o + pgp161 --> pg161 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP161pp	[p] : h2o + pgp161 --> pg161 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP180	[c] : h2o + pgp180 --> pg180 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP180pp	[p] : h2o + pgp180 --> pg180 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP181	[c] : h2o + pgp181 --> pg181 + pi	forward only				0
+"[""PGPPHOSPHAA-MONOMER""]"	3.1.3.27	PGPP181pp	[p] : h2o + pgp181 --> pg181 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA120	[c] : h2o + pa120 --> 12dgr120 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA120pp	[p] : h2o + pa120 --> 12dgr120 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA140	[c] : h2o + pa140 --> 12dgr140 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA140pp	[p] : h2o + pa140 --> 12dgr140 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA141	[c] : h2o + pa141 --> 12dgr141 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA141pp	[p] : h2o + pa141 --> 12dgr141 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA160	[c] : h2o + pa160 --> 12dgr160 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA160pp	[p] : h2o + pa160 --> 12dgr160 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA161	[c] : h2o + pa161 --> 12dgr161 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA161pp	[p] : h2o + pa161 --> 12dgr161 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA180	[c] : h2o + pa180 --> 12dgr180 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA180pp	[p] : h2o + pa180 --> 12dgr180 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA181	[c] : h2o + pa181 --> 12dgr181 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.4	PAPA181pp	[p] : h2o + pa181 --> 12dgr181 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP120	[c] : h2o + pgp120 --> pg120 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP120pp	[p] : h2o + pgp120 --> pg120 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP140	[c] : h2o + pgp140 --> pg140 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP140pp	[p] : h2o + pgp140 --> pg140 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP141	[c] : h2o + pgp141 --> pg141 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP141pp	[p] : h2o + pgp141 --> pg141 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP160	[c] : h2o + pgp160 --> pg160 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP160pp	[p] : h2o + pgp160 --> pg160 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP161	[c] : h2o + pgp161 --> pg161 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP161pp	[p] : h2o + pgp161 --> pg161 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP180	[c] : h2o + pgp180 --> pg180 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP180pp	[p] : h2o + pgp180 --> pg180 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP181	[c] : h2o + pgp181 --> pg181 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.1.3.27	PGPP181pp	[p] : h2o + pgp181 --> pg181 + pi	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.6.1.27	UDCPDP	[c] : h2o + udcpdp --> h + pi + udcpp	forward only				0
+"[""PGPPHOSPHAB-MONOMER""]"	3.6.1.27	UDCPDPpp	[p] : h2o + udcpdp --> h + pi + udcpp	forward only				0
+"[""PHENDEHYD-MONOMER""]"	1.2.1.39	ALDD19x	[c] : h2o + nad + pacald --> (2) h + nadh + pac	forward only				0
+"[""PHOSACETYLTRANS-MONOMER""]"	2.3.1.8	PTAr	[c] : accoa + pi <==> actp + coa	reversible				
+"[""PHOSGLUCOSAMINEMUT-MONOMER""]"	5.4.2.10	PGAMT	[c] : gam1p <==> gam6p	reversible				
+"[""PHOSMANMUT-MONOMER""]"	5.4.2.8	PMANM	[c] : man1p <==> man6p	reversible				
+"[""PHOSNACMURPENTATRANS-MONOMER""]"	2.7.8.13	PAPPT3	[c] : udcpp + ugmda --> uagmda + ump	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA120	[c] : cdpdddecg + glyc3p --> cmp + h + pgp120	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA140	[c] : cdpdtdecg + glyc3p --> cmp + h + pgp140	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA141	[c] : cdpdtdec7eg + glyc3p --> cmp + h + pgp141	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA160	[c] : cdpdhdecg + glyc3p --> cmp + h + pgp160	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA161	[c] : cdpdhdec9eg + glyc3p --> cmp + h + pgp161	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA180	[c] : cdpdodecg + glyc3p --> cmp + h + pgp180	forward only				0
+"[""PHOSPHAGLYPSYN-MONOMER""]"	2.7.8.5	PGSA181	[c] : cdpdodec11eg + glyc3p --> cmp + h + pgp181	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA120	[c] : cdpdddecg + ser-L --> cmp + h + ps120	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA140	[c] : cdpdtdecg + ser-L --> cmp + h + ps140	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA141	[c] : cdpdtdec7eg + ser-L --> cmp + h + ps141	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA160	[c] : cdpdhdecg + ser-L --> cmp + h + ps160	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA161	[c] : cdpdhdec9eg + ser-L --> cmp + h + ps161	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA180	[c] : cdpdodecg + ser-L --> cmp + h + ps180	forward only				0
+"[""PHOSPHASERSYN-MONOMER""]"	2.7.8.8	PSSA181	[c] : cdpdodec11eg + ser-L --> cmp + h + ps181	forward only				0
+"[""PHOSPHOGLUCMUT-MONOMER""]"	5.4.2.2	PGMT	[c] : g1p <==> g6p	reversible				
+"[""PKI-MONOMER""]"	2.7.1.40	PYK	[c] : adp + h + pep --> atp + pyr	forward only				0
+"[""PKII-MONOMER""]"	2.7.1.40	PYK	[c] : adp + h + pep --> atp + pyr	forward only				0
+"[""PORPHOBILSYNTH-MONOMER""]"	4.2.1.24	PPBNGS	[c] : (2) 5aop --> h + (2) h2o + ppbng	forward only				0
+"[""PPENTOMUT-MONOMER""]"	5.4.2.7	PPM	[c] : r1p <==> r5p	reversible				
+"[""PPENTOMUT-MONOMER""]"	5.4.2.7	PPM2	[c] : 2dr1p <==> 2dr5p	reversible				
+"[""PPK-MONOMER""]"	2.7.4.1	PPK2r	[c] : atp + ppi <==> adp + pppi	reversible				
+"[""PPK-MONOMER""]"	2.7.4.1	PPKr	[c] : atp + pi <==> adp + ppi	reversible				
+"[""PPPGPPHYDRO-MONOMER""]"	3.6.1.40	GTPDPDP	[c] : gdptp + h2o --> h + pi + ppgpp	forward only				0
+"[""PPX-MONOMER""]"	3.6.1.1	PPA	[c] : h2o + ppi --> h + (2) pi	forward only				0
+"[""PPX-MONOMER""]"	3.6.1.1	PPA2	[c] : h2o + pppi --> h + pi + ppi	forward only				0
+"[""PRAI-IGPS""]"	4.1.1.48	IGPS	[c] : 2cpr5p + h --> 3ig3p + co2 + h2o	forward only				0
+"[""PRAI-IGPS""]"	5.3.1.24	PRAIi	[c] : pran --> 2cpr5p	forward only				0
+"[""PRIBFAICARPISOM-MONOMER""]"	5.3.1.16	PRMICI	[c] : prfp <==> prlp	reversible				
+"[""PROPKIN-MONOMER""]"	2.7.2.1	ACKr	[c] : ac + atp <==> actp + adp	reversible				
+"[""PROPKIN-MONOMER""]"	2.7.2.1	PPAKr	[c] : adp + ppap <==> atp + ppa	reversible				
+"[""PROTOHEME-FERROCHELAT-MONOMER""]"	4.99.1.1	FCLT	[c] : fe2 + ppp9 --> (2) h + pheme	forward only				0
+"[""PROTOPORGENOXI-MONOMER""]"	1.3.3.4	PPPGO	[c] : (1.5) o2 + pppg9 --> (3) h2o + ppp9	forward only				0
+"[""PROTOPORGENOXI-MONOMER""]"	1.3.3.4	PPPGO3	[c] : (3) fum + pppg9 --> ppp9 + (3) succ	forward only				0
+"[""PRPPAMIDOTRANS-MONOMER""]"	2.4.2.14	GLUPRT	[c] : gln-L + h2o + prpp --> glu-L + ppi + pram	forward only				0
+"[""PRPPSYN-MONOMER""]"	2.7.6.1	PRPPS	[c] : atp + r5p <==> amp + h + prpp	reversible				
+"[""PSD-MONOMER""]"	4.1.1.65	PSD120	[c] : h + ps120 --> co2 + pe120	forward only				0
+"[""PSD-MONOMER""]"	4.1.1.65	PSD140	[c] : h + ps140 --> co2 + pe140	forward only				0
+"[""PSD-MONOMER""]"	4.1.1.65	PSD141	[c] : h + ps141 --> co2 + pe141	forward only				0
+"[""PSD-MONOMER""]"	4.1.1.65	PSD160	[c] : h + ps160 --> co2 + pe160	forward only				0
+"[""PSD-MONOMER""]"	4.1.1.65	PSD161	[c] : h + ps161 --> co2 + pe161	forward only				0
+"[""PSD-MONOMER""]"	4.1.1.65	PSD180	[c] : h + ps180 --> co2 + pe180	forward only				0
+"[""PSD-MONOMER""]"	4.1.1.65	PSD181	[c] : h + ps181 --> co2 + pe181	forward only				0
+"[""PSERPHOSPHA-MONOMER""]"	3.1.3.3	PSP_L	[c] : h2o + pser-L --> pi + ser-L	forward only				0
+"[""PSERTRANSAM-MONOMER""]"	2.6.1.52	OHPBAT	[c] : glu-L + ohpb <==> akg + phthr	reversible				
+"[""PSERTRANSAM-MONOMER""]"	2.6.1.52	PSERT	[c] : 3php + glu-L --> akg + pser-L	forward only				0
+"[""PUTA-MONOMER""]"	1.5.1.12	P5CD	[c] : 1pyr5c + (2) h2o + nad --> glu-L + h + nadh	forward only				0
+"[""PUTA-MONOMER""]"	1.5.99.8	PROD2	[c] : fad + pro-L --> 1pyr5c + fadh2 + h	forward only				0
+"[""PYRNUTRANSHYDROGEN-CPLX""]"	1.6.1.1	THD2pp	(2) h[p] + nadh[c] + nadp[c] --> (2) h[c] + nad[c] + nadph[c]	forward only				0
+"[""PYRROLINECARBREDUCT-MONOMER""]"	1.5.1.2	P5CR	[c] : 1pyr5c + (2) h + nadph --> nadp + pro-L	forward only				0
+"[""PYRUVOXID-MONOMER""]"	1.2.2.2	POX	[c] : h2o + pyr + q8 --> ac + co2 + q8h2	forward only				0
+"[""QUINOPRIBOTRANS-MONOMER""]"	2.4.2.19	NNDPR	[c] : (2) h + prpp + quln --> co2 + nicrnt + ppi	forward only				0
+"[""RELA-MONOMER""]"	2.7.6.5	GTPDPK	[c] : atp + gtp --> amp + gdptp + h	forward only				0
+"[""RFFTRANS-MONOMER""]"	2.6.1.33	TDPAGTA	[c] : dtdp4d6dg + glu-L --> akg + dtdp4addg	forward only				0
+"[""RHAMNISOM-MONOMER""]"	5.3.1.14	RMI	[c] : rmn <==> rml	reversible				
+"[""RHAMNULOKIN-MONOMER""]"	2.7.1.5	RMK	[c] : atp + rml --> adp + h + rml1p	forward only				0
+"[""RHAMNULPALDOL-MONOMER""]"	4.1.2.19	RMPA	[c] : rml1p <==> dhap + lald-L	reversible				
+"[""RIB5PISOMA-MONOMER""]"	5.3.1.6	RPI	[c] : r5p <==> ru5p-D	reversible				
+"[""RIB5PISOMB-MONOMER""]"	5.3.1.6	RPI	[c] : r5p <==> ru5p-D	reversible				
+"[""RIBF-MONOMER""]"	2.7.7.2	FMNAT	[c] : atp + fmn + h --> fad + ppi	forward only				0
+"[""RIBF-MONOMER""]"	2.7.1.26	RBFK	[c] : atp + ribflv --> adp + fmn + h	forward only				0
+"[""RIBOFLAVIN-SYN-MONOMER""]"	2.5.1.9	RBFSa	[c] : 4r5au + db4p --> dmlz + (2) h2o + pi	forward only				0
+"[""RIBOFLAVINSYNDEAM-MONOMER""]"	1.1.1.193	APRAUR	[c] : 5apru + h + nadph --> 5aprbu + nadp	forward only				0
+"[""RIBOFLAVINSYNDEAM-MONOMER""]"	3.5.4.26	DHPPDA2	[c] : 25drapp + h + h2o --> 5apru + nh4	forward only				0
+"[""RIBOKIN-MONOMER""]"	2.7.1.15	RBK	[c] : atp + rib-D --> adp + h + r5p	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR1	[c] : adp + trdrd --> dadp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR1	[c] : adp + trdrd --> dadp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR2	[c] : gdp + trdrd --> dgdp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR2	[c] : gdp + trdrd --> dgdp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR3	[c] : cdp + trdrd --> dcdp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR3	[c] : cdp + trdrd --> dcdp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR4	[c] : trdrd + udp --> dudp + h2o + trdox	forward only				0
+"[""RIBONUCLEOSIDE-DIP-REDUCTI-CPLX""]"	1.17.4.1	RNDR4	[c] : trdrd + udp --> dudp + h2o + trdox	forward only				0
+"[""RIBULOKIN-MONOMER""]"	2.7.1.16	RBK_L1	[c] : atp + rbl-L --> adp + h + ru5p-L	forward only				0
+"[""RIBULOKIN-MONOMER""]"	2.7.1.17	XYLK	[c] : atp + xylu-D --> adp + h + xu5p-D	forward only				0
+"[""RIBULOKIN-MONOMER""]"	2.7.1.53	XYLK2	[c] : atp + xylu-L --> adp + h + xu5p-L	forward only				0
+"[""RIBULP3EPIM-MONOMER""]"	5.1.3.1	RPE	[c] : ru5p-D <==> xu5p-D	reversible				
+"[""RIBULPEPIM-MONOMER""]"	5.1.3.4	RBP4E	[c] : ru5p-L <==> xu5p-D	reversible				
+"[""RPOA-MONOMER""]"	3.4.16.4	MDDCP1pp	[p] : h2o + murein5px4p --> ala-D + murein4px4p	forward only				0
+"[""RPOA-MONOMER""]"	3.4.16.4	MDDCP2pp	[p] : h2o + murein5px4px4p --> ala-D + murein4px4px4p	forward only				0
+"[""RPOA-MONOMER""]"	3.4.16.4	MDDCP3pp	[p] : h2o + murein5p5p --> ala-D + murein5p4p	forward only				0
+"[""RPOA-MONOMER""]"	3.4.16.4	MDDCP4pp	[p] : h2o + murein5p4p --> ala-D + murein4p4p	forward only				0
+"[""RPOA-MONOMER""]"	3.4.16.4	MDDCP5pp	[p] : h2o + murein5p3p --> ala-D + murein4p3p	forward only				0
+"[""S-ADENMETSYN-MONOMER""]"	2.5.1.6	METAT	[c] : atp + h2o + met-L --> amet + pi + ppi	forward only				0
+"[""SAICARSYN-MONOMER""]"	6.3.2.6	PRASCS	[c] : 5aizc + asp-L + atp --> 25aics + adp + h + pi	forward only				0
+"[""SARCOX-MONOMER""]"	1.5.3.2	MTRPOX	[c] : Nmtrp + h2o + o2 --> fald + h2o2 + trp-L	forward only				0
+"[""SARCOX-MONOMER""]"	1.5.3.1	SARCOX	[c] : h2o + o2 + sarcs --> fald + gly + h2o2	forward only				0
+"[""SERINE-O-ACETTRAN-MONOMER""]"	2.3.1.30	SERAT	[c] : accoa + ser-L <==> acser + coa	reversible				
+"[""SIROHEMESYN-MONOMER""]"	2.1.1.107	UPP3MT	[c] : (2) amet + uppg3 --> (2) ahcys + dscl + h	forward only				0
+"[""SORB6PDEHYDROG-MONOMER""]"	1.1.1.140	SBTPD	[c] : nad + sbt6p <==> f6p + h + nadh	reversible				
+"[""SPED-MONOMER""]"	4.1.1.50	ADMDC	[c] : amet + h --> ametam + co2	forward only				0
+"[""SPERMACTRAN-MONOMER""]"	2.3.1.57	SPMDAT1	[c] : accoa + spmd --> N1aspmd + coa + h	forward only				0
+"[""SPERMACTRAN-MONOMER""]"	2.3.1.57	SPMDAT2	[c] : accoa + spmd --> coa + h + n8aspmd	forward only				0
+"[""SPERMIDINESYN-MONOMER""]"	2.5.1.16	SPMS	[c] : ametam + ptrc --> 5mta + h + spmd	forward only				0
+"[""SPOT-MONOMER""]"	3.1.7.2	PPGPPDP	[c] : h2o + ppgpp --> gdp + ppi	forward only				0
+"[""SUCC-DEHASE""]"	1.3.99.1	SUCDi	[c] : q8 + succ --> fum + q8h2	forward only				0
+"[""SUCCARGDIHYDRO-MONOMER""]"	2.6.1.69	SADH	[c] : (2) h + (2) h2o + sucarg --> co2 + (2) nh4 + sucorn	forward only				0
+"[""SUCCCOASYN""]"	6.2.1.5	SUCOAS	[c] : atp + coa + succ <==> adp + pi + succoa	reversible				
+"[""SUCCORNTRANSAM-MONOMER""]"	2.6.1.11	ACOTA	[c] : acorn + akg <==> acg5sa + glu-L	reversible				
+"[""SUCCSEMIALDDEHYDROG-MONOMER""]"	1.2.1.16	SSALy	[c] : h2o + nadp + sucsal --> (2) h + nadph + succ	forward only				0
+"[""SULFITE-REDUCT-CPLX""]"	1.5.1.30	FLVR	[c] : h + nadph + ribflv --> nadp + rbflvrd	forward only				0
+"[""SULFITE-REDUCT-CPLX""]"	1.8.2.2	SULRi	[c] : (5) h + (3) nadph + so3 --> (3) h2o + h2s + (3) nadp	forward only				0
+"[""SUPEROX-DISMUTFE-MONOMER""]"	1.15.1.1	SPODM	[c] : (2) h + (2) o2s --> h2o2 + o2	forward only				0
+"[""SUPEROX-DISMUTMN-MONOMER""]"	1.15.1.1	SPODM	[c] : (2) h + (2) o2s --> h2o2 + o2	forward only				0
+"[""TDK-MONOMER""]"	2.7.1.21	TMDK1	[c] : atp + thymd --> adp + dtmp + h	forward only				0
+"[""TETRAACYLDISACC4KIN-MONOMER""]"	2.7.1.130	TDSK	[c] : atp + lipidAds --> adp + h + lipidA	forward only				0
+"[""THI-P-KIN-MONOMER""]"	2.7.4.16	TMPK	[c] : atp + thmmp --> adp + thmpp	forward only				0
+"[""THIE-MONOMER""]"	2.5.1.3	TMPPP	[c] : 2mahmp + 4mpetz + h --> ppi + thmmp	forward only				0
+"[""THIKIN-MONOMER""]"	2.7.1.89	TMK	[c] : atp + thm --> adp + h + thmmp	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A120pp	[p] : 1ddecg3p + h2o --> ddca + glyc3p + h	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A140pp	[p] : 1tdecg3p + h2o --> glyc3p + h + ttdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A141pp	[p] : 1tdec7eg3p + h2o --> glyc3p + h + ttdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A160pp	[p] : 1hdecg3p + h2o --> glyc3p + h + hdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A161pp	[p] : 1hdec9eg3p + h2o --> glyc3p + h + hdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A180pp	[p] : 1odecg3p + h2o --> glyc3p + h + ocdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1A181pp	[p] : 1odec11eg3p + h2o --> glyc3p + h + ocdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E120pp	[p] : 1agpe120 + h2o --> ddca + g3pe + h	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E140pp	[p] : 1agpe140 + h2o --> g3pe + h + ttdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E141pp	[p] : 1agpe141 + h2o --> g3pe + h + ttdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E160pp	[p] : 1agpe160 + h2o --> g3pe + h + hdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E161pp	[p] : 1agpe161 + h2o --> g3pe + h + hdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E180pp	[p] : 1agpe180 + h2o --> g3pe + h + ocdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1E181pp	[p] : 1agpe181 + h2o --> g3pe + h + ocdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G120pp	[p] : 1agpg120 + h2o --> ddca + g3pg + h	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G140pp	[p] : 1agpg140 + h2o --> g3pg + h + ttdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G141pp	[p] : 1agpg141 + h2o --> g3pg + h + ttdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G160pp	[p] : 1agpg160 + h2o --> g3pg + h + hdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G161pp	[p] : 1agpg161 + h2o --> g3pg + h + hdcea	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G180pp	[p] : 1agpg180 + h2o --> g3pg + h + ocdca	forward only				0
+"[""THIOESTERI-MONOMER""]"	3.1.1.5	LPLIPAL1G181pp	[p] : 1agpg181 + h2o --> g3pg + h + ocdcea	forward only				0
+"[""THIOREDOXIN-REDUCT-NADPH-CPLX""]"	1.8.1.9	TRDR	[c] : h + nadph + trdox --> nadp + trdrd	forward only				0
+"[""THREODEHYD-MONOMER""]"	1.1.1.103	THRD	[c] : nad + thr-L --> 2aobut + h + nadh	forward only				0
+"[""THRESYN-MONOMER""]"	4.2.3.1	THRS	[c] : h2o + phom --> pi + thr-L	forward only				0
+"[""THYMIDYLATESYN-MONOMER""]"	2.1.1.45	TMDS	[c] : dump + mlthf --> dhf + dtmp	forward only				0
+"[""THZ-KIN-MONOMER""]"	2.7.1.50	HETZK	[c] : 4mhetz + atp --> 4mpetz + adp + h	forward only				0
+"[""TPI-MONOMER""]"	5.3.1.1	TPI	[c] : dhap <==> g3p	reversible				
+"[""TRANSALDOLA-MONOMER""]"	2.2.1.2	TALA	[c] : g3p + s7p <==> e4p + f6p	reversible				
+"[""TRANSALDOLB-MONOMER""]"	2.2.1.2	TALA	[c] : g3p + s7p <==> e4p + f6p	reversible				
+"[""TRANSKETOI-MONOMER""]"	2.2.1.1	TKT1	[c] : r5p + xu5p-D <==> g3p + s7p	reversible				
+"[""TRANSKETOI-MONOMER""]"	2.2.1.1	TKT2	[c] : e4p + xu5p-D <==> f6p + g3p	reversible				
+"[""TRANSKETOII-MONOMER""]"	2.2.1.1	TKT1	[c] : r5p + xu5p-D <==> g3p + s7p	reversible				
+"[""TRANSKETOII-MONOMER""]"	2.2.1.1	TKT2	[c] : e4p + xu5p-D <==> f6p + g3p	reversible				
+"[""TRE6PHYDRO-MONOMER""]"	3.2.1.93	TRE6PH	[c] : h2o + tre6p --> g6p + glc-D	forward only				0
+"[""TREHALACYTO-MONOMER""]"	3.2.1.28	TREH	[c] : h2o + tre --> (2) glc-D	forward only				0
+"[""TREHALAPERI-MONOMER""]"	3.2.1.28	TREHpp	[p] : h2o + tre --> (2) glc-D	forward only				0
+"[""TREHALOSE6PSYN-MONOMER""]"	2.4.1.15	TRE6PS	[c] : g6p + udpg --> h + tre6p + udp	forward only				0
+"[""TREHALOSEPHOSPHASYN-MONOMER""]"	3.1.3.12	TRE6PP	[c] : h2o + tre6p --> pi + tre	forward only				0
+"[""TRYPSYN""]"	4.2.1.20	TRPS1	[c] : 3ig3p + ser-L --> g3p + h2o + trp-L	forward only				0
+"[""TRYPSYN""]"	4.2.1.20	TRPS2	[c] : indole + ser-L --> h2o + trp-L	forward only				0
+"[""TRYPSYN""]"	4.2.1.20	TRPS3	[c] : 3ig3p --> g3p + indole	forward only				0
+"[""TRYPTOPHAN-MONOMER""]"	4.1.99.1	CYSDS	[c] : cys-L + h2o --> h2s + nh4 + pyr	forward only				0
+"[""TRYPTOPHAN-MONOMER""]"	4.3.1.17	SERD_L	[c] : ser-L --> nh4 + pyr	forward only				0
+"[""TRYPTOPHAN-MONOMER""]"	4.1.99.1	TRPAS2	[c] : h2o + trp-L <==> indole + nh4 + pyr	reversible				
+"[""TSA-REDUCT-MONOMER""]"	1.1.1.60	TRSARr	[c] : 2h3oppan + h + nadh <==> glyc-R + nad	reversible				
+"[""TYRB-MONOMER""]"	2.6.1.42	LEUTAi	[c] : 4mop + glu-L --> akg + leu-L	forward only				0
+"[""TYRB-MONOMER""]"	2.6.1.58	PHETA1	[c] : akg + phe-L <==> glu-L + phpyr	reversible				
+"[""TYRB-MONOMER""]"	2.6.1.5	TYRTA	[c] : akg + tyr-L <==> 34hpp + glu-L	reversible				
+"[""UDK-MONOMER""]"	2.7.1.48	URIK2	[c] : gtp + uri --> gdp + h + ump	forward only				0
+"[""UDP-NACMUR-ALA-LIG-MONOMER""]"	6.3.2.8	UAMAS	[c] : ala-L + atp + uamr --> adp + h + pi + uama	forward only				0
+"[""UDP-NACMURALA-GLU-LIG-MONOMER""]"	6.3.2.9	UAMAGS	[c] : atp + glu-D + uama --> adp + h + pi + uamag	forward only				0
+"[""UDP-NACMURALGLDAPAALIG-MONOMER""]"	6.3.2.15	UGMDDS	[c] : alaala + atp + ugmd --> adp + h + pi + ugmda	forward only				0
+"[""UDP-NACMURALGLDAPLIG-MONOMER""]"	6.3.2.13	UAAGDS	[c] : 26dap-M + atp + uamag --> adp + h + pi + ugmd	forward only				0
+"[""UDPGLCNACEPIM-MONOMER""]"	5.1.3.14	UAG2E	[c] : uacgam <==> uacmam	reversible				
+"[""UDPGLUCEPIM-MONOMER""]"	5.1.3.2	UDPG4E	[c] : udpg <==> udpgal	reversible				
+"[""UDPNACETYLGLUCOSAMACYLTRANS-MONOMER""]"	2.3.1.129	UAGAAT	[c] : 3hmrsACP + uacgam <==> ACP + u3aga	reversible				
+"[""UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER""]"	2.5.1.7	UAGCVT	[c] : pep + uacgam --> pi + uaccg	forward only				0
+"[""UDPNACETYLMURAMATEDEHYDROG-MONOMER""]"	1.1.1.158	UAPGR	[c] : h + nadph + uaccg --> nadp + uamr	forward only				0
+"[""UGD-MONOMER""]"	1.1.1.22	UDPGD	[c] : h2o + (2) nad + udpg --> (3) h + (2) nadh + udpglcur	forward only				0
+"[""UMPKI-MONOMER""]"	2.7.4.14	UMPK	[c] : atp + ump <==> adp + udp	reversible				
+"[""URACIL-PRIBOSYLTRANS-MONOMER""]"	2.4.2.9	UPPRT	[c] : prpp + ura --> ppi + ump	forward only				0
+"[""UROGENDECARBOX-MONOMER""]"	4.1.1.37	UPPDC1	[c] : (4) h + uppg3 --> (4) co2 + cpppg3	forward only				0
+"[""UROGENIIISYN-MONOMER""]"	4.2.1.75	UPP3S	[c] : hmbil --> h2o + uppg3	forward only				0
+"[""URPHOS-MONOMER""]"	2.4.2.2	PYNP2r	[c] : pi + uri <==> r1p + ura	reversible				
+"[""USHA-MONOMER""]"	3.1.3.5	NTD10pp	[p] : h2o + xmp --> pi + xtsn	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD11pp	[p] : h2o + imp --> ins + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD12pp	[p] : dimp + h2o --> din + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD1pp	[p] : dump + h2o --> duri + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD2pp	[p] : h2o + ump --> pi + uri	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD3pp	[p] : dcmp + h2o --> dcyt + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD4pp	[p] : cmp + h2o --> cytd + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD5pp	[p] : dtmp + h2o --> pi + thymd	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD6pp	[p] : damp + h2o --> dad-2 + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD7pp	[p] : amp + h2o --> adn + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD8pp	[p] : dgmp + h2o --> dgsn + pi	forward only				0
+"[""USHA-MONOMER""]"	3.1.3.5	NTD9pp	[p] : gmp + h2o --> gsn + pi	forward only				0
+"[""USHA-MONOMER""]"	3.6.1.45	UACGALPpp	[p] : h2o + udpacgal --> acgal1p + (2) h + ump	forward only				0
+"[""USHA-MONOMER""]"	3.6.1.45	UACGAMPpp	[p] : h2o + uacgam --> acgam1p + (2) h + ump	forward only				0
+"[""USHA-MONOMER""]"	3.6.1.45	UDPGALPpp	[p] : h2o + udpgal --> gal1p + (2) h + ump	forward only				0
+"[""USHA-MONOMER""]"	3.6.1.45	UDPGPpp	[p] : h2o + udpg --> g1p + (2) h + ump	forward only				0
+"[""USHA-MONOMER""]"	3.6.1.45	UGLCURPpp	[p] : h2o + udpglcur --> glcur1p + (2) h + ump	forward only				0
+"[""UXAC-MONOMER""]"	5.3.1.12	GUI1	[c] : glcur <==> fruur	reversible				
+"[""UXAC-MONOMER""]"	5.3.1.12	GUI2	[c] : galur <==> tagur	reversible				
+"[""VALINE-PYRUVATE-AMINOTRANSFER-MONOMER""]"	2.6.1.66	VPAMT	[c] : 3mob + ala-L --> pyr + val-L	forward only				0
+"[""XANTHOSINEPHOSPHORY-MONOMER""]"	2.4.2.1	PUNP3	[c] : gsn + pi <==> gua + r1p	reversible				
+"[""XANTHOSINEPHOSPHORY-MONOMER""]"	2.4.2.1	PUNP4	[c] : dgsn + pi <==> 2dr1p + gua	reversible				
+"[""XANTHOSINEPHOSPHORY-MONOMER""]"	2.4.2.1	PUNP5	[c] : ins + pi <==> hxan + r1p	reversible				
+"[""XANTHOSINEPHOSPHORY-MONOMER""]"	2.4.2.1	PUNP6	[c] : din + pi <==> 2dr1p + hxan	reversible				
+"[""XANTHOSINEPHOSPHORY-MONOMER""]"	2.4.2.1	PUNP7	[c] : pi + xtsn <==> r1p + xan	reversible				
+"[""XYLISOM-MONOMER""]"	5.3.1.5	XYLI1	[c] : xyl-D <==> xylu-D	reversible				
+"[""XYLISOM-MONOMER""]"	5.3.1.5	XYLI2	[c] : glc-D <==> fru	reversible				
+"[""XYLULOKIN-MONOMER""]"	2.7.1.17	XYLK	[c] : atp + xylu-D --> adp + h + xu5p-D	forward only				0
