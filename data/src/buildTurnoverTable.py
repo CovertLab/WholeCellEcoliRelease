@@ -1,6 +1,6 @@
 import csv
 import os
-
+import json
 
 def buildTurnoverTable():
 	enzymeDict = {}
