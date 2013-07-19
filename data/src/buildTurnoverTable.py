@@ -2,7 +2,7 @@ import csv
 import os
 import json
 
-def buildTurnoverTable():
+def createTurnoverTable():
 	enzymeDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
@@ -45,3 +45,57 @@ class enzyme():
 		self.reacID = []
 		self.reacStoich = []
 		self.direction = []
+
+
+
+
+
+
+
+
+def getBRENDA():
+	# Build complete list of EC numbers in Feist
+	ECnumbers = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Feist_reactions.csv')) as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in dictreader:
+			if row['proteinClass'] != '':
+			ECnumbers.append(row['proteinClass'])
+		ECnumbers = set(ECnumbers)
+		ECnumbers = list(ECnumbers)
+
+	# Query BRENDA for data on all EC numbers
+	reac = parseBrendaReaction("ecNumber*2.3.1.40#organism*Escherichia coli")
+	result = client.getTurnoverNumber("ecNumber*2.3.1.40#organism*Escherichia coli")
+	ipdb.set_trace()
+
+def parseBrendaReaction(line):
+	reac = BRENDA_reaction()
+	return parseBrendaEntry(reac,line)
+
+def parseBrendaEntry(obj, line):
+	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
+	client = WSDL.Proxy(wsdl)
+	result = client.getReaction(line)
+	entries = result.split('!')
+	for e in entries:
+		fields = e.split('#')
+		for f in fields:
+			if len(f.split('*')) > 1:
+				attr_name = f.split('*')[0]
+				attr_value = f.split('*')[1]
+				setattr(obj, attr_name, attr_value)
+	return obj
+
+class BRENDA_reaction():
+	def __init__(self):
+		self.ecNumber = None
+		self.reaction = None
+		self.commentary = None
+		self.literature = None
+		self.organism = None
+
+class BRENDA_turnover():
+	def __init__(self):
+		pass
