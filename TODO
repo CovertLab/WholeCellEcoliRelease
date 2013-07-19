@@ -1,26 +1,4 @@
-Priority: High
-Stoichiometry of complexes is wrong
 
-If I use the following BioVelo query on Ecocyc:
-
-html-sort-ascending([(Z1^?FRAME-ID, Z1^?COMPONENTS) : Z1<-ECOLI^^Protein-Complexes],1)
-
-I see that `CPLX0-221`, for example, is made up of
-
-RNA polymerase, core enzyme and RNA polymerase, sigma 19 factor
-
-which have the following frame-ids:
-
-`APORNAP-CPLX` and `PD00440`
-
-However, in `data/Ecocyc_protein_complexes.csv` the subunits are listed as:
-
-((PD00440, 1) (APORNAP-CPLX, 1) (EG10893-MONOMER, 2) (RPOC-MONOMER, 1) (RPOB-MONOMER, 1))
-
-Note that `(EG10893-MONOMER, 2) (RPOC-MONOMER, 1) (RPOB-MONOMER, 1))` are the subunits of `APORNAP-CPLX`.
-So the subunits are getting double-counted.
-
-----------
 
 Priority: Medium
 
