@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+
 import csv
 import os
 import json
+from SOAPpy import WSDL
+
 
 def createTurnoverTable():
 	enzymeDict = {}
@@ -61,7 +65,7 @@ def getBRENDA():
 
 		for row in dictreader:
 			if row['proteinClass'] != '':
-			ECnumbers.append(row['proteinClass'])
+				ECnumbers.append(row['proteinClass'])
 		ECnumbers = set(ECnumbers)
 		ECnumbers = list(ECnumbers)
 
@@ -73,6 +77,10 @@ def getBRENDA():
 def parseBrendaReaction(line):
 	reac = BRENDA_reaction()
 	return parseBrendaEntry(reac,line)
+
+def parseBrendaTurnover(line):
+	turn = BRENDA_turnover()
+	return parseBrenda(turn,line)
 
 def parseBrendaEntry(obj, line):
 	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
