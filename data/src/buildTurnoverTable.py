@@ -4,6 +4,7 @@ import csv
 import os
 import json
 from SOAPpy import WSDL
+import ipdb
 
 
 def buildTurnoverTable():
@@ -43,6 +44,7 @@ def buildTurnoverTable():
 			# Look for forward rate in E. coli. If none found in BRENDA query for any organism and
 			# take the maximum value of that search.
 			parseBrendaTurnover("ecNumber*" + e.EC[i] + "#organism*Escherichia coli")
+			ipdb.set_trace()
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
@@ -90,7 +92,6 @@ def getBRENDA():
 
 	# Query BRENDA for data on all EC numbers
 	reac = parseBrendaReaction("ecNumber*2.3.1.40#organism*Escherichia coli")
-	result = client.getTurnoverNumber("ecNumber*2.3.1.40#organism*Escherichia coli")
 	ipdb.set_trace()
 
 def parseBrendaReaction(line):
@@ -99,7 +100,7 @@ def parseBrendaReaction(line):
 
 def parseBrendaTurnover(line):
 	turn = BRENDA_turnover()
-	return parseBrenda(turn,line)
+	return parseBrendaEntry(turn,line)
 
 def parseBrendaEntry(obj, line):
 	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
