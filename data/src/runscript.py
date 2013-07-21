@@ -682,7 +682,7 @@ def parseProteinMonomers():
 			location = row[2]
 			if location != '?':
 				location = [locationSynDict[location]]
-				proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Lopez Campistrous 2005.\n'
+				proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Lopez Campistrous 2005.'
 			else:
 				location = []
 			proteinMonomerDict[proteinMonomerFrameId].location = location
@@ -729,7 +729,7 @@ def parseProteinMonomers():
 				location = row[2]
 				if proteinMonomerDict[proteinMonomerFrameId].location == [] and found:
 					location = [locationSynDict[location]]
-					proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.\n'
+					proteinMonomerDict[proteinMonomerFrameId].comments += 'Location information from Han 2011.'
 					proteinMonomerDict[proteinMonomerFrameId].location = location
 
 	s = 'Locations found in E. coli K-12 and B for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
@@ -763,7 +763,7 @@ def parseProteinMonomers():
 					if proteinMonomerDict.has_key(frameId):
 						if proteinMonomerDict[frameId].location == []:
 							proteinMonomerDict[frameId].location = parsedLocations
-							proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.\n'
+							proteinMonomerDict[frameId].comments += 'Localization generated from unambiguous Ecocyc data.'
 
 	s = 'Unambiguous locations found in Ecocyc for ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
 	writeOut(s, logFile)
@@ -782,7 +782,7 @@ def parseProteinMonomers():
 				proteinMonomerDict[key].location = ['CCO-CYTOSOL']
 			else:
 				proteinMonomerDict[key].location = ['CCO-MEMBRANE']
-			proteinMonomerDict[key].comments += 'Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.\n'
+			proteinMonomerDict[key].comments += 'Location calculated to be either CCO-CYTOSOL or CCO-MEMBRANE based on GRAVY.'
 
 	s = 'Gravy used to fill in rest ' + str(len([1 for pM in [proteinMonomerDict[pmId] for pmId in proteinMonomerDict.iterkeys()] if pM.location != []]))
 	writeOut(s, logFile)
@@ -793,7 +793,7 @@ def parseProteinMonomers():
 		csvreader.next()
 		for row in csvreader:
 			proteinMonomerDict[row[0]].location = [row[1]]
-			proteinMonomerDict[row[0]].comments += 'Location manually re-set.\n'
+			proteinMonomerDict[row[0]].comments += 'Location manually re-set.'
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'wb') as csvfile:
@@ -837,7 +837,7 @@ def parseRna():
 				newRna.modifiedForm = modifiedForm
 
 				newRna.location = ['CCO-CYTOSOL']
-				newRna.comments += 'Assumed in CCO-CYTOSOL\n'
+				newRna.comments += 'Assumed in CCO-CYTOSOL'
 
 				rnaDict[newRna.frameId] = newRna
 
