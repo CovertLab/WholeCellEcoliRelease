@@ -6,7 +6,7 @@ import json
 from SOAPpy import WSDL
 
 
-def createTurnoverTable():
+def buildTurnoverTable():
 	enzymeDict = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
