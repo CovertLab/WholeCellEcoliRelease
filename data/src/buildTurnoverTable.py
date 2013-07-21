@@ -8,6 +8,7 @@ from SOAPpy import WSDL
 
 def buildTurnoverTable():
 	enzymeDict = {}
+	# Build all enzymes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		dictreader.next()
@@ -24,23 +25,38 @@ def buildTurnoverTable():
 					enzymeDict[iso].reacID.append(row['Frame ID'])
 					enzymeDict[iso].reacStoich.append(row['Stoichiometry (pH 7.2)'])
 					enzymeDict[iso].direction.append(row['Direction'])
+					enzymeDict[iso].reactionCount += 1
+					enzymeDict[iso].forwardTurnover.append(None)
+					enzymeDict[iso].forwardTurnoverUnits.append(None)
+					enzymeDict[iso].reverseTurnover.append(None)
+					enzymeDict[iso].reverseTurnoverUnits.append(None)
+					enzymeDict[iso].comments.append('')
+
+	# Get kinetics that can be automatically gotten
+	for e in [enzymeDict[x] for x in enzymeDict.iterkeys()]:
+		for i in range(e.reactionCount):
+			# Set reverse rate if known to only progress forward
+			if e.direction[i] == 'forward only':
+				e.reverseTurnover[i] = 0
+				e.comments[i] += 'Forward only, reverse kinetics set to zero.'
+
+			# Look for forward rate in E. coli. If none found in BRENDA query for any organism and
+			# take the maximum value of that search.
+			parseBrendaTurnover("ecNumber*" + e.EC[i] + "#organism*Escherichia coli")
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Turnover Forward (s^-1)', 'Turnover Reverse (s^-1)', 'Comments'])
+		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Forward', 'Units', 'Reverse', 'Units', 'Comments'])
 
 		keys = enzymeDict.keys()
 		keys.sort()
 
 		for key in keys:
 			e = enzymeDict[key]
-			for i in range(len(e.EC)):
-				reverseSet = None
-				if e.direction[i] == 'forward only':
-					reverseSet = 0
-				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], None, reverseSet])
+			for i in range(e.reactionCount):
+				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], e.forwardTurnover[i], e.forwardTurnoverUnits[i], e.reverseTurnover[i], e.reverseTurnoverUnits[i], e.comments[i]])
 
 class enzyme():
 	def __init__(self):
@@ -49,9 +65,12 @@ class enzyme():
 		self.reacID = []
 		self.reacStoich = []
 		self.direction = []
-
-
-
+		self.forwardTurnover = []
+		self.reverseTurnover = []
+		self.forwardTurnoverUnits = []
+		self.reverseTurnoverUnits = []
+		self.reactionCount = 0
+		self.comments = []
 
 
 
