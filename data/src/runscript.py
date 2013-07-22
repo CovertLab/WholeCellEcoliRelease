@@ -895,7 +895,7 @@ def parseProteinMonomers_modified():
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
-		modFromRxn = json.loads(jsonfile.read())
+		modFormRxn = json.loads(jsonfile.read())
 
 
 	proteinMonomerDict_modified = {}
@@ -908,6 +908,26 @@ def parseProteinMonomers_modified():
 					pm.frameId = frameId
 					pm.unmodifiedForm = row['Frame ID']
 					pm.location = json.loads(row['Location'])
+
+					rxn_raw = modFormRxn[pm.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+
+						for rxn in rxn_raw:
+							for rxn_species in rxn[1]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId:
+									production_reaction.append(rxn)
+
+						if len(production_reaction) > 1:
+							ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[1]
+
+							pm.reactionId = rxnId
+
 
 
 
