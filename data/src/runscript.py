@@ -872,6 +872,10 @@ def parseProteinMonomers():
 	logFile.close()
 
 def parseProteinMonomers_modified():
+	# Load location abbreviations
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'rb') as jsonfile:
+		locationEquivDict = json.loads(jsonfile.read())
+
 	# Build cache of modified form reactions
 	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
