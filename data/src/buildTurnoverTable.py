@@ -43,7 +43,7 @@ def buildTurnoverTable():
 
 			# Look for forward rate in E. coli. If none found in BRENDA query for any organism and
 			# take the maximum value of that search.
-			parseBrendaTurnover("ecNumber*" + e.EC[i] + "#organism*Escherichia coli")
+			x = parseBrendaTurnover("ecNumber*" + e.EC[i] + "#organism*Escherichia coli")
 			ipdb.set_trace()
 
 	# Write output
@@ -75,28 +75,9 @@ class enzyme():
 		self.comments = []
 
 
-
-
-
-def getBRENDA():
-	# Build complete list of EC numbers in Feist
-	ECnumbers = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Feist_reactions.csv')) as csvfile:
-		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
-
-		for row in dictreader:
-			if row['proteinClass'] != '':
-				ECnumbers.append(row['proteinClass'])
-		ECnumbers = set(ECnumbers)
-		ECnumbers = list(ECnumbers)
-
-	# Query BRENDA for data on all EC numbers
-	reac = parseBrendaReaction("ecNumber*2.3.1.40#organism*Escherichia coli")
-	ipdb.set_trace()
-
-def parseBrendaReaction(line):
-	reac = BRENDA_reaction()
-	return parseBrendaEntry(reac,line)
+# def parseBrendaReaction(line):
+# 	reac = BRENDA_reaction()
+# 	return parseBrendaEntry(reac,line)
 
 def parseBrendaTurnover(line):
 	turn = BRENDA_turnover()
@@ -116,13 +97,13 @@ def parseBrendaEntry(obj, line):
 				setattr(obj, attr_name, attr_value)
 	return obj
 
-class BRENDA_reaction():
-	def __init__(self):
-		self.ecNumber = None
-		self.reaction = None
-		self.commentary = None
-		self.literature = None
-		self.organism = None
+# class BRENDA_reaction():
+# 	def __init__(self):
+# 		self.ecNumber = None
+# 		self.reaction = None
+# 		self.commentary = None
+# 		self.literature = None
+# 		self.organism = None
 
 class BRENDA_turnover():
 	def __init__(self):
