@@ -969,7 +969,7 @@ def parseProteinMonomers_modified():
 								pst = int(float(p[1]))
 								pid = str(p[0])
 								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									rid = metaboliteEcocycToFeistIdConversion[pid]
+									pid = metaboliteEcocycToFeistIdConversion[pid]
 
 								if pst > 1:
 									pm.reaction += '(' + str(pst) + ') '
