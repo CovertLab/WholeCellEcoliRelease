@@ -14,6 +14,69 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
+def getEcocycModFormReactions(cmplx):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+	L = []
+	for rxn in dom.getElementsByTagName("appears-in-right-side-of"):
+		elemRxn = rxn.getElementsByTagName("Reaction")
+		if len(elemRxn) > 0:
+			fId = elemRxn[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a reaction frame id."
+		L.append((fId, getEcocycReactionStoich(fId)))
+	for rxn in dom.getElementsByTagName("appears-in-left-side-of"):
+		elemRxn = rxn.getElementsByTagName("Reaction")
+		if len(elemRxn) > 0:
+			fId = elemRxn[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a reaction frame id."
+		L.append((fId, getEcocycReactionStoich(fId)))
+	return L
+	
+
+def getEcocycReactionStoich(rxn):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % rxn
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+	L = []
+	for left in dom.getElementsByTagName("left"):
+		elemProt = left.getElementsByTagName("Protein")
+		elemRna = left.getElementsByTagName("RNA")
+		elemCmpnd = left.getElementsByTagName("Compound")
+		if len(elemProt) > 0:
+			fId = elemProt[0].getAttribute("frameid")
+		elif len(elemRna) > 0:
+			fId = elemRna[0].getAttribute("frameid")
+		elif len(elemCmpnd) > 0:
+			fId = elemCmpnd[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a frame id for LHS reactant."
+		elemCoeff = left.getElementsByTagName("coefficient")
+		if len(elemCoeff) > 0:
+			coeff = unicode(-1 * float(elemCoeff[0].childNodes[0].data))
+		else:
+			coeff = u"-1"
+		L.append((fId, coeff))
+	for right in dom.getElementsByTagName("right"):
+		elemProt = right.getElementsByTagName("Protein")
+		elemRna = right.getElementsByTagName("RNA")
+		elemCmpnd = right.getElementsByTagName("Compound")
+		if len(elemProt) > 0:
+			fId = elemProt[0].getAttribute("frameid")
+		elif len(elemRna) > 0:
+			fId = elemRna[0].getAttribute("frameid")
+		elif len(elemCmpnd) > 0:
+			fId = elemCmpnd[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a frame id for RHS reactant."
+		elemCoeff = right.getElementsByTagName("coefficient")
+		if len(elemCoeff) > 0:
+			coeff = unicode(1 * float(elemCoeff[0].childNodes[0].data))
+		else:
+			coeff = u"1"
+		L.append((fId, coeff))
+	return L
+
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
@@ -22,6 +85,7 @@ def main():
 	parseGenes()
 	parseLocations()
 	parseProteinMonomers()
+	parseProteinMonomers_modified()
 	parseRna()
 	parseComplexes()
 	parseTranscriptionUnits()
@@ -801,11 +865,59 @@ def parseProteinMonomers():
 
 		keys = proteinMonomerDict.keys()
 		keys.sort()
-		csvwriter.writerow(['ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
 		for key in keys:
 			pm = proteinMonomerDict[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
 	logFile.close()
+
+def parseProteinMonomers_modified():
+	# Build cache of modified form reactions
+	rebuild = True
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
+		modFormRxn = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if len(json.loads(row['Modified form'])):
+					for frameId in json.loads(row['Modified form']):
+						rxn = getEcocycModFormReactions(frameId)
+						if rxn == []:
+							print 'No reaction for ' + frameId
+						print 'Loaded ' + frameId + ' formation reaction'
+						modFormRxn[frameId] = rxn
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(modFormRxn, indent = 4))
+
+	proteinMonomerDict_modified = {}
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if len(json.loads(row['Modified form'])):
+				for frameId in json.loads(row['Modified form']):
+					pm = proteinMonomer()
+					pm.frameId = frameId
+					pm.unmodifiedForm = row['Frame ID']
+					pm.location = json.loads(row['Location'])
+
+					# x = getEcocycModFormReactions(pm.frameId)
+					# ipdb.set_trace()
+
+
+					proteinMonomerDict_modified[pm.frameId] = pm
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers_modified.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = proteinMonomerDict_modified.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		for key in keys:
+			pm = proteinMonomerDict_modified[key]
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), pm.reactionId, pm.reaction, pm.comments])
 
 # Parse RNA
 def parseRna():
@@ -2058,6 +2170,9 @@ class proteinMonomer:
 		self.location = []
 		self.gene = None
 		self.modifiedForm = None
+		self.unmodifiedForm = None
+		self.reactionId = None
+		self.reaction = ''
 		self.comments = ''
 
 class rna:
