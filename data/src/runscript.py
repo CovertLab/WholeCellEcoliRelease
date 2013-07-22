@@ -890,8 +890,11 @@ def parseProteinMonomers_modified():
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
-	proteinMonomerDict_modified = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
+		modFromRxn = json.loads(jsonfile.read())
 
+
+	proteinMonomerDict_modified = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		for row in dictreader:
@@ -902,8 +905,6 @@ def parseProteinMonomers_modified():
 					pm.unmodifiedForm = row['Frame ID']
 					pm.location = json.loads(row['Location'])
 
-					# x = getEcocycModFormReactions(pm.frameId)
-					# ipdb.set_trace()
 
 
 					proteinMonomerDict_modified[pm.frameId] = pm
