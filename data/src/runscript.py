@@ -85,6 +85,7 @@ def main():
 	parseGenes()
 	parseLocations()
 	parseProteinMonomers()
+	parseProteinMonomers_modified()
 	parseRna()
 	parseComplexes()
 	parseTranscriptionUnits()
@@ -864,11 +865,41 @@ def parseProteinMonomers():
 
 		keys = proteinMonomerDict.keys()
 		keys.sort()
-		csvwriter.writerow(['ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
 		for key in keys:
 			pm = proteinMonomerDict[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.gene, json.dumps(pm.location), json.dumps(pm.modifiedForm), pm.comments])
 	logFile.close()
+
+def parseProteinMonomers_modified():
+	proteinMonomerDict_modified = {}
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if len(json.loads(row['Modified form'])):
+				for frameId in json.loads(row['Modified form']):
+					pm = proteinMonomer()
+					pm.frameId = frameId
+					pm.unmodifiedForm = row['Frame ID']
+					pm.location = json.loads(row['Location'])
+
+					# x = getEcocycModFormReactions(pm.frameId)
+					# ipdb.set_trace()
+
+
+					proteinMonomerDict_modified[pm.frameId] = pm
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers_modified.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = proteinMonomerDict_modified.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		for key in keys:
+			pm = proteinMonomerDict_modified[key]
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), pm.reactionId, pm.reaction, pm.comments])
 
 # Parse RNA
 def parseRna():
@@ -2121,6 +2152,9 @@ class proteinMonomer:
 		self.location = []
 		self.gene = None
 		self.modifiedForm = None
+		self.unmodifiedForm = None
+		self.reactionId = None
+		self.reaction = ''
 		self.comments = ''
 
 class rna:
