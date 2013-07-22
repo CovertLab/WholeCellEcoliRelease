@@ -873,8 +873,21 @@ def parseProteinMonomers():
 
 def parseProteinMonomers_modified():
 	# Load location abbreviations
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'rb') as jsonfile:
-		locationEquivDict = json.loads(jsonfile.read())
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -928,7 +941,41 @@ def parseProteinMonomers_modified():
 
 							pm.reactionId = rxnId
 
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
 
+							pm.reaction += '[' + locationAbbrevDict[pm.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = int(float(r[1]))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									pm.reaction += '(' + str(rst) + ') '
+								pm.reaction += rid
+								if i < len(reactants) - 1:
+									pm.reaction += ' + '
+
+							pm.reaction += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = int(float(p[1]))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									rid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									pm.reaction += '(' + str(pst) + ') '
+								pm.reaction += pid
+								if i < len(products) - 1:
+									pm.reaction += ' + '
 
 
 					proteinMonomerDict_modified[pm.frameId] = pm
