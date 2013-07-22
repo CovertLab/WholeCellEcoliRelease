@@ -14,6 +14,69 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
+def getEcocycModFormReactions(cmplx):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+	L = []
+	for rxn in dom.getElementsByTagName("appears-in-right-side-of"):
+		elemRxn = rxn.getElementsByTagName("Reaction")
+		if len(elemRxn) > 0:
+			fId = elemRxn[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a reaction frame id."
+		L.append((fId, getEcocycReactionStoich(fId)))
+	for rxn in dom.getElementsByTagName("appears-in-left-side-of"):
+		elemRxn = rxn.getElementsByTagName("Reaction")
+		if len(elemRxn) > 0:
+			fId = elemRxn[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a reaction frame id."
+		L.append((fId, getEcocycReactionStoich(fId)))
+	return L
+	
+
+def getEcocycReactionStoich(rxn):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % rxn
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+	L = []
+	for left in dom.getElementsByTagName("left"):
+		elemProt = left.getElementsByTagName("Protein")
+		elemRna = left.getElementsByTagName("RNA")
+		elemCmpnd = left.getElementsByTagName("Compound")
+		if len(elemProt) > 0:
+			fId = elemProt[0].getAttribute("frameid")
+		elif len(elemRna) > 0:
+			fId = elemRna[0].getAttribute("frameid")
+		elif len(elemCmpnd) > 0:
+			fId = elemCmpnd[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a frame id for LHS reactant."
+		elemCoeff = left.getElementsByTagName("coefficient")
+		if len(elemCoeff) > 0:
+			coeff = unicode(-1 * float(elemCoeff[0].childNodes[0].data))
+		else:
+			coeff = u"-1"
+		L.append((fId, coeff))
+	for right in dom.getElementsByTagName("right"):
+		elemProt = right.getElementsByTagName("Protein")
+		elemRna = right.getElementsByTagName("RNA")
+		elemCmpnd = right.getElementsByTagName("Compound")
+		if len(elemProt) > 0:
+			fId = elemProt[0].getAttribute("frameid")
+		elif len(elemRna) > 0:
+			fId = elemRna[0].getAttribute("frameid")
+		elif len(elemCmpnd) > 0:
+			fId = elemCmpnd[0].getAttribute("frameid")
+		else:
+			raise Exception, "Don't have a frame id for RHS reactant."
+		elemCoeff = right.getElementsByTagName("coefficient")
+		if len(elemCoeff) > 0:
+			coeff = unicode(1 * float(elemCoeff[0].childNodes[0].data))
+		else:
+			coeff = u"1"
+		L.append((fId, coeff))
+	return L
+
 def main():
 	initalizeLog()
 	getEcocyc(fetchNew = False)
