@@ -872,6 +872,24 @@ def parseProteinMonomers():
 	logFile.close()
 
 def parseProteinMonomers_modified():
+	# Build cache of modified form reactions
+	rebuild = True
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
+		modFormRxn = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if len(json.loads(row['Modified form'])):
+					for frameId in json.loads(row['Modified form']):
+						rxn = getEcocycModFormReactions(frameId)
+						if rxn == []:
+							print 'No reaction for ' + frameId
+						print 'Loaded ' + frameId + ' formation reaction'
+						modFormRxn[frameId] = rxn
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(modFormRxn, indent = 4))
+
 	proteinMonomerDict_modified = {}
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
