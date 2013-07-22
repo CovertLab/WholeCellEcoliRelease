@@ -873,7 +873,7 @@ def parseProteinMonomers():
 
 def parseProteinMonomers_modified():
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
