@@ -33,7 +33,6 @@ def getEcocycModFormReactions(cmplx):
 			raise Exception, "Don't have a reaction frame id."
 		L.append(getEcocycReactionStoich(fId))
 	return L
-	
 
 def getEcocycReactionStoich(rxn):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % rxn
@@ -936,8 +935,12 @@ def parseProteinMonomers_modified():
 						production_reaction = []
 
 						for rxn in rxn_raw:
-							for rxn_species in rxn[1]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId:
+							for rxn_species in rxn[2]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+									production_reaction.append(rxn)
+								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pm.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+									production_reaction.append(rxn)
+								elif rxn[1] == 'UNKNOWN':
 									production_reaction.append(rxn)
 
 						if len(production_reaction) > 1:
@@ -945,7 +948,7 @@ def parseProteinMonomers_modified():
 
 						for rxn in production_reaction:
 							rxnId = rxn[0]
-							rxnSpecies = rxn[1]
+							rxnSpecies = rxn[2]
 
 							pm.reactionId = rxnId
 
