@@ -893,7 +893,7 @@ def parseProteinMonomers_modified():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
 			else:
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
@@ -1063,7 +1063,7 @@ def parseRNA_modified():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
 			else:
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
@@ -1123,7 +1123,7 @@ def parseComplexes():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
 			else:
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
@@ -1637,7 +1637,7 @@ def parseMetabolites():
 		for row in csvreader:
 			if row[3] != '':
 				newMet = metabolite()
-				newMet.frameId = row[0]
+				newMet.frameId = row[0].lower()
 				if row[2] != '':
 					newMet.neutralFormula = row[2]
 				else:

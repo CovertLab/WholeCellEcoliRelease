@@ -23,7 +23,6 @@ Frame ID	Name	Neutral formula	What is this?	Import/export frame ID
 3ooctdACP	3-Oxooctadecanoyl-[acyl-carrier protein]	C29H53N2O9PRS	ACP	"[""EG50003-MONOMER""]"
 3opalmACP	3-Oxohexadecanoyl-[acyl-carrier protein]	C27H49N2O9PRS	ACP	"[""EG50003-MONOMER""]"
 ACP	acyl carrier protein	C11H21N2O7PRS	ACP	"[""EG50003-MONOMER""]"
-CPD0-2342		C6H12O6R	CPD0-2342	"[""CPD0-2342""]"
 acACP	Acetyl-ACP	C13H23N2O8PRS	ACP	"[""EG50003-MONOMER""]"
 actACP	Acetoacetyl-ACP	C15H25N2O9PRS	ACP	"[""EG50003-MONOMER""]"
 alpp	applipoprotein	X	apolipoprotein	"[""EG10544-MONOMER""]"
@@ -32,6 +31,7 @@ but2eACP	But-2-enoyl-[acyl-carrier protein]	C15H25N2O8PRS	ACP	"[""EG50003-MONOME
 butACP	Butyryl-ACP (n-C4:0ACP)	C15H27N2O8PRS	ACP	"[""EG50003-MONOMER""]"
 cddec5eACP	cis-dodec-5-enoyl-[acyl-carrier protein] (n-C12:1)	C23H41N2O8PRS	ACP	"[""EG50003-MONOMER""]"
 cdec3eACP	cis-dec-3-enoyl-[acyl-carrier protein] (n-C10:1)	C21H37N2O8PRS	ACP	"[""EG50003-MONOMER""]"
+cpd0-2342		C6H12O6R		null
 dcaACP	Decanoyl-ACP (n-C10:0ACP)	C21H39N2O8PRS	ACP	"[""EG50003-MONOMER""]"
 ddcaACP	Dodecanoyl-ACP (n-C12:0ACP)	C23H43N2O8PRS	ACP	"[""EG50003-MONOMER""]"
 dsbaox	periplasmic protein disulfide isomerase I (oxidized)	X	dsbA	"[""MONOMER0-4152""]"
