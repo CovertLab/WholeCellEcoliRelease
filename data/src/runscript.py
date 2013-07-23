@@ -94,6 +94,7 @@ def main():
 	parseProteinMonomers()
 	parseProteinMonomers_modified()
 	parseRna()
+	#parseRNA_modified()
 	parseComplexes()
 	parseTranscriptionUnits()
 	parseMetabolites()
@@ -1042,10 +1043,53 @@ def parseRna():
 
 		keys = rnaDict.keys()
 		keys.sort()
-		csvwriter.writerow(['ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
 		for key in keys:
 			rnaToPrint = rnaDict[key]
 			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
+
+def parseRNA_modified():
+	# Load location abbreviations
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
+	# Build cache of modified form reactions
+	rebuild = True
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json')) or rebuild:
+		modFormRxn = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if len(json.loads(row['Modified form'])):
+					for frameId in json.loads(row['Modified form']):
+						rxn = getEcocycModFormReactions(frameId)
+						if rxn == []:
+							print 'No reaction for ' + frameId
+						else:
+							print 'Loaded ' + frameId + ' formation reaction'
+						modFormRxn[frameId] = rxn
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(modFormRxn, indent = 4))
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
+		modFormRxn = json.loads(jsonfile.read())
+
+	ipdb.set_trace()
+
 
 # Parse protein complexes
 def parseComplexes():
