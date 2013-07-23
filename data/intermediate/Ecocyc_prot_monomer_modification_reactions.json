@@ -2,6 +2,7 @@
     "MONOMER0-4171": [
         [
             "RXN0-6446", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "EG12658-MONOMER", 
@@ -23,6 +24,7 @@
         ], 
         [
             "RXN0-5177", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "G7575-MONOMER", 
@@ -46,6 +48,7 @@
     "MONOMER0-4170": [
         [
             "RXN0-6445", 
+            "UNKNOWN", 
             [
                 [
                     "MONOMER0-4170", 
@@ -61,6 +64,7 @@
     "PHOSPHO-BARA-HIS": [
         [
             "RXN0-6560", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BARA-ASP", 
@@ -74,6 +78,7 @@
         ], 
         [
             "BAROMP-RXN", 
+            "UNKNOWN", 
             [
                 [
                     "OMPR-MONOMER", 
@@ -97,6 +102,7 @@
     "MONOMER0-4178": [
         [
             "RXN0-6462", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -118,6 +124,7 @@
         ], 
         [
             "RXN0-6464", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "G6319-MONOMER", 
@@ -141,6 +148,7 @@
     "MONOMER0-4279": [
         [
             "RXN0-7003", 
+            "UNKNOWN", 
             [
                 [
                     "MONOMER0-4279", 
@@ -165,6 +173,7 @@
     "MONOMER0-4276": [
         [
             "RXN0-7003", 
+            "UNKNOWN", 
             [
                 [
                     "MONOMER0-4279", 
@@ -188,6 +197,7 @@
     "PHOSPHO-HYDH": [
         [
             "HYDH-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -209,6 +219,7 @@
         ], 
         [
             "HYDG-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-HYDH", 
@@ -232,6 +243,7 @@
     "PHOSPHO-ARCB717": [
         [
             "ARCB717-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-ARCB-ASP", 
@@ -245,6 +257,7 @@
         ], 
         [
             "RXN0-312", 
+            "IRREVERSIBLE-LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-ARCB717", 
@@ -268,6 +281,7 @@
     "MONOMER0-1": [
         [
             "RXN0-321", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BARA-HIS", 
@@ -294,6 +308,7 @@
     "PHOSPHO-BARA-ASP": [
         [
             "RXN0-6561", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4210", 
@@ -307,6 +322,7 @@
         ], 
         [
             "RXN0-6560", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BARA-ASP", 
@@ -323,6 +339,7 @@
     "BOUND-TORT": [
         [
             "TORT-RXN", 
+            "UNKNOWN", 
             [
                 [
                     "TRIMENTHLAMINE-N-O", 
@@ -342,6 +359,7 @@
     "RSSB-P": [
         [
             "RXN0-3341", 
+            "UNKNOWN", 
             [
                 [
                     "EG12121-MONOMER", 
@@ -363,6 +381,7 @@
     "MONOMER0-4166": [
         [
             "RXN0-6435", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "CARBAMOYL-P", 
@@ -398,6 +417,7 @@
     "ACEF-LIPOATE": [
         [
             "RXN0-1139", 
+            "UNKNOWN", 
             [
                 [
                     "ATP", 
@@ -429,6 +449,7 @@
     "MONOMER0-4287": [
         [
             "RXN0-7039", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "G7243-MONOMER", 
@@ -450,6 +471,7 @@
         ], 
         [
             "RXN0-7040", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4287", 
@@ -475,6 +497,7 @@
     "MONOMER0-4288": [
         [
             "RXN0-7040", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4287", 
@@ -498,6 +521,7 @@
     "MONOMER0-4206": [
         [
             "RXN0-6542", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -519,6 +543,7 @@
         ], 
         [
             "RXN0-6547", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4206", 
@@ -542,6 +567,7 @@
     "MONOMER0-4200": [
         [
             "RXN0-6531", 
+            "UNKNOWN", 
             [
                 [
                     "EG12099-MONOMER", 
@@ -573,6 +599,7 @@
     "MONOMER0-2482": [
         [
             "RXN0-4942", 
+            "UNKNOWN", 
             [
                 [
                     "G7821-MONOMER", 
@@ -592,6 +619,7 @@
     "LIPOYL-ACP": [
         [
             "RXN0-1137", 
+            "UNKNOWN", 
             [
                 [
                     "E2O-MONOMER", 
@@ -616,6 +644,7 @@
     "PHOSPHO-HYDG": [
         [
             "HYDG-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-HYDH", 
@@ -639,6 +668,7 @@
     "GLU-UHPC": [
         [
             "UHPC-RXN", 
+            "UNKNOWN", 
             [
                 [
                     "GLC-6-P", 
@@ -664,6 +694,7 @@
     "PHOSPHO-EVGA": [
         [
             "EVGA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-EVGS", 
@@ -689,6 +720,7 @@
     "MONOMER0-4194": [
         [
             "RXN0-6507", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-RCSC", 
@@ -702,6 +734,7 @@
         ], 
         [
             "RXN0-6506", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "EG12385-MONOMER", 
@@ -726,6 +759,7 @@
     "MONOMER0-4210": [
         [
             "BARA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -747,6 +781,7 @@
         ], 
         [
             "RXN0-6561", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4210", 
@@ -762,6 +797,7 @@
     "SUCB-S-SUCCINYLDIHYDROLIPOATE": [
         [
             "RXN0-1144", 
+            "UNKNOWN", 
             [
                 [
                     "2-KETOGLUTARATE", 
@@ -785,6 +821,7 @@
     "PHOSPHO-EVGS": [
         [
             "RXN0-6495", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4185", 
@@ -798,6 +835,7 @@
         ], 
         [
             "EVGA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-EVGS", 
@@ -822,6 +860,7 @@
     "DIHYDROLIPOYL-GCVH": [
         [
             "GCVT-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
@@ -847,6 +886,7 @@
         ], 
         [
             "RXN-8629", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "DIHYDROLIPOYL-GCVH", 
@@ -874,6 +914,7 @@
     "DSBDOXI-MONOMER": [
         [
             "DSBD-RXN", 
+            "UNKNOWN", 
             [
                 [
                     "CPLX0-8004", 
@@ -899,6 +940,7 @@
     "PHOSPHO-ATOC": [
         [
             "ATOC-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-ATOS", 
@@ -922,6 +964,7 @@
     "PHOSPHO-CHEY": [
         [
             "RXN0-6546", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4206", 
@@ -943,6 +986,7 @@
         ], 
         [
             "CHEYDEPHOS-RXN", 
+            "PHYSIOL-LEFT-TO-RIGHT", 
             [
                 [
                     "WATER", 
@@ -966,6 +1010,7 @@
     "URIDYLYL-PII": [
         [
             "URIDYLREM-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "URIDYLYL-PII", 
@@ -989,6 +1034,7 @@
     "PHOSPHO-DPIB": [
         [
             "RXN0-6271", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1010,6 +1056,7 @@
         ], 
         [
             "RXN0-6272", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-DPIB", 
@@ -1033,6 +1080,7 @@
     "PHOSPHO-CHEB": [
         [
             "RXN0-6547", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4206", 
@@ -1054,6 +1102,7 @@
         ], 
         [
             "CHEBDEP-RXN", 
+            "UNKNOWN", 
             [
                 [
                     "PHOSPHO-CHEB", 
@@ -1074,6 +1123,7 @@
     "MONOMER0-4189": [
         [
             "RXN0-6506", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "EG12385-MONOMER", 
@@ -1095,6 +1145,7 @@
         ], 
         [
             "RXN0-6509", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4189", 
@@ -1118,6 +1169,7 @@
     "MONOMER0-4184": [
         [
             "RXN0-6493", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1139,6 +1191,7 @@
         ], 
         [
             "RXN0-6494", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4184", 
@@ -1154,6 +1207,7 @@
     "MONOMER0-4185": [
         [
             "RXN0-6494", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4184", 
@@ -1167,6 +1221,7 @@
         ], 
         [
             "RXN0-6495", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4185", 
@@ -1183,6 +1238,7 @@
     "MONOMER0-4180": [
         [
             "RXN0-6464", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "G6319-MONOMER", 
@@ -1206,6 +1262,7 @@
     "PHOSPHO-ARCA": [
         [
             "ALTARCA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ARCA-MONOMER", 
@@ -1233,6 +1290,7 @@
     "URIDYLYL-PII2": [
         [
             "RXN0-801", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PROTEIN-PII2", 
@@ -1254,6 +1312,7 @@
         ], 
         [
             "RXN0-802", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "URIDYLYL-PII2", 
@@ -1274,6 +1333,7 @@
     "PHOSPHO-NARL": [
         [
             "NARLX-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-NARX", 
@@ -1297,6 +1357,7 @@
     "ENTF-PANT": [
         [
             "ENTD-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "CO-A", 
@@ -1320,6 +1381,7 @@
     "MONOMER0-2741": [
         [
             "RXN0-5177", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "G7575-MONOMER", 
@@ -1343,6 +1405,7 @@
     "PHOSPHO-NARQ": [
         [
             "NARQ-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1364,6 +1427,7 @@
         ], 
         [
             "NARPQ-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-NARQ", 
@@ -1387,6 +1451,7 @@
     "PHOSPHO-NARP": [
         [
             "NARPX-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-NARX", 
@@ -1411,6 +1476,7 @@
     "PHOSPHO-NARX": [
         [
             "NARX-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1432,6 +1498,7 @@
         ], 
         [
             "NARPX-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-NARX", 
@@ -1455,6 +1522,7 @@
     "MONOMER0-4125": [
         [
             "RXN0-2787", 
+            "UNKNOWN", 
             [
                 [
                     "PRECURSOR-Z", 
@@ -1479,6 +1547,7 @@
     "PHOSPHO-PHOQ": [
         [
             "PHOQ-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1500,6 +1569,7 @@
         ], 
         [
             "PHOP-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-PHOQ", 
@@ -1523,6 +1593,7 @@
     "PHOSPHO-PHOP": [
         [
             "PHOP-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-PHOQ", 
@@ -1546,6 +1617,7 @@
     "PHOSPHO-ARCB-ASP": [
         [
             "ARCBTRANS-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-ARCB-HIS", 
@@ -1559,6 +1631,7 @@
         ], 
         [
             "ARCB717-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-ARCB-ASP", 
@@ -1574,6 +1647,7 @@
     "PHOSPHO-BAER": [
         [
             "BAER-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BAES", 
@@ -1597,6 +1671,7 @@
     "PHOSPHO-BAES": [
         [
             "BAES-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1618,6 +1693,7 @@
         ], 
         [
             "BAER-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BAES", 
@@ -1641,6 +1717,7 @@
     "PTSH-PHOSPHORYLATED": [
         [
             "RXN0-6718", 
+            "UNKNOWN", 
             [
                 [
                     "PTSI-PHOSPHORYLATED", 
@@ -1664,6 +1741,7 @@
     "PHOSPHO-PHOB": [
         [
             "PHOBR-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOB-MONOMER", 
@@ -1687,6 +1765,7 @@
     "PHOSPHO-RSTB": [
         [
             "RSTB-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1708,6 +1787,7 @@
         ], 
         [
             "RSTA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-RSTB", 
@@ -1731,6 +1811,7 @@
     "PHOSPHO-TORS850": [
         [
             "TORS850-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-TORASP", 
@@ -1744,6 +1825,7 @@
         ], 
         [
             "RXN0-6519", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-TORS850", 
@@ -1768,6 +1850,7 @@
     "PHOSPHO-UHPB": [
         [
             "UHPB-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1789,6 +1872,7 @@
         ], 
         [
             "RXN0-6499", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-UHPB", 
@@ -1813,6 +1897,7 @@
     "PHOSPHO-DCUS-MONOMER": [
         [
             "DCUS-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -1834,6 +1919,7 @@
         ], 
         [
             "RXN0-6459", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-DCUS-MONOMER", 
@@ -1858,6 +1944,7 @@
     "SUCB-LIPOATE": [
         [
             "RXN0-1140", 
+            "UNKNOWN", 
             [
                 [
                     "ATP", 
@@ -1887,6 +1974,7 @@
         ], 
         [
             "RXN0-1144", 
+            "UNKNOWN", 
             [
                 [
                     "2-KETOGLUTARATE", 
@@ -1910,6 +1998,7 @@
     "MONOMER0-4152": [
         [
             "RXN0-7043", 
+            "UNKNOWN", 
             [
                 [
                     "MONOMER0-4142", 
@@ -1931,6 +2020,7 @@
         ], 
         [
             "RXN0-6990", 
+            "UNKNOWN", 
             [
                 [
                     "MONOMER0-4152", 
@@ -1955,6 +2045,7 @@
     "KETOBUTFORMLY-MONOMER": [
         [
             "TDCEACT1-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "KETOBUTFORMLY-INACT-MONOMER", 
@@ -1986,6 +2077,7 @@
     "PHOSPHO-CREB": [
         [
             "CREB-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-CREC", 
@@ -2010,6 +2102,7 @@
     "THIS-COAMP-MONOMER": [
         [
             "THIFAMP-RXN", 
+            "REVERSIBLE", 
             [
                 [
                     "THIS-MONOMER", 
@@ -2031,6 +2124,7 @@
         ], 
         [
             "THIFIS-RXN", 
+            "REVERSIBLE", 
             [
                 [
                     "THIS-COAMP-MONOMER", 
@@ -2058,6 +2152,7 @@
     "PHOSPHO-CPXA": [
         [
             "CPXA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -2079,6 +2174,7 @@
         ], 
         [
             "CPXR-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "CPXR-MONOMER", 
@@ -2102,6 +2198,7 @@
     "THIS-COSH-MONOMER": [
         [
             "THIFIS-RXN", 
+            "REVERSIBLE", 
             [
                 [
                     "THIS-COAMP-MONOMER", 
@@ -2129,6 +2226,7 @@
     "HIPA-P": [
         [
             "RXN0-5211", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "EG10443-MONOMER", 
@@ -2155,6 +2253,7 @@
     "PHOSPHO-TORASP": [
         [
             "TORSASP-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-TORS", 
@@ -2168,6 +2267,7 @@
         ], 
         [
             "TORS850-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-TORASP", 
@@ -2185,6 +2285,7 @@
     "MONOMER0-4142": [
         [
             "RXN0-7043", 
+            "UNKNOWN", 
             [
                 [
                     "MONOMER0-4142", 
@@ -2208,6 +2309,7 @@
     "MONOMER0-4141": [
         [
             "RXN0-6388", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -2229,6 +2331,7 @@
         ], 
         [
             "RXN0-6389", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4141", 
@@ -2252,6 +2355,7 @@
     "PHOSPHO-DPIA": [
         [
             "RXN0-6272", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-DPIB", 
@@ -2275,6 +2379,7 @@
     "MONOMER0-4147": [
         [
             "RXN0-6389", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "MONOMER0-4141", 
@@ -2298,6 +2403,7 @@
     "PHOSPHO-ARCB-HIS": [
         [
             "ARCB-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -2319,6 +2425,7 @@
         ], 
         [
             "ARCA-RXN", 
+            "IRREVERSIBLE-LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-ARCB-HIS", 
@@ -2342,6 +2449,7 @@
     "AMINOMETHYLDIHYDROLIPOYL-GCVH": [
         [
             "GCVP-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PROTEIN-LIPOYLLYSINE", 
@@ -2363,6 +2471,7 @@
         ], 
         [
             "GCVT-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
@@ -2390,6 +2499,7 @@
     "PHOSPHO-TORS": [
         [
             "RXN0-6518", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -2411,6 +2521,7 @@
         ], 
         [
             "TORSASP-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-TORS", 
@@ -2427,6 +2538,7 @@
     "MONOMER0-2811": [
         [
             "RXN0-5231", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "EG10873-MONOMER", 
@@ -2450,6 +2562,7 @@
     "PHOSPHO-BASR": [
         [
             "BASR-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BASS", 
@@ -2473,6 +2586,7 @@
     "PHOSPHO-BASS": [
         [
             "BASS-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -2494,6 +2608,7 @@
         ], 
         [
             "BASR-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-BASS", 
@@ -2518,6 +2633,7 @@
     "PHOSPHO-RCSC": [
         [
             "RCSC-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "ATP", 
@@ -2539,6 +2655,7 @@
         ], 
         [
             "RXN0-6507", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-RCSC", 
@@ -2554,6 +2671,7 @@
     "PHOSPHO-RSTA": [
         [
             "RSTA-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
                     "PHOSPHO-RSTB", 
