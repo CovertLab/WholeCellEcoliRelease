@@ -4,7 +4,9 @@ import csv
 import os
 import json
 from SOAPpy import WSDL
+import numpy
 import ipdb
+import cPickle
 
 
 def buildTurnoverTable():
@@ -33,19 +35,32 @@ def buildTurnoverTable():
 					enzymeDict[iso].reverseTurnoverUnits.append(None)
 					enzymeDict[iso].comments.append('')
 
+	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
+	client = WSDL.Proxy(wsdl)
+	cacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate','turnoverCache.cPickle')
+	if not os.path.exists(cacheFileName):
+		startIdx = 0
+	else:
+		enzymeDict, startIdx = cPickle.load(open(cacheFileName, "r"))
+	cacheCount = 0
 	# Get kinetics that can be automatically gotten
-	for e in [enzymeDict[x] for x in enzymeDict.iterkeys()]:
+	keys = sorted(enzymeDict.keys())
+	for idx in xrange(startIdx, len(keys)):
+		e = enzymeDict[keys[idx]]
 		for i in range(e.reactionCount):
 			# Set reverse rate if known to only progress forward
 			if e.direction[i] == 'forward only':
 				e.reverseTurnover[i] = 0
 				e.comments[i] += 'Forward only, reverse kinetics set to zero.'
 
-			# Look for forward rate in E. coli. If none found in BRENDA query for any organism and
-			# take the maximum value of that search.
-			x = parseBrendaTurnover("ecNumber*" + e.EC[i] + "#organism*Escherichia coli")
-			ipdb.set_trace()
+			e.forwardTurnover[i] = parseBrendaTurnover(client, "ecNumber*" + e.EC[i])
+			print "%s[%d]: %s" % (e.frameId, i, str(e.forwardTurnover[i]))
+			cacheCount += 1
+			if cacheCount % 10 == 0:
+				cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
+	import ipdb
+	ipdb.set_trace()
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
@@ -79,23 +94,24 @@ class enzyme():
 # 	reac = BRENDA_reaction()
 # 	return parseBrendaEntry(reac,line)
 
-def parseBrendaTurnover(line):
-	turn = BRENDA_turnover()
-	return parseBrendaEntry(turn,line)
+def parseBrendaTurnover(client, line):
 
-def parseBrendaEntry(obj, line):
-	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
-	client = WSDL.Proxy(wsdl)
-	result = client.getReaction(line)
+
+	result = client.getTurnoverNumber(line)
+	if len(result) == 0:
+		return None
 	entries = result.split('!')
+	L = []
 	for e in entries:
-		fields = e.split('#')
-		for f in fields:
-			if len(f.split('*')) > 1:
-				attr_name = f.split('*')[0]
-				attr_value = f.split('*')[1]
-				setattr(obj, attr_name, attr_value)
-	return obj
+		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
+	try:
+		if any("coli" in x["organism"].lower() for x in L):
+			return (-1, "In E. coli")
+	except:
+		import ipdb
+		ipdb.set_trace()
+	maxVal, maxIdx = numpy.max([float(x["turnoverNumber"]) for x in L]), numpy.argmax([float(x["turnoverNumber"]) for x in L])
+	return (maxVal, "organism: %s\tcomments:%s" % (L[maxIdx]["organism"], L[maxIdx]["commentary"]))
 
 # class BRENDA_reaction():
 # 	def __init__(self):
