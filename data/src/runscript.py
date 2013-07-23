@@ -965,7 +965,7 @@ def parseProteinMonomers_modified():
 							pm.reaction[-1] += '[' + locationAbbrevDict[pm.location[0]] + ']: '
 
 							for i,r in enumerate(reactants):
-								rst = int(float(r[1]))
+								rst = abs(int(float(r[1])))
 								rid = str(r[0])
 								if metaboliteEcocycToFeistIdConversion.has_key(rid):
 									rid = metaboliteEcocycToFeistIdConversion[rid]
@@ -979,7 +979,7 @@ def parseProteinMonomers_modified():
 							pm.reaction[-1] += ' ==> '
 
 							for i,p in enumerate(products):
-								pst = int(float(p[1]))
+								pst = abs(int(float(p[1])))
 								pid = str(p[0])
 								if metaboliteEcocycToFeistIdConversion.has_key(pid):
 									pid = metaboliteEcocycToFeistIdConversion[pid]
