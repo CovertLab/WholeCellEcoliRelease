@@ -944,14 +944,15 @@ def parseProteinMonomers_modified():
 								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pm.frameId:
 									production_reaction.append(rxn)
 
-						if len(production_reaction) > 1:
-							ipdb.set_trace()
+						# if len(production_reaction) > 1:
+						# 	ipdb.set_trace()
 
 						for rxn in production_reaction:
 							rxnId = rxn[0]
 							rxnSpecies = rxn[2]
 
-							pm.reactionId = rxnId
+							pm.reactionId.append(rxnId)
+							pm.reaction.append('')
 
 							reactants = []
 							products = []
@@ -961,7 +962,7 @@ def parseProteinMonomers_modified():
 								else:
 									products.append(species)
 
-							pm.reaction += '[' + locationAbbrevDict[pm.location[0]] + ']: '
+							pm.reaction[-1] += '[' + locationAbbrevDict[pm.location[0]] + ']: '
 
 							for i,r in enumerate(reactants):
 								rst = int(float(r[1]))
@@ -970,12 +971,12 @@ def parseProteinMonomers_modified():
 									rid = metaboliteEcocycToFeistIdConversion[rid]
 
 								if abs(rst) > 1:
-									pm.reaction += '(' + str(rst) + ') '
-								pm.reaction += rid
+									pm.reaction[-1] += '(' + str(rst) + ') '
+								pm.reaction[-1] += rid
 								if i < len(reactants) - 1:
-									pm.reaction += ' + '
+									pm.reaction[-1] += ' + '
 
-							pm.reaction += ' ==> '
+							pm.reaction[-1] += ' ==> '
 
 							for i,p in enumerate(products):
 								pst = int(float(p[1]))
@@ -984,10 +985,10 @@ def parseProteinMonomers_modified():
 									pid = metaboliteEcocycToFeistIdConversion[pid]
 
 								if pst > 1:
-									pm.reaction += '(' + str(pst) + ') '
-								pm.reaction += pid
+									pm.reaction[-1] += '(' + str(pst) + ') '
+								pm.reaction[-1] += pid
 								if i < len(products) - 1:
-									pm.reaction += ' + '
+									pm.reaction[-1] += ' + '
 
 
 					proteinMonomerDict_modified[pm.frameId] = pm
@@ -1001,7 +1002,7 @@ def parseProteinMonomers_modified():
 		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
 		for key in keys:
 			pm = proteinMonomerDict_modified[key]
-			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), pm.reactionId, pm.reaction, pm.comments])
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
 
 # Parse RNA
 def parseRna():
@@ -2298,8 +2299,8 @@ class proteinMonomer:
 		self.gene = None
 		self.modifiedForm = None
 		self.unmodifiedForm = None
-		self.reactionId = None
-		self.reaction = ''
+		self.reactionId = []
+		self.reaction = []
 		self.comments = ''
 
 class rna:
