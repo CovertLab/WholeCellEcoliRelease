@@ -941,7 +941,7 @@ def parseProteinMonomers_modified():
 									production_reaction.append(rxn)
 								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pm.frameId and rxn[1] == 'RIGHT-TO-LEFT':
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN':
+								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pm.frameId:
 									production_reaction.append(rxn)
 
 						if len(production_reaction) > 1:
