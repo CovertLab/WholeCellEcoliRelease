@@ -872,6 +872,23 @@ def parseProteinMonomers():
 	logFile.close()
 
 def parseProteinMonomers_modified():
+	# Load location abbreviations
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
 	# Build cache of modified form reactions
 	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
@@ -891,7 +908,7 @@ def parseProteinMonomers_modified():
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
-		modFromRxn = json.loads(jsonfile.read())
+		modFormRxn = json.loads(jsonfile.read())
 
 
 	proteinMonomerDict_modified = {}
@@ -905,6 +922,60 @@ def parseProteinMonomers_modified():
 					pm.unmodifiedForm = row['Frame ID']
 					pm.location = json.loads(row['Location'])
 
+					rxn_raw = modFormRxn[pm.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+
+						for rxn in rxn_raw:
+							for rxn_species in rxn[1]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId:
+									production_reaction.append(rxn)
+
+						if len(production_reaction) > 1:
+							ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[1]
+
+							pm.reactionId = rxnId
+
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
+
+							pm.reaction += '[' + locationAbbrevDict[pm.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = int(float(r[1]))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									pm.reaction += '(' + str(rst) + ') '
+								pm.reaction += rid
+								if i < len(reactants) - 1:
+									pm.reaction += ' + '
+
+							pm.reaction += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = int(float(p[1]))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									pid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									pm.reaction += '(' + str(pst) + ') '
+								pm.reaction += pid
+								if i < len(products) - 1:
+									pm.reaction += ' + '
 
 
 					proteinMonomerDict_modified[pm.frameId] = pm
