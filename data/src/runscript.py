@@ -24,14 +24,14 @@ def getEcocycModFormReactions(cmplx):
 			fId = elemRxn[0].getAttribute("frameid")
 		else:
 			raise Exception, "Don't have a reaction frame id."
-		L.append((fId, getEcocycReactionStoich(fId)))
+		L.append(getEcocycReactionStoich(fId))
 	for rxn in dom.getElementsByTagName("appears-in-left-side-of"):
 		elemRxn = rxn.getElementsByTagName("Reaction")
 		if len(elemRxn) > 0:
 			fId = elemRxn[0].getAttribute("frameid")
 		else:
 			raise Exception, "Don't have a reaction frame id."
-		L.append((fId, getEcocycReactionStoich(fId)))
+		L.append(getEcocycReactionStoich(fId))
 	return L
 	
 
@@ -39,6 +39,14 @@ def getEcocycReactionStoich(rxn):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % rxn
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
 	L = []
+
+	direction = dom.getElementsByTagName("reaction-direction")
+	if len(direction):
+		direction = direction[0]
+		rxnDir = direction.firstChild.data
+	else:
+		rxnDir = 'UNKNOWN'
+
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
 		elemRna = left.getElementsByTagName("RNA")
@@ -75,7 +83,7 @@ def getEcocycReactionStoich(rxn):
 		else:
 			coeff = u"1"
 		L.append((fId, coeff))
-	return L
+	return (rxn, rxnDir, L)
 
 def main():
 	initalizeLog()
