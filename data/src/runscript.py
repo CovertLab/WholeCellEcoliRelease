@@ -94,7 +94,7 @@ def main():
 	parseProteinMonomers()
 	parseProteinMonomers_modified()
 	parseRna()
-	#parseRNA_modified()
+	parseRNA_modified()
 	parseComplexes()
 	parseTranscriptionUnits()
 	parseMetabolites()
@@ -1068,7 +1068,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1089,7 +1089,89 @@ def parseRNA_modified():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
 
-	ipdb.set_trace()
+
+	rnaDict_modified = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if len(json.loads(row['Modified form'])):
+				for frameId in json.loads(row['Modified form']):
+					RNA = rna()
+					RNA.frameId = frameId
+					RNA.unmodifiedForm = row['Frame ID']
+					RNA.location = json.loads(row['Location'])
+
+					rxn_raw = modFormRxn[RNA.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+						for rxn in rxn_raw:
+							for rxn_species in rxn[2]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+									production_reaction.append(rxn)
+								if int(float(rxn_species[1])) < 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+									production_reaction.append(rxn)
+								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == RNA.frameId:
+									production_reaction.append(rxn)
+
+						# if len(production_reaction) > 1:
+						# 	ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[2]
+
+							RNA.reactionId.append(rxnId)
+							RNA.reaction.append('')
+
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
+
+							RNA.reaction[-1] += '[' + locationAbbrevDict[RNA.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = abs(int(float(r[1])))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									RNA.reaction[-1] += '(' + str(rst) + ') '
+								RNA.reaction[-1] += rid
+								if i < len(reactants) - 1:
+									RNA.reaction[-1] += ' + '
+
+							RNA.reaction[-1] += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = abs(int(float(p[1])))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									pid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									RNA.reaction[-1] += '(' + str(pst) + ') '
+								RNA.reaction[-1] += pid
+								if i < len(products) - 1:
+									RNA.reaction[-1] += ' + '
+
+
+					rnaDict_modified[RNA.frameId] = RNA
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna_modified.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = rnaDict_modified.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		for key in keys:
+			pm = rnaDict_modified[key]
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
 
 
 # Parse protein complexes
@@ -2310,6 +2392,9 @@ class rna:
 		self.location = []
 		self.gene = None
 		self.modifiedForm = None
+		self.unmodifiedForm = None
+		self.reactionId = []
+		self.reaction = []
 		self.comments = ''
 
 class proteinComplex:
