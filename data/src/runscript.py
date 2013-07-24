@@ -14,8 +14,8 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
-def getEcocycModFormReactions(cmplx):
-	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
+def getEcocycModFormReactions(frameid):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
 	L = []
 	for rxn in dom.getElementsByTagName("appears-in-right-side-of"):
