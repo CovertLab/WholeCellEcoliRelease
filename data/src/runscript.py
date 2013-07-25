@@ -702,6 +702,7 @@ def parseProteinMonomers():
 
 	proteinMonomerDict = {}
 	geneToProteinMonomerDict = {}
+	unknownGenes = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
@@ -718,6 +719,9 @@ def parseProteinMonomers():
 			elif row[7][1:-1] not in geneIdList:
 				knownGene = False
 
+			if not knownGene:
+				unknownGenes.append(row[1])
+
 			if not unmodifiedForms and knownGene:
 				pMono = proteinMonomer()
 
@@ -732,6 +736,14 @@ def parseProteinMonomers():
 
 				proteinMonomerDict[pMono.frameId] = pMono
 				geneToProteinMonomerDict[pMono.gene] = pMono.frameId
+
+	# Write out protein monomers with unknown genes
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_monomers_unknown_genes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['Frame ID', 'Comments'])
+		for u in unknownGenes:
+			csvwriter.writerow([u])
 
 	# Add location information
 	locationSynDict = {'C'	:	'CCO-CYTOSOL',
@@ -1309,12 +1321,21 @@ def parseComplexes():
 			if modform != [""]:
 				modifiedForms.extend(modform)
 
+	# Build list of protein monomers that have no known gene
+	proteinMonomerUnknownGene = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_monomers_unknown_genes.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			unkgene = row['Frame ID']
+			proteinMonomerUnknownGene.append(unkgene)
+
 	# Parse protein complex information
 	proCompDict = {}
 	proCompDict_modified = {}
 	saveRow = {}
 	hasComplexSubunit = []
 	hasModFormSubunit = []
+	proteinComplexUnknownGene = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
@@ -1359,10 +1380,13 @@ def parseComplexes():
 							saveRow[comp.frameId] = row
 						foundAllComponents = False
 						break
+					elif frameId in proteinMonomerUnknownGene:
+						proteinComplexUnknownGene.append(comp.frameId)
+						foundAllComponents = False
+						break
 					else:
 						foundAllComponents = False
 						s = 'Did not create a protein-protein complex for ' + comp.frameId
-						ipdb.set_trace()
 						writeOut(s, logFile)
 
 				if foundAllComponents:
@@ -1428,6 +1452,14 @@ def parseComplexes():
 				hasComplexSubunit.pop(0)
 
 	# TODO: Deal with modified form as subunits complexes
+
+	# Write complexes with subunits that have no known genes
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_complexes_unknown_genes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['Frame ID', 'Comments'])
+		for u in proteinComplexUnknownGene:
+			csvwriter.writerow([u])
 
 	# Write complexes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
