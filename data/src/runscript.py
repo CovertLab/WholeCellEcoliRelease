@@ -2024,7 +2024,9 @@ def buildReaction(rp,row):
 
 		pMFrameId = rp.getPMFrame(bnum)
 
-		reac.enzyme = [[pMFrameId]]
+		reac.enzyme = []
+		for e in pMFrameId:
+			reac.enzyme.append([e])
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
 			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
@@ -2190,9 +2192,9 @@ class reactionParser:
 			csvreader.next()
 			for row in csvreader:
 				if not protMonomerFrameId.has_key(row[2]):
-					protMonomerFrameId[row[2]] = row[0]
+					protMonomerFrameId[row[2]] = [row[0]]
 				else:
-					print 'already has protein monomer!'
+					protMonomerFrameId[row[2]].append(row[0])
 		return protMonomerFrameId
 
 	def loadMonomerToComplex(self):
@@ -2288,7 +2290,7 @@ class reactionParser:
 				bnums = re.findall("(b[0-9]+)", e)
 				monomers = []
 				for b in bnums:
-					monomers.append(self.getPMFrame(b))
+					monomers.extend(self.getPMFrame(b))
 
 				# Check to see if any monomers are actually fake metabolites/cofactors
 				for j,m in enumerate(monomers):
