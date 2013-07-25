@@ -14,6 +14,19 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
+def getEcocycChildren(frameid, tagname, inst = [], sub = [], level = 0):
+	level += 1
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	for subclass in dom.getElementsByTagName("subclass"):
+		fid = subclass.getElementsByTagName(tagname)[0].getAttribute('frameid')
+		sub.append((fid, level))
+		getEcocycChildren(fid, tagname, inst, sub, level)
+	for instance in dom.getElementsByTagName("instance"):
+		fid = instance.getElementsByTagName(tagname)[0].getAttribute('frameid')
+		inst.append((fid,level))
+
 def getEcocycModFormReactions(frameid):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
