@@ -252,10 +252,10 @@ def parseGeneSynonymDictionary():
 							synDict[syn.lower()] = name.lower()
 							synDictFrameId[syn.lower()] = frameId
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_name_synonyms.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(synDict, indent = 4))
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(synDictFrameId, indent = 4))
 
 def parseGeneProductUnmodifiedForm():
@@ -279,11 +279,11 @@ def parseGeneProductUnmodifiedForm():
 			else:
 				unmodifiedForm[row[1]] = False
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_product_unmodifiedForm.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(unmodifiedForm))
 
 def parseRnaTypes():
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
 		unmodifiedForm = json.loads(jsonfile.read())
 
 	rnaType = {}
@@ -299,7 +299,7 @@ def parseRnaTypes():
 				elif not unmodifiedForm[row[1]]:
 					rnaType[row[1]] = 'miscRNA'
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'rna_types.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(rnaType))
 
 # Parse genes
@@ -308,17 +308,17 @@ def parseGenes():
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Load unmodified forms of RNA and proteins
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
 		unmodifiedForm = json.loads(jsonfile.read())
 
 	# Load RNA types
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'rna_types.json'),'rb') as jsonfile:
 		rnaType = json.loads(jsonfile.read())
 	
 	# Load synonym dictionaries
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 		synDictFrameId = json.loads(jsonfile.read())
 
 	# Parse basic information, RNA type, and product
@@ -617,7 +617,7 @@ def parseGenes():
 			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
 
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'genes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(geneDict.keys()))
 
 	logFile.close()
@@ -671,7 +671,7 @@ def parseLocations():
 					'CCO-PILUS'				: 'l',
 					'CCO-PM-BAC-NEG'		: 'i'}
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'locations_equivalent_names.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(locationDict))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'wb') as csvfile:
@@ -690,14 +690,14 @@ def parseProteinMonomers():
 	# Open log file
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 		synDictFrameId = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'genes.json'),'rb') as jsonfile:
 		geneIdList = json.loads(jsonfile.read())
 	# TODO: Might not need to use this last dict depending on the datasource
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'locations_equivalent_names.json'),'rb') as jsonfile:
 		locationEquivDict = json.loads(jsonfile.read())
 
 	proteinMonomerDict = {}
@@ -912,7 +912,7 @@ def parseProteinMonomers_modified():
 
 	# Build cache of modified form reactions
 	rebuild = False
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
@@ -925,10 +925,10 @@ def parseProteinMonomers_modified():
 						print 'Loaded ' + frameId + ' formation reaction'
 						modFormRxn[frameId] = rxn
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
 
 
@@ -1082,7 +1082,7 @@ def parseRNA_modified():
 
 	# Build cache of modified form reactions
 	rebuild = False
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json')) or rebuild:
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
@@ -1096,10 +1096,10 @@ def parseRNA_modified():
 							print 'Loaded ' + frameId + ' formation reaction'
 						modFormRxn[frameId] = rxn
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
 
 
@@ -1237,7 +1237,7 @@ def parseComplexes():
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
 	rebuild = False
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
 		brokenXML = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'broken_xml_complexes.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
@@ -1257,14 +1257,14 @@ def parseComplexes():
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_raw.csv'),'wb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'Ecocyc_protein_complexes_merge.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
 			for row in newRows:
 				csvwriter.writerow(row)
 
 		rebuiltRow = []
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_raw.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'Ecocyc_protein_complexes_merge.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 			for row in dictreader:
 				if not brokenXML.has_key(row['Frame ID']):
@@ -1288,7 +1288,7 @@ def parseComplexes():
 				row['Stoichiometry'] = subunit_string
 				rebuiltRow.append([row['Frame ID'], row['Name'], row['Stoichiometry'], row['Modified form']])
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'wb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
 			rebuiltRow.sort()
@@ -1297,7 +1297,7 @@ def parseComplexes():
 
 	# Build list of protein-protein complexes
 	proteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			proteinComplexes.append(row[0])
@@ -1306,7 +1306,7 @@ def parseComplexes():
 	proCompDict = {}
 	saveRow = {}
 	hasComplexSubunit = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -1808,7 +1808,7 @@ def parseMetabolites():
 	# Write a file of all the fake metabolites
 	proteinLocations = loadMonomerAndComplexLocations()
 	locationAbbrev = loadLocationAbbrev()
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'wb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'pseudo_metabolites.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		keys = metDict.keys()
@@ -2179,7 +2179,7 @@ class reactionParser:
 
 	def loadSynDict(self):
 		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 			synDictFrameId = json.loads(jsonfile.read())
 		return synDictFrameId
 
@@ -2228,7 +2228,7 @@ class reactionParser:
 				monomers.append(subunit)
 
 	def loadFakeMetaboliteFrameIds(self):
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'pseudo_metabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			frameIdList = []
@@ -2241,7 +2241,7 @@ class reactionParser:
 		return uniqueFrameIdList
 
 	def loadFakeMetabolites(self):
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'pseudo_metabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			fakeMetaboliteDict = {}
