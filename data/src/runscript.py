@@ -855,7 +855,7 @@ def parseProteinMonomers():
 
 	# Fill in the rest using GRAVY calculation
 	gravy = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'protein_monomer_gravy.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
