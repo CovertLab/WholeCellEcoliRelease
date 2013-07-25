@@ -372,7 +372,7 @@ def parseGenes():
 							newGene.type = 'mRNA'
 
 	# Parse splicing information
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'geneCoordinates.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'gene_coordinates.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 
 		for row in csvreader:
@@ -595,7 +595,7 @@ def parseGenes():
 		geneDict[key].expression = expressionDict[key] / total
 
 	# Calculate GRAVY and save output
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv')):
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'protein_monomer_gravy.csv')):
 		s = 'Calculating gravy for all genes'
 		writeOut(s, logFile)
 		gravy.main()
@@ -873,7 +873,7 @@ def parseProteinMonomers():
 	writeOut(s, logFile)
 
 	# Manually set some locations
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Manual_protein_location.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_protein_location.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -902,7 +902,7 @@ def parseProteinMonomers_modified():
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
@@ -1072,7 +1072,7 @@ def parseRNA_modified():
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
@@ -1214,7 +1214,7 @@ def parseComplexes():
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
@@ -1239,7 +1239,7 @@ def parseComplexes():
 	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
 		brokenXML = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'broken_xml_complexes.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'broken_xml_complexes.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 			for row in dictreader:
 				brokenXML[row['Frame ID']] = row['Stoichiometry']
@@ -1726,7 +1726,7 @@ def parseMetabolites():
 			metDict[newMet.frameId] = newMet
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
@@ -1745,7 +1745,7 @@ def parseMetabolites():
 				metDict[newMet.frameId] = newMet
 
 	# Remove metabolites not being modeled as metabolites
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_to_remove.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'metabolites_to_remove.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -1979,7 +1979,7 @@ def parseReactions():
 			reactDict[reac.frameId] = reac
 
 	# Add reactions not in Fesit
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_add.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_add.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 
@@ -1988,7 +1988,7 @@ def parseReactions():
 			reactDict[reac.frameId] = reac
 
 	# Remove reactions
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_remove.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -2133,7 +2133,7 @@ class metabolite:
 		self.equivalentEnzyme = []
 		self.comments = ''
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'elements.json'),'rb') as jsonfile:
 			self.elementDict = json.loads(jsonfile.read())
 
 	def addPHProp(self, pH, formula, charge):
@@ -2252,7 +2252,7 @@ class reactionParser:
 	def loadManualAnnotation(self):
 		# Add manual annotation of reactino enzymes from Feist
 		manualAnnotateDict = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactionEnzymeAssociationManual.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reaction_enzyme_association.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			for row in csvreader:
