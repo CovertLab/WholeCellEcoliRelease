@@ -1234,6 +1234,7 @@ def parseComplexes():
 				for mf in modifiedForm:
 					rnaList.append(mf)
 
+
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
 	rebuild = False
@@ -1298,11 +1299,22 @@ def parseComplexes():
 		for row in csvreader:
 			proteinComplexes.append(row[0])
 
+	# Build list of modified forms that could be included in complexes
+	modifiedForms = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		
+		for row in dictreader:
+			modform = row['Modified form'][1:-1].split(' ')
+			if modform != [""]:
+				modifiedForms.extend(modform)
+
 	# Parse protein complex information
 	proCompDict = {}
 	proCompDict_modified = {}
 	saveRow = {}
 	hasComplexSubunit = []
+	hasModFormSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
@@ -1341,9 +1353,16 @@ def parseComplexes():
 					elif (frameId in rnaList):
 						location = ['CCO-CYTOSOL']
 						comp.addReactant(frameId, stoich, location)
+					elif frameId in modifiedForms:
+						if frameId not in [x[0] for x in hasModFormSubunit]:
+							hasModFormSubunit.append(comp.frameId)
+							saveRow[comp.frameId] = row
+						foundAllComponents = False
+						break
 					else:
 						foundAllComponents = False
 						s = 'Did not create a protein-protein complex for ' + comp.frameId
+						ipdb.set_trace()
 						writeOut(s, logFile)
 
 				if foundAllComponents:
@@ -1352,7 +1371,7 @@ def parseComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					proCompDict[comp.frameId] = comp
-				
+
 			else:
 				raise Exception, 'No stoichiometry found!\n'
 
@@ -1407,6 +1426,8 @@ def parseComplexes():
 
 				proCompDict[comp.frameId] = comp
 				hasComplexSubunit.pop(0)
+
+	# TODO: Deal with modified form as subunits complexes
 
 	# Write complexes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
@@ -2419,6 +2440,9 @@ class proteinComplex:
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
 		self.modifiedForm = []
+		self.unmodifiedForm = None
+		self.reactionId = []
+		self.reaction = []
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
