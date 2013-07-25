@@ -1238,53 +1238,49 @@ def parseComplexes():
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
 	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
-		brokenXML = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'broken_xml_complexes.csv'),'rb') as csvfile:
-			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
-			for row in dictreader:
-				brokenXML[row['Frame ID']] = row['Stoichiometry']
-		
 		newRows = []
+		modifiedForms = []
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
+				modifiedForms.extend(row[3][1:-1].split(' '))
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
+				modifiedForms.extend(row[3][1:-1].split(' '))
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
+				modifiedForms.extend(row[3][1:-1].split(' '))
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'Ecocyc_protein_complexes_merge.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
 			for row in newRows:
-				csvwriter.writerow(row)
+				if row[0] not in modifiedForms:
+					csvwriter.writerow(row)
 
 		rebuiltRow = []
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'Ecocyc_protein_complexes_merge.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 			for row in dictreader:
-				if not brokenXML.has_key(row['Frame ID']):
-					subunits = getEcocycComplexComponents(row['Frame ID'])
-					if subunits == []:
-						print 'ERROR!!! ' + row['Frame ID']
-					print 'fetched subunits for ' + row['Frame ID']
-					subunit_string = '('
-					for i,s in enumerate(subunits):
-						subunit_string += '('
-						subunit_string += s[0]
-						subunit_string += ', '
-						subunit_string += str(s[1])
-						if i == len(subunits) - 1:
-							subunit_string += ')'
-						else:
-							subunit_string += ') '
-					subunit_string += ')'
-				else:
-					subunit_string = brokenXML[row['Frame ID']]
+				subunits = getEcocycComplexComponents(row['Frame ID'])
+				if subunits == []:
+					print 'ERROR!!! ' + row['Frame ID']
+				print 'fetched subunits for ' + row['Frame ID']
+				subunit_string = '('
+				for i,s in enumerate(subunits):
+					subunit_string += '('
+					subunit_string += s[0]
+					subunit_string += ', '
+					subunit_string += str(s[1])
+					if i == len(subunits) - 1:
+						subunit_string += ')'
+					else:
+						subunit_string += ') '
+				subunit_string += ')'
 				row['Stoichiometry'] = subunit_string
 				rebuiltRow.append([row['Frame ID'], row['Name'], row['Stoichiometry'], row['Modified form']])
 
@@ -1304,6 +1300,7 @@ def parseComplexes():
 
 	# Parse protein complex information
 	proCompDict = {}
+	proCompDict_modified = {}
 	saveRow = {}
 	hasComplexSubunit = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
@@ -1355,6 +1352,7 @@ def parseComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					proCompDict[comp.frameId] = comp
+				
 			else:
 				raise Exception, 'No stoichiometry found!\n'
 
