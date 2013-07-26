@@ -194,52 +194,6 @@
             ]
         ]
     ], 
-    "PHOSPHO-HYDH": [
-        [
-            "HYDH-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "ATP", 
-                    "-1"
-                ], 
-                [
-                    "HYDH-MONOMER", 
-                    "-1"
-                ], 
-                [
-                    "ADP", 
-                    "1"
-                ], 
-                [
-                    "PHOSPHO-HYDH", 
-                    "1"
-                ]
-            ]
-        ], 
-        [
-            "HYDG-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOSPHO-HYDH", 
-                    "-1"
-                ], 
-                [
-                    "HYDG-MONOMER", 
-                    "-1"
-                ], 
-                [
-                    "PHOSPHO-HYDG", 
-                    "1"
-                ], 
-                [
-                    "HYDH-MONOMER", 
-                    "1"
-                ]
-            ]
-        ]
-    ], 
     "PHOSPHO-ARCB717": [
         [
             "ARCB717-RXN", 
@@ -335,7 +289,6 @@
             ]
         ]
     ], 
-    "DSBCOX-MONOMER": [], 
     "BOUND-TORT": [
         [
             "TORT-RXN", 
@@ -596,21 +549,55 @@
             ]
         ]
     ], 
-    "MONOMER0-2482": [
+    "DIHYDROLIPOYL-GCVH": [
         [
-            "RXN0-4942", 
-            "UNKNOWN", 
+            "GCVT-RXN", 
+            "LEFT-TO-RIGHT", 
             [
                 [
-                    "G7821-MONOMER", 
+                    "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
                     "-1"
                 ], 
                 [
-                    "ALLOSE", 
+                    "THF", 
                     "-1"
                 ], 
                 [
-                    "MONOMER0-2482", 
+                    "DIHYDROLIPOYL-GCVH", 
+                    "1"
+                ], 
+                [
+                    "AMMONIA", 
+                    "1"
+                ], 
+                [
+                    "METHYLENE-THF", 
+                    "1"
+                ]
+            ]
+        ], 
+        [
+            "RXN-8629", 
+            "LEFT-TO-RIGHT", 
+            [
+                [
+                    "DIHYDROLIPOYL-GCVH", 
+                    "-1"
+                ], 
+                [
+                    "NAD", 
+                    "-1"
+                ], 
+                [
+                    "PROTEIN-LIPOYLLYSINE", 
+                    "1"
+                ], 
+                [
+                    "NADH", 
+                    "1"
+                ], 
+                [
+                    "PROTON", 
                     "1"
                 ]
             ]
@@ -688,6 +675,122 @@
     "BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP": [], 
     "OX-FLAVODOXIN2": [], 
     "OX-FLAVODOXIN1": [], 
+    "MONOMER0-4292": [
+        [
+            "RXN0-7048", 
+            "UNKNOWN", 
+            [
+                [
+                    "MONOMER0-4291", 
+                    "-1"
+                ], 
+                [
+                    "EG12147-MONOMER", 
+                    "-1"
+                ], 
+                [
+                    "MONOMER0-4292", 
+                    "1"
+                ], 
+                [
+                    "EG12188-MONOMER", 
+                    "1"
+                ]
+            ]
+        ], 
+        [
+            "RXN0-7049", 
+            "UNKNOWN", 
+            [
+                [
+                    "MONOMER0-4292", 
+                    "-1"
+                ], 
+                [
+                    "EG11682-MONOMER", 
+                    "-1"
+                ], 
+                [
+                    "MONOMER0-4293", 
+                    "1"
+                ], 
+                [
+                    "EG12147-MONOMER", 
+                    "1"
+                ]
+            ]
+        ]
+    ], 
+    "MONOMER0-4293": [
+        [
+            "RXN0-7049", 
+            "UNKNOWN", 
+            [
+                [
+                    "MONOMER0-4292", 
+                    "-1"
+                ], 
+                [
+                    "EG11682-MONOMER", 
+                    "-1"
+                ], 
+                [
+                    "MONOMER0-4293", 
+                    "1"
+                ], 
+                [
+                    "EG12147-MONOMER", 
+                    "1"
+                ]
+            ]
+        ]
+    ], 
+    "MONOMER0-4291": [
+        [
+            "RXN0-7047", 
+            "UNKNOWN", 
+            [
+                [
+                    "PHOSPHO-ENOL-PYRUVATE", 
+                    "-1"
+                ], 
+                [
+                    "EG12188-MONOMER", 
+                    "-1"
+                ], 
+                [
+                    "PYRUVATE", 
+                    "1"
+                ], 
+                [
+                    "MONOMER0-4291", 
+                    "1"
+                ]
+            ]
+        ], 
+        [
+            "RXN0-7048", 
+            "UNKNOWN", 
+            [
+                [
+                    "MONOMER0-4291", 
+                    "-1"
+                ], 
+                [
+                    "EG12147-MONOMER", 
+                    "-1"
+                ], 
+                [
+                    "MONOMER0-4292", 
+                    "1"
+                ], 
+                [
+                    "EG12188-MONOMER", 
+                    "1"
+                ]
+            ]
+        ]
+    ], 
     "CIS-DELTA5-DODECENOYL-ACP": [], 
     "MONOMER0-4119": [], 
     "OX-THIOREDOXIN2-MONOMER": [], 
@@ -857,55 +960,47 @@
         ]
     ], 
     "SAMDC-ALPHA-MONOMER": [], 
-    "DIHYDROLIPOYL-GCVH": [
+    "PHOSPHO-HYDH": [
         [
-            "GCVT-RXN", 
+            "HYDH-RXN", 
             "LEFT-TO-RIGHT", 
             [
                 [
-                    "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
+                    "ATP", 
                     "-1"
                 ], 
                 [
-                    "THF", 
+                    "HYDH-MONOMER", 
                     "-1"
                 ], 
                 [
-                    "DIHYDROLIPOYL-GCVH", 
+                    "ADP", 
                     "1"
                 ], 
                 [
-                    "AMMONIA", 
-                    "1"
-                ], 
-                [
-                    "METHYLENE-THF", 
+                    "PHOSPHO-HYDH", 
                     "1"
                 ]
             ]
         ], 
         [
-            "RXN-8629", 
+            "HYDG-RXN", 
             "LEFT-TO-RIGHT", 
             [
                 [
-                    "DIHYDROLIPOYL-GCVH", 
+                    "PHOSPHO-HYDH", 
                     "-1"
                 ], 
                 [
-                    "NAD", 
+                    "HYDG-MONOMER", 
                     "-1"
                 ], 
                 [
-                    "PROTEIN-LIPOYLLYSINE", 
+                    "PHOSPHO-HYDG", 
                     "1"
                 ], 
                 [
-                    "NADH", 
-                    "1"
-                ], 
-                [
-                    "PROTON", 
+                    "HYDH-MONOMER", 
                     "1"
                 ]
             ]
@@ -1284,7 +1379,6 @@
         ]
     ], 
     "PGLYCEROLTRANSII-MONOMER": [], 
-    "DSBGOXI-MONOMER": [], 
     "PHOSPHO-DCUR-MONOMER": [], 
     "TRANS-DELTA3-CIS-DELTA5-DODECENOYL-ACP": [], 
     "URIDYLYL-PII2": [
@@ -2554,6 +2648,30 @@
                 ], 
                 [
                     "CO-A", 
+                    "1"
+                ]
+            ]
+        ]
+    ], 
+    "CPLX0-8004": [
+        [
+            "DSBD-RXN", 
+            "UNKNOWN", 
+            [
+                [
+                    "CPLX0-8004", 
+                    "-1"
+                ], 
+                [
+                    "DSBD-MONOMER", 
+                    "-1"
+                ], 
+                [
+                    "DSBG-MONOMER", 
+                    "1"
+                ], 
+                [
+                    "DSBDOXI-MONOMER", 
                     "1"
                 ]
             ]
