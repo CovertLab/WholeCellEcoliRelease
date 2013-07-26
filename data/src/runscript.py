@@ -27,6 +27,16 @@ def getEcocycChildren(frameid, tagname, inst = [], sub = [], level = 0):
 		fid = instance.getElementsByTagName(tagname)[0].getAttribute('frameid')
 		inst.append((fid,level))
 
+def getEcocycParents(frameid, tagname, parents):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	for parentClass in dom.getElementsByTagName("parent"):
+		if len(parentClass.getElementsByTagName(tagname)):
+			fid = parentClass.getElementsByTagName(tagname)[0].getAttribute('frameid')
+			parents.append(fid)
+			getEcocycParents(fid, tagname, parents)
+
 def getEcocycModFormReactions(frameid):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
