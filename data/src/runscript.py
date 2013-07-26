@@ -109,6 +109,7 @@ def main():
 	parseRna()
 	parseRNA_modified()
 	parseComplexes()
+	parseComplexes_modified()
 	parseTranscriptionUnits()
 	parseMetabolites()
 	parseReactions()
@@ -1472,6 +1473,131 @@ def parseComplexes():
 
 	logFile.close()
 
+def parseComplexes_modified():
+	# Load location abbreviations
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
+	# Build cache of modified form reactions
+	rebuild = False
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json')) or rebuild:
+		modFormRxn = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if len(json.loads(row['Modified form'])):
+					for frameId in json.loads(row['Modified form']):
+						rxn = getEcocycModFormReactions(frameId)
+						if rxn == []:
+							print 'No reaction for ' + frameId
+						print 'Loaded ' + frameId + ' formation reaction'
+						modFormRxn[frameId] = rxn
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(modFormRxn, indent = 4))
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'rb') as jsonfile:
+		modFormRxn = json.loads(jsonfile.read())
+
+
+	proteinComplexDict_modifiedForm = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if len(json.loads(row['Modified form'])):
+				for frameId in json.loads(row['Modified form']):
+					pc = proteinComplex()
+					pc.frameId = frameId
+					pc.unmodifiedForm = row['Frame ID']
+					pc.location = json.loads(row['Location'])
+
+					rxn_raw = modFormRxn[pc.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+
+						for rxn in rxn_raw:
+							for rxn_species in rxn[2]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pc.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+									production_reaction.append(rxn)
+								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pc.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+									production_reaction.append(rxn)
+								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pc.frameId:
+									production_reaction.append(rxn)
+
+						# if len(production_reaction) > 1:
+						# 	ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[2]
+
+							pc.reactionId.append(rxnId)
+							pc.reaction.append('')
+
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
+
+							pc.reaction[-1] += '[' + locationAbbrevDict[pc.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = abs(int(float(r[1])))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									pc.reaction[-1] += '(' + str(rst) + ') '
+								pc.reaction[-1] += rid
+								if i < len(reactants) - 1:
+									pc.reaction[-1] += ' + '
+
+							pc.reaction[-1] += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = abs(int(float(p[1])))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									pid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									pc.reaction[-1] += '(' + str(pst) + ') '
+								pc.reaction[-1] += pid
+								if i < len(products) - 1:
+									pc.reaction[-1] += ' + '
+
+
+					proteinComplexDict_modifiedForm[pc.frameId] = pc
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes_modified.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = proteinComplexDict_modifiedForm.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		for key in keys:
+			pc = proteinComplexDict_modifiedForm[key]
+			csvwriter.writerow([pc.frameId, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reaction), pc.comments])
+
 def getEcocycComplexComponents(cmplx):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
@@ -2471,6 +2597,7 @@ class proteinComplex:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.location = []
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
