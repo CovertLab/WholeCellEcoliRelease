@@ -1312,14 +1312,15 @@ def parseComplexes():
 			proteinComplexes.append(row[0])
 
 	# Build list of modified forms that could be included in complexes
-	modifiedForms = []
+	modifiedForms ={}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		
 		for row in dictreader:
 			modform = row['Modified form'][1:-1].split(' ')
 			if modform != [""]:
-				modifiedForms.extend(modform)
+				for m in modform:
+					modifiedForms[m] = row['Frame ID']
 
 	# Build list of protein monomers that have no known gene
 	proteinMonomerUnknownGene = []
@@ -1331,10 +1332,8 @@ def parseComplexes():
 
 	# Parse protein complex information
 	proCompDict = {}
-	proCompDict_modified = {}
 	saveRow = {}
 	hasComplexSubunit = []
-	hasModFormSubunit = []
 	proteinComplexUnknownGene = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
@@ -1355,7 +1354,7 @@ def parseComplexes():
 					frameId = info[0]
 					stoich = int(info[1])
 
-					if (frameId in proteinComplexes):
+					if (frameId in proteinComplexes) or (frameId in modifiedForms.keys()):
 						if frameId not in [x[0] for x in hasComplexSubunit]:
 							hasComplexSubunit.append(comp.frameId)
 							saveRow[comp.frameId] = row
@@ -1374,12 +1373,6 @@ def parseComplexes():
 					elif (frameId in rnaList):
 						location = ['CCO-CYTOSOL']
 						comp.addReactant(frameId, stoich, location)
-					elif frameId in modifiedForms:
-						if frameId not in [x[0] for x in hasModFormSubunit]:
-							hasModFormSubunit.append(comp.frameId)
-							saveRow[comp.frameId] = row
-						foundAllComponents = False
-						break
 					elif frameId in proteinMonomerUnknownGene:
 						proteinComplexUnknownGene.append(comp.frameId)
 						foundAllComponents = False
@@ -1438,6 +1431,10 @@ def parseComplexes():
 				elif (frameId in rnaList):
 					location = ['CCO-CYTOSOL']
 					comp.addReactant(frameId, stoich, location)
+				elif frameId in modifiedForms.keys():
+					unmodifiedForm_frameId = modifiedForms[frameId]
+					location = proCompDict[unmodifiedForm_frameId].location
+					comp.addReactant(frameId, stoich, location)
 				else:
 					foundAllComponents = False
 					savePC = hasComplexSubunit.pop(0)
@@ -1450,8 +1447,6 @@ def parseComplexes():
 
 				proCompDict[comp.frameId] = comp
 				hasComplexSubunit.pop(0)
-
-	# TODO: Deal with modified form as subunits complexes
 
 	# Write complexes with subunits that have no known genes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_complexes_unknown_genes.csv'),'wb') as csvfile:
@@ -2490,7 +2485,11 @@ class proteinComplex:
 	def buildStringComposition(self, compartmentDict):
 		s = ''
 		subComp = self.composition['reactant'].keys()
-
+		try:
+			for key in self.composition['reactant'].iterkeys():
+				self.composition['reactant'][key]['compartment'][0]
+		except:
+			ipdb.set_trace()
 		locationSet = [self.composition['reactant'][key]['compartment'][0] for key in self.composition['reactant'].iterkeys()]
 		locationSetProduct = [self.composition['product'][key]['compartment'][0] for key in self.composition['product'].iterkeys()]
 		locationSet.extend(locationSetProduct)
