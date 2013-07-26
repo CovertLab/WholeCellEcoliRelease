@@ -1219,6 +1219,8 @@ def parseComplexes():
 		csvreader.next()
 		for row in csvreader:
 			monomerCompartment[row[0]] = json.loads(row[3])
+
+			# TODO: Might not need this here come back and delete. Modified forms have been removed.
 			modifiedForm = json.loads(row[4])
 			if modifiedForm != []:
 				for m in modifiedForm:
@@ -1391,7 +1393,7 @@ def parseComplexes():
 
 			else:
 				raise Exception, 'No stoichiometry found!\n'
-
+	
 	# Deal with protein complexes that have other protein complexes as subunits
 	prev = 0
 	breakCount = 0
@@ -1433,7 +1435,7 @@ def parseComplexes():
 					comp.addReactant(frameId, stoich, location)
 				elif frameId in modifiedForms.keys():
 					unmodifiedForm_frameId = modifiedForms[frameId]
-					location = proCompDict[unmodifiedForm_frameId].location
+					location = proCompDict[unmodifiedForm_frameId].composition['product'][unmodifiedForm_frameId]['compartment']
 					comp.addReactant(frameId, stoich, location)
 				else:
 					foundAllComponents = False
@@ -2462,7 +2464,6 @@ class proteinComplex:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
-		self.location = []
 		self.composition = {'reactant' : {}, 'product' : {}}
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
@@ -2485,11 +2486,6 @@ class proteinComplex:
 	def buildStringComposition(self, compartmentDict):
 		s = ''
 		subComp = self.composition['reactant'].keys()
-		try:
-			for key in self.composition['reactant'].iterkeys():
-				self.composition['reactant'][key]['compartment'][0]
-		except:
-			ipdb.set_trace()
 		locationSet = [self.composition['reactant'][key]['compartment'][0] for key in self.composition['reactant'].iterkeys()]
 		locationSetProduct = [self.composition['product'][key]['compartment'][0] for key in self.composition['product'].iterkeys()]
 		locationSet.extend(locationSetProduct)
