@@ -1462,7 +1462,7 @@ def parseComplexes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Modified form', 'Formation process', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Location', 'Composition', 'Composition', 'Modified form', 'Formation process', 'Comments'])
 		
 		keys = proCompDict.keys()
 		keys.sort()
