@@ -14,8 +14,31 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
-def getEcocycModFormReactions(cmplx):
-	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
+def getEcocycChildren(frameid, tagname, inst = [], sub = [], level = 0):
+	level += 1
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	for subclass in dom.getElementsByTagName("subclass"):
+		fid = subclass.getElementsByTagName(tagname)[0].getAttribute('frameid')
+		sub.append((fid, level))
+		getEcocycChildren(fid, tagname, inst, sub, level)
+	for instance in dom.getElementsByTagName("instance"):
+		fid = instance.getElementsByTagName(tagname)[0].getAttribute('frameid')
+		inst.append((fid,level))
+
+def getEcocycParents(frameid, tagname, parents):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
+	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	for parentClass in dom.getElementsByTagName("parent"):
+		if len(parentClass.getElementsByTagName(tagname)):
+			fid = parentClass.getElementsByTagName(tagname)[0].getAttribute('frameid')
+			parents.append(fid)
+			getEcocycParents(fid, tagname, parents)
+
+def getEcocycModFormReactions(frameid):
+	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
 	L = []
 	for rxn in dom.getElementsByTagName("appears-in-right-side-of"):
@@ -24,21 +47,28 @@ def getEcocycModFormReactions(cmplx):
 			fId = elemRxn[0].getAttribute("frameid")
 		else:
 			raise Exception, "Don't have a reaction frame id."
-		L.append((fId, getEcocycReactionStoich(fId)))
+		L.append(getEcocycReactionStoich(fId))
 	for rxn in dom.getElementsByTagName("appears-in-left-side-of"):
 		elemRxn = rxn.getElementsByTagName("Reaction")
 		if len(elemRxn) > 0:
 			fId = elemRxn[0].getAttribute("frameid")
 		else:
 			raise Exception, "Don't have a reaction frame id."
-		L.append((fId, getEcocycReactionStoich(fId)))
+		L.append(getEcocycReactionStoich(fId))
 	return L
-	
 
 def getEcocycReactionStoich(rxn):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % rxn
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
 	L = []
+
+	direction = dom.getElementsByTagName("reaction-direction")
+	if len(direction):
+		direction = direction[0]
+		rxnDir = direction.firstChild.data
+	else:
+		rxnDir = 'UNKNOWN'
+
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
 		elemRna = left.getElementsByTagName("RNA")
@@ -75,7 +105,7 @@ def getEcocycReactionStoich(rxn):
 		else:
 			coeff = u"1"
 		L.append((fId, coeff))
-	return L
+	return (rxn, rxnDir, L)
 
 def main():
 	initalizeLog()
@@ -87,7 +117,9 @@ def main():
 	parseProteinMonomers()
 	parseProteinMonomers_modified()
 	parseRna()
+	parseRNA_modified()
 	parseComplexes()
+	parseComplexes_modified()
 	parseTranscriptionUnits()
 	parseMetabolites()
 	parseReactions()
@@ -118,30 +150,30 @@ def getEcocyc(fetchNew = False):
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Build protein-protein complexes
-	bioVeloQuery = '[(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	bioVeloQuery = 'sort [(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^protein-complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build protein-rna complexes
-	bioVeloQuery = '[(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	bioVeloQuery = 'sort [(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^Protein-RNA-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna_protein_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build protein-small molecule complexes
-	bioVeloQuery = '[(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^Protein-Small-Molecule-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
+	bioVeloQuery = 'sort [(x^frame-id, x^name, components, [z^frame-id : z <- x^modified-form]): x <- ecoli^^Protein-Small-Molecule-Complexes, components := [(c1^frame-id, c2): (c1, c2) <- protein-to-components x]]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_protein_small_molecule_complexes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build genes
-	bioVeloQuery = '[(G^FRAME-ID, G^NAME, G^LEFT-END-POSITION, G^RIGHT-END-POSITION, G^TRANSCRIPTION-DIRECTION, [(TMP^FRAME-ID, TMP^NAME): TMP <- P], [c^FRAME-ID : c <- G^component-of, c isa transcription-units]) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
+	bioVeloQuery = 'sort [(G^FRAME-ID, G^NAME, G^LEFT-END-POSITION, G^RIGHT-END-POSITION, G^TRANSCRIPTION-DIRECTION, [(TMP^FRAME-ID, TMP^NAME): TMP <- P], [c^FRAME-ID : c <- G^component-of, c isa transcription-units]) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_genes.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
-	bioVeloQuery = '[(G^NAME, G^FRAME-ID, G^SYNONYMS, G^ACCESSION-1, G^ACCESSION-2) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
+	bioVeloQuery = 'sort [(G^NAME, G^FRAME-ID, G^SYNONYMS, G^ACCESSION-1, G^ACCESSION-2) : G<-ECOLI^^All-Genes, P := [TMP: TMP <- G^PRODUCT], #P > 0]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_gene_synonyms.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
@@ -153,36 +185,36 @@ def getEcocyc(fetchNew = False):
 	writeOut(bioVeloQuery, logFile)
 
 	# Build RNA
-	bioVeloQuery = '[(Z1^NAME, Z1^FRAME-ID, Z1^GENE, [G^FRAME-ID : G <- Z1^GENE], Z1^UNMODIFIED-FORM, [UM^FRAME-ID : UM <- Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [UZ^FRAME-ID : UZ <- Z1^MODIFIED-FORM]) :  Z1<-ECOLI^^RNAs]'
+	bioVeloQuery = 'sort [(Z1^NAME, Z1^FRAME-ID, Z1^GENE, [G^FRAME-ID : G <- Z1^GENE], Z1^UNMODIFIED-FORM, [UM^FRAME-ID : UM <- Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [UZ^FRAME-ID : UZ <- Z1^MODIFIED-FORM]) :  Z1<-ECOLI^^RNAs]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_rna.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build protein monomers
-	bioVeloQuery = '[(Z1^NAME, Z1^FRAME-ID, Z1^UNMODIFIED-FORM, [U^FRAME-ID: U<-Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [M^FRAME-ID: M<-Z1^MODIFIED-FORM], Z1^GENE, [G^FRAME-ID: G<-Z1^GENE], [(U^NAME, U^FRAME-ID): U<-Z1^LOCATIONS]): Z1<-ECOLI^^Proteins]'
+	bioVeloQuery = 'sort [(Z1^NAME, Z1^FRAME-ID, Z1^UNMODIFIED-FORM, [U^FRAME-ID: U<-Z1^UNMODIFIED-FORM], Z1^MODIFIED-FORM, [M^FRAME-ID: M<-Z1^MODIFIED-FORM], Z1^GENE, [G^FRAME-ID: G<-Z1^GENE], [(U^NAME, U^FRAME-ID): U<-Z1^LOCATIONS]): Z1<-ECOLI^^Proteins]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw','Ecocyc_proteins.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build transcription units
-	bioVeloQuery = '[(t^name,t^FRAME-ID,[c^FRAME-ID : c <- t^components, c isa promoters],[c^FRAME-ID : c <- t^components, c isa terminators],[c^FRAME-ID : c <- t^components, c isa all-genes]) : t <- ecoli^^transcription-units]'
+	bioVeloQuery = 'sort [(t^name,t^FRAME-ID,[c^FRAME-ID : c <- t^components, c isa promoters],[c^FRAME-ID : c <- t^components, c isa terminators],[c^FRAME-ID : c <- t^components, c isa all-genes]) : t <- ecoli^^transcription-units]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_transcriptionUnits.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build promoters
-	bioVeloQuery = '[(Z1^FRAME-ID, Z1^NAME, Z1^BINDS-SIGMA-FACTOR, Z1^ABSOLUTE-PLUS-1-POS, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Promoters]'
+	bioVeloQuery = 'sort [(Z1^FRAME-ID, Z1^NAME, Z1^BINDS-SIGMA-FACTOR, Z1^ABSOLUTE-PLUS-1-POS, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Promoters]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_promoters.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
 	# Build terminators
-	bioVeloQuery = '[(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Independent-Terminators]'
+	bioVeloQuery = 'sort [(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Independent-Terminators]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoIndepTerm.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
 
-	bioVeloQuery = '[(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Dependent-Terminators]'
+	bioVeloQuery = 'sort [(Z1^FRAME-ID, Z1^NAME, Z1^LEFT-END-POSITION, Z1^RIGHT-END-POSITION, [c^FRAME-ID : c <- Z1^component-of, c isa transcription-units]) :  Z1<-ECOLI^^Rho-Dependent-Terminators]'
 	outFile = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rhoDepTerm.csv')
 	generateEcocycFlatFile(bioVeloQuery, outFile)
 	writeOut(bioVeloQuery, logFile)
@@ -231,10 +263,10 @@ def parseGeneSynonymDictionary():
 							synDict[syn.lower()] = name.lower()
 							synDictFrameId[syn.lower()] = frameId
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_name_synonyms.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(synDict, indent = 4))
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(synDictFrameId, indent = 4))
 
 def parseGeneProductUnmodifiedForm():
@@ -258,11 +290,11 @@ def parseGeneProductUnmodifiedForm():
 			else:
 				unmodifiedForm[row[1]] = False
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_product_unmodifiedForm.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(unmodifiedForm))
 
 def parseRnaTypes():
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
 		unmodifiedForm = json.loads(jsonfile.read())
 
 	rnaType = {}
@@ -278,7 +310,7 @@ def parseRnaTypes():
 				elif not unmodifiedForm[row[1]]:
 					rnaType[row[1]] = 'miscRNA'
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'rna_types.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(rnaType))
 
 # Parse genes
@@ -287,17 +319,17 @@ def parseGenes():
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
 	# Load unmodified forms of RNA and proteins
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_product_unmodifiedForm.json'),'rb') as jsonfile:
 		unmodifiedForm = json.loads(jsonfile.read())
 
 	# Load RNA types
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'rnaTypes.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'rna_types.json'),'rb') as jsonfile:
 		rnaType = json.loads(jsonfile.read())
 	
 	# Load synonym dictionaries
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 		synDictFrameId = json.loads(jsonfile.read())
 
 	# Parse basic information, RNA type, and product
@@ -351,7 +383,7 @@ def parseGenes():
 							newGene.type = 'mRNA'
 
 	# Parse splicing information
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'geneCoordinates.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'gene_coordinates.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t')
 
 		for row in csvreader:
@@ -574,7 +606,7 @@ def parseGenes():
 		geneDict[key].expression = expressionDict[key] / total
 
 	# Calculate GRAVY and save output
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv')):
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'protein_monomer_gravy.csv')):
 		s = 'Calculating gravy for all genes'
 		writeOut(s, logFile)
 		gravy.main()
@@ -596,7 +628,7 @@ def parseGenes():
 			csvwriter.writerow([g.frameId, g.name, g.symbol, g.type, g.coordinate, g.length, g.direction, "%0.10f" % g.expression, g.halfLife, g.productFrameId, json.dumps(g.splices), json.dumps(g.sequenceSubstitution), g.comments])
 
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'genes.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(geneDict.keys()))
 
 	logFile.close()
@@ -650,7 +682,7 @@ def parseLocations():
 					'CCO-PILUS'				: 'l',
 					'CCO-PM-BAC-NEG'		: 'i'}
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'wb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'locations_equivalent_names.json'),'wb') as jsonfile:
 		jsonfile.write(json.dumps(locationDict))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'wb') as csvfile:
@@ -669,18 +701,19 @@ def parseProteinMonomers():
 	# Open log file
 	logFile = open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log','log_' + t + '.log'),'a')
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_name_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_name_synonyms.json'),'rb') as jsonfile:
 		synDict = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 		synDictFrameId = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'genes.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'genes.json'),'rb') as jsonfile:
 		geneIdList = json.loads(jsonfile.read())
 	# TODO: Might not need to use this last dict depending on the datasource
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'locations_equivalent_names.json'),'rb') as jsonfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'locations_equivalent_names.json'),'rb') as jsonfile:
 		locationEquivDict = json.loads(jsonfile.read())
 
 	proteinMonomerDict = {}
 	geneToProteinMonomerDict = {}
+	unknownGenes = []
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_proteins.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
@@ -697,6 +730,9 @@ def parseProteinMonomers():
 			elif row[7][1:-1] not in geneIdList:
 				knownGene = False
 
+			if not knownGene:
+				unknownGenes.append(row[1])
+
 			if not unmodifiedForms and knownGene:
 				pMono = proteinMonomer()
 
@@ -711,6 +747,14 @@ def parseProteinMonomers():
 
 				proteinMonomerDict[pMono.frameId] = pMono
 				geneToProteinMonomerDict[pMono.gene] = pMono.frameId
+
+	# Write out protein monomers with unknown genes
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_monomers_unknown_genes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['Frame ID', 'Comments'])
+		for u in unknownGenes:
+			csvwriter.writerow([u])
 
 	# Add location information
 	locationSynDict = {'C'	:	'CCO-CYTOSOL',
@@ -834,7 +878,7 @@ def parseProteinMonomers():
 
 	# Fill in the rest using GRAVY calculation
 	gravy = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'protein_monomer_gravy.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -852,7 +896,7 @@ def parseProteinMonomers():
 	writeOut(s, logFile)
 
 	# Manually set some locations
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Manual_protein_location.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_protein_location.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -872,9 +916,26 @@ def parseProteinMonomers():
 	logFile.close()
 
 def parseProteinMonomers_modified():
+	# Load location abbreviations
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
 	# Build cache of modified form reactions
-	rebuild = True
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
+	rebuild = False
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
@@ -887,11 +948,14 @@ def parseProteinMonomers_modified():
 						print 'Loaded ' + frameId + ' formation reaction'
 						modFormRxn[frameId] = rxn
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
-	proteinMonomerDict_modified = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
+		modFormRxn = json.loads(jsonfile.read())
 
+
+	proteinMonomerDict_modified = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		for row in dictreader:
@@ -902,8 +966,65 @@ def parseProteinMonomers_modified():
 					pm.unmodifiedForm = row['Frame ID']
 					pm.location = json.loads(row['Location'])
 
-					# x = getEcocycModFormReactions(pm.frameId)
-					# ipdb.set_trace()
+					rxn_raw = modFormRxn[pm.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+
+						for rxn in rxn_raw:
+							for rxn_species in rxn[2]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+									production_reaction.append(rxn)
+								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pm.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+									production_reaction.append(rxn)
+								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pm.frameId:
+									production_reaction.append(rxn)
+
+						# if len(production_reaction) > 1:
+						# 	ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[2]
+
+							pm.reactionId.append(rxnId)
+							pm.reaction.append('')
+
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
+
+							pm.reaction[-1] += '[' + locationAbbrevDict[pm.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = abs(int(float(r[1])))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									pm.reaction[-1] += '(' + str(rst) + ') '
+								pm.reaction[-1] += rid
+								if i < len(reactants) - 1:
+									pm.reaction[-1] += ' + '
+
+							pm.reaction[-1] += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = abs(int(float(p[1])))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									pid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									pm.reaction[-1] += '(' + str(pst) + ') '
+								pm.reaction[-1] += pid
+								if i < len(products) - 1:
+									pm.reaction[-1] += ' + '
 
 
 					proteinMonomerDict_modified[pm.frameId] = pm
@@ -917,7 +1038,7 @@ def parseProteinMonomers_modified():
 		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
 		for key in keys:
 			pm = proteinMonomerDict_modified[key]
-			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), pm.reactionId, pm.reaction, pm.comments])
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
 
 # Parse RNA
 def parseRna():
@@ -959,10 +1080,141 @@ def parseRna():
 
 		keys = rnaDict.keys()
 		keys.sort()
-		csvwriter.writerow(['ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Gene', 'Location', 'Modified form', 'Comments'])
 		for key in keys:
 			rnaToPrint = rnaDict[key]
 			csvwriter.writerow([rnaToPrint.frameId, rnaToPrint.name, rnaToPrint.gene, json.dumps(rnaToPrint.location), json.dumps(rnaToPrint.modifiedForm), rnaToPrint.comments])
+
+def parseRNA_modified():
+	# Load location abbreviations
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
+	# Build cache of modified form reactions
+	rebuild = True
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
+		modFormRxn = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if len(json.loads(row['Modified form'])):
+					for frameId in json.loads(row['Modified form']):
+						parents = []
+						formation_reactions = []
+						getEcocycParents(str(frameId), 'RNA', parents)
+						ipdb.set_trace()
+						for p in parents:
+							rxn = getEcocycModFormReactions(frameId)
+							formation_reactions.extend(rxn)
+						if formation_reactions == []:
+							print 'No reaction for ' + frameId
+						else:
+							print 'Loaded ' + frameId + ' formation reaction'
+						modFormRxn[frameId] = formation_reactions
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(modFormRxn, indent = 4))
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
+		modFormRxn = json.loads(jsonfile.read())
+
+
+	rnaDict_modified = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if len(json.loads(row['Modified form'])):
+				for frameId in json.loads(row['Modified form']):
+					RNA = rna()
+					RNA.frameId = frameId
+					RNA.unmodifiedForm = row['Frame ID']
+					RNA.location = json.loads(row['Location'])
+
+					rxn_raw = modFormRxn[RNA.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+						for rxn in rxn_raw:
+							for rxn_species in rxn[2]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+									production_reaction.append(rxn)
+								if int(float(rxn_species[1])) < 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+									production_reaction.append(rxn)
+								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == RNA.frameId:
+									production_reaction.append(rxn)
+
+						# if len(production_reaction) > 1:
+						# 	ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[2]
+
+							RNA.reactionId.append(rxnId)
+							RNA.reaction.append('')
+
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
+
+							RNA.reaction[-1] += '[' + locationAbbrevDict[RNA.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = abs(int(float(r[1])))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									RNA.reaction[-1] += '(' + str(rst) + ') '
+								RNA.reaction[-1] += rid
+								if i < len(reactants) - 1:
+									RNA.reaction[-1] += ' + '
+
+							RNA.reaction[-1] += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = abs(int(float(p[1])))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									pid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									RNA.reaction[-1] += '(' + str(pst) + ') '
+								RNA.reaction[-1] += pid
+								if i < len(products) - 1:
+									RNA.reaction[-1] += ' + '
+
+
+					rnaDict_modified[RNA.frameId] = RNA
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna_modified.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = rnaDict_modified.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		for key in keys:
+			pm = rnaDict_modified[key]
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
+
 
 # Parse protein complexes
 def parseComplexes():
@@ -984,6 +1236,8 @@ def parseComplexes():
 		csvreader.next()
 		for row in csvreader:
 			monomerCompartment[row[0]] = json.loads(row[3])
+
+			# TODO: Might not need this here come back and delete. Modified forms have been removed.
 			modifiedForm = json.loads(row[4])
 			if modifiedForm != []:
 				for m in modifiedForm:
@@ -991,11 +1245,11 @@ def parseComplexes():
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0]
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
 			else:
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
@@ -1011,61 +1265,58 @@ def parseComplexes():
 				for mf in modifiedForm:
 					rnaList.append(mf)
 
+
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
 	rebuild = False
-	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
-		brokenXML = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'broken_xml_complexes.csv'),'rb') as csvfile:
-			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
-			for row in dictreader:
-				brokenXML[row['Frame ID']] = row['Stoichiometry']
-		
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
 		newRows = []
+		modifiedForms = []
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
+				modifiedForms.extend(row[3][1:-1].split(' '))
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_rna_protein_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
+				modifiedForms.extend(row[3][1:-1].split(' '))
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Ecocyc_protein_small_molecule_complexes.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			for row in csvreader:
 				newRows.append(row)
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_raw.csv'),'wb') as csvfile:
+				modifiedForms.extend(row[3][1:-1].split(' '))
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'Ecocyc_protein_complexes_merge.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
 			for row in newRows:
-				csvwriter.writerow(row)
+				if row[0] not in modifiedForms:
+					csvwriter.writerow(row)
 
 		rebuiltRow = []
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_raw.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'Ecocyc_protein_complexes_merge.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 			for row in dictreader:
-				if not brokenXML.has_key(row['Frame ID']):
-					subunits = getEcocycComplexComponents(row['Frame ID'])
-					if subunits == []:
-						print 'ERROR!!! ' + row['Frame ID']
-					print 'fetched subunits for ' + row['Frame ID']
-					subunit_string = '('
-					for i,s in enumerate(subunits):
-						subunit_string += '('
-						subunit_string += s[0]
-						subunit_string += ', '
-						subunit_string += str(s[1])
-						if i == len(subunits) - 1:
-							subunit_string += ')'
-						else:
-							subunit_string += ') '
-					subunit_string += ')'
-				else:
-					subunit_string = brokenXML[row['Frame ID']]
+				subunits = getEcocycComplexComponents(row['Frame ID'])
+				if subunits == []:
+					print 'ERROR!!! ' + row['Frame ID']
+				print 'fetched subunits for ' + row['Frame ID']
+				subunit_string = '('
+				for i,s in enumerate(subunits):
+					subunit_string += '('
+					subunit_string += s[0]
+					subunit_string += ', '
+					subunit_string += str(s[1])
+					if i == len(subunits) - 1:
+						subunit_string += ')'
+					else:
+						subunit_string += ') '
+				subunit_string += ')'
 				row['Stoichiometry'] = subunit_string
 				rebuiltRow.append([row['Frame ID'], row['Name'], row['Stoichiometry'], row['Modified form']])
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'wb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'wb') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 			csvwriter.writerow(['Frame ID', 'Name', 'Stoichiometry', 'Modified form', 'Comments'])
 			rebuiltRow.sort()
@@ -1074,16 +1325,36 @@ def parseComplexes():
 
 	# Build list of protein-protein complexes
 	proteinComplexes = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		for row in csvreader:
 			proteinComplexes.append(row[0])
+
+	# Build list of modified forms that could be included in complexes
+	modifiedForms ={}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		
+		for row in dictreader:
+			modform = row['Modified form'][1:-1].split(' ')
+			if modform != [""]:
+				for m in modform:
+					modifiedForms[m] = row['Frame ID']
+
+	# Build list of protein monomers that have no known gene
+	proteinMonomerUnknownGene = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_monomers_unknown_genes.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			unkgene = row['Frame ID']
+			proteinMonomerUnknownGene.append(unkgene)
 
 	# Parse protein complex information
 	proCompDict = {}
 	saveRow = {}
 	hasComplexSubunit = []
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'Ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
+	proteinComplexUnknownGene = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -1102,7 +1373,7 @@ def parseComplexes():
 					frameId = info[0]
 					stoich = int(info[1])
 
-					if (frameId in proteinComplexes):
+					if (frameId in proteinComplexes) or (frameId in modifiedForms.keys()):
 						if frameId not in [x[0] for x in hasComplexSubunit]:
 							hasComplexSubunit.append(comp.frameId)
 							saveRow[comp.frameId] = row
@@ -1121,6 +1392,10 @@ def parseComplexes():
 					elif (frameId in rnaList):
 						location = ['CCO-CYTOSOL']
 						comp.addReactant(frameId, stoich, location)
+					elif frameId in proteinMonomerUnknownGene:
+						proteinComplexUnknownGene.append(comp.frameId)
+						foundAllComponents = False
+						break
 					else:
 						foundAllComponents = False
 						s = 'Did not create a protein-protein complex for ' + comp.frameId
@@ -1132,9 +1407,10 @@ def parseComplexes():
 					comp.buildStringComposition(compartmentAbbrev)
 
 					proCompDict[comp.frameId] = comp
+
 			else:
 				raise Exception, 'No stoichiometry found!\n'
-
+	
 	# Deal with protein complexes that have other protein complexes as subunits
 	prev = 0
 	breakCount = 0
@@ -1174,6 +1450,10 @@ def parseComplexes():
 				elif (frameId in rnaList):
 					location = ['CCO-CYTOSOL']
 					comp.addReactant(frameId, stoich, location)
+				elif frameId in modifiedForms.keys():
+					unmodifiedForm_frameId = modifiedForms[frameId]
+					location = proCompDict[unmodifiedForm_frameId].composition['product'][unmodifiedForm_frameId]['compartment']
+					comp.addReactant(frameId, stoich, location)
 				else:
 					foundAllComponents = False
 					savePC = hasComplexSubunit.pop(0)
@@ -1187,11 +1467,19 @@ def parseComplexes():
 				proCompDict[comp.frameId] = comp
 				hasComplexSubunit.pop(0)
 
+	# Write complexes with subunits that have no known genes
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'protein_complexes_unknown_genes.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		csvwriter.writerow(['Frame ID', 'Comments'])
+		for u in proteinComplexUnknownGene:
+			csvwriter.writerow([u])
+
 	# Write complexes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Location', 'Composition', 'Composition', 'Modified form', 'Formation process', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Location', 'Composition', 'Composition', 'Modified form', 'Formation process', 'Comments'])
 		
 		keys = proCompDict.keys()
 		keys.sort()
@@ -1200,6 +1488,131 @@ def parseComplexes():
 			csvwriter.writerow([c.frameId, c.name, json.dumps(c.composition['product'][c.frameId]['compartment']), c.compositionString, json.dumps(c.composition), json.dumps(c.modifiedForm), c.formationProcess, c.comments])
 
 	logFile.close()
+
+def parseComplexes_modified():
+	# Load location abbreviations
+	locationAbbrevDict = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			locationAbbrevDict[row['ID']] = row['Abbreviation']
+
+	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
+		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		for row in csvreader:
+			if row[1] == '+':
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
+			else:
+				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+
+	# Build cache of modified form reactions
+	rebuild = False
+	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json')) or rebuild:
+		modFormRxn = {}
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+			for row in dictreader:
+				if len(json.loads(row['Modified form'])):
+					for frameId in json.loads(row['Modified form']):
+						rxn = getEcocycModFormReactions(frameId)
+						if rxn == []:
+							print 'No reaction for ' + frameId
+						print 'Loaded ' + frameId + ' formation reaction'
+						modFormRxn[frameId] = rxn
+
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'wb') as jsonfile:
+			jsonfile.write(json.dumps(modFormRxn, indent = 4))
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'rb') as jsonfile:
+		modFormRxn = json.loads(jsonfile.read())
+
+
+	proteinComplexDict_modifiedForm = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if len(json.loads(row['Modified form'])):
+				for frameId in json.loads(row['Modified form']):
+					pc = proteinComplex()
+					pc.frameId = frameId
+					pc.unmodifiedForm = row['Frame ID']
+					pc.location = json.loads(row['Location'])
+
+					rxn_raw = modFormRxn[pc.frameId]
+
+					if rxn_raw != []:
+						production_reaction = []
+
+						for rxn in rxn_raw:
+							for rxn_species in rxn[2]:
+								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pc.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+									production_reaction.append(rxn)
+								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pc.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+									production_reaction.append(rxn)
+								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pc.frameId:
+									production_reaction.append(rxn)
+
+						# if len(production_reaction) > 1:
+						# 	ipdb.set_trace()
+
+						for rxn in production_reaction:
+							rxnId = rxn[0]
+							rxnSpecies = rxn[2]
+
+							pc.reactionId.append(rxnId)
+							pc.reaction.append('')
+
+							reactants = []
+							products = []
+							for species in rxnSpecies:
+								if int(float(species[1])) < 0:
+									reactants.append(species)
+								else:
+									products.append(species)
+
+							pc.reaction[-1] += '[' + locationAbbrevDict[pc.location[0]] + ']: '
+
+							for i,r in enumerate(reactants):
+								rst = abs(int(float(r[1])))
+								rid = str(r[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(rid):
+									rid = metaboliteEcocycToFeistIdConversion[rid]
+
+								if abs(rst) > 1:
+									pc.reaction[-1] += '(' + str(rst) + ') '
+								pc.reaction[-1] += rid
+								if i < len(reactants) - 1:
+									pc.reaction[-1] += ' + '
+
+							pc.reaction[-1] += ' ==> '
+
+							for i,p in enumerate(products):
+								pst = abs(int(float(p[1])))
+								pid = str(p[0])
+								if metaboliteEcocycToFeistIdConversion.has_key(pid):
+									pid = metaboliteEcocycToFeistIdConversion[pid]
+
+								if pst > 1:
+									pc.reaction[-1] += '(' + str(pst) + ') '
+								pc.reaction[-1] += pid
+								if i < len(products) - 1:
+									pc.reaction[-1] += ' + '
+
+
+					proteinComplexDict_modifiedForm[pc.frameId] = pc
+
+	# Write output
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes_modified.csv'),'wb') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+
+		keys = proteinComplexDict_modifiedForm.keys()
+		keys.sort()
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		for key in keys:
+			pc = proteinComplexDict_modifiedForm[key]
+			csvwriter.writerow([pc.frameId, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reaction), pc.comments])
 
 def getEcocycComplexComponents(cmplx):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
@@ -1503,13 +1916,13 @@ def parseMetabolites():
 			metDict[newMet.frameId] = newMet
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_not_in_Feist.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
 			if row[3] != '':
 				newMet = metabolite()
-				newMet.frameId = row[0]
+				newMet.frameId = row[0].lower()
 				if row[2] != '':
 					newMet.neutralFormula = row[2]
 				else:
@@ -1522,7 +1935,7 @@ def parseMetabolites():
 				metDict[newMet.frameId] = newMet
 
 	# Remove metabolites not being modeled as metabolites
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'metabolites_to_remove.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'metabolites_to_remove.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -1585,7 +1998,7 @@ def parseMetabolites():
 	# Write a file of all the fake metabolites
 	proteinLocations = loadMonomerAndComplexLocations()
 	locationAbbrev = loadLocationAbbrev()
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'wb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'pseudo_metabolites.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		keys = metDict.keys()
@@ -1756,7 +2169,7 @@ def parseReactions():
 			reactDict[reac.frameId] = reac
 
 	# Add reactions not in Fesit
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_add.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_add.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 
@@ -1765,7 +2178,7 @@ def parseReactions():
 			reactDict[reac.frameId] = reac
 
 	# Remove reactions
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactions_to_remove.csv'),'rb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_remove.csv'),'rb') as csvfile:
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
@@ -1801,7 +2214,9 @@ def buildReaction(rp,row):
 
 		pMFrameId = rp.getPMFrame(bnum)
 
-		reac.enzyme = [[pMFrameId]]
+		reac.enzyme = []
+		for e in pMFrameId:
+			reac.enzyme.append([e])
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
 			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
@@ -1910,7 +2325,7 @@ class metabolite:
 		self.equivalentEnzyme = []
 		self.comments = ''
 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'elements.json'),'rb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'elements.json'),'rb') as jsonfile:
 			self.elementDict = json.loads(jsonfile.read())
 
 	def addPHProp(self, pH, formula, charge):
@@ -1956,7 +2371,7 @@ class reactionParser:
 
 	def loadSynDict(self):
 		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'gene_frameId_synonyms.json'),'rb') as jsonfile:
 			synDictFrameId = json.loads(jsonfile.read())
 		return synDictFrameId
 
@@ -1967,9 +2382,9 @@ class reactionParser:
 			csvreader.next()
 			for row in csvreader:
 				if not protMonomerFrameId.has_key(row[2]):
-					protMonomerFrameId[row[2]] = row[0]
+					protMonomerFrameId[row[2]] = [row[0]]
 				else:
-					print 'already has protein monomer!'
+					protMonomerFrameId[row[2]].append(row[0])
 		return protMonomerFrameId
 
 	def loadMonomerToComplex(self):
@@ -2005,7 +2420,7 @@ class reactionParser:
 				monomers.append(subunit)
 
 	def loadFakeMetaboliteFrameIds(self):
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'pseudo_metabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			frameIdList = []
@@ -2018,7 +2433,7 @@ class reactionParser:
 		return uniqueFrameIdList
 
 	def loadFakeMetabolites(self):
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'fakeMetabolites.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'pseudo_metabolites.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			fakeMetaboliteDict = {}
@@ -2029,7 +2444,7 @@ class reactionParser:
 	def loadManualAnnotation(self):
 		# Add manual annotation of reactino enzymes from Feist
 		manualAnnotateDict = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'reactionEnzymeAssociationManual.csv'),'rb') as csvfile:
+		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reaction_enzyme_association.csv'),'rb') as csvfile:
 			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 			csvreader.next()
 			for row in csvreader:
@@ -2065,7 +2480,7 @@ class reactionParser:
 				bnums = re.findall("(b[0-9]+)", e)
 				monomers = []
 				for b in bnums:
-					monomers.append(self.getPMFrame(b))
+					monomers.extend(self.getPMFrame(b))
 
 				# Check to see if any monomers are actually fake metabolites/cofactors
 				for j,m in enumerate(monomers):
@@ -2171,8 +2586,8 @@ class proteinMonomer:
 		self.gene = None
 		self.modifiedForm = None
 		self.unmodifiedForm = None
-		self.reactionId = None
-		self.reaction = ''
+		self.reactionId = []
+		self.reaction = []
 		self.comments = ''
 
 class rna:
@@ -2182,17 +2597,23 @@ class rna:
 		self.location = []
 		self.gene = None
 		self.modifiedForm = None
+		self.unmodifiedForm = None
+		self.reactionId = []
+		self.reaction = []
 		self.comments = ''
 
 class proteinComplex:
 	def __init__(self):
 		self.frameId = None
 		self.name = None
-		self.location = []
 		self.composition = {'reactant' : {}, 'product' : {}}
 		self.compositionString = ''
 		self.formationProcess = 'Complexation'
 		self.modifiedForm = []
+		self.unmodifiedForm = None
+		self.reactionId = []
+		self.reaction = []
+		self.location = []
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
@@ -2208,7 +2629,6 @@ class proteinComplex:
 	def buildStringComposition(self, compartmentDict):
 		s = ''
 		subComp = self.composition['reactant'].keys()
-
 		locationSet = [self.composition['reactant'][key]['compartment'][0] for key in self.composition['reactant'].iterkeys()]
 		locationSetProduct = [self.composition['product'][key]['compartment'][0] for key in self.composition['product'].iterkeys()]
 		locationSet.extend(locationSetProduct)

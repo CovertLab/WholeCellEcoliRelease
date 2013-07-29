@@ -1,4 +1,4 @@
-ID	Name	Gene	Location	Modified form	Comments
+Frame ID	Name	Gene	Location	Modified form	Comments
 6S-RNA	6S RNA	EG30099	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 C0067-RNA	C0067 small RNA	G0-8896	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 C0293-RNA	C0293 small RNA	G0-8897	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
@@ -71,6 +71,8 @@ RNA0-367	RNA0-367	G0-10705	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RNA0-368	RNA0-368	G0-10706	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RNA0-372	EsrE small RNA	G0-10737	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RNA0-378	small noncoding RNA involved in nucleoid organization	G0-10738	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
+RNA0-379	AgrA small RNA	G0-10751	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
+RNA0-380	AgrB small RNA	G0-10752	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RNPB-RNA	RnpB RNA; catalytic subunit of RNAse P	EG30069	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RPRA-RNA	RprA small regulatory RNA	G0-8863	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RRFA-RRNA	5S ribosomal RNA (rrfA)	EG30070	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
@@ -99,7 +101,7 @@ RYBA-RNA	RybA small RNA	G0-8881	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RYBB-RNA	RybB small regulatory RNA	G0-8880	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RYDB-RNA	RydB small RNA regulator of RpoS	G0-8876	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RYEA-RNA	RyeA small RNA	G0-8865	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
-RYEB-RNA	RyeB small RNA	G0-8883	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
+RYEB-RNA	SdsR small regulatory RNA	G0-8883	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RYEC-RNA	SibA small RNA	G0-8884	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RYED-RNA	SibB small RNA	G0-8885	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
 RYEE-RNA	CyaR small regulatory RNA	G0-8878	"[""CCO-CYTOSOL""]"	[]	Assumed in CCO-CYTOSOL
