@@ -69,6 +69,11 @@ def getEcocycReactionStoich(rxn):
 	else:
 		rxnDir = 'UNKNOWN'
 
+	enzyme = dom.getElementsByTagName("enzyme")
+	enz = []
+	for e in enzyme:
+		enz.append(e.getElementsByTagName("Protein")[0].getAttribute('frameId'))
+
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
 		elemRna = left.getElementsByTagName("RNA")
@@ -105,7 +110,7 @@ def getEcocycReactionStoich(rxn):
 		else:
 			coeff = u"1"
 		L.append((fId, coeff))
-	return (rxn, rxnDir, L)
+	return (rxn, rxnDir, L, enz)
 
 def main():
 	initalizeLog()
