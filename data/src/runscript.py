@@ -102,6 +102,9 @@ def getEcocycReactionStoich(rxn):
 			fId = elemRna[0].getAttribute("frameid")
 		elif len(elemCmpnd) > 0:
 			fId = elemCmpnd[0].getAttribute("frameid")
+		elif right.firstChild.data == 'a tRNA':
+			# Stupid idot forgot to tag these things in the XML files. Doing a manual catch here.
+			fId = 'tRNA-Holder'
 		else:
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
