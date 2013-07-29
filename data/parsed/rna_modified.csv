@@ -89,4 +89,4 @@ charged-valV-tRNA	valV-tRNA	"[""CCO-CYTOSOL""]"	[]	[]
 charged-valW-tRNA	valW-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	
 charged-valX-tRNA	valX-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	
 charged-valY-tRNA	valY-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	
-modified-charged-selC-tRNA	selC-tRNA	"[""CCO-CYTOSOL""]"	"[""RXN0-6434""]"	"[""[c]: EG10942-MONOMER + modified-charged-selC-tRNA ==> CPLX0-8053""]"	
+modified-charged-selC-tRNA	selC-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	
