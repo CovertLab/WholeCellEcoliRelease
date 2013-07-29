@@ -992,48 +992,7 @@ def parseProteinMonomers_modified():
 						# 	ipdb.set_trace()
 
 						for rxn in production_reaction:
-							rxnId = rxn[0]
-							rxnSpecies = rxn[2]
-
-							pm.reactionId.append(rxnId)
-							pm.reaction.append('')
-
-							reactants = []
-							products = []
-							for species in rxnSpecies:
-								if int(float(species[1])) < 0:
-									reactants.append(species)
-								else:
-									products.append(species)
-
-							pm.reaction[-1] += '[' + locationAbbrevDict[pm.location[0]] + ']: '
-
-							for i,r in enumerate(reactants):
-								rst = abs(int(float(r[1])))
-								rid = str(r[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(rid):
-									rid = metaboliteEcocycToFeistIdConversion[rid]
-
-								if abs(rst) > 1:
-									pm.reaction[-1] += '(' + str(rst) + ') '
-								pm.reaction[-1] += rid
-								if i < len(reactants) - 1:
-									pm.reaction[-1] += ' + '
-
-							pm.reaction[-1] += ' ==> '
-
-							for i,p in enumerate(products):
-								pst = abs(int(float(p[1])))
-								pid = str(p[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									pid = metaboliteEcocycToFeistIdConversion[pid]
-
-								if pst > 1:
-									pm.reaction[-1] += '(' + str(pst) + ') '
-								pm.reaction[-1] += pid
-								if i < len(products) - 1:
-									pm.reaction[-1] += ' + '
-
+							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					proteinMonomerDict_modified[pm.frameId] = pm
 
@@ -1047,6 +1006,50 @@ def parseProteinMonomers_modified():
 		for key in keys:
 			pm = proteinMonomerDict_modified[key]
 			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
+
+
+def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
+	rxnId = rxn[0]
+	rxnSpecies = rxn[2]
+
+	obj.reactionId.append(rxnId)
+	obj.reaction.append('')
+
+	reactants = []
+	products = []
+	for species in rxnSpecies:
+		if int(float(species[1])) < 0:
+			reactants.append(species)
+		else:
+			products.append(species)
+
+	obj.reaction[-1] += '[' + locationAbbrevDict[obj.location[0]] + ']: '
+
+	for i,r in enumerate(reactants):
+		rst = abs(int(float(r[1])))
+		rid = str(r[0])
+		if metaboliteEcocycToFeistIdConversion.has_key(rid):
+			rid = metaboliteEcocycToFeistIdConversion[rid]
+
+		if abs(rst) > 1:
+			obj.reaction[-1] += '(' + str(rst) + ') '
+		obj.reaction[-1] += rid
+		if i < len(reactants) - 1:
+			obj.reaction[-1] += ' + '
+
+	obj.reaction[-1] += ' ==> '
+
+	for i,p in enumerate(products):
+		pst = abs(int(float(p[1])))
+		pid = str(p[0])
+		if metaboliteEcocycToFeistIdConversion.has_key(pid):
+			pid = metaboliteEcocycToFeistIdConversion[pid]
+
+		if pst > 1:
+			obj.reaction[-1] += '(' + str(pst) + ') '
+		obj.reaction[-1] += pid
+		if i < len(products) - 1:
+			obj.reaction[-1] += ' + '
 
 # Parse RNA
 def parseRna():
@@ -1168,48 +1171,7 @@ def parseRNA_modified():
 						# 	ipdb.set_trace()
 
 						for rxn in production_reaction:
-							rxnId = rxn[0]
-							rxnSpecies = rxn[2]
-
-							RNA.reactionId.append(rxnId)
-							RNA.reaction.append('')
-
-							reactants = []
-							products = []
-							for species in rxnSpecies:
-								if int(float(species[1])) < 0:
-									reactants.append(species)
-								else:
-									products.append(species)
-
-							RNA.reaction[-1] += '[' + locationAbbrevDict[RNA.location[0]] + ']: '
-
-							for i,r in enumerate(reactants):
-								rst = abs(int(float(r[1])))
-								rid = str(r[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(rid):
-									rid = metaboliteEcocycToFeistIdConversion[rid]
-
-								if abs(rst) > 1:
-									RNA.reaction[-1] += '(' + str(rst) + ') '
-								RNA.reaction[-1] += rid
-								if i < len(reactants) - 1:
-									RNA.reaction[-1] += ' + '
-
-							RNA.reaction[-1] += ' ==> '
-
-							for i,p in enumerate(products):
-								pst = abs(int(float(p[1])))
-								pid = str(p[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									pid = metaboliteEcocycToFeistIdConversion[pid]
-
-								if pst > 1:
-									RNA.reaction[-1] += '(' + str(pst) + ') '
-								RNA.reaction[-1] += pid
-								if i < len(products) - 1:
-									RNA.reaction[-1] += ' + '
-
+							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					rnaDict_modified[RNA.frameId] = RNA
 	# Write output
@@ -1566,47 +1528,7 @@ def parseComplexes_modified():
 						# 	ipdb.set_trace()
 
 						for rxn in production_reaction:
-							rxnId = rxn[0]
-							rxnSpecies = rxn[2]
-
-							pc.reactionId.append(rxnId)
-							pc.reaction.append('')
-
-							reactants = []
-							products = []
-							for species in rxnSpecies:
-								if int(float(species[1])) < 0:
-									reactants.append(species)
-								else:
-									products.append(species)
-
-							pc.reaction[-1] += '[' + locationAbbrevDict[pc.location[0]] + ']: '
-
-							for i,r in enumerate(reactants):
-								rst = abs(int(float(r[1])))
-								rid = str(r[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(rid):
-									rid = metaboliteEcocycToFeistIdConversion[rid]
-
-								if abs(rst) > 1:
-									pc.reaction[-1] += '(' + str(rst) + ') '
-								pc.reaction[-1] += rid
-								if i < len(reactants) - 1:
-									pc.reaction[-1] += ' + '
-
-							pc.reaction[-1] += ' ==> '
-
-							for i,p in enumerate(products):
-								pst = abs(int(float(p[1])))
-								pid = str(p[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									pid = metaboliteEcocycToFeistIdConversion[pid]
-
-								if pst > 1:
-									pc.reaction[-1] += '(' + str(pst) + ') '
-								pc.reaction[-1] += pid
-								if i < len(products) - 1:
-									pc.reaction[-1] += ' + '
+							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 
 					proteinComplexDict_modifiedForm[pc.frameId] = pc
