@@ -1112,10 +1112,10 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						par = []
+						parents = []
 						formation_reactions = []
+						getEcocycParents(str(frameId), 'RNA', parents)
 						ipdb.set_trace()
-						getEcocycParents(str(frameId), 'RNA', par)
 						for p in parents:
 							rxn = getEcocycModFormReactions(frameId)
 							formation_reactions.extend(rxn)
