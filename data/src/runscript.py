@@ -1104,7 +1104,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1112,12 +1112,18 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						rxn = getEcocycModFormReactions(frameId)
-						if rxn == []:
+						par = []
+						formation_reactions = []
+						ipdb.set_trace()
+						getEcocycParents(str(frameId), 'RNA', par)
+						for p in parents:
+							rxn = getEcocycModFormReactions(frameId)
+							formation_reactions.extend(rxn)
+						if formation_reactions == []:
 							print 'No reaction for ' + frameId
 						else:
 							print 'Loaded ' + frameId + ' formation reaction'
-						modFormRxn[frameId] = rxn
+						modFormRxn[frameId] = formation_reactions
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
