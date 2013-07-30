@@ -80,10 +80,16 @@ def getEcocycReactionStoich(rxn):
 		elemCmpnd = left.getElementsByTagName("Compound")
 		if len(elemProt) > 0:
 			fId = elemProt[0].getAttribute("frameid")
+			if elemProt[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemRna) > 0:
 			fId = elemRna[0].getAttribute("frameid")
+			if elemRna[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemCmpnd) > 0:
 			fId = elemCmpnd[0].getAttribute("frameid")
+			if elemCmpnd[0].getAttribute("class") == 'true':
+				isclass = True
 		else:
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
@@ -96,15 +102,23 @@ def getEcocycReactionStoich(rxn):
 		elemProt = right.getElementsByTagName("Protein")
 		elemRna = right.getElementsByTagName("RNA")
 		elemCmpnd = right.getElementsByTagName("Compound")
+		isclass = False
 		if len(elemProt) > 0:
 			fId = elemProt[0].getAttribute("frameid")
+			if elemProt[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemRna) > 0:
 			fId = elemRna[0].getAttribute("frameid")
+			if elemRna[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemCmpnd) > 0:
 			fId = elemCmpnd[0].getAttribute("frameid")
+			if elemCmpnd[0].getAttribute("class") == 'true':
+				isclass = True
 		elif right.firstChild.data == 'a tRNA':
 			# Stupid idot forgot to tag these things in the XML files. Doing a manual catch here.
 			fId = 'tRNA-Holder'
+			isclass = True
 		else:
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
@@ -112,7 +126,7 @@ def getEcocycReactionStoich(rxn):
 			coeff = unicode(1 * float(elemCoeff[0].childNodes[0].data))
 		else:
 			coeff = u"1"
-		L.append((fId, coeff))
+		L.append((fId, coeff, isclass))
 	return (rxn, rxnDir, L, enz)
 
 def main():
@@ -1481,7 +1495,7 @@ def parseComplexes_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:

@@ -22,15 +22,18 @@
                 ], 
                 [
                     "Charged-PHE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -51,11 +54,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -76,11 +81,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -111,15 +118,18 @@
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -141,11 +151,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -166,11 +178,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -201,15 +215,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -230,11 +247,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -255,11 +274,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -280,11 +301,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -315,15 +338,18 @@
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -345,11 +371,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -370,11 +398,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -405,15 +435,18 @@
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -434,11 +467,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -459,11 +494,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -494,15 +531,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -523,11 +563,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -548,11 +590,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -573,11 +617,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -608,15 +654,18 @@
                 ], 
                 [
                     "Charged-ASP-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -637,11 +686,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -662,11 +713,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -697,15 +750,18 @@
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -726,11 +782,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -751,11 +809,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -786,15 +846,18 @@
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -815,11 +878,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -840,11 +905,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -875,15 +942,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -904,11 +974,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -929,11 +1001,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -954,11 +1028,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -981,11 +1057,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1006,11 +1084,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1041,15 +1121,18 @@
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1070,11 +1153,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1095,11 +1180,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1130,15 +1217,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1159,11 +1249,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1184,11 +1276,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1209,11 +1303,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1244,15 +1340,18 @@
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1274,11 +1373,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1299,11 +1400,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1334,15 +1437,18 @@
                 ], 
                 [
                     "Charged-MET-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1363,11 +1469,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1388,11 +1496,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1413,11 +1523,13 @@
                 ], 
                 [
                     "THF", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "N-formyl-L-methionyl-tRNAfmet", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1438,11 +1550,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1463,11 +1577,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1498,15 +1614,18 @@
                 ], 
                 [
                     "Charged-MET-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1527,11 +1646,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1552,11 +1673,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1577,11 +1700,13 @@
                 ], 
                 [
                     "THF", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "N-formyl-L-methionyl-tRNAfmet", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1602,11 +1727,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1627,11 +1754,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1662,15 +1791,18 @@
                 ], 
                 [
                     "Charged-MET-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1691,11 +1823,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1716,11 +1850,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1741,11 +1877,13 @@
                 ], 
                 [
                     "THF", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "N-formyl-L-methionyl-tRNAfmet", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1766,11 +1904,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1791,11 +1931,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1826,15 +1968,18 @@
                 ], 
                 [
                     "Charged-TYR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1855,11 +2000,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1880,11 +2027,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1907,11 +2056,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1932,11 +2083,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -1963,11 +2116,13 @@
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "NADPH", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -1988,11 +2143,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2013,11 +2170,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2048,15 +2207,18 @@
                 ], 
                 [
                     "Charged-ASP-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2077,11 +2239,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2102,11 +2266,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2137,15 +2303,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2166,11 +2335,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2191,11 +2362,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2216,11 +2389,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2251,15 +2426,18 @@
                 ], 
                 [
                     "Charged-MET-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2280,11 +2458,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2305,11 +2485,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2340,15 +2522,18 @@
                 ], 
                 [
                     "Charged-TYR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2369,11 +2554,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2394,11 +2581,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2425,11 +2614,13 @@
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "NADPH", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2450,11 +2641,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2475,11 +2668,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2510,15 +2705,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2539,11 +2737,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2564,11 +2764,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2599,15 +2801,18 @@
                 ], 
                 [
                     "Charged-THR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2628,11 +2833,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2653,11 +2860,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2688,15 +2897,18 @@
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2717,11 +2929,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2742,11 +2956,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2777,15 +2993,18 @@
                 ], 
                 [
                     "Charged-THR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2806,11 +3025,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2831,11 +3052,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2866,15 +3089,18 @@
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2895,11 +3121,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2920,11 +3148,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -2955,15 +3185,18 @@
                 ], 
                 [
                     "Charged-SER-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -2984,11 +3217,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3009,11 +3244,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3044,15 +3281,18 @@
                 ], 
                 [
                     "Charged-SER-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3073,11 +3313,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3098,11 +3340,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3129,11 +3373,13 @@
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "NADPH", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3154,11 +3400,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3179,11 +3427,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3214,15 +3464,18 @@
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3243,11 +3496,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3268,11 +3523,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3299,11 +3556,13 @@
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "NADPH", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3324,11 +3583,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3349,11 +3610,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3384,15 +3647,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3413,11 +3679,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3438,11 +3706,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3463,11 +3733,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3498,15 +3770,18 @@
                 ], 
                 [
                     "Charged-SER-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3527,11 +3802,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3552,11 +3829,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3587,15 +3866,18 @@
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3616,11 +3898,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3641,11 +3925,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3676,15 +3962,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3705,11 +3994,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3730,11 +4021,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3765,15 +4058,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3794,11 +4090,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3819,11 +4117,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3844,11 +4144,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3879,15 +4181,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3908,11 +4213,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3933,11 +4240,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -3968,15 +4277,18 @@
                 ], 
                 [
                     "Charged-TRP-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -3997,11 +4309,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4022,11 +4336,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4057,15 +4373,18 @@
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4086,11 +4405,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4111,11 +4432,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4138,15 +4461,18 @@
                 ], 
                 [
                     "Pi", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "Charged-SEC-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PROTON", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4167,11 +4493,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4192,11 +4520,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4227,15 +4557,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4256,11 +4589,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4281,11 +4616,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4316,15 +4653,18 @@
                 ], 
                 [
                     "Charged-CYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4345,11 +4685,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4370,11 +4712,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4405,15 +4749,18 @@
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4434,11 +4781,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4459,11 +4808,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4494,15 +4845,18 @@
                 ], 
                 [
                     "Charged-PRO-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4523,11 +4877,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4548,11 +4904,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4583,15 +4941,18 @@
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4612,11 +4973,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4637,11 +5000,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4672,15 +5037,18 @@
                 ], 
                 [
                     "Charged-MET-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4701,11 +5069,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4726,11 +5096,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4761,15 +5133,18 @@
                 ], 
                 [
                     "Charged-SER-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4790,11 +5165,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4815,11 +5192,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4850,15 +5229,18 @@
                 ], 
                 [
                     "Charged-SER-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -4879,11 +5261,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4904,11 +5288,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4931,11 +5317,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4956,11 +5344,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -4983,11 +5373,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5008,11 +5400,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5043,15 +5437,18 @@
                 ], 
                 [
                     "Charged-TYR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5072,11 +5469,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5097,11 +5496,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5132,15 +5533,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5161,11 +5565,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5186,11 +5592,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5221,15 +5629,18 @@
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5250,11 +5661,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5275,11 +5688,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5310,15 +5725,18 @@
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5339,11 +5757,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5364,11 +5784,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5399,15 +5821,18 @@
                 ], 
                 [
                     "Charged-SER-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5428,11 +5853,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5453,11 +5880,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5486,15 +5915,18 @@
                 ], 
                 [
                     "L-seryl-SEC-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5515,15 +5947,18 @@
                 ], 
                 [
                     "Pi", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "Charged-SEC-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PROTON", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5544,11 +5979,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5569,11 +6006,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5604,15 +6043,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5633,11 +6075,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5658,11 +6102,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5693,15 +6139,18 @@
                 ], 
                 [
                     "Charged-HIS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5722,11 +6171,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5747,11 +6198,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5782,15 +6235,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5811,11 +6267,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5836,11 +6294,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5871,15 +6331,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5900,11 +6363,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5925,11 +6390,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -5960,15 +6427,18 @@
                 ], 
                 [
                     "Charged-ASP-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -5989,11 +6459,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6014,11 +6486,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6049,15 +6523,18 @@
                 ], 
                 [
                     "Charged-PHE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6078,11 +6555,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6103,11 +6582,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6138,15 +6619,18 @@
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6167,11 +6651,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6192,11 +6678,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6227,15 +6715,18 @@
                 ], 
                 [
                     "Charged-PRO-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6256,11 +6747,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6281,11 +6774,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6316,15 +6811,18 @@
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6345,11 +6843,13 @@
                 ], 
                 [
                     "tRNA-Holder", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "L-leucyl-protein", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6370,11 +6870,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6395,11 +6897,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6430,15 +6934,18 @@
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6459,11 +6966,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6484,11 +6993,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6519,15 +7030,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6548,11 +7062,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6573,11 +7089,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6608,15 +7126,18 @@
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6638,11 +7159,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6663,11 +7186,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6698,15 +7223,18 @@
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6727,11 +7255,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6752,11 +7282,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6787,15 +7319,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6816,11 +7351,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6841,11 +7378,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6876,15 +7415,18 @@
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6906,11 +7448,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6931,11 +7475,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -6966,15 +7512,18 @@
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -6996,11 +7545,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7021,11 +7572,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7056,15 +7609,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7085,11 +7641,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7110,11 +7668,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7145,15 +7705,18 @@
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7174,11 +7737,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7199,11 +7764,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7234,15 +7801,18 @@
                 ], 
                 [
                     "Charged-MET-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7263,11 +7833,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7288,11 +7860,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7313,11 +7887,13 @@
                 ], 
                 [
                     "THF", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "N-formyl-L-methionyl-tRNAfmet", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7338,11 +7914,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7363,11 +7941,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7398,15 +7978,18 @@
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7427,11 +8010,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7452,11 +8037,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7487,15 +8074,18 @@
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7516,11 +8106,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7541,11 +8133,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7576,15 +8170,18 @@
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7605,11 +8202,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7630,11 +8229,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7665,15 +8266,18 @@
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7694,11 +8298,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7719,11 +8325,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7754,15 +8362,18 @@
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7783,11 +8394,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7808,11 +8421,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7843,15 +8458,18 @@
                 ], 
                 [
                     "Charged-THR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7872,11 +8490,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7897,11 +8517,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7932,15 +8554,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -7961,11 +8586,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -7986,11 +8613,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8021,15 +8650,18 @@
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -8050,11 +8682,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8075,11 +8709,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8110,15 +8746,18 @@
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -8139,11 +8778,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8164,11 +8805,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8199,15 +8842,18 @@
                 ], 
                 [
                     "Charged-PRO-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -8228,11 +8874,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8253,11 +8901,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8288,15 +8938,18 @@
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -8317,11 +8970,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8342,11 +8997,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8377,15 +9034,18 @@
                 ], 
                 [
                     "Charged-THR-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -8406,11 +9066,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8431,11 +9093,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8466,15 +9130,18 @@
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -8495,11 +9162,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -8520,11 +9189,13 @@
                 ], 
                 [
                     "ssRNAs", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "Nucleoside-Diphosphates", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [

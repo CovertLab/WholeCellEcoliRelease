@@ -14,11 +14,13 @@
                 ], 
                 [
                     "ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PROTEIN-NRIIP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -37,11 +39,13 @@
                 ], 
                 [
                     "GLNL-CPLX", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PROTEIN-NRIP", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -64,11 +68,13 @@
                 ], 
                 [
                     "ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-KDPD", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -87,11 +93,13 @@
                 ], 
                 [
                     "KDPD-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "CPLX0-7795", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -112,11 +120,13 @@
                 ], 
                 [
                     "PYRUVATE", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PTSI-PHOSPHORYLATED", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -135,11 +145,13 @@
                 ], 
                 [
                     "PTSH-PHOSPHORYLATED", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PTSI-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -164,15 +176,18 @@
                 ], 
                 [
                     "Holo-Aryl-Carrier-Proteins", 
-                    "1"
+                    "1", 
+                    true
                 ], 
                 [
                     "3-5-ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "ENTB-CPLX", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -197,15 +212,18 @@
                 ], 
                 [
                     "CPLX0-7849", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "AMP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PPI", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -232,19 +250,23 @@
                 ], 
                 [
                     "NAD", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "CPLX0-1", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "NITROUS-OXIDE", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "WATER", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -267,11 +289,13 @@
                 ], 
                 [
                     "ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-PHOR", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -290,11 +314,13 @@
                 ], 
                 [
                     "PHOR-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-PHOB", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -315,7 +341,8 @@
                 ], 
                 [
                     "CPLX0-7657", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -336,7 +363,8 @@
                 ], 
                 [
                     "CPLX0-7978", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -357,7 +385,8 @@
                 ], 
                 [
                     "CPLX0-2821", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -378,11 +407,13 @@
                 ], 
                 [
                     "DSBG-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "DSBDOXI-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -407,19 +438,23 @@
                 ], 
                 [
                     "CH33ADO", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "MET", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PYRUVFORMLY-CPLX", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "Oxidized-flavodoxins", 
-                    "1"
+                    "1", 
+                    true
                 ]
             ], 
             [
@@ -436,7 +471,8 @@
                 ], 
                 [
                     "PYRUVFORMLY-INACTIVE-CPLX", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             [
@@ -459,11 +495,13 @@
                 ], 
                 [
                     "DSBDOXI-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "DSBC-CPLX", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -484,11 +522,13 @@
                 ], 
                 [
                     "ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-CREC", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -507,11 +547,13 @@
                 ], 
                 [
                     "CREC-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-CREB", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -532,11 +574,13 @@
                 ], 
                 [
                     "TORS-CPLX", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-TORR", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -557,11 +601,13 @@
                 ], 
                 [
                     "ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-ATOS", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -580,11 +626,13 @@
                 ], 
                 [
                     "ATOS-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-ATOC", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -606,11 +654,13 @@
                 ], 
                 [
                     "ADP", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-ENVZ", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
@@ -629,11 +679,13 @@
                 ], 
                 [
                     "ENVZ-MONOMER", 
-                    "1"
+                    "1", 
+                    false
                 ], 
                 [
                     "PHOSPHO-OMPR", 
-                    "1"
+                    "1", 
+                    false
                 ]
             ], 
             []
