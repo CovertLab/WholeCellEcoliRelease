@@ -6,19 +6,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "PHE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "PHE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-PHE-tRNAs", 
@@ -46,11 +50,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -73,11 +79,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -102,19 +110,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
@@ -143,11 +155,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -170,11 +184,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -199,19 +215,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -239,11 +259,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -266,11 +288,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -293,11 +317,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -322,19 +348,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
@@ -363,11 +393,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -390,11 +422,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -419,19 +453,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
@@ -459,11 +497,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -486,11 +526,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -515,19 +557,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -555,11 +601,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -582,11 +630,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -609,11 +659,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -638,19 +690,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASP-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ASPARTATE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASP-tRNAs", 
@@ -678,11 +734,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -705,11 +763,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -734,19 +794,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ASN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
@@ -774,11 +838,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -801,11 +867,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -830,19 +898,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLY-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLY", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
@@ -870,11 +942,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -897,11 +971,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -926,19 +1002,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -966,11 +1046,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -993,11 +1075,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1020,11 +1104,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1049,11 +1135,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1076,11 +1164,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1105,19 +1195,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLY-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLY", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
@@ -1145,11 +1239,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1172,11 +1268,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1201,19 +1299,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -1241,11 +1343,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -1268,11 +1372,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1295,11 +1401,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1324,19 +1432,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
@@ -1365,11 +1477,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1392,11 +1506,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1421,19 +1537,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "MET-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "MET", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-MET-tRNAs", 
@@ -1461,11 +1581,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1488,11 +1610,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1515,11 +1639,13 @@
             [
                 [
                     "10-FORMYL-THF", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-methionyl-tRNAfmet", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THF", 
@@ -1542,11 +1668,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1569,11 +1697,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1598,19 +1728,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "MET-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "MET", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-MET-tRNAs", 
@@ -1638,11 +1772,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1665,11 +1801,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1692,11 +1830,13 @@
             [
                 [
                     "10-FORMYL-THF", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-methionyl-tRNAfmet", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THF", 
@@ -1719,11 +1859,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1746,11 +1888,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1775,19 +1919,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "MET-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "MET", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-MET-tRNAs", 
@@ -1815,11 +1963,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1842,11 +1992,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1869,11 +2021,13 @@
             [
                 [
                     "10-FORMYL-THF", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-methionyl-tRNAfmet", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THF", 
@@ -1896,11 +2050,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1923,11 +2079,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -1952,19 +2110,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "TYR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "TYR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-TYR-tRNAs", 
@@ -1992,11 +2154,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2019,11 +2183,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2048,11 +2214,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2075,11 +2243,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2104,15 +2274,18 @@
             [
                 [
                     "GLUTAMATE-1-SEMIALDEHYDE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "NADP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLT-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
@@ -2135,11 +2308,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2162,11 +2337,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2191,19 +2368,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASP-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ASPARTATE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASP-tRNAs", 
@@ -2231,11 +2412,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2258,11 +2441,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2287,19 +2472,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -2327,11 +2516,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -2354,11 +2545,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2381,11 +2574,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2410,19 +2605,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "MET-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "MET", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-MET-tRNAs", 
@@ -2450,11 +2649,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2477,11 +2678,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2506,19 +2709,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "TYR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "TYR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-TYR-tRNAs", 
@@ -2546,11 +2753,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2573,11 +2782,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2602,15 +2813,18 @@
             [
                 [
                     "GLUTAMATE-1-SEMIALDEHYDE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "NADP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLT-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
@@ -2633,11 +2847,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2660,11 +2876,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2689,19 +2907,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -2729,11 +2951,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2756,11 +2980,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2785,19 +3011,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "THR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-THR-tRNAs", 
@@ -2825,11 +3055,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2852,11 +3084,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2881,19 +3115,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLY-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLY", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
@@ -2921,11 +3159,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2948,11 +3188,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -2977,19 +3219,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "THR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-THR-tRNAs", 
@@ -3017,11 +3263,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3044,11 +3292,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3073,19 +3323,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLY-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLY", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
@@ -3113,11 +3367,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3140,11 +3396,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3169,19 +3427,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SER-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-SER-tRNAs", 
@@ -3209,11 +3471,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3236,11 +3500,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3265,19 +3531,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SER-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-SER-tRNAs", 
@@ -3305,11 +3575,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3332,11 +3604,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3361,15 +3635,18 @@
             [
                 [
                     "GLUTAMATE-1-SEMIALDEHYDE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "NADP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLT-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
@@ -3392,11 +3669,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3419,11 +3698,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3448,19 +3729,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ILE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ILE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
@@ -3488,11 +3773,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3515,11 +3802,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3544,15 +3833,18 @@
             [
                 [
                     "GLUTAMATE-1-SEMIALDEHYDE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "NADP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLT-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Charged-GLT-tRNAs", 
@@ -3575,11 +3867,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3602,11 +3896,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3631,19 +3927,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -3671,11 +3971,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -3698,11 +4000,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3725,11 +4029,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3754,19 +4060,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SER-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-SER-tRNAs", 
@@ -3794,11 +4104,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3821,11 +4133,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3850,19 +4164,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ILE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ILE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
@@ -3890,11 +4208,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3917,11 +4237,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -3946,19 +4268,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -3986,11 +4312,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4013,11 +4341,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4042,19 +4372,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -4082,11 +4416,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -4109,11 +4445,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4136,11 +4474,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4165,19 +4505,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -4205,11 +4549,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4232,11 +4578,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4261,19 +4609,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "TRP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "TRP-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-TRP-tRNAs", 
@@ -4301,11 +4653,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4328,11 +4682,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4357,19 +4713,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ALA-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ALPHA-ALANINE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
@@ -4397,11 +4757,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4424,11 +4786,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4453,11 +4817,13 @@
             [
                 [
                     "SEPO3", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-seryl-SEC-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
@@ -4485,11 +4851,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4512,11 +4880,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4541,19 +4911,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -4581,11 +4955,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4608,11 +4984,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4637,19 +5015,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "CYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "CYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-CYS-tRNAs", 
@@ -4677,11 +5059,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4704,11 +5088,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4733,19 +5119,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ILE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ILE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
@@ -4773,11 +5163,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4800,11 +5192,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4829,19 +5223,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "PRO-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "PRO", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-PRO-tRNAs", 
@@ -4869,11 +5267,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4896,11 +5296,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4925,19 +5327,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ALA-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ALPHA-ALANINE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
@@ -4965,11 +5371,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -4992,11 +5400,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5021,19 +5431,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "MET-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "MET", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-MET-tRNAs", 
@@ -5061,11 +5475,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5088,11 +5504,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5117,19 +5535,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SER-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-SER-tRNAs", 
@@ -5157,11 +5579,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5184,11 +5608,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5213,19 +5639,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SER-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-SER-tRNAs", 
@@ -5253,11 +5683,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5280,11 +5712,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5309,11 +5743,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5336,11 +5772,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5365,11 +5803,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5392,11 +5832,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5421,19 +5863,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "TYR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "TYR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-TYR-tRNAs", 
@@ -5461,11 +5907,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5488,11 +5936,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5517,19 +5967,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -5557,11 +6011,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5584,11 +6040,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5613,19 +6071,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ASN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
@@ -5653,11 +6115,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5680,11 +6144,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5709,19 +6175,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ILE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ILE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
@@ -5749,11 +6219,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5776,11 +6248,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5805,19 +6279,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SER-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-SER-tRNAs", 
@@ -5845,11 +6323,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5872,11 +6352,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5899,19 +6381,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "SEC-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "SER", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-seryl-SEC-tRNAs", 
@@ -5939,11 +6425,13 @@
             [
                 [
                     "SEPO3", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-seryl-SEC-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
@@ -5971,11 +6459,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -5998,11 +6488,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6027,19 +6519,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -6067,11 +6563,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6094,11 +6592,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6123,19 +6623,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "HIS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "HIS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-HIS-tRNAs", 
@@ -6163,11 +6667,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6190,11 +6696,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6219,19 +6727,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -6259,11 +6771,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6286,11 +6800,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6315,19 +6831,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -6355,11 +6875,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6382,11 +6904,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6411,19 +6935,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASP-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ASPARTATE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASP-tRNAs", 
@@ -6451,11 +6979,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6478,11 +7008,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6507,19 +7039,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "PHE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "PHE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-PHE-tRNAs", 
@@ -6547,11 +7083,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6574,11 +7112,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6603,19 +7143,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ASN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
@@ -6643,11 +7187,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6670,11 +7216,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6699,19 +7247,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "PRO-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "PRO", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-PRO-tRNAs", 
@@ -6739,11 +7291,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6766,11 +7320,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6795,19 +7351,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "LEU", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LEU-tRNAs", 
@@ -6835,11 +7395,13 @@
             [
                 [
                     "Charged-LEU-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "General-Protein-Substrates", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "tRNA-Holder", 
@@ -6862,11 +7424,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6889,11 +7453,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6918,19 +7484,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ALA-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ALPHA-ALANINE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
@@ -6958,11 +7528,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -6985,11 +7557,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7014,19 +7588,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -7054,11 +7632,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7081,11 +7661,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7110,19 +7692,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
@@ -7151,11 +7737,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7178,11 +7766,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7207,19 +7797,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ASN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ASN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ASN-tRNAs", 
@@ -7247,11 +7841,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7274,11 +7870,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7303,19 +7901,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -7343,11 +7945,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7370,11 +7974,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7399,19 +8005,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
@@ -7440,11 +8050,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7467,11 +8079,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7496,19 +8110,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "LYS-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-LYS-tRNAs", 
@@ -7537,11 +8155,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7564,11 +8184,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7593,19 +8215,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -7633,11 +8259,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7660,11 +8288,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7689,19 +8319,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "VAL-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "VAL", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-VAL-tRNAs", 
@@ -7729,11 +8363,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7756,11 +8392,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7785,19 +8423,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "MET-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "MET", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-MET-tRNAs", 
@@ -7825,11 +8467,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7852,11 +8496,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7879,11 +8525,13 @@
             [
                 [
                     "10-FORMYL-THF", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "L-methionyl-tRNAfmet", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THF", 
@@ -7906,11 +8554,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7933,11 +8583,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -7962,19 +8614,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
@@ -8002,11 +8658,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8029,11 +8687,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8058,19 +8718,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
@@ -8098,11 +8762,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8125,11 +8791,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8154,19 +8822,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ALA-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ALPHA-ALANINE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
@@ -8194,11 +8866,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8221,11 +8895,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8250,19 +8926,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLN-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLN", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLN-tRNAs", 
@@ -8290,11 +8970,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8317,11 +8999,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8346,19 +9030,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLY-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLY", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
@@ -8386,11 +9074,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8413,11 +9103,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8442,19 +9134,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "THR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-THR-tRNAs", 
@@ -8482,11 +9178,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8509,11 +9207,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8538,19 +9238,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -8578,11 +9282,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8605,11 +9311,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8634,19 +9342,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ARG-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ARG", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ARG-tRNAs", 
@@ -8674,11 +9386,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8701,11 +9415,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8730,19 +9446,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ALA-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "L-ALPHA-ALANINE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ALA-tRNAs", 
@@ -8770,11 +9490,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8797,11 +9519,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8826,19 +9550,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "PRO-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "PRO", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-PRO-tRNAs", 
@@ -8866,11 +9594,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8893,11 +9623,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8922,19 +9654,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ILE-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "ILE", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-ILE-tRNAs", 
@@ -8962,11 +9698,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -8989,11 +9727,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -9018,19 +9758,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "THR-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "THR", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-THR-tRNAs", 
@@ -9058,11 +9802,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -9085,11 +9831,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -9114,19 +9862,23 @@
             [
                 [
                     "PROTON", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "GLY-tRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "GLY", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ATP", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "Charged-GLY-tRNAs", 
@@ -9154,11 +9906,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
@@ -9181,11 +9935,13 @@
             [
                 [
                     "ssRNAs", 
-                    "-1"
+                    "-1", 
+                    true
                 ], 
                 [
                     "Pi", 
-                    "-1"
+                    "-1", 
+                    false
                 ], 
                 [
                     "ssRNAs", 
