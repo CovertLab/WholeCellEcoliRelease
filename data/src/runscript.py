@@ -1011,9 +1011,11 @@ def parseProteinMonomers_modified():
 def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	rxnId = rxn[0]
 	rxnSpecies = rxn[2]
+	rxnEnzymes = rxn[3]
 
 	obj.reactionId.append(rxnId)
 	obj.reaction.append('')
+	obj.reactionEnzymes.append(rxnEnzymes)
 
 	reactants = []
 	products = []
@@ -2517,6 +2519,7 @@ class proteinMonomer:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reactionEnzymes = []
 		self.comments = ''
 
 class rna:
@@ -2529,6 +2532,7 @@ class rna:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reactionEnzymes = []
 		self.comments = ''
 
 class proteinComplex:
@@ -2543,6 +2547,7 @@ class proteinComplex:
 		self.reactionId = []
 		self.reaction = []
 		self.location = []
+		self.reactionEnzymes = []
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
