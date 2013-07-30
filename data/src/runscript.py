@@ -21,7 +21,6 @@ def getEcocycChildren(frameid, tagname, inst = [], sub = [], level = 0):
 
 	for subclass in dom.getElementsByTagName("subclass"):
 		fid = subclass.getElementsByTagName(tagname)[0].getAttribute('frameid')
-		sub.append((fid, level))
 		getEcocycChildren(fid, tagname, inst, sub, level)
 	for instance in dom.getElementsByTagName("instance"):
 		fid = instance.getElementsByTagName(tagname)[0].getAttribute('frameid')
