@@ -20,7 +20,8 @@
                     "PROTEIN-NRIIP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6533", 
@@ -42,7 +43,8 @@
                     "PROTEIN-NRIP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "ISOCITHASE-P": [], 
@@ -68,7 +70,8 @@
                     "PHOSPHO-KDPD", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6501", 
@@ -90,7 +93,8 @@
                     "CPLX0-7795", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PTSI-PHOSPHORYLATED": [
@@ -114,7 +118,8 @@
                     "PTSI-PHOSPHORYLATED", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6718", 
@@ -136,7 +141,8 @@
                     "PTSI-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "ENTB-CPLX": [
@@ -168,6 +174,9 @@
                     "ENTB-CPLX", 
                     "1"
                 ]
+            ], 
+            [
+                "ENTD-MONOMER"
             ]
         ], 
         [
@@ -198,6 +207,9 @@
                     "PPI", 
                     "1"
                 ]
+            ], 
+            [
+                "ENTE-CPLX"
             ]
         ]
     ], 
@@ -234,6 +246,9 @@
                     "WATER", 
                     "1"
                 ]
+            ], 
+            [
+                "EG12450-MONOMER"
             ]
         ]
     ], 
@@ -258,7 +273,8 @@
                     "PHOSPHO-PHOR", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "PHOBR-RXN", 
@@ -280,7 +296,8 @@
                     "PHOSPHO-PHOB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "CPLX0-7657": [
@@ -300,7 +317,8 @@
                     "CPLX0-7657", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "CPLX0-7978": [
@@ -320,7 +338,8 @@
                     "CPLX0-7978", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "CPLX0-2821": [
@@ -340,7 +359,8 @@
                     "CPLX0-2821", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "CPLX0-8004": [
@@ -364,7 +384,8 @@
                     "DSBDOXI-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PYRUVFORMLY-CPLX": [
@@ -400,6 +421,9 @@
                     "Oxidized-flavodoxins", 
                     "1"
                 ]
+            ], 
+            [
+                "PFLACTENZ-MONOMER"
             ]
         ], 
         [
@@ -414,6 +438,9 @@
                     "PYRUVFORMLY-INACTIVE-CPLX", 
                     "1"
                 ]
+            ], 
+            [
+                "ADHE-CPLX"
             ]
         ]
     ], 
@@ -438,7 +465,8 @@
                     "DSBC-CPLX", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-CREC": [
@@ -462,7 +490,8 @@
                     "PHOSPHO-CREC", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "CREB-RXN", 
@@ -484,7 +513,8 @@
                     "PHOSPHO-CREB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-TORR": [
@@ -508,7 +538,8 @@
                     "PHOSPHO-TORR", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-ATOS": [
@@ -532,7 +563,8 @@
                     "PHOSPHO-ATOS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "ATOC-RXN", 
@@ -554,7 +586,8 @@
                     "PHOSPHO-ATOC", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "BCCP-BIOTIN-CO2": [], 
@@ -579,7 +612,8 @@
                     "PHOSPHO-ENVZ", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6503", 
@@ -601,7 +635,8 @@
                     "PHOSPHO-OMPR", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ]
 }

@@ -20,7 +20,8 @@
                     "ADP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-5177", 
@@ -42,7 +43,8 @@
                     "EG12658-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4170": [
@@ -58,6 +60,9 @@
                     "CHEY-MONOMER", 
                     "1"
                 ]
+            ], 
+            [
+                "G6577-MONOMER"
             ]
         ]
     ], 
@@ -74,7 +79,8 @@
                     "PHOSPHO-BARA-HIS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "BAROMP-RXN", 
@@ -96,7 +102,8 @@
                     "BARA-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4178": [
@@ -120,7 +127,8 @@
                     "MONOMER0-4178", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6464", 
@@ -142,7 +150,8 @@
                     "G6318-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4279": [
@@ -166,7 +175,8 @@
                     "MONOMER0-4276", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "BETA-KETO-CIS-DELTA5-DODECENOYL-ACP": [], 
@@ -191,7 +201,8 @@
                     "MONOMER0-4276", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-ARCB717": [
@@ -207,7 +218,8 @@
                     "PHOSPHO-ARCB717", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-312", 
@@ -229,6 +241,9 @@
                     "Pi", 
                     "1"
                 ]
+            ], 
+            [
+                "G7211-MONOMER"
             ]
         ]
     ], 
@@ -253,7 +268,8 @@
                     "MONOMER0-1", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-2": [], 
@@ -272,7 +288,8 @@
                     "PHOSPHO-BARA-ASP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6560", 
@@ -286,7 +303,8 @@
                     "PHOSPHO-BARA-HIS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "BOUND-TORT": [
@@ -306,7 +324,8 @@
                     "BOUND-TORT", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "RSSB-P": [
@@ -326,7 +345,8 @@
                     "RSSB-P", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-OMPR-MONOMER": [], 
@@ -364,6 +384,9 @@
                     "Pi", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11551-MONOMER"
             ]
         ]
     ], 
@@ -396,6 +419,9 @@
                     "ACEF-LIPOATE", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11796-MONOMER"
             ]
         ]
     ], 
@@ -420,7 +446,8 @@
                     "ADP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-7040", 
@@ -442,7 +469,8 @@
                     "MONOMER0-4288", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "ACP-MONOMER": [], 
@@ -468,7 +496,8 @@
                     "MONOMER0-4288", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4206": [
@@ -492,7 +521,8 @@
                     "MONOMER0-4206", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6547", 
@@ -514,7 +544,8 @@
                     "PHOSPHO-CHEB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4200": [
@@ -546,6 +577,9 @@
                     "PPI", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-7889"
             ]
         ]
     ], 
@@ -574,6 +608,9 @@
                     "METHYLENE-THF", 
                     "1"
                 ]
+            ], 
+            [
+                "GCVT-MONOMER"
             ]
         ], 
         [
@@ -600,6 +637,9 @@
                     "PROTON", 
                     "1"
                 ]
+            ], 
+            [
+                "E3-CPLX"
             ]
         ]
     ], 
@@ -624,6 +664,9 @@
                     "ACP", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11591-MONOMER"
             ]
         ]
     ], 
@@ -649,7 +692,8 @@
                     "HYDH-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "GLU-UHPC": [
@@ -669,7 +713,8 @@
                     "GLU-UHPC", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP": [], 
@@ -696,7 +741,8 @@
                     "EG12188-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-7049", 
@@ -718,7 +764,8 @@
                     "EG12147-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4293": [
@@ -742,7 +789,8 @@
                     "EG12147-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4291": [
@@ -766,7 +814,8 @@
                     "MONOMER0-4291", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-7048", 
@@ -788,7 +837,8 @@
                     "EG12188-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "CIS-DELTA5-DODECENOYL-ACP": [], 
@@ -815,7 +865,8 @@
                     "PHOSPHO-EVGA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4198": [], 
@@ -833,7 +884,8 @@
                     "MONOMER0-4194", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6506", 
@@ -855,7 +907,8 @@
                     "RCSC-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4196": [], 
@@ -880,7 +933,8 @@
                     "MONOMER0-4210", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6561", 
@@ -894,7 +948,8 @@
                     "PHOSPHO-BARA-ASP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "SUCB-S-SUCCINYLDIHYDROLIPOATE": [
@@ -918,7 +973,8 @@
                     "CARBON-DIOXIDE", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-EVGS": [
@@ -934,7 +990,8 @@
                     "PHOSPHO-EVGS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "EVGA-RXN", 
@@ -956,7 +1013,8 @@
                     "PHOSPHO-EVGA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "SAMDC-ALPHA-MONOMER": [], 
@@ -981,7 +1039,8 @@
                     "PHOSPHO-HYDH", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "HYDG-RXN", 
@@ -1003,7 +1062,8 @@
                     "HYDH-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "DSBDOXI-MONOMER": [
@@ -1027,7 +1087,8 @@
                     "DSBDOXI-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "OX-GLUTAREDOXIN-C": [], 
@@ -1053,7 +1114,8 @@
                     "PHOSPHO-ATOC", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-CHEY": [
@@ -1077,7 +1139,8 @@
                     "PHOSPHO-CHEY", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "CHEYDEPHOS-RXN", 
@@ -1099,7 +1162,8 @@
                     "CHEY-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "URIDYLYL-PII": [
@@ -1119,7 +1183,8 @@
                     "UMP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "OX-THIOREDOXIN-MONOMER": [], 
@@ -1147,7 +1212,8 @@
                     "PHOSPHO-DPIB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6272", 
@@ -1169,7 +1235,8 @@
                     "PHOSPHO-DPIA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-CHEB": [
@@ -1193,7 +1260,8 @@
                     "PHOSPHO-CHEB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "CHEBDEP-RXN", 
@@ -1211,7 +1279,8 @@
                     "CHEB-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER-4603": [], 
@@ -1236,7 +1305,8 @@
                     "RCSC-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6509", 
@@ -1258,7 +1328,8 @@
                     "CPLX0-7884", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4184": [
@@ -1282,7 +1353,8 @@
                     "MONOMER0-4184", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6494", 
@@ -1296,7 +1368,8 @@
                     "MONOMER0-4185", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4185": [
@@ -1312,7 +1385,8 @@
                     "MONOMER0-4185", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6495", 
@@ -1326,7 +1400,8 @@
                     "PHOSPHO-EVGS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "SUCC-ACP": [], 
@@ -1351,7 +1426,8 @@
                     "G6318-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-ARCA": [
@@ -1375,7 +1451,8 @@
                     "ARCB-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PGLYCEROLTRANSII-MONOMER": [], 
@@ -1402,7 +1479,8 @@
                     "URIDYLYL-PII2", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-802", 
@@ -1420,7 +1498,8 @@
                     "PROTEIN-PII2", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHASERDECARB-BETA-MONOMER": [], 
@@ -1445,7 +1524,8 @@
                     "NARX-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "ENTF-PANT": [
@@ -1469,6 +1549,9 @@
                     "ENTF-PANT", 
                     "1"
                 ]
+            ], 
+            [
+                "ENTD-MONOMER"
             ]
         ]
     ], 
@@ -1493,7 +1576,8 @@
                     "EG12658-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-NARQ": [
@@ -1517,7 +1601,8 @@
                     "PHOSPHO-NARQ", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "NARPQ-RXN", 
@@ -1539,7 +1624,8 @@
                     "PHOSPHO-NARP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-NARP": [
@@ -1563,7 +1649,8 @@
                     "PHOSPHO-NARP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "BUT-2-ENOYL-ACP": [], 
@@ -1588,7 +1675,8 @@
                     "PHOSPHO-NARX", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "NARPX-RXN", 
@@ -1610,7 +1698,8 @@
                     "PHOSPHO-NARP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4125": [
@@ -1634,7 +1723,8 @@
                     "EG11597-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "SUCB-DIHYDROLIPOATE": [], 
@@ -1659,7 +1749,8 @@
                     "PHOSPHO-PHOQ", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "PHOP-RXN", 
@@ -1681,7 +1772,8 @@
                     "PHOSPHO-PHOP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-PHOP": [
@@ -1705,7 +1797,8 @@
                     "PHOSPHO-PHOP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-ARCB-ASP": [
@@ -1721,7 +1814,8 @@
                     "PHOSPHO-ARCB-ASP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "ARCB717-RXN", 
@@ -1735,7 +1829,8 @@
                     "PHOSPHO-ARCB717", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-BAER": [
@@ -1759,7 +1854,8 @@
                     "PHOSPHO-BAER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-BAES": [
@@ -1783,7 +1879,8 @@
                     "PHOSPHO-BAES", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "BAER-RXN", 
@@ -1805,7 +1902,8 @@
                     "PHOSPHO-BAER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PTSH-PHOSPHORYLATED": [
@@ -1829,7 +1927,8 @@
                     "PTSI-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-PHOB": [
@@ -1853,7 +1952,8 @@
                     "PHOSPHO-PHOB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-RSTB": [
@@ -1877,7 +1977,8 @@
                     "PHOSPHO-RSTB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RSTA-RXN", 
@@ -1899,7 +2000,8 @@
                     "PHOSPHO-RSTA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-TORS850": [
@@ -1915,7 +2017,8 @@
                     "PHOSPHO-TORS850", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6519", 
@@ -1937,7 +2040,8 @@
                     "PHOSPHO-TORR", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-UHPA": [], 
@@ -1962,7 +2066,8 @@
                     "PHOSPHO-UHPB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6499", 
@@ -1984,7 +2089,8 @@
                     "CPLX0-7754", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "GLUTAREDOXIN-MONOMER": [], 
@@ -2009,7 +2115,8 @@
                     "PHOSPHO-DCUS-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6459", 
@@ -2031,7 +2138,8 @@
                     "CPLX0-7721", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "BCCP-BIOTIN": [], 
@@ -2064,6 +2172,9 @@
                     "SUCB-LIPOATE", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11796-MONOMER"
             ]
         ], 
         [
@@ -2086,7 +2197,8 @@
                     "CARBON-DIOXIDE", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4152": [
@@ -2110,7 +2222,8 @@
                     "DSBBPROT-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6990", 
@@ -2132,7 +2245,8 @@
                     "DISULFOXRED-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "ADENYLYL-GS": [], 
@@ -2165,6 +2279,9 @@
                     "Oxidized-flavodoxins", 
                     "1"
                 ]
+            ], 
+            [
+                "PFLACTENZ-MONOMER"
             ]
         ]
     ], 
@@ -2189,7 +2306,8 @@
                     "PHOSPHO-CREB", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "OX-FERREDOXIN": [], 
@@ -2214,6 +2332,9 @@
                     "PPI", 
                     "1"
                 ]
+            ], 
+            [
+                "THIF-MONOMER"
             ]
         ], 
         [
@@ -2240,6 +2361,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "THII-MONOMER", 
+                "THIF-MONOMER"
             ]
         ]
     ], 
@@ -2264,7 +2389,8 @@
                     "PHOSPHO-CPXA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "CPXR-RXN", 
@@ -2286,7 +2412,8 @@
                     "CPXA-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "THIS-COSH-MONOMER": [
@@ -2314,6 +2441,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "THII-MONOMER", 
+                "THIF-MONOMER"
             ]
         ]
     ], 
@@ -2338,6 +2469,9 @@
                     "ADP", 
                     "1"
                 ]
+            ], 
+            [
+                "EG10443-MONOMER"
             ]
         ]
     ], 
@@ -2357,7 +2491,8 @@
                     "PHOSPHO-TORASP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "TORS850-RXN", 
@@ -2371,7 +2506,8 @@
                     "PHOSPHO-TORS850", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "SAMDC-BETA-MONOMER": [], 
@@ -2397,7 +2533,8 @@
                     "DSBBPROT-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4141": [
@@ -2421,7 +2558,8 @@
                     "MONOMER0-4141", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6389", 
@@ -2443,7 +2581,8 @@
                     "MONOMER0-4147", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-DPIA": [
@@ -2467,7 +2606,8 @@
                     "PHOSPHO-DPIA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "MONOMER0-4147": [
@@ -2491,7 +2631,8 @@
                     "MONOMER0-4147", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-ARCB-HIS": [
@@ -2515,7 +2656,8 @@
                     "PHOSPHO-ARCB-HIS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "ARCA-RXN", 
@@ -2537,7 +2679,8 @@
                     "ARCB-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "AMINOMETHYLDIHYDROLIPOYL-GCVH": [
@@ -2561,6 +2704,9 @@
                     "CARBON-DIOXIDE", 
                     "1"
                 ]
+            ], 
+            [
+                "GCVP-CPLX"
             ]
         ], 
         [
@@ -2587,6 +2733,9 @@
                     "METHYLENE-THF", 
                     "1"
                 ]
+            ], 
+            [
+                "GCVT-MONOMER"
             ]
         ]
     ], 
@@ -2611,7 +2760,8 @@
                     "PHOSPHO-TORS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "TORSASP-RXN", 
@@ -2625,7 +2775,8 @@
                     "PHOSPHO-TORASP", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "CIS-DELTA3-DECENOYL-ACP": [], 
@@ -2650,6 +2801,9 @@
                     "CO-A", 
                     "1"
                 ]
+            ], 
+            [
+                "EG10853-MONOMER"
             ]
         ]
     ], 
@@ -2674,7 +2828,8 @@
                     "DSBDOXI-MONOMER", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-BASR": [
@@ -2698,7 +2853,8 @@
                     "PHOSPHO-BASR", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-BASS": [
@@ -2722,7 +2878,8 @@
                     "PHOSPHO-BASS", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "BASR-RXN", 
@@ -2744,7 +2901,8 @@
                     "PHOSPHO-BASR", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-RCSB": [], 
@@ -2769,7 +2927,8 @@
                     "PHOSPHO-RCSC", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ], 
         [
             "RXN0-6507", 
@@ -2783,7 +2942,8 @@
                     "MONOMER0-4194", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "PHOSPHO-RSTA": [
@@ -2807,7 +2967,8 @@
                     "PHOSPHO-RSTA", 
                     "1"
                 ]
-            ]
+            ], 
+            []
         ]
     ], 
     "ACEF-DIHYDROLIPOATE": [], 

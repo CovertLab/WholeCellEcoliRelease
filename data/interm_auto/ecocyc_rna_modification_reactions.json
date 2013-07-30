@@ -32,6 +32,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "PHES-CPLX"
             ]
         ], 
         [
@@ -54,6 +57,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -76,6 +82,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -112,6 +121,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
             ]
         ], 
         [
@@ -134,6 +147,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -156,6 +172,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -192,6 +211,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -214,6 +236,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -236,6 +261,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -258,6 +286,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -294,6 +325,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
             ]
         ], 
         [
@@ -316,6 +351,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -338,6 +376,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -374,6 +415,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLNS-MONOMER"
             ]
         ], 
         [
@@ -396,6 +440,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -418,6 +465,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -454,6 +504,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -476,6 +529,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -498,6 +554,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -520,6 +579,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -556,6 +618,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASPS-CPLX"
             ]
         ], 
         [
@@ -578,6 +643,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -600,6 +668,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -636,6 +707,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASNS-CPLX"
             ]
         ], 
         [
@@ -658,6 +732,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -680,6 +757,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -716,6 +796,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLYS-CPLX"
             ]
         ], 
         [
@@ -738,6 +821,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -760,6 +846,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -796,6 +885,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -818,6 +910,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -840,6 +935,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -862,6 +960,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -886,6 +987,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -908,6 +1012,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -944,6 +1051,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLYS-CPLX"
             ]
         ], 
         [
@@ -966,6 +1076,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -988,6 +1101,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1024,6 +1140,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -1046,6 +1165,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -1068,6 +1190,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1090,6 +1215,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1126,6 +1254,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
             ]
         ], 
         [
@@ -1148,6 +1280,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1170,6 +1305,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1206,6 +1344,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "METG-CPLX"
             ]
         ], 
         [
@@ -1228,6 +1369,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1250,6 +1394,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1272,6 +1419,9 @@
                     "N-formyl-L-methionyl-tRNAfmet", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11268-MONOMER"
             ]
         ], 
         [
@@ -1294,6 +1444,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1316,6 +1469,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1352,6 +1508,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "METG-CPLX"
             ]
         ], 
         [
@@ -1374,6 +1533,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1396,6 +1558,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1418,6 +1583,9 @@
                     "N-formyl-L-methionyl-tRNAfmet", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11268-MONOMER"
             ]
         ], 
         [
@@ -1440,6 +1608,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1462,6 +1633,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1498,6 +1672,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "METG-CPLX"
             ]
         ], 
         [
@@ -1520,6 +1697,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1542,6 +1722,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1564,6 +1747,9 @@
                     "N-formyl-L-methionyl-tRNAfmet", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11268-MONOMER"
             ]
         ], 
         [
@@ -1586,6 +1772,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1608,6 +1797,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1644,6 +1836,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "TYRS-CPLX"
             ]
         ], 
         [
@@ -1666,6 +1861,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1688,6 +1886,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1712,6 +1913,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1734,6 +1938,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1762,6 +1969,9 @@
                     "NADPH", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3741"
             ]
         ], 
         [
@@ -1784,6 +1994,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1806,6 +2019,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1842,6 +2058,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASPS-CPLX"
             ]
         ], 
         [
@@ -1864,6 +2083,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1886,6 +2108,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -1922,6 +2147,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -1944,6 +2172,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -1966,6 +2197,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -1988,6 +2222,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2024,6 +2261,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "METG-CPLX"
             ]
         ], 
         [
@@ -2046,6 +2286,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2068,6 +2311,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2104,6 +2350,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "TYRS-CPLX"
             ]
         ], 
         [
@@ -2126,6 +2375,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2148,6 +2400,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2176,6 +2431,9 @@
                     "NADPH", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3741"
             ]
         ], 
         [
@@ -2198,6 +2456,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2220,6 +2481,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2256,6 +2520,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -2278,6 +2545,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2300,6 +2570,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2336,6 +2609,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "THRS-CPLX"
             ]
         ], 
         [
@@ -2358,6 +2634,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2380,6 +2659,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2416,6 +2698,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLYS-CPLX"
             ]
         ], 
         [
@@ -2438,6 +2723,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2460,6 +2748,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2496,6 +2787,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "THRS-CPLX"
             ]
         ], 
         [
@@ -2518,6 +2812,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2540,6 +2837,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2576,6 +2876,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLYS-CPLX"
             ]
         ], 
         [
@@ -2598,6 +2901,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2620,6 +2926,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2656,6 +2965,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -2678,6 +2990,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2700,6 +3015,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2736,6 +3054,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -2758,6 +3079,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2780,6 +3104,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2808,6 +3135,9 @@
                     "NADPH", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3741"
             ]
         ], 
         [
@@ -2830,6 +3160,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2852,6 +3185,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2888,6 +3224,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ILES-MONOMER"
             ]
         ], 
         [
@@ -2910,6 +3249,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -2932,6 +3274,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -2960,6 +3305,9 @@
                     "NADPH", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3741"
             ]
         ], 
         [
@@ -2982,6 +3330,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3004,6 +3355,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3040,6 +3394,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -3062,6 +3419,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -3084,6 +3444,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3106,6 +3469,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3142,6 +3508,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -3164,6 +3533,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3186,6 +3558,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3222,6 +3597,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ILES-MONOMER"
             ]
         ], 
         [
@@ -3244,6 +3622,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3266,6 +3647,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3302,6 +3686,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -3324,6 +3711,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3346,6 +3736,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3382,6 +3775,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -3404,6 +3800,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -3426,6 +3825,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3448,6 +3850,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3484,6 +3889,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -3506,6 +3914,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3528,6 +3939,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3564,6 +3978,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "TRPS-CPLX"
             ]
         ], 
         [
@@ -3586,6 +4003,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3608,6 +4028,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3644,6 +4067,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ALAS-CPLX"
             ]
         ], 
         [
@@ -3666,6 +4092,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3688,6 +4117,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3716,6 +4148,9 @@
                     "PROTON", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-1141"
             ]
         ], 
         [
@@ -3738,6 +4173,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3760,6 +4198,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3796,6 +4237,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -3818,6 +4262,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3840,6 +4287,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3876,6 +4326,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "CYSS-MONOMER"
             ]
         ], 
         [
@@ -3898,6 +4351,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -3920,6 +4376,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -3956,6 +4415,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ILES-MONOMER"
             ]
         ], 
         [
@@ -3978,6 +4440,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4000,6 +4465,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4036,6 +4504,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "PROS-CPLX"
             ]
         ], 
         [
@@ -4058,6 +4529,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4080,6 +4554,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4116,6 +4593,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ALAS-CPLX"
             ]
         ], 
         [
@@ -4138,6 +4618,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4160,6 +4643,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4196,6 +4682,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "METG-CPLX"
             ]
         ], 
         [
@@ -4218,6 +4707,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4240,6 +4732,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4276,6 +4771,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -4298,6 +4796,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4320,6 +4821,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4356,6 +4860,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -4378,6 +4885,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4400,6 +4910,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4424,6 +4937,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4446,6 +4962,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4470,6 +4989,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4492,6 +5014,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4528,6 +5053,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "TYRS-CPLX"
             ]
         ], 
         [
@@ -4550,6 +5078,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4572,6 +5103,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4608,6 +5142,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -4630,6 +5167,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4652,6 +5192,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4688,6 +5231,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASNS-CPLX"
             ]
         ], 
         [
@@ -4710,6 +5256,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4732,6 +5281,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4768,6 +5320,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ILES-MONOMER"
             ]
         ], 
         [
@@ -4790,6 +5345,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4812,6 +5370,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -4848,6 +5409,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -4870,6 +5434,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4892,6 +5459,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4926,6 +5496,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "SERS-CPLX"
             ]
         ], 
         [
@@ -4952,6 +5525,9 @@
                     "PROTON", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-1141"
             ]
         ], 
         [
@@ -4974,6 +5550,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -4996,6 +5575,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5032,6 +5614,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -5054,6 +5639,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5076,6 +5664,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5112,6 +5703,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "HISS-CPLX"
             ]
         ], 
         [
@@ -5134,6 +5728,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5156,6 +5753,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5192,6 +5792,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -5214,6 +5817,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5236,6 +5842,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5272,6 +5881,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -5294,6 +5906,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5316,6 +5931,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5352,6 +5970,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASPS-CPLX"
             ]
         ], 
         [
@@ -5374,6 +5995,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5396,6 +6020,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5432,6 +6059,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "PHES-CPLX"
             ]
         ], 
         [
@@ -5454,6 +6084,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5476,6 +6109,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5512,6 +6148,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASNS-CPLX"
             ]
         ], 
         [
@@ -5534,6 +6173,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5556,6 +6198,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5592,6 +6237,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "PROS-CPLX"
             ]
         ], 
         [
@@ -5614,6 +6262,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5636,6 +6287,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5672,6 +6326,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LEUS-MONOMER"
             ]
         ], 
         [
@@ -5694,6 +6351,9 @@
                     "L-leucyl-protein", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11112-MONOMER"
             ]
         ], 
         [
@@ -5716,6 +6376,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5738,6 +6401,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5774,6 +6440,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ALAS-CPLX"
             ]
         ], 
         [
@@ -5796,6 +6465,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5818,6 +6490,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5854,6 +6529,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -5876,6 +6554,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5898,6 +6579,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -5934,6 +6618,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
             ]
         ], 
         [
@@ -5956,6 +6644,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -5978,6 +6669,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6014,6 +6708,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ASNS-CPLX"
             ]
         ], 
         [
@@ -6036,6 +6733,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6058,6 +6758,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6094,6 +6797,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -6116,6 +6822,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6138,6 +6847,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6174,6 +6886,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
             ]
         ], 
         [
@@ -6196,6 +6912,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6218,6 +6937,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6254,6 +6976,10 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
             ]
         ], 
         [
@@ -6276,6 +7002,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6298,6 +7027,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6334,6 +7066,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -6356,6 +7091,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6378,6 +7116,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6414,6 +7155,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "VALS-MONOMER"
             ]
         ], 
         [
@@ -6436,6 +7180,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6458,6 +7205,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6494,6 +7244,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "METG-CPLX"
             ]
         ], 
         [
@@ -6516,6 +7269,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6538,6 +7294,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6560,6 +7319,9 @@
                     "N-formyl-L-methionyl-tRNAfmet", 
                     "1"
                 ]
+            ], 
+            [
+                "EG11268-MONOMER"
             ]
         ], 
         [
@@ -6582,6 +7344,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6604,6 +7369,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6640,6 +7408,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLNS-MONOMER"
             ]
         ], 
         [
@@ -6662,6 +7433,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6684,6 +7458,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6720,6 +7497,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLNS-MONOMER"
             ]
         ], 
         [
@@ -6742,6 +7522,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6764,6 +7547,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6800,6 +7586,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ALAS-CPLX"
             ]
         ], 
         [
@@ -6822,6 +7611,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6844,6 +7636,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6880,6 +7675,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLNS-MONOMER"
             ]
         ], 
         [
@@ -6902,6 +7700,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -6924,6 +7725,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -6960,6 +7764,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLYS-CPLX"
             ]
         ], 
         [
@@ -6982,6 +7789,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7004,6 +7814,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7040,6 +7853,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "THRS-CPLX"
             ]
         ], 
         [
@@ -7062,6 +7878,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7084,6 +7903,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7120,6 +7942,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -7142,6 +7967,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7164,6 +7992,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7200,6 +8031,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ARGS-MONOMER"
             ]
         ], 
         [
@@ -7222,6 +8056,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7244,6 +8081,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7280,6 +8120,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ALAS-CPLX"
             ]
         ], 
         [
@@ -7302,6 +8145,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7324,6 +8170,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7360,6 +8209,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "PROS-CPLX"
             ]
         ], 
         [
@@ -7382,6 +8234,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7404,6 +8259,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7440,6 +8298,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "ILES-MONOMER"
             ]
         ], 
         [
@@ -7462,6 +8323,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7484,6 +8348,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7520,6 +8387,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "THRS-CPLX"
             ]
         ], 
         [
@@ -7542,6 +8412,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7564,6 +8437,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ], 
@@ -7600,6 +8476,9 @@
                     "AMP", 
                     "1"
                 ]
+            ], 
+            [
+                "GLYS-CPLX"
             ]
         ], 
         [
@@ -7622,6 +8501,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ], 
         [
@@ -7644,6 +8526,9 @@
                     "Nucleoside-Diphosphates", 
                     "1"
                 ]
+            ], 
+            [
+                "CPLX0-3521"
             ]
         ]
     ]
