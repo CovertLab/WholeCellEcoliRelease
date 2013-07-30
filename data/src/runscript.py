@@ -72,7 +72,7 @@ def getEcocycReactionStoich(rxn):
 	enzyme = dom.getElementsByTagName("enzyme")
 	enz = []
 	for e in enzyme:
-		enz.append(e.getElementsByTagName("Protein")[0].getAttribute('frameId'))
+		enz.append(e.getElementsByTagName("Protein")[0].getAttribute('frameid'))
 
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
