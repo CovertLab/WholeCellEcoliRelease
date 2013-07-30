@@ -77,6 +77,7 @@ def getEcocycReactionStoich(rxn):
 		elemProt = left.getElementsByTagName("Protein")
 		elemRna = left.getElementsByTagName("RNA")
 		elemCmpnd = left.getElementsByTagName("Compound")
+		isclass = False
 		if len(elemProt) > 0:
 			fId = elemProt[0].getAttribute("frameid")
 			if elemProt[0].getAttribute("class") == 'true':
@@ -96,7 +97,7 @@ def getEcocycReactionStoich(rxn):
 			coeff = unicode(-1 * float(elemCoeff[0].childNodes[0].data))
 		else:
 			coeff = u"-1"
-		L.append((fId, coeff))
+		L.append((fId, coeff, isclass))
 	for right in dom.getElementsByTagName("right"):
 		elemProt = right.getElementsByTagName("Protein")
 		elemRna = right.getElementsByTagName("RNA")
