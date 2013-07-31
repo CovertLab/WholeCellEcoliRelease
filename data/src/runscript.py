@@ -1169,12 +1169,27 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
+						# Look for reactions that include the parent classes of frameid in reaction
 						parents = []
 						formation_reactions = []
-						getEcocycParents(str(frameId), 'RNA', parents)
+						getEcocycParents(str(frameId), parents)
 						for p in parents:
 							rxn = getEcocycModFormReactions(p)
 							formation_reactions.extend(rxn)
+						print 'Checked for parents for ' + frameId
+
+						# Look for class species in reaction and fill in with instance species
+						for rxn in formation_reactions:
+							components = rxn[2]
+							components_children = {}
+							for class_comp in [x for x in components if x[2] == True]:
+								children = []
+								class_comp_frameid = class_comp[0]
+								getEcocycChildren(class_comp_frameid, children)
+								components_children[class_comp_frameid] = children
+
+						print 'Checked for class sub-species for ' + frameId
+
 						if formation_reactions == []:
 							print 'No reaction for ' + frameId
 						else:
