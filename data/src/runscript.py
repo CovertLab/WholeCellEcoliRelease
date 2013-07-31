@@ -128,7 +128,7 @@ def getEcocycReactionStoich(rxn):
 			coeff = unicode(-1 * float(elemCoeff[0].childNodes[0].data))
 		else:
 			coeff = u"-1"
-		L.append((fId, coeff, isclass))
+		L.append({'id' : fId, 'coeff' : coeff, 'isclass' : isclass})
 	for right in dom.getElementsByTagName("right"):
 		elemProt = right.getElementsByTagName("Protein")
 		elemRna = right.getElementsByTagName("RNA")
@@ -157,8 +157,8 @@ def getEcocycReactionStoich(rxn):
 			coeff = unicode(1 * float(elemCoeff[0].childNodes[0].data))
 		else:
 			coeff = u"1"
-		L.append((fId, coeff, isclass))
-	return (rxn, rxnDir, L, enz)
+		L.append({'id' : fId, 'coeff' : coeff, 'isclass' : isclass})
+	return {'id' : rxn, 'direction' : rxnDir, 'components' : L, 'enzyme' : enz}
 
 def main():
 	initalizeLog()
@@ -1007,7 +1007,6 @@ def parseProteinMonomers_modified():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
 
-
 	proteinMonomerDict_modified = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
@@ -1025,16 +1024,13 @@ def parseProteinMonomers_modified():
 						production_reaction = []
 
 						for rxn in rxn_raw:
-							for rxn_species in rxn[2]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+							for rxn_species in rxn['components']:
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == pm.frameId and rxn['direction'] == 'LEFT-TO-RIGHT':
 									production_reaction.append(rxn)
-								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pm.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == pm.frameId and rxn['direction'] == 'RIGHT-TO-LEFT':
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pm.frameId:
+								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == pm.frameId:
 									production_reaction.append(rxn)
-
-						# if len(production_reaction) > 1:
-						# 	ipdb.set_trace()
 
 						for rxn in production_reaction:
 							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
@@ -1054,18 +1050,14 @@ def parseProteinMonomers_modified():
 
 
 def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
-	rxnId = rxn[0]
-	rxnSpecies = rxn[2]
-	rxnEnzymes = rxn[3]
-
-	obj.reactionId.append(rxnId)
+	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
-	obj.reactionEnzymes.append(rxnEnzymes)
+	obj.reactionEnzymes.append(rxn['enzyme'])
 
 	reactants = []
 	products = []
-	for species in rxnSpecies:
-		if int(float(species[1])) < 0:
+	for species in rxn['components']:
+		if int(float(species['coeff'])) < 0:
 			reactants.append(species)
 		else:
 			products.append(species)
@@ -1073,8 +1065,8 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 	obj.reaction[-1] += '[' + locationAbbrevDict[obj.location[0]] + ']: '
 
 	for i,r in enumerate(reactants):
-		rst = abs(int(float(r[1])))
-		rid = str(r[0])
+		rst = abs(int(float(r['coeff'])))
+		rid = str(r['id'])
 		if metaboliteEcocycToFeistIdConversion.has_key(rid):
 			rid = metaboliteEcocycToFeistIdConversion[rid]
 
@@ -1087,8 +1079,8 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 	obj.reaction[-1] += ' ==> '
 
 	for i,p in enumerate(products):
-		pst = abs(int(float(p[1])))
-		pid = str(p[0])
+		pst = abs(int(float(p['coeff'])))
+		pid = str(p['id'])
 		if metaboliteEcocycToFeistIdConversion.has_key(pid):
 			pid = metaboliteEcocycToFeistIdConversion[pid]
 
@@ -1243,11 +1235,11 @@ def parseRNA_modified():
 						production_reaction = []
 						for rxn in rxn_raw:
 							for rxn_species in rxn[2]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+								if int(float(rxn_species[1])) > 0 and rxn_species['id'] == RNA.frameId and rxn[1] == 'LEFT-TO-RIGHT':
 									production_reaction.append(rxn)
-								if int(float(rxn_species[1])) < 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species[1])) < 0 and rxn_species['id'] == RNA.frameId and rxn[1] == 'RIGHT-TO-LEFT':
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == RNA.frameId:
+								elif rxn[1] == 'UNKNOWN' and rxn_species['id'] == RNA.frameId:
 									production_reaction.append(rxn)
 
 						for rxn in production_reaction:
@@ -1264,7 +1256,6 @@ def parseRNA_modified():
 		for key in keys:
 			ribonuc = rnaDict_modified[key]
 			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.reaction), ribonuc.comments])
-
 
 # Parse protein complexes
 def parseComplexes():
@@ -1596,12 +1587,12 @@ def parseComplexes_modified():
 						production_reaction = []
 
 						for rxn in rxn_raw:
-							for rxn_species in rxn[2]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pc.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+							for rxn_species in rxn['components']:
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == pc.frameId and rxn['direction'] == 'LEFT-TO-RIGHT':
 									production_reaction.append(rxn)
-								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pc.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == pc.frameId and rxn['direction'] == 'RIGHT-TO-LEFT':
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pc.frameId:
+								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == pc.frameId:
 									production_reaction.append(rxn)
 
 						# if len(production_reaction) > 1:

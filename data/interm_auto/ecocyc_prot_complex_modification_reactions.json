@@ -1,747 +1,747 @@
 {
     "PROTEIN-NRIIP": [
-        [
-            "RXN0-6532", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "GLNL-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PROTEIN-NRIIP", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "RXN0-6533", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PROTEIN-NRIIP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "GLNG-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "GLNL-CPLX", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PROTEIN-NRIP", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "RXN0-6532", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLNL-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTEIN-NRIIP", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "RXN0-6533", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTEIN-NRIIP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLNG-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GLNL-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTEIN-NRIP", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "ISOCITHASE-P": [], 
     "MONOMER0-2863": [], 
     "PHOSPHO-KDPD": [
-        [
-            "KDPD-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "KDPD-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-KDPD", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "RXN0-6501", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOSPHO-KDPD", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "KDPE-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "KDPD-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "CPLX0-7795", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "KDPD-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "KDPD-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-KDPD", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "RXN0-6501", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-KDPD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "KDPE-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "KDPD-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-7795", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "PTSI-PHOSPHORYLATED": [
-        [
-            "RXN0-6717", 
-            "UNKNOWN", 
-            [
-                [
-                    "PHOSPHO-ENOL-PYRUVATE", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PTSI-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PYRUVATE", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PTSI-PHOSPHORYLATED", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "RXN0-6718", 
-            "UNKNOWN", 
-            [
-                [
-                    "PTSI-PHOSPHORYLATED", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PTSH-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PTSH-PHOSPHORYLATED", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PTSI-MONOMER", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "RXN0-6717", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-ENOL-PYRUVATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PTSI-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PYRUVATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PTSI-PHOSPHORYLATED", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "RXN0-6718", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PTSI-PHOSPHORYLATED", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PTSH-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PTSH-PHOSPHORYLATED", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PTSI-MONOMER", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "ENTB-CPLX": [
-        [
-            "ENTDB-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "Apo-Aryl-Carrier-Proteins", 
-                    "-1", 
-                    true
-                ], 
-                [
-                    "APO-ENTB", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CO-A", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "Holo-Aryl-Carrier-Proteins", 
-                    "1", 
-                    true
-                ], 
-                [
-                    "3-5-ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "ENTB-CPLX", 
-                    "1", 
-                    false
-                ]
-            ], 
-            [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [
                 "ENTD-MONOMER"
-            ]
-        ], 
-        [
-            "RXN0-6442", 
-            "UNKNOWN", 
-            [
-                [
-                    "ENTB-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "2-3-DIHYDROXYBENZOATE", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CPLX0-7849", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "AMP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PPI", 
-                    "1", 
-                    false
-                ]
             ], 
-            [
-                "ENTE-CPLX"
+            "id": "ENTDB-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "Apo-Aryl-Carrier-Proteins", 
+                    "isclass": true
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "APO-ENTB", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CO-A", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "Holo-Aryl-Carrier-Proteins", 
+                    "isclass": true
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "3-5-ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ENTB-CPLX", 
+                    "isclass": false
+                }
             ]
-        ]
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [
+                "ENTE-CPLX"
+            ], 
+            "id": "RXN0-6442", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ENTB-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "2-3-DIHYDROXYBENZOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-7849", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "CPLX0-2": [
-        [
-            "RXN0-2721", 
-            "PHYSIOL-LEFT-TO-RIGHT", 
-            [
-                [
-                    "NADH", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CPLX0-2", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "NITRIC-OXIDE", 
-                    "-2.0", 
-                    false
-                ], 
-                [
-                    "NAD", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "CPLX0-1", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "NITROUS-OXIDE", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "WATER", 
-                    "1", 
-                    false
-                ]
-            ], 
-            [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "enzyme": [
                 "EG12450-MONOMER"
+            ], 
+            "id": "RXN0-2721", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-2", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-2.0", 
+                    "id": "NITRIC-OXIDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-1", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NITROUS-OXIDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }
             ]
-        ]
+        }
     ], 
     "PHOSPHO-PHOR": [
-        [
-            "PHOR-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOR-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-PHOR", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "PHOBR-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOB-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-PHOR", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PHOR-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-PHOB", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "PHOR-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOR-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-PHOR", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "PHOBR-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOB-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-PHOR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOR-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-PHOB", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "CPLX0-7657": [
-        [
-            "RXN0-5322", 
-            "UNKNOWN", 
-            [
-                [
-                    "CPLX0-2861", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "Pi", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CPLX0-7657", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "RXN0-5322", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-2861", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-7657", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "CPLX0-7978": [
-        [
-            "RXN0-6995", 
-            "UNKNOWN", 
-            [
-                [
-                    "CPLX0-7884", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "Pi", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CPLX0-7978", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "RXN0-6995", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-7884", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-7978", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "CPLX0-2821": [
-        [
-            "RXN0-3141", 
-            "UNKNOWN", 
-            [
-                [
-                    "TORR-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "MONOMER0-1641", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CPLX0-2821", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "RXN0-3141", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "TORR-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MONOMER0-1641", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-2821", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "CPLX0-8004": [
-        [
-            "DSBD-RXN", 
-            "UNKNOWN", 
-            [
-                [
-                    "CPLX0-8004", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "DSBD-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "DSBG-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "DSBDOXI-MONOMER", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "DSBD-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-8004", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DSBD-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBG-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBDOXI-MONOMER", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "PYRUVFORMLY-CPLX": [
-        [
-            "1.97.1.4-A-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PYRUVFORMLY-INACTIVE-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "Reduced-flavodoxins", 
-                    "-1", 
-                    true
-                ], 
-                [
-                    "S-ADENOSYLMETHIONINE", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CH33ADO", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "MET", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PYRUVFORMLY-CPLX", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "Oxidized-flavodoxins", 
-                    "1", 
-                    true
-                ]
-            ], 
-            [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [
                 "PFLACTENZ-MONOMER"
-            ]
-        ], 
-        [
-            "PFLDEACTIV-RXN", 
-            "UNKNOWN", 
-            [
-                [
-                    "PYRUVFORMLY-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "PYRUVFORMLY-INACTIVE-CPLX", 
-                    "1", 
-                    false
-                ]
             ], 
-            [
-                "ADHE-CPLX"
+            "id": "1.97.1.4-A-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PYRUVFORMLY-INACTIVE-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "Reduced-flavodoxins", 
+                    "isclass": true
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CH33ADO", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PYRUVFORMLY-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "Oxidized-flavodoxins", 
+                    "isclass": true
+                }
             ]
-        ]
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [
+                "ADHE-CPLX"
+            ], 
+            "id": "PFLDEACTIV-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PYRUVFORMLY-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PYRUVFORMLY-INACTIVE-CPLX", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "CPLX0-8002": [
-        [
-            "DSBDC-RXN", 
-            "UNKNOWN", 
-            [
-                [
-                    "DSBD-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CPLX0-8002", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "DSBDOXI-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "DSBC-CPLX", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "DSBDC-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "DSBD-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-8002", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBDOXI-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBC-CPLX", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "PHOSPHO-CREC": [
-        [
-            "CREC-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "CREC-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-CREC", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "CREB-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOSPHO-CREC", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CREB-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "CREC-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-CREB", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "CREC-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CREC-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-CREC", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "CREB-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-CREC", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CREB-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CREC-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-CREB", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "PHOSPHO-TORR": [
-        [
-            "RXN0-6519", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOSPHO-TORS850", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "TORR-CPLX", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "TORS-CPLX", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-TORR", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "RXN0-6519", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-TORS850", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TORR-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TORS-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-TORR", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "PHOSPHO-ATOS": [
-        [
-            "RXN0-6502", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATOS-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-ATOS", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "ATOC-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOSPHO-ATOS", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATOC-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ATOS-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-ATOC", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "RXN0-6502", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATOS-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-ATOS", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "ATOC-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-ATOS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATOC-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ATOS-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-ATOC", 
+                    "isclass": false
+                }
+            ]
+        }
     ], 
     "BCCP-BIOTIN-CO2": [], 
     "PHOSPHO-ENVZ": [
-        [
-            "ENVZ-RXN", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "ATP", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ENVZ-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ADP", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-ENVZ", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ], 
-        [
-            "RXN0-6503", 
-            "LEFT-TO-RIGHT", 
-            [
-                [
-                    "PHOSPHO-ENVZ", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "OMPR-MONOMER", 
-                    "-1", 
-                    false
-                ], 
-                [
-                    "ENVZ-MONOMER", 
-                    "1", 
-                    false
-                ], 
-                [
-                    "PHOSPHO-OMPR", 
-                    "1", 
-                    false
-                ]
-            ], 
-            []
-        ]
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "ENVZ-RXN", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ENVZ-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-ENVZ", 
+                    "isclass": false
+                }
+            ]
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "enzyme": [], 
+            "id": "RXN0-6503", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-ENVZ", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "OMPR-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ENVZ-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PHOSPHO-OMPR", 
+                    "isclass": false
+                }
+            ]
+        }
     ]
 }
