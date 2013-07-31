@@ -11,6 +11,8 @@ import urllib
 import time
 from SOAPpy import WSDL
 import xml.dom.minidom
+import itertools
+import copy
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
@@ -1171,22 +1173,39 @@ def parseRNA_modified():
 					for frameId in json.loads(row['Modified form']):
 						# Look for reactions that include the parent classes of frameid in reaction
 						parents = []
-						formation_reactions = []
+						formation_reactions_raw = []
 						getEcocycParents(str(frameId), parents)
 						for p in parents:
 							rxn = getEcocycModFormReactions(p)
-							formation_reactions.extend(rxn)
+							formation_reactions_raw.extend(rxn)
 						print 'Checked for parents for ' + frameId
 
 						# Look for class species in reaction and fill in with instance species
-						for rxn in formation_reactions:
+						formation_reactions = []
+						for rxn in formation_reactions_raw:
 							components = rxn[2]
-							components_children = {}
+							components_children = []
 							for class_comp in [x for x in components if x[2] == True]:
 								children = []
 								class_comp_frameid = class_comp[0]
 								getEcocycChildren(class_comp_frameid, children)
-								components_children[class_comp_frameid] = children
+								components_children.append([(class_comp[0], x) for x in children])
+
+							for rxn_set_to_replace in itertools.product(*components_children[:]):
+								new_rxn = list(rxn)
+								new_rxn[2] = []
+								new_rxn = tuple(new_rxn)
+								for rxn_species_to_replace in rxn_set_to_replace:
+									for i,rxn_species in enumerate(components):
+										if rxn_species[0] == rxn_species_to_replace[0]:
+											rxn_species = list(rxn_species)
+											rxn_species[0] = rxn_species_to_replace[1]
+											rxn_species = tuple(rxn_species)
+											new_rxn[2].append(rxn_species)
+										else:
+											new_rxn[2].append(rxn_species)
+								formation_reactions.append(new_rxn)
+							ipdb.set_trace()
 
 						print 'Checked for class sub-species for ' + frameId
 
