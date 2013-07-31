@@ -14,27 +14,56 @@ import xml.dom.minidom
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
-def getEcocycChildren(frameid, tagname, inst = [], sub = [], level = 0):
-	level += 1
+def getEcocycChildren(frameid, inst = []):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "RNA"):
+		tagname = 'RNA'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Protein"):
+		tagname = 'Protein'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Compound"):
+		tagname = 'Compound'
 
 	for subclass in dom.getElementsByTagName("subclass"):
-		fid = subclass.getElementsByTagName(tagname)[0].getAttribute('frameid')
-		getEcocycChildren(fid, tagname, inst, sub, level)
+		rnaSub = subclass.getElementsByTagName('RNA')
+		protSub = subclass.getElementsByTagName('Protein')
+		cmpdSub = subclass.getElementsByTagName('Compound')
+		if len(rnaSub):
+			fid = subclass.getElementsByTagName('RNA')[0].getAttribute('frameid')
+		elif len(protSub):
+			fid = subclass.getElementsByTagName('Protein')[0].getAttribute('frameid')
+		elif len(cmpdSub):
+			fid = subclass.getElementsByTagName('Compound')[0].getAttribute('frameid')
+		getEcocycChildren(fid, inst)
 	for instance in dom.getElementsByTagName("instance"):
-		fid = instance.getElementsByTagName(tagname)[0].getAttribute('frameid')
-		inst.append((fid,level))
+		rnaSub = instance.getElementsByTagName('RNA')
+		protSub = instance.getElementsByTagName('Protein')
+		cmpdSub = instance.getElementsByTagName('Compound')
+		if len(rnaSub):
+			fid = instance.getElementsByTagName('RNA')[0].getAttribute('frameid')
+		elif len(protSub):
+			fid = instance.getElementsByTagName('Protein')[0].getAttribute('frameid')
+		elif len(cmpdSub):
+			fid = instance.getElementsByTagName('Compound')[0].getAttribute('frameid')
+		inst.append(fid)
 
-def getEcocycParents(frameid, tagname, parents):
+def getEcocycParents(frameid, parents):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "RNA"):
+		tagname = 'RNA'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Protein"):
+		tagname = 'Protein'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Compound"):
+		tagname = 'Compound'
 
 	for parentClass in dom.getElementsByTagName("parent"):
 		if len(parentClass.getElementsByTagName(tagname)):
 			fid = parentClass.getElementsByTagName(tagname)[0].getAttribute('frameid')
 			parents.append(fid)
-			getEcocycParents(fid, tagname, parents)
+			getEcocycParents(fid, parents)
 
 def getEcocycModFormReactions(frameid):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
