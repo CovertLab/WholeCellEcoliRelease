@@ -1162,7 +1162,8 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						formation_reactions = getFormationReactions(frameId)
+						unmodified_form = row['Frame ID']
+						formation_reactions = getFormationReactions(frameId, unmodified_form)
 						ipdb.set_trace()
 						print 'Checked for class sub-species for ' + frameId
 
@@ -1222,7 +1223,7 @@ def parseRNA_modified():
 			ribonuc = rnaDict_modified[key]
 			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.reaction), ribonuc.comments])
 
-def getFormationReactions(frameId):
+def getFormationReactions(frameId, unmodified_form):
 	# Look for reactions that include the parent classes of frameid in reaction
 	parents = []
 	formation_reactions_raw = []
@@ -1240,21 +1241,32 @@ def getFormationReactions(frameId):
 		#  ['classid' : class id 2, 'instance id' : instance id 3,...]]
 		# This makes it easy to build a list of all possible unique combinations of instance frame id's so that we can build
 		# a complete list of unique instance based reactions
-		components_children = buildReactionInstanceFromClassList(rxn)
+		components_children = buildReactionInstanceFromClassList(rxn, frameId, unmodified_form)
 
 		# Forms all cartesian-products
+		# Example: ({'classid': 'VAL-tRNAs', 'instanceid': 'valT-tRNA'}, {'classid': 'Charged-VAL-tRNAs', 'instanceid': 'charged-valT-tRNA'})
 		for cart_product in itertools.product(*components_children[:]):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
 			new_rxn = buildInstanceReaction(cart_product, rxn)
 			formation_reactions.append(new_rxn)
 	return formation_reactions
 
-def buildReactionInstanceFromClassList(rxn):
+def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 	components_children = []
+	noUnmod = True
+	noMod = True
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
-		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])		
+		if unmodified_form in children:
+			children = [unmodified_form]
+			noUnmod = False
+		if modified_form in children:
+			children = [modified_form]
+			noMod = False
+		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
+	if noUnmod or noMod:
+		ipdb.set_trace()		
 	return components_children
 
 def buildInstanceReaction(cart_product, rxn):
