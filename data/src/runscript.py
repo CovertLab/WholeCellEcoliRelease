@@ -1236,28 +1236,29 @@ def getFormationReactions(frameId):
 	# Look for class species in reaction and fill in with instance species
 	formation_reactions = []
 	for rxn in formation_reactions_raw:
-		components_children = []
-		for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
-			children = []
-			class_comp_frameid = class_comp['id']
-			getEcocycChildren(class_comp_frameid, children)
-			components_children.append([(class_comp['id'], x) for x in children])
+		components_children = buildReactionInstanceFromClassList(rxn)
 
 		for rxn_set_to_replace in itertools.product(*components_children[:]):
 			new_rxn = rxn
 			new_rxn['components'] = []
 			for rxn_species_to_replace in rxn_set_to_replace:
-				old_class_id = rxn_species_to_replace[0]
-				new_instance_id = rxn_species_to_replace[1]
 				for i,rxn_species in enumerate(rxn['components']):
-					if rxn_species['id'] == old_class_id:
-						rxn_species['id'] = new_instance_id
+					if rxn_species['id'] == rxn_species_to_replace['classid']:
+						rxn_species['id'] = rxn_species_to_replace['instanceid']
 						new_rxn['components'].append(rxn_species)
 					else:
 						new_rxn['components'].append(rxn_species)
 			formation_reactions.append(new_rxn)
 	return formation_reactions
 
+def buildReactionInstanceFromClass(rxn):
+	components_children = []
+	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
+		children = []
+		getEcocycChildren(class_comp['id'], children)
+		# Appends ('old class frameid', 'new instance frameid')
+		components_children.append({'classid' : class_comp['id'], 'instanceid' : children})
+	return components_children
 
 # Parse protein complexes
 def parseComplexes():

@@ -144,3 +144,27 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(len(info), 2)
 		self.assertEqual(info[0], ('APORNAP-CPLX', '1'))
 		self.assertEqual(info[1], ('PD00440', '1'))
+
+	@noseAttrib.attr('parseTest')
+	def test_buildReactionInstanceFromClassList(self):
+		# Reaction looks like:
+		# tRNAval + L-valine + ATP + H+ -> L-valyl-tRNAval + AMP + diphosphate
+
+		reaction = r.getEcocycReactionStoich('VALINE--TRNA-LIGASE-RXN')
+		components_children = r.buildReactionInstanceFromClass(reaction)
+		components_children_test = [{'classid' : 'VAL-tRNAs', 'instanceid' : ['valT-tRNA', 'valU-tRNA', 'valV-tRNA', 'valW-tRNA', 'valX-tRNA', 'valY-tRNA','RNA0-300']},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : ['charged-valT-tRNA', 'charged-valU-tRNA', 'charged-valV-tRNA', 'charged-valW-tRNA', 'charged-valX-tRNA', 'charged-valY-tRNA', 'RNA0-311']}]
+		
+		components_children.sort()
+		components_children[0]['instanceid'].sort()
+		components_children[1]['instanceid'].sort()
+
+		components_children_test.sort()
+		components_children_test[0]['instanceid'].sort()
+		components_children_test[1]['instanceid'].sort()
+
+		self.assertEqual(components_children, components_children_test)
+
+	@noseAttrib.attr('parseTest')
+	def test_
+
