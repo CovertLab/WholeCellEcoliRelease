@@ -1164,7 +1164,6 @@ def parseRNA_modified():
 					for frameId in json.loads(row['Modified form']):
 						formation_reactions = getFormationReactions(frameId)
 						ipdb.set_trace()
-
 						print 'Checked for class sub-species for ' + frameId
 
 						if formation_reactions == []:
@@ -1246,7 +1245,7 @@ def getFormationReactions(frameId):
 		# Forms all cartesian-products
 		for cart_product in itertools.product(*components_children[:]):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
-			new_rxn = buildInstanceReaction(cart_product, rxn, components_children)
+			new_rxn = buildInstanceReaction(cart_product, rxn)
 			formation_reactions.append(new_rxn)
 	ipdb.set_trace()
 	return formation_reactions
