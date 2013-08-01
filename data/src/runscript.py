@@ -1236,19 +1236,17 @@ def getFormationReactions(frameId):
 	# Look for class species in reaction and fill in with instance species
 	formation_reactions = []
 	for rxn in formation_reactions_raw:
+		# Builds list of:
+		# [[{'classid' : class id 1, 'instance id' : instance id 1}, {'classid' : class id 1, 'instance id' : instance id 2},...]
+		#  ['classid' : class id 2, 'instance id' : instance id 3,...]]
+		# This makes it easy to build a list of all possible unique combinations of instance frame id's so that we can build
+		# a complete list of unique instance based reactions
 		components_children = buildReactionInstanceFromClassList(rxn)
-		ipdb.set_trace()
 
-		for rxn_set_to_replace in itertools.product(*components_children[:]):
-			new_rxn = rxn
-			new_rxn['components'] = []
-			for rxn_species_to_replace in rxn_set_to_replace:
-				for i,rxn_species in enumerate(rxn['components']):
-					if rxn_species['id'] == rxn_species_to_replace['classid']:
-						rxn_species['id'] = rxn_species_to_replace['instanceid']
-						new_rxn['components'].append(rxn_species)
-					else:
-						new_rxn['components'].append(rxn_species)
+		# Forms all cartesian-products
+		for cart_product in itertools.product(*components_children[:]):
+			# Builds new reaction with class species replaced with instance species from the cartesian product
+			new_rxn = buildInstanceReaction(cart_product, rxn, components_children)
 			formation_reactions.append(new_rxn)
 	return formation_reactions
 
@@ -1257,10 +1255,25 @@ def buildReactionInstanceFromClassList(rxn):
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
-		# Appends ('old class frameid', 'new instance frameid')
-		for c in [{'classid' : class_comp['id'], 'instanceid' : x} for x in children]:
-			components_children.append(c)
+		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])		
 	return components_children
+
+def buildInstanceReaction(cart_product, rxn, components_children):
+	# New reaction for cartesian-product
+	new_rxn = copy.copy(rxn)
+	new_rxn['components'] = []
+	# Pulls out cartesian-product
+	for species_to_replace in cart_product:
+		# Looks over all species in reaction
+		for species in rxn['components']:
+			if species['id'] == species_to_replace['classid']:
+				# If species is the class-id from the cartesian product then replace with instance from product
+				species['id'] = species_to_replace['instanceid']
+				new_rxn['components'].append(species)
+			else:
+				# Otherwise re-add as is
+				new_rxn['components'].append(species)
+	return new_rxn
 
 # Parse protein complexes
 def parseComplexes():
