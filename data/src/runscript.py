@@ -1048,7 +1048,6 @@ def parseProteinMonomers_modified():
 			pm = proteinMonomerDict_modified[key]
 			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), pm.comments])
 
-
 def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
@@ -1154,7 +1153,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		parentsDict = {}
@@ -1163,41 +1162,8 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						# Look for reactions that include the parent classes of frameid in reaction
-						parents = []
-						formation_reactions_raw = []
-						getEcocycParents(str(frameId), parents)
-						for p in parents:
-							rxn = getEcocycModFormReactions(p)
-							formation_reactions_raw.extend(rxn)
-						print 'Checked for parents for ' + frameId
-
-						# Look for class species in reaction and fill in with instance species
-						formation_reactions = []
-						for rxn in formation_reactions_raw:
-							components = rxn[2]
-							components_children = []
-							for class_comp in [x for x in components if x[2] == True]:
-								children = []
-								class_comp_frameid = class_comp[0]
-								getEcocycChildren(class_comp_frameid, children)
-								components_children.append([(class_comp[0], x) for x in children])
-
-							for rxn_set_to_replace in itertools.product(*components_children[:]):
-								new_rxn = list(rxn)
-								new_rxn[2] = []
-								new_rxn = tuple(new_rxn)
-								for rxn_species_to_replace in rxn_set_to_replace:
-									for i,rxn_species in enumerate(components):
-										if rxn_species[0] == rxn_species_to_replace[0]:
-											rxn_species = list(rxn_species)
-											rxn_species[0] = rxn_species_to_replace[1]
-											rxn_species = tuple(rxn_species)
-											new_rxn[2].append(rxn_species)
-										else:
-											new_rxn[2].append(rxn_species)
-								formation_reactions.append(new_rxn)
-							ipdb.set_trace()
+						formation_reactions = getFormationReactions(frameId)
+						ipdb.set_trace()
 
 						print 'Checked for class sub-species for ' + frameId
 
@@ -1256,6 +1222,42 @@ def parseRNA_modified():
 		for key in keys:
 			ribonuc = rnaDict_modified[key]
 			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.reaction), ribonuc.comments])
+
+def getFormationReactions(frameId):
+	# Look for reactions that include the parent classes of frameid in reaction
+	parents = []
+	formation_reactions_raw = []
+	getEcocycParents(str(frameId), parents)
+	for p in parents:
+		rxn = getEcocycModFormReactions(p)
+		formation_reactions_raw.extend(rxn)
+	print 'Checked for parents for ' + frameId
+
+	# Look for class species in reaction and fill in with instance species
+	formation_reactions = []
+	for rxn in formation_reactions_raw:
+		components_children = []
+		for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
+			children = []
+			class_comp_frameid = class_comp['id']
+			getEcocycChildren(class_comp_frameid, children)
+			components_children.append([(class_comp['id'], x) for x in children])
+
+		for rxn_set_to_replace in itertools.product(*components_children[:]):
+			new_rxn = rxn
+			new_rxn['components'] = []
+			for rxn_species_to_replace in rxn_set_to_replace:
+				old_class_id = rxn_species_to_replace[0]
+				new_instance_id = rxn_species_to_replace[1]
+				for i,rxn_species in enumerate(rxn['components']):
+					if rxn_species['id'] == old_class_id:
+						rxn_species['id'] = new_instance_id
+						new_rxn['components'].append(rxn_species)
+					else:
+						new_rxn['components'].append(rxn_species)
+			formation_reactions.append(new_rxn)
+	return formation_reactions
+
 
 # Parse protein complexes
 def parseComplexes():
