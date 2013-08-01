@@ -1237,6 +1237,7 @@ def getFormationReactions(frameId):
 	formation_reactions = []
 	for rxn in formation_reactions_raw:
 		components_children = buildReactionInstanceFromClassList(rxn)
+		ipdb.set_trace()
 
 		for rxn_set_to_replace in itertools.product(*components_children[:]):
 			new_rxn = rxn
@@ -1251,13 +1252,14 @@ def getFormationReactions(frameId):
 			formation_reactions.append(new_rxn)
 	return formation_reactions
 
-def buildReactionInstanceFromClass(rxn):
+def buildReactionInstanceFromClassList(rxn):
 	components_children = []
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
 		# Appends ('old class frameid', 'new instance frameid')
-		components_children.append({'classid' : class_comp['id'], 'instanceid' : children})
+		for c in [{'classid' : class_comp['id'], 'instanceid' : x} for x in children]:
+			components_children.append(c)
 	return components_children
 
 # Parse protein complexes

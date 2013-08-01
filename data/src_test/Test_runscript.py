@@ -25,7 +25,7 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('parseTest')
+	#@noseAttrib.attr('parseTest')
 	def test_runscript(self):
 		r.main()
 
@@ -151,20 +151,28 @@ class Test_Simulation(unittest.TestCase):
 		# tRNAval + L-valine + ATP + H+ -> L-valyl-tRNAval + AMP + diphosphate
 
 		reaction = r.getEcocycReactionStoich('VALINE--TRNA-LIGASE-RXN')
-		components_children = r.buildReactionInstanceFromClass(reaction)
-		components_children_test = [{'classid' : 'VAL-tRNAs', 'instanceid' : ['valT-tRNA', 'valU-tRNA', 'valV-tRNA', 'valW-tRNA', 'valX-tRNA', 'valY-tRNA','RNA0-300']},
-									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : ['charged-valT-tRNA', 'charged-valU-tRNA', 'charged-valV-tRNA', 'charged-valW-tRNA', 'charged-valX-tRNA', 'charged-valY-tRNA', 'RNA0-311']}]
-		
-		components_children.sort()
-		components_children[0]['instanceid'].sort()
-		components_children[1]['instanceid'].sort()
+		components_children = r.buildReactionInstanceFromClassList(reaction)
+		components_children_test = [{'classid' : 'VAL-tRNAs', 'instanceid' : 'valT-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valU-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valV-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valW-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valX-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valY-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'RNA0-300'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valT-tRNA'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valU-tRNA'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valV-tRNA'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valW-tRNA'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valX-tRNA'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valY-tRNA'},
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'RNA0-311'}]
 
+		components_children.sort()
 		components_children_test.sort()
-		components_children_test[0]['instanceid'].sort()
-		components_children_test[1]['instanceid'].sort()
 
 		self.assertEqual(components_children, components_children_test)
 
 	@noseAttrib.attr('parseTest')
-	def test_
+	def test_nick(self):
+		pass
 
