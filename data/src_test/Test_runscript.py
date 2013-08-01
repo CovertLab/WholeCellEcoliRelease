@@ -152,27 +152,48 @@ class Test_Simulation(unittest.TestCase):
 
 		reaction = r.getEcocycReactionStoich('VALINE--TRNA-LIGASE-RXN')
 		components_children = r.buildReactionInstanceFromClassList(reaction)
-		components_children_test = [{'classid' : 'VAL-tRNAs', 'instanceid' : 'valT-tRNA'},
+		components_children_test = [[{'classid' : 'VAL-tRNAs', 'instanceid' : 'valT-tRNA'},
 									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valU-tRNA'},
 									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valV-tRNA'},
 									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valW-tRNA'},
 									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valX-tRNA'},
 									{'classid' : 'VAL-tRNAs', 'instanceid' : 'valY-tRNA'},
-									{'classid' : 'VAL-tRNAs', 'instanceid' : 'RNA0-300'},
-									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valT-tRNA'},
+									{'classid' : 'VAL-tRNAs', 'instanceid' : 'RNA0-300'}],
+									[{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valT-tRNA'},
 									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valU-tRNA'},
 									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valV-tRNA'},
 									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valW-tRNA'},
 									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valX-tRNA'},
 									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valY-tRNA'},
-									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'RNA0-311'}]
+									{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'RNA0-311'}]]
 
 		components_children.sort()
+		components_children[0].sort()
+		components_children[1].sort()
 		components_children_test.sort()
+		components_children_test[0].sort()
+		components_children_test[1].sort()
+
 
 		self.assertEqual(components_children, components_children_test)
 
 	@noseAttrib.attr('parseTest')
-	def test_nick(self):
-		pass
+	def test_buildInstanceReaction(self):
+		cart_product = ({'classid': 'VAL-tRNAs', 'instanceid': 'valT-tRNA'}, {'classid': 'Charged-VAL-tRNAs', 'instanceid': 'RNA0-311'})
+		components_children = [[{'classid' : 'VAL-tRNAs', 'instanceid' : 'valT-tRNA'},
+								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valU-tRNA'},
+								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valV-tRNA'},
+								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valW-tRNA'},
+								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valX-tRNA'},
+								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valY-tRNA'},
+								{'classid' : 'VAL-tRNAs', 'instanceid' : 'RNA0-300'}],
+								[{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valT-tRNA'},
+								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valU-tRNA'},
+								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valV-tRNA'},
+								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valW-tRNA'},
+								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valX-tRNA'},
+								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valY-tRNA'},
+								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'RNA0-311'}]]
+
+		new_rxn = r.buildInstanceReaction(cart_product, rxn, components_children)
 
