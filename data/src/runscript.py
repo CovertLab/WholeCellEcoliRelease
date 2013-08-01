@@ -1247,7 +1247,6 @@ def getFormationReactions(frameId):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
 			new_rxn = buildInstanceReaction(cart_product, rxn)
 			formation_reactions.append(new_rxn)
-	ipdb.set_trace()
 	return formation_reactions
 
 def buildReactionInstanceFromClassList(rxn):
