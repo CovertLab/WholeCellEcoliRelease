@@ -25,7 +25,7 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	#@noseAttrib.attr('parseTest')
+	@noseAttrib.attr('parseTest')
 	def test_runscript(self):
 		r.main()
 
@@ -180,20 +180,23 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr('parseTest')
 	def test_buildInstanceReaction(self):
 		cart_product = ({'classid': 'VAL-tRNAs', 'instanceid': 'valT-tRNA'}, {'classid': 'Charged-VAL-tRNAs', 'instanceid': 'RNA0-311'})
-		components_children = [[{'classid' : 'VAL-tRNAs', 'instanceid' : 'valT-tRNA'},
-								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valU-tRNA'},
-								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valV-tRNA'},
-								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valW-tRNA'},
-								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valX-tRNA'},
-								{'classid' : 'VAL-tRNAs', 'instanceid' : 'valY-tRNA'},
-								{'classid' : 'VAL-tRNAs', 'instanceid' : 'RNA0-300'}],
-								[{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valT-tRNA'},
-								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valU-tRNA'},
-								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valV-tRNA'},
-								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valW-tRNA'},
-								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valX-tRNA'},
-								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'charged-valY-tRNA'},
-								{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'RNA0-311'}]]
+		reaction = r.getEcocycReactionStoich('VALINE--TRNA-LIGASE-RXN')
 
-		new_rxn = r.buildInstanceReaction(cart_product, rxn, components_children)
+		new_rxn = r.buildInstanceReaction(cart_product, reaction)
+
+		new_rxn_test = {'direction': 'LEFT-TO-RIGHT',
+						'enzyme': ['VALS-MONOMER'],
+						'components': [{'coeff': '-1', 'id': 'PROTON', 'isclass': False},
+										{'coeff': '-1', 'id': 'valT-tRNA', 'isclass': False},
+										{'coeff': '-1', 'id': 'VAL', 'isclass': False},
+										{'coeff': '-1', 'id': 'ATP', 'isclass': False},
+										{'coeff': '1', 'id': 'RNA0-311', 'isclass': False},
+										{'coeff': '1', 'id': 'PPI', 'isclass': False},
+										{'coeff': '1', 'id': 'AMP', 'isclass': False}],
+						'id': 'VALINE--TRNA-LIGASE-RXN'}
+
+		self.assertEqual(new_rxn['direction'], new_rxn_test['direction'])
+		self.assertEqual(new_rxn['enzyme'], new_rxn_test['enzyme'])
+		self.assertEqual(new_rxn['id'], new_rxn_test['id'])
+		self.assertEqual(new_rxn['components'].sort(), new_rxn_test['components'].sort())
 

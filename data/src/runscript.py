@@ -1248,6 +1248,7 @@ def getFormationReactions(frameId):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
 			new_rxn = buildInstanceReaction(cart_product, rxn, components_children)
 			formation_reactions.append(new_rxn)
+	ipdb.set_trace()
 	return formation_reactions
 
 def buildReactionInstanceFromClassList(rxn):
@@ -1258,7 +1259,7 @@ def buildReactionInstanceFromClassList(rxn):
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])		
 	return components_children
 
-def buildInstanceReaction(cart_product, rxn, components_children):
+def buildInstanceReaction(cart_product, rxn):
 	# New reaction for cartesian-product
 	new_rxn = copy.copy(rxn)
 	new_rxn['components'] = []
@@ -1269,6 +1270,7 @@ def buildInstanceReaction(cart_product, rxn, components_children):
 			if species['id'] == species_to_replace['classid']:
 				# If species is the class-id from the cartesian product then replace with instance from product
 				species['id'] = species_to_replace['instanceid']
+				species['isclass'] = False
 				new_rxn['components'].append(species)
 			else:
 				# Otherwise re-add as is
