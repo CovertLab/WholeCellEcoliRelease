@@ -1254,7 +1254,6 @@ def getFormationReactions(frameId, unmodified_form):
 def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 	components_children = []
 	noUnmod = True
-	noMod = True
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
@@ -1263,9 +1262,8 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 			noUnmod = False
 		if modified_form in children:
 			children = [modified_form]
-			noMod = False
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
-	if noUnmod or noMod:
+	if noUnmod:
 		ipdb.set_trace()		
 	return components_children
 
