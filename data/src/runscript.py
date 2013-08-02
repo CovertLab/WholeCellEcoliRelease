@@ -1165,7 +1165,6 @@ def parseRNA_modified():
 					for frameId in json.loads(row['Modified form']):
 						unmodified_form = row['Frame ID']
 						formation_reactions = getFormationReactions(frameId, unmodified_form)
-						ipdb.set_trace()
 						print 'Checked for class sub-species for ' + frameId
 
 						if formation_reactions == []:
@@ -1621,9 +1620,6 @@ def parseComplexes_modified():
 									production_reaction.append(rxn)
 								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == pc.frameId:
 									production_reaction.append(rxn)
-
-						# if len(production_reaction) > 1:
-						# 	ipdb.set_trace()
 
 						for rxn in production_reaction:
 							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
