@@ -1157,7 +1157,6 @@ def parseRNA_modified():
 	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
-		parentsDict = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
 			dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 			for row in dictreader:
@@ -1172,17 +1171,12 @@ def parseRNA_modified():
 						else:
 							print 'Loaded ' + frameId + ' formation reaction | ' + str(formation_reactions)
 						modFormRxn[frameId] = formation_reactions
-						parentsDict[frameId] = parents
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_parentclass.json'),'wb') as jsonfile:
-			jsonfile.write(json.dumps(parentsDict, indent = 4))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_parentclass.json'),'rb') as jsonfile:
-		parentsDict = json.loads(jsonfile.read())
 
 	rnaDict_modified = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
