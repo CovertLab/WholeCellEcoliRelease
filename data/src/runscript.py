@@ -1194,7 +1194,7 @@ def parseRNA_modified():
 					if rxn_raw != []:
 						production_reaction = []
 						for rxn in rxn_raw:
-							for rxn_species in rxn[2]:
+							for rxn_species in rxn['components']:
 								if int(float(rxn_species[1])) > 0 and rxn_species['id'] == RNA.frameId and rxn[1] == 'LEFT-TO-RIGHT':
 									production_reaction.append(rxn)
 								if int(float(rxn_species[1])) < 0 and rxn_species['id'] == RNA.frameId and rxn[1] == 'RIGHT-TO-LEFT':
