@@ -1199,10 +1199,11 @@ def parseRNA_modified():
 									production_reaction.append(rxn)
 								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == RNA.frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == RNA.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == RNA.frameId:
 									production_reaction.append(rxn)
 								
-								if rxn['direction'] != 'LEFT-TO-RIGHT' and rxn['direction'] != 'RIGHT-TO-LEFT' and rxn['direction'] != 'PHYSIOL-LEFT-TO-RIGHT' and rxn['direction'] != 'PHYSIOL-RIGHT-TO-LEFT':
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE']
+								if rxn['direction'] not in allowedReactionDirections:
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 

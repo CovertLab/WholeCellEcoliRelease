@@ -9,22 +9,22 @@ RNA0-311	RNA0-300	"[""CCO-CYTOSOL""]"	"[""VALINE--TRNA-LIGASE-RXN""]"	"[[""VALS-
 RNA0-312	RNA0-301	"[""CCO-CYTOSOL""]"	"[""LYSINE--TRNA-LIGASE-RXN""]"	"[[""LYSS-CPLX"", ""LYSU-CPLX""]]"	"[""[c]: PROTON + lys-L + RNA0-301 + atp ==> RNA0-312 + ppi + amp""]"	
 RNA0-313	RNA0-302	"[""CCO-CYTOSOL""]"	"[""LYSINE--TRNA-LIGASE-RXN""]"	"[[""LYSS-CPLX"", ""LYSU-CPLX""]]"	"[""[c]: PROTON + lys-L + RNA0-302 + atp ==> RNA0-313 + ppi + amp""]"	
 RNA0-314	RNA0-303	"[""CCO-CYTOSOL""]"	"[""LYSINE--TRNA-LIGASE-RXN""]"	"[[""LYSS-CPLX"", ""LYSU-CPLX""]]"	"[""[c]: PROTON + lys-L + RNA0-303 + atp ==> RNA0-314 + ppi + amp""]"	
-RNA0-319	metW-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-RNA0-321	RNA0-306	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-RNA0-322	metY-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-RNA0-323	metZ-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
+RNA0-319	metW-tRNA	"[""CCO-CYTOSOL""]"	"[""METHIONINE--TRNA-LIGASE-RXN""]"	"[[""METG-CPLX""]]"	"[""[c]: PROTON + metW-tRNA + met-L + atp ==> RNA0-319 + ppi + amp""]"	
+RNA0-321	RNA0-306	"[""CCO-CYTOSOL""]"	"[""METHIONINE--TRNA-LIGASE-RXN""]"	"[[""METG-CPLX""]]"	"[""[c]: PROTON + RNA0-306 + met-L + atp ==> RNA0-321 + ppi + amp""]"	
+RNA0-322	metY-tRNA	"[""CCO-CYTOSOL""]"	"[""METHIONINE--TRNA-LIGASE-RXN""]"	"[[""METG-CPLX""]]"	"[""[c]: PROTON + metY-tRNA + met-L + atp ==> RNA0-322 + ppi + amp""]"	
+RNA0-323	metZ-tRNA	"[""CCO-CYTOSOL""]"	"[""METHIONINE--TRNA-LIGASE-RXN""]"	"[[""METG-CPLX""]]"	"[""[c]: PROTON + metZ-tRNA + met-L + atp ==> RNA0-323 + ppi + amp""]"	
 charged-alaT-tRNA	alaT-tRNA	"[""CCO-CYTOSOL""]"	"[""ALANINE--TRNA-LIGASE-RXN""]"	"[[""ALAS-CPLX""]]"	"[""[c]: PROTON + alaT-tRNA + ala-L + atp ==> charged-alaT-tRNA + ppi + amp""]"	
 charged-alaU-tRNA	alaU-tRNA	"[""CCO-CYTOSOL""]"	"[""ALANINE--TRNA-LIGASE-RXN""]"	"[[""ALAS-CPLX""]]"	"[""[c]: PROTON + alaU-tRNA + ala-L + atp ==> charged-alaU-tRNA + ppi + amp""]"	
 charged-alaV-tRNA	alaV-tRNA	"[""CCO-CYTOSOL""]"	"[""ALANINE--TRNA-LIGASE-RXN""]"	"[[""ALAS-CPLX""]]"	"[""[c]: PROTON + alaV-tRNA + ala-L + atp ==> charged-alaV-tRNA + ppi + amp""]"	
 charged-alaW-tRNA	alaW-tRNA	"[""CCO-CYTOSOL""]"	"[""ALANINE--TRNA-LIGASE-RXN""]"	"[[""ALAS-CPLX""]]"	"[""[c]: PROTON + alaW-tRNA + ala-L + atp ==> charged-alaW-tRNA + ppi + amp""]"	
 charged-alaX-tRNA	alaX-tRNA	"[""CCO-CYTOSOL""]"	"[""ALANINE--TRNA-LIGASE-RXN""]"	"[[""ALAS-CPLX""]]"	"[""[c]: PROTON + alaX-tRNA + ala-L + atp ==> charged-alaX-tRNA + ppi + amp""]"	
-charged-argQ-tRNA	argQ-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-argU-tRNA	argU-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-argV-tRNA	argV-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-argW-tRNA	argW-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-argX-tRNA	argX-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-argY-tRNA	argY-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-argZ-tRNA	argZ-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
+charged-argQ-tRNA	argQ-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argQ-tRNA + arg-L + atp ==> charged-argQ-tRNA + ppi + amp""]"	
+charged-argU-tRNA	argU-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argU-tRNA + arg-L + atp ==> charged-argU-tRNA + ppi + amp""]"	
+charged-argV-tRNA	argV-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argV-tRNA + arg-L + atp ==> charged-argV-tRNA + ppi + amp""]"	
+charged-argW-tRNA	argW-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argW-tRNA + arg-L + atp ==> charged-argW-tRNA + ppi + amp""]"	
+charged-argX-tRNA	argX-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argX-tRNA + arg-L + atp ==> charged-argX-tRNA + ppi + amp""]"	
+charged-argY-tRNA	argY-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argY-tRNA + arg-L + atp ==> charged-argY-tRNA + ppi + amp""]"	
+charged-argZ-tRNA	argZ-tRNA	"[""CCO-CYTOSOL""]"	"[""ARGININE--TRNA-LIGASE-RXN""]"	"[[""ARGS-MONOMER""]]"	"[""[c]: PROTON + argZ-tRNA + arg-L + atp ==> charged-argZ-tRNA + ppi + amp""]"	
 charged-asnT-tRNA	asnT-tRNA	"[""CCO-CYTOSOL""]"	"[""ASPARAGINE--TRNA-LIGASE-RXN""]"	"[[""ASNS-CPLX""]]"	"[""[c]: PROTON + asnT-tRNA + asn-L + atp ==> charged-asnT-tRNA + ppi + amp""]"	
 charged-asnU-tRNA	asnU-tRNA	"[""CCO-CYTOSOL""]"	"[""ASPARAGINE--TRNA-LIGASE-RXN""]"	"[[""ASNS-CPLX""]]"	"[""[c]: PROTON + asnU-tRNA + asn-L + atp ==> charged-asnU-tRNA + ppi + amp""]"	
 charged-asnV-tRNA	asnV-tRNA	"[""CCO-CYTOSOL""]"	"[""ASPARAGINE--TRNA-LIGASE-RXN""]"	"[[""ASNS-CPLX""]]"	"[""[c]: PROTON + asnV-tRNA + asn-L + atp ==> charged-asnV-tRNA + ppi + amp""]"	
@@ -36,10 +36,10 @@ charged-glnU-tRNA	glnU-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTAMINE--TRNA-LIGASE-RXN""
 charged-glnV-tRNA	glnV-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTAMINE--TRNA-LIGASE-RXN""]"	"[[""GLNS-MONOMER""]]"	"[""[c]: PROTON + glnV-tRNA + GLN + atp ==> charged-glnV-tRNA + ppi + amp""]"	
 charged-glnW-tRNA	glnW-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTAMINE--TRNA-LIGASE-RXN""]"	"[[""GLNS-MONOMER""]]"	"[""[c]: PROTON + glnW-tRNA + GLN + atp ==> charged-glnW-tRNA + ppi + amp""]"	
 charged-glnX-tRNA	glnX-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTAMINE--TRNA-LIGASE-RXN""]"	"[[""GLNS-MONOMER""]]"	"[""[c]: PROTON + glnX-tRNA + GLN + atp ==> charged-glnX-tRNA + ppi + amp""]"	
-charged-gltT-tRNA	gltT-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-gltU-tRNA	gltU-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-gltV-tRNA	gltV-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-gltW-tRNA	gltW-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
+charged-gltT-tRNA	gltT-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTRNAREDUCT-RXN""]"	"[[""CPLX0-3741""]]"	"[""[c]: GLUTAMATE-1-SEMIALDEHYDE + NADP + gltT-tRNA ==> charged-gltT-tRNA + NADPH""]"	
+charged-gltU-tRNA	gltU-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTRNAREDUCT-RXN""]"	"[[""CPLX0-3741""]]"	"[""[c]: GLUTAMATE-1-SEMIALDEHYDE + NADP + gltU-tRNA ==> charged-gltU-tRNA + NADPH""]"	
+charged-gltV-tRNA	gltV-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTRNAREDUCT-RXN""]"	"[[""CPLX0-3741""]]"	"[""[c]: GLUTAMATE-1-SEMIALDEHYDE + NADP + gltV-tRNA ==> charged-gltV-tRNA + NADPH""]"	
+charged-gltW-tRNA	gltW-tRNA	"[""CCO-CYTOSOL""]"	"[""GLUTRNAREDUCT-RXN""]"	"[[""CPLX0-3741""]]"	"[""[c]: GLUTAMATE-1-SEMIALDEHYDE + NADP + gltW-tRNA ==> charged-gltW-tRNA + NADPH""]"	
 charged-glyT-tRNA	glyT-tRNA	"[""CCO-CYTOSOL""]"	"[""GLYCINE--TRNA-LIGASE-RXN""]"	"[[""GLYS-CPLX""]]"	"[""[c]: PROTON + glyT-tRNA + gly + atp ==> charged-glyT-tRNA + ppi + amp""]"	
 charged-glyU-tRNA	glyU-tRNA	"[""CCO-CYTOSOL""]"	"[""GLYCINE--TRNA-LIGASE-RXN""]"	"[[""GLYS-CPLX""]]"	"[""[c]: PROTON + glyU-tRNA + gly + atp ==> charged-glyU-tRNA + ppi + amp""]"	
 charged-glyV-tRNA	glyV-tRNA	"[""CCO-CYTOSOL""]"	"[""GLYCINE--TRNA-LIGASE-RXN""]"	"[[""GLYS-CPLX""]]"	"[""[c]: PROTON + glyV-tRNA + gly + atp ==> charged-glyV-tRNA + ppi + amp""]"	
@@ -62,8 +62,8 @@ charged-leuZ-tRNA	leuZ-tRNA	"[""CCO-CYTOSOL""]"	"[""LEUCINE--TRNA-LIGASE-RXN""]"
 charged-lysT-tRNA	lysT-tRNA	"[""CCO-CYTOSOL""]"	"[""LYSINE--TRNA-LIGASE-RXN""]"	"[[""LYSS-CPLX"", ""LYSU-CPLX""]]"	"[""[c]: PROTON + lys-L + lysT-tRNA + atp ==> charged-lysT-tRNA + ppi + amp""]"	
 charged-lysV-tRNA	lysV-tRNA	"[""CCO-CYTOSOL""]"	"[""LYSINE--TRNA-LIGASE-RXN""]"	"[[""LYSS-CPLX"", ""LYSU-CPLX""]]"	"[""[c]: PROTON + lys-L + lysV-tRNA + atp ==> charged-lysV-tRNA + ppi + amp""]"	
 charged-lysW-tRNA	lysW-tRNA	"[""CCO-CYTOSOL""]"	"[""LYSINE--TRNA-LIGASE-RXN""]"	"[[""LYSS-CPLX"", ""LYSU-CPLX""]]"	"[""[c]: PROTON + lys-L + lysW-tRNA + atp ==> charged-lysW-tRNA + ppi + amp""]"	
-charged-metT-tRNA	metT-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
-charged-metU-tRNA	metU-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	
+charged-metT-tRNA	metT-tRNA	"[""CCO-CYTOSOL""]"	"[""METHIONINE--TRNA-LIGASE-RXN""]"	"[[""METG-CPLX""]]"	"[""[c]: PROTON + metT-tRNA + met-L + atp ==> charged-metT-tRNA + ppi + amp""]"	
+charged-metU-tRNA	metU-tRNA	"[""CCO-CYTOSOL""]"	"[""METHIONINE--TRNA-LIGASE-RXN""]"	"[[""METG-CPLX""]]"	"[""[c]: PROTON + metU-tRNA + met-L + atp ==> charged-metU-tRNA + ppi + amp""]"	
 charged-pheU-tRNA	pheU-tRNA	"[""CCO-CYTOSOL""]"	"[""PHENYLALANINE--TRNA-LIGASE-RXN""]"	"[[""PHES-CPLX""]]"	"[""[c]: PROTON + pheU-tRNA + phe-L + atp ==> charged-pheU-tRNA + ppi + amp""]"	
 charged-pheV-tRNA	pheV-tRNA	"[""CCO-CYTOSOL""]"	"[""PHENYLALANINE--TRNA-LIGASE-RXN""]"	"[[""PHES-CPLX""]]"	"[""[c]: PROTON + pheV-tRNA + phe-L + atp ==> charged-pheV-tRNA + ppi + amp""]"	
 charged-proK-tRNA	proK-tRNA	"[""CCO-CYTOSOL""]"	"[""PROLINE--TRNA-LIGASE-RXN""]"	"[[""PROS-CPLX""]]"	"[""[c]: PROTON + proK-tRNA + PRO + atp ==> charged-proK-tRNA + ppi + amp""]"	
