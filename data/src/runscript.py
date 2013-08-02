@@ -1162,6 +1162,8 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
+						if frameId == 'charged-argQ-tRNA':
+							ipdb.set_trace()
 						unmodified_form = row['Frame ID']
 						formation_reactions = getFormationReactions(frameId, unmodified_form)
 						print 'Checked for class sub-species for ' + frameId
