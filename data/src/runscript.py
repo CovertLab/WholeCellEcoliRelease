@@ -65,7 +65,7 @@ def getEcocycParents(frameid, parents):
 		if len(parentClass.getElementsByTagName(tagname)):
 			fid = parentClass.getElementsByTagName(tagname)[0].getAttribute('frameid')
 			parents.append(fid)
-			getEcocycParents(fid, parents)
+			#getEcocycParents(fid, parents)
 
 def getEcocycModFormReactions(frameid):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
@@ -1264,25 +1264,23 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 			children = [modified_form]
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
 	if noUnmod:
-		ipdb.set_trace()		
+		raise Exception, 'No unmodified form found!\n'	
 	return components_children
 
-def buildInstanceReaction(cart_product, rxn):
+def buildInstanceReaction(pairs_to_replace, rxn):
 	# New reaction for cartesian-product
-	new_rxn = copy.copy(rxn)
-	new_rxn['components'] = []
-	# Pulls out cartesian-product
-	for species_to_replace in cart_product:
-		# Looks over all species in reaction
-		for species in rxn['components']:
+	new_rxn = copy.deepcopy(rxn)
+
+	# Looks over all species in reaction
+	for species in new_rxn['components']:
+		addOriginal = False
+		# Pulls out cartesian-product
+		for species_to_replace in pairs_to_replace:
+			count = 0
 			if species['id'] == species_to_replace['classid']:
 				# If species is the class-id from the cartesian product then replace with instance from product
 				species['id'] = species_to_replace['instanceid']
 				species['isclass'] = False
-				new_rxn['components'].append(species)
-			else:
-				# Otherwise re-add as is
-				new_rxn['components'].append(species)
 	return new_rxn
 
 # Parse protein complexes
