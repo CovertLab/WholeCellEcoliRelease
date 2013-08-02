@@ -1258,6 +1258,7 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 			children = [modified_form]
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
 	if noUnmod:
+		ipdb.set_trace()
 		raise Exception, 'No unmodified form found!\n'	
 	return components_children
 
