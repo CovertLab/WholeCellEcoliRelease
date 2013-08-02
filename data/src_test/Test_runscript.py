@@ -195,5 +195,20 @@ class Test_Simulation(unittest.TestCase):
 		unmodified_form = 'RNA0-300'
 		frameId = 'RNA0-311'
 		formation_reactions = r.getFormationReactions(frameId, unmodified_form)
-		ipdb.set_trace()
+		
+		self.assertEqual(len(formation_reactions), 1)
+		new_rxn_test = {'direction': 'LEFT-TO-RIGHT',
+						'enzyme': ['VALS-MONOMER'],
+						'components': [{'coeff': '-1', 'id': 'PROTON', 'isclass': False},
+										{'coeff': '-1', 'id': 'RNA0-300', 'isclass': False},
+										{'coeff': '-1', 'id': 'VAL', 'isclass': False},
+										{'coeff': '-1', 'id': 'ATP', 'isclass': False},
+										{'coeff': '1', 'id': 'RNA0-311', 'isclass': False},
+										{'coeff': '1', 'id': 'PPI', 'isclass': False},
+										{'coeff': '1', 'id': 'AMP', 'isclass': False}],
+						'id': 'VALINE--TRNA-LIGASE-RXN'}
+		self.assertEqual(formation_reactions[0]['direction'], new_rxn_test['direction'])
+		self.assertEqual(formation_reactions[0]['enzyme'], new_rxn_test['enzyme'])
+		self.assertEqual(formation_reactions[0]['id'], new_rxn_test['id'])
+		self.assertEqual(formation_reactions[0]['components'].sort(), new_rxn_test['components'].sort())
 

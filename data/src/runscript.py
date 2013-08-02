@@ -65,6 +65,7 @@ def getEcocycParents(frameid, parents):
 		if len(parentClass.getElementsByTagName(tagname)):
 			fid = parentClass.getElementsByTagName(tagname)[0].getAttribute('frameid')
 			parents.append(fid)
+			# TODO: Check - Right now with this commented we are only going one deep!
 			#getEcocycParents(fid, parents)
 
 def getEcocycModFormReactions(frameid):
