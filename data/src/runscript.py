@@ -1190,7 +1190,7 @@ def parseRNA_modified():
 					RNA.location = json.loads(row['Location'])
 
 					rxn_raw = modFormRxn[RNA.frameId]
-					
+
 					if rxn_raw != []:
 						production_reaction = []
 						for rxn in rxn_raw:
@@ -1201,6 +1201,8 @@ def parseRNA_modified():
 									production_reaction.append(rxn)
 								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == RNA.frameId:
 									production_reaction.append(rxn)
+								else:
+									raise Exception, 'Reaction direction or something else was weird!'
 
 						for rxn in production_reaction:
 							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
