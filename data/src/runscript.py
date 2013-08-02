@@ -1201,7 +1201,9 @@ def parseRNA_modified():
 									production_reaction.append(rxn)
 								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == RNA.frameId:
 									production_reaction.append(rxn)
-								else:
+								
+								if rxn['direction'] != 'LEFT-TO-RIGHT' and rxn['direction'] != 'RIGHT-TO-LEFT' and rxn['direction'] != 'PHYSIOL-LEFT-TO-RIGHT' and rxn['direction'] != 'PHYSIOL-RIGHT-TO-LEFT':
+									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
 						for rxn in production_reaction:
