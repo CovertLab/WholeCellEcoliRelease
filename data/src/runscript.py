@@ -1247,19 +1247,14 @@ def getFormationReactions(frameId, unmodified_form):
 
 def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 	components_children = []
-	noUnmod = True
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
 		if unmodified_form in children:
 			children = [unmodified_form]
-			noUnmod = False
 		if modified_form in children:
 			children = [modified_form]
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
-	if noUnmod:
-		ipdb.set_trace()
-		raise Exception, 'No unmodified form found!\n'	
 	return components_children
 
 def buildInstanceReaction(pairs_to_replace, rxn):
