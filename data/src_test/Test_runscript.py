@@ -25,7 +25,7 @@ class Test_Simulation(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	#@noseAttrib.attr('parseTest')
+	@noseAttrib.attr('parseTest')
 	def test_runscript(self):
 		r.main()
 
