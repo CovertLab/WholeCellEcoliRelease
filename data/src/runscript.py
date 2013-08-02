@@ -1154,7 +1154,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1190,14 +1190,14 @@ def parseRNA_modified():
 					RNA.location = json.loads(row['Location'])
 
 					rxn_raw = modFormRxn[RNA.frameId]
-
+					
 					if rxn_raw != []:
 						production_reaction = []
 						for rxn in rxn_raw:
 							for rxn_species in rxn['components']:
-								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == RNA.frameId and rxn['direction'] == 'LEFT-TO-RIGHT':
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == RNA.frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == RNA.frameId and rxn['direction'] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == RNA.frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
 								elif rxn['direction'] == 'UNKNOWN' and rxn_species['id'] == RNA.frameId:
 									production_reaction.append(rxn)
