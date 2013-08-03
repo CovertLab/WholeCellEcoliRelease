@@ -2,6 +2,7 @@
     "charged-pheV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.20\n      ", 
             "enzyme": [
                 "PHES-CPLX"
             ], 
@@ -48,6 +49,7 @@
     "charged-lysV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.6\n      ", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -95,6 +97,7 @@
     "charged-leuW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -141,6 +144,7 @@
     "charged-lysT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.6\n      ", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -188,6 +192,7 @@
     "charged-glnX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.18\n      ", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -234,6 +239,7 @@
     "charged-leuP-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -280,6 +286,7 @@
     "charged-aspU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.12\n      ", 
             "enzyme": [
                 "ASPS-CPLX"
             ], 
@@ -326,6 +333,7 @@
     "charged-asnT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.22\n      ", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -372,6 +380,7 @@
     "charged-glyW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.14\n      ", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -418,6 +427,7 @@
     "charged-leuZ-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -465,6 +475,7 @@
     "charged-glyX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.14\n      ", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -511,6 +522,7 @@
     "charged-leuV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -557,6 +569,7 @@
     "charged-lysW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.6\n      ", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -604,6 +617,7 @@
     "RNA0-321": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.10\n      ", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -650,6 +664,7 @@
     "RNA0-323": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.10\n      ", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -696,6 +711,7 @@
     "RNA0-322": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.10\n      ", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -742,6 +758,7 @@
     "charged-tyrT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.1\n      ", 
             "enzyme": [
                 "TYRS-CPLX"
             ], 
@@ -789,6 +806,7 @@
     "charged-gltW-tRNA": [
         {
             "direction": "REVERSIBLE", 
+            "ecnumber": "EC-1.2.1.70\n      ", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -825,6 +843,7 @@
     "charged-aspV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.12\n      ", 
             "enzyme": [
                 "ASPS-CPLX"
             ], 
@@ -871,6 +890,7 @@
     "charged-leuX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -917,6 +937,7 @@
     "charged-metU-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.10\n      ", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -963,6 +984,7 @@
     "charged-tyrV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.1\n      ", 
             "enzyme": [
                 "TYRS-CPLX"
             ], 
@@ -1009,6 +1031,7 @@
     "charged-gltT-tRNA": [
         {
             "direction": "REVERSIBLE", 
+            "ecnumber": "EC-1.2.1.70\n      ", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1045,6 +1068,7 @@
     "charged-valX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -1091,6 +1115,7 @@
     "charged-thrT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.3\n      ", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -1137,6 +1162,7 @@
     "charged-glyT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.14\n      ", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -1183,6 +1209,7 @@
     "charged-thrV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.3\n      ", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -1229,6 +1256,7 @@
     "charged-glyY-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.14\n      ", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -1275,6 +1303,7 @@
     "charged-serW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.11\n      ", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -1321,6 +1350,7 @@
     "charged-serV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.11\n      ", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -1367,6 +1397,7 @@
     "charged-gltV-tRNA": [
         {
             "direction": "REVERSIBLE", 
+            "ecnumber": "EC-1.2.1.70\n      ", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1403,6 +1434,7 @@
     "charged-ileT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.5\n      ", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -1449,6 +1481,7 @@
     "charged-gltU-tRNA": [
         {
             "direction": "REVERSIBLE", 
+            "ecnumber": "EC-1.2.1.70\n      ", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1485,6 +1518,7 @@
     "charged-leuU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -1531,6 +1565,7 @@
     "charged-serT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.11\n      ", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -1577,6 +1612,7 @@
     "charged-ileX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.5\n      ", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -1623,6 +1659,7 @@
     "charged-valV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -1669,6 +1706,7 @@
     "charged-leuT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -1715,6 +1753,7 @@
     "charged-valY-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -1761,6 +1800,7 @@
     "charged-trpT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.2\n      ", 
             "enzyme": [
                 "TRPS-CPLX"
             ], 
@@ -1807,6 +1847,7 @@
     "charged-alaT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.7\n      ", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -1853,6 +1894,7 @@
     "modified-charged-selC-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-2.9.1.1\n      ", 
             "enzyme": [
                 "CPLX0-1141"
             ], 
@@ -1889,6 +1931,7 @@
     "charged-argZ-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -1935,6 +1978,7 @@
     "charged-cysT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.16\n      ", 
             "enzyme": [
                 "CYSS-MONOMER"
             ], 
@@ -1981,6 +2025,7 @@
     "charged-ileV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.5\n      ", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -2027,6 +2072,7 @@
     "charged-proK-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.15\n      ", 
             "enzyme": [
                 "PROS-CPLX"
             ], 
@@ -2073,6 +2119,7 @@
     "charged-alaV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.7\n      ", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -2119,6 +2166,7 @@
     "charged-metT-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.10\n      ", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -2165,6 +2213,7 @@
     "charged-serX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.11\n      ", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -2211,6 +2260,7 @@
     "charged-serU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.11\n      ", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -2259,6 +2309,7 @@
     "charged-tyrU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.1\n      ", 
             "enzyme": [
                 "TYRS-CPLX"
             ], 
@@ -2305,6 +2356,7 @@
     "charged-valU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -2351,6 +2403,7 @@
     "charged-asnU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.22\n      ", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -2397,6 +2450,7 @@
     "charged-ileU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.5\n      ", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -2443,6 +2497,7 @@
     "charged-selC-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.11\n      ", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -2487,6 +2542,7 @@
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-2.9.1.1\n      ", 
             "enzyme": [
                 "CPLX0-1141"
             ], 
@@ -2523,6 +2579,7 @@
     "charged-argV-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -2569,6 +2626,7 @@
     "charged-hisR-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.21\n      ", 
             "enzyme": [
                 "HISS-CPLX"
             ], 
@@ -2615,6 +2673,7 @@
     "charged-argY-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -2661,6 +2720,7 @@
     "charged-argW-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -2707,6 +2767,7 @@
     "charged-aspT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.12\n      ", 
             "enzyme": [
                 "ASPS-CPLX"
             ], 
@@ -2753,6 +2814,7 @@
     "charged-pheU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.20\n      ", 
             "enzyme": [
                 "PHES-CPLX"
             ], 
@@ -2799,6 +2861,7 @@
     "charged-asnV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.22\n      ", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -2845,6 +2908,7 @@
     "charged-proL-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.15\n      ", 
             "enzyme": [
                 "PROS-CPLX"
             ], 
@@ -2891,6 +2955,7 @@
     "charged-leuQ-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.4\n      ", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -2937,6 +3002,7 @@
     "charged-alaX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.7\n      ", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -2983,6 +3049,7 @@
     "charged-argQ-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3029,6 +3096,7 @@
     "RNA0-314": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.6\n      ", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -3076,6 +3144,7 @@
     "RNA0-310": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.22\n      ", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -3122,6 +3191,7 @@
     "RNA0-311": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -3168,6 +3238,7 @@
     "RNA0-312": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.6\n      ", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -3215,6 +3286,7 @@
     "RNA0-313": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.6\n      ", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -3262,6 +3334,7 @@
     "charged-valW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -3308,6 +3381,7 @@
     "charged-valT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.9\n      ", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -3354,6 +3428,7 @@
     "RNA0-319": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.10\n      ", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -3400,6 +3475,7 @@
     "charged-glnU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.18\n      ", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -3446,6 +3522,7 @@
     "charged-glnV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.18\n      ", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -3492,6 +3569,7 @@
     "charged-alaU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.7\n      ", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -3538,6 +3616,7 @@
     "charged-glnW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.18\n      ", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -3584,6 +3663,7 @@
     "charged-glyU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.14\n      ", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -3630,6 +3710,7 @@
     "charged-thrW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.3\n      ", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -3676,6 +3757,7 @@
     "charged-argU-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3722,6 +3804,7 @@
     "charged-argX-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.19\n      ", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3768,6 +3851,7 @@
     "charged-alaW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.7\n      ", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -3814,6 +3898,7 @@
     "charged-proM-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.15\n      ", 
             "enzyme": [
                 "PROS-CPLX"
             ], 
@@ -3860,6 +3945,7 @@
     "RNA0-309": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.5\n      ", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -3906,6 +3992,7 @@
     "charged-thrU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.3\n      ", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -3952,6 +4039,7 @@
     "charged-glyV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": "EC-6.1.1.14\n      ", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
