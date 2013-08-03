@@ -108,8 +108,10 @@ def getEcocycReactionStoich(rxn):
 	ec_number = dom.getElementsByTagName("ec-number")
 	if len(ec_number):
 		ec = ec_number[0]
-		ec = ec.firstChild.data
-		ipdb.set_trace()
+		if ec.childNodes[1].firstChild.data == 'T':
+			ec = ec.firstChild.data
+		else:
+			ec = None
 	else:
 		ec = None
 
