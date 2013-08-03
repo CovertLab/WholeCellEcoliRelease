@@ -1000,7 +1000,7 @@ def parseProteinMonomers_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
@@ -1065,6 +1065,7 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
 	obj.reactionEnzymes.append(rxn['enzyme'])
+	obj.ec.append(rxn['ecnumber'])
 
 	reactants = []
 	products = []
@@ -1229,10 +1230,10 @@ def parseRNA_modified():
 
 		keys = rnaDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'EC', 'Reaction', 'Comments'])
 		for key in keys:
 			ribonuc = rnaDict_modified[key]
-			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.reaction), ribonuc.comments])
+			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), ribonuc.comments])
 
 def getFormationReactions(frameId, unmodified_form):
 	# Look for reactions that include the parent classes of frameid in reaction
@@ -1342,7 +1343,7 @@ def parseComplexes():
 
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
 		newRows = []
 		modifiedForms = []
@@ -2620,6 +2621,7 @@ class proteinMonomer:
 		self.reactionId = []
 		self.reaction = []
 		self.reactionEnzymes = []
+		self.ec = []
 		self.comments = ''
 
 class rna:
@@ -2633,6 +2635,7 @@ class rna:
 		self.reactionId = []
 		self.reaction = []
 		self.reactionEnzymes = []
+		self.ec = []
 		self.comments = ''
 
 class proteinComplex:
@@ -2648,6 +2651,7 @@ class proteinComplex:
 		self.reaction = []
 		self.location = []
 		self.reactionEnzymes = []
+		self.ec = []
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
