@@ -105,17 +105,18 @@ def getEcocycReactionStoich(rxn):
 	for e in enzyme:
 		enz.append(e.getElementsByTagName("Protein")[0].getAttribute('frameid'))
 
-	ec_number = dom.getElementsByTagName("ec-number")
-	if len(ec_number):
-		ec = ec_number[0]
-		if len(ec.childNodes) > 1:
-			if ec.childNodes[1].firstChild.data == 'T':
-				ec = ec.firstChild.data
-			else:
-				ec = None
-	else:
-		ec = None
-
+	# TODO: Fix this!
+	# ec_number = dom.getElementsByTagName("ec-number")
+	# if len(ec_number):
+	# 	ec = ec_number[0]
+	# 	if len(ec.childNodes) > 1:
+	# 		if ec.childNodes[1].firstChild.data == 'T':
+	# 			ec = ec.firstChild.data
+	# 		else:
+	# 			ec = None
+	# else:
+	# 	ec = None
+	ec = None
 
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
