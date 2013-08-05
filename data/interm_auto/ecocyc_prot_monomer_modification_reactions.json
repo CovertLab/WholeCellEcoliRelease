@@ -25,7 +25,8 @@
                     "id": "ADP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -52,7 +53,8 @@
                     "id": "EG12658-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4170": [
@@ -73,7 +75,8 @@
                     "id": "CHEY-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-BARA-HIS": [
@@ -92,7 +95,8 @@
                     "id": "PHOSPHO-BARA-HIS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -119,7 +123,8 @@
                     "id": "BARA-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4178": [
@@ -148,7 +153,8 @@
                     "id": "MONOMER0-4178", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -175,7 +181,8 @@
                     "id": "G6318-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4279": [
@@ -204,7 +211,8 @@
                     "id": "MONOMER0-4276", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "BETA-KETO-CIS-DELTA5-DODECENOYL-ACP": [], 
@@ -234,7 +242,8 @@
                     "id": "MONOMER0-4276", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-ARCB717": [
@@ -253,7 +262,8 @@
                     "id": "PHOSPHO-ARCB717", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "IRREVERSIBLE-LEFT-TO-RIGHT", 
@@ -282,7 +292,8 @@
                     "id": "Pi", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-1": [
@@ -311,7 +322,8 @@
                     "id": "MONOMER0-1", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-2": [], 
@@ -333,7 +345,8 @@
                     "id": "PHOSPHO-BARA-ASP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -350,7 +363,8 @@
                     "id": "PHOSPHO-BARA-HIS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "BOUND-TORT": [
@@ -374,7 +388,8 @@
                     "id": "BOUND-TORT", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "RSSB-P": [
@@ -398,7 +413,8 @@
                     "id": "RSSB-P", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-OMPR-MONOMER": [], 
@@ -446,7 +462,8 @@
                     "id": "Pi", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ACEF-LIPOATE": [
@@ -487,7 +504,8 @@
                     "id": "ACEF-LIPOATE", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4287": [
@@ -516,7 +534,8 @@
                     "id": "ADP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -543,7 +562,8 @@
                     "id": "MONOMER0-4288", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ACP-MONOMER": [], 
@@ -574,7 +594,8 @@
                     "id": "MONOMER0-4288", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4206": [
@@ -603,7 +624,8 @@
                     "id": "MONOMER0-4206", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -630,7 +652,8 @@
                     "id": "PHOSPHO-CHEB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4200": [
@@ -671,7 +694,8 @@
                     "id": "PPI", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "DIHYDROLIPOYL-GCVH": [
@@ -707,7 +731,8 @@
                     "id": "METHYLENE-THF", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -741,7 +766,8 @@
                     "id": "PROTON", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "LIPOYL-ACP": [
@@ -772,7 +798,8 @@
                     "id": "ACP", 
                     "isclass": true
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "OCTANOYL-ACP": [], 
@@ -802,7 +829,8 @@
                     "id": "HYDH-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "GLU-UHPC": [
@@ -826,7 +854,8 @@
                     "id": "GLU-UHPC", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP": [], 
@@ -858,7 +887,8 @@
                     "id": "EG12188-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -885,7 +915,8 @@
                     "id": "EG12147-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4293": [
@@ -914,7 +945,8 @@
                     "id": "EG12147-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4291": [
@@ -943,7 +975,8 @@
                     "id": "MONOMER0-4291", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -970,7 +1003,8 @@
                     "id": "EG12188-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CIS-DELTA5-DODECENOYL-ACP": [], 
@@ -1002,7 +1036,8 @@
                     "id": "PHOSPHO-EVGA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4198": [], 
@@ -1023,7 +1058,8 @@
                     "id": "MONOMER0-4194", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1050,7 +1086,8 @@
                     "id": "RCSC-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4196": [], 
@@ -1080,7 +1117,8 @@
                     "id": "MONOMER0-4210", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1097,7 +1135,8 @@
                     "id": "PHOSPHO-BARA-ASP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "SUCB-S-SUCCINYLDIHYDROLIPOATE": [
@@ -1126,7 +1165,8 @@
                     "id": "CARBON-DIOXIDE", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-EVGS": [
@@ -1145,7 +1185,8 @@
                     "id": "PHOSPHO-EVGS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1172,7 +1213,8 @@
                     "id": "PHOSPHO-EVGA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "SAMDC-ALPHA-MONOMER": [], 
@@ -1202,7 +1244,8 @@
                     "id": "PHOSPHO-HYDH", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1229,7 +1272,8 @@
                     "id": "HYDH-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "DSBDOXI-MONOMER": [
@@ -1258,7 +1302,8 @@
                     "id": "DSBDOXI-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "OX-GLUTAREDOXIN-C": [], 
@@ -1289,7 +1334,8 @@
                     "id": "PHOSPHO-ATOC", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-CHEY": [
@@ -1318,7 +1364,8 @@
                     "id": "PHOSPHO-CHEY", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
@@ -1345,7 +1392,8 @@
                     "id": "CHEY-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "URIDYLYL-PII": [
@@ -1369,7 +1417,8 @@
                     "id": "UMP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "OX-THIOREDOXIN-MONOMER": [], 
@@ -1402,7 +1451,8 @@
                     "id": "PHOSPHO-DPIB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1429,7 +1479,8 @@
                     "id": "PHOSPHO-DPIA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-CHEB": [
@@ -1458,7 +1509,8 @@
                     "id": "PHOSPHO-CHEB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -1480,7 +1532,8 @@
                     "id": "CHEB-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER-4603": [], 
@@ -1510,7 +1563,8 @@
                     "id": "RCSC-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1537,7 +1591,8 @@
                     "id": "CPLX0-7884", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4184": [
@@ -1566,7 +1621,8 @@
                     "id": "MONOMER0-4184", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1583,7 +1639,8 @@
                     "id": "MONOMER0-4185", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4185": [
@@ -1602,7 +1659,8 @@
                     "id": "MONOMER0-4185", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1619,7 +1677,8 @@
                     "id": "PHOSPHO-EVGS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "SUCC-ACP": [], 
@@ -1649,7 +1708,8 @@
                     "id": "G6318-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-ARCA": [
@@ -1678,7 +1738,8 @@
                     "id": "ARCB-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PGLYCEROLTRANSII-MONOMER": [], 
@@ -1710,7 +1771,8 @@
                     "id": "URIDYLYL-PII2", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1732,7 +1794,8 @@
                     "id": "PROTEIN-PII2", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHASERDECARB-BETA-MONOMER": [], 
@@ -1762,7 +1825,8 @@
                     "id": "NARX-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ENTF-PANT": [
@@ -1793,7 +1857,8 @@
                     "id": "ENTF-PANT", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-2741": [
@@ -1822,7 +1887,8 @@
                     "id": "EG12658-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-NARQ": [
@@ -1851,7 +1917,8 @@
                     "id": "PHOSPHO-NARQ", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1878,7 +1945,8 @@
                     "id": "PHOSPHO-NARP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-NARP": [
@@ -1907,7 +1975,8 @@
                     "id": "PHOSPHO-NARP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "BUT-2-ENOYL-ACP": [], 
@@ -1937,7 +2006,8 @@
                     "id": "PHOSPHO-NARX", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1964,7 +2034,8 @@
                     "id": "PHOSPHO-NARP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4125": [
@@ -1993,7 +2064,8 @@
                     "id": "EG11597-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "SUCB-DIHYDROLIPOATE": [], 
@@ -2023,7 +2095,8 @@
                     "id": "PHOSPHO-PHOQ", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2050,7 +2123,8 @@
                     "id": "PHOSPHO-PHOP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-PHOP": [
@@ -2079,7 +2153,8 @@
                     "id": "PHOSPHO-PHOP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-ARCB-ASP": [
@@ -2098,7 +2173,8 @@
                     "id": "PHOSPHO-ARCB-ASP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2115,7 +2191,8 @@
                     "id": "PHOSPHO-ARCB717", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-BAER": [
@@ -2144,7 +2221,8 @@
                     "id": "PHOSPHO-BAER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-BAES": [
@@ -2173,7 +2251,8 @@
                     "id": "PHOSPHO-BAES", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2200,7 +2279,8 @@
                     "id": "PHOSPHO-BAER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PTSH-PHOSPHORYLATED": [
@@ -2229,7 +2309,8 @@
                     "id": "PTSI-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-PHOB": [
@@ -2258,7 +2339,8 @@
                     "id": "PHOSPHO-PHOB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-RSTB": [
@@ -2287,7 +2369,8 @@
                     "id": "PHOSPHO-RSTB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2314,7 +2397,8 @@
                     "id": "PHOSPHO-RSTA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-TORS850": [
@@ -2333,7 +2417,8 @@
                     "id": "PHOSPHO-TORS850", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2360,7 +2445,8 @@
                     "id": "PHOSPHO-TORR", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-UHPA": [], 
@@ -2390,7 +2476,8 @@
                     "id": "PHOSPHO-UHPB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2417,7 +2504,8 @@
                     "id": "CPLX0-7754", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "GLUTAREDOXIN-MONOMER": [], 
@@ -2447,7 +2535,8 @@
                     "id": "PHOSPHO-DCUS-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2474,7 +2563,8 @@
                     "id": "CPLX0-7721", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "BCCP-BIOTIN": [], 
@@ -2516,7 +2606,8 @@
                     "id": "SUCB-LIPOATE", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -2543,7 +2634,8 @@
                     "id": "CARBON-DIOXIDE", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4152": [
@@ -2572,7 +2664,8 @@
                     "id": "DSBBPROT-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -2599,7 +2692,8 @@
                     "id": "DISULFOXRED-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ADENYLYL-GS": [], 
@@ -2641,7 +2735,8 @@
                     "id": "Oxidized-flavodoxins", 
                     "isclass": true
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-CREB": [
@@ -2670,7 +2765,8 @@
                     "id": "PHOSPHO-CREB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "OX-FERREDOXIN": [], 
@@ -2702,7 +2798,8 @@
                     "id": "PPI", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "REVERSIBLE", 
@@ -2737,7 +2834,8 @@
                     "id": "AMP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-CPXA": [
@@ -2766,7 +2864,8 @@
                     "id": "PHOSPHO-CPXA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2793,7 +2892,8 @@
                     "id": "CPXA-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "THIS-COSH-MONOMER": [
@@ -2830,7 +2930,8 @@
                     "id": "AMP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "HIPA-P": [
@@ -2861,7 +2962,8 @@
                     "id": "ADP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-1842": [], 
@@ -2883,7 +2985,8 @@
                     "id": "PHOSPHO-TORASP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2900,7 +3003,8 @@
                     "id": "PHOSPHO-TORS850", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "SAMDC-BETA-MONOMER": [], 
@@ -2931,7 +3035,8 @@
                     "id": "DSBBPROT-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4141": [
@@ -2960,7 +3065,8 @@
                     "id": "MONOMER0-4141", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2987,7 +3093,8 @@
                     "id": "MONOMER0-4147", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-DPIA": [
@@ -3016,7 +3123,8 @@
                     "id": "PHOSPHO-DPIA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-4147": [
@@ -3045,7 +3153,8 @@
                     "id": "MONOMER0-4147", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-ARCB-HIS": [
@@ -3074,7 +3183,8 @@
                     "id": "PHOSPHO-ARCB-HIS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "IRREVERSIBLE-LEFT-TO-RIGHT", 
@@ -3101,7 +3211,8 @@
                     "id": "ARCB-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "AMINOMETHYLDIHYDROLIPOYL-GCVH": [
@@ -3132,7 +3243,8 @@
                     "id": "CARBON-DIOXIDE", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -3166,7 +3278,8 @@
                     "id": "METHYLENE-THF", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-TORS": [
@@ -3195,7 +3308,8 @@
                     "id": "PHOSPHO-TORS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -3212,7 +3326,8 @@
                     "id": "PHOSPHO-TORASP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CIS-DELTA3-DECENOYL-ACP": [], 
@@ -3244,7 +3359,8 @@
                     "id": "CO-A", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-8004": [
@@ -3273,7 +3389,8 @@
                     "id": "DSBDOXI-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-BASR": [
@@ -3302,7 +3419,8 @@
                     "id": "PHOSPHO-BASR", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-BASS": [
@@ -3331,7 +3449,8 @@
                     "id": "PHOSPHO-BASS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -3358,7 +3477,8 @@
                     "id": "PHOSPHO-BASR", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-RCSB": [], 
@@ -3388,7 +3508,8 @@
                     "id": "PHOSPHO-RCSC", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -3405,7 +3526,8 @@
                     "id": "MONOMER0-4194", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-RSTA": [
@@ -3434,7 +3556,8 @@
                     "id": "PHOSPHO-RSTA", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ACEF-DIHYDROLIPOATE": [], 
