@@ -1180,7 +1180,6 @@ def parseRNA_modified():
 					for frameId in json.loads(row['Modified form']):
 						unmodified_form = row['Frame ID']
 						formation_reactions = getFormationReactions(frameId, unmodified_form)
-						print 'Checked for class sub-species for ' + frameId
 
 						if formation_reactions == []:
 							print 'No reaction for ' + frameId
