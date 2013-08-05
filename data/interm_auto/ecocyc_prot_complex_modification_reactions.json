@@ -25,7 +25,8 @@
                     "id": "PROTEIN-NRIIP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -52,7 +53,8 @@
                     "id": "PROTEIN-NRIP", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ISOCITHASE-P": [], 
@@ -83,7 +85,8 @@
                     "id": "PHOSPHO-KDPD", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -110,7 +113,8 @@
                     "id": "CPLX0-7795", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PTSI-PHOSPHORYLATED": [
@@ -139,7 +143,8 @@
                     "id": "PTSI-PHOSPHORYLATED", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -166,7 +171,8 @@
                     "id": "PTSI-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "ENTB-CPLX": [
@@ -207,7 +213,8 @@
                     "id": "ENTB-CPLX", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -246,7 +253,8 @@
                     "id": "PPI", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-2": [
@@ -292,7 +300,8 @@
                     "id": "WATER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-PHOR": [
@@ -321,7 +330,8 @@
                     "id": "PHOSPHO-PHOR", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -348,7 +358,8 @@
                     "id": "PHOSPHO-PHOB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-7657": [
@@ -372,7 +383,8 @@
                     "id": "CPLX0-7657", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-7978": [
@@ -396,7 +408,8 @@
                     "id": "CPLX0-7978", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-2821": [
@@ -420,7 +433,8 @@
                     "id": "CPLX0-2821", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-8004": [
@@ -449,7 +463,8 @@
                     "id": "DSBDOXI-MONOMER", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PYRUVFORMLY-CPLX": [
@@ -495,7 +510,8 @@
                     "id": "Oxidized-flavodoxins", 
                     "isclass": true
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
@@ -514,7 +530,8 @@
                     "id": "PYRUVFORMLY-INACTIVE-CPLX", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "CPLX0-8002": [
@@ -543,7 +560,8 @@
                     "id": "DSBC-CPLX", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-CREC": [
@@ -572,7 +590,8 @@
                     "id": "PHOSPHO-CREC", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -599,7 +618,8 @@
                     "id": "PHOSPHO-CREB", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-TORR": [
@@ -628,7 +648,8 @@
                     "id": "PHOSPHO-TORR", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-ATOS": [
@@ -657,7 +678,8 @@
                     "id": "PHOSPHO-ATOS", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -684,7 +706,8 @@
                     "id": "PHOSPHO-ATOC", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ], 
     "BCCP-BIOTIN-CO2": [], 
@@ -714,7 +737,8 @@
                     "id": "PHOSPHO-ENVZ", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -741,7 +765,8 @@
                     "id": "PHOSPHO-OMPR", 
                     "isclass": false
                 }
-            ]
+            ], 
+            "ecnumber": null
         }
     ]
 }
