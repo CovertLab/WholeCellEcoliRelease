@@ -138,6 +138,7 @@ def getEcocycReactionStoich(rxn):
 			if elemCmpnd[0].getAttribute("class") == 'true':
 				isclass = True
 		else:
+			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
