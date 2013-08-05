@@ -1003,7 +1003,7 @@ def parseProteinMonomers_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
@@ -1011,11 +1011,14 @@ def parseProteinMonomers_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						rxn = getEcocycModFormReactions(frameId)
-						if rxn == []:
+						unmodified_form = row['Frame ID']
+						formation_reactions = getFormationReactions(frameId, unmodified_form)
+
+						if formation_reactions == []:
 							print 'No reaction for ' + frameId
-						print 'Loaded ' + frameId + ' formation reaction'
-						modFormRxn[frameId] = rxn
+						else:
+							print 'Loaded ' + frameId + ' formation reaction | ' + str(formation_reactions)
+						modFormRxn[frameId] = formation_reactions
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
@@ -1593,11 +1596,14 @@ def parseComplexes_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						rxn = getEcocycModFormReactions(frameId)
-						if rxn == []:
+						unmodified_form = row['Frame ID']
+						formation_reactions = getFormationReactions(frameId, unmodified_form)
+
+						if formation_reactions == []:
 							print 'No reaction for ' + frameId
-						print 'Loaded ' + frameId + ' formation reaction'
-						modFormRxn[frameId] = rxn
+						else:
+							print 'Loaded ' + frameId + ' formation reaction | ' + str(formation_reactions)
+						modFormRxn[frameId] = formation_reactions
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
