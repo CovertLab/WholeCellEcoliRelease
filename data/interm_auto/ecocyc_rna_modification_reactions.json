@@ -1893,6 +1893,29 @@
     ], 
     "modified-charged-selC-tRNA": [
         {
+            "direction": "UNKNOWN", 
+            "enzyme": [], 
+            "id": "RXN0-6434", 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "EG10942-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "modified-charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-8053", 
+                    "isclass": false
+                }
+            ], 
+            "ecnumber": null
+        }, 
+        {
             "direction": "LEFT-TO-RIGHT", 
             "ecnumber": null, 
             "enzyme": [
