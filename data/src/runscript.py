@@ -142,6 +142,7 @@ def getEcocycReactionStoich(rxn):
 			fId = ELECTRON
 			isclass = False
 		else:
+			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
@@ -175,6 +176,7 @@ def getEcocycReactionStoich(rxn):
 			fId = ELECTRON
 			isclass = False
 		else:
+			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
