@@ -137,8 +137,11 @@ def getEcocycReactionStoich(rxn):
 			fId = elemCmpnd[0].getAttribute("frameid")
 			if elemCmpnd[0].getAttribute("class") == 'true':
 				isclass = True
+		elif left.childNodes[0].data == 'e<SUP>-</SUP>\n':
+			# Catches the redox reactions in Ecocyc that have stupid electrons in them
+			fId = ELECTRON
+			isclass = False
 		else:
-			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
@@ -167,6 +170,10 @@ def getEcocycReactionStoich(rxn):
 			# Stupid idot forgot to tag these things in the XML files. Doing a manual catch here.
 			fId = 'tRNA-Holder'
 			isclass = True
+		elif right.childNodes[0].data == 'e<SUP>-</SUP>\n':
+			# Catches the redox reactions in Ecocyc that have stupid electrons in them
+			fId = ELECTRON
+			isclass = False
 		else:
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
