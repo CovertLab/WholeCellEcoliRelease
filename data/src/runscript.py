@@ -120,6 +120,8 @@ def getEcocycReactionStoich(rxn):
 	# 	ec = None
 	ec = None
 
+	# TODO: Check for mass balance and note it!!
+
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
 		elemRna = left.getElementsByTagName("RNA")
