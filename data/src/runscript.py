@@ -1056,14 +1056,14 @@ def parseProteinMonomers_modified():
 
 						for rxn in rxn_raw:
 							for rxn_species in rxn['components']:
-								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == pm.frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT'):
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT' or rxn['direction'] == 'IRREVERSIBLE-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == pm.frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT'):
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT' or rxn['direction'] == 'IRREVERSIBLE-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == pm.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == frameId:
 									production_reaction.append(rxn)
 								
-								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE']
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
@@ -1230,14 +1230,14 @@ def parseRNA_modified():
 						production_reaction = []
 						for rxn in rxn_raw:
 							for rxn_species in rxn['components']:
-								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == RNA.frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT'):
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT' or rxn['direction'] == 'IRREVERSIBLE-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == RNA.frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT'):
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT' or rxn['direction'] == 'IRREVERSIBLE-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == RNA.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == frameId:
 									production_reaction.append(rxn)
 								
-								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE']
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
@@ -1648,19 +1648,16 @@ def parseComplexes_modified():
 					if rxn_raw != []:
 						production_reaction = []
 
-						if frameId == 'ISOCITHASE-P':
-							ipdb.set_trace()
-
 						for rxn in rxn_raw:
 							for rxn_species in rxn['components']:
-								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == pc.frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT'):
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT' or rxn['direction'] == 'IRREVERSIBLE-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == pc.frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT'):
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT' or rxn['direction'] == 'IRREVERSIBLE-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == pc.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == frameId:
 									production_reaction.append(rxn)
 								
-								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE']
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
