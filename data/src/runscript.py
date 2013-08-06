@@ -1252,12 +1252,13 @@ def parseRNA_modified():
 
 def getFormationReactions(frameId, unmodified_form):
 	# Look for reactions that include the frameid in the reaction
-	formation_reactions_raw = []
+	formation_reactions = []
 	rxn = getEcocycModFormReactions(frameId)
-	formation_reactions_raw.extend(rxn)
+	formation_reactions.extend(rxn)
 
 	# Look for reactions that include the parent classes of frameid in reaction
 	parents = []
+	formation_reactions_raw = []
 	getEcocycParents(str(frameId), parents)
 	for p in parents:
 		rxn = getEcocycModFormReactions(p)
@@ -1265,7 +1266,6 @@ def getFormationReactions(frameId, unmodified_form):
 	print 'Checked for parents for ' + frameId
 
 	# Look for class species in reaction and fill in with instance species
-	formation_reactions = []
 	for rxn in formation_reactions_raw:
 		# Builds list of:
 		# [[{'classid' : class id 1, 'instance id' : instance id 1}, {'classid' : class id 1, 'instance id' : instance id 2},...]
