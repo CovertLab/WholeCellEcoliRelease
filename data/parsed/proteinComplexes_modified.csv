@@ -1,5 +1,5 @@
 Frame ID	Unmodified Form	Location	Reaction ID	Reaction Enzyme	Reaction	Comments
-BCCP-BIOTIN-CO2	BCCP-CPLX	"[""CCO-CYTOSOL""]"	[]	[]	[]	
+BCCP-BIOTIN-CO2	BCCP-CPLX	"[""CCO-CYTOSOL""]"	"[""BIOTIN-CARBOXYL-RXN"", ""RXN0-5055""]"	"[[""BIOTIN-CARBOXYL-CPLX""], [""ACETYL-COA-CARBOXYLTRANSFER-CPLX""]]"	"[""[c]: BCCP-CPLX + HCO3 + atp ==> pi + BCCP-BIOTIN-CO2 + adp + PROTON"", ""[c]: accoa + BCCP-BIOTIN-CO2 ==> MALONYL-COA + BCCP-CPLX""]"	
 CPLX0-2	CPLX0-1	"[""CCO-CYTOSOL""]"	[]	[]	[]	
 CPLX0-2821	TORR-CPLX	"[""CCO-CYTOSOL""]"	"[""RXN0-3141""]"	[[]]	"[""[c]: TORR-CPLX + MONOMER0-1641 ==> CPLX0-2821""]"	
 CPLX0-7657	CPLX0-2861	"[""CCO-CYTOSOL""]"	"[""RXN0-5322""]"	[[]]	"[""[c]: CPLX0-2861 + pi ==> CPLX0-7657""]"	
@@ -7,7 +7,7 @@ CPLX0-7978	CPLX0-7884	"[""CCO-CYTOSOL""]"	"[""RXN0-6995""]"	[[]]	"[""[c]: CPLX0-
 CPLX0-8002	DSBC-CPLX	"[""CCO-PERI-BAC""]"	"[""DSBDC-RXN""]"	[[]]	"[""[p]: DSBD-MONOMER + CPLX0-8002 ==> DSBDOXI-MONOMER + DSBC-CPLX""]"	
 CPLX0-8004	DSBG-CPLX	"[""CCO-PERI-BAC""]"	"[""DSBD-RXN""]"	[[]]	"[""[p]: CPLX0-8004 + DSBD-MONOMER ==> DSBG-MONOMER + DSBDOXI-MONOMER""]"	
 ENTB-CPLX	APO-ENTB	"[""CCO-CYTOSOL""]"	"[""ENTDB-RXN"", ""RXN0-6442""]"	"[[""ENTD-MONOMER""], [""ENTE-CPLX""]]"	"[""[c]: Apo-Aryl-Carrier-Proteins + APO-ENTB + coa ==> Holo-Aryl-Carrier-Proteins + pap + ENTB-CPLX"", ""[c]: ENTB-CPLX + 2-3-DIHYDROXYBENZOATE + atp ==> CPLX0-7849 + amp + ppi""]"	
-ISOCITHASE-P	ISOCITHASE-CPLX	"[""CCO-CYTOSOL""]"	[]	[]	[]	
+ISOCITHASE-P	ISOCITHASE-CPLX	"[""CCO-CYTOSOL""]"	"[""PHOSICITDEHASE-RXN""]"	"[[""CPLX0-230""]]"	"[""[c]: ISOCITHASE-CPLX + atp ==> adp + ISOCITHASE-P""]"	
 MONOMER0-2863	RIBONUCLEOSIDE-TRIP-REDUCT-CPLX	"[""CCO-CYTOSOL""]"	[]	[]	[]	
 PHOSPHO-ATOS	CPLX0-7870	"[""CCO-PM-BAC-NEG""]"	"[""RXN0-6502""]"	[[]]	"[""[i]: atp + ATOS-MONOMER ==> adp + PHOSPHO-ATOS""]"	
 PHOSPHO-CREC	CREC-CPLX	"[""CCO-PM-BAC-NEG""]"	"[""CREC-RXN""]"	[[]]	"[""[i]: CREC-MONOMER + atp ==> adp + PHOSPHO-CREC""]"	
