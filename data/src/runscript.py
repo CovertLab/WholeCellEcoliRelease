@@ -139,7 +139,7 @@ def getEcocycReactionStoich(rxn):
 				isclass = True
 		elif left.childNodes[0].data[0] == 'e':
 			# Catches the redox reactions in Ecocyc that have stupid electrons in them
-			fId = ELECTRON
+			fId = 'ELECTRON'
 			isclass = False
 		else:
 			ipdb.set_trace()
@@ -173,7 +173,7 @@ def getEcocycReactionStoich(rxn):
 			isclass = True
 		elif right.childNodes[0].data[0] == 'e':
 			# Catches the redox reactions in Ecocyc that have stupid electrons in them
-			fId = ELECTRON
+			fId = 'ELECTRON'
 			isclass = False
 		else:
 			ipdb.set_trace()
