@@ -137,7 +137,7 @@ def getEcocycReactionStoich(rxn):
 			fId = elemCmpnd[0].getAttribute("frameid")
 			if elemCmpnd[0].getAttribute("class") == 'true':
 				isclass = True
-		elif left.childNodes[0].data == 'e<SUP>-</SUP>\n':
+		elif left.childNodes[0].data[0] == 'e':
 			# Catches the redox reactions in Ecocyc that have stupid electrons in them
 			fId = ELECTRON
 			isclass = False
@@ -171,7 +171,7 @@ def getEcocycReactionStoich(rxn):
 			# Stupid idot forgot to tag these things in the XML files. Doing a manual catch here.
 			fId = 'tRNA-Holder'
 			isclass = True
-		elif right.childNodes[0].data == 'e<SUP>-</SUP>\n':
+		elif right.childNodes[0].data[0] == 'e':
 			# Catches the redox reactions in Ecocyc that have stupid electrons in them
 			fId = ELECTRON
 			isclass = False
