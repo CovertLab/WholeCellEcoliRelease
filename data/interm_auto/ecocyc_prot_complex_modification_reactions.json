@@ -57,7 +57,68 @@
             "ecnumber": null
         }
     ], 
-    "ISOCITHASE-P": [], 
+    "ISOCITHASE-P": [
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "CPLX0-230"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ISOCITHASE-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ISOCITHASE-P", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PHOSICITDEHASE-RXN"
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "CPLX0-230"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ISOCITHASE-P", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ISOCITHASE-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }
+            ], 
+            "id": "DEPHOSICITDEHASE-RXN"
+        }
+    ], 
     "MONOMER0-2863": [], 
     "PHOSPHO-KDPD": [
         {
@@ -710,7 +771,83 @@
             "ecnumber": null
         }
     ], 
-    "BCCP-BIOTIN-CO2": [], 
+    "BCCP-BIOTIN-CO2": [
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "BIOTIN-CARBOXYL-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "BCCP-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "HCO3", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "BCCP-BIOTIN-CO2", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "BIOTIN-CARBOXYL-RXN"
+        }, 
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "ACETYL-COA-CARBOXYLTRANSFER-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ACETYL-COA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "BCCP-BIOTIN-CO2", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "MALONYL-COA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "BCCP-CPLX", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-5055"
+        }
+    ], 
     "PHOSPHO-ENVZ": [
         {
             "direction": "LEFT-TO-RIGHT", 

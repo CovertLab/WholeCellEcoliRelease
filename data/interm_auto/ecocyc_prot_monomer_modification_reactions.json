@@ -768,6 +768,146 @@
                 }
             ], 
             "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E3-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SUCB-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "LIPOYL-GCVH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "1.8.1.4-RXN"
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E3-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SUCB-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "SUCB-LIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "1.8.1.4-RXN"
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E3-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ACEF-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "LIPOYL-GCVH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "1.8.1.4-RXN"
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E3-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ACEF-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "SUCB-LIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "1.8.1.4-RXN"
         }
     ], 
     "LIPOYL-ACP": [
@@ -859,8 +999,160 @@
         }
     ], 
     "BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP": [], 
-    "OX-FLAVODOXIN2": [], 
-    "OX-FLAVODOXIN1": [], 
+    "OX-FLAVODOXIN2": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "PFLACTENZ-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "KETOBUTFORMLY-INACT-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "FLAVODOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CH33ADO", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "KETOBUTFORMLY-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "OX-FLAVODOXIN2", 
+                    "isclass": false
+                }
+            ], 
+            "id": "TDCEACT1-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "DUTP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "OX-FLAVODOXIN2", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UTP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "FLAVODOXIN2-MONOMER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-724"
+        }
+    ], 
+    "OX-FLAVODOXIN1": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "PFLACTENZ-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "KETOBUTFORMLY-INACT-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "FLAVODOXIN1-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CH33ADO", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "KETOBUTFORMLY-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "OX-FLAVODOXIN1", 
+                    "isclass": false
+                }
+            ], 
+            "id": "TDCEACT1-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "DUTP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "OX-FLAVODOXIN1", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UTP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "FLAVODOXIN1-MONOMER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-724"
+        }
+    ], 
     "MONOMER0-4292": [
         {
             "direction": "UNKNOWN", 
@@ -1009,7 +1301,1332 @@
     ], 
     "CIS-DELTA5-DODECENOYL-ACP": [], 
     "MONOMER0-4119": [], 
-    "OX-THIOREDOXIN2-MONOMER": [], 
+    "OX-THIOREDOXIN2-MONOMER": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-1564", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "2.0", 
+                    "id": "D-CYSTEINE", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN-14499"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN2-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }
+    ], 
     "PHOSPHO-EVGA": [
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1167,6 +2784,41 @@
                 }
             ], 
             "ecnumber": null
+        }, 
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E2O"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SUC-COA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SUCB-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CO-A", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "SUCB-S-SUCCINYLDIHYDROLIPOATE", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-1147"
         }
     ], 
     "PHOSPHO-EVGS": [
@@ -1306,7 +2958,71 @@
             "ecnumber": null
         }
     ], 
-    "OX-GLUTAREDOXIN-C": [], 
+    "OX-GLUTAREDOXIN-C": [
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "EG12237-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "ARSENATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GRXC-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPD-763", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "OX-GLUTAREDOXIN-C", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN-982"
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "ecnumber": null, 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-GLUTAREDOXIN-C", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-2.0", 
+                    "id": "ELECTRON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GRXC-MONOMER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTAREDOXIN-RXN"
+        }
+    ], 
     "PHOSPHO-KDPE": [], 
     "PHOSPHO-ATOC": [
         {
@@ -1419,9 +3135,1364 @@
                 }
             ], 
             "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "GLND-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTEIN-PII", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "UTP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "URIDYLYL-PII", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }
+            ], 
+            "id": "URITRANS-RXN"
         }
     ], 
-    "OX-THIOREDOXIN-MONOMER": [], 
+    "OX-THIOREDOXIN-MONOMER": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-1564", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "2.0", 
+                    "id": "D-CYSTEINE", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN-14499"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DGDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPD0-2231", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DCDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DUDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "IDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "XDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "GDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }, 
+        {
+            "direction": "RIGHT-TO-LEFT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "RIBONUCLEOSIDE-DIP-REDUCTII-CPLX", 
+                "RIBONUCLEOSIDE-DIP-REDUCTI-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "OX-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TDP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RED-THIOREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "UDP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RIBONUCLEOSIDE-DIP-REDUCTI-RXN"
+        }
+    ], 
     "PHOSPHASERDECARB-ALPHA-MONOMER": [], 
     "ACEF-S-ACETYLDIHYDROLIPOATE": [], 
     "3R-3-HYDROXYOCTANOYL-ACP": [], 
@@ -2068,7 +5139,43 @@
             "ecnumber": null
         }
     ], 
-    "SUCB-DIHYDROLIPOATE": [], 
+    "SUCB-DIHYDROLIPOATE": [
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E2O"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SUC-COA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SUCB-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CO-A", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "SUCB-S-SUCCINYLDIHYDROLIPOATE", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-1147"
+        }
+    ], 
     "PHOSPHO-PHOQ": [
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -2567,7 +5674,66 @@
             "ecnumber": null
         }
     ], 
-    "BCCP-BIOTIN": [], 
+    "BCCP-BIOTIN": [
+        {
+            "direction": "REVERSIBLE", 
+            "ecnumber": null, 
+            "enzyme": [
+                "BIOTINLIG-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "BCCP-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "BIOTIN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "BCCP-BIOTIN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "BIOTINLIG-RXN"
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-2.0", 
+                    "id": "BCCP-BIOTIN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "BCCP-CPLX", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN-7101"
+        }
+    ], 
     "SUCB-LIPOATE": [
         {
             "direction": "UNKNOWN", 
@@ -2636,6 +5802,76 @@
                 }
             ], 
             "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E3-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SUCB-DIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "SUCB-LIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN-7716"
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "E1O"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "2-KETOGLUTARATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SUCB-LIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-2.0", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "SUCB-S-SUCCINYLDIHYDROLIPOATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CARBON-DIOXIDE", 
+                    "isclass": false
+                }
+            ], 
+            "id": "2OXOGLUTDECARB-RXN"
         }
     ], 
     "MONOMER0-4152": [
@@ -2769,7 +6005,54 @@
             "ecnumber": null
         }
     ], 
-    "OX-FERREDOXIN": [], 
+    "OX-FERREDOXIN": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "G6701-MONOMER", 
+                "PYRUFLAVREDUCT-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PYRUVATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CO-A", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-2.0", 
+                    "id": "OX-FERREDOXIN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ACETYL-COA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CARBON-DIOXIDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "2.0", 
+                    "id": "FERREDOXIN-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PYRUFLAVREDUCT-RXN"
+        }
+    ], 
     "THIS-COAMP-MONOMER": [
         {
             "direction": "REVERSIBLE", 
@@ -2836,6 +6119,36 @@
                 }
             ], 
             "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "ecnumber": null, 
+            "enzyme": [
+                "THIF-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "THIS-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "THIS-COAMP-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN-9789"
         }
     ], 
     "PHOSPHO-CPXA": [
