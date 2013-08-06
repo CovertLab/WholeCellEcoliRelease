@@ -1251,9 +1251,13 @@ def parseRNA_modified():
 			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), ribonuc.comments])
 
 def getFormationReactions(frameId, unmodified_form):
+	# Look for reactions that include the frameid in the reaction
+	formation_reactions_raw = []
+	rxn = getEcocycModFormReactions(frameId)
+	formation_reactions_raw.extend(rxn)
+
 	# Look for reactions that include the parent classes of frameid in reaction
 	parents = []
-	formation_reactions_raw = []
 	getEcocycParents(str(frameId), parents)
 	for p in parents:
 		rxn = getEcocycModFormReactions(p)
