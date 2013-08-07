@@ -1082,10 +1082,10 @@ def parseProteinMonomers_modified():
 
 		keys = proteinMonomerDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction enzyme', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction enzyme', 'Reaction', 'Mass balance?', 'Comments'])
 		for key in keys:
 			pm = proteinMonomerDict_modified[key]
-			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), pm.comments])
+			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), pm.comments])
 
 def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	obj.reactionId.append(rxn['id'])
@@ -1264,10 +1264,10 @@ def parseRNA_modified():
 
 		keys = rnaDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'EC', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'EC', 'Reaction', 'Mass balance?','Comments'])
 		for key in keys:
 			ribonuc = rnaDict_modified[key]
-			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), ribonuc.comments])
+			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), json.dumps(ribonuc.mass_balance), ribonuc.comments])
 
 def getFormationReactions(frameId, unmodified_form):
 	# Look for reactions that include the frameid in the reaction
@@ -1692,10 +1692,10 @@ def parseComplexes_modified():
 
 		keys = proteinComplexDict_modifiedForm.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'Reaction', 'Mass Balance?','Comments'])
 		for key in keys:
 			pc = proteinComplexDict_modifiedForm[key]
-			csvwriter.writerow([pc.frameId, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reactionEnzymes), json.dumps(pc.reaction), pc.comments])
+			csvwriter.writerow([pc.frameId, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reactionEnzymes), json.dumps(pc.reaction), json.dumps(pc.mass_balance), pc.comments])
 
 def getEcocycComplexComponents(cmplx):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
