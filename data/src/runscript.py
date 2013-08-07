@@ -1112,7 +1112,15 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 		if i < len(reactants) - 1:
 			obj.reaction[-1] += ' + '
 
-	obj.reaction[-1] += ' ==> '
+	if rxn['direction'] in ['LEFT-TO-RIGHT', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'PHYSIOL-LEFT-TO-RIGHT']:
+		obj.reaction[-1] += ' ==> '
+	elif rxn['direction'] in ['REVERSIBLE', 'UNKNOWN']:
+		obj.reaction[-1] += ' <==> '
+	elif rxn['direction'] in ['RIGHT-TO-LEFT', 'IRREVERSIBLE-RIGHT-TO-LEFT', 'PHYSIOL-RIGHT-TO-LEFT']:
+		obj.reaction[-1] += ' <== '
+	else:
+		ipdb.set_trace()
+		raise Exception, 'Reaction being written strange!\n'
 
 	for i,p in enumerate(products):
 		pst = abs(int(float(p['coeff'])))
