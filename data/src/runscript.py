@@ -13,6 +13,7 @@ from SOAPpy import WSDL
 import xml.dom.minidom
 import itertools
 import copy
+import massBalanceStatus as mbs
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
@@ -120,6 +121,8 @@ def getEcocycReactionStoich(rxn):
 	# 	ec = None
 	ec = None
 
+	mass_balance = mbs.massBalanceStatus(rxn)
+
 	# TODO: Check for mass balance and note it!!
 
 	for left in dom.getElementsByTagName("left"):
@@ -186,7 +189,7 @@ def getEcocycReactionStoich(rxn):
 		else:
 			coeff = u"1"
 		L.append({'id' : fId, 'coeff' : coeff, 'isclass' : isclass})
-	return {'id' : rxn, 'direction' : rxnDir, 'components' : L, 'enzyme' : enz, 'ecnumber' : ec}
+	return {'id' : rxn, 'direction' : rxnDir, 'components' : L, 'enzyme' : enz, 'ecnumber' : ec, 'massbalance' : mass_balance}
 
 def main():
 	initalizeLog()
@@ -1089,6 +1092,7 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 	obj.reaction.append('')
 	obj.reactionEnzymes.append(rxn['enzyme'])
 	obj.ec.append(rxn['ecnumber'])
+	obj.mass_balance.append(rxn['massbalance'])
 
 	reactants = []
 	products = []
@@ -2669,6 +2673,7 @@ class proteinMonomer:
 		self.reaction = []
 		self.reactionEnzymes = []
 		self.ec = []
+		self.mass_balance = []
 		self.comments = ''
 
 class rna:
@@ -2683,6 +2688,7 @@ class rna:
 		self.reaction = []
 		self.reactionEnzymes = []
 		self.ec = []
+		self.mass_balance = []
 		self.comments = ''
 
 class proteinComplex:
@@ -2699,6 +2705,7 @@ class proteinComplex:
 		self.location = []
 		self.reactionEnzymes = []
 		self.ec = []
+		self.mass_balance = []
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
