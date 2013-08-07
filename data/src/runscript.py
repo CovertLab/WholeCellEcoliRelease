@@ -1387,7 +1387,7 @@ def parseComplexes():
 
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
 		newRows = []
 		modifiedForms = []
