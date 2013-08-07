@@ -1279,7 +1279,7 @@ def getFormationReactions(frameId, unmodified_form):
 		rxn = getEcocycModFormReactions(p)
 		formation_reactions_raw.extend(rxn)
 	print 'Checked for parents for ' + frameId
-
+	
 	# Look for class species in reaction and fill in with instance species
 	for rxn in formation_reactions_raw:
 		# Builds list of:
@@ -1302,11 +1302,17 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
+		if len(children) == 0:
+			# Then the class is its own species
+			children = [class_comp]
 		if unmodified_form in children:
 			children = [unmodified_form]
 		if modified_form in children:
 			children = [modified_form]
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
+
+		if len(children) == 0:
+			raise Exception, 'No species found!\n'
 	return components_children
 
 def buildInstanceReaction(pairs_to_replace, rxn):
