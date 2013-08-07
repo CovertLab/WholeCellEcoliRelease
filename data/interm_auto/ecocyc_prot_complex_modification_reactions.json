@@ -2,8 +2,8 @@
     "PROTEIN-NRIIP": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "The right side is missing:  P: 1  O: 3", 
             "enzyme": [], 
-            "id": "RXN0-6532", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -26,12 +26,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6532", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
             "enzyme": [], 
-            "id": "RXN0-6533", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -54,13 +55,14 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6533", 
             "ecnumber": null
         }
     ], 
     "ISOCITHASE-P": [
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "CPLX0-230"
             ], 
@@ -86,11 +88,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "PHOSICITDEHASE-RXN"
+            "id": "PHOSICITDEHASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "CPLX0-230"
             ], 
@@ -116,15 +119,16 @@
                     "isclass": false
                 }
             ], 
-            "id": "DEPHOSICITDEHASE-RXN"
+            "id": "DEPHOSICITDEHASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "MONOMER0-2863": [], 
     "PHOSPHO-KDPD": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "The right side is missing:  P: 1  O: 3", 
             "enzyme": [], 
-            "id": "KDPD-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -147,12 +151,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "KDPD-RXN", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-6501", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -175,14 +180,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6501", 
             "ecnumber": null
         }
     ], 
     "PTSI-PHOSPHORYLATED": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-6717", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -205,12 +211,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6717", 
             "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-6718", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -233,16 +240,17 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6718", 
             "ecnumber": null
         }
     ], 
     "ENTB-CPLX": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "ENTD-MONOMER"
             ], 
-            "id": "ENTDB-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -275,14 +283,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "ENTDB-RXN", 
             "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "ENTE-CPLX"
             ], 
-            "id": "RXN0-6442", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -315,16 +324,17 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6442", 
             "ecnumber": null
         }
     ], 
     "CPLX0-2": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG12450-MONOMER"
             ], 
-            "id": "RXN0-2721", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -362,14 +372,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-2721", 
             "ecnumber": null
         }
     ], 
     "PHOSPHO-PHOR": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "PHOR-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -392,12 +403,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "PHOR-RXN", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
             "enzyme": [], 
-            "id": "PHOBR-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -420,14 +432,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "PHOBR-RXN", 
             "ecnumber": null
         }
     ], 
     "CPLX0-7657": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-5322", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -445,14 +458,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-5322", 
             "ecnumber": null
         }
     ], 
     "CPLX0-7978": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-6995", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -470,14 +484,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6995", 
             "ecnumber": null
         }
     ], 
     "CPLX0-2821": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-3141", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -495,14 +510,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-3141", 
             "ecnumber": null
         }
     ], 
     "CPLX0-8004": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "DSBD-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -525,16 +541,17 @@
                     "isclass": false
                 }
             ], 
+            "id": "DSBD-RXN", 
             "ecnumber": null
         }
     ], 
     "PYRUVFORMLY-CPLX": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "PFLACTENZ-MONOMER"
             ], 
-            "id": "1.97.1.4-A-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -572,14 +589,15 @@
                     "isclass": true
                 }
             ], 
+            "id": "1.97.1.4-A-RXN", 
             "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "ADHE-CPLX"
             ], 
-            "id": "PFLDEACTIV-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -592,14 +610,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "PFLDEACTIV-RXN", 
             "ecnumber": null
         }
     ], 
     "CPLX0-8002": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "DSBDC-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -622,14 +641,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "DSBDC-RXN", 
             "ecnumber": null
         }
     ], 
     "PHOSPHO-CREC": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "The right side is missing:  P: 1  O: 3", 
             "enzyme": [], 
-            "id": "CREC-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -652,12 +672,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "CREC-RXN", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
             "enzyme": [], 
-            "id": "CREB-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -680,14 +701,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "CREB-RXN", 
             "ecnumber": null
         }
     ], 
     "PHOSPHO-TORR": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-6519", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -710,14 +732,15 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6519", 
             "ecnumber": null
         }
     ], 
     "PHOSPHO-ATOS": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "The right side is missing:  P: 1  O: 3", 
             "enzyme": [], 
-            "id": "RXN0-6502", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -740,12 +763,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6502", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
             "enzyme": [], 
-            "id": "ATOC-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -768,13 +792,14 @@
                     "isclass": false
                 }
             ], 
+            "id": "ATOC-RXN", 
             "ecnumber": null
         }
     ], 
     "BCCP-BIOTIN-CO2": [
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "The right side is missing:  S: 1  BCCP-monomers: 1  O: 2  N: 3  H: 16  C: 10", 
             "enzyme": [
                 "BIOTIN-CARBOXYL-CPLX"
             ], 
@@ -815,11 +840,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "BIOTIN-CARBOXYL-RXN"
+            "id": "BIOTIN-CARBOXYL-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "The left side is missing:  BCCP-monomers: 1  S: 1  O: 2  N: 3  H: 16  C: 10", 
             "enzyme": [
                 "ACETYL-COA-CARBOXYLTRANSFER-CPLX"
             ], 
@@ -845,14 +871,15 @@
                     "isclass": false
                 }
             ], 
-            "id": "RXN0-5055"
+            "id": "RXN0-5055", 
+            "ecnumber": null
         }
     ], 
     "PHOSPHO-ENVZ": [
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "The right side is missing:  P: 1  O: 3", 
             "enzyme": [], 
-            "id": "ENVZ-RXN", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -875,12 +902,13 @@
                     "isclass": false
                 }
             ], 
+            "id": "ENVZ-RXN", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
             "enzyme": [], 
-            "id": "RXN0-6503", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -903,6 +931,7 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6503", 
             "ecnumber": null
         }
     ]
