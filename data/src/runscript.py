@@ -1015,7 +1015,7 @@ def parseProteinMonomers_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
@@ -1112,7 +1112,15 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 		if i < len(reactants) - 1:
 			obj.reaction[-1] += ' + '
 
-	obj.reaction[-1] += ' ==> '
+	if rxn['direction'] in ['LEFT-TO-RIGHT', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'PHYSIOL-LEFT-TO-RIGHT']:
+		obj.reaction[-1] += ' ==> '
+	elif rxn['direction'] in ['REVERSIBLE', 'UNKNOWN']:
+		obj.reaction[-1] += ' <==> '
+	elif rxn['direction'] in ['RIGHT-TO-LEFT', 'IRREVERSIBLE-RIGHT-TO-LEFT', 'PHYSIOL-RIGHT-TO-LEFT']:
+		obj.reaction[-1] += ' <== '
+	else:
+		ipdb.set_trace()
+		raise Exception, 'Reaction being written strange!\n'
 
 	for i,p in enumerate(products):
 		pst = abs(int(float(p['coeff'])))
@@ -1190,7 +1198,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1271,7 +1279,7 @@ def getFormationReactions(frameId, unmodified_form):
 		rxn = getEcocycModFormReactions(p)
 		formation_reactions_raw.extend(rxn)
 	print 'Checked for parents for ' + frameId
-
+	
 	# Look for class species in reaction and fill in with instance species
 	for rxn in formation_reactions_raw:
 		# Builds list of:
@@ -1294,11 +1302,17 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
 		children = []
 		getEcocycChildren(class_comp['id'], children)
+		if len(children) == 0:
+			# Then the class is its own species
+			children = [class_comp]
 		if unmodified_form in children:
 			children = [unmodified_form]
 		if modified_form in children:
 			children = [modified_form]
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
+
+		if len(children) == 0:
+			raise Exception, 'No species found!\n'
 	return components_children
 
 def buildInstanceReaction(pairs_to_replace, rxn):
@@ -1369,7 +1383,7 @@ def parseComplexes():
 
 	# Build one complete list of protein complexes (includes protein-protein, protein-RNA, and protein-small molecule)
 	# Add correct stoichiometry in this file (BioVelo query downloads dependencies)
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_protein_complexes_correct_stoich.csv')) or rebuild:
 		newRows = []
 		modifiedForms = []
@@ -1609,7 +1623,7 @@ def parseComplexes_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = False
+	rebuild = True
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
