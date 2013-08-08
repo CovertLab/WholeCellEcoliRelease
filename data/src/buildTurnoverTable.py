@@ -9,7 +9,7 @@ import ipdb
 import cPickle
 
 
-def buildTurnoverTable():
+def buildTurnoverTable(clearCache = False):
 	enzymeDict = {}
 	# Build all enzymes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
@@ -33,12 +33,13 @@ def buildTurnoverTable():
 					enzymeDict[iso].forwardTurnoverUnits.append(None)
 					enzymeDict[iso].reverseTurnover.append(None)
 					enzymeDict[iso].reverseTurnoverUnits.append(None)
+					enzymeDict[iso].kM.append(None)
 					enzymeDict[iso].comments.append('')
 
 	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
 	client = WSDL.Proxy(wsdl)
-	cacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate','turnoverCache.cPickle')
-	if not os.path.exists(cacheFileName):
+	cacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto','turnoverCache.cPickle')
+	if not os.path.exists(cacheFileName) or clearCache:
 		startIdx = 0
 	else:
 		enzymeDict, startIdx = cPickle.load(open(cacheFileName, "r"))
@@ -53,19 +54,23 @@ def buildTurnoverTable():
 				e.reverseTurnover[i] = 0
 				e.comments[i] += 'Forward only, reverse kinetics set to zero.'
 
-			e.forwardTurnover[i] = parseBrendaTurnover(client, "ecNumber*" + e.EC[i])
+			e.forwardTurnover[i], e.comments[i] = parseBrendaTurnover(client, "ecNumber*" + e.EC[i])
+			e.kM[i] = parseBrendaKm(client, "ecNumber*" + e.EC[i])
 			print "%s[%d]: %s" % (e.frameId, i, str(e.forwardTurnover[i]))
+			if e.kM[i] != None:
+				print "%s[%d]: %s" % (e.frameId, i, str(e.kM[i][0]))
 			cacheCount += 1
 			if cacheCount % 10 == 0:
 				cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
+	cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 	import ipdb
 	ipdb.set_trace()
 	# Write output
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'turnover_annotation.csv'),'wb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Forward', 'Units', 'Reverse', 'Units', 'Comments'])
+		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Forward', 'Units', 'Reverse', 'Units', 'Comments', 'Km'])
 
 		keys = enzymeDict.keys()
 		keys.sort()
@@ -73,7 +78,7 @@ def buildTurnoverTable():
 		for key in keys:
 			e = enzymeDict[key]
 			for i in range(e.reactionCount):
-				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], e.forwardTurnover[i], e.forwardTurnoverUnits[i], e.reverseTurnover[i], e.reverseTurnoverUnits[i], e.comments[i]])
+				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], e.forwardTurnover[i], e.forwardTurnoverUnits[i], e.reverseTurnover[i], e.reverseTurnoverUnits[i], e.comments[i], json.dumps(e.kM[i])])
 
 class enzyme():
 	def __init__(self):
@@ -86,6 +91,7 @@ class enzyme():
 		self.reverseTurnover = []
 		self.forwardTurnoverUnits = []
 		self.reverseTurnoverUnits = []
+		self.kM = []
 		self.reactionCount = 0
 		self.comments = []
 
@@ -99,19 +105,30 @@ def parseBrendaTurnover(client, line):
 
 	result = client.getTurnoverNumber(line)
 	if len(result) == 0:
+		return None, None
+	entries = result.split('!')
+	L = []
+	for e in entries:
+		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
+	if any("coli" in x["organism"].lower() for x in L):
+		return (-1, "In E. coli")
+	maxVal, maxIdx = numpy.max([float(x["turnoverNumber"]) for x in L]), numpy.argmax([float(x["turnoverNumber"]) for x in L])
+	return (maxVal, "organism: %s\tcomments:%s" % (L[maxIdx]["organism"], L[maxIdx]["commentary"]))
+
+
+def parseBrendaKm(client, line):
+	result = client.getKmValue(line)
+
+	if len(result) == 0:
 		return None
 	entries = result.split('!')
 	L = []
 	for e in entries:
 		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
-	try:
-		if any("coli" in x["organism"].lower() for x in L):
-			return (-1, "In E. coli")
-	except:
-		import ipdb
-		ipdb.set_trace()
-	maxVal, maxIdx = numpy.max([float(x["turnoverNumber"]) for x in L]), numpy.argmax([float(x["turnoverNumber"]) for x in L])
-	return (maxVal, "organism: %s\tcomments:%s" % (L[maxIdx]["organism"], L[maxIdx]["commentary"]))
+	if any("coli" in x["organism"].lower() for x in L):
+		return [dict([("kmValue", x["kmValue"]), ("kmValueMaximum", x["kmValueMaximum"]), ("substrate", x["substrate"]), ("organism", x["organism"]), ("commentary", x["commentary"]), ("brendaLiteratureId", x["literature"])]) for x in L if "coli" in x["organism"].lower()]
+	return None
+
 
 # class BRENDA_reaction():
 # 	def __init__(self):
