@@ -2,7 +2,7 @@
     "charged-pheV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "PHES-CPLX"
             ], 
@@ -43,13 +43,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "PHENYLALANINE--TRNA-LIGASE-RXN"
+            "id": "PHENYLALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-lysV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -91,13 +92,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LYSINE--TRNA-LIGASE-RXN"
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -138,11 +140,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -180,13 +183,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-lysT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -228,13 +232,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LYSINE--TRNA-LIGASE-RXN"
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glnX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -275,13 +280,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTAMINE--TRNA-LIGASE-RXN"
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuP-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -322,11 +328,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -364,13 +371,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-aspU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASPS-CPLX"
             ], 
@@ -411,13 +419,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARTATE--TRNA-LIGASE-RXN"
+            "id": "ASPARTATE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-asnT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -458,13 +467,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARAGINE--TRNA-LIGASE-RXN"
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glyW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -505,13 +515,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLYCINE--TRNA-LIGASE-RXN"
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuZ-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -552,11 +563,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -594,14 +606,15 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "CHARGED-FMETY-TRNA": [], 
     "charged-glyX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -642,13 +655,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLYCINE--TRNA-LIGASE-RXN"
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -689,11 +703,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -731,13 +746,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-lysW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -779,13 +795,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LYSINE--TRNA-LIGASE-RXN"
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-321": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -826,11 +843,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONINE--TRNA-LIGASE-RXN"
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "EG11268-MONOMER"
             ], 
@@ -860,13 +878,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN"
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-323": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -907,11 +926,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONINE--TRNA-LIGASE-RXN"
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "EG11268-MONOMER"
             ], 
@@ -941,13 +961,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN"
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-322": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -988,11 +1009,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONINE--TRNA-LIGASE-RXN"
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "EG11268-MONOMER"
             ], 
@@ -1022,13 +1044,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN"
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-tyrT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "TYRS-CPLX"
             ], 
@@ -1069,14 +1092,15 @@
                     "isclass": false
                 }
             ], 
-            "id": "TYROSINE--TRNA-LIGASE-RXN"
+            "id": "TYROSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "CHARGED-FMETZ-TRNA": [], 
     "charged-gltW-tRNA": [
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1107,13 +1131,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTRNAREDUCT-RXN"
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-aspV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASPS-CPLX"
             ], 
@@ -1154,13 +1179,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARTATE--TRNA-LIGASE-RXN"
+            "id": "ASPARTATE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -1201,11 +1227,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -1243,13 +1270,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-metU-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -1290,13 +1318,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONINE--TRNA-LIGASE-RXN"
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-tyrV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "TYRS-CPLX"
             ], 
@@ -1337,13 +1366,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "TYROSINE--TRNA-LIGASE-RXN"
+            "id": "TYROSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-gltT-tRNA": [
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1374,13 +1404,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTRNAREDUCT-RXN"
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-valX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -1421,13 +1452,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-thrT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -1468,13 +1500,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "THREONINE--TRNA-LIGASE-RXN"
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glyT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -1515,13 +1548,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLYCINE--TRNA-LIGASE-RXN"
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-thrV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -1562,13 +1596,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "THREONINE--TRNA-LIGASE-RXN"
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glyY-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -1609,13 +1644,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLYCINE--TRNA-LIGASE-RXN"
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-serW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -1656,13 +1692,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "SERINE--TRNA-LIGASE-RXN"
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-serV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -1703,13 +1740,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "SERINE--TRNA-LIGASE-RXN"
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-gltV-tRNA": [
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1740,13 +1778,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTRNAREDUCT-RXN"
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-ileT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -1787,13 +1826,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ISOLEUCINE--TRNA-LIGASE-RXN"
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-gltU-tRNA": [
         {
             "direction": "REVERSIBLE", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CPLX0-3741"
             ], 
@@ -1824,13 +1864,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTRNAREDUCT-RXN"
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -1871,11 +1912,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -1913,13 +1955,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-serT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -1960,13 +2003,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "SERINE--TRNA-LIGASE-RXN"
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-ileX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -2007,13 +2051,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ISOLEUCINE--TRNA-LIGASE-RXN"
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-valV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -2054,13 +2099,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -2101,11 +2147,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -2143,13 +2190,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-valY-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -2190,13 +2238,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-trpT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "TRPS-CPLX"
             ], 
@@ -2237,13 +2286,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "TRYPTOPHAN--TRNA-LIGASE-RXN"
+            "id": "TRYPTOPHAN--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-alaT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -2284,14 +2334,15 @@
                     "isclass": false
                 }
             ], 
-            "id": "ALANINE--TRNA-LIGASE-RXN"
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "modified-charged-selC-tRNA": [
         {
             "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
-            "id": "RXN0-6434", 
             "components": [
                 {
                     "coeff": "-1", 
@@ -2309,11 +2360,12 @@
                     "isclass": false
                 }
             ], 
+            "id": "RXN0-6434", 
             "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CPLX0-1141"
             ], 
@@ -2344,13 +2396,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "2.9.1.1-RXN"
+            "id": "2.9.1.1-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argZ-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -2391,13 +2444,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-cysT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CYSS-MONOMER"
             ], 
@@ -2438,13 +2492,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "CYSTEINE--TRNA-LIGASE-RXN"
+            "id": "CYSTEINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-ileV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -2485,13 +2540,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ISOLEUCINE--TRNA-LIGASE-RXN"
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-proK-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "PROS-CPLX"
             ], 
@@ -2532,13 +2588,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "PROLINE--TRNA-LIGASE-RXN"
+            "id": "PROLINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-alaV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -2579,13 +2636,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ALANINE--TRNA-LIGASE-RXN"
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-metT-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -2626,13 +2684,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONINE--TRNA-LIGASE-RXN"
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-serX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -2673,13 +2732,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "SERINE--TRNA-LIGASE-RXN"
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-serU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -2720,7 +2780,8 @@
                     "isclass": false
                 }
             ], 
-            "id": "SERINE--TRNA-LIGASE-RXN"
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "CHARGED-FMETW-TRNA": [], 
@@ -2728,7 +2789,7 @@
     "charged-tyrU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "TYRS-CPLX"
             ], 
@@ -2769,13 +2830,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "TYROSINE--TRNA-LIGASE-RXN"
+            "id": "TYROSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-valU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -2816,13 +2878,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-asnU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -2863,13 +2926,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARAGINE--TRNA-LIGASE-RXN"
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-ileU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -2910,13 +2974,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ISOLEUCINE--TRNA-LIGASE-RXN"
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-selC-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -2957,11 +3022,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "SERINE--TRNA-LIGASE-RXN"
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "SERS-CPLX"
             ], 
@@ -3006,11 +3072,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "RXN0-2161"
+            "id": "RXN0-2161", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "CPLX0-1141"
             ], 
@@ -3041,13 +3108,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "2.9.1.1-RXN"
+            "id": "2.9.1.1-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argV-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3088,13 +3156,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-hisR-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "HISS-CPLX"
             ], 
@@ -3135,13 +3204,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "HISTIDINE--TRNA-LIGASE-RXN"
+            "id": "HISTIDINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argY-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3182,13 +3252,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argW-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3229,13 +3300,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-aspT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASPS-CPLX"
             ], 
@@ -3276,13 +3348,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARTATE--TRNA-LIGASE-RXN"
+            "id": "ASPARTATE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-pheU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "PHES-CPLX"
             ], 
@@ -3323,13 +3396,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "PHENYLALANINE--TRNA-LIGASE-RXN"
+            "id": "PHENYLALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-asnV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -3370,13 +3444,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARAGINE--TRNA-LIGASE-RXN"
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-proL-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "PROS-CPLX"
             ], 
@@ -3417,13 +3492,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "PROLINE--TRNA-LIGASE-RXN"
+            "id": "PROLINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-leuQ-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LEUS-MONOMER"
             ], 
@@ -3464,11 +3540,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCINE--TRNA-LIGASE-RXN"
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "UNKNOWN", 
-            "ecnumber": null, 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [
                 "EG11112-MONOMER"
             ], 
@@ -3506,13 +3583,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LEUCYLTRANSFERASE-RXN"
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-alaX-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -3553,13 +3631,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ALANINE--TRNA-LIGASE-RXN"
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argQ-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -3600,13 +3679,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-314": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -3648,13 +3728,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LYSINE--TRNA-LIGASE-RXN"
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-310": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ASNS-CPLX"
             ], 
@@ -3695,13 +3776,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ASPARAGINE--TRNA-LIGASE-RXN"
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-311": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -3742,13 +3824,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-312": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -3790,13 +3873,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LYSINE--TRNA-LIGASE-RXN"
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-313": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "LYSS-CPLX", 
                 "LYSU-CPLX"
@@ -3838,13 +3922,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "LYSINE--TRNA-LIGASE-RXN"
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-valW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -3885,13 +3970,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-valT-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "VALS-MONOMER"
             ], 
@@ -3932,13 +4018,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "VALINE--TRNA-LIGASE-RXN"
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-319": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "METG-CPLX"
             ], 
@@ -3979,11 +4066,12 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONINE--TRNA-LIGASE-RXN"
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }, 
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "EG11268-MONOMER"
             ], 
@@ -4013,13 +4101,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN"
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glnU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -4060,13 +4149,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTAMINE--TRNA-LIGASE-RXN"
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glnV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -4107,13 +4197,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTAMINE--TRNA-LIGASE-RXN"
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-alaU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -4154,13 +4245,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ALANINE--TRNA-LIGASE-RXN"
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glnW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLNS-MONOMER"
             ], 
@@ -4201,13 +4293,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLUTAMINE--TRNA-LIGASE-RXN"
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glyU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -4248,13 +4341,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLYCINE--TRNA-LIGASE-RXN"
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-thrW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -4295,13 +4389,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "THREONINE--TRNA-LIGASE-RXN"
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argU-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -4342,13 +4437,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-argX-tRNA": [
         {
             "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ARGS-MONOMER"
             ], 
@@ -4389,13 +4485,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ARGININE--TRNA-LIGASE-RXN"
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-alaW-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ALAS-CPLX"
             ], 
@@ -4436,13 +4533,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ALANINE--TRNA-LIGASE-RXN"
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-proM-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "PROS-CPLX"
             ], 
@@ -4483,13 +4581,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "PROLINE--TRNA-LIGASE-RXN"
+            "id": "PROLINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "RNA0-309": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "ILES-MONOMER"
             ], 
@@ -4530,13 +4629,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "ISOLEUCINE--TRNA-LIGASE-RXN"
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-thrU-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "THRS-CPLX"
             ], 
@@ -4577,13 +4677,14 @@
                     "isclass": false
                 }
             ], 
-            "id": "THREONINE--TRNA-LIGASE-RXN"
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ], 
     "charged-glyV-tRNA": [
         {
             "direction": "LEFT-TO-RIGHT", 
-            "ecnumber": null, 
+            "massbalance": "Balanced.", 
             "enzyme": [
                 "GLYS-CPLX"
             ], 
@@ -4624,7 +4725,8 @@
                     "isclass": false
                 }
             ], 
-            "id": "GLYCINE--TRNA-LIGASE-RXN"
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
         }
     ]
 }
