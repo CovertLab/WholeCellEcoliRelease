@@ -5,9 +5,10 @@ import os
 import json
 from SOAPpy import WSDL
 import numpy
-import ipdb
 import cPickle
 
+# If brenda stops responding, just keep re-running buildTurnoverTable()
+# We cache intermediate steps until it completes
 
 def buildTurnoverTable(clearCache = False):
 	enzymeDict = {}
@@ -52,6 +53,8 @@ def buildTurnoverTable(clearCache = False):
 			# Set reverse rate if known to only progress forward
 			if e.direction[i] == 'forward only':
 				e.reverseTurnover[i] = 0
+				if e.comments[i] == None:
+					e.comments[i] = ""
 				e.comments[i] += 'Forward only, reverse kinetics set to zero.'
 
 			e.forwardTurnover[i], e.comments[i] = parseBrendaTurnover(client, "ecNumber*" + e.EC[i])
@@ -64,8 +67,6 @@ def buildTurnoverTable(clearCache = False):
 				cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
-	import ipdb
-	ipdb.set_trace()
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
