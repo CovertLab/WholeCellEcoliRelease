@@ -1213,6 +1213,11 @@ def parseRNA_modified():
 						unmodified_form = row['Frame ID']
 						formation_reactions = getFormationReactions(frameId, unmodified_form)
 
+						for rxn in formation_reactions:
+							for comp in rxn['components']:
+								if isinstance(comp['id'],dict):
+									ipdb.set_trace()
+
 						if formation_reactions == []:
 							print 'No reaction for ' + frameId
 						else:
@@ -1283,7 +1288,8 @@ def getFormationReactions(frameId, unmodified_form):
 		rxn = getEcocycModFormReactions(p)
 		formation_reactions_raw.extend(rxn)
 	print 'Checked for parents for ' + frameId
-	
+
+
 	# Look for class species in reaction and fill in with instance species
 	for rxn in formation_reactions_raw:
 		# Builds list of:
@@ -1299,6 +1305,7 @@ def getFormationReactions(frameId, unmodified_form):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
 			new_rxn = buildInstanceReaction(cart_product, rxn)
 			formation_reactions.append(new_rxn)
+
 	return formation_reactions
 
 def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
@@ -1308,7 +1315,7 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 		getEcocycChildren(class_comp['id'], children)
 		if len(children) == 0:
 			# Then the class is its own species
-			children = [class_comp]
+			children = [class_comp['id']]
 		if unmodified_form in children:
 			children = [unmodified_form]
 		if modified_form in children:
@@ -1333,6 +1340,7 @@ def buildInstanceReaction(pairs_to_replace, rxn):
 				# If species is the class-id from the cartesian product then replace with instance from product
 				species['id'] = species_to_replace['instanceid']
 				species['isclass'] = False
+
 	return new_rxn
 
 # Parse protein complexes
