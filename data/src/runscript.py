@@ -1018,7 +1018,7 @@ def parseProteinMonomers_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
@@ -1049,6 +1049,7 @@ def parseProteinMonomers_modified():
 				for frameId in json.loads(row['Modified form']):
 					pm = proteinMonomer()
 					pm.frameId = frameId
+					pm.name = row['Name']
 					pm.unmodifiedForm = row['Frame ID']
 					pm.location = json.loads(row['Location'])
 
@@ -1082,10 +1083,10 @@ def parseProteinMonomers_modified():
 
 		keys = proteinMonomerDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction enzyme', 'Reaction', 'Mass balance?', 'EC','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name','Unmodified Form', 'Location', 'Reaction ID', 'Reaction enzyme', 'Reaction', 'Mass balance?', 'EC','Comments'])
 		for key in keys:
 			pm = proteinMonomerDict_modified[key]
-			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
+			csvwriter.writerow([pm.frameId, pm.name, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
 
 def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	obj.reactionId.append(rxn['id'])
@@ -1202,7 +1203,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1238,6 +1239,7 @@ def parseRNA_modified():
 				for frameId in json.loads(row['Modified form']):
 					RNA = rna()
 					RNA.frameId = frameId
+					RNA.name = row['Name']
 					RNA.unmodifiedForm = row['Frame ID']
 					RNA.location = json.loads(row['Location'])
 
@@ -1269,10 +1271,10 @@ def parseRNA_modified():
 
 		keys = rnaDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'EC', 'Reaction', 'Mass balance?', 'EC', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'EC', 'Reaction', 'Mass balance?', 'EC', 'Comments'])
 		for key in keys:
 			ribonuc = rnaDict_modified[key]
-			csvwriter.writerow([ribonuc.frameId, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), json.dumps(ribonuc.mass_balance), json.dumps(ribonuc.ec),ribonuc.comments])
+			csvwriter.writerow([ribonuc.frameId, ribonuc.name, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), json.dumps(ribonuc.mass_balance), json.dumps(ribonuc.ec),ribonuc.comments])
 
 def getFormationReactions(frameId, unmodified_form):
 	# Look for reactions that include the frameid in the reaction
@@ -1635,7 +1637,7 @@ def parseComplexes_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
@@ -1666,6 +1668,7 @@ def parseComplexes_modified():
 				for frameId in json.loads(row['Modified form']):
 					pc = proteinComplex()
 					pc.frameId = frameId
+					pc.name = row['Name']
 					pc.unmodifiedForm = row['Frame ID']
 					pc.location = json.loads(row['Location'])
 
@@ -1700,10 +1703,10 @@ def parseComplexes_modified():
 
 		keys = proteinComplexDict_modifiedForm.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'Reaction', 'Mass Balance?','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name','Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'Reaction', 'Mass Balance?','Comments'])
 		for key in keys:
 			pc = proteinComplexDict_modifiedForm[key]
-			csvwriter.writerow([pc.frameId, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reactionEnzymes), json.dumps(pc.reaction), json.dumps(pc.mass_balance), json.dumps(pc.ec),pc.comments])
+			csvwriter.writerow([pc.frameId, pc.name, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reactionEnzymes), json.dumps(pc.reaction), json.dumps(pc.mass_balance), json.dumps(pc.ec),pc.comments])
 
 def getEcocycComplexComponents(cmplx):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
