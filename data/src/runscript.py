@@ -2685,6 +2685,7 @@ class proteinMonomer:
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
+		self.used = None
 		self.comments = ''
 
 class rna:
@@ -2700,6 +2701,7 @@ class rna:
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
+		self.used = None
 		self.comments = ''
 
 class proteinComplex:
@@ -2717,6 +2719,7 @@ class proteinComplex:
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
+		self.used = None
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):
