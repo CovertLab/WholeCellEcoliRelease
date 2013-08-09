@@ -11,31 +11,65 @@ import urllib
 import time
 from SOAPpy import WSDL
 import xml.dom.minidom
+import itertools
+import copy
+import massBalanceStatus as mbs
 
 t = time.strftime("%Y-%m-%d_%H_%M_%S", time.localtime())
 
-def getEcocycChildren(frameid, tagname, inst = [], sub = [], level = 0):
-	level += 1
+def getEcocycChildren(frameid, inst = []):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "RNA"):
+		tagname = 'RNA'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Protein"):
+		tagname = 'Protein'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Compound"):
+		tagname = 'Compound'
 
 	for subclass in dom.getElementsByTagName("subclass"):
-		fid = subclass.getElementsByTagName(tagname)[0].getAttribute('frameid')
-		sub.append((fid, level))
-		getEcocycChildren(fid, tagname, inst, sub, level)
+		rnaSub = subclass.getElementsByTagName('RNA')
+		protSub = subclass.getElementsByTagName('Protein')
+		cmpdSub = subclass.getElementsByTagName('Compound')
+		if len(rnaSub):
+			fid = subclass.getElementsByTagName('RNA')[0].getAttribute('frameid')
+		elif len(protSub):
+			fid = subclass.getElementsByTagName('Protein')[0].getAttribute('frameid')
+		elif len(cmpdSub):
+			fid = subclass.getElementsByTagName('Compound')[0].getAttribute('frameid')
+		getEcocycChildren(fid, inst)
 	for instance in dom.getElementsByTagName("instance"):
-		fid = instance.getElementsByTagName(tagname)[0].getAttribute('frameid')
-		inst.append((fid,level))
+		rnaSub = instance.getElementsByTagName('RNA')
+		protSub = instance.getElementsByTagName('Protein')
+		cmpdSub = instance.getElementsByTagName('Compound')
+		if len(rnaSub):
+			fid = instance.getElementsByTagName('RNA')[0].getAttribute('frameid')
+		elif len(protSub):
+			fid = instance.getElementsByTagName('Protein')[0].getAttribute('frameid')
+		elif len(cmpdSub):
+			fid = instance.getElementsByTagName('Compound')[0].getAttribute('frameid')
+		inst.append(fid)
 
-def getEcocycParents(frameid, tagname, parents):
+def getEcocycParents(frameid, parents):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
 	dom = xml.dom.minidom.parse(urllib.urlopen(websvcUrl))
+
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "RNA"):
+		tagname = 'RNA'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Protein"):
+		tagname = 'Protein'
+	if any(x for x in dom.childNodes[0].childNodes if x.nodeType == x.ELEMENT_NODE and x.tagName == "Compound"):
+		tagname = 'Compound'
 
 	for parentClass in dom.getElementsByTagName("parent"):
 		if len(parentClass.getElementsByTagName(tagname)):
 			fid = parentClass.getElementsByTagName(tagname)[0].getAttribute('frameid')
 			parents.append(fid)
-			getEcocycParents(fid, tagname, parents)
+			# TODO: Check - Right now with this commented we are only going one deep!
+			#getEcocycParents(fid, parents)
+
+			# TODO: Have it pass a recursion level or something so that if no reacitons are found it looks one higher in parents?
 
 def getEcocycModFormReactions(frameid):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % frameid
@@ -69,43 +103,93 @@ def getEcocycReactionStoich(rxn):
 	else:
 		rxnDir = 'UNKNOWN'
 
+	enzyme = dom.getElementsByTagName("enzyme")
+	enz = []
+	for e in enzyme:
+		enz.append(e.getElementsByTagName("Protein")[0].getAttribute('frameid'))
+
+	# TODO: Fix this!
+	# ec_number = dom.getElementsByTagName("ec-number")
+	# if len(ec_number):
+	# 	ec = ec_number[0]
+	# 	if len(ec.childNodes) > 1:
+	# 		if ec.childNodes[1].firstChild.data == 'T':
+	# 			ec = ec.firstChild.data
+	# 		else:
+	# 			ec = None
+	# else:
+	# 	ec = None
+	ec = None
+
+	mass_balance = mbs.massBalanceStatus(rxn)
+
+	# TODO: Check for mass balance and note it!!
+
 	for left in dom.getElementsByTagName("left"):
 		elemProt = left.getElementsByTagName("Protein")
 		elemRna = left.getElementsByTagName("RNA")
 		elemCmpnd = left.getElementsByTagName("Compound")
+		isclass = False
 		if len(elemProt) > 0:
 			fId = elemProt[0].getAttribute("frameid")
+			if elemProt[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemRna) > 0:
 			fId = elemRna[0].getAttribute("frameid")
+			if elemRna[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemCmpnd) > 0:
 			fId = elemCmpnd[0].getAttribute("frameid")
+			if elemCmpnd[0].getAttribute("class") == 'true':
+				isclass = True
+		elif left.childNodes[0].data[0] == 'e':
+			# Catches the redox reactions in Ecocyc that have stupid electrons in them
+			fId = 'ELECTRON'
+			isclass = False
 		else:
+			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
 			coeff = unicode(-1 * float(elemCoeff[0].childNodes[0].data))
 		else:
 			coeff = u"-1"
-		L.append((fId, coeff))
+		L.append({'id' : fId, 'coeff' : coeff, 'isclass' : isclass})
 	for right in dom.getElementsByTagName("right"):
 		elemProt = right.getElementsByTagName("Protein")
 		elemRna = right.getElementsByTagName("RNA")
 		elemCmpnd = right.getElementsByTagName("Compound")
+		isclass = False
 		if len(elemProt) > 0:
 			fId = elemProt[0].getAttribute("frameid")
+			if elemProt[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemRna) > 0:
 			fId = elemRna[0].getAttribute("frameid")
+			if elemRna[0].getAttribute("class") == 'true':
+				isclass = True
 		elif len(elemCmpnd) > 0:
 			fId = elemCmpnd[0].getAttribute("frameid")
+			if elemCmpnd[0].getAttribute("class") == 'true':
+				isclass = True
+		elif right.firstChild.data == 'a tRNA':
+			# Stupid idot forgot to tag these things in the XML files. Doing a manual catch here.
+			fId = 'tRNA-Holder'
+			isclass = True
+		elif right.childNodes[0].data[0] == 'e':
+			# Catches the redox reactions in Ecocyc that have stupid electrons in them
+			fId = 'ELECTRON'
+			isclass = False
 		else:
+			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
 			coeff = unicode(1 * float(elemCoeff[0].childNodes[0].data))
 		else:
 			coeff = u"1"
-		L.append((fId, coeff))
-	return (rxn, rxnDir, L)
+		L.append({'id' : fId, 'coeff' : coeff, 'isclass' : isclass})
+	return {'id' : rxn, 'direction' : rxnDir, 'components' : L, 'enzyme' : enz, 'ecnumber' : ec, 'massbalance' : mass_balance}
 
 def main():
 	initalizeLog()
@@ -942,18 +1026,20 @@ def parseProteinMonomers_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						rxn = getEcocycModFormReactions(frameId)
-						if rxn == []:
+						unmodified_form = row['Frame ID']
+						formation_reactions = getFormationReactions(frameId, unmodified_form)
+
+						if formation_reactions == []:
 							print 'No reaction for ' + frameId
-						print 'Loaded ' + frameId + ' formation reaction'
-						modFormRxn[frameId] = rxn
+						else:
+							print 'Loaded ' + frameId + ' formation reaction | ' + str(formation_reactions)
+						modFormRxn[frameId] = formation_reactions
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
-
 
 	proteinMonomerDict_modified = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
@@ -963,6 +1049,7 @@ def parseProteinMonomers_modified():
 				for frameId in json.loads(row['Modified form']):
 					pm = proteinMonomer()
 					pm.frameId = frameId
+					pm.name = row['Name']
 					pm.unmodifiedForm = row['Frame ID']
 					pm.location = json.loads(row['Location'])
 
@@ -972,60 +1059,21 @@ def parseProteinMonomers_modified():
 						production_reaction = []
 
 						for rxn in rxn_raw:
-							for rxn_species in rxn[2]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pm.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+							for rxn_species in rxn['components']:
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT' or rxn['direction'] == 'IRREVERSIBLE-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pm.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT' or rxn['direction'] == 'IRREVERSIBLE-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pm.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == frameId:
 									production_reaction.append(rxn)
-
-						# if len(production_reaction) > 1:
-						# 	ipdb.set_trace()
+								
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
+								if rxn['direction'] not in allowedReactionDirections:
+									ipdb.set_trace()
+									raise Exception, 'Reaction direction or something else was weird!'
 
 						for rxn in production_reaction:
-							rxnId = rxn[0]
-							rxnSpecies = rxn[2]
-
-							pm.reactionId.append(rxnId)
-							pm.reaction.append('')
-
-							reactants = []
-							products = []
-							for species in rxnSpecies:
-								if int(float(species[1])) < 0:
-									reactants.append(species)
-								else:
-									products.append(species)
-
-							pm.reaction[-1] += '[' + locationAbbrevDict[pm.location[0]] + ']: '
-
-							for i,r in enumerate(reactants):
-								rst = abs(int(float(r[1])))
-								rid = str(r[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(rid):
-									rid = metaboliteEcocycToFeistIdConversion[rid]
-
-								if abs(rst) > 1:
-									pm.reaction[-1] += '(' + str(rst) + ') '
-								pm.reaction[-1] += rid
-								if i < len(reactants) - 1:
-									pm.reaction[-1] += ' + '
-
-							pm.reaction[-1] += ' ==> '
-
-							for i,p in enumerate(products):
-								pst = abs(int(float(p[1])))
-								pid = str(p[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									pid = metaboliteEcocycToFeistIdConversion[pid]
-
-								if pst > 1:
-									pm.reaction[-1] += '(' + str(pst) + ') '
-								pm.reaction[-1] += pid
-								if i < len(products) - 1:
-									pm.reaction[-1] += ' + '
-
+							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					proteinMonomerDict_modified[pm.frameId] = pm
 
@@ -1035,10 +1083,61 @@ def parseProteinMonomers_modified():
 
 		keys = proteinMonomerDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name','Unmodified Form', 'Location', 'Reaction ID', 'Reaction enzyme', 'Reaction', 'Mass balance?', 'EC','Comments'])
 		for key in keys:
 			pm = proteinMonomerDict_modified[key]
-			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
+			csvwriter.writerow([pm.frameId, pm.name, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
+
+def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
+	obj.reactionId.append(rxn['id'])
+	obj.reaction.append('')
+	obj.reactionEnzymes.append(rxn['enzyme'])
+	obj.ec.append(rxn['ecnumber'])
+	obj.mass_balance.append(rxn['massbalance'])
+
+	reactants = []
+	products = []
+	for species in rxn['components']:
+		if int(float(species['coeff'])) < 0:
+			reactants.append(species)
+		else:
+			products.append(species)
+
+	obj.reaction[-1] += '[' + locationAbbrevDict[obj.location[0]] + ']: '
+
+	for i,r in enumerate(reactants):
+		rst = abs(int(float(r['coeff'])))
+		rid = str(r['id'])
+		if metaboliteEcocycToFeistIdConversion.has_key(rid):
+			rid = metaboliteEcocycToFeistIdConversion[rid]
+
+		if abs(rst) > 1:
+			obj.reaction[-1] += '(' + str(rst) + ') '
+		obj.reaction[-1] += rid
+		if i < len(reactants) - 1:
+			obj.reaction[-1] += ' + '
+
+	if rxn['direction'] in ['LEFT-TO-RIGHT', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'PHYSIOL-LEFT-TO-RIGHT']:
+		obj.reaction[-1] += ' ==> '
+	elif rxn['direction'] in ['REVERSIBLE', 'UNKNOWN']:
+		obj.reaction[-1] += ' <==> '
+	elif rxn['direction'] in ['RIGHT-TO-LEFT', 'IRREVERSIBLE-RIGHT-TO-LEFT', 'PHYSIOL-RIGHT-TO-LEFT']:
+		obj.reaction[-1] += ' <== '
+	else:
+		ipdb.set_trace()
+		raise Exception, 'Reaction being written strange!\n'
+
+	for i,p in enumerate(products):
+		pst = abs(int(float(p['coeff'])))
+		pid = str(p['id'])
+		if metaboliteEcocycToFeistIdConversion.has_key(pid):
+			pid = metaboliteEcocycToFeistIdConversion[pid]
+
+		if pst > 1:
+			obj.reaction[-1] += '(' + str(pst) + ') '
+		obj.reaction[-1] += pid
+		if i < len(products) - 1:
+			obj.reaction[-1] += ' + '
 
 # Parse RNA
 def parseRna():
@@ -1104,7 +1203,7 @@ def parseRNA_modified():
 				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
 
 	# Build cache of modified form reactions
-	rebuild = True
+	rebuild = False
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json')) or rebuild:
 		modFormRxn = {}
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1112,17 +1211,18 @@ def parseRNA_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						parents = []
-						formation_reactions = []
-						getEcocycParents(str(frameId), 'RNA', parents)
-						ipdb.set_trace()
-						for p in parents:
-							rxn = getEcocycModFormReactions(frameId)
-							formation_reactions.extend(rxn)
+						unmodified_form = row['Frame ID']
+						formation_reactions = getFormationReactions(frameId, unmodified_form)
+
+						for rxn in formation_reactions:
+							for comp in rxn['components']:
+								if isinstance(comp['id'],dict):
+									ipdb.set_trace()
+
 						if formation_reactions == []:
 							print 'No reaction for ' + frameId
 						else:
-							print 'Loaded ' + frameId + ' formation reaction'
+							print 'Loaded ' + frameId + ' formation reaction | ' + str(formation_reactions)
 						modFormRxn[frameId] = formation_reactions
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'wb') as jsonfile:
@@ -1130,7 +1230,6 @@ def parseRNA_modified():
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_rna_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
-
 
 	rnaDict_modified = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
@@ -1140,6 +1239,7 @@ def parseRNA_modified():
 				for frameId in json.loads(row['Modified form']):
 					RNA = rna()
 					RNA.frameId = frameId
+					RNA.name = row['Name']
 					RNA.unmodifiedForm = row['Frame ID']
 					RNA.location = json.loads(row['Location'])
 
@@ -1148,60 +1248,21 @@ def parseRNA_modified():
 					if rxn_raw != []:
 						production_reaction = []
 						for rxn in rxn_raw:
-							for rxn_species in rxn[2]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+							for rxn_species in rxn['components']:
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT' or rxn['direction'] == 'IRREVERSIBLE-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species[1])) < 0 and rxn_species[0] == RNA.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT' or rxn['direction'] == 'IRREVERSIBLE-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == RNA.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == frameId:
 									production_reaction.append(rxn)
-
-						# if len(production_reaction) > 1:
-						# 	ipdb.set_trace()
+								
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
+								if rxn['direction'] not in allowedReactionDirections:
+									ipdb.set_trace()
+									raise Exception, 'Reaction direction or something else was weird!'
 
 						for rxn in production_reaction:
-							rxnId = rxn[0]
-							rxnSpecies = rxn[2]
-
-							RNA.reactionId.append(rxnId)
-							RNA.reaction.append('')
-
-							reactants = []
-							products = []
-							for species in rxnSpecies:
-								if int(float(species[1])) < 0:
-									reactants.append(species)
-								else:
-									products.append(species)
-
-							RNA.reaction[-1] += '[' + locationAbbrevDict[RNA.location[0]] + ']: '
-
-							for i,r in enumerate(reactants):
-								rst = abs(int(float(r[1])))
-								rid = str(r[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(rid):
-									rid = metaboliteEcocycToFeistIdConversion[rid]
-
-								if abs(rst) > 1:
-									RNA.reaction[-1] += '(' + str(rst) + ') '
-								RNA.reaction[-1] += rid
-								if i < len(reactants) - 1:
-									RNA.reaction[-1] += ' + '
-
-							RNA.reaction[-1] += ' ==> '
-
-							for i,p in enumerate(products):
-								pst = abs(int(float(p[1])))
-								pid = str(p[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									pid = metaboliteEcocycToFeistIdConversion[pid]
-
-								if pst > 1:
-									RNA.reaction[-1] += '(' + str(pst) + ') '
-								RNA.reaction[-1] += pid
-								if i < len(products) - 1:
-									RNA.reaction[-1] += ' + '
-
+							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					rnaDict_modified[RNA.frameId] = RNA
 	# Write output
@@ -1210,11 +1271,79 @@ def parseRNA_modified():
 
 		keys = rnaDict_modified.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'EC', 'Reaction', 'Mass balance?', 'EC', 'Comments'])
 		for key in keys:
-			pm = rnaDict_modified[key]
-			csvwriter.writerow([pm.frameId, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reaction), pm.comments])
+			ribonuc = rnaDict_modified[key]
+			csvwriter.writerow([ribonuc.frameId, ribonuc.name, ribonuc.unmodifiedForm, json.dumps(ribonuc.location), json.dumps(ribonuc.reactionId), json.dumps(ribonuc.reactionEnzymes), json.dumps(ribonuc.ec),json.dumps(ribonuc.reaction), json.dumps(ribonuc.mass_balance), json.dumps(ribonuc.ec),ribonuc.comments])
 
+def getFormationReactions(frameId, unmodified_form):
+	# Look for reactions that include the frameid in the reaction
+	formation_reactions = []
+	rxn = getEcocycModFormReactions(frameId)
+	formation_reactions.extend(rxn)
+
+	# Look for reactions that include the parent classes of frameid in reaction
+	parents = []
+	formation_reactions_raw = []
+	getEcocycParents(str(frameId), parents)
+	for p in parents:
+		rxn = getEcocycModFormReactions(p)
+		formation_reactions_raw.extend(rxn)
+	print 'Checked for parents for ' + frameId
+
+
+	# Look for class species in reaction and fill in with instance species
+	for rxn in formation_reactions_raw:
+		# Builds list of:
+		# [[{'classid' : class id 1, 'instance id' : instance id 1}, {'classid' : class id 1, 'instance id' : instance id 2},...]
+		#  ['classid' : class id 2, 'instance id' : instance id 3,...]]
+		# This makes it easy to build a list of all possible unique combinations of instance frame id's so that we can build
+		# a complete list of unique instance based reactions
+		components_children = buildReactionInstanceFromClassList(rxn, frameId, unmodified_form)
+
+		# Forms all cartesian-products
+		# Example: ({'classid': 'VAL-tRNAs', 'instanceid': 'valT-tRNA'}, {'classid': 'Charged-VAL-tRNAs', 'instanceid': 'charged-valT-tRNA'})
+		for cart_product in itertools.product(*components_children[:]):
+			# Builds new reaction with class species replaced with instance species from the cartesian product
+			new_rxn = buildInstanceReaction(cart_product, rxn)
+			formation_reactions.append(new_rxn)
+
+	return formation_reactions
+
+def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
+	components_children = []
+	for class_comp in [x for x in rxn['components'] if x['isclass'] == True]:
+		children = []
+		getEcocycChildren(class_comp['id'], children)
+		if len(children) == 0:
+			# Then the class is its own species
+			children = [class_comp['id']]
+		if unmodified_form in children:
+			children = [unmodified_form]
+		if modified_form in children:
+			children = [modified_form]
+		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
+
+		if len(children) == 0:
+			raise Exception, 'No species found!\n'
+	return components_children
+
+def buildInstanceReaction(pairs_to_replace, rxn):
+	# New reaction for cartesian-product
+	new_rxn = copy.deepcopy(rxn)
+
+	# Looks over all species in reaction
+	for species in new_rxn['components']:
+		addOriginal = False
+		# Pulls out cartesian-product
+		for species_to_replace in pairs_to_replace:
+			count = 0
+			if species['id'] == species_to_replace['classid']:
+				# If species is the class-id from the cartesian product then replace with instance from product
+				species['id'] = species_to_replace['instanceid']
+				species['isclass'] = False
+
+	return new_rxn
 
 # Parse protein complexes
 def parseComplexes():
@@ -1516,18 +1645,20 @@ def parseComplexes_modified():
 			for row in dictreader:
 				if len(json.loads(row['Modified form'])):
 					for frameId in json.loads(row['Modified form']):
-						rxn = getEcocycModFormReactions(frameId)
-						if rxn == []:
+						unmodified_form = row['Frame ID']
+						formation_reactions = getFormationReactions(frameId, unmodified_form)
+
+						if formation_reactions == []:
 							print 'No reaction for ' + frameId
-						print 'Loaded ' + frameId + ' formation reaction'
-						modFormRxn[frameId] = rxn
+						else:
+							print 'Loaded ' + frameId + ' formation reaction | ' + str(formation_reactions)
+						modFormRxn[frameId] = formation_reactions
 
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_complex_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
-
 
 	proteinComplexDict_modifiedForm = {}
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
@@ -1537,6 +1668,7 @@ def parseComplexes_modified():
 				for frameId in json.loads(row['Modified form']):
 					pc = proteinComplex()
 					pc.frameId = frameId
+					pc.name = row['Name']
 					pc.unmodifiedForm = row['Frame ID']
 					pc.location = json.loads(row['Location'])
 
@@ -1546,59 +1678,21 @@ def parseComplexes_modified():
 						production_reaction = []
 
 						for rxn in rxn_raw:
-							for rxn_species in rxn[2]:
-								if int(float(rxn_species[1])) > 0 and rxn_species[0] == pc.frameId and rxn[1] == 'LEFT-TO-RIGHT':
+							for rxn_species in rxn['components']:
+								if int(float(rxn_species['coeff'])) > 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'LEFT-TO-RIGHT' or rxn['direction'] == 'PHYSIOL-LEFT-TO-RIGHT' or rxn['direction'] == 'IRREVERSIBLE-LEFT-TO-RIGHT'):
 									production_reaction.append(rxn)
-								if int(float(rxn_species[1])) < 0 and rxn_species[0] == pc.frameId and rxn[1] == 'RIGHT-TO-LEFT':
+								if int(float(rxn_species['coeff'])) < 0 and rxn_species['id'] == frameId and (rxn['direction'] == 'RIGHT-TO-LEFT' or rxn['direction'] == 'PHYSIOL-RIGHT-TO-LEFT' or rxn['direction'] == 'IRREVERSIBLE-RIGHT-TO-LEFT'):
 									production_reaction.append(rxn)
-								elif rxn[1] == 'UNKNOWN' and rxn_species[0] == pc.frameId:
+								elif (rxn['direction'] == 'UNKNOWN' or rxn['direction'] == 'REVERSIBLE') and rxn_species['id'] == frameId:
 									production_reaction.append(rxn)
-
-						# if len(production_reaction) > 1:
-						# 	ipdb.set_trace()
+								
+								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
+								if rxn['direction'] not in allowedReactionDirections:
+									ipdb.set_trace()
+									raise Exception, 'Reaction direction or something else was weird!'
 
 						for rxn in production_reaction:
-							rxnId = rxn[0]
-							rxnSpecies = rxn[2]
-
-							pc.reactionId.append(rxnId)
-							pc.reaction.append('')
-
-							reactants = []
-							products = []
-							for species in rxnSpecies:
-								if int(float(species[1])) < 0:
-									reactants.append(species)
-								else:
-									products.append(species)
-
-							pc.reaction[-1] += '[' + locationAbbrevDict[pc.location[0]] + ']: '
-
-							for i,r in enumerate(reactants):
-								rst = abs(int(float(r[1])))
-								rid = str(r[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(rid):
-									rid = metaboliteEcocycToFeistIdConversion[rid]
-
-								if abs(rst) > 1:
-									pc.reaction[-1] += '(' + str(rst) + ') '
-								pc.reaction[-1] += rid
-								if i < len(reactants) - 1:
-									pc.reaction[-1] += ' + '
-
-							pc.reaction[-1] += ' ==> '
-
-							for i,p in enumerate(products):
-								pst = abs(int(float(p[1])))
-								pid = str(p[0])
-								if metaboliteEcocycToFeistIdConversion.has_key(pid):
-									pid = metaboliteEcocycToFeistIdConversion[pid]
-
-								if pst > 1:
-									pc.reaction[-1] += '(' + str(pst) + ') '
-								pc.reaction[-1] += pid
-								if i < len(products) - 1:
-									pc.reaction[-1] += ' + '
+							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 
 					proteinComplexDict_modifiedForm[pc.frameId] = pc
@@ -1609,10 +1703,10 @@ def parseComplexes_modified():
 
 		keys = proteinComplexDict_modifiedForm.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Unmodified Form', 'Location', 'Reaction ID', 'Reaction', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name','Unmodified Form', 'Location', 'Reaction ID', 'Reaction Enzyme', 'Reaction', 'Mass Balance?','Comments'])
 		for key in keys:
 			pc = proteinComplexDict_modifiedForm[key]
-			csvwriter.writerow([pc.frameId, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reaction), pc.comments])
+			csvwriter.writerow([pc.frameId, pc.name, pc.unmodifiedForm, json.dumps(pc.location), json.dumps(pc.reactionId), json.dumps(pc.reactionEnzymes), json.dumps(pc.reaction), json.dumps(pc.mass_balance), json.dumps(pc.ec),pc.comments])
 
 def getEcocycComplexComponents(cmplx):
 	websvcUrl = "http://websvc.biocyc.org/getxml?ECOLI:%s" % cmplx
@@ -2588,6 +2682,10 @@ class proteinMonomer:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reactionEnzymes = []
+		self.ec = []
+		self.mass_balance = []
+		self.used = None
 		self.comments = ''
 
 class rna:
@@ -2600,6 +2698,10 @@ class rna:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reactionEnzymes = []
+		self.ec = []
+		self.mass_balance = []
+		self.used = None
 		self.comments = ''
 
 class proteinComplex:
@@ -2614,6 +2716,10 @@ class proteinComplex:
 		self.reactionId = []
 		self.reaction = []
 		self.location = []
+		self.reactionEnzymes = []
+		self.ec = []
+		self.mass_balance = []
+		self.used = None
 		self.comments = ''
 
 	def addReactant(self, name, stoich, location):

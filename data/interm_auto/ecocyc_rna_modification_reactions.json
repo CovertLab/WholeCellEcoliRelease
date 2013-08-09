@@ -1,112 +1,4616 @@
 {
-    "charged-pheV-tRNA": [], 
-    "charged-lysV-tRNA": [], 
-    "charged-leuW-tRNA": [], 
-    "charged-lysT-tRNA": [], 
-    "charged-glnX-tRNA": [], 
-    "charged-leuP-tRNA": [], 
-    "charged-aspU-tRNA": [], 
-    "charged-asnT-tRNA": [], 
-    "charged-glyW-tRNA": [], 
-    "charged-leuZ-tRNA": [], 
-    "CHARGED-FMETY-TRNA": [], 
-    "charged-glyX-tRNA": [], 
-    "charged-leuV-tRNA": [], 
-    "charged-lysW-tRNA": [], 
-    "RNA0-321": [], 
-    "RNA0-323": [], 
-    "RNA0-322": [], 
-    "charged-tyrT-tRNA": [], 
-    "CHARGED-FMETZ-TRNA": [], 
-    "charged-gltW-tRNA": [], 
-    "charged-aspV-tRNA": [], 
-    "charged-leuX-tRNA": [], 
-    "charged-metU-tRNA": [], 
-    "charged-tyrV-tRNA": [], 
-    "charged-gltT-tRNA": [], 
-    "charged-valX-tRNA": [], 
-    "charged-thrT-tRNA": [], 
-    "charged-glyT-tRNA": [], 
-    "charged-thrV-tRNA": [], 
-    "charged-glyY-tRNA": [], 
-    "charged-serW-tRNA": [], 
-    "charged-serV-tRNA": [], 
-    "charged-gltV-tRNA": [], 
-    "charged-ileT-tRNA": [], 
-    "charged-gltU-tRNA": [], 
-    "charged-leuU-tRNA": [], 
-    "charged-serT-tRNA": [], 
-    "charged-ileX-tRNA": [], 
-    "charged-valV-tRNA": [], 
-    "charged-leuT-tRNA": [], 
-    "charged-valY-tRNA": [], 
-    "charged-trpT-tRNA": [], 
-    "charged-alaT-tRNA": [], 
-    "modified-charged-selC-tRNA": [
-        [
-            "RXN0-6434", 
-            "UNKNOWN", 
-            [
-                [
-                    "EG10942-MONOMER", 
-                    "-1"
-                ], 
-                [
-                    "modified-charged-selC-tRNA", 
-                    "-1"
-                ], 
-                [
-                    "CPLX0-8053", 
-                    "1"
-                ]
-            ]
-        ]
+    "charged-pheV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "PHES-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "pheV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PHE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-pheV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PHENYLALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
     ], 
-    "charged-argZ-tRNA": [], 
-    "charged-cysT-tRNA": [], 
-    "charged-ileV-tRNA": [], 
-    "charged-proK-tRNA": [], 
-    "charged-alaV-tRNA": [], 
-    "charged-metT-tRNA": [], 
-    "charged-serX-tRNA": [], 
-    "charged-serU-tRNA": [], 
+    "charged-lysV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "lysV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-lysV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-lysT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "lysT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-lysT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glnX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLNS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glnX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glnX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuP-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuP-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuP-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuP-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-aspU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASPS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "aspU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ASPARTATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-aspU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARTATE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-asnT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASNS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "asnT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ASN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-asnT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glyW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLYS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glyW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLY", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glyW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuZ-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuZ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuZ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuZ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "CHARGED-FMETY-TRNA": [], 
+    "charged-glyX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLYS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glyX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLY", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glyX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-lysW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "lysW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-lysW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-321": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "METG-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-306", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-321", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "EG11268-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "10-FORMYL-THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-321", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-323": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "METG-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "metZ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-323", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "EG11268-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "10-FORMYL-THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-323", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-322": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "METG-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "metY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-322", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "EG11268-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "10-FORMYL-THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-322", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-tyrT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "TYRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "tyrT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TYR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-tyrT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "TYROSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "CHARGED-FMETZ-TRNA": [], 
+    "charged-gltW-tRNA": [
+        {
+            "direction": "REVERSIBLE", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CPLX0-3741"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "GLUTAMATE-1-SEMIALDEHYDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "gltW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-gltW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADPH", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-aspV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASPS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "aspV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ASPARTATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-aspV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARTATE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-metU-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "METG-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "metU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-metU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-tyrV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "TYRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "tyrV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TYR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-tyrV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "TYROSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-gltT-tRNA": [
+        {
+            "direction": "REVERSIBLE", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CPLX0-3741"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "GLUTAMATE-1-SEMIALDEHYDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "gltT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-gltT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADPH", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-valX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "valX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-valX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-thrT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "THRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "thrT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "THR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-thrT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glyT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLYS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glyT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLY", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glyT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-thrV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "THRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "thrV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "THR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-thrV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glyY-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLYS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glyY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLY", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glyY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-serW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "serW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-serW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-serV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "serV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-serV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-gltV-tRNA": [
+        {
+            "direction": "REVERSIBLE", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CPLX0-3741"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "GLUTAMATE-1-SEMIALDEHYDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "gltV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-gltV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADPH", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-ileT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ILES-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ileT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ILE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-ileT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-gltU-tRNA": [
+        {
+            "direction": "REVERSIBLE", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CPLX0-3741"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "GLUTAMATE-1-SEMIALDEHYDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "NADP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "gltU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-gltU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NADPH", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTRNAREDUCT-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-serT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "serT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-serT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-ileX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ILES-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ileX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ILE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-ileX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-valV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "valV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-valV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-valY-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "valY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-valY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-trpT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "TRPS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TRP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "trpT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-trpT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "TRYPTOPHAN--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-alaT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ALAS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "alaT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ALPHA-ALANINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-alaT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "modified-charged-selC-tRNA": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "EG10942-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "modified-charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-8053", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-6434", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CPLX0-1141"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SEPO3", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "modified-charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "2.9.1.1-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argZ-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argZ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argZ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-cysT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CYSS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "cysT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-cysT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CYSTEINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-ileV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ILES-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ileV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ILE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-ileV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-proK-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "PROS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "proK-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PRO", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-proK-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PROLINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-alaV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ALAS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "alaV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ALPHA-ALANINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-alaV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-metT-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "METG-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "metT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-metT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-serX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "serX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-serX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-serU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "serU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-serU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
     "CHARGED-FMETW-TRNA": [], 
     "CHARGED-FMETV-TRNA": [], 
-    "charged-tyrU-tRNA": [], 
-    "charged-valU-tRNA": [], 
-    "charged-asnU-tRNA": [], 
-    "charged-ileU-tRNA": [], 
-    "charged-selC-tRNA": [], 
-    "charged-argV-tRNA": [], 
-    "charged-hisR-tRNA": [], 
-    "charged-argY-tRNA": [], 
-    "charged-argW-tRNA": [], 
-    "charged-aspT-tRNA": [], 
-    "charged-pheU-tRNA": [], 
-    "charged-asnV-tRNA": [], 
-    "charged-proL-tRNA": [], 
-    "charged-leuQ-tRNA": [], 
-    "charged-alaX-tRNA": [], 
-    "charged-argQ-tRNA": [], 
-    "RNA0-314": [], 
-    "RNA0-310": [], 
-    "RNA0-311": [], 
-    "RNA0-312": [], 
-    "RNA0-313": [], 
-    "charged-valW-tRNA": [], 
-    "charged-valT-tRNA": [], 
-    "RNA0-319": [], 
-    "charged-glnU-tRNA": [], 
-    "charged-glnV-tRNA": [], 
-    "charged-alaU-tRNA": [], 
-    "charged-glnW-tRNA": [], 
-    "charged-glyU-tRNA": [], 
-    "charged-thrW-tRNA": [], 
-    "charged-argU-tRNA": [], 
-    "charged-argX-tRNA": [], 
-    "charged-alaW-tRNA": [], 
-    "charged-proM-tRNA": [], 
-    "RNA0-309": [], 
-    "charged-thrU-tRNA": [], 
-    "charged-glyV-tRNA": []
+    "charged-tyrU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "TYRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "tyrU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TYR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-tyrU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "TYROSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-valU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "valU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-valU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-asnU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASNS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "asnU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ASN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-asnU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-ileU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ILES-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ileU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ILE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-ileU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-selC-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "SERINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "SERS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SEC-tRNAs", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "SER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-2161", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "CPLX0-1141"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "SEPO3", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "modified-charged-selC-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }
+            ], 
+            "id": "2.9.1.1-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argV-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-hisR-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "HISS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "hisR-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "HIS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-hisR-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "HISTIDINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argY-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argY-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argW-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-aspT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASPS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "aspT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ASPARTATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-aspT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARTATE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-pheU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "PHES-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "pheU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PHE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-pheU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PHENYLALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-asnV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASNS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "asnV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ASN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-asnV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-proL-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "PROS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "proL-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PRO", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-proL-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PROLINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-leuQ-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LEUS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "leuQ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LEU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-leuQ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG11112-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "charged-leuQ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "General-Protein-Substrates", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "tRNA-Holder", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "L-leucyl-protein", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LEUCYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-alaX-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ALAS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "alaX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ALPHA-ALANINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-alaX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argQ-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argQ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argQ-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-314": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-303", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-314", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-310": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ASNS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-304", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ASN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-310", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ASPARAGINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-311": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-300", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-311", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-312": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-301", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-312", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-313": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "LYSS-CPLX", 
+                "LYSU-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "LYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-302", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-313", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "LYSINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-valW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "valW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-valW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-valT-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "VALS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "valT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "VAL", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-valT-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "VALINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-319": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "METG-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "metW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MET", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-319", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "EG11268-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "10-FORMYL-THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-319", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "THF", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
+                    "isclass": false
+                }
+            ], 
+            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glnU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLNS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glnU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glnU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glnV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLNS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glnV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glnV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-alaU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ALAS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "alaU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ALPHA-ALANINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-alaU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glnW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLNS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glnW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glnW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLUTAMINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glyU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLYS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glyU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLY", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glyU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-thrW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "THRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "thrW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "THR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-thrW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argU-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-argX-tRNA": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ARGS-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "argX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ARG", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-argX-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ARGININE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-alaW-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ALAS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "alaW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "L-ALPHA-ALANINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-alaW-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ALANINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-proM-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "PROS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "proM-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PRO", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-proM-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "PROLINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "RNA0-309": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "ILES-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "RNA0-305", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ILE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "RNA0-309", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "ISOLEUCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-thrU-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "THRS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "thrU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "THR", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-thrU-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "THREONINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "charged-glyV-tRNA": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
+            "enzyme": [
+                "GLYS-CPLX"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PROTON", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "glyV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "GLY", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "ATP", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "charged-glyV-tRNA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PPI", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMP", 
+                    "isclass": false
+                }
+            ], 
+            "id": "GLYCINE--TRNA-LIGASE-RXN", 
+            "ecnumber": null
+        }
+    ]
 }

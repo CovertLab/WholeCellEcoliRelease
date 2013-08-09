@@ -144,3 +144,71 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(len(info), 2)
 		self.assertEqual(info[0], ('APORNAP-CPLX', '1'))
 		self.assertEqual(info[1], ('PD00440', '1'))
+
+	@noseAttrib.attr('parseTest')
+	def test_buildReactionInstanceFromClassList(self):
+		# Reaction looks like:
+		# tRNAval + L-valine + ATP + H+ -> L-valyl-tRNAval + AMP + diphosphate
+
+		reaction = r.getEcocycReactionStoich('VALINE--TRNA-LIGASE-RXN')
+		unmodified_form = 'RNA0-300'
+		modified_form = 'RNA0-311'
+		components_children = r.buildReactionInstanceFromClassList(reaction, modified_form, unmodified_form)
+		components_children_test = [[{'classid' : 'VAL-tRNAs', 'instanceid' : 'RNA0-300'}],
+									[{'classid' : 'Charged-VAL-tRNAs', 'instanceid' : 'RNA0-311'}]]
+
+		components_children.sort()
+		components_children[0].sort()
+		components_children[1].sort()
+		components_children_test.sort()
+		components_children_test[0].sort()
+		components_children_test[1].sort()
+
+
+		self.assertEqual(components_children, components_children_test)
+
+	@noseAttrib.attr('parseTest')
+	def test_buildInstanceReaction(self):
+		cart_product = ({'classid': 'VAL-tRNAs', 'instanceid': 'RNA0-300'}, {'classid': 'Charged-VAL-tRNAs', 'instanceid': 'RNA0-311'})
+		reaction = r.getEcocycReactionStoich('VALINE--TRNA-LIGASE-RXN')
+
+		new_rxn = r.buildInstanceReaction(cart_product, reaction)
+
+		new_rxn_test = {'direction': 'LEFT-TO-RIGHT',
+						'enzyme': ['VALS-MONOMER'],
+						'components': [{'coeff': '-1', 'id': 'PROTON', 'isclass': False},
+										{'coeff': '-1', 'id': 'RNA0-300', 'isclass': False},
+										{'coeff': '-1', 'id': 'VAL', 'isclass': False},
+										{'coeff': '-1', 'id': 'ATP', 'isclass': False},
+										{'coeff': '1', 'id': 'RNA0-311', 'isclass': False},
+										{'coeff': '1', 'id': 'PPI', 'isclass': False},
+										{'coeff': '1', 'id': 'AMP', 'isclass': False}],
+						'id': 'VALINE--TRNA-LIGASE-RXN'}
+
+		self.assertEqual(new_rxn['direction'], new_rxn_test['direction'])
+		self.assertEqual(new_rxn['enzyme'], new_rxn_test['enzyme'])
+		self.assertEqual(new_rxn['id'], new_rxn_test['id'])
+		self.assertEqual(new_rxn['components'].sort(), new_rxn_test['components'].sort())
+
+	@noseAttrib.attr('parseTest')
+	def test_getFormationReactions(self):
+		unmodified_form = 'RNA0-300'
+		frameId = 'RNA0-311'
+		formation_reactions = r.getFormationReactions(frameId, unmodified_form)
+		
+		self.assertEqual(len(formation_reactions), 1)
+		new_rxn_test = {'direction': 'LEFT-TO-RIGHT',
+						'enzyme': ['VALS-MONOMER'],
+						'components': [{'coeff': '-1', 'id': 'PROTON', 'isclass': False},
+										{'coeff': '-1', 'id': 'RNA0-300', 'isclass': False},
+										{'coeff': '-1', 'id': 'VAL', 'isclass': False},
+										{'coeff': '-1', 'id': 'ATP', 'isclass': False},
+										{'coeff': '1', 'id': 'RNA0-311', 'isclass': False},
+										{'coeff': '1', 'id': 'PPI', 'isclass': False},
+										{'coeff': '1', 'id': 'AMP', 'isclass': False}],
+						'id': 'VALINE--TRNA-LIGASE-RXN'}
+		self.assertEqual(formation_reactions[0]['direction'], new_rxn_test['direction'])
+		self.assertEqual(formation_reactions[0]['enzyme'], new_rxn_test['enzyme'])
+		self.assertEqual(formation_reactions[0]['id'], new_rxn_test['id'])
+		self.assertEqual(formation_reactions[0]['components'].sort(), new_rxn_test['components'].sort())
+
