@@ -1,92 +1,92 @@
-"Frame ID"	"Name"	"Used"
-"CHARGED-FMETV-TRNA"	"tRNAmetV"	
-"CHARGED-FMETW-TRNA"	"tRNAmetW"	
-"CHARGED-FMETY-TRNA"	"tRNAmetY"	
-"CHARGED-FMETZ-TRNA"	"tRNAmetZ"	
-"RNA0-309"	"tRNAileY"	
-"RNA0-310"	"tRNAasnW"	
-"RNA0-311"	"tRNAvalZ"	
-"RNA0-312"	"tRNAlysY"	
-"RNA0-313"	"tRNAlysZ"	
-"RNA0-314"	"tRNAlysQ"	
-"RNA0-319"	"tRNAmetW"	
-"RNA0-321"	"tRNAmetV"	
-"RNA0-322"	"tRNAmetY"	
-"RNA0-323"	"tRNAmetZ"	
-"charged-alaT-tRNA"	"tRNAalaT"	
-"charged-alaU-tRNA"	"tRNAalaU"	
-"charged-alaV-tRNA"	"tRNAalaV"	
-"charged-alaW-tRNA"	"tRNAalaW"	
-"charged-alaX-tRNA"	"tRNAalaX"	
-"charged-argQ-tRNA"	"tRNAargQ"	
-"charged-argU-tRNA"	"tRNAargU"	
-"charged-argV-tRNA"	"tRNAargV"	
-"charged-argW-tRNA"	"tRNAargW"	
-"charged-argX-tRNA"	"tRNAargX"	
-"charged-argY-tRNA"	"tRNAargY"	
-"charged-argZ-tRNA"	"tRNAargZ"	
-"charged-asnT-tRNA"	"tRNAasnT"	
-"charged-asnU-tRNA"	"tRNAasnU"	
-"charged-asnV-tRNA"	"tRNAasnV"	
-"charged-aspT-tRNA"	"tRNAaspT"	
-"charged-aspU-tRNA"	"tRNAaspU"	
-"charged-aspV-tRNA"	"tRNAaspV"	
-"charged-cysT-tRNA"	"tRNAcysT"	
-"charged-glnU-tRNA"	"tRNAglnU"	
-"charged-glnV-tRNA"	"tRNAglnV"	
-"charged-glnW-tRNA"	"tRNAglnW"	
-"charged-glnX-tRNA"	"tRNAglnX"	
-"charged-gltT-tRNA"	"tRNAgltT"	
-"charged-gltU-tRNA"	"tRNAgltU"	
-"charged-gltV-tRNA"	"tRNAgltV"	
-"charged-gltW-tRNA"	"tRNAgltW"	
-"charged-glyT-tRNA"	"tRNAglyT"	
-"charged-glyU-tRNA"	"tRNAglyU"	
-"charged-glyV-tRNA"	"tRNAglyV"	
-"charged-glyW-tRNA"	"tRNAglyW"	
-"charged-glyX-tRNA"	"tRNAglyX"	
-"charged-glyY-tRNA"	"tRNAglyY"	
-"charged-hisR-tRNA"	"tRNAhisR"	
-"charged-ileT-tRNA"	"tRNAileT"	
-"charged-ileU-tRNA"	"tRNAileU"	
-"charged-ileV-tRNA"	"tRNAileV"	
-"charged-ileX-tRNA"	"tRNAileX"	
-"charged-leuP-tRNA"	"tRNAleuP"	
-"charged-leuQ-tRNA"	"tRNAleuQ"	
-"charged-leuT-tRNA"	"tRNAleuT"	
-"charged-leuU-tRNA"	"tRNAleuU"	
-"charged-leuV-tRNA"	"tRNAleuV"	
-"charged-leuW-tRNA"	"tRNAleuW"	
-"charged-leuX-tRNA"	"tRNAleuX"	
-"charged-leuZ-tRNA"	"tRNAleuZ"	
-"charged-lysT-tRNA"	"tRNAlysT"	
-"charged-lysV-tRNA"	"tRNAlysV"	
-"charged-lysW-tRNA"	"tRNAlysW"	
-"charged-metT-tRNA"	"tRNAmetT"	
-"charged-metU-tRNA"	"tRNAmetU"	
-"charged-pheU-tRNA"	"tRNApheU"	
-"charged-pheV-tRNA"	"tRNApheV"	
-"charged-proK-tRNA"	"tRNAproK"	
-"charged-proL-tRNA"	"tRNAproL"	
-"charged-proM-tRNA"	"tRNAproM"	
-"charged-selC-tRNA"	"tRNAsec"	
-"charged-serT-tRNA"	"tRNAserT"	
-"charged-serU-tRNA"	"tRNAserU"	
-"charged-serV-tRNA"	"tRNAserV"	
-"charged-serW-tRNA"	"tRNAserW"	
-"charged-serX-tRNA"	"tRNAserX"	
-"charged-thrT-tRNA"	"tRNAthrT"	
-"charged-thrU-tRNA"	"tRNAthrU"	
-"charged-thrV-tRNA"	"tRNAthrV"	
-"charged-thrW-tRNA"	"tRNAthrW"	
-"charged-trpT-tRNA"	"tRNAtrpT"	
-"charged-tyrT-tRNA"	"tRNAtyrT"	
-"charged-tyrU-tRNA"	"tRNAtyrU"	
-"charged-tyrV-tRNA"	"tRNAtyrV"	
-"charged-valT-tRNA"	"tRNAvalT"	
-"charged-valU-tRNA"	"tRNAvalU"	
-"charged-valV-tRNA"	"tRNAvalV"	
-"charged-valW-tRNA"	"tRNAvalW"	
-"charged-valX-tRNA"	"tRNAvalX"	
-"charged-valY-tRNA"	"tRNAvalY"	
-"modified-charged-selC-tRNA"	"tRNAsec"	
+Frame ID	Name	Used
+CHARGED-FMETV-TRNA	tRNAmetV	y
+CHARGED-FMETW-TRNA	tRNAmetW	y
+CHARGED-FMETY-TRNA	tRNAmetY	y
+CHARGED-FMETZ-TRNA	tRNAmetZ	y
+RNA0-309	tRNAileY	y
+RNA0-310	tRNAasnW	y
+RNA0-311	tRNAvalZ	y
+RNA0-312	tRNAlysY	y
+RNA0-313	tRNAlysZ	y
+RNA0-314	tRNAlysQ	y
+RNA0-319	tRNAmetW	y
+RNA0-321	tRNAmetV	y
+RNA0-322	tRNAmetY	y
+RNA0-323	tRNAmetZ	y
+charged-alaT-tRNA	tRNAalaT	y
+charged-alaU-tRNA	tRNAalaU	y
+charged-alaV-tRNA	tRNAalaV	y
+charged-alaW-tRNA	tRNAalaW	y
+charged-alaX-tRNA	tRNAalaX	y
+charged-argQ-tRNA	tRNAargQ	y
+charged-argU-tRNA	tRNAargU	y
+charged-argV-tRNA	tRNAargV	y
+charged-argW-tRNA	tRNAargW	y
+charged-argX-tRNA	tRNAargX	y
+charged-argY-tRNA	tRNAargY	y
+charged-argZ-tRNA	tRNAargZ	y
+charged-asnT-tRNA	tRNAasnT	y
+charged-asnU-tRNA	tRNAasnU	y
+charged-asnV-tRNA	tRNAasnV	y
+charged-aspT-tRNA	tRNAaspT	y
+charged-aspU-tRNA	tRNAaspU	y
+charged-aspV-tRNA	tRNAaspV	y
+charged-cysT-tRNA	tRNAcysT	y
+charged-glnU-tRNA	tRNAglnU	y
+charged-glnV-tRNA	tRNAglnV	y
+charged-glnW-tRNA	tRNAglnW	y
+charged-glnX-tRNA	tRNAglnX	y
+charged-gltT-tRNA	tRNAgltT	y
+charged-gltU-tRNA	tRNAgltU	y
+charged-gltV-tRNA	tRNAgltV	y
+charged-gltW-tRNA	tRNAgltW	y
+charged-glyT-tRNA	tRNAglyT	y
+charged-glyU-tRNA	tRNAglyU	y
+charged-glyV-tRNA	tRNAglyV	y
+charged-glyW-tRNA	tRNAglyW	y
+charged-glyX-tRNA	tRNAglyX	y
+charged-glyY-tRNA	tRNAglyY	y
+charged-hisR-tRNA	tRNAhisR	y
+charged-ileT-tRNA	tRNAileT	y
+charged-ileU-tRNA	tRNAileU	y
+charged-ileV-tRNA	tRNAileV	y
+charged-ileX-tRNA	tRNAileX	y
+charged-leuP-tRNA	tRNAleuP	y
+charged-leuQ-tRNA	tRNAleuQ	y
+charged-leuT-tRNA	tRNAleuT	y
+charged-leuU-tRNA	tRNAleuU	y
+charged-leuV-tRNA	tRNAleuV	y
+charged-leuW-tRNA	tRNAleuW	y
+charged-leuX-tRNA	tRNAleuX	y
+charged-leuZ-tRNA	tRNAleuZ	y
+charged-lysT-tRNA	tRNAlysT	y
+charged-lysV-tRNA	tRNAlysV	y
+charged-lysW-tRNA	tRNAlysW	y
+charged-metT-tRNA	tRNAmetT	y
+charged-metU-tRNA	tRNAmetU	y
+charged-pheU-tRNA	tRNApheU	y
+charged-pheV-tRNA	tRNApheV	y
+charged-proK-tRNA	tRNAproK	y
+charged-proL-tRNA	tRNAproL	y
+charged-proM-tRNA	tRNAproM	y
+charged-selC-tRNA	tRNAsec	y
+charged-serT-tRNA	tRNAserT	y
+charged-serU-tRNA	tRNAserU	y
+charged-serV-tRNA	tRNAserV	y
+charged-serW-tRNA	tRNAserW	y
+charged-serX-tRNA	tRNAserX	y
+charged-thrT-tRNA	tRNAthrT	y
+charged-thrU-tRNA	tRNAthrU	y
+charged-thrV-tRNA	tRNAthrV	y
+charged-thrW-tRNA	tRNAthrW	y
+charged-trpT-tRNA	tRNAtrpT	y
+charged-tyrT-tRNA	tRNAtyrT	y
+charged-tyrU-tRNA	tRNAtyrU	y
+charged-tyrV-tRNA	tRNAtyrV	y
+charged-valT-tRNA	tRNAvalT	y
+charged-valU-tRNA	tRNAvalU	y
+charged-valV-tRNA	tRNAvalV	y
+charged-valW-tRNA	tRNAvalW	y
+charged-valX-tRNA	tRNAvalX	y
+charged-valY-tRNA	tRNAvalY	y
+modified-charged-selC-tRNA	tRNAsec	y
