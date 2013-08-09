@@ -388,6 +388,8 @@ class KnowledgeBase(object):
 				protNew.append(p)
 				self.proteins.append(p)
 
+		self.createModifiedForms()
+
 		metDict = dict([(x["id"], x) for x in self.metabolites])
 		rnaDict = dict([(x["id"], x) for x in self.rnas])
 		protDict = dict([(x["id"], x) for x in self.proteins])
