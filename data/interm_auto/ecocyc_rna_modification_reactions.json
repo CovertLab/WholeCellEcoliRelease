@@ -157,29 +157,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -345,29 +333,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -580,29 +556,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -720,29 +684,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -870,11 +822,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "N-formyl-L-methionyl-tRNAfmet", 
-                        "isclass": true
-                    }, 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
                     "isclass": false
                 }
             ], 
@@ -953,11 +901,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "N-formyl-L-methionyl-tRNAfmet", 
-                        "isclass": true
-                    }, 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
                     "isclass": false
                 }
             ], 
@@ -1036,11 +980,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "N-formyl-L-methionyl-tRNAfmet", 
-                        "isclass": true
-                    }, 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
                     "isclass": false
                 }
             ], 
@@ -1244,29 +1184,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -1929,29 +1857,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -2164,29 +2080,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -3039,11 +2943,7 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "SEC-tRNAs", 
-                        "isclass": true
-                    }, 
+                    "id": "SEC-tRNAs", 
                     "isclass": false
                 }, 
                 {
@@ -3557,29 +3457,17 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "General-Protein-Substrates", 
-                        "isclass": true
-                    }, 
+                    "id": "General-Protein-Substrates", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "tRNA-Holder", 
-                        "isclass": true
-                    }, 
+                    "id": "tRNA-Holder", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "L-leucyl-protein", 
-                        "isclass": true
-                    }, 
+                    "id": "L-leucyl-protein", 
                     "isclass": false
                 }
             ], 
@@ -4093,11 +3981,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "N-formyl-L-methionyl-tRNAfmet", 
-                        "isclass": true
-                    }, 
+                    "id": "N-formyl-L-methionyl-tRNAfmet", 
                     "isclass": false
                 }
             ], 

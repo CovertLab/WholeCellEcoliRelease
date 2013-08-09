@@ -596,20 +596,12 @@
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "Cis-Delta5-dodecenoyl-ACPs", 
-                        "isclass": true
-                    }, 
+                    "id": "Cis-Delta5-dodecenoyl-ACPs", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "MALONYL-ACP", 
-                        "isclass": true
-                    }, 
+                    "id": "MALONYL-ACP", 
                     "isclass": false
                 }, 
                 {
@@ -619,11 +611,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "3-oxo-cis-D7-tetradecenoyl-ACPs", 
-                        "isclass": true
-                    }, 
+                    "id": "3-oxo-cis-D7-tetradecenoyl-ACPs", 
                     "isclass": false
                 }, 
                 {
@@ -659,11 +647,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "MALONYL-ACP", 
-                        "isclass": true
-                    }, 
+                    "id": "MALONYL-ACP", 
                     "isclass": false
                 }, 
                 {
@@ -1070,11 +1054,7 @@
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "Apo-GcvH", 
-                        "isclass": true
-                    }, 
+                    "id": "Apo-GcvH", 
                     "isclass": false
                 }, 
                 {
@@ -1117,11 +1097,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "TRANS-D2-ENOYL-ACP", 
-                        "isclass": true
-                    }, 
+                    "id": "TRANS-D2-ENOYL-ACP", 
                     "isclass": false
                 }, 
                 {
@@ -1240,7 +1216,7 @@
             "ecnumber": null
         }, 
         {
-            "direction": "RIGHT-TO-LEFT", 
+            "direction": "REVERSIBLE", 
             "massbalance": "Balanced.", 
             "enzyme": [
                 "RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"
@@ -1319,7 +1295,7 @@
             "ecnumber": null
         }, 
         {
-            "direction": "RIGHT-TO-LEFT", 
+            "direction": "REVERSIBLE", 
             "massbalance": "Balanced.", 
             "enzyme": [
                 "RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"
@@ -4807,11 +4783,7 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "Pyruvate-dehydrogenase-lipoate", 
-                        "isclass": true
-                    }, 
+                    "id": "Pyruvate-dehydrogenase-lipoate", 
                     "isclass": false
                 }, 
                 {
@@ -6550,11 +6522,7 @@
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "Sulfurylated-ThiI", 
-                        "isclass": true
-                    }, 
+                    "id": "Sulfurylated-ThiI", 
                     "isclass": false
                 }, 
                 {
@@ -6564,11 +6532,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "Thiocarboxyadenylated-ThiS-Proteins", 
-                        "isclass": true
-                    }, 
+                    "id": "Thiocarboxyadenylated-ThiS-Proteins", 
                     "isclass": false
                 }, 
                 {
@@ -6691,11 +6655,7 @@
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "ThiS-ThiI-disulfides", 
-                        "isclass": true
-                    }, 
+                    "id": "ThiS-ThiI-disulfides", 
                     "isclass": false
                 }, 
                 {
@@ -6808,11 +6768,7 @@
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": {
-                        "coeff": "-1", 
-                        "id": "Apo-GcvH", 
-                        "isclass": true
-                    }, 
+                    "id": "Apo-GcvH", 
                     "isclass": false
                 }, 
                 {
@@ -6848,11 +6804,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
-                        "isclass": true
-                    }, 
+                    "id": "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
                     "isclass": false
                 }, 
                 {
@@ -7455,11 +7407,7 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": {
-                        "coeff": "1", 
-                        "id": "Pyruvate-dehydrogenase-lipoate", 
-                        "isclass": true
-                    }, 
+                    "id": "Pyruvate-dehydrogenase-lipoate", 
                     "isclass": false
                 }, 
                 {
