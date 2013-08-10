@@ -17,6 +17,7 @@ def persistantRun():
 			val = buildTurnoverTable()
 		except:
 			time.sleep(60)
+	print 'COMPLETED!'
 
 def buildTurnoverTable(clearCache = False):
 	enzymeDict = {}
