@@ -125,7 +125,7 @@ def parseBrendaTurnover(client, line):
 
 		for entry in L:
 			possValue = []
-			if (entry['commentary'].count('wild type') or entry['commentary'].count('wild-type')) and entry['commentary'].count('25'):
+			if entry['commentary'].lower().count('wild') and entry['commentary'].count('25'):
 				possValue.append(entry['turnoverNumber'])
 				ipdb.set_trace()
 		
