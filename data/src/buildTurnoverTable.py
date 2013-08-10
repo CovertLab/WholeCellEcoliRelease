@@ -112,7 +112,20 @@ def parseBrendaTurnover(client, line):
 	for e in entries:
 		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
 	if any("coli" in x["organism"].lower() for x in L):
-		return (-1, "In E. coli")
+
+		for entry in L:
+			possValue = []
+			if (entry['commentary'].count('wild type') or entry['commentary'].count('wild-type')) and entry['commentary'].count('25'):
+				possValue.append(entry['turnover'])
+				ipdb.set_trace()
+		
+		if len(possValue):
+			value = max(possValue)
+		else:
+			value = -1
+
+
+		return (value, "In E. coli")
 	maxVal, maxIdx = numpy.max([float(x["turnoverNumber"]) for x in L]), numpy.argmax([float(x["turnoverNumber"]) for x in L])
 	return (maxVal, "organism: %s\tcomments:%s" % (L[maxIdx]["organism"], L[maxIdx]["commentary"]))
 
