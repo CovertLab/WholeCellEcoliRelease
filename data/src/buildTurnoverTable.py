@@ -6,9 +6,17 @@ import json
 from SOAPpy import WSDL
 import numpy
 import cPickle
+import time
 
-# If brenda stops responding, just keep re-running buildTurnoverTable()
-# We cache intermediate steps until it completes
+def persistantRun():
+	# If brenda stops responding, just keep re-running buildTurnoverTable()
+	# We cache intermediate steps until it completes
+	val = None
+	while val != 1:
+		try:
+			val = buildTurnoverTable()
+		except:
+			time.sleep(60)
 
 def buildTurnoverTable(clearCache = False):
 	enzymeDict = {}
@@ -80,6 +88,7 @@ def buildTurnoverTable(clearCache = False):
 			e = enzymeDict[key]
 			for i in range(e.reactionCount):
 				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], e.forwardTurnover[i], e.forwardTurnoverUnits[i], e.reverseTurnover[i], e.reverseTurnoverUnits[i], e.comments[i], json.dumps(e.kM[i])])
+	return 1
 
 class enzyme():
 	def __init__(self):
@@ -116,11 +125,11 @@ def parseBrendaTurnover(client, line):
 		for entry in L:
 			possValue = []
 			if (entry['commentary'].count('wild type') or entry['commentary'].count('wild-type')) and entry['commentary'].count('25'):
-				possValue.append(entry['turnover'])
-				ipdb.set_trace()
+				possValue.append(entry['turnoverNumber'])
 		
 		if len(possValue):
 			value = max(possValue)
+			ipdb.set_trace()
 		else:
 			value = -1
 
