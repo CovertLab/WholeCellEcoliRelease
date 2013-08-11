@@ -6,9 +6,18 @@ import json
 from SOAPpy import WSDL
 import numpy
 import cPickle
+import time
 
-# If brenda stops responding, just keep re-running buildTurnoverTable()
-# We cache intermediate steps until it completes
+def persistantRun():
+	# If brenda stops responding, just keep re-running buildTurnoverTable()
+	# We cache intermediate steps until it completes
+	val = None
+	while val != 1:
+		try:
+			val = buildTurnoverTable()
+		except:
+			time.sleep(60)
+	print 'COMPLETED!'
 
 def buildTurnoverTable(clearCache = False):
 	enzymeDict = {}
@@ -80,6 +89,7 @@ def buildTurnoverTable(clearCache = False):
 			e = enzymeDict[key]
 			for i in range(e.reactionCount):
 				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], e.forwardTurnover[i], e.forwardTurnoverUnits[i], e.reverseTurnover[i], e.reverseTurnoverUnits[i], e.comments[i], json.dumps(e.kM[i])])
+	return 1
 
 class enzyme():
 	def __init__(self):
@@ -112,7 +122,20 @@ def parseBrendaTurnover(client, line):
 	for e in entries:
 		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
 	if any("coli" in x["organism"].lower() for x in L):
-		return (-1, "In E. coli")
+
+		for entry in L:
+			possValue = []
+			if entry['commentary'].lower().count('wild') and entry['commentary'].count('25'):
+				possValue.append(entry['turnoverNumber'])
+				ipdb.set_trace()
+		
+		if len(possValue):
+			value = max(possValue)
+		else:
+			value = -1
+
+
+		return (value, "In E. coli")
 	maxVal, maxIdx = numpy.max([float(x["turnoverNumber"]) for x in L]), numpy.argmax([float(x["turnoverNumber"]) for x in L])
 	return (maxVal, "organism: %s\tcomments:%s" % (L[maxIdx]["organism"], L[maxIdx]["commentary"]))
 
