@@ -215,7 +215,7 @@ class KnowledgeBase(object):
 						"ntCount": numpy.zeros(4),
 						"mw": -1,
 						"geneId": g["id"],
-						"rnaId": g["id"]
+						"rnaId": g["rnaId"]
 					}
 					if row["spliceInfo"] != "[]":
 						baseSequence = Bio.Seq.Seq("", Bio.Alphabet.IUPAC.IUPACUnambiguousDNA())
