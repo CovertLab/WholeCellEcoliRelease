@@ -42,9 +42,11 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		# Metabolites
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, [
-			"AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]", "H2O[c]", "H[c]"
+			"AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]", "H2O[c]", "H[c]",
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"
 			], self.calcReqMetabolites)
 		self.metabolite.idx["nmps"] = self.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[0]
+		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
 		self.metabolite.idx["h2o"] = self.metabolite.getIndex("H2O[c]")[0]
 		self.metabolite.idx["h"] = self.metabolite.getIndex("H[c]")[0]
 
@@ -58,7 +60,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.rnaLens = numpy.sum(numpy.array([x["ntCount"] for x in kb.rnas] * 2), axis = 1)
 
 		self.rnaDegSMat = numpy.zeros((len(self.metabolite.ids), len(self.rna.ids)))
-		self.rnaDegSMat[self.metabolite.idx["nmps"], :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
+		self.rnaDegSMat[self.metabolite.idx["ntps"], :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
 		self.rnaDegSMat[self.metabolite.idx["h2o"], :]  = -(numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
 		self.rnaDegSMat[self.metabolite.idx["h"], :]    =  (numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
 
