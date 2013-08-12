@@ -34,31 +34,31 @@ class Complexation(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Complexation, self).initialize(sim, kb)
 
-		# Complex
-		complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]
-		self.complex = sim.getState("MoleculeCounts").addPartition(self,
-			[x["id"] + ":mature[" + x["location"] + "]" for x in complexes],
-			self.calcReqComplex)
+		# # Complex
+		# complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]
+		# self.complex = sim.getState("MoleculeCounts").addPartition(self,
+		# 	[x["id"] + ":mature[" + x["location"] + "]" for x in complexes],
+		# 	self.calcReqComplex)
 
-		# Subunits
-		subunits = []
-		for c in complexes:
-			subunits.extend([x for x in c["composition"] if x["coeff"] < 0])
-		subIdComps = list(set([x["molecule"] + ":mature[" + x["location"] + "]" for x in subunits]))
+		# # Subunits
+		# subunits = []
+		# for c in complexes:
+		# 	subunits.extend([x for x in c["composition"] if x["coeff"] < 0])
+		# subIdComps = list(set([x["molecule"] + ":mature[" + x["location"] + "]" for x in subunits]))
 
-		self.subunit = sim.getState("MoleculeCounts").addPartition(self, subIdComps, self.calcReqSubunit)
+		# self.subunit = sim.getState("MoleculeCounts").addPartition(self, subIdComps, self.calcReqSubunit)
 
-		tmpSMat = []
-		for iComplex in xrange(len(complexes)):
-			c = complexes[iComplex]
-			for s in c["composition"]:
-				if s["coeff"] > 0:
-					continue
-				tmpSMat.append([s["molecule"] + ":mature[" + s["location"] + "]", iComplex, -s["coeff"]])
+		# tmpSMat = []
+		# for iComplex in xrange(len(complexes)):
+		# 	c = complexes[iComplex]
+		# 	for s in c["composition"]:
+		# 		if s["coeff"] > 0:
+		# 			continue
+		# 		tmpSMat.append([s["molecule"] + ":mature[" + s["location"] + "]", iComplex, -s["coeff"]])
 
-		subIdx = self.subunit.getIndex([x[0] for x in tmpSMat])[0]
-		self.sMat = numpy.zeros((len(subIdComps), len(complexes)))
-		self.sMat[subIdx, numpy.array([x[1] for x in tmpSMat])] = numpy.array([x[2] for x in tmpSMat])
+		# subIdx = self.subunit.getIndex([x[0] for x in tmpSMat])[0]
+		# self.sMat = numpy.zeros((len(subIdComps), len(complexes)))
+		# self.sMat[subIdx, numpy.array([x[1] for x in tmpSMat])] = numpy.array([x[2] for x in tmpSMat])
 
 	# Calculate needed proteins (subunits)
 	def calcReqSubunit(self):
@@ -70,10 +70,12 @@ class Complexation(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		return
 		self.subunit.counts, self.complex.counts = self.calcNewComplexes(self.subunit.counts, self.complex.counts, 1)
 
 	# Gillespie-like algorithm
 	def calcNewComplexes(self, subunits, complexes, leap):
+		return
 		import warnings
 		warnings.simplefilter("ignore", RuntimeWarning)	# Supress warnings about divide by zero
 		# TODO: Implement tau leaping correctly
