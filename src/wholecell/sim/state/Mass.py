@@ -20,9 +20,16 @@ class Mass(wholecell.sim.state.State.State):
 	compartments = [
 		{"id": "c", "name": "Cytosol"},
 		{"id": "e", "name": "Extracellular space"},
-		{"id": "m", "name": "Membrane"}
+		{"id": "i", "name": "Inner membrane"},
+		{"id": "j", "name": "Projection"},
+		{"id": "l", "name": "Pilus"},
+		{"id": "m", "name": "Membrane"},
+		{"id": "n", "name": "Nucleoid"},
+		{"id": "o", "name": "Outer membrane"},
+		{"id": "p", "name": "Periplasm"},
+		{"id": "w", "name": "Cell wall"}
 	]
-	cIdx = {"c": 0, "e": 1, "m": 2}
+	cIdx = {"c": 0, "e": 1, "i": 2, "j": 3, "l": 4, "m": 5, "n": 6, "o": 7, "p": 8, "w": 9}
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
@@ -84,7 +91,9 @@ class Mass(wholecell.sim.state.State.State):
 		self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals["rna"]       ], mc.counts[mc.types == mc.typeVals["rna"]       ]) ) / Constants.nAvogadro * 1e15
 		self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals["protein"]   ], mc.counts[mc.types == mc.typeVals["protein"]   ]) ) / Constants.nAvogadro * 1e15
 
-		cIdxs = numpy.array([self.cIdx["c"], self.cIdx["m"]])
+		cIdxs = numpy.array([
+							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
+							self.cIdx["n"], self.cIdx["o"], self.cIdx["p"], self.cIdx["w"]])
 
 		self.cell[:] = 0
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
