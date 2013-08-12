@@ -36,6 +36,10 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 	formVals = {"nascent": 1, "mature": 0}
 	typeVals = {"metabolite": 0, "rna": 1, "protein": 2}
 
+	formValsToKeys = dict(zip(formVals.values(), formVals.keys()))
+	typeValsToKeys = dict(zip(typeVals.values(), typeVals.keys()))
+	cIdxToKeys = dict(zip(cIdx.values(), cIdx.keys()))
+
 	# Constructor
 	def __init__(self, *args, **kwargs):
 		self.meta = {
@@ -61,8 +65,9 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		self.metMediaConc = None		# Metabolite media concentration (mM)
 		self.metBiomassConc = None		# Metabolite biomass concentration (molecules/cell)
-		self.fracInitFreeNMPs = 0.03
-		self.fracInitFreeAAs = 0.001
+		self.fracInitFreeNTPs = 0.0#3
+		self.fracInitFreeAAs = 0.000#1
+		self.initialDryMass = 2.8e-13 / 1.36 + numpy.random.normal(0.0, 10e-15)# grams
 
 		self.rnaLens = None			# RNA lengths
 		self.rnaExp = None			# mature RNA expression
@@ -91,6 +96,8 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		super(MoleculeCounts, self).initialize(sim, kb)
 
 		self.complexation = sim.getProcess("Complexation")
+		self.transcription = sim.getProcess("Transcription")
+		self.translation = sim.getProcess("Translation")
 
 		# Molecule identities:
 		self.ids = \
@@ -139,6 +146,10 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
 			])[1]
 		self.idx["h2o"] = self.getIndex("H2O[c]")[1]
+		self.idx["h"] = self.getIndex("H[c]")[1]
+		self.idx["ppi"] = self.getIndex("PPI[c]")[1]
+		self.idx["adp"] = self.getIndex("ADP[c]")[1]
+		self.idx["pi"] = self.getIndex("PI[c]")[1]
 		self.idx["tRnas"] = self.getIndex([
 			"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",
 			"serU-tRNA", "serV-tRNA", "serX-tRNA", "RNA0-302", "lysV-tRNA", "RNA0-303", "RNA0-301", "lysW-tRNA", "lysT-tRNA", "RNA0-306", "metY-tRNA",
@@ -150,7 +161,39 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 			"aspT-tRNA", "RNA0-304", "asnV-tRNA", "asnU-tRNA", "asnT-tRNA", "leuU-tRNA", "leuQ-tRNA", "leuX-tRNA", "leuV-tRNA", "leuT-tRNA",
 			"leuZ-tRNA", "leuW-tRNA", "leuP-tRNA", "cysT-tRNA"
 			])[1]
-
+		self.idx["rRnas"] = self.getIndex([
+			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
+			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
+			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+			])[1]
+		self.idx["rRna23Ss"] = self.getIndex([
+			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
+			])[1]
+		self.idx["rRna16Ss"] = self.getIndex([
+			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
+			])[1]
+		self.idx["rRna5Ss"] = self.getIndex([
+			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+			])[1]
+		self.idx["FeistCoreRows"], self.idx["FeistCoreCols"] = self.getIndex([
+			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+			"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
+			"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
+			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
+			"RIBFLV[c]"
+			])[1:]
+		self.vals = {}
+		self.vals["FeistCore"] = numpy.array([ # TODO: This needs to go in the KB
+			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
+			0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
+			0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
+			0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
+			0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
+			0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
+			0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
+			])
 		# Localizations
 		metLocs = numpy.array([self.cIdx[x["biomassLoc"]] if x["biomassConc"] > 0 else self.cIdx["c"] for x in kb.metabolites])
 		# metLocs = -1 * numpy.ones(len(kb.metabolites))
@@ -167,7 +210,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		))
 
 		# Composition
-		self.rnaLens = map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas)
+		self.rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas))
 		self.rnaExp = numpy.array([x["expression"] for x in kb.rnas])
 		self.rnaExp /= numpy.sum(self.rnaExp)
 		self.idx["nascentRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["nascent"]: 
@@ -182,10 +225,14 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.idx["matureMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"], validIds = [x["id"] for x in kb.rnas if x["monomerId"] != None]:
 													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
 												zip(self.types, self.forms, self.ids)))[0]
+		self.idx["matureMrnaMiscRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"], validIds = [x["rnaId"] for x in kb.genes if x["type"] in ["mRNA", "miscRNA"]]:
+													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
+												zip(self.types, self.forms, self.ids)))[0]
 
 		mons = [x for x in kb.proteins if x["monomer"] == True and x["modifiedForm"] == False]
-		self.monLens = map(lambda mon: numpy.sum(mon["aaCount"]), mons)
-		self.monExp = numpy.array([x["expression"] for x in kb.rnas if x["monomerId"] != None])
+		self.monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons))
+		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
+		self.monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
 		self.monExp /= numpy.sum(self.monExp)
 		self.idx["matureMonomers"] = self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1]
 
@@ -214,45 +261,66 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		self.counts[:] = 0
 
-		# Media metabolites
-		self.counts[self.types == self.typeVals["metabolite"], self.cIdx["e"]] = numpy.round(self.metMediaConc * self.chamberVolume * Constants.nAvogadro * 1e-3)
-
-		# Biomass metabolites
-		# TODO: Fix this initialization
-		metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
-		self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
-
+		# Take metabolite concentrations from Feist (reactants)
+		self.counts[self.idx["FeistCoreRows"], self.idx["FeistCoreCols"]] = numpy.round(self.vals["FeistCore"] * 1e-3 * Constants.nAvogadro * self.initialDryMass)
+		self.counts[self.idx["h2o"], self.cIdx["c"]] = (6.7e-13 / 1.36 + numpy.random.normal(0, 15e-15)) / self.mws[self.idx["h2o"]] * Constants.nAvogadro
+		
 		# RNA
-		self.counts[self.getIndex(["RRLA-RRNA", "RRLB-RRNA", "RRLC-RRNA", "RRLD-RRNA", "RRLE-RRNA", "RRLG-RRNA", "RRLH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
-		self.counts[self.getIndex(["RRSA-RRNA", "RRSB-RRNA", "RRSC-RRNA", "RRSD-RRNA", "RRSE-RRNA", "RRSG-RRNA", "RRSH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
-		self.counts[self.getIndex(["RRFB-RRNA", "RRFC-RRNA", "RRFD-RRNA", "RRFE-RRNA", "RRFF-RRNA", "RRFG-RRNA", "RRFH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
-		self.counts[self.idx["tRnas"], self.cIdx["c"]] = numpy.round(205000 / 1.36 / len(self.idx["tRnas"]))
-		self.counts[self.idx["matureMrna"], self.cIdx["c"]] = self.randStream.mnrnd(numpy.round(1380 / 1.36), self.rnaExp)[self.idx["matureMrna"] - self.idx["matureRna"][0]]
-		# rnaCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeNMPs) * numpy.sum(self.counts[self.idx["nmps"], self.cIdx["c"]]) / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
-		# self.counts[self.idx["nmps"], self.cIdx["c"]] = numpy.round(self.fracInitFreeNMPs * self.counts[self.idx["nmps"], self.cIdx["c"]])
-		# self.counts[self.idx["matureRna"], self.localizations[self.idx["matureRna"]].astype('int')] = rnaCnts
+		ntpsToPolym = numpy.round((1 - self.fracInitFreeNTPs) * numpy.sum(self.counts[self.idx["ntps"], self.cIdx["c"]]))
+		rnaCnts = self.randStream.mnrnd(numpy.round(ntpsToPolym / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
+		self.counts[self.idx["ntps"], self.cIdx["c"]] = numpy.round(self.fracInitFreeNTPs * self.counts[self.idx["ntps"], self.cIdx["c"]])
+		self.counts[self.idx["matureRna"], self.localizations[self.idx["matureRna"]].astype('int')] = rnaCnts
 
 		# Protein Monomers
-		self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]]] = self.randStream.mnrnd(numpy.round(2360000 / 1.36), self.monExp)
-		import ipdb
-		ipdb.set_trace()
-		# monCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeAAs) * numpy.sum(self.counts[self.idx["aas"], self.cIdx["c"]]) / (numpy.dot(self.monExp, self.monLens))), self.monExp)
-		# self.counts[self.idx["aas"], self.cIdx["c"]] = numpy.round(self.fracInitFreeAAs * self.counts[self.idx["aas"], self.cIdx["c"]])
+		aasToPolym = numpy.round((1 - self.fracInitFreeAAs) * numpy.sum(self.counts[self.idx["aas"], self.cIdx["c"]]))
+		monCnts = self.randStream.mnrnd(numpy.round(aasToPolym / (numpy.dot(self.monExp, self.monLens))), self.monExp)
+		self.counts[self.idx["aas"], self.cIdx["c"]] = numpy.round(self.fracInitFreeAAs * self.counts[self.idx["aas"], self.cIdx["c"]])
+		self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]].astype('int')] = monCnts
+
+		# Products (from having produced this cell)
+		#self.counts[self.idx["adp"], self.cIdx["c"]] += 59.81 * 1e-3 * Constants.nAvogadro * self.initialDryMass
+		#self.counts[self.idx["h"], self.cIdx["c"]] += 59.81 * 1e-3 * Constants.nAvogadro * self.initialDryMass
+		#self.counts[self.idx["pi"], self.cIdx["c"]] += 59.81 * 1e-3 * Constants.nAvogadro * self.initialDryMass
+		#self.counts[self.idx["ppi"], self.cIdx["c"]] += 0.774 * 1e-3 * Constants.nAvogadro * self.initialDryMass
+
+
+		# # Media metabolites
+		# self.counts[self.types == self.typeVals["metabolite"], self.cIdx["e"]] = numpy.round(self.metMediaConc * self.chamberVolume * Constants.nAvogadro * 1e-3)
+
+		# # Biomass metabolites
+		# # TODO: Fix this initialization
+		# metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
+		# self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
+
+		# # RNA
+		# self.counts[self.getIndex(["RRLA-RRNA", "RRLB-RRNA", "RRLC-RRNA", "RRLD-RRNA", "RRLE-RRNA", "RRLG-RRNA", "RRLH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
+		# self.counts[self.getIndex(["RRSA-RRNA", "RRSB-RRNA", "RRSC-RRNA", "RRSD-RRNA", "RRSE-RRNA", "RRSG-RRNA", "RRSH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
+		# self.counts[self.getIndex(["RRFB-RRNA", "RRFC-RRNA", "RRFD-RRNA", "RRFE-RRNA", "RRFF-RRNA", "RRFG-RRNA", "RRFH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
+		# self.counts[self.idx["tRnas"], self.cIdx["c"]] = numpy.round(205000 / 1.36 / len(self.idx["tRnas"]))
+		# self.counts[self.idx["matureMrna"], self.cIdx["c"]] = self.randStream.mnrnd(numpy.round(1380 / 1.36), self.rnaExp)[self.idx["matureMrna"] - self.idx["matureRna"][0]]
+		# # rnaCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeNMPs) * numpy.sum(self.counts[self.idx["nmps"], self.cIdx["c"]]) / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
+		# # self.counts[self.idx["nmps"], self.cIdx["c"]] = numpy.round(self.fracInitFreeNMPs * self.counts[self.idx["nmps"], self.cIdx["c"]])
+		# # self.counts[self.idx["matureRna"], self.localizations[self.idx["matureRna"]].astype('int')] = rnaCnts
+
+		# # Protein Monomers
+		# self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]]] = self.randStream.mnrnd(numpy.round(2360000 / 1.36), self.monExp)
+		# # monCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeAAs) * numpy.sum(self.counts[self.idx["aas"], self.cIdx["c"]]) / (numpy.dot(self.monExp, self.monLens))), self.monExp)
+		# # self.counts[self.idx["aas"], self.cIdx["c"]] = numpy.round(self.fracInitFreeAAs * self.counts[self.idx["aas"], self.cIdx["c"]])
 		# self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]].astype('int')] = monCnts
 
-		# Macromolecular complexation
-		c = self.complexation
+		# # Macromolecular complexation
+		# c = self.complexation
 
-		c.subunit.counts = self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)]
-		c.complex.counts = self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)]
+		# c.subunit.counts = self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)]
+		# c.complex.counts = self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)]
 
-		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1000)
-		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 100)
-		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 10)
-		c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1)
+		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1000)
+		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 100)
+		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 10)
+		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1)
 
-		self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)] = c.subunit.counts
-		self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)] = c.complex.counts
+		# self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)] = c.subunit.counts
+		# self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)] = c.complex.counts
 
 	# -- Partitioning into substates --
 
@@ -310,6 +378,9 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		absReqs = numpy.sum(reqs[:, :, tmp], axis = 2)
 		relReqs = numpy.sum(reqs[:, :, numpy.logical_not(tmp)], axis = 2)
 
+		# TODO: Remove the warnings filter or move it elsewhere
+		import warnings
+		warnings.simplefilter("ignore", RuntimeWarning)	# Supress warnings about divide by zero
 		absScale = numpy.fmax(0, numpy.minimum(numpy.minimum(self.counts, absReqs) / absReqs, 1))
 		relScale = numpy.fmax(0, numpy.maximum(0, self.counts - absReqs) / relReqs)
 		relScale[relReqs == 0] = 0
@@ -414,7 +485,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		# Create table
 		# TODO: Add compression options (using filters)
-		t = h5file.create_table(h5file.root, self.meta["id"], d, title = self.meta["name"], filters = tables.Filters(complevel = 9, complib="zlib"))
+		t = h5file.create_table(h5file.root, self.meta["id"], d, title = self.meta["name"], filters = tables.Filters(complevel = 9, complib="zlib"), expectedrows = sim.lengthSec * self.counts.shape[0] * self.counts.shape[1])
 
 		# The following lines make querying much faster, but make simulation run-time considerably slower
 		# t.cols.id.create_index()
@@ -430,14 +501,24 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		t = h5file.get_node("/", self.meta["id"])
 		entry = t.row
 
+		idsToTrack = [
+			"ATP", "CTP", "GTP", "UTP",
+			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",  "LEU-L",
+			"LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
+			"EG10893-MONOMER", "RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER",
+			"EG10893_RNA", "EG10894_RNA", "EG10895_RNA", "EG10896_RNA"
+		]
+
 		for i in xrange(self.counts.shape[0]):
+			if self.ids[i] not in idsToTrack:
+				continue
 			for j in xrange(self.counts.shape[1]):
 				entry["time"] = simTime
 				entry["id"] = self.ids[i]
-				entry["form"] = [key for key,val in self.formVals.iteritems() if val == self.forms[i]][0] # TODO: maybe create another dictionary to avoid this
-				entry["type"] = [key for key,val in self.typeVals.iteritems() if val == self.types[i]][0] # TODO: maybe create another dictionary to avoid this
+				entry["form"] = self.formValsToKeys[self.forms[i]] # TODO: maybe create another dictionary to avoid this
+				entry["type"] = self.typeValsToKeys[self.types[i]] # TODO: maybe create another dictionary to avoid this
 				# entry["name"] = self.names[i].encode("ascii", "ignore")
-				entry["compartment"] = [key for key,val in self.cIdx.iteritems() if val == j][0]
+				entry["compartment"] = self.cIdxToKeys[j]
 				entry["counts"] = self.counts[i, j]
 				entry["requested"] = self.requestedCounts[i, j]
 				entry.append()
