@@ -30,7 +30,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.enzyme = None
 
 		# Constants
-		self.cellCycleLength = 9 * 3600		# s
+		self.cellCycleLength = 1 * 3600		# s
 		self.elngRate = 50					# nt/s
 		self.rnaLens = None					# RNA lengths
 		self.rnaNtCounts = None				# RNA nucleotide counts [nt x RNA] <-- TODO: Check this
@@ -42,8 +42,10 @@ class Transcription(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Transcription, self).initialize(sim, kb)
 
+		mc = sim.getState("MoleculeCounts")
+
 		# Metabolites
-		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, [
+		self.metabolite = mc.addPartition(self, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
 			], self.calcReqMetabolites)
@@ -54,22 +56,37 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
 
 		# RNA
-		self.rna = sim.getState("MoleculeCounts").addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
+		self.rna = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
 		self.rnaNtCounts = numpy.array([x["ntCount"] for x in kb.rnas])
 		self.rnaLens = numpy.sum(self.rnaNtCounts, axis = 1)
-		self.rnaSynthProb =  numpy.array([x["expression"] for x in kb.rnas]) * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
-		self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
+		# self.rnaSynthProb = mc.rnaExp * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
+		# self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX:mature[c]"], self.calcReqEnzyme)
-		self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX:mature[c]"])[0]
+		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX:mature[c]"], self.calcReqEnzyme)
+		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX:mature[c]"])[0]
+		self.enzyme = mc.addPartition(self, [
+			"EG10893-MONOMER", "RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
+			], self.calcReqEnzyme)
+		self.enzyme.idx["rpoA"] = self.enzyme.getIndex(["EG10893-MONOMER"])[0]
+		self.enzyme.idx["rpoB"] = self.enzyme.getIndex(["RPOB-MONOMER"])[0]
+		self.enzyme.idx["rpoC"] = self.enzyme.getIndex(["RPOC-MONOMER"])[0]
+		self.enzyme.idx["rpoD"] = self.enzyme.getIndex(["RPOD-MONOMER"])[0]
+
+	def calcRnaps(self, counts):
+		return numpy.min((	numpy.floor(numpy.sum(counts[self.enzyme.idx["rpoA"]]) / 2),
+							numpy.sum(counts[self.enzyme.idx["rpoB"]]),
+							numpy.sum(counts[self.enzyme.idx["rpoC"]]),
+							numpy.sum(counts[self.enzyme.idx["rpoD"]])
+						))
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):
 		val = numpy.zeros(self.metabolite.fullCounts.shape)
 
 		val[self.metabolite.idx["ntps"]] = numpy.min([
-			self.enzyme.fullCounts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec,		# Polymerization by all available RNA Polymerases
+			self.calcRnaps(self.enzyme.fullCounts) * self.elngRate * self.timeStepSec,
+			# self.enzyme.fullCounts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec,		# Polymerization by all available RNA Polymerases
 			4 * numpy.min(self.metabolite.fullCounts[self.metabolite.idx["ntps"]])						# Limited by scarcest NTP
 			]) / 4
 
@@ -89,11 +106,10 @@ class Transcription(wholecell.sim.process.Process.Process):
 		# Total synthesis rate
 		totRate = numpy.minimum(
 			numpy.sum(self.metabolite.counts[self.metabolite.idx["ntps"]]),								# NTP Limitation
-			self.enzyme.counts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec			# Polymerization by all available RNA Polymerases
+			# self.enzyme.counts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec			# Polymerization by all available RNA Polymerases
+			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec
 			) / numpy.dot(self.rnaLens, self.rnaSynthProb)												# Normalize by expected NTP usage
 
-		import ipdb
-		ipdb.set_trace()
 		# Gillespie-like algorithm
 		t = 0
 		while True:
