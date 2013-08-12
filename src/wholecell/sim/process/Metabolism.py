@@ -34,6 +34,8 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		self.metabolite = None
 		self.enzyme = None
 		self.mass = None
+		self.mc = None
+		self.time = None
 
 		# Constants
 		self.avgCellInitMass = 13.1						# fg
@@ -65,21 +67,36 @@ class Metabolism(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Metabolism, self).initialize(sim, kb)
 
+		self.mass = sim.getState("Mass")
+		self.mc = sim.getState("MoleculeCounts")
+		self.time = sim.getState("Time")
+
 		bioIds = []
 		bioConc = []
 
 		for m in kb.metabolites:
-			if m["biomassConc"] > 0:
+			if m["biomassConc"] != 0:
 				bioIds.append("%s:%s[%s]" % (m["id"], "mature", m["biomassLoc"]))
-				bioConc.append(self.timeStepSec * m["biomassConc"] / self.cellCycleLen) # Number of molecules to produce each time step
+				bioConc.append(m["biomassConc"]) # Number of molecules to produce each time step
 
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = numpy.array(bioConc)
 
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
+		self.metabolite.idx["atpHydrolysis"] = self.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
 		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
 		self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
-		self.bioProd = bioConc
+		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
+
+		self.metabolite.idx["FeistCoreRows"], self.metabolite.idx["FeistCoreCols"] = self.metabolite.getIndex([
+			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+			"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
+			"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
+			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
+			"RIBFLV[c]"
+			])[1:]
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self):
@@ -94,8 +111,17 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		from wholecell.util.Constants import Constants
+		dm = numpy.zeros(self.metabolite.counts.shape)
+		atpm = numpy.zeros(self.metabolite.counts.shape)
+		atpm[self.metabolite.idx["ntps"][0]] = 12.4
+		noise = numpy.random.multivariate_normal(numpy.zeros(self.mc.vals["FeistCore"].size), numpy.diag(self.mc.vals["FeistCore"] / 100.))
+		dm[self.metabolite.idx["FeistCoreRows"]] = numpy.round((self.mc.vals["FeistCore"] + atpm[self.metabolite.idx["FeistCoreRows"]] + noise ) * 1e-3 * Constants.nAvogadro * self.mc.initialDryMass) * numpy.exp(numpy.log(2) / self.cellCycleLen * self.time.value) * (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
+		# import ipdb
+		# ipdb.set_trace()
+		print "NTP production: %s" % str(dm[self.metabolite.idx["ntps"]])
 		self.metabolite.counts = self.randStream.stochasticRound(
-			self.metabolite.counts + self.bioProd
+			self.metabolite.counts + dm
 			)
 
 		# Unaccounted energy consumption
