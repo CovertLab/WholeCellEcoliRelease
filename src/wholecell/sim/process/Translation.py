@@ -44,7 +44,7 @@ class Translation(wholecell.sim.process.Process.Process):
 		# Metabolites
 		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, [
 				"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-				"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+				"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 				#"FMET[c]", # TODO: Re-add
 				# "GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
 				"ATP[c]", "ADP[c]", "PI[c]",  "H2O[c]", "H[c]"
@@ -52,7 +52,7 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		self.metabolite.idx["aas"] = self.metabolite.getIndex([
 			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 			])[0]
 		self.metabolite.idx["atp"] = self.metabolite.getIndex(["ATP[c]"])[0]
 		self.metabolite.idx["adp"] = self.metabolite.getIndex(["ADP[c]"])[0]
@@ -62,7 +62,7 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# mRNA, protein monomer
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
-		monomers = [x for x in kb.proteins if x["monomer"] == True]
+		monomers = [x for x in kb.proteins if x["monomer"] == True and x["modifiedForm"] == False]
 		self.mrna = sim.getState("MoleculeCounts").addPartition(self,[x["id"] + ":mature[c]" for x in mrnas], self.calcReqMrna)
 		self.protein = sim.getState("MoleculeCounts").addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
 		self.proteinAaCounts = numpy.array([x["aaCount"] for x in monomers])
@@ -73,7 +73,7 @@ class Translation(wholecell.sim.process.Process.Process):
 		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, [
 			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
 			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-			"RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
 			], self.calcReqEnzyme)
 		self.enzyme.idx["23S"] = self.enzyme.getIndex([
 			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]"
@@ -120,15 +120,15 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# Total synthesis rate
 		proteinSynthProb = self.mrna.counts / numpy.sum(self.mrna.counts)
-		totRate = 1 / numpy.dot(self.proteinLens, self.proteinSynthProb) * numpy.min([					# Normalize by average protein length
+		totRate = 1 / numpy.dot(self.proteinLens, proteinSynthProb) * numpy.min([					# Normalize by average protein length
 			numpy.sum(self.metabolite.counts[self.metabolite.idx["aas"]]),								# Amino acid limitation
 			numpy.sum(self.metabolite.counts[self.metabolite.idx["atp"]]) / 2,							# GTP (energy) limitation
 			self.calcRibosomes(self.enzyme.counts) * self.elngRate * self.timeStepSec
 			# self.enzyme.counts[self.enzyme.idx["ribosome70S"]] * self.elngRate * self.timeStepSec		# Ribosome capacity
 			])
 
-		import ipdb
-		ipdb.set_trace()
+
+
 		# Gillespie-like algorithm
 		t = 0
 		while True:
@@ -138,7 +138,7 @@ class Translation(wholecell.sim.process.Process.Process):
 				break
 
 			# Check if sufficient metabolic resources to make protein
-			newIdx = numpy.where(self.randStream.mnrnd(1, self.proteinSynthProb))[0]
+			newIdx = numpy.where(self.randStream.mnrnd(1, proteinSynthProb))[0]
 			if \
 				numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]) or \
 				2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["atp"]] or \
@@ -146,7 +146,7 @@ class Translation(wholecell.sim.process.Process.Process):
 					break
 
 			# Update metabolites
-			self.metabolite.counts[self.metabolite.idx["aas"]] -= self.proteinAaCounts[newIdx, :]
+			self.metabolite.counts[self.metabolite.idx["aas"]] -= self.proteinAaCounts[newIdx, :].reshape(-1)
 			self.metabolite.counts[self.metabolite.idx["h2o"]] += self.proteinLens[newIdx] - 1
 
 			self.metabolite.counts[self.metabolite.idx["atp"]] -= 2 * self.proteinLens[newIdx]
