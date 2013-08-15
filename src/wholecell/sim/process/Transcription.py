@@ -110,10 +110,18 @@ class Transcription(wholecell.sim.process.Process.Process):
 			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec
 			) / numpy.dot(self.rnaLens, self.rnaSynthProb)												# Normalize by expected NTP usage
 
+		print "Transcription totRate: %0.3f" % (totRate)
+		print "Transcription ntps: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
+		print "Transcription rnapActivity: %d" % int(self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec)
+		print "Transcription avgRnaLen: %0.1f" % numpy.dot(self.rnaLens, self.rnaSynthProb)
+		newRnas = 0
+		ntpsUsed = numpy.zeros(4)
+		self.metabolite.parentState.tcNtpUsage = numpy.zeros(4)
 		# Gillespie-like algorithm
 		t = 0
 		while True:
 			# Choose time step
+			tPrev = t
 			t -= numpy.log(self.randStream.rand()) / totRate
 			if t > self.timeStepSec:
 				break
@@ -123,13 +131,21 @@ class Transcription(wholecell.sim.process.Process.Process):
 			if \
 				numpy.any(self.rnaNtCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["ntps"]]) or \
 				self.metabolite.counts[self.metabolite.idx["h2o"]] < 1:
-					break
+					t = tPrev
+					continue
 
 			# Update metabolites
 			self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 			self.metabolite.counts[self.metabolite.idx["h2o"]] -= 1
 			self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens[newIdx]
 			self.metabolite.counts[self.metabolite.idx["h"]] += 1
+			ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+			self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 
 			# Increment RNA
 			self.rna.counts[newIdx] += 1
+			newRnas += 1
+
+		print "Transcription newRnas: %d" % newRnas
+		print "Transcription ntpsUsed: %s" % str(ntpsUsed)
+		print "Transcription numActiveRnaps: %d" % int(numpy.sum(ntpsUsed) / self.elngRate / self.timeStepSec)
