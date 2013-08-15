@@ -114,8 +114,8 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		from wholecell.util.Constants import Constants
 		dm = numpy.zeros(self.metabolite.counts.shape)
 		atpm = numpy.zeros(self.metabolite.counts.shape)
-		atpm[self.metabolite.idx["ntps"][0]] = 12.4
-		noise = numpy.random.multivariate_normal(numpy.zeros(self.mc.vals["FeistCore"].size), numpy.diag(self.mc.vals["FeistCore"] / 100.))
+		atpm[self.metabolite.idx["ntps"][0]] = 0
+		noise = self.randStream.multivariate_normal(numpy.zeros(self.mc.vals["FeistCore"].size), numpy.diag(self.mc.vals["FeistCore"] / 1000.))
 		dm[self.metabolite.idx["FeistCoreRows"]] = numpy.round((self.mc.vals["FeistCore"] + atpm[self.metabolite.idx["FeistCoreRows"]] + noise ) * 1e-3 * Constants.nAvogadro * self.mc.initialDryMass) * numpy.exp(numpy.log(2) / self.cellCycleLen * self.time.value) * (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
 		# import ipdb
 		# ipdb.set_trace()
