@@ -77,6 +77,12 @@ class randStream(object):
 	def binornd(self, n, p, size = None):
 		return self.randStream.binomial(n, p, size)
 
+	def normal(self, loc = 0.0, scale = 1.0 , size = None):
+		return self.randStream.normal(loc, scale, size)
+
+	def multivariate_normal(self, mean, cov, size = None):
+		return self.randStream.multivariate_normal(mean, cov, size)
+
 	def randsample(self, n, k, replacement = False, w = None):
 		k = numpy.array(k, dtype = numpy.int)
 		if k.size != 1:
