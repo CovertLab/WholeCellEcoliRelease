@@ -65,9 +65,9 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		self.metMediaConc = None		# Metabolite media concentration (mM)
 		self.metBiomassConc = None		# Metabolite biomass concentration (molecules/cell)
-		self.fracInitFreeNTPs = 0.0#3
-		self.fracInitFreeAAs = 0.000#1
-		self.initialDryMass = 2.8e-13 / 1.36 + numpy.random.normal(0.0, 10e-15)# grams
+		self.fracInitFreeNTPs = 0.0015
+		self.fracInitFreeAAs = 0.001
+		self.initialDryMass = 2.8e-13 / 1.36 # grams
 
 		self.rnaLens = None			# RNA lengths
 		self.rnaExp = None			# mature RNA expression
@@ -77,6 +77,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		# Dynamical properties
 		self.counts = None	# Molecule counts (molecules x compartments)
+		self.tcNtpUsage = None
 
 		# -- Partitioning --
 		# Used by parent
@@ -141,6 +142,7 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.idx["ntps"] = self.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[1]
 		self.idx["ndps"] = self.getIndex(["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"])[1]
 		self.idx["nmps"] = self.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[1]
+		self.idx["dntps"] = self.getIndex(["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"])[1]
 		self.idx["aas"] = self.getIndex([
 			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
 			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
@@ -242,6 +244,8 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		self.metMediaConc = numpy.array([x["mediaConc"] for x in kb.metabolites])
 		self.metBiomassConc = numpy.array([numpy.maximum(x["biomassConc"], 0) if x["id"] != "ATP" else x["biomassConc"] * 0.003 for x in kb.metabolites])
 
+		self.tcNtpUsage = numpy.zeros(4)
+
 	# Allocate memory
 	def allocate(self):
 		super(MoleculeCounts, self).allocate()
@@ -259,11 +263,13 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 	def calcInitialConditions(self):
 		from wholecell.util.Constants import Constants
 
+		self.initialDryMass += self.randStream.normal(0.0, 1e-15)
+
 		self.counts[:] = 0
 
 		# Take metabolite concentrations from Feist (reactants)
 		self.counts[self.idx["FeistCoreRows"], self.idx["FeistCoreCols"]] = numpy.round(self.vals["FeistCore"] * 1e-3 * Constants.nAvogadro * self.initialDryMass)
-		self.counts[self.idx["h2o"], self.cIdx["c"]] = (6.7e-13 / 1.36 + numpy.random.normal(0, 15e-15)) / self.mws[self.idx["h2o"]] * Constants.nAvogadro
+		self.counts[self.idx["h2o"], self.cIdx["c"]] = (6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self.mws[self.idx["h2o"]] * Constants.nAvogadro
 		
 		# RNA
 		ntpsToPolym = numpy.round((1 - self.fracInitFreeNTPs) * numpy.sum(self.counts[self.idx["ntps"], self.cIdx["c"]]))
@@ -494,6 +500,19 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		# Store units as metadata
 		t.attrs.counts_units = self.meta["units"]["counts"]
 
+		d = {
+			"time": tables.Int64Col(),
+			"atp": tables.Int64Col(),
+			"ctp": tables.Int64Col(),
+			"gtp": tables.Int64Col(),
+			"utp": tables.Int64Col()
+		}
+		t = h5file.create_table(h5file.root, "tcNtpUsage", d, title = "Transcription NTP usage", filters = tables.Filters(complevel = 9, complib="zlib"), expectedrows = sim.lengthSec * self.counts.shape[0] * self.counts.shape[1])
+		t.attrs.atp_units = "counts"
+		t.attrs.ctp_units = "counts"
+		t.attrs.gtp_units = "counts"
+		t.attrs.utp_units = "counts"
+
 	def pytablesAppend(self, h5file, sim):
 		import tables
 
@@ -523,4 +542,12 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 				entry["requested"] = self.requestedCounts[i, j]
 				entry.append()
 
+		t.flush()
+
+		t = h5file.get_node("/", "tcNtpUsage")
+		entry = t.row
+
+		entry["time"] = simTime
+		entry["atp"], entry["ctp"], entry["gtp"], entry["utp"] = self.tcNtpUsage
+		entry.append()
 		t.flush()
