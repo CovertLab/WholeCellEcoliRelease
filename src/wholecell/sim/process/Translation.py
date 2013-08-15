@@ -98,7 +98,7 @@ class Translation(wholecell.sim.process.Process.Process):
 			numpy.sum(self.metabolite.fullCounts[self.metabolite.idx["aas"]])								# Amino acid limitation
 			])
 		val[self.metabolite.idx["aas"]] = elng / self.metabolite.idx["aas"].size
-		val[numpy.array([self.metabolite.idx["atp"], self.metabolite.idx["h2o"]])] = 4 * 2 * elng
+		# val[numpy.array([self.metabolite.idx["atp"], self.metabolite.idx["h2o"]])] = 4 * 2 * elng
 		return val
 
 	# Calculate needed mRNA
@@ -122,12 +122,13 @@ class Translation(wholecell.sim.process.Process.Process):
 		proteinSynthProb = self.mrna.counts / numpy.sum(self.mrna.counts)
 		totRate = 1 / numpy.dot(self.proteinLens, proteinSynthProb) * numpy.min([					# Normalize by average protein length
 			numpy.sum(self.metabolite.counts[self.metabolite.idx["aas"]]),								# Amino acid limitation
-			numpy.sum(self.metabolite.counts[self.metabolite.idx["atp"]]) / 2,							# GTP (energy) limitation
+			# numpy.sum(self.metabolite.counts[self.metabolite.idx["atp"]]) / 2,							# GTP (energy) limitation
 			self.calcRibosomes(self.enzyme.counts) * self.elngRate * self.timeStepSec
 			# self.enzyme.counts[self.enzyme.idx["ribosome70S"]] * self.elngRate * self.timeStepSec		# Ribosome capacity
 			])
 
-
+		print "Translation totRate: %0.3f" % (totRate)
+		newProts = 0
 
 		# Gillespie-like algorithm
 		t = 0
@@ -140,20 +141,23 @@ class Translation(wholecell.sim.process.Process.Process):
 			# Check if sufficient metabolic resources to make protein
 			newIdx = numpy.where(self.randStream.mnrnd(1, proteinSynthProb))[0]
 			if \
-				numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]) or \
-				2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["atp"]] or \
-				2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["h2o"]]:
+				numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]):
+				# numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]) or \
+				# 2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["atp"]] or \
+				# 2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["h2o"]]:
 					break
 
 			# Update metabolites
 			self.metabolite.counts[self.metabolite.idx["aas"]] -= self.proteinAaCounts[newIdx, :].reshape(-1)
-			self.metabolite.counts[self.metabolite.idx["h2o"]] += self.proteinLens[newIdx] - 1
+			# self.metabolite.counts[self.metabolite.idx["h2o"]] += self.proteinLens[newIdx] - 1
 
-			self.metabolite.counts[self.metabolite.idx["atp"]] -= 2 * self.proteinLens[newIdx]
-			self.metabolite.counts[self.metabolite.idx["h2o"]] -= 2 * self.proteinLens[newIdx]
-			self.metabolite.counts[self.metabolite.idx["adp"]] += 2 * self.proteinLens[newIdx]
-			self.metabolite.counts[self.metabolite.idx["pi"]] += 2 * self.proteinLens[newIdx]
-			self.metabolite.counts[self.metabolite.idx["h"]] += 2 * self.proteinLens[newIdx]
+			# self.metabolite.counts[self.metabolite.idx["atp"]] -= 2 * self.proteinLens[newIdx]
+			# self.metabolite.counts[self.metabolite.idx["h2o"]] -= 2 * self.proteinLens[newIdx]
+			# self.metabolite.counts[self.metabolite.idx["adp"]] += 2 * self.proteinLens[newIdx]
+			# self.metabolite.counts[self.metabolite.idx["pi"]] += 2 * self.proteinLens[newIdx]
+			# self.metabolite.counts[self.metabolite.idx["h"]] += 2 * self.proteinLens[newIdx]
 
 			# Increment protein monomer
 			self.protein.counts[newIdx] += 1
+			newProts += 1
+		print "Translation newProts: %d" % newProts
