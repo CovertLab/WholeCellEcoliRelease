@@ -131,6 +131,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		# Make copy numbers positive
 		self.metabolite.counts = numpy.maximum(0, self.metabolite.counts)
+		print "END METABOLISM"
 
 	def calcGrowthRate(self, bounds):
 		growth = 1.0 / self.cellCycleLen
