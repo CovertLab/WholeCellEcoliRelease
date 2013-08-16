@@ -103,38 +103,45 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# Total synthesis rate
-		totRate = numpy.minimum(
-			numpy.sum(self.metabolite.counts[self.metabolite.idx["ntps"]]),								# NTP Limitation
-			# self.enzyme.counts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec			# Polymerization by all available RNA Polymerases
-			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec
-			) / numpy.dot(self.rnaLens, self.rnaSynthProb)												# Normalize by expected NTP usage
+		print "TRANSCRIPTION"
+		enzLimit = numpy.min([
+			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec,
+			1.1 * 4 * numpy.min(self.metabolite.counts[self.metabolite.idx["ntps"]])
+			])
 
-		print "Transcription totRate: %0.3f" % (totRate)
+		print "Transcription enzLimit: %0.3f" % (enzLimit)
 		print "Transcription ntps: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
-		print "Transcription rnapActivity: %d" % int(self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec)
-		print "Transcription avgRnaLen: %0.1f" % numpy.dot(self.rnaLens, self.rnaSynthProb)
+		import sys
+		sys.stdout.flush()
+
 		newRnas = 0
 		ntpsUsed = numpy.zeros(4)
 		self.metabolite.parentState.tcNtpUsage = numpy.zeros(4)
-		# Gillespie-like algorithm
-		t = 0
-		while True:
-			# Choose time step
-			tPrev = t
-			t -= numpy.log(self.randStream.rand()) / totRate
-			if t > self.timeStepSec:
+
+		while enzLimit > 0:
+			if not numpy.any(numpy.all(self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts, axis = 1)):
 				break
 
-			# Check if sufficient metabolic resources to make RNA
-			newIdx = numpy.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
-			if \
-				numpy.any(self.rnaNtCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["ntps"]]) or \
-				self.metabolite.counts[self.metabolite.idx["h2o"]] < 1:
-					t = tPrev
-					continue
+			if not numpy.any(enzLimit > numpy.sum(self.rnaNtCounts, axis = 1)):
+				break
 
-			# Update metabolites
+			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
+			if numpy.sum(self.rnaSynthProb[numpy.all(self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts, axis = 1)]) < 1e-3:
+				break
+
+			if numpy.sum(self.rnaSynthProb[enzLimit > numpy.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
+				break
+
+			newIdx = numpy.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
+
+			if numpy.any(self.metabolite.counts[self.metabolite.idx["ntps"]] < self.rnaNtCounts[newIdx, :]):
+				continue
+
+			if enzLimit < numpy.sum(self.rnaNtCounts[newIdx, :]):
+				continue
+
+			enzLimit -= numpy.sum(self.rnaNtCounts[newIdx, :])
+
 			self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 			self.metabolite.counts[self.metabolite.idx["h2o"]] -= 1
 			self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens[newIdx]
