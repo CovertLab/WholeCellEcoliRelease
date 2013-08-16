@@ -208,7 +208,8 @@ class Fitter(object):
 
 			# NTPs (RNA)
 			# f_w = numpy.array([ 0.25375551,  0.23228423,  0.30245459,  0.21150567])
-			f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
+			f_w = numpy.array([ 0.26072671,  0.21475667,  0.32402992,  0.2004867 ])
+			# f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
 			mw_c = (mc.mws[mc.idx["ntps"]] - mc.mws[mc.idx["ppi"]])
 			mc.vals["FeistCore"][idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c
 
