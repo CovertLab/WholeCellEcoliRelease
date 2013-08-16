@@ -265,6 +265,8 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		self.initialDryMass += self.randStream.normal(0.0, 1e-15)
 
+		print "initialDryMass: %e" % self.initialDryMass
+
 		self.counts[:] = 0
 
 		# Take metabolite concentrations from Feist (reactants)
