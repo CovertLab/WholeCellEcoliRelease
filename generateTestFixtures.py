@@ -44,6 +44,7 @@ def _unpickle_method(func_name, obj, cls):
 def generateTestFixtures():
 	import wholecell.kb.KnowledgeBase
 	import wholecell.sim.Simulation
+	import wholecell.util.Fitter
 
 	copy_reg.pickle(types.MethodType, _pickle_method, _unpickle_method)
 
@@ -59,5 +60,6 @@ def generateTestFixtures():
 	# Construct simulation
 	sim = wholecell.sim.Simulation.Simulation(kb)
 	sim.setOptions({"seed": 1})
+	wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
 	sim.calcInitialConditions()
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
