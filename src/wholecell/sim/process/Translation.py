@@ -127,8 +127,9 @@ class Translation(wholecell.sim.process.Process.Process):
 			# self.enzyme.counts[self.enzyme.idx["ribosome70S"]] * self.elngRate * self.timeStepSec		# Ribosome capacity
 			])
 
-		print "Translation totRate: %0.3f" % (totRate)
+		# print "Translation totRate: %0.3f" % (totRate)
 		newProts = 0
+		aasUsed = numpy.zeros(21)
 
 		# Gillespie-like algorithm
 		t = 0
@@ -160,4 +161,8 @@ class Translation(wholecell.sim.process.Process.Process):
 			# Increment protein monomer
 			self.protein.counts[newIdx] += 1
 			newProts += 1
-		print "Translation newProts: %d" % newProts
+			aasUsed += self.proteinAaCounts[newIdx, :].reshape(-1)
+		self.aasUsed = aasUsed
+		# print "Translation newProts: %d" % newProts
+		# print "Translation aasUsed: %s" % str(aasUsed)
+		# print "Translation numActiveRibs (total): %d (%d)" % (int(numpy.sum(aasUsed) / self.elngRate / self.timeStepSec), int(self.calcRibosomes(self.enzyme.counts)))
