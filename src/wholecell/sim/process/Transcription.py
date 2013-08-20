@@ -103,16 +103,16 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		print "TRANSCRIPTION"
+	#	print "TRANSCRIPTION"
 		enzLimit = numpy.min([
 			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec,
 			1.1 * 4 * numpy.min(self.metabolite.counts[self.metabolite.idx["ntps"]])
 			])
 
-		print "Transcription enzLimit: %0.3f" % (enzLimit)
-		print "Transcription ntps: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
-		import sys
-		sys.stdout.flush()
+	#	print "Transcription enzLimit: %0.3f" % (enzLimit)
+	#	print "Transcription ntps: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
+	#	import sys
+	#	sys.stdout.flush()
 
 		newRnas = 0
 		ntpsUsed = numpy.zeros(4)
@@ -135,10 +135,10 @@ class Transcription(wholecell.sim.process.Process.Process):
 			newIdx = numpy.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
 
 			if numpy.any(self.metabolite.counts[self.metabolite.idx["ntps"]] < self.rnaNtCounts[newIdx, :]):
-				continue
+				break
 
 			if enzLimit < numpy.sum(self.rnaNtCounts[newIdx, :]):
-				continue
+				break
 
 			enzLimit -= numpy.sum(self.rnaNtCounts[newIdx, :])
 
@@ -152,7 +152,8 @@ class Transcription(wholecell.sim.process.Process.Process):
 			# Increment RNA
 			self.rna.counts[newIdx] += 1
 			newRnas += 1
+		# print "%d" % enzLimit
 
-		print "Transcription newRnas: %d" % newRnas
-		print "Transcription ntpsUsed: %s" % str(ntpsUsed)
-		print "Transcription numActiveRnaps: %d" % int(numpy.sum(ntpsUsed) / self.elngRate / self.timeStepSec)
+#		print "Transcription newRnas: %d" % newRnas
+#		print "Transcription ntpsUsed: %s" % str(ntpsUsed)
+#		print "Transcription numActiveRnaps (total): %d (%d)" % (int(numpy.sum(ntpsUsed) / self.elngRate / self.timeStepSec), int(self.calcRnaps(self.enzyme.counts)))
