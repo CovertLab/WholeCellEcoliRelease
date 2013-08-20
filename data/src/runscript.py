@@ -1828,7 +1828,7 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'promoters.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Absolute +1 Position', 'Sigma', 'Direction', 'Component of'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Absolute +1 Position', 'Sigma', 'Direction', 'Component of'])
 		
 		keys = promoterDict.keys()
 		keys.sort()
@@ -1840,7 +1840,7 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'terminators.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Left', 'Right', 'Rho Dependent', 'Component of'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Left', 'Right', 'Rho Dependent', 'Component of'])
 		
 		keys = terminatorDict.keys()
 		keys.sort()
@@ -1852,7 +1852,7 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'transcriptionUnits.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Left', 'Right', 'Direction', 'Genes', 'Promoter', 'Terminators'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Left', 'Right', 'Direction', 'Genes', 'Promoter', 'Terminators'])
 		
 		keys = transcriptionUnitDict.keys()
 		keys.sort()

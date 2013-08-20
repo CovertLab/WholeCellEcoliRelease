@@ -1,4 +1,4 @@
-frameId	Name	Left	Right	Direction	Genes	Promoter	Terminators
+Frame ID	Name	Left	Right	Direction	Genes	Promoter	Terminators
 TU-8381	spy	1823081	1823712	-	"[""G6939""]"	PM-8764	"[""SPY-TERMINATOR""]"
 TU-8382	ycaC	944152	944780	-	"[""EG11241""]"	PM_WC-363	"[""TERM_WC-2659""]"
 TU-8383	yfeKS	2535337	2536507	+	"[""G7261"", ""G7260""]"	PM-8766	"[""TERM_WC-3162""]"
