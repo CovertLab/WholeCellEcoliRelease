@@ -160,3 +160,8 @@ class Test_Transcription(unittest.TestCase):
 		if comm.rank == 0:
 			allNtpUsage = numpy.dstack([x.reshape(ntpUsage.shape) for x in numpy.split(allNtpUsage.reshape(-1), allSeeds.size)])
 			allRnaProduction = numpy.dstack([x.reshape(rnaProduction.shape) for x in numpy.split(allRnaProduction.reshape(-1), allSeeds.size)])
+			
+			# Check for proper assembly of the gathered data
+			# (Check that it's not incorrect, not necessarily guaranteed to be correct)
+			self.assertTrue(numpy.all(allNtpUsage[:, :, :mySeeds.size] == myNtpUsage))
+			self.assertTrue(numpy.all(allRnaProduction[:, :, :mySeeds.size] == myRnaProduction))
