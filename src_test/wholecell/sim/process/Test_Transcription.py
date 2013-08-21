@@ -160,9 +160,3 @@ class Test_Transcription(unittest.TestCase):
 		if comm.rank == 0:
 			allNtpUsage = numpy.dstack([x.reshape(ntpUsage.shape) for x in numpy.split(allNtpUsage.reshape(-1), allSeeds.size)])
 			allRnaProduction = numpy.dstack([x.reshape(rnaProduction.shape) for x in numpy.split(allRnaProduction.reshape(-1), allSeeds.size)])
-			print "%f == %f" % (allRnaProduction[10, 10, 0], myRnaProduction[10, 10, 0])
-			print "%f == %f" % (allRnaProduction[10, 50, 3], myRnaProduction[10, 50, 3])
-			print "%f == %f" % (allRnaProduction[-1, 50, 2], myRnaProduction[-1, 50, 2])
-			import ipdb
-			ipdb.set_trace()
-			numpy.all(allRnaProduction[:, :, 0:5] == myRnaProduction)
