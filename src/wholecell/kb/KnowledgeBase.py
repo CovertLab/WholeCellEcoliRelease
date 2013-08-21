@@ -21,6 +21,7 @@ import Bio.Alphabet.IUPAC
 import Bio.SeqUtils.ProtParam
 import re
 import numpy
+import ipdb
 
 class KnowledgeBase(object):
 	""" KnowledgeBase """
@@ -53,6 +54,9 @@ class KnowledgeBase(object):
 		self.createModifiedForms()
 		self.loadComplexes()
 		self.loadReactions()
+
+		# Validate data
+		#self.validateFrameId()
 
 	def loadCompartments(self):
 		fileName = self.dataFileDir + os.sep + "locations.csv"
@@ -609,3 +613,38 @@ class KnowledgeBase(object):
 			return vMax / 60.0
 		else:
 			raise Exception, "Invalid kCat units: %s." % (units)
+
+	def validateFrameId(self):
+		# Validates that all frameid's are unique
+		frameIds = []
+		fileNames = []
+		self.getFrameIds('genes.csv', frameIds, fileNames)
+		self.getFrameIds('locations.csv', frameIds, fileNames)
+		self.getFrameIds('metabolites.csv', frameIds, fileNames)
+		self.getFrameIds('promoters.csv', frameIds, fileNames)
+		self.getFrameIds('proteinComplexes_modified.csv', frameIds, fileNames)
+		self.getFrameIds('proteinComplexes.csv', frameIds, fileNames)
+		self.getFrameIds('proteinMonomers_modified.csv', frameIds, fileNames)
+		self.getFrameIds('proteinMonomers.csv', frameIds, fileNames)
+		self.getFrameIds('reactions.csv', frameIds, fileNames)
+		self.getFrameIds('rna_modified.csv', frameIds, fileNames)
+		self.getFrameIds('rna.csv', frameIds, fileNames)
+		self.getFrameIds('terminators.csv', frameIds, fileNames)
+		self.getFrameIds('transcriptionUnits.csv', frameIds, fileNames)
+
+	def getFrameIds(self, fileName, frameIds, fileNames):
+		fileName = self.dataFileDir + os.sep + fileName
+		if not os.path.isfile(fileName):
+			raise Exception, "%s is missing" % fileName
+
+		with open(fileName, "r") as csvfile:
+			dr = csv.DictReader(csvfile, delimiter = "\t")
+			for row in dr:
+				if row['Frame ID'] in frameIds:
+					#raise Exception, '%s already in use as Frame ID!' % row['Frame ID']
+					print '%s already in use as Frame ID!' % row['Frame ID']
+					print 'frameid that offends is in filename %s ' % fileName
+					print 'frameid in conflict is in filename %s ' % fileNames[frameIds.index(row['Frame ID'])]
+				else:
+					frameIds.append(row['Frame ID'])
+					fileNames.append(fileName)
