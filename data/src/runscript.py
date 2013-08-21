@@ -2276,7 +2276,7 @@ def parseReactions():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
-			reactDict.pop(row[0])
+			reactDict.pop('FEIST_' + row[0])
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
@@ -2291,7 +2291,7 @@ def parseReactions():
 
 def buildReaction(rp,row):
 	reac = reaction()
-	reac.frameId = row[0]
+	reac.frameId = 'FEIST_' + row[0]
 	reac.name = row[1]
 	reac.process = 'Metabolism'
 	if row[5] != '':
