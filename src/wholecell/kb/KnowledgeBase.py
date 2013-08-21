@@ -55,7 +55,8 @@ class KnowledgeBase(object):
 		self.loadReactions()
 
 		# Validate data
-		#self.validateFrameId()
+		self.validateFrameId()
+		#self.validateMetabolite()
 
 	def loadCompartments(self):
 		fileName = self.dataFileDir + os.sep + "locations.csv"
@@ -647,3 +648,6 @@ class KnowledgeBase(object):
 				else:
 					frameIds.append(row['Frame ID'])
 					fileNames.append(fileName)
+	
+	def validateMetabolite(self):
+		pass
