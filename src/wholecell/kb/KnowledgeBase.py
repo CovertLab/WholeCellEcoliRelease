@@ -430,7 +430,7 @@ class KnowledgeBase(object):
 			dr = csv.DictReader(csvfile, fieldnames = fieldnames, delimiter = "\t")
 			
 			for row in dr:
-				if row["id"][:3] == "EX_" or row["id"][:3] == "DM_":
+				if row["id"][:9] == "FEIST_EX_" or row["id"][:9] == "FEIST_DM_":
 					continue
 				r = {
 					"id": row["id"],
