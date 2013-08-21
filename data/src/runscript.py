@@ -702,7 +702,7 @@ def parseGenes():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'genes.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life (s)', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Symbol', 'Type', 'Coordinate', 'Length', 'Direction', 'Expression', 'Half life (s)', 'Product', 'Splices', '(absolute nt position, old, new)', 'Comments'])
 
 		keys = geneDict.keys()
 		keys.sort()
@@ -776,7 +776,7 @@ def parseLocations():
 			locationDict.pop(item)
 		keys = locationDict.keys()
 		keys.sort()
-		csvwriter.writerow(['ID', 'Abbreviation'])
+		csvwriter.writerow(['Frame ID', 'Abbreviation'])
 		for key in keys:
 			csvwriter.writerow([key, abbrevDict[key]])
 
@@ -1005,7 +1005,7 @@ def parseProteinMonomers_modified():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		for row in dictreader:
-			locationAbbrevDict[row['ID']] = row['Abbreviation']
+			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
@@ -1190,7 +1190,7 @@ def parseRNA_modified():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		for row in dictreader:
-			locationAbbrevDict[row['ID']] = row['Abbreviation']
+			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
@@ -1624,7 +1624,7 @@ def parseComplexes_modified():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'locations.csv'),'rb') as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		for row in dictreader:
-			locationAbbrevDict[row['ID']] = row['Abbreviation']
+			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
 	metaboliteEcocycToFeistIdConversion = {}
@@ -1828,7 +1828,7 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'promoters.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Absolute +1 Position', 'Sigma', 'Direction', 'Component of'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Absolute +1 Position', 'Sigma', 'Direction', 'Component of'])
 		
 		keys = promoterDict.keys()
 		keys.sort()
@@ -1840,7 +1840,7 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'terminators.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Left', 'Right', 'Rho Dependent', 'Component of'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Left', 'Right', 'Rho Dependent', 'Component of'])
 		
 		keys = terminatorDict.keys()
 		keys.sort()
@@ -1852,7 +1852,7 @@ def parseTranscriptionUnits():
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'transcriptionUnits.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
-		csvwriter.writerow(['frameId', 'Name', 'Left', 'Right', 'Direction', 'Genes', 'Promoter', 'Terminators'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Left', 'Right', 'Direction', 'Genes', 'Promoter', 'Terminators'])
 		
 		keys = transcriptionUnitDict.keys()
 		keys.sort()
@@ -2276,7 +2276,7 @@ def parseReactions():
 		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
 		csvreader.next()
 		for row in csvreader:
-			reactDict.pop(row[0])
+			reactDict.pop('FEIST_' + row[0])
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
@@ -2291,7 +2291,7 @@ def parseReactions():
 
 def buildReaction(rp,row):
 	reac = reaction()
-	reac.frameId = row[0]
+	reac.frameId = 'FEIST_' + row[0]
 	reac.name = row[1]
 	reac.process = 'Metabolism'
 	if row[5] != '':

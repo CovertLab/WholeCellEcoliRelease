@@ -1,4 +1,4 @@
-ID	Name	Symbol	Type	Coordinate	Length	Direction	Expression	Half life (s)	Product	Splices	(absolute nt position, old, new)	Comments
+Frame ID	Name	Symbol	Type	Coordinate	Length	Direction	Expression	Half life (s)	Product	Splices	(absolute nt position, old, new)	Comments
 EG10001	alanine racemase 1	alr	mRNA	4263805	1080	+	0.0000171001	344.81999999999999	ALARACEBIOSYN-MONOMER	[]	[]	
 EG10002	molybdate ABC transporter - membrane subunit	modB	mRNA	795085	690	+	0.0000852854	564.0	MODB-MONOMER	[]	[]	
 EG10003	predicted inner membrane protein	cysZ	mRNA	2529485	762	+	0.0000391351	198.0	EG10003-MONOMER	[]	[]	
