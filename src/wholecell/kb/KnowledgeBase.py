@@ -350,7 +350,7 @@ class KnowledgeBase(object):
 					pNew["id"] = modForm
 					pNew["modifiedForm"] = True
 					pNew["modifiedForms"] = []
-					pNew["unmodifiedForm"] = r["id"]
+					pNew["unmodifiedForm"] = p["id"]
 					pNew["mw"] = -1.0 	# TODO: Need to get this
 					proteinsToAppend.append(pNew)
 
