@@ -21,7 +21,6 @@ import Bio.Alphabet.IUPAC
 import Bio.SeqUtils.ProtParam
 import re
 import numpy
-import itertools
 
 class KnowledgeBase(object):
 	""" KnowledgeBase """
