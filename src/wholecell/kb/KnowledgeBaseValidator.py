@@ -14,14 +14,10 @@ import os.path
 import openpyxl as xl
 import csv
 import json
-import copy
-import Bio.SeqIO
-import Bio.Seq
-import Bio.Alphabet.IUPAC
-import Bio.SeqUtils.ProtParam
-import re
 import numpy
 import itertools
+import inspect
+import ipdb
 
 class KnowledgeBase(object):
 	""" KnowledgeBase """
