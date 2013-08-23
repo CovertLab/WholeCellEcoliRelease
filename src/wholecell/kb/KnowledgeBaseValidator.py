@@ -87,26 +87,28 @@ class KnowledgeBaseValidator(object):
 						 'rnaId': [str],
 						 'seq': [str, unicode],
 						 'unmodifiedForm': [None, str]}
+		self.validateDatatype(fieldDataType, self.kb.proteins)
 
+	def validateDatatype(self, fieldDataType, objList):
 		s = ''
-		for protein in self.kb.proteins:
+		for obj in objList:
 			for fieldName in fieldDataType.iterkeys():
 				hasField = False
-				if protein.has_key(fieldName):
+				if obj.has_key(fieldName):
 					hasField = True
 				else:
-					s += '%s is missing field "%s"!\n' % (protein['id'], fieldName)
+					s += '%s is missing field "%s"!\n' % (obj['id'], fieldName)
 
 				if hasField:
 					isOk = False
 					for allowedType in fieldDataType[fieldName]:
 						if inspect.isclass(allowedType):
-							if isinstance(protein[fieldName], allowedType):
+							if isinstance(obj[fieldName], allowedType):
 								isOk = True
-						elif protein[fieldName] == allowedType:
+						elif obj[fieldName] == allowedType:
 							isOk = True
 					if not isOk:
-						s += '%s has field "%s" that is invalid with value "%s"! Has type %s requires type %s.\n' % (protein['id'], fieldName, str(protein[fieldName]), str(type(protein[fieldName])), str(fieldDataType[fieldName]))
+						s += '%s has field "%s" that is invalid with value "%s"! Has type %s requires type %s.\n' % (obj['id'], fieldName, str(obj[fieldName]), str(type(obj[fieldName])), str(fieldDataType[fieldName]))
 
 		if len(s):
 			raise Exception, s
