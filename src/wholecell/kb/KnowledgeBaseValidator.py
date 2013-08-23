@@ -26,8 +26,10 @@ class KnowledgeBaseValidator(object):
 		self.kb = knowledgeBase
 
 		# Validate datatypes
+		self.validateProteins()
 
 
+		# Other
 
 
 		# Other
