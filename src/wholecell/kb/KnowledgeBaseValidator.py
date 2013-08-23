@@ -26,6 +26,7 @@ class KnowledgeBaseValidator(object):
 		self.kb = knowledgeBase
 
 		# Validate datatypes
+		self.validateMetabolites()
 		self.validateProteins()
 
 
@@ -68,6 +69,23 @@ class KnowledgeBaseValidator(object):
 	# 			else:
 	# 				frameIds.append(row['Frame ID'])
 	# 				fileNames.append(fileName)
+
+	def validateMetabolites(self):
+		# Validate datatypes
+		fieldDataType = {'biomassConc': [float],
+						 'biomassLoc': [str],
+						 'charge7.2': [int],
+						 'comments': [str],
+						 'equivEnzIds': [None],
+						 'fakeMet': [bool],
+						 'formula7.2': [str],
+						 'formulaNeutral': [str],
+						 'id': [str, unicode],
+						 'maxExchange': [float],
+						 'mediaConc': [float],
+						 'mw7.2': [float],
+						 'name': [str]}
+		self.validateDatatype(fieldDataType, self.kb.metabolites)
 
 	def validateProteins(self):
 		# Validate datatypes
@@ -128,8 +146,5 @@ class KnowledgeBaseValidator(object):
 
 
 	# 	# Validate all reactions occur in allowed compartments
-
-	# def validateMetabolites(self):
-	# 	pass
 
 
