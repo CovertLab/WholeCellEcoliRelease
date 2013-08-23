@@ -131,6 +131,21 @@ class KnowledgeBaseValidator(object):
 		if len(s):
 			raise Exception, s
 
+
+
+		# Validate that composition has length >1 if it is a complex
+
+		# Validate that proteins have a gene that exists
+
+		# Validate that proteins have rna taht exist
+
+		# Validate that modified forms exist
+
+		# Validate that unmodified forms exist
+
+
+
+
 	# def validateMetabolicNetwork(self):
 	# 	# Validate all metabolites are used in the metabolic network
 	# 	metabolites = set([m['id'] for m in self.metabolites])
