@@ -19,8 +19,8 @@ import itertools
 import inspect
 import ipdb
 
-class KnowledgeBase(object):
-	""" KnowledgeBase """
+class KnowledgeBaseValidator(object):
+	""" KnowledgeBaseValidator """
 
 	def __init__(self, knowledgeBase):
 		self.kb = knowledgeBase
