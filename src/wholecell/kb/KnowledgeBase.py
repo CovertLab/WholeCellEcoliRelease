@@ -100,10 +100,10 @@ class KnowledgeBase(object):
 					"formula7.2": row["formula7.2"],
 					"charge7.2": int(row["charge7.2"]),
 					"mw7.2": float(row["mw7.2"]),
-					"mediaConc": 0,
-					"biomassConc": 0,
+					"mediaConc": 0.,
+					"biomassConc": 0.,
 					"biomassLoc": None,
-					"maxExchange": 0,
+					"maxExchange": 0.,
 					"fakeMet": False,
 					"equivEnzIds": None,
 					"comments": ""
