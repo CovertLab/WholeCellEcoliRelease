@@ -28,6 +28,8 @@ class KnowledgeBaseValidator(object):
 		# Validate datatypes
 		self.validateMetabolites()
 		self.validateProteins()
+		self.validateRnas()
+		self.validateGenes()
 
 
 		# Other
@@ -87,6 +89,12 @@ class KnowledgeBaseValidator(object):
 						 'name': [str]}
 		self.validateDatatype(fieldDataType, self.kb.metabolites)
 
+		# Validate that biomassLoc is actual allowed location
+
+		# Validate that equivEnzIds if they exist are actual proteins
+
+		# Validate that MW is correct
+
 	def validateProteins(self):
 		# Validate datatypes
 		fieldDataType = {'aaCount': [numpy.ndarray],
@@ -106,6 +114,103 @@ class KnowledgeBaseValidator(object):
 						 'seq': [str, unicode],
 						 'unmodifiedForm': [None, str]}
 		self.validateDatatype(fieldDataType, self.kb.proteins)
+
+		# Validate that composition has length >1 if it is a complex
+
+		# Validate that proteins have a gene that exists
+
+		# Validate that proteins have rna taht exist
+
+		# Validate that modified forms exist
+
+		# Validate that unmodified forms exist
+
+		# Validate the MW is correct and there
+
+		# validate that sequence uses correct alphabet
+
+	def validateRnas(self):
+		# Validate datatypes
+		fieldDataType = {'composition': [list],
+						 'expression': [float],
+						 'geneId': [str],
+						 'halfLife': [float],
+						 'id': [str, unicode],
+						 'location': [str],
+						 'modifiedForm': [bool],
+						 'modifiedForms': [list],
+						 'monomer': [bool],
+						 'monomerId': [None, str, unicode],
+						 'mw': [float],
+						 'name': [str],
+						 'ntCount': [numpy.ndarray],
+						 'seq': [str],
+						 'unmodifiedForm': [None, str]}
+		self.validateDatatype(fieldDataType, self.kb.rnas)
+
+		# Check that monomerId is aa legit protein id
+
+		# If it is an mRNA then it should have a monomer id
+
+		# Validate that expression is >0
+		s = ''
+		for rna in self.kb.rnas:
+			if rna['expression'] < 0:
+				s += '%s has a expression that is less than zero!\n' % rna['id']
+
+		if abs(sum(rna['expression'] for rna in self.kb.rnas) - 1.0) > 1e-8:
+			s += 'Expression does not sum to unity it sums to %s!\n' % str(exp_sum) 
+
+		# Validate that half life is >0
+		s = ''
+		for rna in self.kb.rnas:
+			if rna['halfLife'] < 0:
+				s += '%s has a half life that is less than zero!\n' % rna['id']
+
+		# Validate that location is correct and allowed
+
+		# Validate that its modified forms are actual frame ids
+
+		# Validate that it has a MW and that it is correct
+
+		# Validate that NT count is correct size
+
+		# Validate the NT count sums to lenght of sequence
+
+		# Validate that unmodified form is a legit frame id
+
+		# Validate that sequence uses correct alphabet
+
+		# Check that modified forms have no expression level
+
+		if len(s):
+			raise Exception, s
+
+	def validateGenes(self):
+		# Validate datatypes
+		fieldDataType = {'coordinate': [int],
+						 'direction': [str],
+						 'id': [str],
+						 'length': [int],
+						 'name': [str],
+						 'rnaId': [str],
+						 'seq': [str],
+						 'symbol': [str],
+						 'type': [str]}
+		self.validateDatatype(fieldDataType, self.kb.genes)
+
+		# Validate that coordinate is in range of genome
+
+		# Validate that direction is either a + or a -
+
+		# Validate that length is < length of genome
+
+		# Validate that its rnaId is a legit one
+
+		# Validate sequence alphabet and length against actual length
+
+		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
+
 
 	def validateDatatype(self, fieldDataType, objList):
 		s = ''
@@ -130,18 +235,6 @@ class KnowledgeBaseValidator(object):
 
 		if len(s):
 			raise Exception, s
-
-
-
-		# Validate that composition has length >1 if it is a complex
-
-		# Validate that proteins have a gene that exists
-
-		# Validate that proteins have rna taht exist
-
-		# Validate that modified forms exist
-
-		# Validate that unmodified forms exist
 
 
 
