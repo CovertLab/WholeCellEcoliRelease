@@ -11,8 +11,6 @@ import unittest
 import warnings
 import nose.plugins.attrib as noseAttrib
 
-from mpi4py import MPI
-
 import numpy
 import scipy.stats
 import cPickle
@@ -20,6 +18,8 @@ import os
 import matplotlib
 matplotlib.use("agg")
 from wholecell.util.Constants import Constants
+
+from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 
@@ -133,6 +133,110 @@ class Test_Transcription(unittest.TestCase):
 			V = N * tc.rnaSynthProb * (1 - tc.rnaSynthProb)
 			S = numpy.sqrt(V)
 
+			# Assert exponential increase in production of rRNA 23S
+			rrlIdxs = tc.rna.getIndex(["RRLA-RRNA:nascent", "RRLB-RRNA:nascent", "RRLC-RRNA:nascent", "RRLD-RRNA:nascent", "RRLE-RRNA:nascent", "RRLG-RRNA:nascent", "RRLH-RRNA:nascent"])[0]
+			self.assertTrue(numpy.allclose(1., numpy.mean(nProd[rrlIdxs] / E[rrlIdxs]), rtol = 0, atol = 1e-1))
+
+			# Loosely assert exponential increase in production all RNAs (this is noisy)
+			numpyHandleError = numpy.geterr()
+			numpy.seterr(divide = "ignore", invalid = "ignore")
+			self.assertTrue(scipy.stats.nanmean(nProd / E) > 0.8)
+			numpy.seterr(**numpyHandleError)
+
+		## MPI communications ##
+		# Get ready to gather values
+		if comm.rank == 0:
+			allNtpUsage = numpy.zeros(tc.metabolite.idx["ntps"].size * lengthSec * allSeeds.size)
+			allRnaProduction = numpy.zeros(tc.rna.counts.size * lengthSec * allSeeds.size)
+		else:
+			allNtpUsage = None
+			allRnaProduction = None
+
+		# Gather NTP usage values
+		recvcounts = sendcounts * ntpUsage.size
+		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(recvcounts)[:-1]])
+		comm.Gatherv(numpy.concatenate(numpy.split(myNtpUsage, mySeeds.size, axis = 2)), [allNtpUsage, recvcounts, displacements, MPI.DOUBLE])
+
+		# Gather RNA production values
+		recvcounts = sendcounts * rnaProduction.size
+		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(recvcounts)[:-1]])
+		comm.Gatherv(numpy.concatenate(numpy.split(myRnaProduction, mySeeds.size, axis = 2)), [allRnaProduction, recvcounts, displacements, MPI.DOUBLE])
+
+		# Assemble gathered values
+		if comm.rank == 0:
+			allNtpUsage = numpy.dstack([x.reshape(ntpUsage.shape) for x in numpy.split(allNtpUsage.reshape(-1), allSeeds.size)])
+			allRnaProduction = numpy.dstack([x.reshape(rnaProduction.shape) for x in numpy.split(allRnaProduction.reshape(-1), allSeeds.size)])
+			
+			# Check for proper assembly of the gathered data
+			# (Check that it's not incorrect, not necessarily guaranteed to be correct)
+			self.assertTrue(numpy.all(allNtpUsage[:, :, :mySeeds.size] == myNtpUsage))
+			self.assertTrue(numpy.all(allRnaProduction[:, :, :mySeeds.size] == myRnaProduction))
+
+	@noseAttrib.attr("rnaTotalProduction")
+	def test_total_production(self):
+		if comm.rank != 0:
+			return
+
+		sim = self.sim
+		tc = sim.getProcess("Transcription")
+		tc.rna.mws[tc.rna.mws < 0 ] = 0
+		
+		ntpCounts = 1e6
+		initEnzCnts = 960.
+		initRnaCnts = 0.
+		T_d = 3600.
+		lengthSec = int(T_d)
+
+		nSeeds = 1
+		nProc = comm.size
+		sendcounts = (nSeeds / nProc) * numpy.ones(nProc, dtype = int) + (numpy.arange(nProc, dtype = int) < nSeeds % nProc)
+		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(sendcounts)[:-1]])
+		mySeeds = numpy.zeros(sendcounts[comm.rank])
+		allSeeds = numpy.arange(nSeeds, dtype = float)
+		comm.Scatterv([allSeeds, tuple(sendcounts), tuple(displacements), MPI.DOUBLE], mySeeds)
+		print "Rank %d mySeeds: %s" % (comm.rank, str(mySeeds))
+
+		myNtpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec, mySeeds.size))
+		myRnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec, mySeeds.size))
+
+		for iterSeed in xrange(mySeeds.size):
+			seed = mySeeds.astype("int")[iterSeed]
+			print "%d" % seed
+			tc.randStream.seed = seed
+			tc.rna.counts = initRnaCnts * numpy.ones(tc.rna.counts.shape)
+
+			ntpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec))
+			rnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec))
+
+			for t in xrange(lengthSec):
+				tc.metabolite.counts[tc.metabolite.idx["ntps"]] = ntpCounts * numpy.ones(tc.metabolite.idx["ntps"].shape)
+				tc.enzyme.counts = numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t)) * numpy.ones(tc.enzyme.counts.shape)
+				tc.evolveState()
+				ntpUsage[:, t] = tc.metabolite.parentState.tcNtpUsage
+				rnaProduction[:, t] = tc.rna.counts
+
+			myNtpUsage[:, :, iterSeed] = ntpUsage
+			myRnaProduction[:, :, iterSeed] = rnaProduction
+
+			fNtpUsage = ntpUsage / numpy.sum(ntpUsage, axis = 0)
+			print "%d, %s" % (comm.rank, str(numpy.mean(fNtpUsage, axis = 1)))
+			rnaMassProduction = numpy.diff(numpy.dot(tc.rna.mws, rnaProduction / Constants.nAvogadro))
+
+			import ipdb
+			ipdb.set_trace()
+			# Assert exponential usage of metabolites
+			self.assertTrue(numpy.allclose(1., numpy.mean(numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec)), rtol = 0, atol = 6e-2))
+			self.assertTrue(numpy.allclose(1., numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
+
+			# Assert exponential increase in RNA mass
+			self.assertTrue(numpy.allclose(1., numpy.mean(rnaMassProduction[-10:]) / numpy.mean(rnaMassProduction[:10]) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
+
+			nProd = rnaProduction[:, -1]
+			N = numpy.sum(nProd)
+			E = N * tc.rnaSynthProb
+			V = N * tc.rnaSynthProb * (1 - tc.rnaSynthProb)
+			S = numpy.sqrt(V)
+
 			# Assert exponential increase in rRNA 23S counts
 			rrlIdxs = tc.rna.getIndex(["RRLA-RRNA:nascent", "RRLB-RRNA:nascent", "RRLC-RRNA:nascent", "RRLD-RRNA:nascent", "RRLE-RRNA:nascent", "RRLG-RRNA:nascent", "RRLH-RRNA:nascent"])[0]
 			self.assertTrue(numpy.allclose(1., numpy.mean(nProd[rrlIdxs] / E[rrlIdxs]), rtol = 0, atol = 1e-1))
@@ -142,26 +246,3 @@ class Test_Transcription(unittest.TestCase):
 			numpy.seterr(divide = "ignore", invalid = "ignore")
 			self.assertTrue(scipy.stats.nanmean(nProd / E) > 0.8)
 			numpy.seterr(**numpyHandleError)
-
-		if comm.rank == 0:
-			allNtpUsage = numpy.zeros(tc.metabolite.idx["ntps"].size * lengthSec * allSeeds.size)
-			allRnaProduction = numpy.zeros(tc.rna.counts.size * lengthSec * allSeeds.size)
-		else:
-			allNtpUsage = None
-			allRnaProduction = None
-
-		recvcounts = sendcounts * ntpUsage.size
-		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(recvcounts)[:-1]])
-		comm.Gatherv(numpy.concatenate(numpy.split(myNtpUsage, mySeeds.size, axis = 2)), [allNtpUsage, recvcounts, displacements, MPI.DOUBLE])
-		recvcounts = sendcounts * rnaProduction.size
-		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(recvcounts)[:-1]])
-		comm.Gatherv(numpy.concatenate(numpy.split(myRnaProduction, mySeeds.size, axis = 2)), [allRnaProduction, recvcounts, displacements, MPI.DOUBLE])
-
-		if comm.rank == 0:
-			allNtpUsage = numpy.dstack([x.reshape(ntpUsage.shape) for x in numpy.split(allNtpUsage.reshape(-1), allSeeds.size)])
-			allRnaProduction = numpy.dstack([x.reshape(rnaProduction.shape) for x in numpy.split(allRnaProduction.reshape(-1), allSeeds.size)])
-			
-			# Check for proper assembly of the gathered data
-			# (Check that it's not incorrect, not necessarily guaranteed to be correct)
-			self.assertTrue(numpy.all(allNtpUsage[:, :, :mySeeds.size] == myNtpUsage))
-			self.assertTrue(numpy.all(allRnaProduction[:, :, :mySeeds.size] == myRnaProduction))
