@@ -192,7 +192,7 @@ class KnowledgeBase(object):
 					r["location"] = self.compIdToAbbrev["CCO-CYTOSOL"]
 		
 				# TODO: Uncomment when Nick has fixed json formatting
-				r["halfLife"] = json.loads(row["halfLife"])
+				r["halfLife"] = float(json.loads(row["halfLife"]))
 				# if type(r["halfLife"]) == dict:
 				# 	if r["halfLife"]["units"] != "day":
 				# 		raise Exception, "Unknown unit!"
@@ -337,7 +337,9 @@ class KnowledgeBase(object):
 					rNew["modifiedForm"] = True
 					rNew["modifiedForms"] = []
 					rNew["unmodifiedForm"] = r["id"]
+					rNew["composition"] = []
 					rNew["mw"] = -1.0 	# TODO: Need to get this
+					rNew["expression"] = 0.
 					rnasToAppend.append(rNew)
 
 		self.rnas.extend(rnasToAppend)
