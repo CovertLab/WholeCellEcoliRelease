@@ -202,7 +202,11 @@ class Fitter(object):
 			normalize = lambda x: numpy.array(x).astype("float") / numpy.linalg.norm(x, 1)
 
 			# Amino acids (Protein)
-			f_w = normalize(numpy.sum(mc.monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
+			#f_w = normalize(numpy.sum(mc.monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
+			f_w = numpy.array([ 0.09832716,  0.05611487,  0.04021716,  0.0545386 ,  0.00908125,
+        						0.06433478,  0.04242188,  0.07794587,  0.02055925,  0.05964359,
+						        0.09432389,  0.05520678,  0.02730249,  0.03564025,  0.04069936,
+						        0.05387673,  0.05485896,  0.01133458,  0.02679389,  0.07677868])
 			mw_c = (mc.mws[mc.idx["aas"]] - mc.mws[mc.idx["h2o"]])
 			mc.vals["FeistCore"][idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c
 
