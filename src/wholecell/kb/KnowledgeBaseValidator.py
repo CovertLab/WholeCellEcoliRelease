@@ -91,10 +91,19 @@ class KnowledgeBaseValidator(object):
 		self.validateDatatype(fieldDataType, self.kb.metabolites)
 
 		# Validate that biomassLoc is actual allowed location
-
+		self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
 		# Validate that equivEnzIds if they exist are actual proteins
 
 		# Validate that MW is correct
+
+	def checkAllowedLocation(self, listToCheck, fieldName):
+		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
+		s = ''
+		for obj in listToCheck:
+			if obj[fieldName] not in allowedLocations:
+				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
+		if len(s): raise Exception, s
+
 
 	def validateProteins(self):
 		# Validate datatypes
