@@ -54,6 +54,10 @@ class Translation(wholecell.sim.process.Process.Process):
 			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
 			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 			])[0]
+		self.metabolite.idx["aasNotSec"] = self.metabolite.getIndex([
+			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+			])[0]
 		self.metabolite.idx["atp"] = self.metabolite.getIndex(["ATP[c]"])[0]
 		self.metabolite.idx["adp"] = self.metabolite.getIndex(["ADP[c]"])[0]
 		self.metabolite.idx["pi"] = self.metabolite.getIndex(["PI[c]"])[0]
