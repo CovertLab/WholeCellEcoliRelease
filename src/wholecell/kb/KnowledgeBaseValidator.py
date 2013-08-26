@@ -90,19 +90,12 @@ class KnowledgeBaseValidator(object):
 						 'name': [str]}
 		self.validateDatatype(fieldDataType, self.kb.metabolites)
 
-		# Validate that biomassLoc is actual allowed location
+		# Validate that biomassLoc is actual allowed location abbreviation
 		self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
+
 		# Validate that equivEnzIds if they exist are actual proteins
 
 		# Validate that MW is correct
-
-	def checkAllowedLocation(self, listToCheck, fieldName):
-		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
-		s = ''
-		for obj in listToCheck:
-			if obj[fieldName] not in allowedLocations:
-				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
-		if len(s): raise Exception, s
 
 
 	def validateProteins(self):
@@ -124,6 +117,9 @@ class KnowledgeBaseValidator(object):
 						 'seq': [str, unicode],
 						 'unmodifiedForm': [None, str]}
 		self.validateDatatype(fieldDataType, self.kb.proteins)
+
+		# Validation that location that is valid
+		self.checkAllowedLocation(self.kb.proteins, 'location')
 
 		# Validate that composition has length >1 if it is a complex
 
@@ -158,6 +154,9 @@ class KnowledgeBaseValidator(object):
 						 'unmodifiedForm': [None, str]}
 		self.validateDatatype(fieldDataType, self.kb.rnas)
 
+		# Check that location is an allowed abbreviation
+		self.checkAllowedLocation(self.kb.rnas, 'location')
+
 		# Check that monomerId is aa legit protein id
 
 		# If it is an mRNA then it should have a monomer id
@@ -177,7 +176,6 @@ class KnowledgeBaseValidator(object):
 			if rna['halfLife'] < 0:
 				s += '%s has a half life that is less than zero!\n' % rna['id']
 
-		# Validate that location is correct and allowed
 
 		# Validate that its modified forms are actual frame ids
 
@@ -267,7 +265,13 @@ class KnowledgeBaseValidator(object):
 		if len(s):
 			raise Exception, s
 
-
+	def checkAllowedLocation(self, listToCheck, fieldName):
+		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
+		s = ''
+		for obj in listToCheck:
+			if obj[fieldName] not in allowedLocations:
+				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
+		if len(s): raise Exception, s
 
 
 	# def validateMetabolicNetwork(self):
