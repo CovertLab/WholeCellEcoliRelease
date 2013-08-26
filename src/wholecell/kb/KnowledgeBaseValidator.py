@@ -73,10 +73,10 @@ class KnowledgeBaseValidator(object):
 	def validateMetabolites(self):
 		# Validate datatypes
 		fieldDataType = {'biomassConc': [float],
-						 'biomassLoc': [str],
+						 'biomassLoc': [str, None],
 						 'charge7.2': [int],
 						 'comments': [str],
-						 'equivEnzIds': [None],
+						 'equivEnzIds': [None, list],
 						 'fakeMet': [bool],
 						 'formula7.2': [str],
 						 'formulaNeutral': [str],
