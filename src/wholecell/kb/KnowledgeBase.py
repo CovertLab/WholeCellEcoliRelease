@@ -112,7 +112,11 @@ class KnowledgeBase(object):
 				if row["biomassConc"]: m["biomassConc"] = float(row["biomassConc"])
 				if row["biomassLoc"]: m["biomassLoc"] = row["biomassLoc"]
 				if row["maxExchange"]: m["maxExchange"] = float(row["maxExchange"])
-				if row["fakeMet"]: m["fakeMet"] = row["fakeMet"]
+				if row["fakeMet"]:
+					if row['fakeMet'] == 'True':
+						m["fakeMet"] = True
+					else:
+						m['fakeMet'] = False
 				if row["equivEnzIds"] != "[]": m["equivEnzIds"] = json.loads(row["equivEnzIds"])
 				if row["comments"]: m["comments"] = row["comments"]
 
