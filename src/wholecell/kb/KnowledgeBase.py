@@ -387,7 +387,8 @@ class KnowledgeBase(object):
 					"ntCount": numpy.zeros(4),
 					"mw": -1,
 					"geneId": "",
-					"rnaId": ""
+					"rnaId": "",
+					"comments": ""
 				}
 				protNew.append(p)
 				self.proteins.append(p)
