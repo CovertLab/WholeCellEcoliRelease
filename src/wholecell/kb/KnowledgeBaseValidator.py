@@ -30,6 +30,7 @@ class KnowledgeBaseValidator(object):
 		self.validateProteins()
 		self.validateRnas()
 		self.validateGenes()
+		self.validateReactions()
 
 
 		# Other
@@ -211,6 +212,27 @@ class KnowledgeBaseValidator(object):
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 
+	def validateReactions(self):
+		fieldDataType = {'catBy': [list],
+						 'dir': [int],
+						 'ec': [str],
+						 'id': [str, unicode],
+						 'name': [str],
+						 'process': [str],
+						 'stoichiometry': [list]}
+		self.validateDatatype(fieldDataType, self.kb.reactions)
+
+		# Check that catBy actually contains list of enzymes
+
+		# Check that direction is 1 or -1
+
+		# Check that process name is valid
+
+		# Check that stoichiometry datatypes are valid metabolites
+
+		# Check that metabolties are real metabolites
+
+		# Check for mass balance
 
 	def validateDatatype(self, fieldDataType, objList):
 		s = ''
