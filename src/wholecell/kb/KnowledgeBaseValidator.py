@@ -280,7 +280,8 @@ class KnowledgeBaseValidator(object):
 						s += '%s has field "%s" that is invalid with value "%s"! Has type %s requires type %s.\n' % (obj['id'], fieldName, str(obj[fieldName]), str(type(obj[fieldName])), str(fieldDataType[fieldName]))
 
 		if len(s): return s
-
+		else: return ''
+		
 	def checkAllowedLocation(self, listToCheck, fieldName):
 		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
 		s = ''
@@ -288,6 +289,7 @@ class KnowledgeBaseValidator(object):
 			if obj[fieldName] not in allowedLocations:
 				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
 		if len(s): return s
+		else: return ''
 
 	def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
 		validFrameIds = [x['id'] for x in listToCheckAgainst]
