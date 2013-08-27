@@ -79,6 +79,7 @@ class KnowledgeBaseValidator(object):
 	# 				fileNames.append(fileName)
 
 	def validateMetabolites(self):
+		s = ''
 		# Validate datatypes
 		fieldDataType = {'biomassConc': [float],
 						 'biomassLoc': [str, None],
@@ -93,17 +94,20 @@ class KnowledgeBaseValidator(object):
 						 'mediaConc': [float],
 						 'mw7.2': [float],
 						 'name': [str]}
-		self.validateDatatype(fieldDataType, self.kb.metabolites)
+		s += self.validateDatatype(fieldDataType, self.kb.metabolites)
 
 		# Validate that biomassLoc is actual allowed location abbreviation
-		self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
+		s += self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
 
 		# Validate that equivEnzIds if they exist are actual proteins
 
 		# Validate that MW is correct
 
+		if len(s): raise Exception, s
+
 
 	def validateProteins(self):
+		s = ''
 		# Validate datatypes
 		fieldDataType = {'aaCount': [numpy.ndarray],
 						 'comments': [str],
@@ -121,10 +125,10 @@ class KnowledgeBaseValidator(object):
 						 'rnaId': [str],
 						 'seq': [str, unicode],
 						 'unmodifiedForm': [None, str]}
-		self.validateDatatype(fieldDataType, self.kb.proteins)
+		s += self.validateDatatype(fieldDataType, self.kb.proteins)
 
 		# Validation that location that is valid
-		self.checkAllowedLocation(self.kb.proteins, 'location')
+		s += self.checkAllowedLocation(self.kb.proteins, 'location')
 
 		# Validate that composition has length >1 if it is a complex
 
@@ -143,6 +147,7 @@ class KnowledgeBaseValidator(object):
 		# validate that sequence uses correct alphabet
 
 	def validateRnas(self):
+		s = ''
 		# Validate datatypes
 		fieldDataType = {'composition': [list],
 						 'expression': [float],
@@ -159,10 +164,10 @@ class KnowledgeBaseValidator(object):
 						 'ntCount': [numpy.ndarray],
 						 'seq': [str],
 						 'unmodifiedForm': [None, str]}
-		self.validateDatatype(fieldDataType, self.kb.rnas)
+		s += self.validateDatatype(fieldDataType, self.kb.rnas)
 
 		# Check that location is an allowed abbreviation
-		self.checkAllowedLocation(self.kb.rnas, 'location')
+		s += self.checkAllowedLocation(self.kb.rnas, 'location')
 
 		# Check that monomerId is aa legit protein id
 
@@ -198,10 +203,10 @@ class KnowledgeBaseValidator(object):
 
 		# Check that modified forms have no expression level
 
-		if len(s):
-			raise Exception, s
+		if len(s): raise Exception, s
 
 	def validateGenes(self):
+		s = ''
 		# Validate datatypes
 		fieldDataType = {'coordinate': [int],
 						 'direction': [str],
@@ -212,7 +217,7 @@ class KnowledgeBaseValidator(object):
 						 'seq': [str],
 						 'symbol': [str],
 						 'type': [str]}
-		self.validateDatatype(fieldDataType, self.kb.genes)
+		s += self.validateDatatype(fieldDataType, self.kb.genes)
 
 		# Validate that coordinate is in range of genome
 
@@ -226,7 +231,10 @@ class KnowledgeBaseValidator(object):
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 
+		if len(s): raise Exception, s
+
 	def validateReactions(self):
+		s = ''
 		fieldDataType = {'catBy': [list],
 						 'dir': [int],
 						 'ec': [str],
@@ -234,7 +242,7 @@ class KnowledgeBaseValidator(object):
 						 'name': [str],
 						 'process': [str],
 						 'stoichiometry': [list]}
-		self.validateDatatype(fieldDataType, self.kb.reactions)
+		s += self.validateDatatype(fieldDataType, self.kb.reactions)
 
 		# Check that catBy actually contains list of enzymes
 
@@ -247,6 +255,8 @@ class KnowledgeBaseValidator(object):
 		# Check that metabolties are real metabolites
 
 		# Check for mass balance
+
+		if len(s): raise Exception, s
 
 	def validateDatatype(self, fieldDataType, objList):
 		s = ''
@@ -269,8 +279,7 @@ class KnowledgeBaseValidator(object):
 					if not isOk:
 						s += '%s has field "%s" that is invalid with value "%s"! Has type %s requires type %s.\n' % (obj['id'], fieldName, str(obj[fieldName]), str(type(obj[fieldName])), str(fieldDataType[fieldName]))
 
-		if len(s):
-			raise Exception, s
+		if len(s): return s
 
 	def checkAllowedLocation(self, listToCheck, fieldName):
 		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
@@ -278,10 +287,7 @@ class KnowledgeBaseValidator(object):
 		for obj in listToCheck:
 			if obj[fieldName] not in allowedLocations:
 				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
-		if len(s): raise Exception, s
-
-	def checkFrameIdList(self):
-		pass
+		if len(s): return s
 
 	def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
 		validFrameIds = [x['id'] for x in listToCheckAgainst]
