@@ -128,7 +128,9 @@ class KnowledgeBaseValidator(object):
 
 		# Validate that composition has length >1 if it is a complex
 
-		# Validate that proteins have a gene that exists
+		# Check that proteins have a geneId that exists
+		# Check that complexes have no geneId
+		# Check that modified forms have no geneId
 
 		# Validate that proteins have rna taht exist
 
