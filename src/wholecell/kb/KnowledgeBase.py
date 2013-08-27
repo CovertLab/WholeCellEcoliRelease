@@ -100,10 +100,10 @@ class KnowledgeBase(object):
 					"formula7.2": row["formula7.2"],
 					"charge7.2": int(row["charge7.2"]),
 					"mw7.2": float(row["mw7.2"]),
-					"mediaConc": 0,
-					"biomassConc": 0,
+					"mediaConc": 0.,
+					"biomassConc": 0.,
 					"biomassLoc": None,
-					"maxExchange": 0,
+					"maxExchange": 0.,
 					"fakeMet": False,
 					"equivEnzIds": None,
 					"comments": ""
@@ -112,7 +112,11 @@ class KnowledgeBase(object):
 				if row["biomassConc"]: m["biomassConc"] = float(row["biomassConc"])
 				if row["biomassLoc"]: m["biomassLoc"] = row["biomassLoc"]
 				if row["maxExchange"]: m["maxExchange"] = float(row["maxExchange"])
-				if row["fakeMet"]: m["fakeMet"] = row["fakeMet"]
+				if row["fakeMet"]:
+					if row['fakeMet'] == 'True':
+						m["fakeMet"] = True
+					else:
+						m['fakeMet'] = False
 				if row["equivEnzIds"] != "[]": m["equivEnzIds"] = json.loads(row["equivEnzIds"])
 				if row["comments"]: m["comments"] = row["comments"]
 
@@ -188,7 +192,7 @@ class KnowledgeBase(object):
 					r["location"] = self.compIdToAbbrev["CCO-CYTOSOL"]
 		
 				# TODO: Uncomment when Nick has fixed json formatting
-				r["halfLife"] = json.loads(row["halfLife"])
+				r["halfLife"] = float(json.loads(row["halfLife"]))
 				# if type(r["halfLife"]) == dict:
 				# 	if r["halfLife"]["units"] != "day":
 				# 		raise Exception, "Unknown unit!"
@@ -333,7 +337,9 @@ class KnowledgeBase(object):
 					rNew["modifiedForm"] = True
 					rNew["modifiedForms"] = []
 					rNew["unmodifiedForm"] = r["id"]
+					rNew["composition"] = []
 					rNew["mw"] = -1.0 	# TODO: Need to get this
+					rNew["expression"] = 0.
 					rnasToAppend.append(rNew)
 
 		self.rnas.extend(rnasToAppend)
@@ -348,6 +354,7 @@ class KnowledgeBase(object):
 					pNew["modifiedForm"] = True
 					pNew["modifiedForms"] = []
 					pNew["unmodifiedForm"] = p["id"]
+					pNew["composition"] = []
 					pNew["mw"] = -1.0 	# TODO: Need to get this
 					proteinsToAppend.append(pNew)
 
@@ -383,7 +390,8 @@ class KnowledgeBase(object):
 					"ntCount": numpy.zeros(4),
 					"mw": -1,
 					"geneId": "",
-					"rnaId": ""
+					"rnaId": "",
+					"comments": ""
 				}
 				protNew.append(p)
 				self.proteins.append(p)

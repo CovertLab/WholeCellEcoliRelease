@@ -28,6 +28,9 @@ class KnowledgeBaseValidator(object):
 		# Validate datatypes
 		self.validateMetabolites()
 		self.validateProteins()
+		self.validateRnas()
+		self.validateGenes()
+		self.validateReactions()
 
 
 		# Other
@@ -73,10 +76,10 @@ class KnowledgeBaseValidator(object):
 	def validateMetabolites(self):
 		# Validate datatypes
 		fieldDataType = {'biomassConc': [float],
-						 'biomassLoc': [str],
+						 'biomassLoc': [str, None],
 						 'charge7.2': [int],
 						 'comments': [str],
-						 'equivEnzIds': [None],
+						 'equivEnzIds': [None, list],
 						 'fakeMet': [bool],
 						 'formula7.2': [str],
 						 'formulaNeutral': [str],
@@ -86,6 +89,14 @@ class KnowledgeBaseValidator(object):
 						 'mw7.2': [float],
 						 'name': [str]}
 		self.validateDatatype(fieldDataType, self.kb.metabolites)
+
+		# Validate that biomassLoc is actual allowed location abbreviation
+		self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
+
+		# Validate that equivEnzIds if they exist are actual proteins
+
+		# Validate that MW is correct
+
 
 	def validateProteins(self):
 		# Validate datatypes
@@ -106,6 +117,129 @@ class KnowledgeBaseValidator(object):
 						 'seq': [str, unicode],
 						 'unmodifiedForm': [None, str]}
 		self.validateDatatype(fieldDataType, self.kb.proteins)
+
+		# Validation that location that is valid
+		self.checkAllowedLocation(self.kb.proteins, 'location')
+
+		# Validate that composition has length >1 if it is a complex
+
+		# Validate that proteins have a gene that exists
+
+		# Validate that proteins have rna taht exist
+
+		# Validate that modified forms exist
+
+		# Validate that unmodified forms exist
+
+		# Validate the MW is correct and there
+
+		# validate that sequence uses correct alphabet
+
+	def validateRnas(self):
+		# Validate datatypes
+		fieldDataType = {'composition': [list],
+						 'expression': [float],
+						 'geneId': [str],
+						 'halfLife': [float],
+						 'id': [str, unicode],
+						 'location': [str],
+						 'modifiedForm': [bool],
+						 'modifiedForms': [list],
+						 'monomer': [bool],
+						 'monomerId': [None, str, unicode],
+						 'mw': [float],
+						 'name': [str],
+						 'ntCount': [numpy.ndarray],
+						 'seq': [str],
+						 'unmodifiedForm': [None, str]}
+		self.validateDatatype(fieldDataType, self.kb.rnas)
+
+		# Check that location is an allowed abbreviation
+		self.checkAllowedLocation(self.kb.rnas, 'location')
+
+		# Check that monomerId is aa legit protein id
+
+		# If it is an mRNA then it should have a monomer id
+
+		# Validate that expression is >0
+		s = ''
+		for rna in self.kb.rnas:
+			if rna['expression'] < 0:
+				s += '%s has a expression that is less than zero!\n' % rna['id']
+
+		if abs(sum(rna['expression'] for rna in self.kb.rnas) - 1.0) > 1e-8:
+			s += 'Expression does not sum to unity it sums to %s!\n' % str(exp_sum) 
+
+		# Validate that half life is >0
+		s = ''
+		for rna in self.kb.rnas:
+			if rna['halfLife'] < 0:
+				s += '%s has a half life that is less than zero!\n' % rna['id']
+
+
+		# Validate that its modified forms are actual frame ids
+
+		# Validate that it has a MW and that it is correct
+
+		# Validate that NT count is correct size
+
+		# Validate the NT count sums to lenght of sequence
+
+		# Validate that unmodified form is a legit frame id
+
+		# Validate that sequence uses correct alphabet
+
+		# Check that modified forms have no expression level
+
+		if len(s):
+			raise Exception, s
+
+	def validateGenes(self):
+		# Validate datatypes
+		fieldDataType = {'coordinate': [int],
+						 'direction': [str],
+						 'id': [str],
+						 'length': [int],
+						 'name': [str],
+						 'rnaId': [str],
+						 'seq': [str],
+						 'symbol': [str],
+						 'type': [str]}
+		self.validateDatatype(fieldDataType, self.kb.genes)
+
+		# Validate that coordinate is in range of genome
+
+		# Validate that direction is either a + or a -
+
+		# Validate that length is < length of genome
+
+		# Validate that its rnaId is a legit one
+
+		# Validate sequence alphabet and length against actual length
+
+		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
+
+	def validateReactions(self):
+		fieldDataType = {'catBy': [list],
+						 'dir': [int],
+						 'ec': [str],
+						 'id': [str, unicode],
+						 'name': [str],
+						 'process': [str],
+						 'stoichiometry': [list]}
+		self.validateDatatype(fieldDataType, self.kb.reactions)
+
+		# Check that catBy actually contains list of enzymes
+
+		# Check that direction is 1 or -1
+
+		# Check that process name is valid
+
+		# Check that stoichiometry datatypes are valid metabolites
+
+		# Check that metabolties are real metabolites
+
+		# Check for mass balance
 
 	def validateDatatype(self, fieldDataType, objList):
 		s = ''
@@ -131,19 +265,13 @@ class KnowledgeBaseValidator(object):
 		if len(s):
 			raise Exception, s
 
-
-
-		# Validate that composition has length >1 if it is a complex
-
-		# Validate that proteins have a gene that exists
-
-		# Validate that proteins have rna taht exist
-
-		# Validate that modified forms exist
-
-		# Validate that unmodified forms exist
-
-
+	def checkAllowedLocation(self, listToCheck, fieldName):
+		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
+		s = ''
+		for obj in listToCheck:
+			if obj[fieldName] not in allowedLocations:
+				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
+		if len(s): raise Exception, s
 
 
 	# def validateMetabolicNetwork(self):
