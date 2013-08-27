@@ -220,8 +220,14 @@ class KnowledgeBaseValidator(object):
 		s += self.validateDatatype(fieldDataType, self.kb.genes)
 
 		# Validate that coordinate is in range of genome
+		for gene in self.kb.genes:
+			if gene['coordinate'] > len(self.kb.genomeSeq):
+				s += 'Gene %s has coordinate greater than length of genome!\n' % gene['id']
 
 		# Validate that direction is either a + or a -
+		for gene in self.kb.genes:
+			if gene['direction'] not in ['+', '-']:
+				s += 'Gene %s has invalid direction!\n' % gene['id']
 
 		# Validate that length is < length of genome
 
@@ -230,6 +236,8 @@ class KnowledgeBaseValidator(object):
 		# Validate sequence alphabet and length against actual length
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
+
+		# Check that sequence is coding strand
 
 		if len(s): raise Exception, s
 
@@ -281,7 +289,7 @@ class KnowledgeBaseValidator(object):
 
 		if len(s): return s
 		else: return ''
-		
+
 	def checkAllowedLocation(self, listToCheck, fieldName):
 		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
 		s = ''
