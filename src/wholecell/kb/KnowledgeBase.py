@@ -205,8 +205,6 @@ class KnowledgeBase(object):
 					p = {
 						"id": r["monomerId"],
 						"name": "", # Get from monomers file
-						"monomer": True,
-						"modifiedForm": False,
 						"modifiedForms": [],
 						"unmodifiedForm": None,
 						"location": None,
@@ -376,8 +374,6 @@ class KnowledgeBase(object):
 				p = {
 					"id": row["id"],
 					"name": row["name"],
-					"monomer": False,
-					"modifiedForm": False,
 					"modifiedForms": json.loads(row["modifiedForms"]),
 					"unmodifiedForm": None,
 					"location": self.compIdToAbbrev[json.loads(row["location"])[0]],
