@@ -176,20 +176,34 @@ class KnowledgeBaseValidator(object):
 		# Check that location is an allowed abbreviation
 		s += self.checkAllowedLocation(self.kb.rnas, 'location')
 
+		## Check modified form properties
+		for modRna in [x for x in self.kb.rnas if x['modifiedForm']:
+			pass
 
-		# Check that monomerId is aa legit protein id
+			# Validate that unmodified form is a legit frame id
 
-		# If it is an mRNA then it should have a monomer id
 
-		# Validate that its modified forms are actual frame ids
+		## Check modified form properties
+		for unmodRna in 
+
+			# Validate that its modified forms are actual frame ids
+
+
+		## Check mRNA properties
+		for mRNA in [x for x in self.kb.rnas if x['id'] in [y for y in self.kb.genes if y['type'] == 'mRNA']]:
+			pass
+			# If it is an mRNA then it should have a monomer id
+
+			# Check monomer id is a legit protein id
+
+
+
 
 		# Validate that it has a MW and that it is correct
 
 		# Validate that NT count is correct size
 
 		# Validate the NT count sums to lenght of sequence
-
-		# Validate that unmodified form is a legit frame id
 
 		# Validate that sequence uses correct alphabet
 
