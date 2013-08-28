@@ -162,13 +162,6 @@ class KnowledgeBaseValidator(object):
 						 'unmodifiedForm': [None, str]}
 		s += self.validateDatatype(fieldDataType, self.kb.rnas)
 
-		# Check that location is an allowed abbreviation
-		s += self.checkAllowedLocation(self.kb.rnas, 'location')
-
-		# Check that monomerId is aa legit protein id
-
-		# If it is an mRNA then it should have a monomer id
-
 		# Validate that expression is >0
 		s = ''
 		for rna in self.kb.rnas:
@@ -184,6 +177,13 @@ class KnowledgeBaseValidator(object):
 			if rna['halfLife'] < 0:
 				s += '%s has a half life that is less than zero!\n' % rna['id']
 
+		# Check that location is an allowed abbreviation
+		s += self.checkAllowedLocation(self.kb.rnas, 'location')
+
+
+		# Check that monomerId is aa legit protein id
+
+		# If it is an mRNA then it should have a monomer id
 
 		# Validate that its modified forms are actual frame ids
 
