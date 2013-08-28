@@ -239,7 +239,7 @@ class KnowledgeBaseValidator(object):
 		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
 
 		# Validate sequence alphabet
-		
+		self.validateAlphabet(self.kb.genes, ['A','T','G','C'])
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 		for gene in self.kb.genes:
@@ -319,6 +319,13 @@ class KnowledgeBaseValidator(object):
 				s += '%s has an invalid frameId in field %s with value %s!\n' % (obj['id'], fieldName, obj[fieldName])
 		if len(s): raise Exception, s
 
+	def validateAlphabet(self, listToCheck, alphabet):
+		for obj in listToCheck:
+			letter_sum = 0
+			for letter in alphabet:
+				letter_sum += obj['seq'].count(letter)
+			if letter_sum != len(obj['seq']):
+				s += '%s has an invalid character in its sequence!\n' % obj['id']
 
 	# def validateMetabolicNetwork(self):
 	# 	# Validate all metabolites are used in the metabolic network
