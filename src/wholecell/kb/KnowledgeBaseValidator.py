@@ -182,9 +182,12 @@ class KnowledgeBaseValidator(object):
 
 			# Validate that unmodified form is a legit frame id
 
+			# Check that modified forms have no expression level
+
 
 		## Check modified form properties
-		for unmodRna in 
+		for unmodRna in [x for x in self.kb.rnas if x['modifiedForm'] != None]:
+			pass
 
 			# Validate that its modified forms are actual frame ids
 
