@@ -278,6 +278,12 @@ class KnowledgeBaseValidator(object):
 
 		if len(s): raise Exception, s
 
+
+	def validateCenteralDogmaConnections(self):
+		pass
+
+		# Check gene-->rna-->gene product
+
 	def validateDatatype(self, fieldDataType, objList):
 		s = ''
 		for obj in objList:
