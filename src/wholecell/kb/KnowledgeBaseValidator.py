@@ -26,6 +26,15 @@ class KnowledgeBaseValidator(object):
 	def __init__(self, knowledgeBase):
 		self.kb = knowledgeBase
 
+		# Borrowed from BioPython
+		# They have the Selenocysteine (U) value commented out in IUPACData.py, so we can't use their functions
+		# Fortunately they are simple functions with source code available at: http://biopython.org/DIST/docs/api/Bio.SeqUtils.ProtParam-pysrc.html
+		self.aaWeights = {
+			"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19, "G": 75.07, "H": 155.16, "I": 131.18, "K": 146.19, "L": 131.18,
+			"M": 149.21, "N": 132.12, "P": 115.13, "Q": 146.15, "R": 174.20, "S": 105.09, "T": 119.12, "U": 168.05, "V": 117.15, "W": 204.23,
+			"Y": 181.19
+    	}
+
 		# Validate datatypes
 		self.validateMetabolites()
 		self.validateProteins()
@@ -202,7 +211,6 @@ class KnowledgeBaseValidator(object):
 			# Check monomer id is a legit protein id
 			if mRNA['monomerId'] not in proteins:
  				s += 'mRNA %s has invalid monomerId. It is not in proteins!\n' % mRNA['id']
-
 
 		# Validate that it has a MW and that it is correct
 
