@@ -205,9 +205,14 @@ class KnowledgeBaseValidator(object):
 
 		# Validate that it has a MW and that it is correct
 
-		# Validate that NT count is correct size
+		# Validate that ntCount is correct dimension and sums to length of sequence
+		for rna in self.kb.rnas:
+			if len(rna['ntCount']) != 4:
+				s += 'RNA %s has ntCount that is incorrect in dimension!\n' % rna['id']
+			if sum(rna['ntCount']) != len(rna['seq']):
+				s += 'RNA %s has ntCount that is incorrect in length!\n' % rna['id']
 
-		# Validate the NT count sums to lenght of sequence
+
 
 		# Validate sequence alphabet
 		s += self.validateAlphabet(self.kb.rnas, ['A','U','G','C'])
