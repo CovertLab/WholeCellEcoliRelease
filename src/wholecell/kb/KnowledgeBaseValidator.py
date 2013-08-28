@@ -246,7 +246,8 @@ class KnowledgeBaseValidator(object):
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 		for gene in self.kb.genes:
-			pass
+			if gene['type'] not in ['mRNA', 'rRNA', 'tRNA', 'miscRNA']:
+				s += 'Gene %s has an invalid type!\n' % gene['id']
 
 		# Check that sequence is coding strand for mRNAs
 		for gene in [x for x in self.kb.genes if x['type'] == 'mRNA']:
