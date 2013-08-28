@@ -210,8 +210,7 @@ class KnowledgeBaseValidator(object):
 		# Validate the NT count sums to lenght of sequence
 
 		# Validate sequence alphabet
-		s += self.validateAlphabet(self.kb.genes, ['A','U','G','C'])
-
+		s += self.validateAlphabet(self.kb.rnas, ['A','U','G','C'])
 
 		if len(s): raise Exception, s
 
