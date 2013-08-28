@@ -173,7 +173,6 @@ class KnowledgeBase(object):
 					"id": g["rnaId"],
 					"name": "",
 					"expression": float(row["expression"]),
-					"modifiedForm": False,
 					"modifiedForms": [],
 					"unmodifiedForm": None,
 					"composition": [],
