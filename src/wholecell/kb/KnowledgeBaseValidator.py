@@ -230,6 +230,9 @@ class KnowledgeBaseValidator(object):
 				s += 'Gene %s has invalid direction!\n' % gene['id']
 
 		# Validate that length is < length of genome
+		for gene in self.kb.genes:
+			if gene['length'] >= len(self.kb.genomeSeq):
+				s += 'Gene %s has length longer than the genome!\n' % gene['id']
 
 		# Validate that its rnaId is a legit one
 
