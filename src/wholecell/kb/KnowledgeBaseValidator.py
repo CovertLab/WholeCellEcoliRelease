@@ -177,7 +177,7 @@ class KnowledgeBaseValidator(object):
 		s += self.checkAllowedLocation(self.kb.rnas, 'location')
 
 		## Check modified form properties
-		for modRna in [x for x in self.kb.rnas if x['modifiedForm']:
+		for modRna in [x for x in self.kb.rnas if x['unmodifiedForm'] != None]:
 			pass
 
 			# Validate that unmodified form is a legit frame id
