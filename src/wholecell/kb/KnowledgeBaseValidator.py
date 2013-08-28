@@ -194,16 +194,18 @@ class KnowledgeBaseValidator(object):
 
 		## Check mRNA properties
 		mRNAs = [y for y in self.kb.genes if y['type'] == 'mRNA']
+		proteins = [x['id'] for x in self.kb.proteins]
 		for mRNA in [x for x in self.kb.rnas if x['id'] in mRNAs]:
-			pass
-			# If it is an mRNA then it should have a monomer id
-
+ 			# If it is an mRNA then it should have a monomer id
+ 			if mRNA['monomerId'] == None:
+ 				s += 'mRNA %s has no monomerId!\n' % mRNA['id']
 			# Check monomer id is a legit protein id
-
-
+			if mRNA['monomerId'] not in proteins:
+ 				s += 'mRNA %s has invalid monomerId. It is not in proteins!\n' % mRNA['id']
 
 
 		# Validate that it has a MW and that it is correct
+
 
 		# Validate that ntCount is correct dimension and sums to length of sequence
 		for rna in self.kb.rnas:
@@ -211,8 +213,6 @@ class KnowledgeBaseValidator(object):
 				s += 'RNA %s has ntCount that is incorrect in dimension!\n' % rna['id']
 			if sum(rna['ntCount']) != len(rna['seq']):
 				s += 'RNA %s has ntCount that is incorrect in length!\n' % rna['id']
-
-
 
 		# Validate sequence alphabet
 		s += self.validateAlphabet(self.kb.rnas, ['A','U','G','C'])
