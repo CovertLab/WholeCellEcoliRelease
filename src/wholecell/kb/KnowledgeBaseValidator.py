@@ -235,6 +235,7 @@ class KnowledgeBaseValidator(object):
 				s += 'Gene %s has length longer than the genome!\n' % gene['id']
 
 		# Validate that its rnaId is a legit one
+		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
 
 		# Validate sequence alphabet
 
