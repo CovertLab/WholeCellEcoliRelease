@@ -234,15 +234,15 @@ class KnowledgeBaseValidator(object):
 			if gene['length'] >= len(self.kb.genomeSeq):
 				s += 'Gene %s has length longer than the genome!\n' % gene['id']
 
-		# Validate that its rnaId is a legit one
-		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
-
-		# Validate sequence alphabet
-
 		# Validate length against actual length of sequence
 		for gene in self.kb.genes:
 			if gene['length'] != len(gene['seq']):
 				s += 'Gene %s has an incorrect length or sequence!\n' % gene['id']
+
+		# Validate that its rnaId is a legit one
+		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
+
+		# Validate sequence alphabet
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 		for gene in self.kb.genes:
