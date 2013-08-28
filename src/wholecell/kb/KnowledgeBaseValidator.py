@@ -17,10 +17,6 @@ import json
 import numpy
 import itertools
 import inspect
-import Bio.SeqIO
-import Bio.Seq
-import Bio.Alphabet.IUPAC
-import Bio.SeqUtils.ProtParam
 
 import ipdb
 
