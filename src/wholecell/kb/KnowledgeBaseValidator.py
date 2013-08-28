@@ -193,7 +193,8 @@ class KnowledgeBaseValidator(object):
 
 
 		## Check mRNA properties
-		for mRNA in [x for x in self.kb.rnas if x['id'] in [y for y in self.kb.genes if y['type'] == 'mRNA']]:
+		mRNAs = [y for y in self.kb.genes if y['type'] == 'mRNA']
+		for mRNA in [x for x in self.kb.rnas if x['id'] in mRNAs]:
 			pass
 			# If it is an mRNA then it should have a monomer id
 
