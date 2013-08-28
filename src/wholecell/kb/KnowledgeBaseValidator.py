@@ -236,7 +236,12 @@ class KnowledgeBaseValidator(object):
 
 		# Validate that its rnaId is a legit one
 
-		# Validate sequence alphabet and length against actual length
+		# Validate sequence alphabet
+
+		# Validate length against actual length of sequence
+		for gene in self.kb.genes:
+			if gene['length'] != len(gene['seq']):
+				s += 'Gene %s has an incorrect length or sequence!\n' % gene['id']
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 		for gene in self.kb.genes:
