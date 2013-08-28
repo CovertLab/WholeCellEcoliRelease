@@ -243,6 +243,7 @@ class KnowledgeBaseValidator(object):
 		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
 
 		# Validate sequence alphabet
+		
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 		for gene in self.kb.genes:

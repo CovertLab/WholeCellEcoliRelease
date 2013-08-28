@@ -451,7 +451,7 @@ def parseGenes():
 
 						# TODO: Remove when Ecocyc error is fixed
 						if newGene.frameId == 'G0-10738':
-							newGene.direction = '+'
+							newGene.direction = '-'
 
 						# Pick new gene name for product if gene name is already used
 						# for another valid product
