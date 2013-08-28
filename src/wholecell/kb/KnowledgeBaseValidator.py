@@ -205,9 +205,9 @@ class KnowledgeBaseValidator(object):
 
 		# Validate the NT count sums to lenght of sequence
 
-		# Validate that sequence uses correct alphabet
+		# Validate sequence alphabet
+		s += self.validateAlphabet(self.kb.genes, ['A','U','G','C'])
 
-		# Check that modified forms have no expression level
 
 		if len(s): raise Exception, s
 
@@ -249,7 +249,7 @@ class KnowledgeBaseValidator(object):
 		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
 
 		# Validate sequence alphabet
-		self.validateAlphabet(self.kb.genes, ['A','T','G','C'])
+		s += self.validateAlphabet(self.kb.genes, ['A','T','G','C'])
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
 		for gene in self.kb.genes:
@@ -336,12 +336,14 @@ class KnowledgeBaseValidator(object):
 		if len(s): raise Exception, s
 
 	def validateAlphabet(self, listToCheck, alphabet):
+		s = ''
 		for obj in listToCheck:
 			letter_sum = 0
 			for letter in alphabet:
 				letter_sum += obj['seq'].count(letter)
 			if letter_sum != len(obj['seq']):
 				s += '%s has an invalid character in its sequence!\n' % obj['id']
+		return s
 
 	# def validateMetabolicNetwork(self):
 	# 	# Validate all metabolites are used in the metabolic network
