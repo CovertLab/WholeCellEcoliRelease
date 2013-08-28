@@ -239,8 +239,13 @@ class KnowledgeBaseValidator(object):
 		# Validate sequence alphabet and length against actual length
 
 		# Validate type is either mRNA, rRNa, tRNA, miscRNA, etc.
+		for gene in self.kb.genes:
+			pass
 
-		# Check that sequence is coding strand
+		# Check that sequence is coding strand for mRNAs
+		for gene in [x for x in self.kb.genes if x['type'] == 'mRNA']:
+			if gene['seq'][:3] not in ['ATG', 'GTG', 'TTG', 'ATT', 'CTG']:
+				print 'Warning: Gene %s has sequence that is not the coding strand! Sequence starts with %s. May not be a coding strand mRNA.' % (gene['id'], gene['seq'][:3])
 
 		if len(s): raise Exception, s
 
