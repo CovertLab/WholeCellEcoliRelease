@@ -449,6 +449,10 @@ def parseGenes():
 							newGene.coordinate = int(row[3])
 							newGene.length = int(row[3]) - int(row[2]) + 1
 
+						# TODO: Remove when Ecocyc error is fixed
+						if newGene.frameId == 'G0-10738':
+							newGene.direction = '-'
+
 						# Pick new gene name for product if gene name is already used
 						# for another valid product
 						if geneDict.has_key(newGene.frameId):
