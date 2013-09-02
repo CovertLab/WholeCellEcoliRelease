@@ -26,15 +26,6 @@ class KnowledgeBaseValidator(object):
 	def __init__(self, knowledgeBase):
 		self.kb = knowledgeBase
 
-		# Borrowed from BioPython
-		# They have the Selenocysteine (U) value commented out in IUPACData.py, so we can't use their functions
-		# Fortunately they are simple functions with source code available at: http://biopython.org/DIST/docs/api/Bio.SeqUtils.ProtParam-pysrc.html
-		self.aaWeights = {
-			"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19, "G": 75.07, "H": 155.16, "I": 131.18, "K": 146.19, "L": 131.18,
-			"M": 149.21, "N": 132.12, "P": 115.13, "Q": 146.15, "R": 174.20, "S": 105.09, "T": 119.12, "U": 168.05, "V": 117.15, "W": 204.23,
-			"Y": 181.19
-    	}
-
 		# Validate datatypes
 		self.validateMetabolites()
 		self.validateProteins()
@@ -195,7 +186,7 @@ class KnowledgeBaseValidator(object):
 
 
 		## Check modified form properties
-		for unmodRna in [x for x in self.kb.rnas if x['modifiedForm'] != None]:
+		for unmodRna in [x for x in self.kb.rnas if len(x['modifiedForms'])]:
 			pass
 
 			# Validate that its modified forms are actual frame ids
@@ -213,7 +204,10 @@ class KnowledgeBaseValidator(object):
  				s += 'mRNA %s has invalid monomerId. It is not in proteins!\n' % mRNA['id']
 
 		# Validate that it has a MW and that it is correct
-
+		for rna in self.kb.rnas:
+			compare_mw = self.calculateRnaMW(rna['seq'])
+			if not abs(compare_mw - rna['mw']) < 1e-6:
+				s += 'RNA %s has a molecular weight of %s but when recalculated it should be %s!\n' % (rna['id'], str(rna['mw']), str(compare_mw))
 
 		# Validate that ntCount is correct dimension and sums to length of sequence
 		for rna in self.kb.rnas:
@@ -360,6 +354,32 @@ class KnowledgeBaseValidator(object):
 			if letter_sum != len(obj['seq']):
 				s += '%s has an invalid character in its sequence!\n' % obj['id']
 		return s
+
+	def calculatePeptideMW(self, seq):
+		# Borrowed from BioPython
+		# They have the Selenocysteine (U) value commented out in IUPACData.py, so we can't use their functions
+		# Fortunately they are simple functions with source code available at: http://biopython.org/DIST/docs/api/Bio.SeqUtils.ProtParam-pysrc.html
+		aaWeights = {
+			"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19, "G": 75.07, "H": 155.16, "I": 131.18, "K": 146.19, "L": 131.18,
+			"M": 149.21, "N": 132.12, "P": 115.13, "Q": 146.15, "R": 174.20, "S": 105.09, "T": 119.12, "U": 168.05, "V": 117.15, "W": 204.23,
+			"Y": 181.19
+		}
+		total_weight_with_water = 0.
+		for base in seq:
+			total_weight_with_water += aaWeights[base]
+		water = 18.02
+		total_weight_without_water = total_weight_with_water - (len(seq) - 1) * water
+		return total_weight_without_water
+
+	def calculateRnaMW(self, seq):
+		# Borrowed from BioPython and modified to be at pH 7.2
+		rnaNtMw = { 
+			"A": 345.20,
+			"C": 321.18,
+			"G": 361.20,
+			"U": 322.17,
+		}
+		return sum(rnaNtMw[x] for x in seq) - (len(seq) - 1) * 17.01
 
 	# def validateMetabolicNetwork(self):
 	# 	# Validate all metabolites are used in the metabolic network
