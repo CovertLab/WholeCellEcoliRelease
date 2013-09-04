@@ -1328,8 +1328,8 @@ def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
 			children = [modified_form]
 		components_children.append([{'classid' : class_comp['id'], 'instanceid' : x} for x in children])
 
-		if len(children) == 0:
-			raise Exception, 'No species found!\n'
+		# if len(children) == 0:
+		# 	raise Exception, 'No species found!\n'
 	return components_children
 
 def buildInstanceReaction(pairs_to_replace, rxn):
