@@ -142,37 +142,6 @@
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuW-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
-            "ecnumber": null
         }
     ], 
     "charged-lysT-tRNA": [
@@ -317,37 +286,6 @@
                 }
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuP-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
@@ -541,37 +479,6 @@
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuZ-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
-            "ecnumber": null
         }
     ], 
     "CHARGED-FMETY-TRNA": [], 
@@ -668,37 +575,6 @@
                 }
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuV-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
@@ -797,37 +673,6 @@
             ], 
             "id": "METHIONINE--TRNA-LIGASE-RXN", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "EG11268-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "10-FORMYL-THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "RNA0-321", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "N-formyl-L-methionyl-tRNAfmet", 
-                    "isclass": false
-                }
-            ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
-            "ecnumber": null
         }
     ], 
     "RNA0-323": [
@@ -876,37 +721,6 @@
             ], 
             "id": "METHIONINE--TRNA-LIGASE-RXN", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "EG11268-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "10-FORMYL-THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "RNA0-323", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "N-formyl-L-methionyl-tRNAfmet", 
-                    "isclass": false
-                }
-            ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
-            "ecnumber": null
         }
     ], 
     "RNA0-322": [
@@ -954,37 +768,6 @@
                 }
             ], 
             "id": "METHIONINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "EG11268-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "10-FORMYL-THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "RNA0-322", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "N-formyl-L-methionyl-tRNAfmet", 
-                    "isclass": false
-                }
-            ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
@@ -1168,37 +951,6 @@
                 }
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuX-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
@@ -1842,37 +1594,6 @@
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuU-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
-            "ecnumber": null
         }
     ], 
     "charged-serT-tRNA": [
@@ -2064,37 +1785,6 @@
                 }
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuT-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
@@ -2933,52 +2623,6 @@
             "direction": "LEFT-TO-RIGHT", 
             "massbalance": "Balanced.", 
             "enzyme": [
-                "SERS-CPLX"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "PROTON", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "SEC-tRNAs", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "SER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "ATP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "charged-selC-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "PPI", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "AMP", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-2161", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
                 "CPLX0-1141"
             ], 
             "components": [
@@ -3441,37 +3085,6 @@
                 }
             ], 
             "id": "LEUCINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG11112-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "charged-leuQ-tRNA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "General-Protein-Substrates", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "tRNA-Holder", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "L-leucyl-protein", 
-                    "isclass": false
-                }
-            ], 
-            "id": "LEUCYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
@@ -3955,37 +3568,6 @@
                 }
             ], 
             "id": "METHIONINE--TRNA-LIGASE-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "EG11268-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "10-FORMYL-THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "RNA0-319", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THF", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "N-formyl-L-methionyl-tRNAfmet", 
-                    "isclass": false
-                }
-            ], 
-            "id": "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN", 
             "ecnumber": null
         }
     ], 
