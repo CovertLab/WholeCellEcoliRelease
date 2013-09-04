@@ -178,12 +178,14 @@ class KnowledgeBaseValidator(object):
 
 		## Check modified form properties
 		for modRna in [x for x in self.kb.rnas if x['unmodifiedForm'] != None]:
-			pass
-
 			# Validate that unmodified form is a legit frame id
+			proteinFrameIds = [x['id'] for x in self.proteins]
+			if not modRna['unmodifiedForm'] in proteinFrameIds:
+				s += 'Modified RNA %s has invalid frame id for unmodifiedForm!\n' % modRna['id']
 
 			# Check that modified forms have no expression level
-
+			if modRna['expression'] != 0.:
+				s += 'Modified RNA %s has a non-zero expression level!\n' % modRna['id']
 
 		## Check modified form properties
 		for unmodRna in [x for x in self.kb.rnas if len(x['modifiedForms'])]:
