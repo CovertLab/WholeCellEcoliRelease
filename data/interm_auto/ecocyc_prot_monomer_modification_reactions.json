@@ -586,80 +586,7 @@
             "ecnumber": null
         }
     ], 
-    "ACP-MONOMER": [
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "FABB-CPLX"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "Cis-Delta5-dodecenoyl-ACPs", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "MALONYL-ACP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "PROTON", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "3-oxo-cis-D7-tetradecenoyl-ACPs", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "ACP-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CARBON-DIOXIDE", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN-10654", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "REVERSIBLE", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "MALONYL-COA-ACP-TRANSACYL-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "ACP-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "MALONYL-COA", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "MALONYL-ACP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CO-A", 
-                    "isclass": false
-                }
-            ], 
-            "id": "MALONYL-COA-ACP-TRANSACYL-RXN", 
-            "ecnumber": null
-        }
-    ], 
+    "ACP-MONOMER": [], 
     "R-3-HYDROXYPALMITOYL-ACP": [], 
     "MONOMER0-4288": [
         {
@@ -1044,77 +971,9 @@
             ], 
             "id": "RXN0-1137", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "The left side is missing:  H: 1", 
-            "enzyme": [
-                "EG11591-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "Apo-GcvH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "LIPOYL-ACP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "LIPOYL-GCVH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "ACP-MONOMER", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-1138", 
-            "ecnumber": null
         }
     ], 
-    "OCTANOYL-ACP": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Marked as unbalanced, because the complete reaction equation is not known.", 
-            "enzyme": [
-                "CPLX0-8006"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "OCTANOYL-ACP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "NAD", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "TRANS-D2-ENOYL-ACP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "NADH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "PROTON", 
-                    "isclass": false
-                }
-            ], 
-            "id": "1.3.1.9-RXN", 
-            "ecnumber": null
-        }
-    ], 
+    "OCTANOYL-ACP": [], 
     "PHOSPHO-HYDG": [
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -1216,7 +1075,7 @@
             "ecnumber": null
         }, 
         {
-            "direction": "REVERSIBLE", 
+            "direction": "RIGHT-TO-LEFT", 
             "massbalance": "Balanced.", 
             "enzyme": [
                 "RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"
@@ -1295,7 +1154,7 @@
             "ecnumber": null
         }, 
         {
-            "direction": "REVERSIBLE", 
+            "direction": "RIGHT-TO-LEFT", 
             "massbalance": "Balanced.", 
             "enzyme": [
                 "RIBONUCLEOSIDE-TRIP-REDUCT-CPLX"
@@ -4770,37 +4629,7 @@
         }
     ], 
     "PHOSPHASERDECARB-ALPHA-MONOMER": [], 
-    "ACEF-S-ACETYLDIHYDROLIPOATE": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Balanced.", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "2-ALPHA-HYDROXYETHYL-THPP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "Pyruvate-dehydrogenase-lipoate", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "ACEF-S-ACETYLDIHYDROLIPOATE", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THIAMINE-PYROPHOSPHATE", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN-12508", 
-            "ecnumber": null
-        }
-    ], 
+    "ACEF-S-ACETYLDIHYDROLIPOATE": [], 
     "3R-3-HYDROXYOCTANOYL-ACP": [], 
     "PHOSPHO-DPIB": [
         {
@@ -6511,43 +6340,6 @@
             ], 
             "id": "RXN-9789", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "THIF-MONOMER", 
-                "THII-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "Sulfurylated-ThiI", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "THIS-COAMP-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "Thiocarboxyadenylated-ThiS-Proteins", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THII-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "AMP", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN-9788", 
-            "ecnumber": null
         }
     ], 
     "PHOSPHO-CPXA": [
@@ -6647,35 +6439,6 @@
             ], 
             "id": "THIFIS-RXN", 
             "ecnumber": null
-        }, 
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "ThiS-ThiI-disulfides", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "THIF-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THIS-COSH-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "THII-MONOMER", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN-9790", 
-            "ecnumber": null
         }
     ], 
     "HIPA-P": [
@@ -6755,68 +6518,7 @@
         }
     ], 
     "SAMDC-BETA-MONOMER": [], 
-    "LIPOYL-GCVH": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Balanced.", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "LIPOYL-AMP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "Apo-GcvH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "LIPOYL-GCVH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "AMP", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN-13039", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "GCVP-CPLX"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "LIPOYL-GCVH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "GLY", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "AMINOMETHYLDIHYDROLIPOYL-GCVH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CARBON-DIOXIDE", 
-                    "isclass": false
-                }
-            ], 
-            "id": "GCVP-RXN", 
-            "ecnumber": null
-        }
-    ], 
+    "LIPOYL-GCVH": [], 
     "MONOMER0-4142": [
         {
             "direction": "UNKNOWN", 
@@ -7387,44 +7089,7 @@
             "ecnumber": null
         }
     ], 
-    "ACEF-DIHYDROLIPOATE": [
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [
-                "E3-CPLX"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "ACEF-DIHYDROLIPOATE", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "NAD", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "Pyruvate-dehydrogenase-lipoate", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "NADH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "PROTON", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-1132", 
-            "ecnumber": null
-        }
-    ], 
+    "ACEF-DIHYDROLIPOATE": [], 
     "CIS-3-4-DEHYDRODECANOYL-ACP": [], 
     "MONOMER-4565": []
 }
