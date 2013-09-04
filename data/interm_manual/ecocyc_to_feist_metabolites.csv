@@ -121,3 +121,28 @@ PRO	pro-L
 THR	thr-L					
 VAL	val-L					
 SEPO3	selnp					
+WATER	h2o					
+DADP	dadp					
+XDP	xdp					
+UDP	udp					
+IDP	idp					
+DGDP	dgdp					
+CDP	cdp					
+BIOTIN	btn					
+CYSTINE	cys-L					
+SUC-COA	succoa					
+NAD	nadp					
+NADH	nadh					
+PRECURSOR-Z	+	C10H12N5O7P	C10H11N5O7P	-1	C10H11N5O7P	-1
+CPD-4	+	C10H13N5O6PS2	C10H11N5O6PS2	-2	C10H11N5O6PS2	-2
+CPD0-1032	+	C6H14N2O2	C6H15N2O2	1	C6H15N2O2	1
+DUDP	dudp					
+PROTEIN-LIPOYLLYSINE						
+ARSENATE	+	H3O4As	HO4As	-2	HO4As	-2
+CPD0-1564	+	C6H12N2O4S2	C6H12N2O4S2	0	C6H12N2O4S2	0
+D-CYSTEINE	cys-D					
+GDP	gdp					
+CPD0-2231	didp					
+DCDP	dcdp					
+TDP	tdp					
+DUTP	dutp					

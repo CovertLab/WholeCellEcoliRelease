@@ -1076,8 +1076,9 @@ def parseProteinMonomers_modified():
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
+						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
+							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
 
 					proteinMonomerDict_modified[pm.frameId] = pm
 
@@ -1092,7 +1093,7 @@ def parseProteinMonomers_modified():
 			pm = proteinMonomerDict_modified[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
 
-def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
+def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds):
 	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
 	obj.reactionEnzymes.append(rxn['enzyme'])
@@ -1142,6 +1143,12 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 		obj.reaction[-1] += pid
 		if i < len(products) - 1:
 			obj.reaction[-1] += ' + '
+
+	# Check for valid frame ids in reactions
+	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
+	for component in rxn['components']:
+		if not component['id'] in validIds:
+			print '%s not in valid ids' % component['id']
 
 # Parse RNA
 def parseRna():
@@ -1265,8 +1272,9 @@ def parseRNA_modified():
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
+						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
+							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
 
 					rnaDict_modified[RNA.frameId] = RNA
 	# Write output
@@ -1695,8 +1703,9 @@ def parseComplexes_modified():
 									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
+						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
+							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
 
 
 					proteinComplexDict_modifiedForm[pc.frameId] = pc
@@ -2378,6 +2387,31 @@ def getMinCoord(geneList):
 
 def getMaxCoord(geneList):
 	return max([gene.right for gene in geneList])
+
+def getValidRxnFrameIds():
+	validRxnFrameIds = []
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'metabolites.csv'),'rb') as csvfile:
+		d = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in d:
+			validRxnFrameIds.append(row['Frame ID'])
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'),'rb') as csvfile:
+		d = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in d:
+			validRxnFrameIds.append(row['Frame ID'])
+			validRxnFrameIds.extend([x for x in json.loads(row['Modified form'])])
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers.csv'),'rb') as csvfile:
+		d = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in d:
+			validRxnFrameIds.append(row['Frame ID'])
+			validRxnFrameIds.extend([x for x in json.loads(row['Modified form'])])
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna.csv'),'rb') as csvfile:
+		d = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in d:
+			validRxnFrameIds.append(row['Frame ID'])
+			validRxnFrameIds.extend([x for x in json.loads(row['Modified form'])])
+
+	return validRxnFrameIds
 
 # Define data type classes
 class enzyme:
