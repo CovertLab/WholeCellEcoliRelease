@@ -2334,22 +2334,6 @@ def buildReaction(rp,row):
 		reac.requiredCofactors.sort()
 	return reac
 
-
-# Parse enzyme kinetics
-def parseEnzymeKinetics():
-	enzKinDict = {}
-
-	# Write output
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'kinetics.csv'),'wb') as csvfile:
-		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
-
-		keys = enzKinDict.keys()
-		keys.sort()
-		csvwriter.writerow(['Frame ID', 'kcat forward', 'kcat forward units', 'kcat reverse', 'kcat reverse units','Comments'])
-		for key in keys:
-			e = enzKinDict[key]
-			csvwriter.writerow([e.frameId, e.kcat_forward, e.forward_units, e.kcat_reverse, e.reverse_units, e.comments])
-
 # Utility functions
 def splitBigBracket(s):
 	s = s[2:-2]
