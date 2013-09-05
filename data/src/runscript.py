@@ -1010,14 +1010,7 @@ def parseProteinMonomers_modified():
 			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -1203,14 +1196,7 @@ def parseRNA_modified():
 			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -1302,7 +1288,6 @@ def getFormationReactions(frameId, unmodified_form):
 		formation_reactions_raw.extend(rxn)
 	print 'Checked for parents for ' + frameId
 
-
 	# Look for class species in reaction and fill in with instance species
 	for rxn in formation_reactions_raw:
 		# Builds list of:
@@ -1318,7 +1303,7 @@ def getFormationReactions(frameId, unmodified_form):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
 			new_rxn = buildInstanceReaction(cart_product, rxn)
 			formation_reactions.append(new_rxn)
-
+	
 	return formation_reactions
 
 def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
@@ -1384,14 +1369,7 @@ def parseComplexes():
 					monomerCompartment[m] = json.loads(row[3])
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build list of RNAs that could be included in complexes
 	rnaList = []
@@ -1638,14 +1616,7 @@ def parseComplexes_modified():
 			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -2023,20 +1994,18 @@ def parseMetabolites():
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
-			if row[3] != '':
+			if row['Metabolite ID'] == '':
 				newMet = metabolite()
-				newMet.frameId = row[0].lower()
-				if row[2] != '':
-					newMet.neutralFormula = row[2]
+				newMet.frameId = row['Frame ID'].lower()
+				if row['Neutral formula'] != '':
+					newMet.neutralFormula = row['Neutral formula']
 				else:
-					newMet.neutralFormula = row[3]
-				# Properties at pH 7
-				newMet.addPHProp(pH = 7,formula = row[3], charge = row[4])
+					newMet.neutralFormula = row['pH 7.2 formula']
 				# Properties at pH 7.2
-				newMet.addPHProp(pH = 7.2, formula = row[5], charge = row[6])
+				newMet.addPHProp(pH = 7,formula = row['pH 7.2 formula'], charge = row['pH 7.2 charge'])
 
 				metDict[newMet.frameId] = newMet
 
@@ -2386,6 +2355,17 @@ def getMinCoord(geneList):
 
 def getMaxCoord(geneList):
 	return max([gene.right for gene in geneList])
+
+def loadEcocycToFeistConverstions():
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if row['Metabolite ID'] == '':
+				metaboliteEcocycToFeistIdConversion[row['Frame ID']] = row['Frame ID'].lower()
+			else:
+				metaboliteEcocycToFeistIdConversion[row['Frame ID']] = row['Metabolite ID']
+	return metaboliteEcocycToFeistIdConversion
 
 def getValidRxnFrameIds():
 	validRxnFrameIds = []
