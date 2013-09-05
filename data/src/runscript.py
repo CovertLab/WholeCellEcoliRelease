@@ -2030,7 +2030,7 @@ def parseMetabolites():
 				else:
 					newMet.neutralFormula = row['pH 7.2 formula']
 				# Properties at pH 7.2
-				newMet.addPHProp(pH = 7,formula = row['pH 7.2 formula'], charge = row['pH 7.2 charge'])
+				newMet.addPHProp(pH = 7.2,formula = row['pH 7.2 formula'], charge = int(row['pH 7.2 charge']))
 
 				metDict[newMet.frameId] = newMet
 
