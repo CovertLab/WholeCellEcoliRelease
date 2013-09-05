@@ -1111,12 +1111,13 @@ def parseProteinMonomers_modified():
 			pm = proteinMonomerDict_modified[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
 
-def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds):
+def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
 	obj.reactionEnzymes.append(rxn['enzyme'])
 	obj.ec.append(rxn['ecnumber'])
 	obj.mass_balance.append(rxn['massbalance'])
+	obj.reaction_dict.append(rxn)
 
 	reactants = []
 	products = []
@@ -1160,12 +1161,6 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 		obj.reaction[-1] += pid
 		if i < len(products) - 1:
 			obj.reaction[-1] += ' + '
-
-	# Check for valid frame ids in reactions
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for component in rxn['components']:
-		if not component['id'] in validIds:
-			print '%s not in valid ids' % component['id']
 
 # Parse RNA
 def parseRna():
@@ -1279,14 +1274,23 @@ def parseRNA_modified():
 								
 								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
-									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
-						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
+							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					rnaDict_modified[RNA.frameId] = RNA
+	# Replace manually cureated forms
+
+	# Check for valid species frame ids in formation reactions
+	validIds = getValidRxnFrameIds()
+	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
+	for pm in [rnaDict_modified[x] for x in rnaDict_modified.iterkeys()]:
+		for rxn in pm.reaction_dict:
+			for component in rxn['components']:
+				if not component['id'] in validIds:
+					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna_modified.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
@@ -1695,15 +1699,24 @@ def parseComplexes_modified():
 								
 								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
-									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
-						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
+							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 
 					proteinComplexDict_modifiedForm[pc.frameId] = pc
+
+	# Replaced manually curated forms
+
+	# Check for valid species frame ids in formation reactions
+	validIds = getValidRxnFrameIds()
+	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
+	for pm in [proteinComplexDict_modifiedForm[x] for x in proteinComplexDict_modifiedForm.iterkeys()]:
+		for rxn in pm.reaction_dict:
+			for component in rxn['components']:
+				if not component['id'] in validIds:
+					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes_modified.csv'),'wb') as csvfile:
@@ -2417,6 +2430,83 @@ def getValidRxnFrameIds():
 
 	return validRxnFrameIds
 
+def parseReactionString(reactionStr):
+	match = re.match("^\[(?P<comp>.*?)\][ ]{0,1}: (?P<stoich>.*)$", reactionStr)
+	if match != None:
+		globalComp = match.group("comp")
+		stoich = match.group("stoich")
+	else:
+		globalComp = ""
+		stoich = reactionStr
+
+	match = re.match("^(?P<lefts>.*) (?P<dir><*((==)|(--))>*) (?P<rights>.*)$", stoich)
+	if match == None:
+		raise Exception, "Invalid stoichiometry: %s." % (stoich)
+
+	if match.group("dir") == "==>" or match.group("dir") == "-->":
+		reactionDir = 1
+	elif match.group("dir") == "<==" or match.group("dir") == "<--":
+		reactionDir = -1
+	elif match.group("dir") == "<==>" or match.group("dir") == "<-->":
+		reactionDir = 0
+
+	stoich = []
+
+	lefts = match.group("lefts").split(" + ")
+	for componentStr in lefts:
+		coeff, mol, form, comp, thisType = parseReactionComponent(componentStr, globalComp)
+		stoich.append({ "coeff": -coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
+
+	rights = match.group("rights").split(" + ")
+	for componentStr in rights:
+		coeff, mol, form, comp, thisType = parseReactionComponent(componentStr, globalComp)
+		stoich.append({ "coeff": coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
+
+	new_stoich = []
+	for component in stoich:
+		new_stoich.append({'coeff' : component['coeff'], 'id' : component['molecule'], 'isclass' : False})
+
+	return new_stoich, reactionDir
+
+def parseReactionComponent(componentStr, globalComp):
+	if globalComp == "":
+		tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*\[(?P<comp>.+)\]$", componentStr)
+		if tmp == None:
+			raise Exception, "Invalid stoichiometry: %s." % (componentStr)
+		if tmp.group("coeff") == None:
+			coeff = 1.0
+		else:
+			coeff = float(tmp.group("coeff")[1:-2])
+
+		mol = tmp.group("mol")
+
+		if tmp.group("form") == None:
+			form = "mature"
+		else:
+			form = tmp.group("form")[1:]
+
+		comp = tmp.group("comp")
+	else:
+		tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*$", componentStr)
+		if tmp == None:
+			raise Exception, "Invalid stoichiometry: %s." % (componentStr)
+		if tmp.group("coeff") == None:
+			coeff = 1.0
+		else:
+			coeff = float(tmp.group("coeff")[1:-2])
+
+		mol = tmp.group("mol")
+
+		if tmp.group("form") == None:
+			form = "mature"
+		else:
+			form = tmp.group("form")[1:]
+
+		comp = globalComp
+		thisType = None
+
+	return coeff, mol, form, comp, thisType
+
 # Define data type classes
 class enzyme:
 	def __init__(self):
@@ -2708,6 +2798,7 @@ class proteinMonomer:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reaction_dict = []
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
@@ -2724,6 +2815,7 @@ class rna:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reaction_dict = []
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
@@ -2741,6 +2833,7 @@ class proteinComplex:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reaction_dict = []
 		self.location = []
 		self.reactionEnzymes = []
 		self.ec = []
