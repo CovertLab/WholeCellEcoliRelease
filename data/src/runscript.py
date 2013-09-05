@@ -1147,7 +1147,6 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 	elif rxn['direction'] in ['RIGHT-TO-LEFT', 'IRREVERSIBLE-RIGHT-TO-LEFT', 'PHYSIOL-RIGHT-TO-LEFT']:
 		obj.reaction[-1] += ' <== '
 	else:
-		ipdb.set_trace()
 		raise Exception, 'Reaction being written strange!\n'
 
 	for i,p in enumerate(products):
