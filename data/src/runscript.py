@@ -147,7 +147,6 @@ def getEcocycReactionStoich(rxn):
 			fId = 'ELECTRON'
 			isclass = False
 		else:
-			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
@@ -181,7 +180,6 @@ def getEcocycReactionStoich(rxn):
 			fId = 'ELECTRON'
 			isclass = False
 		else:
-			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
@@ -1042,6 +1040,7 @@ def parseProteinMonomers_modified():
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
+	# Load reaction data
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
 
