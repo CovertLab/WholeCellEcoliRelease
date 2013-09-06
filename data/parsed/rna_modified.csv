@@ -1,8 +1,8 @@
 Frame ID	Name	Unmodified Form	Location	Reaction ID	Reaction Enzyme	EC	Reaction	Mass balance?	EC	Comments
-CHARGED-FMETV-TRNA	tRNAmetV	RNA0-306	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	[]	
-CHARGED-FMETW-TRNA	tRNAmetW	metW-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	[]	
-CHARGED-FMETY-TRNA	tRNAmetY	metY-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	[]	
-CHARGED-FMETZ-TRNA	tRNAmetZ	metZ-tRNA	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	[]	
+CHARGED-FMETV-TRNA	tRNAmetV	RNA0-306	"[""CCO-CYTOSOL""]"	"[""RX_WC_METHIONYL-TRNA-FORMYLTRANSFERASE-RXN1""]"	"[[""EG11268-MONOMER""]]"	"[""2.1.2.9""]"	"[""[c]: RNA0-306 + 10fthf ==> CHARGED-FMETV-TRNA + thf""]"	"[""Balanced.""]"	"[""2.1.2.9""]"	Manually curated from Ecocyc.
+CHARGED-FMETW-TRNA	tRNAmetW	metW-tRNA	"[""CCO-CYTOSOL""]"	"[""RX_WC_METHIONYL-TRNA-FORMYLTRANSFERASE-RXN2""]"	"[[""EG11268-MONOMER""]]"	"[""2.1.2.9""]"	"[""[c]: metW-tRNA + 10fthf ==> CHARGED-FMETW-TRNA + thf""]"	"[""Balanced.""]"	"[""2.1.2.9""]"	Manually curated from Ecocyc.
+CHARGED-FMETY-TRNA	tRNAmetY	metY-tRNA	"[""CCO-CYTOSOL""]"	"[""RX_WC_METHIONYL-TRNA-FORMYLTRANSFERASE-RXN3""]"	"[[""EG11268-MONOMER""]]"	"[""2.1.2.9""]"	"[""[c]: metY-tRNA + 10fthf ==> CHARGED-FMETY-TRNA + thf""]"	"[""Balanced.""]"	"[""2.1.2.9""]"	Manually curated from Ecocyc.
+CHARGED-FMETZ-TRNA	tRNAmetZ	metZ-tRNA	"[""CCO-CYTOSOL""]"	"[""RX_WC_METHIONYL-TRNA-FORMYLTRANSFERASE-RXN4""]"	"[[""EG11268-MONOMER""]]"	"[""2.1.2.9""]"	"[""[c]: metZ-tRNA + 10fthf ==> CHARGED-FMETZ-TRNA + thf""]"	"[""Balanced.""]"	"[""2.1.2.9""]"	Manually curated from Ecocyc.
 RNA0-309	tRNAileY	RNA0-305	"[""CCO-CYTOSOL""]"	"[""ISOLEUCINE--TRNA-LIGASE-RXN""]"	"[[""ILES-MONOMER""]]"	[null]	"[""[c]: h + RNA0-305 + ile-L + atp ==> RNA0-309 + ppi + amp""]"	"[""Balanced.""]"	[null]	
 RNA0-310	tRNAasnW	RNA0-304	"[""CCO-CYTOSOL""]"	"[""ASPARAGINE--TRNA-LIGASE-RXN""]"	"[[""ASNS-CPLX""]]"	[null]	"[""[c]: h + RNA0-304 + asn-L + atp ==> RNA0-310 + ppi + amp""]"	"[""Balanced.""]"	[null]	
 RNA0-311	tRNAvalZ	RNA0-300	"[""CCO-CYTOSOL""]"	"[""VALINE--TRNA-LIGASE-RXN""]"	"[[""VALS-MONOMER""]]"	[null]	"[""[c]: h + RNA0-300 + val-L + atp ==> RNA0-311 + ppi + amp""]"	"[""Balanced.""]"	[null]	
