@@ -14,3 +14,7 @@
 "R-3-HYDROXYPALMITOYL-ACP"	"ACP will be modeled in metabolism"
 "SUCC-ACP"	"ACP will be modeled in metabolism"
 "TRANS-DELTA3-CIS-DELTA5-DODECENOYL-ACP"	"ACP will be modeled in metabolism"
+"ACEF-DIHYDROLIPOATE"	"Lipoate metabolism will be modeled in metabolism"
+"ACEF-LIPOATE"	"Lipoate metabolism will be modeled in metabolism"
+"ACEF-S-ACETYLDIHYDROLIPOATE"	"Lipoate metabolism will be modeled in metabolism"
+"ADENYLYL-GS"	"Metabolic intermediate in glutamine synthesis. No reaction for creation in Ecocyc because it is part of the metabolic pathway."

@@ -1,8 +1,4 @@
 Frame ID	Name	Unmodified Form	Location	Reaction ID	Reaction enzyme	Reaction	Mass balance?	EC	Comments
-ACEF-DIHYDROLIPOATE	AceF	E2P-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
-ACEF-LIPOATE	AceF	E2P-MONOMER	"[""CCO-CYTOSOL""]"	"[""RXN0-1139""]"	"[[""EG11796-MONOMER""]]"	"[""[c]: atp + E2P-MONOMER + lipoic-acid <==> amp + ppi + ACEF-LIPOATE""]"	"[""Undetermined; a substrate lacks a chemical formula""]"	[null]	
-ACEF-S-ACETYLDIHYDROLIPOATE	AceF	E2P-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
-ADENYLYL-GS	GlnA	GLUTAMINESYN-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
 AMINOMETHYLDIHYDROLIPOYL-GCVH	glycine cleavage system H protein	GCVH-MONOMER	"[""CCO-CYTOSOL""]"	"[""RX_WC_AMINOMETHYLDIHYDROLIPOYL-GCVH1""]"	"[[""GCVP-CPLX""]]"	"[""[c]: GCVH-MONOMER + gly ==> AMINOMETHYLDIHYDROLIPOYL-GCVH + co2""]"	"[""Balanced.""]"	[null]	Manually added RX_WC_AMINOMETHYLDIHYDROLIPOYL-GCVH1 reaction. Changed out class species and replaced with instance species.
 BCCP-BIOTIN	biotin carboxyl carrier protein	BCCP-MONOMER	"[""CCO-CYTOSOL""]"	"[""BIOTINLIG-RXN""]"	"[[""BIOTINLIG-MONOMER""]]"	"[""[c]: BCCP-MONOMER + btn + atp <==> BCCP-BIOTIN + ppi + amp""]"	"[""Marked as unbalanced, because the complete reaction equation is not known.""]"	[null]	
 BOUND-TORT	periplasmic sensory protein associated with the TorRS two-component regulatory system	TORT-MONOMER	"[""CCO-PERI-BAC""]"	"[""TORT-RXN""]"	[[]]	"[""[p]: tmao + TORT-MONOMER <==> BOUND-TORT""]"	"[""Undetermined; a substrate lacks a chemical formula""]"	[null]	
