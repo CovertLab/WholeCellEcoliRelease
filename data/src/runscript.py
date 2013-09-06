@@ -1076,29 +1076,10 @@ def parseProteinMonomers_modified():
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in dictreader:
-			pm = proteinMonomerDict_modified[row['Frame ID']]
-			pm.frameId = row['Frame ID']
-			pm.name = row['Name']
-			pm.unmodifiedForm = row['Unmodified Form']
-			pm.location = json.loads(row['Location'])
-			pm.reactionId = json.loads(row['Reaction ID'])
-			pm.reactionEnzymes = json.loads(row['Reaction enzyme'])
-			pm.reaction = json.loads(row['Reaction'])
-			for i,rxn in enumerate(pm.reaction):
-				stoich, reactionDir = parseReactionString(rxn)
-				pm.reaction_dict[i]['components'] = stoich
-			pm.mass_balance = json.loads(row['Mass balance?'])
-			pm.ec = json.loads(row['EC'])
-			pm.comments = row['Comments']
+			replaceManualCurated(proteinMonomerDict_modified, row)
 
 	#Check for valid species frame ids in formation reactions
-	validIds = getValidRxnFrameIds()
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for pm in [proteinMonomerDict_modified[x] for x in proteinMonomerDict_modified.iterkeys()]:
-		for rxn in pm.reaction_dict:
-			for component in rxn['components']:
-				if not component['id'] in validIds:
-					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
+	checkValidIdsInRxn(proteinMonomerDict_modified)
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers_modified.csv'),'wb') as csvfile:
@@ -1111,13 +1092,40 @@ def parseProteinMonomers_modified():
 			pm = proteinMonomerDict_modified[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
 
+def replaceManualCurated(objDict, row):
+	obj = objDict[row['Frame ID']]
+	obj.frameId = row['Frame ID']
+	obj.name = row['Name']
+	obj.unmodifiedForm = row['Unmodified Form']
+	obj.location = json.loads(row['Location'])
+	obj.reactionId = json.loads(row['Reaction ID'])
+	obj.reactionEnzymes = json.loads(row['Reaction enzyme'])
+	obj.reaction = json.loads(row['Reaction'])
+	obj.reaction_dict = []
+	for i,rxn in enumerate(obj.reaction):
+		stoich, reactionDir = parseReactionString(rxn)
+		obj.reaction_dict.append(stoich)
+	obj.mass_balance = json.loads(row['Mass balance?'])
+	obj.ec = json.loads(row['EC'])
+	obj.comments = row['Comments']
+
+def checkValidIdsInRxn(objDict):
+	validIds = getValidRxnFrameIds()
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
+	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
+	for obj in [objDict[x] for x in objDict.iterkeys()]:
+		for i,rxn in enumerate(obj.reaction_dict):
+			for component in rxn:
+				if not component['id'] in validIds:
+					print '%s not in valid ids in reaction %s' % (component['id'], obj.reactionId[i])
+
 def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
 	obj.reactionEnzymes.append(rxn['enzyme'])
 	obj.ec.append(rxn['ecnumber'])
 	obj.mass_balance.append(rxn['massbalance'])
-	obj.reaction_dict.append(rxn)
+	obj.reaction_dict.append(rxn['components'])
 
 	reactants = []
 	products = []
@@ -1285,39 +1293,10 @@ def parseRNA_modified():
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in dictreader:
-			pm = rnaDict_modified[row['Frame ID']]
-			pm.frameId = row['Frame ID']
-			pm.name = row['Name']
-			pm.unmodifiedForm = row['Unmodified Form']
-			pm.location = json.loads(row['Location'])
-			pm.reactionId = json.loads(row['Reaction ID'])
-			pm.reactionEnzymes = json.loads(row['Reaction enzyme'])
-			pm.reaction = json.loads(row['Reaction'])
-			for i,rxn in enumerate(pm.reaction):
-				stoich, reactionDir = parseReactionString(rxn)
-				pm.reaction_dict[i]['components'] = stoich
-			pm.mass_balance = json.loads(row['Mass balance?'])
-			pm.ec = json.loads(row['EC'])
-			pm.comments = row['Comments']
+			replaceManualCurated(rnaDict_modified, row)
 
 	#Check for valid species frame ids in formation reactions
-	validIds = getValidRxnFrameIds()
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for pm in [rnaDict_modified[x] for x in rnaDict_modified.iterkeys()]:
-		for rxn in pm.reaction_dict:
-			for component in rxn['components']:
-				if not component['id'] in validIds:
-					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
-
-
-	# Check for valid species frame ids in formation reactions
-	validIds = getValidRxnFrameIds()
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for pm in [rnaDict_modified[x] for x in rnaDict_modified.iterkeys()]:
-		for rxn in pm.reaction_dict:
-			for component in rxn['components']:
-				if not component['id'] in validIds:
-					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
+	checkValidIdsInRxn(rnaDict_modified)
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna_modified.csv'),'wb') as csvfile:
@@ -1740,38 +1719,10 @@ def parseComplexes_modified():
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in dictreader:
-			pm = proteinComplexDict_modifiedForm[row['Frame ID']]
-			pm.frameId = row['Frame ID']
-			pm.name = row['Name']
-			pm.unmodifiedForm = row['Unmodified Form']
-			pm.location = json.loads(row['Location'])
-			pm.reactionId = json.loads(row['Reaction ID'])
-			pm.reactionEnzymes = json.loads(row['Reaction enzyme'])
-			pm.reaction = json.loads(row['Reaction'])
-			for i,rxn in enumerate(pm.reaction):
-				stoich, reactionDir = parseReactionString(rxn)
-				pm.reaction_dict[i]['components'] = stoich
-			pm.mass_balance = json.loads(row['Mass balance?'])
-			pm.ec = json.loads(row['EC'])
-			pm.comments = row['Comments']
+			replaceManualCurated(proteinComplexDict_modifiedForm, row)
 
 	#Check for valid species frame ids in formation reactions
-	validIds = getValidRxnFrameIds()
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for pm in [proteinComplexDict_modifiedForm[x] for x in proteinComplexDict_modifiedForm.iterkeys()]:
-		for rxn in pm.reaction_dict:
-			for component in rxn['components']:
-				if not component['id'] in validIds:
-					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
-
-	# Check for valid species frame ids in formation reactions
-	validIds = getValidRxnFrameIds()
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for pm in [proteinComplexDict_modifiedForm[x] for x in proteinComplexDict_modifiedForm.iterkeys()]:
-		for rxn in pm.reaction_dict:
-			for component in rxn['components']:
-				if not component['id'] in validIds:
-					print '%s not in valid ids in reaction %s' % (component['id'], rxn['id'])
+	checkValidIdsInRxn(proteinComplexDict_modifiedForm)
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes_modified.csv'),'wb') as csvfile:
