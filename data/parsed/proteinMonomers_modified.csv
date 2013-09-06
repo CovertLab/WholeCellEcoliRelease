@@ -6,7 +6,7 @@ ACEF-LIPOATE	AceF	E2P-MONOMER	"[""CCO-CYTOSOL""]"	"[""RXN0-1139""]"	"[[""EG11796
 ACEF-S-ACETYLDIHYDROLIPOATE	AceF	E2P-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
 ACP-MONOMER	apo-[acyl carrier protein]	EG50003-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
 ADENYLYL-GS	GlnA	GLUTAMINESYN-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
-AMINOMETHYLDIHYDROLIPOYL-GCVH	glycine cleavage system H protein	GCVH-MONOMER	"[""CCO-CYTOSOL""]"	"[""GCVP-RXN""]"	"[[""GCVP-CPLX""]]"	"[""[c]: PROTEIN-LIPOYLLYSINE + gly ==> AMINOMETHYLDIHYDROLIPOYL-GCVH + co2""]"	"[""Balanced.""]"	[null]	
+AMINOMETHYLDIHYDROLIPOYL-GCVH	glycine cleavage system H protein	GCVH-MONOMER	"[""CCO-CYTOSOL""]"	"[""RX_WC_AMINOMETHYLDIHYDROLIPOYL-GCVH1""]"	"[[""GCVP-CPLX""]]"	"[""[c]: GCVH-MONOMER + gly ==> AMINOMETHYLDIHYDROLIPOYL-GCVH + co2""]"	"[""Balanced.""]"	[null]	Manually added RX_WC_AMINOMETHYLDIHYDROLIPOYL-GCVH1 reaction. Changed out class species and replaced with instance species.
 BCCP-BIOTIN	biotin carboxyl carrier protein	BCCP-MONOMER	"[""CCO-CYTOSOL""]"	"[""BIOTINLIG-RXN""]"	"[[""BIOTINLIG-MONOMER""]]"	"[""[c]: BCCP-MONOMER + btn + atp <==> BCCP-BIOTIN + ppi + amp""]"	"[""Marked as unbalanced, because the complete reaction equation is not known.""]"	[null]	
 BETA-HYDROXY-CIS-DELTA5-DODECENOYL-ACP	apo-[acyl carrier protein]	EG50003-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
 BETA-KETO-CIS-DELTA5-DODECENOYL-ACP	apo-[acyl carrier protein]	EG50003-MONOMER	"[""CCO-CYTOSOL""]"	[]	[]	[]	[]	[]	
