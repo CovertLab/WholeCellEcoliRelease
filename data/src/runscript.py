@@ -1081,6 +1081,13 @@ def parseProteinMonomers_modified():
 	#Check for valid species frame ids in formation reactions
 	checkValidIdsInRxn(proteinMonomerDict_modified)
 
+	# Remove unwanted frameIds
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_proteinMonomers_modified_todelete.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in dictreader:
+			proteinMonomerDict_modified.pop(row['Frame ID'])
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers_modified.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
