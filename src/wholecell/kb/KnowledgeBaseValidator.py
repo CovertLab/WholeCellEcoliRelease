@@ -341,13 +341,13 @@ class KnowledgeBaseValidator(object):
 				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
 		return s
 
-	def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
-		validFrameIds = [x['id'] for x in listToCheckAgainst]
-		s = ''
-		for obj in listToCheck:
-			if obj[fieldName] not in validFrameIds:
-				s += '%s has an invalid frameId in field %s with value %s!\n' % (obj['id'], fieldName, obj[fieldName])
-		if len(s): raise Exception, s
+	# def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
+	# 	validFrameIds = [x['id'] for x in listToCheckAgainst]
+	# 	s = ''
+	# 	for obj in listToCheck:
+	# 		if obj[fieldName] not in validFrameIds:
+	# 			s += '%s has an invalid frameId in field %s with value %s!\n' % (obj['id'], fieldName, obj[fieldName])
+	# 	if len(s): raise Exception, s
 
 	def validateAlphabet(self, listToCheck, alphabet):
 		s = ''
