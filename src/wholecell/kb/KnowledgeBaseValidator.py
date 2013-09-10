@@ -183,7 +183,7 @@ class KnowledgeBaseValidator(object):
 		## Check modified form properties
 		for modRna in [x for x in self.kb.rnas if x['unmodifiedForm'] != None]:
 			# Validate that unmodified form is a legit frame id
-			proteinFrameIds = [x['id'] for x in self.proteins]
+			proteinFrameIds = [x['id'] for x in self.kb.proteins]
 			if not modRna['unmodifiedForm'] in proteinFrameIds:
 				s += 'Modified RNA %s has invalid frame id for unmodifiedForm!\n' % modRna['id']
 
