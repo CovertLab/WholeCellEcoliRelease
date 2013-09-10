@@ -192,7 +192,7 @@ class KnowledgeBaseValidator(object):
 		# Check that location is an allowed abbreviation
 		s += self.checkAllowedLocation(self.kb.rnas, 'location')
 
-		## Check modified form properties
+		## Check modifiedForms properties
 		for modRna in [x for x in self.kb.rnas if x['unmodifiedForm'] != None]:
 			# Validate that unmodified form is a legit frame id
 			rnaFrameIds = [x['id'] for x in self.kb.rnas]
@@ -212,7 +212,7 @@ class KnowledgeBaseValidator(object):
 			if not foundModForm:
 				s += 'Unmodified RNA %s has incorrect or invalid frame id %s for possible modified form %s!\n' % (unmodifiedRna['id'], modRna['id'], unmodifiedRna['modifiedForms'])
 
-		## Check mRNA properties
+		## Check monomerId properties
 		mRNAs = [y for y in self.kb.genes if y['type'] == 'mRNA']
 		proteins = [x['id'] for x in self.kb.proteins]
 		for mRNA in [x for x in self.kb.rnas if x['id'] in mRNAs]:
