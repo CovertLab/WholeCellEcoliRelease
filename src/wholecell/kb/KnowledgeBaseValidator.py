@@ -162,8 +162,11 @@ class KnowledgeBaseValidator(object):
 						 'unmodifiedForm': [None, str]}
 		s += self.validateDatatype(fieldDataType, self.kb.rnas)
 
+		# Validate that all RNAs have no composition
+		if len([x for x in self.kb.rnas if x['composition'] != []]):
+			s += 'An RNA has a composition!\n'
+
 		# Validate that expression is >0
-		s = ''
 		for rna in self.kb.rnas:
 			if rna['expression'] < 0:
 				s += '%s has a expression that is less than zero!\n' % rna['id']
