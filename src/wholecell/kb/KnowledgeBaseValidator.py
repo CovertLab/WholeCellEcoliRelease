@@ -174,7 +174,16 @@ class KnowledgeBaseValidator(object):
 		if abs(sum(rna['expression'] for rna in self.kb.rnas) - 1.0) > 1e-8:
 			s += 'Expression does not sum to unity it sums to %s!\n' % str(exp_sum) 
 
-		# Validate that half life is >0
+		# Validate that geneId is a valid id and that the gene points to the rna
+		validGeneIds = [x['id'] for x in self.kb.genes]
+		for rna in self.kb.rnas:
+			if not rna['geneId'] in validGeneIds:
+				s += 'RNA %s has invalid gene id %s!\n' % (rna['id'], rna['geneId'])
+
+			if [x for x in self.kb.genes if x['id'] == rna['geneId']][0]['rnaId'] != rna['id']:
+				s += 'RNA %s has gene %s that has incorrect or invalid rna pointer!\n' % (rna['id'], rna['geneId'])
+
+		# Validate that halfLife is >0
 		s = ''
 		for rna in self.kb.rnas:
 			if rna['halfLife'] < 0:
