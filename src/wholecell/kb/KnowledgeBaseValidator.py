@@ -183,20 +183,22 @@ class KnowledgeBaseValidator(object):
 		## Check modified form properties
 		for modRna in [x for x in self.kb.rnas if x['unmodifiedForm'] != None]:
 			# Validate that unmodified form is a legit frame id
-			proteinFrameIds = [x['id'] for x in self.kb.proteins]
-			if not modRna['unmodifiedForm'] in proteinFrameIds:
-				s += 'Modified RNA %s has invalid frame id for unmodifiedForm!\n' % modRna['id']
+			rnaFrameIds = [x['id'] for x in self.kb.rnas]
+			if not modRna['unmodifiedForm'] in rnaFrameIds:
+				s += 'Modified RNA %s has invalid frame id for unmodifiedForm %s!\n' % (modRna['id'], modRna['unmodifiedForm'])
 
 			# Check that modified forms have no expression level
 			if modRna['expression'] != 0.:
 				s += 'Modified RNA %s has a non-zero expression level!\n' % modRna['id']
 
-		## Check modified form properties
-		for unmodRna in [x for x in self.kb.rnas if len(x['modifiedForms'])]:
-			pass
-
-			# Validate that its modified forms are actual frame ids
-
+			# Check that unmodified form has this modified RNA as its modified form
+			unmodifiedRna = [x for x in self.kb.rnas if x['id'] == modRna['unmodifiedForm']][0]
+			foundModForm = False
+			for possibleModForm in unmodifiedRna['modifiedForms']:
+				if possibleModForm == modRna['id']:
+					foundModForm = True
+			if not foundModForm:
+				s += 'Unmodified RNA %s has incorrect or invalid frame id %s for possible modified form %s!\n' % (unmodifiedRna['id'], modRna['id'], unmodifiedRna['modifiedForms'])
 
 		## Check mRNA properties
 		mRNAs = [y for y in self.kb.genes if y['type'] == 'mRNA']
@@ -262,7 +264,7 @@ class KnowledgeBaseValidator(object):
 				s += 'Gene %s has an incorrect length or sequence!\n' % gene['id']
 
 		# Validate that its rnaId is a legit one
-		self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
+		s += self.checkFrameId(self.kb.genes, 'rnaId', self.kb.rnas)
 
 		# Validate sequence alphabet
 		s += self.validateAlphabet(self.kb.genes, ['A','T','G','C'])
@@ -341,13 +343,13 @@ class KnowledgeBaseValidator(object):
 				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
 		return s
 
-	# def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
-	# 	validFrameIds = [x['id'] for x in listToCheckAgainst]
-	# 	s = ''
-	# 	for obj in listToCheck:
-	# 		if obj[fieldName] not in validFrameIds:
-	# 			s += '%s has an invalid frameId in field %s with value %s!\n' % (obj['id'], fieldName, obj[fieldName])
-	# 	if len(s): raise Exception, s
+	def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
+		validFrameIds = [x['id'] for x in listToCheckAgainst]
+		s = ''
+		for obj in listToCheck:
+			if obj[fieldName] not in validFrameIds:
+				s += '%s has an invalid frameId in field %s with value %s!\n' % (obj['id'], fieldName, obj[fieldName])
+		return s
 
 	def validateAlphabet(self, listToCheck, alphabet):
 		s = ''
