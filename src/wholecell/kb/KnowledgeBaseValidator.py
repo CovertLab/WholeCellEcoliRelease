@@ -26,17 +26,19 @@ class KnowledgeBaseValidator(object):
 	def __init__(self, knowledgeBase):
 		self.kb = knowledgeBase
 
+		s = ''
 		# Validate datatypes
-		self.validateMetabolites()
-		self.validateProteins()
-		self.validateRnas()
-		self.validateGenes()
-		self.validateReactions()
+		s += self.validateMetabolites()
+		s += self.validateProteins()
+		s += self.validateRnas()
+		s += self.validateGenes()
+		s += self.validateReactions()
 
 
 		# Other
 
-
+		if len(s):
+			raise Exception, s
 	# def validateFrameId(self):
 	# 	# Validates that all frameid's are unique
 	# 	# TODO: Redo this so that it uses the id's actually in the KB
@@ -99,7 +101,7 @@ class KnowledgeBaseValidator(object):
 
 		# Validate that MW is correct
 
-		if len(s): raise Exception, s
+		return s
 
 
 	def validateProteins(self):
@@ -139,6 +141,8 @@ class KnowledgeBaseValidator(object):
 		# Validate the MW is correct and there
 
 		# validate that sequence uses correct alphabet
+
+		return s
 
 	def validateRnas(self):
 		s = ''
@@ -221,7 +225,7 @@ class KnowledgeBaseValidator(object):
 		# Validate sequence alphabet
 		s += self.validateAlphabet(self.kb.rnas, ['A','U','G','C'])
 
-		if len(s): raise Exception, s
+		return s
 
 	def validateGenes(self):
 		s = ''
@@ -273,7 +277,7 @@ class KnowledgeBaseValidator(object):
 			if gene['seq'][:3] not in ['ATG', 'GTG', 'TTG', 'ATT', 'CTG']:
 				print 'Warning: Gene %s has sequence that is not the coding strand! Sequence starts with %s. May not be a coding strand mRNA.' % (gene['id'], gene['seq'][:3])
 
-		if len(s): raise Exception, s
+		return s
 
 	def validateReactions(self):
 		s = ''
@@ -298,7 +302,7 @@ class KnowledgeBaseValidator(object):
 
 		# Check for mass balance
 
-		if len(s): raise Exception, s
+		return s
 
 
 	def validateCenteralDogmaConnections(self):
@@ -327,8 +331,7 @@ class KnowledgeBaseValidator(object):
 					if not isOk:
 						s += '%s has field "%s" that is invalid with value "%s"! Has type %s requires type %s.\n' % (obj['id'], fieldName, str(obj[fieldName]), str(type(obj[fieldName])), str(fieldDataType[fieldName]))
 
-		if len(s): return s
-		else: return ''
+		return s
 
 	def checkAllowedLocation(self, listToCheck, fieldName):
 		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
