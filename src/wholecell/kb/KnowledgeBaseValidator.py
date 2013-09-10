@@ -339,8 +339,7 @@ class KnowledgeBaseValidator(object):
 		for obj in listToCheck:
 			if obj[fieldName] not in allowedLocations:
 				s += '%s has an invalid location abbreviation %s!\n' % (obj['id'], obj[fieldName])
-		if len(s): return s
-		else: return ''
+		return s
 
 	def checkFrameId(self, listToCheck, fieldName, listToCheckAgainst):
 		validFrameIds = [x['id'] for x in listToCheckAgainst]
