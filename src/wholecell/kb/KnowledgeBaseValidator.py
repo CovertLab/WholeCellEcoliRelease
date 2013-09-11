@@ -66,12 +66,16 @@ class KnowledgeBaseValidator(object):
 		# Validate that biomassLoc is actual allowed location abbreviation
 		s += self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
 
-		# Validate that equivEnzIds if they exist are actual proteins
+		# Validate that equivEnzIds if they exist are actual proteins and their location is valid
 		validProteinIds = [x['id'] for x in self.kb.proteins]
+		validRnas = [x['id'] for x in self.kb.rnas]
+		allowedLocations = [x['abbrev'] for x in self.kb.compartments]
 		for met in self.kb.metabolites:
 			for equivEnz in met['equivEnzIds']:
-				if not equivEnz in validProteinIds:
-					s += 'Fake metabolite %s has an enzyme id %s that is not valid!\n' % (met['id'], equivEnz)
+				if not equivEnz['id'] in validProteinIds and not equivEnz['id'] in validRnas:
+					s += 'Fake metabolite %s has an enzyme id %s that is not valid!\n' % (met['id'], equivEnz['id'])
+				if not equivEnz['location'] in allowedLocations:
+					s += 'Fake metabolite %s has an enzyme location %s that is not valid!\n' % (met['id'], equivEnz['id'])
 
 		# Validate that MW is correct
 

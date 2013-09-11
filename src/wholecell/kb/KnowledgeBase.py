@@ -117,7 +117,10 @@ class KnowledgeBase(object):
 						m["fakeMet"] = True
 					else:
 						m['fakeMet'] = False
-				if row["equivEnzIds"] != "[]": m["equivEnzIds"] = json.loads(row["equivEnzIds"])
+				if row["equivEnzIds"] != "[]":
+					rawEquivEnzIds = json.loads(row["equivEnzIds"])
+					for enz in rawEquivEnzIds:
+						m["equivEnzIds"].append({'id' : enz[:-3], 'location' : enz[-2:-1]})
 				if row["comments"]: m["comments"] = row["comments"]
 
 				self.metabolites.append(m)
