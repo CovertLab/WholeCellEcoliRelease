@@ -77,7 +77,15 @@ class KnowledgeBaseValidator(object):
 				if not equivEnz['location'] in allowedLocations:
 					s += 'Fake metabolite %s has an enzyme location %s that is not valid!\n' % (met['id'], equivEnz['id'])
 
-		# Validate that MW is correct
+		# Validate that MW is correct for key species and assume the rest is calculated correctly
+		testDict = {'H'		: 1.0079,
+					'H2O'	: 18.0148,
+					'CYS-L'	: 121.1533,
+					'SELNP'	: 159.9468}
+
+		for metId in testDict.iterkeys():
+			if abs([x for x in self.kb.metabolites if x['id'] == metId][0]['mw7.2'] - testDict[metId]) > 1e-8:
+				s += 'Molecular weights are not calculated correctly for metabolites! Test case %s\n' % metId
 
 		return s
 
