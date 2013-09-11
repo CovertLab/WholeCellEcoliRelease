@@ -58,6 +58,11 @@ class KnowledgeBaseValidator(object):
 						 'name': [str]}
 		s += self.validateDatatype(fieldDataType, self.kb.metabolites)
 
+		# Check that biomassConc was >= 0
+		for met in self.kb.metabolites:
+			if met['biomassConc'] < 0:
+				s += 'Metabolite %s has a biomassConc <0!\n' % met['id']
+
 		# Validate that biomassLoc is actual allowed location abbreviation
 		s += self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
 
