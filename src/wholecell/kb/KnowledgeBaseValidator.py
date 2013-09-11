@@ -39,42 +39,6 @@ class KnowledgeBaseValidator(object):
 
 		if len(s):
 			raise Exception, s
-	# def validateFrameId(self):
-	# 	# Validates that all frameid's are unique
-	# 	# TODO: Redo this so that it uses the id's actually in the KB
-	# 	frameIds = []
-	# 	fileNames = []
-	# 	self.getFrameIds('genes.csv', frameIds, fileNames)
-	# 	self.getFrameIds('locations.csv', frameIds, fileNames)
-	# 	self.getFrameIds('metabolites.csv', frameIds, fileNames)
-	# 	self.getFrameIds('promoters.csv', frameIds, fileNames)
-	# 	self.getFrameIds('proteinComplexes_modified.csv', frameIds, fileNames)
-	# 	self.getFrameIds('proteinComplexes.csv', frameIds, fileNames)
-	# 	self.getFrameIds('proteinMonomers_modified.csv', frameIds, fileNames)
-	# 	self.getFrameIds('proteinMonomers.csv', frameIds, fileNames)
-	# 	self.getFrameIds('reactions.csv', frameIds, fileNames)
-	# 	self.getFrameIds('rna_modified.csv', frameIds, fileNames)
-	# 	self.getFrameIds('rna.csv', frameIds, fileNames)
-	# 	self.getFrameIds('terminators.csv', frameIds, fileNames)
-	# 	self.getFrameIds('transcriptionUnits.csv', frameIds, fileNames)
-
-	# def getFrameIds(self, fileName, frameIds, fileNames):
-	# 	fileName = self.kb.dataFileDir + os.sep + fileName
-	# 	if not os.path.isfile(fileName):
-	# 		raise Exception, "%s is missing" % fileName
-
-	# 	with open(fileName, "r") as csvfile:
-	# 		dr = csv.DictReader(csvfile, delimiter = "\t")
-	# 		for row in dr:
-	# 			if row['Frame ID'] in frameIds:
-	# 				# TODO: Change back into an exception once we hear back from Ecocyc about the one error here
-	# 				#raise Exception, '%s already in use as Frame ID!' % row['Frame ID']
-	# 				print '%s already in use as Frame ID!' % row['Frame ID']
-	# 				print 'frameid that offends is in filename %s ' % fileName
-	# 				print 'frameid in conflict is in filename %s ' % fileNames[frameIds.index(row['Frame ID'])]
-	# 			else:
-	# 				frameIds.append(row['Frame ID'])
-	# 				fileNames.append(fileName)
 
 	def validateMetabolites(self):
 		s = ''
@@ -322,6 +286,42 @@ class KnowledgeBaseValidator(object):
 
 		return s
 
+	# def validateFrameId(self):
+	# 	# Validates that all frameid's are unique
+	# 	# TODO: Redo this so that it uses the id's actually in the KB
+	# 	frameIds = []
+	# 	fileNames = []
+	# 	self.getFrameIds('genes.csv', frameIds, fileNames)
+	# 	self.getFrameIds('locations.csv', frameIds, fileNames)
+	# 	self.getFrameIds('metabolites.csv', frameIds, fileNames)
+	# 	self.getFrameIds('promoters.csv', frameIds, fileNames)
+	# 	self.getFrameIds('proteinComplexes_modified.csv', frameIds, fileNames)
+	# 	self.getFrameIds('proteinComplexes.csv', frameIds, fileNames)
+	# 	self.getFrameIds('proteinMonomers_modified.csv', frameIds, fileNames)
+	# 	self.getFrameIds('proteinMonomers.csv', frameIds, fileNames)
+	# 	self.getFrameIds('reactions.csv', frameIds, fileNames)
+	# 	self.getFrameIds('rna_modified.csv', frameIds, fileNames)
+	# 	self.getFrameIds('rna.csv', frameIds, fileNames)
+	# 	self.getFrameIds('terminators.csv', frameIds, fileNames)
+	# 	self.getFrameIds('transcriptionUnits.csv', frameIds, fileNames)
+
+	# def getFrameIds(self, fileName, frameIds, fileNames):
+	# 	fileName = self.kb.dataFileDir + os.sep + fileName
+	# 	if not os.path.isfile(fileName):
+	# 		raise Exception, "%s is missing" % fileName
+
+	# 	with open(fileName, "r") as csvfile:
+	# 		dr = csv.DictReader(csvfile, delimiter = "\t")
+	# 		for row in dr:
+	# 			if row['Frame ID'] in frameIds:
+	# 				# TODO: Change back into an exception once we hear back from Ecocyc about the one error here
+	# 				#raise Exception, '%s already in use as Frame ID!' % row['Frame ID']
+	# 				print '%s already in use as Frame ID!' % row['Frame ID']
+	# 				print 'frameid that offends is in filename %s ' % fileName
+	# 				print 'frameid in conflict is in filename %s ' % fileNames[frameIds.index(row['Frame ID'])]
+	# 			else:
+	# 				frameIds.append(row['Frame ID'])
+	# 				fileNames.append(fileName)
 
 	def validateCenteralDogmaConnections(self):
 		pass
