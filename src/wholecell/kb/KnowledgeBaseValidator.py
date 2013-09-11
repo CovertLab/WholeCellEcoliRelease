@@ -98,11 +98,15 @@ class KnowledgeBaseValidator(object):
 		s += self.checkAllowedLocation([x for x in self.kb.metabolites if x['biomassConc'] != 0.], 'biomassLoc')
 
 		# Validate that equivEnzIds if they exist are actual proteins
+		validProteinIds = [x['id'] for x in self.kb.proteins]
+		for met in self.kb.metabolites:
+			for equivEnz in met['equivEnzIds']:
+				if not equivEnz in validProteinIds:
+					s += 'Fake metabolite %s has an enzyme id %s that is not valid!\n' % (met['id'], equivEnz)
 
 		# Validate that MW is correct
 
 		return s
-
 
 	def validateProteins(self):
 		s = ''

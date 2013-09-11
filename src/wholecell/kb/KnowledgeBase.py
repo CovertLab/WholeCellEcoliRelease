@@ -105,7 +105,7 @@ class KnowledgeBase(object):
 					"biomassLoc": None,
 					"maxExchange": 0.,
 					"fakeMet": False,
-					"equivEnzIds": None,
+					"equivEnzIds": [],
 					"comments": ""
 				}
 				if row["mediaConc"]: m["mediaConc"] = float(row["mediaConc"])
