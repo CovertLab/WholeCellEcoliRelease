@@ -164,6 +164,10 @@ class KnowledgeBaseValidator(object):
 						 'unmodifiedForm': [None, str]}
 		s += self.validateDatatype(fieldDataType, self.kb.rnas)
 
+		proteinDict = dict([(x['id'], x) for x in self.kb.proteins])
+		geneDict = dict([(x['id'], x) for x in self.kb.genes])
+		rnaDict = dict([(x['id'], x) for x in self.kb.rnas])
+
 		# Validate that all RNAs have no composition
 		if len([x for x in self.kb.rnas if x['composition'] != []]):
 			s += 'An RNA has a composition!\n'
@@ -182,7 +186,7 @@ class KnowledgeBaseValidator(object):
 			if not rna['geneId'] in validGeneIds:
 				s += 'RNA %s has invalid gene id %s!\n' % (rna['id'], rna['geneId'])
 
-			if [x for x in self.kb.genes if x['id'] == rna['geneId']][0]['rnaId'] != rna['id']:
+			if geneDict[rna['geneId']]['rnaId'] != rna['id']:
 				s += 'RNA %s has gene %s that has incorrect or invalid rna pointer!\n' % (rna['id'], rna['geneId'])
 
 		# Validate that halfLife is >0
@@ -206,7 +210,7 @@ class KnowledgeBaseValidator(object):
 				s += 'Modified RNA %s has a non-zero expression level!\n' % modRna['id']
 
 			# Check that unmodified form has this modified RNA as its modified form
-			unmodifiedRna = [x for x in self.kb.rnas if x['id'] == modRna['unmodifiedForm']][0]
+			unmodifiedRna = rnaDict[modRna['unmodifiedForm']]
 			foundModForm = False
 			for possibleModForm in unmodifiedRna['modifiedForms']:
 				if possibleModForm == modRna['id']:
