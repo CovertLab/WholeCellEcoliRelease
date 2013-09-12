@@ -143,8 +143,12 @@ class KnowledgeBaseValidator(object):
 					s += 'Protein %s has a modified form %s that does not point back to the protein!\n' % (prot['id'], modForm)
 			# Validate that sequence uses correct alphabet
 			proteinAlphabet = ["A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P", "U", "S", "T", "W", "Y", "V"]
+			letter_sum = 0
+			for letter in proteinAlphabet:
+				letter_sum += prot['seq'].count(letter)
+			if letter_sum != len(prot['seq']):
+				s += '%s has an invalid character in its sequence!\n' % prot['id']
 
-			
 			# Validate that sequence has the same sum as ntCount
 			# Validate the ntCount's sum is equal to sequence length
 
