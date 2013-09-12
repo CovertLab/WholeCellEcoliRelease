@@ -115,21 +115,34 @@ class KnowledgeBaseValidator(object):
 		# Validation that location that is valid
 		s += self.checkAllowedLocation(self.kb.proteins, 'location')
 
-		# Validate that composition has length >1 if it is a complex
-
-		# Check that proteins have a geneId that exists
+		# Validate complexes
 		# Check that complexes have no geneId
-		# Check that modified forms have no geneId
+		# Check that modified form exists and points back to this unmodified complex
+		# Check that it has no sequence
 
-		# Validate that proteins have rna taht exist
+		# Check that modified complexes have no geneId
+		# Validate that unmodified forms exist and points to this modified complex
+		# Validate the MW is correct and there
 
-		# Validate that modified forms exist
 
+
+
+		# Validate protein monomers
+		# Check that proteins have a geneId that exists
+		# Validate that proteins have rna that exist and that rna points to this protein
+		# Validate that modified forms exist and that unmodified form points back to this protein monomer
+		# Validate that sequence uses correct alphabet
+		# Validate that sequence has the same sum as ntCount
+		# Validate the ntCount's sum is equal to sequence length
+
+		# Check that modified protein forms have no geneId
 		# Validate that unmodified forms exist
 
 		# Validate the MW is correct and there
 
-		# validate that sequence uses correct alphabet
+
+
+
 
 		return s
 
