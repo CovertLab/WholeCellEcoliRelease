@@ -117,7 +117,43 @@ class KnowledgeBaseValidator(object):
 		# Validation that location that is valid
 		s += self.checkAllowedLocation(self.kb.proteins, 'location')
 
-		# Validate complexes
+		## Validate protein monomers that are unmodified
+		validGeneIds = [x['id'] for x in self.kb.genes]
+		validRnaIds = [x['id'] for x in self.kb.rnas]
+		validProteinIds = [x['id'] for x in self.kb.proteins]
+		rnaDict = dict([(x['id'], x) for x in self.kb.rnas])
+		geneDict = dict([(x['id'], x) for x in self.kb.genes])
+		protDict = dict([(x['id'], x) for x in self.kb.proteins])
+		for prot in [x for x in self.kb.proteins if not len(x['composition']) and x['unmodifiedForm'] == None]:
+			# Check that proteins have a geneId that exists
+			if not prot['geneId'] in validGeneIds:
+				s += 'Protein %s has an invalid gene id %s!\n' % (prot['id'], prot['geneId'])
+			# Validate that proteins have rna that exist and that rna points to this protein and that rna points to this gene
+			if not prot['rnaId'] in validRnaIds:
+				s += 'Protein %s has an invalid rna id %s!\n' % (prot['id'], prot['rnaId'])
+			if rnaDict[prot['rnaId']]['monomerId'] != prot['id']:
+				s += 'Protein %s has an rna %s that does not point back to the protein!\n' % (prot['id'], prot['rnaId'])
+			if rnaDict[prot['rnaId']]['geneId'] != prot['geneId']:
+				s += 'Protein %s has an rna %s that does not point back to the same geneId!\n' % (prot['id'], prot['rnaId'])
+			# Validate that modified forms exist and that unmodified form points back to this protein monomer
+			for modForm in prot['modifiedForms']:
+				if not modForm in validProteinIds:
+					s += 'Protein %s has an invalid modified form %s!\n' % (prot['id'], modForm)
+				if protDict[modForm]['unmodifiedForm'] != prot['id']:
+					s += 'Protein %s has a modified form %s that does not point back to the protein!\n' % (prot['id'], modForm)
+			# Validate that sequence uses correct alphabet
+			proteinAlphabet = ["A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P", "U", "S", "T", "W", "Y", "V"]
+
+			
+			# Validate that sequence has the same sum as ntCount
+			# Validate the ntCount's sum is equal to sequence length
+
+		## Validate protein monomers that are modified
+			# Check that modified protein forms have no geneId
+			# Validate that unmodified forms exist
+
+
+		## Validate complexes
 		# Check that complexes have no geneId
 		# Check that modified form exists and points back to this unmodified complex
 		# Check that it has no sequence
