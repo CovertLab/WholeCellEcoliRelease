@@ -168,18 +168,6 @@ class KnowledgeBaseValidator(object):
 
 
 
-
-		# Validate protein monomers
-		# Check that proteins have a geneId that exists
-		# Validate that proteins have rna that exist and that rna points to this protein
-		# Validate that modified forms exist and that unmodified form points back to this protein monomer
-		# Validate that sequence uses correct alphabet
-		# Validate that sequence has the same sum as ntCount
-		# Validate the ntCount's sum is equal to sequence length
-
-		# Check that modified protein forms have no geneId
-		# Validate that unmodified forms exist
-
 		# Validate the MW is correct and there
 
 
