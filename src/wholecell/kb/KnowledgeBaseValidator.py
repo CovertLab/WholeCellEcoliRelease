@@ -76,6 +76,10 @@ class KnowledgeBaseValidator(object):
 					s += 'Fake metabolite %s has an enzyme id %s that is not valid!\n' % (met['id'], equivEnz['id'])
 				if not equivEnz['location'] in allowedLocations:
 					s += 'Fake metabolite %s has an enzyme location %s that is not valid!\n' % (met['id'], equivEnz['id'])
+			if met['fakeMet'] == False and len(met['equivEnzIds']):
+				s += 'Real metabolite %s has psudo-metabolite equivalents!\n' % met['id']
+			if met['fakeMet'] == True and not len(met['equivEnzIds']):
+				s += 'Psudo-metabolite %s has no equivalent protein ids!\n' % met['id']
 
 		# Validate that MW is correct for key species and assume the rest is calculated correctly
 		testDict = {'H'		: 1.0079,
