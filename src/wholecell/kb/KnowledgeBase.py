@@ -333,7 +333,6 @@ class KnowledgeBase(object):
 				if modForm not in rnaIds:	# Do this check so that we can call the function multiple times and not re-create entries
 					rNew = dict(r)
 					rNew["id"] = modForm
-					rNew["modifiedForm"] = True
 					rNew["modifiedForms"] = []
 					rNew["unmodifiedForm"] = r["id"]
 					rNew["composition"] = []
@@ -350,7 +349,6 @@ class KnowledgeBase(object):
 				if modForm not in protIds:	# Do this check so that we can call the function multiple times and not re-create entries
 					pNew = dict(p)
 					pNew["id"] = modForm
-					pNew["modifiedForm"] = True
 					pNew["modifiedForms"] = []
 					pNew["unmodifiedForm"] = p["id"]
 					pNew["composition"] = []
