@@ -58,6 +58,8 @@ class KnowledgeBaseValidator(object):
 						 'name': [str]}
 		s += self.validateDatatype(fieldDataType, self.kb.metabolites)
 
+		metDict = dict([(x['id'],x) for x in self.kb.metabolites])
+
 		# Check that biomassConc was >= 0
 		for met in self.kb.metabolites:
 			if met['biomassConc'] < 0:
@@ -88,7 +90,7 @@ class KnowledgeBaseValidator(object):
 					'SELNP'	: 159.9468}
 
 		for metId in testDict.iterkeys():
-			if abs([x for x in self.kb.metabolites if x['id'] == metId][0]['mw7.2'] - testDict[metId]) > 1e-8:
+			if abs(metDict[metId]['mw7.2'] - testDict[metId]) > 1e-8:
 				s += 'Molecular weights are not calculated correctly for metabolites! Test case %s\n' % metId
 
 		return s
