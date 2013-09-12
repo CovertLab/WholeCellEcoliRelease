@@ -411,6 +411,15 @@ class KnowledgeBaseValidator(object):
 	def validateDatatype(self, fieldDataType, objList):
 		s = ''
 		for obj in objList:
+			# Validate field names
+			for field in obj.iterkeys():
+				if not fieldDataType.has_key(field):
+					s += '%s has an extra field with name %s!\n' % (obj['id'], field)
+			for field in fieldDataType.iterkeys():
+				if not obj.has_key(field):
+					s += '%s is missing field with name %s!\n' % (obj['id'], field)
+
+			# Validate datatypes
 			for fieldName in fieldDataType.iterkeys():
 				hasField = False
 				if obj.has_key(fieldName):
