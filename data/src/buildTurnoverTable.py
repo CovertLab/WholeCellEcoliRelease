@@ -13,8 +13,9 @@ import SOAPpy
 
 DEFAULT_BRENDA_CACHE = 'brendaCache'
 
+EXTENSION = '.cPickleCache'
+
 WSDL_URL = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
-PERSISTANT_CACHE_FILE_PATH = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'turnoverCache.cPickle')
 
 def buildEnzymeDict():
 	enzymeDict = {}
@@ -216,13 +217,15 @@ def cacheBrenda(fileName = DEFAULT_BRENDA_CACHE, methodNames = ('getTurnoverNumb
 		print 'Finished caching, saving generated output...'
 
 	finally:
+		brendaCacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', fileName + EXTENSION)
+		
 		with open(brendaCacheFileName, 'w') as cacheFile:
 			cPickle.dump(cachedOutput, cacheFile, protocol = cPickle.HIGHEST_PROTOCOL)
 
 		print 'Finished saving.'
 
 def loadCachedBrenda(fileName = DEFAULT_BRENDA_CACHE):
-	brendaCacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', fileName + '.cPickle')
+	brendaCacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', fileName + EXTENSION)
 
 	with open(brendaCacheFileName, "r") as cacheFile:
 		return cPickle.load(cacheFile)
