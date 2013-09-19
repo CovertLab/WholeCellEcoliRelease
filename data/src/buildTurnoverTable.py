@@ -8,31 +8,32 @@ import numpy
 import cPickle
 import time
 
-def persistantRun():
-	# If brenda stops responding, just keep re-running buildTurnoverTable()
-	# We cache intermediate steps until it completes
-	val = None
-	while val != 1:
-		try:
-			val = buildTurnoverTable()
-		except:
-			time.sleep(60)
-	print 'COMPLETED!'
+import socket
+import SOAPpy
 
-def buildTurnoverTable(clearCache = False):
+DEFAULT_BRENDA_CACHE = 'brendaCache'
+
+WSDL_URL = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
+PERSISTANT_CACHE_FILE_PATH = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'turnoverCache.cPickle')
+
+def buildEnzymeDict():
 	enzymeDict = {}
 	# Build all enzymes
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
 		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 		dictreader.next()
+
 		for row in dictreader:
 			if row['EC'] != '' and row['Enzyme'] != 'null':
 				isozymes = json.loads(row['Enzyme'])
+
 				for iso in isozymes:
 					iso = tuple(iso)
+
 					if not enzymeDict.has_key(iso):
 						newEnzyme = enzyme()
 						enzymeDict[iso] = newEnzyme
+
 					enzymeDict[iso].frameId = iso
 					enzymeDict[iso].EC.append(row['EC'])
 					enzymeDict[iso].reacID.append(row['Frame ID'])
@@ -46,37 +47,53 @@ def buildTurnoverTable(clearCache = False):
 					enzymeDict[iso].kM.append(None)
 					enzymeDict[iso].comments.append('')
 
-	wsdl = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
-	client = WSDL.Proxy(wsdl)
-	cacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto','turnoverCache.cPickle')
-	if not os.path.exists(cacheFileName) or clearCache:
-		startIdx = 0
-	else:
-		enzymeDict, startIdx = cPickle.load(open(cacheFileName, "r"))
-	cacheCount = 0
-	# Get kinetics that can be automatically gotten
+	return enzymeDict
+
+def buildFromCache(fileName = DEFAULT_BRENDA_CACHE):
+	# Uses cached BRENDA output to assemble the turnover table
+	cachedOutput = loadCachedBrenda(fileName)
+
+	enzymeDict = buildEnzymeDict()
+
+	# Get kinetics that can be automatically acquired
 	keys = sorted(enzymeDict.keys())
-	for idx in xrange(startIdx, len(keys)):
-		e = enzymeDict[keys[idx]]
+
+	total_entries = 0
+
+	for idx, key in enumerate(keys):
+		e = enzymeDict[key]
+
 		for i in range(e.reactionCount):
 			# Set reverse rate if known to only progress forward
 			if e.direction[i] == 'forward only':
 				e.reverseTurnover[i] = 0
-				if e.comments[i] == None:
-					e.comments[i] = ""
-				e.comments[i] += 'Forward only, reverse kinetics set to zero.'
 
-			e.forwardTurnover[i], e.comments[i] = parseBrendaTurnover(client, "ecNumber*" + e.EC[i])
-			e.kM[i] = parseBrendaKm(client, "ecNumber*" + e.EC[i])
-			print "%s[%d]: %s" % (e.frameId, i, str(e.forwardTurnover[i]))
-			if e.kM[i] != None:
-				print "%s[%d]: %s" % (e.frameId, i, str(e.kM[i][0]))
-			cacheCount += 1
-			if cacheCount % 10 == 0:
-				cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
+				# if e.comments[i] is None:
+				# 	e.comments[i] = ""
 
-	cPickle.dump((enzymeDict, idx), open(cacheFileName, "w"), protocol = cPickle.HIGHEST_PROTOCOL)
-	# Write output
+				# e.comments[i] += 'Forward only, reverse kinetics set to zero.'
+
+			e.forwardTurnover[i], e.comments[i] = getTurnoverFromEntries( parseBrendaToEntries(cachedOutput['getTurnoverNumber'][e.EC[i]]) )
+			e.kM[i] = getKmFromEntries( parseBrendaToEntries(cachedOutput['getKmValue'][e.EC[i]]) )
+
+			if e.forwardTurnover[i]:
+				total_entries += 1
+
+			# TODO: assign forwardTurnoverUnits; I think BRENDA uses consistent units across values
+			# TODO: build and output a report of unassigned/partially assigned/otherwise problematic output
+
+			print '{frameId}[reaction #{reaction}]: ToN = {turnoverNumber}, has KM = {hasKM}'.format(
+				frameId = e.frameId,
+				reaction = i,
+				turnoverNumber = e.forwardTurnover[i],
+				hasKM = (e.kM[i] is not None)
+				)
+
+	print '{} entries'.format(total_entries)
+
+	writeOutput(enzymeDict)
+
+def writeOutput(enzymeDict):
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
@@ -87,81 +104,141 @@ def buildTurnoverTable(clearCache = False):
 
 		for key in keys:
 			e = enzymeDict[key]
+
 			for i in range(e.reactionCount):
 				csvwriter.writerow([json.dumps(e.frameId), e.EC[i], e.reacID[i], e.reacStoich[i], e.direction[i], e.forwardTurnover[i], e.forwardTurnoverUnits[i], e.reverseTurnover[i], e.reverseTurnoverUnits[i], e.comments[i], json.dumps(e.kM[i])])
-	return 1
 
-class enzyme():
-	def __init__(self):
-		self.frameId = None
-		self.EC = []
-		self.reacID = []
-		self.reacStoich = []
-		self.direction = []
-		self.forwardTurnover = []
-		self.reverseTurnover = []
-		self.forwardTurnoverUnits = []
-		self.reverseTurnoverUnits = []
-		self.kM = []
-		self.reactionCount = 0
-		self.comments = []
+def parseBrendaToEntries(brendaOutput):
+	# Parse output from a single webservice call into a list of dictionaries
 
+	return [dict(field.split('*', 1) for field in entry.split('#')[:-1]) for entry in brendaOutput.split('!') if entry]
 
-# def parseBrendaReaction(line):
-# 	reac = BRENDA_reaction()
-# 	return parseBrendaEntry(reac,line)
+def filterEntries(entries, filterFunctions):
+	# Filters a list of entries into categories that can be used to choose the best entry.
 
-def parseBrendaTurnover(client, line):
+	# filterFunctions is a list of functions that should return True (accept) or False (reject), in order of priority
+	# The returned list corresponds to the functions used to filter
+	# The last list in the returned list contains the rejects
 
+	output = [[] for i in range(len(filterFunctions) + 1)]
 
-	result = client.getTurnoverNumber(line)
-	if len(result) == 0:
-		return None, None
-	entries = result.split('!')
-	L = []
-	for e in entries:
-		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
-	if any("coli" in x["organism"].lower() for x in L):
+	for entry in entries:
+		for i, function in enumerate(filterFunctions):
+			if function(entry):
+				output[i].append(entry)
+				break
 
-		for entry in L:
-			possValue = []
-			if entry['commentary'].lower().count('wild') and entry['commentary'].count('25'):
-				possValue.append(entry['turnoverNumber'])
-				ipdb.set_trace()
-		
-		if len(possValue):
-			value = max(possValue)
 		else:
-			value = -1
+			# All rejected, add to last list
+			output[-1].append(entry)
 
+	return output
 
-		return (value, "In E. coli")
-	maxVal, maxIdx = numpy.max([float(x["turnoverNumber"]) for x in L]), numpy.argmax([float(x["turnoverNumber"]) for x in L])
-	return (maxVal, "organism: %s\tcomments:%s" % (L[maxIdx]["organism"], L[maxIdx]["commentary"]))
+# Some simple functions for use with filterEntries(...)
+isEcoli = lambda entry: 'coli' in entry['organism'].lower()
+isWildtype = lambda entry: ('wild-type' in entry['commentary'].lower()) or ('wild type' in entry['commentary'].lower()) or ('wildtype' in entry['commentary'].lower())
+is25dC = lambda entry: '25&deg;C' in entry['commentary'].lower()
+hasValidTurnoverNumber = lambda entry: float(entry['turnoverNumber']) > 0
+hasValidKm = lambda entry: float(entry['kmValue']) > 0
 
+def getTurnoverFromEntries(entries):
+	# TODO: check reaction substrate against expectation
 
-def parseBrendaKm(client, line):
-	result = client.getKmValue(line)
+	# TODO: choose highest amongst all organisms?
+	# alternatively, provide a range of outputs corresponding to different degrees of specificity and permissivity
+	filteredEntries = filterEntries(entries, [
+		lambda entry: isEcoli(entry) and isWildtype(entry) and is25dC(entry) and hasValidTurnoverNumber(entry),
+		lambda entry: isEcoli(entry) and is25dC(entry) and hasValidTurnoverNumber(entry),
+		lambda entry: isEcoli(entry) and hasValidTurnoverNumber(entry),
+		hasValidTurnoverNumber
+		])
 
-	if len(result) == 0:
-		return None
-	entries = result.split('!')
-	L = []
-	for e in entries:
-		L.append(dict([x.split("*", 1) for x in e.split("#") if len(x) > 0]))
-	if any("coli" in x["organism"].lower() for x in L):
-		return [dict([("kmValue", x["kmValue"]), ("kmValueMaximum", x["kmValueMaximum"]), ("substrate", x["substrate"]), ("organism", x["organism"]), ("commentary", x["commentary"]), ("brendaLiteratureId", x["literature"])]) for x in L if "coli" in x["organism"].lower()]
-	return None
+	for entryList in filteredEntries[:-1]:
+		if entryList: # search for the max if there is an entry in the list
+			entry = entryList[ numpy.argmax([entry['turnoverNumber'] for entry in entryList]) ]
 
+			value = entry['turnoverNumber']
+			commentary = entry['organism'] + ('; ' if (entry['organism'] and entry['commentary']) else '') + entry['commentary']
 
-# class BRENDA_reaction():
-# 	def __init__(self):
-# 		self.ecNumber = None
-# 		self.reaction = None
-# 		self.commentary = None
-# 		self.literature = None
-# 		self.organism = None
+			break
 
-class BRENDA_turnover():
-	def __init__(self):
-		pass
+	else:
+		# all rejected, return empty
+		value = ''
+		commentary = ''
+
+	return value, commentary
+
+def getKmFromEntries(entries):
+	# Since we're not really sure what we want to do with Km values at the moment, just
+	# return a list of entries that satisfy basic conditions
+
+	return [entry for entry in entries if isEcoli(entry) and hasValidKm(entry)]
+
+def cacheBrenda(fileName = DEFAULT_BRENDA_CACHE, methodNames = ('getTurnoverNumber', 'getKmValue')):
+	# Caches BRENDA for the appropriate webservice calls.  If it fails due to connection errors, it will attempt
+	# to record everything that has been cached so far, and recover that on the next run.  Since it's unclear
+	# why the webservice fails so frequently, calling this function automatically is not recommended.
+
+	# TODO: add metadata to the cache so it can be annotated with the date an entry was acquired, and if desired
+	# update old entires
+	# TODO: allow adding new methods when recovering the cache (currently it should just break)
+
+	ecNumbers = getEcNumbers()
+	nEcNumbers = len(ecNumbers)
+
+	# Try to recover the cached output
+	try:
+		cachedOutput = loadCachedBRENDA(fileName)
+
+		print 'Recovered cached entries.'
+
+	except IOError:
+		# Build dictionaries of raw output
+		cachedOutput = {methodName:{} for methodName in methodNames}
+
+		print 'No cache detected.'
+
+	client = WSDL.Proxy(WSDL_URL)
+
+	print 'Beginning caching...'
+	try:
+		for i, ecNumber in enumerate(ecNumbers):
+			for methodName in methodNames:
+				if not cachedOutput[methodName].has_key(ecNumber):
+					cachedOutput[methodName][ecNumber] = getattr(client, methodName)('ecNumber*' + ecNumber)
+					print 'cached EC {} ({:.2%})'.format(ecNumber, 1.*i/nEcNumbers)
+
+	except (socket.error, SOAPpy.HTTPError) as e:
+		print 'Raised exception {} ({}), attempting to save generated output...'.format(type(e).__name__, str(e))
+
+	else:
+		print 'Finished caching, saving generated output...'
+
+	finally:
+		with open(brendaCacheFileName, 'w') as cacheFile:
+			cPickle.dump(cachedOutput, cacheFile, protocol = cPickle.HIGHEST_PROTOCOL)
+
+		print 'Finished saving.'
+
+def loadCachedBrenda(fileName = DEFAULT_BRENDA_CACHE):
+	brendaCacheFileName = os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', fileName + '.cPickle')
+
+	with open(brendaCacheFileName, "r") as cacheFile:
+		return cPickle.load(cacheFile)
+
+def getEcNumbers():
+	# Build a list of all relevant EC numbers to use in caching BRENDA
+	ecNumbers = set()
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed','reactions.csv')) as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		dictreader.next()
+
+		for row in dictreader:
+			if row['EC'] != '' and row['Enzyme'] != 'null':
+				isozymes = json.loads(row['Enzyme'])
+
+				ecNumbers.add(row['EC'])
+
+	return ecNumbers
