@@ -2,7 +2,7 @@
 
 import os
 import csv
-import ipdb
+#import ipdb
 import json
 
 from Bio.Seq import Seq
@@ -28,10 +28,10 @@ def main():
 					length = int(row[5])
 					pM.direction = row[6]
 
-				if pM.direction == 'forward':
+				if pM.direction == '+':
 					pM.left = coordinate
 					pM.right = coordinate + length
-				elif pM.direction == 'reverse':
+				elif pM.direction == '-':
 					pM.left = coordinate - length
 					pM.right = coordinate
 
@@ -45,10 +45,10 @@ def main():
 					for splice in pM.splice:
 						baseSequence += sequence[splice[0] - 1: splice[1]]
 
-				if pM.direction == 'forward':
+				if pM.direction == '+':
 					pM.ntSequence = baseSequence
 					pM.sequence = baseSequence.transcribe().translate(table = 11)[:-1]
-				elif pM.direction == 'reverse':
+				elif pM.direction == '-':
 					pM.ntSequence = baseSequence.reverse_complement()
 					pM.sequence = baseSequence.reverse_complement().transcribe().translate(table = 11)[:-1]
 
@@ -60,7 +60,8 @@ def main():
 
 					saveSequence = list(pM.sequence.tostring())
 					if saveSequence[position - 1] != before:
-						ipdb.set_trace()
+						#ipdb.set_trace()
+						raise Exception
 					else:
 						saveSequence[position - 1] = after
 					newSequence = ''.join(saveSequence)
@@ -82,7 +83,7 @@ def main():
 		proteinMonomerDict[protId].gravy = gravy
 
 	# Write output
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'intermediate', 'proteinMonomerGravy.csv'),'wb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'protein_monomer_gravy.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		keys = proteinMonomerDict.keys()
@@ -90,7 +91,7 @@ def main():
 		csvwriter.writerow(['ID', 'GRAVY'])
 		for key in keys:
 			pm = proteinMonomerDict[key]
-			csvwriter.writerow([pm.frameId, "%0.10000f" % pm.gravy])
+			csvwriter.writerow([pm.frameId, "%0.10f" % pm.gravy])
 
 def loadSequence():
 	seq_record = SeqIO.read(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'sequence.txt'), "fasta", IUPAC.ambiguous_dna)
