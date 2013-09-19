@@ -147,7 +147,6 @@ def getEcocycReactionStoich(rxn):
 			fId = 'ELECTRON'
 			isclass = False
 		else:
-			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for LHS reactant."
 		elemCoeff = left.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
@@ -181,7 +180,6 @@ def getEcocycReactionStoich(rxn):
 			fId = 'ELECTRON'
 			isclass = False
 		else:
-			ipdb.set_trace()
 			raise Exception, "Don't have a frame id for RHS reactant."
 		elemCoeff = right.getElementsByTagName("coefficient")
 		if len(elemCoeff) > 0:
@@ -207,7 +205,6 @@ def main():
 	parseTranscriptionUnits()
 	parseMetabolites()
 	parseReactions()
-	parseEnzymeKinetics()
 
 def initalizeLog():
 	if not os.path.exists(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'log')):
@@ -1012,14 +1009,7 @@ def parseProteinMonomers_modified():
 			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -1042,6 +1032,7 @@ def parseProteinMonomers_modified():
 		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'wb') as jsonfile:
 			jsonfile.write(json.dumps(modFormRxn, indent = 4))
 
+	# Load reaction data
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_auto', 'ecocyc_prot_monomer_modification_reactions.json'),'rb') as jsonfile:
 		modFormRxn = json.loads(jsonfile.read())
 
@@ -1073,14 +1064,29 @@ def parseProteinMonomers_modified():
 								
 								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
-									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
-						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
+							fillInReaction(pm, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					proteinMonomerDict_modified[pm.frameId] = pm
+
+	# Replace manually curated monomers.
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_proteinMonomer_modified.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in dictreader:
+			replaceManualCurated(proteinMonomerDict_modified, row)
+
+	#Check for valid species frame ids in formation reactions
+	checkValidIdsInRxn(proteinMonomerDict_modified)
+
+	# Remove unwanted frameIds
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_proteinMonomers_modified_todelete.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in dictreader:
+			proteinMonomerDict_modified.pop(row['Frame ID'])
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinMonomers_modified.csv'),'wb') as csvfile:
@@ -1093,12 +1099,40 @@ def parseProteinMonomers_modified():
 			pm = proteinMonomerDict_modified[key]
 			csvwriter.writerow([pm.frameId, pm.name, pm.unmodifiedForm, json.dumps(pm.location), json.dumps(pm.reactionId), json.dumps(pm.reactionEnzymes), json.dumps(pm.reaction), json.dumps(pm.mass_balance), json.dumps(pm.ec), pm.comments])
 
-def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds):
+def replaceManualCurated(objDict, row):
+	obj = objDict[row['Frame ID']]
+	obj.frameId = row['Frame ID']
+	obj.name = row['Name']
+	obj.unmodifiedForm = row['Unmodified Form']
+	obj.location = json.loads(row['Location'])
+	obj.reactionId = json.loads(row['Reaction ID'])
+	obj.reactionEnzymes = json.loads(row['Reaction enzyme'])
+	obj.reaction = json.loads(row['Reaction'])
+	obj.reaction_dict = []
+	for i,rxn in enumerate(obj.reaction):
+		stoich, reactionDir = parseReactionString(rxn)
+		obj.reaction_dict.append(stoich)
+	obj.mass_balance = json.loads(row['Mass balance?'])
+	obj.ec = json.loads(row['EC'])
+	obj.comments = row['Comments']
+
+def checkValidIdsInRxn(objDict):
+	validIds = getValidRxnFrameIds()
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
+	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
+	for obj in [objDict[x] for x in objDict.iterkeys()]:
+		for i,rxn in enumerate(obj.reaction_dict):
+			for component in rxn:
+				if not component['id'] in validIds:
+					print '%s not in valid ids in reaction %s' % (component['id'], obj.reactionId[i])
+
+def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion):
 	obj.reactionId.append(rxn['id'])
 	obj.reaction.append('')
 	obj.reactionEnzymes.append(rxn['enzyme'])
 	obj.ec.append(rxn['ecnumber'])
 	obj.mass_balance.append(rxn['massbalance'])
+	obj.reaction_dict.append(rxn['components'])
 
 	reactants = []
 	products = []
@@ -1129,7 +1163,6 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 	elif rxn['direction'] in ['RIGHT-TO-LEFT', 'IRREVERSIBLE-RIGHT-TO-LEFT', 'PHYSIOL-RIGHT-TO-LEFT']:
 		obj.reaction[-1] += ' <== '
 	else:
-		ipdb.set_trace()
 		raise Exception, 'Reaction being written strange!\n'
 
 	for i,p in enumerate(products):
@@ -1143,12 +1176,6 @@ def fillInReaction(obj, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConver
 		obj.reaction[-1] += pid
 		if i < len(products) - 1:
 			obj.reaction[-1] += ' + '
-
-	# Check for valid frame ids in reactions
-	validIds.extend(metaboliteEcocycToFeistIdConversion.keys())
-	for component in rxn['components']:
-		if not component['id'] in validIds:
-			print '%s not in valid ids' % component['id']
 
 # Parse RNA
 def parseRna():
@@ -1204,14 +1231,7 @@ def parseRNA_modified():
 			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -1269,14 +1289,22 @@ def parseRNA_modified():
 								
 								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
-									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
-						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
+							fillInReaction(RNA, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 					rnaDict_modified[RNA.frameId] = RNA
+	# Replace manually cureated forms
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_rna_modified.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in dictreader:
+			replaceManualCurated(rnaDict_modified, row)
+
+	#Check for valid species frame ids in formation reactions
+	checkValidIdsInRxn(rnaDict_modified)
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'rna_modified.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
@@ -1303,7 +1331,6 @@ def getFormationReactions(frameId, unmodified_form):
 		formation_reactions_raw.extend(rxn)
 	print 'Checked for parents for ' + frameId
 
-
 	# Look for class species in reaction and fill in with instance species
 	for rxn in formation_reactions_raw:
 		# Builds list of:
@@ -1319,7 +1346,7 @@ def getFormationReactions(frameId, unmodified_form):
 			# Builds new reaction with class species replaced with instance species from the cartesian product
 			new_rxn = buildInstanceReaction(cart_product, rxn)
 			formation_reactions.append(new_rxn)
-
+	
 	return formation_reactions
 
 def buildReactionInstanceFromClassList(rxn, modified_form, unmodified_form):
@@ -1385,14 +1412,7 @@ def parseComplexes():
 					monomerCompartment[m] = json.loads(row[3])
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build list of RNAs that could be included in complexes
 	rnaList = []
@@ -1639,14 +1659,7 @@ def parseComplexes_modified():
 			locationAbbrevDict[row['Frame ID']] = row['Abbreviation']
 
 	# Load conversion between Ecocyc metabolite frame id's and metabolite id's from Feist. This is used for small-molecule/protein complexes.
-	metaboliteEcocycToFeistIdConversion = {}
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		for row in csvreader:
-			if row[1] == '+':
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[0].lower()
-			else:
-				metaboliteEcocycToFeistIdConversion[row[0]] = row[1]
+	metaboliteEcocycToFeistIdConversion = loadEcocycToFeistConverstions()
 
 	# Build cache of modified form reactions
 	rebuild = False
@@ -1700,15 +1713,23 @@ def parseComplexes_modified():
 								
 								allowedReactionDirections = ['LEFT-TO-RIGHT','RIGHT-TO-LEFT', 'PHYSIOL-LEFT-TO-RIGHT','PHYSIOL-RIGHT-TO-LEFT', 'UNKNOWN', 'REVERSIBLE', 'IRREVERSIBLE-LEFT-TO-RIGHT', 'IRREVERSIBLE-RIGHT-TO-LEFT']
 								if rxn['direction'] not in allowedReactionDirections:
-									ipdb.set_trace()
 									raise Exception, 'Reaction direction or something else was weird!'
 
-						validIds = getValidRxnFrameIds()
 						for rxn in production_reaction:
-							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion, validIds)
+							fillInReaction(pc, rxn, locationAbbrevDict, metaboliteEcocycToFeistIdConversion)
 
 
 					proteinComplexDict_modifiedForm[pc.frameId] = pc
+
+	# Replaced manually curated forms
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'manual_proteinComplex_modified.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+
+		for row in dictreader:
+			replaceManualCurated(proteinComplexDict_modifiedForm, row)
+
+	#Check for valid species frame ids in formation reactions
+	checkValidIdsInRxn(proteinComplexDict_modifiedForm)
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes_modified.csv'),'wb') as csvfile:
@@ -2024,20 +2045,18 @@ def parseMetabolites():
 
 	# Parse metabolites in Ecocyc and needed for complexation but not in Feist, and metabolites that Feist need to have added
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
+		csvreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
 
 		for row in csvreader:
-			if row[3] != '':
+			if row['Metabolite ID'] == '':
 				newMet = metabolite()
-				newMet.frameId = row[0].lower()
-				if row[2] != '':
-					newMet.neutralFormula = row[2]
+				newMet.frameId = row['Frame ID'].lower()
+				if row['Neutral formula'] != '':
+					newMet.neutralFormula = row['Neutral formula']
 				else:
-					newMet.neutralFormula = row[3]
-				# Properties at pH 7
-				newMet.addPHProp(pH = 7,formula = row[3], charge = row[4])
+					newMet.neutralFormula = row['pH 7.2 formula']
 				# Properties at pH 7.2
-				newMet.addPHProp(pH = 7.2, formula = row[5], charge = row[6])
+				newMet.addPHProp(pH = 7.2,formula = row['pH 7.2 formula'], charge = int(row['pH 7.2 charge']))
 
 				metDict[newMet.frameId] = newMet
 
@@ -2388,6 +2407,17 @@ def getMinCoord(geneList):
 def getMaxCoord(geneList):
 	return max([gene.right for gene in geneList])
 
+def loadEcocycToFeistConverstions():
+	metaboliteEcocycToFeistIdConversion = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'ecocyc_to_feist_metabolites.csv'),'rb') as csvfile:
+		dictreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dictreader:
+			if row['Metabolite ID'] == '':
+				metaboliteEcocycToFeistIdConversion[row['Frame ID']] = row['Frame ID'].lower()
+			else:
+				metaboliteEcocycToFeistIdConversion[row['Frame ID']] = row['Metabolite ID']
+	return metaboliteEcocycToFeistIdConversion
+
 def getValidRxnFrameIds():
 	validRxnFrameIds = []
 
@@ -2412,6 +2442,83 @@ def getValidRxnFrameIds():
 			validRxnFrameIds.extend([x for x in json.loads(row['Modified form'])])
 
 	return validRxnFrameIds
+
+def parseReactionString(reactionStr):
+	match = re.match("^\[(?P<comp>.*?)\][ ]{0,1}: (?P<stoich>.*)$", reactionStr)
+	if match != None:
+		globalComp = match.group("comp")
+		stoich = match.group("stoich")
+	else:
+		globalComp = ""
+		stoich = reactionStr
+
+	match = re.match("^(?P<lefts>.*) (?P<dir><*((==)|(--))>*) (?P<rights>.*)$", stoich)
+	if match == None:
+		raise Exception, "Invalid stoichiometry: %s." % (stoich)
+
+	if match.group("dir") == "==>" or match.group("dir") == "-->":
+		reactionDir = 1
+	elif match.group("dir") == "<==" or match.group("dir") == "<--":
+		reactionDir = -1
+	elif match.group("dir") == "<==>" or match.group("dir") == "<-->":
+		reactionDir = 0
+
+	stoich = []
+
+	lefts = match.group("lefts").split(" + ")
+	for componentStr in lefts:
+		coeff, mol, form, comp, thisType = parseReactionComponent(componentStr, globalComp)
+		stoich.append({ "coeff": -coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
+
+	rights = match.group("rights").split(" + ")
+	for componentStr in rights:
+		coeff, mol, form, comp, thisType = parseReactionComponent(componentStr, globalComp)
+		stoich.append({ "coeff": coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
+
+	new_stoich = []
+	for component in stoich:
+		new_stoich.append({'coeff' : component['coeff'], 'id' : component['molecule'], 'isclass' : False})
+
+	return new_stoich, reactionDir
+
+def parseReactionComponent(componentStr, globalComp):
+	if globalComp == "":
+		tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*\[(?P<comp>.+)\]$", componentStr)
+		if tmp == None:
+			raise Exception, "Invalid stoichiometry: %s." % (componentStr)
+		if tmp.group("coeff") == None:
+			coeff = 1.0
+		else:
+			coeff = float(tmp.group("coeff")[1:-2])
+
+		mol = tmp.group("mol")
+
+		if tmp.group("form") == None:
+			form = "mature"
+		else:
+			form = tmp.group("form")[1:]
+
+		comp = tmp.group("comp")
+	else:
+		tmp = re.match("^(?P<coeff>\(\d*\.*\d*\) )*(?P<mol>.+?)(?P<form>:.+)*$", componentStr)
+		if tmp == None:
+			raise Exception, "Invalid stoichiometry: %s." % (componentStr)
+		if tmp.group("coeff") == None:
+			coeff = 1.0
+		else:
+			coeff = float(tmp.group("coeff")[1:-2])
+
+		mol = tmp.group("mol")
+
+		if tmp.group("form") == None:
+			form = "mature"
+		else:
+			form = tmp.group("form")[1:]
+
+		comp = globalComp
+		thisType = None
+
+	return coeff, mol, form, comp, thisType
 
 # Define data type classes
 class enzyme:
@@ -2704,6 +2811,7 @@ class proteinMonomer:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reaction_dict = []
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
@@ -2720,6 +2828,7 @@ class rna:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reaction_dict = []
 		self.reactionEnzymes = []
 		self.ec = []
 		self.mass_balance = []
@@ -2737,6 +2846,7 @@ class proteinComplex:
 		self.unmodifiedForm = None
 		self.reactionId = []
 		self.reaction = []
+		self.reaction_dict = []
 		self.location = []
 		self.reactionEnzymes = []
 		self.ec = []

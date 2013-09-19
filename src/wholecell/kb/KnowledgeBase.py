@@ -105,7 +105,7 @@ class KnowledgeBase(object):
 					"biomassLoc": None,
 					"maxExchange": 0.,
 					"fakeMet": False,
-					"equivEnzIds": None,
+					"equivEnzIds": [],
 					"comments": ""
 				}
 				if row["mediaConc"]: m["mediaConc"] = float(row["mediaConc"])
@@ -117,7 +117,10 @@ class KnowledgeBase(object):
 						m["fakeMet"] = True
 					else:
 						m['fakeMet'] = False
-				if row["equivEnzIds"] != "[]": m["equivEnzIds"] = json.loads(row["equivEnzIds"])
+				if row["equivEnzIds"] != "[]":
+					rawEquivEnzIds = json.loads(row["equivEnzIds"])
+					for enz in rawEquivEnzIds:
+						m["equivEnzIds"].append({'id' : enz[:-3], 'location' : enz[-2:-1]})
 				if row["comments"]: m["comments"] = row["comments"]
 
 				self.metabolites.append(m)
@@ -330,7 +333,6 @@ class KnowledgeBase(object):
 				if modForm not in rnaIds:	# Do this check so that we can call the function multiple times and not re-create entries
 					rNew = dict(r)
 					rNew["id"] = modForm
-					rNew["modifiedForm"] = True
 					rNew["modifiedForms"] = []
 					rNew["unmodifiedForm"] = r["id"]
 					rNew["composition"] = []
@@ -347,7 +349,6 @@ class KnowledgeBase(object):
 				if modForm not in protIds:	# Do this check so that we can call the function multiple times and not re-create entries
 					pNew = dict(p)
 					pNew["id"] = modForm
-					pNew["modifiedForm"] = True
 					pNew["modifiedForms"] = []
 					pNew["unmodifiedForm"] = p["id"]
 					pNew["composition"] = []
