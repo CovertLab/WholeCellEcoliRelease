@@ -40,28 +40,34 @@ LOG2 = np.log(2)
 
 REQUIRE_SAME_PROMOTER = False
 
-def getTranscriptionUnits():
+def getUnitGroups():
+	# Transcription unit groups ('unitGroups') are groups of transcription
+	# units that encode the exact same set of genes
+
 	transcriptionUnits = {}
-
-	genes = defaultdict(set)
-	promoters = defaultdict(set)
-
 	with open(PATH['transcriptionUnits'], 'rb') as csvFile:
-		reader = csv.DictReader(csvFile, dialect = 'excel-tab')#, delimiter = '\t', quotechar = '"')
+		reader = csv.DictReader(csvFile, dialect = 'excel-tab')
 
 		for row in reader:
 			fId = row['Frame ID']
-			gs = set(json.loads(row['Genes']))
-			p = row['Promoter']
+			genes = frozenset(json.loads(row['Genes']))
 
-			transcriptionUnits[fId] = {'genes':gs, 'promoter':p}
+			transcriptionUnits[fId] = genes
 
-			for g in gs:
-				genes[g].add(fId)
+	unitGroupsByGenes = defaultdict(list)
+	for fId, genes in transcriptionUnits.items():
+		unitGroupsByGenes[genes].append(fId)
 
-			promoters[p].add(fId)
+	unitGroups = {
+		frozenset(fIds):genes for genes, fIds in unitGroupsByGenes.items()
+		}
+	
+	geneToGroups = defaultdict(set)
+	for fIds, genes in unitGroups.items():
+		for gene in genes:
+			geneToGroups[gene].add(fIds)
 
-	return transcriptionUnits, genes, promoters
+	return unitGroups, geneToGroups
 
 def getHalfLives():
 	halfLives = {}
@@ -94,71 +100,21 @@ def getRelativeAbundances():
 
 	return abundances
 
-# def getExpressionRates():
-# 	expRates = defaultdict(lambda: None)
+def getBlattnerAbundances():
+	abundances = {}
 
-# 	with open(PATH['Blattner 2005'], 'rb') as csvFile:
-# 		reader = csv.reader(csvFile, dialect = 'excel-tab')#, delimiter = '\t', quotechar = '"')
+	with open(PATH['Blattner 2005'], 'rb') as csvFile:
+		reader = csv.reader(csvFile, dialect = 'excel-tab')
 
-# 		for i, row in enumerate(reader):
-# 			sourceId = row[1].lower()
-# 			if i > 97 and FRAMEID_SYNONYMS.has_key(sourceId):
-# 				gene = FRAMEID_SYNONYMS[sourceId]
-# 				expRates[gene] = sum(float(value) for value in row[2:7])/5 # TODO: take the base-2 log of these values?
+		for i, row in enumerate(reader):
+			sourceId = row[1].lower()
+			if i > 97 and FRAMEID_SYNONYMS.has_key(sourceId):
+				gene = FRAMEID_SYNONYMS[sourceId]
+				abundances[gene] = sum(float(value) for value in row[2:7])/5
 
-# 	return expRates
+	return abundances
 
-def getUnitGroups():
-	# Transcription unit groups ('unitGroups') are groups of transcription
-	# units that encode the exact same set of genes
-
-	transcriptionUnits = {}
-	with open(PATH['transcriptionUnits'], 'rb') as csvFile:
-		reader = csv.DictReader(csvFile, dialect = 'excel-tab')
-
-		for row in reader:
-			fId = row['Frame ID']
-			genes = frozenset(json.loads(row['Genes']))
-
-			transcriptionUnits[fId] = genes
-
-	unitGroupsByGenes = defaultdict(list)
-	for fId, genes in transcriptionUnits.items():
-		unitGroupsByGenes[genes].append(fId)
-
-	unitGroups = {
-		frozenset(fIds):genes for genes, fIds in unitGroupsByGenes.items()
-		}
-	
-	geneToGroups = defaultdict(set)
-	for fIds, genes in unitGroups.items():
-		for gene in genes:
-			geneToGroups[gene].add(fIds)
-
-	return unitGroups, geneToGroups
-
-def getGeneCoords():
-	geneCoords = {}
-	geneDirections = {}
-	with open(PATH['genes'], 'rb') as csvFile:
-		reader = csv.DictReader(csvFile, dialect = 'excel-tab')
-
-		for row in reader:
-			fId = row['Frame ID']
-			coord = int(row['Coordinate'])
-			direction = row['Direction']
-
-			geneCoords[fId] = coord
-			geneDirections[fId] = direction
-
-	return geneCoords, geneDirections
-
-def main():
-	unitGroupGenes, geneUnitGroups = getUnitGroups()
-	uniqueGenes = set(
-		gene for gene, uGs in geneUnitGroups.items() if len(uGs) == 1
-		)
-
+def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 	geneAbundances = getRelativeAbundances()
 	geneHalfLives = getHalfLives()
 
@@ -290,158 +246,134 @@ def main():
 	for unitGroup in (unitGroupGenes.viewkeys() - set(unitGroupHalfLives.keys())):
 		unitGroupHalfLives[unitGroup] = average
 
-	return locals()
+	return unitGroupHalfLives
 
+def calculateExpressionRates(unitGroupGenes, geneUnitGroups, uniqueGenes, unitGroupHalfLives):
+	geneAbundances = getBlattnerAbundances()
 
-def main_old():
-	transcriptionUnits, geneTUs, promoterTUs = getTranscriptionUnits()
-	uniqueGenes = set(gene for gene, tUs in geneTUs.items() if len(tUs) == 1)
-	
-	halfLives = getHalfLives()
-	assignedGeneHalfLives = set(halfLives.keys())
+	unitGroupAbundances = {}
+	for unitGroup, genes in unitGroupGenes.items():
+		unique = genes & uniqueGenes & geneAbundances.viewkeys()
 
-	relativeAbundances = getRelativeAbundances()
-	# Abundances are reported according to some sort of DNA-to-RNA ratio, which
-	# indicates to me that each predicted transcript abundance should be 
-	# multiplied by the gene copy number.
-	abundances = {gene:len(geneTUs[gene]) * relAbund for gene, relAbund in relativeAbundances.items()}
-	#abundances = relativeAbundances
-	assignedGeneAbundances = set(abundances.keys())
-
-	assignedGenes = assignedGeneHalfLives & assignedGeneAbundances
-
-	# For transcription units in which the half-life is known for at least one 
-	# unique gene, assign the half-life of the transcription unit as the average
-	assignedTUDegRates = set()
-
-	for fId, tU in transcriptionUnits.items():
-		genes = tU['genes'] & uniqueGenes & assignedGeneHalfLives
-
-		if genes:
-			tU['degRate'] = LOG2 / (sum(halfLives[gene] for gene in genes)/len(genes))
-			assignedTUDegRates.add(fId)
-
-	# Same for the abundances
-	assignedTUAbundances = set()
-
-	for fId, tU in transcriptionUnits.items():
-		genes = tU['genes'] & uniqueGenes & assignedGeneAbundances
-
-		if genes:
-			tU['abundance'] = sum(abundances[gene] for gene in genes)/len(genes)
-			#tU['abundance'] = min(abundances[gene] for gene in genes)
-			assignedTUAbundances.add(fId)
+		if unique:
+			unitGroupAbundances[unitGroup] = sum(
+				[geneAbundances[gene] for gene in unique]
+				)/len(unique)
 
 	# Iteratively attempt to assign abundances
 	didAssign = True
 	while didAssign:
 		didAssign = False
 
-		for gene in assignedGeneAbundances:
-			knownTUAbundances = geneTUs[gene] & assignedTUAbundances
-			unknownTUAbundances = geneTUs[gene] - assignedTUAbundances
+		for gene in geneAbundances.viewkeys():
+			unitGroups = geneUnitGroups[gene]
 
-			if len(unknownTUAbundances) == 1 and len(knownTUAbundances) == len(geneTUs[gene]) - 1:
-				unknownTU, = unknownTUAbundances
+			knowns = unitGroups & unitGroupAbundances.viewkeys()
+			unknowns = unitGroups - unitGroupAbundances.viewkeys()
 
-				estimate = abundances[gene] - sum(transcriptionUnits[knownTU]['abundance'] for knownTU in knownTUAbundances)
+			if len(unknowns) == 1 and len(knowns) == len(unitGroups) - 1:
+				unknown, = unknowns
 
-				if estimate < 0:
-					#print 'negative abundance estimate'
-					#print abundances[gene], estimate
-					continue
+				estimate = geneAbundances[gene] - sum(
+					unitGroupAbundances[known] for known in knowns
+					)
 
-				transcriptionUnits[unknownTU]['abundance'] = estimate
-				assignedTUAbundances.add(unknownTU)
+				if estimate > 0:
+					unitGroupAbundances[unknown] = estimate
+					didAssign = True
 
-				didAssign = True
+				else:
+					# Change transcription unit abundances to account for discrepancy
+					
+					# Disitribute the error "evenly"
+					error = estimate/sum(unitGroupAbundances[known] for known in knowns)
 
-	# Iteratively attempt to assign degradation rates
-	nOriginal = len(assignedTUDegRates)
-	nAssigned = 0
+					for known in knowns:
+						unitGroupAbundances[known] += error * unitGroupAbundances[known]
 
-	didAssign = True
-	while didAssign:
-		didAssign = False
+						assert unitGroupAbundances[known] >= 0, 'Attempted to assign a negative abundance'
 
-		for gene in assignedGenes:
-			knownTUDegRates = geneTUs[gene] & assignedTUAbundances & assignedTUDegRates
-			unknownTUDegRates = geneTUs[gene] & assignedTUAbundances - assignedTUDegRates
+					unitGroupAbundances[unknown] = 0
+					didAssign = True
 
-			if len(geneTUs[gene]) == 2 and len(knownTUDegRates) == 1 and len(unknownTUDegRates) == 1:
-				knownTU, = knownTUDegRates
-				unknownTU, = unknownTUDegRates
+	# For those remaining, assign the average abundance of known genes
+	for unitGroup in (unitGroupGenes.viewkeys() - set(unitGroupAbundances.keys())):
+		genes = unitGroupGenes[unitGroup] & geneAbundances.viewkeys()
 
-				if REQUIRE_SAME_PROMOTER and transcriptionUnits[knownTU]['promoter'] != transcriptionUnits[unknownTU]['promoter']:
-					continue
+		if genes:
+			unitGroupAbundances[unitGroup] = np.mean([geneAbundances[gene] for gene in genes])
 
-				knownHL = LOG2/transcriptionUnits[knownTU]['degRate']
+	# Otherwise, assign the average abundance of all transcription units
+	average = np.mean(unitGroupAbundances.values())
 
-				ratio = abundances[gene]/transcriptionUnits[knownTU]['abundance'] - 1
+	for unitGroup in (unitGroupGenes.viewkeys() - set(unitGroupAbundances.keys())):
+		unitGroupAbundances[unitGroup] = average
 
-				#estimate = -1/halfLives[gene] * math.log(1-2**(-halfLives[gene]/knownHL))
-				try:
-					estimate = -1/halfLives[gene] * math.log(1/2 + 1/(2*ratio) - 1/ratio * 2**(-halfLives[gene]/knownHL))
+	# Use the abundances and the half-lives to determine expression rates
+	unitGroupExpressionRates = {}
+	for unitGroup in unitGroupGenes:
+		unitGroupExpressionRates[unitGroup] = unitGroupAbundances[unitGroup] * LOG2 / unitGroupHalfLives[unitGroup]
 
-				except:
-					continue
+	return unitGroupExpressionRates
 
-				if estimate < 0:
-					print estimate
-					continue
+def write(unitGroupHalfLives, unitGroupExpressionRates):
+	rows = []
+	with open(PATH['transcriptionUnits'], 'rb') as csvFile:
+		reader = csv.reader(csvFile, dialect = 'excel-tab')
 
-				#print estimate
-				transcriptionUnits[unknownTU]['degRate'] = estimate
-				assignedTUDegRates.add(unknownTU)
-				didAssign = True
+		for row in reader:
+			rows.append(row)
 
-				nAssigned += 1
+	for i, row in enumerate(rows):
+		if i == 0:
+			row.append('Degradation rate (1/min)')
+			row.append('Expression rate (a.u./min)')
 
-		# for gene in assignedGeneHalfLives:
-		# 	knownTUDegRates = geneTUs[gene] & assignedTUDegRates
-		# 	unknownTUDegRates = geneTUs[gene] - assignedTUDegRates
+		else:
+			fId = row[0]
+			row.append(LOG2/unitGroupHalfLives[fId])
+			row.append(unitGroupExpressionRates[fId])
 
-		# 	if len(geneTUs[gene]) == 2 and len(knownTUDegRates) == 1 and len(unknownTUDegRates) == 1:
-		# 		knownTU, = knownTUDegRates
-		# 		unknownTU, = unknownTUDegRates
+	with open(os.path.join(WCM_PATH, 'data', 'parsed', 'transcriptionUnits_with_rates.csv'), 'wb') as csvFile:
+		writer = csv.writer(csvFile, dialect = 'excel-tab')
 
-		# 		if REQUIRE_SAME_PROMOTER and transcriptionUnits[knownTU]['promoter'] != transcriptionUnits[unknownTU]['promoter']:
-		# 			continue
+		for row in rows:
+			writer.writerow(row)
 
-		# 		knownHL = LOG2/transcriptionUnits[knownTU]['degRate']
+def unitGroupsToTranscriptionUnits(dct):
+	newDict = {}
+	for unitGroup, value in dct.items():
+		for transcriptionUnit in unitGroup:
+			newDict[transcriptionUnit] = value
 
-		# 		ratio = 1
+	return newDict
 
-		# 		#estimate = -1/halfLives[gene] * math.log(1-2**(-halfLives[gene]/knownHL))
-		# 		try:
-		# 			estimate = -1/halfLives[gene] * math.log(1/2 + 1/(2*ratio) - 1/ratio * 2**(-halfLives[gene]/knownHL))
+def main():
+	unitGroupGenes, geneUnitGroups = getUnitGroups()
+	uniqueGenes = set(
+		gene for gene, uGs in geneUnitGroups.items() if len(uGs) == 1
+		)
 
-		# 		except:
-		# 			continue
+	unitGroupHalfLives = calculateHalfLives(unitGroupGenes, geneUnitGroups,
+		uniqueGenes)
 
-		# 		if estimate < 0:
-		# 			print estimate
-		# 			continue
+	unitGroupExpressionRates = calculateExpressionRates(unitGroupGenes,
+		geneUnitGroups, uniqueGenes, unitGroupHalfLives)
 
-		# 		#print estimate
-		# 		transcriptionUnits[unknownTU]['degRate'] = estimate
-		# 		assignedTUDegRates.add(unknownTU)
-		# 		didAssign = True
+	write(
+		unitGroupsToTranscriptionUnits(unitGroupHalfLives),
+		unitGroupsToTranscriptionUnits(unitGroupExpressionRates)
+		)
 
-		# 		nAssigned += 1
+	#return Bunch(**locals())
 
-	print '{} originally assigned + {} new = {} total assignments'.format(nOriginal, nAssigned, nOriginal + nAssigned)
+class Bunch(object):
+	'''
+	Helper class for development/debugging.  Usage:
+	return Bunch(**locals())
+	'''
+	def __init__(self, **kwargs):
+		self.__dict__.update(kwargs)
 
-	# TODO: write rates to file
-	# TODO: assign rates to unassignable
-
-def redundant():
-	# find transcription units with the same genes
-	transcriptionUnits, _, _ = getTranscriptionUnits()
-
-	genes = [frozenset(tU['genes']) for tU in transcriptionUnits.values()]
-
-	counter = Counter(genes)
-
-	import ipdb
-	ipdb.set_trace()
+if __name__ == '__main__':
+	main()
