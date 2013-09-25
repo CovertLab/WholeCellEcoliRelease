@@ -17,6 +17,21 @@ EXTENSION = '.cPickleCache'
 
 WSDL_URL = "http://www.brenda-enzymes.org/soap2/brenda.wsdl"
 
+class Enzyme(object):
+	def __init__(self):
+		self.frameId = None
+		self.EC = []
+		self.reacID = []
+		self.reacStoich = []
+		self.direction = []
+		self.reactionCount = 0
+		self.forwardTurnover = []
+		self.forwardTurnoverUnits = []
+		self.reverseTurnover = []
+		self.reverseTurnoverUnits = []
+		self.kM = []
+		self.comments = []
+
 def buildEnzymeDict():
 	enzymeDict = {}
 	# Build all enzymes
@@ -32,7 +47,7 @@ def buildEnzymeDict():
 					iso = tuple(iso)
 
 					if not enzymeDict.has_key(iso):
-						newEnzyme = enzyme()
+						newEnzyme = Enzyme()
 						enzymeDict[iso] = newEnzyme
 
 					enzymeDict[iso].frameId = iso
