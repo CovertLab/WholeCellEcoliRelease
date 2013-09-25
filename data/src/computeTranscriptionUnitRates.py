@@ -340,12 +340,11 @@ def write(unitGroupHalfLives, unitGroupExpressionRates):
 			writer.writerow(row)
 
 def unitGroupsToTranscriptionUnits(dct):
-	newDict = {}
-	for unitGroup, value in dct.items():
-		for transcriptionUnit in unitGroup:
-			newDict[transcriptionUnit] = value
-
-	return newDict
+	return {
+		transcriptionUnit:value
+		for unitGroup, value in dct.items()
+		for transcriptionUnit in unitGroup
+		}
 
 def main():
 	unitGroupGenes, geneUnitGroups = getUnitGroups()
