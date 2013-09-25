@@ -5,7 +5,6 @@ import os
 import json
 import csv
 
-import math
 import numpy as np
 
 from collections import defaultdict, Counter
@@ -110,7 +109,7 @@ def getBlattnerAbundances():
 			sourceId = row[1].lower()
 			if i > 97 and FRAMEID_SYNONYMS.has_key(sourceId):
 				gene = FRAMEID_SYNONYMS[sourceId]
-				abundances[gene] = sum(float(value) for value in row[2:7])/5
+				abundances[gene] = np.sum([float(value) for value in row[2:7]])/5
 
 	return abundances
 
@@ -152,8 +151,8 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 			if len(unknowns) == 1 and len(knowns) == len(unitGroups) - 1:
 				unknown, = unknowns
 
-				estimate = geneAbundances[gene] - sum(
-					unitGroupAbundances[known] for known in knowns
+				estimate = geneAbundances[gene] - np.sum(
+					[unitGroupAbundances[known] for known in knowns]
 					)
 
 				if estimate > 0:
@@ -164,7 +163,7 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 					# Change transcription unit abundances to account for discrepancy
 					
 					# Disitribute the error "evenly"
-					error = estimate/sum(unitGroupAbundances[known] for known in knowns)
+					error = estimate/np.sum([unitGroupAbundances[known] for known in knowns])
 
 					for known in knowns:
 						unitGroupAbundances[known] += error * unitGroupAbundances[known]
@@ -194,9 +193,9 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 				ratios = [unitGroupAbundances[known]/unitGroupAbundances[unknown] for known in knowns]
 
 				estimate = -geneHalfLives[gene] * np.log(
-					0.5*(1+sum(ratios)) - sum(
-						ratio * 0.5 ** (geneHalfLives[gene]/unitGroupHalfLives[known])
-						for ratio, known in zip(ratios, knowns)
+					0.5*(1+np.sum(ratios)) - np.sum(
+						[ratio * 0.5 ** (geneHalfLives[gene]/unitGroupHalfLives[known])
+						for ratio, known in zip(ratios, knowns)]
 						)
 					) / LOG2
 
@@ -206,17 +205,17 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 
 				else:
 					# Change transcription unit abundances to account for discrepancy
-					adjusted_abundance = sum(
-						ratio*(1-0.5**(geneHalfLives[gene]/unitGroupHalfLives[known]))
-						for ratio, known in zip(ratios, knowns)
+					adjusted_abundance = np.sum(
+						[ratio*(1-0.5**(geneHalfLives[gene]/unitGroupHalfLives[known]))
+						for ratio, known in zip(ratios, knowns)]
 						)
 
 					adjusted_ratios = [unitGroupAbundances[known]/adjusted_abundance for known in knowns]
 
 					adjusted_estimate = -geneHalfLives[gene] * np.log(
-						0.5*(1+sum(adjusted_ratios)) - sum(
-							ratio * 0.5 ** (geneHalfLives[gene]/unitGroupHalfLives[known])
-							for ratio, known in zip(adjusted_ratios, knowns)
+						0.5*(1+np.sum(adjusted_ratios)) - np.sum(
+							[ratio * 0.5 ** (geneHalfLives[gene]/unitGroupHalfLives[known])
+							for ratio, known in zip(adjusted_ratios, knowns)]
 							)
 						) / LOG2
 
@@ -256,7 +255,7 @@ def calculateExpressionRates(unitGroupGenes, geneUnitGroups, uniqueGenes, unitGr
 		unique = genes & uniqueGenes & geneAbundances.viewkeys()
 
 		if unique:
-			unitGroupAbundances[unitGroup] = sum(
+			unitGroupAbundances[unitGroup] = np.sum(
 				[geneAbundances[gene] for gene in unique]
 				)/len(unique)
 
@@ -274,8 +273,8 @@ def calculateExpressionRates(unitGroupGenes, geneUnitGroups, uniqueGenes, unitGr
 			if len(unknowns) == 1 and len(knowns) == len(unitGroups) - 1:
 				unknown, = unknowns
 
-				estimate = geneAbundances[gene] - sum(
-					unitGroupAbundances[known] for known in knowns
+				estimate = geneAbundances[gene] - np.sum(
+					[unitGroupAbundances[known] for known in knowns]
 					)
 
 				if estimate > 0:
@@ -286,7 +285,7 @@ def calculateExpressionRates(unitGroupGenes, geneUnitGroups, uniqueGenes, unitGr
 					# Change transcription unit abundances to account for discrepancy
 					
 					# Disitribute the error "evenly"
-					error = estimate/sum(unitGroupAbundances[known] for known in knowns)
+					error = estimate/np.sum([unitGroupAbundances[known] for known in knowns])
 
 					for known in knowns:
 						unitGroupAbundances[known] += error * unitGroupAbundances[known]
