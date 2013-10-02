@@ -83,7 +83,7 @@ class Test_Transcription(unittest.TestCase):
 		initEnzCnts = 2000.
 		initRnaCnts = 0.
 		T_d = 3600.
-		lengthSec = 100
+		lengthSec = 500
 
 		nSeeds = 100
 		nProc = comm.size
