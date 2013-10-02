@@ -50,15 +50,14 @@ class Fitter(object):
 
 		# RNA types
 		rnaTypes = dict([(x["rnaId"], x["type"]) for x in kb.genes])
-		# idx["rnaExp"]["mRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and rnaTypes[x["id"]] in ["mRNA", "miscRNA"]])
-		idx["rnaExp"]["mRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and rnaTypes[x["id"]] in ["mRNA"]])
-		idx["rnaExp"]["miscRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and rnaTypes[x["id"]] in ["miscRNA"]])
-		idx["rnaExp"]["rRna23Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and x["id"] in ids["rRna23Ss"]])
-		idx["rnaExp"]["rRna16Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and x["id"] in ids["rRna16Ss"]])
-		idx["rnaExp"]["rRna5Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and x["id"] in ids["rRna5Ss"]])
-		idx["rnaExp"]["tRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False and x["id"] in ids["tRnas"]])
-		idx["rnaExp"]["modified"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == True])
-		idx["rnaExp"]["unmodified"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["modifiedForm"] == False])
+		idx["rnaExp"]["mRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and rnaTypes[x["id"]] in ["mRNA"]])
+		idx["rnaExp"]["miscRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and rnaTypes[x["id"]] in ["miscRNA"]])
+		idx["rnaExp"]["rRna23Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["rRna23Ss"]])
+		idx["rnaExp"]["rRna16Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["rRna16Ss"]])
+		idx["rnaExp"]["rRna5Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["rRna5Ss"]])
+		idx["rnaExp"]["tRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["tRnas"]])
+		idx["rnaExp"]["modified"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] != None])
+		idx["rnaExp"]["unmodified"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None])
 
 		idx["rnaLens"] = {}
 		idx["rnaLens"]["unmodified"] = idx["rnaExp"]["unmodified"]
@@ -152,7 +151,7 @@ class Fitter(object):
 			ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * numpy.sum(mc.counts[mc.idx["ntps"], mc.cIdx["c"]]))
 			numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens)))
 
-			hL = numpy.array([x["halfLife"] for x in kb.rnas if x["modifiedForm"] == False])
+			hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
 			numRnapsNeeded = numpy.sum(mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hL ) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]])
 			print "numRnapsNeeded: %0.1f" % numRnapsNeeded
 
@@ -189,8 +188,9 @@ class Fitter(object):
 				raise Exception, "Changing RNA mass fractions. Write code to handle this."
 
 			# Calculate RNA Synthesis probabilities
-			hLfull = numpy.array([x["halfLife"] if x["modifiedForm"] == False else numpy.inf for x in kb.rnas])
-			tc.rnaSynthProb = mc.rnaLens.astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
+			hLfull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
+			# tc.rnaSynthProb = mc.rnaLens.astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
+			tc.rnaSynthProb = ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
 			tc.rnaSynthProb /= numpy.sum(tc.rnaSynthProb)
 
 			# Assert relationship between mc.monExp and mc.rnaExp
@@ -212,7 +212,7 @@ class Fitter(object):
 
 			# NTPs (RNA)
 			# f_w = numpy.array([ 0.25375551,  0.23228423,  0.30245459,  0.21150567])
-			f_w = numpy.array([ 0.255,  0.230,  0.305,  0.210 ])
+			f_w = numpy.array([ 0.248,  0.238,  0.300,  0.214 ])
 			# f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
 			mw_c = (mc.mws[mc.idx["ntps"]] - mc.mws[mc.idx["ppi"]])
 			mc.vals["FeistCore"][idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c
