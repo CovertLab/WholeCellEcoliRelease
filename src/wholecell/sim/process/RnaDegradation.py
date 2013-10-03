@@ -92,4 +92,4 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.metabolite.counts += numpy.dot(self.rnaDegSMat, self.rna.counts)
 		self.rna.counts[:] = 0
 
-		print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
+#		print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
