@@ -66,7 +66,7 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# mRNA, protein monomer
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
-		monomers = [x for x in kb.proteins if x["monomer"] == True and x["modifiedForm"] == False]
+		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
 		self.mrna = sim.getState("MoleculeCounts").addPartition(self,[x["id"] + ":mature[c]" for x in mrnas], self.calcReqMrna)
 		self.protein = sim.getState("MoleculeCounts").addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
 		self.proteinAaCounts = numpy.array([x["aaCount"] for x in monomers])
@@ -122,6 +122,7 @@ class Translation(wholecell.sim.process.Process.Process):
 		if not numpy.any(self.mrna.counts):
 			return
 
+		# print "nRibosomes: %d" % int(self.calcRibosomes(self.enzyme.counts))
 		# Total synthesis rate
 		proteinSynthProb = self.mrna.counts / numpy.sum(self.mrna.counts)
 		totRate = 1 / numpy.dot(self.proteinLens, proteinSynthProb) * numpy.min([					# Normalize by average protein length
