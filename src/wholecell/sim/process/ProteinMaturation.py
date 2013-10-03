@@ -34,7 +34,7 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(ProteinMaturation, self).initialize(sim, kb)
 
-		monomers = [x for x in kb.proteins if x["monomer"] == True]
+		monomers = [x for x in kb.proteins if len(x["composition"]) == 0]
 
 		self.nascentProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":nascent[c]" for x in monomers],
