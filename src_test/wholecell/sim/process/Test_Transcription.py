@@ -222,8 +222,8 @@ class Test_Transcription(unittest.TestCase):
 			print "%d, %s" % (comm.rank, str(numpy.mean(fNtpUsage, axis = 1)))
 			rnaMassProduction = numpy.diff(numpy.dot(tc.rna.mws, rnaProduction / Constants.nAvogadro))
 
-			import ipdb
-			ipdb.set_trace()
+			# import ipdb
+			# ipdb.set_trace()
 			# Assert exponential usage of metabolites
 			self.assertTrue(numpy.allclose(1., numpy.mean(numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec)), rtol = 0, atol = 6e-2))
 			self.assertTrue(numpy.allclose(1., numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))

@@ -384,8 +384,8 @@ class Test_Transcription_RnaDegradation(unittest.TestCase):
 
 		plt.savefig(os.path.join(self.outDir, "Transcription NTP Usage - RNA Degradation Return Relative.pdf"))
 
-		import ipdb
-		ipdb.set_trace()
+		# import ipdb
+		# ipdb.set_trace()
 
 		saveDict = {
 			"initRnapCnts": initRnapCnts,

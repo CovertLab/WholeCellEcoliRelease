@@ -288,8 +288,8 @@ class Test_Transcription_RnaDegradation(unittest.TestCase):
 
 		numpy.savez("/data/data.npz", allTcRnaProd = allTcRnaProd, allTlMonProd = allTlMonProd, allRdRnaDegr = allRdRnaDegr, allTcNtpUsage = allTcNtpUsage, allRdNtpReturn = allRdNtpReturn, allTlAaUsage = allTlAaUsage, allTotRnaCnts = allTotRnaCnts, allTotMonCnts = allTotMonCnts)
 
-		import ipdb
-		ipdb.set_trace()
+		# import ipdb
+		# ipdb.set_trace()
 
 		# Assert that, on average, all monomer counts have doubled
 		self.assertTrue(numpy.allclose(2., numpy.mean(numpy.mean(allTotMonCnts[numpy.all(allTotMonCnts[:, 0, :] > 0, axis = 1), -1, :] / allTotMonCnts[numpy.all(allTotMonCnts[:, 0, :] > 0, axis = 1), 0, :], axis = 1)), atol = 8e-2, rtol = 0.))
@@ -659,8 +659,8 @@ class Test_Transcription_RnaDegradation(unittest.TestCase):
 		# (except for selenocysteine)
 		self.assertTrue(numpy.allclose(1., (numpy.mean((tlAaUsage / numpy.sum(tlAaUsage, axis = 0)), axis = 1) / normalize(numpy.dot(mc.monExp, tl.proteinAaCounts)))[[x for x in xrange(21) if x != 15]], atol = 0, rtol = 1e-2))
 
-		import ipdb
-		ipdb.set_trace()
+		# import ipdb
+		# ipdb.set_trace()
 
 		saveDict = {
 			"initRnapCnts": initRnapCnts,
