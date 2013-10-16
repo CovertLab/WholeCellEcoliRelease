@@ -18,8 +18,12 @@ class Test_flextFbaModel(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
+		# Model comes from:
+		# Covert MW, Schilling CH, Palsson BØ. "Regulation of gene expression in flux balance models of metabolism" J Theor Biol. 2001. 213(1): 73-88.
+		# [http://covertlab.stanford.edu/publicationpdfs/Covert2001b.pdf]
+		# Modifications:
 		# No external metabolites
-		# R5a and R5b are identical (different regulatory rules) --> merged to R5
+		# R5a and R5b are identical (just different regulatory rules) --> merged to R5
 		cls.metIds = [	"A:m[c]", "B:m[c]", "C:m[c]", "D:m[c]", "E:m[c]", "F:m[c]",
 						"G:m[c]", "H:m[c]", "ATP:m[c]", "NADH:m[c]", "O2:m[c]"
 					 ]
@@ -132,7 +136,7 @@ class Test_flextFbaModel(unittest.TestCase):
 		m.v_lowerIs(m.rxnGroup("real").idxs(), 0)			# Irreversibility
 
 		# Biomass return is zero
-		m.v_lowerIs(m.rxnGroup("x").idxs(), 0)			# Biomass doesn't return anything
+		m.v_lowerIs(m.rxnGroup("x").idxs(), 0)				# Biomass doesn't return anything
 
 		self.m = m
 
