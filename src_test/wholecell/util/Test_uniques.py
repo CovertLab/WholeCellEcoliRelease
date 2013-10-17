@@ -15,24 +15,30 @@ import nose.tools as noseTools
 
 import numpy
 import wholecell.util.randStream
+import wholecell.util.uniques
 
 class Test_uniques(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		cls.randStream = wholecell.util.randStream.randStream(seed = 1)
+		pass
 
 	@classmethod
 	def tearDownClass(cls):
 		pass
 
 	def setUp(self):
-		self.randStream.reset(1)
+		self.kb = type("", (), {})()
+		self.kb.molecules = [{"id": "enz1", "mass": 1.0, "uniqueAttrs": None}, {"id": "enz2", "mass": 2.0, "uniqueAttrs": None}, {"id": "enz3", "mass": 3.0, "uniqueAttrs": ["attr1", "attr2", "attr3"]}, {"id": "enz4", "mass": 4.0, "uniqueAttrs": ["attr4_1", "attr4_2"]}, {"id": "enz5", "mass": 5.0, "uniqueAttrs": None}]
+		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
+
+		self.mc = wholecell.util.uniques.MoleculesContainer()
+		self.mc.initialize(kb)
+		mol = self.mc.molecule("enz3", "c")
 
 	def tearDown(self):
 		pass
 
-
 	@noseAttrib.attr('uniqueTest')
 	def testProgram(self):
-		r = self.randStream
+		pass
