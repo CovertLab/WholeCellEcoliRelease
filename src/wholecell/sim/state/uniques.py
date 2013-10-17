@@ -155,6 +155,8 @@ class MoleculeUniqueMeta(type):
 		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
 
+
+###
 class enz4Unique(object):
 	registrationId = "enz4"
 	__metaclass__ = MoleculeUniqueMeta
@@ -169,7 +171,7 @@ class enz4Unique(object):
 # 	registrationType = "rnas"
 # 	__metaclass__ = MoleculeUniqueMeta
 
-
+##
 class Track(object):
 
 	def __init__(self):
