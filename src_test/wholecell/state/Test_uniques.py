@@ -15,7 +15,7 @@ import nose.tools as noseTools
 
 import numpy
 import wholecell.util.randStream
-import wholecell.util.uniques
+import wholecell.sim.state.uniques
 
 class Test_uniques(unittest.TestCase):
 
