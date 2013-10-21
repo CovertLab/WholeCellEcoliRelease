@@ -171,13 +171,13 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
 												zip(self.types, self.forms, self.ids)))[0]
 
-		mons = [x for x in kb.proteins if x["monomer"] == True and x["modifiedForm"] == False]
+		mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
 		self.monLens = map(lambda mon: numpy.sum(mon["aaCount"]), mons)
 		self.monExp = numpy.array([x["expression"] for x in kb.rnas if x["monomerId"] != None])
 		self.monExp /= numpy.sum(self.monExp)
 		self.idx["matureMonomers"] = self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1]
 
-		cpxs = [x for x in kb.proteins if x["monomer"] == False]
+		cpxs = [x for x in kb.proteins if len(x["composition"]) > 0 and x["unmodifiedForm"] == None]
 		self.idx["matureComplexes"] = self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in cpxs])[1]
 
 		self.metMediaConc = numpy.array([x["mediaConc"] for x in kb.metabolites])

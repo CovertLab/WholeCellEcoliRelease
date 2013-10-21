@@ -35,7 +35,7 @@ class Complexation(wholecell.sim.process.Process.Process):
 		super(Complexation, self).initialize(sim, kb)
 
 		# Complex
-		complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]
+		complexes = [x for x in kb.proteins if len(x["composition"]) > 0 and x["formationProcess"] == self.meta["id"]]
 		self.complex = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":mature[" + x["location"] + "]" for x in complexes],
 			self.calcReqComplex)
