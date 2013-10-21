@@ -65,7 +65,7 @@ class flextFbaModel(object):
 
 		return \
 			["rxn_" + r["id"] for r in rxns] + \
-			["mediaEx_" + m["rxn"] for m in mediaEx] + \
+			["mediaEx_" + m["rxnId"] for m in mediaEx] + \
 			["f_" + b["id"] for b in biomass] + \
 			["x_" + b["id"] for b in biomass] + \
 			["(f_atp-f_" + b["id"] + ")" for b in biomass if b["id"] != atpId] + \

@@ -19,7 +19,7 @@ class Test_flextFbaModel(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
 		# Model comes from:
-		# Covert MW, Schilling CH, Palsson BØ. "Regulation of gene expression in flux balance models of metabolism" J Theor Biol. 2001. 213(1): 73-88.
+		# Covert MW, Schilling CH, Palsson BO. "Regulation of gene expression in flux balance models of metabolism" J Theor Biol. 2001. 213(1): 73-88.
 		# [http://covertlab.stanford.edu/publicationpdfs/Covert2001b.pdf]
 		# Modifications:
 		# No external metabolites
@@ -28,13 +28,13 @@ class Test_flextFbaModel(unittest.TestCase):
 						"G:m[c]", "H:m[c]", "ATP:m[c]", "NADH:m[c]", "O2:m[c]"
 					 ]
 		cls.mediaEx = [
-						{"rxn": "Tc1", "met": "A:m[c]"},
-						{"rxn": "Tc2", "met": "A:m[c]"},
-						{"rxn": "Tf", "met": "F:m[c]"},
-						{"rxn": "Td", "met": "D:m[c]"},
-						{"rxn": "Te", "met": "E:m[c]"},
-						{"rxn": "Th", "met": "H:m[c]"},
-						{"rxn": "To2", "met": "O2:m[c]"},
+						{"rxnId": "Tc1", "met": "A:m[c]"},
+						{"rxnId": "Tc2", "met": "A:m[c]"},
+						{"rxnId": "Tf", "met": "F:m[c]"},
+						{"rxnId": "Td", "met": "D:m[c]"},
+						{"rxnId": "Te", "met": "E:m[c]"},
+						{"rxnId": "Th", "met": "H:m[c]"},
+						{"rxnId": "To2", "met": "O2:m[c]"},
 					  ]
 		cls.rxns = [
 						{"id": "R1", "stoichiometry": [
