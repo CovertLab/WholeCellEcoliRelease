@@ -2321,7 +2321,7 @@ def parseReactions():
 			r = reactDict[key]
 			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
 
-def buildReaction(rp,row):
+def buildReaction_old(rp,row):
 	reac = reaction()
 	reac.frameId = 'FEIST_' + row[0]
 	reac.name = row[1]
@@ -2342,17 +2342,25 @@ def buildReaction(rp,row):
 
 		reac.enzyme = []
 		for e in pMFrameId:
+			#e = ComplexFixer.composeSubunits([e])
+			#reac.enzyme.append(e)
+
 			reac.enzyme.append([e])
 	else:
 		if rp.manualAnnotationDict.has_key(row[0]):
+			# TODO: figure out why this is here, make the logic better.  Nick?
 			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
 			cofactors = []
+
 		else:
 			enzymeInfo = rp.findEnzyme(row[6], row)
 			enzymes = enzymeInfo['enzymes']
 			cofactors = enzymeInfo['cofactors']
-		if len(enzymes[0]):
+
+		if enzymes[0]:
+			#enzymes = ComplexFixer.checkLogic(enzymes)
 			for i,e in enumerate(enzymes):
+				#e = ComplexFixer.composeSubunits(e)
 				reac.enzyme.append(e)
 		else:
 			# Catches spontanious reactions
@@ -2361,6 +2369,167 @@ def buildReaction(rp,row):
 			reac.requiredCofactors.append(c)
 		reac.requiredCofactors.sort()
 	return reac
+
+def buildReaction(rp,row):
+	reac = reaction()
+	reac.frameId = 'FEIST_' + row[0]
+	reac.name = row[1]
+	reac.process = 'Metabolism'
+	if row[5] != '':
+		reac.EC = row[5]
+	reac.stoich = row[2]
+	reac.direction = row[3]
+
+	if rp.manualAnnotationDict.has_key(row[0]):
+		# Reaction enzymes are manually annotated
+		reac.enzyme.extend(
+			rp.findEnzymeManualCuration(
+				rp.manualAnnotationDict[row[0]]['annotation']
+				)
+			)
+		reac.requiredCofactors = []
+
+	elif re.match("b([0-9])", row[6]):
+		# Reaction is a single enzyme
+		pMFrameId = rp.getPMFrame(row[6])
+
+		reac.enzyme.extend([pMFrameId])
+
+	elif row[6]:
+		# Reaction is multiple enzymes
+		enzymeInfo = rp.findEnzyme(row[6], row)
+		reac.enzyme.extend(enzymeInfo['enzymes'])
+		reac.requiredCofactors.extend(enzymeInfo['cofactors'])
+
+	# Finalize (not sure why either of these steps matter)
+	reac.requiredCofactors.sort()
+	if not reac.enzyme:
+		reac.enzyme = None
+
+	# else:
+	# 	reac.enzyme = ComplexFixer.checkLogic(reac.enzyme)
+
+	return reac
+
+class ComplexFixer(object):
+	'''
+	A helper class to catch Feist reactions that are annotated with monomers 
+	in place of reactions.  Will raise a warning if it encounters an 
+	unresolvable case.
+	'''
+
+	allowHomopolymers = True
+	verboseWarnings = False
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'), 'rb') as csvFile:
+		complexComposition = {row['Frame ID']:set(json.loads(row['Composition'])['reactant'].keys()) for row in csv.DictReader(csvFile, delimiter = '\t', quotechar = '"')}
+
+	del csvFile
+
+	subunitAssociation = {}
+	for cmplx, composition in complexComposition.items():
+		for subunit in composition:
+			try:
+				subunitAssociation[subunit].add(cmplx)
+
+			except KeyError:
+				subunitAssociation[subunit] = {cmplx}
+
+	del cmplx
+	del composition
+	del subunit
+
+	subunits = set(subunitAssociation.keys())
+
+	@classmethod
+	def composeSubunits(cls, enzymeList):
+		# Check for homopolymers or grouped monomers
+		enzymes = set(enzymeList)
+
+		if enzymes & cls.subunits:
+			possibleComplexes = [cmplx
+				for enzyme in enzymes if cls.subunitAssociation.has_key(enzyme) 
+				for cmplx in cls.subunitAssociation[enzyme]
+				]
+
+			fullComplexes = set(
+				cmplx for enzyme in enzymes
+				if enzymes.issuperset(cls.complexComposition[cmplx])
+				)
+
+			if len(fullComplexes) == 1:
+				cmplx, = fullComplexes
+				enzymes -= cls.complexComposition[cmplx]
+				enzymes.add(cmplx)
+
+				print 'Replaced {} with {}'.format(enzymeList, list(enzymes))
+
+				return list(enzymes)
+
+			elif len(fullComplexes) > 1:
+				print 'Warning: Multiple possible full complexes {} were found to be associated with monomer set {}'.format(fullComplexes, enzymes & cls.subunits)
+
+				return enzymeList
+
+			else:
+				print 'Warning: Partial complexes were found to be associated with monomer set {}'.format(enzymes & cls.subunits)
+
+				return enzymeList
+
+		else:
+			return enzymeList
+
+	@classmethod
+	def checkLogic(cls, enzymeListList):
+		# Tests the parsed logic from Feist against known complexation
+		# i.e. (A or B) when it should be (A and B)
+
+		enzymes = set(enzyme for enzymeList in enzymeListList for enzyme in enzymeList)
+
+		if enzymes & cls.subunits:
+			possibleComplexes = [
+				cmplx
+				for enzyme in enzymes if cls.subunitAssociation.has_key(enzyme)
+				for cmplx in cls.subunitAssociation[enzyme]
+				]
+
+			fullComplexes = set(
+				cmplx
+				for cmplx in possibleComplexes
+				if enzymes.issuperset(cls.complexComposition[cmplx]) and
+					(
+					len(cls.complexComposition[cmplx]) > 1 or cls.allowHomopolymers
+					)
+				)
+
+			if len(fullComplexes) == 1:
+				cmplx, = fullComplexes
+				enzymes -= cls.complexComposition[cmplx]
+
+				if not enzymes: # all associated enzymes were subunits of the complex
+					print 'Replaced monomers with complex {}'.format(cmplx)
+					return [[cmplx]]
+
+				else:
+					if cls.verboseWarnings:
+						print 'Warning: A complex found to be associated with monomer set {}, but additional enzymes {} leave the logic unresolvable'.format(cls.complexComposition[cmplx], enzymes)
+
+					return enzymeListList
+
+			elif len(fullComplexes) > 1:
+				if cls.verboseWarnings:
+					print 'Warning: Multiple possible full complexes {} were found to be associated with enzymes {}'.format(fullComplexes, enzymes)
+				
+				return enzymeListList
+
+			else:
+				if cls.verboseWarnings:
+					print 'Warning: Partial complexes were found to be associated with enzymes {}'.format(enzymes)
+				
+				return enzymeListList
+
+		else:
+			return enzymeListList
 
 # Utility functions
 def splitBigBracket(s):
