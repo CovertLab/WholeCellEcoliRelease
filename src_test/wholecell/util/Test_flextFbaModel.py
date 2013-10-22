@@ -107,10 +107,10 @@ class Test_flextFbaModel(unittest.TestCase):
 						}
 				   ]
 		cls.biomass = [
-						{"id": "C:m[c]", "r": -1},
-						{"id": "F:m[c]", "r": -1},
-						{"id": "H:m[c]", "r": -1},
-						{"id": "ATP:m[c]", "r": -10},
+						{"id": "C:m[c]", "coeff": -1},
+						{"id": "F:m[c]", "coeff": -1},
+						{"id": "H:m[c]", "coeff": -1},
+						{"id": "ATP:m[c]", "coeff": -10},
 					  ]
 		cls.atpId = "ATP:m[c]"
 		cls.params = {"alpha": 10, "beta": 1000, "gamma": -1}

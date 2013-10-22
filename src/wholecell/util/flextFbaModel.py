@@ -106,7 +106,7 @@ class flextFbaModel(object):
 		# This occurs in v_upperIs() and v_lowerIs().
 		# We do not alert the user to any of this. Instead, we try to handle all of this nicely behind the scenes.
 		# That is, if the user uses the interface properly, they will have no idea that scaling occurred.
-		self._scaleFactor = numpy.exp(numpy.mean(numpy.log(numpy.abs(numpy.array([x["r"] for x in biomass])))))
+		self._scaleFactor = numpy.exp(numpy.mean(numpy.log(numpy.abs(numpy.array([x["coeff"] for x in biomass])))))
 
 	def _populateS(self, rxns, biomass):
 		
@@ -123,7 +123,7 @@ class flextFbaModel(object):
 		self._S[self.metGroup("mediaEx").idxs(), self.rxnGroup("mediaEx").idxs()] = -1.
 
 		# Populate r reactions
-		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["r"] for b in biomass]) / self._scaleFactor
+		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["coeff"] for b in biomass]) / self._scaleFactor
 
 		# Populate x reactions
 		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("x").idxs()] = -1.
