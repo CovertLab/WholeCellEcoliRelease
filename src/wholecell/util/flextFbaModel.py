@@ -47,9 +47,12 @@ class flextFbaModel(object):
 		self._metGroups = {}
 		self._rxnGroups = {}
 
+		self._scaleFactor = numpy.NaN
+
 		self._recalculateSolution = False
 
 		self._createGroups(mediaEx, biomass, atpId)
+		self._createScaleFactor(biomass)
 		self._populateS(rxns, biomass)
 		self._populateC()
 		self._populateBounds()
@@ -93,6 +96,17 @@ class flextFbaModel(object):
 		self.rxnGroupNew("f_atp", ["f_" + atpId])
 		self.rxnGroupNew("f_not_atp", [x for x in self.rxnGroup("f").ids() if x != "f_" + atpId])
 
+	def _createScaleFactor(self, biomass):
+		# We want our biomass coefficients to be nicely scaled so that they are centered (in a logarithmic sense) around 1
+		# That is, if our biomass coefficients were 1000, 100, and 10, we would want them to be scaled to 10, 1, and 0.1, respectively
+		# This helps the numerics of the linear solver
+		# _scaleFactor is the factor by which to divide the given biomass coefficients
+		# For the above example, it would be 10.
+		# Because we change the biomass coefficients, we also have to change the flux bounds by _scaleFactor.
+		# This occurs in v_upperIs() and v_lowerIs().
+		# We do not alert the user to any of this. Instead, we try to handle all of this nicely behind the scenes.
+		# That is, if the user uses the interface properly, they will have no idea that scaling occurred.
+		self._scaleFactor = numpy.exp(numpy.mean(numpy.log(numpy.abs(numpy.array([x["r"] for x in biomass])))))
 
 	def _populateS(self, rxns, biomass):
 		
@@ -109,7 +123,7 @@ class flextFbaModel(object):
 		self._S[self.metGroup("mediaEx").idxs(), self.rxnGroup("mediaEx").idxs()] = -1.
 
 		# Populate r reactions
-		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["r"] for b in biomass])
+		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["r"] for b in biomass]) / self._scaleFactor
 
 		# Populate x reactions
 		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("x").idxs()] = -1.
@@ -203,35 +217,35 @@ class flextFbaModel(object):
 
 	def v_upper(self, idxs = None):
 		if idxs == None:
-			return self._v_upper
+			return self._v_upper * self._scaleFactor
 
-		return self._v_upper[idxs]
+		return self._v_upper[idxs] * self._scaleFactor
 
 	def v_upperIs(self, idxs = None, values = None):
 		if values == None:
 			return
 
 		if idxs == None:
-			self._v_upper = values
+			self._v_upper = values / self._scaleFactor
 		else:
-			self._v_upper[idxs] = values
+			self._v_upper[idxs] = values / self._scaleFactor
 
 		self._recalculateSolution = True
 
 	def v_lower(self, idxs = None):
 		if idxs == None:
-			return self._v_lower
+			return self._v_lower * self._scaleFactor
 
-		return self._v_lower[idxs]
+		return self._v_lower[idxs] * self._scaleFactor
 
 	def v_lowerIs(self, idxs = None, values = None):
 		if values == None:
 			return
 
 		if idxs == None:
-			self._v_lower = values
+			self._v_lower = values / self._scaleFactor
 		else:
-			self._v_lower[idxs] = values
+			self._v_lower[idxs] = values / self._scaleFactor
 
 		self._recalculateSolution = True
 
