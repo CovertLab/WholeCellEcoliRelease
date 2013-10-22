@@ -38,71 +38,71 @@ class Test_flextFbaModel(unittest.TestCase):
 					  ]
 		cls.rxns = [
 						{"id": "R1", "stoichiometry": [
-							{"molecule": "A", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "B", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "A", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "B", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						},
 						{"id": "R2a", "stoichiometry": [
-							{"molecule": "B", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": 2},
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": 2},
-							{"molecule": "C", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "B", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": 2},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": 2},
+							{"molecule": "C", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						},
 						{"id": "R2b", "stoichiometry": [
-							{"molecule": "C", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": -2},
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": -2},
-							{"molecule": "B", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "C", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": -2},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": -2},
+							{"molecule": "B", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						},
 						{"id": "R3", "stoichiometry": [
-							{"molecule": "B", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "F", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "B", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "F", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						},
 						{"id": "R4", "stoichiometry": [
-							{"molecule": "C", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "G", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "C", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "G", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						},
 						{"id": "R5", "stoichiometry": [
-							{"molecule": "G", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "C", "form": "m", "compartment": "c", "coeff": 0.8},
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": 2},
+							{"molecule": "G", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "C", "form": "m", "location": "c", "coeff": 0.8},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": 2},
 													  ]
 						},
 						{"id": "R6", "stoichiometry": [
-							{"molecule": "C", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": 2},
-							{"molecule": "D", "form": "m", "compartment": "c", "coeff": 3},
+							{"molecule": "C", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": 2},
+							{"molecule": "D", "form": "m", "location": "c", "coeff": 3},
 													  ]
 						},
 						{"id": "R7", "stoichiometry": [
-							{"molecule": "C", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": -4},
-							{"molecule": "E", "form": "m", "compartment": "c", "coeff": 3},
+							{"molecule": "C", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": -4},
+							{"molecule": "E", "form": "m", "location": "c", "coeff": 3},
 													  ]
 						},
 						{"id": "R8a", "stoichiometry": [
-							{"molecule": "G", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": -2},
-							{"molecule": "H", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "G", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": -2},
+							{"molecule": "H", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						},
 						{"id": "R8b", "stoichiometry": [
-							{"molecule": "G", "form": "m", "compartment": "c", "coeff": 1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": 1},
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": 2},
-							{"molecule": "H", "form": "m", "compartment": "c", "coeff": -1},
+							{"molecule": "G", "form": "m", "location": "c", "coeff": 1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": 1},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": 2},
+							{"molecule": "H", "form": "m", "location": "c", "coeff": -1},
 													  ]
 						},
 						{"id": "Rres", "stoichiometry": [
-							{"molecule": "NADH", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "O2", "form": "m", "compartment": "c", "coeff": -1},
-							{"molecule": "ATP", "form": "m", "compartment": "c", "coeff": 1},
+							{"molecule": "NADH", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "O2", "form": "m", "location": "c", "coeff": -1},
+							{"molecule": "ATP", "form": "m", "location": "c", "coeff": 1},
 													  ]
 						}
 				   ]
