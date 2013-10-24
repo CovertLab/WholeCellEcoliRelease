@@ -10,6 +10,7 @@ flextFbaModel.py
 
 import numpy
 import copy
+import functools
 import wholecell.util.linearProgramming
 
 class flextFbaModel(object):
@@ -165,10 +166,16 @@ class flextFbaModel(object):
 	def rxnIdxs(self, rxnIds):
 		return numpy.array([self._rxnIdToIdx[x] for x in rxnIds])
 
-	def metIds(self, metIdxs):
+	def metIds(self, metIdxs = None):
+		if metIdxs == None:
+			return self._metIds[:]
+
 		return [self._metIdxToId[x] for x in metIdxs]
 
-	def rxnIds(self, rxnIdxs):
+	def rxnIds(self, rxnIdxs = None):
+		if rxnIdxs == None:
+			return self._rxnIds[:]
+
 		return [self._rxnIdxToId[x] for x in rxnIdxs]
 
 	def metGroupNew(self, name, metIds):
@@ -217,43 +224,44 @@ class flextFbaModel(object):
 
 	def v_upper(self, idxs = None):
 		if idxs == None:
-			return self._v_upper * self._scaleFactor
+			return self._v_upper
 
-		return self._v_upper[idxs] * self._scaleFactor
+		return self._v_upper[idxs]
 
 	def v_upperIs(self, idxs = None, values = None):
 		if values == None:
 			return
 
 		if idxs == None:
-			self._v_upper = values / self._scaleFactor
+			self._v_upper = values
 		else:
-			self._v_upper[idxs] = values / self._scaleFactor
+			self._v_upper[idxs] = values
 
 		self._recalculateSolution = True
 
 	def v_lower(self, idxs = None):
 		if idxs == None:
-			return self._v_lower * self._scaleFactor
+			return self._v_lower
 
-		return self._v_lower[idxs] * self._scaleFactor
+		return self._v_lower[idxs]
 
 	def v_lowerIs(self, idxs = None, values = None):
 		if values == None:
 			return
 
 		if idxs == None:
-			self._v_lower = values / self._scaleFactor
+			self._v_lower = values
 		else:
-			self._v_lower[idxs] = values / self._scaleFactor
+			self._v_lower[idxs] = values
 
 		self._recalculateSolution = True
 
 	def solution(self):
 		if self._recalculateSolution:
+			self._populateBounds()
 
-			v_lower = numpy.maximum(self._v_lower, -10000)
-			v_upper = numpy.minimum(self._v_upper,  10000)
+			v_lower = numpy.maximum(self._v_lower / self._scaleFactor, -10000)
+			v_upper = numpy.minimum(self._v_upper / self._scaleFactor,  10000)
 
 			self._v, tmp = wholecell.util.linearProgramming.linearProgramming(
 			"maximize", self._c, self._S, self._b,
@@ -311,3 +319,62 @@ class rxnGroup(object):
 
 	def idxs(self):
 		return self._idxs
+
+
+
+class bounds(object):
+
+	def __init__(self, types, rxnIds, upperBound = True):
+		self._upperBound = upperBound
+		self._defaultValue = numpy.Inf
+		self._mergeFunction = functools.partial(numpy.nanmin, axis = 0)
+		if not self._upperBound:
+			self._defaultValue *= -1
+			self._mergeFunction = functools.partial(numpy.nanmax, axis = 0)
+
+		self._bounds = self._defaultValue * numpy.ones((len(types), len(rxnIds)))
+		self._merged = self._defaultValue * numpy.ones(len(rxnIds))
+
+		self._typeToIdx = dict((x[1], x[0]) for x in enumerate(types))
+		self._idxToType = dict((x[0], x[1]) for x in enumerate(types))
+		
+		self._rxnToIdx = dict((x[1], x[0]) for x in enumerate(rxnIds))
+		self._idxToRxn = dict((x[0], x[1]) for x in enumerate(rxnIds))
+
+		self._recalculateSolution = True
+
+	def mergeFunction(self):
+		return self._mergeFunction
+
+	def mergeFunctionIs(self, f):
+		self._mergeFunction = f
+
+	def mergedValues(self, idxs = None):
+		if self._recalculateSolution:
+			self._merged = self._mergeFunction(self._bounds)
+			self._recalculateSolution = False
+
+		if idxs == None:
+			return self._merged
+
+		return self._merged[idxs]
+
+	def values(self, idxs = None, type_ = None):
+		if type_ == None:
+			return
+
+		if idxs == None:
+			return self._bounds[self._typeToIdx[type_], :]
+
+		return self._bounds[self._typeToIdx[type_], idxs]
+
+	def valuesIs(self, idxs = None, type_ = None, values = None):
+		if type_ == None or values == None:
+				return
+
+		if idxs == None:
+			self._bounds[self._typeToIdx[type_], :] = values
+		else:
+			self._bounds[self._typeToIdx[type_], idxs] = values
+
+		self._recalculateSolution = True

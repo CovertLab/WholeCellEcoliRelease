@@ -114,6 +114,7 @@ class Test_flextFbaModel(unittest.TestCase):
 					  ]
 		cls.atpId = "ATP:m[c]"
 		cls.params = {"alpha": 10, "beta": 1000, "gamma": -1}
+		
 
 	@classmethod
 	def tearDownClass(cls):
@@ -123,20 +124,27 @@ class Test_flextFbaModel(unittest.TestCase):
 		m = wholecell.util.flextFbaModel.flextFbaModel(	metIds = self.metIds, rxns = self.rxns, mediaEx = self.mediaEx,
 														biomass = self.biomass, atpId = self.atpId, params = self.params)
 		
-		# Given in paper
-		m.v_lowerIs(m.rxnIdxs(["mediaEx_Tc1"]), -10.5)
-		m.v_lowerIs(m.rxnIdxs(["mediaEx_Tc2"]), -10.5)
-		m.v_upperIs(m.rxnIdxs(["mediaEx_Td"]),   12.0)
-		m.v_upperIs(m.rxnIdxs(["mediaEx_Te"]),   12.0)
-		m.v_lowerIs(m.rxnIdxs(["mediaEx_Tf"]),  -5.00)
-		m.v_lowerIs(m.rxnIdxs(["mediaEx_Th"]),  -5.00)
-		m.v_lowerIs(m.rxnIdxs(["mediaEx_To2"]), -15.0)
+		self.lb = wholecell.util.flextFbaModel.bounds(["thermodynamic", "exchange"], m.rxnIds(), False)
+		self.ub = wholecell.util.flextFbaModel.bounds(["thermodynamic", "exchange"], m.rxnIds(), True)
+		
+		# Exchange bounds given in paper
+		self.lb.valuesIs(m.rxnIdxs(["mediaEx_Tc1"]), "exchange", -10.5)
+		self.lb.valuesIs(m.rxnIdxs(["mediaEx_Tc2"]), "exchange", -10.5)
+		self.lb.valuesIs(m.rxnIdxs(["mediaEx_Tf"]),  "exchange", -5.0)
+		self.lb.valuesIs(m.rxnIdxs(["mediaEx_Th"]),  "exchange", -5.0)
+		self.lb.valuesIs(m.rxnIdxs(["mediaEx_To2"]), "exchange", -15.0)
 
-		# Irreversibility
-		m.v_lowerIs(m.rxnGroup("real").idxs(), 0)			# Irreversibility
+		self.ub.valuesIs(m.rxnIdxs(["mediaEx_Td"]), "exchange", 12.0)
+		self.ub.valuesIs(m.rxnIdxs(["mediaEx_Te"]), "exchange", 12.0)
+
+		# Reaction irreversibility
+		self.lb.valuesIs(m.rxnGroup("real").idxs(), "thermodynamic", 0)
 
 		# Biomass return is zero
-		m.v_lowerIs(m.rxnGroup("x").idxs(), 0)				# Biomass doesn't return anything
+		self.lb.valuesIs(m.rxnGroup("x").idxs(), "exchange", 0)
+
+		m.v_lowerIs(idxs = None, values = self.lb.mergedValues())
+		m.v_upperIs(idxs = None, values = self.ub.mergedValues())
 
 		self.m = m
 
