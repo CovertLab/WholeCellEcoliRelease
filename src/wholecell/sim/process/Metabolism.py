@@ -13,6 +13,7 @@ Metabolism sub-model. Encodes molecular simulation of microbial metabolism using
 import numpy
 
 import wholecell.sim.process.Process
+import wholecell.util.flextFbaModel
 
 class Metabolism(wholecell.sim.process.Process.Process):
 	""" Metabolism """
@@ -66,32 +67,56 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# List of metabolites, enzymes
-		molIds = []
-		enzIds = []
-		enzLocLookup = dict([(x["id"], x["location"]) for x in kb.proteins])
+		metIds = []
+		rxns = []
+		mediaEx = []
 
 		for r in kb.reactions:
+
+			# Determine if we're dealing with an exchange (or dead-end exchange) reaction
+			if r["id"][:len("FEIST_EX_")] == "FEIST_EX_" or r["id"][:len("FEIST_DM_")] == "FEIST_DM_":
+				exRxn = True
+			else:
+				exRxn = False
+
+			# If we're dealing with a real reaction, get its id and stoichiometry
+			if not exRxn:
+				rxns.append({"id": r["id"], "stoichiometry": r["stoichiometry"]})
+
+			# Loop over metabolites in the reaction
 			for s in r["stoichiometry"]:
-				molIds.append("%s:%s[%s]" % (s["molecule"], s["form"], s["location"]))
-			enzList = r["catBy"]
-			if len(enzList) > 0:
-				for enz in enzList:
-					enzIds.append("%s:%s[%s]" % (enz, "mature", enzLocLookup[enz]))
-			# if type(e) == dict:
-			# 	enzIds.append("%s:%s[%s]" % (e["id"], e["form"], e["location"]))
+				molStr = "%s:%s[%s]" % (s["molecule"], s["form"], s["location"])
 
-		bioIds = []
-		bioConc = []
+				# If it's an exchange reaction, append to mediaEx
+				if exRxn:
+					mediaEx.append({"rxnId": r["id"], "met": molStr})
+
+				# Otherwise, append to mediaEx
+				else:
+					metIds.append(molStr)
+
+		# Sort lists
+		metIds = sorted(set(metIds))
+		rxns = sorted(rxns, key = lambda k: k["id"])
+		mediaEx = sorted(mediaEx, key = lambda k: k["rxnId"])
+
+		biomass = []
 		for m in kb.metabolites:
-			if m["biomassConc"] > 0:
-				bioIds.append("%s:%s[%s]" % (m["id"], "mature", m["biomassLoc"]))
-				bioConc.append(m["biomassConc"])
+			if numpy.abs(m["biomassConc"]) > 1e-9:
+				if m["id"] != "KDO2LIPID4":
+					biomass.append({"id": "%s:%s[%s]" % (m["id"], "mature", m["biomassLoc"]), "coeff": -1 * m["biomassConc"]})
+				else:
+					# Change the location here until Nick fixes stuff
+					biomass.append({"id": "%s:%s[%s]" % (m["id"], "mature", "e"), "coeff": -1 * m["biomassConc"]})
 
-		enzIds = sorted(list(set(enzIds)))
-		molIds = sorted(list(set(molIds)))
-		enzIds = sorted(list(set(enzIds)))
-		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
-		bioConc = numpy.array(bioConc)
+		biomass = sorted(biomass, key = lambda k: k["id"])
+		atpId = "ATP:mature[c]"
+
+		self.flextFbamodel = wholecell.util.flextFbaModel.flextFbaModel(
+						metIds = metIds, rxns = rxns, mediaEx = mediaEx,
+						biomass = biomass, atpId = atpId, params = None)
+
+		import ipdb; ipdb.set_trace()
 
 
 		# Partitions
