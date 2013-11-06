@@ -112,9 +112,30 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		biomass = sorted(biomass, key = lambda k: k["id"])
 		atpId = "ATP:mature[c]"
 
-		self.flextFbamodel = wholecell.util.flextFbaModel.flextFbaModel(
+		self.flextFbaModel = wholecell.util.flextFbaModel.flextFbaModel(
 						metIds = metIds, rxns = rxns, mediaEx = mediaEx,
 						biomass = biomass, atpId = atpId, params = None)
+
+		self.lb = wholecell.util.flextFbaModel.bounds(["thermodynamic", "exchange"], self.flextFbaModel.rxnIds(), False)
+		self.ub = wholecell.util.flextFbaModel.bounds(["thermodynamic", "exchange"], self.flextFbaModel.rxnIds(), True)
+
+		rxnIds = self.flextFbaModel.rxnIds()
+		for r in kb.reactions:
+			rxn_prefixed = "rxn_" + r["id"]
+			mediaEx_prefixed = "mediaEx_" + r["id"]
+			idx = -1
+			if rxn_prefixed in rxnIds:
+				idx = rxnIds.index(rxn_prefixed)
+			elif mediaEx_prefixed in rxnIds:
+				idx = rxnIds.index(mediaEx_prefixed)
+			if idx < 0:
+				raise Exception, "Reaction not found in fba model."
+
+			if r["dir"] == 1:
+				self.lb.valuesIs(idx, "thermodynamic", 0)
+			elif r["dir"] == -1:
+				self.ub.valuesIs(idx, "thermodynamic", 0)
+
 
 		import ipdb; ipdb.set_trace()
 
