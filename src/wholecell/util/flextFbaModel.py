@@ -96,6 +96,24 @@ class flextFbaModel(object):
 		self.rxnGroupNew("(g_bio-f_i)", [x for x in self._rxnIds if x[:len("(g_bio-f_")] == "(g_bio-f_"])
 		self.rxnGroupNew("f_atp", ["f_" + atpId])
 		self.rxnGroupNew("f_not_atp", [x for x in self.rxnGroup("f").ids() if x != "f_" + atpId])
+		self.rxnGroupNew("lowerMutable",
+						self.rxnGroup("real").ids() + 
+						self.rxnGroup("mediaEx").ids() +
+						self.rxnGroup("(g_bio-f_i)").ids() +
+						self.rxnGroup("x").ids())
+		self.rxnGroupNew("lowerImmutable",
+						self.rxnGroup("f").ids() +
+						self.rxnGroup("(f_atp-f_i)").ids() +
+						self.rxnGroup("g_bio").ids())
+		self.rxnGroupNew("upperMutable",
+						self.rxnGroup("real").ids() + 
+						self.rxnGroup("mediaEx").ids() +
+						self.rxnGroup("f").ids() +
+						self.rxnGroup("(f_atp-f_i)").ids() +
+						self.rxnGroup("g_bio").ids())
+		self.rxnGroupNew("upperImmutable",
+						self.rxnGroup("x").ids() +
+						self.rxnGroup("(g_bio-f_i)").ids())
 
 	def _createScaleFactor(self, biomass):
 		# We want our biomass coefficients to be nicely scaled so that they are centered (in a logarithmic sense) around 1
@@ -104,7 +122,7 @@ class flextFbaModel(object):
 		# _scaleFactor is the factor by which to divide the given biomass coefficients
 		# For the above example, it would be 10.
 		# Because we change the biomass coefficients, we also have to change the flux bounds by _scaleFactor.
-		# This occurs in v_upperIs() and v_lowerIs().
+		# This occurs in solution().
 		# We do not alert the user to any of this. Instead, we try to handle all of this nicely behind the scenes.
 		# That is, if the user uses the interface properly, they will have no idea that scaling occurred.
 		self._scaleFactor = numpy.exp(numpy.mean(numpy.log(numpy.abs(numpy.array([x["coeff"] for x in biomass])))))
@@ -124,7 +142,7 @@ class flextFbaModel(object):
 		self._S[self.metGroup("mediaEx").idxs(), self.rxnGroup("mediaEx").idxs()] = -1.
 
 		# Populate r reactions
-		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["coeff"] for b in biomass]) / self._scaleFactor
+		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["coeff"] for b in biomass]) #/ self._scaleFactor
 
 		# Populate x reactions
 		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("x").idxs()] = -1.
@@ -152,11 +170,11 @@ class flextFbaModel(object):
 		self._recalculateSolution = True
 
 	def _populateBounds(self):
-		self.v_lowerIs(self.rxnGroup("f").idxs(), 0)
-		self.v_lowerIs(self.rxnGroup("(f_atp-f_i)").idxs(), 0)
-		self.v_lowerIs(self.rxnGroup("g_bio").idxs(), 0)
-		self.v_upperIs(self.rxnGroup("(g_bio-f_i)").idxs(), 0)
-		self.v_upperIs(self.rxnGroup("x").idxs(), 0)
+		self.v_lowerIs(self.rxnGroup("f").idxs(), 0, True)
+		self.v_lowerIs(self.rxnGroup("(f_atp-f_i)").idxs(), 0, True)
+		self.v_lowerIs(self.rxnGroup("g_bio").idxs(), 0, True)
+		self.v_upperIs(self.rxnGroup("(g_bio-f_i)").idxs(), 0, True)
+		self.v_upperIs(self.rxnGroup("x").idxs(), 0, True)
 
 		self._recalculateSolution = True
 
@@ -228,7 +246,7 @@ class flextFbaModel(object):
 
 		return self._v_upper[idxs]
 
-	def v_upperIs(self, idxs = None, values = None):
+	def v_upperIs(self, idxs = None, values = None, overrideImmutable = False):
 		if values == None:
 			return
 
@@ -236,6 +254,10 @@ class flextFbaModel(object):
 			self._v_upper = values
 		else:
 			self._v_upper[idxs] = values
+
+		if not overrideImmutable and not numpy.all(self._v_upper[self.rxnGroup("upperImmutable").idxs()] == 0):
+			import ipdb; ipdb.set_trace()
+			raise Exception, "Attempting to change immutable bound."
 
 		self._recalculateSolution = True
 
@@ -245,7 +267,7 @@ class flextFbaModel(object):
 
 		return self._v_lower[idxs]
 
-	def v_lowerIs(self, idxs = None, values = None):
+	def v_lowerIs(self, idxs = None, values = None, overrideImmutable = False):
 		if values == None:
 			return
 
@@ -254,20 +276,26 @@ class flextFbaModel(object):
 		else:
 			self._v_lower[idxs] = values
 
+		if not overrideImmutable and not numpy.all(self._v_lower[self.rxnGroup("lowerImmutable").idxs()] == 0):
+			raise Exception, "Attempting to change immutable bound."
+
 		self._recalculateSolution = True
 
 	def solution(self):
 		if self._recalculateSolution:
-			self._populateBounds()
 
 			v_lower = numpy.maximum(self._v_lower / self._scaleFactor, -10000)
 			v_upper = numpy.minimum(self._v_upper / self._scaleFactor,  10000)
+
+			self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] /= self._scaleFactor
 
 			self._v, tmp = wholecell.util.linearProgramming.linearProgramming(
 			"maximize", self._c, self._S, self._b,
 			v_lower, v_upper, self._metConstTypes, self._rxnVarTypes,
 			None	# Will use glpk
 			)
+
+			self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] *= self._scaleFactor
 
 			self._recalculateSolution = False
 

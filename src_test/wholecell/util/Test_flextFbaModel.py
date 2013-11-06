@@ -143,8 +143,8 @@ class Test_flextFbaModel(unittest.TestCase):
 		# Biomass return is zero
 		self.lb.valuesIs(m.rxnGroup("x").idxs(), "exchange", 0)
 
-		m.v_lowerIs(idxs = None, values = self.lb.mergedValues())
-		m.v_upperIs(idxs = None, values = self.ub.mergedValues())
+		m.v_lowerIs(idxs = m.rxnGroup("lowerMutable").idxs(), values = self.lb.mergedValues(m.rxnGroup("lowerMutable").idxs()))
+		m.v_upperIs(idxs = m.rxnGroup("upperMutable").idxs(), values = self.ub.mergedValues(m.rxnGroup("upperMutable").idxs()))
 
 		self.m = m
 
