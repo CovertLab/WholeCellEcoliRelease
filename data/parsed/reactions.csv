@@ -1442,7 +1442,6 @@ FEIST_IPPS	2-isopropylmalate synthase	Metabolism	4.1.3.12	[c] : 3mob + accoa + h
 FEIST_ISETACabcpp	isethionate transport via ABC system (periplasm)	Metabolism		atp[c] + h2o[c] + isetac[p] --> adp[c] + h[c] + isetac[c] + pi[c]	"[[""ABC-64-CPLX""], [""ABC-56-CPLX""]]"	forward only	
 FEIST_ISETACtex	isethionate transport via diffusion (extracellular to periplasm)	Metabolism		isetac[e] <==> isetac[p]	"[[""MONOMER0-282""], [""EG10671-MONOMER""], [""G6700-MONOMER""], [""EG10670-MONOMER""]]"	reversible	
 FEIST_K2L4Aabcpp	KDO(2)-lipid IV A transport via ABC system (periplasm)	Metabolism		atp[c] + h2o[c] + kdo2lipid4[c] --> adp[c] + h[c] + kdo2lipid4[p] + pi[c]	"[[""EG10613-MONOMER""]]"	forward only	
-FEIST_K2L4Atex	KDO(2)-lipid IV A transport via vector (periplasm to extracellular)	Metabolism		kdo2lipid4[p] --> kdo2lipid4[e]	null	forward only	
 FEIST_KARA1	ketol-acid reductoisomerase (2,3-dihydroxy-3-methylbutanoate)	Metabolism	1.1.1.86	[c] : 23dhmb + nadp <==> alac-S + h + nadph	"[[""KETOLREDUCTOISOM-MONOMER""]]"	reversible	
 FEIST_KARA2	ketol-acid reductoisomerase (2-Acetolactate)	Metabolism	1.1.1.86	[c] : 2ahbut + h + nadph <==> 23dhmp + nadp	"[[""KETOLREDUCTOISOM-MONOMER""]]"	reversible	
 FEIST_KAS14	beta-ketoacyl-ACP synthase	Metabolism	2.3.1.41	[c] : acACP + h + malACP --> ACP + actACP + co2	"[[""FABB-MONOMER""], [""3-OXOACYL-ACP-SYNTHII-MONOMER""]]"	forward only	
@@ -2124,6 +2123,7 @@ FEIST_RXN_WC_2	NADH:flavorubredoxin oxidoreductase	Metabolism		[c] : h + flvubrd
 FEIST_RXN_WC_3	D-alanine-D-alanine dipeptidase	Metabolism	3.4.17.14	[p] : alaala + h2o --> (2) ala-D	"[[""G6782-MONOMER""]]"	forward only	
 FEIST_RXN_WC_4	aldose-1-epimerase	Metabolism	5.1.3.3	[c] : gal-bD --> gal	"[[""ALDOSE1EPIM-MONOMER""]]"	forward only	
 FEIST_RXN_WC_5	D-galactose transport in via proton symport (periplasm)	Metabolism		gal-bD[p] + h[p] --> gal-bD[c] + h[c]	"[[""GALP-MONOMER""]]"	forward only	
+FEIST_RXN_WC_K2L4Atex	KDO(2)-lipid IV A transport via vector (periplasm to extracellular)	Metabolism		kdo2lipid4[p] --> kdo2lipid4[o]	null	forward only	
 FEIST_RZ5PP	alpha-ribazole 5-phosphate phosphatase	Metabolism		[c] : 5prdmbz + h2o --> pi + rdmbzi	"[[""RIBAZOLEPHOSPHAT-MONOMER""]]"	forward only	
 FEIST_S7PI	sedoheptulose 7-phosphate isomerase	Metabolism		[c] : s7p --> gmhep7p	"[[""G6106-MONOMER""]]"	forward only	
 FEIST_SADH	Succinylarginine dihydrolase	Metabolism	2.6.1.69	[c] : (2) h + (2) h2o + sucarg --> co2 + (2) nh4 + sucorn	"[[""SUCCARGDIHYDRO-MONOMER""]]"	forward only	
