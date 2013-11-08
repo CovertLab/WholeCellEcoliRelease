@@ -1589,6 +1589,9 @@ def parseComplexes():
 		comp = proteinComplex()
 		comp.frameId = hasComplexSubunit[0]
 		comp.name = re.sub('<[^<]+?>', '', row[1])
+		comp.modifiedForm = row[3][1:-1].split(' ')
+		if comp.modifiedForm == [""]:
+			comp.modifiedForm = []
 
 		foundAllComponents = True
 		components = row[2][2:-2].split(') (')
