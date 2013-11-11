@@ -28,12 +28,13 @@ class Test_uniques(unittest.TestCase):
 		pass
 
 	def setUp(self):
+		print 'hello'
 		self.kb = type("", (), {})()
 		self.kb.molecules = [{"id": "enz1", "mass": 1.0, "uniqueAttrs": None}, {"id": "enz2", "mass": 2.0, "uniqueAttrs": None}, {"id": "enz3", "mass": 3.0, "uniqueAttrs": ["attr1", "attr2", "attr3"]}, {"id": "enz4", "mass": 4.0, "uniqueAttrs": ["attr4_1", "attr4_2"]}, {"id": "enz5", "mass": 5.0, "uniqueAttrs": None}]
 		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
 
-		self.mc = wholecell.util.uniques.MoleculesContainer()
-		self.mc.initialize(kb)
+		self.mc = wholecell.sim.state.uniques.MoleculesContainer()
+		self.mc.initialize(self.kb)
 		mol = self.mc.molecule("enz3", "c")
 
 	def tearDown(self):
