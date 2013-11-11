@@ -26,3 +26,4 @@ VALTRS	tRNA synthetase not modeled in metabolism
 ALAALAD	Moving reaction from cytosol to periplasm based on enzyme location information
 GALM2pp	Moving reaction from periplasm to cytosol based on enzyme location information
 K2L4Atex	Had to export metabolite kdo2lipid4 to outer membrane not extracellular
+EX_kdo2lipid4(e)	Removed because metabolite kdo2lipid4 is no longer in extracellular space it is in outer membrane

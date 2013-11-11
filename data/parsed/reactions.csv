@@ -884,7 +884,6 @@ FEIST_EX_inost(e)	myo-Inositol exchange	Metabolism		[e] : inost <==>	null	revers
 FEIST_EX_ins(e)	Inosine exchange	Metabolism		[e] : ins <==>	null	reversible	
 FEIST_EX_isetac(e)	Isethionic acid exchange	Metabolism		[e] : isetac <==>	null	reversible	
 FEIST_EX_k(e)	K+ exchange	Metabolism		[e] : k <==>	null	reversible	
-FEIST_EX_kdo2lipid4(e)	KDO(2)-lipid IV(A) exchange	Metabolism		[e] : kdo2lipid4 <==>	null	reversible	
 FEIST_EX_lac-D(e)	D-lactate exchange	Metabolism		[e] : lac-D <==>	null	reversible	
 FEIST_EX_lac-L(e)	L-Lactate exchange	Metabolism		[e] : lac-L <==>	null	reversible	
 FEIST_EX_lcts(e)	Lactose exchange	Metabolism		[e] : lcts <==>	null	reversible	
