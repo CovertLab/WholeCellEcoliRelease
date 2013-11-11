@@ -41,7 +41,7 @@ class Test_uniques(unittest.TestCase):
 		pass
 
 	@noseAttrib.attr('uniqueTest')
-	def testProgram(self):
+	def test_program(self):
 		
 		import ipdb
 		ipdb.set_trace()
