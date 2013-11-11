@@ -2079,7 +2079,7 @@ def parseMetabolites():
 			objectiveRead = float(row[6]) # mmol/gDSW
 			g1 = 10**-3 # mol/mmol
 			g2 = 6.02*(10**23) # molecules/mol
-			g3 = 2.8*(10**-13) # gDSW/cell
+			g3 = 2.8*(10**-13) # gDCW/cell
 			objective = objectiveRead * g1 * g2 * g3 # molecules / cell
 			metDict[metId].biomassConc = objective
 			bmc = None
