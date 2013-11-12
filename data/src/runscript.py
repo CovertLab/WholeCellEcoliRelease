@@ -2110,7 +2110,7 @@ def parseMetabolites():
 			g1 = 10**-3 # mol/mmol
 			g2 = 6.02*(10**23) # molecules/mol
 			g3 = 2.8*(10**-13) # gDSW/cell
-			objective = objectiveRead * g1 * g2 * g3 * (-1.) # molecules / cell
+			objective = objectiveRead# * g1 * g2 * g3 * (-1.) # molecules / cell
 			metDict[metId].biomassConc = objective
 			bmc = None
 			if row[8] == 'cytoplasm':
