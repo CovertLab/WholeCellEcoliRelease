@@ -2083,7 +2083,7 @@ def parseMetabolites():
 			g1 = 10**-3 # mol/mmol
 			g2 = 6.02*(10**23) # molecules/mol
 			g3 = 2.8*(10**-13) # gDCW/cell
-			objective = objectiveRead * g1 * g2 * g3 # molecules / cell
+			objective = objectiveRead# * g1 * g2 * g3 # molecules / cell
 			metDict[metId].biomassConc = objective
 			bmc = None
 			if row[8] == 'cytoplasm':
@@ -2232,7 +2232,7 @@ def parseMetabolites():
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH 7.2 formula', 'pH 7.2 charge', 'pH 7.2 Weight', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Biomass location', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH 7.2 formula', 'pH 7.2 charge', 'pH 7.2 Weight', 'Media Concentration (mM)', 'Biomass concentration (mmol/gDSW)', 'Biomass location', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
 		for key in keys:
 			m = metDict[key]
 			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.biomassCompartment, m.exchangeRate, m.notRealMetabolte, json.dumps(m.equivalentEnzyme), m.comments])
