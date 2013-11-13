@@ -74,21 +74,26 @@ class Molecule(object):
 
 		uniqueClassDefDict["__init__"] = uniqueInit
 
-		for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
+		def makeGetter(attr):
 			def attrGetter(self):
 				molCont, uniqueIdx = self._container, self._uniqueIdx
 				molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
 
 				return molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx]
-			
+			return attrGetter
+		
+		def makeSetter(attr):
 			def attrSetter(self, newVal):
 				molCont, uniqueIdx = self._container, self._uniqueIdx
 				molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
 
 				molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx] = newVal
+			return attrSetter
 
-			uniqueClassDefDict[attr] = attrGetter
-			uniqueClassDefDict[attr + "Is"] = attrSetter
+		for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
+
+			uniqueClassDefDict[attr] = makeGetter(attr)
+			uniqueClassDefDict[attr + "Is"] = makeSetter(attr)
 
 		self.MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
 
