@@ -177,127 +177,127 @@ class MoleculeUniqueMeta(type):
 # 	__metaclass__ = MoleculeUniqueMeta
 
 ##
-class Track(object):
+# class Track(object):
 
-	def __init__(self):
-		self._d = {}
-		self._maxKey = 0
+# 	def __init__(self):
+# 		self._d = {}
+# 		self._maxKey = 0
 		
-	def __getitem__(self, key):
-		if type(key) == int:
-			if key < 0:
-				raise IndexError, "Key must be non-negative."
-			return self._d.get(key, None)
-		elif type(key) == slice or type(key) == list or type(key) == tuple or type(key) == xrange or type(key) == numpy.ndarray:
-			if type(key) == slice:
-				seq = xrange(*key.indices(self._maxKey + 1))
-			else:
-				seq = key
+# 	def __getitem__(self, key):
+# 		if type(key) == int:
+# 			if key < 0:
+# 				raise IndexError, "Key must be non-negative."
+# 			return self._d.get(key, None)
+# 		elif type(key) == slice or type(key) == list or type(key) == tuple or type(key) == xrange or type(key) == numpy.ndarray:
+# 			if type(key) == slice:
+# 				seq = xrange(*key.indices(self._maxKey + 1))
+# 			else:
+# 				seq = key
 
-			if seq[0] < 0 or seq[-1] < 0:
-				raise IndexError, "Keys must be non-negative."
+# 			if seq[0] < 0 or seq[-1] < 0:
+# 				raise IndexError, "Keys must be non-negative."
 
-			d = {}
-			for i in seq:
-				if i in self._d:
-					d[i] = self._d[i]
-			return d
-		else:
-			raise TypeError, "Invalid argument type."
+# 			d = {}
+# 			for i in seq:
+# 				if i in self._d:
+# 					d[i] = self._d[i]
+# 			return d
+# 		else:
+# 			raise TypeError, "Invalid argument type."
 
-	def __setitem__(self, key, value):
-		if type(key) == int:
-			if key < 0:
-				raise IndexError, "Key must be non-negative."
-			if value == None:
-				del self[key]
-			else:
-				self._maxKey = max(self._maxKey, key)
-				self._d[key] = value
-		elif type(key) == slice or type(key) == list or type(key) == tuple or type(key) == xrange or type(key) == numpy.ndarray:
-			if type(key) == slice:
-				seq = xrange(*key.indices(sys.maxint))
-			else:
-				seq = key
+# 	def __setitem__(self, key, value):
+# 		if type(key) == int:
+# 			if key < 0:
+# 				raise IndexError, "Key must be non-negative."
+# 			if value == None:
+# 				del self[key]
+# 			else:
+# 				self._maxKey = max(self._maxKey, key)
+# 				self._d[key] = value
+# 		elif type(key) == slice or type(key) == list or type(key) == tuple or type(key) == xrange or type(key) == numpy.ndarray:
+# 			if type(key) == slice:
+# 				seq = xrange(*key.indices(sys.maxint))
+# 			else:
+# 				seq = key
 
-			if type(value) != list and type(value) != tuple and type(value) != xrange and type(value) != numpy.ndarray:
-				valueIter = (value for x in xrange(len(seq)))
-			else:
-				if len(seq) != len(value):
-					raise ValueError, "Shape mismatch."
-				valueIter = iter(value)
+# 			if type(value) != list and type(value) != tuple and type(value) != xrange and type(value) != numpy.ndarray:
+# 				valueIter = (value for x in xrange(len(seq)))
+# 			else:
+# 				if len(seq) != len(value):
+# 					raise ValueError, "Shape mismatch."
+# 				valueIter = iter(value)
 
-			for iSeq in seq:
-				self[iSeq] = valueIter.next()
-				print self[iSeq]
-		else:
-			raise TypeError, "Invalid argument type."
+# 			for iSeq in seq:
+# 				self[iSeq] = valueIter.next()
+# 				print self[iSeq]
+# 		else:
+# 			raise TypeError, "Invalid argument type."
 
-	def __delitem__(self, key):
-		if type(key) == int:
-			if key < 0:
-				raise IndexError, "Key must be non-negative."
-			del self._d[key]
-			if key == self._maxKey:
-				self._maxKey = reduce(lambda x, y: max(x, y), self._d.iterkeys())
-		elif type(key) == slice or type(key) == list or type(key) == tuple or type(key) == xrange or type(key) == numpy.ndarray:
-			if type(key) == slice:
-				seq = xrange(*key.indices(self._maxKey))
-			else:
-				seq = key
+# 	def __delitem__(self, key):
+# 		if type(key) == int:
+# 			if key < 0:
+# 				raise IndexError, "Key must be non-negative."
+# 			del self._d[key]
+# 			if key == self._maxKey:
+# 				self._maxKey = reduce(lambda x, y: max(x, y), self._d.iterkeys())
+# 		elif type(key) == slice or type(key) == list or type(key) == tuple or type(key) == xrange or type(key) == numpy.ndarray:
+# 			if type(key) == slice:
+# 				seq = xrange(*key.indices(self._maxKey))
+# 			else:
+# 				seq = key
 
-			d = {}
-			for i in seq:
-				del self[i]
-			return d
-		else:
-			raise TypeError, "Invalid argument type."
+# 			d = {}
+# 			for i in seq:
+# 				del self[i]
+# 			return d
+# 		else:
+# 			raise TypeError, "Invalid argument type."
 
-	def __repr__(self):
-		return repr(self._d)
+# 	def __repr__(self):
+# 		return repr(self._d)
 
-class RNA(object):
+# class RNA(object):
 
-	def __init__(self, rnaId):
-		self._rnaId = rnaId
-		# TODO: Add uniqueIdx
-		self.tracks = []
-		self.tracksIdxs = {
-			"sequence": [0],
-			"bound": [1],
-			"secStruct": [2],
-			"forPolypeptide": [3],
-		}
-		[self.tracks.append(Track()) for key in self.tracksIdxs for elem in self.tracksIdxs[key]]
+# 	def __init__(self, rnaId):
+# 		self._rnaId = rnaId
+# 		# TODO: Add uniqueIdx
+# 		self.tracks = []
+# 		self.tracksIdxs = {
+# 			"sequence": [0],
+# 			"bound": [1],
+# 			"secStruct": [2],
+# 			"forPolypeptide": [3],
+# 		}
+# 		[self.tracks.append(Track()) for key in self.tracksIdxs for elem in self.tracksIdxs[key]]
 
-class RNAP(object):
+# class RNAP(object):
 
-	ftpt = 50
-	velocity = 50
+# 	ftpt = 50
+# 	velocity = 50
 
-	def __init__(self):
-		# TODO: Add uniqueIdx
-		self._state = "F"
-		self._rna = None
-		self._chromLocs = -1 * numpy.ones(self.ftpt, dtype = int)
-		self._rnaLocs = [-1]
+# 	def __init__(self):
+# 		# TODO: Add uniqueIdx
+# 		self._state = "F"
+# 		self._rna = None
+# 		self._chromLocs = -1 * numpy.ones(self.ftpt, dtype = int)
+# 		self._rnaLocs = [-1]
 
-	def state(self): return self._state
-	def stateIs(self, val): self._state = val
-	def rna(self): return self._rna
-	def rnaIs(self, val): self._rna = val
-	def chromLocs(self, i): return self._chromLocs[i]
-	def chromLocsLen(self): return len(self._chromLocs)
-	def chromLocsIs(self, i, val): self._chromLocs[i] = val
-	def chromLocsIncr(self, i, val = None):
-		if val == None:
-			self._chromLocs = (self._chromLocs + i) % 5e6
-		else:
-			self._chromLocs[i] = (self._chromLocs[i] + val) % 5e6
-	def rnaLocs(self, i): return self._rnaLocs[i]
-	def rnaLocsLen(self): return len(self._rnaLocs)
-	def rnaLocsIs(self, i, val): self._rnaLocs[i] = val
-	def rnaLocsIncr(self, i, val): self._rnaLocs[i] += val
+# 	def state(self): return self._state
+# 	def stateIs(self, val): self._state = val
+# 	def rna(self): return self._rna
+# 	def rnaIs(self, val): self._rna = val
+# 	def chromLocs(self, i): return self._chromLocs[i]
+# 	def chromLocsLen(self): return len(self._chromLocs)
+# 	def chromLocsIs(self, i, val): self._chromLocs[i] = val
+# 	def chromLocsIncr(self, i, val = None):
+# 		if val == None:
+# 			self._chromLocs = (self._chromLocs + i) % 5e6
+# 		else:
+# 			self._chromLocs[i] = (self._chromLocs[i] + val) % 5e6
+# 	def rnaLocs(self, i): return self._rnaLocs[i]
+# 	def rnaLocsLen(self): return len(self._rnaLocs)
+# 	def rnaLocsIs(self, i, val): self._rnaLocs[i] = val
+# 	def rnaLocsIncr(self, i, val): self._rnaLocs[i] += val
 
 # numpy.random.seed(1)
 # chrLen = 5e6
