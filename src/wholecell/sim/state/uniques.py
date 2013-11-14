@@ -127,6 +127,8 @@ class Molecule(object):
 
 	def uniqueNew(self, attrs = None):
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
+		if not len(uniqueDict):
+			raise uniqueException, 'Attempting to create unique from object with no unique attributes!\n'
 		for attr in uniqueDict:
 			if attrs != None and attr in attrs:
 				uniqueDict[attr].append(attrs[attr])
@@ -167,6 +169,10 @@ class MoleculeUniqueMeta(type):
 		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
 
+class uniqueException(Exception):
+	'''
+	uniqueException
+	'''
 
 ###
 # class enz4Unique(object):
