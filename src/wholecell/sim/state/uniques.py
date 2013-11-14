@@ -146,6 +146,8 @@ class Molecule(object):
 		return uniqueDict["objects"][uniqueIdx]
 
 	def uniquesWithAttrs(self, attrs = None):
+		# Returns list of objects with attributes specified in attrs
+		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 
 		if attrs == None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
