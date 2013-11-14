@@ -126,7 +126,7 @@ class Test_uniques(unittest.TestCase):
 		mol = self.mc.molecule("enz3", "c")
 		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
 			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
-		self.assertEqual(context.exception.message, 'Attribute not included in knoweldge base for this unique object!\n')
+		self.assertEqual(context.exception.message, 'A specified attribute is not included in knoweldge base for this unique object!\n')
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueDel(self):

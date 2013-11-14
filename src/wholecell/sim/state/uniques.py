@@ -133,7 +133,7 @@ class Molecule(object):
 		if not len(uniqueDict):
 			raise uniqueException, 'Attempting to create unique from object with no unique attributes!\n'
 		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
-			raise uniqueException, 'Attribute not included in knoweldge base for this unique object!\n'
+			raise uniqueException, 'A specified attribute is not included in knoweldge base for this unique object!\n'
 
 		for attr in uniqueDict:
 			if attrs != None and attr in attrs:
