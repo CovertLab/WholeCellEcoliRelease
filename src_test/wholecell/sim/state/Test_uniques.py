@@ -107,17 +107,20 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_missingCorrectAttr(self):
 		mol = self.mc.molecule("enz3", "c")
-		mol.uniqueNew({"attr2" : "B", "attr3" : "C"})
-		self.assertEqual(mol.attr1(), None)
-		self.assertEqual(mol.attr2(), "B")
-		self.assertEqual(mol.attr3(), "C")
+		newEnz3 = mol.uniqueNew({"attr2" : "B", "attr3" : "C"})
+		self.assertEqual(newEnz3.attr1(), None)
+		self.assertEqual(newEnz3.attr2(), "B")
+		self.assertEqual(newEnz3.attr3(), "C")
 
-		
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr3" : "C"})
+		self.assertEqual(newEnz3.attr1(), "A")
+		self.assertEqual(newEnz3.attr2(), None)
+		self.assertEqual(newEnz3.attr3(), "C")
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_forIncorrectAttr(self):
 		mol = self.mc.molecule("enz3", "c")
 		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
-			mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
-		self.assertEqual(context.exception.message, 'Attempting to create unique from object with no unique attributes!\n')
+			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
+		self.assertEqual(context.exception.message, 'Attribute not included in knoweldge base for this unique object!\n')
 
