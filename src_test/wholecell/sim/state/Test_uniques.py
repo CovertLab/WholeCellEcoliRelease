@@ -144,3 +144,19 @@ class Test_uniques(unittest.TestCase):
 		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
 			mol1.uniqueDel(newEnz4)
 		self.assertEqual(context.exception.message, 'Unique object to delete does not match row in unique table!\n')
+
+
+	@noseAttrib.attr('uniqueTest')
+	def test_uniquesWithAttrs(self):
+		mol = self.mc.molecule("enz3", "c")
+		newEnz3_1 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
+		newEnz3_2 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		newEnz3_3 = mol.uniqueNew({"attr1" : "B", "attr2" : "B", "attr3" : "C"})
+		newEnz3_4 = mol.uniqueNew({"attr1" : "C", "attr2" : "B", "attr3" : "C"})
+
+		L = mol.uniquesWithAttrs({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		self.assertEqual(len(L),1)
+		self.assertEqual(id(L[0]), id(newEnz3_2))
+
+
+
