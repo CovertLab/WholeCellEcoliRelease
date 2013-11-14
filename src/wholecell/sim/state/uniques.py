@@ -150,6 +150,9 @@ class Molecule(object):
 		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 
+		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
+			raise uniqueException, 'A specified attribute is not included in knoweldge base for this unique object!\n'
+
 		if attrs == None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
 			return uniqueDict["objects"][:]
 
@@ -177,18 +180,20 @@ class Molecule(object):
 			del uniqueDict[attr][uniqueIdx]
 		self._container._countsUnique[self._rowIdx, self._colIdx] -= 1			
 
-class MoleculeUniqueMeta(type):
-	
-	def __new__(cls, name, bases, attrs):
-		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
-		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
-		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
-		return newClass
-
 class uniqueException(Exception):
 	'''
 	uniqueException
 	'''
+
+
+# class MoleculeUniqueMeta(type):
+	
+# 	def __new__(cls, name, bases, attrs):
+# 		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
+# 		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
+# 		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
+# 		return newClass
+
 
 ###
 # class enz4Unique(object):
