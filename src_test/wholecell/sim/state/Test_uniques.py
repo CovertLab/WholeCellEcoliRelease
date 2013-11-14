@@ -122,7 +122,7 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(newEnz3.attr3(), "C")
 
 	@noseAttrib.attr('uniqueTest')
-	def test_uniqueNew_forIncorrectAttr(self):
+	def test_uniqueNew_incorrectAttr(self):
 		mol = self.mc.molecule("enz3", "c")
 		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
 			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
