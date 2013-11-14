@@ -43,6 +43,13 @@ class Test_uniques(unittest.TestCase):
 		pass
 
 	@noseAttrib.attr('uniqueTest')
+	def test_moleculeNotUnique(self):
+		try:
+			mol = self.mc.molecule("enz1", "c")
+		except:
+			self.fail("Initalizing a molecule threw an error!")
+
+	@noseAttrib.attr('uniqueTest')
 	def test_countsBulk(self):
 		mol = self.mc.molecule("enz1", "c")
 		self.assertEqual(mol.countsBulk(), 0.0)
@@ -89,3 +96,28 @@ class Test_uniques(unittest.TestCase):
 		mol = self.mc.molecule("enz3", "c")
 		mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		self.assertEqual(mol.countsUnique(), 1.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_uniqueNew_forNonUnique(self):
+		mol = self.mc.molecule("enz1", "c")
+		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+			mol.uniqueNew({})
+		self.assertEqual(context.exception.message, 'Attempting to create unique from object with no unique attributes!\n')
+
+	@noseAttrib.attr('uniqueTest')
+	def test_uniqueNew_missingCorrectAttr(self):
+		mol = self.mc.molecule("enz3", "c")
+		mol.uniqueNew({"attr2" : "B", "attr3" : "C"})
+		self.assertEqual(mol.attr1(), None)
+		self.assertEqual(mol.attr2(), "B")
+		self.assertEqual(mol.attr3(), "C")
+
+		
+
+	@noseAttrib.attr('uniqueTest')
+	def test_uniqueNew_forIncorrectAttr(self):
+		mol = self.mc.molecule("enz3", "c")
+		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+			mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		self.assertEqual(context.exception.message, 'Attempting to create unique from object with no unique attributes!\n')
+
