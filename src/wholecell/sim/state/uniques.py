@@ -155,9 +155,12 @@ class Molecule(object):
 
 		L = []
 		for i in xrange(len(uniqueDict["objects"])):
+			addThis = True
 			for attr in attrs:
-				if uniqueDict[attr][i] == attrs[attr]:
-					L.append(uniqueDict["objects"][i])
+				if uniqueDict[attr][i] != attrs[attr]:
+					addThis = False
+			if addThis:
+				L.append(uniqueDict["objects"][i])
 		return L
 
 	def uniqueDel(self, uniqueObj):
