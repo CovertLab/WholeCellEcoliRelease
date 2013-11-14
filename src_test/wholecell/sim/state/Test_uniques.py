@@ -128,4 +128,19 @@ class Test_uniques(unittest.TestCase):
 			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
 		self.assertEqual(context.exception.message, 'Attribute not included in knoweldge base for this unique object!\n')
 
-	
+	@noseAttrib.attr('uniqueTest')
+	def test_uniqueDel(self):
+		mol = self.mc.molecule("enz3", "c")
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		mol.uniqueDel(newEnz3)
+		self.assertEqual(mol.countsUnique(), 0.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_uniqueDel_objectNotCorrect(self):
+		mol1 = self.mc.molecule("enz3", "c")
+		mol2 = self.mc.molecule("enz4", "c")
+		newEnz3 = mol1.uniqueNew()
+		newEnz4 = mol2.uniqueNew()
+		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+			mol1.uniqueDel(newEnz4)
+		self.assertEqual(context.exception.message, 'Unique object to delete does not match row in unique table!\n')
