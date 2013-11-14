@@ -145,7 +145,6 @@ class Test_uniques(unittest.TestCase):
 			mol1.uniqueDel(newEnz4)
 		self.assertEqual(context.exception.message, 'Unique object to delete does not match row in unique table!\n')
 
-
 	@noseAttrib.attr('uniqueTest')
 	def test_uniquesWithAttrs(self):
 		mol = self.mc.molecule("enz3", "c")
@@ -158,5 +157,29 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(len(L),1)
 		self.assertEqual(id(L[0]), id(newEnz3_2))
 
+		L = mol.uniquesWithAttrs({"attr1" : "A"})
+		self.assertEqual(len(L),2)
+		self.assertEqual(set([id(L[0]), id(L[1])]), set([id(newEnz3_1),id(newEnz3_2)]))
 
+	@noseAttrib.attr('uniqueTest')
+	def test_uniquesWithAttrs_incorrectAttr(self):
+		mol = self.mc.molecule("enz3", "c")
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
+		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+			mol.uniquesWithAttrs({"attr1" : "A", "attr4" : "B"})
+		self.assertEqual(context.exception.message, 'A specified attribute is not included in knoweldge base for this unique object!\n')
 
+	@noseAttrib.attr('uniqueTest')
+	def test_makeGetter(self):
+		mol = self.mc.molecule("enz3", "c")
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		self.assertEqual(newEnz3.attr1(), "A")
+		self.assertEqual(newEnz3.attr2(), "B")
+		self.assertEqual(newEnz3.attr3(), "C")
+
+	@noseAttrib.attr('uniqueTest')
+	def test_makeSetter(self):
+		mol = self.mc.molecule("enz3", "c")
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
+		newEnz3.attr1Is("Z")
+		self.assertEqual(newEnz3.attr1(), "Z")
