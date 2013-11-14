@@ -126,11 +126,13 @@ class Molecule(object):
 		return (self.countsBulk() + self.countsUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
 
 	def uniqueNew(self, attrs = None):
+		# Creates new unique object with attributes defined by attrs
+		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 		
 		if not len(uniqueDict):
 			raise uniqueException, 'Attempting to create unique from object with no unique attributes!\n'
-		if len(set(attrs).difference(set(uniqueDict.keys()))):
+		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
 			raise uniqueException, 'Attribute not included in knoweldge base for this unique object!\n'
 
 		for attr in uniqueDict:
