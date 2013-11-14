@@ -98,24 +98,31 @@ class Molecule(object):
 		self.MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
 
 	def countsBulk(self):
+		# Returns bulk count of molecule as a float
 		return self._container._countsBulk[self._rowIdx, self._colIdx]
 
 	def countsBulkIs(self, newVal):
+		# Sets bulk count of molecule
 		self._container._countsBulk[self._rowIdx, self._colIdx] = newVal
 
 	def countsBulkInc(self, incVal):
+		# Increments counts bulk by incVal
 		self._container._countsBulk[self._rowIdx, self._colIdx] += incVal
 
 	def countsBulkDec(self, decVal):
+		# Decrements counts bulk by decVal
 		self.countsBulkInc(-1 * decVal)
 
 	def countsUnique(self):
+		# Returns unique count of molecule as a float
 		return self._container._countsUnique[self._rowIdx, self._colIdx]
 	
 	def massSingle(self):
+		# Returns mass of single object
 		return self._container._massSingle[self._rowIdx, self._colIdx]
 
 	def massAll(self):
+		# Returns mass of all objects bulk and unique
 		return (self.countsBulk() + self.countsUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
 
 	def uniqueNew(self, attrs = None):
