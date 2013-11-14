@@ -21,8 +21,8 @@ class MoleculesContainer(object):
 		self._molecules = {}
 
 	def initialize(self, kb):
-		self._countsBulk = -1.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
-		self._countsUnique = -1.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
+		self._countsBulk = 0.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
+		self._countsUnique = 0.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
 		self._massSingle = numpy.array([[x["mass"]] * len(kb.compartments) for x in kb.molecules])
 
 		self._uniqueDict = []

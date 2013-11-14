@@ -45,7 +45,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_countsBulk(self):
 		mol = self.mc.molecule("enz1", "c")
-		self.assertEqual(mol.countsBulk(), -1.0)
+		self.assertEqual(mol.countsBulk(), 0.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_countsBulkIs(self):
@@ -72,3 +72,20 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(mol.countsBulk(), 2.0)
 		mol.countsBulkDec(2)
 		self.assertEqual(mol.countsBulk(), 0.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_massSingle(self):
+		mol = self.mc.molecule("enz2", "c")
+		self.assertEqual(mol.massSingle(), 2.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_massAllNoUnique(self):
+		mol = self.mc.molecule("enz2", "c")
+		mol.countsBulkIs(5)
+		self.assertEqual(mol.massAll(), 10.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_uniqueNew(self):
+		mol = self.mc.molecule("enz3", "c")
+		mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		self.assertEqual(mol.countsUnique(), 1.0)
