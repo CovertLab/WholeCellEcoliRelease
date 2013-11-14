@@ -94,8 +94,12 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew(self):
 		mol = self.mc.molecule("enz3", "c")
-		mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		self.assertEqual(mol.countsUnique(), 1.0)
+		self.assertEqual(newEnz3.attr1(), "A")
+		self.assertEqual(newEnz3.attr2(), "B")
+		self.assertEqual(newEnz3.attr3(), "C")
+		self.assertNotEqual(newEnz3.objects(), None)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_forNonUnique(self):
@@ -124,3 +128,4 @@ class Test_uniques(unittest.TestCase):
 			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
 		self.assertEqual(context.exception.message, 'Attribute not included in knoweldge base for this unique object!\n')
 
+	
