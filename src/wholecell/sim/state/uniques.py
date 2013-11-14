@@ -159,8 +159,13 @@ class Molecule(object):
 		return L
 
 	def uniqueDel(self, uniqueObj):
+		# Deletes unique object uniqueObj and decrements unique count
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 		uniqueIdx = uniqueObj._uniqueIdx
+
+		if id(uniqueObj) != id(uniqueDict["objects"][uniqueIdx]):
+			raise uniqueException, 'Unique object to delete does not match row in unique table!\n'
+
 		for i in xrange(uniqueIdx + 1, len(uniqueDict["objects"])):
 			uniqueDict["objects"][i]._uniqueIdx -= 1
 		for attr in uniqueDict:
