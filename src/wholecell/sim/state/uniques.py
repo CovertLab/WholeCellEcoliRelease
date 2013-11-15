@@ -12,7 +12,7 @@ class MoleculesContainer(object):
 		self._countsBulk = None
 		self._countsUnique = None
 		self._massSingle = None
-		self._dMass = None
+		self._dmass = None
 		self._uniqueDict = None
 
 		self._widIdx = None
