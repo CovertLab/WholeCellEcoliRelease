@@ -183,3 +183,31 @@ class Test_uniques(unittest.TestCase):
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
 		newEnz3.attr1Is("Z")
 		self.assertEqual(newEnz3.attr1(), "Z")
+
+	@noseAttrib.attr('uniqueTest')
+	def test_dMassIs(self):
+		mol = self.mc.molecule("enz3", "c")
+		mol.countsBulkInc(1)
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		mol.dMassIs(2)
+		self.assertEqual(mol.massAll(), 8.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_dMassInc(self):
+		mol = self.mc.molecule("enz3", "c")
+		mol.countsBulkInc(1)
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		mol.dMassInc(2)
+		self.assertEqual(mol.massAll(), 8.0)
+		mol.dMassInc(1)
+		self.assertEqual(mol.massAll(), 9.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_dMassDec(self):
+		mol = self.mc.molecule("enz3", "c")
+		mol.countsBulkInc(1)
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
+		mol.dMassIs(2)
+		self.assertEqual(mol.massAll(), 8.0)
+		mol.dMassDec(1)
+		self.assertEqual(mol.massAll(), 7.0)
