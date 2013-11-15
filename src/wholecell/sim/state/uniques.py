@@ -117,6 +117,18 @@ class Molecule(object):
 		# Returns unique count of molecule as a float
 		return self._container._countsUnique[self._rowIdx, self._colIdx]
 	
+	def dMassIs(self, newVal):
+		# Sets the value for dMass
+		self._container._dmass[self._rowIdx, self._colIdx] = newVal
+
+	def dMassInc(self, incVal):
+		# Increments dmass by incVal
+		self._container._dmass[self._rowIdx, self._colIdx] += incVal
+
+	def dMassDec(self, decVal):
+		# Decrements count of dmass by decVal
+		self.dMassInc(-1 * decVal)
+
 	def massSingle(self):
 		# Returns mass of single object
 		return self._container._massSingle[self._rowIdx, self._colIdx]
