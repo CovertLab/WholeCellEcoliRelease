@@ -33,7 +33,7 @@ class Test_uniques(unittest.TestCase):
 							{"id": "enz2", "mass": 2.0, "uniqueAttrs": None},
 							{"id": "enz3", "mass": 3.0, "uniqueAttrs": ["attr1", "attr2", "attr3"]},
 							{"id": "enz4", "mass": 4.0, "uniqueAttrs": ["attr4_1", "attr4_2"]},
-							{"id": "enz5", "mass": 5.0, "uniqueAttrs": None}]
+							{"id": "enz5", "mass": 5.0, "uniqueAttrs": ["attr5_1"]}]
 		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
 
 		self.mc = wholecell.sim.state.uniques.MoleculesContainer()
