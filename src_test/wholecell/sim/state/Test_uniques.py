@@ -215,3 +215,75 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(mol.massAll(), 8.0)
 		mol.dMassDec(1)
 		self.assertEqual(mol.massAll(), 7.0)
+
+	@noseAttrib.attr('uniqueTest')
+	def test_metaClass_sameAsDefault(self):
+		mol = self.mc.molecule("enz4", "c")
+		e4 = mol.uniqueNew({"attr4_1" : "A", "attr4_2" : "B"})
+		
+		self.assertTrue('attr4_1' in dir(e4))
+		self.assertTrue('attr4_1Is' in dir(e4))
+		self.assertTrue('attr4_2' in dir(e4))
+		self.assertTrue('attr4_2Is' in dir(e4))
+		self.assertTrue('objects' in dir(e4))
+		self.assertTrue('objectsIs' in dir(e4))
+
+		self.assertEqual(e4.attr4_1(), "A")
+		self.assertEqual(e4.attr4_2(), "B")
+		self.assertEqual(id(e4.objects()), id(e4))
+		e4.attr4_1Is("X")
+		self.assertEqual(e4.attr4_1(), "X")
+		e4.attr4_2Is("Y")
+		self.assertEqual(e4.attr4_2(), "Y")
+
+	@noseAttrib.attr('uniqueTest')
+	def test_metaClass_addNewFunction(self):
+		mol = self.mc.molecule("enz5", "c")
+		e5 = mol.uniqueNew({"attr5_1" : "A"})
+		self.assertEqual(e5.test_function(), "Created new function")
+
+	@noseAttrib.attr('uniqueTest')
+	def test_metaClass_keepsDefaultFunctions(self):
+		mol = self.mc.molecule("enz5", "c")
+		e5 = mol.uniqueNew({"attr5_1" : "A"})
+
+		self.assertTrue('attr5_1' in dir(e5))
+		self.assertTrue('attr5_1Is' in dir(e5))
+		self.assertTrue('objects' in dir(e5))
+		self.assertTrue('objectsIs' in dir(e5))
+
+
+class enz4Unique_same(object):
+	registrationId = "enz4"
+	__metaclass__ = wholecell.sim.state.uniques.MoleculeUniqueMeta
+
+	def __init__(self, uniqueIdx):
+		self._uniqueIdx = uniqueIdx
+
+	def attr4_1(self):
+		return self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_1"][self._uniqueIdx]
+
+	def attr4_1Is(self, newVal):
+		self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_1"][self._uniqueIdx] = newVal
+		
+	def attr4_2(self):
+		return self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_2"][self._uniqueIdx]
+
+	def attr4_2Is(self, newVal):
+		self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_2"][self._uniqueIdx] = newVal
+
+	def objects(self):
+		return self._container._uniqueDict[self._molRowIdx][self._molColIdx]["objects"][self._uniqueIdx]
+
+	def objectsIs(self, newVal):
+		self._container._uniqueDict[self._molRowIdx][self._molColIdx]["objects"][self._uniqueIdx] = newVal
+
+class enz5Unique_same(object):
+	registrationId = "enz5"
+	__metaclass__ = wholecell.sim.state.uniques.MoleculeUniqueMeta
+
+	def __init__(self, uniqueIdx):
+		self._uniqueIdx = uniqueIdx
+
+	def test_function(self):
+		return "Created new function"
