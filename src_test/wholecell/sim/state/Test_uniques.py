@@ -176,13 +176,17 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(newEnz3.attr1(), "A")
 		self.assertEqual(newEnz3.attr2(), "B")
 		self.assertEqual(newEnz3.attr3(), "C")
+		self.assertEqual(id(newEnz3), id(newEnz3.objects()))
 
 	@noseAttrib.attr('uniqueTest')
 	def test_makeSetter(self):
 		mol = self.mc.molecule("enz3", "c")
-		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
+		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		newEnz3.attr1Is("Z")
 		self.assertEqual(newEnz3.attr1(), "Z")
+		self.assertEqual(newEnz3.attr2(), "B")
+		self.assertEqual(newEnz3.attr3(), "C")
+		self.assertEqual(id(newEnz3), id(newEnz3.objects()))
 
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassIs(self):
