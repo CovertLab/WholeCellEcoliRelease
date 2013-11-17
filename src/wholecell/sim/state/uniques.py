@@ -206,15 +206,15 @@ class MoleculeUniqueMeta(type):
 		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
 
-class enz4Unique(object):
-	registrationId = "enz4"
-	__metaclass__ = MoleculeUniqueMeta
-
+#class enz4Unique(object):
+#	registrationId = "enz4"
+#	__metaclass__ = MoleculeUniqueMeta
+#
 #	def __init__(self, uniqueIdx):
 #		self._uniqueIdx = uniqueIdx
-
-	def attr1(self):
-		return self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_1"][self._uniqueIdx]
+#
+#	def attr1(self):
+#		return self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_1"][self._uniqueIdx]
 
 # class rnas(object):
 # 	registrationType = "rnas"
