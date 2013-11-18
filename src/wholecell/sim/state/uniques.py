@@ -225,5 +225,5 @@ class MoleculeUniqueMeta(type):
 	def __new__(cls, name, bases, attrs):
 		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
 		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
-		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
+		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
