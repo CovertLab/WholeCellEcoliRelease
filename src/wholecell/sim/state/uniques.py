@@ -1,4 +1,17 @@
-""" MoleculesContainer """
+#!/usr/bin/env python
+
+"""
+uniques.py
+
+State which represents for a class of molecules the bulk copy numbers as an array
+and unique instances in a series of lists sharing a common index.
+
+@author: Derek Macklin
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 10/04/2013
+@author: Nick Ruggero
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+"""
 
 import numpy
 import types
