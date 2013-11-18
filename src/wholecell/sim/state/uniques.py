@@ -206,16 +206,6 @@ class MoleculeUniqueMeta(type):
 		Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
 
-#class enz4Unique(object):
-#	registrationId = "enz4"
-#	__metaclass__ = MoleculeUniqueMeta
-#
-#	def __init__(self, uniqueIdx):
-#		self._uniqueIdx = uniqueIdx
-#
-#	def attr1(self):
-#		return self._container._uniqueDict[self._molRowIdx][self._molColIdx]["attr4_1"][self._uniqueIdx]
-
 # class rnas(object):
 # 	registrationType = "rnas"
 # 	__metaclass__ = MoleculeUniqueMeta
@@ -425,12 +415,3 @@ class MoleculeUniqueMeta(type):
 # 				self._maxKey = reduce(lambda x, y: max(x, y), self._d.iterkeys())
 # 		else:
 # 			raise TypeError, "Invalid argument type."
-
-
-# kb = type("", (), {})()
-# kb.molecules = [{"id": "enz1", "mass": 1.0, "uniqueAttrs": None}, {"id": "enz2", "mass": 2.0, "uniqueAttrs": None}, {"id": "enz3", "mass": 3.0, "uniqueAttrs": ["attr1", "attr2", "attr3"]}, {"id": "enz4", "mass": 4.0, "uniqueAttrs": ["attr4_1", "attr4_2"]}, {"id": "enz5", "mass": 5.0, "uniqueAttrs": None}]
-# kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
-
-# mc = MoleculesContainer()
-# mc.initialize(kb)
-# mol = mc.molecule("enz3", "c")
