@@ -302,8 +302,5 @@ class enz5Unique_same(object):
 	registrationId = "enz5"
 	__metaclass__ = wcUniques.MoleculeUniqueMeta
 
-	def __init__(self, uniqueIdx):
-		self._uniqueIdx = uniqueIdx
-
 	def test_function(self):
 		return "Created new function"

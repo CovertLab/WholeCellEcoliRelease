@@ -89,35 +89,34 @@ class _Molecule(object):
 			# Molecule has no attributes
 			pass
 
+		elif self._wid in self.uniqueClassRegistry:
+			# Molecule has been registered as a unique instance; use that class definition
+			self._MoleculeUnique = self.uniqueClassRegistry[self._wid]
+			self._MoleculeUnique._container = self._container
+			self._MoleculeUnique._molRowIdx = self._rowIdx
+			self._MoleculeUnique._molColIdx = self._colIdx
+
+			for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
+				if not hasattr(self._MoleculeUnique, attr):
+					setattr(self._MoleculeUnique, attr, _makeGetter(attr))
+
+				if not hasattr(self._MoleculeUnique, attr + "Is"):
+					setattr(self._MoleculeUnique, attr + "Is", _makeGetter(attr + "Is"))
+
 		else:
-			if self._wid in self.uniqueClassRegistry:
-				# Molecule has been registered as a unique instance; use that class definition
-				self._MoleculeUnique = self.uniqueClassRegistry[self._wid]
-				self._MoleculeUnique._container = self._container
-				self._MoleculeUnique._molRowIdx = self._rowIdx
-				self._MoleculeUnique._molColIdx = self._colIdx
+			# Molecule has unique attributes, but isn't registered
+			uniqueClassDefDict = {}
+			uniqueClassDefDict["_container"] = self._container
+			uniqueClassDefDict["_molRowIdx"] = self._rowIdx
+			uniqueClassDefDict["_molColIdx"] = self._colIdx
 
-				for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
-					if not hasattr(self._MoleculeUnique, attr):
-						setattr(self._MoleculeUnique, attr, _makeGetter(attr))
+			uniqueClassDefDict["__init__"] = _uniqueInit
 
-					if not hasattr(self._MoleculeUnique, attr + "Is"):
-						setattr(self._MoleculeUnique, attr + "Is", _makeGetter(attr + "Is"))
+			for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
+				uniqueClassDefDict[attr] = _makeGetter(attr)
+				uniqueClassDefDict[attr + "Is"] = _makeSetter(attr)
 
-			else:
-				# Molecule has unique attributes, but isn't registered
-				uniqueClassDefDict = {}
-				uniqueClassDefDict["_container"] = self._container
-				uniqueClassDefDict["_molRowIdx"] = self._rowIdx
-				uniqueClassDefDict["_molColIdx"] = self._colIdx
-
-				uniqueClassDefDict["__init__"] = _uniqueInit
-
-				for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
-					uniqueClassDefDict[attr] = _makeGetter(attr)
-					uniqueClassDefDict[attr + "Is"] = _makeSetter(attr)
-
-				self._MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
+			self._MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
 
 	def countsBulk(self):
 		# Returns bulk count of molecule as a float
@@ -224,6 +223,10 @@ class MoleculeUniqueMeta(type):
 	
 	def __new__(cls, name, bases, attrs):
 		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
+
+		if '__init__' not in attrs:
+			attrs['__init__'] = _uniqueInit
+
 		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
 		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
