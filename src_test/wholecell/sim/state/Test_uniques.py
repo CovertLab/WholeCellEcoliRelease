@@ -3,7 +3,7 @@
 """
 Test uniques.py
 
-@author: Nick Ruggero
+@author: Nick Ruggero, John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/17/2013
 """
@@ -14,8 +14,8 @@ import nose.plugins.attrib as noseAttrib
 import nose.tools as noseTools
 
 import numpy
-import wholecell.util.randStream
-import wholecell.sim.state.uniques
+# import wholecell.util.randStream
+import wholecell.sim.state.uniques as wcUniques
 
 class Test_uniques(unittest.TestCase):
 
@@ -36,7 +36,7 @@ class Test_uniques(unittest.TestCase):
 							{"id": "enz5", "mass": 5.0, "uniqueAttrs": ["attr5_1"]}]
 		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
 
-		self.mc = wholecell.sim.state.uniques.MoleculesContainer()
+		self.mc = wcUniques.MoleculesContainer()
 		self.mc.initialize(self.kb)
 
 	def tearDown(self):
@@ -104,7 +104,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_forNonUnique(self):
 		mol = self.mc.molecule("enz1", "c")
-		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+		with self.assertRaises(wcUniques.uniqueException) as context:
 			mol.uniqueNew({})
 		self.assertEqual(context.exception.message, 'Attempting to create unique from object with no unique attributes!\n')
 
@@ -124,7 +124,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_incorrectAttr(self):
 		mol = self.mc.molecule("enz3", "c")
-		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+		with self.assertRaises(wcUniques.uniqueException) as context:
 			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
 		self.assertEqual(context.exception.message, 'A specified attribute is not included in knoweldge base for this unique object!\n')
 
@@ -141,7 +141,7 @@ class Test_uniques(unittest.TestCase):
 		mol2 = self.mc.molecule("enz4", "c")
 		newEnz3 = mol1.uniqueNew()
 		newEnz4 = mol2.uniqueNew()
-		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+		with self.assertRaises(wcUniques.uniqueException) as context:
 			mol1.uniqueDel(newEnz4)
 		self.assertEqual(context.exception.message, 'Unique object to delete does not match row in unique table!\n')
 
@@ -165,7 +165,7 @@ class Test_uniques(unittest.TestCase):
 	def test_uniquesWithAttrs_incorrectAttr(self):
 		mol = self.mc.molecule("enz3", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
-		with self.assertRaises(wholecell.sim.state.uniques.uniqueException) as context:
+		with self.assertRaises(wcUniques.uniqueException) as context:
 			mol.uniquesWithAttrs({"attr1" : "A", "attr4" : "B"})
 		self.assertEqual(context.exception.message, 'A specified attribute is not included in knoweldge base for this unique object!\n')
 
@@ -245,6 +245,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_metaClass_keepsDefaultFunctions(self):
 		mol = self.mc.molecule("enz5", "c")
+
 		e5 = mol.uniqueNew({"attr5_1" : "A"})
 		
 		self.assertTrue('attr5_1' in dir(e5))
@@ -274,7 +275,7 @@ class Test_uniques(unittest.TestCase):
 
 class enz4Unique_same(object):
 	registrationId = "enz4"
-	__metaclass__ = wholecell.sim.state.uniques.MoleculeUniqueMeta
+	__metaclass__ = wcUniques.MoleculeUniqueMeta
 
 	def __init__(self, uniqueIdx):
 		self._uniqueIdx = uniqueIdx
@@ -299,7 +300,7 @@ class enz4Unique_same(object):
 
 class enz5Unique_same(object):
 	registrationId = "enz5"
-	__metaclass__ = wholecell.sim.state.uniques.MoleculeUniqueMeta
+	__metaclass__ = wcUniques.MoleculeUniqueMeta
 
 	def __init__(self, uniqueIdx):
 		self._uniqueIdx = uniqueIdx
