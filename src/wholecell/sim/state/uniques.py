@@ -20,8 +20,18 @@ import time
 
 # TODO: Change 'object' to wholecell.sim.state.State
 class MoleculesContainer(object):
+	"""uniques"""
 
 	def __init__(self):
+#		self.meta = {
+#			"id": "uniques",
+#			"name": "uniques",
+#			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
+#			"units": {"_countsBulk" : "molecules",
+#					"_countsUnique" : "molecules",
+#					"_uniqueDict"	: "molecules"}
+#					}
+
 		self._countsBulk = None
 		self._countsUnique = None
 		self._massSingle = None
