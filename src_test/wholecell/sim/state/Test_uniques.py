@@ -246,12 +246,31 @@ class Test_uniques(unittest.TestCase):
 	def test_metaClass_keepsDefaultFunctions(self):
 		mol = self.mc.molecule("enz5", "c")
 		e5 = mol.uniqueNew({"attr5_1" : "A"})
-
+		
 		self.assertTrue('attr5_1' in dir(e5))
 		self.assertTrue('attr5_1Is' in dir(e5))
 		self.assertTrue('objects' in dir(e5))
 		self.assertTrue('objectsIs' in dir(e5))
 
+	@noseAttrib.attr('uniqueTest')
+	def test_metaClass_multipleUniqueMetaclasses(self):
+		mol4 = self.mc.molecule("enz4", "c")
+		e4 = mol4.uniqueNew({"attr4_1" : "A", "attr4_2" : "B"})
+		mol5 = self.mc.molecule("enz5", "c")
+		e5 = mol5.uniqueNew({"attr5_1" : "A"})
+
+		self.assertTrue('attr4_1' in dir(e4))
+		self.assertTrue('attr4_1Is' in dir(e4))
+		self.assertTrue('attr4_2' in dir(e4))
+		self.assertTrue('attr4_2Is' in dir(e4))
+		self.assertTrue('objects' in dir(e4))
+		self.assertTrue('objectsIs' in dir(e4))
+
+		self.assertTrue('attr5_1' in dir(e5))
+		self.assertTrue('attr5_1Is' in dir(e5))
+		self.assertTrue('objects' in dir(e5))
+		self.assertTrue('objectsIs' in dir(e5))
+		self.assertTrue('test_function' in dir(e5))
 
 class enz4Unique_same(object):
 	registrationId = "enz4"
