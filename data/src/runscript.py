@@ -2323,56 +2323,7 @@ def parseReactions():
 		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
-
-def buildReaction_old(rp,row):
-	reac = reaction()
-	reac.frameId = 'FEIST_' + row[0]
-	reac.name = row[1]
-	reac.process = 'Metabolism'
-	if row[5] != '':
-		reac.EC = row[5]
-	reac.stoich = row[2]
-	reac.direction = row[3]
-
-	# Figure out enzymes
-	if row[6] == '':
-		# Nothin known
-		reac.enzyme = None
-	elif re.match("b([0-9])", row[6]) != None:
-		bnum = row[6]
-
-		pMFrameId = rp.getPMFrame(bnum)
-
-		reac.enzyme = []
-		for e in pMFrameId:
-			#e = ComplexFixer.composeSubunits([e])
-			#reac.enzyme.append(e)
-
-			reac.enzyme.append([e])
-	else:
-		if rp.manualAnnotationDict.has_key(row[0]):
-			# TODO: figure out why this is here, make the logic better.  Nick?
-			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
-			cofactors = []
-
-		else:
-			enzymeInfo = rp.findEnzyme(row[6], row)
-			enzymes = enzymeInfo['enzymes']
-			cofactors = enzymeInfo['cofactors']
-
-		if enzymes[0]:
-			#enzymes = ComplexFixer.checkLogic(enzymes)
-			for i,e in enumerate(enzymes):
-				#e = ComplexFixer.composeSubunits(e)
-				reac.enzyme.append(e)
-		else:
-			# Catches spontanious reactions
-			reac.enzyme = None
-		for c in cofactors:
-			reac.requiredCofactors.append(c)
-		reac.requiredCofactors.sort()
-	return reac
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.direction, r.comments])
 
 def buildReaction(rp,row):
 	reac = reaction()
