@@ -2360,6 +2360,8 @@ def buildReaction(rp,row):
 	reac.requiredCofactors.sort()
 	if not reac.enzyme:
 		reac.enzyme = None
+	if reac.enzyme == [[]]:
+		reac.enzyme = None
 
 	# else:
 	# 	reac.enzyme = ComplexFixer.checkLogic(reac.enzyme)
@@ -2817,8 +2819,6 @@ class reactionParser:
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
-		for i in range(len(enzymesRaw)):
-			enzymes.append([])
 
 		for i,e in enumerate(enzymesRaw):
 			# Check for spontanious reaction
@@ -2840,14 +2840,14 @@ class reactionParser:
 				monomers = tuple(monomers)
 				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
-					enzymes[i].append(self.monomerToComplex[monomers])
+					enzymes.append(self.monomerToComplex[monomers])
 				elif len(monomers) == 1:
 					# This is just a monomer in an OR statement
-					enzymes[i].append(monomers[0])
+					enzymes.append(monomers[0])
 				elif len(monomers) == 0 and len(cofactors) > 0:
 					pass
 				else:
-					enzymes[i].append('UNKNOWN')
+					enzymes.append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
 					print str(row[:3])
 					print str(e)
