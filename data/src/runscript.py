@@ -2346,7 +2346,7 @@ def buildReaction(rp,row):
 
 	elif re.match("b([0-9])", row[6]):
 		# Reaction is a single enzyme
-		pMFrameId = rp.getPMFrame(row[6])
+		pMFrameId = rp.getPMFrame(row[6])[0]
 
 		reac.enzyme.extend([pMFrameId])
 
@@ -2852,6 +2852,7 @@ class reactionParser:
 					print str(row[:3])
 					print str(e)
 					print '---'
+
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 	def findEnzymeManualCuration(self, line):
