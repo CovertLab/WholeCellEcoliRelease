@@ -2314,6 +2314,22 @@ def parseReactions():
 		for row in csvreader:
 			reactDict.pop('FEIST_' + row[0])
 
+	# Create unique reactions for every isozyme
+	reactDictUniqueReaction = {}
+	for rxnId in reactDict.iterkeys():
+		rxn = reactDict[rxnId]
+		if rxn.enzyme == None:
+			reactDictUniqueReaction[rxnId] = rxn
+		if rxn.enzyme != None and len(rxn.enzyme) == 1:
+			reactDictUniqueReaction[rxnId] = copy.copy(rxn)
+			reactDictUniqueReaction[rxnId].enzyme = copy.copy(rxn.enzyme[0])
+		if rxn.enzyme != None and len(rxn.enzyme) > 1:
+			for i,isozyme in enumerate(rxn.enzyme):
+				reactDictUniqueReaction[rxnId + '_' + str(i)] = copy.copy(rxn)
+				reactDictUniqueReaction[rxnId + '_' + str(i)].frameId = rxnId + '_' + str(i)
+				reactDictUniqueReaction[rxnId + '_' + str(i)].enzyme = copy.copy(rxn.enzyme[i])
+	reactDict = reactDictUniqueReaction
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
@@ -2323,56 +2339,7 @@ def parseReactions():
 		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
-
-def buildReaction_old(rp,row):
-	reac = reaction()
-	reac.frameId = 'FEIST_' + row[0]
-	reac.name = row[1]
-	reac.process = 'Metabolism'
-	if row[5] != '':
-		reac.EC = row[5]
-	reac.stoich = row[2]
-	reac.direction = row[3]
-
-	# Figure out enzymes
-	if row[6] == '':
-		# Nothin known
-		reac.enzyme = None
-	elif re.match("b([0-9])", row[6]) != None:
-		bnum = row[6]
-
-		pMFrameId = rp.getPMFrame(bnum)
-
-		reac.enzyme = []
-		for e in pMFrameId:
-			#e = ComplexFixer.composeSubunits([e])
-			#reac.enzyme.append(e)
-
-			reac.enzyme.append([e])
-	else:
-		if rp.manualAnnotationDict.has_key(row[0]):
-			# TODO: figure out why this is here, make the logic better.  Nick?
-			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
-			cofactors = []
-
-		else:
-			enzymeInfo = rp.findEnzyme(row[6], row)
-			enzymes = enzymeInfo['enzymes']
-			cofactors = enzymeInfo['cofactors']
-
-		if enzymes[0]:
-			#enzymes = ComplexFixer.checkLogic(enzymes)
-			for i,e in enumerate(enzymes):
-				#e = ComplexFixer.composeSubunits(e)
-				reac.enzyme.append(e)
-		else:
-			# Catches spontanious reactions
-			reac.enzyme = None
-		for c in cofactors:
-			reac.requiredCofactors.append(c)
-		reac.requiredCofactors.sort()
-	return reac
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.direction, r.comments])
 
 def buildReaction(rp,row):
 	reac = reaction()
@@ -2395,7 +2362,7 @@ def buildReaction(rp,row):
 
 	elif re.match("b([0-9])", row[6]):
 		# Reaction is a single enzyme
-		pMFrameId = rp.getPMFrame(row[6])
+		pMFrameId = rp.getPMFrame(row[6])[0]
 
 		reac.enzyme.extend([pMFrameId])
 
@@ -2408,6 +2375,8 @@ def buildReaction(rp,row):
 	# Finalize (not sure why either of these steps matter)
 	reac.requiredCofactors.sort()
 	if not reac.enzyme:
+		reac.enzyme = None
+	if reac.enzyme == [[]]:
 		reac.enzyme = None
 
 	# else:
@@ -2866,8 +2835,6 @@ class reactionParser:
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
-		for i in range(len(enzymesRaw)):
-			enzymes.append([])
 
 		for i,e in enumerate(enzymesRaw):
 			# Check for spontanious reaction
@@ -2889,18 +2856,19 @@ class reactionParser:
 				monomers = tuple(monomers)
 				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
-					enzymes[i].append(self.monomerToComplex[monomers])
+					enzymes.append(self.monomerToComplex[monomers])
 				elif len(monomers) == 1:
 					# This is just a monomer in an OR statement
-					enzymes[i].append(monomers[0])
+					enzymes.append(monomers[0])
 				elif len(monomers) == 0 and len(cofactors) > 0:
 					pass
 				else:
-					enzymes[i].append('UNKNOWN')
+					enzymes.append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
 					print str(row[:3])
 					print str(e)
 					print '---'
+
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 	def findEnzymeManualCuration(self, line):

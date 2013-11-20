@@ -220,13 +220,13 @@ class Test_uniques(unittest.TestCase):
 	def test_metaClass_sameAsDefault(self):
 		mol = self.mc.molecule("enz4", "c")
 		e4 = mol.uniqueNew({"attr4_1" : "A", "attr4_2" : "B"})
-		
-		self.assertTrue('attr4_1' in dir(e4))
-		self.assertTrue('attr4_1Is' in dir(e4))
-		self.assertTrue('attr4_2' in dir(e4))
-		self.assertTrue('attr4_2Is' in dir(e4))
-		self.assertTrue('objects' in dir(e4))
-		self.assertTrue('objectsIs' in dir(e4))
+
+		self.assertTrue(hasattr(e4, 'attr4_1'))
+		self.assertTrue(hasattr(e4, 'attr4_1Is'))
+		self.assertTrue(hasattr(e4, 'attr4_2'))
+		self.assertTrue(hasattr(e4, 'attr4_2Is'))
+		self.assertTrue(hasattr(e4, 'objects'))
+		self.assertTrue(hasattr(e4, 'objectsIs'))
 
 		self.assertEqual(e4.attr4_1(), "A")
 		self.assertEqual(e4.attr4_2(), "B")
@@ -247,11 +247,11 @@ class Test_uniques(unittest.TestCase):
 		mol = self.mc.molecule("enz5", "c")
 
 		e5 = mol.uniqueNew({"attr5_1" : "A"})
-		
-		self.assertTrue('attr5_1' in dir(e5))
-		self.assertTrue('attr5_1Is' in dir(e5))
-		self.assertTrue('objects' in dir(e5))
-		self.assertTrue('objectsIs' in dir(e5))
+
+		self.assertTrue(hasattr(e5, 'attr5_1'))
+		self.assertTrue(hasattr(e5, 'attr5_1Is'))
+		self.assertTrue(hasattr(e5, 'objects'))
+		self.assertTrue(hasattr(e5, 'objectsIs'))
 
 	@noseAttrib.attr('uniqueTest')
 	def test_metaClass_multipleUniqueMetaclasses(self):
@@ -260,18 +260,18 @@ class Test_uniques(unittest.TestCase):
 		mol5 = self.mc.molecule("enz5", "c")
 		e5 = mol5.uniqueNew({"attr5_1" : "A"})
 
-		self.assertTrue('attr4_1' in dir(e4))
-		self.assertTrue('attr4_1Is' in dir(e4))
-		self.assertTrue('attr4_2' in dir(e4))
-		self.assertTrue('attr4_2Is' in dir(e4))
-		self.assertTrue('objects' in dir(e4))
-		self.assertTrue('objectsIs' in dir(e4))
+		self.assertTrue(hasattr(e4, 'attr4_1'))
+		self.assertTrue(hasattr(e4, 'attr4_1Is'))
+		self.assertTrue(hasattr(e4, 'attr4_2'))
+		self.assertTrue(hasattr(e4, 'attr4_2Is'))
+		self.assertTrue(hasattr(e4, 'objects'))
+		self.assertTrue(hasattr(e4, 'objectsIs'))
 
-		self.assertTrue('attr5_1' in dir(e5))
-		self.assertTrue('attr5_1Is' in dir(e5))
-		self.assertTrue('objects' in dir(e5))
-		self.assertTrue('objectsIs' in dir(e5))
-		self.assertTrue('test_function' in dir(e5))
+		self.assertTrue(hasattr(e5, 'attr5_1'))
+		self.assertTrue(hasattr(e5, 'attr5_1Is'))
+		self.assertTrue(hasattr(e5, 'objects'))
+		self.assertTrue(hasattr(e5, 'objectsIs'))
+		self.assertTrue(hasattr(e5, 'test_function'))
 
 class enz4Unique_same(object):
 	registrationId = "enz4"
