@@ -2314,6 +2314,22 @@ def parseReactions():
 		for row in csvreader:
 			reactDict.pop('FEIST_' + row[0])
 
+	# Create unique reactions for every isozyme
+	reactDictUniqueReaction = {}
+	for rxnId in reactDict.iterkeys():
+		rxn = reactDict[rxnId]
+		if rxn.enzyme == None:
+			reactDictUniqueReaction[rxnId] = rxn
+		if rxn.enzyme != None and len(rxn.enzyme) == 1:
+			reactDictUniqueReaction[rxnId] = copy.copy(rxn)
+			reactDictUniqueReaction[rxnId].enzyme = copy.copy(rxn.enzyme[0])
+		if rxn.enzyme != None and len(rxn.enzyme) > 1:
+			for i,isozyme in enumerate(rxn.enzyme):
+				reactDictUniqueReaction[rxnId + '_' + str(i)] = copy.copy(rxn)
+				reactDictUniqueReaction[rxnId + '_' + str(i)].frameId = rxnId + '_' + str(i)
+				reactDictUniqueReaction[rxnId + '_' + str(i)].enzyme = copy.copy(rxn.enzyme[i])
+	reactDict = reactDictUniqueReaction
+
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
