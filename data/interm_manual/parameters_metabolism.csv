@@ -1,0 +1,3 @@
+"Parameter name"	"Parameter value"	"Parameter units"	"Parameter description"	"Parameter source"
+"default_upper_flux"	1000	"mmol/gDCW-hr"	"Number which will be used as upper bound on fluxes in metabolic model if no other is specified."	"WCM_0001"
+"default_lower_flux"	-1000	"mmol/gDCW-hr"	"Number which will be used as lower bound on fluxes in metabolic model if no other is specified."	"WCM_0001"

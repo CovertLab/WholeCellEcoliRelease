@@ -2289,45 +2289,84 @@ def parseReactions():
 	reactDict = {}
 	rp = reactionParser()
 
+	# Load flux bounds
+	parameter_metabolism = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'parameters_metabolism.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			parameter_metabolism[row['Parameter name']] = {'Parameter value' : float(row['Parameter value']), 'Parameter units' : row['Parameter units']}
+
+	rxn_set_bounds = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reaction_set_bounds.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			rxn_set_bounds[row['Reaction ID']] = {'upper bound' : float(row['Upper bound (mmol/gDCW-hr)']), 'lower bound' : float(row['Lower bound (mmol/gDCW-hr)'])}
+
+	# Add manually annotated enzyme reactions. Same reactions as in Feist but with enzyme associations explicitly written out by hand.
+	manualEnzymes = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_add_manual_enzyme_annotation.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			manualEnzymes.append(row['original abbreviation'])
+			if row['original abbreviation'] in rxn_set_bounds.keys():
+				row['upper_bound'] = rxn_set_bounds[row['original abbreviation']]['upper bound']
+				row['lower_bound'] = rxn_set_bounds[row['original abbreviation']]['lower bound']
+			else:
+				row['upper_bound'] = parameter_metabolism['default_upper_flux']['Parameter value']
+				row['lower_bound'] = parameter_metabolism['default_lower_flux']['Parameter value']
+			reac = buildReaction(rp, row, manual = True)
+			reactDict[reac.frameId] = reac
+	manualEnzymes = set(manualEnzymes)
+	manualEnzymes = list(manualEnzymes)
+
+	# Reactions to skip/remove in Feist
+	rxnToSkip = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_remove.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			rxnToSkip.append(row['Reaction ID'])
+
 	# Add Feist reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			if row['abbreviation'] not in manualEnzymes and row['abbreviation'] not in rxnToSkip:
+				if row['abbreviation'] in rxn_set_bounds.keys():
+					row['upper_bound'] = rxn_set_bounds[row['abbreviation']]['upper bound']
+					row['lower_bound'] = rxn_set_bounds[row['abbreviation']]['lower bound']
+				else:
+					row['upper_bound'] = parameter_metabolism['default_upper_flux']['Parameter value']
+					row['lower_bound'] = parameter_metabolism['default_lower_flux']['Parameter value']
+				reac = buildReaction(rp,row)
+				reactDict[reac.frameId] = reac
 
-		for row in csvreader:
-			reac = buildReaction(rp,row)
-			reactDict[reac.frameId] = reac
-
-	# Add reactions not in Fesit
+	# Add reactions not in Feist
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_add.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-
-		for row in csvreader:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			if row['abbreviation'] in rxn_set_bounds.keys():
+				row['upper_bound'] = rxn_set_bounds[row['abbreviation']]['upper bound']
+				row['lower_bound'] = rxn_set_bounds[row['abbreviation']]['lower bound']
+			else:
+				row['upper_bound'] = parameter_metabolism['default_upper_flux']['Parameter value']
+				row['lower_bound'] = parameter_metabolism['default_lower_flux']['Parameter value']
 			reac = buildReaction(rp,row)
 			reactDict[reac.frameId] = reac
-
-	# Remove reactions
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_remove.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			reactDict.pop('FEIST_' + row[0])
 
 	# Create unique reactions for every isozyme
 	reactDictUniqueReaction = {}
 	for rxnId in reactDict.iterkeys():
 		rxn = reactDict[rxnId]
-		if rxn.enzyme == None:
+		if rxn.enzyme == None or rxn.frameId[6:] in manualEnzymes:
 			reactDictUniqueReaction[rxnId] = rxn
-		if rxn.enzyme != None and len(rxn.enzyme) == 1:
+		elif rxn.enzyme != None and len(rxn.enzyme) == 1:
 			reactDictUniqueReaction[rxnId] = copy.copy(rxn)
-			reactDictUniqueReaction[rxnId].enzyme = copy.copy(rxn.enzyme[0])
-		if rxn.enzyme != None and len(rxn.enzyme) > 1:
+			reactDictUniqueReaction[rxnId].enzyme = [copy.copy(rxn.enzyme[0])]
+		elif rxn.enzyme != None and len(rxn.enzyme) > 1:
 			for i,isozyme in enumerate(rxn.enzyme):
 				reactDictUniqueReaction[rxnId + '_' + str(i)] = copy.copy(rxn)
 				reactDictUniqueReaction[rxnId + '_' + str(i)].frameId = rxnId + '_' + str(i)
-				reactDictUniqueReaction[rxnId + '_' + str(i)].enzyme = copy.copy(rxn.enzyme[i])
+				reactDictUniqueReaction[rxnId + '_' + str(i)].enzyme = [copy.copy(rxn.enzyme[i])]
 	reactDict = reactDictUniqueReaction
 
 	# Write output
@@ -2336,52 +2375,58 @@ def parseReactions():
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Upper bound (mmol/gDCW-hr)', 'Lower bound (mmol/gDCW-hr)', 'Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, r.enzyme, r.direction, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.upper_bound, r.lower_bound, r.comments])
 
-def buildReaction(rp,row):
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'column_annotation.csv'),'a') as csvfile:
+		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
+		csvwriter.writerow(['data/parsed/reactions.csv'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme','Upper bound (mmol/gDCW-hr)', 'Lower bound (mmol/gDCW-hr)','Comments'])
+		csvwriter.writerow(['Unique frame ID', 'String', 'String', 'String', 'String specifying reaction', 'List of Frame ID from proteinMonomers.csv or proteinMonomers_modified.csv or proteinComplexes.csv or proteinComplexes_modified.csv. If more than one frame ID is in the list it requires all frame IDs (AND logical).', 'int', 'int', 'String'])
+
+
+def buildReaction(rp,row, manual = False):
 	reac = reaction()
-	reac.frameId = 'FEIST_' + row[0]
-	reac.name = row[1]
+	reac.frameId = 'FEIST_' + row['abbreviation']
+	reac.name = row['officialName']
 	reac.process = 'Metabolism'
-	if row[5] != '':
-		reac.EC = row[5]
-	reac.stoich = row[2]
-	reac.direction = row[3]
+	if row['proteinClass'] != '':
+		reac.EC = row['proteinClass']
+	reac.stoich = row['equation']
+	reac.direction = row['reconstruction directionality']
+	reac.upper_bound = row['upper_bound']
+	reac.lower_bound = row['lower_bound']
 
-	if rp.manualAnnotationDict.has_key(row[0]):
-		# Reaction enzymes are manually annotated
-		reac.enzyme.extend(
-			rp.findEnzymeManualCuration(
-				rp.manualAnnotationDict[row[0]]['annotation']
-				)
-			)
-		reac.requiredCofactors = []
+	if manual == False:
+		if re.match("b([0-9])", row['geneAssociation']):
+			# Reaction is a single enzyme
+			pMFrameId = rp.getPMFrame(row['geneAssociation'])[0]
 
-	elif re.match("b([0-9])", row[6]):
-		# Reaction is a single enzyme
-		pMFrameId = rp.getPMFrame(row[6])[0]
+			reac.enzyme.extend([pMFrameId])
 
-		reac.enzyme.extend([pMFrameId])
+		elif row['geneAssociation']:
+			# Reaction is multiple enzymes
+			enzymeInfo = rp.findEnzyme(row['geneAssociation'], row)
+			reac.enzyme.extend(enzymeInfo['enzymes'])
+			reac.requiredCofactors.extend(enzymeInfo['cofactors'])
 
-	elif row[6]:
-		# Reaction is multiple enzymes
-		enzymeInfo = rp.findEnzyme(row[6], row)
-		reac.enzyme.extend(enzymeInfo['enzymes'])
-		reac.requiredCofactors.extend(enzymeInfo['cofactors'])
-
-	# Finalize (not sure why either of these steps matter)
-	reac.requiredCofactors.sort()
-	if not reac.enzyme:
-		reac.enzyme = None
-	if reac.enzyme == [[]]:
-		reac.enzyme = None
-
-	# else:
-	# 	reac.enzyme = ComplexFixer.checkLogic(reac.enzyme)
-
+		# Finalize (not sure why either of these steps matter)
+		reac.requiredCofactors.sort()
+		if not reac.enzyme:
+			reac.enzyme = None
+	else:
+		line = row['Enzyme association']
+		if line == '':
+			# Catches reactions where enzyme was removed
+			reac.enzyme = None
+		else:
+			line = line.replace(' ','')
+			line = line.replace('(','')
+			line = line.replace(')','')
+			e_final = line.split('and')
+			reac.enzyme.extend(e_final)
 	return reac
 
 class ComplexFixer(object):
@@ -2732,7 +2777,6 @@ class reactionParser:
 		self.monomerToComplex = self.loadMonomerToComplex()
 		self.fakeMetaboliteFrameIds = self.loadFakeMetaboliteFrameIds()
 		self.fakeMetaboliteDict = self.loadFakeMetabolites()
-		self.manualAnnotationDict = self.loadManualAnnotation()
 
 	def loadSynDict(self):
 		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
@@ -2806,16 +2850,6 @@ class reactionParser:
 				fakeMetaboliteDict[row[0]] = json.loads(row[4])
 		return fakeMetaboliteDict
 
-	def loadManualAnnotation(self):
-		# Add manual annotation of reactino enzymes from Feist
-		manualAnnotateDict = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reaction_enzyme_association.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			csvreader.next()
-			for row in csvreader:
-				manualAnnotateDict[row[0]] = {'annotation' : row[1], 'comments' : row[2]}
-		return manualAnnotateDict
-
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
 			geneFrameId = self.synDictFrameId[bnum]
@@ -2865,10 +2899,9 @@ class reactionParser:
 				else:
 					enzymes.append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
-					print str(row[:3])
+					print str(row['abbreviation'])
 					print str(e)
 					print '---'
-
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
 
 	def findEnzymeManualCuration(self, line):
@@ -2878,8 +2911,6 @@ class reactionParser:
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
-		for i in range(len(enzymesRaw)):
-			enzymes.append([])
 
 		for i,e_raw in enumerate(enzymesRaw):
 			e_raw = e_raw.replace(' ','')
@@ -2887,7 +2918,7 @@ class reactionParser:
 			e_raw = e_raw.replace(')','')
 			e_final = e_raw.split('and')
 			for ee in e_final:
-				enzymes[i].append(ee)
+				enzymes.append(ee)
 		return enzymes
 
 class gene:
