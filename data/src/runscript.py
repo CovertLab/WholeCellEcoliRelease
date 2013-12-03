@@ -2380,13 +2380,6 @@ def parseReactions():
 			r = reactDict[key]
 			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.upper_bound, r.lower_bound, r.comments])
 
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'column_annotation.csv'),'a') as csvfile:
-		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
-		csvwriter.writerow(['data/parsed/reactions.csv'])
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme','Upper bound (mmol/gDCW-hr)', 'Lower bound (mmol/gDCW-hr)','Comments'])
-		csvwriter.writerow(['Unique frame ID', 'String', 'String', 'String', 'String specifying reaction', 'List of Frame ID from proteinMonomers.csv or proteinMonomers_modified.csv or proteinComplexes.csv or proteinComplexes_modified.csv. If more than one frame ID is in the list it requires all frame IDs (AND logical).', 'int', 'int', 'String'])
-
-
 def buildReaction(rp,row, manual = False):
 	reac = reaction()
 	reac.frameId = 'FEIST_' + row['abbreviation']
