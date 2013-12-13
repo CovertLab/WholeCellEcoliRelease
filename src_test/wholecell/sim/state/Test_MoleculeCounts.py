@@ -93,6 +93,29 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.assertEqual(self.moleculeCounts.partitions[1].counts.tolist(), [5., 2., 2., 2., 0., 0., 0.])
 		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [4., 0., 3., 5., 20., 1., 7.])
 
+
+	@noseAttrib.attr('partitionTest')
+	def test_absoluteAllocation_withConflict(self):
+		self.metabolitePartition1 = self.moleculeCounts.addPartition(self.genericProcess, [
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+			"PPI[c]", "H2O[c]", "H[c]",
+			], make_testRequestFunction(numpy.array([3., 0., 0., 0., 0., 0., 0.])))
+		self.metabolitePartition2 = self.moleculeCounts.addPartition(self.genericProcess, [
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+			"PPI[c]", "H2O[c]", "H[c]",
+			], make_testRequestFunction(numpy.array([5., 3., 2., 2., 0., 0., 0.])), isReqAbs = True)
+		self.metabolitePartition3 = self.moleculeCounts.addPartition(self.genericProcess, [
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+			"PPI[c]", "H2O[c]", "H[c]",
+			], make_testRequestFunction(numpy.array([20., 1., 3., 1., 2., 0., 2.])), isReqAbs = True)
+
+		self.moleculeCounts.prepartition()
+		self.moleculeCounts.partition()
+		
+		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [0., 0., 0., 4., 18., 3., 5.])
+		self.assertEqual(self.moleculeCounts.partitions[1].counts.tolist(), [2., 1., 2., 2., 0., 0., 0.])
+		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [8., 0., 3., 1., 2., 0., 2.])
+
 def make_testRequestFunction(request):
 	def testRequestFunction():
 		return numpy.array(request)
