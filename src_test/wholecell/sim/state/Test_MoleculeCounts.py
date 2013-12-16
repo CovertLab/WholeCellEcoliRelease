@@ -54,15 +54,15 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.metabolitePartition1 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+			], _make_testRequestFunction(numpy.array([3., 0., 0., 0., 0., 0., 0.])))
 		self.metabolitePartition2 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.]))
+			], _make_testRequestFunction(numpy.array([5., 3., 2., 2., 0., 0., 0.])))
 		self.metabolitePartition3 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]))
+			], _make_testRequestFunction(numpy.array([20., 1., 3., 1., 2., 0., 2.])))
 
 		self.moleculeCounts.prepartition()
 		self.moleculeCounts.partition()
@@ -76,15 +76,15 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.metabolitePartition1 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+			], _make_testRequestFunction(numpy.array([3., 0., 0., 0., 0., 0., 0.])))
 		self.metabolitePartition2 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.]), isReqAbs = True)
+			], _make_testRequestFunction(numpy.array([5., 3., 2., 2., 0., 0., 0.])), isReqAbs = True)
 		self.metabolitePartition3 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]))
+			], _make_testRequestFunction(numpy.array([20., 1., 3., 1., 2., 0., 2.])))
 
 		self.moleculeCounts.prepartition()
 		self.moleculeCounts.partition()
@@ -99,15 +99,15 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.metabolitePartition1 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+			], _make_testRequestFunction(numpy.array([3., 0., 0., 0., 0., 0., 0.])))
 		self.metabolitePartition2 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.]), isReqAbs = True)
+			], _make_testRequestFunction(numpy.array([5., 3., 2., 2., 0., 0., 0.])), isReqAbs = True)
 		self.metabolitePartition3 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]), isReqAbs = True)
+			], _make_testRequestFunction(numpy.array([20., 1., 3., 1., 2., 0., 2.])), isReqAbs = True)
 
 		self.moleculeCounts.prepartition()
 		self.moleculeCounts.partition()
