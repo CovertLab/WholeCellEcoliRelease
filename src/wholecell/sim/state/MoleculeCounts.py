@@ -366,21 +366,12 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 	# Partition state among processes
 	def partition(self):
-		# "requests" and "touchs" have dimensions (molecule index) x (compartment index) x (partition index)
 		requestsShape = (self.counts.shape[0], self.counts.shape[1], len(self.partitions))
 
 		requests = numpy.zeros(requestsShape)
-		touchs = numpy.zeros(requestsShape) # "touchs" tracks partitions that can request a given molecule
 
 		# Calculate and store requests
 		for iPartition, partition in enumerate(self.partitions):
-			if not partition.isReqAbs:
-				# Set molecules as "touched"
-				touchs[
-					numpy.unravel_index(partition.mapping, self.counts.shape)
-					+ (iPartition,)
-					] = 1
-
 			# Call request function and record requests
 			requests[
 				numpy.unravel_index(partition.mapping, self.counts.shape)
@@ -407,18 +398,13 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 		relativeScale[relativeRequests == 0] = 0 # nan handling?
 
-		# TODO: figure out what the next two lines do and add comments
-		unrequested = numpy.fmax(0, self.counts - absoluteRequests) / numpy.sum(touchs, axis = 2) * (relativeRequests == 0)
-		unrequested[numpy.sum(touchs, axis = 2) == 0] = 0
-
 		numpy.seterr(**oldSettings) # Restore error handling to the previous state
 
 		# Compute allocations and assign counts to the partitions
 		for iPartition, partition in enumerate(self.partitions):
 			scale = absoluteScale if partition.isReqAbs else relativeScale
 
-			allocation = numpy.floor(requests[:, :, iPartition] * scale
-				+ unrequested * touchs[:, :, iPartition]) # Partitions can pick up some of the unrequested metabolites
+			allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
 			self.partitionedCounts[:, :, iPartition] = allocation
 			partition.counts = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]

@@ -67,9 +67,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.moleculeCounts.prepartition()
 		self.moleculeCounts.partition()
 		
-		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [1., 0., 0., 0., 0., 1., 0.])
-		self.assertEqual(self.moleculeCounts.partitions[1].counts.tolist(), [1., 1., 2., 4., 0., 1., 0.])
-		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [7., 0., 3., 2., 20., 1., 7.])
+		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [1., 0., 0., 0., 0., 0., 0.])
+		self.assertEqual(self.moleculeCounts.partitions[1].counts.tolist(), [1., 1., 2., 4., 0., 0., 0.])
+		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [7., 0., 3., 2., 20., 0., 7.])
 
 	@noseAttrib.attr('partitionTest')
 	def test_absoluteAllocation(self):
@@ -89,9 +89,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.moleculeCounts.prepartition()
 		self.moleculeCounts.partition()
 		
-		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [0., 0., 0., 0., 0., 1., 0.])
+		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [0., 0., 0., 0., 0., 0., 0.])
 		self.assertEqual(self.moleculeCounts.partitions[1].counts.tolist(), [5., 2., 2., 2., 0., 0., 0.])
-		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [4., 0., 3., 5., 20., 1., 7.])
+		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [4., 0., 3., 5., 20., 0., 7.])
 
 
 	@noseAttrib.attr('partitionTest')
@@ -99,7 +99,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.metabolitePartition1 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
-			], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+			], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]), isReqAbs = False)
 		self.metabolitePartition2 = self.moleculeCounts.addPartition(self.genericProcess, [
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"PPI[c]", "H2O[c]", "H[c]",
@@ -112,6 +112,6 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.moleculeCounts.prepartition()
 		self.moleculeCounts.partition()
 		
-		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [0., 0., 0., 4., 18., 3., 5.])
+		self.assertEqual(self.moleculeCounts.partitions[0].counts.tolist(), [0., 0., 0., 0., 0., 0., 0.])
 		self.assertEqual(self.moleculeCounts.partitions[1].counts.tolist(), [2., 1., 2., 2., 0., 0., 0.])
 		self.assertEqual(self.moleculeCounts.partitions[2].counts.tolist(), [8., 0., 3., 1., 2., 0., 2.])
