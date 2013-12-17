@@ -153,7 +153,7 @@ class Fitter(object):
 
 			hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
 			numRnapsNeeded = numpy.sum(mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hL ) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]])
-			print "numRnapsNeeded: %0.1f" % numRnapsNeeded
+			#print "numRnapsNeeded: %0.1f" % numRnapsNeeded
 
 			# Estimate total number of monomers
 			aasToPolym = numpy.round((1 - mc.fracInitFreeAAs) * numpy.sum(mc.counts[mc.idx["aas"], mc.cIdx["c"]]))
@@ -172,7 +172,7 @@ class Fitter(object):
 
 			# Estimate number of ribosomes needed initially
 			numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc.cellCycleLength) * numMons * mc.monExp)
-			print "numRibsNeeded: %0.1f" % numRibsNeeded
+			#print "numRibsNeeded: %0.1f" % numRibsNeeded
 			fudge = 1.1
 			if numpy.sum(numRnas * mc.rnaExp[idx["rnaExp"]["rRna23Ss"]]) < fudge * numRibsNeeded:
 				mc.rnaExp[idx["rnaExp"]["rRna23Ss"]] = numpy.maximum(mc.rnaExp[idx["rnaExp"]["rRna23Ss"]], fudge * float(numRibsNeeded) / numRnas)
@@ -222,7 +222,7 @@ class Fitter(object):
 			mw_c = (mc.mws[mc.idx["dntps"]] - mc.mws[mc.idx["ppi"]])
 			mc.vals["FeistCore"][idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c
 
-			print "||delta biomass||_1: %0.3f" % numpy.linalg.norm(valsOrig - mc.vals["FeistCore"], 1)
+			#print "||delta biomass||_1: %0.3f" % numpy.linalg.norm(valsOrig - mc.vals["FeistCore"], 1)
 
 		# import ipdb
 		# ipdb.set_trace()

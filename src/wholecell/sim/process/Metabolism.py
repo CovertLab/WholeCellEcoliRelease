@@ -120,7 +120,6 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		dm[self.metabolite.idx["FeistCoreRows"]] = numpy.round((self.mc.vals["FeistCore"] + atpm[self.metabolite.idx["FeistCoreRows"]] + noise ) * 1e-3 * Constants.nAvogadro * self.mc.initialDryMass) * numpy.exp(numpy.log(2) / self.cellCycleLen * self.time.value) * (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
 		# import ipdb
 		# ipdb.set_trace()
-		print "NTP production: %s" % str(dm[self.metabolite.idx["ntps"]])
 		self.metabolite.counts = self.randStream.stochasticRound(
 			self.metabolite.counts + dm
 			)
@@ -132,7 +131,6 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		# Make copy numbers positive
 		self.metabolite.counts = numpy.maximum(0, self.metabolite.counts)
-		print "END METABOLISM"
 
 	def calcGrowthRate(self, bounds):
 		growth = 1.0 / self.cellCycleLen
