@@ -366,50 +366,66 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 
 	# Partition state among processes
 	def partition(self):
-		# Calculate requests
-		touchs = numpy.zeros(self.counts.shape + (len(self.partitions),))
-		reqs = numpy.zeros(self.counts.shape + (len(self.partitions),))
+		# "requests" and "touchs" have dimensions (molecule index) x (compartment index) x (partition index)
+		requestsShape = (self.counts.shape[0], self.counts.shape[1], len(self.partitions))
 
-		for iPartition in xrange(len(self.partitions)):
-			partition = self.partitions[iPartition]
+		requests = numpy.zeros(requestsShape)
+		touchs = numpy.zeros(requestsShape) # "touchs" tracks partitions that can request a given molecule
 
+		# Calculate and store requests
+		for iPartition, partition in enumerate(self.partitions):
 			if not partition.isReqAbs:
-				touch = numpy.zeros(self.counts.shape)
-				touch[numpy.unravel_index(partition.mapping, touch.shape)] = 1
-				touchs[:, :, iPartition] = touch
+				# Set molecules as "touched"
+				touchs[
+					numpy.unravel_index(partition.mapping, self.counts.shape)
+					+ (iPartition,)
+					] = 1
 
-			req = numpy.zeros(self.counts.shape)
-			req[numpy.unravel_index(partition.mapping, req.shape)] = numpy.maximum(0, partition.reqFunc())	# TODO: Fix this line depending on reqFunc's return statement
-			reqs[:, :, iPartition] = req
+			# Call request function and record requests
+			requests[
+				numpy.unravel_index(partition.mapping, self.counts.shape)
+				+ (iPartition,)
+				] = numpy.maximum(0, partition.reqFunc())
 
-		tmp = numpy.array([x.isReqAbs for x in self.partitions])
-		absReqs = numpy.sum(reqs[:, :, tmp], axis = 2)
-		relReqs = numpy.sum(reqs[:, :, numpy.logical_not(tmp)], axis = 2)
+		isAbsoluteRequest = numpy.array([x.isReqAbs for x in self.partitions], bool)
+		absoluteRequests = numpy.sum(requests[:, :, isAbsoluteRequest], axis = 2)
+		relativeRequests = numpy.sum(requests[:, :, ~isAbsoluteRequest], axis = 2)
 
 		# TODO: Remove the warnings filter or move it elsewhere
-		import warnings
-		warnings.simplefilter("ignore", RuntimeWarning)	# Supress warnings about divide by zero
-		absScale = numpy.fmax(0, numpy.minimum(numpy.minimum(self.counts, absReqs) / absReqs, 1))
-		relScale = numpy.fmax(0, numpy.maximum(0, self.counts - absReqs) / relReqs)
-		relScale[relReqs == 0] = 0
+		# there may also be a way to avoid these warnings by only evaluating 
+		# division "sparsely", which should be faster anyway - JM
+		oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
 
-		unReqs = numpy.fmax(0, self.counts - absReqs) / numpy.sum(touchs, axis = 2) * (relReqs == 0)
-		unReqs[numpy.sum(touchs, axis = 2) == 0] = 0
+		absoluteScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+			numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
+				numpy.minimum(self.counts, absoluteRequests) / absoluteRequests) # Divide requests amongst partitions proportionally
+			)
 
-		for iPartition in xrange(len(self.partitions)):
-			partition = self.partitions[iPartition]
+		relativeScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+			numpy.maximum(0, self.counts - absoluteRequests) / relativeRequests # Divide remaining requests amongst partitions proportionally
+			)
 
-			if partition.isReqAbs:
-				scale = absScale
-			else:
-				scale = relScale
+		relativeScale[relativeRequests == 0] = 0 # nan handling?
 
-			alloc = numpy.floor(reqs[:, :, iPartition] * scale + unReqs * touchs[:, :, iPartition])
-			self.partitionedCounts[:, :, iPartition] = alloc
-			partition.counts = alloc[numpy.unravel_index(partition.mapping, alloc.shape)]
+		# TODO: figure out what the next two lines do and add comments
+		unrequested = numpy.fmax(0, self.counts - absoluteRequests) / numpy.sum(touchs, axis = 2) * (relativeRequests == 0)
+		unrequested[numpy.sum(touchs, axis = 2) == 0] = 0
+
+		numpy.seterr(**oldSettings) # Restore error handling to the previous state
+
+		# Compute allocations and assign counts to the partitions
+		for iPartition, partition in enumerate(self.partitions):
+			scale = absoluteScale if partition.isReqAbs else relativeScale
+
+			allocation = numpy.floor(requests[:, :, iPartition] * scale
+				+ unrequested * touchs[:, :, iPartition]) # Partitions can pick up some of the unrequested metabolites
+
+			self.partitionedCounts[:, :, iPartition] = allocation
+			partition.counts = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
 
 		# TODO: Allocate unpartitioned molecules
-		self.requestedCounts = numpy.sum(reqs, axis = 2)
+		# ^ this TODO needs clarification - JM
+		self.requestedCounts = numpy.sum(requests, axis = 2)
 		self.unpartitionedCounts = self.counts - numpy.sum(self.partitionedCounts, axis = 2)
 
 	# Merge sub-states partitioned to processes
