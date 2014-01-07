@@ -11,26 +11,30 @@ and unique instances in a series of lists sharing a common index.
 @date: Created 10/04/2013
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
+@author: John Mason
+@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 import numpy
+import wholecell.sim.state.State as wcState
+import re
 # import types
 # import sys
 # import time
 
 # TODO: Change 'object' to wholecell.sim.state.State
-class MoleculesContainer(object):
+class MoleculesContainer(wcState.State):
 	"""uniques"""
 
-	def __init__(self):
-#		self.meta = {
-#			"id": "uniques",
-#			"name": "uniques",
-#			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
-#			"units": {"_countsBulk" : "molecules",
-#					"_countsUnique" : "molecules",
-#					"_uniqueDict"	: "molecules"}
-#					}
+	def __init__(self, *args, **kwargs):
+		self.meta = {
+			"id": "uniques",
+			"name": "uniques",
+			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
+			"units": {"_countsBulk" : "molecules",
+					"_countsUnique" : "molecules",
+					"_uniqueDict"	: "molecules"}
+					}
 
 		self._countsBulk = None
 		self._countsUnique = None
@@ -42,6 +46,16 @@ class MoleculesContainer(object):
 		self._cIdx = None
 
 		self._molecules = {}
+
+		self.partitionedCounts = None
+		self.unpartitionedCounts = None
+
+		self.fullCounts = None
+		self.mapping = None
+		self.reqFunc = None
+		self.isReqAbs = None
+
+		super(MoleculesContainer, self).__init__(*args, **kwargs)
 
 	def initialize(self, kb):
 		self._countsBulk = 0.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
@@ -57,8 +71,11 @@ class MoleculesContainer(object):
 
 		self._dmass = numpy.zeros((len(kb.molecules), len(kb.compartments)))
 
-		self._widIdx = dict([(x[0]["id"], x[1]) for x in zip(kb.molecules, range(len(kb.molecules)))])
-		self._cIdx = dict([(x[0]["id"], x[1]) for x in zip(kb.compartments, range(len(kb.compartments)))])
+		self._wids = [molecule["id"] for molecule in kb.molecules]
+		self._compartments = [compartment["id"] for compartment in kb.compartments]
+
+		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
+		self._cIdx = {c:i for i, c in enumerate(self._compartments)}
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
@@ -66,8 +83,165 @@ class MoleculesContainer(object):
 
 		return self._molecules[wid, comp]
 
+
+	def allocate(self):
+		super(MoleculesContainer, self).allocate()
+
+		if self.parentState is None:
+			# self._countsBulk = 0.0 * numpy.ones((len(self._wids), len(self._compartments)))
+			self.partitionedCounts = numpy.zeros((len(self._wids), len(self._compartments), len(self.partitions)))
+			self.unpartitionedCounts = numpy.zeros((len(self._wids), len(self._compartments)))
+			self.requestedCounts = numpy.zeros((len(self._wids), len(self._compartments)))
+
+		else:
+			self._countsBulk = numpy.zeros(len(self._wids))
+			self.fullCounts = numpy.zeros((len(self._wids), len(self._compartments)))
+
+
+	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
+		partition = super(MoleculesContainer, self).addPartition(process)
+
+		partition.reqFunc = reqFunc
+		partition.isReqAbs = isReqAbs
+
+		mapping, iMolecule = self.getIndices(reqMols)[:2]
+
+		if len(set(mapping)) < len(mapping):
+			raise Exception('Partition request cannot contain duplicate IDs')
+
+		partition.mapping = mapping
+
+		partition._wids = [self._wids[i] for i in iMolecule]
+		partition._widIdx = {wid:i for i, wid in enumerate(partition._wids)}
+
+		partition._compartments = ["merged"] # "merged"
+		partition._cIdxs = {"merged":0} # "merged"
+
+		return partition
+
+
+	def prepartition(self):
+		for partition in self.partitions:
+			partition.fullCountsBulk = self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)]
+
+
+	def partition(self):
+		requestsShape = (self._countsBulk.shape[0], self._countsBulk.shape[1], len(self.partitions))
+
+		requests = numpy.zeros(requestsShape)
+
+		# Calculate and store requests
+		for iPartition, partition in enumerate(self.partitions):
+			# Call request function and record requests
+			requests[
+				numpy.unravel_index(partition.mapping, self._countsBulk.shape)
+				+ (iPartition,)
+				] = numpy.maximum(0, partition.reqFunc())
+
+		isAbsoluteRequest = numpy.array([x.isReqAbs for x in self.partitions], bool)
+		absoluteRequests = numpy.sum(requests[:, :, isAbsoluteRequest], axis = 2)
+		relativeRequests = numpy.sum(requests[:, :, ~isAbsoluteRequest], axis = 2)
+
+		# TODO: Remove the warnings filter or move it elsewhere
+		# there may also be a way to avoid these warnings by only evaluating 
+		# division "sparsely", which should be faster anyway - JM
+		oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+
+		absoluteScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+			numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
+				numpy.minimum(self._countsBulk, absoluteRequests) / absoluteRequests) # Divide requests amongst partitions proportionally
+			)
+
+		relativeScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+			numpy.maximum(0, self._countsBulk - absoluteRequests) / relativeRequests # Divide remaining requests amongst partitions proportionally
+			)
+
+		relativeScale[relativeRequests == 0] = 0 # nan handling?
+
+		numpy.seterr(**oldSettings) # Restore error handling to the previous state
+
+		# Compute allocations and assign counts to the partitions
+		for iPartition, partition in enumerate(self.partitions):
+			scale = absoluteScale if partition.isReqAbs else relativeScale
+
+			allocation = numpy.floor(requests[:, :, iPartition] * scale)
+
+			self.partitionedCounts[:, :, iPartition] = allocation
+			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
+
+		# TODO: Allocate unpartitioned molecules
+		# ^ this TODO needs clarification - JM
+		self.requestedCounts = numpy.sum(requests, axis = 2)
+		self.unpartitionedCounts = self._countsBulk - numpy.sum(self.partitionedCounts, axis = 2)
+
+
+	def merge(self):
+		self._countsBulk = self.unpartitionedCounts
+
+		for partition in self.partitions:
+			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
+
+
+
+	def getIndex(self, id_):
+		return self.getIndices([id_])
+
+
+	def getIndices(self, ids):
+		if self.parentState is not None:
+			# mappingList = list(self.mapping)
+
+			# try:
+			# 	idxs = numpy.array([mapping.index[ind] for ind in self.parentState.getIndices[ids][0]])
+
+			# except ValueError:
+			# 	raise Exception('Invalid index: {}'.format(ind))
+
+			# compIdxs = numpy.ones_like(idxs.shape)
+			# return idxs, idxs, compIdxs
+			raise NotImplementedError()
+
+		else:
+			molecules = []
+			compartments = []
+
+			for id_ in ids:
+				match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
+
+				if match is None:
+					raise Exception('Invalid ID: {}'.format(id_))
+
+				molecules.append(match.group("molecule"))
+
+				if match.group("compartment") is None:
+					compartments.append(self._compartments[0])
+
+				else:
+					compartments.append(match.group("compartment")[1])
+
+			try:
+				molIdxs = numpy.array([self._widIdx[m] for m in molecules])
+
+			except ValueError:
+				raise Exception('Invalid molecule: {}'.format(m))
+
+			try:
+				compIdxs = numpy.array([self._cIdx[c] for c in compartments])
+
+			except ValueError:
+				raise Exception('Invalid compartment: {}'.format(c))
+
+			idxs = numpy.ravel_multi_index(
+				numpy.array([molIdxs, compIdxs]),
+				(len(self._wids), len(self._compartments))
+				)
+
+			return idxs, molIdxs, compIdxs
+
+
 def _uniqueInit(self, uniqueIdx):
 	self._uniqueIdx = uniqueIdx
+
 
 def _makeGetter(attr):
 	def attrGetter(self):
@@ -78,6 +252,7 @@ def _makeGetter(attr):
 
 	return attrGetter
 
+
 def _makeSetter(attr):
 	def attrSetter(self, newVal):
 		molCont, uniqueIdx = self._container, self._uniqueIdx
@@ -86,6 +261,7 @@ def _makeSetter(attr):
 		molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx] = newVal
 
 	return attrSetter
+
 
 class _Molecule(object):
 	uniqueClassRegistry = {}
@@ -174,9 +350,9 @@ class _Molecule(object):
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 		
 		if not len(uniqueDict):
-			raise uniqueException, 'Attempting to create unique from object with no unique attributes!\n'
+			raise uniqueException('Attempting to create unique from object with no unique attributes!\n')
 		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
-			raise uniqueException, 'A specified attribute is not included in knoweldge base for this unique object!\n'
+			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
 		for attr in uniqueDict:
 			if attrs != None and attr in attrs:
@@ -194,7 +370,7 @@ class _Molecule(object):
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 
 		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
-			raise uniqueException, 'A specified attribute is not included in knoweldge base for this unique object!\n'
+			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
 		if attrs == None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
 			return uniqueDict["objects"][:]
@@ -215,13 +391,14 @@ class _Molecule(object):
 		uniqueIdx = uniqueObj._uniqueIdx
 
 		if id(uniqueObj) != id(uniqueDict["objects"][uniqueIdx]):
-			raise uniqueException, 'Unique object to delete does not match row in unique table!\n'
+			raise uniqueException('Unique object to delete does not match row in unique table!\n')
 
 		for i in xrange(uniqueIdx + 1, len(uniqueDict["objects"])):
 			uniqueDict["objects"][i]._uniqueIdx -= 1
 		for attr in uniqueDict:
 			del uniqueDict[attr][uniqueIdx]
 		self._container._countsUnique[self._rowIdx, self._colIdx] -= 1			
+
 
 class uniqueException(Exception):
 	'''
@@ -230,7 +407,6 @@ class uniqueException(Exception):
 
 
 class MoleculeUniqueMeta(type):
-	
 	def __new__(cls, name, bases, attrs):
 		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
 
