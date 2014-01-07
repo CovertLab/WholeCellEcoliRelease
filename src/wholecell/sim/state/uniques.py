@@ -31,10 +31,12 @@ class MoleculesContainer(wcState.State):
 			"id": "uniques",
 			"name": "uniques",
 			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
-			"units": {"_countsBulk" : "molecules",
-					"_countsUnique" : "molecules",
-					"_uniqueDict"	: "molecules"}
-					}
+			"units": {
+				"_countsBulk" : "molecules",
+				"_countsUnique" : "molecules",
+				"_uniqueDict"	: "molecules"
+				}
+			}
 
 		self._countsBulk = None
 		self._countsUnique = None
@@ -88,7 +90,6 @@ class MoleculesContainer(wcState.State):
 		super(MoleculesContainer, self).allocate()
 
 		if self.parentState is None:
-			# self._countsBulk = 0.0 * numpy.ones((len(self._wids), len(self._compartments)))
 			self.partitionedCounts = numpy.zeros((len(self._wids), len(self._compartments), len(self.partitions)))
 			self.unpartitionedCounts = numpy.zeros((len(self._wids), len(self._compartments)))
 			self.requestedCounts = numpy.zeros((len(self._wids), len(self._compartments)))
@@ -169,8 +170,6 @@ class MoleculesContainer(wcState.State):
 			self.partitionedCounts[:, :, iPartition] = allocation
 			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
 
-		# TODO: Allocate unpartitioned molecules
-		# ^ this TODO needs clarification - JM
 		self.requestedCounts = numpy.sum(requests, axis = 2)
 		self.unpartitionedCounts = self._countsBulk - numpy.sum(self.partitionedCounts, axis = 2)
 
