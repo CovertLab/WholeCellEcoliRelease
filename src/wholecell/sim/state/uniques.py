@@ -24,12 +24,12 @@ import re
 
 # TODO: Change 'object' to wholecell.sim.state.State
 class MoleculesContainer(wcState.State):
-	"""uniques"""
+	"""MoleculesContainer"""
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
-			"id": "uniques",
-			"name": "uniques",
+			"id": "MoleculesContainer",
+			"name": "Molecules Container",
 			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
 			"units": {
 				"_countsBulk" : "molecules",
@@ -38,19 +38,20 @@ class MoleculesContainer(wcState.State):
 				}
 			}
 
-		self._countsBulk = None
-		self._countsUnique = None
-		self._massSingle = None
-		self._dmass = None
-		self._uniqueDict = None
+		self._countsBulk = None   # Counts of non-unique molecules
+		self._countsUnique = None # Counts of molecules with unique properties
+		self._massSingle = None   # Mass of a single bulk molecule
+		self._dmass = None        # Deviation from typical mass due to some unique property
+		self._uniqueDict = None   
 
 		self._widIdx = None
 		self._cIdx = None
 
 		self._molecules = {}
 
-		self.partitionedCounts = None
-		self.unpartitionedCounts = None
+		self._partitionedCountsBulk = None
+		self._unpartitionedCountsBulk = None
+		self._requestedCountsBulk = None
 
 		self.fullCounts = None
 		self.mapping = None
@@ -59,25 +60,28 @@ class MoleculesContainer(wcState.State):
 
 		super(MoleculesContainer, self).__init__(*args, **kwargs)
 
+
 	def initialize(self, kb):
-		self._countsBulk = 0.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
-		self._countsUnique = 0.0 * numpy.ones((len(kb.molecules), len(kb.compartments)))
-		self._massSingle = numpy.array([[x["mass"]] * len(kb.compartments) for x in kb.molecules])
+		self._nMol = len(kb.molecules)
+		self._nCmp = len(kb.compartments)
 
 		self._uniqueDict = []
+
 		for mol in kb.molecules:
-			if mol["uniqueAttrs"] != None:
+			if mol["uniqueAttrs"] is not None:
 				self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
+			
 			else:
 				self._uniqueDict.append([{} for x in kb.compartments])
-
-		self._dmass = numpy.zeros((len(kb.molecules), len(kb.compartments)))
 
 		self._wids = [molecule["id"] for molecule in kb.molecules]
 		self._compartments = [compartment["id"] for compartment in kb.compartments]
 
+		self._molMass = numpy.array([molecule["mass"] for molecule in kb.molecules], float)
+
 		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
 		self._cIdx = {c:i for i, c in enumerate(self._compartments)}
+
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
@@ -89,15 +93,22 @@ class MoleculesContainer(wcState.State):
 	def allocate(self):
 		super(MoleculesContainer, self).allocate()
 
+		self._countsBulk = numpy.zeros((self._nMol, self._nCmp), float)
+		self._massSingle = numpy.tile(self._molMass, [self._nCmp, 1]).transpose()
+
+		self._countsUnique = numpy.zeros_like(self._countsBulk)
+		self._dmass = numpy.zeros_like(self._countsBulk)
+
 		if self.parentState is None:
-			self.partitionedCounts = numpy.zeros((len(self._wids), len(self._compartments), len(self.partitions)))
-			self.unpartitionedCounts = numpy.zeros((len(self._wids), len(self._compartments)))
-			self.requestedCounts = numpy.zeros((len(self._wids), len(self._compartments)))
+			self._partitionedCountsBulk = numpy.zeros((self._nMol, self._nCmp, len(self.partitions)))
+			self._unpartitionedCountsBulk = numpy.zeros_like(self._countsBulk)
+			self._requestedCountsBulk = numpy.zeros_like(self._countsBulk)
 
 		else:
-			self._countsBulk = numpy.zeros(len(self._wids))
-			self.fullCounts = numpy.zeros((len(self._wids), len(self._compartments)))
+			self._countsBulk = numpy.zeros(self._nMol)
+			self.fullCounts = numpy.zeros_like(self._countsBulk)
 
+	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
 		partition = super(MoleculesContainer, self).addPartition(process)
@@ -105,7 +116,7 @@ class MoleculesContainer(wcState.State):
 		partition.reqFunc = reqFunc
 		partition.isReqAbs = isReqAbs
 
-		mapping, iMolecule = self.getIndices(reqMols)[:2]
+		mapping, iMolecule = self._getIndices(reqMols)[:2]
 
 		if len(set(mapping)) < len(mapping):
 			raise Exception('Partition request cannot contain duplicate IDs')
@@ -167,26 +178,21 @@ class MoleculesContainer(wcState.State):
 
 			allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
-			self.partitionedCounts[:, :, iPartition] = allocation
+			self._partitionedCountsBulk[:, :, iPartition] = allocation
 			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
 
-		self.requestedCounts = numpy.sum(requests, axis = 2)
-		self.unpartitionedCounts = self._countsBulk - numpy.sum(self.partitionedCounts, axis = 2)
+		self._requestedCountsBulk = numpy.sum(requests, axis = 2)
+		self._unpartitionedCountsBulk = self._countsBulk - numpy.sum(self._partitionedCountsBulk, axis = 2)
 
 
 	def merge(self):
-		self._countsBulk = self.unpartitionedCounts
+		self._countsBulk = self._unpartitionedCountsBulk
 
 		for partition in self.partitions:
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
 
 
-
-	def getIndex(self, id_):
-		return self.getIndices([id_])
-
-
-	def getIndices(self, ids):
+	def _getIndices(self, ids):
 		if self.parentState is not None:
 			# mappingList = list(self.mapping)
 
@@ -209,6 +215,9 @@ class MoleculesContainer(wcState.State):
 
 				if match is None:
 					raise Exception('Invalid ID: {}'.format(id_))
+
+				if match.group('form') is not None:
+					raise NotImplementedError()
 
 				molecules.append(match.group("molecule"))
 
@@ -265,7 +274,7 @@ def _makeSetter(attr):
 class _Molecule(object):
 	uniqueClassRegistry = {}
 	def __init__(self, container, rowIdx, colIdx, wid):
-		self._container = container
+		self._container = container # Parent MoleculeContainer object
 		self._rowIdx = rowIdx
 		self._colIdx = colIdx
 		self._wid = wid
@@ -302,6 +311,8 @@ class _Molecule(object):
 				uniqueClassDefDict[attr + "Is"] = _makeSetter(attr)
 
 			self._MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
+
+	# Interface methods
 
 	def countsBulk(self):
 		# Returns bulk count of molecule as a float
@@ -350,17 +361,20 @@ class _Molecule(object):
 		
 		if not len(uniqueDict):
 			raise uniqueException('Attempting to create unique from object with no unique attributes!\n')
-		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
+
+		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
 			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
 		for attr in uniqueDict:
-			if attrs != None and attr in attrs:
+			if attrs is not None and attr in attrs:
 				uniqueDict[attr].append(attrs[attr])
 			else:
 				uniqueDict[attr].append(None)
+
 		uniqueIdx = len(uniqueDict["objects"]) - 1
 		uniqueDict["objects"][uniqueIdx] = self._MoleculeUnique(uniqueIdx)
 		self._container._countsUnique[self._rowIdx, self._colIdx] += 1
+
 		return uniqueDict["objects"][uniqueIdx]
 
 	def uniquesWithAttrs(self, attrs = None):
@@ -368,10 +382,10 @@ class _Molecule(object):
 		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 
-		if attrs != None and len(set(attrs).difference(set(uniqueDict.keys()))):
+		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
 			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
-		if attrs == None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
+		if attrs is None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
 			return uniqueDict["objects"][:]
 
 		L = []

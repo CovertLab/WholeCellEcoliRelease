@@ -50,6 +50,8 @@ class Test_uniques(unittest.TestCase):
 		self.mc = wcUniques.MoleculesContainer()
 		self.mc.initialize(self.kb)
 
+		self.mc.allocate()
+
 		# Create generic process for partition
 		self.genericProcess = type("", (), {})()
 		self.genericProcess.meta = {"id": "genericProcess_id", "name": "genericProcess_name"}
@@ -57,7 +59,7 @@ class Test_uniques(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('uniquePartitionTest')
+	@noseAttrib.attr('uniqueTest')
 	def test_relativeAllocation(self):
 		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
 			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
@@ -69,7 +71,7 @@ class Test_uniques(unittest.TestCase):
 			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
 			"metG[c]"], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]))
 		
-		self.mc.allocate()
+		self.mc.allocate() # Must reallocate after adding partitions
 
 		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
 			met = self.mc.molecule(metaboliteID, "c")
@@ -82,7 +84,7 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(self.mc.partitions[1]._countsBulk.tolist(), [1., 1., 2., 4., 0., 0., 0.])
 		self.assertEqual(self.mc.partitions[2]._countsBulk.tolist(), [7., 0., 3., 2., 20., 0., 7.])
 
-	@noseAttrib.attr('uniquePartitionTest')
+	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation(self):
 		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
 			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
@@ -94,7 +96,7 @@ class Test_uniques(unittest.TestCase):
 			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
 			"metG[c]"], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]))
 		
-		self.mc.allocate()
+		self.mc.allocate() # Must reallocate after adding partitions
 
 		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
 			met = self.mc.molecule(metaboliteID, "c")
@@ -108,7 +110,7 @@ class Test_uniques(unittest.TestCase):
 		self.assertEqual(self.mc.partitions[2]._countsBulk.tolist(), [4., 0., 3., 5., 20., 0., 7.])
 
 
-	@noseAttrib.attr('uniquePartitionTest')
+	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation_withConflict(self):
 		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
 			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
@@ -120,7 +122,7 @@ class Test_uniques(unittest.TestCase):
 			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
 			"metG[c]"], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]), isReqAbs = True)
 		
-		self.mc.allocate()
+		self.mc.allocate() # Must reallocate after adding partitions
 
 		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
 			met = self.mc.molecule(metaboliteID, "c")
