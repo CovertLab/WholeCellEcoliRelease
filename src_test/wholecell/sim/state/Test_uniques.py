@@ -9,16 +9,11 @@ Test uniques.py
 """
 
 import unittest
-import warnings
 import nose.plugins.attrib as noseAttrib
-import nose.tools as noseTools
+# import nose.tools as noseTools
 
 import numpy
-# import wholecell.util.randStream
 import wholecell.sim.state.uniques as wcUniques
-
-import cPickle
-import os
 
 class Test_uniques(unittest.TestCase):
 

@@ -18,9 +18,6 @@ and unique instances in a series of lists sharing a common index.
 import numpy
 import wholecell.sim.state.State as wcState
 import re
-# import types
-# import sys
-# import time
 
 # TODO: Change 'object' to wholecell.sim.state.State
 class MoleculesContainer(wcState.State):
@@ -32,28 +29,44 @@ class MoleculesContainer(wcState.State):
 			"name": "Molecules Container",
 			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
 			"units": {
-				"_countsBulk" : "molecules",
+				"_countsBulk"   : "molecules",
 				"_countsUnique" : "molecules",
 				"_uniqueDict"	: "molecules"
 				}
 			}
 
+		# Dimensions
+		self._nMols = None # Number of molecule types
+		self._nCmps = None # Number of compartment types
+
+		# Molecule counts
 		self._countsBulk = None   # Counts of non-unique molecules
 		self._countsUnique = None # Counts of molecules with unique properties
-		self._massSingle = None   # Mass of a single bulk molecule
-		self._dmass = None        # Deviation from typical mass due to some unique property
-		self._uniqueDict = None   
 
-		self._widIdx = None
-		self._cIdx = None
+		# Molecule mass
+		self._molMass = None    # Mass of a single bulk molecule
+		self._massSingle = None # Mass of a single bulk molecule, for each compartment
+		self._dmass = None      # Deviation from typical mass due to some unique property
 
-		self._molecules = {}
+		# Object references
+		self._molecules = {}    # Molecule objects
+		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
 
+		# IDs
+		self._wids = None # List of molecules (string ids)
+		self._cmps = None # List of compartments (strings)
+
+		# Mappings from id to index
+		self._widIdx = None # Maps molecule id to index
+		self._cIdx = None   # Maps compartment id to index
+
+		# Partitioning (parent)
+		self._requestedCountsBulk = None
 		self._partitionedCountsBulk = None
 		self._unpartitionedCountsBulk = None
-		self._requestedCountsBulk = None
 
-		self.fullCounts = None
+		# Partitioning (child)
+		self.fullCountsBulk = None
 		self.mapping = None
 		self.reqFunc = None
 		self.isReqAbs = None
@@ -62,8 +75,8 @@ class MoleculesContainer(wcState.State):
 
 
 	def initialize(self, kb):
-		self._nMol = len(kb.molecules)
-		self._nCmp = len(kb.compartments)
+		self._nMols = len(kb.molecules)
+		self._nCmps = len(kb.compartments)
 
 		self._uniqueDict = []
 
@@ -75,12 +88,12 @@ class MoleculesContainer(wcState.State):
 				self._uniqueDict.append([{} for x in kb.compartments])
 
 		self._wids = [molecule["id"] for molecule in kb.molecules]
-		self._compartments = [compartment["id"] for compartment in kb.compartments]
+		self._cmps = [compartment["id"] for compartment in kb.compartments]
 
 		self._molMass = numpy.array([molecule["mass"] for molecule in kb.molecules], float)
 
 		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
-		self._cIdx = {c:i for i, c in enumerate(self._compartments)}
+		self._cIdx = {c:i for i, c in enumerate(self._cmps)}
 
 
 	def molecule(self, wid, comp):
@@ -93,24 +106,25 @@ class MoleculesContainer(wcState.State):
 	def allocate(self):
 		super(MoleculesContainer, self).allocate()
 
-		self._countsBulk = numpy.zeros((self._nMol, self._nCmp), float)
-		self._massSingle = numpy.tile(self._molMass, [self._nCmp, 1]).transpose()
+		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
+		self._massSingle = numpy.tile(self._molMass, [self._nCmps, 1]).transpose() # Repeat for each compartment
 
 		self._countsUnique = numpy.zeros_like(self._countsBulk)
 		self._dmass = numpy.zeros_like(self._countsBulk)
 
 		if self.parentState is None:
-			self._partitionedCountsBulk = numpy.zeros((self._nMol, self._nCmp, len(self.partitions)))
+			self._partitionedCountsBulk = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
 			self._unpartitionedCountsBulk = numpy.zeros_like(self._countsBulk)
 			self._requestedCountsBulk = numpy.zeros_like(self._countsBulk)
 
 		else:
-			self._countsBulk = numpy.zeros(self._nMol)
-			self.fullCounts = numpy.zeros_like(self._countsBulk)
+			self._countsBulk = numpy.zeros(self._nMols)
+			self.fullCountsBulk = numpy.zeros_like(self._countsBulk)
 
 	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
+		# TODO: warning for adding a partition after allocation
 		partition = super(MoleculesContainer, self).addPartition(process)
 
 		partition.reqFunc = reqFunc
@@ -126,7 +140,7 @@ class MoleculesContainer(wcState.State):
 		partition._wids = [self._wids[i] for i in iMolecule]
 		partition._widIdx = {wid:i for i, wid in enumerate(partition._wids)}
 
-		partition._compartments = ["merged"] # "merged"
+		partition._cmps = ["merged"] # "merged"
 		partition._cIdxs = {"merged":0} # "merged"
 
 		return partition
@@ -222,7 +236,7 @@ class MoleculesContainer(wcState.State):
 				molecules.append(match.group("molecule"))
 
 				if match.group("compartment") is None:
-					compartments.append(self._compartments[0])
+					compartments.append(self._cmps[0])
 
 				else:
 					compartments.append(match.group("compartment")[1])
@@ -241,7 +255,7 @@ class MoleculesContainer(wcState.State):
 
 			idxs = numpy.ravel_multi_index(
 				numpy.array([molIdxs, compIdxs]),
-				(len(self._wids), len(self._compartments))
+				(len(self._wids), len(self._cmps))
 				)
 
 			return idxs, molIdxs, compIdxs
