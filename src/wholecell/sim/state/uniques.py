@@ -58,12 +58,12 @@ class MoleculesContainer(wcState.State):
 
 		# Mappings from id to index
 		self._widIdx = None # Maps molecule id to index
-		self._cIdx = None   # Maps compartment id to index
+		self._cmpIdx = None   # Maps compartment id to index
 
 		# Partitioning (parent)
-		self._requestedCountsBulk = None
-		self._partitionedCountsBulk = None
-		self._unpartitionedCountsBulk = None
+		self._countsBulkRequested = None
+		self._countsBulkPartitioned = None
+		self._countsBulkUnpartitioned = None
 
 		# Partitioning (child)
 		self.fullCountsBulk = None
@@ -93,12 +93,12 @@ class MoleculesContainer(wcState.State):
 		self._molMass = numpy.array([molecule["mass"] for molecule in kb.molecules], float)
 
 		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
-		self._cIdx = {c:i for i, c in enumerate(self._cmps)}
+		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
 
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
-			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cIdx[comp], wid)
+			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
 
 		return self._molecules[wid, comp]
 
@@ -113,9 +113,9 @@ class MoleculesContainer(wcState.State):
 		self._dmass = numpy.zeros_like(self._countsBulk)
 
 		if self.parentState is None:
-			self._partitionedCountsBulk = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
-			self._unpartitionedCountsBulk = numpy.zeros_like(self._countsBulk)
-			self._requestedCountsBulk = numpy.zeros_like(self._countsBulk)
+			self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
+			self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
+			self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
 		else:
 			self._countsBulk = numpy.zeros(self._nMols)
@@ -141,7 +141,7 @@ class MoleculesContainer(wcState.State):
 		partition._widIdx = {wid:i for i, wid in enumerate(partition._wids)}
 
 		partition._cmps = ["merged"] # "merged"
-		partition._cIdxs = {"merged":0} # "merged"
+		partition._cmpIdxs = {"merged":0} # "merged"
 
 		return partition
 
@@ -152,6 +152,7 @@ class MoleculesContainer(wcState.State):
 
 
 	def partition(self):
+		# TODO: partitioning of unique instances (for both specific and nonspecific requests)
 		requestsShape = (self._countsBulk.shape[0], self._countsBulk.shape[1], len(self.partitions))
 
 		requests = numpy.zeros(requestsShape)
@@ -164,43 +165,44 @@ class MoleculesContainer(wcState.State):
 				+ (iPartition,)
 				] = numpy.maximum(0, partition.reqFunc())
 
-		isAbsoluteRequest = numpy.array([x.isReqAbs for x in self.partitions], bool)
-		absoluteRequests = numpy.sum(requests[:, :, isAbsoluteRequest], axis = 2)
-		relativeRequests = numpy.sum(requests[:, :, ~isAbsoluteRequest], axis = 2)
+		isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
+		requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
+		requestsRelative = numpy.sum(requests[:, :, ~isRequestAbsolute], axis = 2)
+
+		self._countsBulkRequested = numpy.sum(requests, axis = 2)
 
 		# TODO: Remove the warnings filter or move it elsewhere
 		# there may also be a way to avoid these warnings by only evaluating 
 		# division "sparsely", which should be faster anyway - JM
 		oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
 
-		absoluteScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
 			numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
-				numpy.minimum(self._countsBulk, absoluteRequests) / absoluteRequests) # Divide requests amongst partitions proportionally
+				numpy.minimum(self._countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
 			)
 
-		relativeScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-			numpy.maximum(0, self._countsBulk - absoluteRequests) / relativeRequests # Divide remaining requests amongst partitions proportionally
+		scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+			numpy.maximum(0, self._countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
 			)
 
-		relativeScale[relativeRequests == 0] = 0 # nan handling?
+		scaleRelative[requestsRelative == 0] = 0 # nan handling?
 
 		numpy.seterr(**oldSettings) # Restore error handling to the previous state
 
 		# Compute allocations and assign counts to the partitions
 		for iPartition, partition in enumerate(self.partitions):
-			scale = absoluteScale if partition.isReqAbs else relativeScale
+			scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
 			allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
-			self._partitionedCountsBulk[:, :, iPartition] = allocation
+			self._countsBulkPartitioned[:, :, iPartition] = allocation
 			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
-
-		self._requestedCountsBulk = numpy.sum(requests, axis = 2)
-		self._unpartitionedCountsBulk = self._countsBulk - numpy.sum(self._partitionedCountsBulk, axis = 2)
+		
+		self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
 
 
 	def merge(self):
-		self._countsBulk = self._unpartitionedCountsBulk
+		self._countsBulk = self._countsBulkUnpartitioned
 
 		for partition in self.partitions:
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
@@ -248,7 +250,7 @@ class MoleculesContainer(wcState.State):
 				raise Exception('Invalid molecule: {}'.format(m))
 
 			try:
-				compIdxs = numpy.array([self._cIdx[c] for c in compartments])
+				compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
 
 			except ValueError:
 				raise Exception('Invalid compartment: {}'.format(c))
