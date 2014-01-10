@@ -17,30 +17,47 @@ array and unique instances in a series of lists sharing a common index.
 
 import numpy
 import wholecell.sim.state.State as wcState
+import wholecell.sim.state.Partition as wcPartition
 import re
 
-# TODO: Change 'object' to wholecell.sim.state.State
-class MoleculesContainer(wcState.State):
+class MoleculesContainerBase(object):
+	_nMols = None
+	_nCmps = None
+
+	_countsBulk = None
+	# _countsUnique = None
+
+	_molecules = None
+
+	_widIdx = None
+	_cmpIdx = None
+
+
+	def molecule(self, wid, comp):
+		if (wid, comp) not in self._molecules:
+			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
+
+		return self._molecules[wid, comp]
+
+
+
+class MoleculesContainer(wcState.State, MoleculesContainerBase):
 	"""MoleculesContainer"""
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
 			"id": "MoleculesContainer",
 			"name": "Molecules Container",
-			"dynamics": ["_countsBulk", "_countsUnique", "_uniqueDict"],
+			"dynamicsIntrinsic": [],
+			"dynamicsExtrinsic": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
 			"units": {
 				"_countsBulk"   : "molecules",
-				"_countsUnique" : "molecules",
-				"_uniqueDict"	: "molecules"
+				# "_countsUnique" : "molecules",
+				# "_uniqueDict"	: "molecules"
 				}
 			}
 
-		# Dimensions
-		self._nMols = None # Number of molecule types
-		self._nCmps = None # Number of compartment types
-
 		# Molecule counts
-		self._countsBulk = None   # Counts of non-unique molecules
 		self._countsUnique = None # Counts of molecules with unique properties
 
 		# Molecule mass
@@ -52,24 +69,12 @@ class MoleculesContainer(wcState.State):
 		self._molecules = {}    # Molecule objects
 		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
 
-		# IDs
-		self._wids = None # List of molecules (string ids)
-		self._cmps = None # List of compartments (strings)
-
-		# Mappings from id to index
-		self._widIdx = None # Maps molecule id to index
-		self._cmpIdx = None   # Maps compartment id to index
-
 		# Partitioning (parent)
 		self._countsBulkRequested = None
 		self._countsBulkPartitioned = None
 		self._countsBulkUnpartitioned = None
 
-		# Partitioning (child)
-		self.fullCountsBulk = None
-		self.mapping = None
-		self.reqFunc = None
-		self.isReqAbs = None
+		self.partitionClass = MoleculesContainerPartition
 
 		super(MoleculesContainer, self).__init__(*args, **kwargs)
 
@@ -121,13 +126,6 @@ class MoleculesContainer(wcState.State):
 		raise NotImplementedError()
 
 
-	def molecule(self, wid, comp):
-		if (wid, comp) not in self._molecules:
-			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
-
-		return self._molecules[wid, comp]
-
-
 	def allocate(self):
 		super(MoleculesContainer, self).allocate()
 
@@ -137,21 +135,24 @@ class MoleculesContainer(wcState.State):
 		self._countsUnique = numpy.zeros_like(self._countsBulk)
 		self._dmass = numpy.zeros_like(self._countsBulk)
 
-		if self.parentState is None:
-			self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
-			self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
-			self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
+		# if self.parentState is None:
+		# 	self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
+		# 	self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
+		# 	self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
-		else:
-			self._countsBulk = numpy.zeros(self._nMols)
-			self.fullCountsBulk = numpy.zeros_like(self._countsBulk)
+		# else:
+		# 	self._countsBulk = numpy.zeros(self._nMols)
+		# 	self.fullCountsBulk = numpy.zeros_like(self._countsBulk)
+
+		self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
+		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
+		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
 	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
-		# TODO: warning for adding a partition after allocation
-		partition = super(MoleculesContainer, self).addPartition(process)
-
+		partition = self.partitionClass(self, process)
+		
 		partition.reqFunc = reqFunc
 		partition.isReqAbs = isReqAbs
 
@@ -165,15 +166,19 @@ class MoleculesContainer(wcState.State):
 		partition._wids = [self._wids[i] for i in iMolecule]
 		partition._widIdx = {wid:i for i, wid in enumerate(partition._wids)}
 
+		# TODO: determine how compartments should be handled here...
 		partition._cmps = ["merged"] # "merged"
 		partition._cmpIdxs = {"merged":0} # "merged"
+
+		self.partitions.append(partition)
 
 		return partition
 
 
 	def prepartition(self):
-		for partition in self.partitions:
-			partition.fullCountsBulk = self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)]
+		# for partition in self.partitions:
+		# 	partition.fullCountsBulk = self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)]
+		pass
 
 
 	def partition(self):
@@ -234,58 +239,65 @@ class MoleculesContainer(wcState.State):
 
 
 	def _getIndices(self, ids):
-		if self.parentState is not None:
-			# mappingList = list(self.mapping)
+		molecules = []
+		compartments = []
 
-			# try:
-			# 	idxs = numpy.array([mapping.index[ind] for ind in self.parentState.getIndices[ids][0]])
+		for id_ in ids:
+			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
 
-			# except ValueError:
-			# 	raise Exception('Invalid index: {}'.format(ind))
+			if match is None:
+				raise Exception('Invalid ID: {}'.format(id_))
 
-			# compIdxs = numpy.ones_like(idxs.shape)
-			# return idxs, idxs, compIdxs
-			raise NotImplementedError()
+			if match.group('form') is not None:
+				raise NotImplementedError()
 
-		else:
-			molecules = []
-			compartments = []
+			molecules.append(match.group("molecule"))
 
-			for id_ in ids:
-				match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
+			if match.group("compartment") is None:
+				compartments.append(self._cmps[0])
 
-				if match is None:
-					raise Exception('Invalid ID: {}'.format(id_))
+			else:
+				compartments.append(match.group("compartment")[1])
 
-				if match.group('form') is not None:
-					raise NotImplementedError()
+		try:
+			molIdxs = numpy.array([self._widIdx[m] for m in molecules])
 
-				molecules.append(match.group("molecule"))
+		except ValueError:
+			raise Exception('Invalid molecule: {}'.format(m))
 
-				if match.group("compartment") is None:
-					compartments.append(self._cmps[0])
+		try:
+			compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
 
-				else:
-					compartments.append(match.group("compartment")[1])
+		except ValueError:
+			raise Exception('Invalid compartment: {}'.format(c))
 
-			try:
-				molIdxs = numpy.array([self._widIdx[m] for m in molecules])
+		idxs = numpy.ravel_multi_index(
+			numpy.array([molIdxs, compIdxs]),
+			(len(self._wids), len(self._cmps))
+			)
 
-			except ValueError:
-				raise Exception('Invalid molecule: {}'.format(m))
+		return idxs, molIdxs, compIdxs
 
-			try:
-				compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
 
-			except ValueError:
-				raise Exception('Invalid compartment: {}'.format(c))
+class MoleculesContainerPartition(wcPartition.Partition, MoleculesContainerBase):
+	mapping = None
+	reqFunc = None
+	isReqAbs = None
 
-			idxs = numpy.ravel_multi_index(
-				numpy.array([molIdxs, compIdxs]),
-				(len(self._wids), len(self._cmps))
-				)
+	def __init__(self, *args, **kwargs):
+		self._molecules = {}
 
-			return idxs, molIdxs, compIdxs
+		super(MoleculesContainerPartition, self).__init__(*args, **kwargs)
+
+
+	def allocate(self):
+		pass
+
+
+	def _getIndices(self, ids):
+		raise NotImplementedError()
+
+
 
 
 def _uniqueInit(self, uniqueIdx):
@@ -318,7 +330,7 @@ def _makeSetter(attr):
 class _Molecule(object):
 	uniqueClassRegistry = {}
 	def __init__(self, container, rowIdx, colIdx, wid):
-		self._container = container # Parent MoleculeContainer object
+		self._container = container # Parent MoleculesContainer object
 		self._rowIdx = rowIdx
 		self._colIdx = colIdx
 		self._wid = wid

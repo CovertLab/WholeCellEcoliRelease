@@ -46,32 +46,37 @@ class Test_uniques(unittest.TestCase):
 		self.mc = wcUniques.MoleculesContainer()
 		self.mc.initialize(self.kb)
 
-		self.mc.allocate()
-
 		# Create generic process for partition
 		self.genericProcess = type("Process", (object,), {'meta':None})()
 		self.genericProcess.meta = {"id": "genericProcess_id", "name": "genericProcess_name"}
+
+		# Create some partitions, currently without request functions
+		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
+			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
+			"metG[c]"], None)
+
+		self.metabolitePartition2 = self.mc.addPartition(self.genericProcess, [
+			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
+			"metG[c]"], None)
+
+		self.metabolitePartition3 = self.mc.addPartition(self.genericProcess, [
+			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
+			"metG[c]"], None)
+
+		self.mc.allocate()
+
+		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
+			met = self.mc.molecule(metaboliteID, "c")
+			met.countsBulkInc(quantity)
 
 	def tearDown(self):
 		pass
 
 	@noseAttrib.attr('uniqueTest')
 	def test_relativeAllocation(self):
-		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]))
-		self.metabolitePartition2 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.]))
-		self.metabolitePartition3 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]))
-		
-		self.mc.allocate() # Must reallocate after adding partitions
-
-		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
-			met = self.mc.molecule(metaboliteID, "c")
-			met.countsBulkInc(quantity)
+		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.metabolitePartition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -82,21 +87,11 @@ class Test_uniques(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation(self):
-		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]))
-		self.metabolitePartition2 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.]), isReqAbs = True)
-		self.metabolitePartition3 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]))
-		
-		self.mc.allocate() # Must reallocate after adding partitions
+		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.metabolitePartition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
 
-		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
-			met = self.mc.molecule(metaboliteID, "c")
-			met.countsBulkInc(quantity)
+		self.metabolitePartition2.isReqAbs = True # this is a hack
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -108,21 +103,12 @@ class Test_uniques(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation_withConflict(self):
-		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.]), isReqAbs = False)
-		self.metabolitePartition2 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.]), isReqAbs = True)
-		self.metabolitePartition3 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.]), isReqAbs = True)
-		
-		self.mc.allocate() # Must reallocate after adding partitions
+		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.metabolitePartition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
 
-		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
-			met = self.mc.molecule(metaboliteID, "c")
-			met.countsBulkInc(quantity)
+		self.metabolitePartition2.isReqAbs = True # this is a hack
+		self.metabolitePartition3.isReqAbs = True # this is a hack
 
 		self.mc.prepartition()
 		self.mc.partition()
