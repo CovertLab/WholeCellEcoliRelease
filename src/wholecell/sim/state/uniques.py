@@ -88,7 +88,6 @@ class MoleculesContainerBase(object):
 		return [values[0] for values in self._getIndices((id_,))]
 
 
-
 class MoleculesContainer(wcState.State, MoleculesContainerBase):
 	"""MoleculesContainer"""
 
@@ -96,8 +95,7 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 		self.meta = {
 			"id": "MoleculesContainer",
 			"name": "Molecules Container",
-			"dynamicsIntrinsic": [],
-			"dynamicsExtrinsic": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
+			"dynamics": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
 			"units": {
 				"_countsBulk"   : "molecules",
 				# "_countsUnique" : "molecules",
@@ -170,12 +168,8 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 		# Media and biomass concentrations
 
 
-	def calcInitialConditions(self):
-		raise NotImplementedError()
-
-
 	def allocate(self):
-		super(MoleculesContainer, self).allocate()
+		super(MoleculesContainer, self).allocate() # Allocates partitions
 
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 		self._massSingle = numpy.tile(self._molMass, [self._nCmps, 1]).transpose() # Repeat for each compartment
@@ -196,10 +190,15 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
 		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
+
+	def calcInitialConditions(self):
+		raise NotImplementedError()
+
+
 	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
-		partition = self.partitionClass(self, process)
+		partition = super(MoleculesContainer, self).addPartition(process)
 		
 		partition.reqFunc = reqFunc
 		partition.isReqAbs = isReqAbs
@@ -221,14 +220,10 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 		partition._nMols = len(partition._wids)
 		partition._nCmps = len(partition._cmps)
 
-		self.partitions.append(partition)
-
 		return partition
 
 
 	def prepartition(self):
-		# for partition in self.partitions:
-		# 	partition.fullCountsBulk = self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)]
 		pass
 
 
@@ -279,6 +274,7 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 			self._countsBulkPartitioned[:, :, iPartition] = allocation
 			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
 		
+		# Record unpartitioned counts for later merging
 		self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
 
 

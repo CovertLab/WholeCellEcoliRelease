@@ -17,19 +17,16 @@ import numpy
 class State(object):
 	""" State """
 
+	partitions = None
+	partitionClass = None
+
 	# Constructor
 	def __init__(self, propVals = {}):
 		# Metadata: id, name, list of dynamic properties, units
 		if not hasattr(self, "meta"):
 			self.meta = {}
 
-		# -- Partitioning --
-		# Used by parent
 		self.partitions = []
-
-		# Used by children
-		# self.parentState = None
-		# self.parentProcess = None
 
 		for prop in propVals.keys():
 			setattr(self, prop, propVals[prop])
@@ -51,7 +48,11 @@ class State(object):
 	# -- Partitioning --
 
 	def addPartition(self, process):
-		raise NotImplementedError()
+		partition = self.partitionClass(self, process)
+		
+		self.partitions.append(partition)
+
+		return partition
 
 	def prepartition(self):
 		pass
@@ -61,58 +62,6 @@ class State(object):
 
 	def merge(self):
 		pass
-
-	# def addPartition(self, process):
-	# 	partition = self.constructPartition(process)
-	# 	self.partitions.append(partition)
-	# 	return partition
-
-	# def constructPartition(self, process):
-	# 	propVals = {}
-
-	# 	# TODO: May need to modify this depending on how concrete states are implemented (e.g. dependent variables)
-	# 	for prop, data in inspect.getmembers(self):
-	# 		if not callable(data) and (prop[0:2] != "__" and prop[-2:] != "__") and prop != "partitions":
-	# 			if not "wholecell" in str(type(data)):
-	# 				# print "Deep copying property [%s] in state %s for process %s" % (prop, self.meta["name"], process.meta["name"])
-	# 				propVals[prop] = copy.deepcopy(data)
-	# 			else:
-	# 				propVals[prop] = data
-
-	# 	propVals["meta"]["id"] = "%s_%s" % (propVals["meta"]["id"], process.meta["id"])
-	# 	propVals["meta"]["name"] = "%s - %s" % (propVals["meta"]["name"], process.meta["name"])
-
-	# 	propVals["partitions"] = []
-	# 	propVals["parentState"] = self
-	# 	propVals["parentProcess"] = process
-
-	# 	return type(self)(propVals)
-
-	# def prepartition(self):
-	# 	return
-
-	# # Partition state among processes
-	# def partition(self):
-	# 	for partition in self.partitions:
-	# 		for dynamic in self.meta["dynamics"]:
-	# 			setattr(partition, dynamic, getattr(self, dynamic))
-
-	# # Merge sub-states partitioned to processes
-	# def merge(self):
-	# 	for dynamic in self.meta["dynamics"]:
-	# 		oldVal = getattr(self, dynamic)
-	# 		newVal = oldVal
-	# 		nNewVal = 0
-
-	# 		for partition in self.partitions:
-	# 			if not numpy.array_equal(oldVal, getattr(partition, dynamic)):
-	# 				newVal = getattr(partition, dynamic)
-	# 				nNewVal += 1
-
-	# 		if nNewVal > 1:
-	# 			raise Exception, "Multiple processes cannot simultaneously edit state properties"
-
-	# 		setattr(self, dynamic, newVal)
 
 
 	# -- Calculations --
@@ -152,16 +101,16 @@ class State(object):
 		for key in keys:
 			setattr(self, key, val[key])
 
-	# def getDynamics(self):
-	# 	val = {}
-	# 	for prop in self.meta["dynamics"]:
-	# 		val[prop] = getattr(self, prop)
-	# 	return val
+	def getDynamics(self):
+		val = {}
+		for prop in self.meta["dynamics"]:
+			val[prop] = getattr(self, prop)
+		return val
 
-	# def setDynamics(self, val):
-	# 	keys = val.keys()
-	# 	if not self.meta.has_key("dynamics") or not all(set(keys).issubset(set(self.meta["dynamics"]))):
-	# 		raise Exception, "Invalid dynamics"
+	def setDynamics(self, val):
+		keys = val.keys()
+		if not self.meta.has_key("dynamics") or not all(set(keys).issubset(set(self.meta["dynamics"]))):
+			raise Exception, "Invalid dynamics"
 
-	# 	for key in keys:
-	# 		setattr(self, key, val[key])
+		for key in keys:
+			setattr(self, key, val[key])
