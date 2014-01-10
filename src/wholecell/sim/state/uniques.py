@@ -32,12 +32,60 @@ class MoleculesContainerBase(object):
 	_widIdx = None
 	_cmpIdx = None
 
+	_wids = None
+	_cmps = None
+
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
 			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
 
 		return self._molecules[wid, comp]
+
+
+	def _getIndices(self, ids):
+		molecules = []
+		compartments = []
+
+		for id_ in ids:
+			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
+
+			if match is None:
+				raise Exception('Invalid ID: {}'.format(id_))
+
+			if match.group('form') is not None:
+				raise NotImplementedError()
+
+			molecules.append(match.group("molecule"))
+
+			if match.group("compartment") is None:
+				compartments.append(self._cmps[0])
+
+			else:
+				compartments.append(match.group("compartment")[1])
+
+		try:
+			molIdxs = numpy.array([self._widIdx[m] for m in molecules])
+
+		except ValueError:
+			raise Exception('Invalid molecule: {}'.format(m))
+
+		try:
+			compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
+
+		except ValueError:
+			raise Exception('Invalid compartment: {}'.format(c))
+
+		idxs = numpy.ravel_multi_index(
+			numpy.array([molIdxs, compIdxs]),
+			(len(self._wids), len(self._cmps))
+			)
+
+		return idxs, molIdxs, compIdxs
+
+
+	def _getIndex(self, id_):
+		return [values[0] for values in self._getIndices((id_,))]
 
 
 
@@ -168,7 +216,10 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 
 		# TODO: determine how compartments should be handled here...
 		partition._cmps = ["merged"] # "merged"
-		partition._cmpIdxs = {"merged":0} # "merged"
+		partition._cmpIdx = {"merged":0} # "merged"
+
+		partition._nMols = len(partition._wids)
+		partition._nCmps = len(partition._cmps)
 
 		self.partitions.append(partition)
 
@@ -238,47 +289,6 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
 
 
-	def _getIndices(self, ids):
-		molecules = []
-		compartments = []
-
-		for id_ in ids:
-			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
-
-			if match is None:
-				raise Exception('Invalid ID: {}'.format(id_))
-
-			if match.group('form') is not None:
-				raise NotImplementedError()
-
-			molecules.append(match.group("molecule"))
-
-			if match.group("compartment") is None:
-				compartments.append(self._cmps[0])
-
-			else:
-				compartments.append(match.group("compartment")[1])
-
-		try:
-			molIdxs = numpy.array([self._widIdx[m] for m in molecules])
-
-		except ValueError:
-			raise Exception('Invalid molecule: {}'.format(m))
-
-		try:
-			compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
-
-		except ValueError:
-			raise Exception('Invalid compartment: {}'.format(c))
-
-		idxs = numpy.ravel_multi_index(
-			numpy.array([molIdxs, compIdxs]),
-			(len(self._wids), len(self._cmps))
-			)
-
-		return idxs, molIdxs, compIdxs
-
-
 class MoleculesContainerPartition(wcPartition.Partition, MoleculesContainerBase):
 	mapping = None
 	reqFunc = None
@@ -291,13 +301,7 @@ class MoleculesContainerPartition(wcPartition.Partition, MoleculesContainerBase)
 
 
 	def allocate(self):
-		pass
-
-
-	def _getIndices(self, ids):
-		raise NotImplementedError()
-
-
+		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 
 
 def _uniqueInit(self, uniqueIdx):

@@ -73,6 +73,17 @@ class Test_uniques(unittest.TestCase):
 		pass
 
 	@noseAttrib.attr('uniqueTest')
+	def test_PartitionIndexing(self):
+		metaboliteID = 'metA'
+
+		# Insure that _getIndex points to the right metabolite
+		self.assertTrue(metaboliteID == self.metabolitePartition1._wids[
+			self.metabolitePartition1._getIndex(metaboliteID)[0]
+			])
+
+		# TODO: add more tests, more realistic tests cases
+
+	@noseAttrib.attr('uniqueTest')
 	def test_relativeAllocation(self):
 		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
 		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
