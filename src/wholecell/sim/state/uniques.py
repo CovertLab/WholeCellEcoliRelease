@@ -96,6 +96,30 @@ class MoleculesContainer(wcState.State):
 		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
 		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
 
+		# MoleculeCounts expects the knowledge base to pass metabolites, 
+		# proteins, RNAs; not just "molecules"
+
+		# Also expects "forms" (mature vs. nascent) for proteins and RNAs
+		# Type assignments (metabolite/rna/protein)
+
+		# References to simulation states (complexation, trans/trans)
+
+		# Track lumped indices i.e. ntps
+
+		# Core biomass function
+
+		# Protein and RNA primary structure data
+
+		# Complexes...?
+
+		# Prefered localization
+
+		# Media and biomass concentrations
+
+
+	def calcInitialConditions(self):
+		raise NotImplementedError()
+
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
