@@ -3,8 +3,8 @@
 """
 uniques.py
 
-State which represents for a class of molecules the bulk copy numbers as an array
-and unique instances in a series of lists sharing a common index.
+State which represents for a class of molecules the bulk copy numbers as an 
+array and unique instances in a series of lists sharing a common index.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -78,6 +78,7 @@ class MoleculesContainer(wcState.State):
 		self._nMols = len(kb.molecules)
 		self._nCmps = len(kb.compartments)
 
+		# TODO: make this section legible, rewrite as a list comprehension
 		self._uniqueDict = []
 
 		for mol in kb.molecules:
@@ -264,10 +265,12 @@ class MoleculesContainer(wcState.State):
 
 
 def _uniqueInit(self, uniqueIdx):
+	# Default initialization method for _Molecule objects
 	self._uniqueIdx = uniqueIdx
 
 
 def _makeGetter(attr):
+	# Used to construct attribute getters for new _Molecules
 	def attrGetter(self):
 		molCont, uniqueIdx = self._container, self._uniqueIdx
 		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
@@ -278,6 +281,7 @@ def _makeGetter(attr):
 
 
 def _makeSetter(attr):
+	# Used to construct attribute setters for new _Molecule objects
 	def attrSetter(self, newVal):
 		molCont, uniqueIdx = self._container, self._uniqueIdx
 		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
