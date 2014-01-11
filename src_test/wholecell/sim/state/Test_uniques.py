@@ -43,6 +43,11 @@ class Test_uniques(unittest.TestCase):
 			]
 		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
 
+		self.enzIds = [mol['id'] for mol in self.kb.molecules if 'enz' in mol['id']]
+		self.metIds = [mol['id'] for mol in self.kb.molecules if 'met' in mol['id']]
+
+		self.metCounts = [10.,2.,5.,7.,20.,3.,7.]
+
 		self.mc = wcUniques.MoleculesContainer()
 		self.mc.initialize(self.kb)
 
@@ -51,43 +56,47 @@ class Test_uniques(unittest.TestCase):
 		self.genericProcess.meta = {"id": "genericProcess_id", "name": "genericProcess_name"}
 
 		# Create some partitions, currently without request functions
-		self.metabolitePartition1 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], None)
+		self.partition1 = self.mc.addPartition(self.genericProcess, [
+			metId + '[c]' for metId in self.metIds], None)
 
-		self.metabolitePartition2 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], None)
+		self.partition2 = self.mc.addPartition(self.genericProcess, [
+			metId + '[c]' for metId in self.metIds], None)
 
-		self.metabolitePartition3 = self.mc.addPartition(self.genericProcess, [
-			"metA[c]", "metB[c]", "metC[c]", "metD[c]", "metE[c]", "metF[c]",
-			"metG[c]"], None)
+		self.partition3 = self.mc.addPartition(self.genericProcess, [
+			metId + '[c]' for metId in self.metIds], None)
 
 		self.mc.allocate()
 
-		for metaboliteID, quantity in zip(["met" + s for s in "ABCDEFG"], [10.,2.,5.,7.,20.,3.,7.]):
-			met = self.mc.molecule(metaboliteID, "c")
-			met.countsBulkInc(quantity)
+		self.mc.countsBulkIs(self.metCounts, self.metIds)
 
 	def tearDown(self):
 		pass
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('uniqueTest')
+	def test_CountsBulk(self):
+		self.assertEqual(
+			self.mc.countsBulk(self.metIds).tolist(),
+			self.metCounts
+			)
+
 
 	@noseAttrib.attr('uniqueTest')
 	def test_PartitionIndexing(self):
 		metaboliteID = 'metA'
 
 		# Insure that _getIndex points to the right metabolite
-		self.assertTrue(metaboliteID == self.metabolitePartition1._wids[
-			self.metabolitePartition1._getIndex(metaboliteID)[0]
+		self.assertTrue(metaboliteID == self.partition1._wids[
+			self.partition1._getIndex(metaboliteID)[0]
 			])
 
 		# TODO: add more tests, more realistic tests cases
 
 	@noseAttrib.attr('uniqueTest')
 	def test_relativeAllocation(self):
-		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.metabolitePartition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -98,11 +107,11 @@ class Test_uniques(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation(self):
-		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.metabolitePartition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
 
-		self.metabolitePartition2.isReqAbs = True # this is a hack
+		self.partition2.isReqAbs = True # this is a hack
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -114,12 +123,12 @@ class Test_uniques(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation_withConflict(self):
-		self.metabolitePartition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.metabolitePartition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.metabolitePartition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
 
-		self.metabolitePartition2.isReqAbs = True # this is a hack
-		self.metabolitePartition3.isReqAbs = True # this is a hack
+		self.partition2.isReqAbs = True # this is a hack
+		self.partition3.isReqAbs = True # this is a hack
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -136,35 +145,35 @@ class Test_uniques(unittest.TestCase):
 			self.fail("Initalizing a molecule threw an error!")
 
 	@noseAttrib.attr('uniqueTest')
-	def test_countsBulk(self):
+	def test_countBulk(self):
 		mol = self.mc.molecule("enz1", "c")
-		self.assertEqual(mol.countsBulk(), 0.0)
+		self.assertEqual(mol.countBulk(), 0.0)
 
 	@noseAttrib.attr('uniqueTest')
-	def test_countsBulkIs(self):
+	def test_countBulkIs(self):
 		mol = self.mc.molecule("enz1", "c")
-		mol.countsBulkIs(5)
-		self.assertEqual(mol.countsBulk(), 5.0)
-		mol.countsBulkIs(2)
-		self.assertEqual(mol.countsBulk(), 2.0)
+		mol.countBulkIs(5)
+		self.assertEqual(mol.countBulk(), 5.0)
+		mol.countBulkIs(2)
+		self.assertEqual(mol.countBulk(), 2.0)
 
 	@noseAttrib.attr('uniqueTest')
-	def test_countsBulkInc(self):
+	def test_countBulkInc(self):
 		mol = self.mc.molecule("enz1", "c")
-		mol.countsBulkIs(0)
-		mol.countsBulkInc(1)
-		self.assertEqual(mol.countsBulk(), 1.0)
-		mol.countsBulkInc(2)
-		self.assertEqual(mol.countsBulk(), 3.0)
+		mol.countBulkIs(0)
+		mol.countBulkInc(1)
+		self.assertEqual(mol.countBulk(), 1.0)
+		mol.countBulkInc(2)
+		self.assertEqual(mol.countBulk(), 3.0)
 
 	@noseAttrib.attr('uniqueTest')
-	def test_countsBulkDec(self):
+	def test_countBulkDec(self):
 		mol = self.mc.molecule("enz1", "c")
-		mol.countsBulkIs(3)
-		mol.countsBulkDec(1)
-		self.assertEqual(mol.countsBulk(), 2.0)
-		mol.countsBulkDec(2)
-		self.assertEqual(mol.countsBulk(), 0.0)
+		mol.countBulkIs(3)
+		mol.countBulkDec(1)
+		self.assertEqual(mol.countBulk(), 2.0)
+		mol.countBulkDec(2)
+		self.assertEqual(mol.countBulk(), 0.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_massSingle(self):
@@ -174,14 +183,14 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_massAllNoUnique(self):
 		mol = self.mc.molecule("enz2", "c")
-		mol.countsBulkIs(5)
+		mol.countBulkIs(5)
 		self.assertEqual(mol.massAll(), 10.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew(self):
 		mol = self.mc.molecule("enz3", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
-		self.assertEqual(mol.countsUnique(), 1.0)
+		self.assertEqual(mol.countUnique(), 1.0)
 		self.assertEqual(newEnz3.attr1(), "A")
 		self.assertEqual(newEnz3.attr2(), "B")
 		self.assertEqual(newEnz3.attr3(), "C")
@@ -219,7 +228,7 @@ class Test_uniques(unittest.TestCase):
 		mol = self.mc.molecule("enz3", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.uniqueDel(newEnz3)
-		self.assertEqual(mol.countsUnique(), 0.0)
+		self.assertEqual(mol.countUnique(), 0.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueDel_objectNotCorrect(self):
@@ -277,7 +286,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassIs(self):
 		mol = self.mc.molecule("enz3", "c")
-		mol.countsBulkInc(1)
+		mol.countBulkInc(1)
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.dMassIs(2)
 		self.assertEqual(mol.massAll(), 8.0)
@@ -285,7 +294,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassInc(self):
 		mol = self.mc.molecule("enz3", "c")
-		mol.countsBulkInc(1)
+		mol.countBulkInc(1)
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.dMassInc(2)
 		self.assertEqual(mol.massAll(), 8.0)
@@ -295,7 +304,7 @@ class Test_uniques(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassDec(self):
 		mol = self.mc.molecule("enz3", "c")
-		mol.countsBulkInc(1)
+		mol.countBulkInc(1)
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.dMassIs(2)
 		self.assertEqual(mol.massAll(), 8.0)

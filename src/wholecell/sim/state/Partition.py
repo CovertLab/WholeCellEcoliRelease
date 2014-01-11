@@ -14,6 +14,8 @@ class Partition(object):
 	_state = None
 	_process = None
 
+	# TODO: meta data handling
+
 	def __init__(self, state, process):
 		self._state = state
 		self._process = process

@@ -42,6 +42,24 @@ class MoleculesContainerBase(object):
 
 		return self._molecules[wid, comp]
 
+	# These are dangerous methods, but greatly facilitate testing and initialization
+	def countsBulk(self, ids = None):
+		if ids is None:
+			return self._countsBulk
+
+		else:
+			idxs = self._getIndices(ids)[1:]
+			return self._countsBulk[idxs]
+
+
+	def countsBulkIs(self, counts, ids = None):
+		if ids is None:
+			self._countsBulk = counts
+
+		else:
+			idxs = self._getIndices(ids)[1:]
+			self._countsBulk[idxs] = counts
+
 
 	def _getIndices(self, ids):
 		molecules = []
@@ -370,23 +388,23 @@ class _Molecule(object):
 
 	# Interface methods
 
-	def countsBulk(self):
+	def countBulk(self):
 		# Returns bulk count of molecule as a float
 		return self._container._countsBulk[self._rowIdx, self._colIdx]
 
-	def countsBulkIs(self, newVal):
+	def countBulkIs(self, newVal):
 		# Sets bulk count of molecule
 		self._container._countsBulk[self._rowIdx, self._colIdx] = newVal
 
-	def countsBulkInc(self, incVal):
+	def countBulkInc(self, incVal):
 		# Increments counts bulk by incVal
 		self._container._countsBulk[self._rowIdx, self._colIdx] += incVal
 
-	def countsBulkDec(self, decVal):
+	def countBulkDec(self, decVal):
 		# Decrements counts bulk by decVal
-		self.countsBulkInc(-1 * decVal)
+		self.countBulkInc(-1 * decVal)
 
-	def countsUnique(self):
+	def countUnique(self):
 		# Returns unique count of molecule as a float
 		return self._container._countsUnique[self._rowIdx, self._colIdx]
 	
@@ -408,7 +426,7 @@ class _Molecule(object):
 
 	def massAll(self):
 		# Returns mass of all objects bulk and unique
-		return (self.countsBulk() + self.countsUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
+		return (self.countBulk() + self.countUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
 
 	def uniqueNew(self, attrs = None):
 		# Creates new unique object with attributes defined by attrs
