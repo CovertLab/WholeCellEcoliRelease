@@ -188,7 +188,7 @@ class MoleculeCounts(wcState.State):
 		# hash properly without them, I'm combining IDs and form values
 		self._wids = []
 
-		self._wids += [x['id'] for x in kb.metabolites]
+		self._wids += [x['id'] + ':mature' for x in kb.metabolites]
 
 		self._wids += [x['id'] + ':nascent' for x in kb.rnas]
 		self._wids += [x['id'] + ':mature' for x in kb.rnas]
@@ -339,58 +339,55 @@ class MoleculeCounts(wcState.State):
 
 
 	def _getIndices(self, ids):
-		if self.parentState is not None:
-			# mappingList = list(self.mapping)
+		molecules = []
+		compartments = []
 
-			# try:
-			# 	idxs = numpy.array([mapping.index[ind] for ind in self.parentState.getIndices[ids][0]])
+		for id_ in ids:
+			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
 
-			# except ValueError:
-			# 	raise Exception('Invalid index: {}'.format(ind))
+			if match is None:
+				raise Exception('Invalid ID: {}'.format(id_))
 
-			# compIdxs = numpy.ones_like(idxs.shape)
-			# return idxs, idxs, compIdxs
-			raise NotImplementedError()
+			if match.group('form') is not None:
+				#raise NotImplementedError()
 
-		else:
-			molecules = []
-			compartments = []
+				molecules.append(match.group('molecule') + match.group('form'))
 
-			for id_ in ids:
-				match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
-
-				if match is None:
-					raise Exception('Invalid ID: {}'.format(id_))
-
-				if match.group('form') is not None:
-					raise NotImplementedError()
-
+			else:
 				molecules.append(match.group("molecule"))
 
-				if match.group("compartment") is None:
-					compartments.append(self._cmps[0])
+			if match.group("compartment") is None:
+				compartments.append(self._cmps[0])
 
-				else:
-					compartments.append(match.group("compartment")[1])
+			else:
+				compartments.append(match.group("compartment")[1])
 
-			try:
-				molIdxs = numpy.array([self._widIdx[m] for m in molecules])
+		try:
+			molIdxs = numpy.array([self._widIdx[m] for m in molecules])
 
-			except ValueError:
-				raise Exception('Invalid molecule: {}'.format(m))
+		except ValueError:
+			raise Exception('Invalid molecule: {}'.format(m))
 
-			try:
-				compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
+		except:
+			import ipdb
+			ipdb.set_trace()
 
-			except ValueError:
-				raise Exception('Invalid compartment: {}'.format(c))
+		try:
+			compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
 
-			idxs = numpy.ravel_multi_index(
-				numpy.array([molIdxs, compIdxs]),
-				(len(self._wids), len(self._cmps))
-				)
+		except ValueError:
+			raise Exception('Invalid compartment: {}'.format(c))
 
-			return idxs, molIdxs, compIdxs
+		idxs = numpy.ravel_multi_index(
+			numpy.array([molIdxs, compIdxs]),
+			(len(self._wids), len(self._cmps))
+			)
+
+		return idxs, molIdxs, compIdxs
+
+
+	def _getIndex(self, id_):
+		return [values[0] for values in self._getIndices((id_,))]
 
 
 def _uniqueInit(self, uniqueIdx):
