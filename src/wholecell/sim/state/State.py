@@ -48,7 +48,17 @@ class State(object):
 	# -- Partitioning --
 
 	def addPartition(self, process):
-		partition = self.partitionClass(self, process)
+		try:
+			partition = self.partitionClass(self, process)
+
+		except:
+			if self.partitionClass is None:
+				raise Exception(
+					'Called {0}.addPartition, but {0} has no partition class.'.format(type(self))
+					)
+
+			else:
+				raise
 		
 		self.partitions.append(partition)
 
