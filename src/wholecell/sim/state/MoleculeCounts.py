@@ -158,6 +158,24 @@ class MoleculeCounts(wcState.State):
 		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
 		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
 
+		self._uniqueDict = []
+
+		# TODO: add and test unique attributes to KB
+		# for mol in kb.molecules:
+		# 	if mol["uniqueAttrs"] is not None:
+		# 		self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
+
+		# 	else:
+		# 		self._uniqueDict.append([{} for x in kb.compartments])
+
+		for mol in self._wids:
+			self._uniqueDict.append([{} for x in self._cmps])
+
+		import ipdb
+		ipdb.set_trace()
+
+
+
 
 	def calcInitialConditions(self):
 		raise NotImplementedError()
