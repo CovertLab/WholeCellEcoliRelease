@@ -72,7 +72,6 @@ class Test_uniques(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('uniqueTest')
 	def test_CountsBulk(self):
 		self.assertEqual(

@@ -20,6 +20,8 @@ import wholecell.sim.state.State as wcState
 import wholecell.sim.state.Partition as wcPartition
 import re
 
+# TODO: make most of these classes _private
+
 class MoleculesContainerBase(object):
 	_nMols = None
 	_nCmps = None
@@ -59,6 +61,10 @@ class MoleculesContainerBase(object):
 		else:
 			idxs = self._getIndices(ids)[1:]
 			self._countsBulk[idxs] = counts
+
+
+	def countsBulkViewNew(self, ids):
+		return BulkCountsView(self, self._getIndices(ids)[0])
 
 
 	def _getIndices(self, ids):
@@ -104,6 +110,21 @@ class MoleculesContainerBase(object):
 
 	def _getIndex(self, id_):
 		return [values[0] for values in self._getIndices((id_,))]
+
+
+class CountsBulkView(object):
+	_parent = None
+	_mapping = None
+
+	def __init__(self, parent, mapping):
+		self._parent = parent
+		self._mapping = mapping
+
+	def countsBulk(self):
+		return self._parent._countsBulk[mapping]
+
+	def countsBulkIs(self, values):
+		self._parent._countsBulk[mapping] = values
 
 
 class MoleculesContainer(wcState.State, MoleculesContainerBase):
