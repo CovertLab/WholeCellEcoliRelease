@@ -15,10 +15,11 @@ array and unique instances in a series of lists sharing a common index.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
+import re
+
 import numpy
 import wholecell.sim.state.State as wcState
 import wholecell.sim.state.Partition as wcPartition
-import re
 
 # TODO: make most of these classes _private
 
@@ -61,10 +62,6 @@ class MoleculesContainerBase(object):
 		else:
 			idxs = self._getIndices(ids)[1:]
 			self._countsBulk[idxs] = counts
-
-
-	def countsBulkViewNew(self, ids):
-		return CountsBulkView(self, self._getIndices(ids)[1:])
 
 
 	def _getIndices(self, ids):
@@ -324,6 +321,10 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
 
 
+	def countsBulkViewNew(self, ids):
+		return CountsBulkView(self, self._getIndices(ids)[1:])
+
+
 class MoleculesContainerPartition(wcPartition.Partition, MoleculesContainerBase):
 	mapping = None
 	reqFunc = None
@@ -339,6 +340,10 @@ class MoleculesContainerPartition(wcPartition.Partition, MoleculesContainerBase)
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 
 
+	def countsBulkViewNew(self, ids):
+		return CountsBulkView(self, self._getIndices(ids)[0])
+
+# TODO: use types.MethodType for these methods
 def _uniqueInit(self, uniqueIdx):
 	# Default initialization method for _Molecule objects
 	self._uniqueIdx = uniqueIdx
