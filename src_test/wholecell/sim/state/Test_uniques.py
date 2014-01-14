@@ -73,6 +73,39 @@ class Test_uniques(unittest.TestCase):
 		pass
 
 	@noseAttrib.attr('uniqueTest')
+	def test_CountsBulkViews(self):
+		view1 = self.mc.countsBulkViewNew(self.metIds)
+		view2 = self.mc.countsBulkViewNew([self.metIds[0],])
+
+		# Test accessing
+		self.assertEqual(view1.countsBulk().tolist(),
+			self.metCounts)
+		
+		view1.countsBulkIs(view1.countsBulk() + 1)
+
+		# Test modification within a view
+		self.assertEqual((view1.countsBulk() - 1).tolist(),
+			self.metCounts)
+
+		# Test modification across views
+		self.assertEqual(view2.countsBulk() - 1, self.metCounts[0])
+
+
+	@noseAttrib.attr('uniqueTest')
+	def test_CountsBulkViewsPartition(self):
+		view = self.partition1.countsBulkViewNew([self.metIds[0], ])
+
+		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
+		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
+		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+
+		self.mc.prepartition()
+		self.mc.partition()
+
+		self.assertEqual(view.countsBulk(), 1.)
+
+
+	@noseAttrib.attr('uniqueTest')
 	def test_CountsBulk(self):
 		self.assertEqual(
 			self.mc.countsBulk(self.metIds).tolist(),

@@ -64,7 +64,7 @@ class MoleculesContainerBase(object):
 
 
 	def countsBulkViewNew(self, ids):
-		return BulkCountsView(self, self._getIndices(ids)[0])
+		return CountsBulkView(self, self._getIndices(ids)[1:])
 
 
 	def _getIndices(self, ids):
@@ -114,17 +114,17 @@ class MoleculesContainerBase(object):
 
 class CountsBulkView(object):
 	_parent = None
-	_mapping = None
+	_indices = None
 
-	def __init__(self, parent, mapping):
+	def __init__(self, parent, indices):
 		self._parent = parent
-		self._mapping = mapping
+		self._indices = indices
 
 	def countsBulk(self):
-		return self._parent._countsBulk[mapping]
+		return self._parent._countsBulk[self._indices]
 
 	def countsBulkIs(self, values):
-		self._parent._countsBulk[mapping] = values
+		self._parent._countsBulk[self._indices] = values
 
 
 class MoleculesContainer(wcState.State, MoleculesContainerBase):
