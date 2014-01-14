@@ -213,15 +213,6 @@ class MoleculesContainer(wcState.State, MoleculesContainerBase):
 		self._countsUnique = numpy.zeros_like(self._countsBulk)
 		self._dmass = numpy.zeros_like(self._countsBulk)
 
-		# if self.parentState is None:
-		# 	self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
-		# 	self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
-		# 	self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
-
-		# else:
-		# 	self._countsBulk = numpy.zeros(self._nMols)
-		# 	self.fullCountsBulk = numpy.zeros_like(self._countsBulk)
-
 		self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
 		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
 		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
@@ -343,7 +334,7 @@ class MoleculesContainerPartition(wcPartition.Partition, MoleculesContainerBase)
 	def countsBulkViewNew(self, ids):
 		return CountsBulkView(self, self._getIndices(ids)[0])
 
-# TODO: use types.MethodType for these methods
+
 def _uniqueInit(self, uniqueIdx):
 	# Default initialization method for _Molecule objects
 	self._uniqueIdx = uniqueIdx
