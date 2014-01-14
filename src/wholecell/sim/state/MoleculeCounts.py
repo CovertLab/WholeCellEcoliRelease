@@ -1,372 +1,265 @@
 #!/usr/bin/env python
 
 """
-MoleculeCounts
+MoleculeCounts.py
 
-State which represents the copy numbers of a class of molecules as an array
+State which represents for a class of molecules the bulk copy numbers as an 
+array and unique instances in a series of lists sharing a common index.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/29/2013
+@date: Created 10/04/2013
+@author: Nick Ruggero
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@author: John Mason
+@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-import numpy
 import re
 
-import wholecell.sim.state.State
+import numpy
+import wholecell.sim.state.State as wcState
+import wholecell.sim.state.Partition as wcPartition
 
-class MoleculeCounts(wholecell.sim.state.State.State):
-	""" MoleculeCounts """
+# TODO: make most of these classes _private
 
-	compartments = [
-		{"id": "c", "name": "Cytosol"},
-		{"id": "e", "name": "Extracellular space"},
-		{"id": "i", "name": "Inner membrane"},
-		{"id": "j", "name": "Projection"},
-		{"id": "l", "name": "Pilus"},
-		{"id": "m", "name": "Membrane"},
-		{"id": "n", "name": "Nucleoid"},
-		{"id": "o", "name": "Outer membrane"},
-		{"id": "p", "name": "Periplasm"},
-		{"id": "w", "name": "Cell wall"}
-	]
-	cIdx = {"c": 0, "e": 1, "i": 2, "j": 3, "l": 4, "m": 5, "n": 6, "o": 7, "p": 8, "w": 9}
+class MoleculeCountsBase(object):
+	_nMols = None
+	_nCmps = None
 
-	# Form values
-	formVals = {"nascent": 1, "mature": 0}
-	typeVals = {"metabolite": 0, "rna": 1, "protein": 2}
+	_countsBulk = None
+	# _countsUnique = None
 
-	formValsToKeys = dict(zip(formVals.values(), formVals.keys()))
-	typeValsToKeys = dict(zip(typeVals.values(), typeVals.keys()))
-	cIdxToKeys = dict(zip(cIdx.values(), cIdx.keys()))
+	_molecules = None
 
-	# Constructor
+	_widIdx = None
+	_cmpIdx = None
+
+	_wids = None
+	_cmps = None
+
+
+	def molecule(self, wid, comp):
+		if (wid, comp) not in self._molecules:
+			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
+
+		return self._molecules[wid, comp]
+
+	# These are dangerous methods, but greatly facilitate testing and initialization
+	def countsBulk(self, ids = None):
+		if ids is None:
+			return self._countsBulk
+
+		else:
+			idxs = self._getIndices(ids)[1:]
+			return self._countsBulk[idxs]
+
+
+	def countsBulkIs(self, counts, ids = None):
+		if ids is None:
+			self._countsBulk = counts
+
+		else:
+			idxs = self._getIndices(ids)[1:]
+			self._countsBulk[idxs] = counts
+
+
+	def _getIndices(self, ids):
+		molecules = []
+		compartments = []
+
+		for id_ in ids:
+			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
+
+			if match is None:
+				raise Exception('Invalid ID: {}'.format(id_))
+
+			if match.group('form') is not None:
+				raise NotImplementedError()
+
+			molecules.append(match.group("molecule"))
+
+			if match.group("compartment") is None:
+				compartments.append(self._cmps[0])
+
+			else:
+				compartments.append(match.group("compartment")[1])
+
+		try:
+			molIdxs = numpy.array([self._widIdx[m] for m in molecules])
+
+		except ValueError:
+			raise Exception('Invalid molecule: {}'.format(m))
+
+		try:
+			compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
+
+		except ValueError:
+			raise Exception('Invalid compartment: {}'.format(c))
+
+		idxs = numpy.ravel_multi_index(
+			numpy.array([molIdxs, compIdxs]),
+			(len(self._wids), len(self._cmps))
+			)
+
+		return idxs, molIdxs, compIdxs
+
+
+	def _getIndex(self, id_):
+		return [values[0] for values in self._getIndices((id_,))]
+
+	def countsBulkViewNew(self, ids):
+		raise NotImplementedError('countsBulkViewNew must be implemented by a subclass')
+
+
+class CountsBulkView(object):
+	_parent = None
+	_indices = None
+
+	def __init__(self, parent, indices):
+		self._parent = parent
+		self._indices = indices
+
+	def countsBulk(self):
+		return self._parent._countsBulk[self._indices]
+
+	def countsBulkIs(self, values):
+		self._parent._countsBulk[self._indices] = values
+
+
+class MoleculeCounts(wcState.State, MoleculeCountsBase):
+	"""MoleculeCounts"""
+
 	def __init__(self, *args, **kwargs):
 		self.meta = {
 			"id": "MoleculeCounts",
-			"name": "Molecule Counts",
-			"dynamics": ["counts"],
-			"units": {"counts": "molecules"}
-		}
+			"name": "Molecules Container",
+			"dynamics": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
+			"units": {
+				"_countsBulk"   : "molecules",
+				# "_countsUnique" : "molecules",
+				# "_uniqueDict"	: "molecules"
+				}
+			}
 
-		# References to processes
-		self.complexation = None
+		# Molecule counts
+		self._countsUnique = None # Counts of molecules with unique properties
 
-		# Constants
-		self.ids = None				# Molecule ids
-		self.names = None			# Molecule names
-		self.forms = None			# Molecule forms (e.g., nascent, mature, etc.)
-		self.types = None			# Molecule type (e.g., metabolite, RNA, protein)
-		self.mws = None				# Molecular weights (Da)
-		self.localizations = None	# Preferred intracellular locations
-		self.idx = {}				# Indices over molecules
+		# Molecule mass
+		self._molMass = None    # Mass of a single bulk molecule
+		self._massSingle = None # Mass of a single bulk molecule, for each compartment
+		self._dmass = None      # Deviation from typical mass due to some unique property
 
-		self.chamberVolume = 4.3667e-12	# L
+		# Object references
+		self._molecules = {}    # Molecule objects
+		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
 
-		self.metMediaConc = None		# Metabolite media concentration (mM)
-		self.metBiomassConc = None		# Metabolite biomass concentration (molecules/cell)
-		self.fracInitFreeNTPs = 0.0015
-		self.fracInitFreeAAs = 0.001
-		self.initialDryMass = 2.8e-13 / 1.36 # grams
+		# Partitioning (parent)
+		self._countsBulkRequested = None
+		self._countsBulkPartitioned = None
+		self._countsBulkUnpartitioned = None
 
-		self.rnaLens = None			# RNA lengths
-		self.rnaExp = None			# mature RNA expression
-
-		self.monLens = None			# Protein monomer lengths
-		self.monExp = None			# Mature protein monomer expression
-
-		# Dynamical properties
-		self.counts = None	# Molecule counts (molecules x compartments)
-		self.tcNtpUsage = None
-
-		# -- Partitioning --
-		# Used by parent
-		self.partitionedCounts = None		# Molecules partitioned at each time step (molecules x compartments x partitions)
-		self.unpartitionedCounts = None		# Molecules not partitioned at each time step (molecules x compartments)
-
-		# Used by children
-		self.fullCounts = None				# Full count in parent
-		self.mapping = None					# Index mapping between parent, partition
-		self.reqFunc = None					# Request function handle
-		self.isReqAbs = None				# Requesting absolute copy number (True/False)
+		self.partitionClass = MoleculeCountsPartition
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
-	# Calculate constants
-	def initialize(self, sim, kb):
-		super(MoleculeCounts, self).initialize(sim, kb)
 
-		self.complexation = sim.getProcess("Complexation")
-		self.transcription = sim.getProcess("Transcription")
-		self.translation = sim.getProcess("Translation")
+	def initialize(self, kb):
+		self._nMols = len(kb.molecules)
+		self._nCmps = len(kb.compartments)
 
-		# Molecule identities:
-		self.ids = \
-			[x["id"] for x in kb.metabolites] + \
-			[x["id"] for x in kb.rnas] + \
-			[x["id"] for x in kb.rnas] + \
-			[x["id"] for x in kb.proteins] + \
-			[x["id"] for x in kb.proteins]
-		
-		self.forms = numpy.array(
-			[self.formVals["mature"]] * len(kb.metabolites) + \
-			[self.formVals["nascent"]] * len(kb.rnas) + \
-			[self.formVals["mature"]] * len(kb.rnas) + \
-			[self.formVals["nascent"]] * len(kb.proteins) + \
-			[self.formVals["mature"]] * len(kb.proteins)
-		)
-		
-		self.types = numpy.array(
-			[self.typeVals["metabolite"]] * len(kb.metabolites) + \
-			[self.typeVals["rna"]] * len(kb.rnas) + \
-			[self.typeVals["rna"]] * len(kb.rnas) + \
-			[self.typeVals["protein"]] * len(kb.proteins) + \
-			[self.typeVals["protein"]] * len(kb.proteins) 
-		)
-		
-		self.names = \
-			[x["name"] for x in kb.metabolites] + \
-			[x["name"] for x in kb.rnas] + \
-			[x["name"] for x in kb.rnas] + \
-			[x["name"] for x in kb.proteins] + \
-			[x["name"] for x in kb.proteins]
-		
-		self.mws = numpy.array(
-			[x["mw7.2"] for x in kb.metabolites] + \
-			[x["mw"] for x in kb.rnas] + \
-			[x["mw"] for x in kb.rnas] + \
-			[x["mw"] for x in kb.proteins] + \
-			[x["mw"] for x in kb.proteins]
-		)
+		# TODO: make this section legible, rewrite as a list comprehension
+		self._uniqueDict = []
 
-		self.idx["ntps"] = self.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[1]
-		self.idx["ndps"] = self.getIndex(["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"])[1]
-		self.idx["nmps"] = self.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[1]
-		self.idx["dntps"] = self.getIndex(["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"])[1]
-		self.idx["aas"] = self.getIndex([
-			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
-			])[1]
-		self.idx["h2o"] = self.getIndex("H2O[c]")[1]
-		self.idx["h"] = self.getIndex("H[c]")[1]
-		self.idx["ppi"] = self.getIndex("PPI[c]")[1]
-		self.idx["adp"] = self.getIndex("ADP[c]")[1]
-		self.idx["pi"] = self.getIndex("PI[c]")[1]
-		self.idx["tRnas"] = self.getIndex([
-			"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",
-			"serU-tRNA", "serV-tRNA", "serX-tRNA", "RNA0-302", "lysV-tRNA", "RNA0-303", "RNA0-301", "lysW-tRNA", "lysT-tRNA", "RNA0-306", "metY-tRNA",
-			"metW-tRNA", "metZ-tRNA", "metU-tRNA", "metT-tRNA", "thrW-tRNA", "thrV-tRNA", "thrU-tRNA", "thrT-tRNA", "trpT-tRNA", "pheV-tRNA",
-			"pheU-tRNA", "glyV-tRNA", "glyY-tRNA", "glyU-tRNA", "glyT-tRNA", "glyX-tRNA", "glyW-tRNA", "proL-tRNA", "proK-tRNA", "proM-tRNA",
-			"RNA0-300", "valU-tRNA", "valV-tRNA", "valX-tRNA", "valY-tRNA", "valT-tRNA", "valW-tRNA", "hisR-tRNA", "ileX-tRNA", "RNA0-305",
-			"ileV-tRNA", "ileT-tRNA", "ileU-tRNA", "tyrV-tRNA", "tyrU-tRNA", "tyrT-tRNA", "alaX-tRNA", "alaW-tRNA", "alaT-tRNA", "alaV-tRNA",
-			"alaU-tRNA", "argY-tRNA", "argZ-tRNA", "argX-tRNA", "argU-tRNA", "argV-tRNA", "argQ-tRNA", "argW-tRNA", "aspV-tRNA", "aspU-tRNA",
-			"aspT-tRNA", "RNA0-304", "asnV-tRNA", "asnU-tRNA", "asnT-tRNA", "leuU-tRNA", "leuQ-tRNA", "leuX-tRNA", "leuV-tRNA", "leuT-tRNA",
-			"leuZ-tRNA", "leuW-tRNA", "leuP-tRNA", "cysT-tRNA"
-			])[1]
-		self.idx["rRnas"] = self.getIndex([
-			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
-			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
-			])[1]
-		self.idx["rRna23Ss"] = self.getIndex([
-			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
-			])[1]
-		self.idx["rRna16Ss"] = self.getIndex([
-			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-			])[1]
-		self.idx["rRna5Ss"] = self.getIndex([
-			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
-			])[1]
-		self.idx["FeistCoreRows"], self.idx["FeistCoreCols"] = self.getIndex([
-			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
-			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
-			"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
-			"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
-			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
-			"RIBFLV[c]"
-			])[1:]
-		self.vals = {}
-		self.vals["FeistCore"] = numpy.array([ # TODO: This needs to go in the KB
-			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
-			0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
-			0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
-			0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
-			0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
-			0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
-			0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
-			])
-		# Localizations
-		metLocs = numpy.array([self.cIdx[x["biomassLoc"]] if x["biomassConc"] > 0 else self.cIdx["c"] for x in kb.metabolites])
-		# metLocs = -1 * numpy.ones(len(kb.metabolites))
-		# metLocs[numpy.array([x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["m"]
-		# metLocs[numpy.array([not x["hydrophobic"] for x in kb.metabolites])] = self.cIdx["c"]
-		protLocs = numpy.array(map(lambda x, lookupTable = self.cIdx: lookupTable[x], [x["location"] for x in kb.proteins]))
-		# protLocs = numpy.array(map(lambda x, lookupTable = self.cIdx: lookupTable[x], [x["compartment"] for x in kb.proteins]))
-		self.localizations = numpy.concatenate((
-			metLocs,
-			numpy.array([self.cIdx["c"]] * len(kb.rnas)),
-			numpy.array([self.cIdx["c"]] * len(kb.rnas)),
-			numpy.array([self.cIdx["c"]] * len(kb.proteins)),
-			protLocs
-		))
+		for mol in kb.molecules:
+			if mol["uniqueAttrs"] is not None:
+				self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
+			
+			else:
+				self._uniqueDict.append([{} for x in kb.compartments])
 
-		# Composition
-		self.rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas))
-		self.rnaExp = numpy.array([x["expression"] for x in kb.rnas])
-		self.rnaExp /= numpy.sum(self.rnaExp)
-		self.idx["nascentRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["nascent"]: 
-													tup[0] == typeVal and tup[1] == formVal, 
-												zip(self.types, self.forms)))[0]
-		self.idx["matureRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"]:
-													tup[0] == typeVal and tup[1] == formVal,
-												zip(self.types, self.forms)))[0]
-		self.idx["nascentMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["nascent"], validIds = [x["id"] for x in kb.rnas if x["monomerId"] != None]:
-													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
-												zip(self.types, self.forms, self.ids)))[0]
-		self.idx["matureMrna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"], validIds = [x["id"] for x in kb.rnas if x["monomerId"] != None]:
-													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
-												zip(self.types, self.forms, self.ids)))[0]
-		self.idx["matureMrnaMiscRna"] = numpy.where(map(lambda tup, typeVal = self.typeVals["rna"], formVal = self.formVals["mature"], validIds = [x["rnaId"] for x in kb.genes if x["type"] in ["mRNA", "miscRNA"]]:
-													tup[0] == typeVal and tup[1] == formVal and tup[2] in validIds,
-												zip(self.types, self.forms, self.ids)))[0]
+		self._wids = [molecule["id"] for molecule in kb.molecules]
+		self._cmps = [compartment["id"] for compartment in kb.compartments]
 
-		mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-		self.monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons))
-		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
-		self.monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
-		self.monExp /= numpy.sum(self.monExp)
-		self.idx["matureMonomers"] = numpy.array(self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1])
+		self._molMass = numpy.array([molecule["mass"] for molecule in kb.molecules], float)
 
-		cpxs = [x for x in kb.proteins if len(x["composition"]) > 0 and x["unmodifiedForm"] == None]
-		self.idx["matureComplexes"] = numpy.array(self.getIndex([x["id"] + ":mature[" + x["location"] + "]" for x in cpxs])[1])
+		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
+		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
 
-		self.metMediaConc = numpy.array([x["mediaConc"] for x in kb.metabolites])
-		self.metBiomassConc = numpy.array([numpy.maximum(x["biomassConc"], 0) if x["id"] != "ATP" else x["biomassConc"] * 0.003 for x in kb.metabolites])
+		# MoleculeCounts expects the knowledge base to pass metabolites, 
+		# proteins, RNAs; not just "molecules"
 
-		self.tcNtpUsage = numpy.zeros(4)
+		# Also expects "forms" (mature vs. nascent) for proteins and RNAs
+		# Type assignments (metabolite/rna/protein)
 
-	# Allocate memory
+		# References to simulation states (complexation, trans/trans)
+
+		# Track lumped indices i.e. ntps
+
+		# Core biomass function
+
+		# Protein and RNA primary structure data
+
+		# Complexes...?
+
+		# Prefered localization
+
+		# Media and biomass concentrations
+
+
 	def allocate(self):
-		super(MoleculeCounts, self).allocate()
+		super(MoleculeCounts, self).allocate() # Allocates partitions
 
-		if self.parentState == None:
-			self.counts = numpy.zeros((len(self.ids), len(self.compartments)))
-			self.partitionedCounts = numpy.zeros((len(self.ids), len(self.compartments), len(self.partitions)))
-			self.unpartitionedCounts = numpy.zeros((len(self.ids), len(self.compartments)))
-			self.requestedCounts = numpy.zeros((len(self.ids), len(self.compartments)))
-		else:
-			self.counts = numpy.zeros(len(self.ids))
-			self.fullCounts = numpy.zeros((len(self.ids), len(self.compartments)))
-	
-	# Calculate initial conditions
+		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
+		self._massSingle = numpy.tile(self._molMass, [self._nCmps, 1]).transpose() # Repeat for each compartment
+
+		self._countsUnique = numpy.zeros_like(self._countsBulk)
+		self._dmass = numpy.zeros_like(self._countsBulk)
+
+		self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
+		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
+		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
+
+
 	def calcInitialConditions(self):
-		from wholecell.util.Constants import Constants
-
-		self.initialDryMass += self.randStream.normal(0.0, 1e-15)
-
-		print "initialDryMass: %e" % self.initialDryMass
-
-		self.counts[:] = 0
-
-		# Take metabolite concentrations from Feist (reactants)
-		self.counts[self.idx["FeistCoreRows"], self.idx["FeistCoreCols"]] = numpy.round(self.vals["FeistCore"] * 1e-3 * Constants.nAvogadro * self.initialDryMass)
-		self.counts[self.idx["h2o"], self.cIdx["c"]] = (6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self.mws[self.idx["h2o"]] * Constants.nAvogadro
-		
-		# RNA
-		ntpsToPolym = numpy.round((1 - self.fracInitFreeNTPs) * numpy.sum(self.counts[self.idx["ntps"], self.cIdx["c"]]))
-		rnaCnts = self.randStream.mnrnd(numpy.round(ntpsToPolym / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
-		self.counts[self.idx["ntps"], self.cIdx["c"]] = numpy.round(self.fracInitFreeNTPs * self.counts[self.idx["ntps"], self.cIdx["c"]])
-		self.counts[self.idx["matureRna"], self.localizations[self.idx["matureRna"]].astype('int')] = rnaCnts
-
-		# Protein Monomers
-		aasToPolym = numpy.round((1 - self.fracInitFreeAAs) * numpy.sum(self.counts[self.idx["aas"], self.cIdx["c"]]))
-		monCnts = self.randStream.mnrnd(numpy.round(aasToPolym / (numpy.dot(self.monExp, self.monLens))), self.monExp)
-		self.counts[self.idx["aas"], self.cIdx["c"]] = numpy.round(self.fracInitFreeAAs * self.counts[self.idx["aas"], self.cIdx["c"]])
-		self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]].astype('int')] = monCnts
-
-		# Products (from having produced this cell)
-		#self.counts[self.idx["adp"], self.cIdx["c"]] += 59.81 * 1e-3 * Constants.nAvogadro * self.initialDryMass
-		#self.counts[self.idx["h"], self.cIdx["c"]] += 59.81 * 1e-3 * Constants.nAvogadro * self.initialDryMass
-		#self.counts[self.idx["pi"], self.cIdx["c"]] += 59.81 * 1e-3 * Constants.nAvogadro * self.initialDryMass
-		#self.counts[self.idx["ppi"], self.cIdx["c"]] += 0.774 * 1e-3 * Constants.nAvogadro * self.initialDryMass
+		raise NotImplementedError()
 
 
-		# # Media metabolites
-		# self.counts[self.types == self.typeVals["metabolite"], self.cIdx["e"]] = numpy.round(self.metMediaConc * self.chamberVolume * Constants.nAvogadro * 1e-3)
-
-		# # Biomass metabolites
-		# # TODO: Fix this initialization
-		# metIdx = numpy.where(self.types == self.typeVals["metabolite"])[0]
-		# self.counts[metIdx, self.localizations[metIdx].astype('int')] = numpy.round(self.metBiomassConc)
-
-		# # RNA
-		# self.counts[self.getIndex(["RRLA-RRNA", "RRLB-RRNA", "RRLC-RRNA", "RRLD-RRNA", "RRLE-RRNA", "RRLG-RRNA", "RRLH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
-		# self.counts[self.getIndex(["RRSA-RRNA", "RRSB-RRNA", "RRSC-RRNA", "RRSD-RRNA", "RRSE-RRNA", "RRSG-RRNA", "RRSH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
-		# self.counts[self.getIndex(["RRFB-RRNA", "RRFC-RRNA", "RRFD-RRNA", "RRFE-RRNA", "RRFF-RRNA", "RRFG-RRNA", "RRFH-RRNA"])[1], self.cIdx["c"]] = numpy.round(18700 / 1.36 / 7)
-		# self.counts[self.idx["tRnas"], self.cIdx["c"]] = numpy.round(205000 / 1.36 / len(self.idx["tRnas"]))
-		# self.counts[self.idx["matureMrna"], self.cIdx["c"]] = self.randStream.mnrnd(numpy.round(1380 / 1.36), self.rnaExp)[self.idx["matureMrna"] - self.idx["matureRna"][0]]
-		# # rnaCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeNMPs) * numpy.sum(self.counts[self.idx["nmps"], self.cIdx["c"]]) / (numpy.dot(self.rnaExp, self.rnaLens))), self.rnaExp)
-		# # self.counts[self.idx["nmps"], self.cIdx["c"]] = numpy.round(self.fracInitFreeNMPs * self.counts[self.idx["nmps"], self.cIdx["c"]])
-		# # self.counts[self.idx["matureRna"], self.localizations[self.idx["matureRna"]].astype('int')] = rnaCnts
-
-		# # Protein Monomers
-		# self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]]] = self.randStream.mnrnd(numpy.round(2360000 / 1.36), self.monExp)
-		# # monCnts = self.randStream.mnrnd(numpy.round((1 - self.fracInitFreeAAs) * numpy.sum(self.counts[self.idx["aas"], self.cIdx["c"]]) / (numpy.dot(self.monExp, self.monLens))), self.monExp)
-		# # self.counts[self.idx["aas"], self.cIdx["c"]] = numpy.round(self.fracInitFreeAAs * self.counts[self.idx["aas"], self.cIdx["c"]])
-		# self.counts[self.idx["matureMonomers"], self.localizations[self.idx["matureMonomers"]].astype('int')] = monCnts
-
-		# # Macromolecular complexation
-		# c = self.complexation
-
-		# c.subunit.counts = self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)]
-		# c.complex.counts = self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)]
-
-		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1000)
-		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 100)
-		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 10)
-		# c.subunit.counts, c.complex.counts = c.calcNewComplexes(c.subunit.counts, c.complex.counts, 1)
-
-		# self.counts[numpy.unravel_index(c.subunit.mapping, self.counts.shape)] = c.subunit.counts
-		# self.counts[numpy.unravel_index(c.complex.mapping, self.counts.shape)] = c.complex.counts
-
-	# -- Partitioning into substates --
+	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
-		# Super class
 		partition = super(MoleculeCounts, self).addPartition(process)
-
-		# Clear inherited properties only valid on parent
-		partition.compartments = {"id": "merged__", "name": "merged"}			# TODO: Make this a list and fix allocate()
-		partition.partitionedCounts = None
-		partition.unpartitionedCounts = None
-		partition.idx = {}
-
-		# Set child properties for mapping to parent
-		iMolFormComp, iMolForm = self.getIndex(reqMols)[0:2]
-		if len(set(iMolFormComp)) < len(iMolFormComp):
-			raise Exception, "Partition request cannot contain duplicate ids"
-
-		partition.ids = [self.ids[i] for i in iMolForm]
-		partition.names = [self.ids[i] for i in iMolForm]
-		partition.forms = [self.forms[i] for i in iMolForm]
-		partition.types = [self.types[i] for i in iMolForm]
-		partition.mws = numpy.array([self.mws[i] for i in iMolForm])
-
-		partition.mapping = iMolFormComp
+		
 		partition.reqFunc = reqFunc
 		partition.isReqAbs = isReqAbs
 
+		mapping, iMolecule = self._getIndices(reqMols)[:2]
+
+		if len(set(mapping)) < len(mapping):
+			raise Exception('Partition request cannot contain duplicate IDs')
+
+		partition.mapping = mapping
+
+		partition._wids = [self._wids[i] for i in iMolecule]
+		partition._widIdx = {wid:i for i, wid in enumerate(partition._wids)}
+
+		# TODO: determine how compartments should be handled here...
+		partition._cmps = ["merged"] # "merged"
+		partition._cmpIdx = {"merged":0} # "merged"
+
+		partition._nMols = len(partition._wids)
+		partition._nCmps = len(partition._cmps)
+
 		return partition
 
-	# Prepare to partition state among processes
-	def prepartition(self):
-		for partition in self.partitions:
-			partition.fullCounts = self.counts[numpy.unravel_index(partition.mapping, self.counts.shape)]
 
-	# Partition state among processes
+	def prepartition(self):
+		pass
+
+
 	def partition(self):
-		requestsShape = (self.counts.shape[0], self.counts.shape[1], len(self.partitions))
+		# TODO: partitioning of unique instances (for both specific and nonspecific requests)
+		requestsShape = (self._countsBulk.shape[0], self._countsBulk.shape[1], len(self.partitions))
 
 		requests = numpy.zeros(requestsShape)
 
@@ -374,184 +267,259 @@ class MoleculeCounts(wholecell.sim.state.State.State):
 		for iPartition, partition in enumerate(self.partitions):
 			# Call request function and record requests
 			requests[
-				numpy.unravel_index(partition.mapping, self.counts.shape)
+				numpy.unravel_index(partition.mapping, self._countsBulk.shape)
 				+ (iPartition,)
 				] = numpy.maximum(0, partition.reqFunc())
 
-		isAbsoluteRequest = numpy.array([x.isReqAbs for x in self.partitions], bool)
-		absoluteRequests = numpy.sum(requests[:, :, isAbsoluteRequest], axis = 2)
-		relativeRequests = numpy.sum(requests[:, :, ~isAbsoluteRequest], axis = 2)
+		isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
+		requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
+		requestsRelative = numpy.sum(requests[:, :, ~isRequestAbsolute], axis = 2)
+
+		self._countsBulkRequested = numpy.sum(requests, axis = 2)
 
 		# TODO: Remove the warnings filter or move it elsewhere
 		# there may also be a way to avoid these warnings by only evaluating 
 		# division "sparsely", which should be faster anyway - JM
 		oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
 
-		absoluteScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
 			numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
-				numpy.minimum(self.counts, absoluteRequests) / absoluteRequests) # Divide requests amongst partitions proportionally
+				numpy.minimum(self._countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
 			)
 
-		relativeScale = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-			numpy.maximum(0, self.counts - absoluteRequests) / relativeRequests # Divide remaining requests amongst partitions proportionally
+		scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+			numpy.maximum(0, self._countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
 			)
 
-		relativeScale[relativeRequests == 0] = 0 # nan handling?
+		scaleRelative[requestsRelative == 0] = 0 # nan handling?
 
 		numpy.seterr(**oldSettings) # Restore error handling to the previous state
 
 		# Compute allocations and assign counts to the partitions
 		for iPartition, partition in enumerate(self.partitions):
-			scale = absoluteScale if partition.isReqAbs else relativeScale
+			scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
 			allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
-			self.partitionedCounts[:, :, iPartition] = allocation
-			partition.counts = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
+			self._countsBulkPartitioned[:, :, iPartition] = allocation
+			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
+		
+		# Record unpartitioned counts for later merging
+		self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
 
-		# TODO: Allocate unpartitioned molecules
-		# ^ this TODO needs clarification - JM
-		self.requestedCounts = numpy.sum(requests, axis = 2)
-		self.unpartitionedCounts = self.counts - numpy.sum(self.partitionedCounts, axis = 2)
 
-	# Merge sub-states partitioned to processes
 	def merge(self):
-		self.counts = self.unpartitionedCounts
+		self._countsBulk = self._countsBulkUnpartitioned
+
 		for partition in self.partitions:
-			cnt = numpy.zeros(self.counts.shape)
-			cnt[numpy.unravel_index(partition.mapping, cnt.shape)] = partition.counts
-			self.counts += cnt
+			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
 
 
-	# Get index of molecule by id (id, form, compartment)
-	def getIndex(self, ids):
-		if self.parentState == None:
-			return self.getIndex_parent(ids)
+	def countsBulkViewNew(self, ids):
+		return CountsBulkView(self, self._getIndices(ids)[1:])
+
+
+class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
+	mapping = None
+	reqFunc = None
+	isReqAbs = None
+
+	def __init__(self, *args, **kwargs):
+		self._molecules = {}
+
+		super(MoleculeCountsPartition, self).__init__(*args, **kwargs)
+
+
+	def allocate(self):
+		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
+
+
+	def countsBulkViewNew(self, ids):
+		return CountsBulkView(self, self._getIndices(ids)[0])
+
+
+def _uniqueInit(self, uniqueIdx):
+	# Default initialization method for _Molecule objects
+	self._uniqueIdx = uniqueIdx
+
+
+def _makeGetter(attr):
+	# Used to construct attribute getters for new _Molecules
+	def attrGetter(self):
+		molCont, uniqueIdx = self._container, self._uniqueIdx
+		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
+
+		return molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx]
+
+	return attrGetter
+
+
+def _makeSetter(attr):
+	# Used to construct attribute setters for new _Molecule objects
+	def attrSetter(self, newVal):
+		molCont, uniqueIdx = self._container, self._uniqueIdx
+		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
+
+		molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx] = newVal
+
+	return attrSetter
+
+
+class _Molecule(object):
+	uniqueClassRegistry = {}
+	def __init__(self, container, rowIdx, colIdx, wid):
+		self._container = container # Parent MoleculeCounts object
+		self._rowIdx = rowIdx
+		self._colIdx = colIdx
+		self._wid = wid
+
+		if len(self._container._uniqueDict[self._rowIdx][self._colIdx]) == 0:
+			# Molecule has no attributes
+			pass
+
+		elif self._wid in self.uniqueClassRegistry:
+			# Molecule has been registered as a unique instance; use that class definition
+			self._MoleculeUnique = self.uniqueClassRegistry[self._wid]
+			self._MoleculeUnique._container = self._container
+			self._MoleculeUnique._molRowIdx = self._rowIdx
+			self._MoleculeUnique._molColIdx = self._colIdx
+
+			for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
+				if not hasattr(self._MoleculeUnique, attr):
+					setattr(self._MoleculeUnique, attr, _makeGetter(attr))
+
+				if not hasattr(self._MoleculeUnique, attr + "Is"):
+					setattr(self._MoleculeUnique, attr + "Is", _makeGetter(attr + "Is"))
+
 		else:
-			mappingList = list(self.mapping)
-			try:
-				idxs = numpy.array([mappingList.index(x) for x in self.parentState.getIndex(ids)[0]])
-			except ValueError, e:
-				raise Exception, "Invalid index:\n%s" % x
-			compIdxs = numpy.ones(idxs.shape)
-			return idxs, idxs, compIdxs
+			# Molecule has unique attributes, but isn't registered
+			uniqueClassDefDict = {}
+			uniqueClassDefDict["_container"] = self._container
+			uniqueClassDefDict["_molRowIdx"] = self._rowIdx
+			uniqueClassDefDict["_molColIdx"] = self._colIdx
 
-	def getIndex_parent(self, ids):
-		if type(ids) == str:
-			ids = [ids]
+			uniqueClassDefDict["__init__"] = _uniqueInit
 
-		idForms = []
-		comps = []
-		for thisId in ids:
-			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", thisId)
-			if match == None:
-				raise Exception, "Invalid id: %s" % thisId
-			
-			if match.group("form") == None:
-				idForm = [match.group("molecule"), 0]
+			for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
+				uniqueClassDefDict[attr] = _makeGetter(attr)
+				uniqueClassDefDict[attr + "Is"] = _makeSetter(attr)
+
+			self._MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
+
+	# Interface methods
+
+	def countBulk(self):
+		# Returns bulk count of molecule as a float
+		return self._container._countsBulk[self._rowIdx, self._colIdx]
+
+	def countBulkIs(self, newVal):
+		# Sets bulk count of molecule
+		self._container._countsBulk[self._rowIdx, self._colIdx] = newVal
+
+	def countBulkInc(self, incVal):
+		# Increments counts bulk by incVal
+		self._container._countsBulk[self._rowIdx, self._colIdx] += incVal
+
+	def countBulkDec(self, decVal):
+		# Decrements counts bulk by decVal
+		self.countBulkInc(-1 * decVal)
+
+	def countUnique(self):
+		# Returns unique count of molecule as a float
+		return self._container._countsUnique[self._rowIdx, self._colIdx]
+	
+	def dMassIs(self, newVal):
+		# Sets the value for dMass
+		self._container._dmass[self._rowIdx, self._colIdx] = newVal
+
+	def dMassInc(self, incVal):
+		# Increments dmass by incVal
+		self._container._dmass[self._rowIdx, self._colIdx] += incVal
+
+	def dMassDec(self, decVal):
+		# Decrements count of dmass by decVal
+		self.dMassInc(-1 * decVal)
+
+	def massSingle(self):
+		# Returns mass of single object
+		return self._container._massSingle[self._rowIdx, self._colIdx]
+
+	def massAll(self):
+		# Returns mass of all objects bulk and unique
+		return (self.countBulk() + self.countUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
+
+	def uniqueNew(self, attrs = None):
+		# Creates new unique object with attributes defined by attrs
+		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
+		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
+		
+		if not len(uniqueDict):
+			raise uniqueException('Attempting to create unique from object with no unique attributes!\n')
+
+		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
+			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
+
+		for attr in uniqueDict:
+			if attrs is not None and attr in attrs:
+				uniqueDict[attr].append(attrs[attr])
 			else:
-				idForm = [match.group("molecule"), self.formVals[match.group("form")[1:]]]
-			idForms.append(idForm)
+				uniqueDict[attr].append(None)
 
-			if match.group("compartment") == None:
-				comps.append(self.compartments[0]["id"])
-			else:
-				comps.append(match.group("compartment")[1:-1])
+		uniqueIdx = len(uniqueDict["objects"]) - 1
+		uniqueDict["objects"][uniqueIdx] = self._MoleculeUnique(uniqueIdx)
+		self._container._countsUnique[self._rowIdx, self._colIdx] += 1
 
-		compIds =[x["id"] for x in self.compartments] 
-		try:
-			compIdxs = numpy.array([compIds.index(x) for x in comps])
-		except ValueError, e:
-			raise Exception, "Invalid compartment: \n%s" % x
+		return uniqueDict["objects"][uniqueIdx]
 
-		idFormStr = [x[0] + ":" + str(x[1]) for x in idForms]
-		allIds = [x[0] + ":" + str(x[1]) for x in zip(self.ids, self.forms)]
-		try:
-			idFormIdxs = [allIds.index(x) for x in idFormStr]
-		except Exception, e:
-			raise Exception, "Invalid id/form: \n%s" % x
+	def uniquesWithAttrs(self, attrs = None):
+		# Returns list of objects with attributes specified in attrs
+		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
+		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 
-		idxs = numpy.ravel_multi_index(numpy.array([idFormIdxs, compIdxs]), (len(self.ids), len(self.compartments)))
-		#idxs = numpy.reshape(idxs, ids.shape)
+		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
+			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
-		return idxs, idFormIdxs, compIdxs
+		if attrs is None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
+			return uniqueDict["objects"][:]
 
-	def pytablesCreate(self, h5file, sim):
-		import tables
+		L = []
+		for i in xrange(len(uniqueDict["objects"])):
+			addThis = True
+			for attr in attrs:
+				if uniqueDict[attr][i] != attrs[attr]:
+					addThis = False
+			if addThis:
+				L.append(uniqueDict["objects"][i])
+		return L
 
-		# TODO: Look into using enumerated data types in PyTables
+	def uniqueDel(self, uniqueObj):
+		# Deletes unique object uniqueObj and decrements unique count
+		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
+		uniqueIdx = uniqueObj._uniqueIdx
 
-		# Columns
-		d = {
-			"time": tables.Int64Col(),
-			"id": tables.StringCol(max([len(x) for x in self.ids])),
-			"form": tables.StringCol(max([len(x) for x in self.formVals.keys()])),
-			"type": tables.StringCol(max([len(x) for x in self.typeVals.keys()])),
-			"name": tables.StringCol(max([len(x) for x in self.names if x != None])),
-			"compartment": tables.StringCol(max([len(x) for x in self.cIdx.keys()])),
-			"counts": tables.Float64Col(),
-			"requested": tables.Float64Col()
-			}
+		if id(uniqueObj) != id(uniqueDict["objects"][uniqueIdx]):
+			raise uniqueException('Unique object to delete does not match row in unique table!\n')
 
-		# Create table
-		# TODO: Add compression options (using filters)
-		t = h5file.create_table(h5file.root, self.meta["id"], d, title = self.meta["name"], filters = tables.Filters(complevel = 9, complib="zlib"), expectedrows = sim.lengthSec * self.counts.shape[0] * self.counts.shape[1])
+		for i in xrange(uniqueIdx + 1, len(uniqueDict["objects"])):
+			uniqueDict["objects"][i]._uniqueIdx -= 1
+		for attr in uniqueDict:
+			del uniqueDict[attr][uniqueIdx]
+		self._container._countsUnique[self._rowIdx, self._colIdx] -= 1			
 
-		# The following lines make querying much faster, but make simulation run-time considerably slower
-		# t.cols.id.create_index()
-		# t.cols.compartment.create_index()
 
-		# Store units as metadata
-		t.attrs.counts_units = self.meta["units"]["counts"]
+class uniqueException(Exception):
+	'''
+	uniqueException
+	'''
 
-		d = {
-			"time": tables.Int64Col(),
-			"atp": tables.Int64Col(),
-			"ctp": tables.Int64Col(),
-			"gtp": tables.Int64Col(),
-			"utp": tables.Int64Col()
-		}
-		t = h5file.create_table(h5file.root, "tcNtpUsage", d, title = "Transcription NTP usage", filters = tables.Filters(complevel = 9, complib="zlib"), expectedrows = sim.lengthSec * self.counts.shape[0] * self.counts.shape[1])
-		t.attrs.atp_units = "counts"
-		t.attrs.ctp_units = "counts"
-		t.attrs.gtp_units = "counts"
-		t.attrs.utp_units = "counts"
 
-	def pytablesAppend(self, h5file, sim):
-		import tables
+class MoleculeUniqueMeta(type):
+	def __new__(cls, name, bases, attrs):
+		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
 
-		simTime = sim.getState("Time").value
-		t = h5file.get_node("/", self.meta["id"])
-		entry = t.row
+		if '__init__' not in attrs:
+			attrs['__init__'] = _uniqueInit
 
-		idsToTrack = [
-			"ATP", "CTP", "GTP", "UTP",
-			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",  "LEU-L",
-			"LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-			"EG10893-MONOMER", "RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER",
-			"EG10893_RNA", "EG10894_RNA", "EG10895_RNA", "EG10896_RNA"
-		]
-
-		for i in xrange(self.counts.shape[0]):
-			if self.ids[i] not in idsToTrack:
-				continue
-			for j in xrange(self.counts.shape[1]):
-				entry["time"] = simTime
-				entry["id"] = self.ids[i]
-				entry["form"] = self.formValsToKeys[self.forms[i]] # TODO: maybe create another dictionary to avoid this
-				entry["type"] = self.typeValsToKeys[self.types[i]] # TODO: maybe create another dictionary to avoid this
-				# entry["name"] = self.names[i].encode("ascii", "ignore")
-				entry["compartment"] = self.cIdxToKeys[j]
-				entry["counts"] = self.counts[i, j]
-				entry["requested"] = self.requestedCounts[i, j]
-				entry.append()
-
-		t.flush()
-
-		t = h5file.get_node("/", "tcNtpUsage")
-		entry = t.row
-
-		entry["time"] = simTime
-		entry["atp"], entry["ctp"], entry["gtp"], entry["utp"] = self.tcNtpUsage
-		entry.append()
-		t.flush()
+		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
+		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
+		return newClass
