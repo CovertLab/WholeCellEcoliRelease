@@ -108,6 +108,9 @@ class MoleculesContainerBase(object):
 	def _getIndex(self, id_):
 		return [values[0] for values in self._getIndices((id_,))]
 
+	def countsBulkViewNew(self, ids):
+		raise NotImplementedError('countsBulkViewNew must be implemented by a subclass')
+
 
 class CountsBulkView(object):
 	_parent = None
