@@ -21,6 +21,57 @@ import numpy
 import wholecell.sim.state.State as wcState
 import wholecell.sim.state.Partition as wcPartition
 
+
+# TODO: get from KB
+IDS = {
+	'ntps':["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"],
+	'ndps':["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"],
+	'nmps':["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
+	'aas':[
+		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+		"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
+		],
+	'h2o':"H2O[c]",
+	'h':"H[c]",
+	'ppi':"PPI[c]",
+	'adp':"ADP[c]",
+	'pi':"PI[c]",
+	'tRnas':[
+		"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",
+		"serU-tRNA", "serV-tRNA", "serX-tRNA", "RNA0-302", "lysV-tRNA", "RNA0-303", "RNA0-301", "lysW-tRNA", "lysT-tRNA", "RNA0-306", "metY-tRNA",
+		"metW-tRNA", "metZ-tRNA", "metU-tRNA", "metT-tRNA", "thrW-tRNA", "thrV-tRNA", "thrU-tRNA", "thrT-tRNA", "trpT-tRNA", "pheV-tRNA",
+		"pheU-tRNA", "glyV-tRNA", "glyY-tRNA", "glyU-tRNA", "glyT-tRNA", "glyX-tRNA", "glyW-tRNA", "proL-tRNA", "proK-tRNA", "proM-tRNA",
+		"RNA0-300", "valU-tRNA", "valV-tRNA", "valX-tRNA", "valY-tRNA", "valT-tRNA", "valW-tRNA", "hisR-tRNA", "ileX-tRNA", "RNA0-305",
+		"ileV-tRNA", "ileT-tRNA", "ileU-tRNA", "tyrV-tRNA", "tyrU-tRNA", "tyrT-tRNA", "alaX-tRNA", "alaW-tRNA", "alaT-tRNA", "alaV-tRNA",
+		"alaU-tRNA", "argY-tRNA", "argZ-tRNA", "argX-tRNA", "argU-tRNA", "argV-tRNA", "argQ-tRNA", "argW-tRNA", "aspV-tRNA", "aspU-tRNA",
+		"aspT-tRNA", "RNA0-304", "asnV-tRNA", "asnU-tRNA", "asnT-tRNA", "leuU-tRNA", "leuQ-tRNA", "leuX-tRNA", "leuV-tRNA", "leuT-tRNA",
+		"leuZ-tRNA", "leuW-tRNA", "leuP-tRNA", "cysT-tRNA"
+		],
+	'rRnas':[
+		"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
+		"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
+		"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+		],
+	'rRna23Ss':[
+		"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
+		],
+	'rRna16ss':[
+		"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
+		],
+	'rRna5Ss':[
+		"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+		],
+	'FeistCore':[
+		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+		"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+		"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+		"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
+		"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
+		"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
+		"RIBFLV[c]"
+		]
+	}
+
 # TODO: make most of these classes _private
 
 class MoleculeCountsBase(object):
@@ -130,6 +181,19 @@ class CountsBulkView(object):
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	"""MoleculeCounts"""
 
+	compartments = [ # TODO: move to KB
+		{"id": "c", "name": "Cytosol"},
+		{"id": "e", "name": "Extracellular space"},
+		{"id": "i", "name": "Inner membrane"},
+		{"id": "j", "name": "Projection"},
+		{"id": "l", "name": "Pilus"},
+		{"id": "m", "name": "Membrane"},
+		{"id": "n", "name": "Nucleoid"},
+		{"id": "o", "name": "Outer membrane"},
+		{"id": "p", "name": "Periplasm"},
+		{"id": "w", "name": "Cell wall"}
+		]
+
 	def __init__(self, *args, **kwargs):
 		self.meta = {
 			"id": "MoleculeCounts",
@@ -142,7 +206,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				}
 			}
 
-		# Molecule counts
 		self._countsUnique = None # Counts of molecules with unique properties
 
 		# Molecule mass
@@ -154,7 +217,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._molecules = {}    # Molecule objects
 		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
 
-		# Partitioning (parent)
 		self._countsBulkRequested = None
 		self._countsBulkPartitioned = None
 		self._countsBulkUnpartitioned = None
@@ -206,6 +268,57 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Media and biomass concentrations
 
+	def initialize_new(self, sim, kb):
+		super(MoleculeCounts, self).initialize(sim, kb)
+
+		# Because I'm not sure how we want to handle forms, and the names won't
+		# hash properly without them, I'm combining IDs and form values
+		self._wids = []
+
+		self._wids += [x['id'] + ':mature' for x in kb.metabolites]
+
+		self._wids += [x['id'] + ':nascent' for x in kb.rnas]
+		self._wids += [x['id'] + ':mature' for x in kb.rnas]
+
+		self._wids += [x['id'] + ':nascent' for x in kb.proteins]
+		self._wids += [x['id'] + ':mature' for x in kb.proteins]
+
+		self._cmps = [x['id'] for x in self.compartments]
+		# self._cmps = [x['id'] for x in kb.compartments]
+
+		self._molMass = []
+
+		self._molMass += [x['mw7.2'] for x in kb.metabolites]
+		self._molMass += [x['mw'] for x in kb.rnas]*2
+		self._molMass += [x['mw'] for x in kb.proteins]*2
+
+		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
+		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
+
+		self._uniqueDict = []
+
+		# TODO: add and test unique attributes to KB
+		# for mol in kb.molecules:
+		# 	if mol["uniqueAttrs"] is not None:
+		# 		self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
+
+		# 	else:
+		# 		self._uniqueDict.append([{} for x in kb.compartments])
+
+		for mol in self._wids:
+			self._uniqueDict.append([{} for x in self._cmps])
+
+
+	def calcInitialConditions(self):
+		self.counts[:] = 0
+
+
+	def molecule(self, wid, comp):
+		if (wid, comp) not in self._molecules:
+			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
+
+		return self._molecules[wid, comp]
+
 
 	def allocate(self):
 		super(MoleculeCounts, self).allocate() # Allocates partitions
@@ -220,14 +333,10 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
 		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
-
-	def calcInitialConditions(self):
-		raise NotImplementedError()
-
-
 	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
+		# TODO: warning for adding a partition after allocation
 		partition = super(MoleculeCounts, self).addPartition(process)
 		
 		partition.reqFunc = reqFunc

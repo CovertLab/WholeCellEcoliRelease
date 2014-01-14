@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Test uniques.py
+Test_MoleculeCounts.py
 
 @author: Nick Ruggero, John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -10,7 +10,8 @@ Test uniques.py
 
 import unittest
 import nose.plugins.attrib as noseAttrib
-# import nose.tools as noseTools
+import cPickle
+import os
 
 import numpy
 import wholecell.sim.state.MoleculeCounts as wcMoleculeCounts
@@ -24,6 +25,10 @@ class Test_MoleculeCounts(unittest.TestCase):
 	@classmethod
 	def tearDownClass(cls):
 		pass
+
+	def setUp_new(self):
+		self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
+		self.mc = self.sim.getState('MoleculeCounts')
 
 	def setUp(self):
 		self.kb = type("KnowledgeBase", (object,), {'molecules':None})()
@@ -151,7 +156,6 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.assertEqual(self.partition1.countsBulk().tolist(), [0., 0., 0., 0., 0., 0., 0.])
 		self.assertEqual(self.partition2.countsBulk().tolist(), [5., 2., 2., 2., 0., 0., 0.])
 		self.assertEqual(self.partition3.countsBulk().tolist(), [4., 0., 3., 5., 20., 0., 7.])
-
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation_withConflict(self):
@@ -400,6 +404,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.assertTrue(hasattr(e5, 'objectsIs'))
 		self.assertTrue(hasattr(e5, 'test_function'))
 
+
 class enz4Unique_same(object):
 	registrationId = "enz4"
 	__metaclass__ = wcMoleculeCounts.MoleculeUniqueMeta
@@ -425,9 +430,11 @@ class enz4Unique_same(object):
 	def objectsIs(self, newVal):
 		self._container._uniqueDict[self._molRowIdx][self._molColIdx]["objects"][self._uniqueIdx] = newVal
 
+
 class enz5Unique_same(object):
 	registrationId = "enz5"
 	__metaclass__ = wcMoleculeCounts.MoleculeUniqueMeta
 
 	def test_function(self):
 		return "Created new function"
+

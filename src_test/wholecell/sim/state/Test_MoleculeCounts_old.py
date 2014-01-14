@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+'''
+
+THESE ARE THE TESTS FOR THE OLD CLASS
+
+'''
+
 """
 Test MoleculeCounts.py
 
@@ -19,8 +25,7 @@ import os
 # import wholecell.util.randStream
 import wholecell.sim.state.MoleculeCounts
 
-
-class Test_MoleculeCounts(unittest.TestCase):
+class Test_MoleculeCounts_old(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
 		pass
