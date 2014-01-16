@@ -101,26 +101,11 @@ class MoleculeCountsBase(object):
 
 		return self._molecules[wid, comp]
 
-	# These are dangerous methods, but greatly facilitate testing and initialization
 	def countsBulk(self, ids = None):
-		# if ids is None:
-		# 	return self._countsBulk
-
-		# else:
-		# 	idxs = self._getIndices(ids)[1:]
-		# 	return self._countsBulk[idxs]
-
 		return self.countsBulkViewNew(ids).countsBulk()
 
 
 	def countsBulkIs(self, counts, ids = None):
-		# if ids is None:
-		# 	self._countsBulk = counts
-
-		# else:
-		# 	idxs = self._getIndices(ids)[1:]
-		# 	self._countsBulk[idxs] = counts
-
 		return self.countsBulkViewNew(ids).countsBulkIs(counts)
 
 
