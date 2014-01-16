@@ -103,21 +103,25 @@ class MoleculeCountsBase(object):
 
 	# These are dangerous methods, but greatly facilitate testing and initialization
 	def countsBulk(self, ids = None):
-		if ids is None:
-			return self._countsBulk
+		# if ids is None:
+		# 	return self._countsBulk
 
-		else:
-			idxs = self._getIndices(ids)[1:]
-			return self._countsBulk[idxs]
+		# else:
+		# 	idxs = self._getIndices(ids)[1:]
+		# 	return self._countsBulk[idxs]
+
+		return self.countsBulkViewNew(ids).countsBulk()
 
 
 	def countsBulkIs(self, counts, ids = None):
-		if ids is None:
-			self._countsBulk = counts
+		# if ids is None:
+		# 	self._countsBulk = counts
 
-		else:
-			idxs = self._getIndices(ids)[1:]
-			self._countsBulk[idxs] = counts
+		# else:
+		# 	idxs = self._getIndices(ids)[1:]
+		# 	self._countsBulk[idxs] = counts
+
+		return self.countsBulkViewNew(ids).countsBulkIs(counts)
 
 
 	def _getIndices(self, ids):
@@ -164,7 +168,7 @@ class MoleculeCountsBase(object):
 	def _getIndex(self, id_):
 		return [values[0] for values in self._getIndices((id_,))]
 
-	def countsBulkViewNew(self, ids):
+	def countsBulkViewNew(self, ids = None):
 		raise NotImplementedError('countsBulkViewNew must be implemented by a subclass')
 
 
@@ -178,15 +182,20 @@ class CountsBulkView(object):
 	_parent = None
 	_indices = None
 
-	def __init__(self, parent, indices):
+	def __init__(self, parent, indices = None):
 		self._parent = parent
-		self._indices = indices
+
+		if indices is None:
+			self._indices = numpy.s_[:] # Default to taking the whole set
+
+		else:
+			self._indices = indices
 
 	def countsBulk(self):
 		return self._parent._countsBulk[self._indices]
 
-	def countsBulkIs(self, values):
-		self._parent._countsBulk[self._indices] = values
+	def countsBulkIs(self, counts):
+		self._parent._countsBulk[self._indices] = counts
 
 
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
@@ -438,8 +447,12 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
 
 
-	def countsBulkViewNew(self, ids):
-		return CountsBulkView(self, self._getIndices(ids)[1:])
+	def countsBulkViewNew(self, ids = None):
+		if ids is None:
+			return CountsBulkView(self)
+
+		else:
+			return CountsBulkView(self, self._getIndices(ids)[1:])
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
@@ -462,8 +475,12 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 
 
-	def countsBulkViewNew(self, ids):
-		return CountsBulkView(self, self._getIndices(ids)[0])
+	def countsBulkViewNew(self, ids = None):
+		if ids is None:
+			return CountsBulkView(self)
+
+		else:
+			return CountsBulkView(self, self._getIndices(ids)[0])
 
 
 def _uniqueInit(self, uniqueIdx):
