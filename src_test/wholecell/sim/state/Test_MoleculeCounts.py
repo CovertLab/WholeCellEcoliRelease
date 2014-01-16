@@ -33,18 +33,18 @@ class Test_MoleculeCounts(unittest.TestCase):
 	def setUp(self):
 		self.kb = type("KnowledgeBase", (object,), {'molecules':None})()
 		self.kb.molecules = [
-			{"id": "enz1", "mass": 1.0,"uniqueAttrs": None},
-			{"id": "enz2", "mass": 2.0, "uniqueAttrs": None},
-			{"id": "enz3", "mass": 3.0, "uniqueAttrs": ["attr1", "attr2", "attr3"]},
-			{"id": "enz4", "mass": 4.0, "uniqueAttrs": ["attr4_1", "attr4_2"]},
-			{"id": "enz5", "mass": 5.0, "uniqueAttrs": ["attr5_1"]},
-			{"id": "metA", "mass": 1.0, "uniqueAttrs": None},
-			{"id": "metB", "mass": 1.0, "uniqueAttrs": None},
-			{"id": "metC", "mass": 1.0, "uniqueAttrs": None},
-			{"id": "metD", "mass": 1.0, "uniqueAttrs": None},
-			{"id": "metE", "mass": 1.0, "uniqueAttrs": None},
-			{"id": "metF", "mass": 1.0, "uniqueAttrs": None},
-			{"id": "metG", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "enz1:mature", "mass": 1.0,"uniqueAttrs": None},
+			{"id": "enz2:mature", "mass": 2.0, "uniqueAttrs": None},
+			{"id": "enz3:mature", "mass": 3.0, "uniqueAttrs": ["attr1", "attr2", "attr3"]},
+			{"id": "enz4:mature", "mass": 4.0, "uniqueAttrs": ["attr4_1", "attr4_2"]},
+			{"id": "enz5:mature", "mass": 5.0, "uniqueAttrs": ["attr5_1"]},
+			{"id": "metA:mature", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "metB:mature", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "metC:mature", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "metD:mature", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "metE:mature", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "metF:mature", "mass": 1.0, "uniqueAttrs": None},
+			{"id": "metG:mature", "mass": 1.0, "uniqueAttrs": None},
 			]
 		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
 
@@ -120,10 +120,10 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_PartitionIndexing(self):
-		metaboliteID = 'metA'
+		metaboliteID = 'metA:mature'
 
 		# Insure that _getIndex points to the right metabolite
-		self.assertTrue(metaboliteID == self.partition1._wids[
+		self.assertEqual(metaboliteID, self.partition1._wids[
 			self.partition1._getIndex(metaboliteID)[0]
 			])
 
@@ -176,18 +176,18 @@ class Test_MoleculeCounts(unittest.TestCase):
 	@noseAttrib.attr('uniqueTest')
 	def test_moleculeNotUnique(self):
 		try:
-			mol = self.mc.molecule("enz1", "c")
+			mol = self.mc.molecule("enz1:mature", "c")
 		except:
 			self.fail("Initalizing a molecule threw an error!")
 
 	@noseAttrib.attr('uniqueTest')
 	def test_countBulk(self):
-		mol = self.mc.molecule("enz1", "c")
+		mol = self.mc.molecule("enz1:mature", "c")
 		self.assertEqual(mol.countBulk(), 0.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_countBulkIs(self):
-		mol = self.mc.molecule("enz1", "c")
+		mol = self.mc.molecule("enz1:mature", "c")
 		mol.countBulkIs(5)
 		self.assertEqual(mol.countBulk(), 5.0)
 		mol.countBulkIs(2)
@@ -195,7 +195,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_countBulkInc(self):
-		mol = self.mc.molecule("enz1", "c")
+		mol = self.mc.molecule("enz1:mature", "c")
 		mol.countBulkIs(0)
 		mol.countBulkInc(1)
 		self.assertEqual(mol.countBulk(), 1.0)
@@ -204,7 +204,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_countBulkDec(self):
-		mol = self.mc.molecule("enz1", "c")
+		mol = self.mc.molecule("enz1:mature", "c")
 		mol.countBulkIs(3)
 		mol.countBulkDec(1)
 		self.assertEqual(mol.countBulk(), 2.0)
@@ -213,18 +213,18 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_massSingle(self):
-		mol = self.mc.molecule("enz2", "c")
+		mol = self.mc.molecule("enz2:mature", "c")
 		self.assertEqual(mol.massSingle(), 2.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_massAllNoUnique(self):
-		mol = self.mc.molecule("enz2", "c")
+		mol = self.mc.molecule("enz2:mature", "c")
 		mol.countBulkIs(5)
 		self.assertEqual(mol.massAll(), 10.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		self.assertEqual(mol.countUnique(), 1.0)
 		self.assertEqual(newEnz3.attr1(), "A")
@@ -234,14 +234,14 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_forNonUnique(self):
-		mol = self.mc.molecule("enz1", "c")
+		mol = self.mc.molecule("enz1:mature", "c")
 		with self.assertRaises(wcMoleculeCounts.uniqueException) as context:
 			mol.uniqueNew({})
 		self.assertEqual(context.exception.message, 'Attempting to create unique from object with no unique attributes!\n')
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_missingCorrectAttr(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3 = mol.uniqueNew({"attr2" : "B", "attr3" : "C"})
 		self.assertEqual(newEnz3.attr1(), None)
 		self.assertEqual(newEnz3.attr2(), "B")
@@ -254,22 +254,22 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueNew_incorrectAttr(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		with self.assertRaises(wcMoleculeCounts.uniqueException) as context:
 			newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C", "attr4" : "D"})
 		self.assertEqual(context.exception.message, 'A specified attribute is not included in knoweldge base for this unique object!\n')
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueDel(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.uniqueDel(newEnz3)
 		self.assertEqual(mol.countUnique(), 0.0)
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniqueDel_objectNotCorrect(self):
-		mol1 = self.mc.molecule("enz3", "c")
-		mol2 = self.mc.molecule("enz4", "c")
+		mol1 = self.mc.molecule("enz3:mature", "c")
+		mol2 = self.mc.molecule("enz4:mature", "c")
 		newEnz3 = mol1.uniqueNew()
 		newEnz4 = mol2.uniqueNew()
 		with self.assertRaises(wcMoleculeCounts.uniqueException) as context:
@@ -278,7 +278,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniquesWithAttrs(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3_1 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
 		newEnz3_2 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		newEnz3_3 = mol.uniqueNew({"attr1" : "B", "attr2" : "B", "attr3" : "C"})
@@ -294,7 +294,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_uniquesWithAttrs_incorrectAttr(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "A", "attr3" : "C"})
 		with self.assertRaises(wcMoleculeCounts.uniqueException) as context:
 			mol.uniquesWithAttrs({"attr1" : "A", "attr4" : "B"})
@@ -302,7 +302,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_makeGetter(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		self.assertEqual(newEnz3.attr1(), "A")
 		self.assertEqual(newEnz3.attr2(), "B")
@@ -311,7 +311,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_makeSetter(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		newEnz3.attr1Is("Z")
 		self.assertEqual(newEnz3.attr1(), "Z")
@@ -321,7 +321,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassIs(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		mol.countBulkInc(1)
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.dMassIs(2)
@@ -329,7 +329,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassInc(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		mol.countBulkInc(1)
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.dMassInc(2)
@@ -339,7 +339,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_dMassDec(self):
-		mol = self.mc.molecule("enz3", "c")
+		mol = self.mc.molecule("enz3:mature", "c")
 		mol.countBulkInc(1)
 		newEnz3 = mol.uniqueNew({"attr1" : "A", "attr2" : "B", "attr3" : "C"})
 		mol.dMassIs(2)
@@ -349,7 +349,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_metaClass_sameAsDefault(self):
-		mol = self.mc.molecule("enz4", "c")
+		mol = self.mc.molecule("enz4:mature", "c")
 		e4 = mol.uniqueNew({"attr4_1" : "A", "attr4_2" : "B"})
 
 		self.assertTrue(hasattr(e4, 'attr4_1'))
@@ -369,13 +369,13 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_metaClass_addNewFunction(self):
-		mol = self.mc.molecule("enz5", "c")
+		mol = self.mc.molecule("enz5:mature", "c")
 		e5 = mol.uniqueNew({"attr5_1" : "A"})
 		self.assertEqual(e5.test_function(), "Created new function")
 
 	@noseAttrib.attr('uniqueTest')
 	def test_metaClass_keepsDefaultFunctions(self):
-		mol = self.mc.molecule("enz5", "c")
+		mol = self.mc.molecule("enz5:mature", "c")
 
 		e5 = mol.uniqueNew({"attr5_1" : "A"})
 
@@ -386,9 +386,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_metaClass_multipleUniqueMetaclasses(self):
-		mol4 = self.mc.molecule("enz4", "c")
+		mol4 = self.mc.molecule("enz4:mature", "c")
 		e4 = mol4.uniqueNew({"attr4_1" : "A", "attr4_2" : "B"})
-		mol5 = self.mc.molecule("enz5", "c")
+		mol5 = self.mc.molecule("enz5:mature", "c")
 		e5 = mol5.uniqueNew({"attr5_1" : "A"})
 
 		self.assertTrue(hasattr(e4, 'attr4_1'))
@@ -406,7 +406,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 
 class enz4Unique_same(object):
-	registrationId = "enz4"
+	registrationId = "enz4:mature"
 	__metaclass__ = wcMoleculeCounts.MoleculeUniqueMeta
 
 	def __init__(self, uniqueIdx):
@@ -432,7 +432,7 @@ class enz4Unique_same(object):
 
 
 class enz5Unique_same(object):
-	registrationId = "enz5"
+	registrationId = "enz5:mature"
 	__metaclass__ = wcMoleculeCounts.MoleculeUniqueMeta
 
 	def test_function(self):

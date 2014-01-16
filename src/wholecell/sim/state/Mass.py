@@ -77,6 +77,7 @@ class Mass(wholecell.sim.state.State.State):
 		self.rna = numpy.zeros(len(self.compartments))
 		self.protein = numpy.zeros(len(self.compartments))
 
+
 	# Calculate (and cache) any dependent properties
 	def calculate(self):
 		from wholecell.util.Constants import Constants
@@ -84,12 +85,17 @@ class Mass(wholecell.sim.state.State.State):
 		mc = self.moleculeCounts
 
 		# Total
-		self.total = ( numpy.dot(mc.mws, mc.counts) ) / Constants.nAvogadro * 1e15
+		# self.total = ( numpy.dot(mc.mws, mc.counts) ) / Constants.nAvogadro * 1e15
+		self.total = mc.massAll() / Constants.nAvogadro * 1e15
 
 		# Cell
-		self.metabolite = ( numpy.dot(mc.mws[mc.types == mc.typeVals["metabolite"]], mc.counts[mc.types == mc.typeVals["metabolite"]]) ) / Constants.nAvogadro * 1e15
-		self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals["rna"]       ], mc.counts[mc.types == mc.typeVals["rna"]       ]) ) / Constants.nAvogadro * 1e15
-		self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals["protein"]   ], mc.counts[mc.types == mc.typeVals["protein"]   ]) ) / Constants.nAvogadro * 1e15
+		# self.metabolite = ( numpy.dot(mc.mws[mc.types == mc.typeVals["metabolite"]], mc.counts[mc.types == mc.typeVals["metabolite"]]) ) / Constants.nAvogadro * 1e15
+		# self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals["rna"]       ], mc.counts[mc.types == mc.typeVals["rna"]       ]) ) / Constants.nAvogadro * 1e15
+		# self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals["protein"]   ], mc.counts[mc.types == mc.typeVals["protein"]   ]) ) / Constants.nAvogadro * 1e15
+
+		self.metabolite = mc.massAll('metabolites') / Constants.nAvogadro * 1e15
+		self.rna        = mc.massAll('rnas')        / Constants.nAvogadro * 1e15
+		self.protein    = mc.massAll('proteins')    / Constants.nAvogadro * 1e15
 
 		cIdxs = numpy.array([
 							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
@@ -99,7 +105,7 @@ class Mass(wholecell.sim.state.State.State):
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
-		self.cellDry[cIdxs] = self.cell[cIdxs] - ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15
+		#self.cellDry[cIdxs] = self.cell[cIdxs] - ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15
 
 	def pytablesCreate(self, h5file, sim):
 		import tables

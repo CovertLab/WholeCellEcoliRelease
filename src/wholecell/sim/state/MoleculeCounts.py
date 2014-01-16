@@ -166,6 +166,7 @@ class MoleculeCountsBase(object):
 			return CountsBulkView(self, self._getIndices(ids)[1:])
 
 
+
 class CountsBulkView(object):
 	'''CountsBulkView
 
@@ -179,17 +180,21 @@ class CountsBulkView(object):
 	def __init__(self, parent, indices = None):
 		self._parent = parent
 
-		if indices is None:
-			self._indices = numpy.s_[:] # Default to taking the whole set
-
-		else:
-			self._indices = indices
+		self._indices = indices
 
 	def countsBulk(self):
-		return self._parent._countsBulk[self._indices]
+		if self._indices is None:
+			return self._parent._countsBulk
+
+		else:
+			return self._parent._countsBulk[self._indices]
 
 	def countsBulkIs(self, counts):
-		self._parent._countsBulk[self._indices] = counts
+		if self._indices is None:
+			self._parent._countsBulk = counts
+
+		else:
+			self._parent._countsBulk[self._indices] = counts
 
 
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
@@ -210,6 +215,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		{"id": "p", "name": "Periplasm"},
 		{"id": "w", "name": "Cell wall"}
 		]
+	_typeIdxs = None
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
@@ -234,11 +240,15 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._molecules = {}    # Molecule objects
 		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
 
+		# Partitioning
 		self._countsBulkRequested = None
 		self._countsBulkPartitioned = None
 		self._countsBulkUnpartitioned = None
 
 		self.partitionClass = MoleculeCountsPartition
+
+		# Reference attributes
+		self._typeIdxs = {} 
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
@@ -290,34 +300,48 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Because I'm not sure how we want to handle forms, and the names won't
 		# hash properly without them, I'm combining IDs and form values
+
+		# Molecules
 		self._wids = []
 
 		self._wids += [x['id'] + ':mature' for x in kb.metabolites]
-
 		self._wids += [x['id'] + ':nascent' for x in kb.rnas]
 		self._wids += [x['id'] + ':mature' for x in kb.rnas]
-
 		self._wids += [x['id'] + ':nascent' for x in kb.proteins]
 		self._wids += [x['id'] + ':mature' for x in kb.proteins]
 
+		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
+
+		self._nMols = len(self._wids)
+
+		# Compartments
 		self._cmps = [x['id'] for x in self.compartments]
 		# self._cmps = [x['id'] for x in kb.compartments]
 
-		self._molMass = []
-
-		self._molMass += [x['mw7.2'] for x in kb.metabolites]
-		self._molMass += [x['mw'] for x in kb.rnas]*2
-		self._molMass += [x['mw'] for x in kb.proteins]*2
-
-		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
 		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
 
-		self._nMols = len(self._wids)
 		self._nCmps = len(self._cmps)
 
+		# Masses
+		molMass = []
+
+		molMass += [x['mw7.2'] for x in kb.metabolites]
+		molMass += [x['mw'] for x in kb.rnas]*2
+		molMass += [x['mw'] for x in kb.proteins]*2
+
+		self._molMass = numpy.array(molMass, float)
+
+		self._typeIdxs.update({
+			'metabolites':numpy.arange(len(kb.metabolites)),
+			'rnas':numpy.arange(2*len(kb.rnas))+len(kb.metabolites),
+			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
+			})
+
+		# Unique instances
 		self._uniqueDict = []
 
-		# TODO: add and test unique attributes to KB
+		# TODO: add unique attributes to KB and test
+		# TODO: figure out what this block is really doing/refactor
 		# for mol in kb.molecules:
 		# 	if mol["uniqueAttrs"] is not None:
 		# 		self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
@@ -448,6 +472,21 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		for partition in self.partitions:
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
+
+
+	def massAll(self, typeKey = None):
+		if typeKey is None:
+			return numpy.dot(self._molMass, self._countsBulk)
+
+		else:
+			return numpy.dot(
+				self._molMass[self._typeIdxs[typeKey]],
+				self._countsBulk[self._typeIdxs[typeKey], :]
+				)
+
+		# else:
+		# 	return numpy.dot(self._molMass[])
+		# TODO: unique counts & dMass
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):

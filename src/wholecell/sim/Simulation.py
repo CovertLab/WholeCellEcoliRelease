@@ -52,7 +52,7 @@ class Simulation(object):
 		import wholecell.sim.state.Time
 
 		self.states = [
-			# wholecell.sim.state.Mass.Mass(),
+			wholecell.sim.state.Mass.Mass(),
 			wholecell.sim.state.Metabolism.Metabolism(),
 			wholecell.sim.state.MoleculeCounts.MoleculeCounts(),
 			wholecell.sim.state.Time.Time()
@@ -123,7 +123,8 @@ class Simulation(object):
 		# Calculate initial conditions
 		self.getState("Time").calcInitialConditions()
 		self.getState("MoleculeCounts").calcInitialConditions()
-		# self.getState("Mass").calculate()
+		#self.getState("Mass").calculate()
+		self.getState("Mass").calcInitialConditions()
 		# self.getState("Mass").partition()
 		self.getState("Metabolism").calcInitialConditions()
 

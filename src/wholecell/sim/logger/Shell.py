@@ -26,8 +26,8 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		# Array of columns
 		self.columns = [
 			{"header": "Time (s)", "state": "Time", "property": "value", "length": 8, "format": "d", "sum": False},
-			#{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
-			#{"header": "Growth (fg/h)", "state": "Metabolism", "property": "growth", "length": 13, "format": ".2f", "sum": False}
+			{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
+			{"header": "Growth (fg/h)", "state": "Metabolism", "property": "growth", "length": 13, "format": ".2f", "sum": False}
 		]
 
 		# Collect Metadata
@@ -78,8 +78,8 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		sys.stdout.write("Simulation finished:\n")
 
 		# Length
-		h = numpy.floor(sim.getState("Time").value / 3600)
-		m = numpy.floor((sim.getState("Time").value % 3600) / 60)
+		h = numpy.floor(sim.getState("Time").value // 3600)
+		m = numpy.floor((sim.getState("Time").value % 3600) // 60)
 		s = sim.getState("Time").value % 60
 		sys.stdout.write(" - Length: %d:%02d:%02.0f\n" % (h, m, s))
 
