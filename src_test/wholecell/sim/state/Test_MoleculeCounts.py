@@ -138,9 +138,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.mc.prepartition()
 		self.mc.partition()
 
-		self.assertEqual(self.partition1.countsBulk().tolist(), [1., 0., 0., 0., 0., 0., 0.])
-		self.assertEqual(self.partition2.countsBulk().tolist(), [1., 1., 2., 4., 0., 0., 0.])
-		self.assertEqual(self.partition3.countsBulk().tolist(), [7., 0., 3., 2., 20., 0., 7.])
+		self.assertEqual(self.partition1.countsBulk().flatten().tolist(), [1., 0., 0., 0., 0., 0., 0.])
+		self.assertEqual(self.partition2.countsBulk().flatten().tolist(), [1., 1., 2., 4., 0., 0., 0.])
+		self.assertEqual(self.partition3.countsBulk().flatten().tolist(), [7., 0., 3., 2., 20., 0., 7.])
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation(self):
@@ -153,9 +153,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.mc.prepartition()
 		self.mc.partition()
 		
-		self.assertEqual(self.partition1.countsBulk().tolist(), [0., 0., 0., 0., 0., 0., 0.])
-		self.assertEqual(self.partition2.countsBulk().tolist(), [5., 2., 2., 2., 0., 0., 0.])
-		self.assertEqual(self.partition3.countsBulk().tolist(), [4., 0., 3., 5., 20., 0., 7.])
+		self.assertEqual(self.partition1.countsBulk().flatten().tolist(), [0., 0., 0., 0., 0., 0., 0.])
+		self.assertEqual(self.partition2.countsBulk().flatten().tolist(), [5., 2., 2., 2., 0., 0., 0.])
+		self.assertEqual(self.partition3.countsBulk().flatten().tolist(), [4., 0., 3., 5., 20., 0., 7.])
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation_withConflict(self):
@@ -169,9 +169,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.mc.prepartition()
 		self.mc.partition()
 		
-		self.assertEqual(self.partition1.countsBulk().tolist(), [0., 0., 0., 0., 0., 0., 0.])
-		self.assertEqual(self.partition2.countsBulk().tolist(), [2., 1., 2., 2., 0., 0., 0.])
-		self.assertEqual(self.partition3.countsBulk().tolist(), [8., 0., 3., 1., 2., 0., 2.])
+		self.assertEqual(self.partition1.countsBulk().flatten().tolist(), [0., 0., 0., 0., 0., 0., 0.])
+		self.assertEqual(self.partition2.countsBulk().flatten().tolist(), [2., 1., 2., 2., 0., 0., 0.])
+		self.assertEqual(self.partition3.countsBulk().flatten().tolist(), [8., 0., 3., 1., 2., 0., 2.])
 
 	@noseAttrib.attr('uniqueTest')
 	def test_moleculeNotUnique(self):

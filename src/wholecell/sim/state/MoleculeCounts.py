@@ -153,8 +153,13 @@ class MoleculeCountsBase(object):
 	def _getIndex(self, id_):
 		return [values[0] for values in self._getIndices((id_,))]
 
+
 	def countsBulkViewNew(self, ids = None):
-		raise NotImplementedError('countsBulkViewNew must be implemented by a subclass')
+		if ids is None:
+			return CountsBulkView(self)
+
+		else:
+			return CountsBulkView(self, self._getIndices(ids)[1:])
 
 
 class CountsBulkView(object):
@@ -419,7 +424,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
 			self._countsBulkPartitioned[:, :, iPartition] = allocation
-			partition._countsBulk = allocation[numpy.unravel_index(partition.mapping, allocation.shape)]
+			partition._countsBulk[:, 0] = allocation[
+				numpy.unravel_index(partition.mapping, allocation.shape)
+				] # _countsBulk is a 2D array with a singleton dimension
 		
 		# Record unpartitioned counts for later merging
 		self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
@@ -430,14 +437,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		for partition in self.partitions:
 			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
-
-
-	def countsBulkViewNew(self, ids = None):
-		if ids is None:
-			return CountsBulkView(self)
-
-		else:
-			return CountsBulkView(self, self._getIndices(ids)[1:])
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
@@ -459,13 +458,7 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	def allocate(self):
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 
-
-	def countsBulkViewNew(self, ids = None):
-		if ids is None:
-			return CountsBulkView(self)
-
-		else:
-			return CountsBulkView(self, self._getIndices(ids)[0])
+		print self._countsBulk.shape
 
 
 def _uniqueInit(self, uniqueIdx):
