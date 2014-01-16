@@ -54,7 +54,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 		self.metCounts = [10.,2.,5.,7.,20.,3.,7.]
 
 		self.mc = wcMoleculeCounts.MoleculeCounts()
-		self.mc.initialize(self.kb)
+		self.mc.initialize_old(self.kb)
 
 		# Create generic process for partition
 		self.genericProcess = type("Process", (object,), {'meta':None})()

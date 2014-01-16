@@ -21,6 +21,7 @@ import numpy
 import wholecell.sim.state.State as wcState
 import wholecell.sim.state.Partition as wcPartition
 
+DEFAULT_FORM = ':mature' # TODO: reconcile "forms"
 
 # TODO: get from KB
 IDS = {
@@ -120,9 +121,12 @@ class MoleculeCountsBase(object):
 				raise Exception('Invalid ID: {}'.format(id_))
 
 			if match.group('form') is not None:
-				raise NotImplementedError()
+				#raise NotImplementedError()
 
-			molecules.append(match.group("molecule"))
+				molecules.append(match.group('molecule') + match.group('form'))
+
+			else:
+				molecules.append(match.group("molecule") + DEFAULT_FORM)
 
 			if match.group("compartment") is None:
 				compartments.append(self._cmps[0])
@@ -239,7 +243,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, kb):
+	def initialize_old(self, kb):
 		self._nMols = len(kb.molecules)
 		self._nCmps = len(kb.compartments)
 
@@ -281,7 +285,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Media and biomass concentrations
 
-	def initialize_new(self, sim, kb):
+	def initialize(self, sim, kb):
 		super(MoleculeCounts, self).initialize(sim, kb)
 
 		# Because I'm not sure how we want to handle forms, and the names won't
