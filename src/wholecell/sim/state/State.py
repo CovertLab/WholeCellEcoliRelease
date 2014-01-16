@@ -10,8 +10,6 @@ State variable base class. Defines the interface states expose to the simulation
 @date: Created 3/29/2013
 """
 
-#import inspect
-#import copy
 import numpy
 
 class State(object):
