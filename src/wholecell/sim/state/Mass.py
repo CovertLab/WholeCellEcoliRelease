@@ -78,7 +78,6 @@ class Mass(wholecell.sim.state.State.State):
 		self.protein = numpy.zeros(len(self.compartments))
 
 
-	# Calculate (and cache) any dependent properties
 	def calculate(self):
 		from wholecell.util.Constants import Constants
 
@@ -105,7 +104,7 @@ class Mass(wholecell.sim.state.State.State):
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
-		#self.cellDry[cIdxs] = self.cell[cIdxs] - ( mc.mws[mc.idx["h2o"]] * mc.counts[mc.idx["h2o"], cIdxs] ) / Constants.nAvogadro * 1e15
+		self.cellDry[cIdxs] = self.cell[cIdxs] - mc.massAll('water')[cIdxs] / Constants.nAvogadro * 1e15
 
 	def pytablesCreate(self, h5file, sim):
 		import tables

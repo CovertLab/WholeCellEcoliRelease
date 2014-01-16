@@ -21,7 +21,7 @@ import numpy
 import wholecell.sim.state.State as wcState
 import wholecell.sim.state.Partition as wcPartition
 
-DEFAULT_FORM = ':mature' # TODO: reconcile "forms"
+DEFAULT_FORM = ':mature' # TODO: reconcile "forms" concept
 
 # TODO: get from KB
 IDS = {
@@ -164,7 +164,6 @@ class MoleculeCountsBase(object):
 
 		else:
 			return CountsBulkView(self, self._getIndices(ids)[1:])
-
 
 
 class CountsBulkView(object):
@@ -336,6 +335,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			'rnas':numpy.arange(2*len(kb.rnas))+len(kb.metabolites),
 			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
 			})
+
+		self._typeIdxs['water'] = self._wids.index('H2O:mature')
 
 		# Unique instances
 		self._uniqueDict = []
