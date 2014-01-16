@@ -26,8 +26,8 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		# Array of columns
 		self.columns = [
 			{"header": "Time (s)", "state": "Time", "property": "value", "length": 8, "format": "d", "sum": False},
-			{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
-			{"header": "Growth (fg/h)", "state": "Metabolism", "property": "growth", "length": 13, "format": ".2f", "sum": False}
+			#{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
+			#{"header": "Growth (fg/h)", "state": "Metabolism", "property": "growth", "length": 13, "format": ".2f", "sum": False}
 		]
 
 		# Collect Metadata
@@ -53,17 +53,23 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 
 	def append(self, sim):
 		self.nLines += 1
+
 		if self.nLines % self.iterFreq != 0:
 			return
 
 		for iColumn in xrange(len(self.columns)):
-			c = self.columns[iColumn]
+			column = self.columns[iColumn]
+
 			if iColumn > 0:
 				sys.stdout.write("  ")
-			val = getattr(sim.states[c["stateIdx"]], c["property"])
-			if c["sum"]:
+
+			val = getattr(sim.states[column["stateIdx"]], column["property"])
+
+			if column["sum"]:
 				val = numpy.sum(val)
-			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + c["format"]) % val)
+
+			sys.stdout.write(("%" + str(column["length"]) + column["format"]) % val)
+
 		sys.stdout.write("\n")
 
 	def finalize(self, sim):

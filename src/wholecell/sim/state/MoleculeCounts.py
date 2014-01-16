@@ -312,6 +312,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
 		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
 
+		self._nMols = len(self._wids)
+		self._nCmps = len(self._cmps)
+
 		self._uniqueDict = []
 
 		# TODO: add and test unique attributes to KB
@@ -327,7 +330,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def calcInitialConditions(self):
-		self.counts[:] = 0
+		self._countsBulk[:] = 0
 
 
 	def molecule(self, wid, comp):
@@ -384,56 +387,60 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def partition(self):
-		# TODO: partitioning of unique instances (for both specific and nonspecific requests)
-		requestsShape = (self._countsBulk.shape[0], self._countsBulk.shape[1], len(self.partitions))
+		if self.partitions:
+			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
+			requestsShape = (self._countsBulk.shape[0], self._countsBulk.shape[1], len(self.partitions))
 
-		requests = numpy.zeros(requestsShape)
+			requests = numpy.zeros(requestsShape)
 
-		# Calculate and store requests
-		for iPartition, partition in enumerate(self.partitions):
-			# Call request function and record requests
-			requests[
-				numpy.unravel_index(partition.mapping, self._countsBulk.shape)
-				+ (iPartition,)
-				] = numpy.maximum(0, partition.reqFunc())
+			# Calculate and store requests
+			for iPartition, partition in enumerate(self.partitions):
+				# Call request function and record requests
+				requests[
+					numpy.unravel_index(partition.mapping, self._countsBulk.shape)
+					+ (iPartition,)
+					] = numpy.maximum(0, partition.reqFunc())
 
-		isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
-		requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
-		requestsRelative = numpy.sum(requests[:, :, ~isRequestAbsolute], axis = 2)
+			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
+			requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
+			requestsRelative = numpy.sum(requests[:, :, ~isRequestAbsolute], axis = 2)
 
-		self._countsBulkRequested = numpy.sum(requests, axis = 2)
+			self._countsBulkRequested = numpy.sum(requests, axis = 2)
 
-		# TODO: Remove the warnings filter or move it elsewhere
-		# there may also be a way to avoid these warnings by only evaluating 
-		# division "sparsely", which should be faster anyway - JM
-		oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+			# TODO: Remove the warnings filter or move it elsewhere
+			# there may also be a way to avoid these warnings by only evaluating 
+			# division "sparsely", which should be faster anyway - JM
+			oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
 
-		scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-			numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
-				numpy.minimum(self._countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
-			)
+			scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+				numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
+					numpy.minimum(self._countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
+				)
 
-		scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-			numpy.maximum(0, self._countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
-			)
+			scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+				numpy.maximum(0, self._countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
+				)
 
-		scaleRelative[requestsRelative == 0] = 0 # nan handling?
+			scaleRelative[requestsRelative == 0] = 0 # nan handling?
 
-		numpy.seterr(**oldSettings) # Restore error handling to the previous state
+			numpy.seterr(**oldSettings) # Restore error handling to the previous state
 
-		# Compute allocations and assign counts to the partitions
-		for iPartition, partition in enumerate(self.partitions):
-			scale = scaleAbsolute if partition.isReqAbs else scaleRelative
+			# Compute allocations and assign counts to the partitions
+			for iPartition, partition in enumerate(self.partitions):
+				scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
-			allocation = numpy.floor(requests[:, :, iPartition] * scale)
+				allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
-			self._countsBulkPartitioned[:, :, iPartition] = allocation
-			partition._countsBulk[:, 0] = allocation[
-				numpy.unravel_index(partition.mapping, allocation.shape)
-				] # _countsBulk is a 2D array with a singleton dimension
-		
-		# Record unpartitioned counts for later merging
-		self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
+				self._countsBulkPartitioned[:, :, iPartition] = allocation
+				partition._countsBulk[:, 0] = allocation[
+					numpy.unravel_index(partition.mapping, allocation.shape)
+					] # _countsBulk is a 2D array with a singleton dimension
+			
+			# Record unpartitioned counts for later merging
+			self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
+
+		else:
+			self._countsBulkUnpartitioned = self._countsBulk
 
 
 	def merge(self):

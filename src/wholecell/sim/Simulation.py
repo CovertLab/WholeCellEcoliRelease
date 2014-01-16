@@ -52,7 +52,7 @@ class Simulation(object):
 		import wholecell.sim.state.Time
 
 		self.states = [
-			wholecell.sim.state.Mass.Mass(),
+			# wholecell.sim.state.Mass.Mass(),
 			wholecell.sim.state.Metabolism.Metabolism(),
 			wholecell.sim.state.MoleculeCounts.MoleculeCounts(),
 			wholecell.sim.state.Time.Time()
@@ -71,13 +71,13 @@ class Simulation(object):
 		import wholecell.sim.process.Translation
 
 		self.processes = [
-			wholecell.sim.process.Complexation.Complexation(),
-			wholecell.sim.process.Metabolism.Metabolism(),
-			wholecell.sim.process.ProteinMaturation.ProteinMaturation(),
-			wholecell.sim.process.RnaDegradation.RnaDegradation(),
-			wholecell.sim.process.RnaMaturation.RnaMaturation(),
-			wholecell.sim.process.Transcription.Transcription(),
-			wholecell.sim.process.Translation.Translation()
+			# wholecell.sim.process.Complexation.Complexation(),
+			# wholecell.sim.process.Metabolism.Metabolism(),
+			# wholecell.sim.process.ProteinMaturation.ProteinMaturation(),
+			# wholecell.sim.process.RnaDegradation.RnaDegradation(),
+			# wholecell.sim.process.RnaMaturation.RnaMaturation(),
+			# wholecell.sim.process.Transcription.Transcription(),
+			# wholecell.sim.process.Translation.Translation()
 		]
 
 	# Link states and processes
@@ -123,8 +123,8 @@ class Simulation(object):
 		# Calculate initial conditions
 		self.getState("Time").calcInitialConditions()
 		self.getState("MoleculeCounts").calcInitialConditions()
-		self.getState("Mass").calculate()
-		self.getState("Mass").partition()
+		# self.getState("Mass").calculate()
+		# self.getState("Mass").partition()
 		self.getState("Metabolism").calcInitialConditions()
 
 		# Calculate dependent state
