@@ -98,7 +98,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 	def calcReqMetabolites(self, request):
 		request.countsBulkIs(0)
 
-		self.hMol.countBulkIs(
+		self.h2oMol.countBulkIs(
 			numpy.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
 			)
 
