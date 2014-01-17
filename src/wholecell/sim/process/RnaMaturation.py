@@ -39,13 +39,13 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 
 	# Calculate needed nascent RNA
 	def calcReqNascentRna(self):
-		return numpy.ones(self.nascentRna.fullCounts.shape)
+		return numpy.ones_like(self.nascentRna.countsBulk())
 
 	# Calculate needed mature RNA
 	def calcReqMatureRna(self):
-		return numpy.zeros(self.matureRna.fullCounts.shape)
+		return numpy.zeros_like(self.nascentRna.countsBulk())
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.matureRna.counts += self.nascentRna.counts
-		self.nascentRna.counts[:] = 0
+		self.matureRna.countsBulkInc(self.nascentRna.countsBulk())
+		self.nascentRna.countsBulkIs(0)

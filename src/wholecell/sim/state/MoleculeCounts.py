@@ -74,7 +74,7 @@ IDS = {
 	}
 
 # TODO: make most of these classes _private
-
+# TODO: make a base class for bulk counts?
 class MoleculeCountsBase(object):
 	'''MoleculeCountsBase
 
@@ -108,6 +108,9 @@ class MoleculeCountsBase(object):
 
 	def countsBulkIs(self, counts, ids = None):
 		return self.countsBulkViewNew(ids).countsBulkIs(counts)
+
+	def countsBulkInc(self, counts, ids = None):
+		return self.countsBulkViewNew(ids).countsBulkInc(counts)
 
 
 	def _getIndices(self, ids):
@@ -190,10 +193,18 @@ class CountsBulkView(object):
 
 	def countsBulkIs(self, counts):
 		if self._indices is None:
-			self._parent._countsBulk = counts
+			self._parent._countsBulk[:] = counts
 
 		else:
 			self._parent._countsBulk[self._indices] = counts
+
+
+	def countsBulkInc(self, counts):
+		if self._indices is None:
+			self._parent._countsBulk += counts
+
+		else:
+			self._parent._countsBulk[self._indices] += counts
 
 
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
@@ -424,7 +435,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				requests[
 					numpy.unravel_index(partition.mapping, self._countsBulk.shape)
 					+ (iPartition,)
-					] = numpy.maximum(0, partition.reqFunc())
+					] = numpy.maximum(0, partition.reqFunc().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
 			requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
@@ -472,7 +483,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulk = self._countsBulkUnpartitioned
 
 		for partition in self.partitions:
-			self._countsBulk[numpy.unravel_index(partition.mapping, self._countsBulk.shape)] += partition._countsBulk
+			self._countsBulk[
+				numpy.unravel_index(partition.mapping, self._countsBulk.shape)
+				] += partition.countsBulk().flatten()
 
 
 	def massAll(self, typeKey = None):
@@ -508,8 +521,6 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 
 	def allocate(self):
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
-
-		print self._countsBulk.shape
 
 
 def _uniqueInit(self, uniqueIdx):

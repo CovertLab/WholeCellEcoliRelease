@@ -84,14 +84,9 @@ class Mass(wholecell.sim.state.State.State):
 		mc = self.moleculeCounts
 
 		# Total
-		# self.total = ( numpy.dot(mc.mws, mc.counts) ) / Constants.nAvogadro * 1e15
 		self.total = mc.massAll() / Constants.nAvogadro * 1e15
 
 		# Cell
-		# self.metabolite = ( numpy.dot(mc.mws[mc.types == mc.typeVals["metabolite"]], mc.counts[mc.types == mc.typeVals["metabolite"]]) ) / Constants.nAvogadro * 1e15
-		# self.rna        = ( numpy.dot(mc.mws[mc.types == mc.typeVals["rna"]       ], mc.counts[mc.types == mc.typeVals["rna"]       ]) ) / Constants.nAvogadro * 1e15
-		# self.protein    = ( numpy.dot(mc.mws[mc.types == mc.typeVals["protein"]   ], mc.counts[mc.types == mc.typeVals["protein"]   ]) ) / Constants.nAvogadro * 1e15
-
 		self.metabolite = mc.massAll('metabolites') / Constants.nAvogadro * 1e15
 		self.rna        = mc.massAll('rnas')        / Constants.nAvogadro * 1e15
 		self.protein    = mc.massAll('proteins')    / Constants.nAvogadro * 1e15

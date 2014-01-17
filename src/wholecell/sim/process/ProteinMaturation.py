@@ -46,13 +46,13 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 	# Calculate needed proteins
 	def calcReqNascentProteinMonomer(self):
-		return numpy.ones(self.nascentProteinMonomer.fullCounts.shape)
+		return numpy.ones_like(self.nascentProteinMonomer.countsBulk())
 
 	# Calculate needed proteins
 	def calcReqMatureProteinMonomer(self):
-		return numpy.zeros(self.matureProteinMonomer.fullCounts.shape)
+		return numpy.zeros_like(self.nascentProteinMonomer.countsBulk())
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.matureProteinMonomer.counts += self.nascentProteinMonomer.counts
-		self.nascentProteinMonomer.counts[:] = 0
+		self.matureProteinMonomer.countsBulkInc(self.nascentProteinMonomer.countsBulk())
+		self.nascentProteinMonomer.countsBulkIs(0)
