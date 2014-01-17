@@ -453,8 +453,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				requests[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.reqFunc().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
-			requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
-			requestsRelative = numpy.sum(requests[:, :, ~isRequestAbsolute], axis = 2)
+			requestsAbsolute = numpy.sum(requests[..., isRequestAbsolute], axis = 2)
+			requestsRelative = numpy.sum(requests[..., ~isRequestAbsolute], axis = 2)
 
 			self._countsBulkRequested = numpy.sum(requests, axis = 2)
 
@@ -480,9 +480,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			for iPartition, partition in enumerate(self.partitions):
 				scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
-				allocation = numpy.floor(requests[:, :, iPartition] * scale)
+				allocation = numpy.floor(requests[..., iPartition] * scale)
 
-				self._countsBulkPartitioned[:, :, iPartition] = allocation
+				self._countsBulkPartitioned[..., iPartition] = allocation
 				partition.countsBulkIs(
 					allocation.flat[partition.mapping][:, numpy.newaxis] # must add a new dimension for proper broadcasting
 					)

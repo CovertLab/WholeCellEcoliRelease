@@ -62,13 +62,13 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 		# Create some partitions, currently without request functions
 		self.partition1 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], None)
+			metId + '[c]' for metId in self.metIds], lambda: None)
 
 		self.partition2 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], None)
+			metId + '[c]' for metId in self.metIds], lambda: None)
 
 		self.partition3 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], None)
+			metId + '[c]' for metId in self.metIds], lambda: None)
 
 		self.mc.allocate()
 
