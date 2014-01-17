@@ -52,10 +52,6 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		# Metabolites
 		self.metabolite = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
-		# self.metabolite.idx["nmps"] = self.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[0]
-		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
-		# self.metabolite.idx["h2o"] = self.metabolite.getIndex("H2O[c]")[0]
-		# self.metabolite.idx["h"] = self.metabolite.getIndex("H[c]")[0]
 
 		self.nmpView = self.metabolite.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
 		self.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
@@ -78,7 +74,6 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		# Proteins
 		self.enzyme = mc.addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
-		# self.enzyme.idx["rnaseR"] = self.enzyme.getIndex(["EG11259-MONOMER:mature[c]"])[0]
 
 		self.rnaseRMol = self.enzyme.molecule('EG11259-MONOMER:mature', 'merged')
 
@@ -86,16 +81,19 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Check if RNAse R expressed
-		# if self.enzyme.counts[self.enzyme.idx["rnaseR"]] == 0:
-		# 	return
+		if self.rnaseRMol.countBulk() == 0:
+			return
 
 		# Degrade RNA
-		# self.metabolite.counts += numpy.dot(self.rnaDegSMat, self.rna.counts)
-		# self.rna.counts[:] = 0
-		pass
+		self.metabolite.countsBulkInc(
+			numpy.dot(self.rnaDegSMat, self.rnaView.countsBulk())
+			)
+
+		self.rna.countsBulkIs(0)
 
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 
+		
 	# Calculate needed metabolites
 	def calcReqMetabolites(self, request):
 		request.countsBulkIs(0)
@@ -105,12 +103,12 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 			)
 
 
-
 	# Calculate needed RNA
 	def calcReqRna(self, request):
 		request.countsBulkIs(
 			self.randStream.poissrnd(self.rnaDegRates * self.rnaView.countsBulk() * self.timeStepSec)
 			)
+
 
 	# Calculate needed proteins
 	def calcReqEnzyme(self, request):

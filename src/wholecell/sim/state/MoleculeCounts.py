@@ -198,11 +198,14 @@ class CountsBulkView(object):
 			return self._parent._countsBulk[self._indices]
 
 	def countsBulkIs(self, counts):
-		if type(counts) == numpy.ndarray and counts.ndim == 1:
-			counts.shape += (1,) # fixes broadcasting from 1D arrays
-
 		if self._indices is None:
+			if type(counts) == numpy.ndarray and counts.ndim == 1:
+				counts = counts[:, numpy.newaxis] # fixes broadcasting from 1D arrays
+
 			self._parent._countsBulk[:] = counts
+
+			# TODO: determine if there is a better solution for this
+			# TODO: consider filing a report for NumPy's broadcasting rules
 
 		else:
 			self._parent._countsBulk[self._indices] = counts
