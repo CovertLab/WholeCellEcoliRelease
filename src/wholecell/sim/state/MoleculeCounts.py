@@ -523,6 +523,35 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 
 
+	def requestNew(self):
+		return Request(self)
+
+
+class Request(MoleculeCountsBase):
+	'''Request
+
+	Container object spawned by MoleculeCountsPartition, and used to generate 
+	requests without fiddling with indices.'''
+
+	def __init__(self, origin):
+		self._wids = origin._wids
+		self._widIdx = origin._widIdx
+
+		self._cmps = origin._cmps
+		self._cmpIdx = origin._cmpIdx
+
+		self._nMols = origin._nMols
+		self._nCmps = origin._nCmps
+
+		self._origin = origin
+
+	def origin(self):
+		return self._origin
+
+	def allocate(self):
+		self._countsBulk = numpy.zeros_like(origin._countsBulk)
+
+
 def _uniqueInit(self, uniqueIdx):
 	# Default initialization method for _Molecule objects
 	self._uniqueIdx = uniqueIdx
