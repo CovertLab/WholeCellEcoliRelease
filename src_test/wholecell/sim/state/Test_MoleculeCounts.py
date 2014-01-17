@@ -62,13 +62,13 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 		# Create some partitions, currently without request functions
 		self.partition1 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], lambda: None)
+			metId + '[c]' for metId in self.metIds], lambda partition: None)
 
 		self.partition2 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], lambda: None)
+			metId + '[c]' for metId in self.metIds], lambda partition: None)
 
 		self.partition3 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], lambda: None)
+			metId + '[c]' for metId in self.metIds], lambda partition: None)
 
 		self.mc.allocate()
 
@@ -100,9 +100,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 	def test_CountsBulkViewsPartition(self):
 		view = self.partition1.countsBulkViewNew([self.metIds[0], ])
 
-		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
+		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -131,9 +131,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_relativeAllocation(self):
-		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
+		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
 
 		self.mc.prepartition()
 		self.mc.partition()
@@ -144,9 +144,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation(self):
-		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
+		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
 
 		self.partition2.isReqAbs = True # this is a hack
 
@@ -159,9 +159,9 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_absoluteAllocation_withConflict(self):
-		self.partition1.reqFunc = lambda: numpy.array([3., 0., 0., 0., 0., 0., 0.])
-		self.partition2.reqFunc = lambda: numpy.array([5., 3., 2., 2., 0., 0., 0.])
-		self.partition3.reqFunc = lambda: numpy.array([20., 1., 3., 1., 2., 0., 2.])
+		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
+		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
+		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
 
 		self.partition2.isReqAbs = True # this is a hack
 		self.partition3.isReqAbs = True # this is a hack
