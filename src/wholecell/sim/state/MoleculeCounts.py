@@ -16,7 +16,6 @@ array and unique instances in a series of lists sharing a common index.
 """
 
 import re
-from types import MethodType
 
 import numpy
 import wholecell.sim.state.State as wcState
@@ -235,6 +234,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	_typeIdxs = None
 
+	_requests = None
+
 	def __init__(self, *args, **kwargs):
 		self.meta = {
 			"id": "MoleculeCounts",
@@ -264,6 +265,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkUnpartitioned = None
 
 		self.partitionClass = MoleculeCountsPartition
+
+		self._requests = []
 
 		# Reference attributes
 		self._typeIdxs = {} 
@@ -388,6 +391,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def allocate(self):
 		super(MoleculeCounts, self).allocate() # Allocates partitions
 
+		for request in self._requests:
+			request.allocate()
+
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
 		self._massSingle = numpy.tile(self._molMass, [self._nCmps, 1]).transpose() # Repeat for each compartment
 
@@ -405,7 +411,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# TODO: warning for adding a partition after allocation
 		partition = super(MoleculeCounts, self).addPartition(process)
 		
-		partition.reqFunc = MethodType(reqFunc, partition, self.partitionClass)
+		partition.reqFunc = reqFunc
 		partition.isReqAbs = isReqAbs
 
 		mapping, iMolecule = self._getIndices(reqMols)[:2]
@@ -429,7 +435,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def prepartition(self):
-		# Provide every partition with knowledge of what is currently available
+		# Provide every request with knowledge of what is currently available
 		for partition in self.partitions:
 			partition.countsBulkIs(
 				self._countsBulk.flat[partition.mapping][:, numpy.newaxis] # must add a new dimension for proper broadcasting
@@ -450,7 +456,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			# Calculate and store requests
 			for iPartition, partition in enumerate(self.partitions):
 				# Call request function and record requests
-				requests[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.reqFunc().flatten())
+				requests[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
 			requestsAbsolute = numpy.sum(requests[..., isRequestAbsolute], axis = 2)
@@ -523,18 +529,23 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	methods for indexing and creating views.'''
 
 	mapping = None
-	reqFunc = None
-	isReqAbs = None
 
 	def __init__(self, *args, **kwargs):
 		super(MoleculeCountsPartition, self).__init__(*args, **kwargs)
 		
+		# hack; uniques instances are unimplemented
 		self._molecules = {}
 		self._uniqueDict = self.state()._uniqueDict
 
 
 	def allocate(self):
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
+
+
+	def request(self):
+		self.reqFunc(self)
+
+		return self._countsBulk
 
 
 def _uniqueInit(self, uniqueIdx):

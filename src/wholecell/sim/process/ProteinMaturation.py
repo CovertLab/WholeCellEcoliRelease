@@ -24,10 +24,6 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 			"name": "ProteinMaturation",
 		}
 
-		# References to states
-		self.nascentProteinMonomer = None
-		self.matureProteinMonomer = None
-		
 		super(ProteinMaturation, self).__init__()
 
 	# Construct object graph
@@ -52,9 +48,9 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 
 # Calculate needed proteins
-def _calcReqNascentProteinMonomer(partition):
-	return numpy.ones_like(partition.countsBulk())
+def _calcReqNascentProteinMonomer(request):
+	request.countsBulkIs(1)
 
 # Calculate needed proteins
-def _calcReqMatureProteinMonomer(partition):
-	return numpy.zeros_like(partition.countsBulk())
+def _calcReqMatureProteinMonomer(request):
+	request.countsBulkIs(0)

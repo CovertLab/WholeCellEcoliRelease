@@ -24,10 +24,6 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 			"name": "RNA maturation"
 		}
 
-		# References to states
-		self.nascentRna = None
-		self.matureRna = None
-
 		super(RnaMaturation, self).__init__()
 
 	# Construct object graph
@@ -46,9 +42,9 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 
 
 # Calculate needed nascent RNA
-def _calcReqNascentRna(partition):
-	return numpy.ones_like(partition.countsBulk())
+def _calcReqNascentRna(request):
+	request.countsBulkIs(1)
 
 # Calculate needed mature RNA
-def _calcReqMatureRna(partition):
-	return numpy.zeros_like(partition.countsBulk())
+def _calcReqMatureRna(request):
+	request.countsBulkIs(0)
