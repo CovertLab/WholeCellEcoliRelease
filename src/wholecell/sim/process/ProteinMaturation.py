@@ -26,6 +26,7 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 		super(ProteinMaturation, self).__init__()
 
+
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(ProteinMaturation, self).initialize(sim, kb)
@@ -34,23 +35,25 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 		self.nascentProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":nascent[c]" for x in monomers],
-			_calcReqNascentProteinMonomer)
+			self.calcReqNascentProteinMonomer)
 
 		self.matureProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":mature[" + x["location"] + "]" for x in monomers],
-			_calcReqMatureProteinMonomer)
+			self.calcReqMatureProteinMonomer)
+
+
+	# Calculate needed proteins
+	def calcReqNascentProteinMonomer(self, request):
+		request.countsBulkIs(1)
+
+
+	# Calculate needed proteins
+	def calcReqMatureProteinMonomer(self, request):
+		request.countsBulkIs(0)
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		self.matureProteinMonomer.countsBulkInc(
 			self.nascentProteinMonomer.countsBulk())
 		self.nascentProteinMonomer.countsBulkIs(0)
-
-
-# Calculate needed proteins
-def _calcReqNascentProteinMonomer(request):
-	request.countsBulkIs(1)
-
-# Calculate needed proteins
-def _calcReqMatureProteinMonomer(request):
-	request.countsBulkIs(0)

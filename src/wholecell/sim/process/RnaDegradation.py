@@ -41,40 +41,47 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self._metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 
+		self._ntpIdxs = numpy.arange(6, 10)
+		self._nmpIdxs = numpy.arange(0, 4)
+		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
+		self._hIdx = self._metaboliteIds.index('H[c]')
+
 		self._rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas] + [x["id"] + ":mature[c]" for x in kb.rnas]
 
+		mc = sim.getState('MoleculeCounts')
+
 		# Metabolites
-		self.metabolite = sim.getState("MoleculeCounts").addPartition(self,
-			self._metaboliteIds, _calcReqMetabolites)
+		self.metabolite = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
 		# self.metabolite.idx["nmps"] = self.metabolite.getIndex(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])[0]
 		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
 		# self.metabolite.idx["h2o"] = self.metabolite.getIndex("H2O[c]")[0]
 		# self.metabolite.idx["h"] = self.metabolite.getIndex("H[c]")[0]
 
-		self.metabolite.nmpView = self.metabolite.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
-		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
-		self.metabolite.hMol = self.metabolite.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.nmpView = self.metabolite.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
+		self.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.h2oMol = self.metabolite.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.hMol = self.metabolite.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
 
 		# Rna
-		self.rna = sim.getState("MoleculeCounts").addPartition(self,
-			self._rnaIds ,_calcReqRna, True)
+		self.rna = mc.addPartition(self, self._rnaIds ,self.calcReqRna, True)
+
+		self.rnaView = mc.countsBulkViewNew(self._rnaIds)
 
 		self.rnaDegRates = numpy.log(2) / numpy.array([x["halfLife"] for x in kb.rnas] * 2)
 
 		self.rnaLens = numpy.sum(numpy.array([x["ntCount"] for x in kb.rnas] * 2), axis = 1)
 
 		self.rnaDegSMat = numpy.zeros((len(self._metaboliteIds), len(self._rnaIds)))
-		# self.rnaDegSMat[self.metabolite.idx["ntps"], :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
-		# self.rnaDegSMat[self.metabolite.idx["h2o"], :]  = -(numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
-		# self.rnaDegSMat[self.metabolite.idx["h"], :]    =  (numpy.sum(self.rnaDegSMat[self.metabolite.idx["nmps"], :], axis = 0) - 1)
-
-		# self.rnaDegSMat = numpy.zeros((self.metabolite.countsBulk().size, self.rna.countsBulk().size))
+		self.rnaDegSMat[self._ntpIdxs, :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
+		self.rnaDegSMat[self._h2oIdx, :]  = -(numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
+		self.rnaDegSMat[self._hIdx, :]    =  (numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Proteins
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["EG11259-MONOMER:mature[c]"], _calcReqEnzyme)
+		self.enzyme = mc.addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
 		# self.enzyme.idx["rnaseR"] = self.enzyme.getIndex(["EG11259-MONOMER:mature[c]"])[0]
-	
+
+		self.rnaseRMol = self.enzyme.molecule('EG11259-MONOMER:mature', 'merged')
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -89,28 +96,22 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 
+	# Calculate needed metabolites
+	def calcReqMetabolites(self, request):
+		request.countsBulkIs(0)
 
-# Partition requirement calculations
-
-# Calculate needed metabolites
-def _calcReqMetabolites(request):
-	# val = numpy.zeros(self.metabolite.fullCounts.shape)
-	# val[self.metabolite.idx["h2o"]] = numpy.dot(self.rnaLens, self.rnaDegRates * self.rna.fullCounts) * self.timeStepSec
-	# return val
-
-	process = request.process()
-
-	request.countsBulkIs(0)
-	request.h2oMol.countBulkIs(1)
+		self.hMol.countBulkIs(
+			numpy.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
+			)
 
 
 
-# Calculate needed RNA
-def _calcReqRna(request):
-	# return self.randStream.poissrnd(self.rnaDegRates * self.rna.fullCounts * self.timeStepSec)
-	pass
+	# Calculate needed RNA
+	def calcReqRna(self, request):
+		request.countsBulkIs(
+			self.randStream.poissrnd(self.rnaDegRates * self.rnaView.countsBulk() * self.timeStepSec)
+			)
 
-# Calculate needed proteins
-def _calcReqEnzyme(request):
-	# return numpy.ones(self.enzyme.fullCounts.shape)
-	pass
+	# Calculate needed proteins
+	def calcReqEnzyme(self, request):
+		request.countsBulkIs(1)

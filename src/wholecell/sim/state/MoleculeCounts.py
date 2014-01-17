@@ -198,6 +198,9 @@ class CountsBulkView(object):
 			return self._parent._countsBulk[self._indices]
 
 	def countsBulkIs(self, counts):
+		if type(counts) == numpy.ndarray and counts.ndim == 1:
+			counts.shape += (1,) # fixes broadcasting from 1D arrays
+
 		if self._indices is None:
 			self._parent._countsBulk[:] = counts
 
@@ -435,11 +438,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def prepartition(self):
-		# Provide every request with knowledge of what is currently available
+		# Clear out the existing partitions in preparation for the requests
 		for partition in self.partitions:
-			partition.countsBulkIs(
-				self._countsBulk.flat[partition.mapping][:, numpy.newaxis] # must add a new dimension for proper broadcasting
-				)
+			partition.countsBulkIs(0)
 
 
 	def partition(self):
@@ -490,7 +491,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 				self._countsBulkPartitioned[..., iPartition] = allocation
 				partition.countsBulkIs(
-					allocation.flat[partition.mapping][:, numpy.newaxis] # must add a new dimension for proper broadcasting
+					allocation.flat[partition.mapping]
 					)
 			
 			# Record unpartitioned counts for later merging
@@ -526,7 +527,9 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	'''MoleculeCountsPartition
 
 	Partition for MoleculeCounts.  Acts mostly as a container class, with some
-	methods for indexing and creating views.'''
+	methods for indexing and creating views.  Partitions act as containers for 
+	requests prior to partitioning, as well as containers for the counts that
+	are ultimately partitioned to the state.'''
 
 	mapping = None
 
