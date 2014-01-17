@@ -16,6 +16,7 @@ array and unique instances in a series of lists sharing a common index.
 """
 
 import re
+from types import MethodType
 
 import numpy
 import wholecell.sim.state.State as wcState
@@ -94,6 +95,8 @@ class MoleculeCountsBase(object):
 
 	_wids = None
 	_cmps = None
+
+	_uniqueDict = None
 
 
 	def molecule(self, wid, comp):
@@ -225,6 +228,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		{"id": "p", "name": "Periplasm"},
 		{"id": "w", "name": "Cell wall"}
 		]
+
 	_typeIdxs = None
 
 	def __init__(self, *args, **kwargs):
@@ -304,6 +308,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# Prefered localization
 
 		# Media and biomass concentrations
+
 
 	def initialize(self, sim, kb):
 		super(MoleculeCounts, self).initialize(sim, kb)
@@ -389,13 +394,14 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
 		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
+
 	# Partitioning
 
 	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
 		# TODO: warning for adding a partition after allocation
 		partition = super(MoleculeCounts, self).addPartition(process)
 		
-		partition.reqFunc = reqFunc
+		partition.reqFunc = MethodType(reqFunc, partition, self.partitionClass)
 		partition.isReqAbs = isReqAbs
 
 		mapping, iMolecule = self._getIndices(reqMols)[:2]
@@ -419,7 +425,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def prepartition(self):
-		pass
+		# Provide every partition with knowledge of what is currently available
+		for partition in self.partitions:
+			partition.countsBulkIs(
+				self._countsBulk.flat[partition.mapping][:, numpy.newaxis] # must add a new dimension for proper broadcasting
+				)
 
 
 	def partition(self):
@@ -468,9 +478,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				allocation = numpy.floor(requests[:, :, iPartition] * scale)
 
 				self._countsBulkPartitioned[:, :, iPartition] = allocation
-				partition._countsBulk[:, 0] = allocation[
-					numpy.unravel_index(partition.mapping, allocation.shape)
-					] # _countsBulk is a 2D array with a singleton dimension
+				partition.countsBulkIs(
+					allocation.flat[partition.mapping][:, numpy.newaxis] # must add a new dimension for proper broadcasting
+					)
 			
 			# Record unpartitioned counts for later merging
 			self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
@@ -514,42 +524,14 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	isReqAbs = None
 
 	def __init__(self, *args, **kwargs):
-		self._molecules = {}
-
 		super(MoleculeCountsPartition, self).__init__(*args, **kwargs)
+		
+		self._molecules = {}
+		self._uniqueDict = self.state()._uniqueDict
 
 
 	def allocate(self):
 		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
-
-
-	def requestNew(self):
-		return Request(self)
-
-
-class Request(MoleculeCountsBase):
-	'''Request
-
-	Container object spawned by MoleculeCountsPartition, and used to generate 
-	requests without fiddling with indices.'''
-
-	def __init__(self, origin):
-		self._wids = origin._wids
-		self._widIdx = origin._widIdx
-
-		self._cmps = origin._cmps
-		self._cmpIdx = origin._cmpIdx
-
-		self._nMols = origin._nMols
-		self._nCmps = origin._nCmps
-
-		self._origin = origin
-
-	def origin(self):
-		return self._origin
-
-	def allocate(self):
-		self._countsBulk = numpy.zeros_like(origin._countsBulk)
 
 
 def _uniqueInit(self, uniqueIdx):

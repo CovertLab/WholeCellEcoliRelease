@@ -34,18 +34,21 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(RnaMaturation, self).initialize(sim, kb)
 
-		self.nascentRna = sim.getState("MoleculeCounts").addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqNascentRna)
-		self.matureRna = sim.getState("MoleculeCounts").addPartition(self, [x["id"] + ":mature[c]" for x in kb.rnas], self.calcReqMatureRna)
+		mc = sim.getState('MoleculeCounts')
 
-	# Calculate needed nascent RNA
-	def calcReqNascentRna(self):
-		return numpy.ones_like(self.nascentRna.countsBulk())
-
-	# Calculate needed mature RNA
-	def calcReqMatureRna(self):
-		return numpy.zeros_like(self.nascentRna.countsBulk())
+		self.nascentRna = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], _calcReqNascentRna)
+		self.matureRna = mc.addPartition(self, [x["id"] + ":mature[c]" for x in kb.rnas], _calcReqMatureRna)
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		self.matureRna.countsBulkInc(self.nascentRna.countsBulk())
 		self.nascentRna.countsBulkIs(0)
+
+
+# Calculate needed nascent RNA
+def _calcReqNascentRna(partition):
+	return numpy.ones_like(partition.countsBulk())
+
+# Calculate needed mature RNA
+def _calcReqMatureRna(partition):
+	return numpy.zeros_like(partition.countsBulk())

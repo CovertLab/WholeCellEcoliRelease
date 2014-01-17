@@ -38,21 +38,23 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 		self.nascentProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":nascent[c]" for x in monomers],
-			self.calcReqNascentProteinMonomer)
+			_calcReqNascentProteinMonomer)
 
 		self.matureProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":mature[" + x["location"] + "]" for x in monomers],
-			self.calcReqMatureProteinMonomer)
-
-	# Calculate needed proteins
-	def calcReqNascentProteinMonomer(self):
-		return numpy.ones_like(self.nascentProteinMonomer.countsBulk())
-
-	# Calculate needed proteins
-	def calcReqMatureProteinMonomer(self):
-		return numpy.zeros_like(self.nascentProteinMonomer.countsBulk())
+			_calcReqMatureProteinMonomer)
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.matureProteinMonomer.countsBulkInc(self.nascentProteinMonomer.countsBulk())
+		self.matureProteinMonomer.countsBulkInc(
+			self.nascentProteinMonomer.countsBulk())
 		self.nascentProteinMonomer.countsBulkIs(0)
+
+
+# Calculate needed proteins
+def _calcReqNascentProteinMonomer(partition):
+	return numpy.ones_like(partition.countsBulk())
+
+# Calculate needed proteins
+def _calcReqMatureProteinMonomer(partition):
+	return numpy.zeros_like(partition.countsBulk())
