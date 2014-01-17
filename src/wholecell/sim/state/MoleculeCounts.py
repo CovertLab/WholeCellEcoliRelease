@@ -117,6 +117,10 @@ class MoleculeCountsBase(object):
 
 
 	def _getIndices(self, ids):
+		# TODO: better support for form values
+		# TODO: use internally in place of self._wids?
+		# TODO: better support for compartments
+
 		molecules = []
 		compartments = []
 
@@ -435,17 +439,18 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def partition(self):
 		if self.partitions:
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
-			requestsShape = (self._countsBulk.shape[0], self._countsBulk.shape[1], len(self.partitions))
+			requestsShape = (
+				self._countsBulk.shape[0],
+				self._countsBulk.shape[1],
+				len(self.partitions)
+				)
 
 			requests = numpy.zeros(requestsShape)
 
 			# Calculate and store requests
 			for iPartition, partition in enumerate(self.partitions):
 				# Call request function and record requests
-				requests[
-					numpy.unravel_index(partition.mapping, self._countsBulk.shape)
-					+ (iPartition,)
-					] = numpy.maximum(0, partition.reqFunc().flatten())
+				requests[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.reqFunc().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
 			requestsAbsolute = numpy.sum(requests[:, :, isRequestAbsolute], axis = 2)
@@ -493,9 +498,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulk = self._countsBulkUnpartitioned
 
 		for partition in self.partitions:
-			self._countsBulk[
-				numpy.unravel_index(partition.mapping, self._countsBulk.shape)
-				] += partition.countsBulk().flatten()
+			self._countsBulk.flat[partition.mapping] += partition.countsBulk().flatten()
 
 
 	def massAll(self, typeKey = None):
