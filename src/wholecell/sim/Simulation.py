@@ -72,7 +72,7 @@ class Simulation(object):
 
 		self.processes = [
 			wholecell.sim.process.Complexation.Complexation(),
-			# wholecell.sim.process.Metabolism.Metabolism(),
+			wholecell.sim.process.Metabolism.Metabolism(),
 			wholecell.sim.process.ProteinMaturation.ProteinMaturation(),
 			wholecell.sim.process.RnaDegradation.RnaDegradation(),
 			wholecell.sim.process.RnaMaturation.RnaMaturation(),
