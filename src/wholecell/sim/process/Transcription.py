@@ -133,26 +133,29 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		import ipdb
-		ipdb.set_trace()
-
-	#	print "TRANSCRIPTION"
 		enzLimit = numpy.min([
-			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec,
-			1.1 * 4 * numpy.min(self.metabolite.counts[self.metabolite.idx["ntps"]])
+			self.calcRnaps(
+				self.enzyme.rpoAMol.countBulk(), self.enzyme.rpoBMol.countBulk(),
+				self.enzyme.rpoCMol.countBulk(), self.enzyme.rpoDMol.countBulk()
+				) * self.elngRate * self.timeStepSec,
+			1.1 * 4 * numpy.min(self.metabolite.countsBulk())
 			])
-
-	#	print "Transcription enzLimit: %0.3f" % (enzLimit)
-	#	print "Transcription ntps: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
-	#	import sys
-	#	sys.stdout.flush()
 
 		newRnas = 0
 		ntpsUsed = numpy.zeros(4)
-		self.metabolite.parentState.tcNtpUsage = numpy.zeros(4)
 
 		while enzLimit > 0:
-			if not numpy.any(numpy.all(self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts, axis = 1)):
+			print 'not implemented yet!'
+			
+			import ipdb
+			ipdb.set_trace()
+
+			if not numpy.any(
+					numpy.all(
+						self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts,
+						axis = 1
+						)
+					):
 				break
 
 			if not numpy.any(enzLimit > numpy.sum(self.rnaNtCounts, axis = 1)):
