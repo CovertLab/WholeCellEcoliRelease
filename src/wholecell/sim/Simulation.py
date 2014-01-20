@@ -76,7 +76,7 @@ class Simulation(object):
 			wholecell.sim.process.ProteinMaturation.ProteinMaturation(),
 			wholecell.sim.process.RnaDegradation.RnaDegradation(),
 			wholecell.sim.process.RnaMaturation.RnaMaturation(),
-			# wholecell.sim.process.Transcription.Transcription(),
+			wholecell.sim.process.Transcription.Transcription(),
 			# wholecell.sim.process.Translation.Translation()
 		]
 

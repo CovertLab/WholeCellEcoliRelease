@@ -92,11 +92,11 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		# self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
-		self.atpHydrolysisView = self.metabolite.countsBulkViewNew(
+		self.metabolite.atpHydrolysisView = self.metabolite.countsBulkViewNew(
 			["ATP", "H2O", "ADP", "PI", "H"])
 
-		self.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.h2oMol = self.metabolite.molecule('H2O:mature', 'merged')
+		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged')
 
 		# self.metabolite.idx["FeistCoreRows"], self.metabolite.idx["FeistCoreCols"] = self.metabolite.getIndex([
 		# 	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
@@ -136,8 +136,8 @@ class Metabolism(wholecell.sim.process.Process.Process):
 	def calcReqMetabolites(self, request):
 		request.countsBulkIs(1)
 
-		self.ntpView.countsBulkIs(0)
-		self.h2oMol.countBulkIs(0)
+		request.ntpView.countsBulkIs(0)
+		request.h2oMol.countBulkIs(0)
 
 	# # Calculate needed proteins
 	# def calcReqEnzyme(self):

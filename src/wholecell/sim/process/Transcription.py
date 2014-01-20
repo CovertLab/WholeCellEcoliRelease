@@ -50,10 +50,20 @@ class Transcription(wholecell.sim.process.Process.Process):
 			"PPI[c]", "H2O[c]", "H[c]",
 			], self.calcReqMetabolites)
 
-		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
-		self.metabolite.idx["ppi"] = self.metabolite.getIndex(["PPI[c]"])[0]
-		self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])[0]
-		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
+		self.metaboliteView = mc.countsBulkViewNew([
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+			"PPI[c]", "H2O[c]", "H[c]",
+			])
+
+		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
+		# self.metabolite.idx["ppi"] = self.metabolite.getIndex(["PPI[c]"])[0]
+		# self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])[0]
+		# self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
+
+		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.metabolite.ppiMol = self.metabolite.molecule('PPI:mature', 'merged')
+		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged')
+		self.metabolite.hMol = self.metabolite.molecule('H:mature', 'merged')
 
 		# RNA
 		self.rna = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
@@ -68,41 +78,64 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.enzyme = mc.addPartition(self, [
 			"EG10893-MONOMER", "RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
 			], self.calcReqEnzyme)
-		self.enzyme.idx["rpoA"] = self.enzyme.getIndex(["EG10893-MONOMER"])[0]
-		self.enzyme.idx["rpoB"] = self.enzyme.getIndex(["RPOB-MONOMER"])[0]
-		self.enzyme.idx["rpoC"] = self.enzyme.getIndex(["RPOC-MONOMER"])[0]
-		self.enzyme.idx["rpoD"] = self.enzyme.getIndex(["RPOD-MONOMER"])[0]
+		# self.enzyme.idx["rpoA"] = self.enzyme.getIndex(["EG10893-MONOMER"])[0]
+		# self.enzyme.idx["rpoB"] = self.enzyme.getIndex(["RPOB-MONOMER"])[0]
+		# self.enzyme.idx["rpoC"] = self.enzyme.getIndex(["RPOC-MONOMER"])[0]
+		# self.enzyme.idx["rpoD"] = self.enzyme.getIndex(["RPOD-MONOMER"])[0]
 
-	def calcRnaps(self, counts):
-		return numpy.min((	numpy.floor(numpy.sum(counts[self.enzyme.idx["rpoA"]]) / 2),
-							numpy.sum(counts[self.enzyme.idx["rpoB"]]),
-							numpy.sum(counts[self.enzyme.idx["rpoC"]]),
-							numpy.sum(counts[self.enzyme.idx["rpoD"]])
-						))
+		self.enzyme.rpoAMol = self.enzyme.molecule('EG10893-MONOMER:mature', 'merged')
+		self.enzyme.rpoBMol = self.enzyme.molecule('RPOB-MONOMER:mature', 'merged')
+		self.enzyme.rpoCMol = self.enzyme.molecule('RPOC-MONOMER:mature', 'merged')
+		self.enzyme.rpoDMol = self.enzyme.molecule('RPOD-MONOMER:mature', 'merged')
+
+		self.rpoAMol = mc.molecule('EG10893-MONOMER:mature', 'c')
+		self.rpoBMol = mc.molecule('RPOB-MONOMER:mature', 'c')
+		self.rpoCMol = mc.molecule('RPOC-MONOMER:mature', 'c')
+		self.rpoDMol = mc.molecule('RPOD-MONOMER:mature', 'c')
+
+
+	def calcRnaps(self, countRpoA, countRpoB, countRpoC, countRpoD):
+		# return numpy.min((	numpy.floor(numpy.sum(counts[self.enzyme.idx["rpoA"]]) / 2),
+		# 					numpy.sum(counts[self.enzyme.idx["rpoB"]]),
+		# 					numpy.sum(counts[self.enzyme.idx["rpoC"]]),
+		# 					numpy.sum(counts[self.enzyme.idx["rpoD"]])
+		# 				))
+
+		return numpy.min([
+			numpy.floor(countRpoA/2),
+			countRpoB,
+			countRpoC,
+			countRpoD,
+			])
 
 	# Calculate needed metabolites
-	def calcReqMetabolites(self):
-		val = numpy.zeros(self.metabolite.fullCounts.shape)
+	def calcReqMetabolites(self, request):
+		request.ntpView.countsBulkIs(
+			numpy.min([
+				self.calcRnaps(
+					self.rpoAMol.countBulk(), self.rpoBMol.countBulk(),
+					self.rpoCMol.countBulk(), self.rpoDMol.countBulk()
+					) * self.elngRate * self.timeStepSec,
+				4 * numpy.min(self.metaboliteView.countsBulk())
+				])
+			)
 
-		val[self.metabolite.idx["ntps"]] = numpy.min([
-			self.calcRnaps(self.enzyme.fullCounts) * self.elngRate * self.timeStepSec,
-			# self.enzyme.fullCounts[self.enzyme.idx["rnaPol"]] * self.elngRate * self.timeStepSec,		# Polymerization by all available RNA Polymerases
-			4 * numpy.min(self.metabolite.fullCounts[self.metabolite.idx["ntps"]])						# Limited by scarcest NTP
-			]) / 4
-
-		val[self.metabolite.idx["h2o"]] = 1
-		return val
 
 	# Calculate needed RNA
-	def calcReqRna(self):
-		return numpy.zeros(self.rna.fullCounts.shape)
+	def calcReqRna(self, request):
+		request.countsBulkIs(0)
+
 
 	# Calculate needed enzymes
-	def calcReqEnzyme(self):
-		return numpy.ones(self.enzyme.fullCounts.shape)
+	def calcReqEnzyme(self, request):
+		request.countsBulkIs(1)
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		import ipdb
+		ipdb.set_trace()
+
 	#	print "TRANSCRIPTION"
 		enzLimit = numpy.min([
 			self.calcRnaps(self.enzyme.counts) * self.elngRate * self.timeStepSec,

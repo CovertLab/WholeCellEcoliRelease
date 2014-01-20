@@ -53,10 +53,10 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		# Metabolites
 		self.metabolite = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
 
-		self.nmpView = self.metabolite.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
-		self.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.h2oMol = self.metabolite.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
-		self.hMol = self.metabolite.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.metabolite.nmpView = self.metabolite.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
+		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.metabolite.hMol = self.metabolite.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
 
 		# Rna
 		self.rna = mc.addPartition(self, self._rnaIds ,self.calcReqRna, True)
@@ -75,13 +75,13 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		# Proteins
 		self.enzyme = mc.addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
 
-		self.rnaseRMol = self.enzyme.molecule('EG11259-MONOMER:mature', 'merged')
+		self.enzyme.rnaseRMol = self.enzyme.molecule('EG11259-MONOMER:mature', 'merged')
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Check if RNAse R expressed
-		if self.rnaseRMol.countBulk() == 0:
+		if self.enzyme.rnaseRMol.countBulk() == 0:
 			return
 
 		# Degrade RNA
@@ -98,7 +98,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 	def calcReqMetabolites(self, request):
 		request.countsBulkIs(0)
 
-		self.h2oMol.countBulkIs(
+		request.h2oMol.countBulkIs(
 			numpy.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
 			)
 
