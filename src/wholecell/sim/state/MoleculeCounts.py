@@ -101,10 +101,13 @@ class MoleculeCountsBase(object):
 
 
 	def molecule(self, wid, comp):
+		wid = wid.rstrip(DEFAULT_FORM)
+		
 		if (wid, comp) not in self._molecules:
 			self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
 
 		return self._molecules[wid, comp]
+
 
 	def countsBulk(self, ids = None):
 		return self.countsBulkViewNew(ids).countsBulk()
@@ -112,6 +115,7 @@ class MoleculeCountsBase(object):
 
 	def countsBulkIs(self, counts, ids = None):
 		return self.countsBulkViewNew(ids).countsBulkIs(counts)
+
 
 	def countsBulkInc(self, counts, ids = None):
 		return self.countsBulkViewNew(ids).countsBulkInc(counts)
@@ -131,13 +135,13 @@ class MoleculeCountsBase(object):
 			if match is None:
 				raise Exception('Invalid ID: {}'.format(id_))
 
-			if match.group('form') is not None:
+			if match.group('form') is not None and match.group('form') != DEFAULT_FORM:
 				#raise NotImplementedError()
 
 				molecules.append(match.group('molecule') + match.group('form'))
 
 			else:
-				molecules.append(match.group("molecule") + DEFAULT_FORM)
+				molecules.append(match.group("molecule"))
 
 			if match.group("compartment") is None:
 				compartments.append(self._compartments[0])
@@ -338,11 +342,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# Molecules
 		self._molIDs = []
 
-		self._molIDs += [x['id'] + ':mature' for x in kb.metabolites]
+		self._molIDs += [x['id'] for x in kb.metabolites]
 		self._molIDs += [x['id'] + ':nascent' for x in kb.rnas]
-		self._molIDs += [x['id'] + ':mature' for x in kb.rnas]
+		self._molIDs += [x['id'] for x in kb.rnas]
 		self._molIDs += [x['id'] + ':nascent' for x in kb.proteins]
-		self._molIDs += [x['id'] + ':mature' for x in kb.proteins]
+		self._molIDs += [x['id'] for x in kb.proteins]
 
 		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
 
@@ -371,7 +375,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
 			})
 
-		self._typeIdxs['water'] = self._molIDs.index('H2O:mature')
+		self._typeIdxs['water'] = self._molIDs.index('H2O')
 
 		# Unique instances
 		self._uniqueDict = []
@@ -391,13 +395,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def calcInitialConditions(self):
 		self._countsBulk[:] = 0
-
-
-	def molecule(self, wid, comp):
-		if (wid, comp) not in self._molecules:
-			self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
-
-		return self._molecules[wid, comp]
 
 
 	def allocate(self):
@@ -423,6 +420,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# TODO: warning for adding a partition after allocation
 		partition = super(MoleculeCounts, self).addPartition(process)
 		
+		# TODO: move this to partition constructor?
 		partition.reqFunc = reqFunc
 		partition.isReqAbs = isReqAbs
 
