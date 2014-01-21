@@ -45,15 +45,9 @@ class Transcription(wholecell.sim.process.Process.Process):
 		mc = sim.getState("MoleculeCounts")
 
 		# Metabolites
-		self.metabolite = mc.addPartition(self, [
-			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
-			"PPI[c]", "H2O[c]", "H[c]",
-			], self.calcReqMetabolites)
+		self.metabolite = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
 
-		self.metaboliteView = mc.countsBulkViewNew([
-			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
-			"PPI[c]", "H2O[c]", "H[c]",
-			])
+		self.metaboliteView = mc.countsBulkViewNew(_metIDs)
 
 		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
 		# self.metabolite.idx["ppi"] = self.metabolite.getIndex(["PPI[c]"])[0]
@@ -193,3 +187,8 @@ class Transcription(wholecell.sim.process.Process.Process):
 #		print "Transcription newRnas: %d" % newRnas
 #		print "Transcription ntpsUsed: %s" % str(ntpsUsed)
 #		print "Transcription numActiveRnaps (total): %d (%d)" % (int(numpy.sum(ntpsUsed) / self.elngRate / self.timeStepSec), int(self.calcRnaps(self.enzyme.counts)))
+
+_metIDs = [
+	"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+	"PPI[c]", "H2O[c]", "H[c]",
+	]
