@@ -44,32 +44,15 @@ class Translation(wholecell.sim.process.Process.Process):
 		mc = sim.getState("MoleculeCounts")
 
 		# Metabolites
-		self.metabolite = mc.addPartition(self, [
-				"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-				"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-				#"FMET[c]", # TODO: Re-add
-				# "GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
-				"ATP[c]", "ADP[c]", "PI[c]",  "H2O[c]", "H[c]"
-			], self.calcReqMetabolites)
+		self.metabolite = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
 
-		aaIDs = [
-			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",  "LEU-L",
-			"LYS-L", "MET-L", "PHE-L", "PRO-L", "SELNP", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-			]
+		self.metabolite.aas = self.metabolite.countsBulkViewNew(_aaIDs)
 
-		self.metabolite.aas = self.metabolite.countsBulkViewNew(aaIDs)
+		self.n_aas = len(_aaIDs)
 
-		self.n_aas = len(aaIDs)
+		self.metabolite.aasNotSec = self.metabolite.countsBulkViewNew(_aaNotSecIDs)
 
-		self.metabolite.aasNotSec = self.metabolite.countsBulkViewNew([
-			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",
-			"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-			])
-
-		self.aas = mc.countsBulkViewNew([
-			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",  "LEU-L",
-			"LYS-L", "MET-L", "PHE-L", "PRO-L", "SELNP", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-			])
+		self.aas = mc.countsBulkViewNew(_aaIDs)
 
 		self.metabolite.atpMol = self.metabolite.molecule('ATP:mature', 'merged')
 		self.metabolite.adpMol = self.metabolite.molecule('ADP:mature', 'merged')
@@ -87,41 +70,19 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# Enzymes
 		# TODO: We really want all the associated riboproteins as well (ie we want the complexes)
-		self.enzyme = mc.addPartition(self, [
-			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
-			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
-			], self.calcReqEnzyme)
+		self.enzyme = mc.addPartition(self, _enzIDs, self.calcReqEnzyme)
 
-		self.enzyme.ribosome23S = self.enzyme.countsBulkViewNew([
-			"RRLA-RRNA:mature", "RRLB-RRNA:mature", "RRLC-RRNA:mature","RRLD-RRNA:mature",
-			"RRLE-RRNA:mature", "RRLG-RRNA:mature", "RRLH-RRNA:mature"
-			])
+		self.enzyme.ribosome23S = self.enzyme.countsBulkViewNew(_rib23S_IDs)
 
-		self.enzyme.ribosome16S = self.enzyme.countsBulkViewNew([
-			"RRSA-RRNA:mature", "RRSB-RRNA:mature", "RRSC-RRNA:mature", "RRSD-RRNA:mature",
-			"RRSE-RRNA:mature", "RRSG-RRNA:mature", "RRSH-RRNA:mature"
-			])
+		self.enzyme.ribosome16S = self.enzyme.countsBulkViewNew(_rib16S_IDs)
 
-		self.enzyme.ribosome5S = self.enzyme.countsBulkViewNew([
-			"RRFB-RRNA:mature", "RRFC-RRNA:mature", "RRFD-RRNA:mature", "RRFE-RRNA:mature",
-			"RRFF-RRNA:mature", "RRFG-RRNA:mature", "RRFH-RRNA:mature"
-			])
+		self.enzyme.ribosome5S = self.enzyme.countsBulkViewNew(_rib5S_IDs)
 
-		self.ribosome23S = mc.countsBulkViewNew([
-			"RRLA-RRNA:mature", "RRLB-RRNA:mature", "RRLC-RRNA:mature","RRLD-RRNA:mature",
-			"RRLE-RRNA:mature", "RRLG-RRNA:mature", "RRLH-RRNA:mature"
-			])
+		self.ribosome23S = mc.countsBulkViewNew(_rib23S_IDs)
 
-		self.ribosome16S = mc.countsBulkViewNew([
-			"RRSA-RRNA:mature", "RRSB-RRNA:mature", "RRSC-RRNA:mature", "RRSD-RRNA:mature",
-			"RRSE-RRNA:mature", "RRSG-RRNA:mature", "RRSH-RRNA:mature"
-			])
+		self.ribosome16S = mc.countsBulkViewNew(_rib16S_IDs)
 
-		self.ribosome5S = mc.countsBulkViewNew([
-			"RRFB-RRNA:mature", "RRFC-RRNA:mature", "RRFD-RRNA:mature", "RRFE-RRNA:mature",
-			"RRFF-RRNA:mature", "RRFG-RRNA:mature", "RRFH-RRNA:mature"
-			])
+		self.ribosome5S = mc.countsBulkViewNew(_rib5S_IDs)
 
 
 	def calcRibosomes(self, counts23S, counts16S, counts5S):
@@ -233,3 +194,42 @@ class Translation(wholecell.sim.process.Process.Process):
 		# print "Translation newProts: %d" % newProts
 		# print "Translation aasUsed: %s" % str(aasUsed)
 		# print "Translation numActiveRibs (total): %d (%d)" % (int(numpy.sum(aasUsed) / self.elngRate / self.timeStepSec), int(self.calcRibosomes(self.enzyme.counts)))
+
+_metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
+	"GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+	"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]",
+	"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+	#"FMET[c]", # TODO: Re-add
+	#"GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
+	"ATP[c]", "ADP[c]", "PI[c]",  "H2O[c]", "H[c]"]
+
+_aaIDs = [
+	"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",  "LEU-L",
+	"LYS-L", "MET-L", "PHE-L", "PRO-L", "SELNP", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
+	]
+
+_aaNotSecIDs = [
+	"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLU-L", "GLN-L", "GLY", "HIS-L", "ILE-L",
+	"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
+	]
+
+_enzIDs = [
+	"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
+	"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
+	"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+	]
+
+_rib23S_IDs = [
+	"RRLA-RRNA:mature", "RRLB-RRNA:mature", "RRLC-RRNA:mature","RRLD-RRNA:mature",
+	"RRLE-RRNA:mature", "RRLG-RRNA:mature", "RRLH-RRNA:mature"
+	]
+
+_rib16S_IDs = [
+	"RRSA-RRNA:mature", "RRSB-RRNA:mature", "RRSC-RRNA:mature", "RRSD-RRNA:mature",
+	"RRSE-RRNA:mature", "RRSG-RRNA:mature", "RRSH-RRNA:mature"
+	]
+
+_rib5S_IDs = [
+	"RRFB-RRNA:mature", "RRFC-RRNA:mature", "RRFD-RRNA:mature", "RRFE-RRNA:mature",
+	"RRFF-RRNA:mature", "RRFG-RRNA:mature", "RRFH-RRNA:mature"
+	]
