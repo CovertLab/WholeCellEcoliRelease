@@ -102,7 +102,7 @@ class MoleculeCountsBase(object):
 
 	def molecule(self, wid, comp):
 		wid = wid.rstrip(DEFAULT_FORM)
-		
+
 		if (wid, comp) not in self._molecules:
 			self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
 
@@ -250,8 +250,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	_typeIdxs = None
 
-	_requests = None
-
 	def __init__(self, *args, **kwargs):
 		self.meta = {
 			"id": "MoleculeCounts",
@@ -281,8 +279,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkUnpartitioned = None
 
 		self.partitionClass = MoleculeCountsPartition
-
-		self._requests = []
 
 		# Reference attributes
 		self._typeIdxs = {} 
@@ -399,9 +395,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def allocate(self):
 		super(MoleculeCounts, self).allocate() # Allocates partitions
-
-		for request in self._requests:
-			request.allocate()
 
 		self._countsBulk = numpy.zeros((self._nMolIDs, self._nCompartments), float)
 		self._massSingle = numpy.tile(self._molMass, [self._nCompartments, 1]).transpose() # Repeat for each compartment
