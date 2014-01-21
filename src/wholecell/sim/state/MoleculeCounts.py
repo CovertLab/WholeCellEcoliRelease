@@ -83,26 +83,26 @@ class MoleculeCountsBase(object):
 	of molecules to support unique instances and bulk quantities.
 	'''
 
-	_nMols = None
-	_nCmps = None
+	_nMolIDs = None
+	_nCompartments = None
 
 	_countsBulk = None
 	# _countsUnique = None
 
 	_molecules = None
 
-	_widIdx = None
-	_cmpIdx = None
+	_molIDIndex = None
+	_compartmentIndex = None
 
-	_wids = None
-	_cmps = None
+	_molIDs = None
+	_compartments = None
 
 	_uniqueDict = None
 
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
-			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
+			self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
 
 		return self._molecules[wid, comp]
 
@@ -119,7 +119,7 @@ class MoleculeCountsBase(object):
 
 	def _getIndices(self, ids):
 		# TODO: better support for form values
-		# TODO: use internally in place of self._wids?
+		# TODO: use internally in place of self._molIDs?
 		# TODO: better support for compartments
 
 		molecules = []
@@ -140,26 +140,26 @@ class MoleculeCountsBase(object):
 				molecules.append(match.group("molecule") + DEFAULT_FORM)
 
 			if match.group("compartment") is None:
-				compartments.append(self._cmps[0])
+				compartments.append(self._compartments[0])
 
 			else:
 				compartments.append(match.group("compartment")[1])
 
 		try:
-			molIdxs = numpy.array([self._widIdx[m] for m in molecules])
+			molIdxs = numpy.array([self._molIDIndex[m] for m in molecules])
 
 		except ValueError:
 			raise Exception('Invalid molecule: {}'.format(m))
 
 		try:
-			compIdxs = numpy.array([self._cmpIdx[c] for c in compartments])
+			compIdxs = numpy.array([self._compartmentIndex[c] for c in compartments])
 
 		except ValueError:
 			raise Exception('Invalid compartment: {}'.format(c))
 
 		idxs = numpy.ravel_multi_index(
 			numpy.array([molIdxs, compIdxs]),
-			(len(self._wids), len(self._cmps))
+			(len(self._molIDs), len(self._compartments))
 			)
 
 		return idxs, molIdxs, compIdxs
@@ -287,8 +287,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def initialize_old(self, kb):
-		self._nMols = len(kb.molecules)
-		self._nCmps = len(kb.compartments)
+		self._nMolIDs = len(kb.molecules)
+		self._nCompartments = len(kb.compartments)
 
 		# TODO: make this section legible, rewrite as a list comprehension
 		self._uniqueDict = []
@@ -300,13 +300,13 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			else:
 				self._uniqueDict.append([{} for x in kb.compartments])
 
-		self._wids = [molecule["id"] for molecule in kb.molecules]
-		self._cmps = [compartment["id"] for compartment in kb.compartments]
+		self._molIDs = [molecule["id"] for molecule in kb.molecules]
+		self._compartments = [compartment["id"] for compartment in kb.compartments]
 
 		self._molMass = numpy.array([molecule["mass"] for molecule in kb.molecules], float)
 
-		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
-		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
+		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
+		self._compartmentIndex = {c:i for i, c in enumerate(self._compartments)}
 
 		# MoleculeCounts expects the knowledge base to pass metabolites, 
 		# proteins, RNAs; not just "molecules"
@@ -336,25 +336,25 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# hash properly without them, I'm combining IDs and form values
 
 		# Molecules
-		self._wids = []
+		self._molIDs = []
 
-		self._wids += [x['id'] + ':mature' for x in kb.metabolites]
-		self._wids += [x['id'] + ':nascent' for x in kb.rnas]
-		self._wids += [x['id'] + ':mature' for x in kb.rnas]
-		self._wids += [x['id'] + ':nascent' for x in kb.proteins]
-		self._wids += [x['id'] + ':mature' for x in kb.proteins]
+		self._molIDs += [x['id'] + ':mature' for x in kb.metabolites]
+		self._molIDs += [x['id'] + ':nascent' for x in kb.rnas]
+		self._molIDs += [x['id'] + ':mature' for x in kb.rnas]
+		self._molIDs += [x['id'] + ':nascent' for x in kb.proteins]
+		self._molIDs += [x['id'] + ':mature' for x in kb.proteins]
 
-		self._widIdx = {wid:i for i, wid in enumerate(self._wids)}
+		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
 
-		self._nMols = len(self._wids)
+		self._nMolIDs = len(self._molIDs)
 
 		# Compartments
-		self._cmps = [x['id'] for x in self.compartments]
-		# self._cmps = [x['id'] for x in kb.compartments]
+		self._compartments = [x['id'] for x in self.compartments]
+		# self._compartments = [x['id'] for x in kb.compartments]
 
-		self._cmpIdx = {c:i for i, c in enumerate(self._cmps)}
+		self._compartmentIndex = {c:i for i, c in enumerate(self._compartments)}
 
-		self._nCmps = len(self._cmps)
+		self._nCompartments = len(self._compartments)
 
 		# Masses
 		molMass = []
@@ -371,7 +371,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
 			})
 
-		self._typeIdxs['water'] = self._wids.index('H2O:mature')
+		self._typeIdxs['water'] = self._molIDs.index('H2O:mature')
 
 		# Unique instances
 		self._uniqueDict = []
@@ -385,8 +385,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# 	else:
 		# 		self._uniqueDict.append([{} for x in kb.compartments])
 
-		for mol in self._wids:
-			self._uniqueDict.append([{} for x in self._cmps])
+		for mol in self._molIDs:
+			self._uniqueDict.append([{} for x in self._compartments])
 
 
 	def calcInitialConditions(self):
@@ -395,7 +395,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def molecule(self, wid, comp):
 		if (wid, comp) not in self._molecules:
-			self._molecules[wid, comp] = _Molecule(self, self._widIdx[wid], self._cmpIdx[comp], wid)
+			self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
 
 		return self._molecules[wid, comp]
 
@@ -406,14 +406,14 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		for request in self._requests:
 			request.allocate()
 
-		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
-		self._massSingle = numpy.tile(self._molMass, [self._nCmps, 1]).transpose() # Repeat for each compartment
+		self._countsBulk = numpy.zeros((self._nMolIDs, self._nCompartments), float)
+		self._massSingle = numpy.tile(self._molMass, [self._nCompartments, 1]).transpose() # Repeat for each compartment
 
 		self._countsUnique = numpy.zeros_like(self._countsBulk)
 		self._dmass = numpy.zeros_like(self._countsBulk)
 
 		self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
-		self._countsBulkPartitioned = numpy.zeros((self._nMols, self._nCmps, len(self.partitions)))
+		self._countsBulkPartitioned = numpy.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
 		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
 
@@ -433,15 +433,15 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		partition.mapping = mapping
 
-		partition._wids = [self._wids[i] for i in iMolecule]
-		partition._widIdx = {wid:i for i, wid in enumerate(partition._wids)}
+		partition._molIDs = [self._molIDs[i] for i in iMolecule]
+		partition._molIDIndex = {wid:i for i, wid in enumerate(partition._molIDs)}
 
 		# TODO: determine how compartments should be handled here...
-		partition._cmps = ["merged"] # "merged"
-		partition._cmpIdx = {"merged":0} # "merged"
+		partition._compartments = ["merged"] # "merged"
+		partition._compartmentIndex = {"merged":0} # "merged"
 
-		partition._nMols = len(partition._wids)
-		partition._nCmps = len(partition._cmps)
+		partition._nMolIDs = len(partition._molIDs)
+		partition._nCompartments = len(partition._compartments)
 
 		return partition
 
@@ -553,7 +553,7 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 
 
 	def allocate(self):
-		self._countsBulk = numpy.zeros((self._nMols, self._nCmps), float)
+		self._countsBulk = numpy.zeros((self._nMolIDs, self._nCompartments), float)
 
 
 	def request(self):
