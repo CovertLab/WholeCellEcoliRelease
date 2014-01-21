@@ -80,12 +80,6 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 
 	def calcRnaps(self, countRpoA, countRpoB, countRpoC, countRpoD):
-		# return numpy.min((	numpy.floor(numpy.sum(counts[self.enzyme.idx["rpoA"]]) / 2),
-		# 					numpy.sum(counts[self.enzyme.idx["rpoB"]]),
-		# 					numpy.sum(counts[self.enzyme.idx["rpoC"]]),
-		# 					numpy.sum(counts[self.enzyme.idx["rpoD"]])
-		# 				))
-
 		return numpy.min([
 			numpy.floor(countRpoA/2),
 			countRpoB,
