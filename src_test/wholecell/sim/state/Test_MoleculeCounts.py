@@ -123,7 +123,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 		metaboliteID = 'metA:mature'
 
 		# Insure that _getIndex points to the right metabolite
-		self.assertEqual(metaboliteID, self.partition1._wids[
+		self.assertEqual(metaboliteID, self.partition1._molIDs[
 			self.partition1._getIndex(metaboliteID)[0]
 			])
 
