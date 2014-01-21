@@ -32,8 +32,15 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 
 		mc = sim.getState('MoleculeCounts')
 
-		self.nascentRna = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqNascentRna)
-		self.matureRna = mc.addPartition(self, [x["id"] + ":mature[c]" for x in kb.rnas], self.calcReqMatureRna)
+		self.nascentRnaPartition = mc.addPartition(
+			self, [x["id"] + ":nascent[c]" for x in kb.rnas],
+			self.calcReqNascentRna
+			)
+		self.matureRnaPartition = mc.addPartition(
+			self,
+			[x["id"] + ":mature[c]" for x in kb.rnas],
+			self.calcReqMatureRna
+			)
 
 
 	def calcReqNascentRna(self, request):
@@ -46,5 +53,7 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.matureRna.countsBulkInc(self.nascentRna.countsBulk())
-		self.nascentRna.countsBulkIs(0)
+		self.matureRnaPartition.countsBulkInc(
+			self.nascentRnaPartition.countsBulk()
+			)
+		self.nascentRnaPartition.countsBulkIs(0)

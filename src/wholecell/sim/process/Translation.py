@@ -24,11 +24,11 @@ class Translation(wholecell.sim.process.Process.Process):
 			"name": "Translation"
 		}
 		
-		# References to states
-		self.metabolite = None
-		self.mrna = None
-		self.protein = None
-		self.enzyme = None
+		# Partitions
+		self.metabolitePartition = None
+		self.mrnaPartition = None
+		self.proteinPartition = None
+		self.enzymePartition = None
 
 		# Constants
 		self.elngRate = 16			# AA/s
@@ -44,39 +44,39 @@ class Translation(wholecell.sim.process.Process.Process):
 		mc = sim.getState("MoleculeCounts")
 
 		# Metabolites
-		self.metabolite = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
+		self.metabolitePartition = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
 
-		self.metabolite.aas = self.metabolite.countsBulkViewNew(_aaIDs)
+		self.metabolitePartition.aas = self.metabolitePartition.countsBulkViewNew(_aaIDs)
 
 		self.n_aas = len(_aaIDs)
 
-		self.metabolite.aasNotSec = self.metabolite.countsBulkViewNew(_aaNotSecIDs)
+		self.metabolitePartition.aasNotSec = self.metabolitePartition.countsBulkViewNew(_aaNotSecIDs)
 
 		self.aas = mc.countsBulkViewNew(_aaIDs)
 
-		self.metabolite.atpMol = self.metabolite.molecule('ATP:mature', 'merged')
-		self.metabolite.adpMol = self.metabolite.molecule('ADP:mature', 'merged')
-		self.metabolite.piMol = self.metabolite.molecule('PI:mature', 'merged')
-		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged')
-		self.metabolite.hMol = self.metabolite.molecule('H:mature', 'merged')
+		self.metabolitePartition.atpMol = self.metabolitePartition.molecule('ATP:mature', 'merged')
+		self.metabolitePartition.adpMol = self.metabolitePartition.molecule('ADP:mature', 'merged')
+		self.metabolitePartition.piMol = self.metabolitePartition.molecule('PI:mature', 'merged')
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged')
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H:mature', 'merged')
 
 		# mRNA, protein monomer
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-		self.mrna = mc.addPartition(self,[x["id"] + ":mature[c]" for x in mrnas], self.calcReqMrna)
-		self.protein = mc.addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
+		self.mrnaPartition = mc.addPartition(self,[x["id"] + ":mature[c]" for x in mrnas], self.calcReqMrna)
+		self.proteinPartition = mc.addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
 		self.proteinAaCounts = numpy.array([x["aaCount"] for x in monomers])
 		self.proteinLens = numpy.sum(self.proteinAaCounts, axis = 1)
 
 		# Enzymes
 		# TODO: We really want all the associated riboproteins as well (ie we want the complexes)
-		self.enzyme = mc.addPartition(self, _enzIDs, self.calcReqEnzyme)
+		self.enzymePartition = mc.addPartition(self, _enzIDs, self.calcReqEnzyme)
 
-		self.enzyme.ribosome23S = self.enzyme.countsBulkViewNew(_rib23S_IDs)
+		self.enzymePartition.ribosome23S = self.enzymePartition.countsBulkViewNew(_rib23S_IDs)
 
-		self.enzyme.ribosome16S = self.enzyme.countsBulkViewNew(_rib16S_IDs)
+		self.enzymePartition.ribosome16S = self.enzymePartition.countsBulkViewNew(_rib16S_IDs)
 
-		self.enzyme.ribosome5S = self.enzyme.countsBulkViewNew(_rib5S_IDs)
+		self.enzymePartition.ribosome5S = self.enzymePartition.countsBulkViewNew(_rib5S_IDs)
 
 		self.ribosome23S = mc.countsBulkViewNew(_rib23S_IDs)
 
@@ -137,7 +137,7 @@ class Translation(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		if not numpy.any(self.mrna.countsBulk()):
+		if not numpy.any(self.mrnaPartition.countsBulk()):
 			return
 
 		print 'not implemented yet!'

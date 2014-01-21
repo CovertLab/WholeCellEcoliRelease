@@ -51,15 +51,15 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		mc = sim.getState('MoleculeCounts')
 
 		# Metabolites
-		self.metabolite = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
+		self.metabolitePartition = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
 
-		self.metabolite.nmpView = self.metabolite.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
-		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
-		self.metabolite.hMol = self.metabolite.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.metabolitePartition.nmpView = self.metabolitePartition.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
 
 		# Rna
-		self.rna = mc.addPartition(self, self._rnaIds ,self.calcReqRna, True)
+		self.rnaPartition = mc.addPartition(self, self._rnaIds ,self.calcReqRna, True)
 
 		self.rnaView = mc.countsBulkViewNew(self._rnaIds)
 
@@ -73,23 +73,23 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.rnaDegSMat[self._hIdx, :]    =  (numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Proteins
-		self.enzyme = mc.addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
+		self.enzymePartition = mc.addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
 
-		self.enzyme.rnaseRMol = self.enzyme.molecule('EG11259-MONOMER:mature', 'merged')
+		self.enzymePartition.rnaseRMol = self.enzymePartition.molecule('EG11259-MONOMER:mature', 'merged')
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Check if RNAse R expressed
-		if self.enzyme.rnaseRMol.countBulk() == 0:
+		if self.enzymePartition.rnaseRMol.countBulk() == 0:
 			return
 
 		# Degrade RNA
-		self.metabolite.countsBulkInc(
-			numpy.dot(self.rnaDegSMat, self.rnaView.countsBulk())
+		self.metabolitePartition.countsBulkInc(
+			numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
 			)
 
-		self.rna.countsBulkIs(0)
+		self.rnaPartition.countsBulkIs(0)
 
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 

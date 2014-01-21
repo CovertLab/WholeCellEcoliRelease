@@ -24,10 +24,10 @@ class Transcription(wholecell.sim.process.Process.Process):
 		"name": "Transcription"
 		}
 		
-		# References to states
-		self.metabolite = None
-		self.rna = None
-		self.enzyme = None
+		# Partitions
+		self.metabolitePartition = None
+		self.rnaPartition = None
+		self.enzymePartition = None
 
 		# Constants
 		self.cellCycleLength = 1 * 3600		# s
@@ -45,22 +45,17 @@ class Transcription(wholecell.sim.process.Process.Process):
 		mc = sim.getState("MoleculeCounts")
 
 		# Metabolites
-		self.metabolite = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
+		self.metabolitePartition = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
 
 		self.metaboliteView = mc.countsBulkViewNew(_metIDs)
 
-		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
-		# self.metabolite.idx["ppi"] = self.metabolite.getIndex(["PPI[c]"])[0]
-		# self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])[0]
-		# self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
-
-		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolite.ppiMol = self.metabolite.molecule('PPI:mature', 'merged')
-		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged')
-		self.metabolite.hMol = self.metabolite.molecule('H:mature', 'merged')
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.metabolitePartition.ppiMol = self.metabolitePartition.molecule('PPI:mature', 'merged')
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged')
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H:mature', 'merged')
 
 		# RNA
-		self.rna = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
+		self.rnaPartition = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
 		self.rnaNtCounts = numpy.array([x["ntCount"] for x in kb.rnas])
 		self.rnaLens = numpy.sum(self.rnaNtCounts, axis = 1)
 		# self.rnaSynthProb = mc.rnaExp * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
@@ -69,18 +64,14 @@ class Transcription(wholecell.sim.process.Process.Process):
 		# Enzymes
 		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX:mature[c]"], self.calcReqEnzyme)
 		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX:mature[c]"])[0]
-		self.enzyme = mc.addPartition(self, [
+		self.enzymePartition = mc.addPartition(self, [
 			"EG10893-MONOMER", "RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
 			], self.calcReqEnzyme)
-		# self.enzyme.idx["rpoA"] = self.enzyme.getIndex(["EG10893-MONOMER"])[0]
-		# self.enzyme.idx["rpoB"] = self.enzyme.getIndex(["RPOB-MONOMER"])[0]
-		# self.enzyme.idx["rpoC"] = self.enzyme.getIndex(["RPOC-MONOMER"])[0]
-		# self.enzyme.idx["rpoD"] = self.enzyme.getIndex(["RPOD-MONOMER"])[0]
 
-		self.enzyme.rpoAMol = self.enzyme.molecule('EG10893-MONOMER:mature', 'merged')
-		self.enzyme.rpoBMol = self.enzyme.molecule('RPOB-MONOMER:mature', 'merged')
-		self.enzyme.rpoCMol = self.enzyme.molecule('RPOC-MONOMER:mature', 'merged')
-		self.enzyme.rpoDMol = self.enzyme.molecule('RPOD-MONOMER:mature', 'merged')
+		self.enzymePartition.rpoAMol = self.enzymePartition.molecule('EG10893-MONOMER:mature', 'merged')
+		self.enzymePartition.rpoBMol = self.enzymePartition.molecule('RPOB-MONOMER:mature', 'merged')
+		self.enzymePartition.rpoCMol = self.enzymePartition.molecule('RPOC-MONOMER:mature', 'merged')
+		self.enzymePartition.rpoDMol = self.enzymePartition.molecule('RPOD-MONOMER:mature', 'merged')
 
 		self.rpoAMol = mc.molecule('EG10893-MONOMER:mature', 'c')
 		self.rpoBMol = mc.molecule('RPOB-MONOMER:mature', 'c')
@@ -129,10 +120,12 @@ class Transcription(wholecell.sim.process.Process.Process):
 	def evolveState(self):
 		enzLimit = numpy.min([
 			self.calcRnaps(
-				self.enzyme.rpoAMol.countBulk(), self.enzyme.rpoBMol.countBulk(),
-				self.enzyme.rpoCMol.countBulk(), self.enzyme.rpoDMol.countBulk()
+				self.enzymePartition.rpoAMol.countBulk(),
+				self.enzymePartition.rpoBMol.countBulk(),
+				self.enzymePartition.rpoCMol.countBulk(),
+				self.enzymePartition.rpoDMol.countBulk()
 				) * self.elngRate * self.timeStepSec,
-			1.1 * 4 * numpy.min(self.metabolite.countsBulk())
+			1.1 * 4 * numpy.min(self.metabolitePartition.countsBulk())
 			])
 
 		newRnas = 0

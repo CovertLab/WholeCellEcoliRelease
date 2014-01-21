@@ -33,11 +33,11 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0]
 
-		self.nascentProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
+		self.nascentProteinMonomerPartition = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":nascent[c]" for x in monomers],
 			self.calcReqNascentProteinMonomer)
 
-		self.matureProteinMonomer = sim.getState("MoleculeCounts").addPartition(self,
+		self.matureProteinMonomerPartition = sim.getState("MoleculeCounts").addPartition(self,
 			[x["id"] + ":mature[" + x["location"] + "]" for x in monomers],
 			self.calcReqMatureProteinMonomer)
 
@@ -54,6 +54,6 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.matureProteinMonomer.countsBulkInc(
-			self.nascentProteinMonomer.countsBulk())
-		self.nascentProteinMonomer.countsBulkIs(0)
+		self.matureProteinMonomerPartition.countsBulkInc(
+			self.nascentProteinMonomerPartition.countsBulk())
+		self.nascentProteinMonomerPartition.countsBulkIs(0)

@@ -32,11 +32,13 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		# References to states
 		self.metabolism = None
-		self.metabolite = None
-		self.enzyme = None
 		self.mass = None
 		self.mc = None
 		self.time = None
+
+		# Partitions
+		self.metabolitePartition = None
+		self.enzymePartition = None
 
 		# Constants
 		self.avgCellInitMass = 13.1						# fg
@@ -86,17 +88,17 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = numpy.array(bioConc)
 
-		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
+		self.metabolitePartition = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
 		# self.metabolite.idx["atpHydrolysis"] = self.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
 		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
 		# self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
-		self.metabolite.atpHydrolysisView = self.metabolite.countsBulkViewNew(
+		self.metabolitePartition.atpHydrolysisView = self.metabolitePartition.countsBulkViewNew(
 			["ATP", "H2O", "ADP", "PI", "H"])
 
-		self.metabolite.ntpView = self.metabolite.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolite.h2oMol = self.metabolite.molecule('H2O:mature', 'merged')
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged')
 
 		# self.metabolite.idx["FeistCoreRows"], self.metabolite.idx["FeistCoreCols"] = self.metabolite.getIndex([
 		# 	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
@@ -128,7 +130,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			"RIBFLV"
 			]
 
-		self.feistCoreView = self.metabolite.countsBulkViewNew(self.feistCoreIds)
+		self.metabolitePartition.feistCoreView = self.metabolitePartition.countsBulkViewNew(self.feistCoreIds)
 
 		self.initialDryMass = 2.8e-13 / 1.36 # grams
 
@@ -150,7 +152,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		from wholecell.util.Constants import Constants
 
-		atpm = numpy.zeros_like(self.feistCoreView.countsBulk()) # TODO: determine what this means
+		atpm = numpy.zeros_like(self.metabolitePartition.feistCoreView.countsBulk()) # TODO: determine what this means
 
 		noise = self.randStream.multivariate_normal(numpy.zeros_like(self.feistCore), numpy.diag(self.feistCore / 1000.))
 
@@ -161,10 +163,10 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			* (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
 			)
 
-		self.feistCoreView.countsBulkIs(
+		self.metabolitePartition.feistCoreView.countsBulkIs(
 			numpy.fmax(
 				0,
-				self.feistCoreView.countsBulk() + self.randStream.stochasticRound(deltaMetabolites)
+				self.metabolitePartition.feistCoreView.countsBulk() + self.randStream.stochasticRound(deltaMetabolites)
 				)
 			)
 
