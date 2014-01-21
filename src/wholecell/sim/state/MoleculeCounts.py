@@ -76,10 +76,12 @@ IDS = {
 # TODO: make most of these classes _private
 # TODO: make a base class for bulk counts?
 class MoleculeCountsBase(object):
-	'''MoleculeCountsBase
+	'''
+	MoleculeCountsBase
 
 	Base object for the MoleculeCounts partition and state.  Manages indexing 
-	of molecules to support unique instances and bulk quantities.'''
+	of molecules to support unique instances and bulk quantities.
+	'''
 
 	_nMols = None
 	_nCmps = None
@@ -176,11 +178,13 @@ class MoleculeCountsBase(object):
 
 
 class CountsBulkView(object):
-	'''CountsBulkView
+	'''
+	CountsBulkView
 
 	A "view" into a MoleculeCountsBase subclass's bulk counts.  This allows for 
 	easy caching of access to and mutation of bulk quantities of molecules, 
-	which is helpful for certain calculations.'''
+	which is helpful for certain calculations.
+	'''
 
 	_parent = None
 	_indices = None
@@ -220,10 +224,12 @@ class CountsBulkView(object):
 
 
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
-	'''MoleculeCounts
+	'''
+	MoleculeCounts
 
 	State for MoleculeCounts.  Adds support for partitioning and 
-	initialization.'''
+	initialization.
+	'''
 
 	compartments = [ # TODO: move to KB
 		{"id": "c", "name": "Cytosol"},
@@ -527,12 +533,14 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
-	'''MoleculeCountsPartition
+	'''
+	MoleculeCountsPartition
 
 	Partition for MoleculeCounts.  Acts mostly as a container class, with some
 	methods for indexing and creating views.  Partitions act as containers for 
 	requests prior to partitioning, as well as containers for the counts that
-	are ultimately partitioned to the state.'''
+	are ultimately partitioned to the state.
+	'''
 
 	mapping = None
 
