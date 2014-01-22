@@ -58,8 +58,8 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.rnaPartition = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
 		self.rnaNtCounts = numpy.array([x["ntCount"] for x in kb.rnas])
 		self.rnaLens = numpy.sum(self.rnaNtCounts, axis = 1)
-		# self.rnaSynthProb = mc.rnaExp * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
-		# self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
+		self.rnaSynthProb = mc.rnaExp * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
+		self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes
 		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
@@ -96,7 +96,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 					self.rpoCMol.countBulk(), self.rpoDMol.countBulk()
 					) * self.elngRate * self.timeStepSec,
 				4 * numpy.min(self.ntpView.countsBulk())
-				])
+				])/4
 			)
 
 		request.h2oMol.countBulkIs(1)
@@ -127,10 +127,14 @@ class Transcription(wholecell.sim.process.Process.Process):
 		newRnas = 0
 		ntpsUsed = numpy.zeros(4)
 
+		ntpsShape = self.metabolitePartition.ntps.countsBulk().shape
+
+		rnasCreated = numpy.zeros_like(self.rnaPartition.countsBulk())
+
 		while enzLimit > 0:
-			if not numpy.any()
+			if not numpy.any(
 					numpy.all(
-						self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts,
+						self.metabolitePartition.ntps.countsBulk() > self.rnaNtCounts,
 						axis = 1
 						)
 					):
@@ -140,7 +144,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 				break
 
 			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
-			if numpy.sum(self.rnaSynthProb[numpy.all(self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts, axis = 1)]) < 1e-3:
+			if numpy.sum(self.rnaSynthProb[numpy.all(self.metabolitePartition.ntps.countsBulk() > self.rnaNtCounts, axis = 1)]) < 1e-3:
 				break
 
 			if numpy.sum(self.rnaSynthProb[enzLimit > numpy.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
@@ -148,7 +152,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 			newIdx = numpy.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
 
-			if numpy.any(self.metabolite.counts[self.metabolite.idx["ntps"]] < self.rnaNtCounts[newIdx, :]):
+			if numpy.any(self.metabolitePartition.ntps.countsBulk() < self.rnaNtCounts[newIdx, :]):
 				break
 
 			if enzLimit < numpy.sum(self.rnaNtCounts[newIdx, :]):
@@ -156,16 +160,29 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 			enzLimit -= numpy.sum(self.rnaNtCounts[newIdx, :])
 
-			self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
-			self.metabolite.counts[self.metabolite.idx["h2o"]] -= 1
-			self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens[newIdx]
-			self.metabolite.counts[self.metabolite.idx["h"]] += 1
-			ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
-			self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+			# self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+			# self.metabolite.counts[self.metabolite.idx["h2o"]] -= 1
+			# self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens[newIdx]
+			# self.metabolite.counts[self.metabolite.idx["h"]] += 1
+			# ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+			# self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+
+			self.metabolitePartition.ntps.countsBulkDec(
+				self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
+				)
+
+			self.metabolitePartition.h2oMol.countBulkDec(1)
+			self.metabolitePartition.ppiMol.countBulkInc(self.rnaLens[newIdx])
+			self.metabolitePartition.hMol.countBulkInc(1)
+
+			rnasCreated[newIdx] += 1
 
 			# Increment RNA
-			self.rna.counts[newIdx] += 1
-			newRnas += 1
+			# self.rna.counts[newIdx] += 1
+			# newRnas += 1
+
+		self.rnaPartition.countsBulkInc(rnasCreated)
+
 		# print "%d" % enzLimit
 
 #		print "Transcription newRnas: %d" % newRnas
