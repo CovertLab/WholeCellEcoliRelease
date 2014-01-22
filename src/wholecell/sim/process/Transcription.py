@@ -125,6 +125,9 @@ class Transcription(wholecell.sim.process.Process.Process):
 		newRnas = 0
 		ntpsUsed = numpy.zeros(4)
 
+		import ipdb
+		ipdb.set_trace()
+
 		while enzLimit > 0:
 			print 'not implemented yet!'
 			

@@ -56,4 +56,5 @@ class ProteinMaturation(wholecell.sim.process.Process.Process):
 	def evolveState(self):
 		self.matureProteinMonomerPartition.countsBulkInc(
 			self.nascentProteinMonomerPartition.countsBulk())
+
 		self.nascentProteinMonomerPartition.countsBulkIs(0)

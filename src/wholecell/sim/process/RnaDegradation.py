@@ -85,11 +85,11 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 			return
 
 		# Degrade RNA
-		self.metabolitePartition.countsBulkInc(
-			numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
-			)
+		# self.metabolitePartition.countsBulkInc(
+		# 	numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
+		# 	)
 
-		self.rnaPartition.countsBulkIs(0)
+		# self.rnaPartition.countsBulkIs(0)
 
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 

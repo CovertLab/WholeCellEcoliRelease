@@ -131,6 +131,9 @@ class MoleculeCountsBase(object):
 	def countsBulkInc(self, counts, ids = None):
 		return self.countsBulkViewNew(ids).countsBulkInc(counts)
 
+	def countsBulkDec(self, counts, ids = None):
+		return self.countsBulkInc(-counts, ids)
+
 
 	def _getIndices(self, ids):
 		nIds = len(ids)
@@ -227,6 +230,9 @@ class CountsBulkView(object):
 
 		else:
 			self._parent._countsBulk[self._indices] += counts
+
+	def countsBulkDec(self, counts):
+		self.countsBulkInc(-counts)
 
 
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
@@ -600,6 +606,9 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		for partition in self.partitions:
 			self._countsBulk.flat[partition.mapping] += partition.countsBulk().flatten()
+
+		if (self._countsBulk < 0).any():
+			raise Exception('Some bulk count of molecules fell below zero.')
 
 
 	def massAll(self, typeKey = None):
