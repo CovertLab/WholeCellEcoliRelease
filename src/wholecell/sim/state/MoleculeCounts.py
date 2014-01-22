@@ -214,10 +214,6 @@ class CountsBulkView(object):
 			self._parent._countsBulk[self._indices] += counts
 
 
-	def getIndices(self, ids):
-		return self._parent._getIndices(ids)[1:]
-
-
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	'''
 	MoleculeCounts
