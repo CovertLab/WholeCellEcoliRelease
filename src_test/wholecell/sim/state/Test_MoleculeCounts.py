@@ -48,8 +48,8 @@ class Test_MoleculeCounts(unittest.TestCase):
 			]
 		self.kb.compartments = [{"id": "c"}, {"id": "e"}, {"id": "m"}]
 
-		self.enzIds = [mol['id'] for mol in self.kb.molecules if 'enz' in mol['id']]
-		self.metIds = [mol['id'] for mol in self.kb.molecules if 'met' in mol['id']]
+		self.enzIds = [mol['id'] + '[c]' for mol in self.kb.molecules if 'enz' in mol['id']]
+		self.metIds = [mol['id'] + '[c]' for mol in self.kb.molecules if 'met' in mol['id']]
 
 		self.metCounts = [10.,2.,5.,7.,20.,3.,7.]
 
@@ -62,13 +62,13 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 		# Create some partitions, currently without request functions
 		self.partition1 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], lambda partition: None)
+			metId for metId in self.metIds], lambda partition: None)
 
 		self.partition2 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], lambda partition: None)
+			metId for metId in self.metIds], lambda partition: None)
 
 		self.partition3 = self.mc.addPartition(self.genericProcess, [
-			metId + '[c]' for metId in self.metIds], lambda partition: None)
+			metId for metId in self.metIds], lambda partition: None)
 
 		self.mc.allocate()
 
@@ -120,12 +120,16 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 	@noseAttrib.attr('uniqueTest')
 	def test_PartitionIndexing(self):
-		metaboliteID = 'metA'
+		metabolite = 'metA'
+		compartment = 'c'
+
+		molIdx, cmpIdx = self.partition1._getIndex(
+			'{}[{}]'.format(metabolite, compartment)
+			)[1:]
 
 		# Insure that _getIndex points to the right metabolite
-		self.assertEqual(metaboliteID, self.partition1._molIDs[
-			self.partition1._getIndex(metaboliteID)[0]
-			])
+		self.assertEqual(metabolite, self.partition1._molIDs[molIdx])
+		self.assertEqual('merged', self.partition1._compartments[cmpIdx])
 
 		# TODO: add more tests, more realistic tests cases
 

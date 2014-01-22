@@ -46,17 +46,17 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
 		self._hIdx = self._metaboliteIds.index('H[c]')
 
-		self._rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas] + [x["id"] + ":mature[c]" for x in kb.rnas]
+		self._rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas] + [x["id"] + "[c]" for x in kb.rnas]
 
 		mc = sim.getState('MoleculeCounts')
 
 		# Metabolites
 		self.metabolitePartition = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
 
-		self.metabolitePartition.nmpView = self.metabolitePartition.countsBulkViewNew(["AMP", "CMP", "GMP", "UMP"])
-		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged') # TODO: fix compartment referencing in partitions
-		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H:mature', 'merged') # TODO: fix compartment referencing in partitions
+		self.metabolitePartition.nmpView = self.metabolitePartition.countsBulkViewNew(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged') # TODO: fix compartment referencing in partitions
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H', 'merged') # TODO: fix compartment referencing in partitions
 
 		# Rna
 		self.rnaPartition = mc.addPartition(self, self._rnaIds ,self.calcReqRna, True)
@@ -73,9 +73,9 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.rnaDegSMat[self._hIdx, :]    =  (numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Proteins
-		self.enzymePartition = mc.addPartition(self, ["EG11259-MONOMER:mature[c]"], self.calcReqEnzyme)
+		self.enzymePartition = mc.addPartition(self, ["EG11259-MONOMER[c]"], self.calcReqEnzyme)
 
-		self.enzymePartition.rnaseRMol = self.enzymePartition.molecule('EG11259-MONOMER:mature', 'merged')
+		self.enzymePartition.rnaseRMol = self.enzymePartition.molecule('EG11259-MONOMER', 'merged')
 
 
 	# Calculate temporal evolution

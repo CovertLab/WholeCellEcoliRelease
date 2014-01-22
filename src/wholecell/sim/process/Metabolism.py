@@ -95,10 +95,10 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
 		self.metabolitePartition.atpHydrolysisView = self.metabolitePartition.countsBulkViewNew(
-			["ATP", "H2O", "ADP", "PI", "H"])
+			["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
 
-		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged')
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged')
 
 		# self.metabolite.idx["FeistCoreRows"], self.metabolite.idx["FeistCoreCols"] = self.metabolite.getIndex([
 		# 	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
@@ -121,13 +121,13 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			])
 
 		self.feistCoreIds = [
-			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLN-L", "GLU-L", "GLY", "HIS-L", "ILE-L",
-			"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-			"DATP", "DCTP", "DGTP", "DTTP", "CTP", "GTP", "UTP", "ATP", "MUREIN5PX4P", "KDO2LIPID4",
-			"PE160", "PE161", "K", "NH4", "MG2", "CA2", "FE2", "FE3", "CU2", "MN2",
-			"MOBD", "COBALT2", "ZN2", "CL", "SO4", "PI", "COA", "NAD", "NADP", "FAD",
-			"THF", "MLTHF", "10FTHF", "THMPP", "PYDX5P", "PHEME", "SHEME", "UDCPDP", "AMET", "2OHPH",
-			"RIBFLV"
+			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+			"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
+			"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
+			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
+			"RIBFLV[c]"
 			]
 
 		self.metabolitePartition.feistCoreView = self.metabolitePartition.countsBulkViewNew(self.feistCoreIds)

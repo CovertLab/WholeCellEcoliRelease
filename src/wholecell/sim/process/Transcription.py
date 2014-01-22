@@ -49,10 +49,10 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 		self.metaboliteView = mc.countsBulkViewNew(_metIDs)
 
-		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP", "CTP", "GTP", "UTP"])
-		self.metabolitePartition.ppiMol = self.metabolitePartition.molecule('PPI:mature', 'merged')
-		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O:mature', 'merged')
-		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H:mature', 'merged')
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.metabolitePartition.ppiMol = self.metabolitePartition.molecule('PPI', 'merged')
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged')
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H', 'merged')
 
 		# RNA
 		self.rnaPartition = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
@@ -62,21 +62,21 @@ class Transcription(wholecell.sim.process.Process.Process):
 		# self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes
-		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX:mature[c]"], self.calcReqEnzyme)
-		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX:mature[c]"])[0]
+		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
+		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX[c]"])[0]
 		self.enzymePartition = mc.addPartition(self, [
-			"EG10893-MONOMER", "RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
+			"EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"
 			], self.calcReqEnzyme)
 
-		self.enzymePartition.rpoAMol = self.enzymePartition.molecule('EG10893-MONOMER:mature', 'merged')
-		self.enzymePartition.rpoBMol = self.enzymePartition.molecule('RPOB-MONOMER:mature', 'merged')
-		self.enzymePartition.rpoCMol = self.enzymePartition.molecule('RPOC-MONOMER:mature', 'merged')
-		self.enzymePartition.rpoDMol = self.enzymePartition.molecule('RPOD-MONOMER:mature', 'merged')
+		self.enzymePartition.rpoAMol = self.enzymePartition.molecule('EG10893-MONOMER', 'merged')
+		self.enzymePartition.rpoBMol = self.enzymePartition.molecule('RPOB-MONOMER', 'merged')
+		self.enzymePartition.rpoCMol = self.enzymePartition.molecule('RPOC-MONOMER', 'merged')
+		self.enzymePartition.rpoDMol = self.enzymePartition.molecule('RPOD-MONOMER', 'merged')
 
-		self.rpoAMol = mc.molecule('EG10893-MONOMER:mature', 'c')
-		self.rpoBMol = mc.molecule('RPOB-MONOMER:mature', 'c')
-		self.rpoCMol = mc.molecule('RPOC-MONOMER:mature', 'c')
-		self.rpoDMol = mc.molecule('RPOD-MONOMER:mature', 'c')
+		self.rpoAMol = mc.molecule('EG10893-MONOMER', 'c')
+		self.rpoBMol = mc.molecule('RPOB-MONOMER', 'c')
+		self.rpoCMol = mc.molecule('RPOC-MONOMER', 'c')
+		self.rpoDMol = mc.molecule('RPOD-MONOMER', 'c')
 
 
 	def calcRnaps(self, countRpoA, countRpoB, countRpoC, countRpoD):

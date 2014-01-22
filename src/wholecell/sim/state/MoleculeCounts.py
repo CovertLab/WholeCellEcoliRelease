@@ -23,6 +23,8 @@ import wholecell.sim.state.Partition as wcPartition
 
 DEFAULT_FORM = ':mature' # TODO: reconcile "forms" concept
 
+ID_REGEX_PATTERN = "^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$"
+
 # TODO: get from KB
 IDS = {
 	'ntps':["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"],
@@ -122,51 +124,36 @@ class MoleculeCountsBase(object):
 
 
 	def _getIndices(self, ids):
-		# TODO: better support for form values
-		# TODO: use internally in place of self._molIDs?
-		# TODO: better support for compartments
+		nIds = len(ids)
 
-		molecules = []
-		compartments = []
+		flatIdxs = numpy.empty(nIds, int)
+		moleculeIdxs = numpy.empty(nIds, int)
+		compartmentIdxs = numpy.empty(nIds, int)
 
-		for id_ in ids:
-			match = re.match("^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$", id_)
+		for i, id_ in enumerate(ids):
+			match = re.match(ID_REGEX_PATTERN, id_)
 
-			if match is None:
-				raise Exception('Invalid ID: {}'.format(id_))
+			# if match is None:
+			# 	raise Exception('Invalid ID: {}'.format(id_))
 
-			if match.group('form') is not None and match.group('form') != DEFAULT_FORM:
-				#raise NotImplementedError()
+			molecule = match.group('molecule')
+			form = match.group('form')
+			compartment = match.group('compartment')[1:-1] # only get what's inside the brackets
 
-				molecules.append(match.group('molecule') + match.group('form'))
-
-			else:
-				molecules.append(match.group("molecule"))
-
-			if match.group("compartment") is None:
-				compartments.append(self._compartments[0])
+			if form in [None, DEFAULT_FORM]:
+				moleculeIdxs[i] = self._molIDIndex[molecule]
 
 			else:
-				compartments.append(match.group("compartment")[1])
+				moleculeIdxs[i] = self._molIDIndex[molecule + form]
 
-		try:
-			molIdxs = numpy.array([self._molIDIndex[m] for m in molecules])
+			compartmentIdxs[i] = self._compartmentIndex[compartment]
 
-		except ValueError:
-			raise Exception('Invalid molecule: {}'.format(m))
-
-		try:
-			compIdxs = numpy.array([self._compartmentIndex[c] for c in compartments])
-
-		except ValueError:
-			raise Exception('Invalid compartment: {}'.format(c))
-
-		idxs = numpy.ravel_multi_index(
-			numpy.array([molIdxs, compIdxs]),
-			(len(self._molIDs), len(self._compartments))
+		flatIdxs = numpy.ravel_multi_index(
+			numpy.array([moleculeIdxs, compartmentIdxs]),
+			(self._nMolIDs, self._nCompartments)
 			)
 
-		return idxs, molIdxs, compIdxs
+		return flatIdxs, moleculeIdxs, compartmentIdxs
 
 
 	def _getIndex(self, id_):
@@ -225,6 +212,14 @@ class CountsBulkView(object):
 
 		else:
 			self._parent._countsBulk[self._indices] += counts
+
+
+	def getIndices(self, ids):
+		return self._parent._getIndices(ids)[1:]
+
+
+	def getIndex(self, id_):
+		return self._parent._getIndex(id_)[1:]
 
 
 class MoleculeCounts(wcState.State, MoleculeCountsBase):
@@ -424,6 +419,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		partition.mapping = mapping
 
+		partition.backMapping = {val:i for i, val in enumerate(mapping)}
+
 		partition._molIDs = [self._molIDs[i] for i in iMolecule]
 		partition._molIDIndex = {wid:i for i, wid in enumerate(partition._molIDs)}
 
@@ -551,6 +548,17 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		self.reqFunc(self)
 
 		return self._countsBulk
+
+
+	def _getIndices(self, ids):
+		# Handles flattened indexing
+		flatIdxs, moleculeIdxs, compartmentIdxs = self._state._getIndices(ids)
+
+		idxs = numpy.array([self.backMapping[i] for i in flatIdxs])
+
+		return idxs, idxs, numpy.zeros_like(idxs)
+
+
 
 
 def _uniqueInit(self, uniqueIdx):
