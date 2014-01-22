@@ -47,9 +47,9 @@ class Transcription(wholecell.sim.process.Process.Process):
 		# Metabolites
 		self.metabolitePartition = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
 
-		self.metaboliteView = mc.countsBulkViewNew(_metIDs)
+		self.ntpView = mc.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 
-		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.metabolitePartition.ntps = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.metabolitePartition.ppiMol = self.metabolitePartition.molecule('PPI', 'merged')
 		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged')
 		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H', 'merged')
@@ -89,15 +89,17 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 	# Calculate needed metabolites
 	def calcReqMetabolites(self, request):
-		request.ntpView.countsBulkIs(
+		request.ntps.countsBulkIs(
 			numpy.min([
 				self.calcRnaps(
 					self.rpoAMol.countBulk(), self.rpoBMol.countBulk(),
 					self.rpoCMol.countBulk(), self.rpoDMol.countBulk()
 					) * self.elngRate * self.timeStepSec,
-				4 * numpy.min(self.metaboliteView.countsBulk())
+				4 * numpy.min(self.ntpView.countsBulk())
 				])
 			)
+
+		request.h2oMol.countBulkIs(1)
 
 
 	# Calculate needed RNA
@@ -119,22 +121,14 @@ class Transcription(wholecell.sim.process.Process.Process):
 				self.enzymePartition.rpoCMol.countBulk(),
 				self.enzymePartition.rpoDMol.countBulk()
 				) * self.elngRate * self.timeStepSec,
-			1.1 * 4 * numpy.min(self.metabolitePartition.countsBulk())
+			1.1 * 4 * numpy.min(self.metabolitePartition.ntps.countsBulk())
 			])
 
 		newRnas = 0
 		ntpsUsed = numpy.zeros(4)
 
-		import ipdb
-		ipdb.set_trace()
-
 		while enzLimit > 0:
-			print 'not implemented yet!'
-			
-			import ipdb
-			ipdb.set_trace()
-
-			if not numpy.any(
+			if not numpy.any()
 					numpy.all(
 						self.metabolite.counts[self.metabolite.idx["ntps"]] > self.rnaNtCounts,
 						axis = 1
