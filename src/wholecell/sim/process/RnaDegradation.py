@@ -41,7 +41,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self._metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 
-		self._ntpIdxs = numpy.arange(6, 10)
+		# self._ntpIdxs = numpy.arange(6, 10)
 		self._nmpIdxs = numpy.arange(0, 4)
 		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
 		self._hIdx = self._metaboliteIds.index('H[c]')
@@ -54,7 +54,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.metabolitePartition = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
 
 		self.metabolitePartition.nmpView = self.metabolitePartition.countsBulkViewNew(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
-		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		# self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged') # TODO: fix compartment referencing in partitions
 		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H', 'merged') # TODO: fix compartment referencing in partitions
 
@@ -68,7 +68,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		self.rnaLens = numpy.sum(numpy.array([x["ntCount"] for x in kb.rnas] * 2), axis = 1)
 
 		self.rnaDegSMat = numpy.zeros((len(self._metaboliteIds), len(self._rnaIds)))
-		self.rnaDegSMat[self._ntpIdxs, :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
+		self.rnaDegSMat[self._nmpIdxs, :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
 		self.rnaDegSMat[self._h2oIdx, :]  = -(numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 		self.rnaDegSMat[self._hIdx, :]    =  (numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
