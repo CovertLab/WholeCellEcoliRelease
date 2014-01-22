@@ -84,12 +84,14 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		if self.enzymePartition.rnaseRMol.countBulk() == 0:
 			return
 
-		# Degrade RNA
-		# self.metabolitePartition.countsBulkInc(
-		# 	numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
-		# 	)
+		metDiff = numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
 
-		# self.rnaPartition.countsBulkIs(0)
+		# Degrade RNA
+		self.metabolitePartition.countsBulkInc(
+			numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
+			)
+
+		self.rnaPartition.countsBulkIs(0)
 
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 
@@ -105,6 +107,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 	# Calculate needed RNA
 	def calcReqRna(self, request):
+
 		request.countsBulkIs(
 			self.randStream.poissrnd(self.rnaDegRates * self.rnaView.countsBulk() * self.timeStepSec)
 			)
