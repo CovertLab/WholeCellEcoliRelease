@@ -75,7 +75,16 @@ IDS = {
 		]
 	}
 
-# TODO: make most of these classes _private
+FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
+	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
+	0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
+	0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
+	0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
+	0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
+	0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
+	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
+	])
+
 # TODO: make a base class for bulk counts?
 class MoleculeCountsBase(object):
 	'''
@@ -138,7 +147,13 @@ class MoleculeCountsBase(object):
 
 			molecule = match.group('molecule')
 			form = match.group('form')
-			compartment = match.group('compartment')[1:-1] # only get what's inside the brackets
+
+			try:
+				compartment = match.group('compartment')[1:-1] # only get what's inside the brackets
+
+			except TypeError:
+				if match.group('compartment') is None:
+					raise Exception('ID has no compartment: {}'.format(id_))
 
 			if form in [None, DEFAULT_FORM]:
 				moleculeIdxs[i] = self._molIDIndex[molecule]
@@ -236,6 +251,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		]
 
 	_typeIdxs = None
+	_typeLocalizations = None
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
@@ -268,7 +284,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self.partitionClass = MoleculeCountsPartition
 
 		# Reference attributes
-		self._typeIdxs = {} 
+		self._typeIdxs = {}
+		self._typeLocalizations = {}
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
@@ -355,10 +372,16 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._typeIdxs.update({
 			'metabolites':numpy.arange(len(kb.metabolites)),
 			'rnas':numpy.arange(2*len(kb.rnas))+len(kb.metabolites),
-			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
+			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas),
+			'matureRnas':numpy.arange(len(kb.rnas))+len(kb.metabolites)+len(kb.rnas),
+			'matureProteins':numpy.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)+len(kb.proteins),
 			})
 
 		self._typeIdxs['water'] = self._molIDs.index('H2O')
+
+		self._typeLocalizations.update({
+			'matureProteins':[mol['location'] for mol in kb.proteins],
+			})
 
 		# Unique instances
 		self._uniqueDict = []
@@ -375,9 +398,91 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		for mol in self._molIDs:
 			self._uniqueDict.append([{} for x in self._compartments])
 
+		# Values needed for calcInitialConditions
+		self.rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas)) # TODO: get rid of 'map' function
+		self.rnaExp = numpy.array([x["expression"] for x in kb.rnas])
+		self.rnaExp /= numpy.sum(self.rnaExp)
+
+		mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
+		self.monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons))
+		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
+		self.monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
+		self.monExp /= numpy.sum(self.monExp)
+
+		self._typeIdxs['matureMonomers'] = numpy.array(self._getIndices([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1])
+
 
 	def calcInitialConditions(self):
+		from wholecell.util.Constants import Constants
+
+		initialDryMass = 2.8e-13 / 1.36
+		fracInitFreeNTPs = 0.0015
+		fracInitFreeAAs = 0.001
+
+		initialDryMass += self.randStream.normal(0.0, 1e-15)
+
 		self._countsBulk[:] = 0
+
+		feistCore = self.countsBulkViewNew(IDS['FeistCore'])
+		h2oMol = self.molecule('H2O', 'c')
+		ntps = self.countsBulkViewNew(IDS['ntps'])
+		matureRna = self.countsBulkViewNew(
+			[self._molIDs[i] + '[c]' for i in self._typeIdxs['matureRnas']])
+		aas = self.countsBulkViewNew(IDS['aas'])
+		matureMonomers = self.countsBulkViewNew([
+			self._molIDs[ind] + '[{}]'.format(
+				self._typeLocalizations['matureProteins'][i]
+				)
+			for i, ind in enumerate(self._typeIdxs['matureMonomers'])
+			])
+
+		# Set metabolite counts from Feist core
+		feistCore.countsBulkIs(
+			numpy.round(
+				FEIST_CORE_VALS * 1e-3 * Constants.nAvogadro * initialDryMass
+				)
+			)
+
+		# Set water
+		h2oMol.countBulkIs(
+			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._molMass[self._typeIdxs['water']] * Constants.nAvogadro
+			)
+
+		# Set RNA counts from expression levels
+		ntpsToPolym = numpy.round(
+			(1 - fracInitFreeNTPs) * numpy.sum(ntps.countsBulk())
+			)
+
+		rnaCnts = self.randStream.mnrnd(
+			numpy.round(ntpsToPolym / (numpy.dot(self.rnaExp, self.rnaLens))),
+			self.rnaExp
+			)
+
+		ntps.countsBulkIs(
+			numpy.round(
+				fracInitFreeNTPs * ntps.countsBulk()
+				)
+			)
+
+		matureRna.countsBulkIs(rnaCnts)
+
+		# Set protein counts from expression levels
+		aasToPolym = numpy.round(
+			(1 - fracInitFreeAAs) * numpy.sum(aas.countsBulk())
+			)
+
+		monCnts = self.randStream.mnrnd(
+			numpy.round(aasToPolym / (numpy.dot(self.monExp, self.monLens))),
+			self.monExp
+			)
+
+		aas.countsBulkIs(
+			numpy.round(
+				fracInitFreeAAs * aas.countsBulk()
+				)
+			)
+
+		matureMonomers.countsBulkIs(monCnts)
 
 
 	def allocate(self):
@@ -549,8 +654,6 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		idxs = numpy.array([self.backMapping[i] for i in flatIdxs])
 
 		return idxs, idxs, numpy.zeros_like(idxs)
-
-
 
 
 def _uniqueInit(self, uniqueIdx):
