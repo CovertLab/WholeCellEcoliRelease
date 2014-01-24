@@ -83,8 +83,6 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		if self.enzymePartition.rnaseRMol.countBulk() == 0:
 			return
 
-		metDiff = numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
-
 		# Degrade RNA
 		self.metabolitePartition.countsBulkInc(
 			numpy.dot(self.rnaDegSMat, self.rnaPartition.countsBulk())
