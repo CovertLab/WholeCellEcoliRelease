@@ -112,13 +112,6 @@ class MoleculeCountsBase(object):
 
 
 	def molecule(self, id_):
-		# wid = wid.rstrip(DEFAULT_FORM)
-
-		# if (wid, comp) not in self._molecules:
-		# 	self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
-
-		# return self._molecules[wid, comp]
-
 		molID, compIdx = self._getIndex(id_)[1:]
 
 		if (molID, compIdx) not in self._molecules:
