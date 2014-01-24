@@ -50,9 +50,9 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.ntpView = mc.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 
 		self.metabolitePartition.ntps = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.metabolitePartition.ppiMol = self.metabolitePartition.molecule('PPI', 'merged')
-		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged')
-		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H', 'merged')
+		self.metabolitePartition.ppiMol = self.metabolitePartition.molecule('PPI[c]')
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O[c]')
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H[c]')
 
 		# RNA
 		self.rnaPartition = mc.addPartition(self, [x["id"] + ":nascent[c]" for x in kb.rnas], self.calcReqRna)
@@ -68,15 +68,15 @@ class Transcription(wholecell.sim.process.Process.Process):
 			"EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"
 			], self.calcReqEnzyme)
 
-		self.enzymePartition.rpoAMol = self.enzymePartition.molecule('EG10893-MONOMER', 'merged')
-		self.enzymePartition.rpoBMol = self.enzymePartition.molecule('RPOB-MONOMER', 'merged')
-		self.enzymePartition.rpoCMol = self.enzymePartition.molecule('RPOC-MONOMER', 'merged')
-		self.enzymePartition.rpoDMol = self.enzymePartition.molecule('RPOD-MONOMER', 'merged')
+		self.enzymePartition.rpoAMol = self.enzymePartition.molecule('EG10893-MONOMER[c]')
+		self.enzymePartition.rpoBMol = self.enzymePartition.molecule('RPOB-MONOMER[c]')
+		self.enzymePartition.rpoCMol = self.enzymePartition.molecule('RPOC-MONOMER[c]')
+		self.enzymePartition.rpoDMol = self.enzymePartition.molecule('RPOD-MONOMER[c]')
 
-		self.rpoAMol = mc.molecule('EG10893-MONOMER', 'c')
-		self.rpoBMol = mc.molecule('RPOB-MONOMER', 'c')
-		self.rpoCMol = mc.molecule('RPOC-MONOMER', 'c')
-		self.rpoDMol = mc.molecule('RPOD-MONOMER', 'c')
+		self.rpoAMol = mc.molecule('EG10893-MONOMER[c]')
+		self.rpoBMol = mc.molecule('RPOB-MONOMER[c]')
+		self.rpoCMol = mc.molecule('RPOC-MONOMER[c]')
+		self.rpoDMol = mc.molecule('RPOD-MONOMER[c]')
 
 
 	def calcRnaps(self, countRpoA, countRpoB, countRpoC, countRpoD):

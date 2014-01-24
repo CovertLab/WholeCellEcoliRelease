@@ -89,26 +89,13 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		bioConc = numpy.array(bioConc)
 
 		self.metabolitePartition = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
-		# self.metabolite.idx["atpHydrolysis"] = self.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
-		# self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
-		# self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
 		self.metabolitePartition.atpHydrolysisView = self.metabolitePartition.countsBulkViewNew(
 			["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
 
 		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged')
-
-		# self.metabolite.idx["FeistCoreRows"], self.metabolite.idx["FeistCoreCols"] = self.metabolite.getIndex([
-		# 	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
-		# 	"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-		# 	"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
-		# 	"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
-		# 	"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
-		# 	"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
-		# 	"RIBFLV[c]"
-		# 	])[1:]
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O[c]')
 
 		self.feistCore = numpy.array([ # TODO: This needs to go in the KB
 			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,

@@ -111,13 +111,20 @@ class MoleculeCountsBase(object):
 	_uniqueDict = None
 
 
-	def molecule(self, wid, comp):
-		wid = wid.rstrip(DEFAULT_FORM)
+	def molecule(self, id_):
+		# wid = wid.rstrip(DEFAULT_FORM)
 
-		if (wid, comp) not in self._molecules:
-			self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
+		# if (wid, comp) not in self._molecules:
+		# 	self._molecules[wid, comp] = _Molecule(self, self._molIDIndex[wid], self._compartmentIndex[comp], wid)
 
-		return self._molecules[wid, comp]
+		# return self._molecules[wid, comp]
+
+		molID, compIdx = self._getIndex(id_)[1:]
+
+		if (molID, compIdx) not in self._molecules:
+			self._molecules[molID, compIdx] = _Molecule(self, molID, compIdx, self._molIDs[molID])
+
+		return self._molecules[molID, compIdx]
 
 
 	def countsBulk(self, ids = None):
@@ -430,7 +437,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulk[:] = 0
 
 		feistCore = self.countsBulkViewNew(IDS['FeistCore'])
-		h2oMol = self.molecule('H2O', 'c')
+		h2oMol = self.molecule('H2O[c]')
 		ntps = self.countsBulkViewNew(IDS['ntps'])
 		matureRna = self.countsBulkViewNew(
 			[self._molIDs[i] + '[c]' for i in self._typeIdxs['matureRnas']])

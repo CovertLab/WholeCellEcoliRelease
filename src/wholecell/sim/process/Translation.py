@@ -54,11 +54,11 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		self.aasView = mc.countsBulkViewNew(_aaIDs)
 
-		self.metabolitePartition.atpMol = self.metabolitePartition.molecule('ATP', 'merged')
-		self.metabolitePartition.adpMol = self.metabolitePartition.molecule('ADP', 'merged')
-		self.metabolitePartition.piMol = self.metabolitePartition.molecule('PI', 'merged')
-		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O', 'merged')
-		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H', 'merged')
+		self.metabolitePartition.atpMol = self.metabolitePartition.molecule('ATP[c]')
+		self.metabolitePartition.adpMol = self.metabolitePartition.molecule('ADP[c]')
+		self.metabolitePartition.piMol = self.metabolitePartition.molecule('PI[c]')
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O[c]')
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H[c]')
 
 		# mRNA, protein monomer
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
