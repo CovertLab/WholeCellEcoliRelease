@@ -53,7 +53,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 		# Metabolites
 		self.metabolitePartition = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)
 
-		self.metabolitePartition.nmpView = self.metabolitePartition.countsBulkViewNew(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
+		self.metabolitePartition.nmps = self.metabolitePartition.countsBulkViewNew(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
 		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O[c]')
 		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H[c]')
 

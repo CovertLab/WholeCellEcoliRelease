@@ -36,6 +36,7 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 			self, [x["id"] + ":nascent[c]" for x in kb.rnas],
 			self.calcReqNascentRna
 			)
+		
 		self.matureRnaPartition = mc.addPartition(
 			self,
 			[x["id"] + ":mature[c]" for x in kb.rnas],

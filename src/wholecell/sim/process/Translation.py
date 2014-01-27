@@ -73,16 +73,12 @@ class Translation(wholecell.sim.process.Process.Process):
 		self.enzymePartition = mc.addPartition(self, _enzIDs, self.calcReqEnzyme)
 
 		self.enzymePartition.ribosome23S = self.enzymePartition.countsBulkViewNew(_rib23S_IDs)
-
 		self.enzymePartition.ribosome16S = self.enzymePartition.countsBulkViewNew(_rib16S_IDs)
-
 		self.enzymePartition.ribosome5S = self.enzymePartition.countsBulkViewNew(_rib5S_IDs)
 
-		self.ribosome23S = mc.countsBulkViewNew(_rib23S_IDs)
-
-		self.ribosome16S = mc.countsBulkViewNew(_rib16S_IDs)
-
-		self.ribosome5S = mc.countsBulkViewNew(_rib5S_IDs)
+		self.ribosome23SView = mc.countsBulkViewNew(_rib23S_IDs)
+		self.ribosome16SView = mc.countsBulkViewNew(_rib16S_IDs)
+		self.ribosome5SView = mc.countsBulkViewNew(_rib5S_IDs)
 
 
 	def calcRibosomes(self, counts23S, counts16S, counts5S):
@@ -96,9 +92,9 @@ class Translation(wholecell.sim.process.Process.Process):
 	# Calculate needed metabolites
 	def calcReqMetabolites(self, request):
 		ribs = self.calcRibosomes(
-			self.ribosome23S.countsBulk(),
-			self.ribosome16S.countsBulk(),
-			self.ribosome5S.countsBulk()
+			self.ribosome23SView.countsBulk(),
+			self.ribosome16SView.countsBulk(),
+			self.ribosome5SView.countsBulk()
 			)
 
 		elng = numpy.min([
@@ -130,9 +126,9 @@ class Translation(wholecell.sim.process.Process.Process):
 			return
 
 		ribs = self.calcRibosomes(
-			self.ribosome23S.countsBulk(),
-			self.ribosome16S.countsBulk(),
-			self.ribosome5S.countsBulk()
+			self.enzymePartition.ribosome23S.countsBulk(),
+			self.enzymePartition.ribosome16S.countsBulk(),
+			self.enzymePartition.ribosome5S.countsBulk()
 			)
 
 		# print "nRibosomes: %d" % int(self.calcRibosomes(self.enzyme.counts))

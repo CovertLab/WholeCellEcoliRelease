@@ -117,7 +117,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			"RIBFLV[c]"
 			]
 
-		self.metabolitePartition.feistCoreView = self.metabolitePartition.countsBulkViewNew(self.feistCoreIds)
+		self.metabolitePartition.feistCore = self.metabolitePartition.countsBulkViewNew(self.feistCoreIds)
 
 		self.initialDryMass = 2.8e-13 / 1.36 # grams
 
@@ -135,11 +135,11 @@ class Metabolism(wholecell.sim.process.Process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 		# NOTE: I've deleted a bunch of commented-out code from here.  Get it 
-		# from an old commit if you really need it.
+		# from an old commit if you really need it. - JM
 
 		from wholecell.util.Constants import Constants
 
-		atpm = numpy.zeros_like(self.metabolitePartition.feistCoreView.countsBulk()) # TODO: determine what this means
+		atpm = numpy.zeros_like(self.metabolitePartition.feistCore.countsBulk()) # TODO: determine what this means
 
 		noise = self.randStream.multivariate_normal(numpy.zeros_like(self.feistCore), numpy.diag(self.feistCore / 1000.))
 
@@ -150,10 +150,10 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			* (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
 			)
 
-		self.metabolitePartition.feistCoreView.countsBulkIs(
+		self.metabolitePartition.feistCore.countsBulkIs(
 			numpy.fmax(
 				0,
-				self.metabolitePartition.feistCoreView.countsBulk() + self.randStream.stochasticRound(deltaMetabolites)
+				self.metabolitePartition.feistCore.countsBulk() + self.randStream.stochasticRound(deltaMetabolites)
 				)
 			)
 

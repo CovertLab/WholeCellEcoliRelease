@@ -160,10 +160,6 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 			enzLimit -= numpy.sum(self.rnaNtCounts[newIdx, :])
 
-			# self.metabolite.counts[self.metabolite.idx["ntps"]] -= self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
-			# self.metabolite.counts[self.metabolite.idx["h2o"]] -= 1
-			# self.metabolite.counts[self.metabolite.idx["ppi"]] += self.rnaLens[newIdx]
-			# self.metabolite.counts[self.metabolite.idx["h"]] += 1
 			# ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 			# self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 
