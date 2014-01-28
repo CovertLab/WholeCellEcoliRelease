@@ -11,17 +11,9 @@ Adjust simulation parameters
 """
 
 import numpy
-from wholecell.sim.state.MoleculeCounts import FEIST_CORE_VALS
 
 class Fitter(object):
 	""" Fitter """
-
-	# def __init__(self, sim, kb):
-	# 	self.sim = sim
-	# 	self.kb = kb
-
-	# 	# collect indices, initialize logging?
-
 
 	@staticmethod
 	def FitSimulation(sim, kb):
@@ -35,7 +27,11 @@ class Fitter(object):
 
 		# RNA types
 		rnaTypes = dict([(x["rnaId"], x["type"]) for x in kb.genes])
-		idx["rnaExp"]["mRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and rnaTypes[x["id"]] in ["mRNA"]])
+		mRnaIds = [
+			rna['id'] for rna in kb.rnas
+			if rna["unmodifiedForm"] == None and rnaTypes[rna["id"]] in ["mRNA"]
+			]
+		idx["rnaExp"]["mRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x['id'] in mRnaIds])
 		idx["rnaExp"]["miscRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and rnaTypes[x["id"]] in ["miscRNA"]])
 		idx["rnaExp"]["rRna23Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in _ids["rRna23Ss"]])
 		idx["rnaExp"]["rRna16Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in _ids["rRna16Ss"]])
@@ -78,14 +74,14 @@ class Fitter(object):
 			0.146,	# tRNA
 			0.041,	# mRNA (include miscRNAs here if applicable (i.e., if not setting their expression to zero))
 			])
-		
+
 		mwRNAs = numpy.array([
 			mc.molMass(_ids['rRna23Ss']).mean(),
 			mc.molMass(_ids['rRna16Ss']).mean(),
 			mc.molMass(_ids['rRna5Ss']).mean(),
 			mc.molMass(_ids['tRnas']).mean(),
 			# mc.molMass(_ids['matureMrnaMiscRna']).mean(), # Use if including miscRNAs in mRNA mass fraction
-			mc.molMass([rna['id'] for rna in kb.rnas if rna["unmodifiedForm"] == None and rnaTypes[rna["id"]] in ["mRNA"]]).mean()
+			mc.molMass(mRnaIds).mean()
 			])
 
 		rnaExpFracs = massFracRNAs / mwRNAs
