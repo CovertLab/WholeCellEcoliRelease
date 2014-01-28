@@ -574,8 +574,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				self._countsBulk[self._typeIdxs[typeKey], :]
 				)
 
-		# else:
-		# 	return numpy.dot(self._molMass[])
 		# TODO: unique counts & dMass
 
 	def molMass(self, ids):
