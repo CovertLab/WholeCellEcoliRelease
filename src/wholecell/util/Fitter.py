@@ -78,14 +78,14 @@ class Fitter(object):
 			0.146,	# tRNA
 			0.041,	# mRNA (include miscRNAs here if applicable (i.e., if not setting their expression to zero))
 			])
-
+		
 		mwRNAs = numpy.array([
 			mc.molMass(_ids['rRna23Ss']).mean(),
 			mc.molMass(_ids['rRna16Ss']).mean(),
 			mc.molMass(_ids['rRna5Ss']).mean(),
 			mc.molMass(_ids['tRnas']).mean(),
 			# mc.molMass(_ids['matureMrnaMiscRna']).mean(), # Use if including miscRNAs in mRNA mass fraction
-			mc.molMass(_ids['rRna23Ss']).mean()
+			mc.molMass([rna['id'] for rna in kb.rnas if rna["unmodifiedForm"] == None and rnaTypes[rna["id"]] in ["mRNA"]]).mean()
 			])
 
 		rnaExpFracs = massFracRNAs / mwRNAs
