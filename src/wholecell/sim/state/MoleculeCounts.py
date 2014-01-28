@@ -35,6 +35,8 @@ FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
 	])
 
+INITIAL_DRY_MASS = 2.8e-13 / 1.36
+
 # TODO: make a base class for bulk counts?
 class MoleculeCountsBase(object):
 	'''
@@ -243,6 +245,13 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._typeIdxs = {}
 		self._typeLocalizations = {}
 
+		# Initialization and fitting attributes
+		self.feistCoreVals = FEIST_CORE_VALS.copy()
+		self.initialDryMass = None
+
+		self.fracInitFreeNTPs = 0.0015
+		self.fracInitFreeAAs = 0.001
+
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
 
@@ -267,26 +276,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
 		self._compartmentIndex = {c:i for i, c in enumerate(self._compartments)}
-
-		# MoleculeCounts expects the knowledge base to pass metabolites, 
-		# proteins, RNAs; not just "molecules"
-
-		# Also expects "forms" (mature vs. nascent) for proteins and RNAs
-		# Type assignments (metabolite/rna/protein)
-
-		# References to simulation states (complexation, trans/trans)
-
-		# Track lumped indices i.e. ntps
-
-		# Core biomass function
-
-		# Protein and RNA primary structure data
-
-		# Complexes...?
-
-		# Prefered localization
-
-		# Media and biomass concentrations
 
 
 	def initialize(self, sim, kb):
@@ -371,11 +360,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def calcInitialConditions(self):
 		from wholecell.util.Constants import Constants
 
-		initialDryMass = 2.8e-13 / 1.36
-		fracInitFreeNTPs = 0.0015
-		fracInitFreeAAs = 0.001
-
-		initialDryMass += self.randStream.normal(0.0, 1e-15)
+		self.initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
 
 		self._countsBulk[:] = 0
 
@@ -395,7 +380,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# Set metabolite counts from Feist core
 		feistCore.countsBulkIs(
 			numpy.round(
-				FEIST_CORE_VALS * 1e-3 * Constants.nAvogadro * initialDryMass
+				self.feistCoreVals * 1e-3 * Constants.nAvogadro * self.initialDryMass
 				)
 			)
 
@@ -406,7 +391,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Set RNA counts from expression levels
 		ntpsToPolym = numpy.round(
-			(1 - fracInitFreeNTPs) * numpy.sum(ntps.countsBulk())
+			(1 - self.fracInitFreeNTPs) * numpy.sum(ntps.countsBulk())
 			)
 
 		rnaCnts = self.randStream.mnrnd(
@@ -416,7 +401,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		ntps.countsBulkIs(
 			numpy.round(
-				fracInitFreeNTPs * ntps.countsBulk()
+				self.fracInitFreeNTPs * ntps.countsBulk()
 				)
 			)
 
@@ -424,7 +409,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Set protein counts from expression levels
 		aasToPolym = numpy.round(
-			(1 - fracInitFreeAAs) * numpy.sum(aas.countsBulk())
+			(1 - self.fracInitFreeAAs) * numpy.sum(aas.countsBulk())
 			)
 
 		monCnts = self.randStream.mnrnd(
@@ -434,7 +419,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		aas.countsBulkIs(
 			numpy.round(
-				fracInitFreeAAs * aas.countsBulk()
+				self.fracInitFreeAAs * aas.countsBulk()
 				)
 			)
 

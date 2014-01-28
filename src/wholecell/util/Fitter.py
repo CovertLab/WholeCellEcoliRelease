@@ -11,6 +11,7 @@ Adjust simulation parameters
 """
 
 import numpy
+from wholecell.sim.state.MoleculeCounts import FEIST_CORE_VALS
 
 class Fitter(object):
 	""" Fitter """
@@ -72,24 +73,23 @@ class Fitter(object):
 		# Change
 		idx["rnaExpFracs"] = dict([(x[1], x[0]) for x in enumerate(["rRna23Ss", "rRna16Ss", "rRna5Ss", "tRnas", "mRnas"])])
 
-		import ipdb
-		ipdb.set_trace()
-
 		massFracRNAs = numpy.array([
 			0.525,	# 23S rRNA
 			0.271,	# 16S rRNA
 			0.017,	# 5S rRNA
 			0.146,	# tRNA
 			0.041,	# mRNA (include miscRNAs here if applicable (i.e., if not setting their expression to zero))
-		])
+			])
+
 		mwRNAs = numpy.array([
-			numpy.mean(mc.mws[mc.idx["rRna23Ss"]]),
-			numpy.mean(mc.mws[mc.idx["rRna16Ss"]]),
-			numpy.mean(mc.mws[mc.idx["rRna5Ss"]]),
-			numpy.mean(mc.mws[mc.idx["tRnas"]]),
-			# numpy.mean(mc.mws[mc.idx["matureMrnaMiscRna"]]), # (use if including miscRNAs in mRNA mass fraction)
-			numpy.mean(mc.mws[mc.idx["matureMrna"]]),
-		])
+			mc.molMass(_ids['rRna23Ss']).mean(),
+			mc.molMass(_ids['rRna16Ss']).mean(),
+			mc.molMass(_ids['rRna5Ss']).mean(),
+			mc.molMass(_ids['tRnas']).mean(),
+			# mc.molMass(_ids['matureMrnaMiscRna']).mean(), # Use if including miscRNAs in mRNA mass fraction
+			mc.molMass(_ids['rRna23Ss']).mean()
+			])
+
 		rnaExpFracs = massFracRNAs / mwRNAs
 		rnaExpFracs /= numpy.sum(rnaExpFracs)
 
@@ -110,14 +110,38 @@ class Fitter(object):
 		mc.monExp[idx["monExp"]["rnap_70"]] = mc.rnaExp[idx["rnaExp"]["rnap_70"]] / rnaExpFracs[idx["rnaExpFracs"]["mRnas"]]
 		mc.monExp /= numpy.sum(mc.monExp)
 
+		feistCoreView = mc.countsBulkViewNew([
+			(id_ + '[c]' if id_[-1] != ']' else id_) for id_ in _ids['FeistCore'] # hack to include compartments
+			])
+
+		h2oMol = mc.molecule('H2O[c]')
+		h2oMass = h2oMol.massSingle()
+
+		ntpView = mc.countsBulkViewNew([
+			id_ + '[c]' for id_ in _ids['ntps']
+			])
+
+
+
 		for iteration in xrange(5):
 			# Estimate number of RNA Polymerases needed initially
 			from wholecell.util.Constants import Constants
-			mc.counts[mc.idx["FeistCoreRows"], mc.idx["FeistCoreCols"]] = numpy.round(mc.vals["FeistCore"] * 1e-3 * Constants.nAvogadro * mc.initialDryMass)
-			mc.counts[mc.idx["h2o"], mc.cIdx["c"]] = (6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / mc.mws[mc.idx["h2o"]] * Constants.nAvogadro
+			#mc.counts[mc.idx["FeistCoreRows"], mc.idx["FeistCoreCols"]] = numpy.round(mc.vals["FeistCore"] * 1e-3 * Constants.nAvogadro * mc.initialDryMass)
+			#mc.counts[mc.idx["h2o"], mc.cIdx["c"]] = (6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / mc.mws[mc.idx["h2o"]] * Constants.nAvogadro
 
-			ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * numpy.sum(mc.counts[mc.idx["ntps"], mc.cIdx["c"]]))
+			feistCoreView.countsBulkIs(
+				numpy.round(mc.feistCoreVals * 1e-3 * Constants.nAvogadro * mc.initialDryMass)
+				)
+
+			h2oMol.countBulkIs(
+				(6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / h2oMass * Constants.nAvogadro
+				)
+
+			ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * ntpView.countsBulk().sum())
 			numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens)))
+
+			import ipdb
+			ipdb.set_trace()
 
 			hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
 			numRnapsNeeded = numpy.sum(mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hL ) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]])
@@ -233,6 +257,10 @@ _ids["FeistCore"] = [
 _ids["aminoAcids"] = [
 	"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLN-L", "GLU-L", "GLY", "HIS-L", "ILE-L",
 	"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
+	]
+
+_ids["ntps"] = [
+	"ATP", "CTP", "GTP", "UTP"
 	]
 
 _ids["dntps"] = [
