@@ -15,34 +15,20 @@ import numpy
 class Fitter(object):
 	""" Fitter """
 
+	# def __init__(self, sim, kb):
+	# 	self.sim = sim
+	# 	self.kb = kb
+
+	# 	# collect indices, initialize logging?
+
+
 	@staticmethod
 	def FitSimulation(sim, kb):
 		mc = sim.getState("MoleculeCounts")
 		tc = sim.getProcess("Transcription")
 		tl = sim.getProcess("Translation")
 
-		ids = {}
-		ids["tRnas"] = [
-			"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",
-			"serU-tRNA", "serV-tRNA", "serX-tRNA", "RNA0-302", "lysV-tRNA", "RNA0-303", "RNA0-301", "lysW-tRNA", "lysT-tRNA", "RNA0-306", "metY-tRNA",
-			"metW-tRNA", "metZ-tRNA", "metU-tRNA", "metT-tRNA", "thrW-tRNA", "thrV-tRNA", "thrU-tRNA", "thrT-tRNA", "trpT-tRNA", "pheV-tRNA",
-			"pheU-tRNA", "glyV-tRNA", "glyY-tRNA", "glyU-tRNA", "glyT-tRNA", "glyX-tRNA", "glyW-tRNA", "proL-tRNA", "proK-tRNA", "proM-tRNA",
-			"RNA0-300", "valU-tRNA", "valV-tRNA", "valX-tRNA", "valY-tRNA", "valT-tRNA", "valW-tRNA", "hisR-tRNA", "ileX-tRNA", "RNA0-305",
-			"ileV-tRNA", "ileT-tRNA", "ileU-tRNA", "tyrV-tRNA", "tyrU-tRNA", "tyrT-tRNA", "alaX-tRNA", "alaW-tRNA", "alaT-tRNA", "alaV-tRNA",
-			"alaU-tRNA", "argY-tRNA", "argZ-tRNA", "argX-tRNA", "argU-tRNA", "argV-tRNA", "argQ-tRNA", "argW-tRNA", "aspV-tRNA", "aspU-tRNA",
-			"aspT-tRNA", "RNA0-304", "asnV-tRNA", "asnU-tRNA", "asnT-tRNA", "leuU-tRNA", "leuQ-tRNA", "leuX-tRNA", "leuV-tRNA", "leuT-tRNA",
-			"leuZ-tRNA", "leuW-tRNA", "leuP-tRNA", "cysT-tRNA"
-		]
-
-		ids["rRna23Ss"] = [
-			"RRLA-RRNA", "RRLB-RRNA", "RRLC-RRNA", "RRLD-RRNA", "RRLE-RRNA", "RRLG-RRNA", "RRLH-RRNA",
-		]
-		ids["rRna16Ss"] = [
-			"RRSA-RRNA", "RRSB-RRNA", "RRSC-RRNA", "RRSD-RRNA", "RRSE-RRNA", "RRSG-RRNA", "RRSH-RRNA",
-		]
-		ids["rRna5Ss"]  = [
-			"RRFA-RRNA", "RRFB-RRNA", "RRFC-RRNA", "RRFD-RRNA", "RRFE-RRNA", "RRFF-RRNA", "RRFG-RRNA", "RRFH-RRNA"
-		]
+		
 
 		idx = {}
 
@@ -52,10 +38,10 @@ class Fitter(object):
 		rnaTypes = dict([(x["rnaId"], x["type"]) for x in kb.genes])
 		idx["rnaExp"]["mRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and rnaTypes[x["id"]] in ["mRNA"]])
 		idx["rnaExp"]["miscRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and rnaTypes[x["id"]] in ["miscRNA"]])
-		idx["rnaExp"]["rRna23Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["rRna23Ss"]])
-		idx["rnaExp"]["rRna16Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["rRna16Ss"]])
-		idx["rnaExp"]["rRna5Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["rRna5Ss"]])
-		idx["rnaExp"]["tRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in ids["tRnas"]])
+		idx["rnaExp"]["rRna23Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in _ids["rRna23Ss"]])
+		idx["rnaExp"]["rRna16Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in _ids["rRna16Ss"]])
+		idx["rnaExp"]["rRna5Ss"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in _ids["rRna5Ss"]])
+		idx["rnaExp"]["tRnas"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None and x["id"] in _ids["tRnas"]])
 		idx["rnaExp"]["modified"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] != None])
 		idx["rnaExp"]["unmodified"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["unmodifiedForm"] == None])
 
@@ -66,37 +52,16 @@ class Fitter(object):
 		idx["monExp"]["rnap_70"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["monomerId"] != None and x["id"] in ["EG10893_RNA", "EG10894_RNA", "EG10895_RNA", "EG10896_RNA"]])
 
 		# RNA Polymerase
-		rnap_ids = ["EG10893_RNA", "EG10894_RNA", "EG10895_RNA", "EG10896_RNA"]
-		idx["rnaExp"]["rnap_70"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["id"] in rnap_ids])
+		idx["rnaExp"]["rnap_70"] = numpy.array([i for i, x in enumerate(kb.rnas) if x["id"] in _ids['rnap']])
 
 		# Feist core
-		ids["FeistCore"] = [
-		"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLN-L", "GLU-L", "GLY", "HIS-L", "ILE-L",
-		"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-		"DATP", "DCTP", "DGTP", "DTTP", "CTP", "GTP", "UTP", "ATP", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
-		"PE160", "PE161", "K", "NH4", "MG2", "CA2", "FE2", "FE3", "CU2", "MN2",
-		"MOBD", "COBALT2", "ZN2", "CL", "SO4", "PI", "COA", "NAD", "NADP", "FAD",
-		"THF", "MLTHF", "10FTHF", "THMPP", "PYDX5P", "PHEME", "SHEME", "UDCPDP", "AMET", "2OHPH",
-		"RIBFLV"
-		]
-		ids["aminoAcids"] = [
-			"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLN-L", "GLU-L", "GLY", "HIS-L", "ILE-L",
-			"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
-		]
-		ids["dntps"] = [
-			"DATP", "DCTP", "DGTP", "DTTP"
-		]
-		ids["atp"], ids["ctp"], ids["gtp"], ids["utp"] = (
-			["ATP"], ["CTP"], ["GTP"], ["UTP"]
-		)
-
 		idx["FeistCore"] = {}
-		idx["FeistCore"]["aminoAcids"] = numpy.array([i for i, x in enumerate(ids["FeistCore"]) if x in ids["aminoAcids"]])
-		idx["FeistCore"]["dntps"] = numpy.array([i for i, x in enumerate(ids["FeistCore"]) if x in ids["dntps"]])
-		idx["FeistCore"]["atp"] = numpy.array([i for i, x in enumerate(ids["FeistCore"]) if x in ids["atp"]])
-		idx["FeistCore"]["ctp"] = numpy.array([i for i, x in enumerate(ids["FeistCore"]) if x in ids["ctp"]])
-		idx["FeistCore"]["gtp"] = numpy.array([i for i, x in enumerate(ids["FeistCore"]) if x in ids["gtp"]])
-		idx["FeistCore"]["utp"] = numpy.array([i for i, x in enumerate(ids["FeistCore"]) if x in ids["utp"]])
+		idx["FeistCore"]["aminoAcids"] = numpy.array([i for i, x in enumerate(_ids["FeistCore"]) if x in _ids["aminoAcids"]])
+		idx["FeistCore"]["dntps"] = numpy.array([i for i, x in enumerate(_ids["FeistCore"]) if x in _ids["dntps"]])
+		idx["FeistCore"]["atp"] = numpy.array([i for i, x in enumerate(_ids["FeistCore"]) if x in _ids["atp"]])
+		idx["FeistCore"]["ctp"] = numpy.array([i for i, x in enumerate(_ids["FeistCore"]) if x in _ids["ctp"]])
+		idx["FeistCore"]["gtp"] = numpy.array([i for i, x in enumerate(_ids["FeistCore"]) if x in _ids["gtp"]])
+		idx["FeistCore"]["utp"] = numpy.array([i for i, x in enumerate(_ids["FeistCore"]) if x in _ids["utp"]])
 		idx["FeistCore"]["ntps"] = numpy.array([
 			idx["FeistCore"]["atp"], idx["FeistCore"]["ctp"], idx["FeistCore"]["gtp"], idx["FeistCore"]["utp"]
 		]).reshape(-1)
@@ -106,6 +71,9 @@ class Fitter(object):
 
 		# Change
 		idx["rnaExpFracs"] = dict([(x[1], x[0]) for x in enumerate(["rRna23Ss", "rRna16Ss", "rRna5Ss", "tRnas", "mRnas"])])
+
+		import ipdb
+		ipdb.set_trace()
 
 		massFracRNAs = numpy.array([
 			0.525,	# 23S rRNA
@@ -226,3 +194,53 @@ class Fitter(object):
 
 		# import ipdb
 		# ipdb.set_trace()
+
+_ids = {}
+_ids["tRnas"] = [
+	"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",
+	"serU-tRNA", "serV-tRNA", "serX-tRNA", "RNA0-302", "lysV-tRNA", "RNA0-303", "RNA0-301", "lysW-tRNA", "lysT-tRNA", "RNA0-306", "metY-tRNA",
+	"metW-tRNA", "metZ-tRNA", "metU-tRNA", "metT-tRNA", "thrW-tRNA", "thrV-tRNA", "thrU-tRNA", "thrT-tRNA", "trpT-tRNA", "pheV-tRNA",
+	"pheU-tRNA", "glyV-tRNA", "glyY-tRNA", "glyU-tRNA", "glyT-tRNA", "glyX-tRNA", "glyW-tRNA", "proL-tRNA", "proK-tRNA", "proM-tRNA",
+	"RNA0-300", "valU-tRNA", "valV-tRNA", "valX-tRNA", "valY-tRNA", "valT-tRNA", "valW-tRNA", "hisR-tRNA", "ileX-tRNA", "RNA0-305",
+	"ileV-tRNA", "ileT-tRNA", "ileU-tRNA", "tyrV-tRNA", "tyrU-tRNA", "tyrT-tRNA", "alaX-tRNA", "alaW-tRNA", "alaT-tRNA", "alaV-tRNA",
+	"alaU-tRNA", "argY-tRNA", "argZ-tRNA", "argX-tRNA", "argU-tRNA", "argV-tRNA", "argQ-tRNA", "argW-tRNA", "aspV-tRNA", "aspU-tRNA",
+	"aspT-tRNA", "RNA0-304", "asnV-tRNA", "asnU-tRNA", "asnT-tRNA", "leuU-tRNA", "leuQ-tRNA", "leuX-tRNA", "leuV-tRNA", "leuT-tRNA",
+	"leuZ-tRNA", "leuW-tRNA", "leuP-tRNA", "cysT-tRNA"
+	]
+
+_ids["rRna23Ss"] = [
+	"RRLA-RRNA", "RRLB-RRNA", "RRLC-RRNA", "RRLD-RRNA", "RRLE-RRNA", "RRLG-RRNA", "RRLH-RRNA",
+	]
+
+_ids["rRna16Ss"] = [
+	"RRSA-RRNA", "RRSB-RRNA", "RRSC-RRNA", "RRSD-RRNA", "RRSE-RRNA", "RRSG-RRNA", "RRSH-RRNA",
+	]
+
+_ids["rRna5Ss"]  = [
+	"RRFA-RRNA", "RRFB-RRNA", "RRFC-RRNA", "RRFD-RRNA", "RRFE-RRNA", "RRFF-RRNA", "RRFG-RRNA", "RRFH-RRNA"
+	]
+
+_ids["FeistCore"] = [
+	"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLN-L", "GLU-L", "GLY", "HIS-L", "ILE-L",
+	"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
+	"DATP", "DCTP", "DGTP", "DTTP", "CTP", "GTP", "UTP", "ATP", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+	"PE160", "PE161", "K", "NH4", "MG2", "CA2", "FE2", "FE3", "CU2", "MN2",
+	"MOBD", "COBALT2", "ZN2", "CL", "SO4", "PI", "COA", "NAD", "NADP", "FAD",
+	"THF", "MLTHF", "10FTHF", "THMPP", "PYDX5P", "PHEME", "SHEME", "UDCPDP", "AMET", "2OHPH",
+	"RIBFLV"
+	]
+
+_ids["aminoAcids"] = [
+	"ALA-L", "ARG-L", "ASN-L", "ASP-L", "CYS-L", "GLN-L", "GLU-L", "GLY", "HIS-L", "ILE-L",
+	"LEU-L", "LYS-L", "MET-L", "PHE-L", "PRO-L", "SER-L", "THR-L", "TRP-L", "TYR-L", "VAL-L",
+	]
+
+_ids["dntps"] = [
+	"DATP", "DCTP", "DGTP", "DTTP"
+	]
+
+_ids["atp"], _ids["ctp"], _ids["gtp"], _ids["utp"] = (
+	["ATP"], ["CTP"], ["GTP"], ["UTP"]
+	)
+
+_ids['rnap'] = ["EG10893_RNA", "EG10894_RNA", "EG10895_RNA", "EG10896_RNA"]
