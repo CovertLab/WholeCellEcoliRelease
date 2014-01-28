@@ -31,7 +31,6 @@ sim.setOptions({"seed": 10, "lengthSec": 100})
 # Fit simulation
 import wholecell.util.Fitter as Fitter
 Fitter.Fitter.FitSimulation(sim, kb)
-sim.calcInitialConditions()
 
 # Initialize loggers
 shellLogger = wholecell.sim.logger.Shell.Shell()

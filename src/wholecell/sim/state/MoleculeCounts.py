@@ -247,7 +247,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Initialization and fitting attributes
 		self.feistCoreVals = FEIST_CORE_VALS.copy()
-		self.initialDryMass = None
+		self.initialDryMass = INITIAL_DRY_MASS
 
 		self.fracInitFreeNTPs = 0.0015
 		self.fracInitFreeAAs = 0.001

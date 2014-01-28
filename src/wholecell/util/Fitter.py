@@ -29,8 +29,6 @@ class Fitter(object):
 		tc = sim.getProcess("Transcription")
 		tl = sim.getProcess("Translation")
 
-		
-
 		idx = {}
 
 		idx["rnaExp"] = {}
@@ -117,39 +115,47 @@ class Fitter(object):
 		h2oMol = mc.molecule('H2O[c]')
 		h2oMass = h2oMol.massSingle()
 
+		ppiMass = mc.molecule('PPI[c]').massSingle()
+
 		ntpView = mc.countsBulkViewNew([
 			id_ + '[c]' for id_ in _ids['ntps']
 			])
 
+		aaView = mc.countsBulkViewNew([
+			id_ + '[c]' for id_ in _ids['aminoAcids']
+			])
 
+		hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
+		mw_c_aas = mc.molMass(_ids['aminoAcids']) - h2oMass
+		mw_c_ntps = mc.molMass(_ids['ntps']) - ppiMass
+		mw_c_dntps = mc.molMass(_ids['dntps']) - ppiMass
 
 		for iteration in xrange(5):
 			# Estimate number of RNA Polymerases needed initially
 			from wholecell.util.Constants import Constants
-			#mc.counts[mc.idx["FeistCoreRows"], mc.idx["FeistCoreCols"]] = numpy.round(mc.vals["FeistCore"] * 1e-3 * Constants.nAvogadro * mc.initialDryMass)
-			#mc.counts[mc.idx["h2o"], mc.cIdx["c"]] = (6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / mc.mws[mc.idx["h2o"]] * Constants.nAvogadro
-
+			
 			feistCoreView.countsBulkIs(
-				numpy.round(mc.feistCoreVals * 1e-3 * Constants.nAvogadro * mc.initialDryMass)
+				numpy.round(mc.feistCoreVals * 1e-3 * Constants.nAvogadro * mc.initialDryMass) # this calculation seems wrong...
 				)
 
 			h2oMol.countBulkIs(
-				(6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / h2oMass * Constants.nAvogadro
+				(6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / h2oMass * Constants.nAvogadro # not entirely sure what this does
 				)
 
-			ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * ntpView.countsBulk().sum())
-			numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens)))
+			ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * ntpView.countsBulk().sum()) # number of NTPs as RNA
+			numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens))) # expected number of RNAs?
+			
+			numRnapsNeeded = numpy.sum(
+				mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc.elngRate * (
+					numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hL
+					) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]]
+				)
 
-			import ipdb
-			ipdb.set_trace()
-
-			hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
-			numRnapsNeeded = numpy.sum(mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hL ) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]])
 			#print "numRnapsNeeded: %0.1f" % numRnapsNeeded
-
+			
 			# Estimate total number of monomers
-			aasToPolym = numpy.round((1 - mc.fracInitFreeAAs) * numpy.sum(mc.counts[mc.idx["aas"], mc.cIdx["c"]]))
-			numMons = numpy.round(aasToPolym / (numpy.dot(mc.monExp, mc.monLens)))
+			aasToPolym = numpy.round((1 - mc.fracInitFreeAAs) * aaView.countsBulk().sum()) # number of AAs as protein
+			numMons = numpy.round(aasToPolym / (numpy.dot(mc.monExp, mc.monLens))) # expected number of proteins?
 
 			fudge = 10000
 			if numpy.min(numMons * mc.monExp[idx["monExp"]["rnap_70"]] * numpy.array([1./2, 1., 1., 1.])) < fudge * numRnapsNeeded:
@@ -189,7 +195,7 @@ class Fitter(object):
 			assert(numpy.all((mc.rnaExp[idx["rnaExp"]["mRnas"]] - rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * mc.monExp) < 1e-5))
 
 			# Align biomass with process usages
-			valsOrig = mc.vals["FeistCore"].copy()
+			valsOrig = mc.feistCoreVals.copy()
 
 			normalize = lambda x: numpy.array(x).astype("float") / numpy.linalg.norm(x, 1)
 
@@ -199,20 +205,17 @@ class Fitter(object):
         						0.06433478,  0.04242188,  0.07794587,  0.02055925,  0.05964359,
 						        0.09432389,  0.05520678,  0.02730249,  0.03564025,  0.04069936,
 						        0.05387673,  0.05485896,  0.01133458,  0.02679389,  0.07677868])
-			mw_c = (mc.mws[mc.idx["aas"]] - mc.mws[mc.idx["h2o"]])
-			mc.vals["FeistCore"][idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c
+			mc.feistCoreVals[idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c_aas
 
 			# NTPs (RNA)
 			# f_w = numpy.array([ 0.25375551,  0.23228423,  0.30245459,  0.21150567])
 			f_w = numpy.array([ 0.248,  0.238,  0.300,  0.214 ])
 			# f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
-			mw_c = (mc.mws[mc.idx["ntps"]] - mc.mws[mc.idx["ppi"]])
-			mc.vals["FeistCore"][idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c
+			mc.feistCoreVals[idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c_ntps
 
 			# dNTPS (DNA)
 			f_w = normalize(numpy.array([kb.genomeSeq.count("A"), kb.genomeSeq.count("C"), kb.genomeSeq.count("G"), kb.genomeSeq.count("T")]))
-			mw_c = (mc.mws[mc.idx["dntps"]] - mc.mws[mc.idx["ppi"]])
-			mc.vals["FeistCore"][idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c
+			mc.feistCoreVals[idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c_dntps
 
 			#print "||delta biomass||_1: %0.3f" % numpy.linalg.norm(valsOrig - mc.vals["FeistCore"], 1)
 
