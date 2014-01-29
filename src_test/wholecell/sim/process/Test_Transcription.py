@@ -178,8 +178,8 @@ class Test_Transcription(unittest.TestCase):
 			return
 
 		sim = self.sim
-		tc = sim.getProcess("Transcription")
-		tc.rna.mws[tc.rna.mws < 0 ] = 0
+		# tc = sim.getProcess("Transcription")
+		# tc.rna.mws[tc.rna.mws < 0 ] = 0
 		
 		ntpCounts = 1e6
 		initEnzCnts = 960.
@@ -196,53 +196,54 @@ class Test_Transcription(unittest.TestCase):
 		comm.Scatterv([allSeeds, tuple(sendcounts), tuple(displacements), MPI.DOUBLE], mySeeds)
 		print "Rank %d mySeeds: %s" % (comm.rank, str(mySeeds))
 
-		myNtpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec, mySeeds.size))
-		myRnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec, mySeeds.size))
+		# myNtpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec, mySeeds.size))
+		# myRnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec, mySeeds.size))
 
-		for iterSeed in xrange(mySeeds.size):
-			seed = mySeeds.astype("int")[iterSeed]
-			print "%d" % seed
-			tc.randStream.seed = seed
-			tc.rna.counts = initRnaCnts * numpy.ones(tc.rna.counts.shape)
+		# for iterSeed in xrange(mySeeds.size):
+		# 	seed = mySeeds.astype("int")[iterSeed]
+		# 	print "%d" % seed
+		# 	tc.randStream.seed = seed
+		# 	tc.rna.counts = initRnaCnts * numpy.ones(tc.rna.counts.shape)
 
-			ntpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec))
-			rnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec))
+		# 	ntpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec))
+		# 	rnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec))
 
-			for t in xrange(lengthSec):
-				tc.metabolite.counts[tc.metabolite.idx["ntps"]] = ntpCounts * numpy.ones(tc.metabolite.idx["ntps"].shape)
-				tc.enzyme.counts = numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t)) * numpy.ones(tc.enzyme.counts.shape)
-				tc.evolveState()
-				ntpUsage[:, t] = tc.metabolite.parentState.tcNtpUsage
-				rnaProduction[:, t] = tc.rna.counts
+		# 	for t in xrange(lengthSec):
+		# 		tc.metabolite.counts[tc.metabolite.idx["ntps"]] = ntpCounts * numpy.ones(tc.metabolite.idx["ntps"].shape)
+		# 		tc.enzyme.counts = numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t)) * numpy.ones(tc.enzyme.counts.shape)
+		# 		tc.evolveState()
+		# 		ntpUsage[:, t] = tc.metabolite.parentState.tcNtpUsage
+		# 		rnaProduction[:, t] = tc.rna.counts
 
-			myNtpUsage[:, :, iterSeed] = ntpUsage
-			myRnaProduction[:, :, iterSeed] = rnaProduction
+		# 	myNtpUsage[:, :, iterSeed] = ntpUsage
+		# 	myRnaProduction[:, :, iterSeed] = rnaProduction
 
-			fNtpUsage = ntpUsage / numpy.sum(ntpUsage, axis = 0)
-			print "%d, %s" % (comm.rank, str(numpy.mean(fNtpUsage, axis = 1)))
-			rnaMassProduction = numpy.diff(numpy.dot(tc.rna.mws, rnaProduction / Constants.nAvogadro))
+		# 	fNtpUsage = ntpUsage / numpy.sum(ntpUsage, axis = 0)
+		# 	print "%d, %s" % (comm.rank, str(numpy.mean(fNtpUsage, axis = 1)))
+		# 	rnaMassProduction = numpy.diff(numpy.dot(tc.rna.mws, rnaProduction / Constants.nAvogadro))
 
-			# import ipdb
-			# ipdb.set_trace()
-			# Assert exponential usage of metabolites
-			self.assertTrue(numpy.allclose(1., numpy.mean(numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec)), rtol = 0, atol = 6e-2))
-			self.assertTrue(numpy.allclose(1., numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
+		# 	# import ipdb
+		# 	# ipdb.set_trace()
+		# 	# Assert exponential usage of metabolites
+		# 	self.assertTrue(numpy.allclose(1., numpy.mean(numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec)), rtol = 0, atol = 6e-2))
+		# 	self.assertTrue(numpy.allclose(1., numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
 
-			# Assert exponential increase in RNA mass
-			self.assertTrue(numpy.allclose(1., numpy.mean(rnaMassProduction[-10:]) / numpy.mean(rnaMassProduction[:10]) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
+		# 	# Assert exponential increase in RNA mass
+		# 	self.assertTrue(numpy.allclose(1., numpy.mean(rnaMassProduction[-10:]) / numpy.mean(rnaMassProduction[:10]) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
 
-			nProd = rnaProduction[:, -1]
-			N = numpy.sum(nProd)
-			E = N * tc.rnaSynthProb
-			V = N * tc.rnaSynthProb * (1 - tc.rnaSynthProb)
-			S = numpy.sqrt(V)
+		# 	nProd = rnaProduction[:, -1]
+		# 	N = numpy.sum(nProd)
+		# 	E = N * tc.rnaSynthProb
+		# 	V = N * tc.rnaSynthProb * (1 - tc.rnaSynthProb)
+		# 	S = numpy.sqrt(V)
 
-			# Assert exponential increase in rRNA 23S counts
-			rrlIdxs = tc.rna.getIndex(["RRLA-RRNA:nascent", "RRLB-RRNA:nascent", "RRLC-RRNA:nascent", "RRLD-RRNA:nascent", "RRLE-RRNA:nascent", "RRLG-RRNA:nascent", "RRLH-RRNA:nascent"])[0]
-			self.assertTrue(numpy.allclose(1., numpy.mean(nProd[rrlIdxs] / E[rrlIdxs]), rtol = 0, atol = 1e-1))
+		# 	# Assert exponential increase in rRNA 23S counts
+		# 	rrlIdxs = tc.rna.getIndex(["RRLA-RRNA:nascent", "RRLB-RRNA:nascent", "RRLC-RRNA:nascent", "RRLD-RRNA:nascent", "RRLE-RRNA:nascent", "RRLG-RRNA:nascent", "RRLH-RRNA:nascent"])[0]
+		# 	self.assertTrue(numpy.allclose(1., numpy.mean(nProd[rrlIdxs] / E[rrlIdxs]), rtol = 0, atol = 1e-1))
 
-			# Loosely assert exponential increase in all RNAs (this is noisy)
-			numpyHandleError = numpy.geterr()
-			numpy.seterr(divide = "ignore", invalid = "ignore")
-			self.assertTrue(scipy.stats.nanmean(nProd / E) > 0.8)
-			numpy.seterr(**numpyHandleError)
+		# 	# Loosely assert exponential increase in all RNAs (this is noisy)
+		# 	numpyHandleError = numpy.geterr()
+		# 	numpy.seterr(divide = "ignore", invalid = "ignore")
+		# 	self.assertTrue(scipy.stats.nanmean(nProd / E) > 0.8)
+		# 	numpy.seterr(**numpyHandleError)
+		
