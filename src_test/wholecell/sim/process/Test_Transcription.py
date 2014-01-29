@@ -187,7 +187,7 @@ class Test_Transcription(unittest.TestCase):
 		T_d = 3600.
 		lengthSec = int(T_d)
 
-		nSeeds = 1
+		nSeeds = 100
 		nProc = comm.size
 		sendcounts = (nSeeds / nProc) * numpy.ones(nProc, dtype = int) + (numpy.arange(nProc, dtype = int) < nSeeds % nProc)
 		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(sendcounts)[:-1]])
@@ -246,4 +246,3 @@ class Test_Transcription(unittest.TestCase):
 		# 	numpy.seterr(divide = "ignore", invalid = "ignore")
 		# 	self.assertTrue(scipy.stats.nanmean(nProd / E) > 0.8)
 		# 	numpy.seterr(**numpyHandleError)
-		
