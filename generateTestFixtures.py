@@ -63,3 +63,6 @@ def generateTestFixtures():
 	wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
 	sim.calcInitialConditions()
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "w"), protocol = cPickle.HIGHEST_PROTOCOL)
+
+if __name__ == '__main__':
+	generateTestFixtures()
