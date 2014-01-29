@@ -174,8 +174,8 @@ class Test_Transcription(unittest.TestCase):
 
 	@noseAttrib.attr("rnaTotalProduction")
 	def test_total_production(self):
-		if comm.rank != 0:
-			return
+		# if comm.rank != 0:
+		# 	return
 
 		sim = self.sim
 		# tc = sim.getProcess("Transcription")
