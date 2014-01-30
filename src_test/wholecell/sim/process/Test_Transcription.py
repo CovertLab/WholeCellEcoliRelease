@@ -8,15 +8,15 @@ Tests Transcription process
 """
 
 import unittest
-import warnings
+# import warnings
 import nose.plugins.attrib as noseAttrib
 
 import numpy
 import scipy.stats
 import cPickle
 import os
-import matplotlib
-matplotlib.use("agg")
+# import matplotlib
+# matplotlib.use("agg")
 from wholecell.util.Constants import Constants
 
 from mpi4py import MPI
