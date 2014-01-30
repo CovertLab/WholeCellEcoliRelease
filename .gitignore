@@ -19,6 +19,8 @@
 ##################
 nosetests.xml
 
+nosetests.*.xml
+
 *.cPickle
 
 *.png
