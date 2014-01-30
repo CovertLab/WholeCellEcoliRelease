@@ -159,10 +159,10 @@ class Test_Transcription(unittest.TestCase):
 		ntpCounts = 1e6
 		initEnzCnts = 960.
 		initRnaCnts = 0.
-		T_d = 1. #3600.
+		T_d = 3600.
 		lengthSec = int(T_d)
 
-		nSeeds = 1 #100
+		nSeeds = 100
 		nProc = comm.size
 		sendcounts = (nSeeds / nProc) * numpy.ones(nProc, dtype = int) + (numpy.arange(nProc, dtype = int) < nSeeds % nProc)
 		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(sendcounts)[:-1]])
