@@ -8,6 +8,8 @@ Also provides a function (load) for reading stored simulation data
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
+@author: John Mason
+@organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/3/2013
 """
 
@@ -18,78 +20,63 @@ import tables
 
 import wholecell.sim.logger.Logger
 
+# TODO: add support for all States
+# TODO: add loading code
+# TODO: pickle the initial simulation
+# TODO: remove the "sim" reference in copy/create?
+
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
-	def __init__(self, metadata = None, outFile = None, overwrite = False):
-		
-		if not self.isMetadataValid(metadata):
-			raise Exception, "Metadata invalid: %s" % (metadata)
-
-		if outFile == None or type(outFile) != str:
-			raise Exception, "outFile invalid: %s" % (outFile)
-
-		self.metadata = metadata or {}
+	def __init__(self, outFile = None, overwrite = False):
 		self.outFile = outFile
 		self.h5file = None
 
 		if os.path.exists(self.outFile) and not overwrite:
 			raise Exception, "File exists. To overwrite, specify overwrite = True."
+
 		else:
 			self.h5file = tables.open_file(outFile, mode = "w", title = "Single simulation")
 
+
 	def initialize(self, sim):
 		# -- Metadata --
-
-		self.metadata["startTime"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-		self.metadata["endTime"] = []
-		self.metadata["lengthSec"] = []
-		self.metadata["timeStepSec"] = []
+		self.h5file.root._v_attrs.startTime = self.currentTimeAsString()
+		self.h5file.root._v_attrs.timeStepSec = sim.timeStepSec
+		# self.h5file.root._v_attrs.options = sim.getOptions()
+		# self.h5file.root._v_attrs.parameters = sim.getParameters()
 
 		# -- Create tables --
 		self.createTables(sim)
 
-		# -- Save initial state --		
+		# -- Save initial state --
 		self.copyDataFromStates(sim)
+
 
 	def append(self, sim):
 		self.copyDataFromStates(sim)
 
+
 	def finalize(self, sim):
-
 		# -- Metadata --
-		# Record
-		self.metadata["endTime"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-		self.metadata["lengthSec"] = sim.getState("Time").value
-		self.metadata["timeStepSec"] = sim.timeStepSec
-
-		# Save
-		self.saveMetadata(sim.getOptions(), sim.getParameters())
+		self.h5file.root._v_attrs.lengthSec = sim.getState('Time').value
+		self.h5file.root._v_attrs.endTime = self.currentTimeAsString()
 
 		# -- Close file --
 		self.h5file.close()
 
 
-	# TODO: Implement. Check for the following:
-	# - Name, description
-	# - Investigator
-	# - Revision
-	# - Username, hostname, ip
-	def isMetadataValid(self, metadata):
-		return True
-
 	def createTables(self, sim):
 		for state in sim.states:
 			state.pytablesCreate(self.h5file, sim)
+
 
 	def copyDataFromStates(self, sim):
 		# State
 		for state in sim.states:
 			state.pytablesAppend(self.h5file, sim)
 
-	def saveMetadata(self, options, parameters):
-		metadata = self.metadata
 
-		self.h5file.root._v_attrs.metadata = metadata
-		self.h5file.root._v_attrs.options = options
-		self.h5file.root._v_attrs.parameters = parameters
+	@staticmethod
+	def currentTimeAsString():
+		time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
