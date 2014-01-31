@@ -36,14 +36,15 @@ class Mass(wholecell.sim.state.State.State):
 		self.meta = {
 			"id": "Mass",
 			"name": "Mass",
-			"dynamics": ["total", "cell", "cellDry", "metabolite", "rna", "protein"],
+			"dynamics": ["total", "cell", "cellDry", "metabolite", "rna", "protein", 'growth'],
 			"units": {
 				"total": "fg",
 				"cell": "fg",
 				"cellDry": "fg",
 				"metabolite": "fg",
 				"rna": "fg",
-				"protein": "fg"
+				"protein": "fg",
+				'growth': "fg/s"
 				}
 		}
 
@@ -57,6 +58,8 @@ class Mass(wholecell.sim.state.State.State):
 		self.metabolite = None
 		self.rna = None
 		self.protein = None
+
+		self.growth = None
 
 		super(Mass, self).__init__(*args, **kwargs)
 
@@ -77,6 +80,8 @@ class Mass(wholecell.sim.state.State.State):
 		self.rna = numpy.zeros(len(self.compartments))
 		self.protein = numpy.zeros(len(self.compartments))
 
+		self.growth = numpy.zeros(1)
+
 
 	def calculate(self):
 		from wholecell.util.Constants import Constants
@@ -95,11 +100,16 @@ class Mass(wholecell.sim.state.State.State):
 							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
 							self.cIdx["n"], self.cIdx["o"], self.cIdx["p"], self.cIdx["w"]])
 
+		oldMass = self.cell.sum()
+
 		self.cell[:] = 0
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
 		self.cellDry[cIdxs] = self.cell[cIdxs] - mc.massAll('water')[cIdxs] / Constants.nAvogadro * 1e15
+
+		self.growth = self.cell.sum() - oldMass
+
 
 	def pytablesCreate(self, h5file, sim):
 		import tables

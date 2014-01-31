@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-Metabolism
+MetabolicFlux
 
-Metabolism state variable. Represents the instantaneous growth rate (fg/h) and metabolic reaction fluxes (reactions/s)
+MetabolicFlux state variable. Represents the instantaneous growth rate (fg/h) and metabolic reaction fluxes (reactions/s)
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -14,14 +14,14 @@ import numpy
 
 import wholecell.sim.state.State
 
-class Metabolism(wholecell.sim.state.State.State):
-	""" Metabolism """
+class MetabolicFlux(wholecell.sim.state.State.State):
+	""" MetabolicFlux """
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
 		self.meta = {
-			"id": "Metabolism",
-			"name": "Metabolism",
+			"id": "MetabolicFlux",
+			"name": "MetabolicFlux",
 			"dynamics": ["growth", "fluxes"],
 			"units": {
 				"growth": "fg/h",
@@ -35,11 +35,11 @@ class Metabolism(wholecell.sim.state.State.State):
 		self.growth = None
 		self.fluxes = None
 
-		super(Metabolism, self).__init__(*args, **kwargs)
+		super(MetabolicFlux, self).__init__(*args, **kwargs)
 
 	# Construct state-process graph
 	def initialize(self, sim, kb):
-		super(Metabolism, self).initialize(sim, kb)
+		super(MetabolicFlux, self).initialize(sim, kb)
 
 		self.moleculeCounts = sim.getState("MoleculeCounts")
 		self.metabolism = sim.getProcess("Metabolism")
@@ -49,7 +49,7 @@ class Metabolism(wholecell.sim.state.State.State):
 
 	# Allocate memory
 	def allocate(self):
-		super(Metabolism, self).allocate()
+		super(MetabolicFlux, self).allocate()
 
 		self.growth = numpy.zeros(1)
 		self.fluxes = numpy.zeros(len(self.reactionIds)) # Note: Probably not the right size
