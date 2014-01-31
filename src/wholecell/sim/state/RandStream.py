@@ -5,9 +5,9 @@ RandStream
 
 Pseudorandom number generator state.
 
-@author: Derek Macklin
+@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/29/2013
+@date: Created 1/31/2014
 """
 
 import numpy
