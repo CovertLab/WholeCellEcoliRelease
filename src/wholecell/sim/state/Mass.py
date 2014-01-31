@@ -66,12 +66,14 @@ class Mass(wholecell.sim.state.State.State):
 
 		super(Mass, self).__init__(*args, **kwargs)
 
+
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(Mass, self).initialize(sim, kb)
 
 		self.moleculeCounts = sim.getState("MoleculeCounts")
 		self.time = sim.getState("Time")
+
 
 	# Allocate memory
 	def allocate(self):
@@ -143,6 +145,7 @@ class Mass(wholecell.sim.state.State.State):
 		t.attrs.metabolite_units = self.meta["units"]["metabolite"]
 		t.attrs.rna_units = self.meta["units"]["rna"]
 		t.attrs.protein_units = self.meta["units"]["protein"]
+
 
 	def pytablesAppend(self, h5file):
 		simTime = self.time.value

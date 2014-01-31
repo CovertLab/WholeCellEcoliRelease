@@ -14,11 +14,12 @@ Also provides a function (load) for reading stored simulation data
 """
 
 import os
-import os.path
 import time
 import tables
+import cPickle
 
 import wholecell.sim.logger.Logger
+import wholecell.util.PickleHelper
 
 # TODO: add support for all States
 # TODO: add loading code
@@ -27,29 +28,40 @@ import wholecell.sim.logger.Logger
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
-	def __init__(self, outFile = None, overwrite = False):
-		self.outFile = outFile
+	def __init__(self, outDir = None):
+		self.outDir = outDir
 		self.h5file = None
 
-		if os.path.exists(self.outFile) and not overwrite:
-			raise Exception, "File exists. To overwrite, specify overwrite = True."
-
-		else:
-			self.h5file = tables.open_file(outFile, mode = "w", title = "Single simulation")
+		if not os.path.exists(outDir):
+			os.mkdir(outDir)
 
 
 	def initialize(self, sim):
-		# -- Metadata --
+		self.h5file = tables.open_file(
+			os.path.join(self.outDir, 'state.hdf'),
+			mode = "w",
+			title = "Single simulation"
+			)
+
+		# Metadata
 		self.h5file.root._v_attrs.startTime = self.currentTimeAsString()
 		self.h5file.root._v_attrs.timeStepSec = sim.timeStepSec
 		# self.h5file.root._v_attrs.options = sim.getOptions()
 		# self.h5file.root._v_attrs.parameters = sim.getParameters()
 
-		# -- Create tables --
+		# Create tables
 		self.createTables(sim)
 
-		# -- Save initial state --
+		# Save initial state
 		self.copyDataFromStates(sim)
+
+		# Pickle initial simulation
+		wholecell.util.PickleHelper.registerInstanceMethods()
+		cPickle.dump(
+			sim,
+			open(os.path.join(self.outDir, 'simulation.cPickle'), 'wb'),
+			protocol = cPickle.HIGHEST_PROTOCOL
+			)
 
 
 	def append(self, sim):
@@ -57,11 +69,11 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 
 	def finalize(self, sim):
-		# -- Metadata --
+		# Metadata
 		self.h5file.root._v_attrs.lengthSec = sim.getState('Time').value
 		self.h5file.root._v_attrs.endTime = self.currentTimeAsString()
 
-		# -- Close file --
+		# Close file
 		self.h5file.close()
 
 
