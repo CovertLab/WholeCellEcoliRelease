@@ -16,8 +16,6 @@ Example:
 import os
 import cPickle
 
-import numpy
-
 import wholecell.sim.logger.Disk
 import wholecell.sim.logger.Shell
 import wholecell.sim.Simulation

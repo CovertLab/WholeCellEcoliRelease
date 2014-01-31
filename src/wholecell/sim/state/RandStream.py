@@ -85,3 +85,12 @@ class RandStream(wholecell.sim.state.State.State):
 		entry.append()
 
 		t.flush()
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		entry = h5file.get_node('/', self.meta['id'])[timePoint]
+
+		state = (entry['string'], entry['integerArray'], entry['position'],
+			entry['hasGauss'], entry['cachedGaussian'])
+
+		self.randStream.state = state

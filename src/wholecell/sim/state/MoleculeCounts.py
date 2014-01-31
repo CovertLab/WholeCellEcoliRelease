@@ -618,6 +618,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		t.flush()
 
+	def pytablesLoad(self, h5file, timePoint):
+		entry = h5file.get_node('/', self.meta['id'])[timePoint]
+
+		self.countsBulk = entry["countsBulk"]
+
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	'''

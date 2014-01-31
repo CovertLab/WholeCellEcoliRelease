@@ -77,6 +77,9 @@ class State(object):
 	def pytablesAppend(self, h5file):
 		pass
 
+	def pytablesLoad(self, h5file, timePoint):
+		pass
+
 
 	# -- Calculations --
 	# Calculate (and cache) any dependent properties
