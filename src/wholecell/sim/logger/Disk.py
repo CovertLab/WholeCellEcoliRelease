@@ -72,7 +72,6 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 
 	def copyDataFromStates(self, sim):
-		# State
 		for state in sim.states:
 			state.pytablesAppend(self.h5file, sim)
 

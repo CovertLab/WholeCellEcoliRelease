@@ -47,14 +47,14 @@ class Simulation(object):
 	# Construct states
 	def constructStates(self):
 		import wholecell.sim.state.Mass
-		import wholecell.sim.state.MetabolicFlux
+		# import wholecell.sim.state.MetabolicFlux
 		import wholecell.sim.state.MoleculeCounts
 		import wholecell.sim.state.Time
 		import wholecell.sim.state.RandStream
 
 		self.states = [
 			wholecell.sim.state.Mass.Mass(),
-			wholecell.sim.state.MetabolicFlux.MetabolicFlux(),
+			# wholecell.sim.state.MetabolicFlux.MetabolicFlux(),
 			wholecell.sim.state.MoleculeCounts.MoleculeCounts(),
 			wholecell.sim.state.Time.Time(),
 			wholecell.sim.state.RandStream.RandStream()
