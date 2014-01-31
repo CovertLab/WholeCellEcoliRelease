@@ -22,9 +22,8 @@ class RandStream(wholecell.sim.state.State.State):
 		self.meta = {
 			"id": "RandStream",
 			"name": "RandStream",
-			"dynamics": ["value"],
-			# "units": {"value": "s"}
-		}
+			"dynamics": ["value"]
+			}
 
 		self.value = None
 		super(RandStream, self).__init__(*args, **kwargs)

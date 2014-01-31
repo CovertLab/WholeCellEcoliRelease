@@ -58,7 +58,7 @@ class Simulation(object):
 			wholecell.sim.state.MoleculeCounts.MoleculeCounts(),
 			wholecell.sim.state.Time.Time(),
 			wholecell.sim.state.RandStream.RandStream()
-		]
+			]
 
 		self.time = self.getState("Time")
 
@@ -109,7 +109,7 @@ class Simulation(object):
 
 		# Calculate temporal evolution
 		for iSec in numpy.arange(self.timeStepSec, self.lengthSec + self.timeStepSec, self.timeStepSec):
-			self.time.value = iSec
+			self.time.value = iSec # TODO: update this within Time.calculate()
 			self.evolveState()
 
 			# Append logs
@@ -122,14 +122,9 @@ class Simulation(object):
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
-		# Calculate initial conditions
-		# TODO: call systematically for every state
-		self.getState("Time").calcInitialConditions()
-		self.getState("MoleculeCounts").calcInitialConditions()
-		#self.getState("Mass").calculate()
-		self.getState("Mass").calcInitialConditions()
-		# self.getState("Mass").partition()
-		self.getState("Metabolism").calcInitialConditions()
+		# # Calculate initial conditions
+		for state in self.states:
+			state.calcInitialConditions()
 
 		# Calculate dependent state
 		for state in self.states:
