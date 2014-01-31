@@ -50,6 +50,7 @@ class Mass(wholecell.sim.state.State.State):
 
 		# References to other states
 		self.moleculeCounts = None
+		self.time = None
 
 		# Mass
 		self.total = None
@@ -68,6 +69,7 @@ class Mass(wholecell.sim.state.State.State):
 		super(Mass, self).initialize(sim, kb)
 
 		self.moleculeCounts = sim.getState("MoleculeCounts")
+		self.time = sim.getState("Time")
 
 	# Allocate memory
 	def allocate(self):
@@ -111,7 +113,7 @@ class Mass(wholecell.sim.state.State.State):
 		self.growth = self.cell.sum() - oldMass
 
 
-	def pytablesCreate(self, h5file, sim):
+	def pytablesCreate(self, h5file):
 		import tables
 
 		# Columns
@@ -138,10 +140,10 @@ class Mass(wholecell.sim.state.State.State):
 		t.attrs.rna_units = self.meta["units"]["rna"]
 		t.attrs.protein_units = self.meta["units"]["protein"]
 
-	def pytablesAppend(self, h5file, sim):
+	def pytablesAppend(self, h5file):
 		import tables
 
-		simTime = sim.getState("Time").value
+		simTime = self.time.value
 		t = h5file.get_node("/", self.meta["id"])
 		entry = t.row
 

@@ -71,10 +71,10 @@ class State(object):
 	def merge(self):
 		pass
 
-	def pytablesCreate(self, h5file, sim):
+	def pytablesCreate(self, h5file):
 		pass
 
-	def pytablesAppend(self, h5file, sim):
+	def pytablesAppend(self, h5file):
 		pass
 
 

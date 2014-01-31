@@ -23,7 +23,6 @@ import wholecell.sim.logger.Logger
 # TODO: add support for all States
 # TODO: add loading code
 # TODO: pickle the initial simulation
-# TODO: remove the "sim" reference in copy/create?
 
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
@@ -68,12 +67,12 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 	def createTables(self, sim):
 		for state in sim.states:
-			state.pytablesCreate(self.h5file, sim)
+			state.pytablesCreate(self.h5file)
 
 
 	def copyDataFromStates(self, sim):
 		for state in sim.states:
-			state.pytablesAppend(self.h5file, sim)
+			state.pytablesAppend(self.h5file)
 
 
 	@staticmethod
