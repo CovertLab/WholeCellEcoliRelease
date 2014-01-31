@@ -13,48 +13,63 @@ Example:
 @date: Created 4/10/2013
 """
 
+import os
+import cPickle
+
 import numpy
-import matplotlib.pyplot as plt
 
-def runSimulation(simOpts = None, diskOpts = None, kbOpts = None):
-	## Import classes
-	import wholecell.sim.logger.Disk
-	import wholecell.sim.logger.Shell
-	import wholecell.sim.Simulation
-	import wholecell.kb.KnowledgeBase
+import wholecell.sim.logger.Disk
+import wholecell.sim.logger.Shell
+import wholecell.sim.Simulation
+import wholecell.kb.KnowledgeBase
+import wholecell.util.Fitter
 
-	simOpts = simOpts or {}
-	diskOpts = diskOpts or {}
-	kbOpts = kbOpts or {}
+KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
-	## Instantiate knowledge base
-	kb = wholecell.kb.KnowledgeBase.KnowledgeBase(**kbOpts)
+DEFAULT_OPTIONS = {
+	'seed':10,
+	'lengthSec':100
+	}
 
-	## Instantiate loggers
-	diskLogger = wholecell.sim.logger.Disk.Disk(**diskOpts)
-	shellLogger = wholecell.sim.logger.Shell.Shell()
+def runSimulation(reconstructKB = False, fitSimulation = True,
+		useShellLogger = True, useDiskLogger = False, outDir = None,
+		simOpts = None):
 
-	loggers = [
-		diskLogger,
-		shellLogger
-	]
+	# Instantiate knowledge base
+	if reconstructKB or not os.path.exists(KB_PATH):
+		kb = wholecell.kb.KnowledgeBase.KnowledgeBase(
+			dataFileDir = "data/parsed", seqFileName = "data/raw/sequence.txt"
+			)
 
-	## Run simulation
+		cPickle.dump(kb, open(KB_PATH, "wb"),
+			protocol = cPickle.HIGHEST_PROTOCOL)
+
+	else:
+		kb = cPickle.load(open(KB_PATH, "rb"))
+
+	# Set up simulation
 	sim = wholecell.sim.Simulation.Simulation(kb)
-	sim.setOptions(simOpts)
+	if simOpts:
+		sim.setOptions(simOpts)
+
+	if fitSimulation:
+		wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
+
+	# Instantiate loggers
+	loggers = []
+
+	if useShellLogger: loggers.append(wholecell.sim.logger.Shell.Shell())
+
+	if useDiskLogger:
+		if outDir is None:
+			raise Exception('No output directory provided.')
+
+		loggers.append(
+			wholecell.sim.logger.Disk.Disk(outDir = outDir)
+			)
+
+	# Run simulation
 	sim.run(loggers)
 
-	## Plot Result
-	# Load data
-	time = numpy.transpose(wholecell.sim.logger.Disk.Disk.load(diskLogger.outDir, "Time", "value") / 3600, (0, 2, 1)).reshape(-1)
-	mass = numpy.sum(wholecell.sim.logger.Disk.Disk.load(diskLogger.outDir, "Mass", "cell"), axis = 1).reshape(-1)
-
-	plt.plot(time, mass)
-	plt.xlabel("Time (h)")
-	plt.ylabel("Mass (fg)")
-	plt.plot(time[[0, -1]], mass[0] * numpy.ones(2), color = 0.5 * numpy.ones(3), linestyle=":")
-	plt.plot(time[[0, -1]], mass[-1] * numpy.ones(2), color = 0.5 * numpy.ones(3), linestyle=":")
-	plt.xlim(time[[0, -1]])
-	plt.ylim(numpy.array([numpy.min(mass), numpy.max(mass)]) + 0.05 * numpy.ptp(mass) * numpy.array([-1, 1]))
-	plt.show()
-	plt.close()
+if __name__ == '__main__':
+	runSimulation(simOpts = DEFAULT_OPTIONS)
