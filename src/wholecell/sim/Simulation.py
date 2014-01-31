@@ -17,15 +17,16 @@ class Simulation(object):
 	""" Simulation """
 
 	# Constructor
-	def __init__(self, kb):
+	def __init__(self, kb, processToInclude = default_processes):
 		self.meta = {
 			"options": ["lengthSec", "timeStepSec", "seed"],
 			"units": {"lengthSec": "s", "timeStepSec": "s"}
 		}
 
 		# Options
-		self.lengthSec = 50000			# Simulation length (s)
-		self.timeStepSec = 1.0			# Simulation time step (s)
+		self.lengthSec = 50000						# Simulation length (s)
+		self.timeStepSec = 1.0						# Simulation time step (s)
+		self.processToInclude = processToInclude	# List of processes to include in simulation
 
 		# Dependent properties
 		self.seed = None
