@@ -10,6 +10,9 @@ Simulation
 
 import numpy
 
+default_processes = ['Complexation', 'Metabolism', 'ProteinMaturation',
+					'RnaDegradation', 'RnaMaturation', 'Transcription', 'Translation']
+
 class Simulation(object):
 	""" Simulation """
 
