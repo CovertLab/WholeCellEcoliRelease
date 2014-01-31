@@ -34,7 +34,7 @@ DEFAULT_OPTIONS = {
 	}
 
 def runSimulation(reconstructKB = False, fitSimulation = True,
-		useShellLogger = True, useDiskLogger = False, outDir = None,
+		useShellLogger = True, useDiskLogger = False, outFile = None,
 		simOpts = None):
 
 	# Instantiate knowledge base
@@ -70,15 +70,15 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 		loggers.append(wholecell.sim.logger.Shell.Shell())
 
 	if useDiskLogger:
-		if outDir is None:
+		if outFile is None:
 			raise Exception('No output directory provided.')
 
 		loggers.append(
-			wholecell.sim.logger.Disk.Disk(outDir = outDir)
+			wholecell.sim.logger.Disk.Disk(outFile = outFile, overwrite = True)
 			)
 
 	# Run simulation
 	sim.run(loggers)
 
 if __name__ == '__main__':
-	runSimulation(simOpts = DEFAULT_OPTIONS)
+	runSimulation(simOpts = DEFAULT_OPTIONS, useDiskLogger = True, outFile = 'out/stateFile.hdf')

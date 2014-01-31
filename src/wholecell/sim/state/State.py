@@ -71,6 +71,12 @@ class State(object):
 	def merge(self):
 		pass
 
+	def pytablesCreate(self, h5file, sim):
+		pass
+
+	def pytablesAppend(self, h5file, sim):
+		pass
+
 
 	# -- Calculations --
 	# Calculate (and cache) any dependent properties

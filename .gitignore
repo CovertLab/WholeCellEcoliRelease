@@ -30,3 +30,5 @@ nosetests.*.xml
 *.pickle
 
 *.log
+
+*.hdf
