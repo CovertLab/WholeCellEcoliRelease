@@ -24,6 +24,8 @@ import wholecell.sim.Simulation
 import wholecell.kb.KnowledgeBase
 import wholecell.util.Fitter
 
+import weakref
+
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
 DEFAULT_OPTIONS = {
@@ -47,6 +49,8 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	else:
 		kb = cPickle.load(open(KB_PATH, "rb"))
 
+	kbWeakRef = weakref.ref(kb)
+
 	# Set up simulation
 	sim = wholecell.sim.Simulation.Simulation(kb)
 	if simOpts:
@@ -55,10 +59,15 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	if fitSimulation:
 		wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
 
+	del kb
+
+	assert kbWeakRef() is None, 'Failed to release knowledge base from memory.'
+
 	# Instantiate loggers
 	loggers = []
 
-	if useShellLogger: loggers.append(wholecell.sim.logger.Shell.Shell())
+	if useShellLogger:
+		loggers.append(wholecell.sim.logger.Shell.Shell())
 
 	if useDiskLogger:
 		if outDir is None:
