@@ -13,6 +13,8 @@ import cPickle
 
 import tables
 
+import wholecell.sim.logger.Shell
+
 def loadSimulation(simDir, outDir, timePoint):
 	sim = cPickle.load(
 		open(os.path.join(simDir, 'simulation.cPickle'), 'rb'),
@@ -28,9 +30,12 @@ def loadSimulation(simDir, outDir, timePoint):
 
 	return sim
 
+
 if __name__ == '__main__':
-	loadSimulation(
+	sim = loadSimulation(
 		os.path.join('out', 'to_load'),
 		os.path.join('out', 'loaded'),
 		50
 		)
+
+	sim.run([wholecell.sim.logger.Shell.Shell()])

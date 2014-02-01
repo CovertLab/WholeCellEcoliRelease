@@ -72,6 +72,7 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 
 		sys.stdout.write("\n")
 
+
 	def finalize(self, sim):
 		# Print summary
 		sys.stdout.write("\n")

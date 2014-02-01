@@ -99,7 +99,10 @@ class Simulation(object):
 	# -- Run simulation --
 
 	# Run simulation
-	def run(self, loggers = []):
+	def run(self, loggers = None):
+		if loggers is None:
+			loggers = []
+
 		# Calculate initial conditions
 		self.calcInitialConditions()
 
