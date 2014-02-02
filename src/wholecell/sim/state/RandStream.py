@@ -35,7 +35,7 @@ class RandStream(wholecell.sim.state.State.State):
 	def initialize(self, sim, kb):
 		super(RandStream, self).initialize(sim, kb)
 
-		self.time = sim.getState("Time")
+		self.time = sim.states["Time"]
 
 
 	def calculate(self):

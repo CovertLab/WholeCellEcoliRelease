@@ -48,7 +48,7 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 		self._rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas] + [x["id"] + "[c]" for x in kb.rnas]
 
-		mc = sim.getState('MoleculeCounts')
+		mc = sim.states['MoleculeCounts']
 
 		# Metabolites
 		self.metabolitePartition = mc.addPartition(self, self._metaboliteIds, self.calcReqMetabolites)

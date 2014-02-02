@@ -89,15 +89,15 @@ class Simulation(object):
 
 	# Link states and processes
 	def initialize(self, kb):
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.initialize(self, kb)
 
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			process.initialize(self, kb)
 
 	# Allocate memory
 	def allocateMemory(self):
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.allocate()
 
 
@@ -128,33 +128,33 @@ class Simulation(object):
 	# Calculate initial conditions
 	def calcInitialConditions(self):
 		# # Calculate initial conditions
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.calcInitialConditions()
 
 		# Calculate dependent state
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.calculate()
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Prepare to partition states among processes
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.prepartition()
 
 		# Partition states among processes
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.partition()
 
 		# Simulate submodels
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			process.evolveState()
 
 		# Merge state
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.merge()
 
 		# Recalculate dependent state
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.calculate()
 
 	# -- Get, set options and parameters
@@ -168,11 +168,11 @@ class Simulation(object):
 				val[opt] = getattr(self, opt)
 
 		# States
-		for state in self.states:
+		for state in self.states.itervalues():
 			val["states"][state.meta["id"]] = state.getOptions()
 
 		# Processes
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			val["processes"][process.meta["id"]] = process.getOptions()
 
 		return val
@@ -205,11 +205,11 @@ class Simulation(object):
 		val = {"states": {}, "processes": {}}
 
 		# States
-		for state in self.states:
+		for state in self.states.itervalues():
 			val["states"][state.meta["id"]] = state.getParameters()
 
 		# Processes
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			val["processes"][process.meta["id"]] = process.getParameters()
 
 		return val
@@ -230,7 +230,7 @@ class Simulation(object):
 
 	def getDynamics(self):
 		val = {}
-		for state in self.states:
+		for state in self.states.itervalues():
 			val[state.meta["id"]] = state.getDynamics()
 		return val
 
@@ -247,7 +247,7 @@ class Simulation(object):
 	def timeStepSec(self, value):
 		self._timeStepSec = value
 		if hasattr(self, "processes"):
-			for process in self.processes:
+			for process in self.processes.itervalues():
 				process.timeStepSec = value
 
 	@property

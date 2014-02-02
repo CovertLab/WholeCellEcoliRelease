@@ -73,9 +73,9 @@ class Metabolism(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Metabolism, self).initialize(sim, kb)
 
-		self.mass = sim.getState("Mass")
-		self.mc = sim.getState("MoleculeCounts")
-		self.time = sim.getState("Time")
+		self.mass = sim.states["Mass"]
+		self.mc = sim.states["MoleculeCounts"]
+		self.time = sim.states["Time"]
 
 		bioIds = []
 		bioConc = []
@@ -88,7 +88,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = numpy.array(bioConc)
 
-		self.metabolitePartition = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
+		self.metabolitePartition = sim.states["MoleculeCounts"].addPartition(self, bioIds, self.calcReqMetabolites)
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
 		self.metabolitePartition.atpHydrolysisView = self.metabolitePartition.countsBulkViewNew(

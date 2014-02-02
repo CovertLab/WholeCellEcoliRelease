@@ -41,7 +41,7 @@ class Translation(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Translation, self).initialize(sim, kb)
 
-		mc = sim.getState("MoleculeCounts")
+		mc = sim.states["MoleculeCounts"]
 
 		# Metabolites
 		self.metabolitePartition = mc.addPartition(self, _metIDs, self.calcReqMetabolites)

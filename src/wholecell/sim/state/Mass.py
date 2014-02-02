@@ -71,8 +71,8 @@ class Mass(wholecell.sim.state.State.State):
 	def initialize(self, sim, kb):
 		super(Mass, self).initialize(sim, kb)
 
-		self.moleculeCounts = sim.getState("MoleculeCounts")
-		self.time = sim.getState("Time")
+		self.moleculeCounts = sim.states["MoleculeCounts"]
+		self.time = sim.states["Time"]
 
 
 	# Allocate memory
