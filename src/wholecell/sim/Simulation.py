@@ -52,14 +52,14 @@ class Simulation(object):
 	# Construct states
 	def constructStates(self):
 		import wholecell.sim.state.Mass
-		import wholecell.sim.state.MetabolicFlux
+		# import wholecell.sim.state.MetabolicFlux
 		import wholecell.sim.state.MoleculeCounts
 		import wholecell.sim.state.Time
 		import wholecell.sim.state.RandStream
 
 		self.states = collections.OrderedDict([
 			('Mass',			wholecell.sim.state.Mass.Mass()),
-			('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
+			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
 			('MoleculeCounts',	wholecell.sim.state.MoleculeCounts.MoleculeCounts()),
 			('Time',			wholecell.sim.state.Time.Time()),
 			('RandStream',		wholecell.sim.state.RandStream.RandStream())

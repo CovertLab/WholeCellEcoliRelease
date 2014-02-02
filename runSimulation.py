@@ -16,8 +16,6 @@ Example:
 import os
 import cPickle
 
-import numpy
-
 import wholecell.sim.logger.Disk
 import wholecell.sim.logger.Shell
 import wholecell.sim.Simulation
@@ -81,4 +79,4 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	sim.run(loggers)
 
 if __name__ == '__main__':
-	runSimulation(simOpts = DEFAULT_OPTIONS)
+	runSimulation(simOpts = DEFAULT_OPTIONS, useDiskLogger = True, outDir = 'out/working/')

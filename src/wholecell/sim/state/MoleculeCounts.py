@@ -15,9 +15,13 @@ array and unique instances in a series of lists sharing a common index.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
+# TODO: break this into multiple files, it's becoming unbearably long
+
 import re
 
 import numpy
+import tables
+
 import wholecell.sim.state.State as wcState
 import wholecell.sim.state.Partition as wcPartition
 
@@ -223,6 +227,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				}
 			}
 
+		# References to state
+		self.time = None
+
+		# Attributes
+
 		self._countsUnique = None # Counts of molecules with unique properties
 
 		# Molecule mass
@@ -283,6 +292,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Because I'm not sure how we want to handle forms, and the names won't
 		# hash properly without them, I'm combining IDs and form values
+
+		self.time = sim.getState('Time')
 
 		# Molecules
 		self._molIDs = []
@@ -561,8 +572,56 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# TODO: unique counts & dMass
 
+
 	def molMass(self, ids):
 		return self._molMass[self._getIndices([id_ + '[c]' for id_ in ids])[1]]
+
+
+	def pytablesCreate(self, h5file):
+		countsShape = self._countsBulk.shape
+
+		# Columns
+		d = {
+			"time": tables.Int64Col(),
+			"countsBulk":tables.Int64Col(countsShape), # unsigned? any intelligent choice of dtype here is going to really speed up the sim
+			# TODO: track unique counts
+			# TODO: track requests
+			}
+
+		# Create table
+		# TODO: Add compression options (using filters)
+		t = h5file.create_table(
+			h5file.root,
+			self.meta["id"],
+			d,
+			title = self.meta["name"],
+			filters = tables.Filters(complevel = 9, complib="zlib")
+			)
+	
+		group = h5file.createGroup(h5file.root,
+			'names', 'Molecule and compartment names')
+
+		h5file.createArray(group, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
+		h5file.createArray(group, 'compartments', [str(s) for s in self._compartments])
+
+
+	def pytablesAppend(self, h5file):
+		simTime = self.time.value
+
+		t = h5file.get_node("/", self.meta["id"])
+		entry = t.row
+
+		entry["time"] = simTime
+		entry['countsBulk'] = self._countsBulk
+		
+		entry.append()
+
+		t.flush()
+
+	def pytablesLoad(self, h5file, timePoint):
+		entry = h5file.get_node('/', self.meta['id'])[timePoint]
+
+		self.countsBulk = entry["countsBulk"]
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):

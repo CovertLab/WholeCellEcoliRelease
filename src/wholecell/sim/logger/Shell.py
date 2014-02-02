@@ -27,8 +27,8 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		self.columns = [
 			{"header": "Time (s)", "state": "Time", "property": "value", "length": 8, "format": "d", "sum": False},
 			{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
-			{"header": "Growth (fg/h)", "state": "Metabolism", "property": "growth", "length": 13, "format": ".2f", "sum": False}
-		]
+			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".2f", "sum": False}
+			]
 
 		# Collect Metadata
 		self.nLines = -1
