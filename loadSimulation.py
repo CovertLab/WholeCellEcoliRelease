@@ -24,13 +24,14 @@ def loadSimulation(simDir, outDir, timeStep):
 
 	sim = wholecell.sim.Simulation.Simulation(kb)
 
-	sim.setOptions({'seed':10, 'lengthSec':100})
+	sim.setOptions({'lengthSec':100})
 
 	# wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
 
 	# sim.calcInitialConditions()
 
 	with tables.openFile(os.path.join(simDir, 'state.hdf')) as h5file:
+		sim.pytablesLoad(h5file, timeStep)
 		for state in sim.states.values():
 			state.pytablesLoad(h5file, timeStep)
 
@@ -42,7 +43,7 @@ def loadSimulation(simDir, outDir, timeStep):
 
 
 if __name__ == '__main__':
-	TIME_STEP = 99
+	TIME_STEP = 50
 
 	sim = loadSimulation(
 		os.path.join('out', 'to_load'),

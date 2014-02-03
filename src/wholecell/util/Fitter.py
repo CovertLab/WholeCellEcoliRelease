@@ -126,7 +126,7 @@ class Fitter(object):
 		mw_c_ntps = mc.molMass(_ids['ntps']) - ppiMass
 		mw_c_dntps = mc.molMass(_ids['dntps']) - ppiMass
 
-		for iteration in xrange(5):
+		for iteration in xrange(1):
 			# Estimate number of RNA Polymerases needed initially
 			from wholecell.util.Constants import Constants
 			

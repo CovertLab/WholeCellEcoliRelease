@@ -129,7 +129,6 @@ class Simulation(object):
 		for logger in loggers:
 			logger.finalize(self)
 
-		# print self.randStream.randi(100, 10)
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
@@ -140,6 +139,7 @@ class Simulation(object):
 		# Calculate dependent state
 		for state in self.states.itervalues():
 			state.calculate()
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -174,6 +174,7 @@ class Simulation(object):
 			'Fit parameter values'
 			)
 
+		h5file.createArray(group, 'initialDryMass', self.states['MoleculeCounts'].initialDryMass)
 		h5file.createArray(group, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
 		h5file.createArray(group, 'monExp', self.states['MoleculeCounts'].monExp)
 		h5file.createArray(group, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
@@ -188,6 +189,7 @@ class Simulation(object):
 	def pytablesLoad(self, h5file, timePoint):
 		group = h5file.get_node('/', 'fitParameters')
 
+		self.states['MoleculeCounts'].initialDryMass = group.initialDryMass.read()
 		self.states['MoleculeCounts'].rnaExp[:] = group.rnaExp.read()
 		self.states['MoleculeCounts'].monExp[:] = group.monExp.read()
 		self.states['MoleculeCounts'].feistCoreVals[:] = group.feistCoreVals.read()
