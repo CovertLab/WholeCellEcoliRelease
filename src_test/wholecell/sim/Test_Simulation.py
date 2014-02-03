@@ -141,6 +141,7 @@ class Test_Simulation(unittest.TestCase):
 	def test_removeProcesses(self):
 		sim = wholecell.sim.Simulation.Simulation(kb, processToInclude = ['Transcription'])
 		self.assertEqual(['Transcription'], sim.processes.keys())
+		self.assertEqual(True, False)
 
 	# --- Test biology ---
 
