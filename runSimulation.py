@@ -79,4 +79,8 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	sim.run(loggers)
 
 if __name__ == '__main__':
-	runSimulation(simOpts = DEFAULT_OPTIONS, useDiskLogger = True, outDir = 'out/working/')
+	runSimulation(
+		simOpts = DEFAULT_OPTIONS,
+		useDiskLogger = True,
+		outDir = 'out/working/'
+		)

@@ -160,6 +160,37 @@ class Simulation(object):
 		for state in self.states.itervalues():
 			state.calculate()
 
+
+	def pytablesCreate(self, h5file):
+		# TODO: move fitted parameter saving either into the appropriate state,
+		# or save the fitted parameters in a knowledge base object
+
+		group = h5file.createGroup(
+			h5file.root,
+			'fitParameters',
+			'Fit parameter values'
+			)
+
+		h5file.createArray(group, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
+		h5file.createArray(group, 'monExp', self.states['MoleculeCounts'].monExp)
+		h5file.createArray(group, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
+		h5file.createArray(group, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
+
+
+	def pytablesAppend(self, h5file):
+		# Included for consistency, eventual features...
+		pass
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		group = h5file.get_node('/', 'fitParameters')
+
+		self.states['MoleculeCounts'].rnaExp = group.rnaExp.read()
+		self.states['MoleculeCounts'].monExp = group.monExp.read()
+		self.states['MoleculeCounts'].feistCoreVals = group.feistCoreVals.read()
+		self.processes['Transcription'].rnaSynthProb = group.rnaSynthProb.read()
+
+
 	# -- Get, set options and parameters
 	def getOptions(self):
 		# Initialize output

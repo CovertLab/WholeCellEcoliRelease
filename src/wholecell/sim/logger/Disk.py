@@ -55,14 +55,6 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		# Save initial state
 		self.copyDataFromStates(sim)
 
-		# Pickle initial simulation
-		wholecell.util.PickleHelper.registerInstanceMethods()
-		cPickle.dump(
-			sim,
-			open(os.path.join(self.outDir, 'simulation.cPickle'), 'wb'),
-			protocol = cPickle.HIGHEST_PROTOCOL
-			)
-
 
 	def append(self, sim):
 		self.copyDataFromStates(sim)
@@ -78,11 +70,15 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 
 	def createTables(self, sim):
+		sim.pytablesCreate(self.h5file)
+
 		for state in sim.states.itervalues():
 			state.pytablesCreate(self.h5file)
 
 
 	def copyDataFromStates(self, sim):
+		sim.pytablesAppend(self.h5file)
+		
 		for state in sim.states.itervalues():
 			state.pytablesAppend(self.h5file)
 
