@@ -33,7 +33,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		self.h5file = None
 
 		if not os.path.exists(outDir):
-			os.mkdir(outDir)
+			os.makedirs(outDir)
 
 
 	def initialize(self, sim):
@@ -42,7 +42,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 			mode = "w",
 			title = "Single simulation"
 			)
-
+		
 		# Metadata
 		self.h5file.root._v_attrs.startTime = self.currentTimeAsString()
 		self.h5file.root._v_attrs.timeStepSec = sim.timeStepSec
@@ -70,7 +70,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 	def finalize(self, sim):
 		# Metadata
-		self.h5file.root._v_attrs.lengthSec = sim.getState('Time').value
+		self.h5file.root._v_attrs.lengthSec = sim.states['Time'].value
 		self.h5file.root._v_attrs.endTime = self.currentTimeAsString()
 
 		# Close file
@@ -78,12 +78,12 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 
 	def createTables(self, sim):
-		for state in sim.states:
+		for state in sim.states.itervalues():
 			state.pytablesCreate(self.h5file)
 
 
 	def copyDataFromStates(self, sim):
-		for state in sim.states:
+		for state in sim.states.itervalues():
 			state.pytablesAppend(self.h5file)
 
 

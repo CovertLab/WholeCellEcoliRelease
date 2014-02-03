@@ -30,7 +30,7 @@ class RnaMaturation(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(RnaMaturation, self).initialize(sim, kb)
 
-		mc = sim.getState('MoleculeCounts')
+		mc = sim.states['MoleculeCounts']
 
 		self.nascentRnaPartition = mc.addPartition(
 			self, [x["id"] + ":nascent[c]" for x in kb.rnas],

@@ -9,29 +9,34 @@ Simulation
 """
 
 import numpy
+import collections
+
+default_processes = ['Complexation', 'Metabolism', 'ProteinMaturation',
+					'RnaDegradation', 'RnaMaturation', 'Transcription', 'Translation']
 
 class Simulation(object):
 	""" Simulation """
 
 	# Constructor
-	def __init__(self, kb):
+	def __init__(self, kb, processToInclude = default_processes):
 		self.meta = {
 			"options": ["lengthSec", "timeStepSec", "seed"],
 			"units": {"lengthSec": "s", "timeStepSec": "s"}
 		}
 
 		# Options
-		self.lengthSec = 50000			# Simulation length (s)
-		self.timeStepSec = 1.0			# Simulation time step (s)
+		self.lengthSec = 50000						# Simulation length (s)
+		self.timeStepSec = 1.0						# Simulation time step (s)
+		self.processToInclude = processToInclude	# List of processes to include in simulation
 
 		# Dependent properties
 		self.seed = None
 
 		# Rand stream, state, process handles
-		self.randStream = None			# Random stream
-		self.states = None				# List of states
-		self.time = None				# Time state
-		self.processes = None			# List of processes
+		self.randStream = None						# Random stream
+		self.states = None							# Ordered dict of states
+		self.time = None							# Time state
+		self.processes = None						# Ordered dict of processes
 
 		self.constructRandStream()
 		self.constructStates()
@@ -52,15 +57,15 @@ class Simulation(object):
 		import wholecell.sim.state.Time
 		import wholecell.sim.state.RandStream
 
-		self.states = [
-			wholecell.sim.state.Mass.Mass(),
-			# wholecell.sim.state.MetabolicFlux.MetabolicFlux(),
-			wholecell.sim.state.MoleculeCounts.MoleculeCounts(),
-			wholecell.sim.state.Time.Time(),
-			wholecell.sim.state.RandStream.RandStream()
-			]
+		self.states = collections.OrderedDict([
+			('Mass',			wholecell.sim.state.Mass.Mass()),
+			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
+			('MoleculeCounts',	wholecell.sim.state.MoleculeCounts.MoleculeCounts()),
+			('Time',			wholecell.sim.state.Time.Time()),
+			('RandStream',		wholecell.sim.state.RandStream.RandStream())
+			])
 
-		self.time = self.getState("Time")
+		self.time = self.states["Time"]
 
 	# Construct processes
 	def constructProcesses(self):
@@ -72,27 +77,27 @@ class Simulation(object):
 		import wholecell.sim.process.Transcription
 		import wholecell.sim.process.Translation
 
-		self.processes = [
-			wholecell.sim.process.Complexation.Complexation(),
-			wholecell.sim.process.Metabolism.Metabolism(),
-			wholecell.sim.process.ProteinMaturation.ProteinMaturation(),
-			wholecell.sim.process.RnaDegradation.RnaDegradation(),
-			wholecell.sim.process.RnaMaturation.RnaMaturation(),
-			wholecell.sim.process.Transcription.Transcription(),
-			wholecell.sim.process.Translation.Translation()
-			]
+		self.processes = collections.OrderedDict([
+			('Complexation',		wholecell.sim.process.Complexation.Complexation()),
+			('Metabolism',			wholecell.sim.process.Metabolism.Metabolism()),
+			('ProteinMaturation',	wholecell.sim.process.ProteinMaturation.ProteinMaturation()),
+			('RnaDegradation',		wholecell.sim.process.RnaDegradation.RnaDegradation()),
+			('RnaMaturation',		wholecell.sim.process.RnaMaturation.RnaMaturation()),
+			('Transcription',		wholecell.sim.process.Transcription.Transcription()),
+			('Translation',			wholecell.sim.process.Translation.Translation())
+			])
 
 	# Link states and processes
 	def initialize(self, kb):
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.initialize(self, kb)
 
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			process.initialize(self, kb)
 
 	# Allocate memory
 	def allocateMemory(self):
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.allocate()
 
 
@@ -126,62 +131,34 @@ class Simulation(object):
 	# Calculate initial conditions
 	def calcInitialConditions(self):
 		# # Calculate initial conditions
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.calcInitialConditions()
 
 		# Calculate dependent state
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.calculate()
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Prepare to partition states among processes
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.prepartition()
 
 		# Partition states among processes
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.partition()
 
 		# Simulate submodels
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			process.evolveState()
 
 		# Merge state
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.merge()
 
 		# Recalculate dependent state
-		for state in self.states:
+		for state in self.states.itervalues():
 			state.calculate()
-
-
-	# -- Helper methods --
-
-	def getStateIndex(self, stateId):
-		for iState in xrange(len(self.states)):
-			if self.states[iState].meta["id"] == stateId:
-				return iState
-		return None
-
-	def getProcessIndex(self, processId):
-		for iProcess in xrange(len(self.processes)):
-			if self.processes[iProcess].meta["id"] == processId:
-				return iProcess
-		return None
-
-	def getState(self, stateId):
-		iState = self.getStateIndex(stateId)
-		if iState != None:
-			return self.states[iState]
-		return None
-
-	def getProcess(self, processId):
-		iProcess = self.getProcessIndex(processId)
-		if iProcess != None:
-			return self.processes[iProcess]
-		return None
-
 
 	# -- Get, set options and parameters
 	def getOptions(self):
@@ -194,11 +171,11 @@ class Simulation(object):
 				val[opt] = getattr(self, opt)
 
 		# States
-		for state in self.states:
+		for state in self.states.itervalues():
 			val["states"][state.meta["id"]] = state.getOptions()
 
 		# Processes
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			val["processes"][process.meta["id"]] = process.getOptions()
 
 		return val
@@ -216,13 +193,13 @@ class Simulation(object):
 		# States
 		if val.has_key("states"):
 			for key in val["states"].keys():
-				state = self.getState(key)
+				state = self.states(key)
 				state.setOptions(val["states"][key])
 
 		# Processes
 		if val.has_key("processes"):
 			for key in val["processes"].keys():
-				process = self.getProcess(key)
+				process = self.processes(key)
 				process.setOptions(val["processes"][key])
 
 	# Return parameters as dict
@@ -231,11 +208,11 @@ class Simulation(object):
 		val = {"states": {}, "processes": {}}
 
 		# States
-		for state in self.states:
+		for state in self.states.itervalues():
 			val["states"][state.meta["id"]] = state.getParameters()
 
 		# Processes
-		for process in self.processes:
+		for process in self.processes.itervalues():
 			val["processes"][process.meta["id"]] = process.getParameters()
 
 		return val
@@ -245,24 +222,24 @@ class Simulation(object):
 			# States
 			if val.has_key("states"):
 				for key in val["states"].keys():
-					state = self.getState(key)
+					state = self.states(key)
 					state.setParameters(val["states"][key])
 
 			# Processes
 			if val.has_key("processes"):
 				for key in val["processes"].keys():
-					process = self.getProcess(key)
+					process = self.processes(key)
 					process.setOptions(val["processes"][key])
 
 	def getDynamics(self):
 		val = {}
-		for state in self.states:
+		for state in self.states.itervalues():
 			val[state.meta["id"]] = state.getDynamics()
 		return val
 
 	def setDynamics(self, val):
 		for key in val.keys():
-			state = self.getState(key)
+			state = self.states(key)
 			state.setDynamics(val[key])
 
 	@property
@@ -273,7 +250,7 @@ class Simulation(object):
 	def timeStepSec(self, value):
 		self._timeStepSec = value
 		if hasattr(self, "processes"):
-			for process in self.processes:
+			for process in self.processes.itervalues():
 				process.timeStepSec = value
 
 	@property

@@ -293,7 +293,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# Because I'm not sure how we want to handle forms, and the names won't
 		# hash properly without them, I'm combining IDs and form values
 
-		self.time = sim.getState('Time')
+		self.time = sim.states['Time']
 
 		# Molecules
 		self._molIDs = []

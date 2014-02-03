@@ -42,7 +42,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Transcription, self).initialize(sim, kb)
 
-		mc = sim.getState("MoleculeCounts")
+		mc = sim.states["MoleculeCounts"]
 
 		# Metabolites
 		self.metabolitePartition = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
@@ -62,7 +62,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 		self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes
-		# self.enzyme = sim.getState("MoleculeCounts").addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
+		# self.enzyme = sim.states["MoleculeCounts"].addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
 		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX[c]"])[0]
 		self.enzymePartition = mc.addPartition(self, [
 			"EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"

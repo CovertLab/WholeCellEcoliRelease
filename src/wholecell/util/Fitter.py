@@ -17,9 +17,9 @@ class Fitter(object):
 
 	@staticmethod
 	def FitSimulation(sim, kb):
-		mc = sim.getState("MoleculeCounts")
-		tc = sim.getProcess("Transcription")
-		tl = sim.getProcess("Translation")
+		mc = sim.states["MoleculeCounts"]
+		tc = sim.processes["Transcription"]
+		tl = sim.processes["Translation"]
 
 		idx = {}
 

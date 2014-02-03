@@ -36,7 +36,6 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 
 		# Print headers
 		for iColumn in xrange(len(self.columns)):
-			self.columns[iColumn]["stateIdx"] = sim.getStateIndex(self.columns[iColumn]["state"])
 			if iColumn > 0:
 				sys.stdout.write("  ")
 			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % self.columns[iColumn]["header"])
@@ -63,7 +62,7 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 			if iColumn > 0:
 				sys.stdout.write("  ")
 
-			val = getattr(sim.states[column["stateIdx"]], column["property"])
+			val = getattr(sim.states[column["state"]], column["property"])
 
 			if column["sum"]:
 				val = numpy.sum(val)
@@ -79,9 +78,9 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		sys.stdout.write("Simulation finished:\n")
 
 		# Length
-		h = numpy.floor(sim.getState("Time").value // 3600)
-		m = numpy.floor((sim.getState("Time").value % 3600) // 60)
-		s = sim.getState("Time").value % 60
+		h = numpy.floor(sim.states["Time"].value // 3600)
+		m = numpy.floor((sim.states["Time"].value % 3600) // 60)
+		s = sim.states["Time"].value % 60
 		sys.stdout.write(" - Length: %d:%02d:%02.0f\n" % (h, m, s))
 
 		# Runtime
