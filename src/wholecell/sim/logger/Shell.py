@@ -77,9 +77,9 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		sys.stdout.write("Simulation finished:\n")
 
 		# Length
-		h = numpy.floor(sim.getState("Time").value // 3600)
-		m = numpy.floor((sim.getState("Time").value % 3600) // 60)
-		s = sim.getState("Time").value % 60
+		h = numpy.floor(sim.states["Time"].value // 3600)
+		m = numpy.floor((sim.states["Time"].value % 3600) // 60)
+		s = sim.states["Time"].value % 60
 		sys.stdout.write(" - Length: %d:%02d:%02.0f\n" % (h, m, s))
 
 		# Runtime
