@@ -104,19 +104,20 @@ class Simulation(object):
 	# -- Run simulation --
 
 	# Run simulation
-	def run(self, loggers = None):
+	def run(self, loggers = None, timeStep = 0):
 		if loggers is None:
 			loggers = []
 
-		# Calculate initial conditions
-		self.calcInitialConditions()
+		if timeStep == 0: # stupid hack
+			# Calculate initial conditions
+			self.calcInitialConditions()
 
 		# Initialize logs
 		for logger in loggers:
 			logger.initialize(self)
 
 		# Calculate temporal evolution
-		for iSec in numpy.arange(self.timeStepSec, self.lengthSec + self.timeStepSec, self.timeStepSec):
+		for iSec in numpy.arange(self.timeStepSec * (timeStep + 1), self.lengthSec + self.timeStepSec, self.timeStepSec):
 			self.time.value = iSec # TODO: update this within Time.calculate()
 			self.evolveState()
 
@@ -127,6 +128,8 @@ class Simulation(object):
 		# Finalize logs
 		for logger in loggers:
 			logger.finalize(self)
+
+		# print self.randStream.randi(100, 10)
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
@@ -185,10 +188,10 @@ class Simulation(object):
 	def pytablesLoad(self, h5file, timePoint):
 		group = h5file.get_node('/', 'fitParameters')
 
-		self.states['MoleculeCounts'].rnaExp = group.rnaExp.read()
-		self.states['MoleculeCounts'].monExp = group.monExp.read()
-		self.states['MoleculeCounts'].feistCoreVals = group.feistCoreVals.read()
-		self.processes['Transcription'].rnaSynthProb = group.rnaSynthProb.read()
+		self.states['MoleculeCounts'].rnaExp[:] = group.rnaExp.read()
+		self.states['MoleculeCounts'].monExp[:] = group.monExp.read()
+		self.states['MoleculeCounts'].feistCoreVals[:] = group.feistCoreVals.read()
+		self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
 
 
 	# -- Get, set options and parameters

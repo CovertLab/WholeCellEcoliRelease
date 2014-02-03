@@ -81,6 +81,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 if __name__ == '__main__':
 	runSimulation(
 		simOpts = DEFAULT_OPTIONS,
+		fitSimulation = True,
 		useDiskLogger = True,
 		outDir = 'out/working/'
 		)

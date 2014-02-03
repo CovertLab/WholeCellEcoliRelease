@@ -168,9 +168,9 @@ class Mass(wholecell.sim.state.State.State):
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-		self.total = nump.array(entry["total"]).read()
-		self.cell = entry["cell"].read()
-		self.cellDry = entry["cellDry"].read()
-		self.metabolite = entry["metabolite"].read()
-		self.rna = entry["rna"].read()
-		self.protein = entry["protein"].read()
+		self.total = entry["total"]
+		self.cell = entry["cell"]
+		self.cellDry = entry["cellDry"]
+		self.metabolite = entry["metabolite"]
+		self.rna = entry["rna"]
+		self.protein = entry["protein"]

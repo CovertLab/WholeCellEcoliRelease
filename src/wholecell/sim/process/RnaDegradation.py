@@ -104,7 +104,6 @@ class RnaDegradation(wholecell.sim.process.Process.Process):
 
 	# Calculate needed RNA
 	def calcReqRna(self, request):
-
 		request.countsBulkIs(
 			self.randStream.poissrnd(self.rnaDegRates * self.rnaView.countsBulk() * self.timeStepSec)
 			)

@@ -583,7 +583,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# Columns
 		d = {
 			"time": tables.Int64Col(),
-			"countsBulk":tables.Int64Col(countsShape), # unsigned? any intelligent choice of dtype here is going to really speed up the sim
+			"countsBulk":tables.Float64Col(countsShape), # unsigned? any intelligent choice of dtype here is going to really speed up the sim
 			# TODO: track unique counts
 			# TODO: track requests
 			}
@@ -621,7 +621,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-		self.countsBulk = entry["countsBulk"].read()
+		self._countsBulk[:] = entry["countsBulk"]
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):

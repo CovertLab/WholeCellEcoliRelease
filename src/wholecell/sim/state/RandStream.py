@@ -48,12 +48,12 @@ class RandStream(wholecell.sim.state.State.State):
 
 		# Columns
 		d = {
-			"time": tables.Int64Col(),
+			"time": tables.Int32Col(),
 			'string':tables.StringCol(stringLen), # string columns require an item length
-			'integerArray':tables.Int32Col(arrayShape),
-			'position':tables.UInt64Col(),
-			'hasGauss':tables.UInt64Col(),
-			'cachedGaussian':tables.Float64Col()
+			'integerArray':tables.UInt32Col(arrayShape),
+			'position':tables.Int32Col(),
+			'hasGauss':tables.Int32Col(),
+			'cachedGaussian':tables.Float32Col()
 			}
 
 		# Create table
@@ -90,8 +90,8 @@ class RandStream(wholecell.sim.state.State.State):
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-		state = (entry['string'].read(), entry['integerArray'].read(),
-			entry['position'].read(), entry['hasGauss'].read(),
-			entry['cachedGaussian'].read())
+		state = (str(entry['string']), entry['integerArray'],
+			int(entry['position']), int(entry['hasGauss']),
+			float(entry['cachedGaussian']))
 
 		self.randStream.state = state

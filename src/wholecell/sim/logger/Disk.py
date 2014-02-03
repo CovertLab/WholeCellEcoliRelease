@@ -16,14 +16,8 @@ Also provides a function (load) for reading stored simulation data
 import os
 import time
 import tables
-import cPickle
 
 import wholecell.sim.logger.Logger
-import wholecell.util.PickleHelper
-
-# TODO: add support for all States
-# TODO: add loading code
-# TODO: pickle the initial simulation
 
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
@@ -78,7 +72,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 	def copyDataFromStates(self, sim):
 		sim.pytablesAppend(self.h5file)
-		
+
 		for state in sim.states.itervalues():
 			state.pytablesAppend(self.h5file)
 
