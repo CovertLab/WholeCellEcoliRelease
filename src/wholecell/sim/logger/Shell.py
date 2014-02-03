@@ -36,7 +36,6 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 
 		# Print headers
 		for iColumn in xrange(len(self.columns)):
-			self.columns[iColumn]["stateIdx"] = sim.getStateIndex(self.columns[iColumn]["state"])
 			if iColumn > 0:
 				sys.stdout.write("  ")
 			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % self.columns[iColumn]["header"])
@@ -63,7 +62,7 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 			if iColumn > 0:
 				sys.stdout.write("  ")
 
-			val = getattr(sim.states[column["stateIdx"]], column["property"])
+			val = getattr(sim.states[column["state"]], column["property"])
 
 			if column["sum"]:
 				val = numpy.sum(val)
