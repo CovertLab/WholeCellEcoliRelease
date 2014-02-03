@@ -65,7 +65,7 @@ class Test_Translation(unittest.TestCase):
 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
 
 		self.sim = comm.bcast(self.sim, root = 0)
-		print "%s" % (self.sim.getState("Mass").meta["id"])
+		print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
@@ -76,7 +76,7 @@ class Test_Translation(unittest.TestCase):
 	def test_production(self):
 
 		sim = self.sim
-		tl = sim.getProcess("Translation")
+		tl = sim.processes["Translation"]
 		tl.protein.mws[tl.protein.mws < 0 ] = 0
 		
 		aaCounts = 1e6
@@ -170,9 +170,9 @@ class Test_Translation(unittest.TestCase):
 	@noseAttrib.attr("monTotalProduction")
 	def test_total_production(self):
 		sim = self.sim
-		tl = sim.getProcess("Translation")
+		tl = sim.processes["Translation"]
 		tl.protein.mws[tl.protein.mws < 0 ] = 0
-		mc = sim.getState("MoleculeCounts")
+		mc = sim.states["MoleculeCounts"]
 		
 		aaCounts = 1e6
 		initEnzCnts = 1100.

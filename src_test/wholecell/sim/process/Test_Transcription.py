@@ -39,7 +39,7 @@ class Test_Transcription(unittest.TestCase):
 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
 		
 		self.sim = comm.bcast(self.sim, root = 0)	
-		print "%s" % (self.sim.getState("Mass").meta["id"])
+		print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
@@ -49,7 +49,7 @@ class Test_Transcription(unittest.TestCase):
 	@noseAttrib.attr('rnaProduction')
 	def test_production(self):
 		sim = self.sim
-		tc = sim.getProcess("Transcription")
+		tc = sim.processes["Transcription"]
 		rnaMWs = tc.rnaPartition._state._massSingle.flat[tc.rnaPartition.mapping]
 		rnaMWs[rnaMWs < 0] = 0
 		
@@ -164,7 +164,7 @@ class Test_Transcription(unittest.TestCase):
 			return
 
 		sim = self.sim
-		tc = sim.getProcess("Transcription")
+		tc = sim.processes["Transcription"]
 		rnaMWs = tc.rnaPartition._state._massSingle.flat[tc.rnaPartition.mapping]
 
 		rnaMWs[rnaMWs < 0] = 0

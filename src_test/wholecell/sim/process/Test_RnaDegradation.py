@@ -66,7 +66,7 @@ class Test_RnaDegradation(unittest.TestCase):
 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
 		
 		self.sim = comm.bcast(self.sim, root = 0)	
-		print "%s" % (self.sim.getState("Mass").meta["id"])
+		print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
@@ -77,8 +77,8 @@ class Test_RnaDegradation(unittest.TestCase):
 	# TODO: Parallelize this test
 	def test_degradation(self):
 		sim = self.sim
-		rd = sim.getProcess("RnaDegradation")
-		mc = sim.getState("MoleculeCounts")
+		rd = sim.processes["RnaDegradation"]
+		mc = sim.states["MoleculeCounts"]
 		rd.rna.mws[rd.rna.mws < 0 ] = 0
 		
 		h2oCounts = 1e6

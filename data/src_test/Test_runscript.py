@@ -89,7 +89,7 @@ class Test_Simulation(unittest.TestCase):
 
 		# Basic reaction with 'or'
 		line = '( b0241  or  b0929  or  b1377  or  b2215 )'
-		self.assertEqual([['MONOMER0-282'],['EG10671-MONOMER'],['G6700-MONOMER'],['EG10670-MONOMER']], rp.findEnzyme(line)['enzymes'])
+		self.assertEqual(['MONOMER0-282','EG10671-MONOMER','G6700-MONOMER','EG10670-MONOMER'], rp.findEnzyme(line)['enzymes'])
 
 		# Basic complex with and
 		line = '( b1252  and  b3005  and  b3006 )'
@@ -102,7 +102,7 @@ class Test_Simulation(unittest.TestCase):
 		rp = r.reactionParser()
 
 		line = 'ATPASE-1-CPLX'
-		self.assertEqual([['ATPASE-1-CPLX']], rp.findEnzymeManualCuration(line))
+		self.assertEqual(['ATPASE-1-CPLX'], rp.findEnzymeManualCuration(line))
 
 		line = '((FHLMULTI-CPLX and G7307-MONOMER) or (CPLX0-250 and G7307-MONOMER))'
 		self.assertEqual([['FHLMULTI-CPLX', 'G7307-MONOMER'], ['CPLX0-250', 'G7307-MONOMER']],rp.findEnzymeManualCuration(line))

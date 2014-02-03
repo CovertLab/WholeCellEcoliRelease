@@ -56,7 +56,7 @@ class Test_Simulation(unittest.TestCase):
 		sim.setOptions({"lengthSec": 10})
 		sim.run()
 
-		self.assertEqual(10, sim.getState("Time").value)
+		self.assertEqual(10, sim.states["Time"].value)
 
 	# Test logging with timeStepSec = 1 s
 	def test_logging(self):
@@ -78,7 +78,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
 
 		self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-		self.assertEqual(sim.getState("MoleculeCounts").counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
+		self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
 		self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
 
 	# Test logging with timeStepSec = 5 s
@@ -101,7 +101,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertTrue(numpy.array_equal(numpy.arange(0, 51, 5).reshape((1, 1, 11)), time))
 
 		self.assertEqual((1, 3, 11),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-		self.assertEqual(sim.getState("MoleculeCounts").counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
+		self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
 		self.assertEqual((1, 1, 11), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
 
 	# --- Test runSimulation script ---
@@ -139,7 +139,7 @@ class Test_Simulation(unittest.TestCase):
 
 	# --- Test ability to remove processes from simulation ---
 	def test_removeProcesses(self):
-		sim = wholecell.sim.Simulation.Simulation(kb, processToInclude = ['Transcription'])
+		sim = wholecell.sim.Simulation.Simulation(self.kb, processToInclude = ['Transcription'])
 		self.assertEqual(['Transcription'], sim.processes.keys())
 		self.assertEqual(True, False)
 
@@ -149,7 +149,7 @@ class Test_Simulation(unittest.TestCase):
 		from wholecell.util.Constants import Constants
 
 		sim = self.sim
-		met = sim.getProcess("Metabolism")
+		met = sim.processes["Metabolism"]
 
 		## Reaction stoichiometry
 		# Ex 1
@@ -237,7 +237,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(0, met.bounds["thermodynamic"]["lo"][iRxn])
 		self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
 
-		state_met = sim.getState("Metabolism")
+		state_met = sim.states["Metabolism"]
 		growth = numpy.zeros(10)
 		for i in xrange(growth.size):
 			sim.setOptions({"seed": i})
@@ -248,9 +248,9 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr("ic")
 	def test_initialConditions(self):
 		sim = self.sim
-		mass = sim.getState("Mass")
-		mc = sim.getState("MoleculeCounts")
-		met = sim.getState("Metabolism")
+		mass = sim.states["Mass"]
+		mc = sim.states["MoleculeCounts"]
+		met = sim.states["Metabolism"]
 
 		# Calculate initial conditions
 		sim.setOptions({"seed": 1})
@@ -276,13 +276,13 @@ class Test_Simulation(unittest.TestCase):
 		import matplotlib.pyplot as plt
 
 		sim = self.sim
-		met = sim.getState("Metabolism")
-		mc = sim.getState("MoleculeCounts")
-		mass = sim.getState("Mass")
-		tl = sim.getProcess("Translation")
-		pm = sim.getProcess("ProteinMaturation")
-		rm = sim.getProcess("RnaMaturation")
-		cpx = sim.getProcess("Complexation")
+		met = sim.states["Metabolism"]
+		mc = sim.states["MoleculeCounts"]
+		mass = sim.states["Mass"]
+		tl = sim.processes["Translation"]
+		pm = sim.processes["ProteinMaturation"]
+		rm = sim.processes["RnaMaturation"]
+		cpx = sim.processes["Complexation"]
 
 		## Simulate
 		# Set options
@@ -298,7 +298,7 @@ class Test_Simulation(unittest.TestCase):
 		init["Mass"]["matureComplexes"] = numpy.dot(mc.mws[mc.idx["matureComplexes"]], numpy.sum(mc.counts[mc.idx["matureComplexes"]], axis = 1)) / Constants.nAvogadro * 1e15
 
 		# Simulate dynamics
-		time = sim.getState("Time")
+		time = sim.states["Time"]
 
 		ntps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
 		ndps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
