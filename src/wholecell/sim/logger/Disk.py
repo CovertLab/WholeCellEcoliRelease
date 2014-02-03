@@ -33,7 +33,7 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		self.h5file = None
 
 		if not os.path.exists(outDir):
-			os.mkdir(outDir)
+			os.makedirs(outDir)
 
 
 	def initialize(self, sim):
