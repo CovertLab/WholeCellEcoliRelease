@@ -30,6 +30,7 @@ class Test_Simulation(unittest.TestCase):
 
 	def setUp(self):
 		self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
+		self.kb = cPickle.load(open(os.path.join("data","fixtures","KnowledgeBase.cPickle"), "r"))
 
 	def tearDown(self):
 		pass
@@ -103,6 +104,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.getState("MoleculeCounts").counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
 		self.assertEqual((1, 1, 11), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
 
+	# --- Test runSimulation script ---
 	def test_runSimulation(self):
 		from runSimulation import runSimulation
 
@@ -135,6 +137,10 @@ class Test_Simulation(unittest.TestCase):
 		}
 		runSimulation(kbOpts = kbOpts, simOpts = simOpts, diskOpts = diskOpts)
 
+	# --- Test ability to remove processes from simulation ---
+	def test_removeProcesses(self):
+		sim = wholecell.sim.Simulation.Simulation(kb, processToInclude = ['Transcription'])
+		self.assertEqual(['Transcription'], sim.processes.keys())
 
 	# --- Test biology ---
 
