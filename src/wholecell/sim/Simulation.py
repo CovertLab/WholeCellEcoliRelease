@@ -10,6 +10,7 @@ Simulation
 
 import numpy
 import collections
+import tables
 
 default_processes = ['Complexation', 'Metabolism', 'ProteinMaturation',
 					'RnaDegradation', 'RnaMaturation', 'Transcription', 'Translation']
@@ -163,7 +164,7 @@ class Simulation(object):
 		for state in self.states.itervalues():
 			state.calculate()
 
-
+	# Save to/load from disk
 	def pytablesCreate(self, h5file):
 		# TODO: move fitted parameter saving either into the appropriate state,
 		# or save the fitted parameters in a knowledge base object
@@ -194,6 +195,21 @@ class Simulation(object):
 		self.states['MoleculeCounts'].monExp[:] = group.monExp.read()
 		self.states['MoleculeCounts'].feistCoreVals[:] = group.feistCoreVals.read()
 		self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
+
+
+	@classmethod
+	def loadSimulation(cls, kb, statefilePath, timePoint):
+		newSim = cls(kb)
+
+		with tables.openFile(statefilePath) as h5file:
+			newSim.pytablesLoad(h5file, timePoint)
+
+			for state in newSim.states.itervalues():
+				state.pytablesLoad(h5file, timePoint)
+
+			newSim.states['Time'].value = timePoint * newSim.timeStepSec
+
+		return newSim
 
 
 	# -- Get, set options and parameters

@@ -11,44 +11,20 @@ Loads a simulation.
 import os
 import cPickle
 
-import tables
-
 import wholecell.sim.logger.Shell
-import wholecell.sim.Simulation
-import wholecell.util.Fitter
+import wholecell.sim.Simulation as wcSim
 
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
-
-def loadSimulation(simDir, outDir, timeStep):
-	kb = cPickle.load(open(KB_PATH, 'rb'))
-
-	sim = wholecell.sim.Simulation.Simulation(kb)
-
-	sim.setOptions({'lengthSec':100})
-
-	# wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
-
-	# sim.calcInitialConditions()
-
-	with tables.openFile(os.path.join(simDir, 'state.hdf')) as h5file:
-		sim.pytablesLoad(h5file, timeStep)
-		for state in sim.states.values():
-			state.pytablesLoad(h5file, timeStep)
-
-		# hack to get the right time
-		time = sim.states['Time']
-		time.value = timeStep * sim.timeStepSec
-
-	return sim
-
 
 if __name__ == '__main__':
 	TIME_STEP = 50
 
-	sim = loadSimulation(
-		os.path.join('out', 'to_load'),
-		os.path.join('out', 'loaded'),
+	sim = wcSim.Simulation.loadSimulation(
+		cPickle.load(open(KB_PATH, 'rb')),
+		os.path.join('out', 'to_load', 'state.hdf'),
 		TIME_STEP
 		)
+
+	sim.setOptions({'lengthSec':100})
 
 	sim.run([wholecell.sim.logger.Shell.Shell()], TIME_STEP)
