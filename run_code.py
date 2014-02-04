@@ -30,7 +30,7 @@ sim.setOptions({"seed": 10, "lengthSec": 100})
 
 # Fit simulation
 import wholecell.util.Fitter as Fitter
-Fitter.Fitter.FitSimulation(sim, kb)
+#Fitter.Fitter.FitSimulation(sim, kb)
 
 # Initialize loggers
 shellLogger = wholecell.sim.logger.Shell.Shell()

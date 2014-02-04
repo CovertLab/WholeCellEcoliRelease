@@ -27,4 +27,6 @@ if __name__ == '__main__':
 
 	sim.setOptions({'lengthSec':100})
 
-	sim.run([wholecell.sim.logger.Shell.Shell()], TIME_STEP)
+	sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+
+	sim.run()

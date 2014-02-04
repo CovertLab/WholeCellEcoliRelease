@@ -163,14 +163,3 @@ class Mass(wholecell.sim.state.State.State):
 		entry.append()
 
 		t.flush()
-
-
-	def pytablesLoad(self, h5file, timePoint):
-		entry = h5file.get_node('/', self.meta['id'])[timePoint]
-
-		self.total = entry["total"]
-		self.cell = entry["cell"]
-		self.cellDry = entry["cellDry"]
-		self.metabolite = entry["metabolite"]
-		self.rna = entry["rna"]
-		self.protein = entry["protein"]

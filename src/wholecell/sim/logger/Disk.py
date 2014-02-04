@@ -19,10 +19,12 @@ import tables
 
 import wholecell.sim.logger.Logger
 
+# TODO: let loaded simulation resume logging in a copied file
+
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
-	def __init__(self, outDir = None):
+	def __init__(self, outDir):
 		self.outDir = outDir
 		self.h5file = None
 

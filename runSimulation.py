@@ -50,7 +50,10 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	kbWeakRef = weakref.ref(kb)
 
 	# Set up simulation
-	sim = wholecell.sim.Simulation.Simulation(kb)
+	sim = wholecell.sim.Simulation.Simulation()
+
+	sim.initialize(kb)
+
 	if simOpts:
 		sim.setOptions(simOpts)
 
@@ -62,21 +65,19 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	assert kbWeakRef() is None, 'Failed to release knowledge base from memory.'
 
 	# Instantiate loggers
-	loggers = []
-
 	if useShellLogger:
-		loggers.append(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 
 	if useDiskLogger:
 		if outDir is None:
 			raise Exception('No output directory provided.')
 
-		loggers.append(
+		sim.loggerAdd(
 			wholecell.sim.logger.Disk.Disk(outDir = outDir)
 			)
 
 	# Run simulation
-	sim.run(loggers)
+	sim.run()
 
 if __name__ == '__main__':
 	runSimulation(
