@@ -37,7 +37,7 @@ class Test_MoleculeCounts_old(unittest.TestCase):
 	def setUp(self):
 		self.sim = None
 		self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
-		self.moleculeCounts = self.sim.getState('MoleculeCounts')
+		self.moleculeCounts = self.sim.states['MoleculeCounts']
 
 		# Create generic process for partition
 		self.genericProcess = type("", (), {})()
