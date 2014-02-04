@@ -218,6 +218,8 @@ class Fitter(object):
 		# import ipdb
 		# ipdb.set_trace()
 
+		sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
+
 _ids = {}
 _ids["tRnas"] = [
 	"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",

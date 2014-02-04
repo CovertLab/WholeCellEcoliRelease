@@ -19,7 +19,7 @@ class Simulation(object):
 	""" Simulation """
 
 	# Constructor
-	def __init__(self, kb, processToInclude = default_processes):
+	def __init__(self, processToInclude = default_processes):
 		self.meta = {
 			"options": ["lengthSec", "timeStepSec", "seed"],
 			"units": {"lengthSec": "s", "timeStepSec": "s"}
@@ -36,19 +36,20 @@ class Simulation(object):
 		# Rand stream, state, process handles
 		self.randStream = None						# Random stream
 		self.states = None							# Ordered dict of states
-		self.time = None							# Time state
 		self.processes = None						# Ordered dict of processes
 
+		self.loggers = []
 		self.constructRandStream()
-		self.constructStates()
-		self.constructProcesses()
-		self.initialize(kb)
-		self.allocateMemory()
+
+		self.initialStep = 0
+		self.simulationStep = 0
+
 
 	# Construct random stream
 	def constructRandStream(self):
 		import wholecell.util.randStream
 		self.randStream = wholecell.util.randStream.randStream()
+
 
 	# Construct states
 	def constructStates(self):
@@ -66,7 +67,8 @@ class Simulation(object):
 			('RandStream',		wholecell.sim.state.RandStream.RandStream())
 			])
 
-		self.time = self.states["Time"]
+		self.time = self.states['Time']
+
 
 	# Construct processes
 	def constructProcesses(self):
@@ -88,13 +90,21 @@ class Simulation(object):
 			('Translation',			wholecell.sim.process.Translation.Translation())
 			])
 
+
 	# Link states and processes
 	def initialize(self, kb):
+		self.constructStates()
+		self.constructProcesses()
+
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
 
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
+
+		self.allocateMemory()
+		self.calcInitialConditions()
+
 
 	# Allocate memory
 	def allocateMemory(self):
@@ -102,42 +112,51 @@ class Simulation(object):
 			state.allocate()
 
 
+	def loggerAdd(self, logger):
+		self.loggers.append(logger)
+
+
+	def logInitialize(self):
+		for logger in self.loggers:
+			logger.initialize(self)
+
+
+	def logAppend(self):
+		for logger in self.loggers:
+			logger.append(self)
+
+
+	def logFinalize(self):
+		for logger in self.loggers:
+			logger.finalize(self)
+
+
 	# -- Run simulation --
 
 	# Run simulation
-	def run(self, loggers = None, timeStep = 0):
-		if loggers is None:
-			loggers = []
+	def run(self):
+		# Calculate initial dependent state
+		self.calculateState()
 
-		if timeStep == 0: # stupid hack
-			# Calculate initial conditions
-			self.calcInitialConditions()
+		self.logInitialize()
 
-		# Initialize logs
-		for logger in loggers:
-			logger.initialize(self)
+		while self.time.value < self.lengthSec:
+			self.simulationStep += 1
 
-		# Calculate temporal evolution
-		for iSec in numpy.arange(self.timeStepSec * (timeStep + 1), self.lengthSec + self.timeStepSec, self.timeStepSec):
-			self.time.value = iSec # TODO: update this within Time.calculate()
 			self.evolveState()
+			self.logAppend()
 
-			# Append logs
-			for logger in loggers:
-				logger.append(self)
-
-		# Finalize logs
-		for logger in loggers:
-			logger.finalize(self)
+		self.logFinalize()
 
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
-		# # Calculate initial conditions
+		# Calculate initial conditions
 		for state in self.states.itervalues():
 			state.calcInitialConditions()
 
-		# Calculate dependent state
+
+	def calculateState(self):
 		for state in self.states.itervalues():
 			state.calculate()
 
@@ -161,8 +180,8 @@ class Simulation(object):
 			state.merge()
 
 		# Recalculate dependent state
-		for state in self.states.itervalues():
-			state.calculate()
+		self.calculateState()
+
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file):
@@ -199,7 +218,8 @@ class Simulation(object):
 
 	@classmethod
 	def loadSimulation(cls, kb, statefilePath, timePoint):
-		newSim = cls(kb)
+		newSim = cls()
+		newSim.initialize(kb)
 
 		with tables.openFile(statefilePath) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
@@ -207,7 +227,7 @@ class Simulation(object):
 			for state in newSim.states.itervalues():
 				state.pytablesLoad(h5file, timePoint)
 
-			newSim.states['Time'].value = timePoint * newSim.timeStepSec
+			newSim.initialStep = timePoint
 
 		return newSim
 
