@@ -50,6 +50,19 @@ class Simulation(object):
 		import wholecell.util.randStream
 		self.randStream = wholecell.util.randStream.randStream()
 
+	# Link states and processes
+	def initialize(self, kb):
+		self.constructStates()
+		self.constructProcesses()
+
+		for state in self.states.itervalues():
+			state.initialize(self, kb)
+
+		for process in self.processes.itervalues():
+			process.initialize(self, kb)
+
+		self.allocateMemory()
+		self.calcInitialConditions()
 
 	# Construct states
 	def constructStates(self):
@@ -95,45 +108,16 @@ class Simulation(object):
 			if process not in self.processToInclude:
 				self.processes.pop(process)
 
-	# Link states and processes
-	def initialize(self, kb):
-		self.constructStates()
-		self.constructProcesses()
-
-		for state in self.states.itervalues():
-			state.initialize(self, kb)
-
-		for process in self.processes.itervalues():
-			process.initialize(self, kb)
-
-		self.allocateMemory()
-		self.calcInitialConditions()
-
-
 	# Allocate memory
 	def allocateMemory(self):
 		for state in self.states.itervalues():
 			state.allocate()
 
-
-	def loggerAdd(self, logger):
-		self.loggers.append(logger)
-
-
-	def logInitialize(self):
-		for logger in self.loggers:
-			logger.initialize(self)
-
-
-	def logAppend(self):
-		for logger in self.loggers:
-			logger.append(self)
-
-
-	def logFinalize(self):
-		for logger in self.loggers:
-			logger.finalize(self)
-
+	# Calculate initial conditions
+	def calcInitialConditions(self):
+		# Calculate initial conditions
+		for state in self.states.itervalues():
+			state.calcInitialConditions()
 
 	# -- Run simulation --
 
@@ -151,13 +135,6 @@ class Simulation(object):
 			self.logAppend()
 
 		self.logFinalize()
-
-
-	# Calculate initial conditions
-	def calcInitialConditions(self):
-		# Calculate initial conditions
-		for state in self.states.itervalues():
-			state.calcInitialConditions()
 
 
 	def calculateState(self):
@@ -186,6 +163,25 @@ class Simulation(object):
 		# Recalculate dependent state
 		self.calculateState()
 
+
+	# --- Logger functions ---
+	def loggerAdd(self, logger):
+		self.loggers.append(logger)
+
+
+	def logInitialize(self):
+		for logger in self.loggers:
+			logger.initialize(self)
+
+
+	def logAppend(self):
+		for logger in self.loggers:
+			logger.append(self)
+
+
+	def logFinalize(self):
+		for logger in self.loggers:
+			logger.finalize(self)
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file):

@@ -37,26 +37,30 @@ class Test_Simulation(unittest.TestCase):
 
 
 	# --- Tests for run-time errors ---
+	@noseAttrib.attr('smalltest')
+	def test_construction(self):
+		import wholecell.sim.Simulation
 
-	# def test_construction(self):
-	# 	import wholecell.sim.Simulation
+		# Construct simulation
+		sim = wholecell.sim.Simulation.Simulation()
 
-	# 	# Load cached KB fixture
-	# 	kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
+	@noseAttrib.attr('smalltest')
+	def test_initialize(self):
+		import wholecell.sim.Simulation
 
-	# 	# Construct simulation
-	# 	sim = wholecell.sim.Simulation.Simulation(kb)
-	# 	sim.setOptions({"seed": 1})
-	# 	sim.calcInitialConditions()
+		# Construct simulation
+		sim = wholecell.sim.Simulation.Simulation()
+		sim.initialize(self.kb)
 
-	# def test_run(self):
+	@noseAttrib.attr('smalltest')
+	def test_run(self):
 
-	# 	# Simulate
-	# 	sim = self.sim
-	# 	sim.setOptions({"lengthSec": 10})
-	# 	sim.run()
+		# Simulate
+		sim = self.sim
+		sim.setOptions({"lengthSec": 10})
+		sim.run()
 
-	# 	self.assertEqual(10, sim.states["Time"].value)
+		self.assertEqual(10, sim.states["Time"].value)
 
 	# # Test logging with timeStepSec = 1 s
 	# def test_logging(self):
