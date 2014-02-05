@@ -11,6 +11,7 @@ Simulation
 import numpy
 import collections
 import tables
+import os
 
 default_processes = ['Complexation', 'Metabolism', 'ProteinMaturation',
 					'RnaDegradation', 'RnaMaturation', 'Transcription', 'Translation']
@@ -221,11 +222,19 @@ class Simulation(object):
 		newSim = cls()
 		newSim.initialize(kb)
 
+		if not os.path.isfile(statefilePath):
+			raise Exception, 'State file specified does not exist!\n'
+		elif not statefilePath.endswith('.hdf'):
+			raise Exception, 'State file specified is not .hdf!\n'
+
 		with tables.openFile(statefilePath) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
 
 			for state in newSim.states.itervalues():
-				state.pytablesLoad(h5file, timePoint)
+				try:
+					state.pytablesLoad(h5file, timePoint)
+				except IndexError:
+					raise Exception, 'Time point chosen to load is out of range!\n'
 
 			newSim.initialStep = timePoint
 
