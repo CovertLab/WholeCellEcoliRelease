@@ -159,10 +159,19 @@ class Test_Simulation(unittest.TestCase):
 
 
 	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('focustest')
 	def test_loadSimulation_method(self):
-		pass
-		# TODO: Finish
+		timepoint = 0
+		with self.assertRaises(Exception) as context:
+			readPath = 'test.hdf'
+			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
+		self.assertEqual(context.exception.message, 'State file specified does not exist!\n')
+
+		with self.assertRaises(Exception) as context:
+			readPath = 'test.file'
+			open(readPath, 'a').close()
+			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
+			os.remove(readpath)
+		self.assertEqual(context.exception.message, 'State file specified is not .hdf!\n')
 
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
@@ -172,106 +181,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(['Transcription'], sim.processes.keys())
 
 	# --- Test biology ---
-
-	# def test_metabolicNetwork(self):
-	# 	from wholecell.util.Constants import Constants
-
-	# 	sim = self.sim
-	# 	met = sim.processes["Metabolism"]
-
-	# 	## Reaction stoichiometry
-	# 	# Ex 1
-	# 	rIdx = met.rxnIds.index("Cls3")
-	# 	self.assertEqual(3, (met.sMat[:, rIdx] != 0).sum())
-	# 	self.assertEqual(-2, met.sMat[met.metabolite.getIndex("PG181[m]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("CL181[m]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("GL[c]")[0], rIdx])
-
-	# 	# Ex 2
-	# 	rIdx = met.rxnIds.index("HinT_GMP_Mor_MG132")
-	# 	self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("GMP_Mor[e]")[0], rIdx])
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[e]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("GMP[e]")[0], rIdx])
-	# 	self.assertEqual(2, met.sMat[met.metabolite.getIndex("H[e]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("MOR[e]")[0], rIdx])
-
-	# 	# Ex 2
-	# 	rIdx = met.rxnIds.index("MsrA")
-	# 	self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[c]")[0], rIdx])
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MET[c]")[0], rIdx])
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER_ox[c]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("METSOXSL[c]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER[c]")[0], rIdx])
-
-	# 	## Exchange reactions
-	# 	self.assertTrue(numpy.array_equal(numpy.ones(met.metIdx["real"].size), met.sMat[met.metIdx["real"], met.rxnIdx["exchange"]]))
-
-	# 	## Objective
-	# 	# Biomass composition
-	# 	self.assertAlmostEqual(13.704, numpy.dot(-met.sMat[met.metIdx["real"], met.rxnIdx["growth"]], met.metabolite.mws) / Constants.nAvogadro *1e15, places = 3)
-
-	# 	self.assertAlmostEqual(786393.089973227, -met.sMat[met.metabolite.getIndex("ALA[c]")[0], met.rxnIdx["growth"]], places = 11)
-	# 	self.assertEqual(0, -met.sMat[met.metabolite.getIndex("AMP[c]")[0], met.rxnIdx["growth"]])
-
-	# 	# Objective
-	# 	self.assertEqual(1, met.sMat[met.metIdx["biomass"], met.rxnIdx["growth"]])
-	# 	self.assertEqual(-1, met.sMat[met.metIdx["biomass"], met.rxnIdx["biomassExchange"]])
-	# 	self.assertEqual(1, (met.sMat[:, met.rxnIdx["biomassExchange"]] != 0).sum())
-
-	# 	## Enzymes and kinetic bounds
-	# 	self.assertTrue(numpy.all(met.eMat[:] >= 0))
-	# 	self.assertTrue(numpy.all(numpy.sum(met.eMat, axis = 1) <= 1))
-	# 	self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["lo"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
-	# 	self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["up"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
-	# 	self.assertTrue(numpy.all(met.bounds["kinetic"]["lo"] <= 0))
-	# 	self.assertTrue(numpy.all(met.bounds["kinetic"]["up"] >= 0))
-
-	# 	# Ex 1
-	# 	iRxn = met.rxnIds.index("LdhA")
-	# 	iEnz = met.enzyme.getIndex("MG_460_TETRAMER[c]")[0]
-	# 	self.assertEqual(2000.0 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["up"][iRxn])
-	# 	self.assertEqual(-numpy.inf, met.bounds["kinetic"]["lo"][iRxn])
-
-	# 	# Ex 2
-	# 	iRxn = met.rxnIds.index("MetF")
-	# 	iEnz = met.enzyme.getIndex("MG_228_TETRAMER[c]")[0]
-	# 	self.assertEqual(1, met.eMat[iRxn, iEnz])
-	# 	self.assertEqual(numpy.inf, met.bounds["kinetic"]["up"][iRxn])
-	# 	self.assertEqual(-9.7 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["lo"][iRxn])
-
-	# 	## Exchange bounds
-	# 	self.assertTrue(numpy.all(met.bounds["exchange"]["lo"] <= 0))
-	# 	self.assertTrue(numpy.all(met.bounds["exchange"]["up"] >= 0))
-
-	# 	iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("AD[e]")[0]]
-	# 	self.assertEqual(-12, met.bounds["exchange"]["lo"][iRxn])
-	# 	self.assertEqual(12, met.bounds["exchange"]["up"][iRxn])
-
-	# 	iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("H2O[e]")[0]]
-	# 	self.assertEqual(-20, met.bounds["exchange"]["lo"][iRxn])
-	# 	self.assertEqual(20, met.bounds["exchange"]["up"][iRxn])
-
-	# 	## Thermodynamic bounds
-	# 	self.assertTrue(numpy.all(met.bounds["thermodynamic"]["lo"] <= 0))
-	# 	self.assertTrue(numpy.all(met.bounds["thermodynamic"]["up"] >= 0))
-
-	# 	iRxn = met.rxnIds.index("AckA")
-	# 	self.assertEqual(-numpy.inf, met.bounds["thermodynamic"]["lo"][iRxn])
-	# 	self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
-
-	# 	iRxn = met.rxnIds.index("AcpS")
-	# 	self.assertEqual(0, met.bounds["thermodynamic"]["lo"][iRxn])
-	# 	self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
-
-	# 	state_met = sim.states["Metabolism"]
-	# 	growth = numpy.zeros(10)
-	# 	for i in xrange(growth.size):
-	# 		sim.setOptions({"seed": i})
-	# 		sim.calcInitialConditions()
-	# 		growth[i] = state_met.growth
-	# 	self.assertAlmostEqual(numpy.log(2) / (9 * 3600) * 3600 * 13.1, numpy.mean(growth), places = 0)
 
 	# @noseAttrib.attr("ic")
 	# def test_initialConditions(self):
