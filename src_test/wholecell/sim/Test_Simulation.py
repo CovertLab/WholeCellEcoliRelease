@@ -74,12 +74,17 @@ class Test_Simulation(unittest.TestCase):
 		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
 		sim.run()
 		
-	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-	# 	self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
 
-	# 	self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-	# 	self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-	# 	self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+		# TODO: Finish - call from Simulation.Simulation.loadSimulation
+		#time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
+		#self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
+
+		#self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
+		#self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
+		#self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+
+
+	# TODO: Run simulation. Save it. Reload it at a given timepoint and check that things correct.
 
 	# # Test logging with timeStepSec = 5 s
 	# def test_logging2(self):
