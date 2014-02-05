@@ -14,8 +14,8 @@ import nose.plugins.attrib as noseAttrib
 import numpy
 import cPickle
 import os
-import matplotlib
-matplotlib.use("agg")
+#import matplotlib
+#matplotlib.use("agg")
 import wholecell.kb.KnowledgeBase
 
 class Test_Simulation(unittest.TestCase):

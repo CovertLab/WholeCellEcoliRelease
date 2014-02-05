@@ -16,9 +16,9 @@ import scipy.stats
 import cPickle
 import os
 import copy
-import matplotlib
+#import matplotlib
 # matplotlib.use("agg")
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from wholecell.util.Constants import Constants
 
 from mpi4py import MPI
