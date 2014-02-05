@@ -72,20 +72,37 @@ class Test_Simulation(unittest.TestCase):
 
 		# Run simulation
 		sim = self.sim
-		sim.setOptions({"lengthSec": 25})
+		sim.setOptions({"lengthSec": 10})
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
 		sim.run()
 		
 
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		#time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-		#self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
+		readPath = os.path.join(outDir, 'state.hdf')
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 10)
+		reloadedSim.calculateState()
 
-		#self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-		#self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-		#self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+		state_keys = sim.states.keys()
+		# Need to check RandStream in another way
+		state_keys.pop(state_keys.index('RandStream'))
+		for state_id in state_keys:
+			dynamics_keys = sim.states[state_id].getDynamics().keys()
 
+			if 'growth' in dynamics_keys:
+				# Growth calculated based on difference in time-steps will not match up
+				dynamics_keys.pop(dynamics_keys.index('growth'))
+
+			for d_key in dynamics_keys:
+				if isinstance(sim.states[state_id].getDynamics()[d_key], numpy.ndarray):
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
+						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
+				else:
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key],
+						reloadedSim.states[state_id].getDynamics()[d_key])
+		# Check RandStream
+		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
+						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
 	# TODO: Run simulation. Save it. Reload it at a given timepoint and check that things correct.
 
