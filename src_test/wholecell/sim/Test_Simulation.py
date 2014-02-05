@@ -62,21 +62,17 @@ class Test_Simulation(unittest.TestCase):
 
 		self.assertEqual(10, sim.states["Time"].value)
 
-	# # Test logging with timeStepSec = 1 s
-	# def test_logging(self):
-	# 	import wholecell.sim.logger.Disk
-	# 	import wholecell.sim.logger.Shell
+	@noseAttrib.attr('smalltest')
+	def test_disk_and_shell_logger(self):
+		# Output directory
+		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
-	# 	# Output directory
-	# 	outDir = os.path.join("out", "test", "SimulationTest_testLogging")
-
-	# 	# Run simulation
-	# 	sim = self.sim
-	# 	sim.setOptions({"lengthSec": 25})
-	# 	sim.run([
-	# 		wholecell.sim.logger.Shell.Shell(),
-	# 		wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
-	# 		])
+		# Run simulation
+		sim = self.sim
+		sim.setOptions({"lengthSec": 25})
+		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		sim.run()
 		
 	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
 	# 	self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
