@@ -38,5 +38,4 @@ class Test_KnowledgeBase(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_construction(self):
-		wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
-													seqFileName = "data/KnowledgeBase.fna")
+		wholecell.kb.KnowledgeBase.KnowledgeBase()

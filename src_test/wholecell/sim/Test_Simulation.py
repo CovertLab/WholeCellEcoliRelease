@@ -140,7 +140,8 @@ class Test_Simulation(unittest.TestCase):
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
-		sim = wholecell.sim.Simulation.Simulation(self.kb, processToInclude = ['Transcription'])
+		sim = wholecell.sim.Simulation.Simulation(processToInclude = ['Transcription'])
+		sim.initialize(self.kb)
 		self.assertEqual(['Transcription'], sim.processes.keys())
 
 	# --- Test biology ---
