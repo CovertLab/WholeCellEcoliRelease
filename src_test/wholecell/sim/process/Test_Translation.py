@@ -14,8 +14,8 @@ import nose.plugins.attrib as noseAttrib
 import numpy
 import cPickle
 import os
-import matplotlib
-matplotlib.use("agg")
+#import matplotlib
+#matplotlib.use("agg")
 from wholecell.util.Constants import Constants
 
 from mpi4py import MPI
@@ -65,18 +65,18 @@ class Test_Translation(unittest.TestCase):
 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
 
 		self.sim = comm.bcast(self.sim, root = 0)
-		print "%s" % (self.sim.getState("Mass").meta["id"])
+		print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
 
 
 	# Tests
-
+	@noseAttrib.attr('largetest')
 	def test_production(self):
 
 		sim = self.sim
-		tl = sim.getProcess("Translation")
+		tl = sim.processes["Translation"]
 		tl.protein.mws[tl.protein.mws < 0 ] = 0
 		
 		aaCounts = 1e6
@@ -168,11 +168,12 @@ class Test_Translation(unittest.TestCase):
 			
 
 	@noseAttrib.attr("monTotalProduction")
+	@noseAttrib.attr('largetest')
 	def test_total_production(self):
 		sim = self.sim
-		tl = sim.getProcess("Translation")
+		tl = sim.processes["Translation"]
 		tl.protein.mws[tl.protein.mws < 0 ] = 0
-		mc = sim.getState("MoleculeCounts")
+		mc = sim.states["MoleculeCounts"]
 		
 		aaCounts = 1e6
 		initEnzCnts = 1100.

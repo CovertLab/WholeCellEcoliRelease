@@ -14,6 +14,9 @@ import warnings
 import numpy
 import wholecell.util.flextFbaModel
 
+import nose.plugins.attrib as noseAttrib
+
+
 class Test_flextFbaModel(unittest.TestCase):
 
 	@classmethod
@@ -151,6 +154,7 @@ class Test_flextFbaModel(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('largetest')
 	def test_wildType(self):
 		m = self.m
 
@@ -162,6 +166,7 @@ class Test_flextFbaModel(unittest.TestCase):
 		# Assert all f_i fluxes match g_bio (in the wild type case...)
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["g_bio"])], sol[m.rxnGroup("f").idxs()], rtol = 0, atol = 1e-8))
 
+	@noseAttrib.attr('largetest')
 	def test_KO_f(self):
 		m = self.m 
 
@@ -181,6 +186,7 @@ class Test_flextFbaModel(unittest.TestCase):
 		# All non-F metabolites should be fine
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C:m[c]", "f_H:m[c]", "f_ATP:m[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
 
+	@noseAttrib.attr('largetest')
 	def test_KO_F(self):
 		m = self.m 
 
@@ -200,6 +206,7 @@ class Test_flextFbaModel(unittest.TestCase):
 		# All non-F metabolites should be fine
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C:m[c]", "f_H:m[c]", "f_ATP:m[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
 
+	@noseAttrib.attr('largetest')
 	def test_KO_C(self):
 		m = self.m 
 
@@ -213,6 +220,7 @@ class Test_flextFbaModel(unittest.TestCase):
 		# Pretty lethal
 		self.assertTrue(numpy.allclose(sol[m.rxnGroup("real").idxs()], 0, rtol = 0, atol = 1e-8))
 
+	@noseAttrib.attr('largetest')
 	def test_KO_H(self):
 		m = self.m 
 

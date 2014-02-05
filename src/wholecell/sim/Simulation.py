@@ -90,6 +90,10 @@ class Simulation(object):
 			('Translation',			wholecell.sim.process.Translation.Translation())
 			])
 
+		# Remove processes not listed as being included
+		for process in self.processes.iterkeys():
+			if process not in self.processToInclude:
+				self.processes.pop(process)
 
 	# Link states and processes
 	def initialize(self, kb):

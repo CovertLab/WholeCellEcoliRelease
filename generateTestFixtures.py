@@ -40,10 +40,10 @@ def generateTestFixtures():
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	# Construct simulation
-	sim = wholecell.sim.Simulation.Simulation(kb)
+	sim = wholecell.sim.Simulation.Simulation()
+	sim.initialize(kb)
 	sim.setOptions({"seed": 1})
 	wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
-	sim.calcInitialConditions()
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
