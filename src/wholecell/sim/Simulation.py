@@ -12,14 +12,24 @@ import numpy
 import collections
 import tables
 
-default_processes = ['Complexation', 'Metabolism', 'ProteinMaturation',
-					'RnaDegradation', 'RnaMaturation', 'Transcription', 'Translation']
+DEFAULT_PROCESSES = [
+	'Complexation',
+	'Metabolism',
+	'ProteinMaturation',
+	'RnaDegradation',
+	'RnaMaturation',
+	'Transcription',
+	'Translation',
+	]
+
+# TODO: save/load included processes
+# TODO: save/load free molecules
 
 class Simulation(object):
 	""" Simulation """
 
 	# Constructor
-	def __init__(self, processToInclude = default_processes):
+	def __init__(self, processesToInclude = None, freeMolecules = None):
 		self.meta = {
 			"options": ["lengthSec", "timeStepSec", "seed"],
 			"units": {"lengthSec": "s", "timeStepSec": "s"}
@@ -28,7 +38,16 @@ class Simulation(object):
 		# Options
 		self.lengthSec = 50000						# Simulation length (s)
 		self.timeStepSec = 1.0						# Simulation time step (s)
-		self.processToInclude = processToInclude	# List of processes to include in simulation
+		if processesToInclude is not None:			# List of processes to include in simulation
+			self.processesToInclude = processesToInclude	
+
+		else:
+			self.processesToInclude = DEFAULT_PROCESSES
+
+		self.freeMolecules = freeMolecules			# Iterable of tuples describing mol IDs and counts
+
+		if self.freeMolecules is not None:
+			self.processesToInclude.append('FreeProduction')
 
 		# Dependent properties
 		self.seed = None
@@ -50,6 +69,7 @@ class Simulation(object):
 		import wholecell.util.randStream
 		self.randStream = wholecell.util.randStream.randStream()
 
+
 	# Link states and processes
 	def initialize(self, kb):
 		self.constructStates()
@@ -63,6 +83,7 @@ class Simulation(object):
 
 		self.allocateMemory()
 		self.calcInitialConditions()
+
 
 	# Construct states
 	def constructStates(self):
@@ -92,6 +113,7 @@ class Simulation(object):
 		import wholecell.sim.process.RnaMaturation
 		import wholecell.sim.process.Transcription
 		import wholecell.sim.process.Translation
+		import wholecell.sim.process.FreeProduction
 
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.sim.process.Complexation.Complexation()),
@@ -100,12 +122,13 @@ class Simulation(object):
 			('RnaDegradation',		wholecell.sim.process.RnaDegradation.RnaDegradation()),
 			('RnaMaturation',		wholecell.sim.process.RnaMaturation.RnaMaturation()),
 			('Transcription',		wholecell.sim.process.Transcription.Transcription()),
-			('Translation',			wholecell.sim.process.Translation.Translation())
+			('Translation',			wholecell.sim.process.Translation.Translation()),
+			('FreeProduction',		wholecell.sim.process.FreeProduction.FreeProduction())
 			])
 
 		# Remove processes not listed as being included
 		for process in self.processes.iterkeys():
-			if process not in self.processToInclude:
+			if process not in self.processesToInclude:
 				self.processes.pop(process)
 
 	# Allocate memory

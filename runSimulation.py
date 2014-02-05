@@ -50,7 +50,19 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	kbWeakRef = weakref.ref(kb)
 
 	# Set up simulation
-	sim = wholecell.sim.Simulation.Simulation()
+	sim = wholecell.sim.Simulation.Simulation(
+		['Transcription'],
+		[
+			('ATP[c]', 1e6),
+			('UTP[c]', 1e6),
+			('CTP[c]', 1e6),
+			('GTP[c]', 1e6),
+			("EG10893-MONOMER[c]", 2000.),
+			("RPOB-MONOMER[c]", 2000.),
+			("RPOC-MONOMER[c]", 2000.),
+			("RPOD-MONOMER[c]", 2000.)
+		]
+		)
 
 	sim.initialize(kb)
 
@@ -82,7 +94,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 if __name__ == '__main__':
 	runSimulation(
 		simOpts = DEFAULT_OPTIONS,
-		fitSimulation = True,
+		fitSimulation = False,
 		useDiskLogger = True,
 		outDir = 'out/working/'
 		)
