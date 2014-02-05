@@ -238,6 +238,9 @@ class Simulation(object):
 
 			newSim.initialStep = timePoint
 
+		# Calculate derived states
+		newSim.calculateState()
+
 		return newSim
 
 

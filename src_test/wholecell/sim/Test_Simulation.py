@@ -81,7 +81,6 @@ class Test_Simulation(unittest.TestCase):
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
 		readPath = os.path.join(outDir, 'state.hdf')
 		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 10)
-		reloadedSim.calculateState()
 
 		state_keys = sim.states.keys()
 		# Need to check RandStream in another way
@@ -111,39 +110,6 @@ class Test_Simulation(unittest.TestCase):
 	def test_loadSimulation_method(self):
 		pass
 		# TODO: Finish
-
-	# # --- Test runSimulation script ---
-	# def test_runSimulation(self):
-	# 	from runSimulation import runSimulation
-
-	# 	# Knowledge base options
-	# 	kbOpts = {
-	# 		"dataFileName": "data/KnowledgeBase.xlsx",
-	# 		"seqFileName": "data/KnowledgeBase.fna"
-	# 	}
-
-	# 	# Simulation options
-	# 	simOpts = {
-	# 		"lengthSec": 100
-	# 	}
-
-	# 	# Disk logger options
-	# 	diskOpts = {
-	# 		"outDir": os.path.join("out", "test", "SimulationTest_testRunSimulation"),
-	# 		"metadata": {
-	# 			"name": "Test simulation",
-	# 			"description": "Test simulation",
-	# 			"Investigator": {
-	# 				"First": "FirstName",
-	# 				"Last": "LastName",
-	# 				"Email": "username@domain.suf",
-	# 				"Affiliation": "Stanford University"
-	# 			},
-	# 			"ip": "0.0.0.0"
-	# 		},
-	# 		"segmentLen": 10
-	# 	}
-	# 	runSimulation(kbOpts = kbOpts, simOpts = simOpts, diskOpts = diskOpts)
 
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
