@@ -72,7 +72,7 @@ class Test_Translation(unittest.TestCase):
 
 
 	# Tests
-
+	@noseAttrib.attr('largetest')
 	def test_production(self):
 
 		sim = self.sim
@@ -168,6 +168,7 @@ class Test_Translation(unittest.TestCase):
 			
 
 	@noseAttrib.attr("monTotalProduction")
+	@noseAttrib.attr('largetest')
 	def test_total_production(self):
 		sim = self.sim
 		tl = sim.processes["Translation"]

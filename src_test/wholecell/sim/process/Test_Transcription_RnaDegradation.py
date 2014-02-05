@@ -78,7 +78,7 @@ class Test_Transcription_RnaDegradation(unittest.TestCase):
 
 
 	# Tests
-
+	@noseAttrib.attr('largetest')
 	def test_net_rna_production(self):
 		sim = self.sim
 		tc = sim.processes["Transcription"]

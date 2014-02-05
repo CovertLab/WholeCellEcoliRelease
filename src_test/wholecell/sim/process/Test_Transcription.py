@@ -47,6 +47,7 @@ class Test_Transcription(unittest.TestCase):
 
 	# Tests
 	@noseAttrib.attr('rnaProduction')
+	@noseAttrib.attr('largetest')
 	def test_production(self):
 		sim = self.sim
 		tc = sim.processes["Transcription"]
@@ -159,6 +160,7 @@ class Test_Transcription(unittest.TestCase):
 			self.assertTrue(numpy.all(allRnaProduction[:, :, :mySeeds.size] == myRnaProduction))
 
 	@noseAttrib.attr("rnaTotalProduction")
+	@noseAttrib.attr('largetest')
 	def test_total_production(self):
 		if comm.rank != 0:
 			return

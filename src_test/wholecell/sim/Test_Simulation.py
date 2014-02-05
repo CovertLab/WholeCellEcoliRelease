@@ -38,349 +38,350 @@ class Test_Simulation(unittest.TestCase):
 
 	# --- Tests for run-time errors ---
 
-	def test_construction(self):
-		import wholecell.sim.Simulation
+	# def test_construction(self):
+	# 	import wholecell.sim.Simulation
 
-		# Load cached KB fixture
-		kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
+	# 	# Load cached KB fixture
+	# 	kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
 
-		# Construct simulation
-		sim = wholecell.sim.Simulation.Simulation(kb)
-		sim.setOptions({"seed": 1})
-		sim.calcInitialConditions()
+	# 	# Construct simulation
+	# 	sim = wholecell.sim.Simulation.Simulation(kb)
+	# 	sim.setOptions({"seed": 1})
+	# 	sim.calcInitialConditions()
 
-	def test_run(self):
+	# def test_run(self):
 
-		# Simulate
-		sim = self.sim
-		sim.setOptions({"lengthSec": 10})
-		sim.run()
+	# 	# Simulate
+	# 	sim = self.sim
+	# 	sim.setOptions({"lengthSec": 10})
+	# 	sim.run()
 
-		self.assertEqual(10, sim.states["Time"].value)
+	# 	self.assertEqual(10, sim.states["Time"].value)
 
-	# Test logging with timeStepSec = 1 s
-	def test_logging(self):
-		import wholecell.sim.logger.Disk
-		import wholecell.sim.logger.Shell
+	# # Test logging with timeStepSec = 1 s
+	# def test_logging(self):
+	# 	import wholecell.sim.logger.Disk
+	# 	import wholecell.sim.logger.Shell
 
-		# Output directory
-		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
+	# 	# Output directory
+	# 	outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
-		# Run simulation
-		sim = self.sim
-		sim.setOptions({"lengthSec": 25})
-		sim.run([
-			wholecell.sim.logger.Shell.Shell(),
-			wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
-			])
+	# 	# Run simulation
+	# 	sim = self.sim
+	# 	sim.setOptions({"lengthSec": 25})
+	# 	sim.run([
+	# 		wholecell.sim.logger.Shell.Shell(),
+	# 		wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
+	# 		])
 		
-		time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-		self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
+	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
+	# 	self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
 
-		self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-		self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-		self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+	# 	self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
+	# 	self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
+	# 	self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
 
-	# Test logging with timeStepSec = 5 s
-	def test_logging2(self):
-		import wholecell.sim.logger.Disk
-		import wholecell.sim.logger.Shell
+	# # Test logging with timeStepSec = 5 s
+	# def test_logging2(self):
+	# 	import wholecell.sim.logger.Disk
+	# 	import wholecell.sim.logger.Shell
 
-		# Output directory
-		outDir = os.path.join("out", "test", "SimulationTest_testLogging2")
+	# 	# Output directory
+	# 	outDir = os.path.join("out", "test", "SimulationTest_testLogging2")
 
-		# Run simulation
-		sim = self.sim
-		sim.setOptions({"lengthSec": 50, "timeStepSec": 5})
-		sim.run([
-			wholecell.sim.logger.Shell.Shell(),
-			wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
-			])
+	# 	# Run simulation
+	# 	sim = self.sim
+	# 	sim.setOptions({"lengthSec": 50, "timeStepSec": 5})
+	# 	sim.run([
+	# 		wholecell.sim.logger.Shell.Shell(),
+	# 		wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
+	# 		])
 		
-		time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-		self.assertTrue(numpy.array_equal(numpy.arange(0, 51, 5).reshape((1, 1, 11)), time))
+	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
+	# 	self.assertTrue(numpy.array_equal(numpy.arange(0, 51, 5).reshape((1, 1, 11)), time))
 
-		self.assertEqual((1, 3, 11),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-		self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-		self.assertEqual((1, 1, 11), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+	# 	self.assertEqual((1, 3, 11),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
+	# 	self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
+	# 	self.assertEqual((1, 1, 11), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
 
-	# --- Test runSimulation script ---
-	def test_runSimulation(self):
-		from runSimulation import runSimulation
+	# # --- Test runSimulation script ---
+	# def test_runSimulation(self):
+	# 	from runSimulation import runSimulation
 
-		# Knowledge base options
-		kbOpts = {
-			"dataFileName": "data/KnowledgeBase.xlsx",
-			"seqFileName": "data/KnowledgeBase.fna"
-		}
+	# 	# Knowledge base options
+	# 	kbOpts = {
+	# 		"dataFileName": "data/KnowledgeBase.xlsx",
+	# 		"seqFileName": "data/KnowledgeBase.fna"
+	# 	}
 
-		# Simulation options
-		simOpts = {
-			"lengthSec": 100
-		}
+	# 	# Simulation options
+	# 	simOpts = {
+	# 		"lengthSec": 100
+	# 	}
 
-		# Disk logger options
-		diskOpts = {
-			"outDir": os.path.join("out", "test", "SimulationTest_testRunSimulation"),
-			"metadata": {
-				"name": "Test simulation",
-				"description": "Test simulation",
-				"Investigator": {
-					"First": "FirstName",
-					"Last": "LastName",
-					"Email": "username@domain.suf",
-					"Affiliation": "Stanford University"
-				},
-				"ip": "0.0.0.0"
-			},
-			"segmentLen": 10
-		}
-		runSimulation(kbOpts = kbOpts, simOpts = simOpts, diskOpts = diskOpts)
+	# 	# Disk logger options
+	# 	diskOpts = {
+	# 		"outDir": os.path.join("out", "test", "SimulationTest_testRunSimulation"),
+	# 		"metadata": {
+	# 			"name": "Test simulation",
+	# 			"description": "Test simulation",
+	# 			"Investigator": {
+	# 				"First": "FirstName",
+	# 				"Last": "LastName",
+	# 				"Email": "username@domain.suf",
+	# 				"Affiliation": "Stanford University"
+	# 			},
+	# 			"ip": "0.0.0.0"
+	# 		},
+	# 		"segmentLen": 10
+	# 	}
+	# 	runSimulation(kbOpts = kbOpts, simOpts = simOpts, diskOpts = diskOpts)
 
 	# --- Test ability to remove processes from simulation ---
+	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
 		sim = wholecell.sim.Simulation.Simulation(self.kb, processToInclude = ['Transcription'])
 		self.assertEqual(['Transcription'], sim.processes.keys())
 
 	# --- Test biology ---
 
-	def test_metabolicNetwork(self):
-		from wholecell.util.Constants import Constants
+	# def test_metabolicNetwork(self):
+	# 	from wholecell.util.Constants import Constants
 
-		sim = self.sim
-		met = sim.processes["Metabolism"]
+	# 	sim = self.sim
+	# 	met = sim.processes["Metabolism"]
 
-		## Reaction stoichiometry
-		# Ex 1
-		rIdx = met.rxnIds.index("Cls3")
-		self.assertEqual(3, (met.sMat[:, rIdx] != 0).sum())
-		self.assertEqual(-2, met.sMat[met.metabolite.getIndex("PG181[m]")[0], rIdx])
-		self.assertEqual(1, met.sMat[met.metabolite.getIndex("CL181[m]")[0], rIdx])
-		self.assertEqual(1, met.sMat[met.metabolite.getIndex("GL[c]")[0], rIdx])
+	# 	## Reaction stoichiometry
+	# 	# Ex 1
+	# 	rIdx = met.rxnIds.index("Cls3")
+	# 	self.assertEqual(3, (met.sMat[:, rIdx] != 0).sum())
+	# 	self.assertEqual(-2, met.sMat[met.metabolite.getIndex("PG181[m]")[0], rIdx])
+	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("CL181[m]")[0], rIdx])
+	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("GL[c]")[0], rIdx])
 
-		# Ex 2
-		rIdx = met.rxnIds.index("HinT_GMP_Mor_MG132")
-		self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
-		self.assertEqual(-1, met.sMat[met.metabolite.getIndex("GMP_Mor[e]")[0], rIdx])
-		self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[e]")[0], rIdx])
-		self.assertEqual(1, met.sMat[met.metabolite.getIndex("GMP[e]")[0], rIdx])
-		self.assertEqual(2, met.sMat[met.metabolite.getIndex("H[e]")[0], rIdx])
-		self.assertEqual(1, met.sMat[met.metabolite.getIndex("MOR[e]")[0], rIdx])
+	# 	# Ex 2
+	# 	rIdx = met.rxnIds.index("HinT_GMP_Mor_MG132")
+	# 	self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
+	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("GMP_Mor[e]")[0], rIdx])
+	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[e]")[0], rIdx])
+	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("GMP[e]")[0], rIdx])
+	# 	self.assertEqual(2, met.sMat[met.metabolite.getIndex("H[e]")[0], rIdx])
+	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("MOR[e]")[0], rIdx])
 
-		# Ex 2
-		rIdx = met.rxnIds.index("MsrA")
-		self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
-		self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[c]")[0], rIdx])
-		self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MET[c]")[0], rIdx])
-		self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER_ox[c]")[0], rIdx])
-		self.assertEqual(1, met.sMat[met.metabolite.getIndex("METSOXSL[c]")[0], rIdx])
-		self.assertEqual(1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER[c]")[0], rIdx])
+	# 	# Ex 2
+	# 	rIdx = met.rxnIds.index("MsrA")
+	# 	self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
+	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[c]")[0], rIdx])
+	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MET[c]")[0], rIdx])
+	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER_ox[c]")[0], rIdx])
+	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("METSOXSL[c]")[0], rIdx])
+	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER[c]")[0], rIdx])
 
-		## Exchange reactions
-		self.assertTrue(numpy.array_equal(numpy.ones(met.metIdx["real"].size), met.sMat[met.metIdx["real"], met.rxnIdx["exchange"]]))
+	# 	## Exchange reactions
+	# 	self.assertTrue(numpy.array_equal(numpy.ones(met.metIdx["real"].size), met.sMat[met.metIdx["real"], met.rxnIdx["exchange"]]))
 
-		## Objective
-		# Biomass composition
-		self.assertAlmostEqual(13.704, numpy.dot(-met.sMat[met.metIdx["real"], met.rxnIdx["growth"]], met.metabolite.mws) / Constants.nAvogadro *1e15, places = 3)
+	# 	## Objective
+	# 	# Biomass composition
+	# 	self.assertAlmostEqual(13.704, numpy.dot(-met.sMat[met.metIdx["real"], met.rxnIdx["growth"]], met.metabolite.mws) / Constants.nAvogadro *1e15, places = 3)
 
-		self.assertAlmostEqual(786393.089973227, -met.sMat[met.metabolite.getIndex("ALA[c]")[0], met.rxnIdx["growth"]], places = 11)
-		self.assertEqual(0, -met.sMat[met.metabolite.getIndex("AMP[c]")[0], met.rxnIdx["growth"]])
+	# 	self.assertAlmostEqual(786393.089973227, -met.sMat[met.metabolite.getIndex("ALA[c]")[0], met.rxnIdx["growth"]], places = 11)
+	# 	self.assertEqual(0, -met.sMat[met.metabolite.getIndex("AMP[c]")[0], met.rxnIdx["growth"]])
 
-		# Objective
-		self.assertEqual(1, met.sMat[met.metIdx["biomass"], met.rxnIdx["growth"]])
-		self.assertEqual(-1, met.sMat[met.metIdx["biomass"], met.rxnIdx["biomassExchange"]])
-		self.assertEqual(1, (met.sMat[:, met.rxnIdx["biomassExchange"]] != 0).sum())
+	# 	# Objective
+	# 	self.assertEqual(1, met.sMat[met.metIdx["biomass"], met.rxnIdx["growth"]])
+	# 	self.assertEqual(-1, met.sMat[met.metIdx["biomass"], met.rxnIdx["biomassExchange"]])
+	# 	self.assertEqual(1, (met.sMat[:, met.rxnIdx["biomassExchange"]] != 0).sum())
 
-		## Enzymes and kinetic bounds
-		self.assertTrue(numpy.all(met.eMat[:] >= 0))
-		self.assertTrue(numpy.all(numpy.sum(met.eMat, axis = 1) <= 1))
-		self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["lo"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
-		self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["up"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
-		self.assertTrue(numpy.all(met.bounds["kinetic"]["lo"] <= 0))
-		self.assertTrue(numpy.all(met.bounds["kinetic"]["up"] >= 0))
+	# 	## Enzymes and kinetic bounds
+	# 	self.assertTrue(numpy.all(met.eMat[:] >= 0))
+	# 	self.assertTrue(numpy.all(numpy.sum(met.eMat, axis = 1) <= 1))
+	# 	self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["lo"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
+	# 	self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["up"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
+	# 	self.assertTrue(numpy.all(met.bounds["kinetic"]["lo"] <= 0))
+	# 	self.assertTrue(numpy.all(met.bounds["kinetic"]["up"] >= 0))
 
-		# Ex 1
-		iRxn = met.rxnIds.index("LdhA")
-		iEnz = met.enzyme.getIndex("MG_460_TETRAMER[c]")[0]
-		self.assertEqual(2000.0 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["up"][iRxn])
-		self.assertEqual(-numpy.inf, met.bounds["kinetic"]["lo"][iRxn])
+	# 	# Ex 1
+	# 	iRxn = met.rxnIds.index("LdhA")
+	# 	iEnz = met.enzyme.getIndex("MG_460_TETRAMER[c]")[0]
+	# 	self.assertEqual(2000.0 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["up"][iRxn])
+	# 	self.assertEqual(-numpy.inf, met.bounds["kinetic"]["lo"][iRxn])
 
-		# Ex 2
-		iRxn = met.rxnIds.index("MetF")
-		iEnz = met.enzyme.getIndex("MG_228_TETRAMER[c]")[0]
-		self.assertEqual(1, met.eMat[iRxn, iEnz])
-		self.assertEqual(numpy.inf, met.bounds["kinetic"]["up"][iRxn])
-		self.assertEqual(-9.7 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["lo"][iRxn])
+	# 	# Ex 2
+	# 	iRxn = met.rxnIds.index("MetF")
+	# 	iEnz = met.enzyme.getIndex("MG_228_TETRAMER[c]")[0]
+	# 	self.assertEqual(1, met.eMat[iRxn, iEnz])
+	# 	self.assertEqual(numpy.inf, met.bounds["kinetic"]["up"][iRxn])
+	# 	self.assertEqual(-9.7 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["lo"][iRxn])
 
-		## Exchange bounds
-		self.assertTrue(numpy.all(met.bounds["exchange"]["lo"] <= 0))
-		self.assertTrue(numpy.all(met.bounds["exchange"]["up"] >= 0))
+	# 	## Exchange bounds
+	# 	self.assertTrue(numpy.all(met.bounds["exchange"]["lo"] <= 0))
+	# 	self.assertTrue(numpy.all(met.bounds["exchange"]["up"] >= 0))
 
-		iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("AD[e]")[0]]
-		self.assertEqual(-12, met.bounds["exchange"]["lo"][iRxn])
-		self.assertEqual(12, met.bounds["exchange"]["up"][iRxn])
+	# 	iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("AD[e]")[0]]
+	# 	self.assertEqual(-12, met.bounds["exchange"]["lo"][iRxn])
+	# 	self.assertEqual(12, met.bounds["exchange"]["up"][iRxn])
 
-		iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("H2O[e]")[0]]
-		self.assertEqual(-20, met.bounds["exchange"]["lo"][iRxn])
-		self.assertEqual(20, met.bounds["exchange"]["up"][iRxn])
+	# 	iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("H2O[e]")[0]]
+	# 	self.assertEqual(-20, met.bounds["exchange"]["lo"][iRxn])
+	# 	self.assertEqual(20, met.bounds["exchange"]["up"][iRxn])
 
-		## Thermodynamic bounds
-		self.assertTrue(numpy.all(met.bounds["thermodynamic"]["lo"] <= 0))
-		self.assertTrue(numpy.all(met.bounds["thermodynamic"]["up"] >= 0))
+	# 	## Thermodynamic bounds
+	# 	self.assertTrue(numpy.all(met.bounds["thermodynamic"]["lo"] <= 0))
+	# 	self.assertTrue(numpy.all(met.bounds["thermodynamic"]["up"] >= 0))
 
-		iRxn = met.rxnIds.index("AckA")
-		self.assertEqual(-numpy.inf, met.bounds["thermodynamic"]["lo"][iRxn])
-		self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
+	# 	iRxn = met.rxnIds.index("AckA")
+	# 	self.assertEqual(-numpy.inf, met.bounds["thermodynamic"]["lo"][iRxn])
+	# 	self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
 
-		iRxn = met.rxnIds.index("AcpS")
-		self.assertEqual(0, met.bounds["thermodynamic"]["lo"][iRxn])
-		self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
+	# 	iRxn = met.rxnIds.index("AcpS")
+	# 	self.assertEqual(0, met.bounds["thermodynamic"]["lo"][iRxn])
+	# 	self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
 
-		state_met = sim.states["Metabolism"]
-		growth = numpy.zeros(10)
-		for i in xrange(growth.size):
-			sim.setOptions({"seed": i})
-			sim.calcInitialConditions()
-			growth[i] = state_met.growth
-		self.assertAlmostEqual(numpy.log(2) / (9 * 3600) * 3600 * 13.1, numpy.mean(growth), places = 0)
+	# 	state_met = sim.states["Metabolism"]
+	# 	growth = numpy.zeros(10)
+	# 	for i in xrange(growth.size):
+	# 		sim.setOptions({"seed": i})
+	# 		sim.calcInitialConditions()
+	# 		growth[i] = state_met.growth
+	# 	self.assertAlmostEqual(numpy.log(2) / (9 * 3600) * 3600 * 13.1, numpy.mean(growth), places = 0)
 
-	@noseAttrib.attr("ic")
-	def test_initialConditions(self):
-		sim = self.sim
-		mass = sim.states["Mass"]
-		mc = sim.states["MoleculeCounts"]
-		met = sim.states["Metabolism"]
+	# @noseAttrib.attr("ic")
+	# def test_initialConditions(self):
+	# 	sim = self.sim
+	# 	mass = sim.states["Mass"]
+	# 	mc = sim.states["MoleculeCounts"]
+	# 	met = sim.states["Metabolism"]
 
-		# Calculate initial conditions
-		sim.setOptions({"seed": 1})
-		sim.calcInitialConditions()
+	# 	# Calculate initial conditions
+	# 	sim.setOptions({"seed": 1})
+	# 	sim.calcInitialConditions()
 
-		# Metabolite counts
-		self.assertTrue(numpy.all(numpy.isfinite(mc.counts)))
-		self.assertTrue(numpy.all(mc.counts >= 0))
+	# 	# Metabolite counts
+	# 	self.assertTrue(numpy.all(numpy.isfinite(mc.counts)))
+	# 	self.assertTrue(numpy.all(mc.counts >= 0))
 
-		# Mass
-		cellCompIdxs = numpy.array([mass.cIdx["c"], mass.cIdx["m"]])
-		self.assertTrue(numpy.allclose(13.1, numpy.sum(mass.cell[cellCompIdxs]), rtol = 1e-2))
-		self.assertTrue(numpy.allclose(13.1 * (0.7  + 0.3 * (1 - 0.0929 - 0.6197)), numpy.sum(mass.metabolite[cellCompIdxs]), rtol = 1e-2))
-		self.assertTrue(numpy.allclose(numpy.sum(mass.rna[cellCompIdxs]), 13.1 * 0.3 * 0.0929, rtol = 6e-1))
-		self.assertTrue(numpy.allclose(13.1 * 0.3 * 0.6197, numpy.sum(mass.protein[cellCompIdxs]), rtol = 1e-1))
+	# 	# Mass
+	# 	cellCompIdxs = numpy.array([mass.cIdx["c"], mass.cIdx["m"]])
+	# 	self.assertTrue(numpy.allclose(13.1, numpy.sum(mass.cell[cellCompIdxs]), rtol = 1e-2))
+	# 	self.assertTrue(numpy.allclose(13.1 * (0.7  + 0.3 * (1 - 0.0929 - 0.6197)), numpy.sum(mass.metabolite[cellCompIdxs]), rtol = 1e-2))
+	# 	self.assertTrue(numpy.allclose(numpy.sum(mass.rna[cellCompIdxs]), 13.1 * 0.3 * 0.0929, rtol = 6e-1))
+	# 	self.assertTrue(numpy.allclose(13.1 * 0.3 * 0.6197, numpy.sum(mass.protein[cellCompIdxs]), rtol = 1e-1))
 
-		# Growth
-		self.assertTrue(numpy.allclose(numpy.log(2) / (9 * 3600) * 3600 * 13.1, met.growth, rtol = 1e-1))
+	# 	# Growth
+	# 	self.assertTrue(numpy.allclose(numpy.log(2) / (9 * 3600) * 3600 * 13.1, met.growth, rtol = 1e-1))
 
-	@noseAttrib.attr("tg")
-	def test_growth(self):
-		from wholecell.util.Constants import Constants
-		import matplotlib.pyplot as plt
+	# @noseAttrib.attr("tg")
+	# def test_growth(self):
+	# 	from wholecell.util.Constants import Constants
+	# 	import matplotlib.pyplot as plt
 
-		sim = self.sim
-		met = sim.states["Metabolism"]
-		mc = sim.states["MoleculeCounts"]
-		mass = sim.states["Mass"]
-		tl = sim.processes["Translation"]
-		pm = sim.processes["ProteinMaturation"]
-		rm = sim.processes["RnaMaturation"]
-		cpx = sim.processes["Complexation"]
+	# 	sim = self.sim
+	# 	met = sim.states["Metabolism"]
+	# 	mc = sim.states["MoleculeCounts"]
+	# 	mass = sim.states["Mass"]
+	# 	tl = sim.processes["Translation"]
+	# 	pm = sim.processes["ProteinMaturation"]
+	# 	rm = sim.processes["RnaMaturation"]
+	# 	cpx = sim.processes["Complexation"]
 
-		## Simulate
-		# Set options
-		sim.setOptions({"seed": 1, "lengthSec": 1000, "timeStepSec": 10})
+	# 	## Simulate
+	# 	# Set options
+	# 	sim.setOptions({"seed": 1, "lengthSec": 1000, "timeStepSec": 10})
 
-		# Calculate initial conditions
-		sim.calcInitialConditions()
+	# 	# Calculate initial conditions
+	# 	sim.calcInitialConditions()
 
-		# Record initial state
-		init = sim.getDynamics()
-		init["Mass"]["matureRna"]       = numpy.dot(mc.mws[mc.idx["matureRna"]], numpy.sum(mc.counts[mc.idx["matureRna"]], axis = 1)) / Constants.nAvogadro * 1e15
-		init["Mass"]["matureMonomers"]  = numpy.dot(mc.mws[mc.idx["matureMonomers"]], numpy.sum(mc.counts[mc.idx["matureMonomers"]], axis = 1)) / Constants.nAvogadro * 1e15
-		init["Mass"]["matureComplexes"] = numpy.dot(mc.mws[mc.idx["matureComplexes"]], numpy.sum(mc.counts[mc.idx["matureComplexes"]], axis = 1)) / Constants.nAvogadro * 1e15
+	# 	# Record initial state
+	# 	init = sim.getDynamics()
+	# 	init["Mass"]["matureRna"]       = numpy.dot(mc.mws[mc.idx["matureRna"]], numpy.sum(mc.counts[mc.idx["matureRna"]], axis = 1)) / Constants.nAvogadro * 1e15
+	# 	init["Mass"]["matureMonomers"]  = numpy.dot(mc.mws[mc.idx["matureMonomers"]], numpy.sum(mc.counts[mc.idx["matureMonomers"]], axis = 1)) / Constants.nAvogadro * 1e15
+	# 	init["Mass"]["matureComplexes"] = numpy.dot(mc.mws[mc.idx["matureComplexes"]], numpy.sum(mc.counts[mc.idx["matureComplexes"]], axis = 1)) / Constants.nAvogadro * 1e15
 
-		# Simulate dynamics
-		time = sim.states["Time"]
+	# 	# Simulate dynamics
+	# 	time = sim.states["Time"]
 
-		ntps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
-		ndps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
-		nmps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
-		aas = numpy.zeros((20, sim.lengthSec / sim.timeStepSec))
-		matureRna = numpy.zeros(sim.lengthSec / sim.timeStepSec)
-		matureMrna = numpy.zeros(sim.lengthSec / sim.timeStepSec)
-		matureMonomer = numpy.zeros(sim.lengthSec / sim.timeStepSec)
-		matureComplex = numpy.zeros(sim.lengthSec / sim.timeStepSec)
-		print " Time  Growth   AAs    GTP"
-		for iSec in xrange(sim.timeStepSec, sim.lengthSec + 1, sim.timeStepSec):
-			print "%5d  %.3f  %5d  %5d" % (iSec, met.growth, numpy.sum(mc.counts[mc.idx["aas"]]), mc.counts[mc.idx["ntps"][2], 0])
+	# 	ntps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
+	# 	ndps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
+	# 	nmps = numpy.zeros((4, sim.lengthSec / sim.timeStepSec))
+	# 	aas = numpy.zeros((20, sim.lengthSec / sim.timeStepSec))
+	# 	matureRna = numpy.zeros(sim.lengthSec / sim.timeStepSec)
+	# 	matureMrna = numpy.zeros(sim.lengthSec / sim.timeStepSec)
+	# 	matureMonomer = numpy.zeros(sim.lengthSec / sim.timeStepSec)
+	# 	matureComplex = numpy.zeros(sim.lengthSec / sim.timeStepSec)
+	# 	print " Time  Growth   AAs    GTP"
+	# 	for iSec in xrange(sim.timeStepSec, sim.lengthSec + 1, sim.timeStepSec):
+	# 		print "%5d  %.3f  %5d  %5d" % (iSec, met.growth, numpy.sum(mc.counts[mc.idx["aas"]]), mc.counts[mc.idx["ntps"][2], 0])
 
-			time.value = iSec
-			sim.evolveState()
+	# 		time.value = iSec
+	# 		sim.evolveState()
 
-			ntps[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["ntps"], 0]
-			ndps[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["ndps"], 0]
-			nmps[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["nmps"], 0]
-			aas[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["aas"], 0]
-			matureRna[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(rm.matureRna.mapping, mc.counts.shape)])
-			matureMrna[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(tl.mrna.mapping, mc.counts.shape)])
-			matureMonomer[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(pm.matureProteinMonomer.mapping, mc.counts.shape)])
-			matureComplex[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(cpx.complex.mapping, mc.counts.shape)])
+	# 		ntps[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["ntps"], 0]
+	# 		ndps[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["ndps"], 0]
+	# 		nmps[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["nmps"], 0]
+	# 		aas[:, iSec / sim.timeStepSec - 1] = mc.counts[mc.idx["aas"], 0]
+	# 		matureRna[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(rm.matureRna.mapping, mc.counts.shape)])
+	# 		matureMrna[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(tl.mrna.mapping, mc.counts.shape)])
+	# 		matureMonomer[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(pm.matureProteinMonomer.mapping, mc.counts.shape)])
+	# 		matureComplex[iSec / sim.timeStepSec - 1] = numpy.sum(mc.counts[numpy.unravel_index(cpx.complex.mapping, mc.counts.shape)])
 
-		matureNoncodingRna = matureRna - matureMrna
+	# 	matureNoncodingRna = matureRna - matureMrna
 
-		## Plot
-		time = numpy.arange(sim.timeStepSec, sim.lengthSec + 1, sim.timeStepSec)
+	# 	## Plot
+	# 	time = numpy.arange(sim.timeStepSec, sim.lengthSec + 1, sim.timeStepSec)
 
-		plt.figure(1)
-		plt.subplot(2, 2, 1); plt.plot(time, numpy.transpose(ntps)); plt.ylabel("NTPs"); plt.xlabel("Time (s)")
-		plt.subplot(2, 2, 2); plt.plot(time, numpy.transpose(ndps)); plt.ylabel("NDPs")
-		plt.subplot(2, 2, 3); plt.plot(time, numpy.transpose(nmps)); plt.ylabel("NMPs")
-		plt.subplot(2, 2, 4); plt.plot(time, numpy.transpose(aas)); plt.ylabel("AAs")
-		plt.show()
+	# 	plt.figure(1)
+	# 	plt.subplot(2, 2, 1); plt.plot(time, numpy.transpose(ntps)); plt.ylabel("NTPs"); plt.xlabel("Time (s)")
+	# 	plt.subplot(2, 2, 2); plt.plot(time, numpy.transpose(ndps)); plt.ylabel("NDPs")
+	# 	plt.subplot(2, 2, 3); plt.plot(time, numpy.transpose(nmps)); plt.ylabel("NMPs")
+	# 	plt.subplot(2, 2, 4); plt.plot(time, numpy.transpose(aas)); plt.ylabel("AAs")
+	# 	plt.show()
 
-		plt.figure(2)
-		plt.subplot(2, 2, 1); plt.plot(time, matureNoncodingRna); plt.ylabel("Mature non-coding RNA"); plt.xlabel("Time (s)")
-		plt.subplot(2, 2, 1); plt.plot(time, matureMrna); plt.ylabel("Mature mRNA")
-		plt.subplot(2, 2, 1); plt.plot(time, matureMonomer); plt.ylabel("Mature monomers")
-		plt.subplot(2, 2, 1); plt.plot(time, matureComplex); plt.ylabel("Mature complexes")
-		plt.show()
+	# 	plt.figure(2)
+	# 	plt.subplot(2, 2, 1); plt.plot(time, matureNoncodingRna); plt.ylabel("Mature non-coding RNA"); plt.xlabel("Time (s)")
+	# 	plt.subplot(2, 2, 1); plt.plot(time, matureMrna); plt.ylabel("Mature mRNA")
+	# 	plt.subplot(2, 2, 1); plt.plot(time, matureMonomer); plt.ylabel("Mature monomers")
+	# 	plt.subplot(2, 2, 1); plt.plot(time, matureComplex); plt.ylabel("Mature complexes")
+	# 	plt.show()
 
-		## Assert
-		expCumGrowth = numpy.exp(numpy.log(2) * sim.lengthSec / 30000.0)
+	# 	## Assert
+	# 	expCumGrowth = numpy.exp(numpy.log(2) * sim.lengthSec / 30000.0)
 
-		# Growth
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Metabolism"]["growth"], met.growth, rtol = 2e-1))
+	# 	# Growth
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Metabolism"]["growth"], met.growth, rtol = 2e-1))
 
-		# Mass
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["cell"], mass.cell, rtol = 2e-1))
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["cellDry"], mass.cellDry, rtol = 2e-1))
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["rna"], mass.rna, rtol = 2e-1))
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["protein"], mass.protein, rtol = 2e-1))
+	# 	# Mass
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["cell"], mass.cell, rtol = 2e-1))
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["cellDry"], mass.cellDry, rtol = 2e-1))
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["rna"], mass.rna, rtol = 2e-1))
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["protein"], mass.protein, rtol = 2e-1))
 
-		cellCompIdxs = numpy.array([mass.cIdx["c"], mass.cIdx["m"]])
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["metabolite"][cellCompIdxs], mass.metabolite[cellCompIdxs], rtol = 5e-1))
+	# 	cellCompIdxs = numpy.array([mass.cIdx["c"], mass.cIdx["m"]])
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["metabolite"][cellCompIdxs], mass.metabolite[cellCompIdxs], rtol = 5e-1))
 
-		# Physical counts
-		self.assertTrue(numpy.all(numpy.isfinite(mc.counts)))
-		self.assertTrue(numpy.all(mc.counts >= 0))
+	# 	# Physical counts
+	# 	self.assertTrue(numpy.all(numpy.isfinite(mc.counts)))
+	# 	self.assertTrue(numpy.all(mc.counts >= 0))
 
-		# RNA, protein matured and complexed
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["matureRna"],
-			numpy.dot(mc.mws[mc.idx["matureRna"]], numpy.sum(mc.counts[mc.idx["matureRna"]], axis = 1)) / Constants.nAvogadro * 1e15,
-			rtol = 2e-1))
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["matureMonomers"],
-			numpy.dot(mc.mws[mc.idx["matureMonomers"]], numpy.sum(mc.counts[mc.idx["matureMonomers"]], axis = 1)) / Constants.nAvogadro * 1e15,
-			rtol = 2e-1))
-		self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["matureComplexes"],
-			numpy.dot(mc.mws[mc.idx["matureComplexes"]], numpy.sum(mc.counts[mc.idx["matureComplexes"]], axis = 1)) / Constants.nAvogadro * 1e15,
-			rtol = 2e-1))
+	# 	# RNA, protein matured and complexed
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["matureRna"],
+	# 		numpy.dot(mc.mws[mc.idx["matureRna"]], numpy.sum(mc.counts[mc.idx["matureRna"]], axis = 1)) / Constants.nAvogadro * 1e15,
+	# 		rtol = 2e-1))
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["matureMonomers"],
+	# 		numpy.dot(mc.mws[mc.idx["matureMonomers"]], numpy.sum(mc.counts[mc.idx["matureMonomers"]], axis = 1)) / Constants.nAvogadro * 1e15,
+	# 		rtol = 2e-1))
+	# 	self.assertTrue(numpy.allclose(expCumGrowth * init["Mass"]["matureComplexes"],
+	# 		numpy.dot(mc.mws[mc.idx["matureComplexes"]], numpy.sum(mc.counts[mc.idx["matureComplexes"]], axis = 1)) / Constants.nAvogadro * 1e15,
+	# 		rtol = 2e-1))
 
-		# No mature RNA, protein in wrong compartments
-		matIdxs = numpy.where(numpy.logical_and(mc.types == mc.typeVals["rna"], mc.forms == mc.formVals["mature"]))[0]
-		matCompIdxs = numpy.ravel_multi_index((numpy.tile(matIdxs.reshape((-1, 1)), (1, 3)), numpy.tile(numpy.arange(3), (matIdxs.size, 1))), mc.counts.shape, order="F").reshape(-1)
-		self.assertFalse(numpy.any(mc.counts[numpy.unravel_index(numpy.setdiff1d(matCompIdxs, mc.idx["matureRna"]), mc.counts.shape, order = "F")]))
+	# 	# No mature RNA, protein in wrong compartments
+	# 	matIdxs = numpy.where(numpy.logical_and(mc.types == mc.typeVals["rna"], mc.forms == mc.formVals["mature"]))[0]
+	# 	matCompIdxs = numpy.ravel_multi_index((numpy.tile(matIdxs.reshape((-1, 1)), (1, 3)), numpy.tile(numpy.arange(3), (matIdxs.size, 1))), mc.counts.shape, order="F").reshape(-1)
+	# 	self.assertFalse(numpy.any(mc.counts[numpy.unravel_index(numpy.setdiff1d(matCompIdxs, mc.idx["matureRna"]), mc.counts.shape, order = "F")]))
 
-		matIdxs = numpy.where(numpy.logical_and(mc.types == mc.typeVals["protein"], mc.forms == mc.formVals["mature"]))[0]
-		matAllCompIdxs = numpy.ravel_multi_index((numpy.tile(matIdxs.reshape((-1, 1)), (1, 3)), numpy.tile(numpy.arange(3), (matIdxs.size, 1))), mc.counts.shape, order="F").reshape(-1)
-		matCompIdxs = numpy.ravel_multi_index((matIdxs, mc.localizations[matIdxs].astype(int)), mc.counts.shape, order = "F").reshape(-1)
-		self.assertFalse(numpy.any(mc.counts[numpy.unravel_index(numpy.setdiff1d(matAllCompIdxs, matCompIdxs), mc.counts.shape, order = "F")]))
+	# 	matIdxs = numpy.where(numpy.logical_and(mc.types == mc.typeVals["protein"], mc.forms == mc.formVals["mature"]))[0]
+	# 	matAllCompIdxs = numpy.ravel_multi_index((numpy.tile(matIdxs.reshape((-1, 1)), (1, 3)), numpy.tile(numpy.arange(3), (matIdxs.size, 1))), mc.counts.shape, order="F").reshape(-1)
+	# 	matCompIdxs = numpy.ravel_multi_index((matIdxs, mc.localizations[matIdxs].astype(int)), mc.counts.shape, order = "F").reshape(-1)
+	# 	self.assertFalse(numpy.any(mc.counts[numpy.unravel_index(numpy.setdiff1d(matAllCompIdxs, matCompIdxs), mc.counts.shape, order = "F")]))
 
 
 	# def test_metabolites(self):

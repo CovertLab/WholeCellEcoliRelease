@@ -75,6 +75,7 @@ class Test_RnaDegradation(unittest.TestCase):
 	# Tests
 
 	# TODO: Parallelize this test
+	@noseAttrib.attr('largetest')
 	def test_degradation(self):
 		sim = self.sim
 		rd = sim.processes["RnaDegradation"]

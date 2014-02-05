@@ -14,6 +14,8 @@ import cPickle
 import os
 import wholecell.kb.KnowledgeBase
 
+import nose.plugins.attrib as noseAttrib
+
 class Test_KnowledgeBase(unittest.TestCase):
 
 	@classmethod
@@ -34,6 +36,7 @@ class Test_KnowledgeBase(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('smalltest')
 	def test_construction(self):
 		wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
 													seqFileName = "data/KnowledgeBase.fna")
