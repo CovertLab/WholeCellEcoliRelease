@@ -103,7 +103,60 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
 						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-	# TODO: Run simulation. Save it. Reload it at a given timepoint and check that things correct.
+		# Delete testing files
+		import shutil
+		shutil.rmtree(outDir)
+
+	@noseAttrib.attr('smalltest')
+	def test_reload_at_later_timepoint(self):
+		import wholecell.sim.logger.Shell
+		import wholecell.sim.logger.Disk
+
+		# Output directory
+		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
+
+		# Run simulation
+		sim = self.sim
+		sim.setOptions({"lengthSec": 10})
+		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		sim.run()
+
+		# TODO: Finish - call from Simulation.Simulation.loadSimulation
+		readPath = os.path.join(outDir, 'state.hdf')
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 5)
+		reloadedSim.setOptions({"lengthSec": 10})
+		reloadedSim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+
+		self.assertEqual(reloadedSim.initialStep, 5)
+		self.assertEqual(reloadedSim.states['Time'].value, 5.)
+		reloadedSim.run()
+
+		state_keys = sim.states.keys()
+		# Need to check RandStream in another way
+		state_keys.pop(state_keys.index('RandStream'))
+		for state_id in state_keys:
+			dynamics_keys = sim.states[state_id].getDynamics().keys()
+
+			if 'growth' in dynamics_keys:
+				# Growth calculated based on difference in time-steps will not match up
+				dynamics_keys.pop(dynamics_keys.index('growth'))
+
+			for d_key in dynamics_keys:
+				if isinstance(sim.states[state_id].getDynamics()[d_key], numpy.ndarray):
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
+						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
+				else:
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key],
+						reloadedSim.states[state_id].getDynamics()[d_key])
+		# Check RandStream
+		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
+						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
+
+		# Delete testing files
+		import shutil
+		shutil.rmtree(outDir)
+
 
 	@noseAttrib.attr('smalltest')
 	@noseAttrib.attr('focustest')
