@@ -64,6 +64,9 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_disk_and_shell_logger(self):
+		import wholecell.sim.logger.Shell
+		import wholecell.sim.logger.Disk
+
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
