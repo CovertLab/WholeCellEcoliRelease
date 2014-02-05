@@ -106,28 +106,11 @@ class Test_Simulation(unittest.TestCase):
 
 	# TODO: Run simulation. Save it. Reload it at a given timepoint and check that things correct.
 
-	# # Test logging with timeStepSec = 5 s
-	# def test_logging2(self):
-	# 	import wholecell.sim.logger.Disk
-	# 	import wholecell.sim.logger.Shell
-
-	# 	# Output directory
-	# 	outDir = os.path.join("out", "test", "SimulationTest_testLogging2")
-
-	# 	# Run simulation
-	# 	sim = self.sim
-	# 	sim.setOptions({"lengthSec": 50, "timeStepSec": 5})
-	# 	sim.run([
-	# 		wholecell.sim.logger.Shell.Shell(),
-	# 		wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
-	# 		])
-		
-	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-	# 	self.assertTrue(numpy.array_equal(numpy.arange(0, 51, 5).reshape((1, 1, 11)), time))
-
-	# 	self.assertEqual((1, 3, 11),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-	# 	self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-	# 	self.assertEqual((1, 1, 11), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('focustest')
+	def test_loadSimulation_method(self):
+		pass
+		# TODO: Finish
 
 	# # --- Test runSimulation script ---
 	# def test_runSimulation(self):
