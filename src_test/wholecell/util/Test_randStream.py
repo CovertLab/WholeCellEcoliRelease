@@ -14,6 +14,8 @@ import warnings
 import numpy
 import wholecell.util.randStream
 
+import nose.plugins.attrib as noseAttrib
+
 class Test_randStream(unittest.TestCase):
 
 	@classmethod
@@ -30,6 +32,7 @@ class Test_randStream(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('smalltest')
 	def test_randsample(self):
 		r = self.randStream
 
@@ -93,6 +96,7 @@ class Test_randStream(unittest.TestCase):
 			counts[idx] += 1
 		self.assertTrue(numpy.max(counts) - numpy.min(counts) < 0.12 * numpy.max(counts))
 
+	@noseAttrib.attr('smalltest')
 	def test_randomlySelectRows(self):
 		r = self.randStream
 
@@ -108,6 +112,7 @@ class Test_randStream(unittest.TestCase):
 			counts[selIdx] += 1
 		self.assertTrue(numpy.max(counts) - numpy.min(counts) < 0.11 * numpy.max(counts), "Random selection should be unbiased")
 
+	@noseAttrib.attr('smalltest')
 	def test_randomlySelectNRows(self):
 		r = self.randStream
 
@@ -124,6 +129,7 @@ class Test_randStream(unittest.TestCase):
 			counts[selIdx] += 1
 		self.assertTrue(numpy.max(counts) - numpy.min(counts) < 0.11 * numpy.max(counts), "Random selection should be unbiased")
 
+	@noseAttrib.attr('smalltest')
 	def test_randCounts(self):
 		r = self.randStream
 
@@ -153,11 +159,13 @@ class Test_randStream(unittest.TestCase):
 
 		self.assertTrue(numpy.max(counts) - numpy.min(counts) < 0.10 * numpy.max(counts), "Random selection should be unbiased")
 
+	@noseAttrib.attr('smalltest')
 	def test_getters(self):
 		r = self.randStream
 		self.assertEqual('MT19937', r.type)
 		self.assertEqual(5, len(r.state))
 
+	@noseAttrib.attr('smalltest')
 	def test_setters(self):
 		r = self.randStream
 		state = r.state

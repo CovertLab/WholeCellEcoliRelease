@@ -117,6 +117,20 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 	geneAbundances = getRelativeAbundances()
 	geneHalfLives = getHalfLives()
 
+	# Records of transcription unit group assignment success
+	recordSimple = set() # calculatable from unique genes
+	recordDeconvolved = set() # successfully determined by comparing with related transcription units
+	recordContradictory = set() # required serious adjustment
+	recordAmbiguous = set() # couldn't separate, not enough information
+	recordUnknown = set() # literally no genes with known values
+	records = {
+		'simple':recordSimple,
+		'deconvolved':recordDeconvolved,
+		'contradictory':recordContradictory,
+		'ambiguous':recordAmbiguous,
+		'unknown':recordUnknown,
+		}
+
 	# Assign abundances
 	unitGroupAbundances = {}
 	for fIds, genes in unitGroupGenes.items():
@@ -136,6 +150,8 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 			unitGroupHalfLives[fIds] = np.mean(
 				[geneHalfLives[gene] for gene in unique]
 				)
+
+	recordSimple |= set(unitGroupHalfLives.viewkeys())
 
 	# Iteratively attempt to assign abundances
 	didAssign = True
@@ -159,6 +175,8 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 					unitGroupAbundances[unknown] = estimate
 					didAssign = True
 
+					recordDeconvolved.add(unknown)
+
 				else:
 					# Change transcription unit abundances to account for discrepancy
 					
@@ -172,6 +190,9 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 
 					unitGroupAbundances[unknown] = 0
 					didAssign = True
+
+					recordContradictory.add(unknown)
+					recordContradictory |= knowns
 
 	# Iteratively attempt to assign half-lives
 	didAssign = True
@@ -203,6 +224,8 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 					unitGroupHalfLives[unknown] = estimate
 					didAssign = True
 
+					recordDeconvolved.add(unknown)
+
 				else:
 					# Change transcription unit abundances to account for discrepancy
 					adjusted_abundance = np.sum(
@@ -232,6 +255,12 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 
 						didAssign = True
 
+					recordContradictory.add(unknown)
+					recordContradictory |= knowns
+
+	recordSimple -= recordContradictory
+	recordDeconvolved -= recordContradictory
+
 	# For those remaining, assign the average half-life of known genes
 	for unitGroup in (unitGroupGenes.viewkeys() - set(unitGroupHalfLives.keys())):
 		genes = unitGroupGenes[unitGroup] & geneHalfLives.viewkeys()
@@ -239,13 +268,23 @@ def calculateHalfLives(unitGroupGenes, geneUnitGroups, uniqueGenes):
 		if genes:
 			unitGroupHalfLives[unitGroup] = np.mean([geneHalfLives[gene] for gene in genes])
 
+			recordAmbiguous.add(unitGroup)
+
 	# Otherwise, assign the average half-life of all transcription units
 	average = np.mean(unitGroupHalfLives.values())
 
 	for unitGroup in (unitGroupGenes.viewkeys() - set(unitGroupHalfLives.keys())):
 		unitGroupHalfLives[unitGroup] = average
 
-	return unitGroupHalfLives
+		recordUnknown.add(unitGroup)
+
+	recordDeconvolved -= recordAmbiguous
+	recordDeconvolved -= recordUnknown
+
+	recordContradictory -= recordAmbiguous
+	recordContradictory -= recordUnknown
+
+	return unitGroupHalfLives, records
 
 def calculateExpressionRates(unitGroupGenes, geneUnitGroups, uniqueGenes, unitGroupHalfLives):
 	geneAbundances = getBlattnerAbundances()
@@ -352,7 +391,7 @@ def main():
 		gene for gene, uGs in geneUnitGroups.items() if len(uGs) == 1
 		)
 
-	unitGroupHalfLives = calculateHalfLives(unitGroupGenes, geneUnitGroups,
+	unitGroupHalfLives, unused = calculateHalfLives(unitGroupGenes, geneUnitGroups,
 		uniqueGenes)
 
 	unitGroupExpressionRates = calculateExpressionRates(unitGroupGenes,
@@ -364,6 +403,54 @@ def main():
 		)
 
 	#return Bunch(**locals())
+
+from textwrap import fill as tw_fill
+
+def makeReport():
+	unitGroupGenes, geneUnitGroups = getUnitGroups()
+	uniqueGenes = set(
+		gene for gene, uGs in geneUnitGroups.items() if len(uGs) == 1
+		)
+
+	unitGroupHalfLives, records = calculateHalfLives(unitGroupGenes, geneUnitGroups,
+		uniqueGenes)
+
+	output = ''
+
+	output += '''Note that all counts are on a per-transcription-unit-group basis, where a group
+is defined as all transcription units with the same set of genes.
+
+Summary statistics
+{} simply assigned (Cat. 1)
+{} were converted from gene half-lives to transcription unit half-lives (Cat. 2)
+{} were contradictory (half-lives did not agree with TU structures) (Cat. 3)
+{} were assigned based on the average of known gene half-lives (Cat. 4)
+{} had no known gene half-lives and were assigned according to the average (Cat. 5)'''.format(
+		len(records['simple']), len(records['deconvolved']),
+		len(records['contradictory']), len(records['ambiguous']),
+		len(records['unknown'])
+		)
+
+	for n, key in enumerate(['simple', 'deconvolved', 'contradictory', 'ambiguous', 'unknown']):
+		output += '\n\n'
+
+		output += 'Category {}:\n'.format(n+1)
+		output += '#'*79 + '\n'
+
+		output += '\n'.join(
+			tw_fill(
+				'{}: ({})'.format(', '.join(tU for tU in tUs), ', '.join(gene for gene in unitGroupGenes[tUs])),
+				width = 79,
+				subsequent_indent = '\t',
+				)
+			for tUs in records[key]
+			)
+
+	with open(os.path.join(WCM_PATH, 'data', 'parsed', 'report_for_Nick.txt'), 'wb') as report:
+		report.write(output)
+
+	#print output
+
 
 class Bunch(object):
 	'''

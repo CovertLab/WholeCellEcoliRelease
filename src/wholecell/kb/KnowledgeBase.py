@@ -424,6 +424,7 @@ class KnowledgeBase(object):
 			raise Exception, "%s is missing." % fileName
 
 		self.reactions = []
+		self.reactionsExchange = []
 		with open(fileName, "r") as csvfile:
 
 			# Skip the first row
@@ -434,7 +435,9 @@ class KnowledgeBase(object):
 			
 			for row in dr:
 				if row["id"][:9] == "FEIST_EX_" or row["id"][:9] == "FEIST_DM_":
-					continue
+					parseReaction = self.parseLeakReaction
+				else:
+					parseReaction = self.parseReaction
 				r = {
 					"id": row["id"],
 					"name": row["name"],
@@ -447,7 +450,7 @@ class KnowledgeBase(object):
 
 				if r["name"] == None: r["name"] = ""
 				if r["ec"] == None: r["ec"] = ""
-				r["stoichiometry"], r["dir"] = self.parseReaction(row["stoichiometry"])
+				r["stoichiometry"], r["dir"] = parseReaction(row["stoichiometry"])
 				# TODO: Get rid of the following line and uncomment/fix the rest of the stuff once Nick is done with the rules
 				# self.reactions.append(r)
 				if row["enzyme"] == "null":
@@ -548,6 +551,38 @@ class KnowledgeBase(object):
 		for componentStr in rights:
 			coeff, mol, form, comp, thisType = self.parseReactionComponent(componentStr, globalComp)
 			stoich.append({ "coeff": coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
+
+		return stoich, reactionDir
+
+	def parseLeakReaction(self, reactionStr):
+		match = re.match("^\[(?P<comp>.*?)\][ ]{0,1}: (?P<stoich>.*)$", reactionStr)
+		if match != None:
+			globalComp = match.group("comp")
+			stoich = match.group("stoich")
+		else:
+			globalComp = ""
+			stoich = reactionStr
+
+		match = re.match("^(?P<lefts>.*) (?P<dir><*((==)|(--))>*)$", stoich)
+		if match == None:
+			raise Exception, "Invalid stoichiometry: %s." % (stoich)
+
+		if match.group("dir") == "==>" or match.group("dir") == "-->":
+			reactionDir = 1
+		elif match.group("dir") == "<==" or match.group("dir") == "<--":
+			raise Exception, "Invalid stoichiometry for a leak reaction: %s." % (stoich)
+		elif match.group("dir") == "<==>" or match.group("dir") == "<-->":
+			reactionDir = 0
+
+		stoich = []
+
+		lefts = match.group("lefts").split(" + ")
+		for componentStr in lefts:
+			coeff, mol, form, comp, thisType = self.parseReactionComponent(componentStr, globalComp)
+			stoich.append({ "coeff": -coeff, "location": comp, "molecule": mol, "form": form, "type": thisType })
+
+		if len(stoich) > 1:
+			raise Exception, "Leak reaction can only have one metabolite: %s." % (stoich)
 
 		return stoich, reactionDir
 

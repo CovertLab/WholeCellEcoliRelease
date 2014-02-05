@@ -16,9 +16,9 @@ import scipy.stats
 import cPickle
 import os
 import copy
-import matplotlib
+#import matplotlib
 # matplotlib.use("agg")
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from wholecell.util.Constants import Constants
 
 from mpi4py import MPI
@@ -79,7 +79,7 @@ class Test_Transcription_RnaDegradation(unittest.TestCase):
 
 
 	# Tests
-
+	@noseAttrib.attr('largetest')
 	def test_net_rna_and_monomer_production(self):
 
 		##### MPI Communications #####

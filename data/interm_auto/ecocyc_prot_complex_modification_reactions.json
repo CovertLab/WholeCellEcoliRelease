@@ -124,6 +124,327 @@
         }
     ], 
     "MONOMER0-2863": [], 
+    "TAP-GLUME": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAP-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAP-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTAPM-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAP-GLUME", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "METOH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAP-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "MCPTAP-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TSR-GLU": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TSR-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TSR-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTSRD-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TSR-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TSR-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTSRM-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "PTSI-PHOSPHORYLATED": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Balanced.", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PHOSPHO-ENOL-PYRUVATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PTSI-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PYRUVATE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PTSI-PHOSPHORYLATED", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-6717", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Balanced.", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "PTSI-PHOSPHORYLATED", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "PTSH-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PTSH-PHOSPHORYLATED", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "PTSI-MONOMER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-6718", 
+            "ecnumber": null
+        }
+    ], 
+    "CPLX0-2": [
+        {
+            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "EG12450-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "NADH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-2", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-2.0", 
+                    "id": "NITRIC-OXIDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NAD", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-1", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "NITROUS-OXIDE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-2721", 
+            "ecnumber": null
+        }
+    ], 
+    "CPLX0-2821": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "TORR-CPLX", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "MONOMER0-1641", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-2821", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-3141", 
+            "ecnumber": null
+        }
+    ], 
+    "CPLX0-7657": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-2861", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-7657", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-5322", 
+            "ecnumber": null
+        }
+    ], 
+    "TSR-GLN": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TSR-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TSR-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTSRD-RXN", 
+            "ecnumber": null
+        }
+    ], 
     "PHOSPHO-KDPD": [
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -184,63 +505,160 @@
             "ecnumber": null
         }
     ], 
-    "PTSI-PHOSPHORYLATED": [
+    "PHOSPHO-CREC": [
         {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "The right side is missing:  P: 1  O: 3", 
             "enzyme": [], 
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": "PHOSPHO-ENOL-PYRUVATE", 
+                    "id": "CREC-MONOMER", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": "PTSI-MONOMER", 
+                    "id": "ATP", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "PYRUVATE", 
+                    "id": "ADP", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "PTSI-PHOSPHORYLATED", 
+                    "id": "PHOSPHO-CREC", 
                     "isclass": false
                 }
             ], 
-            "id": "RXN0-6717", 
+            "id": "CREC-RXN", 
             "ecnumber": null
         }, 
         {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Balanced.", 
             "enzyme": [], 
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": "PTSI-PHOSPHORYLATED", 
+                    "id": "PHOSPHO-CREC", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": "PTSH-MONOMER", 
+                    "id": "CREB-MONOMER", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "PTSH-PHOSPHORYLATED", 
+                    "id": "CREC-MONOMER", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "PTSI-MONOMER", 
+                    "id": "PHOSPHO-CREB", 
                     "isclass": false
                 }
             ], 
-            "id": "RXN0-6718", 
+            "id": "CREB-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TRG-GLN": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TRG-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TRG-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTRGD-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TRG-GLU": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TRG-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TRG-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTRGD-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TRG-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TRG-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTRGM-RXN", 
             "ecnumber": null
         }
     ], 
@@ -328,223 +746,6 @@
             "ecnumber": null
         }
     ], 
-    "CPLX0-2": [
-        {
-            "direction": "PHYSIOL-LEFT-TO-RIGHT", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [
-                "EG12450-MONOMER"
-            ], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "NADH", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "CPLX0-2", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-2.0", 
-                    "id": "NITRIC-OXIDE", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "NAD", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CPLX0-1", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "NITROUS-OXIDE", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "WATER", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-2721", 
-            "ecnumber": null
-        }
-    ], 
-    "PHOSPHO-PHOR": [
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "PHOR-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "ATP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "ADP", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "PHOSPHO-PHOR", 
-                    "isclass": false
-                }
-            ], 
-            "id": "PHOR-RXN", 
-            "ecnumber": null
-        }, 
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "Balanced.", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "PHOB-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "PHOSPHO-PHOR", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "PHOR-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "PHOSPHO-PHOB", 
-                    "isclass": false
-                }
-            ], 
-            "id": "PHOBR-RXN", 
-            "ecnumber": null
-        }
-    ], 
-    "CPLX0-7657": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "CPLX0-2861", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "Pi", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CPLX0-7657", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-5322", 
-            "ecnumber": null
-        }
-    ], 
-    "CPLX0-7978": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "CPLX0-7884", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "Pi", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CPLX0-7978", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-6995", 
-            "ecnumber": null
-        }
-    ], 
-    "CPLX0-2821": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "TORR-CPLX", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "MONOMER0-1641", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "CPLX0-2821", 
-                    "isclass": false
-                }
-            ], 
-            "id": "RXN0-3141", 
-            "ecnumber": null
-        }
-    ], 
-    "CPLX0-8004": [
-        {
-            "direction": "UNKNOWN", 
-            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "CPLX0-8004", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "DSBD-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "DSBG-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "DSBDOXI-MONOMER", 
-                    "isclass": false
-                }
-            ], 
-            "id": "DSBD-RXN", 
-            "ecnumber": null
-        }
-    ], 
     "PYRUVFORMLY-CPLX": [
         {
             "direction": "LEFT-TO-RIGHT", 
@@ -614,46 +815,16 @@
             "ecnumber": null
         }
     ], 
-    "CPLX0-8002": [
+    "ACECITLY-CPLX": [], 
+    "PHOSPHO-PHOR": [
         {
-            "direction": "UNKNOWN", 
+            "direction": "LEFT-TO-RIGHT", 
             "massbalance": "Undetermined; a substrate lacks a chemical formula", 
             "enzyme": [], 
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": "DSBD-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "-1", 
-                    "id": "CPLX0-8002", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "DSBDOXI-MONOMER", 
-                    "isclass": false
-                }, 
-                {
-                    "coeff": "1", 
-                    "id": "DSBC-CPLX", 
-                    "isclass": false
-                }
-            ], 
-            "id": "DSBDC-RXN", 
-            "ecnumber": null
-        }
-    ], 
-    "PHOSPHO-CREC": [
-        {
-            "direction": "LEFT-TO-RIGHT", 
-            "massbalance": "The right side is missing:  P: 1  O: 3", 
-            "enzyme": [], 
-            "components": [
-                {
-                    "coeff": "-1", 
-                    "id": "CREC-MONOMER", 
+                    "id": "PHOR-MONOMER", 
                     "isclass": false
                 }, 
                 {
@@ -668,11 +839,11 @@
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "PHOSPHO-CREC", 
+                    "id": "PHOSPHO-PHOR", 
                     "isclass": false
                 }
             ], 
-            "id": "CREC-RXN", 
+            "id": "PHOR-RXN", 
             "ecnumber": null
         }, 
         {
@@ -682,26 +853,26 @@
             "components": [
                 {
                     "coeff": "-1", 
-                    "id": "PHOSPHO-CREC", 
+                    "id": "PHOB-MONOMER", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "-1", 
-                    "id": "CREB-MONOMER", 
+                    "id": "PHOSPHO-PHOR", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "CREC-MONOMER", 
+                    "id": "PHOR-MONOMER", 
                     "isclass": false
                 }, 
                 {
                     "coeff": "1", 
-                    "id": "PHOSPHO-CREB", 
+                    "id": "PHOSPHO-PHOB", 
                     "isclass": false
                 }
             ], 
-            "id": "CREB-RXN", 
+            "id": "PHOBR-RXN", 
             "ecnumber": null
         }
     ], 
@@ -733,6 +904,101 @@
                 }
             ], 
             "id": "RXN0-6519", 
+            "ecnumber": null
+        }
+    ], 
+    "TSR-GLUME": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TSR-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TSR-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTSRM-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TSR-GLUME", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "METOH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TSR-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "MCPTSR-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "CPLX0-8002": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "DSBD-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-8002", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBDOXI-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBC-CPLX", 
+                    "isclass": false
+                }
+            ], 
+            "id": "DSBDC-RXN", 
             "ecnumber": null
         }
     ], 
@@ -793,6 +1059,385 @@
                 }
             ], 
             "id": "ATOC-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "CPLX0-8004": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-8004", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "DSBD-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBG-MONOMER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "DSBDOXI-MONOMER", 
+                    "isclass": false
+                }
+            ], 
+            "id": "DSBD-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TAR-GLUME": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAR-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAR-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTARM-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAR-GLUME", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "METOH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAR-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "MCPTAR-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TAR-GLN": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAR-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAR-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTARD-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TAP-GLN": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAP-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAP-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTAPD-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TRG-GLUME": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TRG-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TRG-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTRGM-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TRG-GLUME", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "METOH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TRG-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "MCPTRG-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "TAP-GLU": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAP-GLN", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "AMMONIA", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAP-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHEBTAPD-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAP-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAP-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTAPM-RXN", 
+            "ecnumber": null
+        }
+    ], 
+    "CPLX0-7978": [
+        {
+            "direction": "UNKNOWN", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "CPLX0-7884", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "Pi", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "CPLX0-7978", 
+                    "isclass": false
+                }
+            ], 
+            "id": "RXN0-6995", 
+            "ecnumber": null
+        }
+    ], 
+    "TAR-GLU": [
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "PHOSPHO-CHEB"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "WATER", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAR-GLUME", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "METOH", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAR-GLU", 
+                    "isclass": false
+                }
+            ], 
+            "id": "MCPTAR-RXN", 
+            "ecnumber": null
+        }, 
+        {
+            "direction": "LEFT-TO-RIGHT", 
+            "massbalance": "Undetermined; a substrate lacks a chemical formula", 
+            "enzyme": [
+                "CHER-MONOMER"
+            ], 
+            "components": [
+                {
+                    "coeff": "-1", 
+                    "id": "S-ADENOSYLMETHIONINE", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "-1", 
+                    "id": "TAR-GLU", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "ADENOSYL-HOMO-CYS", 
+                    "isclass": false
+                }, 
+                {
+                    "coeff": "1", 
+                    "id": "TAR-GLUME", 
+                    "isclass": false
+                }
+            ], 
+            "id": "CHERTARM-RXN", 
             "ecnumber": null
         }
     ], 

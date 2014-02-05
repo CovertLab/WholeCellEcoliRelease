@@ -24,11 +24,11 @@ class Translation(wholecell.sim.process.Process.Process):
 			"name": "Translation"
 		}
 		
-		# References to states
-		self.metabolite = None
-		self.mrna = None
-		self.protein = None
-		self.enzyme = None
+		# Partitions
+		self.metabolitePartition = None
+		self.mrnaPartition = None
+		self.proteinPartition = None
+		self.enzymePartition = None
 
 		# Constants
 		self.elngRate = 16			# AA/s
@@ -41,100 +41,111 @@ class Translation(wholecell.sim.process.Process.Process):
 	def initialize(self, sim, kb):
 		super(Translation, self).initialize(sim, kb)
 
-		# Metabolites
-		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, [
-				"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-				"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-				#"FMET[c]", # TODO: Re-add
-				# "GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
-				"ATP[c]", "ADP[c]", "PI[c]",  "H2O[c]", "H[c]"
-			], self.calcReqMetabolites)
+		mc = sim.states["MoleculeCounts"]
 
-		self.metabolite.idx["aas"] = self.metabolite.getIndex([
-			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-			"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-			])[0]
-		self.metabolite.idx["aasNotSec"] = self.metabolite.getIndex([
-			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
-			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-			])[0]
-		self.metabolite.idx["atp"] = self.metabolite.getIndex(["ATP[c]"])[0]
-		self.metabolite.idx["adp"] = self.metabolite.getIndex(["ADP[c]"])[0]
-		self.metabolite.idx["pi"] = self.metabolite.getIndex(["PI[c]"])[0]
-		self.metabolite.idx["h2o"] = self.metabolite.getIndex(["H2O[c]"])[0]
-		self.metabolite.idx["h"] = self.metabolite.getIndex(["H[c]"])[0]
+		# Metabolites
+		self.metabolitePartition = mc.addPartition(self, _metIDs, self.calcReqMetabolites)
+
+		self.metabolitePartition.aas = self.metabolitePartition.countsBulkViewNew(_aaIDs)
+
+		self.n_aas = len(_aaIDs)
+
+		self.metabolitePartition.aasNotSec = self.metabolitePartition.countsBulkViewNew(_aaNotSecIDs)
+
+		self.aasView = mc.countsBulkViewNew(_aaIDs)
+
+		self.metabolitePartition.atpMol = self.metabolitePartition.molecule('ATP[c]')
+		self.metabolitePartition.adpMol = self.metabolitePartition.molecule('ADP[c]')
+		self.metabolitePartition.piMol = self.metabolitePartition.molecule('PI[c]')
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O[c]')
+		self.metabolitePartition.hMol = self.metabolitePartition.molecule('H[c]')
 
 		# mRNA, protein monomer
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-		self.mrna = sim.getState("MoleculeCounts").addPartition(self,[x["id"] + ":mature[c]" for x in mrnas], self.calcReqMrna)
-		self.protein = sim.getState("MoleculeCounts").addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
+		self.mrnaPartition = mc.addPartition(self,[x["id"] + "[c]" for x in mrnas], self.calcReqMrna)
+		self.proteinPartition = mc.addPartition(self,[x["monomerId"] + ":nascent[c]" for x in mrnas], self.calcReqProtein)
 		self.proteinAaCounts = numpy.array([x["aaCount"] for x in monomers])
 		self.proteinLens = numpy.sum(self.proteinAaCounts, axis = 1)
 
 		# Enzymes
 		# TODO: We really want all the associated riboproteins as well (ie we want the complexes)
-		self.enzyme = sim.getState("MoleculeCounts").addPartition(self, [
-			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
-			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-			"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
-			], self.calcReqEnzyme)
-		self.enzyme.idx["23S"] = self.enzyme.getIndex([
-			"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]"
-			])[0]
-		self.enzyme.idx["16S"] = self.enzyme.getIndex([
-			"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-			])[0]
-		self.enzyme.idx["5S"] = self.enzyme.getIndex([
-			"RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
-			])[0]
+		self.enzymePartition = mc.addPartition(self, _enzIDs, self.calcReqEnzyme)
 
-	def calcRibosomes(self, counts):
-		return numpy.min((numpy.sum(counts[self.enzyme.idx["23S"]]), numpy.sum(counts[self.enzyme.idx["16S"]]), numpy.sum(counts[self.enzyme.idx["5S"]])))
+		self.enzymePartition.ribosome23S = self.enzymePartition.countsBulkViewNew(_rib23S_IDs)
+		self.enzymePartition.ribosome16S = self.enzymePartition.countsBulkViewNew(_rib16S_IDs)
+		self.enzymePartition.ribosome5S = self.enzymePartition.countsBulkViewNew(_rib5S_IDs)
+
+		self.ribosome23SView = mc.countsBulkViewNew(_rib23S_IDs)
+		self.ribosome16SView = mc.countsBulkViewNew(_rib16S_IDs)
+		self.ribosome5SView = mc.countsBulkViewNew(_rib5S_IDs)
+
+
+	def calcRibosomes(self, counts23S, counts16S, counts5S):
+		return numpy.min([
+			numpy.sum(counts23S),
+			numpy.sum(counts16S),
+			numpy.sum(counts5S)
+			])
+
 
 	# Calculate needed metabolites
-	def calcReqMetabolites(self):
-		val = numpy.zeros(self.metabolite.fullCounts.shape)
+	def calcReqMetabolites(self, request):
+		ribs = self.calcRibosomes(
+			self.ribosome23SView.countsBulk(),
+			self.ribosome16SView.countsBulk(),
+			self.ribosome5SView.countsBulk()
+			)
 
 		elng = numpy.min([
-			self.calcRibosomes(self.enzyme.fullCounts) * self.elngRate * self.timeStepSec,
-			# self.enzyme.fullCounts[self.enzyme.idx["ribosome70S"]] * self.elngRate * self.timeStepSec,		# Polymerization by all available ribosomes
-			numpy.sum(self.metabolite.fullCounts[self.metabolite.idx["aas"]])								# Amino acid limitation
+			ribs * self.elngRate * self.timeStepSec,
+			numpy.sum(self.aasView.countsBulk())
 			])
-		val[self.metabolite.idx["aas"]] = elng / self.metabolite.idx["aas"].size
-		# val[numpy.array([self.metabolite.idx["atp"], self.metabolite.idx["h2o"]])] = 4 * 2 * elng
-		return val
+
+		request.aas.countsBulkIs(elng / self.n_aas)
+
 
 	# Calculate needed mRNA
-	def calcReqMrna(self):
-		return numpy.ones(self.mrna.fullCounts.shape)
+	def calcReqMrna(self, request):
+		request.countsBulkIs(1)
+
 
 	# Calculate needed protein monomers
-	def calcReqProtein(self):
-		return numpy.zeros(self.protein.fullCounts.shape)
+	def calcReqProtein(self, request):
+		request.countsBulkIs(0)
+
 
 	# Calculate needed enzymes
-	def calcReqEnzyme(self):
-		return numpy.ones(self.enzyme.fullCounts.shape)
+	def calcReqEnzyme(self, request):
+		request.countsBulkIs(1)
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		if not numpy.any(self.mrna.counts):
+		if not numpy.any(self.mrnaPartition.countsBulk()):
 			return
+
+		ribs = self.calcRibosomes(
+			self.enzymePartition.ribosome23S.countsBulk(),
+			self.enzymePartition.ribosome16S.countsBulk(),
+			self.enzymePartition.ribosome5S.countsBulk()
+			)
 
 		# print "nRibosomes: %d" % int(self.calcRibosomes(self.enzyme.counts))
 		# Total synthesis rate
-		proteinSynthProb = self.mrna.counts / numpy.sum(self.mrna.counts)
+		proteinSynthProb = (self.mrnaPartition.countsBulk() / numpy.sum(self.mrnaPartition.countsBulk())).flatten()
 		totRate = 1 / numpy.dot(self.proteinLens, proteinSynthProb) * numpy.min([					# Normalize by average protein length
-			numpy.sum(self.metabolite.counts[self.metabolite.idx["aas"]]),								# Amino acid limitation
+			numpy.sum(self.metabolitePartition.aas.countsBulk()),								# Amino acid limitation
 			# numpy.sum(self.metabolite.counts[self.metabolite.idx["atp"]]) / 2,							# GTP (energy) limitation
-			self.calcRibosomes(self.enzyme.counts) * self.elngRate * self.timeStepSec
+			ribs * self.elngRate * self.timeStepSec
 			# self.enzyme.counts[self.enzyme.idx["ribosome70S"]] * self.elngRate * self.timeStepSec		# Ribosome capacity
 			])
 
 		# print "Translation totRate: %0.3f" % (totRate)
 		newProts = 0
 		aasUsed = numpy.zeros(21)
+
+		proteinsCreated = numpy.zeros_like(self.proteinPartition.countsBulk())
 
 		# Gillespie-like algorithm
 		t = 0
@@ -147,14 +158,15 @@ class Translation(wholecell.sim.process.Process.Process):
 			# Check if sufficient metabolic resources to make protein
 			newIdx = numpy.where(self.randStream.mnrnd(1, proteinSynthProb))[0]
 			if \
-				numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]):
+				numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolitePartition.aas.countsBulk()):
 				# numpy.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]) or \
 				# 2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["atp"]] or \
 				# 2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["h2o"]]:
 					break
 
 			# Update metabolites
-			self.metabolite.counts[self.metabolite.idx["aas"]] -= self.proteinAaCounts[newIdx, :].reshape(-1)
+			#self.metabolite.counts[self.metabolite.idx["aas"]] -= self.proteinAaCounts[newIdx, :].reshape(-1)
+			self.metabolitePartition.aas.countsBulkDec(self.proteinAaCounts[newIdx, :].reshape(-1))
 			# self.metabolite.counts[self.metabolite.idx["h2o"]] += self.proteinLens[newIdx] - 1
 
 			# self.metabolite.counts[self.metabolite.idx["atp"]] -= 2 * self.proteinLens[newIdx]
@@ -164,10 +176,54 @@ class Translation(wholecell.sim.process.Process.Process):
 			# self.metabolite.counts[self.metabolite.idx["h"]] += 2 * self.proteinLens[newIdx]
 
 			# Increment protein monomer
-			self.protein.counts[newIdx] += 1
+			#self.protein.counts[newIdx] += 1
+			proteinsCreated[newIdx] += 1
 			newProts += 1
 			aasUsed += self.proteinAaCounts[newIdx, :].reshape(-1)
+
 		self.aasUsed = aasUsed
 		# print "Translation newProts: %d" % newProts
 		# print "Translation aasUsed: %s" % str(aasUsed)
 		# print "Translation numActiveRibs (total): %d (%d)" % (int(numpy.sum(aasUsed) / self.elngRate / self.timeStepSec), int(self.calcRibosomes(self.enzyme.counts)))
+
+		self.proteinPartition.countsBulkInc(proteinsCreated)
+
+
+_metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
+	"GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+	"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]",
+	"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+	#"FMET[c]", # TODO: Re-add
+	#"GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
+	"ATP[c]", "ADP[c]", "PI[c]",  "H2O[c]", "H[c]"]
+
+_aaIDs = [
+	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
+	"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+	]
+
+_aaNotSecIDs = [
+	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+	"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+	]
+
+_enzIDs = [
+	"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]", "RRLD-RRNA[c]", "RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]",
+	"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]", "RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]",
+	"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
+	]
+
+_rib23S_IDs = [
+	"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]","RRLD-RRNA[c]",
+	"RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]"
+	]
+
+_rib16S_IDs = [
+	"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]",
+	"RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]"
+	]
+
+_rib5S_IDs = [
+	"RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]",
+	"RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
+	]

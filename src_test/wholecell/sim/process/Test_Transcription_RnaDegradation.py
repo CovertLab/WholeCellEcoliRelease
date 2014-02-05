@@ -15,9 +15,9 @@ import numpy
 import scipy.stats
 import cPickle
 import os
-import matplotlib
-matplotlib.use("agg")
-from matplotlib import pyplot as plt
+#import matplotlib
+#matplotlib.use("agg")
+#from matplotlib import pyplot as plt
 from wholecell.util.Constants import Constants
 
 from mpi4py import MPI
@@ -71,20 +71,20 @@ class Test_Transcription_RnaDegradation(unittest.TestCase):
 
 		
 		self.sim = comm.bcast(self.sim, root = 0)	
-		print "%s" % (self.sim.getState("Mass").meta["id"])
+		print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
 
 
 	# Tests
-
+	@noseAttrib.attr('largetest')
 	def test_net_rna_production(self):
 		sim = self.sim
-		tc = sim.getProcess("Transcription")
-		rm = sim.getProcess("RnaMaturation")
-		rd = sim.getProcess("RnaDegradation")
-		mc = sim.getState("MoleculeCounts")
+		tc = sim.processes["Transcription"]
+		rm = sim.processes["RnaMaturation"]
+		rd = sim.processes["RnaDegradation"]
+		mc = sim.states["MoleculeCounts"]
 		rd.rna.mws[rd.rna.mws < 0 ] = 0
 		tc.rna.mws[tc.rna.mws < 0 ] = 0
 		mc.mws[mc.mws < 0] = 0

@@ -8,49 +8,22 @@ Tests Transcription process
 """
 
 import unittest
-import warnings
+# import warnings
 import nose.plugins.attrib as noseAttrib
 
 import numpy
 import scipy.stats
 import cPickle
 import os
-import matplotlib
-matplotlib.use("agg")
+# import matplotlib
+# matplotlib.use("agg")
 from wholecell.util.Constants import Constants
 
 from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 
-import copy_reg
-import types
-
-# We need the following two methods so that we can pickle instancemethods
-# Also need the copy_reg.pickle() line in generateTestFixtures()
-# Borrowed from: http://mail.python.org/pipermail/python-list/2006-October/367078.html
-# (Thanks Steven Bethard!)
-
-def _pickle_method(method):
-    func_name = method.im_func.__name__
-    obj = method.im_self
-    cls = method.im_class
-    return _unpickle_method, (func_name, obj, cls)
-
-def _unpickle_method(func_name, obj, cls):
-    for cls in cls.mro():
-        try:
-            func = cls.__dict__[func_name]
-        except KeyError:
-            pass
-        else:
-            break
-    return func.__get__(obj, cls)
-
-copy_reg.pickle(types.MethodType, _pickle_method, _unpickle_method)
-
 class Test_Transcription(unittest.TestCase):
-
 	@classmethod
 	def setUpClass(cls):
 		pass
@@ -66,18 +39,20 @@ class Test_Transcription(unittest.TestCase):
 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
 		
 		self.sim = comm.bcast(self.sim, root = 0)	
-		print "%s" % (self.sim.getState("Mass").meta["id"])
+		print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
 
 
 	# Tests
-
+	@noseAttrib.attr('rnaProduction')
+	@noseAttrib.attr('largetest')
 	def test_production(self):
 		sim = self.sim
-		tc = sim.getProcess("Transcription")
-		tc.rna.mws[tc.rna.mws < 0 ] = 0
+		tc = sim.processes["Transcription"]
+		rnaMWs = tc.rnaPartition._state._massSingle.flat[tc.rnaPartition.mapping]
+		rnaMWs[rnaMWs < 0] = 0
 		
 		ntpCounts = 1e6
 		initEnzCnts = 2000.
@@ -94,31 +69,39 @@ class Test_Transcription(unittest.TestCase):
 		comm.Scatterv([allSeeds, tuple(sendcounts), tuple(displacements), MPI.DOUBLE], mySeeds)
 		print "Rank %d mySeeds: %s" % (comm.rank, str(mySeeds))
 
-		myNtpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec, mySeeds.size))
-		myRnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec, mySeeds.size))
+		myNtpUsage = numpy.zeros((tc.metabolitePartition.ntps.countsBulk().size, lengthSec, mySeeds.size))
+		myRnaProduction = numpy.zeros((tc.rnaPartition.countsBulk().size, lengthSec, mySeeds.size))
 
 		for iterSeed in xrange(mySeeds.size):
 			seed = mySeeds.astype("int")[iterSeed]
 			print "%d" % seed
 			tc.randStream.seed = seed
-			tc.rna.counts = initRnaCnts * numpy.ones(tc.rna.counts.shape)
+			tc.rnaPartition.countsBulkIs(
+				initRnaCnts * numpy.ones(tc.rnaPartition.countsBulk().shape)
+				)
 
-			ntpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec))
-			rnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec))
+			ntpUsage = numpy.zeros((tc.metabolitePartition.ntps.countsBulk().size, lengthSec))
+			rnaProduction = numpy.zeros((tc.rnaPartition.countsBulk().size, lengthSec))
 
 			for t in xrange(lengthSec):
-				tc.metabolite.counts[tc.metabolite.idx["ntps"]] = ntpCounts * numpy.ones(tc.metabolite.idx["ntps"].shape)
-				tc.enzyme.counts = numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t)) * numpy.ones(tc.enzyme.counts.shape)
+				ntps = ntpCounts * numpy.ones(tc.metabolitePartition.ntps.countsBulk().shape)
+				tc.metabolitePartition.ntps.countsBulkIs(ntps)
+
+				tc.enzymePartition.countsBulkIs(
+					numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t))
+					* numpy.ones(tc.enzymePartition.countsBulk().shape)
+					)
+
 				tc.evolveState()
-				ntpUsage[:, t] = tc.metabolite.parentState.tcNtpUsage
-				rnaProduction[:, t] = tc.rna.counts
+				ntpUsage[:, t] = ntps - tc.metabolitePartition.ntps.countsBulk()
+				rnaProduction[:, t] = tc.rnaPartition.countsBulk().flatten()
 
 			myNtpUsage[:, :, iterSeed] = ntpUsage
 			myRnaProduction[:, :, iterSeed] = rnaProduction
 
 			fNtpUsage = ntpUsage / numpy.sum(ntpUsage, axis = 0)
 			print "%d, %s" % (comm.rank, str(numpy.mean(fNtpUsage, axis = 1)))
-			rnaMassProduction = numpy.diff(numpy.dot(tc.rna.mws, rnaProduction / Constants.nAvogadro))
+			rnaMassProduction = numpy.diff(numpy.dot(rnaMWs, rnaProduction / Constants.nAvogadro))
 
 			# Assert exponential usage of metabolites
 			self.assertTrue(numpy.allclose(1., numpy.mean(numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec)), rtol = 0, atol = 6e-2))
@@ -134,7 +117,10 @@ class Test_Transcription(unittest.TestCase):
 			S = numpy.sqrt(V)
 
 			# Assert exponential increase in production of rRNA 23S
-			rrlIdxs = tc.rna.getIndex(["RRLA-RRNA:nascent", "RRLB-RRNA:nascent", "RRLC-RRNA:nascent", "RRLD-RRNA:nascent", "RRLE-RRNA:nascent", "RRLG-RRNA:nascent", "RRLH-RRNA:nascent"])[0]
+			rrlIdxs = tc.rnaPartition._getIndices(["RRLA-RRNA:nascent[c]",
+				"RRLB-RRNA:nascent[c]", "RRLC-RRNA:nascent[c]",
+				"RRLD-RRNA:nascent[c]", "RRLE-RRNA:nascent[c]",
+				"RRLG-RRNA:nascent[c]", "RRLH-RRNA:nascent[c]"])[0]
 			self.assertTrue(numpy.allclose(1., numpy.mean(nProd[rrlIdxs] / E[rrlIdxs]), rtol = 0, atol = 1e-1))
 
 			# Loosely assert exponential increase in production all RNAs (this is noisy)
@@ -146,8 +132,9 @@ class Test_Transcription(unittest.TestCase):
 		## MPI communications ##
 		# Get ready to gather values
 		if comm.rank == 0:
-			allNtpUsage = numpy.zeros(tc.metabolite.idx["ntps"].size * lengthSec * allSeeds.size)
-			allRnaProduction = numpy.zeros(tc.rna.counts.size * lengthSec * allSeeds.size)
+			allNtpUsage = numpy.zeros(tc.metabolitePartition.ntps.countsBulk().size * lengthSec * allSeeds.size)
+			allRnaProduction = numpy.zeros(tc.rnaPartition.countsBulk().size * lengthSec * allSeeds.size)
+
 		else:
 			allNtpUsage = None
 			allRnaProduction = None
@@ -173,21 +160,24 @@ class Test_Transcription(unittest.TestCase):
 			self.assertTrue(numpy.all(allRnaProduction[:, :, :mySeeds.size] == myRnaProduction))
 
 	@noseAttrib.attr("rnaTotalProduction")
+	@noseAttrib.attr('largetest')
 	def test_total_production(self):
 		if comm.rank != 0:
 			return
 
 		sim = self.sim
-		tc = sim.getProcess("Transcription")
-		tc.rna.mws[tc.rna.mws < 0 ] = 0
-		
+		tc = sim.processes["Transcription"]
+		rnaMWs = tc.rnaPartition._state._massSingle.flat[tc.rnaPartition.mapping]
+
+		rnaMWs[rnaMWs < 0] = 0
+
 		ntpCounts = 1e6
 		initEnzCnts = 960.
 		initRnaCnts = 0.
 		T_d = 3600.
 		lengthSec = int(T_d)
 
-		nSeeds = 1
+		nSeeds = 100
 		nProc = comm.size
 		sendcounts = (nSeeds / nProc) * numpy.ones(nProc, dtype = int) + (numpy.arange(nProc, dtype = int) < nSeeds % nProc)
 		displacements = numpy.hstack([numpy.zeros(1), numpy.cumsum(sendcounts)[:-1]])
@@ -195,35 +185,41 @@ class Test_Transcription(unittest.TestCase):
 		allSeeds = numpy.arange(nSeeds, dtype = float)
 		comm.Scatterv([allSeeds, tuple(sendcounts), tuple(displacements), MPI.DOUBLE], mySeeds)
 		print "Rank %d mySeeds: %s" % (comm.rank, str(mySeeds))
-
-		myNtpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec, mySeeds.size))
-		myRnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec, mySeeds.size))
+		
+		# myNtpUsage = numpy.zeros((tc.metabolitePartition.idx["ntps"].size, lengthSec, mySeeds.size))
+		# myRnaProduction = numpy.zeros((tc.rnaPartition.countsBulk().size, lengthSec, mySeeds.size))
 
 		for iterSeed in xrange(mySeeds.size):
 			seed = mySeeds.astype("int")[iterSeed]
 			print "%d" % seed
 			tc.randStream.seed = seed
-			tc.rna.counts = initRnaCnts * numpy.ones(tc.rna.counts.shape)
+			tc.rnaPartition.countsBulkIs(
+				initRnaCnts * numpy.ones(tc.rnaPartition.countsBulk().shape)
+				)
 
-			ntpUsage = numpy.zeros((tc.metabolite.idx["ntps"].size, lengthSec))
-			rnaProduction = numpy.zeros((tc.rna.counts.size, lengthSec))
+			ntpUsage = numpy.zeros((tc.metabolitePartition.ntps.countsBulk().size, lengthSec))
+			rnaProduction = numpy.zeros((tc.rnaPartition.countsBulk().size, lengthSec))
 
 			for t in xrange(lengthSec):
-				tc.metabolite.counts[tc.metabolite.idx["ntps"]] = ntpCounts * numpy.ones(tc.metabolite.idx["ntps"].shape)
-				tc.enzyme.counts = numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t)) * numpy.ones(tc.enzyme.counts.shape)
-				tc.evolveState()
-				ntpUsage[:, t] = tc.metabolite.parentState.tcNtpUsage
-				rnaProduction[:, t] = tc.rna.counts
+				ntps = ntpCounts * numpy.ones(tc.metabolitePartition.ntps.countsBulk().shape)
+				tc.metabolitePartition.ntps.countsBulkIs(ntps)
 
-			myNtpUsage[:, :, iterSeed] = ntpUsage
-			myRnaProduction[:, :, iterSeed] = rnaProduction
+				tc.enzymePartition.countsBulkIs(
+					numpy.round(initEnzCnts * numpy.exp(numpy.log(2) / T_d * t))
+					* numpy.ones(tc.enzymePartition.countsBulk().shape)
+					)
+
+				tc.evolveState()
+				ntpUsage[:, t] = ntps - tc.metabolitePartition.ntps.countsBulk()
+				rnaProduction[:, t] = tc.rnaPartition.countsBulk().flatten()
+
+			# myNtpUsage[:, :, iterSeed] = ntpUsage
+			# myRnaProduction[:, :, iterSeed] = rnaProduction
 
 			fNtpUsage = ntpUsage / numpy.sum(ntpUsage, axis = 0)
 			print "%d, %s" % (comm.rank, str(numpy.mean(fNtpUsage, axis = 1)))
-			rnaMassProduction = numpy.diff(numpy.dot(tc.rna.mws, rnaProduction / Constants.nAvogadro))
+			rnaMassProduction = numpy.diff(numpy.dot(rnaMWs, rnaProduction / Constants.nAvogadro))
 
-			# import ipdb
-			# ipdb.set_trace()
 			# Assert exponential usage of metabolites
 			self.assertTrue(numpy.allclose(1., numpy.mean(numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec)), rtol = 0, atol = 6e-2))
 			self.assertTrue(numpy.allclose(1., numpy.mean(ntpUsage[:, -10:], axis = 1) / numpy.mean(ntpUsage[:, :10], axis = 1) / numpy.exp(numpy.log(2) / T_d * lengthSec), rtol = 0, atol = 6e-2))
@@ -238,7 +234,10 @@ class Test_Transcription(unittest.TestCase):
 			S = numpy.sqrt(V)
 
 			# Assert exponential increase in rRNA 23S counts
-			rrlIdxs = tc.rna.getIndex(["RRLA-RRNA:nascent", "RRLB-RRNA:nascent", "RRLC-RRNA:nascent", "RRLD-RRNA:nascent", "RRLE-RRNA:nascent", "RRLG-RRNA:nascent", "RRLH-RRNA:nascent"])[0]
+			rrlIdxs = tc.rnaPartition._getIndices(["RRLA-RRNA:nascent[c]",
+				"RRLB-RRNA:nascent[c]", "RRLC-RRNA:nascent[c]",
+				"RRLD-RRNA:nascent[c]", "RRLE-RRNA:nascent[c]",
+				"RRLG-RRNA:nascent[c]", "RRLH-RRNA:nascent[c]"])[0]
 			self.assertTrue(numpy.allclose(1., numpy.mean(nProd[rrlIdxs] / E[rrlIdxs]), rtol = 0, atol = 1e-1))
 
 			# Loosely assert exponential increase in all RNAs (this is noisy)

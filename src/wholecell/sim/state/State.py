@@ -10,12 +10,13 @@ State variable base class. Defines the interface states expose to the simulation
 @date: Created 3/29/2013
 """
 
-import inspect
-import copy
 import numpy
 
 class State(object):
 	""" State """
+
+	partitions = None
+	partitionClass = None
 
 	# Constructor
 	def __init__(self, propVals = {}):
@@ -23,13 +24,7 @@ class State(object):
 		if not hasattr(self, "meta"):
 			self.meta = {}
 
-		# -- Partitioning --
-		# Used by parent
 		self.partitions = []
-
-		# Used by children
-		self.parentState = None
-		self.parentProcess = None
 
 		for prop in propVals.keys():
 			setattr(self, prop, propVals[prop])
@@ -51,56 +46,39 @@ class State(object):
 	# -- Partitioning --
 
 	def addPartition(self, process):
-		partition = self.constructPartition(process)
+		try:
+			partition = self.partitionClass(self, process)
+
+		except:
+			if self.partitionClass is None:
+				raise Exception(
+					'Called {0}.addPartition, but {0} has no partition class.'.format(type(self))
+					)
+
+			else:
+				raise
+		
 		self.partitions.append(partition)
+
 		return partition
 
-	def constructPartition(self, process):
-		propVals = {}
-
-		# TODO: May need to modify this depending on how concrete states are implemented (e.g. dependent variables)
-		for prop, data in inspect.getmembers(self):
-			if not callable(data) and (prop[0:2] != "__" and prop[-2:] != "__") and prop != "partitions":
-				if not "wholecell" in str(type(data)):
-					# print "Deep copying property [%s] in state %s for process %s" % (prop, self.meta["name"], process.meta["name"])
-					propVals[prop] = copy.deepcopy(data)
-				else:
-					propVals[prop] = data
-
-		propVals["meta"]["id"] = "%s_%s" % (propVals["meta"]["id"], process.meta["id"])
-		propVals["meta"]["name"] = "%s - %s" % (propVals["meta"]["name"], process.meta["name"])
-
-		propVals["partitions"] = []
-		propVals["parentState"] = self
-		propVals["parentProcess"] = process
-
-		return type(self)(propVals)
-
 	def prepartition(self):
-		return
+		pass
 
-	# Partition state among processes
 	def partition(self):
-		for partition in self.partitions:
-			for dynamic in self.meta["dynamics"]:
-				setattr(partition, dynamic, getattr(self, dynamic))
+		pass
 
-	# Merge sub-states partitioned to processes
 	def merge(self):
-		for dynamic in self.meta["dynamics"]:
-			oldVal = getattr(self, dynamic)
-			newVal = oldVal
-			nNewVal = 0
+		pass
 
-			for partition in self.partitions:
-				if not numpy.array_equal(oldVal, getattr(partition, dynamic)):
-					newVal = getattr(partition, dynamic)
-					nNewVal += 1
+	def pytablesCreate(self, h5file):
+		pass
 
-			if nNewVal > 1:
-				raise Exception, "Multiple processes cannot simultaneously edit state properties"
+	def pytablesAppend(self, h5file):
+		pass
 
-			setattr(self, dynamic, newVal)
+	def pytablesLoad(self, h5file, timePoint):
+		pass
 
 
 	# -- Calculations --

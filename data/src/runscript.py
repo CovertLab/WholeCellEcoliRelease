@@ -1589,6 +1589,9 @@ def parseComplexes():
 		comp = proteinComplex()
 		comp.frameId = hasComplexSubunit[0]
 		comp.name = re.sub('<[^<]+?>', '', row[1])
+		comp.modifiedForm = row[3][1:-1].split(' ')
+		if comp.modifiedForm == [""]:
+			comp.modifiedForm = []
 
 		foundAllComponents = True
 		components = row[2][2:-2].split(') (')
@@ -2079,8 +2082,9 @@ def parseMetabolites():
 			objectiveRead = float(row[6]) # mmol/gDSW
 			g1 = 10**-3 # mol/mmol
 			g2 = 6.02*(10**23) # molecules/mol
-			g3 = 2.8*(10**-13) # gDSW/cell
-			objective = objectiveRead * g1 * g2 * g3 # molecules / cell
+			g3 = 2.8*(10**-13) # gDCW/cell
+
+			objective = objectiveRead# * g1 * g2 * g3 # molecules / cell
 			metDict[metId].biomassConc = objective
 			bmc = None
 			if row[8] == 'cytoplasm':
@@ -2106,7 +2110,7 @@ def parseMetabolites():
 			g1 = 10**-3 # mol/mmol
 			g2 = 6.02*(10**23) # molecules/mol
 			g3 = 2.8*(10**-13) # gDSW/cell
-			objective = objectiveRead * g1 * g2 * g3 * (-1.) # molecules / cell
+			objective = objectiveRead# * g1 * g2 * g3 * (-1.) # molecules / cell
 			metDict[metId].biomassConc = objective
 			bmc = None
 			if row[8] == 'cytoplasm':
@@ -2229,7 +2233,7 @@ def parseMetabolites():
 
 		keys = metDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH 7.2 formula', 'pH 7.2 charge', 'pH 7.2 Weight', 'Media Concentration (mM)', 'Biomass concentration (molecules/cell)', 'Biomass location', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Neutral formula', 'pH 7.2 formula', 'pH 7.2 charge', 'pH 7.2 Weight', 'Media Concentration (mM)', 'Biomass concentration (mmol/gDSW)', 'Biomass location', 'Maximum exchange rate (mmol/gDSW/hr)', 'Fake metabolite', 'Equivalent enzyme frameId', 'Comments'])
 		for key in keys:
 			m = metDict[key]
 			csvwriter.writerow([m.frameId, m.name, m.neutralFormula, m.pHProps[7.2]['formula'], m.pHProps[7.2]['charge'], m.pHProps[7.2]['weight'], m.mediaConc, m.biomassConc, m.biomassCompartment, m.exchangeRate, m.notRealMetabolte, json.dumps(m.equivalentEnzyme), m.comments])
@@ -2285,30 +2289,85 @@ def parseReactions():
 	reactDict = {}
 	rp = reactionParser()
 
+	# Load flux bounds
+	parameter_metabolism = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'parameters_metabolism.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			parameter_metabolism[row['Parameter name']] = {'Parameter value' : float(row['Parameter value']), 'Parameter units' : row['Parameter units']}
+
+	rxn_set_bounds = {}
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reaction_set_bounds.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			rxn_set_bounds[row['Reaction ID']] = {'upper bound' : float(row['Upper bound (mmol/gDCW-hr)']), 'lower bound' : float(row['Lower bound (mmol/gDCW-hr)'])}
+
+	# Add manually annotated enzyme reactions. Same reactions as in Feist but with enzyme associations explicitly written out by hand.
+	manualEnzymes = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_add_manual_enzyme_annotation.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			manualEnzymes.append(row['original abbreviation'])
+			if row['original abbreviation'] in rxn_set_bounds.keys():
+				row['upper_bound'] = rxn_set_bounds[row['original abbreviation']]['upper bound']
+				row['lower_bound'] = rxn_set_bounds[row['original abbreviation']]['lower bound']
+			else:
+				row['upper_bound'] = parameter_metabolism['default_upper_flux']['Parameter value']
+				row['lower_bound'] = parameter_metabolism['default_lower_flux']['Parameter value']
+			reac = buildReaction(rp, row, manual = True)
+			reactDict[reac.frameId] = reac
+	manualEnzymes = set(manualEnzymes)
+	manualEnzymes = list(manualEnzymes)
+
+	# Reactions to skip/remove in Feist
+	rxnToSkip = []
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_remove.csv'),'rb') as csvfile:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			rxnToSkip.append(row['Reaction ID'])
+
 	# Add Feist reactions
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'raw', 'Feist_reactions.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			if row['abbreviation'] not in manualEnzymes and row['abbreviation'] not in rxnToSkip:
+				if row['abbreviation'] in rxn_set_bounds.keys():
+					row['upper_bound'] = rxn_set_bounds[row['abbreviation']]['upper bound']
+					row['lower_bound'] = rxn_set_bounds[row['abbreviation']]['lower bound']
+				else:
+					row['upper_bound'] = parameter_metabolism['default_upper_flux']['Parameter value']
+					row['lower_bound'] = parameter_metabolism['default_lower_flux']['Parameter value']
+				reac = buildReaction(rp,row)
+				reactDict[reac.frameId] = reac
 
-		for row in csvreader:
-			reac = buildReaction(rp,row)
-			reactDict[reac.frameId] = reac
-
-	# Add reactions not in Fesit
+	# Add reactions not in Feist
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_add.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-
-		for row in csvreader:
+		dreader = csv.DictReader(csvfile, delimiter='\t', quotechar='"')
+		for row in dreader:
+			if row['abbreviation'] in rxn_set_bounds.keys():
+				row['upper_bound'] = rxn_set_bounds[row['abbreviation']]['upper bound']
+				row['lower_bound'] = rxn_set_bounds[row['abbreviation']]['lower bound']
+			else:
+				row['upper_bound'] = parameter_metabolism['default_upper_flux']['Parameter value']
+				row['lower_bound'] = parameter_metabolism['default_lower_flux']['Parameter value']
 			reac = buildReaction(rp,row)
 			reactDict[reac.frameId] = reac
 
-	# Remove reactions
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reactions_to_remove.csv'),'rb') as csvfile:
-		csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-		csvreader.next()
-		for row in csvreader:
-			reactDict.pop('FEIST_' + row[0])
+	# Create unique reactions for every isozyme
+	reactDictUniqueReaction = {}
+	for rxnId in reactDict.iterkeys():
+		rxn = reactDict[rxnId]
+		if rxn.enzyme == None or rxn.frameId[6:] in manualEnzymes:
+			reactDictUniqueReaction[rxnId] = rxn
+		elif rxn.enzyme != None and len(rxn.enzyme) == 1:
+			reactDictUniqueReaction[rxnId] = copy.copy(rxn)
+			reactDictUniqueReaction[rxnId].enzyme = [copy.copy(rxn.enzyme[0])]
+		elif rxn.enzyme != None and len(rxn.enzyme) > 1:
+			for i,isozyme in enumerate(rxn.enzyme):
+				reactDictUniqueReaction[rxnId + '_' + str(i)] = copy.copy(rxn)
+				reactDictUniqueReaction[rxnId + '_' + str(i)].frameId = rxnId + '_' + str(i)
+				reactDictUniqueReaction[rxnId + '_' + str(i)].enzyme = [copy.copy(rxn.enzyme[i])]
+	reactDict = reactDictUniqueReaction
 
 	# Write output
 	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'reactions.csv'),'wb') as csvfile:
@@ -2316,51 +2375,172 @@ def parseReactions():
 
 		keys = reactDict.keys()
 		keys.sort()
-		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Direction','Comments'])
+		csvwriter.writerow(['Frame ID', 'Name', 'Process', 'EC', 'Stoichiometry (pH 7.2)', 'Enzyme', 'Upper bound (mmol/gDCW-hr)', 'Lower bound (mmol/gDCW-hr)', 'Comments'])
 		for key in keys:
 			r = reactDict[key]
-			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.direction, r.comments])
+			csvwriter.writerow([r.frameId, r.name, r.process, r.EC, r.stoich, json.dumps(r.enzyme), r.upper_bound, r.lower_bound, r.comments])
 
-def buildReaction(rp,row):
+def buildReaction(rp,row, manual = False):
 	reac = reaction()
-	reac.frameId = 'FEIST_' + row[0]
-	reac.name = row[1]
+	reac.frameId = 'FEIST_' + row['abbreviation']
+	reac.name = row['officialName']
 	reac.process = 'Metabolism'
-	if row[5] != '':
-		reac.EC = row[5]
-	reac.stoich = row[2]
-	reac.direction = row[3]
+	if row['proteinClass'] != '':
+		reac.EC = row['proteinClass']
+	reac.stoich = row['equation']
+	reac.direction = row['reconstruction directionality']
+	reac.upper_bound = row['upper_bound']
+	reac.lower_bound = row['lower_bound']
 
-	# Figure out enzymes
-	if row[6] == '':
-		# Nothin known
-		reac.enzyme = None
-	elif re.match("b([0-9])", row[6]) != None:
-		bnum = row[6]
+	if manual == False:
+		if re.match("b([0-9])", row['geneAssociation']):
+			# Reaction is a single enzyme
+			pMFrameId = rp.getPMFrame(row['geneAssociation'])[0]
 
-		pMFrameId = rp.getPMFrame(bnum)
+			reac.enzyme.extend([pMFrameId])
 
-		reac.enzyme = []
-		for e in pMFrameId:
-			reac.enzyme.append([e])
-	else:
-		if rp.manualAnnotationDict.has_key(row[0]):
-			enzymes = rp.findEnzymeManualCuration(rp.manualAnnotationDict[row[0]]['annotation'])
-			cofactors = []
-		else:
-			enzymeInfo = rp.findEnzyme(row[6], row)
-			enzymes = enzymeInfo['enzymes']
-			cofactors = enzymeInfo['cofactors']
-		if len(enzymes[0]):
-			for i,e in enumerate(enzymes):
-				reac.enzyme.append(e)
-		else:
-			# Catches spontanious reactions
-			reac.enzyme = None
-		for c in cofactors:
-			reac.requiredCofactors.append(c)
+		elif row['geneAssociation']:
+			# Reaction is multiple enzymes
+			enzymeInfo = rp.findEnzyme(row['geneAssociation'], row)
+			reac.enzyme.extend(enzymeInfo['enzymes'])
+			reac.requiredCofactors.extend(enzymeInfo['cofactors'])
+
+		# Finalize (not sure why either of these steps matter)
 		reac.requiredCofactors.sort()
+		if not reac.enzyme:
+			reac.enzyme = None
+	else:
+		line = row['Enzyme association']
+		if line == '':
+			# Catches reactions where enzyme was removed
+			reac.enzyme = None
+		else:
+			line = line.replace(' ','')
+			line = line.replace('(','')
+			line = line.replace(')','')
+			e_final = line.split('and')
+			reac.enzyme.extend(e_final)
 	return reac
+
+class ComplexFixer(object):
+	'''
+	A helper class to catch Feist reactions that are annotated with monomers 
+	in place of reactions.  Will raise a warning if it encounters an 
+	unresolvable case.
+	'''
+
+	allowHomopolymers = True
+	verboseWarnings = False
+
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'proteinComplexes.csv'), 'rb') as csvFile:
+		complexComposition = {row['Frame ID']:set(json.loads(row['Composition'])['reactant'].keys()) for row in csv.DictReader(csvFile, delimiter = '\t', quotechar = '"')}
+
+	del csvFile
+
+	subunitAssociation = {}
+	for cmplx, composition in complexComposition.items():
+		for subunit in composition:
+			try:
+				subunitAssociation[subunit].add(cmplx)
+
+			except KeyError:
+				subunitAssociation[subunit] = {cmplx}
+
+	del cmplx
+	del composition
+	del subunit
+
+	subunits = set(subunitAssociation.keys())
+
+	@classmethod
+	def composeSubunits(cls, enzymeList):
+		# Check for homopolymers or grouped monomers
+		enzymes = set(enzymeList)
+
+		if enzymes & cls.subunits:
+			possibleComplexes = [cmplx
+				for enzyme in enzymes if cls.subunitAssociation.has_key(enzyme) 
+				for cmplx in cls.subunitAssociation[enzyme]
+				]
+
+			fullComplexes = set(
+				cmplx for enzyme in enzymes
+				if enzymes.issuperset(cls.complexComposition[cmplx])
+				)
+
+			if len(fullComplexes) == 1:
+				cmplx, = fullComplexes
+				enzymes -= cls.complexComposition[cmplx]
+				enzymes.add(cmplx)
+
+				print 'Replaced {} with {}'.format(enzymeList, list(enzymes))
+
+				return list(enzymes)
+
+			elif len(fullComplexes) > 1:
+				print 'Warning: Multiple possible full complexes {} were found to be associated with monomer set {}'.format(fullComplexes, enzymes & cls.subunits)
+
+				return enzymeList
+
+			else:
+				print 'Warning: Partial complexes were found to be associated with monomer set {}'.format(enzymes & cls.subunits)
+
+				return enzymeList
+
+		else:
+			return enzymeList
+
+	@classmethod
+	def checkLogic(cls, enzymeListList):
+		# Tests the parsed logic from Feist against known complexation
+		# i.e. (A or B) when it should be (A and B)
+
+		enzymes = set(enzyme for enzymeList in enzymeListList for enzyme in enzymeList)
+
+		if enzymes & cls.subunits:
+			possibleComplexes = [
+				cmplx
+				for enzyme in enzymes if cls.subunitAssociation.has_key(enzyme)
+				for cmplx in cls.subunitAssociation[enzyme]
+				]
+
+			fullComplexes = set(
+				cmplx
+				for cmplx in possibleComplexes
+				if enzymes.issuperset(cls.complexComposition[cmplx]) and
+					(
+					len(cls.complexComposition[cmplx]) > 1 or cls.allowHomopolymers
+					)
+				)
+
+			if len(fullComplexes) == 1:
+				cmplx, = fullComplexes
+				enzymes -= cls.complexComposition[cmplx]
+
+				if not enzymes: # all associated enzymes were subunits of the complex
+					print 'Replaced monomers with complex {}'.format(cmplx)
+					return [[cmplx]]
+
+				else:
+					if cls.verboseWarnings:
+						print 'Warning: A complex found to be associated with monomer set {}, but additional enzymes {} leave the logic unresolvable'.format(cls.complexComposition[cmplx], enzymes)
+
+					return enzymeListList
+
+			elif len(fullComplexes) > 1:
+				if cls.verboseWarnings:
+					print 'Warning: Multiple possible full complexes {} were found to be associated with enzymes {}'.format(fullComplexes, enzymes)
+				
+				return enzymeListList
+
+			else:
+				if cls.verboseWarnings:
+					print 'Warning: Partial complexes were found to be associated with enzymes {}'.format(enzymes)
+				
+				return enzymeListList
+
+		else:
+			return enzymeListList
 
 # Utility functions
 def splitBigBracket(s):
@@ -2590,7 +2770,6 @@ class reactionParser:
 		self.monomerToComplex = self.loadMonomerToComplex()
 		self.fakeMetaboliteFrameIds = self.loadFakeMetaboliteFrameIds()
 		self.fakeMetaboliteDict = self.loadFakeMetabolites()
-		self.manualAnnotationDict = self.loadManualAnnotation()
 
 	def loadSynDict(self):
 		# Load gene frameId synonym dictionary for blatter numbers in Fiest 
@@ -2664,16 +2843,6 @@ class reactionParser:
 				fakeMetaboliteDict[row[0]] = json.loads(row[4])
 		return fakeMetaboliteDict
 
-	def loadManualAnnotation(self):
-		# Add manual annotation of reactino enzymes from Feist
-		manualAnnotateDict = {}
-		with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'reaction_enzyme_association.csv'),'rb') as csvfile:
-			csvreader = csv.reader(csvfile, delimiter='\t', quotechar='"')
-			csvreader.next()
-			for row in csvreader:
-				manualAnnotateDict[row[0]] = {'annotation' : row[1], 'comments' : row[2]}
-		return manualAnnotateDict
-
 	def getPMFrame(self, bnum):
 		if self.synDictFrameId.has_key(bnum):
 			geneFrameId = self.synDictFrameId[bnum]
@@ -2693,8 +2862,6 @@ class reactionParser:
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
-		for i in range(len(enzymesRaw)):
-			enzymes.append([])
 
 		for i,e in enumerate(enzymesRaw):
 			# Check for spontanious reaction
@@ -2716,16 +2883,16 @@ class reactionParser:
 				monomers = tuple(monomers)
 				if self.monomerToComplex.has_key(monomers) and len(monomers) > 1:
 					# If this is actually a complex formed from more than on bnumber
-					enzymes[i].append(self.monomerToComplex[monomers])
+					enzymes.append(self.monomerToComplex[monomers])
 				elif len(monomers) == 1:
 					# This is just a monomer in an OR statement
-					enzymes[i].append(monomers[0])
+					enzymes.append(monomers[0])
 				elif len(monomers) == 0 and len(cofactors) > 0:
 					pass
 				else:
-					enzymes[i].append('UNKNOWN')
+					enzymes.append('UNKNOWN')
 					print 'No enzyme complex found for subunits: ' + str(monomers)
-					print str(row[:3])
+					print str(row['abbreviation'])
 					print str(e)
 					print '---'
 		return {'enzymes' : enzymes, 'cofactors' : cofactors}
@@ -2737,8 +2904,6 @@ class reactionParser:
 		enzymes = []
 		cofactors = []
 		enzymesRaw = line.split('or')
-		for i in range(len(enzymesRaw)):
-			enzymes.append([])
 
 		for i,e_raw in enumerate(enzymesRaw):
 			e_raw = e_raw.replace(' ','')
@@ -2746,7 +2911,7 @@ class reactionParser:
 			e_raw = e_raw.replace(')','')
 			e_final = e_raw.split('and')
 			for ee in e_final:
-				enzymes[i].append(ee)
+				enzymes.append(ee)
 		return enzymes
 
 class gene:

@@ -110,7 +110,7 @@ def buildFromCache(fileName = DEFAULT_BRENDA_CACHE):
 	writeOutput(enzymeDict)
 
 def writeOutput(enzymeDict):
-	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'interm_manual', 'turnover_annotation.csv'),'wb') as csvfile:
+	with open(os.path.join(os.environ['PARWHOLECELLPY'], 'data', 'parsed', 'turnover_annotation.csv'),'wb') as csvfile:
 		csvwriter = csv.writer(csvfile, delimiter='\t', quotechar='"')
 
 		csvwriter.writerow(['Enzyme Frame ID', 'EC', 'Reaction ID', 'Reaction stoichiometry', 'Direction', 'Forward', 'Units', 'Reverse', 'Units', 'Comments', 'Km'])

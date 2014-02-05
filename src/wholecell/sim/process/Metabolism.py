@@ -13,6 +13,7 @@ Metabolism sub-model. Encodes molecular simulation of microbial metabolism using
 import numpy
 
 import wholecell.sim.process.Process
+# import wholecell.util.flextFbaModel
 
 class Metabolism(wholecell.sim.process.Process.Process):
 	""" Metabolism """
@@ -31,11 +32,13 @@ class Metabolism(wholecell.sim.process.Process.Process):
 
 		# References to states
 		self.metabolism = None
-		self.metabolite = None
-		self.enzyme = None
 		self.mass = None
 		self.mc = None
 		self.time = None
+
+		# Partitions
+		self.metabolitePartition = None
+		self.enzymePartition = None
 
 		# Constants
 		self.avgCellInitMass = 13.1						# fg
@@ -61,15 +64,18 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		self.rxnNames = None							# Reaction names
 		self.rxnIdx = None								# Reaction indices
 
+		self.feistCore = None							# Core biomass function
+		self.feistCoreIds = None						# Core biomass ids
+
 		super(Metabolism, self).__init__()
 
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(Metabolism, self).initialize(sim, kb)
 
-		self.mass = sim.getState("Mass")
-		self.mc = sim.getState("MoleculeCounts")
-		self.time = sim.getState("Time")
+		# self.mass = sim.states["Mass"]
+		mc = sim.states["MoleculeCounts"]
+		self.time = sim.states["Time"]
 
 		bioIds = []
 		bioConc = []
@@ -82,13 +88,26 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = numpy.array(bioConc)
 
-		self.metabolite = sim.getState("MoleculeCounts").addPartition(self, bioIds, self.calcReqMetabolites)
-		self.metabolite.idx["atpHydrolysis"] = self.metabolite.getIndex(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])[0]
-		self.metabolite.idx["ntps"] = self.metabolite.getIndex(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])[0]
-		self.metabolite.idx["h2o"]  = self.metabolite.getIndex("H2O[c]")[0]
+		self.metabolitePartition = mc.addPartition(self, bioIds, self.calcReqMetabolites)
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
-		self.metabolite.idx["FeistCoreRows"], self.metabolite.idx["FeistCoreCols"] = self.metabolite.getIndex([
+		self.metabolitePartition.atpHydrolysisView = self.metabolitePartition.countsBulkViewNew(
+			["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
+
+		self.metabolitePartition.ntpView = self.metabolitePartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.metabolitePartition.h2oMol = self.metabolitePartition.molecule('H2O[c]')
+
+		self.feistCore = numpy.array([ # TODO: This needs to go in the KB
+			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
+			0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
+			0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
+			0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
+			0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
+			0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
+			0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
+			])
+
+		self.feistCoreIds = [
 			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
 			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
@@ -96,42 +115,48 @@ class Metabolism(wholecell.sim.process.Process.Process):
 			"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
 			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
 			"RIBFLV[c]"
-			])[1:]
+			]
+
+		self.metabolitePartition.feistCore = self.metabolitePartition.countsBulkViewNew(self.feistCoreIds)
+
+		self.initialDryMass = 2.8e-13 / 1.36 # grams
 
 	# Calculate needed metabolites
-	def calcReqMetabolites(self):
-		val = numpy.ones(self.metabolite.fullCounts.shape)
-		val[self.metabolite.idx["ntps"]] = 0
-		val[self.metabolite.idx["h2o"]] = 0
-		return val
+	def calcReqMetabolites(self, request):
+		request.countsBulkIs(1)
 
-	# Calculate needed proteins
-	def calcReqEnzyme(self):
-		return numpy.ones(self.enzyme.fullCounts.shape)
+		request.ntpView.countsBulkIs(0)
+		request.h2oMol.countBulkIs(0)
+
+	# # Calculate needed proteins
+	# def calcReqEnzyme(self):
+	# 	return numpy.ones(self.enzyme.fullCounts.shape)
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		# NOTE: I've deleted a bunch of commented-out code from here.  Get it 
+		# from an old commit if you really need it. - JM
+
 		from wholecell.util.Constants import Constants
-		dm = numpy.zeros(self.metabolite.counts.shape)
-		atpm = numpy.zeros(self.metabolite.counts.shape)
-		atpm[self.metabolite.idx["ntps"][0]] = 0
-		noise = self.randStream.multivariate_normal(numpy.zeros(self.mc.vals["FeistCore"].size), numpy.diag(self.mc.vals["FeistCore"] / 1000.))
-		dm[self.metabolite.idx["FeistCoreRows"]] = numpy.round((self.mc.vals["FeistCore"] + atpm[self.metabolite.idx["FeistCoreRows"]] + noise ) * 1e-3 * Constants.nAvogadro * self.mc.initialDryMass) * numpy.exp(numpy.log(2) / self.cellCycleLen * self.time.value) * (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
-		# import ipdb
-		# ipdb.set_trace()
-		print "NTP production: %s" % str(dm[self.metabolite.idx["ntps"]])
-		self.metabolite.counts = self.randStream.stochasticRound(
-			self.metabolite.counts + dm
+
+		atpm = numpy.zeros_like(self.metabolitePartition.feistCore.countsBulk()) # TODO: determine what this means
+
+		noise = self.randStream.multivariate_normal(numpy.zeros_like(self.feistCore), numpy.diag(self.feistCore / 1000.))
+
+		deltaMetabolites = (
+			numpy.round((self.feistCore + atpm + noise) * 1e-3
+				* Constants.nAvogadro * self.initialDryMass)
+			* numpy.exp(numpy.log(2) / self.cellCycleLen * self.time.value)
+			* (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
 			)
 
-		# Unaccounted energy consumption
-		# self.metabolite.counts[self.metabolite.idx["atpHydrolysis"]] = \
-		# 	+ self.metabolite.counts[self.metabolite.idx["atpHydrolysis"]] \
-		# 	+ numpy.array([-1.0, -1.0, 1.0, 1.0, 1.0]) * self.randStream.stochasticRound(self.unaccountedEnergyConsumption * growth_cellPerSec * self.timeStepSec)
+		self.metabolitePartition.feistCore.countsBulkIs(
+			numpy.fmax(
+				0,
+				self.metabolitePartition.feistCore.countsBulk() + self.randStream.stochasticRound(deltaMetabolites)
+				)
+			)
 
-		# Make copy numbers positive
-		self.metabolite.counts = numpy.maximum(0, self.metabolite.counts)
-		print "END METABOLISM"
 
 	def calcGrowthRate(self, bounds):
 		growth = 1.0 / self.cellCycleLen

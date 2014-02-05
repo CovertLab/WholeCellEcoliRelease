@@ -10,5 +10,5 @@ Utility class with values of important biophysical constants.
 @date: Created 3/29/2013
 """
 
-class Constants:
+class Constants(object):
 	nAvogadro = 6.022e23  # Avogadro's number

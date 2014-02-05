@@ -27,8 +27,8 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		self.columns = [
 			{"header": "Time (s)", "state": "Time", "property": "value", "length": 8, "format": "d", "sum": False},
 			{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
-			{"header": "Growth (fg/h)", "state": "Metabolism", "property": "growth", "length": 13, "format": ".2f", "sum": False}
-		]
+			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".2f", "sum": False}
+			]
 
 		# Collect Metadata
 		self.nLines = -1
@@ -36,7 +36,6 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 
 		# Print headers
 		for iColumn in xrange(len(self.columns)):
-			self.columns[iColumn]["stateIdx"] = sim.getStateIndex(self.columns[iColumn]["state"])
 			if iColumn > 0:
 				sys.stdout.write("  ")
 			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % self.columns[iColumn]["header"])
@@ -53,18 +52,25 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 
 	def append(self, sim):
 		self.nLines += 1
+
 		if self.nLines % self.iterFreq != 0:
 			return
 
 		for iColumn in xrange(len(self.columns)):
-			c = self.columns[iColumn]
+			column = self.columns[iColumn]
+
 			if iColumn > 0:
 				sys.stdout.write("  ")
-			val = getattr(sim.states[c["stateIdx"]], c["property"])
-			if c["sum"]:
+
+			val = getattr(sim.states[column["state"]], column["property"])
+
+			if column["sum"]:
 				val = numpy.sum(val)
-			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + c["format"]) % val)
+
+			sys.stdout.write(("%" + str(column["length"]) + column["format"]) % val)
+
 		sys.stdout.write("\n")
+
 
 	def finalize(self, sim):
 		# Print summary
@@ -72,9 +78,9 @@ class Shell(wholecell.sim.logger.Logger.Logger):
 		sys.stdout.write("Simulation finished:\n")
 
 		# Length
-		h = numpy.floor(sim.getState("Time").value / 3600)
-		m = numpy.floor((sim.getState("Time").value % 3600) / 60)
-		s = sim.getState("Time").value % 60
+		h = numpy.floor(sim.states["Time"].value // 3600)
+		m = numpy.floor((sim.states["Time"].value % 3600) // 60)
+		s = sim.states["Time"].value % 60
 		sys.stdout.write(" - Length: %d:%02d:%02.0f\n" % (h, m, s))
 
 		# Runtime
