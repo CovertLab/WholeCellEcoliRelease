@@ -318,7 +318,7 @@ class Simulation(object):
 	def addDynamics(self, val):
 		for key in val.keys():
 			state = self.states[key]
-			state.setDynamics(val[key])
+			state.addDynamics(val[key])
 
 	@property
 	def timeStepSec(self):
