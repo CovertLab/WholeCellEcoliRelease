@@ -160,8 +160,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(context.exception.message, 'State file specified does not exist!\n')
 
 		with self.assertRaises(Exception) as context:
-			readPath = 'test.file'
-			open(readPath, 'a').close()
 			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
 			os.remove(readpath)
 		self.assertEqual(context.exception.message, 'State file specified is not .hdf!\n')
