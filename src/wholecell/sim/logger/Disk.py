@@ -24,15 +24,23 @@ import wholecell.sim.logger.Logger
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
-	def __init__(self, outDir):
+	def __init__(self, outDir = None):
 		self.outDir = outDir
 		self.h5file = None
 
-		if not os.path.exists(outDir):
-			os.makedirs(outDir)
-
 
 	def initialize(self, sim):
+		if self.outDir is None:
+			self.outDir = os.path.join('out', self.currentTimeAsDir())
+
+			index = 0
+			while os.path.exists(self.outDir + ('-' + str(index) if index is not None else '')):
+				# Add a number to the end of the directory if seconds-level precision
+				# isn't enough to guarantee a unique directory
+				index += 1
+		
+		os.makedirs(self.outDir)
+
 		self.h5file = tables.open_file(
 			os.path.join(self.outDir, 'state.hdf'),
 			mode = "w",
@@ -81,4 +89,9 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 	@staticmethod
 	def currentTimeAsString():
-		time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+	@staticmethod
+	def currentTimeAsDir():
+		# Variant timestamp format that should be valid across OSes
+		return time.strftime("sim%Y.%m.%d-%H.%M.%S", time.localtime())

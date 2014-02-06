@@ -84,9 +84,6 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 
 	if useDiskLogger:
-		if outDir is None:
-			raise Exception('No output directory provided.')
-
 		sim.loggerAdd(
 			wholecell.sim.logger.Disk.Disk(outDir = outDir)
 			)
@@ -99,5 +96,4 @@ if __name__ == '__main__':
 		simOpts = DEFAULT_OPTIONS,
 		fitSimulation = False,
 		useDiskLogger = True,
-		outDir = 'out/working/'
 		)
