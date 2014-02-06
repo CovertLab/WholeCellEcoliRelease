@@ -152,6 +152,7 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_loadSimulation_method(self):
+		import wholecell.sim.logger.Disk
 		timepoint = 0
 		with self.assertRaises(Exception) as context:
 			readPath = 'test.hdf'
@@ -164,6 +165,38 @@ class Test_Simulation(unittest.TestCase):
 			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
 			os.remove(readpath)
 		self.assertEqual(context.exception.message, 'State file specified is not .hdf!\n')
+
+		with self.assertRaises(Exception) as context:
+			sim = self.sim
+			sim.setOptions({"lengthSec": 2})
+			outDir = os.path.join("out", "test", "SimulationTest_testLogging")
+			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+			sim.run()
+			readPath = os.path.join(outDir, 'state.hdf')
+			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 3)
+		self.assertEqual(context.exception.message, 'Time point chosen to load is out of range!\n')
+
+	@noseAttrib.attr('smalltest')
+	def test_get_and_set_options(self):
+		sim = self.sim
+		options = sim.getOptions()
+		self.assertEqual(options.keys(), ['states', 'processes', 'seed', 'lengthSec', 'timeStepSec'])
+		sim.setOptions({'lengthSec' : 9., 'timeStepSec' : 3.})
+		options = sim.getOptions()
+		self.assertEqual(options['lengthSec'], 9.)
+		self.assertEqual(options['timeStepSec'], 3.)
+
+		with self.assertRaises(Exception) as context:
+			sim.setOptions({'fubar' : True})
+		self.assertEqual(context.exception.message, "Invalid options:\n -%s" % "fubar")
+
+		# Just making sure there is no error thrown in the Simulation.py code.
+		sim.setOptions({'processes' : {'Metabolism' : {'lpSolver' : 'test'}}})
+		self.assertEqual(sim.processes['Metabolism'].lpSolver, 'test')
+
+		sim.states['Time'].meta['options'] = ['test']
+		sim.setOptions({'states' : {'Time' : {'test' : 'test_val'}}})
+		self.assertEqual(sim.states['Time'].test, 'test_val')
 
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
