@@ -149,10 +149,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
 						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-		# Delete testing files
-		import shutil
-		shutil.rmtree(outDir)
-
 
 	@noseAttrib.attr('smalltest')
 	def test_loadSimulation_method(self):
