@@ -29,7 +29,8 @@ DEFAULT_JSON = '''
 	"useShellLogger":true,
 	"useDiskLogger":false,
 	"diskLoggerPath":null,
-	"simOptions":{}
+	"simOptions":{},
+	"processesToInclude":null
 }
 '''
 
@@ -39,9 +40,9 @@ KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 # TODO: add support for running many simulations, possibly in parallel, based 
 # on one JSON file, one cached simulation, and an integer for the number of 
 # seeds
-def runSimulationFromJson(filePath):
+def runSimulationFromJson(jsonFile):
 	options = json.loads(DEFAULT_JSON)
-	options.update(json.load(open(filePath, 'r')))
+	options.update(json.load(open(jsonFile, 'r')))
 
 	if not options['useCachedKB'] or not os.path.exists(KB_PATH):
 		kb = wholecell.kb.KnowledgeBase.KnowledgeBase(
@@ -55,7 +56,7 @@ def runSimulationFromJson(filePath):
 	else:
 		kb = cPickle.load(open(KB_PATH, "rb"))
 
-	sim = wholecell.sim.Simulation.Simulation()
+	sim = wholecell.sim.Simulation.Simulation(options['processesToInclude'])
 	sim.initialize(kb)
 	sim.setOptions(options['simOptions'])
 
@@ -80,5 +81,3 @@ def runSimulationFromJson(filePath):
 
 if __name__ == '__main__':
 	runSimulationFromJson(sys.argv[1])
-
-

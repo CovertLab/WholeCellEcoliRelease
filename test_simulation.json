@@ -1,6 +1,26 @@
 {
+	"processesToInclude":["Transcription", "GrowingCounts", "UnlimitedCounts"],
+	"fitSimulation":false,
 	"simOptions":{
 		"seed":10,
-		"lengthSec":100
+		"lengthSec":100,
+		"processes":{
+			"UnlimitedCounts":{
+				"fixedMolecules":[
+					["ATP[c]", 1e6],
+					["CTP[c]", 1e6],
+					["GTP[c]", 1e6],
+					["UTP[c]", 1e6]
+				]
+			},
+			"GrowingCounts":{
+				"fixedMolecules":[
+					["EG10893-MONOMER[c]", 2000.0],
+					["RPOB-MONOMER[c]", 2000.0],
+					["RPOC-MONOMER[c]", 2000.0],
+					["RPOD-MONOMER[c]", 2000.0]
+				]
+			}
+		}
 	}
 }
