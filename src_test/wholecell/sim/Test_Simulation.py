@@ -74,7 +74,7 @@ class Test_Simulation(unittest.TestCase):
 		sim = self.sim
 		sim.setOptions({"lengthSec": 10})
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
-		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
 		sim.run()
 		
 
@@ -115,7 +115,7 @@ class Test_Simulation(unittest.TestCase):
 		sim = self.sim
 		sim.setOptions({"lengthSec": 10})
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
-		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
 		sim.run()
 
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
@@ -170,7 +170,7 @@ class Test_Simulation(unittest.TestCase):
 			sim = self.sim
 			sim.setOptions({"lengthSec": 2})
 			outDir = os.path.join("out", "test", "SimulationTest_testLogging")
-			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
 			sim.run()
 			readPath = os.path.join(outDir, 'state.hdf')
 			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 3)
@@ -201,7 +201,7 @@ class Test_Simulation(unittest.TestCase):
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
-		sim = wholecell.sim.Simulation.Simulation(processToInclude = ['Transcription'])
+		sim = wholecell.sim.Simulation.Simulation(processesToInclude = ['Transcription'])
 		sim.initialize(self.kb)
 		self.assertEqual(['Transcription'], sim.processes.keys())
 

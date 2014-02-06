@@ -24,8 +24,11 @@ import wholecell.sim.logger.Logger
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
-	def __init__(self, outDir = None):
+	def __init__(self, outDir = None, allowOverwrite = False):
 		self.outDir = outDir
+		self.allowOverwrite = allowOverwrite
+
+
 		self.stateFiles = {}
 		self.mainFile = None
 
@@ -34,7 +37,15 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 		if self.outDir is None:
 			self.outDir = os.path.join('out', self.currentTimeAsDir())
 		
-		os.makedirs(self.outDir)
+		try:
+			os.makedirs(self.outDir)
+
+		except OSError as e:
+			if self.allowOverwrite:
+				pass
+
+			else:
+				raise
 
 		self.mainFile = tables.open_file(
 			os.path.join(self.outDir, 'Main.hdf'),
