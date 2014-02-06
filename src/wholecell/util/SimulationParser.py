@@ -18,7 +18,6 @@ import wholecell.sim.logger.Shell
 import wholecell.sim.Simulation
 import wholecell.kb.KnowledgeBase
 import wholecell.util.Fitter
-
 # The default values for the parsed JSON.  Also serves as a template for 
 # writing JSON files.
 DEFAULT_JSON = '''
@@ -30,7 +29,8 @@ DEFAULT_JSON = '''
 	"useDiskLogger":false,
 	"diskLoggerPath":null,
 	"simOptions":{},
-	"processesToInclude":null
+	"processesToInclude":null,
+	"freeMolecules":null
 }
 '''
 
@@ -40,9 +40,13 @@ KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 # TODO: add support for running many simulations, possibly in parallel, based 
 # on one JSON file, one cached simulation, and an integer for the number of 
 # seeds
-def runSimulationFromJson(jsonFile):
+def parseSimulationFromJsonFile(jsonFile):
+	return parseSimulationFromJsonString(open(jsonFile).read())
+
+
+def parseSimulationFromJsonString(jsonString):
 	options = json.loads(DEFAULT_JSON)
-	options.update(json.load(open(jsonFile, 'r')))
+	options.update(json.loads(jsonString))
 
 	if not options['useCachedKB'] or not os.path.exists(KB_PATH):
 		kb = wholecell.kb.KnowledgeBase.KnowledgeBase(
@@ -56,7 +60,10 @@ def runSimulationFromJson(jsonFile):
 	else:
 		kb = cPickle.load(open(KB_PATH, "rb"))
 
-	sim = wholecell.sim.Simulation.Simulation(options['processesToInclude'])
+	sim = wholecell.sim.Simulation.Simulation(
+		options['processesToInclude'],
+		options['freeMolecules']
+		)
 	sim.initialize(kb)
 	sim.setOptions(options['simOptions'])
 
@@ -75,9 +82,10 @@ def runSimulationFromJson(jsonFile):
 			wholecell.sim.logger.Disk.Disk(outDir = options['diskLoggerPath'])
 			)
 
-	# Run simulation
-	sim.run()
+	return sim
 
 
 if __name__ == '__main__':
-	runSimulationFromJson(sys.argv[1])
+	sim = parseSimulationFromJsonFile(sys.argv[1])
+
+	sim.run()
