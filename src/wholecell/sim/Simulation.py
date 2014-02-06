@@ -306,13 +306,13 @@ class Simulation(object):
 			# States
 			if val.has_key("states"):
 				for key in val["states"].keys():
-					state = self.states(key)
+					state = self.states[key]
 					state.setParameters(val["states"][key])
 
 			# Processes
 			if val.has_key("processes"):
 				for key in val["processes"].keys():
-					process = self.processes(key)
+					process = self.processes[key]
 					process.setOptions(val["processes"][key])
 
 	def getDynamics(self):
@@ -323,7 +323,7 @@ class Simulation(object):
 
 	def setDynamics(self, val):
 		for key in val.keys():
-			state = self.states(key)
+			state = self.states[key]
 			state.setDynamics(val[key])
 
 	@property
