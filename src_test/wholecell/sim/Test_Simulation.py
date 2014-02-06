@@ -117,8 +117,7 @@ class Test_Simulation(unittest.TestCase):
 		sim.run()
 
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		readPath = os.path.join(outDir, 'state.hdf')
-		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 5)
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 5)
 		reloadedSim.setOptions({"lengthSec": 10})
 		reloadedSim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 
