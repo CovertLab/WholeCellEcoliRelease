@@ -97,7 +97,7 @@ class State(object):
 
 	def setOptions(self, val):
 		keys = val.keys()
-		if not self.meta.has_key("options") or not all(set(keys).issubset(set(self.meta["options"]))):
+		if not self.meta.has_key("options") or not set(keys).issubset(set(self.meta["options"])):
 			raise Exception, "Invalid option"
 
 		for key in keys:
@@ -112,7 +112,7 @@ class State(object):
 
 	def setParameters(self, val):
 		keys = val.keys()
-		if not self.meta.has_key("parameters") or not all(set(keys).issubset(set(self.meta["parameters"]))):
+		if not self.meta.has_key("parameters") or not set(keys).issubset(set(self.meta["parameters"])):
 			raise Exception, "Invalid parameter"
 
 		for key in keys:
