@@ -315,11 +315,6 @@ class Simulation(object):
 			val[state.meta["id"]] = state.getDynamics()
 		return val
 
-	def addDynamics(self, val):
-		for key in val.keys():
-			state = self.states[key]
-			state.addDynamics(val[key])
-
 	@property
 	def timeStepSec(self):
 		return self._timeStepSec

@@ -108,11 +108,3 @@ class State(object):
 		for prop in self.meta["dynamics"]:
 			val[prop] = getattr(self, prop)
 		return val
-
-	def addDynamics(self, val):
-		keys = val.keys()
-		if not self.meta.has_key("dynamics") or not all(set(keys).issubset(set(self.meta["dynamics"]))):
-			raise Exception, "Invalid dynamics"
-
-		for key in keys:
-			setattr(self, key, val[key])
