@@ -286,35 +286,6 @@ class Simulation(object):
 				process = self.processes[key]
 				process.setOptions(val["processes"][key])
 
-	# Return parameters as dict
-	def getParameters(self):
-		# Initialize output
-		val = {"states": {}, "processes": {}}
-
-		# States
-		for state in self.states.itervalues():
-			val["states"][state.meta["id"]] = state.getParameters()
-
-		# Processes
-		for process in self.processes.itervalues():
-			val["processes"][process.meta["id"]] = process.getParameters()
-
-		return val
-
-	# Sets parameter values based on passed in dict
-	def setParameters(self, val):
-			# States
-			if val.has_key("states"):
-				for key in val["states"].keys():
-					state = self.states[key]
-					state.setParameters(val["states"][key])
-
-			# Processes
-			if val.has_key("processes"):
-				for key in val["processes"].keys():
-					process = self.processes[key]
-					process.setOptions(val["processes"][key])
-
 	def getDynamics(self):
 		val = {}
 		for state in self.states.itervalues():

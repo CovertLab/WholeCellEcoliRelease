@@ -50,18 +50,3 @@ class Process(object):
 
 		for key in keys:
 			setattr(self, key, val[key])
-
-	def getParameters(self):
-		val = {}
-		if self.meta.has_key("parameters"):
-			for param in self.meta["parameters"]:
-				val[param] = getattr(self, param)
-		return val
-
-	def setParameters(self, val):
-		keys = val.keys()
-		if not self.meta.has_key("parameters") or not set(keys).issubset(set(self.meta["parameters"])):
-			raise Exception, "Invalid parameter"
-
-		for key in keys:
-			setattr(self, key, val[key])
