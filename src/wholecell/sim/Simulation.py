@@ -277,13 +277,13 @@ class Simulation(object):
 		# States
 		if val.has_key("states"):
 			for key in val["states"].keys():
-				state = self.states(key)
+				state = self.states[key]
 				state.setOptions(val["states"][key])
 
 		# Processes
 		if val.has_key("processes"):
 			for key in val["processes"].keys():
-				process = self.processes(key)
+				process = self.processes[key]
 				process.setOptions(val["processes"][key])
 
 	# Return parameters as dict
