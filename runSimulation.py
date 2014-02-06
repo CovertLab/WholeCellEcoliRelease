@@ -8,6 +8,9 @@ Example:
 >>> from runSimulation import *
 >>> runSimulation()
 
+Example:
+~/parWholeCellPy$ python runSimulation.py
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/10/2013

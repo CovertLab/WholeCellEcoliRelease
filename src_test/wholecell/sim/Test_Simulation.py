@@ -72,73 +72,106 @@ class Test_Simulation(unittest.TestCase):
 
 		# Run simulation
 		sim = self.sim
-		sim.setOptions({"lengthSec": 25})
+		sim.setOptions({"lengthSec": 10})
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
 		sim.run()
 		
-	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-	# 	self.assertTrue(numpy.array_equal(numpy.arange(26).reshape((1, 1, 26)), time))
 
-	# 	self.assertEqual((1, 3, 26),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-	# 	self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (26,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-	# 	self.assertEqual((1, 1, 26), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+		# TODO: Finish - call from Simulation.Simulation.loadSimulation
+		readPath = os.path.join(outDir, 'state.hdf')
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 10)
 
-	# # Test logging with timeStepSec = 5 s
-	# def test_logging2(self):
-	# 	import wholecell.sim.logger.Disk
-	# 	import wholecell.sim.logger.Shell
+		state_keys = sim.states.keys()
+		# Need to check RandStream in another way
+		state_keys.pop(state_keys.index('RandStream'))
+		for state_id in state_keys:
+			dynamics_keys = sim.states[state_id].getDynamics().keys()
 
-	# 	# Output directory
-	# 	outDir = os.path.join("out", "test", "SimulationTest_testLogging2")
+			if 'growth' in dynamics_keys:
+				# Growth calculated based on difference in time-steps will not match up
+				dynamics_keys.pop(dynamics_keys.index('growth'))
 
-	# 	# Run simulation
-	# 	sim = self.sim
-	# 	sim.setOptions({"lengthSec": 50, "timeStepSec": 5})
-	# 	sim.run([
-	# 		wholecell.sim.logger.Shell.Shell(),
-	# 		wholecell.sim.logger.Disk.Disk(outDir = outDir, segmentLen = 5)
-	# 		])
-		
-	# 	time = wholecell.sim.logger.Disk.Disk.load(outDir, "Time", "value")
-	# 	self.assertTrue(numpy.array_equal(numpy.arange(0, 51, 5).reshape((1, 1, 11)), time))
+			for d_key in dynamics_keys:
+				if isinstance(sim.states[state_id].getDynamics()[d_key], numpy.ndarray):
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
+						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
+				else:
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key],
+						reloadedSim.states[state_id].getDynamics()[d_key])
+		# Check RandStream
+		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
+						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-	# 	self.assertEqual((1, 3, 11),  wholecell.sim.logger.Disk.Disk.load(outDir, "Mass", "cell").shape)
-	# 	self.assertEqual(sim.states["MoleculeCounts"].counts.shape + (11,), wholecell.sim.logger.Disk.Disk.load(outDir, "MoleculeCounts", "counts").shape)
-	# 	self.assertEqual((1, 1, 11), wholecell.sim.logger.Disk.Disk.load(outDir, "Metabolism", "growth").shape)
+		# Delete testing files
+		import shutil
+		shutil.rmtree(outDir)
 
-	# # --- Test runSimulation script ---
-	# def test_runSimulation(self):
-	# 	from runSimulation import runSimulation
+	@noseAttrib.attr('smalltest')
+	def test_reload_at_later_timepoint(self):
+		import wholecell.sim.logger.Shell
+		import wholecell.sim.logger.Disk
 
-	# 	# Knowledge base options
-	# 	kbOpts = {
-	# 		"dataFileName": "data/KnowledgeBase.xlsx",
-	# 		"seqFileName": "data/KnowledgeBase.fna"
-	# 	}
+		# Output directory
+		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
-	# 	# Simulation options
-	# 	simOpts = {
-	# 		"lengthSec": 100
-	# 	}
+		# Run simulation
+		sim = self.sim
+		sim.setOptions({"lengthSec": 10})
+		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		sim.run()
 
-	# 	# Disk logger options
-	# 	diskOpts = {
-	# 		"outDir": os.path.join("out", "test", "SimulationTest_testRunSimulation"),
-	# 		"metadata": {
-	# 			"name": "Test simulation",
-	# 			"description": "Test simulation",
-	# 			"Investigator": {
-	# 				"First": "FirstName",
-	# 				"Last": "LastName",
-	# 				"Email": "username@domain.suf",
-	# 				"Affiliation": "Stanford University"
-	# 			},
-	# 			"ip": "0.0.0.0"
-	# 		},
-	# 		"segmentLen": 10
-	# 	}
-	# 	runSimulation(kbOpts = kbOpts, simOpts = simOpts, diskOpts = diskOpts)
+		# TODO: Finish - call from Simulation.Simulation.loadSimulation
+		readPath = os.path.join(outDir, 'state.hdf')
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 5)
+		reloadedSim.setOptions({"lengthSec": 10})
+		reloadedSim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+
+		self.assertEqual(reloadedSim.initialStep, 5)
+		self.assertEqual(reloadedSim.states['Time'].value, 5.)
+		reloadedSim.run()
+
+		state_keys = sim.states.keys()
+		# Need to check RandStream in another way
+		state_keys.pop(state_keys.index('RandStream'))
+		for state_id in state_keys:
+			dynamics_keys = sim.states[state_id].getDynamics().keys()
+
+			if 'growth' in dynamics_keys:
+				# Growth calculated based on difference in time-steps will not match up
+				dynamics_keys.pop(dynamics_keys.index('growth'))
+
+			for d_key in dynamics_keys:
+				if isinstance(sim.states[state_id].getDynamics()[d_key], numpy.ndarray):
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
+						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
+				else:
+					self.assertEqual(sim.states[state_id].getDynamics()[d_key],
+						reloadedSim.states[state_id].getDynamics()[d_key])
+		# Check RandStream
+		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
+						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
+
+		# Delete testing files
+		import shutil
+		shutil.rmtree(outDir)
+
+
+	@noseAttrib.attr('smalltest')
+	def test_loadSimulation_method(self):
+		timepoint = 0
+		with self.assertRaises(Exception) as context:
+			readPath = 'test.hdf'
+			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
+		self.assertEqual(context.exception.message, 'State file specified does not exist!\n')
+
+		with self.assertRaises(Exception) as context:
+			readPath = 'test.file'
+			open(readPath, 'a').close()
+			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
+			os.remove(readpath)
+		self.assertEqual(context.exception.message, 'State file specified is not .hdf!\n')
 
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
@@ -148,106 +181,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(['Transcription'], sim.processes.keys())
 
 	# --- Test biology ---
-
-	# def test_metabolicNetwork(self):
-	# 	from wholecell.util.Constants import Constants
-
-	# 	sim = self.sim
-	# 	met = sim.processes["Metabolism"]
-
-	# 	## Reaction stoichiometry
-	# 	# Ex 1
-	# 	rIdx = met.rxnIds.index("Cls3")
-	# 	self.assertEqual(3, (met.sMat[:, rIdx] != 0).sum())
-	# 	self.assertEqual(-2, met.sMat[met.metabolite.getIndex("PG181[m]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("CL181[m]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("GL[c]")[0], rIdx])
-
-	# 	# Ex 2
-	# 	rIdx = met.rxnIds.index("HinT_GMP_Mor_MG132")
-	# 	self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("GMP_Mor[e]")[0], rIdx])
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[e]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("GMP[e]")[0], rIdx])
-	# 	self.assertEqual(2, met.sMat[met.metabolite.getIndex("H[e]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("MOR[e]")[0], rIdx])
-
-	# 	# Ex 2
-	# 	rIdx = met.rxnIds.index("MsrA")
-	# 	self.assertEqual(5, (met.sMat[:, rIdx] != 0).sum())
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("H2O[c]")[0], rIdx])
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MET[c]")[0], rIdx])
-	# 	self.assertEqual(-1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER_ox[c]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("METSOXSL[c]")[0], rIdx])
-	# 	self.assertEqual(1, met.sMat[met.metabolite.getIndex("MG_124_MONOMER[c]")[0], rIdx])
-
-	# 	## Exchange reactions
-	# 	self.assertTrue(numpy.array_equal(numpy.ones(met.metIdx["real"].size), met.sMat[met.metIdx["real"], met.rxnIdx["exchange"]]))
-
-	# 	## Objective
-	# 	# Biomass composition
-	# 	self.assertAlmostEqual(13.704, numpy.dot(-met.sMat[met.metIdx["real"], met.rxnIdx["growth"]], met.metabolite.mws) / Constants.nAvogadro *1e15, places = 3)
-
-	# 	self.assertAlmostEqual(786393.089973227, -met.sMat[met.metabolite.getIndex("ALA[c]")[0], met.rxnIdx["growth"]], places = 11)
-	# 	self.assertEqual(0, -met.sMat[met.metabolite.getIndex("AMP[c]")[0], met.rxnIdx["growth"]])
-
-	# 	# Objective
-	# 	self.assertEqual(1, met.sMat[met.metIdx["biomass"], met.rxnIdx["growth"]])
-	# 	self.assertEqual(-1, met.sMat[met.metIdx["biomass"], met.rxnIdx["biomassExchange"]])
-	# 	self.assertEqual(1, (met.sMat[:, met.rxnIdx["biomassExchange"]] != 0).sum())
-
-	# 	## Enzymes and kinetic bounds
-	# 	self.assertTrue(numpy.all(met.eMat[:] >= 0))
-	# 	self.assertTrue(numpy.all(numpy.sum(met.eMat, axis = 1) <= 1))
-	# 	self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["lo"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
-	# 	self.assertTrue(numpy.all(numpy.isinf(met.bounds["kinetic"]["up"][numpy.logical_not(numpy.any(met.eMat, axis = 1))])))
-	# 	self.assertTrue(numpy.all(met.bounds["kinetic"]["lo"] <= 0))
-	# 	self.assertTrue(numpy.all(met.bounds["kinetic"]["up"] >= 0))
-
-	# 	# Ex 1
-	# 	iRxn = met.rxnIds.index("LdhA")
-	# 	iEnz = met.enzyme.getIndex("MG_460_TETRAMER[c]")[0]
-	# 	self.assertEqual(2000.0 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["up"][iRxn])
-	# 	self.assertEqual(-numpy.inf, met.bounds["kinetic"]["lo"][iRxn])
-
-	# 	# Ex 2
-	# 	iRxn = met.rxnIds.index("MetF")
-	# 	iEnz = met.enzyme.getIndex("MG_228_TETRAMER[c]")[0]
-	# 	self.assertEqual(1, met.eMat[iRxn, iEnz])
-	# 	self.assertEqual(numpy.inf, met.bounds["kinetic"]["up"][iRxn])
-	# 	self.assertEqual(-9.7 / 60 * 1e-3 * met.enzyme.mws[iEnz], met.bounds["kinetic"]["lo"][iRxn])
-
-	# 	## Exchange bounds
-	# 	self.assertTrue(numpy.all(met.bounds["exchange"]["lo"] <= 0))
-	# 	self.assertTrue(numpy.all(met.bounds["exchange"]["up"] >= 0))
-
-	# 	iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("AD[e]")[0]]
-	# 	self.assertEqual(-12, met.bounds["exchange"]["lo"][iRxn])
-	# 	self.assertEqual(12, met.bounds["exchange"]["up"][iRxn])
-
-	# 	iRxn = met.rxnIdx["exchange"][met.metabolite.getIndex("H2O[e]")[0]]
-	# 	self.assertEqual(-20, met.bounds["exchange"]["lo"][iRxn])
-	# 	self.assertEqual(20, met.bounds["exchange"]["up"][iRxn])
-
-	# 	## Thermodynamic bounds
-	# 	self.assertTrue(numpy.all(met.bounds["thermodynamic"]["lo"] <= 0))
-	# 	self.assertTrue(numpy.all(met.bounds["thermodynamic"]["up"] >= 0))
-
-	# 	iRxn = met.rxnIds.index("AckA")
-	# 	self.assertEqual(-numpy.inf, met.bounds["thermodynamic"]["lo"][iRxn])
-	# 	self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
-
-	# 	iRxn = met.rxnIds.index("AcpS")
-	# 	self.assertEqual(0, met.bounds["thermodynamic"]["lo"][iRxn])
-	# 	self.assertEqual(numpy.inf, met.bounds["thermodynamic"]["up"][iRxn])
-
-	# 	state_met = sim.states["Metabolism"]
-	# 	growth = numpy.zeros(10)
-	# 	for i in xrange(growth.size):
-	# 		sim.setOptions({"seed": i})
-	# 		sim.calcInitialConditions()
-	# 		growth[i] = state_met.growth
-	# 	self.assertAlmostEqual(numpy.log(2) / (9 * 3600) * 3600 * 13.1, numpy.mean(growth), places = 0)
 
 	# @noseAttrib.attr("ic")
 	# def test_initialConditions(self):

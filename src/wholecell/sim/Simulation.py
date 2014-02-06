@@ -11,6 +11,7 @@ Simulation
 import numpy
 import collections
 import tables
+import os
 
 DEFAULT_PROCESSES = [
 	'Complexation',
@@ -244,13 +245,24 @@ class Simulation(object):
 		newSim = cls()
 		newSim.initialize(kb)
 
+		if not os.path.isfile(statefilePath):
+			raise Exception, 'State file specified does not exist!\n'
+		elif not statefilePath.endswith('.hdf'):
+			raise Exception, 'State file specified is not .hdf!\n'
+
 		with tables.openFile(statefilePath) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
 
 			for state in newSim.states.itervalues():
-				state.pytablesLoad(h5file, timePoint)
+				try:
+					state.pytablesLoad(h5file, timePoint)
+				except IndexError:
+					raise Exception, 'Time point chosen to load is out of range!\n'
 
 			newSim.initialStep = timePoint
+
+		# Calculate derived states
+		newSim.calculateState()
 
 		return newSim
 
@@ -288,13 +300,13 @@ class Simulation(object):
 		# States
 		if val.has_key("states"):
 			for key in val["states"].keys():
-				state = self.states(key)
+				state = self.states[key]
 				state.setOptions(val["states"][key])
 
 		# Processes
 		if val.has_key("processes"):
 			for key in val["processes"].keys():
-				process = self.processes(key)
+				process = self.processes[key]
 				process.setOptions(val["processes"][key])
 
 	# Return parameters as dict
@@ -317,13 +329,13 @@ class Simulation(object):
 			# States
 			if val.has_key("states"):
 				for key in val["states"].keys():
-					state = self.states(key)
+					state = self.states[key]
 					state.setParameters(val["states"][key])
 
 			# Processes
 			if val.has_key("processes"):
 				for key in val["processes"].keys():
-					process = self.processes(key)
+					process = self.processes[key]
 					process.setOptions(val["processes"][key])
 
 	def getDynamics(self):
@@ -334,7 +346,7 @@ class Simulation(object):
 
 	def setDynamics(self, val):
 		for key in val.keys():
-			state = self.states(key)
+			state = self.states[key]
 			state.setDynamics(val[key])
 
 	@property

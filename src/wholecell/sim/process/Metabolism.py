@@ -153,7 +153,7 @@ class Metabolism(wholecell.sim.process.Process.Process):
 		self.metabolitePartition.feistCore.countsBulkIs(
 			numpy.fmax(
 				0,
-				self.metabolitePartition.feistCore.countsBulk() + self.randStream.stochasticRound(deltaMetabolites)
+				self.randStream.stochasticRound(self.metabolitePartition.feistCore.countsBulk() + deltaMetabolites)
 				)
 			)
 
