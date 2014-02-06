@@ -29,11 +29,6 @@ import weakref
 
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
-DEFAULT_OPTIONS = {
-	'seed':10,
-	'lengthSec':100
-	}
-
 def runSimulation(reconstructKB = False, fitSimulation = True,
 		useShellLogger = True, useDiskLogger = False, outDir = None,
 		simOpts = None):
@@ -53,19 +48,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	kbWeakRef = weakref.ref(kb)
 
 	# Set up simulation
-	sim = wholecell.sim.Simulation.Simulation(
-		['Transcription'],
-		[
-			('ATP[c]', 1e6),
-			('UTP[c]', 1e6),
-			('CTP[c]', 1e6),
-			('GTP[c]', 1e6),
-			("EG10893-MONOMER[c]", 2000.),
-			("RPOB-MONOMER[c]", 2000.),
-			("RPOC-MONOMER[c]", 2000.),
-			("RPOD-MONOMER[c]", 2000.)
-		]
-		)
+	sim = wholecell.sim.Simulation.Simulation()
 
 	sim.initialize(kb)
 
@@ -93,7 +76,9 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 
 if __name__ == '__main__':
 	runSimulation(
-		simOpts = DEFAULT_OPTIONS,
-		fitSimulation = False,
+		simOpts = {
+			'seed':10,
+			'lengthSec':100
+			},
 		useDiskLogger = True,
 		)

@@ -75,9 +75,6 @@ def parseSimulationFromJsonString(jsonString):
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 
 	if options['useDiskLogger']:
-		if outDir is None:
-			raise Exception('No output directory provided.')
-
 		sim.loggerAdd(
 			wholecell.sim.logger.Disk.Disk(outDir = options['diskLoggerPath'])
 			)
