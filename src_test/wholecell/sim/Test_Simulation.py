@@ -54,6 +54,7 @@ class Test_Simulation(unittest.TestCase):
 
 		# Simulate
 		sim = self.sim
+		sim.initialize(self.kb)
 		sim.setOptions({"lengthSec": 10})
 		sim.run()
 
@@ -69,6 +70,7 @@ class Test_Simulation(unittest.TestCase):
 
 		# Run simulation
 		sim = self.sim
+		sim.initialize(self.kb)
 		sim.setOptions({"lengthSec": 10})
 		# sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
@@ -104,10 +106,11 @@ class Test_Simulation(unittest.TestCase):
 		import wholecell.sim.logger.Disk
 
 		# Output directory
-		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
+		outDir = os.path.join("out", "test", "SimulationTest_test_reload_at_later_timepoint")
 
 		# Run simulation
 		sim = self.sim
+		sim.initialize(self.kb)
 		sim.setOptions({"lengthSec": 10})
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
@@ -149,6 +152,7 @@ class Test_Simulation(unittest.TestCase):
 		
 		with self.assertRaises(Exception) as context:
 			sim = self.sim
+			sim.initialize(self.kb)
 			sim.setOptions({"lengthSec": 2})
 			outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
