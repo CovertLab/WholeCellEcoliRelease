@@ -24,26 +24,38 @@ import wholecell.sim.logger.Logger
 class Disk(wholecell.sim.logger.Logger.Logger):
 	""" Disk """
 
-	def __init__(self, outDir):
+	def __init__(self, outDir = None, allowOverwrite = False):
 		self.outDir = outDir
-		self.h5file = None
+		self.allowOverwrite = allowOverwrite
 
-		if not os.path.exists(outDir):
-			os.makedirs(outDir)
+
+		self.stateFiles = {}
+		self.mainFile = None
 
 
 	def initialize(self, sim):
-		self.h5file = tables.open_file(
-			os.path.join(self.outDir, 'state.hdf'),
+		if self.outDir is None:
+			self.outDir = os.path.join('out', self.currentTimeAsDir())
+		
+		try:
+			os.makedirs(self.outDir)
+
+		except OSError as e:
+			if self.allowOverwrite:
+				pass
+
+			else:
+				raise
+
+		self.mainFile = tables.open_file(
+			os.path.join(self.outDir, 'Main.hdf'),
 			mode = "w",
-			title = "Single simulation"
+			title = "Main simulation file"
 			)
 		
 		# Metadata
-		self.h5file.root._v_attrs.startTime = self.currentTimeAsString()
-		self.h5file.root._v_attrs.timeStepSec = sim.timeStepSec
-		# self.h5file.root._v_attrs.options = sim.getOptions()
-		# self.h5file.root._v_attrs.parameters = sim.getParameters()
+		self.mainFile.root._v_attrs.startTime = self.currentTimeAsString()
+		self.mainFile.root._v_attrs.timeStepSec = sim.timeStepSec
 
 		# Create tables
 		self.createTables(sim)
@@ -58,27 +70,44 @@ class Disk(wholecell.sim.logger.Logger.Logger):
 
 	def finalize(self, sim):
 		# Metadata
-		self.h5file.root._v_attrs.lengthSec = sim.states['Time'].value
-		self.h5file.root._v_attrs.endTime = self.currentTimeAsString()
+		self.mainFile.root._v_attrs.lengthSec = sim.states['Time'].value
+		self.mainFile.root._v_attrs.endTime = self.currentTimeAsString()
 
 		# Close file
-		self.h5file.close()
+		self.mainFile.close()
+
+		for stateFile in self.stateFiles.viewvalues():
+			stateFile.close()
 
 
 	def createTables(self, sim):
-		sim.pytablesCreate(self.h5file)
+		sim.pytablesCreate(self.mainFile)
 
-		for state in sim.states.itervalues():
-			state.pytablesCreate(self.h5file)
+		for stateName, state in sim.states.viewitems():
+			stateFile = tables.open_file(
+				os.path.join(self.outDir, stateName + '.hdf'),
+				mode = "w",
+				title = stateName + " state file"
+				)
+
+			state.pytablesCreate(stateFile)
+
+			self.stateFiles[state] = stateFile
 
 
 	def copyDataFromStates(self, sim):
-		sim.pytablesAppend(self.h5file)
+		sim.pytablesAppend(self.mainFile)
 
-		for state in sim.states.itervalues():
-			state.pytablesAppend(self.h5file)
+		for state, stateFile in self.stateFiles.viewitems():
+			state.pytablesAppend(stateFile)
 
 
 	@staticmethod
 	def currentTimeAsString():
-		time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+
+	@staticmethod
+	def currentTimeAsDir():
+		# Variant timestamp format that should be valid across OSes
+		return time.strftime("sim%Y.%m.%d-%H.%M.%S", time.localtime())

@@ -60,8 +60,8 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(10, sim.states["Time"].value)
 
 	@noseAttrib.attr('smalltest')
-	def test_disk_and_shell_logger(self):
-		import wholecell.sim.logger.Shell
+	def test_disk_logger(self): #_and_shell_logger(self):
+		# import wholecell.sim.logger.Shell
 		import wholecell.sim.logger.Disk
 
 		# Output directory
@@ -70,14 +70,12 @@ class Test_Simulation(unittest.TestCase):
 		# Run simulation
 		sim = self.sim
 		sim.setOptions({"lengthSec": 10})
-		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
-		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		# sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
 		sim.run()
 		
-
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		readPath = os.path.join(outDir, 'state.hdf')
-		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 10)
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 10)
 
 		state_keys = sim.states.keys()
 		# Need to check RandStream in another way
@@ -112,12 +110,11 @@ class Test_Simulation(unittest.TestCase):
 		sim = self.sim
 		sim.setOptions({"lengthSec": 10})
 		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
-		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
 		sim.run()
 
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		readPath = os.path.join(outDir, 'state.hdf')
-		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 5)
+		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 5)
 		reloadedSim.setOptions({"lengthSec": 10})
 		reloadedSim.loggerAdd(wholecell.sim.logger.Shell.Shell())
 
@@ -146,31 +143,18 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
 						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-
 	@noseAttrib.attr('smalltest')
 	def test_loadSimulation_method(self):
 		import wholecell.sim.logger.Disk
-		timepoint = 0
-		with self.assertRaises(Exception) as context:
-			readPath = 'test.hdf'
-			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
-		self.assertEqual(context.exception.message, 'State file specified does not exist!\n')
-
-		with self.assertRaises(Exception) as context:
-			readPath = 'test.file'
-			open(readPath, 'a').close()
-			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timepoint)
-			os.remove(readpath)
-		self.assertEqual(context.exception.message, 'State file specified is not .hdf!\n')
-
+		
 		with self.assertRaises(Exception) as context:
 			sim = self.sim
 			sim.setOptions({"lengthSec": 2})
 			outDir = os.path.join("out", "test", "SimulationTest_testLogging")
-			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir))
+			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
 			sim.run()
-			readPath = os.path.join(outDir, 'state.hdf')
-			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, readPath, timePoint = 3)
+			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 3)
+
 		self.assertEqual(context.exception.message, 'Time point chosen to load is out of range!\n')
 
 	@noseAttrib.attr('smalltest')

@@ -31,8 +31,7 @@ class Test_reducedSimulations(unittest.TestCase):
 		pass
 
 
-	@noseAttrib.attr('working')
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('smalltest')
 	def test_transcriptionSimulation(self):
 		sim = wcSimulationParser.parseSimulationFromJsonString(
 			'''

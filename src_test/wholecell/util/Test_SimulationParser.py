@@ -31,7 +31,7 @@ class Test_SimulationParser(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-
+	
 	@noseAttrib.attr('smalltest')
 	def test_defaults(self):
 		sim = wcSimulationParser.parseSimulationFromJsonString('{}')
@@ -52,8 +52,8 @@ class Test_SimulationParser(unittest.TestCase):
 			None
 			)
 
-
-	@noseAttrib.attr('mediumtest')
+	
+	@noseAttrib.attr('smalltest')
 	def test_reducedSimulation(self):
 		sim = wcSimulationParser.parseSimulationFromJsonString(
 			'''

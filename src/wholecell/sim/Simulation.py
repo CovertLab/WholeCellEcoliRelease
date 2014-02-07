@@ -241,25 +241,21 @@ class Simulation(object):
 
 
 	@classmethod
-	def loadSimulation(cls, kb, statefilePath, timePoint):
+	def loadSimulation(cls, kb, stateDir, timePoint):
 		newSim = cls()
 		newSim.initialize(kb)
 
-		if not os.path.isfile(statefilePath):
-			raise Exception, 'State file specified does not exist!\n'
-		elif not statefilePath.endswith('.hdf'):
-			raise Exception, 'State file specified is not .hdf!\n'
-
-		with tables.openFile(statefilePath) as h5file:
+		with tables.openFile(os.path.join(stateDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
 
-			for state in newSim.states.itervalues():
+		for stateName, state in newSim.states.viewitems():
+			with tables.openFile(os.path.join(stateDir, stateName + '.hdf')) as h5file:
 				try:
 					state.pytablesLoad(h5file, timePoint)
 				except IndexError:
 					raise Exception, 'Time point chosen to load is out of range!\n'
 
-			newSim.initialStep = timePoint
+		newSim.initialStep = timePoint
 
 		# Calculate derived states
 		newSim.calculateState()
