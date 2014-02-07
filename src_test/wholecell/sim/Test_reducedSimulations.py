@@ -8,11 +8,16 @@ Test reduced simulations.
 @date: Created 2/6/20
 """
 
+import os
+import cPickle
 import unittest
 
-import wholecell.util.SimulationParser as wcSimulationParser
-
 import nose.plugins.attrib as noseAttrib
+
+import wholecell.util.Fitter as wcFitter
+import wholecell.sim.Simulation as wcSimulation
+
+KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
 class Test_reducedSimulations(unittest.TestCase):
 
@@ -30,33 +35,29 @@ class Test_reducedSimulations(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest')
 	def test_transcriptionSimulation(self):
-		sim = wcSimulationParser.parseSimulationFromJsonString(
-			'''
-			{
-				"processesToInclude":["Transcription"],
-				"useShellLogger":false,
-				"fitSimulation":true,
-				"simOptions":{
-					"seed":10,
-					"lengthSec":10
-				},
-				"freeMolecules":[
-					["ATP[c]", 1e6],
-					["UTP[c]", 1e6],
-					["CTP[c]", 1e6],
-					["GTP[c]", 1e6],
-					["EG10893-MONOMER[c]", 2000.0],
-					["RPOB-MONOMER[c]", 2000.0],
-					["RPOC-MONOMER[c]", 2000.0],
-					["RPOD-MONOMER[c]", 2000.0]
-				]
-			}
-			'''
+		sim = wcSimulation.Simulation(
+			["Transcription"],
+			[
+				["ATP[c]", 1e6],
+				["UTP[c]", 1e6],
+				["CTP[c]", 1e6],
+				["GTP[c]", 1e6],
+				["EG10893-MONOMER[c]", 2000.0],
+				["RPOB-MONOMER[c]", 2000.0],
+				["RPOC-MONOMER[c]", 2000.0],
+				["RPOD-MONOMER[c]", 2000.0]
+			]
 			)
 
+		kb = cPickle.load(open(KB_PATH, "rb"))
+
+		sim.initialize(kb)
+
+		wcFitter.Fitter.FitSimulation(sim, kb)
+
+		sim.setOptions({"lengthSec":10})
 
 		self.assertEqual(
 			sim.processes.viewkeys(),
