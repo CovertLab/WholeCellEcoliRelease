@@ -4,14 +4,18 @@ Let's replace this file with something better - John
 
 '''
 
-print 'Warning!  This will take forever to run.  Get it running on the cluster!'
-
 import cPickle
 import os
+
+import numpy
 
 import wholecell.util.Fitter as wcFitter
 import wholecell.sim.Simulation as wcSimulation
 import wholecell.sim.logger.Disk as wcDisk
+
+from mpi4py import MPI
+
+comm = MPI.COMM_WORLD
 
 # TODO: make parallel
 # TODO: make fixture generation more modular
@@ -26,13 +30,37 @@ initEnzCnts = 2000.
 # initRnaCnts = 0.
 # T_d = 3600.
 lengthSec = 500
-nSeeds = 100
+nSeeds = 8
 
-logDir = os.path.join('out', 'tests', 'rnaProduction')
+logDir = os.path.join('out', 'test', 'rnaProduction')
 
 kb = cPickle.load(open(KB_PATH, "rb"))
 
-for seed in xrange(nSeeds):
+##################################################
+# MPI seed scatter logic
+##################################################
+
+nProc = comm.size # the number of processes
+sendcounts = (
+	(nSeeds // nProc) * numpy.ones(nProc, dtype = int)
+	+ (numpy.arange(nProc, dtype =int) < nSeeds % nProc)
+	) # the number of seeds each process receives
+displacements = numpy.hstack([
+	numpy.zeros(1),
+	numpy.cumsum(sendcounts)[:-1]
+	]) # the starting position for each process's seeds
+mySeeds = numpy.zeros(sendcounts[comm.rank]) # buffer for the seeds received
+allSeeds = numpy.arange(nSeeds, dtype = float) # the list of seeds
+
+comm.Scatterv(
+	[allSeeds, tuple(sendcounts), tuple(displacements), MPI.DOUBLE],
+	mySeeds
+	) # scatter data from the root (by default) to each child process
+
+print "Rank %d mySeeds: %s" % (comm.rank, str(mySeeds))
+##################################################
+
+for seed in mySeeds.astype('int'):
 	sim = wcSimulation.Simulation(
 		["Transcription"],
 		[
@@ -62,5 +90,3 @@ for seed in xrange(nSeeds):
 
 	print 'Running simulation #{}'.format(seed)
 	sim.run()
-
-print 'Finished'
