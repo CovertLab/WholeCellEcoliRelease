@@ -244,9 +244,10 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
 
 		# Partitioning
-		self._countsBulkRequested = None
-		self._countsBulkPartitioned = None
-		self._countsBulkUnpartitioned = None
+		self._countsBulkRequested = None		# Bulk quantity requested by each partition
+		self._countsBulkPartitioned = None		# Bulk quantity actually provided to each partition
+		self._countsBulkReturned = None			# Bulk quantity that the partition returned after evolveState
+		self._countsBulkUnpartitioned = None	# Bulk quantity that went unpartitioned
 
 		self.partitionClass = MoleculeCountsPartition
 
@@ -450,6 +451,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkPartitioned = numpy.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
 		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
 
+		self._countsBulkRequested = numpy.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
+		self._countsBulkPartitioned = numpy.zeros_like(self._countsBulkRequested)
+		self._countsBulkReturned = numpy.zeros_like(self._countsBulkRequested)
+		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
+		
 
 	# Partitioning
 
@@ -483,6 +489,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		return partition
 
 
+	# TODO: get rid of prepartition
 	def prepartition(self):
 		# Clear out the existing partitions in preparation for the requests
 		for partition in self.partitions:
@@ -492,24 +499,15 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def partition(self):
 		if self.partitions:
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
-			requestsShape = (
-				self._countsBulk.shape[0],
-				self._countsBulk.shape[1],
-				len(self.partitions)
-				)
-
-			requests = numpy.zeros(requestsShape)
-
+			
 			# Calculate and store requests
 			for iPartition, partition in enumerate(self.partitions):
 				# Call request function and record requests
-				requests[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
+				self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
-			requestsAbsolute = numpy.sum(requests[..., isRequestAbsolute], axis = 2)
-			requestsRelative = numpy.sum(requests[..., ~isRequestAbsolute], axis = 2)
-
-			self._countsBulkRequested = numpy.sum(requests, axis = 2)
+			requestsAbsolute = numpy.sum(self._countsBulkRequested[..., isRequestAbsolute], axis = 2)
+			requestsRelative = numpy.sum(self._countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
 
 			# TODO: Remove the warnings filter or move it elsewhere
 			# there may also be a way to avoid these warnings by only evaluating 
@@ -533,7 +531,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			for iPartition, partition in enumerate(self.partitions):
 				scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
-				allocation = numpy.floor(requests[..., iPartition] * scale)
+				allocation = numpy.floor(self._countsBulkRequested[..., iPartition] * scale)
 
 				self._countsBulkPartitioned[..., iPartition] = allocation
 				partition.countsBulkIs(
@@ -550,8 +548,13 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def merge(self):
 		self._countsBulk = self._countsBulkUnpartitioned
 
-		for partition in self.partitions:
-			self._countsBulk.flat[partition.mapping] += partition.countsBulk().flatten()
+		for iPartition, partition in enumerate(self.partitions):
+			self._countsBulkReturned[..., iPartition].flat[partition.mapping] = partition.countsBulk().flatten()
+
+		self._countsBulk += self._countsBulkReturned.sum(axis = 2)
+
+		if (self._countsBulkReturned < 0).any():
+			raise Exception('Some partition returned a negative number of molecules.')
 
 		if (self._countsBulk < 0).any():
 			raise Exception('Some bulk count of molecules fell below zero.')
@@ -579,11 +582,16 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def pytablesCreate(self, h5file):
 		countsShape = self._countsBulk.shape
+		partitionsShape = self._countsBulkRequested.shape
 
 		# Columns
 		d = {
 			"time": tables.Int64Col(),
 			"countsBulk":tables.Float64Col(countsShape), # unsigned? any intelligent choice of dtype here is going to really speed up the sim
+			"countsBulkRequested":tables.Float64Col(partitionsShape),
+			"countsBulkPartitioned":tables.Float64Col(partitionsShape),
+			"countsBulkReturned":tables.Float64Col(partitionsShape),
+			"countsBulkUnpartitioned":tables.Float64Col(countsShape),
 			# TODO: track unique counts
 			# TODO: track requests
 			}
@@ -613,15 +621,24 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		entry["time"] = simTime
 		entry['countsBulk'] = self._countsBulk
+		entry['countsBulkRequested'] = self._countsBulkRequested
+		entry['countsBulkPartitioned'] = self._countsBulkPartitioned
+		entry['countsBulkReturned'] = self._countsBulkReturned
+		entry['countsBulkUnpartitioned'] = self._countsBulkUnpartitioned
 		
 		entry.append()
 
 		t.flush()
 
+
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-		self._countsBulk[:] = entry["countsBulk"]
+		self._countsBulk[:] = entry['countsBulk']
+		self._countsBulkRequested[:] = entry['countsBulkRequested']
+		self._countsBulkPartitioned[:] = entry['countsBulkPartitioned']
+		self._countsBulkReturned[:] = entry['countsBulkReturned']
+		self._countsBulkUnpartitioned[:] = entry['countsBulkUnpartitioned']
 
 
 class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
