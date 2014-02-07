@@ -30,7 +30,7 @@ class Test_reducedSimulations(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-
+	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest')
 	def test_transcriptionSimulation(self):
 		sim = wcSimulationParser.parseSimulationFromJsonString(
@@ -38,7 +38,7 @@ class Test_reducedSimulations(unittest.TestCase):
 			{
 				"processesToInclude":["Transcription"],
 				"useShellLogger":false,
-				"fitSimulation":false,
+				"fitSimulation":true,
 				"simOptions":{
 					"seed":10,
 					"lengthSec":10

@@ -19,7 +19,8 @@ class Fitter(object):
 	def FitSimulation(sim, kb):
 		mc = sim.states["MoleculeCounts"]
 		tc = sim.processes["Transcription"]
-		tl = sim.processes["Translation"]
+		# tl = sim.processes["Translation"]
+		tl_elngRate = 16
 
 		idx = {}
 
@@ -165,7 +166,8 @@ class Fitter(object):
 				mc.rnaExp /= numpy.sum(mc.rnaExp)
 
 			# Estimate number of ribosomes needed initially
-			numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc.cellCycleLength) * numMons * mc.monExp)
+			#numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc.cellCycleLength) * numMons * mc.monExp)
+			numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc.cellCycleLength) * numMons * mc.monExp)
 			#print "numRibsNeeded: %0.1f" % numRibsNeeded
 			fudge = 1.1
 			if numpy.sum(numRnas * mc.rnaExp[idx["rnaExp"]["rRna23Ss"]]) < fudge * numRibsNeeded:
