@@ -612,6 +612,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		h5file.createArray(group, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
 		h5file.createArray(group, 'compartments', [str(s) for s in self._compartments])
 
+		# TODO: store partition identities
+
 
 	def pytablesAppend(self, h5file):
 		simTime = self.time.value

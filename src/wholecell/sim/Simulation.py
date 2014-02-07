@@ -37,7 +37,7 @@ class Simulation(object):
 		}
 
 		# Options
-		self.lengthSec = 50000						# Simulation length (s)
+		self.lengthSec = 3600						# Simulation length (s)
 		self.timeStepSec = 1.0						# Simulation time step (s)
 		if processesToInclude is not None:			# List of processes to include in simulation
 			self.processesToInclude = processesToInclude	

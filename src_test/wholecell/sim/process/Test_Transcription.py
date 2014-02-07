@@ -8,20 +8,25 @@ Tests Transcription process
 """
 
 import unittest
-# import warnings
-import nose.plugins.attrib as noseAttrib
-
-import numpy
-import scipy.stats
 import cPickle
 import os
+# import warnings
+
+import nose.plugins.attrib as noseAttrib
+import scipy.stats
+import numpy
+import tables
+
 # import matplotlib
 # matplotlib.use("agg")
 from wholecell.util.Constants import Constants
+import wholecell.sim.Simulation as wcSimulation
 
-from mpi4py import MPI
+# from mpi4py import MPI
 
-comm = MPI.COMM_WORLD
+# comm = MPI.COMM_WORLD
+
+FIXTURE_DIR = os.path.join('out', 'test', 'rnaProduction')
 
 class Test_Transcription(unittest.TestCase):
 	@classmethod
@@ -35,20 +40,60 @@ class Test_Transcription(unittest.TestCase):
 	def setUp(self):
 		self.sim = None
 
-		if comm.rank == 0:
-			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
+		# if comm.rank == 0:
+		# 	self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
 		
-		self.sim = comm.bcast(self.sim, root = 0)	
-		print "%s" % (self.sim.states["Mass"].meta["id"])
+		# self.sim = comm.bcast(self.sim, root = 0)	
+		# print "%s" % (self.sim.states["Mass"].meta["id"])
 
 	def tearDown(self):
 		pass
 
+	@noseAttrib.attr('largetest')
+	@noseAttrib.attr('rnaProduction')
+	def test_production(self):
+		T_d = 3600.
+		lengthSec = 500
+
+		dirs = os.walk(FIXTURE_DIR).next()[1] # get all of the directories
+
+		nSims = len(dirs)
+
+		ntpIDs = ['ATP', 'UTP', 'CTP', 'GTP']
+
+		idxs = None
+
+		width = 10
+
+		sampleFirst = numpy.arange(1+width)
+		sampleLast = numpy.arange(T_d - width, T_d)
+		sample = numpy.hstack([sampleFirst, sampleLast])
+
+		ntpInitialUsage = numpy.zeros((4, nSims), float)
+		ntpFinalUsage = numpy.zeros((4, nSims), float)
+
+		for iSim, simDir in enumerate(dirs):
+			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
+				if idxs is None:
+					molIDs = h5file.get_node('/names').molIDs.read()
+					idxs = numpy.array([molIDs.index(ntpID) for ntpID in ntpIDs])
+
+				# assuming haphazardly that the first three partitions are for transcription
+				mc = h5file.root.MoleculeCounts
+
+				ntpInitialUsage[:, iSim] = mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0) - mc.read(1, width+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0)
+				ntpFinalUsage[:, iSim] = mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0) - mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0)
+
+		ratio = ntpFinalUsage/ntpInitialUsage
+		expectedRatio = numpy.exp(numpy.log(2)/T_d * lengthSec)
+
+		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25))
+
 
 	# Tests
-	@noseAttrib.attr('rnaProduction')
-	@noseAttrib.attr('largetest')
-	def test_production(self):
+	# @noseAttrib.attr('rnaProduction')
+	# @noseAttrib.attr('largetest')
+	def test_production_old(self):
 		sim = self.sim
 		tc = sim.processes["Transcription"]
 		rnaMWs = tc.rnaPartition._state._massSingle.flat[tc.rnaPartition.mapping]
@@ -159,8 +204,8 @@ class Test_Transcription(unittest.TestCase):
 			self.assertTrue(numpy.all(allNtpUsage[:, :, :mySeeds.size] == myNtpUsage))
 			self.assertTrue(numpy.all(allRnaProduction[:, :, :mySeeds.size] == myRnaProduction))
 
-	@noseAttrib.attr("rnaTotalProduction")
-	@noseAttrib.attr('largetest')
+	# @noseAttrib.attr("rnaTotalProduction")
+	# @noseAttrib.attr('largetest')
 	def test_total_production(self):
 		if comm.rank != 0:
 			return
