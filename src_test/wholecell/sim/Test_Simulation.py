@@ -14,9 +14,6 @@ import nose.plugins.attrib as noseAttrib
 import numpy
 import cPickle
 import os
-#import matplotlib
-#matplotlib.use("agg")
-import wholecell.kb.KnowledgeBase
 
 class Test_Simulation(unittest.TestCase):
 
@@ -199,7 +196,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['Time'].test, 'test_val')
 
 	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('focustest')
 	def test_getDynamics(self):
 		sim = self.sim
 		dynamics = sim.getDynamics()
@@ -209,6 +205,7 @@ class Test_Simulation(unittest.TestCase):
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
+		import wholecell.sim.Simulation
 		sim = wholecell.sim.Simulation.Simulation(processesToInclude = ['Transcription'])
 		sim.initialize(self.kb)
 		self.assertEqual(['Transcription'], sim.processes.keys())
