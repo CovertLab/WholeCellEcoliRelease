@@ -52,6 +52,11 @@ class Test_Transcription(unittest.TestCase):
 	@noseAttrib.attr('largetest')
 	@noseAttrib.attr('rnaProduction')
 	def test_production(self):
+		# Asserts exponential growth in the usage of NTPs by a simulation only
+		# utilizing Transcription (with excess metabolites).
+
+		# TODO: check RNA production, esp. rRNAs
+
 		T_d = 3600.
 		lengthSec = 500
 
@@ -81,13 +86,17 @@ class Test_Transcription(unittest.TestCase):
 				# assuming haphazardly that the first three partitions are for transcription
 				mc = h5file.root.MoleculeCounts
 
-				ntpInitialUsage[:, iSim] = mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0) - mc.read(1, width+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0)
-				ntpFinalUsage[:, iSim] = mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0) - mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0)
+				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0)
+					- mc.read(1, width+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0))
+				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0)
+					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0))
+				# indexing order for mc.read(...): time, molecule, compartment, partition
+				# summing over the relevant partitions, averaging over the time steps
 
 		ratio = ntpFinalUsage/ntpInitialUsage
 		expectedRatio = numpy.exp(numpy.log(2)/T_d * lengthSec)
 
-		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25))
+		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25)) # a proper fit should actually exceed the expected ratio since this doesn't include degradation
 
 
 	# Tests

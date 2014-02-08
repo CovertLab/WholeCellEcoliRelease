@@ -17,7 +17,6 @@ from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 
-# TODO: make parallel
 # TODO: make fixture generation more modular
 # TODO: establish naming scheme for test simulation output
 # TODO: cache fit simulation prior to running/logging
