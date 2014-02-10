@@ -52,13 +52,14 @@ class FreeProduction(wholecell.sim.process.Process.Process):
 
 		mc = sim.states["MoleculeCounts"]
 
-		self.mcPartition = mc.addPartition(self, self.molIDs, self.calcReq)
+		self.mcPartition = mc.setPartition(self, self.molIDs)
 		self.mcView = mc.countsBulkViewNew(self.molIDs)
 
 		self.time = sim.states['Time']
 
 
-	def calcReq(self, request):
+	def requestMoleculeCounts(self):
+		# No request, since it only produces molecules
 		pass
 
 

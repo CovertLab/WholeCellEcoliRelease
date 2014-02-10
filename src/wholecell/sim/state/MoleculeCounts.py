@@ -241,7 +241,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Object references
 		self._molecules = {}    # Molecule objects
-		self._uniqueDict = None # Record of unique attributes TODO: verify function, rename?
+		self._uniqueDict = [] # Record of unique attributes TODO: verify function, rename?
 
 		# Partitioning
 		self._countsBulkRequested = None		# Bulk quantity requested by each partition
@@ -341,7 +341,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			})
 
 		# Unique instances
-		self._uniqueDict = []
 
 		# TODO: add unique attributes to KB and test
 		# TODO: figure out what this block is really doing/refactor
