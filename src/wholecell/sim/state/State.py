@@ -10,6 +10,8 @@ State variable base class. Defines the interface states expose to the simulation
 @date: Created 3/29/2013
 """
 
+from collections import OrderedDict
+
 import numpy
 
 class State(object):
@@ -24,7 +26,7 @@ class State(object):
 		if not hasattr(self, "meta"):
 			self.meta = {}
 
-		self.partitions = []
+		self.partitions = OrderedDict()
 
 		for prop in propVals.keys():
 			setattr(self, prop, propVals[prop])
@@ -33,9 +35,13 @@ class State(object):
 	def initialize(self, sim, kb):
 		self.randStream = sim.randStream
 
+		if self.partitionClass is not None:
+			for process in sim.processes.viewvalues():
+				self.partitions[process] = self.partitionClass(self, process)
+
 	# Allocate memory
 	def allocate(self):
-		for partition in self.partitions:
+		for partition in self.partitions.viewvalues():
 			partition.allocate()
 
 	# Calculate initial conditions
@@ -43,24 +49,9 @@ class State(object):
 		return
 
 
-	# -- Partitioning --
-
-	def addPartition(self, process):
-		try:
-			partition = self.partitionClass(self, process)
-
-		except:
-			if self.partitionClass is None:
-				raise Exception(
-					'Called {0}.addPartition, but {0} has no partition class.'.format(type(self))
-					)
-
-			else:
-				raise
-		
-		self.partitions.append(partition)
-
-		return partition
+	# Partitioning
+	def setPartition(self):
+		pass
 
 	def prepartition(self):
 		pass
@@ -70,6 +61,9 @@ class State(object):
 
 	def merge(self):
 		pass
+
+
+	# Saving and loading
 
 	def pytablesCreate(self, h5file):
 		pass
@@ -81,12 +75,12 @@ class State(object):
 		pass
 
 
-	# -- Calculations --
+	# Calculations
 	# Calculate (and cache) any dependent properties
 	def calculate(self):
 		return
 
-	# -- Options and parameters
+	# Options and parameters
 
 	def getOptions(self):
 		val = {}

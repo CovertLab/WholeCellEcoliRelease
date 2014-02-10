@@ -459,12 +459,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	# Partitioning
 
-	def addPartition(self, process, reqMols, reqFunc, isReqAbs = False):
+	def setPartition(self, process, reqMols, isReqAbs = False):
 		# TODO: warning for adding a partition after allocation
-		partition = super(MoleculeCounts, self).addPartition(process)
+		partition = self.partitions[process]
 		
-		# TODO: move this to partition constructor?
-		partition.reqFunc = reqFunc
+		# TODO: move this to partition constructor
 		partition.isReqAbs = isReqAbs
 
 		mapping, iMolecule = self._getIndices(reqMols)[:2]
@@ -492,7 +491,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	# TODO: get rid of prepartition
 	def prepartition(self):
 		# Clear out the existing partitions in preparation for the requests
-		for partition in self.partitions:
+		for partition in self.partitions.viewvalues():
 			partition.countsBulkIs(0)
 
 
@@ -501,11 +500,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
 			
 			# Calculate and store requests
-			for iPartition, partition in enumerate(self.partitions):
+			for iPartition, (process, partition) in enumerate(self.partitions.viewitems()):
 				# Call request function and record requests
 				self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
 
-			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions], bool)
+			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions.viewvalues()], bool)
 			requestsAbsolute = numpy.sum(self._countsBulkRequested[..., isRequestAbsolute], axis = 2)
 			requestsRelative = numpy.sum(self._countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
 
@@ -528,7 +527,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			numpy.seterr(**oldSettings) # Restore error handling to the previous state
 
 			# Compute allocations and assign counts to the partitions
-			for iPartition, partition in enumerate(self.partitions):
+			for iPartition, partition in enumerate(self.partitions.viewvalues()):
 				scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
 				allocation = numpy.floor(self._countsBulkRequested[..., iPartition] * scale)
@@ -548,7 +547,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def merge(self):
 		self._countsBulk = self._countsBulkUnpartitioned
 
-		for iPartition, partition in enumerate(self.partitions):
+		for iPartition, partition in enumerate(self.partitions.viewvalues()):
 			self._countsBulkReturned[..., iPartition].flat[partition.mapping] = partition.countsBulk().flatten()
 
 		self._countsBulk += self._countsBulkReturned.sum(axis = 2)
@@ -668,7 +667,7 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 
 
 	def request(self):
-		self.reqFunc(self)
+		self._process.requestMoleculeCounts()
 
 		return self._countsBulk
 

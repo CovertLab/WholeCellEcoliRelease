@@ -35,6 +35,10 @@ class Process(object):
 	def evolveState(self):
 		return
 
+	# Partition requests
+	def requestMoleculeCounts(self):
+		pass
+
 	# -- Get, set options, parameters
 	def getOptions(self):
 		val = {}

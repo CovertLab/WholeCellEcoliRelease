@@ -132,16 +132,19 @@ class Simulation(object):
 			if process not in self.processesToInclude:
 				self.processes.pop(process)
 
+
 	# Allocate memory
 	def allocateMemory(self):
 		for state in self.states.itervalues():
 			state.allocate()
+
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
 		# Calculate initial conditions
 		for state in self.states.itervalues():
 			state.calcInitialConditions()
+			
 
 	# -- Run simulation --
 
