@@ -501,7 +501,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			# Calculate and store requests
 			for iPartition, (process, partition) in enumerate(self.partitions.viewitems()):
 				# Call request function and record requests
-				self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
+				if partition.mapping is not None:
+					self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions.viewvalues()], bool)
 			requestsAbsolute = numpy.sum(self._countsBulkRequested[..., isRequestAbsolute], axis = 2)
@@ -527,14 +528,15 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 			# Compute allocations and assign counts to the partitions
 			for iPartition, partition in enumerate(self.partitions.viewvalues()):
-				scale = scaleAbsolute if partition.isReqAbs else scaleRelative
+				if partition.mapping is not None:
+					scale = scaleAbsolute if partition.isReqAbs else scaleRelative
 
-				allocation = numpy.floor(self._countsBulkRequested[..., iPartition] * scale)
+					allocation = numpy.floor(self._countsBulkRequested[..., iPartition] * scale)
 
-				self._countsBulkPartitioned[..., iPartition] = allocation
-				partition.countsBulkIs(
-					allocation.flat[partition.mapping]
-					)
+					self._countsBulkPartitioned[..., iPartition] = allocation
+					partition.countsBulkIs(
+						allocation.flat[partition.mapping]
+						)
 			
 			# Record unpartitioned counts for later merging
 			self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
@@ -547,7 +549,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulk = self._countsBulkUnpartitioned
 
 		for iPartition, partition in enumerate(self.partitions.viewvalues()):
-			self._countsBulkReturned[..., iPartition].flat[partition.mapping] = partition.countsBulk().flatten()
+			if partition.mapping is not None:
+				self._countsBulkReturned[..., iPartition].flat[partition.mapping] = partition.countsBulk().flatten()
 
 		self._countsBulk += self._countsBulkReturned.sum(axis = 2)
 
@@ -604,11 +607,13 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			filters = tables.Filters(complevel = 9, complib="zlib")
 			)
 	
-		group = h5file.createGroup(h5file.root,
+		groupNames = h5file.createGroup(h5file.root,
 			'names', 'Molecule and compartment names')
 
-		h5file.createArray(group, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
-		h5file.createArray(group, 'compartments', [str(s) for s in self._compartments])
+		h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
+		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
+
+		
 
 		# TODO: store partition identities
 
@@ -652,6 +657,9 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	'''
 
 	mapping = None
+	_nMolIDs = 0
+	_nCompartments = 0
+	isReqAbs = False
 
 	def __init__(self, *args, **kwargs):
 		super(MoleculeCountsPartition, self).__init__(*args, **kwargs)

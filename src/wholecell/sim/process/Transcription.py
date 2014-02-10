@@ -91,7 +91,6 @@ class Transcription(wholecell.sim.process.Process.Process):
 			countRpoD,
 			])
 
-	# Calculate needed metabolites
 	def requestMoleculeCounts(self):
 		self.mcPartition.ntps.countsBulkIs(
 			numpy.min([

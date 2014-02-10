@@ -48,7 +48,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	kbWeakRef = weakref.ref(kb)
 
 	# Set up simulation
-	sim = wholecell.sim.Simulation.Simulation(processesToInclude = ['ProteinMaturation', 'RnaMaturation'])
+	sim = wholecell.sim.Simulation.Simulation()
 
 	sim.initialize(kb)
 
@@ -80,6 +80,5 @@ if __name__ == '__main__':
 			'seed':10,
 			'lengthSec':100
 			},
-		useDiskLogger = False,
-		fitSimulation = False,
+		useDiskLogger = True,
 		)
