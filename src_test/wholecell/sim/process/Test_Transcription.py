@@ -65,31 +65,42 @@ class Test_Transcription(unittest.TestCase):
 		nSims = len(dirs)
 
 		ntpIDs = ['ATP', 'UTP', 'CTP', 'GTP']
+		# rrnaIDs = ['RRLA-RRNA:nascent', 'RRLB-RRNA:nascent',
+		# 	'RRLC-RRNA:nascent', 'RRLD-RRNA:nascent', 'RRLE-RRNA:nascent',
+		# 	'RRLG-RRNA:nascent', 'RRLH-RRNA:nascent']
 
-		idxs = None
+		assignedIdxs = False
+
+		ntpIdxs = None
+		# rrnaIdxs = None
 
 		width = 10
 
-		sampleFirst = numpy.arange(1+width)
-		sampleLast = numpy.arange(T_d - width, T_d)
-		sample = numpy.hstack([sampleFirst, sampleLast])
+		ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
+		ntpFinalUsage = numpy.zeros((len(ntpIDs), nSims), float)
 
-		ntpInitialUsage = numpy.zeros((4, nSims), float)
-		ntpFinalUsage = numpy.zeros((4, nSims), float)
+		# rrnaInitialCount = numpy.zeros((len(rrnaIDs), nSims), float)
+		# rrnaFinalCount = numpy.zeros((len(rrnaIDs), nSims), float)
+
+		compartmentIdx = 0 # cytoplasm
 
 		for iSim, simDir in enumerate(dirs):
 			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
-				if idxs is None:
+				if not assignedIdxs:
 					molIDs = h5file.get_node('/names').molIDs.read()
-					idxs = numpy.array([molIDs.index(ntpID) for ntpID in ntpIDs])
+					
+					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
+					# rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
+
+					assignedIdxs = True
 
 				# assuming haphazardly that the first three partitions are for transcription
 				mc = h5file.root.MoleculeCounts
 
-				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0)
-					- mc.read(1, width+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0))
-				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, idxs, 0, :-1].sum(2).mean(0)
-					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, idxs, 0, :-1].sum(2).mean(0))
+				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0)
+					- mc.read(1, width+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0))
+				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0)
+					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0))
 				# indexing order for mc.read(...): time, molecule, compartment, partition
 				# summing over the relevant partitions, averaging over the time steps
 
