@@ -12,47 +12,22 @@ import cPickle
 import os
 # import warnings
 
+import nose
 import nose.plugins.attrib as noseAttrib
-import scipy.stats
 import numpy
 import tables
 
-# import matplotlib
-# matplotlib.use("agg")
 from wholecell.util.Constants import Constants
-import wholecell.sim.Simulation as wcSimulation
-
-# from mpi4py import MPI
-
-# comm = MPI.COMM_WORLD
 
 FIXTURE_DIR = os.path.join('out', 'test', 'rnaProduction')
+
+# NOTE: see generateFitterTestFixtures.py for the simulations used in this file
 
 class Test_Transcription(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
-		pass
-
-	@classmethod
-	def tearDownClass(cls):
-		pass
-
-	def setUp(self):
-		pass
-
-	def tearDown(self):
-		pass
-
-	@noseAttrib.attr('largetest')
-	@noseAttrib.attr('rnaProduction')
-	def test_production(self):
-		# Asserts exponential growth in the usage of NTPs by a simulation only
-		# utilizing Transcription (with excess metabolites).
-
-		# TODO: check RNA production, esp. rRNAs
-
-		T_d = 3600.
-		lengthSec = 500
+		doublingTime = 3600.
+		simLength = 500
 
 		dirs = os.walk(FIXTURE_DIR).next()[1] # get all of the directories
 
@@ -73,11 +48,11 @@ class Test_Transcription(unittest.TestCase):
 
 		width = 10
 
-		ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
-		ntpFinalUsage = numpy.zeros((len(ntpIDs), nSims), float)
+		cls.ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
+		cls.ntpFinalUsage = numpy.zeros((len(ntpIDs), nSims), float)
 
-		rnaInitialProduction = None
-		rnaFinalProduction = None
+		cls.rnaInitialProduction = None
+		cls.rnaFinalProduction = None
 
 		# rrnaInitialCount = numpy.zeros((len(rrnaIDs), nSims), float)
 		# rrnaFinalCount = numpy.zeros((len(rrnaIDs), nSims), float)
@@ -101,36 +76,52 @@ class Test_Transcription(unittest.TestCase):
 
 					assignedIdxs = True
 
-					rnaInitialProduction = numpy.zeros((len(rnaIdxs), nSims), float)
-					rnaFinalProduction = numpy.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaInitialProduction = numpy.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaFinalProduction = numpy.zeros((len(rnaIdxs), nSims), float)
 
 				mc = h5file.root.MoleculeCounts
 
-				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
+				cls.ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
 					- mc.read(1, width+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
-				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
-					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
+				cls.ntpFinalUsage[:, iSim] = (mc.read(simLength+1 - width, simLength+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(simLength+1 - width, simLength+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
+
+				cls.rnaInitialProduction[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(1, width+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
+				cls.rnaFinalProduction[:, iSim] = (mc.read(simLength+1 - width, simLength+1, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(simLength+1 - width, simLength+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
+
 				# indexing order for mc.read(...): time, molecule, compartment, partition
 
-				rnaInitialProduction[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
-					- mc.read(1, width+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
-				rnaFinalProduction[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
-					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
+		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
 
-		expectedRatio = numpy.exp(numpy.log(2)/T_d * lengthSec)
+	@classmethod
+	def tearDownClass(cls):
+		pass
 
+	def setUp(self):
+		pass
+
+
+	def tearDown(self):
+		pass
+
+
+	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
+	def test_ntpUsage(self):
 		# Test for exponential NTP usage
 		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
-		ntpRatio = ntpFinalUsage/ntpInitialUsage
-		self.assertTrue(numpy.allclose(expectedRatio, ntpRatio, rtol = 0.25))
-		self.assertTrue((expectedRatio <= ntpRatio).all(), 'Final NTP usage was less than expected.')
+		ntpRatio = self.ntpFinalUsage/self.ntpInitialUsage
+		self.assertTrue(numpy.allclose(self.expectedRatio, ntpRatio, rtol = 0.25))
+		self.assertTrue((self.expectedRatio <= ntpRatio).all(), 'Final NTP usage was less than expected.')
 
+
+	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
+	def test_rnaProduction(self):
 		# Test for exponential RNA production
-		rnaRatio = rnaFinalProduction.sum()/rnaInitialProduction.sum()
-		self.assertTrue(numpy.allclose(expectedRatio, rnaRatio, rtol = 0.25))
-		self.assertTrue((expectedRatio <= rnaRatio).all(), 'Final RNA production was less than expected.')
-
-
+		rnaRatio = self.rnaFinalProduction.sum()/self.rnaInitialProduction.sum()
+		self.assertTrue(numpy.allclose(self.expectedRatio, rnaRatio, rtol = 0.25))
+		self.assertTrue((self.expectedRatio <= rnaRatio).all(), 'Final RNA production was less than expected.')
 
 
 	# Tests
