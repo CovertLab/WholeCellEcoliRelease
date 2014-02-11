@@ -66,25 +66,40 @@ class Test_MoleculeCounts_partition(unittest.TestCase):
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-		self.mc.prepartition()
-		self.mc.partition()
-		
-		self.assertEqual(self.partition1.countsBulk().flatten().tolist(), [0., 0., 0., 0., 0., 0., 0.])
-		self.assertEqual(self.partition2.countsBulk().flatten().tolist(), [5., 2., 2., 2., 0., 0., 0.])
-		self.assertEqual(self.partition3.countsBulk().flatten().tolist(), [4., 0., 3., 5., 20., 0., 7.])
+	@noseAttrib.attr('focustest')
+	def test_absoluteAllocation(self):
+		'''
+		Tests that relative allocation works with one higher priority partition.
+		'''
+		isRequestAbsolute = numpy.array([False, True, False])
+		countsBulkRequested = self.countsBulkRequested
+		countsBulk = self.countsBulk
+		countsBulkPartitioned = self.countsBulkPartitioned
 
-	@noseAttrib.attr('brokensmalltest') #@noseAttrib.attr('smalltest')
+		wcMoleculeCounts.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
+
+		countsBulkPartitioned_test = numpy.zeros((7,1,3), dtype = float)
+		countsBulkPartitioned_test[...,0] = numpy.array([0., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
+		countsBulkPartitioned_test[...,1] = numpy.array([5., 2., 2., 2., 0., 0., 0.], ndmin = 2).T
+		countsBulkPartitioned_test[...,2] = numpy.array([4., 0., 3., 5., 20., 0., 7.], ndmin = 2).T
+
+		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
+
+	@noseAttrib.attr('focustest')
 	def test_absoluteAllocation_withConflict(self):
-		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
-		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
-		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
+		'''
+		Tests that if two partitions are of higher priority and conflict that partitioning still works.
+		'''
+		isRequestAbsolute = numpy.array([False, True, True])
+		countsBulkRequested = self.countsBulkRequested
+		countsBulk = self.countsBulk
+		countsBulkPartitioned = self.countsBulkPartitioned
 
-		self.partition2.isReqAbs = True # this is a hack
-		self.partition3.isReqAbs = True # this is a hack
+		wcMoleculeCounts.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
 
-		self.mc.prepartition()
-		self.mc.partition()
-		
-		self.assertEqual(self.partition1.countsBulk().flatten().tolist(), [0., 0., 0., 0., 0., 0., 0.])
-		self.assertEqual(self.partition2.countsBulk().flatten().tolist(), [2., 1., 2., 2., 0., 0., 0.])
-		self.assertEqual(self.partition3.countsBulk().flatten().tolist(), [8., 0., 3., 1., 2., 0., 2.])
+		countsBulkPartitioned_test = numpy.zeros((7,1,3), dtype = float)
+		countsBulkPartitioned_test[...,0] = numpy.array([0., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
+		countsBulkPartitioned_test[...,1] = numpy.array([2., 1., 2., 2., 0., 0., 0.], ndmin = 2).T
+		countsBulkPartitioned_test[...,2] = numpy.array([8., 0., 3., 1., 2., 0., 2.], ndmin = 2).T
+
+		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
