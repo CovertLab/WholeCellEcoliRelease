@@ -41,8 +41,7 @@ class Test_MoleculeCounts_partition(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('brokensmalltest') #@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('focustest')
+	@noseAttrib.attr('smalltest')
 	def test_relativeAllocation(self):
 		'''
 		Tests that relative allocation works. All partitions are of lower priority.
@@ -66,7 +65,7 @@ class Test_MoleculeCounts_partition(unittest.TestCase):
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-	@noseAttrib.attr('focustest')
+	@noseAttrib.attr('smalltest')
 	def test_absoluteAllocation(self):
 		'''
 		Tests that relative allocation works with one higher priority partition.
@@ -85,7 +84,7 @@ class Test_MoleculeCounts_partition(unittest.TestCase):
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-	@noseAttrib.attr('focustest')
+	@noseAttrib.attr('smalltest')
 	def test_absoluteAllocation_withConflict(self):
 		'''
 		Tests that if two partitions are of higher priority and conflict that partitioning still works.
