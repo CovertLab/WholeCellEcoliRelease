@@ -851,7 +851,6 @@ class MoleculeUniqueMeta(type):
 		return newClass
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
-	import ipdb; ipdb.set_trace()
 
 	requestsAbsolute = numpy.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
 	requestsRelative = numpy.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
