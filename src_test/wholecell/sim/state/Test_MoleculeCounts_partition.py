@@ -27,38 +27,44 @@ class Test_MoleculeCounts_partition(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
-		self.kb = cPickle.load(open(os.path.join("data","fixtures","KnowledgeBase.cPickle"), "r"))
+		self.countsBulkRequested = numpy.zeros((7, 1, 3))
+		self.countsBulkRequested[...,0] = numpy.array([3., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
+		self.countsBulkRequested[...,1] = numpy.array([5., 3., 2., 2., 0., 0., 0.], ndmin = 2).T
+		self.countsBulkRequested[...,2] = numpy.array([20., 1., 3., 1., 2., 0., 2.], ndmin = 2).T
 
-		self.mc = self.sim.states['MoleculeCounts']
-		
-		self.metIds = [mol['id'] + '[c]' for mol in self.kb.metabolites if 'met' in mol['id']]
+		self.countsBulk = numpy.zeros((7,1))
+		self.countsBulk[:,0] = numpy.array([10.,2.,5.,7.,20.,3.,7.]).T
+		self.countsBulkPartitioned = numpy.zeros((7,1,3), dtype = float)
 
-		self.metCounts = [10.,2.,5.,7.,20.,3.,7.]
+		self.countsBulkPartitioned = numpy.zeros((7,1,3), dtype = float)
 
 	def tearDown(self):
 		pass
 
 	@noseAttrib.attr('brokensmalltest') #@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('focustest')
 	def test_relativeAllocation(self):
-		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
-		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
-		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
+		'''
+		Tests that relative allocation works. All partitions are of lower priority.
+		'''
+		# isRequestAbsolute = [False, False, True, True] = 1 x # of partitoins
+		# countsBulkRequested = # species x # compartments x # partitions
+		# countsBulk = # speces x # compartments
+		# countsBulkPartitioned = # species x # compartments x # partitions
 
-		self.mc.prepartition()
-		self.mc.partition()
+		isRequestAbsolute = numpy.array([False, False, False])
+		countsBulkRequested = self.countsBulkRequested
+		countsBulk = self.countsBulk
+		countsBulkPartitioned = self.countsBulkPartitioned
 
-		self.assertEqual(self.partition1.countsBulk().flatten().tolist(), [1., 0., 0., 0., 0., 0., 0.])
-		self.assertEqual(self.partition2.countsBulk().flatten().tolist(), [1., 1., 2., 4., 0., 0., 0.])
-		self.assertEqual(self.partition3.countsBulk().flatten().tolist(), [7., 0., 3., 2., 20., 0., 7.])
+		wcMoleculeCounts.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
 
-	@noseAttrib.attr('brokensmalltest') #@noseAttrib.attr('smalltest')
-	def test_absoluteAllocation(self):
-		self.partition1.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([3., 0., 0., 0., 0., 0., 0.]))
-		self.partition2.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([5., 3., 2., 2., 0., 0., 0.]))
-		self.partition3.reqFunc = lambda partition: partition.countsBulkIs(numpy.array([20., 1., 3., 1., 2., 0., 2.]))
+		countsBulkPartitioned_test = numpy.zeros((7,1,3), dtype = float)
+		countsBulkPartitioned_test[...,0] = numpy.array([1., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
+		countsBulkPartitioned_test[...,1] = numpy.array([1., 1., 2., 4., 0., 0., 0.], ndmin = 2).T
+		countsBulkPartitioned_test[...,2] = numpy.array([7., 0., 3., 2., 20., 0., 7.], ndmin = 2).T
 
-		self.partition2.isReqAbs = True # this is a hack
+		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
 		self.mc.prepartition()
 		self.mc.partition()
