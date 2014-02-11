@@ -8,14 +8,12 @@ Tests Transcription process
 """
 
 import unittest
-import cPickle
 import os
-# import warnings
 
-import nose
 import nose.plugins.attrib as noseAttrib
 import numpy
 import tables
+import scipy.stats
 
 from wholecell.util.Constants import Constants
 
@@ -42,7 +40,7 @@ class Test_Transcription(unittest.TestCase):
 
 		ntpIdxs = None
 		rnaIdxs = None
-		# rrnaIdxs = None
+		rrnaIdxs = None
 		processIdx = None
 		compartmentIdx = None
 
@@ -54,8 +52,7 @@ class Test_Transcription(unittest.TestCase):
 		cls.rnaInitialProduction = None
 		cls.rnaFinalProduction = None
 
-		# rrnaInitialCount = numpy.zeros((len(rrnaIDs), nSims), float)
-		# rrnaFinalCount = numpy.zeros((len(rrnaIDs), nSims), float)
+		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
 
 		for iSim, simDir in enumerate(dirs):
 			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
@@ -69,15 +66,17 @@ class Test_Transcription(unittest.TestCase):
 					
 					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
 					rnaIdxs = indexes.nascentRnas.read()
-					# rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
+					rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
 
 					processIdx = processes.index('Transcription')
 					compartmentIdx = compartments.index('c')
 
-					assignedIdxs = True
-
 					cls.rnaInitialProduction = numpy.zeros((len(rnaIdxs), nSims), float)
 					cls.rnaFinalProduction = numpy.zeros((len(rnaIdxs), nSims), float)
+
+					cls.rnaFinalCount = numpy.zeros((len(rnaIdxs), nSims), float)
+
+					assignedIdxs = True
 
 				mc = h5file.root.MoleculeCounts
 
@@ -91,9 +90,21 @@ class Test_Transcription(unittest.TestCase):
 				cls.rnaFinalProduction[:, iSim] = (mc.read(simLength+1 - width, simLength+1, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
 					- mc.read(simLength+1 - width, simLength+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
 
+				cls.rnaFinalCount[:, iSim] = mc[-1]['countsBulk'][rnaIdxs, compartmentIdx]
+
 				# indexing order for mc.read(...): time, molecule, compartment, partition
 
-		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
+		assignedFittedParameters = False
+
+		cls.rnaSynthProb = None
+
+		for iSim, simDir in enumerate(dirs):
+			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'Main.hdf')) as h5file:
+				if not assignedFittedParameters:
+					cls.rnaSynthProb = h5file.get_node('/fitParameters').rnaSynthProb.read()
+
+					assignedFittedParameters = True
+
 
 	@classmethod
 	def tearDownClass(cls):
@@ -119,9 +130,21 @@ class Test_Transcription(unittest.TestCase):
 	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
 	def test_rnaProduction(self):
 		# Test for exponential RNA production
+		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
 		rnaRatio = self.rnaFinalProduction.sum()/self.rnaInitialProduction.sum()
 		self.assertTrue(numpy.allclose(self.expectedRatio, rnaRatio, rtol = 0.25))
 		self.assertTrue((self.expectedRatio <= rnaRatio).all(), 'Final RNA production was less than expected.')
+
+		# Test for appropriate ratios of rRNA production
+		averageCounts = self.rnaFinalCount.mean(1)
+
+		expectedProduction = self.rnaSynthProb * averageCounts.sum()
+
+		# Assert at least a 95% positive correlation
+		self.assertGreater(
+			scipy.stats.pearsonr(averageCounts, expectedProduction)[0],
+			0.95
+			)
 
 
 	# Tests

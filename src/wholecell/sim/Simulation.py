@@ -236,7 +236,6 @@ class Simulation(object):
 		h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
 
-
 	def pytablesAppend(self, h5file):
 		# Included for consistency, eventual features...
 		pass
