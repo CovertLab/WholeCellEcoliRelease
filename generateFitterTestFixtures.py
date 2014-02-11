@@ -1,9 +1,3 @@
-'''
-
-Let's replace this file with something better - John
-
-'''
-
 import cPickle
 import os
 
@@ -15,54 +9,74 @@ import wholecell.sim.logger.Disk as wcDisk
 
 from mpi4py import MPI
 
-comm = MPI.COMM_WORLD
+COMM = MPI.COMM_WORLD
 
-# TODO: make fixture generation more modular
 # TODO: establish naming scheme for test simulation output
 # TODO: cache fit simulation prior to running/logging
 # TODO: save fit parameters in a cached knowledge base object
 
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
-ntpCounts = 1e6
-initEnzCnts = 2000.
-# initRnaCnts = 0.
-# T_d = 3600.
-lengthSec = 500
-nSeeds = 8
+LENGTH_SEC = 500
+KB = cPickle.load(open(KB_PATH, "rb"))
 
-logDir = os.path.join('out', 'test', 'rnaProduction')
-
-kb = cPickle.load(open(KB_PATH, "rb"))
-
-##################################################
-# MPI seed scatter logic
-##################################################
-
-nProc = comm.size # the number of processes
-sendcounts = (
-	(nSeeds // nProc) * numpy.ones(nProc, dtype = int)
-	+ (numpy.arange(nProc, dtype =int) < nSeeds % nProc)
+N_SEEDS = 8
+N_PROC = COMM.size # the number of processes
+SEND_COUNTS = (
+	(N_SEEDS // N_PROC) * numpy.ones(N_PROC, dtype = int)
+	+ (numpy.arange(N_PROC, dtype =int) < N_SEEDS % N_PROC)
 	) # the number of seeds each process receives
-displacements = numpy.hstack([
+DISPLACEMENTS = numpy.hstack([
 	numpy.zeros(1),
-	numpy.cumsum(sendcounts)[:-1]
+	numpy.cumsum(SEND_COUNTS)[:-1]
 	]) # the starting position for each process's seeds
-mySeeds = numpy.zeros(sendcounts[comm.rank]) # buffer for the seeds received
-allSeeds = numpy.arange(nSeeds, dtype = float) # the list of seeds
 
-comm.Scatterv(
-	[allSeeds, tuple(sendcounts), tuple(displacements), MPI.DOUBLE],
-	mySeeds
-	) # scatter data from the root (by default) to each child process
+def runSimulations(testDir, processes, freeMolecules):
+	logDir = os.path.join('out', 'test', testDir)
 
-print "Rank %d mySeeds: %s" % (comm.rank, str(mySeeds))
-##################################################
+	##################################################
+	# MPI seed scatter logic
+	##################################################
+	mySeeds = numpy.zeros(SEND_COUNTS[COMM.rank]) # buffer for the seeds received
+	allSeeds = numpy.arange(N_SEEDS, dtype = float) # the list of seeds
 
-for seed in mySeeds.astype('int'):
-	sim = wcSimulation.Simulation(
-		["Transcription"],
-		[
+	COMM.Scatterv(
+		[allSeeds, tuple(SEND_COUNTS), tuple(DISPLACEMENTS), MPI.DOUBLE],
+		mySeeds
+		) # scatter data from the root (by default) to each child process
+
+	print "Rank %d mySeeds: %s" % (COMM.rank, str(mySeeds))
+	##################################################
+
+	for seed in mySeeds.astype('int'):
+		sim = wcSimulation.Simulation(processes, freeMolecules)
+
+		sim.initialize(KB)
+
+		wcFitter.Fitter.FitSimulation(sim, KB)
+
+		sim.setOptions({"lengthSec":LENGTH_SEC, "seed":seed})
+
+		sim.loggerAdd(
+			wcDisk.Disk(
+				os.path.join(logDir, 'sim{}'.format(seed)),
+				True
+				)
+			)
+
+		print 'Running simulation #{}'.format(seed)
+		sim.run()
+
+
+def main():
+	ntpCounts = 1e6
+	initEnzCnts = 2000.
+
+	# Tests for Transcription-only simulations
+	runSimulations(
+		testDir = 'Test_Transcription',
+		processes = ["Transcription"],
+		freeMolecules = [
 			["ATP[c]", ntpCounts],
 			["UTP[c]", ntpCounts],
 			["CTP[c]", ntpCounts],
@@ -74,18 +88,5 @@ for seed in mySeeds.astype('int'):
 		]
 		)
 
-	sim.initialize(kb)
-
-	wcFitter.Fitter.FitSimulation(sim, kb)
-
-	sim.setOptions({"lengthSec":lengthSec, "seed":seed})
-
-	sim.loggerAdd(
-		wcDisk.Disk(
-			os.path.join(logDir, 'sim{}'.format(seed)),
-			True
-			)
-		)
-
-	print 'Running simulation #{}'.format(seed)
-	sim.run()
+if __name__ == '__main__':
+	main()

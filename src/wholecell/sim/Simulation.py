@@ -144,7 +144,7 @@ class Simulation(object):
 		# Calculate initial conditions
 		for state in self.states.itervalues():
 			state.calcInitialConditions()
-			
+
 
 	# -- Run simulation --
 
@@ -215,17 +215,25 @@ class Simulation(object):
 		# TODO: move fitted parameter saving either into the appropriate state,
 		# or save the fitted parameters in a knowledge base object
 
-		group = h5file.createGroup(
+		groupFit = h5file.createGroup(
 			h5file.root,
 			'fitParameters',
 			'Fit parameter values'
 			)
 
-		h5file.createArray(group, 'initialDryMass', self.states['MoleculeCounts'].initialDryMass)
-		h5file.createArray(group, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
-		h5file.createArray(group, 'monExp', self.states['MoleculeCounts'].monExp)
-		h5file.createArray(group, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
-		h5file.createArray(group, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
+		h5file.createArray(groupFit, 'initialDryMass', self.states['MoleculeCounts'].initialDryMass)
+		h5file.createArray(groupFit, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
+		h5file.createArray(groupFit, 'monExp', self.states['MoleculeCounts'].monExp)
+		h5file.createArray(groupFit, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
+		h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
+
+		groupNames = h5file.createGroup(
+			h5file.root,
+			'names',
+			'State and process names')
+
+		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
+		h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
 
 	def pytablesAppend(self, h5file):

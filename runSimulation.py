@@ -80,5 +80,6 @@ if __name__ == '__main__':
 			'seed':10,
 			'lengthSec':100
 			},
-		useDiskLogger = True,
+		fitSimulation = True,
+		useDiskLogger = False,
 		)
