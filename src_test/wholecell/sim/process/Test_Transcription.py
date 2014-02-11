@@ -38,13 +38,7 @@ class Test_Transcription(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sim = None
-
-		# if comm.rank == 0:
-		# 	self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
-		
-		# self.sim = comm.bcast(self.sim, root = 0)	
-		# print "%s" % (self.sim.states["Mass"].meta["id"])
+		pass
 
 	def tearDown(self):
 		pass
@@ -87,9 +81,11 @@ class Test_Transcription(unittest.TestCase):
 		for iSim, simDir in enumerate(dirs):
 			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
 				if not assignedIdxs:
-					molIDs = h5file.get_node('/names').molIDs.read()
-					processes = h5file.get_node('/names').processes.read()
-					compartments = h5file.get_node('/names').compartments.read()
+					names = h5file.get_node('/names')
+
+					molIDs = names.molIDs.read()
+					processes = names.processes.read()
+					compartments = names.compartments.read()
 					
 					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
 					# rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
@@ -111,7 +107,7 @@ class Test_Transcription(unittest.TestCase):
 
 		# Test NTP usage
 		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
-		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25)) # a proper fit should actually exceed the expected ratio since this doesn't include degradation
+		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25))
 		self.assertTrue((expectedRatio <= ratio).all(), 'Final NTP usage was less than expected.')
 
 
