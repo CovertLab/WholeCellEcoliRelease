@@ -505,37 +505,14 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 					self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
 
 			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions.viewvalues()], bool)
-			requestsAbsolute = numpy.sum(self._countsBulkRequested[..., isRequestAbsolute], axis = 2)
-			requestsRelative = numpy.sum(self._countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
 
-			# TODO: Remove the warnings filter or move it elsewhere
-			# there may also be a way to avoid these warnings by only evaluating 
-			# division "sparsely", which should be faster anyway - JM
-			oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+			calculatePartition(isRequestAbsolute, self._countsBulkRequested, self._countsBulk, self._countsBulkPartitioned)
 
-			scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-				numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
-					numpy.minimum(self._countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
-				)
-
-			scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-				numpy.maximum(0, self._countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
-				)
-
-			scaleRelative[requestsRelative == 0] = 0 # nan handling?
-
-			numpy.seterr(**oldSettings) # Restore error handling to the previous state
-
-			# Compute allocations and assign counts to the partitions
 			for iPartition, partition in enumerate(self.partitions.viewvalues()):
 				if partition.mapping is not None:
-					scale = scaleAbsolute if partition.isReqAbs else scaleRelative
-
-					allocation = numpy.floor(self._countsBulkRequested[..., iPartition] * scale)
-
-					self._countsBulkPartitioned[..., iPartition] = allocation
+					
 					partition.countsBulkIs(
-						allocation.flat[partition.mapping]
+						self._countsBulkPartitioned[..., iPartition].flat[partition.mapping]
 						)
 			
 			# Record unpartitioned counts for later merging
@@ -543,7 +520,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		else:
 			self._countsBulkUnpartitioned = self._countsBulk
-
 
 	def merge(self):
 		self._countsBulk = self._countsBulkUnpartitioned
@@ -873,6 +849,37 @@ class MoleculeUniqueMeta(type):
 		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
 		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
+
+def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
+	import ipdb; ipdb.set_trace()
+
+	requestsAbsolute = numpy.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
+	requestsRelative = numpy.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
+
+	# TODO: Remove the warnings filter or move it elsewhere
+	# there may also be a way to avoid these warnings by only evaluating 
+	# division "sparsely", which should be faster anyway - JM
+	oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+
+	scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
+			numpy.minimum(countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
+		)
+
+	scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		numpy.maximum(0, countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
+		)
+
+	scaleRelative[requestsRelative == 0] = 0 # nan handling?
+
+	numpy.seterr(**oldSettings) # Restore error handling to the previous state
+
+	# Compute allocations and assign counts to the partitions
+	for iPartition  in range(countsBulkPartitioned.shape[-1]):
+		scale = scaleAbsolute if isRequestAbsolute[iPartition] else scaleRelative
+		allocation = numpy.floor(countsBulkRequested[..., iPartition] * scale)
+		countsBulkPartitioned[..., iPartition] = allocation
+
 
 # TODO: get from KB
 _ids = {
