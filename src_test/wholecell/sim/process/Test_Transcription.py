@@ -17,7 +17,7 @@ import scipy.stats
 
 from wholecell.util.Constants import Constants
 
-FIXTURE_DIR = os.path.join('out', 'test', 'rnaProduction')
+FIXTURE_DIR = os.path.join('out', 'test', 'Test_Transcription')
 
 # NOTE: see generateFitterTestFixtures.py for the simulations used in this file
 

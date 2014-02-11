@@ -72,8 +72,9 @@ def main():
 	ntpCounts = 1e6
 	initEnzCnts = 2000.
 
+	# Tests for Transcription-only simulations
 	runSimulations(
-		testDir = 'rnaProduction',
+		testDir = 'Test_Transcription',
 		processes = ["Transcription"],
 		freeMolecules = [
 			["ATP[c]", ntpCounts],
