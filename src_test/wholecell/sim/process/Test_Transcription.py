@@ -98,7 +98,6 @@ class Test_Transcription(unittest.TestCase):
 
 					assignedIdxs = True
 
-				# assuming haphazardly that the first three partitions are for transcription
 				mc = h5file.root.MoleculeCounts
 
 				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
@@ -106,7 +105,6 @@ class Test_Transcription(unittest.TestCase):
 				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
 					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
 				# indexing order for mc.read(...): time, molecule, compartment, partition
-				# summing over the relevant partitions, averaging over the time steps
 
 		ratio = ntpFinalUsage/ntpInitialUsage
 		expectedRatio = numpy.exp(numpy.log(2)/T_d * lengthSec)
