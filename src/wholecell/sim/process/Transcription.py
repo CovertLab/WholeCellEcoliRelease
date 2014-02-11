@@ -126,7 +126,7 @@ class Transcription(wholecell.sim.process.Process.Process):
 
 		ntpsShape = self.mcPartition.ntps.countsBulk().shape
 
-		rnasCreated = numpy.zeros_like(self.mcPartition.countsBulk())
+		rnasCreated = numpy.zeros_like(self.mcPartition.rnas.countsBulk())
 
 		while enzLimit > 0:
 			if not numpy.any(
@@ -174,7 +174,11 @@ class Transcription(wholecell.sim.process.Process.Process):
 			# self.rna.counts[newIdx] += 1
 			# newRnas += 1
 
-		self.mcPartition.countsBulkInc(rnasCreated)
+		if not rnasCreated.any():
+			import ipdb
+			ipdb.set_trace()
+
+		self.mcPartition.rnas.countsBulkInc(rnasCreated)
 
 		# print "%d" % enzLimit
 

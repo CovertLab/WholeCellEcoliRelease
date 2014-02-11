@@ -59,13 +59,14 @@ class Test_Transcription(unittest.TestCase):
 		nSims = len(dirs)
 
 		ntpIDs = ['ATP', 'UTP', 'CTP', 'GTP']
-		# rrnaIDs = ['RRLA-RRNA:nascent', 'RRLB-RRNA:nascent',
-		# 	'RRLC-RRNA:nascent', 'RRLD-RRNA:nascent', 'RRLE-RRNA:nascent',
-		# 	'RRLG-RRNA:nascent', 'RRLH-RRNA:nascent']
+		rrnaIDs = ['RRLA-RRNA:nascent', 'RRLB-RRNA:nascent',
+			'RRLC-RRNA:nascent', 'RRLD-RRNA:nascent', 'RRLE-RRNA:nascent',
+			'RRLG-RRNA:nascent', 'RRLH-RRNA:nascent']
 
 		assignedIdxs = False
 
 		ntpIdxs = None
+		rnaIdxs = None
 		# rrnaIdxs = None
 		processIdx = None
 		compartmentIdx = None
@@ -75,6 +76,9 @@ class Test_Transcription(unittest.TestCase):
 		ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
 		ntpFinalUsage = numpy.zeros((len(ntpIDs), nSims), float)
 
+		rnaInitialProduction = None
+		rnaFinalProduction = None
+
 		# rrnaInitialCount = numpy.zeros((len(rrnaIDs), nSims), float)
 		# rrnaFinalCount = numpy.zeros((len(rrnaIDs), nSims), float)
 
@@ -82,17 +86,23 @@ class Test_Transcription(unittest.TestCase):
 			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
 				if not assignedIdxs:
 					names = h5file.get_node('/names')
+					indexes = h5file.get_node('/indexes')
 
 					molIDs = names.molIDs.read()
 					processes = names.processes.read()
 					compartments = names.compartments.read()
 					
 					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
+					rnaIdxs = indexes.nascentRnas.read()
 					# rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
+
 					processIdx = processes.index('Transcription')
 					compartmentIdx = compartments.index('c')
 
 					assignedIdxs = True
+
+					rnaInitialProduction = numpy.zeros((len(rnaIdxs), nSims), float)
+					rnaFinalProduction = numpy.zeros((len(rnaIdxs), nSims), float)
 
 				mc = h5file.root.MoleculeCounts
 
@@ -102,13 +112,25 @@ class Test_Transcription(unittest.TestCase):
 					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
 				# indexing order for mc.read(...): time, molecule, compartment, partition
 
-		ratio = ntpFinalUsage/ntpInitialUsage
+				rnaInitialProduction[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(1, width+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
+				rnaFinalProduction[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
+
 		expectedRatio = numpy.exp(numpy.log(2)/T_d * lengthSec)
 
-		# Test NTP usage
+		# Test for exponential NTP usage
 		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
-		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25))
-		self.assertTrue((expectedRatio <= ratio).all(), 'Final NTP usage was less than expected.')
+		ntpRatio = ntpFinalUsage/ntpInitialUsage
+		self.assertTrue(numpy.allclose(expectedRatio, ntpRatio, rtol = 0.25))
+		self.assertTrue((expectedRatio <= ntpRatio).all(), 'Final NTP usage was less than expected.')
+
+		# Test for exponential RNA production
+		rnaRatio = rnaFinalProduction.sum()/rnaInitialProduction.sum()
+		self.assertTrue(numpy.allclose(expectedRatio, rnaRatio, rtol = 0.25))
+		self.assertTrue((expectedRatio <= rnaRatio).all(), 'Final RNA production was less than expected.')
+
+
 
 
 	# Tests

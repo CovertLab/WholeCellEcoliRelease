@@ -332,6 +332,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas),
 			'matureRnas':numpy.arange(len(kb.rnas))+len(kb.metabolites)+len(kb.rnas),
 			'matureProteins':numpy.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)+len(kb.proteins),
+			'nascentRnas':numpy.arange(len(kb.rnas))+len(kb.metabolites),
+			'nascentProteins':numpy.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
 			})
 
 		self._typeIdxs['water'] = self._molIDs.index('H2O')
@@ -614,7 +616,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
 		h5file.createArray(groupNames, 'processes', [process.meta['id'] for process in self.partitions.viewkeys()])
 
-		# TODO: store ids of useful molecule subsets (RNAs, proteins...)
+		groupIdxs = h5file.createGroup(h5file.root,
+			'indexes', 'Indexes for various groups of molecules')
+
+		for type_, indexes in self._typeIdxs.viewitems():
+			h5file.createArray(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):
