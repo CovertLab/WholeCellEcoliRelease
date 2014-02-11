@@ -608,14 +608,13 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			)
 	
 		groupNames = h5file.createGroup(h5file.root,
-			'names', 'Molecule and compartment names')
+			'names', 'Molecule, compartment, and process names')
 
 		h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
 		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
+		h5file.createArray(groupNames, 'processes', [process.meta['id'] for process in self.partitions.viewkeys()])
 
-		
-
-		# TODO: store partition identities
+		# TODO: store ids of useful molecule subsets (RNAs, proteins...)
 
 
 	def pytablesAppend(self, h5file):

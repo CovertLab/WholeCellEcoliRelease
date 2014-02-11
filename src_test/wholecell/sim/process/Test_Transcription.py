@@ -73,6 +73,8 @@ class Test_Transcription(unittest.TestCase):
 
 		ntpIdxs = None
 		# rrnaIdxs = None
+		processIdx = None
+		compartmentIdx = None
 
 		width = 10
 
@@ -82,32 +84,37 @@ class Test_Transcription(unittest.TestCase):
 		# rrnaInitialCount = numpy.zeros((len(rrnaIDs), nSims), float)
 		# rrnaFinalCount = numpy.zeros((len(rrnaIDs), nSims), float)
 
-		compartmentIdx = 0 # cytoplasm
-
 		for iSim, simDir in enumerate(dirs):
 			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
 				if not assignedIdxs:
 					molIDs = h5file.get_node('/names').molIDs.read()
+					processes = h5file.get_node('/names').processes.read()
+					compartments = h5file.get_node('/names').compartments.read()
 					
 					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
 					# rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
+					processIdx = processes.index('Transcription')
+					compartmentIdx = compartments.index('c')
 
 					assignedIdxs = True
 
 				# assuming haphazardly that the first three partitions are for transcription
 				mc = h5file.root.MoleculeCounts
 
-				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0)
-					- mc.read(1, width+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0))
-				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0)
-					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, :-1].sum(2).mean(0))
+				ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(1, width+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
+				ntpFinalUsage[:, iSim] = (mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(lengthSec+1 - width, lengthSec+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
 				# indexing order for mc.read(...): time, molecule, compartment, partition
 				# summing over the relevant partitions, averaging over the time steps
 
 		ratio = ntpFinalUsage/ntpInitialUsage
 		expectedRatio = numpy.exp(numpy.log(2)/T_d * lengthSec)
 
+		# Test NTP usage
+		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
 		self.assertTrue(numpy.allclose(expectedRatio, ratio, rtol = 0.25)) # a proper fit should actually exceed the expected ratio since this doesn't include degradation
+		self.assertTrue((expectedRatio <= ratio).all(), 'Final NTP usage was less than expected.')
 
 
 	# Tests
