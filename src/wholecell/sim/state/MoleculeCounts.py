@@ -264,30 +264,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
-
-	def initialize_old(self, kb):
-		self._nMolIDs = len(kb.molecules)
-		self._nCompartments = len(kb.compartments)
-
-		# TODO: make this section legible, rewrite as a list comprehension
-		self._uniqueDict = []
-
-		for mol in kb.molecules:
-			if mol["uniqueAttrs"] is not None:
-				self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
-			
-			else:
-				self._uniqueDict.append([{} for x in kb.compartments])
-
-		self._molIDs = [molecule["id"] for molecule in kb.molecules]
-		self._compartments = [compartment["id"] for compartment in kb.compartments]
-
-		self._molMass = numpy.array([molecule["mass"] for molecule in kb.molecules], float)
-
-		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
-		self._compartmentIndex = {c:i for i, c in enumerate(self._compartments)}
-
-
 	def initialize(self, sim, kb):
 		super(MoleculeCounts, self).initialize(sim, kb)
 
