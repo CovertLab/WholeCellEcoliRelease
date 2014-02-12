@@ -186,8 +186,8 @@ class Fitter(object):
 				raise Exception, "Changing RNA mass fractions. Write code to handle this."
 
 			# Calculate RNA Synthesis probabilities
-			if 'Transcription' in sim.states:
-				tc = sim.states['Transcription']
+			if 'Transcription' in sim.processes:
+				tc = sim.processes['Transcription']
 
 				hLfull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
 				# tc.rnaSynthProb = mc.rnaLens.astype("float") / tc_elngRate * ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp

@@ -225,7 +225,7 @@ class Simulation(object):
 		h5file.createArray(groupFit, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
 		h5file.createArray(groupFit, 'monExp', self.states['MoleculeCounts'].monExp)
 		h5file.createArray(groupFit, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
-		if 'Transcription' in self.states:
+		if 'Transcription' in self.processes:
 			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
 
 		groupNames = h5file.createGroup(
