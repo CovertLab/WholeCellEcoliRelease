@@ -111,38 +111,58 @@ def main():
 	# 	]
 	# 	)
 
-	# Tests for Transcription + RnaDegradation/Maturation + Translation + ProteinMaturation-only simulations
-	initRnapCnts = 1000.
-	initRnaseCnts = 1000.
-	initRibCnts = 1000. / 7 # seven isozymes?
+	# # Tests for Transcription + RnaDegradation/Maturation + Translation + ProteinMaturation-only simulations
+	# initRnapCnts = 1000.
+	# initRnaseCnts = 1000.
+	# initRibCnts = 1000. / 7 # seven isozymes?
 
-	ntpCounts = 1e6
+	# ntpCounts = 1e6
+	# h2oCounts = 1e6
+	# aaCounts = 1e8
+
+	# from wholecell.sim.process.Translation import enzIDs as translationEnzymes
+	# from wholecell.sim.process.Translation import aaIDs
+
+	# runSimulations(
+	# 	testDir = 'Test_Transcription_RnaDegradation_Translation',
+	# 	processes = ["Transcription", "RnaDegradation", "RnaMaturation", 'Translation', 'ProteinMaturation'],
+	# 	freeMolecules = [
+	# 		["ATP[c]", ntpCounts],
+	# 		["UTP[c]", ntpCounts],
+	# 		["CTP[c]", ntpCounts],
+	# 		["GTP[c]", ntpCounts],
+	# 		["H2O[c]", h2oCounts],
+	# 		["EG10893-MONOMER[c]", initRnapCnts],
+	# 		["RPOB-MONOMER[c]", initRnapCnts],
+	# 		["RPOC-MONOMER[c]", initRnapCnts],
+	# 		["RPOD-MONOMER[c]", initRnapCnts],
+	# 		["EG11259-MONOMER[c]", initRnaseCnts]
+	# 	] + [
+	# 		[enzID, initRibCnts] for enzID in translationEnzymes
+	# 	] + [
+	# 		[aaID, aaCounts] for aaID in aaIDs
+	# 	]
+	# 	)
+
+	# Tests for RnaDegradation-only simulations
+	initRnaseCnts = 1000.
+	# NOTE: in the original test, this set every RNA counts to 10000
+	# TODO: implement the ability to set initial counts, or remove this note
+
 	h2oCounts = 1e6
-	aaCounts = 1e8
 
 	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
 	from wholecell.sim.process.Translation import aaIDs
 
 	runSimulations(
-		testDir = 'Test_Transcription_RnaDegradation',
-		processes = ["Transcription", "RnaDegradation", "RnaMaturation", 'Translation', 'ProteinMaturation'],
+		testDir = 'Test_RnaDegradation',
+		processes = ["RnaDegradation"],
 		freeMolecules = [
-			["ATP[c]", ntpCounts],
-			["UTP[c]", ntpCounts],
-			["CTP[c]", ntpCounts],
-			["GTP[c]", ntpCounts],
 			["H2O[c]", h2oCounts],
-			["EG10893-MONOMER[c]", initRnapCnts],
-			["RPOB-MONOMER[c]", initRnapCnts],
-			["RPOC-MONOMER[c]", initRnapCnts],
-			["RPOD-MONOMER[c]", initRnapCnts],
-			["EG11259-MONOMER[c]", initRnaseCnts]
-		] + [
-			[enzID, initRibCnts] for enzID in translationEnzymes
-		] + [
-			[aaID, aaCounts] for aaID in aaIDs
+			["EG11259-MONOMER[c]", initRnaseCnts],
 		]
 		)
+
 
 if __name__ == '__main__':
 	main()
