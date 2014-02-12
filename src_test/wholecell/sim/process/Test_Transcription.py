@@ -7,7 +7,7 @@ Tests Transcription process
 @date: Created 8/16/2013
 """
 
-import unittest
+import BaseLargeTest
 import os
 
 import nose.plugins.attrib as noseAttrib
@@ -17,16 +17,37 @@ import scipy.stats
 
 from wholecell.util.Constants import Constants
 
-FIXTURE_DIR = os.path.join('out', 'test', 'Test_Transcription')
-
-# NOTE: see generateFitterTestFixtures.py for the simulations used in this file
-
 # TODO: check rRNA production
 # TODO: check increase in RNA mass instead of counts
 
-class Test_Transcription(unittest.TestCase):
+class Test_Transcription(BaseLargeTest.BaseLargeTest):
+
+	# Fixture options for BaseLargeTest class to use
+	initRnapCnts = 1000.
+	initRnaseCnts = 1000.
+	initEnzCnts = 2000.
+	ntpCounts = 1e6
+	h2oCounts = 1e6
+	fixture_opts = {'fixture_dir'		: os.path.join('out', 'test', 'Test_Transcription'),
+					'processes' 		: ["Transcription"],
+					'free_molecules'	: [["ATP[c]", ntpCounts],
+											["UTP[c]", ntpCounts],
+											["CTP[c]", ntpCounts],
+											["GTP[c]", ntpCounts],
+											["EG10893-MONOMER[c]", initEnzCnts],
+											["RPOB-MONOMER[c]", initEnzCnts],
+											["RPOC-MONOMER[c]", initEnzCnts],
+											["RPOD-MONOMER[c]", initEnzCnts]],
+					'length_sec'		: 21,
+					'n_seeds'			: 1}
+
+	FIXTURE_DIR = fixture_opts['fixture_dir']
+
 	@classmethod
 	def setUpClass(cls):
+
+		super(Test_Transcription, cls).setUpClass()
+
 		doublingTime = 3600.
 		simLength = 500
 
