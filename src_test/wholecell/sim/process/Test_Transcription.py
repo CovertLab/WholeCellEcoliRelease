@@ -47,6 +47,7 @@ class Test_Transcription(unittest.TestCase):
 		processIdx = None
 		compartmentIdx = None
 
+		startAt = 2
 		width = 10
 
 		cls.ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
@@ -83,13 +84,13 @@ class Test_Transcription(unittest.TestCase):
 
 				mc = h5file.root.MoleculeCounts
 
-				cls.ntpInitialUsage[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
-					- mc.read(1, width+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
+				cls.ntpInitialUsage[:, iSim] = (mc.read(startAt, startAt+width, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(startAt, startAt+width, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
 				cls.ntpFinalUsage[:, iSim] = (mc.read(simLength+1 - width, simLength+1, None, 'countsBulkPartitioned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0)
 					- mc.read(simLength+1 - width, simLength+1, None, 'countsBulkReturned')[:, ntpIdxs, compartmentIdx, processIdx].mean(0))
 
-				cls.rnaInitialProduction[:, iSim] = (mc.read(1, 1+width, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
-					- mc.read(1, width+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
+				cls.rnaInitialProduction[:, iSim] = (mc.read(startAt, startAt+width, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
+					- mc.read(startAt, startAt+width, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
 				cls.rnaFinalProduction[:, iSim] = (mc.read(simLength+1 - width, simLength+1, None, 'countsBulkReturned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0)
 					- mc.read(simLength+1 - width, simLength+1, None, 'countsBulkPartitioned')[:, rnaIdxs, compartmentIdx, processIdx].mean(0))
 
@@ -124,19 +125,18 @@ class Test_Transcription(unittest.TestCase):
 	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
 	def test_ntpUsage(self):
 		# Test for exponential NTP usage
-		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
 		ntpRatio = self.ntpFinalUsage/self.ntpInitialUsage
-		self.assertTrue(numpy.allclose(self.expectedRatio, ntpRatio, rtol = 0.25))
-		self.assertTrue((self.expectedRatio <= ntpRatio).all(), 'Final NTP usage was less than expected.')
+
+		self.assertTrue(numpy.allclose(self.expectedRatio, ntpRatio, rtol = 0.05))
+
+
 
 
 	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
 	def test_rnaProduction(self):
 		# Test for exponential RNA production
-		# NOTE: a proper fit should actually exceed the expected ratio since this doesn't include degradation
 		rnaRatio = self.rnaFinalProduction.sum()/self.rnaInitialProduction.sum()
-		self.assertTrue(numpy.allclose(self.expectedRatio, rnaRatio, rtol = 0.25))
-		self.assertTrue((self.expectedRatio <= rnaRatio).all(), 'Final RNA production was less than expected.')
+		self.assertTrue(numpy.allclose(self.expectedRatio, rnaRatio, rtol = 0.05))
 
 		# Test for appropriate ratios of rRNA production
 		averageCounts = self.rnaFinalCount.mean(1)
