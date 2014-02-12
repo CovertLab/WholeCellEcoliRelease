@@ -70,8 +70,8 @@ def runSimulations(testDir, processes, freeMolecules):
 
 def main():
 	# # Tests for Transcription-only simulations
-	ntpCounts = 1e6
-	initEnzCnts = 2000.
+	# ntpCounts = 1e6
+	# initEnzCnts = 2000.
 	# runSimulations(
 	# 	testDir = 'Test_Transcription',
 	# 	processes = ["Transcription"],
@@ -87,16 +87,45 @@ def main():
 	# 	]
 	# 	)
 
-	# Tests for Transcription + RnaDegradation/Maturation-only simulations
+	# # Tests for Transcription + RnaDegradation/Maturation-only simulations
+	# initRnapCnts = 1000.
+	# initRnaseCnts = 1000.
+
+	# ntpCounts = 1e6
+	# h2oCounts = 1e6
+
+	# runSimulations(
+	# 	testDir = 'Test_Transcription_RnaDegradation',
+	# 	processes = ["Transcription", "RnaDegradation", "RnaMaturation"],
+	# 	freeMolecules = [
+	# 		["ATP[c]", ntpCounts],
+	# 		["UTP[c]", ntpCounts],
+	# 		["CTP[c]", ntpCounts],
+	# 		["GTP[c]", ntpCounts],
+	# 		["H2O[c]", h2oCounts],
+	# 		["EG10893-MONOMER[c]", initRnapCnts],
+	# 		["RPOB-MONOMER[c]", initRnapCnts],
+	# 		["RPOC-MONOMER[c]", initRnapCnts],
+	# 		["RPOD-MONOMER[c]", initRnapCnts],
+	# 		["EG11259-MONOMER[c]", initRnaseCnts]
+	# 	]
+	# 	)
+
+	# Tests for Transcription + RnaDegradation/Maturation + Translation + ProteinMaturation-only simulations
 	initRnapCnts = 1000.
 	initRnaseCnts = 1000.
+	initRibCnts = 1000. / 7 # seven isozymes?
 
 	ntpCounts = 1e6
 	h2oCounts = 1e6
+	aaCounts = 1e8
+
+	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
+	from wholecell.sim.process.Translation import aaIDs
 
 	runSimulations(
 		testDir = 'Test_Transcription_RnaDegradation',
-		processes = ["Transcription", "RnaDegradation", "RnaMaturation"],
+		processes = ["Transcription", "RnaDegradation", "RnaMaturation", 'Translation', 'ProteinMaturation'],
 		freeMolecules = [
 			["ATP[c]", ntpCounts],
 			["UTP[c]", ntpCounts],
@@ -108,6 +137,10 @@ def main():
 			["RPOC-MONOMER[c]", initRnapCnts],
 			["RPOD-MONOMER[c]", initRnapCnts],
 			["EG11259-MONOMER[c]", initRnaseCnts]
+		] + [
+			[enzID, initRibCnts] for enzID in translationEnzymes
+		] + [
+			[aaID, aaCounts] for aaID in aaIDs
 		]
 		)
 

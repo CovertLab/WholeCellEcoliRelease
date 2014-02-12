@@ -47,15 +47,15 @@ class Translation(wholecell.sim.process.Process.Process):
 		proteinIDs = [x["monomerId"] + ":nascent[c]" for x in mrnas]
 
 		# Metabolites
-		self.mcPartition = mc.setPartition(self, _metIDs + mrnaIDs + proteinIDs + _enzIDs)
+		self.mcPartition = mc.setPartition(self, metIDs + mrnaIDs + proteinIDs + enzIDs)
 
-		self.mcPartition.aas = self.mcPartition.countsBulkViewNew(_aaIDs)
+		self.mcPartition.aas = self.mcPartition.countsBulkViewNew(aaIDs)
 
-		self.n_aas = len(_aaIDs)
+		self.n_aas = len(aaIDs)
 
-		self.mcPartition.aasNotSec = self.mcPartition.countsBulkViewNew(_aaNotSecIDs)
+		self.mcPartition.aasNotSec = self.mcPartition.countsBulkViewNew(aaNotSecIDs)
 
-		self.aasView = mc.countsBulkViewNew(_aaIDs)
+		self.aasView = mc.countsBulkViewNew(aaIDs)
 
 		self.mcPartition.atpMol = self.mcPartition.molecule('ATP[c]')
 		self.mcPartition.adpMol = self.mcPartition.molecule('ADP[c]')
@@ -71,15 +71,15 @@ class Translation(wholecell.sim.process.Process.Process):
 
 		# Enzymes
 		# TODO: We really want all the associated riboproteins as well (ie we want the complexes)
-		self.mcPartition.enzymes = self.mcPartition.countsBulkViewNew(_enzIDs)
+		self.mcPartition.enzymes = self.mcPartition.countsBulkViewNew(enzIDs)
 
-		self.mcPartition.ribosome23S = self.mcPartition.countsBulkViewNew(_rib23S_IDs)
-		self.mcPartition.ribosome16S = self.mcPartition.countsBulkViewNew(_rib16S_IDs)
-		self.mcPartition.ribosome5S = self.mcPartition.countsBulkViewNew(_rib5S_IDs)
+		self.mcPartition.ribosome23S = self.mcPartition.countsBulkViewNew(rib23S_IDs)
+		self.mcPartition.ribosome16S = self.mcPartition.countsBulkViewNew(rib16S_IDs)
+		self.mcPartition.ribosome5S = self.mcPartition.countsBulkViewNew(rib5S_IDs)
 
-		self.ribosome23SView = mc.countsBulkViewNew(_rib23S_IDs)
-		self.ribosome16SView = mc.countsBulkViewNew(_rib16S_IDs)
-		self.ribosome5SView = mc.countsBulkViewNew(_rib5S_IDs)
+		self.ribosome23SView = mc.countsBulkViewNew(rib23S_IDs)
+		self.ribosome16SView = mc.countsBulkViewNew(rib16S_IDs)
+		self.ribosome5SView = mc.countsBulkViewNew(rib5S_IDs)
 
 
 	def calcRibosomes(self, counts23S, counts16S, counts5S):
@@ -179,7 +179,7 @@ class Translation(wholecell.sim.process.Process.Process):
 		self.mcPartition.proteins.countsBulkInc(proteinsCreated)
 
 
-_metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
+metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
 	"GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
 	"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]",
 	"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
@@ -187,33 +187,33 @@ _metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
 	#"GTP[c]", "GDP[c]", "PI[c]",  "H2O[c]", "H[c]"
 	"ATP[c]", "ADP[c]", "PI[c]",  "H2O[c]", "H[c]"]
 
-_aaIDs = [
+aaIDs = [
 	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
 	"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 	]
 
-_aaNotSecIDs = [
+aaNotSecIDs = [
 	"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
 	"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
 	]
 
-_enzIDs = [
+enzIDs = [
 	"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]", "RRLD-RRNA[c]", "RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]",
 	"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]", "RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]",
 	"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
 	]
 
-_rib23S_IDs = [
+rib23S_IDs = [
 	"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]","RRLD-RRNA[c]",
 	"RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]"
 	]
 
-_rib16S_IDs = [
+rib16S_IDs = [
 	"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]",
 	"RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]"
 	]
 
-_rib5S_IDs = [
+rib5S_IDs = [
 	"RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]",
 	"RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
 	]
