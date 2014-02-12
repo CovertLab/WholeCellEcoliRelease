@@ -21,6 +21,14 @@ nosetests.xml
 
 nosetests.*.xml
 
+# IPython notebook files #
+##########################
+
+.ipynb_checkpoints
+
+# Misc #
+########
+
 *.cPickle
 
 *.png

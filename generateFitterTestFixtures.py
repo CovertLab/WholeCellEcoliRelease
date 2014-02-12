@@ -94,6 +94,9 @@ def main():
 	ntpCounts = 1e6
 	h2oCounts = 1e6
 
+	# TODO: increase simulation time to 3600
+	# NOTE: test only runs and plots one simulation
+
 	runSimulations(
 		testDir = 'Test_Transcription_RnaDegradation',
 		processes = ["Transcription", "RnaDegradation", "RnaMaturation"],
@@ -119,6 +122,8 @@ def main():
 	ntpCounts = 1e6
 	h2oCounts = 1e6
 	aaCounts = 1e8
+
+	# TODO: increase simulation time to 3600
 
 	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
 	from wholecell.sim.process.Translation import aaIDs
