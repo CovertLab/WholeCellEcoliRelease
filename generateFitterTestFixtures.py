@@ -69,22 +69,45 @@ def runSimulations(testDir, processes, freeMolecules):
 
 
 def main():
+	# # Tests for Transcription-only simulations
 	ntpCounts = 1e6
 	initEnzCnts = 2000.
+	# runSimulations(
+	# 	testDir = 'Test_Transcription',
+	# 	processes = ["Transcription"],
+	# 	freeMolecules = [
+	# 		["ATP[c]", ntpCounts],
+	# 		["UTP[c]", ntpCounts],
+	# 		["CTP[c]", ntpCounts],
+	# 		["GTP[c]", ntpCounts],
+	# 		["EG10893-MONOMER[c]", initEnzCnts],
+	# 		["RPOB-MONOMER[c]", initEnzCnts],
+	# 		["RPOC-MONOMER[c]", initEnzCnts],
+	# 		["RPOD-MONOMER[c]", initEnzCnts]
+	# 	]
+	# 	)
 
-	# Tests for Transcription-only simulations
+	# Tests for Transcription + RnaDegradation/Maturation-only simulations
+	initRnapCnts = 1000.
+	initRnaseCnts = 1000.
+
+	ntpCounts = 1e6
+	h2oCounts = 1e6
+
 	runSimulations(
-		testDir = 'Test_Transcription',
-		processes = ["Transcription"],
+		testDir = 'Test_Transcription_RnaDegradation',
+		processes = ["Transcription", "RnaDegradation", "RnaMaturation"],
 		freeMolecules = [
 			["ATP[c]", ntpCounts],
 			["UTP[c]", ntpCounts],
 			["CTP[c]", ntpCounts],
 			["GTP[c]", ntpCounts],
-			["EG10893-MONOMER[c]", initEnzCnts],
-			["RPOB-MONOMER[c]", initEnzCnts],
-			["RPOC-MONOMER[c]", initEnzCnts],
-			["RPOD-MONOMER[c]", initEnzCnts]
+			["H2O[c]", h2oCounts],
+			["EG10893-MONOMER[c]", initRnapCnts],
+			["RPOB-MONOMER[c]", initRnapCnts],
+			["RPOC-MONOMER[c]", initRnapCnts],
+			["RPOD-MONOMER[c]", initRnapCnts],
+			["EG11259-MONOMER[c]", initRnaseCnts]
 		]
 		)
 
