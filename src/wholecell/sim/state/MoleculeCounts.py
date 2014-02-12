@@ -302,6 +302,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		self._molMass = numpy.array(molMass, float)
 
+		self._molMass[numpy.where(self._molMass < 0)] == 0
+
 		self._typeIdxs.update({
 			'metabolites':numpy.arange(len(kb.metabolites)),
 			'rnas':numpy.arange(2*len(kb.rnas))+len(kb.metabolites),
