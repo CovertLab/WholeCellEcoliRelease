@@ -46,7 +46,7 @@ class Test_Transcription(BaseLargeTest.BaseLargeTest):
 	@classmethod
 	def setUpClass(cls):
 
-		super(Test_Transcription, cls).setUpClass(Test_Transcription.fixture_opts)
+		super(Test_Transcription, cls).setUpClass()
 
 		doublingTime = 3600.
 		simLength = 500
