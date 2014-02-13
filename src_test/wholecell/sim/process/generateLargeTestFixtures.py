@@ -1,6 +1,7 @@
 import cPickle
 import os
 import json
+import pkg_resources
 
 import numpy
 
@@ -12,7 +13,7 @@ from mpi4py import MPI
 
 COMM = MPI.COMM_WORLD
 
-KB_PATH = os.path.join('src_test','wholecell','sim','process','KnowledgeBase.cPickle')
+KB_PATH = pkg_resources.resource_filename('data','fixtures/KnowledgeBase.cPickle')
 
 def runSimulations():
 	infile = open('fixture_tmp.json', 'r')

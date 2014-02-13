@@ -38,8 +38,8 @@ class Test_Transcription(BaseLargeTest.BaseLargeTest):
 											["RPOB-MONOMER[c]", initEnzCnts],
 											["RPOC-MONOMER[c]", initEnzCnts],
 											["RPOD-MONOMER[c]", initEnzCnts]],
-					'length_sec'		: 21,
-					'n_seeds'			: 1}
+					'length_sec'		: 200,
+					'n_seeds'			: 8}
 
 	FIXTURE_DIR = fixture_opts['fixture_dir']
 
