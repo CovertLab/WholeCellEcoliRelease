@@ -69,23 +69,23 @@ def runSimulations(testDir, processes, freeMolecules):
 
 
 def main():
-	# # Tests for Transcription-only simulations
+	# Tests for Transcription-only simulations
 	ntpCounts = 1e6
 	initEnzCnts = 2000.
-	# runSimulations(
-	# 	testDir = 'Test_Transcription',
-	# 	processes = ["Transcription"],
-	# 	freeMolecules = [
-	# 		["ATP[c]", ntpCounts],
-	# 		["UTP[c]", ntpCounts],
-	# 		["CTP[c]", ntpCounts],
-	# 		["GTP[c]", ntpCounts],
-	# 		["EG10893-MONOMER[c]", initEnzCnts],
-	# 		["RPOB-MONOMER[c]", initEnzCnts],
-	# 		["RPOC-MONOMER[c]", initEnzCnts],
-	# 		["RPOD-MONOMER[c]", initEnzCnts]
-	# 	]
-	# 	)
+	runSimulations(
+		testDir = 'Test_Transcription',
+		processes = ["Transcription"],
+		freeMolecules = [
+			["ATP[c]", ntpCounts],
+			["UTP[c]", ntpCounts],
+			["CTP[c]", ntpCounts],
+			["GTP[c]", ntpCounts],
+			["EG10893-MONOMER[c]", initEnzCnts],
+			["RPOB-MONOMER[c]", initEnzCnts],
+			["RPOC-MONOMER[c]", initEnzCnts],
+			["RPOD-MONOMER[c]", initEnzCnts]
+		]
+		)
 
 	# Tests for Transcription + RnaDegradation/Maturation-only simulations
 	initRnapCnts = 1000.
@@ -93,6 +93,9 @@ def main():
 
 	ntpCounts = 1e6
 	h2oCounts = 1e6
+
+	# TODO: increase simulation time to 3600
+	# NOTE: test only runs and plots one simulation
 
 	runSimulations(
 		testDir = 'Test_Transcription_RnaDegradation',
@@ -110,6 +113,83 @@ def main():
 			["EG11259-MONOMER[c]", initRnaseCnts]
 		]
 		)
+
+	# Tests for Transcription + RnaDegradation/Maturation + Translation + ProteinMaturation-only simulations
+	initRnapCnts = 1000.
+	initRnaseCnts = 1000.
+	initRibCnts = 1000. / 7 # seven isozymes?
+
+	ntpCounts = 1e6
+	h2oCounts = 1e6
+	aaCounts = 1e8
+
+	# TODO: increase simulation time to 3600
+
+	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
+	from wholecell.sim.process.Translation import aaIDs
+
+	runSimulations(
+		testDir = 'Test_Transcription_RnaDegradation_Translation',
+		processes = ["Transcription", "RnaDegradation", "RnaMaturation", 'Translation', 'ProteinMaturation'],
+		freeMolecules = [
+			["ATP[c]", ntpCounts],
+			["UTP[c]", ntpCounts],
+			["CTP[c]", ntpCounts],
+			["GTP[c]", ntpCounts],
+			["H2O[c]", h2oCounts],
+			["EG10893-MONOMER[c]", initRnapCnts],
+			["RPOB-MONOMER[c]", initRnapCnts],
+			["RPOC-MONOMER[c]", initRnapCnts],
+			["RPOD-MONOMER[c]", initRnapCnts],
+			["EG11259-MONOMER[c]", initRnaseCnts]
+		] + [
+			[enzID, initRibCnts] for enzID in translationEnzymes
+		] + [
+			[aaID, aaCounts] for aaID in aaIDs
+		]
+		)
+
+	# Tests for RnaDegradation-only simulations
+	initRnaseCnts = 1000.
+	# NOTE: in the original test, this set every RNA counts to 10000
+	# TODO: implement the ability to set initial counts, or remove this note
+
+	h2oCounts = 1e6
+
+	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
+	from wholecell.sim.process.Translation import aaIDs
+
+	runSimulations(
+		testDir = 'Test_RnaDegradation',
+		processes = ["RnaDegradation"],
+		freeMolecules = [
+			["H2O[c]", h2oCounts],
+			["EG11259-MONOMER[c]", initRnaseCnts],
+		]
+		)
+
+	# Tests for Translation-only simulations
+	initRibCnts = 1000. / 7 # seven isozymes?
+
+	h2oCounts = 1e6
+	aaCounts = 1e8
+
+	# TODO: provide with mRNAs
+
+	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
+	from wholecell.sim.process.Translation import aaIDs
+
+	runSimulations(
+		testDir = 'Test_Translation',
+		processes = ['Translation'],
+		freeMolecules = [
+			[enzID, initRibCnts] for enzID in translationEnzymes
+		] + [
+			[aaID, aaCounts] for aaID in aaIDs
+		]
+		)
+
+
 
 if __name__ == '__main__':
 	main()

@@ -225,15 +225,25 @@ class Simulation(object):
 		h5file.createArray(groupFit, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
 		h5file.createArray(groupFit, 'monExp', self.states['MoleculeCounts'].monExp)
 		h5file.createArray(groupFit, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
-		h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
+		if 'Transcription' in self.processes:
+			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
 
 		groupNames = h5file.createGroup(
 			h5file.root,
 			'names',
-			'State and process names')
+			'State and process names'
+			)
 
 		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
 		h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
+
+		groupValues = h5file.createGroup(
+			h5file.root,
+			'values',
+			'Non-fit parameter values'
+			)
+
+		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
 
 
 	def pytablesAppend(self, h5file):

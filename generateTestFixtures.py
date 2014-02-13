@@ -16,10 +16,6 @@ Example:
 import os
 import cPickle
 
-import wholecell.util.PickleHelper
-
-wholecell.util.PickleHelper.registerInstanceMethods()
-
 # We need the following two methods so that we can pickle instancemethods
 # Also need the copy_reg.pickle() line in generateTestFixtures()
 # Borrowed from: http://mail.python.org/pipermail/python-list/2006-October/367078.html

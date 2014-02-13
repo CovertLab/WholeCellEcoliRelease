@@ -18,8 +18,10 @@ class Fitter(object):
 	@staticmethod
 	def FitSimulation(sim, kb):
 		mc = sim.states["MoleculeCounts"]
-		tc = sim.processes["Transcription"]
+		# tc = sim.processes["Transcription"]
 		# tl = sim.processes["Translation"]
+		tc_elngRate = 50
+		tc_cellCycleLength = 1 * 3600.
 		tl_elngRate = 16
 
 		idx = {}
@@ -143,8 +145,8 @@ class Fitter(object):
 			numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens))) # expected number of RNAs?
 			
 			numRnapsNeeded = numpy.sum(
-				mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc.elngRate * (
-					numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hL
+				mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc_elngRate * (
+					numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hL
 					) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]]
 				)
 
@@ -166,8 +168,8 @@ class Fitter(object):
 				mc.rnaExp /= numpy.sum(mc.rnaExp)
 
 			# Estimate number of ribosomes needed initially
-			#numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc.cellCycleLength) * numMons * mc.monExp)
-			numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc.cellCycleLength) * numMons * mc.monExp)
+			#numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * mc.monExp)
+			numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * mc.monExp)
 			#print "numRibsNeeded: %0.1f" % numRibsNeeded
 			fudge = 1.1
 			if numpy.sum(numRnas * mc.rnaExp[idx["rnaExp"]["rRna23Ss"]]) < fudge * numRibsNeeded:
@@ -184,10 +186,13 @@ class Fitter(object):
 				raise Exception, "Changing RNA mass fractions. Write code to handle this."
 
 			# Calculate RNA Synthesis probabilities
-			hLfull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
-			# tc.rnaSynthProb = mc.rnaLens.astype("float") / tc.elngRate * ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
-			tc.rnaSynthProb = ( numpy.log(2) / tc.cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
-			tc.rnaSynthProb /= numpy.sum(tc.rnaSynthProb)
+			if 'Transcription' in sim.processes:
+				tc = sim.processes['Transcription']
+
+				hLfull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
+				# tc.rnaSynthProb = mc.rnaLens.astype("float") / tc_elngRate * ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
+				tc.rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
+				tc.rnaSynthProb /= numpy.sum(tc.rnaSynthProb)
 
 			# Assert relationship between mc.monExp and mc.rnaExp
 			assert(numpy.all((mc.rnaExp[idx["rnaExp"]["mRnas"]] - rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * mc.monExp) < 1e-5))
