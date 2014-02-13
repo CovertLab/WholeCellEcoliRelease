@@ -7,7 +7,7 @@ Tests Transcription process
 @date: Created 8/16/2013
 """
 
-import unittest
+import BaseLargeTest
 import os
 
 import nose.plugins.attrib as noseAttrib
@@ -17,20 +17,41 @@ import scipy.stats
 
 from wholecell.util.Constants import Constants
 
-FIXTURE_DIR = os.path.join('out', 'test', 'Test_Transcription')
-
-# NOTE: see generateFitterTestFixtures.py for the simulations used in this file
-
 # TODO: check rRNA production
 # TODO: check increase in RNA mass instead of counts
 
-class Test_Transcription(unittest.TestCase):
+class Test_Transcription(BaseLargeTest.BaseLargeTest):
+
+	# Fixture options for BaseLargeTest class to use
+	initRnapCnts = 1000.
+	initRnaseCnts = 1000.
+	initEnzCnts = 2000.
+	ntpCounts = 1e6
+	h2oCounts = 1e6
+	fixture_opts = {'fixture_dir'		: os.path.join('out', 'test', 'Test_Transcription'),
+					'processes' 		: ["Transcription"],
+					'free_molecules'	: [["ATP[c]", ntpCounts],
+											["UTP[c]", ntpCounts],
+											["CTP[c]", ntpCounts],
+											["GTP[c]", ntpCounts],
+											["EG10893-MONOMER[c]", initEnzCnts],
+											["RPOB-MONOMER[c]", initEnzCnts],
+											["RPOC-MONOMER[c]", initEnzCnts],
+											["RPOD-MONOMER[c]", initEnzCnts]],
+					'length_sec'		: 200,
+					'n_seeds'			: 8}
+
+	FIXTURE_DIR = fixture_opts['fixture_dir']
+
 	@classmethod
 	def setUpClass(cls):
+
+		super(Test_Transcription, cls).setUpClass(Test_Transcription.fixture_opts)
+
 		doublingTime = 3600.
 		simLength = 500
 
-		dirs = os.walk(FIXTURE_DIR).next()[1] # get all of the directories
+		dirs = os.walk(Test_Transcription.FIXTURE_DIR).next()[1] # get all of the directories
 
 		nSims = len(dirs)
 
@@ -59,7 +80,7 @@ class Test_Transcription(unittest.TestCase):
 		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
 
 		for iSim, simDir in enumerate(dirs):
-			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
+			with tables.openFile(os.path.join(Test_Transcription.FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
 				if not assignedIdxs:
 					names = h5file.get_node('/names')
 					indexes = h5file.get_node('/indexes')
@@ -103,7 +124,7 @@ class Test_Transcription(unittest.TestCase):
 		cls.rnaSynthProb = None
 
 		for iSim, simDir in enumerate(dirs):
-			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'Main.hdf')) as h5file:
+			with tables.openFile(os.path.join(Test_Transcription.FIXTURE_DIR, simDir, 'Main.hdf')) as h5file:
 				if not assignedFittedParameters:
 					cls.rnaSynthProb = h5file.get_node('/fitParameters').rnaSynthProb.read()
 
