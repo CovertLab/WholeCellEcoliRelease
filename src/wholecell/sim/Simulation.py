@@ -231,10 +231,19 @@ class Simulation(object):
 		groupNames = h5file.createGroup(
 			h5file.root,
 			'names',
-			'State and process names')
+			'State and process names'
+			)
 
 		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
 		h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
+
+		groupValues = h5file.createGroup(
+			h5file.root,
+			'values',
+			'Non-fit parameter values'
+			)
+
+		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
 
 
 	def pytablesAppend(self, h5file):
