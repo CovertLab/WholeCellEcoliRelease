@@ -1,5 +1,6 @@
 import cPickle
 import os
+import json
 
 import numpy
 
@@ -11,9 +12,9 @@ from mpi4py import MPI
 
 COMM = MPI.COMM_WORLD
 
-KB_PATH = os.path.join('KnowledgeBase.cPickle')
+KB_PATH = os.path.join('src_test','wholecell','sim','process','KnowledgeBase.cPickle')
 
-def runSimulations(fixture_opts_dir):
+def runSimulations():
 	infile = open('fixture_tmp.json', 'r')
 	fixture_opts = json.loads(infile.readline())
 	infile.close()
@@ -49,7 +50,7 @@ def runSimulations(fixture_opts_dir):
 	##################################################
 
 	for seed in mySeeds.astype('int'):
-		sim = wcSimulation.Simulation(processes, freeMolecules)
+		sim = wcSimulation.Simulation(fixture_opts['processes'], fixture_opts['free_molecules'])
 
 		sim.initialize(KB)
 
@@ -69,7 +70,7 @@ def runSimulations(fixture_opts_dir):
 
 
 def main():
-	runSimulations(fixture_opts_dir)
+	runSimulations()
 
 if __name__ == '__main__':
 	main()

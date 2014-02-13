@@ -46,12 +46,12 @@ class Test_Transcription(BaseLargeTest.BaseLargeTest):
 	@classmethod
 	def setUpClass(cls):
 
-		super(Test_Transcription, cls).setUpClass()
+		super(Test_Transcription, cls).setUpClass(Test_Transcription.fixture_opts)
 
 		doublingTime = 3600.
 		simLength = 500
 
-		dirs = os.walk(FIXTURE_DIR).next()[1] # get all of the directories
+		dirs = os.walk(Test_Transcription.FIXTURE_DIR).next()[1] # get all of the directories
 
 		nSims = len(dirs)
 
@@ -79,7 +79,7 @@ class Test_Transcription(BaseLargeTest.BaseLargeTest):
 		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
 
 		for iSim, simDir in enumerate(dirs):
-			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
+			with tables.openFile(os.path.join(Test_Transcription.FIXTURE_DIR, simDir, 'MoleculeCounts.hdf')) as h5file:
 				if not assignedIdxs:
 					names = h5file.get_node('/names')
 					indexes = h5file.get_node('/indexes')
@@ -123,7 +123,7 @@ class Test_Transcription(BaseLargeTest.BaseLargeTest):
 		cls.rnaSynthProb = None
 
 		for iSim, simDir in enumerate(dirs):
-			with tables.openFile(os.path.join(FIXTURE_DIR, simDir, 'Main.hdf')) as h5file:
+			with tables.openFile(os.path.join(Test_Transcription.FIXTURE_DIR, simDir, 'Main.hdf')) as h5file:
 				if not assignedFittedParameters:
 					cls.rnaSynthProb = h5file.get_node('/fitParameters').rnaSynthProb.read()
 
