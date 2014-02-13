@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-flextFbaModel.py
+FlexTFbaModel.py
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -13,7 +13,7 @@ import copy
 import functools
 import wholecell.util.linearProgramming
 
-class flextFbaModel(object):
+class FlexTFbaModel(object):
 
 	def __init__(self, metIds = None, rxns = None, mediaEx = None, biomass = None, atpId = "ATP:mature[c]", params = None):
 

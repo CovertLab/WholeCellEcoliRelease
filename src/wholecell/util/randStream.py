@@ -21,7 +21,7 @@ Note:
 import numpy
 import numpy.random
 
-class randStream(object):
+class RandStream(object):
 	""" Random Stream """
 
 	def __init__(self, seed = None):

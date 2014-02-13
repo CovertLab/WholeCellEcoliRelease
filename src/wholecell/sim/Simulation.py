@@ -68,7 +68,7 @@ class Simulation(object):
 	# Construct random stream
 	def constructRandStream(self):
 		import wholecell.util.randStream
-		self.randStream = wholecell.util.randStream.randStream()
+		self.randStream = wholecell.util.randStream.RandStream()
 
 
 	# Link states and processes

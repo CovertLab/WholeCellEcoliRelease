@@ -20,7 +20,7 @@ class Test_randStream(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		cls.randStream = wholecell.util.randStream.randStream(seed = 1)
+		cls.randStream = wholecell.util.randStream.RandStream(seed = 1)
 
 	@classmethod
 	def tearDownClass(cls):
@@ -38,7 +38,7 @@ class Test_randStream(unittest.TestCase):
 
 		with self.assertRaises(AttributeError) as context:
 			r.randw(numpy.array([[0, 0], [0, 0]]))
-		self.assertEqual(context.exception.message, "'randStream' object has no attribute 'randw'")
+		self.assertEqual(context.exception.message, "'RandStream' object has no attribute 'randw'")
 
 		# NOTE: In Matlab, no exception is thrown here (the returned array is merely empty)
 		with self.assertRaises(ValueError) as context:

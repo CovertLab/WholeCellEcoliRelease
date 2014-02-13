@@ -763,10 +763,10 @@ class _Molecule(object):
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 		
 		if not len(uniqueDict):
-			raise uniqueException('Attempting to create unique from object with no unique attributes!\n')
+			raise UniqueException('Attempting to create unique from object with no unique attributes!\n')
 
 		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
-			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
+			raise UniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
 		for attr in uniqueDict:
 			if attrs is not None and attr in attrs:
@@ -786,7 +786,7 @@ class _Molecule(object):
 		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
 
 		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
-			raise uniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
+			raise UniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
 
 		if attrs is None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
 			return uniqueDict["objects"][:]
@@ -807,7 +807,7 @@ class _Molecule(object):
 		uniqueIdx = uniqueObj._uniqueIdx
 
 		if id(uniqueObj) != id(uniqueDict["objects"][uniqueIdx]):
-			raise uniqueException('Unique object to delete does not match row in unique table!\n')
+			raise UniqueException('Unique object to delete does not match row in unique table!\n')
 
 		for i in xrange(uniqueIdx + 1, len(uniqueDict["objects"])):
 			uniqueDict["objects"][i]._uniqueIdx -= 1
@@ -816,9 +816,9 @@ class _Molecule(object):
 		self._container._countsUnique[self._rowIdx, self._colIdx] -= 1			
 
 
-class uniqueException(Exception):
+class UniqueException(Exception):
 	'''
-	uniqueException
+	UniqueException
 	'''
 
 
