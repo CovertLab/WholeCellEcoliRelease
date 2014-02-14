@@ -12,9 +12,9 @@ RNA degradation sub-model. Encodes molecular simulation of RNA degradation as a 
 
 import numpy
 
-import wholecell.sim.process.Process
+import wholecell.processes.process
 
-class RnaDegradation(wholecell.sim.process.Process.Process):
+class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
 
 	_metaboliteIds = None

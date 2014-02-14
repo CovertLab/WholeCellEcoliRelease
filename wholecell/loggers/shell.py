@@ -14,9 +14,9 @@ import time
 import sys
 import numpy
 
-import wholecell.sim.logger.Logger
+import wholecell.loggers.logger
 
-class Shell(wholecell.sim.logger.Logger.Logger):
+class Shell(wholecell.loggers.logger.Logger):
 	""" Shell """
 
 	def __init__(self):

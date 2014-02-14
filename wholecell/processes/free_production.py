@@ -13,9 +13,9 @@ of some initial count and the doubling time.
 
 import numpy
 
-import wholecell.sim.process.Process
+import wholecell.processes.process
 
-class FreeProduction(wholecell.sim.process.Process.Process):
+class FreeProduction(wholecell.processes.process.Process):
 	""" FreeProduction """
 
 	# Constructor

@@ -12,9 +12,9 @@ Transcription sub-model. Encodes molecular simulation of macromolecular bacteria
 
 import numpy
 
-import wholecell.sim.process.Process
+import wholecell.processes.process
 
-class Transcription(wholecell.sim.process.Process.Process):
+class Transcription(wholecell.processes.process.Process):
 	""" Transcription """
 
 	# Constructor
@@ -173,10 +173,6 @@ class Transcription(wholecell.sim.process.Process.Process):
 			# Increment RNA
 			# self.rna.counts[newIdx] += 1
 			# newRnas += 1
-
-		if not rnasCreated.any():
-			import ipdb
-			ipdb.set_trace()
 
 		self.mcPartition.rnas.countsBulkInc(rnasCreated)
 

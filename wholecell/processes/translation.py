@@ -12,9 +12,9 @@ Translation sub-model. Encodes molecular simulation of macromolecular bacterial 
 
 import numpy
 
-import wholecell.sim.process.Process
+import wholecell.processes.process
 
-class Translation(wholecell.sim.process.Process.Process):
+class Translation(wholecell.processes.process.Process):
 	""" Translation """
 
 	# Constructor

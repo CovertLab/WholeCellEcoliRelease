@@ -10,8 +10,6 @@ Process submodel base class. Defines interface that processes expose to the simu
 @date: Created 4/2/2013
 """
 
-import inspect
-
 class Process(object):
 	""" Process """
 

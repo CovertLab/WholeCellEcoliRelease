@@ -10,11 +10,9 @@ Protein maturation sub-model. Encodes molecular simulation of protein maturation
 @date: Created 4/4/2013
 """
 
-import numpy
+import wholecell.processes.process
 
-import wholecell.sim.process.Process
-
-class ProteinMaturation(wholecell.sim.process.Process.Process):
+class ProteinMaturation(wholecell.processes.process.Process):
 	""" ProteinMaturation """
 
 	# Constructor

@@ -17,11 +17,11 @@ import os
 import time
 import tables
 
-import wholecell.sim.logger.Logger
+import wholecell.loggers.logger
 
 # TODO: let loaded simulation resume logging in a copied file
 
-class Disk(wholecell.sim.logger.Logger.Logger):
+class Disk(wholecell.loggers.logger.Logger):
 	""" Disk """
 
 	def __init__(self, outDir = None, allowOverwrite = False):

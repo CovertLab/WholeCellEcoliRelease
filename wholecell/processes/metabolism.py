@@ -12,10 +12,10 @@ Metabolism sub-model. Encodes molecular simulation of microbial metabolism using
 
 import numpy
 
-import wholecell.sim.process.Process
+import wholecell.processes.process
 # import wholecell.util.flextFbaModel
 
-class Metabolism(wholecell.sim.process.Process.Process):
+class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
 
 	# Constructor

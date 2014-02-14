@@ -12,9 +12,9 @@ Macromolecular complexation sub-model. Encodes molecular simulation of macromole
 
 import numpy
 
-import wholecell.sim.process.Process
+import wholecell.processes.process
 
-class Complexation(wholecell.sim.process.Process.Process):
+class Complexation(wholecell.processes.process.Process):
 	""" Complexation """
 
 	# Constructor
