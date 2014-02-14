@@ -18,3 +18,4 @@
 "ACEF-LIPOATE"	"Lipoate metabolism will be modeled in metabolism"
 "ACEF-S-ACETYLDIHYDROLIPOATE"	"Lipoate metabolism will be modeled in metabolism"
 "ADENYLYL-GS"	"Metabolic intermediate in glutamine synthesis. No reaction for creation in Ecocyc because it is part of the metabolic pathway."
+"CPLX0-8004"  "In proteinComplex Modified"
