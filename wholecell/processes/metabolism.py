@@ -41,10 +41,10 @@ class Metabolism(wholecell.processes.process.Process):
 		self.mcPartition = None
 
 		# Constants
-		self.avgCellInitMass = 13.1						# fg
-		self.cellCycleLen = 1.0 * 3600					# s
+		self.avgCellInitMass = 13.1						# fg # TOKB
+		self.cellCycleLen = 1.0 * 3600					# s # TOKB
 
-		self.unaccountedEnergyConsumption = 6.2750e7	# ATP / cell cycle
+		self.unaccountedEnergyConsumption = 6.2750e7	# ATP / cell cycle # TOKB
 
 		self.objective = None							# FBA LP objective (max growth)
 		self.sMat = None								# Stoichiometry matrix [met x rxn]
@@ -105,7 +105,7 @@ class Metabolism(wholecell.processes.process.Process):
 			0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
 			0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
 			0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
-			])
+			]) # TOKB
 
 		self.feistCoreIds = [
 			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
@@ -119,7 +119,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.mcPartition.feistCore = self.mcPartition.countsBulkViewNew(self.feistCoreIds)
 
-		self.initialDryMass = 2.8e-13 / 1.36 # grams
+		self.initialDryMass = 2.8e-13 / 1.36 # grams # TOKB
 
 	# Calculate needed metabolites
 	def requestMoleculeCounts(self):

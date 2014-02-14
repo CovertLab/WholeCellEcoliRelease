@@ -37,9 +37,9 @@ FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
 	0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
 	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
-	])
+	]) # TOKB
 
-INITIAL_DRY_MASS = 2.8e-13 / 1.36
+INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
 
 # TODO: make a base class for bulk counts?
 class MoleculeCountsBase(object):
@@ -259,8 +259,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self.feistCoreVals = FEIST_CORE_VALS.copy()
 		self.initialDryMass = INITIAL_DRY_MASS
 
-		self.fracInitFreeNTPs = 0.0015
-		self.fracInitFreeAAs = 0.001
+		self.fracInitFreeNTPs = 0.0015 # TOKB
+		self.fracInitFreeAAs = 0.001 # TOKB
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
@@ -378,7 +378,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# Set water
 		h2oMol.countBulkIs(
 			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._molMass[self._typeIdxs['water']] * Constants.nAvogadro
-			)
+			) # TOKB
 
 		# Set RNA counts from expression levels
 		ntpsToPolym = numpy.round(
@@ -911,4 +911,4 @@ _ids = {
 		"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
 		"RIBFLV[c]"
 		]
-	}
+	} # TOKB

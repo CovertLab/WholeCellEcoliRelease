@@ -30,7 +30,7 @@ class FreeProduction(wholecell.processes.process.Process):
 		self.time = None
 
 		self.defaultInitCount = 1e6
-		self.doublingTime = 1. * 3600
+		self.doublingTime = 1. * 3600 # TOKB
 
 		super(FreeProduction, self).__init__()
 

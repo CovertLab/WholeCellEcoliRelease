@@ -21,9 +21,9 @@ class Fitter(object):
 		mc = sim.states["MoleculeCounts"]
 		# tc = sim.processes["Transcription"]
 		# tl = sim.processes["Translation"]
-		tc_elngRate = 50
-		tc_cellCycleLength = 1 * 3600.
-		tl_elngRate = 16
+		tc_elngRate = 50 # TOKB
+		tc_cellCycleLength = 1 * 3600. # TOKB
+		tl_elngRate = 16 # TOKB
 
 		idx = {}
 
@@ -77,7 +77,7 @@ class Fitter(object):
 			0.017,	# 5S rRNA
 			0.146,	# tRNA
 			0.041,	# mRNA (include miscRNAs here if applicable (i.e., if not setting their expression to zero))
-			])
+			]) # TOKB
 
 		mwRNAs = numpy.array([
 			mc.molMass(_ids['rRna23Ss']).mean(),
@@ -139,7 +139,7 @@ class Fitter(object):
 
 			h2oMol.countBulkIs(
 				(6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / h2oMass * Constants.nAvogadro # not entirely sure what this does
-				)
+				) # TOKB
 
 			ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * ntpView.countsBulk().sum()) # number of NTPs as RNA
 			numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens))) # expected number of RNAs?
@@ -207,18 +207,18 @@ class Fitter(object):
 			f_w = numpy.array([ 0.09832716,  0.05611487,  0.04021716,  0.0545386 ,  0.00908125,
         						0.06433478,  0.04242188,  0.07794587,  0.02055925,  0.05964359,
 						        0.09432389,  0.05520678,  0.02730249,  0.03564025,  0.04069936,
-						        0.05387673,  0.05485896,  0.01133458,  0.02679389,  0.07677868])
-			mc.feistCoreVals[idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c_aas
+						        0.05387673,  0.05485896,  0.01133458,  0.02679389,  0.07677868]) # TOKB
+			mc.feistCoreVals[idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c_aas # TOKB
 
 			# NTPs (RNA)
 			# f_w = numpy.array([ 0.25375551,  0.23228423,  0.30245459,  0.21150567])
-			f_w = numpy.array([ 0.248,  0.238,  0.300,  0.214 ])
+			f_w = numpy.array([ 0.248,  0.238,  0.300,  0.214 ]) # TOKB
 			# f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
-			mc.feistCoreVals[idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c_ntps
+			mc.feistCoreVals[idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c_ntps # TOKB
 
 			# dNTPS (DNA)
 			f_w = normalize(numpy.array([kb.genomeSeq.count("A"), kb.genomeSeq.count("C"), kb.genomeSeq.count("G"), kb.genomeSeq.count("T")]))
-			mc.feistCoreVals[idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c_dntps
+			mc.feistCoreVals[idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c_dntps # TOKB
 
 			#print "||delta biomass||_1: %0.3f" % numpy.linalg.norm(valsOrig - mc.vals["FeistCore"], 1)
 
@@ -227,7 +227,7 @@ class Fitter(object):
 
 		sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
 
-_ids = {}
+_ids = {} # TOKB
 _ids["tRnas"] = [
 	"gltV-tRNA", "gltT-tRNA", "gltW-tRNA", "gltU-tRNA", "glnU-tRNA", "glnW-tRNA", "glnX-tRNA", "glnV-tRNA", "serT-tRNA", "serW-tRNA", "selC-tRNA",
 	"serU-tRNA", "serV-tRNA", "serX-tRNA", "RNA0-302", "lysV-tRNA", "RNA0-303", "RNA0-301", "lysW-tRNA", "lysT-tRNA", "RNA0-306", "metY-tRNA",

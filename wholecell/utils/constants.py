@@ -11,4 +11,4 @@ Utility class with values of important biophysical constants.
 """
 
 class Constants(object):
-	nAvogadro = 6.022e23  # Avogadro's number
+	nAvogadro = 6.022e23  # Avogadro's number # TOKB

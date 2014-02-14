@@ -21,7 +21,7 @@ DEFAULT_PROCESSES = [
 	'RnaMaturation',
 	'Transcription',
 	'Translation',
-	]
+	] # TOKB
 
 # TODO: save/load included processes
 # TODO: save/load free molecules
@@ -37,8 +37,8 @@ class Simulation(object):
 		}
 
 		# Options
-		self.lengthSec = 3600						# Simulation length (s)
-		self.timeStepSec = 1.0						# Simulation time step (s)
+		self.lengthSec = 3600						# Simulation length (s) # TOKB
+		self.timeStepSec = 1.0						# Simulation time step (s) # TOKB
 		if processesToInclude is not None:			# List of processes to include in simulation
 			self.processesToInclude = processesToInclude	
 

@@ -28,7 +28,7 @@ class Translation(wholecell.processes.process.Process):
 		self.mcPartition = None
 
 		# Constants
-		self.elngRate = 16			# AA/s
+		self.elngRate = 16			# AA/s # TOKB
 		self.proteinAaCounts = None	# Protein amino acid counts [AA x protein] <-- TODO: Check this
 		self.proteinLens = None		# Protein lengths
 

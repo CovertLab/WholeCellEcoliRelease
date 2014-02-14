@@ -30,8 +30,8 @@ class Transcription(wholecell.processes.process.Process):
 		self.enzymePartition = None
 
 		# Constants
-		self.cellCycleLength = 1 * 3600.	# s
-		self.elngRate = 50					# nt/s
+		self.cellCycleLength = 1 * 3600.	# s # TOKB
+		self.elngRate = 50					# nt/s # TOKB
 		self.rnaLens = None					# RNA lengths
 		self.rnaNtCounts = None				# RNA nucleotide counts [nt x RNA] <-- TODO: Check this
 		self.rnaSynthProb = None			# Relative RNA synthesis rates
