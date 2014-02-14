@@ -16,7 +16,7 @@ import cPickle
 import wholecell.loggers.disk
 import wholecell.loggers.shell
 import wholecell.sim.simulation
-import wholecell.knowledgebase.knowledgebase
+import wholecell.reconstruction.knowledgebase
 import wholecell.utils.fitter
 # The default values for the parsed JSON.  Also serves as a template for 
 # writing JSON files.
@@ -49,7 +49,7 @@ def parseSimulationFromJsonString(jsonString):
 	options.update(json.loads(jsonString))
 
 	if not options['useCachedKB'] or not os.path.exists(KB_PATH):
-		kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(
+		kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
 			dataFileDir = "data/parsed", seqFileName = "data/raw/sequence.txt"
 			)
 

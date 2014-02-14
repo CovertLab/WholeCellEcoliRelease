@@ -22,7 +22,7 @@ import cPickle
 import wholecell.loggers.disk
 import wholecell.loggers.shell
 import wholecell.sim.simulation
-import wholecell.knowledgebase.knowledgebase
+import wholecell.reconstruction.knowledgebase
 import wholecell.utils.fitter
 
 import weakref
@@ -35,7 +35,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 
 	# Instantiate knowledge base
 	if reconstructKB or not os.path.exists(KB_PATH):
-		kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(
+		kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
 			dataFileDir = "data/parsed", seqFileName = "data/raw/sequence.txt"
 			)
 
