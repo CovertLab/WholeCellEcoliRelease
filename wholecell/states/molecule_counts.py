@@ -349,7 +349,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def calcInitialConditions(self):
-		from wholecell.util.Constants import Constants
+		from wholecell.utils.constants import Constants
 
 		self.initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
 

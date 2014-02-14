@@ -15,7 +15,7 @@ import cPickle
 
 import wholecell.loggers.disk
 import wholecell.loggers.shell
-import wholecell.sim.Simulation
+import wholecell.sim.simulation
 import wholecell.knowledgebase.knowledgebase
 import wholecell.utils.fitter
 # The default values for the parsed JSON.  Also serves as a template for 
@@ -60,7 +60,7 @@ def parseSimulationFromJsonString(jsonString):
 	else:
 		kb = cPickle.load(open(KB_PATH, "rb"))
 
-	sim = wholecell.sim.Simulation.Simulation(
+	sim = wholecell.sim.simulation.Simulation(
 		options['processesToInclude'],
 		options['freeMolecules']
 		)

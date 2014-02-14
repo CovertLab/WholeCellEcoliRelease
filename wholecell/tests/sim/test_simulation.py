@@ -20,7 +20,6 @@ import wholecell.loggers.disk
 import wholecell.loggers.shell
 
 class Test_Simulation(unittest.TestCase):
-
 	@classmethod
 	def setUpClass(cls):
 		pass
@@ -140,7 +139,6 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_loadSimulation_method(self):
-				
 		with self.assertRaises(Exception) as context:
 			sim = self.sim
 			sim.initialize(self.kb)
@@ -184,6 +182,6 @@ class Test_Simulation(unittest.TestCase):
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
-				sim = wholecell.sim.simulation.Simulation(processesToInclude = ['Transcription'])
+		sim = wholecell.sim.simulation.Simulation(processesToInclude = ['Transcription'])
 		sim.initialize(self.kb)
 		self.assertEqual(['Transcription'], sim.processes.keys())

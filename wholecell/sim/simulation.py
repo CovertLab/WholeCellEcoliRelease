@@ -68,7 +68,7 @@ class Simulation(object):
 	# Construct random stream
 	def constructRandStream(self):
 		import wholecell.utils.rand_stream
-		self.randStream = wholecell.util.randStream.RandStream()
+		self.randStream = wholecell.utils.rand_stream.RandStream()
 
 
 	# Link states and processes
@@ -114,7 +114,7 @@ class Simulation(object):
 		import wholecell.processes.rna_maturation
 		import wholecell.processes.transcription
 		import wholecell.processes.translation
-		import wholecell.processes.free_poduction
+		import wholecell.processes.free_production
 
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
@@ -124,7 +124,7 @@ class Simulation(object):
 			('RnaMaturation',		wholecell.processes.rna_maturation.RnaMaturation()),
 			('Transcription',		wholecell.processes.transcription.Transcription()),
 			('Translation',			wholecell.processes.translation.Translation()),
-			('FreeProduction',		wholecell.processes.free_poduction.FreeProduction())
+			('FreeProduction',		wholecell.processes.free_production.FreeProduction())
 			])
 
 		# Remove processes not listed as being included

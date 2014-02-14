@@ -11,7 +11,7 @@ FlexTFbaModel.py
 import numpy
 import copy
 import functools
-import wholecell.utils.linear)programming
+import wholecell.utils.linear_programming
 
 class FlexTFbaModel(object):
 
@@ -289,7 +289,7 @@ class FlexTFbaModel(object):
 
 			self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] /= self._scaleFactor
 
-			self._v, tmp = wholecell.utils.linear)programming.linearProgramming(
+			self._v, tmp = wholecell.utils.linear_programming.linearProgramming(
 			"maximize", self._c, self._S, self._b,
 			v_lower, v_upper, self._metConstTypes, self._rxnVarTypes,
 			None	# Will use glpk

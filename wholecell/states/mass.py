@@ -14,6 +14,7 @@ import numpy
 import tables
 
 import wholecell.states.state
+from wholecell.utils.constants import Constants
 
 class Mass(wholecell.states.state.State):
 	""" Mass """
@@ -90,8 +91,6 @@ class Mass(wholecell.states.state.State):
 
 
 	def calculate(self):
-		from wholecell.util.Constants import Constants
-
 		mc = self.moleculeCounts
 
 		# Total

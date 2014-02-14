@@ -11,6 +11,7 @@ Adjust simulation parameters
 """
 
 import numpy
+from wholecell.utils.constants import Constants
 
 class Fitter(object):
 	""" Fitter """
@@ -131,7 +132,6 @@ class Fitter(object):
 
 		for iteration in xrange(5):
 			# Estimate number of RNA Polymerases needed initially
-			from wholecell.util.Constants import Constants
 			
 			feistCoreView.countsBulkIs(
 				numpy.round(mc.feistCoreVals * 1e-3 * Constants.nAvogadro * mc.initialDryMass) # this calculation seems wrong...
