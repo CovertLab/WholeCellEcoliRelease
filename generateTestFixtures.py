@@ -22,9 +22,9 @@ import cPickle
 # (Thanks Steven Bethard!)
 
 def generateTestFixtures():
-	import wholecell.kb.KnowledgeBase
-	import wholecell.sim.Simulation
-	import wholecell.util.Fitter
+	import wholecell.knowledgebase.knowledgebase
+	import wholecell.sim.simulation
+	import wholecell.utils.fitter
 
 	# Create output directory
 	outDir = "data/fixtures"
@@ -32,14 +32,14 @@ def generateTestFixtures():
 		os.makedirs(outDir)
 
 	# Construct KB
-	kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileDir = "data/parsed/", seqFileName = "data/raw/sequence.txt")
+	kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(dataFileDir = "data/parsed/", seqFileName = "data/raw/sequence.txt")
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	# Construct simulation
-	sim = wholecell.sim.Simulation.Simulation()
+	sim = wholecell.sim.simulation.Simulation()
 	sim.initialize(kb)
 	sim.setOptions({"seed": 1})
-	wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
+	wholecell.utils.fitter.Fitter.FitSimulation(sim, kb)
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':

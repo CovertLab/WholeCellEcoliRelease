@@ -11,8 +11,8 @@ Loads a simulation.
 import os
 import cPickle
 
-import wholecell.sim.logger.Shell
-import wholecell.sim.Simulation as wcSim
+import wholecell.loggers.shell
+import wholecell.sim.simulation as wcSim
 
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
@@ -27,6 +27,6 @@ if __name__ == '__main__':
 
 	sim.setOptions({'lengthSec':100})
 
-	sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+	sim.loggerAdd(wholecell.loggers.shell.Shell())
 
 	sim.run()

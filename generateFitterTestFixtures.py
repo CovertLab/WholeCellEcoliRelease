@@ -3,9 +3,9 @@ import os
 
 import numpy
 
-import wholecell.util.Fitter as wcFitter
-import wholecell.sim.Simulation as wcSimulation
-import wholecell.sim.logger.Disk as wcDisk
+import wholecell.utils.fitter as wcFitter
+import wholecell.sim.simulation as wcSimulation
+import wholecell.loggers.disk as wcDisk
 
 from mpi4py import MPI
 
@@ -125,8 +125,8 @@ def main():
 
 	# TODO: increase simulation time to 3600
 
-	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
-	from wholecell.sim.process.Translation import aaIDs
+	from wholecell.processes.translation import enzIDs as translationEnzymes
+	from wholecell.processes.translation import aaIDs
 
 	runSimulations(
 		testDir = 'Test_Transcription_RnaDegradation_Translation',
@@ -156,8 +156,8 @@ def main():
 
 	h2oCounts = 1e6
 
-	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
-	from wholecell.sim.process.Translation import aaIDs
+	from wholecell.processes.Translation import enzIDs as translationEnzymes
+	from wholecell.processes.Translation import aaIDs
 
 	runSimulations(
 		testDir = 'Test_RnaDegradation',
@@ -176,8 +176,8 @@ def main():
 
 	# TODO: provide with mRNAs
 
-	from wholecell.sim.process.Translation import enzIDs as translationEnzymes
-	from wholecell.sim.process.Translation import aaIDs
+	from wholecell.processes.Translation import enzIDs as translationEnzymes
+	from wholecell.processes.Translation import aaIDs
 
 	runSimulations(
 		testDir = 'Test_Translation',

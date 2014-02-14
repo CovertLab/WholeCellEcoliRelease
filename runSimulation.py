@@ -19,11 +19,11 @@ Example:
 import os
 import cPickle
 
-import wholecell.sim.logger.Disk
-import wholecell.sim.logger.Shell
-import wholecell.sim.Simulation
-import wholecell.kb.KnowledgeBase
-import wholecell.util.Fitter
+import wholecell.loggers.disk
+import wholecell.loggers.shell
+import wholecell.sim.simulation
+import wholecell.knowledgebase.knowledgebase
+import wholecell.utils.fitter
 
 import weakref
 
@@ -35,7 +35,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 
 	# Instantiate knowledge base
 	if reconstructKB or not os.path.exists(KB_PATH):
-		kb = wholecell.kb.KnowledgeBase.KnowledgeBase(
+		kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(
 			dataFileDir = "data/parsed", seqFileName = "data/raw/sequence.txt"
 			)
 
@@ -48,7 +48,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 	kbWeakRef = weakref.ref(kb)
 
 	# Set up simulation
-	sim = wholecell.sim.Simulation.Simulation()
+	sim = wholecell.sim.simulation.Simulation()
 
 	sim.initialize(kb)
 
@@ -56,7 +56,7 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 		sim.setOptions(simOpts)
 
 	if fitSimulation:
-		wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
+		wholecell.utils.fitter.Fitter.FitSimulation(sim, kb)
 
 	del kb
 
@@ -64,11 +64,11 @@ def runSimulation(reconstructKB = False, fitSimulation = True,
 
 	# Instantiate loggers
 	if useShellLogger:
-		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.loggers.shell.Shell())
 
 	if useDiskLogger:
 		sim.loggerAdd(
-			wholecell.sim.logger.Disk.Disk(outDir = outDir)
+			wholecell.loggers.disk.Disk(outDir = outDir)
 			)
 
 	# Run simulation
