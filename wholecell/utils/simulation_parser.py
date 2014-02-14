@@ -13,11 +13,11 @@ import sys
 import os
 import cPickle
 
-import wholecell.sim.logger.Disk
-import wholecell.sim.logger.Shell
+import wholecell.loggers.disk
+import wholecell.loggers.shell
 import wholecell.sim.Simulation
-import wholecell.kb.KnowledgeBase
-import wholecell.util.Fitter
+import wholecell.knowledgebase.knowledgebase
+import wholecell.utils.fitter
 # The default values for the parsed JSON.  Also serves as a template for 
 # writing JSON files.
 DEFAULT_JSON = '''
@@ -49,7 +49,7 @@ def parseSimulationFromJsonString(jsonString):
 	options.update(json.loads(jsonString))
 
 	if not options['useCachedKB'] or not os.path.exists(KB_PATH):
-		kb = wholecell.kb.KnowledgeBase.KnowledgeBase(
+		kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(
 			dataFileDir = "data/parsed", seqFileName = "data/raw/sequence.txt"
 			)
 
@@ -68,15 +68,15 @@ def parseSimulationFromJsonString(jsonString):
 	sim.setOptions(options['simOptions'])
 
 	if options['fitSimulation']:
-		wholecell.util.Fitter.Fitter.FitSimulation(sim, kb)
+		wholecell.utils.fitter.Fitter.FitSimulation(sim, kb)
 
 	# Instantiate loggers
 	if options['useShellLogger']:
-		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		sim.loggerAdd(wholecell.loggers.shell.Shell())
 
 	if options['useDiskLogger']:
 		sim.loggerAdd(
-			wholecell.sim.logger.Disk.Disk(outDir = options['diskLoggerPath'])
+			wholecell.loggers.disk.Disk(outDir = options['diskLoggerPath'])
 			)
 
 	return sim
