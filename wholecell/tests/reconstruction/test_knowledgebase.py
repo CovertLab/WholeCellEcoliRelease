@@ -12,7 +12,7 @@ import warnings
 import numpy
 import cPickle
 import os
-import wholecell.knowledgebase.knowledgebase
+import wholecell.reconstruction.knowledgebase
 
 import nose.plugins.attrib as noseAttrib
 
@@ -38,4 +38,4 @@ class Test_KnowledgeBase(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_construction(self):
-		wholecell.knowledgebase.knowledgebase.KnowledgeBase()
+		wholecell.reconstruction.knowledgebase.KnowledgeBase()
