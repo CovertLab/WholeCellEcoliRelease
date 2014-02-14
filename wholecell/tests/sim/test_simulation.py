@@ -15,6 +15,10 @@ import numpy
 import cPickle
 import os
 
+import wholecell.sim.simulation
+import wholecell.loggers.disk
+import wholecell.loggers.shell
+
 class Test_Simulation(unittest.TestCase):
 
 	@classmethod
@@ -36,22 +40,17 @@ class Test_Simulation(unittest.TestCase):
 	# --- Tests for run-time errors ---
 	@noseAttrib.attr('smalltest')
 	def test_construction(self):
-		import wholecell.sim.Simulation
-
 		# Construct simulation
-		sim = wholecell.sim.Simulation.Simulation()
+		sim = wholecell.sim.simulation.Simulation()
 
 	@noseAttrib.attr('smalltest')
 	def test_initialize(self):
-		import wholecell.sim.Simulation
-
 		# Construct simulation
-		sim = wholecell.sim.Simulation.Simulation()
+		sim = wholecell.sim.simulation.Simulation()
 		sim.initialize(self.kb)
 
 	@noseAttrib.attr('smalltest')
 	def test_run(self):
-
 		# Simulate
 		sim = self.sim
 		sim.initialize(self.kb)
@@ -62,9 +61,6 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_disk_logger(self): #_and_shell_logger(self):
-		# import wholecell.sim.logger.Shell
-		import wholecell.sim.logger.Disk
-
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
@@ -72,12 +68,11 @@ class Test_Simulation(unittest.TestCase):
 		sim = self.sim
 		sim.initialize(self.kb)
 		sim.setOptions({"lengthSec": 10})
-		# sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
-		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
+		sim.loggerAdd(wholecell.loggers.disk.Disk(outDir = outDir, allowOverwrite = True))
 		sim.run()
 		
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 10)
+		reloadedSim = wholecell.sim.simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 10)
 
 		state_keys = sim.states.keys()
 		# Need to check RandStream in another way
@@ -102,9 +97,6 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_reload_at_later_timepoint(self):
-		import wholecell.sim.logger.Shell
-		import wholecell.sim.logger.Disk
-
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_test_reload_at_later_timepoint")
 
@@ -112,14 +104,14 @@ class Test_Simulation(unittest.TestCase):
 		sim = self.sim
 		sim.initialize(self.kb)
 		sim.setOptions({"lengthSec": 10})
-		sim.loggerAdd(wholecell.sim.logger.Shell.Shell())
-		sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
+		sim.loggerAdd(wholecell.loggers.shell.Shell())
+		sim.loggerAdd(wholecell.loggers.disk.Disk(outDir = outDir, allowOverwrite = True))
 		sim.run()
 
 		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		reloadedSim = wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 5)
+		reloadedSim = wholecell.sim.simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 5)
 		reloadedSim.setOptions({"lengthSec": 10})
-		reloadedSim.loggerAdd(wholecell.sim.logger.Shell.Shell())
+		reloadedSim.loggerAdd(wholecell.loggers.shell.Shell())
 
 		self.assertEqual(reloadedSim.initialStep, 5)
 		self.assertEqual(reloadedSim.states['Time'].value, 5.)
@@ -148,16 +140,15 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_loadSimulation_method(self):
-		import wholecell.sim.logger.Disk
-		
+				
 		with self.assertRaises(Exception) as context:
 			sim = self.sim
 			sim.initialize(self.kb)
 			sim.setOptions({"lengthSec": 2})
 			outDir = os.path.join("out", "test", "SimulationTest_testLogging")
-			sim.loggerAdd(wholecell.sim.logger.Disk.Disk(outDir = outDir, allowOverwrite = True))
+			sim.loggerAdd(wholecell.loggers.disk.Disk(outDir = outDir, allowOverwrite = True))
 			sim.run()
-			wholecell.sim.Simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 3)
+			wholecell.sim.simulation.Simulation.loadSimulation(self.kb, outDir, timePoint = 3)
 
 		self.assertEqual(context.exception.message, 'Time point chosen to load is out of range!\n')
 
@@ -193,7 +184,6 @@ class Test_Simulation(unittest.TestCase):
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
-		import wholecell.sim.Simulation
-		sim = wholecell.sim.Simulation.Simulation(processesToInclude = ['Transcription'])
+				sim = wholecell.sim.simulation.Simulation(processesToInclude = ['Transcription'])
 		sim.initialize(self.kb)
 		self.assertEqual(['Transcription'], sim.processes.keys())

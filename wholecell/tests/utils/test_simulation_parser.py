@@ -10,8 +10,8 @@ Test SimulationParser.py
 
 import unittest
 
-import wholecell.sim.Simulation as wcSimulation
-import wholecell.util.SimulationParser as wcSimulationParser
+import wholecell.sim.simulation as wcSimulation
+import wholecell.utils.simulation_parser as wcSimulationParser
 
 import nose.plugins.attrib as noseAttrib
 

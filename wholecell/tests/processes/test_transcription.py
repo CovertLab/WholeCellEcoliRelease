@@ -7,7 +7,7 @@ Tests Transcription process
 @date: Created 8/16/2013
 """
 
-import BaseLargeTest
+import wholecell.tests.processes.base_large_test as base_large_test # TODO: better location for this file
 import os
 
 import nose.plugins.attrib as noseAttrib
@@ -15,12 +15,10 @@ import numpy
 import tables
 import scipy.stats
 
-from wholecell.util.Constants import Constants
-
 # TODO: check rRNA production
 # TODO: check increase in RNA mass instead of counts
 
-class Test_Transcription(BaseLargeTest.BaseLargeTest):
+class Test_Transcription(base_large_test.BaseLargeTest):
 
 	# Fixture options for BaseLargeTest class to use
 	initRnapCnts = 1000.

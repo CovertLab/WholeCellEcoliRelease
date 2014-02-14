@@ -14,7 +14,7 @@ import cPickle
 import os
 
 import numpy
-import wholecell.sim.state.MoleculeCounts as wcMoleculeCounts
+import wholecell.states.molecule_counts as wcMoleculeCounts
 
 class Test_MoleculeCounts_partition(unittest.TestCase):
 

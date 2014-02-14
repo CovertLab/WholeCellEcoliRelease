@@ -14,8 +14,8 @@ import unittest
 
 import nose.plugins.attrib as noseAttrib
 
-import wholecell.util.Fitter as wcFitter
-import wholecell.sim.Simulation as wcSimulation
+import wholecell.utils.fitter as wcFitter
+import wholecell.sim.simulation as wcSimulation
 
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 

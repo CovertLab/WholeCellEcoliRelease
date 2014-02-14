@@ -5,9 +5,9 @@ import pkg_resources
 
 import numpy
 
-import wholecell.util.Fitter as wcFitter
-import wholecell.sim.Simulation as wcSimulation
-import wholecell.sim.logger.Disk as wcDisk
+import wholecell.utils.fitter as wcFitter
+import wholecell.sim.simulation as wcSimulation
+import wholecell.loggers.disk as wcDisk
 
 from mpi4py import MPI
 

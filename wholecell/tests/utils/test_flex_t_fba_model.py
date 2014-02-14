@@ -12,7 +12,7 @@ import unittest
 import warnings
 
 import numpy
-import wholecell.util.flextFbaModel
+import wholecell.utils.flex_t_fba_model
 
 import nose.plugins.attrib as noseAttrib
 
@@ -124,11 +124,11 @@ class Test_flextFbaModel(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		m = wholecell.util.flextFbaModel.flextFbaModel(	metIds = self.metIds, rxns = self.rxns, mediaEx = self.mediaEx,
+		m = wholecell.utils.flex_t_fba_model.flextFbaModel(	metIds = self.metIds, rxns = self.rxns, mediaEx = self.mediaEx,
 														biomass = self.biomass, atpId = self.atpId, params = self.params)
 		
-		self.lb = wholecell.util.flextFbaModel.bounds(["thermodynamic", "exchange"], m.rxnIds(), False)
-		self.ub = wholecell.util.flextFbaModel.bounds(["thermodynamic", "exchange"], m.rxnIds(), True)
+		self.lb = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange"], m.rxnIds(), False)
+		self.ub = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange"], m.rxnIds(), True)
 		
 		# Exchange bounds given in paper
 		self.lb.valuesIs(m.rxnIdxs(["mediaEx_Tc1"]), "exchange", -10.5)

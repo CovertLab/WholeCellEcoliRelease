@@ -12,7 +12,7 @@ import warnings
 import numpy
 import cPickle
 import os
-import wholecell.kb.KnowledgeBase
+import wholecell.knowledgebase.knowledgebase
 
 import nose.plugins.attrib as noseAttrib
 
@@ -30,7 +30,7 @@ class Test_KnowledgeBase(unittest.TestCase):
 		self.kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
 
 		# To load from the "raw" data, uncomment the following:
-		# self.kb = wholecell.kb.KnowledgeBase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
+		# self.kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
 		# 													 seqFileName = "data/KnowledgeBase.fna")
 
 	def tearDown(self):
@@ -38,4 +38,4 @@ class Test_KnowledgeBase(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_construction(self):
-		wholecell.kb.KnowledgeBase.KnowledgeBase()
+		wholecell.knowledgebase.knowledgebase.KnowledgeBase()

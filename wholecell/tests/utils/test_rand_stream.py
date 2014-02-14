@@ -12,7 +12,7 @@ import unittest
 import warnings
 
 import numpy
-import wholecell.util.randStream
+import wholecell.utils.rand_stream
 
 import nose.plugins.attrib as noseAttrib
 
@@ -20,7 +20,7 @@ class Test_randStream(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		cls.randStream = wholecell.util.randStream.RandStream(seed = 1)
+		cls.randStream = wholecell.utils.rand_stream.RandStream(seed = 1)
 
 	@classmethod
 	def tearDownClass(cls):
