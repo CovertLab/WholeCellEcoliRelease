@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Test flextFbaModel.py
+Test FlexTFbaModel.py
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -17,7 +17,7 @@ import wholecell.utils.flex_t_fba_model
 import nose.plugins.attrib as noseAttrib
 
 
-class Test_flextFbaModel(unittest.TestCase):
+class Test_FlexTFbaModel(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
@@ -124,7 +124,7 @@ class Test_flextFbaModel(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		m = wholecell.utils.flex_t_fba_model.flextFbaModel(	metIds = self.metIds, rxns = self.rxns, mediaEx = self.mediaEx,
+		m = wholecell.utils.flex_t_fba_model.FlexTFbaModel(	metIds = self.metIds, rxns = self.rxns, mediaEx = self.mediaEx,
 														biomass = self.biomass, atpId = self.atpId, params = self.params)
 		
 		self.lb = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange"], m.rxnIds(), False)

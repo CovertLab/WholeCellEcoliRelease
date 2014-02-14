@@ -24,9 +24,11 @@ class BaseLargeTest(unittest.TestCase):
 			
 			# Load json file into generateLargeTestFixtures
 			# Use info to run simulation with MPI
-			try:
-				subprocess.call(['mpirun', '-n', str(N_PROCESSES), 'python', 'src_test/wholecell/sim/process/generateLargeTestFixtures.py'])
+			returnCode = subprocess.call(['mpirun', '-n', str(N_PROCESSES), 'python', 'wholecell/tests/processes/generate_large_test_fixtures.py'])
 
-			finally:
-				# Delete json file
-				os.remove(TEMP_FILE_NAME)
+			if returnCode != 0:
+				# TODO: confirm that nonzero return codes are errors
+				raise Exception('mpirun call failed with return code {}'.format(returnCode))
+			
+			# Delete json file
+			os.remove(TEMP_FILE_NAME)

@@ -14,6 +14,7 @@ import numpy
 
 import wholecell.processes.process
 # import wholecell.util.flextFbaModel
+from wholecell.utils.constants import Constants
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -135,8 +136,6 @@ class Metabolism(wholecell.processes.process.Process):
 	def evolveState(self):
 		# NOTE: I've deleted a bunch of commented-out code from here.  Get it 
 		# from an old commit if you really need it. - JM
-
-		from wholecell.util.Constants import Constants
 
 		atpm = numpy.zeros_like(self.mcPartition.feistCore.countsBulk()) # TODO: determine what this means
 
