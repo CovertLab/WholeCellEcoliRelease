@@ -4,11 +4,11 @@
 
 	(x) Running models in parallel
 
-	( ) Running models in parallel on cluster
+	(x) Running models in parallel on cluster
 
 	(x) Refactoring partitioning code for usability
 
-	( ) Setting up testing/fitting framework that does not rely on running full simulations
+	(x) Setting up testing/fitting framework that does not rely on running full simulations
 
 		(x) Run tests on Hudson
 	
@@ -16,11 +16,11 @@
 	
 		(x) Separate fixture generation from test evaluation
 	
-	( ) Rebulding package structure
+	(x) Rebulding package structure
 	
 		(x) Renaming folders and files
 	
-		( ) Getting it running again
+		(x) Getting it running again
 	
 	( ) Partitioning unique instances of molecules
 	
