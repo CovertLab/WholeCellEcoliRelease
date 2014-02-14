@@ -12,9 +12,9 @@ Time state variable. Represents the current time lapsed since the start of the s
 
 import numpy
 
-import wholecell.sim.state.State
+import wholecell.states.state
 
-class Time(wholecell.sim.state.State.State):
+class Time(wholecell.states.state.State):
 	""" Time """
 
 	# Constructor

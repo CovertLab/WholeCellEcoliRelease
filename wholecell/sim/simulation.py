@@ -67,7 +67,7 @@ class Simulation(object):
 
 	# Construct random stream
 	def constructRandStream(self):
-		import wholecell.util.randStream
+		import wholecell.utils.rand_stream
 		self.randStream = wholecell.util.randStream.RandStream()
 
 
@@ -88,18 +88,18 @@ class Simulation(object):
 
 	# Construct states
 	def constructStates(self):
-		import wholecell.sim.state.Mass
-		# import wholecell.sim.state.MetabolicFlux
-		import wholecell.sim.state.MoleculeCounts
-		import wholecell.sim.state.Time
-		import wholecell.sim.state.RandStream
+		import wholecell.states.mass
+		# import wholecell.states.MetabolicFlux
+		import wholecell.states.molecule_counts
+		import wholecell.states.time
+		import wholecell.states.rand_stream
 
 		self.states = collections.OrderedDict([
-			('Mass',			wholecell.sim.state.Mass.Mass()),
+			('Mass',			wholecell.states.mass.Mass()),
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
-			('MoleculeCounts',	wholecell.sim.state.MoleculeCounts.MoleculeCounts()),
-			('Time',			wholecell.sim.state.Time.Time()),
-			('RandStream',		wholecell.sim.state.RandStream.RandStream())
+			('MoleculeCounts',	wholecell.states.molecule_counts.MoleculeCounts()),
+			('Time',			wholecell.states.time.Time()),
+			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
 
 		self.time = self.states['Time']
@@ -107,24 +107,24 @@ class Simulation(object):
 
 	# Construct processes
 	def constructProcesses(self):
-		import wholecell.sim.process.Complexation
-		import wholecell.sim.process.Metabolism
-		import wholecell.sim.process.ProteinMaturation
-		import wholecell.sim.process.RnaDegradation
-		import wholecell.sim.process.RnaMaturation
-		import wholecell.sim.process.Transcription
-		import wholecell.sim.process.Translation
-		import wholecell.sim.process.FreeProduction
+		import wholecell.processes.complexation
+		import wholecell.processes.metabolism
+		import wholecell.processes.protein_maturation
+		import wholecell.processes.rna_degradation
+		import wholecell.processes.rna_maturation
+		import wholecell.processes.transcription
+		import wholecell.processes.translation
+		import wholecell.processes.free_poduction
 
 		self.processes = collections.OrderedDict([
-			('Complexation',		wholecell.sim.process.Complexation.Complexation()),
-			('Metabolism',			wholecell.sim.process.Metabolism.Metabolism()),
-			('ProteinMaturation',	wholecell.sim.process.ProteinMaturation.ProteinMaturation()),
-			('RnaDegradation',		wholecell.sim.process.RnaDegradation.RnaDegradation()),
-			('RnaMaturation',		wholecell.sim.process.RnaMaturation.RnaMaturation()),
-			('Transcription',		wholecell.sim.process.Transcription.Transcription()),
-			('Translation',			wholecell.sim.process.Translation.Translation()),
-			('FreeProduction',		wholecell.sim.process.FreeProduction.FreeProduction())
+			('Complexation',		wholecell.processes.complexation.Complexation()),
+			('Metabolism',			wholecell.processes.metabolism.Metabolism()),
+			('ProteinMaturation',	wholecell.processes.protein_maturation.ProteinMaturation()),
+			('RnaDegradation',		wholecell.processes.rna_degradation.RnaDegradation()),
+			('RnaMaturation',		wholecell.processes.rna_maturation.RnaMaturation()),
+			('Transcription',		wholecell.processes.transcription.Transcription()),
+			('Translation',			wholecell.processes.translation.Translation()),
+			('FreeProduction',		wholecell.processes.free_poduction.FreeProduction())
 			])
 
 		# Remove processes not listed as being included

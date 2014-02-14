@@ -13,9 +13,9 @@ Mass state variable. Represents the total cellular mass.
 import numpy
 import tables
 
-import wholecell.sim.state.State
+import wholecell.states.state
 
-class Mass(wholecell.sim.state.State.State):
+class Mass(wholecell.states.state.State):
 	""" Mass """
 
 	compartments = [

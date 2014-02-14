@@ -22,8 +22,8 @@ import re
 import numpy
 import tables
 
-import wholecell.sim.state.State as wcState
-import wholecell.sim.state.Partition as wcPartition
+import wholecell.states.state as wcState
+import wholecell.states.partition as wcPartition
 
 DEFAULT_FORM = ':mature' # TODO: reconcile "forms" concept
 

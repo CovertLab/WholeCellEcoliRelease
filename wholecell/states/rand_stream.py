@@ -13,9 +13,9 @@ Pseudorandom number generator state.
 import numpy
 import tables
 
-import wholecell.sim.state.State
+import wholecell.states.state
 
-class RandStream(wholecell.sim.state.State.State):
+class RandStream(wholecell.states.state.State):
 	""" RandStream """
 
 	# Constructor

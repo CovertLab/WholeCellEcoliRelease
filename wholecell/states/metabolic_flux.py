@@ -12,9 +12,9 @@ MetabolicFlux state variable. Represents the instantaneous growth rate (fg/h) an
 
 import numpy
 
-import wholecell.sim.state.State
+import wholecell.states.state
 
-class MetabolicFlux(wholecell.sim.state.State.State):
+class MetabolicFlux(wholecell.states.state.State):
 	""" MetabolicFlux """
 
 	# Constructor
