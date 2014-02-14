@@ -35,7 +35,7 @@ class Test_reducedSimulations(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_transcriptionSimulation(self):
 		sim = wcSimulation.Simulation(
 			["Transcription"],

@@ -48,7 +48,7 @@ class Test_Simulation(unittest.TestCase):
 		sim = wholecell.sim.simulation.Simulation()
 		sim.initialize(self.kb)
 
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_run(self):
 		# Simulate
 		sim = self.sim
@@ -58,7 +58,7 @@ class Test_Simulation(unittest.TestCase):
 
 		self.assertEqual(10, sim.states["Time"].value)
 
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_disk_logger(self): #_and_shell_logger(self):
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
@@ -94,7 +94,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
 						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_reload_at_later_timepoint(self):
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_test_reload_at_later_timepoint")
@@ -137,7 +137,7 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
 						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_loadSimulation_method(self):
 		with self.assertRaises(Exception) as context:
 			sim = self.sim

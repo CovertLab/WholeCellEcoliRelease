@@ -28,9 +28,9 @@ class Test_MoleculeCounts_partition(unittest.TestCase):
 
 	def setUp(self):
 		self.countsBulkRequested = numpy.zeros((7, 1, 3))
-		self.countsBulkRequested[...,0] = numpy.array([3., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
-		self.countsBulkRequested[...,1] = numpy.array([5., 3., 2., 2., 0., 0., 0.], ndmin = 2).T
-		self.countsBulkRequested[...,2] = numpy.array([20., 1., 3., 1., 2., 0., 2.], ndmin = 2).T
+		self.countsBulkRequested[..., 0] = numpy.array([3., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
+		self.countsBulkRequested[..., 1] = numpy.array([5., 3., 2., 2., 0., 0., 0.], ndmin = 2).T
+		self.countsBulkRequested[..., 2] = numpy.array([20., 1., 3., 1., 2., 0., 2.], ndmin = 2).T
 
 		self.countsBulk = numpy.zeros((7,1))
 		self.countsBulk[:,0] = numpy.array([10.,2.,5.,7.,20.,3.,7.]).T
