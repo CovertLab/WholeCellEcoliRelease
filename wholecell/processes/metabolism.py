@@ -88,7 +88,7 @@ class Metabolism(wholecell.processes.process.Process):
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = numpy.array(bioConc)
 
-		mc.setPartition(self, bioIds)
+		self.mcPartition.initialize(bioIds)
 		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
 
 		self.mcPartition.atpHydrolysis = self.mcPartition.countsBulkViewNew(

@@ -47,7 +47,7 @@ class Translation(wholecell.processes.process.Process):
 		proteinIDs = [x["monomerId"] + ":nascent[c]" for x in mrnas]
 
 		# Metabolites
-		mc.setPartition(self, metIDs + mrnaIDs + proteinIDs + enzIDs)
+		self.mcPartition.initialize(metIDs + mrnaIDs + proteinIDs + enzIDs)
 
 		self.mcPartition.aas = self.mcPartition.countsBulkViewNew(aaIDs)
 

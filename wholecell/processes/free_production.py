@@ -52,7 +52,7 @@ class FreeProduction(wholecell.processes.process.Process):
 
 		mc = sim.states["MoleculeCounts"]
 
-		mc.setPartition(self, self.molIDs)
+		self.mcPartition.initialize(self.molIDs)
 		self.mcView = mc.countsBulkViewNew(self.molIDs)
 
 		self.time = sim.states['Time']

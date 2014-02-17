@@ -36,7 +36,7 @@ class ProteinMaturation(wholecell.processes.process.Process):
 		nascentMonomerIds = [x["id"] + ":nascent[c]" for x in monomers]
 		matureMonomerIds = [x["id"] + ":mature[" + x["location"] + "]" for x in monomers]
 
-		mc.setPartition(self, nascentMonomerIds + matureMonomerIds)
+		self.mcPartition.initialize(nascentMonomerIds + matureMonomerIds)
 
 		self.mcPartition.nascentMonomers = self.mcPartition.countsBulkViewNew(
 			nascentMonomerIds)
