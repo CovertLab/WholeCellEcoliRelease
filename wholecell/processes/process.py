@@ -32,7 +32,7 @@ class Process(object):
 	def initialize(self, sim, kb):
 		self.timeStepSec = sim.timeStepSec
 		self.randStream = sim.randStream
-		self.mcPartition = sim.states['MoleculeCounts'].partitions[self]
+		self.mcPartition = sim.states['MoleculeCounts'].partitions[self.meta['id']]
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):

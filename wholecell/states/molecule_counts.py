@@ -450,7 +450,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
 			
 			# Calculate and store requests
-			for iPartition, (process, partition) in enumerate(self.partitions.viewitems()):
+			for iPartition, partition in enumerate(self.partitions.viewvalues()):
 				# Call request function and record requests
 				if partition.mapping is not None:
 					self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
@@ -539,7 +539,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
 		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
-		h5file.createArray(groupNames, 'processes', [process.meta['id'] for process in self.partitions.viewkeys()])
+		h5file.createArray(groupNames, 'processes', [process for process in self.partitions.viewkeys()])
 
 		groupIdxs = h5file.createGroup(h5file.root,
 			'indexes', 'Indexes for various groups of molecules')
