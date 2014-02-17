@@ -48,7 +48,7 @@ class Transcription(wholecell.processes.process.Process):
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
-		self.mcPartition = mc.setPartition(self, _metIds + rnaIds + enzIds)
+		mc.setPartition(self, _metIds + rnaIds + enzIds)
 
 		# Metabolites
 		self.mcPartition.metabolites = self.mcPartition.countsBulkViewNew(_metIds)

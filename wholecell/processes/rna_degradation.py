@@ -50,8 +50,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		mc = sim.states['MoleculeCounts']
 
-		self.mcPartition = mc.setPartition(self,
-			self._metaboliteIds + self._rnaIds + ["EG11259-MONOMER[c]"])
+		mc.setPartition(self, self._metaboliteIds + self._rnaIds + ["EG11259-MONOMER[c]"])
 
 		# Metabolites
 		self.mcPartition.metabolites = self.mcPartition.countsBulkViewNew(self._metaboliteIds)
