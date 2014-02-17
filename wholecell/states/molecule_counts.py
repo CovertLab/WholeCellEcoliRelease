@@ -464,8 +464,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		partition._nMolIDs = len(partition._molIDs)
 		partition._nCompartments = len(partition._compartments)
 
-		return partition
-
 
 	# TODO: get rid of prepartition
 	def prepartition(self):
