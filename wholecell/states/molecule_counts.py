@@ -294,7 +294,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._nCompartments = len(self._compartments)
 
 		# Masses
-		molMass = []
+		molMass = [] # TOKB
 
 		molMass += [x['mw7.2'] for x in kb.metabolites]
 		molMass += [x['mw'] for x in kb.rnas]*2
