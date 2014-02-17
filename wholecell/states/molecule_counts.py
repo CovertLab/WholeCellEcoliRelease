@@ -438,16 +438,14 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	# Partitioning
 
-	# TODO: get rid of prepartition
-	def prepartition(self):
-		# Clear out the existing partitions in preparation for the requests
-		for partition in self.partitions.viewvalues():
-			partition.countsBulkIs(0)
-
-
 	def partition(self):
 		if self.partitions:
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
+
+			# Clear out the existing partitions in preparation for the requests
+			for partition in self.partitions.viewvalues():
+				partition.countsBulkIs(0)
+
 			
 			# Calculate and store requests
 			for iPartition, partition in enumerate(self.partitions.viewvalues()):

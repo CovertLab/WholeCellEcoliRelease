@@ -53,9 +53,6 @@ class State(object):
 	def setPartition(self):
 		pass
 
-	def prepartition(self):
-		pass
-
 	def partition(self):
 		pass
 
