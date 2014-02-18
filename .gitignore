@@ -26,6 +26,11 @@ nosetests.*.xml
 
 .ipynb_checkpoints
 
+# Output files #
+################
+
+out/
+
 # Misc #
 ########
 
