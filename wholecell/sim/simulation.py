@@ -44,16 +44,21 @@ class Simulation(object):
 
 	# Constructors
 	def __init__(self, **kwargs):
+		# Make sure the arguments passed are valid
+		if (kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()):
+			raise Exception('Unrecognized arguments passed to Simulation.__init__: {}'.format(
+					kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()))
+
 		options = SIM_INIT_ARGS.copy()
 		options.update(kwargs)
 
 		# Set processes
-		self.processesToInclude = options['includedProcesses'] if options['includedProcesses'] is not None else DEFAULT_PROCESSES
+		self.includedProcesses = options['includedProcesses'] if options['includedProcesses'] is not None else DEFAULT_PROCESSES
 
 		self.freeMolecules = options['freeMolecules']
 
 		if self.freeMolecules is not None:
-			self.processesToInclude.append('FreeProduction')
+			self.includedProcesses.append('FreeProduction')
 
 		# References to simulation objects
 		self.randStream = None
@@ -122,9 +127,7 @@ class Simulation(object):
 		import json
 
 		try:
-			kwargs.update(
-				json.load(open(filePath))
-				)
+			kwargs.update(json.load(open(filePath)))
 
 		except ValueError:
 			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntx checker in your text editor.')
@@ -197,7 +200,7 @@ class Simulation(object):
 
 		# Remove processes not listed as being included
 		for process in self.processes.iterkeys():
-			if process not in self.processesToInclude:
+			if process not in self.includedProcesses:
 				self.processes.pop(process)
 
 

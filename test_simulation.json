@@ -1,9 +1,7 @@
 {
-	"processesToInclude":["Transcription"],
-	"simOptions":{
-		"seed":10,
-		"lengthSec":100
-	},
+	"includedProcesses":["Transcription"],
+	"seed":10,
+	"lengthSec":100,
 	"freeMolecules":[
 		["ATP[c]", 1e6],
 		["UTP[c]", 1e6],
