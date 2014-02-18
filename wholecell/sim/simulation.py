@@ -324,9 +324,8 @@ class Simulation(object):
 
 
 	@classmethod
-	def loadSimulation(cls, kb, stateDir, timePoint):
+	def loadSimulation(cls, stateDir, timePoint):
 		newSim = cls()
-		newSim.initialize(kb)
 
 		with tables.openFile(os.path.join(stateDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
