@@ -1,0 +1,9 @@
+"Citation ID"	"Bibtex reference"
+"PUB_0001"	"@article{WCM_0001,
+author = {Feist, Adam M and Henry, Christopher S and Reed, Jennifer L and Krummenacker, Markus and Joyce, Andrew R and Karp, Peter D and Broadbelt, Linda J and Hatzimanikatis, Vassily and Palsson, Bernhard O},
+title = {{A genome-scale metabolic reconstruction for Escherichia coli K-12 MG1655 that accounts for 1260 ORFs and thermodynamic information}},
+journal = {Molecular Systems Biology},
+year = {2007},
+volume = {3},
+month = jun
+}"
