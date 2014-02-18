@@ -306,6 +306,7 @@ class Simulation(object):
 		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
 
 		# TODO: save init options
+		# TODO: cache KB
 
 
 	def pytablesAppend(self, h5file):
