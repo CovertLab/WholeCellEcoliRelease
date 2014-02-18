@@ -49,13 +49,13 @@ class Simulation(object):
 			raise Exception('Unrecognized arguments passed to Simulation.__init__: {}'.format(
 					kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()))
 
-		options = SIM_INIT_ARGS.copy()
-		options.update(kwargs)
+		self._options = SIM_INIT_ARGS.copy()
+		self._options.update(kwargs)
 
 		# Set processes
-		self.includedProcesses = options['includedProcesses'] if options['includedProcesses'] is not None else DEFAULT_PROCESSES
+		self.includedProcesses = self._options['includedProcesses'] if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES
 
-		self.freeMolecules = options['freeMolecules']
+		self.freeMolecules = self._options['freeMolecules']
 
 		if self.freeMolecules is not None:
 			self.includedProcesses.append('FreeProduction')
@@ -68,23 +68,23 @@ class Simulation(object):
 		self.constructRandStream()
 
 		# Set time parameters
-		self.lengthSec = options['lengthSec'] if options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
-		self.timeStepSec = options['timeStepSec'] if options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
+		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
+		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
 		self.initialStep = 0
 		self.simulationStep = 0
 
 		# Set random seed
-		self.seed = options['seed']
+		self.seed = self._options['seed']
 
 		# Set KB
 		import cPickle
-		if options['reconstructKB'] or not os.path.exists(KB_PATH):
+		if self._options['reconstructKB'] or not os.path.exists(KB_PATH):
 			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
 				dataFileDir = "data/parsed",
 				seqFileName = "data/raw/sequence.txt"
 				)
 
-			if options['cacheKB']:
+			if self._options['cacheKB']:
 				cPickle.dump(kb, open(KB_PATH, "wb"),
 					protocol = cPickle.HIGHEST_PROTOCOL)
 
@@ -100,25 +100,25 @@ class Simulation(object):
 		# Set loggers
 		self.loggers = []
 
-		if options['logToShell']:
+		if self._options['logToShell']:
 			import wholecell.loggers.shell
 
 			self.loggers.append(
 				wholecell.loggers.shell.Shell()
 				)
 
-		if options['logToDisk']:
+		if self._options['logToDisk']:
 			import wholecell.loggers.disk
 
 			self.loggers.append(
 				wholecell.loggers.disk.Disk(
-					options['outputDir'],
-					options['overwriteExistingFiles']
+					self._options['outputDir'],
+					self._options['overwriteExistingFiles']
 					)
 				)
 
 		# Run model (optionally)
-		if options['autoRun']:
+		if self._options['autoRun']:
 			self.run()
 
 
@@ -131,7 +131,6 @@ class Simulation(object):
 
 		except ValueError:
 			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntx checker in your text editor.')
-
 
 		return cls(**kwargs)
 
@@ -325,8 +324,13 @@ class Simulation(object):
 
 
 	@classmethod
-	def loadSimulation(cls, stateDir, timePoint):
-		newSim = cls()
+	def loadSimulation(cls, stateDir, timePoint, newDir = None, overwriteExistingFiles = False):
+		newSim = cls.initFromFile(
+			os.path.join(stateDir, 'simOpts.json'),
+			logToDisk = newDir is not None,
+			overwriteExistingFiles = overwriteExistingFiles,
+			outputDir = newDir
+			)
 
 		with tables.openFile(os.path.join(stateDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
@@ -369,3 +373,6 @@ class Simulation(object):
 	@randState.setter
 	def randState(self, value):
 		self.randStream.state = value
+
+	def options(self):
+		return self._options

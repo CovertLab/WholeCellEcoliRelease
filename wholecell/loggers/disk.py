@@ -15,6 +15,8 @@ Also provides a function (load) for reading stored simulation data
 
 import os
 import time
+import json
+
 import tables
 
 import wholecell.loggers.logger
@@ -62,6 +64,13 @@ class Disk(wholecell.loggers.logger.Logger):
 
 		# Save initial state
 		self.copyDataFromStates(sim)
+
+		# Save simulation init options
+		json.dump(
+			sim.options(),
+			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
+			sort_keys = True, indent=4, separators=(',', ': ')
+			)
 
 
 	def append(self, sim):
