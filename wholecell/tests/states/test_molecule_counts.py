@@ -68,7 +68,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 		metabolite = 'ATP'
 		compartment = 'c'
 
-		partition_of_interest = self.mc.partitions[self.sim.processes['Transcription']]
+		partition_of_interest = self.mc.partitions['Transcription']
 		molIdx, cmpIdx = partition_of_interest._getIndex(
 			'{}[{}]'.format(metabolite, compartment)
 			)[1:]
