@@ -1,6 +1,5 @@
 {
 	"processesToInclude":["Transcription"],
-	"fitSimulation":false,
 	"simOptions":{
 		"seed":10,
 		"lengthSec":100
