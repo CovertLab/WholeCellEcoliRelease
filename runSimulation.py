@@ -21,8 +21,7 @@ import sys
 
 DEFAULT_SIM = dict(
 	seed = 10,
-	lengthSec = 100,
-	logToDisk = True
+	lengthSec = 100
 	)
 
 def main():
