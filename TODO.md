@@ -34,7 +34,7 @@
 	
 	(x) Generate MySQL database from CSV files
 	
-	( ) Load MySQL database into same Python object as before
+	(x) Load MySQL database into same Python object as before
 	
 	( ) Migrate KnoweldgeBase to its own repository
 	
