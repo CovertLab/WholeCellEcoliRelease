@@ -23,46 +23,114 @@ DEFAULT_PROCESSES = [
 	'Translation',
 	] # TOKB
 
+KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
+
 # TODO: save/load included processes
 # TODO: save/load free molecules
+
+SIM_INIT_ARGS = dict(
+	includedProcesses = None,
+	freeMolecules = None,
+	lengthSec = None, timeStepSec = None,
+	seed = None,
+	reconstructKB = False, cacheKB = True,
+	logToShell = True,
+	logToDisk = False, outputDir = None, overwriteExistingFiles = False,
+	autoRun = False
+	)
 
 class Simulation(object):
 	""" Simulation """
 
-	# Constructor
-	def __init__(self, processesToInclude = None, freeMolecules = None):
-		self.meta = {
-			"options": ["lengthSec", "timeStepSec", "seed"],
-			"units": {"lengthSec": "s", "timeStepSec": "s"}
-		}
+	# Constructors
+	def __init__(self, **kwargs):
+		options = SIM_INIT_ARGS.copy()
+		options.update(kwargs)
 
-		# Options
-		self.lengthSec = 3600						# Simulation length (s) # TOKB
-		self.timeStepSec = 1.0						# Simulation time step (s) # TOKB
-		if processesToInclude is not None:			# List of processes to include in simulation
-			self.processesToInclude = processesToInclude	
+		# Set processes
+		self.processesToInclude = options['includedProcesses'] if options['includedProcesses'] is not None else DEFAULT_PROCESSES
 
-		else:
-			self.processesToInclude = DEFAULT_PROCESSES
-
-		self.freeMolecules = freeMolecules			# Iterable of tuples describing mol IDs and counts
+		self.freeMolecules = options['freeMolecules']
 
 		if self.freeMolecules is not None:
 			self.processesToInclude.append('FreeProduction')
 
-		# Dependent properties
-		self.seed = None
+		# References to simulation objects
+		self.randStream = None
+		self.states = None
+		self.processes = None
 
-		# Rand stream, state, process handles
-		self.randStream = None						# Random stream
-		self.states = None							# Ordered dict of states
-		self.processes = None						# Ordered dict of processes
-
-		self.loggers = []
 		self.constructRandStream()
 
+		# Set time parameters
+		self.lengthSec = options['lengthSec'] if options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
+		self.timeStepSec = options['timeStepSec'] if options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
 		self.initialStep = 0
 		self.simulationStep = 0
+
+		# Set random seed
+		self.seed = options['seed']
+
+		# Set KB
+		import cPickle
+		if options['reconstructKB'] or not os.path.exists(KB_PATH):
+			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
+				dataFileDir = "data/parsed",
+				seqFileName = "data/raw/sequence.txt"
+				)
+
+			if options['cacheKB']:
+				cPickle.dump(kb, open(KB_PATH, "wb"),
+					protocol = cPickle.HIGHEST_PROTOCOL)
+
+		else:
+			kb = cPickle.load(open(KB_PATH, "rb"))
+
+		self.initialize(kb)
+
+		# Fit model
+		import wholecell.utils.fitter
+		wholecell.utils.fitter.Fitter.FitSimulation(self, kb)
+
+		# Set loggers
+		self.loggers = []
+
+		if options['logToShell']:
+			import wholecell.loggers.shell
+
+			self.loggers.append(
+				wholecell.loggers.shell.Shell()
+				)
+
+		if options['logToDisk']:
+			import wholecell.loggers.disk
+
+			self.loggers.append(
+				wholecell.loggers.disk.Disk(
+					options['outputDir'],
+					options['overwriteExistingFiles']
+					)
+				)
+
+		# Run model (optionally)
+		if options['autoRun']:
+			self.run()
+
+
+	@classmethod
+	def initFromFile(cls, filePath, **kwargs):
+		import json
+
+		try:
+			kwargs.update(
+				json.load(open(filePath))
+				)
+
+		except ValueError:
+			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntx checker in your text editor.')
+
+
+		return cls(**kwargs)
 
 
 	# Construct random stream
@@ -188,10 +256,6 @@ class Simulation(object):
 
 
 	# --- Logger functions ---
-	def loggerAdd(self, logger):
-		self.loggers.append(logger)
-
-
 	def logInitialize(self):
 		for logger in self.loggers:
 			logger.initialize(self)
@@ -208,9 +272,6 @@ class Simulation(object):
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file):
-		# TODO: move fitted parameter saving either into the appropriate state,
-		# or save the fitted parameters in a knowledge base object
-
 		groupFit = h5file.createGroup(
 			h5file.root,
 			'fitParameters',
@@ -240,6 +301,8 @@ class Simulation(object):
 			)
 
 		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
+
+		# TODO: save init options
 
 
 	def pytablesAppend(self, h5file):
@@ -281,63 +344,11 @@ class Simulation(object):
 
 
 	# -- Get, set options and parameters
-	def getOptions(self):
-		# Initialize output
-		val = {"states": {}, "processes": {}}
-
-		# Top-level
-		if self.meta.has_key("options"):
-			for opt in self.meta["options"]:
-				val[opt] = getattr(self, opt)
-
-		# States
-		for state in self.states.itervalues():
-			val["states"][state.meta["id"]] = state.getOptions()
-
-		# Processes
-		for process in self.processes.itervalues():
-			val["processes"][process.meta["id"]] = process.getOptions()
-
-		return val
-
-	# Sets options values based on passed in dict
-	def setOptions(self, val):
-		# Top-level
-		opts = list(set(val.keys()).difference(set(["states", "processes"])))
-		if len(opts) > 0 and (not self.meta.has_key("options") or not set(opts).issubset(set(self.meta["options"]))):
-			invalidOpts = list(set(opts).difference(set(self.meta["options"])))
-			raise Exception, "Invalid options:\n -%s" % "".join(invalidOpts)
-		for opt in opts:
-			setattr(self, opt, val[opt])
-
-		# States
-		if val.has_key("states"):
-			for key in val["states"].keys():
-				state = self.states[key]
-				state.setOptions(val["states"][key])
-
-		# Processes
-		if val.has_key("processes"):
-			for key in val["processes"].keys():
-				process = self.processes[key]
-				process.setOptions(val["processes"][key])
-
 	def getDynamics(self):
 		val = {}
 		for state in self.states.itervalues():
 			val[state.meta["id"]] = state.getDynamics()
 		return val
-
-	@property
-	def timeStepSec(self):
-		return self._timeStepSec
-
-	@timeStepSec.setter
-	def timeStepSec(self, value):
-		self._timeStepSec = value
-		if hasattr(self, "processes"):
-			for process in self.processes.itervalues():
-				process.timeStepSec = value
 
 	@property
 	def seed(self):
