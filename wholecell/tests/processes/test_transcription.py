@@ -27,9 +27,9 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 	ntpCounts = 1e6
 	h2oCounts = 1e6
 	fixtureOpts = {
-		'fixture_dir'		: os.path.join('out', 'test', 'Test_Transcription'),
-		'processes' 		: ["Transcription"],
-		'free_molecules'	: [
+		'outputDir':os.path.join('out', 'test', 'Test_Transcription'),
+		'includedProcesses':["Transcription"],
+		'freeMolecules':[
 			["ATP[c]", ntpCounts],
 			["UTP[c]", ntpCounts],
 			["CTP[c]", ntpCounts],
@@ -39,24 +39,24 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 			["RPOC-MONOMER[c]", initEnzCnts],
 			["RPOD-MONOMER[c]", initEnzCnts]
 			],
-		'length_sec'		: 500,
-		'n_seeds'			: 8
+		'lengthSec':500,
+		'nSeeds':8
 		}
 
-	fixtureDir = fixtureOpts['fixture_dir']
+	fixtureDir = fixtureOpts['outputDir']
 
 	@classmethod
 	def setUpClass(cls):
 		super(Test_Transcription, cls).setUpClass()
 
 		doublingTime = 3600.
-		simLength = cls.fixtureOpts['length_sec']
+		simLength = cls.fixtureOpts['lengthSec']
 
 		dirs = os.walk(Test_Transcription.fixtureDir).next()[1] # get all of the directories
 		nSims = len(dirs)
 
 		# TODO: get these two lines working
-		# nSims = cls.fixtureOpts['n_seeds']
+		# nSims = cls.fixtureOpts['nSeeds']
 		# dirs = [os.path.join(cls.fixtureDir, 'sim{}'.format(i)) for i in range(nSims)]
 
 		ntpIDs = ['ATP', 'UTP', 'CTP', 'GTP']
@@ -153,8 +153,6 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 		ntpRatio = self.ntpFinalUsage/self.ntpInitialUsage
 
 		self.assertTrue(numpy.allclose(self.expectedRatio, ntpRatio, rtol = 0.05))
-
-
 
 
 	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')

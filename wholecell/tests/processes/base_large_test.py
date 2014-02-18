@@ -18,13 +18,13 @@ class BaseLargeTest(unittest.TestCase):
 			if cls.fixtureOpts is None:
 				raise Exception('No fixture options defined for test which inherits ' + str(self) + '!')
 
-
-			with open(TEMP_FILE_NAME, 'w') as outfile:
-				outfile.write(json.dumps(cls.fixtureOpts))
+			json.dump(cls.fixtureOpts, open(TEMP_FILE_NAME, 'w'))
 			
 			# Load json file into generateLargeTestFixtures
 			# Use info to run simulation with MPI
-			returnCode = subprocess.call(['mpirun', '-n', str(N_PROCESSES), 'python', 'wholecell/tests/processes/generate_large_test_fixtures.py'])
+			returnCode = subprocess.call(
+				['mpirun', '-n', str(N_PROCESSES), 'python', 'wholecell/tests/processes/generate_large_test_fixtures.py']
+				)
 
 			if returnCode != 0:
 				# TODO: confirm that nonzero return codes are errors
