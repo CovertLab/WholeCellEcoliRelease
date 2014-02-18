@@ -22,7 +22,7 @@ import sys
 DEFAULT_SIM = dict(
 	seed = 10,
 	lengthSec = 100,
-	autoRun = True
+	logToDisk = True
 	)
 
 def main():
@@ -32,14 +32,13 @@ def main():
 
 	if nArgs == 1:
 		# Use default parameters
-		wholecell.sim.simulation.Simulation(**DEFAULT_SIM)
+		sim = wholecell.sim.simulation.Simulation(**DEFAULT_SIM)
 
 	elif nArgs == 2:
 		# Attempt to parse from a json file
-		wholecell.sim.simulation.Simulation.initFromFile(
-			sys.argv[1],
-			autoRun = True
-			)
+		sim = wholecell.sim.simulation.Simulation.initFromFile(sys.argv[1])
+
+	sim.run()
 
 if __name__ == '__main__':
 	main()

@@ -25,9 +25,6 @@ DEFAULT_PROCESSES = [
 
 KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
-# TODO: save/load included processes
-# TODO: save/load free molecules
-
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
 	freeMolecules = None,
@@ -35,8 +32,7 @@ SIM_INIT_ARGS = dict(
 	seed = None,
 	reconstructKB = False, cacheKB = True,
 	logToShell = True,
-	logToDisk = False, outputDir = None, overwriteExistingFiles = False,
-	autoRun = False
+	logToDisk = False, outputDir = None, overwriteExistingFiles = False
 	)
 
 class Simulation(object):
@@ -117,22 +113,20 @@ class Simulation(object):
 					)
 				)
 
-		# Run model (optionally)
-		if self._options['autoRun']:
-			self.run()
-
 
 	@classmethod
 	def initFromFile(cls, filePath, **kwargs):
 		import json
 
 		try:
-			kwargs.update(json.load(open(filePath)))
+			jsonArgs = json.load(open(filePath))
 
 		except ValueError:
 			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntx checker in your text editor.')
 
-		return cls(**kwargs)
+		jsonArgs.update(kwargs)
+
+		return cls(**jsonArgs)
 
 
 	# Construct random stream
@@ -304,7 +298,6 @@ class Simulation(object):
 
 		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
 
-		# TODO: save init options
 		# TODO: cache KB
 
 
