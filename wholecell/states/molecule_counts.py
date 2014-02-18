@@ -438,48 +438,17 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	# Partitioning
 
-	def setPartition(self, process, reqMols, isReqAbs = False):
-		# TODO: warning for adding a partition after allocation
-		partition = self.partitions[process]
-		
-		# TODO: move this to partition constructor
-		partition.isReqAbs = isReqAbs
-
-		mapping, iMolecule = self._getIndices(reqMols)[:2]
-
-		if len(set(mapping)) < len(mapping):
-			raise Exception('Partition request cannot contain duplicate IDs')
-
-		partition.mapping = mapping
-
-		partition.backMapping = {val:i for i, val in enumerate(mapping)}
-
-		partition._molIDs = [self._molIDs[i] for i in iMolecule]
-		partition._molIDIndex = {wid:i for i, wid in enumerate(partition._molIDs)}
-
-		# TODO: determine how compartments should be handled here...
-		partition._compartments = ["merged"] # "merged"
-		partition._compartmentIndex = {"merged":0} # "merged"
-
-		partition._nMolIDs = len(partition._molIDs)
-		partition._nCompartments = len(partition._compartments)
-
-		return partition
-
-
-	# TODO: get rid of prepartition
-	def prepartition(self):
-		# Clear out the existing partitions in preparation for the requests
-		for partition in self.partitions.viewvalues():
-			partition.countsBulkIs(0)
-
-
 	def partition(self):
 		if self.partitions:
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
+
+			# Clear out the existing partitions in preparation for the requests
+			for partition in self.partitions.viewvalues():
+				partition.countsBulkIs(0)
+
 			
 			# Calculate and store requests
-			for iPartition, (process, partition) in enumerate(self.partitions.viewitems()):
+			for iPartition, partition in enumerate(self.partitions.viewvalues()):
 				# Call request function and record requests
 				if partition.mapping is not None:
 					self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
@@ -568,7 +537,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
 		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
-		h5file.createArray(groupNames, 'processes', [process.meta['id'] for process in self.partitions.viewkeys()])
+		h5file.createArray(groupNames, 'processes', [process for process in self.partitions.viewkeys()])
 
 		groupIdxs = h5file.createGroup(h5file.root,
 			'indexes', 'Indexes for various groups of molecules')
@@ -626,6 +595,29 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		# hack; uniques instances are unimplemented
 		self._molecules = {}
 		self._uniqueDict = self.state()._uniqueDict
+
+
+	def initialize(self, reqMols, isReqAbs = False):
+		self.isReqAbs = isReqAbs
+
+		mapping, iMolecule = self.state()._getIndices(reqMols)[:2]
+
+		if len(set(mapping)) < len(mapping):
+			raise Exception('Partition request cannot contain duplicate IDs')
+
+		self.mapping = mapping
+
+		self.backMapping = {val:i for i, val in enumerate(mapping)}
+
+		self._molIDs = [self.state()._molIDs[i] for i in iMolecule]
+		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
+
+		# TODO: determine how compartments should be handled here...
+		self._compartments = ["merged"] # "merged"
+		self._compartmentIndex = {"merged":0} # "merged"
+
+		self._nMolIDs = len(self._molIDs)
+		self._nCompartments = len(self._compartments)
 
 
 	def allocate(self):

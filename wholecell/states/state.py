@@ -37,7 +37,7 @@ class State(object):
 
 		if self.partitionClass is not None:
 			for process in sim.processes.viewvalues():
-				self.partitions[process] = self.partitionClass(self, process)
+				self.partitions[process.meta['id']] = self.partitionClass(self, process)
 
 	# Allocate memory
 	def allocate(self):
@@ -51,9 +51,6 @@ class State(object):
 
 	# Partitioning
 	def setPartition(self):
-		pass
-
-	def prepartition(self):
 		pass
 
 	def partition(self):

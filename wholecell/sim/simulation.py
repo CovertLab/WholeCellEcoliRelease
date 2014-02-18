@@ -171,10 +171,6 @@ class Simulation(object):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# Prepare to partition states among processes
-		for state in self.states.itervalues():
-			state.prepartition()
-
 		# Partition states among processes
 		for state in self.states.itervalues():
 			state.partition()
