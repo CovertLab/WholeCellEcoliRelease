@@ -19,6 +19,12 @@ Example:
 import wholecell.sim.simulation
 import sys
 
+DEFAULT_SIM = dict(
+	seed = 10,
+	lengthSec = 100,
+	autoRun = True
+	)
+
 def main():
 	# TODO: argument parsing
 
@@ -26,11 +32,7 @@ def main():
 
 	if nArgs == 1:
 		# Use default parameters
-		wholecell.sim.simulation.Simulation(
-			seed = 10,
-			lengthSec = 100,
-			autoRun = True
-			)
+		wholecell.sim.simulation.Simulation(**DEFAULT_SIM)
 
 	elif nArgs == 2:
 		# Attempt to parse from a json file
