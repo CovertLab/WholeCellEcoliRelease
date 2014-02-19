@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 
-"""
-runSimulation
-Runs and logs whole-cell simulation
+'''
+runSimulation.py
 
-Example:
->>> from runSimulation import *
->>> runSimulation()
+Runs a simulation.
 
-Example:
-~/parWholeCellPy$ python runSimulation.py
+Run a simulation using default parameters:
+~/wcEcoli$ python runSimulation.py
 
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/10/2013
-"""
+Run a simulation using a provided configuration (JSON) file:
+~/wcEcoli$ python runSimulation.py simParameters.json
+
+'''
 
 import wholecell.sim.simulation
 import sys
