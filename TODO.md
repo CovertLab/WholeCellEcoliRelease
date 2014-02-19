@@ -59,3 +59,5 @@
 	( ) Tweak WT biomass coefficients to match process demands
 	
 	( ) Implement full FBA model with WT biomass
+
+	( ) Change transcription/translation to actual transcription units
