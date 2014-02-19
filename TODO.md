@@ -42,6 +42,10 @@
 	
 	( ) Move constants out of simulation code to KB
 
+	( ) Finish validating the data in the KB
+
+	( ) Citations for stuff taken from Ecocyc
+
 (3) **Actual modeling/fitting**: Our model was sort of fit with the "core" biomass function from Feist but the metabolic model was literally just producing biomass with no FBA model behind it. By the end of the quarter we want to have a fit wild-type metabolic model with FBA implemented in the modeling framework.
 	
 	(x) Get the Feist model growing on the WT biomass how we would expect
