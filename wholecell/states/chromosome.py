@@ -188,66 +188,52 @@ def testClass(chromosomeClass, iters = N_ITERS):
 	return timeInit, timeSetup, timeAccess, timeRemove
 
 
+def testClasses():
+	for cls in [ChromosomeArray, ChromosomeDict]:
+		timeInit, timeSetup, timeAccess, timeRemove = testClass(cls)
 
-# for cls in [ChromosomeArray, ChromosomeDict]:
-# 	timeInit, timeSetup, timeAccess, timeRemove = testClass(cls)
+		print ''
+		print cls.__name__
+		print '{:0.3f}s to initialize\n{:0.3f}s to bind {} molecules\n{:0.3f}s to check {} locations\n{:0.3f}s to remove {} molecules'.format(
+			timeInit, timeSetup, N_RNAP, timeAccess, N_CHECK, timeRemove, N_REMOVE
+			)
 
-# 	print ''
-# 	print cls.__name__
-# 	print '{:0.3f}s to initialize\n{:0.3f}s to bind {} molecules\n{:0.3f}s to check {} locations\n{:0.3f}s to remove {} molecules'.format(
-# 		timeInit, timeSetup, N_RNAP, timeAccess, N_CHECK, timeRemove, N_REMOVE
-# 		)
+def testSaving():
+	import tables
 
-import tables
+	chromosome = ChromosomeArray()
+	chromosome.setup()
 
-chromosome = ChromosomeArray()
-chromosome.setup()
+	nSteps = 500
 
-nSteps = 500
+	with tables.open_file('test.hdf', mode = 'w', title = 'test') as h5file:
+		columns = {
+			'boundMolecules':tables.UInt32Col(N_BASES)
+			}
 
-with tables.open_file('test.hdf', mode = 'w', title = 'test') as h5file:
-	columns = {
-		'boundMolecules':tables.UInt32Col(N_BASES)
-		}
+		table = h5file.create_table(
+			h5file.root,
+			'test',
+			columns,
+			title = 'test',
+			filters = tables.Filters(complevel = 9, complib = 'zlib'),
+			expectedrows = nSteps
+			)
 
-	table = h5file.create_table(
-		h5file.root,
-		'test',
-		columns,
-		title = 'test',
-		filters = tables.Filters(complevel = 9, complib = 'zlib'),
-		expectedrows = nSteps
-		)
+		molecules = random.sample(chromosome.molecules, N_REMOVE)
 
-	molecules = random.sample(chromosome.molecules, N_REMOVE)
+		for t in xrange(nSteps):
+			chromosome.boundMoleculeRemove(molecules[t])
 
-	for t in xrange(nSteps):
-		chromosome.boundMoleculeRemove(molecules[t])
+			table = h5file.get_node('/', 'test')
+			entry = table.row
 
-		table = h5file.get_node('/', 'test')
-		entry = table.row
+			entry['boundMolecules'] = chromosome.chrArray+1
 
-		entry['boundMolecules'] = chromosome.chrArray+1
+			entry.append()
+			table.flush()
 
-		entry.append()
-		table.flush()
-
-		if t % 100 == 0:
-			print t
+			if t % 100 == 0:
+				print t
 
 
-
-
-'''
-results for N_ITERS = 100
-
-ChromosomeArray
-1.369s to initialize
-2.659s to bind 1000 molecules
-7.094s to check 10000 locations
-
-ChromosomeDict
-42.693s to initialize
-2.789s to bind 1000 molecules
-4.999s to check 10000 locations
-'''
