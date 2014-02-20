@@ -90,7 +90,9 @@ class Disk(wholecell.loggers.logger.Logger):
 
 
 	def createTables(self, sim):
-		sim.pytablesCreate(self.mainFile)
+		expectedRows = int(sim.lengthSec/sim.timeStepSec)
+
+		sim.pytablesCreate(self.mainFile, expectedRows)
 
 		for stateName, state in sim.states.viewitems():
 			stateFile = tables.open_file(
@@ -99,7 +101,7 @@ class Disk(wholecell.loggers.logger.Logger):
 				title = stateName + " state file"
 				)
 
-			state.pytablesCreate(stateFile)
+			state.pytablesCreate(stateFile, expectedRows)
 
 			self.stateFiles[state] = stateFile
 

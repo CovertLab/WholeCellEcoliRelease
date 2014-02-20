@@ -116,7 +116,7 @@ class Mass(wholecell.states.state.State):
 		self.growth = self.cell.sum() - oldMass
 
 
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		colNameLen = max(len(colName) for colName in self.cIdx.keys())
 
 		nCols = len(self.cIdx)
@@ -135,7 +135,14 @@ class Mass(wholecell.states.state.State):
 
 		# Create table
 		# TODO: Add compression options (using filters)
-		t = h5file.create_table(h5file.root, self.meta["id"], d, title = self.meta["name"], filters = tables.Filters(complevel = 9, complib="zlib"))
+		t = h5file.create_table(
+			h5file.root,
+			self.meta["id"],
+			d,
+			title = self.meta["name"],
+			filters = tables.Filters(complevel = 9, complib="zlib"),
+			expectedrows = expectedRows
+			)
 
 		# Store units as metadata
 		t.attrs.total_units = self.meta["units"]["total"]

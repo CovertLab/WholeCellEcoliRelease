@@ -62,7 +62,7 @@ class State(object):
 
 	# Saving and loading
 
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		pass
 
 	def pytablesAppend(self, h5file):

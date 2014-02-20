@@ -506,7 +506,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		return self._molMass[self._getIndices([id_ + '[c]' for id_ in ids])[1]]
 
 
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		countsShape = self._countsBulk.shape
 		partitionsShape = self._countsBulkRequested.shape
 
@@ -529,7 +529,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			self.meta["id"],
 			d,
 			title = self.meta["name"],
-			filters = tables.Filters(complevel = 9, complib="zlib")
+			filters = tables.Filters(complevel = 9, complib="zlib"),
+			expectedrows = expectedRows
 			)
 	
 		groupNames = h5file.createGroup(h5file.root,

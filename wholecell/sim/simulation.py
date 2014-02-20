@@ -267,7 +267,7 @@ class Simulation(object):
 			logger.finalize(self)
 
 	# Save to/load from disk
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		groupFit = h5file.createGroup(
 			h5file.root,
 			'fitParameters',
