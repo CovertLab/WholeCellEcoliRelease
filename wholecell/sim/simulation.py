@@ -32,7 +32,7 @@ SIM_INIT_ARGS = dict(
 	seed = None,
 	reconstructKB = False, cacheKB = True,
 	logToShell = True,
-	logToDisk = False, outputDir = None, overwriteExistingFiles = False
+	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
 	)
 
 class Simulation(object):
@@ -109,7 +109,8 @@ class Simulation(object):
 			self.loggers.append(
 				wholecell.loggers.disk.Disk(
 					self._options['outputDir'],
-					self._options['overwriteExistingFiles']
+					self._options['overwriteExistingFiles'],
+					self._options['logToDiskEvery']
 					)
 				)
 

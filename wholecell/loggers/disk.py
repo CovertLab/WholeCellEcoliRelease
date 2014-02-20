@@ -23,19 +23,24 @@ import wholecell.loggers.logger
 
 # TODO: let loaded simulation resume logging in a copied file
 
+DEFAULT_LOG_FREQUENCY = 1
+
 class Disk(wholecell.loggers.logger.Logger):
 	""" Disk """
 
-	def __init__(self, outDir = None, allowOverwrite = False):
+	def __init__(self, outDir = None, allowOverwrite = False, logEvery = None):
 		self.outDir = outDir
 		self.allowOverwrite = allowOverwrite
-
+		self.logEvery = logEvery
 
 		self.stateFiles = {}
 		self.mainFile = None
+		self.logStep = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
 
 
 	def initialize(self, sim):
+		self.logStep = 0
+
 		if self.outDir is None:
 			self.outDir = os.path.join('out', self.currentTimeAsDir())
 		
@@ -74,7 +79,10 @@ class Disk(wholecell.loggers.logger.Logger):
 
 
 	def append(self, sim):
-		self.copyDataFromStates(sim)
+		self.logStep += 1
+
+		if self.logStep % self.logEvery == 0:
+			self.copyDataFromStates(sim)
 
 
 	def finalize(self, sim):
