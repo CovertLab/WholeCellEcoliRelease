@@ -124,7 +124,7 @@ class Mass(wholecell.states.state.State):
 		# Columns
 		d = {
 			"time": tables.Int64Col(),
-			"compartment": tables.StringCol(colNameLen, nCols),
+			"compartment": tables.StringCol(colNameLen, nCols), # TODO: store in table outside columns instead of writing every step
 			"total": tables.Float64Col(nCols),
 			"cell": tables.Float64Col(nCols),
 			"cellDry": tables.Float64Col(nCols),
