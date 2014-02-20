@@ -16,11 +16,12 @@ integer is an index reference for simulation objects (specific molecules), or
 
 '''
 
-import numpy
 import time
 import random
-
 from collections import OrderedDict
+
+import numpy
+import tables
 
 N_BASES = 5000000
 # N_CHROMOSOMES = 10
@@ -32,10 +33,11 @@ N_ITERS = 10 # number of testing iterations
 N_CHECK = 10000 # number of regions to access
 N_REMOVE = 500 # number of molecules to remove
 
+N_STEPS = 10 # number of steps to run and save
+
 
 class Molecule(object):
-	# A simple object used to reference individual molecules bound to a
-	# Chromosome object
+	# A simple object used to reference individual molecules bound to a Chromosome object
 	chrIndex = None
 	width = OBJ_WIDTH
 	boundAt = None
@@ -45,11 +47,16 @@ class Molecule(object):
 class Chromosome(object):
 	molecules = None
 
-	empty = -1
+	empty = -1 # TODO: concerted handling for non-molecule chromosome objects like "empty", "does-not-exist", etc.
 
 	def __init__(self):
-		# Allocate the empty chromosome object
 		self.molecules = []
+		self._allocate()
+
+
+	def _allocate(self):
+		# Allocate the empty chromosome object
+		raise NotImplementedError()
 
 
 	def setup(self):
@@ -73,7 +80,7 @@ class Chromosome(object):
 
 	def boundMoleculeIs(self, molecule, start):
 		# Attach a molecule to a region
-		index = self._moleculeIndex(molecule)
+		index = self._moleculeAssignIndex(molecule)
 		molecule.boundAt = start
 		self._setRange(self._range(molecule.boundAt, molecule.width), index)
 
@@ -83,28 +90,26 @@ class Chromosome(object):
 		self._setRange(self._range(molecule.boundAt, molecule.width), self.empty)
 		molecule.boundAt = None
 
-		self._moleculeUnindex(molecule)
+		self._moleculeUnassignIndex(molecule)
 
 
-	def _moleculeIndex(self, molecule):
-		if molecule.chrIndex is not None:
-			return molecule.chrIndex
+	def _moleculeAssignIndex(self, molecule):
+		# Assign an index to a molecule
+		try:
+			newIndex = self.molecules.index(None)
 
-		else:
-			try:
-				newIndex = self.molecules.index(None)
+		except ValueError:
+			self.molecules.append(None)
+			newIndex = len(self.molecules) - 1
+		
+		molecule.chrIndex = newIndex
+		self.molecules[newIndex] = molecule
 
-			except ValueError:
-				self.molecules.append(None)
-				newIndex = len(self.molecules) - 1
-			
-			molecule.chrIndex = newIndex
-			self.molecules[newIndex] = molecule
-
-			return molecule.chrIndex
+		return molecule.chrIndex
 
 
-	def _moleculeUnindex(self, molecule):
+	def _moleculeUnassignIndex(self, molecule):
+		# Remove a molecule's index, freeing it up
 		self.molecules[molecule.chrIndex] = None
 		molecule.chrIndex = None
 
@@ -115,17 +120,16 @@ class Chromosome(object):
 
 	_range = None # Function that returns a range of values given a start and stop
 
-	def _freeSites(self):
-		raise NotImplementedError()
-
-
-	def fractionOccupied(self):
+	def toUnsignedArray(self):
+		# Return an unsigned integer numpy array (for saving)
+		# NOTE: Choosing "empty", the most common entry, to be 0, seems to
+		# improve compression.
 		raise NotImplementedError()
 
 
 class ChromosomeArray(Chromosome):
-	def __init__(self):
-		super(ChromosomeArray, self).__init__()
+	# numpy array implementation of the chromosome object
+	def _allocate(self):
 		self.chrArray = numpy.empty(N_BASES, numpy.int64)
 		self.chrArray[:] = self.empty
 
@@ -140,14 +144,6 @@ class ChromosomeArray(Chromosome):
 		self.chrArray[rng] = value
 
 
-	def _freeSites(self):
-		return self.chrArray == self.empty
-
-
-	def fractionOccupied(self):
-		return 1 - 1.*self._freeSites().sum()/N_BASES
-
-
 	def toUnsignedArray(self):
 		return self.chrArray + 1
 
@@ -156,10 +152,9 @@ class ChromosomeArray(Chromosome):
 
 
 class ChromosomeDict(Chromosome):
-	def __init__(self):
-		super(ChromosomeDict, self).__init__()
+	# dictionary implementation of the chromosome object
+	def _allocate(self):
 		self.chrDict = {i:self.empty for i in self._range(N_BASES)}
-		# self.chrDict = OrderedDict([(i, self.empty) for i in self._range(N_BASES)])
 
 
 	def boundMolecules(self, start, stop):
@@ -171,15 +166,6 @@ class ChromosomeDict(Chromosome):
 	def _setRange(self, rng, value):
 		for i in rng:
 			self.chrDict[i] = value
-
-
-	def _freeSites(self):
-		return {i for i, value in self.chrDict.viewitems() if value == self.empty}
-
-
-	def fractionOccupied(self):
-		# return 1 - 1.*len(self._freeSites())/N_BASES
-		return sum(mol.width for mol in self.molecules)/N_BASES
 
 
 	def toUnsignedArray(self):
@@ -198,9 +184,8 @@ class ChromosomeDict(Chromosome):
 
 
 class ChromosomeOrderedDict(ChromosomeDict):
-	def __init__(self):
-		# super(ChromosomeOrderedDict, self).__init__()
-		self.molecules = [] # this is why you shouldn't create separate __init__ methods for subclasses
+	# ordered dictionary implementation of the chromosome object
+	def _allocate(self):
 		self.chrDict = OrderedDict([(i, self.empty) for i in self._range(N_BASES)])
 
 
@@ -209,13 +194,14 @@ class ChromosomeOrderedDict(ChromosomeDict):
 		
 
 def testRunningClass(chromosomeClass, iters = N_ITERS):
+	# Test the time needed to run a class, performing some basic operations
+
 	timeInit = 0
 	timeSetup = 0
 	timeAccess = 0
 	timeRemove = 0
 	timeAdd = 0
 	timeMove = 0
-	timeCalcOccupied = 0
 	
 	for i in xrange(iters):
 		t = time.time()
@@ -258,34 +244,30 @@ def testRunningClass(chromosomeClass, iters = N_ITERS):
 				chromosome.boundMoleculeIs(molecule, newPos)
 
 		timeMove += time.time() - t
-
-		t = time.time()
-		fractionOccupied = chromosome.fractionOccupied()
-		timeCalcOccupied += time.time() - t
 	
-	return timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove, timeCalcOccupied
+	return timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove
 
 
-def testRunningClasses(classes = (ChromosomeArray, ChromosomeDict)):
+def testRunningClasses(classes = (ChromosomeArray, ChromosomeDict, ChromosomeOrderedDict)):
 	for cls in classes:
-		timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove, timeCalcOccupied = testRunningClass(cls)
+		timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove = testRunningClass(cls)
 
 		print ''
-		print cls.__name__
-		print '{:0.3f}s to initialize\n{:0.3f}s to bind {} molecules\n{:0.3f}s to check {} locations\n{:0.3f}s to remove {} molecules\n{:0.3f}s to re-bind {} molecules\n{:0.3f}s to randomly move {} molecules\n{:0.3f}s to calculate fraction occupied'.format(
+		print '{} (sum of {} runs)'.format(cls.__name__, N_ITERS)
+		print '{:0.3f}s to initialize\n{:0.3f}s to bind {} molecules\n{:0.3f}s to check {} locations\n{:0.3f}s to remove {} molecules\n{:0.3f}s to re-bind {} molecules\n{:0.3f}s to randomly move {} molecules'.format(
 			timeInit,
 			timeSetup, N_RNAP,
 			timeAccess, N_CHECK,
 			timeRemove, N_REMOVE,
 			timeAdd, N_REMOVE,
 			timeMove, N_REMOVE,
-			timeCalcOccupied
 			)
 
-N_STEPS = 10
 
 def testSaving(chromosomeClass):
-	import tables
+	# Test the time needed to save a class while performing a simple molecule
+	# unbinding operation (keeps the data from being identical between steps,
+	# which could strongly bias the outcome due to compression)
 
 	chromosome = chromosomeClass()
 	chromosome.setup()
@@ -305,7 +287,7 @@ def testSaving(chromosomeClass):
 			expectedrows = N_STEPS
 			)
 
-		molecules = random.sample(chromosome.molecules, N_REMOVE)
+		molecules = random.sample(chromosome.molecules, N_STEPS)
 
 		for t in xrange(N_STEPS):
 			chromosome.boundMoleculeRemove(molecules[t])
@@ -324,7 +306,7 @@ def testSaving(chromosomeClass):
 	return (time.time() - initTime)
 
 
-def testSavingClasses(classes = (ChromosomeArray, ChromosomeDict)):
+def testSavingClasses(classes = (ChromosomeArray, ChromosomeDict, ChromosomeOrderedDict)):
 	for cls in classes:
 		timeSave = testSaving(cls)
 
@@ -332,44 +314,43 @@ def testSavingClasses(classes = (ChromosomeArray, ChromosomeDict)):
 		print cls.__name__
 		print '{:0.3f}s to save {} simulation steps'.format(timeSave, N_STEPS)
 
+
 if __name__ == '__main__':
 	testRunningClasses()
 	testSavingClasses()
 
+# output on my system
 '''
-ChromosomeArray
-0.128s to initialize
-0.284s to bind 1000 molecules
-0.693s to check 10000 locations
-0.015s to remove 500 molecules
-0.130s to re-bind 500 molecules
-0.144s to randomly move 500 molecules
-0.111s to calculate fraction occupied
+ChromosomeArray (sum of 10 runs)
+0.149s to initialize
+0.318s to bind 1000 molecules
+1.003s to check 10000 locations
+0.014s to remove 500 molecules
+0.145s to re-bind 500 molecules
+0.157s to randomly move 500 molecules
 
-ChromosomeDict
-5.363s to initialize
-0.223s to bind 1000 molecules
-0.501s to check 10000 locations
-0.005s to remove 500 molecules
-0.099s to re-bind 500 molecules
-0.104s to randomly move 500 molecules
-0.001s to calculate fraction occupied
+ChromosomeDict (sum of 10 runs)
+5.476s to initialize
+0.226s to bind 1000 molecules
+0.513s to check 10000 locations
+0.004s to remove 500 molecules
+0.105s to re-bind 500 molecules
+0.102s to randomly move 500 molecules
 
-ChromosomeOrderedDict
-84.309s to initialize
-0.267s to bind 1000 molecules
-0.866s to check 10000 locations
+ChromosomeOrderedDict (sum of 10 runs)
+85.987s to initialize
+0.266s to bind 1000 molecules
+0.888s to check 10000 locations
 0.005s to remove 500 molecules
-0.120s to re-bind 500 molecules
-0.122s to randomly move 500 molecules
-0.001s to calculate fraction occupied
+0.119s to re-bind 500 molecules
+0.121s to randomly move 500 molecules
 
 ChromosomeArray
-1.397s to save 10 simulation steps
+1.389s to save 10 simulation steps
 
 ChromosomeDict
-58.065s to save 10 simulation steps
+58.583s to save 10 simulation steps
 
 ChromosomeOrderedDict
-15.488s to save 10 simulation steps
+15.112s to save 10 simulation steps
 '''
