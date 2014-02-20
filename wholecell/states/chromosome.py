@@ -148,7 +148,7 @@ class ChromosomeArray(Chromosome):
 		return self.chrArray + 1
 
 
-	_range = numpy.arange
+	_range = slice
 
 
 class ChromosomeDict(Chromosome):
@@ -322,35 +322,35 @@ if __name__ == '__main__':
 # output on my system
 '''
 ChromosomeArray (sum of 10 runs)
-0.149s to initialize
-0.318s to bind 1000 molecules
-1.003s to check 10000 locations
+0.143s to initialize
+0.286s to bind 1000 molecules
+0.734s to check 10000 locations
 0.014s to remove 500 molecules
-0.145s to re-bind 500 molecules
-0.157s to randomly move 500 molecules
+0.128s to re-bind 500 molecules
+0.140s to randomly move 500 molecules
 
 ChromosomeDict (sum of 10 runs)
-5.476s to initialize
-0.226s to bind 1000 molecules
-0.513s to check 10000 locations
-0.004s to remove 500 molecules
-0.105s to re-bind 500 molecules
-0.102s to randomly move 500 molecules
+5.426s to initialize
+0.223s to bind 1000 molecules
+0.505s to check 10000 locations
+0.006s to remove 500 molecules
+0.097s to re-bind 500 molecules
+0.100s to randomly move 500 molecules
 
 ChromosomeOrderedDict (sum of 10 runs)
-85.987s to initialize
-0.266s to bind 1000 molecules
-0.888s to check 10000 locations
+84.209s to initialize
+0.263s to bind 1000 molecules
+0.866s to check 10000 locations
 0.005s to remove 500 molecules
-0.119s to re-bind 500 molecules
-0.121s to randomly move 500 molecules
+0.120s to re-bind 500 molecules
+0.120s to randomly move 500 molecules
 
 ChromosomeArray
-1.389s to save 10 simulation steps
+1.449s to save 10 simulation steps
 
 ChromosomeDict
-58.583s to save 10 simulation steps
+59.064s to save 10 simulation steps
 
 ChromosomeOrderedDict
-15.112s to save 10 simulation steps
+15.153s to save 10 simulation steps
 '''
