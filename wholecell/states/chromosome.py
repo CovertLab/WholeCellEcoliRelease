@@ -20,8 +20,6 @@ import numpy
 import time
 import random
 
-EMPTY = -1
-
 N_BASES = 5000000
 # N_CHROMOSOMES = 10
 
@@ -37,15 +35,15 @@ class Molecule(object):
 	# A simple object used to reference individual molecules bound to a
 	# Chromosome object
 	chrIndex = None
-	boundRange = None
+	width = OBJ_WIDTH
+	boundAt = None
 
 
 # TODO: handle circular chromosomes
-# TODO: push reindexing to a cleanup routine
 class Chromosome(object):
-	_cleanupThreshold = 400 # number of index removals before cleaning up
-	_dirtyIndexes = 0
 	molecules = None
+
+	empty = -1
 
 	def __init__(self):
 		# Allocate the empty chromosome object
@@ -59,10 +57,10 @@ class Chromosome(object):
 		while nBound < N_RNAP:
 			# Choose a random point and try to attach molecules
 
-			start = numpy.random.randint(N_BASES - OBJ_WIDTH)
+			start = numpy.random.randint(N_BASES - Molecule.width)
 
-			if not self.boundMolecules(start, start + OBJ_WIDTH):
-				self.boundMoleculeIs(Molecule(), start, OBJ_WIDTH)
+			if not self.boundMolecules(start, start + Molecule.width):
+				self.boundMoleculeIs(Molecule(), start)
 				nBound += 1
 
 	
@@ -71,23 +69,19 @@ class Chromosome(object):
 		raise NotImplementedError()
 
 
-	def boundMoleculeIs(self, molecule, start, width):
+	def boundMoleculeIs(self, molecule, start):
 		# Attach a molecule to a region
 		index = self._moleculeIndex(molecule)
-		molecule.boundRange = self._range(start, start+width)
-		self._setRange(molecule.boundRange, index)
+		molecule.boundAt = start
+		self._setRange(self._range(molecule.boundAt, molecule.width), index)
 
 
 	def boundMoleculeRemove(self, molecule):
 		# Remove a bound molecule
-		self._setRange(molecule.boundRange, EMPTY)
-		molecule.boundRange = None
+		self._setRange(self._range(molecule.boundAt, molecule.width), self.empty)
+		molecule.boundAt = None
 
 		self._moleculeUnindex(molecule)
-		self._cleanupIndexes()
-
-
-	# def boundMoleculeMove(self, molecule, )
 
 
 	def _moleculeIndex(self, molecule):
@@ -95,14 +89,17 @@ class Chromosome(object):
 			return molecule.chrIndex
 
 		else:
-			self.molecules.append(molecule)
-			molecule.chrIndex = len(self.molecules) - 1
+			try:
+				newIndex = self.molecules.index(None)
+
+			except ValueError:
+				self.molecules.append(None)
+				newIndex = len(self.molecules) - 1
+			
+			molecule.chrIndex = newIndex
+			self.molecules[newIndex] = molecule
+
 			return molecule.chrIndex
-
-
-	def _moleculeReindex(self, molecule):
-		# Fix the indexing within the chromosome data structure
-		raise NotImplementedError()
 
 
 	def _moleculeUnindex(self, molecule):
@@ -110,36 +107,22 @@ class Chromosome(object):
 		molecule.chrIndex = None
 
 
-	def _cleanupIndexes(self):
-		self._dirtyIndexes += 1
+	def _setRange(self, rng, value):
+		# Set some range of the chromosome representation to a value
+		raise NotImplementedError()
 
-		if self._dirtyIndexes > self._cleanupThreshold:
-			offset = 0
-			removed = []
-			for index, molecule in enumerate(self.molecules):
-				if molecule is None:
-					offset += 1
-					removed.append(index)
-
-				elif offset != 0:
-					molecule.chrIndex -= offset
-					self._setRange(molecule.boundRange, molecule.chrIndex)
-
-			for index in removed[::-1]: # proceed backwards to avoid modifying later indexes
-				del self.molecules[index]
-
-			self._dirtyIndexes = 0
+	_range = None # Function that returns a range of values given a start and stop
 
 
 class ChromosomeArray(Chromosome):
 	def __init__(self):
 		super(ChromosomeArray, self).__init__()
 		self.chrArray = numpy.empty(N_BASES, int)
-		self.chrArray[:] = EMPTY
+		self.chrArray[:] = self.empty
 
 
 	def boundMolecules(self, start, stop):
-		molInds = set(self.chrArray[start:stop]) - {EMPTY}
+		molInds = set(self.chrArray[start:stop]) - {self.empty}
 
 		return {self.molecules[i] for i in molInds}
 
@@ -154,11 +137,11 @@ class ChromosomeArray(Chromosome):
 class ChromosomeDict(Chromosome):
 	def __init__(self):
 		super(ChromosomeDict, self).__init__()
-		self.chrDict = {i:EMPTY for i in xrange(N_BASES)}
+		self.chrDict = {i:self.empty for i in self._range(N_BASES)}
 
 
 	def boundMolecules(self, start, stop):
-		molInds = {self.chrDict[i] for i in xrange(start, stop)} - {EMPTY}
+		molInds = {self.chrDict[i] for i in self._range(start, stop)} - {self.empty}
 
 		return {self.molecules[i] for i in molInds}
 
@@ -176,6 +159,8 @@ def testClass(chromosomeClass, iters = N_ITERS):
 	timeSetup = 0
 	timeAccess = 0
 	timeRemove = 0
+	timeAdd = 0
+	timeMove = 0
 	
 	for i in xrange(iters):
 		t = time.time()
@@ -186,10 +171,10 @@ def testClass(chromosomeClass, iters = N_ITERS):
 		chromosome.setup()
 		timeSetup += time.time() - t
 
-		indexes = numpy.random.randint(N_BASES - OBJ_WIDTH, size = N_CHECK)
+		indexes = numpy.random.randint(N_BASES - Molecule.width, size = N_CHECK)
 		t = time.time()
 		for ind in indexes:
-			chromosome.boundMolecules(i, i + OBJ_WIDTH)
+			chromosome.boundMolecules(i, i + Molecule.width)
 		timeAccess += time.time() - t
 
 		molecules = random.sample(chromosome.molecules, N_REMOVE)
@@ -197,18 +182,44 @@ def testClass(chromosomeClass, iters = N_ITERS):
 		for molecule in molecules:
 			chromosome.boundMoleculeRemove(molecule)
 		timeRemove += time.time() - t
+
+		t = time.time()
+		nBound = 0
+		while nBound < N_REMOVE:
+			start = numpy.random.randint(N_BASES - Molecule.width)
+
+			if not chromosome.boundMolecules(start, start + Molecule.width):
+				chromosome.boundMoleculeIs(Molecule(), start)
+				nBound += 1	
+		timeAdd += time.time() - t
+
+		molecules = random.sample(chromosome.molecules, N_REMOVE)
+		t = time.time()
+		for molecule in molecules:
+			newPos = min(molecule.boundAt + 40, N_BASES - molecule.width)
+
+			if not (chromosome.boundMolecules(newPos, newPos + molecule.width) - {molecule}):
+				chromosome.boundMoleculeRemove(molecule)
+				chromosome.boundMoleculeIs(molecule, newPos)
+
+		timeMove += time.time() - t
 	
-	return timeInit, timeSetup, timeAccess, timeRemove
+	return timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove
 
 
 def testClasses(classes = (ChromosomeArray, ChromosomeDict)):
 	for cls in classes:
-		timeInit, timeSetup, timeAccess, timeRemove = testClass(cls)
+		timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove = testClass(cls)
 
 		print ''
 		print cls.__name__
-		print '{:0.3f}s to initialize\n{:0.3f}s to bind {} molecules\n{:0.3f}s to check {} locations\n{:0.3f}s to remove {} molecules'.format(
-			timeInit, timeSetup, N_RNAP, timeAccess, N_CHECK, timeRemove, N_REMOVE
+		print '{:0.3f}s to initialize\n{:0.3f}s to bind {} molecules\n{:0.3f}s to check {} locations\n{:0.3f}s to remove {} molecules\n{:0.3f}s to re-bind {} molecules\n{:0.3f}s to randomly move {} molecules'.format(
+			timeInit,
+			timeSetup, N_RNAP,
+			timeAccess, N_CHECK,
+			timeRemove, N_REMOVE,
+			timeAdd, N_REMOVE,
+			timeMove, N_REMOVE
 			)
 
 def testSaving():
