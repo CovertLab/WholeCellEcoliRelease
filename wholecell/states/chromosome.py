@@ -370,36 +370,19 @@ if __name__ == '__main__':
 
 # output on my system
 '''
-ChromosomeArray (sum of 10 runs)
-0.143s to initialize
-0.286s to bind 1000 molecules
-0.734s to check 10000 locations
-0.014s to remove 500 molecules
-0.128s to re-bind 500 molecules
-0.140s to randomly move 500 molecules
+ChromosomeArray (sum of 100 runs)
+1.401s to initialize
+122.257s to bind 10000 molecules
+7.911s to check 10000 locations
+0.886s to remove 5000 molecules
+60.165s to re-bind 5000 molecules
+56.398s to randomly move 5000 molecules
 
-ChromosomeDict (sum of 10 runs)
-5.426s to initialize
-0.223s to bind 1000 molecules
-0.505s to check 10000 locations
-0.006s to remove 500 molecules
-0.097s to re-bind 500 molecules
-0.100s to randomly move 500 molecules
-
-ChromosomeOrderedDict (sum of 10 runs)
-84.209s to initialize
-0.263s to bind 1000 molecules
-0.866s to check 10000 locations
-0.005s to remove 500 molecules
-0.120s to re-bind 500 molecules
-0.120s to randomly move 500 molecules
-
-ChromosomeArray
-1.449s to save 10 simulation steps
-
-ChromosomeDict
-59.064s to save 10 simulation steps
-
-ChromosomeOrderedDict
-15.153s to save 10 simulation steps
+ChromosomeDict (sum of 100 runs)
+49.277s to initialize
+122.867s to bind 10000 molecules
+5.757s to check 10000 locations
+2.905s to remove 5000 molecules
+59.594s to re-bind 5000 molecules
+57.170s to randomly move 5000 molecules
 '''
