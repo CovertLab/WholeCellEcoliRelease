@@ -27,11 +27,11 @@ N_BASES = 5000000
 # N_CHROMOSOMES = 10
 
 OBJ_WIDTH = 50 # width of RNA poly molecule
-N_RNAP = 1000 # "anywhere from 700-2000" - nick
+N_RNAP = 10000 # "anywhere from 700-2000" - nick
 
 N_ITERS = 10 # number of testing iterations
 N_CHECK = 10000 # number of regions to access
-N_REMOVE = 500 # number of molecules to remove
+N_REMOVE = 5000 # number of molecules to remove
 
 N_STEPS = 10 # number of steps to run and save
 
@@ -82,12 +82,12 @@ class Chromosome(object):
 		# Attach a molecule to a region
 		index = self._moleculeAssignIndex(molecule)
 		molecule.boundAt = start
-		self._setRange(self._range(molecule.boundAt, molecule.width), index)
+		self._setRange(molecule.boundAt, molecule.boundAt + molecule.width, index)
 
 
 	def boundMoleculeRemove(self, molecule):
 		# Remove a bound molecule
-		self._setRange(self._range(molecule.boundAt, molecule.width), self.empty)
+		self._setRange(molecule.boundAt, molecule.boundAt + molecule.width, self.empty)
 		molecule.boundAt = None
 
 		self._moleculeUnassignIndex(molecule)
@@ -114,17 +114,19 @@ class Chromosome(object):
 		molecule.chrIndex = None
 
 
-	def _setRange(self, rng, value):
+	def _setRange(self, start, stop, value):
 		# Set some range of the chromosome representation to a value
 		raise NotImplementedError()
-
-	_range = None # Function that returns a range of values given a start and stop
 
 	def toUnsignedArray(self):
 		# Return an unsigned integer numpy array (for saving)
 		# NOTE: Choosing "empty", the most common entry, to be 0, seems to
 		# improve compression.
 		raise NotImplementedError()
+
+	def close(self):
+		# Perform any finalization operations
+		pass
 
 
 class ChromosomeArray(Chromosome):
@@ -140,31 +142,76 @@ class ChromosomeArray(Chromosome):
 		return {self.molecules[i] for i in molInds}
 
 
-	def _setRange(self, rng, value):
-		self.chrArray[rng] = value
+	def _setRange(self, start, stop, value):
+		self.chrArray[start:stop] = value
 
 
 	def toUnsignedArray(self):
 		return self.chrArray + 1
 
 
-	_range = slice
+class ChromosomeDiskArray(Chromosome):
+	# A semi-broken attempt at using the disk instead of RAM to store the chromosome
+	def _allocate(self):
+		self.h5file = tables.open_file('chromosome.hdf', mode = 'w', title = 'chr')
+
+		columns = {
+			'boundMolecule':tables.Int32Col()
+			}
+
+		self.table = self.h5file.create_table(
+			self.h5file.root,
+			'chr',
+			columns,
+			title = 'chr',
+			# filters = tables.Filters(complevel = 9, complib = 'zlib'),
+			expectedrows = N_BASES
+			)
+
+		for i in xrange(N_BASES):
+			entry = self.table.row
+
+			entry['boundMolecule'] = self.empty
+
+			entry.append()
+		
+		self.table.flush()
+
+
+	def boundMolecules(self, start, stop):
+		molInds = set(self.table[start:stop].astype('int32')) - {self.empty}
+
+		return {self.molecules[i] for i in molInds}
+
+
+	def _setRange(self, start, stop, value):
+		self.table[start:stop] = value * numpy.ones(stop-start, 'int32')
+
+
+	def toUnsignedArray(self):
+		# TODO: fix?
+		expr = tables.Expr('self.table + 1')
+		return expr.eval()
+
+
+	def close(self):
+		self.h5file.close()
 
 
 class ChromosomeDict(Chromosome):
 	# dictionary implementation of the chromosome object
 	def _allocate(self):
-		self.chrDict = {i:self.empty for i in self._range(N_BASES)}
+		self.chrDict = {i:self.empty for i in xrange(N_BASES)}
 
 
 	def boundMolecules(self, start, stop):
-		molInds = {self.chrDict[i] for i in self._range(start, stop)} - {self.empty}
+		molInds = {self.chrDict[i] for i in xrange(start, stop)} - {self.empty}
 
 		return {self.molecules[i] for i in molInds}
 
 
-	def _setRange(self, rng, value):
-		for i in rng:
+	def _setRange(self, start, stop, value):
+		for i in xrange(start, stop):
 			self.chrDict[i] = value
 
 
@@ -178,9 +225,6 @@ class ChromosomeDict(Chromosome):
 		array += 1
 
 		return array
-
-
-	_range = xrange
 
 
 class ChromosomeOrderedDict(ChromosomeDict):
@@ -244,11 +288,15 @@ def testRunningClass(chromosomeClass, iters = N_ITERS):
 				chromosome.boundMoleculeIs(molecule, newPos)
 
 		timeMove += time.time() - t
+
+		chromosome.close()
+
+		print i, 
 	
 	return timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove
 
 
-def testRunningClasses(classes = (ChromosomeArray, ChromosomeDict, ChromosomeOrderedDict)):
+def testRunningClasses(classes = (ChromosomeArray, ChromosomeDict)):
 	for cls in classes:
 		timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove = testRunningClass(cls)
 
@@ -306,7 +354,7 @@ def testSaving(chromosomeClass):
 	return (time.time() - initTime)
 
 
-def testSavingClasses(classes = (ChromosomeArray, ChromosomeDict, ChromosomeOrderedDict)):
+def testSavingClasses(classes = (ChromosomeArray, ChromosomeDict)):
 	for cls in classes:
 		timeSave = testSaving(cls)
 
@@ -317,7 +365,7 @@ def testSavingClasses(classes = (ChromosomeArray, ChromosomeDict, ChromosomeOrde
 
 if __name__ == '__main__':
 	testRunningClasses()
-	testSavingClasses()
+	# testSavingClasses()
 
 # output on my system
 '''
