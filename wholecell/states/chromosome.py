@@ -27,7 +27,7 @@ N_BASES = 5000000
 # N_CHROMOSOMES = 10
 
 OBJ_WIDTH = 50 # width of RNA poly molecule
-N_RNAP = 10000 # "anywhere from 700-2000" - nick
+N_RNAP = 10000 # based on anticipated 10% occupancy
 
 N_ITERS = 10 # number of testing iterations
 N_CHECK = 10000 # number of regions to access
@@ -75,7 +75,9 @@ class Chromosome(object):
 	
 	def boundMolecules(self, start, stop):
 		# Check if a range is occupied at any point from "start" up to (not through) "stop"
-		raise NotImplementedError()
+		molInds = set(self._getRange(start, stop)) - {self.empty}
+
+		return {self.molecules[i] for i in molInds}
 
 
 	def boundMoleculeIs(self, molecule, start):
@@ -114,15 +116,22 @@ class Chromosome(object):
 		molecule.chrIndex = None
 
 
+	def _getRange(self, start, stop):
+		# Returns values over a range
+		raise NotImplementedError()
+
+
 	def _setRange(self, start, stop, value):
 		# Set some range of the chromosome representation to a value
 		raise NotImplementedError()
+
 
 	def toUnsignedArray(self):
 		# Return an unsigned integer numpy array (for saving)
 		# NOTE: Choosing "empty", the most common entry, to be 0, seems to
 		# improve compression.
 		raise NotImplementedError()
+
 
 	def close(self):
 		# Perform any finalization operations
@@ -136,10 +145,8 @@ class ChromosomeArray(Chromosome):
 		self.chrArray[:] = self.empty
 
 
-	def boundMolecules(self, start, stop):
-		molInds = set(self.chrArray[start:stop]) - {self.empty}
-
-		return {self.molecules[i] for i in molInds}
+	def _getRange(self, start, stop):
+		return self.chrArray[start:stop]
 
 
 	def _setRange(self, start, stop, value):
@@ -178,10 +185,8 @@ class ChromosomeDiskArray(Chromosome):
 		self.table.flush()
 
 
-	def boundMolecules(self, start, stop):
-		molInds = set(self.table[start:stop].astype('int32')) - {self.empty}
-
-		return {self.molecules[i] for i in molInds}
+	def _getRange(self, start, stop):
+		return self.table[start:stop].astype('int32')
 
 
 	def _setRange(self, start, stop, value):
@@ -204,10 +209,8 @@ class ChromosomeDict(Chromosome):
 		self.chrDict = {i:self.empty for i in xrange(N_BASES)}
 
 
-	def boundMolecules(self, start, stop):
-		molInds = {self.chrDict[i] for i in xrange(start, stop)} - {self.empty}
-
-		return {self.molecules[i] for i in molInds}
+	def _getRange(self, start, stop):
+		return (self.chrDict[i] for i in xrange(start, stop))
 
 
 	def _setRange(self, start, stop, value):
