@@ -293,8 +293,6 @@ def testRunningClass(chromosomeClass, iters = N_ITERS):
 		timeMove += time.time() - t
 
 		chromosome.close()
-
-		print i, 
 	
 	return timeInit, timeSetup, timeAccess, timeRemove, timeAdd, timeMove
 
