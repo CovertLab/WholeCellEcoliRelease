@@ -67,8 +67,6 @@ class Transcript(object):
 
 class Transcripts(object):
 	# TODO: track bound molecules, like the Chromosome object
-	transcripts = None # list of active transcripts
-
 	_empty = -2 # active regions with no bound molecules
 	_inactive = -1 # inactive regions (allocated but not associated with any transcript)
 
@@ -77,7 +75,6 @@ class Transcripts(object):
 		self._array = numpy.empty(ALLOCATION, numpy.int64) # space allocated for transcripts to occupy
 		self._array[:] = self._inactive
 
-		self.molecules = [] # bound molecules
 		self.transcripts = [] # existing transcripts
 
 		eventLog.append('Initialized')
