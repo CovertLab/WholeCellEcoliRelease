@@ -1,18 +1,9 @@
 '''
 
-For the moment, this is just me playing with different imeplementations of the 
+For the moment, this is just me playing with different implementations of the 
 Chromosome State.
 
 - John
-
-'''
-
-'''
-numpy approach
-
-Chromosomes are stored in NxM integer arrays (N bases, M multiplicity).  The 
-integer is an index reference for simulation objects (specific molecules), or
--1 (nan?) if there are no objects bound.
 
 '''
 
