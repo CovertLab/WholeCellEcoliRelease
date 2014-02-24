@@ -91,8 +91,8 @@ class Simulation(object):
 		self.initialize(kb)
 
 		# Fit model
-		import wholecell.utils.fitter
-		wholecell.utils.fitter.fitSimulation(self, kb)
+		import wholecell.reconstruction.fitter
+		wholecell.reconstruction.fitter.fitSimulation(self, kb)
 
 		# Set loggers
 		self.loggers = []
