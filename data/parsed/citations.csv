@@ -17,3 +17,13 @@ number = {10},
 pages = {2807—2831},
 month = may
 }"
+PUB_0003	"@article{PUB_0003,
+author = {Tao, H and Bausch, C and Richmond, C and Blattner, F R and Conway, T},
+title = {{Functional genomics: expression analysis of Escherichia coli growing on minimal and rich media.}},
+journal = {Journal of Bacteriology},
+year = {1999},
+volume = {181},
+number = {20},
+pages = {6425--6440},
+month = oct,
+}"
