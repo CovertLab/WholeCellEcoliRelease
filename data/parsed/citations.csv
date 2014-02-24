@@ -1,9 +1,19 @@
-"Citation ID"	"Bibtex reference"
-"PUB_0001"	"@article{WCM_0001,
+Citation ID	Bibtex reference
+PUB_0001	"@article{PUB_0001,
 author = {Feist, Adam M and Henry, Christopher S and Reed, Jennifer L and Krummenacker, Markus and Joyce, Andrew R and Karp, Peter D and Broadbelt, Linda J and Hatzimanikatis, Vassily and Palsson, Bernhard O},
 title = {{A genome-scale metabolic reconstruction for Escherichia coli K-12 MG1655 that accounts for 1260 ORFs and thermodynamic information}},
 journal = {Molecular Systems Biology},
 year = {2007},
 volume = {3},
 month = jun
+}"
+PUB_0002	"@article{PUB_0002,
+author = {Vogel, U and Jensen, K F},
+title = {{The RNA chain elongation rate in Escherichia coli depends on the growth rate.}},
+journal = {Journal of Bacteriology},
+year = {1994},
+volume = {176},
+number = {10},
+pages = {2807—2831},
+month = may
 }"
