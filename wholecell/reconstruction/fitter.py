@@ -189,8 +189,6 @@ def fitSimulation(sim, kb):
 		# Align biomass with process usages
 		valsOrig = mc.feistCoreVals.copy()
 
-		normalize = lambda x: numpy.array(x).astype("float") / numpy.linalg.norm(x, 1)
-
 		# Amino acids (Protein)
 		#f_w = normalize(numpy.sum(monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
 		f_w = numpy.array([ 0.09832716,  0.05611487,  0.04021716,  0.0545386 ,  0.00908125,
@@ -222,6 +220,9 @@ def fitSimulation(sim, kb):
 	sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
 
 	# TODO: return/save fitted KB instead of a modified simulation
+
+def normalize(array):
+	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
 
 _ids = {} # TOKB
 _ids["tRnas"] = [
