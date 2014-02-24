@@ -94,7 +94,8 @@ class Transcripts(object):
 	def transcriptAdd(self, transcript):
 		# Add a new transcript
 
-		tscIndex = self._transcriptAssignIndex(transcript)
+		self._transcriptAssignIndex(transcript)
+		
 		arrIndex = self._findFreeRegion(Transcript.extent)
 
 		transcript.startsAt = arrIndex
@@ -137,8 +138,6 @@ class Transcripts(object):
 
 		self.transcripts[tscIndex] = transcript
 		transcript.tscIndex = tscIndex
-
-		return tscIndex
 
 
 	def _findFreeRegion(self, length):
