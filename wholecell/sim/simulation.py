@@ -92,7 +92,7 @@ class Simulation(object):
 
 		# Fit model
 		import wholecell.utils.fitter
-		wholecell.utils.fitter.Fitter.FitSimulation(self, kb)
+		wholecell.utils.fitter.fitSimulation(self, kb)
 
 		# Set loggers
 		self.loggers = []
