@@ -1,9 +1,9 @@
-WID	Name	Synonym	Value	Units	Evidence	State	Process	References	Notes	Created date	Updated date
-Parameter_0001	cellCycleLen	{“name” : “Cell cycle length”}	3600	s		Time				02/14/14	02/14/14
-Parameter_0002	avgCellInitMass	{“name” : “Average cell initial mass”}	13.1	fg		Metabolism				02/14/14	02/14/14
-Parameter_0003	metabolicObjective	{“name” : “Metabolic objective function”}	"[0.513689, 0.295792, 0.241055, 0.241055, 0.09158, 0.26316, 0.26316, 0.612638, 0.094738, 0.290529, 0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162, 0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456, 0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158, 0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 5.5e-05, 0.000223, 0.000223, 0.000223]
-"	mmol/gDCW		Metabolism		['PUB_0001']		02/14/14	02/14/14
-Parameter_0004	rnaPolymeraseElongationRate	{“name” : “RNA polymerase elongation rate”}	50	nt/s			Transcription	[PUB_0002]		02/14/14	02/14/14
-Parameter_0005	ribosomeElongationRate	{“name” : “Ribosome elongation rate”}	16	aa/s			Translation			02/14/14	02/14/14
-Parameter_0006	fracInitFreeNTPs	{“name” : “Initial fraction of NTPs not in monomers”}	0.0015	unitless		MoleculeCounts					
-Parameter_0007	fracInitFreeAAs	{“name” : “Initial fraction of amino acids not in monomers”}	0.001	unitless		MoleculeCounts					
+WID	Name	Synonym	Value	Units	Experimentally measured	Species	State	Process	References	Notes	Created date	Updated date
+Parameter_0001	cellCycleLen	[“Cell cycle length”]	3600	s			Time				02/14/14	02/14/14
+Parameter_0002	avgCellInitMass	[ “Average cell initial mass”]	13.1	fg			Metabolism				02/14/14	02/14/14
+Parameter_0003	metabolicObjective	[“Metabolic objective function”]	"[0.513689, 0.295792, 0.241055, 0.241055, 0.09158, 0.26316, 0.26316, 0.612638, 0.094738, 0.290529, 0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162, 0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456, 0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158, 0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 5.5e-05, 0.000223, 0.000223, 0.000223]
+"	mmol/gDCW			Metabolism		['PUB_0001']		02/14/14	02/14/14
+Parameter_0004	rnaPolymeraseElongationRate	[“RNA polymerase elongation rate”]	42	nt/s	Yes			Transcription	[PUB_0002]	Interpolation of Table 2 in PUB_0002	02/14/14	02/14/14
+Parameter_0005	ribosomeElongationRate	[“Ribosome elongation rate”]	16	aa/s				Translation			02/14/14	02/14/14
+Parameter_0006	fracInitFreeNTPs	[“Initial fraction of NTPs not in monomers”]	0.0015	unitless			MoleculeCounts				02/15/14	02/15/14
+Parameter_0007	fracInitFreeAAs	[“Initial fraction of amino acids not in monomers”]	0.001	unitless			MoleculeCounts				02/15/14	02/15/14
