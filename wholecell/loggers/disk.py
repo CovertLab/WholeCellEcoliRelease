@@ -16,6 +16,7 @@ Also provides a function (load) for reading stored simulation data
 import os
 import time
 import json
+import shutil
 
 import tables
 
@@ -31,11 +32,11 @@ class Disk(wholecell.loggers.logger.Logger):
 	def __init__(self, outDir = None, allowOverwrite = False, logEvery = None):
 		self.outDir = outDir
 		self.allowOverwrite = allowOverwrite
-		self.logEvery = logEvery
+		self.logEvery = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
 
 		self.stateFiles = {}
 		self.mainFile = None
-		self.logStep = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
+		self.logStep = None
 
 
 	def initialize(self, sim):
@@ -76,6 +77,9 @@ class Disk(wholecell.loggers.logger.Logger):
 			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
 			sort_keys = True, indent=4, separators=(',', ': ')
 			)
+
+		# Save KB
+		shutil.copy(sim.kbPath, self.outDir)
 
 
 	def append(self, sim):
