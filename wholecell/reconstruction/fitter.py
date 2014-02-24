@@ -120,7 +120,8 @@ def fitSimulation(sim, kb):
 		id_ + '[c]' for id_ in _ids['aminoAcids']
 		])
 
-	hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
+	halflife = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
+	halflifeFull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
 	mw_c_aas = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['aminoAcids']]) - h2oMass
 	mw_c_ntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['ntps']]) - ppiMass
 	mw_c_dntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['dntps']]) - ppiMass
@@ -135,7 +136,7 @@ def fitSimulation(sim, kb):
 		
 		numRnapsNeeded = numpy.sum(
 			rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc_elngRate * (
-				numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hL
+				numpy.log(2) / tc_cellCycleLength + numpy.log(2) / halflife
 				) * numRnas * rnaExp[idx["rnaExp"]["unmodified"]]
 			)
 
@@ -174,15 +175,6 @@ def fitSimulation(sim, kb):
 			rnaExp /= numpy.sum(rnaExp)
 			raise Exception, "Changing RNA mass fractions. Write code to handle this."
 
-		# Calculate RNA Synthesis probabilities
-		if 'Transcription' in sim.processes:
-			tc = sim.processes['Transcription']
-
-			hLfull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
-			# tc.rnaSynthProb = rnaLens.astype("float") / tc_elngRate * ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * rnaExp
-			tc.rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * rnaExp
-			tc.rnaSynthProb /= numpy.sum(tc.rnaSynthProb)
-
 		# Assert relationship between monExp and rnaExp
 		assert(numpy.all((rnaExp[idx["rnaExp"]["mRnas"]] - rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * monExp) < 1e-5))
 
@@ -213,10 +205,19 @@ def fitSimulation(sim, kb):
 	# for i, rna in enumerate(kb.rnas):
 	# 	rna['expression'] = rnaExp[i]
 
+	rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / halflifeFull ) * numRnas * rnaExp
+	rnaSynthProb /= rnaSynthProb.sum()
+
 	# do the same for monomer expression
 
 	sim.states['MoleculeCounts'].rnaExp = rnaExp
 	sim.states['MoleculeCounts'].monExp = monExp
+	
+	# Calculate RNA Synthesis probabilities
+	if 'Transcription' in sim.processes:
+		tc = sim.processes['Transcription']
+		tc.rnaSynthProb = rnaSynthProb
+
 	sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
 
 	# TODO: return/save fitted KB instead of a modified simulation
