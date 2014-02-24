@@ -28,6 +28,8 @@
 	
 	( ) Move constants out of simulation and into KB. Make sure work flow goes KB --> fitter --> simulation. No backwards arrows!
 
+	( ) Partitioning hierarchy
+
 (2) **KnowledgeBase**: At the beginning of the quarter we still needed to get a working KnowledgeBase that was not just a collection of CSV files. By the end of the quarter this will be a functioning entity.
 	
 	(x) Generate Python object from CSV files
