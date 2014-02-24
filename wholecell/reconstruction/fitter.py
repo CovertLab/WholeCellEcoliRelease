@@ -137,6 +137,7 @@ def fitSimulation(sim, kb):
 	mw_c_dntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['dntps']]) - ppiMass
 
 	fracInitFreeNTPs = 0.0015 # TOKB
+	fracInitFreeAAs = 0.001 # TOKB
 
 	feistCoreVals = FEIST_CORE_VALS # TOKB
 
@@ -155,7 +156,7 @@ def fitSimulation(sim, kb):
 		#print "numRnapsNeeded: %0.1f" % numRnapsNeeded
 		
 		# Estimate total number of monomers
-		aasToPolym = numpy.round((1 - mc.fracInitFreeAAs) * aaView.countsBulk().sum()) # number of AAs as protein
+		aasToPolym = numpy.round((1 - fracInitFreeAAs) * aaView.countsBulk().sum()) # number of AAs as protein
 		numMons = numpy.round(aasToPolym / (numpy.dot(monExp, monLens))) # expected number of proteins?
 
 		fudge = 10000
