@@ -76,42 +76,41 @@ def fitSimulation(sim, kb):
 		]) # TOKB
 
 	mwRNAs = numpy.array([
-		mc.molMass(_ids['rRna23Ss']).mean(),
-		mc.molMass(_ids['rRna16Ss']).mean(),
-		mc.molMass(_ids['rRna5Ss']).mean(),
-		mc.molMass(_ids['tRnas']).mean(),
-		# mc.molMass(_ids['matureMrnaMiscRna']).mean(), # Use if including miscRNAs in mRNA mass fraction
-		mc.molMass(mRnaIds).mean()
-		])
+			numpy.array([rna['mw'] for rna in kb.rnas if rna['id'] in ids]).mean()
+			for ids in (_ids['rRna23Ss'], _ids['rRna16Ss'], _ids['rRna5Ss'], _ids['tRnas'], mRnaIds)
+			])
 
+	rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas))
 	rnaExpFracs = massFracRNAs / mwRNAs
 	rnaExpFracs /= numpy.sum(rnaExpFracs)
 
-	mc.rnaExp[idx["rnaExp"]["rRna23Ss"]] = rnaExpFracs[idx["rnaExpFracs"]["rRna23Ss"]] * 1. / numpy.sum(numpy.ones(idx["rnaExp"]["rRna23Ss"].size)) * numpy.ones(idx["rnaExp"]["rRna23Ss"].size)
-	mc.rnaExp[idx["rnaExp"]["rRna16Ss"]] = rnaExpFracs[idx["rnaExpFracs"]["rRna16Ss"]] * 1. / numpy.sum(numpy.ones(idx["rnaExp"]["rRna16Ss"].size)) * numpy.ones(idx["rnaExp"]["rRna16Ss"].size)
-	mc.rnaExp[idx["rnaExp"]["rRna5Ss"]]  = rnaExpFracs[idx["rnaExpFracs"]["rRna5Ss"]]  * 1. / numpy.sum(numpy.ones(idx["rnaExp"]["rRna5Ss"].size))  * numpy.ones(idx["rnaExp"]["rRna5Ss"].size )
-	mc.rnaExp[idx["rnaExp"]["tRnas"]]    = rnaExpFracs[idx["rnaExpFracs"]["tRnas"]]    * 1. / numpy.sum(mc.rnaExp[idx["rnaExp"]["tRnas"]])          * mc.rnaExp[idx["rnaExp"]["tRnas"]]
-	mc.rnaExp[idx["rnaExp"]["mRnas"]]    = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]]    * 1. / numpy.sum(mc.rnaExp[idx["rnaExp"]["mRnas"]])          * mc.rnaExp[idx["rnaExp"]["mRnas"]]
-	mc.rnaExp[idx["rnaExp"]["miscRnas"]] = 0. # Uncomment if producing miscRNAs
-	mc.rnaExp[idx["rnaExp"]["modified"]] = 0.
+	rnaExp = numpy.array([x["expression"] for x in kb.rnas])
+	rnaExp /= numpy.sum(rnaExp)
 
-	assert(numpy.abs(numpy.sum(mc.rnaExp) - 1.) < 1e-9)
+	rnaExp[idx["rnaExp"]["rRna23Ss"]] = rnaExpFracs[idx["rnaExpFracs"]["rRna23Ss"]] * 1. / numpy.sum(numpy.ones(idx["rnaExp"]["rRna23Ss"].size)) * numpy.ones(idx["rnaExp"]["rRna23Ss"].size)
+	rnaExp[idx["rnaExp"]["rRna16Ss"]] = rnaExpFracs[idx["rnaExpFracs"]["rRna16Ss"]] * 1. / numpy.sum(numpy.ones(idx["rnaExp"]["rRna16Ss"].size)) * numpy.ones(idx["rnaExp"]["rRna16Ss"].size)
+	rnaExp[idx["rnaExp"]["rRna5Ss"]]  = rnaExpFracs[idx["rnaExpFracs"]["rRna5Ss"]]  * 1. / numpy.sum(numpy.ones(idx["rnaExp"]["rRna5Ss"].size))  * numpy.ones(idx["rnaExp"]["rRna5Ss"].size )
+	rnaExp[idx["rnaExp"]["tRnas"]]    = rnaExpFracs[idx["rnaExpFracs"]["tRnas"]]    * 1. / numpy.sum(rnaExp[idx["rnaExp"]["tRnas"]])          * rnaExp[idx["rnaExp"]["tRnas"]]
+	rnaExp[idx["rnaExp"]["mRnas"]]    = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]]    * 1. / numpy.sum(rnaExp[idx["rnaExp"]["mRnas"]])          * rnaExp[idx["rnaExp"]["mRnas"]]
+	rnaExp[idx["rnaExp"]["miscRnas"]] = 0. # Uncomment if producing miscRNAs
+	rnaExp[idx["rnaExp"]["modified"]] = 0.
+
+	assert(numpy.abs(numpy.sum(rnaExp) - 1.) < 1e-9)
 
 	# Adjust RNAP expression levels to be the mean of the subunits
 	# TODO: Account for stoichiometry
-	mc.rnaExp[idx["rnaExp"]["rnap_70"]] = numpy.mean(mc.rnaExp[idx["rnaExp"]["rnap_70"]])
-	mc.rnaExp /= numpy.sum(mc.rnaExp)
-	mc.monExp[idx["monExp"]["rnap_70"]] = mc.rnaExp[idx["rnaExp"]["rnap_70"]] / rnaExpFracs[idx["rnaExpFracs"]["mRnas"]]
-	mc.monExp /= numpy.sum(mc.monExp)
+	rnaExp[idx["rnaExp"]["rnap_70"]] = numpy.mean(rnaExp[idx["rnaExp"]["rnap_70"]])
+	rnaExp /= numpy.sum(rnaExp)
 
-	feistCoreView = mc.countsBulkViewNew([
-		(id_ + '[c]' if id_[-1] != ']' else id_) for id_ in _ids['FeistCore'] # hack to include compartments
-		])
+	mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
+	monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons)) # TODO: remove map/lambda
+	rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
+	monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
+	monExp /= numpy.sum(monExp)
 
-	h2oMol = mc.molecule('H2O[c]')
-	h2oMass = h2oMol.massSingle()
+	h2oMass = [met['mw7.2'] for met in kb.metabolites if met['id'] == 'H2O'][0] # is there a better way to do this?
 
-	ppiMass = mc.molecule('PPI[c]').massSingle()
+	ppiMass = [met['mw7.2'] for met in kb.metabolites if met['id'] == 'PPI'][0]
 
 	ntpView = mc.countsBulkViewNew([
 		id_ + '[c]' for id_ in _ids['ntps']
@@ -122,63 +121,57 @@ def fitSimulation(sim, kb):
 		])
 
 	hL = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
-	mw_c_aas = mc.molMass(_ids['aminoAcids']) - h2oMass
-	mw_c_ntps = mc.molMass(_ids['ntps']) - ppiMass
-	mw_c_dntps = mc.molMass(_ids['dntps']) - ppiMass
+	mw_c_aas = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['aminoAcids']]) - h2oMass
+	mw_c_ntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['ntps']]) - ppiMass
+	mw_c_dntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['dntps']]) - ppiMass
+
+	fracInitFreeNTPs = 0.0015 # TOKB
 
 	for iteration in xrange(5):
 		# Estimate number of RNA Polymerases needed initially
-		
-		feistCoreView.countsBulkIs(
-			numpy.round(mc.feistCoreVals * 1e-3 * Constants.nAvogadro * mc.initialDryMass) # this calculation seems wrong...
-			)
 
-		h2oMol.countBulkIs(
-			(6.7e-13 / 1.36 + sim.randStream.normal(0, 15e-15)) / h2oMass * Constants.nAvogadro # not entirely sure what this does
-			) # TOKB
-
-		ntpsToPolym = numpy.round((1 - mc.fracInitFreeNTPs) * ntpView.countsBulk().sum()) # number of NTPs as RNA
-		numRnas = numpy.round(ntpsToPolym / (numpy.dot(mc.rnaExp, mc.rnaLens))) # expected number of RNAs?
+		ntpsToPolym = numpy.round((1 - fracInitFreeNTPs) * ntpView.countsBulk().sum()) # number of NTPs as RNA
+		numRnas = numpy.round(ntpsToPolym / (numpy.dot(rnaExp, rnaLens))) # expected number of RNAs?
 		
 		numRnapsNeeded = numpy.sum(
-			mc.rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc_elngRate * (
+			rnaLens[idx["rnaLens"]["unmodified"]].astype("float") / tc_elngRate * (
 				numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hL
-				) * numRnas * mc.rnaExp[idx["rnaExp"]["unmodified"]]
+				) * numRnas * rnaExp[idx["rnaExp"]["unmodified"]]
 			)
 
 		#print "numRnapsNeeded: %0.1f" % numRnapsNeeded
 		
 		# Estimate total number of monomers
 		aasToPolym = numpy.round((1 - mc.fracInitFreeAAs) * aaView.countsBulk().sum()) # number of AAs as protein
-		numMons = numpy.round(aasToPolym / (numpy.dot(mc.monExp, mc.monLens))) # expected number of proteins?
+		numMons = numpy.round(aasToPolym / (numpy.dot(monExp, monLens))) # expected number of proteins?
 
 		fudge = 10000
-		if numpy.min(numMons * mc.monExp[idx["monExp"]["rnap_70"]] * numpy.array([1./2, 1., 1., 1.])) < fudge * numRnapsNeeded:
+		if numpy.min(numMons * monExp[idx["monExp"]["rnap_70"]] * numpy.array([1./2, 1., 1., 1.])) < fudge * numRnapsNeeded:
 			# Adjust monomer expression if necessary
-			# mc.monExp[idx["monExp"]["rnap_70"]] = numpy.maximum(mc.monExp[idx["monExp"]["rnap_70"]], fudge * float(numRnapsNeeded) / numMons)
-			mc.monExp[idx["monExp"]["rnap_70"]] = numpy.minimum(mc.monExp[idx["monExp"]["rnap_70"]], 2*float(numRnapsNeeded) / numMons)
-			mc.monExp /= numpy.sum(mc.monExp)
-			# Make corresponding change to mc.rnaExp
-			mc.rnaExp[idx["rnaExp"]["rnap_70"]] = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * mc.monExp[idx["monExp"]["rnap_70"]]
-			# mc.rnaExp[idx["rnaExp"]["mRnas"]] = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * mc.rnaExp[idx["rnaExp"]["mRnas"]] / numpy.sum(mc.rnaExp[idx["rnaExp"]["mRnas"]])
-			mc.rnaExp /= numpy.sum(mc.rnaExp)
+			# monExp[idx["monExp"]["rnap_70"]] = numpy.maximum(monExp[idx["monExp"]["rnap_70"]], fudge * float(numRnapsNeeded) / numMons)
+			monExp[idx["monExp"]["rnap_70"]] = numpy.minimum(monExp[idx["monExp"]["rnap_70"]], 2*float(numRnapsNeeded) / numMons)
+			monExp /= numpy.sum(monExp)
+			# Make corresponding change to rnaExp
+			rnaExp[idx["rnaExp"]["rnap_70"]] = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * monExp[idx["monExp"]["rnap_70"]]
+			# rnaExp[idx["rnaExp"]["mRnas"]] = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * rnaExp[idx["rnaExp"]["mRnas"]] / numpy.sum(rnaExp[idx["rnaExp"]["mRnas"]])
+			rnaExp /= numpy.sum(rnaExp)
 
 		# Estimate number of ribosomes needed initially
-		#numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * mc.monExp)
-		numRibsNeeded = numpy.sum(mc.monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * mc.monExp)
+		#numRibsNeeded = numpy.sum(monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * monExp)
+		numRibsNeeded = numpy.sum(monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * monExp)
 		#print "numRibsNeeded: %0.1f" % numRibsNeeded
 		fudge = 1.1
-		if numpy.sum(numRnas * mc.rnaExp[idx["rnaExp"]["rRna23Ss"]]) < fudge * numRibsNeeded:
-			mc.rnaExp[idx["rnaExp"]["rRna23Ss"]] = numpy.maximum(mc.rnaExp[idx["rnaExp"]["rRna23Ss"]], fudge * float(numRibsNeeded) / numRnas)
-			mc.rnaExp /= numpy.sum(mc.rnaExp)
+		if numpy.sum(numRnas * rnaExp[idx["rnaExp"]["rRna23Ss"]]) < fudge * numRibsNeeded:
+			rnaExp[idx["rnaExp"]["rRna23Ss"]] = numpy.maximum(rnaExp[idx["rnaExp"]["rRna23Ss"]], fudge * float(numRibsNeeded) / numRnas)
+			rnaExp /= numpy.sum(rnaExp)
 			raise Exception, "Changing RNA mass fractions. Write code to handle this."
-		if numpy.sum(numRnas * mc.rnaExp[idx["rnaExp"]["rRna16Ss"]]) < fudge * numRibsNeeded:
-			mc.rnaExp[idx["rnaExp"]["rRna16Ss"]] = numpy.maximum(mc.rnaExp[idx["rnaExp"]["rRna16Ss"]], fudge * float(numRibsNeeded) / numRnas)
-			mc.rnaExp /= numpy.sum(mc.rnaExp)
+		if numpy.sum(numRnas * rnaExp[idx["rnaExp"]["rRna16Ss"]]) < fudge * numRibsNeeded:
+			rnaExp[idx["rnaExp"]["rRna16Ss"]] = numpy.maximum(rnaExp[idx["rnaExp"]["rRna16Ss"]], fudge * float(numRibsNeeded) / numRnas)
+			rnaExp /= numpy.sum(rnaExp)
 			raise Exception, "Changing RNA mass fractions. Write code to handle this."
-		if numpy.sum(numRnas * mc.rnaExp[idx["rnaExp"]["rRna16Ss"]]) < fudge * numRibsNeeded:
-			mc.rnaExp[idx["rnaExp"]["rRna16Ss"]] = numpy.maximum(mc.rnaExp[idx["rnaExp"]["rRna16Ss"]], fudge * float(numRibsNeeded) / numRnas)
-			mc.rnaExp /= numpy.sum(mc.rnaExp)
+		if numpy.sum(numRnas * rnaExp[idx["rnaExp"]["rRna16Ss"]]) < fudge * numRibsNeeded:
+			rnaExp[idx["rnaExp"]["rRna16Ss"]] = numpy.maximum(rnaExp[idx["rnaExp"]["rRna16Ss"]], fudge * float(numRibsNeeded) / numRnas)
+			rnaExp /= numpy.sum(rnaExp)
 			raise Exception, "Changing RNA mass fractions. Write code to handle this."
 
 		# Calculate RNA Synthesis probabilities
@@ -186,12 +179,12 @@ def fitSimulation(sim, kb):
 			tc = sim.processes['Transcription']
 
 			hLfull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
-			# tc.rnaSynthProb = mc.rnaLens.astype("float") / tc_elngRate * ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
-			tc.rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * mc.rnaExp
+			# tc.rnaSynthProb = rnaLens.astype("float") / tc_elngRate * ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * rnaExp
+			tc.rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / hLfull ) * numRnas * rnaExp
 			tc.rnaSynthProb /= numpy.sum(tc.rnaSynthProb)
 
-		# Assert relationship between mc.monExp and mc.rnaExp
-		assert(numpy.all((mc.rnaExp[idx["rnaExp"]["mRnas"]] - rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * mc.monExp) < 1e-5))
+		# Assert relationship between monExp and rnaExp
+		assert(numpy.all((rnaExp[idx["rnaExp"]["mRnas"]] - rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * monExp) < 1e-5))
 
 		# Align biomass with process usages
 		valsOrig = mc.feistCoreVals.copy()
@@ -199,7 +192,7 @@ def fitSimulation(sim, kb):
 		normalize = lambda x: numpy.array(x).astype("float") / numpy.linalg.norm(x, 1)
 
 		# Amino acids (Protein)
-		#f_w = normalize(numpy.sum(mc.monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
+		#f_w = normalize(numpy.sum(monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
 		f_w = numpy.array([ 0.09832716,  0.05611487,  0.04021716,  0.0545386 ,  0.00908125,
     						0.06433478,  0.04242188,  0.07794587,  0.02055925,  0.05964359,
 					        0.09432389,  0.05520678,  0.02730249,  0.03564025,  0.04069936,
@@ -218,10 +211,17 @@ def fitSimulation(sim, kb):
 
 		#print "||delta biomass||_1: %0.3f" % numpy.linalg.norm(valsOrig - mc.vals["FeistCore"], 1)
 
-	# import ipdb
-	# ipdb.set_trace()
+	# NOTE: reactivate this line once we start fitting the RNA expression
+	# for i, rna in enumerate(kb.rnas):
+	# 	rna['expression'] = rnaExp[i]
 
+	# do the same for monomer expression
+
+	sim.states['MoleculeCounts'].rnaExp = rnaExp
+	sim.states['MoleculeCounts'].monExp = monExp
 	sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
+
+	# TODO: return/save fitted KB instead of a modified simulation
 
 _ids = {} # TOKB
 _ids["tRnas"] = [
