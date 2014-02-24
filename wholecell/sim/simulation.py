@@ -30,7 +30,7 @@ SIM_INIT_ARGS = dict(
 	freeMolecules = None,
 	lengthSec = None, timeStepSec = None,
 	seed = None,
-	reconstructKB = False, cacheKB = True,
+	reconstructKB = False,
 	logToShell = True,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
 	)
@@ -73,19 +73,20 @@ class Simulation(object):
 		self.seed = self._options['seed']
 
 		# Set KB
+		self.kbPath = KB_PATH # TODO: option?
+
 		import cPickle
-		if self._options['reconstructKB'] or not os.path.exists(KB_PATH):
+		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
 			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
 				dataFileDir = "data/parsed",
 				seqFileName = "data/raw/sequence.txt"
 				)
 
-			if self._options['cacheKB']:
-				cPickle.dump(kb, open(KB_PATH, "wb"),
-					protocol = cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(kb, open(self.kbPath, "wb"),
+				protocol = cPickle.HIGHEST_PROTOCOL)
 
 		else:
-			kb = cPickle.load(open(KB_PATH, "rb"))
+			kb = cPickle.load(open(self.kbPath, "rb"))
 
 		self.initialize(kb)
 
