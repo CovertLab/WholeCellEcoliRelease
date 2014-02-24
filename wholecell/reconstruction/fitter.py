@@ -13,6 +13,16 @@ Adjust simulation parameters
 import numpy
 from wholecell.utils.constants import Constants
 
+FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
+	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
+	0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
+	0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
+	0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
+	0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
+	0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
+	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
+	]) # TOKB
+
 def fitSimulation(sim, kb):
 	mc = sim.states["MoleculeCounts"]
 	# tc = sim.processes["Transcription"]
@@ -128,6 +138,8 @@ def fitSimulation(sim, kb):
 
 	fracInitFreeNTPs = 0.0015 # TOKB
 
+	feistCoreVals = FEIST_CORE_VALS # TOKB
+
 	for iteration in xrange(5):
 		# Estimate number of RNA Polymerases needed initially
 
@@ -178,28 +190,25 @@ def fitSimulation(sim, kb):
 		# Assert relationship between monExp and rnaExp
 		assert(numpy.all((rnaExp[idx["rnaExp"]["mRnas"]] - rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * monExp) < 1e-5))
 
-		# Align biomass with process usages
-		valsOrig = mc.feistCoreVals.copy()
+	# Align biomass with process usages
 
-		# Amino acids (Protein)
-		#f_w = normalize(numpy.sum(monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
-		f_w = numpy.array([ 0.09832716,  0.05611487,  0.04021716,  0.0545386 ,  0.00908125,
-    						0.06433478,  0.04242188,  0.07794587,  0.02055925,  0.05964359,
-					        0.09432389,  0.05520678,  0.02730249,  0.03564025,  0.04069936,
-					        0.05387673,  0.05485896,  0.01133458,  0.02679389,  0.07677868]) # TOKB
-		mc.feistCoreVals[idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c_aas # TOKB
+	# Amino acids (Protein)
+	#f_w = normalize(numpy.sum(monExp.reshape(-1, 1) * tl.proteinAaCounts[:, idx["proteinAaCounts"]["notSec"]], axis = 0))
+	f_w = numpy.array([ 0.09832716,  0.05611487,  0.04021716,  0.0545386 ,  0.00908125,
+						0.06433478,  0.04242188,  0.07794587,  0.02055925,  0.05964359,
+						0.09432389,  0.05520678,  0.02730249,  0.03564025,  0.04069936,
+						0.05387673,  0.05485896,  0.01133458,  0.02679389,  0.07677868]) # TOKB
+	feistCoreVals[idx["FeistCore"]["aminoAcids"]] = 1000 * 0.5794 * f_w / mw_c_aas # TOKB
 
-		# NTPs (RNA)
-		# f_w = numpy.array([ 0.25375551,  0.23228423,  0.30245459,  0.21150567])
-		f_w = numpy.array([ 0.248,  0.238,  0.300,  0.214 ]) # TOKB
-		# f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
-		mc.feistCoreVals[idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c_ntps # TOKB
+	# NTPs (RNA)
+	# f_w = numpy.array([ 0.25375551,  0.23228423,  0.30245459,  0.21150567])
+	f_w = numpy.array([ 0.248,  0.238,  0.300,  0.214 ]) # TOKB
+	# f_w = normalize(numpy.sum(tc.rnaSynthProb.reshape(-1, 1) * tc.rnaNtCounts, axis = 0))
+	feistCoreVals[idx["FeistCore"]["ntps"]] = 1000 * 0.216 * f_w / mw_c_ntps # TOKB
 
-		# dNTPS (DNA)
-		f_w = normalize(numpy.array([kb.genomeSeq.count("A"), kb.genomeSeq.count("C"), kb.genomeSeq.count("G"), kb.genomeSeq.count("T")]))
-		mc.feistCoreVals[idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c_dntps # TOKB
-
-		#print "||delta biomass||_1: %0.3f" % numpy.linalg.norm(valsOrig - mc.vals["FeistCore"], 1)
+	# dNTPS (DNA)
+	f_w = normalize(numpy.array([kb.genomeSeq.count("A"), kb.genomeSeq.count("C"), kb.genomeSeq.count("G"), kb.genomeSeq.count("T")]))
+	feistCoreVals[idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c_dntps # TOKB
 
 	# NOTE: reactivate this line once we start fitting the RNA expression
 	# for i, rna in enumerate(kb.rnas):
@@ -212,11 +221,11 @@ def fitSimulation(sim, kb):
 
 	sim.states['MoleculeCounts'].rnaExp = rnaExp
 	sim.states['MoleculeCounts'].monExp = monExp
+	sim.states['MoleculeCounts'].feistCoreVals = feistCoreVals
 	
 	# Calculate RNA Synthesis probabilities
 	if 'Transcription' in sim.processes:
-		tc = sim.processes['Transcription']
-		tc.rnaSynthProb = rnaSynthProb
+		sim.processes['Transcription'].rnaSynthProb = rnaSynthProb
 
 	sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
 
