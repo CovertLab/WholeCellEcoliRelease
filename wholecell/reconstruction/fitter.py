@@ -23,10 +23,9 @@ FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
 	]) # TOKB
 
+INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
+
 def fitSimulation(sim, kb):
-	mc = sim.states["MoleculeCounts"]
-	# tc = sim.processes["Transcription"]
-	# tl = sim.processes["Translation"]
 	tc_elngRate = 50 # TOKB
 	tc_cellCycleLength = 1 * 3600. # TOKB
 	tl_elngRate = 16 # TOKB
@@ -122,13 +121,7 @@ def fitSimulation(sim, kb):
 
 	ppiMass = [met['mw7.2'] for met in kb.metabolites if met['id'] == 'PPI'][0]
 
-	ntpView = mc.countsBulkViewNew([
-		id_ + '[c]' for id_ in _ids['ntps']
-		])
-
-	aaView = mc.countsBulkViewNew([
-		id_ + '[c]' for id_ in _ids['aminoAcids']
-		])
+	# TODO: separate count arrays for ntps/aas, created from feist core values
 
 	halflife = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
 	halflifeFull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
@@ -140,11 +133,19 @@ def fitSimulation(sim, kb):
 	fracInitFreeAAs = 0.001 # TOKB
 
 	feistCoreVals = FEIST_CORE_VALS # TOKB
+	initialDryMass = INITIAL_DRY_MASS # TOKB
+
+	feistCoreCounts = numpy.round(
+		feistCoreVals * 1e-3 * Constants.nAvogadro * initialDryMass
+		)
+
+	totalNTPs = feistCoreCounts[[i for i, id_ in enumerate(_ids['FeistCore']) if id_ in _ids['ntps']]].sum()
+	totalAAs = feistCoreCounts[[i for i, id_ in enumerate(_ids['FeistCore']) if id_ in _ids['aminoAcids']]].sum()
 
 	for iteration in xrange(5):
 		# Estimate number of RNA Polymerases needed initially
 
-		ntpsToPolym = numpy.round((1 - fracInitFreeNTPs) * ntpView.countsBulk().sum()) # number of NTPs as RNA
+		ntpsToPolym = numpy.round((1 - fracInitFreeNTPs) * totalNTPs) # number of NTPs as RNA
 		numRnas = numpy.round(ntpsToPolym / (numpy.dot(rnaExp, rnaLens))) # expected number of RNAs?
 		
 		numRnapsNeeded = numpy.sum(
@@ -156,7 +157,7 @@ def fitSimulation(sim, kb):
 		#print "numRnapsNeeded: %0.1f" % numRnapsNeeded
 		
 		# Estimate total number of monomers
-		aasToPolym = numpy.round((1 - fracInitFreeAAs) * aaView.countsBulk().sum()) # number of AAs as protein
+		aasToPolym = numpy.round((1 - fracInitFreeAAs) * totalAAs) # number of AAs as protein
 		numMons = numpy.round(aasToPolym / (numpy.dot(monExp, monLens))) # expected number of proteins?
 
 		fudge = 10000
