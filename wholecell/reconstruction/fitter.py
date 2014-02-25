@@ -221,26 +221,7 @@ def fitSimulation(kb):
 	kb.feistCoreVals = feistCoreVals
 
 	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-	# I'm pretty sure the simulation recalculates monomer expression...
-	# for i, monomer in enumerate(monomers):
-	# 	monomer['exp']
-
-	# halflifeFull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
-	# rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / halflifeFull ) * numRnas * rnaExp
-	# rnaSynthProb /= rnaSynthProb.sum()
-
-	# sim.states['MoleculeCounts'].rnaExp = rnaExp
-	# sim.states['MoleculeCounts'].monExp = monExp
-	# sim.states['MoleculeCounts'].feistCoreVals = feistCoreVals
 	
-	# Calculate RNA Synthesis probabilities
-	# if 'Transcription' in sim.processes:
-	# 	sim.processes['Transcription'].rnaSynthProb = rnaSynthProb
-
-	# sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
-
 	# TODO: return/save fitted KB instead of a modified the original KB
 
 
