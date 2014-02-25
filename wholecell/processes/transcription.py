@@ -85,18 +85,10 @@ class Transcription(wholecell.processes.process.Process):
 		self.rpoDMol = mc.molecule('RPOD-MONOMER[c]')
 
 
-	def calcRnaps(self, countRpoA, countRpoB, countRpoC, countRpoD):
-		return numpy.min([
-			numpy.floor(countRpoA/2),
-			countRpoB,
-			countRpoC,
-			countRpoD,
-			])
-
 	def requestMoleculeCounts(self):
 		self.mcPartition.ntps.countsBulkIs(
 			numpy.min([
-				self.calcRnaps(
+				calcRnaps(
 					self.rpoAMol.countBulk(), self.rpoBMol.countBulk(),
 					self.rpoCMol.countBulk(), self.rpoDMol.countBulk()
 					) * self.elngRate * self.timeStepSec,
@@ -114,7 +106,7 @@ class Transcription(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 		enzLimit = numpy.min([
-			self.calcRnaps(
+			calcRnaps(
 				self.mcPartition.rpoAMol.countBulk(),
 				self.mcPartition.rpoBMol.countBulk(),
 				self.mcPartition.rpoCMol.countBulk(),
@@ -182,7 +174,16 @@ class Transcription(wholecell.processes.process.Process):
 
 #		print "Transcription newRnas: %d" % newRnas
 #		print "Transcription ntpsUsed: %s" % str(ntpsUsed)
-#		print "Transcription numActiveRnaps (total): %d (%d)" % (int(numpy.sum(ntpsUsed) / self.elngRate / self.timeStepSec), int(self.calcRnaps(self.enzyme.counts)))
+#		print "Transcription numActiveRnaps (total): %d (%d)" % (int(numpy.sum(ntpsUsed) / self.elngRate / self.timeStepSec), int(calcRnaps(self.enzyme.counts)))
+
+
+def calcRnaps(countRpoA, countRpoB, countRpoC, countRpoD):
+	return numpy.min([
+		numpy.floor(countRpoA/2),
+		countRpoB,
+		countRpoC,
+		countRpoD,
+		])
 
 _metIds = [
 	"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
