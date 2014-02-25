@@ -25,8 +25,18 @@
 	( ) Partitioning unique instances of molecules
 	
 	( ) Chromosome modeling
+
+		(x) Create prototype of data model
+
+		( ) Create real state
+
+		( ) Use the state in a dynamic simulation
 	
 	( ) Move constants out of simulation and into KB. Make sure work flow goes KB --> fitter --> simulation. No backwards arrows!
+
+		( ) Move constants into KB
+
+		(x) Apply fitter to KB instead of the simulation
 
 	( ) Partitioning hierarchy
 
