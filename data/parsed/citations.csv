@@ -27,3 +27,9 @@ number = {20},
 pages = {6425--6440},
 month = oct,
 }"
+PUB_0004	"@book{Neidhardt:1990tna,
+author = {Neidhardt, Frederick Carl and Ingraham, John L and Schaechter, Moselio},
+title = {{Physiology of the bacterial cell: a molecular approach}},
+publisher = {Sinauer Associates Sunderland, MA},
+year = {1990}
+}"
