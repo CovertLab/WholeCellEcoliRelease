@@ -157,5 +157,4 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_removeProcesses(self):
 		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'])
-		sim.initialize(self.kb)
 		self.assertEqual(['Transcription'], sim.processes.keys())

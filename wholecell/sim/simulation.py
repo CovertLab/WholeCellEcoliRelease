@@ -61,7 +61,7 @@ class Simulation(object):
 		self.states = None
 		self.processes = None
 
-		self.constructRandStream()
+		self._constructRandStream()
 
 		# Set time parameters
 		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
@@ -94,7 +94,7 @@ class Simulation(object):
 		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
-		self.initialize(kb)
+		self._initialize(kb)
 
 		# Set loggers
 		self.loggers = []
@@ -134,15 +134,15 @@ class Simulation(object):
 
 
 	# Construct random stream
-	def constructRandStream(self):
+	def _constructRandStream(self):
 		import wholecell.utils.rand_stream
 		self.randStream = wholecell.utils.rand_stream.RandStream()
 
 
 	# Link states and processes
-	def initialize(self, kb):
-		self.constructStates()
-		self.constructProcesses()
+	def _initialize(self, kb):
+		self._constructStates()
+		self._constructProcesses()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -150,12 +150,12 @@ class Simulation(object):
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
 
-		self.allocateMemory()
-		self.calcInitialConditions()
+		self._allocateMemory()
+		self._calcInitialConditions()
 
 
 	# Construct states
-	def constructStates(self):
+	def _constructStates(self):
 		import wholecell.states.mass
 		# import wholecell.states.MetabolicFlux
 		import wholecell.states.molecule_counts
@@ -174,7 +174,7 @@ class Simulation(object):
 
 
 	# Construct processes
-	def constructProcesses(self):
+	def _constructProcesses(self):
 		import wholecell.processes.complexation
 		import wholecell.processes.metabolism
 		import wholecell.processes.protein_maturation
@@ -202,13 +202,13 @@ class Simulation(object):
 
 
 	# Allocate memory
-	def allocateMemory(self):
+	def _allocateMemory(self):
 		for state in self.states.itervalues():
 			state.allocate()
 
 
 	# Calculate initial conditions
-	def calcInitialConditions(self):
+	def _calcInitialConditions(self):
 		# Calculate initial conditions
 		for state in self.states.itervalues():
 			state.calcInitialConditions()
@@ -219,26 +219,26 @@ class Simulation(object):
 	# Run simulation
 	def run(self):
 		# Calculate initial dependent state
-		self.calculateState()
+		self._calculateState()
 
-		self.logInitialize()
+		self._logInitialize()
 
 		while self.time.value < self.lengthSec:
 			self.simulationStep += 1
 
-			self.evolveState()
-			self.logAppend()
+			self._evolveState()
+			self._logAppend()
 
-		self.logFinalize()
+		self._logFinalize()
 
 
-	def calculateState(self):
+	def _calculateState(self):
 		for state in self.states.itervalues():
 			state.calculate()
 
 
 	# Calculate temporal evolution
-	def evolveState(self):
+	def _evolveState(self):
 		# Partition states among processes
 		for state in self.states.itervalues():
 			state.partition()
@@ -252,21 +252,21 @@ class Simulation(object):
 			state.merge()
 
 		# Recalculate dependent state
-		self.calculateState()
+		self._calculateState()
 
 
 	# --- Logger functions ---
-	def logInitialize(self):
+	def _logInitialize(self):
 		for logger in self.loggers:
 			logger.initialize(self)
 
 
-	def logAppend(self):
+	def _logAppend(self):
 		for logger in self.loggers:
 			logger.append(self)
 
 
-	def logFinalize(self):
+	def _logFinalize(self):
 		for logger in self.loggers:
 			logger.finalize(self)
 
@@ -342,7 +342,7 @@ class Simulation(object):
 		newSim.initialStep = timePoint
 
 		# Calculate derived states
-		newSim.calculateState()
+		newSim._calculateState() # TODO: add calculate() to State superclass call?
 
 		return newSim
 
