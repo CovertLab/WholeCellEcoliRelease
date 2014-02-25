@@ -256,7 +256,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._typeLocalizations = {}
 
 		# Initialization and fitting attributes
-		self.feistCoreVals = FEIST_CORE_VALS.copy()
+		self.feistCoreVals = None
 		self.initialDryMass = INITIAL_DRY_MASS
 
 		self.fracInitFreeNTPs = 0.0015 # TOKB
@@ -266,6 +266,18 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def initialize(self, sim, kb):
 		super(MoleculeCounts, self).initialize(sim, kb)
+
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		# HACK
+
+		# kb does not yet have feist core vals!
+		if hasattr(kb, 'feistCoreVals'):
+			self.feistCoreVals = kb.feistCoreVals
+
+		else:
+			self.feistCoreVals = FEIST_CORE_VALS.copy()
+
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		# Because I'm not sure how we want to handle forms, and the names won't
 		# hash properly without them, I'm combining IDs and form values

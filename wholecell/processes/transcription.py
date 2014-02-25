@@ -65,7 +65,9 @@ class Transcription(wholecell.processes.process.Process):
 		self.mcPartition.rnas = self.mcPartition.countsBulkViewNew(rnaIds)
 		self.rnaNtCounts = numpy.array([x["ntCount"] for x in kb.rnas])
 		self.rnaLens = numpy.sum(self.rnaNtCounts, axis = 1)
-		self.rnaSynthProb = mc.rnaExp * (numpy.log(2) / self.cellCycleLength + 1 / numpy.array([x["halfLife"] for x in kb.rnas]))
+		
+		halflives = numpy.array([x["halfLife"] for x in kb.rnas])
+		self.rnaSynthProb = mc.rnaExp * (numpy.log(2) / self.cellCycleLength + 1 / halflives)
 		self.rnaSynthProb /= numpy.sum(self.rnaSynthProb)
 
 		# Enzymes

@@ -25,7 +25,7 @@ FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 
 INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
 
-def fitSimulation(sim, kb):
+def fitSimulation(kb):
 	tc_elngRate = 50 # TOKB
 	tc_cellCycleLength = 1 * 3600. # TOKB
 	tl_elngRate = 16 # TOKB
@@ -111,10 +111,10 @@ def fitSimulation(sim, kb):
 	rnaExp[idx["rnaExp"]["rnap_70"]] = numpy.mean(rnaExp[idx["rnaExp"]["rnap_70"]])
 	rnaExp /= numpy.sum(rnaExp)
 
-	mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-	monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons)) # TODO: remove map/lambda
+	monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
+	monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), monomers)) # TODO: remove map/lambda
 	rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
-	monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
+	monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in monomers])
 	monExp /= numpy.sum(monExp)
 
 	h2oMass = [met['mw7.2'] for met in kb.metabolites if met['id'] == 'H2O'][0] # is there a better way to do this?
@@ -124,7 +124,6 @@ def fitSimulation(sim, kb):
 	# TODO: separate count arrays for ntps/aas, created from feist core values
 
 	halflife = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
-	halflifeFull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
 	mw_c_aas = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['aminoAcids']]) - h2oMass
 	mw_c_ntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['ntps']]) - ppiMass
 	mw_c_dntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['dntps']]) - ppiMass
@@ -158,13 +157,13 @@ def fitSimulation(sim, kb):
 		
 		# Estimate total number of monomers
 		aasToPolym = numpy.round((1 - fracInitFreeAAs) * totalAAs) # number of AAs as protein
-		numMons = numpy.round(aasToPolym / (numpy.dot(monExp, monLens))) # expected number of proteins?
+		numMonomers = numpy.round(aasToPolym / (numpy.dot(monExp, monLens))) # expected number of proteins?
 
 		fudge = 10000
-		if numpy.min(numMons * monExp[idx["monExp"]["rnap_70"]] * numpy.array([1./2, 1., 1., 1.])) < fudge * numRnapsNeeded:
+		if numpy.min(numMonomers * monExp[idx["monExp"]["rnap_70"]] * numpy.array([1./2, 1., 1., 1.])) < fudge * numRnapsNeeded:
 			# Adjust monomer expression if necessary
-			# monExp[idx["monExp"]["rnap_70"]] = numpy.maximum(monExp[idx["monExp"]["rnap_70"]], fudge * float(numRnapsNeeded) / numMons)
-			monExp[idx["monExp"]["rnap_70"]] = numpy.minimum(monExp[idx["monExp"]["rnap_70"]], 2*float(numRnapsNeeded) / numMons)
+			# monExp[idx["monExp"]["rnap_70"]] = numpy.maximum(monExp[idx["monExp"]["rnap_70"]], fudge * float(numRnapsNeeded) / numMonomers)
+			monExp[idx["monExp"]["rnap_70"]] = numpy.minimum(monExp[idx["monExp"]["rnap_70"]], 2*float(numRnapsNeeded) / numMonomers)
 			monExp /= numpy.sum(monExp)
 			# Make corresponding change to rnaExp
 			rnaExp[idx["rnaExp"]["rnap_70"]] = rnaExpFracs[idx["rnaExpFracs"]["mRnas"]] * monExp[idx["monExp"]["rnap_70"]]
@@ -172,8 +171,8 @@ def fitSimulation(sim, kb):
 			rnaExp /= numpy.sum(rnaExp)
 
 		# Estimate number of ribosomes needed initially
-		#numRibsNeeded = numpy.sum(monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * monExp)
-		numRibsNeeded = numpy.sum(monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMons * monExp)
+		#numRibsNeeded = numpy.sum(monLens.astype("float") / tl.elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMonomers * monExp)
+		numRibsNeeded = numpy.sum(monLens.astype("float") / tl_elngRate * ( numpy.log(2) / tc_cellCycleLength) * numMonomers * monExp)
 		#print "numRibsNeeded: %0.1f" % numRibsNeeded
 		fudge = 1.1
 		if numpy.sum(numRnas * rnaExp[idx["rnaExp"]["rRna23Ss"]]) < fudge * numRibsNeeded:
@@ -212,26 +211,38 @@ def fitSimulation(sim, kb):
 	f_w = normalize(numpy.array([kb.genomeSeq.count("A"), kb.genomeSeq.count("C"), kb.genomeSeq.count("G"), kb.genomeSeq.count("T")]))
 	feistCoreVals[idx["FeistCore"]["dntps"]] = 1000 * 0.0327 * f_w / mw_c_dntps # TOKB
 
-	# NOTE: reactivate this line once we start fitting the RNA expression
-	# for i, rna in enumerate(kb.rnas):
-	# 	rna['expression'] = rnaExp[i]
+	for i, rna in enumerate(kb.rnas):
+		rna['expression'] = rnaExp[i]
 
-	rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / halflifeFull ) * numRnas * rnaExp
-	rnaSynthProb /= rnaSynthProb.sum()
+	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	# HACK
 
-	# do the same for monomer expression
+	# This isn't a KB value yet; but it will be!
+	kb.feistCoreVals = feistCoreVals
 
-	sim.states['MoleculeCounts'].rnaExp = rnaExp
-	sim.states['MoleculeCounts'].monExp = monExp
-	sim.states['MoleculeCounts'].feistCoreVals = feistCoreVals
+	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+	# I'm pretty sure the simulation recalculates monomer expression...
+	# for i, monomer in enumerate(monomers):
+	# 	monomer['exp']
+
+	# halflifeFull = numpy.array([x["halfLife"] if x["unmodifiedForm"] == None else numpy.inf for x in kb.rnas])
+	# rnaSynthProb = ( numpy.log(2) / tc_cellCycleLength + numpy.log(2) / halflifeFull ) * numRnas * rnaExp
+	# rnaSynthProb /= rnaSynthProb.sum()
+
+	# sim.states['MoleculeCounts'].rnaExp = rnaExp
+	# sim.states['MoleculeCounts'].monExp = monExp
+	# sim.states['MoleculeCounts'].feistCoreVals = feistCoreVals
 	
 	# Calculate RNA Synthesis probabilities
-	if 'Transcription' in sim.processes:
-		sim.processes['Transcription'].rnaSynthProb = rnaSynthProb
+	# if 'Transcription' in sim.processes:
+	# 	sim.processes['Transcription'].rnaSynthProb = rnaSynthProb
 
-	sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
+	# sim.calcInitialConditions() # Recalculate initial conditions based on fit parameters
 
-	# TODO: return/save fitted KB instead of a modified simulation
+	# TODO: return/save fitted KB instead of a modified the original KB
+
 
 def normalize(array):
 	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)

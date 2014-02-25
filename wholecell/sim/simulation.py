@@ -72,7 +72,7 @@ class Simulation(object):
 		# Set random seed
 		self.seed = self._options['seed']
 
-		# Set KB
+		# Create KB
 		self.kbPath = KB_PATH # TODO: option?
 
 		import cPickle
@@ -88,11 +88,13 @@ class Simulation(object):
 		else:
 			kb = cPickle.load(open(self.kbPath, "rb"))
 
-		self.initialize(kb)
-
-		# Fit model
+		# Fit KB parameters
 		import wholecell.reconstruction.fitter
-		wholecell.reconstruction.fitter.fitSimulation(self, kb)
+		wholecell.reconstruction.fitter.fitSimulation(kb)
+		# TODO: save fit KB
+
+		# Initialize simulation from fit KB
+		self.initialize(kb)
 
 		# Set loggers
 		self.loggers = []
