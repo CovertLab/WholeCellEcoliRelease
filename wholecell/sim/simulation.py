@@ -91,7 +91,7 @@ class Simulation(object):
 		# Fit KB parameters
 		import wholecell.reconstruction.fitter
 		wholecell.reconstruction.fitter.fitSimulation(kb)
-		# TODO: save fit KB
+		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
 		self.initialize(kb)
