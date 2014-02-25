@@ -82,18 +82,10 @@ class Translation(wholecell.processes.process.Process):
 		self.ribosome5SView = mc.countsBulkViewNew(rib5S_IDs)
 
 
-	def calcRibosomes(self, counts23S, counts16S, counts5S):
-		return numpy.min([
-			numpy.sum(counts23S),
-			numpy.sum(counts16S),
-			numpy.sum(counts5S)
-			])
-
-
 	def requestMoleculeCounts(self):
 		self.mcPartition.mrnas.countsBulkIs(1)
 
-		ribs = self.calcRibosomes(
+		ribs = calcRibosomes(
 			self.ribosome23SView.countsBulk(),
 			self.ribosome16SView.countsBulk(),
 			self.ribosome5SView.countsBulk()
@@ -115,13 +107,13 @@ class Translation(wholecell.processes.process.Process):
 		if not numpy.any(self.mcPartition.countsBulk()):
 			return
 
-		ribs = self.calcRibosomes(
+		ribs = calcRibosomes(
 			self.mcPartition.ribosome23S.countsBulk(),
 			self.mcPartition.ribosome16S.countsBulk(),
 			self.mcPartition.ribosome5S.countsBulk()
 			)
 
-		# print "nRibosomes: %d" % int(self.calcRibosomes(self.enzyme.counts))
+		# print "nRibosomes: %d" % int(calcRibosomes(self.enzyme.counts))
 		# Total synthesis rate
 		proteinSynthProb = (self.mcPartition.mrnas.countsBulk() / numpy.sum(self.mcPartition.mrnas.countsBulk())).flatten()
 		totRate = 1 / numpy.dot(self.proteinLens, proteinSynthProb) * numpy.min([					# Normalize by average protein length
@@ -174,9 +166,17 @@ class Translation(wholecell.processes.process.Process):
 		self.aasUsed = aasUsed
 		# print "Translation newProts: %d" % newProts
 		# print "Translation aasUsed: %s" % str(aasUsed)
-		# print "Translation numActiveRibs (total): %d (%d)" % (int(numpy.sum(aasUsed) / self.elngRate / self.timeStepSec), int(self.calcRibosomes(self.enzyme.counts)))
+		# print "Translation numActiveRibs (total): %d (%d)" % (int(numpy.sum(aasUsed) / self.elngRate / self.timeStepSec), int(calcRibosomes(self.enzyme.counts)))
 
 		self.mcPartition.proteins.countsBulkInc(proteinsCreated)
+
+
+def calcRibosomes(counts23S, counts16S, counts5S):
+	return numpy.min([
+		numpy.sum(counts23S),
+		numpy.sum(counts16S),
+		numpy.sum(counts5S)
+		])
 
 
 metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
