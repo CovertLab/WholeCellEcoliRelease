@@ -264,6 +264,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
+
 	def initialize(self, sim, kb):
 		super(MoleculeCounts, self).initialize(sim, kb)
 
@@ -336,15 +337,29 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# TODO: add unique attributes to KB and test
 		# TODO: figure out what this block is really doing/refactor
-		# for mol in kb.molecules:
-		# 	if mol["uniqueAttrs"] is not None:
-		# 		self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
-
-		# 	else:
-		# 		self._uniqueDict.append([{} for x in kb.compartments])
-
 		for mol in self._molIDs:
-			self._uniqueDict.append([{} for x in self._compartments])
+			# mol['uniqueAttrs'] = None
+			uniqueAttrs = None
+
+			# if mol["uniqueAttrs"] is not None:
+			if uniqueAttrs is not None:
+				self._uniqueDict.append([ # list of lists (1 per molecule)
+					dict( # dicts of attributes (1 per compartment)
+						zip( # attr:[] pairs (1 entr per attribute + 1 entry for 'objects')
+							# mol["uniqueAttrs"] + ["objects"],
+							# [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]
+							uniqueAttrs + ["objects"],
+							[[] for x in xrange(len(uniqueAttrs) + 1)]
+							)
+						)
+					for x in kb.compartments
+					])
+
+			else:
+				self._uniqueDict.append([{} for x in self._compartments])
+
+		# for mol in self._molIDs:
+		# 	self._uniqueDict.append([{} for x in self._compartments])
 
 		# Values needed for calcInitialConditions
 		self.rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas)) # TODO: get rid of 'map' function
@@ -481,6 +496,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		else:
 			self._countsBulkUnpartitioned = self._countsBulk
+
 
 	def merge(self):
 		self._countsBulk = self._countsBulkUnpartitioned
