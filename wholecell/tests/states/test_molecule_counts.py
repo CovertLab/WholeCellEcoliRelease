@@ -13,7 +13,7 @@ import nose.plugins.attrib as noseAttrib
 import cPickle
 import os
 
-import numpy
+import numpy as np
 import wholecell.states.molecule_counts as wcMoleculeCounts
 
 class Test_MoleculeCounts(unittest.TestCase):
@@ -32,7 +32,7 @@ class Test_MoleculeCounts(unittest.TestCase):
 
 		self.mc = self.sim.states['MoleculeCounts']
 
-		self.rand_counts = numpy.random.randint(0, 2000, size = self.mc.countsBulk().shape)
+		self.rand_counts = np.random.randint(0, 2000, size = self.mc.countsBulk().shape)
 		self.mc.countsBulkIs(self.rand_counts)
 
 	def tearDown(self):

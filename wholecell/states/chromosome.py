@@ -11,7 +11,7 @@ import time
 import random
 from collections import OrderedDict
 
-import numpy
+import numpy as np
 import tables
 
 N_BASES = 5000000
@@ -57,7 +57,7 @@ class Chromosome(object):
 		while nBound < N_RNAP:
 			# Choose a random point and try to attach molecules
 
-			start = numpy.random.randint(N_BASES - Molecule.width)
+			start = np.random.randint(N_BASES - Molecule.width)
 
 			if not self.boundMolecules(start, start + Molecule.width):
 				self.boundMoleculeIs(Molecule(), start)
@@ -118,7 +118,7 @@ class Chromosome(object):
 
 
 	def toUnsignedArray(self):
-		# Return an unsigned integer numpy array (for saving)
+		# Return an unsigned integer np array (for saving)
 		# NOTE: Choosing "empty", the most common entry, to be 0, seems to
 		# improve compression.
 		raise NotImplementedError()
@@ -130,9 +130,9 @@ class Chromosome(object):
 
 
 class ChromosomeArray(Chromosome):
-	# numpy array implementation of the chromosome object
+	# np array implementation of the chromosome object
 	def _allocate(self):
-		self.chrArray = numpy.empty(N_BASES, numpy.int64)
+		self.chrArray = np.empty(N_BASES, np.int64)
 		self.chrArray[:] = self.empty
 
 
@@ -181,7 +181,7 @@ class ChromosomeDiskArray(Chromosome):
 
 
 	def _setRange(self, start, stop, value):
-		self.table[start:stop] = value * numpy.ones(stop-start, 'int32')
+		self.table[start:stop] = value * np.ones(stop-start, 'int32')
 
 
 	def toUnsignedArray(self):
@@ -210,11 +210,11 @@ class ChromosomeDict(Chromosome):
 
 
 	def toUnsignedArray(self):
-		array = numpy.empty(N_BASES)
+		array = np.empty(N_BASES)
 
 		(keys, values) = zip(*self.chrDict.items())
 
-		array[numpy.array(keys)] = values
+		array[np.array(keys)] = values
 
 		array += 1
 
@@ -228,7 +228,7 @@ class ChromosomeOrderedDict(ChromosomeDict):
 
 
 	def toUnsignedArray(self):
-		return numpy.array(self.chrDict.values()) + 1
+		return np.array(self.chrDict.values()) + 1
 		
 
 def testRunningClass(chromosomeClass, iters = N_ITERS):
@@ -250,7 +250,7 @@ def testRunningClass(chromosomeClass, iters = N_ITERS):
 		chromosome.setup()
 		timeSetup += time.time() - t
 
-		indexes = numpy.random.randint(N_BASES - Molecule.width, size = N_CHECK)
+		indexes = np.random.randint(N_BASES - Molecule.width, size = N_CHECK)
 		t = time.time()
 		for ind in indexes:
 			chromosome.boundMolecules(i, i + Molecule.width)
@@ -265,7 +265,7 @@ def testRunningClass(chromosomeClass, iters = N_ITERS):
 		t = time.time()
 		nBound = 0
 		while nBound < N_REMOVE:
-			start = numpy.random.randint(N_BASES - Molecule.width)
+			start = np.random.randint(N_BASES - Molecule.width)
 
 			if not chromosome.boundMolecules(start, start + Molecule.width):
 				chromosome.boundMoleculeIs(Molecule(), start)

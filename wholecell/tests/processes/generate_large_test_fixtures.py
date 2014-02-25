@@ -3,7 +3,7 @@ import os
 import json
 import pkg_resources
 
-import numpy
+import numpy as np
 
 import wholecell.utils.fitter as wcFitter
 import wholecell.sim.simulation as wcSimulation
@@ -28,19 +28,19 @@ def main():
 	N_SEEDS = fixtureOpts['nSeeds']
 	N_PROC = COMM.size # the number of processes
 	SEND_COUNTS = (
-		(N_SEEDS // N_PROC) * numpy.ones(N_PROC, dtype = int)
-		+ (numpy.arange(N_PROC, dtype =int) < N_SEEDS % N_PROC)
+		(N_SEEDS // N_PROC) * np.ones(N_PROC, dtype = int)
+		+ (np.arange(N_PROC, dtype =int) < N_SEEDS % N_PROC)
 		) # the number of seeds each process receives
-	DISPLACEMENTS = numpy.hstack([
-		numpy.zeros(1),
-		numpy.cumsum(SEND_COUNTS)[:-1]
+	DISPLACEMENTS = np.hstack([
+		np.zeros(1),
+		np.cumsum(SEND_COUNTS)[:-1]
 		]) # the starting position for each process's seeds
 
 	##################################################
 	# MPI seed scatter logic
 	##################################################
-	mySeeds = numpy.zeros(SEND_COUNTS[COMM.rank]) # buffer for the seeds received
-	allSeeds = numpy.arange(N_SEEDS, dtype = float) # the list of seeds
+	mySeeds = np.zeros(SEND_COUNTS[COMM.rank]) # buffer for the seeds received
+	allSeeds = np.arange(N_SEEDS, dtype = float) # the list of seeds
 
 	COMM.Scatterv(
 		[allSeeds, tuple(SEND_COUNTS), tuple(DISPLACEMENTS), MPI.DOUBLE],

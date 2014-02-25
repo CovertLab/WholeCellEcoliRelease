@@ -10,8 +10,6 @@ RNA maturation sub-model. Encodes molecular simulation of RNA maturation.
 @date: Created 4/2/2013
 """
 
-import numpy
-
 import wholecell.processes.process
 
 class RnaMaturation(wholecell.processes.process.Process):

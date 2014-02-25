@@ -12,7 +12,7 @@ Prints a very brief summary of a whole-cell simulation to standard output
 
 import time
 import sys
-import numpy
+import numpy as np
 
 import wholecell.loggers.logger
 
@@ -65,7 +65,7 @@ class Shell(wholecell.loggers.logger.Logger):
 			val = getattr(sim.states[column["state"]], column["property"])
 
 			if column["sum"]:
-				val = numpy.sum(val)
+				val = np.sum(val)
 
 			sys.stdout.write(("%" + str(column["length"]) + column["format"]) % val)
 
@@ -78,8 +78,8 @@ class Shell(wholecell.loggers.logger.Logger):
 		sys.stdout.write("Simulation finished:\n")
 
 		# Length
-		h = numpy.floor(sim.states["Time"].value // 3600)
-		m = numpy.floor((sim.states["Time"].value % 3600) // 60)
+		h = np.floor(sim.states["Time"].value // 3600)
+		m = np.floor((sim.states["Time"].value % 3600) // 60)
 		s = sim.states["Time"].value % 60
 		sys.stdout.write(" - Length: %d:%02d:%02.0f\n" % (h, m, s))
 

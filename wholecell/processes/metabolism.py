@@ -10,7 +10,7 @@ Metabolism sub-model. Encodes molecular simulation of microbial metabolism using
 @date: Created 4/2/2013
 """
 
-import numpy
+import numpy as np
 
 import wholecell.processes.process
 # import wholecell.util.flextFbaModel
@@ -86,10 +86,10 @@ class Metabolism(wholecell.processes.process.Process):
 				bioConc.append(m["biomassConc"]) # Number of molecules to produce each time step
 
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
-		bioConc = numpy.array(bioConc)
+		bioConc = np.array(bioConc)
 
 		self.mcPartition.initialize(bioIds)
-		self.bioProd = numpy.array([x if x > 0 else 0 for x in bioConc])
+		self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
 		self.mcPartition.atpHydrolysis = self.mcPartition.countsBulkViewNew(
 			["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
@@ -97,7 +97,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.mcPartition.ntps = self.mcPartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.mcPartition.h2oMol = self.mcPartition.molecule('H2O[c]')
 
-		self.feistCore = numpy.array([ # TODO: This needs to go in the KB
+		self.feistCore = np.array([ # TODO: This needs to go in the KB
 			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
 			0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
 			0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
@@ -130,26 +130,26 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# # Calculate needed proteins
 	# def calcReqEnzyme(self):
-	# 	return numpy.ones(self.enzyme.fullCounts.shape)
+	# 	return np.ones(self.enzyme.fullCounts.shape)
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# NOTE: I've deleted a bunch of commented-out code from here.  Get it 
 		# from an old commit if you really need it. - JM
 
-		atpm = numpy.zeros_like(self.mcPartition.feistCore.countsBulk()) # TODO: determine what this means
+		atpm = np.zeros_like(self.mcPartition.feistCore.countsBulk()) # TODO: determine what this means
 
-		noise = self.randStream.multivariate_normal(numpy.zeros_like(self.feistCore), numpy.diag(self.feistCore / 1000.))
+		noise = self.randStream.multivariate_normal(np.zeros_like(self.feistCore), np.diag(self.feistCore / 1000.))
 
 		deltaMetabolites = (
-			numpy.round((self.feistCore + atpm + noise) * 1e-3
+			np.round((self.feistCore + atpm + noise) * 1e-3
 				* Constants.nAvogadro * self.initialDryMass)
-			* numpy.exp(numpy.log(2) / self.cellCycleLen * self.time.value)
-			* (numpy.exp(numpy.log(2) / self.cellCycleLen) - 1.0)
+			* np.exp(np.log(2) / self.cellCycleLen * self.time.value)
+			* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 			)
 
 		self.mcPartition.feistCore.countsBulkIs(
-			numpy.fmax(
+			np.fmax(
 				0,
 				self.randStream.stochasticRound(self.mcPartition.feistCore.countsBulk() + deltaMetabolites)
 				)

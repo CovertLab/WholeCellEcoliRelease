@@ -11,7 +11,7 @@ import wholecell.tests.processes.base_large_test as base_large_test # TODO: bett
 import os
 
 import nose.plugins.attrib as noseAttrib
-import numpy
+import numpy as np
 import tables
 import scipy.stats
 
@@ -75,13 +75,13 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 		startAt = 2
 		width = 10
 
-		cls.ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
-		cls.ntpFinalUsage = numpy.zeros((len(ntpIDs), nSims), float)
+		cls.ntpInitialUsage = np.zeros((len(ntpIDs), nSims), float)
+		cls.ntpFinalUsage = np.zeros((len(ntpIDs), nSims), float)
 
 		cls.rnaInitialProduction = None
 		cls.rnaFinalProduction = None
 
-		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
+		cls.expectedRatio = np.exp(np.log(2)/doublingTime * simLength)
 
 		for iSim, simDir in enumerate(dirs):
 			with tables.openFile(os.path.join(cls.fixtureDir, simDir, 'MoleculeCounts.hdf')) as h5file:
@@ -93,17 +93,17 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 					processes = names.processes.read()
 					compartments = names.compartments.read()
 					
-					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
+					ntpIdxs = np.array([molIDs.index(id_) for id_ in ntpIDs])
 					rnaIdxs = indexes.nascentRnas.read()
-					rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
+					rrnaIdxs = np.array([molIDs.index(id_) for id_ in rrnaIDs])
 
 					processIdx = processes.index('Transcription')
 					compartmentIdx = compartments.index('c')
 
-					cls.rnaInitialProduction = numpy.zeros((len(rnaIdxs), nSims), float)
-					cls.rnaFinalProduction = numpy.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaInitialProduction = np.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaFinalProduction = np.zeros((len(rnaIdxs), nSims), float)
 
-					cls.rnaFinalCount = numpy.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaFinalCount = np.zeros((len(rnaIdxs), nSims), float)
 
 					assignedIdxs = True
 
@@ -152,14 +152,14 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 		# Test for exponential NTP usage
 		ntpRatio = self.ntpFinalUsage/self.ntpInitialUsage
 
-		self.assertTrue(numpy.allclose(self.expectedRatio, ntpRatio, rtol = 0.05))
+		self.assertTrue(np.allclose(self.expectedRatio, ntpRatio, rtol = 0.05))
 
 
 	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
 	def test_rnaProduction(self):
 		# Test for exponential RNA production
 		rnaRatio = self.rnaFinalProduction.sum()/self.rnaInitialProduction.sum()
-		self.assertTrue(numpy.allclose(self.expectedRatio, rnaRatio, rtol = 0.05))
+		self.assertTrue(np.allclose(self.expectedRatio, rnaRatio, rtol = 0.05))
 
 		# Test for appropriate ratios of rRNA production
 		averageCounts = self.rnaFinalCount.mean(1)

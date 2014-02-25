@@ -8,7 +8,7 @@ Like chromosome.py, this is just a prototype.
 
 from __future__ import division
 
-import numpy
+import numpy as np
 import tables
 
 
@@ -72,7 +72,7 @@ class Transcripts(object):
 
 
 	def __init__(self):
-		self._array = numpy.empty(ALLOCATION, numpy.int64) # space allocated for transcripts to occupy
+		self._array = np.empty(ALLOCATION, np.int64) # space allocated for transcripts to occupy
 		self._array[:] = self._inactive
 
 		self.transcripts = [] # existing transcripts
@@ -85,7 +85,7 @@ class Transcripts(object):
 
 		for i in xrange(N_TRANSCRIPTS):
 			transcript = Transcript()
-			transcript.extent = numpy.random.randint(TRANSCRIPT_LEN)
+			transcript.extent = np.random.randint(TRANSCRIPT_LEN)
 			self.transcriptAdd(transcript)
 
 		eventLog.append('Transcripts set up')
@@ -148,7 +148,7 @@ class Transcripts(object):
 		# suggesting that even "random" isn't a terrible heuristic.
 
 		while True:
-			arrIndex = numpy.random.randint(ALLOCATION)
+			arrIndex = np.random.randint(ALLOCATION)
 
 			if self._rangeInactive(arrIndex, arrIndex + length):
 				return arrIndex
@@ -172,10 +172,10 @@ class Transcripts(object):
 		# TODO: determine overhead of this method
 
 		if stop >= ALLOCATION:
-			return numpy.r_[start:ALLOCATION, :stop%ALLOCATION]
+			return np.r_[start:ALLOCATION, :stop%ALLOCATION]
 
 		else:
-			return numpy.s_[start:stop]
+			return np.s_[start:stop]
 
 
 	def occupancy(self):

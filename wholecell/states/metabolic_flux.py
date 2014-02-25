@@ -10,7 +10,7 @@ MetabolicFlux state variable. Represents the instantaneous growth rate (fg/h) an
 @date: Created 3/29/2013
 """
 
-import numpy
+import numpy as np
 
 import wholecell.states.state
 
@@ -51,8 +51,8 @@ class MetabolicFlux(wholecell.states.state.State):
 	def allocate(self):
 		super(MetabolicFlux, self).allocate()
 
-		self.growth = numpy.zeros(1)
-		self.fluxes = numpy.zeros(len(self.reactionIds)) # Note: Probably not the right size
+		self.growth = np.zeros(1)
+		self.fluxes = np.zeros(len(self.reactionIds)) # Note: Probably not the right size
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
@@ -61,10 +61,10 @@ class MetabolicFlux(wholecell.states.state.State):
 
 		# TODO: Fix
 		# bounds = met.calcFluxBounds(
-		# 	mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[numpy.unravel_index(met.enzyme.mapping, mc.counts.shape)]
+		# 	mc.counts[np.unravel_index(met.metabolite.mapping, mc.counts.shape)], mc.counts[np.unravel_index(met.enzyme.mapping, mc.counts.shape)]
 		# 	)
 		# bounds = met.calcFluxBounds(
-		# 	mc.counts[numpy.unravel_index(met.metabolite.mapping, mc.counts.shape)], numpy.zeros(1), applyKineticBounds = False, applyExchangeBounds = False
+		# 	mc.counts[np.unravel_index(met.metabolite.mapping, mc.counts.shape)], np.zeros(1), applyKineticBounds = False, applyExchangeBounds = False
 		# 	)
 
 		# self.growth, self.fluxes = met.calcGrowthRate(bounds)[0:2]

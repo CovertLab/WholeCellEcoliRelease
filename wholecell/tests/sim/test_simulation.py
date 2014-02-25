@@ -11,7 +11,7 @@ import unittest
 import warnings
 import nose.plugins.attrib as noseAttrib
 
-import numpy
+import numpy as np
 import cPickle
 import os
 
@@ -77,7 +77,7 @@ class Test_Simulation(unittest.TestCase):
 				dynamics_keys.pop(dynamics_keys.index('growth'))
 
 			for d_key in dynamics_keys:
-				if isinstance(sim.states[state_id].getDynamics()[d_key], numpy.ndarray):
+				if isinstance(sim.states[state_id].getDynamics()[d_key], np.ndarray):
 					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
 						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
 				else:
@@ -122,7 +122,7 @@ class Test_Simulation(unittest.TestCase):
 				dynamics_keys.pop(dynamics_keys.index('growth'))
 
 			for d_key in dynamics_keys:
-				if isinstance(sim.states[state_id].getDynamics()[d_key], numpy.ndarray):
+				if isinstance(sim.states[state_id].getDynamics()[d_key], np.ndarray):
 					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
 						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
 				else:

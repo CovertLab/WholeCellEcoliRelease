@@ -10,7 +10,7 @@ Mass state variable. Represents the total cellular mass.
 @date: Created 3/29/2013
 """
 
-import numpy
+import numpy as np
 import tables
 
 import wholecell.states.state
@@ -80,14 +80,14 @@ class Mass(wholecell.states.state.State):
 	def allocate(self):
 		super(Mass, self).allocate()
 
-		self.total = numpy.zeros(len(self.compartments))
-		self.cell = numpy.zeros(len(self.compartments))
-		self.cellDry = numpy.zeros(len(self.compartments))
-		self.metabolite = numpy.zeros(len(self.compartments))
-		self.rna = numpy.zeros(len(self.compartments))
-		self.protein = numpy.zeros(len(self.compartments))
+		self.total = np.zeros(len(self.compartments))
+		self.cell = np.zeros(len(self.compartments))
+		self.cellDry = np.zeros(len(self.compartments))
+		self.metabolite = np.zeros(len(self.compartments))
+		self.rna = np.zeros(len(self.compartments))
+		self.protein = np.zeros(len(self.compartments))
 
-		self.growth = numpy.zeros(1)
+		self.growth = np.zeros(1)
 
 
 	def calculate(self):
@@ -101,7 +101,7 @@ class Mass(wholecell.states.state.State):
 		self.rna        = mc.massAll('rnas')        / Constants.nAvogadro * 1e15
 		self.protein    = mc.massAll('proteins')    / Constants.nAvogadro * 1e15
 
-		cIdxs = numpy.array([
+		cIdxs = np.array([
 							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
 							self.cIdx["n"], self.cIdx["o"], self.cIdx["p"], self.cIdx["w"]])
 

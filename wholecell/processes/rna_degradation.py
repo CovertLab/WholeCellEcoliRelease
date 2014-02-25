@@ -10,7 +10,7 @@ RNA degradation sub-model. Encodes molecular simulation of RNA degradation as a 
 @date: Created 4/2/2013
 """
 
-import numpy
+import numpy as np
 
 import wholecell.processes.process
 
@@ -41,8 +41,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self._metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 
-		# self._ntpIdxs = numpy.arange(6, 10)
-		self._nmpIdxs = numpy.arange(0, 4)
+		# self._ntpIdxs = np.arange(6, 10)
+		self._nmpIdxs = np.arange(0, 4)
 		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
 		self._hIdx = self._metaboliteIds.index('H[c]')
 
@@ -64,14 +64,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self.rnaView = mc.countsBulkViewNew(self._rnaIds)
 
-		self.rnaDegRates = numpy.log(2) / numpy.array([x["halfLife"] for x in kb.rnas] * 2)
+		self.rnaDegRates = np.log(2) / np.array([x["halfLife"] for x in kb.rnas] * 2)
 
-		self.rnaLens = numpy.sum(numpy.array([x["ntCount"] for x in kb.rnas] * 2), axis = 1)
+		self.rnaLens = np.sum(np.array([x["ntCount"] for x in kb.rnas] * 2), axis = 1)
 
-		self.rnaDegSMat = numpy.zeros((len(self._metaboliteIds), len(self._rnaIds)))
-		self.rnaDegSMat[self._nmpIdxs, :] = numpy.transpose(numpy.array([x["ntCount"] for x in kb.rnas] * 2))
-		self.rnaDegSMat[self._h2oIdx, :]  = -(numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
-		self.rnaDegSMat[self._hIdx, :]    =  (numpy.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
+		self.rnaDegSMat = np.zeros((len(self._metaboliteIds), len(self._rnaIds)))
+		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(np.array([x["ntCount"] for x in kb.rnas] * 2))
+		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
+		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Proteins
 		self.mcPartition.rnaseRMol = self.mcPartition.molecule('EG11259-MONOMER[c]')
@@ -85,7 +85,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Degrade RNA
 		self.mcPartition.metabolites.countsBulkInc(
-			numpy.dot(self.rnaDegSMat, self.mcPartition.rnas.countsBulk())
+			np.dot(self.rnaDegSMat, self.mcPartition.rnas.countsBulk())
 			)
 
 		self.mcPartition.rnas.countsBulkIs(0)
@@ -95,7 +95,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	def requestMoleculeCounts(self):
 		self.mcPartition.h2oMol.countBulkIs(
-			numpy.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
+			np.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
 			)
 		
 		self.mcPartition.rnas.countsBulkIs(

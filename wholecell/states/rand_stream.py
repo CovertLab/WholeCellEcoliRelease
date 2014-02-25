@@ -10,7 +10,6 @@ Pseudorandom number generator state.
 @date: Created 1/31/2014
 """
 
-import numpy
 import tables
 
 import wholecell.states.state

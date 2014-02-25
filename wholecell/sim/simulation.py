@@ -8,7 +8,6 @@ Simulation
 @date: Created 4/4/2013
 """
 
-import numpy
 import collections
 import tables
 import os

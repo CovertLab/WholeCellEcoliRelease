@@ -11,7 +11,7 @@ of some initial count and the doubling time.
 @date: Created 2/5/2014
 """
 
-import numpy
+import numpy as np
 
 import wholecell.processes.process
 
@@ -42,7 +42,7 @@ class FreeProduction(wholecell.processes.process.Process):
 		freeMolecules = sim.freeMolecules if sim.freeMolecules is not None else ()
 
 		self.molIDs = []
-		self.initCounts = self.defaultInitCount * numpy.ones(len(freeMolecules))
+		self.initCounts = self.defaultInitCount * np.ones(len(freeMolecules))
 
 		for i, (molID, initCount) in enumerate(freeMolecules):
 			self.molIDs.append(molID)
@@ -65,10 +65,10 @@ class FreeProduction(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		expectedCounts = self.initCounts * numpy.exp(numpy.log(2) / self.doublingTime * self.time.value)
+		expectedCounts = self.initCounts * np.exp(np.log(2) / self.doublingTime * self.time.value)
 
 		self.mcPartition.countsBulkIs(
-			numpy.fmax(
+			np.fmax(
 				0,
 				expectedCounts - self.mcView.countsBulk()
 				)

@@ -12,8 +12,6 @@ State variable base class. Defines the interface states expose to the simulation
 
 from collections import OrderedDict
 
-import numpy
-
 class State(object):
 	""" State """
 
