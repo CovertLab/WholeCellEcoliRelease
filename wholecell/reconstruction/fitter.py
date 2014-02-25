@@ -121,8 +121,6 @@ def fitSimulation(kb):
 
 	ppiMass = [met['mw7.2'] for met in kb.metabolites if met['id'] == 'PPI'][0]
 
-	# TODO: separate count arrays for ntps/aas, created from feist core values
-
 	halflife = numpy.array([x["halfLife"] for x in kb.rnas if x["unmodifiedForm"] == None])
 	mw_c_aas = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['aminoAcids']]) - h2oMass
 	mw_c_ntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['ntps']]) - ppiMass
@@ -221,7 +219,7 @@ def fitSimulation(kb):
 	kb.feistCoreVals = feistCoreVals
 
 	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	
+
 	# TODO: return/save fitted KB instead of a modified the original KB
 
 
