@@ -362,12 +362,12 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		# 	self._uniqueDict.append([{} for x in self._compartments])
 
 		# Values needed for calcInitialConditions
-		self.rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas)) # TODO: get rid of 'map' function
+		self.rnaLens = numpy.array([numpy.sum(rna["ntCount"]) for rna in kb.rnas])
 		self.rnaExp = numpy.array([x["expression"] for x in kb.rnas])
 		self.rnaExp /= numpy.sum(self.rnaExp)
 
 		mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-		self.monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons))
+		self.monLens = numpy.array([numpy.sum(mon["aaCount"]) for mon in mons])
 		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
 		self.monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
 		self.monExp /= numpy.sum(self.monExp)

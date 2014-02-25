@@ -89,7 +89,7 @@ def fitSimulation(kb):
 			for ids in (_ids['rRna23Ss'], _ids['rRna16Ss'], _ids['rRna5Ss'], _ids['tRnas'], mRnaIds)
 			])
 
-	rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas))
+	rnaLens = numpy.array([numpy.sum(rna["ntCount"]) for rna in kb.rnas])
 	rnaExpFracs = massFracRNAs / mwRNAs
 	rnaExpFracs /= numpy.sum(rnaExpFracs)
 
@@ -112,7 +112,7 @@ def fitSimulation(kb):
 	rnaExp /= numpy.sum(rnaExp)
 
 	monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-	monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), monomers)) # TODO: remove map/lambda
+	monLens = numpy.array([numpy.sum(monomer["aaCount"]) for monomer in monomers])
 	rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
 	monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in monomers])
 	monExp /= numpy.sum(monExp)
