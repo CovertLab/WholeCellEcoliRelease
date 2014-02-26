@@ -18,7 +18,8 @@ import sys
 
 DEFAULT_SIM = dict(
 	seed = 10,
-	lengthSec = 100
+	lengthSec = 100,
+	includedProcesses = []
 	)
 
 def main():

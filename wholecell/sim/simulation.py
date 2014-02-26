@@ -158,6 +158,7 @@ class Simulation(object):
 		import wholecell.states.mass
 		# import wholecell.states.MetabolicFlux
 		import wholecell.states.molecule_counts
+		import wholecell.states.unique_molecules
 		import wholecell.states.time
 		import wholecell.states.rand_stream
 
@@ -165,6 +166,7 @@ class Simulation(object):
 			('Mass',			wholecell.states.mass.Mass()),
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
 			('MoleculeCounts',	wholecell.states.molecule_counts.MoleculeCounts()),
+			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
