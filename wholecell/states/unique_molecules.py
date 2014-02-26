@@ -15,6 +15,12 @@ MOLECULE_ATTRIBUTES = {
 N_ENTRIES = 10 # default number of entries in each structured array
 FRACTION_EXTEND_ENTRIES = 0.1 # fractional rate to increase number of entries in the structured array
 
+DEFAULT_ATTRIBUTES = [ # attributes for local use
+	('_isActive', 'bool'), # whether the row is an active entry
+	('_partitionedByOtherState', 'bool'), # whether the molecule is partitioned by a different state
+	# ('_massDifference', 'float64') # dynamic mass difference
+	]
+
 class UniqueMolecules(wcState.State):
 	def __init__(self, *args, **kwargs):
 		self.meta = {
@@ -48,14 +54,11 @@ class UniqueMolecules(wcState.State):
 		for moleculeName, attributes in self._moleculeAttributes.viewitems():
 			self._uniqueMolecules[moleculeName] = np.zeros(
 				N_ENTRIES,
-				dtype = [('_isActive', 'bool'), ('partitionedByOtherState', 'bool')] + [
+				dtype = DEFAULT_ATTRIBUTES + [
 					(attributeName, attributeType)
 					for attributeName, attributeType in attributes.viewitems()
 					]
 				)
-
-			# _isActive: used internally to track which rows are active molecules
-			# partitionedByOtherState: used internally and externally to track which molecules are partitioned by a different state
 
 	
 	def calcInitialConditions(self):
@@ -64,9 +67,18 @@ class UniqueMolecules(wcState.State):
 
 		self.moleculesNew(
 			'RNA polymerase', 20,
-			boundToChromosome = True,
+			boundToChromosome = True, # just some example parameters
 			chromosomeLocation = 50
 			)
+
+		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
+
+		# Check the number of active entries
+		assert activeEntries.sum() == 20
+
+		# Check that the active entries have the correct attribute value
+		assert (self._uniqueMolecules['RNA polymerase']['boundToChromosome'][activeEntries] == True).all()
+		assert (self._uniqueMolecules['RNA polymerase']['chromosomeLocation'][activeEntries] == 50).all()
 
 
 	def moleculeNew(self, moleculeName, **moleculeAttributes):
@@ -89,7 +101,7 @@ class UniqueMolecules(wcState.State):
 			oldEntries = self._uniqueMolecules[moleculeName]
 			oldSize = oldEntries.size
 
-			newSize = oldSize + min(int(oldSize * FRACTION_EXTEND_ENTRIES), nMolecules)
+			newSize = oldSize + max(int(oldSize * FRACTION_EXTEND_ENTRIES), nMolecules)
 
 			self._uniqueMolecules[moleculeName] = np.zeros(
 				newSize,
