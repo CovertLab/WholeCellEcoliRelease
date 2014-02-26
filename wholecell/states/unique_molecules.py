@@ -62,53 +62,42 @@ class UniqueMolecules(wcState.State):
 		# TODO: create a generalized calcInitialConditions routine as method of
 		# the Simulation class, or as a separate function like fitSimulation
 
-		for i in xrange(20):
-			self.moleculeNew('RNA polymerase')
-
-		import ipdb
-		ipdb.set_trace()
-
-		print
+		self.moleculesNew(
+			'RNA polymerase', 20,
+			boundToChromosome = True,
+			chromosomeLocation = 50
+			)
 
 
 	def moleculeNew(self, moleculeName, **moleculeAttributes):
-		unrecognizedAttributes = (moleculeAttributes.viewkeys()
-			- self._moleculeAttributes[moleculeName].viewkeys())
-		
-		if unrecognizedAttributes:
-			raise Exception('Unrecognized attributes for {}: {}'.format(
-				moleculeName, ', '.join(unrecognizedAttributes)))
-
-		index = self._getFreeIndex(moleculeName)
-
-		self._uniqueMolecules[moleculeName][index]['_isActive'] = True
-
-		if moleculeAttributes:
-			attributes, attrValues = moleculeAttributes.items()
-			self._uniqueMolecules[moleculeName][index][attributes] = attrValues
+		self.moleculesNew(moleculeName, 1, **moleculeAttributes)
 
 
-	def _getFreeIndex(self, moleculeName):
+	def moleculesNew(self, moleculeName, nMolecules, **moleculeAttributes):
+		indexes = self._getFreeIndexes(moleculeName, nMolecules)
+
+		self._uniqueMolecules[moleculeName]['_isActive'][indexes] = True
+
+		for attribute, attrValue in moleculeAttributes.viewitems():
+			self._uniqueMolecules[moleculeName][attribute][indexes] = attrValue
+
+
+	def _getFreeIndexes(self, moleculeName, nMolecules):
 		freeIndexes = np.where(~self._uniqueMolecules[moleculeName]['_isActive'])[0]
 
-		if freeIndexes.size == 0:
-			self._expandEntries(moleculeName)
+		if freeIndexes.size < nMolecules:
+			oldEntries = self._uniqueMolecules[moleculeName]
+			oldSize = oldEntries.size
 
-			return self._getFreeIndex(moleculeName)
+			newSize = oldSize + min(int(oldSize * FRACTION_EXTEND_ENTRIES), nMolecules)
 
-		else:
-			return freeIndexes[0]
+			self._uniqueMolecules[moleculeName] = np.zeros(
+				newSize,
+				dtype = oldEntries.dtype
+				)
+			
+			self._uniqueMolecules[moleculeName][:oldSize] = oldEntries
 
+			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
 
-	def _expandEntries(self, moleculeName):
-		oldEntries = self._uniqueMolecules[moleculeName]
-
-		self._uniqueMolecules[moleculeName] = np.zeros(
-			oldEntries.size + min(
-				int(oldEntries.size * FRACTION_EXTEND_ENTRIES), 1
-				),
-			dtype = oldEntries.dtype
-			)
-		
-		self._uniqueMolecules[moleculeName][:oldEntries.size] = oldEntries
-
+		return freeIndexes[:nMolecules]
