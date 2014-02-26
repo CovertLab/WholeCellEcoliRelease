@@ -21,6 +21,15 @@ DEFAULT_ATTRIBUTES = [ # attributes for local use
 	# ('_massDifference', 'float64') # dynamic mass difference
 	]
 
+QUERY_OPERATIONS = {
+	'>':np.greater,
+	'>=':np.greater_equal,
+	'<':np.less,
+	'<=':np.less_equal,
+	'==':np.equal,
+	'!=':np.not_equal
+	}
+
 class UniqueMolecules(wcState.State):
 	def __init__(self, *args, **kwargs):
 		self.meta = {
@@ -34,8 +43,7 @@ class UniqueMolecules(wcState.State):
 
 		self._moleculeAttributes = {}
 		self._uniqueMolecules = {}
-
-		# TODO
+		self._queries = []
 
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
 
@@ -87,6 +95,26 @@ class UniqueMolecules(wcState.State):
 		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
 		assert activeEntries.sum() == 20 - 5
 
+		# Raise a query
+		active = self.query('RNA polymerase')
+		boundToChromosome = self.query('RNA polymerase', boundToChromosome = ('==', True))
+		multipleConditions = self.query(
+			'RNA polymerase',
+			boundToChromosome = ('==', True),
+			chromosomeLocation = ('>', 0)
+			)
+		notTrue = self.query(
+			'RNA polymerase',
+			boundToChromosome = ('==', False),
+			chromosomeLocation = ('>', 0)
+			)
+
+		# Check the query output
+		assert (active == activeEntries).all()
+		assert (active == boundToChromosome).all()
+		assert (active == multipleConditions).all()
+		assert (active[notTrue] == False).all()
+
 		print 'All assertions passed.'
 
 
@@ -124,6 +152,7 @@ class UniqueMolecules(wcState.State):
 
 		return freeIndexes[:nMolecules]
 
+
 	def _clearEntries(self, moleculeName, indexes):
 		# this will probably be replaced
 
@@ -132,9 +161,27 @@ class UniqueMolecules(wcState.State):
 			dtype = self._uniqueMolecules[moleculeName].dtype
 			)
 
+
+	def query(self, moleculeName, **operations):
+		operations['_isActive'] = ('==', True)
+		return reduce(
+			np.logical_and,
+			(
+				QUERY_OPERATIONS[operator](
+					self._uniqueMolecules[moleculeName][attribute],
+					queryValue
+					)
+				for attribute, (operator, queryValue) in operations.viewitems()
+			)
+			)
+
+		# TODO: queries as objects?
+		# TODO: return something more useful than a bool matrix
+
 	# TODO: querying
 	# TODO: partitioning
 	# TODO: pytable create/save/load
+	# TODO: accessors
 
 # TODO: partitions
 # challenges for partitions:
