@@ -65,20 +65,30 @@ class UniqueMolecules(wcState.State):
 		# TODO: create a generalized calcInitialConditions routine as method of
 		# the Simulation class, or as a separate function like fitSimulation
 
+		# Create some RNA polymerases with dummy properties
 		self.moleculesNew(
 			'RNA polymerase', 20,
 			boundToChromosome = True, # just some example parameters
 			chromosomeLocation = 50
 			)
 
-		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
 
 		# Check the number of active entries
+		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
 		assert activeEntries.sum() == 20
 
 		# Check that the active entries have the correct attribute value
 		assert (self._uniqueMolecules['RNA polymerase']['boundToChromosome'][activeEntries] == True).all()
 		assert (self._uniqueMolecules['RNA polymerase']['chromosomeLocation'][activeEntries] == 50).all()
+
+		# Remove a few polymerases
+		self._clearEntries('RNA polymerase', np.arange(5))
+
+		# Check that the number of entries has decreased
+		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
+		assert activeEntries.sum() == 20 - 5
+
+		print 'All assertions passed.'
 
 
 	def moleculeNew(self, moleculeName, **moleculeAttributes):
@@ -113,3 +123,20 @@ class UniqueMolecules(wcState.State):
 			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
 
 		return freeIndexes[:nMolecules]
+
+	def _clearEntries(self, moleculeName, indexes):
+		# this will probably be replaced
+
+		self._uniqueMolecules[moleculeName][indexes] = np.zeros(
+			1,
+			dtype = self._uniqueMolecules[moleculeName].dtype
+			)
+
+	# TODO: querying
+	# TODO: partitioning
+	# TODO: pytable create/save/load
+
+# TODO: partitions
+# challenges for partitions:
+# * accessors for individual molecules, groups of molecules
+# * merging new molecules
