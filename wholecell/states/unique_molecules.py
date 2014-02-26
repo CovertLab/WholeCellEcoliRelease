@@ -72,7 +72,6 @@ class UniqueMolecules(wcState.State):
 			chromosomeLocation = 50
 			)
 
-
 		# Check the number of active entries
 		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
 		assert activeEntries.sum() == 20
@@ -101,6 +100,7 @@ class UniqueMolecules(wcState.State):
 		self._uniqueMolecules[moleculeName]['_isActive'][indexes] = True
 
 		for attribute, attrValue in moleculeAttributes.viewitems():
+			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
 			self._uniqueMolecules[moleculeName][attribute][indexes] = attrValue
 
 
