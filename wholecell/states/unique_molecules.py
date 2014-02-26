@@ -30,33 +30,11 @@ QUERY_OPERATIONS = {
 	'!=':np.not_equal
 	}
 
-class UniqueMolecules(wcState.State):
-	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'UniqueMolecules',
-			'name':'Unique Molecules',
-			'dyanamics':[],
-			'units':{}
-			}
-
-		self.time = None
-
-		self._moleculeAttributes = {}
+class UniqueMoleculesContainer(object):
+	def __init__(self, moleculeAttributes):
+		self._moleculeAttributes = moleculeAttributes
 		self._uniqueMolecules = {}
-		self._queries = []
-
-		super(UniqueMolecules, self).__init__(*args, **kwargs)
-
-
-	def initialize(self, sim, kb):
-		super(UniqueMolecules, self).initialize(sim, kb)
-
-		self.time = sim.states['Time']
-
-		# TODO: use the updated KB object to get these properties
-
-		# Collect attribute information from KB
-		self._moleculeAttributes.update(MOLECULE_ATTRIBUTES)
+		self._queries = {}
 
 		# Create the structured arrays needed to store the entries
 		for moleculeName, attributes in self._moleculeAttributes.viewitems():
@@ -67,55 +45,6 @@ class UniqueMolecules(wcState.State):
 					for attributeName, attributeType in attributes.viewitems()
 					]
 				)
-
-	
-	def calcInitialConditions(self):
-		# TODO: create a generalized calcInitialConditions routine as method of
-		# the Simulation class, or as a separate function like fitSimulation
-
-		# Create some RNA polymerases with dummy properties
-		self.moleculesNew(
-			'RNA polymerase', 20,
-			boundToChromosome = True, # just some example parameters
-			chromosomeLocation = 50
-			)
-
-		# Check the number of active entries
-		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
-		assert activeEntries.sum() == 20
-
-		# Check that the active entries have the correct attribute value
-		assert (self._uniqueMolecules['RNA polymerase']['boundToChromosome'][activeEntries] == True).all()
-		assert (self._uniqueMolecules['RNA polymerase']['chromosomeLocation'][activeEntries] == 50).all()
-
-		# Remove a few polymerases
-		self._clearEntries('RNA polymerase', np.arange(5))
-
-		# Check that the number of entries has decreased
-		activeEntries = self._uniqueMolecules['RNA polymerase']['_isActive']
-		assert activeEntries.sum() == 20 - 5
-
-		# Raise a query
-		active = self.query('RNA polymerase')
-		boundToChromosome = self.query('RNA polymerase', boundToChromosome = ('==', True))
-		multipleConditions = self.query(
-			'RNA polymerase',
-			boundToChromosome = ('==', True),
-			chromosomeLocation = ('>', 0)
-			)
-		notTrue = self.query(
-			'RNA polymerase',
-			boundToChromosome = ('==', False),
-			chromosomeLocation = ('>', 0)
-			)
-
-		# Check the query output
-		assert (active == activeEntries).all()
-		assert (active == boundToChromosome).all()
-		assert (active == multipleConditions).all()
-		assert (active[notTrue] == False).all()
-
-		print 'All assertions passed.'
 
 
 	def moleculeNew(self, moleculeName, **moleculeAttributes):
@@ -182,6 +111,109 @@ class UniqueMolecules(wcState.State):
 	# TODO: partitioning
 	# TODO: pytable create/save/load
 	# TODO: accessors
+
+
+
+class UniqueMolecules(wcState.State):
+	def __init__(self, *args, **kwargs):
+		self.meta = {
+			'id':'UniqueMolecules',
+			'name':'Unique Molecules',
+			'dyanamics':[],
+			'units':{}
+			}
+
+		self.time = None
+
+		self.container = None
+
+		super(UniqueMolecules, self).__init__(*args, **kwargs)
+
+
+	def initialize(self, sim, kb):
+		super(UniqueMolecules, self).initialize(sim, kb)
+
+		self.time = sim.states['Time']
+
+		# TODO: use the updated KB object to get these properties
+
+		self.container = UniqueMoleculesContainer(MOLECULE_ATTRIBUTES)
+
+	
+	def calcInitialConditions(self):
+		# TODO: create a generalized calcInitialConditions routine as method of
+		# the Simulation class, or as a separate function like fitSimulation
+
+		# Create some RNA polymerases with dummy properties
+		self.container.moleculesNew(
+			'RNA polymerase', 20,
+			boundToChromosome = True, # just some example parameters
+			chromosomeLocation = 50
+			)
+
+		# Check the number of active entries
+		activeEntries = self.container._uniqueMolecules['RNA polymerase']['_isActive']
+		assert activeEntries.sum() == 20
+
+		# Check that the active entries have the correct attribute value
+		assert (self.container._uniqueMolecules['RNA polymerase']['boundToChromosome'][activeEntries] == True).all()
+		assert (self.container._uniqueMolecules['RNA polymerase']['chromosomeLocation'][activeEntries] == 50).all()
+
+		# Remove a few polymerases
+		self.container._clearEntries('RNA polymerase', np.arange(5))
+
+		# Check that the number of entries has decreased
+		activeEntries = self.container._uniqueMolecules['RNA polymerase']['_isActive']
+		assert activeEntries.sum() == 20 - 5
+
+		# Raise a query
+		active = self.container.query('RNA polymerase')
+		boundToChromosome = self.container.query('RNA polymerase', boundToChromosome = ('==', True))
+		multipleConditions = self.container.query(
+			'RNA polymerase',
+			boundToChromosome = ('==', True),
+			chromosomeLocation = ('>', 0)
+			)
+		notTrue = self.container.query(
+			'RNA polymerase',
+			boundToChromosome = ('==', False),
+			chromosomeLocation = ('>', 0)
+			)
+
+		# Check the query output
+		assert (active == activeEntries).all()
+		assert (active == boundToChromosome).all()
+		assert (active == multipleConditions).all()
+		assert (active[notTrue] == False).all()
+
+		print 'All assertions passed.'
+
+
+# class UniqueMoleculesPartition(...)
+# class UniqueMoleculesContainer(object): pass
+
+
+class _UniqueMolecule(object):
+	pass
+
+class _Query(object):
+	def __init__(self, container, moleculeName, operations):
+		_container = container
+		_moleculeName = moleculeName
+		_operations = operations
+
+		_molecules = None
+
+	
+	def evaluate(self):
+		raise NotImplementedError()
+
+
+	def molecules(self):
+		return _molecules
+
+
+# base classes: unique molecule container, ?
 
 # TODO: partitions
 # challenges for partitions:
