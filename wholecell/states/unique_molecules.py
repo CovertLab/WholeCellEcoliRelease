@@ -62,7 +62,53 @@ class UniqueMolecules(wcState.State):
 		# TODO: create a generalized calcInitialConditions routine as method of
 		# the Simulation class, or as a separate function like fitSimulation
 
-		for i in xrange(5):
+		for i in xrange(20):
 			self.moleculeNew('RNA polymerase')
-			
+
+		import ipdb
+		ipdb.set_trace()
+
+		print
+
+
+	def moleculeNew(self, moleculeName, **moleculeAttributes):
+		unrecognizedAttributes = (moleculeAttributes.viewkeys()
+			- self._moleculeAttributes[moleculeName].viewkeys())
+		
+		if unrecognizedAttributes:
+			raise Exception('Unrecognized attributes for {}: {}'.format(
+				moleculeName, ', '.join(unrecognizedAttributes)))
+
+		index = self._getFreeIndex(moleculeName)
+
+		self._uniqueMolecules[moleculeName][index]['_isActive'] = True
+
+		if moleculeAttributes:
+			attributes, attrValues = moleculeAttributes.items()
+			self._uniqueMolecules[moleculeName][index][attributes] = attrValues
+
+
+	def _getFreeIndex(self, moleculeName):
+		freeIndexes = np.where(~self._uniqueMolecules[moleculeName]['_isActive'])[0]
+
+		if freeIndexes.size == 0:
+			self._expandEntries(moleculeName)
+
+			return self._getFreeIndex(moleculeName)
+
+		else:
+			return freeIndexes[0]
+
+
+	def _expandEntries(self, moleculeName):
+		oldEntries = self._uniqueMolecules[moleculeName]
+
+		self._uniqueMolecules[moleculeName] = np.zeros(
+			oldEntries.size + min(
+				int(oldEntries.size * FRACTION_EXTEND_ENTRIES), 1
+				),
+			dtype = oldEntries.dtype
+			)
+		
+		self._uniqueMolecules[moleculeName][:oldEntries.size] = oldEntries
 
