@@ -21,8 +21,6 @@ DEFAULT_ATTRIBUTES = { # attributes for local use by the state
 	# '_massDifference':'float64' # dynamic mass difference
 	}
 
-SAVED_DEFAULT_ATTRIBUTES = ['_partitionedByOtherState', '_time']
-
 QUERY_OPERATIONS = {
 	'>':np.greater,
 	'>=':np.greater_equal,
@@ -63,7 +61,7 @@ class UniqueMoleculesContainer(object):
 
 		# Record which attributes are saved
 		self._savedAttributes = attributes.keys()
-		self._savedAttributes.remove('_isActive')
+		self._savedAttributes.remove('_isActive') # only active molecules are saved
 		self._tableName = self._moleculeName.replace(' ', '_')
 
 		# TODO: alternate constructor for copying to partitions
