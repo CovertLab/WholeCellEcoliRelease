@@ -1,40 +1,28 @@
-"""
-models for Ecoli in Django
-
-@author: Sajia Akhter
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 04/04/2014
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 02/24/2014
-"""
-
 from django.db import models
 from django.core import validators
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Model, OneToOneField, CharField, IntegerField, URLField, PositiveIntegerField, FloatField, ForeignKey, BooleanField, SlugField, ManyToManyField, TextField, DateTimeField, options, permalink, SET_NULL, Min, Max
 
-''' BEGIN: CHOICES '''
+# Create your models here.
+''' BEGIN: choices '''
 
 CHOICES_DIRECTION = (
 	('f', 'Forward'),
 	('r', 'Reverse'),
 )
 
-''' END: CHOICES'''
 
-''' BEGIN: VALIDATORS '''
+''' BEGIN: validators '''
 def validate_dna_sequence(seq):
 	validators.RegexValidator(regex=r'^[ACGT]+$', message='Enter a valid DNA sequence consisting of only the letters A, C, G, and T')(seq)
 
 
-'''END: VALIDATORS'''
 
-'''BEGIN: SPECIFIC DATA TYPES'''
 class Chromosome(models.Model):
 	#additional fields
 	sequence = TextField(blank=True, default='', verbose_name='Sequence', validators=[validate_dna_sequence])
 	length = PositiveIntegerField(verbose_name='Length (nt)')
+	gc_content = FloatField(verbose_name='gc content', default = 0.0)
 
 	def get_by_natural_key(self):
 		return (self.length)
@@ -91,6 +79,13 @@ class Gene(models.Model):
 	splices = CharField(max_length=10, blank=True, default='', verbose_name='Splices')
 	absolute_nt_position = CharField(max_length=10, blank=True, default='', verbose_name='absolute position, old, new')
 	
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'Gene', 'frame_id': self.frame_id})	
+	def get_id(self):
+		return self.frame_id
+
 class GeneSplices(models.Model):
 	gene = ForeignKey(Gene, verbose_name='Gene Id')
 	start1 = PositiveIntegerField(verbose_name='Start position 1')	
@@ -116,12 +111,28 @@ class Promoter(models.Model):
 	direction = CharField(max_length=10, choices=CHOICES_DIRECTION, verbose_name='Direction')
 	#need to create another table for ''''signma''''
 
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'Promoter', 'frame_id': self.promoter_id})	
+	def get_id(self):
+		return self.promoter_id
+
+
 class Terminator(models.Model):
 	terminator_id = CharField(max_length=40, blank=True, default='', verbose_name='frame id',unique=True)
 	name = CharField(max_length=255, blank=True, default='', verbose_name='Name')
 	left = PositiveIntegerField(verbose_name='left position')
 	right = PositiveIntegerField(verbose_name='right position')
 	rho_dependent = CharField(max_length=10, verbose_name='Rho Dependent')
+
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'Terminator', 'frame_id': self.terminator_id})	
+	def get_id(self):
+		return self.terminator_id
+
 
 class TranscriptionUnit(models.Model):
 	transcription_unit_id = CharField(max_length=40, blank=True, default='', verbose_name='frame id',unique=True)
@@ -132,6 +143,14 @@ class TranscriptionUnit(models.Model):
 	degradation_rate = FloatField(verbose_name='degradation rate (1/min)')
 	expression_rate = FloatField(verbose_name='expression rate (a.u./min)')
 	promoter_id_fk = ForeignKey(Promoter, verbose_name='Promoter Id',related_name ='+')
+
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'TranscriptionUnit', 'frame_id': self.transcription_unit_id})	
+	def get_id(self):
+		return self.transcription_unit_id
+
 
 class TranscriptionUnitGene(models.Model):
 	transcriptionunit_id_fk = ForeignKey(TranscriptionUnit, verbose_name='Transcription unit Id',related_name ='+')
@@ -165,6 +184,13 @@ class ProteinMonomers(models.Model):
 	location_fk = ForeignKey(Location, related_name='monomerlocationfk', verbose_name='location_fk')
 	is_modified = CharField(max_length=4, blank=True, default='0', verbose_name='Name')
 	comment_fk = ForeignKey(Comment, related_name='monomercommentfk', verbose_name='comment_fk')
+
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'ProteinMonomers', 'frame_id': self.frame_id})	
+	def get_id(self):
+		return self.frame_id
 	
 class Rna(models.Model):
 	frame_id = ForeignKey(Molecule, related_name='rnaframeid', verbose_name='Gene_product',unique=True)
@@ -174,6 +200,13 @@ class Rna(models.Model):
 	is_modified = CharField(max_length=4, blank=True, default='0', verbose_name='Name')
 	comment_fk = ForeignKey(Comment, related_name='rnacommentfk', verbose_name='comment_fk')
 	
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'Rna', 'frame_id': self.frame_id})	
+	def get_id(self):
+		return self.frame_id
+
 class Metabolite(models.Model):
 	metabolite_id = ForeignKey(Molecule, related_name='metaboliteid', verbose_name='metabolites',unique=True)
 	name = CharField(max_length=255, blank=True, default='', verbose_name='Name')
@@ -188,6 +221,13 @@ class Metabolite(models.Model):
 	has_equivalent_enzyme = BooleanField(verbose_name='equivalent_enzyme',default = False)	
 	comment_fk = ForeignKey(Comment, related_name='metabolitescommentfk', verbose_name='comment fk')
 	
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'Metabolite', 'frame_id': self.metabolite_id})	
+	def get_id(self):
+		return self.metabolite_id
+
 class MetaboliteBiomass(models.Model):
 	metabolite_id_fk = ForeignKey(Metabolite, related_name='metaboliteidfk', verbose_name='metabolites')	
 	biomass_concentration =  FloatField(verbose_name='biomass concentration (molecules/cell)',default = 0)
@@ -209,6 +249,13 @@ class ProteinComplex(models.Model):
 	comment_fk = ForeignKey(Comment, related_name='comment_proteincomplex', verbose_name='comment_fk', default = '')
 	reaction_direction = CharField(max_length=4, blank=True, default='0', verbose_name='reaction direction')
 
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'ProteinComplex', 'frame_id': self.protein_complex})	
+	def get_id(self):
+		return self.protein_complex
+
 ###############
 class RelationStoichiometry(models.Model):
 	reactant_fk = ForeignKey(Molecule, related_name='%(app_label)s_%(class)s_related_molecule_id', verbose_name='reactant')
@@ -226,6 +273,14 @@ class ProteinComplexModified(models.Model):
 	unmodified_protein_complex_fk = ForeignKey(ProteinComplex, related_name='protein_complex_fk_id', verbose_name='unmodified protein complex')
 	location_fk = ForeignKey(Location, related_name='location_proteincomplexfk', verbose_name='location_fk')
 	comment_fk = ForeignKey(Comment, related_name='comment_proteincomplexmod', verbose_name='comment_fk', default = '')
+
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'ProteinComplexModified', 'frame_id': self.protein_complex_mod})	
+	def get_id(self):
+		return self.protein_complex_mod
+
 
 class ProteinComplexModifiedReaction(models.Model):
 	protein_complex_mod_fk = ForeignKey(ProteinComplexModified, related_name='%(app_label)s_%(class)s_related_protein_complex_mod', verbose_name='protein complex mod')
@@ -250,6 +305,14 @@ class ProteinMonomerModified(models.Model):
 	location_fk = ForeignKey(Location, related_name='location_monomer_mod', verbose_name='location_monomer_mod')
 	comment_fk = ForeignKey(Comment, related_name='comment_monomer_mod', verbose_name='comment_monomer_mod', default = '')
 
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'ProteinMonomerModified', 'frame_id': self.protein_monomer_mod})	
+	def get_id(self):
+		return self.protein_monomer_mod
+
+
 class ProteinMonomerModifiedReaction(models.Model):
 	protein_monomer_mod_fk = ForeignKey(ProteinMonomerModified, related_name='%(class)s_monomer_mod', verbose_name='protein monomer mod')
 	reaction_id = CharField(max_length=255, blank=True, default='', verbose_name='Reaction ID' ,unique=True)
@@ -272,6 +335,14 @@ class RnaModified(models.Model):
 	unmodified_rna_fk = ForeignKey(Rna, related_name='rna_fk', verbose_name='unmodified rna')
 	location_fk = ForeignKey(Location, related_name='location_rna_mod', verbose_name='location_fk')
 	comment_fk = ForeignKey(Comment, related_name='comment_rna_mod', verbose_name='comment_fk', default = '')
+
+	#getters
+	@models.permalink
+	def get_absolute_url(self):
+		return ('public.views.detail', (), {'model_type':'RnaModified', 'frame_id': self.rna_mod})	
+	def get_id(self):
+		return self.rna_mod
+
 
 class RnaModifiedReaction(models.Model):
 	rna_mod_fk = ForeignKey(RnaModified, related_name='%(class)s_rna_mod', verbose_name='rna mod fk')
@@ -308,4 +379,4 @@ class MetaboliteReactionRelation(models.Model):
 
 ###################################################
 
-'''END: SPECIFIC DATA TYPES'''
+
