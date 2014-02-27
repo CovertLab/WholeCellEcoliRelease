@@ -1,0 +1,119 @@
+/*
+Whole-cell knowledge base print styles
+
+Author: Jonathan Karr, jkarr@stanford.edu
+Affiliation: Covert Lab, Department of Bioengineering, Stanford University
+Last updated: 2012-07-17
+*/
+
+body{
+	padding:0px;
+	margin:0px;
+}
+
+a, a:hover, a:active, a:visited, a:link{
+	color:black;
+}
+
+/* header */
+#header{
+	display:none;
+}
+
+/* footer */
+#footer{
+	display:none;
+}
+
+/* main content */
+#main{
+	width:100%;
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+#content div p{
+	margin-bottom:6px;
+}
+
+/* list */
+#list{
+	width:100%;
+}
+#listfilter{
+	display:none;
+}
+#list thead th{
+	background:transparent;
+	border-top-color:black;	
+	border-bottom-color:black;	
+	color:black;
+	border-right:1px solid white;
+}
+#list thead tr th{
+	border-top-left-radius:0px;
+}
+#list thead tr th:last-child{
+	border-top-right-radius:0px;
+	border-right-color:black;
+}
+#list tbody tr:last-child th, #list tbody tr:last-child td{
+	border-bottom-color:black;
+}
+#list tbody tr:last-child th{
+	border-bottom-left-radius:0px;
+}
+#list tbody tr:last-child td{
+	border-bottom-right-radius:0px;
+}
+#list tbody tr td{
+	border-right-color:black;
+}
+#list tbody tr:hover{
+	background:white;
+}
+#list th, #list td{
+	border-left-color:black;
+}
+
+/* details content */
+#detail tbody.data tr:last-child th{
+	border-bottom-left-radius:0px;
+}
+#detail tbody.data tr:last-child td{
+	border-bottom-right-radius:0px;
+}
+#detail tbody.data tr:first-child th{
+	background:transparent;
+	border-radius:0px;
+	border-top-left-radius:0px;
+	border-top-right-radius:0px;
+	color:black;
+	border-color:black;
+}
+#detail tbody.data tr:last-child th, #detail tbody.data tr:last-child td{
+	border-bottom-color:black;
+}
+#detail tbody.data tr th{
+	border-left-color:black;
+}
+#detail tbody.data tr td{
+	border-left-color:black;
+	border-right-color:black;
+}
+#detail tbody.spacing tr td{
+	border-radius:0px;
+}
+
+/* export content */
+#export .block{	
+	border-color:black;
+	border-radius:0px;
+}
+#export .block h1{
+	border-color:black;
+	border-top-left-radius:0px;
+	border-top-right-radius:0px;
+	background:transparent;
+	color:black;
+}

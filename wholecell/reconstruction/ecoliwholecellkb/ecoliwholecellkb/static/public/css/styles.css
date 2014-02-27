@@ -1,0 +1,826 @@
+/*
+Whole-cell knowledge base styles
+
+Author: Jonathan Karr, jkarr@stanford.edu
+Affiliation: Covert Lab, Department of Bioengineering, Stanford University
+Last updated: 2012-07-17
+*/
+
+/* main */
+body{
+	margin:0px;
+	padding:0px;
+	padding-top:10px;
+	padding-bottom:10px;
+	font-size:12px;
+	font-family:PT Sans,sans-serif;
+}
+table{
+	border-collapse:separate;
+	border-spacing:0px 0px;
+}
+
+th{
+	vertical-align:top;
+}
+
+a, a:hover, a:active, a:visited, a:link{
+	color:#3d80b3;
+	text-decoration:none;
+}
+
+a img{
+	border:none;
+}
+
+input.text{
+	border:1px solid #3d80b3;
+	border-radius:6px;
+}
+input.button{
+	border:1px solid #3d80b3;
+	border-radius:6px;
+	background:#DDD;
+}
+select.select{
+	border:1px solid #3d80b3;
+	border-radius:6px;
+}
+
+.errors{
+	font-style:italic;
+	color:red;
+	margin-bottom:10px;
+}
+
+.sequence div{
+	float:left;	
+}
+.sequence div:nth-child(1){
+	text-align:right;
+}
+.sequence div:nth-child(2){
+	font-family:Courier New;
+	margin-right:10px;
+	margin-left:10px;
+}
+
+.tickLabel{
+	font-size:9px;
+	color:#222;
+}
+.axisLabels{
+	font-size:12px;
+	color:#222;
+}
+
+#tooltip {	
+	position:absolute;
+    padding: 5px 5px;
+    font-size: 10px;
+	font-weight:normal;
+	width:auto;
+	height:auto;
+	max-width:150px;
+	vertical-align:middle;
+	display:none;
+}
+#tooltip h1{
+	padding:0px;
+	margin:0px;
+	margin-bottom:2px;
+	font-size:12px;
+}
+
+/* header */
+#header {
+	z-index: 2;
+	position:fixed;
+	left:0px;
+	top:0px;
+	right:0px;
+	height: 65px;
+	overflow: hidden;
+	margin: 0px 0px 0px 0px;	
+	border-top:none;
+	border-right:none;
+	border-left:none;
+}
+
+#header .title {
+	position:relative;
+	font-size: 16px;
+	color: #222222;
+	top:0px;
+	left:70px;
+	font-style:italic;
+}
+
+#header  .banner{
+	position:absolute;
+	top:2px;
+	left:0px;
+}
+
+#header .menu{	
+	position:absolute;
+	top:47px;
+	height:18px;
+	list-style:none;
+	margin:0px;
+	padding:0px;
+	font-weight: normal;
+	left:66px;
+	text-align:left;
+}
+#header .menu li{
+	float:left;
+	display:inline;
+	margin:0px;
+	padding-top:2px;
+	padding-bottom:6px;
+}
+#header .menu li.spacer{
+	width:1px;
+	height:10px;
+	background: #222;
+}
+#header .menu li:nth-child(odd), #header .menu li ul li{
+	padding-left:4px;
+	padding-right:4px;
+}
+#header .menu li:first-child{
+	border-left:none;
+}
+#header .menu li:hover{
+	background-color:#fff;
+}
+#header .menu li:hover a{
+	color:#3d80b3;
+}
+#header .menu a{
+	color: #3d80b3;
+	margin:0px;
+	padding:0px;
+}
+
+#header .menu li ul{
+	background:#cccccc;
+	list-style:none;
+	position:fixed;
+	top:65px;	
+	visibility:hidden;
+	border-bottom:1px solid #aaaaaa;
+	border-left:1px solid #aaaaaa;
+	border-right:1px solid #aaaaaa;
+	width:auto;	
+	padding:0px;
+	margin:0px;
+	margin-left:-5px;
+}
+#header .menu li:hover ul{
+	visibility:visible;
+}
+#header .menu li ul li{
+	padding-bottom:2px;	
+}
+#header .menu li:hover ul li{
+	float:none;
+	padding-top:1px;	
+	display:list-item;
+	text-align:left;
+}
+#header .menu li:hover ul li:hover{
+	background:#fff;
+}
+#header .menu li:hover ul li a{
+	white-space:nowrap;
+	color:#3d80b3;
+}
+#header .menu li:hover ul li:hover a{
+	color:#3d80b3;
+}
+
+#header .search{
+	position:absolute;
+	top:20px;
+	right:4px;	
+}
+#header .search table tr td{
+	padding:0px;
+	margin:0px;
+	text-align:center;	
+}
+#header .search img{
+	position:relative;
+	top:3px;
+	padding-left:2px;
+}
+#header .search input.text{
+	width:140px;
+	padding-left:4px;
+	padding-right:4px;
+}
+#header .search input.text-default{	
+	font-style:italic;
+	color:#aaa;
+}
+
+#header .search table tr td.engine span{
+	position:relative;
+	top:-2px;	
+	left:-2px;
+	color:#222;
+	padding:0px;
+	margin:0px;
+}
+
+/* footer */ 
+#footer {
+	z-index: 3;
+	position:fixed;
+	left:0px;
+	bottom:0px;
+	right:0px;
+	height: 24px;
+	overflow: hidden;
+	margin: 0px 0px 0px 0px;	
+	padding-top:4px;
+	padding-bottom:4px;
+	border-bottom:none;
+	border-right:none;
+	border-left:none;
+	text-align:center;
+	font-size:10px;
+}
+
+#footer, #footer a{
+	color:#222;
+}
+#footer .left{
+	position:absolute;
+	top:8px;
+	left:8px;
+	width:200px;
+	text-align:left;
+}
+#footer .center{
+	margin:0 auto;
+	width:600px;
+	position:relative;
+	top:-1px;
+}
+#footer .right{
+	position:absolute;
+	top:8px;
+	right:8px;
+	width:200px;
+	text-align:right;
+}
+
+/* content */
+#main{
+	margin:0 auto;
+	margin-top:80px;
+	margin-bottom:40px;
+	width:800px;
+	padding:0px;
+	height:100%;
+}
+
+#content{
+	width:100%;
+}
+#content h1{
+	color: #3d80b3;
+	margin-bottom:12px;
+	margin-top:16px;
+	line-height:100%;
+}
+#content h1 a{
+	color: #3d80b3;
+}
+#content h2{
+	font-size:16px;
+	line-height:100%;
+	margin-top:16px;
+	margin-bottom:2px;
+}
+#content p{
+	margin-bottom:6px;
+	margin-top:0px;
+	padding:0px;
+}
+
+#content ul{
+	margin:0px;
+	margin-top:0px;
+	padding-left:16px;
+}
+#content table{
+}
+#content table th, #content table td{
+	text-align:left;
+	padding-right:10px;
+}
+#content table th:last-child, #content table td:last-child{
+	padding-right:0px;
+}
+
+/* index content */
+#index , #about {
+	text-align:justify;
+}
+
+/* list content */
+#list{
+	float:left;
+	width:600px;
+}
+#list a{
+	color:#222;
+}
+#list thead th{
+	background:#3d80b3;
+	border-top:1px solid #3d80b3;	
+	border-bottom:1px solid #3d80b3;	
+	color:white;
+	border-right:1px solid white;
+}
+#list thead tr th:first-child{
+	border-top-left-radius:6px;
+}
+#list thead tr th:last-child{
+	border-top-right-radius:6px;
+	border-right:1px solid #3d80b3;
+}
+#list tbody tr:nth-child(even) th, #list tbody tr:nth-child(even) td{
+	background:#CCC;
+}
+#list tbody tr:nth-child(odd) th, #list tbody tr:nth-child(odd) td{
+	background:#DDD;
+}
+#list tbody tr:hover th, #list tbody tr:hover td{
+	background:white;
+}
+#list tbody tr:last-child th, #list tbody tr:last-child td{
+	border-bottom:1px solid #3d80b3;
+}
+#list tbody tr:last-child th:first-child{
+	border-bottom-left-radius:6px;
+}
+#list tbody tr:last-child td:last-child{
+	border-bottom-right-radius:6px;
+}
+#list tbody tr td:last-child{
+	border-right:1px solid #3d80b3;
+}
+#list tbody tr:hover{
+	background:white;
+}
+
+#list th, #list td{
+	margin:0px;
+	padding:2px;
+	border-left:1px solid #3d80b3;
+}
+#list tbody th:first-child{
+	max-width:200px;
+	overflow-x:hidden;
+}
+#list thead tr th:nth-child(3), #list tbody tr td:nth-child(3){
+	min-width:32px;
+}
+#list tbody tr td:nth-child(3) a{
+	padding:0px;
+	padding-right:2px;
+}
+#list tbody tr td:nth-child(3) a img{
+	padding:0px;
+	margin:0px;
+	height:12px;
+	width:12px;
+}
+#list tbody tr td:nth-child(3) a:last-child{
+	padding-right:0px;
+}
+#list thead tr th:nth-child(2), #list tbody tr td:nth-child(2){
+	width:100%;	
+	overflow-x:hidden;
+}
+
+#listfilter{
+	width:190px;
+	margin-left:610px;
+	border:1px solid #3d80b3;
+	border-radius:6px;
+	padding-bottom:12px;
+}
+
+#listfilter h1{
+	margin:0px;
+	padding:2px;
+	background:#3d80b3;
+	color:white;
+	font-weight:bold;
+	text-align:center;
+	font-size:12px;
+	border-top-left-radius:6px;
+	border-top-right-radius:6px;	
+}
+
+#listfilter .block{
+	padding-left:4px;
+	padding-right:6px;	
+	margin-top:4px;
+}
+#listfilter .block h2{
+	margin:0px;	
+	padding:0px;	
+	margin-left:12px;
+	font-weight:bold;
+	font-size:12px;
+	color:#3d80b3;
+}
+#listfilter .block ul{
+	margin:0px;
+	margin-bottom:10px;
+	padding-right:0px;
+	padding-top:0px;
+	padding-bottom:0px;
+	overflow:hidden;
+	white-space:nowrap;
+}
+#listfilter .block:last-child ul{
+	margin-bottom:-10px;
+}
+#listfilter .block ul li{
+	 white-space: nowrap;
+	 list-style-position: outside;	
+	 list-style-type: none;	 
+	 color:#3d80b3;
+	 font-size:18px;
+	 line-height:12px;
+}
+#listfilter .block ul li.selected{
+	list-style-type: square;
+}
+#listfilter .block ul li a{
+	position:relative;
+	top:-1px;
+	color:#222;
+	margin-left:-2px;
+	font-size:12px;
+}
+
+/* details content */
+#detail{
+	width:100%;
+}
+#detail tbody tr th, #detail tbody tr td{
+	padding-left:2px;
+	padding-right:2px;
+	vertical-align:top;
+}
+#detail tbody.data tr:nth-child(even) th, #detail tbody.data tr:nth-child(even) td{
+	background:#DDD;
+}
+#detail tbody.data tr:nth-child(odd) th, #detail tbody.data tr:nth-child(odd) td{
+	background:#CCC;
+}
+#detail tbody.data tr:last-child th:first-child, #detail tbody.data tr:last-child td:first-child{
+	border-bottom-left-radius:6px;
+}
+#detail tbody.data tr:last-child th:last-child, #detail tbody.data tr:last-child td:last-child{
+	border-bottom-right-radius:6px;
+}
+#detail tbody.data tr:first-child th{
+	background:#3d80b3;
+	border-radius:0px;
+	border-top-left-radius:6px;
+	border-top-right-radius:6px;
+	color:white;
+	border:1px solid #3d80b3;
+	padding:2px;	
+}
+#detail tbody.data tr:last-child th, #detail tbody.data tr:last-child td{
+	border-bottom:1px solid #3d80b3;
+}
+#detail tbody.data tr th{
+	border-left:1px solid #3d80b3;
+}
+#detail tbody.data tr td:nth-child(2){
+	border-left:1px solid #3d80b3;
+	border-right:1px solid #3d80b3;
+	width:100%;
+}
+#detail tbody.data tr td:last-child{
+	border-right:1px solid #3d80b3;
+	text-align:center;
+	min-width:20px;
+}
+#detail tbody.spacing tr td{
+	border:none;
+	background-color:transparent;
+	border-radius:0px;
+}
+
+#detail tbody tr td ul, #detail tbody tr td ol{
+	margin:0px;
+	padding:0px;
+	padding-left:20px;
+}
+#detail tbody tr td ul li p, #detail tbody tr td ol li p{
+	margin:0px;
+	padding:0px;
+	margin-left:-4px;
+}
+
+#detail tbody tr td ol li{
+	margin-bottom:6px;
+}
+#detail tbody tr td ol li:last-child{
+	margin-bottom:0px;
+}
+
+#detail tbody tr td ul.vertical_spacing li{
+	margin-bottom:6px;
+}
+#detail tbody tr td ul.vertical_spacing li:last-child{
+	margin-bottom:0px;
+}
+#detail tbody tr td:last-child img{
+	position:relative;
+	top:1px;
+}
+
+/* viewPropertyInSimulation */
+#viewPropertyInSimulation .simProp{
+	border-radius:6px;
+	border: 1px solid #3d80b3;
+	margin-top:20px;
+}
+#viewPropertyInSimulation .simProp .simPropHeader{
+	border-top-left-radius:6px;
+	border-top-right-radius:6px;
+	background:#3d80b3;
+	border:1px solid #3d80b3;
+	color:white;
+	padding:2px;
+	font-weight:bold;	
+}
+#viewPropertyInSimulation .simProp .simPropContent{
+	border-bottom-left-radius:6px;
+	border-bottom-right-radius:6px;
+	padding:10px;
+	padding-top:0px;
+	max-height:400px;
+	overflow-y:auto;
+}
+#viewPropertyInSimulation .simProp .simPropContent .linenodiv{
+	color:#999;
+	max-width:10px;
+}
+
+
+/* import/export content */
+#form{
+	width:100%;
+	text-align:right;
+	margin:0px;
+	padding:0px;
+}
+#form .block{	
+	width:100%;
+	padding:0px;
+	margin-bottom:20px;
+	border: 1px solid #3d80b3;
+	border-radius:6px;
+	text-align:left;
+}
+#form .block h1{
+	border: 1px solid #3d80b3;
+	border-top-left-radius:6px;
+	border-top-right-radius:6px;
+	background:#3d80b3;
+	color:white;
+	font-size:12px;
+	padding:2px;
+	margin:0px;
+}
+#form .block .content{
+	margin:0px;
+	padding:4px;
+	padding-left:3px;
+	padding-right:3px;
+}
+#form .block .content .col{
+	float:left;
+	width:50%;
+}
+#form .block .content input{
+	margin-left:0px;
+}
+#form .button{
+	margin:0px;
+}
+#form .block .content #checkall{
+	margin-top:20px;
+}
+
+/* edit */
+#edit table{
+	width:100%;
+	margin-top:20px;
+}
+#edit table tbody tr th, #edit table tbody tr td{
+	padding-right:2px;
+	padding-left:2px;
+}
+#edit table tbody tr:first-child th{
+	border-top-left-radius:6px;
+	border-top:solid #3d80b3 thin;
+}
+#edit table tbody tr:first-child td{
+	border-top-right-radius:6px;
+	border-top:solid #3d80b3 thin;
+}
+#edit table tbody tr:last-child th{
+	border-bottom-left-radius:6px;
+	border-bottom:solid #3d80b3 thin;
+}
+#edit table tbody tr:last-child td{
+	border-bottom-right-radius:6px;
+	border-bottom:solid #3d80b3 thin;
+}
+#edit table tbody tr th{
+	border-left:solid #3d80b3 thin;
+}
+#edit table tbody tr td{
+	border-left:solid #3d80b3 thin;
+	border-right:solid #3d80b3 thin;
+}
+#edit table tbody tr:nth-child(even) th, #edit table tbody tr:nth-child(even) td{
+	background:#DDD;
+}
+#edit table tbody tr:nth-child(odd) th, #edit table tbody tr:nth-child(odd) td{
+	background:#CCC;
+}
+#edit table tbody tr:hover th, #edit table tbody tr:hover td{
+	background:white;
+}
+
+#edit table tbody tr td input.text{
+	width:99%;
+	border:solid thin #222;
+	border-radius:0px;
+}
+#edit table tbody tr td select{
+	width:100%;
+	border:solid thin #222;
+}
+#edit table tbody tr td select.multiple{
+	height:100px;
+}
+#edit table tbody tr td textarea{
+	width:99%;
+	height:100px;
+	border:solid thin #222;
+}
+
+#edit table table.ForeignKey, #edit table table.ManyToManyField{
+	margin-top:0px;
+	width:100%;
+}
+#edit table table.ForeignKey tbody th, #edit table table.ForeignKey tbody td, #edit table table.ManyToManyField thead th, #edit table table.ManyToManyField tbody td{
+	border:none;
+	border-radius:0px;
+	background:transparent;
+	padding-left:2px;
+	padding-right:2px;
+}
+#edit table table.ForeignKey tbody th{
+	width:auto;
+}
+#edit table table.ForeignKey tbody td{
+	width:100%;
+}
+#edit table table.ManyToManyField thead tr th, #edit table table.ManyToManyField tbody tr td{
+	width:auto;
+}
+#edit table table.ManyToManyField thead tr th:first-child, #edit table table.ManyToManyField tbody tr td:first-child{
+	padding-left:0px;
+}
+#edit table table.ManyToManyField thead tr th:last-child, #edit table table.ManyToManyField tbody tr td:last-child{
+	width:18px;
+	padding-right:0px;
+}
+
+#edit table table.ForeignKey tbody td table.evidence{
+	width:100%;
+	margin:0px;
+	padding:0px;
+}
+#edit table table.ForeignKey tbody td table.evidence thead tr th, #edit table table.ForeignKey tbody td table.evidence tbody tr td{ width: auto; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(1){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(2){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(3){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(4){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(5){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(6){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(7){ width: 60px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(8){ width: 200px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(9){ width: 120px; }
+#edit table table.ForeignKey tbody td table.evidence tbody tr td:nth-child(10){ width: 22px; }
+
+#edit table table.ForeignKey tbody td table.evidence tbody tr td input.text, #edit table table.ForeignKey tbody td table.evidence tbody tr td select{
+	width: 100%;
+}
+#edit table table.ForeignKey tbody td table.evidence tbody tr td select.multiple{
+	height:20px;
+}
+#edit table table.ForeignKey tbody td table.evidence{
+	width:100%;
+	margin:0px;
+	padding:0px;
+	border:none;
+}
+
+
+#edit table tbody tr td .error{
+	color:red;
+	font-style:italic;
+}
+
+#edit .save{
+	width:100%; text-align:right; margin:0px; padding:0px; padding-top:10px;
+}
+
+/* modal */
+#modal{
+	font-size:12px;
+	font-family:PT Sans,sans-serif;
+}
+
+#modal table.evidence{
+	width:100%;
+	margin:0px;
+	padding:0px;
+	height:autp;
+}
+
+#modal table.evidence tbody tr th, #modal table.evidence tbody tr td{
+	padding-right:2px;
+	padding-left:2px;
+	text-align:left;
+}
+
+#modal table.evidence input.text{
+	width:99%;
+	border:solid thin #222;
+	border-radius:0px;
+}
+#modal table.evidence select{
+	width:100%;
+	border:solid thin #222;
+}
+#modal table.evidence select.multiple{
+	height:100px;
+}
+#modal table.evidence textarea{
+	width:99%;
+	height:100px;
+	border:solid thin #222;
+}
+
+#modal table.evidence thead tr th, #modal table.evidence tbody tr td{ width: auto; }
+#modal table.evidence tbody tr td:nth-child(1){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(2){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(3){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(4){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(5){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(6){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(7){ width: 60px; }
+#modal table.evidence tbody tr td:nth-child(8){ width: 200px; }
+#modal table.evidence tbody tr td:nth-child(9){ width: 120px; }
+#modal table.evidence tbody tr td:nth-child(10){ width: 22px; }
+
+#modal table.evidence tbody tr td input.text, #modal table.evidence tbody tr td select{
+	width: 100%;
+}
+#modal table.evidence tbody tr td select.multiple{
+	height:20px;
+}
+
+/* delete */
+#delete{
+	width:100%;
+}
+
+#delete div{
+	width:100%;
+	text-align:center;
+}
+#delete div:last-child{
+	margin-top:10px;
+}

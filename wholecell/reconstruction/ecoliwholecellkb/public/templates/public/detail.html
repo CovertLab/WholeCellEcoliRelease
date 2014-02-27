@@ -1,0 +1,82 @@
+{% extends "public/base.html" %}
+
+{% comment %}
+Detail page template
+
+Author: Sajia Akhter, sajia@stanford.edu
+Affiliation: Covert Lab, Department of Bioengineering, Stanford University
+Last updated: 2014-01-10
+{% endcomment %}
+
+{% load static %}
+{% load templatetags %}
+
+
+{% block head_title %}{% with object=queryset.0 %}{{ block.super }} :: {{ Frame_ID }}{% endwith %}{% endblock %}
+{% block page_title %}{% with object=queryset.0 %}{{ Frame_ID }}{% if Name|length > 0 %} &ndash; {{ Name }}{% endif %}{% endwith %}{% endblock %}
+
+{% block head %}
+{{ block.super }}
+{% with object=queryset.0 %}
+<meta name="entry_created" content="{{ object.created_date }}" />
+<meta name="entry_last_updated" content="{{ object.last_updated_date }}" />
+<meta name="entry_type" content="{{ model_verbose_name }}" />
+<meta name="entry_wid" content="{{ object.frame_id }}" />
+{% if object.name|length > 0 %}
+<meta name="entry_name" content="{{ object.name }}" />
+{% else %}
+<meta name="entry_name" content="{{ object.frame_id }}" />
+{% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block action_icons %}
+
+{% with object=queryset.0 %}
+{% if request.user.is_anonymous %}
+<a href="mailto:wholecell[at]lists.stanford.edu?subject=WholeCellKB Object  WID={{ object.frame_id }}"><img src="{% get_static_prefix %}public/img/pencil.png" title="Suggest an edit" alt="Suggest an edit" /></a>
+{% else %}
+<a href="{% url public.views.edit frame_id=queryset.0.frame_id %}"><img src="{% get_static_prefix %}public/img/pencil.png" title="Edit" alt="Edit" /></a>
+<a href="{% url public.views.delete  frame_id=queryset.0.frame_id %}"><img src="{% get_static_prefix %}public/img/delete.png" title="Delete" alt="Delete" /></a>
+{% endif %}
+<a href="?{% makeurl queryargs 'format' 'xlsx' %}"><img src="{% get_static_prefix %}public/img/excel.gif" title="Download in Excel format" alt="Download in Excel format" /></a>
+<a href="?{% makeurl queryargs 'format' 'json' %}"><img src="{% get_static_prefix %}public/img/json.png" title="Download in JSON format" alt="Download in JSON format" /></a>
+<a href="?{% makeurl queryargs 'format' 'xml' %}"><img src="{% get_static_prefix %}public/img/xml.gif" title="Download in XML format" alt="Download in XML format" /></a>
+{{ block.super }}
+{% endwith %}
+{% endblock %}
+
+{% block content %}
+{% autoescape off %}
+{% with object=queryset.0 %}
+<table id="detail">	
+	{% with object=queryset.0 %}
+	{% for fieldset in fieldsets %}
+		{% if not forloop.first %}
+	<tbody class="spacing">
+		<tr><td colspan="2">&nbsp;</td></tr>
+	</tbody>
+		{% endif %}
+	<tbody class="data">
+		<tr>
+			<th colspan="3">{{ fieldset.0 }}			</th>
+		</tr>				
+		{% for field in fieldset.1 %}
+		<tr>
+			<th>{{ field.verbose_name }}</th>			
+			<td>{{ field.data }}</td>
+			<td>{% if field.is_modeled_url|length > 0 %}
+				<!--a href="{{ field.is_modeled_url }}">
+					<img src="{% get_static_prefix %}public/img/script_code.png" title="View in model" alt="View in model" />
+				</a-->
+				{% endif %}
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	{% endfor %}
+	{% endwith %}	
+</table>
+{% endwith %}
+{% endautoescape %}
+{% endblock %}

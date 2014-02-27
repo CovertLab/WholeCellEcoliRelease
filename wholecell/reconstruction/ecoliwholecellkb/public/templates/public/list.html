@@ -1,0 +1,94 @@
+{% extends "public/base.html" %}
+
+{% comment %}
+List template
+
+Author: Sajia Akhter, sajia@stanford.edu
+Affiliation: Covert Lab, Department of Bioengineering, Stanford University
+Last updated: 2014-02-01
+{% endcomment %}
+
+{% load static %}
+{% load templatetags %}
+
+{% block head_title %}{{ block.super }} :: {{ model_verbose_name_plural }}{% endblock %}
+{% block page_title %}{{ model_verbose_name_plural }}{% endblock %}
+
+{% block head %}
+{{ block.super }}
+<meta name="entry_type" content="{{ model_verbose_name }}" />
+{% endblock %}
+
+{% block action_icons %}
+{% if request.user.is_anonymous %}
+<a href="mailto:wholecell[at]lists.stanford.edu?subject=WholeCellKB {{ model_verbose_name_plural }}"><img src="{% get_static_prefix %}public/img/pencil.png" title="Suggest an edit" alt="Suggest an edit" /></a>
+{% else %}
+<a href="{% url public.views.add model_type=model_type %}"><img src="{% get_static_prefix %}public/img/add.png" title="Add" alt="Add" /></a>
+{% endif %}
+<a href="?{% makeurl queryargs 'format' 'xlsx' %}"><img src="{% get_static_prefix %}public/img/excel.gif" title="Download in Excel format" alt="Download in Excel format" /></a>
+<a href="?{% makeurl queryargs 'format' 'json' %}"><img src="{% get_static_prefix %}public/img/json.png" title="Download in JSON format" alt="Download in JSON format" /></a>
+<a href="?{% makeurl queryargs 'format' 'xml' %}"><img src="{% get_static_prefix %}public/img/xml.gif" title="Download in XML format" alt="Download in XML format" /></a>
+{{ block.super }}
+{% endblock %}
+
+{% block extrastyles %}
+#listfilter .nofilters{
+	font-style:italic;
+	text-align:center;
+}
+{% if facet_fields|length == 0 %}
+#list{
+	width:100%;
+}
+#listfilter{
+	display:none;
+}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>{{model_type}}</h1>
+<table id="list">
+<thead>
+	<tr>
+		<th>Frame ID</th>
+		<th>Name</th>
+	</tr>
+</thead>
+<tbody>
+	{% for object in queryset %}
+	<tr>
+		<th><a href="{{ object.get_absolute_url }}">{{ object.get_id }} </a></th>
+		<td><a href="{{ object.get_absolute_url }}">{% autoescape off %}{{ object.name|truncatechars:80 }}{% endautoescape %}</a></td>		
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+
+
+<div id="listfilter">
+<h1>Filter</h1>
+{% for field in facet_fields %}
+	{% with field_name=field.name field_verbose_name=field.verbose_name %}
+	<div class="block">
+	<h2>{% autoescape off %}{{ field_verbose_name }}{% endautoescape %}</h2>
+	<ul>
+		<li{% if not queryargs|getattribute:field_name %} class="selected"{% endif %}><a href="{% url public.views.list model_type=model_type %}?{% makeurl queryargs field_name '' %}">All</a></li>
+		{% for facet in field.facets %}
+		<li
+				{% if queryargs|getattribute:field_name %}
+					{% if facet.id in queryargs|getattribute:field_name %}
+			class="selected"
+					{% endif %}
+				{% endif %}>
+			<a href="{% url public.views.list model_type=model_type %}?{% makeurl queryargs field_name facet.id %}">{% autoescape off %}{{ facet.name }}{% endautoescape %} ({{ facet.count }})</a></li>
+		{% endfor %}
+	</ul>
+	</div>
+	{% endwith %}
+{% endfor %}
+</div>
+
+
+<div style="clear:both;"></div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "public/base.html" %}
+
+{% load static %}
+{% load templatetags %}
+
+{% block extrastyles %}
+#content h1{
+	margin-bottom:2px;
+}
+#content h2{
+	margin-top:14px;
+}
+#content .content{
+	margin-top:6px;
+}
+#content .content thead tr th{
+	border-top:1px solid #3d80b3;
+	border-bottom:1px solid #3d80b3;
+	background:#d6edff;
+}
+#content .content tbody tr td.last-row{
+	border-bottom:1px solid #3d80b3;
+}
+#content .content tbody tr td{
+	background:#e3e3e3;
+}
+#content .content tbody tr td.even{
+	background:#efefef;
+}
+
+#content .content tr th:nth-child(2){
+	text-align:right;
+	padding-right:2px;
+}
+#content .content tr td:nth-child(2){
+	text-align:right;
+	padding-right:2px;
+}
+#content .content tr th:nth-child(4n+1), #content .content tr td:nth-child(4n+1){ min-width:140px;}
+#content .content tr th:nth-child(4n+1), #content .content tr td:nth-child(4n+2){ min-width:25px;}
+#content .content tr th:nth-child(4n+3), #content .content tr td:nth-child(4n+3){ min-width:16px;}
+#content .content tr th:nth-child(4n+4), #content .content tr td:nth-child(4n+4){
+	width:20px;
+	border-top:none;
+	border-bottom:none;
+	background:none;
+}
+#content .content tbody tr td.after-last-row{
+	background:none;
+}
+#content .content tr th:last-child, #content .content tr td:last-child{
+	width:auto;
+}
+{% endblock %}
+
+
+{% block content %}
+<div><h1>Welcome to the <i>{{ species.name }}</i> database!</h1>
+
+<p>{% autoescape off %}{{ species.comments }}{% endautoescape %}</p>
+
+</div>
+
+<h2>Cross references</h2>
+<p>{TODO}</p>
+<h2>Genetic code</h2>
+<p><a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi/#SG{{ species.genetic_code }}">  The Bacterial, Archaeal and Plant Plastid Code ({{ species.genetic_code }})</a></p>
+
+<h2>Content</h2>
+<table class="content">
+<thead>
+	<tr>
+	{% for tmp in content %}
+		<th>Content</th>
+		<th>Value</th>
+		<th>Units</td>
+		<th>&nbsp;</th>
+	{% endfor %}
+	</tr>
+</thead>
+<tbody>
+{% for tmp in contentRows %}
+	<tr>
+		{% for tmp2 in content %}
+		
+		{% if tmp2|length > forloop.parentloop.counter0 %}		
+			{% with val=tmp2|getattribute:forloop.parentloop.counter0 %}
+			<td class="
+				{% if forloop.parentloop.counter0 < tmp2|length and val.0|divisibleby:2 %}even {% endif %}
+				{% if forloop.parentloop.counter0 == tmp2|length|add:-1 %}last-row {% endif %}
+				" 
+				style="{% if val.1 == 0 %}font-weight:bold;{% else %}padding-left:{{ val.1|multiply:12 }}px;{% endif %}">{% if val.5 %}
+				<a href="{{ val.5 }}">{% autoescape off %}{{ val.2 }}{% endautoescape %}</a>
+				{% else %}
+				{% autoescape off %}{{ val.2 }}{% endautoescape %}
+				{% endif %}
+			</td>
+			<td class="
+				{% if forloop.parentloop.counter0 < tmp2|length and val.0|divisibleby:2 %}even {% endif %}
+				{% if forloop.parentloop.counter0 == tmp2|length|add:-1 %}last-row {% endif %}
+				">{{ val.3|default_if_none:'&nbsp;' }}</td>
+			<td class="
+				{% if forloop.parentloop.counter0 < tmp2|length and val.0|divisibleby:2 %}even {% endif %}
+				{% if forloop.parentloop.counter0 == tmp2|length|add:-1 %}last-row {% endif %}"
+				>{{ val.4|default_if_none:'&nbsp;' }}</td>
+			<td>&nbsp;</td>
+			{% endwith %}
+		{% else %}
+			<td class="after-last-row">&nbsp;</td>
+			<td class="after-last-row">&nbsp;</td>
+			<td class="after-last-row">&nbsp;</td>
+			<td class="after-last-row">&nbsp;</td>
+		{% endif %}		
+		{% endfor %}
+	</tr>	
+{% endfor %}
+
+
+</tbody>
+</table>
+
+
+<div><h1>About WholeCellKB</h1>
+<p>
+WholeCellKB is a collection of free, open-source model organism databases designed specifically to enable comprehensive, dynamic simulations of entire cells and organisms. WholeCellKB provides comprehensive, quantitative descriptions of individual species including:
+<ul>
+<li>Cellular chemical composition,</li>
+<li>Growth medium composition,</li>
+<li>Gene locations, lengths, and directions,</li>
+<li>Transcription unit organization and transcriptional regulation,</li>
+<li>Macromolecule composition,</li>
+<li>Reaction stoichiometry, kinetics, and catalysis, and</li>
+<li>Extensive links and cross-links to all references used to construct each database.</li>
+</ul></p>
+
+<p>This database is the most comprehensive description of any single organism to date, and was used to develop the first whole-cell computational model.</p>
+</div>
+
+
+
+
+{% endblock %}
+

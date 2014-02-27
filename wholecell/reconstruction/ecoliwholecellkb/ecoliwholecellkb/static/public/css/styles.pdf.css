@@ -1,0 +1,21 @@
+/*
+Whole-cell knowledge base pdf styles
+
+Author: Jonathan Karr, jkarr@stanford.edu
+Affiliation: Covert Lab, Department of Bioengineering, Stanford University
+Last updated: 2012-07-17
+*/
+
+@page {
+		-pdf-page-size: letter;
+		size: letter;
+		margin: 1in;
+}
+h1, h2, h3, h4 {
+    -pdf-outline: false; /* Don't add an outline to the document */
+}
+
+#content p{
+	margin:0px;
+	padding:0px;
+}
