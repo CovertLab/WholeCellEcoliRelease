@@ -293,7 +293,9 @@ class Simulation(object):
 			)
 
 		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
-		h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
+		
+		if self.processes:
+			h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
 		groupValues = h5file.createGroup(
 			h5file.root,
