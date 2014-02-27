@@ -9,7 +9,6 @@ Test KnowledgeBase.py
 import unittest
 import warnings
 
-import numpy
 import cPickle
 import os
 import wholecell.reconstruction.knowledgebase

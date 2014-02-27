@@ -10,8 +10,6 @@ Time state variable. Represents the current time lapsed since the start of the s
 @date: Created 3/29/2013
 """
 
-import numpy
-
 import wholecell.states.state
 
 class Time(wholecell.states.state.State):
@@ -42,7 +40,7 @@ class Time(wholecell.states.state.State):
 	def allocate(self):
 		super(Time, self).allocate()
 
-		self.value = numpy.zeros(1)
+		self.value = 0
 
 
 	def calculate(self):

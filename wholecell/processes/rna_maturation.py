@@ -10,8 +10,6 @@ RNA maturation sub-model. Encodes molecular simulation of RNA maturation.
 @date: Created 4/2/2013
 """
 
-import numpy
-
 import wholecell.processes.process
 
 class RnaMaturation(wholecell.processes.process.Process):
@@ -35,7 +33,7 @@ class RnaMaturation(wholecell.processes.process.Process):
 		nascentRnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas]
 		matureRnaIds = [x["id"] + ":mature[c]" for x in kb.rnas]
 
-		self.mcPartition = mc.setPartition(self, nascentRnaIds + matureRnaIds)
+		self.mcPartition.initialize(nascentRnaIds + matureRnaIds)
 		
 		self.mcPartition.nascentRna = self.mcPartition.countsBulkViewNew(nascentRnaIds)
 		self.mcPartition.matureRna = self.mcPartition.countsBulkViewNew(matureRnaIds)

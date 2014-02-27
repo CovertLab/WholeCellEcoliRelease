@@ -8,7 +8,6 @@ Simulation
 @date: Created 4/4/2013
 """
 
-import numpy
 import collections
 import tables
 import os
@@ -23,58 +22,126 @@ DEFAULT_PROCESSES = [
 	'Translation',
 	] # TOKB
 
-# TODO: save/load included processes
-# TODO: save/load free molecules
+KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
+
+SIM_INIT_ARGS = dict(
+	includedProcesses = None,
+	freeMolecules = None,
+	lengthSec = None, timeStepSec = None,
+	seed = None,
+	reconstructKB = False,
+	logToShell = True,
+	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
+	)
 
 class Simulation(object):
 	""" Simulation """
 
-	# Constructor
-	def __init__(self, processesToInclude = None, freeMolecules = None):
-		self.meta = {
-			"options": ["lengthSec", "timeStepSec", "seed"],
-			"units": {"lengthSec": "s", "timeStepSec": "s"}
-		}
+	# Constructors
+	def __init__(self, **kwargs):
+		# Make sure the arguments passed are valid
+		if (kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()):
+			raise Exception('Unrecognized arguments passed to Simulation.__init__: {}'.format(
+					kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()))
 
-		# Options
-		self.lengthSec = 3600						# Simulation length (s) # TOKB
-		self.timeStepSec = 1.0						# Simulation time step (s) # TOKB
-		if processesToInclude is not None:			# List of processes to include in simulation
-			self.processesToInclude = processesToInclude	
+		self._options = SIM_INIT_ARGS.copy()
+		self._options.update(kwargs)
 
-		else:
-			self.processesToInclude = DEFAULT_PROCESSES
+		# Set processes
+		self.includedProcesses = self._options['includedProcesses'] if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES
 
-		self.freeMolecules = freeMolecules			# Iterable of tuples describing mol IDs and counts
+		self.freeMolecules = self._options['freeMolecules']
 
 		if self.freeMolecules is not None:
-			self.processesToInclude.append('FreeProduction')
+			self.includedProcesses.append('FreeProduction')
 
-		# Dependent properties
-		self.seed = None
+		# References to simulation objects
+		self.randStream = None
+		self.states = None
+		self.processes = None
 
-		# Rand stream, state, process handles
-		self.randStream = None						# Random stream
-		self.states = None							# Ordered dict of states
-		self.processes = None						# Ordered dict of processes
+		self._constructRandStream()
 
-		self.loggers = []
-		self.constructRandStream()
-
+		# Set time parameters
+		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
+		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
 		self.initialStep = 0
 		self.simulationStep = 0
 
+		# Set random seed
+		self.seed = self._options['seed']
+
+		# Create KB
+		self.kbPath = KB_PATH # TODO: option?
+
+		import cPickle
+		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
+			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
+				dataFileDir = "data/parsed",
+				seqFileName = "data/raw/sequence.txt"
+				)
+
+			cPickle.dump(kb, open(self.kbPath, "wb"),
+				protocol = cPickle.HIGHEST_PROTOCOL)
+
+		else:
+			kb = cPickle.load(open(self.kbPath, "rb"))
+
+		# Fit KB parameters
+		import wholecell.reconstruction.fitter
+		wholecell.reconstruction.fitter.fitSimulation(kb)
+		# TODO: save fit KB and use that instead of saving/loading fit parameters
+
+		# Initialize simulation from fit KB
+		self._initialize(kb)
+
+		# Set loggers
+		self.loggers = []
+
+		if self._options['logToShell']:
+			import wholecell.loggers.shell
+
+			self.loggers.append(
+				wholecell.loggers.shell.Shell()
+				)
+
+		if self._options['logToDisk']:
+			import wholecell.loggers.disk
+
+			self.loggers.append(
+				wholecell.loggers.disk.Disk(
+					self._options['outputDir'],
+					self._options['overwriteExistingFiles'],
+					self._options['logToDiskEvery']
+					)
+				)
+
+
+	@classmethod
+	def initFromFile(cls, filePath, **kwargs):
+		import json
+
+		try:
+			jsonArgs = json.load(open(filePath))
+
+		except ValueError:
+			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntx checker in your text editor.')
+
+		jsonArgs.update(kwargs)
+
+		return cls(**jsonArgs)
+
 
 	# Construct random stream
-	def constructRandStream(self):
+	def _constructRandStream(self):
 		import wholecell.utils.rand_stream
 		self.randStream = wholecell.utils.rand_stream.RandStream()
 
 
 	# Link states and processes
-	def initialize(self, kb):
-		self.constructStates()
-		self.constructProcesses()
+	def _initialize(self, kb):
+		self._constructStates()
+		self._constructProcesses()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -82,12 +149,12 @@ class Simulation(object):
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
 
-		self.allocateMemory()
-		self.calcInitialConditions()
+		self._allocateMemory()
+		self._calcInitialConditions()
 
 
 	# Construct states
-	def constructStates(self):
+	def _constructStates(self):
 		import wholecell.states.mass
 		# import wholecell.states.MetabolicFlux
 		import wholecell.states.molecule_counts
@@ -106,7 +173,7 @@ class Simulation(object):
 
 
 	# Construct processes
-	def constructProcesses(self):
+	def _constructProcesses(self):
 		import wholecell.processes.complexation
 		import wholecell.processes.metabolism
 		import wholecell.processes.protein_maturation
@@ -129,18 +196,18 @@ class Simulation(object):
 
 		# Remove processes not listed as being included
 		for process in self.processes.iterkeys():
-			if process not in self.processesToInclude:
+			if process not in self.includedProcesses:
 				self.processes.pop(process)
 
 
 	# Allocate memory
-	def allocateMemory(self):
+	def _allocateMemory(self):
 		for state in self.states.itervalues():
 			state.allocate()
 
 
 	# Calculate initial conditions
-	def calcInitialConditions(self):
+	def _calcInitialConditions(self):
 		# Calculate initial conditions
 		for state in self.states.itervalues():
 			state.calcInitialConditions()
@@ -151,30 +218,26 @@ class Simulation(object):
 	# Run simulation
 	def run(self):
 		# Calculate initial dependent state
-		self.calculateState()
+		self._calculateState()
 
-		self.logInitialize()
+		self._logInitialize()
 
 		while self.time.value < self.lengthSec:
 			self.simulationStep += 1
 
-			self.evolveState()
-			self.logAppend()
+			self._evolveState()
+			self._logAppend()
 
-		self.logFinalize()
+		self._logFinalize()
 
 
-	def calculateState(self):
+	def _calculateState(self):
 		for state in self.states.itervalues():
 			state.calculate()
 
 
 	# Calculate temporal evolution
-	def evolveState(self):
-		# Prepare to partition states among processes
-		for state in self.states.itervalues():
-			state.prepartition()
-
+	def _evolveState(self):
 		# Partition states among processes
 		for state in self.states.itervalues():
 			state.partition()
@@ -188,33 +251,26 @@ class Simulation(object):
 			state.merge()
 
 		# Recalculate dependent state
-		self.calculateState()
+		self._calculateState()
 
 
 	# --- Logger functions ---
-	def loggerAdd(self, logger):
-		self.loggers.append(logger)
-
-
-	def logInitialize(self):
+	def _logInitialize(self):
 		for logger in self.loggers:
 			logger.initialize(self)
 
 
-	def logAppend(self):
+	def _logAppend(self):
 		for logger in self.loggers:
 			logger.append(self)
 
 
-	def logFinalize(self):
+	def _logFinalize(self):
 		for logger in self.loggers:
 			logger.finalize(self)
 
 	# Save to/load from disk
-	def pytablesCreate(self, h5file):
-		# TODO: move fitted parameter saving either into the appropriate state,
-		# or save the fitted parameters in a knowledge base object
-
+	def pytablesCreate(self, h5file, expectedRows):
 		groupFit = h5file.createGroup(
 			h5file.root,
 			'fitParameters',
@@ -245,6 +301,8 @@ class Simulation(object):
 
 		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
 
+		# TODO: cache KB
+
 
 	def pytablesAppend(self, h5file):
 		# Included for consistency, eventual features...
@@ -262,9 +320,13 @@ class Simulation(object):
 
 
 	@classmethod
-	def loadSimulation(cls, kb, stateDir, timePoint):
-		newSim = cls()
-		newSim.initialize(kb)
+	def loadSimulation(cls, stateDir, timePoint, newDir = None, overwriteExistingFiles = False):
+		newSim = cls.initFromFile(
+			os.path.join(stateDir, 'simOpts.json'),
+			logToDisk = newDir is not None,
+			overwriteExistingFiles = overwriteExistingFiles,
+			outputDir = newDir
+			)
 
 		with tables.openFile(os.path.join(stateDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
@@ -279,69 +341,17 @@ class Simulation(object):
 		newSim.initialStep = timePoint
 
 		# Calculate derived states
-		newSim.calculateState()
+		newSim._calculateState() # TODO: add calculate() to State superclass call?
 
 		return newSim
 
 
 	# -- Get, set options and parameters
-	def getOptions(self):
-		# Initialize output
-		val = {"states": {}, "processes": {}}
-
-		# Top-level
-		if self.meta.has_key("options"):
-			for opt in self.meta["options"]:
-				val[opt] = getattr(self, opt)
-
-		# States
-		for state in self.states.itervalues():
-			val["states"][state.meta["id"]] = state.getOptions()
-
-		# Processes
-		for process in self.processes.itervalues():
-			val["processes"][process.meta["id"]] = process.getOptions()
-
-		return val
-
-	# Sets options values based on passed in dict
-	def setOptions(self, val):
-		# Top-level
-		opts = list(set(val.keys()).difference(set(["states", "processes"])))
-		if len(opts) > 0 and (not self.meta.has_key("options") or not set(opts).issubset(set(self.meta["options"]))):
-			invalidOpts = list(set(opts).difference(set(self.meta["options"])))
-			raise Exception, "Invalid options:\n -%s" % "".join(invalidOpts)
-		for opt in opts:
-			setattr(self, opt, val[opt])
-
-		# States
-		if val.has_key("states"):
-			for key in val["states"].keys():
-				state = self.states[key]
-				state.setOptions(val["states"][key])
-
-		# Processes
-		if val.has_key("processes"):
-			for key in val["processes"].keys():
-				process = self.processes[key]
-				process.setOptions(val["processes"][key])
-
 	def getDynamics(self):
 		val = {}
 		for state in self.states.itervalues():
 			val[state.meta["id"]] = state.getDynamics()
 		return val
-
-	@property
-	def timeStepSec(self):
-		return self._timeStepSec
-
-	@timeStepSec.setter
-	def timeStepSec(self, value):
-		self._timeStepSec = value
-		if hasattr(self, "processes"):
-			for process in self.processes.itervalues():
-				process.timeStepSec = value
 
 	@property
 	def seed(self):
@@ -359,3 +369,6 @@ class Simulation(object):
 	@randState.setter
 	def randState(self, value):
 		self.randStream.state = value
+
+	def options(self):
+		return self._options

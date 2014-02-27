@@ -13,6 +13,10 @@ Process submodel base class. Defines interface that processes expose to the simu
 class Process(object):
 	""" Process """
 
+	# Partitions of state
+	# NOTE: as partitionable states are added, this will need to be expanded
+	mcPartition = None # partition of MoleculeCounts State
+
 	# Constructor
 	def __init__(self):
 		if not hasattr(self, "meta"):
@@ -28,6 +32,7 @@ class Process(object):
 	def initialize(self, sim, kb):
 		self.timeStepSec = sim.timeStepSec
 		self.randStream = sim.randStream
+		self.mcPartition = sim.states['MoleculeCounts'].partitions[self.meta['id']]
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):

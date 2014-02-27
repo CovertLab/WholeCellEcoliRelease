@@ -1,0 +1,3 @@
+"WID"	"Name"	"Synonym"	"Calculation"	"Units"	"Notes"	"Created date"	"Updated date"
+"ParameterCalc_0001"	"avgCellToInitalCellConvFactor"	"[“Average cell to average initial cell conversion factor”]"	"exp(ln(2)*Parameter_0008)"	"Average initial cell/average cell"	"Divide by this number to convert average population data to average initial cell cycle data"	02/26/14	02/25/14
+"ParameterCalc_0002"	"avgInitCellMass"	"[“Average initial cell dry mass”]"	"Parameter_0002/ParameterCalc_0001"	"pg"		02/16/14	02/16/14

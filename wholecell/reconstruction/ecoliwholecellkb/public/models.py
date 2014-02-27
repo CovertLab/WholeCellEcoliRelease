@@ -1,23 +1,36 @@
+"""
+models for Ecoli in Django
+
+@author: Sajia Akhter
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 04/04/2014
+@author: Nick Ruggero
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 02/24/2014
+"""
+
 from django.db import models
 from django.core import validators
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Model, OneToOneField, CharField, IntegerField, URLField, PositiveIntegerField, FloatField, ForeignKey, BooleanField, SlugField, ManyToManyField, TextField, DateTimeField, options, permalink, SET_NULL, Min, Max
 
-# Create your models here.
-''' BEGIN: choices '''
+''' BEGIN: CHOICES '''
 
 CHOICES_DIRECTION = (
 	('f', 'Forward'),
 	('r', 'Reverse'),
 )
 
+''' END: CHOICES'''
 
-''' BEGIN: validators '''
+''' BEGIN: VALIDATORS '''
 def validate_dna_sequence(seq):
 	validators.RegexValidator(regex=r'^[ACGT]+$', message='Enter a valid DNA sequence consisting of only the letters A, C, G, and T')(seq)
 
 
+'''END: VALIDATORS'''
 
+'''BEGIN: SPECIFIC DATA TYPES'''
 class Chromosome(models.Model):
 	#additional fields
 	sequence = TextField(blank=True, default='', verbose_name='Sequence', validators=[validate_dna_sequence])
@@ -295,3 +308,4 @@ class MetaboliteReactionRelation(models.Model):
 
 ###################################################
 
+'''END: SPECIFIC DATA TYPES'''

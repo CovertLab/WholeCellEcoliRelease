@@ -10,7 +10,7 @@ Macromolecular complexation sub-model. Encodes molecular simulation of macromole
 @date: Created 4/4/2013
 """
 
-import numpy
+import numpy as np
 
 import wholecell.processes.process
 
@@ -57,16 +57,16 @@ class Complexation(wholecell.processes.process.Process):
 		# 		tmpSMat.append([s["molecule"] + ":mature[" + s["location"] + "]", iComplex, -s["coeff"]])
 
 		# subIdx = self.subunit.getIndex([x[0] for x in tmpSMat])[0]
-		# self.sMat = numpy.zeros((len(subIdComps), len(complexes)))
-		# self.sMat[subIdx, numpy.array([x[1] for x in tmpSMat])] = numpy.array([x[2] for x in tmpSMat])
+		# self.sMat = np.zeros((len(subIdComps), len(complexes)))
+		# self.sMat[subIdx, np.array([x[1] for x in tmpSMat])] = np.array([x[2] for x in tmpSMat])
 
 	# Calculate needed proteins (subunits)
 	def calcReqSubunit(self):
-		return numpy.ones(self.subunit.fullCounts.shape)
+		return np.ones(self.subunit.fullCounts.shape)
 
 	# Calculate needed proteins (complexes)
 	def calcReqComplex(self):
-		return numpy.zeros(self.complex.fullCounts.shape)
+		return np.zeros(self.complex.fullCounts.shape)
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -81,10 +81,10 @@ class Complexation(wholecell.processes.process.Process):
 		# TODO: Implement tau leaping correctly
 		while True:
 			# Calculate rates
-			rates = numpy.floor(numpy.nanmin(			# For each complex, set its rate to be that of its limiting subunit
-				subunits.reshape((-1,1)) / self.sMat	# Note: Numpy's broadcasting mechanisms tile subunits to be the shape of sMat
+			rates = np.floor(np.nanmin(			# For each complex, set its rate to be that of its limiting subunit
+				subunits.reshape((-1,1)) / self.sMat	# Note: np's broadcasting mechanisms tile subunits to be the shape of sMat
 				, axis = 0))
-			totRate = numpy.sum(rates)
+			totRate = np.sum(rates)
 			rates /= totRate
 			# i += 1
 			# if i > 50:
@@ -95,11 +95,11 @@ class Complexation(wholecell.processes.process.Process):
 
 			# Check if sufficient metabolic resources to make protein
 			newCnts = self.randStream.mnrnd(leap, rates)
-			if numpy.any(numpy.dot(self.sMat, newCnts) > subunits):
+			if np.any(np.dot(self.sMat, newCnts) > subunits):
 				break
 
 			# Update subunits
-			subunits -= numpy.dot(self.sMat, newCnts)
+			subunits -= np.dot(self.sMat, newCnts)
 
 			# Increment complexes
 			complexes += newCnts

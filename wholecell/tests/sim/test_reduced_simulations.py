@@ -38,8 +38,8 @@ class Test_reducedSimulations(unittest.TestCase):
 	@noseAttrib.attr('mediumtest')
 	def test_transcriptionSimulation(self):
 		sim = wcSimulation.Simulation(
-			["Transcription"],
-			[
+			includedProcesses = ["Transcription"],
+			freeMolecules = [
 				["ATP[c]", 1e6],
 				["UTP[c]", 1e6],
 				["CTP[c]", 1e6],
@@ -48,17 +48,10 @@ class Test_reducedSimulations(unittest.TestCase):
 				["RPOB-MONOMER[c]", 2000.0],
 				["RPOC-MONOMER[c]", 2000.0],
 				["RPOD-MONOMER[c]", 2000.0]
-			]
+			],
+			lengthSec = 10
 			)
-
-		kb = cPickle.load(open(KB_PATH, "rb"))
-
-		sim.initialize(kb)
-
-		wcFitter.Fitter.FitSimulation(sim, kb)
-
-		sim.setOptions({"lengthSec":10})
-
+		
 		self.assertEqual(
 			sim.processes.viewkeys(),
 			set(['Transcription', 'FreeProduction'])

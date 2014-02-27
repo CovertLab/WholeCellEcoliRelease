@@ -11,7 +11,7 @@ import wholecell.tests.processes.base_large_test as base_large_test # TODO: bett
 import os
 
 import nose.plugins.attrib as noseAttrib
-import numpy
+import numpy as np
 import tables
 import scipy.stats
 
@@ -27,9 +27,9 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 	ntpCounts = 1e6
 	h2oCounts = 1e6
 	fixtureOpts = {
-		'fixture_dir'		: os.path.join('out', 'test', 'Test_Transcription'),
-		'processes' 		: ["Transcription"],
-		'free_molecules'	: [
+		'outputDir':os.path.join('out', 'test', 'Test_Transcription'),
+		'includedProcesses':["Transcription"],
+		'freeMolecules':[
 			["ATP[c]", ntpCounts],
 			["UTP[c]", ntpCounts],
 			["CTP[c]", ntpCounts],
@@ -39,24 +39,24 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 			["RPOC-MONOMER[c]", initEnzCnts],
 			["RPOD-MONOMER[c]", initEnzCnts]
 			],
-		'length_sec'		: 500,
-		'n_seeds'			: 8
+		'lengthSec':500,
+		'nSeeds':8
 		}
 
-	fixtureDir = fixtureOpts['fixture_dir']
+	fixtureDir = fixtureOpts['outputDir']
 
 	@classmethod
 	def setUpClass(cls):
 		super(Test_Transcription, cls).setUpClass()
 
 		doublingTime = 3600.
-		simLength = cls.fixtureOpts['length_sec']
+		simLength = cls.fixtureOpts['lengthSec']
 
 		dirs = os.walk(Test_Transcription.fixtureDir).next()[1] # get all of the directories
 		nSims = len(dirs)
 
 		# TODO: get these two lines working
-		# nSims = cls.fixtureOpts['n_seeds']
+		# nSims = cls.fixtureOpts['nSeeds']
 		# dirs = [os.path.join(cls.fixtureDir, 'sim{}'.format(i)) for i in range(nSims)]
 
 		ntpIDs = ['ATP', 'UTP', 'CTP', 'GTP']
@@ -75,13 +75,13 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 		startAt = 2
 		width = 10
 
-		cls.ntpInitialUsage = numpy.zeros((len(ntpIDs), nSims), float)
-		cls.ntpFinalUsage = numpy.zeros((len(ntpIDs), nSims), float)
+		cls.ntpInitialUsage = np.zeros((len(ntpIDs), nSims), float)
+		cls.ntpFinalUsage = np.zeros((len(ntpIDs), nSims), float)
 
 		cls.rnaInitialProduction = None
 		cls.rnaFinalProduction = None
 
-		cls.expectedRatio = numpy.exp(numpy.log(2)/doublingTime * simLength)
+		cls.expectedRatio = np.exp(np.log(2)/doublingTime * simLength)
 
 		for iSim, simDir in enumerate(dirs):
 			with tables.openFile(os.path.join(cls.fixtureDir, simDir, 'MoleculeCounts.hdf')) as h5file:
@@ -93,17 +93,17 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 					processes = names.processes.read()
 					compartments = names.compartments.read()
 					
-					ntpIdxs = numpy.array([molIDs.index(id_) for id_ in ntpIDs])
+					ntpIdxs = np.array([molIDs.index(id_) for id_ in ntpIDs])
 					rnaIdxs = indexes.nascentRnas.read()
-					rrnaIdxs = numpy.array([molIDs.index(id_) for id_ in rrnaIDs])
+					rrnaIdxs = np.array([molIDs.index(id_) for id_ in rrnaIDs])
 
 					processIdx = processes.index('Transcription')
 					compartmentIdx = compartments.index('c')
 
-					cls.rnaInitialProduction = numpy.zeros((len(rnaIdxs), nSims), float)
-					cls.rnaFinalProduction = numpy.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaInitialProduction = np.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaFinalProduction = np.zeros((len(rnaIdxs), nSims), float)
 
-					cls.rnaFinalCount = numpy.zeros((len(rnaIdxs), nSims), float)
+					cls.rnaFinalCount = np.zeros((len(rnaIdxs), nSims), float)
 
 					assignedIdxs = True
 
@@ -152,16 +152,14 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 		# Test for exponential NTP usage
 		ntpRatio = self.ntpFinalUsage/self.ntpInitialUsage
 
-		self.assertTrue(numpy.allclose(self.expectedRatio, ntpRatio, rtol = 0.05))
-
-
+		self.assertTrue(np.allclose(self.expectedRatio, ntpRatio, rtol = 0.05))
 
 
 	@noseAttrib.attr('largetest', 'modelfitting', 'transcription')
 	def test_rnaProduction(self):
 		# Test for exponential RNA production
 		rnaRatio = self.rnaFinalProduction.sum()/self.rnaInitialProduction.sum()
-		self.assertTrue(numpy.allclose(self.expectedRatio, rnaRatio, rtol = 0.05))
+		self.assertTrue(np.allclose(self.expectedRatio, rnaRatio, rtol = 0.05))
 
 		# Test for appropriate ratios of rRNA production
 		averageCounts = self.rnaFinalCount.mean(1)

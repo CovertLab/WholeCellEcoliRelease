@@ -3,7 +3,7 @@ import os
 import json
 import pkg_resources
 
-import numpy
+import numpy as np
 
 import wholecell.utils.fitter as wcFitter
 import wholecell.sim.simulation as wcSimulation
@@ -15,32 +15,32 @@ COMM = MPI.COMM_WORLD
 
 KB_PATH = pkg_resources.resource_filename('data','fixtures/KnowledgeBase.cPickle')
 
-def runSimulations():
-	infile = open('fixture_tmp.json', 'r')
-	fixture_opts = json.loads(infile.readline())
-	infile.close()
+def main():
+	fixtureOpts = json.load(open('fixture_tmp.json'))
 
-	LENGTH_SEC = fixture_opts['length_sec']
-	KB = cPickle.load(open(KB_PATH, "rb"))
+	# TODO: make splitting the option file more modular?
+	simOpts = fixtureOpts.copy()
+	simOpts.pop('nSeeds')
+	simOpts['logToDisk'] = True
+	simOpts['overwriteExistingFiles'] = True
+	simOpts['autoRun'] = True
 
-	N_SEEDS = fixture_opts['n_seeds']
+	N_SEEDS = fixtureOpts['nSeeds']
 	N_PROC = COMM.size # the number of processes
 	SEND_COUNTS = (
-		(N_SEEDS // N_PROC) * numpy.ones(N_PROC, dtype = int)
-		+ (numpy.arange(N_PROC, dtype =int) < N_SEEDS % N_PROC)
+		(N_SEEDS // N_PROC) * np.ones(N_PROC, dtype = int)
+		+ (np.arange(N_PROC, dtype =int) < N_SEEDS % N_PROC)
 		) # the number of seeds each process receives
-	DISPLACEMENTS = numpy.hstack([
-		numpy.zeros(1),
-		numpy.cumsum(SEND_COUNTS)[:-1]
+	DISPLACEMENTS = np.hstack([
+		np.zeros(1),
+		np.cumsum(SEND_COUNTS)[:-1]
 		]) # the starting position for each process's seeds
-
-	logDir = fixture_opts['fixture_dir']
 
 	##################################################
 	# MPI seed scatter logic
 	##################################################
-	mySeeds = numpy.zeros(SEND_COUNTS[COMM.rank]) # buffer for the seeds received
-	allSeeds = numpy.arange(N_SEEDS, dtype = float) # the list of seeds
+	mySeeds = np.zeros(SEND_COUNTS[COMM.rank]) # buffer for the seeds received
+	allSeeds = np.arange(N_SEEDS, dtype = float) # the list of seeds
 
 	COMM.Scatterv(
 		[allSeeds, tuple(SEND_COUNTS), tuple(DISPLACEMENTS), MPI.DOUBLE],
@@ -51,27 +51,13 @@ def runSimulations():
 	##################################################
 
 	for seed in mySeeds.astype('int'):
-		sim = wcSimulation.Simulation(fixture_opts['processes'], fixture_opts['free_molecules'])
-
-		sim.initialize(KB)
-
-		wcFitter.Fitter.FitSimulation(sim, KB)
-
-		sim.setOptions({"lengthSec":LENGTH_SEC, "seed":seed})
-
-		sim.loggerAdd(
-			wcDisk.Disk(
-				os.path.join(logDir, 'sim{}'.format(seed)),
-				True
-				)
+		simOpts['outputDir'] = os.path.join(
+			fixtureOpts['outputDir'], 'sim{}'.format(seed)
 			)
 
 		print 'Running simulation #{}'.format(seed)
-		sim.run()
+		sim = wcSimulation.Simulation(**simOpts)
 
-
-def main():
-	runSimulations()
 
 if __name__ == '__main__':
 	main()

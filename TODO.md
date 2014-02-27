@@ -25,8 +25,20 @@
 	( ) Partitioning unique instances of molecules
 	
 	( ) Chromosome modeling
+
+		(x) Create prototype of data model
+
+		( ) Create real state
+
+		( ) Use the state in a dynamic simulation
 	
 	( ) Move constants out of simulation and into KB. Make sure work flow goes KB --> fitter --> simulation. No backwards arrows!
+
+		( ) Move constants into KB
+
+		(x) Apply fitter to KB instead of the simulation
+
+	( ) Partitioning hierarchy
 
 (2) **KnowledgeBase**: At the beginning of the quarter we still needed to get a working KnowledgeBase that was not just a collection of CSV files. By the end of the quarter this will be a functioning entity.
 	
@@ -34,13 +46,17 @@
 	
 	(x) Generate MySQL database from CSV files
 	
-	( ) Load MySQL database into same Python object as before
+	(x) Load MySQL database into same Python object as before
 	
 	( ) Migrate KnoweldgeBase to its own repository
 	
 	( ) Get the web-interface up and running
 	
 	( ) Move constants out of simulation code to KB
+
+	( ) Finish validating the data in the KB
+
+	( ) Citations for stuff taken from Ecocyc
 
 (3) **Actual modeling/fitting**: Our model was sort of fit with the "core" biomass function from Feist but the metabolic model was literally just producing biomass with no FBA model behind it. By the end of the quarter we want to have a fit wild-type metabolic model with FBA implemented in the modeling framework.
 	
@@ -55,3 +71,5 @@
 	( ) Tweak WT biomass coefficients to match process demands
 	
 	( ) Implement full FBA model with WT biomass
+
+	( ) Change transcription/translation to actual transcription units

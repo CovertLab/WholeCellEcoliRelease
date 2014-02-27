@@ -10,7 +10,6 @@ Pseudorandom number generator state.
 @date: Created 1/31/2014
 """
 
-import numpy
 import tables
 
 import wholecell.states.state
@@ -42,7 +41,7 @@ class RandStream(wholecell.states.state.State):
 		self.value = self.randStream.state
 
 
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		stringLen = len(self.value[0])
 		arrayShape = self.value[1].shape
 
@@ -63,7 +62,8 @@ class RandStream(wholecell.states.state.State):
 			self.meta["id"],
 			d,
 			title = self.meta["name"],
-			filters = tables.Filters(complevel = 9, complib="zlib")
+			filters = tables.Filters(complevel = 9, complib="zlib"),
+			expectedrows = expectedRows
 			)
 
 

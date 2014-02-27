@@ -19,7 +19,7 @@ array and unique instances in a series of lists sharing a common index.
 
 import re
 
-import numpy
+import numpy as np
 import tables
 
 import wholecell.states.state as wcState
@@ -29,7 +29,7 @@ DEFAULT_FORM = ':mature' # TODO: reconcile "forms" concept
 
 ID_REGEX_PATTERN = "^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$"
 
-FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
+FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
 	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
 	0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
 	0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
@@ -94,9 +94,9 @@ class MoleculeCountsBase(object):
 	def _getIndices(self, ids):
 		nIds = len(ids)
 
-		flatIdxs = numpy.empty(nIds, int)
-		moleculeIdxs = numpy.empty(nIds, int)
-		compartmentIdxs = numpy.empty(nIds, int)
+		flatIdxs = np.empty(nIds, int)
+		moleculeIdxs = np.empty(nIds, int)
+		compartmentIdxs = np.empty(nIds, int)
 
 		for i, id_ in enumerate(ids):
 			match = re.match(ID_REGEX_PATTERN, id_)
@@ -122,8 +122,8 @@ class MoleculeCountsBase(object):
 
 			compartmentIdxs[i] = self._compartmentIndex[compartment]
 
-		flatIdxs = numpy.ravel_multi_index(
-			numpy.array([moleculeIdxs, compartmentIdxs]),
+		flatIdxs = np.ravel_multi_index(
+			np.array([moleculeIdxs, compartmentIdxs]),
 			(self._nMolIDs, self._nCompartments)
 			)
 
@@ -168,13 +168,13 @@ class CountsBulkView(object):
 
 	def countsBulkIs(self, counts):
 		if self._indices is None:
-			if type(counts) == numpy.ndarray and counts.ndim == 1:
-				counts = counts[:, numpy.newaxis] # fixes broadcasting from 1D arrays
+			if type(counts) == np.ndarray and counts.ndim == 1:
+				counts = counts[:, np.newaxis] # fixes broadcasting from 1D arrays
 
 			self._parent._countsBulk[:] = counts
 
 			# TODO: determine if there is a better solution for this
-			# TODO: consider filing a report for NumPy's broadcasting rules
+			# TODO: consider filing a report for np's broadcasting rules
 
 		else:
 			self._parent._countsBulk[self._indices] = counts
@@ -256,7 +256,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._typeLocalizations = {}
 
 		# Initialization and fitting attributes
-		self.feistCoreVals = FEIST_CORE_VALS.copy()
+		self.feistCoreVals = None
 		self.initialDryMass = INITIAL_DRY_MASS
 
 		self.fracInitFreeNTPs = 0.0015 # TOKB
@@ -264,8 +264,21 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		super(MoleculeCounts, self).__init__(*args, **kwargs)
 
+
 	def initialize(self, sim, kb):
 		super(MoleculeCounts, self).initialize(sim, kb)
+
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		# HACK
+
+		# kb does not yet have feist core vals!
+		if hasattr(kb, 'feistCoreVals'):
+			self.feistCoreVals = kb.feistCoreVals
+
+		else:
+			self.feistCoreVals = FEIST_CORE_VALS.copy()
+
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		# Because I'm not sure how we want to handle forms, and the names won't
 		# hash properly without them, I'm combining IDs and form values
@@ -294,24 +307,24 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._nCompartments = len(self._compartments)
 
 		# Masses
-		molMass = []
+		molMass = [] # TOKB
 
 		molMass += [x['mw7.2'] for x in kb.metabolites]
 		molMass += [x['mw'] for x in kb.rnas]*2
 		molMass += [x['mw'] for x in kb.proteins]*2
 
-		self._molMass = numpy.array(molMass, float)
+		self._molMass = np.array(molMass, float)
 
-		self._molMass[numpy.where(self._molMass < 0)] == 0
+		self._molMass[np.where(self._molMass < 0)] == 0
 
 		self._typeIdxs.update({
-			'metabolites':numpy.arange(len(kb.metabolites)),
-			'rnas':numpy.arange(2*len(kb.rnas))+len(kb.metabolites),
-			'proteins':numpy.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas),
-			'matureRnas':numpy.arange(len(kb.rnas))+len(kb.metabolites)+len(kb.rnas),
-			'matureProteins':numpy.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)+len(kb.proteins),
-			'nascentRnas':numpy.arange(len(kb.rnas))+len(kb.metabolites),
-			'nascentProteins':numpy.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
+			'metabolites':np.arange(len(kb.metabolites)),
+			'rnas':np.arange(2*len(kb.rnas))+len(kb.metabolites),
+			'proteins':np.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas),
+			'matureRnas':np.arange(len(kb.rnas))+len(kb.metabolites)+len(kb.rnas),
+			'matureProteins':np.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)+len(kb.proteins),
+			'nascentRnas':np.arange(len(kb.rnas))+len(kb.metabolites),
+			'nascentProteins':np.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
 			})
 
 		self._typeIdxs['water'] = self._molIDs.index('H2O')
@@ -324,28 +337,39 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# TODO: add unique attributes to KB and test
 		# TODO: figure out what this block is really doing/refactor
-		# for mol in kb.molecules:
-		# 	if mol["uniqueAttrs"] is not None:
-		# 		self._uniqueDict.append([dict(dict(zip(mol["uniqueAttrs"] + ["objects"], [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]))) for x in kb.compartments])
-
-		# 	else:
-		# 		self._uniqueDict.append([{} for x in kb.compartments])
-
 		for mol in self._molIDs:
-			self._uniqueDict.append([{} for x in self._compartments])
+			# mol['uniqueAttrs'] = None
+			uniqueAttrs = None
+
+			# if mol["uniqueAttrs"] is not None:
+			if uniqueAttrs is not None:
+				self._uniqueDict.append([ # list of lists (1 per molecule)
+					dict( # dicts of attributes (1 per compartment)
+						zip( # attr:[] pairs (1 entr per attribute + 1 entry for 'objects')
+							# mol["uniqueAttrs"] + ["objects"],
+							# [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]
+							uniqueAttrs + ["objects"],
+							[[] for x in xrange(len(uniqueAttrs) + 1)]
+							)
+						)
+					for x in kb.compartments
+					])
+
+			else:
+				self._uniqueDict.append([{} for x in self._compartments])
 
 		# Values needed for calcInitialConditions
-		self.rnaLens = numpy.array(map(lambda rna: numpy.sum(rna["ntCount"]), kb.rnas)) # TODO: get rid of 'map' function
-		self.rnaExp = numpy.array([x["expression"] for x in kb.rnas])
-		self.rnaExp /= numpy.sum(self.rnaExp)
+		self.rnaLens = np.array([np.sum(rna["ntCount"]) for rna in kb.rnas])
+		self.rnaExp = np.array([x["expression"] for x in kb.rnas])
+		self.rnaExp /= np.sum(self.rnaExp)
 
 		mons = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-		self.monLens = numpy.array(map(lambda mon: numpy.sum(mon["aaCount"]), mons))
+		self.monLens = np.array([np.sum(mon["aaCount"]) for mon in mons])
 		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
-		self.monExp = numpy.array([rnaIdToExp[x["rnaId"]] for x in mons])
-		self.monExp /= numpy.sum(self.monExp)
+		self.monExp = np.array([rnaIdToExp[x["rnaId"]] for x in mons])
+		self.monExp /= np.sum(self.monExp)
 
-		self._typeIdxs['matureMonomers'] = numpy.array(self._getIndices([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1])
+		self._typeIdxs['matureMonomers'] = np.array(self._getIndices([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1])
 
 
 	def calcInitialConditions(self):
@@ -370,7 +394,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Set metabolite counts from Feist core
 		feistCore.countsBulkIs(
-			numpy.round(
+			np.round(
 				self.feistCoreVals * 1e-3 * Constants.nAvogadro * self.initialDryMass
 				)
 			)
@@ -381,17 +405,17 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			) # TOKB
 
 		# Set RNA counts from expression levels
-		ntpsToPolym = numpy.round(
-			(1 - self.fracInitFreeNTPs) * numpy.sum(ntps.countsBulk())
+		ntpsToPolym = np.round(
+			(1 - self.fracInitFreeNTPs) * np.sum(ntps.countsBulk())
 			)
 
 		rnaCnts = self.randStream.mnrnd(
-			numpy.round(ntpsToPolym / (numpy.dot(self.rnaExp, self.rnaLens))),
+			np.round(ntpsToPolym / (np.dot(self.rnaExp, self.rnaLens))),
 			self.rnaExp
 			)
 
 		ntps.countsBulkIs(
-			numpy.round(
+			np.round(
 				self.fracInitFreeNTPs * ntps.countsBulk()
 				)
 			)
@@ -399,17 +423,17 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		matureRna.countsBulkIs(rnaCnts)
 
 		# Set protein counts from expression levels
-		aasToPolym = numpy.round(
-			(1 - self.fracInitFreeAAs) * numpy.sum(aas.countsBulk())
+		aasToPolym = np.round(
+			(1 - self.fracInitFreeAAs) * np.sum(aas.countsBulk())
 			)
 
 		monCnts = self.randStream.mnrnd(
-			numpy.round(aasToPolym / (numpy.dot(self.monExp, self.monLens))),
+			np.round(aasToPolym / (np.dot(self.monExp, self.monLens))),
 			self.monExp
 			)
 
 		aas.countsBulkIs(
-			numpy.round(
+			np.round(
 				self.fracInitFreeAAs * aas.countsBulk()
 				)
 			)
@@ -420,71 +444,40 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 	def allocate(self):
 		super(MoleculeCounts, self).allocate() # Allocates partitions
 
-		self._countsBulk = numpy.zeros((self._nMolIDs, self._nCompartments), float)
-		self._massSingle = numpy.tile(self._molMass, [self._nCompartments, 1]).transpose() # Repeat for each compartment
+		self._countsBulk = np.zeros((self._nMolIDs, self._nCompartments), float)
+		self._massSingle = np.tile(self._molMass, [self._nCompartments, 1]).transpose() # Repeat for each compartment
 
-		self._countsUnique = numpy.zeros_like(self._countsBulk)
-		self._dmass = numpy.zeros_like(self._countsBulk)
+		self._countsUnique = np.zeros_like(self._countsBulk)
+		self._dmass = np.zeros_like(self._countsBulk)
 
-		self._countsBulkRequested = numpy.zeros_like(self._countsBulk)
-		self._countsBulkPartitioned = numpy.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
-		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
+		self._countsBulkRequested = np.zeros_like(self._countsBulk)
+		self._countsBulkPartitioned = np.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
+		self._countsBulkUnpartitioned = np.zeros_like(self._countsBulk)
 
-		self._countsBulkRequested = numpy.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
-		self._countsBulkPartitioned = numpy.zeros_like(self._countsBulkRequested)
-		self._countsBulkReturned = numpy.zeros_like(self._countsBulkRequested)
-		self._countsBulkUnpartitioned = numpy.zeros_like(self._countsBulk)
+		self._countsBulkRequested = np.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
+		self._countsBulkPartitioned = np.zeros_like(self._countsBulkRequested)
+		self._countsBulkReturned = np.zeros_like(self._countsBulkRequested)
+		self._countsBulkUnpartitioned = np.zeros_like(self._countsBulk)
 		
 
 	# Partitioning
 
-	def setPartition(self, process, reqMols, isReqAbs = False):
-		# TODO: warning for adding a partition after allocation
-		partition = self.partitions[process]
-		
-		# TODO: move this to partition constructor
-		partition.isReqAbs = isReqAbs
-
-		mapping, iMolecule = self._getIndices(reqMols)[:2]
-
-		if len(set(mapping)) < len(mapping):
-			raise Exception('Partition request cannot contain duplicate IDs')
-
-		partition.mapping = mapping
-
-		partition.backMapping = {val:i for i, val in enumerate(mapping)}
-
-		partition._molIDs = [self._molIDs[i] for i in iMolecule]
-		partition._molIDIndex = {wid:i for i, wid in enumerate(partition._molIDs)}
-
-		# TODO: determine how compartments should be handled here...
-		partition._compartments = ["merged"] # "merged"
-		partition._compartmentIndex = {"merged":0} # "merged"
-
-		partition._nMolIDs = len(partition._molIDs)
-		partition._nCompartments = len(partition._compartments)
-
-		return partition
-
-
-	# TODO: get rid of prepartition
-	def prepartition(self):
-		# Clear out the existing partitions in preparation for the requests
-		for partition in self.partitions.viewvalues():
-			partition.countsBulkIs(0)
-
-
 	def partition(self):
 		if self.partitions:
 			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
+
+			# Clear out the existing partitions in preparation for the requests
+			for partition in self.partitions.viewvalues():
+				partition.countsBulkIs(0)
+
 			
 			# Calculate and store requests
-			for iPartition, (process, partition) in enumerate(self.partitions.viewitems()):
+			for iPartition, partition in enumerate(self.partitions.viewvalues()):
 				# Call request function and record requests
 				if partition.mapping is not None:
-					self._countsBulkRequested[..., iPartition].flat[partition.mapping] = numpy.maximum(0, partition.request().flatten())
+					self._countsBulkRequested[..., iPartition].flat[partition.mapping] = np.maximum(0, partition.request().flatten())
 
-			isRequestAbsolute = numpy.array([x.isReqAbs for x in self.partitions.viewvalues()], bool)
+			isRequestAbsolute = np.array([x.isReqAbs for x in self.partitions.viewvalues()], bool)
 
 			calculatePartition(isRequestAbsolute, self._countsBulkRequested, self._countsBulk, self._countsBulkPartitioned)
 
@@ -496,10 +489,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 						)
 			
 			# Record unpartitioned counts for later merging
-			self._countsBulkUnpartitioned = self._countsBulk - numpy.sum(self._countsBulkPartitioned, axis = 2)
+			self._countsBulkUnpartitioned = self._countsBulk - np.sum(self._countsBulkPartitioned, axis = 2)
 
 		else:
 			self._countsBulkUnpartitioned = self._countsBulk
+
 
 	def merge(self):
 		self._countsBulk = self._countsBulkUnpartitioned
@@ -522,10 +516,10 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			raise Exception('Mass for unique instances not implemented!')
 
 		if typeKey is None:
-			return numpy.dot(self._molMass, self._countsBulk)
+			return np.dot(self._molMass, self._countsBulk)
 
 		else: # Mainly a way to calculate the mass of water in the cell - JM
-			return numpy.dot(
+			return np.dot(
 				self._molMass[self._typeIdxs[typeKey]],
 				self._countsBulk[self._typeIdxs[typeKey], :]
 				)
@@ -537,7 +531,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		return self._molMass[self._getIndices([id_ + '[c]' for id_ in ids])[1]]
 
 
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		countsShape = self._countsBulk.shape
 		partitionsShape = self._countsBulkRequested.shape
 
@@ -560,7 +554,8 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			self.meta["id"],
 			d,
 			title = self.meta["name"],
-			filters = tables.Filters(complevel = 9, complib="zlib")
+			filters = tables.Filters(complevel = 9, complib="zlib"),
+			expectedrows = expectedRows
 			)
 	
 		groupNames = h5file.createGroup(h5file.root,
@@ -568,7 +563,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
 		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
-		h5file.createArray(groupNames, 'processes', [process.meta['id'] for process in self.partitions.viewkeys()])
+		h5file.createArray(groupNames, 'processes', [process for process in self.partitions.viewkeys()])
 
 		groupIdxs = h5file.createGroup(h5file.root,
 			'indexes', 'Indexes for various groups of molecules')
@@ -628,8 +623,31 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		self._uniqueDict = self.state()._uniqueDict
 
 
+	def initialize(self, reqMols, isReqAbs = False):
+		self.isReqAbs = isReqAbs
+
+		mapping, iMolecule = self.state()._getIndices(reqMols)[:2]
+
+		if len(set(mapping)) < len(mapping):
+			raise Exception('Partition request cannot contain duplicate IDs')
+
+		self.mapping = mapping
+
+		self.backMapping = {val:i for i, val in enumerate(mapping)}
+
+		self._molIDs = [self.state()._molIDs[i] for i in iMolecule]
+		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
+
+		# TODO: determine how compartments should be handled here...
+		self._compartments = ["merged"] # "merged"
+		self._compartmentIndex = {"merged":0} # "merged"
+
+		self._nMolIDs = len(self._molIDs)
+		self._nCompartments = len(self._compartments)
+
+
 	def allocate(self):
-		self._countsBulk = numpy.zeros((self._nMolIDs, self._nCompartments), float)
+		self._countsBulk = np.zeros((self._nMolIDs, self._nCompartments), float)
 
 
 	def request(self):
@@ -642,9 +660,9 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		# Handles flattened indexing
 		flatIdxs, moleculeIdxs, compartmentIdxs = self._state._getIndices(ids)
 
-		idxs = numpy.array([self.backMapping[i] for i in flatIdxs])
+		idxs = np.array([self.backMapping[i] for i in flatIdxs])
 
-		return idxs, idxs, numpy.zeros_like(idxs)
+		return idxs, idxs, np.zeros_like(idxs)
 
 
 def _uniqueInit(self, uniqueIdx):
@@ -833,33 +851,33 @@ class MoleculeUniqueMeta(type):
 		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
 		return newClass
 
-def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
 
-	requestsAbsolute = numpy.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
-	requestsRelative = numpy.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
+def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
+	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
+	requestsRelative = np.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
 
 	# TODO: Remove the warnings filter or move it elsewhere
 	# there may also be a way to avoid these warnings by only evaluating 
 	# division "sparsely", which should be faster anyway - JM
-	oldSettings = numpy.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+	oldSettings = np.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
 
-	scaleAbsolute = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-		numpy.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
-			numpy.minimum(countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
+	scaleAbsolute = np.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		np.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
+			np.minimum(countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
 		)
 
-	scaleRelative = numpy.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-		numpy.maximum(0, countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
+	scaleRelative = np.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		np.maximum(0, countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
 		)
 
 	scaleRelative[requestsRelative == 0] = 0 # nan handling?
 
-	numpy.seterr(**oldSettings) # Restore error handling to the previous state
+	np.seterr(**oldSettings) # Restore error handling to the previous state
 
 	# Compute allocations and assign counts to the partitions
-	for iPartition  in range(countsBulkPartitioned.shape[-1]):
+	for iPartition in range(countsBulkPartitioned.shape[-1]):
 		scale = scaleAbsolute if isRequestAbsolute[iPartition] else scaleRelative
-		allocation = numpy.floor(countsBulkRequested[..., iPartition] * scale)
+		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
 		countsBulkPartitioned[..., iPartition] = allocation
 
 

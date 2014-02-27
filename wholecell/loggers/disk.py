@@ -15,25 +15,33 @@ Also provides a function (load) for reading stored simulation data
 
 import os
 import time
+import json
+import shutil
+
 import tables
 
 import wholecell.loggers.logger
 
 # TODO: let loaded simulation resume logging in a copied file
 
+DEFAULT_LOG_FREQUENCY = 1
+
 class Disk(wholecell.loggers.logger.Logger):
 	""" Disk """
 
-	def __init__(self, outDir = None, allowOverwrite = False):
+	def __init__(self, outDir = None, allowOverwrite = False, logEvery = None):
 		self.outDir = outDir
 		self.allowOverwrite = allowOverwrite
-
+		self.logEvery = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
 
 		self.stateFiles = {}
 		self.mainFile = None
+		self.logStep = None
 
 
 	def initialize(self, sim):
+		self.logStep = 0
+
 		if self.outDir is None:
 			self.outDir = os.path.join('out', self.currentTimeAsDir())
 		
@@ -63,9 +71,22 @@ class Disk(wholecell.loggers.logger.Logger):
 		# Save initial state
 		self.copyDataFromStates(sim)
 
+		# Save simulation init options
+		json.dump(
+			sim.options(),
+			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
+			sort_keys = True, indent=4, separators=(',', ': ')
+			)
+
+		# Save KB
+		shutil.copy(sim.kbPath, self.outDir)
+
 
 	def append(self, sim):
-		self.copyDataFromStates(sim)
+		self.logStep += 1
+
+		if self.logStep % self.logEvery == 0:
+			self.copyDataFromStates(sim)
 
 
 	def finalize(self, sim):
@@ -81,7 +102,9 @@ class Disk(wholecell.loggers.logger.Logger):
 
 
 	def createTables(self, sim):
-		sim.pytablesCreate(self.mainFile)
+		expectedRows = int(sim.lengthSec/sim.timeStepSec)
+
+		sim.pytablesCreate(self.mainFile, expectedRows)
 
 		for stateName, state in sim.states.viewitems():
 			stateFile = tables.open_file(
@@ -90,7 +113,7 @@ class Disk(wholecell.loggers.logger.Logger):
 				title = stateName + " state file"
 				)
 
-			state.pytablesCreate(stateFile)
+			state.pytablesCreate(stateFile, expectedRows)
 
 			self.stateFiles[state] = stateFile
 

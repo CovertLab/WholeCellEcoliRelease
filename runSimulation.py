@@ -1,85 +1,40 @@
 #!/usr/bin/env python
 
-"""
-runSimulation
-Runs and logs whole-cell simulation
+'''
+runSimulation.py
 
-Example:
->>> from runSimulation import *
->>> runSimulation()
+Runs a simulation.
 
-Example:
-~/parWholeCellPy$ python runSimulation.py
+Run a simulation using default parameters:
+~/wcEcoli$ python runSimulation.py
 
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/10/2013
-"""
+Run a simulation using a provided configuration (JSON) file:
+~/wcEcoli$ python runSimulation.py simParameters.json
 
-import os
-import cPickle
+'''
 
-import wholecell.loggers.disk
-import wholecell.loggers.shell
 import wholecell.sim.simulation
-import wholecell.reconstruction.knowledgebase
-import wholecell.utils.fitter
+import sys
 
-import weakref
+DEFAULT_SIM = dict(
+	seed = 10,
+	lengthSec = 100
+	)
 
-KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
+def main():
+	# TODO: argument parsing
 
-def runSimulation(reconstructKB = False, fitSimulation = True,
-		useShellLogger = True, useDiskLogger = False, outDir = None,
-		simOpts = None):
+	nArgs = len(sys.argv)
 
-	# Instantiate knowledge base
-	if reconstructKB or not os.path.exists(KB_PATH):
-		kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
-			dataFileDir = "data/parsed", seqFileName = "data/raw/sequence.txt"
-			)
+	if nArgs == 1:
+		# Use default parameters
+		sim = wholecell.sim.simulation.Simulation(**DEFAULT_SIM)
 
-		cPickle.dump(kb, open(KB_PATH, "wb"),
-			protocol = cPickle.HIGHEST_PROTOCOL)
+	elif nArgs == 2:
+		# Attempt to parse from a json file
+		sim = wholecell.sim.simulation.Simulation.initFromFile(sys.argv[1])
 
-	else:
-		kb = cPickle.load(open(KB_PATH, "rb"))
-
-	kbWeakRef = weakref.ref(kb)
-
-	# Set up simulation
-	sim = wholecell.sim.simulation.Simulation()
-
-	sim.initialize(kb)
-
-	if simOpts:
-		sim.setOptions(simOpts)
-
-	if fitSimulation:
-		wholecell.utils.fitter.Fitter.FitSimulation(sim, kb)
-
-	del kb
-
-	assert kbWeakRef() is None, 'Failed to release knowledge base from memory.'
-
-	# Instantiate loggers
-	if useShellLogger:
-		sim.loggerAdd(wholecell.loggers.shell.Shell())
-
-	if useDiskLogger:
-		sim.loggerAdd(
-			wholecell.loggers.disk.Disk(outDir = outDir)
-			)
-
-	# Run simulation
 	sim.run()
 
 if __name__ == '__main__':
-	runSimulation(
-		simOpts = {
-			'seed':10,
-			'lengthSec':100
-			},
-		fitSimulation = True,
-		useDiskLogger = False,
-		)
+	main()

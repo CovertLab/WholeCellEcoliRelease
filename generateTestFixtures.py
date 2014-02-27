@@ -4,10 +4,6 @@
 generateTestFixtures
 Generates fixtures for whole-cell tests
 
-Example:
->>> from generateTestFixtures import *
->>> generateTestFixtures()
-
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/5/2013
@@ -16,16 +12,10 @@ Example:
 import os
 import cPickle
 
-# We need the following two methods so that we can pickle instancemethods
-# Also need the copy_reg.pickle() line in generateTestFixtures()
-# Borrowed from: http://mail.python.org/pipermail/python-list/2006-October/367078.html
-# (Thanks Steven Bethard!)
+import wholecell.reconstruction.knowledgebase
+import wholecell.sim.simulation
 
-def generateTestFixtures():
-	import wholecell.reconstruction.knowledgebase
-	import wholecell.sim.simulation
-	import wholecell.utils.fitter
-
+def main():
 	# Create output directory
 	outDir = "data/fixtures"
 	if not os.path.exists(outDir):
@@ -36,11 +26,11 @@ def generateTestFixtures():
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 	# Construct simulation
-	sim = wholecell.sim.simulation.Simulation()
-	sim.initialize(kb)
-	sim.setOptions({"seed": 1})
-	wholecell.utils.fitter.Fitter.FitSimulation(sim, kb)
+	sim = wholecell.sim.simulation.Simulation(
+		seed = 1
+		)
+
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
-	generateTestFixtures()
+	main()

@@ -12,8 +12,6 @@ State variable base class. Defines the interface states expose to the simulation
 
 from collections import OrderedDict
 
-import numpy
-
 class State(object):
 	""" State """
 
@@ -37,7 +35,7 @@ class State(object):
 
 		if self.partitionClass is not None:
 			for process in sim.processes.viewvalues():
-				self.partitions[process] = self.partitionClass(self, process)
+				self.partitions[process.meta['id']] = self.partitionClass(self, process)
 
 	# Allocate memory
 	def allocate(self):
@@ -53,9 +51,6 @@ class State(object):
 	def setPartition(self):
 		pass
 
-	def prepartition(self):
-		pass
-
 	def partition(self):
 		pass
 
@@ -65,7 +60,7 @@ class State(object):
 
 	# Saving and loading
 
-	def pytablesCreate(self, h5file):
+	def pytablesCreate(self, h5file, expectedRows):
 		pass
 
 	def pytablesAppend(self, h5file):
