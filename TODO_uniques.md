@@ -28,11 +28,15 @@
 **Paritioning**
  * trivial partitioning (only one process requests)
  * deferred partitioning (handling by other states)
+  * needs a new state
  * request collision handling
+  * needs a good algorithm
 
 **Disk**
  * table creation
+  * finished
  * table appending
+  * finished
  * table loading
 
 **Misc**
