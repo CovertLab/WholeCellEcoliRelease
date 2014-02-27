@@ -17,8 +17,11 @@ FRACTION_EXTEND_ENTRIES = 0.1 # fractional rate to increase number of entries in
 DEFAULT_ATTRIBUTES = { # attributes for local use by the state
 	'_isActive':'bool', # whether the row is an active entry
 	'_partitionedByOtherState':'bool', # whether the molecule is partitioned by a different state
+	'_time':'uint64', # current time (important for saving)
 	# '_massDifference':'float64' # dynamic mass difference
 	}
+
+SAVED_DEFAULT_ATTRIBUTES = ['_partitionedByOtherState', '_time']
 
 QUERY_OPERATIONS = {
 	'>':np.greater,
@@ -27,6 +30,12 @@ QUERY_OPERATIONS = {
 	'<=':np.less_equal,
 	'==':np.equal,
 	'!=':np.not_equal
+	}
+
+PYTABLES_TYPES = {
+	'bool':tables.BoolCol,
+	'uint32':tables.UInt32Col,
+	'uint64':tables.UInt64Col
 	}
 
 class UniqueMoleculesContainer(object):
@@ -38,7 +47,8 @@ class UniqueMoleculesContainer(object):
 	and partitions.
 	'''
 
-	def __init__(self, attributes):
+	def __init__(self, moleculeName, attributes):
+		self._moleculeName = moleculeName
 		self._attributes = attributes
 		self._queries = []
 
@@ -46,10 +56,15 @@ class UniqueMoleculesContainer(object):
 		self._molecules = np.zeros(
 			0, # start out empty
 			dtype = [
-				(attributeName, attributeType)
-				for attributeName, attributeType in attributes.viewitems()
+				(attrName, attrType)
+				for attrName, attrType in attributes.viewitems()
 				]
 			)
+
+		# Record which attributes are saved
+		self._savedAttributes = attributes.keys()
+		self._savedAttributes.remove('_isActive')
+		self._tableName = self._moleculeName.replace(' ', '_')
 
 		# TODO: alternate constructor for copying to partitions
 
@@ -59,13 +74,25 @@ class UniqueMoleculesContainer(object):
 
 		self._molecules['_isActive'][indexes] = True
 
-		for attribute, attrValue in moleculeAttributes.viewitems():
+		for attrName, attrValue in moleculeAttributes.viewitems():
 			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
-			self._molecules[attribute][indexes] = attrValue
+			self._molecules[attrName][indexes] = attrValue
+
+		return self.molecules(indexes)
 
 
 	def moleculeNew(self, **moleculeAttributes):
-		self.moleculesNew(1, **moleculeAttributes)
+		(molecule,) = self.moleculesNew(1, **moleculeAttributes) # NOTE: tuple unpacking
+
+		return molecule
+
+
+	def moleculesDel(self, molecules):
+		self._clearEntries([molecule._index for molecule in molecules])
+
+
+	def moleculeDel(self, molecule):
+		self._clearEntries(molecule._index)
 
 
 	def _getFreeIndexes(self, nMolecules):
@@ -104,10 +131,10 @@ class UniqueMoleculesContainer(object):
 			np.logical_and,
 			(
 				QUERY_OPERATIONS[operator](
-					self._molecules[attribute],
+					self._molecules[attrName],
 					queryValue
 					)
-				for attribute, (operator, queryValue) in operations.viewitems()
+				for attrName, (operator, queryValue) in operations.viewitems()
 			)
 		)
 
@@ -126,13 +153,40 @@ class UniqueMoleculesContainer(object):
 
 
 	def molecules(self, indexes = None):
+		# NOTE: "indexes" optional argument is largely for internal use; processes should use queries
 		if indexes is None:
 			indexes = np.where(self._molecules['_isActive'])[0]
 
 		return {_Molecule(self, index) for index in indexes}
 
 
-	# TODO: pytable create/save/load
+	def pytablesCreate(self, h5file):
+		# Create table
+		h5file.create_table(
+			h5file.root,
+			self._tableName,
+			self._molecules[self._savedAttributes].dtype,
+			title = self._tableName,
+			filters = tables.Filters(complevel = 9, complib = 'zlib')
+			)
+
+
+	def pytablesAppend(self, h5file, time):
+		# Unfortunately this field *only* gets updated when appending, but 
+		# it's not actually all that useful elsewhere
+		self._molecules['_time'] = time
+
+		t = h5file.get_node('/', self._tableName)
+
+		entries = self._molecules[self.evaluateQuery()][self._savedAttributes]
+
+		t.append(entries)
+
+		t.flush()
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		raise NotImplementedError() # TODO
 
 
 class _Query(object):
@@ -220,7 +274,7 @@ class UniqueMolecules(wcState.State):
 			attributes.update(DEFAULT_ATTRIBUTES)
 
 		self._containers = {
-			moleculeName:UniqueMoleculesContainer(attributes)
+			moleculeName:UniqueMoleculesContainer(moleculeName, attributes)
 			for moleculeName, attributes in moleculeAttributes.viewitems() # add default attrs here?
 			}
 
@@ -236,29 +290,32 @@ class UniqueMolecules(wcState.State):
 			chromosomeLocation = 50
 			)
 
+		# Run assertions
+		rnaPolyContainer = self._containers['RNA polymerase']
+
 		# Check the number of active entries
-		activeEntries = self._containers['RNA polymerase']._molecules['_isActive']
+		activeEntries = rnaPolyContainer._molecules['_isActive']
 		assert activeEntries.sum() == 20
 
 		# Check that the active entries have the correct attribute value
-		assert (self._containers['RNA polymerase']._molecules['boundToChromosome'][activeEntries] == True).all()
-		assert (self._containers['RNA polymerase']._molecules['chromosomeLocation'][activeEntries] == 50).all()
+		assert (rnaPolyContainer._molecules['boundToChromosome'][activeEntries] == True).all()
+		assert (rnaPolyContainer._molecules['chromosomeLocation'][activeEntries] == 50).all()
 
 		# Remove a few polymerases
-		self._containers['RNA polymerase']._clearEntries(np.arange(5))
+		rnaPolyContainer._clearEntries(np.arange(5))
 
 		# Check that the number of entries has decreased
-		activeEntries = self._containers['RNA polymerase']._molecules['_isActive']
+		activeEntries = rnaPolyContainer._molecules['_isActive']
 		assert activeEntries.sum() == 20 - 5
 
 		# Raise a query
-		active = self._containers['RNA polymerase'].evaluateQuery()
-		boundToChromosome = self._containers['RNA polymerase'].evaluateQuery(boundToChromosome = ('==', True))
-		multipleConditions = self._containers['RNA polymerase'].evaluateQuery(
+		active = rnaPolyContainer.evaluateQuery()
+		boundToChromosome = rnaPolyContainer.evaluateQuery(boundToChromosome = ('==', True))
+		multipleConditions = rnaPolyContainer.evaluateQuery(
 			boundToChromosome = ('==', True),
 			chromosomeLocation = ('>', 0)
 			)
-		notTrue = self._containers['RNA polymerase'].evaluateQuery(
+		notTrue = rnaPolyContainer.evaluateQuery(
 			boundToChromosome = ('==', False),
 			chromosomeLocation = ('>', 0)
 			)
@@ -270,16 +327,16 @@ class UniqueMolecules(wcState.State):
 		assert notTrue.sum() == 0
 
 		# Add a query
-		boundToChromosome = self._containers['RNA polymerase'].queryNew(boundToChromosome = ('==', True))
+		boundToChromosome = rnaPolyContainer.queryNew(boundToChromosome = ('==', True))
 
 		# Evaluate queries and test
-		self._containers['RNA polymerase'].updateQueries()
+		rnaPolyContainer.updateQueries()
 
 		assert len(boundToChromosome.molecules()) == 15
 
 		# Modify, update query, and assert
-		self._containers['RNA polymerase']._clearEntries(np.arange(10))
-		self._containers['RNA polymerase'].updateQueries()
+		rnaPolyContainer._clearEntries(np.arange(10))
+		rnaPolyContainer.updateQueries()
 
 		assert len(boundToChromosome.molecules()) == 10	
 
@@ -292,11 +349,38 @@ class UniqueMolecules(wcState.State):
 			molecule.attrIs('boundToChromosome', False)
 
 		# Update the query and assert the changes
-		self._containers['RNA polymerase'].updateQueries()
+		rnaPolyContainer.updateQueries()
 
 		assert not boundToChromosome.molecules() # should be empty
 
+		# Clear out the molecules
+		rnaPolyContainer.moleculesDel(rnaPolyContainer.molecules())
+
+		assert not rnaPolyContainer.molecules()
+
 		print 'All assertions passed.'
+
+		# Add more molecules, for saving
+		rnaPolyContainer.moleculesNew(
+			20,
+			boundToChromosome = True, # just some example parameters
+			chromosomeLocation = 50
+			)
+
+
+	def pytablesCreate(self, h5file, expectedRows):
+		for container in self._containers.viewvalues():
+			container.pytablesCreate(h5file)
+
+
+	def pytablesAppend(self, h5file):
+		for container in self._containers.viewvalues():
+			container.pytablesAppend(h5file, self.time.value)
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		for container in self._containers.viewvalues():
+			container.pytablesLoad(h5file, timePoint)
 	
 	# TODO: partitioning
 
