@@ -1,6 +1,9 @@
 **Framework**
  * determine whether to split unique instances away from MoleculeCounts
   * agreed to separate the classes
+ * remove old unique instances code from class
+ * rename MoleculeCounts class and other references
+ * refactor class to be more in line with current needs (after all the other work is done)
 
 **Knowledge base**
  * types of attributes (simple numbers, object ID references, states)
