@@ -3,8 +3,7 @@
 """
 BulkMolecules.py
 
-State which represents for a class of molecules the bulk copy numbers as an 
-array and unique instances in a series of lists sharing a common index.
+State which represents for a class of molecules the bulk copy numbers.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -47,7 +46,7 @@ class BulkMoleculesBase(object):
 	BulkMoleculesBase
 
 	Base object for the BulkMolecules partition and state.  Manages indexing 
-	of molecules to support unique instances and bulk quantities.
+	of molecules to support bulk quantities.
 	'''
 
 	_nMolIDs = None
@@ -63,9 +62,6 @@ class BulkMoleculesBase(object):
 
 	_molIDs = None
 	_compartments = None
-
-	_uniqueDict = None
-
 
 	def molecule(self, id_):
 		molID, compIdx = self._getIndex(id_)[1:]
@@ -219,11 +215,9 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		self.meta = {
 			"id": "BulkMolecules",
 			"name": "Molecules Container",
-			"dynamics": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
+			"dynamics": ["_countsBulk"],
 			"units": {
 				"_countsBulk"   : "molecules",
-				# "_countsUnique" : "molecules",
-				# "_uniqueDict"	: "molecules"
 				}
 			}
 
@@ -232,12 +226,10 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 
 		# Attributes
 
-		self._countsUnique = None # Counts of molecules with unique properties
 
 		# Molecule mass
 		self._molMass = None    # Mass of a single bulk molecule
 		self._massSingle = None # Mass of a single bulk molecule, for each compartment
-		self._dmass = None      # Deviation from typical mass due to some unique property
 
 		# Object references
 		self._molecules = {}    # Molecule objects
@@ -664,33 +656,6 @@ class BulkMoleculesPartition(wcPartition.Partition, BulkMoleculesBase):
 		return idxs, idxs, np.zeros_like(idxs)
 
 
-def _uniqueInit(self, uniqueIdx):
-	# Default initialization method for _Molecule objects
-	self._uniqueIdx = uniqueIdx
-
-
-def _makeGetter(attr):
-	# Used to construct attribute getters for new _Molecules
-	def attrGetter(self):
-		molCont, uniqueIdx = self._container, self._uniqueIdx
-		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
-
-		return molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx]
-
-	return attrGetter
-
-
-def _makeSetter(attr):
-	# Used to construct attribute setters for new _Molecule objects
-	def attrSetter(self, newVal):
-		molCont, uniqueIdx = self._container, self._uniqueIdx
-		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
-
-		molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx] = newVal
-
-	return attrSetter
-
-
 class _Molecule(object):
 	uniqueClassRegistry = {}
 	def __init__(self, container, rowIdx, colIdx, wid):
@@ -750,22 +715,6 @@ class _Molecule(object):
 		# Decrements counts bulk by decVal
 		self.countBulkInc(-1 * decVal)
 
-	def countUnique(self):
-		# Returns unique count of molecule as a float
-		return self._container._countsUnique[self._rowIdx, self._colIdx]
-	
-	def dMassIs(self, newVal):
-		# Sets the value for dMass
-		self._container._dmass[self._rowIdx, self._colIdx] = newVal
-
-	def dMassInc(self, incVal):
-		# Increments dmass by incVal
-		self._container._dmass[self._rowIdx, self._colIdx] += incVal
-
-	def dMassDec(self, decVal):
-		# Decrements count of dmass by decVal
-		self.dMassInc(-1 * decVal)
-
 	def massSingle(self):
 		# Returns mass of single object
 		return self._container._massSingle[self._rowIdx, self._colIdx]
@@ -773,83 +722,6 @@ class _Molecule(object):
 	def massAll(self):
 		# Returns mass of all objects bulk and unique
 		return (self.countBulk() + self.countUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
-
-	def uniqueNew(self, attrs = None):
-		# Creates new unique object with attributes defined by attrs
-		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
-		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
-		
-		if not len(uniqueDict):
-			raise UniqueException('Attempting to create unique from object with no unique attributes!\n')
-
-		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
-			raise UniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
-
-		for attr in uniqueDict:
-			if attrs is not None and attr in attrs:
-				uniqueDict[attr].append(attrs[attr])
-			else:
-				uniqueDict[attr].append(None)
-
-		uniqueIdx = len(uniqueDict["objects"]) - 1
-		uniqueDict["objects"][uniqueIdx] = self._MoleculeUnique(uniqueIdx)
-		self._container._countsUnique[self._rowIdx, self._colIdx] += 1
-
-		return uniqueDict["objects"][uniqueIdx]
-
-	def uniquesWithAttrs(self, attrs = None):
-		# Returns list of objects with attributes specified in attrs
-		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
-		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
-
-		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
-			raise UniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
-
-		if attrs is None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
-			return uniqueDict["objects"][:]
-
-		L = []
-		for i in xrange(len(uniqueDict["objects"])):
-			addThis = True
-			for attr in attrs:
-				if uniqueDict[attr][i] != attrs[attr]:
-					addThis = False
-			if addThis:
-				L.append(uniqueDict["objects"][i])
-		return L
-
-	def uniqueDel(self, uniqueObj):
-		# Deletes unique object uniqueObj and decrements unique count
-		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
-		uniqueIdx = uniqueObj._uniqueIdx
-
-		if id(uniqueObj) != id(uniqueDict["objects"][uniqueIdx]):
-			raise UniqueException('Unique object to delete does not match row in unique table!\n')
-
-		for i in xrange(uniqueIdx + 1, len(uniqueDict["objects"])):
-			uniqueDict["objects"][i]._uniqueIdx -= 1
-		for attr in uniqueDict:
-			del uniqueDict[attr][uniqueIdx]
-		self._container._countsUnique[self._rowIdx, self._colIdx] -= 1			
-
-
-class UniqueException(Exception):
-	'''
-	UniqueException
-	'''
-
-
-class MoleculeUniqueMeta(type):
-	def __new__(cls, name, bases, attrs):
-		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
-
-		if '__init__' not in attrs:
-			attrs['__init__'] = _uniqueInit
-
-		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
-		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
-		return newClass
-
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
 	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
