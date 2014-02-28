@@ -14,10 +14,7 @@ import unittest
 
 import nose.plugins.attrib as noseAttrib
 
-import wholecell.utils.fitter as wcFitter
 import wholecell.sim.simulation as wcSimulation
-
-KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
 
 class Test_reducedSimulations(unittest.TestCase):
 
@@ -59,9 +56,9 @@ class Test_reducedSimulations(unittest.TestCase):
 
 		sim.run()
 
-		mc = sim.states['MoleculeCounts']
+		bulkMolecules = sim.states['BulkMolecules']
 
-		ntpView = mc.countsBulkViewNew(
+		ntpView = bulkMolecules.countsBulkViewNew(
 			["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
 			)
 
