@@ -2,7 +2,9 @@
  * determine whether to split unique instances away from MoleculeCounts
   * agreed to separate the classes
  * remove old unique instances code from class
+  * Nick is working on this
  * rename MoleculeCounts class and other references
+  * Nick is working on this
  * refactor class to be more in line with current needs (after all the other work is done)
 
 **Knowledge base**
@@ -27,6 +29,7 @@
 
 **Paritioning**
  * trivial partitioning (only one process requests)
+  * Nick is working on a process
  * deferred partitioning (handling by other states)
   * needs a new state
  * request collision handling
@@ -38,6 +41,7 @@
  * table appending
   * finished
  * table loading
+  * finished
 
 **Misc**
  * build actual Chromosome State

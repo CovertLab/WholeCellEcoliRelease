@@ -174,6 +174,8 @@ class UniqueMoleculesContainer(object):
 
 		self._queries.append(query)
 
+		# TODO: return an old query object if the query is the same
+
 		return query
 
 
@@ -241,7 +243,7 @@ class UniqueMoleculesContainer(object):
 	# TODO: compute mass
 	# TODO: move to new file
 	# TODO: implement molecule transfer between containers
-	# TODO: mark deleted molecules so the entries aren't overwritten in the current time step, preventing weird accessing errors
+	# TODO: __eq__ comparison for tests
 
 
 class _Query(object):
