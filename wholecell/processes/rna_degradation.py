@@ -50,17 +50,17 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		mc = sim.states['BulkCounts']
 
-		self.mcPartition.initialize(self._metaboliteIds + self._rnaIds + ["EG11259-MONOMER[c]"])
+		self.bulkCountsPartition.initialize(self._metaboliteIds + self._rnaIds + ["EG11259-MONOMER[c]"])
 
 		# Metabolites
-		self.mcPartition.metabolites = self.mcPartition.countsBulkViewNew(self._metaboliteIds)
+		self.bulkCountsPartition.metabolites = self.bulkCountsPartition.countsBulkViewNew(self._metaboliteIds)
 
-		self.mcPartition.nmps = self.mcPartition.countsBulkViewNew(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
-		self.mcPartition.h2oMol = self.mcPartition.molecule('H2O[c]')
-		self.mcPartition.hMol = self.mcPartition.molecule('H[c]')
+		self.bulkCountsPartition.nmps = self.bulkCountsPartition.countsBulkViewNew(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
+		self.bulkCountsPartition.h2oMol = self.bulkCountsPartition.molecule('H2O[c]')
+		self.bulkCountsPartition.hMol = self.bulkCountsPartition.molecule('H[c]')
 
 		# Rna
-		self.mcPartition.rnas = self.mcPartition.countsBulkViewNew(self._rnaIds)
+		self.bulkCountsPartition.rnas = self.bulkCountsPartition.countsBulkViewNew(self._rnaIds)
 
 		self.rnaView = mc.countsBulkViewNew(self._rnaIds)
 
@@ -74,32 +74,32 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Proteins
-		self.mcPartition.rnaseRMol = self.mcPartition.molecule('EG11259-MONOMER[c]')
+		self.bulkCountsPartition.rnaseRMol = self.bulkCountsPartition.molecule('EG11259-MONOMER[c]')
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Check if RNAse R expressed
-		if self.mcPartition.rnaseRMol.countBulk() == 0:
+		if self.bulkCountsPartition.rnaseRMol.countBulk() == 0:
 			return
 
 		# Degrade RNA
-		self.mcPartition.metabolites.countsBulkInc(
-			np.dot(self.rnaDegSMat, self.mcPartition.rnas.countsBulk())
+		self.bulkCountsPartition.metabolites.countsBulkInc(
+			np.dot(self.rnaDegSMat, self.bulkCountsPartition.rnas.countsBulk())
 			)
 
-		self.mcPartition.rnas.countsBulkIs(0)
+		self.bulkCountsPartition.rnas.countsBulkIs(0)
 
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 
 
 	def requestBulkCounts(self):
-		self.mcPartition.h2oMol.countBulkIs(
+		self.bulkCountsPartition.h2oMol.countBulkIs(
 			np.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
 			)
 		
-		self.mcPartition.rnas.countsBulkIs(
+		self.bulkCountsPartition.rnas.countsBulkIs(
 			self.randStream.poissrnd(self.rnaDegRates * self.rnaView.countsBulk() * self.timeStepSec)
 			)
 
-		self.mcPartition.rnaseRMol.countBulkInc(1)
+		self.bulkCountsPartition.rnaseRMol.countBulkInc(1)

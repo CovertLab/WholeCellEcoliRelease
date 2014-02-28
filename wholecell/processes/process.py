@@ -15,7 +15,7 @@ class Process(object):
 
 	# Partitions of state
 	# NOTE: as partitionable states are added, this will need to be expanded
-	mcPartition = None # partition of BulkCounts State
+	bulkCountsPartition = None # partition of BulkCounts State
 
 	# Constructor
 	def __init__(self):
@@ -32,7 +32,7 @@ class Process(object):
 	def initialize(self, sim, kb):
 		self.timeStepSec = sim.timeStepSec
 		self.randStream = sim.randStream
-		self.mcPartition = sim.states['BulkCounts'].partitions[self.meta['id']]
+		self.bulkCountsPartition = sim.states['BulkCounts'].partitions[self.meta['id']]
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):

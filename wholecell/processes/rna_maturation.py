@@ -33,20 +33,20 @@ class RnaMaturation(wholecell.processes.process.Process):
 		nascentRnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas]
 		matureRnaIds = [x["id"] + ":mature[c]" for x in kb.rnas]
 
-		self.mcPartition.initialize(nascentRnaIds + matureRnaIds)
+		self.bulkCountsPartition.initialize(nascentRnaIds + matureRnaIds)
 		
-		self.mcPartition.nascentRna = self.mcPartition.countsBulkViewNew(nascentRnaIds)
-		self.mcPartition.matureRna = self.mcPartition.countsBulkViewNew(matureRnaIds)
+		self.bulkCountsPartition.nascentRna = self.bulkCountsPartition.countsBulkViewNew(nascentRnaIds)
+		self.bulkCountsPartition.matureRna = self.bulkCountsPartition.countsBulkViewNew(matureRnaIds)
 
 
 	def requestBulkCounts(self):
-		self.mcPartition.nascentRna.countsBulkIs(1)
+		self.bulkCountsPartition.nascentRna.countsBulkIs(1)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.mcPartition.matureRna.countsBulkInc(
-			self.mcPartition.nascentRna.countsBulk()
+		self.bulkCountsPartition.matureRna.countsBulkInc(
+			self.bulkCountsPartition.nascentRna.countsBulk()
 			)
 
-		self.mcPartition.nascentRna.countsBulkIs(0)
+		self.bulkCountsPartition.nascentRna.countsBulkIs(0)
