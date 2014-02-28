@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-MoleculeCounts.py
+BulkCounts.py
 
 State which represents for a class of molecules the bulk copy numbers as an 
 array and unique instances in a series of lists sharing a common index.
@@ -42,11 +42,11 @@ FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
 INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
 
 # TODO: make a base class for bulk counts?
-class MoleculeCountsBase(object):
+class BulkCountsBase(object):
 	'''
-	MoleculeCountsBase
+	BulkCountsBase
 
-	Base object for the MoleculeCounts partition and state.  Manages indexing 
+	Base object for the BulkCounts partition and state.  Manages indexing 
 	of molecules to support unique instances and bulk quantities.
 	'''
 
@@ -146,7 +146,7 @@ class CountsBulkView(object):
 	'''
 	CountsBulkView
 
-	A "view" into a MoleculeCountsBase subclass's bulk counts.  This allows for 
+	A "view" into a BulkCountsBase subclass's bulk counts.  This allows for 
 	easy caching of access to and mutation of bulk quantities of molecules, 
 	which is helpful for certain calculations.
 	'''
@@ -191,11 +191,11 @@ class CountsBulkView(object):
 		self.countsBulkInc(-counts)
 
 
-class MoleculeCounts(wcState.State, MoleculeCountsBase):
+class BulkCounts(wcState.State, BulkCountsBase):
 	'''
-	MoleculeCounts
+	BulkCounts
 
-	State for MoleculeCounts.  Adds support for partitioning and 
+	State for BulkCounts.  Adds support for partitioning and 
 	initialization.
 	'''
 
@@ -217,7 +217,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
-			"id": "MoleculeCounts",
+			"id": "BulkCounts",
 			"name": "Molecules Container",
 			"dynamics": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
 			"units": {
@@ -249,7 +249,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkReturned = None			# Bulk quantity that the partition returned after evolveState
 		self._countsBulkUnpartitioned = None	# Bulk quantity that went unpartitioned
 
-		self.partitionClass = MoleculeCountsPartition
+		self.partitionClass = BulkCountsPartition
 
 		# Reference attributes
 		self._typeIdxs = {}
@@ -262,11 +262,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self.fracInitFreeNTPs = 0.0015 # TOKB
 		self.fracInitFreeAAs = 0.001 # TOKB
 
-		super(MoleculeCounts, self).__init__(*args, **kwargs)
+		super(BulkCounts, self).__init__(*args, **kwargs)
 
 
 	def initialize(self, sim, kb):
-		super(MoleculeCounts, self).initialize(sim, kb)
+		super(BulkCounts, self).initialize(sim, kb)
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK
@@ -442,7 +442,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def allocate(self):
-		super(MoleculeCounts, self).allocate() # Allocates partitions
+		super(BulkCounts, self).allocate() # Allocates partitions
 
 		self._countsBulk = np.zeros((self._nMolIDs, self._nCompartments), float)
 		self._massSingle = np.tile(self._molMass, [self._nCompartments, 1]).transpose() # Repeat for each compartment
@@ -600,11 +600,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkUnpartitioned[:] = entry['countsBulkUnpartitioned']
 
 
-class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
+class BulkCountsPartition(wcPartition.Partition, BulkCountsBase):
 	'''
-	MoleculeCountsPartition
+	BulkCountsPartition
 
-	Partition for MoleculeCounts.  Acts mostly as a container class, with some
+	Partition for BulkCounts.  Acts mostly as a container class, with some
 	methods for indexing and creating views.  Partitions act as containers for 
 	requests prior to partitioning, as well as containers for the counts that
 	are ultimately partitioned to the state.
@@ -616,7 +616,7 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	isReqAbs = False
 
 	def __init__(self, *args, **kwargs):
-		super(MoleculeCountsPartition, self).__init__(*args, **kwargs)
+		super(BulkCountsPartition, self).__init__(*args, **kwargs)
 		
 		# hack; uniques instances are unimplemented
 		self._molecules = {}
@@ -651,7 +651,7 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 
 
 	def request(self):
-		self._process.requestMoleculeCounts()
+		self._process.requestBulkCounts()
 
 		return self._countsBulk
 
@@ -695,7 +695,7 @@ def _makeSetter(attr):
 class _Molecule(object):
 	uniqueClassRegistry = {}
 	def __init__(self, container, rowIdx, colIdx, wid):
-		self._container = container # Parent MoleculeCounts object
+		self._container = container # Parent BulkCounts object
 		self._rowIdx = rowIdx
 		self._colIdx = colIdx
 		self._wid = wid

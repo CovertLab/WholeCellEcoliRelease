@@ -52,7 +52,7 @@ class Mass(wholecell.states.state.State):
 		}
 
 		# References to other states
-		self.moleculeCounts = None
+		self.bulkCounts = None
 		self.time = None
 
 		# Mass
@@ -72,7 +72,7 @@ class Mass(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(Mass, self).initialize(sim, kb)
 
-		self.moleculeCounts = sim.states["MoleculeCounts"]
+		self.bulkCounts = sim.states["BulkCounts"]
 		self.time = sim.states["Time"]
 
 
@@ -91,15 +91,13 @@ class Mass(wholecell.states.state.State):
 
 
 	def calculate(self):
-		mc = self.moleculeCounts
-
 		# Total
-		self.total = mc.massAll() / Constants.nAvogadro * 1e15
+		self.total = self.bulkCounts.massAll() / Constants.nAvogadro * 1e15
 
 		# Cell
-		self.metabolite = mc.massAll('metabolites') / Constants.nAvogadro * 1e15
-		self.rna        = mc.massAll('rnas')        / Constants.nAvogadro * 1e15
-		self.protein    = mc.massAll('proteins')    / Constants.nAvogadro * 1e15
+		self.metabolite = self.bulkCounts.massAll('metabolites') / Constants.nAvogadro * 1e15
+		self.rna        = self.bulkCounts.massAll('rnas')        / Constants.nAvogadro * 1e15
+		self.protein    = self.bulkCounts.massAll('proteins')    / Constants.nAvogadro * 1e15
 
 		cIdxs = np.array([
 							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
@@ -111,7 +109,7 @@ class Mass(wholecell.states.state.State):
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
-		self.cellDry[cIdxs] = self.cell[cIdxs] - mc.massAll('water')[cIdxs] / Constants.nAvogadro * 1e15
+		self.cellDry[cIdxs] = self.cell[cIdxs] - self.bulkCounts.massAll('water')[cIdxs] / Constants.nAvogadro * 1e15
 
 		self.growth = self.cell.sum() - oldMass
 

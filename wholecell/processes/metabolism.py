@@ -74,7 +74,7 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# self.mass = sim.states["Mass"]
-		mc = sim.states["MoleculeCounts"]
+		mc = sim.states["BulkCounts"]
 		self.time = sim.states["Time"]
 
 		bioIds = []
@@ -122,7 +122,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.initialDryMass = 2.8e-13 / 1.36 # grams # TOKB
 
 	# Calculate needed metabolites
-	def requestMoleculeCounts(self):
+	def requestBulkCounts(self):
 		self.mcPartition.countsBulkIs(1)
 
 		self.mcPartition.ntps.countsBulkIs(0)

@@ -28,7 +28,7 @@ class RnaMaturation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(RnaMaturation, self).initialize(sim, kb)
 
-		mc = sim.states['MoleculeCounts']
+		mc = sim.states['BulkCounts']
 
 		nascentRnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas]
 		matureRnaIds = [x["id"] + ":mature[c]" for x in kb.rnas]
@@ -39,7 +39,7 @@ class RnaMaturation(wholecell.processes.process.Process):
 		self.mcPartition.matureRna = self.mcPartition.countsBulkViewNew(matureRnaIds)
 
 
-	def requestMoleculeCounts(self):
+	def requestBulkCounts(self):
 		self.mcPartition.nascentRna.countsBulkIs(1)
 
 

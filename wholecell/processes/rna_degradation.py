@@ -48,7 +48,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self._rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas] + [x["id"] + "[c]" for x in kb.rnas]
 
-		mc = sim.states['MoleculeCounts']
+		mc = sim.states['BulkCounts']
 
 		self.mcPartition.initialize(self._metaboliteIds + self._rnaIds + ["EG11259-MONOMER[c]"])
 
@@ -93,7 +93,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
 
 
-	def requestMoleculeCounts(self):
+	def requestBulkCounts(self):
 		self.mcPartition.h2oMol.countBulkIs(
 			np.dot(self.rnaLens, self.rnaDegRates * self.rnaView.countsBulk()) * self.timeStepSec
 			)

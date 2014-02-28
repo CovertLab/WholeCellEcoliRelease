@@ -29,7 +29,7 @@ class ProteinMaturation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ProteinMaturation, self).initialize(sim, kb)
 
-		mc = sim.states["MoleculeCounts"]
+		mc = sim.states["BulkCounts"]
 
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0]
 
@@ -45,7 +45,7 @@ class ProteinMaturation(wholecell.processes.process.Process):
 			matureMonomerIds)
 
 
-	def requestMoleculeCounts(self):
+	def requestBulkCounts(self):
 		self.mcPartition.nascentMonomers.countsBulkIs(1)
 
 

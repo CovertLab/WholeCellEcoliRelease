@@ -42,7 +42,7 @@ class Transcription(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Transcription, self).initialize(sim, kb)
 
-		mc = sim.states["MoleculeCounts"]
+		mc = sim.states["BulkCounts"]
 
 		rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas]
 
@@ -71,7 +71,7 @@ class Transcription(wholecell.processes.process.Process):
 		self.rnaSynthProb /= np.sum(self.rnaSynthProb)
 
 		# Enzymes
-		# self.enzyme = sim.states["MoleculeCounts"].addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
+		# self.enzyme = sim.states["BulkCounts"].addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
 		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX[c]"])[0]
 		self.mcPartition.enzymes = self.mcPartition.countsBulkViewNew(enzIds)
 		self.mcPartition.rpoAMol = self.mcPartition.molecule('EG10893-MONOMER[c]')
@@ -85,7 +85,7 @@ class Transcription(wholecell.processes.process.Process):
 		self.rpoDMol = mc.molecule('RPOD-MONOMER[c]')
 
 
-	def requestMoleculeCounts(self):
+	def requestBulkCounts(self):
 		self.mcPartition.ntps.countsBulkIs(
 			np.min([
 				calcRnaps(

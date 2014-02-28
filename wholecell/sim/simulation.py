@@ -22,7 +22,7 @@ DEFAULT_PROCESSES = [
 	'Translation',
 	] # TOKB
 
-KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
+KB_PATH = os.path.join('fixtures', 'KnowledgeBase.cPickle')
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
@@ -165,7 +165,7 @@ class Simulation(object):
 		self.states = collections.OrderedDict([
 			('Mass',			wholecell.states.mass.Mass()),
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
-			('MoleculeCounts',	wholecell.states.molecule_counts.MoleculeCounts()),
+			('BulkCounts',		wholecell.states.molecule_counts.BulkCounts()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
@@ -278,10 +278,10 @@ class Simulation(object):
 			'Fit parameter values'
 			)
 
-		h5file.createArray(groupFit, 'initialDryMass', self.states['MoleculeCounts'].initialDryMass)
-		h5file.createArray(groupFit, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
-		h5file.createArray(groupFit, 'monExp', self.states['MoleculeCounts'].monExp)
-		h5file.createArray(groupFit, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
+		h5file.createArray(groupFit, 'initialDryMass', self.states['BulkCounts'].initialDryMass)
+		h5file.createArray(groupFit, 'rnaExp', self.states['BulkCounts'].rnaExp)
+		h5file.createArray(groupFit, 'monExp', self.states['BulkCounts'].monExp)
+		h5file.createArray(groupFit, 'feistCoreVals', self.states['BulkCounts'].feistCoreVals)
 		if 'Transcription' in self.processes:
 			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
 
@@ -300,7 +300,7 @@ class Simulation(object):
 			'Non-fit parameter values'
 			)
 
-		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
+		h5file.createArray(groupValues, 'molMass', self.states['BulkCounts']._molMass)
 
 		# TODO: cache KB
 
@@ -313,10 +313,10 @@ class Simulation(object):
 	def pytablesLoad(self, h5file, timePoint):
 		group = h5file.get_node('/', 'fitParameters')
 
-		self.states['MoleculeCounts'].initialDryMass = group.initialDryMass.read()
-		self.states['MoleculeCounts'].rnaExp[:] = group.rnaExp.read()
-		self.states['MoleculeCounts'].monExp[:] = group.monExp.read()
-		self.states['MoleculeCounts'].feistCoreVals[:] = group.feistCoreVals.read()
+		self.states['BulkCounts'].initialDryMass = group.initialDryMass.read()
+		self.states['BulkCounts'].rnaExp[:] = group.rnaExp.read()
+		self.states['BulkCounts'].monExp[:] = group.monExp.read()
+		self.states['BulkCounts'].feistCoreVals[:] = group.feistCoreVals.read()
 		self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
 
 

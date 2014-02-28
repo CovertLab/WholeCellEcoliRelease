@@ -38,7 +38,7 @@ class Translation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Translation, self).initialize(sim, kb)
 
-		mc = sim.states["MoleculeCounts"]
+		mc = sim.states["BulkCounts"]
 
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
@@ -82,7 +82,7 @@ class Translation(wholecell.processes.process.Process):
 		self.ribosome5SView = mc.countsBulkViewNew(rib5S_IDs)
 
 
-	def requestMoleculeCounts(self):
+	def requestBulkCounts(self):
 		self.mcPartition.mrnas.countsBulkIs(1)
 
 		ribs = calcRibosomes(
