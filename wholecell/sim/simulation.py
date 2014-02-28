@@ -15,9 +15,7 @@ import os
 DEFAULT_PROCESSES = [
 	'Complexation',
 	'Metabolism',
-	'ProteinMaturation',
 	'RnaDegradation',
-	'RnaMaturation',
 	'Transcription',
 	'Translation',
 	] # TOKB
@@ -179,9 +177,7 @@ class Simulation(object):
 	def _constructProcesses(self):
 		import wholecell.processes.complexation
 		import wholecell.processes.metabolism
-		import wholecell.processes.protein_maturation
 		import wholecell.processes.rna_degradation
-		import wholecell.processes.rna_maturation
 		import wholecell.processes.transcription
 		import wholecell.processes.translation
 		import wholecell.processes.free_production
@@ -189,9 +185,7 @@ class Simulation(object):
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
 			('Metabolism',			wholecell.processes.metabolism.Metabolism()),
-			('ProteinMaturation',	wholecell.processes.protein_maturation.ProteinMaturation()),
 			('RnaDegradation',		wholecell.processes.rna_degradation.RnaDegradation()),
-			('RnaMaturation',		wholecell.processes.rna_maturation.RnaMaturation()),
 			('Transcription',		wholecell.processes.transcription.Transcription()),
 			('Translation',			wholecell.processes.translation.Translation()),
 			('FreeProduction',		wholecell.processes.free_production.FreeProduction())

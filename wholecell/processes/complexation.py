@@ -37,14 +37,14 @@ class Complexation(wholecell.processes.process.Process):
 		# # Complex
 		# complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]
 		# self.complex = sim.getState("MoleculeCounts").addPartition(self,
-		# 	[x["id"] + ":mature[" + x["location"] + "]" for x in complexes],
+		# 	[x["id"] + "[" + x["location"] + "]" for x in complexes],
 		# 	self.calcReqComplex)
 
 		# # Subunits
 		# subunits = []
 		# for c in complexes:
 		# 	subunits.extend([x for x in c["composition"] if x["coeff"] < 0])
-		# subIdComps = list(set([x["molecule"] + ":mature[" + x["location"] + "]" for x in subunits]))
+		# subIdComps = list(set([x["molecule"] + "[" + x["location"] + "]" for x in subunits]))
 
 		# self.subunit = sim.getState("MoleculeCounts").addPartition(self, subIdComps, self.calcReqSubunit)
 
@@ -54,7 +54,7 @@ class Complexation(wholecell.processes.process.Process):
 		# 	for s in c["composition"]:
 		# 		if s["coeff"] > 0:
 		# 			continue
-		# 		tmpSMat.append([s["molecule"] + ":mature[" + s["location"] + "]", iComplex, -s["coeff"]])
+		# 		tmpSMat.append([s["molecule"] + "[" + s["location"] + "]", iComplex, -s["coeff"]])
 
 		# subIdx = self.subunit.getIndex([x[0] for x in tmpSMat])[0]
 		# self.sMat = np.zeros((len(subIdComps), len(complexes)))

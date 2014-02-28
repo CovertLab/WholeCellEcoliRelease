@@ -60,9 +60,9 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 		# dirs = [os.path.join(cls.fixtureDir, 'sim{}'.format(i)) for i in range(nSims)]
 
 		ntpIDs = ['ATP', 'UTP', 'CTP', 'GTP']
-		rrnaIDs = ['RRLA-RRNA:nascent', 'RRLB-RRNA:nascent',
-			'RRLC-RRNA:nascent', 'RRLD-RRNA:nascent', 'RRLE-RRNA:nascent',
-			'RRLG-RRNA:nascent', 'RRLH-RRNA:nascent']
+		rrnaIDs = ['RRLA-RRNA', 'RRLB-RRNA',
+			'RRLC-RRNA', 'RRLD-RRNA', 'RRLE-RRNA',
+			'RRLG-RRNA', 'RRLH-RRNA']
 
 		assignedIdxs = False
 
@@ -94,7 +94,7 @@ class Test_Transcription(base_large_test.BaseLargeTest):
 					compartments = names.compartments.read()
 					
 					ntpIdxs = np.array([molIDs.index(id_) for id_ in ntpIDs])
-					rnaIdxs = indexes.nascentRnas.read()
+					rnaIdxs = indexes.rnas.read()
 					rrnaIdxs = np.array([molIDs.index(id_) for id_ in rrnaIDs])
 
 					processIdx = processes.index('Transcription')

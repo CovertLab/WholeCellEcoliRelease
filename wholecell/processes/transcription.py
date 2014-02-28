@@ -44,7 +44,7 @@ class Transcription(wholecell.processes.process.Process):
 
 		mc = sim.states["BulkMolecules"]
 
-		rnaIds = [x["id"] + ":nascent[c]" for x in kb.rnas]
+		rnaIds = [x["id"] + "[c]" for x in kb.rnas]
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
