@@ -320,7 +320,8 @@ class Simulation(object):
 		self.states['MoleculeCounts'].rnaExp[:] = group.rnaExp.read()
 		self.states['MoleculeCounts'].monExp[:] = group.monExp.read()
 		self.states['MoleculeCounts'].feistCoreVals[:] = group.feistCoreVals.read()
-		self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
+		if 'Transcription' in self.processes:
+			self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
 
 
 	@classmethod
@@ -337,10 +338,7 @@ class Simulation(object):
 
 		for stateName, state in newSim.states.viewitems():
 			with tables.openFile(os.path.join(stateDir, stateName + '.hdf')) as h5file:
-				try:
-					state.pytablesLoad(h5file, timePoint)
-				except IndexError:
-					raise Exception, 'Time point chosen to load is out of range!\n'
+				state.pytablesLoad(h5file, timePoint)
 
 		newSim.initialStep = timePoint
 
