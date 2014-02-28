@@ -33,12 +33,6 @@ QUERY_OPERATIONS = {
 	'!=':np.not_equal
 	}
 
-PYTABLES_TYPES = {
-	'bool':tables.BoolCol,
-	'uint32':tables.UInt32Col,
-	'uint64':tables.UInt64Col
-	}
-
 class UniqueMoleculesContainer(object):
 	'''
 	UniqueMoleculesContainer
@@ -223,8 +217,10 @@ class _Query(object):
 	def molecules(self):
 		return self._container.molecules(self._indexes)
 
+
 	def iterMolecules(self):
 		return self._container.iterMolecules(self._indexes)
+
 
 	# TODO: sampling functions?  i.e. get N molecules
 	# TODO: subqueries?
@@ -251,12 +247,15 @@ class _Molecule(object):
 	def attrIs(self, attribute, value):
 		self._container._molecules[self._index][attribute] = value
 
+
 	def __hash__(self):
 		return hash((self._container, self._index))
+
 
 	def __eq__(self, other):
 		assert self._container == other._container, 'Molecule comparisons across UniqueMoleculesContainer objects not supported.'
 		return self._index == other._index
+
 
 	def __repr__(self):
 		return '{}(..., {})'.format(type(self).__name__, self._index)
