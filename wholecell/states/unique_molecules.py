@@ -159,12 +159,20 @@ class UniqueMoleculesContainer(object):
 		return query
 
 
-	def molecules(self, indexes = None):
-		# NOTE: "indexes" optional argument is largely for internal use; processes should use queries
-		if indexes is None:
-			indexes = np.where(self._molecules['_isActive'])[0]
+	def molecules(self, _indexes = None):
+		# NOTE: "_indexes" optional argument is largely for internal use; processes should use queries
+		if _indexes is None:
+			_indexes = np.where(self._molecules['_isActive'])[0]
 
-		return {_Molecule(self, index) for index in indexes} # TODO: return a set-like object that create the _Molecule instances as needed
+		return {_Molecule(self, index) for index in _indexes} # TODO: return a set-like object that create the _Molecule instances as needed
+
+
+	def iterMolecules(self, _indexes = None):
+		# NOTE: "_indexes" optional argument is largely for internal use; processes should use queries
+		if _indexes is None:
+			_indexes = np.where(self._molecules['_isActive'])[0]
+
+		return (_Molecule(self, index) for index in _indexes) # TODO: return a set-like object that create the _Molecule instances as needed
 
 
 	def pytablesCreate(self, h5file):
@@ -215,6 +223,9 @@ class _Query(object):
 	def molecules(self):
 		return self._container.molecules(self._indexes)
 
+	def iterMolecules(self):
+		return self._container.iterMolecules(self._indexes)
+
 	# TODO: sampling functions?  i.e. get N molecules
 	# TODO: subqueries?
 
@@ -239,6 +250,16 @@ class _Molecule(object):
 
 	def attrIs(self, attribute, value):
 		self._container._molecules[self._index][attribute] = value
+
+	def __hash__(self):
+		return hash((self._container, self._index))
+
+	def __eq__(self, other):
+		assert self._container == other._container, 'Molecule comparisons across UniqueMoleculesContainer objects not supported.'
+		return self._index == other._index
+
+	def __repr__(self):
+		return '{}(..., {})'.format(type(self).__name__, self._index)
 
 
 class UniqueMolecules(wcState.State):

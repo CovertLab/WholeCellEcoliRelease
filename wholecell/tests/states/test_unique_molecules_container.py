@@ -130,11 +130,11 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_attribute_setting(self):
-		for molecule in self.container.molecules():
+		for molecule in self.container.iterMolecules():
 			molecule.attrIs('boundToChromosome', True)
 			molecule.attrIs('chromosomeLocation', 100)
 
-		for molecule in self.container.molecules():
+		for molecule in self.container.iterMolecules():
 			self.assertEqual(
 				molecule.attr('boundToChromosome'),
 				True
@@ -152,13 +152,13 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 		self.container.updateQueries()
 
-		for molecule in query.molecules():
+		for molecule in query.iterMolecules():
 			self.assertEqual(
 				molecule.attr('boundToChromosome'),
 				True
 				)
 
-		for molecule in query.molecules():
+		for molecule in query.iterMolecules():
 			molecule.attrIs('boundToChromosome', False)
 
 		self.container.updateQueries()
@@ -176,5 +176,23 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 			self.container.molecules(),
 			set()
 			)
+
+
+	@noseAttrib.attr('smalltest')
+	def test_molecule_set_operations(self):
+		allMolecules = self.container.molecules()
+
+		chromosomeBound = self.container.evaluateQuery(
+			boundToChromosome = ('==', True)
+			)
+
+		self.assertEqual(allMolecules & allMolecules, allMolecules)
+
+		self.assertEqual(allMolecules & chromosomeBound, chromosomeBound)
+
+		self.assertEqual(allMolecules | chromosomeBound, allMolecules)
+
+		self.assertEqual(len(allMolecules - chromosomeBound), 10)
+
 
 
