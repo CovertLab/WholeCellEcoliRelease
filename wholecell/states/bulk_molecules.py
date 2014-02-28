@@ -585,10 +585,11 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
 		self._countsBulk[:] = entry['countsBulk']
-		self._countsBulkRequested[:] = entry['countsBulkRequested']
-		self._countsBulkPartitioned[:] = entry['countsBulkPartitioned']
-		self._countsBulkReturned[:] = entry['countsBulkReturned']
-		self._countsBulkUnpartitioned[:] = entry['countsBulkUnpartitioned']
+		if self.partitions:
+			self._countsBulkRequested[:] = entry['countsBulkRequested']
+			self._countsBulkPartitioned[:] = entry['countsBulkPartitioned']
+			self._countsBulkReturned[:] = entry['countsBulkReturned']
+			self._countsBulkUnpartitioned[:] = entry['countsBulkUnpartitioned']
 
 
 class BulkMoleculesPartition(wcPartition.Partition, BulkMoleculesBase):

@@ -15,11 +15,11 @@ import nose.plugins.attrib as noseAttrib
 
 import wholecell.states.unique_molecules as wcUM
 
-TEST_MOLECULE = 'RNA polymerase'
-
-TEST_ATTRIBUTES = {
-	'boundToChromosome':'bool',
-	'chromosomeLocation':'uint32'
+TEST_KB = {
+	'RNA polymerase':{
+		'boundToChromosome':'bool',
+		'chromosomeLocation':'uint32'
+		}
 	}
 
 
@@ -35,19 +35,22 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 
 	def setUp(self):
-		self.container = wcUM.UniqueMoleculesContainer(TEST_MOLECULE, TEST_ATTRIBUTES)
+		self.container = wcUM.UniqueMoleculesContainer(TEST_KB)
 		
 		self.container.moleculesNew(
+			'RNA polymerase',
 			10,
 			)
 
 		self.container.moleculesNew(
+			'RNA polymerase',
 			5,
 			boundToChromosome = True,
 			chromosomeLocation = 0
 			)
 
 		self.container.moleculesNew(
+			'RNA polymerase',
 			5,
 			boundToChromosome = True,
 			chromosomeLocation = 50
@@ -60,24 +63,24 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_add_molecule(self):
-		self.container.moleculeNew()
+		self.container.moleculeNew('RNA polymerase')
 
-		self.assertEqual(len(self.container.molecules()), 21)
+		self.assertEqual(len(self.container.molecules('RNA polymerase')), 21)
 
 
 	@noseAttrib.attr('smalltest')
 	def test_add_molecules(self):
-		self.container.moleculesNew(20)
+		self.container.moleculesNew('RNA polymerase', 20)
 
 		self.assertEqual(
-			len(self.container.molecules()),
+			len(self.container.molecules('RNA polymerase')),
 			40
 			)
 
 
 	@noseAttrib.attr('smalltest')
 	def test_empty_query(self):
-		molecules = self.container.evaluateQuery()
+		molecules = self.container.evaluateQuery('RNA polymerase')
 
 		self.assertEqual(len(molecules), 20)
 
@@ -85,6 +88,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_bool_query(self):
 		molecules = self.container.evaluateQuery(
+			'RNA polymerase',
 			boundToChromosome = ('==', False)
 			)
 
@@ -100,6 +104,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_numeric_query(self):
 		molecules = self.container.evaluateQuery(
+			'RNA polymerase',
 			chromosomeLocation = ('>', 0)
 			)
 
@@ -115,6 +120,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_compound_query(self):
 		molecules = self.container.evaluateQuery(
+			'RNA polymerase',
 			boundToChromosome = ('!=', False),
 			chromosomeLocation = ('>', 0)
 			)
@@ -130,11 +136,11 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_attribute_setting(self):
-		for molecule in self.container.iterMolecules():
+		for molecule in self.container.iterMolecules('RNA polymerase'):
 			molecule.attrIs('boundToChromosome', True)
 			molecule.attrIs('chromosomeLocation', 100)
 
-		for molecule in self.container.iterMolecules():
+		for molecule in self.container.iterMolecules('RNA polymerase'):
 			self.assertEqual(
 				molecule.attr('boundToChromosome'),
 				True
@@ -148,7 +154,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_query_objects(self):
-		query = self.container.queryNew(boundToChromosome = ('==', True))
+		query = self.container.queryNew('RNA polymerase', boundToChromosome = ('==', True))
 
 		self.container.updateQueries()
 
@@ -168,21 +174,35 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	def test_delete_molecules(self):
-		molecules = self.container.molecules()
+		molecules = self.container.molecules('RNA polymerase')
 
 		self.container.moleculesDel(molecules)
 
 		self.assertEqual(
-			self.container.molecules(),
+			self.container.molecules('RNA polymerase'),
 			set()
 			)
+
+		# Make sure access to deleted molecules is blocked
+		molecule = molecules.pop()
+
+		with self.assertRaises(Exception) as context:
+			molecule.attr('boundToChromosome')
+
+		self.assertEqual(context.exception.message, 'Attempted to access an inactive molecule.')
+
+		with self.assertRaises(Exception) as context:
+			molecule.attrIs('boundToChromosome', False)
+
+		self.assertEqual(context.exception.message, 'Attempted to access an inactive molecule.')
 
 
 	@noseAttrib.attr('smalltest')
 	def test_molecule_set_operations(self):
-		allMolecules = self.container.molecules()
+		allMolecules = self.container.molecules('RNA polymerase')
 
 		chromosomeBound = self.container.evaluateQuery(
+			'RNA polymerase',
 			boundToChromosome = ('==', True)
 			)
 
@@ -194,5 +214,37 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 		self.assertEqual(len(allMolecules - chromosomeBound), 10)
 
+
+	@noseAttrib.attr('smalltest')
+	def test_time_setting(self):
+		self.container._timeIs(50)
+
+		allMolecules = self.container.molecules('RNA polymerase')
+		newTime = self.container.evaluateQuery('RNA polymerase', _time = ('==', 50))
+
+		self.assertEqual(allMolecules, newTime)
+
+
+	@noseAttrib.attr('smalltest', 'working')
+	def test_deleted_entry_flushing(self):
+		# First, make sure that deleted entries are not overwritten
+		molecules = self.container.molecules('RNA polymerase')
+		indexes = {molecule._index for molecule in molecules}
+
+		self.container.moleculesDel(molecules)
+
+		newMolecule = self.container.moleculeNew(
+			'RNA polymerase'
+			)
+
+		self.assertTrue(newMolecule._index not in indexes)
+
+		# Next, flush the deleted entries and confirm that an old entry is overwritten
+		self.container._flushDeleted()
+		newMolecule = self.container.moleculeNew(
+			'RNA polymerase'
+			)
+
+		self.assertTrue(newMolecule._index in indexes)
 
 
