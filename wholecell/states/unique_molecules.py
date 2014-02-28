@@ -1,4 +1,20 @@
-'''unique_molecules.py'''
+'''
+unique_molecules.py
+
+The UniqueMolecules State handles the identity and dynamic properties of unique
+molecules in the simulation.  The attribute names and data types are imported
+from the knowledge base.
+
+The UniqueMolecules State instantiates a UniqueMoleculesContainer object,
+which creates and manages the structured arrays in memory.
+
+The UniqueMoleculesContainer uses _Molecule objects to present a clean 
+interface to a specific molecule's attributes.
+
+The UniqueMoleculesContainer also uses _Query objects to store and periodically
+update queries which return sets of _Molecule that refer to molecules 
+satisfying the query.
+'''
 
 import numpy as np
 import tables
@@ -12,17 +28,6 @@ MOLECULE_ATTRIBUTES = {
 		}
 	}
 
-FRACTION_EXTEND_ENTRIES = 0.1 # fractional rate to increase number of entries in the structured array
-
-QUERY_OPERATIONS = {
-	'>':np.greater,
-	'>=':np.greater_equal,
-	'<':np.less,
-	'<=':np.less_equal,
-	'==':np.equal,
-	'!=':np.not_equal
-	}
-
 
 class UniqueMoleculesContainer(object):
 	'''
@@ -33,26 +38,36 @@ class UniqueMoleculesContainer(object):
 	partitions.
 	'''
 
-	defaultContainerAttributes = {
+	_defaultContainerAttributes = {
 		'_isActive':'bool', # whether the row is an active entry
 		'_wasDeleted':'bool', # whether the row was deleted in the last step
 		'_time':'uint64', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
+	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array
+
+	_queryOperations = {
+		'>':np.greater,
+		'>=':np.greater_equal,
+		'<':np.less,
+		'<=':np.less_equal,
+		'==':np.equal,
+		'!=':np.not_equal
+		}
 
 	def __init__(self, moleculeAttributes):
-		self._moleculeAttributes = {}
-		self._moleculeArrays = {}
-		self._savedAttributes = {}
-		self._queries = []
-		self._tableNames = {}
+		self._moleculeAttributes = {} # moleculeName:{attributeName:type}
+		self._moleculeArrays = {} # moleculeName:structured array
+		self._savedAttributes = {} # moleculeName:list of attributes
+		self._queries = [] # list of _Query objects
+		self._tableNames = {} # moleculeName:table name
 
 		self._moleculeAttributes.update(moleculeAttributes)
 
 		for moleculeName, attributes in self._moleculeAttributes.viewitems():
 			# Add the attributes used internally
-			attributes.update(self.defaultContainerAttributes)
+			attributes.update(self._defaultContainerAttributes)
 
 			# Create the structured array
 			self._moleculeArrays[moleculeName] = np.zeros(
@@ -112,7 +127,7 @@ class UniqueMoleculesContainer(object):
 			oldEntries = self._moleculeArrays[moleculeName]
 			oldSize = oldEntries.size
 
-			newSize = oldSize + max(int(oldSize * FRACTION_EXTEND_ENTRIES), nMolecules)
+			newSize = oldSize + max(int(oldSize * self._fractionExtendEntries), nMolecules)
 
 			self._moleculeArrays[moleculeName] = np.zeros(
 				newSize,
@@ -153,7 +168,7 @@ class UniqueMoleculesContainer(object):
 		return reduce(
 			np.logical_and,
 			(
-				QUERY_OPERATIONS[operator](
+				self._queryOperations[operator](
 					self._moleculeArrays[moleculeName][attrName],
 					queryValue
 					)
