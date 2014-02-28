@@ -130,7 +130,7 @@ class UniqueMoleculesContainer(object):
 			)
 
 
-	def evaluateQuery(self, moleculeName, **operations):
+	def evaluateQuery(self, moleculeName, **operations): # TODO: allow for queries over all or a subset of molecules
 		return self.molecules(moleculeName, np.where(self._queryMolecules(moleculeName, **operations))[0])
 	
 
@@ -207,6 +207,12 @@ class UniqueMoleculesContainer(object):
 
 	def pytablesLoad(self, h5file, timePoint):
 		raise NotImplementedError() # TODO
+
+
+	# TODO: compute mass
+	# TODO: move to new file
+	# TODO: implement molecule transfer between containers
+	# TODO: mark deleted molecules so the entries aren't overwritten in the current time step, preventing weird accessing errors
 
 
 class _Query(object):
