@@ -159,6 +159,7 @@ class Simulation(object):
 		import wholecell.states.mass
 		# import wholecell.states.MetabolicFlux
 		import wholecell.states.bulk_counts
+		import wholecell.states.unique_molecules
 		import wholecell.states.time
 		import wholecell.states.rand_stream
 
@@ -166,6 +167,7 @@ class Simulation(object):
 			('Mass',			wholecell.states.mass.Mass()),
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
 			('BulkCounts',		wholecell.states.bulk_counts.BulkCounts()),
+			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
@@ -292,7 +294,9 @@ class Simulation(object):
 			)
 
 		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
-		h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
+		
+		if self.processes:
+			h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
 		groupValues = h5file.createGroup(
 			h5file.root,

@@ -563,7 +563,6 @@ class BulkCounts(wcState.State, BulkCountsBase):
 
 		h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
 		h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
-		h5file.createArray(groupNames, 'processes', [process for process in self.partitions.viewkeys()])
 
 		groupIdxs = h5file.createGroup(h5file.root,
 			'indexes', 'Indexes for various groups of molecules')
