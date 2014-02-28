@@ -44,3 +44,4 @@
  * Replication Process
  * update Transcription/Translation (clean up logic, add comments, change to TUs instead of gene/protein pairs)
  * Transcripts State (better name?)
+ * Write summary of state model behavior
