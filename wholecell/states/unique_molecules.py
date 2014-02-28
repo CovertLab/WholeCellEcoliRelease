@@ -14,11 +14,14 @@ MOLECULE_ATTRIBUTES = {
 
 FRACTION_EXTEND_ENTRIES = 0.1 # fractional rate to increase number of entries in the structured array
 
-DEFAULT_ATTRIBUTES = { # attributes for local use by the state
-	'_isActive':'bool', # whether the row is an active entry
+DEFAULT_STATE_ATTRIBUTES = { # attributes for local use by the state
 	'_partitionedByOtherState':'bool', # whether the molecule is partitioned by a different state
 	'_time':'uint64', # current time (important for saving)
 	# '_massDifference':'float64' # dynamic mass difference
+	}
+
+DEFAULT_CONTAINER_ATTRIBUTES = { # attributes for local use by the container
+	'_isActive':'bool', # whether the row is an active entry
 	}
 
 QUERY_OPERATIONS = {
@@ -46,6 +49,8 @@ class UniqueMoleculesContainer(object):
 	'''
 
 	def __init__(self, moleculeName, attributes):
+		attributes.update(DEFAULT_CONTAINER_ATTRIBUTES)
+
 		self._moleculeName = moleculeName
 		self._attributes = attributes
 		self._queries = []
@@ -124,6 +129,10 @@ class UniqueMoleculesContainer(object):
 
 
 	def evaluateQuery(self, **operations):
+		return self.molecules(np.where(self._queryMolecules(**operations))[0])
+	
+
+	def _queryMolecules(self, **operations):
 		operations['_isActive'] = ('==', True)
 		return reduce(
 			np.logical_and,
@@ -139,7 +148,7 @@ class UniqueMoleculesContainer(object):
 
 	def updateQueries(self):
 		for query in self._queries:
-			query._indexes = np.where(self.evaluateQuery(**query._operations))[0]
+			query._indexes = np.where(self._queryMolecules(**query._operations))[0]
 
 
 	def queryNew(self, **operations):
@@ -155,7 +164,7 @@ class UniqueMoleculesContainer(object):
 		if indexes is None:
 			indexes = np.where(self._molecules['_isActive'])[0]
 
-		return {_Molecule(self, index) for index in indexes}
+		return {_Molecule(self, index) for index in indexes} # TODO: return a set-like object that create the _Molecule instances as needed
 
 
 	def pytablesCreate(self, h5file):
@@ -176,7 +185,7 @@ class UniqueMoleculesContainer(object):
 
 		t = h5file.get_node('/', self._tableName)
 
-		entries = self._molecules[self.evaluateQuery()][self._savedAttributes]
+		entries = self._molecules[self._queryMolecules()][self._savedAttributes]
 
 		t.append(entries)
 
@@ -269,7 +278,7 @@ class UniqueMolecules(wcState.State):
 			}
 
 		for attributes in moleculeAttributes.viewvalues():
-			attributes.update(DEFAULT_ATTRIBUTES)
+			attributes.update(DEFAULT_STATE_ATTRIBUTES)
 
 		self._containers = {
 			moleculeName:UniqueMoleculesContainer(moleculeName, attributes)
@@ -308,22 +317,10 @@ class UniqueMolecules(wcState.State):
 
 		# Raise a query
 		active = rnaPolyContainer.evaluateQuery()
-		boundToChromosome = rnaPolyContainer.evaluateQuery(boundToChromosome = ('==', True))
-		multipleConditions = rnaPolyContainer.evaluateQuery(
-			boundToChromosome = ('==', True),
-			chromosomeLocation = ('>', 0)
-			)
-		notTrue = rnaPolyContainer.evaluateQuery(
-			boundToChromosome = ('==', False),
-			chromosomeLocation = ('>', 0)
-			)
 
 		# Check the query output
-		assert active.sum() == 15
-		assert (active == boundToChromosome).all()
-		assert (active == multipleConditions).all()
-		assert notTrue.sum() == 0
-
+		assert len(active) == 15
+		
 		# Add a query
 		boundToChromosome = rnaPolyContainer.queryNew(boundToChromosome = ('==', True))
 
