@@ -31,8 +31,8 @@ class Test_Simulation(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
-		self.kb = cPickle.load(open(os.path.join("data","fixtures","KnowledgeBase.cPickle"), "r"))
+		self.sim = cPickle.load(open(os.path.join("fixtures", "Simulation.cPickle"), "r"))
+		self.kb = cPickle.load(open(os.path.join("fixtures","KnowledgeBase.cPickle"), "r"))
 
 	def tearDown(self):
 		pass
@@ -137,7 +137,7 @@ class Test_Simulation(unittest.TestCase):
 	def test_getDynamics(self):
 		sim = self.sim
 		dynamics = sim.getDynamics()
-		self.assertEqual(dynamics.keys(), ['RandStream', 'UniqueMolecules', 'Mass', 'MoleculeCounts', 'Time'])
+		self.assertEqual(dynamics.keys(), ['RandStream', 'UniqueMolecules', 'Mass', 'BulkMolecules', 'Time'])
 
 
 	# --- Test ability to remove processes from simulation ---

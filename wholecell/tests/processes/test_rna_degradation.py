@@ -63,7 +63,7 @@ Tests RNA degradation process
 # 		self.sim = None
 
 # 		if comm.rank == 0:
-# 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
+# 			self.sim = cPickle.load(open(os.path.join("fixtures", "Simulation.cPickle"), "r"))
 		
 # 		self.sim = comm.bcast(self.sim, root = 0)	
 # 		print "%s" % (self.sim.states["Mass"].meta["id"])

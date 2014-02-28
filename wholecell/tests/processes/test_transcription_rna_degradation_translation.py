@@ -66,7 +66,7 @@ Examines interplay between Transcription, Rna Degradation, and Translation
 # 		self.outDir = "out/test/Test_Transcription_RnaDegradation_Translation"
 
 # 		if comm.rank == 0:
-# 			self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
+# 			self.sim = cPickle.load(open(os.path.join("fixtures", "Simulation.cPickle"), "r"))
 # 			if not os.path.exists(self.outDir):
 # 				os.makedirs(self.outDir)
 

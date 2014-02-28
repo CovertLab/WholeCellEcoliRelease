@@ -26,7 +26,7 @@ class Test_KnowledgeBase(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.kb = cPickle.load(open(os.path.join("data", "fixtures", "KnowledgeBase.cPickle"), "r"))
+		self.kb = cPickle.load(open(os.path.join("fixtures", "KnowledgeBase.cPickle"), "r"))
 
 		# To load from the "raw" data, uncomment the following:
 		# self.kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",

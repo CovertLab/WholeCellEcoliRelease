@@ -5,7 +5,6 @@ import pkg_resources
 
 import numpy as np
 
-import wholecell.utils.fitter as wcFitter
 import wholecell.sim.simulation as wcSimulation
 import wholecell.loggers.disk as wcDisk
 

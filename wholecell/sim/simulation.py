@@ -22,7 +22,7 @@ DEFAULT_PROCESSES = [
 	'Translation',
 	] # TOKB
 
-KB_PATH = os.path.join('data', 'fixtures', 'KnowledgeBase.cPickle')
+KB_PATH = os.path.join('fixtures', 'KnowledgeBase.cPickle')
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
@@ -76,6 +76,7 @@ class Simulation(object):
 
 		import cPickle
 		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
+			import wholecell.reconstruction.knowledgebase
 			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
 				dataFileDir = "data/parsed",
 				seqFileName = "data/raw/sequence.txt"
@@ -157,7 +158,7 @@ class Simulation(object):
 	def _constructStates(self):
 		import wholecell.states.mass
 		# import wholecell.states.MetabolicFlux
-		import wholecell.states.molecule_counts
+		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
 		import wholecell.states.time
 		import wholecell.states.rand_stream
@@ -165,7 +166,7 @@ class Simulation(object):
 		self.states = collections.OrderedDict([
 			('Mass',			wholecell.states.mass.Mass()),
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
-			('MoleculeCounts',	wholecell.states.molecule_counts.MoleculeCounts()),
+			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
 			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
@@ -279,10 +280,10 @@ class Simulation(object):
 			'Fit parameter values'
 			)
 
-		h5file.createArray(groupFit, 'initialDryMass', self.states['MoleculeCounts'].initialDryMass)
-		h5file.createArray(groupFit, 'rnaExp', self.states['MoleculeCounts'].rnaExp)
-		h5file.createArray(groupFit, 'monExp', self.states['MoleculeCounts'].monExp)
-		h5file.createArray(groupFit, 'feistCoreVals', self.states['MoleculeCounts'].feistCoreVals)
+		h5file.createArray(groupFit, 'initialDryMass', self.states['BulkMolecules'].initialDryMass)
+		h5file.createArray(groupFit, 'rnaExp', self.states['BulkMolecules'].rnaExp)
+		h5file.createArray(groupFit, 'monExp', self.states['BulkMolecules'].monExp)
+		h5file.createArray(groupFit, 'feistCoreVals', self.states['BulkMolecules'].feistCoreVals)
 		if 'Transcription' in self.processes:
 			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
 
@@ -303,7 +304,7 @@ class Simulation(object):
 			'Non-fit parameter values'
 			)
 
-		h5file.createArray(groupValues, 'molMass', self.states['MoleculeCounts']._molMass)
+		h5file.createArray(groupValues, 'molMass', self.states['BulkMolecules']._molMass)
 
 		# TODO: cache KB
 
@@ -316,13 +317,12 @@ class Simulation(object):
 	def pytablesLoad(self, h5file, timePoint):
 		group = h5file.get_node('/', 'fitParameters')
 
-		self.states['MoleculeCounts'].initialDryMass = group.initialDryMass.read()
-		self.states['MoleculeCounts'].rnaExp[:] = group.rnaExp.read()
-		self.states['MoleculeCounts'].monExp[:] = group.monExp.read()
-		self.states['MoleculeCounts'].feistCoreVals[:] = group.feistCoreVals.read()
+		self.states['BulkMolecules'].initialDryMass = group.initialDryMass.read()
+		self.states['BulkMolecules'].rnaExp[:] = group.rnaExp.read()
+		self.states['BulkMolecules'].monExp[:] = group.monExp.read()
+		self.states['BulkMolecules'].feistCoreVals[:] = group.feistCoreVals.read()
 		if 'Transcription' in self.processes:
 			self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
-
 
 	@classmethod
 	def loadSimulation(cls, stateDir, timePoint, newDir = None, overwriteExistingFiles = False):

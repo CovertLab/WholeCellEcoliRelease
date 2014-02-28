@@ -38,7 +38,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.time = None
 
 		# Partitions
-		self.mcPartition = None
+		self.bulkMoleculesPartition = None
 
 		# Constants
 		self.avgCellInitMass = 13.1						# fg # TOKB
@@ -74,7 +74,7 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# self.mass = sim.states["Mass"]
-		mc = sim.states["MoleculeCounts"]
+		mc = sim.states["BulkMolecules"]
 		self.time = sim.states["Time"]
 
 		bioIds = []
@@ -88,14 +88,14 @@ class Metabolism(wholecell.processes.process.Process):
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = np.array(bioConc)
 
-		self.mcPartition.initialize(bioIds)
+		self.bulkMoleculesPartition.initialize(bioIds)
 		self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
-		self.mcPartition.atpHydrolysis = self.mcPartition.countsBulkViewNew(
+		self.bulkMoleculesPartition.atpHydrolysis = self.bulkMoleculesPartition.countsBulkViewNew(
 			["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
 
-		self.mcPartition.ntps = self.mcPartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.mcPartition.h2oMol = self.mcPartition.molecule('H2O[c]')
+		self.bulkMoleculesPartition.ntps = self.bulkMoleculesPartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.bulkMoleculesPartition.h2oMol = self.bulkMoleculesPartition.molecule('H2O[c]')
 
 		self.feistCore = np.array([ # TODO: This needs to go in the KB
 			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
@@ -117,16 +117,16 @@ class Metabolism(wholecell.processes.process.Process):
 			"RIBFLV[c]"
 			]
 
-		self.mcPartition.feistCore = self.mcPartition.countsBulkViewNew(self.feistCoreIds)
+		self.bulkMoleculesPartition.feistCore = self.bulkMoleculesPartition.countsBulkViewNew(self.feistCoreIds)
 
 		self.initialDryMass = 2.8e-13 / 1.36 # grams # TOKB
 
 	# Calculate needed metabolites
-	def requestMoleculeCounts(self):
-		self.mcPartition.countsBulkIs(1)
+	def requestBulkMolecules(self):
+		self.bulkMoleculesPartition.countsBulkIs(1)
 
-		self.mcPartition.ntps.countsBulkIs(0)
-		self.mcPartition.h2oMol.countBulkIs(0)
+		self.bulkMoleculesPartition.ntps.countsBulkIs(0)
+		self.bulkMoleculesPartition.h2oMol.countBulkIs(0)
 
 	# # Calculate needed proteins
 	# def calcReqEnzyme(self):
@@ -137,7 +137,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# NOTE: I've deleted a bunch of commented-out code from here.  Get it 
 		# from an old commit if you really need it. - JM
 
-		atpm = np.zeros_like(self.mcPartition.feistCore.countsBulk()) # TODO: determine what this means
+		atpm = np.zeros_like(self.bulkMoleculesPartition.feistCore.countsBulk()) # TODO: determine what this means
 
 		noise = self.randStream.multivariate_normal(np.zeros_like(self.feistCore), np.diag(self.feistCore / 1000.))
 
@@ -148,10 +148,10 @@ class Metabolism(wholecell.processes.process.Process):
 			* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 			)
 
-		self.mcPartition.feistCore.countsBulkIs(
+		self.bulkMoleculesPartition.feistCore.countsBulkIs(
 			np.fmax(
 				0,
-				self.randStream.stochasticRound(self.mcPartition.feistCore.countsBulk() + deltaMetabolites)
+				self.randStream.stochasticRound(self.bulkMoleculesPartition.feistCore.countsBulk() + deltaMetabolites)
 				)
 			)
 

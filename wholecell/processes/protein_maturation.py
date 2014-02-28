@@ -29,29 +29,29 @@ class ProteinMaturation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ProteinMaturation, self).initialize(sim, kb)
 
-		mc = sim.states["MoleculeCounts"]
+		mc = sim.states["BulkMolecules"]
 
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0]
 
 		nascentMonomerIds = [x["id"] + ":nascent[c]" for x in monomers]
 		matureMonomerIds = [x["id"] + ":mature[" + x["location"] + "]" for x in monomers]
 
-		self.mcPartition.initialize(nascentMonomerIds + matureMonomerIds)
+		self.bulkMoleculesPartition.initialize(nascentMonomerIds + matureMonomerIds)
 
-		self.mcPartition.nascentMonomers = self.mcPartition.countsBulkViewNew(
+		self.bulkMoleculesPartition.nascentMonomers = self.bulkMoleculesPartition.countsBulkViewNew(
 			nascentMonomerIds)
 
-		self.mcPartition.matureMonomers = self.mcPartition.countsBulkViewNew(
+		self.bulkMoleculesPartition.matureMonomers = self.bulkMoleculesPartition.countsBulkViewNew(
 			matureMonomerIds)
 
 
-	def requestMoleculeCounts(self):
-		self.mcPartition.nascentMonomers.countsBulkIs(1)
+	def requestBulkMolecules(self):
+		self.bulkMoleculesPartition.nascentMonomers.countsBulkIs(1)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.mcPartition.matureMonomers.countsBulkInc(
-			self.mcPartition.nascentMonomers.countsBulk())
+		self.bulkMoleculesPartition.matureMonomers.countsBulkInc(
+			self.bulkMoleculesPartition.nascentMonomers.countsBulk())
 
-		self.mcPartition.nascentMonomers.countsBulkIs(0)
+		self.bulkMoleculesPartition.nascentMonomers.countsBulkIs(0)

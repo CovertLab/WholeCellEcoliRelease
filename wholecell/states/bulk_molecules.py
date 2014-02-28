@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 """
-MoleculeCounts.py
+BulkMolecules.py
 
-State which represents for a class of molecules the bulk copy numbers as an 
-array and unique instances in a series of lists sharing a common index.
+State which represents for a class of molecules the bulk copy numbers.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -42,19 +41,18 @@ FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
 INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
 
 # TODO: make a base class for bulk counts?
-class MoleculeCountsBase(object):
+class BulkMoleculesBase(object):
 	'''
-	MoleculeCountsBase
+	BulkMoleculesBase
 
-	Base object for the MoleculeCounts partition and state.  Manages indexing 
-	of molecules to support unique instances and bulk quantities.
+	Base object for the BulkMolecules partition and state.  Manages indexing 
+	of molecules to support bulk quantities.
 	'''
 
 	_nMolIDs = None
 	_nCompartments = None
 
 	_countsBulk = None
-	# _countsUnique = None
 
 	_molecules = None
 
@@ -63,9 +61,6 @@ class MoleculeCountsBase(object):
 
 	_molIDs = None
 	_compartments = None
-
-	_uniqueDict = None
-
 
 	def molecule(self, id_):
 		molID, compIdx = self._getIndex(id_)[1:]
@@ -146,7 +141,7 @@ class CountsBulkView(object):
 	'''
 	CountsBulkView
 
-	A "view" into a MoleculeCountsBase subclass's bulk counts.  This allows for 
+	A "view" into a BulkMoleculesBase subclass's bulk counts.  This allows for 
 	easy caching of access to and mutation of bulk quantities of molecules, 
 	which is helpful for certain calculations.
 	'''
@@ -191,11 +186,11 @@ class CountsBulkView(object):
 		self.countsBulkInc(-counts)
 
 
-class MoleculeCounts(wcState.State, MoleculeCountsBase):
+class BulkMolecules(wcState.State, BulkMoleculesBase):
 	'''
-	MoleculeCounts
+	BulkMolecules
 
-	State for MoleculeCounts.  Adds support for partitioning and 
+	State for BulkMolecules.  Adds support for partitioning and 
 	initialization.
 	'''
 
@@ -217,13 +212,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
-			"id": "MoleculeCounts",
+			"id": "BulkMolecules",
 			"name": "Molecules Container",
-			"dynamics": ["_countsBulk"],#, "_countsUnique", "_uniqueDict"],
+			"dynamics": ["_countsBulk"],
 			"units": {
 				"_countsBulk"   : "molecules",
-				# "_countsUnique" : "molecules",
-				# "_uniqueDict"	: "molecules"
 				}
 			}
 
@@ -232,16 +225,13 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 		# Attributes
 
-		self._countsUnique = None # Counts of molecules with unique properties
 
 		# Molecule mass
 		self._molMass = None    # Mass of a single bulk molecule
 		self._massSingle = None # Mass of a single bulk molecule, for each compartment
-		self._dmass = None      # Deviation from typical mass due to some unique property
 
 		# Object references
 		self._molecules = {}    # Molecule objects
-		self._uniqueDict = [] # Record of unique attributes TODO: verify function, rename?
 
 		# Partitioning
 		self._countsBulkRequested = None		# Bulk quantity requested by each partition
@@ -249,7 +239,7 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._countsBulkReturned = None			# Bulk quantity that the partition returned after evolveState
 		self._countsBulkUnpartitioned = None	# Bulk quantity that went unpartitioned
 
-		self.partitionClass = MoleculeCountsPartition
+		self.partitionClass = BulkMoleculesPartition
 
 		# Reference attributes
 		self._typeIdxs = {}
@@ -262,11 +252,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self.fracInitFreeNTPs = 0.0015 # TOKB
 		self.fracInitFreeAAs = 0.001 # TOKB
 
-		super(MoleculeCounts, self).__init__(*args, **kwargs)
+		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
 	def initialize(self, sim, kb):
-		super(MoleculeCounts, self).initialize(sim, kb)
+		super(BulkMolecules, self).initialize(sim, kb)
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK
@@ -332,31 +322,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 		self._typeLocalizations.update({
 			'matureProteins':[mol['location'] for mol in kb.proteins],
 			})
-
-		# Unique instances
-
-		# TODO: add unique attributes to KB and test
-		# TODO: figure out what this block is really doing/refactor
-		for mol in self._molIDs:
-			# mol['uniqueAttrs'] = None
-			uniqueAttrs = None
-
-			# if mol["uniqueAttrs"] is not None:
-			if uniqueAttrs is not None:
-				self._uniqueDict.append([ # list of lists (1 per molecule)
-					dict( # dicts of attributes (1 per compartment)
-						zip( # attr:[] pairs (1 entr per attribute + 1 entry for 'objects')
-							# mol["uniqueAttrs"] + ["objects"],
-							# [[] for x in xrange(len(mol["uniqueAttrs"]) + 1)]
-							uniqueAttrs + ["objects"],
-							[[] for x in xrange(len(uniqueAttrs) + 1)]
-							)
-						)
-					for x in kb.compartments
-					])
-
-			else:
-				self._uniqueDict.append([{} for x in self._compartments])
 
 		# Values needed for calcInitialConditions
 		self.rnaLens = np.array([np.sum(rna["ntCount"]) for rna in kb.rnas])
@@ -442,13 +407,10 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def allocate(self):
-		super(MoleculeCounts, self).allocate() # Allocates partitions
+		super(BulkMolecules, self).allocate() # Allocates partitions
 
 		self._countsBulk = np.zeros((self._nMolIDs, self._nCompartments), float)
 		self._massSingle = np.tile(self._molMass, [self._nCompartments, 1]).transpose() # Repeat for each compartment
-
-		self._countsUnique = np.zeros_like(self._countsBulk)
-		self._dmass = np.zeros_like(self._countsBulk)
 
 		self._countsBulkRequested = np.zeros_like(self._countsBulk)
 		self._countsBulkPartitioned = np.zeros((self._nMolIDs, self._nCompartments, len(self.partitions)))
@@ -464,8 +426,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 	def partition(self):
 		if self.partitions:
-			# TODO: partitioning of unique instances (for both specific and nonspecific requests)
-
 			# Clear out the existing partitions in preparation for the requests
 			for partition in self.partitions.viewvalues():
 				partition.countsBulkIs(0)
@@ -512,8 +472,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 
 
 	def massAll(self, typeKey = None):
-		if self._countsUnique.sum() != 0:
-			raise Exception('Mass for unique instances not implemented!')
 
 		if typeKey is None:
 			return np.dot(self._molMass, self._countsBulk)
@@ -523,8 +481,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 				self._molMass[self._typeIdxs[typeKey]],
 				self._countsBulk[self._typeIdxs[typeKey], :]
 				)
-
-		# TODO: unique counts & dMass
 
 
 	def molMass(self, ids):
@@ -543,8 +499,6 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			"countsBulkPartitioned":tables.Float64Col(partitionsShape),
 			"countsBulkReturned":tables.Float64Col(partitionsShape),
 			"countsBulkUnpartitioned":tables.Float64Col(countsShape),
-			# TODO: track unique counts
-			# TODO: track requests
 			}
 
 		# Create table
@@ -600,11 +554,11 @@ class MoleculeCounts(wcState.State, MoleculeCountsBase):
 			self._countsBulkUnpartitioned[:] = entry['countsBulkUnpartitioned']
 
 
-class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
+class BulkMoleculesPartition(wcPartition.Partition, BulkMoleculesBase):
 	'''
-	MoleculeCountsPartition
+	BulkMoleculesPartition
 
-	Partition for MoleculeCounts.  Acts mostly as a container class, with some
+	Partition for BulkMolecules.  Acts mostly as a container class, with some
 	methods for indexing and creating views.  Partitions act as containers for 
 	requests prior to partitioning, as well as containers for the counts that
 	are ultimately partitioned to the state.
@@ -616,11 +570,9 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 	isReqAbs = False
 
 	def __init__(self, *args, **kwargs):
-		super(MoleculeCountsPartition, self).__init__(*args, **kwargs)
+		super(BulkMoleculesPartition, self).__init__(*args, **kwargs)
 		
-		# hack; uniques instances are unimplemented
 		self._molecules = {}
-		self._uniqueDict = self.state()._uniqueDict
 
 
 	def initialize(self, reqMols, isReqAbs = False):
@@ -651,7 +603,7 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 
 
 	def request(self):
-		self._process.requestMoleculeCounts()
+		self._process.requestBulkMolecules()
 
 		return self._countsBulk
 
@@ -665,73 +617,12 @@ class MoleculeCountsPartition(wcPartition.Partition, MoleculeCountsBase):
 		return idxs, idxs, np.zeros_like(idxs)
 
 
-def _uniqueInit(self, uniqueIdx):
-	# Default initialization method for _Molecule objects
-	self._uniqueIdx = uniqueIdx
-
-
-def _makeGetter(attr):
-	# Used to construct attribute getters for new _Molecules
-	def attrGetter(self):
-		molCont, uniqueIdx = self._container, self._uniqueIdx
-		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
-
-		return molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx]
-
-	return attrGetter
-
-
-def _makeSetter(attr):
-	# Used to construct attribute setters for new _Molecule objects
-	def attrSetter(self, newVal):
-		molCont, uniqueIdx = self._container, self._uniqueIdx
-		molRowIdx, molColIdx = self._molRowIdx, self._molColIdx
-
-		molCont._uniqueDict[molRowIdx][molColIdx][attr][uniqueIdx] = newVal
-
-	return attrSetter
-
-
 class _Molecule(object):
-	uniqueClassRegistry = {}
 	def __init__(self, container, rowIdx, colIdx, wid):
-		self._container = container # Parent MoleculeCounts object
+		self._container = container # Parent BulkMolecules object
 		self._rowIdx = rowIdx
 		self._colIdx = colIdx
 		self._wid = wid
-
-		if len(self._container._uniqueDict[self._rowIdx][self._colIdx]) == 0:
-			# Molecule has no attributes
-			pass
-
-		elif self._wid in self.uniqueClassRegistry:
-			# Molecule has been registered as a unique instance; use that class definition
-			self._MoleculeUnique = self.uniqueClassRegistry[self._wid]
-			self._MoleculeUnique._container = self._container
-			self._MoleculeUnique._molRowIdx = self._rowIdx
-			self._MoleculeUnique._molColIdx = self._colIdx
-
-			for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
-				if not hasattr(self._MoleculeUnique, attr):
-					setattr(self._MoleculeUnique, attr, _makeGetter(attr))
-
-				if not hasattr(self._MoleculeUnique, attr + "Is"):
-					setattr(self._MoleculeUnique, attr + "Is", _makeGetter(attr + "Is"))
-
-		else:
-			# Molecule has unique attributes, but isn't registered
-			uniqueClassDefDict = {}
-			uniqueClassDefDict["_container"] = self._container
-			uniqueClassDefDict["_molRowIdx"] = self._rowIdx
-			uniqueClassDefDict["_molColIdx"] = self._colIdx
-
-			uniqueClassDefDict["__init__"] = _uniqueInit
-
-			for attr in self._container._uniqueDict[self._rowIdx][self._colIdx]:
-				uniqueClassDefDict[attr] = _makeGetter(attr)
-				uniqueClassDefDict[attr + "Is"] = _makeSetter(attr)
-
-			self._MoleculeUnique = type("MoleculeUnique", (), uniqueClassDefDict)
 
 	# Interface methods
 
@@ -751,106 +642,13 @@ class _Molecule(object):
 		# Decrements counts bulk by decVal
 		self.countBulkInc(-1 * decVal)
 
-	def countUnique(self):
-		# Returns unique count of molecule as a float
-		return self._container._countsUnique[self._rowIdx, self._colIdx]
-	
-	def dMassIs(self, newVal):
-		# Sets the value for dMass
-		self._container._dmass[self._rowIdx, self._colIdx] = newVal
-
-	def dMassInc(self, incVal):
-		# Increments dmass by incVal
-		self._container._dmass[self._rowIdx, self._colIdx] += incVal
-
-	def dMassDec(self, decVal):
-		# Decrements count of dmass by decVal
-		self.dMassInc(-1 * decVal)
-
 	def massSingle(self):
 		# Returns mass of single object
 		return self._container._massSingle[self._rowIdx, self._colIdx]
 
 	def massAll(self):
-		# Returns mass of all objects bulk and unique
-		return (self.countBulk() + self.countUnique()) * self.massSingle() + self._container._dmass[self._rowIdx, self._colIdx]
-
-	def uniqueNew(self, attrs = None):
-		# Creates new unique object with attributes defined by attrs
-		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
-		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
-		
-		if not len(uniqueDict):
-			raise UniqueException('Attempting to create unique from object with no unique attributes!\n')
-
-		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
-			raise UniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
-
-		for attr in uniqueDict:
-			if attrs is not None and attr in attrs:
-				uniqueDict[attr].append(attrs[attr])
-			else:
-				uniqueDict[attr].append(None)
-
-		uniqueIdx = len(uniqueDict["objects"]) - 1
-		uniqueDict["objects"][uniqueIdx] = self._MoleculeUnique(uniqueIdx)
-		self._container._countsUnique[self._rowIdx, self._colIdx] += 1
-
-		return uniqueDict["objects"][uniqueIdx]
-
-	def uniquesWithAttrs(self, attrs = None):
-		# Returns list of objects with attributes specified in attrs
-		# attrs should be in format: {"attr1" : value1, "attr2" : value2, ...}
-		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
-
-		if attrs is not None and len(set(attrs).difference(set(uniqueDict.keys()))): # TODO: change to (set(...) - uniqueDict.viewkeys())
-			raise UniqueException('A specified attribute is not included in knoweldge base for this unique object!\n')
-
-		if attrs is None or len(attrs) == 0 or (hasattr(attrs, "lower") and attrs.lower() == "all"):
-			return uniqueDict["objects"][:]
-
-		L = []
-		for i in xrange(len(uniqueDict["objects"])):
-			addThis = True
-			for attr in attrs:
-				if uniqueDict[attr][i] != attrs[attr]:
-					addThis = False
-			if addThis:
-				L.append(uniqueDict["objects"][i])
-		return L
-
-	def uniqueDel(self, uniqueObj):
-		# Deletes unique object uniqueObj and decrements unique count
-		uniqueDict = self._container._uniqueDict[self._rowIdx][self._colIdx]
-		uniqueIdx = uniqueObj._uniqueIdx
-
-		if id(uniqueObj) != id(uniqueDict["objects"][uniqueIdx]):
-			raise UniqueException('Unique object to delete does not match row in unique table!\n')
-
-		for i in xrange(uniqueIdx + 1, len(uniqueDict["objects"])):
-			uniqueDict["objects"][i]._uniqueIdx -= 1
-		for attr in uniqueDict:
-			del uniqueDict[attr][uniqueIdx]
-		self._container._countsUnique[self._rowIdx, self._colIdx] -= 1			
-
-
-class UniqueException(Exception):
-	'''
-	UniqueException
-	'''
-
-
-class MoleculeUniqueMeta(type):
-	def __new__(cls, name, bases, attrs):
-		attrs.update({"_container": None, "_molRowIdx": None, "_molColIdx": None})
-
-		if '__init__' not in attrs:
-			attrs['__init__'] = _uniqueInit
-
-		newClass =  super(MoleculeUniqueMeta, cls).__new__(cls, name, bases, attrs)
-		_Molecule.uniqueClassRegistry[attrs["registrationId"]] = newClass
-		return newClass
-
+		# Returns mass of all objects bulk
+		return self.countBulk() * self.massSingle()
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
 	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
