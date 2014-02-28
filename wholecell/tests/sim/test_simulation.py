@@ -150,7 +150,7 @@ class Test_Simulation(unittest.TestCase):
 	def test_getDynamics(self):
 		sim = self.sim
 		dynamics = sim.getDynamics()
-		self.assertEqual(dynamics.keys(), ['RandStream', 'Mass', 'MoleculeCounts', 'Time'])
+		self.assertEqual(dynamics.keys(), ['RandStream', 'UniqueMolecules', 'Mass', 'MoleculeCounts', 'Time'])
 
 
 	# --- Test ability to remove processes from simulation ---

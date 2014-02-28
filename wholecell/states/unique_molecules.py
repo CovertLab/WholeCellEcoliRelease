@@ -273,7 +273,7 @@ class UniqueMolecules(wcState.State):
 		self.meta = {
 			'id':'UniqueMolecules',
 			'name':'Unique Molecules',
-			'dyanamics':[],
+			'dynamics':[],
 			'units':{}
 			}
 
