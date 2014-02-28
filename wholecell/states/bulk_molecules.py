@@ -314,7 +314,7 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		self._typeIdxs['water'] = self._molIDs.index('H2O')
 
 		self._typeLocalizations.update({
-			'matureProteins':[mol['location'] for mol in kb.proteins],
+			'proteins':[mol['location'] for mol in kb.proteins],
 			})
 
 		# Values needed for calcInitialConditions
@@ -328,7 +328,7 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		self.monExp = np.array([rnaIdToExp[x["rnaId"]] for x in mons])
 		self.monExp /= np.sum(self.monExp)
 
-		self._typeIdxs['matureMonomers'] = np.array(self._getIndices([x["id"] + "[" + x["location"] + "]" for x in mons])[1])
+		self._typeIdxs['monomers'] = np.array(self._getIndices([x["id"] + "[" + x["location"] + "]" for x in mons])[1])
 
 
 	def calcInitialConditions(self):
@@ -344,11 +344,11 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		matureRna = self.countsBulkViewNew(
 			[self._molIDs[i] + '[c]' for i in self._typeIdxs['rnas']])
 		aas = self.countsBulkViewNew(_ids['aas'])
-		matureMonomers = self.countsBulkViewNew([
+		monomers = self.countsBulkViewNew([
 			self._molIDs[ind] + '[{}]'.format(
-				self._typeLocalizations['matureProteins'][i]
+				self._typeLocalizations['proteins'][i]
 				)
-			for i, ind in enumerate(self._typeIdxs['matureMonomers'])
+			for i, ind in enumerate(self._typeIdxs['monomers'])
 			])
 
 		# Set metabolite counts from Feist core
@@ -397,7 +397,7 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 				)
 			)
 
-		matureMonomers.countsBulkIs(monCnts)
+		monomers.countsBulkIs(monCnts)
 
 
 	def allocate(self):
