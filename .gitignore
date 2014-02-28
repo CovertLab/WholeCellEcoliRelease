@@ -29,7 +29,8 @@ nosetests.*.xml
 # Output files #
 ################
 
-out/
+out/*
+!out/out.txt
 
 # Misc #
 ########
