@@ -3,7 +3,7 @@
 import numpy as np
 import tables
 
-import wholecell.states.state as wcState
+import wholecell.states.state
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
@@ -323,7 +323,7 @@ class _Molecule(object):
 		return '{}(..., {}, {})'.format(type(self).__name__, self._moleculeName, self._index)
 
 
-class UniqueMolecules(wcState.State):
+class UniqueMolecules(wholecell.states.state.State):
 	'''
 	UniqueMolecules
 
