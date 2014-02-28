@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Test_MoleculeCounts.py
+Test_BulkMolecules.py
 
 @author: Nick Ruggero, John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -16,7 +16,7 @@ import os
 import numpy as np
 import wholecell.states.molecule_counts as wcMoleculeCounts
 
-class Test_MoleculeCounts(unittest.TestCase):
+class Test_BulkMolecules(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
