@@ -23,13 +23,14 @@ QUERY_OPERATIONS = {
 	'!=':np.not_equal
 	}
 
+
 class UniqueMoleculesContainer(object):
 	'''
 	UniqueMoleculesContainer
 
-	Essentially a wrapper around a structured array, where the fields are 
-	attributes of the unique molecules.  Used for the unique molecules state
-	and partitions.
+	Essentially a dict of structured arrays, where the fields are attributes
+	of the unique molecules.  Used for the unique molecules state and
+	partitions.
 	'''
 
 	defaultContainerAttributes = {
@@ -37,6 +38,7 @@ class UniqueMoleculesContainer(object):
 		'_time':'uint64', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
+
 
 	def __init__(self, moleculeAttributes):
 		self._moleculeAttributes = {}
@@ -239,6 +241,7 @@ class _Query(object):
 
 	__slots__ = ('_container', '_moleculeName', '_operations', '_indexes')
 
+
 	def __init__(self, container, moleculeName, **operations):
 		self._container = container
 		self._moleculeName = moleculeName
@@ -266,6 +269,7 @@ class _Molecule(object):
 	'''
 	
 	__slots__ = ('_container', '_moleculeName', '_index')
+
 
 	def __init__(self, container, moleculeName, index):
 		self._container = container # TODO: cache reference to accessed array?
@@ -303,6 +307,7 @@ class UniqueMolecules(wcState.State):
 	State that tracks unique instances of molecules in the simulation, which 
 	can have special dynamic attributes.
 	'''
+
 
 	def __init__(self, *args, **kwargs):
 		self.meta = {
