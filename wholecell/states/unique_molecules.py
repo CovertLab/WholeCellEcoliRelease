@@ -35,6 +35,7 @@ class UniqueMoleculesContainer(object):
 
 	defaultContainerAttributes = {
 		'_isActive':'bool', # whether the row is an active entry
+		'_wasDeleted':'bool', # whether the row was deleted in the last step
 		'_time':'uint64', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
@@ -102,7 +103,10 @@ class UniqueMoleculesContainer(object):
 
 
 	def _getFreeIndexes(self, moleculeName, nMolecules):
-		freeIndexes = np.where(~self._moleculeArrays[moleculeName]['_isActive'])[0]
+		freeIndexes = np.where(
+			~self._moleculeArrays[moleculeName]['_isActive']
+			& ~self._moleculeArrays[moleculeName]['_wasDeleted']
+			)[0]
 
 		if freeIndexes.size < nMolecules:
 			oldEntries = self._moleculeArrays[moleculeName]
@@ -131,8 +135,11 @@ class UniqueMoleculesContainer(object):
 			dtype = array.dtype
 			)
 
+		array[index]['_wasDeleted'] = True
+
 
 	def _clearAll(self, moleculeName):
+		# NOTE: this a dangerous method, meant only to be called on load!
 		self._moleculeArrays[moleculeName] = np.zeros(0,
 			dtype = self._moleculeArrays[moleculeName].dtype)
 
@@ -186,6 +193,16 @@ class UniqueMoleculesContainer(object):
 		return (_Molecule(self, moleculeName, index) for index in _indexes)
 
 
+	def _timeIs(self, time):
+		for array in self._moleculeArrays.viewvalues():
+			array['_time'] = time
+
+
+	def _flushDeleted(self):
+		for array in self._moleculeArrays.viewvalues():
+			array['_wasDeleted'] = False
+
+
 	def pytablesCreate(self, h5file):
 		for moleculeName, savedAttributes in self._savedAttributes.viewitems():
 			h5file.create_table(
@@ -199,10 +216,6 @@ class UniqueMoleculesContainer(object):
 
 	def pytablesAppend(self, h5file, time):
 		for moleculeName, savedAttributes in self._savedAttributes.viewitems():
-			# Unfortunately this field *only* gets updated when appending, but 
-			# it's not actually all that useful elsewhere (TODO: update when partitioning?)
-			self._moleculeArrays[moleculeName]['_time'] = time
-
 			t = h5file.get_node('/', self._tableNames[moleculeName])
 
 			entries = self._moleculeArrays[moleculeName][self._queryMolecules(moleculeName)][savedAttributes]
@@ -278,13 +291,21 @@ class _Molecule(object):
 
 
 	def attr(self, attribute):
-		# TODO: exception when accessing inactive field
-		return self._container._moleculeArrays[self._moleculeName][self._index][attribute]
+		entry = self._container._moleculeArrays[self._moleculeName][self._index]
+		
+		if not entry['_isActive']:
+			raise Exception('Attempted to access an inactive molecule.')
+
+		return entry[attribute]
 
 
 	def attrIs(self, attribute, value):
-		# TODO: exception when accessing inactive field
-		self._container._moleculeArrays[self._moleculeName][self._index][attribute] = value
+		entry = self._container._moleculeArrays[self._moleculeName][self._index]
+		
+		if not entry['_isActive']:
+			raise Exception('Attempted to access an inactive molecule.')
+
+		entry[attribute] = value
 
 
 	def __hash__(self):
@@ -345,6 +366,16 @@ class UniqueMolecules(wcState.State):
 			boundToChromosome = True, # just some example parameters
 			chromosomeLocation = 50
 			)
+
+
+	def partition(self):
+		# Set the correct time for saving purposes
+		self._container._timeIs(self.time.value)
+
+		# Clear out any deleted entries to make room for new molecules
+		self._container._flushDeleted()
+
+		# TODO: actually partition
 
 
 	def pytablesCreate(self, h5file, expectedRows):
