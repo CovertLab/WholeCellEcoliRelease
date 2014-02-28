@@ -44,7 +44,7 @@ class Translation(wholecell.processes.process.Process):
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
 
 		mrnaIDs = [x['id'] + '[c]' for x in mrnas]
-		proteinIDs = [x["monomerId"] + ":nascent[c]" for x in mrnas]
+		proteinIDs = [x["monomerId"] + "[c]" for x in mrnas]
 
 		# Metabolites
 		self.bulkMoleculesPartition.initialize(metIDs + mrnaIDs + proteinIDs + enzIDs)

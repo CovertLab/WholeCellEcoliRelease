@@ -82,7 +82,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		for m in kb.metabolites:
 			if m["biomassConc"] != 0:
-				bioIds.append("%s:%s[%s]" % (m["id"], "mature", m["biomassLoc"]))
+				bioIds.append("%s[%s]" % (m["id"], m["biomassLoc"]))
 				bioConc.append(m["biomassConc"]) # Number of molecules to produce each time step
 
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))

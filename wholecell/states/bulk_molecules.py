@@ -24,8 +24,6 @@ import tables
 import wholecell.states.state as wcState
 import wholecell.states.partition as wcPartition
 
-DEFAULT_FORM = ':mature' # TODO: reconcile "forms" concept
-
 ID_REGEX_PATTERN = "^(?P<molecule>[^:\[\]]+)(?P<form>:[^:\[\]]+)*(?P<compartment>\[[^:\[\]]+\])*$"
 
 FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
@@ -87,6 +85,8 @@ class BulkMoleculesBase(object):
 
 
 	def _getIndices(self, ids):
+		DEFAULT_FORM = 'mature'
+
 		nIds = len(ids)
 
 		flatIdxs = np.empty(nIds, int)
@@ -279,9 +279,7 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		self._molIDs = []
 
 		self._molIDs += [x['id'] for x in kb.metabolites]
-		self._molIDs += [x['id'] + ':nascent' for x in kb.rnas]
 		self._molIDs += [x['id'] for x in kb.rnas]
-		self._molIDs += [x['id'] + ':nascent' for x in kb.proteins]
 		self._molIDs += [x['id'] for x in kb.proteins]
 
 		self._molIDIndex = {wid:i for i, wid in enumerate(self._molIDs)}
@@ -300,8 +298,8 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		molMass = [] # TOKB
 
 		molMass += [x['mw7.2'] for x in kb.metabolites]
-		molMass += [x['mw'] for x in kb.rnas]*2
-		molMass += [x['mw'] for x in kb.proteins]*2
+		molMass += [x['mw'] for x in kb.rnas]
+		molMass += [x['mw'] for x in kb.proteins]
 
 		self._molMass = np.array(molMass, float)
 
@@ -309,12 +307,8 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 
 		self._typeIdxs.update({
 			'metabolites':np.arange(len(kb.metabolites)),
-			'rnas':np.arange(2*len(kb.rnas))+len(kb.metabolites),
-			'proteins':np.arange(2*len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas),
-			'matureRnas':np.arange(len(kb.rnas))+len(kb.metabolites)+len(kb.rnas),
-			'matureProteins':np.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)+len(kb.proteins),
-			'nascentRnas':np.arange(len(kb.rnas))+len(kb.metabolites),
-			'nascentProteins':np.arange(len(kb.proteins))+len(kb.metabolites)+2*len(kb.rnas)
+			'rnas':np.arange(len(kb.rnas))+len(kb.metabolites),
+			'proteins':np.arange(len(kb.proteins))+len(kb.metabolites)+len(kb.rnas),
 			})
 
 		self._typeIdxs['water'] = self._molIDs.index('H2O')
@@ -334,7 +328,7 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		self.monExp = np.array([rnaIdToExp[x["rnaId"]] for x in mons])
 		self.monExp /= np.sum(self.monExp)
 
-		self._typeIdxs['matureMonomers'] = np.array(self._getIndices([x["id"] + ":mature[" + x["location"] + "]" for x in mons])[1])
+		self._typeIdxs['matureMonomers'] = np.array(self._getIndices([x["id"] + "[" + x["location"] + "]" for x in mons])[1])
 
 
 	def calcInitialConditions(self):
@@ -348,7 +342,7 @@ class BulkMolecules(wcState.State, BulkMoleculesBase):
 		h2oMol = self.molecule('H2O[c]')
 		ntps = self.countsBulkViewNew(_ids['ntps'])
 		matureRna = self.countsBulkViewNew(
-			[self._molIDs[i] + '[c]' for i in self._typeIdxs['matureRnas']])
+			[self._molIDs[i] + '[c]' for i in self._typeIdxs['rnas']])
 		aas = self.countsBulkViewNew(_ids['aas'])
 		matureMonomers = self.countsBulkViewNew([
 			self._molIDs[ind] + '[{}]'.format(
@@ -705,18 +699,18 @@ _ids = {
 		"leuZ-tRNA", "leuW-tRNA", "leuP-tRNA", "cysT-tRNA"
 		],
 	'rRnas':[
-		"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
-		"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
-		"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+		"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]", "RRLD-RRNA[c]", "RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]",
+		"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]", "RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]",
+		"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
 		],
 	'rRna23Ss':[
-		"RRLA-RRNA:mature[c]", "RRLB-RRNA:mature[c]", "RRLC-RRNA:mature[c]", "RRLD-RRNA:mature[c]", "RRLE-RRNA:mature[c]", "RRLG-RRNA:mature[c]", "RRLH-RRNA:mature[c]",
+		"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]", "RRLD-RRNA[c]", "RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]",
 		],
 	'rRna16ss':[
-		"RRSA-RRNA:mature[c]", "RRSB-RRNA:mature[c]", "RRSC-RRNA:mature[c]", "RRSD-RRNA:mature[c]", "RRSE-RRNA:mature[c]", "RRSG-RRNA:mature[c]", "RRSH-RRNA:mature[c]",
+		"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]", "RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]",
 		],
 	'rRna5Ss':[
-		"RRFA-RRNA:mature[c]", "RRFB-RRNA:mature[c]", "RRFC-RRNA:mature[c]", "RRFD-RRNA:mature[c]", "RRFE-RRNA:mature[c]", "RRFF-RRNA:mature[c]", "RRFG-RRNA:mature[c]", "RRFH-RRNA:mature[c]"
+		"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
 		],
 	'FeistCore':[
 		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
