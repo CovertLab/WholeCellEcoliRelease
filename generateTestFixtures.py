@@ -17,7 +17,7 @@ import wholecell.sim.simulation
 
 def main():
 	# Create output directory
-	outDir = "data/fixtures"
+	outDir = "fixtures"
 	if not os.path.exists(outDir):
 		os.makedirs(outDir)
 

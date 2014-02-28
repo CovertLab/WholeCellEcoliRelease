@@ -31,8 +31,8 @@ class Test_Simulation(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sim = cPickle.load(open(os.path.join("data", "fixtures", "Simulation.cPickle"), "r"))
-		self.kb = cPickle.load(open(os.path.join("data","fixtures","KnowledgeBase.cPickle"), "r"))
+		self.sim = cPickle.load(open(os.path.join("fixtures", "Simulation.cPickle"), "r"))
+		self.kb = cPickle.load(open(os.path.join("fixtures","KnowledgeBase.cPickle"), "r"))
 
 	def tearDown(self):
 		pass
