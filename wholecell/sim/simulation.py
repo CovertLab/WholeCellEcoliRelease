@@ -76,6 +76,7 @@ class Simulation(object):
 
 		import cPickle
 		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
+			import wholecell.reconstruction.knowledgebase
 			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
 				dataFileDir = "data/parsed",
 				seqFileName = "data/raw/sequence.txt"
