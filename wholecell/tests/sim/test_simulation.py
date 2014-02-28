@@ -132,19 +132,6 @@ class Test_Simulation(unittest.TestCase):
 		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
 						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
 
-	@noseAttrib.attr('mediumtest')
-	def test_loadSimulation_method(self):
-		with self.assertRaises(Exception) as context:
-			outDir = os.path.join("out", "test", "SimulationTest_testLogging")
-			sim = wholecell.sim.simulation.Simulation(
-				seed = 0, lengthSec = 2, logToDisk = True, outputDir = outDir,
-				overwriteExistingFiles = True
-				)
-			sim.run()
-			wholecell.sim.simulation.Simulation.loadSimulation(outDir, timePoint = 3)
-
-		self.assertEqual(context.exception.message, 'Time point chosen to load is out of range!\n')
-
 
 	@noseAttrib.attr('smalltest')
 	def test_getDynamics(self):
