@@ -130,6 +130,11 @@ class UniqueMoleculesContainer(object):
 			)
 
 
+	def _clearAll(self, moleculeName):
+		self._moleculeArrays[moleculeName] = np.zeros(0,
+			dtype = self._moleculeArrays[moleculeName].dtype)
+
+
 	def evaluateQuery(self, moleculeName, **operations): # TODO: allow for queries over all or a subset of molecules
 		return self.molecules(moleculeName, np.where(self._queryMolecules(moleculeName, **operations))[0])
 	
@@ -206,7 +211,16 @@ class UniqueMoleculesContainer(object):
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		raise NotImplementedError() # TODO
+		for moleculeName, savedAttributes in self._savedAttributes.viewitems():
+			t = h5file.get_node('/', self._tableNames[moleculeName])
+
+			entries = t[t[:]['_time'] == timePoint]
+
+			self._clearAll(moleculeName)
+			indexes = self._getFreeIndexes(moleculeName, entries.size)
+
+			for attrName in savedAttributes:
+				self._moleculeArrays[moleculeName][attrName][indexes] = entries[attrName]
 
 
 	# TODO: compute mass

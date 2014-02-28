@@ -19,6 +19,10 @@ import sys
 DEFAULT_SIM = dict(
 	seed = 10,
 	lengthSec = 100,
+	includedProcesses = [],
+	logToDisk = True,
+	outputDir = 'out/working',
+	overwriteExistingFiles = True
 	)
 
 def main():
