@@ -225,6 +225,15 @@ class UniqueObjectsContainer(object):
 		return set(self._iterMolecules(arrayIndex, objectIndexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
 
 
+	def _moleculesByGlobalIndex(self, globalIndexes): # TODO: make global index ref the internal standard behavior?
+		globalArray = self._arrays[self._globalRefIndex]
+
+		return set(
+			_UniqueObject(self, globalArray['_arrayIndex'][index], globalArray['_objectIndex'][index])
+			for index in globalIndexes
+			)
+
+
 	def iterMolecules(self, objectName):
 		return self._iterMolecules(self._nameToArrayIndex[objectName])
 
