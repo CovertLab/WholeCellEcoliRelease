@@ -13,7 +13,7 @@ import os
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-import wholecell.states.unique_molecules as wcUM
+import wholecell.utils.unique_objects_container
 
 TEST_KB = {
 	'RNA polymerase':{
@@ -35,7 +35,8 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 
 	def setUp(self):
-		self.container = wcUM.UniqueMoleculesContainer(TEST_KB)
+		self.container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
+			TEST_KB)
 		
 		self.container.moleculesNew(
 			'RNA polymerase',
