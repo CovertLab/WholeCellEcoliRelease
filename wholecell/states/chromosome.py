@@ -3,22 +3,16 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-import wholecell.states.unique_molecules
+import wholecell.utils.unique_objects_container
 
 N_BASES = 5000000 # TODO: from kb
 MOLECULE_WIDTH = 50 # TODO: from kb
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
-		'boundToChromosome':'bool',
 		'chromosomeLocation':'uint32'
 		}
 	}
-
-DEFAULT_SBM_ATTRIBUTES = {
-	'_Location':'uint32',
-	'_'
-}
 
 class SequenceBoundMolecules(object):
 	# Special values for the state of the chromosome
@@ -30,7 +24,6 @@ class SequenceBoundMolecules(object):
 
 	_defaultMoleculesContainerAttributes = {
 		'_sequenceBoundLocation':'uint32',
-		'_sequenceBoundIndex':'uint32'
 		}
 
 	def __init__(self):
@@ -44,9 +37,10 @@ class SequenceBoundMolecules(object):
 		moleculeAttributes = {}
 		for moleculeName, attributes in MOLECULE_ATTRIBUTES:
 			moleculeAttributes[moleculeName] = attributes.copy()
-			moleculeAttributes[moleculeName].update(DEFAULT_SBM_ATTRIBUTES)
+			moleculeAttributes[moleculeName].update(self._defaultMoleculesContainerAttributes)
 
-		self._moleculesContainer = UniqueMoleculesContainer(moleculeAttributes)
+		self._moleculesContainer =  wholecell.utils.unique_objects_container.UniqueObjectsContainer(
+			moleculeAttributes)
 		self._boundMolecules = [] # TODO:
 		# make this into a special UniqueMoleculeContainer-like object for holding references?
 		# add a special molecule to the container? (I'm thinking this)
