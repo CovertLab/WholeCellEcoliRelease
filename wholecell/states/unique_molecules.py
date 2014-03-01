@@ -28,24 +28,6 @@ MOLECULE_ATTRIBUTES = {
 		}
 	}
 
-'''
-TODO
-
-Create an extra 'molecule' called _Global Reference, with attributes
-_objectName (eventually, _arrayIndex)
-_moleculeIndex
-
-plus the default attributes.  Any add/remove action will update these entries.
-Regular entries will get a back-reference index to their global entry.
-
-Uses:
--unified access for queries over multiple molecules
--easier to wrap for other classes (sequence bound molecules)
--easy to track all unique molecules for loading, testing
--better support for indexed array references instead of dicts
-
-
-'''
 
 class UniqueMoleculesContainer(object):
 	# TODO: move to separate file
@@ -61,17 +43,17 @@ class UniqueMoleculesContainer(object):
 	_defaultContainerAttributes = {
 		'_isActive':'bool', # whether the row is an active entry
 		'_wasDeleted':'bool', # whether the row was deleted in the last step
+		'_globalIndex':'uint32', # index in the _globalReference array
 		'_time':'uint64', # current time (important for saving)
-		# '_globalIndex':'uint32'
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
-	# _defaultMolecules = {
-	# 	'_globalReference':{
-
-
-	# 	}
-	# }
+	_defaultObjects = {
+		'_globalReference':{ # a table which contains reference to all molecules
+			'_arrayIndex':'uint32',
+			'_objectIndex':'uint32'
+		}
+	}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array
 
@@ -97,8 +79,10 @@ class UniqueMoleculesContainer(object):
 		self._tableNames = {} # objectName:table name
 
 		self._objectAttributes.update(objectAttributes)
+		self._objectAttributes.update(self._defaultObjects)
 
 		self._objectNames = sorted(self._objectAttributes.keys())
+		self._globalRefIndex = self._objectNames.index('_globalReference')
 
 		for objectName, attributes in self._objectAttributes.viewitems():
 			# Add the attributes used internally
@@ -132,33 +116,29 @@ class UniqueMoleculesContainer(object):
 
 	def moleculesNew(self, objectName, nMolecules, **attributes):
 		arrayIndex = self._nameToArrayIndex[objectName]
-
-		indexes = self._getFreeIndexes(arrayIndex, nMolecules)
+		objectIndexes = self._getFreeIndexes(arrayIndex, nMolecules)
 
 		array = self._arrays[arrayIndex]
 
-		array['_isActive'][indexes] = True
+		array['_isActive'][objectIndexes] = True
 
 		for attrName, attrValue in attributes.viewitems():
 			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
-			array[attrName][indexes] = attrValue
+			array[attrName][objectIndexes] = attrValue
 
-		return self._molecules(arrayIndex, indexes)
+		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
+		globalArray = self._arrays[self._globalRefIndex]
+		globalArray['_isActive'][globalIndexes] = True
+		globalArray['_arrayIndex'][globalIndexes] = arrayIndex
+		globalArray['_objectIndex'][globalIndexes] = objectIndexes
+
+		return self._molecules(arrayIndex, objectIndexes)
 
 
 	def moleculeNew(self, objectName, **attributes):
 		(molecule,) = self.moleculesNew(objectName, 1, **attributes) # NOTE: tuple unpacking
 
 		return molecule
-
-
-	def moleculesDel(self, molecules):
-		for molecule in molecules:
-			self.moleculeDel(molecule)
-
-
-	def moleculeDel(self, molecule):
-		self._clearEntry(molecule._arrayIndex, molecule._index)
 
 
 	def _getFreeIndexes(self, arrayIndex, nMolecules):
@@ -186,27 +166,38 @@ class UniqueMoleculesContainer(object):
 		return freeIndexes[:nMolecules]
 
 
-	def _clearEntry(self, arrayIndex, index):
-		# this will probably be replaced
+	def moleculesDel(self, molecules):
+		for molecule in molecules:
+			self.moleculeDel(molecule)
+
+
+	def moleculeDel(self, molecule):
+		self._clearEntry(molecule._arrayIndex, molecule._objectIndex)
+
+
+	def _clearEntry(self, arrayIndex, objectIndex):
 		array = self._arrays[arrayIndex]
 
-		array[index] = np.zeros(
+		globalArray = self._arrays[self._globalRefIndex]
+		globalArray[array[objectIndex]['_globalIndex']] = np.zeros(1, dtype = globalArray.dtype)
+
+		array[objectIndex] = np.zeros(
 			1,
 			dtype = array.dtype
 			)
 
-		array[index]['_wasDeleted'] = True
+		array[objectIndex]['_wasDeleted'] = True
 
 
-	def _clearAll(self, objectName):
+	def _clearAll(self, arrayIndex):
 		# NOTE: this a dangerous method, meant only to be called on load!
-		self._arrays[self._nameToArrayIndex[objectName]] = np.zeros(0,
-			dtype = self._arrays[self._nameToArrayIndex[objectName]].dtype)
+		self._arrays[arrayIndex] = np.zeros(0,
+			dtype = self._arrays[arrayIndex].dtype)
 
 
 	def evaluateQuery(self, objectName, **operations): # TODO: allow for queries over all or a subset of molecules
 		arrayIndex = self._nameToArrayIndex[objectName]
-		
+
 		return self._molecules(
 			arrayIndex,
 			np.where(self._queryMolecules(arrayIndex, **operations))[0]
@@ -231,7 +222,7 @@ class UniqueMoleculesContainer(object):
 
 	def updateQueries(self):
 		for query in self._queries:
-			query._indexes = np.where(
+			query._objectIndexes = np.where(
 				self._queryMolecules(query._arrayIndex, **query._operations)
 				)[0]
 
@@ -252,19 +243,19 @@ class UniqueMoleculesContainer(object):
 		return self._molecules(self._nameToArrayIndex[objectName])
 
 
-	def _molecules(self, arrayIndex, indexes = None):
-		return set(self._iterMolecules(arrayIndex, indexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
+	def _molecules(self, arrayIndex, objectIndexes = None):
+		return set(self._iterMolecules(arrayIndex, objectIndexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
 
 
 	def iterMolecules(self, objectName):
 		return self._iterMolecules(self._nameToArrayIndex[objectName])
 
 
-	def _iterMolecules(self, arrayIndex, indexes = None):
-		if indexes is None:
-			indexes = np.where(self._arrays[arrayIndex]['_isActive'])[0]
+	def _iterMolecules(self, arrayIndex, objectIndexes = None):
+		if objectIndexes is None:
+			objectIndexes = np.where(self._arrays[arrayIndex]['_isActive'])[0]
 
-		return (_UniqueObject(self, arrayIndex, index) for index in indexes)
+		return (_UniqueObject(self, arrayIndex, objectIndex) for objectIndex in objectIndexes)
 
 
 
@@ -277,40 +268,45 @@ class UniqueMoleculesContainer(object):
 		for array in self._arrays:
 			array['_wasDeleted'] = False
 
+	# TODO: fix saving/loading...
+	# currently problematic because
+	#	indexes won't line up on load which makes testing hard
+	#	_wasDeleted property isnt saved
+	#	global ref indexes point to the wrong spots
 
-	def pytablesCreate(self, h5file):
-		for objectName, savedAttributes in self._savedAttributes.viewitems():
-			h5file.create_table(
-				h5file.root,
-				self._tableNames[objectName],
-				self._nameToArray[objectName][savedAttributes].dtype,
-				title = objectName,
-				filters = tables.Filters(complevel = 9, complib = 'zlib')
-				)
-
-
-	def pytablesAppend(self, h5file, time):
-		for objectName, savedAttributes in self._savedAttributes.viewitems():
-			t = h5file.get_node('/', self._tableNames[objectName])
-
-			entries = self._nameToArray[objectName][self._queryMolecules(objectName)][savedAttributes]
-
-			t.append(entries)
-
-			t.flush()
+	# def pytablesCreate(self, h5file):
+	# 	for arrayIndex, array in enumerate(self._arrays):
+	# 		h5file.create_table(
+	# 			h5file.root,
+	# 			self._tableNames[arrayIndex],
+	# 			array[self._savedAttributes[arrayIndex]].dtype,
+	# 			title = self._objectNames[arrayIndex],
+	# 			filters = tables.Filters(complevel = 9, complib = 'zlib')
+	# 			)
 
 
-	def pytablesLoad(self, h5file, timePoint):
-		for objectName, savedAttributes in self._savedAttributes.viewitems():
-			t = h5file.get_node('/', self._tableNames[objectName])
+	# def pytablesAppend(self, h5file, time):
+	# 	for arrayIndex, array in enumerate(self._arrays):
+	# 		table= h5file.get_node('/', self._tableNames[arrayIndex])
 
-			entries = t[t[:]['_time'] == timePoint]
+	# 		entries = array[self._queryMolecules(self._objectNames[array])][self._savedAttributes[arrayIndex]]
 
-			self._clearAll(objectName)
-			indexes = self._getFreeIndexes(objectName, entries.size)
+	# 		table.append(entries)
 
-			for attrName in savedAttributes:
-				self._nameToArray[objectName][attrName][indexes] = entries[attrName]
+	# 		table.flush()
+
+
+	# def pytablesLoad(self, h5file, timePoint):
+	# 	for arrayIndex, tableName in enumerate(self._tableNames):
+	# 		table = h5file.get_node('/', tableName)
+
+	# 		entries = table[table[:]['_time'] == timePoint]
+
+	# 		self._clearAll(arrayIndex)
+	# 		indexes = self._getFreeIndexes(arrayIndex, entries.size)
+
+	# 		for attrName in savedAttributes:
+	# 			self._arrays[attrName][indexes] = entries[attrName]
 
 
 	# TODO: compute mass
@@ -327,22 +323,22 @@ class _Query(object):
 	inspected by a process.
 	'''
 
-	__slots__ = ('_container', '_arrayIndex', '_operations', '_indexes')
+	__slots__ = ('_container', '_arrayIndex', '_operations', '_objectIndexes')
 
 
 	def __init__(self, container, arrayIndex, **operations):
 		self._container = container
 		self._arrayIndex = arrayIndex
 		self._operations = operations
-		self._indexes = None
+		self._objectIndexes = None
 
 
 	def molecules(self):
-		return self._container._molecules(self._arrayIndex, self._indexes)
+		return self._container._molecules(self._arrayIndex, self._objectIndexes)
 
 
 	def iterMolecules(self):
-		return self._container._iterMolecules(self._arrayIndex, self._indexes)
+		return self._container._iterMolecules(self._arrayIndex, self._objectIndexes)
 
 
 	# TODO: sampling functions?  i.e. get N molecules
@@ -358,17 +354,17 @@ class _UniqueObject(object):
 	object-like interface.
 	'''
 	
-	__slots__ = ('_container', '_arrayIndex', '_index')
+	__slots__ = ('_container', '_arrayIndex', '_objectIndex')
 
 
 	def __init__(self, container, arrayIndex, index):
 		self._container = container
 		self._arrayIndex = arrayIndex
-		self._index = index
+		self._objectIndex = index
 
 
 	def attr(self, attribute):
-		entry = self._container._arrays[self._arrayIndex][self._index]
+		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_isActive']:
 			raise Exception('Attempted to access an inactive molecule.')
@@ -377,7 +373,7 @@ class _UniqueObject(object):
 
 
 	def attrIs(self, attribute, value):
-		entry = self._container._arrays[self._arrayIndex][self._index]
+		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_isActive']:
 			raise Exception('Attempted to access an inactive molecule.')
@@ -386,16 +382,12 @@ class _UniqueObject(object):
 
 
 	def __hash__(self):
-		return hash((self._container, self._arrayIndex, self._index))
+		return hash((self._container, self._arrayIndex, self._objectIndex))
 
 
 	def __eq__(self, other):
 		assert self._container == other._container, 'Molecule comparisons across UniqueMoleculesContainer objects not supported.'
-		return self._arrayIndex == other._arrayIndex and self._index == other._index
-
-
-	def __repr__(self):
-		return '{}(..., {}, {})'.format(type(self).__name__, self._objectName, self._index)
+		return self._arrayIndex == other._arrayIndex and self._objectIndex == other._objectIndex
 
 	# TODO: method to get name
 
@@ -461,15 +453,18 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		self._container.pytablesCreate(h5file)
+		# self._container.pytablesCreate(h5file)
+		pass
 
 
 	def pytablesAppend(self, h5file):
-		self._container.pytablesAppend(h5file, self.time.value)
+		# self._container.pytablesAppend(h5file, self.time.value)
+		pass
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		self._container.pytablesLoad(h5file, timePoint)
+		# self._container.pytablesLoad(h5file, timePoint)
+		pass
 	
 	# TODO: partitioning
 
