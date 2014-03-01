@@ -10,7 +10,6 @@ MOLECULE_WIDTH = 50 # TODO: from kb
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
-		'chromosomeLocation':'uint32'
 		}
 	}
 
@@ -23,48 +22,72 @@ class SequenceBoundMolecules(object):
 	_offset = _specialValues.size
 
 	_defaultMoleculesContainerAttributes = {
-		'_sequenceBoundLocation':'uint32',
+		'_sequenceBoundLocation':'uint32', # location of the molecule on the chromosome
 		}
 
+	
 	def __init__(self):
-		# TODO: handle/pass sequence, multiplicity
-		self._sequence = np.zeros(N_BASES, dtype = np.int8) # this really just needs to be a 2-bit integer...
-		self._length = self._sequence.shape[0]
+		self._length = N_BASES
 		
 		self._array = np.empty(N_BASES, dtype = np.int32) # TODO: choose best dtype based on array size
-		self._array[:] = self._empty
+		self._array[:] = self._inactive
 
 		moleculeAttributes = {}
-		for moleculeName, attributes in MOLECULE_ATTRIBUTES:
+		for moleculeName, attributes in MOLECULE_ATTRIBUTES.viewitems():
 			moleculeAttributes[moleculeName] = attributes.copy()
 			moleculeAttributes[moleculeName].update(self._defaultMoleculesContainerAttributes)
 
 		self._moleculesContainer =  wholecell.utils.unique_objects_container.UniqueObjectsContainer(
 			moleculeAttributes)
-		self._boundMolecules = [] # TODO:
-		# make this into a special UniqueMoleculeContainer-like object for holding references?
-		# add a special molecule to the container? (I'm thinking this)
 
 
-	def boundMolecules(self, start, stop):
+	def moleculeNew(self, objectName, location, **attributes):
+		molecule = self._moleculesContainer.moleculeNew(
+			objectName,
+			_sequenceBoundLocation = location,
+			**attributes
+			)
+
+		self._setMoleculeLocation(molecule, location)
+
+		return molecule
+
+
+	def moleculeMove(self, molecule, newLocation):
+		oldLocation = molecule.attr('_sequenceBoundLocation')
+		self._array[oldLocation:oldLocation+MOLECULE_WIDTH] = self._empty
+
+		self._setMoleculeLocation(molecule, newLocation)
+
+		return molecule
+
+
+	def _setMoleculeLocation(self, molecule, location):
+		self._array[location:location+MOLECULE_WIDTH] = molecule.attr('_globalIndex') + self._offset
+		molecule.attrIs('_sequenceBoundLocation', location)
+
+
+	def moleculeDel(self, molecule):
+		location = molecule.attr('_sequenceBoundLocation')
+		self._array[location:location+MOLECULE_WIDTH] = self._empty
+
+		self._moleculesContainer.moleculeDel(molecule)
+
+
+	def molecules(self, start, stop):
 		indexes = np.setdiff1d(self._array[start:stop], self._specialValues) - self._offset
 
-		return {self._boundMolecules[index] for index in indexes}
+		return self._moleculesContainer._moleculesByGlobalIndex(indexes)
 
 
-	def boundMoleculeIs(self, molecule, start):
-		index = self._getFreeIndexes(1)
-
-		self._array[start:start+MOLECULE_WIDTH] = index
-		molecule.attrIs('_sequenceBoundLocation', start)
-
-		self._boundMolecules[index] = (molecule._moleculeName, molecule._index)
-		molecule.attrIs('_sequenceBoundIndex', index)
-
-
-	def _getFreeIndexes(self, n):
-		raise NotImplementedError()
-
+	# TODO: figure out how molecule width info is going to be handled
+	# TODO: circularly-permuted indexing
+	# TODO: saving
+	# TODO: update container time, flush deleted molecules, update queries?
+	# TODO: handle/pass sequence, multiplicity
+	# TODO: restrict binding to empty regions
+	# TODO: methods for activating/inactivating regions
+	# TODO: write tests
 
 
 class Chromosome(wholecell.states.state.State):
@@ -85,11 +108,20 @@ class Chromosome(wholecell.states.state.State):
 
 	
 	def initialize(self, sim, kb):
-		super(UniqueMolecules, self).initialize(sim, kb)
+		super(Chromosome, self).initialize(sim, kb)
 
-		self._container = NucleotideBoundMolecules()
+		self._container = SequenceBoundMolecules()
 
 
 	def calcInitialConditions(self):
-		pass
+		# Randomly bind a bunch of RNA polymerases
+		nBound = 0
+
+		while nBound < 1000:
+			bindAt = self.randStream.randi(N_BASES - MOLECULE_WIDTH)
+
+			if not self._container.molecules(bindAt, bindAt + MOLECULE_WIDTH):
+				self._container.moleculeNew('RNA polymerase', bindAt)
+
+				nBound += 1
 
