@@ -5,15 +5,8 @@ The UniqueMolecules State handles the identity and dynamic properties of unique
 molecules in the simulation.  The attribute names and data types are imported
 from the knowledge base.
 
-The UniqueMolecules State instantiates a UniqueMoleculesContainer object,
-which creates and manages the structured arrays in memory.
-
-The UniqueMoleculesContainer uses _UniqueObject objects to present a clean 
-interface to a specific molecule's attributes.
-
-The UniqueMoleculesContainer also uses _Query objects to store and periodically
-update queries which return sets of _UniqueObject that refer to molecules 
-satisfying the query.
+The UniqueMolecules State instantiates a UniqueObjectsContainer object, which 
+creates and manages the structured arrays in memory.
 '''
 
 import numpy as np

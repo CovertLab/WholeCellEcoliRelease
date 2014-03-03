@@ -1,6 +1,16 @@
 '''
-
 unqiue_objects_container.py
+
+UniqueObjectsContainer is a object that tracks the attributes of unique
+objects, which are typically molecules.  It supports saving and loading by 
+appending entries in a structured array to tables with the same sets of fields.
+
+The UniqueObjectsContainer uses _UniqueObject objects to present a clean 
+interface to a specific molecule's attributes.
+
+The UniqueObjectsContainer also uses _Query objects to store and periodically
+update queries which return sets of _UniqueObject that refer to molecules 
+satisfying the query.
 
 '''
 
