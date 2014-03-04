@@ -159,6 +159,9 @@ class RandStream(object):
 		mat = mat[rndIdxs, :]
 		return mat, rndIdxs
 
+	def numpyShuffle(self, *args, **kwargs):
+		self.randStream.shuffle(*args, **kwargs)
+
 	@property
 	def type(self):
 		return self.randStream.get_state()[0]
