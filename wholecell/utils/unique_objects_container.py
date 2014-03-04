@@ -490,8 +490,8 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 		np.dot(flooredCounts, moleculeToRequestConnections[nMoleculeTypes:, :].T),
 		requestProcessArray
 		)
-
-	indexingRanges = np.c_[np.zeros(nMoleculeTypes), np.cumsum(flooredProcessCounts, 0)].astype(np.int)
+	
+	indexingRanges = np.c_[np.zeros(nMoleculeTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int)
 
 	# TODO: find a way to eliminate the for-loops!
 	partitionedMolecules = np.zeros((nMolecules, nProcesses), np.bool)
