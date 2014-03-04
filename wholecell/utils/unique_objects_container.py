@@ -17,6 +17,8 @@ satisfying the query.
 import numpy as np
 import tables
 
+import wholecell.utils.linear_programming as lp
+
 class UniqueObjectsContainer(object):
 	# TODO: move to separate file
 	# TODO: generalize names (molecule -> object)
@@ -271,6 +273,7 @@ class UniqueObjectsContainer(object):
 		for array in self._arrays:
 			array['_wasDeleted'] = False
 
+
 	# TODO: fix saving/loading...
 	# currently problematic because
 	#	indexes won't line up on load which makes testing hard
@@ -393,3 +396,103 @@ class _UniqueObject(object):
 		return self._arrayIndex == other._arrayIndex and self._objectIndex == other._objectIndex
 
 	# TODO: method to get name
+
+def _partition(objectRequestsArray, requestNumberVector, requestProcessArray):
+	# objectRequestsArray: 2D bool array, (molecule)x(request)
+	# requestNumberVector: number of molecules request, by request
+	# requestProcessArray: 2D bool array, (request)x(process)
+
+	# Create matrix
+
+	nRequests = requestNumberVector.size
+	nProcesses = requestProcessArray.shape[1]
+
+	objectRequestsStructured = objectRequestsArray.view(
+		dtype = [('', np.bool)] * nRequests)
+
+	uniqueEntriesStructured, mapping = np.unique(objectRequestsStructured,
+		return_inverse = True)
+
+	uniqueEntries = uniqueEntriesStructured.view((np.bool, 
+		len(uniqueEntriesStructured.dtype.names)))
+
+	counts = np.bincount(mapping)
+
+	nMoleculeTypes = counts.size
+
+	where0, where1 = np.where(uniqueEntries)
+
+	nConnections = where0.size
+
+	argsort = np.argsort(where1)
+
+	moleculeToRequestConnections = np.zeros((nMoleculeTypes + nRequests,
+		nConnections), np.int)
+
+	upperIndices = (where0, np.arange(5)[argsort])
+	lowerIndices = (nMoleculeTypes + where1[argsort], np.arange(5))
+
+	moleculeToRequestConnections[upperIndices] = -1
+	moleculeToRequestConnections[lowerIndices] = 1
+
+	intMatrix = np.zeros(
+		(nMoleculeTypes + nRequests + nProcesses,
+			nMoleculeTypes + nConnections + 2*nProcesses),
+		np.int
+		)
+
+	intMatrix[:nMoleculeTypes, :nMoleculeTypes] = np.identity(nMoleculeTypes)
+
+	intMatrix[:nMoleculeTypes + nRequests,
+		nMoleculeTypes:nMoleculeTypes+nConnections] = moleculeToRequestConnections
+
+	intMatrix[nMoleculeTypes:nMoleculeTypes+nRequests,
+		nMoleculeTypes+nConnections:nMoleculeTypes+nConnections+nProcesses][np.where(requestProcessArray)] = -requestNumberVector
+
+	intMatrix[nMoleculeTypes + nRequests:,
+		nMoleculeTypes+nConnections:nMoleculeTypes+nConnections+nProcesses] = np.identity(nProcesses)
+
+	intMatrix[nMoleculeTypes + nRequests:,
+		-nProcesses:] = -np.identity(nProcesses)
+
+	# Create other linear programming parameters
+
+	objective = np.zeros(intMatrix.shape[1], np.float)
+	objective[-nProcesses:] = 1
+
+	b = np.zeros(intMatrix.shape[0], np.float) # conservation law
+
+	lb = np.zeros(intMatrix.shape[1], np.float)
+
+	ub = np.empty(intMatrix.shape[1], np.float)
+	ub[:] = np.inf
+	ub[:nMoleculeTypes] = counts
+	ub[-nProcesses:] = 1
+
+	# Optimize
+
+	solution = lp.linearProgramming(
+		'maximize', objective,
+		intMatrix.astype(np.float), b,
+		lb, ub,
+		'S', 'C', # no idea what these are supposed to do
+		None # no options
+		)[0].flatten()
+
+	# Convert solution to amounts allocated to each process
+
+	unfixedCounts = -moleculeToRequestConnections[:nMoleculeTypes, :] * solution[nMoleculeTypes:nMoleculeTypes+nConnections]
+
+	flooredCounts = np.floor(unfixedCounts)
+
+	flooredProcessCounts = np.dot(
+		np.dot(flooredCounts, moleculeToRequestConnections[nMoleculeTypes:, :].T),
+		requestProcessArray
+		)
+
+	# TODO: sample molecules randomly
+	# TODO: return bool array of partitioned molecules
+
+	
+
+	import ipdb; ipdb.set_trace()

@@ -1,5 +1,5 @@
 '''
-test_unique_molecules_container.py
+test_unique_objects_container.py
 
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -7,8 +7,6 @@ test_unique_molecules_container.py
 '''
 
 import unittest
-import cPickle
-import os
 
 import numpy as np
 import nose.plugins.attrib as noseAttrib
