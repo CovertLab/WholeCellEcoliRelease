@@ -120,6 +120,8 @@ class UniqueObjectsContainer(object):
 		globalArray['_arrayIndex'][globalIndexes] = arrayIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
 
+		array['_globalIndex'][objectIndexes] = globalIndexes
+
 		return self._molecules(arrayIndex, objectIndexes)
 
 
