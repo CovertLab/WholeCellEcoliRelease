@@ -6,6 +6,8 @@ test_unique_objects_partitioning.py
 @data: Created 3/4/2014
 '''
 
+from __future__ import division
+
 import unittest
 
 import numpy as np
@@ -69,6 +71,9 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 	
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'partitioning')
 	def test_partitioning(self):
+		# Set up the partition function call
+		
+		# TODO: write and use the interface for this code
 		request11_MoleculesLocal = self.container._queryMolecules(self.arrayIndex_A,
 			attribute = ('==', True))
 
@@ -101,8 +106,42 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 			[False, True],
 			])
 
-		wholecell.utils.unique_objects_container._partition(objectRequestsArray,
-			requestNumberVector, requestProcessArray, self.randStream)
+		# Partition the molecules
+		
+		partitionedMolecules = wholecell.utils.unique_objects_container._partition(
+			objectRequestsArray,requestNumberVector, requestProcessArray, self.randStream)
+
+		# Assert that each molecule is partitioned to one state
+
+		self.assertTrue((partitionedMolecules.sum(1) <= 1).all())
+
+		# Assert that unrequested molecules aren't partitioned
+
+		requestedByProcess1 = objectRequestsArray[:, 0] | objectRequestsArray[:, 1]
+
+		self.assertFalse((~requestedByProcess1 & partitionedMolecules[:, 0]).any())
+
+		# Determine the number partitioned
+
+		partitioned11 = (objectRequestsArray[:, 0] & partitionedMolecules[:, 0]).sum()
+		partitioned12 = (objectRequestsArray[:, 1] & partitionedMolecules[:, 0]).sum()
+		partitioned21 = (objectRequestsArray[:, 2] & partitionedMolecules[:, 1]).sum()
+		partitioned22 = (objectRequestsArray[:, 3] & partitionedMolecules[:, 1]).sum()
+
+		# Assert that the partitioned amounts are in the correct ratios
+
+		ratio_request1 = requestNumberVector[0]/requestNumberVector[1]
+		ratio_request2 = requestNumberVector[2]/requestNumberVector[3]
+
+		ratio_partitioned1 = partitioned11/partitioned12
+		ratio_partitioned2 = partitioned21/partitioned22
+
+		self.assertTrue(
+			np.allclose(
+				[ratio_request1, ratio_request2],
+				[ratio_partitioned1, ratio_partitioned2]
+				)
+			)
 
 
 	
