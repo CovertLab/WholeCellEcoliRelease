@@ -76,6 +76,9 @@ class UniqueObjectsContainer(object):
 			# Add the attributes used internally
 			attributes.update(self._defaultContainerAttributes)
 
+		# Global references don't use global indexes
+		del self._objectAttributes['_globalReference']['_globalIndex'] 
+
 		for arrayIndex, objectName in enumerate(self._objectNames):
 			attributes = self._objectAttributes[objectName]
 
@@ -170,6 +173,7 @@ class UniqueObjectsContainer(object):
 
 		globalArray = self._arrays[self._globalRefIndex]
 		globalArray[array[objectIndex]['_globalIndex']] = np.zeros(1, dtype = globalArray.dtype)
+		globalArray[array[objectIndex]['_globalIndex']]['_wasDeleted'] = True
 
 		array[objectIndex] = np.zeros(
 			1,
