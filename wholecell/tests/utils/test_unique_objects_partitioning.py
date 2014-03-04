@@ -12,6 +12,7 @@ import numpy as np
 import nose.plugins.attrib as noseAttrib
 
 import wholecell.utils.unique_objects_container
+import wholecell.utils.rand_stream
 
 TEST_KB = {
 	'A':{
@@ -59,6 +60,8 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 		self.arrayIndex_A = self.container._nameToArrayIndex['A']
 		self.arrayIndex_B = self.container._nameToArrayIndex['B']
 
+		self.randStream = wholecell.utils.rand_stream.RandStream()
+
 
 	def tearDown(self):
 		pass
@@ -98,8 +101,8 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 			[False, True],
 			])
 
-		wholecell.utils.unique_objects_container._partition(objectRequestsArray, requestNumberVector,
-			requestProcessArray)
+		wholecell.utils.unique_objects_container._partition(objectRequestsArray,
+			requestNumberVector, requestProcessArray, self.randStream)
 
 
 	

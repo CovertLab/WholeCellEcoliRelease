@@ -397,13 +397,14 @@ class _UniqueObject(object):
 
 	# TODO: method to get name
 
-def _partition(objectRequestsArray, requestNumberVector, requestProcessArray):
+def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randStream):
 	# objectRequestsArray: 2D bool array, (molecule)x(request)
 	# requestNumberVector: number of molecules request, by request
 	# requestProcessArray: 2D bool array, (request)x(process)
 
 	# Create matrix
 
+	nMolecules = objectRequestsArray.shape[0]
 	nRequests = requestNumberVector.size
 	nProcesses = requestProcessArray.shape[1]
 
@@ -490,9 +491,20 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray):
 		requestProcessArray
 		)
 
-	# TODO: sample molecules randomly
-	# TODO: return bool array of partitioned molecules
+	indexingRanges = np.c_[np.zeros(nMoleculeTypes), np.cumsum(flooredProcessCounts, 0)].astype(np.int)
 
-	
+	# TODO: find a way to eliminate the for-loops!
+	partitionedMolecules = np.zeros((nMolecules, nProcesses), np.bool)
 
-	import ipdb; ipdb.set_trace()
+	for moleculeIndex in np.arange(uniqueEntriesStructured.size):
+		indexes = np.where(moleculeIndex == mapping)[0]
+		randStream.numpyShuffle(indexes)
+
+		for processIndex in np.arange(nProcesses):
+			selectedIndexes = indexes[indexingRanges[moleculeIndex, processIndex]:indexingRanges[moleculeIndex, processIndex+1]]
+
+			partitionedMolecules[
+				selectedIndexes,
+				processIndex] = True
+
+	return partitionedMolecules
