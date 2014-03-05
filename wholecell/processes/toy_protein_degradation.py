@@ -32,9 +32,6 @@ class ToyProteinDegradation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyProteinDegradation, self).initialize(sim, kb)
 
-		uniqueMolecules = sim.states["UniqueMolecules"]
-		self.container = uniqueMolecules._container
-
 		self.unboundRNApoly_query = sim.states['UniqueMolecules'].queryNew(
 			'RNA polymerase', boundToChromosome = ('==', False))
 
