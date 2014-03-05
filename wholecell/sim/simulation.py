@@ -183,6 +183,8 @@ class Simulation(object):
 		import wholecell.processes.transcription
 		import wholecell.processes.translation
 		import wholecell.processes.free_production
+		import wholecell.processes.toy_transcription
+		import wholecell.processes.toy_protein_degradation
 
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
@@ -190,7 +192,9 @@ class Simulation(object):
 			('RnaDegradation',		wholecell.processes.rna_degradation.RnaDegradation()),
 			('Transcription',		wholecell.processes.transcription.Transcription()),
 			('Translation',			wholecell.processes.translation.Translation()),
-			('FreeProduction',		wholecell.processes.free_production.FreeProduction())
+			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
+			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
+			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation())
 			])
 
 		# Remove processes not listed as being included
