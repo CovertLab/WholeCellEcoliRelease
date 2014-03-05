@@ -202,3 +202,17 @@ class UniqueMoleculesPartition(wholecell.states.partition.Partition):
 	def moleculeDel(self, molecule):
 		self._state._container.moleculeDel(molecule)
 
+
+	def moleculesNew(self, moleculeName, nMolecules, **attributes):
+		attributes['_partitionedProcess'] = self._processIndex
+
+		self._state._container.moleculesNew(moleculeName, nMolecules, **attributes)
+
+
+	def moleculeNew(self, moleculeName, **attributes):
+		attributes['_partitionedProcess'] = self._processIndex
+
+		self._state._container.moleculeNew(moleculeName, **attributes)
+
+
+
