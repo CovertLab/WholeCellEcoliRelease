@@ -31,6 +31,7 @@ def main():
 		)
 
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+	# TODO: save/load a simulation's initial step instead of pickling the simulation
 
 if __name__ == '__main__':
 	main()
