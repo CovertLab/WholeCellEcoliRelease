@@ -39,8 +39,8 @@ class ToyTranscription(wholecell.processes.process.Process):
 
 		container = sim.states["UniqueMolecules"]._container
 
-		container.moleculesNew('RNA polymerase', self.initialCounts)
-		for molecule in container.iterMolecules('RNA polymerase'):
+		container.objectsNew('RNA polymerase', self.initialCounts)
+		for molecule in container.iterObjects('RNA polymerase'):
 			if self.randStream.rand() <= self.bindingProb:
 				molecule.attrIs('boundToChromosome', True)
 				location = self.randStream.randi(self.chromosomeLength)

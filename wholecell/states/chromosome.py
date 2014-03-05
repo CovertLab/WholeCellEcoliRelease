@@ -42,7 +42,7 @@ class SequenceBoundMolecules(object):
 
 
 	def moleculeNew(self, objectName, location, **attributes):
-		molecule = self._moleculesContainer.moleculeNew(
+		molecule = self._moleculesContainer.objectNew(
 			objectName,
 			_sequenceBoundLocation = location,
 			**attributes
@@ -71,13 +71,13 @@ class SequenceBoundMolecules(object):
 		location = molecule.attr('_sequenceBoundLocation')
 		self._array[location:location+MOLECULE_WIDTH] = self._empty
 
-		self._moleculesContainer.moleculeDel(molecule)
+		self._moleculesContainer.objectDel(molecule)
 
 
 	def molecules(self, start, stop):
 		indexes = np.setdiff1d(self._array[start:stop], self._specialValues) - self._offset
 
-		return self._moleculesContainer._moleculesByGlobalIndex(indexes)
+		return self._moleculesContainer._objectsByGlobalIndex(indexes)
 
 
 	# TODO: figure out how molecule width info is going to be handled
