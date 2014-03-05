@@ -274,6 +274,13 @@ class UniqueObjectsContainer(object):
 			array['_wasDeleted'] = False
 
 
+	def __eq__(self, other):
+		return all(
+			(selfArray == otherArray).all() for (selfArray, otherArray)
+			in zip(self._arrays, other._arrays)
+			)
+
+
 	# TODO: fix saving/loading...
 	# currently problematic because
 	#	indexes won't line up on load which makes testing hard

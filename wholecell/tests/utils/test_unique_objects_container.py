@@ -33,27 +33,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 
 	def setUp(self):
-		self.container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-			TEST_KB)
-		
-		self.container.objectsNew(
-			'RNA polymerase',
-			10,
-			)
-
-		self.container.objectsNew(
-			'RNA polymerase',
-			5,
-			boundToChromosome = True,
-			chromosomeLocation = 0
-			)
-
-		self.container.objectsNew(
-			'RNA polymerase',
-			5,
-			boundToChromosome = True,
-			chromosomeLocation = 50
-			)
+		self.container = createContainer()
 
 
 	def tearDown(self):
@@ -283,3 +263,40 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		deletedEntry['_wasDeleted'] = True
 
 		self.assertEqual(globalEntry, deletedEntry)
+
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	def test_eq_method(self):
+		# Test against self
+		self.assertEqual(self.container, self.container)
+
+		# Test against other, presumably identical container
+		otherContainer = createContainer()
+
+		self.assertEqual(self.container, otherContainer)
+
+
+def createContainer():
+	container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
+		TEST_KB)
+	
+	container.objectsNew(
+		'RNA polymerase',
+		10,
+		)
+
+	container.objectsNew(
+		'RNA polymerase',
+		5,
+		boundToChromosome = True,
+		chromosomeLocation = 0
+		)
+
+	container.objectsNew(
+		'RNA polymerase',
+		5,
+		boundToChromosome = True,
+		chromosomeLocation = 50
+		)
+
+	return container
