@@ -25,3 +25,11 @@ class Partition(object):
 
 	def process(self):
 		return self._process
+
+
+	def allocate(self):
+		pass
+
+
+	def request(self):
+		raise NotImplementedError()
