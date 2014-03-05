@@ -143,7 +143,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 				)
 			)
 
-	@noseAttrib.attr('working')
+	
 	def test_partitioning_worst_case_scenario(self):
 		nMoleculeTypes = 100
 		nMoleculesEach = 1000
