@@ -20,7 +20,7 @@ DEFAULT_PROCESSES = [
 	'Translation',
 	] # TOKB
 
-KB_PATH = os.path.join('fixtures', 'KnowledgeBase.cPickle')
+KB_PATH = os.path.join('fixtures','sim', 'KnowledgeBase.cPickle')
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
