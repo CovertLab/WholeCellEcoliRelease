@@ -14,7 +14,7 @@ import cPickle
 
 import wholecell.reconstruction.knowledgebase
 
-def main():
+def cacheKnowledgeBase():
 	# Create output directory
 	outDir = "fixtures/sim"
 	if not os.path.exists(outDir):
@@ -23,6 +23,4 @@ def main():
 	# Construct KB
 	kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(dataFileDir = "data/parsed/", seqFileName = "data/raw/sequence.txt")
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-
-if __name__ == '__main__':
-	main()
+	return kb
