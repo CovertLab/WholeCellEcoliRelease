@@ -29,8 +29,6 @@ class ToyTranscription(wholecell.processes.process.Process):
 		self.footprint = 20
 		self.bindingProb = 0.7
 
-		self.container = None
-
 
 		super(ToyTranscription, self).__init__()
 
@@ -38,36 +36,53 @@ class ToyTranscription(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyTranscription, self).initialize(sim, kb)
 
-		uniqueMolecules = sim.states["UniqueMolecules"]
-		self.container = uniqueMolecules._container
+		container = sim.states["UniqueMolecules"]._container
 
-		self.container.moleculesNew('RNA polymerase', self.initialCounts)
-		for molecule in self.container.iterMolecules('RNA polymerase'):
-			if self.randStream.rand <= self.bindingProb:
+		container.moleculesNew('RNA polymerase', self.initialCounts)
+		for molecule in container.iterMolecules('RNA polymerase'):
+			if self.randStream.rand() <= self.bindingProb:
 				molecule.attrIs('boundToChromosome', True)
 				location = self.randStream.randi(self.chromosomeLength)
 				molecule.attrIs('chromosomeLocation', location)
+
 			else:
 				molecule.attrIs('boundToChromosome', False)
 				molecule.attrIs('chromosomeLocation', -1)
 
-	def requestMoleculeCounts(self):
+		self.unboundRNApoly_query = sim.states['UniqueMolecules'].queryNew(
+			'RNA polymerase', boundToChromosome = ('==', False))
+
+		self.boundRNApoly_query = sim.states['UniqueMolecules'].queryNew(
+			'RNA polymerase', boundToChromosome = ('==', True))
+
+	def requestBulkMolecules(self):
 		# TODO: Needs to request bulk RNA polymerase molecules
 		pass
+
+	def requestUniqueMolecules(self):
+		unboundMolecules = self.unboundRNApoly_query.molecules()
+		boundMolecules = self.boundRNApoly_query.molecules()
+
+		nToBind = len(unboundMolecules) * self.bindingProb
+		nToUnbind = len(boundMolecules) * (1 - self.bindingProb)
+
+		self.uniqueMoleculesPartition.requestByMolecules(nToBind, unboundMolecules)
+		self.uniqueMoleculesPartition.requestByMolecules(nToUnbind, boundMolecules)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		bound = self.container.evaluateQuery('RNA polymerase', boundToChromosome = ('==', True))
-		unbound = self.container.evaluateQuery('RNA polymerase', boundToChromosome = ('==', False))
+		bound = self.uniqueMoleculesPartition.evaluateQuery('RNA polymerase', boundToChromosome = ('==', True))
+		unbound = self.uniqueMoleculesPartition.evaluateQuery('RNA polymerase', boundToChromosome = ('==', False))
 
 		for molecule in bound:
-			if self.randStream.rand <= (1. - self.bindingProb):
+			if self.randStream.rand() <= (1. - self.bindingProb):
 				molecule.attrIs('boundToChromosome', False)
 				molecule.attrIs('chromosomeLocation', -1)
 
 		for molecule in unbound:
-			if self.randStream.rand <= self.bindingProb:
+			if self.randStream.rand() <= self.bindingProb:
 				molecule.attrIs('boundToChromosome', True)
 				location = self.randStream.randi(self.chromosomeLength)
 				molecule.attrIs('chromosomeLocation', location)
+

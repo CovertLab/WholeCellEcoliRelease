@@ -35,17 +35,27 @@ class ToyProteinDegradation(wholecell.processes.process.Process):
 		uniqueMolecules = sim.states["UniqueMolecules"]
 		self.container = uniqueMolecules._container
 
-	def requestMoleculeCounts(self):
+		self.unboundRNApoly_query = sim.states['UniqueMolecules'].queryNew(
+			'RNA polymerase', boundToChromosome = ('==', False))
+
+	def requestBulkMolecules(self):
 		# TODO: Needs to request bulk RNA polymerase molecules
 		pass
 
+	def requestUniqueMolecules(self):
+		molecules = self.unboundRNApoly_query.molecules()
+
+		nUnbound = len(molecules)
+
+		nDegrade = self.degradationProbability * nUnbound
+
+		self.uniqueMoleculesPartition.requestByMolecules(nDegrade, molecules)
+
+
 	# Calculate temporal evolution
 	def evolveState(self):
-		unbound = self.container.evaluateQuery('RNA polymerase', boundToChromosome = ('==', False))
-		toDelete = []
-		for molecule in unbound:
-			if self.randStream.rand <= self.degradationProbability:
-				toDelete.append(molecule)
+		unbound = self.uniqueMoleculesPartition.evaluateQuery(
+			'RNA polymerase', boundToChromosome = ('==', False))
 
-		for molecule in toDelete:
-			self.container.moleculeDel(molecule)
+		self.uniqueMoleculesPartition.moleculesDel(unbound)
+
