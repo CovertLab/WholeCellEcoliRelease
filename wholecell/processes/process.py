@@ -33,6 +33,13 @@ class Process(object):
 		self.timeStepSec = sim.timeStepSec
 		self.randStream = sim.randStream
 		self.bulkMoleculesPartition = sim.states['BulkMolecules'].partitions[self.meta['id']]
+		self.uniqueMoleculesPartition = sim.states['UniqueMolecules'].partitions[self.meta['id']]
+
+	def requestBulkMolecules(self):
+		pass
+
+	def requestUniqueMolecules(self):
+		pass
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):
