@@ -143,5 +143,23 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 				)
 			)
 
-
 	
+	def test_partitioning_worst_case_scenario(self):
+		nMoleculeTypes = 100
+		nMoleculesEach = 100
+		nRequests = 100
+		nProcesses = 20
+
+		maxRequestCount = 3*nMoleculesEach/nRequests
+
+		objectRequestsArray = np.tile(
+			np.random.randint(2, size = (nMoleculeTypes, nRequests)).astype(np.bool),
+			(nMoleculesEach, 1)
+			)
+
+		requestNumberVector = np.random.randint(maxRequestCount, size = nRequests)
+
+		requestProcessArray = (np.random.randint(nProcesses, size = nRequests) == np.tile(np.arange(nProcesses), (nRequests, 1)).T).transpose()
+
+		solution = wholecell.utils.unique_objects_container._partition(
+			objectRequestsArray,requestNumberVector, requestProcessArray, self.randStream)
