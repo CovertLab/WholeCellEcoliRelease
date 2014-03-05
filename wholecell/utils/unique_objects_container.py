@@ -437,8 +437,8 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	moleculeToRequestConnections = np.zeros((nMoleculeTypes + nRequests,
 		nConnections), np.int)
 
-	upperIndices = (where0, np.arange(5)[argsort])
-	lowerIndices = (nMoleculeTypes + where1[argsort], np.arange(5))
+	upperIndices = (where0, np.arange(where1.size)[argsort])
+	lowerIndices = (nMoleculeTypes + where1[argsort], np.arange(where1.size))
 	# End voodoo
 
 	moleculeToRequestConnections[upperIndices] = -1
