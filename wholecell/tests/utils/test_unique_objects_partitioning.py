@@ -41,19 +41,19 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 		self.container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
 			TEST_KB)
 		
-		self.container.moleculesNew(
+		self.container.objectsNew(
 			'A',
 			60,
 			attribute = True,
 			)
 
-		self.container.moleculesNew(
+		self.container.objectsNew(
 			'B',
 			20,
 			attribute = True,
 			)
 
-		self.container.moleculesNew(
+		self.container.objectsNew(
 			'B',
 			20,
 			attribute = False,
@@ -74,16 +74,16 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 		# Set up the partition function call
 		
 		# TODO: write and use the interface for this code
-		request11_MoleculesLocal = self.container._queryMolecules(self.arrayIndex_A,
+		request11_MoleculesLocal = self.container._queryObjects(self.arrayIndex_A,
 			attribute = ('==', True))
 
-		request12_MoleculesLocal = self.container._queryMolecules(self.arrayIndex_B,
+		request12_MoleculesLocal = self.container._queryObjects(self.arrayIndex_B,
 			attribute = ('==', True))
 
-		request21_MoleculesLocal = self.container._queryMolecules(self.arrayIndex_A,
+		request21_MoleculesLocal = self.container._queryObjects(self.arrayIndex_A,
 			attribute = ('==', True))
 
-		request22_MoleculesLocal = self.container._queryMolecules(self.arrayIndex_B)
+		request22_MoleculesLocal = self.container._queryObjects(self.arrayIndex_B)
 
 		globalRefSize = self.container._arrays[self.container._globalRefIndex].size
 

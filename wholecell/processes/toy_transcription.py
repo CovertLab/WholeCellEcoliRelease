@@ -61,8 +61,8 @@ class ToyTranscription(wholecell.processes.process.Process):
 		pass
 
 	def requestUniqueMolecules(self):
-		unboundMolecules = self.unboundRNApoly_query.molecules()
-		boundMolecules = self.boundRNApoly_query.molecules()
+		unboundMolecules = self.unboundRNApoly_query.objects()
+		boundMolecules = self.boundRNApoly_query.objects()
 
 		nToBind = len(unboundMolecules) * self.bindingProb
 		nToUnbind = len(boundMolecules) * (1 - self.bindingProb)

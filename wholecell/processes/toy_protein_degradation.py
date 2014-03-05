@@ -40,7 +40,7 @@ class ToyProteinDegradation(wholecell.processes.process.Process):
 		pass
 
 	def requestUniqueMolecules(self):
-		molecules = self.unboundRNApoly_query.molecules()
+		molecules = self.unboundRNApoly_query.objects()
 
 		nUnbound = len(molecules)
 

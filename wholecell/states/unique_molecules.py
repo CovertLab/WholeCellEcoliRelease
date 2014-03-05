@@ -119,7 +119,7 @@ class UniqueMolecules(wholecell.states.state.State):
 			objectRequestsArray, requestNumberVector, requestProcessArray, self.randStream)
 
 		for iProcess, partition in enumerate(self.partitions.viewvalues()):
-			molecules = self._container._moleculesByGlobalIndex(
+			molecules = self._container._objectsByGlobalIndex(
 				np.where(partitionedMolecules[:, iProcess])[0]
 				)
 
@@ -196,23 +196,23 @@ class UniqueMoleculesPartition(wholecell.states.partition.Partition):
 
 
 	def moleculesDel(self, molecules):
-		self._state._container.moleculesDel(molecules)
+		self._state._container.objectsDel(molecules)
 
 
 	def moleculeDel(self, molecule):
-		self._state._container.moleculeDel(molecule)
+		self._state._container.objectDel(molecule)
 
 
 	def moleculesNew(self, moleculeName, nMolecules, **attributes):
 		attributes['_partitionedProcess'] = self._processIndex
 
-		self._state._container.moleculesNew(moleculeName, nMolecules, **attributes)
+		self._state._container.objectsNew(moleculeName, nMolecules, **attributes)
 
 
 	def moleculeNew(self, moleculeName, **attributes):
 		attributes['_partitionedProcess'] = self._processIndex
 
-		self._state._container.moleculeNew(moleculeName, **attributes)
+		self._state._container.objectNew(moleculeName, **attributes)
 
 
 

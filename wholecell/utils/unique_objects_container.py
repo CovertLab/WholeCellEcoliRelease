@@ -107,7 +107,7 @@ class UniqueObjectsContainer(object):
 		# TODO: alternate constructor for copying to partitions
 
 
-	def moleculesNew(self, objectName, nMolecules, **attributes):
+	def objectsNew(self, objectName, nMolecules, **attributes):
 		arrayIndex = self._nameToArrayIndex[objectName]
 		objectIndexes = self._getFreeIndexes(arrayIndex, nMolecules)
 
@@ -127,11 +127,11 @@ class UniqueObjectsContainer(object):
 
 		array['_globalIndex'][objectIndexes] = globalIndexes
 
-		return self._molecules(arrayIndex, objectIndexes)
+		return self._objects(arrayIndex, objectIndexes)
 
 
-	def moleculeNew(self, objectName, **attributes):
-		(molecule,) = self.moleculesNew(objectName, 1, **attributes) # NOTE: tuple unpacking
+	def objectNew(self, objectName, **attributes):
+		(molecule,) = self.objectsNew(objectName, 1, **attributes) # NOTE: tuple unpacking
 
 		return molecule
 
@@ -161,13 +161,13 @@ class UniqueObjectsContainer(object):
 		return freeIndexes[:nMolecules]
 
 
-	def moleculesDel(self, molecules):
-		for molecule in molecules:
-			self.moleculeDel(molecule)
+	def objectsDel(self, objects):
+		for obj in objects:
+			self.objectDel(obj)
 
 
-	def moleculeDel(self, molecule):
-		self._clearEntry(molecule._arrayIndex, molecule._objectIndex)
+	def objectDel(self, obj):
+		self._clearEntry(obj._arrayIndex, obj._objectIndex)
 
 
 	def _clearEntry(self, arrayIndex, objectIndex):
@@ -194,13 +194,13 @@ class UniqueObjectsContainer(object):
 	def evaluateQuery(self, objectName, **operations): # TODO: allow for queries over all or a subset of molecules
 		arrayIndex = self._nameToArrayIndex[objectName]
 
-		return self._molecules(
+		return self._objects(
 			arrayIndex,
-			np.where(self._queryMolecules(arrayIndex, **operations))[0]
+			np.where(self._queryObjects(arrayIndex, **operations))[0]
 			)
 	
 
-	def _queryMolecules(self, arrayIndex, **operations):
+	def _queryObjects(self, arrayIndex, **operations):
 		operations['_isActive'] = ('==', True)
 		array = self._arrays[arrayIndex]
 
@@ -219,7 +219,7 @@ class UniqueObjectsContainer(object):
 	def updateQueries(self):
 		for query in self._queries:
 			query._objectIndexes = np.where(
-				self._queryMolecules(query._arrayIndex, **query._operations)
+				self._queryObjects(query._arrayIndex, **query._operations)
 				)[0]
 
 
@@ -235,15 +235,15 @@ class UniqueObjectsContainer(object):
 		return query
 
 
-	def molecules(self, objectName):
-		return self._molecules(self._nameToArrayIndex[objectName])
+	def objects(self, objectName):
+		return self._objects(self._nameToArrayIndex[objectName])
 
 
-	def _molecules(self, arrayIndex, objectIndexes = None):
-		return set(self._iterMolecules(arrayIndex, objectIndexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
+	def _objects(self, arrayIndex, objectIndexes = None):
+		return set(self._iterObjects(arrayIndex, objectIndexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
 
 
-	def _moleculesByGlobalIndex(self, globalIndexes): # TODO: make global index ref the internal standard behavior?
+	def _objectsByGlobalIndex(self, globalIndexes): # TODO: make global index ref the internal standard behavior?
 		globalArray = self._arrays[self._globalRefIndex]
 
 		return set(
@@ -252,11 +252,11 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def iterMolecules(self, objectName):
-		return self._iterMolecules(self._nameToArrayIndex[objectName])
+	def iterObjects(self, objectName):
+		return self._iterObjects(self._nameToArrayIndex[objectName])
 
 
-	def _iterMolecules(self, arrayIndex, objectIndexes = None):
+	def _iterObjects(self, arrayIndex, objectIndexes = None):
 		if objectIndexes is None:
 			objectIndexes = np.where(self._arrays[arrayIndex]['_isActive'])[0]
 
@@ -295,7 +295,7 @@ class UniqueObjectsContainer(object):
 	# 	for arrayIndex, array in enumerate(self._arrays):
 	# 		table= h5file.get_node('/', self._tableNames[arrayIndex])
 
-	# 		entries = array[self._queryMolecules(self._objectNames[array])][self._savedAttributes[arrayIndex]]
+	# 		entries = array[self._queryObjects(self._objectNames[array])][self._savedAttributes[arrayIndex]]
 
 	# 		table.append(entries)
 
@@ -339,12 +339,12 @@ class _Query(object):
 		self._objectIndexes = None
 
 
-	def molecules(self):
-		return self._container._molecules(self._arrayIndex, self._objectIndexes)
+	def objects(self):
+		return self._container._objects(self._arrayIndex, self._objectIndexes)
 
 
-	def iterMolecules(self):
-		return self._container._iterMolecules(self._arrayIndex, self._objectIndexes)
+	def iterObjects(self):
+		return self._container._iterObjects(self._arrayIndex, self._objectIndexes)
 
 
 	# TODO: sampling functions?  i.e. get N molecules
@@ -409,7 +409,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	
 	# Build matrix for optimization
 
-	nMolecules = objectRequestsArray.shape[0]
+	nObjects = objectRequestsArray.shape[0]
 	nRequests = requestNumberVector.size
 	nProcesses = requestProcessArray.shape[1]
 
@@ -424,7 +424,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	counts = np.bincount(mapping) # the number of each condensed molecule type
 
-	nMoleculeTypes = counts.size
+	nObjectTypes = counts.size
 
 	# Some index mapping voodoo
 	where0, where1 = np.where(uniqueEntries)
@@ -433,11 +433,11 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	argsort = np.argsort(where1)
 
-	moleculeToRequestConnections = np.zeros((nMoleculeTypes + nRequests,
+	moleculeToRequestConnections = np.zeros((nObjectTypes + nRequests,
 		nConnections), np.int)
 
 	upperIndices = (where0, np.arange(where1.size)[argsort])
-	lowerIndices = (nMoleculeTypes + where1[argsort], np.arange(where1.size))
+	lowerIndices = (nObjectTypes + where1[argsort], np.arange(where1.size))
 	# End voodoo
 
 	moleculeToRequestConnections[upperIndices] = -1
@@ -445,27 +445,27 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	# Create the matrix and fill in the values
 	matrix = np.zeros(
-		(nMoleculeTypes + nRequests + nProcesses,
-			nMoleculeTypes + nConnections + 2*nProcesses),
+		(nObjectTypes + nRequests + nProcesses,
+			nObjectTypes + nConnections + 2*nProcesses),
 		np.int
 		)
 
 	# Molecule "boundary fluxes"
-	matrix[:nMoleculeTypes, :nMoleculeTypes] = np.identity(nMoleculeTypes)
+	matrix[:nObjectTypes, :nObjectTypes] = np.identity(nObjectTypes)
 
 	# Flow from molecule type to request
-	matrix[:nMoleculeTypes + nRequests,
-		nMoleculeTypes:nMoleculeTypes+nConnections] = moleculeToRequestConnections
+	matrix[:nObjectTypes + nRequests,
+		nObjectTypes:nObjectTypes+nConnections] = moleculeToRequestConnections
 
 	# Flow from request to process
-	matrix[nMoleculeTypes:nMoleculeTypes+nRequests,
-		nMoleculeTypes+nConnections:nMoleculeTypes+nConnections+nProcesses][np.where(requestProcessArray)] = -requestNumberVector
+	matrix[nObjectTypes:nObjectTypes+nRequests,
+		nObjectTypes+nConnections:nObjectTypes+nConnections+nProcesses][np.where(requestProcessArray)] = -requestNumberVector
 
-	matrix[nMoleculeTypes + nRequests:,
-		nMoleculeTypes+nConnections:nMoleculeTypes+nConnections+nProcesses] = np.identity(nProcesses)
+	matrix[nObjectTypes + nRequests:,
+		nObjectTypes+nConnections:nObjectTypes+nConnections+nProcesses] = np.identity(nProcesses)
 
 	# Process "boundary fluxes"
-	matrix[nMoleculeTypes + nRequests:,
+	matrix[nObjectTypes + nRequests:,
 		-nProcesses:] = -np.identity(nProcesses)
 
 	# Create other linear programming parameters
@@ -480,7 +480,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	upperBound = np.empty(matrix.shape[1], np.float)
 	upperBound[:] = np.inf
-	upperBound[:nMoleculeTypes] = counts # can use up to the total number of molecules
+	upperBound[:nObjectTypes] = counts # can use up to the total number of molecules
 	upperBound[-nProcesses:] = 1 # processes can be up to 100% satisfied
 
 	# Optimize
@@ -495,19 +495,19 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	# Convert solution to amounts allocated to each process
 
-	unfixedCounts = -moleculeToRequestConnections[:nMoleculeTypes, :] * solution[nMoleculeTypes:nMoleculeTypes+nConnections]
+	unfixedCounts = -moleculeToRequestConnections[:nObjectTypes, :] * solution[nObjectTypes:nObjectTypes+nConnections]
 
 	flooredCounts = np.floor(unfixedCounts) # Round down to prevent oversampling
 
 	flooredProcessCounts = np.dot(
-		np.dot(flooredCounts, moleculeToRequestConnections[nMoleculeTypes:, :].T),
+		np.dot(flooredCounts, moleculeToRequestConnections[nObjectTypes:, :].T),
 		requestProcessArray
 		)
 
-	indexingRanges = np.c_[np.zeros(nMoleculeTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int)
+	indexingRanges = np.c_[np.zeros(nObjectTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int)
 
 	# TODO: find a way to eliminate the for-loops!
-	partitionedMolecules = np.zeros((nMolecules, nProcesses), np.bool)
+	partitionedMolecules = np.zeros((nObjects, nProcesses), np.bool)
 	
 	for moleculeIndex in np.arange(uniqueEntriesStructured.size):
 		indexes = np.where(moleculeIndex == mapping)[0]
