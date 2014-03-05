@@ -398,16 +398,22 @@ class _UniqueObject(object):
 	# TODO: method to get name
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randStream):
+	# Arguments:
 	# objectRequestsArray: 2D bool array, (molecule)x(request)
 	# requestNumberVector: number of molecules request, by request
 	# requestProcessArray: 2D bool array, (request)x(process)
+	# Returns:
+	# partitionedMolecules: 2D bool array, (molecule)x(process)
 
-	# Create matrix
+	# TODO: full documentation/writeup, better docstring
+	
+	# Build matrix for optimization
 
 	nMolecules = objectRequestsArray.shape[0]
 	nRequests = requestNumberVector.size
 	nProcesses = requestProcessArray.shape[1]
 
+	# Make into structured array to condense the problem into unique rows
 	objectRequestsStructured = objectRequestsArray.view(
 		dtype = [('', np.bool)] * nRequests)
 
@@ -417,10 +423,11 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	uniqueEntries = uniqueEntriesStructured.view((np.bool, 
 		len(uniqueEntriesStructured.dtype.names)))
 
-	counts = np.bincount(mapping)
+	counts = np.bincount(mapping) # the number of each condensed molecule type
 
 	nMoleculeTypes = counts.size
 
+	# Some index mapping voodoo
 	where0, where1 = np.where(uniqueEntries)
 
 	nConnections = where0.size
@@ -432,50 +439,57 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	upperIndices = (where0, np.arange(5)[argsort])
 	lowerIndices = (nMoleculeTypes + where1[argsort], np.arange(5))
+	# End voodoo
 
 	moleculeToRequestConnections[upperIndices] = -1
 	moleculeToRequestConnections[lowerIndices] = 1
 
-	intMatrix = np.zeros(
+	# Create the matrix and fill in the values
+	matrix = np.zeros(
 		(nMoleculeTypes + nRequests + nProcesses,
 			nMoleculeTypes + nConnections + 2*nProcesses),
 		np.int
 		)
 
-	intMatrix[:nMoleculeTypes, :nMoleculeTypes] = np.identity(nMoleculeTypes)
+	# Molecule "boundary fluxes"
+	matrix[:nMoleculeTypes, :nMoleculeTypes] = np.identity(nMoleculeTypes)
 
-	intMatrix[:nMoleculeTypes + nRequests,
+	# Flow from molecule type to request
+	matrix[:nMoleculeTypes + nRequests,
 		nMoleculeTypes:nMoleculeTypes+nConnections] = moleculeToRequestConnections
 
-	intMatrix[nMoleculeTypes:nMoleculeTypes+nRequests,
+	# Flow from request to process
+	matrix[nMoleculeTypes:nMoleculeTypes+nRequests,
 		nMoleculeTypes+nConnections:nMoleculeTypes+nConnections+nProcesses][np.where(requestProcessArray)] = -requestNumberVector
 
-	intMatrix[nMoleculeTypes + nRequests:,
+	matrix[nMoleculeTypes + nRequests:,
 		nMoleculeTypes+nConnections:nMoleculeTypes+nConnections+nProcesses] = np.identity(nProcesses)
 
-	intMatrix[nMoleculeTypes + nRequests:,
+	# Process "boundary fluxes"
+	matrix[nMoleculeTypes + nRequests:,
 		-nProcesses:] = -np.identity(nProcesses)
 
 	# Create other linear programming parameters
 
-	objective = np.zeros(intMatrix.shape[1], np.float)
-	objective[-nProcesses:] = 1
+	objective = np.zeros(matrix.shape[1], np.float)
+	objective[-nProcesses:] = 1 # objective is to maximize process satisfaction
+	# TODO: experiment with non-unity process weightings
 
-	b = np.zeros(intMatrix.shape[0], np.float) # conservation law
+	b = np.zeros(matrix.shape[0], np.float) # conservation law, i.e. b = 0 = Ax
 
-	lb = np.zeros(intMatrix.shape[1], np.float)
+	lowerBound = np.zeros(matrix.shape[1], np.float) # matrix is defined such that all values are >= 0
 
-	ub = np.empty(intMatrix.shape[1], np.float)
-	ub[:] = np.inf
-	ub[:nMoleculeTypes] = counts
-	ub[-nProcesses:] = 1
+	upperBound = np.empty(matrix.shape[1], np.float)
+	upperBound[:] = np.inf
+	upperBound[:nMoleculeTypes] = counts # can use up to the total number of molecules
+	upperBound[-nProcesses:] = 1 # processes can be up to 100% satisfied
 
 	# Optimize
 
 	solution = lp.linearProgramming(
 		'maximize', objective,
-		intMatrix.astype(np.float), b,
-		lb, ub,
+		matrix.astype(np.float), b, # cvxopt requres floats
+		lowerBound, upperBound,
 		'S', 'C', # no idea what these are supposed to do
 		None # no options
 		)[0].flatten()
@@ -484,18 +498,18 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	unfixedCounts = -moleculeToRequestConnections[:nMoleculeTypes, :] * solution[nMoleculeTypes:nMoleculeTypes+nConnections]
 
-	flooredCounts = np.floor(unfixedCounts)
+	flooredCounts = np.floor(unfixedCounts) # Round down to prevent oversampling
 
 	flooredProcessCounts = np.dot(
 		np.dot(flooredCounts, moleculeToRequestConnections[nMoleculeTypes:, :].T),
 		requestProcessArray
 		)
-	
+
 	indexingRanges = np.c_[np.zeros(nMoleculeTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int)
 
 	# TODO: find a way to eliminate the for-loops!
 	partitionedMolecules = np.zeros((nMolecules, nProcesses), np.bool)
-
+	
 	for moleculeIndex in np.arange(uniqueEntriesStructured.size):
 		indexes = np.where(moleculeIndex == mapping)[0]
 		randStream.numpyShuffle(indexes)
@@ -506,5 +520,5 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 			partitionedMolecules[
 				selectedIndexes,
 				processIndex] = True
-
+	
 	return partitionedMolecules
