@@ -415,13 +415,12 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	# Make into structured array to condense the problem into unique rows
 	objectRequestsStructured = objectRequestsArray.view(
-		dtype = [('', np.bool)] * nRequests)
+		dtype = [('', np.bool, nRequests)])
 
 	uniqueEntriesStructured, mapping = np.unique(objectRequestsStructured,
 		return_inverse = True)
 
-	uniqueEntries = uniqueEntriesStructured.view((np.bool, 
-		len(uniqueEntriesStructured.dtype.names)))
+	uniqueEntries = uniqueEntriesStructured.view((np.bool, nRequests))
 
 	counts = np.bincount(mapping) # the number of each condensed molecule type
 
