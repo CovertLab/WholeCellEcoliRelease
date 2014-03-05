@@ -55,4 +55,3 @@ class ToyProteinDegradation(wholecell.processes.process.Process):
 			'RNA polymerase', boundToChromosome = ('==', False))
 
 		self.uniqueMoleculesPartition.moleculesDel(unbound)
-

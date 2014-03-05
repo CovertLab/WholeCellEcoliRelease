@@ -28,6 +28,7 @@ class ToyTranscription(wholecell.processes.process.Process):
 		self.initialCounts = 2000
 		self.footprint = 20
 		self.bindingProb = 0.7
+		self.creationRate = 50
 
 
 		super(ToyTranscription, self).__init__()
@@ -72,6 +73,7 @@ class ToyTranscription(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		# Bind and unbind molecules
 		bound = self.uniqueMoleculesPartition.evaluateQuery('RNA polymerase', boundToChromosome = ('==', True))
 		unbound = self.uniqueMoleculesPartition.evaluateQuery('RNA polymerase', boundToChromosome = ('==', False))
 
@@ -86,3 +88,6 @@ class ToyTranscription(wholecell.processes.process.Process):
 				location = self.randStream.randi(self.chromosomeLength)
 				molecule.attrIs('chromosomeLocation', location)
 
+		# Add some new molecules to replenish molecules lost to degradation
+
+		self.uniqueMoleculesPartition.moleculesNew('RNA polymerase', self.creationRate)
