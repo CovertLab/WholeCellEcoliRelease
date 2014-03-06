@@ -74,8 +74,8 @@ class Simulation(object):
 
 		import cPickle
 		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
-			import wholecell.fixtures.knowledgebase_fixture_manager
-			kb = wholecell.fixtures.knowledgebase_fixture_manager.cacheKnowledgeBaseSim()
+			import wholecell.utils.knowledgebase_fixture_manager
+			kb = wholecell.utilss.knowledgebase_fixture_manager.cacheKnowledgeBaseSim()
 		else:
 			kb = cPickle.load(open(self.kbPath, "rb"))
 

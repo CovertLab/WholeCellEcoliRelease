@@ -14,7 +14,7 @@ import cPickle
 
 import wholecell.reconstruction.knowledgebase
 import wholecell.sim.simulation
-import fixtures.knowledgebase_fixture_manager
+import wholecell.utils.knowledgebase_fixture_manager
 
 def main():
 	# Create output directory
@@ -23,7 +23,7 @@ def main():
 		os.makedirs(outDir)
 
 	# Construct KB
-	fixtures.knowledgebase_fixture_manager.cacheKnowledgeBaseTest()
+	wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBaseTest()
 
 	# Construct simulation
 	sim = wholecell.sim.simulation.Simulation(
