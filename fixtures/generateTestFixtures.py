@@ -14,6 +14,7 @@ import cPickle
 
 import wholecell.reconstruction.knowledgebase
 import wholecell.sim.simulation
+import fixtures.knowledgebase_fixture_manager
 
 def main():
 	# Create output directory
@@ -22,8 +23,7 @@ def main():
 		os.makedirs(outDir)
 
 	# Construct KB
-	kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(dataFileDir = "data/parsed/", seqFileName = "data/raw/sequence.txt")
-	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+	fixtures.knowledgebase_fixture_manager.cacheKnowledgeBaseTest()
 
 	# Construct simulation
 	sim = wholecell.sim.simulation.Simulation(

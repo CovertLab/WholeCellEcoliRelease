@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-cacheKnowledgeBase
-Generates cPickle file of knowledgebase for simulations
+knowledgebase_fixture_manager.py
+Generates cPickle file of knowledgebase for simulations and tests
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -10,17 +10,22 @@ Generates cPickle file of knowledgebase for simulations
 """
 
 import os
+import sys
 import cPickle
 
-import wholecell.reconstruction.knowledgebase
+import wholecell.utils.config_sim
 
-def cacheKnowledgeBase():
-	# Create output directory
-	outDir = "fixtures/sim"
-	if not os.path.exists(outDir):
-		os.makedirs(outDir)
+def cacheKnowledgeBaseSim():
+	return cacheKnowledgeBase('./fixtures/sim/')
 
-	# Construct KB
-	kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(dataFileDir = "data/parsed/", seqFileName = "data/raw/sequence.txt")
+def cacheKnowledgeBaseTest():
+	return cacheKnowledgeBase('./fixtures/test')
+
+def cacheKnowledgeBase(outDir):
+	sys.path.append(str(os.path.expanduser(wholecell.utils.config_sim.KNOWLEDGEBASE_DIRECTORY)))
+	import ecoliwholecellkb_project.KnowledgeBaseEcoli
+
+	kb = ecoliwholecellkb_project.KnowledgeBaseEcoli.KnowledgeBaseEcoli()
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+
 	return kb
