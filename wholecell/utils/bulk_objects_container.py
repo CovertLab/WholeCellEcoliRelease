@@ -18,49 +18,71 @@ class BulkObjectsContainer(object):
 	def __init__(self, objectNames):
 		self._objectNames = objectNames
 
+		self._nObjects = len(objectNames)
+
 		self._objectIndex = {objectName:index for index, objectName in enumerate(objectNames)}
 
 		self._counts = np.zeros(len(objectNames), np.uint64)
 
 
 	def counts(self, names = None):
-		if names == None:
+		if names is None:
 			return self._counts.copy()
 
 		else:
 			return self._counts[self._namesToIndexes(names)]
 
 
-	def countsIs(self, names, values):
-		self._counts[self._namesToIndexes(names)] = values
+	def countsIs(self, values, names = None):
+		if names is None:
+			self._counts[:] = values
+
+		else:
+			self._counts[self._namesToIndexes(names)] = values
 
 
-	def countsInc(self, names, values): 
-		self._counts[self._namesToIndexes(names)] += values
+	def countsInc(self, values, names = None): 
+		if names is None:
+			self._counts[:] += values
+
+		else:
+			self._counts[self._namesToIndexes(names)] += values
 
 
-	def countsDec(self, names, values): # TODO: raise exception if > max?
-		self._counts[self._namesToIndexes(names)] -= values
+	def countsDec(self, values, names = None): # TODO: raise exception if > max?
+		if names is None:
+			self._counts[:] -= values
+
+		else:
+			self._counts[self._namesToIndexes(names)] -= values
 
 
-	def countsView(self, names):
-		raise _BulkObjectsView(self, self._namesToIndexes(names))
+	def countsView(self, names = None):
+		if names is None:
+			return _BulkObjectsView(self, np.arange(self._nObjects))
+
+		else:
+			return _BulkObjectsView(self, self._namesToIndexes(names))
 
 
 	def count(self, name):
 		return self._counts[self._objectIndex[name]]
 
 
-	def countInc(self, name, value):
+	def countIs(self, value, name):
+		self._counts[self._objectIndex[name]] = value
+
+
+	def countInc(self, value, name):
 		self._counts[self._objectIndex[name]] += value
 
 
-	def countDec(self, name, value):
+	def countDec(self, value, name):
 		self._counts[self._objectIndex[name]] -= value
 
 
 	def countView(self, name):
-		raise _BulkObjectView(self, self._objectIndex[name])
+		return _BulkObjectView(self, self._objectIndex[name])
 
 
 	def _namesToIndexes(self, names):
