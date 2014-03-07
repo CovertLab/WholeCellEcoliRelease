@@ -68,6 +68,11 @@ class BulkMolecules(wholecell.states.state.State):
 		pass
 
 
+	def merge(self):
+		# TODO
+		pass
+
+
 	def countView(self, names):
 		return self._container.countsView(names)
 
@@ -101,7 +106,7 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 		super(UniqueMoleculesPartition, self).__init__(*args, **kwargs)
 
-
+	
 	def initialize(self, moleculeNames, isReqAbs = False):
 		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(moleculeNames)
 		self._isReqAbs = isReqAbs
@@ -111,14 +116,18 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 			)
 
 
-	def setRequest(self, target):
+	def request(self, target):
 		self._process.requestBulkMolecules()
 
+		target[self._indexMapping] = self._container._counts # direct reference to avoid a copy operation
+
+
+	def allocationIs(self, source):
+		self._container.countsIs(source[self._indexMapping])
+
+
+	def returned(self, target):
 		target[self._indexMapping] = self._container._counts
-
-
-	def setAllocation(self, source):
-		self._container._counts = source[self._indexMapping]
 
 
 	def countsView(self, names = None):
