@@ -179,12 +179,6 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def _clearAll(self, arrayIndex):
-		# NOTE: this a dangerous method, meant only to be called on load!
-		self._arrays[arrayIndex] = np.zeros(0,
-			dtype = self._arrays[arrayIndex].dtype)
-
-
 	def evaluateQuery(self, objectName, **operations): # TODO: allow for queries over all or a subset of molecules
 		arrayIndex = self._nameToArrayIndex[objectName]
 
@@ -276,7 +270,7 @@ class UniqueObjectsContainer(object):
 			(selfArray[selfArray['_entryState'] != ENTRY_INACTIVE] == otherArray[otherArray['_entryState'] != ENTRY_INACTIVE]).all()
 			for (selfArray, otherArray) in zip(self._arrays, other._arrays)
 			)
-	
+
 
 	def pytablesCreate(self, h5file):
 		for arrayIndex, array in enumerate(self._arrays):
