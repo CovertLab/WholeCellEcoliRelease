@@ -81,9 +81,10 @@ class Metabolism(wholecell.processes.process.Process):
 		bioConc = []
 
 		for m in kb.metabolites:
-			if m["biomassConc"] != 0:
-				bioIds.append("%s[%s]" % (m["id"], m["biomassLoc"]))
-				bioConc.append(m["biomassConc"]) # Number of molecules to produce each time step
+			if m["biomassInfo"] != {'core' : [], 'wildtype' : []}:
+				# TODO: Might need to fix, need to loop over all indicies within core biomass. Fix in general this is ugly.
+				bioIds.append("%s[%s]" % (m["id"], m["biomassInfo"]["core"][0]["location"]))
+				bioConc.append(m["biomassInfo"]["core"][0]["mmol/gDCW"]) # Number of molecules to produce each time step
 
 		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
 		bioConc = np.array(bioConc)
