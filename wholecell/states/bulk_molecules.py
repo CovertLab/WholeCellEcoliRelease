@@ -38,7 +38,7 @@ class BulkMoleculesContainer(object):
 
 	def counts(self, names = None):
 		if names == None:
-			return self._counts
+			return self._counts.copy()
 
 		else:
 			return self._counts[self._namesToIndexes(names)]
