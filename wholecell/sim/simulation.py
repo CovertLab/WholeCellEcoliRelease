@@ -282,10 +282,12 @@ class Simulation(object):
 			'Fit parameter values'
 			)
 
-		h5file.createArray(groupFit, 'initialDryMass', self.states['BulkMolecules'].initialDryMass)
-		h5file.createArray(groupFit, 'rnaExp', self.states['BulkMolecules'].rnaExp)
-		h5file.createArray(groupFit, 'monExp', self.states['BulkMolecules'].monExp)
-		h5file.createArray(groupFit, 'feistCoreVals', self.states['BulkMolecules'].feistCoreVals)
+		bulkMolecules = self.states['BulkMolecules']
+		# TODO: fix all of these/load from fitted KB instead
+		# h5file.createArray(groupFit, 'initialDryMass', bulkMolecules.initialDryMass)
+		# h5file.createArray(groupFit, 'rnaExp', bulkMolecules.rnaExp)
+		# h5file.createArray(groupFit, 'monExp', bulkMolecules.monExp)
+		# h5file.createArray(groupFit, 'feistCoreVals', bulkMolecules.feistCoreVals)
 		if 'Transcription' in self.processes:
 			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
 
@@ -306,7 +308,7 @@ class Simulation(object):
 			'Non-fit parameter values'
 			)
 
-		h5file.createArray(groupValues, 'molMass', self.states['BulkMolecules']._molMass)
+		# h5file.createArray(groupValues, 'molMass', bulkMolecules._molMass)
 
 		# TODO: cache KB
 
@@ -319,10 +321,10 @@ class Simulation(object):
 	def pytablesLoad(self, h5file, timePoint):
 		group = h5file.get_node('/', 'fitParameters')
 
-		self.states['BulkMolecules'].initialDryMass = group.initialDryMass.read()
-		self.states['BulkMolecules'].rnaExp[:] = group.rnaExp.read()
-		self.states['BulkMolecules'].monExp[:] = group.monExp.read()
-		self.states['BulkMolecules'].feistCoreVals[:] = group.feistCoreVals.read()
+		# self.states['BulkMolecules'].initialDryMass = group.initialDryMass.read()
+		# self.states['BulkMolecules'].rnaExp[:] = group.rnaExp.read()
+		# self.states['BulkMolecules'].monExp[:] = group.monExp.read()
+		# self.states['BulkMolecules'].feistCoreVals[:] = group.feistCoreVals.read()
 		if 'Transcription' in self.processes:
 			self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
 
