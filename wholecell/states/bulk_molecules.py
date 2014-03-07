@@ -14,7 +14,7 @@ State which represents for a class of molecules the bulk copy numbers.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-# TODO: break this into multiple files, it's becoming unbearably long
+from __future__ import division
 
 import re
 

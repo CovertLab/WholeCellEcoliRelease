@@ -10,6 +10,8 @@ Partition base class.
 @date: Created 1/10/2014
 """
 
+from __future__ import division
+
 class Partition(object):
 	_state = None
 	_process = None

@@ -1,3 +1,6 @@
+
+from __future__ import division
+
 import cPickle
 import os
 import json

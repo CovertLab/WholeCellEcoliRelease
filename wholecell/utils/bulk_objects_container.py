@@ -4,6 +4,8 @@ bulk_objects_container.py
 
 '''
 
+from __future__ import division
+
 import numpy as np
 
 

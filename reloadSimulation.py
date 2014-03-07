@@ -8,6 +8,8 @@ reloadSimulation.py
 @date: Created 2/18/2013
 """
 
+from __future__ import division
+
 import wholecell.sim.simulation
 import sys
 

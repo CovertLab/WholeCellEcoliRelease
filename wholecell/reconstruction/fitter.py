@@ -10,6 +10,8 @@ Adjust simulation parameters
 @date: Created 7/11/2013
 """
 
+from __future__ import division
+
 import numpy
 from wholecell.utils.constants import Constants
 

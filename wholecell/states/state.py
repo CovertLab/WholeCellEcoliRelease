@@ -10,6 +10,8 @@ State variable base class. Defines the interface states expose to the simulation
 @date: Created 3/29/2013
 """
 
+from __future__ import division
+
 from collections import OrderedDict
 
 class State(object):

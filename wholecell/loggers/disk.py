@@ -13,6 +13,8 @@ Also provides a function (load) for reading stored simulation data
 @date: Created 6/3/2013
 """
 
+from __future__ import division
+
 import os
 import time
 import json

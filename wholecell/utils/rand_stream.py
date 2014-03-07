@@ -18,6 +18,8 @@ Note:
 @date: Created 3/22/2013
 """
 
+from __future__ import division
+
 import numpy as np
 
 class RandStream(object):

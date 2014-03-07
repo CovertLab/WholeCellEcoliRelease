@@ -7,6 +7,8 @@ Tests whole-cell simulation
 @date: Created 4/8/2013
 """
 
+from __future__ import division
+
 import unittest
 import warnings
 import nose.plugins.attrib as noseAttrib

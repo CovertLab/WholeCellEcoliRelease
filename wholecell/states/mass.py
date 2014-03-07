@@ -10,6 +10,8 @@ Mass state variable. Represents the total cellular mass.
 @date: Created 3/29/2013
 """
 
+from __future__ import division
+
 import numpy as np
 import tables
 

@@ -7,6 +7,8 @@ Examines interplay between Transcription, Rna Degradation, and Translation
 @date: Created 8/26/2013
 """
 
+from __future__ import division
+
 # import unittest
 # import warnings
 # import nose.plugins.attrib as noseAttrib

@@ -10,6 +10,8 @@ MetabolicFlux state variable. Represents the instantaneous growth rate (fg/h) an
 @date: Created 3/29/2013
 """
 
+from __future__ import division
+
 import numpy as np
 
 import wholecell.states.state

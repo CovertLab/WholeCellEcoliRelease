@@ -8,6 +8,8 @@ Test reduced simulations.
 @date: Created 2/6/20
 """
 
+from __future__ import division
+
 import os
 import cPickle
 import unittest

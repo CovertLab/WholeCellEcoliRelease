@@ -8,6 +8,8 @@ Test randStream.py
 @date: Created 3/22/2013
 """
 
+from __future__ import division
+
 import unittest
 import warnings
 

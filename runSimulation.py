@@ -13,6 +13,8 @@ Run a simulation using a provided configuration (JSON) file:
 
 '''
 
+from __future__ import division
+
 import wholecell.sim.simulation
 import sys
 

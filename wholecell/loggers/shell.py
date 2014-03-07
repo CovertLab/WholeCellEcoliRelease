@@ -10,6 +10,8 @@ Prints a very brief summary of a whole-cell simulation to standard output
 @date: Created 3/29/2013
 """
 
+from __future__ import division
+
 import time
 import sys
 import numpy as np

@@ -7,6 +7,8 @@ Tests Transcription process
 @date: Created 8/16/2013
 """
 
+from __future__ import division
+
 import wholecell.tests.processes.base_large_test as base_large_test # TODO: better location for this file
 import os
 

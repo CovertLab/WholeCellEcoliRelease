@@ -8,6 +8,8 @@ FlexTFbaModel.py
 @date: Created 10/15/2013
 """
 
+from __future__ import division
+
 import numpy
 import copy
 import functools

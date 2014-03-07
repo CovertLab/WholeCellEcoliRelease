@@ -10,6 +10,8 @@ Time state variable. Represents the current time lapsed since the start of the s
 @date: Created 3/29/2013
 """
 
+from __future__ import division
+
 import wholecell.states.state
 
 class Time(wholecell.states.state.State):

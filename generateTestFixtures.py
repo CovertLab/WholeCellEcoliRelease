@@ -9,6 +9,8 @@ Generates fixtures for whole-cell tests
 @date: Created 4/5/2013
 """
 
+from __future__ import division
+
 import os
 import cPickle
 

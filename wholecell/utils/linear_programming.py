@@ -19,6 +19,8 @@ Example call (trivial solution):
 @date: Created 3/22/2013
 """
 
+from __future__ import division
+
 import cvxopt
 import cvxopt.solvers
 import numpy

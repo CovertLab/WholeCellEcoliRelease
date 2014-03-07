@@ -8,6 +8,8 @@ Test_BulkMolecules_partition.py
 @date: Created 10/17/2013
 """
 
+from __future__ import division
+
 import unittest
 import nose.plugins.attrib as noseAttrib
 import cPickle
