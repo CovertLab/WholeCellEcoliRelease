@@ -305,10 +305,10 @@ class UniqueObjectsContainer(object):
 
 	def pytablesAppend(self, h5file, time):
 		for arrayIndex, array in enumerate(self._arrays):
-			activeIndexes = np.where(array['_entryState'] ~= ENTRY_INACTIVE)[0]
+			activeIndexes = np.where(array['_entryState'] != ENTRY_INACTIVE)[0]
 
 			entryTable = h5file.get_node('/', self._tableNames[arrayIndex])
-			
+
 			entries = array[activeIndexes][self._savedAttributes[arrayIndex]]
 
 			entryTable.append(entries)
@@ -326,23 +326,26 @@ class UniqueObjectsContainer(object):
 			indexTable.flush()
 
 
-	# def pytablesLoad(self, h5file, timePoint):
-	# 	for arrayIndex, tableName in enumerate(self._tableNames):
-	# 		table = h5file.get_node('/', tableName)
+	def pytablesLoad(self, h5file, timePoint):
+		for arrayIndex, tableName in enumerate(self._tableNames):
+			entryTable = h5file.get_node('/', tableName)
 
-	# 		entries = table[table[:]['_time'] == timePoint]
+			entries = entryTable[entryTable['_time'] == timePoint]
 
-	# 		self._clearAll(arrayIndex)
-	# 		indexes = self._getFreeIndexes(arrayIndex, entries.size)
+			indexTable = h5file.get_node('/', tableName + '_indexes')
 
-	# 		for attrName in savedAttributes:
-	# 			self._arrays[attrName][indexes] = entries[attrName]
+			indexes = indexTable[indexTable['_time'] == timePoint]['indexes']
+
+			self._arrays[arrayIndex] = np.array(
+				indexes.max()+1,
+				dtype = self._arrays[arrayIndex]
+				)
+
+			self._arrays[indexes] = entries
 
 
 	# TODO: compute mass
-	# TODO: move to new file
 	# TODO: implement molecule transfer between containers
-	# TODO: __eq__ comparison for tests
 
 
 class _Query(object):
