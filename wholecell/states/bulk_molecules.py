@@ -226,15 +226,22 @@ class BulkMolecules(wholecell.states.state.State):
 		# TODO
 		pass
 
+	
+	def massAll(self):
+		return np.dot(
+			self._moleculeMass,
+			self._container._counts.view().reshape((-1, self._nCompartments))
+			)
 
-	def countsView(self, names):
-		return self._container.countsView(names)
+	def massWater(self):
+		# TODO: more generalized methods for calculating mass (all, single molecule for all compartments, group of molecules)
+		index = self._typeIdxs['water']
 
+		return np.dot(
+			self._moleculeMass[index],
+			self._container._counts.view().reshape((-1, self._nCompartments))[index, :]
+			)
 
-	def countView(self, name):
-		return self._container.countView(name)
-
-	# TODO: mass calculation methods
 
 	def pytablesCreate(self, h5file, expectedRows):
 		# TODO
@@ -282,14 +289,6 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 	def returned(self, target):
 		target[self._indexMapping] = self._container._counts
-
-
-	def countsView(self, names = None):
-		return self._container.countsView(names)
-
-
-	def countView(self, name):
-		return self._container.countView(name)
 
 
 # Constants (should be taken from the KB)
