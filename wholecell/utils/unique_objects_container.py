@@ -21,9 +21,11 @@ import tables
 
 import wholecell.utils.linear_programming as lp
 
+ENTRY_INACTIVE = 0 # a clear entry
+ENTRY_ACTIVE = 1 # an entry that is in use
+ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
+
 class UniqueObjectsContainer(object):
-	# TODO: move to separate file
-	# TODO: generalize names (molecule -> object)
 	'''
 	UniqueObjectsContainer
 
@@ -33,22 +35,18 @@ class UniqueObjectsContainer(object):
 	'''
 
 	_defaultContainerAttributes = {
-		'_entryState':'uint32', # see state descriptions below
+		'_entryState':'uint32', # see state descriptions above
 		'_globalIndex':'uint32', # index in the _globalReference array
 		'_time':'uint64', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
-	_entryInactive = 0 # a clear entry
-	_entryActive = 1 # an entry that is in use
-	_entryDeleted = 2 # an entry that was deleted and is waiting to be cleaned up
-
 	_defaultObjects = {
 		'_globalReference':{ # a table which contains reference to all molecules
 			'_arrayIndex':'uint32',
 			'_objectIndex':'uint32'
+			}
 		}
-	}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array
 
@@ -113,7 +111,7 @@ class UniqueObjectsContainer(object):
 
 		array = self._arrays[arrayIndex]
 
-		array['_entryState'][objectIndexes] = self._entryActive
+		array['_entryState'][objectIndexes] = ENTRY_ACTIVE
 
 		for attrName, attrValue in attributes.viewitems():
 			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
@@ -121,7 +119,7 @@ class UniqueObjectsContainer(object):
 
 		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
 		globalArray = self._arrays[self._globalRefIndex]
-		globalArray['_entryState'][globalIndexes] = self._entryActive
+		globalArray['_entryState'][globalIndexes] = ENTRY_ACTIVE
 		globalArray['_arrayIndex'][globalIndexes] = arrayIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
 
@@ -138,7 +136,7 @@ class UniqueObjectsContainer(object):
 
 	def _getFreeIndexes(self, arrayIndex, nMolecules):
 		freeIndexes = np.where(
-			self._arrays[arrayIndex]['_entryState'] == self._entryInactive
+			self._arrays[arrayIndex]['_entryState'] == ENTRY_INACTIVE
 			)[0]
 
 		if freeIndexes.size < nMolecules:
@@ -167,9 +165,9 @@ class UniqueObjectsContainer(object):
 
 	def objectDel(self, obj):
 		globalIndex = obj.attr('_globalIndex')
-		
-		self._arrays[obj._arrayIndex][obj._objectIndex]['_entryState'] = self._entryDeleted
-		self._arrays[self._globalRefIndex][globalIndex]['_entryState'] = self._entryDeleted
+
+		self._arrays[obj._arrayIndex][obj._objectIndex]['_entryState'] = ENTRY_DELETED
+		self._arrays[self._globalRefIndex][globalIndex]['_entryState'] = ENTRY_DELETED
 
 
 	def _clearEntries(self, arrayIndex, objectIndexes):
@@ -197,7 +195,7 @@ class UniqueObjectsContainer(object):
 	
 
 	def _queryObjects(self, arrayIndex, **operations):
-		operations['_entryState'] = ('==', self._entryActive)
+		operations['_entryState'] = ('==', ENTRY_ACTIVE)
 		array = self._arrays[arrayIndex]
 
 		return reduce(
@@ -254,7 +252,7 @@ class UniqueObjectsContainer(object):
 
 	def _iterObjects(self, arrayIndex, objectIndexes = None):
 		if objectIndexes is None:
-			objectIndexes = np.where(self._arrays[arrayIndex]['_entryState'] == self._entryActive)[0]
+			objectIndexes = np.where(self._arrays[arrayIndex]['_entryState'] == ENTRY_ACTIVE)[0]
 
 		return (_UniqueObject(self, arrayIndex, objectIndex) for objectIndex in objectIndexes)
 
@@ -269,7 +267,7 @@ class UniqueObjectsContainer(object):
 		for arrayIndex, array in enumerate(self._arrays):
 			self._clearEntries(
 				arrayIndex,
-				np.where(array['_entryState'] == self._entryDeleted)
+				np.where(array['_entryState'] == ENTRY_DELETED)
 				)
 
 
@@ -378,7 +376,7 @@ class _UniqueObject(object):
 	def attr(self, attribute):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == self._container._entryActive:
+		if not entry['_entryState'] == ENTRY_ACTIVE:
 			raise Exception('Attempted to access an inactive molecule.')
 
 		return entry[attribute]
@@ -387,7 +385,7 @@ class _UniqueObject(object):
 	def attrIs(self, attribute, value):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == self._container._entryActive:
+		if not entry['_entryState'] == ENTRY_ACTIVE:
 			raise Exception('Attempted to access an inactive molecule.')
 
 		entry[attribute] = value
