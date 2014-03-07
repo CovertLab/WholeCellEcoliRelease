@@ -278,85 +278,71 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		# TODO
-		pass
+		countsShape = self._container._counts.shape
+		partitionsShape = self._countsRequested.shape
+
+		# Columns
+		d = {
+			"time": tables.Int64Col(),
+			"counts":tables.UInt64Col(countsShape),
+			"countsRequested":tables.UInt64Col(partitionsShape),
+			"countsAllocated":tables.UInt64Col(partitionsShape),
+			"countsReturned":tables.UInt64Col(partitionsShape),
+			"countsUnallocated":tables.UInt64Col(countsShape),
+			}
+
+		# Create table
+		# TODO: Add compression options (using filters)
+		t = h5file.create_table(
+			h5file.root,
+			self.meta["id"],
+			d,
+			title = self.meta["name"],
+			filters = tables.Filters(complevel = 9, complib="zlib"),
+			expectedrows = expectedRows
+			)
+	
+		groupNames = h5file.createGroup(h5file.root,
+			'names', 'Molecule, compartment, and process names')
+
+		h5file.createArray(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
+		h5file.createArray(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
+
+		groupIdxs = h5file.createGroup(h5file.root,
+			'indexes', 'Indexes for various groups of molecules')
+
+		for type_, indexes in self._typeIdxs.viewitems():
+			h5file.createArray(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):
-		# TODO
-		pass
+		simTime = self.time.value
+
+		t = h5file.get_node("/", self.meta["id"])
+		entry = t.row
+
+		entry["time"] = simTime
+		entry['counts'] = self._container._counts
+		entry['countsRequested'] = self._countsRequested
+		entry['countsAllocated'] = self._countsAllocated
+		entry['countsReturned'] = self._countsReturned
+		entry['countsUnallocated'] = self._countsUnallocated
+		
+		entry.append()
+
+		t.flush()
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		# TODO
-		pass
+		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-	# TODO: adapt these to the new class
-	# def pytablesCreate(self, h5file, expectedRows):
-	# 	countsShape = self._countsBulk.shape
-	# 	partitionsShape = self._countsBulkRequested.shape
-
-	# 	# Columns
-	# 	d = {
-	# 		"time": tables.Int64Col(),
-	# 		"countsBulk":tables.Float64Col(countsShape), # unsigned? any intelligent choice of dtype here is going to really speed up the sim
-	# 		"countsBulkRequested":tables.Float64Col(partitionsShape),
-	# 		"countsBulkPartitioned":tables.Float64Col(partitionsShape),
-	# 		"countsBulkReturned":tables.Float64Col(partitionsShape),
-	# 		"countsBulkUnpartitioned":tables.Float64Col(countsShape),
-	# 		}
-
-	# 	# Create table
-	# 	# TODO: Add compression options (using filters)
-	# 	t = h5file.create_table(
-	# 		h5file.root,
-	# 		self.meta["id"],
-	# 		d,
-	# 		title = self.meta["name"],
-	# 		filters = tables.Filters(complevel = 9, complib="zlib"),
-	# 		expectedrows = expectedRows
-	# 		)
-	
-	# 	groupNames = h5file.createGroup(h5file.root,
-	# 		'names', 'Molecule, compartment, and process names')
-
-	# 	h5file.createArray(groupNames, 'molIDs', [str(s) for s in self._molIDs]) # pytables doesn't support unicode
-	# 	h5file.createArray(groupNames, 'compartments', [str(s) for s in self._compartments])
-
-	# 	groupIdxs = h5file.createGroup(h5file.root,
-	# 		'indexes', 'Indexes for various groups of molecules')
-
-	# 	for type_, indexes in self._typeIdxs.viewitems():
-	# 		h5file.createArray(groupIdxs, type_, indexes)
-
-
-	# def pytablesAppend(self, h5file):
-	# 	simTime = self.time.value
-
-	# 	t = h5file.get_node("/", self.meta["id"])
-	# 	entry = t.row
-
-	# 	entry["time"] = simTime
-	# 	entry['countsBulk'] = self._countsBulk
-	# 	entry['countsBulkRequested'] = self._countsBulkRequested
-	# 	entry['countsBulkPartitioned'] = self._countsBulkPartitioned
-	# 	entry['countsBulkReturned'] = self._countsBulkReturned
-	# 	entry['countsBulkUnpartitioned'] = self._countsBulkUnpartitioned
+		self._container.countsIs(entry['countsBulk'])
 		
-	# 	entry.append()
-
-	# 	t.flush()
-
-
-	# def pytablesLoad(self, h5file, timePoint):
-	# 	entry = h5file.get_node('/', self.meta['id'])[timePoint]
-
-	# 	self._countsBulk[:] = entry['countsBulk']
-	# 	if self.partitions:
-	# 		self._countsBulkRequested[:] = entry['countsBulkRequested']
-	# 		self._countsBulkPartitioned[:] = entry['countsBulkPartitioned']
-	# 		self._countsBulkReturned[:] = entry['countsBulkReturned']
-	# 		self._countsBulkUnpartitioned[:] = entry['countsBulkUnpartitioned']
+		if self.partitions:
+			self._countsRequested[:] = entry['countsRequested']
+			self._countsAllocated[:] = entry['countsAllocated']
+			self._countsReturned[:] = entry['countsReturned']
+			self._countsUnallocated[:] = entry['countsUnallocated']
 
 
 class _BulkMoleculesPartition(wholecell.states.partition.Partition):
