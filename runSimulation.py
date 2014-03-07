@@ -18,8 +18,7 @@ import sys
 
 DEFAULT_SIM = dict(
 	seed = 10,
-	lengthSec = 100,
-	includedProcesses = []#['ToyTranscription','ToyProteinDegradation']
+	lengthSec = 100
 	)
 
 def main():

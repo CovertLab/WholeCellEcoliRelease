@@ -10,6 +10,8 @@ Metabolism sub-model. Encodes molecular simulation of microbial metabolism using
 @date: Created 4/2/2013
 """
 
+from __future__ import division
+
 import numpy as np
 
 import wholecell.processes.process
@@ -91,11 +93,11 @@ class Metabolism(wholecell.processes.process.Process):
 		self.bulkMoleculesPartition.initialize(bioIds)
 		self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
-		self.bulkMoleculesPartition.atpHydrolysis = self.bulkMoleculesPartition.countsBulkViewNew(
+		self.bulkMoleculesPartition.atpHydrolysis = self.bulkMoleculesPartition.countsView(
 			["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
 
-		self.bulkMoleculesPartition.ntps = self.bulkMoleculesPartition.countsBulkViewNew(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.bulkMoleculesPartition.h2oMol = self.bulkMoleculesPartition.molecule('H2O[c]')
+		self.bulkMoleculesPartition.ntps = self.bulkMoleculesPartition.countsView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.bulkMoleculesPartition.h2oMol = self.bulkMoleculesPartition.countView('H2O[c]')
 
 		self.feistCore = np.array([ # TODO: This needs to go in the KB
 			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
@@ -117,16 +119,16 @@ class Metabolism(wholecell.processes.process.Process):
 			"RIBFLV[c]"
 			]
 
-		self.bulkMoleculesPartition.feistCore = self.bulkMoleculesPartition.countsBulkViewNew(self.feistCoreIds)
+		self.bulkMoleculesPartition.feistCore = self.bulkMoleculesPartition.countsView(self.feistCoreIds)
 
 		self.initialDryMass = 2.8e-13 / 1.36 # grams # TOKB
 
 	# Calculate needed metabolites
 	def requestBulkMolecules(self):
-		self.bulkMoleculesPartition.countsBulkIs(1)
+		self.bulkMoleculesPartition.countsIs(1)
 
-		self.bulkMoleculesPartition.ntps.countsBulkIs(0)
-		self.bulkMoleculesPartition.h2oMol.countBulkIs(0)
+		self.bulkMoleculesPartition.ntps.countsIs(0)
+		self.bulkMoleculesPartition.h2oMol.countIs(0)
 
 	# # Calculate needed proteins
 	# def calcReqEnzyme(self):
@@ -137,7 +139,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# NOTE: I've deleted a bunch of commented-out code from here.  Get it 
 		# from an old commit if you really need it. - JM
 
-		atpm = np.zeros_like(self.bulkMoleculesPartition.feistCore.countsBulk()) # TODO: determine what this means
+		atpm = np.zeros_like(self.bulkMoleculesPartition.feistCore.counts()) # TODO: determine what this means
 
 		noise = self.randStream.multivariate_normal(np.zeros_like(self.feistCore), np.diag(self.feistCore / 1000.))
 
@@ -148,10 +150,10 @@ class Metabolism(wholecell.processes.process.Process):
 			* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 			)
 
-		self.bulkMoleculesPartition.feistCore.countsBulkIs(
+		self.bulkMoleculesPartition.feistCore.countsIs(
 			np.fmax(
 				0,
-				self.randStream.stochasticRound(self.bulkMoleculesPartition.feistCore.countsBulk() + deltaMetabolites)
+				self.randStream.stochasticRound(self.bulkMoleculesPartition.feistCore.counts() + deltaMetabolites)
 				)
 			)
 

@@ -10,6 +10,8 @@ Macromolecular complexation sub-model. Encodes molecular simulation of macromole
 @date: Created 4/4/2013
 """
 
+from __future__ import division
+
 import numpy as np
 
 import wholecell.processes.process

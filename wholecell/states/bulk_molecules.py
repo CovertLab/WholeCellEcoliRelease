@@ -223,7 +223,7 @@ class BulkMolecules(wholecell.states.state.State):
 		if self.partitions:
 			# Clear out the existing partitions in preparation for the requests
 			for partition in self.partitions.viewvalues():
-				partition.counts(0)
+				partition.setEmpty()
 			
 			# Calculate and store requests
 			for iPartition, partition in enumerate(self.partitions.viewvalues()):
@@ -241,7 +241,7 @@ class BulkMolecules(wholecell.states.state.State):
 				partition.allocationIs(self._countsAllocated[..., iPartition])
 			
 			# Record unpartitioned counts for later merging
-			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocated, axis = 2)
+			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocated, axis = -1)
 
 		else:
 			self._countsUnallocated = self._container._counts
@@ -254,6 +254,14 @@ class BulkMolecules(wholecell.states.state.State):
 		self._container.countsIs(
 			self._countsUnallocated + self._countsReturned.sum(axis = -1)
 			)
+
+
+	def countsView(self, names):
+		return self._container.countsView(names)
+
+
+	def countView(self, name):
+		return self._container.countView(name)
 
 	
 	def mass(self, typeKey = None):
@@ -321,6 +329,19 @@ class _BulkMoleculesPartition(wholecell.states.partition.Partition):
 			target[self._indexMapping] = self._container._counts
 
 
+	def setEmpty(self):
+		if self._indexMapping is not None:
+			self._container.countsIs(0)
+
+
+	def counts(self):
+		return self._container.counts()
+
+
+	def countsIs(self, values):
+		self._container.countsIs(values)
+
+
 	def countsView(self, names):
 		return self._container.countsView(names)
 
@@ -330,8 +351,8 @@ class _BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
-	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
-	requestsRelative = np.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
+	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = -1)
+	requestsRelative = np.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = -1)
 
 	# TODO: Remove the warnings filter or move it elsewhere
 	# there may also be a way to avoid these warnings by only evaluating 

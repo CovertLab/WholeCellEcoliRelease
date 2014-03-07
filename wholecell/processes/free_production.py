@@ -11,6 +11,8 @@ of some initial count and the doubling time.
 @date: Created 2/5/2014
 """
 
+from __future__ import division
+
 import numpy as np
 
 import wholecell.processes.process

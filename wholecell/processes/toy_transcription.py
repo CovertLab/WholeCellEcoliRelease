@@ -10,6 +10,8 @@ Creates unique RNA polymerases and binds them to an imaginary chromosome.
 @date: Created 2/28/2014
 """
 
+from __future__ import division
+
 import numpy as np
 
 import wholecell.processes.process

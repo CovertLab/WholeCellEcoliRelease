@@ -10,6 +10,8 @@ Degrages imaginary RNA polymerases only if they are unbound.
 @date: Created 2/28/2014
 """
 
+from __future__ import division
+
 import numpy as np
 
 import wholecell.processes.process
