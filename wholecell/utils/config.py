@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 '''
-config_fixtures.py
+config.py
 
-Stores configuration information for simulation
+Stores configuration information
 '''
 
 import os
 import json
+from numpy import array,matrix
 
-# Knowledge base direcotry (default configuration)
-KNOWLEDGEBASE_DIRECTORY = '~/Documents/kbEcoli/'
-
-with open(os.path.join('wholecell','utils','configfile','config_file_sim.config')) as config_file:
+with open(os.path.join('wholecell','utils','configfile','config_file.config')) as config_file:
 	configs = json.loads(config_file.readline())
-	KNOWLEDGEBASE_DIRECTORY = configs['KNOWLEDGEBASE_DIRECTORY']
+	# Takes in keys and turns them into variables with same values as in dict:
+	for k in configs:
+		exec('{KEY} = {VALUE}'.format(KEY = k, VALUE = repr(configs[k])))

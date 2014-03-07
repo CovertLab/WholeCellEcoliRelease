@@ -16,14 +16,16 @@ import wholecell.reconstruction.knowledgebase
 import wholecell.sim.simulation
 import wholecell.utils.knowledgebase_fixture_manager
 
+import wholecell.utils.config_test
+
 def main():
 	# Create output directory
-	outDir = "fixtures/test"
+	outDir = wholecell.utils.config.TEST_FIXTURE_DIR
 	if not os.path.exists(outDir):
 		os.makedirs(outDir)
 
 	# Construct KB
-	wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBaseTest()
+	wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(outDir)
 
 	# Construct simulation
 	sim = wholecell.sim.simulation.Simulation(

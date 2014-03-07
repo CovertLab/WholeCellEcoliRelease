@@ -13,16 +13,10 @@ import os
 import sys
 import cPickle
 
-import wholecell.utils.config_fixtures
-
-def cacheKnowledgeBaseSim():
-	return cacheKnowledgeBase('./fixtures/sim/')
-
-def cacheKnowledgeBaseTest():
-	return cacheKnowledgeBase('./fixtures/test')
+import wholecell.utils.config
 
 def cacheKnowledgeBase(outDir):
-	sys.path.append(str(os.path.expanduser(wholecell.utils.config_fixtures.KNOWLEDGEBASE_DIRECTORY)))
+	sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
 	import ecoliwholecellkb_project.KnowledgeBaseEcoli
 
 	kb = ecoliwholecellkb_project.KnowledgeBaseEcoli.KnowledgeBaseEcoli()
@@ -31,7 +25,7 @@ def cacheKnowledgeBase(outDir):
 	return kb
 
 def loadKnowledgeBase(inDir):
-	sys.path.append(str(os.path.expanduser(wholecell.utils.config_fixtures.KNOWLEDGEBASE_DIRECTORY)))
+	sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
 	import ecoliwholecellkb_project.KnowledgeBaseEcoli
 	kb = cPickle.load(open(inDir, "rb"))
 	return kb

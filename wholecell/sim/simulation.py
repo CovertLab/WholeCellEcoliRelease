@@ -11,6 +11,7 @@ Simulation
 import collections
 import tables
 import os
+import wholecell.utils.config
 
 DEFAULT_PROCESSES = [
 	'Complexation',
@@ -19,8 +20,6 @@ DEFAULT_PROCESSES = [
 	'Transcription',
 	'Translation',
 	] # TOKB
-
-KB_PATH = os.path.join('fixtures','sim', 'KnowledgeBase.cPickle')
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
@@ -70,15 +69,17 @@ class Simulation(object):
 		self.seed = self._options['seed']
 
 		# Create KB
-		self.kbPath = KB_PATH # TODO: option?
+		import wholecell.utils.config
+		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
 		import cPickle
-		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
+		if self._options['reconstructKB'] or not os.path.exists(self.kbDir):
 			import wholecell.utils.knowledgebase_fixture_manager
-			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBaseSim()
+			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 		else:
 			import wholecell.utils.knowledgebase_fixture_manager
-			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(self.kbPath)
+			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
+				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
 		# Fit KB parameters
 		import wholecell.reconstruction.fitter
