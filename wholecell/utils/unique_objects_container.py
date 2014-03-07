@@ -284,26 +284,46 @@ class UniqueObjectsContainer(object):
 	#	_entryDeleted property isnt saved
 	#	global ref indexes point to the wrong spots
 
-	# def pytablesCreate(self, h5file):
-	# 	for arrayIndex, array in enumerate(self._arrays):
-	# 		h5file.create_table(
-	# 			h5file.root,
-	# 			self._tableNames[arrayIndex],
-	# 			array[self._savedAttributes[arrayIndex]].dtype,
-	# 			title = self._objectNames[arrayIndex],
-	# 			filters = tables.Filters(complevel = 9, complib = 'zlib')
-	# 			)
+	def pytablesCreate(self, h5file):
+		for arrayIndex, array in enumerate(self._arrays):
+			h5file.create_table(
+				h5file.root,
+				self._tableNames[arrayIndex],
+				array[self._savedAttributes[arrayIndex]].dtype,
+				title = self._objectNames[arrayIndex],
+				filters = tables.Filters(complevel = 9, complib = 'zlib')
+				)
+
+			h5file.create_table(
+				h5file.root,
+				self._tableNames[arrayIndex] + '_indexes',
+				{'time':tables.UInt32Col(), 'index':tables.UInt32Col()},
+				title = self._objectNames[arrayIndex] + ' indexes',
+				filters = tables.Filters(complevel = 9, complib = 'zlib')
+				)
 
 
-	# def pytablesAppend(self, h5file, time):
-	# 	for arrayIndex, array in enumerate(self._arrays):
-	# 		table= h5file.get_node('/', self._tableNames[arrayIndex])
+	def pytablesAppend(self, h5file, time):
+		for arrayIndex, array in enumerate(self._arrays):
+			activeIndexes = np.where(array['_entryState'] ~= ENTRY_INACTIVE)[0]
 
-	# 		entries = array[self._queryObjects(self._objectNames[array])][self._savedAttributes[arrayIndex]]
+			entryTable = h5file.get_node('/', self._tableNames[arrayIndex])
+			
+			entries = array[activeIndexes][self._savedAttributes[arrayIndex]]
 
-	# 		table.append(entries)
+			entryTable.append(entries)
 
-	# 		table.flush()
+			entryTable.flush()
+
+			indexTable = h5file.get_node('/', self._tableNames[arrayIndex] + '_indexes')
+
+			indexes = np.empty((activeIndexes.size, 2), [('time', np.uint32), ('indexes', np.uint32)])
+			indexes['time'] = entries['time']
+			indexes['indexes'] = activeIndexes
+
+			indexTable.append(entries)
+
+			indexTable.flush()
 
 
 	# def pytablesLoad(self, h5file, timePoint):
