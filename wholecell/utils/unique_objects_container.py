@@ -33,12 +33,15 @@ class UniqueObjectsContainer(object):
 	'''
 
 	_defaultContainerAttributes = {
-		'_isActive':'bool', # whether the row is an active entry
-		'_wasDeleted':'bool', # whether the row was deleted in the last step
+		'_entryState':'uint32', # see state descriptions below
 		'_globalIndex':'uint32', # index in the _globalReference array
 		'_time':'uint64', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
+
+	_entryInactive = 0 # a clear entry
+	_entryActive = 1 # an entry that is in use
+	_entryDeleted = 2 # an entry that was deleted and is waiting to be cleaned up
 
 	_defaultObjects = {
 		'_globalReference':{ # a table which contains reference to all molecules
@@ -66,7 +69,6 @@ class UniqueObjectsContainer(object):
 		self._arrays = [] # ordered list of arrays
 		self._nameToArrayIndex = {} # objectName:index of associated structured array
 
-		self._savedAttributes = {} # objectName:list of attributes
 		self._queries = [] # list of _Query objects
 		self._tableNames = {} # objectName:table name
 
@@ -81,7 +83,7 @@ class UniqueObjectsContainer(object):
 			attributes.update(self._defaultContainerAttributes)
 
 		# Global references don't use global indexes
-		del self._objectAttributes['_globalReference']['_globalIndex'] 
+		del self._objectAttributes['_globalReference']['_globalIndex']
 
 		for arrayIndex, objectName in enumerate(self._objectNames):
 			attributes = self._objectAttributes[objectName]
@@ -99,10 +101,6 @@ class UniqueObjectsContainer(object):
 			self._arrays.append(newArray)
 			self._nameToArrayIndex[objectName] = arrayIndex
 
-			# Record which attributes are saved
-			self._savedAttributes[objectName] = attributes.keys()
-			self._savedAttributes[objectName].remove('_isActive') # only active molecules are saved, so this field is not needed
-
 			# Give the tables accessible names
 			self._tableNames[objectName] = objectName.replace(' ', '_')
 
@@ -115,7 +113,7 @@ class UniqueObjectsContainer(object):
 
 		array = self._arrays[arrayIndex]
 
-		array['_isActive'][objectIndexes] = True
+		array['_entryState'][objectIndexes] = self._entryActive
 
 		for attrName, attrValue in attributes.viewitems():
 			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
@@ -123,7 +121,7 @@ class UniqueObjectsContainer(object):
 
 		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
 		globalArray = self._arrays[self._globalRefIndex]
-		globalArray['_isActive'][globalIndexes] = True
+		globalArray['_entryState'][globalIndexes] = self._entryActive
 		globalArray['_arrayIndex'][globalIndexes] = arrayIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
 
@@ -140,8 +138,7 @@ class UniqueObjectsContainer(object):
 
 	def _getFreeIndexes(self, arrayIndex, nMolecules):
 		freeIndexes = np.where(
-			~self._arrays[arrayIndex]['_isActive']
-			& ~self._arrays[arrayIndex]['_wasDeleted']
+			self._arrays[arrayIndex]['_entryState'] == self._entryInactive
 			)[0]
 
 		if freeIndexes.size < nMolecules:
@@ -169,22 +166,19 @@ class UniqueObjectsContainer(object):
 
 
 	def objectDel(self, obj):
-		self._clearEntry(obj._arrayIndex, obj._objectIndex)
+		globalIndex = obj.attr('_globalIndex')
+		
+		self._arrays[obj._arrayIndex][obj._objectIndex]['_entryState'] = self._entryDeleted
+		self._arrays[self._globalRefIndex][globalIndex]['_entryState'] = self._entryDeleted
 
 
-	def _clearEntry(self, arrayIndex, objectIndex):
+	def _clearEntries(self, arrayIndex, objectIndexes):
 		array = self._arrays[arrayIndex]
 
-		globalArray = self._arrays[self._globalRefIndex]
-		globalArray[array[objectIndex]['_globalIndex']] = np.zeros(1, dtype = globalArray.dtype)
-		globalArray[array[objectIndex]['_globalIndex']]['_wasDeleted'] = True
-
-		array[objectIndex] = np.zeros(
+		array[objectIndexes] = np.zeros(
 			1,
 			dtype = array.dtype
 			)
-
-		array[objectIndex]['_wasDeleted'] = True
 
 
 	def _clearAll(self, arrayIndex):
@@ -203,7 +197,7 @@ class UniqueObjectsContainer(object):
 	
 
 	def _queryObjects(self, arrayIndex, **operations):
-		operations['_isActive'] = ('==', True)
+		operations['_entryState'] = ('==', self._entryActive)
 		array = self._arrays[arrayIndex]
 
 		return reduce(
@@ -260,7 +254,7 @@ class UniqueObjectsContainer(object):
 
 	def _iterObjects(self, arrayIndex, objectIndexes = None):
 		if objectIndexes is None:
-			objectIndexes = np.where(self._arrays[arrayIndex]['_isActive'])[0]
+			objectIndexes = np.where(self._arrays[arrayIndex]['_entryState'] == self._entryActive)[0]
 
 		return (_UniqueObject(self, arrayIndex, objectIndex) for objectIndex in objectIndexes)
 
@@ -272,8 +266,11 @@ class UniqueObjectsContainer(object):
 
 
 	def _flushDeleted(self):
-		for array in self._arrays:
-			array['_wasDeleted'] = False
+		for arrayIndex, array in enumerate(self._arrays):
+			self._clearEntries(
+				arrayIndex,
+				np.where(array['_entryState'] == self._entryDeleted)
+				)
 
 
 	def __eq__(self, other):
@@ -286,7 +283,7 @@ class UniqueObjectsContainer(object):
 	# TODO: fix saving/loading...
 	# currently problematic because
 	#	indexes won't line up on load which makes testing hard
-	#	_wasDeleted property isnt saved
+	#	_entryDeleted property isnt saved
 	#	global ref indexes point to the wrong spots
 
 	# def pytablesCreate(self, h5file):
@@ -381,7 +378,7 @@ class _UniqueObject(object):
 	def attr(self, attribute):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
-		if not entry['_isActive']:
+		if not entry['_entryState'] == self._container._entryActive:
 			raise Exception('Attempted to access an inactive molecule.')
 
 		return entry[attribute]
@@ -390,7 +387,7 @@ class _UniqueObject(object):
 	def attrIs(self, attribute, value):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
-		if not entry['_isActive']:
+		if not entry['_entryState'] == self._container._entryActive:
 			raise Exception('Attempted to access an inactive molecule.')
 
 		entry[attribute] = value

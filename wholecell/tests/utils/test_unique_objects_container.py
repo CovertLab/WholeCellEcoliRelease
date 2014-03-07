@@ -44,14 +44,14 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Interface tests
 
 	# Adding/removing objects
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_add_molecule(self):
 		self.container.objectNew('RNA polymerase')
 
 		self.assertEqual(len(self.container.objects('RNA polymerase')), 21)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_add_molecules(self):
 		self.container.objectsNew('RNA polymerase', 20)
 
@@ -61,7 +61,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_delete_molecules(self):
 		molecules = self.container.objects('RNA polymerase')
 
@@ -86,14 +86,14 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(context.exception.message, 'Attempted to access an inactive molecule.')
 
 	# Querying
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_empty_query(self):
 		molecules = self.container.evaluateQuery('RNA polymerase')
 
 		self.assertEqual(len(molecules), 20)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_bool_query(self):
 		molecules = self.container.evaluateQuery(
 			'RNA polymerase',
@@ -109,7 +109,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_numeric_query(self):
 		molecules = self.container.evaluateQuery(
 			'RNA polymerase',
@@ -125,7 +125,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_compound_query(self):
 		molecules = self.container.evaluateQuery(
 			'RNA polymerase',
@@ -142,7 +142,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 	# Attribute access
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
 		for molecule in self.container.iterObjects('RNA polymerase'):
 			molecule.attrIs('boundToChromosome', True)
@@ -160,7 +160,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 	# Query objects
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_query_objects(self):
 		query = self.container.queryNew('RNA polymerase', boundToChromosome = ('==', True))
 
@@ -180,7 +180,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(query.objects(), set())
 
 	# Set operations
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_molecule_set_operations(self):
 		allMolecules = self.container.objects('RNA polymerase')
 
@@ -200,7 +200,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Internal tests
 
 	# Bookkeeping attributes
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_time_setting(self):
 		self.container._timeIs(50)
 
@@ -210,7 +210,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(allMolecules, newTime)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_deleted_entry_flushing(self):
 		# First, make sure that deleted entries are not overwritten
 		molecules = self.container.objects('RNA polymerase')
@@ -233,7 +233,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertTrue(newMolecule._objectIndex in indexes)
 
 	# Global references
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_mapping(self):
 		globalArray = self.container._arrays[self.container._globalRefIndex]
 
@@ -249,7 +249,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			self.assertEqual(molecule._objectIndex, objectIndex)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_removal(self):
 		globalArray = self.container._arrays[self.container._globalRefIndex]
 
@@ -258,16 +258,16 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		globalIndex = molecule.attr('_globalIndex')
 		
 		self.container.objectDel(molecule)
+		self.container._flushDeleted()
 
 		globalEntry = globalArray[globalIndex]
 
 		deletedEntry = np.zeros(1, dtype = globalArray.dtype)
-		deletedEntry['_wasDeleted'] = True
 
 		self.assertEqual(globalEntry, deletedEntry)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_eq_method(self):
 		# Test against self
 		self.assertEqual(self.container, self.container)
