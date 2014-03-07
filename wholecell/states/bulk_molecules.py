@@ -134,6 +134,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def allocate(self):
+		super(BulkMolecules, self).allocate() # Allocates partitions
+
 		# Create the container for molecule counts
 		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer([
 			'{}[{}]'.format(moleculeID, compartmentID)
@@ -227,19 +229,16 @@ class BulkMolecules(wholecell.states.state.State):
 		pass
 
 	
-	def massAll(self):
-		return np.dot(
-			self._moleculeMass,
-			self._container._counts.view().reshape((-1, self._nCompartments))
-			)
+	def mass(self, typeKey = None):
+		if typeKey is None:
+			indexes = np.s_[:]
 
-	def massWater(self):
-		# TODO: more generalized methods for calculating mass (all, single molecule for all compartments, group of molecules)
-		index = self._typeIdxs['water']
+		else:
+			indexes = self._typeIdxs[typeKey]
 
 		return np.dot(
-			self._moleculeMass[index],
-			self._container._counts.view().reshape((-1, self._nCompartments))[index, :]
+			self._moleculeMass[indexes],
+			self._container._counts.view().reshape((-1, self._nCompartments))[indexes, :]
 			)
 
 
@@ -269,7 +268,8 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 
 	def initialize(self, moleculeNames, isReqAbs = False):
-		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(moleculeNames)
+		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(
+			moleculeNames)
 		self._isReqAbs = isReqAbs
 
 		self._indexMapping = np.array(

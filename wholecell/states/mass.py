@@ -92,12 +92,12 @@ class Mass(wholecell.states.state.State):
 
 	def calculate(self):
 		# Total
-		self.total = self.bulkMolecules.massAll() / Constants.nAvogadro * 1e15
+		self.total = self.bulkMolecules.mass() / Constants.nAvogadro * 1e15
 
 		# Cell
-		self.metabolite = self.bulkMolecules.massAll('metabolites') / Constants.nAvogadro * 1e15
-		self.rna        = self.bulkMolecules.massAll('rnas')        / Constants.nAvogadro * 1e15
-		self.protein    = self.bulkMolecules.massAll('proteins')    / Constants.nAvogadro * 1e15
+		self.metabolite = self.bulkMolecules.mass('metabolites') / Constants.nAvogadro * 1e15
+		self.rna        = self.bulkMolecules.mass('rnas')        / Constants.nAvogadro * 1e15
+		self.protein    = self.bulkMolecules.mass('proteins')    / Constants.nAvogadro * 1e15
 
 		cIdxs = np.array([
 							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
@@ -109,7 +109,7 @@ class Mass(wholecell.states.state.State):
 		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
 
 		self.cellDry[:] = 0
-		self.cellDry[cIdxs] = self.cell[cIdxs] - self.bulkMolecules.massAll('water')[cIdxs] / Constants.nAvogadro * 1e15
+		self.cellDry[cIdxs] = self.cell[cIdxs] - self.bulkMolecules.mass('water')[cIdxs] / Constants.nAvogadro * 1e15
 
 		self.growth = self.cell.sum() - oldMass
 
