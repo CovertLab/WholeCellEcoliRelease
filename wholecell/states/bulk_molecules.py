@@ -75,8 +75,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def countView(self, name):
 		return self._container.countView(name)
 
-	# TODO: more container method wrapping
-
+	# TODO: mass calculation methods
 
 	def pytablesCreate(self, h5file, expectedRows):
 		# TODO
@@ -118,40 +117,8 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 		target[self._indexMapping] = self._container._counts
 
 
-	def counts(self, names = None):
-		return self._container.counts(names)
-
-
-	def countsIs(self, values, names = None):
-		self._container.countsIs(values, names)
-
-
-	def countsInc(self, values, names = None): 
-		self._container.countsInc(values, names)
-
-
-	def countsDec(self, values, names = None):
-		self._container.countsDec(values, names)
-
-
 	def countsView(self, names = None):
 		return self._container.countsView(names)
-
-
-	def count(self, name):
-		return self._container.count(name)
-
-
-	def countIs(self, value, name):
-		self._container.countIs(value, name)
-
-
-	def countInc(self, value, name):
-		self._container.countInc(value, name)
-
-
-	def countDec(self, value, name):
-		self._container.countDec(value, name)
 
 
 	def countView(self, name):
