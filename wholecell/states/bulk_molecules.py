@@ -100,6 +100,13 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._moleculeMass[np.where(self._moleculeMass < 0)] = 0
 
+		# Create the container for molecule counts
+		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer([
+			'{}[{}]'.format(moleculeID, compartmentID)
+			for moleculeID in self._moleculeIDs
+			for compartmentID in self._compartmentIDs
+			])
+
 		# Information needed for calcInitialConditions
 
 		self._typeIdxs = {}
@@ -135,13 +142,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def allocate(self):
 		super(BulkMolecules, self).allocate() # Allocates partitions
-
-		# Create the container for molecule counts
-		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer([
-			'{}[{}]'.format(moleculeID, compartmentID)
-			for moleculeID in self._moleculeIDs
-			for compartmentID in self._compartmentIDs
-			])
 
 		nMolecules = self._container._counts.size
 		nPartitions = len(self.partitions)
@@ -291,7 +291,7 @@ class _BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 		self._indexMapping = None
 
-		super(UniqueMoleculesPartition, self).__init__(*args, **kwargs)
+		super(_BulkMoleculesPartition, self).__init__(*args, **kwargs)
 
 
 	def initialize(self, moleculeNames, isReqAbs = False):
@@ -300,7 +300,7 @@ class _BulkMoleculesPartition(wholecell.states.partition.Partition):
 		self._isReqAbs = isReqAbs
 
 		self._indexMapping = np.array(
-			self._state._container._getIndexes(moleculeNames)
+			self._state._container._namesToIndexes(moleculeNames)
 			)
 
 
@@ -319,6 +319,14 @@ class _BulkMoleculesPartition(wholecell.states.partition.Partition):
 	def returned(self, target):
 		if self._indexMapping is not None:
 			target[self._indexMapping] = self._container._counts
+
+
+	def countsView(self, names):
+		return self._container.countsView(names)
+
+
+	def countView(self, name):
+		return self._container.countView(name)
 
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
