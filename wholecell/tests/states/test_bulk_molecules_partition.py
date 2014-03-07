@@ -16,7 +16,7 @@ import cPickle
 import os
 
 import numpy as np
-import wholecell.states.molecule_counts as wcMoleculeCounts
+import wholecell.states.bulk_molecules as wcBulkMolecules
 
 class Test_BulkMolecules_partition(unittest.TestCase):
 
@@ -58,7 +58,7 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		countsBulk = self.countsBulk
 		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcMoleculeCounts.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		wcBulkMolecules.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
 
 		countsBulkPartitioned_test = np.zeros((7,1,3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([1., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
@@ -77,7 +77,7 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		countsBulk = self.countsBulk
 		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcMoleculeCounts.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		wcBulkMolecules.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
 
 		countsBulkPartitioned_test = np.zeros((7,1,3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.], ndmin = 2).T
@@ -96,7 +96,7 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		countsBulk = self.countsBulk
 		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcMoleculeCounts.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		wcBulkMolecules.calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned)
 
 		countsBulkPartitioned_test = np.zeros((7,1,3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.], ndmin = 2).T

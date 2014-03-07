@@ -16,7 +16,7 @@ import cPickle
 import os
 
 import numpy as np
-import wholecell.states.molecule_counts as wcMoleculeCounts
+import wholecell.states.bulk_molecules as wcBulkMolecules
 
 # class Test_BulkMolecules(unittest.TestCase):
 
