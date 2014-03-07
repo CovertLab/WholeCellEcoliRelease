@@ -16,7 +16,7 @@ import wholecell.reconstruction.knowledgebase
 import wholecell.sim.simulation
 import wholecell.utils.knowledgebase_fixture_manager
 
-import wholecell.utils.config_test
+import wholecell.utils.config
 
 def main():
 	# Create output directory
