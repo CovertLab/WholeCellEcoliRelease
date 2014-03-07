@@ -117,6 +117,10 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 		target[self._indexMapping] = self._container._counts
 
 
+	def setAllocation(self, source):
+		self._container._counts = source[self._indexMapping]
+
+
 	def countsView(self, names = None):
 		return self._container.countsView(names)
 
