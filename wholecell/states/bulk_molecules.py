@@ -36,7 +36,7 @@ class BulkMolecules(wholecell.states.state.State):
 			}
 
 		self.time = None
-		self.partitionClass = BulkMoleculesPartition
+		self.partitionClass = _BulkMoleculesPartition
 
 		self._container = None
 
@@ -220,13 +220,40 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def partition(self):
-		# TODO
-		pass
+		if self.partitions:
+			# Clear out the existing partitions in preparation for the requests
+			for partition in self.partitions.viewvalues():
+				partition.counts(0)
+			
+			# Calculate and store requests
+			for iPartition, partition in enumerate(self.partitions.viewvalues()):
+				# Call request function and record requests
+				partition.request(self._countsRequested[..., iPartition])
+
+			isRequestAbsolute = np.array(
+				[partition._isReqAbs for partition in self.partitions.viewvalues()],
+				np.bool
+				)
+
+			calculatePartition(isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocated)
+
+			for iPartition, partition in enumerate(self.partitions.viewvalues()):
+				partition.allocationIs(self._countsAllocated[..., iPartition])
+			
+			# Record unpartitioned counts for later merging
+			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocated, axis = 2)
+
+		else:
+			self._countsUnallocated = self._container._counts
 
 
 	def merge(self):
-		# TODO
-		pass
+		for iPartition, partition in enumerate(self.partitions.viewvalues()):
+			partition.returned(self._countsReturned[..., iPartition])
+			
+		self._container.countsIs(
+			self._countsUnallocated + self._countsReturned.sum(axis = -1)
+			)
 
 	
 	def mass(self, typeKey = None):
@@ -257,7 +284,7 @@ class BulkMolecules(wholecell.states.state.State):
 		pass
 
 
-class BulkMoleculesPartition(wholecell.states.partition.Partition):
+class _BulkMoleculesPartition(wholecell.states.partition.Partition):
 	def __init__(self, *args, **kwargs):
 		self._container = None
 		self._isReqAbs = None
@@ -278,17 +305,49 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 
 	def request(self, target):
-		self._process.requestBulkMolecules()
+		if self._indexMapping is not None:
+			self._process.requestBulkMolecules()
 
-		target[self._indexMapping] = self._container._counts # direct reference to avoid a copy operation
+			target[self._indexMapping] = self._container._counts # direct reference to avoid a copy operation
 
 
 	def allocationIs(self, source):
-		self._container.countsIs(source[self._indexMapping])
+		if self._indexMapping is not None:
+			self._container.countsIs(source[self._indexMapping])
 
 
 	def returned(self, target):
-		target[self._indexMapping] = self._container._counts
+		if self._indexMapping is not None:
+			target[self._indexMapping] = self._container._counts
+
+
+def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
+	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = 2)
+	requestsRelative = np.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = 2)
+
+	# TODO: Remove the warnings filter or move it elsewhere
+	# there may also be a way to avoid these warnings by only evaluating 
+	# division "sparsely", which should be faster anyway - JM
+	oldSettings = np.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+
+	scaleAbsolute = np.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		np.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
+			np.minimum(countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
+		)
+
+	scaleRelative = np.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
+		np.maximum(0, countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
+		)
+
+	scaleRelative[requestsRelative == 0] = 0 # nan handling?
+
+	np.seterr(**oldSettings) # Restore error handling to the previous state
+
+	# Compute allocations and assign counts to the partitions
+	for iPartition in range(countsBulkPartitioned.shape[-1]):
+		scale = scaleAbsolute if isRequestAbsolute[iPartition] else scaleRelative
+		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
+		countsBulkPartitioned[..., iPartition] = allocation
 
 
 # Constants (should be taken from the KB)
