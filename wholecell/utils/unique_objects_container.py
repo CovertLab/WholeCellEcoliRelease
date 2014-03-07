@@ -273,16 +273,10 @@ class UniqueObjectsContainer(object):
 
 	def __eq__(self, other):
 		return all(
-			(selfArray == otherArray).all() for (selfArray, otherArray)
-			in zip(self._arrays, other._arrays)
+			(selfArray[selfArray['_entryState'] != ENTRY_INACTIVE] == otherArray[otherArray['_entryState'] != ENTRY_INACTIVE]).all()
+			for (selfArray, otherArray) in zip(self._arrays, other._arrays)
 			)
-
-
-	# TODO: fix saving/loading...
-	# currently problematic because
-	#	indexes won't line up on load which makes testing hard
-	#	_entryDeleted property isnt saved
-	#	global ref indexes point to the wrong spots
+	
 
 	def pytablesCreate(self, h5file):
 		for arrayIndex, array in enumerate(self._arrays):
