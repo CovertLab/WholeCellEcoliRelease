@@ -55,7 +55,7 @@ class FreeProduction(wholecell.processes.process.Process):
 		mc = sim.states["BulkMolecules"]
 
 		self.bulkMoleculesPartition.initialize(self.molIDs)
-		self.mcView = mc.countsBulkViewNew(self.molIDs)
+		self.mcView = mc.countsView(self.molIDs)
 
 		self.time = sim.states['Time']
 
@@ -69,9 +69,9 @@ class FreeProduction(wholecell.processes.process.Process):
 	def evolveState(self):
 		expectedCounts = self.initCounts * np.exp(np.log(2) / self.doublingTime * self.time.value)
 
-		self.bulkMoleculesPartition.countsBulkIs(
+		self.bulkMoleculesPartition.countsIs(
 			np.fmax(
 				0,
-				expectedCounts - self.mcView.countsBulk()
+				expectedCounts - self.mcView.counts()
 				)
 			)
