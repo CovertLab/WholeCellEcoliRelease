@@ -90,8 +90,9 @@ class BulkObjectsContainer(object):
 	def _namesToIndexes(self, names):
 		return np.array([self._objectIndex[name] for name in names])
 
-	# TODO: mass calculation
-	# TODO: saving
+	
+	def __eq__(self, other):
+		return (self._counts == other._counts).all()
 
 
 class _BulkObjectsView(object):
