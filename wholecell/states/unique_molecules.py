@@ -107,24 +107,23 @@ class UniqueMolecules(wholecell.states.state.State):
 		nTotalRequests = len(processReference)
 		nProcesses = len(self.partitions)
 
-		# Format requests into appropriate parameters
-		objectRequestsArray = np.vstack(arrays).transpose().copy() # must copy to fix memory order
-		requestNumberVector = np.array(counts)
-		requestProcessArray = (np.tile(np.arange(nProcesses), (nTotalRequests, 1)).T
-			== np.array(processReference)).transpose()
+		if arrays:
+			# Format requests into appropriate parameters
+			objectRequestsArray = np.vstack(arrays).transpose().copy() # must copy to fix memory order
+			requestNumberVector = np.array(counts)
+			requestProcessArray = (np.tile(np.arange(nProcesses), (nTotalRequests, 1)).T
+				== np.array(processReference)).transpose()
 
-		# import ipdb; ipdb.set_trace()
+			partitionedMolecules = wholecell.utils.unique_objects_container._partition(
+				objectRequestsArray, requestNumberVector, requestProcessArray, self.randStream)
 
-		partitionedMolecules = wholecell.utils.unique_objects_container._partition(
-			objectRequestsArray, requestNumberVector, requestProcessArray, self.randStream)
+			for iProcess, partition in enumerate(self.partitions.viewvalues()):
+				molecules = self._container._objectsByGlobalIndex(
+					np.where(partitionedMolecules[:, iProcess])[0]
+					)
 
-		for iProcess, partition in enumerate(self.partitions.viewvalues()):
-			molecules = self._container._objectsByGlobalIndex(
-				np.where(partitionedMolecules[:, iProcess])[0]
-				)
-
-			for molecule in molecules:
-				molecule.attrIs('_partitionedProcess', iProcess+1)
+				for molecule in molecules:
+					molecule.attrIs('_partitionedProcess', iProcess+1)
 
 
 	def queryNew(self, moleculeName, **operations):
