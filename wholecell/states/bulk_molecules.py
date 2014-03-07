@@ -73,7 +73,7 @@ class BulkMolecules(wholecell.states.state.State):
 		pass
 
 
-	def countView(self, names):
+	def countsView(self, names):
 		return self._container.countsView(names)
 
 
@@ -106,7 +106,7 @@ class BulkMoleculesPartition(wholecell.states.partition.Partition):
 
 		super(UniqueMoleculesPartition, self).__init__(*args, **kwargs)
 
-	
+
 	def initialize(self, moleculeNames, isReqAbs = False):
 		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(moleculeNames)
 		self._isReqAbs = isReqAbs
