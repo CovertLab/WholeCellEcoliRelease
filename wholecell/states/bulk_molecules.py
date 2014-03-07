@@ -40,6 +40,27 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._container = None
 
+		self._moleculeMass = None
+
+		self._moleculeIDs = None
+		self._compartmentIDs = None
+
+		self._nCompartments = None
+
+		self._countsRequested = None
+		self._countsAllocated = None
+		self._countsReturned = None
+		self._countsUnallocated = None
+
+		self._typeIdxs = None
+		self._typeLocalizations = None
+
+		self._rnaLens = None
+		self._rnaExp = None
+
+		self._monLens = None
+		self._monExp = None
+
 		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
@@ -48,19 +69,152 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self.time = sim.states['Time']
 
-		# self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(...)
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		# HACK
 
-		# TODO
+		# kb does not yet have feist core vals!
+		if hasattr(kb, 'feistCoreVals'):
+			self.feistCoreVals = kb.feistCoreVals
+
+		else:
+			self.feistCoreVals = FEIST_CORE_VALS.copy()
+
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		self._moleculeIDs = []
+
+		self._moleculeIDs += [molecule['id'] for molecule in kb.metabolites]
+		self._moleculeIDs += [molecule['id'] for molecule in kb.rnas]
+		self._moleculeIDs += [molecule['id'] for molecule in kb.proteins]
+
+		self._compartmentIDs = [compartment['id'] for compartment in COMPARTMENTS]
+		self._nCompartments = len(self._compartmentIDs)
+
+		self._moleculeMass = np.array(sum(
+			(
+				[molecule['mw7.2'] for molecule in kb.metabolites],
+				[molecule['mw'] for molecule in kb.rnas],
+				[molecule['mw'] for molecule in kb.proteins]
+			),
+			[]), np.float64)
+
+		self._moleculeMass[np.where(self._moleculeMass < 0)] = 0
+
+		# Information needed for calcInitialConditions
+
+		self._typeIdxs = {}
+
+		self._typeIdxs.update({
+			'metabolites':np.arange(len(kb.metabolites)),
+			'rnas':np.arange(len(kb.rnas))+len(kb.metabolites),
+			'proteins':np.arange(len(kb.proteins))+len(kb.metabolites)+len(kb.rnas),
+			})
+
+		self._typeIdxs['water'] = self._moleculeIDs.index('H2O')
+
+		self._typeLocalizations = {}
+
+		self._typeLocalizations.update({
+			'proteins':[mol['location'] for mol in kb.proteins],
+			})
+
+		# Values needed for calcInitialConditions
+		self._rnaLens = np.array([np.sum(rna["ntCount"]) for rna in kb.rnas])
+		self._rnaExp = np.array([x["expression"] for x in kb.rnas])
+		self._rnaExp /= np.sum(self._rnaExp)
+
+		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
+		self._monLens = np.array([np.sum(monomer["aaCount"]) for monomer in monomers])
+		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
+		self._monExp = np.array([rnaIdToExp[monomer["rnaId"]] for monomer in monomers])
+		self._monExp /= np.sum(self._monExp)
+
+		self._typeIdxs['monomers'] = np.array([self._moleculeIDs.index(x["id"]) for x in monomers])
+		self._typeLocalizations['monomers'] = [monomer['location'] for monomer in monomers]
 
 
 	def allocate(self):
-		# TODO
-		pass
+		# Create the container for molecule counts
+		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer([
+			'{}[{}]'.format(moleculeID, compartmentID)
+			for moleculeID in self._moleculeIDs
+			for compartmentID in self._compartmentIDs
+			])
+
+		nMolecules = self._container._counts.size
+		nPartitions = len(self.partitions)
+		dtype = self._container._counts.dtype
+
+		# Arrays for tracking values related to partitioning
+		self._countsRequested = np.zeros((nMolecules, nPartitions), dtype)
+		self._countsAllocated = np.zeros((nMolecules, nPartitions), dtype)
+		self._countsReturned = np.zeros((nMolecules, nPartitions), dtype)
+		self._countsUnallocated = np.zeros(nMolecules, dtype)
 
 	
 	def calcInitialConditions(self):
-		# TODO
-		pass
+		from wholecell.utils.constants import Constants
+
+		initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
+
+		feistCoreView = self._container.countsView(IDS['FeistCore'])
+		h2oView = self._container.countView('H2O[c]')
+		ntpsView = self._container.countsView(IDS['ntps'])
+		matureRnaView = self._container.countsView(
+			[self._moleculeIDs[i] + '[c]' for i in self._typeIdxs['rnas']])
+		aasView = self._container.countsView(IDS['aas'])
+		monomersView = self._container.countsView([
+			self._moleculeIDs[index] + '[{}]'.format(self._typeLocalizations['monomers'][i])
+			for i, index in enumerate(self._typeIdxs['monomers'])
+			])
+
+		# Set metabolite counts from Feist core
+		feistCoreView.countsIs(
+			np.round(
+				self.feistCoreVals * 1e-3 * Constants.nAvogadro * initialDryMass
+				)
+			)
+
+		# Set water
+		h2oView.countIs(
+			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._typeIdxs['water']] * Constants.nAvogadro
+			) # TOKB
+
+		# Set RNA counts from expression levels
+		ntpsToPolym = np.round(
+			(1 - FRAC_INIT_FREE_NTPS) * np.sum(ntpsView.counts())
+			)
+
+		rnaCnts = self.randStream.mnrnd(
+			np.round(ntpsToPolym / (np.dot(self._rnaExp, self._rnaLens))),
+			self._rnaExp
+			)
+
+		ntpsView.countsIs(
+			np.round(
+				FRAC_INIT_FREE_NTPS * ntpsView.counts()
+				)
+			)
+
+		matureRnaView.countsIs(rnaCnts)
+
+		# Set protein counts from expression levels
+		aasToPolym = np.round(
+			(1 - FRAC_INIT_FREE_AAS) * np.sum(aasView.counts())
+			)
+
+		monCnts = self.randStream.mnrnd(
+			np.round(aasToPolym / (np.dot(self._monExp, self._monLens))),
+			self._monExp
+			)
+
+		aasView.countsIs(
+			np.round(
+				FRAC_INIT_FREE_AAS * aasView.counts()
+				)
+			)
+
+		monomersView.countsIs(monCnts)
 
 
 	def partition(self):
