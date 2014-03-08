@@ -37,7 +37,7 @@ class UniqueObjectsContainer(object):
 	_defaultContainerAttributes = {
 		'_entryState':'uint32', # see state descriptions above
 		'_globalIndex':'uint32', # index in the _globalReference array
-		'_time':'uint64', # current time (important for saving)
+		'_time':'uint32', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
@@ -285,13 +285,13 @@ class UniqueObjectsContainer(object):
 			h5file.create_table(
 				h5file.root,
 				self._tableNames[arrayIndex] + '_indexes',
-				{'time':tables.UInt32Col(), 'index':tables.UInt32Col()},
+				{'_time':tables.UInt32Col(), 'index':tables.UInt32Col()},
 				title = self._objectNames[arrayIndex] + ' indexes',
 				filters = tables.Filters(complevel = 9, complib = 'zlib')
 				)
 
 
-	def pytablesAppend(self, h5file, time):
+	def pytablesAppend(self, h5file):
 		for arrayIndex, array in enumerate(self._arrays):
 			activeIndexes = np.where(array['_entryState'] != ENTRY_INACTIVE)[0]
 
@@ -305,8 +305,8 @@ class UniqueObjectsContainer(object):
 
 			indexTable = h5file.get_node('/', self._tableNames[arrayIndex] + '_indexes')
 
-			indexes = np.empty((activeIndexes.size, 2), [('time', np.uint32), ('indexes', np.uint32)])
-			indexes['time'] = entries['time']
+			indexes = np.empty((activeIndexes.size, 2), [('_time', np.uint32), ('indexes', np.uint32)])
+			indexes['_time'] = entries['_time']
 			indexes['indexes'] = activeIndexes
 
 			indexTable.append(entries)
