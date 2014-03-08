@@ -14,14 +14,32 @@ import numpy as np
 class View(object):
 	_stateID = None
 
-	def __init__(self, sim, process, query, evaluateQuery = True): # weight, priority, coupling key
+	def __init__(self, sim, process, query): # weight, priority, coupling id, option to not evaluate the query
 		self._state = sim.states[self._stateID]
-		self._state._queries.append(self)
-		# self._process = process
-		# self._processIndex = process._simulationIndex # TODO
+		sim.states[self._stateID]._queries.append(self)
+		self._processIndex = process._simulationIndex
 
 		self._query = query # an immutable, hashable, composed of basic types
-		self._evaluateQuery = evaluateQuery # whether to evaluate the query, which is not needed if the view is output-only
+
+		self._totalCount = np.zeros(self._dataSize(), np.uint64) # number of objects that satisfy the query
+		self._requestedCount = np.zeros_like(self._totalCount) # number of objects requested
+
+
+	def _dataSize(self):
+		return 1
+
+	# Interface to Process
+
+	# Query
+
+	def total(self):
+		return self._totalCount.copy()
+
+	# Request
+
+	def requestIs(self, value):
+		assert (value <= )
+		self._requestedCount[:] = value
 
 
 class BulkMoleculesView(View):
@@ -34,11 +52,11 @@ class BulkMoleculesView(View):
 		self._containerIndexes = self._state._container._namesToIndexes(self._query)
 
 		# Memory allocation
-		size = len(self._query)
+		self._counts = np.zeros_like(self._totalNumber)
 
-		self._countsQuery = np.zeros(size, np.uint64) # TODO: revise names (countsTotal, countsRequested, countsAllocated?  drop "counts"?)
-		self._countsRequest = np.zeros(size, np.uint64)
-		self._counts = np.zeros(size, np.uint64)
+
+	def _dataSize(self):
+		return len(self._query)
 
 
 	# Interface to State
@@ -47,29 +65,5 @@ class BulkMoleculesView(View):
 
 	# Interface to Process
 
-	# Query
-	def countsQuery(self):
-		return self._countsQuery.copy()
-
-	# Request
-	def countsRequestIs(self, values):
-		# assert (self.countsQuery() >= values).all(), 'Request exceeds total values.'
-		self._countsRequest[:] = values
-
-	# Allocation
-	def counts(self):
-		return self._counts[:]
-
-
-	def countsIs(self, values):
-		# assert (values >= 0).all()
-		self._counts[:] = values
-
-
-	def countsInc(self, values):
-		self._counts += values
-
-
-	def countsDec(self, values):
-		self._counts -= values
+	# TODO
 
