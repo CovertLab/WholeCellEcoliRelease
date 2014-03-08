@@ -52,7 +52,7 @@ class BulkMoleculesView(View):
 		self._containerIndexes = self._state._container._namesToIndexes(self._query)
 
 		# Memory allocation
-		self._counts = np.zeros_like(self._totalNumber)
+		self._counts = np.zeros_like(self._dataSize())
 
 
 	def _dataSize(self):
