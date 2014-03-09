@@ -14,10 +14,10 @@ import numpy as np
 class View(object):
 	_stateID = None
 
-	def __init__(self, sim, process, query): # weight, priority, coupling id, option to not evaluate the query
-		self._state = sim.states[self._stateID]
-		sim.states[self._stateID]._views.append(self)
-		self._processIndex = process._simulationIndex
+	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
+		self._state = state
+		self._state.viewAdd(self)
+		self._processIndex = process._processIndex
 
 		self._query = query # an immutable, hashable, composed of basic types
 
