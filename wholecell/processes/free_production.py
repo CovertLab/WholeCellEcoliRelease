@@ -52,11 +52,6 @@ class FreeProduction(wholecell.processes.process.Process):
 			if initCount is not None:
 				self.initCounts[i] = initCount
 
-		mc = sim.states["BulkMolecules"]
-
-		self.bulkMoleculesPartition.initialize(self.molIDs)
-		self.mcView = mc.countsView(self.molIDs)
-
 		self.time = sim.states['Time']
 
 		# Views
@@ -70,13 +65,10 @@ class FreeProduction(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# expectedCounts = self.initCounts * np.exp(np.log(2) / self.doublingTime * self.time.value)
+		expectedCounts = self.initCounts * np.exp(np.log(2) / self.doublingTime * self.time.value)
 
-		# self.bulkMoleculesPartition.countsIs(
-		# 	np.fmax(
-		# 		0,
-		# 		expectedCounts - self.mcView.counts()
-		# 		)
-		# 	)
+		self.molecules.countsIs(np.fmax(
+			0,
+			expectedCounts - self.molecules.total() # WARNING: this is a hack; processes are not supposed to access total() during evolveState
+			))
 	
-		pass
