@@ -83,6 +83,25 @@ class Translation(wholecell.processes.process.Process):
 		self.ribosome16SView = mc.countsView(rib16S_IDs)
 		self.ribosome5SView = mc.countsView(rib5S_IDs)
 
+		# Views
+
+		self.atp = self.bulkMoleculeView('ATP[c]')
+		self.adp = self.bulkMoleculeView('ADP[c]')
+		self.pi = self.bulkMoleculeView('PI[c]')
+		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.proton = self.bulkMoleculeView('H[c]')
+
+		self.aas = self.bulkMoleculesView(aaIDs)
+
+		self.mrnas = self.bulkMoleculesView(mrnaIDs)
+
+		self.proteins = self.bulkMoleculesView(proteinIDs)
+
+		self.enzymes = self.bulkMoleculesView(enzIDs)
+		self.ribosome23S = self.bulkMoleculesView(rib23S_IDs)
+		self.ribosome16S = self.bulkMoleculesView(rib16S_IDs)
+		self.ribosome5S = self.bulkMoleculesView(rib5S_IDs)
+
 
 	def requestBulkMolecules(self):
 		self.bulkMoleculesPartition.mrnas.countsIs(1)
@@ -102,6 +121,27 @@ class Translation(wholecell.processes.process.Process):
 
 
 		self.bulkMoleculesPartition.enzymes.countsIs(1)
+
+
+	def calculateRequest(self):
+		nRibosomes = np.min([
+			self.ribosome23S.total().sum(),
+			self.ribosome16S.total().sum(),
+			self.ribosome5S.total().sum(),
+			])
+
+		nElongationReactions = np.min([
+			nRibosomes * self.elngRate * self.timeStepSec,
+			self.aas.total().sum()
+			])
+
+		self.aas.requestIs(np.fmin(
+			self.aas.total(),
+			nElongationReactions//self.n_aas
+			))
+
+		self.enzymes.requestAll()
+		self.mrnas.requestAll()
 
 
 	# Calculate temporal evolution

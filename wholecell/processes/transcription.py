@@ -86,6 +86,15 @@ class Transcription(wholecell.processes.process.Process):
 		self.rpoCMol = mc.countView('RPOC-MONOMER[c]')
 		self.rpoDMol = mc.countView('RPOD-MONOMER[c]')
 
+		# Views
+		# self.metabolites = self.bulkMoleculesView(_metIds)
+		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.proton = self.bulkMoleculeView('H[c]')
+		self.rnas = self.bulkMoleculesView(rnaIds)
+		self.rnapSubunits = self.bulkMoleculesView(enzIds)
+
 
 	def requestBulkMolecules(self):
 		self.bulkMoleculesPartition.ntps.countsIs(
@@ -103,6 +112,21 @@ class Transcription(wholecell.processes.process.Process):
 		self.bulkMoleculesPartition.rnas.countsIs(0)
 
 		self.bulkMoleculesPartition.enzymes.countsIs(1)
+
+
+	def calculateRequest(self):
+		rnaPolymerases = (self.rnapSubunits.total() // [2, 1, 1, 1]).min()
+
+		ntpEstimate = 4 * self.ntps.total().min()
+
+		nPolymerizationReactions = np.min([
+			ntpEstimate,
+			rnaPolymerases * self.elngRate * self.timeStepSec
+			])
+
+		self.ntps.requestIs(nPolymerizationReactions // 4)
+		self.h2o.requestIs(nPolymerizationReactions)
+		self.rnapSubunits.requestAll()
 
 
 	# Calculate temporal evolution

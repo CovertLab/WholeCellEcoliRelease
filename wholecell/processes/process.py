@@ -60,6 +60,13 @@ class Process(object):
 			self, moleculeIDs)
 
 
+	def bulkMoleculeView(self, moleculeIDs):
+		import wholecell.views.view
+
+		return wholecell.views.view.BulkMoleculeView(self._bulkMolecules, 
+			self, moleculeIDs)
+
+
 	# Calculate requests for a single time step
 	def calculateRequest(self):
 		pass

@@ -59,8 +59,16 @@ class FreeProduction(wholecell.processes.process.Process):
 
 		self.time = sim.states['Time']
 
+		# Views
+		self.molecules = self.bulkMoleculesView(self.molIDs)
+
 
 	def requestMoleculeCounts(self):
+		# No request, since it only produces molecules
+		pass
+
+
+	def calculateRequest(self):
 		# No request, since it only produces molecules
 		pass
 
