@@ -231,9 +231,10 @@ class BulkMolecules(wholecell.states.state.State):
 				partition.setEmpty()
 			
 			# Calculate and store requests
-			for iPartition, partition in enumerate(self.partitions.viewvalues()):
-				# Call request function and record requests
-				partition.request(self._countsRequested[..., iPartition])
+			self._countsRequested[:] = 0
+
+			for view in self._views:
+				self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
 
 			isRequestAbsolute = np.array(
 				[partition._isReqAbs for partition in self.partitions.viewvalues()],
