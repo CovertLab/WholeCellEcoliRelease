@@ -50,8 +50,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self._rnaIds = [x["id"] + "[c]" for x in kb.rnas]
 
-		mc = sim.states['BulkMolecules']
-
 		# Rna
 		self.rnaDegRates = np.log(2) / np.array([x["halfLife"] for x in kb.rnas])
 

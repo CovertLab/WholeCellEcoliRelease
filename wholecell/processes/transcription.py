@@ -44,74 +44,27 @@ class Transcription(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Transcription, self).initialize(sim, kb)
 
-		mc = sim.states["BulkMolecules"]
-
 		rnaIds = [x["id"] + "[c]" for x in kb.rnas]
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
-		self.bulkMoleculesPartition.initialize(_metIds + rnaIds + enzIds)
-
-		# Metabolites
-		self.bulkMoleculesPartition.metabolites = self.bulkMoleculesPartition.countsView(_metIds)
-
-		self.ntpView = mc.countsView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-
-		self.bulkMoleculesPartition.ntps = self.bulkMoleculesPartition.countsView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-
-		self.bulkMoleculesPartition.ppiMol = self.bulkMoleculesPartition.countView('PPI[c]')
-		self.bulkMoleculesPartition.h2oMol = self.bulkMoleculesPartition.countView('H2O[c]')
-		self.bulkMoleculesPartition.hMol = self.bulkMoleculesPartition.countView('H[c]')
-
 		# RNA
-		self.bulkMoleculesPartition.rnas = self.bulkMoleculesPartition.countsView(rnaIds)
 		self.rnaNtCounts = np.array([x["ntCount"] for x in kb.rnas])
 		self.rnaLens = np.sum(self.rnaNtCounts, axis = 1)
 		
 		halflives = np.array([x["halfLife"] for x in kb.rnas])
-		self.rnaSynthProb = mc._rnaExp * (np.log(2) / self.cellCycleLength + 1 / halflives)
+		self.rnaSynthProb = sim.states['BulkMolecules']._rnaExp * (np.log(2) / self.cellCycleLength + 1 / halflives)
 		self.rnaSynthProb /= np.sum(self.rnaSynthProb)
 
-		# Enzymes
-		# self.enzyme = sim.states["BulkMolecules"].addPartition(self, ["RNAP70-CPLX[c]"], self.calcReqEnzyme)
-		# self.enzyme.idx["rnaPol"] = self.enzyme.getIndex(["RNAP70-CPLX[c]"])[0]
-		self.bulkMoleculesPartition.enzymes = self.bulkMoleculesPartition.countsView(enzIds)
-		self.bulkMoleculesPartition.rpoAMol = self.bulkMoleculesPartition.countView('EG10893-MONOMER[c]')
-		self.bulkMoleculesPartition.rpoBMol = self.bulkMoleculesPartition.countView('RPOB-MONOMER[c]')
-		self.bulkMoleculesPartition.rpoCMol = self.bulkMoleculesPartition.countView('RPOC-MONOMER[c]')
-		self.bulkMoleculesPartition.rpoDMol = self.bulkMoleculesPartition.countView('RPOD-MONOMER[c]')
-
-		self.rpoAMol = mc.countView('EG10893-MONOMER[c]')
-		self.rpoBMol = mc.countView('RPOB-MONOMER[c]')
-		self.rpoCMol = mc.countView('RPOC-MONOMER[c]')
-		self.rpoDMol = mc.countView('RPOD-MONOMER[c]')
-
 		# Views
-		# self.metabolites = self.bulkMoleculesView(_metIds)
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
+
 		self.rnas = self.bulkMoleculesView(rnaIds)
+
 		self.rnapSubunits = self.bulkMoleculesView(enzIds)
-
-
-	def requestBulkMolecules(self):
-		self.bulkMoleculesPartition.ntps.countsIs(
-			np.min([
-				calcRnaps(
-					self.rpoAMol.count(), self.rpoBMol.count(),
-					self.rpoCMol.count(), self.rpoDMol.count()
-					) * self.elngRate * self.timeStepSec,
-				4 * np.min(self.ntpView.counts())
-				])/4
-			)
-
-		self.bulkMoleculesPartition.h2oMol.countIs(1)
-
-		self.bulkMoleculesPartition.rnas.countsIs(0)
-
-		self.bulkMoleculesPartition.enzymes.countsIs(1)
 
 
 	def calculateRequest(self):
@@ -131,81 +84,63 @@ class Transcription(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# enzLimit = np.min([
-		# 	calcRnaps(
-		# 		self.bulkMoleculesPartition.rpoAMol.count(),
-		# 		self.bulkMoleculesPartition.rpoBMol.count(),
-		# 		self.bulkMoleculesPartition.rpoCMol.count(),
-		# 		self.bulkMoleculesPartition.rpoDMol.count()
-		# 		) * self.elngRate * self.timeStepSec,
-		# 	1.1 * 4 * np.min(self.bulkMoleculesPartition.ntps.counts())
-		# 	])
+		rnaPolymerases = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
-		# newRnas = 0
-		# ntpsUsed = np.zeros(4)
+		ntpEstimate = 1.1 * 4 * self.ntps.counts().min()
 
-		# ntpsShape = self.bulkMoleculesPartition.ntps.counts().shape
+		enzLimit = np.min([
+			ntpEstimate,
+			rnaPolymerases * self.elngRate * self.timeStepSec
+			])
 
-		# rnasCreated = np.zeros_like(self.bulkMoleculesPartition.rnas.counts())
+		newRnas = 0
+		ntpsUsed = np.zeros(4)
 
-		# while enzLimit > 0:
-		# 	if not np.any(
-		# 			np.all(
-		# 				self.bulkMoleculesPartition.ntps.counts() > self.rnaNtCounts,
-		# 				axis = 1
-		# 				)
-		# 			):
-		# 		break
+		ntpsShape = self.ntps.counts().shape
 
-		# 	if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
-		# 		break
+		rnasCreated = np.zeros_like(self.rnas.counts())
 
-		# 	# If the probabilities of being able to synthesize are sufficiently low, exit the loop
-		# 	if np.sum(self.rnaSynthProb[np.all(self.bulkMoleculesPartition.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
-		# 		break
+		while enzLimit > 0:
+			if not np.any(
+					np.all(
+						self.ntps.counts() > self.rnaNtCounts,
+						axis = 1
+						)
+					):
+				break
 
-		# 	if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
-		# 		break
+			if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
+				break
 
-		# 	newIdx = np.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
+			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
+			if np.sum(self.rnaSynthProb[np.all(self.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
+				break
 
-		# 	if np.any(self.bulkMoleculesPartition.ntps.counts() < self.rnaNtCounts[newIdx, :]):
-		# 		break
+			if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
+				break
 
-		# 	if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
-		# 		break
+			newIdx = np.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
 
-		# 	enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
+			if np.any(self.ntps.counts() < self.rnaNtCounts[newIdx, :]):
+				break
 
-		# 	# ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
-		# 	# self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+			if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
+				break
 
-		# 	self.bulkMoleculesPartition.ntps.countsDec(
-		# 		self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
-		# 		)
+			enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
 
-		# 	self.bulkMoleculesPartition.h2oMol.countDec(1)
-		# 	self.bulkMoleculesPartition.ppiMol.countInc(self.rnaLens[newIdx])
-		# 	self.bulkMoleculesPartition.hMol.countInc(1)
+			self.ntps.countsDec(
+				self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
+				)
 
-		# 	rnasCreated[newIdx] += 1
+			self.h2o.countDec(1) # TODO: verify this
+			self.ppi.countInc(self.rnaLens[newIdx])
+			self.proton.countInc(1) # TODO: verify this
 
-		# 	# Increment RNA
-		# 	# self.rna.counts[newIdx] += 1
-		# 	# newRnas += 1
+			rnasCreated[newIdx] += 1
 
-		# self.bulkMoleculesPartition.rnas.countsInc(rnasCreated)
+		self.rnas.countsInc(rnasCreated)
 
-		pass
-
-
-def calcRnaps(countRpoA, countRpoB, countRpoC, countRpoD):
-	return np.min([
-		np.floor(countRpoA/2),
-		countRpoB,
-		countRpoC,
-		countRpoD,
-		])
 
 _metIds = [
 	"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
