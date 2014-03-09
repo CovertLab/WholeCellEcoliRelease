@@ -47,6 +47,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._nCompartments = None
 
+		self._isRequestAbsolute = None
+
 		self._countsRequested = None
 		self._countsAllocatedInitial = None
 		self._countsAllocatedFinal = None
@@ -138,6 +140,9 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._typeIdxs['monomers'] = np.array([self._moleculeIDs.index(x["id"]) for x in monomers])
 		self._typeLocalizations['monomers'] = [monomer['location'] for monomer in monomers]
+
+		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool) # TODO: restore this behavior or replace it with something bettter
+		self._isRequestAbsolute[sim.processes['RnaDegradation']._processIndex] = True
 
 
 	def allocate(self):
@@ -231,9 +236,7 @@ class BulkMolecules(wholecell.states.state.State):
 			for view in self._views:
 				self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
 
-			isRequestAbsolute = np.zeros(self._nProcesses, np.bool) # TODO: restore/replace this feature
-
-			calculatePartition(isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocatedInitial)
+			calculatePartition(self._isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocatedInitial)
 			
 			# Record unpartitioned counts for later merging
 			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
