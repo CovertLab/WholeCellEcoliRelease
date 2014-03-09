@@ -48,8 +48,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self._nCompartments = None
 
 		self._countsRequested = None
-		self._countsAllocated = None
-		self._countsReturned = None
+		self._countsAllocatedInitial = None
+		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
 		self._typeIdxs = None
@@ -144,13 +144,12 @@ class BulkMolecules(wholecell.states.state.State):
 		super(BulkMolecules, self).allocate() # Allocates partitions
 
 		nMolecules = self._container._counts.size
-		nPartitions = len(self.partitions)
 		dtype = self._container._counts.dtype
 
 		# Arrays for tracking values related to partitioning
-		self._countsRequested = np.zeros((nMolecules, nPartitions), dtype)
-		self._countsAllocated = np.zeros((nMolecules, nPartitions), dtype)
-		self._countsReturned = np.zeros((nMolecules, nPartitions), dtype)
+		self._countsRequested = np.zeros((nMolecules, self._nProcesses), dtype)
+		self._countsAllocatedInitial = np.zeros((nMolecules, self._nProcesses), dtype)
+		self._countsAllocatedFinal = np.zeros((nMolecules, self._nProcesses), dtype)
 		self._countsUnallocated = np.zeros(nMolecules, dtype)
 
 	
@@ -225,40 +224,29 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def partition(self):
-		if self.partitions:
-			# Clear out the existing partitions in preparation for the requests
-			for partition in self.partitions.viewvalues():
-				partition.setEmpty()
-			
+		if self._nProcesses:
 			# Calculate and store requests
 			self._countsRequested[:] = 0
 
 			for view in self._views:
 				self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
 
-			isRequestAbsolute = np.array(
-				[partition._isReqAbs for partition in self.partitions.viewvalues()],
-				np.bool
-				)
+			isRequestAbsolute = np.zeros(self._nProcesses, np.bool) # TODO: restore/replace this feature
 
-			calculatePartition(isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocated)
-
-			for iPartition, partition in enumerate(self.partitions.viewvalues()):
-				partition.allocationIs(self._countsAllocated[..., iPartition])
+			calculatePartition(isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocatedInitial)
 			
 			# Record unpartitioned counts for later merging
-			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocated, axis = -1)
+			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
+
+			self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
 		else:
 			self._countsUnallocated = self._container._counts
 
 
 	def merge(self):
-		for iPartition, partition in enumerate(self.partitions.viewvalues()):
-			partition.returned(self._countsReturned[..., iPartition])
-			
 		self._container.countsIs(
-			self._countsUnallocated + self._countsReturned.sum(axis = -1)
+			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
 
@@ -291,9 +279,8 @@ class BulkMolecules(wholecell.states.state.State):
 		d = {
 			"time": tables.Int64Col(),
 			"counts":tables.UInt64Col(countsShape),
-			"countsRequested":tables.UInt64Col(partitionsShape),
-			"countsAllocated":tables.UInt64Col(partitionsShape),
-			"countsReturned":tables.UInt64Col(partitionsShape),
+			"countsAllocatedInitial":tables.UInt64Col(partitionsShape),
+			"countsAllocatedFinal":tables.UInt64Col(partitionsShape),
 			"countsUnallocated":tables.UInt64Col(countsShape),
 			}
 
@@ -330,8 +317,8 @@ class BulkMolecules(wholecell.states.state.State):
 		entry["time"] = simTime
 		entry['counts'] = self._container._counts
 		entry['countsRequested'] = self._countsRequested
-		entry['countsAllocated'] = self._countsAllocated
-		entry['countsReturned'] = self._countsReturned
+		entry['countsAllocatedInitial'] = self._countsAllocatedInitial
+		entry['countsAllocatedFinal'] = self._countsAllocatedFinal
 		entry['countsUnallocated'] = self._countsUnallocated
 		
 		entry.append()
@@ -344,10 +331,10 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._container.countsIs(entry['countsBulk'])
 		
-		if self.partitions:
+		if self._nProcesses:
 			self._countsRequested[:] = entry['countsRequested']
-			self._countsAllocated[:] = entry['countsAllocated']
-			self._countsReturned[:] = entry['countsReturned']
+			self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
+			self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
 			self._countsUnallocated[:] = entry['countsUnallocated']
 
 

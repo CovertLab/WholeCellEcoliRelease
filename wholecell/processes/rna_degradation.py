@@ -87,18 +87,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
 
 
-	def requestBulkMolecules(self):
-		self.bulkMoleculesPartition.h2oMol.countIs(
-			np.dot(self.rnaLens, self.rnaDegRates * self.rnaView.counts()) * self.timeStepSec
-			)
-		
-		self.bulkMoleculesPartition.rnas.countsIs(
-			self.randStream.poissrnd(self.rnaDegRates * self.rnaView.counts() * self.timeStepSec)
-			)
-
-		self.bulkMoleculesPartition.rnaseRMol.countInc(1)
-
-
 	def calculateRequest(self):
 		nRNAsToDegrade = np.fmin(
 			self.randStream.poissrnd(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
@@ -114,15 +102,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# Check if RNAse R expressed
-		if self.bulkMoleculesPartition.rnaseRMol.count() == 0:
-			return
+		# # Check if RNAse R expressed
+		# if self.bulkMoleculesPartition.rnaseRMol.count() == 0:
+		# 	return
 
-		# Degrade RNA
-		self.bulkMoleculesPartition.metabolites.countsInc(
-			np.dot(self.rnaDegSMat, self.bulkMoleculesPartition.rnas.counts())
-			)
+		# # Degrade RNA
+		# self.bulkMoleculesPartition.metabolites.countsInc(
+		# 	np.dot(self.rnaDegSMat, self.bulkMoleculesPartition.rnas.counts())
+		# 	)
 
-		self.bulkMoleculesPartition.rnas.countsIs(0)
+		# self.bulkMoleculesPartition.rnas.countsIs(0)
 
-		# print "NTP recycling: %s" % str(self.metabolite.counts[self.metabolite.idx["ntps"]])
+		pass

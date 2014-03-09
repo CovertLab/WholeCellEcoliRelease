@@ -28,6 +28,7 @@ class State(object):
 
 		self.partitions = OrderedDict()
 
+		self._nProcesses = None
 		self._views = []
 
 		for prop in propVals.keys():
@@ -37,6 +38,8 @@ class State(object):
 	# Construct state-process graph, calculate constants
 	def initialize(self, sim, kb):
 		self.randStream = sim.randStream
+
+		self._nProcesses = len(sim.processes)
 
 		if self.partitionClass is not None:
 			for process in sim.processes.viewvalues():

@@ -131,76 +131,72 @@ class Transcription(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		enzLimit = np.min([
-			calcRnaps(
-				self.bulkMoleculesPartition.rpoAMol.count(),
-				self.bulkMoleculesPartition.rpoBMol.count(),
-				self.bulkMoleculesPartition.rpoCMol.count(),
-				self.bulkMoleculesPartition.rpoDMol.count()
-				) * self.elngRate * self.timeStepSec,
-			1.1 * 4 * np.min(self.bulkMoleculesPartition.ntps.counts())
-			])
+		# enzLimit = np.min([
+		# 	calcRnaps(
+		# 		self.bulkMoleculesPartition.rpoAMol.count(),
+		# 		self.bulkMoleculesPartition.rpoBMol.count(),
+		# 		self.bulkMoleculesPartition.rpoCMol.count(),
+		# 		self.bulkMoleculesPartition.rpoDMol.count()
+		# 		) * self.elngRate * self.timeStepSec,
+		# 	1.1 * 4 * np.min(self.bulkMoleculesPartition.ntps.counts())
+		# 	])
 
-		newRnas = 0
-		ntpsUsed = np.zeros(4)
+		# newRnas = 0
+		# ntpsUsed = np.zeros(4)
 
-		ntpsShape = self.bulkMoleculesPartition.ntps.counts().shape
+		# ntpsShape = self.bulkMoleculesPartition.ntps.counts().shape
 
-		rnasCreated = np.zeros_like(self.bulkMoleculesPartition.rnas.counts())
+		# rnasCreated = np.zeros_like(self.bulkMoleculesPartition.rnas.counts())
 
-		while enzLimit > 0:
-			if not np.any(
-					np.all(
-						self.bulkMoleculesPartition.ntps.counts() > self.rnaNtCounts,
-						axis = 1
-						)
-					):
-				break
+		# while enzLimit > 0:
+		# 	if not np.any(
+		# 			np.all(
+		# 				self.bulkMoleculesPartition.ntps.counts() > self.rnaNtCounts,
+		# 				axis = 1
+		# 				)
+		# 			):
+		# 		break
 
-			if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
-				break
+		# 	if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
+		# 		break
 
-			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
-			if np.sum(self.rnaSynthProb[np.all(self.bulkMoleculesPartition.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
-				break
+		# 	# If the probabilities of being able to synthesize are sufficiently low, exit the loop
+		# 	if np.sum(self.rnaSynthProb[np.all(self.bulkMoleculesPartition.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
+		# 		break
 
-			if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
-				break
+		# 	if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
+		# 		break
 
-			newIdx = np.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
+		# 	newIdx = np.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
 
-			if np.any(self.bulkMoleculesPartition.ntps.counts() < self.rnaNtCounts[newIdx, :]):
-				break
+		# 	if np.any(self.bulkMoleculesPartition.ntps.counts() < self.rnaNtCounts[newIdx, :]):
+		# 		break
 
-			if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
-				break
+		# 	if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
+		# 		break
 
-			enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
+		# 	enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
 
-			# ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
-			# self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+		# 	# ntpsUsed += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
+		# 	# self.metabolite.parentState.tcNtpUsage += self.rnaNtCounts[newIdx, :].reshape(self.metabolite.idx["ntps"].shape)
 
-			self.bulkMoleculesPartition.ntps.countsDec(
-				self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
-				)
+		# 	self.bulkMoleculesPartition.ntps.countsDec(
+		# 		self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
+		# 		)
 
-			self.bulkMoleculesPartition.h2oMol.countDec(1)
-			self.bulkMoleculesPartition.ppiMol.countInc(self.rnaLens[newIdx])
-			self.bulkMoleculesPartition.hMol.countInc(1)
+		# 	self.bulkMoleculesPartition.h2oMol.countDec(1)
+		# 	self.bulkMoleculesPartition.ppiMol.countInc(self.rnaLens[newIdx])
+		# 	self.bulkMoleculesPartition.hMol.countInc(1)
 
-			rnasCreated[newIdx] += 1
+		# 	rnasCreated[newIdx] += 1
 
-			# Increment RNA
-			# self.rna.counts[newIdx] += 1
-			# newRnas += 1
+		# 	# Increment RNA
+		# 	# self.rna.counts[newIdx] += 1
+		# 	# newRnas += 1
 
-		self.bulkMoleculesPartition.rnas.countsInc(rnasCreated)
+		# self.bulkMoleculesPartition.rnas.countsInc(rnasCreated)
 
-		# print "%d" % enzLimit
-
-#		print "Transcription newRnas: %d" % newRnas
-#		print "Transcription ntpsUsed: %s" % str(ntpsUsed)
-#		print "Transcription numActiveRnaps (total): %d (%d)" % (int(np.sum(ntpsUsed) / self.elngRate / self.timeStepSec), int(calcRnaps(self.enzyme.counts)))
+		pass
 
 
 def calcRnaps(countRpoA, countRpoB, countRpoC, countRpoD):

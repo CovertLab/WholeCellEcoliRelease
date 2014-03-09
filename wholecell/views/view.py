@@ -63,19 +63,19 @@ class BulkMoleculesViewBase(View):
 	_stateID = 'BulkMolecules'
 
 	def _counts(self):
-		return self._state._countsAllocated[self._containerIndexes, self._processIndex].copy()
+		return self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex].copy()
 
 
 	def _countsIs(self, values):
-		self._state._countsAllocated[self._containerIndexes, self._processIndex] = values
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] = values
 
 
 	def _countsInc(self, values):
-		self._state._countsAllocated[self._containerIndexes, self._processIndex] += values
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] += values
 
 
 	def _countsDec(self, values):
-		self._state._countsAllocated[self._containerIndexes, self._processIndex] -= values
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] -= values
 
 
 class BulkMoleculesView(BulkMoleculesViewBase):
