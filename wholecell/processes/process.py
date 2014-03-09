@@ -40,12 +40,7 @@ class Process(object):
 
 		self._bulkMolecules = sim.states['BulkMolecules']
 
-		self.bulkMoleculesPartition = sim.states['BulkMolecules'].partitions[self.meta['id']]
 		self.uniqueMoleculesPartition = sim.states['UniqueMolecules'].partitions[self.meta['id']]
-
-
-	def requestBulkMolecules(self):
-		pass
 
 
 	def requestUniqueMolecules(self):

@@ -36,7 +36,6 @@ class BulkMolecules(wholecell.states.state.State):
 			}
 
 		self.time = None
-		self.partitionClass = _BulkMoleculesPartition
 
 		self._container = None
 
@@ -339,64 +338,6 @@ class BulkMolecules(wholecell.states.state.State):
 			self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
 			self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
 			self._countsUnallocated[:] = entry['countsUnallocated']
-
-
-class _BulkMoleculesPartition(wholecell.states.partition.Partition):
-	def __init__(self, *args, **kwargs):
-		self._container = None
-		self._isReqAbs = None
-
-		self._indexMapping = None
-
-		super(_BulkMoleculesPartition, self).__init__(*args, **kwargs)
-
-
-	def initialize(self, moleculeNames, isReqAbs = False):
-		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(
-			moleculeNames)
-		self._isReqAbs = isReqAbs
-
-		self._indexMapping = np.array(
-			self._state._container._namesToIndexes(moleculeNames)
-			)
-
-
-	def request(self, target):
-		if self._indexMapping is not None:
-			self._process.requestBulkMolecules()
-
-			target[self._indexMapping] = self._container._counts # direct reference to avoid a copy operation
-
-
-	def allocationIs(self, source):
-		if self._indexMapping is not None:
-			self._container.countsIs(source[self._indexMapping])
-
-
-	def returned(self, target):
-		if self._indexMapping is not None:
-			target[self._indexMapping] = self._container._counts
-
-
-	def setEmpty(self):
-		if self._indexMapping is not None:
-			self._container.countsIs(0)
-
-
-	def counts(self):
-		return self._container.counts()
-
-
-	def countsIs(self, values):
-		self._container.countsIs(values)
-
-
-	def countsView(self, names):
-		return self._container.countsView(names)
-
-
-	def countView(self, name):
-		return self._container.countView(name)
 
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
