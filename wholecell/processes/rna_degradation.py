@@ -78,6 +78,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Proteins
 		self.bulkMoleculesPartition.rnaseRMol = self.bulkMoleculesPartition.countView('EG11259-MONOMER[c]')
 
+		# WIP
+		self.metabolites = self.bulkMoleculesView(self._metaboliteIds)
+
+
+	def calculateRequest(self):
+		import ipdb; ipdb.set_trace()
+		
+
 
 	# Calculate temporal evolution
 	def evolveState(self):

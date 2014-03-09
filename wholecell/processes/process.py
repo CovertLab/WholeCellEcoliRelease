@@ -15,10 +15,6 @@ from __future__ import division
 class Process(object):
 	""" Process """
 
-	# Partitions of state
-	# NOTE: as partitionable states are added, this will need to be expanded
-	bulkMoleculesPartition = None # partition of BulkMolecules State
-
 	# Constructor
 	def __init__(self):
 		if not hasattr(self, "meta"):
@@ -26,30 +22,58 @@ class Process(object):
 
 		# Constants
 		self.timeStepSec = None
+		self._processIndex = None
 
 		# Simulation random stream
 		self.randStream = None
 
+		# References to state
+		self._bulkMolecules = None
+
+
 	# Construct object graph, calculate constants
 	def initialize(self, sim, kb):
 		self.timeStepSec = sim.timeStepSec
+		self._processIndex = sim.processes.keys().index(self.meta['id'])
+
 		self.randStream = sim.randStream
+
+		self._bulkMolecules = sim.states['BulkMolecules']
+
 		self.bulkMoleculesPartition = sim.states['BulkMolecules'].partitions[self.meta['id']]
 		self.uniqueMoleculesPartition = sim.states['UniqueMolecules'].partitions[self.meta['id']]
+
 
 	def requestBulkMolecules(self):
 		pass
 
+
 	def requestUniqueMolecules(self):
 		pass
+
+
+	# Construct views
+	def bulkMoleculesView(self, moleculeIDs):
+		import wholecell.views.view
+
+		return wholecell.views.view.BulkMoleculesView(self._bulkMolecules, 
+			self, moleculeIDs)
+
+
+	# Calculate requests for a single time step
+	def calculateRequest(self):
+		pass
+
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):
 		return
 
+
 	# Partition requests
 	def requestBulkMolecules(self):
 		pass
+
 
 	# -- Get, set options, parameters
 	def getOptions(self):
@@ -58,6 +82,7 @@ class Process(object):
 			for opt in self.meta["options"]:
 				val[opt] = getattr(self, opt)
 		return val
+
 
 	def setOptions(self, val):
 		keys = val.keys()
