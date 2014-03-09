@@ -185,8 +185,8 @@ class Simulation(object):
 		import wholecell.processes.transcription
 		import wholecell.processes.translation
 		import wholecell.processes.free_production
-		import wholecell.processes.toy_transcription
-		import wholecell.processes.toy_protein_degradation
+		# import wholecell.processes.toy_transcription
+		# import wholecell.processes.toy_protein_degradation
 
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
@@ -195,8 +195,8 @@ class Simulation(object):
 			('Transcription',		wholecell.processes.transcription.Transcription()),
 			('Translation',			wholecell.processes.translation.Translation()),
 			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
-			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
-			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation())
+			# ('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
+			# ('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation())
 			])
 
 		# Remove processes not listed as being included
@@ -243,6 +243,14 @@ class Simulation(object):
 
 	# Calculate temporal evolution
 	def _evolveState(self):
+		# Update queries
+		for state in self.states.itervalues():
+			state.updateQueries()
+
+		# Calculate requests
+		for process in self.processes.itervalues():
+			process.calculateRequest()
+
 		# Partition states among processes
 		for state in self.states.itervalues():
 			state.partition()
