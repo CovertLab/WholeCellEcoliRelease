@@ -28,8 +28,11 @@ class State(object):
 
 		self.partitions = OrderedDict()
 
+		self._views = []
+
 		for prop in propVals.keys():
 			setattr(self, prop, propVals[prop])
+
 
 	# Construct state-process graph, calculate constants
 	def initialize(self, sim, kb):
@@ -39,19 +42,31 @@ class State(object):
 			for process in sim.processes.viewvalues():
 				self.partitions[process.meta['id']] = self.partitionClass(self, process)
 
+
 	# Allocate memory
 	def allocate(self):
 		for partition in self.partitions.viewvalues():
 			partition.allocate()
+
 
 	# Calculate initial conditions
 	def calcInitialConditions(self):
 		return
 
 
+	# Views
+	def viewAdd(self, view):
+		self._views.append(view)
+
+
 	# Partitioning
+	def updateQueries(self):
+		pass
+
+
 	def partition(self):
 		pass
+
 
 	def merge(self):
 		pass
