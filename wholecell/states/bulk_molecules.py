@@ -219,6 +219,11 @@ class BulkMolecules(wholecell.states.state.State):
 		monomersView.countsIs(monCnts)
 
 
+	def updateQueries(self):
+		for view in self._views:
+			view._totalIs(self._container._counts[view._containerIndexes])
+
+
 	def partition(self):
 		if self.partitions:
 			# Clear out the existing partitions in preparation for the requests
