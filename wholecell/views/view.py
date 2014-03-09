@@ -51,13 +51,34 @@ class View(object):
 	# Request
 
 	def requestIs(self, value):
-		assert (value <= self._totalCount).all()
+		assert (value <= self._totalCount).all(), 'Requested more than exists'
 		self._requestedCount[:] = value
 
 
-class BulkMoleculesView(View):
+	def requestAll(self):
+		self._requestedCount[:] = self._totalCount
+
+
+class BulkMoleculesViewBase(View):
 	_stateID = 'BulkMolecules'
 
+	def _counts(self):
+		return self._state._countsAllocated[self._containerIndexes, self._processIndex].copy()
+
+
+	def _countsIs(self, values):
+		self._state._countsAllocated[self._containerIndexes, self._processIndex] = values
+
+
+	def _countsInc(self, values):
+		self._state._countsAllocated[self._containerIndexes, self._processIndex] += values
+
+
+	def _countsDec(self, values):
+		self._state._countsAllocated[self._containerIndexes, self._processIndex] -= values
+
+
+class BulkMoleculesView(BulkMoleculesViewBase):
 	def __init__(self, *args, **kwargs):
 		super(BulkMoleculesView, self).__init__(*args, **kwargs)
 
@@ -70,45 +91,43 @@ class BulkMoleculesView(View):
 
 
 	def counts(self):
-		return self._state._countsAllocated[self._containerIndexes, self._processIndex].copy()
+		return self._counts()
 
 
 	def countsIs(self, values):
-		self._state._countsAllocated[self._containerIndexes, self._processIndex] = values
+		self._countsIs(values)
 
 
 	def countsInc(self, values):
-		self._state._countsAllocated[self._containerIndexes, self._processIndex] += values
+		self._countsInc(values)
 
 
 	def countsDec(self, values):
-		self._state._countsAllocated[self._containerIndexes, self._processIndex] -= values
+		self._countsDec(values)
 
 
-class BulkMoleculeView(View):
-	_stateID = 'BulkMolecules'
-
+class BulkMoleculeView(BulkMoleculesViewBase):
 	def __init__(self, *args, **kwargs):
 		super(BulkMoleculeView, self).__init__(*args, **kwargs)
 
 		# State references
-		self._containerIndex = self._state._container._namesToIndexes((self._query,))
+		self._containerIndexes = self._state._container._namesToIndexes((self._query,))
 
 
 	def count(self):
-		return self._state._countsAllocated[self._containerIndex, self._processIndex].copy()
+		return self._counts()
 
 
 	def countIs(self, value):
-		self._state._countsAllocated[self._containerIndex, self._processIndex] = value
+		self._countsIs(value)
 
 
 	def countInc(self, value):
-		self._state._countsAllocated[self._containerIndex, self._processIndex] += value
+		self._countsInc(value)
 
 
 	def countDec(self, value):
-		self._state._countsAllocated[self._containerIndex, self._processIndex] -= value
+		self._countsDec(value)
 
 
 class UniqueMoleculesView(View):
