@@ -15,7 +15,7 @@ from mpi4py import MPI
 
 COMM = MPI.COMM_WORLD
 
-KB_PATH = pkg_resources.resource_filename('data','fixtures/KnowledgeBase.cPickle')
+KB_PATH = pkg_resources.resource_filename('fixtures/test/KnowledgeBase.cPickle')
 
 def main():
 	fixtureOpts = json.load(open('fixture_tmp.json'))

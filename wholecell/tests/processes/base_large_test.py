@@ -8,7 +8,8 @@ import json
 import os
 
 TEMP_FILE_NAME = 'fixture_tmp.json'
-N_PROCESSES = 4 # TODO: load from a config file
+import wholecell.utils.config
+N_PROCESSES = wholecell.utils.config.N_PROCESSES
 
 class BaseLargeTest(unittest.TestCase):
 	fixtureOpts = None # assigned by subclass

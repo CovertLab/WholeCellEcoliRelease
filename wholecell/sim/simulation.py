@@ -13,6 +13,7 @@ from __future__ import division
 import collections
 import tables
 import os
+import wholecell.utils.config
 
 DEFAULT_PROCESSES = [
 	'Complexation',
@@ -21,8 +22,6 @@ DEFAULT_PROCESSES = [
 	'Transcription',
 	'Translation',
 	] # TOKB
-
-KB_PATH = os.path.join('fixtures', 'KnowledgeBase.cPickle')
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
@@ -72,21 +71,17 @@ class Simulation(object):
 		self.seed = self._options['seed']
 
 		# Create KB
-		self.kbPath = KB_PATH # TODO: option?
+		import wholecell.utils.config
+		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
 		import cPickle
-		if self._options['reconstructKB'] or not os.path.exists(self.kbPath):
-			import wholecell.reconstruction.knowledgebase
-			kb = wholecell.reconstruction.knowledgebase.KnowledgeBase(
-				dataFileDir = "data/parsed",
-				seqFileName = "data/raw/sequence.txt"
-				)
-
-			cPickle.dump(kb, open(self.kbPath, "wb"),
-				protocol = cPickle.HIGHEST_PROTOCOL)
-
+		if self._options['reconstructKB'] or not os.path.exists(self.kbDir):
+			import wholecell.utils.knowledgebase_fixture_manager
+			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 		else:
-			kb = cPickle.load(open(self.kbPath, "rb"))
+			import wholecell.utils.knowledgebase_fixture_manager
+			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
+				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
 		# Fit KB parameters
 		import wholecell.reconstruction.fitter
