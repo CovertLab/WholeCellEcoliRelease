@@ -39,12 +39,7 @@ class Process(object):
 		self.randStream = sim.randStream
 
 		self._bulkMolecules = sim.states['BulkMolecules']
-
-		self.uniqueMoleculesPartition = sim.states['UniqueMolecules'].partitions[self.meta['id']]
-
-
-	def requestUniqueMolecules(self):
-		pass
+		self._uniqueMolecules = sim.states['UniqueMolecules']
 
 
 	# Construct views
@@ -60,6 +55,13 @@ class Process(object):
 
 		return wholecell.views.view.BulkMoleculeView(self._bulkMolecules, 
 			self, moleculeIDs)
+
+
+	def uniqueMoleculesView(self, moleculeName, **attributes):
+		import wholecell.views.view
+
+		return wholecell.views.view.UniqueMoleculesView(self._uniqueMolecules,
+			self, (moleculeName, attributes))
 
 
 	# Calculate requests for a single time step
