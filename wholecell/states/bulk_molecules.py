@@ -36,7 +36,6 @@ class BulkMolecules(wholecell.states.state.State):
 			}
 
 		self.time = None
-		self.partitionClass = _BulkMoleculesPartition
 
 		self._container = None
 
@@ -47,9 +46,11 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._nCompartments = None
 
+		self._isRequestAbsolute = None
+
 		self._countsRequested = None
-		self._countsAllocated = None
-		self._countsReturned = None
+		self._countsAllocatedInitial = None
+		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
 		self._typeIdxs = None
@@ -138,19 +139,27 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._typeIdxs['monomers'] = np.array([self._moleculeIDs.index(x["id"]) for x in monomers])
 		self._typeLocalizations['monomers'] = [monomer['location'] for monomer in monomers]
+		
+		# TODO: restore this behavior or replace it with something bettter
+
+		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool)
+		try:
+			self._isRequestAbsolute[sim.processes['RnaDegradation']._processIndex] = True
+
+		except KeyError:
+			pass
 
 
 	def allocate(self):
 		super(BulkMolecules, self).allocate() # Allocates partitions
 
 		nMolecules = self._container._counts.size
-		nPartitions = len(self.partitions)
 		dtype = self._container._counts.dtype
 
 		# Arrays for tracking values related to partitioning
-		self._countsRequested = np.zeros((nMolecules, nPartitions), dtype)
-		self._countsAllocated = np.zeros((nMolecules, nPartitions), dtype)
-		self._countsReturned = np.zeros((nMolecules, nPartitions), dtype)
+		self._countsRequested = np.zeros((nMolecules, self._nProcesses), dtype)
+		self._countsAllocatedInitial = np.zeros((nMolecules, self._nProcesses), dtype)
+		self._countsAllocatedFinal = np.zeros((nMolecules, self._nProcesses), dtype)
 		self._countsUnallocated = np.zeros(nMolecules, dtype)
 
 	
@@ -219,40 +228,33 @@ class BulkMolecules(wholecell.states.state.State):
 		monomersView.countsIs(monCnts)
 
 
+	def updateQueries(self):
+		for view in self._views:
+			view._totalIs(self._container._counts[view._containerIndexes])
+
+
 	def partition(self):
-		if self.partitions:
-			# Clear out the existing partitions in preparation for the requests
-			for partition in self.partitions.viewvalues():
-				partition.setEmpty()
-			
+		if self._nProcesses:
 			# Calculate and store requests
-			for iPartition, partition in enumerate(self.partitions.viewvalues()):
-				# Call request function and record requests
-				partition.request(self._countsRequested[..., iPartition])
+			self._countsRequested[:] = 0
 
-			isRequestAbsolute = np.array(
-				[partition._isReqAbs for partition in self.partitions.viewvalues()],
-				np.bool
-				)
+			for view in self._views:
+				self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
 
-			calculatePartition(isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocated)
-
-			for iPartition, partition in enumerate(self.partitions.viewvalues()):
-				partition.allocationIs(self._countsAllocated[..., iPartition])
+			calculatePartition(self._isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocatedInitial)
 			
 			# Record unpartitioned counts for later merging
-			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocated, axis = -1)
+			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
+
+			self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
 		else:
 			self._countsUnallocated = self._container._counts
 
 
 	def merge(self):
-		for iPartition, partition in enumerate(self.partitions.viewvalues()):
-			partition.returned(self._countsReturned[..., iPartition])
-			
 		self._container.countsIs(
-			self._countsUnallocated + self._countsReturned.sum(axis = -1)
+			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
 
@@ -285,9 +287,8 @@ class BulkMolecules(wholecell.states.state.State):
 		d = {
 			"time": tables.Int64Col(),
 			"counts":tables.UInt64Col(countsShape),
-			"countsRequested":tables.UInt64Col(partitionsShape),
-			"countsAllocated":tables.UInt64Col(partitionsShape),
-			"countsReturned":tables.UInt64Col(partitionsShape),
+			"countsAllocatedInitial":tables.UInt64Col(partitionsShape),
+			"countsAllocatedFinal":tables.UInt64Col(partitionsShape),
 			"countsUnallocated":tables.UInt64Col(countsShape),
 			}
 
@@ -324,8 +325,8 @@ class BulkMolecules(wholecell.states.state.State):
 		entry["time"] = simTime
 		entry['counts'] = self._container._counts
 		entry['countsRequested'] = self._countsRequested
-		entry['countsAllocated'] = self._countsAllocated
-		entry['countsReturned'] = self._countsReturned
+		entry['countsAllocatedInitial'] = self._countsAllocatedInitial
+		entry['countsAllocatedFinal'] = self._countsAllocatedFinal
 		entry['countsUnallocated'] = self._countsUnallocated
 		
 		entry.append()
@@ -338,69 +339,11 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._container.countsIs(entry['countsBulk'])
 		
-		if self.partitions:
+		if self._nProcesses:
 			self._countsRequested[:] = entry['countsRequested']
-			self._countsAllocated[:] = entry['countsAllocated']
-			self._countsReturned[:] = entry['countsReturned']
+			self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
+			self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
 			self._countsUnallocated[:] = entry['countsUnallocated']
-
-
-class _BulkMoleculesPartition(wholecell.states.partition.Partition):
-	def __init__(self, *args, **kwargs):
-		self._container = None
-		self._isReqAbs = None
-
-		self._indexMapping = None
-
-		super(_BulkMoleculesPartition, self).__init__(*args, **kwargs)
-
-
-	def initialize(self, moleculeNames, isReqAbs = False):
-		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(
-			moleculeNames)
-		self._isReqAbs = isReqAbs
-
-		self._indexMapping = np.array(
-			self._state._container._namesToIndexes(moleculeNames)
-			)
-
-
-	def request(self, target):
-		if self._indexMapping is not None:
-			self._process.requestBulkMolecules()
-
-			target[self._indexMapping] = self._container._counts # direct reference to avoid a copy operation
-
-
-	def allocationIs(self, source):
-		if self._indexMapping is not None:
-			self._container.countsIs(source[self._indexMapping])
-
-
-	def returned(self, target):
-		if self._indexMapping is not None:
-			target[self._indexMapping] = self._container._counts
-
-
-	def setEmpty(self):
-		if self._indexMapping is not None:
-			self._container.countsIs(0)
-
-
-	def counts(self):
-		return self._container.counts()
-
-
-	def countsIs(self, values):
-		self._container.countsIs(values)
-
-
-	def countsView(self, names):
-		return self._container.countsView(names)
-
-
-	def countView(self, name):
-		return self._container.countView(name)
 
 
 def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):

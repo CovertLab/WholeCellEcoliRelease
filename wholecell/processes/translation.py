@@ -25,9 +25,6 @@ class Translation(wholecell.processes.process.Process):
 			"id": "Translation",
 			"name": "Translation"
 		}
-		
-		# Partitions
-		self.bulkMoleculesPartition = None
 
 		# Constants
 		self.elngRate = 16			# AA/s # TOKB
@@ -40,8 +37,6 @@ class Translation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Translation, self).initialize(sim, kb)
 
-		mc = sim.states["BulkMolecules"]
-
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
 
@@ -49,87 +44,72 @@ class Translation(wholecell.processes.process.Process):
 		proteinIDs = [x["monomerId"] + "[c]" for x in mrnas]
 
 		# Metabolites
-		self.bulkMoleculesPartition.initialize(metIDs + mrnaIDs + proteinIDs + enzIDs)
-
-		self.bulkMoleculesPartition.aas = self.bulkMoleculesPartition.countsView(aaIDs)
-
 		self.n_aas = len(aaIDs)
 
-		self.bulkMoleculesPartition.aasNotSec = self.bulkMoleculesPartition.countsView(aaNotSecIDs)
-
-		self.aasView = mc.countsView(aaIDs)
-
-		self.bulkMoleculesPartition.atpMol = self.bulkMoleculesPartition.countView('ATP[c]')
-		self.bulkMoleculesPartition.adpMol = self.bulkMoleculesPartition.countView('ADP[c]')
-		self.bulkMoleculesPartition.piMol = self.bulkMoleculesPartition.countView('PI[c]')
-		self.bulkMoleculesPartition.h2oMol = self.bulkMoleculesPartition.countView('H2O[c]')
-		self.bulkMoleculesPartition.hMol = self.bulkMoleculesPartition.countView('H[c]')
-
 		# mRNA, protein monomers
-		self.bulkMoleculesPartition.mrnas = self.bulkMoleculesPartition.countsView(mrnaIDs)
-		self.bulkMoleculesPartition.proteins = self.bulkMoleculesPartition.countsView(proteinIDs)
 		self.proteinAaCounts = np.array([x["aaCount"] for x in monomers])
 		self.proteinLens = np.sum(self.proteinAaCounts, axis = 1)
 
-		# Enzymes
-		# TODO: We really want all the associated riboproteins as well (ie we want the complexes)
-		self.bulkMoleculesPartition.enzymes = self.bulkMoleculesPartition.countsView(enzIDs)
+		# Views
+		self.atp = self.bulkMoleculeView('ATP[c]')
+		self.adp = self.bulkMoleculeView('ADP[c]')
+		self.pi = self.bulkMoleculeView('PI[c]')
+		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.proton = self.bulkMoleculeView('H[c]')
 
-		self.bulkMoleculesPartition.ribosome23S = self.bulkMoleculesPartition.countsView(rib23S_IDs)
-		self.bulkMoleculesPartition.ribosome16S = self.bulkMoleculesPartition.countsView(rib16S_IDs)
-		self.bulkMoleculesPartition.ribosome5S = self.bulkMoleculesPartition.countsView(rib5S_IDs)
+		self.aas = self.bulkMoleculesView(aaIDs)
 
-		self.ribosome23SView = mc.countsView(rib23S_IDs)
-		self.ribosome16SView = mc.countsView(rib16S_IDs)
-		self.ribosome5SView = mc.countsView(rib5S_IDs)
+		self.mrnas = self.bulkMoleculesView(mrnaIDs)
+
+		self.proteins = self.bulkMoleculesView(proteinIDs)
+
+		self.enzymes = self.bulkMoleculesView(enzIDs)
+		self.ribosome23S = self.bulkMoleculesView(rib23S_IDs)
+		self.ribosome16S = self.bulkMoleculesView(rib16S_IDs)
+		self.ribosome5S = self.bulkMoleculesView(rib5S_IDs)
 
 
-	def requestBulkMolecules(self):
-		self.bulkMoleculesPartition.mrnas.countsIs(1)
-
-		ribs = calcRibosomes(
-			self.ribosome23SView.counts(),
-			self.ribosome16SView.counts(),
-			self.ribosome5SView.counts()
-			)
-
-		elng = np.min([
-			ribs * self.elngRate * self.timeStepSec,
-			np.sum(self.aasView.counts())
+	def calculateRequest(self):
+		nRibosomes = np.min([
+			self.ribosome23S.total().sum(),
+			self.ribosome16S.total().sum(),
+			self.ribosome5S.total().sum(),
 			])
 
-		self.bulkMoleculesPartition.aas.countsIs(elng / self.n_aas)
+		nElongationReactions = np.min([
+			nRibosomes * self.elngRate * self.timeStepSec,
+			self.aas.total().sum()
+			])
 
+		self.aas.requestIs(np.fmin(
+			self.aas.total(),
+			nElongationReactions//self.n_aas
+			))
 
-		self.bulkMoleculesPartition.enzymes.countsIs(1)
+		self.enzymes.requestAll()
+		self.mrnas.requestAll()
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		if not np.any(self.bulkMoleculesPartition.counts()):
-			return
+		ribs = np.min([
+			self.ribosome23S.total().sum(),
+			self.ribosome16S.total().sum(),
+			self.ribosome5S.total().sum(),
+			])
 
-		ribs = calcRibosomes(
-			self.bulkMoleculesPartition.ribosome23S.counts(),
-			self.bulkMoleculesPartition.ribosome16S.counts(),
-			self.bulkMoleculesPartition.ribosome5S.counts()
-			)
-
-		# print "nRibosomes: %d" % int(calcRibosomes(self.enzyme.counts))
 		# Total synthesis rate
-		proteinSynthProb = (self.bulkMoleculesPartition.mrnas.counts() / self.bulkMoleculesPartition.mrnas.counts().sum()).flatten()
-		totRate = 1 / np.dot(self.proteinLens, proteinSynthProb) * np.min([					# Normalize by average protein length
-			np.sum(self.bulkMoleculesPartition.aas.counts()),								# Amino acid limitation
-			# np.sum(self.metabolite.counts[self.metabolite.idx["atp"]]) / 2,							# GTP (energy) limitation
+		proteinSynthProb = (self.mrnas.counts() / self.mrnas.counts().sum()).flatten()
+		totRate = 1 / np.dot(self.proteinLens, proteinSynthProb) * np.min([
+			np.sum(self.aas.counts()),
 			ribs * self.elngRate * self.timeStepSec
-			# self.enzyme.counts[self.enzyme.idx["ribosome70S"]] * self.elngRate * self.timeStepSec		# Ribosome capacity
 			])
 
 		# print "Translation totRate: %0.3f" % (totRate)
 		newProts = 0
 		aasUsed = np.zeros(21)
 
-		proteinsCreated = np.zeros_like(self.bulkMoleculesPartition.proteins.counts())
+		proteinsCreated = np.zeros_like(self.proteins.counts())
 
 		# Gillespie-like algorithm
 		t = 0
@@ -141,44 +121,20 @@ class Translation(wholecell.processes.process.Process):
 
 			# Check if sufficient metabolic resources to make protein
 			newIdx = np.where(self.randStream.mnrnd(1, proteinSynthProb))[0]
-			if \
-				np.any(self.proteinAaCounts[newIdx, :] > self.bulkMoleculesPartition.aas.counts()):
-				# np.any(self.proteinAaCounts[newIdx, :] > self.metabolite.counts[self.metabolite.idx["aas"]]) or \
-				# 2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["atp"]] or \
-				# 2 * self.proteinLens[newIdx] > self.metabolite.counts[self.metabolite.idx["h2o"]]:
-					break
+			if np.any(self.proteinAaCounts[newIdx, :] > self.aas.counts()):
+				break
 
 			# Update metabolites
-			#self.metabolite.counts[self.metabolite.idx["aas"]] -= self.proteinAaCounts[newIdx, :].reshape(-1)
-			self.bulkMoleculesPartition.aas.countsDec(self.proteinAaCounts[newIdx, :].reshape(-1))
-			# self.metabolite.counts[self.metabolite.idx["h2o"]] += self.proteinLens[newIdx] - 1
-
-			# self.metabolite.counts[self.metabolite.idx["atp"]] -= 2 * self.proteinLens[newIdx]
-			# self.metabolite.counts[self.metabolite.idx["h2o"]] -= 2 * self.proteinLens[newIdx]
-			# self.metabolite.counts[self.metabolite.idx["adp"]] += 2 * self.proteinLens[newIdx]
-			# self.metabolite.counts[self.metabolite.idx["pi"]] += 2 * self.proteinLens[newIdx]
-			# self.metabolite.counts[self.metabolite.idx["h"]] += 2 * self.proteinLens[newIdx]
+			self.aas.countsDec(self.proteinAaCounts[newIdx, :].reshape(-1))
 
 			# Increment protein monomer
-			#self.protein.counts[newIdx] += 1
 			proteinsCreated[newIdx] += 1
 			newProts += 1
 			aasUsed += self.proteinAaCounts[newIdx, :].reshape(-1)
 
 		self.aasUsed = aasUsed
-		# print "Translation newProts: %d" % newProts
-		# print "Translation aasUsed: %s" % str(aasUsed)
-		# print "Translation numActiveRibs (total): %d (%d)" % (int(np.sum(aasUsed) / self.elngRate / self.timeStepSec), int(calcRibosomes(self.enzyme.counts)))
 
-		self.bulkMoleculesPartition.proteins.countsInc(proteinsCreated)
-
-
-def calcRibosomes(counts23S, counts16S, counts5S):
-	return np.min([
-		np.sum(counts23S),
-		np.sum(counts16S),
-		np.sum(counts5S)
-		])
+		self.proteins.countsInc(proteinsCreated)
 
 
 metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",

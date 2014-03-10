@@ -30,30 +30,23 @@ class ToyProteinDegradation(wholecell.processes.process.Process):
 
 		super(ToyProteinDegradation, self).__init__()
 
+
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(ToyProteinDegradation, self).initialize(sim, kb)
 
-		self.unboundRNApoly_query = sim.states['UniqueMolecules'].queryNew(
-			'RNA polymerase', boundToChromosome = ('==', False))
+		self.unboundRNApoly = self.uniqueMoleculesView('RNA polymerase',
+			boundToChromosome = ('==', False))
 
-	def requestBulkMolecules(self):
-		# TODO: Needs to request bulk RNA polymerase molecules
-		pass
 
-	def requestUniqueMolecules(self):
-		molecules = self.unboundRNApoly_query.objects()
+	def calculateRequest(self):
+		nDegrade = self.unboundRNApoly.total() * self.degradationProbability
 
-		nUnbound = len(molecules)
-
-		nDegrade = self.degradationProbability * nUnbound
-
-		self.uniqueMoleculesPartition.requestByMolecules(nDegrade, molecules)
+		self.unboundRNApoly.requestIs(nDegrade)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		unbound = self.uniqueMoleculesPartition.evaluateQuery(
-			'RNA polymerase', boundToChromosome = ('==', False))
+		unbound = self.unboundRNApoly.molecules()
 
-		self.uniqueMoleculesPartition.moleculesDel(unbound)
+		self.unboundRNApoly.moleculesDel(unbound)

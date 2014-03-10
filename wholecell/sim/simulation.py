@@ -188,6 +188,7 @@ class Simulation(object):
 		import wholecell.processes.toy_transcription
 		import wholecell.processes.toy_protein_degradation
 
+		# TODO: change this so it creates the objects after filtering
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
 			('Metabolism',			wholecell.processes.metabolism.Metabolism()),
@@ -243,6 +244,14 @@ class Simulation(object):
 
 	# Calculate temporal evolution
 	def _evolveState(self):
+		# Update queries
+		for state in self.states.itervalues():
+			state.updateQueries()
+
+		# Calculate requests
+		for process in self.processes.itervalues():
+			process.calculateRequest()
+
 		# Partition states among processes
 		for state in self.states.itervalues():
 			state.partition()
