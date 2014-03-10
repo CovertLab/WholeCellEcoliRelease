@@ -185,9 +185,10 @@ class Simulation(object):
 		import wholecell.processes.transcription
 		import wholecell.processes.translation
 		import wholecell.processes.free_production
-		# import wholecell.processes.toy_transcription
-		# import wholecell.processes.toy_protein_degradation
+		import wholecell.processes.toy_transcription
+		import wholecell.processes.toy_protein_degradation
 
+		# TODO: change this so it creates the objects after filtering
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
 			('Metabolism',			wholecell.processes.metabolism.Metabolism()),
@@ -195,8 +196,8 @@ class Simulation(object):
 			('Transcription',		wholecell.processes.transcription.Transcription()),
 			('Translation',			wholecell.processes.translation.Translation()),
 			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
-			# ('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
-			# ('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation())
+			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
+			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation())
 			])
 
 		# Remove processes not listed as being included
