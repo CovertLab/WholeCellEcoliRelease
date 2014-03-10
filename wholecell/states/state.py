@@ -17,19 +17,14 @@ from collections import OrderedDict
 class State(object):
 	""" State """
 
-	partitions = None
-	partitionClass = None
-
 	# Constructor
 	def __init__(self, propVals = {}):
 		# Metadata: id, name, list of dynamic properties, units
 		if not hasattr(self, "meta"):
 			self.meta = {}
 
-		self.partitions = OrderedDict()
-
 		self._nProcesses = None
-		self._views = []
+		self._views = None
 
 		for prop in propVals.keys():
 			setattr(self, prop, propVals[prop])
@@ -40,16 +35,12 @@ class State(object):
 		self.randStream = sim.randStream
 
 		self._nProcesses = len(sim.processes)
-
-		if self.partitionClass is not None:
-			for process in sim.processes.viewvalues():
-				self.partitions[process.meta['id']] = self.partitionClass(self, process)
+		self._views = []
 
 
 	# Allocate memory
 	def allocate(self):
-		for partition in self.partitions.viewvalues():
-			partition.allocate()
+		pass
 
 
 	# Calculate initial conditions
