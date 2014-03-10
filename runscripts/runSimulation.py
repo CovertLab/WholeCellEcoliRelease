@@ -20,7 +20,7 @@ import sys
 
 DEFAULT_SIM = dict(
 	seed = 10,
-	lengthSec = 100
+	lengthSec = 10
 	)
 
 def main():

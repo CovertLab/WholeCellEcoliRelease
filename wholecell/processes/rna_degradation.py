@@ -55,7 +55,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self.rnaLens = np.sum(np.array([x["ntCount"] for x in kb.rnas]), axis = 1)
 
-		self.rnaDegSMat = np.zeros((len(self._metaboliteIds), len(self._rnaIds)))
+		self.rnaDegSMat = np.zeros((len(self._metaboliteIds), len(self._rnaIds)), np.int)
 		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(np.array([x["ntCount"] for x in kb.rnas]))
 		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)

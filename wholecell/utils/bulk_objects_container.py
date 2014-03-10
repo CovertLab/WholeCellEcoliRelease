@@ -24,7 +24,7 @@ class BulkObjectsContainer(object):
 
 		self._objectIndex = {objectName:index for index, objectName in enumerate(objectNames)}
 
-		self._counts = np.zeros(len(objectNames), np.uint64)
+		self._counts = np.zeros(len(objectNames), np.int)
 
 
 	def counts(self, names = None):

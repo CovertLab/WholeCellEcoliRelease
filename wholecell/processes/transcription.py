@@ -127,7 +127,7 @@ class Transcription(wholecell.processes.process.Process):
 			if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
 				break
 
-			enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
+				enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
 
 			self.ntps.countsDec(
 				self.rnaNtCounts[newIdx, :].reshape(ntpsShape)

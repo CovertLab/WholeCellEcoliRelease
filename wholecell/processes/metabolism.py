@@ -144,7 +144,7 @@ class Metabolism(wholecell.processes.process.Process):
 					* Constants.nAvogadro * self.initialDryMass)
 				* np.exp(np.log(2) / self.cellCycleLen * self.time.value)
 				* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-				),
+				).astype(np.int),
 			0
 			)
 

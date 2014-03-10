@@ -100,7 +100,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		nViews = len(self._views)
 
 		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)
-		requestNumberVector = np.zeros(nViews, np.uint64)
+		requestNumberVector = np.zeros(nViews, np.int)
 		requestProcessArray = np.zeros((nViews, self._nProcesses), np.bool)
 
 		for viewIndex, view in enumerate(self._views):
