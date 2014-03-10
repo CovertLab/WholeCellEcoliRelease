@@ -362,6 +362,14 @@ class _Query(object):
 		return self._container._iterObjects(self._arrayIndex, self._objectIndexes)
 
 
+	def nObjects(self):
+		return self._objectIndexes.size
+
+
+	def _globalIndexes(self):
+		return self._container._arrays[self._arrayIndex][self._objectIndexes]['_globalIndex']
+
+
 	# TODO: sampling functions?  i.e. get N molecules
 	# TODO: subqueries?
 
