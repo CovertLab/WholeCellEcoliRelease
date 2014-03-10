@@ -139,9 +139,15 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._typeIdxs['monomers'] = np.array([self._moleculeIDs.index(x["id"]) for x in monomers])
 		self._typeLocalizations['monomers'] = [monomer['location'] for monomer in monomers]
+		
+		# TODO: restore this behavior or replace it with something bettter
 
-		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool) # TODO: restore this behavior or replace it with something bettter
-		self._isRequestAbsolute[sim.processes['RnaDegradation']._processIndex] = True
+		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool)
+		try:
+			self._isRequestAbsolute[sim.processes['RnaDegradation']._processIndex] = True
+
+		except KeyError:
+			pass
 
 
 	def allocate(self):
