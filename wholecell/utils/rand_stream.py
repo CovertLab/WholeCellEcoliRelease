@@ -21,6 +21,7 @@ Note:
 from __future__ import division
 
 import numpy as np
+import warnings
 
 class RandStream(object):
 	""" Random Stream """
@@ -82,7 +83,11 @@ class RandStream(object):
 		return self.randStream.normal(loc, scale, size)
 
 	def multivariate_normal(self, mean, cov, size = None):
-		return self.randStream.multivariate_normal(mean, cov, size)
+		with warnings.catch_warnings():
+			warnings.filterwarnings("ignore", category=DeprecationWarning)
+			value = self.randStream.multivariate_normal(mean, cov, size)
+
+		return value
 
 	def randsample(self, n, k, replacement = False, w = None):
 		k = np.array(k, dtype = np.int)
