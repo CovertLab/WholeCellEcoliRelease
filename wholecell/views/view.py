@@ -19,7 +19,7 @@ class View(object):
 		self._state.viewAdd(self)
 		self._processIndex = process._processIndex
 
-		self._query = query # an immutable, hashable, composed of basic types
+		self._query = query
 
 		self._totalCount = np.zeros(self._dataSize(), np.uint64) # number of objects that satisfy the query
 		self._requestedCount = np.zeros_like(self._totalCount) # number of objects requested
@@ -136,4 +136,49 @@ class UniqueMoleculesView(View):
 	def __init__(self, *args, **kwargs):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
 
-	# TODO
+		self._queryObject = self._state._container.queryNew(
+			self._query[0], **self._query[1]
+			)
+
+		self._moleculeGlobalIndexes = []
+
+
+	def _updateQuery(self):
+		# TODO: generalize this logic (both here and in the state)
+
+		self._totalIs(self._queryObject.nObjects())
+
+
+	def molecules(self):
+		return self._state._container.evaluateQuery(
+			self._query[0],
+			_partitionedProcess = ('==', self._processIndex + 1),
+			**self._query[1]
+			)
+
+	# NOTE: these accessors do not enforce any sort of consistency between the query
+	# and the objects created/deleted.  As such it may make more sense for these
+	# to be process methods, not view methods. - JM
+	def moleculeDel(self, molecule):
+		self._state._container.objectDel(molecule)
+
+
+	def moleculesDel(self, molecules):
+		self._state._container.objectsDel(molecules)
+
+	
+	def moleculeNew(self, moleculeName, **attributes):
+		self._state._container.objectNew(
+			moleculeName,
+			_partitionedProcess = ('==', self._processIndex + 1),
+			**attributes
+			)
+
+
+	def moleculesNew(self, moleculeName, nMolecules, **attributes):
+		self._state._container.objectsNew(
+			moleculeName,
+			nMolecules,
+			_partitionedProcess = self._processIndex + 1,
+			**attributes
+			)
