@@ -8,6 +8,7 @@ import wholecell.states.state
 import wholecell.utils.unique_objects_container
 
 N_BASES = 5000000 # TODO: from kb
+N_STRANDS = 2 # TODO: from kb/fit?
 MOLECULE_WIDTH = 50 # TODO: from kb
 
 MOLECULE_ATTRIBUTES = {
@@ -33,8 +34,9 @@ class SequenceBoundMolecules(object):
 	def __init__(self):
 		self._length = N_BASES
 		
-		self._array = np.empty(N_BASES, dtype = np.int32) # TODO: choose best dtype based on array size
-		self._array[:] = self._inactive
+		self._array = np.zeros((N_BASES, N_STRANDS), dtype = np.int32) # TODO: choose best dtype based on array size
+
+		self._array[:, 0] = self._empty # Primary strand is always active
 
 		moleculeAttributes = {}
 		for moleculeName, attributes in MOLECULE_ATTRIBUTES.viewitems():
@@ -84,6 +86,31 @@ class SequenceBoundMolecules(object):
 		return self._moleculesContainer._objectsByGlobalIndex(indexes)
 
 
+	def forkNew(self, strandName, start, stop):
+		# TODO: assert fork does not exist
+		# TODO: move things about randomly over region split
+		# TODO: forbid binding of fork except in special cases
+
+		strandRoot = self._strandNameToIndex(strandName)
+		strandChildA = self._strandNameToIndex(strandName + 'A') # should be the same as root
+		strandChildB = self._strandNameToIndex(strandName + 'B')
+
+		self._array[start:stop, strandChildB] = self._empty
+
+
+	def _strandNameToIndex(self, strandName):
+		# Strands are named from left-to-right
+		# A is the root strand
+		# AA and AB are the first child strands
+
+		strandValues = [{'A':0, 'B':1}[s] for s in strandName]
+
+		index = np.dot(strandValues, np.arange(len(strandName)))
+
+		return index
+
+
+
 	# TODO: figure out how molecule width info is going to be handled
 	# TODO: circularly-permuted indexing
 	# TODO: saving
@@ -118,16 +145,13 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def calcInitialConditions(self):
-		# Randomly bind a bunch of RNA polymerases
-		# nBound = 0
+		# Add replication fork
 
-		# while nBound < 1000:
-		# 	bindAt = self.randStream.randi(N_BASES - MOLECULE_WIDTH)
+		origin = N_BASES // 2
 
-		# 	if not self._container.molecules(bindAt, bindAt + MOLECULE_WIDTH):
-		# 		self._container.moleculeNew('RNA polymerase', bindAt)
+		forkStart = origin - N_BASES // 4
+		forkStop = origin - N_BASES // 4
 
-		# 		nBound += 1
+		self._container.forkNew('A', forkStart, forkStop)
 
-		pass
 
