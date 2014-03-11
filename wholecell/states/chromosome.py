@@ -40,7 +40,7 @@ class SequenceBoundMolecules(object):
 		self._strandMultiplicity = STRAND_MULTIPLICITY
 		self._nStrands = 1 + 2*(self._strandMultiplicity - 1)**2
 		
-		self._array = np.zeros((N_BASES, self._nStrands ), dtype = np.int32) # TODO: choose best dtype based on array size
+		self._array = np.zeros((self._length, self._nStrands ), dtype = np.int32) # TODO: choose best dtype based on array size
 
 		self._array[:, 0] = self._empty # Primary strand is always active
 
@@ -149,6 +149,36 @@ class SequenceBoundMolecules(object):
 		self._array[stop+1, strandChildB] = self._end
 
 
+	def forks(self, strandName):
+		# Return forks on a strand
+		raise NotImplementedError()
+
+
+	# def forkMove(self, )
+
+
+	def moleculesForks(self):
+		# Return the molecules that are on forks
+		raise NotImplementedError()
+
+
+	def findLocationToBind(self, width):
+		return self.findLocationsToBind(width, 1)[0]
+
+
+	def findLocationsToBind(self, width, nLocations):
+		# TODO: make this method faster (cache valid locations by footprint, use sparse representation...)
+
+		# locations = 
+		pass
+
+
+	# TODO: use this method
+	# def _range(self, start, stop):
+	# 	# Converts a start:stop slice into a range that handles the circularity
+	# 	# of the chromosome
+
+	# 	return np.arange(start, stop) % self._length
 	
 
 	# TODO: figure out how molecule width info is going to be handled
@@ -159,6 +189,14 @@ class SequenceBoundMolecules(object):
 	# TODO: restrict binding to empty regions
 	# TODO: methods for activating/inactivating regions
 	# TODO: write tests
+
+
+# TODO: determine how to handle, pass locations
+# - handle indexing within processes (would rather not)
+# - pass locations as a type of objects (updating is hard)
+# - pass a region and a group of molecules to bind
+
+# TODO: design views, queries, requests, etc
 
 
 class Chromosome(wholecell.states.state.State):
