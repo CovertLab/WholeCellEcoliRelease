@@ -140,9 +140,3 @@ class Transcription(wholecell.processes.process.Process):
 			rnasCreated[newIdx] += 1
 
 		self.rnas.countsInc(rnasCreated)
-
-
-_metIds = [
-	"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
-	"PPI[c]", "H2O[c]", "H[c]",
-	]
