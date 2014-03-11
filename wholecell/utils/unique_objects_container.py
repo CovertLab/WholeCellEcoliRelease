@@ -457,7 +457,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	argsort = np.argsort(where1)
 
 	moleculeToRequestConnections = np.zeros((nObjectTypes + nRequests,
-		nConnections), np.int)
+		nConnections), np.int64)
 
 	upperIndices = (where0, np.arange(where1.size)[argsort])
 	lowerIndices = (nObjectTypes + where1[argsort], np.arange(where1.size))
@@ -470,7 +470,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	matrix = np.zeros(
 		(nObjectTypes + nRequests + nProcesses,
 			nObjectTypes + nConnections + 2*nProcesses),
-		np.int
+		np.int64
 		)
 
 	# Molecule "boundary fluxes"
@@ -527,7 +527,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 		requestProcessArray
 		)
 
-	indexingRanges = np.c_[np.zeros(nObjectTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int)
+	indexingRanges = np.c_[np.zeros(nObjectTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int64)
 
 	# TODO: find a way to eliminate the for-loops!
 	partitionedMolecules = np.zeros((nObjects, nProcesses), np.bool)

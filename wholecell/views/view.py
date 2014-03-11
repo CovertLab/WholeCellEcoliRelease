@@ -21,7 +21,7 @@ class View(object):
 
 		self._query = query
 
-		self._totalCount = np.zeros(self._dataSize(), np.int) # number of objects that satisfy the query
+		self._totalCount = np.zeros(self._dataSize(), np.int64) # number of objects that satisfy the query
 		self._requestedCount = np.zeros_like(self._totalCount) # number of objects requested
 
 
