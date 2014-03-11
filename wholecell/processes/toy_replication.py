@@ -34,7 +34,7 @@ class ToyReplication(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyReplication, self).initialize(sim, kb)
 
-		pass
+		self.chromosomeView = self.chromosomeView()
 
 
 	def calculateRequest(self):

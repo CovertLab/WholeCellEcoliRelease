@@ -12,7 +12,9 @@ MOLECULE_WIDTH = 50 # TODO: from kb
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
-		}
+		},
+	'DNA polymerase':{
+		},
 	}
 
 class SequenceBoundMolecules(object):
@@ -117,13 +119,15 @@ class Chromosome(wholecell.states.state.State):
 
 	def calcInitialConditions(self):
 		# Randomly bind a bunch of RNA polymerases
-		nBound = 0
+		# nBound = 0
 
-		while nBound < 1000:
-			bindAt = self.randStream.randi(N_BASES - MOLECULE_WIDTH)
+		# while nBound < 1000:
+		# 	bindAt = self.randStream.randi(N_BASES - MOLECULE_WIDTH)
 
-			if not self._container.molecules(bindAt, bindAt + MOLECULE_WIDTH):
-				self._container.moleculeNew('RNA polymerase', bindAt)
+		# 	if not self._container.molecules(bindAt, bindAt + MOLECULE_WIDTH):
+		# 		self._container.moleculeNew('RNA polymerase', bindAt)
 
-				nBound += 1
+		# 		nBound += 1
+
+		pass
 

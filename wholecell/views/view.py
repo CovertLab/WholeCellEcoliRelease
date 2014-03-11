@@ -140,8 +140,6 @@ class UniqueMoleculesView(View):
 			self._query[0], **self._query[1]
 			)
 
-		self._moleculeGlobalIndexes = []
-
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
@@ -182,3 +180,33 @@ class UniqueMoleculesView(View):
 			_partitionedProcess = self._processIndex + 1,
 			**attributes
 			)
+
+
+class ChromosomeView(View):
+	_stateID = 'Chromosome'
+	# TODO: replace this view with more useful, permanent views
+
+	def __init__(self, *args, **kwargs):
+		super(ChromosomeView, self).__init__(*args, **kwargs)
+
+		# self._queryObject = 
+
+	
+	def moleculeNew(self, moleculeName, location, **attributes):
+		# if in partitioned region
+
+		self._state._container.moleculeNew(moleculeName, location, 
+			**attributes)
+
+
+	def moleculeDel(self, molecule):
+		# if in partitioned region
+
+		self._state._container.moleculeDel(molecule)
+
+
+	def moleculesDel(self, molecules):
+		# if in partitioned region
+
+		self._state._container.moleculesDel(molecules)
+
