@@ -436,6 +436,10 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	nRequests = requestNumberVector.size
 	nProcesses = requestProcessArray.shape[1]
 
+	if nProcesses == 0:
+		# Return nothing
+		return np.zeros((nObjects, nProcesses), np.bool)
+
 	# Make into structured array to condense the problem into unique rows
 	objectRequestsStructured = objectRequestsArray.view(
 		dtype = [('', np.bool, nRequests)])
