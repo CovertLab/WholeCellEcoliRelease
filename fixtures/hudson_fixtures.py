@@ -1,5 +1,5 @@
 from __future__ import division
 
-import wholecell.fixtures.generateTestFixtures
+import fixtures.generateTestFixtures
 
-wholecell.fixtures.generateTestFixtures.generateTestFixtures()
+fixtures.generateTestFixtures.generateTestFixtures()
