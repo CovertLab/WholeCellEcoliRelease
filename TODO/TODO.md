@@ -22,7 +22,7 @@
 	
 		(x) Getting it running again
 	
-	( ) Partitioning unique instances of molecules
+	(x) Partitioning unique instances of molecules
 	
 	( ) Chromosome modeling
 
@@ -48,11 +48,11 @@
 	
 	(x) Load MySQL database into same Python object as before
 	
-	( ) Migrate KnoweldgeBase to its own repository
+	(x) Migrate KnoweldgeBase to its own repository
 	
 	( ) Get the web-interface up and running
 	
-	( ) Move constants out of simulation code to KB
+	(x) Move constants out of simulation code to KB
 
 	( ) Finish validating the data in the KB
 
