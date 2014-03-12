@@ -93,7 +93,7 @@ class ToyReplication(wholecell.processes.process.Process):
 			newForkPosition = self.chromosome.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
 				forkPosition, extent)
 
-			self.chromosome.moveMoleculeToFork( # special moveMolecule routine that places a molecule directly onto a fork
+			self.chromosome.moleculeMoveToFork( # special moleculeMove routine that places a molecule directly onto a fork
 				dnaPolymerase,
 				forkStrand = forkStrand,
 				forkPosition = newForkPosition,
