@@ -27,7 +27,8 @@ class ToyReplication(wholecell.processes.process.Process):
 			"name": "ToyReplication",
 			}
 
-		self.dnaPolymeraseFootprint = 50
+		self.dnaPolyForwardFootprint = 50
+		self.dnaPolyReverseFootprint = 50
 		self.elongationRate = 100
 
 		super(ToyReplication, self).__init__()
@@ -37,11 +38,11 @@ class ToyReplication(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyReplication, self).initialize(sim, kb)
 
-		# self.chromosomeView = self.chromosomeView()
+		self.chromosome = self.chromosomeView() # a view which can operate on the partitioned state but does not run requests/queries
 
-		self.replicationForks = self.replicationForkView(
-			extentAlongParent = self.dnaPolymeraseFootprint + self.elongationRate,
-			extentAlongChildren = self.elongationRate
+		self.replicationForks = self.replicationForkView( # a view which can request/query forks and return locations of forks on the partitioned state
+			extentForward = max(self.elongationRate, self.dnaPolyForwardFootprint),
+			extentReverse = self.dnaPolyReverseFootprint
 			)
 
 
@@ -51,30 +52,52 @@ class ToyReplication(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# can't loop over regions, may overlap
-		# need a way to handle replication termination
-		# probably won't be able to avoid working with numbers for locations on the chromosome
-		for region in self.replicationForks.regions():
-			(dnaPolymerase,) = region.molecules(moleculeName = 'DNA polymerase') # singleton unpacking
-			(forkLocation,) = region.forkLocations() # singleton unpacking
+		# TODO: check whether any forks would collide
 
-			moveDistance = region.extentAlongParent()
+		for forkStrand, forkLocation, forkDirection in self.replicationForks.forks():
+			# Get DNA polymerases near the fork
+			dnaPolymerase = self.chromosome.moleculeOnFork( # returns the identity of the molecule on the fork, if any
+				name = 'DNA polymerase'
+				forkStrand = forkStrand,
+				forkLocation = forkLocation
+				)
 
-			newDnaPolyLocation = region.moleculeLocation(dnaPolymerase) + moveDistance - self.dnaPolymeraseFootprint
+			# Break if no DNA polymerase
+			if dnaPolymerase is None:
+				print 'No DNA polymerase on fork'
+				break
 
-			region.moleculeMove(dnaPolymerase, newDnaPolyLocation)
+			# Determine how far we can extend
+			extent = self.chromosome.maximumExtent( # how far we can move without hitting 1) the end of the partitioned space or 2) a fork, up to "extent"
+				strand = forkStrand,
+				location = forkLocation,
+				direction = forkDirection,
+				extent = self.elongationRate
+				)
 
-			region.forkMove(forkLocation, forkLocation + moveDistance)
+			# TODO: check/use resources
 
+			nonPolymeraseMolecules = self.chromosome.molecules( # returns molecules that satisfy the arguments
+				strand = forkStrand,
+				location = forkLocation,
+				direction = forkDirection,
+				extent = extent
+				) - {dnaPolymerase}
 
-		dnaPolymerases = self.replicationForks.molecules(moleculeName = 'DNA polymerase')
+			if nonPolymeraseMolecules:
+				# TODO: remove molecules on final position, and move molecules
+				# passed onto a random strand in the same position
+				print 'Encountered molecules within fork extension range'
+				break
 
-		forkLocations = self.replicationForks.forkLocations()
+			newForkLocation = self.chromosome.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
+				forkLocation, extent)
 
-		# how to find forks? associate with polymerases?
-		# - find fork, then find nearby molecules
-		# how to move forks?
-
-		# communicating distance that can be moved
-		# origin for molecule footprints
+			self.chromosome.moveMoleculeToFork( # special moveMolecule routine that places a molecule directly onto a fork
+				dnaPolymerase,
+				forkStrand = forkStrand,
+				forkLocation = newForkLocation,
+				extentForward = self.dnaPolyForwardFootprint,
+				extentReverse = self.dnaPolyReverseFootprint
+				)
 
