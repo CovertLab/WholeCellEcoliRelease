@@ -54,12 +54,12 @@ class ToyReplication(wholecell.processes.process.Process):
 	def evolveState(self):
 		# TODO: check whether any forks would collide
 
-		for forkStrand, forkLocation, forkDirection in self.replicationForks.forks():
+		for forkStrand, forkPosition, forkDirection in self.replicationForks.forks():
 			# Get DNA polymerases near the fork
 			dnaPolymerase = self.chromosome.moleculeOnFork( # returns the identity of the molecule on the fork, if any
 				name = 'DNA polymerase'
 				forkStrand = forkStrand,
-				forkLocation = forkLocation
+				forkPosition = forkPosition
 				)
 
 			# Break if no DNA polymerase
@@ -70,7 +70,7 @@ class ToyReplication(wholecell.processes.process.Process):
 			# Determine how far we can extend
 			extent = self.chromosome.maximumExtent( # how far we can move without hitting 1) the end of the partitioned space or 2) a fork, up to "extent"
 				strand = forkStrand,
-				location = forkLocation,
+				position = forkPosition,
 				direction = forkDirection,
 				extent = self.elongationRate
 				)
@@ -79,7 +79,7 @@ class ToyReplication(wholecell.processes.process.Process):
 
 			nonPolymeraseMolecules = self.chromosome.molecules( # returns molecules that satisfy the arguments
 				strand = forkStrand,
-				location = forkLocation,
+				position = forkPosition,
 				direction = forkDirection,
 				extent = extent
 				) - {dnaPolymerase}
@@ -90,13 +90,13 @@ class ToyReplication(wholecell.processes.process.Process):
 				print 'Encountered molecules within fork extension range'
 				break
 
-			newForkLocation = self.chromosome.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
-				forkLocation, extent)
+			newForkPosition = self.chromosome.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
+				forkPosition, extent)
 
 			self.chromosome.moveMoleculeToFork( # special moveMolecule routine that places a molecule directly onto a fork
 				dnaPolymerase,
 				forkStrand = forkStrand,
-				forkLocation = newForkLocation,
+				forkPosition = newForkPosition,
 				extentForward = self.dnaPolyForwardFootprint,
 				extentReverse = self.dnaPolyReverseFootprint
 				)
