@@ -6,7 +6,7 @@ ToyReplication
 A toy process for developing interactions between processes and the Chromosome
 State.
 
-@author: Nick Ruggero
+@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/11/2014
 """
