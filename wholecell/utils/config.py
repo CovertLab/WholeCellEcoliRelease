@@ -23,7 +23,7 @@ else:
 	import warnings
 	warnings.warn('Using Hudson config file! To create your own copy the config_file.config_default file.\n')
 	
-	with open(user_config_file) as config_file:
+	with open(hudson_config_file) as config_file:
 		configs = json.loads(config_file.readline())
 		# Takes in keys and turns them into variables with same values as in dict:
 		for k in configs:
