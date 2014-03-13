@@ -57,7 +57,7 @@ class ToyReplication(wholecell.processes.process.Process):
 		for forkStrand, forkPosition, forkDirection in self.replicationForks.forks():
 			# Get DNA polymerases near the fork
 			dnaPolymerase = self.chromosome.moleculeOnFork( # returns the identity of the molecule on the fork, if any
-				name = 'DNA polymerase'
+				name = 'DNA polymerase',
 				forkStrand = forkStrand,
 				forkPosition = forkPosition
 				)
