@@ -40,44 +40,44 @@ class Test_randStream(unittest.TestCase):
 
 		with self.assertRaises(AttributeError) as context:
 			r.randw(np.array([[0, 0], [0, 0]]))
-		self.assertEqual(context.exception.message, "'RandStream' object has no attribute 'randw'")
+		self.assertEqual(str(context.exception), "'RandStream' object has no attribute 'randw'")
 
 		# NOTE: In Matlab, no exception is thrown here (the returned array is merely empty)
 		with self.assertRaises(ValueError) as context:
 			self.assertEqual(np.zeros([0, 1]), r.randsample(2, 1, True, [0, 0]))
-		self.assertEqual(context.exception.message, "weights sum to zero - cannot scale")
+		self.assertEqual(str(context.exception), "weights sum to zero - cannot scale")
 
 		with self.assertRaises(ValueError) as context:
 			r.randsample(2, 1, True, [-1, 0])
-		self.assertEqual(context.exception.message, "probabilities are not non-negative")
+		self.assertEqual(str(context.exception), "probabilities are not non-negative")
 
 		with self.assertRaises(ValueError) as context:
 			r.randsample(2, 1, True, [0, np.Inf])
-		self.assertEqual(context.exception.message, "expect finite weights")
+		self.assertEqual(str(context.exception), "expect finite weights")
 
 		with warnings.catch_warnings(record = True) as w:
 			with self.assertRaises(ValueError) as context:
 				r.randsample(2, 1, True, [0, np.NaN])
-			self.assertEqual(context.exception.message, "probabilities do not sum to 1")
+			self.assertEqual(str(context.exception), "probabilities do not sum to 1")
 
 		with self.assertRaises(ValueError) as context:
 			r.randsample(2, -1, True, [0, 1])
-		self.assertEqual(context.exception.message, "negative dimensions are not allowed")
+		self.assertEqual(str(context.exception), "negative dimensions are not allowed")
 
 		# NOTE: In Matlab, there is a test for integer-valued k
 		# However, np will just floor a float-valued k and use it
 
 		with self.assertRaises(OverflowError) as context:
 			r.randsample(2, np.Inf, True, [0, 1])
-		self.assertEqual(context.exception.message, "cannot convert float infinity to integer")
+		self.assertEqual(str(context.exception), "cannot convert float infinity to integer")
 
 		with self.assertRaises(ValueError) as context:
 			r.randsample(2, np.NaN, True, [0, 1])
-		self.assertEqual(context.exception.message, "cannot convert float NaN to integer")
+		self.assertEqual(str(context.exception), "cannot convert float NaN to integer")
 
 		with self.assertRaises(Exception) as context:
 			r.randsample(2, [1, 1], True, [0, 1])
-		self.assertEqual(context.exception.message, "Expect k to be a scalar")
+		self.assertEqual(str(context.exception), "Expect k to be a scalar")
 
 		# Sampling
 		self.assertEqual(1, r.randsample(7, 1, True, [0, 1, 1, 1, 1, 0, 2]).size)
@@ -86,7 +86,7 @@ class Test_randStream(unittest.TestCase):
 
 		with self.assertRaises(ValueError) as context:
 			r.randsample(7, 10, False, [0, 1, 1, 1, 1, 0, 2])
-		self.assertEqual(context.exception.message, "Cannot take a larger sample than population when 'replace=False'")
+		self.assertEqual(str(context.exception), "Cannot take a larger sample than population when 'replace=False'")
 
 		self.assertTrue(np.array_equal(np.array([6, 2, 1, 3, 4]), r.randsample(7, 5, False, [0, 1, 1, 1, 1, 0, 2])))
 		self.assertTrue(np.array_equal(np.array([1, 2, 6, 4, 3]), r.randsample(7, 5, False, np.transpose([0, 1, 1, 1, 1, 0, 2]))))
@@ -137,7 +137,7 @@ class Test_randStream(unittest.TestCase):
 
 		with self.assertRaises(Exception) as context:
 			r.randCounts(2, -1)
-		self.assertEqual(context.exception.message, "N must be positive.")
+		self.assertEqual(str(context.exception), "N must be positive.")
 
 		self.assertEqual(0, r.randCounts(2, 0))
 		self.assertEqual(1, r.randCounts(2, 1))
@@ -146,7 +146,7 @@ class Test_randStream(unittest.TestCase):
 		self.assertTrue(np.array_equal([2, 2, 3], r.randCounts([2, 2, 3], 7)))
 		with self.assertRaises(Exception) as context:
 			r.randCounts([2, 2, 3], 8)
-		self.assertEqual(context.exception.message, "N must be at most the total available counts.")	
+		self.assertEqual(str(context.exception), "N must be at most the total available counts.")	
 
 		self.assertEqual(2, np.sum(r.randCounts([2, 2, 3], 2)))
 
