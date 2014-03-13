@@ -81,7 +81,8 @@ class Disk(wholecell.loggers.logger.Logger):
 			)
 
 		# Save KB
-		shutil.copy(sim.kbPath, self.outDir)
+		# shutil.copy(sim.kbPath, self.outDir)
+		# TODO: reinstate
 
 
 	def append(self, sim):

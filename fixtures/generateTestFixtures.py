@@ -14,7 +14,6 @@ from __future__ import division
 import os
 import cPickle
 
-import wholecell.reconstruction.knowledgebase
 import wholecell.sim.simulation
 import wholecell.utils.knowledgebase_fixture_manager
 

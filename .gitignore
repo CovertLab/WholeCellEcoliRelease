@@ -26,6 +26,10 @@ nosetests.*.xml
 
 .ipynb_checkpoints
 
+# User machine config file
+##########################
+*.config
+
 # Output files #
 ################
 

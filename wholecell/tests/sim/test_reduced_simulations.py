@@ -34,19 +34,22 @@ class Test_reducedSimulations(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'reducedSimulation')
 	def test_transcriptionSimulation(self):
+		ntpLevels = 1e6
+		enzLevels = 2000.
+
 		sim = wcSimulation.Simulation(
 			includedProcesses = ["Transcription"],
 			freeMolecules = [
-				["ATP[c]", 1e6],
-				["UTP[c]", 1e6],
-				["CTP[c]", 1e6],
-				["GTP[c]", 1e6],
-				["EG10893-MONOMER[c]", 2000.0],
-				["RPOB-MONOMER[c]", 2000.0],
-				["RPOC-MONOMER[c]", 2000.0],
-				["RPOD-MONOMER[c]", 2000.0]
+				["ATP[c]", ntpLevels],
+				["UTP[c]", ntpLevels],
+				["CTP[c]", ntpLevels],
+				["GTP[c]", ntpLevels],
+				["EG10893-MONOMER[c]", enzLevels],
+				["RPOB-MONOMER[c]", enzLevels],
+				["RPOC-MONOMER[c]", enzLevels],
+				["RPOD-MONOMER[c]", enzLevels]
 			],
 			lengthSec = 10
 			)
@@ -60,12 +63,10 @@ class Test_reducedSimulations(unittest.TestCase):
 
 		bulkMolecules = sim.states['BulkMolecules']
 
-		ntpView = bulkMolecules.countsBulkViewNew(
-			["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
-			)
+		ntpView = sim.processes['Transcription'].ntps
 
-		ntpMin = 0.5e6 # allow some tolerance for process usage
+		ntpMin = ntpLevels/2 # allow some tolerance for process usage
 
 		self.assertTrue(
-			(ntpView.countsBulk() > ntpMin).all()
+			(ntpView.counts() > ntpMin).all()
 			)
