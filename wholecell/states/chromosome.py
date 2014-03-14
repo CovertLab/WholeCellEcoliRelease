@@ -42,13 +42,13 @@ class SequenceBoundMolecules(object):
 		'_sequenceDirection':'bool', # False = (+), True = (-)
 		'_sequenceExtentForward':'uint32', # number of nts
 		'_sequenceExtentReverse':'uint32', # number of nts
-		# '_sequenceBoundToFork':'bool', # special property for molecules bound on a forked region
+		'_sequenceBoundToFork':'bool', # special property for molecules bound on a forked region
 		}
 
 	# Single-character names for denoting strand identity
 	_rootChar = 'R' 
-	_childLeadingChar = 'A'
-	_childLaggingChar = 'B'
+	_childAChar = 'A'
+	_childBChar = 'B'
 
 	# Conversion key for directions
 	_positiveChar = '+'
@@ -84,8 +84,8 @@ class SequenceBoundMolecules(object):
 			childNames = []
 
 			for parentName in parentNames:
-				childNames.append(parentName + self._childLeadingChar)
-				childNames.append(parentName + self._childLaggingChar)
+				childNames.append(parentName + self._childAChar)
+				childNames.append(parentName + self._childBChar)
 
 			self._strandNames.extend(childNames)
 			parentNames = childNames
@@ -94,8 +94,8 @@ class SequenceBoundMolecules(object):
 
 		self._strandNameToIndex = {name:ind for ind, name in enumerate(self._strandNames)}
 		self._strandChildrenIndexes = [
-			(self._strandNameToIndex[name + self._childLeadingChar], self._strandNameToIndex[name + self._childLaggingChar])
-			if self._strandNameToIndex.has_key(name + self._childLeadingChar) else None
+			(self._strandNameToIndex[name + self._childAChar], self._strandNameToIndex[name + self._childBChar])
+			if self._strandNameToIndex.has_key(name + self._childAChar) else None
 			for name in self._strandNames
 			]
 
@@ -112,14 +112,22 @@ class SequenceBoundMolecules(object):
 
 
 	def moleculeDel(self, molecule):
+		self.moleculeLocationIsUnbound(molecule)
 		self._objectsContainer.objectDel(molecule)
 
 
 	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
-		self.moleculeLocationIsUnbound(molecule)
-
 		strandIndex = self._strandNameToIndex[strand]
 		directionBool = self._directionCharToBool[direction]
+
+		extentPositive, extentNegative = self._extentRelativeToAbsolute(
+			extentForward, extentReverse, directionBool)
+
+		region = self._region(strandIndex, position, directionBool, extentPositive, extentNegative)
+
+		assert (region == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
+
+		self.moleculeLocationIsUnbound(molecule)
 
 		molecule.attrIs('_sequenceBound', True) # TODO: attrsAre method
 		molecule.attrIs('_sequenceStrand', strandIndex)
@@ -128,15 +136,73 @@ class SequenceBoundMolecules(object):
 		molecule.attrIs('_sequenceExtentForward', extentForward)
 		molecule.attrIs('_sequenceExtentReverse', extentReverse)
 
+		region[:] = molecule.attr('_globalIndex') + self._offset
+
+
+	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse): # TODO: different child extents
+		# NOTE: molecule orientation assumed to be in the direction of the fork
+
+		assert (extentForward > 0 or extentReverse > 0), 'The footprint of a molecule placed on a fork must be > 1'
+
+		forkStrand = fork.attr('_sequenceStrand')
+		forkPosition = fork.attr('_sequencePosition')
+		forkDirection = fork.attr('_sequenceDirection')
+
+		(regionParent, regionChildA, regionChildB) = self._forkedRegions(
+			forkStrand, forkPosition, forkDirection, extentForward,
+			extentReverse) 
+
+		assert (regionParent == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
+		assert (regionChildA == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
+		assert (regionChildB == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
+
+		self.moleculeLocationIsUnbound(molecule)
+
+		molecule.attrIs('_sequenceBound', True)
+		molecule.attrIs('_sequenceStrand', forkStrand)
+		molecule.attrIs('_sequencePosition', forkPosition)
+		molecule.attrIs('_sequenceDirection', forkDirection)
+		molecule.attrIs('_sequenceExtentForward', extentForward)
+		molecule.attrIs('_sequenceExtentReverse', extentReverse)
+		molecule.attrIs('_sequenceBoundToFork', True)
+
+		index = molecule.attr('_globalIndex') + self._offset
+
+		regionParent[:] = index
+		regionChildA[:] = index
+		regionChildB[:] = index
+
+
+	def _region(self, strandIndex, position, directionBool, extentForward, extentReverse):
 		extentPositive, extentNegative = self._extentRelativeToAbsolute(
 			extentForward, extentReverse, directionBool)
 
-		region = self._array[strandIndex, (position - extentNegative):(position + extentPositive)]
+		return self._array[
+			strandIndex,
+			np.arange(position-extentNegative, position+extentPositive) % self._length
+			]		
 
-		assert (region == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
 
-		region[:] = molecule.attr('_globalIndex') + self._offset
+	def _forkedRegions(self, forkStrand, forkPosition, forkDirection, extentForward, extentReverse):
+		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
 
+		extentPositive, extentNegative = self._extentRelativeToAbsolute(
+			extentForward, extentReverse, forkDirection)
+
+		if forkDirection: # True = (-)
+			regionParent = self._array[forkStrand, forkPosition-extentNegative+1:forkPosition]
+			regionChildA = self._array[childStrandA, forkPosition:forkPosition+extentPositive]
+			regionChildB = self._array[childStrandB, forkPosition:forkPosition+extentPositive]
+
+		else:
+			regionParent = self._array[forkStrand, forkPosition+1:forkPosition+extentPositive]
+			regionChildA = self._array[childStrandA, forkPosition-extentNegative+1:forkPosition+1]
+			regionChildB = self._array[childStrandB, forkPosition-extentNegative+1:forkPosition+1]
+
+		return (regionParent, regionChildA, regionChildB)
+
+
+	# TODO: assertions about correct footprints after operations
 
 	def moleculeLocation(self, molecule):
 		if not molecule.attr('_sequenceBound'):
@@ -157,6 +223,25 @@ class SequenceBoundMolecules(object):
 		if not molecule.attr('_sequenceBound'):
 			return
 
+
+		elif molecule.attr('_sequenceBoundToFork'):
+			strandIndex = molecule.attr('_sequenceStrand')
+			position = molecule.attr('_sequencePosition')
+			directionBool = molecule.attr('_sequenceDirection')
+			extentForward = molecule.attr('_sequenceExtentForward')
+			extentReverse = molecule.attr('_sequenceExtentReverse')
+
+			(regionParent, regionChildA, regionChildB) = self._forkedRegions(
+				strandIndex, position, directionBool, extentForward, extentReverse)
+
+			regionParent[:] = self._empty
+			regionChildA[:] = self._empty
+			regionChildB[:] = self._empty
+
+			molecule.attrIs('_sequenceBound', False)
+			molecule.attrIs('_sequenceBoundToFork', False)
+
+
 		else:
 			strandIndex = molecule.attr('_sequenceStrand')
 			position = molecule.attr('_sequencePosition')
@@ -167,10 +252,11 @@ class SequenceBoundMolecules(object):
 			extentPositive, extentNegative = self._extentRelativeToAbsolute(
 				extentForward, extentReverse, directionBool)
 
-			self._array[
-				strandIndex,
-				(position - extentNegative):(position + extentPositive)
-				] = self._empty
+			region = self._region(strandIndex, position, directionBool, extentPositive, extentNegative)
+
+			region[:] = self._empty
+
+			molecule.attrIs('_sequenceBound', False)
 
 
 	def _extentRelativeToAbsolute(self, extentForward, extentReverse, directionBool):
@@ -206,10 +292,9 @@ class SequenceBoundMolecules(object):
 				extentPositive, extentNegative = self._extentRelativeToAbsolute(
 					extentForward, extentReverse, directionBool)
 
-				indexes = np.setdiff1d(
-					self._array[strandIndex, (position - extentNegative):(position + extentPositive)],
-					self._specialValues
-					) - self._offset
+				region = self._region(strandIndex, position, directionBool, extentPositive, extentNegative)
+
+				indexes = np.setdiff1d(region) - self._offset
 
 			else:
 				indexes = np.setdiff1d(
@@ -234,7 +319,7 @@ class SequenceBoundMolecules(object):
 		raise NotImplementedError()
 
 
-	def divideRegion(self, strandName, start, stop):
+	def divideRegion(self, strandName, start, stop): # TODO: handle stop < start
 		# NOTE: start to stop is inclusive, unlike "range"!
 		strandParent = self._strandNameToIndex[strandName]
 		try:
@@ -286,12 +371,12 @@ class SequenceBoundMolecules(object):
 		strandChildA, strandChildB = self._strandChildrenIndexes[forkStrand]
 
 		if forkDirection == 0:
-			region = np.s_[forkPosition+1:forkPosition+extent+1]
-			newPosition = forkPosition+extent
+			region = np.arange(forkPosition+1, forkPosition+extent+1) % self._length
+			newPosition = (forkPosition+extent) % self._length
 
 		else:
-			region = np.s_[forkPosition-extent:forkPosition]
-			newPosition = forkPosition-extent
+			region = np.arange(forkPosition-extent, forkPosition) % self._length
+			newPosition = (forkPosition-extent) % self._length
 
 		assert (self._array[forkStrand, region] == self._empty).all(), 'Attempted to extend a fork into a non-empty region'
 
@@ -309,10 +394,6 @@ class SequenceBoundMolecules(object):
 
 	def forksCombine(self, fork1, fork2):
 		# Combine two forks on the same strand, splitting the chromosome
-		raise NotImplementedError()
-
-
-	def moleculeLocationIsFork(self, molecule, fork):
 		raise NotImplementedError()
 
 
@@ -376,27 +457,48 @@ class Chromosome(wholecell.states.state.State):
 		forkStartPos = 20000
 		forkStopPos = 30000 - 1
 
-		print (self.container._array[0, :] == self.container._empty).sum()
-
 		(forkStart, forkStop) = self.container.divideRegion('R', forkStartPos, forkStopPos)
 
-		print (self.container._array[0, :] == self.container._empty).sum(), forkStopPos - forkStartPos + 1
-		print (self.container._array[1, :] == self.container._empty).sum()
-		print (self.container._array[2, :] == self.container._empty).sum()
+		polyStart = self.container.moleculeNew('DNA polymerase')
+		polyStop = self.container.moleculeNew('DNA polymerase')
 
-		self.container.forkExtend(forkStart, 20)
+		forwardExtent = 50
+		reverseExtent = 50
 
-		print (self.container._array[0, :] == self.container._empty).sum()
-		print (self.container._array[1, :] == self.container._empty).sum()
-		print (self.container._array[2, :] == self.container._empty).sum()
+		nSteps = 3600
 
-		self.container.forkExtend(forkStop, 40)
+		ntRoot = np.zeros(nSteps, np.int64)
+		ntChildA = np.zeros(nSteps, np.int64)
+		ntChildB = np.zeros(nSteps, np.int64)
 
-		print (self.container._array[0, :] == self.container._empty).sum()
-		print (self.container._array[1, :] == self.container._empty).sum()
-		print (self.container._array[2, :] == self.container._empty).sum()
-		
-		# molecule = self.container.moleculeNew('DNA polymerase')
+		try:
+			for i in xrange(nSteps):
+				self.container.moleculeLocationIsUnbound(polyStart)
+				self.container.moleculeLocationIsUnbound(polyStop)
+
+				self.container.forkExtend(forkStart, 100)
+				self.container.forkExtend(forkStop, 100)
+
+				self.container.moleculeLocationIsFork(polyStart, forkStart, forwardExtent, reverseExtent)
+				self.container.moleculeLocationIsFork(polyStop, forkStop, forwardExtent, reverseExtent)
+
+				ntRoot[i] = (self.container._array[0, :] != self.container._inactive).sum()
+				ntChildA[i] = (self.container._array[1, :] != self.container._inactive).sum()
+				ntChildB[i] = (self.container._array[2, :] != self.container._inactive).sum()
+
+
+		except Exception as e:
+			print e
+
+		import matplotlib.pyplot as plt
+
+		plt.plot(ntRoot[:i])
+		plt.plot(ntChildA[:i])
+		plt.plot(ntChildB[:i])
+
+		plt.show()
+
+		import ipdb; ipdb.set_trace()
 
 		# assert self.container.moleculeLocation(molecule) is None
 
@@ -481,5 +583,5 @@ class Chromosome(wholecell.states.state.State):
 		# 	extentReverse = 0,
 		# 	) == set()
 
-		import ipdb; ipdb.set_trace()
+		# import ipdb; ipdb.set_trace()
 
