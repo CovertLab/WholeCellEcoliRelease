@@ -79,11 +79,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def updateQueries(self):
-		# Update queries prior to gathering requests
 		self._container.updateQueries()
 
-		for view in self._views:
-			view._updateQuery()
+		super(UniqueMolecules, self).updateQueries()
 
 
 	def partition(self):

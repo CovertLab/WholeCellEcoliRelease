@@ -30,6 +30,10 @@ class View(object):
 
 	# Interface to State
 
+	def _updateQuery(self):
+		pass
+
+
 	def _totalIs(self, value):
 		self._totalCount[:] = value
 
@@ -182,14 +186,15 @@ class UniqueMoleculesView(View):
 			)
 
 
-class ChromosomeView(View):
+class ChromosomeMoleculeView(View):
 	_stateID = 'Chromosome'
-	# TODO: replace this view with more useful, permanent views
 
 	def __init__(self, *args, **kwargs):
-		super(ChromosomeView, self).__init__(*args, **kwargs)
+		super(ChromosomeMoleculeView, self).__init__(*args, **kwargs)
 
-		# self._queryObject = 
+
+	# def _updateQuery(self):
+	# 	self._state._container.
 
 	
 	def moleculeNew(self, moleculeName, location, **attributes):

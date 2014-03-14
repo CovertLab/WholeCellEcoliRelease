@@ -392,6 +392,10 @@ class _UniqueObject(object):
 		self._objectIndex = index
 
 
+	def name(self):
+		return self._container._objectNames[self._arrayIndex]
+
+
 	def attr(self, attribute):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		

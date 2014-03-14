@@ -38,9 +38,8 @@ class ToyReplication(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyReplication, self).initialize(sim, kb)
 
-		self.chromosome = self.chromosomeView() # a view which can operate on the partitioned state but does not run requests/queries
-
-		self.replicationForks = self.replicationForkView( # a view which can request/query forks and return locations of forks on the partitioned state
+		self.replicationForks = self.chromosomeMoleculeView(
+			moleculeName = 'DNA polymerase',
 			extentForward = max(self.elongationRate, self.dnaPolyForwardFootprint),
 			extentReverse = self.dnaPolyReverseFootprint
 			)

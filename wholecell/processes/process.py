@@ -63,10 +63,10 @@ class Process(object):
 			self, (moleculeName, attributes))
 
 
-	def chromosomeView(self):
+	def chromosomeMoleculeView(self, moleculeName, extentForward, extentReverse):
 		# TODO: replace this view with more useful, permanent views
-		return wholecell.views.view.ChromosomeView(self._chromosome,
-			self, None)
+		return wholecell.views.view.ChromosomeMoleculeView(self._chromosome,
+			self, (moleculeName, extentForward, extentReverse))
 
 
 	# Calculate requests for a single time step
