@@ -59,8 +59,8 @@ class KnowledgeBaseEcoli(object):
 
 	def loadProducts(self):
 
-		self.allProducts = {}
-		self.allProductType = {} #ADDED for thisType in loadRelationStoichiometry 
+		self._allProducts = {}
+		self._allProductType = {} #ADDED for thisType in loadRelationStoichiometry 
 	
 		#molecule
 		all_molecules = Molecule.objects.all()
@@ -68,12 +68,12 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Database Access Error: Cannot access public_molecule table"
 
 		for i in all_molecules:
-			self.allProducts[i.id] = i.product 
-			self.allProductType[i.product] = '' #updated in RNA, monomer, complex, Metabolite, modifiedForm
+			self._allProducts[i.id] = i.product 
+			self._allProductType[i.product] = '' #updated in RNA, monomer, complex, Metabolite, modifiedForm
 
 	def loadComments(self):
 
-		self.allComments = {}
+		self._allComments = {}
 		
 		#molecule
 		all_comments = Comment.objects.all()
@@ -81,14 +81,14 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Database Access Error: Cannot access public_comment table"
 
 		for i in all_comments:
-			self.allComments[i.id] = i.comment_str
+			self._allComments[i.id] = i.comment_str
 
 		
 	def loadCompartments(self):
 
 		self.compartments = []
 		self.compIdToAbbrev = {}
-		self.dbLocationId = {} # ADDED: for accessing info from other table 
+		self._dbLocationId = {} # ADDED: for accessing info from other table 
 
 		#location 
 		all_locations = Location.objects.all()
@@ -101,7 +101,7 @@ class KnowledgeBaseEcoli(object):
 			self.compartments.append(c)
 			self.compIdToAbbrev[c["id"]] = c["abbrev"]
 
-			self.dbLocationId[i.id] = c["abbrev"]			
+			self._dbLocationId[i.id] = c["abbrev"]			
 
 
 	def loadMetabolites(self):
@@ -117,7 +117,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_biomass:
 			temp = {
 					"mmol/gDCW":float(i.biomass_concentration),
-					"location": self.dbLocationId[i.biomass_location_fk_id]
+					"location": self._dbLocationId[i.biomass_location_fk_id]
 			}
 			if i.metabolite_id_fk_id not in biomass:
 				biomass[i.metabolite_id_fk_id] = {'core' : [], 'wildtype' : []}
@@ -135,8 +135,8 @@ class KnowledgeBaseEcoli(object):
 
 		for i in all_equ_enz:
 			temp = {
-					'id' : self.allProducts[i.equivalent_enzyme_id_fk_id], 
-					'location' : self.dbLocationId[i.location_fk_id]
+					'id' : self._allProducts[i.equivalent_enzyme_id_fk_id], 
+					'location' : self._dbLocationId[i.location_fk_id]
 			}
 			if i.metabolite_id_fk_id not in equ_enz:
 				equ_enz[i.metabolite_id_fk_id] = []
@@ -152,7 +152,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_metabolites:
 			
 			m = {
-					"id": self.allProducts[i.metabolite_id_id].upper(),
+					"id": self._allProducts[i.metabolite_id_id].upper(),
 					"name": i.name,
 					"feistFormula": i.feist_formula,
 					"formula7.2": i.ph_formula,
@@ -163,7 +163,7 @@ class KnowledgeBaseEcoli(object):
 					"maxExchange": float(i.maximum_exchange_rate),
 					"fakeMet": i.fake_metabolite,
 					"equivEnzIds": [],
-					"comments": self.allComments[i.comment_fk_id]
+					"comments": self._allComments[i.comment_fk_id]
 				}
 			
 			if i.has_biomass:
@@ -173,7 +173,7 @@ class KnowledgeBaseEcoli(object):
 				m["equivEnzIds"] = equ_enz[i.id]		
 			
 			self.metabolites.append(m)
-			self.allProductType[self.allProducts[i.metabolite_id_id]] = 'metabolite' #added
+			self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #added
 
 	def loadGenome(self):
 		self.translationTable = 11 # E. coli is 11
@@ -255,7 +255,7 @@ class KnowledgeBaseEcoli(object):
 			if g["type"] == "mRNA":
 				g["rnaId"] = g["id"] + "_RNA"
 			else:
-				g["rnaId"] = self.allProducts[i.productname_id]
+				g["rnaId"] = self._allProducts[i.productname_id]
 
 			self.genes.append(g)
 
@@ -277,7 +277,7 @@ class KnowledgeBaseEcoli(object):
 			}
 			if g["type"] == "mRNA":
 				r["name"] = g["name"] + " [RNA]" # else: need to check name in the RNAs file
-				r["monomerId"] = self.allProducts[i.productname_id]
+				r["monomerId"] = self._allProducts[i.productname_id]
 				r["location"] = self.compIdToAbbrev["CCO-CYTOSOL"]
 
 				# TODO from DEREK: Uncomment when Nick has fixed json formatting
@@ -291,7 +291,7 @@ class KnowledgeBaseEcoli(object):
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			
 			self.rnas.append(r)
-			self.allProductType[r["id"]] = 'rna' #added
+			self._allProductType[r["id"]] = 'rna' #added
 
 			if g["type"] == "mRNA":
 				p = {
@@ -353,7 +353,7 @@ class KnowledgeBaseEcoli(object):
 				for aa in p["seq"]: p["mw"] += aaWeights[aa]
 
 				self.proteins.append(p)
-				self.allProductType[p["id"]] = 'protein' #added		
+				self._allProductType[p["id"]] = 'protein' #added		
 
 	def loadRnas(self):
 
@@ -365,7 +365,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_rnamodified:
 			if i.unmodified_rna_fk_id not in rnamodified:
 				rnamodified[i.unmodified_rna_fk_id] = []
-			rnamodified[i.unmodified_rna_fk_id].append(str(self.allProducts[i.rna_mod_id]))	
+			rnamodified[i.unmodified_rna_fk_id].append(str(self._allProducts[i.rna_mod_id]))	
 
 		#rna
 		all_rna = Rna.objects.all()
@@ -378,12 +378,12 @@ class KnowledgeBaseEcoli(object):
 		for i in all_rna:			
 			# RNA
 			r = {
-				"id": self.allProducts[i.frame_id_id],
+				"id": self._allProducts[i.frame_id_id],
 				"name": i.name,
 				"geneId": self.geneDbIds[i.gene_fk_id],
-				"location": self.dbLocationId[i.location_fk_id],
+				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
-				"comments": self.allComments[i.comment_fk_id]
+				"comments": self._allComments[i.comment_fk_id]
 				}
 		
 			if int(i.is_modified):	
@@ -405,7 +405,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_monomermod:
 			if i.unmodified_protein_monomer_fk_id not in monomermod:
 				monomermod[i.unmodified_protein_monomer_fk_id] = []
-			monomermod[i.unmodified_protein_monomer_fk_id].append(str(self.allProducts[i.protein_monomer_mod_id]))
+			monomermod[i.unmodified_protein_monomer_fk_id].append(str(self._allProducts[i.protein_monomer_mod_id]))
 
 		#ProteinMonomers
 		all_monomers = ProteinMonomers.objects.all()
@@ -419,12 +419,12 @@ class KnowledgeBaseEcoli(object):
 
 			# Monomer
 			p = {
-				"id": self.allProducts[i.frame_id_id],
+				"id": self._allProducts[i.frame_id_id],
 				"name": i.name,
 				"geneId": self.geneDbIds[i.gene_fk_id],
-				"location": self.dbLocationId[i.location_fk_id],
+				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
-				"comments": self.allComments[i.comment_fk_id]
+				"comments": self._allComments[i.comment_fk_id]
 			}
 			if int(i.is_modified):	#TODO: Check after update monomer_modified by Nick
 				if i.id in monomermod: 
@@ -453,7 +453,7 @@ class KnowledgeBaseEcoli(object):
 					rNew["mw"] = -1.0 	# TODO: Need to get this
 					rNew["expression"] = 0.
 					rnasToAppend.append(rNew)
-					self.allProductType[rNew["id"]] = 'rna' #added		
+					self._allProductType[rNew["id"]] = 'rna' #added		
 		self.rnas.extend(rnasToAppend)
 
 		protIds = [x["id"] for x in self.proteins]
@@ -467,7 +467,7 @@ class KnowledgeBaseEcoli(object):
 					pNew["unmodifiedForm"] = p["id"]
 					pNew["composition"] = []
 					pNew["mw"] = -1.0 	# TODO: Need to get this
-					self.allProductType[pNew["id"]] = 'protein' #added		
+					self._allProductType[pNew["id"]] = 'protein' #added		
 					proteinsToAppend.append(pNew)
 
 		self.proteins.extend(proteinsToAppend)
@@ -482,8 +482,8 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Database Access Error: Cannot access public_RelationStoichiometry table"
 
 		for i in all_RelationStoichiometry:
-			thisType = self.allProductType[self.allProducts[i.reactant_fk_id]]
-			self.allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self.dbLocationId[i.location_fk_id], "molecule": self.allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
+			thisType = self._allProductType[self._allProducts[i.reactant_fk_id]]
+			self.allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
 
 
 	def loadComplexes(self):
@@ -506,7 +506,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_complexMod:
 			if i.unmodified_protein_complex_fk_id not in complexMod:
 				complexMod[i.unmodified_protein_complex_fk_id] = []
-			complexMod[i.unmodified_protein_complex_fk_id].append(str(self.allProducts[i.protein_complex_mod_id]))	
+			complexMod[i.unmodified_protein_complex_fk_id].append(str(self._allProducts[i.protein_complex_mod_id]))	
 
 		#proteinComplexes
 		all_complex = ProteinComplex.objects.all()
@@ -516,11 +516,11 @@ class KnowledgeBaseEcoli(object):
 		protNew = []		
 		for i in all_complex:
 			p = {
-				"id": self.allProducts[i.protein_complex_id],
+				"id": self._allProducts[i.protein_complex_id],
 				"name": i.name,
 				"modifiedForms": [],
 				"unmodifiedForm": None,
-				"location": self.dbLocationId[i.location_fk_id],
+				"location": self._dbLocationId[i.location_fk_id],
 				"composition": [],
 				"dir": int(i.reaction_direction),
 				"formationProcess": "Complexation",
@@ -530,7 +530,7 @@ class KnowledgeBaseEcoli(object):
 				"mw": -1,
 				"geneId": "",
 				"rnaId": "",
-				"comments": self.allComments[i.comment_fk_id]
+				"comments": self._allComments[i.comment_fk_id]
 			}
 			if i.modified_form:	
 				p["modifiedForms"] = complexMod[i.id]
@@ -597,7 +597,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_enz:
 			if i.metabolite_reaction_fk_id not in enz:
 				enz[i.metabolite_reaction_fk_id] = []
-			enz[i.metabolite_reaction_fk_id].append(str(self.allProducts[i.enzyme_fk_id])) 
+			enz[i.metabolite_reaction_fk_id].append(str(self._allProducts[i.enzyme_fk_id])) 
 		
 		##
 		all_metaboliteReaction = MetaboliteReaction.objects.all()
