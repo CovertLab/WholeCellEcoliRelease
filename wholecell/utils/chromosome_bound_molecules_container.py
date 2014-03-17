@@ -239,10 +239,7 @@ class ChromosomeBoundMoleculeContainer(object):
 			extentForward = molecule.attr('_sequenceExtentForward')
 			extentReverse = molecule.attr('_sequenceExtentReverse')
 
-			extentPositive, extentNegative = self._extentRelativeToAbsolute(
-				extentForward, extentReverse, directionBool)
-
-			region = self._region(position, directionBool, extentPositive, extentNegative)
+			region = self._region(position, directionBool, extentForward, extentReverse)
 
 			self._array[strandIndex, region] = self._empty
 
@@ -279,12 +276,12 @@ class ChromosomeBoundMoleculeContainer(object):
 			if specifiesExtent:
 				directionBool = self._directionCharToBool[direction]
 
-				extentPositive, extentNegative = self._extentRelativeToAbsolute(
-					extentForward, extentReverse, directionBool)
+				region = self._region(position, directionBool, extentForward, extentReverse)
 
-				region = self._region(position, directionBool, extentPositive, extentNegative)
-
-				indexes = np.setdiff1d(self._array[strandIndex, region]) - self._offset
+				indexes = np.setdiff1d(
+					self._array[strandIndex, region],
+					self._specialValues
+					) - self._offset
 
 			else:
 				indexes = np.setdiff1d(
@@ -318,13 +315,21 @@ class ChromosomeBoundMoleculeContainer(object):
 		except TypeError:
 			raise ChrosomeContainerException('No space allocated for strand {} to divide into'.format(strandName))
 
+		# raise exception if start/stop outside length
+		# raise exception if start == stop
 
-		assert (self._array[strandParent, start:stop+1] == self._empty).all(), 'Attempted to divide a non-empty or non-existent region'
+		if stop < start:
+			region = np.r_[np.arange(start, self._length), np.arange(stop+1)]
 
-		self._array[strandParent, start:stop+1] = self._inactive
+		else:
+			region = np.arange(start, stop+1)
 
-		self._array[strandChildA, start:stop+1] = self._empty
-		self._array[strandChildB, start:stop+1] = self._empty
+		assert (self._array[strandParent, region] == self._empty).all(), 'Attempted to divide a non-empty or non-existent region'
+
+		self._array[strandParent, region] = self._inactive
+
+		self._array[strandChildA, region] = self._empty
+		self._array[strandChildB, region] = self._empty
 
 		forkStart = self._objectsContainer.objectNew(
 			'_fork',
@@ -399,6 +404,10 @@ class ChromosomeBoundMoleculeContainer(object):
 	#def parentStrand
 
 
+	def __eq__(self, other):
+		return (self._array == other._array).all()
+
+
 	# def findLocationToBind(self, width):
 	# 	return self.findLocationsToBind(width, 1)[0]
 
@@ -408,18 +417,9 @@ class ChromosomeBoundMoleculeContainer(object):
 
 	# 	# locations = 
 	# 	pass
-
-
-	# TODO: use this method
-	# def _range(self, start, stop):
-	# 	# Converts a start:stop slice into a range that handles the circularity
-	# 	# of the chromosome
-
-	# 	return np.arange(start, stop) % self._length
 	
 
-	# TODO: circularly-permuted indexing
 	# TODO: saving
 	# TODO: update container time, flush deleted molecules, update queries?
-	# TODO: handle/pass sequence, multiplicity
+	# TODO: handle/pass sequence
 	# TODO: write tests
