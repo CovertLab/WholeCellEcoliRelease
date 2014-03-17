@@ -192,8 +192,6 @@ class ChromosomeBoundMoleculeContainer(object):
 		return (regionParent, regionChildA, regionChildB)
 
 
-	# TODO: assertions about correct footprints after operations
-
 	def moleculeLocation(self, molecule):
 		if not molecule.attr('_sequenceBound'):
 			return None
@@ -300,7 +298,7 @@ class ChromosomeBoundMoleculeContainer(object):
 		raise NotImplementedError()
 
 
-	def divideRegion(self, strandName, start, stop): # TODO: handle stop < start
+	def divideRegion(self, strandName, start, stop):
 		# NOTE: start to stop is inclusive, unlike "range"!
 		strandParent = self._strandNameToIndex[strandName]
 		try:
@@ -318,7 +316,8 @@ class ChromosomeBoundMoleculeContainer(object):
 		else:
 			region = np.arange(start, stop+1)
 
-		assert (self._array[strandParent, region] == self._empty).all(), 'Attempted to divide a non-empty or non-existent region'
+		if not (self._array[strandParent, region] == self._empty).all():
+			raise ChrosomeContainerException('Attempted to divide a non-empty or non-existent region')
 
 		self._array[strandParent, region] = self._inactive
 
@@ -367,7 +366,8 @@ class ChromosomeBoundMoleculeContainer(object):
 			region = np.arange(forkPosition-extent, forkPosition) % self._length
 			newPosition = (forkPosition-extent) % self._length
 
-		assert (self._array[forkStrand, region] == self._empty).all(), 'Attempted to extend a fork into a non-empty region'
+		if not (self._array[forkStrand, region] == self._empty).all():
+			raise ChrosomeContainerException('Attempted to extend a fork into a non-empty region')
 
 		self._array[forkStrand, region] = self._inactive
 

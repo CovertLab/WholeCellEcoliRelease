@@ -690,8 +690,6 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 		self.assertEqual(self.container, newContainer)
 
 
-
-
 def createContainer():
 	container = ChromosomeBoundMoleculeContainer(N_BASES, STRAND_MULTIPLICITY,
 		MOLECULE_ATTRIBUTES)
