@@ -388,6 +388,14 @@ class ChromosomeBoundMoleculeContainer(object):
 		raise NotImplementedError()
 
 
+	def rootStrand(self):
+		return self._rootChar
+
+
+	#def childStrands
+	#def parentStrand
+
+
 	# def findLocationToBind(self, width):
 	# 	return self.findLocationsToBind(width, 1)[0]
 
