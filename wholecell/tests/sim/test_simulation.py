@@ -21,6 +21,9 @@ import wholecell.sim.simulation
 import wholecell.loggers.disk
 import wholecell.loggers.shell
 
+import wholecell.utils.config
+TEST_FIXTURE_DIR = wholecell.utils.config.TEST_FIXTURE_DIR
+
 # TODO: add "short sim" fixture
 
 class Test_Simulation(unittest.TestCase):
@@ -33,9 +36,9 @@ class Test_Simulation(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sim = cPickle.load(open(os.path.join("fixtures", "Simulation.cPickle"), "r"))
-		self.kb = cPickle.load(open(os.path.join("fixtures","KnowledgeBase.cPickle"), "r"))
-
+		self.sim = cPickle.load(open(os.path.join(TEST_FIXTURE_DIR, "Simulation.cPickle"), "r"))
+		import wholecell.utils.knowledgebase_fixture_manager
+		self.kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(os.path.join(TEST_FIXTURE_DIR, 'KnowledgeBase.cPickle'))
 	def tearDown(self):
 		pass
 

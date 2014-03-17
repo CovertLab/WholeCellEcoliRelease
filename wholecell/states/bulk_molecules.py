@@ -287,6 +287,7 @@ class BulkMolecules(wholecell.states.state.State):
 		d = {
 			"time": tables.Int64Col(),
 			"counts":tables.UInt64Col(countsShape),
+			"countsRequested":tables.UInt64Col(partitionsShape),
 			"countsAllocatedInitial":tables.UInt64Col(partitionsShape),
 			"countsAllocatedFinal":tables.UInt64Col(partitionsShape),
 			"countsUnallocated":tables.UInt64Col(countsShape),
@@ -337,7 +338,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-		self._container.countsIs(entry['countsBulk'])
+		self._container.countsIs(entry['counts'])
 		
 		if self._nProcesses:
 			self._countsRequested[:] = entry['countsRequested']

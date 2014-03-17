@@ -78,12 +78,12 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		with self.assertRaises(Exception) as context:
 			molecule.attr('boundToChromosome')
 
-		self.assertEqual(context.exception.message, 'Attempted to access an inactive molecule.')
+		self.assertEqual(str(context.exception), 'Attempted to access an inactive molecule.')
 
 		with self.assertRaises(Exception) as context:
 			molecule.attrIs('boundToChromosome', False)
 
-		self.assertEqual(context.exception.message, 'Attempted to access an inactive molecule.')
+		self.assertEqual(str(context.exception), 'Attempted to access an inactive molecule.')
 
 	# Querying
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
