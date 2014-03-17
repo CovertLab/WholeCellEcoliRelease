@@ -533,6 +533,127 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 		self.assertEqual(newStart, 991)
 
 
+	# Molecules on forks
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_bind_molecule_to_fork(self):
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		startPosition = 100
+		stopPosition = 110
+
+		[forkStart, forkStop] = self.container.divideRegion(
+			self.container.rootStrand(),
+			startPosition, stopPosition
+			)
+
+		forwardExtent = 5
+		reverseExtent = 1
+
+		footprintParent = 4 # molecule origin is occupied by fork on parent
+		regionParent = [111, 112, 113, 114]
+
+		footprintChild = 2
+		regionChild = [109, 110]
+
+		self.container.moleculeLocationIsFork(mol, forkStop,
+			forwardExtent, reverseExtent)
+
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		# TODO: make the above into a private method of the container class
+
+		# Check footprint
+		self.assertEqual(
+			(self.container._array[0, :] == chromosomeIndex).sum(),
+			footprintParent
+			)
+
+		self.assertEqual(
+			(self.container._array[1, :] == chromosomeIndex).sum(),
+			footprintChild
+			)
+
+		self.assertEqual(
+			(self.container._array[2, :] == chromosomeIndex).sum(),
+			footprintChild
+			)
+
+		# Check location
+		self.assertEqual(
+			np.where(self.container._array[0, :] == chromosomeIndex)[0].tolist(),
+			regionParent
+			)
+
+		self.assertEqual(
+			np.where(self.container._array[1, :] == chromosomeIndex)[0].tolist(),
+			regionChild
+			)
+
+		self.assertEqual(
+			np.where(self.container._array[2, :] == chromosomeIndex)[0].tolist(),
+			regionChild
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_bind_molecule_to_fork_reverse(self):
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		startPosition = 100
+		stopPosition = 110
+
+		[forkStart, forkStop] = self.container.divideRegion(
+			self.container.rootStrand(),
+			startPosition, stopPosition
+			)
+
+		forwardExtent = 5
+		reverseExtent = 1
+
+		footprintParent = 4 # molecule origin is occupied by fork on parent
+		regionParent = [96, 97, 98, 99]
+
+		footprintChild = 2
+		regionChild = [100, 101]
+
+		self.container.moleculeLocationIsFork(mol, forkStart,
+			forwardExtent, reverseExtent)
+
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		# TODO: make the above into a private method of the container class
+
+		# Check footprint
+		self.assertEqual(
+			(self.container._array[0, :] == chromosomeIndex).sum(),
+			footprintParent
+			)
+
+		self.assertEqual(
+			(self.container._array[1, :] == chromosomeIndex).sum(),
+			footprintChild
+			)
+
+		self.assertEqual(
+			(self.container._array[2, :] == chromosomeIndex).sum(),
+			footprintChild
+			)
+
+		# Check location
+		self.assertEqual(
+			np.where(self.container._array[0, :] == chromosomeIndex)[0].tolist(),
+			regionParent
+			)
+
+		self.assertEqual(
+			np.where(self.container._array[1, :] == chromosomeIndex)[0].tolist(),
+			regionChild
+			)
+
+		self.assertEqual(
+			np.where(self.container._array[2, :] == chromosomeIndex)[0].tolist(),
+			regionChild
+			)
+
+
 
 
 
