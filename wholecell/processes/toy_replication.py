@@ -55,7 +55,7 @@ class ToyReplication(wholecell.processes.process.Process):
 
 		for forkStrand, forkPosition, forkDirection in self.replicationForks.forks():
 			# Get DNA polymerases near the fork
-			dnaPolymerase = self.chromosome.moleculeOnFork( # returns the identity of the molecule on the fork, if any
+			dnaPolymerase = self.replicationForks.moleculeOnFork( # returns the identity of the molecule on the fork, if any
 				name = 'DNA polymerase',
 				forkStrand = forkStrand,
 				forkPosition = forkPosition
@@ -67,7 +67,7 @@ class ToyReplication(wholecell.processes.process.Process):
 				break
 
 			# Determine how far we can extend
-			extent = self.chromosome.maximumExtent( # how far we can move without hitting 1) the end of the partitioned space or 2) a fork, up to "extent"
+			extent = self.replicationForks.maximumExtent( # how far we can move without hitting 1) the end of the partitioned space or 2) a fork, up to "extent"
 				strand = forkStrand,
 				position = forkPosition,
 				direction = forkDirection,
@@ -76,7 +76,7 @@ class ToyReplication(wholecell.processes.process.Process):
 
 			# TODO: check/use resources
 
-			nonPolymeraseMolecules = self.chromosome.molecules( # returns molecules that satisfy the arguments
+			nonPolymeraseMolecules = self.replicationForks.molecules( # returns molecules that satisfy the arguments
 				strand = forkStrand,
 				position = forkPosition,
 				direction = forkDirection,
@@ -89,10 +89,10 @@ class ToyReplication(wholecell.processes.process.Process):
 				print 'Encountered molecules within fork extension range'
 				break
 
-			newForkPosition = self.chromosome.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
+			newForkPosition = self.replicationForks.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
 				forkPosition, extent)
 
-			self.chromosome.moleculeMoveToFork( # special moleculeMove routine that places a molecule directly onto a fork
+			self.replicationForks.moleculeMoveToFork( # special moleculeMove routine that places a molecule directly onto a fork
 				dnaPolymerase,
 				forkStrand = forkStrand,
 				forkPosition = newForkPosition,
