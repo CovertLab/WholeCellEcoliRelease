@@ -18,7 +18,7 @@ MOLECULE_ATTRIBUTES = {
 		},
 	}
 
-class SequenceBoundMolecules(object):
+class ChromosomeBoundMoleculeContainer(object):
 	# Special values for the state of the chromosome
 	_inactive = 0 # a location that is inactive (no binding permitted)
 	_empty = 1 # an active but empty location
@@ -448,7 +448,7 @@ class Chromosome(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(Chromosome, self).initialize(sim, kb)
 
-		self.container = SequenceBoundMolecules()
+		self.container = ChromosomeBoundMoleculeContainer()
 
 
 	def calcInitialConditions(self):
