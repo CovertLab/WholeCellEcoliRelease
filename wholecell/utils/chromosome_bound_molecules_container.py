@@ -140,8 +140,7 @@ class ChromosomeBoundMoleculeContainer(object):
 		forkDirection = fork.attr('_sequenceDirection')
 
 		(regionParent, regionChildA, regionChildB) = self._forkedRegions(
-			forkStrand, forkPosition, forkDirection, extentForward,
-			extentReverse)
+			forkPosition, forkDirection, extentForward,	extentReverse)
 
 		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
 
@@ -179,9 +178,7 @@ class ChromosomeBoundMoleculeContainer(object):
 			return np.arange(position-extentReverse, position+extentForward) % self._length
 
 
-	def _forkedRegions(self, forkStrand, forkPosition, forkDirection, extentForward, extentReverse):
-		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
-
+	def _forkedRegions(self, forkPosition, forkDirection, extentForward, extentReverse):
 		if forkDirection: # == (-)
 			regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
 			regionChildA = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
@@ -224,12 +221,14 @@ class ChromosomeBoundMoleculeContainer(object):
 			extentForward = molecule.attr('_sequenceExtentForward')
 			extentReverse = molecule.attr('_sequenceExtentReverse')
 
-			(regionParent, regionChildA, regionChildB) = self._forkedRegions(
-				strandIndex, position, directionBool, extentForward, extentReverse)
+			(childStrandA, childStrandB) = self._strandChildrenIndexes[strandIndex]
 
-			regionParent[:] = self._empty
-			regionChildA[:] = self._empty
-			regionChildB[:] = self._empty
+			(regionParent, regionChildA, regionChildB) = self._forkedRegions(
+				position, directionBool, extentForward, extentReverse)
+
+			self._array[strandIndex, regionParent] = self._empty
+			self._array[childStrandA, regionChildA] = self._empty
+			self._array[childStrandB, regionChildB] = self._empty
 
 			molecule.attrIs('_sequenceBound', False)
 			molecule.attrIs('_sequenceBoundToFork', False)

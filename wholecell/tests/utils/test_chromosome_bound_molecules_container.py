@@ -654,7 +654,40 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			)
 
 
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_unbind_molecule_on_fork(self):
+		startPosition = 100
+		stopPosition = 110
 
+		[forkStart, forkStop] = self.container.divideRegion(
+			self.container.rootStrand(),
+			startPosition, stopPosition
+			)
+
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		forwardExtent = 5
+		reverseExtent = 1
+
+		footprintParent = 4 # molecule origin is occupied by fork on parent
+		regionParent = [111, 112, 113, 114]
+
+		footprintChild = 2
+		regionChild = [109, 110]
+
+		self.container.moleculeLocationIsFork(mol, forkStop,
+			forwardExtent, reverseExtent)
+
+		self.container.moleculeLocationIsUnbound(mol)
+
+		newContainer = createContainer()
+
+		newContainer.divideRegion(
+			newContainer.rootStrand(),
+			startPosition, stopPosition
+			)
+
+		self.assertEqual(self.container, newContainer)
 
 
 
