@@ -5,6 +5,11 @@ import numpy as np
 
 import wholecell.utils.unique_objects_container
 
+
+class ChrosomeContainerException(Exception):
+	pass
+
+
 class ChromosomeBoundMoleculeContainer(object):
 	# Special values for the state of the chromosome
 	_inactive = 0 # a location that is inactive (no binding permitted)
@@ -107,12 +112,10 @@ class ChromosomeBoundMoleculeContainer(object):
 		strandIndex = self._strandNameToIndex[strand]
 		directionBool = self._directionCharToBool[direction]
 
-		extentPositive, extentNegative = self._extentRelativeToAbsolute(
-			extentForward, extentReverse, directionBool)
+		region = self._region(position, directionBool, extentForward, extentReverse)
 
-		region = self._region(strandIndex, position, directionBool, extentPositive, extentNegative)
-
-		assert (region == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
+		if not (self._array[strandIndex, region] == self._empty).all():
+			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
@@ -123,13 +126,14 @@ class ChromosomeBoundMoleculeContainer(object):
 		molecule.attrIs('_sequenceExtentForward', extentForward)
 		molecule.attrIs('_sequenceExtentReverse', extentReverse)
 
-		region[:] = molecule.attr('_globalIndex') + self._offset
+		self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
 
 
 	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse): # TODO: different child extents
 		# NOTE: molecule orientation assumed to be in the direction of the fork
 
-		assert (extentForward > 0 or extentReverse > 0), 'The footprint of a molecule placed on a fork must be > 1'
+		if not (extentForward > 0 or extentReverse > 0):
+			raise ChrosomeContainerException('The footprint of a molecule placed on a fork must be > 1')
 
 		forkStrand = fork.attr('_sequenceStrand')
 		forkPosition = fork.attr('_sequencePosition')
@@ -139,9 +143,10 @@ class ChromosomeBoundMoleculeContainer(object):
 			forkStrand, forkPosition, forkDirection, extentForward,
 			extentReverse) 
 
-		assert (regionParent == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
-		assert (regionChildA == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
-		assert (regionChildB == self._empty).all(), 'Attempted to place a molecule in a non-empty region'
+		if (not (regionParent == self._empty).all()
+				or not (regionChildA == self._empty).all()
+				or not (regionChildB == self._empty).all()):
+			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
@@ -160,14 +165,12 @@ class ChromosomeBoundMoleculeContainer(object):
 		regionChildB[:] = index
 
 
-	def _region(self, strandIndex, position, directionBool, extentForward, extentReverse):
-		extentPositive, extentNegative = self._extentRelativeToAbsolute(
-			extentForward, extentReverse, directionBool)
+	def _region(self, position, directionBool, extentForward, extentReverse):
+		if directionBool: # == (-)
+			return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
 
-		return self._array[
-			strandIndex,
-			np.arange(position-extentNegative, position+extentPositive) % self._length
-			]		
+		else: # == (+)
+			return np.arange(position-extentReverse, position+extentForward) % self._length
 
 
 	def _forkedRegions(self, forkStrand, forkPosition, forkDirection, extentForward, extentReverse):
@@ -239,9 +242,9 @@ class ChromosomeBoundMoleculeContainer(object):
 			extentPositive, extentNegative = self._extentRelativeToAbsolute(
 				extentForward, extentReverse, directionBool)
 
-			region = self._region(strandIndex, position, directionBool, extentPositive, extentNegative)
+			region = self._region(position, directionBool, extentPositive, extentNegative)
 
-			region[:] = self._empty
+			self._array[strandIndex, region] = self._empty
 
 			molecule.attrIs('_sequenceBound', False)
 
@@ -279,9 +282,9 @@ class ChromosomeBoundMoleculeContainer(object):
 				extentPositive, extentNegative = self._extentRelativeToAbsolute(
 					extentForward, extentReverse, directionBool)
 
-				region = self._region(strandIndex, position, directionBool, extentPositive, extentNegative)
+				region = self._region(position, directionBool, extentPositive, extentNegative)
 
-				indexes = np.setdiff1d(region) - self._offset
+				indexes = np.setdiff1d(self._array[strandIndex, region]) - self._offset
 
 			else:
 				indexes = np.setdiff1d(
@@ -313,7 +316,7 @@ class ChromosomeBoundMoleculeContainer(object):
 			strandChildA, strandChildB = self._strandChildrenIndexes[strandParent]
 
 		except TypeError:
-			raise Exception('No space allocated for strand {} to divide into'.format(strandName))
+			raise ChrosomeContainerException('No space allocated for strand {} to divide into'.format(strandName))
 
 
 		assert (self._array[strandParent, start:stop+1] == self._empty).all(), 'Attempted to divide a non-empty or non-existent region'

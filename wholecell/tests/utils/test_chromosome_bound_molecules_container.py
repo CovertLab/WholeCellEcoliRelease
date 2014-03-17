@@ -13,7 +13,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.utils.chromosome_bound_molecules_container import ChromosomeBoundMoleculesContainer
+from wholecell.utils.chromosome_bound_molecules_container import ChromosomeBoundMoleculeContainer
 
 N_BASES = 1000
 STRAND_MULTIPLICITY = 3
@@ -25,8 +25,7 @@ MOLECULE_ATTRIBUTES = {
 		},
 	}
 
-
-class Test_UniqueObjectsContainer(unittest.TestCase):
+class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 	@classmethod
 	def setupClass(cls):
 		pass
@@ -46,17 +45,67 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	# Interface tests
 
-	# Adding/removing objects
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_bind_molecule(self):
 		mol = self.container.moleculeNew('DNA polymerase')
 
-		self.container.moleculeLocation(mol, self.container.rootStrand(), 2000,
-			'+', 50, 10)
+		position = 200
+		forwardExtent = 5
+		reverseExtent = 1
+
+		footprint = 6
+		region = [199, 200, 201, 202, 203, 204]
+
+		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
+			position, '+', forwardExtent, reverseExtent)
+
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		# TODO: make the above into a private method of the container class
+
+		# Check footprint
+		self.assertEqual(
+			(self.container._array[0, :] == chromosomeIndex).sum(),
+			footprint
+			)
+
+		# Check location
+		self.assertEqual(
+			np.where(self.container._array == chromosomeIndex)[1].tolist(),
+			region
+			)
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_bind_molecule_reverse(self):
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		position = 200
+		forwardExtent = 5
+		reverseExtent = 1
+
+		footprint = 6
+		region = [196, 197, 198, 199, 200, 201]
+
+		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
+			position, '-', forwardExtent, reverseExtent)
+
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		# TODO: make the above into a private method of the container class
+
+		# Check footprint
+		self.assertEqual(
+			(self.container._array[0, :] == chromosomeIndex).sum(),
+			footprint
+			)
+
+		# Check location
+		self.assertEqual(
+			np.where(self.container._array == chromosomeIndex)[1].tolist(),
+			region
+			)
 
 
 def createContainer():
-	container = ChromosomeBoundMoleculesContainer(N_BASES, STRAND_MULTIPLICITY,
+	container = ChromosomeBoundMoleculeContainer(N_BASES, STRAND_MULTIPLICITY,
 		MOLECULE_ATTRIBUTES)
 
 	return container
