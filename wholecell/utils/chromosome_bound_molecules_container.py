@@ -21,19 +21,19 @@ class ChromosomeBoundMoleculeContainer(object):
 	# Molecule container properties
 	_defaultObjectContainerObjects = {
 		'_fork':{
-			'_sequenceStrand':'uint32', # index of strand
-			'_sequencePosition':'uint32', # bound nt
+			'_sequenceStrand':'int64', # index of strand
+			'_sequencePosition':'int64', # bound nt
 			'_sequenceDirection':'bool', # False = (+), True = (-)
 			}
 		}
 
 	_defaultObjectContainerAttributes = {
 		'_sequenceBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
-		'_sequenceStrand':'uint32', # index of strand
-		'_sequencePosition':'uint32', # bound nt
+		'_sequenceStrand':'int64', # index of strand
+		'_sequencePosition':'int64', # bound nt
 		'_sequenceDirection':'bool', # False = (+), True = (-)
-		'_sequenceExtentForward':'uint32', # number of nts
-		'_sequenceExtentReverse':'uint32', # number of nts
+		'_sequenceExtentForward':'int64', # number of nts
+		'_sequenceExtentReverse':'int64', # number of nts
 		'_sequenceBoundToFork':'bool', # special property for molecules bound on a forked region
 		}
 
