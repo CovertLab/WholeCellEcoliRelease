@@ -61,8 +61,6 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self._container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
 			MOLECULE_ATTRIBUTES)
-		
-		self._queries = []
 
 	
 	def calcInitialConditions(self):
@@ -81,11 +79,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def updateQueries(self):
-		# Update queries prior to gathering requests
 		self._container.updateQueries()
 
-		for view in self._views:
-			view._updateQuery()
+		super(UniqueMolecules, self).updateQueries()
 
 
 	def partition(self):
@@ -123,10 +119,6 @@ class UniqueMolecules(wholecell.states.state.State):
 					'_partitionedProcess',
 					view._processIndex + 1 # "0", being the default, is reserved for unpartitioned molecules
 					)
-
-
-	def queryNew(self, moleculeName, **operations):
-		return self._container.queryNew(moleculeName, **operations)
 
 
 	def pytablesCreate(self, h5file, expectedRows):

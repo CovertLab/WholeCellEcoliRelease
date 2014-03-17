@@ -12,6 +12,8 @@ Process submodel base class. Defines interface that processes expose to the simu
 
 from __future__ import division
 
+import wholecell.views.view
+
 class Process(object):
 	""" Process """
 
@@ -29,6 +31,8 @@ class Process(object):
 
 		# References to state
 		self._bulkMolecules = None
+		self._uniqueMolecules = None
+		self._chromosome = None
 
 
 	# Construct object graph, calculate constants
@@ -40,28 +44,29 @@ class Process(object):
 
 		self._bulkMolecules = sim.states['BulkMolecules']
 		self._uniqueMolecules = sim.states['UniqueMolecules']
+		self._chromosome = sim.states['Chromosome']
 
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
-		import wholecell.views.view
-
 		return wholecell.views.view.BulkMoleculesView(self._bulkMolecules, 
 			self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
-		import wholecell.views.view
-
 		return wholecell.views.view.BulkMoleculeView(self._bulkMolecules, 
 			self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
-		import wholecell.views.view
-
 		return wholecell.views.view.UniqueMoleculesView(self._uniqueMolecules,
 			self, (moleculeName, attributes))
+
+
+	def chromosomeMoleculeView(self, moleculeName, extentForward, extentReverse):
+		# TODO: replace this view with more useful, permanent views
+		return wholecell.views.view.ChromosomeMoleculeView(self._chromosome,
+			self, (moleculeName, extentForward, extentReverse))
 
 
 	# Calculate requests for a single time step

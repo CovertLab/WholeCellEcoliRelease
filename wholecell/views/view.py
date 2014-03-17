@@ -30,6 +30,10 @@ class View(object):
 
 	# Interface to State
 
+	def _updateQuery(self):
+		pass
+
+
 	def _totalIs(self, value):
 		self._totalCount[:] = value
 
@@ -140,8 +144,6 @@ class UniqueMoleculesView(View):
 			self._query[0], **self._query[1]
 			)
 
-		self._moleculeGlobalIndexes = []
-
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
@@ -182,3 +184,34 @@ class UniqueMoleculesView(View):
 			_partitionedProcess = self._processIndex + 1,
 			**attributes
 			)
+
+
+class ChromosomeMoleculeView(View):
+	_stateID = 'Chromosome'
+
+	def __init__(self, *args, **kwargs):
+		super(ChromosomeMoleculeView, self).__init__(*args, **kwargs)
+
+
+	# def _updateQuery(self):
+	# 	self._state._container.
+
+	
+	def moleculeNew(self, moleculeName, location, **attributes):
+		# if in partitioned region
+
+		self._state._container.moleculeNew(moleculeName, location, 
+			**attributes)
+
+
+	def moleculeDel(self, molecule):
+		# if in partitioned region
+
+		self._state._container.moleculeDel(molecule)
+
+
+	def moleculesDel(self, molecules):
+		# if in partitioned region
+
+		self._state._container.moleculesDel(molecules)
+

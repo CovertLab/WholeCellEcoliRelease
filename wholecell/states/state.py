@@ -55,7 +55,8 @@ class State(object):
 
 	# Partitioning
 	def updateQueries(self):
-		pass
+		for view in self._views:
+			view._updateQuery()
 
 
 	def partition(self):

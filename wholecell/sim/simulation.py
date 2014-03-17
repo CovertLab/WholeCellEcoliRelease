@@ -155,7 +155,7 @@ class Simulation(object):
 		# import wholecell.states.MetabolicFlux
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
-		# import wholecell.states.chromosome
+		import wholecell.states.chromosome
 		import wholecell.states.time
 		import wholecell.states.rand_stream
 
@@ -164,7 +164,7 @@ class Simulation(object):
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
 			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
 			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
-			# ('Chromosome',		wholecell.states.chromosome.Chromosome()),
+			('Chromosome',		wholecell.states.chromosome.Chromosome()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
@@ -182,6 +182,7 @@ class Simulation(object):
 		import wholecell.processes.free_production
 		import wholecell.processes.toy_transcription
 		import wholecell.processes.toy_protein_degradation
+		import wholecell.processes.toy_replication
 
 		# TODO: change this so it creates the objects after filtering
 		self.processes = collections.OrderedDict([
@@ -192,7 +193,8 @@ class Simulation(object):
 			('Translation',			wholecell.processes.translation.Translation()),
 			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
 			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
-			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation())
+			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation()),
+			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication())
 			])
 
 		# Remove processes not listed as being included

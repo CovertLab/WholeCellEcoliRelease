@@ -392,6 +392,10 @@ class _UniqueObject(object):
 		self._objectIndex = index
 
 
+	def name(self):
+		return self._container._objectNames[self._arrayIndex]
+
+
 	def attr(self, attribute):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
@@ -435,6 +439,10 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	nObjects = objectRequestsArray.shape[0]
 	nRequests = requestNumberVector.size
 	nProcesses = requestProcessArray.shape[1]
+
+	if nProcesses == 0:
+		# Return nothing
+		return np.zeros((nObjects, nProcesses), np.bool)
 
 	# Make into structured array to condense the problem into unique rows
 	objectRequestsStructured = objectRequestsArray.view(
