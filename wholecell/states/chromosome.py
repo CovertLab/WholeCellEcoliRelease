@@ -56,23 +56,23 @@ class ChromosomeBoundMoleculeContainer(object):
 	_directionCharToBool = {_positiveChar:False, _negativeChar:True}
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
-	def __init__(self):
-		self._length = N_BASES
+	def __init__(self, nBases, strandMultiplicity, moleculeAttributes):
+		self._length = nBases
 
-		self._strandMultiplicity = STRAND_MULTIPLICITY
+		self._strandMultiplicity = strandMultiplicity
 		self._buildStrandConnectivity()
 		
 		self._array = np.zeros((self._nStrands, self._length), dtype = np.int32) # TODO: choose best dtype based on array size
 
 		self._array[0, :] = self._empty # Root strand is always active
 
-		moleculeAttributes = self._defaultObjectContainerObjects
-		for moleculeName, attributes in MOLECULE_ATTRIBUTES.viewitems():
-			moleculeAttributes[moleculeName] = attributes.copy()
-			moleculeAttributes[moleculeName].update(self._defaultObjectContainerAttributes)
+		molAttrs = self._defaultObjectContainerObjects
+		for moleculeName, attributes in moleculeAttributes.viewitems():
+			molAttrs[moleculeName] = attributes.copy()
+			molAttrs[moleculeName].update(self._defaultObjectContainerAttributes)
 
 		self._objectsContainer =  wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-			moleculeAttributes)
+			molAttrs)
 
 
 	def _buildStrandConnectivity(self):
@@ -448,7 +448,8 @@ class Chromosome(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(Chromosome, self).initialize(sim, kb)
 
-		self.container = ChromosomeBoundMoleculeContainer()
+		self.container = ChromosomeBoundMoleculeContainer(N_BASES,
+			STRAND_MULTIPLICITY, MOLECULE_ATTRIBUTES)
 
 
 	def calcInitialConditions(self):
