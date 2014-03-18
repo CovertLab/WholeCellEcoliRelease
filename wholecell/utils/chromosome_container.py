@@ -191,7 +191,7 @@ class ChromosomeContainer(object):
 
 
 	def _region(self, position, directionBool, extentForward, extentReverse):
-		# Return a region of a strand, accounting for circularlity and directionality
+		# Return a region of a strand, accounting for circularity and directionality
 		if directionBool: # == (-)
 			return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
 
@@ -200,7 +200,7 @@ class ChromosomeContainer(object):
 
 
 	def _forkedRegions(self, forkPosition, forkDirection, extentForward, extentReverse):
-		# Return regions on strands surrounding a fork, accounting for circularlity and directionality
+		# Return regions on strands surrounding a fork, accounting for circularity and directionality
 		if forkDirection: # == (-)
 			regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
 			regionChildA = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
