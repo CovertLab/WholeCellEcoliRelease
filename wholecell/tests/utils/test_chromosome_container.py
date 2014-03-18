@@ -1,5 +1,7 @@
 '''
-test_chromosome_bound_molecules_container.py
+test_chromosome_container.py
+
+Tests for the ChromosomeContainer class.
 
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -91,7 +93,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			position, '-', forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -153,7 +154,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			position, '+', forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -183,7 +183,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			position, '-', forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -559,7 +558,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -619,7 +617,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
