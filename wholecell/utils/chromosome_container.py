@@ -1,9 +1,23 @@
+'''
+
+chromosome_container.py
+
+A container class.  Tracks the locations of objects (molecules) on a circular,
+branched, directional structure, with provided footprints.  Objects can be
+attached to forks as well, and forks can be extended along their parent strand.
+
+@author: John Mason
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@data: Created 3/12/14
+
+'''
+
 
 from __future__ import division
 
 import numpy as np
 
-import wholecell.utils.unique_objects_container
+from wholecell.utils.unique_objects_container import UniqueObjectsContainer
 
 
 class ChrosomeContainerException(Exception):
@@ -48,6 +62,7 @@ class ChromosomeContainer(object):
 	_directionCharToBool = {_positiveChar:False, _negativeChar:True}
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
+
 	def __init__(self, nBases, strandMultiplicity, moleculeAttributes):
 		self._length = nBases
 
@@ -63,11 +78,12 @@ class ChromosomeContainer(object):
 			molAttrs[moleculeName] = attributes.copy()
 			molAttrs[moleculeName].update(self._defaultObjectContainerAttributes)
 
-		self._objectsContainer =  wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-			molAttrs)
+		self._objectsContainer =  UniqueObjectsContainer(molAttrs)
 
 
 	def _buildStrandConnectivity(self):
+		# Build the lists and tables needed for interactions between strands
+
 		self._strandNames = []
 		self._strandNames.append(self._rootChar)
 
@@ -100,15 +116,18 @@ class ChromosomeContainer(object):
 
 
 	def moleculeNew(self, moleculeName, **attributes):
+		# Create a new, currently unbound molecule
 		return self._objectsContainer.objectNew(moleculeName, **attributes)
 
 
 	def moleculeDel(self, molecule):
+		# Unbind and delete a molecule
 		self.moleculeLocationIsUnbound(molecule)
 		self._objectsContainer.objectDel(molecule)
 
 
 	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
+		# Set a molecule's location
 		strandIndex = self._strandNameToIndex[strand]
 		directionBool = self._directionCharToBool[direction]
 
@@ -130,6 +149,7 @@ class ChromosomeContainer(object):
 
 
 	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse): # TODO: different child extents
+		# Assign a molecule's location to that of a fork
 		# NOTE: molecule orientation assumed to be in the direction of the fork
 
 		if not (extentForward > 0 or extentReverse > 0):
@@ -171,6 +191,7 @@ class ChromosomeContainer(object):
 
 
 	def _region(self, position, directionBool, extentForward, extentReverse):
+		# Return a region of a strand, accounting for circularlity and directionality
 		if directionBool: # == (-)
 			return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
 
@@ -179,6 +200,7 @@ class ChromosomeContainer(object):
 
 
 	def _forkedRegions(self, forkPosition, forkDirection, extentForward, extentReverse):
+		# Return regions on strands surrounding a fork, accounting for circularlity and directionality
 		if forkDirection: # == (-)
 			regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
 			regionChildA = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
@@ -193,6 +215,7 @@ class ChromosomeContainer(object):
 
 
 	def moleculeLocation(self, molecule):
+		# Return the location a molecule, if it is bound to the chromosome
 		if not molecule.attr('_sequenceBound'):
 			return None
 
@@ -208,11 +231,14 @@ class ChromosomeContainer(object):
 	# TODO: moleculeStrand, moleculePosition, moleculeDirection, moleculeFootprint
 
 	def moleculeLocationIsUnbound(self, molecule):
+		# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
 		if not molecule.attr('_sequenceBound'):
+			# Molecule is already unbound
 			return
 
 
 		elif molecule.attr('_sequenceBoundToFork'):
+			# Molecule is bound to a fork
 			strandIndex = molecule.attr('_sequenceStrand')
 			position = molecule.attr('_sequencePosition')
 			directionBool = molecule.attr('_sequenceDirection')
@@ -233,6 +259,7 @@ class ChromosomeContainer(object):
 
 
 		else:
+			# Molecule is bound to a normal location (not a fork)
 			strandIndex = molecule.attr('_sequenceStrand')
 			position = molecule.attr('_sequencePosition')
 			directionBool = molecule.attr('_sequenceDirection')
@@ -249,6 +276,10 @@ class ChromosomeContainer(object):
 	def moleculesBound(self, moleculeName = None, strand = None, 
 			position = None, direction = None, extentForward = None,
 			extentReverse = None):
+		# Returns bound molecules, with sets of optional arguments:
+		# moleculeName: only molecules with this name
+		# strand, position, direction: molecule at a specific position
+		# +extentForward, extentReverse: molecules over a region
 
 		# TODO: check for inconsistent sets of arguments
 		# TODO: make the queries more efficient
@@ -295,10 +326,14 @@ class ChromosomeContainer(object):
 
 
 	def moleculesUnbound(self):
+		# Returns a set of all unbound molecules
 		raise NotImplementedError()
 
 
 	def divideRegion(self, strandName, start, stop):
+		# Break an empty, continuous region of a strand into two child strands,
+		# and return the two "fork" objects
+
 		# NOTE: start to stop is inclusive, unlike "range"!
 		strandParent = self._strandNameToIndex[strandName]
 		try:
@@ -346,12 +381,16 @@ class ChromosomeContainer(object):
 
 	def forks(self, strand = None, position = None, direction = None,
 			extentForward = None, extentReverse = None):
+		# Return a set of forks
 
 		return self.moleculesBound('_fork', strand, position, direction,
 			extentForward, extentReverse)
 
 
 	def forkExtend(self, fork, extent):
+		# Move a fork along its parent strand (shortening the parent and 
+		# elongating the children), and return the new position
+
 		forkStrand = fork.attr('_sequenceStrand')
 		forkPosition = fork.attr('_sequencePosition')
 		forkDirection = fork.attr('_sequenceDirection')
@@ -387,10 +426,12 @@ class ChromosomeContainer(object):
 
 
 	def moleculeOnFork(self, fork):
+		# Return the molecule on a fork, if any
 		raise NotImplementedError()
 
 
 	def rootStrand(self):
+		# Return the character used to identify the root strand
 		return self._rootChar
 
 
@@ -416,4 +457,3 @@ class ChromosomeContainer(object):
 	# TODO: saving
 	# TODO: update container time, flush deleted molecules, update queries?
 	# TODO: handle/pass sequence
-	# TODO: write tests
