@@ -13,7 +13,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.utils.chromosome_bound_molecules_container import ChromosomeBoundMoleculeContainer
+from wholecell.utils.chromosome_bound_molecules_container import ChromosomeContainer
 
 N_BASES = 1000
 STRAND_MULTIPLICITY = 3
@@ -25,7 +25,7 @@ MOLECULE_ATTRIBUTES = {
 		},
 	}
 
-class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
+class Test_ChromosomeContainer(unittest.TestCase):
 	@classmethod
 	def setupClass(cls):
 		pass
@@ -691,7 +691,7 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = ChromosomeBoundMoleculeContainer(N_BASES, STRAND_MULTIPLICITY,
+	container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
 		MOLECULE_ATTRIBUTES)
 
 	return container

@@ -10,7 +10,7 @@ class ChrosomeContainerException(Exception):
 	pass
 
 
-class ChromosomeBoundMoleculeContainer(object):
+class ChromosomeContainer(object):
 	# Special values for the state of the chromosome
 	_inactive = 0 # a location that is inactive (no binding permitted)
 	_empty = 1 # an active but empty location
@@ -54,7 +54,7 @@ class ChromosomeBoundMoleculeContainer(object):
 		self._strandMultiplicity = strandMultiplicity
 		self._buildStrandConnectivity()
 		
-		self._array = np.zeros((self._nStrands, self._length), dtype = np.int32) # TODO: choose best dtype based on array size
+		self._array = np.zeros((self._nStrands, self._length), dtype = np.int64)
 
 		self._array[0, :] = self._empty # Root strand is always active
 

@@ -5,7 +5,7 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-import wholecell.utils.chromosome_bound_molecules_container
+from wholecell.utils.chromosome_bound_molecules_container import ChromosomeContainer
 
 N_BASES = 5000000 # TODO: from kb
 STRAND_MULTIPLICITY = 3
@@ -41,8 +41,8 @@ class Chromosome(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(Chromosome, self).initialize(sim, kb)
 
-		self.container = wholecell.utils.chromosome_bound_molecules_container.ChromosomeBoundMoleculeContainer(
-			N_BASES, STRAND_MULTIPLICITY, MOLECULE_ATTRIBUTES)
+		self.container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
+			MOLECULE_ATTRIBUTES)
 
 
 	def calcInitialConditions(self):
