@@ -38,8 +38,8 @@ class Chromosome(wholecell.states.state.State):
 		super(Chromosome, self).__init__(*args, **kwargs)
 
 	
-	def initialize(self, sim, kb):
-		super(Chromosome, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(Chromosome, self).initialize(sim, kb, kb2)
 
 		self.container = wholecell.utils.chromosome_bound_molecules_container.ChromosomeBoundMoleculeContainer(
 			N_BASES, STRAND_MULTIPLICITY, MOLECULE_ATTRIBUTES)

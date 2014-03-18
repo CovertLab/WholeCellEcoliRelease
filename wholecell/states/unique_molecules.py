@@ -52,8 +52,8 @@ class UniqueMolecules(wholecell.states.state.State):
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, sim, kb):
-		super(UniqueMolecules, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(UniqueMolecules, self).initialize(sim, kb, kb2)
 
 		self.time = sim.states['Time']
 

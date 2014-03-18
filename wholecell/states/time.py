@@ -31,8 +31,8 @@ class Time(wholecell.states.state.State):
 		super(Time, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, sim, kb):
-		super(Time, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(Time, self).initialize(sim, kb, kb2)
 
 		self.sim = sim # Time needs a reference to the simulation to determine what step the simulation is on
 		self.timeStepSec = sim.timeStepSec

@@ -31,7 +31,7 @@ class State(object):
 
 
 	# Construct state-process graph, calculate constants
-	def initialize(self, sim, kb):
+	def initialize(self, sim, kb, kb2):
 		self.randStream = sim.randStream
 
 		self._nProcesses = len(sim.processes)

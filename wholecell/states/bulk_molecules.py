@@ -39,12 +39,12 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._container = None
 
-		self._moleculeMass = None
+		self._moleculeMass = None #
 
-		self._moleculeIDs = None
-		self._compartmentIDs = None
+		self._moleculeIDs = None #
+		self._compartmentIDs = None #
 
-		self._nCompartments = None
+		self._nCompartments = None #
 
 		self._isRequestAbsolute = None
 
@@ -53,20 +53,22 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
-		self._typeIdxs = None
-		self._typeLocalizations = None
+		self._typeIdxs = None # Change to boolean array
+		self._typeLocalizations = None #
 
-		self._rnaLens = None
-		self._rnaExp = None
+		self._rnaLens = None #
+		self._rnaExp = None #
 
-		self._monLens = None
-		self._monExp = None
+		self._monLens = None #
+		self._monExp = None #
+
+		# Move '#' to KB
 
 		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, sim, kb):
-		super(BulkMolecules, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(BulkMolecules, self).initialize(sim, kb, kb2)
 
 		self.time = sim.states['Time']
 

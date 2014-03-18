@@ -83,13 +83,18 @@ class Simulation(object):
 			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
+		import sys
+		sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
+		import ecoliwholecellkb_project.KnowledgeBaseEcoli_2
+		kb2 = ecoliwholecellkb_project.KnowledgeBaseEcoli_2.KnowledgeBaseEcoli_2()
+
 		# Fit KB parameters
 		import wholecell.reconstruction.fitter
 		wholecell.reconstruction.fitter.fitSimulation(kb)
 		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
-		self._initialize(kb)
+		self._initialize(kb, kb2)
 
 		# Set loggers
 		self.loggers = []
@@ -135,12 +140,12 @@ class Simulation(object):
 
 
 	# Link states and processes
-	def _initialize(self, kb):
+	def _initialize(self, kb, kb2):
 		self._constructStates()
 		self._constructProcesses()
 
 		for state in self.states.itervalues():
-			state.initialize(self, kb)
+			state.initialize(self, kb, kb2)
 
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
