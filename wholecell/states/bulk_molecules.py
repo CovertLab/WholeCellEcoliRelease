@@ -72,17 +72,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self.time = sim.states['Time']
 
-		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		# HACK
-
-		# kb does not yet have feist core vals!
-		if hasattr(kb, 'feistCoreVals'):
-			self.feistCoreVals = kb.feistCoreVals
-
-		else:
-			self.feistCoreVals = FEIST_CORE_VALS.copy()
-
-		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		self.biomass = kb2.core_biomass
 
 		self._moleculeIDs = []
 
@@ -170,7 +160,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
 
-		feistCoreView = self._container.countsView(IDS['FeistCore'])
+		feistCoreView = self._container.countsView(self.biomass['metabolite_id'])
 		h2oView = self._container.countView('H2O[c]')
 		ntpsView = self._container.countsView(IDS['ntps'])
 		matureRnaView = self._container.countsView(
@@ -181,10 +171,12 @@ class BulkMolecules(wholecell.states.state.State):
 			for i, index in enumerate(self._typeIdxs['monomers'])
 			])
 
-		# Set metabolite counts from Feist core
+		# Set metabolite counts from Feist biomass
+		# TODO for Derek: ATP (and a few other metabolites) coefficients are different from
+		# what was hard coded before. This causes it to grow much faster.
 		feistCoreView.countsIs(
 			np.round(
-				self.feistCoreVals * 1e-3 * Constants.nAvogadro * initialDryMass
+				np.fmax(self.biomass['biomass_flux'],0) * 1e-3 * Constants.nAvogadro * initialDryMass
 				)
 			)
 
@@ -378,8 +370,6 @@ def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, count
 		countsBulkPartitioned[..., iPartition] = allocation
 
 
-# Constants (should be taken from the KB)
-
 FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
 	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
 	0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
@@ -389,6 +379,22 @@ FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
 	0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
 	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
 	]) # TOKB
+
+
+
+FCORE = [
+		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+		"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+		"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+		"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
+		"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
+		"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
+		"RIBFLV[c]"
+		]
+
+
+
+# Constants (should be taken from the KB)
 
 INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
 
@@ -446,13 +452,4 @@ IDS = {
 	'rRna5Ss':[
 		"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
 		],
-	'FeistCore':[
-		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
-		"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-		"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
-		"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
-		"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
-		"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
-		"RIBFLV[c]"
-		]
 	} # TOKB
