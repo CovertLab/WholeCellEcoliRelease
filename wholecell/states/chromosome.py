@@ -5,7 +5,7 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-from wholecell.utils.chromosome_bound_molecules_container import ChromosomeContainer
+from wholecell.utils.chromosome_container import ChromosomeContainer
 
 N_BASES = 5000000 # TODO: from kb
 STRAND_MULTIPLICITY = 3
