@@ -191,7 +191,7 @@ class KnowledgeBaseEcoli(object):
 		self.genes = []
 		self.rnas = []
 		self.proteins = []
-		self.geneDbIds = {} # ADDED: for rnas and monomers
+		self._geneDbIds = {} # ADDED: for rnas and monomers
 
 		#genetype
 		genetypes = {}
@@ -231,7 +231,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Database Access Error: Cannot access public_Gene table"
 
 		for i in all_genes:
-			self.geneDbIds[i.id] = i.frame_id # Added for rnas and monomers
+			self._geneDbIds[i.id] = i.frame_id # Added for rnas and monomers
 
 			g = {
 				"id": i.frame_id,
@@ -380,7 +380,7 @@ class KnowledgeBaseEcoli(object):
 			r = {
 				"id": self._allProducts[i.frame_id_id],
 				"name": i.name,
-				"geneId": self.geneDbIds[i.gene_fk_id],
+				"geneId": self._geneDbIds[i.gene_fk_id],
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id]
@@ -421,7 +421,7 @@ class KnowledgeBaseEcoli(object):
 			p = {
 				"id": self._allProducts[i.frame_id_id],
 				"name": i.name,
-				"geneId": self.geneDbIds[i.gene_fk_id],
+				"geneId": self._geneDbIds[i.gene_fk_id],
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id]
