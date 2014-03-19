@@ -361,12 +361,12 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 		self.assertEqual(
-			forks[0].attr('_sequencePosition'),
+			forks[0].attr('_chromPosition'),
 			startPosition
 			)
 
 		self.assertEqual(
-			forks[1].attr('_sequencePosition'),
+			forks[1].attr('_chromPosition'),
 			stopPosition
 			)
 
@@ -405,12 +405,12 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 		self.assertEqual(
-			forks[0].attr('_sequencePosition'),
+			forks[0].attr('_chromPosition'),
 			startPosition
 			)
 
 		self.assertEqual(
-			forks[1].attr('_sequencePosition'),
+			forks[1].attr('_chromPosition'),
 			stopPosition
 			)
 
