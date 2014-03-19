@@ -15,7 +15,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.utils.chromosome_container import ChromosomeContainer
+from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 1000
 STRAND_MULTIPLICITY = 3

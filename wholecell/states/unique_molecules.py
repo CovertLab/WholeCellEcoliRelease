@@ -16,7 +16,7 @@ import tables
 
 import wholecell.states.state
 import wholecell.states.partition
-from wholecell.containers.unique_objects_container import UniqueObjectsContainer
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 
 MOLECULE_ATTRIBUTES = {
@@ -105,8 +105,8 @@ class UniqueMolecules(wholecell.states.state.State):
 
 			requestProcessArray[viewIndex, view._processIndex] = True
 
-		partitionedMolecules = wholecell.utils.unique_objects_container._partition(
-			objectRequestsArray, requestNumberVector, requestProcessArray, self.randStream)
+		partitionedMolecules = _partition(objectRequestsArray,
+			requestNumberVector, requestProcessArray, self.randStream)
 
 		for view in self._views:
 			molecules = self._container._objectsByGlobalIndex(

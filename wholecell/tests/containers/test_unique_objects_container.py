@@ -13,7 +13,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-import wholecell.utils.unique_objects_container
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 TEST_KB = {
 	'RNA polymerase':{
@@ -279,8 +279,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-		TEST_KB)
+	container = UniqueObjectsContainer(TEST_KB)
 	
 	container.objectsNew(
 		'RNA polymerase',

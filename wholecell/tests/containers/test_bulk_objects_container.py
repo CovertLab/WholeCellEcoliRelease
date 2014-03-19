@@ -13,7 +13,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-import wholecell.utils.bulk_objects_container
+from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 OBJECT_NAMES = ('ATP', 'glucose', 'glycine')
 OBJECT_COUNTS = [100, 20, 10]
@@ -195,8 +195,7 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = wholecell.utils.bulk_objects_container.BulkObjectsContainer(
-		OBJECT_NAMES)
+	container = BulkObjectsContainer(OBJECT_NAMES)
 
 	container.countsIs(OBJECT_COUNTS)
 

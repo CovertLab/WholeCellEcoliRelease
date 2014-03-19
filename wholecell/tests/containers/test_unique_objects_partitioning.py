@@ -13,7 +13,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-import wholecell.utils.unique_objects_container
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 import wholecell.utils.rand_stream
 
 TEST_KB = {
@@ -38,8 +38,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 
 	def setUp(self):
-		self.container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-			TEST_KB)
+		self.container = UniqueObjectsContainer(TEST_KB)
 		
 		self.container.objectsNew(
 			'A',
@@ -108,8 +107,8 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 		# Partition the molecules
 		
-		partitionedMolecules = wholecell.utils.unique_objects_container._partition(
-			objectRequestsArray,requestNumberVector, requestProcessArray, self.randStream)
+		partitionedMolecules = _partition(objectRequestsArray, 
+			requestNumberVector, requestProcessArray, self.randStream)
 
 		# Assert that each molecule is partitioned to one state
 
