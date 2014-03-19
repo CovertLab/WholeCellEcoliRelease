@@ -12,8 +12,6 @@ State variable base class. Defines the interface states expose to the simulation
 
 from __future__ import division
 
-from collections import OrderedDict
-
 class State(object):
 	""" State """
 

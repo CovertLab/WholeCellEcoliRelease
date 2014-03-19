@@ -23,7 +23,7 @@ import tables
 
 import wholecell.states.state
 import wholecell.states.partition
-import wholecell.utils.bulk_objects_container
+from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 
 class BulkMolecules(wholecell.states.state.State):
@@ -102,7 +102,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass[np.where(self._moleculeMass < 0)] = 0
 
 		# Create the container for molecule counts
-		self._container = wholecell.utils.bulk_objects_container.BulkObjectsContainer([
+		self._container = BulkObjectsContainer([
 			'{}[{}]'.format(moleculeID, compartmentID)
 			for moleculeID in self._moleculeIDs
 			for compartmentID in self._compartmentIDs

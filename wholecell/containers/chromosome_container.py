@@ -2,10 +2,6 @@
 
 chromosome_container.py
 
-A container class.  Tracks the locations of objects (molecules) on a circular,
-branched, directional structure, with provided footprints.  Objects can be
-attached to forks as well, and forks can be extended along their parent strand.
-
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @data: Created 3/12/14
@@ -17,14 +13,28 @@ from __future__ import division
 
 import numpy as np
 
-from wholecell.utils.unique_objects_container import UniqueObjectsContainer
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 
 class ChrosomeContainerException(Exception):
+	'''
+	ChrosomeContainerException
+
+	An exception subclass raised by the ChromosomeContainer.
+	'''
 	pass
 
 
 class ChromosomeContainer(object):
+	'''
+	ChromosomeContainer
+
+	A container class.  Tracks the locations of objects (molecules) on a
+	circular, branched, directional structure, with provided footprints.  
+	Objects can be attached to forks as well, and forks can be extended along 
+	their parent strand.
+	'''
+
 	# Special values for the state of the chromosome
 	_inactive = 0 # a location that is inactive (no binding permitted)
 	_empty = 1 # an active but empty location

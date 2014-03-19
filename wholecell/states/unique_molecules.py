@@ -16,7 +16,7 @@ import tables
 
 import wholecell.states.state
 import wholecell.states.partition
-import wholecell.utils.unique_objects_container
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 
 MOLECULE_ATTRIBUTES = {
@@ -59,8 +59,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		# TODO: use the updated KB object to get these properties
 
-		self._container = wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-			MOLECULE_ATTRIBUTES)
+		self._container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
 
 	
 	def calcInitialConditions(self):
