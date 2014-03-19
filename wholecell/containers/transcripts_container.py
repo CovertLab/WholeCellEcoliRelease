@@ -32,7 +32,7 @@ class TranscriptsContainer(object):
 	TODO: doc
 	'''
 
-	# Special values for the state of the chromosome
+	# Special values
 	_unused = 0 # a location that is inactive (no binding permitted)
 	_reserved = 1 # an inactive location that has been reserved for eventual occupation
 	_empty = 2 # an active but empty location
@@ -53,7 +53,8 @@ class TranscriptsContainer(object):
 
 	_defaultObjectContainerAttributes = {
 		'_transcriptBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
-		'_transcriptPosition':'int64', # location in array
+		'_transcript':'int64', # ID pointing to the bound transcript
+		'_transcriptPosition':'int64', # location in array (not on the transcript)
 		'_transcriptDirection':'bool', # False = (+), True = (-)
 		'_transcriptExtentForward':'int64', # number of nts
 		'_transcriptExtentReverse':'int64', # number of nts
@@ -90,7 +91,7 @@ class TranscriptsContainer(object):
 		self._objectsContainer.objectDel(molecule)
 
 
-	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
+	def moleculeLocationIs(self, molecule, transcript, position, direction, extentForward, extentReverse):
 		# Set a molecule's location
 		strandIndex = self._strandNameToIndex[strand]
 		directionBool = self._directionCharToBool[direction]
@@ -135,7 +136,7 @@ class TranscriptsContainer(object):
 				molecule.attr('_transcriptExtentReverse'),
 				)
 
-	# TODO: moleculePosition, moleculeDirection, moleculeFootprint
+	# TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
 
 	def moleculeLocationIsUnbound(self, molecule):
 		# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
@@ -158,12 +159,13 @@ class TranscriptsContainer(object):
 			molecule.attrIs('_transcriptBound', False)
 
 
-	def moleculesBound(self, moleculeName = None, strand = None, 
+	def moleculesBound(self, moleculeName = None, transcript = None, 
 			position = None, direction = None, extentForward = None,
 			extentReverse = None):
 		# Returns bound molecules, with sets of optional arguments:
 		# moleculeName: only molecules with this name
-		# strand, position, direction: molecule at a specific position
+		# transcript: molecules on this transcript
+		# +position, direction: molecule at a specific position
 		# +extentForward, extentReverse: molecules over a region
 
 		# TODO: check for inconsistent sets of arguments
@@ -217,19 +219,3 @@ class TranscriptsContainer(object):
 
 	def __eq__(self, other):
 		return (self._array == other._array).all()
-
-
-	# def findLocationToBind(self, width):
-	# 	return self.findLocationsToBind(width, 1)[0]
-
-
-	# def findLocationsToBind(self, width, nLocations):
-	# 	# TODO: make this method faster (cache valid locations by footprint, use sparse representation...)
-
-	# 	# locations = 
-	# 	pass
-	
-
-	# TODO: saving
-	# TODO: update container time, flush deleted molecules, update queries?
-	# TODO: handle/pass sequence
