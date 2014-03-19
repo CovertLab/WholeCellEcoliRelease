@@ -68,7 +68,7 @@ class TranscriptsContainer(object):
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
 
-	def __init__(self, arrayLength, randStream = None):
+	def __init__(self, arrayLength, moleculeAttributes, randStream = None):
 		self._length = arrayLength
 
 		self._array = np.zeros(self._length, dtype = np.int64)
@@ -102,51 +102,56 @@ class TranscriptsContainer(object):
 
 		self._array[position+1:position+1 + expectedLength] = self._reserved
 
+		return transcript
+
 
 	def transcriptExtend(self, transcript, extent):
 		position = transcript.attr('_transcriptPosition')
 		transcriptIndex = transcript.attr('_globalIndex') + self._offset
-		currentLength = transcript.attr('_transcriptExtent')
+		currentExtent = transcript.attr('_transcriptExtent')
 		reserved = transcript.attr('_transcriptExtentReserved')
 
-		newLength = currentLength + extent
+		newExtent = currentExtent + extent
 
-		endPosition = position+1 + newLength
+		endPosition = position+1 + newExtent
 
-		region = np.arange(position+1 + currentLength, endPosition)
+		region = np.arange(position+1 + currentExtent, endPosition)
 
-		if (newLength <= reserved) or (
+		if (newExtent <= reserved) or (
+				endPosition < self._length and
 				np.setdiff1d(self._array[region], self._inactiveValues).size == 0
-				and endPosition < self._length
 				):
 			# No risk of collision
 			self._array[region] = self._empty
 
 		else:
 			# Find and move to a new location
-			oldRegion = np.arange(position, position+1 + currentLength)
+			oldExtent = np.max([currentExtent, reserved])
+
+			oldRegion = np.arange(position, position+1 + oldExtent)
 
 			oldValues = self._array[oldRegion]
 			self._array[oldRegion] = self._unused
 
-			newPosition = self._findFreePosition(newLength+1)
+			newPosition = self._findFreePosition(np.max([newExtent, oldExtent])+1)
 
-			newRegion = np.range(newPosition, newPosition+1 + currentLength)
+			newRegion = np.arange(newPosition, newPosition+1 + oldExtent)
 
 			self._array[newRegion] = oldRegion
+
+			self._array[newPosition+1 + currentExtent:newPosition+1 + newExtent] = self._empty
 
 			transcript.attrIs('_transcriptPosition', newPosition)
 
 			# TODO: update molecules with new positions
 
-
-		transcript.attrIs('_transcriptExtent', newLength)
+		transcript.attrIs('_transcriptExtent', newExtent)
 
 
 	def _findFreePosition(self, extent):
 		# TODO: explore better heuristics
 
-		for iteration in range(MAX_SEARCH_ITERATIONS):
+		for iteration in xrange(MAX_SEARCH_ITERATIONS):
 			position = self._randStream.randi(self._length-extent)
 
 			if (self._array[position:position+extent] == self._unused).all():
@@ -156,7 +161,7 @@ class TranscriptsContainer(object):
 			raise TranscriptsContainerException(
 				'Could not find a free region of size {} in {} iterations'.format(
 					extent,
-					iteration
+					iteration+1
 					)
 				)
 
@@ -170,7 +175,7 @@ class TranscriptsContainer(object):
 			transcript.attr('_transcriptExtentReserved')
 			])
 
-		region = np.arange(position, position+1+extent)
+		region = np.arange(position, position+1 + extent)
 
 		self._array[region] = self._unused
 
