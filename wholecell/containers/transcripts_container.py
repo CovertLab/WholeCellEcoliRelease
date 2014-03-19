@@ -15,6 +15,7 @@ import numpy as np
 
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
+MAX_SEARCH_ITERATIONS = 1000 # number of times to search for a place to put a transcript before raising an exception
 
 class TranscriptsContainerException(Exception):
 	'''
@@ -67,7 +68,7 @@ class TranscriptsContainer(object):
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
 
-	def __init__(self, arrayLength):
+	def __init__(self, arrayLength, randStream = None):
 		self._length = arrayLength
 
 		self._array = np.zeros(self._length, dtype = np.int64)
@@ -78,6 +79,13 @@ class TranscriptsContainer(object):
 			molAttrs[moleculeName].update(self._defaultObjectContainerAttributes)
 
 		self._objectsContainer =  UniqueObjectsContainer(molAttrs)
+
+		if randStream is None:
+			import wholecell.utils.rand_stream
+
+			randStream = wholecell.utils.rand_stream.RandStream()
+
+		self._randStream = randStream
 
 
 	def transcriptNew(self, chromosomeOrigin, expectedLength = 0):
@@ -92,7 +100,7 @@ class TranscriptsContainer(object):
 
 		self._array[position] = transcript.attr('_globalIndex') + self._offset
 
-		self._array[position+1:position+1+expectedLength] = self._reserved
+		self._array[position+1:position+1 + expectedLength] = self._reserved
 
 
 	def transcriptExtend(self, transcript, extent):
@@ -116,162 +124,194 @@ class TranscriptsContainer(object):
 
 		else:
 			# Find and move to a new location
-			oldRegion = np.arange(position, position+1+currentLength)
+			oldRegion = np.arange(position, position+1 + currentLength)
 
 			oldValues = self._array[oldRegion]
 			self._array[oldRegion] = self._unused
 
 			newPosition = self._findFreePosition(newLength+1)
 
-			# TODO: set new region to old values
-			# TODO: update transcript and molecules with new positions
+			newRegion = np.range(newPosition, newPosition+1 + currentLength)
 
-			raise NotImplementedError()
+			self._array[newRegion] = oldRegion
+
+			transcript.attrIs('_transcriptPosition', newPosition)
+
+			# TODO: update molecules with new positions
+
+
+		transcript.attrIs('_transcriptExtent', newLength)
 
 
 	def _findFreePosition(self, extent):
-		raise NotImplementedError()
+		# TODO: explore better heuristics
+
+		for iteration in range(MAX_SEARCH_ITERATIONS):
+			position = self._randStream.randi(self._length-extent)
+
+			if (self._array[position:position+extent] == self._unused).all():
+				return position
+
+		else:
+			raise TranscriptsContainerException(
+				'Could not find a free region of size {} in {} iterations'.format(
+					extent,
+					iteration
+					)
+				)
 
 
 	def transcriptDel(self, transcript):
-		raise NotImplementedError()
+		# TODO: unbind and return all molecules
+
+		position = transcript.attr('_transcriptPosition')
+		extent = np.max([
+			transcript.attr('_transcriptExtent'),
+			transcript.attr('_transcriptExtentReserved')
+			])
+
+		region = np.arange(position, position+1+extent)
+
+		self._array[region] = self._unused
+
+		self._objectsContainer.objectDel(transcript)
 
 
-	def moleculeNew(self, moleculeName, **attributes):
-		# Create a new, currently unbound molecule
-		return self._objectsContainer.objectNew(moleculeName, **attributes)
+	# def moleculeNew(self, moleculeName, **attributes):
+	# 	# Create a new, currently unbound molecule
+	# 	return self._objectsContainer.objectNew(moleculeName, **attributes)
 
 
-	def moleculeDel(self, molecule):
-		# Unbind and delete a molecule
-		self.moleculeLocationIsUnbound(molecule)
-		self._objectsContainer.objectDel(molecule)
+	# def moleculeDel(self, molecule):
+	# 	# Unbind and delete a molecule
+	# 	self.moleculeLocationIsUnbound(molecule)
+	# 	self._objectsContainer.objectDel(molecule)
 
 
-	def moleculeLocationIs(self, molecule, transcript, position, direction, extentForward, extentReverse):
-		# Set a molecule's location
-		strandIndex = self._strandNameToIndex[strand]
-		directionBool = self._directionCharToBool[direction]
+	# def moleculeLocationIs(self, molecule, transcript, position, direction, extentForward, extentReverse):
+	# 	# Set a molecule's location
+	# 	strandIndex = self._strandNameToIndex[strand]
+	# 	directionBool = self._directionCharToBool[direction]
 
-		region = self._region(position, directionBool, extentForward, extentReverse)
+	# 	region = self._region(position, directionBool, extentForward, extentReverse)
 
-		if not (self._array[strandIndex, region] == self._empty).all():
-			raise TranscriptsContainerException('Attempted to place a molecule in a non-empty region')
+	# 	if not (self._array[strandIndex, region] == self._empty).all():
+	# 		raise TranscriptsContainerException('Attempted to place a molecule in a non-empty region')
 
-		self.moleculeLocationIsUnbound(molecule)
+	# 	self.moleculeLocationIsUnbound(molecule)
 
-		molecule.attrIs('_transcriptBound', True) # TODO: attrsAre method
-		molecule.attrIs('_transcriptStrand', strandIndex)
-		molecule.attrIs('_transcriptPosition', position)
-		molecule.attrIs('_transcriptDirection', directionBool)
-		molecule.attrIs('_transcriptExtentForward', extentForward)
-		molecule.attrIs('_transcriptExtentReverse', extentReverse)
+	# 	molecule.attrIs('_transcriptBound', True) # TODO: attrsAre method
+	# 	molecule.attrIs('_transcriptStrand', strandIndex)
+	# 	molecule.attrIs('_transcriptPosition', position)
+	# 	molecule.attrIs('_transcriptDirection', directionBool)
+	# 	molecule.attrIs('_transcriptExtentForward', extentForward)
+	# 	molecule.attrIs('_transcriptExtentReverse', extentReverse)
 
-		self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
-
-
-	def _region(self, position, directionBool, extentForward, extentReverse):
-		# Return a region of a strand, accounting for circularity and directionality
-		if directionBool: # == (-)
-			return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
-
-		else: # == (+)
-			return np.arange(position-extentReverse, position+extentForward) % self._length
+	# 	self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
 
 
-	def moleculeLocation(self, molecule):
-		# Return the location a molecule, if it is bound to the chromosome
-		if not molecule.attr('_transcriptBound'):
-			return None
+	# def _region(self, position, directionBool, extentForward, extentReverse):
+	# 	# Return a region of a strand, accounting for directionality
+	# 	if directionBool: # == (-)
+	# 		return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
 
-		else:
-			return (
-				self._strandNames[molecule.attr('_transcriptStrand')], # TODO: attrs method
-				molecule.attr('_transcriptPosition'),
-				self._directionBoolToChar[molecule.attr('_transcriptDirection')],
-				molecule.attr('_transcriptExtentForward'),
-				molecule.attr('_transcriptExtentReverse'),
-				)
-
-	# TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
-
-	def moleculeLocationIsUnbound(self, molecule):
-		# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
-		if not molecule.attr('_transcriptBound'):
-			# Molecule is already unbound
-			return
-
-		else:
-			# Molecule is bound to a normal location (not a fork)
-			strandIndex = molecule.attr('_transcriptStrand')
-			position = molecule.attr('_transcriptPosition')
-			directionBool = molecule.attr('_transcriptDirection')
-			extentForward = molecule.attr('_transcriptExtentForward')
-			extentReverse = molecule.attr('_transcriptExtentReverse')
-
-			region = self._region(position, directionBool, extentForward, extentReverse)
-
-			self._array[strandIndex, region] = self._empty
-
-			molecule.attrIs('_transcriptBound', False)
+	# 	else: # == (+)
+	# 		return np.arange(position-extentReverse, position+extentForward) % self._length
 
 
-	def moleculesBound(self, moleculeName = None, transcript = None, 
-			position = None, direction = None, extentForward = None,
-			extentReverse = None):
-		# Returns bound molecules, with sets of optional arguments:
-		# moleculeName: only molecules with this name
-		# transcript: molecules on this transcript
-		# +position, direction: molecule at a specific position
-		# +extentForward, extentReverse: molecules over a region
+	# def moleculeLocation(self, molecule):
+	# 	# Return the location a molecule, if it is bound to the chromosome
+	# 	if not molecule.attr('_transcriptBound'):
+	# 		return None
 
-		# TODO: check for inconsistent sets of arguments
-		# TODO: make the queries more efficient
+	# 	else:
+	# 		return (
+	# 			self._strandNames[molecule.attr('_transcriptStrand')], # TODO: attrs method
+	# 			molecule.attr('_transcriptPosition'),
+	# 			self._directionBoolToChar[molecule.attr('_transcriptDirection')],
+	# 			molecule.attr('_transcriptExtentForward'),
+	# 			molecule.attr('_transcriptExtentReverse'),
+	# 			)
 
-		specifiesName = moleculeName is not None
+	# # TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
 
-		specifiesPosition = (strand is not None and position is not None)
+	# def moleculeLocationIsUnbound(self, molecule):
+	# 	# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
+	# 	if not molecule.attr('_transcriptBound'):
+	# 		# Molecule is already unbound
+	# 		return
 
-		specifiesExtent = (direction is not None and extentForward is not None
-			and extentReverse is not None)
+	# 	else:
+	# 		# Molecule is bound to a normal location (not a fork)
+	# 		strandIndex = molecule.attr('_transcriptStrand')
+	# 		position = molecule.attr('_transcriptPosition')
+	# 		directionBool = molecule.attr('_transcriptDirection')
+	# 		extentForward = molecule.attr('_transcriptExtentForward')
+	# 		extentReverse = molecule.attr('_transcriptExtentReverse')
 
-		specificRequest = specifiesName or specifiesPosition
+	# 		region = self._region(position, directionBool, extentForward, extentReverse)
 
-		if specifiesPosition:
-			strandIndex = self._strandNameToIndex[strand]
+	# 		self._array[strandIndex, region] = self._empty
 
-			if specifiesExtent:
-				directionBool = self._directionCharToBool[direction]
-
-				region = self._region(position, directionBool, extentForward, extentReverse)
-
-				indexes = np.setdiff1d(
-					self._array[strandIndex, region],
-					self._specialValues
-					) - self._offset
-
-			else:
-				indexes = np.setdiff1d(
-					self._array[strandIndex, position],
-					self._specialValues
-					) - self._offset
-
-		else:
-			indexes = np.setdiff1d(self._array, self._specialValues) - self._offset
-
-		if specifiesName:
-			molecules = self._objectsContainer._objectsByGlobalIndex(indexes)
-
-			return {molecule for molecule in molecules
-				if molecule.name() == moleculeName}
-
-		else:
-			return self._objectsContainer._objectsByGlobalIndex(indexes)
+	# 		molecule.attrIs('_transcriptBound', False)
 
 
-	def moleculesUnbound(self):
-		# Returns a set of all unbound molecules
-		raise NotImplementedError()
+	# def moleculesBound(self, moleculeName = None, transcript = None, 
+	# 		position = None, direction = None, extentForward = None,
+	# 		extentReverse = None):
+	# 	# Returns bound molecules, with sets of optional arguments:
+	# 	# moleculeName: only molecules with this name
+	# 	# transcript: molecules on this transcript
+	# 	# +position, direction: molecule at a specific position
+	# 	# +extentForward, extentReverse: molecules over a region
+
+	# 	# TODO: check for inconsistent sets of arguments
+	# 	# TODO: make the queries more efficient
+
+	# 	specifiesName = moleculeName is not None
+
+	# 	specifiesPosition = (strand is not None and position is not None)
+
+	# 	specifiesExtent = (direction is not None and extentForward is not None
+	# 		and extentReverse is not None)
+
+	# 	specificRequest = specifiesName or specifiesPosition
+
+	# 	if specifiesPosition:
+	# 		strandIndex = self._strandNameToIndex[strand]
+
+	# 		if specifiesExtent:
+	# 			directionBool = self._directionCharToBool[direction]
+
+	# 			region = self._region(position, directionBool, extentForward, extentReverse)
+
+	# 			indexes = np.setdiff1d(
+	# 				self._array[strandIndex, region],
+	# 				self._specialValues
+	# 				) - self._offset
+
+	# 		else:
+	# 			indexes = np.setdiff1d(
+	# 				self._array[strandIndex, position],
+	# 				self._specialValues
+	# 				) - self._offset
+
+	# 	else:
+	# 		indexes = np.setdiff1d(self._array, self._specialValues) - self._offset
+
+	# 	if specifiesName:
+	# 		molecules = self._objectsContainer._objectsByGlobalIndex(indexes)
+
+	# 		return {molecule for molecule in molecules
+	# 			if molecule.name() == moleculeName}
+
+	# 	else:
+	# 		return self._objectsContainer._objectsByGlobalIndex(indexes)
+
+
+	# def moleculesUnbound(self):
+	# 	# Returns a set of all unbound molecules
+	# 	raise NotImplementedError()
 
 
 	def __eq__(self, other):
