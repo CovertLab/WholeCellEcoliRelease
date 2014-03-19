@@ -109,7 +109,8 @@ class TranscriptsContainer(object):
 
 		if (newLength <= reserved) or (
 				np.setdiff1d(self._array[region], self._inactiveValues).size == 0
-				and endPosition < self._length):
+				and endPosition < self._length
+				):
 			# No risk of collision
 			self._array[region] = self._empty
 
