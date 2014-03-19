@@ -80,6 +80,62 @@ class TranscriptsContainer(object):
 		self._objectsContainer =  UniqueObjectsContainer(molAttrs)
 
 
+	def transcriptNew(self, chromosomeOrigin, expectedLength = 0):
+		position = self._findFreePosition(expectedLength+1)
+
+		transcript = self._objectsContainer.objectNew(
+			'_transcript',
+			_transcriptPosition = position,
+			_transcriptOrigin = chromosomeOrigin,
+			_transcriptExtentReserved = expectedLength
+			)
+
+		self._array[position] = transcript.attr('_globalIndex') + self._offset
+
+		self._array[position+1:position+1+expectedLength] = self._reserved
+
+
+	def transcriptExtend(self, transcript, extent):
+		position = transcript.attr('_transcriptPosition')
+		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		currentLength = transcript.attr('_transcriptExtent')
+		reserved = transcript.attr('_transcriptExtentReserved')
+
+		newLength = currentLength + extent
+
+		endPosition = position+1 + newLength
+
+		region = np.arange(position+1 + currentLength, endPosition)
+
+		if (newLength <= reserved) or (
+				np.setdiff1d(self._array[region], self._inactiveValues).size == 0
+				and endPosition < self._length):
+			# No risk of collision
+			self._array[region] = self._empty
+
+		else:
+			# Find and move to a new location
+			oldRegion = np.arange(position, position+1+currentLength)
+
+			oldValues = self._array[oldRegion]
+			self._array[oldRegion] = self._unused
+
+			newPosition = self._findFreePosition(newLength+1)
+
+			# TODO: set new region to old values
+			# TODO: update transcript and molecules with new positions
+
+			raise NotImplementedError()
+
+
+	def _findFreePosition(self, extent):
+		raise NotImplementedError()
+
+
+	def transcriptDel(self, transcript):
+		raise NotImplementedError()
+
+
 	def moleculeNew(self, moleculeName, **attributes):
 		# Create a new, currently unbound molecule
 		return self._objectsContainer.objectNew(moleculeName, **attributes)
@@ -99,7 +155,7 @@ class TranscriptsContainer(object):
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
 		if not (self._array[strandIndex, region] == self._empty).all():
-			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
+			raise TranscriptsContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
