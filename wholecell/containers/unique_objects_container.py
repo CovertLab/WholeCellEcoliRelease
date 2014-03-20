@@ -7,11 +7,6 @@ appending entries in a structured array to tables with the same sets of fields.
 
 The UniqueObjectsContainer uses _UniqueObject objects to present a clean 
 interface to a specific molecule's attributes.
-
-The UniqueObjectsContainer also uses _Query objects to store and periodically
-update queries which return sets of _UniqueObject that refer to molecules 
-satisfying the query.
-
 '''
 
 from __future__ import division
@@ -72,7 +67,6 @@ class UniqueObjectsContainer(object):
 		self._arrays = [] # ordered list of arrays
 		self._nameToArrayIndex = {} # objectName:index of associated structured array
 
-		self._queries = [] # list of _Query objects
 		self._tableNames = {} # objectName:table name
 
 		self._objectAttributes.update(objectAttributes)
@@ -131,7 +125,7 @@ class UniqueObjectsContainer(object):
 
 		array['_globalIndex'][objectIndexes] = globalIndexes
 
-		return self._objects(arrayIndex, objectIndexes)
+		return _UniqueObjectSet(self, globalIndexes)
 
 
 	def objectNew(self, objectName, **attributes):
@@ -189,7 +183,7 @@ class UniqueObjectsContainer(object):
 		if operations:
 			arrayIndexes = set(xrange(len(self._arrays)))
 			arrayIndexes.remove(self._globalRefIndex)
-			
+
 			results = []
 
 			for arrayIndex in arrayIndexes:
@@ -233,15 +227,6 @@ class UniqueObjectsContainer(object):
 			
 
 
-	def evaluateQuery(self, objectName, **operations): # TODO: allow for queries over all or a subset of molecules
-		arrayIndex = self._nameToArrayIndex[objectName]
-
-		return self._objects(
-			arrayIndex,
-			np.where(self._queryObjects(arrayIndex, **operations))[0]
-			)
-	
-
 	def _queryObjects(self, arrayIndex, **operations):
 		operations['_entryState'] = ('==', ENTRY_ACTIVE)
 		array = self._arrays[arrayIndex]
@@ -258,52 +243,8 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def updateQueries(self):
-		for query in self._queries:
-			query._objectIndexes = np.where(
-				self._queryObjects(query._arrayIndex, **query._operations)
-				)[0]
-
-
-	def queryNew(self, objectName, **operations):
-		arrayIndex = self._nameToArrayIndex[objectName]
-
-		query = _Query(self, arrayIndex, **operations)
-
-		self._queries.append(query)
-
-		# TODO: return an old query object if the query is the same
-
-		return query
-
-
-	def objects(self, objectName):
-		return self._objects(self._nameToArrayIndex[objectName])
-
-
-	def _objects(self, arrayIndex, objectIndexes = None):
-		return set(self._iterObjects(arrayIndex, objectIndexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
-
-
 	def _objectsByGlobalIndex(self, globalIndexes): # TODO: make global index ref the internal standard behavior?
-		globalArray = self._arrays[self._globalRefIndex]
-
-		return set(
-			_UniqueObject(self, globalArray['_arrayIndex'][index], globalArray['_objectIndex'][index])
-			for index in globalIndexes
-			)
-
-
-	def iterObjects(self, objectName):
-		return self._iterObjects(self._nameToArrayIndex[objectName])
-
-
-	def _iterObjects(self, arrayIndex, objectIndexes = None):
-		if objectIndexes is None:
-			objectIndexes = np.where(self._arrays[arrayIndex]['_entryState'] == ENTRY_ACTIVE)[0]
-
-		return (_UniqueObject(self, arrayIndex, objectIndex) for objectIndex in objectIndexes)
-
+		return _UniqueObjectSet(self, globalIndexes)
 
 
 	def _timeIs(self, time):
@@ -388,44 +329,6 @@ class UniqueObjectsContainer(object):
 
 	# TODO: compute mass
 	# TODO: implement molecule transfer between containers
-
-
-class _Query(object):
-	'''
-	_Query
-
-	A reference to a query that can be updated by the parent container and 
-	inspected by a process.
-	'''
-
-	__slots__ = ('_container', '_arrayIndex', '_operations', '_objectIndexes')
-
-
-	def __init__(self, container, arrayIndex, **operations):
-		self._container = container
-		self._arrayIndex = arrayIndex
-		self._operations = operations
-		self._objectIndexes = None
-
-
-	def objects(self):
-		return self._container._objects(self._arrayIndex, self._objectIndexes)
-
-
-	def iterObjects(self):
-		return self._container._iterObjects(self._arrayIndex, self._objectIndexes)
-
-
-	def nObjects(self):
-		return self._objectIndexes.size
-
-
-	def _globalIndexes(self):
-		return self._container._arrays[self._arrayIndex][self._objectIndexes]['_globalIndex']
-
-
-	# TODO: sampling functions?  i.e. get N molecules
-	# TODO: subqueries?
 
 
 class _UniqueObject(object):
