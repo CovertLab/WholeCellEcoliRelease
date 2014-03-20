@@ -243,7 +243,7 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def _objectsByGlobalIndex(self, globalIndexes): # TODO: make global index ref the internal standard behavior?
+	def _objectsByGlobalIndex(self, globalIndexes):
 		return _UniqueObjectSet(self, globalIndexes)
 
 
@@ -343,18 +343,10 @@ class _UniqueObject(object):
 	__slots__ = ('_container', '_arrayIndex', '_objectIndex')
 
 
-	def __init__(self, container, arrayIndex, index):
+	def __init__(self, container, globalIndex):
 		self._container = container
-		self._arrayIndex = arrayIndex
-		self._objectIndex = index
-
-
-	@classmethod # temporary solution
-	def fromGlobalIndex(cls, container, globalIndex):
-		arrayIndex = container._arrays[container._globalRefIndex][globalIndex]['_arrayIndex']
-		objectIndex = container._arrays[container._globalRefIndex][globalIndex]['_objectIndex']
-
-		return cls(container, arrayIndex, objectIndex)
+		self._arrayIndex = container._arrays[container._globalRefIndex][globalIndex]['_arrayIndex']
+		self._objectIndex = container._arrays[container._globalRefIndex][globalIndex]['_objectIndex']
 
 
 	def name(self):
@@ -365,7 +357,7 @@ class _UniqueObject(object):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
-			raise UniqueObjectsContainerException('Attempted to access an inactive molecule.')
+			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		return entry[attribute]
 
@@ -374,7 +366,7 @@ class _UniqueObject(object):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
-			raise UniqueObjectsContainerException('Attempted to access an inactive molecule.')
+			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		return tuple(entry[attribute] for attribute in attributes)
 
@@ -383,24 +375,30 @@ class _UniqueObject(object):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
-			raise UniqueObjectsContainerException('Attempted to access an inactive molecule.')
+			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		for attribute, value in attributes.viewitems():
 			entry[attribute] = value
 
 
-	def __hash__(self): # TODO: remove once _UniqueObjectSet supplants sets
-		return hash((self._container, self._arrayIndex, self._objectIndex))
+	def __hash__(self):
+		return hash((self._arrayIndex, self._objectIndex))
 
 
 	def __eq__(self, other):
 		if not self._container is other._container:
-			raise UniqueObjectsContainerException('Molecule comparisons across UniqueMoleculesContainer objects not supported.')
+			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
 
 		return self._arrayIndex == other._arrayIndex and self._objectIndex == other._objectIndex
 
 
 class _UniqueObjectSet(object):
+	'''
+	_UniqueObjectSet
+
+	A set of objects, stored internally by their global indexes.  Iterable.
+	'''
+
 	# TODO: look into subclassing from collections.ViewKeys
 	def __init__(self, container, globalIndexes):
 		self._container = container
@@ -413,12 +411,19 @@ class _UniqueObjectSet(object):
 
 
 	def __iter__(self):
-		return (_UniqueObject.fromGlobalIndex(self._container, globalIndex)
+		return (_UniqueObject(self._container, globalIndex)
 			for globalIndex in self._globalIndexes)
 
 
 	def __len__(self):
 		return self._globalIndexes.size
+
+
+	def __eq__(self, other):
+		if not self._container is other._container:
+			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
+
+		return (self._globalIndexes == other._globalIndexes).all()
 
 	# TODO: set-like operations (union, intersection, etc.)
 	# TODO: group attribute setting/reading?

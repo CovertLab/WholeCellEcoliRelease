@@ -264,7 +264,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 		self.assertEqual(
 			molecules,
-			self.container.moleculesBound()
+			set(self.container.moleculesBound())
 			)
 
 
@@ -318,11 +318,11 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 		self.assertEqual(
 			set(molecules[:2]),
-			self.container.moleculesBound(
+			set(self.container.moleculesBound(
 				None,
 				self.container.rootStrand(), 0, '+',
 				200, 0
-				)
+				))
 			)
 
 

@@ -71,11 +71,10 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.container.objectsDel(molecules)
 
-		# TODO: reimplement
-		# self.assertEqual(
-		# 	self.container.objectsWithName_newMethod('RNA polymerase'),
-		# 	set()
-		# 	)
+		self.assertEqual(
+			len(self.container.objectsWithName_newMethod('RNA polymerase')),
+			0
+			)
 
 		# Make sure access to deleted molecules is blocked
 		for molecule in molecules:
@@ -85,12 +84,12 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		with self.assertRaises(UniqueObjectsContainerException) as context:
 			molecule.attr('boundToChromosome')
 
-		self.assertEqual(str(context.exception), 'Attempted to access an inactive molecule.')
+		self.assertEqual(str(context.exception), 'Attempted to access an inactive object.')
 
 		with self.assertRaises(UniqueObjectsContainerException) as context:
 			molecule.attrIs(boundToChromosome = False)
 
-		self.assertEqual(str(context.exception), 'Attempted to access an inactive molecule.')
+		self.assertEqual(str(context.exception), 'Attempted to access an inactive object.')
 
 	# Querying
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
@@ -178,8 +177,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		allMolecules = self.container.objectsWithName_newMethod('RNA polymerase')
 		newTime = self.container.objectsWithName_newMethod('RNA polymerase', _time = ('==', 50))
 
-		# TODO: reimplement
-		#self.assertEqual(allMolecules, newTime)
+		self.assertEqual(allMolecules, newTime)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
