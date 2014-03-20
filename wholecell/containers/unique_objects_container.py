@@ -187,7 +187,8 @@ class UniqueObjectsContainer(object):
 			results = []
 
 			for arrayIndex in arrayIndexes:
-				results.append(self._queryObjects(arrayIndex, **operations))
+				results.append(self._queryObjects(arrayIndex,
+					raiseOnMissingAttribute = False, **operations))
 
 			return _UniqueObjectSet(self, np.r_[tuple(
 				self._arrays[arrayIndex]['_globalIndex'][result]
@@ -226,24 +227,36 @@ class UniqueObjectsContainer(object):
 			)])
 
 
-	def _queryObjects(self, arrayIndex, **operations):
+	def _queryObjects(self, arrayIndex, raiseOnMissingAttribute = True, **operations):
 		operations['_entryState'] = ('==', ENTRY_ACTIVE)
 		array = self._arrays[arrayIndex]
 
-		return reduce(
-			np.logical_and,
-			(
-				self._queryOperations[operator](
-					array[attrName],
-					queryValue
-					)
-				for attrName, (operator, queryValue) in operations.viewitems()
+		try:
+			return reduce(
+				np.logical_and,
+				(
+					self._queryOperations[operator](
+						array[attrName],
+						queryValue
+						)
+					for attrName, (operator, queryValue) in operations.viewitems()
+				)
 			)
-		)
+
+		except ValueError:
+			if not raiseOnMissingAttribute and (operations.viewkeys() - set(array.dtype.names)):
+				return np.zeros(array.size, np.bool)
+
+			else:
+				raise
 
 
 	def _objectsByGlobalIndex(self, globalIndexes):
 		return _UniqueObjectSet(self, globalIndexes)
+
+
+	def _objectByGlobalIndex(self, globalIndex):
+		return _UniqueObject(self, globalIndex)
 
 
 	def _timeIs(self, time):
