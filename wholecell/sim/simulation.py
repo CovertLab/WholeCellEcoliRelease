@@ -187,6 +187,7 @@ class Simulation(object):
 		import wholecell.processes.toy_replication
 
 		# TODO: change this so it creates the objects after filtering
+		# TODO: raise an exception if an included process name doesn't exist
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
 			('Metabolism',			wholecell.processes.metabolism.Metabolism()),

@@ -7,11 +7,6 @@ appending entries in a structured array to tables with the same sets of fields.
 
 The UniqueObjectsContainer uses _UniqueObject objects to present a clean 
 interface to a specific molecule's attributes.
-
-The UniqueObjectsContainer also uses _Query objects to store and periodically
-update queries which return sets of _UniqueObject that refer to molecules 
-satisfying the query.
-
 '''
 
 from __future__ import division
@@ -24,6 +19,11 @@ import wholecell.utils.linear_programming as lp
 ENTRY_INACTIVE = 0 # a clear entry
 ENTRY_ACTIVE = 1 # an entry that is in use
 ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
+
+
+class UniqueObjectsContainerException(Exception):
+	pass
+
 
 class UniqueObjectsContainer(object):
 	'''
@@ -67,7 +67,6 @@ class UniqueObjectsContainer(object):
 		self._arrays = [] # ordered list of arrays
 		self._nameToArrayIndex = {} # objectName:index of associated structured array
 
-		self._queries = [] # list of _Query objects
 		self._tableNames = {} # objectName:table name
 
 		self._objectAttributes.update(objectAttributes)
@@ -106,6 +105,7 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsNew(self, objectName, nMolecules, **attributes):
+		# Create multiple objects of the same type and attribute values
 		arrayIndex = self._nameToArrayIndex[objectName]
 		objectIndexes = self._getFreeIndexes(arrayIndex, nMolecules)
 
@@ -125,7 +125,7 @@ class UniqueObjectsContainer(object):
 
 		array['_globalIndex'][objectIndexes] = globalIndexes
 
-		return self._objects(arrayIndex, objectIndexes)
+		return _UniqueObjectSet(self, globalIndexes)
 
 
 	def objectNew(self, objectName, **attributes):
@@ -154,7 +154,6 @@ class UniqueObjectsContainer(object):
 
 			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
 
-
 		return freeIndexes[:nMolecules]
 
 
@@ -179,14 +178,53 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def evaluateQuery(self, objectName, **operations): # TODO: allow for queries over all or a subset of molecules
+	def objects(self, **operations):
+		# Return all objects, optionally evaluating a query on !!every!! molecule (generally not what you want to do)
+		if operations:
+			arrayIndexes = set(xrange(len(self._arrays)))
+			arrayIndexes.remove(self._globalRefIndex)
+
+			results = []
+
+			for arrayIndex in arrayIndexes:
+				results.append(self._queryObjects(arrayIndex, **operations))
+
+			return _UniqueObjectSet(self, np.r_[tuple(
+				self._arrays[arrayIndex]['_globalIndex'][result]
+				for arrayIndex, result in zip(arrayIndexes, results)
+				)])
+
+		else:
+			return _UniqueObjectSet(self,
+				np.where(self._arrays[self._globalRefIndex]['_entryState'] == ENTRY_ACTIVE)[0]
+				)
+
+
+	def objectsWithName(self, objectName, **operations):
+		# Return all objects with a specific name and that optionally satisfy a set of attribute queries
 		arrayIndex = self._nameToArrayIndex[objectName]
 
-		return self._objects(
-			arrayIndex,
-			np.where(self._queryObjects(arrayIndex, **operations))[0]
+		result = self._queryObjects(arrayIndex, **operations)
+
+		return _UniqueObjectSet(self,
+			self._arrays[arrayIndex]['_globalIndex'][result]
 			)
-	
+
+
+	def objectsWithNames(self, objectNames, **operations):
+		# Returns all objects of a set of names that optionally satisfy a set of attribute queries
+
+		arrayIndexes = [self._nameToArrayIndex[objectName] for objectName in objectNames]
+		results = []
+
+		for arrayIndex in arrayIndexes:
+			results.append(self._queryObjects(arrayIndex, **operations))
+
+		return _UniqueObjectSet(self, np.r_[tuple(
+			self._arrays[arrayIndex]['_globalIndex'][result]
+			for arrayIndex, result in zip(arrayIndexes, results)
+			)])
+
 
 	def _queryObjects(self, arrayIndex, **operations):
 		operations['_entryState'] = ('==', ENTRY_ACTIVE)
@@ -204,52 +242,8 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def updateQueries(self):
-		for query in self._queries:
-			query._objectIndexes = np.where(
-				self._queryObjects(query._arrayIndex, **query._operations)
-				)[0]
-
-
-	def queryNew(self, objectName, **operations):
-		arrayIndex = self._nameToArrayIndex[objectName]
-
-		query = _Query(self, arrayIndex, **operations)
-
-		self._queries.append(query)
-
-		# TODO: return an old query object if the query is the same
-
-		return query
-
-
-	def objects(self, objectName):
-		return self._objects(self._nameToArrayIndex[objectName])
-
-
-	def _objects(self, arrayIndex, objectIndexes = None):
-		return set(self._iterObjects(arrayIndex, objectIndexes)) # TODO: return a set-like object that creates the _UniqueObject instances as needed
-
-
-	def _objectsByGlobalIndex(self, globalIndexes): # TODO: make global index ref the internal standard behavior?
-		globalArray = self._arrays[self._globalRefIndex]
-
-		return set(
-			_UniqueObject(self, globalArray['_arrayIndex'][index], globalArray['_objectIndex'][index])
-			for index in globalIndexes
-			)
-
-
-	def iterObjects(self, objectName):
-		return self._iterObjects(self._nameToArrayIndex[objectName])
-
-
-	def _iterObjects(self, arrayIndex, objectIndexes = None):
-		if objectIndexes is None:
-			objectIndexes = np.where(self._arrays[arrayIndex]['_entryState'] == ENTRY_ACTIVE)[0]
-
-		return (_UniqueObject(self, arrayIndex, objectIndex) for objectIndex in objectIndexes)
-
+	def _objectsByGlobalIndex(self, globalIndexes):
+		return _UniqueObjectSet(self, globalIndexes)
 
 
 	def _timeIs(self, time):
@@ -336,44 +330,6 @@ class UniqueObjectsContainer(object):
 	# TODO: implement molecule transfer between containers
 
 
-class _Query(object):
-	'''
-	_Query
-
-	A reference to a query that can be updated by the parent container and 
-	inspected by a process.
-	'''
-
-	__slots__ = ('_container', '_arrayIndex', '_operations', '_objectIndexes')
-
-
-	def __init__(self, container, arrayIndex, **operations):
-		self._container = container
-		self._arrayIndex = arrayIndex
-		self._operations = operations
-		self._objectIndexes = None
-
-
-	def objects(self):
-		return self._container._objects(self._arrayIndex, self._objectIndexes)
-
-
-	def iterObjects(self):
-		return self._container._iterObjects(self._arrayIndex, self._objectIndexes)
-
-
-	def nObjects(self):
-		return self._objectIndexes.size
-
-
-	def _globalIndexes(self):
-		return self._container._arrays[self._arrayIndex][self._objectIndexes]['_globalIndex']
-
-
-	# TODO: sampling functions?  i.e. get N molecules
-	# TODO: subqueries?
-
-
 class _UniqueObject(object):
 	'''
 	_UniqueObject
@@ -386,10 +342,10 @@ class _UniqueObject(object):
 	__slots__ = ('_container', '_arrayIndex', '_objectIndex')
 
 
-	def __init__(self, container, arrayIndex, index):
+	def __init__(self, container, globalIndex):
 		self._container = container
-		self._arrayIndex = arrayIndex
-		self._objectIndex = index
+		self._arrayIndex = container._arrays[container._globalRefIndex][globalIndex]['_arrayIndex']
+		self._objectIndex = container._arrays[container._globalRefIndex][globalIndex]['_objectIndex']
 
 
 	def name(self):
@@ -400,7 +356,7 @@ class _UniqueObject(object):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
-			raise Exception('Attempted to access an inactive molecule.')
+			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		return entry[attribute]
 
@@ -409,7 +365,7 @@ class _UniqueObject(object):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
-			raise Exception('Attempted to access an inactive molecule.')
+			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		return tuple(entry[attribute] for attribute in attributes)
 
@@ -418,21 +374,59 @@ class _UniqueObject(object):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
-			raise Exception('Attempted to access an inactive molecule.')
+			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		for attribute, value in attributes.viewitems():
 			entry[attribute] = value
 
 
 	def __hash__(self):
-		return hash((self._container, self._arrayIndex, self._objectIndex))
+		return hash((self._arrayIndex, self._objectIndex))
 
 
 	def __eq__(self, other):
-		assert self._container == other._container, 'Molecule comparisons across UniqueMoleculesContainer objects not supported.'
+		if not self._container is other._container:
+			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
+
 		return self._arrayIndex == other._arrayIndex and self._objectIndex == other._objectIndex
 
-	# TODO: method to get name
+
+class _UniqueObjectSet(object):
+	'''
+	_UniqueObjectSet
+
+	A set of objects, stored internally by their global indexes.  Iterable.
+	'''
+
+	# TODO: look into subclassing from collections.ViewKeys
+	def __init__(self, container, globalIndexes):
+		self._container = container
+		self._globalIndexes = globalIndexes
+
+
+	def __contains__(self, uniqueObject):
+		assert uniqueObject._container is self._container
+		return uniqueObject.attr('_globalIndex') in self._globalIndexes
+
+
+	def __iter__(self):
+		return (_UniqueObject(self._container, globalIndex)
+			for globalIndex in self._globalIndexes)
+
+
+	def __len__(self):
+		return self._globalIndexes.size
+
+
+	def __eq__(self, other):
+		if not self._container is other._container:
+			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
+
+		return (self._globalIndexes == other._globalIndexes).all()
+
+	# TODO: set-like operations (union, intersection, etc.)
+	# TODO: group attribute setting/reading?
+
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randStream):
 	# Arguments:
