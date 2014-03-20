@@ -106,10 +106,11 @@ class TranscriptsContainer(object):
 
 
 	def transcriptExtend(self, transcript, extent):
-		position = transcript.attr('_transcriptPosition')
 		transcriptIndex = transcript.attr('_globalIndex') + self._offset
-		currentExtent = transcript.attr('_transcriptExtent')
-		reserved = transcript.attr('_transcriptExtentReserved')
+
+		position, currentExtent, reserved = transcript.attrs(
+			'_transcriptPosition', '_transcriptExtent',
+			'_transcriptExtentReserved')
 
 		newExtent = currentExtent + extent
 
@@ -123,6 +124,8 @@ class TranscriptsContainer(object):
 				):
 			# No risk of collision
 			self._array[region] = self._empty
+
+			transcript.attrIs(_transcriptExtent = newExtent)
 
 		else:
 			# Find and move to a new location
@@ -141,11 +144,12 @@ class TranscriptsContainer(object):
 
 			self._array[newPosition+1 + currentExtent:newPosition+1 + newExtent] = self._empty
 
-			transcript.attrIs('_transcriptPosition', newPosition)
+			transcript.attrIs(
+				_transcriptPosition = newPosition,
+				_transcriptExtent = newExtent
+				)
 
 			# TODO: update molecules with new positions
-
-		transcript.attrIs('_transcriptExtent', newExtent)
 
 
 	def _findFreePosition(self, extent):
@@ -170,10 +174,8 @@ class TranscriptsContainer(object):
 		# TODO: unbind and return all molecules
 
 		position = transcript.attr('_transcriptPosition')
-		extent = np.max([
-			transcript.attr('_transcriptExtent'),
-			transcript.attr('_transcriptExtentReserved')
-			])
+		extent = np.max(transcript.attrs('_transcriptExtent',
+				'_transcriptExtentReserved'))
 
 		region = np.arange(position, position+1 + extent)
 

@@ -44,7 +44,7 @@ class Test_Simulation(unittest.TestCase):
 
 
 	# --- Tests for run-time errors ---
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_construction(self):
 		# Construct simulation
 		sim = wholecell.sim.simulation.Simulation()
@@ -150,7 +150,7 @@ class Test_Simulation(unittest.TestCase):
 
 
 	# --- Test ability to remove processes from simulation ---
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('mediumtest')
 	def test_removeProcesses(self):
 		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'])
 		self.assertEqual(['Transcription'], sim.processes.keys())

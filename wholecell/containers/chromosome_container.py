@@ -148,12 +148,14 @@ class ChromosomeContainer(object):
 
 		self.moleculeLocationIsUnbound(molecule)
 
-		molecule.attrIs('_chromBound', True) # TODO: attrsAre method
-		molecule.attrIs('_chromStrand', strandIndex)
-		molecule.attrIs('_chromPosition', position)
-		molecule.attrIs('_chromDirection', directionBool)
-		molecule.attrIs('_chromExtentForward', extentForward)
-		molecule.attrIs('_chromExtentReverse', extentReverse)
+		molecule.attrIs(
+			_chromBound = True,
+			_chromStrand = strandIndex,
+			_chromPosition = position,
+			_chromDirection = directionBool,
+			_chromExtentForward = extentForward,
+			_chromExtentReverse = extentReverse
+			)
 
 		self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
 
@@ -165,9 +167,8 @@ class ChromosomeContainer(object):
 		if not (extentForward > 0 or extentReverse > 0):
 			raise ChrosomeContainerException('The footprint of a molecule placed on a fork must be > 1')
 
-		forkStrand = fork.attr('_chromStrand')
-		forkPosition = fork.attr('_chromPosition')
-		forkDirection = fork.attr('_chromDirection')
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
 
 		(regionParent, regionChildA, regionChildB) = self._forkedRegions(
 			forkPosition, forkDirection, extentForward,	extentReverse)
@@ -185,13 +186,15 @@ class ChromosomeContainer(object):
 
 		self.moleculeLocationIsUnbound(molecule)
 
-		molecule.attrIs('_chromBound', True)
-		molecule.attrIs('_chromStrand', forkStrand)
-		molecule.attrIs('_chromPosition', forkPosition)
-		molecule.attrIs('_chromDirection', forkDirection)
-		molecule.attrIs('_chromExtentForward', extentForward)
-		molecule.attrIs('_chromExtentReverse', extentReverse)
-		molecule.attrIs('_chromBoundToFork', True)
+		molecule.attrIs(
+			_chromBound = True,
+			_chromStrand = forkStrand,
+			_chromPosition = forkPosition,
+			_chromDirection = forkDirection,
+			_chromExtentForward = extentForward,
+			_chromExtentReverse = extentReverse,
+			_chromBoundToFork = True
+			)
 
 		index = molecule.attr('_globalIndex') + self._offset
 
@@ -249,11 +252,10 @@ class ChromosomeContainer(object):
 
 		elif molecule.attr('_chromBoundToFork'):
 			# Molecule is bound to a fork
-			strandIndex = molecule.attr('_chromStrand')
-			position = molecule.attr('_chromPosition')
-			directionBool = molecule.attr('_chromDirection')
-			extentForward = molecule.attr('_chromExtentForward')
-			extentReverse = molecule.attr('_chromExtentReverse')
+			(strandIndex, position, directionBool, extentForward, extentReverse
+				) = molecule.attrs('_chromStrand', '_chromPosition',
+				'_chromDirection', '_chromExtentForward',
+				'_chromExtentReverse')
 
 			(childStrandA, childStrandB) = self._strandChildrenIndexes[strandIndex]
 
@@ -264,23 +266,24 @@ class ChromosomeContainer(object):
 			self._array[childStrandA, regionChildA] = self._empty
 			self._array[childStrandB, regionChildB] = self._empty
 
-			molecule.attrIs('_chromBound', False)
-			molecule.attrIs('_chromBoundToFork', False)
+			molecule.attrIs(
+				_chromBound = False,
+				_chromBoundToFork = False
+				)
 
 
 		else:
 			# Molecule is bound to a normal location (not a fork)
-			strandIndex = molecule.attr('_chromStrand')
-			position = molecule.attr('_chromPosition')
-			directionBool = molecule.attr('_chromDirection')
-			extentForward = molecule.attr('_chromExtentForward')
-			extentReverse = molecule.attr('_chromExtentReverse')
+			(strandIndex, position, directionBool, extentForward, extentReverse
+				) = molecule.attrs('_chromStrand', '_chromPosition',
+				'_chromDirection', '_chromExtentForward',
+				'_chromExtentReverse')
 
 			region = self._region(position, directionBool, extentForward, extentReverse)
 
 			self._array[strandIndex, region] = self._empty
 
-			molecule.attrIs('_chromBound', False)
+			molecule.attrIs(_chromBound = False)
 
 
 	def moleculesBound(self, moleculeName = None, strand = None, 
@@ -401,9 +404,8 @@ class ChromosomeContainer(object):
 		# Move a fork along its parent strand (shortening the parent and 
 		# elongating the children), and return the new position
 
-		forkStrand = fork.attr('_chromStrand')
-		forkPosition = fork.attr('_chromPosition')
-		forkDirection = fork.attr('_chromDirection')
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
 
 		strandChildA, strandChildB = self._strandChildrenIndexes[forkStrand]
 
@@ -424,7 +426,7 @@ class ChromosomeContainer(object):
 		self._array[strandChildB, region] = self._empty
 
 		self._array[forkStrand, forkPosition] = self._inactive
-		fork.attrIs('_chromPosition', newPosition)
+		fork.attrIs(_chromPosition = newPosition)
 		self._array[forkStrand, newPosition] = fork.attr('_globalIndex') + self._offset
 
 		return newPosition

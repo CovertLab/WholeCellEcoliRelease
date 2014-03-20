@@ -77,13 +77,15 @@ class ToyTranscription(wholecell.processes.process.Process):
 		unbound = self.unboundRNApoly.molecules()
 
 		for molecule in bound:
-			molecule.attrIs('boundToChromosome', False)
-			molecule.attrIs('chromosomeLocation', 0)
+			molecule.attrIs(
+				boundToChromosome = False,
+				chromosomeLocation = 0
+				)
 
 		for molecule in unbound:
-			molecule.attrIs('boundToChromosome', True)
-			molecule.attrIs('chromosomeLocation',
-				self.randStream.randi(self.chromosomeLength)
+			molecule.attrIs(
+				boundToChromosome = True,
+				chromosomeLocation = self.randStream.randi(self.chromosomeLength)
 				)
 
 		self.unboundRNApoly.moleculesNew(

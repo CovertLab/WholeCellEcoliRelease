@@ -81,7 +81,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(str(context.exception), 'Attempted to access an inactive molecule.')
 
 		with self.assertRaises(Exception) as context:
-			molecule.attrIs('boundToChromosome', False)
+			molecule.attrIs(boundToChromosome = False)
 
 		self.assertEqual(str(context.exception), 'Attempted to access an inactive molecule.')
 
@@ -145,8 +145,10 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
 		for molecule in self.container.iterObjects('RNA polymerase'):
-			molecule.attrIs('boundToChromosome', True)
-			molecule.attrIs('chromosomeLocation', 100)
+			molecule.attrIs(
+				boundToChromosome = True,
+				chromosomeLocation = 100
+				)
 
 		for molecule in self.container.iterObjects('RNA polymerase'):
 			self.assertEqual(
@@ -173,7 +175,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 		for molecule in query.iterObjects():
-			molecule.attrIs('boundToChromosome', False)
+			molecule.attrIs(boundToChromosome = False)
 
 		self.container.updateQueries()
 

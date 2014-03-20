@@ -63,17 +63,6 @@ class UniqueMolecules(wholecell.states.state.State):
 
 	
 	def calcInitialConditions(self):
-		# TODO: create a generalized calcInitialConditions routine as method of
-		# the Simulation class, or as a separate function like fitSimulation
-
-		# # Add some molecules for testing save/load
-		# self._container.moleculesNew(
-		# 	'RNA polymerase',
-		# 	20,
-		# 	boundToChromosome = True, # just some example parameters
-		# 	chromosomeLocation = 50
-		# 	)
-
 		pass
 
 
@@ -114,10 +103,8 @@ class UniqueMolecules(wholecell.states.state.State):
 				)
 
 			for molecule in molecules:
-				molecule.attrIs(
-					'_partitionedProcess',
-					view._processIndex + 1 # "0", being the default, is reserved for unpartitioned molecules
-					)
+				molecule.attrIs(_partitionedProcess = view._processIndex + 1)
+				# "0", being the default, is reserved for unpartitioned molecules
 
 
 	def pytablesCreate(self, h5file, expectedRows):

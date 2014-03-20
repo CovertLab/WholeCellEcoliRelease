@@ -405,13 +405,23 @@ class _UniqueObject(object):
 		return entry[attribute]
 
 
-	def attrIs(self, attribute, value):
+	def attrs(self, *attributes):
 		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
 		
 		if not entry['_entryState'] == ENTRY_ACTIVE:
 			raise Exception('Attempted to access an inactive molecule.')
 
-		entry[attribute] = value
+		return tuple(entry[attribute] for attribute in attributes)
+
+
+	def attrIs(self, **attributes):
+		entry = self._container._arrays[self._arrayIndex][self._objectIndex]
+		
+		if not entry['_entryState'] == ENTRY_ACTIVE:
+			raise Exception('Attempted to access an inactive molecule.')
+
+		for attribute, value in attributes.viewitems():
+			entry[attribute] = value
 
 
 	def __hash__(self):
