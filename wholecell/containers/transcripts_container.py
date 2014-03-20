@@ -268,62 +268,7 @@ class TranscriptsContainer(object):
 			molecule.attrIs(_transBound = False)
 
 
-	# def moleculesBound(self, moleculeName = None, transcript = None, 
-	# 		position = None, direction = None, extentForward = None,
-	# 		extentReverse = None):
-	# 	# Returns bound molecules, with sets of optional arguments:
-	# 	# moleculeName: only molecules with this name
-	# 	# transcript: molecules on this transcript
-	# 	# +position, direction: molecule at a specific position
-	# 	# +extentForward, extentReverse: molecules over a region
-
-	# 	# TODO: check for inconsistent sets of arguments
-	# 	# TODO: make the queries more efficient
-
-	# 	specifiesName = moleculeName is not None
-
-	# 	specifiesPosition = (strand is not None and position is not None)
-
-	# 	specifiesExtent = (direction is not None and extentForward is not None
-	# 		and extentReverse is not None)
-
-	# 	specificRequest = specifiesName or specifiesPosition
-
-	# 	if specifiesPosition:
-	# 		strandIndex = self._strandNameToIndex[strand]
-
-	# 		if specifiesExtent:
-	# 			directionBool = self._directionCharToBool[direction]
-
-	# 			region = self._region(position, directionBool, extentForward, extentReverse)
-
-	# 			indexes = np.setdiff1d(
-	# 				self._array[strandIndex, region],
-	# 				self._specialValues
-	# 				) - self._offset
-
-	# 		else:
-	# 			indexes = np.setdiff1d(
-	# 				self._array[strandIndex, position],
-	# 				self._specialValues
-	# 				) - self._offset
-
-	# 	else:
-	# 		indexes = np.setdiff1d(self._array, self._specialValues) - self._offset
-
-	# 	if specifiesName:
-	# 		molecules = self._objectsContainer._objectsByGlobalIndex(indexes)
-
-	# 		return {molecule for molecule in molecules
-	# 			if molecule.name() == moleculeName}
-
-	# 	else:
-	# 		return self._objectsContainer._objectsByGlobalIndex(indexes)
-
-
-	# def moleculesUnbound(self):
-	# 	# Returns a set of all unbound molecules
-	# 	raise NotImplementedError()
+	# TODO: bound/unbound methods
 
 
 	def __eq__(self, other):
