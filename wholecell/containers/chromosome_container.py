@@ -433,11 +433,6 @@ class ChromosomeContainer(object):
 		raise NotImplementedError()
 
 
-	def moleculeOnFork(self, fork):
-		# Return the molecule on a fork, if any
-		raise NotImplementedError()
-
-
 	def rootStrand(self):
 		# Return the character used to identify the root strand
 		return self._rootChar
