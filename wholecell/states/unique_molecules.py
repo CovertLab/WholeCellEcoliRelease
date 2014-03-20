@@ -47,7 +47,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self.time = None
 
-		self._container = None
+		self.container = None
 
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
 
@@ -59,28 +59,22 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		# TODO: use the updated KB object to get these properties
 
-		self._container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
+		self.container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
 
 	
 	def calcInitialConditions(self):
 		pass
 
 
-	def updateQueries(self):
-		self._container.updateQueries()
-
-		super(UniqueMolecules, self).updateQueries()
-
-
 	def partition(self):
 		# Set the correct time for saving purposes
-		self._container._timeIs(self.time.value)
+		self.container._timeIs(self.time.value)
 
 		# Clear out any deleted entries to make room for new molecules
-		self._container._flushDeleted()
+		self.container._flushDeleted()
 		
 		# Gather requests
-		nMolecules = self._container._arrays[self._container._globalRefIndex].size
+		nMolecules = self.container._arrays[self.container._globalRefIndex].size
 		nViews = len(self._views)
 
 		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)
@@ -88,7 +82,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		requestProcessArray = np.zeros((nViews, self._nProcesses), np.bool)
 
 		for viewIndex, view in enumerate(self._views):
-			objectRequestsArray[view._queryObject._globalIndexes(), viewIndex] = True
+			objectRequestsArray[view._queryResult._globalIndexes, viewIndex] = True
 
 			requestNumberVector[viewIndex] = view._request()
 
@@ -98,7 +92,7 @@ class UniqueMolecules(wholecell.states.state.State):
 			requestNumberVector, requestProcessArray, self.randStream)
 
 		for view in self._views:
-			molecules = self._container._objectsByGlobalIndex(
+			molecules = self.container._objectsByGlobalIndex(
 				np.where(partitionedMolecules[:, view._processIndex])[0]
 				)
 
@@ -108,15 +102,15 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		# self._container.pytablesCreate(h5file)
+		# self.container.pytablesCreate(h5file)
 		pass
 
 
 	def pytablesAppend(self, h5file):
-		# self._container.pytablesAppend(h5file, self.time.value)
+		# self.container.pytablesAppend(h5file, self.time.value)
 		pass
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		# self._container.pytablesLoad(h5file, timePoint)
+		# self.container.pytablesLoad(h5file, timePoint)
 		pass

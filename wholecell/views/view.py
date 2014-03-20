@@ -140,19 +140,22 @@ class UniqueMoleculesView(View):
 	def __init__(self, *args, **kwargs):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
 
-		self._queryObject = self._state._container.queryNew(
-			self._query[0], **self._query[1]
-			)
+		self._queryResult = None
 
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
 
-		self._totalIs(self._queryObject.nObjects())
+		self._queryResult = self._state.container.objectsWithName_newMethod(
+			self._query[0],
+			**self._query[1]
+			)
+
+		self._totalIs(len(self._queryResult))
 
 
 	def molecules(self):
-		return self._state._container.evaluateQuery(
+		return self._state.container.objectsWithName_newMethod(
 			self._query[0],
 			_partitionedProcess = ('==', self._processIndex + 1),
 			**self._query[1]
@@ -162,15 +165,15 @@ class UniqueMoleculesView(View):
 	# and the objects created/deleted.  As such it may make more sense for these
 	# to be process methods, not view methods. - JM
 	def moleculeDel(self, molecule):
-		self._state._container.objectDel(molecule)
+		self._state.container.objectDel(molecule)
 
 
 	def moleculesDel(self, molecules):
-		self._state._container.objectsDel(molecules)
+		self._state.container.objectsDel(molecules)
 
 	
 	def moleculeNew(self, moleculeName, **attributes):
-		self._state._container.objectNew(
+		self._state.container.objectNew(
 			moleculeName,
 			_partitionedProcess = ('==', self._processIndex + 1),
 			**attributes
@@ -178,7 +181,7 @@ class UniqueMoleculesView(View):
 
 
 	def moleculesNew(self, moleculeName, nMolecules, **attributes):
-		self._state._container.objectsNew(
+		self._state.container.objectsNew(
 			moleculeName,
 			nMolecules,
 			_partitionedProcess = self._processIndex + 1,

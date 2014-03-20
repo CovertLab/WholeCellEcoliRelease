@@ -41,18 +41,18 @@ class ToyTranscription(wholecell.processes.process.Process):
 		super(ToyTranscription, self).initialize(sim, kb)
 
 		# HACK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		container = sim.states["UniqueMolecules"]._container
+		container = sim.states["UniqueMolecules"].container
 
 		container.objectsNew('RNA polymerase', self.initialCounts)
-		for molecule in container.iterObjects('RNA polymerase'):
+		for molecule in container.objectsWithName_newMethod('RNA polymerase'):
 			if self.randStream.rand() <= self.bindingProb:
-				molecule.attrIs('boundToChromosome', True)
+				molecule.attrIs(boundToChromosome = True)
 				location = self.randStream.randi(self.chromosomeLength)
-				molecule.attrIs('chromosomeLocation', location)
+				molecule.attrIs(chromosomeLocation = location)
 
 			else:
-				molecule.attrIs('boundToChromosome', False)
-				molecule.attrIs('chromosomeLocation', -1)
+				molecule.attrIs(boundToChromosome = False)
+				molecule.attrIs(chromosomeLocation = -1)
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -92,5 +92,3 @@ class ToyTranscription(wholecell.processes.process.Process):
 			'RNA polymerase',
 			self.creationRate
 			)
-
-		print len(bound), len(unbound)
