@@ -23,6 +23,7 @@ class Transcription(wholecell.processes.process.Process):
 		# Constants
 		self.rnaPolymeraseTransitionProb = None
 		self.promoterBindingProbabilities = None
+		self.rnaPolymeraseFootprint = None
 
 		super(Transcription, self).__init__()
 
@@ -46,6 +47,8 @@ class Transcription(wholecell.processes.process.Process):
 		#				'sigmaFactor', 'a'])
 
 
+		self.rnaPolymeraseFootprint = kb.parameters['rnaPolymeraseFootprint']
+
 		## Create partitions
 		# Sigma factors
 		self.freeSigma = self.bulkMoleculeView(['RPOD-MONOMER']) # Only Sigma D in here now
@@ -56,15 +59,15 @@ class Transcription(wholecell.processes.process.Process):
 		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX'. {'bindingState' : 'specific'})
 
 		# Chromosome
-		self.chromosomeAllocation = None
-		# Still need to figure out how to create
-		# Request RNA polymerase foot print at every promoter
-		# Request 
+		self.promoters = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
+		self.randomBinding = self.chromosomeRandomRequest(self.rnaPolymeraseFootprint)
 
 
 	def calculateRequest(self):
 		self.freeSigma.requestAll()
 		self.freePolymerase.requestAll()
+
+
 
 		# TODO
 		self.nonSpecificallyBoundRnaPolymerase
