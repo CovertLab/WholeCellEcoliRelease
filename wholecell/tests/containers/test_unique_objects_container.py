@@ -52,7 +52,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_add_molecule(self):
 		self.container.objectNew('RNA polymerase')
 
-		self.assertEqual(len(self.container.objectsWithName_newMethod('RNA polymerase')), 21)
+		self.assertEqual(len(self.container.objectsWithName('RNA polymerase')), 21)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
@@ -60,19 +60,19 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.container.objectsNew('RNA polymerase', 20)
 
 		self.assertEqual(
-			len(self.container.objectsWithName_newMethod('RNA polymerase')),
+			len(self.container.objectsWithName('RNA polymerase')),
 			40
 			)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_delete_molecules(self):
-		molecules = self.container.objectsWithName_newMethod('RNA polymerase')
+		molecules = self.container.objectsWithName('RNA polymerase')
 
 		self.container.objectsDel(molecules)
 
 		self.assertEqual(
-			len(self.container.objectsWithName_newMethod('RNA polymerase')),
+			len(self.container.objectsWithName('RNA polymerase')),
 			0
 			)
 
@@ -94,14 +94,14 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Querying
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_empty_query(self):
-		molecules = self.container.objectsWithName_newMethod('RNA polymerase')
+		molecules = self.container.objectsWithName('RNA polymerase')
 
 		self.assertEqual(len(molecules), 20)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_bool_query(self):
-		molecules = self.container.objectsWithName_newMethod(
+		molecules = self.container.objectsWithName(
 			'RNA polymerase',
 			boundToChromosome = ('==', False)
 			)
@@ -117,7 +117,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_numeric_query(self):
-		molecules = self.container.objectsWithName_newMethod(
+		molecules = self.container.objectsWithName(
 			'RNA polymerase',
 			chromosomeLocation = ('>', 0)
 			)
@@ -133,7 +133,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_compound_query(self):
-		molecules = self.container.objectsWithName_newMethod(
+		molecules = self.container.objectsWithName(
 			'RNA polymerase',
 			boundToChromosome = ('!=', False),
 			chromosomeLocation = ('>', 0)
@@ -150,13 +150,13 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Attribute access
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
-		for molecule in self.container.objectsWithName_newMethod('RNA polymerase'):
+		for molecule in self.container.objectsWithName('RNA polymerase'):
 			molecule.attrIs(
 				boundToChromosome = True,
 				chromosomeLocation = 100
 				)
 
-		for molecule in self.container.objectsWithName_newMethod('RNA polymerase'):
+		for molecule in self.container.objectsWithName('RNA polymerase'):
 			self.assertEqual(
 				molecule.attr('boundToChromosome'),
 				True
@@ -174,8 +174,8 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_time_setting(self):
 		self.container._timeIs(50)
 
-		allMolecules = self.container.objectsWithName_newMethod('RNA polymerase')
-		newTime = self.container.objectsWithName_newMethod('RNA polymerase', _time = ('==', 50))
+		allMolecules = self.container.objectsWithName('RNA polymerase')
+		newTime = self.container.objectsWithName('RNA polymerase', _time = ('==', 50))
 
 		self.assertEqual(allMolecules, newTime)
 
@@ -183,7 +183,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_deleted_entry_flushing(self):
 		# First, make sure that deleted entries are not overwritten
-		molecules = self.container.objectsWithName_newMethod('RNA polymerase')
+		molecules = self.container.objectsWithName('RNA polymerase')
 		indexes = {molecule._objectIndex for molecule in molecules}
 
 		self.container.objectsDel(molecules)
@@ -207,7 +207,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_global_index_mapping(self):
 		globalArray = self.container._arrays[self.container._globalRefIndex]
 
-		for molecule in self.container.objectsWithName_newMethod('RNA polymerase'):
+		for molecule in self.container.objectsWithName('RNA polymerase'):
 			globalIndex = molecule.attr('_globalIndex')
 
 			globalEntry = globalArray[globalIndex]
@@ -223,7 +223,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_global_index_removal(self):
 		globalArray = self.container._arrays[self.container._globalRefIndex]
 
-		for molecule in self.container.objectsWithName_newMethod('RNA polymerase'):
+		for molecule in self.container.objectsWithName('RNA polymerase'):
 			# Weird logic to get one molecule
 			break
 
@@ -254,14 +254,14 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objects(self):
-		objectSet = self.container.objects_newMethod()
+		objectSet = self.container.objects()
 
 		self.assertEqual(len(objectSet), 20)
 
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
 
-		objectSet = self.container.objects_newMethod(chromosomeLocation = ('>', 0))
+		objectSet = self.container.objects(chromosomeLocation = ('>', 0))
 
 		self.assertEqual(len(objectSet), 5)
 
@@ -270,14 +270,14 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_objectsWithName(self):
 		self.container.objectsNew('DNA polymerase', 20)
 
-		objectSet = self.container.objectsWithName_newMethod('RNA polymerase')
+		objectSet = self.container.objectsWithName('RNA polymerase')
 
 		self.assertEqual(len(objectSet), 20)
 
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
 
-		objectSet = self.container.objectsWithName_newMethod(
+		objectSet = self.container.objectsWithName(
 			'RNA polymerase', chromosomeLocation = ('>', 0))
 
 		self.assertEqual(len(objectSet), 5)
@@ -287,7 +287,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_objectsWithNames(self):
 		self.container.objectsNew('DNA polymerase', 20)
 
-		objectSet = self.container.objectsWithNames_newMethod(
+		objectSet = self.container.objectsWithNames(
 			['RNA polymerase', 'DNA polymerase'])
 
 		self.assertEqual(len(objectSet), 40)
@@ -295,7 +295,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
 
-		objectSet = self.container.objectsWithNames_newMethod(
+		objectSet = self.container.objectsWithNames(
 			['RNA polymerase', 'DNA polymerase'], chromosomeLocation = ('==', 0))
 
 		self.assertEqual(len(objectSet), 35)

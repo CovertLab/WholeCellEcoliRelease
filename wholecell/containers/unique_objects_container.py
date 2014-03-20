@@ -178,7 +178,7 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objects_newMethod(self, **operations):
+	def objects(self, **operations):
 		# Return all objects, optionally evaluating a query on !!every!! molecule (generally not what you want to do)
 		if operations:
 			arrayIndexes = set(xrange(len(self._arrays)))
@@ -200,7 +200,7 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsWithName_newMethod(self, objectName, **operations):
+	def objectsWithName(self, objectName, **operations):
 		# Return all objects with a specific name and that optionally satisfy a set of attribute queries
 		arrayIndex = self._nameToArrayIndex[objectName]
 
@@ -211,7 +211,7 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objectsWithNames_newMethod(self, objectNames, **operations):
+	def objectsWithNames(self, objectNames, **operations):
 		# Returns all objects of a set of names that optionally satisfy a set of attribute queries
 
 		arrayIndexes = [self._nameToArrayIndex[objectName] for objectName in objectNames]
