@@ -160,7 +160,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
 
-		feistCoreView = self._container.countsView(self.biomass['metabolite_id'])
+		feistCoreView = self._container.countsView(self.biomass['metaboliteId'])
 		h2oView = self._container.countView('H2O[c]')
 		ntpsView = self._container.countsView(IDS['ntps'])
 		matureRnaView = self._container.countsView(
@@ -176,7 +176,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# what was hard coded before. This causes it to grow much faster.
 		feistCoreView.countsIs(
 			np.round(
-				np.fmax(self.biomass['biomass_flux'],0) * 1e-3 * Constants.nAvogadro * initialDryMass
+				np.fmax(self.biomass['biomassFlux'],0) * 1e-3 * Constants.nAvogadro * initialDryMass
 				)
 			)
 
