@@ -30,6 +30,7 @@ class Transcription(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Transcription, self).initialize(sim, kb)
 
+		## Load constants from Knowledge Base
 		self.rnaPolymeraseTransitionProb = kb.rnaPolymeraseTransitionProb
 		# kb.rnaPolymeraseTransitionProb = {
 		# 	'fromFree' 			: {'toFree' : 0.1, 'toNonspecific': 0.5, 'toSpecific' : 0.4},
@@ -38,48 +39,38 @@ class Transcription(wholecell.processes.process.Process):
 		# }
 
 
+		self.promoterBindingProbabilities = kb.promoterBindingProbabilities
+		# kb.promoterBindingProbabilities = numpy.array(len(promoters),
+		#	dtype = [('promoterId', 'a'),
+		#				'bindingProb', 'f',
+		#				'sigmaFactor', 'a'])
+
+
+		## Create partitions
 		# Sigma factors
-		self.freeSigma = self.bulkMoleculeView['RPOD-MONOMER'] # Only Sigma D in here now
+		self.freeSigma = self.bulkMoleculeView(['RPOD-MONOMER']) # Only Sigma D in here now
 
 		# RNA polymerase
-		self.freeRnaPolymerase					= self.bulkMoleculeView['APORNAP-CPLX[c]']
-		self.nonSpecificallyBoundRnaPolymerase	= self.uniqueMoleculeView['APORNAP-CPLX'] # Fix
-		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculeView['RNAP70-CPLX'] # Fix
+		self.freeRnaPolymerase					= self.bulkMoleculeView(['APORNAP-CPLX[c]'])
+		self.nonSpecificallyBoundRnaPolymerase	= self.uniqueMoleculesView('APORNAP-CPLX', {'bindingState' : 'nonSpecific'})
+		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX'. {'bindingState' : 'specific'})
 
-
-
-		# RNA
-		self.rnaNtCounts = np.array([x["ntCount"] for x in kb.rnas])
-		self.rnaLens = np.sum(self.rnaNtCounts, axis = 1)
-		
-		halflives = np.array([x["halfLife"] for x in kb.rnas])
-		self.rnaSynthProb = sim.states['BulkMolecules']._rnaExp * (np.log(2) / self.cellCycleLength + 1 / halflives)
-		self.rnaSynthProb /= np.sum(self.rnaSynthProb)
-
-		# Views
-		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.proton = self.bulkMoleculeView('H[c]')
-
-		self.rnas = self.bulkMoleculesView(rnaIds)
-
-		self.rnapSubunits = self.bulkMoleculesView(enzIds)
+		# Chromosome
+		self.chromosomeAllocation = None
+		# Still need to figure out how to create
+		# Request RNA polymerase foot print at every promoter
+		# Request 
 
 
 	def calculateRequest(self):
-		rnaPolymerases = (self.rnapSubunits.total() // [2, 1, 1, 1]).min()
+		self.freeSigma.requestAll()
+		self.freePolymerase.requestAll()
 
-		ntpEstimate = 4 * self.ntps.total().min()
+		# TODO
+		self.nonSpecificallyBoundRnaPolymerase
+		self.nonSpecificallyBoundRnaPolymerase
 
-		nPolymerizationReactions = np.min([
-			ntpEstimate,
-			rnaPolymerases * self.elngRate * self.timeStepSec
-			])
-
-		self.ntps.requestIs(nPolymerizationReactions // 4)
-		self.h2o.requestIs(nPolymerizationReactions)
-		self.rnapSubunits.requestAll()
+		self.chromosomeAllocation
 
 
 	# Calculate temporal evolution
