@@ -62,7 +62,8 @@ class ToyReplication(wholecell.processes.process.Process):
 			# Break if no DNA polymerase
 			if dnaPolymerase is None:
 				print 'No DNA polymerase on fork'
-				break
+				
+				continue
 
 			# Determine how far we can extend
 			extent = self.replicationForks.maximumExtent( # how far we can move without hitting 1) the end of the partitioned space or 2) a fork, up to "extent"
@@ -84,7 +85,8 @@ class ToyReplication(wholecell.processes.process.Process):
 				# TODO: remove molecules on final position, and move molecules
 				# passed onto a random strand in the same position
 				print 'Encountered molecules within fork extension range'
-				break
+				
+				continue
 
 			# Unbind the DNA polymerase, for the moment
 			self.replicationForks.moleculeLocationIsUnbound(dnaPolymerase)
