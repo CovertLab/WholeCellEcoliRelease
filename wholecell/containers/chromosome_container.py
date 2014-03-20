@@ -289,7 +289,7 @@ class ChromosomeContainer(object):
 
 			molecule.attrIs(_chromBound = False)
 
-
+	# TODO: insure these methods don't return _fork objects
 	def moleculesBound(self):
 		return self._objectsContainer.objects(_chromBound = ('==', True))
 
@@ -303,7 +303,7 @@ class ChromosomeContainer(object):
 			_chromBound = ('==', True))
 
 
-	def moleculeBoundAtPosition(self, strand, position):
+	def moleculeBoundAtPosition(self, strand, position): # TODO: test
 		strandIndex = self._strandNameToIndex[strand]
 		
 		index = self._array[strandIndex, position] - self._offset
@@ -315,12 +315,19 @@ class ChromosomeContainer(object):
 			return self._objectsContainer._objectByGlobalIndex(index)
 
 
-	def moleculeBoundOnFork(self, fork):
-		forkStrand, forkPosition = fork.attrs('_chromStrand', '_chromPosition')
-		
-		index = self._array[forkStrand, forkPosition] - self._offset
+	def moleculeBoundOnFork(self, fork): # TODO: test
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
 
-		if index < 0:
+		if forkDirection: # == (-)
+			position = forkPosition + 1
+
+		else: # == (+)
+			position = forkPosition - 1
+		
+		index = self._array[forkStrand, position] - self._offset
+
+		if index < 0: # anything < 0 must refer to a special value
 			return None
 
 		else:
@@ -338,7 +345,14 @@ class ChromosomeContainer(object):
 
 		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
-	# TODO: moleculesBoundNearMolecule, NearFork
+
+	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
+		# TODO: decide how to handle this for molecules on/near forks (tempted to just ignore or raise)
+		raise NotImplementedError()
+
+
+	def moleculesBoundNearFork(self, fork, extentForward, extentReverse):
+		raise NotImplementedError()
 
 
 	def divideRegion(self, strandName, start, stop):

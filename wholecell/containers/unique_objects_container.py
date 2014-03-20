@@ -20,6 +20,7 @@ ENTRY_INACTIVE = 0 # a clear entry
 ENTRY_ACTIVE = 1 # an entry that is in use
 ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
 
+# TODO: reevaluate the assignment of private methods/attributes in this and similar classes
 
 class UniqueObjectsContainerException(Exception):
 	pass
