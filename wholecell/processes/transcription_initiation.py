@@ -10,6 +10,11 @@ import numpy as np
 
 import wholecell.processes.process
 
+from wholecell.utils.package_constants import RNAP_NON_SPECIFICALLY_BOUND_STATE, RNAP_SPECIFICALLY_BOUND_STATE
+
+
+
+
 class Transcription(wholecell.processes.process.Process):
 	""" Transcription """
 
@@ -23,7 +28,7 @@ class Transcription(wholecell.processes.process.Process):
 		# Constants
 		self.rnaPolymeraseTransitionProb = None
 		self.promoterBindingProbabilities = None
-		self.rnaPolymeraseFootprint = None
+		self.transProb = None
 
 		super(Transcription, self).__init__()
 
@@ -32,7 +37,7 @@ class Transcription(wholecell.processes.process.Process):
 		super(Transcription, self).initialize(sim, kb)
 
 		## Load constants from Knowledge Base
-		self.rnaPolymeraseTransitionProb = kb.rnaPolymeraseTransitionProb
+		self.transProb = kb.rnaPolymeraseTransitionProb
 		# kb.rnaPolymeraseTransitionProb = {
 		# 	'fromFree' 			: {'toFree' : 0.1, 'toNonspecific': 0.5, 'toSpecific' : 0.4},
 		# 	'fromNonspecific'	: {'toFree' : 0.1, 'toNonspecific': 0.5, 'toSpecific' : 0.4},
@@ -55,8 +60,12 @@ class Transcription(wholecell.processes.process.Process):
 
 		# RNA polymerase
 		self.freeRnaPolymerase					= self.bulkMoleculeView(['APORNAP-CPLX[c]'])
-		self.nonSpecificallyBoundRnaPolymerase	= self.uniqueMoleculesView('APORNAP-CPLX', {'bindingState' : 'nonSpecific'})
-		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX'. {'bindingState' : 'specific'})
+		self.nonSpecificallyBoundRnaPolymerase	= self.uniqueMoleculesView('APORNAP-CPLX',
+			bindingState = ('==', RNAP_NON_SPECIFICALLY_BOUND_STATE))
+		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX',
+			bindingState = ('==', RNAP_SPECIFICALLY_BOUND_STATE))
+
+		# TODO: Active RNAP transitions
 
 		# Chromosome
 		self.promoters = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
@@ -64,12 +73,36 @@ class Transcription(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		self.freeSigma.requestAll()
-		self.freePolymerase.requestAll()
+		## Compute Markov transitions
+
+		cntSigma = self.freeSigma.total()
+		cntFreeRnap = self.freeRnaPolymerase.total()
+		cntNonSpecBoundRnap = self.nonSpecificallyBoundRnaPolymerase.total()
+		cntSpecBoundRnap = self.specificallyBoundRnaPolymerase.total()
+		cntFreePromoters = sum(self.promoters.free())
 
 
 
-		# TODO
+		expectedTransitionFromFree = cntFreeRnap * (1 - self.transProb['fromFree']['toFree'])
+		expectedTransitionFromFreeToSpecific = expectedTransitionFromFree * self.transProb['fromFree']['toSpecific'] / (self.transProb['fromFree']['toSpecific'] + self.transProb['fromFree']['toNonspecific'])
+
+
+		## Requests
+		freeRnapRequest = expectedTransitionFromFree
+		sigmaFactorRequest = expectedTransitionFromFreeToSpecific + expectedTransitionFromNonSpecificToSpecific
+		if sigmaFactorRequest > cntSigma:
+			sigmaFactorRequest = cntSigma
+
+		self.freeRnaPolymerase.requestIs(freeRnapRequest)
+		self.freeSigma.requestIs(sigmaFactorRequest)
+
+
+
+
+
+		self.nonSpecificallyBoundRnaPolymerase.requestIs()
+		self.specificallyBoundRnaPolymerase.requestIs()
+
 		self.nonSpecificallyBoundRnaPolymerase
 		self.nonSpecificallyBoundRnaPolymerase
 
@@ -78,59 +111,19 @@ class Transcription(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		rnaPolymerases = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
+		transitions = [self.transProb['fromFree']['toNonspecific'],
+						self.transProb['fromFree']['toSpecific'],
+						self.transProb['fromFree']['toFree']] # Get rid of free to free prob and normalize to one
+		transitions = numpy.cumsum(transitions)
 
-		ntpEstimate = 1.1 * 4 * self.ntps.counts().min()
+		choices = self.randStream.rand(cntFreeRnap)
 
-		enzLimit = np.min([
-			ntpEstimate,
-			rnaPolymerases * self.elngRate * self.timeStepSec
-			])
+		outcomes = len(transitions) - numpy.sum(choices < transitions[:,numpy.newaxis],0) # Index corresponds to transitions
 
-		newRnas = 0
-		ntpsUsed = np.zeros(4)
+		eachTransition = numpy.bincount(outcomes)
 
-		ntpsShape = self.ntps.counts().shape
+		transitionMatrix = numpy.array([[-1, -1, 0],	# Free
+										[1, 0, 0],		# Non-specific
+										[0, 1, 0]])		# Specific
 
-		rnasCreated = np.zeros_like(self.rnas.counts())
-
-		while enzLimit > 0:
-			if not np.any(
-					np.all(
-						self.ntps.counts() > self.rnaNtCounts,
-						axis = 1
-						)
-					):
-				break
-
-			if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
-				break
-
-			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
-			if np.sum(self.rnaSynthProb[np.all(self.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
-				break
-
-			if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
-				break
-
-			newIdx = np.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
-
-			if np.any(self.ntps.counts() < self.rnaNtCounts[newIdx, :]):
-				break
-
-			if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
-				break
-
-			enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
-
-			self.ntps.countsDec(
-				self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
-				)
-
-			self.h2o.countDec(1) # TODO: verify this
-			self.ppi.countInc(self.rnaLens[newIdx])
-			self.proton.countInc(1) # TODO: verify this
-
-			rnasCreated[newIdx] += 1
-
-		self.rnas.countsInc(rnasCreated)
+		countUpdate = numpy.dot(transitionMatrix, eachTransition)
