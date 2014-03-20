@@ -8,8 +8,7 @@ import wholecell.states.state
 from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 5000000 # TODO: from kb
-STRAND_MULTIPLICITY = 3
-MOLECULE_WIDTH = 50 # TODO: from kb
+STRAND_MULTIPLICITY = 3 # TODO: estimate somehow? from kb?
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
@@ -30,8 +29,6 @@ class Chromosome(wholecell.states.state.State):
 			'dynamics':[],
 			'units':{}
 			}
-
-		# self.time = None
 
 		self.container = None
 

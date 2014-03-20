@@ -156,6 +156,7 @@ class Simulation(object):
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
 		import wholecell.states.chromosome
+		import wholecell.states.transcripts
 		import wholecell.states.time
 		import wholecell.states.rand_stream
 
@@ -165,6 +166,7 @@ class Simulation(object):
 			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
 			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
 			('Chromosome',		wholecell.states.chromosome.Chromosome()),
+			('Transcripts',		wholecell.states.transcripts.Transcripts()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
