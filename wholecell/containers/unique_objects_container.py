@@ -224,7 +224,6 @@ class UniqueObjectsContainer(object):
 			self._arrays[arrayIndex]['_globalIndex'][result]
 			for arrayIndex, result in zip(arrayIndexes, results)
 			)])
-			
 
 
 	def _queryObjects(self, arrayIndex, **operations):
