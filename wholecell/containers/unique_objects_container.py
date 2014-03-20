@@ -184,11 +184,26 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objects_newMethod(self):
-		# Return all objects
-		return _UniqueObjectSet(self,
-			np.where(self._arrays[self._globalRefIndex]['_entryState'] == ENTRY_ACTIVE)[0]
-			)
+	def objects_newMethod(self, **operations):
+		# Return all objects, optionally evaluating a query on !!every!! molecule (generally not what you want to do)
+		if operations:
+			arrayIndexes = set(xrange(len(self._arrays)))
+			arrayIndexes.remove(self._globalRefIndex)
+			
+			results = []
+
+			for arrayIndex in arrayIndexes:
+				results.append(self._queryObjects(arrayIndex, **operations))
+
+			return _UniqueObjectSet(self, np.r_[tuple(
+				self._arrays[arrayIndex]['_globalIndex'][result]
+				for arrayIndex, result in zip(arrayIndexes, results)
+				)])
+
+		else:
+			return _UniqueObjectSet(self,
+				np.where(self._arrays[self._globalRefIndex]['_entryState'] == ENTRY_ACTIVE)[0]
+				)
 
 
 	def objectsWithName_newMethod(self, objectName, **operations):
@@ -483,6 +498,7 @@ class _UniqueObject(object):
 
 
 class _UniqueObjectSet(object):
+	# TODO: look into subclassing from collections.ViewKeys
 	def __init__(self, container, globalIndexes):
 		self._container = container
 		self._globalIndexes = globalIndexes

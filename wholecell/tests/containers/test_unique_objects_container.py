@@ -295,6 +295,10 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
 
+		objectSet = self.container.objects_newMethod(chromosomeLocation = ('>', 0))
+
+		self.assertEqual(len(objectSet), 5)
+
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectsWithName(self):
