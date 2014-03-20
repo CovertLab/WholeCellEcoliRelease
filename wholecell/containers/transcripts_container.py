@@ -17,6 +17,7 @@ from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 MAX_SEARCH_ITERATIONS = 1000 # number of times to search for a place to put a transcript before raising an exception
 
+
 class TranscriptsContainerException(Exception):
 	'''
 	TranscriptsContainerException
@@ -45,20 +46,20 @@ class TranscriptsContainer(object):
 	# Molecule container properties
 	_defaultObjectContainerObjects = {
 		'_transcript':{
-			'_transcriptPosition':'int64', # location in array
-			'_transcriptOrigin':'int64', # origin on chromosome, for determining features/sequence
-			'_transcriptExtent':'int64', # length of transcript
-			'_transcriptExtentReserved':'int64', # length of region in array reserved
+			'_transPosition':'int64', # location in array
+			'_transOrigin':'int64', # origin on chromosome, for determining features/sequence
+			'_transExtent':'int64', # length of transcript
+			'_transExtentReserved':'int64', # length of region in array reserved
 			}
 		}
 
 	_defaultObjectContainerAttributes = {
-		'_transcriptBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
-		'_transcript':'int64', # ID pointing to the bound transcript
-		'_transcriptPosition':'int64', # location in array (not on the transcript)
-		'_transcriptDirection':'bool', # False = (+), True = (-)
-		'_transcriptExtentForward':'int64', # number of nts
-		'_transcriptExtentReverse':'int64', # number of nts
+		'_transBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
+		'_transTranscript':'int64', # ID pointing to the bound transcript
+		'_transPosition':'int64', # location in array (not on the transcript)
+		'_transDirection':'bool', # False = (+), True = (-)
+		'_transExtentForward':'int64', # number of nts
+		'_transExtentReverse':'int64', # number of nts
 		}
 
 	# Conversion key for directions
@@ -93,9 +94,9 @@ class TranscriptsContainer(object):
 
 		transcript = self._objectsContainer.objectNew(
 			'_transcript',
-			_transcriptPosition = position,
-			_transcriptOrigin = chromosomeOrigin,
-			_transcriptExtentReserved = expectedLength
+			_transPosition = position,
+			_transOrigin = chromosomeOrigin,
+			_transExtentReserved = expectedLength
 			)
 
 		self._array[position] = transcript.attr('_globalIndex') + self._offset
@@ -109,8 +110,8 @@ class TranscriptsContainer(object):
 		transcriptIndex = transcript.attr('_globalIndex') + self._offset
 
 		position, currentExtent, reserved = transcript.attrs(
-			'_transcriptPosition', '_transcriptExtent',
-			'_transcriptExtentReserved')
+			'_transPosition', '_transExtent',
+			'_transExtentReserved')
 
 		newExtent = currentExtent + extent
 
@@ -125,7 +126,7 @@ class TranscriptsContainer(object):
 			# No risk of collision
 			self._array[region] = self._empty
 
-			transcript.attrIs(_transcriptExtent = newExtent)
+			transcript.attrIs(_transExtent = newExtent)
 
 		else:
 			# Find and move to a new location
@@ -140,13 +141,13 @@ class TranscriptsContainer(object):
 
 			newRegion = np.arange(newPosition, newPosition+1 + oldExtent)
 
-			self._array[newRegion] = oldRegion
+			self._array[newRegion] = oldValues
 
 			self._array[newPosition+1 + currentExtent:newPosition+1 + newExtent] = self._empty
 
 			transcript.attrIs(
-				_transcriptPosition = newPosition,
-				_transcriptExtent = newExtent
+				_transPosition = newPosition,
+				_transExtent = newExtent
 				)
 
 			# TODO: update molecules with new positions
@@ -173,9 +174,9 @@ class TranscriptsContainer(object):
 	def transcriptDel(self, transcript):
 		# TODO: unbind and return all molecules
 
-		position = transcript.attr('_transcriptPosition')
-		extent = np.max(transcript.attrs('_transcriptExtent',
-				'_transcriptExtentReserved'))
+		position = transcript.attr('_transPosition')
+		extent = np.max(transcript.attrs('_transExtent',
+				'_transExtentReserved'))
 
 		region = np.arange(position, position+1 + extent)
 
@@ -184,83 +185,87 @@ class TranscriptsContainer(object):
 		self._objectsContainer.objectDel(transcript)
 
 
-	# def moleculeNew(self, moleculeName, **attributes):
-	# 	# Create a new, currently unbound molecule
-	# 	return self._objectsContainer.objectNew(moleculeName, **attributes)
+	def moleculeNew(self, moleculeName, **attributes):
+		# Create a new, currently unbound molecule
+		return self._objectsContainer.objectNew(moleculeName, **attributes)
 
 
-	# def moleculeDel(self, molecule):
-	# 	# Unbind and delete a molecule
-	# 	self.moleculeLocationIsUnbound(molecule)
-	# 	self._objectsContainer.objectDel(molecule)
+	def moleculeDel(self, molecule):
+		# Unbind and delete a molecule
+		self.moleculeLocationIsUnbound(molecule)
+		self._objectsContainer.objectDel(molecule)
 
 
-	# def moleculeLocationIs(self, molecule, transcript, position, direction, extentForward, extentReverse):
-	# 	# Set a molecule's location
-	# 	strandIndex = self._strandNameToIndex[strand]
-	# 	directionBool = self._directionCharToBool[direction]
+	def moleculeLocationIs(self, molecule, transcript, position, direction, extentForward, extentReverse):
+		# Set a molecule's location
+		transcriptPosition = transcript.attr('_transPosition') + 1
+		directionBool = self._directionCharToBool[direction]
 
-	# 	region = self._region(position, directionBool, extentForward, extentReverse)
+		absPosition = position + transcriptPosition
 
-	# 	if not (self._array[strandIndex, region] == self._empty).all():
-	# 		raise TranscriptsContainerException('Attempted to place a molecule in a non-empty region')
+		region = self._region(position + transcriptPosition, directionBool, extentForward, extentReverse)
 
-	# 	self.moleculeLocationIsUnbound(molecule)
+		moleculeIndex = molecule.attr('_globalIndex') + self._offset
 
-	# 	molecule.attrIs('_transcriptBound', True) # TODO: attrsAre method
-	# 	molecule.attrIs('_transcriptStrand', strandIndex)
-	# 	molecule.attrIs('_transcriptPosition', position)
-	# 	molecule.attrIs('_transcriptDirection', directionBool)
-	# 	molecule.attrIs('_transcriptExtentForward', extentForward)
-	# 	molecule.attrIs('_transcriptExtentReverse', extentReverse)
+		if np.setdiff1d(self._array[region], [self._empty, moleculeIndex]).size > 0:
+			raise TranscriptsContainerException('Attempted to place a molecule in a non-empty region')
 
-	# 	self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
+		self.moleculeLocationIsUnbound(molecule)
+
+		molecule.attrIs(
+			_transBound = True,
+			_transTranscript = transcript.attr('_globalIndex') + self._offset,
+			_transPosition = absPosition,
+			_transDirection = directionBool,
+			_transExtentForward = extentForward,
+			_transExtentReverse = extentReverse
+			)
+
+		self._array[region] = moleculeIndex
 
 
-	# def _region(self, position, directionBool, extentForward, extentReverse):
-	# 	# Return a region of a strand, accounting for directionality
-	# 	if directionBool: # == (-)
-	# 		return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
+	def _region(self, position, directionBool, extentForward, extentReverse):
+		# Return a region of a transcript, accounting for directionality
+		if directionBool: # == (-)
+			return np.arange(position-extentForward+1, position+extentReverse+1)
 
-	# 	else: # == (+)
-	# 		return np.arange(position-extentReverse, position+extentForward) % self._length
+		else: # == (+)
+			return np.arange(position-extentReverse, position+extentForward)
 
 
 	# def moleculeLocation(self, molecule):
 	# 	# Return the location a molecule, if it is bound to the chromosome
-	# 	if not molecule.attr('_transcriptBound'):
+	# 	if not molecule.attr('_transBound'):
 	# 		return None
 
 	# 	else:
 	# 		return (
-	# 			self._strandNames[molecule.attr('_transcriptStrand')], # TODO: attrs method
-	# 			molecule.attr('_transcriptPosition'),
-	# 			self._directionBoolToChar[molecule.attr('_transcriptDirection')],
-	# 			molecule.attr('_transcriptExtentForward'),
-	# 			molecule.attr('_transcriptExtentReverse'),
+	# 			self._strandNames[molecule.attr('_transStrand')], # TODO: attrs method
+	# 			molecule.attr('_transPosition'),
+	# 			self._directionBoolToChar[molecule.attr('_transDirection')],
+	# 			molecule.attr('_transExtentForward'),
+	# 			molecule.attr('_transExtentReverse'),
 	# 			)
 
 	# # TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
 
-	# def moleculeLocationIsUnbound(self, molecule):
-	# 	# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
-	# 	if not molecule.attr('_transcriptBound'):
-	# 		# Molecule is already unbound
-	# 		return
+	def moleculeLocationIsUnbound(self, molecule):
+		# Unbind a molecule if it is bound, or do nothing
+		if not molecule.attr('_transBound'):
+			# Molecule is already unbound
+			return
 
-	# 	else:
-	# 		# Molecule is bound to a normal location (not a fork)
-	# 		strandIndex = molecule.attr('_transcriptStrand')
-	# 		position = molecule.attr('_transcriptPosition')
-	# 		directionBool = molecule.attr('_transcriptDirection')
-	# 		extentForward = molecule.attr('_transcriptExtentForward')
-	# 		extentReverse = molecule.attr('_transcriptExtentReverse')
+		else:
+			# Molecule is bound
+			position, directionBool, extentForward, extentReverse = molecule.attrs(
+				'_transPosition', '_transDirection', '_transExtentForward', 
+				'_transExtentReverse')
 
-	# 		region = self._region(position, directionBool, extentForward, extentReverse)
+			region = self._region(position, directionBool, extentForward, extentReverse)
 
-	# 		self._array[strandIndex, region] = self._empty
+			self._array[region] = self._empty
 
-	# 		molecule.attrIs('_transcriptBound', False)
+			molecule.attrIs(_transBound = False)
 
 
 	# def moleculesBound(self, moleculeName = None, transcript = None, 
@@ -323,3 +328,5 @@ class TranscriptsContainer(object):
 
 	def __eq__(self, other):
 		return (self._array == other._array).all()
+
+	# TODO: save/load

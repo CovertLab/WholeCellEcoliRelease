@@ -19,7 +19,9 @@ from wholecell.containers.transcripts_container import TranscriptsContainer
 
 ARRAY_LENGTH = 1000
 
-MOLECULE_ATTRIBUTES = {}
+MOLECULE_ATTRIBUTES = {
+	'Ribosome':{}
+	}
 
 class Test_TranscriptsContainer(unittest.TestCase):
 	@classmethod
@@ -53,7 +55,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 		self.assertEqual(transcriptPosition.size, 1)
 
 		self.assertEqual(
-			transcript.attr('_transcriptPosition'),
+			transcript.attr('_transPosition'),
 			transcriptPosition[0]
 			)
 
@@ -115,7 +117,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			self.assertEqual(transcriptPosition.size, 1)
 
 			self.assertEqual(
-				transcript.attr('_transcriptPosition'),
+				transcript.attr('_transPosition'),
 				transcriptPosition[0]
 				)
 
@@ -143,6 +145,107 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			self.container,
 			createContainer()
 			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_bind_molecule(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		molecule = self.container.moleculeNew('Ribosome')
+
+		self.container.moleculeLocationIs(molecule, transcript, 50, '+',
+			10, 5)
+
+		moleculePosition = np.where(
+			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			)[0]
+
+		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
+
+		self.assertEqual(
+			relativePosition.tolist(),
+			[45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_bind_molecule_reverse(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		molecule = self.container.moleculeNew('Ribosome')
+
+		self.container.moleculeLocationIs(molecule, transcript, 50, '-',
+			10, 5)
+
+		moleculePosition = np.where(
+			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			)[0]
+
+		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
+
+		self.assertEqual(
+			relativePosition.tolist(),
+			[41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55]
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_move_molecule(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		molecule = self.container.moleculeNew('Ribosome')
+
+		self.container.moleculeLocationIs(molecule, transcript, 45, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(molecule, transcript, 50, '+',
+			10, 5)
+
+		moleculePosition = np.where(
+			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			)[0]
+
+		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
+
+		self.assertEqual(
+			relativePosition.tolist(),
+			[45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_many_transcripts_many_molecules(self):
+		nPairs = 25
+		sizeAllocated = 0
+		extend = 20
+
+		pairs = []
+
+		for i in xrange(nPairs):
+			transcript = self.container.transcriptNew(0, sizeAllocated)
+			self.container.transcriptExtend(transcript, extend)
+
+			molecule = self.container.moleculeNew('Ribosome')
+
+			self.container.moleculeLocationIs(molecule, transcript, 10, '+',
+				10, 5)
+
+			pairs.append((transcript, molecule))
+
+		for transcript, molecule in pairs:
+			moleculePosition = np.where(
+				self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+				)[0]
+
+			relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
+			
+			self.assertEqual(
+				relativePosition.tolist(),
+				[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+				)
 
 
 def createContainer():

@@ -143,7 +143,9 @@ class ChromosomeContainer(object):
 
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
-		if not (self._array[strandIndex, region] == self._empty).all():
+		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+
+		if np.setdiff1d(self._array[strandIndex, region], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
@@ -157,7 +159,7 @@ class ChromosomeContainer(object):
 			_chromExtentReverse = extentReverse
 			)
 
-		self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
+		self._array[strandIndex, region] = moleculeIndex
 
 
 	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse): # TODO: different child extents
@@ -175,13 +177,15 @@ class ChromosomeContainer(object):
 
 		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
 
-		if not (self._array[forkStrand, regionParent] == self._empty).all():
+		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+
+		if np.setdiff1d(self._array[forkStrand, regionParent], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
-		if not (self._array[childStrandA, regionChildA] == self._empty).all():
+		if np.setdiff1d(self._array[childStrandA, regionChildA], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
-		if not (self._array[childStrandB, regionChildB] == self._empty).all():
+		if np.setdiff1d(self._array[childStrandB, regionChildB], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
