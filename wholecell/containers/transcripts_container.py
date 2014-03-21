@@ -233,21 +233,17 @@ class TranscriptsContainer(object):
 			return np.arange(position-extentReverse, position+extentForward)
 
 
-	# def moleculeLocation(self, molecule):
-	# 	# Return the location a molecule, if it is bound to the chromosome
-	# 	if not molecule.attr('_transBound'):
-	# 		return None
+	def moleculeLocation(self, molecule):
+		# Return the location of a molecule, if it is bound to a transcript
+		if not molecule.attr('_transBound'):
+			return None
 
-	# 	else:
-	# 		return (
-	# 			self._strandNames[molecule.attr('_transStrand')], # TODO: attrs method
-	# 			molecule.attr('_transPosition'),
-	# 			self._directionBoolToChar[molecule.attr('_transDirection')],
-	# 			molecule.attr('_transExtentForward'),
-	# 			molecule.attr('_transExtentReverse'),
-	# 			)
+		else:
+			# TODO: implement/decide if this is needed
 
-	# # TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
+			raise NotImplementedError()
+
+	# TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
 
 	def moleculeLocationIsUnbound(self, molecule):
 		# Unbind a molecule if it is bound, or do nothing
@@ -267,8 +263,26 @@ class TranscriptsContainer(object):
 
 			molecule.attrIs(_transBound = False)
 
+	def moleculesBound(self):
+		return self._objectsContainer.objects(_transBound = ('==', True))
 
-	# TODO: bound/unbound methods
+
+	def moleculesUnbound(self):
+		return self._objectsContainer.objects(_transBound = ('==', False))
+
+
+	def moleculesBoundOnTranscript(self, transcript):
+		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		return self._objectsContainer.objects(_transTranscript = ('==', transcriptIndex))
+
+
+	def moleculesBoundWithName(self, moleculeName):
+		return self._objectsContainer.objectsWithName(moleculeName, 
+			_transBound = ('==', True))
+
+
+	def moleculeBoundAtPosition(self): raise NotImplementedError()
+	def moleculesBoundOverExtent(self): raise NotImplementedError()
 
 
 	def __eq__(self, other):
