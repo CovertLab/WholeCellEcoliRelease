@@ -282,7 +282,7 @@ class TranscriptsContainer(object):
 
 
 	def moleculeBoundAtPosition(self, transcript, position):
-		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		transcriptIndex = transcript.attr('_globalIndex') - self._offset
 		transcript = self._objectsContainer._objectByGlobalIndex(transcriptIndex)
 		transcriptPosition = transcript.attr('_transPosition') + 1
 

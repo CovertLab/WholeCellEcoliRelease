@@ -353,6 +353,36 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			)
 
 
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesBoundAtPosition(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		ribosome = self.container.moleculeNew('Ribosome')
+		rnase = self.container.moleculeNew('RNAse')
+
+		self.container.moleculeLocationIs(ribosome, transcript, 10, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(rnase, transcript, 30, '+',
+			10, 5)
+
+		self.assertEqual(
+			self.container.moleculeBoundAtPosition(transcript, 10),
+			ribosome
+			)
+
+		self.assertEqual(
+			self.container.moleculeBoundAtPosition(transcript, 30),
+			rnase
+			)
+
+		self.assertEqual(
+			self.container.moleculeBoundAtPosition(transcript, 50),
+			None
+			)
+
+
 def createContainer():
 	container = TranscriptsContainer(ARRAY_LENGTH, MOLECULE_ATTRIBUTES)
 
