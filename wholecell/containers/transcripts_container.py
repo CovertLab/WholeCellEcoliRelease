@@ -31,7 +31,12 @@ class TranscriptsContainer(object):
 	'''
 	TranscriptsContainer
 
-	TODO: doc
+	A container object for transcripts.  Transcripts are contiguous regions of 
+	nucleotides, allocated somewhere in a shared array.  Transcripts can be 
+	extended, and molecules can be attached to a transcripts.  This 
+	implementation is similar to the ChromosomeContainer object, albeit with 
+	enough key differences that I've chosen not to inherit from some base 
+	implementation.
 	'''
 
 	# Special values
@@ -150,7 +155,12 @@ class TranscriptsContainer(object):
 				_transExtent = newExtent
 				)
 
-			# TODO: update molecules with new positions
+			positionDelta = newPosition - position
+
+			for molecule in self.moleculesBoundOnTranscript(transcript):
+				molecule.attrIs(
+					_transPosition = molecule.attr('_transPosition') + positionDelta
+					)
 
 
 	def _findFreePosition(self, extent):
@@ -172,7 +182,10 @@ class TranscriptsContainer(object):
 
 
 	def transcriptDel(self, transcript):
-		# TODO: unbind and return all molecules
+		molecules = self.moleculesBoundOnTranscript(transcript)
+
+		for molecule in molecules:
+			self.moleculeLocationIsUnbound(molecule)
 
 		position = transcript.attr('_transPosition')
 		extent = np.max(transcript.attrs('_transExtent',
@@ -183,6 +196,8 @@ class TranscriptsContainer(object):
 		self._array[region] = self._unused
 
 		self._objectsContainer.objectDel(transcript)
+
+		return molecules
 
 
 	def moleculeNew(self, moleculeName, **attributes):
