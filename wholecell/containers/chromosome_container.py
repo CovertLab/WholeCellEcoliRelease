@@ -289,61 +289,69 @@ class ChromosomeContainer(object):
 
 			molecule.attrIs(_chromBound = False)
 
-
-	def moleculesBound(self, moleculeName = None, strand = None, 
-			position = None, direction = None, extentForward = None,
-			extentReverse = None):
-		# Returns bound molecules, with sets of optional arguments:
-		# moleculeName: only molecules with this name
-		# strand, position, direction: molecule at a specific position
-		# +extentForward, extentReverse: molecules over a region
-
-		# TODO: check for inconsistent sets of arguments
-		# TODO: make the queries more efficient
-
-		specifiesName = moleculeName is not None
-
-		specifiesPosition = (strand is not None and position is not None)
-
-		specifiesExtent = (direction is not None and extentForward is not None
-			and extentReverse is not None)
-
-		specificRequest = specifiesName or specifiesPosition
-
-		if specifiesPosition:
-			strandIndex = self._strandNameToIndex[strand]
-
-			if specifiesExtent:
-				directionBool = self._directionCharToBool[direction]
-
-				region = self._region(position, directionBool, extentForward, extentReverse)
-
-				indexes = np.setdiff1d(
-					self._array[strandIndex, region],
-					self._specialValues
-					) - self._offset
-
-			else:
-				indexes = np.setdiff1d(
-					self._array[strandIndex, position],
-					self._specialValues
-					) - self._offset
-
-		else:
-			indexes = np.setdiff1d(self._array, self._specialValues) - self._offset
-
-		if specifiesName:
-			molecules = self._objectsContainer._objectsByGlobalIndex(indexes)
-
-			return {molecule for molecule in molecules
-				if molecule.name() == moleculeName}
-
-		else:
-			return self._objectsContainer._objectsByGlobalIndex(indexes)
+	# TODO: insure these methods don't return _fork objects
+	def moleculesBound(self):
+		return self._objectsContainer.objects(_chromBound = ('==', True))
 
 
 	def moleculesUnbound(self):
-		# Returns a set of all unbound molecules
+		return self._objectsContainer.objects(_chromBound = ('==', False))
+
+
+	def moleculesBoundWithName(self, moleculeName):
+		return self._objectsContainer.objectsWithName(moleculeName, 
+			_chromBound = ('==', True))
+
+
+	def moleculeBoundAtPosition(self, strand, position): # TODO: test
+		strandIndex = self._strandNameToIndex[strand]
+		
+		index = self._array[strandIndex, position] - self._offset
+
+		if index < 0:
+			return None
+
+		else:
+			return self._objectsContainer._objectByGlobalIndex(index)
+
+
+	def moleculeBoundOnFork(self, fork): # TODO: test
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
+
+		if forkDirection: # == (-)
+			position = forkPosition + 1
+
+		else: # == (+)
+			position = forkPosition - 1
+		
+		index = self._array[forkStrand, position] - self._offset
+
+		if index < 0: # anything < 0 must refer to a special value
+			return None
+
+		else:
+			return self._objectsContainer._objectByGlobalIndex(index)
+
+
+	def moleculesBoundOverExtent(self, strand, position, direction, extentForward, extentReverse):
+		strandIndex = self._strandNameToIndex[strand]
+		directionBool = self._directionCharToBool[direction]
+
+		region = self._region(position, directionBool, extentForward, extentReverse)
+
+		indexes = np.setdiff1d(self._array[strandIndex, region],
+			self._specialValues) - self._offset
+
+		return self._objectsContainer._objectsByGlobalIndex(indexes)
+
+
+	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
+		# TODO: decide how to handle this for molecules on/near forks (tempted to just ignore or raise)
+		raise NotImplementedError()
+
+
+	def moleculesBoundNearFork(self, fork, extentForward, extentReverse):
 		raise NotImplementedError()
 
 
@@ -396,12 +404,10 @@ class ChromosomeContainer(object):
 		return forkStart, forkStop
 
 
-	def forks(self, strand = None, position = None, direction = None,
-			extentForward = None, extentReverse = None):
+	def forks(self):
 		# Return a set of forks
 
-		return self.moleculesBound('_fork', strand, position, direction,
-			extentForward, extentReverse)
+		raise NotImplementedError()
 
 
 	def forkExtend(self, fork, extent):
@@ -438,11 +444,6 @@ class ChromosomeContainer(object):
 
 	def forksCombine(self, fork1, fork2):
 		# Combine two forks on the same strand, splitting the chromosome
-		raise NotImplementedError()
-
-
-	def moleculeOnFork(self, fork):
-		# Return the molecule on a fork, if any
 		raise NotImplementedError()
 
 

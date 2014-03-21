@@ -247,7 +247,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 	# Accessing bound molecules
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesBound_all(self):
+	def test_moleculesBound(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
 		reverseExtent = 1
@@ -269,7 +269,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesBound_byName(self):
+	def test_moleculesBoundWithName(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
 		reverseExtent = 1
@@ -291,17 +291,17 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 		self.assertNotEqual(
 			molecules,
-			self.container.moleculesBound()
+			set(self.container.moleculesBound())
 			)
 
 		self.assertEqual(
 			molecules,
-			self.container.moleculesBound('DNA polymerase')
+			set(self.container.moleculesBoundWithName('DNA polymerase'))
 			)
 
 
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesBound_position(self):
+	def test_moleculesBoundOverExtent(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
 		reverseExtent = 1
@@ -318,8 +318,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 		self.assertEqual(
 			set(molecules[:2]),
-			set(self.container.moleculesBound(
-				None,
+			set(self.container.moleculesBoundOverExtent(
 				self.container.rootStrand(), 0, '+',
 				200, 0
 				))
