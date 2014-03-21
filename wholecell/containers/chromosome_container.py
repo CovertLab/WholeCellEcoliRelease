@@ -320,10 +320,10 @@ class ChromosomeContainer(object):
 			'_chromPosition', '_chromDirection')
 
 		if forkDirection: # == (-)
-			position = forkPosition + 1
+			position = forkPosition - 1
 
 		else: # == (+)
-			position = forkPosition - 1
+			position = forkPosition + 1
 		
 		index = self._array[forkStrand, position] - self._offset
 

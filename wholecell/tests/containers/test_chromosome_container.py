@@ -301,6 +301,54 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculeBoundAtPosition(self):
+		positions = [100, 200, 300, 400]
+		forwardExtent = 5
+		reverseExtent = 1
+
+		molecules = []
+
+		for position in positions:
+			mol = self.container.moleculeNew('DNA polymerase')
+
+			self.container.moleculeLocationIs(mol, self.container.rootStrand(),
+				position, '+', forwardExtent, reverseExtent)
+
+			molecules.append(mol)
+
+		self.assertEqual(
+			molecules[1],
+			self.container.moleculeBoundAtPosition(
+				self.container.rootStrand(), 200
+				)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculeBoundOnFork(self):
+		startPosition = 100
+		stopPosition = 110
+
+		forkStart, forkStop = self.container.divideRegion(
+			self.container.rootStrand(),
+			startPosition, stopPosition
+			)
+
+		forwardExtent = 5
+		reverseExtent = 1
+
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		self.container.moleculeLocationIsFork(mol, forkStart, forwardExtent,
+			reverseExtent)
+
+		self.assertEqual(
+			mol,
+			self.container.moleculeBoundOnFork(forkStart)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculesBoundOverExtent(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
