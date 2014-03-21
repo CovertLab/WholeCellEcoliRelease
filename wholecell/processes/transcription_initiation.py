@@ -12,7 +12,9 @@ import wholecell.processes.process
 
 from wholecell.utils.package_constants import RNAP_NON_SPECIFICALLY_BOUND_STATE, RNAP_SPECIFICALLY_BOUND_STATE
 
-
+F_IDX = 0
+NS_IDX = 1
+S_IDX = 2
 
 
 class Transcription(wholecell.processes.process.Process):
@@ -43,6 +45,20 @@ class Transcription(wholecell.processes.process.Process):
 		# 	'fromNonspecific'	: {'toFree' : 0.1, 'toNonspecific': 0.5, 'toSpecific' : 0.4},
 		# 	'fromSpecific'		: {'toFree' : 0.1, 'toNonspecific': 0.4, 'toSpecific' : 0.4}
 		# }
+
+		# Reads from 1st index to 2nd index
+		self.transProb = numpy.zeros((3,3))
+		self.transProb[F_IDX, F_IDX] 	= kb.rnaPolymeraseTransitionProb['fromFree']['toFree']
+		self.transProb[F_IDX, NS_IDX] 	= kb.rnaPolymeraseTransitionProb['fromFree']['toNonspecific']
+		self.transProb[F_IDX, S_IDX] 	= kb.rnaPolymeraseTransitionProb['fromFree']['toSpecific']
+
+		self.transProb[NS_IDX, NS_IDX]	= kb.rnaPolymeraseTransitionProb['fromNonspecific']['toNonspecific']
+		self.transProb[NS_IDX, F_IDX]	= kb.rnaPolymeraseTransitionProb['fromNonspecific']['toFree']
+		self.transProb[NS_IDX, S_IDX]	= kb.rnaPolymeraseTransitionProb['fromNonspecific']['toSpecific']
+
+		self.transProb[S_IDX, S_IDX]	= kb.rnaPolymeraseTransitionProb['fromSpecific']['toSpecific']
+		self.transProb[S_IDX, F_IDX]	= kb.rnaPolymeraseTransitionProb['fromSpecific']['toFree']
+		self.transProb[S_IDX, NS_IDX]	= kb.rnaPolymeraseTransitionProb['fromSpecific']['toNonspecific']
 
 
 		self.promoterBindingProbabilities = kb.promoterBindingProbabilities
@@ -82,9 +98,19 @@ class Transcription(wholecell.processes.process.Process):
 		cntFreePromoters = sum(self.promoters.free())
 
 
+		countInState = numpy.array([self.freeRnaPolymerase.total(),
+									self.nonSpecificallyBoundRnaPolymerase.total(),
+									self.specificallyBoundRnaPolymerase.total()])
+
+
+		expTransitionFromCurrentState = countInState * (1 - numpy.array([self.transProb['fromFree']['toFree'],
+																		self.transProb['fromNonspecific']['toNonspecific'],
+																		self.transProb['fromSpecific']['toSpecific']))
+
 
 		expectedTransitionFromFree = cntFreeRnap * (1 - self.transProb['fromFree']['toFree'])
 		expectedTransitionFromFreeToSpecific = expectedTransitionFromFree * self.transProb['fromFree']['toSpecific'] / (self.transProb['fromFree']['toSpecific'] + self.transProb['fromFree']['toNonspecific'])
+
 
 
 		## Requests
