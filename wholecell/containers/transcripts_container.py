@@ -281,8 +281,36 @@ class TranscriptsContainer(object):
 			_transBound = ('==', True))
 
 
-	def moleculeBoundAtPosition(self): raise NotImplementedError()
-	def moleculesBoundOverExtent(self): raise NotImplementedError()
+	def moleculeBoundAtPosition(self, transcript, position):
+		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		transcript = self._objectsContainer._objectByGlobalIndex(transcriptIndex)
+		transcriptPosition = transcript.attr('_transPosition') + 1
+
+		absPosition = position + transcriptPosition
+
+		index = self._array[absPosition] - self._offset
+
+		if index < 0:
+			return None
+
+		else:
+			return self._objectsContainer._objectByGlobalIndex(index)
+
+
+	def moleculesBoundOverExtent(self, transcript, position, direction, extentForward, extentReverse):
+		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		transcript = self._objectsContainer._objectByGlobalIndex(transcriptIndex)
+		transcriptPosition = transcript.attr('_transPosition') + 1
+
+		absPosition = position + transcriptPosition
+
+		directionBool = self._directionCharToBool[direction]
+
+		region = self._region(absPosition, directionBool, extentForward, extentReverse)
+
+		indexes = np.setdiff1d(self._array[region], self._specialValues)
+
+		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
 
 	def __eq__(self, other):
