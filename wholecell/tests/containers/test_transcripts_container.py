@@ -354,7 +354,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 
 
 	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
-	def test_moleculesBoundAtPosition(self):
+	def test_moleculeBoundAtPosition(self):
 		transcript = self.container.transcriptNew(0, 100)
 		self.container.transcriptExtend(transcript, 100)
 
@@ -380,6 +380,45 @@ class Test_TranscriptsContainer(unittest.TestCase):
 		self.assertEqual(
 			self.container.moleculeBoundAtPosition(transcript, 50),
 			None
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesBoundOverExtent(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		ribosome = self.container.moleculeNew('Ribosome')
+		rnase = self.container.moleculeNew('RNAse')
+		ribosome2 = self.container.moleculeNew('Ribosome')
+
+		self.container.moleculeLocationIs(ribosome, transcript, 10, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(rnase, transcript, 30, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(ribosome2, transcript, 50, '+',
+			10, 5)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 5, 0)),
+			set()
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 10, 0)),
+			{ribosome}
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 30, 0)),
+			{ribosome, rnase}
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 50, 0)),
+			{ribosome, rnase, ribosome2}
 			)
 
 

@@ -282,8 +282,6 @@ class TranscriptsContainer(object):
 
 
 	def moleculeBoundAtPosition(self, transcript, position):
-		transcriptIndex = transcript.attr('_globalIndex') - self._offset
-		transcript = self._objectsContainer._objectByGlobalIndex(transcriptIndex)
 		transcriptPosition = transcript.attr('_transPosition') + 1
 
 		absPosition = position + transcriptPosition
@@ -298,8 +296,6 @@ class TranscriptsContainer(object):
 
 
 	def moleculesBoundOverExtent(self, transcript, position, direction, extentForward, extentReverse):
-		transcriptIndex = transcript.attr('_globalIndex') + self._offset
-		transcript = self._objectsContainer._objectByGlobalIndex(transcriptIndex)
 		transcriptPosition = transcript.attr('_transPosition') + 1
 
 		absPosition = position + transcriptPosition
@@ -308,7 +304,7 @@ class TranscriptsContainer(object):
 
 		region = self._region(absPosition, directionBool, extentForward, extentReverse)
 
-		indexes = np.setdiff1d(self._array[region], self._specialValues)
+		indexes = np.setdiff1d(self._array[region], self._specialValues) - self._offset
 
 		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
