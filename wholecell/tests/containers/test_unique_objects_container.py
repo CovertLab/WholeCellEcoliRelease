@@ -167,6 +167,56 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				100
 				)
 
+	# Object access
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_objects(self):
+		objectSet = self.container.objects()
+
+		self.assertEqual(len(objectSet), 20)
+
+		for obj in objectSet:
+			self.assertIn(obj, objectSet)
+
+		objectSet = self.container.objects(chromosomeLocation = ('>', 0))
+
+		self.assertEqual(len(objectSet), 5)
+
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_objectsWithName(self):
+		self.container.objectsNew('DNA polymerase', 20)
+
+		objectSet = self.container.objectsWithName('RNA polymerase')
+
+		self.assertEqual(len(objectSet), 20)
+
+		for obj in objectSet:
+			self.assertIn(obj, objectSet)
+
+		objectSet = self.container.objectsWithName(
+			'RNA polymerase', chromosomeLocation = ('>', 0))
+
+		self.assertEqual(len(objectSet), 5)
+
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_objectsWithNames(self):
+		self.container.objectsNew('DNA polymerase', 20)
+
+		objectSet = self.container.objectsWithNames(
+			['RNA polymerase', 'DNA polymerase'])
+
+		self.assertEqual(len(objectSet), 40)
+
+		for obj in objectSet:
+			self.assertIn(obj, objectSet)
+
+		objectSet = self.container.objectsWithNames(
+			['RNA polymerase', 'DNA polymerase'], chromosomeLocation = ('==', 0))
+
+		self.assertEqual(len(objectSet), 35)
+
 	# Internal tests
 
 	# Bookkeeping attributes
@@ -248,57 +298,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		otherContainer = createContainer()
 
 		self.assertEqual(self.container, otherContainer)
-
-
-	# Testing new methods TODO: migrate
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_objects(self):
-		objectSet = self.container.objects()
-
-		self.assertEqual(len(objectSet), 20)
-
-		for obj in objectSet:
-			self.assertIn(obj, objectSet)
-
-		objectSet = self.container.objects(chromosomeLocation = ('>', 0))
-
-		self.assertEqual(len(objectSet), 5)
-
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_objectsWithName(self):
-		self.container.objectsNew('DNA polymerase', 20)
-
-		objectSet = self.container.objectsWithName('RNA polymerase')
-
-		self.assertEqual(len(objectSet), 20)
-
-		for obj in objectSet:
-			self.assertIn(obj, objectSet)
-
-		objectSet = self.container.objectsWithName(
-			'RNA polymerase', chromosomeLocation = ('>', 0))
-
-		self.assertEqual(len(objectSet), 5)
-
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_objectsWithNames(self):
-		self.container.objectsNew('DNA polymerase', 20)
-
-		objectSet = self.container.objectsWithNames(
-			['RNA polymerase', 'DNA polymerase'])
-
-		self.assertEqual(len(objectSet), 40)
-
-		for obj in objectSet:
-			self.assertIn(obj, objectSet)
-
-		objectSet = self.container.objectsWithNames(
-			['RNA polymerase', 'DNA polymerase'], chromosomeLocation = ('==', 0))
-
-		self.assertEqual(len(objectSet), 35)
 
 
 def createContainer():
