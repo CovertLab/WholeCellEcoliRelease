@@ -324,6 +324,10 @@ class TranscriptsContainer(object):
 		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
 
+	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
+		raise NotImplementedError()
+
+
 	def __eq__(self, other):
 		return (self._array == other._array).all()
 
