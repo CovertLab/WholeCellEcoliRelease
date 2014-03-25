@@ -12,11 +12,6 @@ import wholecell.processes.process
 
 from wholecell.utils.package_constants import RNAP_NON_SPECIFICALLY_BOUND_STATE, RNAP_SPECIFICALLY_BOUND_STATE
 
-F_IDX = 0
-NS_IDX = 1
-S_IDX = 2
-
-
 class Transcription(wholecell.processes.process.Process):
 	""" Transcription """
 
@@ -39,27 +34,7 @@ class Transcription(wholecell.processes.process.Process):
 		super(Transcription, self).initialize(sim, kb)
 
 		## Load constants from Knowledge Base
-		self.transProb = kb.rnaPolymeraseTransitionProb
-		# kb.rnaPolymeraseTransitionProb = {
-		# 	'fromFree' 			: {'toFree' : 0.1, 'toNonspecific': 0.5, 'toSpecific' : 0.4},
-		# 	'fromNonspecific'	: {'toFree' : 0.1, 'toNonspecific': 0.5, 'toSpecific' : 0.4},
-		# 	'fromSpecific'		: {'toFree' : 0.1, 'toNonspecific': 0.4, 'toSpecific' : 0.4}
-		# }
-
-		# Reads from 1st index to 2nd index
-		self.transProb = numpy.zeros((3,3))
-		self.transProb[F_IDX, F_IDX] 	= kb.rnaPolymeraseTransitionProb['fromFree']['toFree']
-		self.transProb[F_IDX, NS_IDX] 	= kb.rnaPolymeraseTransitionProb['fromFree']['toNonspecific']
-		self.transProb[F_IDX, S_IDX] 	= kb.rnaPolymeraseTransitionProb['fromFree']['toSpecific']
-
-		self.transProb[NS_IDX, NS_IDX]	= kb.rnaPolymeraseTransitionProb['fromNonspecific']['toNonspecific']
-		self.transProb[NS_IDX, F_IDX]	= kb.rnaPolymeraseTransitionProb['fromNonspecific']['toFree']
-		self.transProb[NS_IDX, S_IDX]	= kb.rnaPolymeraseTransitionProb['fromNonspecific']['toSpecific']
-
-		self.transProb[S_IDX, S_IDX]	= kb.rnaPolymeraseTransitionProb['fromSpecific']['toSpecific']
-		self.transProb[S_IDX, F_IDX]	= kb.rnaPolymeraseTransitionProb['fromSpecific']['toFree']
-		self.transProb[S_IDX, NS_IDX]	= kb.rnaPolymeraseTransitionProb['fromSpecific']['toNonspecific']
-
+		self.rnaPolymeraseTransitionProb = kb.rnaPolymeraseTransitionProb
 
 		self.promoterBindingProbabilities = kb.promoterBindingProbabilities
 		# kb.promoterBindingProbabilities = numpy.array(len(promoters),
@@ -80,8 +55,8 @@ class Transcription(wholecell.processes.process.Process):
 			bindingState = ('==', RNAP_NON_SPECIFICALLY_BOUND_STATE))
 		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX',
 			bindingState = ('==', RNAP_SPECIFICALLY_BOUND_STATE))
-
-		# TODO: Active RNAP transitions
+		self.activeRnaPolymerase 				= self.uniqueMoleculesView('RNAP70-CPLX',
+			bindingState = ('==', RNAP_ACTIVE_BOUND_STATE))
 
 		# Chromosome
 		self.promoters = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
@@ -89,42 +64,95 @@ class Transcription(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		## Compute Markov transitions
+		## Compute Markov transitions to calculate requests
+		# 
+		# n = number of states
+		# v = flux through Markov transitions (dimension (n-1,1))
+		# P = probability matrix for Markov transitions with columns
+		#	  summing to unity (dimension (n,n))
+		# Q = probability matrix with each reaction having its own row.
+		#	  Just a transformation of P. (dimension (n^n,n))
+		# m = counts of Markov states (dimension (n,1))
+		# S = stoichiometric matrix for Markov transitions (dimension (n, n^n))
+		# 
+		# Calculate fluxes through transitions
+		# 	v = Qm
+		# Calculate change in states
+		# 	m(t+1) - m(t) = Sv
+		# Substitute
+		# 	m(t+1) - m(t) = SQm(t)
+		# Requests are things that are needed by the process not produced
+		# so we need the negative max relative to zero.
+		# 	req = max(0, -(m(t+1) - m(t))) = max(0, -SQm(t))
+		# Which in Python is written
+		#	numpy.fmax(0, -1. * numpy.dot(numpy.dot(S,Q),m))
 
-		cntSigma = self.freeSigma.total()
-		cntFreeRnap = self.freeRnaPolymerase.total()
-		cntNonSpecBoundRnap = self.nonSpecificallyBoundRnaPolymerase.total()
-		cntSpecBoundRnap = self.specificallyBoundRnaPolymerase.total()
-		cntFreePromoters = sum(self.promoters.free())
+		# Index/Species:
+		# 	0	/	free RNAP
+		#	1 	/	non specifically bound RNAP
+		#	2 	/	specifically bound RNAP
+		#	3	/	activly transcribing
+		# --------------------- below only in S matrix
+		#	4	/	sigma factor
+		#	5	/	free promoters
+
+		# TODO: Load from KB
+		F_idx = 0
+		NS_idx = 1
+		S_idx = 2
+		A_idx = 3
+		sigma_idx = 4
+		promoter_idx = 5
+
+		m = numpy.array([self.freeRnaPolymerase.total(),
+						self.nonSpecificallyBoundRnaPolymerase.total(),
+						self.specificallyBoundRnaPolymerase.total(),
+						self.activeRnaPolymerase.total()
+						])
+		
+		# TODO: Load from KB
+		#			From 	F 		NS 		S 	A
+		P = numpy.array([[	0.1,	0.1,	0,	0.1	], # to F
+						 [	0.9,	0.4,	0,	0	], # to NS
+						 [	0,		0.5,	0,	0	], # to S
+						 [	0,		0,		1,	0.9	]])# to A
+
+		P_shape = P.shape[0]
+		Q = numpy.zeros((P_shape**2,P_shape))
+		for i in range(P_shape):
+			Q[i*P_shape:(i+1)*P_shape, i] = P[:,i]
+
+		# TODO: Load from KB
+		# Assuming that specifically and non-specifically bound RNAP when staying in same state
+		# don't move.
+		#					F 	F 	 F   F  NS  NS  NS  NS   S   S   S   S   A   A   A   A
+		#					to
+		#					F 	NS 	 S   A   F  NS   S   A   F  NS   S   A   F  NS   S   A
+		S = numpy.array([   [0, -1, -1, -1,  1,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0],	# Free
+							[0,  1,  0,  0, -1,  0, -1, -1,  0,  1,  0,  0,  0,  1,  0,  0],	# Non-specifically bound
+							[0,  0,  1,  0,  0,  0,  1,  0, -1, -1,  0, -1,  0,  0,  1,  0],	# Specifically bound
+							[0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  1, -1, -1, -1,  0],	# Active
+							[0,  0, -1, -1,  0,  0, -1, -1,  1,  1,  0,  0,  1,  0,  0,  0],	# Sigma
+							[0,  0, -1,  0,  0,  0, -1,  0,  1,  1,  0,  1,  0,  1, -1,  0]])	# Promoter
+
+		transitions = numpy.round(numpy.dot(numpy.dot(S,Q),m))
+
+		# Need to limit requests based on free sigma factors and promoters
+		# TODO: This assumes promoters and sigma factors are only used to bind
+		# promoters and no other stiochiometries do.
+		if transitions[sigma_idx] > self.freeSigma.total():
+			transitions[NS_idx] = transitions[NS_idx] - (transitions[sigma_idx] - self.freeSigma.total())
+			transitions[sigma_idx] = self.freeSigma.total()
+
+		if transitions[promoter_idx] > sum(self.promoters.free()):
+			# TODO: Subtract twice?
+			transitions[NS_idx] = transitions[NS_idx] - (transitions[promoter_idx] - self.promoters.free())
+			transitions[promoter_idx] = self.promters.free()
+
+		requests = numpy.round(numpy.fmax(0, -1. * transitions))
 
 
-		countInState = numpy.array([self.freeRnaPolymerase.total(),
-									self.nonSpecificallyBoundRnaPolymerase.total(),
-									self.specificallyBoundRnaPolymerase.total()])
-
-
-		expTransitionFromCurrentState = countInState * (1 - numpy.array([self.transProb['fromFree']['toFree'],
-																		self.transProb['fromNonspecific']['toNonspecific'],
-																		self.transProb['fromSpecific']['toSpecific']))
-
-
-		expectedTransitionFromFree = cntFreeRnap * (1 - self.transProb['fromFree']['toFree'])
-		expectedTransitionFromFreeToSpecific = expectedTransitionFromFree * self.transProb['fromFree']['toSpecific'] / (self.transProb['fromFree']['toSpecific'] + self.transProb['fromFree']['toNonspecific'])
-
-
-
-		## Requests
-		freeRnapRequest = expectedTransitionFromFree
-		sigmaFactorRequest = expectedTransitionFromFreeToSpecific + expectedTransitionFromNonSpecificToSpecific
-		if sigmaFactorRequest > cntSigma:
-			sigmaFactorRequest = cntSigma
-
-		self.freeRnaPolymerase.requestIs(freeRnapRequest)
-		self.freeSigma.requestIs(sigmaFactorRequest)
-
-
-
-
+, sum(self.promoters.free()
 
 		self.nonSpecificallyBoundRnaPolymerase.requestIs()
 		self.specificallyBoundRnaPolymerase.requestIs()
