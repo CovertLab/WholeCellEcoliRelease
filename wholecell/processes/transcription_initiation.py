@@ -57,8 +57,8 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		## Create partitions
 		# Sigma factors
 		self.freeSigma = self.bulkMoleculeView(['RPOD-MONOMER']) # Only Sigma D in here now
-		# TODO: Add other initiation factors, or factors required to go from,
-		# specifically bound to active.
+		# TODO: Add other sigma factors. Will have to add different sorts of
+		# promoters (one for each sigma factor) to the matrix to make this work.
 
 		# RNA polymerase
 		self.freeRnaPolymerase					= self.bulkMoleculeView(['APORNAP-CPLX[c]'])
