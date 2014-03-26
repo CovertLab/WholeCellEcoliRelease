@@ -48,6 +48,8 @@ class Transcription(wholecell.processes.process.Process):
 		## Create partitions
 		# Sigma factors
 		self.freeSigma = self.bulkMoleculeView(['RPOD-MONOMER']) # Only Sigma D in here now
+		# TODO: Add other initiation factors, or factors required to go from,
+		# specifically bound to active.
 
 		# RNA polymerase
 		self.freeRnaPolymerase					= self.bulkMoleculeView(['APORNAP-CPLX[c]'])
@@ -55,6 +57,7 @@ class Transcription(wholecell.processes.process.Process):
 			bindingState = ('==', RNAP_NON_SPECIFICALLY_BOUND_STATE))
 		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX',
 			bindingState = ('==', RNAP_SPECIFICALLY_BOUND_STATE))
+
 		self.activeRnaPolymerase 				= self.uniqueMoleculesView('RNAP70-CPLX',
 			bindingState = ('==', RNAP_ACTIVE_BOUND_STATE))
 
@@ -111,6 +114,8 @@ class Transcription(wholecell.processes.process.Process):
 						])
 		
 		# TODO: Load from KB
+		# TODO: Shouldn't have a transition from A --> F that should
+		# go into terminatoin.
 		#			From 	F 		NS 		S 	A
 		P = numpy.array([[	0.1,	0.1,	0,	0.1	], # to F
 						 [	0.9,	0.4,	0,	0	], # to NS
@@ -135,49 +140,32 @@ class Transcription(wholecell.processes.process.Process):
 							[0,  0, -1, -1,  0,  0, -1, -1,  1,  1,  0,  0,  1,  0,  0,  0],	# Sigma
 							[0,  0, -1,  0,  0,  0, -1,  0,  1,  1,  0,  1,  0,  1, -1,  0]])	# Promoter
 
-		transitions = numpy.round(numpy.dot(numpy.dot(S,Q),m))
+		speciesUsedInTransitions = self.randStream.stochasticRound((numpy.dot(numpy.dot(S,Q),m)))
 
-		# Need to limit requests based on free sigma factors and promoters
-		# TODO: This assumes promoters and sigma factors are only used to bind
-		# promoters and no other stiochiometries do.
-		if transitions[sigma_idx] > self.freeSigma.total():
-			transitions[NS_idx] = transitions[NS_idx] - (transitions[sigma_idx] - self.freeSigma.total())
-			transitions[sigma_idx] = self.freeSigma.total()
+		sigmaAndPromoterIdx = numpy.array([sigma_idx, promoter_idx])
+		if numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx]) < -1 * numpy.min(self.freeSigma.total(), len(self.promoters.free())):
+			# Limit NS --> S transition reaction
+			# NS + Sigma + Promoter --> S
+			desiredAmount = numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx])
+			maxAvailable = -1 * numpy.min([self.freeSigma.total(), len(self.promoters.free()])
+			difference = maxAvailable - desiredAmount # Will be positive
+			speciesUsedInTransitions[S_idx] 		-= difference
+			speciesUsedInTransitions[NS_idx] 		+= difference
+			speciesUsedInTransitions[sigma_idx] 	+= difference
+			speciesUsedInTransitions[promoter_idx]	+= difference
 
-		if transitions[promoter_idx] > sum(self.promoters.free()):
-			# TODO: Subtract twice?
-			transitions[NS_idx] = transitions[NS_idx] - (transitions[promoter_idx] - self.promoters.free())
-			transitions[promoter_idx] = self.promters.free()
+		requests = numpy.fmax(0, -1. * speciesUsedInTransitions)
 
-		requests = numpy.round(numpy.fmax(0, -1. * transitions))
-
-
-, sum(self.promoters.free()
-
-		self.nonSpecificallyBoundRnaPolymerase.requestIs()
-		self.specificallyBoundRnaPolymerase.requestIs()
-
-		self.nonSpecificallyBoundRnaPolymerase
-		self.nonSpecificallyBoundRnaPolymerase
+		self.freeRnaPolymerase.requestIs(requests[F_idx])
+		self.nonSpecificallyBoundRnaPolymerase.requestIs(requests[NS_idx])
+		self.specificallyBoundRnaPolymerase.requestIs(requests[S_idx])
+		# TODO: Should probably just remove this because this process will
+		# only really be creating A not using it for anything. For now, it is
+		# here.
+		self.activeRnaPolymerase.requestIs(requests[A_idx])
 
 		self.chromosomeAllocation
 
-
 	# Calculate temporal evolution
 	def evolveState(self):
-		transitions = [self.transProb['fromFree']['toNonspecific'],
-						self.transProb['fromFree']['toSpecific'],
-						self.transProb['fromFree']['toFree']] # Get rid of free to free prob and normalize to one
-		transitions = numpy.cumsum(transitions)
-
-		choices = self.randStream.rand(cntFreeRnap)
-
-		outcomes = len(transitions) - numpy.sum(choices < transitions[:,numpy.newaxis],0) # Index corresponds to transitions
-
-		eachTransition = numpy.bincount(outcomes)
-
-		transitionMatrix = numpy.array([[-1, -1, 0],	# Free
-										[1, 0, 0],		# Non-specific
-										[0, 1, 0]])		# Specific
-
-		countUpdate = numpy.dot(transitionMatrix, eachTransition)
+		pass
