@@ -10,10 +10,19 @@ import numpy as np
 
 import wholecell.processes.process
 
-from wholecell.utils.package_constants import RNAP_NON_SPECIFICALLY_BOUND_STATE, RNAP_SPECIFICALLY_BOUND_STATE
+from wholecell.utils.package_constants import RNAP_NON_SPECIFICALLY_BOUND_STATE, RNAP_SPECIFICALLY_BOUND_STATE, RNAP_ACTIVE_STATE
 
-class Transcription(wholecell.processes.process.Process):
-	""" Transcription """
+class TranscriptionInitiation(wholecell.processes.process.Process):
+	""" TranscriptionInitiation """
+	'''
+	Transcription initiation is the first step in the cellular processes, which
+	produce functional gene products. Transcription initiation begins with the
+	recruitment of RNA polymerase (RNAP) to a transcription unit promoter site
+	on E. coli's genome with the help of a sigma factor. Once RNAP and sigma
+	factor have associated with a promoter site on the DNA active elongation of
+	a transcript can begin.
+	'''
+
 
 	# Constructor
 	def __init__(self):
@@ -67,6 +76,16 @@ class Transcription(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		'''
+		calculateRequest
+
+		Requests are calculated based on expected transitions in the Markov model
+		representing the different states that an RNA polymerase can exist in: 
+		free, non-specifically bound, specifically bound, or actively transcribing.
+		In this way the process only requests what will be used in the next
+		time step.
+		'''
+
 		## Compute Markov transitions to calculate requests
 		###################################################
 		# n = number of states
@@ -174,11 +193,12 @@ class Transcription(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		## Initiate specifically bound polymerases
-		##########################################
+		'''
+		evolveState
 
-		self.specificallyBoundRnaPolymerase
-
+		Expected transitions in the Markov model have already been calculated
+		in the calculateRequest function...
+		'''
 
 
 		## Transition Free RNAP
