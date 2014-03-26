@@ -36,16 +36,16 @@ class UniqueObjectsContainer(object):
 	'''
 
 	_defaultContainerAttributes = {
-		'_entryState':'uint32', # see state descriptions above
-		'_globalIndex':'uint32', # index in the _globalReference array
-		'_time':'uint32', # current time (important for saving)
+		'_entryState':'int64', # see state descriptions above
+		'_globalIndex':'int64', # index in the _globalReference array
+		'_time':'int64', # current time (important for saving)
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
 	_defaultObjects = {
 		'_globalReference':{ # a table which contains reference to all molecules
-			'_arrayIndex':'uint32',
-			'_objectIndex':'uint32'
+			'_arrayIndex':'int64',
+			'_objectIndex':'int64'
 			}
 		}
 

@@ -20,7 +20,8 @@ from wholecell.containers.transcripts_container import TranscriptsContainer
 ARRAY_LENGTH = 1000
 
 MOLECULE_ATTRIBUTES = {
-	'Ribosome':{}
+	'Ribosome':{},
+	'RNAse':{}
 	}
 
 class Test_TranscriptsContainer(unittest.TestCase):
@@ -246,6 +247,179 @@ class Test_TranscriptsContainer(unittest.TestCase):
 				relativePosition.tolist(),
 				[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 				)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesBound(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		positions = [10, 30, 50]
+		molecules = []
+
+		for position in positions:
+			molecule = self.container.moleculeNew('Ribosome')
+
+			self.container.moleculeLocationIs(molecule, transcript, position, '+',
+				10, 5)
+
+			molecules.append(molecule)
+
+		unboundMolecule = self.container.moleculeNew('Ribosome')
+
+		self.assertEqual(
+			set(self.container.moleculesBound()),
+			set(molecules)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesUnbound(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		positions = [10, 30, 50]
+		molecules = []
+
+		for position in positions:
+			molecule = self.container.moleculeNew('Ribosome')
+
+			self.container.moleculeLocationIs(molecule, transcript, position, '+',
+				10, 5)
+
+			molecules.append(molecule)
+
+		unboundMolecule = self.container.moleculeNew('Ribosome')
+
+		self.assertEqual(
+			set(self.container.moleculesUnbound()),
+			{unboundMolecule}
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesBoundOnTranscript(self):
+		transcripts = []
+		transcriptMolecules = []
+
+		for iTranscript in xrange(2):
+			transcript = self.container.transcriptNew(0, 100)
+			self.container.transcriptExtend(transcript, 100)
+
+			transcripts.append(transcript)
+
+			positions = [10, 30, 50]
+			molecules = []
+
+			for position in positions:
+				molecule = self.container.moleculeNew('Ribosome')
+
+				self.container.moleculeLocationIs(molecule, transcript, position, '+',
+					10, 5)
+
+				molecules.append(molecule)
+
+			transcriptMolecules.append(molecules)
+
+		for transcript, molecules in zip(transcripts, transcriptMolecules):
+			self.assertEqual(
+				set(self.container.moleculesBoundOnTranscript(transcript)),
+				set(molecules)
+				)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesBoundWithName(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		ribosome = self.container.moleculeNew('Ribosome')
+		rnase = self.container.moleculeNew('RNAse')
+
+		self.container.moleculeLocationIs(ribosome, transcript, 10, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(rnase, transcript, 30, '+',
+			10, 5)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundWithName('Ribosome')),
+			{ribosome}
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundWithName('RNAse')),
+			{rnase}
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculeBoundAtPosition(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		ribosome = self.container.moleculeNew('Ribosome')
+		rnase = self.container.moleculeNew('RNAse')
+
+		self.container.moleculeLocationIs(ribosome, transcript, 10, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(rnase, transcript, 30, '+',
+			10, 5)
+
+		self.assertEqual(
+			self.container.moleculeBoundAtPosition(transcript, 10),
+			ribosome
+			)
+
+		self.assertEqual(
+			self.container.moleculeBoundAtPosition(transcript, 30),
+			rnase
+			)
+
+		self.assertEqual(
+			self.container.moleculeBoundAtPosition(transcript, 50),
+			None
+			)
+
+
+	@noseAttrib.attr('smalltest', 'transcripts', 'containerObject')
+	def test_moleculesBoundOverExtent(self):
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		ribosome = self.container.moleculeNew('Ribosome')
+		rnase = self.container.moleculeNew('RNAse')
+		ribosome2 = self.container.moleculeNew('Ribosome')
+
+		self.container.moleculeLocationIs(ribosome, transcript, 10, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(rnase, transcript, 30, '+',
+			10, 5)
+
+		self.container.moleculeLocationIs(ribosome2, transcript, 50, '+',
+			10, 5)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 5, 0)),
+			set()
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 10, 0)),
+			{ribosome}
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 30, 0)),
+			{ribosome, rnase}
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 50, 0)),
+			{ribosome, rnase, ribosome2}
+			)
 
 
 def createContainer():

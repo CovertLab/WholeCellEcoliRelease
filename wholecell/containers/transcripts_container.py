@@ -31,7 +31,12 @@ class TranscriptsContainer(object):
 	'''
 	TranscriptsContainer
 
-	TODO: doc
+	A container object for transcripts.  Transcripts are contiguous regions of 
+	nucleotides, allocated somewhere in a shared array.  Transcripts can be 
+	extended, and molecules can be attached to a transcripts.  This 
+	implementation is similar to the ChromosomeContainer object, albeit with 
+	enough key differences that I've chosen not to inherit from some base 
+	implementation.
 	'''
 
 	# Special values
@@ -150,7 +155,12 @@ class TranscriptsContainer(object):
 				_transExtent = newExtent
 				)
 
-			# TODO: update molecules with new positions
+			positionDelta = newPosition - position
+
+			for molecule in self.moleculesBoundOnTranscript(transcript):
+				molecule.attrIs(
+					_transPosition = molecule.attr('_transPosition') + positionDelta
+					)
 
 
 	def _findFreePosition(self, extent):
@@ -172,7 +182,10 @@ class TranscriptsContainer(object):
 
 
 	def transcriptDel(self, transcript):
-		# TODO: unbind and return all molecules
+		molecules = self.moleculesBoundOnTranscript(transcript)
+
+		for molecule in molecules:
+			self.moleculeLocationIsUnbound(molecule)
 
 		position = transcript.attr('_transPosition')
 		extent = np.max(transcript.attrs('_transExtent',
@@ -183,6 +196,8 @@ class TranscriptsContainer(object):
 		self._array[region] = self._unused
 
 		self._objectsContainer.objectDel(transcript)
+
+		return molecules
 
 
 	def moleculeNew(self, moleculeName, **attributes):
@@ -233,21 +248,17 @@ class TranscriptsContainer(object):
 			return np.arange(position-extentReverse, position+extentForward)
 
 
-	# def moleculeLocation(self, molecule):
-	# 	# Return the location a molecule, if it is bound to the chromosome
-	# 	if not molecule.attr('_transBound'):
-	# 		return None
+	def moleculeLocation(self, molecule):
+		# Return the location of a molecule, if it is bound to a transcript
+		if not molecule.attr('_transBound'):
+			return None
 
-	# 	else:
-	# 		return (
-	# 			self._strandNames[molecule.attr('_transStrand')], # TODO: attrs method
-	# 			molecule.attr('_transPosition'),
-	# 			self._directionBoolToChar[molecule.attr('_transDirection')],
-	# 			molecule.attr('_transExtentForward'),
-	# 			molecule.attr('_transExtentReverse'),
-	# 			)
+		else:
+			# TODO: implement/decide if this is needed
 
-	# # TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
+			raise NotImplementedError()
+
+	# TODO: moleculeTranscript, moleculePosition, moleculeDirection, moleculeFootprint
 
 	def moleculeLocationIsUnbound(self, molecule):
 		# Unbind a molecule if it is bound, or do nothing
@@ -267,8 +278,54 @@ class TranscriptsContainer(object):
 
 			molecule.attrIs(_transBound = False)
 
+	def moleculesBound(self):
+		return self._objectsContainer.objects(_transBound = ('==', True))
 
-	# TODO: bound/unbound methods
+
+	def moleculesUnbound(self):
+		return self._objectsContainer.objects(_transBound = ('==', False))
+
+
+	def moleculesBoundOnTranscript(self, transcript):
+		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		return self._objectsContainer.objects(_transTranscript = ('==', transcriptIndex))
+
+
+	def moleculesBoundWithName(self, moleculeName):
+		return self._objectsContainer.objectsWithName(moleculeName, 
+			_transBound = ('==', True))
+
+
+	def moleculeBoundAtPosition(self, transcript, position):
+		transcriptPosition = transcript.attr('_transPosition') + 1
+
+		absPosition = position + transcriptPosition
+
+		index = self._array[absPosition] - self._offset
+
+		if index < 0:
+			return None
+
+		else:
+			return self._objectsContainer._objectByGlobalIndex(index)
+
+
+	def moleculesBoundOverExtent(self, transcript, position, direction, extentForward, extentReverse):
+		transcriptPosition = transcript.attr('_transPosition') + 1
+
+		absPosition = position + transcriptPosition
+
+		directionBool = self._directionCharToBool[direction]
+
+		region = self._region(absPosition, directionBool, extentForward, extentReverse)
+
+		indexes = np.setdiff1d(self._array[region], self._specialValues) - self._offset
+
+		return self._objectsContainer._objectsByGlobalIndex(indexes)
+
+
+	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
+		raise NotImplementedError()
 
 
 	def __eq__(self, other):

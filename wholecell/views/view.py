@@ -218,3 +218,14 @@ class ChromosomeMoleculeView(View):
 
 		self._state._container.moleculesDel(molecules)
 
+
+# TODO: views for forks
+# TODO: determine how to assign regions to processes
+# _array-sized matric with indexes on specific bases
+# sparse representation (strand, start, stop)
+# partition regions as unique objects?
+# algo to merge overlapping regions (sort and perform comparisons on adjacent entries only should be O(n) + O(sort)) *use heapsort
+# TODO: figure out interface methods, and how to constrain the regions that are operated in
+# TODO: collect types of chrom views and organize in a base class
+# TODO: views/operations for generic extents (i.e. 50-wide regions for binding)
+# TODO: placeholder partitioning algo
