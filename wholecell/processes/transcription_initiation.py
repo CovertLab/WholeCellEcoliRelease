@@ -68,7 +68,7 @@ class Transcription(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		## Compute Markov transitions to calculate requests
-		# 
+		###################################################
 		# n = number of states
 		# v = flux through Markov transitions (dimension (n-1,1))
 		# P = probability matrix for Markov transitions with columns
@@ -142,6 +142,9 @@ class Transcription(wholecell.processes.process.Process):
 
 		speciesUsedInTransitions = self.randStream.stochasticRound((numpy.dot(numpy.dot(S,Q),m)))
 
+
+		## Limit requests by available sigma factors and promoters
+		##########################################################
 		sigmaAndPromoterIdx = numpy.array([sigma_idx, promoter_idx])
 		if numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx]) < -1 * numpy.min(self.freeSigma.total(), len(self.promoters.free())):
 			# Limit NS --> S transition reaction
@@ -156,6 +159,9 @@ class Transcription(wholecell.processes.process.Process):
 
 		requests = numpy.fmax(0, -1. * speciesUsedInTransitions)
 
+		## Set requests
+		###############
+
 		self.freeRnaPolymerase.requestIs(requests[F_idx])
 		self.nonSpecificallyBoundRnaPolymerase.requestIs(requests[NS_idx])
 		self.specificallyBoundRnaPolymerase.requestIs(requests[S_idx])
@@ -164,8 +170,33 @@ class Transcription(wholecell.processes.process.Process):
 		# here.
 		self.activeRnaPolymerase.requestIs(requests[A_idx])
 
-		self.chromosomeAllocation
+		# TODO: Write chromsome allocation
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		pass
+		## Initiate specifically bound polymerases
+		##########################################
+
+		self.specificallyBoundRnaPolymerase
+
+
+
+		## Transition Free RNAP
+		#######################
+
+
+
+
+
+		## Transition NS RNAP
+		#####################
+
+
+
+
+		## Transition S RNAP
+		####################
+
+
+		## Transition A RNAP
+		####################
