@@ -74,6 +74,10 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		self.promoters = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
 		self.randomBinding = self.chromosomeRandomRequest(self.rnaPolymeraseFootprint)
 
+		# Transcripts
+		# TODO: Create container views for transcripts? Or at least a pointer
+		# to the transcript state so that they can be created?
+
 
 	def calculateRequest(self):
 		'''
@@ -189,7 +193,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		# here.
 		self.activeRnaPolymerase.requestIs(requests[A_idx])
 
-		# TODO: Write chromsome allocation
+		# TODO: Write chromsome allocation for promoters and random binding
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -200,16 +204,22 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		in the calculateRequest function...
 		'''
 
+		## Initiate specifically bound polymerases
+		##########################################
 
-		## Transition Free RNAP
-		#######################
+		for molecule in self.specificallyBoundRnaPolymerase:
+			molecule.attrIs(bindingState = RNAP_ACTIVE_STATE)
+			# TODO: Create transcript
+			# TODO: Set RNAP attributes so that it is associated with that transcript.
 
 
+		## Specifically bound polymerases becoming non-specitically bound/free
+		######################################################################
+		# NOTE: Not in the model right now
 
 
-
-		## Transition NS RNAP
-		#####################
+		## Free or non-specifically bound polymerases becoming specifically bound
+		#########################################################################
 
 
 
@@ -220,3 +230,12 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 		## Transition A RNAP
 		####################
+
+
+
+# NOTES
+# RNA polymerases - unique attributes:
+# - bindingState					- (F, NS, S, A, T)
+# - associatedTranscript 			- Idx of transcript it is elongating
+# - associatedTranscriptionUnit		- Idx of transcription unit it is elongating
+# - associatedSigmaFactor			- Sigma factor it is associated with
