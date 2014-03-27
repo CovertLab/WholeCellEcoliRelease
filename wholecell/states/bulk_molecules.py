@@ -70,6 +70,9 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self.time = sim.states['Time']
 
+		# Load constants
+		self.nAvogadro = kb.constants['nAvogadro']['value']
+
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK
 
@@ -164,8 +167,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 	
 	def calcInitialConditions(self):
-		from wholecell.utils.constants import Constants
-
 		initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
 
 		feistCoreView = self._container.countsView(IDS['FeistCore'])
@@ -182,13 +183,13 @@ class BulkMolecules(wholecell.states.state.State):
 		# Set metabolite counts from Feist core
 		feistCoreView.countsIs(
 			np.round(
-				self.feistCoreVals * 1e-3 * Constants.nAvogadro * initialDryMass
+				self.feistCoreVals * 1e-3 * self.nAvogadro * initialDryMass
 				)
 			)
 
 		# Set water
 		h2oView.countIs(
-			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._typeIdxs['water']] * Constants.nAvogadro
+			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._typeIdxs['water']] * self.nAvogadro
 			) # TOKB
 
 		# Set RNA counts from expression levels
