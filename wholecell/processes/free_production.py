@@ -32,7 +32,7 @@ class FreeProduction(wholecell.processes.process.Process):
 		self.time = None
 
 		self.defaultInitCount = 1e6
-		self.doublingTime = 1. * 3600 # TOKB
+		self.cellCycleLength = None
 
 		super(FreeProduction, self).__init__()
 
@@ -40,6 +40,8 @@ class FreeProduction(wholecell.processes.process.Process):
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(FreeProduction, self).initialize(sim, kb)
+
+		self.cellCycleLength = kb.constants['cellCycleLen']['value']
 
 		freeMolecules = sim.freeMolecules if sim.freeMolecules is not None else ()
 
@@ -65,7 +67,7 @@ class FreeProduction(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		expectedCounts = self.initCounts * np.exp(np.log(2) / self.doublingTime * self.time.value)
+		expectedCounts = self.initCounts * np.exp(np.log(2) / self.cellCycleLength * self.time.value)
 
 		self.molecules.countsIs(np.fmax(
 			0,
