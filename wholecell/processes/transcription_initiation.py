@@ -58,22 +58,22 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 		## Create partitions
 		# Sigma factors
-		self.freeSigma = self.bulkMoleculeView(['RPOD-MONOMER']) # Only Sigma D in here now
+		self.freeSigmaD = self.bulkMoleculeView(['RPOD-MONOMER[c]'])
+		self.freeSigmaH = self.bulkMoleculeView(['RPOH-MONOMER[c]'])
 		# TODO: Add other sigma factors. Will have to add different sorts of
 		# promoters (one for each sigma factor) to the matrix to make this work.
 
 		# RNA polymerase
-		self.freeRnaPolymerase					= self.bulkMoleculeView(['APORNAP-CPLX[c]'])
-		self.nonSpecificallyBoundRnaPolymerase	= self.uniqueMoleculesView('APORNAP-CPLX',
-			bindingState = ('==', RNAP_NON_SPECIFICALLY_BOUND_STATE))
-		self.specificallyBoundRnaPolymerase 	= self.uniqueMoleculesView('RNAP70-CPLX',
-			bindingState = ('==', RNAP_SPECIFICALLY_BOUND_STATE))
-
-		self.activeRnaPolymerase 				= self.uniqueMoleculesView('RNAP70-CPLX',
-			bindingState = ('==', RNAP_ACTIVE_BOUND_STATE))
+		self.freeRNAP				= self.bulkMoleculeView(['APORNAP-CPLX[c]'])
+		self.nonSpecificRNAP		= self.uniqueMoleculesView('APORNAP-CPLX', bindingState = ('==', RNAP_NON_SPECIFICALLY_BOUND_STATE))
+		self.specificRNAP_sigmaD 	= self.uniqueMoleculesView('RNAP70-CPLX', bindingState = ('==', RNAP_SPECIFICALLY_BOUND_STATE))
+		self.specificRNAP_sigmaH 	= self.uniqueMoleculesView('RNAP32-CPLX',bindingState = ('==', RNAP_SPECIFICALLY_BOUND_STATE))
+		self.activeRNAP_sigmaD		= self.uniqueMoleculesView('RNAP70-CPLX', bindingState = ('==', RNAP_ACTIVE_BOUND_STATE))
+		self.activeRNAP_sigmaH 		= self.uniqueMoleculesView('RNAP32-CPLX', bindingState = ('==', RNAP_ACTIVE_BOUND_STATE))
 
 		# Chromosome
-		self.promoters = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
+		self.promoters_sigmaD = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
+		self.promoters_sigmaH
 		self.randomBinding = self.chromosomeRandomRequest(self.rnaPolymeraseFootprint)
 
 		# Transcripts
@@ -132,10 +132,10 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		sigma_idx = 4
 		promoter_idx = 5
 
-		m = numpy.array([self.freeRnaPolymerase.total(),
-						self.nonSpecificallyBoundRnaPolymerase.total(),
-						self.specificallyBoundRnaPolymerase.total(),
-						self.activeRnaPolymerase.total()
+		m = numpy.array([self.freeRNAP.total(),
+						self.nonSpecificRNAP.total(),
+						self.specificRNAP_sigmaD.total() + self.specificRNAP_sigmaH,
+						self.activeRNAP_sigmaH.total() + self.activeRNAP_sigmaH
 						])
 		
 		# TODO: Load from KB
@@ -171,11 +171,11 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		## Limit requests by available sigma factors and promoters
 		##########################################################
 		sigmaAndPromoterIdx = numpy.array([sigma_idx, promoter_idx])
-		if numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx]) < -1 * numpy.min(self.freeSigma.total(), len(self.promoters.free())):
+		if numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx]) < -1 * numpy.min(self.freeSigmaD.total(), len(self.promoters.free())):
 			# Limit NS --> S transition reaction
 			# NS + Sigma + Promoter --> S
 			desiredAmount = numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx])
-			maxAvailable = -1 * numpy.min([self.freeSigma.total(), len(self.promoters.free()])
+			maxAvailable = -1 * numpy.min([self.freeSigmaD.total(), len(self.promoters.free()])
 			difference = maxAvailable - desiredAmount # Will be positive
 			speciesUsedInTransitions[S_idx] 		-= difference
 			speciesUsedInTransitions[NS_idx] 		+= difference
@@ -187,13 +187,19 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		## Set requests
 		###############
 
-		self.freeRnaPolymerase.requestIs(requests[F_idx])
-		self.nonSpecificallyBoundRnaPolymerase.requestIs(requests[NS_idx])
-		self.specificallyBoundRnaPolymerase.requestIs(requests[S_idx])
+		self.freeRNAP.requestIs(requests[F_idx])
+		self.nonSpecificRNAP.requestIs(requests[NS_idx])
+
+		# TODO: Scale here somehow? So that the total request is proprotional
+		# to the amount of each type of sigma that is required for promoters?
+		self.specificRNAP_sigmaD.requestIs(requests[S_idx])
+		self.specificRNAP_sigmaH.requestIs()
+
+
 		# TODO: Should probably just remove this because this process will
 		# only really be creating A not using it for anything. For now, it is
 		# here.
-		self.activeRnaPolymerase.requestIs(requests[A_idx])
+		self.activeRNAP.requestIs(requests[A_idx])
 
 		# TODO: Write chromsome allocation for promoters and random binding
 
@@ -209,7 +215,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		## Initiate specifically bound polymerases
 		##########################################
 
-		for molecule in self.specificallyBoundRnaPolymerase:
+		for molecule in self.specificRNAP:
 			molecule.attrIs(bindingState = RNAP_ACTIVE_STATE)
 			# TODO: Create transcript
 			# TODO: Set RNAP attributes so that it is associated with that transcript.
@@ -217,7 +223,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 		## Specifically bound polymerases becoming non-specitically bound/free
 		######################################################################
-		# NOTE: Not in the model right now
+		# NOTE: Not in the model right now but could/should be
 
 
 		## Free or non-specifically bound polymerases becoming specifically bound
