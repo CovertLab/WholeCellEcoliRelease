@@ -33,7 +33,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 		# Constants
 		self.rnaPolymeraseTransitionProb = None
-		self.promoterBindingProbabilities = None
+		self.promoterData = None
 		self.transProb = None
 
 		super(Transcription, self).__init__()
@@ -45,8 +45,8 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		## Load constants from Knowledge Base
 		self.rnaPolymeraseTransitionProb = kb.rnaPolymeraseTransitionProb
 
-		self.promoterBindingProbabilities = kb.promoterBindingProbabilities
-		# kb.promoterBindingProbabilities = numpy.array(len(promoters),
+		self.promoterData = kb.promoters
+		# kb.promoters = numpy.array(len(promoters),
 		#	dtype = [('promoterId', 'a16'),
 		#			('bindingProb','f'),
 		#			('sigmaFactor', 'a1'),
@@ -72,9 +72,8 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		self.activeRNAP_sigmaH 		= self.uniqueMoleculesView('RNAP32-CPLX', bindingState = ('==', RNAP_ACTIVE_BOUND_STATE))
 
 		# Chromosome
-		self.promoters_sigmaD = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
-		self.promoters_sigmaH
-		self.randomBinding = self.chromosomeRandomRequest(self.rnaPolymeraseFootprint)
+		self.promoterRegion = self.chromosomeLocationRequest('promoter', self.rnaPolymeraseFootprint)
+		self.randomBindingRegion = self.chromosomeRandomRequest(self.rnaPolymeraseFootprint)
 
 		# Transcripts
 		# TODO: Create container views for transcripts? Or at least a pointer
@@ -171,11 +170,11 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		## Limit requests by available sigma factors and promoters
 		##########################################################
 		sigmaAndPromoterIdx = numpy.array([sigma_idx, promoter_idx])
-		if numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx]) < -1 * numpy.min(self.freeSigmaD.total(), len(self.promoters.free())):
+		if numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx]) < -1 * numpy.min(self.freeSigmaD.total(), len(self.promoterRegion.free())):
 			# Limit NS --> S transition reaction
 			# NS + Sigma + Promoter --> S
 			desiredAmount = numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx])
-			maxAvailable = -1 * numpy.min([self.freeSigmaD.total(), len(self.promoters.free()])
+			maxAvailable = -1 * numpy.min([self.freeSigmaD.total(), len(self.promoterRegion.free()])
 			difference = maxAvailable - desiredAmount # Will be positive
 			speciesUsedInTransitions[S_idx] 		-= difference
 			speciesUsedInTransitions[NS_idx] 		+= difference
@@ -228,9 +227,15 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 		## Free or non-specifically bound polymerases becoming specifically bound
 		#########################################################################
+		freeOrNonSpecificRNAP = []
 
+		for molecule in self.nonSpecificRNAP:
+			freeOrNonSpecificRNAP.append(molecule)
+		for molecule in self.freeRNAP:
+			freeOrNonSpecificRNAP.append(molecule)
 
-
+		rnapToBind = len(freeOrNonSpecificRNAP)
+		promoterBindingWeights = self.promoterData['bindingProbabilities']
 
 
 
