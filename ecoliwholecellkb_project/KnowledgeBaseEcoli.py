@@ -26,7 +26,7 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
 import ecoliwholecellkb_project.ecoliwholecellkb.settings
 
-from ecoliwholecellkb_project.public.models import Gene, Molecule, Location, Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified, ProteinMonomerModified, RnaModified, RelationStoichiometry, ProteinComplexReactionRelation,ProteinComplexModifiedReaction,ProteinComplexModReactionRelation, ProteinComplexModReactionEnzyme, ProteinMonomerModifiedReaction, ProteinMonomerModReactionEnzyme, ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme, RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme, MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme, Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType
+from ecoliwholecellkb_project.public.models import Gene, Molecule, Location, Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified, ProteinMonomerModified, RnaModified, RelationStoichiometry, ProteinComplexReactionRelation,ProteinComplexModifiedReaction,ProteinComplexModReactionRelation, ProteinComplexModReactionEnzyme, ProteinMonomerModifiedReaction, ProteinMonomerModReactionEnzyme, ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme, RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme, MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme, Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType, Constant
 
 
 class KnowledgeBaseEcoli(object):
@@ -56,6 +56,7 @@ class KnowledgeBaseEcoli(object):
 		self.loadRelationStoichiometry() # ADDED: for accessing info from other table 
 		self.loadComplexes() 
 		self.loadReactions()
+		self.loadConstants()
 
 	def loadProducts(self):
 
@@ -643,6 +644,14 @@ class KnowledgeBaseEcoli(object):
 			
 			self.reactions.append(r)
 
+	def loadConstants(self):
+		self.constants = {}
+		all_constant = Constant.objects.all()
+		if len(all_constant) <=0:
+			raise Exception, "Database Access Error: Cannot access public_Constant table"
+
+		for c in all_constant:
+			self.constants[c.name] = {'value' : c.value, 'units' : c.units}
 
 	def check_molecule(self, mol):
 		thisType = ""
