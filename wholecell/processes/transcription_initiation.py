@@ -47,9 +47,11 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 		self.promoterBindingProbabilities = kb.promoterBindingProbabilities
 		# kb.promoterBindingProbabilities = numpy.array(len(promoters),
-		#	dtype = [('promoterId', 'a'),
-		#				'bindingProb', 'f',
-		#				'sigmaFactor', 'a'])
+		#	dtype = [('promoterId', 'a16'),
+		#			('bindingProb','f'),
+		#			('sigmaFactor', 'a1'),
+		#			('location', 'i'),
+		#			('direction','b')])
 
 
 		self.rnaPolymeraseFootprint = kb.parameters['rnaPolymeraseFootprint']
@@ -223,13 +225,6 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 
 
 
-
-		## Transition S RNAP
-		####################
-
-
-		## Transition A RNAP
-		####################
 
 
 
