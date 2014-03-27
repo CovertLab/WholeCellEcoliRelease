@@ -26,7 +26,7 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
 import ecoliwholecellkb_project.ecoliwholecellkb.settings
 
-from ecoliwholecellkb_project.public.models import Gene, Molecule, Location, Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified, ProteinMonomerModified, RnaModified, RelationStoichiometry, ProteinComplexReactionRelation,ProteinComplexModifiedReaction,ProteinComplexModReactionRelation, ProteinComplexModReactionEnzyme, ProteinMonomerModifiedReaction, ProteinMonomerModReactionEnzyme, ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme, RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme, MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme, Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType, Constant
+from ecoliwholecellkb_project.public.models import Gene, Molecule, Location, Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified, ProteinMonomerModified, RnaModified, RelationStoichiometry, ProteinComplexReactionRelation,ProteinComplexModifiedReaction,ProteinComplexModReactionRelation, ProteinComplexModReactionEnzyme, ProteinMonomerModifiedReaction, ProteinMonomerModReactionEnzyme, ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme, RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme, MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme, Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType, Constant, Parameter
 
 
 class KnowledgeBaseEcoli(object):
@@ -57,6 +57,8 @@ class KnowledgeBaseEcoli(object):
 		self.loadComplexes() 
 		self.loadReactions()
 		self.loadConstants()
+		self.loadParameters()
+		self.calculateParameters()
 
 	def loadProducts(self):
 
@@ -652,6 +654,23 @@ class KnowledgeBaseEcoli(object):
 
 		for c in all_constant:
 			self.constants[c.name] = {'value' : c.value, 'units' : c.units}
+
+	def loadParameters(self):
+		self.parameters = {}
+		all_parameter = Parameter.objects.all()
+		if len(all_parameter) <=0:
+			raise Exception, "Database Access Error: Cannot access public_Parameter table"
+
+		for p in all_parameter:
+			self.parameters[p.name] = {'value' : p.value, 'units' : p.units}
+
+	def calculateParameters(self):
+		avgCellToInitalCellConvFactor = numpy.exp(numpy.log(2)*self.parameters['avgCellCellCycleProgress']['value'])
+		self.parameters['avgCellToInitalCellConvFactor'] = {'value' : avgCellToInitalCellConvFactor, 'units' : 'average initial cell/average cell'}
+
+		avgInitCellMass = self.parameters['avgCellDryMass']['value'] / self.parameters['avgCellToInitalCellConvFactor']['value']
+		self.parameters['avgInitCellMass'] = {'value' : avgInitCellMass, 'units' : 'pg'}
+
 
 	def check_molecule(self, mol):
 		thisType = ""
