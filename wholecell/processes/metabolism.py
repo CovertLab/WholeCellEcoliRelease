@@ -42,8 +42,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.bulkMoleculesPartition = None
 
 		# Constants
-		self.avgCellInitMass = 13.1						# fg # TOKB
-		self.cellCycleLen = 1.0 * 3600					# s # TOKB
+		self.initialDryMass = None
+		self.cellCycleLen = None
 
 		self.unaccountedEnergyConsumption = 6.2750e7	# ATP / cell cycle # TOKB
 
@@ -79,7 +79,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Load constants
 		self.nAvogadro = kb.constants['nAvogadro']['value']
-
+		self.initialDryMass = kb.parameters['avgInitCellMass']['value'] * 10e-13 # g
+		self.cellCycleLen = kb.parameters['cellCycleLen']['value']
+		
 		bioIds = []
 		bioConc = []
 
@@ -113,8 +115,6 @@ class Metabolism(wholecell.processes.process.Process):
 			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
 			"RIBFLV[c]"
 			]
-
-		self.initialDryMass = 2.8e-13 / 1.36 # grams # TOKB
 
 		# Views
 		self.biomass = self.bulkMoleculesView(bioIds)
