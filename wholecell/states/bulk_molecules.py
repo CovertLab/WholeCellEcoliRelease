@@ -72,6 +72,9 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Load constants
 		self.nAvogadro = kb.constants['nAvogadro']['value']
+		self.initialDryMass = kb.parameters['avgInitCellMass']['value'] * 10e-13 # g
+		self.fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs']['value']
+		self.fracInitFreeAAs = kb.parameters['fracInitFreeAAs']['value']
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK
@@ -167,7 +170,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 	
 	def calcInitialConditions(self):
-		initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
+		initialDryMass = self.initialDryMass + self.randStream.normal(0.0, 1e-15)
 
 		feistCoreView = self._container.countsView(IDS['FeistCore'])
 		h2oView = self._container.countView('H2O[c]')
@@ -194,7 +197,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Set RNA counts from expression levels
 		ntpsToPolym = np.round(
-			(1 - FRAC_INIT_FREE_NTPS) * np.sum(ntpsView.counts())
+			(1 - self.fracInitFreeNTPs) * np.sum(ntpsView.counts())
 			)
 
 		rnaCnts = self.randStream.mnrnd(
@@ -204,7 +207,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		ntpsView.countsIs(
 			np.round(
-				FRAC_INIT_FREE_NTPS * ntpsView.counts()
+				self.fracInitFreeNTPs * ntpsView.counts()
 				)
 			)
 
@@ -212,7 +215,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Set protein counts from expression levels
 		aasToPolym = np.round(
-			(1 - FRAC_INIT_FREE_AAS) * np.sum(aasView.counts())
+			(1 - self.fracInitFreeAAs) * np.sum(aasView.counts())
 			)
 
 		monCnts = self.randStream.mnrnd(
@@ -222,7 +225,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		aasView.countsIs(
 			np.round(
-				FRAC_INIT_FREE_AAS * aasView.counts()
+				self.fracInitFreeAAs * aasView.counts()
 				)
 			)
 
@@ -389,8 +392,6 @@ FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
 	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
 	]) # TOKB
 
-INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
-
 COMPARTMENTS = [ # TODO: move to KB
 	{"id": "c", "name": "Cytosol"},
 	{"id": "e", "name": "Extracellular space"},
@@ -403,9 +404,6 @@ COMPARTMENTS = [ # TODO: move to KB
 	{"id": "p", "name": "Periplasm"},
 	{"id": "w", "name": "Cell wall"}
 	]
-
-FRAC_INIT_FREE_NTPS = 0.0015
-FRAC_INIT_FREE_AAS = 0.001
 
 IDS = {
 	'ntps':["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"],
