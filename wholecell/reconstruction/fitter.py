@@ -24,12 +24,10 @@ FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
 	]) # TOKB
 
-INITIAL_DRY_MASS = 2.8e-13 / 1.36 # TOKB
-
 def fitSimulation(kb):
-	tc_elngRate = 50 # TOKB
-	tc_cellCycleLength = 1 * 3600. # TOKB
-	tl_elngRate = 16 # TOKB
+	tc_elngRate = kb.parameters['rnaPolymeraseElongationRate']['value']
+	tc_cellCycleLength = kb.parameters['cellCycleLen']['value']
+	tl_elngRate = kb.parameters['ribosomeElongationRate']['value']
 
 	idx = {}
 
@@ -127,11 +125,11 @@ def fitSimulation(kb):
 	mw_c_ntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['ntps']]) - ppiMass
 	mw_c_dntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['dntps']]) - ppiMass
 
-	fracInitFreeNTPs = 0.0015 # TOKB
-	fracInitFreeAAs = 0.001 # TOKB
+	fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs']['value']
+	fracInitFreeAAs = kb.parameters['fracInitFreeAAs']['value']
 
 	feistCoreVals = FEIST_CORE_VALS # TOKB
-	initialDryMass = INITIAL_DRY_MASS # TOKB
+	initialDryMass = kb.parameters['avgInitCellMass']['value']
 
 	feistCoreCounts = numpy.round(
 		feistCoreVals * 1e-3 * kb.constants['nAvogadro']['value'] * initialDryMass
