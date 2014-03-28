@@ -32,8 +32,8 @@ class Transcription(wholecell.processes.process.Process):
 		self.enzymePartition = None
 
 		# Constants
-		self.cellCycleLength = 1 * 3600.	# s # TOKB
-		self.elngRate = 50					# nt/s # TOKB
+		self.cellCycleLength = None
+		self.elngRate = None
 		self.rnaLens = None					# RNA lengths
 		self.rnaNtCounts = None				# RNA nucleotide counts [nt x RNA] <-- TODO: Check this
 		self.rnaSynthProb = None			# Relative RNA synthesis rates
@@ -43,6 +43,10 @@ class Transcription(wholecell.processes.process.Process):
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(Transcription, self).initialize(sim, kb)
+
+		# Load parameters
+		self.cellCycleLength = kb.parameters['cellCycleLen']['value']
+		self.elngRate = kb.parameters['rnaPolymeraseElongationRate']['value']
 
 		rnaIds = [x["id"] + "[c]" for x in kb.rnas]
 
