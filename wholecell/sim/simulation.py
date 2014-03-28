@@ -21,7 +21,7 @@ DEFAULT_PROCESSES = [
 	'RnaDegradation',
 	'Transcription',
 	'Translation',
-	] # TOKB
+	]
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
@@ -61,12 +61,6 @@ class Simulation(object):
 
 		self._constructRandStream()
 
-		# Set time parameters
-		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
-		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
-		self.initialStep = 0
-		self.simulationStep = 0
-
 		# Set random seed
 		self.seed = self._options['seed']
 
@@ -82,6 +76,12 @@ class Simulation(object):
 			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
+
+		# Set time parameters
+		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen']['value'] # Simulation length (s)
+		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
+		self.initialStep = 0
+		self.simulationStep = 0
 
 		# Fit KB parameters
 		import wholecell.reconstruction.fitter
