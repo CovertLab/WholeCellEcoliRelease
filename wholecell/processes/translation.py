@@ -27,7 +27,7 @@ class Translation(wholecell.processes.process.Process):
 		}
 
 		# Constants
-		self.elngRate = 16			# AA/s # TOKB
+		self.elngRate = None
 		self.proteinAaCounts = None	# Protein amino acid counts [AA x protein] <-- TODO: Check this
 		self.proteinLens = None		# Protein lengths
 
@@ -36,6 +36,10 @@ class Translation(wholecell.processes.process.Process):
 	# Construct object graph, calculate constants
 	def initialize(self, sim, kb):
 		super(Translation, self).initialize(sim, kb)
+
+		# Load parameters
+		self.elngRate = kb.parameters['ribosomeElongationRate']['value']
+
 
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
