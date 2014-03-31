@@ -16,7 +16,6 @@ import numpy as np
 
 import wholecell.processes.process
 # import wholecell.util.flextFbaModel
-from wholecell.utils.constants import Constants
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -77,6 +76,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# self.mass = sim.states["Mass"]
 		self.time = sim.states["Time"]
+
+		# Load constants
+		self.nAvogadro = kb.constants['nAvogadro']['value']
 
 		bioIds = []
 		bioConc = []
@@ -141,7 +143,7 @@ class Metabolism(wholecell.processes.process.Process):
 		deltaMetabolites = np.fmax(
 			self.randStream.stochasticRound(
 				np.round((self.feistCoreBiomassReaction + atpm + noise) * 1e-3
-					* Constants.nAvogadro * self.initialDryMass)
+					* self.nAvogadro * self.initialDryMass)
 				* np.exp(np.log(2) / self.cellCycleLen * self.time.value)
 				* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 				).astype(np.int64),

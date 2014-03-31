@@ -13,7 +13,6 @@ Adjust simulation parameters
 from __future__ import division
 
 import numpy
-from wholecell.utils.constants import Constants
 
 FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
@@ -135,7 +134,7 @@ def fitSimulation(kb):
 	initialDryMass = INITIAL_DRY_MASS # TOKB
 
 	feistCoreCounts = numpy.round(
-		feistCoreVals * 1e-3 * Constants.nAvogadro * initialDryMass
+		feistCoreVals * 1e-3 * kb.constants['nAvogadro']['value'] * initialDryMass
 		)
 
 	totalNTPs = feistCoreCounts[[i for i, id_ in enumerate(_ids['FeistCore']) if id_ in _ids['ntps']]].sum()
