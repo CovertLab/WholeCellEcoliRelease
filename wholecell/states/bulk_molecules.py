@@ -22,7 +22,6 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-import wholecell.states.partition
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 

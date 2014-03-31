@@ -15,7 +15,6 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-import wholecell.states.partition
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 
