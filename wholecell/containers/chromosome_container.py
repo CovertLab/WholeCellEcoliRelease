@@ -210,7 +210,7 @@ class ChromosomeContainer(object):
 	def _region(self, position, directionBool, extentForward, extentReverse):
 		# Return a region of a strand, accounting for circularity and directionality
 		if directionBool: # == (-)
-			return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
+			return np.arange(position+extentReverse, position-extentForward, -1) % self._length
 
 		else: # == (+)
 			return np.arange(position-extentReverse, position+extentForward) % self._length
@@ -219,14 +219,20 @@ class ChromosomeContainer(object):
 	def _forkedRegions(self, forkPosition, forkDirection, extentForward, extentReverse):
 		# Return regions on strands surrounding a fork, accounting for circularity and directionality
 		if forkDirection: # == (-)
-			regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
+			# regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
+
+			regionParent = np.arange(forkPosition-1, forkPosition-extentForward, -1) % self._length
 			regionChildA = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
 			regionChildB = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
 
 		else: # == (+)
 			regionParent = np.arange(forkPosition+1, forkPosition+extentForward) % self._length
-			regionChildA = np.arange(forkPosition-extentReverse, forkPosition+1) % self._length
-			regionChildB = np.arange(forkPosition-extentReverse, forkPosition+1) % self._length
+
+			# regionChildA = np.arange(forkPosition-extentReverse, forkPosition+1) % self._length
+			# regionChildB = np.arange(forkPosition-extentReverse, forkPosition+1) % self._length
+
+			regionChildA = np.arange(forkPosition, forkPosition-extentReverse-1, -1) % self._length
+			regionChildB = np.arange(forkPosition, forkPosition-extentReverse-1, -1) % self._length
 
 		return (regionParent, regionChildA, regionChildB)
 
@@ -246,6 +252,15 @@ class ChromosomeContainer(object):
 				)
 
 	# TODO: moleculeStrand, moleculePosition, moleculeDirection, moleculeFootprint
+
+
+	def moleculeFootprint(self, molecule):
+		position, direction, extentForward, extentReverse = molecule.attrs(
+			'_chromPosition', '_chromDirection', '_chromExtentForward',
+			'_chromExtentReverse')
+
+		return self._region(position, direction, extentForward, extentReverse)
+
 
 	def moleculeLocationIsUnbound(self, molecule):
 		# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
@@ -355,12 +370,12 @@ class ChromosomeContainer(object):
 		raise NotImplementedError()
 
 
-	def divideRegion(self, strandName, start, stop):
+	def divideRegion(self, strand, start, stop):
 		# Break an empty, continuous region of a strand into two child strands,
 		# and return the two "fork" objects
 
 		# NOTE: start to stop is inclusive, unlike "range"!
-		strandParent = self._strandNameToIndex[strandName]
+		strandParent = self._strandNameToIndex[strand]
 		try:
 			strandChildA, strandChildB = self._strandChildrenIndexes[strandParent]
 
@@ -406,8 +421,7 @@ class ChromosomeContainer(object):
 
 	def forks(self):
 		# Return a set of forks
-
-		raise NotImplementedError()
+		return self._objectsContainer.objectsWithName('_fork')
 
 
 	def forkExtend(self, fork, extent):
@@ -452,6 +466,141 @@ class ChromosomeContainer(object):
 		return self._rootChar
 
 
+	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesOnEnds):
+		forkedRegions = []
+
+		forks = self.forks()
+
+		forbiddenValues = [fork.attr('_globalIndex') + self._offset for fork in forks] + [self._inactive]
+
+		for fork in self.forks():
+			forkStrand, forkPosition, forkDirection = fork.attrs(
+				'_chromStrand', '_chromPosition', '_chromDirection')
+
+			regionParent, regionChildA, regionChildB = self._forkedRegions(
+				forkPosition, forkDirection, extentForward, extentReverse)
+
+			childStrandA, childStrandB = self._strandChildrenIndexes[forkStrand]
+
+			# Trim any inactive/forked portions of the regions
+			## on parent
+			valuesParent, indexesParent = np.unique(self._array[forkStrand, regionParent], return_index = True)
+
+			try:
+				trimParentTo = np.min([
+					index for value, index in zip(valuesParent, indexesParent) if value in forbiddenValues
+					])
+
+			except ValueError:
+				pass
+
+			else:
+				regionParent = regionParent[:trimParentTo]
+
+
+			## on child A
+			valuesChildA, indexesChildA = np.unique(self._array[childStrandB, regionChildA], return_index = True)
+
+			try:
+				trimChildATo = np.min([
+					index for value, index in zip(valuesChildA, indexesChildA) if value in forbiddenValues
+					])
+
+			except ValueError:
+				pass
+
+			else:
+				regionChildA = regionChildA[:trimParentTo]
+
+
+			## on child B
+			valuesChildB, indexesChildB = np.unique(self._array[childStrandB, regionChildB], return_index = True)
+
+			try:
+				trimChildBTo = np.min([
+					index for value, index in zip(valuesChildB, indexesChildB) if value in forbiddenValues
+					])
+
+			except ValueError:
+				pass
+
+			else:
+				regionChildB = regionChildB[:trimParentTo]
+
+			# Check to see whether the ends of the regions overlap with a 
+			# molecule, and update accordingly
+
+			forkMolecule = self.moleculeBoundOnFork(fork)
+
+			## for parent
+			parentEndMolecule = self.moleculeBoundAtPosition(
+				self._strandNames[forkStrand], regionParent[-1])
+
+			if parentEndMolecule is not None:
+				footprint = self.moleculeFootprint(parentEndMolecule)
+
+				if np.setdiff1d(footprint, regionParent).any():
+					if forkMolecule is not None and parentEndMolecule == forkMolecule:
+						raise ChrosomeContainerException('Something terrible happened')
+
+					if not includeMoleculesOnEnds or parentEndMolecule.attr('_chromBoundToFork'):
+						regionParent = np.array([i for i in regionParent if i not in footprint])
+
+					else:
+						regionParent = np.lib.arraysetops.union1d(footprint, regionParent)
+
+						if forkDirection: # == (-)
+							regionParent = np.flipud(regionParent)
+
+			## for child A
+			childAEndMolecule = self.moleculeBoundAtPosition(
+				self._strandNames[childStrandA], regionChildA[-1])
+
+			if childAEndMolecule is not None:
+				footprint = self.moleculeFootprint(childAEndMolecule)
+
+				if np.setdiff1d(footprint, regionChildA).any():
+					if forkMolecule is not None and childAEndMolecule == forkMolecule:
+						raise ChrosomeContainerException('Something terrible happened')
+
+					if not includeMoleculesOnEnds or childAEndMolecule.attr('_chromBoundToFork'):
+						regionChildA = np.array([i for i in regionChildA if i not in footprint])
+
+					else:
+						regionChildA = np.lib.arraysetops.union1d(footprint, regionChildA)
+
+						if not forkDirection: # == (+)
+							regionChildA = np.flipud(regionChildA)
+
+			## for child B
+			childBEndMolecule = self.moleculeBoundAtPosition(
+				self._strandNames[childStrandB], regionChildB[-1])
+
+			if childBEndMolecule is not None:
+				footprint = self.moleculeFootprint(childBEndMolecule)
+
+				if np.setdiff1d(footprint, regionChildB).any():
+					if forkMolecule is not None and childBEndMolecule == forkMolecule:
+						raise ChrosomeContainerException('Something terrible happened')
+
+					if not includeMoleculesOnEnds or childBEndMolecule.attr('_chromBoundToFork'):
+						regionChildB = np.array([i for i in regionChildB if i not in footprint])
+
+					else:
+						regionChildB = np.lib.arraysetops.union1d(footprint, regionChildB)
+
+						if not forkDirection: # == (+)
+							regionChildB = np.flipud(regionChildB)
+
+			# Append region
+			forkedRegions.append((forkStrand, regionParent[0],
+				regionParent[-1], forkPosition, regionChildA[-1], regionChildB[-1]))
+
+		# TODO: return a forked regions set object
+
+		return _ForkedRegionSet(forkedRegions)
+
+
 	#def childStrands
 	#def parentStrand
 
@@ -474,3 +623,21 @@ class ChromosomeContainer(object):
 	# TODO: saving
 	# TODO: update container time, flush deleted molecules, update queries?
 	# TODO: handle/pass sequence
+
+class _ForkedRegionSet(object):
+	def __init__(self, forkedRegions):
+		self._forkedRegions = np.array(forkedRegions,[
+			('strand', np.int64),
+			('parentStart', np.int64),
+			('parentStop', np.int64),
+			('childStart', np.int64),
+			('childAStop', np.int64),
+			('childBStop', np.int64),
+			])
+
+
+	def __str__(self):
+		return str(self._forkedRegions)
+
+
+		

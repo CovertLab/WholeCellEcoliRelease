@@ -66,6 +66,8 @@ class View(object):
 class BulkMoleculesViewBase(View):
 	_stateID = 'BulkMolecules'
 
+	# TODO: implement update query method
+
 	def _counts(self):
 		return self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex].copy()
 
@@ -229,3 +231,86 @@ class ChromosomeMoleculeView(View):
 # TODO: collect types of chrom views and organize in a base class
 # TODO: views/operations for generic extents (i.e. 50-wide regions for binding)
 # TODO: placeholder partitioning algo
+
+
+class _ChromosomeViewBase(object):
+	_stateID = 'Chromosome'
+
+	# Accessors
+
+	def regions(self):
+		# Iterate over partitioned regions
+		raise NotImplementedError()
+
+
+	def moleculesBoundInRegion(self, region):
+		raise NotImplementedError()
+
+
+	def forksInRegion(self, region):
+		raise NotImplementedError()
+
+
+	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
+		raise NotImplementedError()
+
+
+	def moleculesBoundOnFork(self, fork):
+		raise NotImplementedError()
+
+
+	def moleculesBoundNearFork(self, fork, extentForward, extentReverse):
+		raise NotImplementedError()
+
+
+	def moleculeLocation(self, molecule):
+		raise NotImplementedError()
+
+
+	# Mutators
+
+	## Molecules
+
+	def moleculeNew(self, moleculeName, **attributes):
+		raise NotImplementedError()
+
+
+	def moleculeDel(self, molecule):
+		raise NotImplementedError()
+
+
+	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
+		raise NotImplementedError()
+
+
+	def moleculeLocationIsUnbound(self, molecule):
+		raise NotImplementedError()
+
+
+	## Forks
+
+	def divideRegion(self, strand, start, stop):
+		raise NotImplementedError()
+
+
+	def forkExtend(self, fork, extent):
+		raise NotImplementedError()
+
+
+	def forksCombine(self, fork1, fork2):
+		raise NotImplementedError()
+
+
+class ChromosomeForkView(_ChromosomeViewBase):
+	# Query tuple structure:
+	# - forward extent
+	# - reverse extent
+	# - include molecules on ends (bool)
+
+	def _updateQuery(self):
+		forks = self._state.container.forks()
+
+		# TODO: get and store regions (in state)
+
+		self._totalIs(len(forks))
+
