@@ -71,10 +71,10 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro']['value']
-		self.initialDryMass = kb.parameters['avgInitCellMass']['value'] * 10e-13 # g
-		self.fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs']['value']
-		self.fracInitFreeAAs = kb.parameters['fracInitFreeAAs']['value']
+		self.nAvogadro = kb.constants['nAvogadro'].to('1 / mole').magnitude
+		self.initialDryMass = kb.parameters['avgInitCellMass'].to('g').magnitude
+		self.fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs'].magnitude
+		self.fracInitFreeAAs = kb.parameters['fracInitFreeAAs'].magnitude
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK

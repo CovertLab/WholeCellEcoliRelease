@@ -78,9 +78,9 @@ class Metabolism(wholecell.processes.process.Process):
 		self.time = sim.states["Time"]
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro']['value']
-		self.initialDryMass = kb.parameters['avgInitCellMass']['value'] * 10e-13 # g
-		self.cellCycleLen = kb.parameters['cellCycleLen']['value']
+		self.nAvogadro = kb.constants['nAvogadro'].to('1 / mole').magnitude
+		self.initialDryMass = kb.parameters['avgInitCellMass'].to('g').magnitude
+		self.cellCycleLen = kb.parameters['cellCycleLen'].to('s').magnitude
 		
 		bioIds = []
 		bioConc = []

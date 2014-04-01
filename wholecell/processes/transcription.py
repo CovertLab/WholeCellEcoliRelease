@@ -45,8 +45,8 @@ class Transcription(wholecell.processes.process.Process):
 		super(Transcription, self).initialize(sim, kb)
 
 		# Load parameters
-		self.cellCycleLength = kb.parameters['cellCycleLen']['value']
-		self.elngRate = kb.parameters['rnaPolymeraseElongationRate']['value']
+		self.cellCycleLength = kb.parameters['cellCycleLen'].to('s').magnitude
+		self.elngRate = kb.parameters['rnaPolymeraseElongationRate'].to('nt')
 
 		rnaIds = [x["id"] + "[c]" for x in kb.rnas]
 

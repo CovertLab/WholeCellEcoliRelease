@@ -25,9 +25,9 @@ FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	]) # TOKB
 
 def fitSimulation(kb):
-	tc_elngRate = kb.parameters['rnaPolymeraseElongationRate']['value']
-	tc_cellCycleLength = kb.parameters['cellCycleLen']['value']
-	tl_elngRate = kb.parameters['ribosomeElongationRate']['value']
+	tc_elngRate = kb.parameters['rnaPolymeraseElongationRate'].to('nucleotide / s').magnitude
+	tc_cellCycleLength = kb.parameters['cellCycleLen'].to('s').magnitude
+	tl_elngRate = kb.parameters['ribosomeElongationRate'].to('amino_acid / s').magnitude
 
 	idx = {}
 
@@ -125,14 +125,14 @@ def fitSimulation(kb):
 	mw_c_ntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['ntps']]) - ppiMass
 	mw_c_dntps = numpy.array([met['mw7.2'] for met in kb.metabolites if met['id'] in _ids['dntps']]) - ppiMass
 
-	fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs']['value']
-	fracInitFreeAAs = kb.parameters['fracInitFreeAAs']['value']
+	fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs'].magnitude
+	fracInitFreeAAs = kb.parameters['fracInitFreeAAs'].magnitude
 
 	feistCoreVals = FEIST_CORE_VALS # TOKB
-	initialDryMass = kb.parameters['avgInitCellMass']['value']
+	initialDryMass = kb.parameters['avgInitCellMass'].to('g').magnitude
 
 	feistCoreCounts = numpy.round(
-		feistCoreVals * 1e-3 * kb.constants['nAvogadro']['value'] * initialDryMass
+		feistCoreVals * 1e-3 * kb.constants['nAvogadro'].to('1 / mole').magnitude * initialDryMass
 		)
 
 	totalNTPs = feistCoreCounts[[i for i, id_ in enumerate(_ids['FeistCore']) if id_ in _ids['ntps']]].sum()

@@ -78,8 +78,8 @@ class Simulation(object):
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
 		# Set time parameters
-		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen']['value'] # Simulation length (s)
-		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
+		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude # Simulation length (s)
+		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude # Simulation time step (s)
 		self.initialStep = 0
 		self.simulationStep = 0
 

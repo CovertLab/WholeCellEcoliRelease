@@ -54,7 +54,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		#			('direction','b')])
 
 
-		self.rnaPolymeraseFootprint = kb.parameters['rnaPolymeraseFootprint']
+		self.rnaPolymeraseFootprint = kb.parameters['rnaPolymeraseFootprint'].to('nucleotide').magnitude
 
 		## Create partitions
 		# Sigma factors

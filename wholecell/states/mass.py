@@ -76,7 +76,7 @@ class Mass(wholecell.states.state.State):
 		self.bulkMolecules = sim.states["BulkMolecules"]
 		self.time = sim.states["Time"]
 
-		self.nAvogardo = kb.constants['nAvogadro']['value']
+		self.nAvogardo = kb.constants['nAvogadro'].to('1 / mole').magnitude
 
 
 	# Allocate memory
