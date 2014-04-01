@@ -22,6 +22,7 @@ import numpy as np
 import tables
 
 import wholecell.states.state
+import wholecell.views.view
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 
@@ -366,6 +367,75 @@ def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, count
 		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
 		countsBulkPartitioned[..., iPartition] = allocation
 
+class BulkMoleculesViewBase(wholecell.views.view.View):
+	_stateID = 'BulkMolecules'
+
+	def _counts(self):
+		return self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex].copy()
+
+
+	def _countsIs(self, values):
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] = values
+
+
+	def _countsInc(self, values):
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] += values
+
+
+	def _countsDec(self, values):
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] -= values
+
+
+class BulkMoleculesView(BulkMoleculesViewBase):
+	def __init__(self, *args, **kwargs):
+		super(BulkMoleculesView, self).__init__(*args, **kwargs)
+
+		# State references
+		self._containerIndexes = self._state._container._namesToIndexes(self._query)
+
+
+	def _dataSize(self):
+		return len(self._query)
+
+
+	def counts(self):
+		return self._counts()
+
+
+	def countsIs(self, values):
+		self._countsIs(values)
+
+
+	def countsInc(self, values):
+		self._countsInc(values)
+
+
+	def countsDec(self, values):
+		self._countsDec(values)
+
+
+class BulkMoleculeView(BulkMoleculesViewBase):
+	def __init__(self, *args, **kwargs):
+		super(BulkMoleculeView, self).__init__(*args, **kwargs)
+
+		# State references
+		self._containerIndexes = self._state._container._namesToIndexes((self._query,))
+
+
+	def count(self):
+		return self._counts()
+
+
+	def countIs(self, value):
+		self._countsIs(value)
+
+
+	def countInc(self, value):
+		self._countsInc(value)
+
+
+	def countDec(self, value):
+		self._countsDec(value)
 
 # Constants (should be taken from the KB)
 
