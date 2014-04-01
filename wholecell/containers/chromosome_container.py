@@ -15,6 +15,12 @@ import numpy as np
 
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
+# Conversion key for directions
+_positiveChar = '+'
+_negativeChar = '-'
+_directionCharToBool = {_positiveChar:False, _negativeChar:True}
+_directionBoolToChar = [_positiveChar, _negativeChar]
+
 
 class ChrosomeContainerException(Exception):
 	'''
@@ -65,12 +71,6 @@ class ChromosomeContainer(object):
 	_rootChar = 'R' 
 	_childAChar = 'A'
 	_childBChar = 'B'
-
-	# Conversion key for directions
-	_positiveChar = '+'
-	_negativeChar = '-'
-	_directionCharToBool = {_positiveChar:False, _negativeChar:True}
-	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
 
 	def __init__(self, nBases, strandMultiplicity, moleculeAttributes):
@@ -139,7 +139,7 @@ class ChromosomeContainer(object):
 	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
 		# Set a molecule's location
 		strandIndex = self._strandNameToIndex[strand]
-		directionBool = self._directionCharToBool[direction]
+		directionBool = _directionCharToBool[direction]
 
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
@@ -246,7 +246,7 @@ class ChromosomeContainer(object):
 			return (
 				self._strandNames[molecule.attr('_chromStrand')], # TODO: attrs method
 				molecule.attr('_chromPosition'),
-				self._directionBoolToChar[molecule.attr('_chromDirection')],
+				_directionBoolToChar[molecule.attr('_chromDirection')],
 				molecule.attr('_chromExtentForward'),
 				molecule.attr('_chromExtentReverse'),
 				)
@@ -351,7 +351,7 @@ class ChromosomeContainer(object):
 
 	def moleculesBoundOverExtent(self, strand, position, direction, extentForward, extentReverse):
 		strandIndex = self._strandNameToIndex[strand]
-		directionBool = self._directionCharToBool[direction]
+		directionBool = _directionCharToBool[direction]
 
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
@@ -593,12 +593,17 @@ class ChromosomeContainer(object):
 							regionChildB = np.flipud(regionChildB)
 
 			# Append region
-			forkedRegions.append((forkStrand, regionParent[0],
-				regionParent[-1], forkPosition, regionChildA[-1], regionChildB[-1]))
+			regionParent.sort()
+			regionChildA.sort()
+			regionChildB.sort()
 
-		# TODO: return a forked regions set object
+			forkedRegions.append((
+				forkStrand, regionParent[0], regionParent[-1],
+				childStrandA, regionChildA[0], regionChildA[-1],
+				childStrandB, regionChildB[0], regionChildB[-1],
+				))
 
-		return _ForkedRegionSet(forkedRegions)
+		return _ForkedChromosomeRegionSet(forkedRegions)
 
 
 	#def childStrands
@@ -624,14 +629,20 @@ class ChromosomeContainer(object):
 	# TODO: update container time, flush deleted molecules, update queries?
 	# TODO: handle/pass sequence
 
-class _ForkedRegionSet(object):
+
+class _ForkedChromosomeRegionSet(object):
+	# TODO: make into a 3x collection of chromosome region sets
+	# TODO: support for modifying regions (for fork extension)
 	def __init__(self, forkedRegions):
 		self._forkedRegions = np.array(forkedRegions,[
-			('strand', np.int64),
+			('parentStrand', np.int64),
 			('parentStart', np.int64),
 			('parentStop', np.int64),
-			('childStart', np.int64),
+			('childAStrand', np.int64),
+			('childAStart', np.int64),
 			('childAStop', np.int64),
+			('childBStrand', np.int64),
+			('childBStart', np.int64),
 			('childBStop', np.int64),
 			])
 
@@ -639,5 +650,72 @@ class _ForkedRegionSet(object):
 	def __str__(self):
 		return str(self._forkedRegions)
 
+
+	def regionsWithPosition(self, strand, position):
+		return self.regionsWithRange(strand, position, position)
+
+
+	def regionsWithRange(self, strand, start, stop): # NOTE: inclusive
+		regionsOnParent = np.where(
+			(self._forkedRegions['parentStrand'] == strand) &
+			(self._forkedRegions['parentStart'] <= start) &
+			(stop <= self._forkedRegions['parentStop'])
+			)[0]
+
+		regionsOnChildA = np.where(
+			(self._forkedRegions['childAStrand'] == strand) &
+			(self._forkedRegions['childAStart'] <= start) &
+			(stop <= self._forkedRegions['childAStop'])
+			)[0]
+
+		regionsOnChildB = np.where(
+			(self._forkedRegions['childBStrand'] == strand) &
+			(self._forkedRegions['childBStart'] <= start) &
+			(stop <= self._forkedRegions['childBStop'])
+			)[0]
+
+		regions = []
+
+		for regionIndex in regionsOnParent:
+			entry = self._forkedRegions[regionIndex]
+
+			regions.append(_ChromosomeRegion(
+				entry['parentStrand'], entry['parentStart'], entry['parentStop']
+				))
+
+		for regionIndex in regionsOnChildA:
+			entry = self._forkedRegions[regionIndex]
+
+			regions.append(_ChromosomeRegion(
+				entry['childAStrand'], entry['childAStart'], entry['childAStop']
+				))
+
+		for regionIndex in regionsOnChildB:
+			entry = self._forkedRegions[regionIndex]
+
+			region.append(_ChromosomeRegion(
+				entry['childStrandB'], entry['childBStart'], entry['childBStop']
+				))
+
+		return regions
+
+
+	def maxExtent(self, strand, position, direction):
+		# Algorithm:
+		# -merge regions
+		# -find containing region
+
+
+
+class _ChromosomeRegion(object):
+	def __init__(self, strand, start, stop):
+		self._strand = strand
+		self._start = start
+		self._stop = stop
+
+
+	def __str__(self):
+		return 'Region on strand {} from {} to {}'.format(self._strand,
+			self._start, self._stop)
 
 		

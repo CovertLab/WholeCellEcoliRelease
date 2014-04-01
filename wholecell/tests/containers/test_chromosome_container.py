@@ -753,10 +753,19 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		molecule = self.container.moleculeNew('RNA polymerase')
 		self.container.moleculeLocationIs(molecule, rootStrand, 90, '-', 5, 5)
 
-		values = self.container.regionsNearForks(extentForward, extentReverse,
-			includeMoleculesOnEnds)
+		regionSet = self.container.regionsNearForks(extentForward,
+			extentReverse, includeMoleculesOnEnds)
 
-		print values
+		for region in regionSet.regionsWithPosition(0, 205):
+			print region
+
+		for region in regionSet.regionsWithPosition(1, 198):
+			print region
+
+		for region in regionSet.regionsWithRange(0, 201, 207):
+			print region
+
+		print regionSet
 
 
 def createContainer():
