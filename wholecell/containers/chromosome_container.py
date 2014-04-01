@@ -631,8 +631,9 @@ class ChromosomeContainer(object):
 
 
 class _ForkedChromosomeRegionSet(object):
-	# TODO: make into a 3x collection of chromosome region sets
+	# TODO: make into a 3x collection of chromosome region sets (view will coordinate requests)
 	# TODO: support for modifying regions (for fork extension)
+	
 	def __init__(self, forkedRegions):
 		self._forkedRegions = np.array(forkedRegions,[
 			('parentStrand', np.int64),
