@@ -21,6 +21,12 @@ import Bio.SeqUtils.ProtParam
 import re
 import numpy
 
+from pint import UnitRegistry
+UREG = UnitRegistry()
+UREG.define('nucleotide = NT')
+UREG.define('amino_acid = aa = AA')
+#UREG.load_definitions('ecoliwholecellkb_project/units/unit_def.txt')
+Q_ = UREG.Quantity
 
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
@@ -651,9 +657,8 @@ class KnowledgeBaseEcoli(object):
 		all_constant = Constant.objects.all()
 		if len(all_constant) <=0:
 			raise Exception, "Database Access Error: Cannot access public_Constant table"
-
 		for c in all_constant:
-			self.constants[c.name] = {'value' : c.value, 'units' : c.units}
+			self.constants[c.name] = Q_(c.value, c.units)
 
 	def loadParameters(self):
 		self.parameters = {}
@@ -662,15 +667,14 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Database Access Error: Cannot access public_Parameter table"
 
 		for p in all_parameter:
-			self.parameters[p.name] = {'value' : p.value, 'units' : p.units}
+			self.parameters[p.name] = Q_(p.value, p.units)
 
 	def calculateParameters(self):
-		avgCellToInitalCellConvFactor = numpy.exp(numpy.log(2)*self.parameters['avgCellCellCycleProgress']['value'])
-		self.parameters['avgCellToInitalCellConvFactor'] = {'value' : avgCellToInitalCellConvFactor, 'units' : 'average initial cell/average cell'}
+		avgCellToInitalCellConvFactor = Q_(numpy.exp(numpy.log(2)*self.parameters['avgCellCellCycleProgress']), 'dimensionless')
+		self.parameters['avgCellToInitalCellConvFactor'] = avgCellToInitalCellConvFactor
 
-		avgInitCellMass = self.parameters['avgCellDryMass']['value'] / self.parameters['avgCellToInitalCellConvFactor']['value']
-		self.parameters['avgInitCellMass'] = {'value' : avgInitCellMass, 'units' : 'pg'}
-
+		avgInitCellMass = self.parameters['avgCellDryMass'] / self.parameters['avgCellToInitalCellConvFactor']
+		self.parameters['avgInitCellMass'] = avgInitCellMass
 
 	def check_molecule(self, mol):
 		thisType = ""
