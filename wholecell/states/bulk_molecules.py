@@ -257,15 +257,6 @@ class BulkMolecules(wholecell.states.state.State):
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
-
-	def countsView(self, names):
-		return self._container.countsView(names)
-
-
-	def countView(self, name):
-		return self._container.countView(name)
-
-	
 	def mass(self, typeKey = None):
 		if typeKey is None:
 			indexes = np.s_[:]
