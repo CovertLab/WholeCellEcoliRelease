@@ -736,36 +736,25 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_indev(self):
-		startPosition = 100
-		stopPosition = 200
 
 		rootStrand = self.container.rootStrand()
-
-		[forkStart, forkStop] = self.container.divideRegion(
-			rootStrand,
-			startPosition, stopPosition
-			)
-
-		extentForward = 10
-		extentReverse = 5
-		includeMoleculesOnEnds = False
 
 		molecule = self.container.moleculeNew('RNA polymerase')
 		self.container.moleculeLocationIs(molecule, rootStrand, 90, '-', 5, 5)
 
-		regionSet = self.container.regionsNearForks(extentForward,
-			extentReverse, includeMoleculesOnEnds)
+		molecule2 = self.container.moleculeNew('RNA polymerase')
+		self.container.moleculeLocationIs(molecule2, rootStrand, 80, '-', 5, 5)		
 
-		for region in regionSet.regionsWithPosition(0, 205):
-			print region
+		extentForward = 10
+		extentReverse = 0
+		includeMoleculesOnEnds = True
 
-		for region in regionSet.regionsWithPosition(1, 198):
-			print region
+		regionSet = self.container.regionsNearMolecules([molecule,],
+			extentForward, extentReverse, includeMoleculesOnEnds)
 
-		for region in regionSet.regionsWithRange(0, 201, 207):
-			print region
-
-		print regionSet
+		for region in regionSet:
+			for molecule in self.container.moleculesInRegion(region):
+				print molecule.name()
 
 
 def createContainer():

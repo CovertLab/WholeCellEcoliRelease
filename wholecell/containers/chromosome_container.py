@@ -466,6 +466,7 @@ class ChromosomeContainer(object):
 		return self._rootChar
 
 
+	# TODO: refactor these two methods
 	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesOnEnds):
 		forkedRegions = []
 
@@ -606,6 +607,121 @@ class ChromosomeContainer(object):
 		return _ForkedChromosomeRegionSet(forkedRegions)
 
 
+	def regionsNearMolecules(self, molecules, extentForward, extentReverse, includeMoleculesOnEnds):
+		regions = []
+
+		forbiddenValues = [fork.attr('_globalIndex') + self._offset for fork in self.forks()] + [self._inactive]
+
+		for molecule in molecules:
+			if molecule.attr('_chromBoundToFork'):
+				raise ChrosomeContainerException('Use regionsNearForks to obtain regions surrounding molecules on forks.')
+
+			strand, position, direction = molecule.attrs('_chromStrand', 
+				'_chromPosition', '_chromDirection')
+
+			regionForward = self._region(position, direction, extentForward, 0)
+			regionReverse = self._region(position, direction, 0, extentReverse)
+
+			# Trim any inactive/forked portions of the regions
+
+			valuesForward, indexesForward = np.unique(
+				self._array[strand, regionForward], return_index = True)
+
+			try:
+				trimForward = np.min([
+					index for value, index in zip(valuesForward, indexesForward)
+					if value in forbiddenValues
+					])
+
+			except ValueError:
+				pass
+
+			else:
+				regionForward = regionForward[:trimForward]
+
+			valuesReverse, indexesReverse = np.unique(
+				self._array[strand, regionReverse], return_index = True)
+
+			try:
+				trimReverse = np.min([
+					index for value, index in zip(valuesReverse, indexesReverse)
+					if value in forbiddenValues
+					])
+
+			except ValueError:
+				pass
+
+			else:
+				regionReverse = regionReverse[:trimReverse]
+
+
+			if extentForward > 0:
+				forwardEndMolecule = self.moleculeBoundAtPosition(
+					self._strandNames[strand], regionForward[-1])
+
+			else:
+				forwardEndMolecule = molecule
+
+			if forwardEndMolecule is not None:
+				footprint = self.moleculeFootprint(forwardEndMolecule)
+
+				if np.setdiff1d(footprint, regionForward).any():
+					if forwardEndMolecule != molecule and (not includeMoleculesOnEnds or forwardEndMolecule.attr('_chromBoundToFork')):
+						regionForward = np.array([i for i in regionForward if i not in footprint])
+
+					else:
+						regionForward = np.lib.arraysetops.union1d(footprint, regionForward)
+
+						if direction: # == (-)
+							regionForward = np.flipud(regionForward)
+
+
+			if extentReverse > 0:
+				reverseEndMolecule = self.moleculeBoundAtPosition(
+					self._strandNames[strand], regionReverse[-1])
+
+			else:
+				reverseEndMolecule = molecule
+
+			if reverseEndMolecule is not None:
+				footprint = self.moleculeFootprint(reverseEndMolecule)
+
+				if np.setdiff1d(footprint, regionReverse).any():
+					if reverseEndMolecule != molecule and (not includeMoleculesOnEnds or reverseEndMolecule.attr('_chromBoundToFork')):
+						regionReverse = np.array([i for i in regionReverse if i not in footprint])
+
+					else:
+						regionReverse = np.lib.arraysetops.union1d(footprint, regionReverse)
+
+						if not direction: # == (+)
+							regionReverse = np.flipud(regionReverse)
+
+			# Append region
+			region = np.lib.arraysetops.union1d(regionForward, regionReverse)
+
+			regions.append((strand, region[0], region[-1]))
+
+		return _ChromosomeRegionSet(regions)
+
+
+	def moleculeInRegionSet(self, molecule, regionSet):
+		strand = molecule.attr('_chromStrand')
+		footprint = self.moleculeFootprint(molecule)
+
+		footprint.sort()
+
+		return len(regionSet.regionsWithRange(strand, footprint[0], footprint[1])) > 0
+
+
+	def moleculesInRegion(self, region):
+		strandIndex = region.strand()
+
+		indexes = np.setdiff1d(self._array[strandIndex, region.indexes()],
+			self._specialValues) - self._offset
+
+		return self._objectsContainer._objectsByGlobalIndex(indexes)
+
+
 	#def childStrands
 	#def parentStrand
 
@@ -630,10 +746,64 @@ class ChromosomeContainer(object):
 	# TODO: handle/pass sequence
 
 
+class _ChromosomeRegionSet(object):
+	# TODO: support for modifying regions (for fork extension)
+	# TODO: support for merging regions (post-request)
+	# TODO: handle wrapping
+
+	def __init__(self, regions):
+		self._regions = np.array(regions, [
+			('strand', np.int64),
+			('start', np.int64),
+			('stop', np.int64),
+			])
+
+
+	def __str__(self):
+		return str(self._regions)
+
+
+	def __iter__(self):
+		for entry in self._regions:
+			yield _ChromosomeRegion(entry['strand'], entry['start'],
+				entry['stop'])
+
+
+	def regionsWithPosition(self, strand, position):
+		return self.regionsWithRange(strand, position, position)
+
+
+	def regionsWithRange(self, strand, start, stop): # NOTE: inclusive
+		validRegions = np.where(
+			(self._regions['strand'] == strand) &
+			(self._regions['start'] <= start) &
+			(stop <= self._regions['stop'])
+			)[0]
+
+		regions = []
+
+		for regionIndex in validRegions:
+			entry = self._regions[regionIndex]
+
+			regions.append(_ChromosomeRegion(
+				entry['strand'], entry['start'], entry['stop']
+				))
+
+		return regions
+
+
+	def maxExtent(self, strand, position, direction):
+		# Algorithm:
+		# -merge regions
+		# -find containing region
+
+		raise NotImplementedError()
+
+
 class _ForkedChromosomeRegionSet(object):
 	# TODO: make into a 3x collection of chromosome region sets (view will coordinate requests)
 	# TODO: support for modifying regions (for fork extension)
-	
+
 	def __init__(self, forkedRegions):
 		self._forkedRegions = np.array(forkedRegions,[
 			('parentStrand', np.int64),
@@ -705,6 +875,7 @@ class _ForkedChromosomeRegionSet(object):
 		# Algorithm:
 		# -merge regions
 		# -find containing region
+		raise NotImplementedError()
 
 
 
@@ -716,7 +887,14 @@ class _ChromosomeRegion(object):
 
 
 	def __str__(self):
-		return 'Region on strand {} from {} to {}'.format(self._strand,
+		return 'Region on strand {} from position {} to {}'.format(self._strand,
 			self._start, self._stop)
 
-		
+
+	def strand(self):
+		return self._strand
+
+
+	def indexes(self):
+		return np.arange(self._start, self._stop + 1)
+
