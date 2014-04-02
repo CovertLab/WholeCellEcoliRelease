@@ -245,7 +245,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertTrue(newMolecule._objectIndex not in indexes)
 
 		# Next, flush the deleted entries and confirm that an old entry is overwritten
-		self.container._flushDeleted()
+		self.container.flushDeleted()
 		newMolecule = self.container.objectNew(
 			'RNA polymerase'
 			)
@@ -280,7 +280,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		globalIndex = molecule.attr('_globalIndex')
 		
 		self.container.objectDel(molecule)
-		self.container._flushDeleted()
+		self.container.flushDeleted()
 
 		globalEntry = globalArray[globalIndex]
 

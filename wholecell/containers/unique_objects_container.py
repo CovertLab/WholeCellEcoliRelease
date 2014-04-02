@@ -103,8 +103,6 @@ class UniqueObjectsContainer(object):
 			# Give the tables accessible names
 			self._tableNames[collectionName] = collectionName.replace(' ', '_')
 
-		# TODO: alternate constructor for copying to partitions # ASK JM
-
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
 		# Create multiple objects of the same type and attribute values
@@ -116,7 +114,7 @@ class UniqueObjectsContainer(object):
 		array['_entryState'][objectIndexes] = ENTRY_ACTIVE
 
 		for attrName, attrValue in attributes.viewitems():
-			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view # ASK JM
+			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
 			array[attrName][objectIndexes] = attrValue
 
 		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
@@ -172,14 +170,14 @@ class UniqueObjectsContainer(object):
 
 		self._arrays[obj._arrayIndex][obj._objectIndex]['_entryState'] = ENTRY_DELETED
 		self._arrays[self._globalRefIndex][globalIndex]['_entryState'] = ENTRY_DELETED
-		# ASK JM: clear entries here?
+		# TODO: Assign unique IDs and run _clearEntries() here
 
 
-	def _clearEntries(self, arrayIndex, objectIndexes): # ASK JM
+	def _clearEntries(self, arrayIndex, objectIndexes):
 		array = self._arrays[arrayIndex]
 
 		array[objectIndexes] = np.zeros(
-			1, # ASK JM
+			1,
 			dtype = array.dtype
 			)
 
@@ -270,7 +268,7 @@ class UniqueObjectsContainer(object):
 			array['_time'] = time
 
 
-	def _flushDeleted(self): # ASK JM
+	def flushDeleted(self):
 		for arrayIndex, array in enumerate(self._arrays):
 			self._clearEntries(
 				arrayIndex,
