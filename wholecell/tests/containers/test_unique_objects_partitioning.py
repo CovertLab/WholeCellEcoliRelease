@@ -58,8 +58,8 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 			attribute = False,
 			)
 		
-		self.arrayIndex_A = self.container._nameToArrayIndex['A']
-		self.arrayIndex_B = self.container._nameToArrayIndex['B']
+		self.collectionIndex_A = self.container._collectionNameToIndexMapping['A']
+		self.collectionIndex_B = self.container._collectionNameToIndexMapping['B']
 
 		self.randStream = wholecell.utils.rand_stream.RandStream()
 
@@ -73,21 +73,21 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 		# Set up the partition function call
 		
 		# TODO: write and use the interface for this code
-		request11_MoleculesLocal = self.container._queryObjects(self.arrayIndex_A,
+		request11_MoleculesLocal = self.container._queryObjects(self.collectionIndex_A,
 			attribute = ('==', True))
 
-		request12_MoleculesLocal = self.container._queryObjects(self.arrayIndex_B,
+		request12_MoleculesLocal = self.container._queryObjects(self.collectionIndex_B,
 			attribute = ('==', True))
 
-		request21_MoleculesLocal = self.container._queryObjects(self.arrayIndex_A,
+		request21_MoleculesLocal = self.container._queryObjects(self.collectionIndex_A,
 			attribute = ('==', True))
 
-		request22_MoleculesLocal = self.container._queryObjects(self.arrayIndex_B)
+		request22_MoleculesLocal = self.container._queryObjects(self.collectionIndex_B)
 
-		globalRefSize = self.container._arrays[self.container._globalRefIndex].size
+		globalRefSize = self.container._collections[self.container._globalRefIndex].size
 
-		globalIndexes_A = self.container._arrays[self.arrayIndex_A]['_globalIndex']
-		globalIndexes_B = self.container._arrays[self.arrayIndex_B]['_globalIndex']
+		globalIndexes_A = self.container._collections[self.collectionIndex_A]['_globalIndex']
+		globalIndexes_B = self.container._collections[self.collectionIndex_B]['_globalIndex']
 
 		objectRequestsArray = np.zeros((globalRefSize, 4), np.bool)
 

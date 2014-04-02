@@ -75,7 +75,7 @@ class UniqueMoleculesView(View):
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
 
-		self._queryResult = self._state.container.objectsWithName(
+		self._queryResult = self._state.container.objectsInCollection(
 			self._query[0],
 			**self._query[1]
 			)
@@ -84,7 +84,7 @@ class UniqueMoleculesView(View):
 
 
 	def molecules(self):
-		return self._state.container.objectsWithName(
+		return self._state.container.objectsInCollection(
 			self._query[0],
 			_partitionedProcess = ('==', self._processIndex + 1),
 			**self._query[1]

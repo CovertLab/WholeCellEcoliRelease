@@ -299,7 +299,7 @@ class ChromosomeContainer(object):
 
 
 	def moleculesBoundWithName(self, moleculeName):
-		return self._objectsContainer.objectsWithName(moleculeName, 
+		return self._objectsContainer.objectsInCollection(moleculeName, 
 			_chromBound = ('==', True))
 
 
