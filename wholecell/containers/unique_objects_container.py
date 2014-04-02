@@ -67,7 +67,7 @@ class UniqueObjectsContainer(object):
 		self._collectionNames = [] # sorted list of object names
 
 		self._collections = [] # ordered list of collections (which are arrays)
-		self._nameToCollectionIndex = {} # collectionName:index of associated structured array
+		self._collectionNameToIndexMapping = {} # collectionName:index of associated structured array
 
 		self._tableNames = {} # collectionName:table name
 
@@ -98,7 +98,7 @@ class UniqueObjectsContainer(object):
 
 			# Create references to collections
 			self._collections.append(newArray)
-			self._nameToCollectionIndex[collectionName] = collectionIndex
+			self._collectionNameToIndexMapping[collectionName] = collectionIndex
 
 			# Give the tables accessible names
 			self._tableNames[collectionName] = collectionName.replace(' ', '_')
@@ -106,7 +106,7 @@ class UniqueObjectsContainer(object):
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
 		# Create multiple objects of the same type and attribute values
-		collectionIndex = self._nameToCollectionIndex[collectionName]
+		collectionIndex = self._collectionNameToIndexMapping[collectionName]
 		objectIndexes = self._getFreeIndexes(collectionIndex, nMolecules)
 
 		collection = self._collections[collectionIndex]
@@ -207,7 +207,7 @@ class UniqueObjectsContainer(object):
 
 	def objectsInCollection(self, collectionName, **operations):
 		# Return all objects belonging to a collection and that optionally satisfy a set of attribute queries
-		collectionIndex = self._nameToCollectionIndex[collectionName]
+		collectionIndex = self._collectionNameToIndexMapping[collectionName]
 
 		result = self._queryObjects(collectionIndex, **operations)
 
@@ -219,7 +219,7 @@ class UniqueObjectsContainer(object):
 	def objectsInCollections(self, collectionNames, **operations):
 		# Return all objects belonging to a set of collections that optionally satisfy a set of attribute queries
 
-		collectionIndexes = [self._nameToCollectionIndex[collectionName] for collectionName in collectionNames]
+		collectionIndexes = [self._collectionNameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
 
 		for collectionIndex in collectionIndexes:
