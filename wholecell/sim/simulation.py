@@ -21,7 +21,7 @@ DEFAULT_PROCESSES = [
 	'RnaDegradation',
 	'Transcription',
 	'Translation',
-	] # TOKB
+	]
 
 SIM_INIT_ARGS = dict(
 	includedProcesses = None,
@@ -61,12 +61,6 @@ class Simulation(object):
 
 		self._constructRandStream()
 
-		# Set time parameters
-		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else 3600. # Simulation length (s) TOKB
-		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else 1. # Simulation time step (s) TOKB
-		self.initialStep = 0
-		self.simulationStep = 0
-
 		# Set random seed
 		self.seed = self._options['seed']
 
@@ -87,6 +81,12 @@ class Simulation(object):
 		sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
 		import ecoliwholecellkb_project.KnowledgeBaseEcoli_2
 		kb2 = ecoliwholecellkb_project.KnowledgeBaseEcoli_2.KnowledgeBaseEcoli_2()
+
+		# Set time parameters
+		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude # Simulation length (s)
+		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude # Simulation time step (s)
+		self.initialStep = 0
+		self.simulationStep = 0
 
 		# Fit KB parameters
 		import wholecell.reconstruction.fitter
@@ -145,7 +145,10 @@ class Simulation(object):
 		self._constructProcesses()
 
 		for state in self.states.itervalues():
-			state.initialize(self, kb, kb2)
+			try:
+				state.initialize(self, kb, kb2)
+			except:
+				import ipdb; ipdb.set_trace()
 
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
@@ -171,7 +174,7 @@ class Simulation(object):
 			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
 			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
 			('Chromosome',		wholecell.states.chromosome.Chromosome()),
-			('Transcripts',		wholecell.states.transcripts.Transcripts()),
+			#('Transcripts',		wholecell.states.transcripts.Transcripts()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
