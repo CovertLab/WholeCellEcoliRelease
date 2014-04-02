@@ -205,8 +205,8 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsWithName(self, collectionName, **operations):
-		# Return all objects with a specific name and that optionally satisfy a set of attribute queries
+	def objectsInCollection(self, collectionName, **operations):
+		# Return all objects belonging to a collection and that optionally satisfy a set of attribute queries
 		arrayIndex = self._nameToArrayIndex[collectionName]
 
 		result = self._queryObjects(arrayIndex, **operations)
@@ -216,8 +216,8 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objectsWithNames(self, collectionNames, **operations):
-		# Returns all objects of a set of names that optionally satisfy a set of attribute queries
+	def objectsInCollections(self, collectionNames, **operations):
+		# Return all objects belonging to a set of collections that optionally satisfy a set of attribute queries
 
 		arrayIndexes = [self._nameToArrayIndex[collectionName] for collectionName in collectionNames]
 		results = []
