@@ -255,23 +255,23 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Global references
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_mapping(self):
-		globalArray = self.container._arrays[self.container._globalRefIndex]
+		globalArray = self.container._collections[self.container._globalRefIndex]
 
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
 			globalIndex = molecule.attr('_globalIndex')
 
 			globalEntry = globalArray[globalIndex]
 
-			arrayIndex = globalEntry['_arrayIndex']
+			arrayIndex = globalEntry['_collectionIndex']
 			objectIndex = globalEntry['_objectIndex']
 
-			self.assertEqual(molecule._arrayIndex, arrayIndex)
+			self.assertEqual(molecule._collectionIndex, arrayIndex)
 			self.assertEqual(molecule._objectIndex, objectIndex)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_removal(self):
-		globalArray = self.container._arrays[self.container._globalRefIndex]
+		globalArray = self.container._collections[self.container._globalRefIndex]
 
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
 			# Weird logic to get one molecule
