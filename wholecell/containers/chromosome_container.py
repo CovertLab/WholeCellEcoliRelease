@@ -713,6 +713,7 @@ class ChromosomeContainer(object):
 		return len(regionSet.regionsWithRange(strand, footprint[0], footprint[1])) > 0
 
 
+	# TODO: more accessors like this...
 	def moleculesInRegion(self, region):
 		strandIndex = region.strand()
 
