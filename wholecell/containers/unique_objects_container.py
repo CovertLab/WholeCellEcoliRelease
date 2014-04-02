@@ -106,9 +106,9 @@ class UniqueObjectsContainer(object):
 		# TODO: alternate constructor for copying to partitions
 
 
-	def objectsNew(self, objectName, nMolecules, **attributes):
+	def objectsNew(self, collectionName, nMolecules, **attributes):
 		# Create multiple objects of the same type and attribute values
-		arrayIndex = self._nameToArrayIndex[objectName]
+		arrayIndex = self._nameToArrayIndex[collectionName]
 		objectIndexes = self._getFreeIndexes(arrayIndex, nMolecules)
 
 		array = self._arrays[arrayIndex]
@@ -130,8 +130,8 @@ class UniqueObjectsContainer(object):
 		return _UniqueObjectSet(self, globalIndexes)
 
 
-	def objectNew(self, objectName, **attributes):
-		(molecule,) = self.objectsNew(objectName, 1, **attributes) # NOTE: tuple unpacking
+	def objectNew(self, collectionName, **attributes):
+		(molecule,) = self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
 
 		return molecule
 
@@ -203,9 +203,9 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsWithName(self, objectName, **operations):
+	def objectsWithName(self, collectionName, **operations):
 		# Return all objects with a specific name and that optionally satisfy a set of attribute queries
-		arrayIndex = self._nameToArrayIndex[objectName]
+		arrayIndex = self._nameToArrayIndex[collectionName]
 
 		result = self._queryObjects(arrayIndex, **operations)
 
@@ -214,10 +214,10 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objectsWithNames(self, objectNames, **operations):
+	def objectsWithNames(self, collectionNames, **operations):
 		# Returns all objects of a set of names that optionally satisfy a set of attribute queries
 
-		arrayIndexes = [self._nameToArrayIndex[objectName] for objectName in objectNames]
+		arrayIndexes = [self._nameToArrayIndex[collectionName] for collectionName in collectionNames]
 		results = []
 
 		for arrayIndex in arrayIndexes:
@@ -287,7 +287,7 @@ class UniqueObjectsContainer(object):
 				h5file.root,
 				self._tableNames[arrayIndex],
 				array[self._savedAttributes[arrayIndex]].dtype,
-				title = self._objectNames[arrayIndex],
+				title = self._collectionNames[arrayIndex],
 				filters = tables.Filters(complevel = 9, complib = 'zlib')
 				)
 
@@ -295,7 +295,7 @@ class UniqueObjectsContainer(object):
 				h5file.root,
 				self._tableNames[arrayIndex] + '_indexes',
 				{'_time':tables.UInt32Col(), 'index':tables.UInt32Col()},
-				title = self._objectNames[arrayIndex] + ' indexes',
+				title = self._collectionNames[arrayIndex] + ' indexes',
 				filters = tables.Filters(complevel = 9, complib = 'zlib')
 				)
 
@@ -364,7 +364,7 @@ class _UniqueObject(object):
 
 
 	def name(self):
-		return self._container._objectNames[self._arrayIndex]
+		return self._container._collectionNames[self._arrayIndex]
 
 
 	def attr(self, attribute):
