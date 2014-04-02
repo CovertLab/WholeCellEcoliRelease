@@ -402,7 +402,11 @@ class _UniqueObject(object):
 		if not self._container is other._container:
 			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
 
-		return self._arrayIndex == other._arrayIndex and self._objectIndex == other._objectIndex
+		return (self._arrayIndex == other._arrayIndex) and (self._objectIndex == other._objectIndex)
+
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
 
 
 class _UniqueObjectSet(object):
