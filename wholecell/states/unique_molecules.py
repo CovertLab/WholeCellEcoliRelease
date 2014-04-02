@@ -70,10 +70,10 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container._timeIs(self.time.value)
 
 		# Clear out any deleted entries to make room for new molecules
-		self.container._flushDeleted()
+		self.container.flushDeleted()
 		
 		# Gather requests
-		nMolecules = self.container._arrays[self.container._globalRefIndex].size
+		nMolecules = self.container._collections[self.container._globalRefIndex].size
 		nViews = len(self._views)
 
 		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)

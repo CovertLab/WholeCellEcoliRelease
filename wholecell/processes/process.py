@@ -50,13 +50,13 @@ class Process(object):
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		import wholecell.states.bulk_molecules
-		wholecell.states.bulk_molecules.BulkMoleculesView(self._bulkMolecules, 
+		return wholecell.states.bulk_molecules.BulkMoleculesView(self._bulkMolecules, 
 			self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
 		import wholecell.states.bulk_molecules
-		wholecell.states.bulk_molecules.BulkMoleculeView(self._bulkMolecules, 
+		return wholecell.states.bulk_molecules.BulkMoleculeView(self._bulkMolecules, 
 			self, moleculeIDs)
 
 
