@@ -16,6 +16,7 @@ import tables
 
 import wholecell.utils.linear_programming as lp
 
+# State descriptions
 ENTRY_INACTIVE = 0 # a clear entry
 ENTRY_ACTIVE = 1 # an entry that is in use
 ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
@@ -30,9 +31,9 @@ class UniqueObjectsContainer(object):
 	'''
 	UniqueObjectsContainer
 
-	Essentially a dict of structured arrays, where the fields are attributes
-	of the unique molecules.  Used for the unique molecules state and
-	partitions.
+	Essentially a dict of structured arrays, where the structured array
+	fields are attributes of the unique molecules.  Used for the unique
+	molecules state and partitions.
 	'''
 
 	_defaultContainerAttributes = {
@@ -42,7 +43,7 @@ class UniqueObjectsContainer(object):
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
-	_defaultObjects = {
+	_defaultCollectionsSpec = {
 		'_globalReference':{ # a table which contains reference to all molecules
 			'_arrayIndex':'int64',
 			'_objectIndex':'int64'
@@ -60,31 +61,31 @@ class UniqueObjectsContainer(object):
 		'!=':np.not_equal
 		}
 
-	def __init__(self, objectAttributes):
-		self._objectAttributes = {} # objectName:{attributeName:type}
+	def __init__(self, collectionsSpec):
+		self._collectionsSpec = {} # collectionName:{attributeName:type}
 
-		self._objectNames = [] # sorted list of object names
+		self._collectionNames = [] # sorted list of object names
 
 		self._arrays = [] # ordered list of arrays
-		self._nameToArrayIndex = {} # objectName:index of associated structured array
+		self._nameToArrayIndex = {} # collectionName:index of associated structured array
 
-		self._tableNames = {} # objectName:table name
+		self._tableNames = {} # collectionName:table name
 
-		self._objectAttributes.update(objectAttributes)
-		self._objectAttributes.update(self._defaultObjects)
+		self._collectionsSpec.update(collectionsSpec)
+		self._collectionsSpec.update(self._defaultCollectionsSpec)
 
-		self._objectNames = sorted(self._objectAttributes.keys())
-		self._globalRefIndex = self._objectNames.index('_globalReference')
+		self._collectionNames = sorted(self._collectionsSpec.keys())
+		self._globalRefIndex = self._collectionNames.index('_globalReference')
 
-		for objectName, attributes in self._objectAttributes.viewitems():
+		for collectionName, attributes in self._collectionsSpec.viewitems():
 			# Add the attributes used internally
 			attributes.update(self._defaultContainerAttributes)
 
 		# Global references don't use global indexes
-		del self._objectAttributes['_globalReference']['_globalIndex']
+		del self._collectionsSpec['_globalReference']['_globalIndex']
 
-		for arrayIndex, objectName in enumerate(self._objectNames):
-			attributes = self._objectAttributes[objectName]
+		for arrayIndex, collectionName in enumerate(self._collectionNames):
+			attributes = self._collectionsSpec[collectionName]
 
 			# Create the structured array
 			newArray = np.zeros(
@@ -97,10 +98,10 @@ class UniqueObjectsContainer(object):
 
 			# Create references to arrays
 			self._arrays.append(newArray)
-			self._nameToArrayIndex[objectName] = arrayIndex
+			self._nameToArrayIndex[collectionName] = arrayIndex
 
 			# Give the tables accessible names
-			self._tableNames[objectName] = objectName.replace(' ', '_')
+			self._tableNames[collectionName] = collectionName.replace(' ', '_')
 
 		# TODO: alternate constructor for copying to partitions
 
