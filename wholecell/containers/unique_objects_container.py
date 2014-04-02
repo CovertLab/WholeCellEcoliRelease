@@ -103,7 +103,7 @@ class UniqueObjectsContainer(object):
 			# Give the tables accessible names
 			self._tableNames[collectionName] = collectionName.replace(' ', '_')
 
-		# TODO: alternate constructor for copying to partitions
+		# TODO: alternate constructor for copying to partitions # ASK JM
 
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
@@ -116,15 +116,18 @@ class UniqueObjectsContainer(object):
 		array['_entryState'][objectIndexes] = ENTRY_ACTIVE
 
 		for attrName, attrValue in attributes.viewitems():
-			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
+			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view # ASK JM
 			array[attrName][objectIndexes] = attrValue
 
 		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
+
+		# In global array, create reference pointing to object
 		globalArray = self._arrays[self._globalRefIndex]
 		globalArray['_entryState'][globalIndexes] = ENTRY_ACTIVE
 		globalArray['_arrayIndex'][globalIndexes] = arrayIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
 
+		# In collection, for each object, point to global reference
 		array['_globalIndex'][objectIndexes] = globalIndexes
 
 		return _UniqueObjectSet(self, globalIndexes)
@@ -142,17 +145,17 @@ class UniqueObjectsContainer(object):
 			)[0]
 
 		if freeIndexes.size < nMolecules:
-			oldEntries = self._arrays[arrayIndex]
-			oldSize = oldEntries.size
+			oldArray = self._arrays[arrayIndex]
+			oldSize = oldArray.size
 
 			newSize = oldSize + max(int(oldSize * self._fractionExtendEntries), nMolecules)
 
 			self._arrays[arrayIndex] = np.zeros(
 				newSize,
-				dtype = oldEntries.dtype
+				dtype = oldArray.dtype
 				)
 			
-			self._arrays[arrayIndex][:oldSize] = oldEntries
+			self._arrays[arrayIndex][:oldSize] = oldArray
 
 			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
 
@@ -169,13 +172,14 @@ class UniqueObjectsContainer(object):
 
 		self._arrays[obj._arrayIndex][obj._objectIndex]['_entryState'] = ENTRY_DELETED
 		self._arrays[self._globalRefIndex][globalIndex]['_entryState'] = ENTRY_DELETED
+		# ASK JM: clear entries here?
 
 
-	def _clearEntries(self, arrayIndex, objectIndexes):
+	def _clearEntries(self, arrayIndex, objectIndexes): # ASK JM
 		array = self._arrays[arrayIndex]
 
 		array[objectIndexes] = np.zeros(
-			1,
+			1, # ASK JM
 			dtype = array.dtype
 			)
 
@@ -266,7 +270,7 @@ class UniqueObjectsContainer(object):
 			array['_time'] = time
 
 
-	def _flushDeleted(self):
+	def _flushDeleted(self): # ASK JM
 		for arrayIndex, array in enumerate(self._arrays):
 			self._clearEntries(
 				arrayIndex,
