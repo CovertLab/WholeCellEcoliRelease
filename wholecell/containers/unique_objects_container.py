@@ -16,6 +16,7 @@ import tables
 
 import wholecell.utils.linear_programming as lp
 
+# State descriptions
 ENTRY_INACTIVE = 0 # a clear entry
 ENTRY_ACTIVE = 1 # an entry that is in use
 ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
@@ -30,9 +31,9 @@ class UniqueObjectsContainer(object):
 	'''
 	UniqueObjectsContainer
 
-	Essentially a dict of structured arrays, where the fields are attributes
-	of the unique molecules.  Used for the unique molecules state and
-	partitions.
+	Essentially a dict of structured arrays, where the structured array
+	fields are attributes of the unique molecules.  Used for the unique
+	molecules state and partitions.
 	'''
 
 	_defaultContainerAttributes = {
@@ -42,7 +43,7 @@ class UniqueObjectsContainer(object):
 		# '_massDifference':'float64' # dynamic mass difference
 		}
 
-	_defaultObjects = {
+	_defaultCollectionsSpec = {
 		'_globalReference':{ # a table which contains reference to all molecules
 			'_arrayIndex':'int64',
 			'_objectIndex':'int64'
@@ -60,31 +61,31 @@ class UniqueObjectsContainer(object):
 		'!=':np.not_equal
 		}
 
-	def __init__(self, objectAttributes):
-		self._objectAttributes = {} # objectName:{attributeName:type}
+	def __init__(self, collectionsSpec):
+		self._collectionsSpec = {} # collectionName:{attributeName:type}
 
-		self._objectNames = [] # sorted list of object names
+		self._collectionNames = [] # sorted list of object names
 
 		self._arrays = [] # ordered list of arrays
-		self._nameToArrayIndex = {} # objectName:index of associated structured array
+		self._nameToArrayIndex = {} # collectionName:index of associated structured array
 
-		self._tableNames = {} # objectName:table name
+		self._tableNames = {} # collectionName:table name
 
-		self._objectAttributes.update(objectAttributes)
-		self._objectAttributes.update(self._defaultObjects)
+		self._collectionsSpec.update(collectionsSpec)
+		self._collectionsSpec.update(self._defaultCollectionsSpec)
 
-		self._objectNames = sorted(self._objectAttributes.keys())
-		self._globalRefIndex = self._objectNames.index('_globalReference')
+		self._collectionNames = sorted(self._collectionsSpec.keys())
+		self._globalRefIndex = self._collectionNames.index('_globalReference')
 
-		for objectName, attributes in self._objectAttributes.viewitems():
+		for collectionName, attributes in self._collectionsSpec.viewitems():
 			# Add the attributes used internally
 			attributes.update(self._defaultContainerAttributes)
 
 		# Global references don't use global indexes
-		del self._objectAttributes['_globalReference']['_globalIndex']
+		del self._collectionsSpec['_globalReference']['_globalIndex']
 
-		for arrayIndex, objectName in enumerate(self._objectNames):
-			attributes = self._objectAttributes[objectName]
+		for arrayIndex, collectionName in enumerate(self._collectionNames):
+			attributes = self._collectionsSpec[collectionName]
 
 			# Create the structured array
 			newArray = np.zeros(
@@ -97,17 +98,17 @@ class UniqueObjectsContainer(object):
 
 			# Create references to arrays
 			self._arrays.append(newArray)
-			self._nameToArrayIndex[objectName] = arrayIndex
+			self._nameToArrayIndex[collectionName] = arrayIndex
 
 			# Give the tables accessible names
-			self._tableNames[objectName] = objectName.replace(' ', '_')
+			self._tableNames[collectionName] = collectionName.replace(' ', '_')
 
-		# TODO: alternate constructor for copying to partitions
+		# TODO: alternate constructor for copying to partitions # ASK JM
 
 
-	def objectsNew(self, objectName, nMolecules, **attributes):
+	def objectsNew(self, collectionName, nMolecules, **attributes):
 		# Create multiple objects of the same type and attribute values
-		arrayIndex = self._nameToArrayIndex[objectName]
+		arrayIndex = self._nameToArrayIndex[collectionName]
 		objectIndexes = self._getFreeIndexes(arrayIndex, nMolecules)
 
 		array = self._arrays[arrayIndex]
@@ -115,22 +116,25 @@ class UniqueObjectsContainer(object):
 		array['_entryState'][objectIndexes] = ENTRY_ACTIVE
 
 		for attrName, attrValue in attributes.viewitems():
-			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
+			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view # ASK JM
 			array[attrName][objectIndexes] = attrValue
 
 		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
+
+		# In global array, create reference pointing to object
 		globalArray = self._arrays[self._globalRefIndex]
 		globalArray['_entryState'][globalIndexes] = ENTRY_ACTIVE
 		globalArray['_arrayIndex'][globalIndexes] = arrayIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
 
+		# In collection, for each object, point to global reference
 		array['_globalIndex'][objectIndexes] = globalIndexes
 
 		return _UniqueObjectSet(self, globalIndexes)
 
 
-	def objectNew(self, objectName, **attributes):
-		(molecule,) = self.objectsNew(objectName, 1, **attributes) # NOTE: tuple unpacking
+	def objectNew(self, collectionName, **attributes):
+		(molecule,) = self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
 
 		return molecule
 
@@ -141,17 +145,17 @@ class UniqueObjectsContainer(object):
 			)[0]
 
 		if freeIndexes.size < nMolecules:
-			oldEntries = self._arrays[arrayIndex]
-			oldSize = oldEntries.size
+			oldArray = self._arrays[arrayIndex]
+			oldSize = oldArray.size
 
 			newSize = oldSize + max(int(oldSize * self._fractionExtendEntries), nMolecules)
 
 			self._arrays[arrayIndex] = np.zeros(
 				newSize,
-				dtype = oldEntries.dtype
+				dtype = oldArray.dtype
 				)
 			
-			self._arrays[arrayIndex][:oldSize] = oldEntries
+			self._arrays[arrayIndex][:oldSize] = oldArray
 
 			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
 
@@ -168,13 +172,14 @@ class UniqueObjectsContainer(object):
 
 		self._arrays[obj._arrayIndex][obj._objectIndex]['_entryState'] = ENTRY_DELETED
 		self._arrays[self._globalRefIndex][globalIndex]['_entryState'] = ENTRY_DELETED
+		# ASK JM: clear entries here?
 
 
-	def _clearEntries(self, arrayIndex, objectIndexes):
+	def _clearEntries(self, arrayIndex, objectIndexes): # ASK JM
 		array = self._arrays[arrayIndex]
 
 		array[objectIndexes] = np.zeros(
-			1,
+			1, # ASK JM
 			dtype = array.dtype
 			)
 
@@ -202,9 +207,9 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsWithName(self, objectName, **operations):
+	def objectsWithName(self, collectionName, **operations):
 		# Return all objects with a specific name and that optionally satisfy a set of attribute queries
-		arrayIndex = self._nameToArrayIndex[objectName]
+		arrayIndex = self._nameToArrayIndex[collectionName]
 
 		result = self._queryObjects(arrayIndex, **operations)
 
@@ -213,10 +218,10 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objectsWithNames(self, objectNames, **operations):
+	def objectsWithNames(self, collectionNames, **operations):
 		# Returns all objects of a set of names that optionally satisfy a set of attribute queries
 
-		arrayIndexes = [self._nameToArrayIndex[objectName] for objectName in objectNames]
+		arrayIndexes = [self._nameToArrayIndex[collectionName] for collectionName in collectionNames]
 		results = []
 
 		for arrayIndex in arrayIndexes:
@@ -265,7 +270,7 @@ class UniqueObjectsContainer(object):
 			array['_time'] = time
 
 
-	def _flushDeleted(self):
+	def _flushDeleted(self): # ASK JM
 		for arrayIndex, array in enumerate(self._arrays):
 			self._clearEntries(
 				arrayIndex,
@@ -286,7 +291,7 @@ class UniqueObjectsContainer(object):
 				h5file.root,
 				self._tableNames[arrayIndex],
 				array[self._savedAttributes[arrayIndex]].dtype,
-				title = self._objectNames[arrayIndex],
+				title = self._collectionNames[arrayIndex],
 				filters = tables.Filters(complevel = 9, complib = 'zlib')
 				)
 
@@ -294,7 +299,7 @@ class UniqueObjectsContainer(object):
 				h5file.root,
 				self._tableNames[arrayIndex] + '_indexes',
 				{'_time':tables.UInt32Col(), 'index':tables.UInt32Col()},
-				title = self._objectNames[arrayIndex] + ' indexes',
+				title = self._collectionNames[arrayIndex] + ' indexes',
 				filters = tables.Filters(complevel = 9, complib = 'zlib')
 				)
 
@@ -363,7 +368,7 @@ class _UniqueObject(object):
 
 
 	def name(self):
-		return self._container._objectNames[self._arrayIndex]
+		return self._container._collectionNames[self._arrayIndex]
 
 
 	def attr(self, attribute):
