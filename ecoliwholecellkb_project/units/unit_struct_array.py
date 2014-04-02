@@ -14,6 +14,9 @@ being used while loading constants.
 from pint import UnitRegistry
 UREG = UnitRegistry()
 Q_ = UREG.Quantity
+UREG.define('nucleotide = []')
+UREG.define('amino_acid = []')
+UREG.define('DCW- = 1.')
 
 class UnitStructArray(object):
 	"""UnitStructArray"""
@@ -23,7 +26,10 @@ class UnitStructArray(object):
 		self.units = units
 
 	def field(self, fieldname):
-		return Q_(self.struct_array[fieldname], self.units[fieldname])
+		if self.units[fieldname] == None:
+			return self.struct_array[fieldname]
+		else:
+			return Q_(self.struct_array[fieldname], self.units[fieldname])
 
 	def fieldIs(self, fieldname, new_value, new_units):
 		self.structArray[fieldname] = new_value
@@ -34,3 +40,9 @@ class UnitStructArray(object):
 
 	def fullUnits(self):
 		return self.units
+
+	def __len__(self):
+		return len(self.struct_array)
+
+	def __repr__(self):
+		return 'STRUCTURED ARRAY:\n{}\nUNITS:\n{}'.format(self.struct_array.__repr__(), self.units)
