@@ -1,5 +1,7 @@
 '''
-test_chromosome_bound_molecules_container.py
+test_chromosome_container.py
+
+Tests for the ChromosomeContainer class.
 
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -13,7 +15,7 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.utils.chromosome_bound_molecules_container import ChromosomeBoundMoleculeContainer
+from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 1000
 STRAND_MULTIPLICITY = 3
@@ -25,7 +27,7 @@ MOLECULE_ATTRIBUTES = {
 		},
 	}
 
-class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
+class Test_ChromosomeContainer(unittest.TestCase):
 	@classmethod
 	def setupClass(cls):
 		pass
@@ -91,7 +93,6 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			position, '-', forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -153,7 +154,6 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			position, '+', forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -183,7 +183,6 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			position, '-', forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -248,7 +247,7 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 
 	# Accessing bound molecules
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesBound_all(self):
+	def test_moleculesBound(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
 		reverseExtent = 1
@@ -265,12 +264,12 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 
 		self.assertEqual(
 			molecules,
-			self.container.moleculesBound()
+			set(self.container.moleculesBound())
 			)
 
 
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesBound_byName(self):
+	def test_moleculesBoundWithName(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
 		reverseExtent = 1
@@ -292,17 +291,65 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 
 		self.assertNotEqual(
 			molecules,
-			self.container.moleculesBound()
+			set(self.container.moleculesBound())
 			)
 
 		self.assertEqual(
 			molecules,
-			self.container.moleculesBound('DNA polymerase')
+			set(self.container.moleculesBoundWithName('DNA polymerase'))
 			)
 
 
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesBound_position(self):
+	def test_moleculeBoundAtPosition(self):
+		positions = [100, 200, 300, 400]
+		forwardExtent = 5
+		reverseExtent = 1
+
+		molecules = []
+
+		for position in positions:
+			mol = self.container.moleculeNew('DNA polymerase')
+
+			self.container.moleculeLocationIs(mol, self.container.rootStrand(),
+				position, '+', forwardExtent, reverseExtent)
+
+			molecules.append(mol)
+
+		self.assertEqual(
+			molecules[1],
+			self.container.moleculeBoundAtPosition(
+				self.container.rootStrand(), 200
+				)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculeBoundOnFork(self):
+		startPosition = 100
+		stopPosition = 110
+
+		forkStart, forkStop = self.container.divideRegion(
+			self.container.rootStrand(),
+			startPosition, stopPosition
+			)
+
+		forwardExtent = 5
+		reverseExtent = 1
+
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		self.container.moleculeLocationIsFork(mol, forkStart, forwardExtent,
+			reverseExtent)
+
+		self.assertEqual(
+			mol,
+			self.container.moleculeBoundOnFork(forkStart)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesBoundOverExtent(self):
 		positions = [100, 200, 300, 400]
 		forwardExtent = 5
 		reverseExtent = 1
@@ -319,11 +366,10 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 
 		self.assertEqual(
 			set(molecules[:2]),
-			self.container.moleculesBound(
-				None,
+			set(self.container.moleculesBoundOverExtent(
 				self.container.rootStrand(), 0, '+',
 				200, 0
-				)
+				))
 			)
 
 
@@ -362,12 +408,12 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			)
 
 		self.assertEqual(
-			forks[0].attr('_sequencePosition'),
+			forks[0].attr('_chromPosition'),
 			startPosition
 			)
 
 		self.assertEqual(
-			forks[1].attr('_sequencePosition'),
+			forks[1].attr('_chromPosition'),
 			stopPosition
 			)
 
@@ -406,12 +452,12 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			)
 
 		self.assertEqual(
-			forks[0].attr('_sequencePosition'),
+			forks[0].attr('_chromPosition'),
 			startPosition
 			)
 
 		self.assertEqual(
-			forks[1].attr('_sequencePosition'),
+			forks[1].attr('_chromPosition'),
 			stopPosition
 			)
 
@@ -559,7 +605,6 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -619,7 +664,6 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 			forwardExtent, reverseExtent)
 
 		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
-		# TODO: make the above into a private method of the container class
 
 		# Check footprint
 		self.assertEqual(
@@ -691,7 +735,7 @@ class Test_ChromosomeBoundMoleculeContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = ChromosomeBoundMoleculeContainer(N_BASES, STRAND_MULTIPLICITY,
+	container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
 		MOLECULE_ATTRIBUTES)
 
 	return container

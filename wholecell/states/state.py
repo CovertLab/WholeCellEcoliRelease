@@ -12,8 +12,6 @@ State variable base class. Defines the interface states expose to the simulation
 
 from __future__ import division
 
-from collections import OrderedDict
-
 class State(object):
 	""" State """
 
@@ -84,25 +82,3 @@ class State(object):
 	def calculate(self):
 		return
 
-	# Options and parameters
-
-	def getOptions(self):
-		val = {}
-		if self.meta.has_key("options"):
-			for opt in self.meta["options"]:
-				val[opt] = getattr(self, opt)
-		return val
-
-	def setOptions(self, val):
-		keys = val.keys()
-		if not self.meta.has_key("options") or not set(keys).issubset(set(self.meta["options"])):
-			raise Exception, "Invalid option"
-
-		for key in keys:
-			setattr(self, key, val[key])
-
-	def getDynamics(self):
-		val = {}
-		for prop in self.meta["dynamics"]:
-			val[prop] = getattr(self, prop)
-		return val

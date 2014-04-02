@@ -5,11 +5,10 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-import wholecell.utils.chromosome_bound_molecules_container
+from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 5000000 # TODO: from kb
-STRAND_MULTIPLICITY = 3
-MOLECULE_WIDTH = 50 # TODO: from kb
+STRAND_MULTIPLICITY = 3 # TODO: estimate somehow? from kb?
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
@@ -31,8 +30,6 @@ class Chromosome(wholecell.states.state.State):
 			'units':{}
 			}
 
-		# self.time = None
-
 		self.container = None
 
 		super(Chromosome, self).__init__(*args, **kwargs)
@@ -41,8 +38,8 @@ class Chromosome(wholecell.states.state.State):
 	def initialize(self, sim, kb, kb2):
 		super(Chromosome, self).initialize(sim, kb, kb2)
 
-		self.container = wholecell.utils.chromosome_bound_molecules_container.ChromosomeBoundMoleculeContainer(
-			N_BASES, STRAND_MULTIPLICITY, MOLECULE_ATTRIBUTES)
+		self.container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
+			MOLECULE_ATTRIBUTES)
 
 
 	def calcInitialConditions(self):

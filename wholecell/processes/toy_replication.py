@@ -38,8 +38,7 @@ class ToyReplication(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyReplication, self).initialize(sim, kb)
 
-		self.replicationForks = self.chromosomeMoleculeView(
-			moleculeName = 'DNA polymerase',
+		self.replicationForks = self.chromosomeForksView( # special view for forks
 			extentForward = max(self.elongationRate, self.dnaPolyForwardFootprint),
 			extentReverse = self.dnaPolyReverseFootprint
 			)
@@ -53,50 +52,51 @@ class ToyReplication(wholecell.processes.process.Process):
 	def evolveState(self):
 		# TODO: check whether any forks would collide
 
-		for forkStrand, forkPosition, forkDirection in self.replicationForks.forks():
+		for fork in self.replicationForks.forks():
 			# Get DNA polymerases near the fork
 			dnaPolymerase = self.replicationForks.moleculeOnFork( # returns the identity of the molecule on the fork, if any
-				name = 'DNA polymerase',
-				forkStrand = forkStrand,
-				forkPosition = forkPosition
+				fork = fork,
+				name = 'DNA polymerase'
 				)
 
 			# Break if no DNA polymerase
 			if dnaPolymerase is None:
 				print 'No DNA polymerase on fork'
-				break
+				
+				continue
 
 			# Determine how far we can extend
 			extent = self.replicationForks.maximumExtent( # how far we can move without hitting 1) the end of the partitioned space or 2) a fork, up to "extent"
-				strand = forkStrand,
-				position = forkPosition,
-				direction = forkDirection,
-				extent = self.elongationRate
+				molecule = dnaPolymerase,
+				extentForward = self.elongationRate,
+				extentReverse = 0
 				)
 
 			# TODO: check/use resources
 
-			nonPolymeraseMolecules = self.replicationForks.molecules( # returns molecules that satisfy the arguments
-				strand = forkStrand,
-				position = forkPosition,
-				direction = forkDirection,
-				extent = extent
+			# Check for molecules in the way of replication
+			nonPolymeraseMolecules = self.replicationForks.moleculesNearFork(
+				fork = fork,
+				extentForward = extent,
+				extentReverse = 0
 				) - {dnaPolymerase}
 
 			if nonPolymeraseMolecules:
 				# TODO: remove molecules on final position, and move molecules
 				# passed onto a random strand in the same position
 				print 'Encountered molecules within fork extension range'
-				break
+				
+				continue
 
-			newForkPosition = self.replicationForks.extendFork(forkStrand, # extends an indicated fork (direction is inferred)
-				forkPosition, extent)
+			# Unbind the DNA polymerase, for the moment
+			self.replicationForks.moleculeLocationIsUnbound(dnaPolymerase)
 
-			self.replicationForks.moleculeMoveToFork( # special moleculeMove routine that places a molecule directly onto a fork
-				dnaPolymerase,
-				forkStrand = forkStrand,
-				forkPosition = newForkPosition,
-				extentForward = self.dnaPolyForwardFootprint,
-				extentReverse = self.dnaPolyReverseFootprint
+			# Move the fork
+			newForkPosition = self.replicationForks.forkExtend(fork, extent)
+
+			# Place the DNA polymerase back onto the fork
+			self.replicationForks.moleculeLocationIsFork( # special moleculeMove routine that places a molecule directly onto a fork
+				molecule = dnaPolymerase,
+				fork = fork
 				)
 

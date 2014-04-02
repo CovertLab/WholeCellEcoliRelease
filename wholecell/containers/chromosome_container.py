@@ -1,16 +1,40 @@
+'''
+
+chromosome_container.py
+
+@author: John Mason
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@data: Created 3/12/14
+
+'''
+
 
 from __future__ import division
 
 import numpy as np
 
-import wholecell.utils.unique_objects_container
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 
 class ChrosomeContainerException(Exception):
+	'''
+	ChrosomeContainerException
+
+	An exception subclass raised by the ChromosomeContainer.
+	'''
 	pass
 
 
-class ChromosomeBoundMoleculeContainer(object):
+class ChromosomeContainer(object):
+	'''
+	ChromosomeContainer
+
+	A container class.  Tracks the locations of objects (molecules) on a
+	circular, branched, directional structure, with provided footprints.  
+	Objects can be attached to forks as well, and forks can be extended along 
+	their parent strand.
+	'''
+
 	# Special values for the state of the chromosome
 	_inactive = 0 # a location that is inactive (no binding permitted)
 	_empty = 1 # an active but empty location
@@ -21,20 +45,20 @@ class ChromosomeBoundMoleculeContainer(object):
 	# Molecule container properties
 	_defaultObjectContainerObjects = {
 		'_fork':{
-			'_sequenceStrand':'int64', # index of strand
-			'_sequencePosition':'int64', # bound nt
-			'_sequenceDirection':'bool', # False = (+), True = (-)
+			'_chromStrand':'int64', # index of strand
+			'_chromPosition':'int64', # bound nt
+			'_chromDirection':'bool', # False = (+), True = (-)
 			}
 		}
 
 	_defaultObjectContainerAttributes = {
-		'_sequenceBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
-		'_sequenceStrand':'int64', # index of strand
-		'_sequencePosition':'int64', # bound nt
-		'_sequenceDirection':'bool', # False = (+), True = (-)
-		'_sequenceExtentForward':'int64', # number of nts
-		'_sequenceExtentReverse':'int64', # number of nts
-		'_sequenceBoundToFork':'bool', # special property for molecules bound on a forked region
+		'_chromBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
+		'_chromStrand':'int64', # index of strand
+		'_chromPosition':'int64', # bound nt
+		'_chromDirection':'bool', # False = (+), True = (-)
+		'_chromExtentForward':'int64', # number of nts
+		'_chromExtentReverse':'int64', # number of nts
+		'_chromBoundToFork':'bool', # special property for molecules bound on a forked region
 		}
 
 	# Single-character names for denoting strand identity
@@ -48,13 +72,14 @@ class ChromosomeBoundMoleculeContainer(object):
 	_directionCharToBool = {_positiveChar:False, _negativeChar:True}
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
+
 	def __init__(self, nBases, strandMultiplicity, moleculeAttributes):
 		self._length = nBases
 
 		self._strandMultiplicity = strandMultiplicity
 		self._buildStrandConnectivity()
 		
-		self._array = np.zeros((self._nStrands, self._length), dtype = np.int32) # TODO: choose best dtype based on array size
+		self._array = np.zeros((self._nStrands, self._length), dtype = np.int64)
 
 		self._array[0, :] = self._empty # Root strand is always active
 
@@ -63,11 +88,12 @@ class ChromosomeBoundMoleculeContainer(object):
 			molAttrs[moleculeName] = attributes.copy()
 			molAttrs[moleculeName].update(self._defaultObjectContainerAttributes)
 
-		self._objectsContainer =  wholecell.utils.unique_objects_container.UniqueObjectsContainer(
-			molAttrs)
+		self._objectsContainer =  UniqueObjectsContainer(molAttrs)
 
 
 	def _buildStrandConnectivity(self):
+		# Build the lists and tables needed for interactions between strands
+
 		self._strandNames = []
 		self._strandNames.append(self._rootChar)
 
@@ -100,68 +126,79 @@ class ChromosomeBoundMoleculeContainer(object):
 
 
 	def moleculeNew(self, moleculeName, **attributes):
+		# Create a new, currently unbound molecule
 		return self._objectsContainer.objectNew(moleculeName, **attributes)
 
 
 	def moleculeDel(self, molecule):
+		# Unbind and delete a molecule
 		self.moleculeLocationIsUnbound(molecule)
 		self._objectsContainer.objectDel(molecule)
 
 
 	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
+		# Set a molecule's location
 		strandIndex = self._strandNameToIndex[strand]
 		directionBool = self._directionCharToBool[direction]
 
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
-		if not (self._array[strandIndex, region] == self._empty).all():
+		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+
+		if np.setdiff1d(self._array[strandIndex, region], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
-		molecule.attrIs('_sequenceBound', True) # TODO: attrsAre method
-		molecule.attrIs('_sequenceStrand', strandIndex)
-		molecule.attrIs('_sequencePosition', position)
-		molecule.attrIs('_sequenceDirection', directionBool)
-		molecule.attrIs('_sequenceExtentForward', extentForward)
-		molecule.attrIs('_sequenceExtentReverse', extentReverse)
+		molecule.attrIs(
+			_chromBound = True,
+			_chromStrand = strandIndex,
+			_chromPosition = position,
+			_chromDirection = directionBool,
+			_chromExtentForward = extentForward,
+			_chromExtentReverse = extentReverse
+			)
 
-		self._array[strandIndex, region] = molecule.attr('_globalIndex') + self._offset
+		self._array[strandIndex, region] = moleculeIndex
 
 
 	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse): # TODO: different child extents
+		# Assign a molecule's location to that of a fork
 		# NOTE: molecule orientation assumed to be in the direction of the fork
 
 		if not (extentForward > 0 or extentReverse > 0):
 			raise ChrosomeContainerException('The footprint of a molecule placed on a fork must be > 1')
 
-		forkStrand = fork.attr('_sequenceStrand')
-		forkPosition = fork.attr('_sequencePosition')
-		forkDirection = fork.attr('_sequenceDirection')
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
 
 		(regionParent, regionChildA, regionChildB) = self._forkedRegions(
 			forkPosition, forkDirection, extentForward,	extentReverse)
 
 		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
 
-		if not (self._array[forkStrand, regionParent] == self._empty).all():
+		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+
+		if np.setdiff1d(self._array[forkStrand, regionParent], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
-		if not (self._array[childStrandA, regionChildA] == self._empty).all():
+		if np.setdiff1d(self._array[childStrandA, regionChildA], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
-		if not (self._array[childStrandB, regionChildB] == self._empty).all():
+		if np.setdiff1d(self._array[childStrandB, regionChildB], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
-		molecule.attrIs('_sequenceBound', True)
-		molecule.attrIs('_sequenceStrand', forkStrand)
-		molecule.attrIs('_sequencePosition', forkPosition)
-		molecule.attrIs('_sequenceDirection', forkDirection)
-		molecule.attrIs('_sequenceExtentForward', extentForward)
-		molecule.attrIs('_sequenceExtentReverse', extentReverse)
-		molecule.attrIs('_sequenceBoundToFork', True)
+		molecule.attrIs(
+			_chromBound = True,
+			_chromStrand = forkStrand,
+			_chromPosition = forkPosition,
+			_chromDirection = forkDirection,
+			_chromExtentForward = extentForward,
+			_chromExtentReverse = extentReverse,
+			_chromBoundToFork = True
+			)
 
 		index = molecule.attr('_globalIndex') + self._offset
 
@@ -171,6 +208,7 @@ class ChromosomeBoundMoleculeContainer(object):
 
 
 	def _region(self, position, directionBool, extentForward, extentReverse):
+		# Return a region of a strand, accounting for circularity and directionality
 		if directionBool: # == (-)
 			return np.arange(position-extentForward+1, position+extentReverse+1) % self._length
 
@@ -179,6 +217,7 @@ class ChromosomeBoundMoleculeContainer(object):
 
 
 	def _forkedRegions(self, forkPosition, forkDirection, extentForward, extentReverse):
+		# Return regions on strands surrounding a fork, accounting for circularity and directionality
 		if forkDirection: # == (-)
 			regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
 			regionChildA = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
@@ -193,31 +232,34 @@ class ChromosomeBoundMoleculeContainer(object):
 
 
 	def moleculeLocation(self, molecule):
-		if not molecule.attr('_sequenceBound'):
+		# Return the location a molecule, if it is bound to the chromosome
+		if not molecule.attr('_chromBound'):
 			return None
 
 		else:
 			return (
-				self._strandNames[molecule.attr('_sequenceStrand')], # TODO: attrs method
-				molecule.attr('_sequencePosition'),
-				self._directionBoolToChar[molecule.attr('_sequenceDirection')],
-				molecule.attr('_sequenceExtentForward'),
-				molecule.attr('_sequenceExtentReverse'),
+				self._strandNames[molecule.attr('_chromStrand')], # TODO: attrs method
+				molecule.attr('_chromPosition'),
+				self._directionBoolToChar[molecule.attr('_chromDirection')],
+				molecule.attr('_chromExtentForward'),
+				molecule.attr('_chromExtentReverse'),
 				)
 
 	# TODO: moleculeStrand, moleculePosition, moleculeDirection, moleculeFootprint
 
 	def moleculeLocationIsUnbound(self, molecule):
-		if not molecule.attr('_sequenceBound'):
+		# Unbind a molecule (from a normal location or a fork) if it is bound, or do nothing
+		if not molecule.attr('_chromBound'):
+			# Molecule is already unbound
 			return
 
 
-		elif molecule.attr('_sequenceBoundToFork'):
-			strandIndex = molecule.attr('_sequenceStrand')
-			position = molecule.attr('_sequencePosition')
-			directionBool = molecule.attr('_sequenceDirection')
-			extentForward = molecule.attr('_sequenceExtentForward')
-			extentReverse = molecule.attr('_sequenceExtentReverse')
+		elif molecule.attr('_chromBoundToFork'):
+			# Molecule is bound to a fork
+			(strandIndex, position, directionBool, extentForward, extentReverse
+				) = molecule.attrs('_chromStrand', '_chromPosition',
+				'_chromDirection', '_chromExtentForward',
+				'_chromExtentReverse')
 
 			(childStrandA, childStrandB) = self._strandChildrenIndexes[strandIndex]
 
@@ -228,77 +270,95 @@ class ChromosomeBoundMoleculeContainer(object):
 			self._array[childStrandA, regionChildA] = self._empty
 			self._array[childStrandB, regionChildB] = self._empty
 
-			molecule.attrIs('_sequenceBound', False)
-			molecule.attrIs('_sequenceBoundToFork', False)
+			molecule.attrIs(
+				_chromBound = False,
+				_chromBoundToFork = False
+				)
 
 
 		else:
-			strandIndex = molecule.attr('_sequenceStrand')
-			position = molecule.attr('_sequencePosition')
-			directionBool = molecule.attr('_sequenceDirection')
-			extentForward = molecule.attr('_sequenceExtentForward')
-			extentReverse = molecule.attr('_sequenceExtentReverse')
+			# Molecule is bound to a normal location (not a fork)
+			(strandIndex, position, directionBool, extentForward, extentReverse
+				) = molecule.attrs('_chromStrand', '_chromPosition',
+				'_chromDirection', '_chromExtentForward',
+				'_chromExtentReverse')
 
 			region = self._region(position, directionBool, extentForward, extentReverse)
 
 			self._array[strandIndex, region] = self._empty
 
-			molecule.attrIs('_sequenceBound', False)
+			molecule.attrIs(_chromBound = False)
 
-
-	def moleculesBound(self, moleculeName = None, strand = None, 
-			position = None, direction = None, extentForward = None,
-			extentReverse = None):
-
-		# TODO: check for inconsistent sets of arguments
-		# TODO: make the queries more efficient
-
-		specifiesName = moleculeName is not None
-
-		specifiesPosition = (strand is not None and position is not None)
-
-		specifiesExtent = (direction is not None and extentForward is not None
-			and extentReverse is not None)
-
-		specificRequest = specifiesName or specifiesPosition
-
-		if specifiesPosition:
-			strandIndex = self._strandNameToIndex[strand]
-
-			if specifiesExtent:
-				directionBool = self._directionCharToBool[direction]
-
-				region = self._region(position, directionBool, extentForward, extentReverse)
-
-				indexes = np.setdiff1d(
-					self._array[strandIndex, region],
-					self._specialValues
-					) - self._offset
-
-			else:
-				indexes = np.setdiff1d(
-					self._array[strandIndex, position],
-					self._specialValues
-					) - self._offset
-
-		else:
-			indexes = np.setdiff1d(self._array, self._specialValues) - self._offset
-
-		if specifiesName:
-			molecules = self._objectsContainer._objectsByGlobalIndex(indexes)
-
-			return {molecule for molecule in molecules
-				if molecule.name() == moleculeName}
-
-		else:
-			return self._objectsContainer._objectsByGlobalIndex(indexes)
+	# TODO: insure these methods don't return _fork objects
+	def moleculesBound(self):
+		return self._objectsContainer.objects(_chromBound = ('==', True))
 
 
 	def moleculesUnbound(self):
+		return self._objectsContainer.objects(_chromBound = ('==', False))
+
+
+	def moleculesBoundWithName(self, moleculeName):
+		return self._objectsContainer.objectsWithName(moleculeName, 
+			_chromBound = ('==', True))
+
+
+	def moleculeBoundAtPosition(self, strand, position): # TODO: test
+		strandIndex = self._strandNameToIndex[strand]
+		
+		index = self._array[strandIndex, position] - self._offset
+
+		if index < 0:
+			return None
+
+		else:
+			return self._objectsContainer._objectByGlobalIndex(index)
+
+
+	def moleculeBoundOnFork(self, fork): # TODO: test
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
+
+		if forkDirection: # == (-)
+			position = forkPosition - 1
+
+		else: # == (+)
+			position = forkPosition + 1
+		
+		index = self._array[forkStrand, position] - self._offset
+
+		if index < 0: # anything < 0 must refer to a special value
+			return None
+
+		else:
+			return self._objectsContainer._objectByGlobalIndex(index)
+
+
+	def moleculesBoundOverExtent(self, strand, position, direction, extentForward, extentReverse):
+		strandIndex = self._strandNameToIndex[strand]
+		directionBool = self._directionCharToBool[direction]
+
+		region = self._region(position, directionBool, extentForward, extentReverse)
+
+		indexes = np.setdiff1d(self._array[strandIndex, region],
+			self._specialValues) - self._offset
+
+		return self._objectsContainer._objectsByGlobalIndex(indexes)
+
+
+	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
+		# TODO: decide how to handle this for molecules on/near forks (tempted to just ignore or raise)
+		raise NotImplementedError()
+
+
+	def moleculesBoundNearFork(self, fork, extentForward, extentReverse):
 		raise NotImplementedError()
 
 
 	def divideRegion(self, strandName, start, stop):
+		# Break an empty, continuous region of a strand into two child strands,
+		# and return the two "fork" objects
+
 		# NOTE: start to stop is inclusive, unlike "range"!
 		strandParent = self._strandNameToIndex[strandName]
 		try:
@@ -326,16 +386,16 @@ class ChromosomeBoundMoleculeContainer(object):
 
 		forkStart = self._objectsContainer.objectNew(
 			'_fork',
-			_sequenceStrand = strandParent,
-			_sequencePosition = start,
-			_sequenceDirection = 1, # NOTE: I've chosen the convention that the fork "direction" is towards the parent (i.e. the natural direction of extension)
+			_chromStrand = strandParent,
+			_chromPosition = start,
+			_chromDirection = 1, # NOTE: I've chosen the convention that the fork "direction" is towards the parent (i.e. the natural direction of extension)
 			)
 
 		forkStop = self._objectsContainer.objectNew(
 			'_fork',
-			_sequenceStrand = strandParent,
-			_sequencePosition = stop,
-			_sequenceDirection = 0,
+			_chromStrand = strandParent,
+			_chromPosition = stop,
+			_chromDirection = 0,
 			)
 
 		self._array[strandParent, start] = forkStart.attr('_globalIndex') + self._offset
@@ -344,17 +404,18 @@ class ChromosomeBoundMoleculeContainer(object):
 		return forkStart, forkStop
 
 
-	def forks(self, strand = None, position = None, direction = None,
-			extentForward = None, extentReverse = None):
+	def forks(self):
+		# Return a set of forks
 
-		return self.moleculesBound('_fork', strand, position, direction,
-			extentForward, extentReverse)
+		raise NotImplementedError()
 
 
 	def forkExtend(self, fork, extent):
-		forkStrand = fork.attr('_sequenceStrand')
-		forkPosition = fork.attr('_sequencePosition')
-		forkDirection = fork.attr('_sequenceDirection')
+		# Move a fork along its parent strand (shortening the parent and 
+		# elongating the children), and return the new position
+
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
 
 		strandChildA, strandChildB = self._strandChildrenIndexes[forkStrand]
 
@@ -375,7 +436,7 @@ class ChromosomeBoundMoleculeContainer(object):
 		self._array[strandChildB, region] = self._empty
 
 		self._array[forkStrand, forkPosition] = self._inactive
-		fork.attrIs('_sequencePosition', newPosition)
+		fork.attrIs(_chromPosition = newPosition)
 		self._array[forkStrand, newPosition] = fork.attr('_globalIndex') + self._offset
 
 		return newPosition
@@ -386,11 +447,8 @@ class ChromosomeBoundMoleculeContainer(object):
 		raise NotImplementedError()
 
 
-	def moleculeOnFork(self, fork):
-		raise NotImplementedError()
-
-
 	def rootStrand(self):
+		# Return the character used to identify the root strand
 		return self._rootChar
 
 
@@ -416,4 +474,3 @@ class ChromosomeBoundMoleculeContainer(object):
 	# TODO: saving
 	# TODO: update container time, flush deleted molecules, update queries?
 	# TODO: handle/pass sequence
-	# TODO: write tests

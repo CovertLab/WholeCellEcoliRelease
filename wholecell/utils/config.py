@@ -21,7 +21,7 @@ if os.path.exists(user_config_file):
 			exec('{KEY} = {VALUE}'.format(KEY = k, VALUE = repr(configs[k])))
 else:
 	import warnings
-	warnings.warn('Using Hudson config file! To create your own copy the config_file.config_default file.\n')
+	warnings.warn('Using Hudson config file! To create your own copy the wholecell/utils/configfile/config_file.config_default file to wholecell/utils/configfile/config_file.config.\n')
 	
 	with open(hudson_config_file) as config_file:
 		configs = json.loads(config_file.readline())

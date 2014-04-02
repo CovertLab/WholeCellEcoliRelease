@@ -161,6 +161,7 @@ class Simulation(object):
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
 		import wholecell.states.chromosome
+		import wholecell.states.transcripts
 		import wholecell.states.time
 		import wholecell.states.rand_stream
 
@@ -170,6 +171,7 @@ class Simulation(object):
 			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
 			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
 			('Chromosome',		wholecell.states.chromosome.Chromosome()),
+			('Transcripts',		wholecell.states.transcripts.Transcripts()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
@@ -190,6 +192,7 @@ class Simulation(object):
 		import wholecell.processes.toy_replication
 
 		# TODO: change this so it creates the objects after filtering
+		# TODO: raise an exception if an included process name doesn't exist
 		self.processes = collections.OrderedDict([
 			('Complexation',		wholecell.processes.complexation.Complexation()),
 			('Metabolism',			wholecell.processes.metabolism.Metabolism()),

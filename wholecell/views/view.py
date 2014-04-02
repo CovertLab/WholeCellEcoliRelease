@@ -63,96 +63,28 @@ class View(object):
 		self._requestedCount[:] = self._totalCount
 
 
-class BulkMoleculesViewBase(View):
-	_stateID = 'BulkMolecules'
-
-	def _counts(self):
-		return self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex].copy()
-
-
-	def _countsIs(self, values):
-		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] = values
-
-
-	def _countsInc(self, values):
-		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] += values
-
-
-	def _countsDec(self, values):
-		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] -= values
-
-
-class BulkMoleculesView(BulkMoleculesViewBase):
-	def __init__(self, *args, **kwargs):
-		super(BulkMoleculesView, self).__init__(*args, **kwargs)
-
-		# State references
-		self._containerIndexes = self._state._container._namesToIndexes(self._query)
-
-
-	def _dataSize(self):
-		return len(self._query)
-
-
-	def counts(self):
-		return self._counts()
-
-
-	def countsIs(self, values):
-		self._countsIs(values)
-
-
-	def countsInc(self, values):
-		self._countsInc(values)
-
-
-	def countsDec(self, values):
-		self._countsDec(values)
-
-
-class BulkMoleculeView(BulkMoleculesViewBase):
-	def __init__(self, *args, **kwargs):
-		super(BulkMoleculeView, self).__init__(*args, **kwargs)
-
-		# State references
-		self._containerIndexes = self._state._container._namesToIndexes((self._query,))
-
-
-	def count(self):
-		return self._counts()
-
-
-	def countIs(self, value):
-		self._countsIs(value)
-
-
-	def countInc(self, value):
-		self._countsInc(value)
-
-
-	def countDec(self, value):
-		self._countsDec(value)
-
-
 class UniqueMoleculesView(View):
 	_stateID = 'UniqueMolecules'
 
 	def __init__(self, *args, **kwargs):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
 
-		self._queryObject = self._state._container.queryNew(
-			self._query[0], **self._query[1]
-			)
+		self._queryResult = None
 
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
 
-		self._totalIs(self._queryObject.nObjects())
+		self._queryResult = self._state.container.objectsWithName(
+			self._query[0],
+			**self._query[1]
+			)
+
+		self._totalIs(len(self._queryResult))
 
 
 	def molecules(self):
-		return self._state._container.evaluateQuery(
+		return self._state.container.objectsWithName(
 			self._query[0],
 			_partitionedProcess = ('==', self._processIndex + 1),
 			**self._query[1]
@@ -162,15 +94,15 @@ class UniqueMoleculesView(View):
 	# and the objects created/deleted.  As such it may make more sense for these
 	# to be process methods, not view methods. - JM
 	def moleculeDel(self, molecule):
-		self._state._container.objectDel(molecule)
+		self._state.container.objectDel(molecule)
 
 
 	def moleculesDel(self, molecules):
-		self._state._container.objectsDel(molecules)
+		self._state.container.objectsDel(molecules)
 
 	
 	def moleculeNew(self, moleculeName, **attributes):
-		self._state._container.objectNew(
+		self._state.container.objectNew(
 			moleculeName,
 			_partitionedProcess = ('==', self._processIndex + 1),
 			**attributes
@@ -178,7 +110,7 @@ class UniqueMoleculesView(View):
 
 
 	def moleculesNew(self, moleculeName, nMolecules, **attributes):
-		self._state._container.objectsNew(
+		self._state.container.objectsNew(
 			moleculeName,
 			nMolecules,
 			_partitionedProcess = self._processIndex + 1,
@@ -215,3 +147,14 @@ class ChromosomeMoleculeView(View):
 
 		self._state._container.moleculesDel(molecules)
 
+
+# TODO: views for forks
+# TODO: determine how to assign regions to processes
+# _array-sized matric with indexes on specific bases
+# sparse representation (strand, start, stop)
+# partition regions as unique objects?
+# algo to merge overlapping regions (sort and perform comparisons on adjacent entries only should be O(n) + O(sort)) *use heapsort
+# TODO: figure out interface methods, and how to constrain the regions that are operated in
+# TODO: collect types of chrom views and organize in a base class
+# TODO: views/operations for generic extents (i.e. 50-wide regions for binding)
+# TODO: placeholder partitioning algo
