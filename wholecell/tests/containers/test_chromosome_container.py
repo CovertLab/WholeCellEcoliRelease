@@ -595,11 +595,11 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 5
 		reverseExtent = 1
 
-		footprintParent = 4 # molecule origin is occupied by fork on parent
-		regionParent = [111, 112, 113, 114]
+		footprintParent = 5
+		regionParent = [111, 112, 113, 114, 115]
 
-		footprintChild = 2
-		regionChild = [109, 110]
+		footprintChild = 1
+		regionChild = [110]
 
 		self.container.moleculeLocationIsFork(mol, forkStop,
 			forwardExtent, reverseExtent)
@@ -654,11 +654,11 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 5
 		reverseExtent = 1
 
-		footprintParent = 4 # molecule origin is occupied by fork on parent
-		regionParent = [96, 97, 98, 99]
+		footprintParent = 5
+		regionParent = [95, 96, 97, 98, 99]
 
-		footprintChild = 2
-		regionChild = [100, 101]
+		footprintChild = 1
+		regionChild = [100]
 
 		self.container.moleculeLocationIsFork(mol, forkStart,
 			forwardExtent, reverseExtent)
@@ -801,8 +801,8 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 		self.container.divideRegion(strand, 100, 200)
 
-		forwardExtent = 20
-		reverseExtent = 10
+		forwardExtent = 4
+		reverseExtent = 2
 
 		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
 			forwardExtent, reverseExtent, False)
@@ -815,13 +815,13 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			if indexes[0] < 150:
 				self.assertEqual(
 					set(indexes),
-					set(np.arange(81, 100))
+					{96, 97, 98, 99}
 					)
 
 			else:
 				self.assertEqual(
 					set(indexes),
-					set(np.arange(201, 220))
+					{201, 202, 203, 204}
 					)
 
 		for region in regionsChildA:
@@ -832,20 +832,62 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			if indexes[0] < 150:
 				self.assertEqual(
 					set(indexes),
-					set(np.arange(100, 111))
+					{100, 101}
 					)
 
 			else:
 				self.assertEqual(
 					set(indexes),
-					set(np.arange(190, 201))
+					{199, 200}
 					)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_regionsNearForks_zero_extents(self):
-		pass
+	def test_regionsNearForks_minimal_extents(self):
+		strand = self.container.rootStrand()
+
+		self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 2
+		reverseExtent = 10
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		# for region in regionsParent:
+		# 	self.assertEqual(region.strand(), 0)
+
+		# 	indexes = region.indexes()
+
+		# 	if indexes[0] < 150:
+		# 		self.assertEqual(
+		# 			set(indexes),
+		# 			set(np.arange(81, 100))
+		# 			)
+
+		# 	else:
+		# 		self.assertEqual(
+		# 			set(indexes),
+		# 			set(np.arange(201, 220))
+		# 			)
+
+		# for region in regionsChildA:
+		# 	self.assertEqual(region.strand(), 1)
+
+		# 	indexes = region.indexes()
+
+		# 	if indexes[0] < 150:
+		# 		self.assertEqual(
+		# 			set(indexes),
+		# 			set(np.arange(100, 111))
+		# 			)
+
+		# 	else:
+		# 		self.assertEqual(
+		# 			set(indexes),
+		# 			set(np.arange(190, 201))
+		# 			)
 
 
 	@noseAttrib.attr('working')

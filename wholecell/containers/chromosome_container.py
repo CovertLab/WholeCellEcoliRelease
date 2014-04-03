@@ -223,18 +223,18 @@ class ChromosomeContainer(object):
 		if forkDirection: # == (-)
 			# regionParent = np.arange(forkPosition-extentForward+1, forkPosition) % self._length
 
-			regionParent = np.arange(forkPosition-1, forkPosition-extentForward, -1) % self._length
-			regionChildA = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
-			regionChildB = np.arange(forkPosition, forkPosition+extentReverse+1) % self._length
+			regionParent = np.arange(forkPosition-1, forkPosition-extentForward-1, -1) % self._length
+			regionChildA = np.arange(forkPosition, forkPosition+extentReverse) % self._length
+			regionChildB = np.arange(forkPosition, forkPosition+extentReverse) % self._length
 
 		else: # == (+)
-			regionParent = np.arange(forkPosition+1, forkPosition+extentForward) % self._length
+			regionParent = np.arange(forkPosition+1, forkPosition+extentForward+1) % self._length
 
 			# regionChildA = np.arange(forkPosition-extentReverse, forkPosition+1) % self._length
 			# regionChildB = np.arange(forkPosition-extentReverse, forkPosition+1) % self._length
 
-			regionChildA = np.arange(forkPosition, forkPosition-extentReverse-1, -1) % self._length
-			regionChildB = np.arange(forkPosition, forkPosition-extentReverse-1, -1) % self._length
+			regionChildA = np.arange(forkPosition, forkPosition-extentReverse, -1) % self._length
+			regionChildB = np.arange(forkPosition, forkPosition-extentReverse, -1) % self._length
 
 		return (regionParent, regionChildA, regionChildB)
 
@@ -487,6 +487,9 @@ class ChromosomeContainer(object):
 
 	# TODO: refactor these two methods
 	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesOnEnds):
+		if extentForward < 2:
+			raise ChrosomeContainerException('Forward extent must be at least 2')
+
 		regionsParent = []
 		regionsChildA = []
 		regionsChildB = []
