@@ -69,7 +69,7 @@ class Simulation(object):
 		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
 		import cPickle
-		if self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
+		if True or self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
 			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 		else:
