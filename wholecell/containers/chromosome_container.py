@@ -366,8 +366,23 @@ class ChromosomeContainer(object):
 		raise NotImplementedError()
 
 
-	def moleculesBoundNearFork(self, fork, extentForward, extentReverse):
-		raise NotImplementedError()
+	def moleculesBoundPastFork(self, fork, extentForward):
+		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
+			'_chromPosition', '_chromDirection')
+
+		region = self._forkedRegions(forkPosition, forkDirection,
+			extentForward, 0)[0]
+
+		indexes = np.setdiff1d(self._array[forkStrand, region],
+			self._specialValues) - self._offset
+
+		moleculeOnFork = self.moleculeBoundOnFork(fork)
+
+		if moleculeOnFork is not None:
+			indexes = np.setdiff1d(indexes,
+				moleculeOnFork.attr('_globalIndex'))
+
+		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
 
 	def divideRegion(self, strand, start, stop):
@@ -468,7 +483,9 @@ class ChromosomeContainer(object):
 
 	# TODO: refactor these two methods
 	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		forkedRegions = []
+		regionsParent = []
+		regionsChildA = []
+		regionsChildB = []
 
 		forks = self.forks()
 
@@ -541,10 +558,7 @@ class ChromosomeContainer(object):
 				footprint = self.moleculeFootprint(parentEndMolecule)
 
 				if np.setdiff1d(footprint, regionParent).any():
-					if forkMolecule is not None and parentEndMolecule == forkMolecule:
-						raise ChrosomeContainerException('Something terrible happened')
-
-					if not includeMoleculesOnEnds or parentEndMolecule.attr('_chromBoundToFork'):
+					if (parentEndMolecule != forkMolecule) and (not includeMoleculesOnEnds or parentEndMolecule.attr('_chromBoundToFork')):
 						regionParent = np.array([i for i in regionParent if i not in footprint])
 
 					else:
@@ -561,10 +575,7 @@ class ChromosomeContainer(object):
 				footprint = self.moleculeFootprint(childAEndMolecule)
 
 				if np.setdiff1d(footprint, regionChildA).any():
-					if forkMolecule is not None and childAEndMolecule == forkMolecule:
-						raise ChrosomeContainerException('Something terrible happened')
-
-					if not includeMoleculesOnEnds or childAEndMolecule.attr('_chromBoundToFork'):
+					if (childAEndMolecule != forkMolecule) and (not includeMoleculesOnEnds or childAEndMolecule.attr('_chromBoundToFork')):
 						regionChildA = np.array([i for i in regionChildA if i not in footprint])
 
 					else:
@@ -581,10 +592,7 @@ class ChromosomeContainer(object):
 				footprint = self.moleculeFootprint(childBEndMolecule)
 
 				if np.setdiff1d(footprint, regionChildB).any():
-					if forkMolecule is not None and childBEndMolecule == forkMolecule:
-						raise ChrosomeContainerException('Something terrible happened')
-
-					if not includeMoleculesOnEnds or childBEndMolecule.attr('_chromBoundToFork'):
+					if (childAEndMolecule != forkMolecule) and (not includeMoleculesOnEnds or childBEndMolecule.attr('_chromBoundToFork')):
 						regionChildB = np.array([i for i in regionChildB if i not in footprint])
 
 					else:
@@ -598,13 +606,19 @@ class ChromosomeContainer(object):
 			regionChildA.sort()
 			regionChildB.sort()
 
-			forkedRegions.append((
-				forkStrand, regionParent[0], regionParent[-1],
-				childStrandA, regionChildA[0], regionChildA[-1],
-				childStrandB, regionChildB[0], regionChildB[-1],
-				))
+			regionsParent.append(
+				(forkStrand, regionParent[0], regionParent[-1])
+				)
 
-		return _ForkedChromosomeRegionSet(forkedRegions)
+			regionsChildA.append(
+				(childStrandA, regionChildA[0], regionChildA[-1])
+				)
+
+			regionsChildB.append(
+				(childStrandB, regionChildB[0], regionChildB[-1])
+				)
+
+		return _ChromosomeRegionSet(regionsParent), _ChromosomeRegionSet(regionsChildA), _ChromosomeRegionSet(regionsChildB)
 
 
 	def regionsNearMolecules(self, molecules, extentForward, extentReverse, includeMoleculesOnEnds):
@@ -723,8 +737,58 @@ class ChromosomeContainer(object):
 		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
 
-	#def childStrands
-	#def parentStrand
+	def forksInRegion(self, regionParent):
+		forkGlobalIndexes = []
+
+		for fork in self.forks():
+			if self.forkInRegion(fork, regionParent):
+				forkGlobalIndexes.append(
+					fork.attr('_globalIndex')
+					)
+
+		return self._objectsContainer._objectsByGlobalIndex(forkGlobalIndexes)
+
+
+	def forkInRegion(self, fork, regionParent):
+		regionStrand = regionParent.strand()
+		regionIndexes = regionParent.indexes()
+
+		forkStrand, forkPosition, forkDirection = fork.attrs(
+			'_chromStrand', '_chromPosition', '_chromDirection')
+
+		if forkDirection:
+			positionOnParent = forkPosition - 1
+
+		else:
+			positionOnParent = forkPosition + 1
+
+		return (regionStrand == forkStrand) and (positionOnParent in regionIndexes)
+
+
+	def forkInRegionSet(self, fork, regionSet):
+		return any(self.forkInRegion(fork, region) for region in regionSet)
+
+
+	def _forkRegions(self, fork, regionSet):
+		return [region for region in regionSet if self.forkInRegion(fork, region)]
+
+
+	def maximumExtentForwardFromFork(self, fork, maxExtentForward, regionSet):
+		forkPosition, forkDirection = fork.attrs(
+			'_chromPosition', '_chromDirection')
+
+		maxExtent = forkPosition
+
+		for region in self._forkRegions(fork, regionSet):
+			positions = region.indexes()
+
+			if forkDirection:
+				maxExtent = min(positions[0], maxExtent)
+
+			else:
+				maxExtent = max(positions[-1], maxExtent)
+
+		return abs(maxExtent - forkPosition)
 
 
 	def __eq__(self, other):
@@ -760,14 +824,18 @@ class _ChromosomeRegionSet(object):
 			])
 
 
-	def __str__(self):
-		return str(self._regions)
-
-
 	def __iter__(self):
 		for entry in self._regions:
 			yield _ChromosomeRegion(entry['strand'], entry['start'],
 				entry['stop'])
+
+
+	def __len__(self):
+		return self._regions.size
+
+
+	def __str__(self):
+		return str(self._regions)
 
 
 	def regionsWithPosition(self, strand, position):
@@ -799,85 +867,6 @@ class _ChromosomeRegionSet(object):
 		# -find containing region
 
 		raise NotImplementedError()
-
-
-class _ForkedChromosomeRegionSet(object):
-	# TODO: make into a 3x collection of chromosome region sets (view will coordinate requests)
-	# TODO: support for modifying regions (for fork extension)
-
-	def __init__(self, forkedRegions):
-		self._forkedRegions = np.array(forkedRegions,[
-			('parentStrand', np.int64),
-			('parentStart', np.int64),
-			('parentStop', np.int64),
-			('childAStrand', np.int64),
-			('childAStart', np.int64),
-			('childAStop', np.int64),
-			('childBStrand', np.int64),
-			('childBStart', np.int64),
-			('childBStop', np.int64),
-			])
-
-
-	def __str__(self):
-		return str(self._forkedRegions)
-
-
-	def regionsWithPosition(self, strand, position):
-		return self.regionsWithRange(strand, position, position)
-
-
-	def regionsWithRange(self, strand, start, stop): # NOTE: inclusive
-		regionsOnParent = np.where(
-			(self._forkedRegions['parentStrand'] == strand) &
-			(self._forkedRegions['parentStart'] <= start) &
-			(stop <= self._forkedRegions['parentStop'])
-			)[0]
-
-		regionsOnChildA = np.where(
-			(self._forkedRegions['childAStrand'] == strand) &
-			(self._forkedRegions['childAStart'] <= start) &
-			(stop <= self._forkedRegions['childAStop'])
-			)[0]
-
-		regionsOnChildB = np.where(
-			(self._forkedRegions['childBStrand'] == strand) &
-			(self._forkedRegions['childBStart'] <= start) &
-			(stop <= self._forkedRegions['childBStop'])
-			)[0]
-
-		regions = []
-
-		for regionIndex in regionsOnParent:
-			entry = self._forkedRegions[regionIndex]
-
-			regions.append(_ChromosomeRegion(
-				entry['parentStrand'], entry['parentStart'], entry['parentStop']
-				))
-
-		for regionIndex in regionsOnChildA:
-			entry = self._forkedRegions[regionIndex]
-
-			regions.append(_ChromosomeRegion(
-				entry['childAStrand'], entry['childAStart'], entry['childAStop']
-				))
-
-		for regionIndex in regionsOnChildB:
-			entry = self._forkedRegions[regionIndex]
-
-			region.append(_ChromosomeRegion(
-				entry['childStrandB'], entry['childBStart'], entry['childBStop']
-				))
-
-		return regions
-
-
-	def maxExtent(self, strand, position, direction):
-		# Algorithm:
-		# -merge regions
-		# -find containing region
-		raise NotImplementedError()
-
 
 
 class _ChromosomeRegion(object):

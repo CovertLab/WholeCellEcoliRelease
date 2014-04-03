@@ -152,7 +152,7 @@ class Simulation(object):
 	# Construct states
 	def _constructStates(self):
 		import wholecell.states.mass
-		# import wholecell.states.MetabolicFlux
+		# # import wholecell.states.MetabolicFlux
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
 		import wholecell.states.chromosome

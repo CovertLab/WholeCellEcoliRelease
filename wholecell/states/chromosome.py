@@ -43,5 +43,13 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def calcInitialConditions(self):
-		pass
+		forks = self.container.divideRegion(
+			self.container.rootStrand(),
+			N_BASES // 3,
+			2 * N_BASES //3
+			)
 
+		for fork in forks:
+			dnaPoly = self.container.moleculeNew('DNA polymerase')
+
+			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)

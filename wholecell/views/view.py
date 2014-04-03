@@ -191,36 +191,6 @@ class UniqueMoleculesView(View):
 			)
 
 
-class ChromosomeMoleculeView(View):
-	_stateID = 'Chromosome'
-
-	def __init__(self, *args, **kwargs):
-		super(ChromosomeMoleculeView, self).__init__(*args, **kwargs)
-
-
-	# def _updateQuery(self):
-	# 	self._state._container.
-
-	
-	def moleculeNew(self, moleculeName, location, **attributes):
-		# if in partitioned region
-
-		self._state._container.moleculeNew(moleculeName, location, 
-			**attributes)
-
-
-	def moleculeDel(self, molecule):
-		# if in partitioned region
-
-		self._state._container.moleculeDel(molecule)
-
-
-	def moleculesDel(self, molecules):
-		# if in partitioned region
-
-		self._state._container.moleculesDel(molecules)
-
-
 # TODO: views for forks
 # TODO: determine how to assign regions to processes
 # _array-sized matric with indexes on specific bases
@@ -233,84 +203,80 @@ class ChromosomeMoleculeView(View):
 # TODO: placeholder partitioning algo
 
 
-class _ChromosomeViewBase(object):
+class ChromosomeForksView(View):
 	_stateID = 'Chromosome'
 
-	# Accessors
-
-	def regions(self):
-		# Iterate over partitioned regions
-		raise NotImplementedError()
+	# TODO: organize this class logically
+	# TODO: incrementally add more methods
+	# TODO: move most methods to a base ChromosomeView class
 
 
-	def moleculesBoundInRegion(self, region):
-		raise NotImplementedError()
+	def _updateQuery(self):
+		# Query structure:
+		# extentForward
+		# extentReverse
+		# includeMoleculesOnEnds
+
+		self._queryResult = self._state.container.regionsNearForks(
+			*self._query
+			)
+
+		self._totalIs(len(self._queryResult[0]))
+
+	# WARNING: for now, all queried regions can be operated on! no partitions!
+
+	def parentRegions(self):
+		return self._queryResult[0]
 
 
-	def forksInRegion(self, region):
-		raise NotImplementedError()
+	def forksInRegion(self, regionParent):
+		return self._state.container.forksInRegion(regionParent)
 
 
-	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
-		raise NotImplementedError()
+	def moleculeBoundOnFork(self, fork):
+		# TODO: raise a specific exception
+		# TODO: instead of constantly checking this, give each molecule/fork partitioned an attribute that can be checked
+		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
+
+		return self._state.container.moleculeBoundOnFork(fork)
 
 
-	def moleculesBoundOnFork(self, fork):
-		raise NotImplementedError()
+	def maximumExtentForwardFromFork(self, fork, maxExtentForward):
+		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
+
+		return self._state.container.maximumExtentForwardFromFork(fork, maxExtentForward,
+			self._queryResult[0])
 
 
-	def moleculesBoundNearFork(self, fork, extentForward, extentReverse):
-		raise NotImplementedError()
+	def moleculesBoundPastFork(self, fork, extentForward):
+		molecules = self._state.container.moleculesBoundPastFork(fork, extentForward)
 
+		assert all(
+			self._state.container.moleculeInRegionSet(molecule, self._queryResult[0])
+			for molecule in molecules
+			)
 
-	def moleculeLocation(self, molecule):
-		raise NotImplementedError()
-
-
-	# Mutators
-
-	## Molecules
-
-	def moleculeNew(self, moleculeName, **attributes):
-		raise NotImplementedError()
-
-
-	def moleculeDel(self, molecule):
-		raise NotImplementedError()
-
-
-	def moleculeLocationIs(self, molecule, strand, position, direction, extentForward, extentReverse):
-		raise NotImplementedError()
+		return molecules
 
 
 	def moleculeLocationIsUnbound(self, molecule):
-		raise NotImplementedError()
-
-
-	## Forks
-
-	def divideRegion(self, strand, start, stop):
-		raise NotImplementedError()
+		# TODO: assert molecule can be accessed
+		self._state.container.moleculeLocationIsUnbound(molecule)
 
 
 	def forkExtend(self, fork, extent):
-		raise NotImplementedError()
+		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
+		# TODO: assert 'extent' in region set
+
+		newPosition = self._state.container.forkExtend(fork, extent)
+
+		# TODO: update relevant regions in parent/children region sets
 
 
-	def forksCombine(self, fork1, fork2):
-		raise NotImplementedError()
+	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse):
+		# TODO: assert region is accessible
+		# TODO: assert molecule ownership by process
 
-
-class ChromosomeForkView(_ChromosomeViewBase):
-	# Query tuple structure:
-	# - forward extent
-	# - reverse extent
-	# - include molecules on ends (bool)
-
-	def _updateQuery(self):
-		forks = self._state.container.forks()
-
-		# TODO: get and store regions (in state)
-
-		self._totalIs(len(forks))
+		self._state.container.moleculeLocationIsFork(molecule, fork,
+			extentForward, extentReverse)
 
