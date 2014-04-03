@@ -23,8 +23,9 @@ import numpy
 
 from pint import UnitRegistry
 UREG = UnitRegistry()
-UREG.define('nucleotide = NT')
-UREG.define('amino_acid = aa = AA')
+UREG.define('nucleotide = []')
+UREG.define('amino_acid = []')
+UREG.define('DCW- = 1.')
 #UREG.load_definitions('ecoliwholecellkb_project/units/unit_def.txt')
 Q_ = UREG.Quantity
 
