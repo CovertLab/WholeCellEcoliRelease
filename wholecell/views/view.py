@@ -241,10 +241,10 @@ class ChromosomeForksView(View):
 		return self._state.container.moleculeBoundOnFork(fork)
 
 
-	def maximumExtentForwardFromFork(self, fork, maxExtentForward):
+	def maximumExtentPastFork(self, fork, maxExtentForward):
 		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
 
-		return self._state.container.maximumExtentForwardFromFork(fork, maxExtentForward,
+		return self._state.container.maximumExtentPastFork(fork, maxExtentForward,
 			self._queryResult[0])
 
 

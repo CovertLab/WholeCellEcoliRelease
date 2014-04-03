@@ -73,7 +73,7 @@ class ToyReplication(wholecell.processes.process.Process):
 				continue
 
 			# Find the furthest extent that the fork can be moved
-			extent = self.replicationForkRegions.maximumExtentForwardFromFork(
+			extent = self.replicationForkRegions.maximumExtentPastFork(
 				fork = fork,
 				maxExtentForward = self.elongationRate + self.dnaPolyForwardFootprint,
 				)

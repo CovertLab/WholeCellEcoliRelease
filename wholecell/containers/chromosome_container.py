@@ -30,6 +30,8 @@ class ChrosomeContainerException(Exception):
 	'''
 	pass
 
+# TODO: refactor method names, file organization
+# TODO: tests for region methods
 
 class ChromosomeContainer(object):
 	'''
@@ -251,8 +253,7 @@ class ChromosomeContainer(object):
 				molecule.attr('_chromExtentReverse'),
 				)
 
-	# TODO: moleculeStrand, moleculePosition, moleculeDirection, moleculeFootprint
-
+	# TODO: moleculeStrand, moleculePosition, moleculeDirection
 
 	def moleculeFootprint(self, molecule):
 		position, direction, extentForward, extentReverse = molecule.attrs(
@@ -773,7 +774,7 @@ class ChromosomeContainer(object):
 		return [region for region in regionSet if self.forkInRegion(fork, region)]
 
 
-	def maximumExtentForwardFromFork(self, fork, maxExtentForward, regionSet):
+	def maximumExtentPastFork(self, fork, maxExtentForward, regionSet):
 		forkPosition, forkDirection = fork.attrs(
 			'_chromPosition', '_chromDirection')
 
@@ -793,18 +794,6 @@ class ChromosomeContainer(object):
 
 	def __eq__(self, other):
 		return (self._array == other._array).all()
-
-
-	# def findLocationToBind(self, width):
-	# 	return self.findLocationsToBind(width, 1)[0]
-
-
-	# def findLocationsToBind(self, width, nLocations):
-	# 	# TODO: make this method faster (cache valid locations by footprint, use sparse representation...)
-
-	# 	# locations = 
-	# 	pass
-	
 
 	# TODO: saving
 	# TODO: update container time, flush deleted molecules, update queries?
@@ -859,14 +848,6 @@ class _ChromosomeRegionSet(object):
 				))
 
 		return regions
-
-
-	def maxExtent(self, strand, position, direction):
-		# Algorithm:
-		# -merge regions
-		# -find containing region
-
-		raise NotImplementedError()
 
 
 class _ChromosomeRegion(object):
