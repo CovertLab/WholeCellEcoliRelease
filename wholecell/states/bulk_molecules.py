@@ -179,7 +179,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# what was hard coded before. This causes it to grow much faster.
 		feistCoreView.countsIs(
 			np.round(
-				np.fmax(self.biomass.field('biomassFlux').to('mmol/(DCWg*hr)').magnitude,0) * 1e-3 * self.nAvogadro * initialDryMass
+				np.fmax(self.biomass.field('biomassFlux').to('mol/(DCWg*hr)').magnitude,0) * self.nAvogadro * initialDryMass
 				)
 			)
 
@@ -493,5 +493,14 @@ IDS = {
 		],
 	'rRna5Ss':[
 		"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
+		],
+	'FeistCore':[
+		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
+		"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
+		"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
+		"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
+		"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
+		"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
+		"RIBFLV[c]"
 		],
 	} # TOKB
