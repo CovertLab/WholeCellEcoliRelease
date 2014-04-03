@@ -759,7 +759,39 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculesBoundPastFork(self):
-		pass
+		strand = self.container.rootStrand()
+
+		fork = self.container.divideRegion(strand, 100, 200)[1]
+
+		positions = [210, 230, 280]
+		direction = '+'
+		forwardExtent = 5
+		reverseExtent = 5
+
+		molecules = []
+
+		for position in positions:
+			molecule = self.container.moleculeNew('RNA polymerase')
+
+			self.container.moleculeLocationIs(molecule, strand, position,
+				direction, forwardExtent, reverseExtent)
+
+			molecules.append(molecule)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundPastFork(fork, 4)),
+			set()
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundPastFork(fork, 10)),
+			set(molecules[:1])
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundPastFork(fork, 90)),
+			set(molecules[:3])
+			)
 
 
 	@noseAttrib.attr('working')
