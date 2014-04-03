@@ -78,7 +78,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.time = sim.states["Time"]
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro']['value']
+		self.nAvogadro = kb.constants['nAvogadro'].magnitude
 
 		bioIds = []
 		bioConc = []

@@ -71,7 +71,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro']['value']
+		self.nAvogadro = kb.constants['nAvogadro'].magnitude
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK
