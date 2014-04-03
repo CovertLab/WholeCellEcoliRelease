@@ -40,7 +40,7 @@ class ToyReplication(wholecell.processes.process.Process):
 
 		self.replicationForksRegions = self.chromosomeForksView( # special view for forks
 			extentForward = self.elongationRate + self.dnaPolyForwardFootprint,
-			extentReverse = 0,
+			extentReverse = self.dnaPolyReverseFootprint,
 			includeMoleculesOnEnds = True
 			)
 
