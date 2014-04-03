@@ -845,32 +845,41 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_minimal_extents(self):
+		# TODO: fix this test...
+		# have forked region requests cover the same extents (regardless of 
+		# whether the associated region is active)
+
 		strand = self.container.rootStrand()
 
-		self.container.divideRegion(strand, 100, 200)
+		forks = self.container.divideRegion(strand, 100, 200)
 
-		forwardExtent = 2
-		reverseExtent = 10
+		molExtentForward = 4
+		molExtentReverse = 2
+
+		for fork in forks:
+			molecule = self.container.moleculeNew('DNA polymerase')
+			self.container.moleculeLocationIsFork(molecule, fork,
+				molExtentForward, molExtentReverse)
 
 		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
-			forwardExtent, reverseExtent, False)
+			1, 1, False)
 
-		# for region in regionsParent:
-		# 	self.assertEqual(region.strand(), 0)
+		for region in regionsParent:
+			self.assertEqual(region.strand(), 0)
 
-		# 	indexes = region.indexes()
+			indexes = region.indexes()
 
-		# 	if indexes[0] < 150:
-		# 		self.assertEqual(
-		# 			set(indexes),
-		# 			set(np.arange(81, 100))
-		# 			)
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					{96, 97, 98, 99}
+					)
 
-		# 	else:
-		# 		self.assertEqual(
-		# 			set(indexes),
-		# 			set(np.arange(201, 220))
-		# 			)
+			else:
+				self.assertEqual(
+					set(indexes),
+					{201, 202, 203, 204}
+					)
 
 		# for region in regionsChildA:
 		# 	self.assertEqual(region.strand(), 1)
@@ -880,13 +889,13 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		# 	if indexes[0] < 150:
 		# 		self.assertEqual(
 		# 			set(indexes),
-		# 			set(np.arange(100, 111))
+		# 			{100, 101}
 		# 			)
 
 		# 	else:
 		# 		self.assertEqual(
 		# 			set(indexes),
-		# 			set(np.arange(190, 201))
+		# 			{199, 200}
 		# 			)
 
 
