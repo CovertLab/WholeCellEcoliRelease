@@ -145,10 +145,7 @@ class Simulation(object):
 		self._constructProcesses()
 
 		for state in self.states.itervalues():
-			try:
-				state.initialize(self, kb, kb2)
-			except:
-				import ipdb; ipdb.set_trace()
+			state.initialize(self, kb, kb2)
 
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
