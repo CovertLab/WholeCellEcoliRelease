@@ -38,7 +38,7 @@ class ToyReplication(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyReplication, self).initialize(sim, kb)
 
-		self.replicationForkRegions = self.chromosomeForksView( # special view for forks
+		self.replicationForksRegions = self.chromosomeForksView( # special view for forks
 			extentForward = self.elongationRate + self.dnaPolyForwardFootprint,
 			extentReverse = 0,
 			includeMoleculesOnEnds = True
@@ -46,7 +46,7 @@ class ToyReplication(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		self.replicationForkRegions.requestAll()
+		self.replicationForksRegions.requestAll()
 
 
 	# Calculate temporal evolution
@@ -55,9 +55,9 @@ class ToyReplication(wholecell.processes.process.Process):
 		# TODO: update fork positions in sync (polymerize function)
 
 		# Iterate over each region set
-		for region in self.replicationForkRegions.parentRegions():
+		for region in self.replicationForksRegions.parentRegions():
 			# Get the fork in the region
-			forks = list(self.replicationForkRegions.forksInRegion(region))
+			forks = list(self.replicationForksRegions.forksInRegion(region))
 
 			if len(forks) != 1:
 				print 'Invalid number of forks'
@@ -66,20 +66,20 @@ class ToyReplication(wholecell.processes.process.Process):
 			fork = forks.pop()
 
 			# Get the molecule on the fork
-			dnaPoly = self.replicationForkRegions.moleculeBoundOnFork(fork)
+			dnaPoly = self.replicationForksRegions.moleculeBoundOnFork(fork)
 
 			if dnaPoly is None or dnaPoly.name() != 'DNA polymerase':
 				print 'No DNA polymerase found on fork'
 				continue
 
 			# Find the furthest extent that the fork can be moved
-			extent = self.replicationForkRegions.maximumExtentPastFork(
+			extent = self.replicationForksRegions.maximumExtentPastFork(
 				fork = fork,
 				maxExtentForward = self.elongationRate + self.dnaPolyForwardFootprint,
 				)
 
 			# Find any non-DNA poly molecules in the extent
-			nonPolymeraseMolecules = set(self.replicationForkRegions.moleculesBoundPastFork(
+			nonPolymeraseMolecules = set(self.replicationForksRegions.moleculesBoundPastFork(
 				fork = fork,
 				extentForward = extent,
 				)) - {dnaPoly}
@@ -89,16 +89,16 @@ class ToyReplication(wholecell.processes.process.Process):
 				continue
 
 			# Unbind the DNA poly while moving the fork
-			self.replicationForkRegions.moleculeLocationIsUnbound(dnaPoly)
+			self.replicationForksRegions.moleculeLocationIsUnbound(dnaPoly)
 
 			# Move the fork
-			newForkPosition = self.replicationForkRegions.forkExtend(
+			newForkPosition = self.replicationForksRegions.forkExtend(
 				fork,
 				extent- self.dnaPolyForwardFootprint
 				)
 
 			# Replace the DNA poly
-			self.replicationForkRegions.moleculeLocationIsFork(
+			self.replicationForksRegions.moleculeLocationIsFork(
 				molecule = dnaPoly,
 				fork = fork,
 				extentForward = self.dnaPolyForwardFootprint,
