@@ -72,12 +72,12 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self.time = sim.states['Time']
 
-		self.biomass = kb2.coreBiomass
 		# Load constants
 		self.nAvogadro = kb.constants['nAvogadro'].to('1 / mole').magnitude
 		self.initialDryMass = kb.parameters['avgInitCellMass'].to('g').magnitude
 		self.fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs'].magnitude
 		self.fracInitFreeAAs = kb.parameters['fracInitFreeAAs'].magnitude
+		self.biomass = kb2.coreBiomass
 
 		self._moleculeIDs = []
 
