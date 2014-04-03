@@ -53,3 +53,9 @@ class Chromosome(wholecell.states.state.State):
 			dnaPoly = self.container.moleculeNew('DNA polymerase')
 
 			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)
+
+
+	def partition(self):
+		# TODO: container._timeIs, container._flushDeleted
+		pass
+
