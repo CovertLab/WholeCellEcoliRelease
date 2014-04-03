@@ -259,9 +259,6 @@ class ChromosomeContainer(object):
 		if not molecule.attr('_chromBound'):
 			raise ChrosomeContainerException('Attempted to find the footprint of an unbound molecule')
 
-		if molecule.attr('_chromBoundToFork'):
-			raise ChrosomeContainerException('Cannot return footprints of molecules bound to forks')
-
 		position, direction, extentForward, extentReverse = molecule.attrs(
 			'_chromPosition', '_chromDirection', '_chromExtentForward',
 			'_chromExtentReverse')
