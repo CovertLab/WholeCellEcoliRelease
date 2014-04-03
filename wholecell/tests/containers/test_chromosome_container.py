@@ -733,28 +733,101 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 		self.assertEqual(self.container, newContainer)
 
+
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_regionsNearForks_indev(self):
-
-		rootStrand = self.container.rootStrand()
-
+	def test_moleculeFootprint(self):
 		molecule = self.container.moleculeNew('RNA polymerase')
-		self.container.moleculeLocationIs(molecule, rootStrand, 90, '-', 5, 5)
 
-		molecule2 = self.container.moleculeNew('RNA polymerase')
-		self.container.moleculeLocationIs(molecule2, rootStrand, 80, '-', 5, 5)		
+		strand = self.container.rootStrand()
+		position = 150
+		direction = '+'
+		forwardExtent = 20
+		reverseExtent = 10
 
-		extentForward = 10
-		extentReverse = 0
-		includeMoleculesOnEnds = True
+		self.container.moleculeLocationIs(molecule, strand, position, 
+			direction, forwardExtent, reverseExtent)
 
-		regionSet = self.container.regionsNearMolecules([molecule,],
-			extentForward, extentReverse, includeMoleculesOnEnds)
+		footprint = self.container.moleculeFootprint(molecule)
 
-		for region in regionSet:
-			for molecule in self.container.moleculesInRegion(region):
-				print molecule.name()
+		self.assertEqual(
+			set(footprint),
+			set(np.arange(140, 170))
+			)
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesBoundPastFork(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearForks_simple(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearForks_zero_extents(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearForks_include_ends(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearMolecules_simple(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearMolecules_zero_extents(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearMolecules_include_ends(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesInRegionSet(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_forksInRegion(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_forkInRegion(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_forkInRegionSet(self):
+		pass
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_maximumExtentPastFork(self):
+		pass
+
+	# TODO: specific _ChromosomeRegion[Set] tests
 
 
 def createContainer():
