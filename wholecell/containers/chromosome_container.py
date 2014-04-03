@@ -487,8 +487,8 @@ class ChromosomeContainer(object):
 
 	# TODO: refactor these two methods
 	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		if extentForward < 2:
-			raise ChrosomeContainerException('Forward extent must be at least 2')
+		if extentForward < 1 or extentReverse < 1:
+			raise ChrosomeContainerException('Forward and reverse extents must be at least 1')
 
 		regionsParent = []
 		regionsChildA = []
