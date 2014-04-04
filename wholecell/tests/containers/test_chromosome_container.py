@@ -1162,6 +1162,47 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesInRegionSet(self):
+		strand = self.container.rootStrand()
+
+		positions = [20, 40, 60, 80, 100]
+		molecules = []
+
+		for position in positions:
+			molecule = self.container.moleculeNew('RNA polymerase')
+
+			self.container.moleculeLocationIs(
+				molecule,
+				strand, position, '+',
+				4, 2
+				)
+
+			molecules.append(molecule)
+
+		otherMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			otherMolecule,
+			strand, 120, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules(molecules,
+			forwardExtent, reverseExtent, False)
+
+		moleculesInRegionSet = self.container.moleculesInRegionSet(regions)
+
+		self.assertEqual(
+			set(moleculesInRegionSet),
+			set(molecules)
+			)
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_forksInRegion(self):
 		pass
 

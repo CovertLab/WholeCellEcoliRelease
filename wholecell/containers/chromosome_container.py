@@ -743,7 +743,6 @@ class ChromosomeContainer(object):
 
 
 	# TODO: more accessors like this...
-	# especially helpful will be "moleculesInRegions"
 	def moleculesInRegion(self, region):
 		strandIndex = region.strand()
 
@@ -751,6 +750,23 @@ class ChromosomeContainer(object):
 			self._specialValues) - self._offset
 
 		return self._objectsContainer._objectsByGlobalIndex(indexes)
+
+
+	def moleculesInRegionSet(self, regionSet):
+		indexes = []
+
+		for region in regionSet:
+			strandIndex = region.strand()
+
+			indexes.append(
+				np.setdiff1d(self._array[strandIndex, region.indexes()],
+					self._specialValues) - self._offset
+				)
+
+		return self._objectsContainer._objectsByGlobalIndex(reduce(
+			np.lib.arraysetops.union1d,
+			indexes
+			))
 
 
 	def forksInRegion(self, regionParent):
@@ -769,16 +785,10 @@ class ChromosomeContainer(object):
 		regionStrand = regionParent.strand()
 		regionIndexes = regionParent.indexes()
 
-		forkStrand, forkPosition, forkDirection = fork.attrs(
-			'_chromStrand', '_chromPosition', '_chromDirection')
+		forkStrand, forkPosition = fork.attrs('_chromStrand',
+			'_chromPosition')
 
-		if forkDirection:
-			positionOnParent = forkPosition - 1
-
-		else:
-			positionOnParent = forkPosition + 1
-
-		return (regionStrand == forkStrand) and (positionOnParent in regionIndexes)
+		return (regionStrand == forkStrand) and (forkPosition in regionIndexes)
 
 
 	def forkInRegionSet(self, fork, regionSet):
