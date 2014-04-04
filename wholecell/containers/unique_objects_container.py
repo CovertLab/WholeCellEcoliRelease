@@ -422,7 +422,7 @@ class _UniqueObjectSet(object):
 	# TODO: look into subclassing from collections.ViewKeys
 	def __init__(self, container, globalIndexes):
 		self._container = container
-		self._globalIndexes = globalIndexes
+		self._globalIndexes = np.array(globalIndexes)
 
 
 	def __contains__(self, uniqueObject):
