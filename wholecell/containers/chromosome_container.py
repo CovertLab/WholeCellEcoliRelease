@@ -743,6 +743,7 @@ class ChromosomeContainer(object):
 
 
 	# TODO: more accessors like this...
+	# especially helpful will be "moleculesInRegions"
 	def moleculesInRegion(self, region):
 		strandIndex = region.strand()
 
