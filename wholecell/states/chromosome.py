@@ -45,6 +45,28 @@ class Chromosome(wholecell.states.state.State):
 	def calcInitialConditions(self):
 		forks = self.container.divideRegion(
 			self.container.rootStrand(),
+			N_BASES // 6,
+			5 * N_BASES //6
+			)
+
+		for fork in forks:
+			dnaPoly = self.container.moleculeNew('DNA polymerase')
+
+			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)
+
+		forks = self.container.divideRegion(
+			self.container.rootStrand() + 'A',
+			N_BASES // 3,
+			2 * N_BASES //3
+			)
+
+		for fork in forks:
+			dnaPoly = self.container.moleculeNew('DNA polymerase')
+
+			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)
+
+		forks = self.container.divideRegion(
+			self.container.rootStrand() + 'B',
 			N_BASES // 3,
 			2 * N_BASES //3
 			)
@@ -58,4 +80,8 @@ class Chromosome(wholecell.states.state.State):
 	def partition(self):
 		# TODO: container._timeIs, container._flushDeleted
 		pass
+
+
+	def calculate(self):
+		print (self.container._array != self.container._inactive).sum() / N_BASES
 
