@@ -399,6 +399,9 @@ class _UniqueObject(object):
 
 
 	def __eq__(self, other):
+		if not isinstance(other, _UniqueObject):
+			return False
+			
 		if not self._container is other._container:
 			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
 
