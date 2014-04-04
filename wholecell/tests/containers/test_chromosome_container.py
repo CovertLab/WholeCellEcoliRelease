@@ -1236,14 +1236,54 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_forkInRegion(self):
-		pass
+		strand = self.container.rootStrand()
+
+		fork1, fork2 = self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regionsParent), 2)
+
+		region1, region2 = regionsParent
+
+		self.assertTrue(
+			self.container.forkInRegion(fork1, region1)
+			or self.container.forkInRegion(fork1, region2)
+			)
+
+		self.assertTrue(
+			self.container.forkInRegion(fork2, region1)
+			or self.container.forkInRegion(fork2, region2)
+			)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_forkInRegionSet(self):
-		pass
+		strand = self.container.rootStrand()
 
+		fork1, fork2 = self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regionsParent), 2)
+
+		self.assertTrue(
+			self.container.forkInRegionSet(fork1, regionsParent)
+			)
+
+		self.assertTrue(
+			self.container.forkInRegionSet(fork2, regionsParent)
+			)
+		
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
