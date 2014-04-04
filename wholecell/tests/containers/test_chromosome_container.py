@@ -807,6 +807,9 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
 			forwardExtent, reverseExtent, False)
 
+		indexesFork1 = {96, 97, 98, 99, 100, 101}
+		indexesFork2 = {199, 200, 201, 202, 203, 204}
+
 		for region in regionsParent:
 			self.assertEqual(region.strand(), 0)
 
@@ -815,13 +818,13 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			if indexes[0] < 150:
 				self.assertEqual(
 					set(indexes),
-					{96, 97, 98, 99}
+					indexesFork1
 					)
 
 			else:
 				self.assertEqual(
 					set(indexes),
-					{201, 202, 203, 204}
+					indexesFork2
 					)
 
 		for region in regionsChildA:
@@ -832,23 +835,19 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			if indexes[0] < 150:
 				self.assertEqual(
 					set(indexes),
-					{100, 101}
+					indexesFork1
 					)
 
 			else:
 				self.assertEqual(
 					set(indexes),
-					{199, 200}
+					indexesFork2
 					)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_minimal_extents(self):
-		# TODO: fix this test...
-		# have forked region requests cover the same extents (regardless of 
-		# whether the associated region is active)
-
 		strand = self.container.rootStrand()
 
 		forks = self.container.divideRegion(strand, 100, 200)
@@ -864,6 +863,9 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
 			1, 1, False)
 
+		indexesFork1 = {96, 97, 98, 99, 100, 101}
+		indexesFork2 = {199, 200, 201, 202, 203, 204}
+
 		for region in regionsParent:
 			self.assertEqual(region.strand(), 0)
 
@@ -872,55 +874,199 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			if indexes[0] < 150:
 				self.assertEqual(
 					set(indexes),
-					{96, 97, 98, 99}
+					indexesFork1
 					)
 
 			else:
 				self.assertEqual(
 					set(indexes),
-					{201, 202, 203, 204}
+					indexesFork2
 					)
 
-		# for region in regionsChildA:
-		# 	self.assertEqual(region.strand(), 1)
+		for region in regionsChildA:
+			self.assertEqual(region.strand(), 1)
 
-		# 	indexes = region.indexes()
+			indexes = region.indexes()
 
-		# 	if indexes[0] < 150:
-		# 		self.assertEqual(
-		# 			set(indexes),
-		# 			{100, 101}
-		# 			)
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
 
-		# 	else:
-		# 		self.assertEqual(
-		# 			set(indexes),
-		# 			{199, 200}
-		# 			)
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_include_ends(self):
-		pass
+		strand = self.container.rootStrand()
+
+		self.container.divideRegion(strand, 100, 200)
+
+		molecule1 = self.container.moleculeNew('RNA polymerase')
+		molecule2 = self.container.moleculeNew('RNA polymerase')
+		molecule3 = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule1,
+			strand, 90, '-',
+			10, 6
+			)
+
+		self.container.moleculeLocationIs(
+			molecule2,
+			strand + 'A', 190, '+',
+			10, 6
+			)
+
+		self.container.moleculeLocationIs(
+			molecule3,
+			strand, 210, '+',
+			10, 6
+			)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, True)
+
+		indexesFork1 = set(range(81, 102))
+		indexesFork2 = set(range(199, 220))
+
+		for region in regionsParent:
+			self.assertEqual(region.strand(), 0)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+		for region in regionsChildA:
+			self.assertEqual(region.strand(), 1)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearMolecules_simple(self):
-		pass
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules([molecule],
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regions), 1)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(region.indexes()),
+			set(range(95, 110))
+			)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_regionsNearMolecules_zero_extents(self):
-		pass
+	def test_regionsNearMolecules_minimal_extents(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		forwardExtent = 0
+		reverseExtent = 0
+
+		regions = self.container.regionsNearMolecules([molecule],
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regions), 1)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(region.indexes()),
+			set(range(98, 104))
+			)
 
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearMolecules_include_ends(self):
-		pass
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		endMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			endMolecule,
+			strand, 110, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules([molecule],
+			forwardExtent, reverseExtent, True)
+
+		self.assertEqual(len(regions), 1)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(region.indexes()),
+			set(range(95, 114))
+			)
 
 
 	@noseAttrib.attr('working')
