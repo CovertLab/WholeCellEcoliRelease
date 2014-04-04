@@ -1071,7 +1071,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
-	def test_moleculesInRegionSet(self):
+	def test_moleculeInRegionSet(self):
 		strand = self.container.rootStrand()
 
 		molecule = self.container.moleculeNew('RNA polymerase')
