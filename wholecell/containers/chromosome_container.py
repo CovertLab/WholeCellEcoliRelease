@@ -634,6 +634,9 @@ class ChromosomeContainer(object):
 
 
 	def regionsNearMolecules(self, molecules, extentForward, extentReverse, includeMoleculesOnEnds):
+		if extentForward < 0 or extentReverse < 0:
+			raise ChrosomeContainerException('Forward and reverse extents must be non-negative')
+
 		regions = []
 
 		forbiddenValues = [fork.attr('_globalIndex') + self._offset for fork in self.forks()] + [self._inactive]
