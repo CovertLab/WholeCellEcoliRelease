@@ -258,12 +258,19 @@ class ChromosomeContainer(object):
 	def moleculeFootprint(self, molecule):
 		if not molecule.attr('_chromBound'):
 			raise ChrosomeContainerException('Attempted to find the footprint of an unbound molecule')
-
+		
 		position, direction, extentForward, extentReverse = molecule.attrs(
 			'_chromPosition', '_chromDirection', '_chromExtentForward',
 			'_chromExtentReverse')
 
-		return self._region(position, direction, extentForward, extentReverse)
+		if molecule.attr('_chromBoundToFork'):
+			return reduce(
+				np.lib.arraysetops.union1d,
+				self._forkedRegions(position, direction, extentForward, extentReverse)
+				)
+
+		else:
+			return self._region(position, direction, extentForward, extentReverse)
 
 
 	def moleculeLocationIsUnbound(self, molecule):
@@ -486,7 +493,7 @@ class ChromosomeContainer(object):
 
 
 	# TODO: refactor these two methods
-	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesOnEnds):
+	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesParentEnd):
 		if extentForward < 1 or extentReverse < 1:
 			raise ChrosomeContainerException('Forward and reverse extents must be at least 1')
 
@@ -552,6 +559,12 @@ class ChromosomeContainer(object):
 			else:
 				regionChildB = regionChildB[:trimParentTo]
 
+			# Find the shortest of the two child regions
+			regionChild = np.lib.arraysetops.intersect1d(regionChildA, regionChildB)
+
+			if not forkDirection: # == (+)
+				np.flipud(regionChild)
+
 			# Check to see whether the ends of the regions overlap with a 
 			# molecule, and update accordingly
 
@@ -565,64 +578,56 @@ class ChromosomeContainer(object):
 				footprint = self.moleculeFootprint(parentEndMolecule)
 
 				if np.setdiff1d(footprint, regionParent).any():
-					if (parentEndMolecule != forkMolecule) and (not includeMoleculesOnEnds or parentEndMolecule.attr('_chromBoundToFork')):
+					if (parentEndMolecule != forkMolecule) and (not includeMoleculesParentEnd or parentEndMolecule.attr('_chromBoundToFork')):
 						regionParent = np.array([i for i in regionParent if i not in footprint])
 
 					else:
 						regionParent = np.lib.arraysetops.union1d(footprint, regionParent)
 
-						if forkDirection: # == (-)
-							regionParent = np.flipud(regionParent)
-
-			## for child A
+			## for the children
+			# NOTE: since things get messy here, molecules on the ends of the child regions are always clipped
 			childAEndMolecule = self.moleculeBoundAtPosition(
-				self._strandNames[childStrandA], regionChildA[-1])
+				self._strandNames[childStrandA], regionChild[-1])
 
-			if childAEndMolecule is not None:
-				footprint = self.moleculeFootprint(childAEndMolecule)
-
-				if np.setdiff1d(footprint, regionChildA).any():
-					if (childAEndMolecule != forkMolecule) and (not includeMoleculesOnEnds or childAEndMolecule.attr('_chromBoundToFork')):
-						regionChildA = np.array([i for i in regionChildA if i not in footprint])
-
-					else:
-						regionChildA = np.lib.arraysetops.union1d(footprint, regionChildA)
-
-						if not forkDirection: # == (+)
-							regionChildA = np.flipud(regionChildA)
-
-			## for child B
 			childBEndMolecule = self.moleculeBoundAtPosition(
-				self._strandNames[childStrandB], regionChildB[-1])
+				self._strandNames[childStrandB], regionChild[-1])
 
-			if childBEndMolecule is not None:
-				footprint = self.moleculeFootprint(childBEndMolecule)
+			if childAEndMolecule is not None or childBEndMolecule is not None:
+				if childAEndMolecule is not None and childBEndMolecule is not None:
+					footprint = np.lib.arraysetops.union1d(
+						self.moleculeFootprint(childAEndMolecule),
+						self.moleculeFootprint(childBEndMolecule)
+						)
 
-				if np.setdiff1d(footprint, regionChildB).any():
-					if (childAEndMolecule != forkMolecule) and (not includeMoleculesOnEnds or childBEndMolecule.attr('_chromBoundToFork')):
-						regionChildB = np.array([i for i in regionChildB if i not in footprint])
+				elif childAEndMolecule is not None:
+					footprint = self.moleculeFootprint(childAEndMolecule)
+
+				else:
+					footprint = self.moleculeFootprint(childBEndMolecule)
+
+				if np.setdiff1d(footprint, regionChild).any():
+					if childAEndMolecule == forkMolecule or childBEndMolecule == forkMolecule:
+						regionChild = np.lib.arraysetops.union1d(footprint, regionChild)
 
 					else:
-						regionChildB = np.lib.arraysetops.union1d(footprint, regionChildB)
+						regionChild = np.array([i for i in regionParent if i not in footprint])
 
-						if not forkDirection: # == (+)
-							regionChildB = np.flipud(regionChildB)
+			# Merge the parent and child regions
+			region = np.lib.arraysetops.union1d(regionChild, regionParent)
 
-			# Append region
-			regionParent.sort()
-			regionChildA.sort()
-			regionChildB.sort()
+			# Sort and append
+			region.sort()
 
 			regionsParent.append(
-				(forkStrand, regionParent[0], regionParent[-1])
+				(forkStrand, region[0], region[-1])
 				)
 
 			regionsChildA.append(
-				(childStrandA, regionChildA[0], regionChildA[-1])
+				(childStrandA, region[0], region[-1])
 				)
 
 			regionsChildB.append(
-				(childStrandB, regionChildB[0], regionChildB[-1])
+				(childStrandB, region[0], region[-1])
 				)
 
 		return _ChromosomeRegionSet(regionsParent), _ChromosomeRegionSet(regionsChildA), _ChromosomeRegionSet(regionsChildB)
