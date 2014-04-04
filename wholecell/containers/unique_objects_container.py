@@ -467,7 +467,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	# Make into structured array to condense the problem into unique rows
 	objectRequestsStructured = objectRequestsArray.view(
-		dtype = [('', np.bool, nRequests)])
+		dtype = objectRequestsArray.dtype.descr * nRequests)
 
 	uniqueEntriesStructured, mapping = np.unique(objectRequestsStructured,
 		return_inverse = True)
@@ -547,26 +547,36 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	# Convert solution to amounts allocated to each process
 
-	unfixedCounts = -moleculeToRequestConnections[:nObjectTypes, :] * solution[nObjectTypes:nObjectTypes+nConnections]
+	countsOfMoleculeTypeByConnection = -moleculeToRequestConnections[:nObjectTypes, :] * solution[nObjectTypes:nObjectTypes+nConnections]
 
-	flooredCounts = np.floor(unfixedCounts) # Round down to prevent oversampling
+	countsOfMoleculeTypeByConnection = np.floor(countsOfMoleculeTypeByConnection) # Round down to prevent oversampling
 
-	flooredProcessCounts = np.dot(
-		np.dot(flooredCounts, moleculeToRequestConnections[nObjectTypes:, :].T),
+	countsOfMoleculeTypeByRequests = np.dot(
+		countsOfMoleculeTypeByConnection,
+		moleculeToRequestConnections[nObjectTypes:, :].T
+		)
+
+	countsOfMoleculeTypeByProcess = np.dot(
+		countsOfMoleculeTypeByRequests,
 		requestProcessArray
 		)
 
-	indexingRanges = np.c_[np.zeros(nObjectTypes), np.cumsum(flooredProcessCounts, 1)].astype(np.int64)
+	processOffsetsOfSelectedObjects = np.c_[
+		np.zeros(nObjectTypes),
+		np.cumsum(countsOfMoleculeTypeByProcess, axis = 1)
+		].astype(np.int64)
 
 	# TODO: find a way to eliminate the for-loops!
 	partitionedMolecules = np.zeros((nObjects, nProcesses), np.bool)
 	
 	for moleculeIndex in np.arange(uniqueEntriesStructured.size):
-		indexes = np.where(moleculeIndex == mapping)[0]
-		randStream.numpyShuffle(indexes)
+		indexesOfSelectedObjects = np.where(moleculeIndex == mapping)[0]
+		randStream.numpyShuffle(indexesOfSelectedObjects)
 
 		for processIndex in np.arange(nProcesses):
-			selectedIndexes = indexes[indexingRanges[moleculeIndex, processIndex]:indexingRanges[moleculeIndex, processIndex+1]]
+			start = processOffsetsOfSelectedObjects[moleculeIndex, processIndex]
+			stop = processOffsetsOfSelectedObjects[moleculeIndex, processIndex + 1]
+			selectedIndexes = indexesOfSelectedObjects[start : stop]
 
 			partitionedMolecules[
 				selectedIndexes,
