@@ -800,8 +800,11 @@ class ChromosomeContainer(object):
 
 
 	def maximumExtentPastFork(self, fork, maxExtentForward, regionSet):
-		forkPosition, forkDirection = fork.attrs(
-			'_chromPosition', '_chromDirection')
+		# TODO: allow this to look along overlapping regions instead of just
+		# the regions containing the fork
+		
+		forkPosition, forkDirection = fork.attrs('_chromPosition',
+			'_chromDirection')
 
 		maxExtent = forkPosition
 
