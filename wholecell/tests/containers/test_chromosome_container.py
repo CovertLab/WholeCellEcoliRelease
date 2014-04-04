@@ -1072,7 +1072,92 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculesInRegionSet(self):
-		pass
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		endMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			endMolecule,
+			strand, 110, '+',
+			4, 2
+			)
+
+		otherMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			otherMolecule,
+			strand, 200, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules([molecule],
+			forwardExtent, reverseExtent, True)
+
+		self.assertTrue(
+			self.container.moleculeInRegionSet(molecule, regions)
+			)
+
+		self.assertTrue(
+			self.container.moleculeInRegionSet(endMolecule, regions)
+			)
+
+		self.assertFalse(
+			self.container.moleculeInRegionSet(otherMolecule, regions)
+			)
+
+
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesInRegion(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		endMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			endMolecule,
+			strand, 110, '+',
+			4, 2
+			)
+
+		otherMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			otherMolecule,
+			strand, 200, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules([molecule],
+			forwardExtent, reverseExtent, True)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(self.container.moleculesInRegion(region)),
+			{molecule, endMolecule}
+			)
 
 
 	@noseAttrib.attr('working')
