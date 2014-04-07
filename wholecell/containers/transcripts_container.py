@@ -114,7 +114,7 @@ class TranscriptsContainer(object):
 	def transcriptExtend(self, transcript, extent):
 		transcriptIndex = transcript.attr('_globalIndex') + self._idOffset
 
-		position, currentExtent, reserved = transcript.attrs(
+		position, currentExtent, reservedExtent = transcript.attrs(
 			'_transPosition', '_transExtent',
 			'_transExtentReserved')
 
@@ -124,7 +124,7 @@ class TranscriptsContainer(object):
 
 		region = np.arange(position+1 + currentExtent, endPosition)
 
-		if (newExtent <= reserved) or (
+		if (newExtent <= reservedExtent) or (
 				endPosition < self._length and
 				np.setdiff1d(self._array[region], self._inactiveValues).size == 0
 				):
@@ -135,7 +135,7 @@ class TranscriptsContainer(object):
 
 		else:
 			# Find and move to a new location
-			oldExtent = np.max([currentExtent, reserved])
+			oldExtent = np.max([currentExtent, reservedExtent])
 
 			oldRegion = np.arange(position, position+1 + oldExtent)
 
