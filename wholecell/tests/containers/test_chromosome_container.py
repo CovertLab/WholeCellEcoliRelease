@@ -990,7 +990,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 10
 		reverseExtent = 5
 
-		regions = self.container.regionsNearMolecules([molecule],
+		regions = self.container.regionsNearMolecules('RNA polymerase',
 			forwardExtent, reverseExtent, False)
 
 		self.assertEqual(len(regions), 1)
@@ -1019,7 +1019,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 0
 		reverseExtent = 0
 
-		regions = self.container.regionsNearMolecules([molecule],
+		regions = self.container.regionsNearMolecules('RNA polymerase',
 			forwardExtent, reverseExtent, False)
 
 		self.assertEqual(len(regions), 1)
@@ -1037,7 +1037,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	def test_regionsNearMolecules_include_ends(self):
 		strand = self.container.rootStrand()
 
-		molecule = self.container.moleculeNew('RNA polymerase')
+		molecule = self.container.moleculeNew('DNA polymerase')
 
 		self.container.moleculeLocationIs(
 			molecule,
@@ -1056,7 +1056,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 10
 		reverseExtent = 5
 
-		regions = self.container.regionsNearMolecules([molecule],
+		regions = self.container.regionsNearMolecules('DNA polymerase',
 			forwardExtent, reverseExtent, True)
 
 		self.assertEqual(len(regions), 1)
@@ -1074,7 +1074,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	def test_moleculeInRegionSet(self):
 		strand = self.container.rootStrand()
 
-		molecule = self.container.moleculeNew('RNA polymerase')
+		molecule = self.container.moleculeNew('DNA polymerase')
 
 		self.container.moleculeLocationIs(
 			molecule,
@@ -1101,7 +1101,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 10
 		reverseExtent = 5
 
-		regions = self.container.regionsNearMolecules([molecule],
+		regions = self.container.regionsNearMolecules('DNA polymerase',
 			forwardExtent, reverseExtent, True)
 
 		self.assertTrue(
@@ -1122,7 +1122,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 	def test_moleculesInRegion(self):
 		strand = self.container.rootStrand()
 
-		molecule = self.container.moleculeNew('RNA polymerase')
+		molecule = self.container.moleculeNew('DNA polymerase')
 
 		self.container.moleculeLocationIs(
 			molecule,
@@ -1149,7 +1149,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 10
 		reverseExtent = 5
 
-		regions = self.container.regionsNearMolecules([molecule],
+		regions = self.container.regionsNearMolecules('DNA polymerase',
 			forwardExtent, reverseExtent, True)
 
 		(region,) = regions
@@ -1169,7 +1169,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		molecules = []
 
 		for position in positions:
-			molecule = self.container.moleculeNew('RNA polymerase')
+			molecule = self.container.moleculeNew('DNA polymerase')
 
 			self.container.moleculeLocationIs(
 				molecule,
@@ -1190,7 +1190,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 10
 		reverseExtent = 5
 
-		regions = self.container.regionsNearMolecules(molecules,
+		regions = self.container.regionsNearMolecules('DNA polymerase',
 			forwardExtent, reverseExtent, False)
 
 		moleculesInRegionSet = self.container.moleculesInRegionSet(regions)
