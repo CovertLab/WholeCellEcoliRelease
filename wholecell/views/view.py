@@ -261,10 +261,16 @@ class ChromosomeForksView(View):
 			_ChromosomeRegionSet(allocatedRegionsChildA),
 			_ChromosomeRegionSet(allocatedRegionsChildB),
 			)
-	
+
+		self._allocatedMolecules = (
+			self._state.container.moleculesInRegionSet(self._allocatedRegions[0])
+			| self._state.container.moleculesInRegionSet(self._allocatedRegions[1])
+			| self._state.container.moleculesInRegionSet(self._allocatedRegions[2])
+			)
+
 
 	def parentRegions(self):
-		return self._queryResult[0]
+		return self._allocatedRegions[0]
 
 
 	def forksInRegion(self, regionParent):
@@ -274,23 +280,23 @@ class ChromosomeForksView(View):
 	def moleculeBoundOnFork(self, fork):
 		# TODO: raise a specific exception
 		# TODO: instead of constantly checking this, give each molecule/fork partitioned an attribute that can be checked
-		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
 
 		return self._state.container.moleculeBoundOnFork(fork)
 
 
 	def maximumExtentPastFork(self, fork, maxExtentForward):
-		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
 
 		return self._state.container.maximumExtentPastFork(fork, maxExtentForward,
-			self._queryResult[0])
+			self._allocatedRegions[0])
 
 
 	def moleculesBoundPastFork(self, fork, extentForward):
 		molecules = self._state.container.moleculesBoundPastFork(fork, extentForward)
 
 		assert all(
-			self._state.container.moleculeInRegionSet(molecule, self._queryResult[0])
+			self._state.container.moleculeInRegionSet(molecule, self._allocatedRegions[0])
 			for molecule in molecules
 			)
 
@@ -298,12 +304,13 @@ class ChromosomeForksView(View):
 
 
 	def moleculeLocationIsUnbound(self, molecule):
-		# TODO: assert molecule can be accessed
+		assert molecule in self._allocatedMolecules
+
 		self._state.container.moleculeLocationIsUnbound(molecule)
 
 
 	def forkExtend(self, fork, extent):
-		assert self._state.container.forkInRegionSet(fork, self._queryResult[0])
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
 		# TODO: assert 'extent' in region set
 
 		newPosition = self._state.container.forkExtend(fork, extent)
@@ -314,6 +321,131 @@ class ChromosomeForksView(View):
 	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse):
 		# TODO: assert region is accessible
 		# TODO: assert molecule ownership by process
+
+		assert molecule in self._allocatedMolecules
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+
+		self._state.container.moleculeLocationIsFork(molecule, fork,
+			extentForward, extentReverse)
+
+
+class ChromosomeMoleculesView(View):
+	_stateID = 'Chromosome'
+
+	# TODO: reconcile with other chromosome view
+
+	def _updateQuery(self):
+		# Query structure:
+		# molecule name
+		# extentForward
+		# extentReverse
+		# includeMoleculesOnEnds
+
+		self._queryResult = self._state.container.regionsNearMolecules(
+			*self._query
+			)
+
+		self._totalIs(len(self._queryResult[0]))
+
+
+	def requestedRegions(self):
+		for regionSet in self._queryResult:
+			for region in regionSet:
+				yield region
+
+
+	def allocateRegions(self, regions):
+		# NOTE: this code is really bad
+		queryRegionsParent = list(self._queryResult[0])
+		queryRegionsChildA = list(self._queryResult[1])
+		queryRegionsChildB = list(self._queryResult[2])
+
+		allocatedRegionsParent = []
+		allocatedRegionsChildA = []
+		allocatedRegionsChildB = []
+
+		for region in regions:
+			if region in queryRegionsParent:
+				group = allocatedRegionsParent
+
+			elif region in queryRegionsChildA:
+				group = allocatedRegionsChildA
+
+			elif region in queryRegionsChildB:
+				group = allocatedRegionsChildB
+
+			group.append(
+				(region._strand, region._start, region._stop)
+				)
+
+		self._allocatedRegions = (
+			_ChromosomeRegionSet(allocatedRegionsParent),
+			_ChromosomeRegionSet(allocatedRegionsChildA),
+			_ChromosomeRegionSet(allocatedRegionsChildB),
+			)
+
+		self._allocatedMolecules = (
+			self._state.container.moleculesInRegionSet(self._allocatedRegions[0])
+			| self._state.container.moleculesInRegionSet(self._allocatedRegions[1])
+			| self._state.container.moleculesInRegionSet(self._allocatedRegions[2])
+			)
+
+
+	def parentRegions(self):
+		return self._allocatedRegions[0]
+
+
+	def forksInRegion(self, regionParent):
+		return self._state.container.forksInRegion(regionParent)
+
+
+	def moleculeBoundOnFork(self, fork):
+		# TODO: raise a specific exception
+		# TODO: instead of constantly checking this, give each molecule/fork partitioned an attribute that can be checked
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+
+		return self._state.container.moleculeBoundOnFork(fork)
+
+
+	def maximumExtentPastFork(self, fork, maxExtentForward):
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+
+		return self._state.container.maximumExtentPastFork(fork, maxExtentForward,
+			self._allocatedRegions[0])
+
+
+	def moleculesBoundPastFork(self, fork, extentForward):
+		molecules = self._state.container.moleculesBoundPastFork(fork, extentForward)
+
+		assert all(
+			self._state.container.moleculeInRegionSet(molecule, self._allocatedRegions[0])
+			for molecule in molecules
+			)
+
+		return molecules
+
+
+	def moleculeLocationIsUnbound(self, molecule):
+		assert molecule in self._allocatedMolecules
+
+		self._state.container.moleculeLocationIsUnbound(molecule)
+
+
+	def forkExtend(self, fork, extent):
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+		# TODO: assert 'extent' in region set
+
+		newPosition = self._state.container.forkExtend(fork, extent)
+
+		# TODO: update relevant regions in parent/children region sets
+
+
+	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse):
+		# TODO: assert region is accessible
+		# TODO: assert molecule ownership by process
+
+		assert molecule in self._allocatedMolecules
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
 
 		self._state.container.moleculeLocationIsFork(molecule, fork,
 			extentForward, extentReverse)
