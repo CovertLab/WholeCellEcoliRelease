@@ -17,9 +17,9 @@ import tables
 import wholecell.utils.linear_programming as lp
 
 # State descriptions
-ENTRY_INACTIVE = 0 # a clear entry
-ENTRY_ACTIVE = 1 # an entry that is in use
-ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
+_ENTRY_INACTIVE = 0 # a clear entry
+_ENTRY_ACTIVE = 1 # an entry that is in use
+_ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
 
 # TODO: reevaluate the assignment of private methods/attributes in this and similar classes
 
@@ -112,7 +112,7 @@ class UniqueObjectsContainer(object):
 
 		collection = self._collections[collectionIndex]
 
-		collection['_entryState'][objectIndexes] = ENTRY_ACTIVE
+		collection['_entryState'][objectIndexes] = _ENTRY_ACTIVE
 
 		for attrName, attrValue in attributes.viewitems():
 			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
@@ -122,7 +122,7 @@ class UniqueObjectsContainer(object):
 
 		# In global array, create reference pointing to object
 		globalArray = self._collections[self._globalRefIndex]
-		globalArray['_entryState'][globalIndexes] = ENTRY_ACTIVE
+		globalArray['_entryState'][globalIndexes] = _ENTRY_ACTIVE
 		globalArray['_collectionIndex'][globalIndexes] = collectionIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
 
@@ -140,7 +140,7 @@ class UniqueObjectsContainer(object):
 
 	def _getFreeIndexes(self, collectionIndex, nMolecules):
 		freeIndexes = np.where(
-			self._collections[collectionIndex]['_entryState'] == ENTRY_INACTIVE
+			self._collections[collectionIndex]['_entryState'] == _ENTRY_INACTIVE
 			)[0]
 
 		if freeIndexes.size < nMolecules:
@@ -169,8 +169,8 @@ class UniqueObjectsContainer(object):
 	def objectDel(self, obj):
 		globalIndex = obj.attr('_globalIndex')
 
-		self._collections[obj._collectionIndex][obj._objectIndex]['_entryState'] = ENTRY_DELETED
-		self._collections[self._globalRefIndex][globalIndex]['_entryState'] = ENTRY_DELETED
+		self._collections[obj._collectionIndex][obj._objectIndex]['_entryState'] = _ENTRY_DELETED
+		self._collections[self._globalRefIndex][globalIndex]['_entryState'] = _ENTRY_DELETED
 		# TODO: Assign unique IDs and run _clearEntries() here
 
 
@@ -202,7 +202,7 @@ class UniqueObjectsContainer(object):
 
 		else:
 			return _UniqueObjectSet(self,
-				np.where(self._collections[self._globalRefIndex]['_entryState'] == ENTRY_ACTIVE)[0]
+				np.where(self._collections[self._globalRefIndex]['_entryState'] == _ENTRY_ACTIVE)[0]
 				)
 
 
@@ -233,7 +233,7 @@ class UniqueObjectsContainer(object):
 
 
 	def _queryObjects(self, collectionIndex, raiseOnMissingAttribute = True, **operations):
-		operations['_entryState'] = ('==', ENTRY_ACTIVE)
+		operations['_entryState'] = ('==', _ENTRY_ACTIVE)
 		collection = self._collections[collectionIndex]
 
 		try:
@@ -273,13 +273,13 @@ class UniqueObjectsContainer(object):
 		for collectionIndex, collection in enumerate(self._collections):
 			self._clearEntries(
 				collectionIndex,
-				np.where(collection['_entryState'] == ENTRY_DELETED)
+				np.where(collection['_entryState'] == _ENTRY_DELETED)
 				)
 
 
 	def __eq__(self, other):
 		return all(
-			(selfArray[selfArray['_entryState'] != ENTRY_INACTIVE] == otherArray[otherArray['_entryState'] != ENTRY_INACTIVE]).all()
+			(selfArray[selfArray['_entryState'] != _ENTRY_INACTIVE] == otherArray[otherArray['_entryState'] != _ENTRY_INACTIVE]).all()
 			for (selfArray, otherArray) in zip(self._collections, other._collections)
 			)
 
@@ -305,7 +305,7 @@ class UniqueObjectsContainer(object):
 
 	def pytablesAppend(self, h5file):
 		for collectionIndex, collection in enumerate(self._collections):
-			activeIndexes = np.where(collection['_entryState'] != ENTRY_INACTIVE)[0]
+			activeIndexes = np.where(collection['_entryState'] != _ENTRY_INACTIVE)[0]
 
 			entryTable = h5file.get_node('/', self._tableNames[collectionIndex])
 
@@ -373,7 +373,7 @@ class _UniqueObject(object):
 	def attr(self, attribute):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == ENTRY_ACTIVE:
+		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		return entry[attribute]
@@ -382,7 +382,7 @@ class _UniqueObject(object):
 	def attrs(self, *attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == ENTRY_ACTIVE:
+		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		return tuple(entry[attribute] for attribute in attributes)
@@ -391,7 +391,7 @@ class _UniqueObject(object):
 	def attrIs(self, **attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == ENTRY_ACTIVE:
+		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		for attribute, value in attributes.viewitems():
