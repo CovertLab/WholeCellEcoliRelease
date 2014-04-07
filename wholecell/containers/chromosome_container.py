@@ -50,7 +50,7 @@ class ChromosomeContainer(object):
 	_empty = 1 # an active but empty location
 
 	_specialValues = np.array([_inactive, _empty])
-	_offset = _specialValues.size
+	_idOffset = _specialValues.size
 
 	# Molecule container properties
 	_defaultObjectContainerObjects = {
@@ -77,10 +77,10 @@ class ChromosomeContainer(object):
 	_childBChar = 'B'
 	
 
-	def __init__(self, nBases, strandMultiplicity, moleculeAttributes):
+	def __init__(self, nBases, degreeOfForking, moleculeAttributes):
 		self._length = nBases
 
-		self._strandMultiplicity = strandMultiplicity
+		self._degreeOfForking = degreeOfForking
 		self._buildStrandConnectivity()
 		
 		self._array = np.zeros((self._nStrands, self._length), dtype = np.int64)
@@ -102,7 +102,7 @@ class ChromosomeContainer(object):
 		self._strandNames.append(self._rootChar)
 
 		parentNames = self._strandNames
-		for i in xrange(self._strandMultiplicity - 1):
+		for i in xrange(self._degreeOfForking):
 			childNames = []
 
 			for parentName in parentNames:
@@ -147,7 +147,7 @@ class ChromosomeContainer(object):
 
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
-		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+		moleculeIndex = molecule.attr('_globalIndex') + self._idOffset
 
 		if np.setdiff1d(self._array[strandIndex, region], [self._empty, moleculeIndex]).size > 0:
 			raise ChromosomeContainerException('Attempted to place a molecule in a non-empty region')
@@ -181,7 +181,7 @@ class ChromosomeContainer(object):
 
 		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
 
-		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+		moleculeIndex = molecule.attr('_globalIndex') + self._idOffset
 
 		if np.setdiff1d(self._array[forkStrand, regionParent], [self._empty, moleculeIndex]).size > 0:
 			raise ChromosomeContainerException('Attempted to place a molecule in a non-empty region')
@@ -204,7 +204,7 @@ class ChromosomeContainer(object):
 			_chromBoundToFork = True
 			)
 
-		index = molecule.attr('_globalIndex') + self._offset
+		index = molecule.attr('_globalIndex') + self._idOffset
 
 		self._array[forkStrand, regionParent] = index
 		self._array[childStrandA, regionChildA] = index
@@ -327,20 +327,20 @@ class ChromosomeContainer(object):
 
 
 	def moleculesBoundWithName(self, moleculeName):
-		return self._objectsContainer.objectsWithName(moleculeName, 
+		return self._objectsContainer.objectsInCollection(moleculeName, 
 			_chromBound = ('==', True))
 
 
 	def moleculeBoundAtPosition(self, strand, position): # TODO: test
 		strandIndex = self._strandNameToIndex[strand]
 		
-		index = self._array[strandIndex, position] - self._offset
+		index = self._array[strandIndex, position] - self._idOffset
 
 		if index < 0:
 			return None
 
 		else:
-			return self._objectsContainer._objectByGlobalIndex(index)
+			return self._objectsContainer.objectByGlobalIndex(index)
 
 
 	def moleculeBoundOnFork(self, fork): # TODO: test
@@ -353,13 +353,13 @@ class ChromosomeContainer(object):
 		else: # == (+)
 			position = forkPosition + 1
 		
-		index = self._array[forkStrand, position] - self._offset
+		index = self._array[forkStrand, position] - self._idOffset
 
 		if index < 0: # anything < 0 must refer to a special value
 			return None
 
 		else:
-			return self._objectsContainer._objectByGlobalIndex(index)
+			return self._objectsContainer.objectByGlobalIndex(index)
 
 
 	def moleculesBoundOverExtent(self, strand, position, direction, extentForward, extentReverse):
@@ -369,9 +369,9 @@ class ChromosomeContainer(object):
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
 		indexes = np.setdiff1d(self._array[strandIndex, region],
-			self._specialValues) - self._offset
+			self._specialValues) - self._idOffset
 
-		return self._objectsContainer._objectsByGlobalIndex(indexes)
+		return self._objectsContainer.objectsByGlobalIndex(indexes)
 
 
 	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):
@@ -387,7 +387,7 @@ class ChromosomeContainer(object):
 			extentForward, 0)[0]
 
 		indexes = np.setdiff1d(self._array[forkStrand, region],
-			self._specialValues) - self._offset
+			self._specialValues) - self._idOffset
 
 		moleculeOnFork = self.moleculeBoundOnFork(fork)
 
@@ -395,7 +395,7 @@ class ChromosomeContainer(object):
 			indexes = np.setdiff1d(indexes,
 				moleculeOnFork.attr('_globalIndex'))
 
-		return self._objectsContainer._objectsByGlobalIndex(indexes)
+		return self._objectsContainer.objectsByGlobalIndex(indexes)
 
 
 	def divideRegion(self, strand, start, stop):
@@ -441,15 +441,15 @@ class ChromosomeContainer(object):
 			_chromDirection = 0,
 			)
 
-		self._array[strandParent, start] = forkStart.attr('_globalIndex') + self._offset
-		self._array[strandParent, stop] = forkStop.attr('_globalIndex') + self._offset
+		self._array[strandParent, start] = forkStart.attr('_globalIndex') + self._idOffset
+		self._array[strandParent, stop] = forkStop.attr('_globalIndex') + self._idOffset
 
 		return forkStart, forkStop
 
 
 	def forks(self):
 		# Return a set of forks
-		return self._objectsContainer.objectsWithName('_fork')
+		return self._objectsContainer.objectsInCollection('_fork')
 
 
 	def forkExtend(self, fork, extent):
@@ -479,7 +479,7 @@ class ChromosomeContainer(object):
 
 		self._array[forkStrand, forkPosition] = self._inactive
 		fork.attrIs(_chromPosition = newPosition)
-		self._array[forkStrand, newPosition] = fork.attr('_globalIndex') + self._offset
+		self._array[forkStrand, newPosition] = fork.attr('_globalIndex') + self._idOffset
 
 		return newPosition
 
@@ -505,7 +505,7 @@ class ChromosomeContainer(object):
 
 		forks = self.forks()
 
-		forbiddenValues = [fork.attr('_globalIndex') + self._offset for fork in forks] + [self._inactive]
+		forbiddenValues = [fork.attr('_globalIndex') + self._idOffset for fork in forks] + [self._inactive]
 
 		for fork in self.forks():
 			forkStrand, forkPosition, forkDirection = fork.attrs(
@@ -641,7 +641,7 @@ class ChromosomeContainer(object):
 
 		regions = []
 
-		forbiddenValues = [fork.attr('_globalIndex') + self._offset for fork in self.forks()] + [self._inactive]
+		forbiddenValues = [fork.attr('_globalIndex') + self._idOffset for fork in self.forks()] + [self._inactive]
 
 		molecules = self.moleculesBoundWithName(moleculeName) # TODO: allow other attr checking?
 
@@ -751,9 +751,9 @@ class ChromosomeContainer(object):
 		strandIndex = region.strand()
 
 		indexes = np.setdiff1d(self._array[strandIndex, region.indexes()],
-			self._specialValues) - self._offset
+			self._specialValues) - self._idOffset
 
-		return self._objectsContainer._objectsByGlobalIndex(indexes)
+		return self._objectsContainer.objectsByGlobalIndex(indexes)
 
 
 	def moleculesInRegionSet(self, regionSet):
@@ -764,10 +764,10 @@ class ChromosomeContainer(object):
 
 			indexes.append(
 				np.setdiff1d(self._array[strandIndex, region.indexes()],
-					self._specialValues) - self._offset
+					self._specialValues) - self._idOffset
 				)
 
-		return self._objectsContainer._objectsByGlobalIndex(reduce(
+		return self._objectsContainer.objectsByGlobalIndex(reduce(
 			np.lib.arraysetops.union1d,
 			indexes,
 			np.array([])
@@ -783,7 +783,7 @@ class ChromosomeContainer(object):
 					fork.attr('_globalIndex')
 					)
 
-		return self._objectsContainer._objectsByGlobalIndex(forkGlobalIndexes)
+		return self._objectsContainer.objectsByGlobalIndex(forkGlobalIndexes)
 
 
 	def forkInRegion(self, fork, regionParent):

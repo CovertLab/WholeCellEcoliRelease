@@ -18,7 +18,7 @@ import nose.plugins.attrib as noseAttrib
 from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 1000
-STRAND_MULTIPLICITY = 3
+DEGREE_OF_FORKING = 2
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
@@ -62,7 +62,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '+', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 		# TODO: make the above into a private method of the container class
 
 		# Check footprint
@@ -92,7 +92,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '-', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -153,7 +153,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '+', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -182,7 +182,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '-', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -604,7 +604,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIsFork(mol, forkStop,
 			forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -663,7 +663,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIsFork(mol, forkStart,
 			forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -1294,7 +1294,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
+	container = ChromosomeContainer(N_BASES, DEGREE_OF_FORKING,
 		MOLECULE_ATTRIBUTES)
 
 	return container

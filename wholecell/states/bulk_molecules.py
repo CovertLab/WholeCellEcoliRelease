@@ -22,6 +22,7 @@ import numpy as np
 import tables
 
 import wholecell.states.state
+import wholecell.views.view
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 
@@ -36,7 +37,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self.time = None
 
-		self._container = None
+		self.container = None
 
 		self._moleculeMass = None
 
@@ -70,7 +71,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro']['value']
+		self.nAvogadro = kb.constants['nAvogadro'].magnitude
 
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		# HACK
@@ -104,7 +105,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass[np.where(self._moleculeMass < 0)] = 0
 
 		# Create the container for molecule counts
-		self._container = BulkObjectsContainer([
+		self.container = BulkObjectsContainer([
 			'{}[{}]'.format(moleculeID, compartmentID)
 			for moleculeID in self._moleculeIDs
 			for compartmentID in self._compartmentIDs
@@ -155,8 +156,8 @@ class BulkMolecules(wholecell.states.state.State):
 	def allocate(self):
 		super(BulkMolecules, self).allocate() # Allocates partitions
 
-		nMolecules = self._container._counts.size
-		dtype = self._container._counts.dtype
+		nMolecules = self.container._counts.size
+		dtype = self.container._counts.dtype
 
 		# Arrays for tracking values related to partitioning
 		self._countsRequested = np.zeros((nMolecules, self._nProcesses), dtype)
@@ -168,13 +169,13 @@ class BulkMolecules(wholecell.states.state.State):
 	def calcInitialConditions(self):
 		initialDryMass = INITIAL_DRY_MASS + self.randStream.normal(0.0, 1e-15)
 
-		feistCoreView = self._container.countsView(IDS['FeistCore'])
-		h2oView = self._container.countView('H2O[c]')
-		ntpsView = self._container.countsView(IDS['ntps'])
-		matureRnaView = self._container.countsView(
+		feistCoreView = self.container.countsView(IDS['FeistCore'])
+		h2oView = self.container.countView('H2O[c]')
+		ntpsView = self.container.countsView(IDS['ntps'])
+		matureRnaView = self.container.countsView(
 			[self._moleculeIDs[i] + '[c]' for i in self._typeIdxs['rnas']])
-		aasView = self._container.countsView(IDS['aas'])
-		monomersView = self._container.countsView([
+		aasView = self.container.countsView(IDS['aas'])
+		monomersView = self.container.countsView([
 			self._moleculeIDs[index] + '[{}]'.format(self._typeLocalizations['monomers'][i])
 			for i, index in enumerate(self._typeIdxs['monomers'])
 			])
@@ -230,7 +231,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def updateQueries(self):
 		for view in self._views:
-			view._totalIs(self._container._counts[view._containerIndexes])
+			view._totalIs(self.container._counts[view.containerIndexes])
 
 
 	def partition(self):
@@ -239,33 +240,24 @@ class BulkMolecules(wholecell.states.state.State):
 			self._countsRequested[:] = 0
 
 			for view in self._views:
-				self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
+				self._countsRequested[view.containerIndexes, view._processIndex] += view._request()
 
-			calculatePartition(self._isRequestAbsolute, self._countsRequested, self._container._counts, self._countsAllocatedInitial)
+			calculatePartition(self._isRequestAbsolute, self._countsRequested, self.container._counts, self._countsAllocatedInitial)
 			
 			# Record unpartitioned counts for later merging
-			self._countsUnallocated = self._container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
+			self._countsUnallocated = self.container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
 
 			self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
 		else:
-			self._countsUnallocated = self._container._counts
+			self._countsUnallocated = self.container._counts
 
 
 	def merge(self):
-		self._container.countsIs(
+		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
-
-	def countsView(self, names):
-		return self._container.countsView(names)
-
-
-	def countView(self, name):
-		return self._container.countView(name)
-
-	
 	def mass(self, typeKey = None):
 		if typeKey is None:
 			indexes = np.s_[:]
@@ -275,12 +267,12 @@ class BulkMolecules(wholecell.states.state.State):
 
 		return np.dot(
 			self._moleculeMass[indexes],
-			self._container._counts.view().reshape((-1, self._nCompartments))[indexes, :]
+			self.container._counts.view().reshape((-1, self._nCompartments))[indexes, :]
 			)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		countsShape = self._container._counts.shape
+		countsShape = self.container._counts.shape
 		partitionsShape = self._countsRequested.shape
 
 		# Columns
@@ -324,7 +316,7 @@ class BulkMolecules(wholecell.states.state.State):
 		entry = t.row
 
 		entry["time"] = simTime
-		entry['counts'] = self._container._counts
+		entry['counts'] = self.container._counts
 		entry['countsRequested'] = self._countsRequested
 		entry['countsAllocatedInitial'] = self._countsAllocatedInitial
 		entry['countsAllocatedFinal'] = self._countsAllocatedFinal
@@ -338,7 +330,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', self.meta['id'])[timePoint]
 
-		self._container.countsIs(entry['counts'])
+		self.container.countsIs(entry['counts'])
 		
 		if self._nProcesses:
 			self._countsRequested[:] = entry['countsRequested']
@@ -375,6 +367,75 @@ def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, count
 		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
 		countsBulkPartitioned[..., iPartition] = allocation
 
+class BulkMoleculesViewBase(wholecell.views.view.View):
+	_stateID = 'BulkMolecules'
+
+	def _counts(self):
+		return self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex].copy()
+
+
+	def _countsIs(self, values):
+		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] = values
+
+
+	def _countsInc(self, values):
+		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] += values
+
+
+	def _countsDec(self, values):
+		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] -= values
+
+
+class BulkMoleculesView(BulkMoleculesViewBase):
+	def __init__(self, *args, **kwargs):
+		super(BulkMoleculesView, self).__init__(*args, **kwargs)
+
+		# State references
+		self.containerIndexes = self._state.container._namesToIndexes(self._query)
+
+
+	def _dataSize(self):
+		return len(self._query)
+
+
+	def counts(self):
+		return self._counts()
+
+
+	def countsIs(self, values):
+		self._countsIs(values)
+
+
+	def countsInc(self, values):
+		self._countsInc(values)
+
+
+	def countsDec(self, values):
+		self._countsDec(values)
+
+
+class BulkMoleculeView(BulkMoleculesViewBase):
+	def __init__(self, *args, **kwargs):
+		super(BulkMoleculeView, self).__init__(*args, **kwargs)
+
+		# State references
+		self.containerIndexes = self._state.container._namesToIndexes((self._query,))
+
+
+	def count(self):
+		return self._counts()
+
+
+	def countIs(self, value):
+		self._countsIs(value)
+
+
+	def countInc(self, value):
+		self._countsInc(value)
+
+
+	def countDec(self, value):
+		self._countsDec(value)
 
 # Constants (should be taken from the KB)
 

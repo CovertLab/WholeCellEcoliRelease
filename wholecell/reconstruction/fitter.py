@@ -134,7 +134,7 @@ def fitSimulation(kb):
 	initialDryMass = INITIAL_DRY_MASS # TOKB
 
 	feistCoreCounts = numpy.round(
-		feistCoreVals * 1e-3 * kb.constants['nAvogadro']['value'] * initialDryMass
+		feistCoreVals * 1e-3 * kb.constants['nAvogadro'].magnitude * initialDryMass
 		)
 
 	totalNTPs = feistCoreCounts[[i for i, id_ in enumerate(_ids['FeistCore']) if id_ in _ids['ntps']]].sum()

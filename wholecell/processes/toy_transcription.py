@@ -35,12 +35,6 @@ class ToyTranscription(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ToyTranscription, self).initialize(sim, kb)
 
-		self.unboundRNApoly = self.uniqueMoleculesView('RNA polymerase',
-			boundToChromosome = ('==', False))
-
-		self.boundRNApoly = self.uniqueMoleculesView('RNA polymerase',
-			boundToChromosome = ('==', True))
-
 		self.rnaPolyRegions = self.chromosomeMoleculesView('RNA polymerase',
 			self.polymerizationRate, 0, False)
 

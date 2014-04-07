@@ -46,7 +46,7 @@ class TranscriptsContainer(object):
 
 	_inactiveValues = np.array([_unused, _reserved])
 	_specialValues = np.array([_unused, _reserved, _empty])
-	_offset = _specialValues.size
+	_idOffset = _specialValues.size
 
 	# Molecule container properties
 	_defaultObjectContainerObjects = {
@@ -58,7 +58,7 @@ class TranscriptsContainer(object):
 			}
 		}
 
-	_defaultObjectContainerAttributes = {
+	_defaultObjectContainerAttributes = { # attributes for non-"_transcript" objects
 		'_transBound':'bool', # whether or not the molecule is bound to the sequence - after evolveState, all should be bound!
 		'_transTranscript':'int64', # ID pointing to the bound transcript
 		'_transPosition':'int64', # location in array (not on the transcript)
@@ -95,7 +95,7 @@ class TranscriptsContainer(object):
 
 
 	def transcriptNew(self, chromosomeOrigin, expectedLength = 0):
-		position = self._findFreePosition(expectedLength+1)
+		position = self._findFreePosition(expectedLength+1) # Extra position is used to store a pointer
 
 		transcript = self._objectsContainer.objectNew(
 			'_transcript',
@@ -104,7 +104,7 @@ class TranscriptsContainer(object):
 			_transExtentReserved = expectedLength
 			)
 
-		self._array[position] = transcript.attr('_globalIndex') + self._offset
+		self._array[position] = transcript.attr('_globalIndex') + self._idOffset
 
 		self._array[position+1:position+1 + expectedLength] = self._reserved
 
@@ -112,9 +112,9 @@ class TranscriptsContainer(object):
 
 
 	def transcriptExtend(self, transcript, extent):
-		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		transcriptIndex = transcript.attr('_globalIndex') + self._idOffset
 
-		position, currentExtent, reserved = transcript.attrs(
+		position, currentExtent, reservedExtent = transcript.attrs(
 			'_transPosition', '_transExtent',
 			'_transExtentReserved')
 
@@ -124,7 +124,7 @@ class TranscriptsContainer(object):
 
 		region = np.arange(position+1 + currentExtent, endPosition)
 
-		if (newExtent <= reserved) or (
+		if (newExtent <= reservedExtent) or (
 				endPosition < self._length and
 				np.setdiff1d(self._array[region], self._inactiveValues).size == 0
 				):
@@ -135,7 +135,7 @@ class TranscriptsContainer(object):
 
 		else:
 			# Find and move to a new location
-			oldExtent = np.max([currentExtent, reserved])
+			oldExtent = np.max([currentExtent, reservedExtent])
 
 			oldRegion = np.arange(position, position+1 + oldExtent)
 
@@ -220,7 +220,7 @@ class TranscriptsContainer(object):
 
 		region = self._region(position + transcriptPosition, directionBool, extentForward, extentReverse)
 
-		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+		moleculeIndex = molecule.attr('_globalIndex') + self._idOffset
 
 		if np.setdiff1d(self._array[region], [self._empty, moleculeIndex]).size > 0:
 			raise TranscriptsContainerException('Attempted to place a molecule in a non-empty region')
@@ -229,7 +229,7 @@ class TranscriptsContainer(object):
 
 		molecule.attrIs(
 			_transBound = True,
-			_transTranscript = transcript.attr('_globalIndex') + self._offset,
+			_transTranscript = transcript.attr('_globalIndex') + self._idOffset,
 			_transPosition = absPosition,
 			_transDirection = directionBool,
 			_transExtentForward = extentForward,
@@ -287,12 +287,12 @@ class TranscriptsContainer(object):
 
 
 	def moleculesBoundOnTranscript(self, transcript):
-		transcriptIndex = transcript.attr('_globalIndex') + self._offset
+		transcriptIndex = transcript.attr('_globalIndex') + self._idOffset
 		return self._objectsContainer.objects(_transTranscript = ('==', transcriptIndex))
 
 
 	def moleculesBoundWithName(self, moleculeName):
-		return self._objectsContainer.objectsWithName(moleculeName, 
+		return self._objectsContainer.objectsInCollection(moleculeName, 
 			_transBound = ('==', True))
 
 
@@ -301,13 +301,13 @@ class TranscriptsContainer(object):
 
 		absPosition = position + transcriptPosition
 
-		index = self._array[absPosition] - self._offset
+		index = self._array[absPosition] - self._idOffset
 
 		if index < 0:
 			return None
 
 		else:
-			return self._objectsContainer._objectByGlobalIndex(index)
+			return self._objectsContainer.objectByGlobalIndex(index)
 
 
 	def moleculesBoundOverExtent(self, transcript, position, direction, extentForward, extentReverse):
@@ -319,9 +319,9 @@ class TranscriptsContainer(object):
 
 		region = self._region(absPosition, directionBool, extentForward, extentReverse)
 
-		indexes = np.setdiff1d(self._array[region], self._specialValues) - self._offset
+		indexes = np.setdiff1d(self._array[region], self._specialValues) - self._idOffset
 
-		return self._objectsContainer._objectsByGlobalIndex(indexes)
+		return self._objectsContainer.objectsByGlobalIndex(indexes)
 
 
 	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):

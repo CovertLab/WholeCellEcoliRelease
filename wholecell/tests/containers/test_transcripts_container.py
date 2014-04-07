@@ -50,7 +50,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 		transcript = self.container.transcriptNew(0, size)
 
 		transcriptPosition = np.where(
-			self.container._array == (transcript.attr('_globalIndex') + self.container._offset)
+			self.container._array == (transcript.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		self.assertEqual(transcriptPosition.size, 1)
@@ -112,7 +112,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 
 		for transcript in transcripts:
 			transcriptPosition = np.where(
-				self.container._array == (transcript.attr('_globalIndex') + self.container._offset)
+				self.container._array == (transcript.attr('_globalIndex') + self.container._idOffset)
 				)[0]
 
 			self.assertEqual(transcriptPosition.size, 1)
@@ -159,7 +159,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			10, 5)
 
 		moleculePosition = np.where(
-			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -181,7 +181,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			10, 5)
 
 		moleculePosition = np.where(
-			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -206,7 +206,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			10, 5)
 
 		moleculePosition = np.where(
-			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -238,7 +238,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 
 		for transcript, molecule in pairs:
 			moleculePosition = np.where(
-				self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+				self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 				)[0]
 
 			relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
