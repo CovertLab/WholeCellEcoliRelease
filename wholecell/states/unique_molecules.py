@@ -22,8 +22,7 @@ from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
 		'boundToChromosome':'bool',
-		'chromosomeLocation':'uint32',
-		'_partitionedProcess':'uint32' # TODO: assign to every as default instead of in this fake KB
+		'chromosomeLocation':'uint32'
 		}
 	}
 
