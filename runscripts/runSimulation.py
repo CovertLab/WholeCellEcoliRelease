@@ -21,7 +21,6 @@ import sys
 DEFAULT_SIM = dict(
 	seed = 10,
 	lengthSec = 10,
-	includedProcesses = ['ToyReplication', 'ToyTranscription']
 	)
 
 def main():
