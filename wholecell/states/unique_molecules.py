@@ -15,6 +15,7 @@ import numpy as np
 import tables
 
 import wholecell.states.state
+import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 
@@ -113,3 +114,58 @@ class UniqueMolecules(wholecell.states.state.State):
 	def pytablesLoad(self, h5file, timePoint):
 		# self.container.pytablesLoad(h5file, timePoint)
 		pass
+
+
+class UniqueMoleculesView(wholecell.views.view.View):
+	_stateID = 'UniqueMolecules'
+
+	def __init__(self, *args, **kwargs):
+		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
+
+		self._queryResult = None
+
+
+	def _updateQuery(self):
+		# TODO: generalize this logic (both here and in the state)
+
+		self._queryResult = self._state.container.objectsInCollection(
+			self._query[0],
+			**self._query[1]
+			)
+
+		self._totalIs(len(self._queryResult))
+
+
+	def molecules(self):
+		return self._state.container.objectsInCollection(
+			self._query[0],
+			_partitionedProcess = ('==', self._processIndex + 1),
+			**self._query[1]
+			)
+
+	# NOTE: these accessors do not enforce any sort of consistency between the query
+	# and the objects created/deleted.  As such it may make more sense for these
+	# to be process methods, not view methods. - JM
+	def moleculeDel(self, molecule):
+		self._state.container.objectDel(molecule)
+
+
+	def moleculesDel(self, molecules):
+		self._state.container.objectsDel(molecules)
+
+
+	def moleculeNew(self, moleculeName, **attributes):
+		self._state.container.objectNew(
+			moleculeName,
+			_partitionedProcess = ('==', self._processIndex + 1),
+			**attributes
+			)
+
+
+	def moleculesNew(self, moleculeName, nMolecules, **attributes):
+		self._state.container.objectsNew(
+			moleculeName,
+			nMolecules,
+			_partitionedProcess = self._processIndex + 1,
+			**attributes
+			)

@@ -63,61 +63,6 @@ class View(object):
 		self._requestedCount[:] = self._totalCount
 
 
-class UniqueMoleculesView(View):
-	_stateID = 'UniqueMolecules'
-
-	def __init__(self, *args, **kwargs):
-		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
-
-		self._queryResult = None
-
-
-	def _updateQuery(self):
-		# TODO: generalize this logic (both here and in the state)
-
-		self._queryResult = self._state.container.objectsInCollection(
-			self._query[0],
-			**self._query[1]
-			)
-
-		self._totalIs(len(self._queryResult))
-
-
-	def molecules(self):
-		return self._state.container.objectsInCollection(
-			self._query[0],
-			_partitionedProcess = ('==', self._processIndex + 1),
-			**self._query[1]
-			)
-
-	# NOTE: these accessors do not enforce any sort of consistency between the query
-	# and the objects created/deleted.  As such it may make more sense for these
-	# to be process methods, not view methods. - JM
-	def moleculeDel(self, molecule):
-		self._state.container.objectDel(molecule)
-
-
-	def moleculesDel(self, molecules):
-		self._state.container.objectsDel(molecules)
-
-	
-	def moleculeNew(self, moleculeName, **attributes):
-		self._state.container.objectNew(
-			moleculeName,
-			_partitionedProcess = ('==', self._processIndex + 1),
-			**attributes
-			)
-
-
-	def moleculesNew(self, moleculeName, nMolecules, **attributes):
-		self._state.container.objectsNew(
-			moleculeName,
-			nMolecules,
-			_partitionedProcess = self._processIndex + 1,
-			**attributes
-			)
-
-
 class ChromosomeMoleculeView(View):
 	_stateID = 'Chromosome'
 
