@@ -256,11 +256,11 @@ class UniqueObjectsContainer(object):
 				raise
 
 
-	def _objectsByGlobalIndex(self, globalIndexes):
+	def objectsByGlobalIndex(self, globalIndexes): # ASK JM: Make public?
 		return _UniqueObjectSet(self, globalIndexes)
 
 
-	def _objectByGlobalIndex(self, globalIndex):
+	def objectByGlobalIndex(self, globalIndex): # ASK JM: Make public?
 		return _UniqueObject(self, globalIndex)
 
 

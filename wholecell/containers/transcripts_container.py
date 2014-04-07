@@ -307,7 +307,7 @@ class TranscriptsContainer(object):
 			return None
 
 		else:
-			return self._objectsContainer._objectByGlobalIndex(index)
+			return self._objectsContainer.objectByGlobalIndex(index)
 
 
 	def moleculesBoundOverExtent(self, transcript, position, direction, extentForward, extentReverse):
@@ -321,7 +321,7 @@ class TranscriptsContainer(object):
 
 		indexes = np.setdiff1d(self._array[region], self._specialValues) - self._idOffset
 
-		return self._objectsContainer._objectsByGlobalIndex(indexes)
+		return self._objectsContainer.objectsByGlobalIndex(indexes)
 
 
 	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):

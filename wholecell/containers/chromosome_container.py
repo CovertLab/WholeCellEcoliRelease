@@ -312,7 +312,7 @@ class ChromosomeContainer(object):
 			return None
 
 		else:
-			return self._objectsContainer._objectByGlobalIndex(index)
+			return self._objectsContainer.objectByGlobalIndex(index)
 
 
 	def moleculeBoundOnFork(self, fork): # TODO: test
@@ -331,7 +331,7 @@ class ChromosomeContainer(object):
 			return None
 
 		else:
-			return self._objectsContainer._objectByGlobalIndex(index)
+			return self._objectsContainer.objectByGlobalIndex(index)
 
 
 	def moleculesBoundOverExtent(self, strand, position, direction, extentForward, extentReverse):
@@ -343,7 +343,7 @@ class ChromosomeContainer(object):
 		indexes = np.setdiff1d(self._array[strandIndex, region],
 			self._specialValues) - self._idOffset
 
-		return self._objectsContainer._objectsByGlobalIndex(indexes)
+		return self._objectsContainer.objectsByGlobalIndex(indexes)
 
 
 	def moleculesBoundNearMolecule(self, molecule, extentForward, extentReverse):

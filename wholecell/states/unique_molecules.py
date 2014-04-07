@@ -91,7 +91,7 @@ class UniqueMolecules(wholecell.states.state.State):
 			requestNumberVector, requestProcessArray, self.randStream)
 
 		for view in self._views:
-			molecules = self.container._objectsByGlobalIndex(
+			molecules = self.container.objectsByGlobalIndex(
 				np.where(partitionedMolecules[:, view._processIndex])[0]
 				)
 
