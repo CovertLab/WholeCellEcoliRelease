@@ -18,7 +18,7 @@ import nose.plugins.attrib as noseAttrib
 from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 1000
-STRAND_MULTIPLICITY = 3
+DEGREE_OF_FORKING = 2
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
@@ -735,7 +735,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
+	container = ChromosomeContainer(N_BASES, DEGREE_OF_FORKING,
 		MOLECULE_ATTRIBUTES)
 
 	return container

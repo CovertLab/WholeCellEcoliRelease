@@ -73,10 +73,10 @@ class ChromosomeContainer(object):
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
 
-	def __init__(self, nBases, strandMultiplicity, moleculeAttributes):
+	def __init__(self, nBases, degreeOfForking, moleculeAttributes):
 		self._length = nBases
 
-		self._strandMultiplicity = strandMultiplicity
+		self._degreeOfForking = degreeOfForking
 		self._buildStrandConnectivity()
 		
 		self._array = np.zeros((self._nStrands, self._length), dtype = np.int64)
@@ -98,7 +98,7 @@ class ChromosomeContainer(object):
 		self._strandNames.append(self._rootChar)
 
 		parentNames = self._strandNames
-		for i in xrange(self._strandMultiplicity - 1):
+		for i in xrange(self._degreeOfForking):
 			childNames = []
 
 			for parentName in parentNames:
