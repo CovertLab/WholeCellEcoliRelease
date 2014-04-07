@@ -15,7 +15,7 @@ import numpy as np
 
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
-# Conversion key for directions
+# Conversion key for directions TODO: evaluate whether these should be in the class
 _positiveChar = '+'
 _negativeChar = '-'
 _directionCharToBool = {_positiveChar:False, _negativeChar:True}
@@ -31,7 +31,9 @@ class ChrosomeContainerException(Exception):
 	pass
 
 # TODO: refactor method names, file organization
+# TODO: create some private methods for common accessor subroutines
 # TODO: tests for region methods
+# TODO: store forks in their own container; don't bother recording in array
 
 class ChromosomeContainer(object):
 	'''
@@ -802,7 +804,7 @@ class ChromosomeContainer(object):
 	def maximumExtentPastFork(self, fork, maxExtentForward, regionSet):
 		# TODO: allow this to look along overlapping regions instead of just
 		# the regions containing the fork
-		
+
 		forkPosition, forkDirection = fork.attrs('_chromPosition',
 			'_chromDirection')
 
