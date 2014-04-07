@@ -635,13 +635,15 @@ class ChromosomeContainer(object):
 		return _ChromosomeRegionSet(regionsParent), _ChromosomeRegionSet(regionsChildA), _ChromosomeRegionSet(regionsChildB)
 
 
-	def regionsNearMolecules(self, molecules, extentForward, extentReverse, includeMoleculesOnEnds):
+	def regionsNearMolecules(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
 		if extentForward < 0 or extentReverse < 0:
 			raise ChrosomeContainerException('Forward and reverse extents must be non-negative')
 
 		regions = []
 
 		forbiddenValues = [fork.attr('_globalIndex') + self._offset for fork in self.forks()] + [self._inactive]
+
+		molecules = self.moleculesBoundWithName(moleculeName) # TODO: allow other attr checking?
 
 		for molecule in molecules:
 			if molecule.attr('_chromBoundToFork'):
@@ -767,7 +769,8 @@ class ChromosomeContainer(object):
 
 		return self._objectsContainer._objectsByGlobalIndex(reduce(
 			np.lib.arraysetops.union1d,
-			indexes
+			indexes,
+			np.array([])
 			))
 
 
