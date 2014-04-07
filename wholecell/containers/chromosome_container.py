@@ -40,7 +40,7 @@ class ChromosomeContainer(object):
 	_empty = 1 # an active but empty location
 
 	_specialValues = np.array([_inactive, _empty])
-	_offset = _specialValues.size
+	_idOffset = _specialValues.size
 
 	# Molecule container properties
 	_defaultObjectContainerObjects = {
@@ -143,7 +143,7 @@ class ChromosomeContainer(object):
 
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
-		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+		moleculeIndex = molecule.attr('_globalIndex') + self._idOffset
 
 		if np.setdiff1d(self._array[strandIndex, region], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
@@ -177,7 +177,7 @@ class ChromosomeContainer(object):
 
 		(childStrandA, childStrandB) = self._strandChildrenIndexes[forkStrand]
 
-		moleculeIndex = molecule.attr('_globalIndex') + self._offset
+		moleculeIndex = molecule.attr('_globalIndex') + self._idOffset
 
 		if np.setdiff1d(self._array[forkStrand, regionParent], [self._empty, moleculeIndex]).size > 0:
 			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
@@ -200,7 +200,7 @@ class ChromosomeContainer(object):
 			_chromBoundToFork = True
 			)
 
-		index = molecule.attr('_globalIndex') + self._offset
+		index = molecule.attr('_globalIndex') + self._idOffset
 
 		self._array[forkStrand, regionParent] = index
 		self._array[childStrandA, regionChildA] = index
@@ -306,7 +306,7 @@ class ChromosomeContainer(object):
 	def moleculeBoundAtPosition(self, strand, position): # TODO: test
 		strandIndex = self._strandNameToIndex[strand]
 		
-		index = self._array[strandIndex, position] - self._offset
+		index = self._array[strandIndex, position] - self._idOffset
 
 		if index < 0:
 			return None
@@ -325,7 +325,7 @@ class ChromosomeContainer(object):
 		else: # == (+)
 			position = forkPosition + 1
 		
-		index = self._array[forkStrand, position] - self._offset
+		index = self._array[forkStrand, position] - self._idOffset
 
 		if index < 0: # anything < 0 must refer to a special value
 			return None
@@ -341,7 +341,7 @@ class ChromosomeContainer(object):
 		region = self._region(position, directionBool, extentForward, extentReverse)
 
 		indexes = np.setdiff1d(self._array[strandIndex, region],
-			self._specialValues) - self._offset
+			self._specialValues) - self._idOffset
 
 		return self._objectsContainer._objectsByGlobalIndex(indexes)
 
@@ -398,8 +398,8 @@ class ChromosomeContainer(object):
 			_chromDirection = 0,
 			)
 
-		self._array[strandParent, start] = forkStart.attr('_globalIndex') + self._offset
-		self._array[strandParent, stop] = forkStop.attr('_globalIndex') + self._offset
+		self._array[strandParent, start] = forkStart.attr('_globalIndex') + self._idOffset
+		self._array[strandParent, stop] = forkStop.attr('_globalIndex') + self._idOffset
 
 		return forkStart, forkStop
 
@@ -437,7 +437,7 @@ class ChromosomeContainer(object):
 
 		self._array[forkStrand, forkPosition] = self._inactive
 		fork.attrIs(_chromPosition = newPosition)
-		self._array[forkStrand, newPosition] = fork.attr('_globalIndex') + self._offset
+		self._array[forkStrand, newPosition] = fork.attr('_globalIndex') + self._idOffset
 
 		return newPosition
 

@@ -62,7 +62,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '+', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 		# TODO: make the above into a private method of the container class
 
 		# Check footprint
@@ -92,7 +92,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '-', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -153,7 +153,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '+', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -182,7 +182,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '-', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -604,7 +604,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIsFork(mol, forkStop,
 			forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -663,7 +663,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIsFork(mol, forkStart,
 			forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
