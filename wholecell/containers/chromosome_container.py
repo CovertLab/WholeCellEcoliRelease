@@ -22,9 +22,9 @@ _directionCharToBool = {_positiveChar:False, _negativeChar:True}
 _directionBoolToChar = [_positiveChar, _negativeChar]
 
 
-class ChrosomeContainerException(Exception):
+class ChromosomeContainerException(Exception):
 	'''
-	ChrosomeContainerException
+	ChromosomeContainerException
 
 	An exception subclass raised by the ChromosomeContainer.
 	'''
@@ -150,7 +150,7 @@ class ChromosomeContainer(object):
 		moleculeIndex = molecule.attr('_globalIndex') + self._offset
 
 		if np.setdiff1d(self._array[strandIndex, region], [self._empty, moleculeIndex]).size > 0:
-			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
+			raise ChromosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
@@ -171,7 +171,7 @@ class ChromosomeContainer(object):
 		# NOTE: molecule orientation assumed to be in the direction of the fork
 
 		if not (extentForward > 0 or extentReverse > 0):
-			raise ChrosomeContainerException('The footprint of a molecule placed on a fork must be > 1')
+			raise ChromosomeContainerException('The footprint of a molecule placed on a fork must be > 1')
 
 		forkStrand, forkPosition, forkDirection = fork.attrs('_chromStrand',
 			'_chromPosition', '_chromDirection')
@@ -184,13 +184,13 @@ class ChromosomeContainer(object):
 		moleculeIndex = molecule.attr('_globalIndex') + self._offset
 
 		if np.setdiff1d(self._array[forkStrand, regionParent], [self._empty, moleculeIndex]).size > 0:
-			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
+			raise ChromosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		if np.setdiff1d(self._array[childStrandA, regionChildA], [self._empty, moleculeIndex]).size > 0:
-			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
+			raise ChromosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		if np.setdiff1d(self._array[childStrandB, regionChildB], [self._empty, moleculeIndex]).size > 0:
-			raise ChrosomeContainerException('Attempted to place a molecule in a non-empty region')
+			raise ChromosomeContainerException('Attempted to place a molecule in a non-empty region')
 
 		self.moleculeLocationIsUnbound(molecule)
 
@@ -259,7 +259,7 @@ class ChromosomeContainer(object):
 
 	def moleculeFootprint(self, molecule):
 		if not molecule.attr('_chromBound'):
-			raise ChrosomeContainerException('Attempted to find the footprint of an unbound molecule')
+			raise ChromosomeContainerException('Attempted to find the footprint of an unbound molecule')
 		
 		position, direction, extentForward, extentReverse = molecule.attrs(
 			'_chromPosition', '_chromDirection', '_chromExtentForward',
@@ -408,7 +408,7 @@ class ChromosomeContainer(object):
 			strandChildA, strandChildB = self._strandChildrenIndexes[strandParent]
 
 		except TypeError:
-			raise ChrosomeContainerException('No space allocated for strand {} to divide into'.format(strandName))
+			raise ChromosomeContainerException('No space allocated for strand {} to divide into'.format(strandName))
 
 		# raise exception if start/stop outside length
 		# raise exception if start == stop
@@ -420,7 +420,7 @@ class ChromosomeContainer(object):
 			region = np.arange(start, stop+1)
 
 		if not (self._array[strandParent, region] == self._empty).all():
-			raise ChrosomeContainerException('Attempted to divide a non-empty or non-existent region')
+			raise ChromosomeContainerException('Attempted to divide a non-empty or non-existent region')
 
 		self._array[strandParent, region] = self._inactive
 
@@ -470,7 +470,7 @@ class ChromosomeContainer(object):
 			newPosition = (forkPosition-extent) % self._length
 
 		if not (self._array[forkStrand, region] == self._empty).all():
-			raise ChrosomeContainerException('Attempted to extend a fork into a non-empty region')
+			raise ChromosomeContainerException('Attempted to extend a fork into a non-empty region')
 
 		self._array[forkStrand, region] = self._inactive
 
@@ -497,7 +497,7 @@ class ChromosomeContainer(object):
 	# TODO: refactor these two methods
 	def regionsNearForks(self, extentForward, extentReverse, includeMoleculesParentEnd):
 		if extentForward < 1 or extentReverse < 1:
-			raise ChrosomeContainerException('Forward and reverse extents must be at least 1')
+			raise ChromosomeContainerException('Forward and reverse extents must be at least 1')
 
 		regionsParent = []
 		regionsChildA = []
@@ -637,7 +637,7 @@ class ChromosomeContainer(object):
 
 	def regionsNearMolecules(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
 		if extentForward < 0 or extentReverse < 0:
-			raise ChrosomeContainerException('Forward and reverse extents must be non-negative')
+			raise ChromosomeContainerException('Forward and reverse extents must be non-negative')
 
 		regions = []
 
@@ -647,7 +647,7 @@ class ChromosomeContainer(object):
 
 		for molecule in molecules:
 			if molecule.attr('_chromBoundToFork'):
-				raise ChrosomeContainerException('Use regionsNearForks to obtain regions surrounding molecules on forks.')
+				raise ChromosomeContainerException('Use regionsNearForks to obtain regions surrounding molecules on forks.')
 
 			strand, position, direction = molecule.attrs('_chromStrand', 
 				'_chromPosition', '_chromDirection')

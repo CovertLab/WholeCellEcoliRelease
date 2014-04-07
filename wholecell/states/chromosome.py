@@ -5,7 +5,7 @@ import numpy as np
 import tables
 
 import wholecell.states.state
-from wholecell.containers.chromosome_container import ChromosomeContainer
+from wholecell.containers.chromosome_container import ChromosomeContainer, ChromosomeContainerException
 
 N_BASES = 5000000 # TODO: from kb
 STRAND_MULTIPLICITY = 3 # TODO: estimate somehow? from kb?
@@ -74,6 +74,31 @@ class Chromosome(wholecell.states.state.State):
 
 			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)
 
+		# Bind RNA polymerases randomly to the root strand
+
+		unboundMolecules = [self.container.moleculeNew('RNA polymerase')
+			for i in xrange(100)]
+
+		while unboundMolecules:
+			position = self.randStream.randi(N_BASES)
+			orientation = ['+', '-'][self.randStream.randi(1)]
+
+			try:
+				self.container.moleculeLocationIs(
+					unboundMolecules[-1],
+					self.container.rootStrand(),
+					position,
+					orientation,
+					30,
+					20
+					)
+
+			except ChromosomeContainerException:
+				continue
+
+			else:
+				unboundMolecules.pop()
+
 
 	def partition(self):
 		# flush/update time for unique objects container
@@ -103,7 +128,8 @@ class Chromosome(wholecell.states.state.State):
 						if np.lib.arraysetops.intersect1d(
 								indexes,
 								allocatedRegion.indexes()
-								):
+								).any():
+
 							break
 
 					else:
@@ -115,5 +141,6 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def calculate(self):
-		print 'Chromosome multiplicity is ', (self.container._array != self.container._inactive).sum() / N_BASES
+		# print 'Chromosome multiplicity is ', (self.container._array != self.container._inactive).sum() / N_BASES
+		pass
 

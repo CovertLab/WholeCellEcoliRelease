@@ -68,6 +68,11 @@ class Process(object):
 			self, (extentForward, extentReverse, includeMoleculesOnEnds))
 
 
+	def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
+		return wholecell.views.view.ChromosomeMoleculesView(self._chromosome,
+			self, (moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+
+
 	# Calculate requests for a single time step
 	def calculateRequest(self):
 		pass
