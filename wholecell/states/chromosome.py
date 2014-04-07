@@ -47,33 +47,27 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def calcInitialConditions(self):
-		forks = self.container.divideRegion(
+		# Replicate some regions
+		forksRoot = self.container.divideRegion(
 			self.container.rootStrand(),
 			N_BASES // 6,
 			5 * N_BASES //6
 			)
 
-		for fork in forks:
-			dnaPoly = self.container.moleculeNew('DNA polymerase')
-
-			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)
-
-		forks = self.container.divideRegion(
+		forksA = self.container.divideRegion(
 			self.container.rootStrand() + 'A',
 			N_BASES // 3,
 			2 * N_BASES //3
 			)
 
-		for fork in forks:
-			dnaPoly = self.container.moleculeNew('DNA polymerase')
-
-			self.container.moleculeLocationIsFork(dnaPoly, fork, 30, 20)
-
-		forks = self.container.divideRegion(
+		forksB = self.container.divideRegion(
 			self.container.rootStrand() + 'B',
 			N_BASES // 3,
 			2 * N_BASES //3
 			)
+
+		# Bind DNA polymerase
+		forks = forksRoot + forksA + forksB
 
 		for fork in forks:
 			dnaPoly = self.container.moleculeNew('DNA polymerase')
@@ -115,9 +109,9 @@ class Chromosome(wholecell.states.state.State):
 					else:
 						regions.append(region)
 
-			view.allocateRegions(regions)
+				view.allocateRegions(regions)
 
-		import ipdb; ipdb.set_trace()
+			allocatedRegions.extend(regions)
 
 
 	def calculate(self):
