@@ -445,6 +445,15 @@ class _UniqueObjectSet(object):
 
 		return (self._globalIndexes == other._globalIndexes).all()
 
+
+	def __or__(self, other):
+		assert self._container is other._container
+
+		return _UniqueObjectSet(
+			self._container,
+			np.lib.arraysetops.union1d(self._globalIndexes, other._globalIndexes)
+			)
+
 	# TODO: set-like operations (union, intersection, etc.)
 	# TODO: group attribute setting/reading?
 
