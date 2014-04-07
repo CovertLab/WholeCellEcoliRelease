@@ -17,6 +17,7 @@ class View(object):
 	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
 		self._state = state
 		self._state.viewAdd(self)
+		self._processId = process.meta['id']
 		self._processIndex = process._processIndex
 
 		self._query = query
@@ -202,6 +203,7 @@ class UniqueMoleculesView(View):
 # TODO: views/operations for generic extents (i.e. 50-wide regions for binding)
 # TODO: placeholder partitioning algo
 
+from wholecell.containers.chromosome_container import _ChromosomeRegionSet # TODO: don't import a private class
 
 class ChromosomeForksView(View):
 	_stateID = 'Chromosome'
@@ -223,7 +225,43 @@ class ChromosomeForksView(View):
 
 		self._totalIs(len(self._queryResult[0]))
 
-	# WARNING: for now, all queried regions can be operated on! no partitions!
+
+	def requestedRegions(self):
+		for regionSet in self._queryResult:
+			for region in regionSet:
+				yield region
+
+
+	def allocateRegions(self, regions):
+		# NOTE: this code is really bad
+		queryRegionsParent = list(self._queryResult[0])
+		queryRegionsChildA = list(self._queryResult[1])
+		queryRegionsChildB = list(self._queryResult[2])
+
+		allocatedRegionsParent = []
+		allocatedRegionsChildA = []
+		allocatedRegionsChildB = []
+
+		for region in regions:
+			if region in queryRegionsParent:
+				group = allocatedRegionsParent
+
+			elif region in queryRegionsChildA:
+				group = allocatedRegionsChildA
+
+			elif region in queryRegionsChildB:
+				group = allocatedRegionsChildB
+
+			group.append(
+				(region._strand, region._start, region._stop)
+				)
+
+		self._allocatedRegions = (
+			_ChromosomeRegionSet(allocatedRegionsParent),
+			_ChromosomeRegionSet(allocatedRegionsChildA),
+			_ChromosomeRegionSet(allocatedRegionsChildB),
+			)
+	
 
 	def parentRegions(self):
 		return self._queryResult[0]

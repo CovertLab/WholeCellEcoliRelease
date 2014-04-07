@@ -32,6 +32,10 @@ class Chromosome(wholecell.states.state.State):
 
 		self.container = None
 
+		self._partitioningHierarchy = ['ToyReplication', 'ToyTranscription']
+		self._processToHierarchy = {name:i
+			for i, name in enumerate(self._partitioningHierarchy)}
+
 		super(Chromosome, self).__init__(*args, **kwargs)
 
 	
@@ -78,10 +82,44 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def partition(self):
-		# TODO: container._timeIs, container._flushDeleted
-		pass
+		# flush/update time for unique objects container
+
+		# First implementation: hierarchical
+		# - Processes' requests are allocated in a fixed order
+		# - Regions overlapping with previously allocated nucleotides are invalid
+
+		# Order views by process
+
+		viewGroups = [[] for process in self._partitioningHierarchy]
+
+		for view in self._views: # NOTE: this needn't be reestablished every time step
+			process = view._processId
+			processIndex = self._processToHierarchy[process]
+			viewGroups[processIndex].append(view)
+
+		allocatedRegions = []
+
+		# this logic is stupid and i hate it
+		for viewGroup in viewGroups:
+			regions = []
+			for view in viewGroup:
+				for region in view.requestedRegions():
+					indexes = region.indexes()
+					for allocatedRegion in allocatedRegions:
+						if np.lib.arraysetops.intersect1d(
+								indexes,
+								allocatedRegion.indexes()
+								):
+							break
+
+					else:
+						regions.append(region)
+
+			view.allocateRegions(regions)
+
+		import ipdb; ipdb.set_trace()
 
 
 	def calculate(self):
-		print (self.container._array != self.container._inactive).sum() / N_BASES
+		print 'Chromosome multiplicity is ', (self.container._array != self.container._inactive).sum() / N_BASES
 
