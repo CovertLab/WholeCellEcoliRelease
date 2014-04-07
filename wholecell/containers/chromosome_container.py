@@ -899,3 +899,11 @@ class _ChromosomeRegion(object):
 	def indexes(self):
 		return np.arange(self._start, self._stop + 1)
 
+
+	def __eq__(self, other):
+		return (
+			self._strand == other._strand
+			and self._start == other._start
+			and self._stop == other._stop
+			)
+
