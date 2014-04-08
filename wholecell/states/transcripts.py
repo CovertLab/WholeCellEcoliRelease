@@ -40,3 +40,15 @@ class Transcripts(wholecell.states.state.State):
 	def calcInitialConditions(self):
 		pass
 
+
+	def pytablesCreate(self, h5file, expectedRows):
+		self.container.pytablesCreate(h5file)
+
+
+	def pytablesAppend(self, h5file):
+		self.container.pytablesAppend(h5file, self.time.value)
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		self.container.pytablesLoad(h5file, timePoint)
+

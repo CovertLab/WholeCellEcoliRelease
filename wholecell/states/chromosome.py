@@ -144,3 +144,15 @@ class Chromosome(wholecell.states.state.State):
 		# print 'Chromosome multiplicity is ', (self.container._array != self.container._inactive).sum() / N_BASES
 		pass
 
+
+	def pytablesCreate(self, h5file, expectedRows):
+		self.container.pytablesCreate(h5file)
+
+
+	def pytablesAppend(self, h5file):
+		self.container.pytablesAppend(h5file, self.time.value)
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		self.container.pytablesLoad(h5file, timePoint)
+
