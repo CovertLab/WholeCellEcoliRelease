@@ -12,6 +12,7 @@ transcripts_container.py
 from __future__ import division
 
 import numpy as np
+import tables
 
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
@@ -329,6 +330,49 @@ class TranscriptsContainer(object):
 
 
 	def __eq__(self, other):
-		return (self._array == other._array).all()
+		return (self._array == other._array).all() and self._objectsContainer == other._objectsContainer
 
-	# TODO: save/load
+
+	def timeIs(self, time):
+		self._objectsContainer.timeIs(time)
+
+
+	# also flushDeleted
+
+
+	def pytablesCreate(self, h5file):
+		d = {
+			"array":tables.UInt64Col(self._array.shape)
+			}
+
+		h5file.create_table(
+			h5file.root,
+			'Transcripts',
+			d,
+			title = 'Transcripts',
+			filters = tables.Filters(complevel = 9, complib = 'zlib')
+			)
+
+		self._objectsContainer.pytablesCreate(h5file)
+
+
+	def pytablesAppend(self, h5file):
+		entryTable = h5file.get_node('/', 'Transcripts')
+
+		entry = entryTable.row
+
+		entry['array'] = self._array
+
+		entry.append()
+
+		entryTable.flush()
+
+		self._objectsContainer.pytablesAppend(h5file)
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		entry = h5file.get_node('/', 'Transcripts')[timePoint]
+
+		self._array = entry['array']
+
+		self._objectsContainer.pytablesLoad(h5file, timePoint)
