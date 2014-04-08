@@ -67,7 +67,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container._timeIs(self.time.value)
+		self.container.timeIs(self.time.value)
 
 		# Clear out any deleted entries to make room for new molecules
 		self.container.flushDeleted()
