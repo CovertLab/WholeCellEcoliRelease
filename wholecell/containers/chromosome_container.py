@@ -863,7 +863,7 @@ class ChromosomeContainer(object):
 
 		entry.append()
 
-		# entryTable.flush()
+		entryTable.flush()
 
 		self._objectsContainer.pytablesAppend(h5file)
 
