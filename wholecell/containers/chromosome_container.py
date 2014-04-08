@@ -871,7 +871,7 @@ class ChromosomeContainer(object):
 	def pytablesLoad(self, h5file, timePoint):
 		entry = h5file.get_node('/', 'Chromosome')[timePoint]
 
-		self._array = entry['array']
+		self._array = entry['array'].astype(np.int64)
 
 		self._objectsContainer.pytablesLoad(h5file, timePoint)
 
