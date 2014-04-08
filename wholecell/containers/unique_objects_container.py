@@ -278,9 +278,9 @@ class UniqueObjectsContainer(object):
 
 
 	def __eq__(self, other):
-		return all(
-			(selfArray[selfArray['_entryState'] != _ENTRY_INACTIVE] == otherArray[otherArray['_entryState'] != _ENTRY_INACTIVE]).all()
-			for (selfArray, otherArray) in zip(self._collections, other._collections)
+		return np.all(
+			(selfCollection == otherCollection).all()
+			for (selfCollection, otherCollection) in zip(self._collections, other._collections)
 			)
 
 
