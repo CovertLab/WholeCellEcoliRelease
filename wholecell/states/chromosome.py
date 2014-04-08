@@ -45,6 +45,8 @@ class Chromosome(wholecell.states.state.State):
 		self.container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
 			MOLECULE_ATTRIBUTES)
 
+		self.time = sim.states['Time']
+
 
 	def calcInitialConditions(self):
 		# Replicate some regions
@@ -101,7 +103,10 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def partition(self):
-		# flush/update time for unique objects container
+		# Set the correct time for saving purposes
+		self.container.timeIs(self.time.value)
+
+		# TODO: flush deleted
 
 		# First implementation: hierarchical
 		# - Processes' requests are allocated in a fixed order
@@ -150,7 +155,7 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def pytablesAppend(self, h5file):
-		self.container.pytablesAppend(h5file, self.time.value)
+		self.container.pytablesAppend(h5file)
 
 
 	def pytablesLoad(self, h5file, timePoint):

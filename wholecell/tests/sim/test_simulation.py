@@ -44,12 +44,13 @@ class Test_Simulation(unittest.TestCase):
 
 
 	# --- Tests for run-time errors ---
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_construction(self):
 		# Construct simulation
 		sim = wholecell.sim.simulation.Simulation()
 
-	@noseAttrib.attr('mediumtest')
+
+	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_run(self):
 		# Simulate
 		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10)
@@ -57,7 +58,8 @@ class Test_Simulation(unittest.TestCase):
 
 		self.assertEqual(10, sim.states["Time"].value)
 
-	@noseAttrib.attr('mediumtest')
+
+	@noseAttrib.attr('mediumtest', 'saveload', 'simulation')
 	def test_disk_logger(self): #_and_shell_logger(self):
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
@@ -67,75 +69,32 @@ class Test_Simulation(unittest.TestCase):
 			seed = 0, lengthSec = 10, logToDisk = True, outputDir = outDir,
 			overwriteExistingFiles = True
 			)
+
 		sim.run()
 		
 		reloadedSim = wholecell.sim.simulation.Simulation.loadSimulation(outDir, timePoint = 10)
 
-		state_keys = sim.states.keys()
-		# Need to check RandStream in another way
-		state_keys.pop(state_keys.index('RandStream'))
-		for state_id in state_keys:
-			dynamics_keys = sim.states[state_id].getDynamics().keys()
-
-			if 'growth' in dynamics_keys:
-				# Growth calculated based on difference in time-steps will not match up
-				dynamics_keys.pop(dynamics_keys.index('growth'))
-
-			for d_key in dynamics_keys:
-				if isinstance(sim.states[state_id].getDynamics()[d_key], np.ndarray):
-					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
-						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
-				else:
-					self.assertEqual(sim.states[state_id].getDynamics()[d_key],
-						reloadedSim.states[state_id].getDynamics()[d_key])
-		# Check RandStream
-		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
-						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
-
-
-	@noseAttrib.attr('mediumtest')
-	def test_reload_at_later_timepoint(self):
-		# Output directory
-		outDir = os.path.join("out", "test", "SimulationTest_test_reload_at_later_timepoint")
-
-		lengthSec = 10.
-
-		# Run simulation
-		sim = wholecell.sim.simulation.Simulation(
-			seed = 0, lengthSec = lengthSec, logToDisk = True, outputDir = outDir,
-			overwriteExistingFiles = True
+		self.assertEqual(
+			sim.states['BulkMolecules'].container,
+			reloadedSim.states['BulkMolecules'].container,
 			)
-		sim.run()
 
-		# TODO: Finish - call from Simulation.Simulation.loadSimulation
-		reloadedSim = wholecell.sim.simulation.Simulation.loadSimulation(outDir, timePoint = 5)
+		self.assertEqual(
+			sim.states['UniqueMolecules'].container,
+			reloadedSim.states['UniqueMolecules'].container,
+			)
 
-		self.assertEqual(reloadedSim.lengthSec, lengthSec)
+		self.assertEqual(
+			sim.states['Transcripts'].container,
+			reloadedSim.states['Transcripts'].container,
+			)
 
-		self.assertEqual(reloadedSim.initialStep, 5)
-		self.assertEqual(reloadedSim.states['Time'].value, 5.)
-		reloadedSim.run()
+		self.assertEqual(
+			sim.states['Chromosome'].container,
+			reloadedSim.states['Chromosome'].container,
+			)
 
-		state_keys = sim.states.keys()
-		# Need to check RandStream in another way
-		state_keys.pop(state_keys.index('RandStream'))
-		for state_id in state_keys:
-			dynamics_keys = sim.states[state_id].getDynamics().keys()
-
-			if 'growth' in dynamics_keys:
-				# Growth calculated based on difference in time-steps will not match up
-				dynamics_keys.pop(dynamics_keys.index('growth'))
-
-			for d_key in dynamics_keys:
-				if isinstance(sim.states[state_id].getDynamics()[d_key], np.ndarray):
-					self.assertEqual(sim.states[state_id].getDynamics()[d_key].tolist(),
-						reloadedSim.states[state_id].getDynamics()[d_key].tolist())
-				else:
-					self.assertEqual(sim.states[state_id].getDynamics()[d_key],
-						reloadedSim.states[state_id].getDynamics()[d_key])
-		# Check RandStream
-		self.assertEqual(sim.states['RandStream'].getDynamics()['value'][1].tolist(),
-						reloadedSim.states['RandStream'].getDynamics()['value'][1].tolist())
+		# TODO: test rand stream, other states
 
 
 	# this test keeps breaking but only because the States are being rewritten, disabling for now - John

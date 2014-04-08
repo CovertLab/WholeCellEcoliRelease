@@ -286,16 +286,16 @@ class Simulation(object):
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file, expectedRows):
-		groupNames = h5file.createGroup(
+		groupNames = h5file.create_group(
 			h5file.root,
 			'names',
 			'State and process names'
 			)
 
-		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
+		h5file.create_array(groupNames, 'states', [s for s in self.states.viewkeys()])
 		
 		if self.processes:
-			h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
+			h5file.create_array(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
 		# TODO: cache KB
 
@@ -318,11 +318,11 @@ class Simulation(object):
 			outputDir = newDir
 			)
 
-		with tables.openFile(os.path.join(stateDir, 'Main.hdf')) as h5file:
+		with tables.open_file(os.path.join(stateDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
 
 		for stateName, state in newSim.states.viewitems():
-			with tables.openFile(os.path.join(stateDir, stateName + '.hdf')) as h5file:
+			with tables.open_file(os.path.join(stateDir, stateName + '.hdf')) as h5file:
 				state.pytablesLoad(h5file, timePoint)
 
 		newSim.initialStep = timePoint

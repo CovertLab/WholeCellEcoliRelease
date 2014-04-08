@@ -105,7 +105,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def pytablesAppend(self, h5file):
-		self.container.pytablesAppend(h5file, self.time.value)
+		self.container.pytablesAppend(h5file)
 
 
 	def pytablesLoad(self, h5file, timePoint):
