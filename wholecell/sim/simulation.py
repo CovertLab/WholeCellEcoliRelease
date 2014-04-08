@@ -286,21 +286,6 @@ class Simulation(object):
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file, expectedRows):
-		groupFit = h5file.createGroup(
-			h5file.root,
-			'fitParameters',
-			'Fit parameter values'
-			)
-
-		bulkMolecules = self.states['BulkMolecules']
-		# TODO: fix all of these/load from fitted KB instead
-		# h5file.createArray(groupFit, 'initialDryMass', bulkMolecules.initialDryMass)
-		# h5file.createArray(groupFit, 'rnaExp', bulkMolecules.rnaExp)
-		# h5file.createArray(groupFit, 'monExp', bulkMolecules.monExp)
-		# h5file.createArray(groupFit, 'feistCoreVals', bulkMolecules.feistCoreVals)
-		if 'Transcription' in self.processes:
-			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
-
 		groupNames = h5file.createGroup(
 			h5file.root,
 			'names',
@@ -312,14 +297,6 @@ class Simulation(object):
 		if self.processes:
 			h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
-		groupValues = h5file.createGroup(
-			h5file.root,
-			'values',
-			'Non-fit parameter values'
-			)
-
-		# h5file.createArray(groupValues, 'molMass', bulkMolecules._molMass)
-
 		# TODO: cache KB
 
 
@@ -329,14 +306,8 @@ class Simulation(object):
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		group = h5file.get_node('/', 'fitParameters')
+		pass
 
-		# self.states['BulkMolecules'].initialDryMass = group.initialDryMass.read()
-		# self.states['BulkMolecules'].rnaExp[:] = group.rnaExp.read()
-		# self.states['BulkMolecules'].monExp[:] = group.monExp.read()
-		# self.states['BulkMolecules'].feistCoreVals[:] = group.feistCoreVals.read()
-		if 'Transcription' in self.processes:
-			self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
 
 	@classmethod
 	def loadSimulation(cls, stateDir, timePoint, newDir = None, overwriteExistingFiles = False):
