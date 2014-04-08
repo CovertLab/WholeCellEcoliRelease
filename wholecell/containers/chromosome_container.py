@@ -840,7 +840,7 @@ class ChromosomeContainer(object):
 
 	def pytablesCreate(self, h5file):
 		d = {
-			"array":tables.UInt64Col(self._array.shape)
+			"array":tables.UInt32Col(self._array.shape) # cast to uint 32 (from int64) for speed/efficiency
 			}
 
 		h5file.create_table(
@@ -863,7 +863,7 @@ class ChromosomeContainer(object):
 
 		entry.append()
 
-		entryTable.flush()
+		# entryTable.flush()
 
 		self._objectsContainer.pytablesAppend(h5file)
 
