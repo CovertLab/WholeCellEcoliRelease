@@ -11,9 +11,11 @@ Tests for the ChromosomeContainer class.
 from __future__ import division
 
 import unittest
+import os
 
 import numpy as np
 import nose.plugins.attrib as noseAttrib
+import tables
 
 from wholecell.containers.chromosome_container import ChromosomeContainer
 
@@ -734,7 +736,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.assertEqual(self.container, newContainer)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculeFootprint(self):
 		molecule = self.container.moleculeNew('RNA polymerase')
@@ -756,7 +757,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculesBoundPastFork(self):
 		strand = self.container.rootStrand()
@@ -794,7 +794,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_simple(self):
 		strand = self.container.rootStrand()
@@ -845,7 +844,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 					)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_minimal_extents(self):
 		strand = self.container.rootStrand()
@@ -901,7 +899,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 					)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearForks_include_ends(self):
 		strand = self.container.rootStrand()
@@ -974,7 +971,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 					)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearMolecules_simple(self):
 		strand = self.container.rootStrand()
@@ -1003,7 +999,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearMolecules_minimal_extents(self):
 		strand = self.container.rootStrand()
@@ -1032,7 +1027,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_regionsNearMolecules_include_ends(self):
 		strand = self.container.rootStrand()
@@ -1069,7 +1063,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculeInRegionSet(self):
 		strand = self.container.rootStrand()
@@ -1117,7 +1110,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculesInRegion(self):
 		strand = self.container.rootStrand()
@@ -1160,7 +1152,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_moleculesInRegionSet(self):
 		strand = self.container.rootStrand()
@@ -1201,7 +1192,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_forksInRegion(self):
 		strand = self.container.rootStrand()
@@ -1233,7 +1223,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_forkInRegion(self):
 		strand = self.container.rootStrand()
@@ -1261,7 +1250,6 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_forkInRegionSet(self):
 		strand = self.container.rootStrand()
@@ -1285,12 +1273,93 @@ class Test_ChromosomeContainer(unittest.TestCase):
 			)
 		
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
 	def test_maximumExtentPastFork(self):
+		# TODO
 		pass
 
 	# TODO: specific _ChromosomeRegion[Set] tests
+
+	@noseAttrib.attr('mediumtest', 'chromosome', 'containerObject', 'saveload')
+	def test_save_load(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_chromosome_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for ChromosomeContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = createContainer()
+
+		loadedContainer.pytablesLoad(h5file, 0)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
+
+	@noseAttrib.attr('mediumtest', 'chromosome', 'containerObject', 'saveload')
+	def test_save_load(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_chromosome_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for ChromosomeContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		position = 200
+		forwardExtent = 5
+		reverseExtent = 1
+
+		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
+			position, '+', forwardExtent, reverseExtent)
+
+		self.container.timeIs(1)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = createContainer()
+
+		loadedContainer.pytablesLoad(h5file, 1)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
+
+
 
 
 def createContainer():
