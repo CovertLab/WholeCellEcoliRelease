@@ -70,7 +70,7 @@ class UniqueObjectsContainer(object):
 		self._collections = [] # ordered list of collections (which are arrays)
 		self._collectionNameToIndexMapping = {} # collectionName:index of associated structured array
 
-		self._tableNames = {} # collectionName:table name
+		self._tableNames = [] # collection index:table name
 
 		self._collectionsSpec.update(collectionsSpec)
 		self._collectionsSpec.update(self._defaultCollectionsSpec)
@@ -102,7 +102,7 @@ class UniqueObjectsContainer(object):
 			self._collectionNameToIndexMapping[collectionName] = collectionIndex
 
 			# Give the tables accessible names
-			self._tableNames[collectionName] = collectionName.replace(' ', '_')
+			self._tableNames.append(collectionName.replace(' ', '_'))
 
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
@@ -264,7 +264,7 @@ class UniqueObjectsContainer(object):
 		return _UniqueObject(self, globalIndex)
 
 
-	def _timeIs(self, time):
+	def timeIs(self, time):
 		for collection in self._collections:
 			collection['_time'] = time
 
@@ -289,59 +289,31 @@ class UniqueObjectsContainer(object):
 			h5file.create_table(
 				h5file.root,
 				self._tableNames[collectionIndex],
-				collection[self._savedAttributes[collectionIndex]].dtype,
+				collection.dtype,
 				title = self._collectionNames[collectionIndex],
-				filters = tables.Filters(complevel = 9, complib = 'zlib')
-				)
-
-			h5file.create_table(
-				h5file.root,
-				self._tableNames[collectionIndex] + '_indexes',
-				{'_time':tables.UInt32Col(), 'index':tables.UInt32Col()},
-				title = self._collectionNames[collectionIndex] + ' indexes',
 				filters = tables.Filters(complevel = 9, complib = 'zlib')
 				)
 
 
 	def pytablesAppend(self, h5file):
 		for collectionIndex, collection in enumerate(self._collections):
-			activeIndexes = np.where(collection['_entryState'] != _ENTRY_INACTIVE)[0]
-
 			entryTable = h5file.get_node('/', self._tableNames[collectionIndex])
 
-			entries = collection[activeIndexes][self._savedAttributes[collectionIndex]]
-
-			entryTable.append(entries)
+			entryTable.append(collection)
 
 			entryTable.flush()
-
-			indexTable = h5file.get_node('/', self._tableNames[collectionIndex] + '_indexes')
-
-			indexes = np.empty((activeIndexes.size, 2), [('_time', np.uint32), ('indexes', np.uint32)])
-			indexes['_time'] = entries['_time']
-			indexes['indexes'] = activeIndexes
-
-			indexTable.append(entries)
-
-			indexTable.flush()
 
 
 	def pytablesLoad(self, h5file, timePoint):
 		for collectionIndex, tableName in enumerate(self._tableNames):
 			entryTable = h5file.get_node('/', tableName)
 
-			entries = entryTable[entryTable['_time'] == timePoint]
-
-			indexTable = h5file.get_node('/', tableName + '_indexes')
-
-			indexes = indexTable[indexTable['_time'] == timePoint]['indexes']
+			entries = entryTable[entryTable.col('_time') == timePoint]
 
 			self._collections[collectionIndex] = np.array(
-				indexes.max()+1,
-				dtype = self._collections[collectionIndex]
+				entries,
+				dtype = self._collections[collectionIndex].dtype
 				)
-
-			self._collections[indexes] = entries
 
 
 	# TODO: compute mass

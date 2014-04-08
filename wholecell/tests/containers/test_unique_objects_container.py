@@ -9,9 +9,12 @@ test_unique_objects_container.py
 from __future__ import division
 
 import unittest
+import os
 
 import numpy as np
 import nose.plugins.attrib as noseAttrib
+
+import tables
 
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, UniqueObjectsContainerException
 
@@ -222,7 +225,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Bookkeeping attributes
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_time_setting(self):
-		self.container._timeIs(50)
+		self.container.timeIs(50)
 
 		allMolecules = self.container.objectsInCollection('RNA polymerase')
 		newTime = self.container.objectsInCollection('RNA polymerase', _time = ('==', 50))
@@ -298,6 +301,80 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		otherContainer = createContainer()
 
 		self.assertEqual(self.container, otherContainer)
+
+
+	@noseAttrib.attr('mediumtest', 'uniqueObjects', 'containerObject', 'saveload')
+	def test_save_load(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_unique_objects_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for UniqueObjectsContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = UniqueObjectsContainer(TEST_KB)
+
+		loadedContainer.pytablesLoad(h5file, 0)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
+
+
+	@noseAttrib.attr('mediumtest', 'uniqueObjects', 'containerObject', 'saveload')
+	def test_save_load_later(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_unique_objects_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for UniqueObjectsContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		self.container.objectsNew('DNA polymerase', 5)
+
+		self.container.timeIs(1)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = UniqueObjectsContainer(TEST_KB)
+
+		loadedContainer.pytablesLoad(h5file, 1)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
 
 
 def createContainer():
