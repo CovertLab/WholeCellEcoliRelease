@@ -18,13 +18,13 @@ class BulkObjectsContainer(object):
 	'''
 
 	def __init__(self, objectNames):
-		self._objectNames = objectNames
+		self._objectNames = list(objectNames)
 
-		self._nObjects = len(objectNames)
+		self._nObjects = len(self._objectNames)
 
-		self._objectIndex = {objectName:index for index, objectName in enumerate(objectNames)}
+		self._objectIndex = {objectName:index for index, objectName in enumerate(self._objectNames)}
 
-		self._counts = np.zeros(len(objectNames), np.int64)
+		self._counts = np.zeros(len(self._objectNames), np.int64)
 
 
 	def counts(self, names = None):
