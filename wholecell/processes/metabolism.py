@@ -78,57 +78,45 @@ class Metabolism(wholecell.processes.process.Process):
 		self.time = sim.states["Time"]
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro'].to('1 / mole').magnitude
-		self.initialDryMass = kb.parameters['avgInitCellMass'].to('g').magnitude
-		self.cellCycleLen = kb.parameters['cellCycleLen'].to('s').magnitude
+		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
+		self.initialDryMass = kb2.avgCellDryMassInit.to('g').magnitude
+		self.cellCycleLen = kb2.cellCycleLen.to('s').magnitude
 		
-		bioIds = []
-		bioConc = []
+		# bioIds = []
+		# bioConc = []
 
-		for m in kb.metabolites:
-			if m["biomassInfo"] != {'core' : [], 'wildtype' : []}:
-				# TODO: Might need to fix, need to loop over all indicies within core biomass. Fix in general this is ugly.
-				bioIds.append("%s[%s]" % (m["id"], m["biomassInfo"]["core"][0]["location"]))
-				bioConc.append(m["biomassInfo"]["core"][0]["mmol/gDCW"]) # Number of molecules to produce each time step
+		# for m in kb.metabolites:
+		# 	if m["biomassInfo"] != {'core' : [], 'wildtype' : []}:
+		# 		# TODO: Might need to fix, need to loop over all indicies within core biomass. Fix in general this is ugly.
+		# 		bioIds.append("%s[%s]" % (m["id"], m["biomassInfo"]["core"][0]["location"]))
+		# 		bioConc.append(m["biomassInfo"]["core"][0]["mmol/gDCW"]) # Number of molecules to produce each time step
 
-		bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
-		bioConc = np.array(bioConc)
+		# bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
+		# bioConc = np.array(bioConc)
 
-		self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
+		# self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
-		self.feistCoreBiomassReaction = np.array([ # TODO: This needs to go in the KB
-			0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
-			0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
-			0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
-			0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
-			0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
-			0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
-			0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
-			]) # TOKB
+		self.feistCoreBiomassReaction = kb2.coreBiomass['biomassFlux'].magnitude
 
-		self.feistCoreIds = [
-			"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLN-L[c]", "GLU-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",
-			"LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]",
-			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]", "CTP[c]", "GTP[c]", "UTP[c]", "ATP[c]", "MUREIN5PX4P[p]", "KDO2LIPID4[o]",
-			"PE160[c]", "PE161[c]", "K[c]", "NH4[c]", "MG2[c]", "CA2[c]", "FE2[c]", "FE3[c]", "CU2[c]", "MN2[c]",
-			"MOBD[c]", "COBALT2[c]", "ZN2[c]", "CL[c]", "SO4[c]", "PI[c]", "COA[c]", "NAD[c]", "NADP[c]", "FAD[c]",
-			"THF[c]", "MLTHF[c]", "10FTHF[c]", "THMPP[c]", "PYDX5P[c]", "PHEME[c]", "SHEME[c]", "UDCPDP[c]", "AMET[c]", "2OHPH[c]",
-			"RIBFLV[c]"
-			]
+		self.feistCoreIds = kb2.coreBiomass['metaboliteId']
 
 		# Views
-		self.biomass = self.bulkMoleculesView(bioIds)
-		self.atpHydrolysis = self.bulkMoleculesView(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
-		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.h2o = self.bulkMoleculeView('H2O[c]')
+		# self.biomass = self.bulkMoleculesView(bioIds)
+		# self.atpHydrolysis = self.bulkMoleculesView(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
+		# self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		# self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.feistCore = self.bulkMoleculesView(self.feistCoreIds)
+
+		import ipdb; ipdb.set_trace()
 
 
 	def calculateRequest(self):
-		self.biomass.requestAll()
+		# self.biomass.requestAll()
 
-		self.ntps.requestIs(0)
-		self.h2o.requestIs(0)
+		# self.ntps.requestIs(0)
+		# self.h2o.requestIs(0)
+
+		pass
 
 
 	# Calculate temporal evolution
