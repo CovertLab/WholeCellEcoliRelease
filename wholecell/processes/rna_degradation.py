@@ -38,8 +38,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		super(RnaDegradation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(RnaDegradation, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(RnaDegradation, self).initialize(sim, kb, kb2)
 
 		self._metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]

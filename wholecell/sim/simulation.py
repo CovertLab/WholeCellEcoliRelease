@@ -148,7 +148,7 @@ class Simulation(object):
 			state.initialize(self, kb, kb2)
 
 		for process in self.processes.itervalues():
-			process.initialize(self, kb)
+			process.initialize(self, kb, kb2)
 
 		self._allocateMemory()
 		self._calcInitialConditions()

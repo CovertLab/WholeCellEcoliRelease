@@ -41,8 +41,8 @@ class Transcription(wholecell.processes.process.Process):
 		super(Transcription, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Transcription, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(Transcription, self).initialize(sim, kb, kb2)
 
 		# Load parameters
 		self.cellCycleLength = kb.parameters['cellCycleLen'].to('s').magnitude

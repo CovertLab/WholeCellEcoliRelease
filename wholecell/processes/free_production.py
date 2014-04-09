@@ -38,8 +38,8 @@ class FreeProduction(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(FreeProduction, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(FreeProduction, self).initialize(sim, kb, kb2)
 
 		self.cellCycleLength = kb.constants['cellCycleLen']['value']
 

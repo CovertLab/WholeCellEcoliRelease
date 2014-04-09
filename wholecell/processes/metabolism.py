@@ -71,8 +71,8 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Metabolism, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(Metabolism, self).initialize(sim, kb, kb2)
 
 		# self.mass = sim.states["Mass"]
 		self.time = sim.states["Time"]

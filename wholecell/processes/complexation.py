@@ -33,8 +33,8 @@ class Complexation(wholecell.processes.process.Process):
 		super(Complexation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Complexation, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(Complexation, self).initialize(sim, kb, kb2)
 
 		# # Complex
 		# complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]

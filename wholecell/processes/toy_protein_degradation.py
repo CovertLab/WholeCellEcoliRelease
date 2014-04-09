@@ -32,8 +32,8 @@ class ToyProteinDegradation(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ToyProteinDegradation, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(ToyProteinDegradation, self).initialize(sim, kb, kb2)
 
 		self.unboundRNApoly = self.uniqueMoleculesView('RNA polymerase',
 			boundToChromosome = ('==', False))

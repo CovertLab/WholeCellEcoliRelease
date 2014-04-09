@@ -37,8 +37,8 @@ class ToyTranscription(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ToyTranscription, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(ToyTranscription, self).initialize(sim, kb, kb2)
 
 		# HACK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		container = sim.states["UniqueMolecules"].container

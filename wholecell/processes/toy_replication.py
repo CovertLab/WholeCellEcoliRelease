@@ -35,8 +35,8 @@ class ToyReplication(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ToyReplication, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(ToyReplication, self).initialize(sim, kb, kb2)
 
 		self.replicationForks = self.chromosomeForksView( # special view for forks
 			extentForward = max(self.elongationRate, self.dnaPolyForwardFootprint),

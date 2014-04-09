@@ -34,8 +34,8 @@ class Translation(wholecell.processes.process.Process):
 		super(Translation, self).__init__()
 
 	# Construct object graph, calculate constants
-	def initialize(self, sim, kb):
-		super(Translation, self).initialize(sim, kb)
+	def initialize(self, sim, kb, kb2):
+		super(Translation, self).initialize(sim, kb, kb2)
 
 		# Load parameters
 		self.elngRate = kb.parameters['ribosomeElongationRate'].to('amino_acid / s').magnitude

@@ -36,7 +36,7 @@ class Process(object):
 
 
 	# Construct object graph, calculate constants
-	def initialize(self, sim, kb):
+	def initialize(self, sim, kb, kb2):
 		self.timeStepSec = sim.timeStepSec
 		self._processIndex = sim.processes.keys().index(self.meta['id'])
 
