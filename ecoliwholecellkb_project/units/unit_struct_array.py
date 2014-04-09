@@ -11,12 +11,7 @@ being used while loading constants.
 @date: Created 4/31/2014
 """
 
-from pint import UnitRegistry
-UREG = UnitRegistry()
-Q_ = UREG.Quantity
-UREG.define('nucleotide = []')
-UREG.define('amino_acid = []')
-UREG.define('DCW- = 1.')
+from unit_registration import Q_
 
 class UnitStructArray(object):
 	"""UnitStructArray"""
@@ -40,6 +35,17 @@ class UnitStructArray(object):
 
 	def fullUnits(self):
 		return self.units
+
+	def __getitem__(self, key):
+		return self.field(key)
+
+	def __setitem__(self, key, value):
+		if type(value) == pint.unit.Quantity:
+			self.structArray[key] = value.magnitude
+			self.units[key] = value.units
+		else:
+			self.structArray[key] = value
+			self.units[key] = None
 
 	def __len__(self):
 		return len(self.struct_array)
