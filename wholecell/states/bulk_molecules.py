@@ -163,7 +163,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def calcInitialConditions(self):
 		initialDryMass = self.initialDryMass + self.randStream.normal(0.0, 1e-15)
 
-		feistCoreView = self.container.countsView(self.biomass.field('metaboliteId'))
+		feistCoreView = self.container.countsView(self.biomass['metaboliteId'])
 		h2oView = self.container.countView('H2O[c]')
 		ntpsView = self.container.countsView(IDS['ntps'])
 		matureRnaView = self.container.countsView(
@@ -175,11 +175,9 @@ class BulkMolecules(wholecell.states.state.State):
 			])
 
 		# Set metabolite counts from Feist biomass
-		# TODO for Derek: ATP (and a few other metabolites) coefficients are different from
-		# what was hard coded before. This causes it to grow much faster.
 		feistCoreView.countsIs(
 			np.round(
-				np.fmax(self.biomass.field('biomassFlux').to('mol/(DCWg*hr)').magnitude,0) * self.nAvogadro * initialDryMass
+				np.fmax(self.biomass['biomassFlux'].to('mol/(DCWg*hr)').magnitude,0) * self.nAvogadro * initialDryMass
 				)
 			)
 
