@@ -69,6 +69,7 @@ class Simulation(object):
 		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
 		import cPickle
+		# TODO: Remove HACK and actually use some logic here!
 		if True or self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
 			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
@@ -157,7 +158,7 @@ class Simulation(object):
 	# Construct states
 	def _constructStates(self):
 		import wholecell.states.mass
-		# import wholecell.states.MetabolicFlux
+		# # import wholecell.states.MetabolicFlux
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
 		import wholecell.states.chromosome
@@ -290,39 +291,16 @@ class Simulation(object):
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file, expectedRows):
-		groupFit = h5file.createGroup(
-			h5file.root,
-			'fitParameters',
-			'Fit parameter values'
-			)
-
-		bulkMolecules = self.states['BulkMolecules']
-		# TODO: fix all of these/load from fitted KB instead
-		# h5file.createArray(groupFit, 'initialDryMass', bulkMolecules.initialDryMass)
-		# h5file.createArray(groupFit, 'rnaExp', bulkMolecules.rnaExp)
-		# h5file.createArray(groupFit, 'monExp', bulkMolecules.monExp)
-		# h5file.createArray(groupFit, 'feistCoreVals', bulkMolecules.feistCoreVals)
-		if 'Transcription' in self.processes:
-			h5file.createArray(groupFit, 'rnaSynthProb', self.processes['Transcription'].rnaSynthProb)
-
-		groupNames = h5file.createGroup(
+		groupNames = h5file.create_group(
 			h5file.root,
 			'names',
 			'State and process names'
 			)
 
-		h5file.createArray(groupNames, 'states', [s for s in self.states.viewkeys()])
+		h5file.create_array(groupNames, 'states', [s for s in self.states.viewkeys()])
 		
 		if self.processes:
-			h5file.createArray(groupNames, 'processes', [s for s in self.processes.viewkeys()])
-
-		groupValues = h5file.createGroup(
-			h5file.root,
-			'values',
-			'Non-fit parameter values'
-			)
-
-		# h5file.createArray(groupValues, 'molMass', bulkMolecules._molMass)
+			h5file.create_array(groupNames, 'processes', [s for s in self.processes.viewkeys()])
 
 		# TODO: cache KB
 
@@ -333,14 +311,8 @@ class Simulation(object):
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		group = h5file.get_node('/', 'fitParameters')
+		pass
 
-		# self.states['BulkMolecules'].initialDryMass = group.initialDryMass.read()
-		# self.states['BulkMolecules'].rnaExp[:] = group.rnaExp.read()
-		# self.states['BulkMolecules'].monExp[:] = group.monExp.read()
-		# self.states['BulkMolecules'].feistCoreVals[:] = group.feistCoreVals.read()
-		if 'Transcription' in self.processes:
-			self.processes['Transcription'].rnaSynthProb[:] = group.rnaSynthProb.read()
 
 	@classmethod
 	def loadSimulation(cls, stateDir, timePoint, newDir = None, overwriteExistingFiles = False):
@@ -351,11 +323,11 @@ class Simulation(object):
 			outputDir = newDir
 			)
 
-		with tables.openFile(os.path.join(stateDir, 'Main.hdf')) as h5file:
+		with tables.open_file(os.path.join(stateDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
 
 		for stateName, state in newSim.states.viewitems():
-			with tables.openFile(os.path.join(stateDir, stateName + '.hdf')) as h5file:
+			with tables.open_file(os.path.join(stateDir, stateName + '.hdf')) as h5file:
 				state.pytablesLoad(h5file, timePoint)
 
 		newSim.initialStep = timePoint

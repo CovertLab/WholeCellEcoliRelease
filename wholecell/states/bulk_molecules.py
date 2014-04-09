@@ -73,10 +73,10 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self.nAvogadro = kb.constants['nAvogadro'].to('1 / mole').magnitude
-		self.initialDryMass = kb.parameters['avgInitCellMass'].to('g').magnitude
-		self.fracInitFreeNTPs = kb.parameters['fracInitFreeNTPs'].magnitude
-		self.fracInitFreeAAs = kb.parameters['fracInitFreeAAs'].magnitude
+		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
+		self.initialDryMass = kb2.avgInitCellMass.to('g').magnitude
+		self.fracInitFreeNTPs = kb2.fracInitFreeNTPs.to('dimensionless').magnitude
+		self.fracInitFreeAAs = kb2.fracInitFreeAAs.to('dimensionless').magnitude
 		self.biomass = kb2.coreBiomass
 
 		self._moleculeIDs = []
@@ -85,8 +85,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeIDs += [molecule['id'] for molecule in kb.rnas]
 		self._moleculeIDs += [molecule['id'] for molecule in kb.proteins]
 
-		self._compartmentIDs = [compartment['id'] for compartment in COMPARTMENTS]
-		self._nCompartments = len(self._compartmentIDs)
+		self._compartmentIDs = kb2.compartments['compartmentAbbreviation']
+		self._nCompartments = kb2.nCompartments
 
 		self._moleculeMass = np.array(sum(
 			(
@@ -104,7 +104,7 @@ class BulkMolecules(wholecell.states.state.State):
 			for moleculeID in self._moleculeIDs
 			for compartmentID in self._compartmentIDs
 			])
-
+		import ipdb; ipdb.set_trace()
 		# Information needed for calcInitialConditions
 
 		self._typeIdxs = {}
@@ -292,17 +292,17 @@ class BulkMolecules(wholecell.states.state.State):
 			expectedrows = expectedRows
 			)
 	
-		groupNames = h5file.createGroup(h5file.root,
+		groupNames = h5file.create_group(h5file.root,
 			'names', 'Molecule, compartment, and process names')
 
-		h5file.createArray(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
-		h5file.createArray(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
+		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
+		h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
 
-		groupIdxs = h5file.createGroup(h5file.root,
+		groupIdxs = h5file.create_group(h5file.root,
 			'indexes', 'Indexes for various groups of molecules')
 
 		for type_, indexes in self._typeIdxs.viewitems():
-			h5file.createArray(groupIdxs, type_, indexes)
+			h5file.create_array(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):

@@ -36,7 +36,30 @@ class Transcripts(wholecell.states.state.State):
 		self.container = TranscriptsContainer(ARRAY_LENGTH,
 			MOLECULE_ATTRIBUTES, self.randStream)
 
+		self.time = sim.states['Time']
+
 
 	def calcInitialConditions(self):
 		pass
+
+
+	def partition(self):
+		# Set the correct time for saving purposes
+		self.container.timeIs(self.time.value)
+
+		# TODO: flush deleted
+		
+		# TODO: partition
+
+
+	def pytablesCreate(self, h5file, expectedRows):
+		self.container.pytablesCreate(h5file)
+
+
+	def pytablesAppend(self, h5file):
+		self.container.pytablesAppend(h5file)
+
+
+	def pytablesLoad(self, h5file, timePoint):
+		self.container.pytablesLoad(h5file, timePoint)
 
