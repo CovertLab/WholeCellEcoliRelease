@@ -17,6 +17,7 @@ class View(object):
 	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
 		self._state = state
 		self._state.viewAdd(self)
+		self._processId = process.meta['id']
 		self._processIndex = process._processIndex
 
 		self._query = query
@@ -63,91 +64,6 @@ class View(object):
 		self._requestedCount[:] = self._totalCount
 
 
-class UniqueMoleculesView(View):
-	_stateID = 'UniqueMolecules'
-
-	def __init__(self, *args, **kwargs):
-		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
-
-		self._queryResult = None
-
-
-	def _updateQuery(self):
-		# TODO: generalize this logic (both here and in the state)
-
-		self._queryResult = self._state.container.objectsInCollection(
-			self._query[0],
-			**self._query[1]
-			)
-
-		self._totalIs(len(self._queryResult))
-
-
-	def molecules(self):
-		return self._state.container.objectsInCollection(
-			self._query[0],
-			_partitionedProcess = ('==', self._processIndex + 1),
-			**self._query[1]
-			)
-
-	# NOTE: these accessors do not enforce any sort of consistency between the query
-	# and the objects created/deleted.  As such it may make more sense for these
-	# to be process methods, not view methods. - JM
-	def moleculeDel(self, molecule):
-		self._state.container.objectDel(molecule)
-
-
-	def moleculesDel(self, molecules):
-		self._state.container.objectsDel(molecules)
-
-	
-	def moleculeNew(self, moleculeName, **attributes):
-		self._state.container.objectNew(
-			moleculeName,
-			_partitionedProcess = ('==', self._processIndex + 1),
-			**attributes
-			)
-
-
-	def moleculesNew(self, moleculeName, nMolecules, **attributes):
-		self._state.container.objectsNew(
-			moleculeName,
-			nMolecules,
-			_partitionedProcess = self._processIndex + 1,
-			**attributes
-			)
-
-
-class ChromosomeMoleculeView(View):
-	_stateID = 'Chromosome'
-
-	def __init__(self, *args, **kwargs):
-		super(ChromosomeMoleculeView, self).__init__(*args, **kwargs)
-
-
-	# def _updateQuery(self):
-	# 	self._state._container.
-
-	
-	def moleculeNew(self, moleculeName, location, **attributes):
-		# if in partitioned region
-
-		self._state._container.moleculeNew(moleculeName, location, 
-			**attributes)
-
-
-	def moleculeDel(self, molecule):
-		# if in partitioned region
-
-		self._state._container.moleculeDel(molecule)
-
-
-	def moleculesDel(self, molecules):
-		# if in partitioned region
-
-		self._state._container.moleculesDel(molecules)
-
-
 # TODO: views for forks
 # TODO: determine how to assign regions to processes
 # _array-sized matric with indexes on specific bases
@@ -158,3 +74,176 @@ class ChromosomeMoleculeView(View):
 # TODO: collect types of chrom views and organize in a base class
 # TODO: views/operations for generic extents (i.e. 50-wide regions for binding)
 # TODO: placeholder partitioning algo
+
+from wholecell.containers.chromosome_container import _ChromosomeRegionSet # TODO: don't import a private class
+
+class ChromosomeForksView(View):
+	_stateID = 'Chromosome'
+
+	# TODO: organize this class logically
+	# TODO: incrementally add more methods
+	# TODO: move most methods to a base ChromosomeView class
+
+
+	def _updateQuery(self):
+		# Query structure:
+		# extentForward
+		# extentReverse
+		# includeMoleculesOnEnds
+
+		self._queryResult = self._state.container.regionsNearForks(
+			*self._query
+			)
+
+		self._totalIs(len(self._queryResult[0]))
+
+
+	def requestedRegions(self):
+		for regionSet in self._queryResult:
+			for region in regionSet:
+				yield region
+
+
+	def allocateRegions(self, regions):
+		# NOTE: this code is really bad
+		queryRegionsParent = list(self._queryResult[0])
+		queryRegionsChildA = list(self._queryResult[1])
+		queryRegionsChildB = list(self._queryResult[2])
+
+		allocatedRegionsParent = []
+		allocatedRegionsChildA = []
+		allocatedRegionsChildB = []
+
+		for region in regions:
+			if region in queryRegionsParent:
+				group = allocatedRegionsParent
+
+			elif region in queryRegionsChildA:
+				group = allocatedRegionsChildA
+
+			elif region in queryRegionsChildB:
+				group = allocatedRegionsChildB
+
+			group.append(
+				(region._strand, region._start, region._stop)
+				)
+
+		self._allocatedRegions = (
+			_ChromosomeRegionSet(allocatedRegionsParent),
+			_ChromosomeRegionSet(allocatedRegionsChildA),
+			_ChromosomeRegionSet(allocatedRegionsChildB),
+			)
+
+		self._allocatedMolecules = (
+			self._state.container.moleculesInRegionSet(self._allocatedRegions[0])
+			| self._state.container.moleculesInRegionSet(self._allocatedRegions[1])
+			| self._state.container.moleculesInRegionSet(self._allocatedRegions[2])
+			)
+
+
+	def parentRegions(self):
+		return self._allocatedRegions[0]
+
+
+	def forksInRegion(self, regionParent):
+		return self._state.container.forksInRegion(regionParent)
+
+
+	def moleculeBoundOnFork(self, fork):
+		# TODO: raise a specific exception
+		# TODO: instead of constantly checking this, give each molecule/fork partitioned an attribute that can be checked
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+
+		return self._state.container.moleculeBoundOnFork(fork)
+
+
+	def maximumExtentPastFork(self, fork, maxExtentForward):
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+
+		return self._state.container.maximumExtentPastFork(fork, maxExtentForward,
+			self._allocatedRegions[0])
+
+
+	def moleculesBoundPastFork(self, fork, extentForward):
+		molecules = self._state.container.moleculesBoundPastFork(fork, extentForward)
+
+		assert all(
+			self._state.container.moleculeInRegionSet(molecule, self._allocatedRegions[0])
+			for molecule in molecules
+			)
+
+		return molecules
+
+
+	def moleculeLocationIsUnbound(self, molecule):
+		assert molecule in self._allocatedMolecules
+
+		self._state.container.moleculeLocationIsUnbound(molecule)
+
+
+	def forkExtend(self, fork, extent):
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+		# TODO: assert 'extent' in region set
+
+		newPosition = self._state.container.forkExtend(fork, extent)
+
+		# TODO: update relevant regions in parent/children region sets
+
+
+	def moleculeLocationIsFork(self, molecule, fork, extentForward, extentReverse):
+		# TODO: assert region is accessible
+		# TODO: assert molecule ownership by process
+
+		assert molecule in self._allocatedMolecules
+		assert self._state.container.forkInRegionSet(fork, self._allocatedRegions[0])
+
+		self._state.container.moleculeLocationIsFork(molecule, fork,
+			extentForward, extentReverse)
+
+
+class ChromosomeMoleculesView(View):
+	_stateID = 'Chromosome'
+
+	# TODO: reconcile with other chromosome view
+
+	def _updateQuery(self):
+		# Query structure:
+		# molecule name
+		# extentForward
+		# extentReverse
+		# includeMoleculesOnEnds
+
+		self._queryResult = self._state.container.regionsNearMolecules(
+			*self._query
+			)
+
+		self._totalIs(len(self._queryResult))
+
+
+	def requestedRegions(self):
+		for region in self._queryResult:
+			yield region
+
+
+	def allocateRegions(self, regions):
+		allocatedRegions = []
+
+		for region in regions:
+			allocatedRegions.append(
+				(region._strand, region._start, region._stop)
+				)
+			
+		self._allocatedRegions = _ChromosomeRegionSet(allocatedRegions)
+
+		self._allocatedMolecules = self._state.container.moleculesInRegionSet(self._allocatedRegions)
+
+
+	def regions(self):
+		return self._allocatedRegions
+
+
+	def moleculeLocationIsUnbound(self, molecule):
+		assert molecule in self._allocatedMolecules
+
+		self._state.container.moleculeLocationIsUnbound(molecule)
+

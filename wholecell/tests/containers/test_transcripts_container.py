@@ -11,9 +11,11 @@ Tests for the ChromosomeContainer class.
 from __future__ import division
 
 import unittest
+import os
 
 import numpy as np
 import nose.plugins.attrib as noseAttrib
+import tables
 
 from wholecell.containers.transcripts_container import TranscriptsContainer
 
@@ -50,7 +52,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 		transcript = self.container.transcriptNew(0, size)
 
 		transcriptPosition = np.where(
-			self.container._array == (transcript.attr('_globalIndex') + self.container._offset)
+			self.container._array == (transcript.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		self.assertEqual(transcriptPosition.size, 1)
@@ -112,7 +114,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 
 		for transcript in transcripts:
 			transcriptPosition = np.where(
-				self.container._array == (transcript.attr('_globalIndex') + self.container._offset)
+				self.container._array == (transcript.attr('_globalIndex') + self.container._idOffset)
 				)[0]
 
 			self.assertEqual(transcriptPosition.size, 1)
@@ -159,7 +161,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			10, 5)
 
 		moleculePosition = np.where(
-			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -181,7 +183,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			10, 5)
 
 		moleculePosition = np.where(
-			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -206,7 +208,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			10, 5)
 
 		moleculePosition = np.where(
-			self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+			self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 			)[0]
 
 		relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -238,7 +240,7 @@ class Test_TranscriptsContainer(unittest.TestCase):
 
 		for transcript, molecule in pairs:
 			moleculePosition = np.where(
-				self.container._array == (molecule.attr('_globalIndex') + self.container._offset)
+				self.container._array == (molecule.attr('_globalIndex') + self.container._idOffset)
 				)[0]
 
 			relativePosition = moleculePosition - (transcript.attr('_transPosition') + 1)
@@ -420,6 +422,86 @@ class Test_TranscriptsContainer(unittest.TestCase):
 			set(self.container.moleculesBoundOverExtent(transcript, 0, '+', 50, 0)),
 			{ribosome, rnase, ribosome2}
 			)
+
+
+	@noseAttrib.attr('mediumtest', 'transcripts', 'containerObject', 'saveload')
+	def test_save_load(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_transcripts_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for TranscriptsContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = createContainer()
+
+		loadedContainer.pytablesLoad(h5file, 0)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
+
+
+	@noseAttrib.attr('mediumtest', 'transcripts', 'containerObject', 'saveload')
+	def test_save_load_later(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_transcripts_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for TranscriptsContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		transcript = self.container.transcriptNew(0, 100)
+		self.container.transcriptExtend(transcript, 100)
+
+		molecule = self.container.moleculeNew('Ribosome')
+
+		self.container.moleculeLocationIs(molecule, transcript, 50, '+',
+			10, 5)
+
+		self.container.timeIs(1)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = createContainer()
+
+		loadedContainer.pytablesLoad(h5file, 1)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
 
 
 def createContainer():

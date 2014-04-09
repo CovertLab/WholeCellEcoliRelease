@@ -292,17 +292,17 @@ class BulkMolecules(wholecell.states.state.State):
 			expectedrows = expectedRows
 			)
 	
-		groupNames = h5file.createGroup(h5file.root,
+		groupNames = h5file.create_group(h5file.root,
 			'names', 'Molecule, compartment, and process names')
 
-		h5file.createArray(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
-		h5file.createArray(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
+		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
+		h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
 
-		groupIdxs = h5file.createGroup(h5file.root,
+		groupIdxs = h5file.create_group(h5file.root,
 			'indexes', 'Indexes for various groups of molecules')
 
 		for type_, indexes in self._typeIdxs.viewitems():
-			h5file.createArray(groupIdxs, type_, indexes)
+			h5file.create_array(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):

@@ -11,14 +11,16 @@ Tests for the ChromosomeContainer class.
 from __future__ import division
 
 import unittest
+import os
 
 import numpy as np
 import nose.plugins.attrib as noseAttrib
+import tables
 
 from wholecell.containers.chromosome_container import ChromosomeContainer
 
 N_BASES = 1000
-STRAND_MULTIPLICITY = 3
+DEGREE_OF_FORKING = 2
 
 MOLECULE_ATTRIBUTES = {
 	'RNA polymerase':{
@@ -62,7 +64,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '+', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 		# TODO: make the above into a private method of the container class
 
 		# Check footprint
@@ -92,7 +94,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '-', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -153,7 +155,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '+', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -182,7 +184,7 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
 			position, '-', forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -595,16 +597,16 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 5
 		reverseExtent = 1
 
-		footprintParent = 4 # molecule origin is occupied by fork on parent
-		regionParent = [111, 112, 113, 114]
+		footprintParent = 5
+		regionParent = [111, 112, 113, 114, 115]
 
-		footprintChild = 2
-		regionChild = [109, 110]
+		footprintChild = 1
+		regionChild = [110]
 
 		self.container.moleculeLocationIsFork(mol, forkStop,
 			forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -654,16 +656,16 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		forwardExtent = 5
 		reverseExtent = 1
 
-		footprintParent = 4 # molecule origin is occupied by fork on parent
-		regionParent = [96, 97, 98, 99]
+		footprintParent = 5
+		regionParent = [95, 96, 97, 98, 99]
 
-		footprintChild = 2
-		regionChild = [100, 101]
+		footprintChild = 1
+		regionChild = [100]
 
 		self.container.moleculeLocationIsFork(mol, forkStart,
 			forwardExtent, reverseExtent)
 
-		chromosomeIndex = mol.attr('_globalIndex') + self.container._offset
+		chromosomeIndex = mol.attr('_globalIndex') + self.container._idOffset
 
 		# Check footprint
 		self.assertEqual(
@@ -734,8 +736,634 @@ class Test_ChromosomeContainer(unittest.TestCase):
 		self.assertEqual(self.container, newContainer)
 
 
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculeFootprint(self):
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		strand = self.container.rootStrand()
+		position = 150
+		direction = '+'
+		forwardExtent = 20
+		reverseExtent = 10
+
+		self.container.moleculeLocationIs(molecule, strand, position, 
+			direction, forwardExtent, reverseExtent)
+
+		footprint = self.container.moleculeFootprint(molecule)
+
+		self.assertEqual(
+			set(footprint),
+			set(np.arange(140, 170))
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesBoundPastFork(self):
+		strand = self.container.rootStrand()
+
+		fork = self.container.divideRegion(strand, 100, 200)[1]
+
+		positions = [210, 230, 280]
+		direction = '+'
+		forwardExtent = 5
+		reverseExtent = 5
+
+		molecules = []
+
+		for position in positions:
+			molecule = self.container.moleculeNew('RNA polymerase')
+
+			self.container.moleculeLocationIs(molecule, strand, position,
+				direction, forwardExtent, reverseExtent)
+
+			molecules.append(molecule)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundPastFork(fork, 4)),
+			set()
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundPastFork(fork, 10)),
+			set(molecules[:1])
+			)
+
+		self.assertEqual(
+			set(self.container.moleculesBoundPastFork(fork, 90)),
+			set(molecules[:3])
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearForks_simple(self):
+		strand = self.container.rootStrand()
+
+		self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		indexesFork1 = {96, 97, 98, 99, 100, 101}
+		indexesFork2 = {199, 200, 201, 202, 203, 204}
+
+		for region in regionsParent:
+			self.assertEqual(region.strand(), 0)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+		for region in regionsChildA:
+			self.assertEqual(region.strand(), 1)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearForks_minimal_extents(self):
+		strand = self.container.rootStrand()
+
+		forks = self.container.divideRegion(strand, 100, 200)
+
+		molExtentForward = 4
+		molExtentReverse = 2
+
+		for fork in forks:
+			molecule = self.container.moleculeNew('DNA polymerase')
+			self.container.moleculeLocationIsFork(molecule, fork,
+				molExtentForward, molExtentReverse)
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			1, 1, False)
+
+		indexesFork1 = {96, 97, 98, 99, 100, 101}
+		indexesFork2 = {199, 200, 201, 202, 203, 204}
+
+		for region in regionsParent:
+			self.assertEqual(region.strand(), 0)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+		for region in regionsChildA:
+			self.assertEqual(region.strand(), 1)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearForks_include_ends(self):
+		strand = self.container.rootStrand()
+
+		self.container.divideRegion(strand, 100, 200)
+
+		molecule1 = self.container.moleculeNew('RNA polymerase')
+		molecule2 = self.container.moleculeNew('RNA polymerase')
+		molecule3 = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule1,
+			strand, 90, '-',
+			10, 6
+			)
+
+		self.container.moleculeLocationIs(
+			molecule2,
+			strand + 'A', 190, '+',
+			10, 6
+			)
+
+		self.container.moleculeLocationIs(
+			molecule3,
+			strand, 210, '+',
+			10, 6
+			)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, True)
+
+		indexesFork1 = set(range(81, 102))
+		indexesFork2 = set(range(199, 220))
+
+		for region in regionsParent:
+			self.assertEqual(region.strand(), 0)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+		for region in regionsChildA:
+			self.assertEqual(region.strand(), 1)
+
+			indexes = region.indexes()
+
+			if indexes[0] < 150:
+				self.assertEqual(
+					set(indexes),
+					indexesFork1
+					)
+
+			else:
+				self.assertEqual(
+					set(indexes),
+					indexesFork2
+					)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearMolecules_simple(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules('RNA polymerase',
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regions), 1)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(region.indexes()),
+			set(range(95, 110))
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearMolecules_minimal_extents(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		forwardExtent = 0
+		reverseExtent = 0
+
+		regions = self.container.regionsNearMolecules('RNA polymerase',
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regions), 1)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(region.indexes()),
+			set(range(98, 104))
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_regionsNearMolecules_include_ends(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('DNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		endMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			endMolecule,
+			strand, 110, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules('DNA polymerase',
+			forwardExtent, reverseExtent, True)
+
+		self.assertEqual(len(regions), 1)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(region.indexes()),
+			set(range(95, 114))
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculeInRegionSet(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('DNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		endMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			endMolecule,
+			strand, 110, '+',
+			4, 2
+			)
+
+		otherMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			otherMolecule,
+			strand, 200, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules('DNA polymerase',
+			forwardExtent, reverseExtent, True)
+
+		self.assertTrue(
+			self.container.moleculeInRegionSet(molecule, regions)
+			)
+
+		self.assertTrue(
+			self.container.moleculeInRegionSet(endMolecule, regions)
+			)
+
+		self.assertFalse(
+			self.container.moleculeInRegionSet(otherMolecule, regions)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesInRegion(self):
+		strand = self.container.rootStrand()
+
+		molecule = self.container.moleculeNew('DNA polymerase')
+
+		self.container.moleculeLocationIs(
+			molecule,
+			strand, 100, '+',
+			4, 2
+			)
+
+		endMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			endMolecule,
+			strand, 110, '+',
+			4, 2
+			)
+
+		otherMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			otherMolecule,
+			strand, 200, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules('DNA polymerase',
+			forwardExtent, reverseExtent, True)
+
+		(region,) = regions
+
+		self.assertEqual(
+			set(self.container.moleculesInRegion(region)),
+			{molecule, endMolecule}
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_moleculesInRegionSet(self):
+		strand = self.container.rootStrand()
+
+		positions = [20, 40, 60, 80, 100]
+		molecules = []
+
+		for position in positions:
+			molecule = self.container.moleculeNew('DNA polymerase')
+
+			self.container.moleculeLocationIs(
+				molecule,
+				strand, position, '+',
+				4, 2
+				)
+
+			molecules.append(molecule)
+
+		otherMolecule = self.container.moleculeNew('RNA polymerase')
+
+		self.container.moleculeLocationIs(
+			otherMolecule,
+			strand, 120, '+',
+			4, 2
+			)
+
+		forwardExtent = 10
+		reverseExtent = 5
+
+		regions = self.container.regionsNearMolecules('DNA polymerase',
+			forwardExtent, reverseExtent, False)
+
+		moleculesInRegionSet = self.container.moleculesInRegionSet(regions)
+
+		self.assertEqual(
+			set(moleculesInRegionSet),
+			set(molecules)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_forksInRegion(self):
+		strand = self.container.rootStrand()
+
+		forks = self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regionsParent), 2)
+
+		region1, region2 = regionsParent
+
+		forksRegion1 = self.container.forksInRegion(region1)
+		forksRegion2 = self.container.forksInRegion(region2)
+
+		self.assertEqual(len(forksRegion1), 1)
+		self.assertEqual(len(forksRegion2), 1)
+
+		(forkRegion1,) = forksRegion1
+		(forkRegion2,) = forksRegion2
+
+		self.assertEqual(
+			set(forks),
+			{forkRegion1, forkRegion2}
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_forkInRegion(self):
+		strand = self.container.rootStrand()
+
+		fork1, fork2 = self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regionsParent), 2)
+
+		region1, region2 = regionsParent
+
+		self.assertTrue(
+			self.container.forkInRegion(fork1, region1)
+			or self.container.forkInRegion(fork1, region2)
+			)
+
+		self.assertTrue(
+			self.container.forkInRegion(fork2, region1)
+			or self.container.forkInRegion(fork2, region2)
+			)
+
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_forkInRegionSet(self):
+		strand = self.container.rootStrand()
+
+		fork1, fork2 = self.container.divideRegion(strand, 100, 200)
+
+		forwardExtent = 4
+		reverseExtent = 2
+
+		regionsParent, regionsChildA, regionsChildB = self.container.regionsNearForks(
+			forwardExtent, reverseExtent, False)
+
+		self.assertEqual(len(regionsParent), 2)
+
+		self.assertTrue(
+			self.container.forkInRegionSet(fork1, regionsParent)
+			)
+
+		self.assertTrue(
+			self.container.forkInRegionSet(fork2, regionsParent)
+			)
+		
+
+	@noseAttrib.attr('smalltest', 'chromosome', 'containerObject')
+	def test_maximumExtentPastFork(self):
+		# TODO
+		pass
+
+	# TODO: specific _ChromosomeRegion[Set] tests
+
+	@noseAttrib.attr('mediumtest', 'chromosome', 'containerObject', 'saveload')
+	def test_save_load(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_chromosome_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for ChromosomeContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = createContainer()
+
+		loadedContainer.pytablesLoad(h5file, 0)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
+
+	@noseAttrib.attr('mediumtest', 'chromosome', 'containerObject', 'saveload')
+	def test_save_load(self):
+		# Create file, save values, close
+		path = os.path.join('fixtures', 'test', 'test_chromosome_container.hdf')
+
+		h5file = tables.open_file(
+			path,
+			mode = 'w',
+			title = 'File for ChromosomeContainer IO'
+			)
+
+		self.container.pytablesCreate(h5file)
+
+		self.container.timeIs(0)
+
+		self.container.pytablesAppend(h5file)
+
+		mol = self.container.moleculeNew('DNA polymerase')
+
+		position = 200
+		forwardExtent = 5
+		reverseExtent = 1
+
+		self.container.moleculeLocationIs(mol, self.container.rootStrand(),
+			position, '+', forwardExtent, reverseExtent)
+
+		self.container.timeIs(1)
+
+		self.container.pytablesAppend(h5file)
+
+		h5file.close()
+
+		# Open, load, and compare
+		h5file = tables.open_file(path)
+
+		loadedContainer = createContainer()
+
+		loadedContainer.pytablesLoad(h5file, 1)
+
+		self.assertEqual(
+			self.container,
+			loadedContainer
+			)
+
+		h5file.close()
+
+
+
+
 def createContainer():
-	container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
+	container = ChromosomeContainer(N_BASES, DEGREE_OF_FORKING,
 		MOLECULE_ATTRIBUTES)
 
 	return container
