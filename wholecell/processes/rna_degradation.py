@@ -48,15 +48,21 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
 		self._hIdx = self._metaboliteIds.index('H[c]')
 
-		self._rnaIds = [x["id"] + "[c]" for x in kb.rnas]
+		self._rnaIds = ['{}[{}]'.format(id_, location) # TODO: move to new kb
+			for id_, location in zip(kb2.rnaData['id'], kb2.rnaData['location'])]
 
 		# Rna
-		self.rnaDegRates = np.log(2) / np.array([x["halfLife"] for x in kb.rnas])
+		self.rnaDegRates = np.log(2) / kb2.rnaData['halfLife']
 
-		self.rnaLens = np.sum(np.array([x["ntCount"] for x in kb.rnas]), axis = 1)
+		self.rnaLens = np.array([len(s) for s in kb2.rnaData['sequence']]) # TODO: move to new kb
+
+		ntCounts = np.array([ # TODO: move to new kb
+			(s.count('A'), s.count('C'), s.count('G'), s.count('U'))
+			for s in kb2.rnaData['sequence']
+			])
 
 		self.rnaDegSMat = np.zeros((len(self._metaboliteIds), len(self._rnaIds)), np.int64)
-		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(np.array([x["ntCount"] for x in kb.rnas]))
+		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(ntCounts)
 		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
@@ -67,7 +73,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 
-		self.rnas = self.bulkMoleculesView(self._rnaIds)
+		self.rnas = self.bulkMoleculesView(self._rnaIds) # NOTE: this is broken until bulk molecules is fixed!
 
 		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
 

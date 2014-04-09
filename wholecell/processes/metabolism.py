@@ -107,7 +107,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.feistCore = self.bulkMoleculesView(self.feistCoreIds)
 
-		import ipdb; ipdb.set_trace()
 
 
 	def calculateRequest(self):
