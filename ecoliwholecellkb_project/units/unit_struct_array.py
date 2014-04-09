@@ -12,6 +12,7 @@ being used while loading constants.
 """
 
 from unit_registration import Q_
+import numpy as np
 
 class UnitStructArray(object):
 	"""UnitStructArray"""
@@ -37,13 +38,22 @@ class UnitStructArray(object):
 		return self.units
 
 	def __getitem__(self, key):
-		return self.field(key)
+		if type(key) == slice:
+			return UnitStructArray(self.struct_array[key], self.units)
+		elif type(key) == np.ndarray or type(key) == list:
+			return UnitStructArray(self.struct_array[key], self.units)
+		else:
+			return self.field(key)
 
 	def __setitem__(self, key, value):
 		if type(value) == pint.unit.Quantity:
+			if self.units[key] != value.units:
+				raise Exception, 'Units do not match!\n'
 			self.structArray[key] = value.magnitude
 			self.units[key] = value.units
 		else:
+			if self.units[key] != None:
+				raise Exception, 'Units do not match! Quantity has units your input does not!\n'
 			self.structArray[key] = value
 			self.units[key] = None
 
