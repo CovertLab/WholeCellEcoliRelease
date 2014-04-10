@@ -41,7 +41,7 @@ class FreeProduction(wholecell.processes.process.Process):
 	def initialize(self, sim, kb, kb2):
 		super(FreeProduction, self).initialize(sim, kb, kb2)
 
-		self.cellCycleLength = kb.constants['cellCycleLen']['value']
+		self.cellCycleLength = kb2.cellCycleLen.to('s').magnitude
 
 		freeMolecules = sim.freeMolecules if sim.freeMolecules is not None else ()
 
