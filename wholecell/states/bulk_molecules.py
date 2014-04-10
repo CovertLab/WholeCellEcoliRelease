@@ -55,6 +55,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
+		self._typeIdxs = None
+
 		self._rnaLength = None #
 		self._rnaExpression = None #
 
@@ -84,6 +86,11 @@ class BulkMolecules(wholecell.states.state.State):
 		self._nCompartments = kb2.nCompartments
 
 		self._moleculeMass = kb2.bulkMolecules['mass'].to('g/mol').magnitude
+
+		self._typeIdxs = {'metabolites'	:	kb2.bulkMolecules['isMetabolite'],
+							'rnas'		:	kb2.bulkMolecules['isRna'],
+							'proteins'	:	kb2.bulkMolecules['isProteinMonomer'],
+							'H2O'		:	kb2.bulkMolecules['isWater']}
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)
