@@ -55,9 +55,6 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
-		self._typeIdxs = None # Change to boolean array
-		self._typeLocalizations = None #
-
 		self._rnaLength = None #
 		self._rnaExpression = None #
 
@@ -226,7 +223,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		return np.dot(
 			self._moleculeMass[indexes],
-			self.container._counts.view().reshape((-1, self._nCompartments))[indexes, :]
+			self.container._counts[indexes]
 			)
 
 
