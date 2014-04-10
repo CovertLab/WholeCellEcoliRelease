@@ -38,8 +38,7 @@ class Translation(wholecell.processes.process.Process):
 		super(Translation, self).initialize(sim, kb, kb2)
 
 		# Load parameters
-		self.elngRate = kb.parameters['ribosomeElongationRate'].to('amino_acid / s').magnitude
-
+		self.elngRate = kb2.ribosomeElongationRate.to('amino_acid / s').magnitude
 
 		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
 		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
