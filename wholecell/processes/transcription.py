@@ -45,28 +45,26 @@ class Transcription(wholecell.processes.process.Process):
 		super(Transcription, self).initialize(sim, kb, kb2)
 
 		# Load parameters
-		self.cellCycleLength = kb.parameters['cellCycleLen'].to('s').magnitude
-		self.elngRate = kb.parameters['rnaPolymeraseElongationRate'].to('nucleotide / s').magnitude
+		self.cellCycleLength = kb2.cellCycleLen.to('s').magnitude
+		self.elngRate = kb2.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude
 
-		rnaIds = [x["id"] + "[c]" for x in kb.rnas]
+		rnaIds = kb2.rnaData['id']
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
 		# RNA
-		self.rnaNtCounts = np.array([x["ntCount"] for x in kb.rnas])
-		self.rnaLens = np.sum(self.rnaNtCounts, axis = 1)
+		self.rnaNtCounts = kb2.rnaData['countsAUCG']
+		self.rnaLens = kb2.rnaData['length']
 		
-		halflives = np.array([x["halfLife"] for x in kb.rnas])
-		self.rnaSynthProb = sim.states['BulkMolecules']._rnaExp * (np.log(2) / self.cellCycleLength + 1 / halflives)
-		self.rnaSynthProb /= np.sum(self.rnaSynthProb)
+		self.rnaSynthProb = kb2.rnaData['synthProb']
 
 		# Views
-		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
+		self.ntps = self.bulkMoleculesView(["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 
-		self.rnas = self.bulkMoleculesView(rnaIds)
+		# self.rnas = self.bulkMoleculesView(rnaIds)
 
 		self.rnapSubunits = self.bulkMoleculesView(enzIds)
 
