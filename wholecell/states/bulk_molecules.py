@@ -74,7 +74,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Load constants
 		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb2.avgInitCellMass.to('g').magnitude
+		self.initialDryMass = kb2.avgCellDryMassInit.to('g').magnitude
 		self.fracInitFreeNTPs = kb2.fracInitFreeNTPs.to('dimensionless').magnitude
 		self.fracInitFreeAAs = kb2.fracInitFreeAAs.to('dimensionless').magnitude
 		self.biomass = kb2.coreBiomass
@@ -104,7 +104,7 @@ class BulkMolecules(wholecell.states.state.State):
 			for moleculeID in self._moleculeIDs
 			for compartmentID in self._compartmentIDs
 			])
-		import ipdb; ipdb.set_trace()
+		
 		# Information needed for calcInitialConditions
 
 		self._typeIdxs = {}
