@@ -59,7 +59,7 @@ class Translation(wholecell.processes.process.Process):
 
 		self.aas = self.bulkMoleculesView(aaIDs)
 
-		# self.mrnas = self.bulkMoleculesView(mrnaIDs)
+		self.mrnas = self.bulkMoleculesView(mrnaIDs)
 
 		self.proteins = self.bulkMoleculesView(proteinIDs)
 

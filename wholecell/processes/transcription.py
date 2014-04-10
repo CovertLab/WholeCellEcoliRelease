@@ -64,7 +64,7 @@ class Transcription(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 
-		# self.rnas = self.bulkMoleculesView(rnaIds)
+		self.rnas = self.bulkMoleculesView(rnaIds)
 
 		self.rnapSubunits = self.bulkMoleculesView(enzIds)
 
