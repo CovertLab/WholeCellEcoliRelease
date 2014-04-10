@@ -42,6 +42,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass = None #
 
 		self._moleculeIDs = None #
+		self._rnaIds = None
+		self._monomers = None
 		self._compartmentIDs = None #
 
 		self._nCompartments = None #
@@ -56,11 +58,11 @@ class BulkMolecules(wholecell.states.state.State):
 		self._typeIdxs = None # Change to boolean array
 		self._typeLocalizations = None #
 
-		self._rnaLens = None #
-		self._rnaExp = None #
+		self._rnaLength = None #
+		self._rnaExpression = None #
 
-		self._monLens = None #
-		self._monExp = None #
+		self._monomerLength = None #
+		self._monomerExpression = None #
 
 		# Move '#' to KB
 
@@ -74,68 +76,37 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Load constants
 		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb2.avgInitCellMass.to('g').magnitude
+		self.initialDryMass = kb2.avgCellDryMassInit.to('g').magnitude
 		self.fracInitFreeNTPs = kb2.fracInitFreeNTPs.to('dimensionless').magnitude
 		self.fracInitFreeAAs = kb2.fracInitFreeAAs.to('dimensionless').magnitude
 		self.biomass = kb2.coreBiomass
 
-		self._moleculeIDs = []
-
-		self._moleculeIDs += [molecule['id'] for molecule in kb.metabolites]
-		self._moleculeIDs += [molecule['id'] for molecule in kb.rnas]
-		self._moleculeIDs += [molecule['id'] for molecule in kb.proteins]
-
+		self._moleculeIDs = kb2.bulkMolecules['moleculeId']
+		self._rnaIds = kb2.bulkMolecules['moleculeId'][kb2.bulkMolecules['isRna']]
 		self._compartmentIDs = kb2.compartments['compartmentAbbreviation']
 		self._nCompartments = kb2.nCompartments
 
-		self._moleculeMass = np.array(sum(
-			(
-				[molecule['mw7.2'] for molecule in kb.metabolites],
-				[molecule['mw'] for molecule in kb.rnas],
-				[molecule['mw'] for molecule in kb.proteins]
-			),
-			[]), np.float64)
-
-		self._moleculeMass[np.where(self._moleculeMass < 0)] = 0
+		self._moleculeMass = kb2.bulkMolecules['mass'].to('g/mol').magnitude
 
 		# Create the container for molecule counts
-		self.container = BulkObjectsContainer([
-			'{}[{}]'.format(moleculeID, compartmentID)
-			for moleculeID in self._moleculeIDs
-			for compartmentID in self._compartmentIDs
-			])
-		import ipdb; ipdb.set_trace()
-		# Information needed for calcInitialConditions
-
-		self._typeIdxs = {}
-
-		self._typeIdxs.update({
-			'metabolites':np.arange(len(kb.metabolites)),
-			'rnas':np.arange(len(kb.rnas))+len(kb.metabolites),
-			'proteins':np.arange(len(kb.proteins))+len(kb.metabolites)+len(kb.rnas),
-			})
-
-		self._typeIdxs['water'] = self._moleculeIDs.index('H2O')
-
-		self._typeLocalizations = {}
-
-		self._typeLocalizations.update({
-			'proteins':[mol['location'] for mol in kb.proteins],
-			})
+		self.container = BulkObjectsContainer(self._moleculeIDs)
 
 		# Values needed for calcInitialConditions
-		self._rnaLens = np.array([np.sum(rna["ntCount"]) for rna in kb.rnas])
-		self._rnaExp = np.array([x["expression"] for x in kb.rnas])
-		self._rnaExp /= np.sum(self._rnaExp)
+		self._rnaLength = np.sum(kb2.rnaNTCounts, axis = 1)
+		self._rnaExpression = kb2.rnaExpression.to('dimensionless').magnitude
+		self._rnaExpression /= np.sum(self._rnaExpression)
 
-		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-		self._monLens = np.array([np.sum(monomer["aaCount"]) for monomer in monomers])
-		rnaIdToExp = dict([(x["id"], x["expression"]) for x in kb.rnas if x["monomerId"] != None])
-		self._monExp = np.array([rnaIdToExp[monomer["rnaId"]] for monomer in monomers])
-		self._monExp /= np.sum(self._monExp)
+		# Monomers are not complexes and not modified
+		self._monomers = kb2.bulkMolecules[kb2.bulkMolecules['isProteinMonomer'] & np.logical_not(kb2.bulkMolecules['isModifiedForm'])]
+		self._monomerLength = np.sum(kb2.proteinMonomerAACounts, axis = 1)
 
-		self._typeIdxs['monomers'] = np.array([self._moleculeIDs.index(x["id"]) for x in monomers])
-		self._typeLocalizations['monomers'] = [monomer['location'] for monomer in monomers]
+		self._monomerExpression = np.zeros(len(kb2._proteinMonomerData), dtype = float)
+		self._monomerExpression = [
+			kb2._rnaData['expression'][np.where(rnaId == kb2._rnaData['id'])[0][0]]
+			for rnaId in kb2._proteinMonomerData['rnaId']
+			]
+
+		self._monomerExpression /= np.sum(self._monomerExpression)
 		
 		# TODO: restore this behavior or replace it with something bettter
 
@@ -145,7 +116,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 		except KeyError:
 			pass
-
 
 	def allocate(self):
 		super(BulkMolecules, self).allocate() # Allocates partitions
@@ -166,13 +136,9 @@ class BulkMolecules(wholecell.states.state.State):
 		feistCoreView = self.container.countsView(self.biomass['metaboliteId'])
 		h2oView = self.container.countView('H2O[c]')
 		ntpsView = self.container.countsView(IDS['ntps'])
-		matureRnaView = self.container.countsView(
-			[self._moleculeIDs[i] + '[c]' for i in self._typeIdxs['rnas']])
+		rnaView = self.container.countsView(self._rnaIds)
 		aasView = self.container.countsView(IDS['aas'])
-		monomersView = self.container.countsView([
-			self._moleculeIDs[index] + '[{}]'.format(self._typeLocalizations['monomers'][i])
-			for i, index in enumerate(self._typeIdxs['monomers'])
-			])
+		monomersView = self.container.countsView(self._monomers['moleculeId'])
 
 		# Set metabolite counts from Feist biomass
 		feistCoreView.countsIs(
@@ -183,7 +149,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Set water
 		h2oView.countIs(
-			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._typeIdxs['water']] * self.nAvogadro
+			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._moleculeIDs == 'H2O[c]'] * self.nAvogadro
 			) # TOKB
 
 		# Set RNA counts from expression levels
@@ -192,8 +158,8 @@ class BulkMolecules(wholecell.states.state.State):
 			)
 
 		rnaCnts = self.randStream.mnrnd(
-			np.round(ntpsToPolym / (np.dot(self._rnaExp, self._rnaLens))),
-			self._rnaExp
+			np.round(ntpsToPolym / (np.dot(self._rnaExpression, self._rnaLength))),
+			self._rnaExpression
 			)
 
 		ntpsView.countsIs(
@@ -202,7 +168,7 @@ class BulkMolecules(wholecell.states.state.State):
 				)
 			)
 
-		matureRnaView.countsIs(rnaCnts)
+		rnaView.countsIs(rnaCnts)
 
 		# Set protein counts from expression levels
 		aasToPolym = np.round(
@@ -210,8 +176,8 @@ class BulkMolecules(wholecell.states.state.State):
 			)
 
 		monCnts = self.randStream.mnrnd(
-			np.round(aasToPolym / (np.dot(self._monExp, self._monLens))),
-			self._monExp
+			np.round(aasToPolym / (np.dot(self._monomerExpression, self._monomerLength))),
+			self._monomerExpression
 			)
 
 		aasView.countsIs(
@@ -221,7 +187,6 @@ class BulkMolecules(wholecell.states.state.State):
 			)
 
 		monomersView.countsIs(monCnts)
-
 
 	def updateQueries(self):
 		for view in self._views:
