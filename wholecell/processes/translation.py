@@ -38,21 +38,17 @@ class Translation(wholecell.processes.process.Process):
 		super(Translation, self).initialize(sim, kb, kb2)
 
 		# Load parameters
-		self.elngRate = kb.parameters['ribosomeElongationRate'].to('amino_acid / s').magnitude
+		self.elngRate = kb2.ribosomeElongationRate.to('amino_acid / s').magnitude
 
-
-		mrnas = [x for x in kb.rnas if x["monomerId"] != None]
-		monomers = [x for x in kb.proteins if len(x["composition"]) == 0 and x["unmodifiedForm"] == None]
-
-		mrnaIDs = [x['id'] + '[c]' for x in mrnas]
-		proteinIDs = [x["monomerId"] + "[c]" for x in mrnas]
+		mrnaIDs = kb2.monomerData['rnaId']
+		proteinIDs = kb2.monomerData['id']
 
 		# Metabolites
 		self.n_aas = len(aaIDs)
 
 		# mRNA, protein monomers
-		self.proteinAaCounts = np.array([x["aaCount"] for x in monomers])
-		self.proteinLens = np.sum(self.proteinAaCounts, axis = 1)
+		self.proteinAaCounts = kb2.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
+		self.proteinLens = kb2.monomerData['length']
 
 		# Views
 		self.atp = self.bulkMoleculeView('ATP[c]')
@@ -63,7 +59,7 @@ class Translation(wholecell.processes.process.Process):
 
 		self.aas = self.bulkMoleculesView(aaIDs)
 
-		self.mrnas = self.bulkMoleculesView(mrnaIDs)
+		# self.mrnas = self.bulkMoleculesView(mrnaIDs)
 
 		self.proteins = self.bulkMoleculesView(proteinIDs)
 

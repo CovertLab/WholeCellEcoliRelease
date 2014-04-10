@@ -66,8 +66,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.nmps = self.bulkMoleculesView(["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]"])
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
-
-		self.rnas = self.bulkMoleculesView(self._rnaIds) # NOTE: this is broken until bulk molecules is fixed!
+		
+		# self.rnas = self.bulkMoleculesView(self._rnaIds) # NOTE: this is broken until bulk molecules is fixed!
 
 		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
 
