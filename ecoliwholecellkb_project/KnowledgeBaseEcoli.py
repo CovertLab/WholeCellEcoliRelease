@@ -39,7 +39,7 @@ from ecoliwholecellkb_project.units.unit_struct_array import UnitStructArray
 from ecoliwholecellkb_project.units.unit_registration import Q_
 
 
-class KnowledgeBaseEcoli_2(object):
+class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
 
