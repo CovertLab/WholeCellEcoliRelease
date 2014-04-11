@@ -39,7 +39,7 @@ from ecoliwholecellkb_project.units.unit_struct_array import UnitStructArray
 from ecoliwholecellkb_project.units.unit_registration import Q_
 
 
-class KnowledgeBaseEcoli(object):
+class KnowledgeBaseEcoli_2(object):
 	""" KnowledgeBaseEcoli """
 
 
@@ -61,7 +61,13 @@ class KnowledgeBaseEcoli(object):
 		# self.loadReactions()
 		self._loadConstants()
 		self._loadParameters()
-		self._computeParameters()
+
+		# Build hacked constants - need to add these to the SQL database still
+		self._loadHacked()
+
+		self._loadComputeParameters()
+
+
 
 		# Create data structures for simulation
 		self._buildCompartments()
@@ -77,6 +83,13 @@ class KnowledgeBaseEcoli(object):
 
 		# Build dependent calculations
 		self._calculateDependentCompartments()
+
+
+
+	def _loadHacked(self):
+		# New parameters
+		self._parameterData['cellWaterMassFraction'] = Q_(0.7, 'water_g / cell_g')
+		self._parameterData['cellDryMassFraction'] = Q_(0.3, 'DCW_g / cell_g')
 
 	def _defineConstants(self):
 		from collections import OrderedDict
@@ -486,10 +499,11 @@ class KnowledgeBaseEcoli(object):
 			self._parameterData[p.name] = Q_(p.value, p.units)
 
 
-	def _computeParameters(self):
+	def _loadComputeParameters(self):
 		self._parameterData['avgCellToInitalCellConvFactor'] = Q_(numpy.exp(numpy.log(2) * self._parameterData['avgCellCellCycleProgress']), 'dimensionless')
 		self._parameterData['avgCellDryMassInit'] = self._parameterData['avgCellDryMass'] / self._parameterData['avgCellToInitalCellConvFactor']
-
+		self._parameterData['avgCellWaterMass'] = (self._parameterData['avgCellDryMass'] / self._parameterData['cellDryMassFraction']) * self._parameterData['cellWaterMassFraction']
+		self._parameterData['avgCellWaterMassInit'] = self._parameterData['avgCellWaterMass'] / self._parameterData['avgCellToInitalCellConvFactor']
 
 	## -- Build functions -- ##
 
@@ -554,8 +568,8 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildBiomass(self):
 		units = {'metaboliteId' : None,
-				'biomassFlux' : 'mmol / (DCWg*hr)',
-				'maintenanceFlux' : 'mmol / (DCWg*hr)'}
+				'biomassFlux' : 'mmol / (DCW_g*hr)',
+				'maintenanceFlux' : 'mmol / (DCW_g*hr)'}
 		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, units)
 		self.wildtypeBiomass 	= UnitStructArray(self._wildtypeBiomassData, units)
 
