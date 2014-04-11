@@ -15,4 +15,6 @@ UREG = UnitRegistry()
 Q_ = UREG.Quantity
 UREG.define('nucleotide = []')
 UREG.define('amino_acid = []')
-UREG.define('DCW- = 1.')
+UREG.define('DCW_- = 1.')
+UREG.define('water_- = 1.')
+UREG.define('cell_- = 1.')
