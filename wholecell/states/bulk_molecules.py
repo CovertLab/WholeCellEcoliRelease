@@ -64,7 +64,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self._moleculeIDs = kb.bulkMolecules['moleculeId']
+		self._moleculeIDs = moleculeIds(kb)
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
@@ -76,7 +76,7 @@ class BulkMolecules(wholecell.states.state.State):
 							'water'		:	kb.bulkMolecules['isWater']}
 
 		# Create the container for molecule counts
-		self.container = BulkObjectsContainer(self._moleculeIDs)
+		self.container = bulkObjectsContainer(kb)
 		
 		# TODO: restore this behavior or replace it with something bettter
 
@@ -237,6 +237,12 @@ def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, count
 		scale = scaleAbsolute if isRequestAbsolute[iPartition] else scaleRelative
 		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
 		countsBulkPartitioned[..., iPartition] = allocation
+
+def moleculeIds(kb):
+	return kb.bulkMolecules['moleculeId']
+
+def bulkObjectsContainer(kb):
+	return BulkObjectsContainer(moleculeIds(kb))
 
 class BulkMoleculesViewBase(wholecell.views.view.View):
 	_stateID = 'BulkMolecules'
