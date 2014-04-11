@@ -41,11 +41,6 @@ class State(object):
 		pass
 
 
-	# Calculate initial conditions
-	def calcInitialConditions(self):
-		return
-
-
 	# Views
 	def viewAdd(self, view):
 		self._views.append(view)
