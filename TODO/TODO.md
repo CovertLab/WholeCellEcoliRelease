@@ -31,14 +31,14 @@
 		(x) Create real state
 
 		(x) Use the state in a dynamic simulation
+
+		(x) Heirarchical partitioning
 	
 	(x) Move constants out of simulation and into KB. Make sure work flow goes KB --> fitter --> simulation. No backwards arrows!
 
 		(x) Move constants into KB
 
 		(x) Apply fitter to KB instead of the simulation
-
-	( ) Partitioning hierarchy
 
 (2) **KnowledgeBase**: At the beginning of the quarter we still needed to get a working KnowledgeBase that was not just a collection of CSV files. By the end of the quarter this will be a functioning entity.
 	
