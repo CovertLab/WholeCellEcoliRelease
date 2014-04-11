@@ -47,13 +47,13 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_construction(self):
 		# Construct simulation
-		sim = wholecell.sim.simulation.Simulation()
+		sim = wholecell.sim.simulation.Simulation(reconstructKB = True)
 
 
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_run(self):
 		# Simulate
-		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10)
+		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10, reconstructKB = True)
 		sim.run()
 
 		self.assertEqual(10, sim.states["Time"].value)
@@ -67,7 +67,8 @@ class Test_Simulation(unittest.TestCase):
 		# Run simulation
 		sim = wholecell.sim.simulation.Simulation(
 			seed = 0, lengthSec = 10, logToDisk = True, outputDir = outDir,
-			overwriteExistingFiles = True
+			overwriteExistingFiles = True,
+			reconstructKB = True
 			)
 
 		sim.run()
@@ -84,10 +85,12 @@ class Test_Simulation(unittest.TestCase):
 			reloadedSim.states['UniqueMolecules'].container,
 			)
 
-		self.assertEqual(
-			sim.states['Transcripts'].container,
-			reloadedSim.states['Transcripts'].container,
-			)
+		# commented out until this state is used
+
+		# self.assertEqual(
+		# 	sim.states['Transcripts'].container,
+		# 	reloadedSim.states['Transcripts'].container,
+		# 	)
 
 		self.assertEqual(
 			sim.states['Chromosome'].container,
@@ -111,5 +114,5 @@ class Test_Simulation(unittest.TestCase):
 	# --- Test ability to remove processes from simulation ---
 	@noseAttrib.attr('mediumtest')
 	def test_removeProcesses(self):
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'])
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'], reconstructKB = True)
 		self.assertEqual(['Transcription'], sim.processes.keys())
