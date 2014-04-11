@@ -39,14 +39,12 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self.container = None
 
-		self._moleculeMass = None #
+		self._moleculeMass = None
 
-		self._moleculeIDs = None #
-		self._rnaIds = None
-		self._monomers = None
-		self._compartmentIDs = None #
+		self._moleculeIDs = None
+		self._compartmentIDs = None
 
-		self._nCompartments = None #
+		self._nCompartments = None
 
 		self._isRequestAbsolute = None
 
@@ -57,14 +55,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._typeIdxs = None
 
-		self._rnaLength = None #
-		self._rnaExpression = None #
-
-		self._monomerLength = None #
-		self._monomerExpression = None #
-
-		# Move '#' to KB
-
 		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
@@ -74,14 +64,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
-		self.fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
-		self.fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
-		self.biomass = kb.coreBiomass
-
 		self._moleculeIDs = kb.bulkMolecules['moleculeId']
-		self._rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRna']]
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
@@ -94,23 +77,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)
-
-		# Values needed for calcInitialConditions
-		self._rnaLength = np.sum(kb.rnaNTCounts, axis = 1)
-		self._rnaExpression = kb.rnaExpression.to('dimensionless').magnitude
-		self._rnaExpression /= np.sum(self._rnaExpression)
-
-		# Monomers are not complexes and not modified
-		self._monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & np.logical_not(kb.bulkMolecules['isModifiedForm'])]
-		self._monomerLength = np.sum(kb.proteinMonomerAACounts, axis = 1)
-
-		self._monomerExpression = np.zeros(len(kb._proteinMonomerData), dtype = float)
-		self._monomerExpression = [
-			kb._rnaData['expression'][np.where(rnaId == kb._rnaData['id'])[0][0]]
-			for rnaId in kb._proteinMonomerData['rnaId']
-			]
-
-		self._monomerExpression /= np.sum(self._monomerExpression)
 		
 		# TODO: restore this behavior or replace it with something bettter
 
@@ -345,4 +311,3 @@ class BulkMoleculeView(BulkMoleculesViewBase):
 
 	def countDec(self, value):
 		self._countsDec(value)
-
