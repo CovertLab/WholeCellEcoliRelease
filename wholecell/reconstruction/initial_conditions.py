@@ -11,10 +11,17 @@ aaIds = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
 def calcInitialConditions(sim, kb):
 	randStream = sim.randStream
 
+	bulk = sim.states['BulkMolecules']
+
+	initializeBulkMoleculesBulkObjects(bulk.container, kb, randStream)
+
+
+def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
 	# Data from KB
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
 	initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
+	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude
 
 	rnaLength = np.sum(kb.rnaNTCounts, axis = 1)
 	rnaExpression = kb.rnaExpression.to('dimensionless').magnitude
@@ -43,16 +50,14 @@ def calcInitialConditions(sim, kb):
 
 	# Set bulk molecules
 
-	bulk = sim.states['BulkMolecules']
-
 	initialDryMass = initialDryMass + randStream.normal(0.0, 1e-15)
 
-	feistCoreView = bulk.container.countsView(biomassMetabolites)
-	h2oView = bulk.container.countView('H2O[c]')
-	ntpsView = bulk.container.countsView(ntpIds)
-	rnaView = bulk.container.countsView(rnaIds)
-	aasView = bulk.container.countsView(aaIds)
-	monomersView = bulk.container.countsView(monomers['moleculeId'])
+	feistCoreView = bulkContainer.countsView(biomassMetabolites)
+	h2oView = bulkContainer.countView('H2O[c]')
+	ntpsView = bulkContainer.countsView(ntpIds)
+	rnaView = bulkContainer.countsView(rnaIds)
+	aasView = bulkContainer.countsView(aaIds)
+	monomersView = bulkContainer.countsView(monomers['moleculeId'])
 
 	## Set metabolite counts from Feist biomass
 	feistCoreView.countsIs(
@@ -63,7 +68,7 @@ def calcInitialConditions(sim, kb):
 
 	## Set water
 	h2oView.countIs( # TODO: get mass of water directly from the KB
-		(avgCellWaterMassInit + randStream.normal(0, 1e-15)) / bulk._moleculeMass[bulk._moleculeIDs == 'H2O[c]'] * nAvogadro
+		(avgCellWaterMassInit + randStream.normal(0, 1e-15)) / mwH2O * nAvogadro
 		) # TOKB
 
 	## Set RNA counts from expression levels
