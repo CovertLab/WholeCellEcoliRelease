@@ -30,7 +30,8 @@ def main():
 
 	# Construct simulation
 	sim = wholecell.sim.simulation.Simulation(
-		seed = 1
+		seed = 1,
+		reconstructKB = True
 		)
 
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
