@@ -68,13 +68,11 @@ class Simulation(object):
 		import wholecell.utils.config
 		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
-		import cPickle
+		import wholecell.utils.knowledgebase_fixture_manager
 		if self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
-			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 
 		else:
-			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
@@ -147,7 +145,10 @@ class Simulation(object):
 			process.initialize(self, kb)
 
 		self._allocateMemory()
-		self._calcInitialConditions()
+		
+		from wholecell.reconstruction.initial_conditions import calcInitialConditions
+
+		calcInitialConditions(self, kb)
 
 
 	# Construct states
@@ -211,13 +212,6 @@ class Simulation(object):
 	def _allocateMemory(self):
 		for state in self.states.itervalues():
 			state.allocate()
-
-
-	# Calculate initial conditions
-	def _calcInitialConditions(self):
-		# Calculate initial conditions
-		for state in self.states.itervalues():
-			state.calcInitialConditions()
 
 
 	# -- Run simulation --

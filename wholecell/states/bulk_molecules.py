@@ -135,62 +135,65 @@ class BulkMolecules(wholecell.states.state.State):
 
 	
 	def calcInitialConditions(self):
-		initialDryMass = self.initialDryMass + self.randStream.normal(0.0, 1e-15)
+		# initialDryMass = self.initialDryMass + self.randStream.normal(0.0, 1e-15)
 
-		feistCoreView = self.container.countsView(self.biomass['metaboliteId'])
-		h2oView = self.container.countView('H2O[c]')
-		ntpsView = self.container.countsView(IDS['ntps'])
-		rnaView = self.container.countsView(self._rnaIds)
-		aasView = self.container.countsView(IDS['aas'])
-		monomersView = self.container.countsView(self._monomers['moleculeId'])
+		# feistCoreView = self.container.countsView(self.biomass['metaboliteId'])
+		# h2oView = self.container.countView('H2O[c]')
+		# ntpsView = self.container.countsView(IDS['ntps'])
+		# rnaView = self.container.countsView(self._rnaIds)
+		# aasView = self.container.countsView(IDS['aas'])
+		# monomersView = self.container.countsView(self._monomers['moleculeId'])
 
-		# Set metabolite counts from Feist biomass
-		feistCoreView.countsIs(
-			np.round(
-				np.fmax(self.biomass['biomassFlux'].to('mol/(DCWg*hr)').magnitude,0) * self.nAvogadro * initialDryMass
-				)
-			)
+		# # Set metabolite counts from Feist biomass
+		# feistCoreView.countsIs(
+		# 	np.round(
+		# 		np.fmax(self.biomass['biomassFlux'].to('mol/(DCWg*hr)').magnitude,0) * self.nAvogadro * initialDryMass
+		# 		)
+		# 	)
 
-		# Set water
-		h2oView.countIs(
-			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._moleculeIDs == 'H2O[c]'] * self.nAvogadro
-			) # TOKB
+		# # Set water
+		# h2oView.countIs(
+		# 	(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._moleculeIDs == 'H2O[c]'] * self.nAvogadro
+		# 	) # TOKB
 
-		# Set RNA counts from expression levels
-		ntpsToPolym = np.round(
-			(1 - self.fracInitFreeNTPs) * np.sum(ntpsView.counts())
-			)
+		# # Set RNA counts from expression levels
+		# ntpsToPolym = np.round(
+		# 	(1 - self.fracInitFreeNTPs) * np.sum(ntpsView.counts())
+		# 	)
 
-		rnaCnts = self.randStream.mnrnd(
-			np.round(ntpsToPolym / (np.dot(self._rnaExpression, self._rnaLength))),
-			self._rnaExpression
-			)
+		# rnaCnts = self.randStream.mnrnd(
+		# 	np.round(ntpsToPolym / (np.dot(self._rnaExpression, self._rnaLength))),
+		# 	self._rnaExpression
+		# 	)
 
-		ntpsView.countsIs(
-			np.round(
-				self.fracInitFreeNTPs * ntpsView.counts()
-				)
-			)
+		# ntpsView.countsIs(
+		# 	np.round(
+		# 		self.fracInitFreeNTPs * ntpsView.counts()
+		# 		)
+		# 	)
 
-		rnaView.countsIs(rnaCnts)
+		# rnaView.countsIs(rnaCnts)
 
-		# Set protein counts from expression levels
-		aasToPolym = np.round(
-			(1 - self.fracInitFreeAAs) * np.sum(aasView.counts())
-			)
+		# # Set protein counts from expression levels
+		# aasToPolym = np.round(
+		# 	(1 - self.fracInitFreeAAs) * np.sum(aasView.counts())
+		# 	)
 
-		monCnts = self.randStream.mnrnd(
-			np.round(aasToPolym / (np.dot(self._monomerExpression, self._monomerLength))),
-			self._monomerExpression
-			)
+		# monCnts = self.randStream.mnrnd(
+		# 	np.round(aasToPolym / (np.dot(self._monomerExpression, self._monomerLength))),
+		# 	self._monomerExpression
+		# 	)
 
-		aasView.countsIs(
-			np.round(
-				self.fracInitFreeAAs * aasView.counts()
-				)
-			)
+		# aasView.countsIs(
+		# 	np.round(
+		# 		self.fracInitFreeAAs * aasView.counts()
+		# 		)
+		# 	)
 
-		monomersView.countsIs(monCnts)
+		# monomersView.countsIs(monCnts)
+
+		pass
+
 
 	def updateQueries(self):
 		for view in self._views:
