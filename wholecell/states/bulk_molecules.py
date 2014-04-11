@@ -90,7 +90,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._typeIdxs = {'metabolites'	:	kb2.bulkMolecules['isMetabolite'],
 							'rnas'		:	kb2.bulkMolecules['isRna'],
 							'proteins'	:	kb2.bulkMolecules['isProteinMonomer'],
-							'H2O'		:	kb2.bulkMolecules['isWater']}
+							'water'		:	kb2.bulkMolecules['isWater']}
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)
