@@ -79,6 +79,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self.fracInitFreeNTPs = kb2.fracInitFreeNTPs.to('dimensionless').magnitude
 		self.fracInitFreeAAs = kb2.fracInitFreeAAs.to('dimensionless').magnitude
 		self.biomass = kb2.coreBiomass
+		self.avgCellWaterMassInit = kb2.avgCellWaterMassInit.to('water_g').magnitude
 
 		self._moleculeIDs = kb2.bulkMolecules['moleculeId']
 		self._rnaIds = kb2.bulkMolecules['moleculeId'][kb2.bulkMolecules['isRna']]
@@ -153,8 +154,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Set water
 		h2oView.countIs(
-			(6.7e-13 / 1.36 + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._moleculeIDs == 'H2O[c]'] * self.nAvogadro
-			) # TOKB
+			(self.avgCellWaterMassInit + self.randStream.normal(0, 1e-15)) / self._moleculeMass[self._moleculeIDs == 'H2O[c]'] * self.nAvogadro
+			)
 
 		# Set RNA counts from expression levels
 		ntpsToPolym = np.round(
