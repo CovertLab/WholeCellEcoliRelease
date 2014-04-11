@@ -22,7 +22,8 @@ def calcInitialConditions(sim, kb):
 
 	fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
 	fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
-	biomass = kb.coreBiomass
+	biomassFlux = kb.coreBiomass['biomassFlux'].to('mol/(DCW_g*hr)').magnitude
+	biomassMetabolites = kb.coreBiomass['metaboliteId']
 
 	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
@@ -46,7 +47,7 @@ def calcInitialConditions(sim, kb):
 
 	initialDryMass = initialDryMass + randStream.normal(0.0, 1e-15)
 
-	feistCoreView = bulk.container.countsView(biomass['metaboliteId'])
+	feistCoreView = bulk.container.countsView(biomassMetabolites)
 	h2oView = bulk.container.countView('H2O[c]')
 	ntpsView = bulk.container.countsView(ntpIds)
 	rnaView = bulk.container.countsView(rnaIds)
@@ -56,7 +57,7 @@ def calcInitialConditions(sim, kb):
 	## Set metabolite counts from Feist biomass
 	feistCoreView.countsIs(
 		np.round(
-			np.fmax(biomass['biomassFlux'].to('mol/(DCWg*hr)').magnitude,0) * nAvogadro * initialDryMass
+			np.fmax(biomassFlux, 0) * nAvogadro * initialDryMass
 			)
 		)
 
