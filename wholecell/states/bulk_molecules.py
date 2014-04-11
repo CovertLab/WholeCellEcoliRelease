@@ -74,12 +74,12 @@ class BulkMolecules(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 		# Load constants
-		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb2.avgCellDryMassInit.to('g').magnitude
-		self.fracInitFreeNTPs = kb2.fracInitFreeNTPs.to('dimensionless').magnitude
-		self.fracInitFreeAAs = kb2.fracInitFreeAAs.to('dimensionless').magnitude
-		self.biomass = kb2.coreBiomass
-		self.avgCellWaterMassInit = kb2.avgCellWaterMassInit.to('water_g').magnitude
+		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
+		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
+		self.fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
+		self.fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
+		self.biomass = kb.coreBiomass
+		self.avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
 		self._moleculeIDs = kb.bulkMolecules['moleculeId']
 		self._rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRna']]
