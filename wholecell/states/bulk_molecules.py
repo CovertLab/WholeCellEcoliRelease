@@ -401,29 +401,6 @@ class BulkMoleculeView(BulkMoleculesViewBase):
 	def countDec(self, value):
 		self._countsDec(value)
 
-FEIST_CORE_VALS = np.array([ # TODO: This needs to go in the KB
-	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
-	0.450531, 0.343161, 0.153686, 0.185265, 0.221055, 0.215792, 0.253687, 0.056843, 0.137896, 0.423162,
-	0.026166, 0.027017, 0.027017, 0.026166, 0.133508, 0.215096, 0.144104, 0.174831, 0.013894, 0.019456,
-	0.063814, 0.075214, 0.177645, 0.011843, 0.007895, 0.004737, 0.007106, 0.007106, 0.003158, 0.003158,
-	0.003158, 0.003158, 0.003158, 0.004737, 0.003948, 0.003948, 0.000576, 0.001831, 0.000447, 0.000223,
-	0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000223, 0.000055, 0.000223, 0.000223,
-	0.000223		# mmol/gDCW (supp info 3, "biomass_core", column G)
-	]) # TOKB
-
-COMPARTMENTS = [ # TODO: move to KB
-	{"id": "c", "name": "Cytosol"},
-	{"id": "e", "name": "Extracellular space"},
-	{"id": "i", "name": "Inner membrane"},
-	{"id": "j", "name": "Projection"},
-	{"id": "l", "name": "Pilus"},
-	{"id": "m", "name": "Membrane"},
-	{"id": "n", "name": "Nucleoid"},
-	{"id": "o", "name": "Outer membrane"},
-	{"id": "p", "name": "Periplasm"},
-	{"id": "w", "name": "Cell wall"}
-	]
-
 IDS = {
 	'ntps':["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"],
 	'ndps':["ADP[c]", "CDP[c]", "GDP[c]", "UDP[c]"],
