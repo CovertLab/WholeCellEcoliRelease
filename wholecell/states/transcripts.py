@@ -39,10 +39,6 @@ class Transcripts(wholecell.states.state.State):
 		self.time = sim.states['Time']
 
 
-	def calcInitialConditions(self):
-		pass
-
-
 	def partition(self):
 		# Set the correct time for saving purposes
 		self.container.timeIs(self.time.value)

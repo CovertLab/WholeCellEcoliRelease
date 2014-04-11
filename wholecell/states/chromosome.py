@@ -33,8 +33,9 @@ class Chromosome(wholecell.states.state.State):
 		self.container = None
 
 		self._partitioningHierarchy = ['ToyReplication', 'ToyTranscription']
-		self._processToHierarchy = {name:i
-			for i, name in enumerate(self._partitioningHierarchy)}
+		self._processToHierarchy = {
+			name:i for i, name in enumerate(self._partitioningHierarchy)
+			}
 
 		super(Chromosome, self).__init__(*args, **kwargs)
 
@@ -49,6 +50,8 @@ class Chromosome(wholecell.states.state.State):
 
 
 	def calcInitialConditions(self):
+		# TODO: move to new global calcInitialConditions function
+
 		# Replicate some regions
 		forksRoot = self.container.divideRegion(
 			self.container.rootStrand(),

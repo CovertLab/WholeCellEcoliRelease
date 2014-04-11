@@ -99,10 +99,6 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsAllocatedFinal = np.zeros((nMolecules, self._nProcesses), dtype)
 		self._countsUnallocated = np.zeros(nMolecules, dtype)
 
-	
-	def calcInitialConditions(self):
-		pass
-
 
 	def updateQueries(self):
 		for view in self._views:

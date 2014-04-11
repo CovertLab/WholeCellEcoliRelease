@@ -60,10 +60,6 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self.container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
 
-	
-	def calcInitialConditions(self):
-		pass
-
 
 	def partition(self):
 		# Set the correct time for saving purposes
