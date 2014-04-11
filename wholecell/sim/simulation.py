@@ -120,7 +120,7 @@ class Simulation(object):
 			jsonArgs = json.load(open(filePath))
 
 		except ValueError:
-			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntx checker in your text editor.')
+			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntax checker in your text editor.')
 
 		jsonArgs.update(kwargs)
 
