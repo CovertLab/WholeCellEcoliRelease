@@ -15,6 +15,8 @@ def calcInitialConditions(sim, kb):
 	fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
 	biomass = kb.coreBiomass
 
+	avgCellWaterMassInit = kb2.avgCellWaterMassInit.to('water_g').magnitude
+
 	# Monomers are not complexes and not modified
 	monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & np.logical_not(kb.bulkMolecules['isModifiedForm'])]
 	monomerLength = np.sum(kb.proteinMonomerAACounts, axis = 1)
@@ -42,19 +44,19 @@ def calcInitialConditions(sim, kb):
 	aasView = bulk.container.countsView(IDS['aas'])
 	monomersView = bulk.container.countsView(monomers['moleculeId'])
 
-	# Set metabolite counts from Feist biomass
+	## Set metabolite counts from Feist biomass
 	feistCoreView.countsIs(
 		np.round(
 			np.fmax(biomass['biomassFlux'].to('mol/(DCWg*hr)').magnitude,0) * nAvogadro * initialDryMass
 			)
 		)
 
-	# Set water
+	## Set water
 	h2oView.countIs(
-		(6.7e-13 / 1.36 + bulk.randStream.normal(0, 1e-15)) / bulk._moleculeMass[bulk._moleculeIDs == 'H2O[c]'] * nAvogadro
+		(avgCellWaterMassInit + bulk.randStream.normal(0, 1e-15)) / bulk._moleculeMass[bulk._moleculeIDs == 'H2O[c]'] * nAvogadro
 		) # TOKB
 
-	# Set RNA counts from expression levels
+	## Set RNA counts from expression levels
 	ntpsToPolym = np.round(
 		(1 - fracInitFreeNTPs) * np.sum(ntpsView.counts())
 		)
@@ -72,7 +74,7 @@ def calcInitialConditions(sim, kb):
 
 	rnaView.countsIs(rnaCnts)
 
-	# Set protein counts from expression levels
+	## Set protein counts from expression levels
 	aasToPolym = np.round(
 		(1 - fracInitFreeAAs) * np.sum(aasView.counts())
 		)
