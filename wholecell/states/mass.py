@@ -40,9 +40,9 @@ class Mass(wholecell.states.state.State):
 		self.meta = {
 			"id": "Mass",
 			"name": "Mass",
-			"dynamics": ["total", "cell", "cellDry", "metabolite", "rna", "protein", 'growth'],
+			"dynamics": ["cell", "cellDry", "metabolite", "rna", "protein", 'growth'],
 			"units": {
-				"total": "fg",
+				"cell": "fg",
 				"cellDry": "fg",
 				"metabolite": "fg",
 				"rna": "fg",
