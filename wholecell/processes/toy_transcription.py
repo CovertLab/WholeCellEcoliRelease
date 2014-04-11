@@ -32,8 +32,8 @@ class ToyTranscription(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(ToyTranscription, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(ToyTranscription, self).initialize(sim, kb)
 
 		self.rnaPolyRegions = self.chromosomeMoleculesView('RNA polymerase',
 			self.polymerizationRate, 0, False)

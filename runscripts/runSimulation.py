@@ -21,6 +21,7 @@ import sys
 DEFAULT_SIM = dict(
 	seed = 10,
 	lengthSec = 10,
+	reconstructKB = True,
 	)
 
 def main():

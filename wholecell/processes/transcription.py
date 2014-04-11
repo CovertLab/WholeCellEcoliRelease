@@ -41,22 +41,22 @@ class Transcription(wholecell.processes.process.Process):
 		super(Transcription, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(Transcription, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Transcription, self).initialize(sim, kb)
 
 		# Load parameters
-		self.cellCycleLength = kb2.cellCycleLen.to('s').magnitude
-		self.elngRate = kb2.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude
+		self.cellCycleLength = kb.cellCycleLen.to('s').magnitude
+		self.elngRate = kb.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude
 
-		rnaIds = kb2.rnaData['id']
+		rnaIds = kb.rnaData['id']
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
 		# RNA
-		self.rnaNtCounts = kb2.rnaData['countsAUCG']
-		self.rnaLens = kb2.rnaData['length']
+		self.rnaNtCounts = kb.rnaData['countsAUCG']
+		self.rnaLens = kb.rnaData['length']
 		
-		self.rnaSynthProb = kb2.rnaData['synthProb']
+		self.rnaSynthProb = kb.rnaData['synthProb']
 
 		# Views
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"])

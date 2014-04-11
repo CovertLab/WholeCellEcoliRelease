@@ -69,16 +69,16 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(Metabolism, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Metabolism, self).initialize(sim, kb)
 
 		# self.mass = sim.states["Mass"]
 		self.time = sim.states["Time"]
 
 		# Load constants
-		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb2.avgCellDryMassInit.to('g').magnitude
-		self.cellCycleLen = kb2.cellCycleLen.to('s').magnitude
+		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
+		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
+		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
 		
 		# bioIds = []
 		# bioConc = []
@@ -94,9 +94,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
-		self.feistCoreBiomassReaction = kb2.coreBiomass['biomassFlux'].magnitude
+		self.feistCoreBiomassReaction = kb.coreBiomass['biomassFlux'].magnitude
 
-		self.feistCoreIds = kb2.coreBiomass['metaboliteId']
+		self.feistCoreIds = kb.coreBiomass['metaboliteId']
 
 		# Views
 		# self.biomass = self.bulkMoleculesView(bioIds)

@@ -68,47 +68,55 @@ class BulkMolecules(wholecell.states.state.State):
 		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, sim, kb, kb2):
-		super(BulkMolecules, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(BulkMolecules, self).initialize(sim, kb)
 
 		self.time = sim.states['Time']
 
 		# Load constants
+<<<<<<< HEAD
 		self.nAvogadro = kb2.nAvogadro.to('1 / mole').magnitude
 		self.initialDryMass = kb2.avgCellDryMassInit.to('g').magnitude
 		self.fracInitFreeNTPs = kb2.fracInitFreeNTPs.to('dimensionless').magnitude
 		self.fracInitFreeAAs = kb2.fracInitFreeAAs.to('dimensionless').magnitude
 		self.biomass = kb2.coreBiomass
 		self.avgCellWaterMassInit = kb2.avgCellWaterMassInit.to('water_g').magnitude
+=======
+		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
+		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
+		self.fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
+		self.fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
+		self.biomass = kb.coreBiomass
+>>>>>>> 91e56a8e0db274f4b31587773204e7ffe3574a8d
 
-		self._moleculeIDs = kb2.bulkMolecules['moleculeId']
-		self._rnaIds = kb2.bulkMolecules['moleculeId'][kb2.bulkMolecules['isRna']]
-		self._compartmentIDs = kb2.compartments['compartmentAbbreviation']
-		self._nCompartments = kb2.nCompartments
+		self._moleculeIDs = kb.bulkMolecules['moleculeId']
+		self._rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRna']]
+		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
+		self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb2.bulkMolecules['mass'].to('g/mol').magnitude
+		self._moleculeMass = kb.bulkMolecules['mass'].to('g/mol').magnitude
 
-		self._typeIdxs = {'metabolites'	:	kb2.bulkMolecules['isMetabolite'],
-							'rnas'		:	kb2.bulkMolecules['isRna'],
-							'proteins'	:	kb2.bulkMolecules['isProteinMonomer'],
-							'H2O'		:	kb2.bulkMolecules['isWater']}
+		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
+							'rnas'		:	kb.bulkMolecules['isRna'],
+							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
+							'water'		:	kb.bulkMolecules['isWater']}
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)
 
 		# Values needed for calcInitialConditions
-		self._rnaLength = np.sum(kb2.rnaNTCounts, axis = 1)
-		self._rnaExpression = kb2.rnaExpression.to('dimensionless').magnitude
+		self._rnaLength = np.sum(kb.rnaNTCounts, axis = 1)
+		self._rnaExpression = kb.rnaExpression.to('dimensionless').magnitude
 		self._rnaExpression /= np.sum(self._rnaExpression)
 
 		# Monomers are not complexes and not modified
-		self._monomers = kb2.bulkMolecules[kb2.bulkMolecules['isProteinMonomer'] & np.logical_not(kb2.bulkMolecules['isModifiedForm'])]
-		self._monomerLength = np.sum(kb2.proteinMonomerAACounts, axis = 1)
+		self._monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & np.logical_not(kb.bulkMolecules['isModifiedForm'])]
+		self._monomerLength = np.sum(kb.proteinMonomerAACounts, axis = 1)
 
-		self._monomerExpression = np.zeros(len(kb2._proteinMonomerData), dtype = float)
+		self._monomerExpression = np.zeros(len(kb._proteinMonomerData), dtype = float)
 		self._monomerExpression = [
-			kb2._rnaData['expression'][np.where(rnaId == kb2._rnaData['id'])[0][0]]
-			for rnaId in kb2._proteinMonomerData['rnaId']
+			kb._rnaData['expression'][np.where(rnaId == kb._rnaData['id'])[0][0]]
+			for rnaId in kb._proteinMonomerData['rnaId']
 			]
 
 		self._monomerExpression /= np.sum(self._monomerExpression)

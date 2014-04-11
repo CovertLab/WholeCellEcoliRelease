@@ -69,19 +69,14 @@ class Simulation(object):
 		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
 		import cPickle
-		# TODO: Remove HACK and actually use some logic here!
-		if True or self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
+		if self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
 			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
+
 		else:
 			import wholecell.utils.knowledgebase_fixture_manager
 			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
-
-		import sys
-		sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
-		import ecoliwholecellkb_project.KnowledgeBaseEcoli_2
-		kb2 = ecoliwholecellkb_project.KnowledgeBaseEcoli_2.KnowledgeBaseEcoli_2()
 
 		# Set time parameters
 		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude # Simulation length (s)
@@ -90,12 +85,12 @@ class Simulation(object):
 		self.simulationStep = 0
 
 		# Fit KB parameters
-		import wholecell.reconstruction.fitter
-		wholecell.reconstruction.fitter.fitSimulation(kb)
+		# import wholecell.reconstruction.fitter
+		# wholecell.reconstruction.fitter.fitSimulation(kb)
 		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
-		self._initialize(kb, kb2)
+		self._initialize(kb)
 
 		# Set loggers
 		self.loggers = []
@@ -141,15 +136,15 @@ class Simulation(object):
 
 
 	# Link states and processes
-	def _initialize(self, kb, kb2):
+	def _initialize(self, kb):
 		self._constructStates()
 		self._constructProcesses()
 
 		for state in self.states.itervalues():
-			state.initialize(self, kb, kb2)
+			state.initialize(self, kb)
 
 		for process in self.processes.itervalues():
-			process.initialize(self, kb, kb2)
+			process.initialize(self, kb)
 
 		self._allocateMemory()
 		self._calcInitialConditions()

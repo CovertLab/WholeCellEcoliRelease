@@ -43,7 +43,6 @@ class Mass(wholecell.states.state.State):
 			"dynamics": ["total", "cell", "cellDry", "metabolite", "rna", "protein", 'growth'],
 			"units": {
 				"total": "fg",
-				"cell": "fg",
 				"cellDry": "fg",
 				"metabolite": "fg",
 				"rna": "fg",
@@ -57,7 +56,6 @@ class Mass(wholecell.states.state.State):
 		self.time = None
 
 		# Mass
-		self.total = None
 		self.cell = None
 		self.cellDry = None
 		self.metabolite = None
@@ -70,67 +68,55 @@ class Mass(wholecell.states.state.State):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(Mass, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Mass, self).initialize(sim, kb)
 
 		self.bulkMolecules = sim.states["BulkMolecules"]
 		self.time = sim.states["Time"]
-		self.nAvogardo = kb.constants['nAvogadro'].to('1 / mole').magnitude
+
+		self.nAvogadro = kb.nAvogadro.to('1/mole').magnitude
 
 
 	# Allocate memory
 	def allocate(self):
 		super(Mass, self).allocate()
 
-		self.total = np.zeros(len(self.compartments))
-		self.cell = np.zeros(len(self.compartments))
-		self.cellDry = np.zeros(len(self.compartments))
-		self.metabolite = np.zeros(len(self.compartments))
-		self.rna = np.zeros(len(self.compartments))
-		self.protein = np.zeros(len(self.compartments))
+		# TODO: reimplement compartment-specific records, if desired
+
+		self.cell = np.zeros(1)
+		self.cellDry = np.zeros(1)
+		self.metabolite = np.zeros(1)
+		self.rna = np.zeros(1)
+		self.protein = np.zeros(1)
 
 		self.growth = np.zeros(1)
 
 
 	def calculate(self):
+		oldMass = self.cell
+
 		# Total
-		self.total = self.bulkMolecules.mass() / self.nAvogardo * 1e15
+		self.cell = self.bulkMolecules.mass() / self.nAvogadro * 1e15
 
 		# Cell
-		self.metabolite = self.bulkMolecules.mass('metabolites') / self.nAvogardo * 1e15
-		self.rna        = self.bulkMolecules.mass('rnas')        / self.nAvogardo * 1e15
-		self.protein    = self.bulkMolecules.mass('proteins')    / self.nAvogardo * 1e15
+		self.metabolite = self.bulkMolecules.mass('metabolites') / self.nAvogadro * 1e15
+		self.rna        = self.bulkMolecules.mass('rnas')        / self.nAvogadro * 1e15
+		self.protein    = self.bulkMolecules.mass('proteins')    / self.nAvogadro * 1e15
 
-		cIdxs = np.array([
-							self.cIdx["c"], self.cIdx["i"], self.cIdx["j"], self.cIdx["l"], self.cIdx["m"],
-							self.cIdx["n"], self.cIdx["o"], self.cIdx["p"], self.cIdx["w"]])
+		self.cellDry = self.cell - self.bulkMolecules.mass('water') / self.nAvogadro * 1e15
 
-		oldMass = self.cell.sum()
-
-		self.cell[:] = 0
-		self.cell[cIdxs] = self.metabolite[cIdxs] + self.rna[cIdxs] + self.protein[cIdxs]
-
-		self.cellDry[:] = 0
-		self.cellDry[cIdxs] = self.cell[cIdxs] - self.bulkMolecules.mass('water')[cIdxs] / self.nAvogardo * 1e15
-
-		self.growth = self.cell.sum() - oldMass
+		self.growth = self.cell - oldMass
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		colNameLen = max(len(colName) for colName in self.cIdx.keys())
-
-		nCols = len(self.cIdx)
-
 		# Columns
 		d = {
 			"time": tables.Int64Col(),
-			"compartment": tables.StringCol(colNameLen, nCols), # TODO: store in table outside columns instead of writing every step
-			"total": tables.Float64Col(nCols),
-			"cell": tables.Float64Col(nCols),
-			"cellDry": tables.Float64Col(nCols),
-			"metabolite": tables.Float64Col(nCols),
-			"rna": tables.Float64Col(nCols),
-			"protein": tables.Float64Col(nCols),
+			"cell": tables.Float64Col(),
+			"cellDry": tables.Float64Col(),
+			"metabolite": tables.Float64Col(),
+			"rna": tables.Float64Col(),
+			"protein": tables.Float64Col(),
 			}
 
 		# Create table
@@ -145,7 +131,6 @@ class Mass(wholecell.states.state.State):
 			)
 
 		# Store units as metadata
-		t.attrs.total_units = self.meta["units"]["total"]
 		t.attrs.cell_units = self.meta["units"]["cell"]
 		t.attrs.cellDry_units = self.meta["units"]["cellDry"]
 		t.attrs.metabolite_units = self.meta["units"]["metabolite"]
@@ -159,13 +144,12 @@ class Mass(wholecell.states.state.State):
 		entry = t.row
 
 		entry["time"] = simTime
-		entry["compartment"] = [compartment['id'] for compartment in self.compartments]
-		entry["total"] = self.total
 		entry["cell"] = self.cell
 		entry["cellDry"] = self.cellDry
 		entry["metabolite"] = self.metabolite
 		entry["rna"] = self.rna
 		entry["protein"] = self.protein
+
 		entry.append()
 
 		t.flush()
