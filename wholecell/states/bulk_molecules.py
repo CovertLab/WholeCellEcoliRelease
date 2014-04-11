@@ -148,7 +148,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# Set metabolite counts from Feist biomass
 		feistCoreView.countsIs(
 			np.round(
-				np.fmax(self.biomass['biomassFlux'].to('mol/(DCWg*hr)').magnitude,0) * self.nAvogadro * initialDryMass
+				np.fmax(self.biomass['biomassFlux'].to('mol/(DCW_g*hr)').magnitude,0) * self.nAvogadro * initialDryMass
 				)
 			)
 
