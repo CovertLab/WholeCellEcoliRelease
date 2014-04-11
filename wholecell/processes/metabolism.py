@@ -45,8 +45,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.initialDryMass = None
 		self.cellCycleLen = None
 
-		self.unaccountedEnergyConsumption = 6.2750e7	# ATP / cell cycle # TOKB
-
 		self.objective = None							# FBA LP objective (max growth)
 		self.sMat = None								# Stoichiometry matrix [met x rxn]
 		self.eMat = None								# Enzyme catalysis matrix
