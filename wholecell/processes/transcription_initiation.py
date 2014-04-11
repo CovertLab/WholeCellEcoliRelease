@@ -60,6 +60,11 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		# Sigma factors
 		self.freeSigmaD = self.bulkMoleculeView(['RPOD-MONOMER[c]'])
 		self.freeSigmaH = self.bulkMoleculeView(['RPOH-MONOMER[c]'])
+		self.freeSigmaE = self.bulkMoleculeView(['RPOE-MONOMER[c]'])
+		self.freeSigmaF = self.bulkMoleculeView(['EG11355-MONOMER[c]'])
+		self.freeSigmaN = self.bulkMoleculeView(['RPON-MONOMER[c]'])
+		self.freeSigmaS = self.bulkMoleculeView(['RPON-MONOMER[c]'])
+
 		# TODO: Add other sigma factors. Will have to add different sorts of
 		# promoters (one for each sigma factor) to the matrix to make this work.
 
