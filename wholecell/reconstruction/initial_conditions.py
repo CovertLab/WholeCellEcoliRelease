@@ -24,7 +24,7 @@ def calcInitialConditions(sim, kb):
 	fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
 	biomass = kb.coreBiomass
 
-	avgCellWaterMassInit = kb2.avgCellWaterMassInit.to('water_g').magnitude
+	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
 	## Monomers are not complexes and not modified
 	monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & ~kb.bulkMolecules['isModifiedForm']]
