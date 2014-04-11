@@ -39,8 +39,8 @@ class Chromosome(wholecell.states.state.State):
 		super(Chromosome, self).__init__(*args, **kwargs)
 
 	
-	def initialize(self, sim, kb, kb2):
-		super(Chromosome, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Chromosome, self).initialize(sim, kb)
 
 		self.container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
 			MOLECULE_ATTRIBUTES)

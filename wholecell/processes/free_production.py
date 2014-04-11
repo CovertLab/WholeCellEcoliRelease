@@ -38,10 +38,10 @@ class FreeProduction(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(FreeProduction, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(FreeProduction, self).initialize(sim, kb)
 
-		self.cellCycleLength = kb2.cellCycleLen.to('s').magnitude
+		self.cellCycleLength = kb.cellCycleLen.to('s').magnitude
 
 		freeMolecules = sim.freeMolecules if sim.freeMolecules is not None else ()
 

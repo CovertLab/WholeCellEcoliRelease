@@ -38,8 +38,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		super(RnaDegradation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(RnaDegradation, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(RnaDegradation, self).initialize(sim, kb)
 
 		self._metaboliteIds = ["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
@@ -48,15 +48,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
 		self._hIdx = self._metaboliteIds.index('H[c]')
 
-		self._rnaIds = kb2.rnaData['id']
+		self._rnaIds = kb.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb2.rnaData['degRate']
+		self.rnaDegRates = kb.rnaData['degRate']
 
-		self.rnaLens = kb2.rnaData['length']
+		self.rnaLens = kb.rnaData['length']
 
 		self.rnaDegSMat = np.zeros((len(self._metaboliteIds), len(self._rnaIds)), np.int64)
-		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb2.rnaData['countsAUCG'])
+		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb.rnaData['countsAUCG'])
 		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 

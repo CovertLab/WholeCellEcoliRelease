@@ -17,13 +17,18 @@ import wholecell.utils.config
 
 def cacheKnowledgeBase(outDir):
 	sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
+
 	import ecoliwholecellkb_project.KnowledgeBaseEcoli
 	kb = ecoliwholecellkb_project.KnowledgeBaseEcoli.KnowledgeBaseEcoli()
+	
 	cPickle.dump(kb, open(os.path.join(outDir, "KnowledgeBase.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+
 	return kb
 
 def loadKnowledgeBase(inDir):
 	sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
+
 	import ecoliwholecellkb_project.KnowledgeBaseEcoli
 	kb = cPickle.load(open(inDir, "rb"))
+
 	return kb

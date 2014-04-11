@@ -39,8 +39,8 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		super(Transcription, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(Transcription, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Transcription, self).initialize(sim, kb)
 
 		## Load constants from Knowledge Base
 		self.rnaPolymeraseTransitionProb = kb.rnaPolymeraseTransitionProb

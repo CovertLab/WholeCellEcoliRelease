@@ -34,21 +34,21 @@ class Translation(wholecell.processes.process.Process):
 		super(Translation, self).__init__()
 
 	# Construct object graph, calculate constants
-	def initialize(self, sim, kb, kb2):
-		super(Translation, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Translation, self).initialize(sim, kb)
 
 		# Load parameters
-		self.elngRate = kb2.ribosomeElongationRate.to('amino_acid / s').magnitude
+		self.elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
 
-		mrnaIDs = kb2.monomerData['rnaId']
-		proteinIDs = kb2.monomerData['id']
+		mrnaIDs = kb.monomerData['rnaId']
+		proteinIDs = kb.monomerData['id']
 
 		# Metabolites
 		self.n_aas = len(aaIDs)
 
 		# mRNA, protein monomers
-		self.proteinAaCounts = kb2.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
-		self.proteinLens = kb2.monomerData['length']
+		self.proteinAaCounts = kb.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
+		self.proteinLens = kb.monomerData['length']
 
 		# Views
 		self.atp = self.bulkMoleculeView('ATP[c]')

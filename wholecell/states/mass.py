@@ -68,13 +68,13 @@ class Mass(wholecell.states.state.State):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb, kb2):
-		super(Mass, self).initialize(sim, kb, kb2)
+	def initialize(self, sim, kb):
+		super(Mass, self).initialize(sim, kb)
 
 		self.bulkMolecules = sim.states["BulkMolecules"]
 		self.time = sim.states["Time"]
 
-		self.nAvogadro = kb2.nAvogadro.to('1/mole').magnitude
+		self.nAvogadro = kb.nAvogadro.to('1/mole').magnitude
 
 
 	# Allocate memory
