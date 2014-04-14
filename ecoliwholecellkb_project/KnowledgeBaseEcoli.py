@@ -51,6 +51,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadComments()
 		self._loadCompartments()
 		self._loadMetabolites()
+		self._loadBiomass()
 		self._loadGenome()
 		self._loadGenes()
 		self._loadRnas()
@@ -250,29 +251,39 @@ class KnowledgeBaseEcoli(object):
 
 	def _loadBiomass(self):
 
-		self._cellCompositionData = numpy.zeros(,
+		doublingTime = [100, 60, 40, 30, 24]
+
+		self._cellCompositionData = numpy.zeros(len(doublingTime),
 			dtype = [('doublingTime',				'f'),
 					('proteinMassFraction',			'f'),
 					('rnaMassFraction',				'f'),
 					('dnaMassFraction',				'f'),
 					('lipidMassFraction',			'f'),
 					('lpsMassFraction',				'f'),
-					('murinMassFraction',			'f'),
+					('mureinMassFraction',			'f'),
 					('glycogenMassFraction',		'f'),
 					('solublePoolMassFraction',		'f'),
 					('inorganicIonMassFraction',	'f')])
 
+		self._cellCompositionData['doublingTime'] = doublingTime
+		self._cellCompositionData['proteinMassFraction'] = [0.6756756757, 0.6046511628, 0.5404157044, 0.5304212168, 0.5202312139]
+		self._cellCompositionData['rnaMassFraction'] = [0.1351351351, 0.1511627907, 0.1778290993, 0.2059282371, 0.2439306358]
+		self._cellCompositionData['dnaMassFraction'] = [0.0513513514, 0.0348837209, 0.0260969977, 0.0224648986, 0.0211560694]
+		self._cellCompositionData['lipidMassFraction'] = [0.0655363953, 0.0995149094, 0.1215552785, 0.1146741575, 0.1020727685]
+		self._cellCompositionData['lpsMassFraction'] = [0.0239595424, 0.0363817948, 0.0444395642, 0.0419238855, 0.0373169261]
+		self._cellCompositionData['mureinMassFraction'] = [0.0176173106, 0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
+		self._cellCompositionData['glycogenMassFraction'] = [0.0176173106, 0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
+		self._cellCompositionData['solublePoolMassFraction'] = [0.0060603548, 0.009202454, 0.0112405956, 0.0106042769, 0.0094389872]
+		self._cellCompositionData['inorganicIonMassFraction'] = [0.0070469242, 0.0107005279, 0.0130704601, 0.0123305546, 0.0109755665]
 
-			self._cellCompositionData['doublingTime'] = [100, 60, 40, 30, 24]
-			self._cellCompositionData['proteinMassFraction'] = [0.6756756757, 0.6046511628, 0.5404157044, 0.5304212168, 0.5202312139]
-			self._cellCompositionData['rnaMassFraction'] = [0.1351351351, 0.1511627907, 0.1778290993, 0.2059282371, 0.2439306358]
-			self._cellCompositionData['dnaMassFraction'] = [0.0513513514, 0.0348837209, 0.0260969977, 0.0224648986, 0.0211560694]
-			self._cellCompositionData['lipidMassFraction'] = [0.0655363953, 0.0995149094, 0.1215552785, 0.1146741575, 0.1020727685]
-			self._cellCompositionData['lpsMassFraction'] = [0.0239595424, 0.0363817948, 0.0444395642, 0.0419238855, 0.0373169261]
-			self._cellCompositionData['murinMassFraction'] = [0.0176173106, 0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
-			self._cellCompositionData['glycogenMassFraction'] = [0.0176173106, 0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
-			self._cellCompositionData['solublePoolMassFraction'] = [0.0060603548, 0.009202454, 0.0112405956, 0.0106042769, 0.0094389872]
-			self._cellCompositionData['inorganicIonMassFraction'] = [0.0070469242, 0.0107005279, 0.0130704601, 0.0123305546, 0.0109755665]
+
+		lipidIds = ['pe160[c]','pe160[c]','pe161[c]','pe161[c]','pe181[c]','pe181[c]','pg160[c]','pg160[c]','pg161[c]','pg161[c]','pg181[c]','pg181[c]','clpn160[p]','clpn161[p]','clpn181[p]']
+		fracOfLipidMass = [0.0920103159, 0.2365979553, 0.0711465906, 0.1829483758, 0.0396601262, 0.1019831816, 0.0443064600, 0.0379769658, 0.0342681284, 0.0293726815, 0.0190423107, 0.0163219806, 0.0427979361, 0.0330887203, 0.0184782712]
+		self._cellLipidFractionData = numpy.zeros(len(lipidIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+
+
+
+		import ipdb; ipdb.set_trace()
 
 
 	def _loadGenome(self):
