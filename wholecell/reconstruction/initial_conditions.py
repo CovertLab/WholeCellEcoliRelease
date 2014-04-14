@@ -23,11 +23,6 @@ def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
 	initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
 	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude
 
-	rnaLength = np.sum(kb.rnaNTCounts, axis = 1)
-	rnaExpression = kb.rnaExpression.to('dimensionless').magnitude
-	rnaExpression /= np.sum(rnaExpression)
-
-	fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
 	fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
 	biomassFlux = kb.coreBiomass['biomassFlux'].to('mol/(DCW_g*hr)').magnitude
 	biomassMetabolites = kb.coreBiomass['metaboliteId']
@@ -46,8 +41,6 @@ def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
 
 	monomerExpression /= np.sum(monomerExpression)
 
-	rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRna']]
-
 	# Set bulk molecules
 
 	initialDryMass = initialDryMass + randStream.normal(0.0, 1e-15)
@@ -55,7 +48,7 @@ def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
 	feistCoreView = bulkContainer.countsView(biomassMetabolites)
 	h2oView = bulkContainer.countView('H2O[c]')
 	ntpsView = bulkContainer.countsView(ntpIds)
-	rnaView = bulkContainer.countsView(rnaIds)
+	
 	aasView = bulkContainer.countsView(aaIds)
 	monomersView = bulkContainer.countsView(monomers['moleculeId'])
 
@@ -72,22 +65,8 @@ def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
 		) # TOKB
 
 	## Set RNA counts from expression levels
-	ntpsToPolym = np.round(
-		(1 - fracInitFreeNTPs) * np.sum(ntpsView.counts())
-		)
-
-	rnaCnts = randStream.mnrnd(
-		np.round(ntpsToPolym / (np.dot(rnaExpression, rnaLength))),
-		rnaExpression
-		)
-
-	ntpsView.countsIs(
-		np.round(
-			fracInitFreeNTPs * ntpsView.counts()
-			)
-		)
-
-	rnaView.countsIs(rnaCnts)
+	initializeBulkRNA(kb, bulkContainer, randStream)
+	initializeBulkNTPs(kb, bulkContainer, randStream)
 
 	## Set protein counts from expression levels
 	aasToPolym = np.round(
@@ -106,3 +85,36 @@ def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
 		)
 
 	monomersView.countsIs(monCnts)
+
+def initializeBulkRNA(kb, bulkContainer, randStream):
+	rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRna']]
+
+	ntpsView = bulkContainer.countsView(ntpIds)
+	rnaView = bulkContainer.countsView(rnaIds)
+
+	fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
+	rnaLength = np.sum(kb.rnaNTCounts, axis = 1)
+	rnaExpression = kb.rnaExpression.to('dimensionless').magnitude
+	rnaExpression /= np.sum(rnaExpression)
+
+	ntpsToPolym = np.round(
+		(1 - fracInitFreeNTPs) * np.sum(ntpsView.counts())
+		)
+
+	rnaCnts = randStream.mnrnd(
+		np.round(ntpsToPolym / (np.dot(rnaExpression, rnaLength))),
+		rnaExpression
+		)
+
+	rnaView.countsIs(rnaCnts)
+
+def initializeBulkNTPs(kb, bulkContainer, randStream):
+	ntpsView = bulkContainer.countsView(ntpIds)
+
+	fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
+
+	ntpsView.countsIs(
+		np.round(
+			fracInitFreeNTPs * ntpsView.counts()
+			)
+		)
