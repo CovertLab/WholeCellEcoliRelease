@@ -58,7 +58,7 @@ class KnowledgeBaseEcoli(object):
 		# self.createModifiedForms()
 		# self.loadRelationStoichiometry() # ADDED: for accessing info from other table 
 		# self.loadComplexes() 
-		# self.loadReactions()
+		self._loadReactions()
 		self._loadConstants()
 		self._loadParameters()
 
@@ -246,6 +246,33 @@ class KnowledgeBaseEcoli(object):
 
 		self._pseudoMetaboliteEnzymeData['metaboliteId'] = [metabolite_ids_to_string[x.metabolite_id_fk_id] for x in all_equ_enz]
 		self._pseudoMetaboliteEnzymeData['enzyme_id'] = [self._allProducts[x.equivalent_enzyme_id_fk_id] + '[' + self._dbLocationId[x.location_fk_id] + ']' for x in all_equ_enz]
+
+
+	def _loadBiomass(self):
+
+		self._cellCompositionData = numpy.zeros(,
+			dtype = [('doublingTime',				'f'),
+					('proteinMassFraction',			'f'),
+					('rnaMassFraction',				'f'),
+					('dnaMassFraction',				'f'),
+					('lipidMassFraction',			'f'),
+					('lpsMassFraction',				'f'),
+					('murinMassFraction',			'f'),
+					('glycogenMassFraction',		'f'),
+					('solublePoolMassFraction',		'f'),
+					('inorganicIonMassFraction',	'f')])
+
+
+			self._cellCompositionData['doublingTime'] = [100, 60, 40, 30, 24]
+			self._cellCompositionData['proteinMassFraction'] = [0.6756756757, 0.6046511628, 0.5404157044, 0.5304212168, 0.5202312139]
+			self._cellCompositionData['rnaMassFraction'] = [0.1351351351, 0.1511627907, 0.1778290993, 0.2059282371, 0.2439306358]
+			self._cellCompositionData['dnaMassFraction'] = [0.0513513514, 0.0348837209, 0.0260969977, 0.0224648986, 0.0211560694]
+			self._cellCompositionData['lipidMassFraction'] = [0.0655363953, 0.0995149094, 0.1215552785, 0.1146741575, 0.1020727685]
+			self._cellCompositionData['lpsMassFraction'] = [0.0239595424, 0.0363817948, 0.0444395642, 0.0419238855, 0.0373169261]
+			self._cellCompositionData['murinMassFraction'] = [0.0176173106, 0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
+			self._cellCompositionData['glycogenMassFraction'] = [0.0176173106, 0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
+			self._cellCompositionData['solublePoolMassFraction'] = [0.0060603548, 0.009202454, 0.0112405956, 0.0106042769, 0.0094389872]
+			self._cellCompositionData['inorganicIonMassFraction'] = [0.0070469242, 0.0107005279, 0.0130704601, 0.0123305546, 0.0109755665]
 
 
 	def _loadGenome(self):
@@ -481,6 +508,85 @@ class KnowledgeBaseEcoli(object):
 		# "unmodifiedForm": None,
 		# "composition": [],
 		# "formationProcess": "",
+
+
+	def _loadRelationStoichiometry(self):
+
+		self.allRelationStoichiometry = {}
+		self._checkDatabaseAccess(RelationStoichiometry)
+		all_RelationStoichiometry = RelationStoichiometry.objects.all()
+
+		for i in all_RelationStoichiometry:
+			thisType = self._allProductType[self._allProducts[i.reactant_fk_id]]
+			self.allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
+
+	def _loadReactions(self):
+
+		self.reactions = []
+		self.reactionsExchange = []
+		
+		##		
+		relation = {}
+		self._checkDatabaseAccess(MetaboliteReactionRelation)
+		all_relation = MetaboliteReactionRelation.objects.all()
+		for i in all_relation:
+			if i.metabolite_reaction_fk_id not in relation:
+				relation[i.metabolite_reaction_fk_id] = []
+			relation[i.metabolite_reaction_fk_id].append(i.reactant_relation_id) 
+		
+		##
+		enz = {}
+		self._checkDatabaseAccess(MetaboliteReactionEnzyme)
+		all_enz = MetaboliteReactionEnzyme.objects.all()
+		for i in all_enz:
+			if i.metabolite_reaction_fk_id not in enz:
+				enz[i.metabolite_reaction_fk_id] = []
+			enz[i.metabolite_reaction_fk_id].append(str(self._allProducts[i.enzyme_fk_id])) 
+		
+		##
+		self._checkDatabaseAccess(MetaboliteReaction)
+		all_metaboliteReaction = MetaboliteReaction.objects.all()
+		
+
+		for i in all_metaboliteReaction:
+			r = {
+					"id": i.frame_id,
+					"name": i.name,
+					"process": "Metabolism",
+					"ec": i.ec,
+					"dir": int(i.reaction_direction),
+					"stoichiometry": [],
+					"catBy": [],
+					"ub": float(i.upper_bound),
+					"lb": float(i.lower_bound)
+				}
+
+			if i.id in enz:
+				r["catBy"] = enz[i.id]
+			else:
+				r["catBy"] = None
+
+			if r["name"] == None:
+				r["name"] = ""
+			if r["ec"] == None:
+				r["ec"] = ""
+			
+			if i.id not in relation:
+				raise Exception, "%s Metabolite has no reaction" % i.frame_id
+			for temp in relation[i.id]:
+				t = self.allRelationStoichiometry[temp]
+				if t["type"] == '':
+					t["type"] = self.check_molecule(t["molecule"])
+				t["molecule"] = t["molecule"].upper()
+				r["stoichiometry"].append(t)
+	
+			protList = [p["id"] for p in self.proteins]
+			if r["catBy"] != None:
+				for temp in r["catBy"]:
+					if temp not in protList:
+						raise Exception, "Undefined protein: %s." % temp
+			
+			self.reactions.append(r)
 
 
 	def _loadConstants(self):
