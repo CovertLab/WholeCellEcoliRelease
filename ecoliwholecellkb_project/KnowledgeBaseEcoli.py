@@ -280,7 +280,26 @@ class KnowledgeBaseEcoli(object):
 		lipidIds = ['pe160[c]','pe160[c]','pe161[c]','pe161[c]','pe181[c]','pe181[c]','pg160[c]','pg160[c]','pg161[c]','pg161[c]','pg181[c]','pg181[c]','clpn160[p]','clpn161[p]','clpn181[p]']
 		fracOfLipidMass = [0.0920103159, 0.2365979553, 0.0711465906, 0.1829483758, 0.0396601262, 0.1019831816, 0.0443064600, 0.0379769658, 0.0342681284, 0.0293726815, 0.0190423107, 0.0163219806, 0.0427979361, 0.0330887203, 0.0184782712]
 		self._cellLipidFractionData = numpy.zeros(len(lipidIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+		self._cellLipidFractionData['metaboliteId'] = lipidIds
+		self._cellLipidFractionData['massFraction'] = fracOfLipidMass
 
+		lpsIds = ['colipa[o]']
+		fracOfLPSMass = [1.]
+		self._cellLPSFractionData = numpy.zeros(len(lpsIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+		self._cellLPSFractionData['metaboliteId'] = lpsIds
+		self._cellLPSFractionData['massFraction'] = fracOfLPSMass
+
+		mureinIds = ['murein4p4p[p]','murein3p3p[p]','murein4px4p[p]','murein3px4p[p]','murein4px4px4p[p]']
+		fracOfMureinMass = [0.3959811811, 0.0913460423, 0.397005066, 0.0423905921, 0.0732771184]
+		self._cellMureinFractionData = numpy.zeros(len(mureinIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+		self._cellMureinFractionData['metaboliteId'] = mureinIds
+		self._cellMureinFractionData['massFraction'] = fracOfMureinMass
+
+		glycogenIds = ['glycogen[c]']
+		fracOfGlycogenMass = [1.]
+		self._cellGlycogenFractionData = numpy.zeros(len(glycogenIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+		self._cellGlycogenFractionData['metaboliteId'] = glycogenIds
+		self._cellGlycogenFractionData['massFraction'] = fracOfGlycogenMass
 
 
 		import ipdb; ipdb.set_trace()
