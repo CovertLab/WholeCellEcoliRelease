@@ -701,6 +701,18 @@ class KnowledgeBaseEcoli(object):
 
 		size = len(rnaIds)
 
+		is23S = numpy.zeros(size, dtype = numpy.bool)
+		is16S = numpy.zeros(size, dtype = numpy.bool)
+		is5S = numpy.zeros(size, dtype = numpy.bool)
+
+		for idx, rna in enumerate(self._rnaData):
+			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
+				is23S[idx] = True
+			if rna["type"] == "rRNA" and rna["id"].startswith("RRS"):
+				is16S[idx] = True
+			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
+				is5S[idx] = True
+
 		self.rnaData = numpy.zeros(
 			size,
 			dtype = [
@@ -712,7 +724,10 @@ class KnowledgeBaseEcoli(object):
 				('isMRna', 'bool'),
 				('isMiscRna', 'bool'),
 				('isRRna', 'bool'),
-				('isTRna', 'bool')
+				('isTRna', 'bool'),
+				('isRRna23S', 'bool'),
+				('isRRna16S', 'bool'),
+				('isRRna5S', 'bool')
 				]
 			)
 
@@ -725,6 +740,9 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isMiscRna'] = self._rnaData["type"] == "miscRNA"
 		self.rnaData['isRRna'] = self._rnaData["type"] == "rRNA"
 		self.rnaData['isTRna'] = self._rnaData["type"] == "tRNA"
+		self.rnaData['isRRna23S'] = is23S
+		self.rnaData['isRRna16S'] = is16S
+		self.rnaData['isRRna5S'] = is5S
 
 
 	def _buildMonomerData(self):
