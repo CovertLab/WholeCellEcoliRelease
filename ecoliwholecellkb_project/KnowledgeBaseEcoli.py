@@ -603,6 +603,10 @@ class KnowledgeBaseEcoli(object):
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('countsAUCG', '4i8'),
+				('isMRna', 'bool'),
+				('isMiscRna', 'bool'),
+				('isRRna', 'bool'),
+				('isTRna', 'bool')
 				]
 			)
 
@@ -611,6 +615,10 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['degRate'] = rnaDegRates
 		self.rnaData['length'] = rnaLens
 		self.rnaData['countsAUCG'] = ntCounts
+		self.rnaData['isMRna'] = self._rnaData["type"] == "mRNA"
+		self.rnaData['isMiscRna'] = self._rnaData["type"] == "miscRNA"
+		self.rnaData['isRRna'] = self._rnaData["type"] == "rRNA"
+		self.rnaData['isTRna'] = self._rnaData["type"] == "tRNA"
 
 
 	def _buildMonomerData(self):
