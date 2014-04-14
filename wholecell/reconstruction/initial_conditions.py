@@ -13,10 +13,10 @@ def calcInitialConditions(sim, kb):
 
 	bulk = sim.states['BulkMolecules']
 
-	initializeBulkMoleculesBulkObjects(bulk.container, kb, randStream)
+	initializeBulk(bulk.container, kb, randStream)
 
 
-def initializeBulkMoleculesBulkObjects(bulkContainer, kb, randStream):
+def initializeBulk(bulkContainer, kb, randStream):
 	# Data from KB
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
