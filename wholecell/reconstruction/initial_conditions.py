@@ -17,36 +17,12 @@ def calcInitialConditions(sim, kb):
 
 
 def initializeBulk(bulkContainer, kb, randStream):
-	# Data from KB
-
-	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-	initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
-	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude
-
-	biomassFlux = kb.coreBiomass['biomassFlux'].to('mol/(DCW_g*hr)').magnitude
-	biomassMetabolites = kb.coreBiomass['metaboliteId']
-
-	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
-
-	# Set bulk molecules
-
-	initialDryMass = initialDryMass + randStream.normal(0.0, 1e-15)
-
-	feistCoreView = bulkContainer.countsView(biomassMetabolites)
-	h2oView = bulkContainer.countView('H2O[c]')
-	ntpsView = bulkContainer.countsView(ntpIds)
 
 	## Set metabolite counts from Feist biomass
-	feistCoreView.countsIs(
-		np.round(
-			np.fmax(biomassFlux, 0) * nAvogadro * initialDryMass
-			)
-		)
+	initializeBulkBiomass(kb, bulkContainer, randStream)
 
 	## Set water
-	h2oView.countIs( # TODO: get mass of water directly from the KB
-		(avgCellWaterMassInit + randStream.normal(0, 1e-15)) / mwH2O * nAvogadro
-		) # TOKB
+	initializeBulkWater(kb, bulkContainer, randStream)
 
 	## Set RNA counts from expression levels
 	initializeBulkRNA(kb, bulkContainer, randStream)
@@ -55,6 +31,34 @@ def initializeBulk(bulkContainer, kb, randStream):
 	## Set protein counts from expression levels
 	initializeBulkMonomers(kb, bulkContainer, randStream)
 	initializeBulkAAs(kb, bulkContainer, randStream)
+
+
+def initializeBulkWater(kb, bulkContainer, randStream):
+	h2oView = bulkContainer.countView('H2O[c]')
+
+	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
+	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude
+	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
+
+	h2oView.countIs(
+		(avgCellWaterMassInit + randStream.normal(0, 1e-15)) / mwH2O * nAvogadro
+		)
+
+
+def initializeBulkBiomass(kb, bulkContainer, randStream):
+	biomassMetabolites = kb.coreBiomass['metaboliteId']
+
+	feistCoreView = bulkContainer.countsView(biomassMetabolites)
+
+	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
+	initialDryMass = kb.avgCellDryMassInit.to('g').magnitude + randStream.normal(0.0, 1e-15)
+	biomassFlux = kb.coreBiomass['biomassFlux'].to('mol/(DCW_g*hr)').magnitude
+
+	feistCoreView.countsIs(
+		np.round(
+			np.fmax(biomassFlux, 0) * nAvogadro * initialDryMass
+			)
+		)
 
 
 def initializeBulkRNA(kb, bulkContainer, randStream):
@@ -79,6 +83,7 @@ def initializeBulkRNA(kb, bulkContainer, randStream):
 
 	rnaView.countsIs(rnaCnts)
 
+
 def initializeBulkNTPs(kb, bulkContainer, randStream):
 	ntpsView = bulkContainer.countsView(ntpIds)
 
@@ -89,6 +94,7 @@ def initializeBulkNTPs(kb, bulkContainer, randStream):
 			fracInitFreeNTPs * ntpsView.counts()
 			)
 		)
+
 
 def initializeBulkMonomers(kb, bulkContainer, randStream):
 	## Monomers are not complexes and not modified
@@ -117,6 +123,7 @@ def initializeBulkMonomers(kb, bulkContainer, randStream):
 		)
 
 	monomersView.countsIs(monCnts)
+
 
 def initializeBulkAAs(kb, bulkContainer, randStream):
 	aasView = bulkContainer.countsView(aaIds)
