@@ -52,7 +52,8 @@ class Test_reducedSimulations(unittest.TestCase):
 				["RPOD-MONOMER[c]", enzLevels]
 			],
 			lengthSec = 10,
-			reconstructKB = True
+			reconstructKB = True,
+			seed = 1
 			)
 		
 		self.assertEqual(
