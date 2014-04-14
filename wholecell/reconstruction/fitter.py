@@ -13,6 +13,22 @@ Adjust simulation parameters
 from __future__ import division
 
 import numpy
+import os
+import copy
+
+def fitKb(kb):
+	kbFit = copy.deepcopy(kb)
+
+	return kbFit
+
+if __name__ == "__main__":
+	import wholecell.utils.config
+	import wholecell.utils.knowledgebase_fixture_manager
+
+	kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
+	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
+				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
+	kbFit = fitKb(kb)
 
 FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
