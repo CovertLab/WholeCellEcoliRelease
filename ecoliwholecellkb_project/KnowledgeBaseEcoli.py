@@ -768,6 +768,7 @@ class KnowledgeBaseEcoli(object):
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('countsAUCG', '4i8'),
+				('mw', 'f8'),
 				('isMRna', 'bool'),
 				('isMiscRna', 'bool'),
 				('isRRna', 'bool'),
@@ -783,6 +784,7 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['degRate'] = rnaDegRates
 		self.rnaData['length'] = rnaLens
 		self.rnaData['countsAUCG'] = ntCounts
+		self.rnaData['mw'] = self._rnaData["mw"]
 		self.rnaData['isMRna'] = self._rnaData["type"] == "mRNA"
 		self.rnaData['isMiscRna'] = self._rnaData["type"] == "miscRNA"
 		self.rnaData['isRRna'] = self._rnaData["type"] == "rRNA"
