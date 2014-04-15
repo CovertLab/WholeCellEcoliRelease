@@ -834,6 +834,7 @@ class KnowledgeBaseEcoli(object):
 				('rnaId', 'a50'),
 				('length', 'i8'),
 				('aaCounts', '{}i8'.format(nAAs)),
+				('mw', 'f8'),
 				]
 			)
 
@@ -841,6 +842,7 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['rnaId'] = rnaIds
 		self.monomerData['length'] = lengths
 		self.monomerData['aaCounts'] = aaCounts
+		self.monomerData['mw'] = self._proteinMonomerData["mw"]
 
 
 	def _buildRnaIndexToMonomerMapping(self):
