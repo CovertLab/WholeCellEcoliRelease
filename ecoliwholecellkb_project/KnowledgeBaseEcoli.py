@@ -359,8 +359,24 @@ class KnowledgeBaseEcoli(object):
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
 
-		import ipdb; ipdb.set_trace()
+		# Check that biomass fractions sum correctly
+		includedComponents = ['lipidMassFraction', 'lpsMassFraction', 'mureinMassFraction', 'glycogenMassFraction', 'solublePoolMassFraction', 'inorganicIonMassFraction']
+		if abs(sum([self._cellCompositionData[x][self._cellCompositionData['doublingTime'] == 60] for x in includedComponents]) - sum(wildTypeBiomassFractions)) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
 
+		# Convert from g/gDCW to mmol/gDCW
+		wildTypeBiomassFractions = Q_(numpy.array(wildTypeBiomassFractions), 'g / DCW_g')
+		mw = Q_(numpy.array([self._metaboliteData['mw7.2'][self._metaboliteData['id'] == idx[:-3]][0] for idx in wildTypeBiomassIds]), 'g / mol')
+		wildTypeBiomassFractions = Q_(1000., 'mmol / mol') * (wildTypeBiomassFractions / mw)
+
+		self._wt2data = numpy.zeros(len(wildTypeBiomassIds),
+			dtype = [('metaboliteId', 'a50'),
+					('biomassFlux',		'f'),
+					('maintenanceFlux', 'f')])
+
+		self._wt2data['metaboliteId'] = wildTypeBiomassIds
+		self._wt2data['biomassFlux'] = wildTypeBiomassFractions
+
+		#import ipdb; ipdb.set_trace()
 
 	def _loadGenome(self):
 		self.translationTable = 11 # E. coli is 11
