@@ -76,6 +76,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomass()
 		self._buildRnaData()
 		self._buildMonomerData()
+		self._buildRnaIndexToMonomerMapping()
 		self._buildConstants()
 		self._buildParameters()
 		self._buildAaCounts()
@@ -840,6 +841,10 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['rnaId'] = rnaIds
 		self.monomerData['length'] = lengths
 		self.monomerData['aaCounts'] = aaCounts
+
+
+	def _buildRnaIndexToMonomerMapping(self):
+		self.rnaIndexToMonomerMapping = numpy.array([numpy.where(x == self.rnaData["id"])[0][0] for x in self.monomerData["rnaId"]])
 
 
 	def _buildConstants(self):
