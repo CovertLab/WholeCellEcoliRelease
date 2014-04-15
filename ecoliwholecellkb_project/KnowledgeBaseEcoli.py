@@ -277,45 +277,84 @@ class KnowledgeBaseEcoli(object):
 		self._cellCompositionData['solublePoolMassFraction'] = [0.0060603548, 0.009202454, 0.0112405956, 0.0106042769, 0.0094389872]
 		self._cellCompositionData['inorganicIonMassFraction'] = [0.0070469242, 0.0107005279, 0.0130704601, 0.0123305546, 0.0109755665]
 
+		## Wild-type biomass data - will get built up in each sub-section below
+		wildTypeBiomassIds = []
+		wildTypeBiomassFractions = []
 
+		## Lipids
 		lipidIds = ['pe160[c]','pe160[c]','pe161[c]','pe161[c]','pe181[c]','pe181[c]','pg160[c]','pg160[c]','pg161[c]','pg161[c]','pg181[c]','pg181[c]','clpn160[p]','clpn161[p]','clpn181[p]']
-		lipidIds = [x[:-3].upper() + x[-3:] for x in lipidIds]
 		fracOfLipidMass = [0.0920103159, 0.2365979553, 0.0711465906, 0.1829483758, 0.0396601262, 0.1019831816, 0.0443064600, 0.0379769658, 0.0342681284, 0.0293726815, 0.0190423107, 0.0163219806, 0.0427979361, 0.0330887203, 0.0184782712]
+		
+		lipidIds = [x[:-3].upper() + x[-3:] for x in lipidIds]
+		wildTypeBiomassIds.extend(lipidIds)
+		if abs(sum(fracOfLipidMass) - 1.0) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
+		wildTypeBiomassFractions.extend(fracOfLipidMass * self._cellCompositionData['lipidMassFraction'][self._cellCompositionData['doublingTime'] == 60])
+
 		self._cellLipidFractionData = numpy.zeros(len(lipidIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellLipidFractionData['metaboliteId'] = lipidIds
 		self._cellLipidFractionData['massFraction'] = fracOfLipidMass
 
+		## LPS
 		lpsIds = ['colipa[o]']
-		lpsIds = [x[:-3].upper() + x[-3:] for x in lpsIds]
 		fracOfLPSMass = [1.]
+
+		lpsIds = [x[:-3].upper() + x[-3:] for x in lpsIds]
+		wildTypeBiomassIds.extend(lpsIds)
+		if abs(sum(fracOfLPSMass) - 1.0) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
+		wildTypeBiomassFractions.extend(fracOfLPSMass * self._cellCompositionData['lpsMassFraction'][self._cellCompositionData['doublingTime'] == 60])
+
 		self._cellLPSFractionData = numpy.zeros(len(lpsIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellLPSFractionData['metaboliteId'] = lpsIds
 		self._cellLPSFractionData['massFraction'] = fracOfLPSMass
 
+		# Murein
 		mureinIds = ['murein4p4p[p]','murein3p3p[p]','murein4px4p[p]','murein3px4p[p]','murein4px4px4p[p]']
-		mureinIds = [x[:-3].upper() + x[-3:] for x in mureinIds]
 		fracOfMureinMass = [0.3959811811, 0.0913460423, 0.397005066, 0.0423905921, 0.0732771184]
+
+		mureinIds = [x[:-3].upper() + x[-3:] for x in mureinIds]
+		wildTypeBiomassIds.extend(mureinIds)
+		if abs(sum(fracOfMureinMass) - 1.0) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
+		wildTypeBiomassFractions.extend(fracOfMureinMass * self._cellCompositionData['mureinMassFraction'][self._cellCompositionData['doublingTime'] == 60])
+
 		self._cellMureinFractionData = numpy.zeros(len(mureinIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellMureinFractionData['metaboliteId'] = mureinIds
 		self._cellMureinFractionData['massFraction'] = fracOfMureinMass
 
+		# Glycogen
 		glycogenIds = ['glycogen[c]']
-		glycogenIds = [x[:-3].upper() + x[-3:] for x in glycogenIds]
 		fracOfGlycogenMass = [1.]
+
+		glycogenIds = [x[:-3].upper() + x[-3:] for x in glycogenIds]
+		wildTypeBiomassIds.extend(glycogenIds)
+		if abs(sum(fracOfGlycogenMass) - 1.0) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
+		wildTypeBiomassFractions.extend(fracOfGlycogenMass * self._cellCompositionData['glycogenMassFraction'][self._cellCompositionData['doublingTime'] == 60])
+
 		self._cellGlycogenFractionData = numpy.zeros(len(glycogenIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellGlycogenFractionData['metaboliteId'] = glycogenIds
 		self._cellGlycogenFractionData['massFraction'] = fracOfGlycogenMass
 
+		# Soluble pool
 		solublePoolIds = ['ptrc[c]','spmd[c]','accoa[c]','coa[c]','succoa[c]','malcoa[c]','nad[c]','nadh[c]','nadp[c]','nadph[c]','fad[c]','thf[c]','mlthf[c]','5mthf[c]','thmpp[c]','q8h2[c]','2dmmql8[c]','mql8[c]','pydx5p[c]','hemeO[c]','pheme[c]','sheme[c]','enter[c]','gthrd[c]','adocbl[c]','udcpdp[c]','10fthf[c]','chor[c]','amet[c]','ribflv[c]']
-		solublePoolIds = [x[:-3].upper() + x[-3:] for x in solublePoolIds]
 		fracOfSolublePoolMass = [0.3483925406,0.1161308469,0.0261156573,0.0148516941,0.0098435030,0.0030810913,0.1374440284,0.0034413294,0.0096012716,0.0288430300,0.0203218325,0.0115004920,0.0118120079,0.0118904381,0.0109525963,0.0189109720,0.0182880179,0.0186518206,0.0063575867,0.0217069101,0.0179120227,0.0235678621,0.0173654264,0.0079446556,0.0409685431,0.0059412634,0.0122269562,0.0058139964,0.0103601428,0.0097614647]
+
+		solublePoolIds = [x[:-3].upper() + x[-3:] for x in solublePoolIds]
+		wildTypeBiomassIds.extend(solublePoolIds)
+		if abs(sum(fracOfSolublePoolMass) - 1.0) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
+		wildTypeBiomassFractions.extend(fracOfSolublePoolMass * self._cellCompositionData['solublePoolMassFraction'][self._cellCompositionData['doublingTime'] == 60])
+
 		self._cellSolublePoolFractionData = numpy.zeros(len(solublePoolIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellSolublePoolFractionData['metaboliteId'] = solublePoolIds
 		self._cellSolublePoolFractionData['massFraction'] = fracOfSolublePoolMass
 
+		# Inorganic ions
 		inorganicIonIds = ['k[c]','nh4[c]','mg2[c]','ca2[c]','fe2[c]','fe3[c]','cu2[c]','mn2[c]','mobd[c]','cobalt2[c]','zn2[c]','cl[c]','so4[c]','pi[c]']
-		inorganicIonIds = [x[:-3].upper() + x[-3:] for x in inorganicIonIds]
 		fracInorganicIonMass = [0.6592084209,0.0203462209,0.0180351501,0.0180295557,0.0378534452,0.0378534452,0.0191129730,0.0165239120,0.0481057645,0.0177255636,0.0192281995,0.0157765944,0.0361161681,0.0360845869]
+
+		inorganicIonIds = [x[:-3].upper() + x[-3:] for x in inorganicIonIds]
+		wildTypeBiomassIds.extend(inorganicIonIds)
+		if abs(sum(fracInorganicIonMass) - 1.0) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
+		wildTypeBiomassFractions.extend(fracInorganicIonMass * self._cellCompositionData['inorganicIonMassFraction'][self._cellCompositionData['doublingTime'] == 60])
+
 		self._cellInorganicIonFractionData = numpy.zeros(len(inorganicIonIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
