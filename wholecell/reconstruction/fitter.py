@@ -16,10 +16,116 @@ import numpy
 import os
 import copy
 
+import wholecell.states.bulk_molecules
+import wholecell.utils.rand_stream
+import wholecell.reconstruction.initial_conditions
+
 def fitKb(kb):
 	kbFit = copy.deepcopy(kb)
 
+	# Construct bulk container
+
+	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
+
+	randStream = wholecell.utils.rand_stream.RandStream()
+
+	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
+	miscRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMiscRna"]])
+	rRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna"]])
+	tRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isTRna"]])
+
+	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
+	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
+	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
+
+	### RNA Mass Fractions ###
+	rnaMassFraction = 0.151163 # TOKB
+	rnaMass = kb.avgCellDryMass.magnitude * rnaMassFraction
+
+	## 23S rRNA Mass Fractions ##
+	rRna23SMassFraction = 0.525 # TOKB # This is the fraction of RNA that is 23S rRNA
+
+	# Assume all 23S rRNAs are expressed equally
+	rRna23SExpression = normalize(numpy.ones(rRna23SView.counts().size))
+
+	nRRna23Ss = countsFromMassAndExpression(
+		rnaMass * rRna23SMassFraction,
+		kb.rnaData["mw"][kb.rnaData["isRRna23S"]],
+		rRna23SExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	## 16S rRNA Mass Fractions ##
+	rRna16SMassFraction = 0.271 # TOKB # This is the fraction of RNA that is 16S rRNA
+
+	# Assume all 16S rRNAs are expressed equally
+	rRna16SExpression = normalize(numpy.ones(rRna16SView.counts().size))
+
+	nRRna16Ss = countsFromMassAndExpression(
+		rnaMass * rRna16SMassFraction,
+		kb.rnaData["mw"][kb.rnaData["isRRna16S"]],
+		rRna16SExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	## 5S rRNA Mass Fractions ##
+	rRna5SMassFraction = 0.017 # TOKB # This is the fraction of RNA that is 5S rRNA
+
+	# Assume all 5S rRNAs are expressed equally
+	rRna5SExpression = normalize(numpy.ones(rRna5SView.counts().size))
+
+	nRRna5Ss = countsFromMassAndExpression(
+		rnaMass * rRna5SMassFraction,
+		kb.rnaData["mw"][kb.rnaData["isRRna5S"]],
+		rRna5SExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
+	# TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
+	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
+
+	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("int64"))
+	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("int64"))
+	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression).astype("int64"))
+
+	## tRNA Mass Fractions ##
+	tRnaMassFraction = 0.146 # TOKB # This is the fraction of RNA that is tRNA
+
+	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
+	tRnaExpression = normalize(numpy.ones(tRnaView.counts().size))
+
+	nTRnas = countsFromMassAndExpression(
+		rnaMass * tRnaMassFraction,
+		kb.rnaData["mw"][kb.rnaData["isTRna"]],
+		tRnaExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	tRnaView.countsIs((nTRnas * tRnaExpression).astype("int64"))
+
+	## mRNA Mass Fractions ##
+	mRnaMassFraction = 0.041 # TOKB # This is the fraction of RNA that is mRNA
+
+	mRnaExpression = normalize(kb.rnaExpression[kb.rnaData["isMRna"]])
+
+	nMRnas = countsFromMassAndExpression(
+		rnaMass * mRnaMassFraction,
+		kb.rnaData["mw"][kb.rnaData["isMRna"]],
+		mRnaExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	mRnaView.countsIs((nMRnas * mRnaExpression).astype("int64"))
+
 	return kbFit
+
+def normalize(array):
+	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
+
+def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
+	assert numpy.allclose(numpy.sum(relativeExpression), 1)
+	return mass / numpy.dot(mws / nAvogadro, relativeExpression)
 
 if __name__ == "__main__":
 	import wholecell.utils.config
@@ -238,8 +344,7 @@ def fitSimulation(kb):
 	# TODO: return/save fitted KB instead of a modified the original KB
 
 
-def normalize(array):
-	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
+
 
 _ids = {} # TOKB
 _ids["tRnas"] = [
