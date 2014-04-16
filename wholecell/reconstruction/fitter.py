@@ -25,7 +25,7 @@ def fitKb(kb):
 
 	# Construct bulk container
 
-	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
+	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, dtype = numpy.dtype("float64"))
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
@@ -84,9 +84,9 @@ def fitKb(kb):
 	# TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
 
-	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("int64"))
-	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("int64"))
-	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression).astype("int64"))
+	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("float64"))
+	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("float64"))
+	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression).astype("float64"))
 
 	## tRNA Mass Fractions ##
 	tRnaMassFraction = 0.146 # TOKB # This is the fraction of RNA that is tRNA
@@ -101,7 +101,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	tRnaView.countsIs((nTRnas * tRnaExpression).astype("int64"))
+	tRnaView.countsIs((nTRnas * tRnaExpression).astype("float64"))
 
 	## mRNA Mass Fractions ##
 	mRnaMassFraction = 0.041 # TOKB # This is the fraction of RNA that is mRNA
@@ -115,7 +115,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	mRnaView.countsIs((nMRnas * mRnaExpression).astype("int64"))
+	mRnaView.countsIs((nMRnas * mRnaExpression).astype("float64"))
 
 
 	### Protein Mass fraction ###
@@ -134,7 +134,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	monomersView.countsIs((nMonomers * monomerExpression).astype("int64"))
+	monomersView.countsIs((nMonomers * monomerExpression).astype("float64"))
 
 
 	### DNA Mass fraction ###
@@ -166,15 +166,36 @@ def fitKb(kb):
 
 	minRnapCounts = (
 		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
-		).astype("int64")
+		).astype("float64")
 
 	rnapView.countsIs(
-		numpy.fmax(rnapView.counts(), minRnapCounts)
+		numpy.fmax(rnapView.counts(), minRnapCounts).astype("float64")
 		)
 
 
 	### Modify kbFit to reflect our bulk container ###
-	# RNA (and thus monomer) expression
+
+	## RNA and monomer expression ##
+	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = numpy.dtype("float64"))
+
+	rnaExpressionContainer.countsIs(
+		normalize(rnaView.counts().astype("float64"))
+		)
+
+	# Update mRNA expression to reflect monomer counts
+	assert numpy.all(
+		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
+		), "Cannot properly map monomer ids to RNA ids"
+
+	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
+	mRnaExpressionFrac = numpy.sum(mRnaExpressionView.counts())
+
+	mRnaExpressionView.countsIs(
+		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
+		)
+
+	kbFit.rnaExpression[:] = rnaExpressionContainer.counts()
+
 	# Synthesis probabilities
 	# Full WT Biomass function
 
