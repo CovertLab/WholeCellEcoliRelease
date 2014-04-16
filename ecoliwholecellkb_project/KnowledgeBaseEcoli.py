@@ -845,6 +845,7 @@ class KnowledgeBaseEcoli(object):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
 				is5S[idx] = True
 
+		# TODO: Add units
 		self.rnaData = numpy.zeros(
 			size,
 			dtype = [
@@ -911,6 +912,7 @@ class KnowledgeBaseEcoli(object):
 
 		nAAs = len(aaCounts[0])
 
+		# TODO: Add units
 		self.monomerData = numpy.zeros(
 			size,
 			dtype = [
