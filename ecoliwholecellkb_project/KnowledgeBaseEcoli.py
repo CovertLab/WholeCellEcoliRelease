@@ -215,13 +215,11 @@ class KnowledgeBaseEcoli(object):
 
 		self._coreBiomassData = numpy.zeros(sum(1 for x in all_biomass if x.is_core),
 			dtype = [('metaboliteId', 'a50'),
-					('biomassFlux', 	'f'),
-					('maintenanceFlux', 'f')])
+					('biomassFlux', 	'f')])
 
 		self._wildtypeBiomassData = numpy.zeros(sum(1 for x in all_biomass if x.is_wildtype),
 			dtype = [('metaboliteId', 'a50'),
-					('biomassFlux',		'f'),
-					('maintenanceFlux', 'f')])
+					('biomassFlux',		'f')])
 
 		self._coreBiomassData['metaboliteId']	= [metabolite_ids_to_string[x.metabolite_id_fk_id]
 												+ '[' + self._dbLocationId[x.biomass_location_fk_id] + ']'
@@ -787,8 +785,7 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildBiomass(self):
 		units = {'metaboliteId' : None,
-				'biomassFlux' : 'mmol / (DCW_g*hr)',
-				'maintenanceFlux' : 'mmol / (DCW_g*hr)'}
+				'biomassFlux' : 'mmol / (DCW_g*hr)'}
 		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, units)
 		self.wildtypeBiomass 	= UnitStructArray(self._wildtypeBiomassData, units)
 
