@@ -269,23 +269,23 @@ class KnowledgeBaseEcoli(object):
 					('inorganicIonMassFraction',	'f')])
 
 		self._cellDryMassCompositionData['doublingTime'] = doublingTime
-		self._cellDryMassCompositionData['proteinMassFraction'] = [0.6756756757, 
+		self._cellDryMassCompositionData['proteinMassFraction'] = [0.6756756757,
 		0.6046511628, 0.5404157044, 0.5304212168, 0.5202312139]
-		self._cellDryMassCompositionData['rnaMassFraction'] = [0.1351351351, 
+		self._cellDryMassCompositionData['rnaMassFraction'] = [0.1351351351,
 		0.1511627907, 0.1778290993, 0.2059282371, 0.2439306358]
-		self._cellDryMassCompositionData['dnaMassFraction'] = [0.0513513514, 
+		self._cellDryMassCompositionData['dnaMassFraction'] = [0.0513513514,
 		0.0348837209, 0.0260969977, 0.0224648986, 0.0211560694]
-		self._cellDryMassCompositionData['lipidMassFraction'] = [0.0655363953, 
+		self._cellDryMassCompositionData['lipidMassFraction'] = [0.0655363953,
 		0.0995149094, 0.1215552785, 0.1146741575, 0.1020727685]
-		self._cellDryMassCompositionData['lpsMassFraction'] = [0.0239595424, 
+		self._cellDryMassCompositionData['lpsMassFraction'] = [0.0239595424,
 		0.0363817948, 0.0444395642, 0.0419238855, 0.0373169261]
-		self._cellDryMassCompositionData['mureinMassFraction'] = [0.0176173106, 
+		self._cellDryMassCompositionData['mureinMassFraction'] = [0.0176173106,
 		0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
-		self._cellDryMassCompositionData['glycogenMassFraction'] = [0.0176173106, 
+		self._cellDryMassCompositionData['glycogenMassFraction'] = [0.0176173106,
 		0.0267513197, 0.0326761501, 0.0308263864, 0.0274389163]
-		self._cellDryMassCompositionData['solublePoolMassFraction'] = [0.0060603548, 
+		self._cellDryMassCompositionData['solublePoolMassFraction'] = [0.0060603548,
 		0.009202454, 0.0112405956, 0.0106042769, 0.0094389872]
-		self._cellDryMassCompositionData['inorganicIonMassFraction'] = [0.0070469242, 
+		self._cellDryMassCompositionData['inorganicIonMassFraction'] = [0.0070469242,
 		0.0107005279, 0.0130704601, 0.0123305546, 0.0109755665]
 
 		## Lipids
