@@ -59,8 +59,8 @@ class KnowledgeBaseEcoli(object):
 		# self.createModifiedForms()
 		# self.loadRelationStoichiometry() # ADDED: for accessing info from other table 
 		# self.loadComplexes() 
-		self._loadRelationStoichiometry()
-		self._loadReactions()
+		# self._loadRelationStoichiometry()
+		# self._loadReactions()
 		self._loadConstants()
 		self._loadParameters()
 
