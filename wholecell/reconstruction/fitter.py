@@ -21,14 +21,12 @@ import wholecell.utils.rand_stream
 import wholecell.reconstruction.initial_conditions
 
 def fitKb(kb):
-	kbFit = copy.deepcopy(kb)
 
 	# Construct bulk container
 
-	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
+	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, dtype = numpy.dtype("float64"))
 
-	randStream = wholecell.utils.rand_stream.RandStream()
-
+	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
 	miscRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMiscRna"]])
 	rRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna"]])
@@ -38,9 +36,11 @@ def fitKb(kb):
 	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
+	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].magnitude == 60]
+
 	### RNA Mass Fractions ###
-	rnaMassFraction = 0.151163 # TOKB
-	rnaMass = kb.avgCellDryMass.magnitude * rnaMassFraction
+	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
+	rnaMass = kb.avgCellDryMassInit.magnitude * rnaMassFraction
 
 	## 23S rRNA Mass Fractions ##
 	rRna23SMassFraction = 0.525 # TOKB # This is the fraction of RNA that is 23S rRNA
@@ -85,9 +85,9 @@ def fitKb(kb):
 	# TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
 
-	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("int64"))
-	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("int64"))
-	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression).astype("int64"))
+	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("float64"))
+	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("float64"))
+	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression).astype("float64"))
 
 	## tRNA Mass Fractions ##
 	tRnaMassFraction = 0.146 # TOKB # This is the fraction of RNA that is tRNA
@@ -102,7 +102,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	tRnaView.countsIs((nTRnas * tRnaExpression).astype("int64"))
+	tRnaView.countsIs((nTRnas * tRnaExpression).astype("float64"))
 
 	## mRNA Mass Fractions ##
 	mRnaMassFraction = 0.041 # TOKB # This is the fraction of RNA that is mRNA
@@ -116,9 +116,101 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	mRnaView.countsIs((nMRnas * mRnaExpression).astype("int64"))
+	mRnaView.countsIs((nMRnas * mRnaExpression).astype("float64"))
 
-	return kbFit
+
+	### Protein Mass fraction ###
+
+	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+
+	monomerMassFraction = float(dryComposition60min["proteinMassFraction"]) # TOKB
+	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
+
+	monomerExpression = normalize(kb.rnaExpression[kb.rnaIndexToMonomerMapping])
+
+	nMonomers = countsFromMassAndExpression(
+		monomerMass * monomerMassFraction,
+		kb.monomerData["mw"],
+		monomerExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	monomersView.countsIs((nMonomers * monomerExpression).astype("float64"))
+
+
+	### DNA Mass fraction ###
+	# TODO (once we have a chromosome and replication process incorporated)
+
+
+	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
+
+	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
+
+	## Number of ribosomes needed ##
+	monomerLengths = numpy.sum(kb.proteinMonomerAACounts, axis = 1)
+	nRibosomesNeeded = numpy.sum(
+		monomerLengths / kb.ribosomeElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude
+			) * monomersView.counts()
+		)
+
+	if numpy.sum(rRna23SView.counts()) < nRibosomesNeeded:
+		raise NotImplementedError, "Cannot handle having too few ribosomes"
+
+	## Number of RNA Polymerases ##
+	rnaLengths = numpy.sum(kb.rnaNTCounts, axis = 1)
+	nRnapsNeeded = numpy.sum(
+		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
+			) * rnaView.counts()
+		)
+
+	minRnapCounts = (
+		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
+		).astype("float64")
+
+	rnapView.countsIs(
+		numpy.fmax(rnapView.counts(), minRnapCounts).astype("float64")
+		)
+
+
+
+	### Modify kbFit to reflect our bulk container ###
+
+
+	## RNA and monomer expression ##
+	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = numpy.dtype("float64"))
+
+	rnaExpressionContainer.countsIs(
+		normalize(rnaView.counts().astype("float64"))
+		)
+
+	# Update mRNA expression to reflect monomer counts
+	assert numpy.all(
+		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
+		), "Cannot properly map monomer ids to RNA ids"
+
+	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
+	mRnaExpressionFrac = numpy.sum(mRnaExpressionView.counts())
+
+	mRnaExpressionView.countsIs(
+		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
+		)
+
+	kb.rnaExpression[:] = rnaExpressionContainer.counts()
+
+
+	## Synthesis probabilities ##
+
+	synthProb = normalize(
+		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
+			) * rnaView.counts()
+		)
+
+	kb.rnaData["synthProb"][:] = synthProb
+
+	# Full WT Biomass function
 
 def normalize(array):
 	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
@@ -134,7 +226,9 @@ if __name__ == "__main__":
 	kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
-	kbFit = fitKb(kb)
+	kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
+				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
+	fitKb(kb)
 
 FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
