@@ -51,7 +51,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadComments()
 		self._loadCompartments()
 		self._loadMetabolites()
-		self._loadBiomass()
+		self._loadBiomassFractions()
 		self._loadGenome()
 		self._loadGenes()
 		self._loadRnas()
@@ -251,7 +251,7 @@ class KnowledgeBaseEcoli(object):
 		self._pseudoMetaboliteEnzymeData['enzyme_id'] = [self._allProducts[x.equivalent_enzyme_id_fk_id] + '[' + self._dbLocationId[x.location_fk_id] + ']' for x in all_equ_enz]
 
 
-	def _loadBiomass(self):
+	def _loadBiomassFractions(self):
 
 		doublingTime = [100, 60, 40, 30, 24]
 
