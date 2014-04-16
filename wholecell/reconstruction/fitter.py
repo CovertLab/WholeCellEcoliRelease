@@ -27,8 +27,7 @@ def fitKb(kb):
 
 	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
 
-	randStream = wholecell.utils.rand_stream.RandStream()
-
+	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
 	miscRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMiscRna"]])
 	rRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna"]])
@@ -40,7 +39,7 @@ def fitKb(kb):
 
 	### RNA Mass Fractions ###
 	rnaMassFraction = 0.151163 # TOKB
-	rnaMass = kb.avgCellDryMass.magnitude * rnaMassFraction
+	rnaMass = kb.avgCellDryMassInit.magnitude * rnaMassFraction
 
 	## 23S rRNA Mass Fractions ##
 	rRna23SMassFraction = 0.525 # TOKB # This is the fraction of RNA that is 23S rRNA
@@ -117,6 +116,67 @@ def fitKb(kb):
 		)
 
 	mRnaView.countsIs((nMRnas * mRnaExpression).astype("int64"))
+
+
+	### Protein Mass fraction ###
+
+	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+
+	monomerMassFraction = 0.6046511628 # TOKB
+	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
+
+	monomerExpression = normalize(kb.rnaExpression[kb.rnaIndexToMonomerMapping])
+
+	nMonomers = countsFromMassAndExpression(
+		monomerMass * monomerMassFraction,
+		kb.monomerData["mw"],
+		monomerExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	monomersView.countsIs((nMonomers * monomerExpression).astype("int64"))
+
+
+	### DNA Mass fraction ###
+	# TODO (once we have a chromosome and replication process incorporated)
+
+
+	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
+
+	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
+
+	## Number of ribosomes needed ##
+	monomerLengths = numpy.sum(kb.proteinMonomerAACounts, axis = 1)
+	nRibosomesNeeded = numpy.sum(
+		monomerLengths / kb.ribosomeElongationRate * (
+			numpy.log(2) / kb.cellCycleLen.magnitude
+			) * monomersView.counts()
+		)
+
+	if numpy.sum(rRna23SView.counts()) < nRibosomesNeeded:
+		raise NotImplementedError, "Cannot handle having too few ribosomes"
+
+	## Number of RNA Polymerases ##
+	rnaLengths = numpy.sum(kb.rnaNTCounts, axis = 1)
+	nRnapsNeeded = numpy.sum(
+		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
+			) * rnaView.counts()
+		)
+
+	minRnapCounts = (
+		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
+		).astype("int64")
+
+	rnapView.countsIs(
+		numpy.max(rnapView.counts(), minRnapCounts)
+		)
+
+
+	### Modify kbFit to reflect our bulk container ###
+	# RNA (and thus monomer) expression
+	# Synthesis probabilities
+	# Full WT Biomass function
 
 	return kbFit
 
