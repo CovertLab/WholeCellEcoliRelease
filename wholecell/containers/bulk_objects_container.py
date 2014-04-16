@@ -17,14 +17,14 @@ class BulkObjectsContainer(object):
 	Bulk objects are those which have no identity beyond their names.
 	'''
 
-	def __init__(self, objectNames):
+	def __init__(self, objectNames, dtype = np.int64):
 		self._objectNames = list(objectNames)
 
 		self._nObjects = len(self._objectNames)
 
 		self._objectIndex = {objectName:index for index, objectName in enumerate(self._objectNames)}
 
-		self._counts = np.zeros(len(self._objectNames), np.int64)
+		self._counts = np.zeros(len(self._objectNames), dtype)
 
 
 	def counts(self, names = None):

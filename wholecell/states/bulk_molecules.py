@@ -241,8 +241,8 @@ def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, count
 def moleculeIds(kb):
 	return kb.bulkMolecules['moleculeId']
 
-def bulkObjectsContainer(kb):
-	return BulkObjectsContainer(moleculeIds(kb))
+def bulkObjectsContainer(kb, dtype = np.int64):
+	return BulkObjectsContainer(moleculeIds(kb), dtype)
 
 class BulkMoleculesViewBase(wholecell.views.view.View):
 	_stateID = 'BulkMolecules'
