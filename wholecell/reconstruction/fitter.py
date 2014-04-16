@@ -148,7 +148,7 @@ def fitKb(kb):
 	## Number of ribosomes needed ##
 	monomerLengths = numpy.sum(kb.proteinMonomerAACounts, axis = 1)
 	nRibosomesNeeded = numpy.sum(
-		monomerLengths / kb.ribosomeElongationRate * (
+		monomerLengths / kb.ribosomeElongationRate.magnitude * (
 			numpy.log(2) / kb.cellCycleLen.magnitude
 			) * monomersView.counts()
 		)
@@ -169,7 +169,7 @@ def fitKb(kb):
 		).astype("int64")
 
 	rnapView.countsIs(
-		numpy.max(rnapView.counts(), minRnapCounts)
+		numpy.fmax(rnapView.counts(), minRnapCounts)
 		)
 
 
