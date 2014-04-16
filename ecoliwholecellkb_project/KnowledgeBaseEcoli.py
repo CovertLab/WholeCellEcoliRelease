@@ -83,6 +83,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildAaCounts()
 		self._buildNtCounts()
 		self._buildRnaExpression()
+		self._buildBiomassFractions()
 
 		# Build dependent calculations
 		self._calculateDependentCompartments()
