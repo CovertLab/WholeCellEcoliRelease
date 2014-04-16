@@ -21,7 +21,6 @@ import wholecell.utils.rand_stream
 import wholecell.reconstruction.initial_conditions
 
 def fitKb(kb):
-	kbFit = copy.deepcopy(kb)
 
 	# Construct bulk container
 
@@ -37,8 +36,10 @@ def fitKb(kb):
 	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
+	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].magnitude == 60]
+
 	### RNA Mass Fractions ###
-	rnaMassFraction = 0.151163 # TOKB
+	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
 	rnaMass = kb.avgCellDryMassInit.magnitude * rnaMassFraction
 
 	## 23S rRNA Mass Fractions ##
@@ -122,7 +123,7 @@ def fitKb(kb):
 
 	monomersView = bulkContainer.countsView(kb.monomerData["id"])
 
-	monomerMassFraction = 0.6046511628 # TOKB
+	monomerMassFraction = float(dryComposition60min["proteinMassFraction"]) # TOKB
 	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
 
 	monomerExpression = normalize(kb.rnaExpression[kb.rnaIndexToMonomerMapping])
@@ -194,12 +195,12 @@ def fitKb(kb):
 		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
 		)
 
-	kbFit.rnaExpression[:] = rnaExpressionContainer.counts()
+	kb.rnaExpression[:] = rnaExpressionContainer.counts()
+
+	import ipdb; ipdb.set_trace()
 
 	# Synthesis probabilities
 	# Full WT Biomass function
-
-	return kbFit
 
 def normalize(array):
 	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
@@ -215,7 +216,9 @@ if __name__ == "__main__":
 	kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
-	kbFit = fitKb(kb)
+	kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
+				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
+	fitKb(kb)
 
 FEIST_CORE_VALS = numpy.array([ # TODO: This needs to go in the KB
 	0.513689, 0.295792, 0.241055, 0.241055, 0.091580, 0.263160, 0.263160, 0.612638, 0.094738, 0.290529,
