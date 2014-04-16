@@ -78,6 +78,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildRnaData()
 		self._buildMonomerData()
 		self._buildRnaIndexToMonomerMapping()
+		self._buildMonomerIndexToRnaMapping()
 		self._buildConstants()
 		self._buildParameters()
 		self._buildAaCounts()
@@ -933,6 +934,10 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildRnaIndexToMonomerMapping(self):
 		self.rnaIndexToMonomerMapping = numpy.array([numpy.where(x == self.rnaData["id"])[0][0] for x in self.monomerData["rnaId"]])
+
+
+	def _buildMonomerIndexToRnaMapping(self):
+		self.monomerIndexToRnaMapping = numpy.array([numpy.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(numpy.where(x == self.monomerData["rnaId"])[0])])
 
 
 	def _buildConstants(self):
