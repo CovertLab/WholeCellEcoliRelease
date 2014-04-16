@@ -278,10 +278,6 @@ class KnowledgeBaseEcoli(object):
 		self._cellCompositionData['solublePoolMassFraction'] = [0.0060603548, 0.009202454, 0.0112405956, 0.0106042769, 0.0094389872]
 		self._cellCompositionData['inorganicIonMassFraction'] = [0.0070469242, 0.0107005279, 0.0130704601, 0.0123305546, 0.0109755665]
 
-		## Wild-type biomass data - will get built up in each sub-section below
-		wildTypeBiomassIds = []
-		wildTypeBiomassFractions = []
-
 		## Lipids
 		lipidIds = ['pe160[c]','pe160[c]','pe161[c]','pe161[c]','pe181[c]','pe181[c]','pg160[c]','pg160[c]','pg161[c]','pg161[c]','pg181[c]','pg181[c]','clpn160[p]','clpn161[p]','clpn181[p]']
 		fracOfLipidMass = [0.0920103159, 0.2365979553, 0.0711465906, 0.1829483758, 0.0396601262, 0.1019831816, 0.0443064600, 0.0379769658, 0.0342681284, 0.0293726815, 0.0190423107, 0.0163219806, 0.0427979361, 0.0330887203, 0.0184782712]
@@ -359,25 +355,6 @@ class KnowledgeBaseEcoli(object):
 		self._cellInorganicIonFractionData = numpy.zeros(len(inorganicIonIds), dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
-
-		# Check that biomass fractions sum correctly
-		includedComponents = ['lipidMassFraction', 'lpsMassFraction', 'mureinMassFraction', 'glycogenMassFraction', 'solublePoolMassFraction', 'inorganicIonMassFraction']
-		if abs(sum([self._cellCompositionData[x][self._cellCompositionData['doublingTime'] == 60] for x in includedComponents]) - sum(wildTypeBiomassFractions)) > 1e-5: raise Exception, 'Fractions do not sum to one!\n'
-
-		# Convert from g/gDCW to mmol/gDCW
-		wildTypeBiomassFractions = Q_(numpy.array(wildTypeBiomassFractions), 'g / DCW_g')
-		mw = Q_(numpy.array([self._metaboliteData['mw7.2'][self._metaboliteData['id'] == idx[:-3]][0] for idx in wildTypeBiomassIds]), 'g / mol')
-		wildTypeBiomassFractions = Q_(1000., 'mmol / mol') * (wildTypeBiomassFractions / mw)
-
-		self._wt2data = numpy.zeros(len(wildTypeBiomassIds),
-			dtype = [('metaboliteId', 'a50'),
-					('biomassFlux',		'f'),
-					('maintenanceFlux', 'f')])
-
-		self._wt2data['metaboliteId'] = wildTypeBiomassIds
-		self._wt2data['biomassFlux'] = wildTypeBiomassFractions
-
-		#import ipdb; ipdb.set_trace()
 
 	def _loadGenome(self):
 		self.translationTable = 11 # E. coli is 11
@@ -783,6 +760,26 @@ class KnowledgeBaseEcoli(object):
 		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, units)
 		self.wildtypeBiomass 	= UnitStructArray(self._wildtypeBiomassData, units)
 
+	def _buildBiomassFractions(self):
+		units = {
+		'doublingTime' : 'min',
+		'proteinMassFraction' : None,
+		'rnaMassFraction' : None,
+		'dnaMassFraction' : None,
+		'lipidMassFraction' : None,
+		'lpsMassFraction' : None,
+		'mureinMassFraction' : None,
+		'glycogenMassFraction' : None,
+		'solublePoolMassFraction' : None,
+		'inorganicIonMassFraction' : None
+		}
+		self.cellComposition = unit_struct_array(self._cellCompositionData, units)
+		self.cellLipidFraction = self._cellLipidFractionData
+		self.cellLPSFractionData = self._cellLPSFractionData
+		self.cellMureinFractionData = self._cellMureinFractionData
+		self.cellGlycogenFractionData = self._cellGlycogenFractionData
+		self.cellSolublePoolFractionData = self._cellSolublePoolFractionData
+		self.cellInorganicIonFractionData = self._cellInorganicIonFractionData
 
 	def _buildRnaData(self):
 		rnaIds = ['{}[{}]'.format(id_, location) for id_, location 
