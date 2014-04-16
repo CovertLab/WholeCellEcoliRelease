@@ -197,8 +197,6 @@ def fitKb(kb):
 
 	kb.rnaExpression[:] = rnaExpressionContainer.counts()
 
-	import ipdb; ipdb.set_trace()
-
 	# Synthesis probabilities
 	# Full WT Biomass function
 
