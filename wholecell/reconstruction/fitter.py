@@ -174,7 +174,9 @@ def fitKb(kb):
 		)
 
 
+
 	### Modify kbFit to reflect our bulk container ###
+
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = numpy.dtype("float64"))
@@ -197,7 +199,17 @@ def fitKb(kb):
 
 	kb.rnaExpression[:] = rnaExpressionContainer.counts()
 
-	# Synthesis probabilities
+
+	## Synthesis probabilities ##
+
+	synthProb = normalize(
+		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
+			) * rnaView.counts()
+		)
+
+	kb.rnaData["synthProb"][:] = synthProb
+
 	# Full WT Biomass function
 
 def normalize(array):
