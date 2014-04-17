@@ -946,10 +946,10 @@ class KnowledgeBaseEcoli(object):
 		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None, "isRna" : None, "isProteinMonomer" : None, "isModifiedForm" : None, 'isWater' : None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
-	def _buildAaCounts(self):
+	def _buildAaCounts(self): # TODO: ask nick/derek about deleting these methods
 		self.proteinMonomerAACounts = self._aaCountData
 
-	def _buildNtCounts(self):
+	def _buildNtCounts(self): # TODO: ask nick/derek about deleting these methods
 		self.rnaNTCounts = self._ntCountData
 
 	def _buildRnaExpression(self):
