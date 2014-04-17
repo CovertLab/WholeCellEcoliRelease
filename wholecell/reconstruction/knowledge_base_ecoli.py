@@ -85,8 +85,6 @@ class KnowledgeBaseEcoli(object):
 		self._buildMonomerIndexToRnaMapping()
 		self._buildConstants()
 		self._buildParameters()
-		#self._buildAaCounts() # Delete
-		#self._buildNtCounts() # Delete
 		#self._buildRnaExpression()
 		#self._buildBiomassFractions()
 
@@ -1245,10 +1243,6 @@ class KnowledgeBaseEcoli(object):
 	def _buildParameters(self):
 		self.parameters = self._parameterData
 		self.__dict__.update(self.parameters)
-
-## -- Calculate dependent variables -- ##
-	def _calculateDependentCompartments(self):
-		self.nCompartments 	= len(self.compartments)
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
