@@ -139,7 +139,12 @@ def fitKb(kb):
 
 
 	### DNA Mass fraction ###
-	# TODO (once we have a chromosome and replication process incorporated)
+	# TODO: Don't just keep dNTPs in the soluble pool
+	dNtpsView = bulkContainer.countsView(["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"])
+	dNtpsView.countsIs([
+		kb.genomeSeq.count("A"), kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("G"), kb.genomeSeq.count("T")
+		])
 
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
