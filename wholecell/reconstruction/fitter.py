@@ -170,6 +170,7 @@ def fitKb(kb):
 	dNtpsView.countsIs(nDNtps * dNtpRelativeAmounts)
 
 
+
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
@@ -304,6 +305,27 @@ def fitKb(kb):
 		)
 
 	# Glycogen fraction
+
+	glycogenView = biomassContainer.countsView(
+		list(kb.cellGlycogenFractionData["metaboliteId"])
+		)
+
+	glycogenMassFraction = float(dryComposition60min["glycogenMassFraction"])
+	glycogenMass = kb.avgCellDryMassInit * glycogenMassFraction
+
+	bulkMoleculesIdxs = numpy.array([
+		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
+		])
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+
+	glycogenPerGDCW = (
+		glycogenMass * kb.cellGlycogenFractionData["massFraction"]
+		) / mws * (
+		1000 / kb.avgCellDryMassInit.magnitude)
+
+	glycogenView.countsIs(
+		glycogenPerGDCW
+		)
 
 	# Murein fraction
 
