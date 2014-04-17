@@ -123,7 +123,7 @@ def fitKb(kb):
 
 	monomersView = bulkContainer.countsView(kb.monomerData["id"])
 
-	monomerMassFraction = float(dryComposition60min["proteinMassFraction"]) # TOKB
+	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
 
 	monomerExpression = normalize(kb.rnaExpression[kb.rnaIndexToMonomerMapping])
@@ -210,7 +210,55 @@ def fitKb(kb):
 
 	kb.rnaData["synthProb"][:] = synthProb
 
-	# Full WT Biomass function
+
+	## Full WT Biomass function ##
+
+	biomassContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64"))
+
+	# Amino acid fraction
+	oneToThreeMapping = dict((
+		("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
+		("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
+		("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
+		("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
+		("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
+		("V", "VAL-L[c]")
+	)) # TOKB
+
+	aminoAcidView = biomassContainer.countsView(
+		[oneToThreeMapping[x] for x in kb._aaWeights.iterkeys() if x != "U"] # Ignore selenocysteine (TODO: Include it)
+		)
+
+	aaMmolPerGDCW = numpy.sum(
+		kb.monomerData["aaCounts"] *
+		numpy.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
+		axis = 0
+		) * \
+		 1 / kb.nAvogadro.magnitude * \
+		 1000 / kb.avgCellDryMassInit.magnitude
+
+	aminoAcidView.countsIs(
+		aaMmolPerGDCW
+		)
+
+	# RNA fraction
+
+	# DNA fraction
+
+	# Glycogen fraction
+
+	# Murein fraction
+
+	# LPS fraction
+
+	# Lipid fraction
+
+	# Inorganic ion fraction
+
+	# Soluble pool fraction
+
+	# TODO: Get this to work (need pint units)
+	# kb.wildtypeBiomass["biomassFlux"][:] = biomassContainer.counts()
 
 def normalize(array):
 	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
