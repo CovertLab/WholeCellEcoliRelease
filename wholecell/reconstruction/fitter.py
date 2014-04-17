@@ -333,7 +333,7 @@ def fitKb(kb):
 		list(kb.cellMureinFractionData["metaboliteId"])
 		)
 
-	mureinMassFraction = float(dryComposition60min["glycogenMassFraction"])
+	mureinMassFraction = float(dryComposition60min["mureinMassFraction"])
 	mureinMass = kb.avgCellDryMassInit.magnitude * mureinMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
@@ -351,6 +351,27 @@ def fitKb(kb):
 		)
 
 	# LPS fraction
+
+	lpsView = biomassContainer.countsView(
+		list(kb.cellLPSFractionData["metaboliteId"])
+		)
+
+	lpsMassFraction = float(dryComposition60min["lpsMassFraction"])
+	lpsMass = kb.avgCellDryMassInit.magnitude * lpsMassFraction
+
+	bulkMoleculesIdxs = numpy.array([
+		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLPSFractionData["metaboliteId"]
+		])
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+
+	lpsPerGDCW = (
+		lpsMass * kb.cellLPSFractionData["massFraction"]
+		) / mws * (
+		1000 / kb.avgCellDryMassInit.magnitude)
+
+	lpsView.countsIs(
+		lpsPerGDCW
+		)
 
 	# Lipid fraction
 
