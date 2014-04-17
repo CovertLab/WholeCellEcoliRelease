@@ -1,0 +1,2 @@
+nucleotide = NT
+amino_acid = aa = AA
