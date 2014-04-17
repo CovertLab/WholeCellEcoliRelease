@@ -79,7 +79,7 @@ class KnowledgeBaseEcoli(object):
 		#self._buildCompartments()
 		#self._buildBulkMolecules()
 		#self._buildBiomass()
-		#self._buildRnaData()
+		self._buildRnaData()
 		#self._buildMonomerData()
 		#self._buildRnaIndexToMonomerMapping()
 		#self._buildMonomerIndexToRnaMapping()
@@ -981,10 +981,14 @@ class KnowledgeBaseEcoli(object):
 		self.cellInorganicIonFractionData = self._cellInorganicIonFractionData
 
 	def _buildRnaData(self):
-		rnaIds = ['{}[{}]'.format(id_, location) for id_, location 
-			in zip(self._rnaData['id'], self._rnaData['location'])]
+		rnaIds = ['{}[{}]'.format(rna['id'], rna['location'])
+			for rna in self.rnas]
 
-		rnaDegRates = numpy.log(2) / self._rnaData['halfLife']
+		rnaDegRates = numpy.log(2) / numpy.array(
+			[rna['halfLife'] for rna in self.rnas]
+			) # TODO: units
+
+		import ipdb; ipdb.set_trace()
 
 		rnaLens = numpy.array([len(s) for s in self._rnaData['sequence']])
 
