@@ -90,6 +90,8 @@ class KnowledgeBaseEcoli(object):
 		#self._buildRnaExpression()
 		#self._buildBiomassFractions()
 
+		self._buildComplexationMatrix()
+
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
@@ -1034,6 +1036,7 @@ class KnowledgeBaseEcoli(object):
 			size,
 			dtype = [
 				('id', 'a50'),
+				# TODO: add expression to this table
 				('synthProb', 'f8'),
 				('degRate', 'f8'),
 				('length', 'i8'),
@@ -1135,6 +1138,71 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildMonomerIndexToRnaMapping(self):
 		self.monomerIndexToRnaMapping = numpy.array([numpy.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(numpy.where(x == self.monomerData["rnaId"])[0])])
+
+
+	def _buildComplexationMatrix(self):
+		# Builds a matrix that maps complexes (on the columns) to the correct
+		# stoichiometric ratios of subunits (on the rows)
+
+		# Note that this is NOT a valid S matrix for a complexation process; 
+		# it is only a graph
+
+		complexesToSubunits = collections.defaultdict(dict)
+		subunits = set()
+
+		complexes = complexesToSubunits.viewkeys()
+
+		for molecule in self.proteins + self.rnas:
+			composition = molecule['composition']
+
+			if composition:
+				complexName = '{}[{}]'.format(molecule['id'], molecule['location'])
+
+				assert complexName not in complexes, 'Duplicate complex ID'
+
+				for subunit in composition:
+					coeff = subunit['coeff']
+
+					if coeff > 0: # entry is actually the complex itself
+						# Make sure the data makes sense
+						assert molecule['id'] == subunit['molecule']
+						assert molecule['location'] == subunit['location']
+						assert coeff == 1
+
+
+					else: # entry is a true subunit
+						assert coeff % 1 == 0, 'Noninteger subunit stoichiometry'
+
+						subunitName = '{}[{}]'.format(subunit['molecule'], subunit['location'])
+
+						assert subunitName not in complexesToSubunits[complexName], 'Duplicate subunit ID'
+
+						complexesToSubunits[complexName][subunitName] = -coeff
+
+						subunits.add(subunitName)
+
+		complexNames = sorted(complexes)
+		subunitNames = sorted(subunits)
+
+		nComplexes = len(complexNames)
+		nSubunits = len(subunitNames)
+
+		complexNameToIndex = {complexName:i for i, complexName in enumerate(complexNames)}
+		subunitNameToIndex = {subunitName:i for i, subunitName in enumerate(subunitNames)}
+
+		matrix = numpy.zeros((nSubunits, nComplexes), numpy.int64)
+
+		for complexName, subunits in complexesToSubunits.viewitems():
+			complexIndex = complexNameToIndex[complexName]
+
+			for subunitName, count in subunits.viewitems():
+				subunitIndex = subunitNameToIndex[subunitName]
+
+				matrix[subunitIndex, complexIndex] = count
+
+		self.complexationMatrix = matrix
+		self.complexationMatrixComplexIds = complexNames
+		self.complexationMatrixSubunitIds = subunitNames
 
 
 	def _buildConstants(self):
