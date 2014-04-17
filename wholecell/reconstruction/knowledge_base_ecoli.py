@@ -293,7 +293,7 @@ class KnowledgeBaseEcoli(object):
 		self._cellLipidFractionData['massFraction'] = fracOfLipidMass
 
 		## LPS
-		lpsIds = ['colipa[o]']
+		lpsIds = ['colipa[e]']
 		fracOfLPSMass = [1.]
 
 		lpsIds = [x[:-3].upper() + x[-3:] for x in lpsIds]
@@ -1020,7 +1020,7 @@ class KnowledgeBaseEcoli(object):
 		'inorganicIonMassFraction' : None
 		}
 		self.cellDryMassComposition = UnitStructArray(self._cellDryMassCompositionData, units)
-		self.cellLipidFraction = self._cellLipidFractionData
+		self.cellLipidFractionData = self._cellLipidFractionData
 		self.cellLPSFractionData = self._cellLPSFractionData
 		self.cellMureinFractionData = self._cellMureinFractionData
 		self.cellGlycogenFractionData = self._cellGlycogenFractionData
