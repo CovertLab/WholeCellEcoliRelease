@@ -86,7 +86,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildConstants()
 		self._buildParameters()
 		self._buildRnaExpression()
-		#self._buildBiomassFractions()
+		self._buildBiomassFractions()
 
 		self._buildComplexationMatrix()
 
@@ -153,22 +153,22 @@ class KnowledgeBaseEcoli(object):
 		# Load data from Django
 		all_locations = Location.objects.all()
 
-		self.compartments = []
-		self.compIdToAbbrev = {}
+		self.compartmentList = []
+		self._compIdToAbbrev = {}
 		self._dbLocationId = {} # ADDED: for accessing info from other table 
 
 		# Load data 
 		for i in all_locations:			
 			c = {"id": i.location_id, "abbrev": i.abbreviation}
 
-			self.compartments.append(c)
-			self.compIdToAbbrev[c["id"]] = c["abbrev"]
+			self.compartmentList.append(c)
+			self._compIdToAbbrev[c["id"]] = c["abbrev"]
 
 			self._dbLocationId[i.id] = c["abbrev"]	
 
 
 	def _loadMetabolites(self):
-		self.metabolites = []
+		self._metabolites = []
 		
 		#biomass		
 		biomass = {}
@@ -234,7 +234,7 @@ class KnowledgeBaseEcoli(object):
 			if i.has_equivalent_enzyme:
 				m["equivEnzIds"] = equ_enz[i.id]		
 			
-			self.metabolites.append(m)
+			self._metabolites.append(m)
 			self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #added
 
 
@@ -386,9 +386,9 @@ class KnowledgeBaseEcoli(object):
 
 	def _loadGenes(self):
 
-		self.genes = []
-		self.rnas = []
-		self.proteins = []
+		self._genes = []
+		self._rnas = []
+		self._proteins = []
 		self._geneDbIds = {} # ADDED: for rnas and monomers
 
 		#genetype
@@ -455,7 +455,7 @@ class KnowledgeBaseEcoli(object):
 			else:
 				g["rnaId"] = self._allProducts[i.productname_id]
 
-			self.genes.append(g)
+			self._genes.append(g)
 
 			# RNA
 			r = {
@@ -477,7 +477,7 @@ class KnowledgeBaseEcoli(object):
 			if g["type"] == "mRNA":
 				r["name"] = g["name"] + " [RNA]" # else: need to check name in the RNAs file
 				r["monomerId"] = self._allProducts[i.productname_id]
-				r["location"] = self.compIdToAbbrev["CCO-CYTOSOL"]
+				r["location"] = self._compIdToAbbrev["CCO-CYTOSOL"]
 
 				# TODO from DEREK: Uncomment when Nick has fixed json formatting
 				# if type(r["halfLife"]) == dict:
@@ -489,7 +489,7 @@ class KnowledgeBaseEcoli(object):
 			r["ntCount"] = numpy.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			
-			self.rnas.append(r)
+			self._rnas.append(r)
 			self._allProductType[r["id"]] = 'rna' #added
 
 			if g["type"] == "mRNA":
@@ -551,7 +551,7 @@ class KnowledgeBaseEcoli(object):
 				p["mw"] = water
 				for aa in p["seq"]: p["mw"] += aaWeights[aa]
 
-				self.proteins.append(p)
+				self._proteins.append(p)
 				self._allProductType[p["id"]] = 'protein' #added
 
 
@@ -571,8 +571,8 @@ class KnowledgeBaseEcoli(object):
 		if len(all_rna) <=0:
 			raise Exception, "Database Access Error: Cannot access public_Rna table"
 
-		# rnaId -> location index in self.rnas
-		rnaLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self.rnas)])
+		# rnaId -> location index in self._rnas
+		rnaLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self._rnas)])
 		
 		for i in all_rna:
 			# RNA
@@ -583,17 +583,17 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
-				"type":self.genes[i.gene_fk_id]['type'],
+				"type":self._genes[i.gene_fk_id]['type'],
 				}
 		
 			if int(i.is_modified):	
 				r["modifiedForms"] = rnamodified[i.id]
 
-			self.rnas[rnaLookup[r["id"]]]["name"] = r["name"]
-			self.rnas[rnaLookup[r["id"]]]["location"] = r["location"]
-			self.rnas[rnaLookup[r["id"]]]["modifiedForms"] = r["modifiedForms"]
-			self.rnas[rnaLookup[r["id"]]]["comments"] = r["comments"]
-			self.rnas[rnaLookup[r["id"]]]["type"] = r["type"]
+			self._rnas[rnaLookup[r["id"]]]["name"] = r["name"]
+			self._rnas[rnaLookup[r["id"]]]["location"] = r["location"]
+			self._rnas[rnaLookup[r["id"]]]["modifiedForms"] = r["modifiedForms"]
+			self._rnas[rnaLookup[r["id"]]]["comments"] = r["comments"]
+			self._rnas[rnaLookup[r["id"]]]["type"] = r["type"]
 
 
 	def _loadProteinMonomers(self):
@@ -613,8 +613,8 @@ class KnowledgeBaseEcoli(object):
 		if len(all_monomers) <=0:
 			raise Exception, "Database Access Error: Cannot access public_ProteinMonomers table"
 
-		# monomerId -> location index in self.proteins
-		protLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self.proteins)])
+		# monomerId -> location index in self._proteins
+		protLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self._proteins)])
 
 		for i in all_monomers:
 
@@ -634,15 +634,15 @@ class KnowledgeBaseEcoli(object):
 					raise Exception, "modified Monomer Absent %s" % p["id"]
 					#print p["id"], i.id, i.name
 
-			self.proteins[protLookup[p["id"]]]["name"] = p["name"]
-			self.proteins[protLookup[p["id"]]]["location"] = p["location"]
-			self.proteins[protLookup[p["id"]]]["modifiedForms"] = p["modifiedForms"]
-			self.proteins[protLookup[p["id"]]]["comments"] = p["comments"]
+			self._proteins[protLookup[p["id"]]]["name"] = p["name"]
+			self._proteins[protLookup[p["id"]]]["location"] = p["location"]
+			self._proteins[protLookup[p["id"]]]["modifiedForms"] = p["modifiedForms"]
+			self._proteins[protLookup[p["id"]]]["comments"] = p["comments"]
 
 	def _createModifiedForms(self):
-		rnaIds = [x["id"] for x in self.rnas]
+		rnaIds = [x["id"] for x in self._rnas]
 		rnasToAppend = []
-		for r in self.rnas:
+		for r in self._rnas:
 			for modForm in r["modifiedForms"]:
 				if modForm not in rnaIds:	# Do this check so that we can call the function multiple times and not re-create entries
 					rNew = dict(r)
@@ -654,11 +654,11 @@ class KnowledgeBaseEcoli(object):
 					rNew["expression"] = 0.
 					rnasToAppend.append(rNew)
 					self._allProductType[rNew["id"]] = 'rna' #added		
-		self.rnas.extend(rnasToAppend)
+		self._rnas.extend(rnasToAppend)
 
-		protIds = [x["id"] for x in self.proteins]
+		protIds = [x["id"] for x in self._proteins]
 		proteinsToAppend = []
-		for p in self.proteins:
+		for p in self._proteins:
 			for modForm in p["modifiedForms"]:
 				if modForm not in protIds:	# Do this check so that we can call the function multiple times and not re-create entries
 					pNew = dict(p)
@@ -670,11 +670,11 @@ class KnowledgeBaseEcoli(object):
 					self._allProductType[pNew["id"]] = 'protein' #added		
 					proteinsToAppend.append(pNew)
 
-		self.proteins.extend(proteinsToAppend)
+		self._proteins.extend(proteinsToAppend)
 
 	def _loadRelationStoichiometry(self):
 
-		self.allRelationStoichiometry = {}
+		self._allRelationStoichiometry = {}
 		
 		all_RelationStoichiometry = RelationStoichiometry.objects.all()
 		if len(all_RelationStoichiometry) <=0:
@@ -682,7 +682,7 @@ class KnowledgeBaseEcoli(object):
 
 		for i in all_RelationStoichiometry:
 			thisType = self._allProductType[self._allProducts[i.reactant_fk_id]]
-			self.allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
+			self._allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
 
 
 	def _loadComplexes(self):
@@ -737,25 +737,25 @@ class KnowledgeBaseEcoli(object):
 			if i.id not in relation:
 				raise Exception, "%s protein complex has no reaction" % i.frame_id
 			for temp in relation[i.id]:
-				t = self.allRelationStoichiometry[temp]
+				t = self._allRelationStoichiometry[temp]
 				p["composition"].append(t)
 
 
 			protNew.append(p)
-			self.proteins.append(p)
+			self._proteins.append(p)
 
 		self._createModifiedForms()
 		
-		metDict = dict([(x["id"], x) for x in self.metabolites])
-		rnaDict = dict([(x["id"], x) for x in self.rnas])
-		protDict = dict([(x["id"], x) for x in self.proteins])
+		metDict = dict([(x["id"], x) for x in self._metabolites])
+		rnaDict = dict([(x["id"], x) for x in self._rnas])
+		protDict = dict([(x["id"], x) for x in self._proteins])
 		
 		for p in protNew:
-			p = [x for x in self.proteins if x["id"] == p["id"]][0]
+			p = [x for x in self._proteins if x["id"] == p["id"]][0]
 
 			for stoichComponent in p["composition"]:
 				if stoichComponent["type"] == '': 
-					stoichComponent["type"] = self.check_molecule(stoichComponent["molecule"]) #ADDED
+					stoichComponent["type"] = self._check_molecule(stoichComponent["molecule"]) #ADDED
 				if stoichComponent["molecule"] != p["id"]:
 					if stoichComponent["molecule"].upper() in metDict:
 						stoichComponent["molecule"] = stoichComponent["molecule"].upper()
@@ -771,12 +771,12 @@ class KnowledgeBaseEcoli(object):
 
 					p["mw"] -= stoichComponent["coeff"] * subunitMw
 		
-		#self.proteins.extend(protNew)
+		#self._proteins.extend(protNew)
 
 	def _loadReactions(self):
 
-		self.reactions = []
-		self.reactionsExchange = []
+		self._reactions = []
+		self._reactionsExchange = []
 		
 		##		
 		relation = {}
@@ -828,43 +828,43 @@ class KnowledgeBaseEcoli(object):
 			if i.id not in relation:
 				raise Exception, "%s Metabolite has no reaction" % i.frame_id
 			for temp in relation[i.id]:
-				t = self.allRelationStoichiometry[temp]
+				t = self._allRelationStoichiometry[temp]
 				if t["type"] == '':
-					t["type"] = self.check_molecule(t["molecule"])
+					t["type"] = self._check_molecule(t["molecule"])
 				t["molecule"] = t["molecule"].upper()
 				r["stoichiometry"].append(t)
 	
-			protList = [p["id"] for p in self.proteins]
+			protList = [p["id"] for p in self._proteins]
 			if r["catBy"] != None:
 				for temp in r["catBy"]:
 					if temp not in protList:
 						raise Exception, "Undefined protein: %s." % temp
 			
-			self.reactions.append(r)
+			self._reactions.append(r)
 
 
-	def check_molecule(self, mol):
+	def _check_molecule(self, mol):
 		thisType = ""
 		'''		
-		if any(x["id"] == mol.upper() for x in self.metabolites):
+		if any(x["id"] == mol.upper() for x in self._metabolites):
 			thisType = "metabolite"
-		elif any(x["id"] == mol for x in self.rnas):
+		elif any(x["id"] == mol for x in self._rnas):
 			thisType = "rna"
 		el
 		'''
-		if any(x["id"] == mol for x in self.proteins):
+		if any(x["id"] == mol for x in self._proteins):
 			thisType = "protein"
 		else:
 			raise Exception, "Undefined molecule: %s." % (mol)
 		return thisType
 				
 				
-	def calcKCat(self, enzId, vMax, units):
+	def _calcKCat(self, enzId, vMax, units):
 		if enzId == None or vMax == None:
 			return numpy.NaN
 
 		if units == "U/mg":
-			prot = next((x for x in self.proteins if x["id"] == enzId), None)
+			prot = next((x for x in self._proteins if x["id"] == enzId), None)
 			if prot == None:
 				raise Exception, "Undefined enzyme: %s." % (enzId)
 			return vMax / 60.0 * 1e-3 * prot["mw"]
@@ -898,16 +898,17 @@ class KnowledgeBaseEcoli(object):
 	## -- Build functions -- ##
 
 	def _buildCompartments(self):
-		self._compartmentData = numpy.zeros(len(self.compartments),
+		self._compartmentData = numpy.zeros(len(self.compartmentList),
 			dtype = [('compartmentId','a20'),('compartmentAbbreviation', 'a1')])
 
 		# Load data into structured array
-		self._compartmentData['compartmentId']				= [x['id'] for x in self.compartments]
-		self._compartmentData['compartmentAbbreviation']	= [x['abbrev'] for x in self.compartments]
-		self.nCompartments 	= len(self.compartments)
+		self._compartmentData['compartmentId']				= [x['id'] for x in self.compartmentList]
+		self._compartmentData['compartmentAbbreviation']	= [x['abbrev'] for x in self.compartmentList]
+		self.compartments = self._compartmentData
+		self.nCompartments 	= len(self.compartmentList)
 
 	def _buildBulkMolecules(self):
-		size = len(self.metabolites)*len(self.compartments) + len(self.rnas) + len(self.proteins)
+		size = len(self._metabolites)*len(self.compartmentList) + len(self._rnas) + len(self._proteins)
 		self.bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					("mass",				"f"),
@@ -919,84 +920,84 @@ class KnowledgeBaseEcoli(object):
 					("isModified",			"bool")])
 
 		# Set metabolites
-		lastMetaboliteIdx = len(self.metabolites) * len(self.compartments)
+		lastMetaboliteIdx = len(self._metabolites) * len(self.compartmentList)
 		self.bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = ['{}[{}]'.format(idx,c)
-											for c in [x['abbrev'] for x in self.compartments]
-											for idx in [x['id'] for x in self.metabolites]
+											for c in [x['abbrev'] for x in self.compartmentList]
+											for idx in [x['id'] for x in self._metabolites]
 											]
 
-		self.bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self.metabolites[i]['mw7.2']
-											for j in range(len(self.compartments))
-											for i in range(len(self.metabolites))
+		self.bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self._metabolites[i]['mw7.2']
+											for j in range(len(self.compartmentList))
+											for i in range(len(self._metabolites))
 											]
 
-		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self.metabolites) * len(self.compartments)
+		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self.compartmentList)
 
 		for i,mid in enumerate(self.bulkMolecules['moleculeId']):
 			if 'H2O[' == mid[:4]:
 				self.bulkMolecules['isWater'][i] = True
 
 		# Set RNA
-		lastRnaIdx = len(self.rnas) + lastMetaboliteIdx
-		self.bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self.rnas]
-		self.bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self.rnas]
-		self.bulkMolecules['isRnaMonomer'][lastMetaboliteIdx:lastRnaIdx] = [False if len(x['composition']) else True for x in self.rnas]
-		self.bulkMolecules['isComplex'][lastMetaboliteIdx:lastRnaIdx] = [True if len(x['composition']) else False for x in self.rnas]
-		self.bulkMolecules['isModified'][lastMetaboliteIdx:lastRnaIdx] = [True if x['unmodifiedForm'] != None else False for x in self.rnas]
+		lastRnaIdx = len(self._rnas) + lastMetaboliteIdx
+		self.bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
+		self.bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self._rnas]
+		self.bulkMolecules['isRnaMonomer'][lastMetaboliteIdx:lastRnaIdx] = [False if len(x['composition']) else True for x in self._rnas]
+		self.bulkMolecules['isComplex'][lastMetaboliteIdx:lastRnaIdx] = [True if len(x['composition']) else False for x in self._rnas]
+		self.bulkMolecules['isModified'][lastMetaboliteIdx:lastRnaIdx] = [True if x['unmodifiedForm'] != None else False for x in self._rnas]
 
 		# Set proteins
-		lastProteinMonomerIdx = len(self.proteins) + lastRnaIdx
-		self.bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = ['{}[{}]'.format(protein['id'],protein['location']) for protein in self.proteins]
-		self.bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx] = [x['mw'] for x in self.proteins]
-		self.bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self.proteins]
-		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self.proteins]
-		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self.proteins]
+		lastProteinMonomerIdx = len(self._proteins) + lastRnaIdx
+		self.bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = ['{}[{}]'.format(protein['id'],protein['location']) for protein in self._proteins]
+		self.bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx] = [x['mw'] for x in self._proteins]
+		self.bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
+		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
+		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 
 		# Add units to values
 		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None, "isRnaMonomer" : None, "isProteinMonomer" : None, "isModified" : None, 'isWater' : None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
 	def _buildRnaExpression(self):
-		normalizedRnaExpression = numpy.zeros(sum(1 for x in self.rnas if x['unmodifiedForm'] == None),
+		normalizedRnaExpression = numpy.zeros(sum(1 for x in self._rnas if x['unmodifiedForm'] == None),
 			dtype = [('rnaId',		'a50'),
 					('expression',	'f')])
 
-		normalizedRnaExpression['rnaId'] 		= ['{}[{}]'.format(x['id'], x['location']) for x in self.rnas if x['unmodifiedForm'] == None]
-		normalizedRnaExpression['expression']	= [x['expression'] for x in self.rnas if x['unmodifiedForm'] == None]
+		normalizedRnaExpression['rnaId'] 		= ['{}[{}]'.format(x['id'], x['location']) for x in self._rnas if x['unmodifiedForm'] == None]
+		normalizedRnaExpression['expression']	= [x['expression'] for x in self._rnas if x['unmodifiedForm'] == None]
 		normalizedRnaExpression['expression']	= normalizedRnaExpression['expression'] / numpy.sum(normalizedRnaExpression['expression'])
 
 		self.rnaExpression = UnitStructArray(normalizedRnaExpression, {'rnaId':  None,' expression' : 'dimensionless'})
 
 	def _buildBiomass(self):
-		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self.metabolites if len(x['biomassInfo']['core'])),
+		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
 			dtype = [('metaboliteId', 'a50'),
 					('biomassFlux', 	'f')])
 
-		self._wildtypeBiomassData = numpy.zeros(sum(len(x['biomassInfo']['wildtype']) for x in self.metabolites if len(x['biomassInfo']['wildtype'])),
+		self._wildtypeBiomassData = numpy.zeros(sum(len(x['biomassInfo']['wildtype']) for x in self._metabolites if len(x['biomassInfo']['wildtype'])),
 			dtype = [('metaboliteId', 'a50'),
 					('biomassFlux',		'f')])
 
 		self._coreBiomassData['metaboliteId']	= [
 		'{}[{}]'.format(x['id'], x['biomassInfo']['core'][i]['location'])
-		for x in self.metabolites if len(x['biomassInfo']['core'])
+		for x in self._metabolites if len(x['biomassInfo']['core'])
 		for i in range(len(x['biomassInfo']['core']))
 		]
 		
 		self._coreBiomassData['biomassFlux']	= [
 		x['biomassInfo']['core'][i]['mmol/gDCW']
-		for x in self.metabolites if len(x['biomassInfo']['core'])
+		for x in self._metabolites if len(x['biomassInfo']['core'])
 		for i in range(len(x['biomassInfo']['core']))
 		]
 		
 		self._wildtypeBiomassData['metaboliteId']	= [
 		'{}[{}]'.format(x['id'], x['biomassInfo']['wildtype'][i]['location'])
-		for x in self.metabolites if len(x['biomassInfo']['wildtype'])
+		for x in self._metabolites if len(x['biomassInfo']['wildtype'])
 		for i in range(len(x['biomassInfo']['wildtype']))
 		]
 
 		self._wildtypeBiomassData['biomassFlux']	= [
 		x['biomassInfo']['wildtype'][i]['mmol/gDCW']
-		for x in self.metabolites if len(x['biomassInfo']['wildtype'])
+		for x in self._metabolites if len(x['biomassInfo']['wildtype'])
 		for i in range(len(x['biomassInfo']['wildtype']))
 		]
 
@@ -1028,21 +1029,21 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildRnaData(self):
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location'])
-			for rna in self.rnas]
+			for rna in self._rnas]
 
 		rnaDegRates = numpy.log(2) / numpy.array(
-			[rna['halfLife'] for rna in self.rnas]
+			[rna['halfLife'] for rna in self._rnas]
 			) # TODO: units
 
-		rnaLens = numpy.array([len(rna['seq']) for rna in self.rnas])
+		rnaLens = numpy.array([len(rna['seq']) for rna in self._rnas])
 
 		ntCounts = numpy.array([
 			(rna['seq'].count('A'), rna['seq'].count('U'),
 				rna['seq'].count('C'), rna['seq'].count('G'))
-			for rna in self.rnas
+			for rna in self._rnas
 			])
 
-		expression = numpy.array([rna['expression'] for rna in self.rnas])
+		expression = numpy.array([rna['expression'] for rna in self._rnas])
 
 		synthProb = expression * (
 			numpy.log(2) / self._parameterData['cellCycleLen'].to('s').magnitude
@@ -1050,7 +1051,7 @@ class KnowledgeBaseEcoli(object):
 
 		synthProb /= synthProb.sum()
 
-		mws = numpy.array([rna['mw'] for rna in self.rnas])
+		mws = numpy.array([rna['mw'] for rna in self._rnas])
 
 		size = len(rnaIds)
 
@@ -1058,7 +1059,7 @@ class KnowledgeBaseEcoli(object):
 		is16S = numpy.zeros(size, dtype = numpy.bool)
 		is5S = numpy.zeros(size, dtype = numpy.bool)
 
-		for rnaIndex, rna in enumerate(self.rnas):
+		for rnaIndex, rna in enumerate(self._rnas):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
 				is23S[rnaIndex] = True
 
@@ -1095,17 +1096,17 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['length'] = rnaLens
 		self.rnaData['countsAUCG'] = ntCounts
 		self.rnaData['mw'] = mws
-		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self.rnas]
-		self.rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self.rnas]
-		self.rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in self.rnas]
-		self.rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in self.rnas]
+		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas]
+		self.rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self._rnas]
+		self.rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in self._rnas]
+		self.rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in self._rnas]
 		self.rnaData['isRRna23S'] = is23S
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
 
 
 	def _buildMonomerData(self):
-		monomers = [protein for protein in self.proteins 
+		monomers = [protein for protein in self._proteins 
 			if protein['unmodifiedForm'] is None
 			and len(protein['composition']) == 0]
 
@@ -1118,7 +1119,7 @@ class KnowledgeBaseEcoli(object):
 			rnaId = protein['rnaId']
 
 			rnaLocation = None
-			for rna in self.rnas:
+			for rna in self._rnas:
 				if rna['id'] == rnaId:
 					rnaLocation = rna['location']
 					break
@@ -1189,7 +1190,7 @@ class KnowledgeBaseEcoli(object):
 
 		complexes = complexesToSubunits.viewkeys()
 
-		for molecule in self.proteins + self.rnas:
+		for molecule in self._proteins + self._rnas:
 			composition = molecule['composition']
 
 			if composition:
