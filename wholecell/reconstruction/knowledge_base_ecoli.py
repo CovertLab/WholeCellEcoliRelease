@@ -1030,6 +1030,7 @@ class KnowledgeBaseEcoli(object):
 			size,
 			dtype = [
 				('id', 'a50'),
+				# TODO: add expression to this table
 				('synthProb', 'f8'),
 				('degRate', 'f8'),
 				('length', 'i8'),
