@@ -129,7 +129,7 @@ def fitKb(kb):
 	monomerExpression = normalize(kb.rnaExpression[kb.rnaIndexToMonomerMapping])
 
 	nMonomers = countsFromMassAndExpression(
-		monomerMass * monomerMassFraction,
+		monomerMass,
 		kb.monomerData["mw"],
 		monomerExpression,
 		kb.nAvogadro.magnitude
@@ -140,11 +140,34 @@ def fitKb(kb):
 
 	### DNA Mass fraction ###
 	# TODO: Don't just keep dNTPs in the soluble pool
+	# TODO: Compute based on chromosome sequence
 	dNtpsView = bulkContainer.countsView(["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"])
-	dNtpsView.countsIs([
-		kb.genomeSeq.count("A"), kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("G"), kb.genomeSeq.count("T")
+
+	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
+	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
+
+	dNtpRelativeAmounts = normalize(numpy.array([
+		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+		]))
+
+	dNtpMws = numpy.array([
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "DATP[c]"].magnitude[0],
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "DCTP[c]"].magnitude[0],
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "DGTP[c]"].magnitude[0],
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "DTTP[c]"].magnitude[0]
 		])
+
+	nDNtps = countsFromMassAndExpression(
+		dnaMass,
+		dNtpMws,
+		dNtpRelativeAmounts,
+		kb.nAvogadro.magnitude
+		)
+
+	dNtpsView.countsIs(nDNtps * dNtpRelativeAmounts)
 
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
@@ -238,16 +261,16 @@ def fitKb(kb):
 		kb.monomerData["aaCounts"] *
 		numpy.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
 		axis = 0
-		) * \
-		 1 / kb.nAvogadro.magnitude * \
-		 1000 / kb.avgCellDryMassInit.magnitude
+		) * (
+		(1 / kb.nAvogadro.magnitude) *
+		(1000 / kb.avgCellDryMassInit.magnitude)
+		)
 
 	aminoAcidView.countsIs(
 		aaMmolPerGDCW
 		)
 
 	# RNA fraction
-
 	ntpView = biomassContainer.countsView(
 		["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
 		)
@@ -256,15 +279,29 @@ def fitKb(kb):
 		kb.rnaData["countsAUCG"] *
 		numpy.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
 		axis = 0
-		) * \
-	1 / kb.nAvogadro.magnitude * \
-	1000 / kb.avgCellDryMassInit.magnitude
+		) * (
+		(1 / kb.nAvogadro.magnitude) *
+		(1000 / kb.avgCellDryMassInit.magnitude)
+		)
 
 	ntpView.countsIs(
 		ntpPerGDCW
 		)
 
 	# DNA fraction
+
+	dNtpView = biomassContainer.countsView(		# TODO: Better name so as not to confuse with bulkContainer view
+		["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+		)
+
+	dNtpPerGDCW = dNtpsView.counts() * (
+		(1 / kb.nAvogadro.magnitude) *
+		(1000 / kb.avgCellDryMassInit.magnitude)
+		)
+
+	dNtpView.countsIs(
+		dNtpPerGDCW
+		)
 
 	# Glycogen fraction
 
