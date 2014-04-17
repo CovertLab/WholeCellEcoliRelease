@@ -243,6 +243,22 @@ def fitKb(kb):
 
 	# RNA fraction
 
+	ntpView = biomassContainer.countsView(
+		["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
+		)
+
+	ntpPerGDCW = numpy.sum(
+		kb.rnaData["countsAUCG"] *
+		numpy.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
+		axis = 0
+		) * \
+	1 / kb.nAvogadro.magnitude * \
+	1000 / kb.avgCellDryMassInit.magnitude
+
+	ntpView.countsIs(
+		ntpPerGDCW
+		)
+
 	# DNA fraction
 
 	# Glycogen fraction
