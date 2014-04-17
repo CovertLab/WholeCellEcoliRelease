@@ -471,7 +471,8 @@ class KnowledgeBaseEcoli(object):
 				"ntCount": [],
 				"mw": -1.0,
 				"geneId": g["id"],
-				"monomerId": None
+				"monomerId": None,
+				"type": None # Filled in later
 			}
 			if g["type"] == "mRNA":
 				r["name"] = g["name"] + " [RNA]" # else: need to check name in the RNAs file
@@ -592,6 +593,7 @@ class KnowledgeBaseEcoli(object):
 			self.rnas[rnaLookup[r["id"]]]["location"] = r["location"]
 			self.rnas[rnaLookup[r["id"]]]["modifiedForms"] = r["modifiedForms"]
 			self.rnas[rnaLookup[r["id"]]]["comments"] = r["comments"]
+			self.rnas[rnaLookup[r["id"]]]["type"] = r["type"]
 
 
 	def _loadProteinMonomers(self):
@@ -1009,21 +1011,19 @@ class KnowledgeBaseEcoli(object):
 
 		size = len(rnaIds)
 
-		# TODO: reimplement so Derek doesn't kill me
+		is23S = numpy.zeros(size, dtype = numpy.bool)
+		is16S = numpy.zeros(size, dtype = numpy.bool)
+		is5S = numpy.zeros(size, dtype = numpy.bool)
 
-		# is23S = numpy.zeros(size, dtype = numpy.bool)
-		# is16S = numpy.zeros(size, dtype = numpy.bool)
-		# is5S = numpy.zeros(size, dtype = numpy.bool)
+		for rnaIndex, rna in enumerate(self.rnas):
+			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
+				is23S[rnaIndex] = True
 
-		# for rnaIndex, rna in enumerate(self.rnas):
-		# 	if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
-		# 		is23S[rnaIndex] = True
+			if rna["type"] == "rRNA" and rna["id"].startswith("RRS"):
+				is16S[rnaIndex] = True
 
-		# 	if rna["type"] == "rRNA" and rna["id"].startswith("RRS"):
-		# 		is16S[rnaIndex] = True
-
-		# 	if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
-		# 		is5S[rnaIndex] = True
+			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
+				is5S[rnaIndex] = True
 
 		# TODO: Add units
 		self.rnaData = numpy.zeros(
@@ -1035,13 +1035,13 @@ class KnowledgeBaseEcoli(object):
 				('length', 'i8'),
 				('countsAUCG', '4i8'),
 				('mw', 'f8'),
-				# ('isMRna', 'bool'),
-				# ('isMiscRna', 'bool'),
-				# ('isRRna', 'bool'),
-				# ('isTRna', 'bool'),
-				# ('isRRna23S', 'bool'),
-				# ('isRRna16S', 'bool'),
-				# ('isRRna5S', 'bool')
+				('isMRna', 'bool'),
+				('isMiscRna', 'bool'),
+				('isRRna', 'bool'),
+				('isTRna', 'bool'),
+				('isRRna23S', 'bool'),
+				('isRRna16S', 'bool'),
+				('isRRna5S', 'bool')
 				]
 			)
 
@@ -1051,13 +1051,13 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['length'] = rnaLens
 		self.rnaData['countsAUCG'] = ntCounts
 		self.rnaData['mw'] = mws
-		# self.rnaData['isMRna'] = self._rnaData["type"] == "mRNA"
-		# self.rnaData['isMiscRna'] = self._rnaData["type"] == "miscRNA"
-		# self.rnaData['isRRna'] = self._rnaData["type"] == "rRNA"
-		# self.rnaData['isTRna'] = self._rnaData["type"] == "tRNA"
-		# self.rnaData['isRRna23S'] = is23S
-		# self.rnaData['isRRna16S'] = is16S
-		# self.rnaData['isRRna5S'] = is5S
+		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self.rnas]
+		self.rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self.rnas]
+		self.rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in self.rnas]
+		self.rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in self.rnas]
+		self.rnaData['isRRna23S'] = is23S
+		self.rnaData['isRRna16S'] = is16S
+		self.rnaData['isRRna5S'] = is5S
 
 
 	def _buildMonomerData(self):
