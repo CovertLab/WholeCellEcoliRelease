@@ -78,7 +78,7 @@ class KnowledgeBaseEcoli(object):
 		# Create data structures for simulation
 		self._buildCompartments()
 		self._buildBulkMolecules()
-		#self._buildBiomass()
+		self._buildBiomass()
 		self._buildRnaData()
 		self._buildMonomerData()
 		self._buildRnaIndexToMonomerMapping()
@@ -958,17 +958,43 @@ class KnowledgeBaseEcoli(object):
 		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None, "isRnaMonomer" : None, "isProteinMonomer" : None, "isModified" : None, 'isWater' : None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
-	def _buildAaCounts(self): # TODO: ask nick/derek about deleting these methods
-		self.proteinMonomerAACounts = self._aaCountData
-
-	def _buildNtCounts(self): # TODO: ask nick/derek about deleting these methods
-		self.rnaNTCounts = self._ntCountData
-
 	def _buildRnaExpression(self):
 		normalizedRnaExpression = self._rnaData['expression'] / numpy.sum(self._rnaData['expression'])
 		self.rnaExpression = Q_(normalizedRnaExpression, 'dimensionless')
 
 	def _buildBiomass(self):
+		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self.metabolites if len(x['biomassInfo']['core'])),
+			dtype = [('metaboliteId', 'a50'),
+					('biomassFlux', 	'f')])
+
+		self._wildtypeBiomassData = numpy.zeros(sum(len(x['biomassInfo']['wildtype']) for x in self.metabolites if len(x['biomassInfo']['wildtype'])),
+			dtype = [('metaboliteId', 'a50'),
+					('biomassFlux',		'f')])
+
+		self._coreBiomassData['metaboliteId']	= [
+		'{}[{}]'.format(x['id'], x['biomassInfo']['core'][i]['location'])
+		for x in self.metabolites if len(x['biomassInfo']['core'])
+		for i in range(len(x['biomassInfo']['core']))
+		]
+		
+		self._coreBiomassData['biomassFlux']	= [
+		x['biomassInfo']['core'][i]['mmol/gDCW']
+		for x in self.metabolites if len(x['biomassInfo']['core'])
+		for i in range(len(x['biomassInfo']['core']))
+		]
+		
+		self._wildtypeBiomassData['metaboliteId']	= [
+		'{}[{}]'.format(x['id'], x['biomassInfo']['wildtype'][i]['location'])
+		for x in self.metabolites if len(x['biomassInfo']['wildtype'])
+		for i in range(len(x['biomassInfo']['wildtype']))
+		]
+
+		self._wildtypeBiomassData['biomassFlux']	= [
+		x['biomassInfo']['wildtype'][i]['mmol/gDCW']
+		for x in self.metabolites if len(x['biomassInfo']['wildtype'])
+		for i in range(len(x['biomassInfo']['wildtype']))
+		]
+
 		units = {'metaboliteId' : None,
 				'biomassFlux' : 'mmol / (DCW_g*hr)'}
 		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, units)
