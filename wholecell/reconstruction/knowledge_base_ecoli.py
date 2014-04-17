@@ -85,7 +85,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildMonomerIndexToRnaMapping()
 		self._buildConstants()
 		self._buildParameters()
-		#self._buildRnaExpression()
+		self._buildRnaExpression()
 		#self._buildBiomassFractions()
 
 		self._buildComplexationMatrix()
@@ -957,8 +957,15 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
 	def _buildRnaExpression(self):
-		normalizedRnaExpression = self._rnaData['expression'] / numpy.sum(self._rnaData['expression'])
-		self.rnaExpression = Q_(normalizedRnaExpression, 'dimensionless')
+		normalizedRnaExpression = numpy.zeros(sum(1 for x in self.rnas if x['unmodifiedForm'] == None),
+			dtype = [('rnaId',		'a50'),
+					('expression',	'f')])
+
+		normalizedRnaExpression['rnaId'] 		= ['{}[{}]'.format(x['id'], x['location']) for x in self.rnas if x['unmodifiedForm'] == None]
+		normalizedRnaExpression['expression']	= [x['expression'] for x in self.rnas if x['unmodifiedForm'] == None]
+		normalizedRnaExpression['expression']	= normalizedRnaExpression['expression'] / numpy.sum(normalizedRnaExpression['expression'])
+
+		self.rnaExpression = UnitStructArray(normalizedRnaExpression, {'rnaId':  None,' expression' : 'dimensionless'})
 
 	def _buildBiomass(self):
 		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self.metabolites if len(x['biomassInfo']['core'])),
