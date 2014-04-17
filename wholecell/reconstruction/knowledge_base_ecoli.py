@@ -1159,7 +1159,14 @@ class KnowledgeBaseEcoli(object):
 				for subunit in composition:
 					coeff = subunit['coeff']
 
-					if coeff < 0:
+					if coeff > 0: # entry is actually the complex itself
+						# Make sure the data makes sense
+						assert molecule['id'] == subunit['molecule']
+						assert molecule['location'] == subunit['location']
+						assert coeff == 1
+
+
+					else: # entry is a true subunit
 						assert coeff % 1 == 0, 'Noninteger subunit stoichiometry'
 
 						subunitName = '{}[{}]'.format(subunit['molecule'], subunit['location'])
