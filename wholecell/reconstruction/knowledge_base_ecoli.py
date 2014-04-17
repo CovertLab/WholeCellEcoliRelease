@@ -17,10 +17,14 @@ import numpy # TODO: change to import numpy as np
 import collections
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
-import ecoliwholecellkb_project.ecoliwholecellkb.settings
+import sys
 
-import Bio.Seq
+# Set Django environmental variable
+os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
+
+import wholecell.utils.config
+sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
+import ecoliwholecellkb_project.ecoliwholecellkb.settings
 
 from ecoliwholecellkb_project.public.models import (Gene, Molecule, Location,
 Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified,
@@ -34,9 +38,12 @@ MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme,
 Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType,
 Parameter, Constant)
 
+# Import Biopython for sequence handling
+import Bio.Seq
+
 # Load units data from Pint
-from ecoliwholecellkb_project.units.unit_struct_array import UnitStructArray
-from ecoliwholecellkb_project.units.unit_registration import Q_
+from units.unit_struct_array import UnitStructArray
+from units.unit_registration import Q_
 
 
 class KnowledgeBaseEcoli(object):
