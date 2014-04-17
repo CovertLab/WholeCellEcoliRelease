@@ -69,7 +69,6 @@ class KnowledgeBaseEcoli(object):
 		self._loadReactions()
 
 		## Keep separate
-		return
 		self._loadBiomassFractions() # Build hacked constants - need to add these to SQL database still
 		self._loadConstants()
 		self._loadParameters()
