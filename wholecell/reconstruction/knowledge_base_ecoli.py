@@ -810,7 +810,7 @@ class KnowledgeBaseEcoli(object):
 		'inorganicIonMassFraction' : None
 		}
 		self.cellDryMassComposition = UnitStructArray(self._cellDryMassCompositionData, units)
-		self.cellLipidFraction = self._cellLipidFractionData
+		self.cellLipidFractionData = self._cellLipidFractionData
 		self.cellLPSFractionData = self._cellLPSFractionData
 		self.cellMureinFractionData = self._cellMureinFractionData
 		self.cellGlycogenFractionData = self._cellGlycogenFractionData
