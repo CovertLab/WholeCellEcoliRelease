@@ -398,6 +398,27 @@ def fitKb(kb):
 
 	# Inorganic ion fraction
 
+	inorganicIonView = biomassContainer.countsView(
+		list(kb.cellInorganicIonFractionData["metaboliteId"])
+		)
+
+	inorganicIonMassFraction = float(dryComposition60min["inorganicIonMassFraction"])
+	inorganicIonMass = kb.avgCellDryMassInit.magnitude * inorganicIonMassFraction
+
+	bulkMoleculesIdxs = numpy.array([
+		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellInorganicIonFractionData["metaboliteId"]
+		])
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+
+	inorganicIonPerGDCW = (
+		inorganicIonMass * kb.cellInorganicIonFractionData["massFraction"]
+		) / mws * (
+		1000 / kb.avgCellDryMassInit.magnitude)
+
+	inorganicIonView.countsIs(
+		inorganicIonPerGDCW
+		)
+
 	# Soluble pool fraction
 
 	# TODO: Get this to work (need pint units)
