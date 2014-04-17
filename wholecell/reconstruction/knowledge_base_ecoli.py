@@ -76,7 +76,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadComputeParameters()
 
 		# Create data structures for simulation
-		#self._buildCompartments()
+		self._buildCompartments()
 		self._buildBulkMolecules()
 		#self._buildBiomass()
 		self._buildRnaData()
@@ -900,7 +900,13 @@ class KnowledgeBaseEcoli(object):
 	## -- Build functions -- ##
 
 	def _buildCompartments(self):
-		self.compartments 	= self._compartmentData
+		self._compartmentData = numpy.zeros(len(self.compartments),
+			dtype = [('compartmentId','a20'),('compartmentAbbreviation', 'a1')])
+
+		# Load data into structured array
+		self._compartmentData['compartmentId']				= [x['id'] for x in self.compartments]
+		self._compartmentData['compartmentAbbreviation']	= [x['abbrev'] for x in self.compartments]
+		self.nCompartments 	= len(self.compartments)
 
 	def _buildBulkMolecules(self):
 		size = len(self.metabolites)*len(self.compartments) + len(self.rnas) + len(self.proteins)
