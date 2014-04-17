@@ -60,6 +60,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadCompartments()
 		self._loadMetabolites()
 		self._loadGenome()
+		self._loadGeneTypes()
 		self._loadGenes()
 		self._loadRnas()
 		self._loadProteinMonomers() #not dome
@@ -382,6 +383,12 @@ class KnowledgeBaseEcoli(object):
 			genome = i.sequence
 			break
 		self.genomeSeq = genome
+
+
+	def _loadGeneTypes(self):
+		self._checkDatabaseAccess(GeneType)
+		all_genetypes = GeneType.objects.all()
+		self._genetypes = dict([(i.id, i.type_gene) for i in all_genetypes])
 
 
 	def _loadGenes(self):
