@@ -60,7 +60,6 @@ class KnowledgeBaseEcoli(object):
 		self._loadCompartments()
 		self._loadMetabolites()
 		self._loadGenome()
-		self._loadGeneTypes()
 		self._loadGenes()
 		self._loadRnas()
 		self._loadProteinMonomers() #not dome
@@ -385,12 +384,6 @@ class KnowledgeBaseEcoli(object):
 		self.genomeSeq = genome
 
 
-	def _loadGeneTypes(self):
-		self._checkDatabaseAccess(GeneType)
-		all_genetypes = GeneType.objects.all()
-		self._genetypes = dict([(i.id, i.type_gene) for i in all_genetypes])
-
-
 	def _loadGenes(self):
 
 		self.genes = []
@@ -580,7 +573,7 @@ class KnowledgeBaseEcoli(object):
 		# rnaId -> location index in self.rnas
 		rnaLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self.rnas)])
 		
-		for i in all_rna:			
+		for i in all_rna:
 			# RNA
 			r = {
 				"id": self._allProducts[i.frame_id_id],
@@ -588,7 +581,8 @@ class KnowledgeBaseEcoli(object):
 				"geneId": self._geneDbIds[i.gene_fk_id],
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
-				"comments": self._allComments[i.comment_fk_id]
+				"comments": self._allComments[i.comment_fk_id],
+				"type":self.genes[i.gene_fk_id]['type'],
 				}
 		
 			if int(i.is_modified):	
