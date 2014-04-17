@@ -421,6 +421,27 @@ def fitKb(kb):
 
 	# Soluble pool fraction
 
+	solublePoolView = biomassContainer.countsView(
+		list(kb.cellSolublePoolFractionData["metaboliteId"])
+		)
+
+	solublePoolMassFraction = float(dryComposition60min["solublePoolMassFraction"])
+	solublePoolMass = kb.avgCellDryMassInit.magnitude * solublePoolMassFraction
+
+	bulkMoleculesIdxs = numpy.array([
+		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellSolublePoolFractionData["metaboliteId"]
+		])
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+
+	solublePoolPerGDCW = (
+		solublePoolMass * kb.cellSolublePoolFractionData["massFraction"]
+		) / mws * (
+		1000 / kb.avgCellDryMassInit.magnitude)
+
+	solublePoolView.countsIs(
+		solublePoolPerGDCW
+		)
+
 	# TODO: Get this to work (need pint units)
 	# kb.wildtypeBiomass["biomassFlux"][:] = biomassContainer.counts()
 
