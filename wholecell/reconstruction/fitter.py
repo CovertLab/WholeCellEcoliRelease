@@ -375,6 +375,27 @@ def fitKb(kb):
 
 	# Lipid fraction
 
+	lipidView = biomassContainer.countsView(
+		list(kb.cellLipidFractionData["metaboliteId"])
+		)
+
+	lipidMassFraction = float(dryComposition60min["lipidMassFraction"])
+	lipidMass = kb.avgCellDryMassInit.magnitude * lipidMassFraction
+
+	bulkMoleculesIdxs = numpy.array([
+		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLipidFractionData["metaboliteId"]
+		])
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+
+	lipidPerGDCW = (
+		lipidMass * kb.cellLipidFractionData["massFraction"]
+		) / mws * (
+		1000 / kb.avgCellDryMassInit.magnitude)
+
+	lipidView.countsIs(
+		lipidPerGDCW
+		)
+
 	# Inorganic ion fraction
 
 	# Soluble pool fraction
