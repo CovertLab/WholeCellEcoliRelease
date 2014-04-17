@@ -85,8 +85,8 @@ class KnowledgeBaseEcoli(object):
 		self._buildMonomerIndexToRnaMapping()
 		self._buildConstants()
 		self._buildParameters()
-		#self._buildAaCounts()
-		#self._buildNtCounts()
+		#self._buildAaCounts() # Delete
+		#self._buildNtCounts() # Delete
 		#self._buildRnaExpression()
 		#self._buildBiomassFractions()
 
