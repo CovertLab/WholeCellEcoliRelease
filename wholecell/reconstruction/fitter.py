@@ -290,8 +290,18 @@ def fitKb(kb):
 
 	# DNA fraction
 
+	dNtpView = biomassContainer.countsView(		# TODO: Better name so as not to confuse with bulkContainer view
+		["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+		)
 
+	dNtpPerGDCW = dNtpsView.counts() * (
+		(1 / kb.nAvogadro.magnitude) *
+		(1000 / kb.avgCellDryMassInit.magnitude)
+		)
 
+	dNtpView.countsIs(
+		dNtpPerGDCW
+		)
 
 	# Glycogen fraction
 
