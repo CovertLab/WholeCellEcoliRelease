@@ -80,7 +80,7 @@ class KnowledgeBaseEcoli(object):
 		#self._buildBulkMolecules()
 		#self._buildBiomass()
 		self._buildRnaData()
-		#self._buildMonomerData()
+		self._buildMonomerData()
 		#self._buildRnaIndexToMonomerMapping()
 		#self._buildMonomerIndexToRnaMapping()
 		#self._buildConstants()
@@ -1061,23 +1061,35 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildMonomerData(self):
-		ids = ['{}[{}]'.format(id_, location) for id_, location 
-			in zip(self._proteinMonomerData['id'], self._proteinMonomerData['location'])]
+		monomers = [protein for protein in self.proteins 
+			if protein['unmodifiedForm'] is None
+			and len(protein['composition']) == 0]
+
+		ids = ['{}[{}]'.format(protein['id'], protein['location'])
+			for protein in monomers]
 
 		rnaIds = []
 
-		for rnaId in self._proteinMonomerData['rnaId']:
-			index = numpy.where(rnaId == self._rnaData['id'])[0][0]
+		for protein in monomers:
+			rnaId = protein['rnaId']
+
+			rnaLocation = None
+			for rna in self.rnas:
+				if rna['id'] == rnaId:
+					rnaLocation = rna['location']
+					break
 
 			rnaIds.append('{}[{}]'.format(
 				rnaId,
-				self._rnaData['location'][index]
+				rnaLocation
 				))
 
 		lengths = []
 		aaCounts = []
 
-		for sequence in self._proteinMonomerData['sequence']:
+		for protein in monomers:
+			sequence = protein['seq']
+
 			counts = []
 
 			for aa in self._aaWeights.viewkeys(): # TODO: better way to get AA ids?
@@ -1087,6 +1099,8 @@ class KnowledgeBaseEcoli(object):
 
 			lengths.append(len(sequence))
 			aaCounts.append(counts)
+
+		mws = numpy.array([protein['mw'] for protein in monomers])
 
 		size = len(rnaIds)
 
@@ -1108,7 +1122,7 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['rnaId'] = rnaIds
 		self.monomerData['length'] = lengths
 		self.monomerData['aaCounts'] = aaCounts
-		self.monomerData['mw'] = self._proteinMonomerData["mw"]
+		self.monomerData['mw'] = mws
 
 
 	def _buildRnaIndexToMonomerMapping(self):
