@@ -52,7 +52,8 @@ def initializeBulkBiomass(kb, bulkContainer, randStream):
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
 	initialDryMass = kb.avgCellDryMassInit.to('g').magnitude + randStream.normal(0.0, 1e-15)
-	biomassFlux = kb.coreBiomass['biomassFlux'].to('mol/(DCW_g)').magnitude
+	biomassFlux = kb.wildtypeBiomass['biomassFlux'].to('mol/(DCW_g)').magnitude
+
 
 	feistCoreView.countsIs(
 		np.round(
