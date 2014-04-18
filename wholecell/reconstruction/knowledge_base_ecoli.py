@@ -977,7 +977,7 @@ class KnowledgeBaseEcoli(object):
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
 		if len(table.objects.all()) <= 0:
-			raise Exception, "Database Acess Error: Cannot access public_{} table".format(table.__name__.lower())
+			raise Exception, "Database Access Error: Cannot access public_{} table".format(table.__name__.lower())
 
 
 	def _calculateRnaWeight(self, seq):
