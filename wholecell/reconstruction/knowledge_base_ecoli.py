@@ -489,7 +489,7 @@ class KnowledgeBaseEcoli(object):
 				"mw": -1.0,
 				"geneId": g["id"],
 				"monomerId": None,
-				"type": None # Filled in later
+				"type": g['type']
 			}
 			if g["type"] == "mRNA":
 				r["name"] = g["name"] + " [RNA]" # else: need to check name in the RNAs file
@@ -600,7 +600,6 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
-				"type":self._genes[i.gene_fk_id]['type'],
 				}
 		
 			if int(i.is_modified):	
@@ -610,7 +609,6 @@ class KnowledgeBaseEcoli(object):
 			self._rnas[rnaLookup[r["id"]]]["location"] = r["location"]
 			self._rnas[rnaLookup[r["id"]]]["modifiedForms"] = r["modifiedForms"]
 			self._rnas[rnaLookup[r["id"]]]["comments"] = r["comments"]
-			self._rnas[rnaLookup[r["id"]]]["type"] = r["type"]
 
 
 	def _loadProteinMonomers(self):
