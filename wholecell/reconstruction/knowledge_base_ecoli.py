@@ -971,19 +971,51 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 
 		# Add units to values
-		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None, "isRnaMonomer" : None, "isProteinMonomer" : None, "isModified" : None, 'isWater' : None}
+		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None,
+			"isRnaMonomer" : None, "isProteinMonomer" : None, "isModified" : None,
+			'isWater' : None, 'isComplex' : None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
 	def _buildRnaExpression(self):
 		normalizedRnaExpression = numpy.zeros(sum(1 for x in self._rnas if x['unmodifiedForm'] == None),
 			dtype = [('rnaId',		'a50'),
-					('expression',	'f')])
+					('expression',	'f'),
+					('isMRna',		'bool'),
+					('isMiscRna',	'bool'),
+					('isRRna',		'bool'),
+					('isTRna',		'bool'),
+					('isRRna23S',	'bool'),
+					('isRRna16S',	'bool'),
+					('isRRna5S',	'bool')])
 
 		normalizedRnaExpression['rnaId'] 		= ['{}[{}]'.format(x['id'], x['location']) for x in self._rnas if x['unmodifiedForm'] == None]
 		normalizedRnaExpression['expression']	= [x['expression'] for x in self._rnas if x['unmodifiedForm'] == None]
 		normalizedRnaExpression['expression']	= normalizedRnaExpression['expression'] / numpy.sum(normalizedRnaExpression['expression'])
+		normalizedRnaExpression['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+		normalizedRnaExpression['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+		normalizedRnaExpression['isRRna'] = [rna["type"] == "rRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+		normalizedRnaExpression['isTRna'] = [rna["type"] == "tRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
 
-		self.rnaExpression = UnitStructArray(normalizedRnaExpression, {'rnaId':  None, 'expression' : 'dimensionless'})
+		self.rnaExpression = UnitStructArray(normalizedRnaExpression,
+			{
+			'rnaId'		:	None,
+			'expression':	'dimensionless',
+			'isMRna'	:	None,
+			'isMiscRna'	:	None,
+			'isRRna'	:	None,
+			'isTRna'	:	None,
+			'isRRna23S'	:	None,
+			'isRRna16S'	:	None,
+			'isRRna5S'	:	None
+			})
 
 	def _buildBiomass(self):
 		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),

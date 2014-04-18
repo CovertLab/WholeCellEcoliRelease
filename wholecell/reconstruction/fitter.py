@@ -107,7 +107,7 @@ def fitKb(kb):
 	## mRNA Mass Fractions ##
 	mRnaMassFraction = 0.041 # TOKB # This is the fraction of RNA that is mRNA
 
-	mRnaExpression = normalize(kb.rnaExpression[kb.rnaData["isMRna"]])
+	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
 
 	nMRnas = countsFromMassAndExpression(
 		rnaMass * mRnaMassFraction,
@@ -126,7 +126,7 @@ def fitKb(kb):
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
 
-	monomerExpression = normalize(kb.rnaExpression[kb.rnaIndexToMonomerMapping])
+	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
 
 	nMonomers = countsFromMassAndExpression(
 		monomerMass,
@@ -176,7 +176,7 @@ def fitKb(kb):
 	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
 
 	# ## Number of ribosomes needed ##
-	monomerLengths = numpy.sum(kb.proteinMonomerAACounts, axis = 1)
+	monomerLengths = numpy.sum(kb.monomerData['aaCounts'], axis = 1)
 	# nRibosomesNeeded = numpy.sum(
 	# 	monomerLengths / kb.ribosomeElongationRate.magnitude * (
 	# 		numpy.log(2) / kb.cellCycleLen.magnitude
@@ -187,7 +187,7 @@ def fitKb(kb):
 	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	# ## Number of RNA Polymerases ##
-	rnaLengths = numpy.sum(kb.rnaNTCounts, axis = 1)
+	rnaLengths = numpy.sum(kb.rnaData['countsAUCG'], axis = 1)
 	# nRnapsNeeded = numpy.sum(
 	# 	rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
 	# 		numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
@@ -215,6 +215,7 @@ def fitKb(kb):
 		)
 
 	# Update mRNA expression to reflect monomer counts
+	import ipdb; ipdb.set_trace()
 	assert numpy.all(
 		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
 		), "Cannot properly map monomer ids to RNA ids"
