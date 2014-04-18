@@ -18,18 +18,27 @@ class UnitStructArray(object):
 	"""UnitStructArray"""
 
 	def __init__(self, struct_array, units):
+		self._validate(struct_array, units)
+
 		self.struct_array = struct_array
 		self.units = units
 
-	def field(self, fieldname):
+	def _validate(self, struct_array, units):
+		s = ''
+		if type(struct_array) != np.ndarray:
+			s += 'UnitStructArray must be initalized with a numpy array!\n'
+		elif type(units) != dict:
+			s += 'UnitStructArray must be initalized with a dict storing units!\n'
+		elif set([x[0] for x in struct_array.dtype.descr]) != set(units.keys()):
+			s += 'Struct array fields do not match unit fields!\n'
+		if len(s):
+			raise Exception, s
+
+	def _field(self, fieldname):
 		if self.units[fieldname] == None:
 			return self.struct_array[fieldname]
 		else:
 			return Q_(self.struct_array[fieldname], self.units[fieldname])
-
-	def fieldIs(self, fieldname, new_value, new_units):
-		self.structArray[fieldname] = new_value
-		self.units[fieldname] = new_units
 
 	def fullArray(self):
 		return self.struct_array
