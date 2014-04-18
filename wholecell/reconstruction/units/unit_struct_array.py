@@ -52,22 +52,39 @@ class UnitStructArray(object):
 		elif type(key) == np.ndarray or type(key) == list:
 			return UnitStructArray(self.struct_array[key], self.units)
 		else:
-			return self.field(key)
+			return self._field(key)
 
 	def __setitem__(self, key, value):
-		if type(value) == pint.unit.Quantity:
-			if self.units[key] != value.units:
+		if type(value) == Q_:
+			# NOTE: This is a bit of a hack but there is no clean way to create
+			# a pint UnitContainer that I can find.
+			if Q_(0, self.units[key]).units != value.units:
 				raise Exception, 'Units do not match!\n'
-			self.structArray[key] = value.magnitude
+			self.struct_array[key] = value.magnitude
 			self.units[key] = value.units
-		else:
+		elif type(value) == list or type(value) == np.ndarray:
 			if self.units[key] != None:
 				raise Exception, 'Units do not match! Quantity has units your input does not!\n'
-			self.structArray[key] = value
+			self.struct_array[key] = value
 			self.units[key] = None
+		else:
+			raise Exception, 'Cant assign data-type other than pint Quantitiy or list/numpy array!\n'
 
 	def __len__(self):
 		return len(self.struct_array)
 
 	def __repr__(self):
 		return 'STRUCTURED ARRAY:\n{}\nUNITS:\n{}'.format(self.struct_array.__repr__(), self.units)
+
+	def __eq__(self, other):
+		if type(other) != type(self):
+			return False
+		elif not all(self.struct_array == other.struct_array):
+			return False
+		elif self.units != other.units:
+			return False
+		else:
+			return True
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
