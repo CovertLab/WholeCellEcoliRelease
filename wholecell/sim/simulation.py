@@ -21,6 +21,7 @@ DEFAULT_PROCESSES = [
 	'RnaDegradation',
 	'Transcription',
 	'Translation',
+	'Replication'
 	]
 
 SIM_INIT_ARGS = dict(
@@ -187,6 +188,7 @@ class Simulation(object):
 		import wholecell.processes.toy_transcription
 		import wholecell.processes.toy_protein_degradation
 		import wholecell.processes.toy_replication
+		import wholecell.processes.replication
 
 		# TODO: change this so it creates the objects after filtering
 		# TODO: raise an exception if an included process name doesn't exist
@@ -199,7 +201,8 @@ class Simulation(object):
 			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
 			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
 			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation()),
-			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication())
+			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication()),
+			('Replication',			wholecell.processes.replication.Replication())
 			])
 
 		# Remove processes not listed as being included
