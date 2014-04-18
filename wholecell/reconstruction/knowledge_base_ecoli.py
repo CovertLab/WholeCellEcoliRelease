@@ -966,7 +966,7 @@ class KnowledgeBaseEcoli(object):
 		normalizedRnaExpression['expression']	= [x['expression'] for x in self._rnas if x['unmodifiedForm'] == None]
 		normalizedRnaExpression['expression']	= normalizedRnaExpression['expression'] / numpy.sum(normalizedRnaExpression['expression'])
 
-		self.rnaExpression = UnitStructArray(normalizedRnaExpression, {'rnaId':  None,' expression' : 'dimensionless'})
+		self.rnaExpression = UnitStructArray(normalizedRnaExpression, {'rnaId':  None, 'expression' : 'dimensionless'})
 
 	def _buildBiomass(self):
 		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
@@ -1029,21 +1029,31 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildRnaData(self):
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location'])
-			for rna in self._rnas]
+			for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
 
 		rnaDegRates = numpy.log(2) / numpy.array(
-			[rna['halfLife'] for rna in self._rnas]
+			[rna['halfLife'] for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
 			) # TODO: units
 
-		rnaLens = numpy.array([len(rna['seq']) for rna in self._rnas])
+		rnaLens = numpy.array([len(rna['seq']) for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0])
 
 		ntCounts = numpy.array([
 			(rna['seq'].count('A'), rna['seq'].count('U'),
 				rna['seq'].count('C'), rna['seq'].count('G'))
 			for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0
 			])
 
-		expression = numpy.array([rna['expression'] for rna in self._rnas])
+		expression = numpy.array([rna['expression'] for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0])
 
 		synthProb = expression * (
 			numpy.log(2) / self._parameterData['cellCycleLen'].to('s').magnitude
@@ -1051,7 +1061,9 @@ class KnowledgeBaseEcoli(object):
 
 		synthProb /= synthProb.sum()
 
-		mws = numpy.array([rna['mw'] for rna in self._rnas])
+		mws = numpy.array([rna['mw'] for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0])
 
 		size = len(rnaIds)
 
@@ -1096,10 +1108,18 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['length'] = rnaLens
 		self.rnaData['countsAUCG'] = ntCounts
 		self.rnaData['mw'] = mws
-		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas]
-		self.rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self._rnas]
-		self.rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in self._rnas]
-		self.rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in self._rnas]
+		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+		self.rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+		self.rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+		self.rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
 		self.rnaData['isRRna23S'] = is23S
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S

@@ -71,7 +71,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass = kb.bulkMolecules['mass'].to('g/mol').magnitude
 
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
-							'rnas'		:	kb.bulkMolecules['isRna'],
+							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
 							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
 							'water'		:	kb.bulkMolecules['isWater']}
 

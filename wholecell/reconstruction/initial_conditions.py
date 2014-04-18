@@ -62,24 +62,26 @@ def initializeBulkBiomass(kb, bulkContainer, randStream):
 
 
 def initializeBulkRNA(kb, bulkContainer, randStream):
-	rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRna']]
+	rnaIds = kb.bulkMolecules['moleculeId'][kb.bulkMolecules['isRnaMonomer']]
 
 	ntpsView = bulkContainer.countsView(ntpIds)
 	rnaView = bulkContainer.countsView(rnaIds)
 
 	fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
-	rnaLength = np.sum(kb.rnaNTCounts, axis = 1)
-	rnaExpression = kb.rnaExpression.to('dimensionless').magnitude
+	rnaLength = np.sum(kb.rnaData['countsAUCG'], axis = 1)
+	rnaExpression = kb.rnaExpression['expression'].to('dimensionless').magnitude
 	rnaExpression /= np.sum(rnaExpression)
 
 	ntpsToPolym = np.round(
 		(1 - fracInitFreeNTPs) * np.sum(ntpsView.counts())
 		)
-
-	rnaCnts = randStream.mnrnd(
-		np.round(ntpsToPolym / (np.dot(rnaExpression, rnaLength))),
-		rnaExpression
-		)
+	try:
+		rnaCnts = randStream.mnrnd(
+			np.round(ntpsToPolym / (np.dot(rnaExpression, rnaLength))),
+			rnaExpression
+			)
+	except:
+		import ipdb; ipdb.set_trace()
 
 	rnaView.countsIs(rnaCnts)
 
@@ -98,7 +100,7 @@ def initializeBulkNTPs(kb, bulkContainer, randStream):
 
 def initializeBulkMonomers(kb, bulkContainer, randStream):
 	## Monomers are not complexes and not modified
-	monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & ~kb.bulkMolecules['isModifiedForm']]
+	monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & ~kb.bulkMolecules['isModified']]
 
 	aasView = bulkContainer.countsView(aaIds)
 	monomersView = bulkContainer.countsView(monomers['moleculeId'])

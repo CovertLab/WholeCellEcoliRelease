@@ -14,6 +14,8 @@ being used while loading constants.
 from unit_registration import Q_
 import numpy as np
 
+
+# TODO: Write test!
 class UnitStructArray(object):
 	"""UnitStructArray"""
 
@@ -46,7 +48,7 @@ class UnitStructArray(object):
 			return self.field(key)
 
 	def __setitem__(self, key, value):
-		if type(value) == pint.unit.Quantity:
+		if type(value) == Q_:
 			if self.units[key] != value.units:
 				raise Exception, 'Units do not match!\n'
 			self.structArray[key] = value.magnitude
