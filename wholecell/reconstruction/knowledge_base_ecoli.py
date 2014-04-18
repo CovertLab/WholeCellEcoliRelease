@@ -46,6 +46,25 @@ from units.unit_struct_array import UnitStructArray
 from units.unit_registration import Q_
 
 
+AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
+	("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
+	("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
+	("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
+	("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
+	("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
+	("V", "VAL-L[c]")
+	))
+
+
+AMINO_ACID_WEIGHTS = { # TOKB
+	"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19,
+	"G": 75.07, "H": 155.16, "I": 131.18, "K": 146.19, "L": 131.18,
+	"M": 149.21, "N": 132.12, "P": 115.13, "Q": 146.15, "R": 174.20,
+	"S": 105.09, "T": 119.12, "U": 168.05, "V": 117.15, "W": 204.23,
+	"Y": 181.19
+	}
+
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -97,32 +116,30 @@ class KnowledgeBaseEcoli(object):
 		self._calculateDependentCompartments()
 
 
-
 	def _loadHacked(self):
 		# New parameters
 		self._parameterData['cellWaterMassFraction'] = Q_(0.7, 'water_g / cell_g')
 		self._parameterData['cellDryMassFraction'] = Q_(0.3, 'DCW_g / cell_g')
 
+
 	def _defineConstants(self):
-		from collections import OrderedDict
-		self._aaWeights = OrderedDict({
-			"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19,
-			"G": 75.07, "H": 155.16, "I": 131.18, "K": 146.19, "L": 131.18,
-			"M": 149.21, "N": 132.12, "P": 115.13, "Q": 146.15, "R": 174.20,
-			"S": 105.09, "T": 119.12, "U": 168.05, "V": 117.15, "W": 204.23,
-			"Y": 181.19
-		})
+		self._aaWeights = collections.OrderedDict()
+
+		for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
+			self._aaWeights[singleLetterName] = AMINO_ACID_WEIGHTS[singleLetterName]
 
 		self._waterWeight = Q_(18.02, 'g / mol')
-		self._aaWeightsNoWater = OrderedDict([(key, self._aaWeights[key] - self._waterWeight.magnitude) for key in self._aaWeights])
+		self._aaWeightsNoWater = collections.OrderedDict([
+			(key, self._aaWeights[key] - self._waterWeight.magnitude) for key in self._aaWeights
+			])
 
 		# Borrowed from BioPython and modified to be at pH 7.2
-		self._ntWeights = OrderedDict({ 
+		self._ntWeights = collections.OrderedDict({ 
 			"A": 345.20,
 			"C": 321.18,
 			"G": 361.20,
 			"U": 322.17,
-		})
+			})
 
 
 	def _loadProducts(self):
