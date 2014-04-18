@@ -792,7 +792,7 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildBiomass(self):
 		units = {'metaboliteId' : None,
-				'biomassFlux' : 'mmol / (DCW_g*hr)'}
+				'biomassFlux' : 'mmol / (DCW_g)'}
 		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, units)
 		self.wildtypeBiomass 	= UnitStructArray(self._wildtypeBiomassData, units)
 
