@@ -83,8 +83,8 @@ class Simulation(object):
 		self.simulationStep = 0
 
 		# Fit KB parameters
-		# import wholecell.reconstruction.fitter
-		# wholecell.reconstruction.fitter.fitSimulation(kb)
+		import wholecell.reconstruction.fitter
+		wholecell.reconstruction.fitter.fitKb(kb)
 		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
