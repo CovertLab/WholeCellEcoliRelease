@@ -63,8 +63,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.rxnNames = None							# Reaction names
 		self.rxnIdx = None								# Reaction indices
 
-		self.feistCore = None							# Core biomass function
-		self.feistCoreIds = None						# Core biomass ids
+		self.biomassMetabolites = None							# Core biomass function
+		self.wildtypeIds = None						# Core biomass ids
 
 		super(Metabolism, self).__init__()
 
@@ -94,16 +94,16 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
-		self.feistCoreBiomassReaction = kb.coreBiomass['biomassFlux'].magnitude
+		self.wildtypeBiomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude
 
-		self.feistCoreIds = kb.coreBiomass['metaboliteId']
+		self.wildtypeIds = kb.wildtypeBiomass['metaboliteId']
 
 		# Views
 		# self.biomass = self.bulkMoleculesView(bioIds)
 		# self.atpHydrolysis = self.bulkMoleculesView(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
 		# self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		# self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.feistCore = self.bulkMoleculesView(self.feistCoreIds)
+		self.biomassMetabolites = self.bulkMoleculesView(self.wildtypeIds)
 
 
 
@@ -118,16 +118,16 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		atpm = np.zeros_like(self.feistCore.counts())
+		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
 		noise = self.randStream.multivariate_normal(
-			np.zeros_like(self.feistCoreBiomassReaction),
-			np.diag(self.feistCoreBiomassReaction / 1000.)
+			np.zeros_like(self.wildtypeBiomassReaction),
+			np.diag(self.wildtypeBiomassReaction / 1000.)
 			)
 
 		deltaMetabolites = np.fmax(
 			self.randStream.stochasticRound(
-				np.round((self.feistCoreBiomassReaction + atpm + noise) * 1e-3
+				np.round((self.wildtypeBiomassReaction + atpm + noise) * 1e-3
 					* self.nAvogadro * self.initialDryMass)
 				* np.exp(np.log(2) / self.cellCycleLen * self.time.value)
 				* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
@@ -135,7 +135,7 @@ class Metabolism(wholecell.processes.process.Process):
 			0
 			)
 
-		self.feistCore.countsInc(deltaMetabolites)
+		self.biomassMetabolites.countsInc(deltaMetabolites)
 
 
 	def calcGrowthRate(self, bounds):

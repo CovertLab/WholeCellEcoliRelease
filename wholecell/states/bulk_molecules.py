@@ -238,11 +238,14 @@ def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, count
 		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
 		countsBulkPartitioned[..., iPartition] = allocation
 
+
 def moleculeIds(kb):
 	return kb.bulkMolecules['moleculeId']
 
+
 def bulkObjectsContainer(kb, dtype = np.int64):
 	return BulkObjectsContainer(moleculeIds(kb), dtype)
+
 
 class BulkMoleculesViewBase(wholecell.views.view.View):
 	_stateID = 'BulkMolecules'
@@ -252,14 +255,20 @@ class BulkMoleculesViewBase(wholecell.views.view.View):
 
 
 	def _countsIs(self, values):
+		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
+
 		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] = values
 
 
 	def _countsInc(self, values):
+		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
+
 		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] += values
 
 
 	def _countsDec(self, values):
+		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
+
 		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] -= values
 
 

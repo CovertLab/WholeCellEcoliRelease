@@ -21,6 +21,7 @@ DEFAULT_PROCESSES = [
 	'RnaDegradation',
 	'Transcription',
 	'Translation',
+	'Replication'
 	]
 
 SIM_INIT_ARGS = dict(
@@ -83,8 +84,8 @@ class Simulation(object):
 		self.simulationStep = 0
 
 		# Fit KB parameters
-		# import wholecell.reconstruction.fitter
-		# wholecell.reconstruction.fitter.fitSimulation(kb)
+		import wholecell.reconstruction.fitter
+		wholecell.reconstruction.fitter.fitKb(kb)
 		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
@@ -157,7 +158,7 @@ class Simulation(object):
 		# # import wholecell.states.MetabolicFlux
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
-		import wholecell.states.chromosome
+		# import wholecell.states.chromosome
 		import wholecell.states.transcripts
 		import wholecell.states.time
 		import wholecell.states.rand_stream
@@ -167,7 +168,7 @@ class Simulation(object):
 			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
 			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
 			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
-			('Chromosome',		wholecell.states.chromosome.Chromosome()),
+			# ('Chromosome',		wholecell.states.chromosome.Chromosome()),
 			#('Transcripts',		wholecell.states.transcripts.Transcripts()),
 			('Time',			wholecell.states.time.Time()),
 			('RandStream',		wholecell.states.rand_stream.RandStream())
@@ -187,6 +188,7 @@ class Simulation(object):
 		import wholecell.processes.toy_transcription
 		import wholecell.processes.toy_protein_degradation
 		import wholecell.processes.toy_replication
+		import wholecell.processes.replication
 
 		# TODO: change this so it creates the objects after filtering
 		# TODO: raise an exception if an included process name doesn't exist
@@ -199,7 +201,8 @@ class Simulation(object):
 			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
 			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
 			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation()),
-			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication())
+			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication()),
+			('Replication',			wholecell.processes.replication.Replication())
 			])
 
 		# Remove processes not listed as being included
