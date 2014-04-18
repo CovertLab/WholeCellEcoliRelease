@@ -44,7 +44,7 @@ class Process(object):
 
 		self._bulkMolecules = sim.states['BulkMolecules']
 		self._uniqueMolecules = sim.states['UniqueMolecules']
-		self._chromosome = sim.states['Chromosome']
+		# self._chromosome = sim.states['Chromosome']
 
 
 	# Construct views
