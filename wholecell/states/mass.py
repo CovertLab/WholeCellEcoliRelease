@@ -20,21 +20,6 @@ import wholecell.states.state
 class Mass(wholecell.states.state.State):
 	""" Mass """
 
-	compartments = [
-		{"id": "c", "name": "Cytosol"},
-		{"id": "e", "name": "Extracellular space"},
-		{"id": "i", "name": "Inner membrane"},
-		{"id": "j", "name": "Projection"},
-		{"id": "l", "name": "Pilus"},
-		{"id": "m", "name": "Membrane"},
-		{"id": "n", "name": "Nucleoid"},
-		{"id": "o", "name": "Outer membrane"},
-		{"id": "p", "name": "Periplasm"},
-		{"id": "w", "name": "Cell wall"}
-		]
-	
-	cIdx = {c['id']:i for i, c in enumerate(compartments)}
-
 	# Constructor
 	def __init__(self, *args, **kwargs):
 		self.meta = {
@@ -55,15 +40,6 @@ class Mass(wholecell.states.state.State):
 		self.bulkMolecules = None
 		self.time = None
 
-		# Mass
-		self.cell = None
-		self.cellDry = None
-		self.metabolite = None
-		self.rna = None
-		self.protein = None
-
-		self.growth = None
-
 		super(Mass, self).__init__(*args, **kwargs)
 
 
@@ -83,13 +59,13 @@ class Mass(wholecell.states.state.State):
 
 		# TODO: reimplement compartment-specific records, if desired
 
-		self.cell = np.zeros(1)
-		self.cellDry = np.zeros(1)
-		self.metabolite = np.zeros(1)
-		self.rna = np.zeros(1)
-		self.protein = np.zeros(1)
+		self.cell = 0
+		self.cellDry = 0
+		self.metabolite = 0
+		self.rna = 0
+		self.protein = 0
 
-		self.growth = np.zeros(1)
+		self.growth = 0
 
 
 	def calculate(self):
