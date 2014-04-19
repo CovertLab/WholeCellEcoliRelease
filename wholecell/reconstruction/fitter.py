@@ -226,7 +226,8 @@ def fitKb(kb):
 		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
 		)
 
-	kb.rnaExpression[:] = rnaExpressionContainer.counts()
+	# TODO: Remove this hack! Keep track of units.
+	kb.rnaExpression.struct_array['expression'] = rnaExpressionContainer.counts()
 
 
 	## Synthesis probabilities ##
