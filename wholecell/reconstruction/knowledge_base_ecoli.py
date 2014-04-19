@@ -756,6 +756,7 @@ class KnowledgeBaseEcoli(object):
 
 		self.bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
+					('compartment',			"a1"),
 					("mass",				"f"),
 					("isMetabolite",		"bool"),
 					("isRna",				"bool"),
@@ -765,37 +766,45 @@ class KnowledgeBaseEcoli(object):
 
 		# Set metabolites
 		lastMetaboliteIdx = len(self._metaboliteData) * len(self._compartmentData)
-		self.bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = ['{}[{}]'.format(idx,c)
-											for c in self._compartmentData['compartmentAbbreviation']
-											for idx in self._metaboliteData['id']
-											]
+		self.bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = [
+			'{}[{}]'.format(idx,c)
+			for c in self._compartmentData['compartmentAbbreviation']
+			for idx in self._metaboliteData['id']
+			]
 
-		self.bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self._metaboliteData['mw7.2'][i]
-											for j in range(len(self._compartmentData))
-											for i in range(len(self._metaboliteData['id']))
-											]
+		self.bulkMolecules['mass'][0:lastMetaboliteIdx]	= [
+			self._metaboliteData['mw7.2'][i]
+			for j in range(len(self._compartmentData))
+			for i in range(len(self._metaboliteData['id']))
+			]
 
-		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metaboliteData) * len(self._compartmentData)
+		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = True
 
 		for i,mid in enumerate(self.bulkMolecules['moleculeId']):
-			if 'H2O[' == mid[:4]:
+			if mid.startswith('H2O['):
 				self.bulkMolecules['isWater'][i] = True
+				self.bulkMolecules['isMetabolite'][i] = False
 
 		# Set RNA
 		lastRnaIdx = len(self._rnaData) + lastMetaboliteIdx
 		self.bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(idx, self._rnaData['location'][i]) for i,idx in enumerate(self._rnaData['id'])]
 		self.bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = self._rnaData['mw']
-		self.bulkMolecules['isRna'][lastMetaboliteIdx:lastRnaIdx] = [True]*len(self._rnaData)
+		self.bulkMolecules['isRna'][lastMetaboliteIdx:lastRnaIdx] = True
 
 		# Set protein monomers
 		lastProteinMonomerIdx = len(self._proteinMonomerData) + lastRnaIdx
 		self.bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = ['{}[{}]'.format(idx, self._proteinMonomerData['location'][i]) for i,idx in enumerate(self._proteinMonomerData['id'])]
 		self.bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx] = self._proteinMonomerData['mw']
-		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [True]*len(self._proteinMonomerData)
+		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = True
+
+		# Add compartment
+		self.bulkMolecules['compartment'] = [id_[-2] for id_ in self.bulkMolecules['moleculeId']]
+
 
 		# Add units to values
-		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None, "isRna" : None, "isProteinMonomer" : None, "isModifiedForm" : None, 'isWater' : None}
+		units = {"moleculeId" : None, 'compartment':None, "mass" : "g / mol", "isMetabolite" : None, "isRna" : None, "isProteinMonomer" : None, "isModifiedForm" : None, 'isWater' : None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
+
 
 	def _buildAaCounts(self):
 		self.proteinMonomerAACounts = self._aaCountData
