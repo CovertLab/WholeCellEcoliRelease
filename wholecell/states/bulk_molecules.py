@@ -129,12 +129,16 @@ class BulkMolecules(wholecell.states.state.State):
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
-	def mass(self, typeKey = None):
-		if typeKey is None:
-			indexes = np.s_[:]
 
-		else:
-			indexes = self._typeIdxs[typeKey]
+	def mass(self):
+		return np.dot(
+			self._moleculeMass,
+			self.container._counts
+			)
+
+
+	def massByType(self, typeKey):
+		indexes = self._typeIdxs[typeKey]
 
 		return np.dot(
 			self._moleculeMass[indexes],

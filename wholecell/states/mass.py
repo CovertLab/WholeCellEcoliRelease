@@ -75,11 +75,11 @@ class Mass(wholecell.states.state.State):
 		self.cell = self.bulkMolecules.mass() / self.nAvogadro * 1e15
 
 		# Cell
-		self.metabolite = self.bulkMolecules.mass('metabolites') / self.nAvogadro * 1e15
-		self.rna        = self.bulkMolecules.mass('rnas')        / self.nAvogadro * 1e15
-		self.protein    = self.bulkMolecules.mass('proteins')    / self.nAvogadro * 1e15
+		self.metabolite = self.bulkMolecules.massByType('metabolites') / self.nAvogadro * 1e15
+		self.rna        = self.bulkMolecules.massByType('rnas')        / self.nAvogadro * 1e15
+		self.protein    = self.bulkMolecules.massByType('proteins')    / self.nAvogadro * 1e15
 
-		self.water = self.bulkMolecules.mass('water') / self.nAvogadro * 1e15
+		self.water = self.bulkMolecules.massByType('water') / self.nAvogadro * 1e15
 		self.cellDry = self.cell - self.water
 
 		self.growth = self.cell - oldMass
