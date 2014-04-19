@@ -68,12 +68,17 @@ class BulkMolecules(wholecell.states.state.State):
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkMolecules['mass'].to('g/mol').magnitude
+		self._moleculeMass = kb.bulkMolecules['mass'].to('fg/mol').magnitude / kb.nAvogadro
 
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
 							'rnas'		:	kb.bulkMolecules['isRna'],
 							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
 							'water'		:	kb.bulkMolecules['isWater']}
+
+		self._compIndexes = {
+			compartmentKey:(kb.bulkMolecules['compartment'] == compartmentKey)
+			for compartmentKey in kb.compartments['compartmentAbbreviation']
+			}
 
 		# Create the container for molecule counts
 		self.container = bulkObjectsContainer(kb)
@@ -139,6 +144,15 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def massByType(self, typeKey):
 		indexes = self._typeIdxs[typeKey]
+
+		return np.dot(
+			self._moleculeMass[indexes],
+			self.container._counts[indexes]
+			)
+
+
+	def massByCompartment(self, compartment):
+		indexes = self._compIndexes[compartment]
 
 		return np.dot(
 			self._moleculeMass[indexes],
