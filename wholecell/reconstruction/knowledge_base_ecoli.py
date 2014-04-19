@@ -955,7 +955,6 @@ class KnowledgeBaseEcoli(object):
 				self.bulkMolecules['isMetabolite'][i] = False
 
 		# Set RNA
-<<<<<<< HEAD
 		lastRnaIdx = len(self._rnas) + lastMetaboliteIdx
 		self.bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
 		self.bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self._rnas]
