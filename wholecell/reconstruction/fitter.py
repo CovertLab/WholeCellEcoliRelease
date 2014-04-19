@@ -215,7 +215,6 @@ def fitKb(kb):
 		)
 
 	# Update mRNA expression to reflect monomer counts
-	import ipdb; ipdb.set_trace()
 	assert numpy.all(
 		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
 		), "Cannot properly map monomer ids to RNA ids"
