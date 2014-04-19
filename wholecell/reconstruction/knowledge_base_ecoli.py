@@ -926,6 +926,7 @@ class KnowledgeBaseEcoli(object):
 		size = len(self._metabolites)*len(self.compartmentList) + len(self._rnas) + len(self._proteins)
 		self.bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
+					('compartment',			"a1"),
 					("mass",				"f"),
 					("isMetabolite",		"bool"),
 					("isRnaMonomer",		"bool"),
@@ -949,10 +950,12 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self.compartmentList)
 
 		for i,mid in enumerate(self.bulkMolecules['moleculeId']):
-			if 'H2O[' == mid[:4]:
+			if mid.startswith('H2O['):
 				self.bulkMolecules['isWater'][i] = True
+				self.bulkMolecules['isMetabolite'][i] = False
 
 		# Set RNA
+<<<<<<< HEAD
 		lastRnaIdx = len(self._rnas) + lastMetaboliteIdx
 		self.bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
 		self.bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self._rnas]

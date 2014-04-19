@@ -20,49 +20,20 @@ import wholecell.states.state
 class Mass(wholecell.states.state.State):
 	""" Mass """
 
-	compartments = [
-		{"id": "c", "name": "Cytosol"},
-		{"id": "e", "name": "Extracellular space"},
-		{"id": "i", "name": "Inner membrane"},
-		{"id": "j", "name": "Projection"},
-		{"id": "l", "name": "Pilus"},
-		{"id": "m", "name": "Membrane"},
-		{"id": "n", "name": "Nucleoid"},
-		{"id": "o", "name": "Outer membrane"},
-		{"id": "p", "name": "Periplasm"},
-		{"id": "w", "name": "Cell wall"}
-		]
-	
-	cIdx = {c['id']:i for i, c in enumerate(compartments)}
-
 	# Constructor
 	def __init__(self, *args, **kwargs):
 		self.meta = {
 			"id": "Mass",
 			"name": "Mass",
-			"dynamics": ["cell", "cellDry", "metabolite", "rna", "protein", 'growth'],
-			"units": {
-				"cell": "fg",
-				"cellDry": "fg",
-				"metabolite": "fg",
-				"rna": "fg",
-				"protein": "fg",
-				'growth': "fg/s"
-				}
-		}
+			}
 
 		# References to other states
 		self.bulkMolecules = None
 		self.time = None
 
-		# Mass
-		self.cell = None
-		self.cellDry = None
-		self.metabolite = None
-		self.rna = None
-		self.protein = None
-
-		self.growth = None
+		# NOTE: molecule weight is converted to femtograms/molecule from
+		# grams/mol in BulkMolecules
+		self.massUnits = 'fg'
 
 		super(Mass, self).__init__(*args, **kwargs)
 
@@ -74,36 +45,33 @@ class Mass(wholecell.states.state.State):
 		self.bulkMolecules = sim.states["BulkMolecules"]
 		self.time = sim.states["Time"]
 
-		self.nAvogadro = kb.nAvogadro.to('1/mole').magnitude
-
 
 	# Allocate memory
 	def allocate(self):
 		super(Mass, self).allocate()
 
-		# TODO: reimplement compartment-specific records, if desired
+		self.cell = 0
+		self.cellDry = 0
+		self.metabolite = 0
+		self.rna = 0
+		self.protein = 0
+		self.nucleoid = 0
 
-		self.cell = np.zeros(1)
-		self.cellDry = np.zeros(1)
-		self.metabolite = np.zeros(1)
-		self.rna = np.zeros(1)
-		self.protein = np.zeros(1)
-
-		self.growth = np.zeros(1)
+		self.growth = 0
 
 
 	def calculate(self):
 		oldMass = self.cell
 
-		# Total
-		self.cell = self.bulkMolecules.mass() / self.nAvogadro * 1e15
+		self.cell = self.bulkMolecules.mass()
 
-		# Cell
-		self.metabolite = self.bulkMolecules.mass('metabolites') / self.nAvogadro * 1e15
-		self.rna        = self.bulkMolecules.mass('rnas')        / self.nAvogadro * 1e15
-		self.protein    = self.bulkMolecules.mass('proteins')    / self.nAvogadro * 1e15
+		self.metabolite = self.bulkMolecules.massByType('metabolites')
+		self.rna = self.bulkMolecules.massByType('rnas')
+		self.protein = self.bulkMolecules.massByType('proteins')
+		self.water = self.bulkMolecules.massByType('water')
 
-		self.water = self.bulkMolecules.mass('water') / self.nAvogadro * 1e15
+		self.nucleoid = self.bulkMolecules.massByCompartment('n')
+
 		self.cellDry = self.cell - self.water
 
 		self.growth = self.cell - oldMass
@@ -118,6 +86,8 @@ class Mass(wholecell.states.state.State):
 			"metabolite": tables.Float64Col(),
 			"rna": tables.Float64Col(),
 			"protein": tables.Float64Col(),
+			"water": tables.Float64Col(),
+			"nucleoid": tables.Float64Col(),
 			}
 
 		# Create table
@@ -132,11 +102,13 @@ class Mass(wholecell.states.state.State):
 			)
 
 		# Store units as metadata
-		t.attrs.cell_units = self.meta["units"]["cell"]
-		t.attrs.cellDry_units = self.meta["units"]["cellDry"]
-		t.attrs.metabolite_units = self.meta["units"]["metabolite"]
-		t.attrs.rna_units = self.meta["units"]["rna"]
-		t.attrs.protein_units = self.meta["units"]["protein"]
+		t.attrs.cell_units = self.massUnits
+		t.attrs.cellDry_units = self.massUnits
+		t.attrs.metabolite_units = self.massUnits
+		t.attrs.rna_units = self.massUnits
+		t.attrs.protein_units = self.massUnits
+		t.attrs.water_units = self.massUnits
+		t.attrs.nucleoid_units = self.massUnits
 
 
 	def pytablesAppend(self, h5file):
@@ -150,6 +122,8 @@ class Mass(wholecell.states.state.State):
 		entry["metabolite"] = self.metabolite
 		entry["rna"] = self.rna
 		entry["protein"] = self.protein
+		entry["water"] = self.water
+		entry["nucleoid"] = self.nucleoid
 
 		entry.append()
 

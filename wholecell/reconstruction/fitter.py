@@ -83,7 +83,7 @@ def fitKb(kb):
 
 	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
-	# nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
+	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
 
 	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("float64"))
 	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("float64"))
@@ -175,32 +175,32 @@ def fitKb(kb):
 
 	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
 
-	# ## Number of ribosomes needed ##
-	monomerLengths = numpy.sum(kb.monomerData['aaCounts'], axis = 1)
-	# nRibosomesNeeded = numpy.sum(
-	# 	monomerLengths / kb.ribosomeElongationRate.magnitude * (
-	# 		numpy.log(2) / kb.cellCycleLen.magnitude
-	# 		) * monomersView.counts()
-	# 	)
+	## Number of ribosomes needed ##
+	monomerLengths = numpy.sum(kb.proteinMonomerAACounts, axis = 1)
+	nRibosomesNeeded = numpy.sum(
+		monomerLengths / kb.ribosomeElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude
+			) * monomersView.counts()
+		)
 
-	# if numpy.sum(rRna23SView.counts()) < nRibosomesNeeded:
-	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
+	if numpy.sum(rRna23SView.counts()) < nRibosomesNeeded:
+		raise NotImplementedError, "Cannot handle having too few ribosomes"
 
-	# ## Number of RNA Polymerases ##
-	rnaLengths = numpy.sum(kb.rnaData['countsAUCG'], axis = 1)
-	# nRnapsNeeded = numpy.sum(
-	# 	rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
-	# 		numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
-	# 		) * rnaView.counts()
-	# 	)
+	## Number of RNA Polymerases ##
+	rnaLengths = numpy.sum(kb.rnaNTCounts, axis = 1)
+	nRnapsNeeded = numpy.sum(
+		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
+			) * rnaView.counts()
+		)
 
-	# minRnapCounts = (
-	# 	nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
-	# 	).astype("float64")
+	minRnapCounts = (
+		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
+		).astype("float64")
 
-	# rnapView.countsIs(
-	# 	numpy.fmax(rnapView.counts(), minRnapCounts).astype("float64")
-	# 	)
+	rnapView.countsIs(
+		numpy.fmax(rnapView.counts(), minRnapCounts).astype("float64")
+		)
 
 
 
@@ -269,7 +269,7 @@ def fitKb(kb):
 		)
 
 	aminoAcidView.countsIs(
-		aaMmolPerGDCW
+		aaMmolPerGDCW[range(19) + [20]]
 		)
 
 	# RNA fraction

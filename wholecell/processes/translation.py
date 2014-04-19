@@ -46,6 +46,15 @@ class Translation(wholecell.processes.process.Process):
 		# Metabolites
 		self.n_aas = len(aaIDs)
 
+		oneToThreeMapping = dict((
+			("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
+			("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
+			("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
+			("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
+			("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
+			("V", "VAL-L[c]")
+		)) # TOKB
+
 		# mRNA, protein monomers
 		self.proteinAaCounts = kb.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
 		self.proteinLens = kb.monomerData['length']
@@ -57,7 +66,9 @@ class Translation(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 
-		self.aas = self.bulkMoleculesView(aaIDs)
+		self.aas = self.bulkMoleculesView(
+			[oneToThreeMapping[x] if x != "U" else "H2O[c]" for x in kb._aaWeights.iterkeys()] #
+			)
 
 		self.mrnas = self.bulkMoleculesView(mrnaIDs)
 
@@ -81,11 +92,12 @@ class Translation(wholecell.processes.process.Process):
 			self.aas.total().sum()
 			])
 
-		self.aas.requestIs(np.fmin(
-			self.aas.total(),
-			nElongationReactions//self.n_aas
-			))
+		# self.aas.requestIs(np.fmin(
+		# 	self.aas.total(),
+		# 	nElongationReactions//self.n_aas
+		# 	))
 
+		self.aas.requestAll()
 		self.enzymes.requestAll()
 		self.mrnas.requestAll()
 
@@ -98,41 +110,54 @@ class Translation(wholecell.processes.process.Process):
 			self.ribosome5S.total().sum(),
 			])
 
-		# Total synthesis rate
 		proteinSynthProb = (self.mrnas.counts() / self.mrnas.counts().sum()).flatten()
-		totRate = 1 / np.dot(self.proteinLens, proteinSynthProb) * np.min([
-			np.sum(self.aas.counts()),
+
+		aaEstimate = 1.1 * 20 * self.aas.counts().min()
+
+		enzLimit = np.min([
+			aaEstimate,
 			ribs * self.elngRate * self.timeStepSec
 			])
 
-		# print "Translation totRate: %0.3f" % (totRate)
-		newProts = 0
-		aasUsed = np.zeros(21)
+		aasShape = self.aas.counts().shape
 
 		proteinsCreated = np.zeros_like(self.proteins.counts())
 
-		# Gillespie-like algorithm
-		t = 0
-		while True:
-			# Choose time step
-			t -= np.log(self.randStream.rand()) / totRate
-			if t > self.timeStepSec:
+		while enzLimit > 0:
+			if not np.any(
+				np.all(
+					self.aas.counts() > self.proteinAaCounts,
+					axis = 1
+					)
+				):
 				break
 
-			# Check if sufficient metabolic resources to make protein
+			if not np.any(enzLimit > np.sum(self.proteinAaCounts, axis = 1)):
+				break
+
+			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
+			if np.sum(proteinSynthProb[np.all(self.aas.counts() > self.proteinAaCounts, axis = 1)]) < 1e-3:
+				break
+
+			if np.sum(proteinSynthProb[enzLimit > np.sum(self.proteinAaCounts, axis = 1)]) < 1e-3:
+				break
+
 			newIdx = np.where(self.randStream.mnrnd(1, proteinSynthProb))[0]
-			if np.any(self.proteinAaCounts[newIdx, :] > self.aas.counts()):
+
+			if np.any(self.aas.counts() < self.proteinAaCounts[newIdx, :]):
 				break
 
-			# Update metabolites
-			self.aas.countsDec(self.proteinAaCounts[newIdx, :].reshape(-1))
+			if enzLimit < np.sum(self.proteinAaCounts[newIdx, :]):
+				break
 
-			# Increment protein monomer
+			enzLimit -= np.sum(self.proteinAaCounts[newIdx, :])
+
+			self.aas.countsDec(
+				self.proteinAaCounts[newIdx, :].reshape(aasShape)
+				)
+
+			# TODO: Handle water, etc
 			proteinsCreated[newIdx] += 1
-			newProts += 1
-			aasUsed += self.proteinAaCounts[newIdx, :].reshape(-1)
-
-		self.aasUsed = aasUsed
 
 		self.proteins.countsInc(proteinsCreated)
 
