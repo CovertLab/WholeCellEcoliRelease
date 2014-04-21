@@ -11,8 +11,12 @@ Simulation
 from __future__ import division
 
 import collections
-import tables
 import os
+
+import numpy as np
+import tables
+
+import wholecell.utils.rand_stream
 import wholecell.utils.config
 
 DEFAULT_PROCESSES = [
@@ -39,6 +43,13 @@ class Simulation(object):
 
 	# Constructors
 	def __init__(self, **kwargs):
+		import wholecell.utils.rand_stream
+		import wholecell.utils.config
+		import wholecell.utils.knowledgebase_fixture_manager
+		import wholecell.reconstruction.fitter
+		import wholecell.loggers.shell
+		import wholecell.loggers.disk
+
 		# Make sure the arguments passed are valid
 		if (kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()):
 			raise Exception('Unrecognized arguments passed to Simulation.__init__: {}'.format(
@@ -55,21 +66,17 @@ class Simulation(object):
 		if self.freeMolecules is not None:
 			self.includedProcesses.append('FreeProduction')
 
-		# References to simulation objects
-		self.randStream = None
-		self.states = None
-		self.processes = None
-
-		self._constructRandStream()
-
 		# Set random seed
 		self.seed = self._options['seed']
 
+		# References to simulation objects
+		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
+		self.states = None
+		self.processes = None
+
 		# Create KB
-		import wholecell.utils.config
 		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
-		import wholecell.utils.knowledgebase_fixture_manager
 		if self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 
@@ -84,7 +91,6 @@ class Simulation(object):
 		self.simulationStep = 0
 
 		# Fit KB parameters
-		import wholecell.reconstruction.fitter
 		wholecell.reconstruction.fitter.fitKb(kb)
 		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
@@ -95,15 +101,11 @@ class Simulation(object):
 		self.loggers = []
 
 		if self._options['logToShell']:
-			import wholecell.loggers.shell
-
 			self.loggers.append(
 				wholecell.loggers.shell.Shell()
 				)
 
 		if self._options['logToDisk']:
-			import wholecell.loggers.disk
-
 			self.loggers.append(
 				wholecell.loggers.disk.Disk(
 					self._options['outputDir'],
@@ -126,12 +128,6 @@ class Simulation(object):
 		jsonArgs.update(kwargs)
 
 		return cls(**jsonArgs)
-
-
-	# Construct random stream
-	def _constructRandStream(self):
-		import wholecell.utils.rand_stream
-		self.randStream = wholecell.utils.rand_stream.RandStream()
 
 
 	# Link states and processes
@@ -159,9 +155,8 @@ class Simulation(object):
 		import wholecell.states.bulk_molecules
 		import wholecell.states.unique_molecules
 		# import wholecell.states.chromosome
-		import wholecell.states.transcripts
+		# import wholecell.states.transcripts
 		import wholecell.states.time
-		import wholecell.states.rand_stream
 
 		self.states = collections.OrderedDict([
 			('Mass',			wholecell.states.mass.Mass()),
@@ -171,7 +166,6 @@ class Simulation(object):
 			# ('Chromosome',		wholecell.states.chromosome.Chromosome()),
 			#('Transcripts',		wholecell.states.transcripts.Transcripts()),
 			('Time',			wholecell.states.time.Time()),
-			('RandStream',		wholecell.states.rand_stream.RandStream())
 			])
 
 		self.time = self.states['Time']
@@ -242,6 +236,12 @@ class Simulation(object):
 
 	# Calculate temporal evolution
 	def _evolveState(self):
+		# Update randstreams
+		for processName, process in self.processes.iteritems():
+			process.randStream = wholecell.utils.rand_stream.RandStream(
+				seed = np.uint64(self.seed + self.simulationStep + hash(processName))
+				)
+
 		# Update queries
 		for state in self.states.itervalues():
 			state.updateQueries()
@@ -328,31 +328,6 @@ class Simulation(object):
 		newSim._calculateState() # TODO: add calculate() to State superclass call?
 
 		return newSim
-
-
-	# -- Get, set options and parameters
-	def getDynamics(self):
-		val = {}
-		for state in self.states.itervalues():
-			val[state.meta["id"]] = state.getDynamics()
-		return val
-
-	@property
-	def seed(self):
-		return
-
-	@seed.setter
-	def seed(self, value):
-		if hasattr(self, "randStream"):
-			self.randStream.seed = value
-
-	@property
-	def randState(self):
-		return self.randStream.state
-
-	@randState.setter
-	def randState(self, value):
-		self.randStream.state = value
 
 	def options(self):
 		return self._options
