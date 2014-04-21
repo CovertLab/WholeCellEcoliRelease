@@ -973,6 +973,7 @@ class KnowledgeBaseEcoli(object):
 		# Add units to values
 		units = {"moleculeId"	:	None,
 			"mass"				:	"g / mol",
+			'compartment'		:	None,
 			"isMetabolite"		:	None,
 			"isRnaMonomer" 		:	None,
 			"isProteinMonomer"	:	None,
