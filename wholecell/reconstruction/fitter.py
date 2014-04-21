@@ -176,7 +176,7 @@ def fitKb(kb):
 	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
 
 	## Number of ribosomes needed ##
-	monomerLengths = numpy.sum(kb.proteinMonomerAACounts, axis = 1)
+	monomerLengths = numpy.sum(kb.monomerData['aaCounts'], axis = 1)
 	nRibosomesNeeded = numpy.sum(
 		monomerLengths / kb.ribosomeElongationRate.magnitude * (
 			numpy.log(2) / kb.cellCycleLen.magnitude
@@ -187,7 +187,7 @@ def fitKb(kb):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	## Number of RNA Polymerases ##
-	rnaLengths = numpy.sum(kb.rnaNTCounts, axis = 1)
+	rnaLengths = numpy.sum(kb.rnaData['countsAUCG'], axis = 1)
 	nRnapsNeeded = numpy.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
 			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
