@@ -19,13 +19,10 @@ import wholecell.processes.process
 class Transcription(wholecell.processes.process.Process):
 	""" Transcription """
 
+	_name = "Transcription"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-		"id": "Transcription",
-		"name": "Transcription"
-		}
-		
 		# Partitions
 		self.metabolitePartition = None
 		self.rnaPartition = None

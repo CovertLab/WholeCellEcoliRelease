@@ -20,16 +20,10 @@ import wholecell.processes.process
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
 
-	_metaboliteIds = None
-	_rnaIds = None
+	_name = "RnaDegradation"
 
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "RnaDegradation",
-			"name": "RNA degradation"
-		}
-
 		# Constants
 		self.rnaLens = None			# RNA lengths
 		self.rnaDegRates = None		# RNA degradation rates (1/s)
@@ -41,33 +35,33 @@ class RnaDegradation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(RnaDegradation, self).initialize(sim, kb)
 
-		self._metaboliteIds = ["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]",
+		metaboliteIds = ["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
 
 		self._nmpIdxs = np.arange(0, 4)
-		self._h2oIdx = self._metaboliteIds.index('H2O[c]')
-		self._hIdx = self._metaboliteIds.index('H[c]')
+		self._h2oIdx = metaboliteIds.index('H2O[c]')
+		self._hIdx = metaboliteIds.index('H[c]')
 
-		self._rnaIds = kb.rnaData['id']
+		rnaIds = kb.rnaData['id']
 
 		# Rna
 		self.rnaDegRates = kb.rnaData['degRate']
 
 		self.rnaLens = kb.rnaData['length']
 
-		self.rnaDegSMat = np.zeros((len(self._metaboliteIds), len(self._rnaIds)), np.int64)
+		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
 		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb.rnaData['countsAUCG'])
 		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Views
-		self.metabolites = self.bulkMoleculesView(self._metaboliteIds)
+		self.metabolites = self.bulkMoleculesView(metaboliteIds)
 
 		self.nmps = self.bulkMoleculesView(["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]"])
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 		
-		self.rnas = self.bulkMoleculesView(self._rnaIds) # NOTE: this is broken until bulk molecules is fixed!
+		self.rnas = self.bulkMoleculesView(rnaIds) # NOTE: this is broken until bulk molecules is fixed!
 
 		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
 

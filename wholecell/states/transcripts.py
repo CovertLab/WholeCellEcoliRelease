@@ -17,14 +17,9 @@ MOLECULE_ATTRIBUTES = {
 
 class Transcripts(wholecell.states.state.State):
 
-	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'Transcripts',
-			'name':'Transcripts',
-			'dynamics':[],
-			'units':{}
-			}
+	_name = "Transcripts"
 
+	def __init__(self, *args, **kwargs):
 		self.container = None
 
 		super(Transcripts, self).__init__(*args, **kwargs)

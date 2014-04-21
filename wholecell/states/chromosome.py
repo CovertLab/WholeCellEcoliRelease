@@ -18,18 +18,11 @@ MOLECULE_ATTRIBUTES = {
 	}
 
 
-# TODO: design views, queries, requests, etc
-
 class Chromosome(wholecell.states.state.State):
 
-	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'Chromosome',
-			'name':'Chromosome',
-			'dynamics':[],
-			'units':{}
-			}
+	_name = 'Chromosome'
 
+	def __init__(self, *args, **kwargs):
 		self.container = None
 
 		self._partitioningHierarchy = ['ToyReplication', 'ToyTranscription']

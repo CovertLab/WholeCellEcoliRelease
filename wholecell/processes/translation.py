@@ -19,13 +19,10 @@ import wholecell.processes.process
 class Translation(wholecell.processes.process.Process):
 	""" Translation """
 
+	_name = "Translation"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "Translation",
-			"name": "Translation"
-		}
-
 		# Constants
 		self.elngRate = None
 		self.proteinAaCounts = None	# Protein amino acid counts [AA x protein] <-- TODO: Check this

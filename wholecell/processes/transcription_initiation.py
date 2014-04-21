@@ -23,14 +23,10 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 	a transcript can begin.
 	'''
 
+	_name = "TranscriptionInitiation"
 
 	# Constructor
 	def __init__(self):
-		self.meta = {
-		"id": "TranscriptionInitiation",
-		"name": "TranscriptionInitiation"
-		}
-
 		# Constants
 		self.rnaPolymeraseTransitionProb = None
 		self.promoterData = None

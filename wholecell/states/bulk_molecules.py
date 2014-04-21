@@ -27,14 +27,9 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 
 class BulkMolecules(wholecell.states.state.State):
-	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'BulkMolecules',
-			'name':'Bulk Molecules',
-			'dynamics':[],
-			'units':{}
-			}
+	_name = 'BulkMolecules'
 
+	def __init__(self, *args, **kwargs):
 		self.time = None
 
 		self.container = None
@@ -178,9 +173,9 @@ class BulkMolecules(wholecell.states.state.State):
 		# TODO: Add compression options (using filters)
 		t = h5file.create_table(
 			h5file.root,
-			self.meta["id"],
+			self._name,
 			d,
-			title = self.meta["name"],
+			title = self._name,
 			filters = tables.Filters(complevel = 9, complib="zlib"),
 			expectedrows = expectedRows
 			)
@@ -201,7 +196,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def pytablesAppend(self, h5file):
 		simTime = self.time.value
 
-		t = h5file.get_node("/", self.meta["id"])
+		t = h5file.get_node("/", self._name)
 		entry = t.row
 
 		entry["time"] = simTime
@@ -217,7 +212,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		entry = h5file.get_node('/', self.meta['id'])[timePoint]
+		entry = h5file.get_node('/', self._name)[timePoint]
 
 		self.container.countsIs(entry['counts'])
 		

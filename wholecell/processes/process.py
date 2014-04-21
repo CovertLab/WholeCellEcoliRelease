@@ -17,11 +17,10 @@ import wholecell.views.view
 class Process(object):
 	""" Process """
 
+	_name = None
+
 	# Constructor
 	def __init__(self):
-		if not hasattr(self, "meta"):
-			self.meta = {}
-
 		# Constants
 		self.timeStepSec = None
 		self._processIndex = None
@@ -38,7 +37,7 @@ class Process(object):
 	# Construct object graph, calculate constants
 	def initialize(self, sim, kb):
 		self.timeStepSec = sim.timeStepSec
-		self._processIndex = sim.processes.keys().index(self.meta['id'])
+		self._processIndex = sim.processes.keys().index(self._name)
 
 		self.randStream = sim.randStream
 
@@ -85,24 +84,7 @@ class Process(object):
 		return
 
 
-	# Partition requests
-	def requestBulkMolecules(self):
-		pass
+	# Basic accessors
 
-
-	# -- Get, set options, parameters
-	def getOptions(self):
-		val = {}
-		if self.meta.has_key("options"):
-			for opt in self.meta["options"]:
-				val[opt] = getattr(self, opt)
-		return val
-
-
-	def setOptions(self, val):
-		keys = val.keys()
-		if not self.meta.has_key("options") or not set(keys).issubset(set(self.meta["options"])):
-			raise Exception, "Invalid option"
-
-		for key in keys:
-			setattr(self, key, val[key])
+	def name(self):
+		return self._name

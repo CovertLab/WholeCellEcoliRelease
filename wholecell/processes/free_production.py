@@ -20,13 +20,10 @@ import wholecell.processes.process
 class FreeProduction(wholecell.processes.process.Process):
 	""" FreeProduction """
 
+	_name = "FreeProduction"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "FreeProduction",
-			"name": "FreeProduction",
-		}
-
 		self.molIDs = None
 		self.initCounts = None
 		self.time = None

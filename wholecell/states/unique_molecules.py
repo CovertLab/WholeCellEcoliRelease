@@ -35,15 +35,9 @@ class UniqueMolecules(wholecell.states.state.State):
 	can have special dynamic attributes.
 	'''
 
+	_name = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'UniqueMolecules',
-			'name':'Unique Molecules',
-			'dynamics':[],
-			'units':{}
-			}
-
 		self.time = None
 
 		self.container = None

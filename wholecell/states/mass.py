@@ -20,13 +20,10 @@ import wholecell.states.state
 class Mass(wholecell.states.state.State):
 	""" Mass """
 
+	_name = 'Mass'
+
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		self.meta = {
-			"id": "Mass",
-			"name": "Mass",
-			}
-
 		# References to other states
 		self.bulkMolecules = None
 		self.time = None
@@ -94,9 +91,9 @@ class Mass(wholecell.states.state.State):
 		# TODO: Add compression options (using filters)
 		t = h5file.create_table(
 			h5file.root,
-			self.meta["id"],
+			self._name,
 			d,
-			title = self.meta["name"],
+			title = self._name,
 			filters = tables.Filters(complevel = 9, complib="zlib"),
 			expectedrows = expectedRows
 			)
@@ -113,7 +110,7 @@ class Mass(wholecell.states.state.State):
 
 	def pytablesAppend(self, h5file):
 		simTime = self.time.value
-		t = h5file.get_node("/", self.meta["id"])
+		t = h5file.get_node("/", self._name)
 		entry = t.row
 
 		entry["time"] = simTime

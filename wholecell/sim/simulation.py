@@ -19,8 +19,46 @@ import tables
 import wholecell.utils.rand_stream
 import wholecell.utils.config
 
+import wholecell.states.mass
+import wholecell.states.bulk_molecules
+import wholecell.states.unique_molecules
+import wholecell.states.chromosome
+import wholecell.states.transcripts
+import wholecell.states.time
+
+STATE_CLASSES = {
+	'Mass':wholecell.states.mass.Mass,
+	'BulkMolecules':wholecell.states.bulk_molecules.BulkMolecules,
+	'UniqueMolecules':wholecell.states.unique_molecules.UniqueMolecules,
+	'Chromosome':wholecell.states.chromosome.Chromosome,
+	'Transcripts':wholecell.states.transcripts.Transcripts,
+	'Time':wholecell.states.time.Time,
+	}
+
+import wholecell.processes.complexation
+import wholecell.processes.metabolism
+import wholecell.processes.rna_degradation
+import wholecell.processes.transcription
+import wholecell.processes.translation
+import wholecell.processes.free_production
+import wholecell.processes.toy_transcription
+import wholecell.processes.toy_protein_degradation
+import wholecell.processes.toy_replication
+import wholecell.processes.replication
+
+PROCESS_CLASSES = {
+	'Metabolism':wholecell.processes.metabolism.Metabolism,
+	'RnaDegradation':wholecell.processes.rna_degradation.RnaDegradation,
+	'Transcription':wholecell.processes.transcription.Transcription,
+	'Translation':wholecell.processes.translation.Translation,
+	'FreeProduction':wholecell.processes.free_production.FreeProduction,
+	'ToyTranscription':wholecell.processes.toy_transcription.ToyTranscription,
+	'ToyProteinDegradation':wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
+	'ToyReplication':wholecell.processes.toy_replication.ToyReplication,
+	'Replication':wholecell.processes.replication.Replication,
+	}
+
 DEFAULT_PROCESSES = [
-	'Complexation',
 	'Metabolism',
 	'RnaDegradation',
 	'Transcription',
@@ -150,59 +188,21 @@ class Simulation(object):
 
 	# Construct states
 	def _constructStates(self):
-		import wholecell.states.mass
-		# # import wholecell.states.MetabolicFlux
-		import wholecell.states.bulk_molecules
-		import wholecell.states.unique_molecules
-		# import wholecell.states.chromosome
-		# import wholecell.states.transcripts
-		import wholecell.states.time
-
-		self.states = collections.OrderedDict([
-			('Mass',			wholecell.states.mass.Mass()),
-			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
-			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
-			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
-			# ('Chromosome',		wholecell.states.chromosome.Chromosome()),
-			#('Transcripts',		wholecell.states.transcripts.Transcripts()),
-			('Time',			wholecell.states.time.Time()),
-			])
+		self.states = {
+			stateName:stateClass()
+			for stateName, stateClass in STATE_CLASSES.iteritems()
+			}
 
 		self.time = self.states['Time']
 
 
 	# Construct processes
 	def _constructProcesses(self):
-		import wholecell.processes.complexation
-		import wholecell.processes.metabolism
-		import wholecell.processes.rna_degradation
-		import wholecell.processes.transcription
-		import wholecell.processes.translation
-		import wholecell.processes.free_production
-		import wholecell.processes.toy_transcription
-		import wholecell.processes.toy_protein_degradation
-		import wholecell.processes.toy_replication
-		import wholecell.processes.replication
-
-		# TODO: change this so it creates the objects after filtering
-		# TODO: raise an exception if an included process name doesn't exist
-		self.processes = collections.OrderedDict([
-			('Complexation',		wholecell.processes.complexation.Complexation()),
-			('Metabolism',			wholecell.processes.metabolism.Metabolism()),
-			('RnaDegradation',		wholecell.processes.rna_degradation.RnaDegradation()),
-			('Transcription',		wholecell.processes.transcription.Transcription()),
-			('Translation',			wholecell.processes.translation.Translation()),
-			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
-			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
-			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation()),
-			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication()),
-			('Replication',			wholecell.processes.replication.Replication())
-			])
-
-		# Remove processes not listed as being included
-		for process in self.processes.iterkeys():
-			if process not in self.includedProcesses:
-				self.processes.pop(process)
+		self.processes = {
+			processName:processClass()
+			for processName, processClass in PROCESS_CLASSES.iteritems()
+			if processName in self.includedProcesses
+			}
 
 
 	# Allocate memory

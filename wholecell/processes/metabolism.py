@@ -20,14 +20,10 @@ import wholecell.processes.process
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
 
+	_name = "Metabolism"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "Metabolism",
-			"name": "Metabolism",
-			"options": ["lpSolver", "realMax"]
-		}
-
 		# Options
 		self.lpSolver = "glpk"
 		self.realMax = 1e6
