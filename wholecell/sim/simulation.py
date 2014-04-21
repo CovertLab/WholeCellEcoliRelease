@@ -249,7 +249,7 @@ class Simulation(object):
 		# Update randstreams
 		for stateName, state in self.states.iteritems():
 			state.randStream = wholecell.utils.rand_stream.RandStream(
-				seed = np.uint64(self.seed + self.simulationStep + hash(stateName))
+				seed = np.uint32(self.seed + self.simulationStep + hash(stateName))
 				)
 
 		for processName, process in self.processes.iteritems():
