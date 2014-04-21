@@ -76,13 +76,12 @@ def initializeBulkRNA(kb, bulkContainer, randStream):
 	ntpsToPolym = np.round(
 		(1 - fracInitFreeNTPs) * np.sum(ntpsView.counts())
 		)
-	try:
-		rnaCnts = randStream.mnrnd(
-			np.round(ntpsToPolym / (np.dot(rnaExpression, rnaLength))),
-			rnaExpression
-			)
-	except:
-		import ipdb; ipdb.set_trace()
+
+	rnaCnts = randStream.mnrnd(
+		np.round(ntpsToPolym / (np.dot(rnaExpression, rnaLength))),
+		rnaExpression
+		)
+
 
 	rnaView.countsIs(rnaCnts)
 
