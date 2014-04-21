@@ -62,7 +62,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass = kb.bulkMolecules['mass'].to('fg/mol').magnitude / kb.nAvogadro
 
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
-							'rnas'		:	kb.bulkMolecules['isRna'],
+							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
 							'rrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
 							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
 							'water'		:	kb.bulkMolecules['isWater']}

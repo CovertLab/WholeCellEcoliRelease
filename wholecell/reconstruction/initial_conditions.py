@@ -101,19 +101,18 @@ def initializeBulkNTPs(kb, bulkContainer, randStream):
 
 def initializeBulkMonomers(kb, bulkContainer, randStream):
 	## Monomers are not complexes and not modified
-	monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & ~kb.bulkMolecules['isModified']]
+	monomers = kb.bulkMolecules[kb.bulkMolecules['isProteinMonomer'] & ~kb.bulkMolecules['isModifiedForm']]
+	rnapIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
 	aasView = bulkContainer.countsView(aaIds)
 	monomersView = bulkContainer.countsView(monomers['moleculeId'])
+	rnapView = bulkContainer.countsView(rnapIds)
 
 	fracInitFreeAAs = kb.fracInitFreeAAs.to('dimensionless').magnitude
-	monomerExpression = np.zeros(len(kb._proteinMonomerData), dtype = float)
-	monomerExpression = [
-		kb._rnaData['expression'][np.where(rnaId == kb._rnaData['id'])[0][0]]
-		for rnaId in kb._proteinMonomerData['rnaId']
-		] # TODO: I'm almost certain this data is already parsed in the KB, get it from there
 
+	monomerExpression = kb.rnaExpression[kb.rnaIndexToMonomerMapping].magnitude
 	monomerExpression /= np.sum(monomerExpression)
+
 	monomerLength = np.sum(kb.proteinMonomerAACounts, axis = 1)
 
 	aasToPolym = np.round(
@@ -126,6 +125,8 @@ def initializeBulkMonomers(kb, bulkContainer, randStream):
 		)
 
 	monomersView.countsIs(monCnts)
+	import ipdb; ipdb.set_trace()
+	kb.rnaExpression[kb.monomerIndexToRnaMapping[[np.where(x == kb.monomerData["id"])[0][0] for x in rnapIds]]]
 
 
 def initializeBulkAAs(kb, bulkContainer, randStream):
