@@ -60,6 +60,8 @@ class Translation(wholecell.processes.process.Process):
 		self.proteinLens = kb.monomerData['length']
 		self.avgProteinLength = np.mean(self.proteinLens)
 
+		self.fracActiveRibosomes = kb.fracActiveRibosomes.magnitude
+
 		# Views
 		self.atp = self.bulkMoleculeView('ATP[c]')
 		self.adp = self.bulkMoleculeView('ADP[c]')
@@ -115,7 +117,7 @@ class Translation(wholecell.processes.process.Process):
 
 		aaEstimate = 1.1 * 20 * self.aas.counts().min()
 
-		enzLimit = np.min([
+		enzLimit = self.fracActiveRibosomes * np.min([
 			aaEstimate,
 			ribs * self.elngRate * self.timeStepSec
 			])
