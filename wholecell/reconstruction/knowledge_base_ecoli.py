@@ -971,9 +971,14 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 
 		# Add units to values
-		units = {"moleculeId" : None, "mass" : "g / mol", "isMetabolite" : None,
-			"isRnaMonomer" : None, "isProteinMonomer" : None, "isModified" : None,
-			'isWater' : None, 'isComplex' : None}
+		units = {"moleculeId"	:	None,
+			"mass"				:	"g / mol",
+			"isMetabolite"		:	None,
+			"isRnaMonomer" 		:	None,
+			"isProteinMonomer"	:	None,
+			"isModified"		:	None,
+			'isWater'			:	None,
+			'isComplex'			:	None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
 	def _buildRnaExpression(self):
