@@ -123,7 +123,7 @@ def initializeBulkMonomers(kb, bulkContainer, randStream):
 		)
 
 	monomersView.countsIs(monCnts)
-	import ipdb; ipdb.set_trace()
+	
 	kb.rnaExpression[kb.monomerIndexToRnaMapping[[np.where(x == kb.monomerData["id"])[0][0] for x in rnapIds]]]
 
 
