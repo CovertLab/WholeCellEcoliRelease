@@ -19,6 +19,7 @@ import copy
 import wholecell.states.bulk_molecules
 import wholecell.utils.rand_stream
 import wholecell.reconstruction.initial_conditions
+from units.unit_registration import Q_
 
 def fitKb(kb):
 
@@ -206,6 +207,10 @@ def fitKb(kb):
 
 	### Modify kbFit to reflect our bulk container ###
 
+	## Fraction of active Ribosomes ##
+	# kb.parameters["fracActiveRibosomes"] = Q_(float(nRibosomesNeeded) / numpy.sum(rRna23SView.counts()), "dimensionless")
+	kb.parameters["fracActiveRibosomes"] = Q_(0.7, "dimensionless")
+	kb.__dict__.update(kb.parameters)
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = numpy.dtype("float64"))
