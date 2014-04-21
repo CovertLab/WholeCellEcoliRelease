@@ -238,11 +238,11 @@ def fitKb(kb):
 	nRnas = countsFromMassAndExpression(
 		rnaMass,
 		kb.rnaData["mw"],
-		kb.rnaExpression.magnitude,
+		kb.rnaExpression['expression'].magnitude,
 		kb.nAvogadro.magnitude
 		)
 
-	rnaView.countsIs(nRnas * kb.rnaExpression.magnitude)
+	rnaView.countsIs(nRnas * kb.rnaExpression['expression'].magnitude)
 
 
 	## Synthesis probabilities ##
