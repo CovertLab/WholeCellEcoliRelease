@@ -31,12 +31,10 @@ class Transcripts(wholecell.states.state.State):
 		self.container = TranscriptsContainer(ARRAY_LENGTH,
 			MOLECULE_ATTRIBUTES, self.randStream)
 
-		self.time = sim.states['Time']
-
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container.timeIs(self.time.value)
+		self.container.timeIs(self.timeStep())
 
 		# TODO: flush deleted
 		

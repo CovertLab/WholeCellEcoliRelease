@@ -25,6 +25,9 @@ class Process(object):
 		self.timeStepSec = None
 		self._processIndex = None
 
+		# Simulation reference (used to access time)
+		self._sim = None
+
 		# Simulation random stream
 		self.randStream = None
 
@@ -34,6 +37,8 @@ class Process(object):
 
 	# Construct object graph, calculate constants
 	def initialize(self, sim, kb):
+		self._sim = sim
+
 		self.timeStepSec = sim.timeStepSec
 		self._processIndex = sim.processes.keys().index(self._name)
 
@@ -83,6 +88,10 @@ class Process(object):
 
 
 	# Basic accessors
+
+	def time(self):
+		return self._sim.time()
+
 
 	@classmethod
 	def name(cls):

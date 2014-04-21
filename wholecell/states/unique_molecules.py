@@ -48,16 +48,12 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
-		self.time = sim.states['Time']
-
-		# TODO: use the updated KB object to get these properties
-
 		self.container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
 
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container.timeIs(self.time.value)
+		self.container.timeIs(self.timeStep())
 
 		# Clear out any deleted entries to make room for new molecules
 		self.container.flushDeleted()

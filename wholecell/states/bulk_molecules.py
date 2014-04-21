@@ -30,8 +30,6 @@ class BulkMolecules(wholecell.states.state.State):
 	_name = 'BulkMolecules'
 
 	def __init__(self, *args, **kwargs):
-		self.time = None
-
 		self.container = None
 
 		self._moleculeMass = None
@@ -55,8 +53,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def initialize(self, sim, kb):
 		super(BulkMolecules, self).initialize(sim, kb)
-
-		self.time = sim.states['Time']
 
 		# Load constants
 		self._moleculeIDs = moleculeIds(kb)
@@ -194,12 +190,10 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def pytablesAppend(self, h5file):
-		simTime = self.time.value
-
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = simTime
+		entry["time"] = self.timeStep()
 		entry['counts'] = self.container._counts
 		entry['countsRequested'] = self._countsRequested
 		entry['countsAllocatedInitial'] = self._countsAllocatedInitial

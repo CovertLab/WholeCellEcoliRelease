@@ -22,13 +22,19 @@ class State(object):
 		# Constants
 		self._nProcesses = None
 
+		# Reference to sim
+		self._sim = None
+
 		# References to views
 		self._views = []
+
+		# Random number stream
+		self.randStream = None
 
 
 	# Construct state-process graph, calculate constants
 	def initialize(self, sim, kb):
-		self.randStream = sim.randStream
+		self._sim = sim
 
 		self._nProcesses = len(sim.processes)
 
@@ -70,12 +76,16 @@ class State(object):
 
 
 	# Calculations
+
 	# Calculate (and cache) any dependent properties
 	def calculate(self):
 		return
 
 
 	# Basic accessors
+
+	def timeStep(self):
+		return self._sim.timeStep()
 
 	@classmethod
 	def name(cls):

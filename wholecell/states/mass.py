@@ -26,7 +26,6 @@ class Mass(wholecell.states.state.State):
 	def __init__(self, *args, **kwargs):
 		# References to other states
 		self.bulkMolecules = None
-		self.time = None
 
 		# NOTE: molecule weight is converted to femtograms/molecule from
 		# grams/mol in BulkMolecules
@@ -40,7 +39,6 @@ class Mass(wholecell.states.state.State):
 		super(Mass, self).initialize(sim, kb)
 
 		self.bulkMolecules = sim.states["BulkMolecules"]
-		self.time = sim.states["Time"]
 
 
 	# Allocate memory
@@ -109,11 +107,10 @@ class Mass(wholecell.states.state.State):
 
 
 	def pytablesAppend(self, h5file):
-		simTime = self.time.value
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = simTime
+		entry["time"] = self.timeStep()
 		entry["cell"] = self.cell
 		entry["cellDry"] = self.cellDry
 		entry["metabolite"] = self.metabolite

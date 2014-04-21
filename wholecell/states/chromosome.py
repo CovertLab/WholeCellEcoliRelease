@@ -39,8 +39,6 @@ class Chromosome(wholecell.states.state.State):
 		self.container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
 			MOLECULE_ATTRIBUTES)
 
-		self.time = sim.states['Time']
-
 
 	def calcInitialConditions(self):
 		# TODO: move to new global calcInitialConditions function
@@ -100,7 +98,7 @@ class Chromosome(wholecell.states.state.State):
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container.timeIs(self.time.value)
+		self.container.timeIs(self.timeStep())
 
 		# TODO: flush deleted
 

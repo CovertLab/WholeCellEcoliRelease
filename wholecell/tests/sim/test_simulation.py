@@ -57,7 +57,7 @@ class Test_Simulation(unittest.TestCase):
 		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10, reconstructKB = True)
 		sim.run()
 
-		self.assertEqual(10, sim.states["Time"].value)
+		self.assertEqual(10, sim.time())
 
 
 	@noseAttrib.attr('mediumtest', 'saveload', 'simulation')
@@ -70,7 +70,7 @@ class Test_Simulation(unittest.TestCase):
 			seed = 0, lengthSec = 10, logToDisk = True, outputDir = outDir,
 			overwriteExistingFiles = True,
 			reconstructKB = True,
-			includedStates = ['Time', 'Mass', 'BulkMolecules', 'UniqueMolecules', 'Chromosome', 'Transcripts']
+			includedStates = ['Mass', 'BulkMolecules', 'UniqueMolecules', 'Chromosome', 'Transcripts']
 			)
 
 		sim.run()

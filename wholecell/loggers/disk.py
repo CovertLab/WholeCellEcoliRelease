@@ -94,7 +94,7 @@ class Disk(wholecell.loggers.logger.Logger):
 
 	def finalize(self, sim):
 		# Metadata
-		self.mainFile.root._v_attrs.lengthSec = sim.states['Time'].value
+		self.mainFile.root._v_attrs.lengthSec = sim.time()
 		self.mainFile.root._v_attrs.endTime = self.currentTimeAsString()
 
 		# Close file

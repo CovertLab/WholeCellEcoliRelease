@@ -24,7 +24,6 @@ import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
 import wholecell.states.chromosome
 import wholecell.states.transcripts
-import wholecell.states.time
 
 STATE_CLASSES = [
 	wholecell.states.mass.Mass,
@@ -32,7 +31,6 @@ STATE_CLASSES = [
 	wholecell.states.unique_molecules.UniqueMolecules,
 	wholecell.states.chromosome.Chromosome,
 	wholecell.states.transcripts.Transcripts,
-	wholecell.states.time.Time,
 	]
 
 import wholecell.processes.complexation
@@ -62,7 +60,6 @@ STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
 
 DEFAULT_STATES = [
-	'Time',
 	'Mass',
 	'BulkMolecules',
 	]
@@ -106,10 +103,12 @@ class Simulation(object):
 		self._options.update(kwargs)
 
 		# Set states
-		self.includedStates = self._options['includedStates'] if self._options['includedStates'] is not None else DEFAULT_STATES
+		self.includedStates = (self._options['includedStates']
+			if self._options['includedStates'] is not None else DEFAULT_STATES)
 
 		# Set processes
-		self.includedProcesses = self._options['includedProcesses'] if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES
+		self.includedProcesses = (self._options['includedProcesses']
+			if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES)
 		
 		self.freeMolecules = self._options['freeMolecules']
 
@@ -135,8 +134,10 @@ class Simulation(object):
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
 		# Set time parameters
-		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude # Simulation length (s)
-		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude # Simulation time step (s)
+		self.lengthSec = (self._options['lengthSec']
+			if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude) # Simulation length (s)
+		self.timeStepSec = (self._options['timeStepSec']
+			if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude) # Simulation time step (s)
 		self.initialStep = 0
 		self.simulationStep = 0
 
@@ -205,8 +206,6 @@ class Simulation(object):
 			for stateName in self.includedStates
 			])
 
-		self.time = self.states['Time']
-
 
 	# Construct processes
 	def _constructProcesses(self):
@@ -231,7 +230,7 @@ class Simulation(object):
 
 		self._logInitialize()
 
-		while self.time.value < self.lengthSec:
+		while self.time() < self.lengthSec:
 			self.simulationStep += 1
 
 			self._evolveState()
@@ -248,6 +247,11 @@ class Simulation(object):
 	# Calculate temporal evolution
 	def _evolveState(self):
 		# Update randstreams
+		for stateName, state in self.states.iteritems():
+			state.randStream = wholecell.utils.rand_stream.RandStream(
+				seed = np.uint64(self.seed + self.simulationStep + hash(stateName))
+				)
+
 		for processName, process in self.processes.iteritems():
 			process.randStream = wholecell.utils.rand_stream.RandStream(
 				seed = np.uint64(self.seed + self.simulationStep + hash(processName))
@@ -343,3 +347,11 @@ class Simulation(object):
 
 	def options(self):
 		return self._options
+
+
+	def time(self):
+		return self.timeStepSec * (self.initialStep + self.simulationStep)
+
+
+	def timeStep(self):
+		return self.initialStep + self.simulationStep
