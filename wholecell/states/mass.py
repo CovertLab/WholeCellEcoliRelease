@@ -67,6 +67,7 @@ class Mass(wholecell.states.state.State):
 
 		self.metabolite = self.bulkMolecules.massByType('metabolites')
 		self.rna = self.bulkMolecules.massByType('rnas')
+		self.rrna = self.bulkMolecules.massByType('rrnas')
 		self.protein = self.bulkMolecules.massByType('proteins')
 		self.water = self.bulkMolecules.massByType('water')
 
@@ -85,6 +86,7 @@ class Mass(wholecell.states.state.State):
 			"cellDry": tables.Float64Col(),
 			"metabolite": tables.Float64Col(),
 			"rna": tables.Float64Col(),
+			"rrna": tables.Float64Col(),
 			"protein": tables.Float64Col(),
 			"water": tables.Float64Col(),
 			"nucleoid": tables.Float64Col(),
@@ -106,6 +108,7 @@ class Mass(wholecell.states.state.State):
 		t.attrs.cellDry_units = self.massUnits
 		t.attrs.metabolite_units = self.massUnits
 		t.attrs.rna_units = self.massUnits
+		t.attrs.rrna_units = self.massUnits
 		t.attrs.protein_units = self.massUnits
 		t.attrs.water_units = self.massUnits
 		t.attrs.nucleoid_units = self.massUnits
@@ -121,6 +124,7 @@ class Mass(wholecell.states.state.State):
 		entry["cellDry"] = self.cellDry
 		entry["metabolite"] = self.metabolite
 		entry["rna"] = self.rna
+		entry["rrna"] = self.rrna
 		entry["protein"] = self.protein
 		entry["water"] = self.water
 		entry["nucleoid"] = self.nucleoid
