@@ -115,7 +115,7 @@ class Translation(wholecell.processes.process.Process):
 		aaEstimate = 1.1 * 20 * self.aas.counts().min()
 
 		enzLimit = self.fracActiveRibosomes * np.min([
-			aaEstimate,
+			aaEstimate, # TODO: ask Derek why aaEstimate is included here
 			ribs * self.elngRate * self.timeStepSec
 			])
 

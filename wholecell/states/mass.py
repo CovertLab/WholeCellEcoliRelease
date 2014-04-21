@@ -45,12 +45,25 @@ class Mass(wholecell.states.state.State):
 	def allocate(self):
 		super(Mass, self).allocate()
 
+		self.setInitial = False
+
+		self.cellInitial = None
+		self.proteinInitial = None
+		self.rnaInitial = None
+
 		self.cell = 0
 		self.cellDry = 0
 		self.metabolite = 0
 		self.rna = 0
 		self.protein = 0
 		self.nucleoid = 0
+
+		self.proteinFraction = 0
+		self.rnaFraction = 0
+		
+		self.cellFoldChange = 0
+		self.proteinFoldChange = 0
+		self.rnaFoldChange = 0
 
 		self.growth = 0
 
@@ -71,6 +84,21 @@ class Mass(wholecell.states.state.State):
 		self.cellDry = self.cell - self.water
 
 		self.growth = self.cell - oldMass
+
+		self.proteinFraction = self.protein / self.cellDry
+		self.rnaFraction = self.rna / self.cellDry
+
+
+		if not self.setInitial:
+			self.setInitial = True
+
+			self.cellInitial = self.cell
+			self.proteinInitial = self.protein
+			self.rnaInitial = self.rna
+
+		self.cellFoldChange = self.cell / self.cellInitial
+		self.proteinFoldChange = self.protein / self.proteinInitial
+		self.rnaFoldChange = self.rna / self.rnaInitial
 
 
 	def pytablesCreate(self, h5file, expectedRows):
