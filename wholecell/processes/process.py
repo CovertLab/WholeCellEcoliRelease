@@ -29,9 +29,7 @@ class Process(object):
 		self.randStream = None
 
 		# References to state
-		self._bulkMolecules = None
-		self._uniqueMolecules = None
-		self._chromosome = None
+		self._states = None
 
 
 	# Construct object graph, calculate constants
@@ -41,37 +39,37 @@ class Process(object):
 
 		self.randStream = sim.randStream
 
-		self._bulkMolecules = sim.states['BulkMolecules']
-		self._uniqueMolecules = sim.states['UniqueMolecules']
-		# self._chromosome = sim.states['Chromosome']
+		self._states = sim.states
 
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		import wholecell.states.bulk_molecules
-		return wholecell.states.bulk_molecules.BulkMoleculesView(self._bulkMolecules, 
-			self, moleculeIDs)
+		return wholecell.states.bulk_molecules.BulkMoleculesView(
+			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
 		import wholecell.states.bulk_molecules
-		return wholecell.states.bulk_molecules.BulkMoleculeView(self._bulkMolecules, 
-			self, moleculeIDs)
+		return wholecell.states.bulk_molecules.BulkMoleculeView(
+			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
-		return wholecell.views.view.UniqueMoleculesView(self._uniqueMolecules,
-			self, (moleculeName, attributes))
+		return wholecell.views.view.UniqueMoleculesView(
+			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
 
 	def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeForksView(self._chromosome,
-			self, (extentForward, extentReverse, includeMoleculesOnEnds))
+		return wholecell.views.view.ChromosomeForksView(
+			self._states['Chromosome'], self,
+			(extentForward, extentReverse, includeMoleculesOnEnds))
 
 
 	def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeMoleculesView(self._chromosome,
-			self, (moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+		return wholecell.views.view.ChromosomeMoleculesView(
+			self._states['Chromosome'], self,
+			(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
 
 
 	# Calculate requests for a single time step
@@ -86,5 +84,6 @@ class Process(object):
 
 	# Basic accessors
 
-	def name(self):
-		return self._name
+	@classmethod
+	def name(cls):
+		return cls._name

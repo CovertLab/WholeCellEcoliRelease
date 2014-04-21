@@ -77,6 +77,7 @@ class State(object):
 
 	# Basic accessors
 
-	def name(self):
-		return self._name
+	@classmethod
+	def name(cls):
+		return cls._name
 

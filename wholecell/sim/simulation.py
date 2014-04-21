@@ -26,14 +26,14 @@ import wholecell.states.chromosome
 import wholecell.states.transcripts
 import wholecell.states.time
 
-STATE_CLASSES = {
-	'Mass':wholecell.states.mass.Mass,
-	'BulkMolecules':wholecell.states.bulk_molecules.BulkMolecules,
-	'UniqueMolecules':wholecell.states.unique_molecules.UniqueMolecules,
-	'Chromosome':wholecell.states.chromosome.Chromosome,
-	'Transcripts':wholecell.states.transcripts.Transcripts,
-	'Time':wholecell.states.time.Time,
-	}
+STATE_CLASSES = [
+	wholecell.states.mass.Mass,
+	wholecell.states.bulk_molecules.BulkMolecules,
+	wholecell.states.unique_molecules.UniqueMolecules,
+	wholecell.states.chromosome.Chromosome,
+	wholecell.states.transcripts.Transcripts,
+	wholecell.states.time.Time,
+	]
 
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
@@ -46,17 +46,26 @@ import wholecell.processes.toy_protein_degradation
 import wholecell.processes.toy_replication
 import wholecell.processes.replication
 
-PROCESS_CLASSES = {
-	'Metabolism':wholecell.processes.metabolism.Metabolism,
-	'RnaDegradation':wholecell.processes.rna_degradation.RnaDegradation,
-	'Transcription':wholecell.processes.transcription.Transcription,
-	'Translation':wholecell.processes.translation.Translation,
-	'FreeProduction':wholecell.processes.free_production.FreeProduction,
-	'ToyTranscription':wholecell.processes.toy_transcription.ToyTranscription,
-	'ToyProteinDegradation':wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
-	'ToyReplication':wholecell.processes.toy_replication.ToyReplication,
-	'Replication':wholecell.processes.replication.Replication,
-	}
+PROCESS_CLASSES = [
+	wholecell.processes.metabolism.Metabolism,
+	wholecell.processes.rna_degradation.RnaDegradation,
+	wholecell.processes.transcription.Transcription,
+	wholecell.processes.translation.Translation,
+	wholecell.processes.free_production.FreeProduction,
+	wholecell.processes.toy_transcription.ToyTranscription,
+	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
+	wholecell.processes.toy_replication.ToyReplication,
+	wholecell.processes.replication.Replication,
+	]
+
+STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
+PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
+
+DEFAULT_STATES = [
+	'Time',
+	'Mass',
+	'BulkMolecules',
+	]
 
 DEFAULT_PROCESSES = [
 	'Metabolism',
@@ -67,7 +76,7 @@ DEFAULT_PROCESSES = [
 	]
 
 SIM_INIT_ARGS = dict(
-	includedProcesses = None,
+	includedStates = None, includedProcesses = None,
 	freeMolecules = None,
 	lengthSec = None, timeStepSec = None,
 	seed = None,
@@ -96,9 +105,12 @@ class Simulation(object):
 		self._options = SIM_INIT_ARGS.copy()
 		self._options.update(kwargs)
 
+		# Set states
+		self.includedStates = self._options['includedStates'] if self._options['includedStates'] is not None else DEFAULT_STATES
+
 		# Set processes
 		self.includedProcesses = self._options['includedProcesses'] if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES
-
+		
 		self.freeMolecules = self._options['freeMolecules']
 
 		if self.freeMolecules is not None:
@@ -188,21 +200,20 @@ class Simulation(object):
 
 	# Construct states
 	def _constructStates(self):
-		self.states = {
-			stateName:stateClass()
-			for stateName, stateClass in STATE_CLASSES.iteritems()
-			}
+		self.states = collections.OrderedDict([
+			(stateName, STATES[stateName]())
+			for stateName in self.includedStates
+			])
 
 		self.time = self.states['Time']
 
 
 	# Construct processes
 	def _constructProcesses(self):
-		self.processes = {
-			processName:processClass()
-			for processName, processClass in PROCESS_CLASSES.iteritems()
-			if processName in self.includedProcesses
-			}
+		self.processes = collections.OrderedDict([
+			(processName, PROCESSES[processName]())
+			for processName in self.includedProcesses
+			])
 
 
 	# Allocate memory
@@ -328,6 +339,7 @@ class Simulation(object):
 		newSim._calculateState() # TODO: add calculate() to State superclass call?
 
 		return newSim
+
 
 	def options(self):
 		return self._options
