@@ -58,6 +58,7 @@ class Translation(wholecell.processes.process.Process):
 		# mRNA, protein monomers
 		self.proteinAaCounts = kb.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
 		self.proteinLens = kb.monomerData['length']
+		self.avgProteinLength = np.mean(self.proteinLens)
 
 		# Views
 		self.atp = self.bulkMoleculeView('ATP[c]')
@@ -119,11 +120,14 @@ class Translation(wholecell.processes.process.Process):
 			ribs * self.elngRate * self.timeStepSec
 			])
 
+		nProteinsToCreate = int(enzLimit / self.avgProteinLength)
+
 		aasShape = self.aas.counts().shape
 
 		proteinsCreated = np.zeros_like(self.proteins.counts())
 
-		while enzLimit > 0:
+		while enzLimit > 0 and nProteinsToCreate > 0:
+			# print nProteinsToCreate
 			if not np.any(
 				np.all(
 					self.aas.counts() > self.proteinAaCounts,
@@ -142,22 +146,30 @@ class Translation(wholecell.processes.process.Process):
 			if np.sum(proteinSynthProb[enzLimit > np.sum(self.proteinAaCounts, axis = 1)]) < 1e-3:
 				break
 
-			newIdx = np.where(self.randStream.mnrnd(1, proteinSynthProb))[0]
+			newIdxs = np.where(self.randStream.mnrnd(nProteinsToCreate, proteinSynthProb))[0]
 
-			if np.any(self.aas.counts() < self.proteinAaCounts[newIdx, :]):
-				break
+			if np.any(self.aas.counts() < np.sum(self.proteinAaCounts[newIdxs, :], axis = 0)):
+				if nProteinsToCreate > 0:
+					nProteinsToCreate //= 2
+					continue
+				else:
+					break
 
-			if enzLimit < np.sum(self.proteinAaCounts[newIdx, :]):
-				break
+			if enzLimit < np.sum(np.sum(self.proteinAaCounts[newIdxs, :], axis = 0)):
+				if nProteinsToCreate > 0:
+					nProteinsToCreate //= 2
+					continue
+				else:
+					break
 
-			enzLimit -= np.sum(self.proteinAaCounts[newIdx, :])
+			enzLimit -= np.sum(self.proteinAaCounts[newIdxs, :])
 
 			self.aas.countsDec(
-				self.proteinAaCounts[newIdx, :].reshape(aasShape)
+				np.sum(self.proteinAaCounts[newIdxs, :], axis = 0).reshape(aasShape)
 				)
 
 			# TODO: Handle water, etc
-			proteinsCreated[newIdx] += 1
+			proteinsCreated[newIdxs] += 1
 
 		self.proteins.countsInc(proteinsCreated)
 
