@@ -174,7 +174,8 @@ def fitKb(kb):
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
-	rnapView = bulkContainer.countsView(["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
+	rnapIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
+	rnapView = bulkContainer.countsView(rnapIds)
 
 	## Number of ribosomes needed ##
 	monomerLengths = numpy.sum(kb.monomerData['aaCounts'], axis = 1)
@@ -204,12 +205,11 @@ def fitKb(kb):
 		)
 
 
-
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
-	# kb.parameters["fracActiveRibosomes"] = Q_(float(nRibosomesNeeded) / numpy.sum(rRna23SView.counts()), "dimensionless")
-	kb.parameters["fracActiveRibosomes"] = Q_(0.7, "dimensionless")
+	kb.parameters["fracActiveRibosomes"] = Q_(float(nRibosomesNeeded) / numpy.sum(rRna23SView.counts()), "dimensionless")
+	# kb.parameters["fracActiveRibosomes"] = Q_(0.7, "dimensionless")
 	kb.__dict__.update(kb.parameters)
 
 	## RNA and monomer expression ##
@@ -233,6 +233,16 @@ def fitKb(kb):
 
 	# TODO: Remove this hack! Keep track of units.
 	kb.rnaExpression.struct_array['expression'] = rnaExpressionContainer.counts()
+
+	# Set number of RNAs based on expression we just set
+	nRnas = countsFromMassAndExpression(
+		rnaMass,
+		kb.rnaData["mw"],
+		kb.rnaExpression.magnitude,
+		kb.nAvogadro.magnitude
+		)
+
+	rnaView.countsIs(nRnas * kb.rnaExpression.magnitude)
 
 
 	## Synthesis probabilities ##

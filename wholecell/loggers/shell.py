@@ -23,20 +23,42 @@ class Shell(wholecell.loggers.logger.Logger):
 
 	def __init__(self):
 		self.iterFreq = 1
+		self.headerFreq = 50
 
 	def initialize(self, sim):
 		# Array of columns
 		self.columns = [
 			{"header": "Time (s)", "state": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
-			{"header": "Mass (fg)", "state": "Mass", "property": "cell", "length": 9, "format": ".2f", "sum": True},
-			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".2f", "sum": False}
+			{"header": "Dry mass (fg)", "state": "Mass", "property": "cellDry", "length": 13, "format": ".2f", "sum": False},
+			{"header": "fold", "state": "Mass", "property": "cellDryFoldChange", "length": 4, "format": ".2f", "sum": False},
+			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".4f", "sum": False},
+			{"header": "Protein frac", "state": "Mass", "property": "proteinFraction", "length": 12, "format": ".3f", "sum": False},
+			{"header": "fold", "state": "Mass", "property": "proteinFoldChange", "length": 5, "format": ".3f", "sum": False},
+			{"header": "RNA frac", "state": "Mass", "property": "rnaFraction", "length": 8, "format": ".3f", "sum": False},
+			{"header": "fold", "state": "Mass", "property": "rnaFoldChange", "length": 5, "format": ".3f", "sum": False},
+
 			]
 
 		# Collect Metadata
 		self.nLines = -1
 		self.startTime = time.time()
 
+		# Print initial state
+		self.append(sim)
+
+
+	def printHeaders(self):
 		# Print headers
+
+		if self.nLines > 0:			
+			for iColumn in xrange(len(self.columns)):
+				if iColumn > 0:
+					sys.stdout.write("  ")
+
+				sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % ("=" * self.columns[iColumn]["length"]))
+
+			sys.stdout.write("\n")
+
 		for iColumn in xrange(len(self.columns)):
 			if iColumn > 0:
 				sys.stdout.write("  ")
@@ -53,15 +75,15 @@ class Shell(wholecell.loggers.logger.Logger):
 
 		sys.stdout.write("\n")
 
-		# Print initial state
-		self.append(sim)
-
 
 	def append(self, sim):
 		self.nLines += 1
 
 		if self.nLines % self.iterFreq != 0:
 			return
+
+		if self.nLines % self.headerFreq == 0:
+			self.printHeaders()
 
 		for iColumn in xrange(len(self.columns)):
 			column = self.columns[iColumn]

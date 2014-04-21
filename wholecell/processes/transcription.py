@@ -89,7 +89,7 @@ class Transcription(wholecell.processes.process.Process):
 		ntpEstimate = 1.1 * 4 * self.ntps.counts().min()
 
 		enzLimit = np.min([
-			ntpEstimate,
+			ntpEstimate, # TODO: ask Derek why ntpEstimate is included here
 			rnaPolymerases * self.elngRate * self.timeStepSec
 			])
 
