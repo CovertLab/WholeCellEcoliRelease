@@ -19,8 +19,52 @@ import tables
 import wholecell.utils.rand_stream
 import wholecell.utils.config
 
+import wholecell.states.mass
+import wholecell.states.bulk_molecules
+import wholecell.states.unique_molecules
+import wholecell.states.chromosome
+import wholecell.states.transcripts
+
+STATE_CLASSES = [
+	wholecell.states.mass.Mass,
+	wholecell.states.bulk_molecules.BulkMolecules,
+	wholecell.states.unique_molecules.UniqueMolecules,
+	wholecell.states.chromosome.Chromosome,
+	wholecell.states.transcripts.Transcripts,
+	]
+
+import wholecell.processes.complexation
+import wholecell.processes.metabolism
+import wholecell.processes.rna_degradation
+import wholecell.processes.transcription
+import wholecell.processes.translation
+import wholecell.processes.free_production
+import wholecell.processes.toy_transcription
+import wholecell.processes.toy_protein_degradation
+import wholecell.processes.toy_replication
+import wholecell.processes.replication
+
+PROCESS_CLASSES = [
+	wholecell.processes.metabolism.Metabolism,
+	wholecell.processes.rna_degradation.RnaDegradation,
+	wholecell.processes.transcription.Transcription,
+	wholecell.processes.translation.Translation,
+	wholecell.processes.free_production.FreeProduction,
+	wholecell.processes.toy_transcription.ToyTranscription,
+	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
+	wholecell.processes.toy_replication.ToyReplication,
+	wholecell.processes.replication.Replication,
+	]
+
+STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
+PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
+
+DEFAULT_STATES = [
+	'Mass',
+	'BulkMolecules',
+	]
+
 DEFAULT_PROCESSES = [
-	'Complexation',
 	'Metabolism',
 	'RnaDegradation',
 	'Transcription',
@@ -29,7 +73,7 @@ DEFAULT_PROCESSES = [
 	]
 
 SIM_INIT_ARGS = dict(
-	includedProcesses = None,
+	includedStates = None, includedProcesses = None,
 	freeMolecules = None,
 	lengthSec = None, timeStepSec = None,
 	seed = None,
@@ -58,9 +102,14 @@ class Simulation(object):
 		self._options = SIM_INIT_ARGS.copy()
 		self._options.update(kwargs)
 
-		# Set processes
-		self.includedProcesses = self._options['includedProcesses'] if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES
+		# Set states
+		self.includedStates = (self._options['includedStates']
+			if self._options['includedStates'] is not None else DEFAULT_STATES)
 
+		# Set processes
+		self.includedProcesses = (self._options['includedProcesses']
+			if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES)
+		
 		self.freeMolecules = self._options['freeMolecules']
 
 		if self.freeMolecules is not None:
@@ -85,8 +134,10 @@ class Simulation(object):
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
 		# Set time parameters
-		self.lengthSec = self._options['lengthSec'] if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude # Simulation length (s)
-		self.timeStepSec = self._options['timeStepSec'] if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude # Simulation time step (s)
+		self.lengthSec = (self._options['lengthSec']
+			if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude) # Simulation length (s)
+		self.timeStepSec = (self._options['timeStepSec']
+			if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude) # Simulation time step (s)
 		self.initialStep = 0
 		self.simulationStep = 0
 
@@ -150,59 +201,18 @@ class Simulation(object):
 
 	# Construct states
 	def _constructStates(self):
-		import wholecell.states.mass
-		# # import wholecell.states.MetabolicFlux
-		import wholecell.states.bulk_molecules
-		import wholecell.states.unique_molecules
-		# import wholecell.states.chromosome
-		# import wholecell.states.transcripts
-		import wholecell.states.time
-
 		self.states = collections.OrderedDict([
-			('Mass',			wholecell.states.mass.Mass()),
-			#('MetabolicFlux',	wholecell.sim.state.MetabolicFlux.MetabolicFlux()),
-			('BulkMolecules',	wholecell.states.bulk_molecules.BulkMolecules()),
-			('UniqueMolecules', wholecell.states.unique_molecules.UniqueMolecules()),
-			# ('Chromosome',		wholecell.states.chromosome.Chromosome()),
-			#('Transcripts',		wholecell.states.transcripts.Transcripts()),
-			('Time',			wholecell.states.time.Time()),
+			(stateName, STATES[stateName]())
+			for stateName in self.includedStates
 			])
-
-		self.time = self.states['Time']
 
 
 	# Construct processes
 	def _constructProcesses(self):
-		import wholecell.processes.complexation
-		import wholecell.processes.metabolism
-		import wholecell.processes.rna_degradation
-		import wholecell.processes.transcription
-		import wholecell.processes.translation
-		import wholecell.processes.free_production
-		import wholecell.processes.toy_transcription
-		import wholecell.processes.toy_protein_degradation
-		import wholecell.processes.toy_replication
-		import wholecell.processes.replication
-
-		# TODO: change this so it creates the objects after filtering
-		# TODO: raise an exception if an included process name doesn't exist
 		self.processes = collections.OrderedDict([
-			('Complexation',		wholecell.processes.complexation.Complexation()),
-			('Metabolism',			wholecell.processes.metabolism.Metabolism()),
-			('RnaDegradation',		wholecell.processes.rna_degradation.RnaDegradation()),
-			('Transcription',		wholecell.processes.transcription.Transcription()),
-			('Translation',			wholecell.processes.translation.Translation()),
-			('FreeProduction',		wholecell.processes.free_production.FreeProduction()),
-			('ToyTranscription',	wholecell.processes.toy_transcription.ToyTranscription()),
-			('ToyProteinDegradation',	wholecell.processes.toy_protein_degradation.ToyProteinDegradation()),
-			('ToyReplication', 		wholecell.processes.toy_replication.ToyReplication()),
-			('Replication',			wholecell.processes.replication.Replication())
+			(processName, PROCESSES[processName]())
+			for processName in self.includedProcesses
 			])
-
-		# Remove processes not listed as being included
-		for process in self.processes.iterkeys():
-			if process not in self.includedProcesses:
-				self.processes.pop(process)
 
 
 	# Allocate memory
@@ -220,7 +230,7 @@ class Simulation(object):
 
 		self._logInitialize()
 
-		while self.time.value < self.lengthSec:
+		while self.time() < self.lengthSec:
 			self.simulationStep += 1
 
 			self._evolveState()
@@ -237,9 +247,14 @@ class Simulation(object):
 	# Calculate temporal evolution
 	def _evolveState(self):
 		# Update randstreams
+		for stateName, state in self.states.iteritems():
+			state.randStream = wholecell.utils.rand_stream.RandStream(
+				seed = np.uint64(self.seed + self.simulationStep + hash(stateName))
+				)
+
 		for processName, process in self.processes.iteritems():
 			process.randStream = wholecell.utils.rand_stream.RandStream(
-				seed = np.uint64(self.seed + self.simulationStep + hash(processName))
+				seed = np.uint32(self.seed + self.simulationStep + hash(processName))
 				)
 
 		# Update queries
@@ -329,5 +344,14 @@ class Simulation(object):
 
 		return newSim
 
+
 	def options(self):
 		return self._options
+
+
+	def time(self):
+		return self.timeStepSec * (self.initialStep + self.simulationStep)
+
+
+	def timeStep(self):
+		return self.initialStep + self.simulationStep

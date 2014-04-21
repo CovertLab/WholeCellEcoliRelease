@@ -15,25 +15,28 @@ from __future__ import division
 class State(object):
 	""" State """
 
+	_name = None
+
 	# Constructor
-	def __init__(self, propVals = {}):
-		# Metadata: id, name, list of dynamic properties, units
-		if not hasattr(self, "meta"):
-			self.meta = {}
-
+	def __init__(self):
+		# Constants
 		self._nProcesses = None
-		self._views = None
 
-		for prop in propVals.keys():
-			setattr(self, prop, propVals[prop])
+		# Reference to sim
+		self._sim = None
+
+		# References to views
+		self._views = []
+
+		# Random number stream
+		self.randStream = None
 
 
 	# Construct state-process graph, calculate constants
 	def initialize(self, sim, kb):
-		self.randStream = sim.randStream
+		self._sim = sim
 
 		self._nProcesses = len(sim.processes)
-		self._views = []
 
 
 	# Allocate memory
@@ -73,7 +76,18 @@ class State(object):
 
 
 	# Calculations
+
 	# Calculate (and cache) any dependent properties
 	def calculate(self):
 		return
+
+
+	# Basic accessors
+
+	def timeStep(self):
+		return self._sim.timeStep()
+
+	@classmethod
+	def name(cls):
+		return cls._name
 

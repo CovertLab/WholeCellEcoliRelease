@@ -20,16 +20,12 @@ import wholecell.processes.process
 class FreeProduction(wholecell.processes.process.Process):
 	""" FreeProduction """
 
+	_name = "FreeProduction"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "FreeProduction",
-			"name": "FreeProduction",
-		}
-
 		self.molIDs = None
 		self.initCounts = None
-		self.time = None
 
 		self.defaultInitCount = 1e6
 		self.cellCycleLength = None
@@ -54,8 +50,6 @@ class FreeProduction(wholecell.processes.process.Process):
 			if initCount is not None:
 				self.initCounts[i] = initCount
 
-		self.time = sim.states['Time']
-
 		# Views
 		self.molecules = self.bulkMoleculesView(self.molIDs)
 
@@ -67,7 +61,7 @@ class FreeProduction(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		expectedCounts = self.initCounts * np.exp(np.log(2) / self.cellCycleLength * self.time.value)
+		expectedCounts = self.initCounts * np.exp(np.log(2) / self.cellCycleLength * self.time())
 
 		self.molecules.countsIs(np.fmax(
 			0,

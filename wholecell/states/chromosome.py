@@ -18,18 +18,11 @@ MOLECULE_ATTRIBUTES = {
 	}
 
 
-# TODO: design views, queries, requests, etc
-
 class Chromosome(wholecell.states.state.State):
 
-	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'Chromosome',
-			'name':'Chromosome',
-			'dynamics':[],
-			'units':{}
-			}
+	_name = 'Chromosome'
 
+	def __init__(self, *args, **kwargs):
 		self.container = None
 
 		self._partitioningHierarchy = ['ToyReplication', 'ToyTranscription']
@@ -45,8 +38,6 @@ class Chromosome(wholecell.states.state.State):
 
 		self.container = ChromosomeContainer(N_BASES, STRAND_MULTIPLICITY,
 			MOLECULE_ATTRIBUTES)
-
-		self.time = sim.states['Time']
 
 
 	def calcInitialConditions(self):
@@ -107,7 +98,7 @@ class Chromosome(wholecell.states.state.State):
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container.timeIs(self.time.value)
+		self.container.timeIs(self.timeStep())
 
 		# TODO: flush deleted
 

@@ -1325,6 +1325,7 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildParameters(self):
 		self.parameters = self._parameterData
+		self.parameters["fracActiveRibosomes"] = Q_(1.0, "dimensionless")
 		self.__dict__.update(self.parameters)
 
 ## -- Utility functions -- ##

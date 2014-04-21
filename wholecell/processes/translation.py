@@ -19,13 +19,10 @@ import wholecell.processes.process
 class Translation(wholecell.processes.process.Process):
 	""" Translation """
 
+	_name = "Translation"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "Translation",
-			"name": "Translation"
-		}
-
 		# Constants
 		self.elngRate = None
 		self.proteinAaCounts = None	# Protein amino acid counts [AA x protein] <-- TODO: Check this
@@ -59,6 +56,8 @@ class Translation(wholecell.processes.process.Process):
 		self.proteinAaCounts = kb.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
 		self.proteinLens = kb.monomerData['length']
 		self.avgProteinLength = np.mean(self.proteinLens)
+
+		self.fracActiveRibosomes = kb.fracActiveRibosomes.magnitude
 
 		# Views
 		self.atp = self.bulkMoleculeView('ATP[c]')
@@ -115,7 +114,7 @@ class Translation(wholecell.processes.process.Process):
 
 		aaEstimate = 1.1 * 20 * self.aas.counts().min()
 
-		enzLimit = np.min([
+		enzLimit = self.fracActiveRibosomes * np.min([
 			aaEstimate,
 			ribs * self.elngRate * self.timeStepSec
 			])

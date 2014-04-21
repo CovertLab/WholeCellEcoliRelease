@@ -19,13 +19,10 @@ import wholecell.processes.process
 class Transcription(wholecell.processes.process.Process):
 	""" Transcription """
 
+	_name = "Transcription"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-		"id": "Transcription",
-		"name": "Transcription"
-		}
-		
 		# Partitions
 		self.metabolitePartition = None
 		self.rnaPartition = None
@@ -55,6 +52,7 @@ class Transcription(wholecell.processes.process.Process):
 		# RNA
 		self.rnaNtCounts = kb.rnaData['countsAUCG']
 		self.rnaLens = kb.rnaData['length']
+		self.avgRnaLength = np.mean(self.rnaLens)
 		
 		self.rnaSynthProb = kb.rnaData['synthProb']
 
@@ -98,11 +96,13 @@ class Transcription(wholecell.processes.process.Process):
 		newRnas = 0
 		ntpsUsed = np.zeros(4)
 
+		nRnasToCreate = int(enzLimit / self.avgRnaLength)
+
 		ntpsShape = self.ntps.counts().shape
 
 		rnasCreated = np.zeros_like(self.rnas.counts())
 
-		while enzLimit > 0:
+		while enzLimit > 0 and nRnasToCreate > 0:
 			if not np.any(
 					np.all(
 						self.ntps.counts() > self.rnaNtCounts,
@@ -121,24 +121,32 @@ class Transcription(wholecell.processes.process.Process):
 			if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
 				break
 
-			newIdx = np.where(self.randStream.mnrnd(1, self.rnaSynthProb))[0]
+			newIdxs = np.where(self.randStream.mnrnd(nRnasToCreate, self.rnaSynthProb))[0]
 
-			if np.any(self.ntps.counts() < self.rnaNtCounts[newIdx, :]):
-				break
+			if np.any(self.ntps.counts() < np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
+				if nRnasToCreate > 0:
+					nRnasToCreate //= 2
+					continue
+				else:
+					break
 
-			if enzLimit < np.sum(self.rnaNtCounts[newIdx, :]):
-				break
+			if enzLimit < np.sum(np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
+				if nRnasToCreate > 0:
+					nRnasToCreate //= 2
+					continue
+				else:
+					break
 
-			enzLimit -= np.sum(self.rnaNtCounts[newIdx, :])
+			enzLimit -= np.sum(self.rnaNtCounts[newIdxs, :])
 
 			self.ntps.countsDec(
-				self.rnaNtCounts[newIdx, :].reshape(ntpsShape)
+				np.sum(self.rnaNtCounts[newIdxs, :], axis = 0).reshape(ntpsShape)
 				)
 
 			self.h2o.countDec(1) # TODO: verify this
-			self.ppi.countInc(self.rnaLens[newIdx])
+			self.ppi.countInc(np.sum(self.rnaLens[newIdxs]))
 			self.proton.countInc(1) # TODO: verify this
 
-			rnasCreated[newIdx] += 1
+			rnasCreated[newIdxs] += 1
 
 		self.rnas.countsInc(rnasCreated)

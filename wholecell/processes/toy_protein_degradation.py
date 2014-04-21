@@ -19,13 +19,10 @@ import wholecell.processes.process
 class ToyProteinDegradation(wholecell.processes.process.Process):
 	""" ToyProteinDegradation """
 
+	_name = "ToyProteinDegradation"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "ToyProteinDegradation",
-			"name": "ToyProteinDegradation",
-		}
-
 		self.degradationProbability = 0.1
 
 		super(ToyProteinDegradation, self).__init__()

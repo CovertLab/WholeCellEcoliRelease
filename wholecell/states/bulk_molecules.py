@@ -27,16 +27,9 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 
 class BulkMolecules(wholecell.states.state.State):
+	_name = 'BulkMolecules'
+
 	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'BulkMolecules',
-			'name':'Bulk Molecules',
-			'dynamics':[],
-			'units':{}
-			}
-
-		self.time = None
-
 		self.container = None
 
 		self._moleculeMass = None
@@ -61,8 +54,6 @@ class BulkMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(BulkMolecules, self).initialize(sim, kb)
 
-		self.time = sim.states['Time']
-
 		# Load constants
 		self._moleculeIDs = moleculeIds(kb)
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
@@ -71,7 +62,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass = kb.bulkMolecules['mass'].to('fg/mol').magnitude / kb.nAvogadro
 
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
-							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
+							'rnas'		:	kb.bulkMolecules['isRna'],
+							'rrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
 							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
 							'water'		:	kb.bulkMolecules['isWater']}
 
@@ -178,9 +170,9 @@ class BulkMolecules(wholecell.states.state.State):
 		# TODO: Add compression options (using filters)
 		t = h5file.create_table(
 			h5file.root,
-			self.meta["id"],
+			self._name,
 			d,
-			title = self.meta["name"],
+			title = self._name,
 			filters = tables.Filters(complevel = 9, complib="zlib"),
 			expectedrows = expectedRows
 			)
@@ -199,12 +191,10 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def pytablesAppend(self, h5file):
-		simTime = self.time.value
-
-		t = h5file.get_node("/", self.meta["id"])
+		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = simTime
+		entry["time"] = self.timeStep()
 		entry['counts'] = self.container._counts
 		entry['countsRequested'] = self._countsRequested
 		entry['countsAllocatedInitial'] = self._countsAllocatedInitial
@@ -217,7 +207,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		entry = h5file.get_node('/', self.meta['id'])[timePoint]
+		entry = h5file.get_node('/', self._name)[timePoint]
 
 		self.container.countsIs(entry['counts'])
 		

@@ -20,16 +20,12 @@ import wholecell.states.state
 class Mass(wholecell.states.state.State):
 	""" Mass """
 
+	_name = 'Mass'
+
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		self.meta = {
-			"id": "Mass",
-			"name": "Mass",
-			}
-
 		# References to other states
 		self.bulkMolecules = None
-		self.time = None
 
 		# NOTE: molecule weight is converted to femtograms/molecule from
 		# grams/mol in BulkMolecules
@@ -43,7 +39,6 @@ class Mass(wholecell.states.state.State):
 		super(Mass, self).initialize(sim, kb)
 
 		self.bulkMolecules = sim.states["BulkMolecules"]
-		self.time = sim.states["Time"]
 
 
 	# Allocate memory
@@ -67,6 +62,7 @@ class Mass(wholecell.states.state.State):
 
 		self.metabolite = self.bulkMolecules.massByType('metabolites')
 		self.rna = self.bulkMolecules.massByType('rnas')
+		self.rrna = self.bulkMolecules.massByType('rrnas')
 		self.protein = self.bulkMolecules.massByType('proteins')
 		self.water = self.bulkMolecules.massByType('water')
 
@@ -85,6 +81,7 @@ class Mass(wholecell.states.state.State):
 			"cellDry": tables.Float64Col(),
 			"metabolite": tables.Float64Col(),
 			"rna": tables.Float64Col(),
+			"rrna": tables.Float64Col(),
 			"protein": tables.Float64Col(),
 			"water": tables.Float64Col(),
 			"nucleoid": tables.Float64Col(),
@@ -94,9 +91,9 @@ class Mass(wholecell.states.state.State):
 		# TODO: Add compression options (using filters)
 		t = h5file.create_table(
 			h5file.root,
-			self.meta["id"],
+			self._name,
 			d,
-			title = self.meta["name"],
+			title = self._name,
 			filters = tables.Filters(complevel = 9, complib="zlib"),
 			expectedrows = expectedRows
 			)
@@ -106,21 +103,22 @@ class Mass(wholecell.states.state.State):
 		t.attrs.cellDry_units = self.massUnits
 		t.attrs.metabolite_units = self.massUnits
 		t.attrs.rna_units = self.massUnits
+		t.attrs.rrna_units = self.massUnits
 		t.attrs.protein_units = self.massUnits
 		t.attrs.water_units = self.massUnits
 		t.attrs.nucleoid_units = self.massUnits
 
 
 	def pytablesAppend(self, h5file):
-		simTime = self.time.value
-		t = h5file.get_node("/", self.meta["id"])
+		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = simTime
+		entry["time"] = self.timeStep()
 		entry["cell"] = self.cell
 		entry["cellDry"] = self.cellDry
 		entry["metabolite"] = self.metabolite
 		entry["rna"] = self.rna
+		entry["rrna"] = self.rrna
 		entry["protein"] = self.protein
 		entry["water"] = self.water
 		entry["nucleoid"] = self.nucleoid

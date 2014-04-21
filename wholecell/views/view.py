@@ -17,7 +17,7 @@ class View(object):
 	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
 		self._state = state
 		self._state.viewAdd(self)
-		self._processId = process.meta['id']
+		self._processId = process.name()
 		self._processIndex = process._processIndex
 
 		self._query = query

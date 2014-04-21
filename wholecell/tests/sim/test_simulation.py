@@ -57,11 +57,11 @@ class Test_Simulation(unittest.TestCase):
 		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10, reconstructKB = True)
 		sim.run()
 
-		self.assertEqual(10, sim.states["Time"].value)
+		self.assertEqual(10, sim.time())
 
 
 	@noseAttrib.attr('mediumtest', 'saveload', 'simulation')
-	def test_disk_logger(self): #_and_shell_logger(self):
+	def test_disk_logger(self):
 		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
@@ -69,7 +69,8 @@ class Test_Simulation(unittest.TestCase):
 		sim = wholecell.sim.simulation.Simulation(
 			seed = 0, lengthSec = 10, logToDisk = True, outputDir = outDir,
 			overwriteExistingFiles = True,
-			reconstructKB = True
+			reconstructKB = True,
+			includedStates = ['Mass', 'BulkMolecules', 'UniqueMolecules', 'Chromosome', 'Transcripts']
 			)
 
 		sim.run()
@@ -86,30 +87,15 @@ class Test_Simulation(unittest.TestCase):
 			reloadedSim.states['UniqueMolecules'].container,
 			)
 
-		# commented out until this state is used
+		self.assertEqual(
+			sim.states['Transcripts'].container,
+			reloadedSim.states['Transcripts'].container,
+			)
 
-		# self.assertEqual(
-		# 	sim.states['Transcripts'].container,
-		# 	reloadedSim.states['Transcripts'].container,
-		# 	)
-
-		# self.assertEqual(
-		# 	sim.states['Chromosome'].container,
-		# 	reloadedSim.states['Chromosome'].container,
-		# 	)
-
-		# TODO: test rand stream, other states
-
-
-	# this test keeps breaking but only because the States are being rewritten, disabling for now - John
-	# @noseAttrib.attr('smalltest')
-	# def test_getDynamics(self):
-	# 	sim = self.sim
-	# 	dynamics = sim.getDynamics()
-	# 	self.assertEqual(
-	# 		dynamics.viewkeys(),
-	# 		{'RandStream', 'UniqueMolecules', 'Mass', 'BulkMolecules', 'Time', 'Chromosome'}
-	# 		)
+		self.assertEqual(
+			sim.states['Chromosome'].container,
+			reloadedSim.states['Chromosome'].container,
+			)
 
 
 	# --- Test ability to remove processes from simulation ---

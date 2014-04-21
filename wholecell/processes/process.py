@@ -17,62 +17,64 @@ import wholecell.views.view
 class Process(object):
 	""" Process """
 
+	_name = None
+
 	# Constructor
 	def __init__(self):
-		if not hasattr(self, "meta"):
-			self.meta = {}
-
 		# Constants
 		self.timeStepSec = None
 		self._processIndex = None
+
+		# Simulation reference (used to access time)
+		self._sim = None
 
 		# Simulation random stream
 		self.randStream = None
 
 		# References to state
-		self._bulkMolecules = None
-		self._uniqueMolecules = None
-		self._chromosome = None
+		self._states = None
 
 
 	# Construct object graph, calculate constants
 	def initialize(self, sim, kb):
+		self._sim = sim
+
 		self.timeStepSec = sim.timeStepSec
-		self._processIndex = sim.processes.keys().index(self.meta['id'])
+		self._processIndex = sim.processes.keys().index(self._name)
 
 		self.randStream = sim.randStream
 
-		self._bulkMolecules = sim.states['BulkMolecules']
-		self._uniqueMolecules = sim.states['UniqueMolecules']
-		# self._chromosome = sim.states['Chromosome']
+		self._states = sim.states
 
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		import wholecell.states.bulk_molecules
-		return wholecell.states.bulk_molecules.BulkMoleculesView(self._bulkMolecules, 
-			self, moleculeIDs)
+		return wholecell.states.bulk_molecules.BulkMoleculesView(
+			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
 		import wholecell.states.bulk_molecules
-		return wholecell.states.bulk_molecules.BulkMoleculeView(self._bulkMolecules, 
-			self, moleculeIDs)
+		return wholecell.states.bulk_molecules.BulkMoleculeView(
+			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
-		return wholecell.views.view.UniqueMoleculesView(self._uniqueMolecules,
-			self, (moleculeName, attributes))
+		return wholecell.views.view.UniqueMoleculesView(
+			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
 
 	def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeForksView(self._chromosome,
-			self, (extentForward, extentReverse, includeMoleculesOnEnds))
+		return wholecell.views.view.ChromosomeForksView(
+			self._states['Chromosome'], self,
+			(extentForward, extentReverse, includeMoleculesOnEnds))
 
 
 	def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeMoleculesView(self._chromosome,
-			self, (moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+		return wholecell.views.view.ChromosomeMoleculesView(
+			self._states['Chromosome'], self,
+			(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
 
 
 	# Calculate requests for a single time step
@@ -85,24 +87,12 @@ class Process(object):
 		return
 
 
-	# Partition requests
-	def requestBulkMolecules(self):
-		pass
+	# Basic accessors
+
+	def time(self):
+		return self._sim.time()
 
 
-	# -- Get, set options, parameters
-	def getOptions(self):
-		val = {}
-		if self.meta.has_key("options"):
-			for opt in self.meta["options"]:
-				val[opt] = getattr(self, opt)
-		return val
-
-
-	def setOptions(self, val):
-		keys = val.keys()
-		if not self.meta.has_key("options") or not set(keys).issubset(set(self.meta["options"])):
-			raise Exception, "Invalid option"
-
-		for key in keys:
-			setattr(self, key, val[key])
+	@classmethod
+	def name(cls):
+		return cls._name

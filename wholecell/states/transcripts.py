@@ -17,14 +17,9 @@ MOLECULE_ATTRIBUTES = {
 
 class Transcripts(wholecell.states.state.State):
 
-	def __init__(self, *args, **kwargs):
-		self.meta = {
-			'id':'Transcripts',
-			'name':'Transcripts',
-			'dynamics':[],
-			'units':{}
-			}
+	_name = "Transcripts"
 
+	def __init__(self, *args, **kwargs):
 		self.container = None
 
 		super(Transcripts, self).__init__(*args, **kwargs)
@@ -36,12 +31,10 @@ class Transcripts(wholecell.states.state.State):
 		self.container = TranscriptsContainer(ARRAY_LENGTH,
 			MOLECULE_ATTRIBUTES, self.randStream)
 
-		self.time = sim.states['Time']
-
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container.timeIs(self.time.value)
+		self.container.timeIs(self.timeStep())
 
 		# TODO: flush deleted
 		

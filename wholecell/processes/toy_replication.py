@@ -20,13 +20,10 @@ import wholecell.processes.process
 class ToyReplication(wholecell.processes.process.Process):
 	""" ToyReplication """
 
+	_name = "ToyReplication"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "ToyReplication",
-			"name": "ToyReplication",
-			}
-
 		self.dnaPolyForwardFootprint = 50
 		self.dnaPolyReverseFootprint = 50
 		self.elongationRate = 1000

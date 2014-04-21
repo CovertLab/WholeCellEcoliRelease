@@ -19,13 +19,10 @@ import wholecell.processes.process
 class ToyTranscription(wholecell.processes.process.Process):
 	""" ToyTranscription """
 
+	_name = "ToyTranscription"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "ToyTranscription",
-			"name": "ToyTranscription",
-		}
-
 		self.polymerizationRate = 48
 
 		super(ToyTranscription, self).__init__()

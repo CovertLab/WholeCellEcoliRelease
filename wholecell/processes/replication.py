@@ -17,13 +17,10 @@ import wholecell.processes.process
 class Replication(wholecell.processes.process.Process):
 	""" Replication """
 
+	_name = "Replication"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-		"id": "Replication",
-		"name": "Replication"
-		}
-
 		# Constants
 		self.elngRate = None
 

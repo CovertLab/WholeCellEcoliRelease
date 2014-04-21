@@ -20,14 +20,10 @@ import wholecell.processes.process
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
 
+	_name = "Metabolism"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "Metabolism",
-			"name": "Metabolism",
-			"options": ["lpSolver", "realMax"]
-		}
-
 		# Options
 		self.lpSolver = "glpk"
 		self.realMax = 1e6
@@ -36,7 +32,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolism = None
 		self.mass = None
 		self.mc = None
-		self.time = None
 
 		# Partitions
 		self.bulkMoleculesPartition = None
@@ -73,7 +68,6 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# self.mass = sim.states["Mass"]
-		self.time = sim.states["Time"]
 
 		# Load constants
 		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
@@ -129,7 +123,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.randStream.stochasticRound(
 				np.round((self.wildtypeBiomassReaction + atpm + noise) * 1e-3
 					* self.nAvogadro * self.initialDryMass)
-				* np.exp(np.log(2) / self.cellCycleLen * self.time.value)
+				* np.exp(np.log(2) / self.cellCycleLen * self.time())
 				* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 				).astype(np.int64),
 			0
