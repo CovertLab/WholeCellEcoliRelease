@@ -46,7 +46,7 @@ def initializeBulkWater(kb, bulkContainer, randStream):
 
 
 def initializeBulkBiomass(kb, bulkContainer, randStream):
-	biomassMetabolites = kb.coreBiomass['metaboliteId']
+	biomassMetabolites = kb.wildtypeBiomass['metaboliteId']
 
 	feistCoreView = bulkContainer.countsView(biomassMetabolites)
 
@@ -123,8 +123,6 @@ def initializeBulkMonomers(kb, bulkContainer, randStream):
 		)
 
 	monomersView.countsIs(monCnts)
-	
-	kb.rnaExpression[kb.monomerIndexToRnaMapping[[np.where(x == kb.monomerData["id"])[0][0] for x in rnapIds]]]
 
 
 def initializeBulkAAs(kb, bulkContainer, randStream):

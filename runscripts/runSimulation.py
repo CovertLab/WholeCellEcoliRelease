@@ -20,9 +20,8 @@ import sys
 
 DEFAULT_SIM = dict(
 	seed = 10,
-	lengthSec = 3600,
-	reconstructKB = True,
-	includedProcesses = ['Metabolism']
+	lengthSec = 10,
+	reconstructKB = True
 	)
 
 def main():
