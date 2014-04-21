@@ -48,14 +48,14 @@ def initializeBulkWater(kb, bulkContainer, randStream):
 def initializeBulkBiomass(kb, bulkContainer, randStream):
 	biomassMetabolites = kb.wildtypeBiomass['metaboliteId']
 
-	feistCoreView = bulkContainer.countsView(biomassMetabolites)
+	biomassView = bulkContainer.countsView(biomassMetabolites)
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
 	initialDryMass = kb.avgCellDryMassInit.to('g').magnitude + randStream.normal(0.0, 1e-15)
 	biomassFlux = kb.wildtypeBiomass['biomassFlux'].to('mol/(DCW_g)').magnitude
 
 
-	feistCoreView.countsIs(
+	biomassView.countsIs(
 		np.round(
 			np.fmax(biomassFlux, 0) * nAvogadro * initialDryMass
 			)
