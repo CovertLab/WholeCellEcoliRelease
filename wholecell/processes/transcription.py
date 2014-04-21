@@ -99,13 +99,13 @@ class Transcription(wholecell.processes.process.Process):
 		newRnas = 0
 		ntpsUsed = np.zeros(4)
 
-		nProteinsToCreate = int(enzLimit / self.avgRnaLength)
+		nRnasToCreate = int(enzLimit / self.avgRnaLength)
 
 		ntpsShape = self.ntps.counts().shape
 
 		rnasCreated = np.zeros_like(self.rnas.counts())
 
-		while enzLimit > 0 and nProteinsToCreate > 0:
+		while enzLimit > 0 and nRnasToCreate > 0:
 			if not np.any(
 					np.all(
 						self.ntps.counts() > self.rnaNtCounts,
@@ -124,18 +124,18 @@ class Transcription(wholecell.processes.process.Process):
 			if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
 				break
 
-			newIdxs = np.where(self.randStream.mnrnd(nProteinsToCreate, self.rnaSynthProb))[0]
+			newIdxs = np.where(self.randStream.mnrnd(nRnasToCreate, self.rnaSynthProb))[0]
 
 			if np.any(self.ntps.counts() < np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
-				if nProteinsToCreate > 0:
-					nProteinsToCreate //= 2
+				if nRnasToCreate > 0:
+					nRnasToCreate //= 2
 					continue
 				else:
 					break
 
 			if enzLimit < np.sum(np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
-				if nProteinsToCreate > 0:
-					nProteinsToCreate //= 2
+				if nRnasToCreate > 0:
+					nRnasToCreate //= 2
 					continue
 				else:
 					break
