@@ -34,7 +34,7 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		if nPolymersToCreate <= 0:
 			break
 
-		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic power
+		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
 		canPolymerize = ((monomerCounts >= templateMonomerCounts).all(1) &
 			(enzymaticLimitation >= templateLengths))
 
@@ -51,21 +51,21 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 
 		monomersUsed = np.dot(nNewPolymers, templateMonomerCounts)
 
-		enzymaticPowerUsed = np.dot(nNewPolymers, templateLengths).sum()
+		enzymaticCapacityUsed = np.dot(nNewPolymers, templateLengths).sum()
 
 		# Reduce number of polymers to create if not enough monomers
 		if (monomerCounts < monomersUsed).any():
 			nPolymersToCreate = max(int(nPolymersToCreate * 0.9), 1)
 			continue
 
-		# Reduce number of polymers to create if not enough enzymatic power
-		if enzymaticLimitation < enzymaticPowerUsed:
+		# Reduce number of polymers to create if not enough enzymatic capacity
+		if enzymaticLimitation < enzymaticCapacityUsed:
 			nPolymersToCreate = max(int(nPolymersToCreate * 0.9), 1)
 			continue
 
 		# Use resources and create the polymers
 
-		enzymaticLimitation -= enzymaticPowerUsed
+		enzymaticLimitation -= enzymaticCapacityUsed
 
 		monomerCounts -= monomersUsed
 

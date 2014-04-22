@@ -4,12 +4,6 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.reconstruction.fitter import countsFromMassAndExpression
 from wholecell.reconstruction.fitter import normalize
 
-ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
-aaIds = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
-	"GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
-	"LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]", "THR-L[c]",
-	"TRP-L[c]", "TYR-L[c]", "VAL-L[c]"]
-
 
 def calcInitialConditions(sim, kb):
 	randStream = sim.randStream
