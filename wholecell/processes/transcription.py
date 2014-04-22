@@ -93,66 +93,93 @@ class Transcription(wholecell.processes.process.Process):
 			rnaPolymerases * self.elngRate * self.timeStepSec
 			])
 
-		newRnas = 0
-		ntpsUsed = np.zeros(4)
+		# newRnas = 0
+		# ntpsUsed = np.zeros(4)
 
-		nRnasToCreate = int(enzLimit / self.avgRnaLength)
+		# nRnasToCreate = int(enzLimit / self.avgRnaLength)
 
-		ntpsShape = self.ntps.counts().shape
+		# ntpsShape = self.ntps.counts().shape
 
-		rnasCreated = np.zeros_like(self.rnas.counts())
+		# rnasCreated = np.zeros_like(self.rnas.counts())
 
-		while enzLimit > 0 and nRnasToCreate > 0:
-			if not np.any(
-					np.all(
-						self.ntps.counts() > self.rnaNtCounts,
-						axis = 1
-						)
-					):
-				break
+		# while enzLimit > 0 and nRnasToCreate > 0:
+		# 	if not np.any(
+		# 			np.all(
+		# 				self.ntps.counts() > self.rnaNtCounts,
+		# 				axis = 1
+		# 				)
+		# 			):
+		# 		break
 
-			if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
-				break
+		# 	if not np.any(enzLimit > np.sum(self.rnaNtCounts, axis = 1)):
+		# 		break
 
-			# If the probabilities of being able to synthesize are sufficiently low, exit the loop
-			if np.sum(self.rnaSynthProb[np.all(self.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
-				break
+		# 	# If the probabilities of being able to synthesize are sufficiently low, exit the loop
+		# 	if np.sum(self.rnaSynthProb[np.all(self.ntps.counts() > self.rnaNtCounts, axis = 1)]) < 1e-3:
+		# 		break
 
-			if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
-				break
+		# 	if np.sum(self.rnaSynthProb[enzLimit > np.sum(self.rnaNtCounts, axis = 1)]) < 1e-3:
+		# 		break
 
-			newIdxs = np.where(self.randStream.mnrnd(nRnasToCreate, self.rnaSynthProb))[0]
+		# 	newIdxs = np.where(self.randStream.mnrnd(nRnasToCreate, self.rnaSynthProb))[0]
 
-			if np.any(self.ntps.counts() < np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
-				if nRnasToCreate > 0:
-					nRnasToCreate //= 2
-					continue
-				else:
-					break
+		# 	if np.any(self.ntps.counts() < np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
+		# 		if nRnasToCreate > 0:
+		# 			nRnasToCreate //= 2
+		# 			continue
+		# 		else:
+		# 			break
 
-			if enzLimit < np.sum(np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
-				if nRnasToCreate > 0:
-					nRnasToCreate //= 2
-					continue
-				else:
-					break
+		# 	if enzLimit < np.sum(np.sum(self.rnaNtCounts[newIdxs, :], axis = 0)):
+		# 		if nRnasToCreate > 0:
+		# 			nRnasToCreate //= 2
+		# 			continue
+		# 		else:
+		# 			break
 
-			enzLimit -= np.sum(self.rnaNtCounts[newIdxs, :])
+		# 	enzLimit -= np.sum(self.rnaNtCounts[newIdxs, :])
 
-			self.ntps.countsDec(
-				np.sum(self.rnaNtCounts[newIdxs, :], axis = 0).reshape(ntpsShape)
-				)
+		# 	self.ntps.countsDec(
+		# 		np.sum(self.rnaNtCounts[newIdxs, :], axis = 0).reshape(ntpsShape)
+		# 		)
 
-			# This assumes 5' triphosphate is hydrolyzed and 5' OH is deprotonated
-			#                      O
-			#                     ||
-			# End of chain is (-)O-P-O-CH2-Ribose
-			#                      |
-			#                      O(-)
-			self.h2o.countDec(1)
-			self.ppi.countInc(np.sum(self.rnaLens[newIdxs]))
-			self.proton.countInc(1)
+		# 	# This assumes 5' triphosphate is hydrolyzed and 5' OH is deprotonated
+		# 	#                      O
+		# 	#                     ||
+		# 	# End of chain is (-)O-P-O-CH2-Ribose
+		# 	#                      |
+		# 	#                      O(-)
+		# 	self.h2o.countDec(1)
+		# 	self.ppi.countInc(np.sum(self.rnaLens[newIdxs]))
+		# 	self.proton.countInc(1)
 
-			rnasCreated[newIdxs] += 1
+		# 	rnasCreated[newIdxs] += 1
+
+		from wholecell.utils.simple_polymerize import simplePolymerize
+
+		ntpCounts, rnasCreated = simplePolymerize(
+			self.rnaNtCounts,
+			enzLimit,
+			self.ntps.counts(),
+			self.rnaSynthProb,
+			self.randStream
+			)
+
+		self.ntps.countsIs(ntpCounts)
 
 		self.rnas.countsInc(rnasCreated)
+
+		nRnasCreated = rnasCreated.sum()
+		nNtpsUsed = np.dot(rnasCreated, self.rnaNtCounts).sum()
+
+		# This assumes 5' triphosphate is hydrolyzed and 5' OH is deprotonated
+		#                      O
+		#                     ||
+		# End of chain is (-)O-P-O-CH2-Ribose
+		#                      |
+		#                      O(-)
+
+		self.h2o.countDec(nRnasCreated)
+		self.proton.countInc(nRnasCreated)
+
+		self.ppi.countInc(nNtpsUsed)
