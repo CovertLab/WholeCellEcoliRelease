@@ -41,12 +41,16 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 
 		# TODO: Give unpolymerizable templates a synthesis probability of zero
 
-		# Choose indexes of polymers to synthesize
-		newIndexes = np.where(randStream.mnrnd(nPolymersToCreate,
-			synthesisProbabilities))[0]
+		# Choose numbers of each polymer to synthesize
+		nNewPolymers = randStream.mnrnd(nPolymersToCreate, synthesisProbabilities)
+
+		monomersUsedByTemplate = np.dot(nNewPolymers, templateMonomerCounts)
+		monomersUsed = monomersUsedByTemplate.sum(0)
+
+		enzymaticPowerUsed = np.dot(nNewPolymers, templateLengths).sum()
 
 		# Reduce number of polymers to create if not enough monomers
-		if (monomerCounts < templateMonomerCounts[newIndexes, :].sum(0)).any():
+		if (monomerCounts < monomersUsed).any():
 			if nPolymersToCreate > 0:
 				nPolymersToCreate //= 2
 				continue
@@ -55,7 +59,7 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 				break
 
 		# Reduce number of polymers to create if not enough enzymatic power
-		if enzymaticLimitation < templateLengths[newIndexes].sum():
+		if enzymaticLimitation < enzymaticPowerUsed:
 			if nPolymersToCreate > 0:
 				nPolymersToCreate //= 2
 				continue
@@ -65,10 +69,10 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 
 		# Use resources and create the polymers
 
-		enzymaticLimitation -= templateMonomerCounts[newIndexes, :].sum()
+		enzymaticLimitation -= enzymaticPowerUsed
 
-		monomerCounts -= templateMonomerCounts[newIndexes, :].sum(0)
+		monomerCounts -= monomersUsed
 
-		polymersCreated[newIndexes] += 1
+		polymersCreated += nNewPolymers
 
 	return monomerCounts, polymersCreated
