@@ -18,15 +18,22 @@ OVERALL_SYNTHESIS_PROBABILITY_MINIMUM = 1e-3
 def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		monomerCounts, synthesisProbabilities, randStream):
 
+	assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
+
 	templateLengths = templateMonomerCounts.sum(1)
 
 	avgTemplateLength = templateLengths.mean()
 
-	nPolymersToCreate = int(enzymaticLimitation / avgTemplateLength)
+	nPolymersToCreate = int(
+		min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
+		)
 	
 	polymersCreated = np.zeros_like(templateLengths)
 
-	while enzymaticLimitation > 0 and nPolymersToCreate > 0:
+	while True:
+		if nPolymersToCreate <= 0:
+			break
+
 		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic power
 		canPolymerize = ((monomerCounts >= templateMonomerCounts).all(1) &
 			(enzymaticLimitation >= templateLengths))
@@ -34,38 +41,27 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		if not np.any(canPolymerize):
 			break
 
-		# Break if overall synthesis probability is too low
-		if (synthesisProbabilities[canPolymerize].sum() <
-				OVERALL_SYNTHESIS_PROBABILITY_MINIMUM):
-			break
-
-		# TODO: Give unpolymerizable templates a synthesis probability of zero
+		adjustedSynthProb = canPolymerize * synthesisProbabilities
+		adjustedSynthProb /= adjustedSynthProb.sum()
 
 		# Choose numbers of each polymer to synthesize
-		nNewPolymers = randStream.mnrnd(nPolymersToCreate, synthesisProbabilities)
+		nNewPolymers = randStream.mnrnd(nPolymersToCreate, adjustedSynthProb)
 
-		monomersUsedByTemplate = np.dot(nNewPolymers, templateMonomerCounts)
-		monomersUsed = monomersUsedByTemplate.sum(0)
+		assert nNewPolymers.sum() == nPolymersToCreate
+
+		monomersUsed = np.dot(nNewPolymers, templateMonomerCounts)
 
 		enzymaticPowerUsed = np.dot(nNewPolymers, templateLengths).sum()
 
 		# Reduce number of polymers to create if not enough monomers
 		if (monomerCounts < monomersUsed).any():
-			if nPolymersToCreate > 0:
-				nPolymersToCreate //= 2
-				continue
-
-			else:
-				break
+			nPolymersToCreate = max(int(nPolymersToCreate * 0.9), 1)
+			continue
 
 		# Reduce number of polymers to create if not enough enzymatic power
 		if enzymaticLimitation < enzymaticPowerUsed:
-			if nPolymersToCreate > 0:
-				nPolymersToCreate //= 2
-				continue
-
-			else:
-				break
+			nPolymersToCreate = max(int(nPolymersToCreate * 0.9), 1)
+			continue
 
 		# Use resources and create the polymers
 
