@@ -33,12 +33,12 @@ def initializeBulk(bulkContainer, kb, randStream):
 
 def initializeProteinMonomers(bulkContainer, kb, randStream):
 	dryComposition60min = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].magnitude == 60
+		kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60
 		]
 
 	monomersView = bulkContainer.countsView(kb.monomerData["id"])
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
-	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
+	monomerMass = kb.avgCellDryMassInit.to('DCW_g') * monomerMassFraction
 
 	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
 
