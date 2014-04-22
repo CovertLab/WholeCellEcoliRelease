@@ -1335,6 +1335,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _calculateRnaWeight(self, seq):
+		# Starting with NTP molecular weights, subtracting OH for each bond pair
 		return sum(self._ntWeights[x] for x in seq) - (len(seq) - 1) * 17.01
 
 
