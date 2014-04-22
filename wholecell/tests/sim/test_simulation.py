@@ -98,8 +98,15 @@ class Test_Simulation(unittest.TestCase):
 			)
 
 
-	# --- Test ability to remove processes from simulation ---
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_removeProcesses(self):
+		# Test ability to remove processes from simulation
 		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'], reconstructKB = True)
 		self.assertEqual(['Transcription'], sim.processes.keys())
+
+
+	@noseAttrib.attr('mediumtest', 'simulation')
+	def test_removeStates(self):
+		# Test ability to remove states from simulation
+		sim = wholecell.sim.simulation.Simulation(includedStates = ['Mass'], reconstructKB = True)
+		self.assertEqual(['Mass'], sim.states.keys())
