@@ -27,6 +27,9 @@ def initializeBulk(bulkContainer, kb, randStream):
 	# ## Set RNA counts from expression
 	# initializeRNA(bulkContainer, kb, randStream)
 
+	# ## Set dNTPs
+	# initializeDNA(bulkContainer, kb, randStream)
+
 	# ## Set other biomass components
 	# initializeBulkComponents(bulkContainer, kb, randStream)
 
@@ -53,7 +56,6 @@ def initializeProteinMonomers(bulkContainer, kb, randStream):
 		]
 
 	monomersView = bulkContainer.countsView(kb.monomerData["id"])
-
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
 
@@ -66,7 +68,11 @@ def initializeProteinMonomers(bulkContainer, kb, randStream):
 		kb.nAvogadro.magnitude
 		)
 
-	monomersView.countsIs(nMonomers * monomerExpression)
+	monomersView.countsIs(
+		randStream.mnrnd(nMonomers, monomerExpression)
+		)
+
+	# monomersView.countsIs(nMonomers * monomerExpression)
 
 
 def initializeRNA(bulkContainer, kb, randStream):
@@ -87,11 +93,36 @@ def initializeRNA(bulkContainer, kb, randStream):
 		kb.nAvogadro.magnitude
 		)
 
-	rnaView.countsIs(nRnas * rnaExpression)
+	rnaView.countsIs(
+		randStream.mnrnd(nRnas, rnaExpression)
+		)
+
+	# rnaView.countsIs(nRnas * rnaExpression)
+
+
+def initializeDNA(bulkContainer, kb, randStream):
+	biomassContainer = BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64"))
+	biomassContainer.countsIs(
+		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
+		)
+
+	dNTPs = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+
+	dNTPBulkView = bulkContainer.countsView(dNTPs)
+
+	dNTPBiomassView = biomassContainer.countsView(dNTPs)
+
+	dNTPBulkView.countsIs((
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude *
+		notPRDBiomassView.counts() *
+		kb.nAvogadro.to("1 / millimole").magnitude
+		))
 
 
 def initializeBulkComponents(bulkContainer, kb, randStream):
-	biomassContainer = BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64"))
+	biomassContainer = BulkObjectsContainer(
+		list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64")
+		)
 	biomassContainer.countsIs(
 		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
 		)
@@ -105,13 +136,9 @@ def initializeBulkComponents(bulkContainer, kb, randStream):
 		list(kb.cellSolublePoolFractionData["metaboliteId"])
 		)
 
-	notPRDBulkView = bulkContainer.countsView(
-			list(kb.cellGlycogenFractionData["metaboliteId"])
-			)
+	notPRDBulkView = bulkContainer.countsView(notPRDMetabolites)
 
-	notPRDBiomassView = biomassContainer.countsView(
-			list(kb.cellGlycogenFractionData["metaboliteId"])
-			)
+	notPRDBiomassView = biomassContainer.countsView(notPRDMetabolites)
 
 	notPRDBulkView.countsIs((
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude *
@@ -128,7 +155,7 @@ def initializeBulkWater(kb, bulkContainer, randStream):
 	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
 	h2oView.countIs(
-		(avgCellWaterMassInit + randStream.normal(0, 1e-15)) / mwH2O * nAvogadro
+		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
 
