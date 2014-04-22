@@ -477,6 +477,10 @@ def normalize(array):
 
 def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert numpy.allclose(numpy.sum(relativeExpression), 1)
+	assert type(mass) != Q_
+	assert type(mws) != Q_
+	assert type(relativeExpression) != Q_
+	assert type(nAvogadro) != Q_
 	return mass / numpy.dot(mws / nAvogadro, relativeExpression)
 
 if __name__ == "__main__":
