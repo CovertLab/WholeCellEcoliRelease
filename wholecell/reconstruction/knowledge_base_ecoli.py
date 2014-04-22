@@ -1179,6 +1179,24 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
 
+		units = {
+		'id'		:	None,
+		'synthProb' :	'dimensionless',
+		'degRate'	:	'1 / s',
+		'length'	:	'nucleotide',
+		'countsAUCG':	'nucleotide',
+		'mw'		:	'g / mol',
+		'isMRna'	:	None,
+		'isMiscRna'	:	None,
+		'isRRna'	:	None,
+		'isTRna'	:	None,
+		'isRRna23S'	:	None,
+		'isRRna16S'	:	None,
+		'isRRna5S'	:	None
+		}
+
+
+		self.rnaData = UnitStructArray(self.rnaData, units)
 
 	def _buildMonomerData(self):
 		monomers = [protein for protein in self._proteins 
