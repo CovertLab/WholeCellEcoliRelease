@@ -143,9 +143,15 @@ class Transcription(wholecell.processes.process.Process):
 				np.sum(self.rnaNtCounts[newIdxs, :], axis = 0).reshape(ntpsShape)
 				)
 
-			self.h2o.countDec(1) # TODO: verify this
+			# This assumes 5' triphosphate is hydrolyzed and 5' OH is deprotonated
+			#                      O
+			#                     ||
+			# End of chain is (-)O-P-O-CH2-Ribose
+			#                      |
+			#                      O(-)
+			self.h2o.countDec(1)
 			self.ppi.countInc(np.sum(self.rnaLens[newIdxs]))
-			self.proton.countInc(1) # TODO: verify this
+			self.proton.countInc(1)
 
 			rnasCreated[newIdxs] += 1
 
