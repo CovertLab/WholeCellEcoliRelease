@@ -67,46 +67,21 @@ class Metabolism(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Metabolism, self).initialize(sim, kb)
 
-		# self.mass = sim.states["Mass"]
-
 		# Load constants
 		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
 		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
 		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
-		
-		# bioIds = []
-		# bioConc = []
-
-		# for m in kb.metabolites:
-		# 	if m["biomassInfo"] != {'core' : [], 'wildtype' : []}:
-		# 		# TODO: Might need to fix, need to loop over all indicies within core biomass. Fix in general this is ugly.
-		# 		bioIds.append("%s[%s]" % (m["id"], m["biomassInfo"]["core"][0]["location"]))
-		# 		bioConc.append(m["biomassInfo"]["core"][0]["mmol/gDCW"]) # Number of molecules to produce each time step
-
-		# bioIds, bioConc = (list(x) for x in zip(*sorted(zip(bioIds, bioConc))))
-		# bioConc = np.array(bioConc)
-
-		# self.bioProd = np.array([x if x > 0 else 0 for x in bioConc])
 
 		self.wildtypeBiomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude
 
 		self.wildtypeIds = kb.wildtypeBiomass['metaboliteId']
 
 		# Views
-		# self.biomass = self.bulkMoleculesView(bioIds)
-		# self.atpHydrolysis = self.bulkMoleculesView(["ATP[c]", "H2O[c]", "ADP[c]", "PI[c]", "H[c]"])
-		# self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		# self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.biomassMetabolites = self.bulkMoleculesView(self.wildtypeIds)
 
 
 
 	def calculateRequest(self):
-		# self.biomass.requestAll()
-
-		# self.ntps.requestIs(0)
-		# self.h2o.requestIs(0)
-
 		pass
 
 
