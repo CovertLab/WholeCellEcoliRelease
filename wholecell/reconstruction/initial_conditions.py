@@ -23,7 +23,8 @@ def initializeBulk(bulkContainer, kb, randStream):
 	# ## Set protein counts from expression
 	# initializeProteinMonomers(bulkContainer, kb, randStream)
 
-	## Set RNA counts from expression
+	# ## Set RNA counts from expression
+	# initializeRNA(bulkContainer, kb, randStream)
 
 	## Set other biomass components
 
@@ -63,8 +64,28 @@ def initializeProteinMonomers(bulkContainer, kb, randStream):
 		kb.nAvogadro.magnitude
 		)
 
-	monomersView.countsIs((nMonomers * monomerExpression))
+	monomersView.countsIs(nMonomers * monomerExpression)
 
+
+def initializeRNA(bulkContainer, kb, randStream):
+	dryComposition60min = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].magnitude == 60
+		]
+
+	rnaView = bulkContainer.countsView(kb.rnaData["id"])
+	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
+	rnaMass = kb.avgCellDryMassInit.magnitude * rnaMassFraction
+
+	rnaExpression = normalize(kb.rnaExpression['expression'])
+
+	nRnas = countsFromMassAndExpression(
+		rnaMass,
+		kb.rnaData["mw"],
+		rnaExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	rnaView.countsIs(nRnas * rnaExpression)
 
 def initializeBulkWater(kb, bulkContainer, randStream):
 	h2oView = bulkContainer.countView('H2O[c]')
