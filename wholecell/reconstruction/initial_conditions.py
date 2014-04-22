@@ -1,5 +1,7 @@
 
 import numpy as np
+from wholecell.reconstruction.fitter import countsFromMassAndExpression
+from wholecell.reconstruction.fitter import normalize
 
 ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 aaIds = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
@@ -18,6 +20,15 @@ def calcInitialConditions(sim, kb):
 
 def initializeBulk(bulkContainer, kb, randStream):
 
+	# ## Set protein counts from expression
+	# initializeProteinMonomers(bulkContainer, kb, randStream)
+
+	## Set RNA counts from expression
+
+	## Set other biomass components
+
+	## Set water
+
 	## Set metabolite counts from Feist biomass
 	initializeBulkBiomass(kb, bulkContainer, randStream)
 
@@ -31,6 +42,28 @@ def initializeBulk(bulkContainer, kb, randStream):
 	## Set protein counts from expression levels
 	initializeBulkMonomers(kb, bulkContainer, randStream)
 	initializeBulkAAs(kb, bulkContainer, randStream)
+
+
+def initializeProteinMonomers(bulkContainer, kb, randStream):
+	dryComposition60min = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].magnitude == 60
+		]
+
+	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+
+	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
+	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
+
+	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
+
+	nMonomers = countsFromMassAndExpression(
+		monomerMass,
+		kb.monomerData["mw"],
+		monomerExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	monomersView.countsIs((nMonomers * monomerExpression))
 
 
 def initializeBulkWater(kb, bulkContainer, randStream):
