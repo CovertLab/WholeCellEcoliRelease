@@ -68,16 +68,14 @@ class Test_simplePolymerize(unittest.TestCase):
 				)[1]
 
 			totalPolymerCounts += polymerCounts
-
-		avgPolymerCounts = totalPolymerCounts / nRounds
 		
-		expectedMean = nMonomersEachType/(nTemplates * nEachMonomerOnTemplate)
+		observedSynthProb = totalPolymerCounts / totalPolymerCounts.sum()
 
 		self.assertTrue(
-			(np.abs(avgPolymerCounts/expectedMean - 1) < 1e-2).all()
+			(np.abs(observedSynthProb - synthesisProbabilities) < 1e-2).all()
 			)
 
-	@noseAttrib.attr('working')
+
 	@noseAttrib.attr('mediumtest')
 	def test_nonflat_distribution(self):
 		# Test behavior for varied synthesis probabilities
