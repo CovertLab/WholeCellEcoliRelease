@@ -18,6 +18,7 @@ import copy
 
 import wholecell.states.bulk_molecules
 import wholecell.utils.rand_stream
+from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from units.unit_registration import Q_
 
 def fitKb(kb):
@@ -257,7 +258,9 @@ def fitKb(kb):
 
 	## Full WT Biomass function ##
 
-	biomassContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64"))
+	biomassContainer = BulkObjectsContainer(
+		list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64")
+		)
 
 	# Amino acid fraction
 	oneToThreeMapping = dict((
