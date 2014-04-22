@@ -15,7 +15,7 @@ import numpy as np
 
 OVERALL_SYNTHESIS_PROBABILITY_MINIMUM = 1e-3
 
-def simplePolymerize(templateMonomerCounts,enzymaticLimitation,
+def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		monomerCounts, synthesisProbabilities, randStream):
 
 	templateLengths = templateMonomerCounts.sum(1)
@@ -72,5 +72,3 @@ def simplePolymerize(templateMonomerCounts,enzymaticLimitation,
 		polymersCreated[newIndexes] += 1
 
 	return monomerCounts, polymersCreated
-
-
