@@ -1,5 +1,6 @@
 
 import numpy as np
+from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.reconstruction.fitter import countsFromMassAndExpression
 from wholecell.reconstruction.fitter import normalize
 
@@ -26,7 +27,8 @@ def initializeBulk(bulkContainer, kb, randStream):
 	# ## Set RNA counts from expression
 	# initializeRNA(bulkContainer, kb, randStream)
 
-	## Set other biomass components
+	# ## Set other biomass components
+	# initializeBulkComponents(bulkContainer, kb, randStream)
 
 	## Set water
 
@@ -86,6 +88,37 @@ def initializeRNA(bulkContainer, kb, randStream):
 		)
 
 	rnaView.countsIs(nRnas * rnaExpression)
+
+
+def initializeBulkComponents(bulkContainer, kb, randStream):
+	biomassContainer = BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64"))
+	biomassContainer.countsIs(
+		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
+		)
+
+	notPRDMetabolites = (
+		list(kb.cellGlycogenFractionData["metaboliteId"]) +
+		list(kb.cellMureinFractionData["metaboliteId"]) +
+		list(kb.cellLPSFractionData["metaboliteId"]) +
+		list(kb.cellLipidFractionData["metaboliteId"]) +
+		list(kb.cellInorganicIonFractionData["metaboliteId"]) +
+		list(kb.cellSolublePoolFractionData["metaboliteId"])
+		)
+
+	notPRDBulkView = bulkContainer.countsView(
+			list(kb.cellGlycogenFractionData["metaboliteId"])
+			)
+
+	notPRDBiomassView = biomassContainer.countsView(
+			list(kb.cellGlycogenFractionData["metaboliteId"])
+			)
+
+	notPRDBulkView.countsIs((
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude *
+		notPRDBiomassView.counts() *
+		kb.nAvogadro.to("1 / millimole").magnitude
+		))
+
 
 def initializeBulkWater(kb, bulkContainer, randStream):
 	h2oView = bulkContainer.countView('H2O[c]')
