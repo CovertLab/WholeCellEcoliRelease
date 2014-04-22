@@ -104,9 +104,79 @@ class Test_Simulation(unittest.TestCase):
 		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'], reconstructKB = True)
 		self.assertEqual(['Transcription'], sim.processes.keys())
 
-
+	
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_removeStates(self):
 		# Test ability to remove states from simulation
-		sim = wholecell.sim.simulation.Simulation(includedStates = ['Mass'], reconstructKB = True)
-		self.assertEqual(['Mass'], sim.states.keys())
+		sim = wholecell.sim.simulation.Simulation(includedStates = ['BulkMolecules'], reconstructKB = True)
+		self.assertEqual(['BulkMolecules'], sim.states.keys())
+
+	
+	@noseAttrib.attr('mediumtest', 'simulation')
+	def test_processInclusionOrder(self):
+		# Test that included processes follow the proscribed order (important for other tests)
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription', 'Translation'], reconstructKB = True)
+		self.assertEqual(['Transcription', 'Translation'], sim.processes.keys())
+
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Translation', 'Transcription'], reconstructKB = True)
+		self.assertEqual(['Translation', 'Transcription'], sim.processes.keys())
+
+
+	
+	@noseAttrib.attr('mediumtest', 'simulation')
+	def test_processEvaluationOrderIndependence(self):
+		# Test that process evaluation order does not determine the consequences of one time step
+		# NOTE: comparing independent states beyond BulkMolecules is a tricky affair
+
+		from wholecell.sim.simulation import DEFAULT_PROCESSES
+
+		processes1 = DEFAULT_PROCESSES[:]
+		processes2 = DEFAULT_PROCESSES[::-1]
+
+		sim1 = wholecell.sim.simulation.Simulation(
+			includedProcesses = processes1,
+			reconstructKB = True,
+			seed = 0,
+			lengthSec = 10
+			)
+
+		sim1.run()
+
+		sim1Mass = sim1.states['Mass']
+
+		masses1 = [
+			sim1Mass.metabolite,
+			sim1Mass.rna,
+			sim1Mass.protein
+			]
+
+		del sim1
+
+		sim2 = wholecell.sim.simulation.Simulation(
+			includedProcesses = processes2,
+			reconstructKB = True,
+			seed = 0,
+			lengthSec = 10
+			)
+
+		sim2.run()
+
+		sim2Mass = sim2.states['Mass']
+
+		masses2 = [
+			sim2Mass.metabolite,
+			sim2Mass.rna,
+			sim2Mass.protein
+			]
+
+		del sim2
+
+		self.assertEqual(
+			masses1,
+			masses2
+			)
+
+
+
+
+
