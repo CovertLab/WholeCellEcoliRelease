@@ -67,6 +67,7 @@ def initializeBulkRNA(kb, bulkContainer, randStream):
 
 	ntpsView = bulkContainer.countsView(ntpIds)
 	rnaView = bulkContainer.countsView(rnaIds)
+	ppiView = bulkContainer.countView("PPI[c]")
 
 	fracInitFreeNTPs = kb.fracInitFreeNTPs.to('dimensionless').magnitude
 	rnaLength = np.sum(kb.rnaData['countsAUCG'], axis = 1)
@@ -84,6 +85,7 @@ def initializeBulkRNA(kb, bulkContainer, randStream):
 
 
 	rnaView.countsIs(rnaCnts)
+	ppiView.countIs(ntpsToPolym)
 
 
 def initializeBulkNTPs(kb, bulkContainer, randStream):
