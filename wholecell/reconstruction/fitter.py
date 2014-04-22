@@ -86,9 +86,9 @@ def fitKb(kb):
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
 
-	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression).astype("float64"))
-	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression).astype("float64"))
-	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression).astype("float64"))
+	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression))
+	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression))
+	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
 
 	## tRNA Mass Fractions ##
 	tRnaMassFraction = 0.146 # TOKB # This is the fraction of RNA that is tRNA
@@ -103,7 +103,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	tRnaView.countsIs((nTRnas * tRnaExpression).astype("float64"))
+	tRnaView.countsIs((nTRnas * tRnaExpression))
 
 	## mRNA Mass Fractions ##
 	mRnaMassFraction = 0.041 # TOKB # This is the fraction of RNA that is mRNA
@@ -117,7 +117,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	mRnaView.countsIs((nMRnas * mRnaExpression).astype("float64"))
+	mRnaView.countsIs((nMRnas * mRnaExpression))
 
 
 	### Protein Mass fraction ###
@@ -136,7 +136,7 @@ def fitKb(kb):
 		kb.nAvogadro.magnitude
 		)
 
-	monomersView.countsIs((nMonomers * monomerExpression).astype("float64"))
+	monomersView.countsIs((nMonomers * monomerExpression))
 
 
 	### DNA Mass fraction ###
@@ -198,10 +198,10 @@ def fitKb(kb):
 
 	minRnapCounts = (
 		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
-		).astype("float64")
+		)
 
 	rnapView.countsIs(
-		numpy.fmax(rnapView.counts(), minRnapCounts).astype("float64")
+		numpy.fmax(rnapView.counts(), minRnapCounts)
 		)
 
 
@@ -216,7 +216,7 @@ def fitKb(kb):
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = numpy.dtype("float64"))
 
 	rnaExpressionContainer.countsIs(
-		normalize(rnaView.counts().astype("float64"))
+		normalize(rnaView.counts())
 		)
 
 	# Update mRNA expression to reflect monomer counts
