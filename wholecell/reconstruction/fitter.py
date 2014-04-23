@@ -240,12 +240,13 @@ def fitKb(kb):
 	rnaView.countsIs(nRnas * kb.rnaExpression['expression'].to('dimensionless').magnitude)
 
 	## Synthesis probabilities ##
-
 	synthProb = normalize(
-		rnaLengths / kb.rnaPolymeraseElongationRate * (
-			numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
-			) * rnaView.counts()
-		).to('dimensionless').magnitude
+			(
+			rnaLengths / kb.rnaPolymeraseElongationRate * (
+				numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
+				) * rnaView.counts()
+			).to('dimensionless').magnitude
+		)
 
 	kb.rnaData["synthProb"][:] = synthProb
 
@@ -257,7 +258,7 @@ def fitKb(kb):
 		)
 
 	# Amino acid fraction
-	oneToThreeMapping = kb.AMINO_ACID_1_TO_3_ORDERED
+	oneToThreeMapping = kb._aaWeights
 
 	aminoAcidView = biomassContainer.countsView(
 		[oneToThreeMapping[x] for x in kb._aaWeights.iterkeys() if x != "U"] # Ignore selenocysteine (TODO: Include it)
