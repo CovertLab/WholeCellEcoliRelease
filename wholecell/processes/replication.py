@@ -39,9 +39,13 @@ class Replication(wholecell.processes.process.Process):
 		self.dnmps = self.bulkMoleculesView(dNmpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 
+		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.proton = self.bulkMoleculeView('H[c]')
+
 
 	def calculateRequest(self):
 		self.dntps.requestAll()
+		self.h2o.requestIs(self.dntps.total().sum())
 
 
 	# Calculate temporal evolution
@@ -53,3 +57,6 @@ class Replication(wholecell.processes.process.Process):
 		self.dnmps.countsInc(counts)
 
 		self.dntps.countsDec(counts)
+
+		self.h2o.countDec(counts.sum())
+		self.proton.countInc(counts.sum())
