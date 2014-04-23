@@ -226,9 +226,8 @@ def fitKb(kb):
 		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
 		)
 
-	# TODO: Remove this hack! Keep track of units.
 	kb.rnaExpression['expression'] = Q_(rnaExpressionContainer.counts(),'dimensionless')
-	import ipdb; ipdb.set_trace()
+	
 	# Set number of RNAs based on expression we just set
 	nRnas = countsFromMassAndExpression(
 		rnaMass.to('DCW_g').magnitude,
@@ -271,17 +270,20 @@ def fitKb(kb):
 		[oneToThreeMapping[x] for x in kb._aaWeights.iterkeys() if x != "U"] # Ignore selenocysteine (TODO: Include it)
 		) # TODO: Don't use private variable from KB. Use AMINO_ACID_1_TO_3_ORDERED order.
 
-	aaMmolPerGDCW = numpy.sum(
-		kb.monomerData["aaCounts"] *
-		numpy.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
-		axis = 0
-		) * (
-		(1 / kb.nAvogadro.magnitude) *
-		(1000 / kb.avgCellDryMassInit.magnitude)
-		)
-
+	aaMmolPerGDCW = (
+			numpy.sum(
+				kb.monomerData["aaCounts"] *
+				numpy.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
+				axis = 0
+			) * (
+				(1 / kb.nAvogadro.to('amino_acid/mmol')) *
+				(1 / kb.avgCellDryMassInit)
+			)
+		).to('mmol/DCW_g')
+	
+	# TODO: Skipping selenocystine (U) here. Re add this!
 	aminoAcidView.countsIs(
-		aaMmolPerGDCW[range(19) + [20]]
+		aaMmolPerGDCW[range(19) + [20]].magnitude
 		)
 
 	# RNA fraction
@@ -289,17 +291,19 @@ def fitKb(kb):
 		["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
 		)
 
-	ntpPerGDCW = numpy.sum(
-		kb.rnaData["countsAUCG"] *
-		numpy.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
-		axis = 0
-		) * (
-		(1 / kb.nAvogadro.magnitude) *
-		(1000 / kb.avgCellDryMassInit.magnitude)
-		)
+	ntpMmolPerGDCW = (
+			numpy.sum(
+				kb.rnaData["countsAUCG"] *
+				numpy.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
+				axis = 0
+			) * (
+				(1 / kb.nAvogadro.to('nucleotide / mmol')) *
+				(1 / kb.avgCellDryMassInit)
+			)
+		).to('mmol/DCW_g')
 
 	ntpView.countsIs(
-		ntpPerGDCW
+		ntpMmolPerGDCW.magnitude
 		)
 
 	# DNA fraction
@@ -308,15 +312,17 @@ def fitKb(kb):
 		["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
 		)
 
-	dNtpPerGDCW = dNtpsView.counts() * (
-		(1 / kb.nAvogadro.magnitude) *
-		(1000 / kb.avgCellDryMassInit.magnitude)
-		)
+	dNtpMmolPerGDCW = (
+			Q_(dNtpsView.counts(),'nucleotide') * (
+			(1 / kb.nAvogadro.to('nucleotide/mmol')) *
+			(1 / kb.avgCellDryMassInit)
+			)
+		).to('mmol/DCW_g')
 
 	dNtpView.countsIs(
-		dNtpPerGDCW
+		dNtpMmolPerGDCW.magnitude
 		)
-
+	
 	# Glycogen fraction
 
 	glycogenView = biomassContainer.countsView(
