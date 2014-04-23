@@ -356,7 +356,7 @@ def fitKb(kb):
 		)
 
 	mureinMassFraction = float(dryComposition60min["mureinMassFraction"])
-	mureinMass = kb.avgCellDryMassInit.magnitude * mureinMassFraction
+	mureinMass = kb.avgCellDryMassInit * mureinMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellMureinFractionData["metaboliteId"]
@@ -371,7 +371,7 @@ def fitKb(kb):
 		).to('mmol/DCW_g')
 
 	mureinView.countsIs(
-		mureinMmolPerGDCW
+		mureinMmolPerGDCW.magnitude
 		)
 
 	# LPS fraction
@@ -381,20 +381,22 @@ def fitKb(kb):
 		)
 
 	lpsMassFraction = float(dryComposition60min["lpsMassFraction"])
-	lpsMass = kb.avgCellDryMassInit.magnitude * lpsMassFraction
+	lpsMass = kb.avgCellDryMassInit * lpsMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLPSFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
-	lpsPerGDCW = (
-		lpsMass * kb.cellLPSFractionData["massFraction"]
-		) / mws * (
-		1000 / kb.avgCellDryMassInit.magnitude)
+	lpsMmolPerGDCW = (
+			(
+			lpsMass * kb.cellLPSFractionData["massFraction"]
+			) / mws.to('DCW_g/mmol') * (
+			1 / kb.avgCellDryMassInit)
+		).to('mmol/DCW_g')
 
 	lpsView.countsIs(
-		lpsPerGDCW
+		lpsMmolPerGDCW.magnitude
 		)
 
 	# Lipid fraction
@@ -404,20 +406,22 @@ def fitKb(kb):
 		)
 
 	lipidMassFraction = float(dryComposition60min["lipidMassFraction"])
-	lipidMass = kb.avgCellDryMassInit.magnitude * lipidMassFraction
+	lipidMass = kb.avgCellDryMassInit * lipidMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLipidFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
-	lipidPerGDCW = (
-		lipidMass * kb.cellLipidFractionData["massFraction"]
-		) / mws * (
-		1000 / kb.avgCellDryMassInit.magnitude)
+	lipidMmolPerGDCW = (
+			(
+			lipidMass * kb.cellLipidFractionData["massFraction"]
+			) / mws.to('DCW_g/mmol') * (
+			1 / kb.avgCellDryMassInit)
+		).to('mmol/DCW_g')
 
 	lipidView.countsIs(
-		lipidPerGDCW
+		lipidMmolPerGDCW.magnitude
 		)
 
 	# Inorganic ion fraction
@@ -427,20 +431,22 @@ def fitKb(kb):
 		)
 
 	inorganicIonMassFraction = float(dryComposition60min["inorganicIonMassFraction"])
-	inorganicIonMass = kb.avgCellDryMassInit.magnitude * inorganicIonMassFraction
+	inorganicIonMass = kb.avgCellDryMassInit * inorganicIonMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellInorganicIonFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
-
-	inorganicIonPerGDCW = (
-		inorganicIonMass * kb.cellInorganicIonFractionData["massFraction"]
-		) / mws * (
-		1000 / kb.avgCellDryMassInit.magnitude)
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	
+	inorganicIonMmolPerGDCW = (
+			(
+			inorganicIonMass * kb.cellInorganicIonFractionData["massFraction"]
+			) / mws.to('DCW_g/mmol') * (
+			1 / kb.avgCellDryMassInit)
+		).to('mmol/DCW_g')
 
 	inorganicIonView.countsIs(
-		inorganicIonPerGDCW
+		inorganicIonMmolPerGDCW.magnitude
 		)
 
 	# Soluble pool fraction
@@ -450,22 +456,24 @@ def fitKb(kb):
 		)
 
 	solublePoolMassFraction = float(dryComposition60min["solublePoolMassFraction"])
-	solublePoolMass = kb.avgCellDryMassInit.magnitude * solublePoolMassFraction
+	solublePoolMass = kb.avgCellDryMassInit * solublePoolMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellSolublePoolFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
-
-	solublePoolPerGDCW = (
-		solublePoolMass * kb.cellSolublePoolFractionData["massFraction"]
-		) / mws * (
-		1000 / kb.avgCellDryMassInit.magnitude)
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	
+	solublePoolMmolPerGDCW = (
+			(
+			solublePoolMass * kb.cellSolublePoolFractionData["massFraction"]
+			) / mws.to('DCW_g/mmol') * (
+			1 / kb.avgCellDryMassInit)
+		).to('mmol/DCW_g')
 
 	solublePoolView.countsIs(
-		solublePoolPerGDCW
+		solublePoolMmolPerGDCW.magnitude
 		)
-
+	
 	# Validate
 
 	bulkMoleculesIdxs = numpy.array([
