@@ -103,7 +103,7 @@ class Mass(wholecell.states.state.State):
 		self.proteinFoldChange = self.protein / self.proteinInitial
 		self.rnaFoldChange = self.rna / self.rnaInitial
 
-		self.expectedFoldChange = np.exp(self.time() / self.cellCycleLen)
+		self.expectedFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
