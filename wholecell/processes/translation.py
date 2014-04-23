@@ -112,7 +112,7 @@ class Translation(wholecell.processes.process.Process):
 
 		proteinSynthProb = (self.mrnas.counts() / self.mrnas.counts().sum()).flatten()
 
-		enzLimit = ribs * self.elngRate * self.timeStepSec
+		enzLimit = ribs * self.elngRate * self.timeStepSec * 1e6
 
 		from wholecell.utils.simple_polymerize import simplePolymerize
 

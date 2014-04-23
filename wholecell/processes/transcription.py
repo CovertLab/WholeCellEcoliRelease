@@ -87,7 +87,7 @@ class Transcription(wholecell.processes.process.Process):
 	def evolveState(self):
 		rnaPolymerases = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
-		enzLimit = rnaPolymerases * self.elngRate * self.timeStepSec
+		enzLimit = rnaPolymerases * self.elngRate * self.timeStepSec * 1e6
 
 		from wholecell.utils.simple_polymerize import simplePolymerize
 
