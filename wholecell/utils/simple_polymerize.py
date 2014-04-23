@@ -13,7 +13,7 @@ and translation submodels.
 
 import numpy as np
 
-OVERALL_SYNTHESIS_PROBABILITY_MINIMUM = 1e-3
+POLYMER_CREATION_FALLOFF_RATE = 0.9
 
 def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		monomerCounts, synthesisProbabilities, randStream):
@@ -56,12 +56,12 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 
 		# Reduce number of polymers to create if not enough monomers
 		if (monomerCounts < monomersUsed).any():
-			nPolymersToCreate = max(int(nPolymersToCreate * 0.9), 1)
+			nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
 			continue
 
 		# Reduce number of polymers to create if not enough enzymatic capacity
 		if enzymaticLimitation < enzymaticCapacityUsed:
-			nPolymersToCreate = max(int(nPolymersToCreate * 0.9), 1)
+			nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
 			continue
 
 		# Use resources and create the polymers

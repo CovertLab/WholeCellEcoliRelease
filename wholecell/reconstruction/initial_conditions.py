@@ -27,6 +27,9 @@ def initializeBulk(bulkContainer, kb, randStream):
 	## Set other biomass components
 	initializeBulkComponents(bulkContainer, kb, randStream)
 
+	## Set PPi return
+	initializePPiReturn(bulkContainer, kb, randStream)
+
 	## Set water
 	initializeBulkWater(kb, bulkContainer, randStream)
 
@@ -128,6 +131,39 @@ def initializeBulkComponents(bulkContainer, kb, randStream):
 		notPRDBiomassView.counts() *
 		kb.nAvogadro.to("1 / millimole").magnitude
 		))
+
+
+def initializePPiReturn(bulkContainer, kb, randStream):
+	# Note: This is adding biomass (on the order of 5e-18 grams)
+
+	biomassContainer = BulkObjectsContainer(
+		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
+		)
+	biomassContainer.countsIs(
+		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
+		)
+
+	ntpsBiomassView = biomassContainer.countsView([
+		"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"
+		])
+	dntpsBiomassView = biomassContainer.countsView([
+		"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"
+		])
+
+	ppiBulkView = bulkContainer.countView("PPI[c]")
+
+	dt = kb.timeStep.to("second").magnitude
+	tau_d = kb.cellCycleLen.to("second").magnitude
+
+	ppiFromNtps = np.round(np.sum(
+		ntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt))
+		))
+
+	ppiFromDntps = np.round(np.sum(
+		dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt))
+		))
+
+	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
 
 
 def initializeBulkWater(kb, bulkContainer, randStream):

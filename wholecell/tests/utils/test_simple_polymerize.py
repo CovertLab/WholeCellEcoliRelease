@@ -35,7 +35,7 @@ class Test_simplePolymerize(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'process', 'polymerize')
 	def test_flat_distribution(self):
 		# Test behavior for identical monomers and synthesis probabilities
 		nMonomerTypes = 4
@@ -72,11 +72,11 @@ class Test_simplePolymerize(unittest.TestCase):
 		observedSynthProb = totalPolymerCounts / totalPolymerCounts.sum()
 
 		self.assertTrue(
-			(np.abs(observedSynthProb - synthesisProbabilities) < 1e-2).all()
+			np.allclose(observedSynthProb, synthesisProbabilities, atol = 1e-3)
 			)
 
 
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'process', 'polymerize')
 	def test_nonflat_distribution(self):
 		# Test behavior for varied synthesis probabilities
 		nMonomerTypes = 4
@@ -115,12 +115,5 @@ class Test_simplePolymerize(unittest.TestCase):
 		observedSynthProb = totalPolymerCounts / totalPolymerCounts.sum()
 
 		self.assertTrue(
-			(np.abs(observedSynthProb - synthesisProbabilities) < 1e-2).all()
+			np.allclose(observedSynthProb, synthesisProbabilities, atol = 1e-2)
 			)
-
-
-
-
-
-
-		

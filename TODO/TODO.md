@@ -1,75 +1,36 @@
-(1) **Model framework/usability**: We have been putting in a ton of work here. Now is the time to do it before things grow bigger and the returns will be huge.
 
-	(x) Saving models (for plotting and reloading)
+1. Implement a more accurate model of Replication
+    * Track fork position and update gene copy number
+    * Use gene copy number information in Transcription
 
-	(x) Running models in parallel
+2. Fit model including metabolism
+    * Implement Metabolism
+    * Implement Complexation
+        * Track complex submasses (protein/RNA/metabolite)
+    * Implement modified forms process
+    * Handle Feist pseudo metabolites
+    * Fit model
+        * Growth rate
+        * Mass fractions
+        * Observed expression rates
 
-	(x) Running models in parallel on cluster
+3. Model evaluation/validation
+    * Genetic perturbations
+        * Knockouts
+        * Knockdowns/overexpression
+    * Growth rate perturbation
+    * Need to talk to Markus about
+        * What to use for validation
+        * If this is the right time to publish
 
-	(x) Refactoring partitioning code for usability
+4. Use transcription units instead of gene-specific mRNAs
+    * Implement Javier's critical submodels
+    * Use the Transcripts state
 
-	(x) Setting up testing/fitting framework that does not rely on running full simulations
-
-		(x) Run tests on Hudson
-	
-		(x) Get small tests to pass
-	
-		(x) Separate fixture generation from test evaluation
-	
-	(x) Rebulding package structure
-	
-		(x) Renaming folders and files
-	
-		(x) Getting it running again
-	
-	(x) Partitioning unique instances of molecules
-	
-	(x) Chromosome modeling
-
-		(x) Create prototype of data model
-
-		(x) Create real state
-
-		(x) Use the state in a dynamic simulation
-
-		(x) Heirarchical partitioning
-	
-	(x) Move constants out of simulation and into KB. Make sure work flow goes KB --> fitter --> simulation. No backwards arrows!
-
-		(x) Move constants into KB
-
-		(x) Apply fitter to KB instead of the simulation
-
-(2) **KnowledgeBase**: At the beginning of the quarter we still needed to get a working KnowledgeBase that was not just a collection of CSV files. By the end of the quarter this will be a functioning entity.
-	
-	(x) Generate Python object from CSV files
-	
-	(x) Generate MySQL database from CSV files
-	
-	(x) Load MySQL database into same Python object as before
-	
-	(x) Migrate KnoweldgeBase to its own repository
-	
-	( ) Get the web-interface up and running
-	
-	(x) Move constants out of simulation code to KB
-
-	( ) Finish validating the data in the KB
-
-	( ) Citations for stuff taken from Ecocyc
-
-(3) **Actual modeling/fitting**: Our model was sort of fit with the "core" biomass function from Feist but the metabolic model was literally just producing biomass with no FBA model behind it. By the end of the quarter we want to have a fit wild-type metabolic model with FBA implemented in the modeling framework.
-	
-	(x) Get the Feist model growing on the WT biomass how we would expect
-	
-	(x) Fit glucose/O2 uptake rates for our growth in CobraPy
-	
-	-- ON HOLD -- Until we get more framework in place for fitting/testing from area (1)
-	
-	( ) Implement WT biomass in simple metabolic model (no network only produces biomass) in our larger modeling framework
-	
-	( ) Tweak WT biomass coefficients to match process demands
-	
-	( ) Implement full FBA model with WT biomass
-
-	( ) Change transcription/translation to actual transcription units
+5. Research potential speed-ups
+    * Compiling critical code
+        * Cython
+        * C
+    * Parallelize operations
+        * Processes
+        * States

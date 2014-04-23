@@ -40,6 +40,8 @@ class Mass(wholecell.states.state.State):
 
 		self.bulkMolecules = sim.states["BulkMolecules"]
 
+		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
+
 
 	# Allocate memory
 	def allocate(self):
@@ -64,6 +66,8 @@ class Mass(wholecell.states.state.State):
 		self.cellDryFoldChange = 0
 		self.proteinFoldChange = 0
 		self.rnaFoldChange = 0
+
+		self.expectedFoldChange = 0
 
 		self.growth = 0
 
@@ -98,6 +102,8 @@ class Mass(wholecell.states.state.State):
 		self.cellDryFoldChange = self.cellDry / self.cellDryInitial
 		self.proteinFoldChange = self.protein / self.proteinInitial
 		self.rnaFoldChange = self.rna / self.rnaInitial
+
+		self.expectedFoldChange = np.exp(self.time() / self.cellCycleLen)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
