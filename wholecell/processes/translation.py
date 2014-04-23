@@ -112,12 +112,7 @@ class Translation(wholecell.processes.process.Process):
 
 		proteinSynthProb = (self.mrnas.counts() / self.mrnas.counts().sum()).flatten()
 
-		aaEstimate = 1.1 * 20 * self.aas.counts().min()
-
-		enzLimit = self.fracActiveRibosomes * np.min([
-			aaEstimate, # TODO: ask Derek why aaEstimate is included here
-			ribs * self.elngRate * self.timeStepSec
-			])
+		enzLimit = ribs * self.elngRate * self.timeStepSec
 
 		# nProteinsToCreate = int(enzLimit / self.avgProteinLength)
 
