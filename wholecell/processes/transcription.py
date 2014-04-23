@@ -77,7 +77,8 @@ class Transcription(wholecell.processes.process.Process):
 			rnaPolymerases * self.elngRate * self.timeStepSec
 			])
 
-		self.ntps.requestIs(nPolymerizationReactions // 4)
+		self.ntps.requestAll()
+		# self.ntps.requestIs(nPolymerizationReactions // 4)
 		self.h2o.requestIs(nPolymerizationReactions)
 		self.rnapSubunits.requestAll()
 
@@ -86,12 +87,7 @@ class Transcription(wholecell.processes.process.Process):
 	def evolveState(self):
 		rnaPolymerases = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
-		ntpEstimate = 1.1 * 4 * self.ntps.counts().min()
-
-		enzLimit = np.min([
-			ntpEstimate, # TODO: ask Derek why ntpEstimate is included here
-			rnaPolymerases * self.elngRate * self.timeStepSec
-			])
+		enzLimit = rnaPolymerases * self.elngRate * self.timeStepSec
 
 		# newRnas = 0
 		# ntpsUsed = np.zeros(4)

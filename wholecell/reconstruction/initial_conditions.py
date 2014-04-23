@@ -85,24 +85,39 @@ def initializeRNA(bulkContainer, kb, randStream):
 
 
 def initializeDNA(bulkContainer, kb, randStream):
-	biomassContainer = BulkObjectsContainer(
-		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
-		)
-	biomassContainer.countsIs(
-		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
-		)
+
+	dryComposition60min = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].magnitude == 60
+		]
 
 	dNTPs = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+	dnmpIds = ["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"]
 
-	dNTPBulkView = bulkContainer.countsView(dNTPs)
+	dnmpsView = bulkContainer.countsView(dnmpIds)
+	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
+	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
 
-	dNTPBiomassView = biomassContainer.countsView(dNTPs)
+	dnaExpression = normalize(np.array([
+		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+		], dtype = np.float64))
 
-	dNTPBulkView.countsIs((
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude *
-		dNTPBiomassView.counts() *
-		kb.nAvogadro.to("1 / millimole").magnitude
-		))
+	mws = np.array([
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x][0].magnitude for x in dnmpIds]
+		) # This is a hack. Without a real chromosome, though, it's all a hack
+
+	nDntps = countsFromMassAndExpression(
+		dnaMass,
+		mws,
+		dnaExpression,
+		kb.nAvogadro.magnitude
+		)
+
+	dnmpsView.countsIs(
+		randStream.mnrnd(nDntps, dnaExpression)
+		)
 
 
 def initializeBulkComponents(bulkContainer, kb, randStream):

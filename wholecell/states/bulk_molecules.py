@@ -59,7 +59,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkMolecules['mass'].to('fg/mol').magnitude / kb.nAvogadro
+		self._moleculeMass = kb.bulkMolecules['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
 
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
 							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
@@ -117,6 +117,11 @@ class BulkMolecules(wholecell.states.state.State):
 
 			self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
+			self._massAllocatedInitial = (
+				self._countsAllocatedInitial *
+				np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
+				)
+
 		else:
 			self._countsUnallocated = self.container._counts
 
@@ -124,6 +129,10 @@ class BulkMolecules(wholecell.states.state.State):
 	def merge(self):
 		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
+			)
+		self._massAllocatedFinal = (
+			self._countsAllocatedFinal *
+			np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
 			)
 
 
@@ -262,6 +271,13 @@ class BulkMoleculesViewBase(wholecell.views.view.View):
 		return self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex].copy()
 
 
+	def _mass(self):
+		return np.dot(
+			self._state._moleculeMass[self.containerIndexes],
+			self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex]
+			)
+
+
 	def _countsIs(self, values):
 		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
 
@@ -296,6 +312,10 @@ class BulkMoleculesView(BulkMoleculesViewBase):
 		return self._counts()
 
 
+	def mass(self):
+		return self._mass()
+
+
 	def countsIs(self, values):
 		self._countsIs(values)
 
@@ -318,6 +338,10 @@ class BulkMoleculeView(BulkMoleculesViewBase):
 
 	def count(self):
 		return self._counts()
+
+
+	def mass(self):
+		return self._mass()
 
 
 	def countIs(self, value):
