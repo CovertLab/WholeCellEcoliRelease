@@ -84,6 +84,9 @@ class State(object):
 
 	# Basic accessors
 
+	def time(self):
+		return self._sim.time()
+
 	def timeStep(self):
 		return self._sim.timeStep()
 

@@ -30,7 +30,8 @@ class Shell(wholecell.loggers.logger.Logger):
 		self.columns = [
 			{"header": "Time (s)", "state": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
 			{"header": "Dry mass (fg)", "state": "Mass", "property": "cellDry", "length": 13, "format": ".2f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "cellDryFoldChange", "length": 4, "format": ".2f", "sum": False},
+			{"header": "fold", "state": "Mass", "property": "cellDryFoldChange", "length": 5, "format": ".3f", "sum": False},
+			{"header": "expected", "state": "Mass", "property": "expectedFoldChange", "length": 8, "format": ".3f", "sum": False},
 			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".4f", "sum": False},
 			{"header": "Protein frac", "state": "Mass", "property": "proteinFraction", "length": 12, "format": ".3f", "sum": False},
 			{"header": "fold", "state": "Mass", "property": "proteinFoldChange", "length": 5, "format": ".3f", "sum": False},
