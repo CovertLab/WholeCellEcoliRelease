@@ -272,7 +272,7 @@ class BulkMoleculesViewBase(wholecell.views.view.View):
 
 
 	def _mass(self):
-		return numpy.dot(
+		return np.dot(
 			self._state._moleculeMass[self.containerIndexes],
 			self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex]
 			)
