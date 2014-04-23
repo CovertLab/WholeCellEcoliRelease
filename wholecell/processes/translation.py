@@ -114,57 +114,6 @@ class Translation(wholecell.processes.process.Process):
 
 		enzLimit = ribs * self.elngRate * self.timeStepSec
 
-		# nProteinsToCreate = int(enzLimit / self.avgProteinLength)
-
-		# aasShape = self.aas.counts().shape
-
-		# proteinsCreated = np.zeros_like(self.proteins.counts())
-
-		# while enzLimit > 0 and nProteinsToCreate > 0:
-		# 	# print nProteinsToCreate
-		# 	if not np.any(
-		# 		np.all(
-		# 			self.aas.counts() > self.proteinAaCounts,
-		# 			axis = 1
-		# 			)
-		# 		):
-		# 		break
-
-		# 	if not np.any(enzLimit > np.sum(self.proteinAaCounts, axis = 1)):
-		# 		break
-
-		# 	# If the probabilities of being able to synthesize are sufficiently low, exit the loop
-		# 	if np.sum(proteinSynthProb[np.all(self.aas.counts() > self.proteinAaCounts, axis = 1)]) < 1e-3:
-		# 		break
-
-		# 	if np.sum(proteinSynthProb[enzLimit > np.sum(self.proteinAaCounts, axis = 1)]) < 1e-3:
-		# 		break
-
-		# 	newIdxs = np.where(self.randStream.mnrnd(nProteinsToCreate, proteinSynthProb))[0]
-
-		# 	if np.any(self.aas.counts() < np.sum(self.proteinAaCounts[newIdxs, :], axis = 0)):
-		# 		if nProteinsToCreate > 0:
-		# 			nProteinsToCreate //= 2
-		# 			continue
-		# 		else:
-		# 			break
-
-		# 	if enzLimit < np.sum(np.sum(self.proteinAaCounts[newIdxs, :], axis = 0)):
-		# 		if nProteinsToCreate > 0:
-		# 			nProteinsToCreate //= 2
-		# 			continue
-		# 		else:
-		# 			break
-
-		# 	enzLimit -= np.sum(self.proteinAaCounts[newIdxs, :])
-
-		# 	self.aas.countsDec(
-		# 		np.sum(self.proteinAaCounts[newIdxs, :], axis = 0).reshape(aasShape)
-		# 		)
-
-		# 	# TODO: Handle water, etc
-		# 	proteinsCreated[newIdxs] += 1
-
 		from wholecell.utils.simple_polymerize import simplePolymerize
 
 		aaCounts, proteinsCreated = simplePolymerize(
