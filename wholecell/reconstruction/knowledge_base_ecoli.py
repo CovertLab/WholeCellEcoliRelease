@@ -1263,6 +1263,17 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['mw'] = mws
 
 
+		units = {
+		'id'		:	None,
+		'rnaId'		:	None,
+		'length'	:	'amino_acid',
+		'aaCounts'	:	'amino_acid',
+		'mw'		:	'g / mol'
+		}
+
+		self.monomerData = UnitStructArray(self.monomerData, units)
+
+
 	def _buildRnaIndexToMonomerMapping(self):
 		self.rnaIndexToMonomerMapping = numpy.array([numpy.where(x == self.rnaData["id"])[0][0] for x in self.monomerData["rnaId"]])
 
