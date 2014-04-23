@@ -35,7 +35,7 @@ class Test_simplePolymerize(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'process', 'polymerize')
 	def test_flat_distribution(self):
 		# Test behavior for identical monomers and synthesis probabilities
 		nMonomerTypes = 4
@@ -76,7 +76,7 @@ class Test_simplePolymerize(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('mediumtest')
+	@noseAttrib.attr('mediumtest', 'process', 'polymerize')
 	def test_nonflat_distribution(self):
 		# Test behavior for varied synthesis probabilities
 		nMonomerTypes = 4
