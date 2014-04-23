@@ -78,11 +78,11 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Views
 		self.biomassMetabolites = self.bulkMoleculesView(self.wildtypeIds)
-
+		self.ppi = self.bulkMoleculeView("PPI[c]")
 
 
 	def calculateRequest(self):
-		pass
+		self.ppi.requestAll()
 
 
 	# Calculate temporal evolution
@@ -105,6 +105,7 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		self.biomassMetabolites.countsInc(deltaMetabolites)
+		self.ppi.countIs(0)	# Fake that they've been recycled
 
 
 	def calcGrowthRate(self, bounds):
