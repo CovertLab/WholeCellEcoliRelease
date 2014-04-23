@@ -35,15 +35,16 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 			break
 
 		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
-		canPolymerize = ((monomerCounts >= templateMonomerCounts).all(1) &
-			(enzymaticLimitation >= templateLengths))
+		canPolymerize = (
+			(monomerCounts >= templateMonomerCounts).all(1)
+			& (enzymaticLimitation >= templateLengths)
+			& (synthesisProbabilities > 0)
+			)
 
 		if not np.any(canPolymerize):
 			break
 
 		adjustedSynthProb = canPolymerize * synthesisProbabilities
-		if np.sum(adjustedSynthProb) < 1e-5:
-			break
 		adjustedSynthProb /= adjustedSynthProb.sum()
 
 		# Choose numbers of each polymer to synthesize
