@@ -72,7 +72,7 @@ class Test_simplePolymerize(unittest.TestCase):
 		observedSynthProb = totalPolymerCounts / totalPolymerCounts.sum()
 
 		self.assertTrue(
-			(np.abs(observedSynthProb - synthesisProbabilities) < 1e-2).all()
+			np.allclose(observedSynthProb, synthesisProbabilities, atol = 1e-3)
 			)
 
 
@@ -115,12 +115,5 @@ class Test_simplePolymerize(unittest.TestCase):
 		observedSynthProb = totalPolymerCounts / totalPolymerCounts.sum()
 
 		self.assertTrue(
-			(np.abs(observedSynthProb - synthesisProbabilities) < 1e-2).all()
+			np.allclose(observedSynthProb, synthesisProbabilities, atol = 1e-2)
 			)
-
-
-
-
-
-
-		
