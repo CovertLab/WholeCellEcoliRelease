@@ -42,6 +42,8 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 			break
 
 		adjustedSynthProb = canPolymerize * synthesisProbabilities
+		if np.sum(adjustedSynthProb) < 1e-5:
+			break
 		adjustedSynthProb /= adjustedSynthProb.sum()
 
 		# Choose numbers of each polymer to synthesize
