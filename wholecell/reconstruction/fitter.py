@@ -330,20 +330,23 @@ def fitKb(kb):
 		)
 
 	glycogenMassFraction = float(dryComposition60min["glycogenMassFraction"])
-	glycogenMass = kb.avgCellDryMassInit.magnitude * glycogenMassFraction
+	glycogenMass = kb.avgCellDryMassInit * glycogenMassFraction
 
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
-	glycogenPerGDCW = (
-		glycogenMass * kb.cellGlycogenFractionData["massFraction"]
-		) / mws * (
-		1000 / kb.avgCellDryMassInit.magnitude)
-
+	glycogenMmolPerGDCW = (
+			(
+				glycogenMass * kb.cellGlycogenFractionData["massFraction"]
+			) / mws.to('DCW_g/mmol') * (
+				1 / kb.avgCellDryMassInit
+			)
+		).to('mmol/DCW_g')
+	
 	glycogenView.countsIs(
-		glycogenPerGDCW
+		glycogenMmolPerGDCW.magnitude
 		)
 
 	# Murein fraction
@@ -358,15 +361,17 @@ def fitKb(kb):
 	bulkMoleculesIdxs = numpy.array([
 		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellMureinFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
-	mureinPerGDCW = (
-		mureinMass * kb.cellMureinFractionData["massFraction"]
-		) / mws * (
-		1000 / kb.avgCellDryMassInit.magnitude)
+	mureinMmolPerGDCW = (
+			(
+			mureinMass * kb.cellMureinFractionData["massFraction"]
+			) / mws.to('DCW_g/mmol') * (
+			1 / kb.avgCellDryMassInit)
+		).to('mmol/DCW_g')
 
 	mureinView.countsIs(
-		mureinPerGDCW
+		mureinMmolPerGDCW
 		)
 
 	# LPS fraction
