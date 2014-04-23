@@ -42,4 +42,4 @@ class TranscriptionNet(wholecell.processes.process.Process):
 
 		self.nmps.countsInc(counts)
 
-		self.dntps.countsDec(counts)
+		self.ntps.countsDec(counts)

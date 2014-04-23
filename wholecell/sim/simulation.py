@@ -43,6 +43,8 @@ import wholecell.processes.toy_transcription
 import wholecell.processes.toy_protein_degradation
 import wholecell.processes.toy_replication
 import wholecell.processes.replication
+import wholecell.processes.transcription_net
+import wholecell.processes.translation_net
 
 PROCESS_CLASSES = [
 	wholecell.processes.metabolism.Metabolism,
@@ -54,6 +56,8 @@ PROCESS_CLASSES = [
 	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
 	wholecell.processes.toy_replication.ToyReplication,
 	wholecell.processes.replication.Replication,
+	wholecell.processes.transcription_net.TranscriptionNet,
+	wholecell.processes.translation_net.TranslationNet,
 	]
 
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
