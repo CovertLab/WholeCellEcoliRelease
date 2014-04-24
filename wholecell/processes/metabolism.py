@@ -79,6 +79,10 @@ class Metabolism(wholecell.processes.process.Process):
 		# Views
 		self.biomassMetabolites = self.bulkMoleculesView(self.wildtypeIds)
 		self.ppi = self.bulkMoleculeView("PPI[c]")
+		self.ntpsdntps = self.bulkMoleculesView([
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"
+			])
 
 
 	def calculateRequest(self):
@@ -89,23 +93,40 @@ class Metabolism(wholecell.processes.process.Process):
 	def evolveState(self):
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
-		noise = self.randStream.multivariate_normal(
-			np.zeros_like(self.wildtypeBiomassReaction),
-			np.diag(self.wildtypeBiomassReaction / 1000.)
-			)
+		# noise = self.randStream.multivariate_normal(
+		# 	np.zeros_like(self.wildtypeBiomassReaction),
+		# 	np.diag(self.wildtypeBiomassReaction / 1000.)
+		# 	)
 
+		# deltaMetabolites = np.fmax(
+		# 	self.randStream.stochasticRound(
+		# 		np.round((self.wildtypeBiomassReaction + atpm + noise) * 1e-3
+		# 			* self.nAvogadro * self.initialDryMass)
+		# 		* np.exp(np.log(2) / self.cellCycleLen * self.time())
+		# 		* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+		# 		).astype(np.int64),
+		# 	0
+		# 	)
+
+		# No noise in production
 		deltaMetabolites = np.fmax(
 			self.randStream.stochasticRound(
-				np.round((self.wildtypeBiomassReaction + atpm + noise) * 1e-3
-					* self.nAvogadro * self.initialDryMass)
-				* np.exp(np.log(2) / self.cellCycleLen * self.time())
-				* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+				np.round(
+					(self.wildtypeBiomassReaction) * 1e-3 *
+					self.nAvogadro * self.initialDryMass
+					) *
+				np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+				(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 				).astype(np.int64),
 			0
 			)
 
 		self.biomassMetabolites.countsInc(deltaMetabolites)
-		self.ppi.countIs(0)	# Fake that they've been recycled
+
+		# Fake recycling
+		if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
+			raise Exception, "Making fewer (d)NTPs than PPi's available"
+		self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
 
 
 	def calcGrowthRate(self, bounds):
