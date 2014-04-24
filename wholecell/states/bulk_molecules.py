@@ -81,7 +81,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool)
 		try:
-			self._isRequestAbsolute[sim.processes['RnaDegradation']._processIndex] = True
+			self._isRequestAbsolute[sim.processes.keys().index('RnaDegradation')] = True
 
 		except KeyError:
 			pass
