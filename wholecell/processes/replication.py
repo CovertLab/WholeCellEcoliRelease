@@ -59,4 +59,4 @@ class Replication(wholecell.processes.process.Process):
 		self.dntps.countsDec(counts)
 
 		self.h2o.countDec(counts.sum())
-		self.proton.countInc(counts.sum())
+		# self.proton.countInc(counts.sum())
