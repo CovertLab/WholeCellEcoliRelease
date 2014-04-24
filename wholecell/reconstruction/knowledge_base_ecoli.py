@@ -1244,6 +1244,8 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['aaCounts'] = aaCounts
 		self.monomerData['mw'] = mws
 
+		self.aaIDs = AMINO_ACID_1_TO_3_ORDERED.values()
+
 
 	def _buildRnaIndexToMonomerMapping(self):
 		self.rnaIndexToMonomerMapping = numpy.array([numpy.where(x == self.rnaData["id"])[0][0] for x in self.monomerData["rnaId"]])

@@ -43,19 +43,15 @@ class Translation(wholecell.processes.process.Process):
 		proteinIDs = kb.monomerData['id']
 
 		# Metabolites
-		self.n_aas = len(aaIDs)
 
-		oneToThreeMapping = dict((
-			("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
-			("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
-			("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
-			("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
-			("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
-			("V", "VAL-L[c]")
-		)) # TOKB
+		aaIDs = kb.aaIDs[:]
+
+		selenocysteineIndex = aaIDs.index('SEC-L[c]')
+
+		del aaIDs[selenocysteineIndex]
 
 		# mRNA, protein monomers
-		self.proteinAaCounts = kb.monomerData['aaCounts'] # TODO: confirm the AA ordering is consistent w/ that used within the process
+		self.proteinAaCounts = np.delete(kb.monomerData['aaCounts'], selenocysteineIndex, 1)
 		self.proteinLens = kb.monomerData['length']
 		self.avgProteinLength = np.mean(self.proteinLens)
 
@@ -68,9 +64,7 @@ class Translation(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 
-		self.aas = self.bulkMoleculesView(
-			[oneToThreeMapping[x] if x != "U" else "CYS-L[c]" for x in kb._aaWeights.iterkeys()] #
-			)
+		self.aas = self.bulkMoleculesView(aaIDs)
 
 		self.mrnas = self.bulkMoleculesView(mrnaIDs)
 
@@ -80,6 +74,9 @@ class Translation(wholecell.processes.process.Process):
 		self.ribosome23S = self.bulkMoleculesView(rib23S_IDs)
 		self.ribosome16S = self.bulkMoleculesView(rib16S_IDs)
 		self.ribosome5S = self.bulkMoleculesView(rib5S_IDs)
+
+		self.cysteineIndex = kb._aaWeights.keys().index('C')
+		self.selenocysteineIndex = kb._aaWeights.keys().index('U')
 
 
 	def calculateRequest(self):
@@ -124,9 +121,7 @@ class Translation(wholecell.processes.process.Process):
 			self.randStream
 			)
 
-		# NOTE: this is written strangely to properly account for the
-		# substitution of cysteine for selenocysteine
-		self.aas.countsDec(self.aas.counts() - aaCounts)
+		self.aas.countsIs(aaCounts)
 
 		self.proteins.countsInc(proteinsCreated)
 
