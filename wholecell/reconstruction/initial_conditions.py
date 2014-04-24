@@ -21,16 +21,14 @@ def initializeBulk(bulkContainer, kb, randStream):
 	## Set RNA counts from expression
 	initializeRNA(bulkContainer, kb, randStream)
 
-	## Set dNTPs
+	## Set DNA
 	initializeDNA(bulkContainer, kb, randStream)
 
 	## Set other biomass components
 	initializeBulkComponents(bulkContainer, kb, randStream)
 
-	## Set PPi return
-	initializePPiReturn(bulkContainer, kb, randStream)
-
-	## Set pools of NTPs and AAs
+	## Set pools
+	initializePools(bulkContainer, kb, randStream)
 
 	## Set water
 	initializeBulkWater(kb, bulkContainer, randStream)
@@ -150,8 +148,10 @@ def initializeBulkComponents(bulkContainer, kb, randStream):
 		))
 
 
-def initializePPiReturn(bulkContainer, kb, randStream):
-	# Note: This is adding biomass (on the order of 5e-18 grams)
+def initializePools(bulkContainer, kb, randStream):
+	# Note: This is adding dry biomass, so the cell will appear heavier
+
+	from wholecell.reconstruction.knowledge_base_ecoli import AMINO_ACID_1_TO_3_ORDERED
 
 	biomassContainer = BulkObjectsContainer(
 		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
@@ -160,28 +160,70 @@ def initializePPiReturn(bulkContainer, kb, randStream):
 		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
 		)
 
-	ntpsBiomassView = biomassContainer.countsView([
-		"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"
-		])
-	dntpsBiomassView = biomassContainer.countsView([
-		"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"
-		])
+	ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
+	dntpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+	aaIds = [x for x in AMINO_ACID_1_TO_3_ORDERED.values() if x != "SEC-L[c]"]
+
+	ntpsBiomassView = biomassContainer.countsView(ntpIds)
+	dntpsBiomassView = biomassContainer.countsView(dntpIds)
+	aasBiomassView = biomassContainer.countsView(aaIds)
 
 	ppiBulkView = bulkContainer.countView("PPI[c]")
+	ntpsBulkView = bulkContainer.countsView(ntpIds)
+	dntpsBulkView = bulkContainer.countsView(dntpIds)
+	aasBulkView = bulkContainer.countsView(aaIds)
 
 	dt = kb.timeStep.to("second").magnitude
 	tau_d = kb.cellCycleLen.to("second").magnitude
 
-	ppiFromNtps = np.round(np.sum(
-		ntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
+	## NTPs
+	ntpsFromLastStep = (
+		ntpsBiomassView.counts() *
+		(1 - np.exp(-np.log(2) / tau_d * dt)) *
 		kb.nAvogadro.to("1 / millimole").magnitude *
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		))
+		)
+	ntpsBulkView.countsIs(ntpsFromLastStep)
 
-	ppiFromDntps = np.round(np.sum(
+	## dNTPs
+	dntpsFromLastStep = (
 		dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
 		kb.nAvogadro.to("1 / millimole").magnitude *
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude
+		)
+	dntpsBulkView.countsIs(dntpsFromLastStep)
+
+	## Amino Acids
+	aasFromLastStep = (
+		aasBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
+		kb.nAvogadro.to("1 / millimole").magnitude *
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude
+		)
+	aasBulkView.countsIs(aasFromLastStep)
+
+	## PPI
+	# Assumption:
+	# NTPs and dNTPs from two steps ago got completely used up in the last step
+	ntpsFromTwoStepsAgo = (
+		ntpsBiomassView.counts() *
+		(np.exp(-np.log(2) / tau_d * dt) - np.exp(-np.log(2) / tau_d * 2 * dt)) *
+		kb.nAvogadro.to("1 / millimole").magnitude *
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude
+		)
+
+	dntpsFromTwoStepsAgo = (
+		dntpsBiomassView.counts() *
+		(np.exp(-np.log(2) / tau_d * dt) - np.exp(-np.log(2) / tau_d * 2 * dt)) *
+		kb.nAvogadro.to("1 / millimole").magnitude *
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude
+		)
+
+	ppiFromNtps = np.round(np.sum(
+		ntpsFromLastStep
+		))
+
+	ppiFromDntps = np.round(np.sum(
+		dntpsFromLastStep
 		))
 
 	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
