@@ -13,79 +13,69 @@ and translation submodels.
 
 from __future__ import division
 
-USE_CYTHON_VERSION = False
+import numpy as np
 
-if USE_CYTHON_VERSION:
-	import pyximport
-	pyximport.install()
+POLYMER_CREATION_FALLOFF_RATE = 0.9
 
-	from simple_polymerize_cy import simplePolymerize
+def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
+	monomerCounts, synthesisProbabilities, randStream):
 
-else:
-	import numpy as np
+	assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
 
-	POLYMER_CREATION_FALLOFF_RATE = 0.9
+	templateLengths = templateMonomerCounts.sum(axis = 1)
 
-	# @profile
-	def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
-			monomerCounts, synthesisProbabilities, randStream):
+	avgTemplateLength = templateLengths.mean()
 
-		assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
+	nPolymersToCreate = int(
+		min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
+		)
 
-		templateLengths = templateMonomerCounts.sum(axis = 1)
+	polymersCreated = np.zeros_like(templateLengths)
 
-		avgTemplateLength = templateLengths.mean()
+	while True:
+		if nPolymersToCreate <= 0:
+			break
 
-		nPolymersToCreate = int(
-			min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
+		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
+		canPolymerize = (
+			(monomerCounts >= templateMonomerCounts).all(axis = 1)
+			& (enzymaticLimitation >= templateLengths)
+			& (synthesisProbabilities > 0)
 			)
-		
-		polymersCreated = np.zeros_like(templateLengths)
 
-		while True:
-			if nPolymersToCreate <= 0:
-				break
+		if not np.any(canPolymerize):
+			break
 
-			# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
-			canPolymerize = (
-				(monomerCounts >= templateMonomerCounts).all(axis = 1)
-				& (enzymaticLimitation >= templateLengths)
-				& (synthesisProbabilities > 0)
-				)
+		adjustedSynthProb = canPolymerize * synthesisProbabilities
+		adjustedSynthProb /= adjustedSynthProb.sum()
 
-			if not np.any(canPolymerize):
-				break
+		# Choose numbers of each polymer to synthesize
+		nNewPolymers = randStream.mnrnd(nPolymersToCreate, adjustedSynthProb)
 
-			adjustedSynthProb = canPolymerize * synthesisProbabilities
-			adjustedSynthProb /= adjustedSynthProb.sum()
+		# TODO: determine why this assertion fails on Hudson
+		# assert nNewPolymers.sum() == nPolymersToCreate
 
-			# Choose numbers of each polymer to synthesize
-			nNewPolymers = randStream.mnrnd(nPolymersToCreate, adjustedSynthProb)
+		idxs = nNewPolymers > 0
+		monomersUsed = np.dot(nNewPolymers[idxs], templateMonomerCounts[idxs, :])
 
-			# TODO: determine why this assertion fails on Hudson
-			# assert nNewPolymers.sum() == nPolymersToCreate
+		enzymaticCapacityUsed = monomersUsed.sum()
 
-			idxs = nNewPolymers > 0
-			monomersUsed = np.dot(nNewPolymers[idxs], templateMonomerCounts[idxs, :])
+		# Reduce number of polymers to create if not enough monomers
+		if (monomerCounts < monomersUsed).any():
+			nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
+			continue
 
-			enzymaticCapacityUsed = monomersUsed.sum()
+		# Reduce number of polymers to create if not enough enzymatic capacity
+		if enzymaticLimitation < enzymaticCapacityUsed:
+			nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
+			continue
 
-			# Reduce number of polymers to create if not enough monomers
-			if (monomerCounts < monomersUsed).any():
-				nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
-				continue
+		# Use resources and create the polymers
 
-			# Reduce number of polymers to create if not enough enzymatic capacity
-			if enzymaticLimitation < enzymaticCapacityUsed:
-				nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
-				continue
+		enzymaticLimitation -= enzymaticCapacityUsed
 
-			# Use resources and create the polymers
+		monomerCounts -= monomersUsed
 
-			enzymaticLimitation -= enzymaticCapacityUsed
+		polymersCreated += nNewPolymers
 
-			monomerCounts -= monomersUsed
-
-			polymersCreated += nNewPolymers
-
-		return monomerCounts, polymersCreated
+	return monomerCounts, polymersCreated
