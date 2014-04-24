@@ -15,10 +15,10 @@ from __future__ import division
 
 import numpy as np
 
-POLYMER_CREATION_FALLOFF_RATE = 0.9
+POLYMER_CREATION_FALLOFF_RATE = 0.5
 
 def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
-	monomerCounts, synthesisProbabilities, randStream):
+		monomerCounts, synthesisProbabilities, randStream):
 
 	assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
 
@@ -27,21 +27,34 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 	avgTemplateLength = templateLengths.mean()
 
 	nPolymersToCreate = int(
-		min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
+		0.5 * min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
 		)
 
 	polymersCreated = np.zeros_like(templateLengths)
+
+	nNewPolymers = np.zeros_like(polymersCreated)
+
+	canPolymerize = (synthesisProbabilities > 0)
+
+	maxTemplateMonomerCounts = np.max(templateMonomerCounts, axis = 0)
+	maxTemplateLength = np.max(templateLengths)
 
 	while True:
 		if nPolymersToCreate <= 0:
 			break
 
 		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
-		canPolymerize = (
-			(monomerCounts >= templateMonomerCounts).all(axis = 1)
-			& (enzymaticLimitation >= templateLengths)
-			& (synthesisProbabilities > 0)
+		enoughMonomers = (
+			True if (monomerCounts >= maxTemplateMonomerCounts).all() else
+			(monomerCounts >= templateMonomerCounts[canPolymerize, :]).all(axis = 1)
 			)
+
+		enoughEnzymaticCapacity = (
+			True if (enzymaticLimitation >= maxTemplateLength) else
+			(enzymaticLimitation >= templateLengths[canPolymerize])
+			)
+
+		canPolymerize[canPolymerize] = enoughMonomers & enoughEnzymaticCapacity
 
 		if not np.any(canPolymerize):
 			break
@@ -50,13 +63,20 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		adjustedSynthProb /= adjustedSynthProb.sum()
 
 		# Choose numbers of each polymer to synthesize
-		nNewPolymers = randStream.mnrnd(nPolymersToCreate, adjustedSynthProb)
+		nNewPolymers[:] = 0
+		nNewPolymers[canPolymerize] = randStream.mnrnd(
+			nPolymersToCreate,
+			adjustedSynthProb[canPolymerize]
+			)
 
 		# TODO: determine why this assertion fails on Hudson
 		# assert nNewPolymers.sum() == nPolymersToCreate
 
-		idxs = nNewPolymers > 0
-		monomersUsed = np.dot(nNewPolymers[idxs], templateMonomerCounts[idxs, :])
+		nonzeroNewPolymers = (nNewPolymers > 0)
+		monomersUsed = np.dot(
+			nNewPolymers[nonzeroNewPolymers],
+			templateMonomerCounts[nonzeroNewPolymers, :]
+			)
 
 		enzymaticCapacityUsed = monomersUsed.sum()
 
@@ -77,5 +97,7 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		monomerCounts -= monomersUsed
 
 		polymersCreated += nNewPolymers
+
+		nPolymersToCreate = int(nPolymersToCreate / POLYMER_CREATION_FALLOFF_RATE)
 
 	return monomerCounts, polymersCreated
