@@ -128,6 +128,10 @@ class Translation(wholecell.processes.process.Process):
 
 		self.proteins.countsInc(proteinsCreated)
 
+		self.h2o.countInc(
+			np.dot((self.proteinLens - 1), proteinsCreated)
+			)
+
 
 metIDs = ["ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]",
 	"GLU-L[c]", "GLN-L[c]", "GLY[c]", "HIS-L[c]", "ILE-L[c]",  "LEU-L[c]",
