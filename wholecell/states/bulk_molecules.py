@@ -64,6 +64,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
 							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
 							'rrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							'trnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isTRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							'mrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isMRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
 							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
 							'water'		:	kb.bulkMolecules['isWater']}
 
