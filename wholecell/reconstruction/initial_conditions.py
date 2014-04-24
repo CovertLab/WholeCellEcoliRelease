@@ -30,6 +30,8 @@ def initializeBulk(bulkContainer, kb, randStream):
 	## Set PPi return
 	initializePPiReturn(bulkContainer, kb, randStream)
 
+	## Set pools of NTPs and AAs
+
 	## Set water
 	initializeBulkWater(kb, bulkContainer, randStream)
 
@@ -171,11 +173,15 @@ def initializePPiReturn(bulkContainer, kb, randStream):
 	tau_d = kb.cellCycleLen.to("second").magnitude
 
 	ppiFromNtps = np.round(np.sum(
-		ntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt))
+		ntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
+		kb.nAvogadro.to("1 / millimole").magnitude *
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude
 		))
 
 	ppiFromDntps = np.round(np.sum(
-		dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt))
+		dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
+		kb.nAvogadro.to("1 / millimole").magnitude *
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude
 		))
 
 	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
