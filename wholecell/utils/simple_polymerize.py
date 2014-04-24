@@ -11,68 +11,81 @@ and translation submodels.
 @date: Created 4/22/2014
 """
 
-import numpy as np
+from __future__ import division
 
-POLYMER_CREATION_FALLOFF_RATE = 0.9
+USE_CYTHON_VERSION = False
 
-def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
-		monomerCounts, synthesisProbabilities, randStream):
+if USE_CYTHON_VERSION:
+	import pyximport
+	pyximport.install()
 
-	assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
+	from simple_polymerize_cy import simplePolymerize
 
-	templateLengths = templateMonomerCounts.sum(1)
+else:
+	import numpy as np
 
-	avgTemplateLength = templateLengths.mean()
+	POLYMER_CREATION_FALLOFF_RATE = 0.9
 
-	nPolymersToCreate = int(
-		min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
-		)
-	
-	polymersCreated = np.zeros_like(templateLengths)
+	# @profile
+	def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
+			monomerCounts, synthesisProbabilities, randStream):
 
-	while True:
-		if nPolymersToCreate <= 0:
-			break
+		assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
 
-		# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
-		canPolymerize = (
-			(monomerCounts >= templateMonomerCounts).all(1)
-			& (enzymaticLimitation >= templateLengths)
-			& (synthesisProbabilities > 0)
+		templateLengths = templateMonomerCounts.sum(axis = 1)
+
+		avgTemplateLength = templateLengths.mean()
+
+		nPolymersToCreate = int(
+			min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
 			)
+		
+		polymersCreated = np.zeros_like(templateLengths)
 
-		if not np.any(canPolymerize):
-			break
+		while True:
+			if nPolymersToCreate <= 0:
+				break
 
-		adjustedSynthProb = canPolymerize * synthesisProbabilities
-		adjustedSynthProb /= adjustedSynthProb.sum()
+			# Can only polymerize if 1) there are enough monomers and 2) there is enough enzymatic capacity
+			canPolymerize = (
+				(monomerCounts >= templateMonomerCounts).all(axis = 1)
+				& (enzymaticLimitation >= templateLengths)
+				& (synthesisProbabilities > 0)
+				)
 
-		# Choose numbers of each polymer to synthesize
-		nNewPolymers = randStream.mnrnd(nPolymersToCreate, adjustedSynthProb)
+			if not np.any(canPolymerize):
+				break
 
-		# TODO: determine why this assertion fails on Hudson
-		# assert nNewPolymers.sum() == nPolymersToCreate
+			adjustedSynthProb = canPolymerize * synthesisProbabilities
+			adjustedSynthProb /= adjustedSynthProb.sum()
 
-		monomersUsed = np.dot(nNewPolymers, templateMonomerCounts)
+			# Choose numbers of each polymer to synthesize
+			nNewPolymers = randStream.mnrnd(nPolymersToCreate, adjustedSynthProb)
 
-		enzymaticCapacityUsed = np.dot(nNewPolymers, templateLengths).sum()
+			# TODO: determine why this assertion fails on Hudson
+			# assert nNewPolymers.sum() == nPolymersToCreate
 
-		# Reduce number of polymers to create if not enough monomers
-		if (monomerCounts < monomersUsed).any():
-			nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
-			continue
+			idxs = nNewPolymers > 0
+			monomersUsed = np.dot(nNewPolymers[idxs], templateMonomerCounts[idxs, :])
 
-		# Reduce number of polymers to create if not enough enzymatic capacity
-		if enzymaticLimitation < enzymaticCapacityUsed:
-			nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
-			continue
+			enzymaticCapacityUsed = monomersUsed.sum()
 
-		# Use resources and create the polymers
+			# Reduce number of polymers to create if not enough monomers
+			if (monomerCounts < monomersUsed).any():
+				nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
+				continue
 
-		enzymaticLimitation -= enzymaticCapacityUsed
+			# Reduce number of polymers to create if not enough enzymatic capacity
+			if enzymaticLimitation < enzymaticCapacityUsed:
+				nPolymersToCreate = max(int(nPolymersToCreate * POLYMER_CREATION_FALLOFF_RATE), 1)
+				continue
 
-		monomerCounts -= monomersUsed
+			# Use resources and create the polymers
 
-		polymersCreated += nNewPolymers
+			enzymaticLimitation -= enzymaticCapacityUsed
 
-	return monomerCounts, polymersCreated
+			monomerCounts -= monomersUsed
+
+			polymersCreated += nNewPolymers
+
+		return monomerCounts, polymersCreated

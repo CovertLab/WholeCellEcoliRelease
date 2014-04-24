@@ -16,6 +16,8 @@ import numpy as np
 
 import wholecell.processes.process
 
+from wholecell.utils.simple_polymerize import simplePolymerize
+
 class Translation(wholecell.processes.process.Process):
 	""" Translation """
 
@@ -67,7 +69,7 @@ class Translation(wholecell.processes.process.Process):
 		self.proton = self.bulkMoleculeView('H[c]')
 
 		self.aas = self.bulkMoleculesView(
-			[oneToThreeMapping[x] if x != "U" else "H2O[c]" for x in kb._aaWeights.iterkeys()] #
+			[oneToThreeMapping[x] if x != "U" else "CYS-L[c]" for x in kb._aaWeights.iterkeys()] #
 			)
 
 		self.mrnas = self.bulkMoleculesView(mrnaIDs)
@@ -114,8 +116,6 @@ class Translation(wholecell.processes.process.Process):
 
 		enzLimit = ribs * self.elngRate * self.timeStepSec * 1e6
 
-		from wholecell.utils.simple_polymerize import simplePolymerize
-
 		aaCounts, proteinsCreated = simplePolymerize(
 			self.proteinAaCounts,
 			enzLimit,
@@ -124,7 +124,9 @@ class Translation(wholecell.processes.process.Process):
 			self.randStream
 			)
 
-		self.aas.countsIs(aaCounts)
+		# NOTE: this is written strangely to properly account for the
+		# substitution of cysteine for selenocysteine
+		self.aas.countsDec(self.aas.counts() - aaCounts)
 
 		self.proteins.countsInc(proteinsCreated)
 
