@@ -83,7 +83,7 @@ class BulkMolecules(wholecell.states.state.State):
 		try:
 			self._isRequestAbsolute[sim.processes.keys().index('RnaDegradation')] = True
 
-		except KeyError:
+		except ValueError:
 			pass
 
 	def allocate(self):
