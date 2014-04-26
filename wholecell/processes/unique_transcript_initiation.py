@@ -80,4 +80,6 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 				requiredAUCG = ntCounts
 				)
 
-		self.rnapSubunits.countsIs(0)
+		self.rnapSubunits.countsDec(
+			nNewRnas.sum() * np.array([2, 1, 1, 1])
+			)

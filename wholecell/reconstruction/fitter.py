@@ -191,7 +191,7 @@ def fitKb(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = numpy.sum(kb.rnaData['countsAUCG'], axis = 1)
 	nRnapsNeeded = numpy.sum(
-		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+		(
 			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
 			) * rnaView.counts()
 		)
@@ -248,7 +248,7 @@ def fitKb(kb):
 	## Synthesis probabilities ##
 
 	synthProb = normalize(
-		rnaLengths / kb.rnaPolymeraseElongationRate.magnitude * (
+		(
 			numpy.log(2) / kb.cellCycleLen.magnitude + kb.rnaData["degRate"]
 			) * rnaView.counts()
 		)

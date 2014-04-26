@@ -83,9 +83,12 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		
 		# TODO: vectorize this operation (requires some new unique object accesors)
 
-		newRnas = np.zeros_like(self.bulkRnas.counts())
+		terminatedRnas = np.zeros_like(self.bulkRnas.counts())
 
 		freeRnapSubunits = np.zeros_like(self.rnapSubunits.counts())
+
+		nInitialized = 0
+		nElongations = 0
 
 		for activeRnaPoly in activeRnaPolys:
 			assignedAUCG, requiredAUCG = activeRnaPoly.attrs(
@@ -93,7 +96,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 			ntDeficit = (requiredAUCG - assignedAUCG).astype(np.float) # for division
 
-			ntAssignment = np.fmin(
+			extendedAUCG = np.fmin(
 				ntDeficit,
 				np.fmin(
 					ntDeficit / ntDeficit.sum() * self.elngRate,
@@ -101,25 +104,36 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 					)
 				).astype(np.int)
 
-			ntpCounts -= ntAssignment
+			ntpCounts -= extendedAUCG
 
-			newAUCG = assignedAUCG + ntAssignment
+			updatedAUCG = assignedAUCG + extendedAUCG
 
 			activeRnaPoly.attrIs(
-				assignedAUCG = newAUCG
+				assignedAUCG = updatedAUCG
 				)
 
 			# TODO: update mass
 
-			if (newAUCG == requiredAUCG).all():
-				newRnas[activeRnaPoly.attr('rnaIndex')] += 1
+			if assignedAUCG.sum() <= 1 and updatedAUCG.sum() > 1:
+				nInitialized += 1
+
+			nElongations += extendedAUCG.sum()
+
+			if (updatedAUCG == requiredAUCG).all():
+				terminatedRnas[activeRnaPoly.attr('rnaIndex')] += 1
 
 				self.activeRnaPolys.moleculeDel(activeRnaPoly)
 
 				freeRnapSubunits += [2, 1, 1, 1] # complex stoich
 
+
 		self.ntps.countsIs(ntpCounts)
 
-		self.bulkRnas.countsInc(newRnas)
+		self.bulkRnas.countsInc(terminatedRnas)
 
 		self.rnapSubunits.countsInc(freeRnapSubunits)
+
+		self.h2o.countDec(nInitialized)
+		self.proton.countInc(nInitialized)
+
+		self.ppi.countInc(nElongations)
