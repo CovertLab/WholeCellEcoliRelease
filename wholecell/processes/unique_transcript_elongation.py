@@ -138,8 +138,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			)
 
 		self.h2o.countDec(nInitialized)
-		# self.proton.countInc(nInitialized)
+		self.proton.countInc(nInitialized)
 
-		# self.ppi.countInc(nElongations)
-
-		print nInitialized, nElongations, terminatedRnas.sum()
+		self.ppi.countInc(nElongations)
