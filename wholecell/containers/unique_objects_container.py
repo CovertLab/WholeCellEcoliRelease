@@ -348,7 +348,12 @@ class _UniqueObject(object):
 		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
-		return entry[attribute]
+		if isinstance(entry[attribute], np.ndarray):
+			# Prevent making a view instead of a copy
+			return entry[attribute].copy()
+
+		else:
+			return entry[attribute]
 
 
 	def attrs(self, *attributes):
@@ -356,8 +361,12 @@ class _UniqueObject(object):
 		
 		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
-
-		return tuple(entry[attribute] for attribute in attributes)
+		
+		# See note in .attr
+		return tuple(
+			entry[attribute].copy() if isinstance(entry[attribute], np.ndarray) else entry[attribute]
+			for attribute in attributes
+			)
 
 
 	def attrIs(self, **attributes):

@@ -114,26 +114,31 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 			# TODO: update mass
 
-			if assignedAUCG.sum() <= 1 and updatedAUCG.sum() > 1:
-				nInitialized += 1
+			if updatedAUCG.sum() > 1:
+				nElongations += extendedAUCG.sum() - 1
 
-			nElongations += extendedAUCG.sum()
+				if assignedAUCG.sum() <= 1:
+					nInitialized += 1
 
 			if (updatedAUCG == requiredAUCG).all():
 				terminatedRnas[activeRnaPoly.attr('rnaIndex')] += 1
 
 				self.activeRnaPolys.moleculeDel(activeRnaPoly)
 
-				freeRnapSubunits += [2, 1, 1, 1] # complex stoich
-
 
 		self.ntps.countsIs(ntpCounts)
 
 		self.bulkRnas.countsInc(terminatedRnas)
 
-		self.rnapSubunits.countsInc(freeRnapSubunits)
+		self.rnapSubunits.countsInc(
+			terminatedRnas.sum() * np.array([2, 1, 1, 1]) # complex subunit stoich
+			)
 
 		self.h2o.countDec(nInitialized)
 		self.proton.countInc(nInitialized)
 
 		self.ppi.countInc(nElongations)
+
+		print nInitialized, nElongations, terminatedRnas.sum()
+
+		print ntpCounts
