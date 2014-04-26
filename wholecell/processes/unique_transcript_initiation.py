@@ -69,10 +69,11 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		nonzeroCount = (nNewRnas > 0)
 
-		for rnaIndex, (nNew, ntCounts) in enumerate(itertools.izip(
+		for rnaIndex, nNew, ntCounts in itertools.izip(
+				np.arange(nNewRnas.size)[nonzeroCount],
 				nNewRnas[nonzeroCount],
 				self.rnaNtCounts[nonzeroCount]
-				)):
+				):
 
 			self.activeRnaPolys.moleculesNew(
 				'activeRnaPoly', nNew,

@@ -73,7 +73,8 @@ class UniqueMolecules(wholecell.states.state.State):
 
 			requestProcessArray[viewIndex, view._processIndex] = True
 
-		if not objectRequestsArray.any():
+		# TODO: move this logic to the _partition function
+		if requestNumberVector.sum() == 0:
 			return
 
 		partitionedMolecules = _partition(objectRequestsArray,

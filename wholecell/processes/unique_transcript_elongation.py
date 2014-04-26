@@ -61,7 +61,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.ntps.requestAll()
 
-		self.h2o.requestIs(4 * self.ntps.total().min())
+		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
 
 
 	# Calculate temporal evolution
@@ -91,6 +91,9 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		nElongations = 0
 
 		for activeRnaPoly in activeRnaPolys:
+			if ntpCounts.sum() == 0:
+				break
+
 			assignedAUCG, requiredAUCG = activeRnaPoly.attrs(
 				'assignedAUCG',	'requiredAUCG')
 
@@ -99,7 +102,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			extendedAUCG = np.fmin(
 				ntDeficit,
 				np.fmin(
-					ntDeficit / ntDeficit.sum() * self.elngRate,
+					ntDeficit / ntDeficit.sum() * self.elngRate * self.timeStepSec,
 					ntpCounts
 					)
 				).astype(np.int)
@@ -114,11 +117,11 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 			# TODO: update mass
 
-			if updatedAUCG.sum() > 1:
-				nElongations += extendedAUCG.sum() - 1
+			# TODO: check this elongation reaction stoich
+			nElongations += extendedAUCG.sum()
 
-				if assignedAUCG.sum() <= 1:
-					nInitialized += 1
+			if assignedAUCG.sum() == 0 and updatedAUCG.sum() > 0:
+				nInitialized += 1
 
 			if (updatedAUCG == requiredAUCG).all():
 				terminatedRnas[activeRnaPoly.attr('rnaIndex')] += 1
@@ -135,10 +138,8 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			)
 
 		self.h2o.countDec(nInitialized)
-		self.proton.countInc(nInitialized)
+		# self.proton.countInc(nInitialized)
 
-		self.ppi.countInc(nElongations)
+		# self.ppi.countInc(nElongations)
 
 		print nInitialized, nElongations, terminatedRnas.sum()
-
-		print ntpCounts
