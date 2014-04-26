@@ -39,46 +39,45 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		# TODO: evaluate the roles of enzymes in initiation
+		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
-		# enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
-
-		self.rnaIds = kb.rnaData['id']
 		self.rnaNtCounts = kb.rnaData['countsAUCG']
 		self.rnaSynthProb = kb.rnaData['synthProb']
 
-		self.initiationRate = 100 # TODO: move parameter to KB and fit!
-
 		# Views
 
-		self.rnas = self.uniqueMoleculesView('rnaTranscript')
+		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 
-		# self.rnapSubunits = self.bulkMoleculesView(enzIds)
+		self.rnapSubunits = self.bulkMoleculesView(enzIds)
 
 
 	def calculateRequest(self):
-		# No request, since we're only creating 'empty' transcripts
-		pass
+		self.rnapSubunits.requestAll()
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Sample a multinomial distribution of synthesis probabilities to 
-		# determine what molecules are initializaed
+		# determine what molecules are initialized
 
-		nNewRnas = self.randStream.mnrnd(self.initiationRate,
+		inactiveRnaPolys = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
+
+		nNewRnas = self.randStream.mnrnd(inactiveRnaPolys,
 			self.rnaSynthProb)
+
+		# Create the active RNA polymerases
 
 		nonzeroCount = (nNewRnas > 0)
 
-		for nNew, rnaId, ntCounts in itertools.izip(
+		for rnaIndex, (nNew, ntCounts) in enumerate(itertools.izip(
 				nNewRnas[nonzeroCount],
-				self.rnaIds[nonzeroCount],
 				self.rnaNtCounts[nonzeroCount]
-				):
+				)):
 
-			self.rnas.moleculesNew(
-				'rnaTranscript', nNew,
-				rnaId = rnaId,
+			self.activeRnaPolys.moleculesNew(
+				'activeRnaPoly', nNew,
+				rnaIndex = rnaIndex,
 				requiredAUCG = ntCounts
 				)
+
+		self.rnapSubunits.countsIs(0)

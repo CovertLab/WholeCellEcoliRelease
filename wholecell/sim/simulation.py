@@ -46,6 +46,7 @@ import wholecell.processes.replication
 import wholecell.processes.transcription_net
 import wholecell.processes.translation_net
 import wholecell.processes.unique_transcript_initiation
+import wholecell.processes.unique_transcript_elongation
 
 PROCESS_CLASSES = [
 	wholecell.processes.metabolism.Metabolism,
@@ -59,7 +60,8 @@ PROCESS_CLASSES = [
 	wholecell.processes.replication.Replication,
 	wholecell.processes.transcription_net.TranscriptionNet,
 	wholecell.processes.translation_net.TranslationNet,
-	wholecell.processes.unique_transcript_initiation.UniqueTranscriptInitiation
+	wholecell.processes.unique_transcript_initiation.UniqueTranscriptInitiation,
+	wholecell.processes.unique_transcript_elongation.UniqueTranscriptElongation
 	]
 
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
@@ -75,7 +77,7 @@ DEFAULT_PROCESSES = [
 	'Metabolism',
 	'RnaDegradation',
 	'UniqueTranscriptInitiation',
-	#'UniqueTranscriptElongation',
+	'UniqueTranscriptElongation',
 	'Translation',
 	'Replication'
 	]

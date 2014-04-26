@@ -66,15 +66,15 @@ class UniqueMolecules(wholecell.states.state.State):
 		requestNumberVector = np.zeros(nViews, np.int64)
 		requestProcessArray = np.zeros((nViews, self._nProcesses), np.bool)
 
-		if not objectRequestsArray.any():
-			return
-
 		for viewIndex, view in enumerate(self._views):
 			objectRequestsArray[view._queryResult._globalIndexes, viewIndex] = True
 
 			requestNumberVector[viewIndex] = view._request()
 
 			requestProcessArray[viewIndex, view._processIndex] = True
+
+		if not objectRequestsArray.any():
+			return
 
 		partitionedMolecules = _partition(objectRequestsArray,
 			requestNumberVector, requestProcessArray, self.randStream)

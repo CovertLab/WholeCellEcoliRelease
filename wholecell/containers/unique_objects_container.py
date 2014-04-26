@@ -367,7 +367,14 @@ class _UniqueObject(object):
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		for attribute, value in attributes.viewitems():
-			entry[attribute] = value
+			if isinstance(entry[attribute], np.ndarray):
+				# Fix for the circumstance that the attribute is an ndarray - 
+				# without the [:] assignment, only the first value will be 
+				# assigned (probably a NumPy bug)
+				entry[attribute][:] = value
+
+			else:
+				entry[attribute] = value
 
 
 	def __hash__(self):

@@ -986,8 +986,8 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildUniqueMolecules(self):
 		self.uniqueMoleculeDefinitions = {
-			'rnaTranscript':{
-				'rnaId':'a50',
+			'activeRnaPoly':{
+				'rnaIndex':'i8',
 				'requiredAUCG':'4i8',
 				'assignedAUCG':'4i8',
 				}
