@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 """
-Transcription
+BulkTranscription
 
-Transcription sub-model. Encodes molecular simulation of macromolecular bacterial transcription
+Transcription sub-model, designed to use "bulk" counts of transcripts. Encodes
+molecular simulation of macromolecular bacterial transcription.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -18,10 +19,10 @@ import wholecell.processes.process
 
 from wholecell.utils.simple_polymerize import simplePolymerize
 
-class Transcription(wholecell.processes.process.Process):
-	""" Transcription """
+class BulkTranscription(wholecell.processes.process.Process):
+	""" BulkTranscription """
 
-	_name = "Transcription"
+	_name = "BulkTranscription"
 
 	# Constructor
 	def __init__(self):
@@ -37,11 +38,11 @@ class Transcription(wholecell.processes.process.Process):
 		self.rnaNtCounts = None				# RNA nucleotide counts [nt x RNA] <-- TODO: Check this
 		self.rnaSynthProb = None			# Relative RNA synthesis rates
 
-		super(Transcription, self).__init__()
+		super(BulkTranscription, self).__init__()
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(Transcription, self).initialize(sim, kb)
+		super(BulkTranscription, self).initialize(sim, kb)
 
 		# Load parameters
 		self.cellCycleLength = kb.cellCycleLen.to('s').magnitude

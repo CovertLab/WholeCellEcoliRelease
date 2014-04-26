@@ -36,7 +36,7 @@ STATE_CLASSES = [
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
 import wholecell.processes.rna_degradation
-import wholecell.processes.transcription
+import wholecell.processes.bulk_transcription
 import wholecell.processes.translation
 import wholecell.processes.free_production
 import wholecell.processes.toy_transcription
@@ -49,7 +49,7 @@ import wholecell.processes.translation_net
 PROCESS_CLASSES = [
 	wholecell.processes.metabolism.Metabolism,
 	wholecell.processes.rna_degradation.RnaDegradation,
-	wholecell.processes.transcription.Transcription,
+	wholecell.processes.bulk_transcription.BulkTranscription,
 	wholecell.processes.translation.Translation,
 	wholecell.processes.free_production.FreeProduction,
 	wholecell.processes.toy_transcription.ToyTranscription,
@@ -71,7 +71,7 @@ DEFAULT_STATES = [
 DEFAULT_PROCESSES = [
 	'Metabolism',
 	'RnaDegradation',
-	'Transcription',
+	'BulkTranscription',
 	'Translation',
 	'Replication'
 	]
