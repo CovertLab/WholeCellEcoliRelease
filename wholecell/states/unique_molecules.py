@@ -48,7 +48,7 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
-		self.container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
+		self.container = UniqueObjectsContainer(kb.uniqueMoleculeDefinitions)
 
 
 	def partition(self):
@@ -65,6 +65,9 @@ class UniqueMolecules(wholecell.states.state.State):
 		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)
 		requestNumberVector = np.zeros(nViews, np.int64)
 		requestProcessArray = np.zeros((nViews, self._nProcesses), np.bool)
+
+		if not objectRequestsArray.any():
+			return
 
 		for viewIndex, view in enumerate(self._views):
 			objectRequestsArray[view._queryResult._globalIndexes, viewIndex] = True

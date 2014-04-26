@@ -61,7 +61,8 @@ class Process(object):
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
-		return wholecell.views.view.UniqueMoleculesView(
+		import wholecell.states.unique_molecules
+		return wholecell.states.unique_molecules.UniqueMoleculesView(
 			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
 

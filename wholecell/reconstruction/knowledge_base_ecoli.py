@@ -97,6 +97,7 @@ class KnowledgeBaseEcoli(object):
 		# Create data structures for simulation
 		self._buildCompartments()
 		self._buildBulkMolecules()
+		self._buildUniqueMolecules()
 		self._buildBiomass()
 		self._buildRnaData()
 		self._buildMonomerData()
@@ -982,6 +983,17 @@ class KnowledgeBaseEcoli(object):
 			'isComplex'			:	None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
+
+	def _buildUniqueMolecules(self):
+		self.uniqueMoleculeDefinitions = {
+			'rnaTranscript':{
+				'rnaId':'a50',
+				'requiredAUCG':'4i8',
+				'assignedAUCG':'4i8',
+				}
+			}
+
+
 	def _buildRnaExpression(self):
 		normalizedRnaExpression = numpy.zeros(sum(1 for x in self._rnas if x['unmodifiedForm'] == None),
 			dtype = [('rnaId',		'a50'),
@@ -1022,6 +1034,7 @@ class KnowledgeBaseEcoli(object):
 			'isRRna16S'	:	None,
 			'isRRna5S'	:	None
 			})
+
 
 	def _buildBiomass(self):
 		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
