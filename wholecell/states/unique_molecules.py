@@ -124,7 +124,37 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def massByType(self, typeKey):
-		return 0
+		# TODO: rework this so it's a faster operation (a dot product)
+
+		if typeKey in ['rrnas', 'water']:
+			return 0
+
+		submassKey = {
+			'metabolites':'massMetabolite',
+			'rnas':'massRna',
+			'proteins':'massProtein',
+			}[typeKey]
+
+		submassDiffKey = {
+			'metabolites':'massDiffMetabolite',
+			'rnas':'massDiffRna',
+			'proteins':'massDiffProtein',
+			}[typeKey]
+
+		totalMass = 0
+		
+		for entry in self._masses:
+			moleculeId = entry['moleculeId']
+			mass = entry[submassKey]
+
+			molecules = self.container.objectsInCollection(moleculeId)
+
+			for molecule in molecules:
+				totalMass += mass
+
+				totalMass += molecule.attr(submassDiffKey)
+
+		return totalMass
 
 
 	def massByCompartment(self, compartment):
