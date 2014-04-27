@@ -16,6 +16,8 @@ import numpy as np
 
 import wholecell.processes.process
 
+from wholecell.utils.simple_polymerize import simplePolymerize
+
 class Transcription(wholecell.processes.process.Process):
 	""" Transcription """
 
@@ -88,8 +90,6 @@ class Transcription(wholecell.processes.process.Process):
 		rnaPolymerases = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
 		enzLimit = rnaPolymerases * self.elngRate * self.timeStepSec * 1e6
-
-		from wholecell.utils.simple_polymerize import simplePolymerize
 
 		ntpCounts, rnasCreated = simplePolymerize(
 			self.rnaNtCounts,
