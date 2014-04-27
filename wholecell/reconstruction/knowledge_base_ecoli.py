@@ -985,6 +985,9 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildUniqueMolecules(self):
+		# TODO: ask Nick about the best way to use the unit struct arrays here
+		G_PER_MOL_TO_FG_PER_MOLECULE = 1e15 / 6.022e23
+
 		self.uniqueMoleculeDefinitions = {
 			'activeRnaPoly':{
 				'rnaIndex':'i8',
@@ -992,6 +995,34 @@ class KnowledgeBaseEcoli(object):
 				'assignedAUCG':'4i8',
 				}
 			}
+
+		rnaPolyComplexSubunits = ["EG10893-MONOMER", "RPOB-MONOMER",
+			"RPOC-MONOMER", "RPOD-MONOMER"]
+
+		rnaPolyComplexMass = sum(
+			protein['mw'] for protein in self._proteins
+			if protein['id'] in rnaPolyComplexSubunits
+			)
+
+		self.uniqueMoleculeMasses = numpy.zeros(
+			shape = len(self.uniqueMoleculeDefinitions),
+			dtype = [
+				('moleculeId', 'a50'),
+				('massMetabolite', numpy.float),
+				('massRna', numpy.float),
+				('massProtein', numpy.float),
+				]
+			)
+
+		self.uniqueMoleculeMasses[0] = (
+			'activeRnaPoly',
+			0,
+			0,
+			rnaPolyComplexMass * G_PER_MOL_TO_FG_PER_MOLECULE
+			)
+
+		# TODO: units
+		# TODO: make this logic better overall
 
 
 	def _buildRnaExpression(self):

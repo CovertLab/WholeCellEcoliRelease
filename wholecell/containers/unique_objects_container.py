@@ -41,7 +41,6 @@ class UniqueObjectsContainer(object):
 		'_globalIndex':'int64', # index in the _globalReference array (collection)
 		'_time':'int64', # current time (important for saving)
 		'_partitionedProcess':'uint32' # TODO: assign to every as default instead of in this fake KB
-		# '_massDifference':'float64' # dynamic mass difference
 		}
 
 	_defaultCollectionsSpec = {

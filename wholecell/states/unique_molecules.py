@@ -11,6 +11,8 @@ creates and manages the structured arrays in memory.
 
 from __future__ import division
 
+import itertools
+
 import numpy as np
 import tables
 
@@ -19,11 +21,10 @@ import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 
-MOLECULE_ATTRIBUTES = {
-	'RNA polymerase':{
-		'boundToChromosome':'bool',
-		'chromosomeLocation':'uint32'
-		}
+DEFAULT_ATTRIBUTES = {
+	'massDiffMetabolite':np.float,
+	'massDiffRna':np.float,
+	'massDiffProtein':np.float,
 	}
 
 
@@ -48,7 +49,14 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
-		self.container = UniqueObjectsContainer(kb.uniqueMoleculeDefinitions)
+		molDefs = kb.uniqueMoleculeDefinitions.copy()
+
+		for molDef in molDefs.viewvalues():
+			molDef.update(DEFAULT_ATTRIBUTES)
+
+		self.container = UniqueObjectsContainer(molDefs)
+
+		self._masses = kb.uniqueMoleculeMasses
 
 
 	def partition(self):
@@ -88,6 +96,39 @@ class UniqueMolecules(wholecell.states.state.State):
 			for molecule in molecules:
 				molecule.attrIs(_partitionedProcess = view._processIndex + 1)
 				# "0", being the default, is reserved for unpartitioned molecules
+
+
+	def mass(self):
+		# TODO: rework this so it's a faster operation (a dot product)
+
+		totalMass = 0
+		
+		for entry in self._masses:
+			moleculeId = entry['moleculeId']
+			massMetabolite = entry['massMetabolite']
+			massRna = entry['massRna']
+			massProtein = entry['massProtein']
+
+			molecules = self.container.objectsInCollection(moleculeId)
+
+			for molecule in molecules:
+				totalMass += massMetabolite
+				totalMass += massRna
+				totalMass += massProtein
+
+				totalMass += molecule.attr('massDiffMetabolite')
+				totalMass += molecule.attr('massDiffRna')
+				totalMass += molecule.attr('massDiffProtein')
+
+		return totalMass
+
+
+	def massByType(self, typeKey):
+		return 0
+
+
+	def massByCompartment(self, compartment):
+		return 0
 
 
 	def pytablesCreate(self, h5file, expectedRows):

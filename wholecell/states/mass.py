@@ -17,6 +17,8 @@ import tables
 
 import wholecell.states.state
 
+STATES_WITH_MASS = ['BulkMolecules', 'UniqueMolecules']
+
 class Mass(wholecell.states.state.State):
 	""" Mass """
 
@@ -25,7 +27,7 @@ class Mass(wholecell.states.state.State):
 	# Constructor
 	def __init__(self, *args, **kwargs):
 		# References to other states
-		self.bulkMolecules = None
+		self.states = None
 
 		# NOTE: molecule weight is converted to femtograms/molecule from
 		# grams/mol in BulkMolecules
@@ -38,7 +40,7 @@ class Mass(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(Mass, self).initialize(sim, kb)
 
-		self.bulkMolecules = sim.states["BulkMolecules"]
+		self.states = sim.states
 
 		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
 
@@ -53,12 +55,9 @@ class Mass(wholecell.states.state.State):
 		self.proteinInitial = None
 		self.rnaInitial = None
 
-		self.cell = 0
+		self._resetMasses()
+
 		self.cellDry = 0
-		self.metabolite = 0
-		self.rna = 0
-		self.protein = 0
-		self.nucleoid = 0
 
 		self.proteinFraction = 0
 		self.rnaFraction = 0
@@ -72,18 +71,37 @@ class Mass(wholecell.states.state.State):
 		self.growth = 0
 
 
+	def _resetMasses(self):
+		self.cell = 0
+
+		self.metabolite = 0
+		self.rna = 0
+		self.rrna = 0
+		self.protein = 0
+		self.nucleoid = 0
+
+		self.water = 0
+
+
 	def calculate(self):
 		oldMass = self.cellDry
 
-		self.cell = self.bulkMolecules.mass()
+		self._resetMasses()
 
-		self.metabolite = self.bulkMolecules.massByType('metabolites')
-		self.rna = self.bulkMolecules.massByType('rnas')
-		self.rrna = self.bulkMolecules.massByType('rrnas')
-		self.protein = self.bulkMolecules.massByType('proteins')
-		self.water = self.bulkMolecules.massByType('water')
+		# TODO: rework mass calculations as State methods
+		# TODO: change states without mass (such as Mass itself) into "listener" classes
+		for stateName, state in self.states.viewitems():
+			if stateName not in STATES_WITH_MASS: continue
 
-		self.nucleoid = self.bulkMolecules.massByCompartment('n')
+			self.cell += state.mass()
+
+			self.metabolite += state.massByType('metabolites')
+			self.rna += state.massByType('rnas')
+			self.rrna += state.massByType('rrnas')
+			self.protein += state.massByType('proteins')
+			self.nucleoid += state.massByCompartment('n')
+			
+			self.water += state.massByType('water')
 
 		self.cellDry = self.cell - self.water
 
