@@ -51,7 +51,8 @@ class Translation(wholecell.processes.process.Process):
 		del aaIDs[selenocysteineIndex]
 
 		# mRNA, protein monomers
-		self.proteinAaCounts = np.delete(kb.monomerData['aaCounts'], selenocysteineIndex, 1)
+		# TODO: Remove hack of deleting Selenocystine in this way.
+		self.proteinAaCounts = np.delete(kb.monomerData['aaCounts'].magnitude, selenocysteineIndex, 1)
 		self.proteinLens = kb.monomerData['length']
 		self.avgProteinLength = np.mean(self.proteinLens)
 
