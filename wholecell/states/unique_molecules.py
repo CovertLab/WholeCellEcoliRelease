@@ -98,6 +98,7 @@ class UniqueMolecules(wholecell.states.state.State):
 				# "0", being the default, is reserved for unpartitioned molecules
 
 
+	# TODO: refactor mass calculations as a whole
 	def mass(self):
 		# TODO: rework this so it's a faster operation (a dot product)
 

@@ -43,6 +43,22 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.rnaIds = kb.rnaData['id']
 
+		# TODO: refactor mass updates
+
+		# TOKB
+		self.ntWeights = np.array([
+			345.20, # A
+			322.17, # U
+			321.18, # C
+			361.20  # G
+			]) - 17.01 # weight of a hydroxyl
+
+		# TOKB
+		self.hydroxylWeight = 17.01 # counted once for the end of the polymer
+
+		self.ntWeights *= 1e15/6.022e23
+		self.hydroxylWeight *= 1e15/6.022e23
+
 		# Views
 
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -94,8 +110,8 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			if ntpCounts.sum() == 0:
 				break
 
-			assignedAUCG, requiredAUCG = activeRnaPoly.attrs(
-				'assignedAUCG',	'requiredAUCG')
+			assignedAUCG, requiredAUCG, massDiffRna = activeRnaPoly.attrs(
+				'assignedAUCG',	'requiredAUCG', 'massDiffRna')
 
 			ntDeficit = (requiredAUCG - assignedAUCG).astype(np.float) # for division
 
@@ -111,17 +127,20 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 			updatedAUCG = assignedAUCG + extendedAUCG
 
-			activeRnaPoly.attrIs(
-				assignedAUCG = updatedAUCG
-				)
-
-			# TODO: update mass
+			newMass = massDiffRna + np.dot(self.ntWeights, extendedAUCG)
 
 			# TODO: check this elongation reaction stoich
 			nElongations += extendedAUCG.sum()
 
 			if assignedAUCG.sum() == 0 and updatedAUCG.sum() > 0:
 				nInitialized += 1
+
+				newMass += self.hydroxylWeight
+
+			activeRnaPoly.attrIs(
+				assignedAUCG = updatedAUCG,
+				massDiffRna = newMass
+				)
 
 			if (updatedAUCG == requiredAUCG).all():
 				terminatedRnas[activeRnaPoly.attr('rnaIndex')] += 1
