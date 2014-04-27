@@ -16,6 +16,14 @@ import numpy as np
 
 import wholecell.processes.process
 
+# TODO: vectorize operations
+# TODO: write ILP solver
+# TODO: refactor mass calculations
+# TODO: confirm reaction stoich
+# TODO: resolve mounting process namespace issues
+# TODO: use more intelligent requests (enzyme/metabolite-limited)
+# TODO: resolve nucleotide pooling (fix biomass function?)
+
 class UniqueTranscriptElongation(wholecell.processes.process.Process):
 	""" UniqueTranscriptElongation """
 
