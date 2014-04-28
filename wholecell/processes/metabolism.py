@@ -83,10 +83,17 @@ class Metabolism(wholecell.processes.process.Process):
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"
 			])
+		self.ntps = self.bulkMoleculesView([
+			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
+			])
+		self.nmps = self.bulkMoleculesView([
+			"AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"
+			])
 
 
 	def calculateRequest(self):
 		self.ppi.requestAll()
+		self.nmps.requestAll()
 
 
 	# Calculate temporal evolution
@@ -124,8 +131,13 @@ class Metabolism(wholecell.processes.process.Process):
 		self.biomassMetabolites.countsInc(deltaMetabolites)
 
 		# Fake recycling
-		if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
-			raise Exception, "Making fewer (d)NTPs than PPi's available"
+		# if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
+		# 	import ipdb; ipdb.set_trace()
+		# 	raise Exception, "Making fewer (d)NTPs than PPi's available"
+
+
+		self.ntps.countsInc(self.nmps.counts())
+		self.nmps.countsIs(0)
 		self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
 
 
