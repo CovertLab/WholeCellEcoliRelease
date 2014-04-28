@@ -448,6 +448,9 @@ class _UniqueObjectSet(object):
 
 
 	def attr(self, attribute):
+		if self._globalIndexes.size == 0:
+			return np.zeros(0) # NOTE: this does not enforce dtype; that is difficult!
+
 		# TODO: cache these properties? should be static
 		globalRef = self._container._collections[self._container._globalRefIndex]
 
@@ -479,6 +482,9 @@ class _UniqueObjectSet(object):
 
 
 	def attrIs(self, **attributes):
+		if self._globalIndexes.size == 0:
+			return
+
 		# TODO: cache these properties? should be static
 		globalRef = self._container._collections[self._container._globalRefIndex]
 
