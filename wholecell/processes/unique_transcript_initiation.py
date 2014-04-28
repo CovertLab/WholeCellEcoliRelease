@@ -82,5 +82,5 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 				)
 
 		self.rnapSubunits.countsDec(
-			nNewRnas.sum() * np.array([2, 1, 1, 1])
+			nNewRnas.sum() * np.array([2, 1, 1, 1], np.int)
 			)

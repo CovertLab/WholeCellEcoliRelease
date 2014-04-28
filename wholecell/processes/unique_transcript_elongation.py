@@ -185,8 +185,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		import ipdb; ipdb.set_trace()
 
 
-
-
 	def evolveState_randomUpdate(self):
 		# TODO: implement the following ILP algorithm
 
@@ -253,13 +251,14 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 				self.activeRnaPolys.moleculeDel(activeRnaPoly)
 
+		print len(activeRnaPolys), terminatedRnas.sum(), self.ntps.counts().sum() - ntpCounts.sum()
 
 		self.ntps.countsIs(ntpCounts)
 
 		self.bulkRnas.countsInc(terminatedRnas)
 
 		self.rnapSubunits.countsInc(
-			terminatedRnas.sum() * np.array([2, 1, 1, 1]) # complex subunit stoich
+			terminatedRnas.sum() * np.array([2, 1, 1, 1], np.int) # complex subunit stoich
 			)
 
 		self.h2o.countDec(nInitialized)
@@ -267,4 +266,13 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.ppi.countInc(nElongations)
 
-		print len(activeRnaPolys), terminatedRnas.sum(), ntpCounts.sum()
+		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
+
+		totalRnapSubunits = self.rnapSubunits.total()/np.array([2, 1, 1, 1], np.int) + len(activeRnaPolys)
+
+		totalRnap = np.min(totalRnapSubunits)
+
+		self.rnapSubunits.countsInc(np.fmax(
+			(440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int).astype(np.int),
+			0
+			))
