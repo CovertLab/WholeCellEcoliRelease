@@ -36,20 +36,20 @@ def initializeBulk(bulkContainer, kb, randStream):
 
 def initializeProteinMonomers(bulkContainer, kb, randStream):
 	dryComposition60min = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].magnitude == 60
+		kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60
 		]
 
 	monomersView = bulkContainer.countsView(kb.monomerData["id"])
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
-	monomerMass = kb.avgCellDryMassInit.magnitude * monomerMassFraction
+	monomerMass = kb.avgCellDryMassInit.to('DCW_g') * monomerMassFraction
 
-	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
+	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].to('dimensionless'))
 
 	nMonomers = countsFromMassAndExpression(
-		monomerMass,
-		kb.monomerData["mw"],
+		monomerMass.to("DCW_g").magnitude,
+		kb.monomerData["mw"].to("g/mol").magnitude,
 		monomerExpression,
-		kb.nAvogadro.magnitude
+		kb.nAvogadro.to('1/mol').magnitude
 		)
 
 	monomersView.countsIs(
@@ -66,15 +66,15 @@ def initializeRNA(bulkContainer, kb, randStream):
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
-	rnaMass = kb.avgCellDryMassInit.magnitude * rnaMassFraction
+	rnaMass = kb.avgCellDryMassInit * rnaMassFraction
 
-	rnaExpression = normalize(kb.rnaExpression['expression'])
+	rnaExpression = normalize(kb.rnaExpression['expression'].to('dimensionless'))
 
 	nRnas = countsFromMassAndExpression(
-		rnaMass,
-		kb.rnaData["mw"],
+		rnaMass.to("DCW_g").magnitude,
+		kb.rnaData["mw"].to('g/mol').magnitude,
 		rnaExpression,
-		kb.nAvogadro.magnitude
+		kb.nAvogadro.to('1/mol').magnitude
 		)
 
 	rnaView.countsIs(

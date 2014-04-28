@@ -1223,6 +1223,24 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
 
+		units = {
+		'id'		:	None,
+		'synthProb' :	'dimensionless',
+		'degRate'	:	'1 / s',
+		'length'	:	'nucleotide',
+		'countsAUCG':	'nucleotide',
+		'mw'		:	'g / mol',
+		'isMRna'	:	None,
+		'isMiscRna'	:	None,
+		'isRRna'	:	None,
+		'isTRna'	:	None,
+		'isRRna23S'	:	None,
+		'isRRna16S'	:	None,
+		'isRRna5S'	:	None
+		}
+
+
+		self.rnaData = UnitStructArray(self.rnaData, units)
 
 	def _buildMonomerData(self):
 		monomers = [protein for protein in self._proteins 
@@ -1289,6 +1307,17 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['mw'] = mws
 
 		self.aaIDs = AMINO_ACID_1_TO_3_ORDERED.values()
+
+
+		units = {
+		'id'		:	None,
+		'rnaId'		:	None,
+		'length'	:	'amino_acid',
+		'aaCounts'	:	'amino_acid',
+		'mw'		:	'g / mol'
+		}
+
+		self.monomerData = UnitStructArray(self.monomerData, units)
 
 
 	def _buildRnaIndexToMonomerMapping(self):
