@@ -80,6 +80,11 @@ class Mass(wholecell.states.state.State):
 		self.metabolite = self.bulkMolecules.massByType('metabolites')
 		self.rna = self.bulkMolecules.massByType('rnas')
 		self.rrna = self.bulkMolecules.massByType('rrnas')
+		self.rrna23S = self.bulkMolecules.massByType('rrna23Ss')
+		self.rrna16S = self.bulkMolecules.massByType('rrna16Ss')
+		self.rrna5S = self.bulkMolecules.massByType('rrna5Ss')
+		self.trna = self.bulkMolecules.massByType('trnas')
+		self.mrna = self.bulkMolecules.massByType('mrnas')
 		self.protein = self.bulkMolecules.massByType('proteins')
 		self.water = self.bulkMolecules.massByType('water')
 
@@ -98,12 +103,29 @@ class Mass(wholecell.states.state.State):
 			self.cellDryInitial = self.cellDry
 			self.proteinInitial = self.protein
 			self.rnaInitial = self.rna
+			self.rrnaInitial = self.rrna
+			self.rrna23SInitial = self.rrna23S
+			self.rrna16SInitial = self.rrna16S
+			self.rrna5SInitial = self.rrna5S
+			self.trnaInitial = self.trna
+			self.mrnaInitial = self.mrna
 
 		self.cellDryFoldChange = self.cellDry / self.cellDryInitial
 		self.proteinFoldChange = self.protein / self.proteinInitial
 		self.rnaFoldChange = self.rna / self.rnaInitial
+		self.rrnaFoldChange = self.rrna / self.rrnaInitial
+		self.rrna23SFoldChange = self.rrna23S / self.rrna23SInitial
+		self.rrna16SFoldChange = self.rrna16S / self.rrna16SInitial
+		self.rrna5SFoldChange = self.rrna5S / self.rrna5SInitial
+		self.trnaFoldChange = self.trna / self.trnaInitial
+		self.mrnaFoldChange = self.mrna / self.mrnaInitial
 
 		self.expectedFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
+
+		print (
+			self.rnaFoldChange, self.rrnaFoldChange, self.trnaFoldChange, self.mrnaFoldChange,
+			self.rrna23SFoldChange, self.rrna16SFoldChange, self.rrna5SFoldChange
+			)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
