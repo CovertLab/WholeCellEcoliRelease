@@ -407,7 +407,8 @@ class _UniqueObjectSet(object):
 	'''
 	_UniqueObjectSet
 
-	A set of objects, stored internally by their global indexes.  Iterable.
+	A set of objects, stored internally by their global indexes.  Iterable and
+	ordered.  Accessors allow for manipulating sets in lump.
 	'''
 
 	# TODO: look into subclassing from collections.ViewKeys
@@ -445,8 +446,55 @@ class _UniqueObjectSet(object):
 			np.lib.arraysetops.union1d(self._globalIndexes, other._globalIndexes)
 			)
 
+
+	def attr(self, attribute):
+		# TODO: cache these properties? should be static
+		globalRef = self._container._collections[self._container._globalRefIndex]
+
+		collectionIndexes = globalRef['_collectionIndex'][self._globalIndexes]
+		objectIndexes = globalRef['_objectIndex'][self._globalIndexes]
+
+		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+
+		attributeDtype = self._container._collections[uniqueColIndexes[0]].dtype[attribute]
+
+		values = np.zeros(
+			self._globalIndexes.size,
+			dtype = attributeDtype
+			)
+
+		for i, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = self._globalIndexes[globalObjIndexes]
+			
+			values[globalObjIndexes] = self._container._collections[collectionIndex][attribute][objectIndexesInCollection]
+
+		return values
+
+
+	def attrs(self, *attributes):
+		return tuple(
+			self.attr(attribute) for attribute in attributes
+			)
+
+
+	def attrIs(self, **attributes):
+		# TODO: cache these properties? should be static
+		globalRef = self._container._collections[self._container._globalRefIndex]
+
+		collectionIndexes = globalRef['_collectionIndex'][self._globalIndexes]
+		objectIndexes = globalRef['_objectIndex'][self._globalIndexes]
+
+		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+
+		for i, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = self._globalIndexes[globalObjIndexes]
+
+			for attribute, values in attributes.viewitems():
+				self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = values[globalObjIndexes]
+
 	# TODO: set-like operations (union, intersection, etc.)
-	# TODO: group attribute setting/reading?
 
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randStream):
