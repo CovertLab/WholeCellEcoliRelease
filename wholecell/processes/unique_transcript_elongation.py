@@ -90,6 +90,104 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		self.evolveState_randomUpdate()
+		# self.evolveState_ilp()
+
+
+	def evolveState_ilp(self):
+		ntpCounts = self.ntps.counts()
+
+		activeRnaPolys = self.activeRnaPolys.molecules()
+
+		if len(activeRnaPolys) == 0:
+			return
+
+		assignedNts, requiredNts, massDiffRna = activeRnaPolys.attrs(
+			'assignedAUCG', 'requiredAUCG', 'massDiffRna'
+			)
+
+		deficitNts = requiredNts - assignedNts
+
+		monomerCounts = ntpCounts
+
+		deficits = deficitNts.reshape(-1)
+
+		maxElongation = self.elngRate
+
+		nMonomers = deficitNts.shape[1]
+		nPolymers = deficitNts.shape[0]
+
+		from cvxopt.glpk import ilp
+		from cvxopt import matrix, sparse
+
+		nRows = nMonomers + nPolymers
+		nColumns = nMonomers * (1 + nPolymers) + nPolymers
+
+		ilpMatrix = np.zeros((nRows, nColumns))
+
+		ilpMatrix[np.arange(nMonomers), np.arange(nMonomers)] = 1
+
+		for i in xrange(nPolymers):
+			ilpMatrix[np.arange(nMonomers), nMonomers*(1+i)+np.arange(nMonomers)] = -1
+
+			ilpMatrix[
+				nMonomers + i + np.zeros(nMonomers, np.int),
+				nMonomers*(1+i)+np.arange(nMonomers)
+				] = 1
+
+		ilpMatrix[
+			nMonomers + np.arange(nPolymers),
+			nMonomers*nPolymers + np.arange(nPolymers)
+			] = -1
+
+		lowerBounds = np.zeros(nColumns)
+		upperBounds = np.zeros(nColumns)
+
+		upperBounds[:nMonomers] = monomerCounts
+		upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = deficits
+		upperBounds[nMonomers+nMonomers*nPolymers:] = maxElongation
+
+		objective = np.zeros(nColumns)
+		objective[nMonomers+nMonomers*nPolymers:] = -1
+
+		# Setting up (I)LP algorithm:
+		# Choose v such that
+		# b = Av
+		# v < Gh
+		# min f^T v
+
+		A = sparse(matrix(ilpMatrix))
+		b = matrix(np.zeros(nRows))
+
+		G = sparse(matrix(np.concatenate(
+			[np.identity(nColumns), -np.identity(nColumns)],
+			axis = 0
+			)))
+
+		h = matrix(np.concatenate([upperBounds, -lowerBounds], axis = 0))
+
+		f = matrix(objective)
+
+		I = set(xrange(nColumns))
+
+		solution = ilp(f, G, h, A, b, I)
+
+		fluxes = np.array(solution[1]).flatten()
+
+		monomersUsed = fluxes[:nMonomers]
+
+		assignments = fluxes[nMonomers:nMonomers+nMonomers*nPolymers]
+
+		monomerAssignments = assignments.reshape(nPolymers, nMonomers)
+
+		updatedNts = monomerAssignments + assignedNts
+
+		import ipdb; ipdb.set_trace()
+
+
+
+
+	def evolveState_randomUpdate(self):
 		# TODO: implement the following ILP algorithm
 
 		# Assign NTs to each rnaTranscript molecule...
@@ -168,3 +266,5 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton.countInc(nInitialized)
 
 		self.ppi.countInc(nElongations)
+
+		print len(activeRnaPolys), terminatedRnas.sum(), ntpCounts.sum()
