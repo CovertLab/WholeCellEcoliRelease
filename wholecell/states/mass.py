@@ -40,6 +40,8 @@ class Mass(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(Mass, self).initialize(sim, kb)
 
+		self.bulkMolecules = sim.states['BulkMolecules']
+
 		self.states = sim.states
 
 		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
@@ -97,11 +99,17 @@ class Mass(wholecell.states.state.State):
 
 			self.metabolite += state.massByType('metabolites')
 			self.rna += state.massByType('rnas')
-			self.rrna += state.massByType('rrnas')
 			self.protein += state.massByType('proteins')
 			self.nucleoid += state.massByCompartment('n')
 			
 			self.water += state.massByType('water')
+		
+		self.rrna = self.bulkMolecules.massByType('rrnas')
+		self.rrna23S = self.bulkMolecules.massByType('rrna23Ss')
+		self.rrna16S = self.bulkMolecules.massByType('rrna16Ss')
+		self.rrna5S = self.bulkMolecules.massByType('rrna5Ss')
+		self.trna = self.bulkMolecules.massByType('trnas')
+		self.mrna = self.bulkMolecules.massByType('mrnas')
 
 		self.cellDry = self.cell - self.water
 
@@ -116,12 +124,29 @@ class Mass(wholecell.states.state.State):
 			self.cellDryInitial = self.cellDry
 			self.proteinInitial = self.protein
 			self.rnaInitial = self.rna
+			self.rrnaInitial = self.rrna
+			self.rrna23SInitial = self.rrna23S
+			self.rrna16SInitial = self.rrna16S
+			self.rrna5SInitial = self.rrna5S
+			self.trnaInitial = self.trna
+			self.mrnaInitial = self.mrna
 
 		self.cellDryFoldChange = self.cellDry / self.cellDryInitial
 		self.proteinFoldChange = self.protein / self.proteinInitial
 		self.rnaFoldChange = self.rna / self.rnaInitial
+		self.rrnaFoldChange = self.rrna / self.rrnaInitial
+		self.rrna23SFoldChange = self.rrna23S / self.rrna23SInitial
+		self.rrna16SFoldChange = self.rrna16S / self.rrna16SInitial
+		self.rrna5SFoldChange = self.rrna5S / self.rrna5SInitial
+		self.trnaFoldChange = self.trna / self.trnaInitial
+		self.mrnaFoldChange = self.mrna / self.mrnaInitial
 
 		self.expectedFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
+
+		print (
+			self.rnaFoldChange, self.rrnaFoldChange, self.trnaFoldChange, self.mrnaFoldChange,
+			self.rrna23SFoldChange, self.rrna16SFoldChange, self.rrna5SFoldChange
+			)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
