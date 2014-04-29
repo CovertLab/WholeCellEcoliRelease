@@ -143,10 +143,10 @@ class Mass(wholecell.states.state.State):
 
 		self.expectedFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
 
-		# print (
-		# 	self.rnaFoldChange, self.rrnaFoldChange, self.trnaFoldChange, self.mrnaFoldChange,
-		# 	self.rrna23SFoldChange, self.rrna16SFoldChange, self.rrna5SFoldChange
-		# 	)
+		print (
+			self.rnaFoldChange, self.rrnaFoldChange, self.trnaFoldChange, self.mrnaFoldChange,
+			self.rrna23SFoldChange, self.rrna16SFoldChange, self.rrna5SFoldChange
+			)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
