@@ -101,25 +101,25 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_removeProcesses(self):
 		# Test ability to remove processes from simulation
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription'], reconstructKB = True)
-		self.assertEqual(['Transcription'], sim.processes.keys())
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['BulkTranscription'], reconstructKB = True)
+		self.assertEqual(['BulkTranscription'], sim.processes.keys())
 
 	
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_removeStates(self):
 		# Test ability to remove states from simulation
-		sim = wholecell.sim.simulation.Simulation(includedStates = ['BulkMolecules'], reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['BulkTranscription'], includedStates = ['BulkMolecules'], reconstructKB = True)
 		self.assertEqual(['BulkMolecules'], sim.states.keys())
 
 	
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_processInclusionOrder(self):
 		# Test that included processes follow the proscribed order (important for other tests)
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Transcription', 'Translation'], reconstructKB = True)
-		self.assertEqual(['Transcription', 'Translation'], sim.processes.keys())
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['BulkTranscription', 'Translation'], reconstructKB = True)
+		self.assertEqual(['BulkTranscription', 'Translation'], sim.processes.keys())
 
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Translation', 'Transcription'], reconstructKB = True)
-		self.assertEqual(['Translation', 'Transcription'], sim.processes.keys())
+		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Translation', 'BulkTranscription'], reconstructKB = True)
+		self.assertEqual(['Translation', 'BulkTranscription'], sim.processes.keys())
 
 
 	
