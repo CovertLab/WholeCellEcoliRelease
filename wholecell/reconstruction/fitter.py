@@ -241,7 +241,7 @@ def fitKb(kb):
 	## Synthesis probabilities ##
 	synthProb = normalize(
 			(
-			rnaLengths / kb.rnaPolymeraseElongationRate * (
+			Q_(1, 'second') * (
 				numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 				) * rnaView.counts()
 			).to('dimensionless').magnitude
