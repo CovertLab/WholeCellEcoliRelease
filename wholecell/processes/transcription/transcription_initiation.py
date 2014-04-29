@@ -175,7 +175,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 			# Limit NS --> S transition reaction
 			# NS + Sigma + Promoter --> S
 			desiredAmount = numpy.min(speciesUsedInTransitions[sigmaAndPromoterIdx])
-			maxAvailable = -1 * numpy.min([self.freeSigmaD.total(), len(self.promoterRegion.free()])
+			maxAvailable = -1 * numpy.min([self.freeSigmaD.total(), len(self.promoterRegion.free())])
 			difference = maxAvailable - desiredAmount # Will be positive
 			speciesUsedInTransitions[S_idx] 		-= difference
 			speciesUsedInTransitions[NS_idx] 		+= difference
