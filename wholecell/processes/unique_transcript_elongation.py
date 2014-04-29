@@ -90,11 +90,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		self.evolveState_randomUpdate()
-		# self.evolveState_ilp()
-
-
-	def evolveState_ilp(self):
 		ntpCounts = self.ntps.counts()
 
 		activeRnaPolys = self.activeRnaPolys.molecules()
@@ -108,157 +103,48 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		deficitNts = requiredNts - assignedNts
 
-		monomerCounts = ntpCounts
+		newlyAssignedNts = polymerizePooledMonomers(
+			ntpCounts,
+			deficitNts,
+			self.elngRate,
+			self.randStream,
+			useIntegerLinearProgramming = False
+			)
 
-		deficits = deficitNts.reshape(-1)
+		ntpsUsed = newlyAssignedNts.sum(0)
 
-		maxElongation = self.elngRate
+		updatedNts = newlyAssignedNts + assignedNts
 
-		nMonomers = deficitNts.shape[1]
-		nPolymers = deficitNts.shape[0]
+		didInitialize = (assignedNts.sum(1) == 0) & (updatedNts.sum(1) > 0)
 
-		from cvxopt.glpk import ilp
-		from cvxopt import matrix, sparse
+		updatedMass = massDiffRna + np.dot(newlyAssignedNts, self.ntWeights)
 
-		nRows = nMonomers + nPolymers
-		nColumns = nMonomers * (1 + nPolymers) + nPolymers
+		updatedMass[didInitialize] += self.hydroxylWeight
 
-		ilpMatrix = np.zeros((nRows, nColumns))
-
-		ilpMatrix[np.arange(nMonomers), np.arange(nMonomers)] = 1
-
-		for i in xrange(nPolymers):
-			ilpMatrix[np.arange(nMonomers), nMonomers*(1+i)+np.arange(nMonomers)] = -1
-
-			ilpMatrix[
-				nMonomers + i + np.zeros(nMonomers, np.int),
-				nMonomers*(1+i)+np.arange(nMonomers)
-				] = 1
-
-		ilpMatrix[
-			nMonomers + np.arange(nPolymers),
-			nMonomers*nPolymers + np.arange(nPolymers)
-			] = -1
-
-		lowerBounds = np.zeros(nColumns)
-		upperBounds = np.zeros(nColumns)
-
-		upperBounds[:nMonomers] = monomerCounts
-		upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = deficits
-		upperBounds[nMonomers+nMonomers*nPolymers:] = maxElongation
-
-		objective = np.zeros(nColumns)
-		objective[nMonomers+nMonomers*nPolymers:] = -1
-
-		# Setting up (I)LP algorithm:
-		# Choose v such that
-		# b = Av
-		# v < Gh
-		# min f^T v
-
-		A = sparse(matrix(ilpMatrix))
-		b = matrix(np.zeros(nRows))
-
-		G = sparse(matrix(np.concatenate(
-			[np.identity(nColumns), -np.identity(nColumns)],
-			axis = 0
-			)))
-
-		h = matrix(np.concatenate([upperBounds, -lowerBounds], axis = 0))
-
-		f = matrix(objective)
-
-		I = set(xrange(nColumns))
-
-		solution = ilp(f, G, h, A, b, I)
-
-		fluxes = np.array(solution[1]).flatten()
-
-		monomersUsed = fluxes[:nMonomers]
-
-		assignments = fluxes[nMonomers:nMonomers+nMonomers*nPolymers]
-
-		monomerAssignments = assignments.reshape(nPolymers, nMonomers)
-
-		updatedNts = monomerAssignments + assignedNts
-
-		import ipdb; ipdb.set_trace()
-
-
-	def evolveState_randomUpdate(self):
-		# TODO: implement the following ILP algorithm
-
-		# Assign NTs to each rnaTranscript molecule...
-		# ...maximizing the total nucelotides assigned
-		# ...constrained to non-negative NT assignments
-		# ...constraiend to no more than <elongation rate> total assignments
-		# ...constrained to integer values of assignments
-		# ...constrained to the maximal NT deficit of each transcript
-
-		activeRnaPolys = list(self.activeRnaPolys.molecules())
-
-		self.randStream.numpyShuffle(activeRnaPolys)
-
-		ntpCounts = self.ntps.counts()
-		
-		# TODO: vectorize this operation (requires some new unique object accesors)
+		activeRnaPolys.attrIs(
+			assignedAUCG = updatedNts,
+			massDiffRna = updatedMass
+			)
 
 		terminatedRnas = np.zeros_like(self.bulkRnas.counts())
 
-		freeRnapSubunits = np.zeros_like(self.rnapSubunits.counts())
+		didTerminate = (requiredNts == updatedNts).all(axis = 1)
 
-		nInitialized = 0
-		nElongations = 0
+		for moleculeIndex, molecule in enumerate(activeRnaPolys):
+			if didTerminate[moleculeIndex]:
+				terminatedRnas[molecule.attr('rnaIndex')] += 1
+				self.activeRnaPolys.moleculeDel(molecule)
 
-		for activeRnaPoly in activeRnaPolys:
-			if ntpCounts.sum() == 0:
-				break
+		nTerminated = didTerminate.sum()
+		nInitialized = didInitialize.sum()
+		nElongations = ntpsUsed.sum()
 
-			assignedAUCG, requiredAUCG, massDiffRna = activeRnaPoly.attrs(
-				'assignedAUCG',	'requiredAUCG', 'massDiffRna')
+		self.ntps.countsDec(ntpsUsed)
 
-			ntDeficit = (requiredAUCG - assignedAUCG).astype(np.float) # for division
-
-			extendedAUCG = np.fmin(
-				ntDeficit,
-				np.fmin(
-					ntDeficit / ntDeficit.sum() * self.elngRate * self.timeStepSec,
-					ntpCounts
-					)
-				).astype(np.int)
-
-			ntpCounts -= extendedAUCG
-
-			updatedAUCG = assignedAUCG + extendedAUCG
-
-			newMass = massDiffRna + np.dot(self.ntWeights, extendedAUCG)
-
-			# TODO: check this elongation reaction stoich
-			nElongations += extendedAUCG.sum()
-
-			if assignedAUCG.sum() == 0 and updatedAUCG.sum() > 0:
-				nInitialized += 1
-
-				newMass += self.hydroxylWeight
-
-			activeRnaPoly.attrIs(
-				assignedAUCG = updatedAUCG,
-				massDiffRna = newMass
-				)
-
-			if (updatedAUCG == requiredAUCG).all():
-				terminatedRnas[activeRnaPoly.attr('rnaIndex')] += 1
-
-				self.activeRnaPolys.moleculeDel(activeRnaPoly)
-
-		print len(activeRnaPolys), terminatedRnas.sum(), self.ntps.counts().sum() - ntpCounts.sum()
-
-		self.ntps.countsIs(ntpCounts)
-
-		self.bulkRnas.countsInc(terminatedRnas)
+		self.bulkRnas.countsIs(terminatedRnas)
 
 		self.rnapSubunits.countsInc(
-			terminatedRnas.sum() * np.array([2, 1, 1, 1], np.int) # complex subunit stoich
+			nTerminated * np.array([2, 1, 1, 1], np.int) # complex subunit stoich
 			)
 
 		self.h2o.countDec(nInitialized)
@@ -273,6 +159,93 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		totalRnap = np.min(totalRnapSubunits)
 
 		self.rnapSubunits.countsInc(np.fmax(
-			(440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int).astype(np.int),
+			((440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int)).astype(np.int),
 			0
 			))
+
+
+# TODO: move out of this file
+from cvxopt.glpk import ilp, lp
+from cvxopt import matrix, sparse, spmatrix
+
+# TODO: line-profile
+def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
+		randStream, useIntegerLinearProgramming = True):
+
+	deficits = monomerDeficits.reshape(-1)
+
+	nMonomers = monomerDeficits.shape[1]
+	nPolymers = monomerDeficits.shape[0]
+
+	nNodes = nMonomers + nPolymers # i.e. rows
+	nEdges = nMonomers * (1 + nPolymers) + nPolymers # i.e. columns
+
+	nNonzeroEntries = nMonomers + 2*nMonomers*nPolymers + nPolymers
+
+	values = np.empty(nNonzeroEntries)
+	rowIndexes = np.empty(nNonzeroEntries, np.int)
+	colIndexes = np.empty(nNonzeroEntries, np.int)
+
+	values[:nMonomers] = 1
+	values[nMonomers:nMonomers*(1+nPolymers)] = -1
+	values[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = 1
+	values[-nPolymers:] = -1
+
+	rowIndexes[:nMonomers*(1+nPolymers)] = np.tile(np.arange(nMonomers), 1+nPolymers)
+	rowIndexes[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = nMonomers + np.repeat(np.arange(nPolymers), nMonomers)
+	rowIndexes[-nPolymers:] = nMonomers + np.arange(nPolymers)
+
+	colIndexes[:nMonomers*(1+nPolymers)] = np.arange(nMonomers*(1+nPolymers))
+	colIndexes[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = nMonomers + np.arange(nMonomers*nPolymers)
+	colIndexes[-nPolymers:] = nMonomers*(1+nPolymers) + np.arange(nPolymers)
+
+	lowerBounds = np.zeros(nEdges)
+
+	upperBounds = np.empty(nEdges)
+
+	upperBounds[:nMonomers] = monomerCounts
+	upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = deficits
+	upperBounds[nMonomers+nMonomers*nPolymers:] = maxElongation
+
+	# Add some noise to prevent systematic bias in polymer NT assignment
+	# NOTE: still not a great solution, see if a flexFBA solution exists
+	objectiveNoise = 0.01 * (randStream.rand(nPolymers) / nPolymers)
+
+	objective = np.zeros(nEdges)
+	objective[nMonomers+nMonomers*nPolymers:] = -1 * (1 + objectiveNoise)
+
+	# Setting up (I)LP algorithm:
+	# Choose v such that
+	# b = Av
+	# v < Gh
+	# min f^T v
+	# (all v integer-valued)
+
+	A = spmatrix(values, rowIndexes, colIndexes)
+	b = matrix(np.zeros(nNodes))
+
+	# TODO: build this matrix smarter
+	G = spmatrix(
+		[1]*nEdges + [-1]*nEdges,
+		np.arange(2*nEdges),
+		np.tile(np.arange(nEdges), 2)
+		)
+
+	h = matrix(np.concatenate([upperBounds, -lowerBounds], axis = 0))
+
+	f = matrix(objective)
+
+	if useIntegerLinearProgramming:
+		I = set(xrange(nEdges))
+		solution = ilp(f, G, h, A, b, I)
+
+	else:
+		solution = lp(f, G, h, A, b)
+
+	fluxes = np.array(solution[1]).astype(np.int).flatten()
+
+	assignments = fluxes[nMonomers:nMonomers+nMonomers*nPolymers]
+
+	monomerAssignments = assignments.reshape(nPolymers, nMonomers)
+
+	return monomerAssignments
