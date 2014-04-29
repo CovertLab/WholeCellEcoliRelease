@@ -41,7 +41,6 @@ class UniqueObjectsContainer(object):
 		'_globalIndex':'int64', # index in the _globalReference array (collection)
 		'_time':'int64', # current time (important for saving)
 		'_partitionedProcess':'uint32' # TODO: assign to every as default instead of in this fake KB
-		# '_massDifference':'float64' # dynamic mass difference
 		}
 
 	_defaultCollectionsSpec = {
@@ -63,6 +62,8 @@ class UniqueObjectsContainer(object):
 		}
 
 	def __init__(self, collectionsSpec):
+		self._time = 0
+
 		self._collectionsSpec = {} # collectionName:{attributeName:type}
 
 		self._collectionNames = [] # sorted list of object names
@@ -106,6 +107,8 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
+		attributes['_time'] = self._time
+
 		# Create multiple objects of the same type and attribute values
 		collectionIndex = self._collectionNameToIndexMapping[collectionName]
 		objectIndexes = self._getFreeIndexes(collectionIndex, nMolecules)
@@ -125,6 +128,7 @@ class UniqueObjectsContainer(object):
 		globalArray['_entryState'][globalIndexes] = _ENTRY_ACTIVE
 		globalArray['_collectionIndex'][globalIndexes] = collectionIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
+		globalArray['_time'][globalIndexes] = self._time
 
 		# In collection, for each object, point to global reference
 		collection['_globalIndex'][objectIndexes] = globalIndexes
@@ -265,6 +269,8 @@ class UniqueObjectsContainer(object):
 
 
 	def timeIs(self, time):
+		self._time = time
+
 		for collection in self._collections:
 			collection['_time'] = time
 
@@ -310,10 +316,7 @@ class UniqueObjectsContainer(object):
 
 			entries = entryTable[entryTable.col('_time') == timePoint]
 
-			self._collections[collectionIndex] = np.array(
-				entries,
-				dtype = self._collections[collectionIndex].dtype
-				)
+			self._collections[collectionIndex] = entries
 
 
 	# TODO: compute mass
@@ -348,7 +351,12 @@ class _UniqueObject(object):
 		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
-		return entry[attribute]
+		if isinstance(entry[attribute], np.ndarray):
+			# Prevent making a view instead of a copy
+			return entry[attribute].copy()
+
+		else:
+			return entry[attribute]
 
 
 	def attrs(self, *attributes):
@@ -356,8 +364,12 @@ class _UniqueObject(object):
 		
 		if not entry['_entryState'] == _ENTRY_ACTIVE:
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
-
-		return tuple(entry[attribute] for attribute in attributes)
+		
+		# See note in .attr
+		return tuple(
+			entry[attribute].copy() if isinstance(entry[attribute], np.ndarray) else entry[attribute]
+			for attribute in attributes
+			)
 
 
 	def attrIs(self, **attributes):
@@ -367,7 +379,14 @@ class _UniqueObject(object):
 			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
 
 		for attribute, value in attributes.viewitems():
-			entry[attribute] = value
+			if isinstance(entry[attribute], np.ndarray):
+				# Fix for the circumstance that the attribute is an ndarray - 
+				# without the [:] assignment, only the first value will be 
+				# assigned (probably a NumPy bug)
+				entry[attribute][:] = value
+
+			else:
+				entry[attribute] = value
 
 
 	def __hash__(self):
@@ -392,7 +411,8 @@ class _UniqueObjectSet(object):
 	'''
 	_UniqueObjectSet
 
-	A set of objects, stored internally by their global indexes.  Iterable.
+	A set of objects, stored internally by their global indexes.  Iterable and
+	ordered.  Accessors allow for manipulating sets in lump.
 	'''
 
 	# TODO: look into subclassing from collections.ViewKeys
@@ -430,8 +450,61 @@ class _UniqueObjectSet(object):
 			np.lib.arraysetops.union1d(self._globalIndexes, other._globalIndexes)
 			)
 
+
+	def attr(self, attribute):
+		if self._globalIndexes.size == 0:
+			return np.zeros(0) # NOTE: this does not enforce dtype; that is difficult!
+
+		# TODO: cache these properties? should be static
+		globalRef = self._container._collections[self._container._globalRefIndex]
+
+		collectionIndexes = globalRef['_collectionIndex'][self._globalIndexes]
+		objectIndexes = globalRef['_objectIndex'][self._globalIndexes]
+
+		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+
+		attributeDtype = self._container._collections[uniqueColIndexes[0]].dtype[attribute]
+
+		values = np.zeros(
+			self._globalIndexes.size,
+			dtype = attributeDtype
+			)
+
+		for i, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = self._globalIndexes[globalObjIndexes]
+			
+			values[globalObjIndexes] = self._container._collections[collectionIndex][attribute][objectIndexesInCollection]
+
+		return values
+
+
+	def attrs(self, *attributes):
+		return tuple(
+			self.attr(attribute) for attribute in attributes
+			)
+
+
+	def attrIs(self, **attributes):
+		if self._globalIndexes.size == 0:
+			return
+
+		# TODO: cache these properties? should be static
+		globalRef = self._container._collections[self._container._globalRefIndex]
+
+		collectionIndexes = globalRef['_collectionIndex'][self._globalIndexes]
+		objectIndexes = globalRef['_objectIndex'][self._globalIndexes]
+
+		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+
+		for i, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = self._globalIndexes[globalObjIndexes]
+
+			for attribute, values in attributes.viewitems():
+				self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = values[globalObjIndexes]
+
 	# TODO: set-like operations (union, intersection, etc.)
-	# TODO: group attribute setting/reading?
 
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randStream):

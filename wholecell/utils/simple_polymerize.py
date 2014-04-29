@@ -30,9 +30,9 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 		0.5 * min(enzymaticLimitation, monomerCounts.sum()) / avgTemplateLength
 		)
 
-	polymersCreated = np.zeros_like(templateLengths)
+	polymersCreated = np.zeros(templateLengths.size, np.int)
 
-	nNewPolymers = np.zeros_like(polymersCreated)
+	nNewPolymers = np.zeros(templateLengths.size, np.int)
 
 	canPolymerize = (synthesisProbabilities > 0)
 

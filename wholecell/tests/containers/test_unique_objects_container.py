@@ -377,6 +377,70 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		h5file.close()
 
 
+	@noseAttrib.attr('working')
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_objectSet_attribute_accessing(self):
+		objectSet = self.container.objects(chromosomeLocation = ('>=', 0))
+
+		self.assertEqual(len(objectSet), 20)
+
+		# Test getters
+
+		chromosomeLocation = objectSet.attr('chromosomeLocation')
+
+		self.assertEqual(
+			{0, 50},
+			set(chromosomeLocation)
+			)
+
+		self.assertEqual(
+			15,
+			(chromosomeLocation == 0).sum()
+			)
+
+		self.assertEqual(
+			5,
+			(chromosomeLocation == 50).sum()
+			)
+
+		chromosomeLocation, boundToChromosome = objectSet.attrs(
+			'chromosomeLocation', 'boundToChromosome')
+
+		self.assertEqual(
+			10,
+			boundToChromosome.sum()
+			)
+
+		# Test setters
+
+		objectSet.attrIs(chromosomeLocation = np.ones(20))
+
+		chromosomeLocation = objectSet.attr('chromosomeLocation')
+
+		self.assertEqual(
+			20,
+			(chromosomeLocation == 1).sum()
+			)
+
+		objectSet.attrIs(
+			chromosomeLocation = np.zeros(20),
+			boundToChromosome = np.zeros(20, np.bool)
+			)
+
+		chromosomeLocation, boundToChromosome = objectSet.attrs(
+			'chromosomeLocation', 'boundToChromosome')
+
+		self.assertEqual(
+			20,
+			(chromosomeLocation == 0).sum()
+			)
+
+		self.assertEqual(
+			20,
+			(~boundToChromosome).sum()
+			)
+
+
 def createContainer():
 	container = UniqueObjectsContainer(TEST_KB)
 	

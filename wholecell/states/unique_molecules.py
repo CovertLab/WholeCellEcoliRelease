@@ -11,6 +11,8 @@ creates and manages the structured arrays in memory.
 
 from __future__ import division
 
+import itertools
+
 import numpy as np
 import tables
 
@@ -19,11 +21,10 @@ import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 
-MOLECULE_ATTRIBUTES = {
-	'RNA polymerase':{
-		'boundToChromosome':'bool',
-		'chromosomeLocation':'uint32'
-		}
+DEFAULT_ATTRIBUTES = {
+	'massDiffMetabolite':np.float,
+	'massDiffRna':np.float,
+	'massDiffProtein':np.float,
 	}
 
 
@@ -48,7 +49,14 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
-		self.container = UniqueObjectsContainer(MOLECULE_ATTRIBUTES)
+		molDefs = kb.uniqueMoleculeDefinitions.copy()
+
+		for molDef in molDefs.viewvalues():
+			molDef.update(DEFAULT_ATTRIBUTES)
+
+		self.container = UniqueObjectsContainer(molDefs)
+
+		self._masses = kb.uniqueMoleculeMasses
 
 
 	def partition(self):
@@ -73,6 +81,10 @@ class UniqueMolecules(wholecell.states.state.State):
 
 			requestProcessArray[viewIndex, view._processIndex] = True
 
+		# TODO: move this logic to the _partition function
+		if requestNumberVector.sum() == 0:
+			return
+
 		partitionedMolecules = _partition(objectRequestsArray,
 			requestNumberVector, requestProcessArray, self.randStream)
 
@@ -84,6 +96,76 @@ class UniqueMolecules(wholecell.states.state.State):
 			for molecule in molecules:
 				molecule.attrIs(_partitionedProcess = view._processIndex + 1)
 				# "0", being the default, is reserved for unpartitioned molecules
+
+
+	# TODO: refactor mass calculations as a whole
+	def mass(self):
+		# TODO: rework this so it's a faster operation (a dot product)
+
+		totalMass = 0
+		
+		for entry in self._masses:
+			moleculeId = entry['moleculeId']
+			massMetabolite = entry['massMetabolite']
+			massRna = entry['massRna']
+			massProtein = entry['massProtein']
+
+			molecules = self.container.objectsInCollection(moleculeId)
+
+			if len(molecules) == 0:
+				continue
+
+			for molecule in molecules:
+				totalMass += massMetabolite
+				totalMass += massRna
+				totalMass += massProtein
+
+				totalMass += molecule.attr('massDiffMetabolite')
+				totalMass += molecule.attr('massDiffRna')
+				totalMass += molecule.attr('massDiffProtein')
+
+		return totalMass
+
+
+	def massByType(self, typeKey):
+		# TODO: rework this so it's a faster operation (a dot product)
+
+		if typeKey in ['rrnas', 'water']:
+			return 0
+
+		submassKey = {
+			'metabolites':'massMetabolite',
+			'rnas':'massRna',
+			'proteins':'massProtein',
+			}[typeKey]
+
+		submassDiffKey = {
+			'metabolites':'massDiffMetabolite',
+			'rnas':'massDiffRna',
+			'proteins':'massDiffProtein',
+			}[typeKey]
+
+		totalMass = 0
+		
+		for entry in self._masses:
+			moleculeId = entry['moleculeId']
+			mass = entry[submassKey]
+
+			molecules = self.container.objectsInCollection(moleculeId)
+
+			if len(molecules) == 0:
+				continue
+
+			for molecule in molecules:
+				totalMass += mass
+
+				totalMass += molecule.attr(submassDiffKey)
+
+		return totalMass
+
+
+	def massByCompartment(self, compartment):
+		return 0
 
 
 	def pytablesCreate(self, h5file, expectedRows):

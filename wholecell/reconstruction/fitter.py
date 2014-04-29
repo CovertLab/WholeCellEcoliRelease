@@ -186,11 +186,14 @@ def fitKb(kb):
 
 	## Number of RNA Polymerases ##
 	rnaLengths = numpy.sum(kb.rnaData['countsAUCG'], axis = 1)
+
 	nRnapsNeeded = numpy.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
 		).to('dimensionless').magnitude
+
+	# nRnapsNeeded = 600	
 
 	minRnapCounts = (
 		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry

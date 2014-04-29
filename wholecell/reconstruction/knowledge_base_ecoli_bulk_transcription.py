@@ -97,7 +97,6 @@ class KnowledgeBaseEcoli(object):
 		# Create data structures for simulation
 		self._buildCompartments()
 		self._buildBulkMolecules()
-		self._buildUniqueMolecules()
 		self._buildBiomass()
 		self._buildRnaData()
 		self._buildMonomerData()
@@ -983,48 +982,6 @@ class KnowledgeBaseEcoli(object):
 			'isComplex'			:	None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
-
-	def _buildUniqueMolecules(self):
-		# TODO: ask Nick about the best way to use the unit struct arrays here
-		G_PER_MOL_TO_FG_PER_MOLECULE = 1e15 / 6.022e23
-
-		self.uniqueMoleculeDefinitions = {
-			'activeRnaPoly':{
-				'rnaIndex':'i8',
-				'requiredAUCG':'4i8',
-				'assignedAUCG':'4i8',
-				}
-			}
-
-		rnaPolyComplexSubunits = ["EG10893-MONOMER", "RPOB-MONOMER",
-			"RPOC-MONOMER", "RPOD-MONOMER"]
-
-		rnaPolyComplexMass = sum(
-			protein['mw'] for protein in self._proteins
-			if protein['id'] in rnaPolyComplexSubunits
-			)
-
-		self.uniqueMoleculeMasses = numpy.zeros(
-			shape = len(self.uniqueMoleculeDefinitions),
-			dtype = [
-				('moleculeId', 'a50'),
-				('massMetabolite', numpy.float),
-				('massRna', numpy.float),
-				('massProtein', numpy.float),
-				]
-			)
-
-		self.uniqueMoleculeMasses[0] = (
-			'activeRnaPoly',
-			0,
-			0,
-			rnaPolyComplexMass * G_PER_MOL_TO_FG_PER_MOLECULE
-			)
-
-		# TODO: units
-		# TODO: make this logic better overall
-
-
 	def _buildRnaExpression(self):
 		normalizedRnaExpression = numpy.zeros(sum(1 for x in self._rnas if x['unmodifiedForm'] == None),
 			dtype = [('rnaId',		'a50'),
@@ -1065,7 +1022,6 @@ class KnowledgeBaseEcoli(object):
 			'isRRna16S'	:	None,
 			'isRRna5S'	:	None
 			})
-
 
 	def _buildBiomass(self):
 		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
@@ -1223,24 +1179,6 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
 
-		units = {
-		'id'		:	None,
-		'synthProb' :	'dimensionless',
-		'degRate'	:	'1 / s',
-		'length'	:	'nucleotide',
-		'countsAUCG':	'nucleotide',
-		'mw'		:	'g / mol',
-		'isMRna'	:	None,
-		'isMiscRna'	:	None,
-		'isRRna'	:	None,
-		'isTRna'	:	None,
-		'isRRna23S'	:	None,
-		'isRRna16S'	:	None,
-		'isRRna5S'	:	None
-		}
-
-
-		self.rnaData = UnitStructArray(self.rnaData, units)
 
 	def _buildMonomerData(self):
 		monomers = [protein for protein in self._proteins 
@@ -1307,17 +1245,6 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['mw'] = mws
 
 		self.aaIDs = AMINO_ACID_1_TO_3_ORDERED.values()
-
-
-		units = {
-		'id'		:	None,
-		'rnaId'		:	None,
-		'length'	:	'amino_acid',
-		'aaCounts'	:	'amino_acid',
-		'mw'		:	'g / mol'
-		}
-
-		self.monomerData = UnitStructArray(self.monomerData, units)
 
 
 	def _buildRnaIndexToMonomerMapping(self):
