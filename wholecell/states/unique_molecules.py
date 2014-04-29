@@ -112,6 +112,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 			molecules = self.container.objectsInCollection(moleculeId)
 
+			if len(molecules) == 0:
+				continue
+
 			for molecule in molecules:
 				totalMass += massMetabolite
 				totalMass += massRna
@@ -149,6 +152,9 @@ class UniqueMolecules(wholecell.states.state.State):
 			mass = entry[submassKey]
 
 			molecules = self.container.objectsInCollection(moleculeId)
+
+			if len(molecules) == 0:
+				continue
 
 			for molecule in molecules:
 				totalMass += mass

@@ -62,6 +62,8 @@ class UniqueObjectsContainer(object):
 		}
 
 	def __init__(self, collectionsSpec):
+		self._time = 0
+
 		self._collectionsSpec = {} # collectionName:{attributeName:type}
 
 		self._collectionNames = [] # sorted list of object names
@@ -105,6 +107,8 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
+		attributes['_time'] = self._time
+
 		# Create multiple objects of the same type and attribute values
 		collectionIndex = self._collectionNameToIndexMapping[collectionName]
 		objectIndexes = self._getFreeIndexes(collectionIndex, nMolecules)
@@ -124,6 +128,7 @@ class UniqueObjectsContainer(object):
 		globalArray['_entryState'][globalIndexes] = _ENTRY_ACTIVE
 		globalArray['_collectionIndex'][globalIndexes] = collectionIndex
 		globalArray['_objectIndex'][globalIndexes] = objectIndexes
+		globalArray['_time'][globalIndexes] = self._time
 
 		# In collection, for each object, point to global reference
 		collection['_globalIndex'][objectIndexes] = globalIndexes
@@ -132,7 +137,7 @@ class UniqueObjectsContainer(object):
 
 
 	def objectNew(self, collectionName, **attributes):
-		(molecule,) = self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
+		(molecule,) = self.objectsNew(collectionName, 1, time = self._time, **attributes) # NOTE: tuple unpacking
 
 		return molecule
 
@@ -264,6 +269,8 @@ class UniqueObjectsContainer(object):
 
 
 	def timeIs(self, time):
+		self._time = time
+
 		for collection in self._collections:
 			collection['_time'] = time
 
@@ -309,10 +316,7 @@ class UniqueObjectsContainer(object):
 
 			entries = entryTable[entryTable.col('_time') == timePoint]
 
-			self._collections[collectionIndex] = np.array(
-				entries,
-				dtype = self._collections[collectionIndex].dtype
-				)
+			self._collections[collectionIndex] = entries
 
 
 	# TODO: compute mass
