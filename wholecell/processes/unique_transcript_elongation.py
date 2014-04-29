@@ -171,8 +171,32 @@ from cvxopt import matrix, sparse, spmatrix
 # TODO: line-profile
 def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 		randStream, useIntegerLinearProgramming = True):
+	"""polymerizePooledMonomers
 
-	deficits = monomerDeficits.reshape(-1)
+	Polymerizes (i.e. for transcription, translation) using a simplified model 
+	of polymer structure; the total counts of each monomer must be satisfied, 
+	but the order of addition to the nascent polymer does not matter.
+
+	Arguments:
+
+	monomerCounts, a vector of counts of each monomer
+	monomerDeficits, a matrix of monomers required (nPolymers)x(nMonomers)
+	maxElongation, a scalar value that defines the maximum elongation rate
+	randStream, a randStream object
+	useIntegerLinearProgramming, a flag that indicates that the solver should
+		use ILP over LP
+
+	ILP may produce better results but runs slower.
+	"""
+
+	# (I)LP algorithm:
+	# Choose v such that
+	# b = Av
+	# v < Gh
+	# min f^T v
+	# (all v integer-valued)
+
+	# Build the A matrix
 
 	nMonomers = monomerDeficits.shape[1]
 	nPolymers = monomerDeficits.shape[0]
@@ -199,13 +223,17 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	colIndexes[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = nMonomers + np.arange(nMonomers*nPolymers)
 	colIndexes[-nPolymers:] = nMonomers*(1+nPolymers) + np.arange(nPolymers)
 
+	# Build the bounds
+
 	lowerBounds = np.zeros(nEdges)
 
 	upperBounds = np.empty(nEdges)
 
 	upperBounds[:nMonomers] = monomerCounts
-	upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = deficits
+	upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = monomerDeficits.reshape(-1)
 	upperBounds[nMonomers+nMonomers*nPolymers:] = maxElongation
+
+	# Build the objective
 
 	# Add some noise to prevent systematic bias in polymer NT assignment
 	# NOTE: still not a great solution, see if a flexFBA solution exists
@@ -214,17 +242,11 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	objective = np.zeros(nEdges)
 	objective[nMonomers+nMonomers*nPolymers:] = -1 * (1 + objectiveNoise)
 
-	# Setting up (I)LP algorithm:
-	# Choose v such that
-	# b = Av
-	# v < Gh
-	# min f^T v
-	# (all v integer-valued)
+	# Build cvxopt-typed matrices/vectors
 
 	A = spmatrix(values, rowIndexes, colIndexes)
 	b = matrix(np.zeros(nNodes))
 
-	# TODO: build this matrix smarter
 	G = spmatrix(
 		[1]*nEdges + [-1]*nEdges,
 		np.arange(2*nEdges),
@@ -235,6 +257,8 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 
 	f = matrix(objective)
 
+	# Run (I)LP solver
+
 	if useIntegerLinearProgramming:
 		I = set(xrange(nEdges))
 		solution = ilp(f, G, h, A, b, I)
@@ -242,9 +266,11 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	else:
 		solution = lp(f, G, h, A, b)
 
-	fluxes = np.array(solution[1]).astype(np.int).flatten()
+	# Extract solution (monomers assigned)
 
-	assignments = fluxes[nMonomers:nMonomers+nMonomers*nPolymers]
+	v = np.array(solution[1]).astype(np.int).flatten()
+
+	assignments = v[nMonomers:nMonomers+nMonomers*nPolymers]
 
 	monomerAssignments = assignments.reshape(nPolymers, nMonomers)
 
