@@ -36,32 +36,32 @@ STATE_CLASSES = [
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
 import wholecell.processes.rna_degradation
-import wholecell.processes.bulk_transcription
+import wholecell.processes.transcription.bulk_transcription
 import wholecell.processes.translation
 import wholecell.processes.free_production
-import wholecell.processes.toy_transcription
+import wholecell.processes.transcription.toy_transcription
 import wholecell.processes.toy_protein_degradation
 import wholecell.processes.toy_replication
 import wholecell.processes.replication
-import wholecell.processes.transcription_net
+import wholecell.processes.transcription.transcription_net
 import wholecell.processes.translation_net
-import wholecell.processes.unique_transcript_initiation
-import wholecell.processes.unique_transcript_elongation
+import wholecell.processes.transcription.unique_transcript_initiation
+import wholecell.processes.transcription.unique_transcript_elongation
 
 PROCESS_CLASSES = [
 	wholecell.processes.metabolism.Metabolism,
 	wholecell.processes.rna_degradation.RnaDegradation,
-	wholecell.processes.bulk_transcription.BulkTranscription,
+	wholecell.processes.transcription.bulk_transcription.BulkTranscription,
 	wholecell.processes.translation.Translation,
 	wholecell.processes.free_production.FreeProduction,
-	wholecell.processes.toy_transcription.ToyTranscription,
+	wholecell.processes.transcription.toy_transcription.ToyTranscription,
 	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
 	wholecell.processes.toy_replication.ToyReplication,
 	wholecell.processes.replication.Replication,
-	wholecell.processes.transcription_net.TranscriptionNet,
+	wholecell.processes.transcription.transcription_net.TranscriptionNet,
 	wholecell.processes.translation_net.TranslationNet,
-	wholecell.processes.unique_transcript_initiation.UniqueTranscriptInitiation,
-	wholecell.processes.unique_transcript_elongation.UniqueTranscriptElongation
+	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
+	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation
 	]
 
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
