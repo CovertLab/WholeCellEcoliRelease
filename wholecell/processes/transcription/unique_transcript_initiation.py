@@ -41,8 +41,8 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
-		self.rnaNtCounts = kb.rnaData['countsAUCG']
-		self.rnaSynthProb = kb.rnaData['synthProb']
+		self.rnaNtCounts = kb.rnaData['countsAUCG'].to('nucleotide').magnitude
+		self.rnaSynthProb = kb.rnaData['synthProb'].to('dimensionless').magnitude
 
 		# Views
 
