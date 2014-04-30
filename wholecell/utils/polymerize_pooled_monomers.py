@@ -1,3 +1,6 @@
+
+from __future__ import division
+
 import numpy as np
 
 from cvxopt.glpk import ilp, lp
@@ -36,10 +39,10 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	nMonomers = monomerDeficits.shape[1]
 	nPolymers = monomerDeficits.shape[0]
 
-	nNodes = nMonomers + nPolymers # i.e. rows
-	nEdges = nMonomers * (1 + nPolymers) + nPolymers # i.e. columns
+	nNodes = nMonomers + 2*nPolymers # i.e. rows
+	nEdges = nMonomers * (1 + nPolymers) + nPolymers + 1 + nPolymers # i.e. columns
 
-	nNonzeroEntries = nMonomers + 2*nMonomers*nPolymers + nPolymers
+	nNonzeroEntries = nMonomers + 2*nMonomers*nPolymers + 5*nPolymers
 
 	values = np.empty(nNonzeroEntries)
 	rowIndexes = np.empty(nNonzeroEntries, np.int)
@@ -48,15 +51,27 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	values[:nMonomers] = 1
 	values[nMonomers:nMonomers*(1+nPolymers)] = -1
 	values[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = 1
-	values[-nPolymers:] = -1
+	values[nMonomers*(1+2*nPolymers):nMonomers*(1+2*nPolymers)+nPolymers] = -1
+	values[nMonomers*(1+2*nPolymers)+nPolymers:nMonomers*(1+2*nPolymers)+2*nPolymers] = -1
+	values[nMonomers*(1+2*nPolymers)+2*nPolymers:nMonomers*(1+2*nPolymers)+4*nPolymers] = 1
+	values[nMonomers*(1+2*nPolymers)+4*nPolymers:nMonomers*(1+2*nPolymers)+5*nPolymers] = -1
 
 	rowIndexes[:nMonomers*(1+nPolymers)] = np.tile(np.arange(nMonomers), 1+nPolymers)
 	rowIndexes[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = nMonomers + np.repeat(np.arange(nPolymers), nMonomers)
-	rowIndexes[-nPolymers:] = nMonomers + np.arange(nPolymers)
+	rowIndexes[nMonomers*(1+2*nPolymers):nMonomers*(1+2*nPolymers)+2*nPolymers] = np.tile(nMonomers + np.arange(nPolymers), 2)
+	rowIndexes[nMonomers*(1+2*nPolymers)+2*nPolymers:nMonomers*(1+2*nPolymers)+5*nPolymers] = np.tile(nMonomers + nPolymers + np.arange(nPolymers), 3)
 
 	colIndexes[:nMonomers*(1+nPolymers)] = np.arange(nMonomers*(1+nPolymers))
 	colIndexes[nMonomers*(1+nPolymers):nMonomers*(1+2*nPolymers)] = nMonomers + np.arange(nMonomers*nPolymers)
-	colIndexes[-nPolymers:] = nMonomers*(1+nPolymers) + np.arange(nPolymers)
+	colIndexes[nMonomers*(1+2*nPolymers):nMonomers*(1+2*nPolymers)+nPolymers] = nMonomers*(1+nPolymers) + np.arange(nPolymers)
+	colIndexes[nMonomers*(1+2*nPolymers)+nPolymers:nMonomers*(1+2*nPolymers)+2*nPolymers] = nMonomers*(1+nPolymers) + nPolymers
+	colIndexes[nMonomers*(1+2*nPolymers)+2*nPolymers:nMonomers*(1+2*nPolymers)+3*nPolymers] = nMonomers*(1+nPolymers) + np.arange(nPolymers)
+	colIndexes[nMonomers*(1+2*nPolymers)+3*nPolymers:nMonomers*(1+2*nPolymers)+4*nPolymers] = nMonomers*(1+nPolymers) + nPolymers
+	colIndexes[nMonomers*(1+2*nPolymers)+4*nPolymers:nMonomers*(1+2*nPolymers)+5*nPolymers] = nMonomers*(1+nPolymers) + nPolymers + 1 + np.arange(nPolymers)
+
+	temp_matrix = np.zeros((nNodes, nEdges))
+
+	temp_matrix[rowIndexes, colIndexes] = values
 
 	# Build the bounds
 
@@ -66,16 +81,20 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 
 	upperBounds[:nMonomers] = monomerCounts
 	upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = monomerDeficits.reshape(-1)
-	upperBounds[nMonomers+nMonomers*nPolymers:] = maxElongation
+	upperBounds[nMonomers+nMonomers*nPolymers:nMonomers*(1+nPolymers)+nPolymers+1] = np.inf
+	upperBounds[-nPolymers:] = maxElongation
 
 	# Build the objective
 
 	# Add some noise to prevent systematic bias in polymer NT assignment
-	# NOTE: still not a great solution, see if a flexFBA solution exists
-	objectiveNoise = 0.01 * (randStream.rand(nPolymers) / nPolymers)
+	objectiveNoise = 0.01 * randStream.rand(nPolymers)
+
+	# Provide a bonus to polymers that elongate past the global elongation minimum
+	bonusElongationWeight = 0.1/nPolymers
 
 	objective = np.zeros(nEdges)
-	objective[nMonomers+nMonomers*nPolymers:] = -1 * (1 + objectiveNoise)
+	objective[nMonomers*(1+nPolymers):nMonomers*(1+nPolymers)+nPolymers] = -bonusElongationWeight * (1 + objectiveNoise)
+	objective[nMonomers*(1+nPolymers)+nPolymers] = -1
 
 	# Build cvxopt-typed matrices/vectors
 
@@ -108,5 +127,7 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	assignments = v[nMonomers:nMonomers+nMonomers*nPolymers]
 
 	monomerAssignments = assignments.reshape(nPolymers, nMonomers)
+
+	import ipdb; ipdb.set_trace()
 
 	return monomerAssignments
