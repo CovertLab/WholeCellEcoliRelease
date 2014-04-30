@@ -22,9 +22,6 @@ DEFAULT_SIM = dict(
 	seed = 10,
 	lengthSec = 3600,
 	reconstructKB = True,
-	logToDisk = True,
-	outputDir = 'out/plotting/',
-	overwriteExistingFiles = True,
 	)
 
 def main():
