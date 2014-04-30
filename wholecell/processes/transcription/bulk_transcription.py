@@ -53,7 +53,7 @@ class BulkTranscription(wholecell.processes.process.Process):
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
 		# RNA
-		self.rnaNtCounts = kb.rnaData['countsAUCG']
+		self.rnaNtCounts = kb.rnaData['countsACGU']
 		self.rnaLens = kb.rnaData['length']
 		self.avgRnaLength = np.mean(self.rnaLens)
 		
