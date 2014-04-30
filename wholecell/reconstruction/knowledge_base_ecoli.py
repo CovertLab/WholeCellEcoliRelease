@@ -991,8 +991,8 @@ class KnowledgeBaseEcoli(object):
 		self.uniqueMoleculeDefinitions = {
 			'activeRnaPoly':{
 				'rnaIndex':'i8',
-				'requiredAUCG':'4i8',
-				'assignedAUCG':'4i8',
+				'requiredACGU':'4i8',
+				'assignedACGU':'4i8',
 				}
 			}
 
@@ -1143,8 +1143,8 @@ class KnowledgeBaseEcoli(object):
 			and len(rna['composition']) == 0])
 
 		ntCounts = numpy.array([
-			(rna['seq'].count('A'), rna['seq'].count('U'),
-				rna['seq'].count('C'), rna['seq'].count('G'))
+			(rna['seq'].count('A'), rna['seq'].count('C'),
+				rna['seq'].count('G'), rna['seq'].count('U'))
 			for rna in self._rnas
 			if rna['unmodifiedForm'] is None
 			and len(rna['composition']) == 0
@@ -1189,7 +1189,7 @@ class KnowledgeBaseEcoli(object):
 				('synthProb', 'f8'),
 				('degRate', 'f8'),
 				('length', 'i8'),
-				('countsAUCG', '4i8'),
+				('countsACGU', '4i8'),
 				('mw', 'f8'),
 				('isMRna', 'bool'),
 				('isMiscRna', 'bool'),
@@ -1205,7 +1205,7 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['synthProb'] = synthProb
 		self.rnaData['degRate'] = rnaDegRates
 		self.rnaData['length'] = rnaLens
-		self.rnaData['countsAUCG'] = ntCounts
+		self.rnaData['countsACGU'] = ntCounts
 		self.rnaData['mw'] = mws
 		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas
 			if rna['unmodifiedForm'] is None
@@ -1228,7 +1228,7 @@ class KnowledgeBaseEcoli(object):
 		'synthProb' :	'dimensionless',
 		'degRate'	:	'1 / s',
 		'length'	:	'nucleotide',
-		'countsAUCG':	'nucleotide',
+		'countsACGU':	'nucleotide',
 		'mw'		:	'g / mol',
 		'isMRna'	:	None,
 		'isMiscRna'	:	None,

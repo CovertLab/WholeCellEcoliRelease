@@ -185,7 +185,7 @@ def fitKb(kb):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	## Number of RNA Polymerases ##
-	rnaLengths = numpy.sum(kb.rnaData['countsAUCG'], axis = 1)
+	rnaLengths = numpy.sum(kb.rnaData['countsACGU'], axis = 1)
 
 	nRnapsNeeded = numpy.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
@@ -291,12 +291,12 @@ def fitKb(kb):
 
 	# RNA fraction
 	ntpView = biomassContainer.countsView(
-		["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
+		["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 		)
 
 	ntpMmolPerGDCW = (
 			numpy.sum(
-				kb.rnaData["countsAUCG"] *
+				kb.rnaData["countsACGU"] *
 				numpy.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
 				axis = 0
 			) * (

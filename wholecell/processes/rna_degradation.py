@@ -35,8 +35,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(RnaDegradation, self).initialize(sim, kb)
 
-		metaboliteIds = ["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]",
-			"H2O[c]", "H[c]", "ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"]
+		metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
+			"H2O[c]", "H[c]", "ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 
 		self._nmpIdxs = np.arange(0, 4)
 		self._h2oIdx = metaboliteIds.index('H2O[c]')
@@ -50,14 +50,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnaLens = kb.rnaData['length']
 
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
-		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb.rnaData['countsAUCG'])
+		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb.rnaData['countsACGU'])
 		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
 
 		# Views
 		self.metabolites = self.bulkMoleculesView(metaboliteIds)
 
-		self.nmps = self.bulkMoleculesView(["AMP[c]", "UMP[c]", "CMP[c]", "GMP[c]"])
+		self.nmps = self.bulkMoleculesView(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 		

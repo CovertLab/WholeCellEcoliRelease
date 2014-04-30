@@ -73,7 +73,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.bulkRnas = self.bulkMoleculesView(self.rnaIds)
 
-		self.ntps = self.bulkMoleculesView(["ATP[c]", "UTP[c]", "CTP[c]", "GTP[c]"])
+		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
@@ -99,7 +99,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			return
 
 		assignedNts, requiredNts, massDiffRna = activeRnaPolys.attrs(
-			'assignedAUCG', 'requiredAUCG', 'massDiffRna'
+			'assignedACGU', 'requiredACGU', 'massDiffRna'
 			)
 
 		deficitNts = requiredNts - assignedNts
@@ -126,7 +126,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		updatedMass[didInitialize] += self.hydroxylWeight
 
 		activeRnaPolys.attrIs(
-			assignedAUCG = updatedNts,
+			assignedACGU = updatedNts,
 			massDiffRna = updatedMass
 			)
 
