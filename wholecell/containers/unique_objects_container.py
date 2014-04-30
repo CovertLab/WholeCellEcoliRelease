@@ -472,7 +472,7 @@ class _UniqueObjectSet(object):
 
 		for i, collectionIndex in enumerate(uniqueColIndexes):
 			globalObjIndexes = np.where(inverse == i)
-			objectIndexesInCollection = self._globalIndexes[globalObjIndexes]
+			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 			
 			values[globalObjIndexes] = self._container._collections[collectionIndex][attribute][objectIndexesInCollection]
 
