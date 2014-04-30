@@ -128,6 +128,4 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 
 	monomerAssignments = assignments.reshape(nPolymers, nMonomers)
 
-	import ipdb; ipdb.set_trace()
-
 	return monomerAssignments
