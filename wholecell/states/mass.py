@@ -159,6 +159,11 @@ class Mass(wholecell.states.state.State):
 			"metabolite": tables.Float64Col(),
 			"rna": tables.Float64Col(),
 			"rrna": tables.Float64Col(),
+			"rrna23S": tables.Float64Col(),
+			"rrna16S": tables.Float64Col(),
+			"rrna5S": tables.Float64Col(),
+			"trna": tables.Float64Col(),
+			"mrna": tables.Float64Col(),
 			"protein": tables.Float64Col(),
 			"water": tables.Float64Col(),
 			"nucleoid": tables.Float64Col(),
@@ -181,6 +186,11 @@ class Mass(wholecell.states.state.State):
 		t.attrs.metabolite_units = self.massUnits
 		t.attrs.rna_units = self.massUnits
 		t.attrs.rrna_units = self.massUnits
+		t.attrs.rrna23S_units = self.massUnits
+		t.attrs.rrna16S_units = self.massUnits
+		t.attrs.rrna5S_units = self.massUnits
+		t.attrs.trna_units = self.massUnits
+		t.attrs.mrna_units = self.massUnits
 		t.attrs.protein_units = self.massUnits
 		t.attrs.water_units = self.massUnits
 		t.attrs.nucleoid_units = self.massUnits
@@ -196,6 +206,11 @@ class Mass(wholecell.states.state.State):
 		entry["metabolite"] = self.metabolite
 		entry["rna"] = self.rna
 		entry["rrna"] = self.rrna
+		entry["rrna23S"] = self.rrna23S
+		entry["rrna16S"] = self.rrna16S
+		entry["rrna5S"] = self.rrna5S
+		entry["trna"] = self.trna
+		entry["mrna"] = self.mrna
 		entry["protein"] = self.protein
 		entry["water"] = self.water
 		entry["nucleoid"] = self.nucleoid

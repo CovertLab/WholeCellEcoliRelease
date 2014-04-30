@@ -7,6 +7,8 @@ from cvxopt.glpk import ilp, lp
 from cvxopt import matrix, sparse, spmatrix
 
 # TODO: line-profile
+# TODO: rewrite objective such that it minimizes the difference between 
+# min(max elongation rate, total nt deficit) and the number of NTs assigned
 def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 		randStream, useIntegerLinearProgramming = True):
 	"""polymerizePooledMonomers
@@ -36,8 +38,8 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 
 	# Build the A matrix
 
-	nMonomers = monomerDeficits.shape[1]
-	nPolymers = monomerDeficits.shape[0]
+	nMonomers = monomerDeficits.shape[1] # number of types of monomers
+	nPolymers = monomerDeficits.shape[0] # number of types of polymers
 
 	nNodes = nMonomers + 2*nPolymers # i.e. rows
 	nEdges = nMonomers * (1 + nPolymers) + nPolymers + 1 + nPolymers # i.e. columns
@@ -69,19 +71,14 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	colIndexes[nMonomers*(1+2*nPolymers)+3*nPolymers:nMonomers*(1+2*nPolymers)+4*nPolymers] = nMonomers*(1+nPolymers) + nPolymers
 	colIndexes[nMonomers*(1+2*nPolymers)+4*nPolymers:nMonomers*(1+2*nPolymers)+5*nPolymers] = nMonomers*(1+nPolymers) + nPolymers + 1 + np.arange(nPolymers)
 
-	temp_matrix = np.zeros((nNodes, nEdges))
-
-	temp_matrix[rowIndexes, colIndexes] = values
-
 	# Build the bounds
 
 	lowerBounds = np.zeros(nEdges)
 
-	upperBounds = np.empty(nEdges)
+	upperBounds = monomerCounts.sum() * np.ones(nEdges) # extreme upper estimate for flux through any edge
 
 	upperBounds[:nMonomers] = monomerCounts
 	upperBounds[nMonomers:nMonomers+nMonomers*nPolymers] = monomerDeficits.reshape(-1)
-	upperBounds[nMonomers+nMonomers*nPolymers:nMonomers*(1+nPolymers)+nPolymers+1] = np.inf
 	upperBounds[-nPolymers:] = maxElongation
 
 	# Build the objective
