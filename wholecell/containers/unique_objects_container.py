@@ -499,7 +499,7 @@ class _UniqueObjectSet(object):
 
 		for i, collectionIndex in enumerate(uniqueColIndexes):
 			globalObjIndexes = np.where(inverse == i)
-			objectIndexesInCollection = self._globalIndexes[globalObjIndexes]
+			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
 			for attribute, values in attributes.viewitems():
 				self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = values[globalObjIndexes]
