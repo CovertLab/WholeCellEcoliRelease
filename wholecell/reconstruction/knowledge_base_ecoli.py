@@ -989,19 +989,37 @@ class KnowledgeBaseEcoli(object):
 		G_PER_MOL_TO_FG_PER_MOLECULE = 1e15 / 6.022e23
 
 		self.uniqueMoleculeDefinitions = {
-			'activeRnaPoly':{
-				'rnaIndex':'i8',
-				'requiredACGU':'4i8',
-				'assignedACGU':'4i8',
+			'activeRnaPoly' : {
+				'rnaIndex' : 'i8',
+				'requiredACGU' : '4i8',
+				'assignedACGU' : '4i8',
+				},
+			'activeRibosome' : {
+				'proteinIndex' : 'i8',
+				'requiredAAs' : '20i8',
+				'assignedAAs' : '20i8'
 				}
 			}
 
-		rnaPolyComplexSubunits = ["EG10893-MONOMER", "RPOB-MONOMER",
-			"RPOC-MONOMER", "RPOD-MONOMER"]
+		rnaPolyComplexSubunits = [
+			"EG10893-MONOMER", "EG10893-MONOMER",			# 2 sub-units are required
+			"RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
+			]
 
 		rnaPolyComplexMass = sum(
 			protein['mw'] for protein in self._proteins
 			if protein['id'] in rnaPolyComplexSubunits
+			)
+
+		# TODO: This is a bad hack that works because in the fitter
+		# I have forced expression to be these subunits only
+		ribosomeSubunits = [
+			"RRLA-RRNA", "RRSA-RRNA", "RRFA-RRNA"
+			]
+
+		ribosomeMass = sum(
+			rna['mw'] for rna in self._rnas
+			if rna['id'] in ribosomeSubunits
 			)
 
 		self.uniqueMoleculeMasses = numpy.zeros(
@@ -1019,6 +1037,12 @@ class KnowledgeBaseEcoli(object):
 			0,
 			0,
 			rnaPolyComplexMass * G_PER_MOL_TO_FG_PER_MOLECULE
+			)
+		self.uniqueMoleculeMasses[1] = (
+			'activeRibosome',
+			0,
+			ribosomeMass * G_PER_MOL_TO_FG_PER_MOLECULE,
+			0
 			)
 
 		# TODO: units
