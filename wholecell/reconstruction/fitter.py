@@ -86,6 +86,16 @@ def fitKb(kb):
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
 
+	# TODO: Remove this hack once complexation is working
+	rRna23SExpression[:] = 0.
+	rRna23SExpression[0] = 1.
+
+	rRna16SExpression[:] = 0.
+	rRna16SExpression[0] = 1.
+
+	rRna5SExpression[:] = 0.
+	rRna5SExpression[0] = 1.
+
 	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression))
 	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression))
 	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
