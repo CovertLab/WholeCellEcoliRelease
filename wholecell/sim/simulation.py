@@ -45,6 +45,8 @@ import wholecell.processes.toy_replication
 import wholecell.processes.replication
 import wholecell.processes.transcription.transcription_net
 import wholecell.processes.translation.translation_net
+import wholecell.processes.translation.unique_polypeptide_initiation
+import wholecell.processes.translation.unique_polypeptide_elongation
 import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 
@@ -60,6 +62,8 @@ PROCESS_CLASSES = [
 	wholecell.processes.replication.Replication,
 	wholecell.processes.transcription.transcription_net.TranscriptionNet,
 	wholecell.processes.translation.translation_net.TranslationNet,
+	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
+	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation
 	]
@@ -78,7 +82,8 @@ DEFAULT_PROCESSES = [
 	'RnaDegradation',
 	'UniqueTranscriptInitiation',
 	'UniqueTranscriptElongation',
-	'Translation',
+	'UniquePolypeptideInitiation',
+	'UniquePolypeptideElongation',
 	'Replication'
 	]
 
