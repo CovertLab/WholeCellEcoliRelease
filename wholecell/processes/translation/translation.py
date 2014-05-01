@@ -166,6 +166,6 @@ rib16S_IDs = [
 	]
 
 rib5S_IDs = [
-	"RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]", "RRFE-RRNA[c]",
-	"RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
+	"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]",
+	"RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
 	]
