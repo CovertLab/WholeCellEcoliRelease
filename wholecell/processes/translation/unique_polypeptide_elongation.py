@@ -101,7 +101,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.aas.requestAll()
 
 	# Calculate temporal evolution
-	@profile
 	def evolveState(self):
 		aaCounts = self.aas.counts()
 
