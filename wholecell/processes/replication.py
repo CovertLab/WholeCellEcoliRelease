@@ -34,14 +34,16 @@ class Replication(wholecell.processes.process.Process):
 		dNtpIds = ['DATP[c]', 'DTTP[c]', 'DCTP[c]', 'DGTP[c]']
 		dNmpIds = ['DAMP[n]', 'DTMP[n]', 'DCMP[n]', 'DGMP[n]']
 
+		self.sequence = kb.genomeSeq
+
 		# Views
 		self.dntps = self.bulkMoleculesView(dNtpIds)
 		self.dnmps = self.bulkMoleculesView(dNmpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 
 		self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.proton = self.bulkMoleculeView('H[c]')
 
+		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
 
 	def calculateRequest(self):
 		self.dntps.requestAll()
@@ -59,4 +61,3 @@ class Replication(wholecell.processes.process.Process):
 		self.dntps.countsDec(counts)
 
 		self.h2o.countDec(counts.sum())
-		# self.proton.countInc(counts.sum())
