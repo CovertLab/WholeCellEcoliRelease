@@ -999,6 +999,9 @@ class KnowledgeBaseEcoli(object):
 				'proteinIndex' : 'i8',
 				'requiredAAs' : '20i8',
 				'assignedAAs' : '20i8'
+				},
+			'activeDnaPolymerase' : {
+				'chromosomeLocation' : 'i32'
 				}
 			}
 
