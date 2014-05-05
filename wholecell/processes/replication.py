@@ -44,6 +44,7 @@ class Replication(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
+		self.dnaPolymerase.moleculesNew('activeDnaPolymerase', 2, chromosomeLocation = 3923882)
 
 	def calculateRequest(self):
 		self.dntps.requestAll()
