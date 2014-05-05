@@ -1048,6 +1048,12 @@ class KnowledgeBaseEcoli(object):
 			ribosomeMass * G_PER_MOL_TO_FG_PER_MOLECULE,
 			0
 			)
+		self.uniqueMoleculeMasses[2] = (
+			'activeDnaPolymerase',
+			0,
+			0,
+			0
+			)
 
 		# TODO: units
 		# TODO: make this logic better overall
