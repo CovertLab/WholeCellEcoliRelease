@@ -35,6 +35,7 @@ STATE_CLASSES = [
 
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
+import wholecell.processes.metabolism_fba
 import wholecell.processes.rna_degradation
 import wholecell.processes.transcription.bulk_transcription
 import wholecell.processes.translation.translation
@@ -52,6 +53,7 @@ import wholecell.processes.transcription.unique_transcript_elongation
 
 PROCESS_CLASSES = [
 	wholecell.processes.metabolism.Metabolism,
+	wholecell.processes.metabolism_fba.MetabolismFba,
 	wholecell.processes.rna_degradation.RnaDegradation,
 	wholecell.processes.transcription.bulk_transcription.BulkTranscription,
 	wholecell.processes.translation.translation.Translation,
