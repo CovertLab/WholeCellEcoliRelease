@@ -1425,8 +1425,7 @@ class KnowledgeBaseEcoli(object):
 		# data structures
 
 		allEnzymes = []
-		allLowerBounds = []
-		allUpperBounds = []
+		allReversibility = []
 		allReactionStoich = []
 
 		molecules = set()
@@ -1438,32 +1437,23 @@ class KnowledgeBaseEcoli(object):
 
 			enzymes = reaction['catBy']
 
-			lowerBound = reaction['lb']
-			upperBound = reaction['ub']
+			reversible = (reaction['dir'] == 0)
 
 			reactionStoich = {
 				'{}[{}]'.format(reactant['molecule'], reactant['location']) : reactant['coeff']
 				for reactant in reaction['stoichiometry']
-				}
+				} 
 
-			if enzymes is None:
-				enzymes = [None]
-
-			for enzyme in enzymes:
-				allEnzymes.append(enzyme)
-
-				allLowerBounds.append(lowerBound)
-				allUpperBounds.append(upperBound)
-
-				allReactionStoich.append(reactionStoich)
+			allEnzymes.append(enzymes)
+			allReversibility.append(reversible)
+			allReactionStoich.append(reactionStoich)
 
 			molecules |= reactionStoich.viewkeys()
 
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
 
-		self.metabolismLowerBounds = numpy.array(allLowerBounds)
-		self.metabolismUpperBounds = numpy.array(allUpperBounds)
+		self.metabolismReversibleReactions = numpy.array(allReversibility, numpy.bool)
 
 		self.metabolismStoichMatrix = numpy.zeros((nNodes, nEdges))
 
