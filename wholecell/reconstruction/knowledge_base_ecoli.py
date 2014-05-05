@@ -109,6 +109,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions()
 
 		self._buildComplexationMatrix()
+		self._buildMetabolism()
 
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
@@ -1415,6 +1416,71 @@ class KnowledgeBaseEcoli(object):
 		self.complexationMatrix = matrix
 		self.complexationMatrixComplexIds = complexNames
 		self.complexationMatrixSubunitIds = subunitNames
+
+
+	def _buildMetabolism(self):
+		# Build the matrices/vectors for metabolism (FBA)
+
+		# These may be modified/extended later, but should provide the basic
+		# data structures
+
+		allEnzymes = []
+		allLowerBounds = []
+		allUpperBounds = []
+		allReactionStoich = []
+
+		molecules = set()
+
+		for reaction in self._reactions:
+			assert reaction["process"] == "Metabolism"
+
+			# TODO: ask someone (Nick?) about the directions of these reactions
+
+			enzymes = reaction['catBy']
+
+			lowerBound = reaction['lb']
+			upperBound = reaction['ub']
+
+			reactionStoich = {
+				'{}[{}]'.format(reactant['molecule'], reactant['location']) : reactant['coeff']
+				for reactant in reaction['stoichiometry']
+				}
+
+			if enzymes is None:
+				enzymes = [None]
+
+			for enzyme in enzymes:
+				allEnzymes.append(enzyme)
+
+				allLowerBounds.append(lowerBound)
+				allUpperBounds.append(upperBound)
+
+				allReactionStoich.append(reactionStoich)
+
+			molecules |= reactionStoich.viewkeys()
+
+		nEdges = len(allEnzymes)
+		nNodes = len(molecules)
+
+		self.metabolismLowerBounds = numpy.array(allLowerBounds)
+		self.metabolismUpperBounds = numpy.array(allUpperBounds)
+
+		self.metabolismStoichMatrix = numpy.zeros((nNodes, nEdges))
+
+		# TODO: actually track/annotate enzymes, k_cats
+
+		self.metabolismMoleculeNames = sorted(molecules)
+
+		moleculeNameToIndex = {
+			molecule:i
+			for i, molecule in enumerate(self.metabolismMoleculeNames)
+			}
+
+		for reactionIndex, reactionStoich in enumerate(allReactionStoich):
+			for molecule, stoich in reactionStoich.viewitems():
+				moleculeIndex = moleculeNameToIndex[molecule]
+
+				self.metabolismStoichMatrix[moleculeIndex, reactionIndex] = stoich
 
 
 	def _buildConstants(self):
