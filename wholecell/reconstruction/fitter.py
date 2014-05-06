@@ -270,18 +270,9 @@ def fitKb(kb):
 		)
 
 	# Amino acid fraction
-	oneToThreeMapping = dict((
-		("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
-		("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
-		("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
-		("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
-		("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
-		("V", "VAL-L[c]")
-	)) # TOKB
+	aaIDs = [aaID for aaID in kb.aaIDs if aaID != "SEC-L[c]"] # TODO: include selenocysteine
 
-	aminoAcidView = biomassContainer.countsView(
-		[oneToThreeMapping[x] for x in kb._aaWeights.iterkeys() if x != "U"] # Ignore selenocysteine (TODO: Include it)
-		) # TODO: Don't use private variable from KB. Use AMINO_ACID_1_TO_3_ORDERED order.
+	aminoAcidView = biomassContainer.countsView(aaIDs)
 
 	aaMmolPerGDCW = (
 			numpy.sum(
