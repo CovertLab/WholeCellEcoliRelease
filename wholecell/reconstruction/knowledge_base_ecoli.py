@@ -18,6 +18,7 @@ import collections
 
 import os
 import sys
+import itertools
 
 # Set Django environmental variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
@@ -1472,14 +1473,41 @@ class KnowledgeBaseEcoli(object):
 
 				self.metabolismStoichMatrix[moleculeIndex, reactionIndex] = stoich
 
-		self.metabolismExchangeReactionIndexes = numpy.where((self.metabolismStoichMatrix != 0).sum(0) == 1)[0]
+		# Collect exchange reactions
 
-		self.metabolismExchangeReactionMolecules = [
+		## First, find anything that looks like an exchange reaction
+
+		exchangeIndexes = numpy.where((self.metabolismStoichMatrix != 0).sum(0) == 1)[0]
+
+		exchangeNames = [
 			self.metabolismMoleculeNames[
 				numpy.where(self.metabolismStoichMatrix[:, reactionIndex])[0][0]
 				]
-			for reactionIndex in self.metabolismExchangeReactionIndexes
+			for reactionIndex in exchangeIndexes
 			]
+
+		## Separate intercellular vs. extracellular (media) exchange fluxes
+
+		internalIndexes = []
+		internalNames = []
+
+		externalIndexes = []
+		externalNames = []
+
+		for index, name in itertools.izip(exchangeIndexes, exchangeNames):
+			if name.endswith('[e]'):
+				externalIndexes.append(index)
+				externalNames.append(name)
+
+			else:
+				internalIndexes.append(index)
+				internalNames.append(name)
+
+		self.metabolismInternalExchangeReactionIndexes = numpy.array(internalIndexes)
+		self.metabolismInternalExchangeReactionNames = internalNames
+
+		self.metabolismMediaExchangeReactionIndexes = numpy.array(externalIndexes)
+		self.metabolismMediaExchangeReactionNames = externalNames
 
 
 	def _buildConstants(self):
