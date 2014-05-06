@@ -16,7 +16,17 @@ import numpy as np
 
 import wholecell.processes.process
 
-UNCONSTRAINED_FLUX_VALUE = 1000.0
+UNCONSTRAINED_FLUX_VALUE = 10000.0
+
+REQUEST_SIMPLE = False # if True, doesn't run FBA twice, but requests all possible metabolites
+
+# TODO: better requests
+# TODO: flexFBA etc
+# TODO: explore dynamic biomass objectives
+# TODO: dark energy accounting
+# TODO: eliminate futile cycles
+# TODO: cache FBA vectors/matrices instead of rebuilding
+# TODO: media exchange constraints
 
 class MetabolismFba(wholecell.processes.process.Process):
 	""" MetabolismFba """
@@ -26,11 +36,14 @@ class MetabolismFba(wholecell.processes.process.Process):
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(MetabolismFba, self).initialize(sim, kb)
-
-		# TODO: see if biomass reaction is in some way already in the table
 		
 		wildtypeIds = kb.wildtypeBiomass['metaboliteId']
-		self.wildtypeBiomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude
+		self.biomassReaction = ( # TODO: validate this math
+			kb.wildtypeBiomass['biomassFlux'].magnitude
+			* 1e-3
+			* kb.nAvogadro.to('1 / mole').magnitude
+			* kb.avgCellDryMassInit.to('g').magnitude
+			)
 
 		# Must add one entry for the biomass reaction
 
@@ -41,33 +54,71 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 		self.nFluxes = self.stoichMatrix.shape[1]
 
-		self.reversibleReactions = kb.metabolismReversibleReactions
+		self.reversibleReactions = np.hstack([
+			kb.metabolismReversibleReactions,
+			np.array([False], np.bool)
+			])
 
 		indexes = [kb.metabolismMoleculeNames.index(moleculeName) for moleculeName in wildtypeIds]
 
-		self.stoichMatrix[indexes, -1] = -self.wildtypeBiomassReaction
+		self.stoichMatrix[indexes, -1] = -self.biomassReaction
 
 		self.objective = np.zeros(self.nFluxes)
-		self.objective[-1] = -1 # TODO: check signs
+		self.objective[-1] = -1
 
-		self.exchangeReactionIndexes = kb.metabolismExchangeReactionIndexes
+		self.mediaExchangeMoleculeNames = kb.metabolismMediaExchangeReactionNames
+		self.mediaExchangeIndexes = kb.metabolismMediaExchangeReactionIndexes
 
-		self.exchangeReactionMolecules = kb.metabolismExchangeReactionMolecules
+		self.sinkExchangeMoleculeNames = kb.metabolismSinkExchangeReactionNames
+		self.sinkExchangeIndexes = kb.metabolismSinkExchangeReactionIndexes
 
-		self.exchangedMolecules = self.bulkMoleculesView(
-			self.exchangeReactionMolecules
-			)
+		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
+		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
+
+		# Create views
 
 		self.biomassMolecules = self.bulkMoleculesView(wildtypeIds)
 
+		self.sinkMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
+
+		self.internalExchangeMolecules = self.bulkMoleculesView(self.internalExchangeMoleculeNames)
+
 
 	def calculateRequest(self):
-		# TODO: eliminate the LP solving here
-		self.exchangedMolecules.requestAll()
+		if REQUEST_SIMPLE:
+			# Request every internal metabolite
+			self.internalExchangeMolecules.requestAll()
+
+		else:
+			# Compute request assuming all metabolites are allocated
+			totalCounts = self.internalExchangeMolecules.total()
+
+			fluxes = self.computeFluxes(totalCounts)
+
+			internalUsage = np.fmax(
+				(fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int),
+				0
+				)
+
+			self.internalExchangeMolecules.requestIs(internalUsage)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		# Update metabolite counts based on computed fluxes
+
+		fluxes = self.computeFluxes(self.internalExchangeMolecules.counts())
+
+		internalUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
+		sinkProduction = (fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
+		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
+
+		self.internalExchangeMolecules.countsDec(internalUsage)
+		self.sinkMolecules.countsInc(sinkProduction)
+		self.biomassMolecules.countsInc(biomassProduction)
+
+
+	def computeFluxes(self, internalMoleculeCounts):
 		# Set up LP
 
 		lowerBounds = np.zeros(self.nFluxes)
@@ -76,34 +127,37 @@ class MetabolismFba(wholecell.processes.process.Process):
 		upperBounds = np.empty(self.nFluxes)
 		upperBounds.fill(UNCONSTRAINED_FLUX_VALUE)
 
-		upperBounds[self.exchangeReactionIndexes] = self.exchangedMolecules.counts() / self.timeStepSec
+		# TODO: find actual media exchange limits
+		upperBounds[self.mediaExchangeIndexes] = UNCONSTRAINED_FLUX_VALUE
 
-		# for moleculeIndex in np.where(self.exchangedMolecules.counts() == 0)[0]:
-		# 	warnings.warn('Unavailable exchange reaction molecule: {}'.format(
-		# 		self.exchangeReactionMolecules[moleculeIndex]
-		# 		))
+		upperBounds[self.internalExchangeIndexes] = internalMoleculeCounts / self.timeStepSec
 
-		fluxes = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
+		fluxes, status = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
 
-		if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
-			warnings.warn('Reaction fluxes approached solver bounds')
+		if status != "optimal":
+			warnings.warn("Linear programming did not converge")
 
-		exchangeUsage = -(fluxes[self.exchangeReactionIndexes] * self.timeStepSec).astype(np.int)
+		# if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
+		# 	warnings.warn("Reaction fluxes reached 'unconstrained' boundary")
 
-		biomassProduction = (fluxes[-1] * self.timeStepSec * self.wildtypeBiomassReaction).astype(np.int)
+		return fluxes
 
-		self.exchangedMolecules.countsDec(exchangeUsage)
-
-		self.biomassMolecules.countsInc(biomassProduction)
 
 import cvxopt.solvers
 from cvxopt import matrix, sparse, spmatrix
 
 def fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
+	# Solve the linear program:
+	# 0 = Sv
+	# lb <= v <= ub
+	# max {f^T v}
+
+	# Supress output
 	cvxopt.solvers.options["LPX_K_MSGLEV"] = 0
 
 	nNodes, nEdges = stoichiometricMatrix.shape
 
+	# Create cvxopt types
 	A = sparse(matrix(stoichiometricMatrix)) # NOTE: I don't know if this actually helps the solver
 	h = matrix(np.concatenate([upperBounds, -lowerBounds], axis = 0))
 	f = matrix(objective)
@@ -115,8 +169,11 @@ def fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
 		np.tile(np.arange(nEdges), 2)
 		)
 
+	# Solve LP
 	solution = cvxopt.solvers.lp(f, G, h, A = A, b = b, solver = 'glpk')
 
+	# Parse solution
 	fluxes = np.array(solution['x']).flatten()
+	status = solution["status"]
 
-	return fluxes
+	return fluxes, status
