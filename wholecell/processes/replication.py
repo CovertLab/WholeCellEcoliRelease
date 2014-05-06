@@ -13,6 +13,9 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
+import wholecell.utils.polymerize
+
+_NT_ORDER = ['A','T','G','C']
 
 class Replication(wholecell.processes.process.Process):
 	""" Replication """
@@ -35,6 +38,8 @@ class Replication(wholecell.processes.process.Process):
 		dNmpIds = ['DAMP[n]', 'DTMP[n]', 'DCMP[n]', 'DGMP[n]']
 
 		self.sequence = kb.genomeSeq
+		self.genomeLength = len(self.sequence)
+		self.dnaPolymeraseElongationRate = 200 # nt/s
 
 		# Views
 		self.dntps = self.bulkMoleculesView(dNtpIds)
@@ -52,27 +57,64 @@ class Replication(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
 
-		##############################
-		# Old code
-		self.dntps.requestAll()
-		self.h2o.requestIs(self.dntps.total().sum())
+		dnaPolymerase = self.dnaPolymerase.molecules()
 
+		totalNtRequest = np.array([0]*len(_NT_ORDER))
+		for p in dnaPolymerase:
+			totalNtRequest += self.calculateNucleotideRequest(p)
+
+		self.dntps.requestIs(totalNtRequest)
+		self.h2o.requestIs(np.sum(totalNtRequest))
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		activeDnaPolymerase = self.dnaPolymerase.molecules()
+		allDnaPolymerase = self.dnaPolymerase.molecules()
+		if len(allDnaPolymerase) == 0:
+			return
 
-		#if len(activeDnaPolymerase) == 0:
-		#	return
+		sequenceMatrix = self.buildSequenceMatrix(allDnaPolymerase)
+		ntpCounts = self.dntps.counts()
+		bases = np.array(_NT_ORDER)
+		basePadValue = ' '
+		energy = 0
+		energyCostPerBase = 0
+		progress, baseAmounts, baseCosts, energy, energyCost = wholecell.utils.polymerize.Polymerize(
+					sequenceMatrix, ntpCounts, bases, basePadValue, energy, energyCostPerBase
+					)
 
-		################################
-		# Old code
-		counts = self.dntps.counts()
+		for i,p in enumerate(allDnaPolymerase):
+			if p.attr('directionIsPositive') == True:
+				p.attrIs(chromosomeLocation = (p.attr('chromosomeLocation') + progress[i]) % self.genomeLength)
+			else:
+				p.attrIs(chromosomeLocation = (p.attr('chromosomeLocation') - progress[i]) % self.genomeLength)
 
-		self.ppi.countInc(counts.sum())
+		self.ppi.countInc(np.sum(baseCosts))
 
-		self.dnmps.countsInc(counts)
+		self.dnmps.countsInc(baseCosts)
 
-		self.dntps.countsDec(counts)
+		self.dntps.countsDec(baseCosts)
 
-		self.h2o.countDec(counts.sum())
+		self.h2o.countDec(np.sum(baseCosts))
+
+	def calculateNucleotideRequest(self, dnaPolymerase):
+		seq = self.calculateSequence(dnaPolymerase)
+		return np.array([seq.count(nt) for nt in _NT_ORDER])
+
+	def buildSequenceMatrix(self, allDnaPolymerase):
+		sequence = []
+		for p in allDnaPolymerase:
+			sequence.append(list(self.calculateSequence(p)))
+		import ipdb; ipdb.set_trace()
+		return np.matrix(sequence)
+
+	def calculateSequence(self, dnaPolymerase):
+		if dnaPolymerase.attr('directionIsPositive') == True:
+			start = dnaPolymerase.attr('chromosomeLocation') - 1
+			stop = dnaPolymerase.attr('chromosomeLocation') + self.dnaPolymeraseElongationRate
+		else:
+			start = dnaPolymerase.attr('chromosomeLocation') - self.dnaPolymeraseElongationRate
+			stop = dnaPolymerase.attr('chromosomeLocation')
+		return self.sequence[start : stop]
+
+		# TODO: Check for hitting the end of the chromosome!
+
