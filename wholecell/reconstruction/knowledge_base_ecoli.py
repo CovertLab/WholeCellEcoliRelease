@@ -1454,9 +1454,7 @@ class KnowledgeBaseEcoli(object):
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
 
-		self.metabolismReversibleReactions = numpy.array(allReversibility, numpy.bool)
-
-		self.metabolismStoichMatrix = numpy.zeros((nNodes, nEdges))
+		stoichMatrix = numpy.zeros((nNodes, nEdges))
 
 		# TODO: actually track/annotate enzymes, k_cats
 
@@ -1471,25 +1469,25 @@ class KnowledgeBaseEcoli(object):
 			for molecule, stoich in reactionStoich.viewitems():
 				moleculeIndex = moleculeNameToIndex[molecule]
 
-				self.metabolismStoichMatrix[moleculeIndex, reactionIndex] = stoich
+				stoichMatrix[moleculeIndex, reactionIndex] = stoich
 
 		# Collect exchange reactions
 
 		## First, find anything that looks like an exchange reaction
 
-		exchangeIndexes = numpy.where((self.metabolismStoichMatrix != 0).sum(0) == 1)[0]
+		exchangeIndexes = numpy.where((stoichMatrix != 0).sum(0) == 1)[0]
 
 		exchangeNames = [
 			self.metabolismMoleculeNames[
-				numpy.where(self.metabolismStoichMatrix[:, reactionIndex])[0][0]
+				numpy.where(stoichMatrix[:, reactionIndex])[0][0]
 				]
 			for reactionIndex in exchangeIndexes
 			]
 
 		## Separate intercellular (sink) vs. extracellular (media) exchange fluxes
 
-		internalIndexes = []
-		internalNames = []
+		sinkIndexes = []
+		sinkNames = []
 
 		externalIndexes = []
 		externalNames = []
@@ -1500,14 +1498,52 @@ class KnowledgeBaseEcoli(object):
 				externalNames.append(name)
 
 			else:
-				internalIndexes.append(index)
-				internalNames.append(name)
+				sinkIndexes.append(index)
+				sinkNames.append(name)
 
-		self.metabolismSinkExchangeReactionIndexes = numpy.array(internalIndexes)
-		self.metabolismSinkExchangeReactionNames = internalNames
+		self.metabolismSinkExchangeReactionIndexes = numpy.array(sinkIndexes)
+		self.metabolismSinkExchangeReactionNames = sinkNames
 
 		self.metabolismMediaExchangeReactionIndexes = numpy.array(externalIndexes)
 		self.metabolismMediaExchangeReactionNames = externalNames
+
+		# Extend stoich matrix to include intercellular exchange fluxes
+
+		# There are a few possible approaches that need to be discussed/tested
+		# Exhaustive: exchange fluxes for every non-extracellular metabolite
+		# Simplified: exchange fluxes for every imported extracellular metabolite
+		# Rational: actually look at the network structure
+
+		# For now, I'm taking the exhaustive approach
+
+		internalNames = [
+			moleculeName
+			for moleculeName in self.metabolismMoleculeNames
+			if not moleculeName.endswith('[e]') and moleculeName not in sinkNames
+			]
+
+		internalIndexes = []
+
+		self.metabolismStoichMatrix = numpy.hstack([
+			stoichMatrix,
+			numpy.zeros((nNodes, len(internalNames)))
+			])
+
+		allReversibility.extend([True]*len(internalNames))
+
+		for i, name in enumerate(internalNames):
+			reactionIndex = nEdges + i
+
+			moleculeIndex = moleculeNameToIndex[name]
+
+			self.metabolismStoichMatrix[moleculeIndex, reactionIndex] = +1
+
+			internalIndexes.append(reactionIndex)
+
+		self.metabolismReversibleReactions = numpy.array(allReversibility, numpy.bool)
+
+		self.metabolismInternalExchangeReactionIndexes = numpy.array(internalIndexes)
+		self.metabolismInternalExchangeReactionNames = internalNames
 
 
 	def _buildConstants(self):
