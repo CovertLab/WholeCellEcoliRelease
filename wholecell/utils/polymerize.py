@@ -2,7 +2,7 @@
 
 import numpy as np
 
-def polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase):
+def Polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase):
 	'''
 	polymerize
 	Computes the maximum polymerization for the available amounts of bases
