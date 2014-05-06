@@ -1425,6 +1425,8 @@ class KnowledgeBaseEcoli(object):
 		# These may be modified/extended later, but should provide the basic
 		# data structures
 
+		# Collect reaction information
+
 		allEnzymes = []
 		allReversibility = []
 		allReactionStoich = []
@@ -1433,8 +1435,6 @@ class KnowledgeBaseEcoli(object):
 
 		for reaction in self._reactions:
 			assert reaction["process"] == "Metabolism"
-
-			# TODO: ask someone (Nick?) about the directions of these reactions
 
 			enzymes = reaction['catBy']
 
@@ -1464,6 +1464,8 @@ class KnowledgeBaseEcoli(object):
 			molecule:i
 			for i, molecule in enumerate(self.metabolismMoleculeNames)
 			}
+
+		# Fill in the basic reaction matrix (as described by Feist)
 
 		for reactionIndex, reactionStoich in enumerate(allReactionStoich):
 			for molecule, stoich in reactionStoich.viewitems():
@@ -1513,6 +1515,7 @@ class KnowledgeBaseEcoli(object):
 		# Exhaustive: exchange fluxes for every non-extracellular metabolite
 		# Simplified: exchange fluxes for every imported extracellular metabolite
 		# Rational: actually look at the network structure
+		# Empirical: run simulation and see what is used
 
 		# For now, I'm taking the exhaustive approach
 
@@ -1529,6 +1532,7 @@ class KnowledgeBaseEcoli(object):
 			numpy.zeros((nNodes, len(internalNames)))
 			])
 
+		# TODO: decide whether these exchange reactions should be reversible
 		allReversibility.extend([True]*len(internalNames))
 
 		for i, name in enumerate(internalNames):

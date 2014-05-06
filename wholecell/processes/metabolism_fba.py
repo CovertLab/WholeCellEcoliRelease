@@ -54,7 +54,10 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 		self.nFluxes = self.stoichMatrix.shape[1]
 
-		self.reversibleReactions = kb.metabolismReversibleReactions
+		self.reversibleReactions = np.hstack([
+			kb.metabolismReversibleReactions,
+			np.array([False], np.bool)
+			])
 
 		indexes = [kb.metabolismMoleculeNames.index(moleculeName) for moleculeName in wildtypeIds]
 
@@ -72,6 +75,8 @@ class MetabolismFba(wholecell.processes.process.Process):
 		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
 		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
 
+		# Create views
+
 		self.biomassMolecules = self.bulkMoleculesView(wildtypeIds)
 
 		self.sinkMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
@@ -81,9 +86,11 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		if REQUEST_SIMPLE:
+			# Request every internal metabolite
 			self.internalExchangeMolecules.requestAll()
 
 		else:
+			# Compute request assuming all metabolites are allocated
 			totalCounts = self.internalExchangeMolecules.total()
 
 			fluxes = self.computeFluxes(totalCounts)
@@ -98,18 +105,16 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		# Update metabolite counts based on computed fluxes
+
 		fluxes = self.computeFluxes(self.internalExchangeMolecules.counts())
 
 		internalUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
-
 		sinkProduction = (fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
-
 		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
 
 		self.internalExchangeMolecules.countsDec(internalUsage)
-
 		self.sinkMolecules.countsInc(sinkProduction)
-
 		self.biomassMolecules.countsInc(biomassProduction)
 
 
@@ -142,10 +147,17 @@ import cvxopt.solvers
 from cvxopt import matrix, sparse, spmatrix
 
 def fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
+	# Solve the linear program:
+	# 0 = Sv
+	# lb <= v <= ub
+	# max {f^T v}
+
+	# Supress output
 	cvxopt.solvers.options["LPX_K_MSGLEV"] = 0
 
 	nNodes, nEdges = stoichiometricMatrix.shape
 
+	# Create cvxopt types
 	A = sparse(matrix(stoichiometricMatrix)) # NOTE: I don't know if this actually helps the solver
 	h = matrix(np.concatenate([upperBounds, -lowerBounds], axis = 0))
 	f = matrix(objective)
@@ -157,10 +169,11 @@ def fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
 		np.tile(np.arange(nEdges), 2)
 		)
 
+	# Solve LP
 	solution = cvxopt.solvers.lp(f, G, h, A = A, b = b, solver = 'glpk')
 
+	# Parse solution
 	fluxes = np.array(solution['x']).flatten()
-
 	status = solution["status"]
 
 	return fluxes, status
