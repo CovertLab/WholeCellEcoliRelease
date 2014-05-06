@@ -29,7 +29,7 @@ class Test_polymerize(unittest.TestCase):
 		energyCostPerBase = 0
 		
 		# Good calls test
-		p.Polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+		p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 	
 	
 	@noseAttrib.attr('polymerizeTest')
@@ -42,24 +42,24 @@ class Test_polymerize(unittest.TestCase):
 		energy = 0
 		energyCostPerBase = 0
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			sequences_bad = 'foobar'
-			p.Polymerize(sequences_bad, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences_bad, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'sequences must be a numpy matrix!\n')
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			baseAmounts_bad = 'foobar'
-			p.Polymerize(sequences, baseAmounts_bad, bases, basePadValue, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences, baseAmounts_bad, bases, basePadValue, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'baseAmounts must be an ndarray!\n')
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			bases_bad = 'foobar'
-			p.Polymerize(sequences, baseAmounts, bases_bad, basePadValue, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences, baseAmounts, bases_bad, basePadValue, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'bases must be an ndarray!\n')
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			basePadValue_bad = True
-			p.Polymerize(sequences, baseAmounts, bases, basePadValue_bad, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue_bad, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'basePadValue must be a string!\n')
 	
 			
@@ -73,19 +73,19 @@ class Test_polymerize(unittest.TestCase):
 		energy = 0
 		energyCostPerBase = 0
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			sequences_bad = np.matrix([], dtype = '|S1')
-			p.Polymerize(sequences_bad, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences_bad, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'sequences has no data!\n')
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			sequences_bad = np.matrix([['1','2','3','4'],['G','T','A','C'],['C','C','T','T']])
-			p.Polymerize(sequences_bad, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences_bad, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'sequences uses incorrect alphabet!\n')
 		
-		with self.assertRaises(p.polymerizeException) as context:
+		with self.assertRaises(p.polymerizeMatrixException) as context:
 			basePadValue_bad = 'A'
-			p.Polymerize(sequences, baseAmounts, bases, basePadValue_bad, energy, energyCostPerBase)
+			p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue_bad, energy, energyCostPerBase)
 		self.assertEqual(context.exception.message, 'basePadValue has the same value as a base!\n')
 	
 	
@@ -100,7 +100,7 @@ class Test_polymerize(unittest.TestCase):
 		energyCostPerBase = 2
 		
 		np.random.seed(1)
-		progress, baseAmounts, baseCosts, energy, energyCost = p.Polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+		progress, baseAmounts, baseCosts, energy, energyCost = p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		np.random.seed()
 		
 		self.assertTrue((np.array([2,1]) == progress).all())
@@ -124,7 +124,7 @@ class Test_polymerize(unittest.TestCase):
 		energyCostPerBase = 1
 		
 		np.random.seed(1)
-		progress, baseAmounts, baseCosts, energy, energyCost = p.Polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+		progress, baseAmounts, baseCosts, energy, energyCost = p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		np.random.seed()
 		
 		self.assertTrue((np.array([10,9,9,0]) == progress).all())
@@ -148,7 +148,7 @@ class Test_polymerize(unittest.TestCase):
 		energyCostPerBase = 1
 		
 		np.random.seed(1)
-		progress, baseAmounts, baseCosts, energy, energyCost = p.Polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+		progress, baseAmounts, baseCosts, energy, energyCost = p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		np.random.seed()
 		
 		self.assertTrue((np.array([12,9,9,0]) == progress).all())
@@ -179,7 +179,7 @@ class Test_polymerize(unittest.TestCase):
 		energyCostPerBase = 2
 		
 		np.random.seed(3)
-		translationProgress, newAminoacylatedTRNAs, aminoacylatedTRNACosts, newEnergy, energyCost = p.Polymerize(elngSeqs, aminoacylatedTRNAs, TRNAs, basePadValue, energy, energyCostPerBase)
+		translationProgress, newAminoacylatedTRNAs, aminoacylatedTRNACosts, newEnergy, energyCost = p.PolymerizeMatrix(elngSeqs, aminoacylatedTRNAs, TRNAs, basePadValue, energy, energyCostPerBase)
 		np.random.seed()
 		
 		
@@ -215,7 +215,7 @@ class Test_polymerize(unittest.TestCase):
 		energyCostPerBase = 1
 		
 		np.random.seed(1)
-		progress, baseAmounts, baseCosts, energy, energyCost = p.Polymerize(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
+		progress, baseAmounts, baseCosts, energy, energyCost = p.PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue, energy, energyCostPerBase)
 		np.random.seed()
 		
 		self.assertTrue((np.array([12,12,12,3]) == progress).all())
