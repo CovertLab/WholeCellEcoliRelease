@@ -65,6 +65,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		# Clear out any deleted entries to make room for new molecules
 		self.container.flushDeleted()
+
+		# Remove any prior partition assignments
+		self.container.objects().attrIs(_partitionedProcess = 0)
 		
 		# Gather requests
 		nMolecules = self.container._collections[self.container._globalRefIndex].size
