@@ -88,7 +88,10 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 			fluxes = self.computeFluxes(totalCounts)
 
-			internalUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
+			internalUsage = np.fmax(
+				(fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int),
+				0
+				)
 
 			self.internalExchangeMolecules.requestIs(internalUsage)
 
