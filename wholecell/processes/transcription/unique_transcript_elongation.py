@@ -101,7 +101,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		assignedNts, requiredNts, massDiffRna = activeRnaPolys.attrs(
 			'assignedACGU', 'requiredACGU', 'massDiffRna'
 			)
-
+ 
 		deficitNts = requiredNts - assignedNts
 
 		newlyAssignedNts = polymerizePooledMonomers(

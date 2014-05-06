@@ -50,12 +50,23 @@ class Replication(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		self.dnaPolymerase.requestAll()
+
+		##############################
+		# Old code
 		self.dntps.requestAll()
 		self.h2o.requestIs(self.dntps.total().sum())
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		activeDnaPolymerase = self.dnaPolymerase.molecules()
+
+		#if len(activeDnaPolymerase) == 0:
+		#	return
+
+		################################
+		# Old code
 		counts = self.dntps.counts()
 
 		self.ppi.countInc(counts.sum())
