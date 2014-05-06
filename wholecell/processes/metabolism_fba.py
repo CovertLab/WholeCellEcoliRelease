@@ -56,18 +56,16 @@ class MetabolismFba(wholecell.processes.process.Process):
 		self.mediaExchangeMoleculeNames = kb.metabolismMediaExchangeReactionNames
 		self.mediaExchangeIndexes = kb.metabolismMediaExchangeReactionIndexes
 
-		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
-		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
+		self.sinkExchangeMoleculeNames = kb.metabolismSinkExchangeReactionNames
+		self.sinkExchangeIndexes = kb.metabolismSinkExchangeReactionIndexes
 
 		self.biomassMolecules = self.bulkMoleculesView(wildtypeIds)
 
-		# self.mediaExchangeMolecules = self.bulkMoleculesView(self.mediaExchangeMoleculeNames)
-
-		self.internalExchangeMolecules = self.bulkMoleculesView(self.internalExchangeMoleculeNames)
+		self.sinkExchangeMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
 
 
 	def calculateRequest(self):
-		self.internalExchangeMolecules.requestAll()
+		pass
 
 
 	# Calculate temporal evolution
@@ -80,14 +78,6 @@ class MetabolismFba(wholecell.processes.process.Process):
 		upperBounds = np.empty(self.nFluxes)
 		upperBounds.fill(UNCONSTRAINED_FLUX_VALUE)
 
-		# upperBounds[self.internalExchangeIndexes] = self.internalExchangeMolecules.counts() / self.timeStepSec
-
-		# TODO: initialize simulation with these molecules instead of using this hack
-		upperBounds[self.internalExchangeIndexes] = np.fmax(
-			self.internalExchangeMolecules.counts() / self.timeStepSec,
-			UNCONSTRAINED_FLUX_VALUE
-			)
-
 		# TODO: find actual media exchange limits
 		upperBounds[self.mediaExchangeIndexes] = UNCONSTRAINED_FLUX_VALUE
 
@@ -96,20 +86,14 @@ class MetabolismFba(wholecell.processes.process.Process):
 		if status != "optimal":
 			warnings.warn("Linear programming did not converge")
 
-		if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
-			warnings.warn("Reaction fluxes reached 'unconstrained' boundary")
+		# if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
+		# 	warnings.warn("Reaction fluxes reached 'unconstrained' boundary")
 
-		internalExchangeUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
+		sinkExchangeUsage = (fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
 
 		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
 
-		# self.internalExchangeMolecules.countsDec(internalExchangeUsage)
-
-		# TODO: see TODO above regarding the internal exchange molecules hack
-		self.internalExchangeMolecules.countsDec(np.fmin(
-			internalExchangeUsage,
-			self.internalExchangeMolecules.counts()
-			))
+		self.sinkExchangeMolecules.countsInc(sinkExchangeUsage)
 
 		self.biomassMolecules.countsInc(biomassProduction)
 
