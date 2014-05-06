@@ -502,7 +502,13 @@ class _UniqueObjectSet(object):
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
 			for attribute, values in attributes.viewitems():
-				self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = values[globalObjIndexes]
+				valuesAsArray = np.array(values)
+
+				if valuesAsArray.size == 1: # is a singleton
+					self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray
+
+				else:
+					self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray[globalObjIndexes]
 
 	# TODO: set-like operations (union, intersection, etc.)
 
