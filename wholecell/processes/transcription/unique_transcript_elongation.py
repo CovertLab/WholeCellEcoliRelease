@@ -104,24 +104,36 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
  
 		deficitNts = requiredNts - assignedNts
 
-		newlyAssignedNts = polymerizePooledMonomers(
-			ntpCounts,
-			deficitNts,
-			self.elngRate,
-			self.randStream,
-			useIntegerLinearProgramming = False
+		updatedNts = assignedNts.copy()
+		ntpsUsed = np.zeros_like(ntpCounts)
+
+		wholecell.utils.polymerize.polymerize(
+			self.elngRate, deficitNts, requiredNts, ntpCounts,
+			updatedNts, ntpsUsed, self.seed
 			)
 
-		ntpsUsed = newlyAssignedNts.sum(axis = 0)
+		assert np.all(updatedNts <= requiredNts)
 
-		updatedNts = newlyAssignedNts + assignedNts
+		# newlyAssignedNts = polymerizePooledMonomers(
+		# 	ntpCounts,
+		# 	deficitNts,
+		# 	self.elngRate,
+		# 	self.randStream,
+		# 	useIntegerLinearProgramming = False
+		# 	)
+
+		# ntpsUsed = newlyAssignedNts.sum(axis = 0)
+
+		# updatedNts = newlyAssignedNts + assignedNts
 
 		didInitialize = (
 			(assignedNts.sum(axis = 1) == 0) &
 			(updatedNts.sum(axis = 1) > 0)
 			)
 
-		updatedMass = massDiffRna + np.dot(newlyAssignedNts, self.ntWeights)
+		updatedMass = massDiffRna + np.dot(
+			(updatedNts - assignedNts), self.ntWeights
+			)
 
 		updatedMass[didInitialize] += self.hydroxylWeight
 
