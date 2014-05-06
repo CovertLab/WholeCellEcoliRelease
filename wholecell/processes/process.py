@@ -31,6 +31,8 @@ class Process(object):
 		# Simulation random stream
 		self.randStream = None
 
+		self.seed = None
+
 		# References to state
 		self._states = None
 

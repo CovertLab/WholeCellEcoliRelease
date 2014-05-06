@@ -265,13 +265,15 @@ class Simulation(object):
 	def _evolveState(self):
 		# Update randstreams
 		for stateName, state in self.states.iteritems():
+			state.seed = np.uint32(self.seed + self.simulationStep + hash(stateName))
 			state.randStream = wholecell.utils.rand_stream.RandStream(
-				seed = np.uint32(self.seed + self.simulationStep + hash(stateName))
+				seed = state.seed
 				)
 
 		for processName, process in self.processes.iteritems():
+			process.seed = np.uint32(self.seed + self.simulationStep + hash(processName))
 			process.randStream = wholecell.utils.rand_stream.RandStream(
-				seed = np.uint32(self.seed + self.simulationStep + hash(processName))
+				seed = process.seed
 				)
 
 		# Update queries
