@@ -15,7 +15,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_pooled_monomers import polymerizePooledMonomers
+import wholecell.utils.polymerize
 from wholecell.states.bulk_molecules import calculatePartition
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
@@ -105,7 +105,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		aaCounts = self.aas.counts()
 
 		activeRibosomes = self.activeRibosomes.molecules()
-		print "I am: %s, %d" % (self._name, len(activeRibosomes))
 
 		if len(activeRibosomes) == 0:
 			return
@@ -116,46 +115,20 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		deficitAAs = requiredAAs - assignedAAs
 
-		NTASKS = 200
-
-		isAbsoluteReq = np.zeros(NTASKS, dtype = np.bool)
-		aasRequested = np.zeros((aaCounts.size, NTASKS), dtype = np.int64)
-
-		for taskIdx in xrange(NTASKS):
-			startPos, nElements = getWorkAssignment(
-				deficitAAs.shape[0], taskIdx, NTASKS
-				)
-			aasRequested[:, taskIdx] = np.sum(
-				deficitAAs[startPos : startPos + nElements, :], axis = 0
-				)
-
-		aasAllocated = np.zeros_like(aasRequested)
-		calculatePartition(isAbsoluteReq, aasRequested, aaCounts, aasAllocated)
-
-		updatedAAs = assignedAAs
-		updatedMass = massDiffProtein
+		updatedAAs = assignedAAs.copy()
 		aasUsed = np.zeros_like(aaCounts)
 
-		for taskIdx in xrange(NTASKS):
-			startPos, nElements = getWorkAssignment(
-				deficitAAs.shape[0], taskIdx, NTASKS
-				)
+		wholecell.utils.polymerize.polymerize(
+			self.elngRate, deficitAAs, requiredAAs, aaCounts,
+			updatedAAs, aasUsed, self.seed
+			)
 
-			newlyAssignedAAs = polymerizePooledMonomers(
-				aasAllocated[:, taskIdx],
-				deficitAAs[startPos : startPos + nElements, :],
-				self.elngRate,
-				self.randStream,
-				useIntegerLinearProgramming = False
-				)
+		assert np.all(updatedAAs <= requiredAAs), "Polypeptides got elongated more than possible!"
 
+		updatedMass = massDiffProtein + np.dot(
+			(updatedAAs - assignedAAs), self.aaWeightsIncorporated
+			).flatten()
 
-			aasUsed += newlyAssignedAAs.sum(axis = 0)
-
-			updatedAAs[startPos : startPos + nElements, :] += newlyAssignedAAs
-			updatedMass[startPos : startPos + nElements] += np.dot(
-				newlyAssignedAAs, self.aaWeightsIncorporated
-				).flatten()
 
 		didInitialize = (
 			(assignedAAs.sum(axis = 1) == 0) &

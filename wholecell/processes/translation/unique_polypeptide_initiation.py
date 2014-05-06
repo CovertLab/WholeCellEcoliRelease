@@ -108,7 +108,6 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		self.rRna23S.countsDec(nNewProteins.sum())
 		self.rRna16S.countsDec(nNewProteins.sum())
 		self.rRna5S.countsDec(nNewProteins.sum())
-		print nNewProteins.sum(), inactiveRibosomes
 
 # TODO: To kb
 rib23S_IDs = [
