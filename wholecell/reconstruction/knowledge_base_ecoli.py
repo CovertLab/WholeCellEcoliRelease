@@ -1472,7 +1472,7 @@ class KnowledgeBaseEcoli(object):
 
 				self.metabolismStoichMatrix[moleculeIndex, reactionIndex] = stoich
 
-		self.metabolismExchangeReactionIndexes = numpy.where((self.metabolismStoichMatrix != 0).sum(1) == 1)[0]
+		self.metabolismExchangeReactionIndexes = numpy.where((self.metabolismStoichMatrix != 0).sum(0) == 1)[0]
 
 		self.metabolismExchangeReactionMolecules = [
 			self.metabolismMoleculeNames[
