@@ -153,7 +153,7 @@ class UniqueMolecules(wholecell.states.state.State):
 			if len(molecules) == 0:
 				continue
 
-			totalMass += mass * len(molecules) * molecules.attr(submassDiffKey).sum()
+			totalMass += mass * len(molecules) + molecules.attr(submassDiffKey).sum()
 
 		return totalMass
 
