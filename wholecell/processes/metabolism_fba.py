@@ -18,6 +18,16 @@ import wholecell.processes.process
 
 UNCONSTRAINED_FLUX_VALUE = 10000.0
 
+REQUEST_SIMPLE = False # if True, doesn't run FBA twice, but requests all possible metabolites
+
+# TODO: better requests
+# TODO: flexFBA etc
+# TODO: explore dynamic biomass objectives
+# TODO: dark energy accounting
+# TODO: eliminate futile cycles
+# TODO: cache FBA vectors/matrices instead of rebuilding
+# TODO: media exchange constraints
+
 class MetabolismFba(wholecell.processes.process.Process):
 	""" MetabolismFba """
 
@@ -59,17 +69,48 @@ class MetabolismFba(wholecell.processes.process.Process):
 		self.sinkExchangeMoleculeNames = kb.metabolismSinkExchangeReactionNames
 		self.sinkExchangeIndexes = kb.metabolismSinkExchangeReactionIndexes
 
+		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
+		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
+
 		self.biomassMolecules = self.bulkMoleculesView(wildtypeIds)
 
-		self.sinkExchangeMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
+		self.sinkMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
+
+		self.internalExchangeMolecules = self.bulkMoleculesView(self.internalExchangeMoleculeNames)
 
 
 	def calculateRequest(self):
-		pass
+		if REQUEST_SIMPLE:
+			self.internalExchangeMolecules.requestAll()
+
+		else:
+			totalCounts = self.internalExchangeMolecules.total()
+
+			fluxes = self.computeFluxes(totalCounts)
+
+			internalUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
+
+			self.internalExchangeMolecules.requestIs(internalUsage)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		fluxes = self.computeFluxes(self.internalExchangeMolecules.counts())
+
+		internalUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
+
+		sinkProduction = (fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
+
+		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
+
+		self.internalExchangeMolecules.countsDec(internalUsage)
+
+		self.sinkMolecules.countsInc(sinkProduction)
+
+		self.biomassMolecules.countsInc(biomassProduction)
+
+
+	def computeFluxes(self, internalMoleculeCounts):
 		# Set up LP
 
 		lowerBounds = np.zeros(self.nFluxes)
@@ -81,6 +122,8 @@ class MetabolismFba(wholecell.processes.process.Process):
 		# TODO: find actual media exchange limits
 		upperBounds[self.mediaExchangeIndexes] = UNCONSTRAINED_FLUX_VALUE
 
+		upperBounds[self.internalExchangeIndexes] = internalMoleculeCounts / self.timeStepSec
+
 		fluxes, status = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
 
 		if status != "optimal":
@@ -89,13 +132,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 		# if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
 		# 	warnings.warn("Reaction fluxes reached 'unconstrained' boundary")
 
-		sinkExchangeUsage = (fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
-
-		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
-
-		self.sinkExchangeMolecules.countsInc(sinkExchangeUsage)
-
-		self.biomassMolecules.countsInc(biomassProduction)
+		return fluxes
 
 
 import cvxopt.solvers
