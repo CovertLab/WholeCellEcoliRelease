@@ -16,7 +16,7 @@ import numpy as np
 
 import wholecell.processes.process
 
-UNCONSTRAINED_FLUX_VALUE = 1000.0
+UNCONSTRAINED_FLUX_VALUE = 10000.0
 
 class MetabolismFba(wholecell.processes.process.Process):
 	""" MetabolismFba """
@@ -30,7 +30,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 		# TODO: see if biomass reaction is in some way already in the table
 		
 		wildtypeIds = kb.wildtypeBiomass['metaboliteId']
-		self.wildtypeBiomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude
+		self.biomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude * 1e-3 * kb.nAvogadro.to('1 / mole').magnitude * kb.avgCellDryMassInit.to('g').magnitude
 
 		# Must add one entry for the biomass reaction
 
@@ -45,7 +45,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 		indexes = [kb.metabolismMoleculeNames.index(moleculeName) for moleculeName in wildtypeIds]
 
-		self.stoichMatrix[indexes, -1] = -self.wildtypeBiomassReaction
+		self.stoichMatrix[indexes, -1] = -self.biomassReaction
 
 		self.objective = np.zeros(self.nFluxes)
 		self.objective[-1] = -1 # TODO: check signs
@@ -76,21 +76,31 @@ class MetabolismFba(wholecell.processes.process.Process):
 		upperBounds = np.empty(self.nFluxes)
 		upperBounds.fill(UNCONSTRAINED_FLUX_VALUE)
 
-		upperBounds[self.exchangeReactionIndexes] = self.exchangedMolecules.counts() / self.timeStepSec
-
 		# for moleculeIndex in np.where(self.exchangedMolecules.counts() == 0)[0]:
 		# 	warnings.warn('Unavailable exchange reaction molecule: {}'.format(
 		# 		self.exchangeReactionMolecules[moleculeIndex]
 		# 		))
 
-		fluxes = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
+		upperBounds[self.exchangeReactionIndexes] = self.exchangedMolecules.counts() / self.timeStepSec
+		
+		# upperBounds[self.exchangeReactionIndexes] = np.fmax(
+		# 	UNCONSTRAINED_FLUX_VALUE,
+		# 	self.exchangedMolecules.counts() / self.timeStepSec
+		# 	)
+
+		fluxes, status = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
+
+		if status != "optimal":
+			warnings.warn("Linear programming did not converge")
 
 		if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
-			warnings.warn('Reaction fluxes approached solver bounds')
+			warnings.warn("Reaction fluxes reached 'unconstrained' boundary")
 
 		exchangeUsage = -(fluxes[self.exchangeReactionIndexes] * self.timeStepSec).astype(np.int)
 
-		biomassProduction = (fluxes[-1] * self.timeStepSec * self.wildtypeBiomassReaction).astype(np.int)
+		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
+
+		# import ipdb; ipdb.set_trace()
 
 		self.exchangedMolecules.countsDec(exchangeUsage)
 
@@ -119,4 +129,6 @@ def fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
 
 	fluxes = np.array(solution['x']).flatten()
 
-	return fluxes
+	status = solution["status"]
+
+	return fluxes, status
