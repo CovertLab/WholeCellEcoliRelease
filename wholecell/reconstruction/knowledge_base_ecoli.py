@@ -1486,7 +1486,7 @@ class KnowledgeBaseEcoli(object):
 			for reactionIndex in exchangeIndexes
 			]
 
-		## Separate intercellular vs. extracellular (media) exchange fluxes
+		## Separate intercellular (sink) vs. extracellular (media) exchange fluxes
 
 		internalIndexes = []
 		internalNames = []
@@ -1503,8 +1503,8 @@ class KnowledgeBaseEcoli(object):
 				internalIndexes.append(index)
 				internalNames.append(name)
 
-		self.metabolismInternalExchangeReactionIndexes = numpy.array(internalIndexes)
-		self.metabolismInternalExchangeReactionNames = internalNames
+		self.metabolismSinkExchangeReactionIndexes = numpy.array(internalIndexes)
+		self.metabolismSinkExchangeReactionNames = internalNames
 
 		self.metabolismMediaExchangeReactionIndexes = numpy.array(externalIndexes)
 		self.metabolismMediaExchangeReactionNames = externalNames
