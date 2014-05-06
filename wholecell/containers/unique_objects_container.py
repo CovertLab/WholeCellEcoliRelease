@@ -502,9 +502,9 @@ class _UniqueObjectSet(object):
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
 			for attribute, values in attributes.viewitems():
-				valuesAsArray = np.array(values)
+				valuesAsArray = np.array(values, ndmin = 1)
 
-				if valuesAsArray.size == 1: # is a singleton
+				if valuesAsArray.shape[0] == 1: # is a singleton
 					self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray
 
 				else:
