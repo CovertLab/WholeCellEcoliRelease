@@ -93,9 +93,8 @@ class UniqueMolecules(wholecell.states.state.State):
 				np.where(partitionedMolecules[:, view._processIndex])[0]
 				)
 
-			for molecule in molecules:
-				molecule.attrIs(_partitionedProcess = view._processIndex + 1)
-				# "0", being the default, is reserved for unpartitioned molecules
+			molecules.attrIs(_partitionedProcess = view._processIndex + 1)
+			# NOTE: "0", being the default, is reserved for unpartitioned molecules
 
 
 	# TODO: refactor mass calculations as a whole
@@ -115,14 +114,9 @@ class UniqueMolecules(wholecell.states.state.State):
 			if len(molecules) == 0:
 				continue
 
-			for molecule in molecules:
-				totalMass += massMetabolite
-				totalMass += massRna
-				totalMass += massProtein
-
-				totalMass += molecule.attr('massDiffMetabolite')
-				totalMass += molecule.attr('massDiffRna')
-				totalMass += molecule.attr('massDiffProtein')
+			totalMass += massMetabolite * len(molecules) + molecules.attr('massDiffMetabolite').sum()
+			totalMass += massRna * len(molecules) + molecules.attr('massDiffRna').sum()
+			totalMass += massProtein * len(molecules) + molecules.attr('massDiffProtein').sum()
 
 		return totalMass
 
@@ -156,10 +150,7 @@ class UniqueMolecules(wholecell.states.state.State):
 			if len(molecules) == 0:
 				continue
 
-			for molecule in molecules:
-				totalMass += mass
-
-				totalMass += molecule.attr(submassDiffKey)
+			totalMass += mass * len(molecules) * molecules.attr(submassDiffKey).sum()
 
 		return totalMass
 
