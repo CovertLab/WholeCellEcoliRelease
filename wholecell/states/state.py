@@ -31,6 +31,8 @@ class State(object):
 		# Random number stream
 		self.randStream = None
 
+		self.seed = None
+
 
 	# Construct state-process graph, calculate constants
 	def initialize(self, sim, kb):
