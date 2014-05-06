@@ -221,7 +221,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def moleculeNew(self, moleculeName, **attributes):
 		self._state.container.objectNew(
 			moleculeName,
-			_partitionedProcess = ('==', self._processIndex + 1),
+			_partitionedProcess = self._processIndex + 1,
 			**attributes
 			)
 
