@@ -26,11 +26,14 @@ class MetabolismFba(wholecell.processes.process.Process):
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(MetabolismFba, self).initialize(sim, kb)
-
-		# TODO: see if biomass reaction is in some way already in the table
 		
 		wildtypeIds = kb.wildtypeBiomass['metaboliteId']
-		self.biomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude * 1e-3 * kb.nAvogadro.to('1 / mole').magnitude * kb.avgCellDryMassInit.to('g').magnitude
+		self.biomassReaction = ( # TODO: validate this math
+			kb.wildtypeBiomass['biomassFlux'].magnitude
+			* 1e-3
+			* kb.nAvogadro.to('1 / mole').magnitude
+			* kb.avgCellDryMassInit.to('g').magnitude
+			)
 
 		# Must add one entry for the biomass reaction
 
@@ -48,22 +51,23 @@ class MetabolismFba(wholecell.processes.process.Process):
 		self.stoichMatrix[indexes, -1] = -self.biomassReaction
 
 		self.objective = np.zeros(self.nFluxes)
-		self.objective[-1] = -1 # TODO: check signs
+		self.objective[-1] = -1
 
-		self.exchangeReactionIndexes = kb.metabolismExchangeReactionIndexes
+		self.mediaExchangeMoleculeNames = kb.metabolismMediaExchangeReactionNames
+		self.mediaExchangeIndexes = kb.metabolismMediaExchangeReactionIndexes
 
-		self.exchangeReactionMolecules = kb.metabolismExchangeReactionMolecules
-
-		self.exchangedMolecules = self.bulkMoleculesView(
-			self.exchangeReactionMolecules
-			)
+		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
+		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
 
 		self.biomassMolecules = self.bulkMoleculesView(wildtypeIds)
 
+		# self.mediaExchangeMolecules = self.bulkMoleculesView(self.mediaExchangeMoleculeNames)
+
+		self.internalExchangeMolecules = self.bulkMoleculesView(self.internalExchangeMoleculeNames)
+
 
 	def calculateRequest(self):
-		# TODO: eliminate the LP solving here
-		self.exchangedMolecules.requestAll()
+		self.internalExchangeMolecules.requestAll()
 
 
 	# Calculate temporal evolution
@@ -76,17 +80,16 @@ class MetabolismFba(wholecell.processes.process.Process):
 		upperBounds = np.empty(self.nFluxes)
 		upperBounds.fill(UNCONSTRAINED_FLUX_VALUE)
 
-		# for moleculeIndex in np.where(self.exchangedMolecules.counts() == 0)[0]:
-		# 	warnings.warn('Unavailable exchange reaction molecule: {}'.format(
-		# 		self.exchangeReactionMolecules[moleculeIndex]
-		# 		))
+		# upperBounds[self.internalExchangeIndexes] = self.internalExchangeMolecules.counts() / self.timeStepSec
 
-		upperBounds[self.exchangeReactionIndexes] = self.exchangedMolecules.counts() / self.timeStepSec
-		
-		# upperBounds[self.exchangeReactionIndexes] = np.fmax(
-		# 	UNCONSTRAINED_FLUX_VALUE,
-		# 	self.exchangedMolecules.counts() / self.timeStepSec
-		# 	)
+		# TODO: initialize simulation with these molecules instead of using this hack
+		upperBounds[self.internalExchangeIndexes] = np.fmax(
+			self.internalExchangeMolecules.counts() / self.timeStepSec,
+			UNCONSTRAINED_FLUX_VALUE
+			)
+
+		# TODO: find actual media exchange limits
+		upperBounds[self.mediaExchangeIndexes] = UNCONSTRAINED_FLUX_VALUE
 
 		fluxes, status = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
 
@@ -96,15 +99,20 @@ class MetabolismFba(wholecell.processes.process.Process):
 		if np.any(np.abs(fluxes) == UNCONSTRAINED_FLUX_VALUE):
 			warnings.warn("Reaction fluxes reached 'unconstrained' boundary")
 
-		exchangeUsage = -(fluxes[self.exchangeReactionIndexes] * self.timeStepSec).astype(np.int)
+		internalExchangeUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
 
 		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
 
-		# import ipdb; ipdb.set_trace()
+		# self.internalExchangeMolecules.countsDec(internalExchangeUsage)
 
-		self.exchangedMolecules.countsDec(exchangeUsage)
+		# TODO: see TODO above regarding the internal exchange molecules hack
+		self.internalExchangeMolecules.countsDec(np.fmin(
+			internalExchangeUsage,
+			self.internalExchangeMolecules.counts()
+			))
 
 		self.biomassMolecules.countsInc(biomassProduction)
+
 
 import cvxopt.solvers
 from cvxopt import matrix, sparse, spmatrix
