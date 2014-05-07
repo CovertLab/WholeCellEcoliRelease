@@ -21,25 +21,25 @@ import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 DEFAULT_ATTRIBUTES = {
-	'massDiffMetabolite':np.float,
-	'massDiffRna':np.float,
-	'massDiffProtein':np.float,
+	"massDiffMetabolite":np.float,
+	"massDiffRna":np.float,
+	"massDiffProtein":np.float,
+	"_partitionedProcess":np.int64
 	}
 
+UNASSIGNED_PARTITION_VALUE = -1
 
 class UniqueMolecules(wholecell.states.state.State):
-	'''
+	"""
 	UniqueMolecules
 
 	State that tracks unique instances of molecules in the simulation, which 
 	can have special dynamic attributes.
-	'''
+	"""
 
 	_name = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):
-		self.time = None
-
 		self.container = None
 
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
@@ -66,7 +66,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container.flushDeleted()
 
 		# Remove any prior partition assignments
-		self.container.objects().attrIs(_partitionedProcess = 0)
+		self.container.objects().attrIs(_partitionedProcess = UNASSIGNED_PARTITION_VALUE)
 		
 		# Gather requests
 		nMolecules = self.container._collections[self.container._globalRefIndex].size
@@ -122,64 +122,63 @@ class UniqueMolecules(wholecell.states.state.State):
 				np.where(partitionedMolecules[:, view._processIndex])[0]
 				)
 
-			molecules.attrIs(_partitionedProcess = view._processIndex + 1)
-			# NOTE: "0", being the default, is reserved for unpartitioned molecules
+			molecules.attrIs(_partitionedProcess = view._processIndex)
 
 
 	# TODO: refactor mass calculations as a whole
 	def mass(self):
-		# TODO: rework this so it's a faster operation (a dot product)
-
 		totalMass = 0
 		
 		for entry in self._masses:
-			moleculeId = entry['moleculeId']
-			massMetabolite = entry['massMetabolite']
-			massRna = entry['massRna']
-			massProtein = entry['massProtein']
+			moleculeId = entry["moleculeId"]
+			massMetabolite = entry["massMetabolite"]
+			massRna = entry["massRna"]
+			massProtein = entry["massProtein"]
 
 			molecules = self.container.objectsInCollection(moleculeId)
 
-			if len(molecules) == 0:
+			nMolecules = len(molecules)
+
+			if nMolecules == 0:
 				continue
 
-			totalMass += massMetabolite * len(molecules) + molecules.attr('massDiffMetabolite').sum()
-			totalMass += massRna * len(molecules) + molecules.attr('massDiffRna').sum()
-			totalMass += massProtein * len(molecules) + molecules.attr('massDiffProtein').sum()
+			totalMass += massMetabolite * nMolecules + molecules.attr("massDiffMetabolite").sum()
+			totalMass += massRna * nMolecules + molecules.attr("massDiffRna").sum()
+			totalMass += massProtein * nMolecules + molecules.attr("massDiffProtein").sum()
 
 		return totalMass
 
 
 	def massByType(self, typeKey):
-		# TODO: rework this so it's a faster operation (a dot product)
-
-		if typeKey in ['rrnas', 'water']:
+		if typeKey in ["rrnas", "water"]:
 			return 0
 
 		submassKey = {
-			'metabolites':'massMetabolite',
-			'rnas':'massRna',
-			'proteins':'massProtein',
+			"metabolites":"massMetabolite",
+			"rnas":"massRna",
+			"proteins":"massProtein",
 			}[typeKey]
 
 		submassDiffKey = {
-			'metabolites':'massDiffMetabolite',
-			'rnas':'massDiffRna',
-			'proteins':'massDiffProtein',
+			"metabolites":"massDiffMetabolite",
+			"rnas":"massDiffRna",
+			"proteins":"massDiffProtein",
 			}[typeKey]
 
 		totalMass = 0
 		
 		for entry in self._masses:
-			moleculeId = entry['moleculeId']
+			moleculeId = entry["moleculeId"]
 			mass = entry[submassKey]
 
 			molecules = self.container.objectsInCollection(moleculeId)
 
-			if len(molecules) == 0:
+			nMolecules = len(molecules)
+
+			if nMolecules == 0:
 				continue
 
-			totalMass += mass * len(molecules) + molecules.attr(submassDiffKey).sum()
+			totalMass += mass * nMolecules + molecules.attr(submassDiffKey).sum()
 
 		return totalMass
 
@@ -201,7 +200,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 class UniqueMoleculesView(wholecell.views.view.View):
-	_stateID = 'UniqueMolecules'
+	_stateID = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
@@ -223,7 +222,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules(self):
 		return self._state.container.objectsInCollection(
 			self._query[0],
-			_partitionedProcess = ('==', self._processIndex + 1),
+			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)
 
@@ -241,7 +240,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def moleculeNew(self, moleculeName, **attributes):
 		self._state.container.objectNew(
 			moleculeName,
-			_partitionedProcess = self._processIndex + 1,
+			_partitionedProcess = self._processIndex,
 			**attributes
 			)
 
@@ -250,6 +249,6 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._state.container.objectsNew(
 			moleculeName,
 			nMolecules,
-			_partitionedProcess = self._processIndex + 1,
+			_partitionedProcess = self._processIndex,
 			**attributes
 			)
