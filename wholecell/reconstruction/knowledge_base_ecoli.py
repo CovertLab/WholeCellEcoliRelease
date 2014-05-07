@@ -1533,7 +1533,7 @@ class KnowledgeBaseEcoli(object):
 			])
 
 		# TODO: decide whether these exchange reactions should be reversible
-		allReversibility.extend([True]*len(internalNames))
+		allReversibility.extend([False]*len(internalNames))
 
 		for i, name in enumerate(internalNames):
 			reactionIndex = nEdges + i

@@ -110,6 +110,11 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 			self.internalExchangeMolecules.requestIs(internalUsage)
 
+			print ', '.join(
+				self.internalExchangeMoleculeNames[index]
+				for index in np.where(internalUsage)[0]
+				)
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
