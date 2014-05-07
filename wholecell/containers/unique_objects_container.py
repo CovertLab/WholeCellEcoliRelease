@@ -22,8 +22,8 @@ _ENTRY_ACTIVE = 1 # an entry that is in use
 _ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
 
 # TODO: object transfer between UniqueObjectsContainer instances
-# TODO: unique hash for each object based on
-#	(time, collectionIndex, arrayIndex, containerName) at creation time
+# TODO: unique id for each object based on
+#	hash(time, collectionIndex, arrayIndex, containerName) at creation time
 
 class UniqueObjectsContainerException(Exception):
 	pass
