@@ -20,7 +20,6 @@ import wholecell.states.state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
-
 DEFAULT_ATTRIBUTES = {
 	'massDiffMetabolite':np.float,
 	'massDiffRna':np.float,
@@ -88,8 +87,35 @@ class UniqueMolecules(wholecell.states.state.State):
 		if requestNumberVector.sum() == 0:
 			return
 
-		partitionedMolecules = _partition(objectRequestsArray,
-			requestNumberVector, requestProcessArray, self.randStream)
+		# Don't calculate on non-requesting views
+		doCalculatePartition = (requestNumberVector > 0)
+
+		objectRequestsArray[:, ~doCalculatePartition] = False
+
+		partitionedMolecules = np.zeros((nMolecules, self._nProcesses), np.bool)
+
+		# Grant non-overlapping requests all of the relevant molecules
+		overlappingRequests = np.dot(objectRequestsArray.T, objectRequestsArray)
+
+		overlappingRequests[np.identity(nViews, np.bool)] = False
+
+		# TODO: ignore overlapping requests with a process
+
+		noOverlap = ~overlappingRequests.any(0)
+
+		for viewIndex in np.where(noOverlap)[0]:
+			# NOTE: there may be a way to vectorize this
+			partitionedMolecules[:,self._views[viewIndex]._processIndex] |= objectRequestsArray[:, viewIndex]
+
+		doCalculatePartition[noOverlap] = False
+
+		if doCalculatePartition.any():
+			partitionedMolecules |= _partition(
+				objectRequestsArray[:, doCalculatePartition],
+				requestNumberVector[doCalculatePartition],
+				requestProcessArray[doCalculatePartition, :],
+				self.randStream
+				)
 
 		for view in self._views:
 			molecules = self.container.objectsByGlobalIndex(
