@@ -112,7 +112,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			updatedNts, ntpsUsed, self.seed
 			)
 
-		assert np.all(updatedNts <= requiredNts)
+		assert np.all(updatedNts <= requiredNts), "Transcripts got elongated more than possible!"
 
 		# newlyAssignedNts = polymerizePooledMonomers(
 		# 	ntpCounts,
