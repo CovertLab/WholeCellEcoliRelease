@@ -37,7 +37,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(MetabolismFba, self).initialize(sim, kb)
 		
-		wildtypeIds = kb.wildtypeBiomass['metaboliteId']
+		self.biomassIds = kb.wildtypeBiomass['metaboliteId']
 		self.biomassReaction = ( # TODO: validate this math
 			kb.wildtypeBiomass['biomassFlux'].magnitude
 			* 1e-3
@@ -59,7 +59,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 			np.array([False], np.bool)
 			])
 
-		indexes = [kb.metabolismMoleculeNames.index(moleculeName) for moleculeName in wildtypeIds]
+		indexes = [kb.metabolismMoleculeNames.index(moleculeName) for moleculeName in self.biomassIds]
 
 		self.stoichMatrix[indexes, -1] = -self.biomassReaction
 
@@ -75,9 +75,17 @@ class MetabolismFba(wholecell.processes.process.Process):
 		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
 		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
 
+		self.biomassInternalExchangeIndexes = np.array([
+			self.internalExchangeIndexes[self.internalExchangeMoleculeNames.index(moleculeId)]
+			for moleculeId in self.biomassIds
+			if moleculeId in self.internalExchangeMoleculeNames
+			])
+
+		import ipdb; ipdb.set_trace()
+
 		# Create views
 
-		self.biomassMolecules = self.bulkMoleculesView(wildtypeIds)
+		self.biomassMolecules = self.bulkMoleculesView(self.biomassIds)
 
 		self.sinkMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
 
@@ -131,6 +139,10 @@ class MetabolismFba(wholecell.processes.process.Process):
 		upperBounds[self.mediaExchangeIndexes] = UNCONSTRAINED_FLUX_VALUE
 
 		upperBounds[self.internalExchangeIndexes] = internalMoleculeCounts / self.timeStepSec
+
+		# Forbid exchange of biomass components
+		lowerBounds[self.biomassInternalExchangeIndexes] = 0
+		upperBounds[self.biomassInternalExchangeIndexes] = 0
 
 		fluxes, status = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
 
