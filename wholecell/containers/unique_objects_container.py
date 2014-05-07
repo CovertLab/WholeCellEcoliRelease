@@ -1,4 +1,4 @@
-'''
+"""
 unqiue_objects_container.py
 
 UniqueObjectsContainer is a object that tracks the attributes of unique
@@ -6,8 +6,8 @@ objects, which are typically molecules.  It supports saving and loading by
 appending entries in a structured array to tables with the same sets of fields.
 
 The UniqueObjectsContainer uses _UniqueObject objects to present a clean 
-interface to a specific molecule's attributes.
-'''
+interface to a specific molecule"s attributes.
+"""
 
 from __future__ import division
 
@@ -21,43 +21,45 @@ _ENTRY_INACTIVE = 0 # a clear entry
 _ENTRY_ACTIVE = 1 # an entry that is in use
 _ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
 
-# TODO: reevaluate the assignment of private methods/attributes in this and similar classes
+# TODO: object transfer between UniqueObjectsContainer instances
+# TODO: unique hash for each object based on
+#	(time, collectionIndex, arrayIndex, containerName) at creation time
 
 class UniqueObjectsContainerException(Exception):
 	pass
 
 
 class UniqueObjectsContainer(object):
-	'''
+	"""
 	UniqueObjectsContainer
 
 	Essentially a dict of structured arrays, where the structured array
 	fields are attributes of the unique molecules.  Used for the unique
 	molecules state and partitions.
-	'''
+	"""
 
 	_defaultContainerAttributes = {
-		'_entryState':'int64', # see state descriptions above
-		'_globalIndex':'int64', # index in the _globalReference array (collection)
-		'_time':'int64', # current time (important for saving)
+		"_entryState":"int64", # see state descriptions above
+		"_globalIndex":"int64", # index in the _globalReference array (collection)
+		"_time":"int64", # current time (important for saving)
 		}
 
 	_defaultCollectionsSpec = {
-		'_globalReference':{ # a table which contains reference to all molecules
-			'_collectionIndex':'int64',
-			'_objectIndex':'int64'
+		"_globalReference":{ # a table which contains reference to all molecules
+			"_collectionIndex":"int64",
+			"_objectIndex":"int64"
 			}
 		}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
 
 	_queryOperations = {
-		'>':np.greater,
-		'>=':np.greater_equal,
-		'<':np.less,
-		'<=':np.less_equal,
-		'==':np.equal,
-		'!=':np.not_equal
+		">":np.greater,
+		">=":np.greater_equal,
+		"<":np.less,
+		"<=":np.less_equal,
+		"==":np.equal,
+		"!=":np.not_equal
 		}
 
 	def __init__(self, collectionsSpec):
@@ -76,14 +78,14 @@ class UniqueObjectsContainer(object):
 		self._collectionsSpec.update(self._defaultCollectionsSpec)
 
 		self._collectionNames = sorted(self._collectionsSpec.keys())
-		self._globalRefIndex = self._collectionNames.index('_globalReference')
+		self._globalRefIndex = self._collectionNames.index("_globalReference")
 
 		for collectionName, attributes in self._collectionsSpec.viewitems():
 			# Add the attributes used internally
 			attributes.update(self._defaultContainerAttributes)
 
-		# Global references don't use global indexes
-		del self._collectionsSpec['_globalReference']['_globalIndex']
+		# Global references don"t use global indexes
+		del self._collectionsSpec["_globalReference"]["_globalIndex"]
 
 		for collectionIndex, collectionName in enumerate(self._collectionNames):
 			attributes = self._collectionsSpec[collectionName]
@@ -102,11 +104,11 @@ class UniqueObjectsContainer(object):
 			self._collectionNameToIndexMapping[collectionName] = collectionIndex
 
 			# Give the tables accessible names
-			self._tableNames.append(collectionName.replace(' ', '_'))
+			self._tableNames.append(collectionName.replace(" ", "_"))
 
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
-		attributes['_time'] = self._time
+		attributes["_time"] = self._time
 
 		# Create multiple objects of the same type and attribute values
 		collectionIndex = self._collectionNameToIndexMapping[collectionName]
@@ -114,23 +116,23 @@ class UniqueObjectsContainer(object):
 
 		collection = self._collections[collectionIndex]
 
-		collection['_entryState'][objectIndexes] = _ENTRY_ACTIVE
+		collection["_entryState"][objectIndexes] = _ENTRY_ACTIVE
 
 		for attrName, attrValue in attributes.viewitems():
-			# NOTE: there is probably a non-loop solution to this, but the 'obvious' solution creates a copy instead of a view
+			# NOTE: there is probably a non-loop solution to this, but the "obvious" solution creates a copy instead of a view
 			collection[attrName][objectIndexes] = attrValue
 
 		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
 
 		# In global array, create reference pointing to object
 		globalArray = self._collections[self._globalRefIndex]
-		globalArray['_entryState'][globalIndexes] = _ENTRY_ACTIVE
-		globalArray['_collectionIndex'][globalIndexes] = collectionIndex
-		globalArray['_objectIndex'][globalIndexes] = objectIndexes
-		globalArray['_time'][globalIndexes] = self._time
+		globalArray["_entryState"][globalIndexes] = _ENTRY_ACTIVE
+		globalArray["_collectionIndex"][globalIndexes] = collectionIndex
+		globalArray["_objectIndex"][globalIndexes] = objectIndexes
+		globalArray["_time"][globalIndexes] = self._time
 
 		# In collection, for each object, point to global reference
-		collection['_globalIndex'][objectIndexes] = globalIndexes
+		collection["_globalIndex"][objectIndexes] = globalIndexes
 
 		return _UniqueObjectSet(self, globalIndexes)
 
@@ -143,7 +145,7 @@ class UniqueObjectsContainer(object):
 
 	def _getFreeIndexes(self, collectionIndex, nMolecules):
 		freeIndexes = np.where(
-			self._collections[collectionIndex]['_entryState'] == _ENTRY_INACTIVE
+			self._collections[collectionIndex]["_entryState"] == _ENTRY_INACTIVE
 			)[0]
 
 		if freeIndexes.size < nMolecules:
@@ -170,10 +172,10 @@ class UniqueObjectsContainer(object):
 
 
 	def objectDel(self, obj):
-		globalIndex = obj.attr('_globalIndex')
+		globalIndex = obj.attr("_globalIndex")
 
-		self._collections[obj._collectionIndex][obj._objectIndex]['_entryState'] = _ENTRY_DELETED
-		self._collections[self._globalRefIndex][globalIndex]['_entryState'] = _ENTRY_DELETED
+		self._collections[obj._collectionIndex][obj._objectIndex]["_entryState"] = _ENTRY_DELETED
+		self._collections[self._globalRefIndex][globalIndex]["_entryState"] = _ENTRY_DELETED
 		# TODO: Assign unique IDs and run _clearEntries() here
 
 
@@ -199,13 +201,13 @@ class UniqueObjectsContainer(object):
 					raiseOnMissingAttribute = False, **operations))
 
 			return _UniqueObjectSet(self, np.r_[tuple(
-				self._collections[collectionIndex]['_globalIndex'][result]
+				self._collections[collectionIndex]["_globalIndex"][result]
 				for collectionIndex, result in zip(collectionIndexes, results)
 				)])
 
 		else:
 			return _UniqueObjectSet(self,
-				np.where(self._collections[self._globalRefIndex]['_entryState'] == _ENTRY_ACTIVE)[0]
+				np.where(self._collections[self._globalRefIndex]["_entryState"] == _ENTRY_ACTIVE)[0]
 				)
 
 
@@ -216,7 +218,7 @@ class UniqueObjectsContainer(object):
 		result = self._queryObjects(collectionIndex, **operations)
 
 		return _UniqueObjectSet(self,
-			self._collections[collectionIndex]['_globalIndex'][result]
+			self._collections[collectionIndex]["_globalIndex"][result]
 			)
 
 
@@ -230,13 +232,13 @@ class UniqueObjectsContainer(object):
 			results.append(self._queryObjects(collectionIndex, **operations))
 
 		return _UniqueObjectSet(self, np.r_[tuple(
-			self._collections[collectionIndex]['_globalIndex'][result]
+			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in zip(collectionIndexes, results)
 			)])
 
 
 	def _queryObjects(self, collectionIndex, raiseOnMissingAttribute = True, **operations):
-		operations['_entryState'] = ('==', _ENTRY_ACTIVE)
+		operations["_entryState"] = ("==", _ENTRY_ACTIVE)
 		collection = self._collections[collectionIndex]
 
 		try:
@@ -259,11 +261,11 @@ class UniqueObjectsContainer(object):
 				raise
 
 
-	def objectsByGlobalIndex(self, globalIndexes): # ASK JM: Make public?
+	def objectsByGlobalIndex(self, globalIndexes):
 		return _UniqueObjectSet(self, globalIndexes)
 
 
-	def objectByGlobalIndex(self, globalIndex): # ASK JM: Make public?
+	def objectByGlobalIndex(self, globalIndex):
 		return _UniqueObject(self, globalIndex)
 
 
@@ -271,14 +273,14 @@ class UniqueObjectsContainer(object):
 		self._time = time
 
 		for collection in self._collections:
-			collection['_time'] = time
+			collection["_time"] = time
 
 
 	def flushDeleted(self):
 		for collectionIndex, collection in enumerate(self._collections):
 			self._clearEntries(
 				collectionIndex,
-				np.where(collection['_entryState'] == _ENTRY_DELETED)
+				np.where(collection["_entryState"] == _ENTRY_DELETED)
 				)
 
 
@@ -296,13 +298,13 @@ class UniqueObjectsContainer(object):
 				self._tableNames[collectionIndex],
 				collection.dtype,
 				title = self._collectionNames[collectionIndex],
-				filters = tables.Filters(complevel = 9, complib = 'zlib')
+				filters = tables.Filters(complevel = 9, complib = "zlib")
 				)
 
 
 	def pytablesAppend(self, h5file):
 		for collectionIndex, collection in enumerate(self._collections):
-			entryTable = h5file.get_node('/', self._tableNames[collectionIndex])
+			entryTable = h5file.get_node("/", self._tableNames[collectionIndex])
 
 			entryTable.append(collection)
 
@@ -311,33 +313,29 @@ class UniqueObjectsContainer(object):
 
 	def pytablesLoad(self, h5file, timePoint):
 		for collectionIndex, tableName in enumerate(self._tableNames):
-			entryTable = h5file.get_node('/', tableName)
+			entryTable = h5file.get_node("/", tableName)
 
-			entries = entryTable[entryTable.col('_time') == timePoint]
+			entries = entryTable[entryTable.col("_time") == timePoint]
 
 			self._collections[collectionIndex] = entries
 
 
-	# TODO: compute mass
-	# TODO: implement molecule transfer between containers
-
-
 class _UniqueObject(object):
-	'''
+	"""
 	_UniqueObject
 
 	A wrapper around a row in a container, refering to a specific unique object.
 	Primarily used as a way to manipulate individual molecules with a python
 	object-like interface.
-	'''
+	"""
 	
-	__slots__ = ('_container', '_collectionIndex', '_objectIndex')
+	__slots__ = ("_container", "_collectionIndex", "_objectIndex")
 
 
 	def __init__(self, container, globalIndex):
 		self._container = container
-		self._collectionIndex = container._collections[container._globalRefIndex][globalIndex]['_collectionIndex']
-		self._objectIndex = container._collections[container._globalRefIndex][globalIndex]['_objectIndex']
+		self._collectionIndex = container._collections[container._globalRefIndex][globalIndex]["_collectionIndex"]
+		self._objectIndex = container._collections[container._globalRefIndex][globalIndex]["_objectIndex"]
 
 
 	def name(self):
@@ -347,8 +345,8 @@ class _UniqueObject(object):
 	def attr(self, attribute):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == _ENTRY_ACTIVE:
-			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
+		if not entry["_entryState"] == _ENTRY_ACTIVE:
+			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
 		if isinstance(entry[attribute], np.ndarray):
 			# Prevent making a view instead of a copy
@@ -361,8 +359,8 @@ class _UniqueObject(object):
 	def attrs(self, *attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == _ENTRY_ACTIVE:
-			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
+		if not entry["_entryState"] == _ENTRY_ACTIVE:
+			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 		
 		# See note in .attr
 		return tuple(
@@ -374,8 +372,8 @@ class _UniqueObject(object):
 	def attrIs(self, **attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry['_entryState'] == _ENTRY_ACTIVE:
-			raise UniqueObjectsContainerException('Attempted to access an inactive object.')
+		if not entry["_entryState"] == _ENTRY_ACTIVE:
+			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
 		for attribute, value in attributes.viewitems():
 			if isinstance(entry[attribute], np.ndarray):
@@ -397,7 +395,7 @@ class _UniqueObject(object):
 			return False
 			
 		if not self._container is other._container:
-			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
+			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
 		return self._collectionIndex == other._collectionIndex and self._objectIndex == other._objectIndex
 
@@ -407,22 +405,23 @@ class _UniqueObject(object):
 
 
 class _UniqueObjectSet(object):
-	'''
+	"""
 	_UniqueObjectSet
 
 	A set of objects, stored internally by their global indexes.  Iterable and
 	ordered.  Accessors allow for manipulating sets in lump.
-	'''
+	"""
 
-	# TODO: look into subclassing from collections.ViewKeys
 	def __init__(self, container, globalIndexes):
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes)
 
 
 	def __contains__(self, uniqueObject):
-		assert uniqueObject._container is self._container
-		return uniqueObject.attr('_globalIndex') in self._globalIndexes
+		if not self._container is uniqueObject._container:
+			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
+
+		return uniqueObject.attr("_globalIndex") in self._globalIndexes
 
 
 	def __iter__(self):
@@ -436,13 +435,14 @@ class _UniqueObjectSet(object):
 
 	def __eq__(self, other):
 		if not self._container is other._container:
-			raise UniqueObjectsContainerException('Object comparisons across UniqueMoleculesContainer objects not supported.')
+			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
 		return (self._globalIndexes == other._globalIndexes).all()
 
 
 	def __or__(self, other):
-		assert self._container is other._container
+		if not self._container is other._container:
+			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
 		return _UniqueObjectSet(
 			self._container,
@@ -454,11 +454,13 @@ class _UniqueObjectSet(object):
 		if self._globalIndexes.size == 0:
 			return np.zeros(0) # NOTE: this does not enforce dtype; that is difficult!
 
+		# TODO: consider raising instead of returning a mistyped zero
+
 		# TODO: cache these properties? should be static
 		globalRef = self._container._collections[self._container._globalRefIndex]
 
-		collectionIndexes = globalRef['_collectionIndex'][self._globalIndexes]
-		objectIndexes = globalRef['_objectIndex'][self._globalIndexes]
+		collectionIndexes = globalRef["_collectionIndex"][self._globalIndexes]
+		objectIndexes = globalRef["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
@@ -491,8 +493,8 @@ class _UniqueObjectSet(object):
 		# TODO: cache these properties? should be static
 		globalRef = self._container._collections[self._container._globalRefIndex]
 
-		collectionIndexes = globalRef['_collectionIndex'][self._globalIndexes]
-		objectIndexes = globalRef['_objectIndex'][self._globalIndexes]
+		collectionIndexes = globalRef["_collectionIndex"][self._globalIndexes]
+		objectIndexes = globalRef["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
@@ -605,10 +607,10 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	# Optimize
 
 	solution = lp.linearProgramming(
-		'maximize', objective,
+		"maximize", objective,
 		matrix.astype(np.float), b, # cvxopt requres floats
 		lowerBound, upperBound,
-		'S', 'C', # no idea what these are supposed to do
+		"S", "C", # no idea what these are supposed to do
 		None # no options
 		)[0].flatten()
 
