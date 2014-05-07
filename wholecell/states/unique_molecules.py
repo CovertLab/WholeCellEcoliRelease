@@ -1,4 +1,4 @@
-'''
+"""
 unique_molecules.py
 
 The UniqueMolecules State handles the identity and dynamic properties of unique
@@ -7,7 +7,7 @@ from the knowledge base.
 
 The UniqueMolecules State instantiates a UniqueObjectsContainer object, which 
 creates and manages the structured arrays in memory.
-'''
+"""
 
 from __future__ import division
 
@@ -87,7 +87,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		if requestNumberVector.sum() == 0:
 			return
 
-		# Don't calculate on non-requesting views
+		# Don"t calculate on non-requesting views
 		doCalculatePartition = (requestNumberVector > 0)
 
 		objectRequestsArray[:, ~doCalculatePartition] = False
