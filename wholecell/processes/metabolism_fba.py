@@ -81,8 +81,6 @@ class MetabolismFba(wholecell.processes.process.Process):
 			if moleculeId in self.internalExchangeMoleculeNames
 			])
 
-		import ipdb; ipdb.set_trace()
-
 		# Create views
 
 		self.biomassMolecules = self.bulkMoleculesView(self.biomassIds)
