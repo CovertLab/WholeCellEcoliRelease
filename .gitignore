@@ -36,6 +36,10 @@ nosetests.*.xml
 out/*
 !out/out.txt
 
+# C extensions #
+################
+*.so
+
 # Misc #
 ########
 
