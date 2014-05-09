@@ -35,7 +35,6 @@ import wholecell.processes.metabolism_fba
 import wholecell.processes.rna_degradation
 import wholecell.processes.transcription.bulk_transcription
 import wholecell.processes.translation.translation
-import wholecell.processes.free_production
 import wholecell.processes.transcription.toy_transcription
 import wholecell.processes.toy_protein_degradation
 import wholecell.processes.toy_replication
@@ -53,7 +52,6 @@ PROCESS_CLASSES = [
 	wholecell.processes.rna_degradation.RnaDegradation,
 	wholecell.processes.transcription.bulk_transcription.BulkTranscription,
 	wholecell.processes.translation.translation.Translation,
-	wholecell.processes.free_production.FreeProduction,
 	wholecell.processes.transcription.toy_transcription.ToyTranscription,
 	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
 	wholecell.processes.toy_replication.ToyReplication,

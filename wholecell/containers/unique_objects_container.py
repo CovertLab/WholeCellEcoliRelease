@@ -414,7 +414,7 @@ class _UniqueObjectSet(object):
 
 	def __init__(self, container, globalIndexes):
 		self._container = container
-		self._globalIndexes = np.array(globalIndexes)
+		self._globalIndexes = np.array(globalIndexes, np.int)
 
 
 	def __contains__(self, uniqueObject):
