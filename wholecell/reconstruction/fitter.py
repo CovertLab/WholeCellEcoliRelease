@@ -203,7 +203,7 @@ def fitKb(kb):
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).to('dimensionless').magnitude * FUDGE.
+		).to('dimensionless').magnitude * FUDGE
 
 	minRnapCounts = (
 		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
