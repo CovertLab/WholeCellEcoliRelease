@@ -197,13 +197,13 @@ def fitKb(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = numpy.sum(kb.rnaData['countsACGU'], axis = 1)
 
+	# TODO: Clean up fudge
+	FUDGE = 2. # Forces transcription to be metabolically limited
 	nRnapsNeeded = numpy.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).to('dimensionless').magnitude
-
-	# nRnapsNeeded = 600	
+		).to('dimensionless').magnitude * FUDGE
 
 	minRnapCounts = (
 		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
