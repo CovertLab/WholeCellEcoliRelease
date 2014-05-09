@@ -18,6 +18,9 @@ import tables
 
 import wholecell.utils.rand_stream
 import wholecell.utils.config
+import wholecell.utils.knowledgebase_fixture_manager
+import wholecell.reconstruction.fitter
+import wholecell.sim.sim_definition
 
 
 class SimulationException(Exception): pass
@@ -28,14 +31,7 @@ class Simulation(object):
 
 	# Constructors
 	def __init__(self, simDefinition = None, **kwargs):
-		import wholecell.utils.rand_stream
-		import wholecell.utils.config
-		import wholecell.utils.knowledgebase_fixture_manager
-		import wholecell.reconstruction.fitter
-		import wholecell.loggers.shell
-		import wholecell.loggers.disk
-		import wholecell.sim.sim_definition
-
+		# Establish simulation options
 		if simDefinition is not None and kwargs:
 			raise SimulationException(
 				"Simulations cannot be instantiated with both a SimDefinition instance and keyword arguments"
@@ -46,56 +42,35 @@ class Simulation(object):
 
 		self._options = simDefinition
 
-		# Set random seed
-		self.seed = self._options.seed
-
-		# References to simulation objects
-		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
-		self.states = None
-		self.processes = None
-
-		# Create KB
-		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
-
-		if self._options.reconstructKB or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
-			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
-
-		else:
-			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
-				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
-
 		# Set time parameters
-		self.lengthSec = (self._options.lengthSec
-			if self._options.lengthSec is not None else kb.parameters['cellCycleLen'].to('s').magnitude) # Simulation length (s)
-		self.timeStepSec = (self._options.timeStepSec
-			if self._options.timeStepSec is not None else kb.parameters['timeStep'].to('s').magnitude) # Simulation time step (s)
+		self.lengthSec = self._options.lengthSec
+		self.timeStepSec = self._options.timeStepSec
 
 		self.initialStep = 0
 		self.simulationStep = 0
 
+		# Set random seed
+		if self._options.seed is None:
+			# This is roughly consistent with how NumPy choose a seed if none
+			# is provided
+			import random
+			self.seed = random.SystemRandom().randrange(2**32-1)
+
+		else:
+			self.seed = self._options.seed
+
+		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
+
+		# Create KB
+		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
+
+		kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
+
 		# Fit KB parameters
 		wholecell.reconstruction.fitter.fitKb(kb)
-		# TODO: save fit KB and use that instead of saving/loading fit parameters
 
 		# Initialize simulation from fit KB
 		self._initialize(kb)
-
-		# Set loggers
-		self.loggers = []
-
-		if self._options.logToShell:
-			self.loggers.append(
-				wholecell.loggers.shell.Shell()
-				)
-
-		if self._options.logToDisk:
-			self.loggers.append(
-				wholecell.loggers.disk.Disk(
-					self._options.outputDir,
-					self._options.overwriteExistingFiles,
-					self._options.logToDiskEvery
-					)
-				)
 
 
 	@classmethod
@@ -115,8 +90,8 @@ class Simulation(object):
 
 	# Link states and processes
 	def _initialize(self, kb):
-		self._constructStates()
-		self._constructProcesses()
+		self.states = self._options.createStates()
+		self.processes = self._options.createProcesses()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -130,15 +105,8 @@ class Simulation(object):
 
 		calcInitialConditions(self, kb)
 
-
-	# Construct states
-	def _constructStates(self):
-		self.states = self._options.createStates()
-
-
-	# Construct processes
-	def _constructProcesses(self):
-		self.processes = self._options.createProcesses()
+		# Create loggers
+		self.loggers = self._options.createLoggers()
 
 
 	# Allocate memory
@@ -174,13 +142,13 @@ class Simulation(object):
 	def _evolveState(self):
 		# Update randstreams
 		for stateName, state in self.states.iteritems():
-			state.seed = np.uint32(self.seed + self.simulationStep + hash(stateName))
+			state.seed = self._seedFromName(stateName)
 			state.randStream = wholecell.utils.rand_stream.RandStream(
 				seed = state.seed
 				)
 
 		for processName, process in self.processes.iteritems():
-			process.seed = np.uint32(self.seed + self.simulationStep + hash(processName))
+			process.seed = self._seedFromName(processName)
 			process.randStream = wholecell.utils.rand_stream.RandStream(
 				seed = process.seed
 				)
@@ -207,6 +175,10 @@ class Simulation(object):
 
 		# Recalculate dependent state
 		self._calculateState()
+
+
+	def _seedFromName(self, name):
+		return np.uint32(self.seed + self.simulationStep + hash(name))
 
 
 	# --- Logger functions ---

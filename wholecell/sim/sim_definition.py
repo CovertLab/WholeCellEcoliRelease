@@ -11,6 +11,8 @@ import collections
 
 # import tables
 
+# References to sub-simulation abstractions
+
 import wholecell.states.mass
 import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
@@ -24,6 +26,8 @@ STATE_CLASSES = [
 	wholecell.states.chromosome.Chromosome,
 	wholecell.states.transcripts.Transcripts,
 	]
+
+STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
@@ -62,8 +66,12 @@ PROCESS_CLASSES = [
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation
 	]
 
-STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
+
+import wholecell.loggers.shell
+import wholecell.loggers.disk
+
+# Default parameters
 
 DEFAULT_STATES = [
 	'Mass',
@@ -81,11 +89,20 @@ DEFAULT_PROCESSES = [
 	'Replication'
 	]
 
+DEFAULT_LENGTH = 3600 # sec
+DEFAULT_TIME_STEP = 1 # sec
+
+DEFAULT_SEED = None
+
+# TODO: restore KB reconstruction option when available
+# TODO: define defaults for reconstruction, logging
+
+# Simulation keywords
+
 SIM_KWARG_DEFAULTS = dict(
 	includedStates = DEFAULT_STATES, includedProcesses = DEFAULT_PROCESSES,
-	lengthSec = None, timeStepSec = None,
-	seed = None,
-	reconstructKB = False,
+	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
+	seed = DEFAULT_SEED,
 	logToShell = True,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
 	)
@@ -103,7 +120,6 @@ class SimDefinition(object):
 
 	def __init__(self, **kwargs):
 		# Generic attribute setting
-
 		attributeNames = SIM_KWARG_DEFAULTS.viewkeys()
 
 		for attribute, value in kwargs.iteritems():
@@ -131,5 +147,26 @@ class SimDefinition(object):
 			(className, PROCESSES[className]())
 			for className in self.includedProcesses
 			])
+
+
+	def createLoggers(self):
+		loggers = []
+
+		if self.logToShell:
+			loggers.append(
+				wholecell.loggers.shell.Shell()
+				)
+
+		if self.logToDisk:
+			loggers.append(
+				wholecell.loggers.disk.Disk(
+					self.outputDir,
+					self.overwriteExistingFiles,
+					self.logToDiskEvery
+					)
+				)
+
+		return loggers
+
 
 	# TODO: save, load
