@@ -1,0 +1,36 @@
+New simulation abstractions
+---------------------------
+
+This is a list of features that I think should be implemented in the near future, and how I envision them working.
+
+Listener
+--------
+
+Solves issue(s): printing debug data, recording useful output during runtime, bloated states
+
+Explanation:
+Listeners are a sub-simulation abstraction, like States and Processes.  They are similar to States in that they accumulate, save, and load data related to simulation dynamics; however, they have no impact on simulation execution.  After evolving the simulation state, listeners have access to States and Processes.  They may make calls to these objects, access their attributes, and perform calculations on this data to acquire some specific dynamic observations.  Listeners can be "dropped in" without any requirements; a lightweight simulation could be run without any Listeners.  Two core Listeners (which will be part of the first implementation) are Mass, which integrates data regarding the mass of different components in the States, and Metabolic Flux, which accesses and saves the output fluxes of the Metabolism process.  Other properties that are currently tracked in states but unrelated to dynamics (like the results of partitioning in BulkMolecules) could be reduced to Listeners.  Another useful application of Listeners is to implement temporary debugging output in a location that can be easily accessed and disabled.  Loggers will remain as an even higher level of abstraction that calls and accesses listeners/states/processes.
+
+Manager
+-------
+
+Solves issue(s): implementing and tracking debug hacks
+
+Explanation:
+The so-called simulation Managers are hooks into parts of the simulation, like pre-fitting, pre-initialization, post-initialization, pre-evolve state, post-evolve state, and post-simulation.  The hooks should implement the __call__ method and accept the simulation object as the sole argument.  The most basic hooks are just functions.  Hooks are assigned during simulation instantiation and called in sequential order.  They are, more or less, a way to insert arbitrary code (hacks) into the simulation.  While we'd like to entirely eschew the need for hacks, this often proves to be difficult during active development.  These managers will give us the ability to interact with the simulation in a relatively controlled and up-front fashion.
+
+SimDefinition
+-------------
+
+Solves issue(s): isolating and controlling optional arguments for simulation execution 
+
+Explanation:
+The SimDefinition is a class implementing static definitions of what simulations to run.  The current approach is to pass and parse arguments to the Simulation during run time.  This is a poorly scaling solution.  It also doesn't allow us to use dotted namespaces, which are a nicer accessor model.  The definitions could be extended to handle bundles of simulations - different seeds, ranges of parameters, and so on, but it might be better to instead define another class that manages this.  Input, saving, and loading of the definitions should always be accomplishable and performed through JSON.
+
+??? (post-simulation analysis data containers)
+----------------------------------------------
+
+Solves issue(s): analyzing data across time and simulations in an efficient and readable fashion
+
+Explanation:
+Currently, our containers provide a way to dynamically access the state of a simulation at a point in time.  For post-simulation analysis, we would like to be able to access parameters across time and simulations.  I'm not sure what to call these objects, but they will function as static accessors with interfaces similar to their dynamic counterparts, plus the ability to access over time spans and across simulations.  The first implementations will be for UniqueObjectContainer and BulkObjectContainers (UniqueObjectData and BulkObjectData?).  They are instantiated by passing a set of file paths or a single file path to the output data that will be compared.  The use cases will be for generating figures related to the dynamics of RNAs in the cell (NTP/NMPs, RNA counts, RNA poly activity, RNA mass fractions).
