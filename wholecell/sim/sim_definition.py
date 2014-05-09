@@ -121,14 +121,14 @@ class SimDefinition(object):
 
 	def createStates(self):
 		return collections.OrderedDict([
-			(className, STATE_CLASSES[className])()
+			(className, STATES[className]())
 			for className in self.includedStates
 			])
 
 
 	def createProcesses(self):
 		return collections.OrderedDict([
-			(className, PROCESS_CLASSES[className])()
+			(className, PROCESSES[className]())
 			for className in self.includedProcesses
 			])
 

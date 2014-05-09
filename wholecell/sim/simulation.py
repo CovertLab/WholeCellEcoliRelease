@@ -19,121 +19,35 @@ import tables
 import wholecell.utils.rand_stream
 import wholecell.utils.config
 
-import wholecell.states.mass
-import wholecell.states.bulk_molecules
-import wholecell.states.unique_molecules
-import wholecell.states.chromosome
-import wholecell.states.transcripts
 
-STATE_CLASSES = [
-	wholecell.states.mass.Mass,
-	wholecell.states.bulk_molecules.BulkMolecules,
-	wholecell.states.unique_molecules.UniqueMolecules,
-	wholecell.states.chromosome.Chromosome,
-	wholecell.states.transcripts.Transcripts,
-	]
+class SimulationException(Exception): pass
 
-import wholecell.processes.complexation
-import wholecell.processes.metabolism
-import wholecell.processes.metabolism_fba
-import wholecell.processes.rna_degradation
-import wholecell.processes.transcription.bulk_transcription
-import wholecell.processes.translation.translation
-import wholecell.processes.free_production
-import wholecell.processes.transcription.toy_transcription
-import wholecell.processes.toy_protein_degradation
-import wholecell.processes.toy_replication
-import wholecell.processes.replication
-import wholecell.processes.transcription.transcription_net
-import wholecell.processes.translation.translation_net
-import wholecell.processes.translation.unique_polypeptide_initiation
-import wholecell.processes.translation.unique_polypeptide_elongation
-import wholecell.processes.transcription.unique_transcript_initiation
-import wholecell.processes.transcription.unique_transcript_elongation
-
-PROCESS_CLASSES = [
-	wholecell.processes.metabolism.Metabolism,
-	wholecell.processes.metabolism_fba.MetabolismFba,
-	wholecell.processes.rna_degradation.RnaDegradation,
-	wholecell.processes.transcription.bulk_transcription.BulkTranscription,
-	wholecell.processes.translation.translation.Translation,
-	wholecell.processes.free_production.FreeProduction,
-	wholecell.processes.transcription.toy_transcription.ToyTranscription,
-	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
-	wholecell.processes.toy_replication.ToyReplication,
-	wholecell.processes.replication.Replication,
-	wholecell.processes.transcription.transcription_net.TranscriptionNet,
-	wholecell.processes.translation.translation_net.TranslationNet,
-	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
-	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
-	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
-	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation
-	]
-
-STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
-PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
-
-DEFAULT_STATES = [
-	'Mass',
-	'BulkMolecules',
-	'UniqueMolecules'
-	]
-
-DEFAULT_PROCESSES = [
-	'Metabolism',
-	'RnaDegradation',
-	'UniqueTranscriptInitiation',
-	'UniqueTranscriptElongation',
-	'UniquePolypeptideInitiation',
-	'UniquePolypeptideElongation',
-	'Replication'
-	]
-
-SIM_INIT_ARGS = dict(
-	includedStates = None, includedProcesses = None,
-	freeMolecules = None,
-	lengthSec = None, timeStepSec = None,
-	seed = None,
-	reconstructKB = False,
-	logToShell = True,
-	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
-	)
 
 class Simulation(object):
 	""" Simulation """
 
 	# Constructors
-	def __init__(self, **kwargs):
+	def __init__(self, simDefinition = None, **kwargs):
 		import wholecell.utils.rand_stream
 		import wholecell.utils.config
 		import wholecell.utils.knowledgebase_fixture_manager
 		import wholecell.reconstruction.fitter
 		import wholecell.loggers.shell
 		import wholecell.loggers.disk
+		import wholecell.sim.sim_definition
 
-		# Make sure the arguments passed are valid
-		if (kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()):
-			raise Exception('Unrecognized arguments passed to Simulation.__init__: {}'.format(
-					kwargs.viewkeys() - SIM_INIT_ARGS.viewkeys()))
+		if simDefinition is not None and kwargs:
+			raise SimulationException(
+				"Simulations cannot be instantiated with both a SimDefinition instance and keyword arguments"
+				)
 
-		self._options = SIM_INIT_ARGS.copy()
-		self._options.update(kwargs)
+		elif simDefinition is None:
+			simDefinition = wholecell.sim.sim_definition.SimDefinition(**kwargs)
 
-		# Set states
-		self.includedStates = (self._options['includedStates']
-			if self._options['includedStates'] is not None else DEFAULT_STATES)
-
-		# Set processes
-		self.includedProcesses = (self._options['includedProcesses']
-			if self._options['includedProcesses'] is not None else DEFAULT_PROCESSES)
-		
-		self.freeMolecules = self._options['freeMolecules']
-
-		if self.freeMolecules is not None:
-			self.includedProcesses.append('FreeProduction')
+		self._options = simDefinition
 
 		# Set random seed
-		self.seed = self._options['seed']
+		self.seed = self._options.seed
 
 		# References to simulation objects
 		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
@@ -143,7 +57,7 @@ class Simulation(object):
 		# Create KB
 		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
 
-		if self._options['reconstructKB'] or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
+		if self._options.reconstructKB or not os.path.exists(os.path.join(self.kbDir,'KnowledgeBase.cPickle')):
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 
 		else:
@@ -151,10 +65,11 @@ class Simulation(object):
 				os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
 
 		# Set time parameters
-		self.lengthSec = (self._options['lengthSec']
-			if self._options['lengthSec'] is not None else kb.parameters['cellCycleLen'].to('s').magnitude) # Simulation length (s)
-		self.timeStepSec = (self._options['timeStepSec']
-			if self._options['timeStepSec'] is not None else kb.parameters['timeStep'].to('s').magnitude) # Simulation time step (s)
+		self.lengthSec = (self._options.lengthSec
+			if self._options.lengthSec is not None else kb.parameters['cellCycleLen'].to('s').magnitude) # Simulation length (s)
+		self.timeStepSec = (self._options.timeStepSec
+			if self._options.timeStepSec is not None else kb.parameters['timeStep'].to('s').magnitude) # Simulation time step (s)
+
 		self.initialStep = 0
 		self.simulationStep = 0
 
@@ -168,17 +83,17 @@ class Simulation(object):
 		# Set loggers
 		self.loggers = []
 
-		if self._options['logToShell']:
+		if self._options.logToShell:
 			self.loggers.append(
 				wholecell.loggers.shell.Shell()
 				)
 
-		if self._options['logToDisk']:
+		if self._options.logToDisk:
 			self.loggers.append(
 				wholecell.loggers.disk.Disk(
-					self._options['outputDir'],
-					self._options['overwriteExistingFiles'],
-					self._options['logToDiskEvery']
+					self._options.outputDir,
+					self._options.overwriteExistingFiles,
+					self._options.logToDiskEvery
 					)
 				)
 
@@ -218,18 +133,12 @@ class Simulation(object):
 
 	# Construct states
 	def _constructStates(self):
-		self.states = collections.OrderedDict([
-			(stateName, STATES[stateName]())
-			for stateName in self.includedStates
-			])
+		self.states = self._options.createStates()
 
 
 	# Construct processes
 	def _constructProcesses(self):
-		self.processes = collections.OrderedDict([
-			(processName, PROCESSES[processName]())
-			for processName in self.includedProcesses
-			])
+		self.processes = self._options.createProcesses()
 
 
 	# Allocate memory
