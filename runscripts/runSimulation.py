@@ -17,11 +17,21 @@ from __future__ import division
 
 import wholecell.sim.simulation
 import sys
+import datetime
+
+outputDir = ("out/simOutput/%s/000" %
+	datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+	)
 
 DEFAULT_SIM = dict(
 	seed = 10,
 	lengthSec = 3600,
 	reconstructKB = True,
+	logToShell = True,
+	logToDisk = True,
+	outputDir = outputDir,
+	overwriteExistingFiles = False,
+	logToDiskEvery = 10,
 	)
 
 def main():
