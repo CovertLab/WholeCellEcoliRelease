@@ -1,4 +1,4 @@
-.PHONY: clean, all, runSimulation
+.PHONY: all, runSimulation, clean
 
 all: wholecell/utils/_polymerize.so
 
