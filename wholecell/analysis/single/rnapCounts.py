@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Plot mass fractions
+Plot RNA polymerase counts and counts of mRNA precursors
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
