@@ -109,8 +109,7 @@ SIM_KWARG_DEFAULTS = dict(
 
 class SimDefinitionException(Exception): pass
 
-# TODO: incorporate/define more of the default simulation behavior here
-# need to determine what parts of simulation
+
 class SimDefinition(object):
 	"""
 	A class for providing convenient access to the static definition of a 
