@@ -3,7 +3,7 @@
 """
 Mass
 
-Mass state variable. Represents the total cellular mass.
+Mass listener. Represents the total cellular mass.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University

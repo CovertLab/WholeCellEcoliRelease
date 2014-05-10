@@ -33,6 +33,10 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 	_name = "MetabolismFba"
 
+	def __init__(self):
+		super(MetabolismFba, self).__init__()
+
+
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(MetabolismFba, self).initialize(sim, kb)
@@ -89,6 +93,10 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 		self.internalExchangeMolecules = self.bulkMoleculesView(self.internalExchangeMoleculeNames)
 
+		# Permanent references to evolveState variables for listener
+
+		self.fluxes = np.zeros(self.stoichMatrix.shape[1])
+
 
 	def calculateRequest(self):
 		if REQUEST_SIMPLE:
@@ -108,21 +116,21 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 			self.internalExchangeMolecules.requestIs(internalUsage)
 
-			print ', '.join(
-				self.internalExchangeMoleculeNames[index]
-				for index in np.where(internalUsage)[0]
-				)
+			# print ', '.join(
+			# 	self.internalExchangeMoleculeNames[index]
+			# 	for index in np.where(internalUsage)[0]
+			# 	)
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Update metabolite counts based on computed fluxes
 
-		fluxes = self.computeFluxes(self.internalExchangeMolecules.counts())
+		self.fluxes = self.computeFluxes(self.internalExchangeMolecules.counts())
 
-		internalUsage = (fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
-		sinkProduction = (fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
-		biomassProduction = (fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
+		internalUsage = (self.fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
+		sinkProduction = (self.fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
+		biomassProduction = (self.fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
 
 		self.internalExchangeMolecules.countsDec(internalUsage)
 		self.sinkMolecules.countsInc(sinkProduction)

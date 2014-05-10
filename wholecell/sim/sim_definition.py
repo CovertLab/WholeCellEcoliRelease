@@ -68,9 +68,11 @@ PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSE
 
 # Listeners
 import wholecell.listeners.mass
+import wholecell.listeners.metabolic_flux
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
+	wholecell.listeners.metabolic_flux.MetabolicFlux,
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -87,7 +89,7 @@ DEFAULT_STATES = (
 	)
 
 DEFAULT_PROCESSES = (
-	'Metabolism',
+	'MetabolismFba',
 	'RnaDegradation',
 	'UniqueTranscriptInitiation',
 	'UniqueTranscriptElongation',
@@ -98,6 +100,7 @@ DEFAULT_PROCESSES = (
 
 DEFAULT_LISTENERS = (
 	'Mass',
+	'MetabolicFlux',
 	)
 
 DEFAULT_LENGTH = 3600 # sec
