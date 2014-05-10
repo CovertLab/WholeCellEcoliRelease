@@ -21,8 +21,8 @@ import wholecell.sim.simulation
 import wholecell.loggers.disk
 import wholecell.loggers.shell
 
-import wholecell.utils.config
-TEST_FIXTURE_DIR = wholecell.utils.config.TEST_FIXTURE_DIR
+import wholecell.utils.constants
+TEST_FIXTURE_DIR = wholecell.utils.constants.TEST_FIXTURE_DIR
 
 # TODO: add "short sim" fixture
 

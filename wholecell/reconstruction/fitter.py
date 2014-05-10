@@ -502,10 +502,10 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	return mass / numpy.dot(mws / nAvogadro, relativeExpression)
 
 if __name__ == "__main__":
-	import wholecell.utils.config
+	import wholecell.utils.constants
 	import wholecell.utils.knowledgebase_fixture_manager
 
-	kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
+	kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
 	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
 	kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(

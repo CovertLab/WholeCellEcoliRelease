@@ -18,6 +18,7 @@ import tables
 
 import wholecell.utils.rand_stream
 import wholecell.utils.config
+import wholecell.utils.constants
 import wholecell.utils.knowledgebase_fixture_manager
 import wholecell.reconstruction.fitter
 import wholecell.sim.sim_definition
@@ -63,7 +64,7 @@ class Simulation(object):
 		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
 
 		# Create KB
-		self.kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
+		self.kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
 
 		kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 
