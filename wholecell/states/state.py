@@ -77,13 +77,6 @@ class State(object):
 		pass
 
 
-	# Calculations
-
-	# Calculate (and cache) any dependent properties
-	def calculate(self):
-		return
-
-
 	# Basic accessors
 
 	def time(self):

@@ -121,26 +121,23 @@ class Simulation(object):
 
 	# Run simulation
 	def run(self):
-		# Calculate initial dependent state
-		self._calculateState()
-
+		# Perform initial listener update
 		for listener in self.listeners.itervalues():
 			listener.initialUpdate()
 
-		self._logInitialize()
+		# Start logging
+		for logger in self.loggers:
+			logger.initialize(self)
 
+		# Simulate
 		while self.time() < self.lengthSec:
 			self.simulationStep += 1
 
 			self._evolveState()
-			self._logAppend()
 
-		self._logFinalize()
-
-
-	def _calculateState(self):
-		for state in self.states.itervalues():
-			state.calculate()
+		# Finish logging
+		for logger in self.loggers:
+			logger.finalize(self)
 
 
 	# Calculate temporal evolution
@@ -178,32 +175,18 @@ class Simulation(object):
 		for state in self.states.itervalues():
 			state.merge()
 
-		# Recalculate dependent state
-		self._calculateState() # TODO: remove
-
 		# Update listeners
 		for listener in self.listeners.itervalues():
 			listener.update()
+
+		# Append loggers
+		for logger in self.loggers:
+			logger.append(self)
 
 
 	def _seedFromName(self, name):
 		return np.uint32(self.seed + self.simulationStep + hash(name))
 
-
-	# --- Logger functions ---
-	def _logInitialize(self):
-		for logger in self.loggers:
-			logger.initialize(self)
-
-
-	def _logAppend(self):
-		for logger in self.loggers:
-			logger.append(self)
-
-
-	def _logFinalize(self):
-		for logger in self.loggers:
-			logger.finalize(self)
 
 	# Save to/load from disk
 	def pytablesCreate(self, h5file, expectedRows):
