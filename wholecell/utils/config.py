@@ -8,23 +8,30 @@ Stores configuration information
 
 import os
 import json
-from numpy import array,matrix
 
-hudson_config_file = os.path.join('wholecell','utils','configfile','config_file.config_hudson')
-user_config_file = os.path.join('wholecell','utils','configfile','config_file.config')
+defaultConfig = json.load(
+	open(os.path.join('wholecell', 'utils', 'default_config.cfg'))
+	)
 
-if os.path.exists(user_config_file):
-	with open(user_config_file) as config_file:
-		configs = json.loads(config_file.readline())
-		# Takes in keys and turns them into variables with same values as in dict:
-		for k in configs:
-			exec('{KEY} = {VALUE}'.format(KEY = k, VALUE = repr(configs[k])))
-else:
-	import warnings
-	warnings.warn('Using Hudson config file! To create your own copy the wholecell/utils/configfile/config_file.config_default file to wholecell/utils/configfile/config_file.config.\n')
-	
-	with open(hudson_config_file) as config_file:
-		configs = json.loads(config_file.readline())
-		# Takes in keys and turns them into variables with same values as in dict:
-		for k in configs:
-			exec('{KEY} = {VALUE}'.format(KEY = k, VALUE = repr(configs[k])))
+globals().update(defaultConfig)
+
+# Load the user config file, or, if there is none, create it
+
+userConfigPath = os.path.join('user', 'user_config.cfg')
+
+if not os.path.exists(userConfigPath):
+	print "Creating blank user configuration file at {}".format(userConfigPath)
+	with open(userConfigPath, 'w') as configFile:
+		json.dump({}, configFile)
+
+userConfig = json.load(open(userConfigPath))
+
+unknownOptions = userConfig.viewkeys() - defaultConfig.keys()
+
+if unknownOptions:
+	raise Exception("Unknown configuration options defined in {}: {}".format(
+		userConfigPath,
+		', '.join(unknownOptions)
+		))
+
+globals().update(userConfig)

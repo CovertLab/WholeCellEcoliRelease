@@ -26,15 +26,17 @@ nosetests.*.xml
 
 .ipynb_checkpoints
 
-# User machine config file
-##########################
-*.config
-
 # Output files #
 ################
 
 out/*
 !out/out.txt
+
+# User files #
+################
+
+user/*
+!user/user.txt
 
 # C extensions #
 ################
