@@ -197,4 +197,10 @@ class SimDefinition(object):
 		return loggers
 
 
+	def toDict(self):
+		return {
+			attribute:getattr(self, attribute)
+			for attribute in SIM_KWARG_DEFAULTS
+			}
+
 	# TODO: save, load

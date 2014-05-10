@@ -73,9 +73,9 @@ class Disk(wholecell.loggers.logger.Logger):
 		# Save initial state
 		self.copyDataFromStates(sim)
 
-		# Save simulation init options
+		# Save simulation definition
 		json.dump(
-			sim.options(),
+			sim.options().toDict(),
 			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
 			sort_keys = True, indent=4, separators=(',', ': ')
 			)
