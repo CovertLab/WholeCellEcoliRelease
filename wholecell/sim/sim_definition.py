@@ -69,85 +69,11 @@ PROCESS_CLASSES = (
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
 
 # Listeners
-class Listener(object):
-	_name = None
 
-	def __init__(self):
-		pass
-
-	# Construct state-process graph, calculate constants
-	def initialize(self, sim, kb):
-		self._sim = sim
-
-		self._nProcesses = len(sim.processes)
-
-
-	# Allocate memory
-	def allocate(self):
-		pass
-
-
-	# Calculate (and cache) any dependent properties
-	def update(self):
-		return
-
-
-	# Saving and loading
-
-	def pytablesCreate(self, h5file, expectedRows):
-		pass
-
-	def pytablesAppend(self, h5file):
-		pass
-
-	def pytablesLoad(self, h5file, timePoint):
-		pass
-
-
-	# Basic accessors
-
-	def time(self):
-		return self._sim.time()
-
-
-	def timeStep(self):
-		return self._sim.timeStep()
-
-
-	@classmethod
-	def name(cls):
-		return cls._name
-
-
-class FakeListener(Listener):
-	_name = "FakeListener"
-
-	def __init__(self):
-		super(FakeListener, self).__init__()
-
-		print '__init__'
-
-
-	def initialize(self, sim, kb):
-		super(FakeListener, self).initialize(sim, kb)
-
-		print 'initialize'
-
-
-	def allocate(self):
-		super(FakeListener, self).allocate()
-
-		print 'allocate'
-
-
-	def update(self):
-		super(FakeListener, self).update()
-
-		print 'update {}'.format(self.time())
-
+import wholecell.listeners.listener
 
 LISTENER_CLASSES = (
-	FakeListener,
+	wholecell.listeners.listener.FakeListener,
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
