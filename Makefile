@@ -1,4 +1,4 @@
-.PHONY: clean, all, runSimulation
+.PHONY: all, runSimulation, runAnalysisSingle, clean
 
 all: wholecell/utils/_polymerize.so
 
@@ -8,6 +8,9 @@ wholecell/utils/_polymerize.so: wholecell/utils/polymerize.c wholecell/utils/pol
 
 runSimulation: all
 	python2.7 runscripts/runSimulation.py
+
+runAnalysisSingle:
+	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;
