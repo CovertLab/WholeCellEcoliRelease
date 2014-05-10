@@ -54,30 +54,4 @@ class Listener(object):
 	@classmethod
 	def name(cls):
 		return cls._name
-
-
-class FakeListener(Listener):
-	_name = "FakeListener"
-
-	def __init__(self):
-		super(FakeListener, self).__init__()
-
-		print '__init__'
-
-
-	def initialize(self, sim, kb):
-		super(FakeListener, self).initialize(sim, kb)
-
-		print 'initialize'
-
-
-	def allocate(self):
-		super(FakeListener, self).allocate()
-
-		print 'allocate'
-
-
-	def update(self):
-		super(FakeListener, self).update()
-
-		print 'update {}'.format(self.time())
+		

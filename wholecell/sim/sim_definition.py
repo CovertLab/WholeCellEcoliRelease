@@ -69,7 +69,6 @@ PROCESS_CLASSES = (
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
 
 # Listeners
-
 import wholecell.listeners.listener
 
 LISTENER_CLASSES = (
