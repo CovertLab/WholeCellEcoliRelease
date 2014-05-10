@@ -81,6 +81,8 @@ LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CL
 import wholecell.loggers.shell
 import wholecell.loggers.disk
 
+# TODO: logger logic more consistent with listeners/states/processes
+
 # Default parameters
 
 DEFAULT_STATES = (
@@ -89,7 +91,7 @@ DEFAULT_STATES = (
 	)
 
 DEFAULT_PROCESSES = (
-	'MetabolismFba',
+	'Metabolism',
 	'RnaDegradation',
 	'UniqueTranscriptInitiation',
 	'UniqueTranscriptElongation',
@@ -100,7 +102,6 @@ DEFAULT_PROCESSES = (
 
 DEFAULT_LISTENERS = (
 	'Mass',
-	'MetabolicFlux',
 	)
 
 DEFAULT_LENGTH = 3600 # sec
