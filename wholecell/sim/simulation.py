@@ -23,7 +23,8 @@ import wholecell.reconstruction.fitter
 import wholecell.sim.sim_definition
 
 
-class SimulationException(Exception): pass
+class SimulationException(Exception):
+	pass
 
 
 class Simulation(object):
@@ -92,6 +93,7 @@ class Simulation(object):
 	def _initialize(self, kb):
 		self.states = self._options.createStates()
 		self.processes = self._options.createProcesses()
+		self.listeners = self._options.createListeners()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -99,7 +101,14 @@ class Simulation(object):
 		for process in self.processes.itervalues():
 			process.initialize(self, kb)
 
-		self._allocateMemory()
+		for listener in self.listeners.itervalues():
+			listener.initialize(self, kb)
+
+		for state in self.states.itervalues():
+			state.allocate()
+
+		for listener in self.listeners.itervalues():
+			listener.allocate()
 		
 		from wholecell.reconstruction.initial_conditions import calcInitialConditions
 
@@ -107,13 +116,6 @@ class Simulation(object):
 
 		# Create loggers
 		self.loggers = self._options.createLoggers()
-
-
-	# Allocate memory
-	def _allocateMemory(self):
-		for state in self.states.itervalues():
-			state.allocate()
-
 
 	# -- Run simulation --
 
@@ -174,7 +176,11 @@ class Simulation(object):
 			state.merge()
 
 		# Recalculate dependent state
-		self._calculateState()
+		self._calculateState() # TODO: remove
+
+		# Update listeners
+		for listener in self.listeners.itervalues():
+			listener.update()
 
 
 	def _seedFromName(self, name):

@@ -13,22 +13,24 @@ import collections
 
 # References to sub-simulation abstractions
 
+# States
 import wholecell.states.mass
 import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
 import wholecell.states.chromosome
 import wholecell.states.transcripts
 
-STATE_CLASSES = [
+STATE_CLASSES = (
 	wholecell.states.mass.Mass,
 	wholecell.states.bulk_molecules.BulkMolecules,
 	wholecell.states.unique_molecules.UniqueMolecules,
 	wholecell.states.chromosome.Chromosome,
 	wholecell.states.transcripts.Transcripts,
-	]
+	)
 
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 
+# Processes
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
 import wholecell.processes.metabolism_fba
@@ -46,7 +48,7 @@ import wholecell.processes.translation.unique_polypeptide_elongation
 import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 
-PROCESS_CLASSES = [
+PROCESS_CLASSES = (
 	wholecell.processes.metabolism.Metabolism,
 	wholecell.processes.metabolism_fba.MetabolismFba,
 	wholecell.processes.rna_degradation.RnaDegradation,
@@ -62,22 +64,107 @@ PROCESS_CLASSES = [
 	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation
-	]
+	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
 
+# Listeners
+class Listener(object):
+	_name = None
+
+	def __init__(self):
+		pass
+
+	# Construct state-process graph, calculate constants
+	def initialize(self, sim, kb):
+		self._sim = sim
+
+		self._nProcesses = len(sim.processes)
+
+
+	# Allocate memory
+	def allocate(self):
+		pass
+
+
+	# Calculate (and cache) any dependent properties
+	def update(self):
+		return
+
+
+	# Saving and loading
+
+	def pytablesCreate(self, h5file, expectedRows):
+		pass
+
+	def pytablesAppend(self, h5file):
+		pass
+
+	def pytablesLoad(self, h5file, timePoint):
+		pass
+
+
+	# Basic accessors
+
+	def time(self):
+		return self._sim.time()
+
+
+	def timeStep(self):
+		return self._sim.timeStep()
+
+
+	@classmethod
+	def name(cls):
+		return cls._name
+
+
+class FakeListener(Listener):
+	_name = "FakeListener"
+
+	def __init__(self):
+		super(FakeListener, self).__init__()
+
+		print '__init__'
+
+
+	def initialize(self, sim, kb):
+		super(FakeListener, self).initialize(sim, kb)
+
+		print 'initialize'
+
+
+	def allocate(self):
+		super(FakeListener, self).allocate()
+
+		print 'allocate'
+
+
+	def update(self):
+		super(FakeListener, self).update()
+
+		print 'update {}'.format(self.time())
+
+
+LISTENER_CLASSES = (
+	FakeListener,
+	)
+
+LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
+
+# Loggers
 import wholecell.loggers.shell
 import wholecell.loggers.disk
 
 # Default parameters
 
-DEFAULT_STATES = [
+DEFAULT_STATES = (
 	'Mass',
 	'BulkMolecules',
 	'UniqueMolecules'
-	]
+	)
 
-DEFAULT_PROCESSES = [
+DEFAULT_PROCESSES = (
 	'Metabolism',
 	'RnaDegradation',
 	'UniqueTranscriptInitiation',
@@ -85,7 +172,11 @@ DEFAULT_PROCESSES = [
 	'UniquePolypeptideInitiation',
 	'UniquePolypeptideElongation',
 	'Replication'
-	]
+	)
+
+DEFAULT_LISTENERS = (
+	'FakeListener',
+	)
 
 DEFAULT_LENGTH = 3600 # sec
 DEFAULT_TIME_STEP = 1 # sec
@@ -98,15 +189,22 @@ DEFAULT_SEED = None
 # Simulation keywords
 
 SIM_KWARG_DEFAULTS = dict(
-	includedStates = DEFAULT_STATES, includedProcesses = DEFAULT_PROCESSES,
+	states = DEFAULT_STATES,
+	processes = DEFAULT_PROCESSES,
+	listeners = DEFAULT_LISTENERS,
 	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
 	seed = DEFAULT_SEED,
 	logToShell = True,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
 	)
 
-class SimDefinitionException(Exception): pass
+# Exceptions
 
+class SimDefinitionException(Exception):
+	pass
+
+
+# Classes
 
 class SimDefinition(object):
 	"""
@@ -135,14 +233,21 @@ class SimDefinition(object):
 	def createStates(self):
 		return collections.OrderedDict([
 			(className, STATES[className]())
-			for className in self.includedStates
+			for className in self.states
 			])
 
 
 	def createProcesses(self):
 		return collections.OrderedDict([
 			(className, PROCESSES[className]())
-			for className in self.includedProcesses
+			for className in self.processes
+			])
+
+
+	def createListeners(self):
+		return collections.OrderedDict([
+			(className, LISTENERS[className]())
+			for className in self.listeners
 			])
 
 
