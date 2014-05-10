@@ -15,11 +15,11 @@ from __future__ import division
 import numpy as np
 import tables
 
-import wholecell.states.state
+import wholecell.listeners.listener
 
 STATES_WITH_MASS = ['BulkMolecules', 'UniqueMolecules']
 
-class Mass(wholecell.states.state.State):
+class Mass(wholecell.listeners.listener.Listener):
 	""" Mass """
 
 	_name = 'Mass'
@@ -85,7 +85,7 @@ class Mass(wholecell.states.state.State):
 		self.water = 0
 
 
-	def calculate(self):
+	def update(self):
 		oldMass = self.cellDry
 
 		self._resetMasses()

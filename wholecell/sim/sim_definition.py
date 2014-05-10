@@ -14,14 +14,12 @@ import collections
 # References to sub-simulation abstractions
 
 # States
-import wholecell.states.mass
 import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
 import wholecell.states.chromosome
 import wholecell.states.transcripts
 
 STATE_CLASSES = (
-	wholecell.states.mass.Mass,
 	wholecell.states.bulk_molecules.BulkMolecules,
 	wholecell.states.unique_molecules.UniqueMolecules,
 	wholecell.states.chromosome.Chromosome,
@@ -69,10 +67,10 @@ PROCESS_CLASSES = (
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
 
 # Listeners
-import wholecell.listeners.listener
+import wholecell.listeners.mass
 
 LISTENER_CLASSES = (
-	wholecell.listeners.listener.FakeListener,
+	wholecell.listeners.mass.Mass,
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -84,7 +82,6 @@ import wholecell.loggers.disk
 # Default parameters
 
 DEFAULT_STATES = (
-	'Mass',
 	'BulkMolecules',
 	'UniqueMolecules'
 	)
@@ -100,7 +97,7 @@ DEFAULT_PROCESSES = (
 	)
 
 DEFAULT_LISTENERS = (
-	'FakeListener',
+	'Mass',
 	)
 
 DEFAULT_LENGTH = 3600 # sec

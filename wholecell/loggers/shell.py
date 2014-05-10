@@ -28,15 +28,15 @@ class Shell(wholecell.loggers.logger.Logger):
 	def initialize(self, sim):
 		# Array of columns
 		self.columns = [
-			{"header": "Time (s)", "state": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
-			{"header": "Dry mass (fg)", "state": "Mass", "property": "cellDry", "length": 13, "format": ".2f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "cellDryFoldChange", "length": 5, "format": ".3f", "sum": False},
-			{"header": "expected", "state": "Mass", "property": "expectedFoldChange", "length": 8, "format": ".3f", "sum": False},
-			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".4f", "sum": False},
-			{"header": "Protein frac", "state": "Mass", "property": "proteinFraction", "length": 12, "format": ".3f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "proteinFoldChange", "length": 5, "format": ".3f", "sum": False},
-			{"header": "RNA frac", "state": "Mass", "property": "rnaFraction", "length": 8, "format": ".3f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "rnaFoldChange", "length": 5, "format": ".3f", "sum": False},
+			{"header": "Time (s)", "target": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
+			{"header": "Dry mass (fg)", "target": "Listener:Mass", "property": "cellDry", "length": 13, "format": ".2f", "sum": False},
+			{"header": "fold", "target": "Listener:Mass", "property": "cellDryFoldChange", "length": 5, "format": ".3f", "sum": False},
+			{"header": "expected", "target": "Listener:Mass", "property": "expectedFoldChange", "length": 8, "format": ".3f", "sum": False},
+			{"header": "Growth (fg/s)", "target": "Listener:Mass", "property": "growth", "length": 13, "format": ".4f", "sum": False},
+			{"header": "Protein frac", "target": "Listener:Mass", "property": "proteinFraction", "length": 12, "format": ".3f", "sum": False},
+			{"header": "fold", "target": "Listener:Mass", "property": "proteinFoldChange", "length": 5, "format": ".3f", "sum": False},
+			{"header": "RNA frac", "target": "Listener:Mass", "property": "rnaFraction", "length": 8, "format": ".3f", "sum": False},
+			{"header": "fold", "target": "Listener:Mass", "property": "rnaFoldChange", "length": 5, "format": ".3f", "sum": False},
 
 			]
 
@@ -92,11 +92,17 @@ class Shell(wholecell.loggers.logger.Logger):
 			if iColumn > 0:
 				sys.stdout.write("  ")
 
-			if column["state"] == "Simulation":
+			if column["target"] == "Simulation":
 				target = sim
 
 			else:
-				target = sim.states[column["state"]]
+				targetType, targetName = column["target"].split(":")
+				
+				target = {
+					"State":sim.states,
+					"Process":sim.processes,
+					"Listener":sim.listeners
+					}[targetType][targetName]
 
 			value = getattr(target, column["property"])
 

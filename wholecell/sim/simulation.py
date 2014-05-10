@@ -124,6 +124,9 @@ class Simulation(object):
 		# Calculate initial dependent state
 		self._calculateState()
 
+		for listener in self.listeners.itervalues():
+			listener.initialUpdate()
+
 		self._logInitialize()
 
 		while self.time() < self.lengthSec:

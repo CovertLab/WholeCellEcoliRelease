@@ -25,8 +25,14 @@ class Listener(object):
 
 
 	# Calculate (and cache) any dependent properties
+	def initialUpdate(self):
+		# Default behavior is to call the normal update method
+		
+		self.update()
+
+
 	def update(self):
-		return
+		pass
 
 
 	# Saving and loading
@@ -54,4 +60,3 @@ class Listener(object):
 	@classmethod
 	def name(cls):
 		return cls._name
-		
