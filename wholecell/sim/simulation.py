@@ -214,25 +214,26 @@ class Simulation(object):
 
 
 	@classmethod
-	def loadSimulation(cls, stateDir, timePoint, newDir = None, overwriteExistingFiles = False):
+	def loadSimulation(cls, simDir, timePoint, newDir = None, overwriteExistingFiles = False):
 		newSim = cls.initFromFile(
-			os.path.join(stateDir, 'simOpts.json'),
+			os.path.join(simDir, 'simOpts.json'),
 			logToDisk = newDir is not None,
 			overwriteExistingFiles = overwriteExistingFiles,
 			outputDir = newDir
 			)
 
-		with tables.open_file(os.path.join(stateDir, 'Main.hdf')) as h5file:
+		with tables.open_file(os.path.join(simDir, 'Main.hdf')) as h5file:
 			newSim.pytablesLoad(h5file, timePoint)
 
 		for stateName, state in newSim.states.viewitems():
-			with tables.open_file(os.path.join(stateDir, stateName + '.hdf')) as h5file:
+			with tables.open_file(os.path.join(simDir, stateName + '.hdf')) as h5file:
 				state.pytablesLoad(h5file, timePoint)
 
-		newSim.initialStep = timePoint
+		for listenerName, listener in newSim.listeners.viewitems():
+			with tables.open_file(os.path.join(simDir, listenerName + '.hdf')) as h5file:
+				listener.pytablesLoad(h5file, timePoint)
 
-		# Calculate derived states
-		newSim._calculateState() # TODO: add calculate() to State superclass call?
+		newSim.initialStep = timePoint
 
 		return newSim
 

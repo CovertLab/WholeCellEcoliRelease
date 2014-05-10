@@ -48,13 +48,13 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_construction(self):
 		# Construct simulation
-		sim = wholecell.sim.simulation.Simulation(reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation()
 
 
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_run(self):
 		# Simulate
-		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10, reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation(seed = 0, lengthSec = 10)
 		sim.run()
 
 		self.assertEqual(10, sim.time())
@@ -62,15 +62,13 @@ class Test_Simulation(unittest.TestCase):
 
 	@noseAttrib.attr('mediumtest', 'saveload', 'simulation')
 	def test_disk_logger(self):
-		# Output directory
 		outDir = os.path.join("out", "test", "SimulationTest_testLogging")
 
 		# Run simulation
 		sim = wholecell.sim.simulation.Simulation(
 			seed = 0, lengthSec = 10, logToDisk = True, outputDir = outDir,
 			overwriteExistingFiles = True,
-			reconstructKB = True,
-			includedStates = ['Mass', 'BulkMolecules', 'UniqueMolecules', 'Chromosome', 'Transcripts']
+			states = ['BulkMolecules', 'UniqueMolecules', 'Chromosome', 'Transcripts']
 			)
 
 		sim.run()
@@ -101,24 +99,24 @@ class Test_Simulation(unittest.TestCase):
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_removeProcesses(self):
 		# Test ability to remove processes from simulation
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['BulkTranscription'], reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation(processes = ['BulkTranscription'])
 		self.assertEqual(['BulkTranscription'], sim.processes.keys())
 
 	
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_removeStates(self):
 		# Test ability to remove states from simulation
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['BulkTranscription'], includedStates = ['BulkMolecules'], reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation(processes = ['BulkTranscription'], states = ['BulkMolecules'])
 		self.assertEqual(['BulkMolecules'], sim.states.keys())
 
 	
 	@noseAttrib.attr('mediumtest', 'simulation')
 	def test_processInclusionOrder(self):
 		# Test that included processes follow the proscribed order (important for other tests)
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['BulkTranscription', 'Translation'], reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation(processes = ['BulkTranscription', 'Translation'])
 		self.assertEqual(['BulkTranscription', 'Translation'], sim.processes.keys())
 
-		sim = wholecell.sim.simulation.Simulation(includedProcesses = ['Translation', 'BulkTranscription'], reconstructKB = True)
+		sim = wholecell.sim.simulation.Simulation(processes = ['Translation', 'BulkTranscription'])
 		self.assertEqual(['Translation', 'BulkTranscription'], sim.processes.keys())
 
 
@@ -128,21 +126,20 @@ class Test_Simulation(unittest.TestCase):
 		# Test that process evaluation order does not determine the consequences of one time step
 		# NOTE: comparing independent states beyond BulkMolecules is a tricky affair
 
-		from wholecell.sim.simulation import DEFAULT_PROCESSES
+		from wholecell.sim.sim_definition import DEFAULT_PROCESSES
 
 		processes1 = DEFAULT_PROCESSES[:]
 		processes2 = DEFAULT_PROCESSES[::-1]
 
 		sim1 = wholecell.sim.simulation.Simulation(
-			includedProcesses = processes1,
-			reconstructKB = True,
+			processes = processes1,
 			seed = 0,
 			lengthSec = 10
 			)
 
 		sim1.run()
 
-		sim1Mass = sim1.states['Mass']
+		sim1Mass = sim1.listeners['Mass']
 
 		masses1 = [
 			sim1Mass.metabolite,
@@ -153,15 +150,14 @@ class Test_Simulation(unittest.TestCase):
 		del sim1
 
 		sim2 = wholecell.sim.simulation.Simulation(
-			includedProcesses = processes2,
-			reconstructKB = True,
+			processes = processes2,
 			seed = 0,
 			lengthSec = 10
 			)
 
 		sim2.run()
 
-		sim2Mass = sim2.states['Mass']
+		sim2Mass = sim2.listeners['Mass']
 
 		masses2 = [
 			sim2Mass.metabolite,
@@ -175,8 +171,3 @@ class Test_Simulation(unittest.TestCase):
 			masses1,
 			masses2
 			)
-
-
-
-
-
