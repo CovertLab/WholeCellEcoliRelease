@@ -267,16 +267,16 @@ class KnowledgeBaseEcoli(object):
 		doublingTime = [100, 60, 40, 30, 24]
 
 		self._cellDryMassCompositionData = numpy.zeros(len(doublingTime),
-			dtype = [('doublingTime',				'f'),
-					('proteinMassFraction',			'f'),
-					('rnaMassFraction',				'f'),
-					('dnaMassFraction',				'f'),
-					('lipidMassFraction',			'f'),
-					('lpsMassFraction',				'f'),
-					('mureinMassFraction',			'f'),
-					('glycogenMassFraction',		'f'),
-					('solublePoolMassFraction',		'f'),
-					('inorganicIonMassFraction',	'f')])
+			dtype = [('doublingTime',				'float64'),
+					('proteinMassFraction',			'float64'),
+					('rnaMassFraction',				'float64'),
+					('dnaMassFraction',				'float64'),
+					('lipidMassFraction',			'float64'),
+					('lpsMassFraction',				'float64'),
+					('mureinMassFraction',			'float64'),
+					('glycogenMassFraction',		'float64'),
+					('solublePoolMassFraction',		'float64'),
+					('inorganicIonMassFraction',	'float64')])
 
 		self._cellDryMassCompositionData['doublingTime'] = doublingTime
 		self._cellDryMassCompositionData['proteinMassFraction'] = [0.6756756757,
@@ -312,7 +312,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, 'Fractions do not sum to one!\n'
 
 		self._cellLipidFractionData = numpy.zeros(len(lipidIds),
-			dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellLipidFractionData['metaboliteId'] = lipidIds
 		self._cellLipidFractionData['massFraction'] = fracOfLipidMass
 
@@ -325,7 +325,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, 'Fractions do not sum to one!\n'
 
 		self._cellLPSFractionData = numpy.zeros(len(lpsIds), 
-			dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellLPSFractionData['metaboliteId'] = lpsIds
 		self._cellLPSFractionData['massFraction'] = fracOfLPSMass
 
@@ -340,7 +340,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, 'Fractions do not sum to one!\n'
 
 		self._cellMureinFractionData = numpy.zeros(len(mureinIds),
-			dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellMureinFractionData['metaboliteId'] = mureinIds
 		self._cellMureinFractionData['massFraction'] = fracOfMureinMass
 
@@ -353,7 +353,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, 'Fractions do not sum to one!\n'
 
 		self._cellGlycogenFractionData = numpy.zeros(len(glycogenIds),
-			dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellGlycogenFractionData['metaboliteId'] = glycogenIds
 		self._cellGlycogenFractionData['massFraction'] = fracOfGlycogenMass
 
@@ -376,7 +376,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, 'Fractions do not sum to one!\n'
 
 		self._cellSolublePoolFractionData = numpy.zeros(len(solublePoolIds),
-			dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellSolublePoolFractionData['metaboliteId'] = solublePoolIds
 		self._cellSolublePoolFractionData['massFraction'] = fracOfSolublePoolMass
 
@@ -393,7 +393,7 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, 'Fractions do not sum to one!\n'
 
 		self._cellInorganicIonFractionData = numpy.zeros(len(inorganicIonIds),
-			dtype = [('metaboliteId', 'a50'), ('massFraction', 'f')])
+			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
 
@@ -934,7 +934,7 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
-					("mass",				"f"),
+					("mass",				"float64"),
 					("isMetabolite",		"bool"),
 					("isRnaMonomer",		"bool"),
 					("isProteinMonomer",	"bool"),
@@ -976,7 +976,7 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
 		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
 		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
-
+		import ipdb; ipdb.set_trace()
 		# Add units to values
 		units = {"moleculeId"	:	None,
 			"mass"				:	"g / mol",
@@ -1058,7 +1058,7 @@ class KnowledgeBaseEcoli(object):
 	def _buildRnaExpression(self):
 		normalizedRnaExpression = numpy.zeros(sum(1 for x in self._rnas if x['unmodifiedForm'] == None),
 			dtype = [('rnaId',		'a50'),
-					('expression',	'f'),
+					('expression',	'float64'),
 					('isMRna',		'bool'),
 					('isMiscRna',	'bool'),
 					('isRRna',		'bool'),
@@ -1100,11 +1100,11 @@ class KnowledgeBaseEcoli(object):
 	def _buildBiomass(self):
 		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
 			dtype = [('metaboliteId', 'a50'),
-					('biomassFlux', 	'f')])
+					('biomassFlux', 	'float64')])
 
 		self._wildtypeBiomassData = numpy.zeros(sum(len(x['biomassInfo']['wildtype']) for x in self._metabolites if len(x['biomassInfo']['wildtype'])),
 			dtype = [('metaboliteId', 'a50'),
-					('biomassFlux',		'f')])
+					('biomassFlux',		'float64')])
 
 		self._coreBiomassData['metaboliteId']	= [
 		'{}[{}]'.format(x['id'], x['biomassInfo']['core'][i]['location'])
