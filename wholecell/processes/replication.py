@@ -16,7 +16,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-import wholecell.utils.polymerize
+import wholecell.utils.polymerize_matrix
 
 _NT_ORDER = ['A','T','G','C']
 
@@ -53,8 +53,8 @@ class Replication(wholecell.processes.process.Process):
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
 		
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = True)
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = False)
+		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = True) # TOKB
+		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = False) # TOKB
 
 
 	def calculateRequest(self):
