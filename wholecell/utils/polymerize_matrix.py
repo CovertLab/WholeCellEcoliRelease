@@ -113,7 +113,7 @@ def validatePolymerize(sequences, baseAmounts, bases, basePadValue, energy, ener
 	if not isinstance(sequences, np.matrix):
 		s += 'sequences must be a numpy matrix!\n'
 		furtherValidate = False
-	elif sequences.dtype.type != np.string_:
+	elif sequences.dtype.type != np.string_ and sequences.dtype.type != np.unicode_:
 		s += 'sequences must be matrix of strings!\n'
 		furtherValidate = False
 	
