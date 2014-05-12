@@ -92,7 +92,7 @@ class UniqueObjectsContainer(object):
 
 			# Create the collection (structured array)
 			newArray = np.zeros(
-				0, # start out empty
+				1, # start out empty
 				dtype = [
 					(attrName, attrType)
 					for attrName, attrType in attributes.viewitems()

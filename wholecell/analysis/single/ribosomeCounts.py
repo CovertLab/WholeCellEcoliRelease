@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-from wholecell.analysis.single.unique_molecules_data import UniqueMoleculesData
+from wholecell.containers.unique_molecules_data import UniqueMoleculesData
 
 def main(simOutDir, plotOutDir, plotOutFileName):
 
@@ -39,26 +39,17 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	h.close()
 
-	# h = tables.open_file(os.path.join(simOutDir, "UniqueMolecules.hdf"))
-
-	# ribosome = h.root.activeRibosome
-	# isActive = ribosome.col("_entryState") == 1
-	# time = ribosome.col("_time")
-	# nActive = np.bincount(time[isActive])
-
-	# time = np.unique(time)
-
 	with UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf")) as uniqueMolecules:
 		nActive = uniqueMolecules.counts("activeRibosome")
 		time = uniqueMolecules.timepoints()
 
 	plt.figure(figsize = (8.5, 11))
 
-	plt.plot(time / 60, nActive[time])
-	plt.plot([time[0] / 60., time[-1] / 60.], [2 * nActive[time[0]], 2 * nActive[time[0]]], "r--")
+	plt.plot(time / 60, nActive)
+	plt.plot([time[0] / 60., time[-1] / 60.], [2 * nActive[0], 2 * nActive[0]], "r--")
 	plt.xlabel("Time (min)")
 	plt.ylabel("Counts")
-	plt.title("Active Ribosomes Final:Initial = %0.2f" % (nActive[time[-1]] / float(nActive[time[0]])))
+	plt.title("Active Ribosomes Final:Initial = %0.2f" % (nActive[-1] / float(nActive[0])))
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
