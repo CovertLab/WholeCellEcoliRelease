@@ -10,7 +10,6 @@ Test polymerize.py
 import wholecell.utils.polymerize as p
 
 import numpy as np
-import pdb
 
 import nose.plugins.attrib as noseAttrib
 import nose.tools as noseTools
