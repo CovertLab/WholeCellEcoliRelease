@@ -86,10 +86,6 @@ class Disk(wholecell.loggers.logger.Logger):
 		# TODO: reinstate
 
 
-	def iterStatesListeners(self):
-		return 
-
-
 	def createTables(self, sim):
 		expectedRows = int(sim.lengthSec/sim.timeStepSec)
 
