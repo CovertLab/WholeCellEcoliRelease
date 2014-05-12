@@ -26,8 +26,6 @@ class UniqueMoleculesData(object):
 
 		self._timepoints = np.unique(times)
 
-		import ipdb; ipdb.set_trace()
-
 
 	def timepoints(self):
 		# Return the valid timepoints
@@ -90,18 +88,30 @@ class UniqueMoleculesData(object):
 		raise NotImplementedError("Waiting to implement this until some refactoring")
 
 
+	def close(self):
+		# Explictly close the file, just in case that is something you want to do
+		self._h5file.close()
+
+
+	# Methods for use as a context manager
+	def __enter__(self):
+		return self
+
+	def __exit__(self, *excinfo):
+		self.close()
+
+
 if __name__ == '__main__':
 	filePath = "out/working/UniqueMolecules.hdf"
 
-	data = UniqueMoleculesData(filePath)
+	with UniqueMoleculesData(filePath) as data:
+		timepoints = data.timepoints()
 
-	timepoints = data.timepoints()
+		counts = data.counts("activeRnaPoly")
 
-	counts = data.counts("activeRnaPoly")
+		rnaIndexes = data.attr("activeRnaPoly", "rnaIndex")
 
-	rnaIndexes = data.attr("activeRnaPoly", "rnaIndex")
-
-	required, assigned = data.attrs("activeRnaPoly", ["requiredACGU", "assignedACGU"])
+		required, assigned = data.attrs("activeRnaPoly", ["requiredACGU", "assignedACGU"])
 
 	import matplotlib.pyplot as plt
 

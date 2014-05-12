@@ -16,6 +16,8 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.containers.unique_molecules_data import UniqueMoleculesData
+
 def main(simOutDir, plotOutDir, plotOutFileName):
 
 	if not os.path.isdir(simOutDir):
@@ -40,20 +42,15 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	h.close()
 
-	h = tables.open_file(os.path.join(simOutDir, "UniqueMolecules.hdf"))
-
-	rnaPol = h.root.activeRnaPoly
-	isActive = rnaPol.col("_entryState") == 1
-	time = rnaPol.col("_time")
-	nActive = np.bincount(time[isActive])
-
-	time = np.unique(time)
+	with UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf")) as uniqueMolecules:
+		time = uniqueMolecules.timepoints()
+		nActive = uniqueMolecules.counts("activeRnaPoly")
 
 	plt.figure(figsize = (8.5, 11))
 
 	plt.subplot(5, 1, 1)
 
-	plt.plot(time / 60., nActive[time] + np.min(rnapCountsBulk, axis = 1)[1:])
+	plt.plot(time / 60., nActive + np.min(rnapCountsBulk, axis = 1))
 	plt.xlabel("Time (min)")
 	plt.ylabel("Protein Counts")
 	plt.title("RNA Polymerase")
@@ -63,7 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 	
 		plt.subplot(5, 1, subplotIdx)
 
-		plt.plot(time / 60., rnapRnaCounts[1:, rnapRnaCountsIdx])
+		plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])
 		plt.xlabel("Time (min)")
 		plt.ylabel("mRNA counts")
 		plt.title(RNAP_RNA_IDS[rnapRnaCountsIdx])
@@ -71,7 +68,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 	plt.subplots_adjust(hspace = 0.5, top = 0.95, bottom = 0.05)
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
-	h.close()
+	# h.close()
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
