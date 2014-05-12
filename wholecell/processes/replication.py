@@ -135,3 +135,14 @@ class Replication(wholecell.processes.process.Process):
 
 		# TODO: Check for hitting the end of the chromosome!
 
+	def updatePolymerasePosition(self, dnaPolymerase, difference):
+		'''Updates polymerase positio based on passed difference in position'''
+		assert(difference >= 0)
+		if dnaPolymerase.attr('directionIsPositive') == True:
+			dnaPolymerase.attrIs(chromosomeLocation = (
+				dnaPolymerase.attr('chromosomeLocation') + difference) % self.genomeLength
+			)
+		else:
+			dnaPolymerase.attrIs(chromosomeLocation = (
+				dnaPolymerase.attr('chromosomeLocation') - difference) % self.genomeLength
+			)
