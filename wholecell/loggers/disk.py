@@ -22,8 +22,10 @@ import shutil
 import itertools
 
 import tables
+from numpy import log10
 
 import wholecell.loggers.logger
+from wholecell.utils.constants import OUTPUT_DIRECTORY
 
 # TODO: let loaded simulation resume logging in a copied file
 
@@ -46,7 +48,7 @@ class Disk(wholecell.loggers.logger.Logger):
 		self.logStep = 0
 
 		if self.outDir is None:
-			self.outDir = os.path.join('out', self.currentTimeAsDir())
+			self.outDir = timestampedOutputDirectoryNames()[0]
 		
 		try:
 			os.makedirs(self.outDir)
@@ -65,7 +67,7 @@ class Disk(wholecell.loggers.logger.Logger):
 			)
 		
 		# Metadata
-		self.mainFile.root._v_attrs.startTime = self.currentTimeAsString()
+		self.mainFile.root._v_attrs.startTime = currentTimeAsString()
 		self.mainFile.root._v_attrs.timeStepSec = sim.timeStepSec
 
 		# Create tables
@@ -113,7 +115,7 @@ class Disk(wholecell.loggers.logger.Logger):
 	def finalize(self, sim):
 		# Metadata
 		self.mainFile.root._v_attrs.lengthSec = sim.time()
-		self.mainFile.root._v_attrs.endTime = self.currentTimeAsString()
+		self.mainFile.root._v_attrs.endTime = currentTimeAsString()
 
 		# Close file
 		self.mainFile.close()
@@ -129,12 +131,23 @@ class Disk(wholecell.loggers.logger.Logger):
 			obj.pytablesAppend(saveFile)
 
 
-	@staticmethod
-	def currentTimeAsString():
-		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+def currentTimeAsString():
+	return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
 
-	@staticmethod
-	def currentTimeAsDir():
-		# Variant timestamp format that should be valid across OSes
-		return time.strftime("sim%Y.%m.%d-%H.%M.%S", time.localtime())
+
+def currentTimeAsDir():
+	# Variant timestamp format that should be valid across OSes
+	return time.strftime("sim%Y.%m.%d-%H.%M.%S", time.localtime())
+
+
+def timestampedOutputDirectoryNames(n = 1):
+	mainPath = os.path.join(OUTPUT_DIRECTORY, currentTimeAsDir())
+
+	nDigits = int(log10(n)) + 1
+
+	return [
+		os.path.join(mainPath, str(simulationIndex).zfill(nDigits))
+		for simulationIndex in xrange(n)
+		]
