@@ -42,8 +42,8 @@ class Replication(wholecell.processes.process.Process):
 		dNmpIds = ['DAMP[n]', 'DTMP[n]', 'DCMP[n]', 'DGMP[n]']
 
 		self.sequence = kb.genomeSeq
-		self.genomeLength = len(self.sequence)
-		self.dnaPolymeraseElongationRate = 200 # nt/s
+		self.genomeLength = len(self.sequence) # TOKB
+		self.dnaPolymeraseElongationRate = 200 # nt/s # TOKB
 
 		# Views
 		self.dntps = self.bulkMoleculesView(dNtpIds)
