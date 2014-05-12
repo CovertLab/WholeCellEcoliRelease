@@ -186,7 +186,7 @@ def validatePolymerize(sequences, baseAmounts, bases, basePadValue, energy, ener
 			s += 'basePadValue has the same value as a base!\n'
 	
 	if len(s):
-		raise polymerizeException, s
+		raise polymerizeMatrixException, s
 
 
 def calculateElongationLimits(sequences, bases, baseAmounts, energy, energyCostPerBase):
@@ -279,7 +279,7 @@ def lengths(sequences, padValue):
 	return result
 
 
-class polymerizeException(Exception):
+class polymerizeMatrixException(Exception):
 	"""
-	polymerizeException
+	polymerizeMatrixException
 	"""
