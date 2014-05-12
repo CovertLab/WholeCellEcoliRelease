@@ -108,8 +108,6 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsNew(self, collectionName, nMolecules, **attributes):
-		attributes["_time"] = self._time
-
 		# Create multiple objects of the same type and attribute values
 		collectionIndex = self._collectionNameToIndexMapping[collectionName]
 		objectIndexes = self._getFreeIndexes(collectionIndex, nMolecules)
@@ -129,7 +127,6 @@ class UniqueObjectsContainer(object):
 		globalArray["_entryState"][globalIndexes] = _ENTRY_ACTIVE
 		globalArray["_collectionIndex"][globalIndexes] = collectionIndex
 		globalArray["_objectIndex"][globalIndexes] = objectIndexes
-		globalArray["_time"][globalIndexes] = self._time
 
 		# In collection, for each object, point to global reference
 		collection["_globalIndex"][objectIndexes] = globalIndexes
@@ -162,6 +159,8 @@ class UniqueObjectsContainer(object):
 			self._collections[collectionIndex][:oldSize] = oldArray
 
 			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
+
+			self._setCollectionTimes()
 
 		return freeIndexes[:nMolecules]
 
@@ -272,8 +271,12 @@ class UniqueObjectsContainer(object):
 	def timeIs(self, time):
 		self._time = time
 
+		self._setCollectionTimes()
+
+
+	def _setCollectionTimes(self):
 		for collection in self._collections:
-			collection["_time"] = time
+			collection["_time"] = self._time
 
 
 	def flushDeleted(self):
@@ -282,6 +285,8 @@ class UniqueObjectsContainer(object):
 				collectionIndex,
 				np.where(collection["_entryState"] == _ENTRY_DELETED)
 				)
+
+		self._setCollectionTimes()
 
 
 	def __eq__(self, other):
@@ -300,6 +305,8 @@ class UniqueObjectsContainer(object):
 				title = self._collectionNames[collectionIndex],
 				filters = tables.Filters(complevel = 9, complib = "zlib")
 				)
+
+		h5file.root._globalReference.attrs.collectionNames = self._collectionNames
 
 
 	def pytablesAppend(self, h5file):
