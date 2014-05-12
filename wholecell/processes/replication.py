@@ -6,6 +6,9 @@ Replication
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/18/2014
+@author: Nick Ruggero
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 5/12/2014
 """
 
 from __future__ import division
