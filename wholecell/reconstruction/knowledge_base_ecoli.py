@@ -976,7 +976,7 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
 		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
 		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
-		import ipdb; ipdb.set_trace()
+		
 		# Add units to values
 		units = {"moleculeId"	:	None,
 			"mass"				:	"g / mol",
