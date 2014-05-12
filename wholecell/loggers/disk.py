@@ -19,6 +19,7 @@ import os
 import time
 import json
 import shutil
+import itertools
 
 import tables
 
@@ -36,7 +37,7 @@ class Disk(wholecell.loggers.logger.Logger):
 		self.allowOverwrite = allowOverwrite
 		self.logEvery = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
 
-		self.stateFiles = {}
+		self.saveFiles = {}
 		self.mainFile = None
 		self.logStep = None
 
@@ -71,11 +72,11 @@ class Disk(wholecell.loggers.logger.Logger):
 		self.createTables(sim)
 
 		# Save initial state
-		self.copyDataFromStates(sim)
+		self.copyData(sim)
 
-		# Save simulation init options
+		# Save simulation definition
 		json.dump(
-			sim.options(),
+			sim.options().toDict(),
 			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
 			sort_keys = True, indent=4, separators=(',', ': ')
 			)
@@ -85,11 +86,32 @@ class Disk(wholecell.loggers.logger.Logger):
 		# TODO: reinstate
 
 
+	def iterStatesListeners(self):
+		return 
+
+
+	def createTables(self, sim):
+		expectedRows = int(sim.lengthSec/sim.timeStepSec)
+
+		sim.pytablesCreate(self.mainFile, expectedRows)
+
+		for name, obj in itertools.chain(sim.states.viewitems(), sim.listeners.viewitems()):
+			saveFile = tables.open_file(
+				os.path.join(self.outDir, name + '.hdf'),
+				mode = "w",
+				title = name + " simulation data file"
+				)
+
+			obj.pytablesCreate(saveFile, expectedRows)
+
+			self.saveFiles[obj] = saveFile
+
+
 	def append(self, sim):
 		self.logStep += 1
 
 		if self.logStep % self.logEvery == 0:
-			self.copyDataFromStates(sim)
+			self.copyData(sim)
 
 
 	def finalize(self, sim):
@@ -100,32 +122,15 @@ class Disk(wholecell.loggers.logger.Logger):
 		# Close file
 		self.mainFile.close()
 
-		for stateFile in self.stateFiles.viewvalues():
-			stateFile.close()
+		for saveFile in self.saveFiles.viewvalues():
+			saveFile.close()
 
 
-	def createTables(self, sim):
-		expectedRows = int(sim.lengthSec/sim.timeStepSec)
-
-		sim.pytablesCreate(self.mainFile, expectedRows)
-
-		for stateName, state in sim.states.viewitems():
-			stateFile = tables.open_file(
-				os.path.join(self.outDir, stateName + '.hdf'),
-				mode = "w",
-				title = stateName + " state file"
-				)
-
-			state.pytablesCreate(stateFile, expectedRows)
-
-			self.stateFiles[state] = stateFile
-
-
-	def copyDataFromStates(self, sim):
+	def copyData(self, sim):
 		sim.pytablesAppend(self.mainFile)
 
-		for state, stateFile in self.stateFiles.viewitems():
-			state.pytablesAppend(stateFile)
+		for obj, saveFile in self.saveFiles.viewitems():
+			obj.pytablesAppend(saveFile)
 
 
 	@staticmethod

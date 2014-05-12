@@ -3,7 +3,7 @@
 """
 Mass
 
-Mass state variable. Represents the total cellular mass.
+Mass listener. Represents the total cellular mass.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -15,11 +15,11 @@ from __future__ import division
 import numpy as np
 import tables
 
-import wholecell.states.state
+import wholecell.listeners.listener
 
 STATES_WITH_MASS = ['BulkMolecules', 'UniqueMolecules']
 
-class Mass(wholecell.states.state.State):
+class Mass(wholecell.listeners.listener.Listener):
 	""" Mass """
 
 	_name = 'Mass'
@@ -85,7 +85,7 @@ class Mass(wholecell.states.state.State):
 		self.water = 0
 
 
-	def calculate(self):
+	def update(self):
 		oldMass = self.cellDry
 
 		self._resetMasses()

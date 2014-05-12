@@ -17,11 +17,11 @@ import cPickle
 import wholecell.sim.simulation
 import wholecell.utils.knowledgebase_fixture_manager
 
-import wholecell.utils.config
+import wholecell.utils.constants
 
 def main():
 	# Create output directory
-	outDir = wholecell.utils.config.TEST_FIXTURE_DIR
+	outDir = wholecell.utils.constants.TEST_FIXTURE_DIR
 	if not os.path.exists(outDir):
 		os.makedirs(outDir)
 
@@ -31,7 +31,6 @@ def main():
 	# Construct simulation
 	sim = wholecell.sim.simulation.Simulation(
 		seed = 1,
-		reconstructKB = True
 		)
 
 	cPickle.dump(sim, open(os.path.join(outDir, "Simulation.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)

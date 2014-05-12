@@ -14,8 +14,7 @@ import warnings
 import cPickle
 import os
 
-import wholecell.utils.config
-TEST_FIXTURE_DIR = wholecell.utils.config.TEST_FIXTURE_DIR
+from wholecell.utils.constants import TEST_FIXTURE_DIR
 
 import nose.plugins.attrib as noseAttrib
 

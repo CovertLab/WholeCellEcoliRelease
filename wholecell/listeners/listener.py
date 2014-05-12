@@ -1,38 +1,16 @@
-#!/usr/bin/env python
-
 """
-State
+Listener
 
-State variable base class. Defines the interface states expose to the simulation and processes.
-
-@author: Derek Macklin
+@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/29/2013
+@date: Created 5/10/2014
 """
 
-from __future__ import division
-
-class State(object):
-	""" State """
-
+class Listener(object):
 	_name = None
 
-	# Constructor
 	def __init__(self):
-		# Constants
-		self._nProcesses = None
-
-		# Reference to sim
-		self._sim = None
-
-		# References to views
-		self._views = []
-
-		# Random number stream
-		self.randStream = None
-
-		self.seed = None
-
+		pass
 
 	# Construct state-process graph, calculate constants
 	def initialize(self, sim, kb):
@@ -46,22 +24,14 @@ class State(object):
 		pass
 
 
-	# Views
-	def viewAdd(self, view):
-		self._views.append(view)
+	# Calculate (and cache) any dependent properties
+	def initialUpdate(self):
+		# Default behavior is to call the normal update method
+		
+		self.update()
 
 
-	# Partitioning
-	def updateQueries(self):
-		for view in self._views:
-			view._updateQuery()
-
-
-	def partition(self):
-		pass
-
-
-	def merge(self):
+	def update(self):
 		pass
 
 
@@ -82,10 +52,11 @@ class State(object):
 	def time(self):
 		return self._sim.time()
 
+
 	def timeStep(self):
 		return self._sim.timeStep()
+
 
 	@classmethod
 	def name(cls):
 		return cls._name
-

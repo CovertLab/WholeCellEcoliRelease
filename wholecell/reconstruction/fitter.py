@@ -197,13 +197,13 @@ def fitKb(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = numpy.sum(kb.rnaData['countsACGU'], axis = 1)
 
+	# TODO: Clean up fudge
+	FUDGE = 2. # Forces transcription to be metabolically limited
 	nRnapsNeeded = numpy.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).to('dimensionless').magnitude
-
-	# nRnapsNeeded = 600	
+		).to('dimensionless').magnitude * FUDGE
 
 	minRnapCounts = (
 		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
@@ -270,18 +270,9 @@ def fitKb(kb):
 		)
 
 	# Amino acid fraction
-	oneToThreeMapping = dict((
-		("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
-		("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
-		("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
-		("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
-		("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
-		("V", "VAL-L[c]")
-	)) # TOKB
+	aaIDs = [aaID for aaID in kb.aaIDs if aaID != "SEC-L[c]"] # TODO: include selenocysteine
 
-	aminoAcidView = biomassContainer.countsView(
-		[oneToThreeMapping[x] for x in kb._aaWeights.iterkeys() if x != "U"] # Ignore selenocysteine (TODO: Include it)
-		) # TODO: Don't use private variable from KB. Use AMINO_ACID_1_TO_3_ORDERED order.
+	aminoAcidView = biomassContainer.countsView(aaIDs)
 
 	aaMmolPerGDCW = (
 			numpy.sum(
@@ -511,10 +502,10 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	return mass / numpy.dot(mws / nAvogadro, relativeExpression)
 
 if __name__ == "__main__":
-	import wholecell.utils.config
+	import wholecell.utils.constants
 	import wholecell.utils.knowledgebase_fixture_manager
 
-	kbDir = wholecell.utils.config.SIM_FIXTURE_DIR
+	kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
 	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
 				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
 	kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(

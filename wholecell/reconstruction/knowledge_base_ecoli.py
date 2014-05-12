@@ -40,7 +40,11 @@ Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneTyp
 Parameter, Constant)
 
 # Import Biopython for sequence handling
+import Bio
 import Bio.Seq
+
+import warnings
+warnings.simplefilter("ignore", Bio.BiopythonWarning)
 
 # Load units data from Pint
 from units.unit_struct_array import UnitStructArray
@@ -1543,7 +1547,7 @@ class KnowledgeBaseEcoli(object):
 			])
 
 		# TODO: decide whether these exchange reactions should be reversible
-		allReversibility.extend([True]*len(internalNames))
+		allReversibility.extend([False]*len(internalNames))
 
 		for i, name in enumerate(internalNames):
 			reactionIndex = nEdges + i

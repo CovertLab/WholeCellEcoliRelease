@@ -112,7 +112,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			updatedNts, ntpsUsed, self.seed
 			)
 
-		assert np.all(updatedNts <= requiredNts)
+		assert np.all(updatedNts <= requiredNts), "Transcripts got elongated more than possible!"
 
 		# newlyAssignedNts = polymerizePooledMonomers(
 		# 	ntpCounts,
@@ -167,16 +167,3 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton.countInc(nInitialized)
 
 		self.ppi.countInc(nElongations)
-
-		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
-
-		totalRnapSubunits = self.rnapSubunits.total()/np.array([2, 1, 1, 1], np.int) + len(activeRnaPolys)
-
-		totalRnap = np.min(totalRnapSubunits)
-
-		self.rnapSubunits.countsInc(np.fmax(
-			((440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int)).astype(np.int),
-			0
-			))
-
-

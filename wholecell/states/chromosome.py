@@ -139,11 +139,6 @@ class Chromosome(wholecell.states.state.State):
 			allocatedRegions.extend(regions)
 
 
-	def calculate(self):
-		# print 'Chromosome multiplicity is ', (self.container._array != self.container._inactive).sum() / N_BASES
-		pass
-
-
 	def pytablesCreate(self, h5file, expectedRows):
 		self.container.pytablesCreate(h5file)
 
