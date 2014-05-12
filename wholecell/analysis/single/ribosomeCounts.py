@@ -16,6 +16,8 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.analysis.single.unique_molecules_data import UniqueMoleculesData
+
 def main(simOutDir, plotOutDir, plotOutFileName):
 
 	if not os.path.isdir(simOutDir):
@@ -37,14 +39,18 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	h.close()
 
-	h = tables.open_file(os.path.join(simOutDir, "UniqueMolecules.hdf"))
+	# h = tables.open_file(os.path.join(simOutDir, "UniqueMolecules.hdf"))
 
-	ribosome = h.root.activeRibosome
-	isActive = ribosome.col("_entryState") == 1
-	time = ribosome.col("_time")
-	nActive = np.bincount(time[isActive])
+	# ribosome = h.root.activeRibosome
+	# isActive = ribosome.col("_entryState") == 1
+	# time = ribosome.col("_time")
+	# nActive = np.bincount(time[isActive])
 
-	time = np.unique(time)
+	# time = np.unique(time)
+
+	with UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf")) as uniqueMolecules:
+		nActive = uniqueMolecules.counts("activeRibosome")
+		time = uniqueMolecules.timepoints()
 
 	plt.figure(figsize = (8.5, 11))
 
