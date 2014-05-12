@@ -16,6 +16,8 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.analysis.single.unique_molecules_data import UniqueMoleculesData
+
 def main(simOutDir, plotOutDir, plotOutFileName):
 
 	if not os.path.isdir(simOutDir):
@@ -40,14 +42,21 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	h.close()
 
-	h = tables.open_file(os.path.join(simOutDir, "UniqueMolecules.hdf"))
+	# h = tables.open_file(os.path.join(simOutDir, "UniqueMolecules.hdf"))
 
-	rnaPol = h.root.activeRnaPoly
-	isActive = rnaPol.col("_entryState") == 1
-	time = rnaPol.col("_time")
-	nActive = np.bincount(time[isActive])
+	# rnaPol = h.root.activeRnaPoly
+	# isActive = rnaPol.col("_entryState") == 1
+	# time = rnaPol.col("_time")
+	# nActive = np.bincount(time[isActive])
 
-	time = np.unique(time)
+	# time = np.unique(time)
+
+	uniqueMolecules = UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf"))
+
+	time = uniqueMolecules.timepoints()
+	nActive = uniqueMolecules.counts("activeRnaPoly")
+
+	del uniqueMolecules
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -71,7 +80,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 	plt.subplots_adjust(hspace = 0.5, top = 0.95, bottom = 0.05)
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
-	h.close()
+	# h.close()
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
