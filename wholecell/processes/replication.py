@@ -19,6 +19,7 @@ import wholecell.processes.process
 import wholecell.utils.polymerize_matrix
 
 _NT_ORDER = ['A','T','G','C']
+_BASE_PAD_VALUE = ' '
 
 class Replication(wholecell.processes.process.Process):
 	""" Replication """
@@ -78,11 +79,10 @@ class Replication(wholecell.processes.process.Process):
 		sequenceMatrix = self.buildSequenceMatrix(allDnaPolymerase)
 		ntpCounts = self.dntps.counts()
 		bases = np.array(_NT_ORDER)
-		basePadValue = ' '
 		energy = 0
 		energyCostPerBase = 0
-		progress, baseAmounts, baseCosts, energy, energyCost = wholecell.utils.polymerize.Polymerize(
-					sequenceMatrix, ntpCounts, bases, basePadValue, energy, energyCostPerBase
+		progress, baseAmounts, baseCosts, energy, energyCost = wholecell.utils.polymerize_matrix.PolymerizeMatrix(
+					sequenceMatrix, ntpCounts, bases, _BASE_PAD_VALUE, energy, energyCostPerBase
 					)
 
 		for i,p in enumerate(allDnaPolymerase):
