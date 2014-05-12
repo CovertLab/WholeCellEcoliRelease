@@ -51,12 +51,9 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	# time = np.unique(time)
 
-	uniqueMolecules = UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf"))
-
-	time = uniqueMolecules.timepoints()
-	nActive = uniqueMolecules.counts("activeRnaPoly")
-
-	del uniqueMolecules
+	with UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf")) as uniqueMolecules:
+		time = uniqueMolecules.timepoints()
+		nActive = uniqueMolecules.counts("activeRnaPoly")
 
 	plt.figure(figsize = (8.5, 11))
 
