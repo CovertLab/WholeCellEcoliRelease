@@ -67,6 +67,8 @@ class Replication(wholecell.processes.process.Process):
 		for p in dnaPolymerase:
 			totalNtRequest += self.calculateNucleotideRequest(p)
 
+		# Assumes reaction taking place is:
+		# dNTP + H2O --> dNMP + PPi
 		self.dntps.requestIs(totalNtRequest)
 		self.h2o.requestIs(np.sum(totalNtRequest))
 
@@ -76,6 +78,7 @@ class Replication(wholecell.processes.process.Process):
 		if len(allDnaPolymerase) == 0:
 			return
 
+		# Build sequence matrix for polymerize_matrix function
 		sequenceMatrix = self.buildSequenceMatrix(allDnaPolymerase)
 		ntpCounts = self.dntps.counts()
 		bases = np.array(_NT_ORDER)
@@ -85,32 +88,43 @@ class Replication(wholecell.processes.process.Process):
 					sequenceMatrix, ntpCounts, bases, _BASE_PAD_VALUE, energy, energyCostPerBase
 					)
 
+		# Update DNA polymerase locations based on polymerization progress
 		for i,p in enumerate(allDnaPolymerase):
-			if p.attr('directionIsPositive') == True:
-				p.attrIs(chromosomeLocation = (p.attr('chromosomeLocation') + progress[i]) % self.genomeLength)
-			else:
-				p.attrIs(chromosomeLocation = (p.attr('chromosomeLocation') - progress[i]) % self.genomeLength)
+			self.updatePolymerasePosition(p, progress[i])
 
+		# Update metabolite counts based on polymerization progress
+		# Assumes reaction taking place is:
+		# dNTP + H2O --> dNMP + PPi
 		self.ppi.countInc(np.sum(baseCosts))
-
 		self.dnmps.countsInc(baseCosts)
-
 		self.dntps.countsDec(baseCosts)
-
 		self.h2o.countDec(np.sum(baseCosts))
 
 	def calculateNucleotideRequest(self, dnaPolymerase):
+		'''Calculates nucleotide request based on sequence'''
 		seq = self.calculateSequence(dnaPolymerase)
 		return np.array([seq.count(nt) for nt in _NT_ORDER])
 
 	def buildSequenceMatrix(self, allDnaPolymerase):
+		'''Builds sequence matrix for polymerize function'''
 		sequence = []
 		for p in allDnaPolymerase:
 			sequence.append(list(self.calculateSequence(p)))
-		import ipdb; ipdb.set_trace()
+
+		maxLen = max([len(x) for x in sequence])
+
+		for s in sequence:
+			diff = maxLen - len(s)
+			if diff > 0:
+				s.extend([_BASE_PAD_VALUE]*diff)
+
 		return np.matrix(sequence)
 
 	def calculateSequence(self, dnaPolymerase):
+		'''
+		Calculates sequence in front of DNA polymerase
+		based on position, direction, and eloncation rate
+		'''
 		if dnaPolymerase.attr('directionIsPositive') == True:
 			start = dnaPolymerase.attr('chromosomeLocation') - 1
 			stop = dnaPolymerase.attr('chromosomeLocation') + self.dnaPolymeraseElongationRate
