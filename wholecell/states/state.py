@@ -65,6 +65,19 @@ class State(object):
 		pass
 
 
+	# Mass calculations
+	def mass(self):
+		return 0
+
+
+	def massByType(self, typeKey):
+		return 0
+
+
+	def massByCompartment(self, compartment):
+		return 0
+
+
 	# Saving and loading
 
 	def pytablesCreate(self, h5file, expectedRows):
