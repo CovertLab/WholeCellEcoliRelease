@@ -161,16 +161,12 @@ def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, s
 	'''
 
 	if directionIsPositive:
-		start = chromosomeLocation
-		stop = (chromosomeLocation + elongationRate) % genomeLength
-		return sequence[start : stop]
+		return sequence[
+		np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
+		]
 	else:
-		start = (chromosomeLocation - elongationRate) % genomeLength
-		stop = chromosomeLocation
-		return sequence[stop : start : -1]
+		return sequence[
+		np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
+		]
 
-	# if stop < start:
-	# 	return sequence[start:] + sequence[:stop]
-	# else:
-	# 	return sequence[start : stop]
 	# TODO: Check for hitting the end of the chromosome!
