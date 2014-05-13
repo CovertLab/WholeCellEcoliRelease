@@ -43,8 +43,10 @@ import wholecell.processes.transcription.transcription_net
 import wholecell.processes.translation.translation_net
 import wholecell.processes.translation.unique_polypeptide_initiation
 import wholecell.processes.translation.unique_polypeptide_elongation
+import wholecell.processes.translation.unique_polypeptide_elongation_enzlim
 import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
+import wholecell.processes.transcription.unique_transcript_elongation_enzlim
 
 PROCESS_CLASSES = (
 	wholecell.processes.metabolism.Metabolism,
@@ -60,8 +62,10 @@ PROCESS_CLASSES = (
 	wholecell.processes.translation.translation_net.TranslationNet,
 	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
 	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
+	wholecell.processes.translation.unique_polypeptide_elongation_enzlim.UniquePolypeptideElongationEnzlim,
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
-	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation
+	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
+	wholecell.processes.transcription.unique_transcript_elongation_enzlim.UniqueTranscriptElongationEnzlim
 	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
