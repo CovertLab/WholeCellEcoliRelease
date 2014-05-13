@@ -29,7 +29,10 @@ class Replication(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Constants
-		self.elngRate = None
+		self.sequence = None
+		self.genomeLength = None
+		self.genomeIdx = None
+		self.dnaPolymeraseElongationRate = None
 
 		super(Replication, self).__init__()
 
@@ -57,7 +60,6 @@ class Replication(wholecell.processes.process.Process):
 		
 		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = True) # TOKB
 		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = False) # TOKB
-
 
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
