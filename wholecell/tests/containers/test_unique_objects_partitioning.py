@@ -72,29 +72,22 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 	def test_partitioning(self):
 		# Set up the partition function call
 		
-		# TODO: write and use the interface for this code
-		request11_MoleculesLocal = self.container._queryObjects(self.collectionIndex_A,
-			attribute = ('==', True))
+		requested11 = self.container.objectsInCollection("A", attribute = ('==', True))._globalIndexes
 
-		request12_MoleculesLocal = self.container._queryObjects(self.collectionIndex_B,
-			attribute = ('==', True))
+		requested12 = self.container.objectsInCollection("B", attribute = ('==', True))._globalIndexes
 
-		request21_MoleculesLocal = self.container._queryObjects(self.collectionIndex_A,
-			attribute = ('==', True))
+		requested21 = self.container.objectsInCollection("A", attribute = ('==', True))._globalIndexes
 
-		request22_MoleculesLocal = self.container._queryObjects(self.collectionIndex_B)
+		requested22 = self.container.objectsInCollection("B")._globalIndexes
 
 		globalRefSize = self.container._collections[self.container._globalRefIndex].size
 
-		globalIndexes_A = self.container._collections[self.collectionIndex_A]['_globalIndex']
-		globalIndexes_B = self.container._collections[self.collectionIndex_B]['_globalIndex']
-
 		objectRequestsArray = np.zeros((globalRefSize, 4), np.bool)
 
-		objectRequestsArray[globalIndexes_A, 0] = request11_MoleculesLocal
-		objectRequestsArray[globalIndexes_B, 1] = request12_MoleculesLocal
-		objectRequestsArray[globalIndexes_A, 2] = request21_MoleculesLocal
-		objectRequestsArray[globalIndexes_B, 3] = request22_MoleculesLocal
+		objectRequestsArray[requested11, 0] = True
+		objectRequestsArray[requested12, 1] = True
+		objectRequestsArray[requested21, 2] = True
+		objectRequestsArray[requested22, 3] = True
 
 		requestNumberVector = np.array([50, 20, 30, 20])
 
