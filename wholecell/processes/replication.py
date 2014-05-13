@@ -106,13 +106,14 @@ class Replication(wholecell.processes.process.Process):
 	def calculateNucleotideRequest(self, dnaPolymerase):
 		'''Calculates nucleotide request based on sequence'''
 		seq = self.calculateUpcomingSequence(dnaPolymerase)
-		return np.array([seq.count(nt) for nt in _NT_ORDER])
+		return np.array([np.sum(seq == nt) for nt in _NT_ORDER])
 
 	def buildSequenceMatrix(self, allDnaPolymerase):
 		'''Builds sequence matrix for polymerize function'''
 		sequenceList = []
 		for dnaPolymerase in allDnaPolymerase:
-			sequenceList.append(list(self.calculateUpcomingSequence(dnaPolymerase)))
+			sequenceList.append(self.calculateUpcomingSequence(dnaPolymerase).tolist())
+			# TODO: Do this in numpy don't convert to list
 
 		maxLen = max([len(x) for x in sequenceList])
 
@@ -158,14 +159,15 @@ def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, s
 	Calculates sequence in front of DNA polymerase
 	based on position, direction, and eloncation rate
 	'''
+
 	if directionIsPositive:
-		start = chromosomeLocation - 1
-		stop = (chromosomeLocation - 1 + elongationRate) % genomeLength
+		start = chromosomeLocation
+		stop = (chromosomeLocation + elongationRate) % genomeLength
 		return sequence[start : stop]
 	else:
 		start = (chromosomeLocation - elongationRate) % genomeLength
 		stop = chromosomeLocation
-		return sequence[start : stop][::-1]
+		return sequence[stop : start : -1]
 
 	# if stop < start:
 	# 	return sequence[start:] + sequence[:stop]
