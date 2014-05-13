@@ -26,7 +26,7 @@ class Test_replication(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sequence = 'hello_world_i_am_genome'
+		self.sequence = np.array(list('hello_world_i_am_genome'))
 		self.elongationRate = 5
 		self.genomeLength = len(self.sequence)
 
@@ -37,22 +37,23 @@ class Test_replication(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_calculateSequence(self):
 		# Positive direction
-		chromosomeLocation = 1
+		chromosomeLocation = 0
 		directionIsPositive = True
 		
 		seq = wholecell.processes.replication.calculateSequence(
 			chromosomeLocation, directionIsPositive, self.elongationRate, self.sequence, self.genomeLength
 			)
-		self.assertEqual(seq, 'hello')
 
+		self.assertEqual(seq.tolist(), list('hello'))
+		
 		# Negative direction
-		chromosomeLocation = len(self.sequence)
+		chromosomeLocation = len(self.sequence) - 1
 		directionIsPositive = False
 		
 		seq = wholecell.processes.replication.calculateSequence(
 			chromosomeLocation, directionIsPositive, self.elongationRate, self.sequence, self.genomeLength
 			)
-		self.assertEqual(seq, 'enome'[::-1])
+		self.assertEqual(seq.tolist(), list('enome'[::-1]))
 		
 		# Loop condition positive direction
 		chromosomeLocation = len(self.sequence) - 2
@@ -61,8 +62,8 @@ class Test_replication(unittest.TestCase):
 		seq = wholecell.processes.replication.calculateSequence(
 			chromosomeLocation, directionIsPositive, self.elongationRate, self.sequence, self.genomeLength
 			)
-		self.assertEqual(seq, 'me' + 'hel')
-		return
+		self.assertEqual(seq.tolist(), list('me' + 'hel'))
+		
 		# Loop condition negative direction
 		chromosomeLocation = 2
 		directionIsPositive = False
@@ -71,4 +72,51 @@ class Test_replication(unittest.TestCase):
 			chromosomeLocation, directionIsPositive, self.elongationRate, self.sequence, self.genomeLength
 			)
 
-		self.assertEqual(seq, 'AAC'[::-1] + 'CA'[::-1])
+		self.assertEqual(seq.tolist(), list('hel'[::-1] + 'me'[::-1]))
+
+	@noseAttrib.attr('replicationTest')
+	@noseAttrib.attr('smalltest')
+	def test_calculatePolymerasePositionUpdate(self):
+		# Positive direction
+		currentPosition = 0
+		directionIsPositive = True
+		difference = 4
+
+		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+			currentPosition, directionIsPositive, difference, self.genomeLength
+			)
+
+		self.assertEqual(newPos, 4)
+
+		# Negative direction
+		currentPosition = len(self.sequence) - 1
+		directionIsPositive = False
+		difference = 4
+
+		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+			currentPosition, directionIsPositive, difference, self.genomeLength
+			)
+
+		self.assertEqual(newPos, len(self.sequence) - 1 - 4)
+
+		# Positive loop condition
+		currentPosition = len(self.sequence) - 2
+		directionIsPositive = True
+		difference = 4
+
+		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+			currentPosition, directionIsPositive, difference, self.genomeLength
+			)
+
+		self.assertEqual(newPos, 2)
+
+		# Negative loop condition
+		currentPosition = 2
+		directionIsPositive = False
+		difference = 4
+
+		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+			currentPosition, directionIsPositive, difference, self.genomeLength
+			)
+
+		self.assertEqual(newPos, len(self.sequence) - 1 - 1)
