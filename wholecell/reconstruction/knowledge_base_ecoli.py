@@ -124,6 +124,8 @@ class KnowledgeBaseEcoli(object):
 		# New parameters
 		self._parameterData['cellWaterMassFraction'] = Q_(0.7, 'water_g / cell_g')
 		self._parameterData['cellDryMassFraction'] = Q_(0.3, 'DCW_g / cell_g')
+		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
+		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
 
 
 	def _defineConstants(self):
@@ -406,6 +408,7 @@ class KnowledgeBaseEcoli(object):
 			genome = i.sequence
 			break
 		self.genomeSeq = genome
+		self.genomeLength = len(self.genomeSeq)
 
 
 	def _loadGenes(self):

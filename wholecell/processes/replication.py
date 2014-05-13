@@ -31,7 +31,6 @@ class Replication(wholecell.processes.process.Process):
 		# Constants
 		self.sequence = None
 		self.genomeLength = None
-		self.genomeIdx = None
 		self.dnaPolymeraseElongationRate = None
 
 		super(Replication, self).__init__()
@@ -45,9 +44,9 @@ class Replication(wholecell.processes.process.Process):
 		dNmpIds = ['DAMP[n]', 'DTMP[n]', 'DCMP[n]', 'DGMP[n]']
 
 		self.sequence = np.array(list(kb.genomeSeq))
-		self.genomeLength = len(self.sequence) # TOKB
-		self.genomeIdx = np.arange(len(self.sequence))
-		self.dnaPolymeraseElongationRate = 200 # nt/s # TOKB
+		self.genomeLength = kb.genomeLength
+		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
+		oricCenter = kb.oriCCenter.to('nucleotide').magnitude
 
 		# Views
 		self.dntps = self.bulkMoleculesView(dNtpIds)
@@ -58,8 +57,8 @@ class Replication(wholecell.processes.process.Process):
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
 		
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = True) # TOKB
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = 3923882, directionIsPositive = False) # TOKB
+		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = True) # `
+		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = False) # TOKB
 
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
