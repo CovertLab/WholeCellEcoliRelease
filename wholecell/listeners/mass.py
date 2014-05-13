@@ -17,8 +17,6 @@ import tables
 
 import wholecell.listeners.listener
 
-STATES_WITH_MASS = ['BulkMolecules', 'UniqueMolecules']
-
 class Mass(wholecell.listeners.listener.Listener):
 	""" Mass """
 
@@ -93,8 +91,6 @@ class Mass(wholecell.listeners.listener.Listener):
 		# TODO: rework mass calculations as State methods
 		# TODO: change states without mass (such as Mass itself) into "listener" classes
 		for stateName, state in self.states.viewitems():
-			if stateName not in STATES_WITH_MASS: continue
-
 			self.cell += state.mass()
 
 			self.metabolite += state.massByType('metabolites')

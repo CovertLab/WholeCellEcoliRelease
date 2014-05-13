@@ -1015,12 +1015,15 @@ class KnowledgeBaseEcoli(object):
 			}
 
 		rnaPolyComplexSubunits = [
-			"EG10893-MONOMER", "EG10893-MONOMER",			# 2 sub-units are required
+			"EG10893-MONOMER",
 			"RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
 			]
 
+		rnaPolyComplexStoich = [2, 1, 1, 1]
+
 		rnaPolyComplexMass = sum(
-			protein['mw'] for protein in self._proteins
+			protein['mw'] * rnaPolyComplexStoich[rnaPolyComplexSubunits.index(protein["id"])]
+			for protein in self._proteins
 			if protein['id'] in rnaPolyComplexSubunits
 			)
 

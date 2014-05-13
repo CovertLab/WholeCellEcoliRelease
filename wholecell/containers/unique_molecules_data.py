@@ -99,21 +99,3 @@ class UniqueMoleculesData(object):
 
 	def __exit__(self, *excinfo):
 		self.close()
-
-
-if __name__ == '__main__':
-	filePath = "out/working/UniqueMolecules.hdf"
-
-	with UniqueMoleculesData(filePath) as data:
-		timepoints = data.timepoints()
-
-		counts = data.counts("activeRnaPoly")
-
-		rnaIndexes = data.attr("activeRnaPoly", "rnaIndex")
-
-		required, assigned = data.attrs("activeRnaPoly", ["requiredACGU", "assignedACGU"])
-
-	import matplotlib.pyplot as plt
-
-	plt.plot(timepoints, counts)
-	plt.show()
