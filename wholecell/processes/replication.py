@@ -41,8 +41,9 @@ class Replication(wholecell.processes.process.Process):
 		dNtpIds = ['DATP[c]', 'DTTP[c]', 'DCTP[c]', 'DGTP[c]']
 		dNmpIds = ['DAMP[n]', 'DTMP[n]', 'DCMP[n]', 'DGMP[n]']
 
-		self.sequence = kb.genomeSeq
+		self.sequence = np.array(list(kb.genomeSeq))
 		self.genomeLength = len(self.sequence) # TOKB
+		self.genomeIdx = np.arange(len(self.sequence))
 		self.dnaPolymeraseElongationRate = 200 # nt/s # TOKB
 
 		# Views
@@ -84,15 +85,15 @@ class Replication(wholecell.processes.process.Process):
 		bases = np.array(_NT_ORDER)
 		energy = 0
 		energyCostPerBase = 0
-		progress, baseAmounts, baseCosts, energy, energyCost = wholecell.utils.polymerize_matrix.PolymerizeMatrix(
+		polymeraseProgress, baseAmounts, baseCosts, energy, energyCost = wholecell.utils.polymerize_matrix.PolymerizeMatrix(
 					sequenceMatrix, ntpCounts, bases, _BASE_PAD_VALUE, energy, energyCostPerBase
 					)
 
-		# Update DNA polymerase locations based on polymerization progress
-		for i,p in enumerate(allDnaPolymerase):
-			self.updatePolymerasePosition(p, progress[i])
-
-		# Update metabolite counts based on polymerization progress
+		# Update DNA polymerase locations based on polymerization polymeraseProgress
+		for i,dnaPolymerase in enumerate(allDnaPolymerase):
+			self.updatePolymerasePosition(dnaPolymerase, polymeraseProgress[i])
+			
+		# Update metabolite counts based on polymerization polymeraseProgress
 		# Assumes reaction taking place is:
 		# dNTP + H2O --> dNMP + PPi
 		self.ppi.countInc(np.sum(baseCosts))
@@ -102,47 +103,70 @@ class Replication(wholecell.processes.process.Process):
 
 	def calculateNucleotideRequest(self, dnaPolymerase):
 		'''Calculates nucleotide request based on sequence'''
-		seq = self.calculateSequence(dnaPolymerase)
+		seq = self.calculateUpcomingSequence(dnaPolymerase)
 		return np.array([seq.count(nt) for nt in _NT_ORDER])
 
 	def buildSequenceMatrix(self, allDnaPolymerase):
 		'''Builds sequence matrix for polymerize function'''
-		sequence = []
-		for p in allDnaPolymerase:
-			sequence.append(list(self.calculateSequence(p)))
+		sequenceList = []
+		for dnaPolymerase in allDnaPolymerase:
+			sequenceList.append(list(self.calculateUpcomingSequence(dnaPolymerase)))
 
-		maxLen = max([len(x) for x in sequence])
+		maxLen = max([len(x) for x in sequenceList])
 
-		for s in sequence:
+		for s in sequenceList:
 			diff = maxLen - len(s)
 			if diff > 0:
 				s.extend([_BASE_PAD_VALUE]*diff)
 
-		return np.matrix(sequence)
+		return np.matrix(sequenceList)
 
-	def calculateSequence(self, dnaPolymerase):
-		'''
-		Calculates sequence in front of DNA polymerase
-		based on position, direction, and eloncation rate
-		'''
-		if dnaPolymerase.attr('directionIsPositive') == True:
-			start = dnaPolymerase.attr('chromosomeLocation') - 1
-			stop = dnaPolymerase.attr('chromosomeLocation') + self.dnaPolymeraseElongationRate
-		else:
-			start = dnaPolymerase.attr('chromosomeLocation') - self.dnaPolymeraseElongationRate
-			stop = dnaPolymerase.attr('chromosomeLocation')
-		return self.sequence[start : stop]
-
-		# TODO: Check for hitting the end of the chromosome!
-
-	def updatePolymerasePosition(self, dnaPolymerase, difference):
-		'''Updates polymerase positio based on passed difference in position'''
-		assert(difference >= 0)
-		if dnaPolymerase.attr('directionIsPositive') == True:
-			dnaPolymerase.attrIs(chromosomeLocation = (
-				dnaPolymerase.attr('chromosomeLocation') + difference) % self.genomeLength
+	def calculateUpcomingSequence(self, dnaPolymerase):
+		'''Wraps actual sequence calculation'''
+		return calculateSequence(
+			dnaPolymerase.attr('chromosomeLocation'),
+			dnaPolymerase.attr('directionIsPositive'),
+			self.dnaPolymeraseElongationRate,
+			self.sequence,
+			self.genomeLength
 			)
-		else:
-			dnaPolymerase.attrIs(chromosomeLocation = (
-				dnaPolymerase.attr('chromosomeLocation') - difference) % self.genomeLength
-			)
+
+	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
+		''' Wraps actual update calculation'''
+		dnaPolymerase.attrIs(chromosomeLocation = 
+					calculatePolymerasePositionUpdate(
+						dnaPolymerase.attr('chromosomeLocation'),
+						dnaPolymerase.attr('directionIsPositive'),
+						polymeraseProgress,
+						self.genomeLength
+					)
+				)
+
+def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, difference, genomeLength):
+	if difference < 0:
+		raise Exception, 'Polymerase position difference is negative!\n'
+
+	if directionIsPositive:
+		return (currentPosition + difference) % genomeLength
+	else:
+		return (currentPosition - difference) % genomeLength
+
+def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, sequence, genomeLength):
+	'''
+	Calculates sequence in front of DNA polymerase
+	based on position, direction, and eloncation rate
+	'''
+	if directionIsPositive:
+		start = chromosomeLocation - 1
+		stop = (chromosomeLocation - 1 + elongationRate) % genomeLength
+		return sequence[start : stop]
+	else:
+		start = (chromosomeLocation - elongationRate) % genomeLength
+		stop = chromosomeLocation
+		return sequence[start : stop][::-1]
+
+	# if stop < start:
+	# 	return sequence[start:] + sequence[:stop]
+	# else:
+	# 	return sequence[start : stop]
+	# TODO: Check for hitting the end of the chromosome!
