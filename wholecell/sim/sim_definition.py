@@ -119,6 +119,7 @@ DEFAULT_PROCESSES = (
 
 DEFAULT_LISTENERS = (
 	'Mass',
+	'ReplicationForkPosition',
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
