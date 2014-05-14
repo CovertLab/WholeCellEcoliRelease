@@ -51,8 +51,13 @@ RESULTS_DIR="${CODE_DIR}/out/simOut"
 
 mkdir -p "$RESULTS_DIR"
 
+SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
+OUTPUT_LOG_BASE_NAME="simShellLog"
+OUTPUT_LOG_FILE="${PBS_O_WORKDIR}/${OUTPUT_LOG_BASE_NAME}.${SUBMISSION_TIME}:$SEED"
+
 echo WORK_DIR $WORK_DIR
 echo CODE_DIR $CODE_DIR
+echo OUTPUT_LOG_FILE $OUTPUT_LOG_FILE
 
 stagein()
 {
@@ -76,7 +81,7 @@ runprogram()
 	echo "Running"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}"
+	python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 
 stageout()
@@ -84,7 +89,9 @@ stageout()
 	echo "Transferring files back"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	scp -r "out/simOut/${SUBMISSION_TIME}" "$RESULTS_DIR"
+	mkdir -p "$RESULTS_DIR/${SUBMISSION_TIME}/${SEED}"
+	scp -r "out/simOut/${SUBMISSION_TIME}/${SEED}" "$RESULTS_DIR/${SUBMISSION_TIME}/"
+	mv "${OUTPUT_LOG_FILE}" "${RESULTS_DIR}/${SUBMISSION_TIME}/${SEED}/${OUTPUT_LOG_BASE_NAME}"
 
 	echo "Cleaning up"
 	cd /
