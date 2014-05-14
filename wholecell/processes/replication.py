@@ -57,8 +57,8 @@ class Replication(wholecell.processes.process.Process):
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
 		
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = True) # `
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = False) # TOKB
+		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = True)
+		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = False)
 
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()

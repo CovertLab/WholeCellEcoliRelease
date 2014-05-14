@@ -45,14 +45,25 @@ WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${ARRAY_ID}"
 mkdir -p "$WORK_DIR"
 
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
-KB_DIR="${CODE_DIR}/../kbEcoli"
-
 RESULTS_DIR="${CODE_DIR}/out/simOut"
+SUBMISSION_RESULTS_DIR="${RESULTS_DIR}/${SUBMISSION_TIME}"
+SPECIFIC_RESULTS_DIR=$(find $SUBMISSION_RESULTS_DIR -name "*.hdf" -print0 | xargs -0 -I {} dirname {} | uniq | sort | head -n $ARRAY_ID | tail -n 1)
 
-mkdir -p "$RESULTS_DIR"
+PLOTS_DIR="${CODE_DIR}/out/plotOut"
+SUBMISSION_PLOTS_DIR="${PLOTS_DIR}/${SUBMISSION_TIME}"
+SPECIFIC_PLOTS_DIR="${SUBMISSION_PLOTS_DIR}/$(basename $SPECIFIC_RESULTS_DIR)"
+
+mkdir -p "$SPECIFIC_PLOTS_DIR"
+
+MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/simOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_RESULTS_DIR)"
+MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/plotOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_PLOTS_DIR)"
 
 echo WORK_DIR $WORK_DIR
 echo CODE_DIR $CODE_DIR
+echo SPECIFIC_RESULTS_DIR $SPECIFIC_RESULTS_DIR
+echo SPECIFIC_PLOTS_DIR $SPECIFIC_PLOTS_DIR
+echo MY_SPECIFIC_RESULTS_DIR $MY_SPECIFIC_RESULTS_DIR
+echo MY_SPECIFIC_PLOTS_DIR $MY_SPECIFIC_PLOTS_DIR
 
 stagein()
 {
@@ -60,7 +71,6 @@ stagein()
 	echo "Copying files to work directory ${WORK_DIR}"
 
 	cd ${WORK_DIR}
-	scp -r ${KB_DIR} .
 
 	mkdir $(basename $CODE_DIR)
 	cd $(basename $CODE_DIR)
@@ -69,22 +79,39 @@ stagein()
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
 
+	mkdir -p out/simOut/${SUBMISSION_TIME}
+	cd out/simOut/${SUBMISSION_TIME}
+	scp -r ${SPECIFIC_RESULTS_DIR} .
 }
 
 runprogram()
 {
 	echo "Running"
 
+	mkdir -p "$MY_SPECIFIC_PLOTS_DIR"
+
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}"
+	SCRIPTS_DIR="wholecell/analysis/single"
+	SCRIPTS=$(find $SCRIPTS_DIR -name "*.py" | sort)
+
+	for SCRIPT in $SCRIPTS; do
+		if [ "$(basename $SCRIPT)" = "__init__.py" ]; then
+			continue
+		fi
+
+		OUT_NAME=$(basename $SCRIPT | sed 's/.py//g')
+
+		echo "Running $(basename $SCRIPT)"
+
+		python2.7 $SCRIPT $MY_SPECIFIC_RESULTS_DIR $MY_SPECIFIC_PLOTS_DIR ${OUT_NAME}.pdf
+	done
 }
 
 stageout()
 {
 	echo "Transferring files back"
 
-	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	scp -r "out/simOut/${SUBMISSION_TIME}" "$RESULTS_DIR"
+	scp -r $MY_SPECIFIC_PLOTS_DIR $SUBMISSION_PLOTS_DIR
 
 	echo "Cleaning up"
 	cd /
@@ -103,5 +130,3 @@ trap "early; stageout" 2 9 15
 stagein
 runprogram
 stageout
-
-exit 0
