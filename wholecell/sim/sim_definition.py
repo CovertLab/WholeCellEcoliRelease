@@ -108,6 +108,7 @@ DEFAULT_PROCESSES = (
 
 DEFAULT_LISTENERS = (
 	'Mass',
+	'ReplicationForkPosition',
 	)
 
 DEFAULT_LENGTH = 3600 # sec
