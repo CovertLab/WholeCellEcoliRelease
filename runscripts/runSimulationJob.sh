@@ -7,12 +7,6 @@
 # Plenty of memory
 #PBS -l mem=2G
 
-# Job array IDs
-# #PBS -t 0-1
-
-
-sleep 10
-date
 
 echo ------------------------------------------------------
 echo -n 'Job is running on node '; cat $PBS_NODEFILE
@@ -28,11 +22,15 @@ echo PBS: node file is $PBS_NODEFILE
 echo PBS: current home directory is $PBS_O_HOME
 echo PBS: PATH = $PBS_O_PATH
 echo PBS: PYTHONPATH = $PYTHONPATH
-echo PBS: job array id = $PBS_ARRAYID
 echo ------------------------------------------------------
 
 if [ -z "$SUBMISSION_TIME" ]; then
 	echo "SUBMISSION_TIME environmental variable must be set" >&2
+	exit 1
+fi
+
+if [ -z "$ARRAY_ID" ]; then
+	echo "ARRAY_ID environmental variable must be set" >&2
 	exit 1
 fi
 
@@ -42,14 +40,7 @@ else
 	WORK_DIR="/tmp"
 fi
 
-WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}"
-
-if [ -z "$PBS_ARRAYID" ]; then
-	echo "PBS_ARRAYID not set"
-else
-	WORK_DIR="${WORK_DIR}/${PBS_ARRAYID}"
-	echo "PBS_ARRAYID is set. WORK_DIR is $WORK_DIR."
-fi
+WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${ARRAY_ID}"
 
 mkdir -p "$WORK_DIR"
 
@@ -69,8 +60,15 @@ stagein()
 	echo "Copying files to work directory ${WORK_DIR}"
 
 	cd ${WORK_DIR}
-	scp -r ${CODE_DIR} .
 	scp -r ${KB_DIR} .
+
+	mkdir $(basename $CODE_DIR)
+	cd $(basename $CODE_DIR)
+	scp -r ${CODE_DIR}/fixtures .
+	scp -r ${CODE_DIR}/runscripts .
+	scp -r ${CODE_DIR}/user .
+	scp -r ${CODE_DIR}/wholecell .
+
 }
 
 runprogram()
@@ -88,9 +86,9 @@ stageout()
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
 	scp -r "out/simOut/${SUBMISSION_TIME}" "$RESULTS_DIR"
 
+	echo "Cleaning up"
 	cd /
-	rm -fr "${WORK_DIR}/$(basename $CODE_DIR)"
-	rm -fr "${WORK_DIR}/kbEcoli"
+	rm -fr "${WORK_DIR}"
 }
 
 early()
@@ -105,3 +103,5 @@ trap "early; stageout" 2 9 15
 stagein
 runprogram
 stageout
+
+exit 0
