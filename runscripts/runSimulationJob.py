@@ -23,8 +23,8 @@ def main(submissionTime):
 
 	seed = 0
 
-	if os.environ.has_key("PBS_ARRAYID"):
-		seed = int(os.environ["PBS_ARRAYID"])
+	if os.environ.has_key("ARRAY_ID"):
+		seed = int(os.environ["ARRAY_ID"]) - 1
 
 	outputDir = os.path.join("out", "simOut", "%s" % submissionTime, "%06d" % seed)
 
