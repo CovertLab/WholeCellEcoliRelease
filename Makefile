@@ -1,4 +1,4 @@
-.PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, clean
+.PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, clean, clobber
 
 all: wholecell/utils/_polymerize.so
 
@@ -21,3 +21,11 @@ clean:
 	find . -name "*.o" -exec rm -fr {} \;
 	find . -name "*.so" -exec rm -fr {} \;
 	rm -fr build
+
+clobber:
+	rm -fr out/simOut
+	rm -fr out/plotOut
+	rm -fr runAnalysis*
+	rm -fr runSimulation*
+	rm -fr simShellLog*
+	rm -fr analysisSingle*
