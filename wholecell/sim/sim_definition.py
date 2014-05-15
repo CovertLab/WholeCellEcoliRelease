@@ -89,6 +89,17 @@ import wholecell.loggers.disk
 
 # TODO: logger logic more consistent with listeners/states/processes
 
+# Hooks
+# TODO: move hooks to their own directory/files
+import wholecell.sim.hooks
+
+HOOK_CLASSES = (
+	wholecell.sim.hooks.RnapCountHook,
+	wholecell.sim.hooks.RibosomeCountHook
+	)
+
+HOOKS = {hookClass.name():hookClass for hookClass in HOOK_CLASSES}
+
 # Default parameters
 
 DEFAULT_STATES = (
@@ -111,6 +122,9 @@ DEFAULT_LISTENERS = (
 	'ReplicationForkPosition',
 	)
 
+DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
+	)
+
 DEFAULT_LENGTH = 3600 # sec
 DEFAULT_TIME_STEP = 1 # sec
 
@@ -125,6 +139,7 @@ SIM_KWARG_DEFAULTS = dict(
 	states = DEFAULT_STATES,
 	processes = DEFAULT_PROCESSES,
 	listeners = DEFAULT_LISTENERS,
+	hooks = DEFAULT_HOOKS,
 	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
 	seed = DEFAULT_SEED,
 	logToShell = True,
@@ -202,6 +217,13 @@ class SimDefinition(object):
 				)
 
 		return loggers
+
+
+	def createHooks(self):
+		return collections.OrderedDict([
+			(className, HOOKS[className]())
+			for className in self.hooks
+			])
 
 
 	def toDict(self):

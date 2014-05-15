@@ -95,6 +95,7 @@ class Simulation(object):
 		self.states = self._options.createStates()
 		self.processes = self._options.createProcesses()
 		self.listeners = self._options.createListeners()
+		self.hooks = self._options.createHooks()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -105,6 +106,9 @@ class Simulation(object):
 		for listener in self.listeners.itervalues():
 			listener.initialize(self, kb)
 
+		for hook in self.hooks.itervalues():
+			hook.initialize(self, kb)
+
 		for state in self.states.itervalues():
 			state.allocate()
 
@@ -114,6 +118,9 @@ class Simulation(object):
 		from wholecell.reconstruction.initial_conditions import calcInitialConditions
 
 		calcInitialConditions(self, kb)
+
+		for hook in self.hooks.itervalues():
+			hook.postCalcInitialConditions(self)
 
 		# Create loggers
 		self.loggers = self._options.createLoggers()
@@ -136,6 +143,10 @@ class Simulation(object):
 
 			self._evolveState()
 
+		# Run post-simulation hooks
+		for hook in self.hooks.itervalues():
+			hook.finalize(self)
+
 		# Finish logging
 		for logger in self.loggers:
 			logger.finalize(self)
@@ -155,6 +166,12 @@ class Simulation(object):
 			process.randStream = wholecell.utils.rand_stream.RandStream(
 				seed = process.seed
 				)
+
+		# TODO: randstreams for hooks?
+
+		# Run pre-evolveState hooks
+		for hook in self.hooks.itervalues():
+			hook.preEvolveState(self)
 
 		# Update queries
 		for state in self.states.itervalues():
@@ -179,6 +196,10 @@ class Simulation(object):
 		# Update listeners
 		for listener in self.listeners.itervalues():
 			listener.update()
+
+		# Run post-evolveState hooks
+		for hook in self.hooks.itervalues():
+			hook.postEvolveState(self)
 
 		# Append loggers
 		for logger in self.loggers:
