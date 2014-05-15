@@ -9,8 +9,8 @@ wholecell/utils/_polymerize.so: wholecell/utils/polymerize.c wholecell/utils/pol
 runSimulation: all runscripts/runSimulation.py
 	python2.7 runscripts/runSimulation.py
 
-runSimulationJob: all runscripts/runSimulationJob.sh
-	qsub -v SUBMISSION_TIME=$(shell date "+%Y%m%d.%H%M%S.%N") ./runscripts/runSimulationJob.sh
+runSimulationJob: all
+	./runscripts/queueSimulationAndAnalysis.sh 4
 
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
