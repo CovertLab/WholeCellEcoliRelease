@@ -1371,7 +1371,7 @@ class KnowledgeBaseEcoli(object):
 			dtype = [
 				('id', 'a50'),
 				('rnaId', 'a50'),
-				('degRate', 'f8')
+				('degRate', 'f8'),
 				('length', 'i8'),
 				('aaCounts', '{}i8'.format(nAAs)),
 				('mw', 'f8'),
