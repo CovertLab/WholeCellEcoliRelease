@@ -47,6 +47,7 @@ import wholecell.processes.translation.unique_polypeptide_elongation_enzlim
 import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 import wholecell.processes.transcription.unique_transcript_elongation_enzlim
+import wholecell.processes.protein_degradation
 
 PROCESS_CLASSES = (
 	wholecell.processes.metabolism.Metabolism,
@@ -65,7 +66,8 @@ PROCESS_CLASSES = (
 	wholecell.processes.translation.unique_polypeptide_elongation_enzlim.UniquePolypeptideElongationEnzlim,
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
-	wholecell.processes.transcription.unique_transcript_elongation_enzlim.UniqueTranscriptElongationEnzlim
+	wholecell.processes.transcription.unique_transcript_elongation_enzlim.UniqueTranscriptElongationEnzlim,
+	wholecell.processes.protein_degradation.ProteinDegradation
 	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
@@ -114,7 +116,8 @@ DEFAULT_PROCESSES = (
 	'UniqueTranscriptElongation',
 	'UniquePolypeptideInitiation',
 	'UniquePolypeptideElongation',
-	'Replication'
+	'Replication',
+	'ProteinDegradation'
 	)
 
 DEFAULT_LISTENERS = (

@@ -1334,12 +1334,44 @@ class KnowledgeBaseEcoli(object):
 
 		nAAs = len(aaCounts[0])
 
-		# TODO: Add units
+		# Calculate degradation rates based on N-rule
+		fastRate = (numpy.log(2) / Q_(2, 'min')).to('1 / s')
+		slowRate = (numpy.log(2) / Q_(10, 'hr')).to('1 / s')
+
+		NruleDegRate = {
+			'R' : fastRate,
+			'K' : fastRate,
+			'F' : fastRate,
+			'L' : fastRate,
+			'W' : fastRate,
+			'Y' : fastRate,
+			'H' : slowRate,
+			'I' : slowRate,
+			'D' : slowRate,
+			'E' : slowRate,
+			'N' : slowRate,
+			'Q' : slowRate,
+			'C' : slowRate,
+			'A' : slowRate,
+			'S' : slowRate,
+			'T' : slowRate,
+			'G' : slowRate,
+			'V' : slowRate,
+			'M' : slowRate,
+			'P' : slowRate, # Assumed slow rate no data
+			'U' : slowRate, # Assumed slow rate no data
+		}
+
+		degRate = numpy.zeros(len(monomers))
+		for i,m in enumerate(monomers):
+			degRate[i] = NruleDegRate[m['seq'][0]].magnitude
+
 		self.monomerData = numpy.zeros(
 			size,
 			dtype = [
 				('id', 'a50'),
 				('rnaId', 'a50'),
+				('degRate', 'f8')
 				('length', 'i8'),
 				('aaCounts', '{}i8'.format(nAAs)),
 				('mw', 'f8'),
@@ -1348,18 +1380,19 @@ class KnowledgeBaseEcoli(object):
 
 		self.monomerData['id'] = ids
 		self.monomerData['rnaId'] = rnaIds
+		self.monomerData['degRate'] = degRate
 		self.monomerData['length'] = lengths
 		self.monomerData['aaCounts'] = aaCounts
 		self.monomerData['mw'] = mws
 
 		self.aaIDs = AMINO_ACID_1_TO_3_ORDERED.values()
 
-
 		units = {
 		'id'		:	None,
 		'rnaId'		:	None,
-		'length'	:	'amino_acid',
-		'aaCounts'	:	'amino_acid',
+		'degRate'	:	'1 / s',
+		'length'	:	'count',
+		'aaCounts'	:	'count',
 		'mw'		:	'g / mol'
 		}
 
