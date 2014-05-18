@@ -53,7 +53,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		# Proteins
 		# TODO: Generate degradation rates
-		self.proteinDegRates = np.zeros(len(proteinIds)) #kb.monomerData['degRate']
+		self.proteinDegRates = kb.monomerData['degRate']
 
 		self.proteinLengths = kb.monomerData['length']
 
@@ -70,15 +70,16 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		# self.protease = self.bulkMoleculeView('EG11259-MONOMER[c]')
 
 	def calculateRequest(self):
-		nRNAsToDegrade = np.fmin(
+		nProteinsToDegrade = np.fmin(
 			self.randStream.poissrnd(self.proteinDegRates * self.proteins.total() * self.timeStepSec),
 			self.proteins.total()
 			)
 
-		nReactions = np.dot(self.proteinLengths, nRNAsToDegrade)
+		nReactions = np.dot(self.proteinLengths, nProteinsToDegrade)
 
+		# TODO: length-1 reactions? for water not nReactions. Check rna degradation as well.
 		self.h2o.requestIs(nReactions)
-		self.proteins.requestIs(nRNAsToDegrade)
+		self.proteins.requestIs(nProteinsToDegrade)
 		#self.protease.requestAll()
 		
 
@@ -94,3 +95,4 @@ class ProteinDegradation(wholecell.processes.process.Process):
 			))
 
 		self.proteins.countsIs(0)
+		self.h2o.countsIs(0)
