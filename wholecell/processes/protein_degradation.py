@@ -94,4 +94,4 @@ class ProteinDegradation(wholecell.processes.process.Process):
 			))
 
 		self.proteins.countsIs(0)
-		self.h2o.countsIs(0)
+		self.h2o.countIs(0)
