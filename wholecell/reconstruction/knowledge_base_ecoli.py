@@ -1338,13 +1338,20 @@ class KnowledgeBaseEcoli(object):
 		fastRate = (numpy.log(2) / Q_(2, 'min')).to('1 / s')
 		slowRate = (numpy.log(2) / Q_(10, 'hr')).to('1 / s')
 
+		# TODO: Use fastRate properly (this requires more ribosomes in the fitter so that we have sufficient enzymatic capacity)
 		NruleDegRate = {
-			'R' : fastRate,
-			'K' : fastRate,
-			'F' : fastRate,
-			'L' : fastRate,
-			'W' : fastRate,
-			'Y' : fastRate,
+			# 'R' : fastRate,
+			# 'K' : fastRate,
+			# 'F' : fastRate,
+			# 'L' : fastRate,
+			# 'W' : fastRate,
+			# 'Y' : fastRate,
+			'R' : slowRate,
+			'K' : slowRate,
+			'F' : slowRate,
+			'L' : slowRate,
+			'W' : slowRate,
+			'Y' : slowRate,
 			'H' : slowRate,
 			'I' : slowRate,
 			'D' : slowRate,
