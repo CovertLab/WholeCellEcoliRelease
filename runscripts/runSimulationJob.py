@@ -30,7 +30,7 @@ def main(submissionTime):
 
 	simOpts = dict(
 		seed = seed,
-		lengthSec = 10,
+		lengthSec = 3600,
 		logToShell = True,
 		logToDisk = True,
 		logToDiskEvery = 10,
