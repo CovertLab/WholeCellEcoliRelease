@@ -36,16 +36,21 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		super(ProteinDegradation, self).initialize(sim, kb)
 
 		# Metabolite IDs for S matrix
-		aaIds = [
-		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]", "CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]",
-		"HIS-L[c]", "ILE-L[c]", "LEU-L[c]", "LYS-L[c]", "MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SELNP[c]",
-		 "SER-L[c]", "THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
-		]
+		aaIds = kb.aaIDs[:]
+
+		# TODO: Remove hack of deleting selenocysteine this way
+		selenocysteineIdx = aaIds.index("SEC-L[c]")
+		del aaIds[selenocysteineIdx]
+
+		self.proteinAACounts = np.delete(
+			kb.monomerData["aaCounts"].magnitude, selenocysteineIdx, 1
+			)
+
 		h2oId = ["H2O[c]"]
 
 		metaboliteIds = aaIds + h2oId
 
-		self._aaIds = np.arange(0, 21)
+		self._aaIds = np.arange(0, len(aaIds))
 		self._h2oIdx = metaboliteIds.index('H2O[c]')
 
 		# Protein IDs for S matrix
@@ -57,7 +62,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		self.proteinLengths = kb.monomerData['length']
 
 		self.proteinDegSMatrix = np.zeros((len(metaboliteIds), len(proteinIds)), np.int64)
-		self.proteinDegSMatrix[self._aaIds, :] = np.transpose(kb.monomerData['aaCounts'])
+		self.proteinDegSMatrix[self._aaIds, :] = np.transpose(self.proteinAACounts)
 		self.proteinDegSMatrix[self._h2oIdx, :]  = -(np.sum(self.proteinDegSMatrix[self._aaIds, :], axis = 0) - 1)
 
 		# Views
