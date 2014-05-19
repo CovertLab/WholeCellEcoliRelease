@@ -52,7 +52,6 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		proteinIds = kb.monomerData['id']
 
 		# Proteins
-		# TODO: Generate degradation rates
 		self.proteinDegRates = kb.monomerData['degRate']
 
 		self.proteinLengths = kb.monomerData['length']
@@ -77,8 +76,8 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		nReactions = np.dot(self.proteinLengths, nProteinsToDegrade)
 
-		# TODO: length-1 reactions? for water not nReactions. Check rna degradation as well.
-		self.h2o.requestIs(nReactions)
+		# Assuming one N-1 H2O is required per peptide chain length N
+		self.h2o.requestIs(nReactions - sum(nProteinsToDegrade))
 		self.proteins.requestIs(nProteinsToDegrade)
 		#self.protease.requestAll()
 		
