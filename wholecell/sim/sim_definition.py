@@ -143,7 +143,8 @@ SIM_KWARG_DEFAULTS = dict(
 	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
 	seed = DEFAULT_SEED,
 	logToShell = True,
-	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
+	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None,
+	rebuildKB = True
 	)
 
 # Exceptions
