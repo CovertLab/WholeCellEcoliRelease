@@ -1014,7 +1014,7 @@ class KnowledgeBaseEcoli(object):
 				'assignedAAs' : '20i8'
 				},
 			'activeDnaPolymerase' : {
-				'chromosomeLocation' : 'i64',
+				'chromosomeLocation' : 'i8',
 				'directionIsPositive' : 'bool'
 				}
 			}
