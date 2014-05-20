@@ -1440,6 +1440,8 @@ class KnowledgeBaseEcoli(object):
 					else: # entry is a true subunit
 						assert coeff % 1 == 0, 'Noninteger subunit stoichiometry'
 
+						assert coeff < 0
+
 						subunitName = '{}[{}]'.format(subunit['molecule'], subunit['location'])
 
 						assert subunitName not in complexesToSubunits[complexName], 'Duplicate subunit ID'
