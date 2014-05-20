@@ -12,7 +12,7 @@ Adjust simulation parameters
 
 from __future__ import division
 
-import numpy
+import numpy as np
 import os
 import copy
 
@@ -25,7 +25,7 @@ def fitKb(kb):
 
 	# Construct bulk container
 
-	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, dtype = numpy.dtype("float64"))
+	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, dtype = np.dtype("float64"))
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
@@ -47,7 +47,7 @@ def fitKb(kb):
 	rRna23SMassFraction = 0.525 # TOKB # This is the fraction of RNA that is 23S rRNA
 
 	# Assume all 23S rRNAs are expressed equally
-	rRna23SExpression = normalize(numpy.ones(rRna23SView.counts().size))
+	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
 
 	nRRna23Ss = countsFromMassAndExpression(
 		rnaMass.to('DCW_g').magnitude * rRna23SMassFraction,
@@ -60,7 +60,7 @@ def fitKb(kb):
 	rRna16SMassFraction = 0.271 # TOKB # This is the fraction of RNA that is 16S rRNA
 
 	# Assume all 16S rRNAs are expressed equally
-	rRna16SExpression = normalize(numpy.ones(rRna16SView.counts().size))
+	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
 
 	nRRna16Ss = countsFromMassAndExpression(
 		rnaMass.to('DCW_g').magnitude * rRna16SMassFraction,
@@ -73,7 +73,7 @@ def fitKb(kb):
 	rRna5SMassFraction = 0.017 # TOKB # This is the fraction of RNA that is 5S rRNA
 
 	# Assume all 5S rRNAs are expressed equally
-	rRna5SExpression = normalize(numpy.ones(rRna5SView.counts().size))
+	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
 
 	nRRna5Ss = countsFromMassAndExpression(
 		rnaMass.to('DCW_g').magnitude * rRna5SMassFraction,
@@ -84,7 +84,7 @@ def fitKb(kb):
 
 	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
-	nRRna23Ss = nRRna16Ss = nRRna5Ss = numpy.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
+	nRRna23Ss = nRRna16Ss = nRRna5Ss = np.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
 
 	# TODO: Remove this hack once complexation is working
 	rRna23SExpression[:] = 0.
@@ -104,7 +104,7 @@ def fitKb(kb):
 	tRnaMassFraction = 0.146 # TOKB # This is the fraction of RNA that is tRNA
 
 	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
-	tRnaExpression = normalize(numpy.ones(tRnaView.counts().size))
+	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
 
 	nTRnas = countsFromMassAndExpression(
 		rnaMass.to('DCW_g').magnitude * tRnaMassFraction,
@@ -158,14 +158,14 @@ def fitKb(kb):
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
 
-	dNtpRelativeAmounts = normalize(numpy.array([
+	dNtpRelativeAmounts = normalize(np.array([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
 		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
 		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		]))
 
-	dNtpIdxs = [numpy.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNtpIds]
+	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNtpIds]
 
 	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs]
 
@@ -184,56 +184,56 @@ def fitKb(kb):
 	rnapView = bulkContainer.countsView(rnapIds)
 
 	## Number of ribosomes needed ##
-	monomerLengths = numpy.sum(kb.monomerData['aaCounts'], axis = 1)
-	nRibosomesNeeded = numpy.sum(
+	monomerLengths = np.sum(kb.monomerData['aaCounts'], axis = 1)
+	nRibosomesNeeded = np.sum(
 		monomerLengths / kb.ribosomeElongationRate * (
-			numpy.log(2) / kb.cellCycleLen
+			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
 			) * monomersView.counts()
 		).to('dimensionless').magnitude
 	
-	if numpy.sum(rRna23SView.counts()) < nRibosomesNeeded:
+	if np.sum(rRna23SView.counts()) < nRibosomesNeeded:
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	## Number of RNA Polymerases ##
-	rnaLengths = numpy.sum(kb.rnaData['countsACGU'], axis = 1)
+	rnaLengths = np.sum(kb.rnaData['countsACGU'], axis = 1)
 
 	# TODO: Clean up fudge
 	FUDGE = 2. # Forces transcription to be metabolically limited
-	nRnapsNeeded = numpy.sum(
+	nRnapsNeeded = np.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
-			numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
+			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
 		).to('dimensionless').magnitude * FUDGE
 
 	minRnapCounts = (
-		nRnapsNeeded * numpy.array([2, 1, 1, 1]) # Subunit stoichiometry
+		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry
 		)
 
 	rnapView.countsIs(
-		numpy.fmax(rnapView.counts(), minRnapCounts)
+		np.fmax(rnapView.counts(), minRnapCounts)
 		)
 
 	
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
-	kb.parameters["fracActiveRibosomes"] = Q_(float(nRibosomesNeeded) / numpy.sum(rRna23SView.counts()), "dimensionless")
+	kb.parameters["fracActiveRibosomes"] = Q_(float(nRibosomesNeeded) / np.sum(rRna23SView.counts()), "dimensionless")
 	kb.__dict__.update(kb.parameters)
 
 	## RNA and monomer expression ##
-	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = numpy.dtype("float64"))
+	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
 
 	rnaExpressionContainer.countsIs(
 		normalize(rnaView.counts())
 		)
 
 	# Update mRNA expression to reflect monomer counts
-	assert numpy.all(
+	assert np.all(
 		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
 		), "Cannot properly map monomer ids to RNA ids"
 
 	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
-	mRnaExpressionFrac = numpy.sum(mRnaExpressionView.counts())
+	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
@@ -255,7 +255,7 @@ def fitKb(kb):
 	synthProb = normalize(
 			(
 			Q_(1, 'second') * (
-				numpy.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
+				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 				) * rnaView.counts()
 			).to('dimensionless').magnitude
 		)
@@ -266,7 +266,7 @@ def fitKb(kb):
 	## Full WT Biomass function ##
 
 	biomassContainer = BulkObjectsContainer(
-		list(kb.wildtypeBiomass["metaboliteId"]), dtype = numpy.dtype("float64")
+		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
 		)
 
 	# Amino acid fraction
@@ -275,9 +275,9 @@ def fitKb(kb):
 	aminoAcidView = biomassContainer.countsView(aaIDs)
 
 	aaMmolPerGDCW = (
-			numpy.sum(
+			np.sum(
 				kb.monomerData["aaCounts"] *
-				numpy.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
+				np.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
 				axis = 0
 			) * (
 				(1 / kb.nAvogadro.to('amino_acid/mmol')) *
@@ -296,9 +296,9 @@ def fitKb(kb):
 		)
 
 	ntpMmolPerGDCW = (
-			numpy.sum(
+			np.sum(
 				kb.rnaData["countsACGU"] *
-				numpy.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
+				np.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
 				axis = 0
 			) * (
 				(1 / kb.nAvogadro.to('nucleotide / mmol')) *
@@ -336,8 +336,8 @@ def fitKb(kb):
 	glycogenMassFraction = float(dryComposition60min["glycogenMassFraction"])
 	glycogenMass = kb.avgCellDryMassInit * glycogenMassFraction
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
@@ -362,8 +362,8 @@ def fitKb(kb):
 	mureinMassFraction = float(dryComposition60min["mureinMassFraction"])
 	mureinMass = kb.avgCellDryMassInit * mureinMassFraction
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellMureinFractionData["metaboliteId"]
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellMureinFractionData["metaboliteId"]
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
@@ -387,8 +387,8 @@ def fitKb(kb):
 	lpsMassFraction = float(dryComposition60min["lpsMassFraction"])
 	lpsMass = kb.avgCellDryMassInit * lpsMassFraction
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLPSFractionData["metaboliteId"]
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLPSFractionData["metaboliteId"]
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
@@ -412,8 +412,8 @@ def fitKb(kb):
 	lipidMassFraction = float(dryComposition60min["lipidMassFraction"])
 	lipidMass = kb.avgCellDryMassInit * lipidMassFraction
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLipidFractionData["metaboliteId"]
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLipidFractionData["metaboliteId"]
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 
@@ -437,8 +437,8 @@ def fitKb(kb):
 	inorganicIonMassFraction = float(dryComposition60min["inorganicIonMassFraction"])
 	inorganicIonMass = kb.avgCellDryMassInit * inorganicIonMassFraction
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellInorganicIonFractionData["metaboliteId"]
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellInorganicIonFractionData["metaboliteId"]
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 	
@@ -462,8 +462,8 @@ def fitKb(kb):
 	solublePoolMassFraction = float(dryComposition60min["solublePoolMassFraction"])
 	solublePoolMass = kb.avgCellDryMassInit * solublePoolMassFraction
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellSolublePoolFractionData["metaboliteId"]
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellSolublePoolFractionData["metaboliteId"]
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
 	
@@ -480,8 +480,8 @@ def fitKb(kb):
 	
 	# Validate
 
-	bulkMoleculesIdxs = numpy.array([
-		numpy.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in biomassContainer._objectNames
+	bulkMoleculesIdxs = np.array([
+		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in biomassContainer._objectNames
 		])
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
 	# TODO
@@ -491,15 +491,15 @@ def fitKb(kb):
 	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
 def normalize(array):
-	return numpy.array(array).astype("float") / numpy.linalg.norm(array, 1)
+	return np.array(array).astype("float") / np.linalg.norm(array, 1)
 
 def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
-	assert numpy.allclose(numpy.sum(relativeExpression), 1)
+	assert np.allclose(np.sum(relativeExpression), 1)
 	assert type(mass) != Q_
 	assert type(mws) != Q_
 	assert type(relativeExpression) != Q_
 	assert type(nAvogadro) != Q_
-	return mass / numpy.dot(mws / nAvogadro, relativeExpression)
+	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
 if __name__ == "__main__":
 	import wholecell.utils.constants
