@@ -19,7 +19,11 @@ import copy
 import wholecell.states.bulk_molecules
 import wholecell.utils.rand_stream
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+
+from units.unit_registration import UREG
 from units.unit_registration import Q_
+import pint
+pint._DEFAULT_REGISTRY = UREG
 
 def fitKb(kb):
 
