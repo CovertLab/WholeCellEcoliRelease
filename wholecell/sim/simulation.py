@@ -66,7 +66,10 @@ class Simulation(object):
 		# Create KB
 		self.kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
 
-		kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
+		if not self._options.rebuildKB:
+			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
+		else:
+			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
 
 		# Fit KB parameters
 		wholecell.reconstruction.fitter.fitKb(kb)
