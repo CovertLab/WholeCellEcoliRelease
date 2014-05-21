@@ -16,6 +16,7 @@ import numpy as np
 import tables
 
 import wholecell.listeners.listener
+from wholecell.reconstruction.fitter import normalize
 
 class NtpUsage(wholecell.listeners.listener.Listener):
 	""" NtpUsage """
@@ -47,6 +48,16 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 
 		self.transcriptionProcessIdx = sim.processes.keys().index(
 			"UniqueTranscriptElongation"
+			)
+
+		biomassMetIdxs = [
+		np.where(
+			kb.wildtypeBiomass["metaboliteId"] == x
+			)[0][0] for x in self.metaboliteIds
+		]
+
+		self.relativeNtpProductionBiomass = normalize(
+			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].magnitude
 			)
 
 	# Allocate memory
@@ -96,6 +107,7 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		t.attrs.transcriptionNtpUsageCurrent_units = self.usageUnits
 		t.attrs.transcriptionNtpUsageCumulative_units = self.usageUnits
 		t.attrs.metaboliteIds = self.metaboliteIds
+		t.attrs.relativeNtpProductionBiomass = self.relativeNtpProductionBiomass
 
 
 	def pytablesAppend(self, h5file):
