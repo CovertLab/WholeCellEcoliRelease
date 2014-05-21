@@ -70,20 +70,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aaWeightsIncorporated = self.aaWeights - self.h2oWeight
 
-		# # TOKB
-		# self.ntWeights = np.array([
-		# 	345.20, # A
-		# 	322.17, # U
-		# 	321.18, # C
-		# 	361.20  # G
-		# 	]) - 17.01 # weight of a hydroxyl
-
-		# # TOKB
-		# self.hydroxylWeight = 17.01 # counted once for the end of the polymer
-
-		# self.ntWeights *= 1e15/6.022e23
-		# self.hydroxylWeight *= 1e15/6.022e23
-
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
