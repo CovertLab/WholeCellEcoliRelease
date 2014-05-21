@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Plot NTP counts
+Plot NTP usages
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/8/2014
+@date: Created 5/21/2014
 """
 
 import argparse
