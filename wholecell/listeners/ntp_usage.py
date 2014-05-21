@@ -53,7 +53,9 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(NtpUsage, self).allocate()
 
-		self.transcriptionNtpUsageCurrent = np.zeros(4, dtype = np.int64)
+		self.transcriptionNtpUsageCurrent = np.zeros(
+			len(self.metaboliteIds), dtype = np.int64
+			)
 		self.transcriptionNtpUsageCumulative = np.zeros_like(
 			self.transcriptionNtpUsageCurrent
 			)
