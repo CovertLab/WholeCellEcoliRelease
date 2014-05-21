@@ -38,7 +38,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
+		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude)
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -160,18 +160,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeSubunits.countsInc(nTerminated)
 
 		self.h2o.countInc(nElongations)
-
-		# # HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
-
-		# totalRnapSubunits = self.rnapSubunits.total()/np.array([2, 1, 1, 1], np.int) + len(activeRnaPolys)
-
-		# totalRnap = np.min(totalRnapSubunits)
-
-		# self.rnapSubunits.countsInc(np.fmax(
-		# 	((440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int)).astype(np.int),
-		# 	0
-		# 	))
-
 
 
 def getWorkAssignment(dataSize, thisTask, totalTasks):
