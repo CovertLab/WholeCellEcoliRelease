@@ -16,93 +16,99 @@ import numpy as np
 
 import wholecell.processes.process
 
+from cvxopt import glpk
+from cvxopt import matrix, sparse
+
+EVALUATE_TO_COMPLETION = False # If true, will form as many complexes as possible
+
+# TODO: evaluate mass balance
+# TODO: speed up by using only the needed portion of the stoich matrix
+
 class Complexation(wholecell.processes.process.Process):
 	""" Complexation """
 
+	_name = "Complexation"
+
 	# Constructor
 	def __init__(self):
-		self.meta = {
-			"id": "Complexation",
-			"name": "Macromolecular complexation",
-		}
-
-		# References to states
-		self.subunit = None
-		self.complex = None
 		
 		super(Complexation, self).__init__()
+
 
 	# Construct object graph
 	def initialize(self, sim, kb):
 		super(Complexation, self).initialize(sim, kb)
 
-		# # Complex
-		# complexes = [x for x in kb.proteins if x["monomer"] == False and x["formationProcess"] == self.meta["id"]]
-		# self.complex = sim.getState("MoleculeCounts").addPartition(self,
-		# 	[x["id"] + "[" + x["location"] + "]" for x in complexes],
-		# 	self.calcReqComplex)
+		self.nSubunits = kb.complexationMatrix.shape[0]
+		self.nComplexes = kb.complexationMatrix.shape[1]
 
-		# # Subunits
-		# subunits = []
-		# for c in complexes:
-		# 	subunits.extend([x for x in c["composition"] if x["coeff"] < 0])
-		# subIdComps = list(set([x["molecule"] + "[" + x["location"] + "]" for x in subunits]))
+		self.nMolecules = self.nSubunits + self.nComplexes
+		self.nFluxes = self.nSubunits + 2 * self.nComplexes
 
-		# self.subunit = sim.getState("MoleculeCounts").addPartition(self, subIdComps, self.calcReqSubunit)
+		self.complexationStoichMatrix = np.zeros((self.nMolecules, self.nFluxes), np.float)
 
-		# tmpSMat = []
-		# for iComplex in xrange(len(complexes)):
-		# 	c = complexes[iComplex]
-		# 	for s in c["composition"]:
-		# 		if s["coeff"] > 0:
-		# 			continue
-		# 		tmpSMat.append([s["molecule"] + "[" + s["location"] + "]", iComplex, -s["coeff"]])
+		self.complexationStoichMatrix[:self.nSubunits, :self.nSubunits] = np.identity(self.nSubunits)
+		self.complexationStoichMatrix[:self.nSubunits, self.nSubunits:self.nSubunits + self.nComplexes] = -kb.complexationMatrix
+		self.complexationStoichMatrix[self.nSubunits:self.nSubunits + self.nComplexes, self.nSubunits:self.nSubunits + self.nComplexes] = np.identity(self.nComplexes)
+		self.complexationStoichMatrix[-self.nComplexes:, -self.nComplexes:] = -np.identity(self.nComplexes)
 
-		# subIdx = self.subunit.getIndex([x[0] for x in tmpSMat])[0]
-		# self.sMat = np.zeros((len(subIdComps), len(complexes)))
-		# self.sMat[subIdx, np.array([x[1] for x in tmpSMat])] = np.array([x[2] for x in tmpSMat])
+		self.baseObjective = np.hstack([np.zeros(self.nSubunits + self.nComplexes), -np.ones(self.nComplexes)])
 
-	# Calculate needed proteins (subunits)
-	def calcReqSubunit(self):
-		return np.ones(self.subunit.fullCounts.shape)
+		self.ilpb = matrix(np.zeros(self.nMolecules))
 
-	# Calculate needed proteins (complexes)
-	def calcReqComplex(self):
-		return np.zeros(self.complex.fullCounts.shape)
+		self.ilpG = sparse(matrix(np.vstack([
+			np.identity(self.nFluxes),
+			-np.identity(self.nFluxes)
+			])))
 
-	# Calculate temporal evolution
+		self.ilpI = set(range(self.nMolecules))
+
+		self.subunits = self.bulkMoleculesView(kb.complexationMatrixSubunitIds)
+
+		self.complexes = self.bulkMoleculesView(kb.complexationMatrixComplexIds)
+
+
+	def calculateRequest(self):
+		self.subunits.requestAll()
+
+
 	def evolveState(self):
-		return
-		self.subunit.counts, self.complex.counts = self.calcNewComplexes(self.subunit.counts, self.complex.counts, 1)
-
-	# Gillespie-like algorithm
-	def calcNewComplexes(self, subunits, complexes, leap):
-		return
-		import warnings
-		warnings.simplefilter("ignore", RuntimeWarning)	# Supress warnings about divide by zero
-		# TODO: Implement tau leaping correctly
 		while True:
-			# Calculate rates
-			rates = np.floor(np.nanmin(			# For each complex, set its rate to be that of its limiting subunit
-				subunits.reshape((-1,1)) / self.sMat	# Note: np's broadcasting mechanisms tile subunits to be the shape of sMat
-				, axis = 0))
-			totRate = np.sum(rates)
-			rates /= totRate
-			# i += 1
-			# if i > 50:
-			# 	import ipdb
-			# 	ipdb.set_trace()
-			if totRate <= 0:
+			objective = matrix(self.baseObjective) # TODO: add noise
+
+			lb = np.zeros(self.nFluxes)
+
+			subunitCounts = self.subunits.counts()
+
+			maxPossibleComplexes = subunitCounts.max()
+
+			ub = maxPossibleComplexes * np.ones(self.nFluxes)
+
+			ub[:self.nSubunits] = subunitCounts
+
+			h = matrix(np.hstack([ub, -lb]))
+
+			A = sparse(matrix(self.complexationStoichMatrix))
+
+			# Supress output
+			glpk.options["LPX_K_MSGLEV"] = 0
+
+			solution = glpk.ilp(
+				objective,
+				self.ilpG, h,
+				A, self.ilpb,
+				self.ilpI
+				)
+
+			assert solution is not None, "Failed to find an optimal solution"
+
+			fluxes = np.array(solution[1]).flatten()
+
+			subunitsUsed = fluxes[:self.nSubunits].astype(np.int)
+			complexesMade = fluxes[-self.nComplexes:].astype(np.int)
+
+			self.subunits.countsDec(subunitsUsed)
+			self.complexes.countsInc(complexesMade)
+
+			if not EVALUATE_TO_COMPLETION or not fluxes.any():
 				break
-
-			# Check if sufficient metabolic resources to make protein
-			newCnts = self.randStream.mnrnd(leap, rates)
-			if np.any(np.dot(self.sMat, newCnts) > subunits):
-				break
-
-			# Update subunits
-			subunits -= np.dot(self.sMat, newCnts)
-
-			# Increment complexes
-			complexes += newCnts
-		return subunits, complexes

@@ -776,25 +776,30 @@ class KnowledgeBaseEcoli(object):
 		protDict = dict([(x["id"], x) for x in self._proteins])
 		
 		for p in protNew:
-			p = [x for x in self._proteins if x["id"] == p["id"]][0]
+			p["mw"] = 0
 
 			for stoichComponent in p["composition"]:
 				if stoichComponent["type"] == '': 
 					stoichComponent["type"] = self._check_molecule(stoichComponent["molecule"]) #ADDED
 				if stoichComponent["molecule"] != p["id"]:
+					assert stoichComponent["coeff"] < 0
+
 					if stoichComponent["molecule"].upper() in metDict:
 						stoichComponent["molecule"] = stoichComponent["molecule"].upper()
 						subunitMw = metDict[stoichComponent["molecule"]]["mw7.2"]
+
 					elif stoichComponent["molecule"] in rnaDict:
 						subunitMw = rnaDict[stoichComponent["molecule"]]["mw"]
-						p["ntCount"] -= stoichComponent["coeff"] * rnaDict[stoichComponent["molecule"]]["ntCount"]
+						p["ntCount"] += (-stoichComponent["coeff"]) * rnaDict[stoichComponent["molecule"]]["ntCount"]
+
 					elif stoichComponent["molecule"] in protDict:
 						subunitMw = protDict[stoichComponent["molecule"]]["mw"]
-						p["aaCount"] -= stoichComponent["coeff"] * protDict[stoichComponent["molecule"]]["aaCount"]
+						p["aaCount"] += (-stoichComponent["coeff"]) * protDict[stoichComponent["molecule"]]["aaCount"]
+
 					else:
 						raise Exception, "Undefined subunit: %s." % stoichComponent["molecule"]
 
-					p["mw"] -= stoichComponent["coeff"] * subunitMw
+					p["mw"] += (-stoichComponent["coeff"]) * subunitMw
 		
 		#self._proteins.extend(protNew)
 
@@ -1009,7 +1014,7 @@ class KnowledgeBaseEcoli(object):
 				'assignedAAs' : '20i8'
 				},
 			'activeDnaPolymerase' : {
-				'chromosomeLocation' : 'i64',
+				'chromosomeLocation' : 'i8',
 				'directionIsPositive' : 'bool'
 				}
 			}
@@ -1446,6 +1451,8 @@ class KnowledgeBaseEcoli(object):
 
 					else: # entry is a true subunit
 						assert coeff % 1 == 0, 'Noninteger subunit stoichiometry'
+
+						assert coeff < 0
 
 						subunitName = '{}[{}]'.format(subunit['molecule'], subunit['location'])
 

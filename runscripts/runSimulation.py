@@ -23,7 +23,7 @@ DEFAULT_SIM = dict(
 	lengthSec = 3600,
 	logToShell = True,
 	logToDisk = True,
-	logToDiskEvery = 10
+	logToDiskEvery = 10,
 	)
 
 def main():

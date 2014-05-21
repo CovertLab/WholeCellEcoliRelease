@@ -36,8 +36,6 @@ import wholecell.processes.rna_degradation
 import wholecell.processes.transcription.bulk_transcription
 import wholecell.processes.translation.translation
 import wholecell.processes.transcription.toy_transcription
-import wholecell.processes.toy_protein_degradation
-import wholecell.processes.toy_replication
 import wholecell.processes.replication
 import wholecell.processes.transcription.transcription_net
 import wholecell.processes.translation.translation_net
@@ -50,14 +48,13 @@ import wholecell.processes.transcription.unique_transcript_elongation_enzlim
 import wholecell.processes.protein_degradation
 
 PROCESS_CLASSES = (
+	wholecell.processes.complexation.Complexation,
 	wholecell.processes.metabolism.Metabolism,
 	wholecell.processes.metabolism_fba.MetabolismFba,
 	wholecell.processes.rna_degradation.RnaDegradation,
 	wholecell.processes.transcription.bulk_transcription.BulkTranscription,
 	wholecell.processes.translation.translation.Translation,
 	wholecell.processes.transcription.toy_transcription.ToyTranscription,
-	wholecell.processes.toy_protein_degradation.ToyProteinDegradation,
-	wholecell.processes.toy_replication.ToyReplication,
 	wholecell.processes.replication.Replication,
 	wholecell.processes.transcription.transcription_net.TranscriptionNet,
 	wholecell.processes.translation.translation_net.TranslationNet,
@@ -146,7 +143,8 @@ SIM_KWARG_DEFAULTS = dict(
 	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
 	seed = DEFAULT_SEED,
 	logToShell = True,
-	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None
+	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None,
+	rebuildKB = True
 	)
 
 # Exceptions

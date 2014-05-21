@@ -307,6 +307,7 @@ class BulkMoleculesView(BulkMoleculesViewBase):
 		super(BulkMoleculesView, self).__init__(*args, **kwargs)
 
 		# State references
+		assert len(set(self._query)) == len(self._query), "Bulk molecules views cannot contain duplicate entries"
 		self.containerIndexes = self._state.container._namesToIndexes(self._query)
 
 
