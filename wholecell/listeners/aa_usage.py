@@ -16,6 +16,7 @@ import numpy as np
 import tables
 
 import wholecell.listeners.listener
+from wholecell.reconstruction.fitter import normalize
 
 class AAUsage(wholecell.listeners.listener.Listener):
 	""" AAUsage """
@@ -53,6 +54,16 @@ class AAUsage(wholecell.listeners.listener.Listener):
 
 		self.translationProcessIdx = sim.processes.keys().index(
 			"UniquePolypeptideElongation"
+			)
+
+		biomassMetIdxs = [
+		np.where(
+			kb.wildtypeBiomass["metaboliteId"] == x
+			)[0][0] for x in self.metaboliteIds
+		]
+
+		self.relativeAAProductionBiomass = normalize(
+			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].magnitude
 			)
 
 	# Allocate memory
@@ -102,6 +113,7 @@ class AAUsage(wholecell.listeners.listener.Listener):
 		t.attrs.translationAAUsageCurrent_units = self.usageUnits
 		t.attrs.translationAAUsageCumulative_units = self.usageUnits
 		t.attrs.metaboliteIds = self.metaboliteIds
+		t.attrs.relativeAAProductionBiomass = self.relativeAAProductionBiomass
 
 
 	def pytablesAppend(self, h5file):
