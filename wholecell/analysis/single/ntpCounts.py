@@ -46,7 +46,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	for idx in xrange(4):
 
-		plt.subplot(2, 2, idx)
+		plt.subplot(2, 2, idx + 1)
 
 		plt.plot(time / 60., ntpCounts[:, idx], linewidth = 2)
 		plt.xlabel("Time (min)")
