@@ -73,11 +73,13 @@ PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSE
 import wholecell.listeners.mass
 import wholecell.listeners.metabolic_flux
 import wholecell.listeners.replication_fork
+import wholecell.listeners.ntp_usage
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
 	wholecell.listeners.metabolic_flux.MetabolicFlux,
 	wholecell.listeners.replication_fork.ReplicationForkPosition,
+	wholecell.listeners.ntp_usage.NtpUsage
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -120,6 +122,7 @@ DEFAULT_PROCESSES = (
 DEFAULT_LISTENERS = (
 	'Mass',
 	'ReplicationForkPosition',
+	'NtpUsage'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
