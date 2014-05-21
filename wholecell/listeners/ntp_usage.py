@@ -93,6 +93,7 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		# Store units as metadata
 		t.attrs.transcriptionNtpUsageCurrent_units = self.usageUnits
 		t.attrs.transcriptionNtpUsageCumulative_units = self.usageUnits
+		t.attrs.metaboliteIds = self.metaboliteIds
 
 
 	def pytablesAppend(self, h5file):
