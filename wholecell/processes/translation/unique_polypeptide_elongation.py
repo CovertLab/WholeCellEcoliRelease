@@ -86,6 +86,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aas.requestAll()
 
+
 	# Calculate temporal evolution
 	def evolveState(self):
 		aaCounts = self.aas.counts()
@@ -104,10 +105,22 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		updatedAAs = assignedAAs.copy()
 		aasUsed = np.zeros_like(aaCounts)
 
+		# TODO: perform this in the C function/wrapper so it applies universally
+		permutationIndexes = self.randStream.randStream.permutation(assignedAAs.shape[0])
+		inversePermutationIndexes = np.argsort(permutationIndexes)
+
+		deficitAAs = deficitAAs[permutationIndexes, :]
+		requiredAAs = requiredAAs[permutationIndexes, :]
+		updatedAAs = updatedAAs[permutationIndexes, :]
+
 		wholecell.utils.polymerize.polymerize(
 			self.elngRate, deficitAAs, requiredAAs, aaCounts,
 			updatedAAs, aasUsed, self.seed
 			)
+
+		deficitAAs = deficitAAs[inversePermutationIndexes, :]
+		requiredAAs = requiredAAs[inversePermutationIndexes, :]
+		updatedAAs = updatedAAs[inversePermutationIndexes, :]
 
 		assert np.all(updatedAAs <= requiredAAs), "Polypeptides got elongated more than possible!"
 
