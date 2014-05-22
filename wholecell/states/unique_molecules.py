@@ -218,6 +218,8 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 		self._totalIs(len(self._queryResult))
 
+	def allMolecules(self):
+		return self._queryResult
 
 	def molecules(self):
 		return self._state.container.objectsInCollection(

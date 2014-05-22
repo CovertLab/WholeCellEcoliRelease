@@ -39,7 +39,6 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		# Load parameters
 
 		mrnaIds = kb.monomerData["rnaId"]
-		proteinIds = kb.monomerData["id"]
 		aaIds = kb.aaIDs[:]
 
 		# TODO: Remove hack of deleting selenocysteine this way
