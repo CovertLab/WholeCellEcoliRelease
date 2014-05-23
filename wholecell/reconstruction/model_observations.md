@@ -1,7 +1,8 @@
 (1) <b>Biomass objective function</b>
 Biomass compositoin how does that vary from cell to cell. Using a fixed biomass composition for a single cell leads to issues for us.
 
-(2) How does protein expression at the beginning of a cell cycle correlate with protein expression at the end of the cycle? A protein highly expressed at the beginning should still be highly expressed at the end of the cell cycle (?).
+(2) <b>How does protein expression at the beginning of a cell cycle correlate with protein expression at the end of the cycle?</b>
+A protein highly expressed at the beginning should still be highly expressed at the end of the cell cycle (?).
 
 
 (3) <b>Protein decay and the number of ribosomes required to double the cell protein fraction</b>
