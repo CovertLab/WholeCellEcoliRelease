@@ -1,8 +1,10 @@
-(1) Biomass objective function 
+(1) <b>Biomass objective function</b>
+Biomass compositoin how does that vary from cell to cell. Using a fixed biomass composition for a single cell leads to issues for us.
 
 
-(2) Protein decay and the number of ribosomes required to double the cell protein fraction
+(2) <b>Protein decay and the number of ribosomes required to double the cell protein fraction</b>
 The number of ribosomes needed to double the protein fraction of the cell based on expression, protein degradation, and dilution was calculated in the fitter based on the following equation:
+
 ```
 nRibosomesNeeded = np.sum(
 		monomerLengths / kb.ribosomeElongationRate * (
@@ -10,3 +12,7 @@ nRibosomesNeeded = np.sum(
 			) * monomersView.counts()
 		).to('dimensionless').magnitude
 ```
+
+```nRibosomesNeeded``` can then be compared to the biomass fraction where we know that 15% of the cell is RNA (Dennis and Bremmer), 81% of RNA is rRNA (Neidhardt book), and the weight of rRNA in a single ribosome.
+
+Unfortunatly when using the N-end rule approximatly 2% of the protein degradation rates are ~2 min and the rest ~10 hr. This huge amount of protein turnover caused ```nRibosomesNeeded``` to exceed the theoretical maxiumum set by the biomass function and the data from Dennis, Bremmer, and Neidhardt.
