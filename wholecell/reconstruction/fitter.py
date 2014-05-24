@@ -490,6 +490,12 @@ def fitKb(kb):
 	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
 	# TODO
 
+	# aaIdxs = np.array([
+	# 	np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in aaIDs
+	# 	])
+	# aaMws = kb.bulkMolecules["mass"][aaIdxs].magnitude
+
+	# import ipdb; ipdb.set_trace()
 
 	# TODO: Unhack this
 	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
