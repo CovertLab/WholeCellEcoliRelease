@@ -17,7 +17,6 @@ PAD_VALUE = -1
 # TODO: profile
 # TODO: randstream objects
 
-
 def polymerize(sequences, monomerLimits, reactionLimit):
 	# Copy inputs
 	monomerLimits = monomerLimits.copy()
