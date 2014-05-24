@@ -18,8 +18,9 @@ PAD_VALUE = -1
 # TODO: randstream objects
 
 def polymerize(sequences, monomerLimits, reactionLimit):
-	# Copy inputs
-	monomerLimits = monomerLimits.copy()
+	# Sanitize inputs
+	monomerLimits = monomerLimits.copy().astype(np.int64)
+	reactionLimit = np.int64(reactionLimit)
 
 	# Data size information
 	nSequences, maxLength = sequences.shape
@@ -102,6 +103,14 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 		if elongationLimit == maxLength:
 			break
 
+		# Quit if no remaining monomers
+		if monomerLimits.sum() == 0:
+			break
+
+		# Quit if no more reaction capacity
+		if reactionLimit == 0:
+			break
+
 		# Randomly cull sequences that are limiting in monomers
 		culledSequences = np.zeros(nSequences, np.bool)
 
@@ -146,6 +155,7 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 		cumulativeTotalMonomers -= cumulativeSequenceMonomers[culledSequences, :, :].sum(0)
 		cumulativeTotalReactions -= cumulativeSequenceReactions[culledSequences, :].sum(0)
 
+
 	# Restrict elongation by end of sequences
 
 	sequenceElongation = np.fmin(sequenceElongation, maxElongation)
@@ -155,29 +165,58 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 
 if __name__ == "__main__":
-	nMonomers = 20
-	nSequences = 100
-	length = 16
+	import time
+
+	# Contrive a scenario which is similar to real conditions
+
+	nMonomers = 36 # number of distinct aa-tRNAs
+	nSequences = 10000 # approximate number of ribosomes
+	length = 16 # translation rate
+	nTerminating = np.int64(length/300 * nSequences) # estimate for number of ribosomes terminating
+	monomerSufficiency = 0.85
+	energySufficiency = 0.85
 
 	sequences = np.random.randint(nMonomers, size = (nSequences, length))
 
-	sequenceLengths = np.random.randint(length, size = nSequences)
+	sequenceLengths = length * np.ones(nSequences, np.int64)
+	sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
 
 	sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = PAD_VALUE
 
-	monomerLimits = length*nSequences*np.ones(nMonomers, np.int64) /40
-	reactionLimit = monomerLimits.sum()
+	maxReactions = sequenceLengths.sum()
 
+	monomerLimits = maxReactions/nMonomers*np.ones(nMonomers, np.int64)
+	reactionLimit = maxReactions
+
+	t = time.time()
 	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit)
+	evalTime = time.time() - t
 
-	try:
-		assert (sequenceElongation <= sequenceLengths+1).all()
-		assert (monomerUsages <= monomerLimits).all()
-		assert nReactions <= reactionLimit
+	assert (sequenceElongation <= sequenceLengths+1).all()
+	assert (monomerUsages <= monomerLimits).all()
+	assert nReactions <= reactionLimit
 
-	except Exception as e:
-		print e
+	print """
+Polymerize function report:
 
-		import ipdb; ipdb.set_trace()
+For {} sequences of {} different monomers elongating by at most {}:
 
-	print sequenceElongation, monomerUsages, nReactions
+{:0.1f} ms to evaluate
+{} polymerization reactions
+{:0.1f} average elongations per sequence
+{:0.1%} monomer utilization
+{:0.1%} energy utilization
+{:0.1%} fully elongated
+{:0.1%} completion
+""".format(
+		nSequences,
+		nMonomers,
+		length,
+		evalTime * 1000,
+		nReactions,
+		sequenceElongation.mean(),
+		monomerUsages.sum()/monomerLimits.sum(),
+		nReactions/reactionLimit,
+		(sequenceElongation == sequenceLengths).sum()/nSequences,
+		sequenceElongation.sum()/sequenceLengths.sum()
+		)
