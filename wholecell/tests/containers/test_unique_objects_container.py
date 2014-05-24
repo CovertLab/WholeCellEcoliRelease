@@ -377,7 +377,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		h5file.close()
 
 
-	@noseAttrib.attr('working')
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectSet_attribute_accessing(self):
 		objectSet = self.container.objects(chromosomeLocation = ('>=', 0))
