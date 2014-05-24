@@ -17,6 +17,8 @@ import numpy as np
 import wholecell.processes.process
 # import wholecell.util.flextFbaModel
 
+from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
+
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
 
@@ -90,6 +92,29 @@ class Metabolism(wholecell.processes.process.Process):
 			"AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"
 			])
 
+		### A little hacky here. John close your eyes.
+		# TODO: Clean up
+
+		# TODO: Include selenocysteine
+		self.aaIds = [aaId for aaId in kb.aaIDs if aaId != "SEC-L[c]"]
+
+		self.aaIdxsInWildTypeBiomass = np.array(
+			[np.where(self.wildtypeIds == x)[0][0] for x in self.aaIds]
+			)
+
+		self.bulkMoleculesState = sim.states["BulkMolecules"]
+		self.aaIdxsInContainer = self.bulkMoleculesState.container._namesToIndexes(self.aaIds)
+
+		aaIdxsInKb = np.array([
+			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.aaIds
+			])
+		self.aaMws = kb.bulkMolecules["mass"][aaIdxsInKb].magnitude
+
+		bulkMoleculesIdxs = np.array([
+			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.wildtypeIds
+			])
+		self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+		self.nAvogadro = kb.nAvogadro.magnitude
 
 	def calculateRequest(self):
 		self.ppi.requestAll()
@@ -100,26 +125,36 @@ class Metabolism(wholecell.processes.process.Process):
 	def evolveState(self):
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
-		# noise = self.randStream.multivariate_normal(
-		# 	np.zeros_like(self.wildtypeBiomassReaction),
-		# 	np.diag(self.wildtypeBiomassReaction / 1000.)
+		# ##### Dynamic objective #####
+		# relativeAArequests = normalize(
+		# 	self.bulkMoleculesState._countsRequested[self.aaIdxsInContainer].sum(axis = 1)
 		# 	)
+		# if not np.any(np.isnan(relativeAArequests)):
+		# 	# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
 
-		# deltaMetabolites = np.fmax(
-		# 	self.randStream.stochasticRound(
-		# 		np.round((self.wildtypeBiomassReaction + atpm + noise) * 1e-3
-		# 			* self.nAvogadro * self.initialDryMass)
-		# 		* np.exp(np.log(2) / self.cellCycleLen * self.time())
-		# 		* (np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-		# 		).astype(np.int64),
-		# 	0
-		# 	)
+		# 	self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass] = (
+		# 		countsFromMassAndExpression(
+		# 			np.dot(
+		# 				self.aaMws / 1000,
+		# 				self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass]
+		# 				),
+		# 			self.aaMws,
+		# 			relativeAArequests,
+		# 			self.nAvogadro
+		# 			) *
+		# 		relativeAArequests *
+		# 		1000 / self.nAvogadro
+		# 		)
+
+		# 	# print "After: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+		# ##### End dynamic objective code #####
+
 
 		# No noise in production
 		deltaMetabolites = np.fmax(
 			self.randStream.stochasticRound(
 				np.round(
-					(self.wildtypeBiomassReaction) * 1e-3 *
+					(self.wildtypeBiomassReaction + atpm) * 1e-3 *
 					self.nAvogadro * self.initialDryMass
 					) *
 				np.exp(np.log(2) / self.cellCycleLen * self.time()) *
