@@ -14,6 +14,11 @@ import numpy as np
 
 PAD_VALUE = -1
 
+# TODO: rewrite this so it actually rebuilds smaller matrices instead of
+# using the full matrices; this should be relatively fast since the 
+# culling happens infrequently (compare to polymerize_matrix with validate
+# disable for speed)
+
 # TODO: profile
 # TODO: randstream objects
 
@@ -28,7 +33,7 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 	# Static data
 	sequenceMonomers = np.rollaxis(np.array([
-		sequences == monomerIndex for monomerIndex in xrange(nMonomers)
+		(sequences == monomerIndex) for monomerIndex in xrange(nMonomers)
 		]), 0, 3)
 	sequenceReactions = (sequences != PAD_VALUE)
 
@@ -86,12 +91,16 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 			# Update running values
 
-			monomersUsed = cumulativeTotalMonomers[elongationLimit-1]
+			monomersUsed = cumulativeTotalMonomers[elongationLimit-1, :]
 
 			monomerUsages += monomersUsed
 			monomerLimits -= monomersUsed
 
-			cumulativeSequenceMonomers -= cumulativeSequenceMonomers[:, (elongationLimit-1,), :]
+			for monomerIndex in xrange(nMonomers):
+				# NOTE: for some reason this is the fastest operation of the
+				# variants I tried, no idea why
+				cumulativeSequenceMonomers[:, elongationLimit:, monomerIndex] -= cumulativeSequenceMonomers[:, elongationLimit-1, monomerIndex][:, np.newaxis]
+
 			cumulativeTotalMonomers -= monomersUsed
 
 			reactions = cumulativeTotalReactions[elongationLimit-1]
@@ -99,7 +108,8 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 			nReactions += reactions
 			reactionLimit -= reactions
 
-			cumulativeSequenceReactions -= cumulativeSequenceReactions[:, (elongationLimit-1,)]
+			cumulativeSequenceReactions[:, elongationLimit:] -= cumulativeSequenceReactions[:, elongationLimit-1][:, np.newaxis]
+
 			cumulativeTotalReactions -= reactions
 
 		# Quit if fully elongated
@@ -161,10 +171,13 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 		activeSequences[culledSequences] = False
 
-		# Update the cumulative totals to include only active sequences
+		activeSequences[~sequenceReactions[:, elongationLimit]] = False
 
-		cumulativeTotalMonomers -= cumulativeSequenceMonomers[culledSequences, :, :].sum(0)
-		cumulativeTotalReactions -= cumulativeSequenceReactions[culledSequences, :].sum(0)
+		# Update the cumulative totals to include only active sequences
+		for monomerIndex in xrange(nMonomers):
+			cumulativeTotalMonomers[elongationLimit:, monomerIndex] -= cumulativeSequenceMonomers[culledSequences, elongationLimit:, monomerIndex].sum(0)
+
+		cumulativeTotalReactions[elongationLimit:] -= cumulativeSequenceReactions[culledSequences, elongationLimit:].sum(0)
 
 
 	# Restrict elongation by end of sequences
