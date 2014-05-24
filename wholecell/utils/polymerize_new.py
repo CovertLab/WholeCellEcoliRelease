@@ -81,34 +81,40 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 		sequenceElongation[activeSequences] = elongationLimit
 
-		# Update running values
+		if elongationLimit > 0:
+			# Handles choking on the first entry
 
-		monomersUsed = cumulativeTotalMonomers[elongationLimit-1]
+			# Update running values
 
-		monomerUsages += monomersUsed
-		monomerLimits -= monomersUsed
+			monomersUsed = cumulativeTotalMonomers[elongationLimit-1]
 
-		cumulativeSequenceMonomers -= cumulativeSequenceMonomers[:, (elongationLimit-1,), :]
-		cumulativeTotalMonomers -= monomersUsed
+			monomerUsages += monomersUsed
+			monomerLimits -= monomersUsed
 
-		reactions = cumulativeTotalReactions[elongationLimit-1]
+			cumulativeSequenceMonomers -= cumulativeSequenceMonomers[:, (elongationLimit-1,), :]
+			cumulativeTotalMonomers -= monomersUsed
 
-		nReactions += reactions
-		reactionLimit -= reactions
+			reactions = cumulativeTotalReactions[elongationLimit-1]
 
-		cumulativeSequenceReactions -= cumulativeSequenceReactions[:, (elongationLimit-1,)]
-		cumulativeTotalReactions -= reactions
+			nReactions += reactions
+			reactionLimit -= reactions
+
+			cumulativeSequenceReactions -= cumulativeSequenceReactions[:, (elongationLimit-1,)]
+			cumulativeTotalReactions -= reactions
 
 		# Quit if fully elongated
 		if elongationLimit == maxLength:
+			# print "fully elongated"
 			break
 
 		# Quit if no remaining monomers
-		if monomerLimits.sum() == 0:
+		if not monomerLimits.any():
+			# print "out of monomers"
 			break
 
 		# Quit if no more reaction capacity
 		if reactionLimit == 0:
+			# print "out of energy"
 			break
 
 		# Randomly cull sequences that are limiting in monomers
@@ -135,18 +141,23 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 		# Randomly cull sequences that are limiting in reactions
 		if reactionIsLimited:
-			activeSequenceWithReaction = sequenceReactions[:, elongationLimit] & activeSequences
+			activeSequencesWithReaction = sequenceReactions[:, elongationLimit] & activeSequences
 
-			nToCull = activeSequenceWithReaction.sum() - reactionLimit
+			nToCull = activeSequencesWithReaction.sum() - reactionLimit
 
-			# TODO: pass randstream object
-			culledSequenceIndexes = np.random.choice(
-				np.where(activeSequenceWithReaction)[0],
-				nToCull,
-				replace = False
-				)
-			
-			culledSequences[culledSequenceIndexes] = True
+			if nToCull > 0:
+				# It's possible that we culled enough during the monomer 
+				# limitation culling to reach a point where we are no longer
+				# reaction-limited
+
+				# TODO: pass randstream object
+				culledSequenceIndexes = np.random.choice(
+					np.where(activeSequencesWithReaction)[0],
+					nToCull,
+					replace = False
+					)
+				
+				culledSequences[culledSequenceIndexes] = True
 
 		activeSequences[culledSequences] = False
 
@@ -163,9 +174,10 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 	return sequenceElongation, monomerUsages, nReactions
 
 
-
 if __name__ == "__main__":
 	import time
+
+	np.random.seed(0)
 
 	# Contrive a scenario which is similar to real conditions
 
@@ -173,8 +185,8 @@ if __name__ == "__main__":
 	nSequences = 10000 # approximate number of ribosomes
 	length = 16 # translation rate
 	nTerminating = np.int64(length/300 * nSequences) # estimate for number of ribosomes terminating
-	monomerSufficiency = 0.85
-	energySufficiency = 0.85
+	monomerSufficiency = 0.5
+	energySufficiency = 0.5
 
 	sequences = np.random.randint(nMonomers, size = (nSequences, length))
 
@@ -185,8 +197,8 @@ if __name__ == "__main__":
 
 	maxReactions = sequenceLengths.sum()
 
-	monomerLimits = maxReactions/nMonomers*np.ones(nMonomers, np.int64)
-	reactionLimit = maxReactions
+	monomerLimits = monomerSufficiency * maxReactions/nMonomers*np.ones(nMonomers, np.int64)
+	reactionLimit = energySufficiency * maxReactions
 
 	t = time.time()
 	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit)
@@ -195,6 +207,7 @@ if __name__ == "__main__":
 	assert (sequenceElongation <= sequenceLengths+1).all()
 	assert (monomerUsages <= monomerLimits).all()
 	assert nReactions <= reactionLimit
+	assert nReactions == monomerUsages.sum()
 
 	print """
 Polymerize function report:
