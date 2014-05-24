@@ -84,7 +84,27 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
 
-		self.aas.requestAll()
+		activeRibosomes = self.activeRibosomes.allMolecules()
+
+		assignedAAs, requiredAAs = activeRibosomes.attrs("assignedAAs", "requiredAAs")
+		deficitAAs = requiredAAs - assignedAAs
+
+		if deficitAAs.size <= 0:
+			return
+
+		approxUsage = np.zeros_like(deficitAAs)
+		f = deficitAAs / np.tile(deficitAAs.sum(axis = 1).reshape(-1, 1).astype("float64"), (1, 20))
+
+		approxUsage[deficitAAs.sum(axis = 1) <= self.elngRate] = deficitAAs[
+			deficitAAs.sum(axis = 1) <= self.elngRate
+		]
+		approxUsage[deficitAAs.sum(axis = 1) > self.elngRate] = np.ceil(
+			f[deficitAAs.sum(axis = 1) > self.elngRate] * self.elngRate
+			)
+
+		self.aas.requestIs(
+			np.fmin(self.aas.total(), approxUsage.sum(axis = 0))
+			)
 
 
 	# Calculate temporal evolution
