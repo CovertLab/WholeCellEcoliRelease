@@ -28,27 +28,27 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 	reactionLimit = np.int64(reactionLimit)
 
 	# Data size information
-	nSequences, maxLength = sequences.shape
+	nSequences, sequenceLength = sequences.shape
 	nMonomers = monomerLimits.size
 
 	# Static data
-	sequenceMonomers = np.rollaxis(np.array([
+	sequenceMonomers = np.array([
 		(sequences == monomerIndex) for monomerIndex in xrange(nMonomers)
-		]), 0, 3)
+		])
 	sequenceReactions = (sequences != PAD_VALUE)
+	sequenceLengths = sequenceReactions.sum(1)
 
-	maxElongation = sequenceReactions.sum(1)
+	# Running values
+	activeSequencesIndexes = np.arange(nSequences)
+	currentStep = 0
+	activeSequencesIndexes = activeSequencesIndexes[
+		sequenceReactions[:, currentStep]
+		]
 
-	totalBases = sequenceMonomers.sum(0)
-	totalReactions = sequenceReactions.sum(0)
+	totalMonomers = sequenceMonomers.sum(1).cumsum(1)
+	totalReactions = sequenceReactions.sum(0).cumsum(0)
 
-	# Running/accumulated values
-	activeSequences = sequenceReactions[:, 0]
-	cumulativeSequenceMonomers = sequenceMonomers.cumsum(1)
-	cumulativeSequenceReactions = sequenceReactions.cumsum(1)
-
-	cumulativeTotalMonomers = totalBases.cumsum(0)
-	cumulativeTotalReactions = totalReactions.cumsum(0)
+	maxElongation = sequenceLength
 
 	# Output
 	sequenceElongation = np.zeros(nSequences, np.int64)
@@ -56,134 +56,120 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 	nReactions = 0
 
 	# Elongate sequences as much as possible
-	while activeSequences.any():
-		# Find the furthest extent that sequences can elongate without 
-		# encountering a limitation
-
-		monomerLimited = [
-			np.where(cumulativeTotalMonomers[:, monomerIndex] > monomerLimit)[0]
+	while activeSequencesIndexes.size:
+		# Find the furthest we can elongate without reaching some limitation
+		monomerLimitingExtents = [
+			np.where(totalMonomers[monomerIndex, :] > monomerLimit)[0]
 			for monomerIndex, monomerLimit in enumerate(monomerLimits)
 			]
 
 		monomerLimitedAt = np.array([
-			limit[0] if limit.size else maxLength
-			for limit in monomerLimited
+			extent[0] if extent.size else maxElongation
+			for extent in monomerLimitingExtents
 			])
 
-		reactionLimitedAt = maxLength
+		reactionLimitedAt = maxElongation
 
-		reactionLimited = np.where(cumulativeTotalReactions > reactionLimit)[0]
+		reactionLimitingExtents = np.where(
+			totalReactions > reactionLimit
+			)[0]
 
-		if reactionLimited.size:
-			reactionLimitedAt = reactionLimited[0]
+		if reactionLimitingExtents.size:
+			reactionLimitedAt = reactionLimitingExtents[0]
 
-		elongationLimit = np.min([monomerLimitedAt.min(), reactionLimitedAt])
+		limitingExtent = min(monomerLimitedAt.min(), reactionLimitedAt)
 
-		monomerIsLimiting = (monomerLimitedAt == elongationLimit)
-		reactionIsLimited = (reactionLimitedAt == elongationLimit)
+		monomerIsLimiting = (monomerLimitedAt == limitingExtent)
+		reactionIsLimiting = (reactionLimitedAt == limitingExtent)
 
-		# Elongate up to the limitation
+		currentStep += limitingExtent
 
-		sequenceElongation[activeSequences] = elongationLimit
+		# Use resources
 
-		if elongationLimit > 0:
-			# Handles choking on the first entry
+		if limitingExtent > 0:
+			deltaMonomers = totalMonomers[:, limitingExtent-1]
+			deltaReactions = totalReactions[limitingExtent-1]
 
-			# Update running values
+			monomerLimits -= deltaMonomers
+			reactionLimit -= deltaReactions
 
-			monomersUsed = cumulativeTotalMonomers[elongationLimit-1, :]
+			monomerUsages += deltaMonomers
+			nReactions += deltaReactions
 
-			monomerUsages += monomersUsed
-			monomerLimits -= monomersUsed
+		# Update lengths
 
-			for monomerIndex in xrange(nMonomers):
-				# NOTE: for some reason this is the fastest operation of the
-				# variants I tried, no idea why
-				cumulativeSequenceMonomers[:, elongationLimit:, monomerIndex] -= cumulativeSequenceMonomers[:, elongationLimit-1, monomerIndex][:, np.newaxis]
-
-			cumulativeTotalMonomers -= monomersUsed
-
-			reactions = cumulativeTotalReactions[elongationLimit-1]
-
-			nReactions += reactions
-			reactionLimit -= reactions
-
-			cumulativeSequenceReactions[:, elongationLimit:] -= cumulativeSequenceReactions[:, elongationLimit-1][:, np.newaxis]
-
-			cumulativeTotalReactions -= reactions
+		sequenceElongation[activeSequencesIndexes] += limitingExtent
 
 		# Quit if fully elongated
-		if elongationLimit == maxLength:
-			# print "fully elongated"
+
+		if limitingExtent == maxElongation:
 			break
 
-		# Quit if no remaining monomers
+		# Quit if out of resources
+
 		if not monomerLimits.any():
-			# print "out of monomers"
 			break
 
-		# Quit if no more reaction capacity
 		if reactionLimit == 0:
-			# print "out of energy"
 			break
 
-		# Randomly cull sequences that are limiting in monomers
-		culledSequences = np.zeros(nSequences, np.bool)
+		# Cull fully elongated sequences
+
+		sequencesToCull = ~sequenceReactions[activeSequencesIndexes, currentStep]
+
+		# Cull monomer-limiting sequences
 
 		for monomerIndex, monomerLimit in enumerate(monomerLimits):
-			if not monomerIsLimiting[monomerIndex]:
+			if ~monomerIsLimiting[monomerIndex]:
 				continue
 
-			activeSequencesWithMonomer = sequenceMonomers[:, elongationLimit, monomerIndex] & activeSequences
+			sequencesWithMonomer = np.where(
+				sequenceMonomers[monomerIndex, activeSequencesIndexes, currentStep]
+				)[0]
 
-			nToCull = activeSequencesWithMonomer.sum() - monomerLimit
+			nToCull = sequencesWithMonomer.size - monomerLimit
 
-			# TODO: pass randstream object
-			culledSequenceIndexes = np.random.choice(
-				np.where(activeSequencesWithMonomer)[0],
+			assert nToCull > 0
+
+			culledIndexes = np.random.choice(
+				sequencesWithMonomer,
 				nToCull,
 				replace = False
 				)
-			
-			culledSequences[culledSequenceIndexes] = True
 
-		activeSequences[culledSequences] = False
+			sequencesToCull[culledIndexes] = True
 
-		# Randomly cull sequences that are limiting in reactions
-		if reactionIsLimited:
-			activeSequencesWithReaction = sequenceReactions[:, elongationLimit] & activeSequences
+		# Cull reaction-limiting sequences
 
-			nToCull = activeSequencesWithReaction.sum() - reactionLimit
+		if reactionIsLimiting:
+			sequencesWithReaction = np.where(
+				~sequencesToCull
+				)[0]
+
+			nToCull = sequencesWithReaction.size - reactionLimit
 
 			if nToCull > 0:
-				# It's possible that we culled enough during the monomer 
-				# limitation culling to reach a point where we are no longer
-				# reaction-limited
-
-				# TODO: pass randstream object
-				culledSequenceIndexes = np.random.choice(
-					np.where(activeSequencesWithReaction)[0],
+				culledIndexes = np.random.choice(
+					sequencesWithReaction,
 					nToCull,
 					replace = False
 					)
-				
-				culledSequences[culledSequenceIndexes] = True
 
-		activeSequences[culledSequences] = False
+				sequencesToCull[culledIndexes] = True
 
-		activeSequences[~sequenceReactions[:, elongationLimit]] = False
+		# Update running values
 
-		# Update the cumulative totals to include only active sequences
-		for monomerIndex in xrange(nMonomers):
-			cumulativeTotalMonomers[elongationLimit:, monomerIndex] -= cumulativeSequenceMonomers[culledSequences, elongationLimit:, monomerIndex].sum(0)
+		activeSequencesIndexes = activeSequencesIndexes[~sequencesToCull]
 
-		cumulativeTotalReactions[elongationLimit:] -= cumulativeSequenceReactions[culledSequences, elongationLimit:].sum(0)
+		totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(1).cumsum(1)
+		totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(0).cumsum(0)
 
+		maxElongation = sequenceLength - currentStep
 
-	# Restrict elongation by end of sequences
+	# Clamp sequence lengths up to their max length
 
-	sequenceElongation = np.fmin(sequenceElongation, maxElongation)
-
+	sequenceElongation = np.fmin(sequenceElongation, sequenceLengths)
+		
 	return sequenceElongation, monomerUsages, nReactions
 
 
@@ -198,8 +184,8 @@ if __name__ == "__main__":
 	nSequences = 10000 # approximate number of ribosomes
 	length = 16 # translation rate
 	nTerminating = np.int64(length/300 * nSequences) # estimate for number of ribosomes terminating
-	monomerSufficiency = 0.5
-	energySufficiency = 0.5
+	monomerSufficiency = 0.85
+	energySufficiency = 0.85
 
 	sequences = np.random.randint(nMonomers, size = (nSequences, length))
 

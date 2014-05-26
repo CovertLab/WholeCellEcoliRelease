@@ -297,8 +297,8 @@ if __name__ == "__main__":
 	nSequences = 10000 # approximate number of ribosomes
 	length = 16 # translation rate
 	nTerminating = np.int64(1.* length/300 * nSequences) # estimate for number of ribosomes terminating
-	monomerSufficiency = 0.5
-	energySufficiency = 0.5
+	monomerSufficiency = 0.85
+	energySufficiency = 0.85
 	monomers = np.arange(nMonomers)
 	padValue = -1
 	costPerMonomer = 1
