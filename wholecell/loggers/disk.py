@@ -35,20 +35,11 @@ class Disk(wholecell.loggers.logger.Logger):
 	""" Disk """
 
 	def __init__(self, outDir = None, allowOverwrite = False, logEvery = None):
-		self.outDir = outDir
-		self.allowOverwrite = allowOverwrite
-		self.logEvery = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
-
-		self.saveFiles = {}
-		self.mainFile = None
-		self.logStep = None
-
-
-	def initialize(self, sim):
-		self.logStep = 0
-
-		if self.outDir is None:
+		if outDir is None:
 			self.outDir = timestampedOutputDirectoryNames()[0]
+
+		else:
+			self.outDir = outDir
 		
 		try:
 			os.makedirs(self.outDir)
@@ -60,6 +51,15 @@ class Disk(wholecell.loggers.logger.Logger):
 			else:
 				raise
 
+		self.allowOverwrite = allowOverwrite
+		self.logEvery = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
+
+		self.saveFiles = {}
+		self.mainFile = None
+		self.logStep = 0
+
+
+	def initialize(self, sim):
 		self.mainFile = tables.open_file(
 			os.path.join(self.outDir, 'Main.hdf'),
 			mode = "w",
@@ -82,10 +82,6 @@ class Disk(wholecell.loggers.logger.Logger):
 			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
 			sort_keys = True, indent=4, separators=(',', ': ')
 			)
-
-		# Save KB
-		# shutil.copy(sim.kbPath, self.outDir)
-		# TODO: reinstate
 
 
 	def createTables(self, sim):
@@ -129,7 +125,6 @@ class Disk(wholecell.loggers.logger.Logger):
 
 		for obj, saveFile in self.saveFiles.viewitems():
 			obj.pytablesAppend(saveFile)
-
 
 
 def currentTimeAsString():

@@ -12,6 +12,7 @@ from __future__ import division
 
 import collections
 import os
+import shutil
 
 import numpy as np
 import tables
@@ -67,6 +68,7 @@ class Simulation(object):
 
 		if not self._options.rebuildKB:
 			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(SIM_FIXTURE_DIR)
+
 		else:
 			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(SIM_FIXTURE_DIR)
 
@@ -75,6 +77,12 @@ class Simulation(object):
 
 		# Initialize simulation from fit KB
 		self._initialize(kb)
+
+		# If logging to disk, save the fit KB
+		if self._options.logToDisk:
+			wholecell.utils.knowledgebase_fixture_manager.writeKnowledgeBase(
+				self.loggers["Disk"].outDir, kb
+				)
 
 
 	@classmethod
@@ -136,7 +144,7 @@ class Simulation(object):
 			listener.initialUpdate()
 
 		# Start logging
-		for logger in self.loggers:
+		for logger in self.loggers.itervalues():
 			logger.initialize(self)
 
 		# Simulate
@@ -150,7 +158,7 @@ class Simulation(object):
 			hook.finalize(self)
 
 		# Finish logging
-		for logger in self.loggers:
+		for logger in self.loggers.itervalues():
 			logger.finalize(self)
 
 
@@ -204,7 +212,7 @@ class Simulation(object):
 			hook.postEvolveState(self)
 
 		# Append loggers
-		for logger in self.loggers:
+		for logger in self.loggers.itervalues():
 			logger.append(self)
 
 
@@ -224,8 +232,6 @@ class Simulation(object):
 		
 		if self.processes:
 			h5file.create_array(groupNames, 'processes', [s for s in self.processes.viewkeys()])
-
-		# TODO: cache KB
 
 
 	def pytablesAppend(self, h5file):

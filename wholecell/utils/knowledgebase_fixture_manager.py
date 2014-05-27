@@ -15,14 +15,21 @@ import cPickle
 
 import wholecell.reconstruction.knowledge_base_ecoli
 
-FILENAME = "KnowledgeBase.cPickle"
+_KB_FILENAME = "KnowledgeBase.cPickle"
 
 def cacheKnowledgeBase(directory):
 	kb = wholecell.reconstruction.knowledge_base_ecoli.KnowledgeBaseEcoli()
-	cPickle.dump(kb, open(os.path.join(directory, FILENAME), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+	
+	writeKnowledgeBase(directory, kb)
 
 	return kb
+
 
 def loadKnowledgeBase(directory):
-	kb = cPickle.load(open(os.path.join(directory, FILENAME), "rb"))
+	kb = cPickle.load(open(os.path.join(directory, _KB_FILENAME), "rb"))
 	return kb
+
+
+def writeKnowledgeBase(directory, kb):
+	cPickle.dump(kb, open(os.path.join(directory, _KB_FILENAME), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+

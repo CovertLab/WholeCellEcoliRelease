@@ -210,20 +210,16 @@ class SimDefinition(object):
 
 
 	def createLoggers(self):
-		loggers = []
+		loggers = collections.OrderedDict()
 
 		if self.logToShell:
-			loggers.append(
-				wholecell.loggers.shell.Shell()
-				)
+			loggers["Shell"] = wholecell.loggers.shell.Shell()
 
 		if self.logToDisk:
-			loggers.append(
-				wholecell.loggers.disk.Disk(
-					self.outputDir,
-					self.overwriteExistingFiles,
-					self.logToDiskEvery
-					)
+			loggers["Disk"] = wholecell.loggers.disk.Disk(
+				self.outputDir,
+				self.overwriteExistingFiles,
+				self.logToDiskEvery
 				)
 
 		return loggers
