@@ -143,8 +143,7 @@ def fitKb(kb):
 
 	monomerExpression = normalize(
 		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
-		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude) /
-		kb.monomerData["length"].magnitude
+		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
 		)
 
 	nMonomers = countsFromMassAndExpression(
