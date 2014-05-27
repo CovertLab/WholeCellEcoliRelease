@@ -113,8 +113,9 @@ class KnowledgeBaseEcoli(object):
 		self._buildRnaExpression()
 		self._buildBiomassFractions()
 
-		self._buildComplexationMatrix()
-		self._buildMetabolism()
+		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
+		# self._buildComplexationMatrix()
+		# self._buildMetabolism()
 
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
