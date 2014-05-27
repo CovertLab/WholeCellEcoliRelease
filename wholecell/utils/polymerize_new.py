@@ -30,7 +30,7 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 	nMonomers = monomerLimits.size
 
 	# Static data
-	sequenceMonomers = np.zeros((nMonomers, nSequences, sequenceLength))
+	sequenceMonomers = np.zeros((nMonomers, nSequences, sequenceLength), np.bool)
 
 	for monomerIndex in xrange(nMonomers):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
@@ -268,6 +268,7 @@ def _fullProfile():
 	ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 	ps.print_stats()
 	print s.getvalue()
+
 
 if __name__ == "__main__":
 	_fullProfile()
