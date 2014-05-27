@@ -141,7 +141,11 @@ def fitKb(kb):
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
 
-	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
+	monomerExpression = normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
+		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude) /
+		kb.monomerData["length"].magnitude
+		)
 
 	nMonomers = countsFromMassAndExpression(
 		monomerMass.to("DCW_g").magnitude,
