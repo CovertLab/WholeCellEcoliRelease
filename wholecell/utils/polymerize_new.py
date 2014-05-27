@@ -14,13 +14,11 @@ import numpy as np
 
 PAD_VALUE = -1
 
-# TODO: rewrite this so it actually rebuilds smaller matrices instead of
-# using the full matrices; this should be relatively fast since the 
-# culling happens infrequently (compare to polymerize_matrix with validate
-# disable for speed)
+# TODO: consider rewriting as a class to cache sequenceMonomers, which is the
+# most expensive operation in the function (alternatively, pass the 
+# sequenceMonomers array as an argument instead of sequences)
 
-# TODO: profile
-# TODO: randstream objects
+# TODO: pass randstream objects
 
 def polymerize(sequences, monomerLimits, reactionLimit):
 	# Sanitize inputs
@@ -32,9 +30,11 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 	nMonomers = monomerLimits.size
 
 	# Static data
-	sequenceMonomers = np.array([
-		(sequences == monomerIndex) for monomerIndex in xrange(nMonomers)
-		])
+	sequenceMonomers = np.zeros((nMonomers, nSequences, sequenceLength))
+
+	for monomerIndex in xrange(nMonomers):
+		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
+
 	sequenceReactions = (sequences != PAD_VALUE)
 	sequenceLengths = sequenceReactions.sum(1)
 
@@ -161,6 +161,11 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 
 		activeSequencesIndexes = activeSequencesIndexes[~sequencesToCull]
 
+		# Quit if there are no more sequences
+
+		if not activeSequencesIndexes.size:
+			break
+
 		totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(1).cumsum(1)
 		totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(0).cumsum(0)
 
@@ -173,11 +178,7 @@ def polymerize(sequences, monomerLimits, reactionLimit):
 	return sequenceElongation, monomerUsages, nReactions
 
 
-if __name__ == "__main__":
-	import time
-
-	np.random.seed(0)
-
+def _setupExample():
 	# Contrive a scenario which is similar to real conditions
 
 	nMonomers = 36 # number of distinct aa-tRNAs
@@ -198,6 +199,20 @@ if __name__ == "__main__":
 
 	monomerLimits = monomerSufficiency * maxReactions/nMonomers*np.ones(nMonomers, np.int64)
 	reactionLimit = energySufficiency * maxReactions
+
+	return sequences, monomerLimits, reactionLimit
+
+
+def _simpleProfile():
+	import time
+
+	np.random.seed(0)
+
+	sequences, monomerLimits, reactionLimit = _setupExample()
+
+	nSequences, length = sequences.shape
+	nMonomers = monomerLimits.size
+	sequenceLengths = (sequences != PAD_VALUE).sum(1)
 
 	t = time.time()
 	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit)
@@ -232,3 +247,27 @@ For {} sequences of {} different monomers elongating by at most {}:
 		(sequenceElongation == sequenceLengths).sum()/nSequences,
 		sequenceElongation.sum()/sequenceLengths.sum()
 		)
+
+
+def _fullProfile():
+	np.random.seed(0)
+
+	sequences, monomerLimits, reactionLimit = _setupExample()
+
+	# Recipe from https://docs.python.org/2/library/profile.html#module-cProfile
+
+	import cProfile, pstats, StringIO
+	pr = cProfile.Profile()
+	pr.enable()
+
+	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit)
+	
+	pr.disable()
+	s = StringIO.StringIO()
+	sortby = 'cumulative'
+	ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+	ps.print_stats()
+	print s.getvalue()
+
+if __name__ == "__main__":
+	_fullProfile()
