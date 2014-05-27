@@ -76,6 +76,9 @@ class KnowledgeBaseEcoli(object):
 
 	def __init__(self):
 
+		# Cache attribute names so we can delete those made by the _load* methods
+		defaultAttrs = set(dir(self))
+
 		# Parse data out of database
 		self._defineConstants()
 
@@ -99,7 +102,11 @@ class KnowledgeBaseEcoli(object):
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
 		self._loadComputeParameters()
 
+		# Record loaded attributes
+		loadedAttrs = set(dir(self)) - defaultAttrs
+
 		# Create data structures for simulation
+		self._buildSequence()
 		self._buildCompartments()
 		self._buildBulkMolecules()
 		self._buildUniqueMolecules()
@@ -121,7 +128,8 @@ class KnowledgeBaseEcoli(object):
 		#self._calculateDependentCompartments()
 
 		# Delete the loaded data
-		self._finalize()
+		for attrName in loadedAttrs:
+			delattr(self, attrName)
 
 
 	def _loadHacked(self):
@@ -183,7 +191,7 @@ class KnowledgeBaseEcoli(object):
 		# Load data from Django
 		all_locations = Location.objects.all()
 
-		self.compartmentList = []
+		self._compartmentList = []
 		self._compIdToAbbrev = {}
 		self._dbLocationId = {} # ADDED: for accessing info from other table 
 
@@ -191,7 +199,7 @@ class KnowledgeBaseEcoli(object):
 		for i in all_locations:			
 			c = {"id": i.location_id, "abbrev": i.abbreviation}
 
-			self.compartmentList.append(c)
+			self._compartmentList.append(c)
 			self._compIdToAbbrev[c["id"]] = c["abbrev"]
 
 			self._dbLocationId[i.id] = c["abbrev"]	
@@ -404,15 +412,15 @@ class KnowledgeBaseEcoli(object):
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
 
 	def _loadGenome(self):
-		self.translationTable = 11 # E. coli is 11
+		self._translationTable = 11 # E. coli is 11
 		
 		all_seq = Chromosome.objects.all()
 		genome = ''
 		for i in all_seq:
 			genome = i.sequence
 			break
-		self.genomeSeq = genome
-		self.genomeLength = len(self.genomeSeq)
+		self._genomeSeq = genome
+		self._genomeLength = len(self._genomeSeq)
 
 
 	def _loadGenes(self):
@@ -476,10 +484,10 @@ class KnowledgeBaseEcoli(object):
 			g["name"] = g["name"].replace("\\","")
 			if g["direction"] == "f":
 				g["direction"] = '+'
-				g["seq"] = self.genomeSeq[(g["coordinate"]): (g["coordinate"] + g["length"])]
+				g["seq"] = self._genomeSeq[(g["coordinate"]): (g["coordinate"] + g["length"])]
 			else:
 				g["direction"] = '-'
-				g["seq"] = Bio.Seq.Seq(self.genomeSeq[(g["coordinate"] - g["length"] + 1): (g["coordinate"] + 1)]).reverse_complement().tostring()
+				g["seq"] = Bio.Seq.Seq(self._genomeSeq[(g["coordinate"] - g["length"] + 1): (g["coordinate"] + 1)]).reverse_complement().tostring()
 
 			if g["type"] == "mRNA":
 				g["rnaId"] = g["id"] + "_RNA"
@@ -542,7 +550,7 @@ class KnowledgeBaseEcoli(object):
 				
 				if int(i.splices):
 					baseSequence = Bio.Seq.Seq("", Bio.Alphabet.IUPAC.IUPACUnambiguousDNA())
-					baseSequence = baseSequence + self.genomeSeq[genesplices[i.id]['start1']-1:genesplices[i.id]['stop1']] + self.genomeSeq[genesplices[i.id]['start2']-1:genesplices[i.id]['stop2']]
+					baseSequence = baseSequence + self._genomeSeq[genesplices[i.id]['start1']-1:genesplices[i.id]['stop1']] + self._genomeSeq[genesplices[i.id]['start2']-1:genesplices[i.id]['stop2']]
 
 					if g["direction"] == "-":
 						baseSequence = baseSequence.reverse_complement()
@@ -551,7 +559,7 @@ class KnowledgeBaseEcoli(object):
 				else:
 					baseSequence = g["seq"]
 
-				p["seq"] = Bio.Seq.Seq(baseSequence, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self.translationTable).tostring()
+				p["seq"] = Bio.Seq.Seq(baseSequence, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self._translationTable).tostring()
 
 				if int(i.absolute_nt_position):
 					pos = genePos[i.id]['pos']
@@ -931,18 +939,24 @@ class KnowledgeBaseEcoli(object):
 
 	## -- Build functions -- ##
 
+	def _buildSequence(self):
+		self.genomeSeq = self._genomeSeq
+		self.genomeLength = self._genomeLength
+
+
 	def _buildCompartments(self):
-		self._compartmentData = numpy.zeros(len(self.compartmentList),
+		self._compartmentData = numpy.zeros(len(self._compartmentList),
 			dtype = [('compartmentId','a20'),('compartmentAbbreviation', 'a1')])
 
 		# Load data into structured array
-		self._compartmentData['compartmentId']				= [x['id'] for x in self.compartmentList]
-		self._compartmentData['compartmentAbbreviation']	= [x['abbrev'] for x in self.compartmentList]
+		self._compartmentData['compartmentId']				= [x['id'] for x in self._compartmentList]
+		self._compartmentData['compartmentAbbreviation']	= [x['abbrev'] for x in self._compartmentList]
 		self.compartments = self._compartmentData
-		self.nCompartments 	= len(self.compartmentList)
+		self.nCompartments 	= len(self._compartmentList)
+
 
 	def _buildBulkMolecules(self):
-		size = len(self._metabolites)*len(self.compartmentList) + len(self._rnas) + len(self._proteins)
+		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins)
 		self.bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
@@ -955,18 +969,18 @@ class KnowledgeBaseEcoli(object):
 					("isModified",			"bool")])
 
 		# Set metabolites
-		lastMetaboliteIdx = len(self._metabolites) * len(self.compartmentList)
+		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
 		self.bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = ['{}[{}]'.format(idx,c)
-											for c in [x['abbrev'] for x in self.compartmentList]
+											for c in [x['abbrev'] for x in self._compartmentList]
 											for idx in [x['id'] for x in self._metabolites]
 											]
 
 		self.bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self._metabolites[i]['mw7.2']
-											for j in range(len(self.compartmentList))
+											for j in range(len(self._compartmentList))
 											for i in range(len(self._metabolites))
 											]
 
-		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self.compartmentList)
+		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self._compartmentList)
 
 		for i,mid in enumerate(self.bulkMolecules['moleculeId']):
 			if mid.startswith('H2O['):
@@ -1652,11 +1666,3 @@ class KnowledgeBaseEcoli(object):
 
 	def _calculateAminoAcidCount(self, seq):
 		return numpy.array([seq.count(x) for x in self._aaWeights])
-
-
-	def _finalize(self):
-		# WARNING: this is a dangerous piece of code!
-
-		for attrName in dir(self):
-			if attrName[0] == "_" and attrName[1] != "_" and not callable(getattr(self, attrName)):
-				delattr(self, attrName)
