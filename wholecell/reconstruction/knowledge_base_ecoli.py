@@ -119,6 +119,9 @@ class KnowledgeBaseEcoli(object):
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
+		# Delete the loaded data
+		self._finalize()
+
 
 	def _loadHacked(self):
 		# New parameters
@@ -1648,3 +1651,11 @@ class KnowledgeBaseEcoli(object):
 
 	def _calculateAminoAcidCount(self, seq):
 		return numpy.array([seq.count(x) for x in self._aaWeights])
+
+
+	def _finalize(self):
+		# WARNING: this is a dangerous piece of code!
+
+		for attrName in dir(self):
+			if attrName[0] == "_" and attrName[1] != "_" and not callable(getattr(self, attrName)):
+				delattr(self, attrName)
