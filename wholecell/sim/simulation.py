@@ -18,10 +18,10 @@ import tables
 
 import wholecell.utils.rand_stream
 import wholecell.utils.config
-import wholecell.utils.constants
 import wholecell.utils.knowledgebase_fixture_manager
 import wholecell.reconstruction.fitter
 import wholecell.sim.sim_definition
+from wholecell.utils.constants import SIM_FIXTURE_DIR
 
 
 class SimulationException(Exception):
@@ -64,12 +64,11 @@ class Simulation(object):
 		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
 
 		# Create KB
-		self.kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
 
 		if not self._options.rebuildKB:
-			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(os.path.join(self.kbDir, 'KnowledgeBase.cPickle'))
+			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(SIM_FIXTURE_DIR)
 		else:
-			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(self.kbDir)
+			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(SIM_FIXTURE_DIR)
 
 		# Fit KB parameters
 		wholecell.reconstruction.fitter.fitKb(kb)

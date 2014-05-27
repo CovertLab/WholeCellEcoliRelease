@@ -50,7 +50,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 			ribosomeStalling["stalls"][np.where(i == inverseProteinIndexes)]
 			)
 
-	kb = loadKnowledgeBase(os.path.join(SIM_FIXTURE_DIR, "KnowledgeBase.cPickle"))
+	kb = loadKnowledgeBase(SIM_FIXTURE_DIR)
 
 	proteinNames = kb.monomerData["id"]
 	aaCounts = kb.monomerData["aaCounts"].magnitude

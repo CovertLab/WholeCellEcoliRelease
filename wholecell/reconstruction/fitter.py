@@ -520,8 +520,6 @@ if __name__ == "__main__":
 	import wholecell.utils.knowledgebase_fixture_manager
 
 	kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
-	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
-				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
-	kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(
-				os.path.join(kbDir, 'KnowledgeBase.cPickle'))
+	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(kbDir)
+	# kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(kbDir)
 	fitKb(kb)
