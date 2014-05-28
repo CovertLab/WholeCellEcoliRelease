@@ -169,7 +169,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			for i, elongation in enumerate(sequenceElongation)
 			])
 
-		updatedLengths = peptideLength + sequenceElongation
+		updatedLengths = peptideLengths + sequenceElongation
 
 		didInitialize = (
 			(sequenceElongation > 1) &
