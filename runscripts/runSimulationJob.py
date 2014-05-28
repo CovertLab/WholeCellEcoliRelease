@@ -29,7 +29,6 @@ def main(submissionTime):
 
 	states = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["states"]
 	if os.environ.has_key("WC_STATES") and len(os.environ["WC_STATES"]):
-		print os.environ["WC_STATES"]
 		states = json.loads(os.environ["WC_STATES"])
 
 	processes = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["processes"]
