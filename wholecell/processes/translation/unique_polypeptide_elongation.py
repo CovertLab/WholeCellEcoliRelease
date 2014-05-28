@@ -12,11 +12,14 @@ Translation elongation sub-model.
 
 from __future__ import division
 
+from itertools import izip
+
 import numpy as np
 
 import wholecell.processes.process
-import wholecell.utils.polymerize
-from wholecell.states.bulk_molecules import calculatePartition
+#import wholecell.utils.polymerize
+from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
+
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	""" UniquePolypeptideElongation """
@@ -43,6 +46,28 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
 		self.proteinIds = kb.monomerData['id']
+
+		# TODO: build this in the KB?
+
+		sequences = kb.monomerData["sequence"]
+
+		self.proteinLengths = kb.monomerData["length"].magnitude
+
+		maxLen = np.int64(self.proteinLengths.max() + self.elngRate)
+
+		self.proteinSequences = np.empty((sequences.shape[0], maxLen), np.int64)
+		self.proteinSequences.fill(PAD_VALUE)
+
+		aaIDs_singleLetter = kb.aaIDs_singleLetter[:]
+		del aaIDs_singleLetter[kb.aaIDs.index("SEC-L[c]")]
+
+		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
+
+		aaMapping["U"] = aaMapping["C"]
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.proteinSequences[i, j] = aaMapping[letter]
 
 		aaIds = kb.aaIDs[:]
 
@@ -84,27 +109,29 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
 
-		activeRibosomes = self.activeRibosomes.allMolecules()
+		# activeRibosomes = self.activeRibosomes.allMolecules()
 
-		assignedAAs, requiredAAs = activeRibosomes.attrs("assignedAAs", "requiredAAs")
-		deficitAAs = requiredAAs - assignedAAs
+		# assignedAAs, requiredAAs = activeRibosomes.attrs("assignedAAs", "requiredAAs")
+		# deficitAAs = requiredAAs - assignedAAs
 
-		if deficitAAs.size <= 0:
-			return
+		# if deficitAAs.size <= 0:
+		# 	return
 
-		approxUsage = np.zeros_like(deficitAAs)
-		f = deficitAAs / np.tile(deficitAAs.sum(axis = 1).reshape(-1, 1).astype("float64"), (1, 20))
+		# approxUsage = np.zeros_like(deficitAAs)
+		# f = deficitAAs / np.tile(deficitAAs.sum(axis = 1).reshape(-1, 1).astype("float64"), (1, 20))
 
-		approxUsage[deficitAAs.sum(axis = 1) <= self.elngRate] = deficitAAs[
-			deficitAAs.sum(axis = 1) <= self.elngRate
-		]
-		approxUsage[deficitAAs.sum(axis = 1) > self.elngRate] = np.ceil(
-			f[deficitAAs.sum(axis = 1) > self.elngRate] * self.elngRate
-			)
+		# approxUsage[deficitAAs.sum(axis = 1) <= self.elngRate] = deficitAAs[
+		# 	deficitAAs.sum(axis = 1) <= self.elngRate
+		# ]
+		# approxUsage[deficitAAs.sum(axis = 1) > self.elngRate] = np.ceil(
+		# 	f[deficitAAs.sum(axis = 1) > self.elngRate] * self.elngRate
+		# 	)
 
-		self.aas.requestIs(
-			np.fmin(self.aas.total(), approxUsage.sum(axis = 0))
-			)
+		# self.aas.requestIs(
+		# 	np.fmin(self.aas.total(), approxUsage.sum(axis = 0))
+		# 	)
+
+		self.aas.requestAll()
 
 
 	# Calculate temporal evolution
@@ -116,52 +143,47 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		if len(activeRibosomes) == 0:
 			return
 
-		assignedAAs, requiredAAs, massDiffProtein = activeRibosomes.attrs(
-			'assignedAAs', 'requiredAAs', 'massDiffProtein'
+		proteinIndexes, peptideLengths, massDiffProtein = activeRibosomes.attrs(
+			'proteinIndex', 'peptideLength', 'massDiffProtein'
 			)
 
-		deficitAAs = requiredAAs - assignedAAs
+		# Build sequence array
 
-		updatedAAs = assignedAAs.copy()
-		aasUsed = np.zeros_like(aaCounts)
+		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
-		# TODO: perform this in the C function/wrapper so it applies universally
-		permutationIndexes = self.randStream.randStream.permutation(assignedAAs.shape[0])
-		inversePermutationIndexes = np.argsort(permutationIndexes)
+		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
+			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
-		deficitAAs = deficitAAs[permutationIndexes, :]
-		requiredAAs = requiredAAs[permutationIndexes, :]
-		updatedAAs = updatedAAs[permutationIndexes, :]
+		# Calculate update
 
-		wholecell.utils.polymerize.polymerize(
-			self.elngRate, deficitAAs, requiredAAs, aaCounts,
-			updatedAAs, aasUsed, self.seed
+		reactionLimit = aaCounts.sum() # TODO: account for energy
+
+		sequenceElongation, aasUsed, nElongations = polymerize(
+			sequences,
+			aaCounts,
+			reactionLimit
 			)
 
-		deficitAAs = deficitAAs[inversePermutationIndexes, :]
-		requiredAAs = requiredAAs[inversePermutationIndexes, :]
-		updatedAAs = updatedAAs[inversePermutationIndexes, :]
+		updatedMass = massDiffProtein + np.array([
+			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+			for i, elongation in enumerate(sequenceElongation)
+			])
 
-		assert np.all(updatedAAs <= requiredAAs), "Polypeptides got elongated more than possible!"
-
-		updatedMass = massDiffProtein + np.dot(
-			(updatedAAs - assignedAAs), self.aaWeightsIncorporated
-			).flatten()
-
+		updatedLengths = peptideLengths + sequenceElongation
 
 		didInitialize = (
-			(assignedAAs.sum(axis = 1) == 0) &
-			(updatedAAs.sum(axis = 1) > 0)
+			(sequenceElongation > 1) &
+			(peptideLength == 0)
 			)
 
 		activeRibosomes.attrIs(
-			assignedAAs = updatedAAs,
+			peptideLength = updatedLengths,
 			massDiffProtein = updatedMass
 			)
 
 		terminatedProteins = np.zeros_like(self.bulkMonomers.counts())
 
-		didTerminate = (requiredAAs == updatedAAs).all(axis = 1)
+		didTerminate = (updatedLengths == self.proteinLengths[proteinIndexes])
 
 		for moleculeIndex, molecule in enumerate(activeRibosomes):
 			if didTerminate[moleculeIndex]:
@@ -170,7 +192,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
-		nElongations = aasUsed.sum()
 
 		self.aas.countsDec(aasUsed)
 

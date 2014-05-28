@@ -91,17 +91,18 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 
 		nonzeroCount = (nNewProteins > 0)
 
-		for protIdx, nNew, aaCounts in itertools.izip(
-			np.arange(nNewProteins.size)[nonzeroCount],
-			nNewProteins[nonzeroCount],
-			self.proteinAACounts[nonzeroCount]
-			):
+		#for protIdx, nNew, aaCounts in itertools.izip(
+		for protIdx, nNew in itertools.izip(
+				np.arange(nNewProteins.size)[nonzeroCount],
+				nNewProteins[nonzeroCount],
+				#self.proteinAACounts[nonzeroCount]
+				):
 
 			self.activeRibosomes.moleculesNew(
 				"activeRibosome",
 				nNew,
 				proteinIndex = protIdx,
-				requiredAAs = aaCounts
+				#requiredAAs = aaCounts
 				)
 
 		self.rRna23S.countsDec(nNewProteins.sum())

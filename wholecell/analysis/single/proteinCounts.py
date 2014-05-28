@@ -52,14 +52,23 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	# relativeCounts = avgCounts / avgCounts.sum()
 
-	relativeCounts = proteinCountsBulk[-1, :]
+	counts = proteinCountsBulk[-1, :]
 
-	expectedCounts = (kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
-		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude))
+	expectedCountsArbitrary = (
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
+		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
+		) * counts.sum()
 
-	expectedRelativeCounts = expectedCounts/expectedCounts.sum()
+	expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()
 
-	plt.plot(expectedRelativeCounts, relativeCounts, '.')
+	expectedCounts = expectedCountsRelative * counts.sum()
+
+	maxLine = 1.1 * max(expectedCounts.max(), counts.max())
+	plt.plot([0, maxLine], [0, maxLine], '--r')
+	plt.plot(expectedCounts, counts, '.')
+
+	plt.xlabel("Expected (adjusted to actual #)")
+	plt.ylabel("Actual")
 
 	plt.show()
 
