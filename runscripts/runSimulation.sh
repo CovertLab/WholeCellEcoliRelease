@@ -1,5 +1,7 @@
 #!/bin/bash
 
+trap "exit 130" 2 9 15
+
 SUBMISSION_TIME=$(date "+%Y%m%d.%H%M%S.%N")
 WC_SEED=${WC_SEED:-0}
 SEED_DIR=$(printf "%06d" $(($WC_SEED)))
