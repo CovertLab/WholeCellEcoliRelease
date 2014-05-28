@@ -1028,8 +1028,7 @@ class KnowledgeBaseEcoli(object):
 				},
 			'activeRibosome' : {
 				'proteinIndex' : 'i8',
-				'requiredAAs' : '20i8',
-				'assignedAAs' : '20i8'
+				'peptideLength': 'i8'
 				},
 			'activeDnaPolymerase' : {
 				'chromosomeLocation' : 'i8',
@@ -1337,6 +1336,7 @@ class KnowledgeBaseEcoli(object):
 
 		lengths = []
 		aaCounts = []
+		sequences = []
 
 		for protein in monomers:
 			sequence = protein['seq']
@@ -1350,6 +1350,9 @@ class KnowledgeBaseEcoli(object):
 
 			lengths.append(len(sequence))
 			aaCounts.append(counts)
+			sequences.append(sequence)
+
+		maxSequenceLength = max(len(seq) for seq in sequences)
 
 		mws = numpy.array([protein['mw'] for protein in monomers])
 
@@ -1405,6 +1408,7 @@ class KnowledgeBaseEcoli(object):
 				('length', 'i8'),
 				('aaCounts', '{}i8'.format(nAAs)),
 				('mw', 'f8'),
+				('sequence', 'a{}'.format(maxSequenceLength)),
 				]
 			)
 
@@ -1414,17 +1418,20 @@ class KnowledgeBaseEcoli(object):
 		self.monomerData['length'] = lengths
 		self.monomerData['aaCounts'] = aaCounts
 		self.monomerData['mw'] = mws
+		self.monomerData['sequence'] = sequences
 
 		self.aaIDs = AMINO_ACID_1_TO_3_ORDERED.values()
+		self.aaIDs_singleLetter = AMINO_ACID_1_TO_3_ORDERED.keys()
 
 		units = {
-		'id'		:	None,
-		'rnaId'		:	None,
-		'degRate'	:	'1 / s',
-		'length'	:	'count',
-		'aaCounts'	:	'count',
-		'mw'		:	'g / mol'
-		}
+			'id'		:	None,
+			'rnaId'		:	None,
+			'degRate'	:	'1 / s',
+			'length'	:	'count',
+			'aaCounts'	:	'count',
+			'mw'		:	'g / mol',
+			'sequence'  :   None
+			}
 
 		self.monomerData = UnitStructArray(self.monomerData, units)
 
