@@ -250,6 +250,27 @@ def initializeBulkWater(kb, bulkContainer, randStream):
 		)
 
 def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
+	"""
+	initializeTranslation
+
+	Purpose:
+	Initiates peptides in mid-translation.
+
+	Method:
+	Replaces some ribosomal subunits with active ribosomes.  These active
+	ribosomes are in a random position in the elongation process, and are 
+	elongating peptides chosen with respect to the relative mRNA availability. 
+	Protein monomer counts are initially decremented with respect to the
+	nascent peptides.  The monomer counts are then incremented until the 
+	overall protein mass is very close to the original (roughly, within half 
+	the average monomer weight).
+
+	Needs attention:
+	-Interaction with protein complexes
+	-Mass calculations
+	-Initially decrementing monomer counts - does this make sense?
+
+	"""
 	# Calculate the number of possible ribosomes
 
 	subunits = bulkContainer.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
