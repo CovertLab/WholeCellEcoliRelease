@@ -81,7 +81,15 @@ runprogram()
 	echo "Running"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
+	WC_STATES=${WC_STATES} \
+	WC_PROCESSES=${WC_PROCESSES} \
+	WC_LISTENERS=${WC_LISTENERS} \
+	WC_HOOKS=${WC_HOOKS} \
+	WC_LENGTHSEC=${WC_LENGTHSEC} \
+	WC_TIMESTEPSEC=${WC_TIMESTEPSEC} \
+	WC_LOGTOSHELL=${WC_LOGTOSHELL} \
+	WC_LOGTODISKEVERY=${WC_LOGTODISKEVERY} \
+	WC_REBUILDKB=${WC_REBUILDKB} python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 
 stageout()
