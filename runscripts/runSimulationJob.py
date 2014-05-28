@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 
-'''
-runSimulation.py
+"""
+runSimulationJob.py
 
-Runs a simulation.
+Runs a simulation, called from a job script.
 
-Run a simulation using default parameters:
-~/wcEcoli$ python runSimulation.py
+Options are passed using environmental variables.
 
-Run a simulation using a provided configuration (JSON) file:
-~/wcEcoli$ python runSimulation.py simParameters.json
-
-'''
+"""
 
 from __future__ import division
 
@@ -27,40 +23,39 @@ def main(submissionTime):
 	if os.environ.has_key("ARRAY_ID"):
 		seed = int(os.environ["ARRAY_ID"]) - 1
 
-	states = wholecell.sim.sim_definition.DEFAULT_STATES
+	states = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["states"]
 	if os.environ.has_key("WC_STATES") and len(os.environ["WC_STATES"]):
-		print os.environ["WC_STATES"]
 		states = json.loads(os.environ["WC_STATES"])
 
-	processes = wholecell.sim.sim_definition.DEFAULT_PROCESSES
+	processes = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["processes"]
 	if os.environ.has_key("WC_PROCESSES") and len(os.environ["WC_PROCESSES"]):
 		processes = json.loads(os.environ["WC_PROCESSES"])
 
-	listeners = wholecell.sim.sim_definition.DEFAULT_LISTENERS
+	listeners = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["listeners"]
 	if os.environ.has_key("WC_LISTENERS") and len(os.environ["WC_LISTENERS"]):
 		listeners = json.loads(os.environ["WC_LISTENERS"])
 
-	hooks = wholecell.sim.sim_definition.DEFAULT_HOOKS
+	hooks = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["hooks"]
 	if os.environ.has_key("WC_HOOKS") and len(os.environ["WC_HOOKS"]):
 		hooks = json.loads(os.environ["WC_HOOKS"])
 
-	lengthSec = wholecell.sim.sim_definition.DEFAULT_LENGTH
+	lengthSec = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["lengthSec"]
 	if os.environ.has_key("WC_LENGTHSEC") and len(os.environ["WC_LENGTHSEC"]):
 		lengthSec = int(os.environ["WC_LENGTHSEC"])
 
-	timeStepSec = wholecell.sim.sim_definition.DEFAULT_TIME_STEP
+	timeStepSec = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["timeStepSec"]
 	if os.environ.has_key("WC_TIMESTEPSEC") and len(os.environ["WC_TIMESTEPSEC"]):
 		timeStepSec = float(timeStepSec)
 
-	logToShell = True
+	logToShell = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["logToShell"]
 	if os.environ.has_key("WC_LOGTOSHELL") and len(os.environ["WC_LOGTOSHELL"]):
 		logToShell = json.loads(os.environ["WC_LOGTOSHELL"])
 
-	logToDiskEvery = None
+	logToDiskEvery = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["logToDiskEvery"]
 	if os.environ.has_key("WC_LOGTODISKEVERY") and len(os.environ["WC_LOGTODISKEVERY"]):
 		logToDiskEvery = int(os.environ["WC_LOGTODISKEVERY"])
 
-	rebuildKB = True
+	rebuildKB = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["rebuildKB"]
 	if os.environ.has_key("WC_REBUILDKB") and len(os.environ["WC_REBUILDKB"]):
 		rebuildKB = json.loads(os.environ["WC_REBUILDKB"])
 
@@ -76,9 +71,16 @@ def main(submissionTime):
 		seed = seed,
 		logToShell = logToShell,
 		logToDisk = True,
+		outputDir = outputDir,
+		overwriteExistingFiles = False,
 		logToDiskEvery = logToDiskEvery,
-		outputDir = outputDir
+		rebuildKB = rebuildKB
 		)
+
+	assert (
+		set(simOpts.keys()) ==
+		set(wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS.keys())
+		), "Need to set all keyword arguments in runSimulationJob.py"
 
 	sim = wholecell.sim.simulation.Simulation(**simOpts)
 
