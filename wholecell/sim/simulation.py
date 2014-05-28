@@ -228,10 +228,12 @@ class Simulation(object):
 			'State and process names'
 			)
 
-		h5file.create_array(groupNames, 'states', [s for s in self.states.viewkeys()])
+		# Note: the '.encode("ascii")' is necessary because if a json file was parsed
+		# for simulation options, it reads things in as unicode (which pytables doesn't like)
+		h5file.create_array(groupNames, 'states', [s.encode("ascii") for s in self.states.viewkeys()])
 		
 		if self.processes:
-			h5file.create_array(groupNames, 'processes', [s for s in self.processes.viewkeys()])
+			h5file.create_array(groupNames, 'processes', [s.encode("ascii") for s in self.processes.viewkeys()])
 
 
 	def pytablesAppend(self, h5file):
