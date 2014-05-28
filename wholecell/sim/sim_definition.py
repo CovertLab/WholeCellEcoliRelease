@@ -128,7 +128,7 @@ DEFAULT_LISTENERS = (
 	'ReplicationForkPosition',
 	'NtpUsage',
 	'AAUsage',
-	# 'RibosomeStalling'
+	'RibosomeStalling'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks

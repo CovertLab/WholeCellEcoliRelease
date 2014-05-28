@@ -15,7 +15,7 @@ import tables
 
 import wholecell.listeners.listener
 
-from numpy.lib.recfunctions import merge_arrays
+# from numpy.lib.recfunctions import merge_arrays
 
 VERBOSE = False
 
@@ -33,9 +33,14 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, kb):
 		super(RibosomeStalling, self).initialize(sim, kb)
 
+		self.monomerLengths = kb.monomerData["length"].magnitude
+
 		self.uniqueMolecules = sim.states["UniqueMolecules"]
 
 		self.elngRate = 16 # TODO: get from KB
+
+		self.ribosomes = None
+		self.initialLengths = None
 
 
 	# Allocate memory
@@ -55,13 +60,19 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 	def update(self):
 		if len(self.ribosomes):
 			# Find difference in elongation
-			updatedAAs = self.ribosomes.attr("assignedAAs").sum(1)
+			proteinIndexes, peptideLengths = self.ribosomes.attrs(
+				"proteinIndex",
+				"peptideLength"
+				)
 
-			actualElongations = updatedAAs - self.assignedAAs
+			expectedElongations = np.fmin(
+				self.monomerLengths[proteinIndexes] - self.initialLengths,
+				self.elngRate
+				)
 
-			stalls = self.expectedElongations - actualElongations
+			actualElongations = peptideLengths - self.initialLengths
 
-			proteinIndexes = self.ribosomes.attr("proteinIndex")
+			stalls = expectedElongations - actualElongations
 
 			self.stalledRibosomes = np.zeros(
 				stalls.size,
@@ -85,11 +96,7 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		if len(self.ribosomes) == 0:
 			return
 
-		self.assignedAAs = self.ribosomes.attr("assignedAAs").sum(1)
-		self.expectedElongations = np.fmin(
-			self.ribosomes.attr("requiredAAs").sum(1) - self.assignedAAs,
-			self.elngRate
-			)
+		self.initialLengths = self.ribosomes.attr("peptideLength")
 
 
 	def pytablesCreate(self, h5file, expectedRows):
