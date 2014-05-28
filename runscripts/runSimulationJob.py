@@ -77,6 +77,11 @@ def main(submissionTime):
 		rebuildKB = rebuildKB
 		)
 
+	assert (
+		set(simOpts.keys()) ==
+		set(wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS.keys())
+		), "Need to set all keyword arguments in runSimulationJob.py"
+
 	sim = wholecell.sim.simulation.Simulation(**simOpts)
 
 	sim.run()
