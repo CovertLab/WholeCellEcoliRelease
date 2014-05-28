@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 
-'''
-runSimulation.py
+"""
+runSimulationJob.py
 
-Runs a simulation.
+Runs a simulation, called from a job script.
 
-Run a simulation using default parameters:
-~/wcEcoli$ python runSimulation.py
+Options are passed using environmental variables.
 
-Run a simulation using a provided configuration (JSON) file:
-~/wcEcoli$ python runSimulation.py simParameters.json
-
-'''
+"""
 
 from __future__ import division
 
@@ -75,8 +71,10 @@ def main(submissionTime):
 		seed = seed,
 		logToShell = logToShell,
 		logToDisk = True,
+		outputDir = outputDir,
+		overwriteExistingFiles = False,
 		logToDiskEvery = logToDiskEvery,
-		outputDir = outputDir
+		rebuildKB = rebuildKB
 		)
 
 	sim = wholecell.sim.simulation.Simulation(**simOpts)
