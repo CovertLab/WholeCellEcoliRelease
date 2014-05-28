@@ -35,21 +35,7 @@ class Disk(wholecell.loggers.logger.Logger):
 	""" Disk """
 
 	def __init__(self, outDir = None, allowOverwrite = False, logEvery = None):
-		if outDir is None:
-			self.outDir = timestampedOutputDirectoryNames()[0]
-
-		else:
-			self.outDir = outDir
-		
-		try:
-			os.makedirs(self.outDir)
-
-		except OSError as e:
-			if self.allowOverwrite:
-				pass
-
-			else:
-				raise
+		self.outDir = outDir
 
 		self.allowOverwrite = allowOverwrite
 		self.logEvery = logEvery if logEvery is not None else DEFAULT_LOG_FREQUENCY
@@ -129,20 +115,3 @@ class Disk(wholecell.loggers.logger.Logger):
 
 def currentTimeAsString():
 	return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
-
-
-def currentTimeAsDir():
-	# Variant timestamp format that should be valid across OSes
-	return time.strftime("sim%Y.%m.%d-%H.%M.%S", time.localtime())
-
-
-def timestampedOutputDirectoryNames(n = 1):
-	mainPath = os.path.join(OUTPUT_DIRECTORY, currentTimeAsDir())
-
-	nDigits = int(log10(n)) + 1
-
-	return [
-		os.path.join(mainPath, str(simulationIndex).zfill(nDigits))
-		for simulationIndex in xrange(n)
-		]

@@ -17,10 +17,11 @@ from __future__ import division
 
 import wholecell.sim.sim_definition
 import wholecell.sim.simulation
+import argparse
 import os
 import json
 
-def main():
+def main(submissionTime):
 
 	# Run simulation with options specified in a json file
 	if os.environ.has_key("WC_FILE") and len(os.environ["WC_FILE"]):
@@ -63,18 +64,6 @@ def main():
 	if os.environ.has_key("WC_LOGTOSHELL") and len(os.environ["WC_LOGTOSHELL"]):
 		logToShell = json.loads(os.environ["WC_LOGTOSHELL"])
 
-	logToDisk = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["logToDisk"]
-	if os.environ.has_key("WC_LOGTODISK") and len(os.environ["WC_LOGTODISK"]):
-		logToDisk = json.loads(os.environ["WC_LOGTODISK"])
-
-	outputDir = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["outputDir"]
-	if os.environ.has_key("WC_OUTPUTDIR") and len(os.environ["WC_OUTPUTDIR"]):
-		outputDir = json.loads(os.environ["WC_OUTPUTDIR"])
-
-	overwriteExistingFiles = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["overwriteExistingFiles"]
-	if os.environ.has_key("WC_OVERWRITEEXISTINGFILES") and len(os.environ["WC_OVERWRITEEXISTINGFILES"]):
-		overwriteExistingFiles = json.loads(os.environ["WC_OVERWRITEEXISTINGFILES"])
-
 	logToDiskEvery = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["logToDiskEvery"]
 	if os.environ.has_key("WC_LOGTODISKEVERY") and len(os.environ["WC_LOGTODISKEVERY"]):
 		logToDiskEvery = int(os.environ["WC_LOGTODISKEVERY"])
@@ -82,6 +71,8 @@ def main():
 	rebuildKB = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["rebuildKB"]
 	if os.environ.has_key("WC_REBUILDKB") and len(os.environ["WC_REBUILDKB"]):
 		rebuildKB = json.loads(os.environ["WC_REBUILDKB"])
+
+	outputDir = os.path.join("out", "simOut", "%s" % submissionTime, "%06d" % seed)
 
 	simOpts = dict(
 		states = states,
@@ -92,9 +83,9 @@ def main():
 		timeStepSec = timeStepSec,
 		seed = seed,
 		logToShell = logToShell,
-		logToDisk = logToDisk,
+		logToDisk = True,
 		outputDir = outputDir,
-		overwriteExistingFiles = overwriteExistingFiles,
+		overwriteExistingFiles = False,
 		logToDiskEvery = logToDiskEvery,
 		rebuildKB = rebuildKB
 		)
@@ -109,4 +100,9 @@ def main():
 	sim.run()
 
 if __name__ == '__main__':
-	main()
+	parser = argparse.ArgumentParser()
+	parser.add_argument("submissionTime", help = "Time of job submission", type = str)
+
+	args = parser.parse_args().__dict__
+
+	main(args["submissionTime"])
