@@ -6,8 +6,8 @@ wholecell/utils/_polymerize.so: wholecell/utils/polymerize.c wholecell/utils/pol
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
 
-runSimulation: all runscripts/runSimulation.py
-	python2.7 runscripts/runSimulation.py
+runSimulation: all
+	./runscripts/runSimulation.sh
 
 runSimulationJob: all
 	./runscripts/queueSimulationAndAnalysis.sh 4
