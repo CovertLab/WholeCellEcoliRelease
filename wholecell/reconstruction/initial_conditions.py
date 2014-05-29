@@ -301,6 +301,12 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	mrnaCounts = mrnas.counts()
 	mrnaFractions = mrnaCounts / mrnaCounts.sum()
 
+	# alternative implementation: calculate from RNA expression
+	# this results in a broader distribution that is more representative of the
+	# population but ignores the actual mRNAs in the system
+	# mrnaExpression = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
+	# mrnaFractions = mrnaExpression/mrnaExpression.sum()
+
 	monomerCountsPolymerizing = randStream.mnrnd(activeRibosomeCount, mrnaFractions)
 
 	# Compute the current protein mass
