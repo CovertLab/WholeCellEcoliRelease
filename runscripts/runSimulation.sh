@@ -19,6 +19,10 @@ python2.7 runscripts/createKbs.py "out/simOut/${SUBMISSION_TIME}/kb"
 ##### Run simulation #####
 python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
 
+# If the simulation didn't complete successfully, don't run analysis
+if [ "$?" -ne "0" ]; then
+	exit 1
+fi
 
 ##### Single simulation analysis #####
 
