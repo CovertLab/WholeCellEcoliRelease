@@ -126,31 +126,29 @@ class Metabolism(wholecell.processes.process.Process):
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
 		# ##### Dynamic objective #####
-		# relativeAArequests = normalize(
-		# 	self.bulkMoleculesState._countsRequested[self.aaIdxsInContainer].sum(axis = 1)
-		# 	)
-		# if not np.any(np.isnan(relativeAArequests)):
-		# 	# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+		relativeAArequests = normalize(
+			self.bulkMoleculesState._countsRequested[self.aaIdxsInContainer].sum(axis = 1)
+			)
+		if not np.any(np.isnan(relativeAArequests)):
+			# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
 
-		# 	self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass] = (
-		# 		countsFromMassAndExpression(
-		# 			np.dot(
-		# 				self.aaMws / 1000,
-		# 				self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass]
-		# 				),
-		# 			self.aaMws,
-		# 			relativeAArequests,
-		# 			self.nAvogadro
-		# 			) *
-		# 		relativeAArequests *
-		# 		1000 / self.nAvogadro
-		# 		)
+			self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass] = (
+				countsFromMassAndExpression(
+					np.dot(
+						self.aaMws / 1000,
+						self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass]
+						),
+					self.aaMws,
+					relativeAArequests,
+					self.nAvogadro
+					) *
+				relativeAArequests *
+				1000 / self.nAvogadro
+				)
 
-		# 	# print "After: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+			# print "After: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
 		# ##### End dynamic objective code #####
 
-
-		# No noise in production
 		deltaMetabolites = np.fmax(
 			self.randStream.stochasticRound(
 				np.round(
