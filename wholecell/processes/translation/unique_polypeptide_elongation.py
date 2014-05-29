@@ -120,10 +120,9 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
 			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
-		self.aas.requestIs(np.fmin(
-			np.bincount(sequences[sequences != PAD_VALUE]),
-			self.aas.total()
-			))
+		self.aas.requestIs(
+			np.bincount(sequences[sequences != PAD_VALUE])
+			)
 
 		# self.aas.requestAll()
 
