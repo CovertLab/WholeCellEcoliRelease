@@ -23,14 +23,6 @@ import json
 
 def main(submissionTime):
 
-	# Run simulation with options specified in a json file
-	if os.environ.has_key("WC_FILE") and len(os.environ["WC_FILE"]):
-		sim = wholecell.sim.simulation.Simulation.initFromFile(
-			os.environ["WC_FILE"]
-			)
-		sim.run()
-		return
-
 	# Get simulation options from environmental variables
 	seed = 0
 	if os.environ.has_key("WC_SEED") and len(os.environ["WC_SEED"]):
