@@ -72,10 +72,10 @@ def main(submissionTime):
 		logToDiskEvery = int(os.environ["WC_LOGTODISKEVERY"])
 		wcEnvVars.remove("WC_LOGTODISKEVERY")
 
-	rebuildKB = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["rebuildKB"]
-	if os.environ.has_key("WC_REBUILDKB") and len(os.environ["WC_REBUILDKB"]):
-		rebuildKB = json.loads(os.environ["WC_REBUILDKB"])
-		wcEnvVars.remove("WC_REBUILDKB")
+	kbLocation = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["kbLocation"]
+	if os.environ.has_key("WC_KBLOCATION") and len(os.environ["WC_KBLOCATION"]):
+		kbLocation = json.loads(os.environ["WC_KBLOCATION"])
+		wcEnvVars.remove("WC_KBLOCATION")
 
 	assert (len(wcEnvVars) == 0), (
 		"The following WC_* environmental variables were specified but " +
@@ -97,7 +97,7 @@ def main(submissionTime):
 		outputDir = outputDir,
 		overwriteExistingFiles = False,
 		logToDiskEvery = logToDiskEvery,
-		rebuildKB = rebuildKB
+		kbLocation = kbLocation
 		)
 
 	assert (
