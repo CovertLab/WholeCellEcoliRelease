@@ -8,6 +8,7 @@ Create unfit and fit knowledgebase fixtures.
 
 import wholecell.reconstruction.knowledge_base_ecoli
 import wholecell.reconstruction.fitter
+import wholecell.utils.config
 import cPickle
 import os
 import argparse
@@ -26,7 +27,10 @@ def main(outputDirectory):
 	print "Saving unfit knowledgebase"
 	cPickle.dump(
 		kb,
-		open(os.path.join(outputDirectory, _UNFIT_FILENAME), "wb"),
+		open(os.path.join(
+			outputDirectory,
+			wholecell.utils.config.SERIALIZED_KB_UNFIT_FILENAME
+			), "wb"),
 		protocol = cPickle.HIGHEST_PROTOCOL
 		)
 
@@ -36,7 +40,10 @@ def main(outputDirectory):
 	print "Saving fit knowledgebase"
 	cPickle.dump(
 		kb,
-		open(os.path.join(outputDirectory, _FIT_FILENAME), "wb"),
+		open(os.path.join(
+			outputDirectory,
+			wholecell.utils.config.SERIALIZED_KB_FIT_FILENAME
+			), "wb"),
 		protocol = cPickle.HIGHEST_PROTOCOL
 		)
 

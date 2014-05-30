@@ -9,8 +9,6 @@ from __future__ import division
 
 import collections
 
-# import tables
-
 # References to sub-simulation abstractions
 
 # States
