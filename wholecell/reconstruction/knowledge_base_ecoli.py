@@ -956,7 +956,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkMolecules(self):
-		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins)
+		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins) + len(self._genes)
 		self.bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
@@ -966,7 +966,8 @@ class KnowledgeBaseEcoli(object):
 					("isProteinMonomer",	"bool"),
 					("isWater",				"bool"),
 					("isComplex",			"bool"),
-					("isModified",			"bool")])
+					("isModified",			"bool"),
+					("isGene",				"bool")])
 
 		# Set metabolites
 		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
@@ -1003,6 +1004,13 @@ class KnowledgeBaseEcoli(object):
 		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
 		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 		
+		# Set genes
+		lastGeneIdx = len(self._genes) + lastProteinMonomerIdx
+		self.bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['symbol'] for x in self._genes]
+		self.bulkMolecules['mass'] = [0.] * len(self._genes)
+		self.bulkMolecules['isGene'][lastProteinMonomerIdx:lastGeneIdx] = [True]*len(self._genes)
+
+
 		# Add units to values
 		units = {"moleculeId"	:	None,
 			"mass"				:	"g / mol",
@@ -1012,7 +1020,8 @@ class KnowledgeBaseEcoli(object):
 			"isProteinMonomer"	:	None,
 			"isModified"		:	None,
 			'isWater'			:	None,
-			'isComplex'			:	None}
+			'isComplex'			:	None,
+			'isGene'			:	None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
 
