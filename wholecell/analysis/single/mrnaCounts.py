@@ -16,7 +16,7 @@ import tables
 import numpy as np
 from scipy import stats
 import matplotlib
-# matplotlib.use("Agg")
+matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.utils.knowledgebase_fixture_manager import loadKnowledgeBase
@@ -54,38 +54,34 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	# relativeCounts = avgCounts / avgCounts.sum()
 
-	relativeCounts = rnaCountsBulk[-1, :] / rnaCountsBulk[-1, :].sum()
+	# relativeCounts = rnaCountsBulk[-1, :] / rnaCountsBulk[-1, :].sum()
 
-	expectedCounts = kb.rnaExpression['expression'][isMRna].magnitude
+	plt.figure(figsize = (8.5, 11))
 
-	expectedRelativeCounts = expectedCounts/expectedCounts.sum()
+	counts = rnaCountsBulk[-1, :]
 
-	plt.plot(expectedRelativeCounts, relativeCounts, '.')
+	expectedCountsArbitrary = kb.rnaExpression['expression'][isMRna].magnitude
 
-	plt.show()
+	expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
-	import ipdb; ipdb.set_trace()
+	maxLine = 1.1 * max(expectedCounts.max(), counts.max())
+	plt.plot([0, maxLine], [0, maxLine], '--r')	
+	plt.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 
-	# plt.figure(figsize = (8.5, 11))
+	plt.xlabel("Expected RNA count (scaled to total)")
+	plt.ylabel("Actual RNA count (at final time step)")
 
-	# plt.plot(time / 60, nActive)
-	# plt.plot([time[0] / 60., time[-1] / 60.], [2 * nActive[0], 2 * nActive[0]], "r--")
-	# plt.xlabel("Time (min)")
-	# plt.ylabel("Counts")
-	# plt.title("Active Ribosomes Final:Initial = %0.2f" % (nActive[-1] / float(nActive[0])))
+	# plt.show()
 
-	# plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
 
 if __name__ == "__main__":
-	# parser = argparse.ArgumentParser()
-	# parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	# parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	# parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
+	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
+	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 
-	# args = parser.parse_args().__dict__
+	args = parser.parse_args().__dict__
 
-	# main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"])
-
-	# TODO: reinstate this analysis
-	pass
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"])
