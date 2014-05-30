@@ -13,10 +13,8 @@ import cPickle
 import os
 import argparse
 
-_UNFIT_FILENAME = "KnowledgeBase_Unfit.cPickle"
-_FIT_FILENAME = "KnowledgeBase_Fit.cPickle"
-
-def main(outputDirectory):
+def main(outputDirectory = None):
+	outputDirectory = outputDirectory or wholecell.utils.config.SERIALIZED_KB_DIR
 
 	if not os.path.exists(outputDirectory):
 		os.makedirs(outputDirectory)
@@ -49,7 +47,10 @@ def main(outputDirectory):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument("outputDirectory", help = "Directory containing output", type = str)
+	parser.add_argument(
+		"--outputDirectory",
+		help = "Directory containing output",
+		type = str)
 
 	args = parser.parse_args().__dict__
 
