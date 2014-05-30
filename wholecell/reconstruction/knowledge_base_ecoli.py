@@ -109,6 +109,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildSequence()
 		self._buildCompartments()
 		self._buildBulkMolecules()
+		self._buildGeneData()
 		self._buildUniqueMolecules()
 		self._buildBiomass()
 		self._buildRnaData()
@@ -1024,6 +1025,17 @@ class KnowledgeBaseEcoli(object):
 			'isGene'			:	None}
 		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
 
+	def _buildGeneData(self):
+		self.geneData = numpy.zeros(len(self._genes),
+			dtype = [('name'				,	'a50'),
+					('coordinate'			,	'int64'),
+					('length'				,	'int64'),
+					('positiveDirection'	,	'bool')])
+
+		self.geneData['name'] = [x['symbol'] for x in self._genes]
+		self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
+		self.geneData['length'] = [x['length'] for x in self._genes]
+		self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
 
 	def _buildUniqueMolecules(self):
 		# TODO: ask Nick about the best way to use the unit struct arrays here
