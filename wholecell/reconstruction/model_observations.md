@@ -19,3 +19,6 @@ nRibosomesNeeded = np.sum(
 ```nRibosomesNeeded``` can then be compared to the biomass fraction where we know that 15% of the cell is RNA (Dennis and Bremmer), 81% of RNA is rRNA (Neidhardt book), and the weight of rRNA in a single ribosome.
 
 Unfortunatly when using the N-end rule approximatly 2% of the protein degradation rates are ~2 min and the rest ~10 hr. This huge amount of protein turnover caused ```nRibosomesNeeded``` to exceed the theoretical maxiumum set by the biomass function and the data from Dennis, Bremmer, and Neidhardt.
+
+(4) <b>DnaA titration so that initiation occurs at end of cell cycle not beginning</b>
+In E. coli replicaiton initiation occurs at the end of the cell cycle (doubling time 60 min) for the next cell. This is the opposite effect from what occured in M. genitalium. DnaA regulates itself - DNA doubling adds more non-specific binding sites which titrates out DnaA so that it stops repressing its own expression - this allows enough DnaA to bind oriC sites.
