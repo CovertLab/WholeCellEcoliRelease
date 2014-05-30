@@ -13,6 +13,7 @@ from __future__ import division
 import collections
 import os
 import shutil
+import cPickle
 
 import numpy as np
 import tables
@@ -64,25 +65,11 @@ class Simulation(object):
 
 		self.randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
 
-		# Create KB
-
-		if not self._options.rebuildKB:
-			kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(SIM_FIXTURE_DIR)
-
-		else:
-			kb = wholecell.utils.knowledgebase_fixture_manager.cacheKnowledgeBase(SIM_FIXTURE_DIR)
-
-		# Fit KB parameters
-		wholecell.reconstruction.fitter.fitKb(kb)
+		# Load KB
+		kb = cPickle.load(open(self._options.kbLocation, "rb"))
 
 		# Initialize simulation from fit KB
 		self._initialize(kb)
-
-		# If logging to disk, save the fit KB
-		if self._options.logToDisk:
-			wholecell.utils.knowledgebase_fixture_manager.writeKnowledgeBase(
-				self.loggers["Disk"].outDir, kb
-				)
 
 
 	@classmethod
