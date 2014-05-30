@@ -23,3 +23,5 @@ Unfortunatly when using the N-end rule approximatly 2% of the protein degradatio
 
 (4) <b>DnaA titration so that initiation occurs at end of cell cycle not beginning</b>
 In E. coli replicaiton initiation occurs at the end of the cell cycle (doubling time 60 min) for the next cell. This is the opposite effect from what occured in M. genitalium. DnaA regulates itself - DNA doubling adds more non-specific binding sites which titrates out DnaA so that it stops repressing its own expression - this allows enough DnaA to bind oriC sites.
+
+(5) <b>Relationship between ribosomes and growth - what that means at the molecular level</b> When ribosomes go up what goes down? Does that lead to whole-cell model predictable growth rates? Can we figure this out based on Javier's expression data.
