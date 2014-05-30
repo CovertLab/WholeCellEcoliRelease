@@ -1,4 +1,4 @@
-.PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, clean, clobber
+.PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, clean, clobber
 
 all: wholecell/utils/_polymerize.so
 
@@ -12,8 +12,15 @@ runSimulation: all
 runSimulationJob: all
 	./runscripts/queueSimulationAndAnalysis.sh 4
 
+# TODO: Get rid of this target?
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
+
+justKb:
+	python2.7 runscripts/createKbs.py
+
+justSimulation:
+	python2.7 runscripts/justSimulation.py
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;
