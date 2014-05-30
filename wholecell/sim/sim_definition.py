@@ -8,6 +8,8 @@ instantiation.
 from __future__ import division
 
 import collections
+import os
+import wholecell.utils.config
 
 # References to sub-simulation abstractions
 
@@ -137,6 +139,11 @@ DEFAULT_TIME_STEP = 1 # sec
 
 DEFAULT_SEED = None
 
+DEFAULT_KB_LOCATION = os.path.join(
+	wholecell.utils.config.SERIALIZED_KB_DIR,
+	wholecell.utils.config.SERIALIZED_KB_FIT_FILENAME
+	)
+
 # TODO: restore KB reconstruction option when available
 # TODO: define defaults for reconstruction, logging
 
@@ -151,7 +158,7 @@ SIM_KWARG_DEFAULTS = dict(
 	seed = DEFAULT_SEED,
 	logToShell = True,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None,
-	rebuildKB = True
+	kbLocation = DEFAULT_KB_LOCATION
 	)
 
 # Exceptions
