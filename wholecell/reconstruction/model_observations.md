@@ -5,8 +5,8 @@ Biomass compositoin how does that vary from cell to cell. Using a fixed biomass 
 A protein highly expressed at the beginning should still be highly expressed at the end of the cell cycle (?).
 
 
-(3) <b>Protein decay and the number of ribosomes required to double the cell protein fraction</b>
-TODO: UPDATE BECAUSE THIS IS NOT FIXED<br>
+(3) <b>Protein decay and the number of ribosomes required to double the cell protein fraction</b><br>
+TODO: UPDATE BECAUSE THIS IS NOW FIXED<br>
 The number of ribosomes needed to double the protein fraction of the cell based on expression, protein degradation, and dilution was calculated in the fitter based on the following equation:
 
 ```
