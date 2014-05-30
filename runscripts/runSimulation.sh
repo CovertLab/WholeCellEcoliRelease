@@ -13,7 +13,7 @@ mkdir -p "${SIM_OUT_DATA_DIR}"
 
 
 ##### Create knowledgebases (unfit and fit) #####
-python2.7 runscripts/createKbs.py "out/simOut/${SUBMISSION_TIME}/kb"
+python2.7 runscripts/createKbs.py --outputDirectory "out/simOut/${SUBMISSION_TIME}/kb"
 
 
 ##### Run simulation #####
