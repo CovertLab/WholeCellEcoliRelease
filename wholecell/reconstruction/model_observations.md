@@ -6,7 +6,7 @@ A protein highly expressed at the beginning should still be highly expressed at 
 
 
 (3) <b>Protein decay and the number of ribosomes required to double the cell protein fraction</b><br>
-TODO: UPDATE BECAUSE THIS IS NOW FIXED<br>
+TODO: UPDATE BECAUSE THIS IS NOW FIXED by adding half lives to protein counts fitting<br>
 The number of ribosomes needed to double the protein fraction of the cell based on expression, protein degradation, and dilution was calculated in the fitter based on the following equation:
 
 ```
