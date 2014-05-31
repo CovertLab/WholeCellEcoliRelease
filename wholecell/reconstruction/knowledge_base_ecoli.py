@@ -1023,8 +1023,7 @@ class KnowledgeBaseEcoli(object):
 		self.uniqueMoleculeDefinitions = {
 			'activeRnaPoly' : {
 				'rnaIndex' : 'i8',
-				'requiredACGU' : '4i8',
-				'assignedACGU' : '4i8',
+				'transcriptLength' : 'i8'
 				},
 			'activeRibosome' : {
 				'proteinIndex' : 'i8',
@@ -1248,6 +1247,12 @@ class KnowledgeBaseEcoli(object):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
 				is5S[rnaIndex] = True
 
+		sequences = [rna['seq'] for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+
+		maxSequenceLength = max(len(sequence) for sequence in sequences)
+
 		# TODO: Add units
 		self.rnaData = numpy.zeros(
 			size,
@@ -1265,7 +1270,8 @@ class KnowledgeBaseEcoli(object):
 				('isTRna', 'bool'),
 				('isRRna23S', 'bool'),
 				('isRRna16S', 'bool'),
-				('isRRna5S', 'bool')
+				('isRRna5S', 'bool'),
+				('sequence', 'a{}'.format(maxSequenceLength))
 				]
 			)
 
@@ -1290,22 +1296,24 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna23S'] = is23S
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
+		self.rnaData['sequence'] = sequences
 
 		units = {
-		'id'		:	None,
-		'synthProb' :	'dimensionless',
-		'degRate'	:	'1 / s',
-		'length'	:	'nucleotide',
-		'countsACGU':	'nucleotide',
-		'mw'		:	'g / mol',
-		'isMRna'	:	None,
-		'isMiscRna'	:	None,
-		'isRRna'	:	None,
-		'isTRna'	:	None,
-		'isRRna23S'	:	None,
-		'isRRna16S'	:	None,
-		'isRRna5S'	:	None
-		}
+			'id'		:	None,
+			'synthProb' :	'dimensionless',
+			'degRate'	:	'1 / s',
+			'length'	:	'nucleotide',
+			'countsACGU':	'nucleotide',
+			'mw'		:	'g / mol',
+			'isMRna'	:	None,
+			'isMiscRna'	:	None,
+			'isRRna'	:	None,
+			'isTRna'	:	None,
+			'isRRna23S'	:	None,
+			'isRRna16S'	:	None,
+			'isRRna5S'	:	None,
+			'sequence'  :   None,
+			}
 
 
 		self.rnaData = UnitStructArray(self.rnaData, units)

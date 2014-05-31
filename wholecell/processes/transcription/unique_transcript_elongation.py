@@ -12,10 +12,12 @@ Transcription elongation sub-model.
 
 from __future__ import division
 
+from itertools import izip
+
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_pooled_monomers import polymerizePooledMonomers
+from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
 
 # TODO: vectorize operations
 # TODO: write ILP solver
@@ -54,6 +56,21 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		# TODO: refactor mass updates
 
+		sequences = kb.rnaData["sequence"]
+
+		self.rnaLengths = kb.rnaData["length"].magnitude
+
+		maxLen = np.int64(self.rnaLengths.max() + self.elngRate)
+
+		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int64)
+		self.rnaSequences.fill(PAD_VALUE)
+
+		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.rnaSequences[i, j] = ntMapping[letter]
+
 		# TOKB
 		self.ntWeights = np.array([
 			345.20, # A
@@ -82,9 +99,25 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		activeRnaPolys = self.activeRnaPolys.allMolecules()
+
+		if len(activeRnaPolys) == 0:
+			return
+
 		self.activeRnaPolys.requestAll()
 
-		self.ntps.requestAll()
+		rnaIndexes, transcriptLengths = activeRnaPolys.attrs(
+			'rnaIndex', 'transcriptLength'
+			)
+
+		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+
+		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+			sequences[i, :] = self.rnaSequences[rnaIndex, transcriptLength:np.int64(transcriptLength + self.elngRate)]
+
+		self.ntps.requestIs(
+			np.bincount(sequences[sequences != PAD_VALUE])
+			)
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
 
@@ -98,53 +131,44 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		if len(activeRnaPolys) == 0:
 			return
 
-		assignedNts, requiredNts, massDiffRna = activeRnaPolys.attrs(
-			'assignedACGU', 'requiredACGU', 'massDiffRna'
+		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs(
+			'rnaIndex', 'transcriptLength', 'massDiffRna'
 			)
- 
-		deficitNts = requiredNts - assignedNts
 
-		updatedNts = assignedNts.copy()
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		wholecell.utils.polymerize.polymerize(
-			self.elngRate, deficitNts, requiredNts, ntpCounts,
-			updatedNts, ntpsUsed, self.seed
+		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+
+		for i, (rnaIndex, peptideLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+			sequences[i, :] = self.rnaSequences[rnaIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+
+		reactionLimit = ntpCounts.sum() # TODO: account for energy
+
+		sequenceElongation, ntpsUsed, nElongations = polymerize(
+			sequences,
+			ntpCounts,
+			reactionLimit
 			)
 
-		assert np.all(updatedNts <= requiredNts), "Transcripts got elongated more than possible!"
+		updatedMass = massDiffRna + np.array([
+			self.ntWeights[sequences[i, :elongation]].sum()
+			for i, elongation in enumerate(sequenceElongation)
+			])
 
-		# newlyAssignedNts = polymerizePooledMonomers(
-		# 	ntpCounts,
-		# 	deficitNts,
-		# 	self.elngRate,
-		# 	self.randStream,
-		# 	useIntegerLinearProgramming = False
-		# 	)
+		didInitialize = (transcriptLengths == 0) & (sequenceElongation > 0)
 
-		# ntpsUsed = newlyAssignedNts.sum(axis = 0)
-
-		# updatedNts = newlyAssignedNts + assignedNts
-
-		didInitialize = (
-			(assignedNts.sum(axis = 1) == 0) &
-			(updatedNts.sum(axis = 1) > 0)
-			)
-
-		updatedMass = massDiffRna + np.dot(
-			(updatedNts - assignedNts), self.ntWeights
-			)
+		updatedLengths = transcriptLengths + sequenceElongation
 
 		updatedMass[didInitialize] += self.hydroxylWeight
 
 		activeRnaPolys.attrIs(
-			assignedACGU = updatedNts,
+			transcriptLength = updatedLengths,
 			massDiffRna = updatedMass
 			)
 
 		terminatedRnas = np.zeros_like(self.bulkRnas.counts())
 
-		didTerminate = (requiredNts == updatedNts).all(axis = 1)
+		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])
 
 		for moleculeIndex, molecule in enumerate(activeRnaPolys):
 			if didTerminate[moleculeIndex]:
