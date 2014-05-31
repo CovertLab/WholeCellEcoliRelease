@@ -27,8 +27,6 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 	def __init__(self):
 		# Constants
 
-		self.proteinAACounts = None
-
 		super(UniquePolypeptideInitiation, self).__init__()
 
 
@@ -39,15 +37,7 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		# Load parameters
 
 		mrnaIds = kb.monomerData["rnaId"]
-		aaIds = kb.aaIDs[:]
-
-		# TODO: Remove hack of deleting selenocysteine this way
-		selenocysteineIdx = aaIds.index("SEC-L[c]")
-		del aaIds[selenocysteineIdx]
-
-		self.proteinAACounts = np.delete(
-			kb.monomerData["aaCounts"].magnitude, selenocysteineIdx, 1
-			)
+		
 		self.proteinLens = kb.monomerData["length"].magnitude
 
 		# Views
@@ -95,14 +85,12 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		for protIdx, nNew in itertools.izip(
 				np.arange(nNewProteins.size)[nonzeroCount],
 				nNewProteins[nonzeroCount],
-				#self.proteinAACounts[nonzeroCount]
 				):
 
 			self.activeRibosomes.moleculesNew(
 				"activeRibosome",
 				nNew,
 				proteinIndex = protIdx,
-				#requiredAAs = aaCounts
 				)
 
 		self.rRna23S.countsDec(nNewProteins.sum())

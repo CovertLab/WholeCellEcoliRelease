@@ -17,7 +17,6 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-#import wholecell.utils.polymerize
 from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
 
 
