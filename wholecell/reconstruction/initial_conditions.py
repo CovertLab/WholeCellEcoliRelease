@@ -325,25 +325,9 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	peptideLengths = (randStream.rand(activeRibosomeCount) * maxPeptideLengths).astype(np.int64)
 
 	# Compute peptide masses
-	# TODO: refactor this logic (adapted from UniquePolypeptideElongation)
+	monomerSequences = kb.translationSequences
 
-	letterSequences = kb.monomerData["sequence"]
-
-	maxLen = np.int64(monomerLengths.max() + elngRate)
-
-	monomerSequences = np.empty((letterSequences.shape[0], maxLen), np.int64)
-	monomerSequences.fill(-1)
-
-	aaIDs_singleLetter = kb.aaIDs_singleLetter[:]
-	del aaIDs_singleLetter[kb.aaIDs.index("SEC-L[c]")]
-
-	aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
-
-	aaMapping["U"] = aaMapping["C"]
-
-	for i, sequence in enumerate(letterSequences):
-		for j, letter in enumerate(sequence):
-			monomerSequences[i, j] = aaMapping[letter]
+	# TODO: standardize this logic w/ process
 
 	h2oWeight = (
 		kb.bulkMolecules[
@@ -415,7 +399,5 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 
 		else:
 			break
-
-		print monomerMassNeeded
 
 	monomers.countsDec(monomerCountsDecremented)

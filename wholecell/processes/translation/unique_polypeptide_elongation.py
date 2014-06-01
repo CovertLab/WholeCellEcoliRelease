@@ -46,27 +46,9 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.proteinIds = kb.monomerData['id']
 
-		# TODO: build this in the KB?
-
-		sequences = kb.monomerData["sequence"]
-
 		self.proteinLengths = kb.monomerData["length"].magnitude
 
-		maxLen = np.int64(self.proteinLengths.max() + self.elngRate)
-
-		self.proteinSequences = np.empty((sequences.shape[0], maxLen), np.int64)
-		self.proteinSequences.fill(PAD_VALUE)
-
-		aaIDs_singleLetter = kb.aaIDs_singleLetter[:]
-		del aaIDs_singleLetter[kb.aaIDs.index("SEC-L[c]")]
-
-		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
-
-		aaMapping["U"] = aaMapping["C"]
-
-		for i, sequence in enumerate(sequences):
-			for j, letter in enumerate(sequence):
-				self.proteinSequences[i, j] = aaMapping[letter]
+		self.proteinSequences = kb.translationSequences
 
 		aaIds = kb.aaIDs[:]
 
