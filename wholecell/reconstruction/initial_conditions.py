@@ -19,6 +19,7 @@ def calcInitialConditions(sim, kb):
 	initializeBulk(bulk.container, kb, randStream)
 
 	# Modify states for specific processes
+	# initializeTranscription(bulk.container, unique.container, kb, randStream)
 	initializeTranslation(bulk.container, unique.container, kb, randStream)
 
 
@@ -259,16 +260,13 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	Method:
 	Replaces some ribosomal subunits with active ribosomes.  These active
 	ribosomes are in a random position in the elongation process, and are 
-	elongating peptides chosen with respect to the relative mRNA availability. 
-	Protein monomer counts are initially decremented with respect to the
-	nascent peptides.  The monomer counts are then incremented until the 
-	overall protein mass is very close to the original (roughly, within half 
-	the average monomer weight).
+	elongating peptides chosen with respect to the steady-state mRNA
+	expression. Protein monomer counts are decremented randomly until the 
+	protein mass is approximately its original value.
 
 	Needs attention:
 	-Interaction with protein complexes
 	-Mass calculations
-	-Initially decrementing monomer counts - does this make sense?
 
 	"""
 	# Calculate the number of possible ribosomes
@@ -295,19 +293,10 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	activeRibosomeCount = np.int64(activeRibosomeMax * fractionActive)
 
 	# Choose proteins to polymerize
+	mrnaExpression = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
+	averageMrnaFractions = mrnaExpression/mrnaExpression.sum()
 
-	mrnaIds = kb.rnaData["id"][kb.rnaIndexToMonomerMapping]
-	mrnas = bulkContainer.countsView(mrnaIds)
-	mrnaCounts = mrnas.counts()
-	mrnaFractions = mrnaCounts / mrnaCounts.sum()
-
-	# alternative implementation: calculate from RNA expression
-	# this results in a broader distribution that is more representative of the
-	# population but ignores the actual mRNAs in the system
-	# mrnaExpression = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
-	# mrnaFractions = mrnaExpression/mrnaExpression.sum()
-
-	monomerCountsPolymerizing = randStream.mnrnd(activeRibosomeCount, mrnaFractions)
+	monomerCountsPolymerizing = randStream.mnrnd(activeRibosomeCount, averageMrnaFractions)
 
 	# Compute the current protein mass
 
@@ -318,18 +307,6 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	# Reduce the number of ribosome subunits
 
 	subunits.countsDec(activeRibosomeCount * subunitStoich)
-
-	# Reduce the counts of monomers based on those polymerizing
-
-	monomers.countsDec(
-		np.fmin(monomerCounts, monomerCountsPolymerizing)
-		)
-
-	# Compute the difference in monomer mass
-
-	monomerCountsNew = monomers.counts()
-	monomerMassTotalNew = np.dot(monomerCountsNew, monomerMasses)
-	monomerMassDifference = monomerMassTotal - monomerMassTotalNew
 
 	# Create the lists of protein indexes
 
@@ -405,16 +382,19 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 		massDiffProtein = peptideMasses
 		)
 
-	# Compute the amount of monomer mass that needs to be restored
-	monomerMassNeeded = monomerMassDifference - peptideMasses.sum()
+	# Compute the amount of monomer mass that needs to be removed
+	monomerMassNeeded = peptideMasses.sum()
 
-	# Using their relative fractions, add new monomers until the mass is restored
-	monomerFractions = monomerCounts / monomerCounts.sum()
-	monomerFractionsCumulative = monomerFractions.cumsum()
+	# Using their relative fractions, remove monomers until the mass is restored
 
-	monomerCountsIncremented = np.zeros_like(monomerCounts)
+	# TODO: make sure this while-loop isn't too terrible slow
+
+	monomerCountsDecremented = np.zeros_like(monomerCounts)
 
 	while True:
+		monomerFractions = monomerCounts / monomerCounts.sum()
+		monomerFractionsCumulative = monomerFractions.cumsum()
+
 		monomerIndex = np.where( # sample once from a multinomial distribution
 			monomerFractionsCumulative > randStream.rand()
 			)[0][0]
@@ -423,17 +403,19 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 
 		if monomerMass < monomerMassNeeded:
 			monomerMassNeeded -= monomerMass
-			monomerCountsIncremented[monomerIndex] += 1
+			monomerCountsDecremented[monomerIndex] += 1
+			monomerCounts[monomerIndex] -= 1
 
 		elif monomerMass / 2 < monomerMassNeeded:
 			monomerMassNeeded -= monomerMass
-			monomerCountsIncremented[monomerIndex] += 1
+			monomerCountsDecremented[monomerIndex] += 1
+			monomerCounts[monomerIndex] -= 1
 
 			break
 
 		else:
 			break
 
-	monomers.countsInc(monomerCountsIncremented)
+		print monomerMassNeeded
 
-
+	monomers.countsDec(monomerCountsDecremented)
