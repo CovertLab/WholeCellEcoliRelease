@@ -170,7 +170,7 @@ class RandStream(object):
 		self.randStream.shuffle(*args, **kwargs)
 
 	def numpyChoice(self, *args, **kwargs):
-		self.randStream.choice(*args, **kwargs)
+		return self.randStream.choice(*args, **kwargs)
 
 	@property
 	def type(self):

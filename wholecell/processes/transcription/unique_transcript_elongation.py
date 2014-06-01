@@ -19,13 +19,9 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
 
-# TODO: vectorize operations
-# TODO: write ILP solver
 # TODO: refactor mass calculations
 # TODO: confirm reaction stoich
 # TODO: resolve mounting process namespace issues
-# TODO: use more intelligent requests (enzyme/metabolite-limited)
-# TODO: resolve nucleotide pooling (fix biomass function?)
 
 class UniqueTranscriptElongation(wholecell.processes.process.Process):
 	""" UniqueTranscriptElongation """
@@ -139,8 +135,11 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
 
-		for i, (rnaIndex, peptideLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-			sequences[i, :] = self.rnaSequences[rnaIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+			sequences[i, :] = self.rnaSequences[
+				rnaIndex,
+				transcriptLength:np.int64(transcriptLength + self.elngRate)
+				]
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
