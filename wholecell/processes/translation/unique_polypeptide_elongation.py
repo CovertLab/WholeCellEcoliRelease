@@ -153,7 +153,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		sequenceElongation, aasUsed, nElongations = polymerize(
 			sequences,
 			aaCounts,
-			reactionLimit
+			reactionLimit,
+			self.randStream
 			)
 
 		updatedMass = massDiffProtein + np.array([

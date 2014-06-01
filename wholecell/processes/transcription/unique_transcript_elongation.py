@@ -147,7 +147,8 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		sequenceElongation, ntpsUsed, nElongations = polymerize(
 			sequences,
 			ntpCounts,
-			reactionLimit
+			reactionLimit,
+			self.randStream
 			)
 
 		updatedMass = massDiffRna + np.array([
