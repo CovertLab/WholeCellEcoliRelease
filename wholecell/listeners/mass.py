@@ -76,7 +76,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.metabolite = 0
 		self.rna = 0
-		self.rrna = 0
+		# self.rrna = 0
 		self.protein = 0
 		self.nucleoid = 0
 
@@ -100,12 +100,12 @@ class Mass(wholecell.listeners.listener.Listener):
 			
 			self.water += state.massByType('water')
 		
-		self.rrna = self.bulkMolecules.massByType('rrnas')
-		self.rrna23S = self.bulkMolecules.massByType('rrna23Ss')
-		self.rrna16S = self.bulkMolecules.massByType('rrna16Ss')
-		self.rrna5S = self.bulkMolecules.massByType('rrna5Ss')
-		self.trna = self.bulkMolecules.massByType('trnas')
-		self.mrna = self.bulkMolecules.massByType('mrnas')
+		# self.rrna = self.bulkMolecules.massByType('rrnas')
+		# self.rrna23S = self.bulkMolecules.massByType('rrna23Ss')
+		# self.rrna16S = self.bulkMolecules.massByType('rrna16Ss')
+		# self.rrna5S = self.bulkMolecules.massByType('rrna5Ss')
+		# self.trna = self.bulkMolecules.massByType('trnas')
+		# self.mrna = self.bulkMolecules.massByType('mrnas')
 
 		self.cellDry = self.cell - self.water
 
@@ -120,22 +120,22 @@ class Mass(wholecell.listeners.listener.Listener):
 			self.cellDryInitial = self.cellDry
 			self.proteinInitial = self.protein
 			self.rnaInitial = self.rna
-			self.rrnaInitial = self.rrna
-			self.rrna23SInitial = self.rrna23S
-			self.rrna16SInitial = self.rrna16S
-			self.rrna5SInitial = self.rrna5S
-			self.trnaInitial = self.trna
-			self.mrnaInitial = self.mrna
+			# self.rrnaInitial = self.rrna
+			# self.rrna23SInitial = self.rrna23S
+			# self.rrna16SInitial = self.rrna16S
+			# self.rrna5SInitial = self.rrna5S
+			# self.trnaInitial = self.trna
+			# self.mrnaInitial = self.mrna
 
 		self.cellDryFoldChange = self.cellDry / self.cellDryInitial
 		self.proteinFoldChange = self.protein / self.proteinInitial
 		self.rnaFoldChange = self.rna / self.rnaInitial
-		self.rrnaFoldChange = self.rrna / self.rrnaInitial
-		self.rrna23SFoldChange = self.rrna23S / self.rrna23SInitial
-		self.rrna16SFoldChange = self.rrna16S / self.rrna16SInitial
-		self.rrna5SFoldChange = self.rrna5S / self.rrna5SInitial
-		self.trnaFoldChange = self.trna / self.trnaInitial
-		self.mrnaFoldChange = self.mrna / self.mrnaInitial
+		# self.rrnaFoldChange = self.rrna / self.rrnaInitial
+		# self.rrna23SFoldChange = self.rrna23S / self.rrna23SInitial
+		# self.rrna16SFoldChange = self.rrna16S / self.rrna16SInitial
+		# self.rrna5SFoldChange = self.rrna5S / self.rrna5SInitial
+		# self.trnaFoldChange = self.trna / self.trnaInitial
+		# self.mrnaFoldChange = self.mrna / self.mrnaInitial
 
 		self.expectedFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
 
@@ -148,12 +148,12 @@ class Mass(wholecell.listeners.listener.Listener):
 			"cellDry": tables.Float64Col(),
 			"metabolite": tables.Float64Col(),
 			"rna": tables.Float64Col(),
-			"rrna": tables.Float64Col(),
-			"rrna23S": tables.Float64Col(),
-			"rrna16S": tables.Float64Col(),
-			"rrna5S": tables.Float64Col(),
-			"trna": tables.Float64Col(),
-			"mrna": tables.Float64Col(),
+			# "rrna": tables.Float64Col(),
+			# "rrna23S": tables.Float64Col(),
+			# "rrna16S": tables.Float64Col(),
+			# "rrna5S": tables.Float64Col(),
+			# "trna": tables.Float64Col(),
+			# "mrna": tables.Float64Col(),
 			"protein": tables.Float64Col(),
 			"water": tables.Float64Col(),
 			"nucleoid": tables.Float64Col(),
@@ -175,12 +175,12 @@ class Mass(wholecell.listeners.listener.Listener):
 		t.attrs.cellDry_units = self.massUnits
 		t.attrs.metabolite_units = self.massUnits
 		t.attrs.rna_units = self.massUnits
-		t.attrs.rrna_units = self.massUnits
-		t.attrs.rrna23S_units = self.massUnits
-		t.attrs.rrna16S_units = self.massUnits
-		t.attrs.rrna5S_units = self.massUnits
-		t.attrs.trna_units = self.massUnits
-		t.attrs.mrna_units = self.massUnits
+		# t.attrs.rrna_units = self.massUnits
+		# t.attrs.rrna23S_units = self.massUnits
+		# t.attrs.rrna16S_units = self.massUnits
+		# t.attrs.rrna5S_units = self.massUnits
+		# t.attrs.trna_units = self.massUnits
+		# t.attrs.mrna_units = self.massUnits
 		t.attrs.protein_units = self.massUnits
 		t.attrs.water_units = self.massUnits
 		t.attrs.nucleoid_units = self.massUnits
@@ -195,12 +195,12 @@ class Mass(wholecell.listeners.listener.Listener):
 		entry["cellDry"] = self.cellDry
 		entry["metabolite"] = self.metabolite
 		entry["rna"] = self.rna
-		entry["rrna"] = self.rrna
-		entry["rrna23S"] = self.rrna23S
-		entry["rrna16S"] = self.rrna16S
-		entry["rrna5S"] = self.rrna5S
-		entry["trna"] = self.trna
-		entry["mrna"] = self.mrna
+		# entry["rrna"] = self.rrna
+		# entry["rrna23S"] = self.rrna23S
+		# entry["rrna16S"] = self.rrna16S
+		# entry["rrna5S"] = self.rrna5S
+		# entry["trna"] = self.trna
+		# entry["mrna"] = self.mrna
 		entry["protein"] = self.protein
 		entry["water"] = self.water
 		entry["nucleoid"] = self.nucleoid
