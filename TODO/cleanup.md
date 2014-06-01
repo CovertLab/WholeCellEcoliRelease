@@ -80,3 +80,7 @@ Refactoring
     * Priority options
     * Listener for partitioning (requests, satisfaction, etc.)
     * Better heuristics for degenerate cases (see code in UniqueMolecules)
+
+10. Mass
+    * Need to track more quantities, both for fitting and mass conservation
+    * Unified update calculations for unique instances
