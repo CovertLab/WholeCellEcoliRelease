@@ -70,7 +70,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nRNAsToDegrade = np.fmin(
-			self.randStream.poissrnd(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
+			self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
 			self.rnas.total()
 			)
 

@@ -119,7 +119,7 @@ class Translation(wholecell.processes.process.Process):
 			enzLimit,
 			self.aas.counts(),
 			proteinSynthProb,
-			self.randStream
+			self.randomState
 			)
 
 		self.aas.countsIs(aaCounts)

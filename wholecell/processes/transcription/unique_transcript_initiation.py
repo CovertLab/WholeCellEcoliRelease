@@ -61,7 +61,7 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		inactiveRnaPolys = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
-		nNewRnas = self.randStream.mnrnd(inactiveRnaPolys,
+		nNewRnas = self.randomState.multinomial(inactiveRnaPolys,
 			self.rnaSynthProb)
 
 		# Create the active RNA polymerases

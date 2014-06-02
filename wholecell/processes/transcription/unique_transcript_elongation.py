@@ -147,7 +147,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			sequences,
 			ntpCounts,
 			reactionLimit,
-			self.randStream
+			self.randomState
 			)
 
 		updatedMass = massDiffRna + np.array([

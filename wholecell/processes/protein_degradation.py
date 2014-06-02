@@ -75,7 +75,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nProteinsToDegrade = np.fmin(
-			self.randStream.poissrnd(self.proteinDegRates * self.proteins.total() * self.timeStepSec),
+			self.randomState.poisson(self.proteinDegRates * self.proteins.total() * self.timeStepSec),
 			self.proteins.total()
 			)
 

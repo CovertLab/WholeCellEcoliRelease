@@ -14,7 +14,6 @@ import numpy as np
 import nose.plugins.attrib as noseAttrib
 
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
-import wholecell.utils.rand_stream
 
 TEST_KB = {
 	'A':{
@@ -61,7 +60,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 		self.collectionIndex_A = self.container._collectionNameToIndexMapping['A']
 		self.collectionIndex_B = self.container._collectionNameToIndexMapping['B']
 
-		self.randStream = wholecell.utils.rand_stream.RandStream()
+		self.randomState = np.random.RandomState()
 
 
 	def tearDown(self):
@@ -101,7 +100,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 		# Partition the molecules
 		
 		partitionedMolecules = _partition(objectRequestsArray, 
-			requestNumberVector, requestProcessArray, self.randStream)
+			requestNumberVector, requestProcessArray, self.randomState)
 
 		# Assert that each molecule is partitioned to one state
 
@@ -154,5 +153,5 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 	# 	requestProcessArray = (np.random.randint(nProcesses, size = nRequests) == np.tile(np.arange(nProcesses), (nRequests, 1)).T).transpose()
 	# 	import time; t = time.time()
 	# 	solution = wholecell.utils.unique_objects_container._partition(
-	# 		objectRequestsArray,requestNumberVector, requestProcessArray, self.randStream)
+	# 		objectRequestsArray,requestNumberVector, requestProcessArray, self.randomState)
 	# 	print time.time() - t

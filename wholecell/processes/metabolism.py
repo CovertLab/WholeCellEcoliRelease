@@ -18,6 +18,7 @@ import wholecell.processes.process
 # import wholecell.util.flextFbaModel
 
 from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
+from wholecell.utils.random import stochasticRound
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -187,7 +188,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# ##### End dynamic objective code #####
 
 		deltaMetabolites = np.fmax(
-			self.randStream.stochasticRound(
+			stochasticRound(
+				self.randomState,
 				np.round(
 					(self.wildtypeBiomassReaction + atpm) * 1e-3 *
 					self.nAvogadro * self.initialDryMass

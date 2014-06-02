@@ -10,7 +10,7 @@ from cvxopt import matrix, sparse, spmatrix
 # TODO: rewrite objective such that it minimizes the difference between 
 # min(max elongation rate, total nt deficit) and the number of NTs assigned
 def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
-		randStream, useIntegerLinearProgramming = True):
+		randomState, useIntegerLinearProgramming = True):
 	"""polymerizePooledMonomers
 
 	Polymerizes (i.e. for transcription, translation) using a simplified model 
@@ -22,7 +22,7 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	monomerCounts, a vector of counts of each monomer
 	monomerDeficits, a matrix of monomers required (nPolymers) x (nMonomers)
 	maxElongation, a scalar value that defines the maximum elongation rate
-	randStream, a randStream object
+	randomState, a numpy RandomState object
 	useIntegerLinearProgramming, a flag that indicates that the solver should
 		use ILP over LP
 
@@ -84,7 +84,7 @@ def polymerizePooledMonomers(monomerCounts, monomerDeficits, maxElongation,
 	# Build the objective
 
 	# Add some noise to prevent systematic bias in polymer NT assignment
-	objectiveNoise = 0.01 * randStream.rand(nPolymers)
+	objectiveNoise = 0.01 * randomState.rand(nPolymers)
 
 	# Provide a bonus to polymers that elongate past the global elongation minimum
 	bonusElongationWeight = 0.1/nPolymers

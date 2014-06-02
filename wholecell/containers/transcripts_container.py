@@ -18,6 +18,9 @@ from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 MAX_SEARCH_ITERATIONS = 1000 # number of times to search for a place to put a transcript before raising an exception
 
+# TODO: rewrite using lists of arrays instead of one large array (profile access times)
+# TODO: replace randStream usage with np.random.RandomState usage, and update randomState in state class every time step
+# TODO: store transcripts, other features in a separate unique objects container
 
 class TranscriptsContainerException(Exception):
 	'''

@@ -18,7 +18,7 @@ import numpy as np
 POLYMER_CREATION_FALLOFF_RATE = 0.5
 
 def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
-		monomerCounts, synthesisProbabilities, randStream):
+		monomerCounts, synthesisProbabilities, randomState):
 
 	assert np.abs(synthesisProbabilities.sum() - 1) < 1e-5
 
@@ -64,7 +64,7 @@ def simplePolymerize(templateMonomerCounts, enzymaticLimitation,
 
 		# Choose numbers of each polymer to synthesize
 		nNewPolymers[:] = 0
-		nNewPolymers[canPolymerize] = randStream.mnrnd(
+		nNewPolymers[canPolymerize] = randomState.multinomial(
 			nPolymersToCreate,
 			adjustedSynthProb[canPolymerize]
 			)

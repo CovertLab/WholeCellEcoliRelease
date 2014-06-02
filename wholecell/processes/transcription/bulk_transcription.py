@@ -97,7 +97,7 @@ class BulkTranscription(wholecell.processes.process.Process):
 			enzLimit,
 			self.ntps.counts(),
 			self.rnaSynthProb,
-			self.randStream
+			self.randomState
 			)
 
 		self.ntps.countsIs(ntpCounts)

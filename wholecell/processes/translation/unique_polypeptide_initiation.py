@@ -74,7 +74,7 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 			self.mRnas.counts().sum()
 			).flatten()	# TODO: Is this .flatten() necessary?
 
-		nNewProteins = self.randStream.mnrnd(
+		nNewProteins = self.randomState.multinomial(
 			inactiveRibosomes,
 			proteinInitProb
 			)

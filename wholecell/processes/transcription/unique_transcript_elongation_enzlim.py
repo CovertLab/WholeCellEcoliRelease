@@ -121,7 +121,7 @@ class UniqueTranscriptElongationEnzlim(wholecell.processes.process.Process):
 		# 	ntpCounts,
 		# 	deficitNts,
 		# 	self.elngRate,
-		# 	self.randStream,
+		# 	self.randomState,
 		# 	useIntegerLinearProgramming = False
 		# 	)
 

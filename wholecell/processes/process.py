@@ -29,7 +29,7 @@ class Process(object):
 		self._sim = None
 
 		# Simulation random stream
-		self.randStream = None
+		self.randomState = None
 
 		self.seed = None
 
@@ -43,8 +43,6 @@ class Process(object):
 
 		self.timeStepSec = sim.timeStepSec
 		self._processIndex = sim.processes.keys().index(self._name)
-
-		self.randStream = sim.randStream
 
 		self._states = sim.states
 
