@@ -17,12 +17,15 @@ def calcInitialConditions(sim, kb):
 
 	timeStep = sim.timeStepSec # This is a poor solution but will suffice for now
 
+	bulkContainer = bulk.container
+	uniqueContainer = unique.container
+
 	# Set up states
 	initializeBulk(bulkContainer, kb, randomState, timeStep)
 
 	# Modify states for specific processes
-	initializeTranscription(bulk.container, unique.container, kb, randomState, timeStep)
-	initializeTranslation(bulk.container, unique.container, kb, randomState, timeStep)
+	initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep)
+	initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep)
 
 
 def initializeBulk(bulkContainer, kb, randomState, timeStep):
