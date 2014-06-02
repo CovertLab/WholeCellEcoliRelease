@@ -25,10 +25,12 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
-		self.rnaIds = None
-		self.rnaNtCounts = None
+		# Parameters
 		self.rnaSynthProb = None
+
+		# Views
+		self.activeRnaPolys = None
+		self.rnapSubunits = None
 
 		super(UniqueTranscriptInitiation, self).__init__()
 
