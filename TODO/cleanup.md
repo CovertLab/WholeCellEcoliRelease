@@ -21,7 +21,7 @@ Repository clean-up
     * Separate file per hook
 
 5. wholecell/tests
-    * Eliminate deprecation warnings
+    * Eliminate deprecation warnings (DONE?)
     * More/better tags
 
 6. wholecell/utils
