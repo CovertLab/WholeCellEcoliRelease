@@ -33,7 +33,19 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		# Constants
 		self.elngRate = None
 		self.rnaIds = None
-		self.rnaSynthProb = None
+		self.rnaLengths = None
+		self.rnaSequences = None
+		self.ntWeights = None
+		self.hydroxylWeight = None
+
+		# Views
+		self.activeRnaPolys = None
+		self.bulkRnas = None
+		self.ntps = None
+		self.ppi = None
+		self.h2o = None
+		self.proton = None
+		self.rnapSubunits = None
 
 		super(UniqueTranscriptElongation, self).__init__()
 
