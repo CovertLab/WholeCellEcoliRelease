@@ -146,7 +146,11 @@ class Replication(wholecell.processes.process.Process):
 	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
 		''' Wraps actual update calculation'''
 
-		self.updateGeneCopynumber()
+		self.updateGeneCopynumber(
+			dnaPolymerase.attr('chromosomeLocation'),
+			dnaPolymerase.attr('directionIsPositive'),
+			polymeraseProgress
+			)
 
 		dnaPolymerase.attrIs(chromosomeLocation = 
 					calculatePolymerasePositionUpdate(
@@ -157,7 +161,7 @@ class Replication(wholecell.processes.process.Process):
 					)
 				)
 
-	def updateGeneCopynumber(currentPosition, directionIsPositive, difference):
+	def updateGeneCopynumber(self, currentPosition, directionIsPositive, difference):
 		'''
 		Returns indicies of genes replicated by polymerase based on position and progress of polymerization
 		'''
