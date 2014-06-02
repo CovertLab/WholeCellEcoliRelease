@@ -1036,7 +1036,7 @@ class KnowledgeBaseEcoli(object):
 					#('positiveDirection'	,	'bool'),
 					('endCoordinate'		,	'int64')])
 
-		self.geneData['name'] = [x['symbol'] for x in self._genes]
+		self.geneData['name'] = [x['id'] for x in self._genes]
 		#self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
 		#self.geneData['length'] = [x['length'] for x in self._genes]
 		#self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
