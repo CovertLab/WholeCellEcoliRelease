@@ -178,8 +178,7 @@ class Replication(wholecell.processes.process.Process):
 				)
 
 		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
-
-		self.genes[actualReplicatedGenes].countsInc(1)
+		self.genes.countsInc(actualReplicatedGenes)
 
 def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, difference, genomeLength):
 	if difference < 0:
