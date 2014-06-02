@@ -106,14 +106,13 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			'rnaIndex', 'transcriptLength'
 			)
 
-		# HACK DO NOT COMMIT
-		self.sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
 
 		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-			self.sequences[i, :] = self.rnaSequences[rnaIndex, transcriptLength:np.int64(transcriptLength + self.elngRate)]
+			sequences[i, :] = self.rnaSequences[rnaIndex, transcriptLength:np.int64(transcriptLength + self.elngRate)]
 
 		self.ntps.requestIs(
-			np.bincount(self.sequences[self.sequences != PAD_VALUE])
+			np.bincount(sequences[sequences != PAD_VALUE])
 			)
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
@@ -134,26 +133,25 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		# HACK DO NOT COMMIT
-		# sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
 
-		# for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-		# 	sequences[i, :] = self.rnaSequences[
-		# 		rnaIndex,
-		# 		transcriptLength:np.int64(transcriptLength + self.elngRate)
-		# 		]
+		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+			sequences[i, :] = self.rnaSequences[
+				rnaIndex,
+				transcriptLength:np.int64(transcriptLength + self.elngRate)
+				]
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
 		sequenceElongation, ntpsUsed, nElongations = polymerize(
-			self.sequences,
+			sequences,
 			ntpCounts,
 			reactionLimit,
 			self.randStream
 			)
 
 		updatedMass = massDiffRna + np.array([
-			self.ntWeights[self.sequences[i, :elongation]].sum()
+			self.ntWeights[sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongation)
 			])
 

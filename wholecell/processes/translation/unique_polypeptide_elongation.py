@@ -96,14 +96,13 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			'proteinIndex', 'peptideLength'
 			)
 		
-		# HACK DO NOT COMMIT
-		self.sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
 		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-			self.sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
 		self.aas.requestIs(
-			np.bincount(self.sequences[self.sequences != PAD_VALUE])
+			np.bincount(sequences[sequences != PAD_VALUE])
 			)
 
 		# self.aas.requestAll()
@@ -124,25 +123,24 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Build sequence array
 
-		# HACK DO NOT COMMIT
-		# sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
-		# for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-		# 	sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
+			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
 		# Calculate update
 
 		reactionLimit = aaCounts.sum() # TODO: account for energy
 
 		sequenceElongation, aasUsed, nElongations = polymerize(
-			self.sequences,
+			sequences,
 			aaCounts,
 			reactionLimit,
 			self.randStream
 			)
 
 		updatedMass = massDiffProtein + np.array([
-			self.aaWeightsIncorporated[self.sequences[i, :elongation]].sum()
+			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongation)
 			])
 
