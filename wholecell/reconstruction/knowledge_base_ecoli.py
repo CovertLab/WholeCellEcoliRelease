@@ -1028,14 +1028,17 @@ class KnowledgeBaseEcoli(object):
 	def _buildGeneData(self):
 		self.geneData = numpy.zeros(len(self._genes),
 			dtype = [('name'				,	'a50'),
-					('coordinate'			,	'int64'),
-					('length'				,	'int64'),
-					('positiveDirection'	,	'bool')])
+					#('coordinate'			,	'int64'),
+					#('length'				,	'int64'),
+					#('positiveDirection'	,	'bool'),
+					('endCoordinate'			'int64')])
 
 		self.geneData['name'] = [x['symbol'] for x in self._genes]
-		self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
-		self.geneData['length'] = [x['length'] for x in self._genes]
-		self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
+		#self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
+		#self.geneData['length'] = [x['length'] for x in self._genes]
+		#self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
+		self.geneData['endCoordinate'] = [(x['coordinate'] + x['length']) % self.genomeLength if x['direction'] == '+' else (x['coordinate'] - x['length']) % self.genomeLength for x in self._genes]
+
 
 	def _buildUniqueMolecules(self):
 		# TODO: ask Nick about the best way to use the unit struct arrays here
