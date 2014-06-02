@@ -27,9 +27,19 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
+		# Parameters
 		self.elngRate = None
-		self.proteinIds = None
+		self.proteinLengths = None
+		self.proteinSequences = None
+		self.h2oWeight = None
+		self.aaWeightsIncorporated = None
+
+		# Views
+		self.activeRibosomes = None
+		self.bulkMonomers = None
+		self.aas = None
+		self.h2o = None
+		self.ribosomeSubunits = None
 
 		super(UniquePolypeptideElongation, self).__init__()
 
@@ -44,7 +54,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
-		self.proteinIds = kb.monomerData['id']
+		proteinIds = kb.monomerData['id']
 
 		self.proteinLengths = kb.monomerData["length"].magnitude
 
@@ -65,7 +75,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			kb.nAvogadro.to("1 / mole").magnitude
 			)
 
-		self.aaWeights = np.array([
+		aaWeights = np.array([
 			kb.bulkMolecules[
 				kb.bulkMolecules["moleculeId"] == x
 				]["mass"].to("fg / mole").magnitude /
@@ -74,12 +84,12 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			if len(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == x]["mass"])
 			])
 
-		self.aaWeightsIncorporated = self.aaWeights - self.h2oWeight
+		self.aaWeightsIncorporated = aaWeights - self.h2oWeight
 
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
-		self.bulkMonomers = self.bulkMoleculesView(self.proteinIds)
+		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		self.aas = self.bulkMoleculesView(aaIds)
 		self.h2o = self.bulkMoleculeView('H2O[c]')
