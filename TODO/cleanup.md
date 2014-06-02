@@ -26,7 +26,7 @@ Repository clean-up
 
 6. wholecell/utils
    * Eliminate alternative polymerize implementations
-   * Remove configfile directory (need to fix Hudson scripts)
+   * Remove configfile directory (need to fix Hudson scripts) (DONE)
    * Move some config options to constants (DONE)
    * Eliminate fixture manager
 
