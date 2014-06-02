@@ -255,7 +255,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
 	initializeTranscription
 
 	Purpose:
-	Initiates transcripts in mid-translation.
+	Initiates transcripts in mid-transcription.
 
 	Method:
 	Replaces some RNAP subunits with active RNAP.  These active	RNAPs are in a 
