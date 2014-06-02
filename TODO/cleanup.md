@@ -31,7 +31,7 @@ Repository clean-up
    * Eliminate fixture manager (DONE)
 
 7. Repository
-   * Remove/resolve floating branches
+   * Remove/resolve floating branches (Nick is doing this)
 
 
 Refactoring
@@ -59,7 +59,7 @@ Refactoring
 
 6. wholecell/reconstruction
     * Eliminate redundant/dependent entries from the KB object
-    * Do something about validation
+    * Do something about validation (DONE - removed)
     * Represent arrays as sparse and use methods to access full arrays (created on demand)
     * Move more information out of KB into SQL
     * Move more information into KB from processes
