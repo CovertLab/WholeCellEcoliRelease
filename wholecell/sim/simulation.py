@@ -63,7 +63,6 @@ class Simulation(object):
 		else:
 			self.seed = self._options.seed
 
-		self._randStream = wholecell.utils.rand_stream.RandStream(seed = self.seed)
 		self.randomState = np.random.RandomState(seed = self.seed)
 
 		# Load KB
@@ -155,16 +154,10 @@ class Simulation(object):
 		# Update randstreams
 		for stateName, state in self.states.iteritems():
 			state.seed = self._seedFromName(stateName)
-			state._randStream = wholecell.utils.rand_stream.RandStream(
-				seed = state.seed
-				)
 			state.randomState = np.random.RandomState(seed = state.seed)
 
 		for processName, process in self.processes.iteritems():
 			process.seed = self._seedFromName(processName)
-			process._randStream = wholecell.utils.rand_stream.RandStream(
-				seed = process.seed
-				)
 			process.randomState = np.random.RandomState(seed = process.seed)
 
 		# TODO: randstreams for hooks?
