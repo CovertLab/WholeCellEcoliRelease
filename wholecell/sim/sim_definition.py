@@ -76,6 +76,7 @@ import wholecell.listeners.replication_fork
 import wholecell.listeners.ntp_usage
 import wholecell.listeners.aa_usage
 import wholecell.listeners.ribosome_stalling
+import wholecell.listeners.gene_copy_number
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
@@ -83,7 +84,8 @@ LISTENER_CLASSES = (
 	wholecell.listeners.replication_fork.ReplicationForkPosition,
 	wholecell.listeners.ntp_usage.NtpUsage,
 	wholecell.listeners.aa_usage.AAUsage,
-	wholecell.listeners.ribosome_stalling.RibosomeStalling
+	wholecell.listeners.ribosome_stalling.RibosomeStalling,
+	wholecell.listeners.gene_copy_number.GeneCopyNumber,
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -128,7 +130,8 @@ DEFAULT_LISTENERS = (
 	'ReplicationForkPosition',
 	'NtpUsage',
 	'AAUsage',
-	'RibosomeStalling'
+	'RibosomeStalling',
+	'GeneCopyNumber'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
