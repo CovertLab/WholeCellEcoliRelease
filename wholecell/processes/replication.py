@@ -50,7 +50,7 @@ class Replication(wholecell.processes.process.Process):
 
 		geneIds = kb.geneData['name']
 		self.geneEndCoordinate = kb.geneData['endCoordinate']
-		self.bufferedGeneEndCoordinate = np.concatinate(
+		self.bufferedGeneEndCoordinate = np.concatenate(
 			[self.geneEndCoordinate - self.genomeLength, self.geneEndCoordinate, self.geneEndCoordinate + self.genomeLength]
 			) # Add buffer so indexing with numpy can be taken advantage of
 
