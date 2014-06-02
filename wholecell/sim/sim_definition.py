@@ -81,12 +81,12 @@ import wholecell.loggers.disk
 # TODO: logger logic more consistent with listeners/states/processes
 
 # Hooks
-# TODO: move hooks to their own directory/files
-import wholecell.hooks.hooks
+import wholecell.hooks.rnap_count_hook
+import wholecell.hooks.ribosome_count_hook
 
 HOOK_CLASSES = (
-	wholecell.hooks.hooks.RnapCountHook,
-	wholecell.hooks.hooks.RibosomeCountHook
+	wholecell.hooks.rnap_count_hook.RnapCountHook,
+	wholecell.hooks.ribosome_count_hook.RibosomeCountHook
 	)
 
 HOOKS = {hookClass.name():hookClass for hookClass in HOOK_CLASSES}
