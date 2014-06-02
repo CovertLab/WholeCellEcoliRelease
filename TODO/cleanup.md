@@ -28,7 +28,7 @@ Repository clean-up
    * Eliminate alternative polymerize implementations
    * Remove configfile directory (need to fix Hudson scripts) (DONE)
    * Move some config options to constants (DONE)
-   * Eliminate fixture manager
+   * Eliminate fixture manager (DONE)
 
 
 Refactoring

@@ -90,8 +90,6 @@ class TranscriptsContainer(object):
 		self._objectsContainer =  UniqueObjectsContainer(molAttrs)
 
 		if randomState is None:
-			import wholecell.utils.rand_stream
-
 			randomState = np.random.RandomState()
 
 		self._randomState = randomState
