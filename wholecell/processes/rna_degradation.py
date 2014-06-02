@@ -45,14 +45,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		rnaIds = kb.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb.rnaData['degRate']
+		self.rnaDegRates = kb.rnaData['degRate'].magnitude
 
-		self.rnaLens = kb.rnaData['length']
+		self.rnaLens = kb.rnaData['length'].magnitude
 
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
 		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb.rnaData['countsACGU'])
-		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
-		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
+		self.rnaDegSMat[self._h2oIdx, :]  = -(self.rnaLens - 1)
+		self.rnaDegSMat[self._hIdx, :]    =  (self.rnaLens - 1)
 
 		# Views
 		self.metabolites = self.bulkMoleculesView(metaboliteIds)
@@ -74,7 +74,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 			self.rnas.total()
 			)
 
-		nReactions = np.dot(self.rnaLens, nRNAsToDegrade)
+		nReactions = np.dot(self.rnaLens - 1, nRNAsToDegrade)
 
 		self.h2o.requestIs(nReactions)
 		self.rnas.requestIs(nRNAsToDegrade)
