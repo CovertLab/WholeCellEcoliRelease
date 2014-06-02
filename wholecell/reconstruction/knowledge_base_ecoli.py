@@ -1009,7 +1009,7 @@ class KnowledgeBaseEcoli(object):
 		
 		# Set genes
 		lastGeneIdx = len(self._genes) + lastProteinMonomerIdx
-		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['symbol'] for x in self._genes]
+		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['id'] for x in self._genes]
 		bulkMolecules['mass'] = [0.] * len(self._genes)
 		bulkMolecules['isGene'][lastProteinMonomerIdx:lastGeneIdx] = [True]*len(self._genes)
 
