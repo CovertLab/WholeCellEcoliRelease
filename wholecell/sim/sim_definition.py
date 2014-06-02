@@ -82,11 +82,11 @@ import wholecell.loggers.disk
 
 # Hooks
 # TODO: move hooks to their own directory/files
-import wholecell.sim.hooks
+import wholecell.hooks.hooks
 
 HOOK_CLASSES = (
-	wholecell.sim.hooks.RnapCountHook,
-	wholecell.sim.hooks.RibosomeCountHook
+	wholecell.hooks.hooks.RnapCountHook,
+	wholecell.hooks.hooks.RibosomeCountHook
 	)
 
 HOOKS = {hookClass.name():hookClass for hookClass in HOOK_CLASSES}
