@@ -48,17 +48,27 @@ class Replication(wholecell.processes.process.Process):
 		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
 		oricCenter = kb.oriCCenter.to('nucleotide').magnitude
 
+		self.geneIds = kb.geneData['name']
+		self.geneEndCoordinate = kb.geneData['endCoordinate']
+		self.bufferedGeneEndCoordinate = np.concatinate(
+			[self.geneEndCoordinate - self.genomeLength, self.geneEndCoordinate, self.geneEndCoordinate + self.genomeLength]
+			) # Add buffer so indexing with numpy can be taken advantage of
+
 		# Views
 		self.dntps = self.bulkMoleculesView(dNtpIds)
 		self.dnmps = self.bulkMoleculesView(dNmpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-
 		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.genes = self.bulkMoleculesView(geneIds)
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
 		
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = True)
-		self.dnaPolymerase.moleculeNew('activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = False)
+		self.dnaPolymerase.moleculeNew(
+			'activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = True
+			)
+		self.dnaPolymerase.moleculeNew(
+			'activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = False
+			)
 
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
@@ -135,6 +145,9 @@ class Replication(wholecell.processes.process.Process):
 
 	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
 		''' Wraps actual update calculation'''
+
+		self.updateGeneCopynumber()
+
 		dnaPolymerase.attrIs(chromosomeLocation = 
 					calculatePolymerasePositionUpdate(
 						dnaPolymerase.attr('chromosomeLocation'),
@@ -143,6 +156,26 @@ class Replication(wholecell.processes.process.Process):
 						self.genomeLength
 					)
 				)
+
+	def updateGeneCopynumber(currentPosition, directionIsPositive, difference):
+		'''
+		Returns indicies of genes replicated by polymerase based on position and progress of polymerization
+		'''
+
+		if directionIsPositive:
+			finalLocation = currentPosition + difference
+			bufferedReplicatedGenes = (
+				self.bufferedGeneEndCoordinate > currentPosition) & (self.bufferedGeneEndCoordinate <= finalLocation
+				)
+		else:
+			finalLocation = currentPosition - difference
+			bufferedReplicatedGenes = (
+				self.bufferedGeneEndCoordinate >= finalLocation) & (self.bufferedGeneEndCoordinate < currentPosition
+				)
+
+		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
+
+		self.genes[actualReplicatedGenes].countsInc(1)
 
 def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, difference, genomeLength):
 	if difference < 0:
@@ -169,3 +202,4 @@ def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, s
 		]
 
 	# TODO: Check for hitting the end of the chromosome!
+
