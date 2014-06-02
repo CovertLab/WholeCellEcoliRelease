@@ -87,3 +87,6 @@ Refactoring
 10. Mass
     * Need to track more quantities, both for fitting and mass conservation
     * Unified update calculations for unique instances
+
+11. Simulation instantiation
+    * Better ways to call limited sets of objects (i.e. states, processes, listeners)
