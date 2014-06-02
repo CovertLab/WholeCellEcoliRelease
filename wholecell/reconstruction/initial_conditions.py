@@ -15,36 +15,38 @@ def calcInitialConditions(sim, kb):
 	bulk = sim.states['BulkMolecules']
 	unique = sim.states["UniqueMolecules"]
 
+	timeStep = sim.timeStepSec # This is a poor solution but will suffice for now
+
 	# Set up states
-	initializeBulk(bulk.container, kb, randomState)
+	initializeBulk(bulkContainer, kb, randomState, timeStep)
 
 	# Modify states for specific processes
-	initializeTranscription(bulk.container, unique.container, kb, randomState)
-	initializeTranslation(bulk.container, unique.container, kb, randomState)
+	initializeTranscription(bulk.container, unique.container, kb, randomState, timeStep)
+	initializeTranslation(bulk.container, unique.container, kb, randomState, timeStep)
 
 
-def initializeBulk(bulkContainer, kb, randomState):
+def initializeBulk(bulkContainer, kb, randomState, timeStep):
 
 	## Set protein counts from expression
-	initializeProteinMonomers(bulkContainer, kb, randomState)
+	initializeProteinMonomers(bulkContainer, kb, randomState, timeStep)
 
 	## Set RNA counts from expression
-	initializeRNA(bulkContainer, kb, randomState)
+	initializeRNA(bulkContainer, kb, randomState, timeStep)
 
 	## Set DNA
-	initializeDNA(bulkContainer, kb, randomState)
+	initializeDNA(bulkContainer, kb, randomState, timeStep)
 
 	## Set other biomass components
-	initializeBulkComponents(bulkContainer, kb, randomState)
+	initializeBulkComponents(bulkContainer, kb, randomState, timeStep)
 
 	## Set pools
-	initializePools(bulkContainer, kb, randomState)
+	initializePools(bulkContainer, kb, randomState, timeStep)
 
 	## Set water
 	initializeBulkWater(kb, bulkContainer, randomState)
 
 
-def initializeProteinMonomers(bulkContainer, kb, randomState):
+def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60
 		]
@@ -69,7 +71,7 @@ def initializeProteinMonomers(bulkContainer, kb, randomState):
 	# monomersView.countsIs(nMonomers * monomerExpression)
 
 
-def initializeRNA(bulkContainer, kb, randomState):
+def initializeRNA(bulkContainer, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
 		]
@@ -94,7 +96,7 @@ def initializeRNA(bulkContainer, kb, randomState):
 	# rnaView.countsIs(nRnas * rnaExpression)
 
 
-def initializeDNA(bulkContainer, kb, randomState):
+def initializeDNA(bulkContainer, kb, randomState, timeStep):
 
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
@@ -130,7 +132,7 @@ def initializeDNA(bulkContainer, kb, randomState):
 		)
 
 
-def initializeBulkComponents(bulkContainer, kb, randomState):
+def initializeBulkComponents(bulkContainer, kb, randomState, timeStep):
 	biomassContainer = BulkObjectsContainer(
 		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
 		)
@@ -158,7 +160,7 @@ def initializeBulkComponents(bulkContainer, kb, randomState):
 		))
 
 
-def initializePools(bulkContainer, kb, randomState):
+def initializePools(bulkContainer, kb, randomState, timeStep):
 	# Note: This is adding dry biomass, so the cell will appear heavier
 
 	from wholecell.reconstruction.knowledge_base_ecoli import AMINO_ACID_1_TO_3_ORDERED
@@ -183,7 +185,7 @@ def initializePools(bulkContainer, kb, randomState):
 	dntpsBulkView = bulkContainer.countsView(dntpIds)
 	aasBulkView = bulkContainer.countsView(aaIds)
 
-	dt = kb.timeStep.to("second").magnitude
+	dt = timeStep
 	tau_d = kb.cellCycleLen.to("second").magnitude
 
 	## NTPs
@@ -289,7 +291,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState):
 
 	rnaLengthAverage = np.dot(rnaCounts, rnaLengths) / rnaCounts.sum()
 
-	fractionActive = 1 - elngRate/rnaLengthAverage
+	fractionActive = 1 - elngRate/rnaLengthAverage * timeStep
 
 	activeRnapCount = np.int64(activeRnapMax * fractionActive)
 
@@ -445,7 +447,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState):
 
 	monomerLengthAverage = np.dot(monomerCounts, monomerLengths) / monomerCounts.sum()
 
-	fractionActive = 1 - elngRate/monomerLengthAverage
+	fractionActive = 1 - elngRate/monomerLengthAverage * timeStep
 
 	activeRibosomeCount = np.int64(activeRibosomeMax * fractionActive)
 
