@@ -29,7 +29,7 @@ class Transcripts(wholecell.states.state.State):
 		super(Transcripts, self).initialize(sim, kb)
 
 		self.container = TranscriptsContainer(ARRAY_LENGTH,
-			MOLECULE_ATTRIBUTES, self._randStream)
+			MOLECULE_ATTRIBUTES, self.randomState)
 
 
 	def partition(self):
