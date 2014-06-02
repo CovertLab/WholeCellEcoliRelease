@@ -15,7 +15,6 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-# import wholecell.util.flextFbaModel
 
 from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
 from wholecell.utils.random import stochasticRound
@@ -27,42 +26,20 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Options
-		self.lpSolver = "glpk"
-		self.realMax = 1e6
 
-		# References to states
-		self.metabolism = None
-		self.mass = None
-		self.mc = None
-
-		# Partitions
-		self.bulkMoleculesPartition = None
-
-		# Constants
+		# Parameters
+		self.nAvogadro = None
 		self.initialDryMass = None
 		self.cellCycleLen = None
+		self.wildtypeBiomassReaction = None
+		self.wildtypeIds = None
 
-		self.objective = None							# FBA LP objective (max growth)
-		self.sMat = None								# Stoichiometry matrix [met x rxn]
-		self.eMat = None								# Enzyme catalysis matrix
-		self.bounds = None								# Flux bounds data
-		self.dConc_dt = None							# dConc/dt (FBA LP RHS)
-		self.metConstTypes = None						# Metabolite constraint types
-		self.rxnVarTypes = None							# Rxn variable types
-		self.rxnNewFlux = None
-		self.rxnRecycFlux = None
-
-		self.metIds = None								# Metabolite ids
-		self.metNames = None							# Metabolite names
-		self.metIdx = None								# Metabolite indices
-
-		self.rxnIds = None								# Reaction ids
-		self.rxnNames = None							# Reaction names
-		self.rxnIdx = None								# Reaction indices
-
-		self.biomassMetabolites = None							# Core biomass function
-		self.wildtypeIds = None						# Core biomass ids
+		# Views
+		self.biomassMetabolites = None
+		self.ppi = None
+		self.ntpsdntps = None
+		self.ntps = None
+		self.nmps = None
 
 		super(Metabolism, self).__init__()
 
@@ -211,11 +188,3 @@ class Metabolism(wholecell.processes.process.Process):
 		self.ntps.countsInc(self.nmps.counts())
 		self.nmps.countsIs(0)
 		self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
-
-
-	def calcGrowthRate(self, bounds):
-		growth = 1.0 / self.cellCycleLen
-		fluxes = None
-		exchangeRates = None
-
-		return growth, fluxes, exchangeRates
