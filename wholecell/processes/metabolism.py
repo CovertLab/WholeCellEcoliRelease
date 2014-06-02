@@ -110,11 +110,25 @@ class Metabolism(wholecell.processes.process.Process):
 			])
 		self.aaMws = kb.bulkMolecules["mass"][aaIdxsInKb].magnitude
 
-		bulkMoleculesIdxs = np.array([
-			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.wildtypeIds
-			])
-		self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+		# bulkMoleculesIdxs = np.array([
+		# 	np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.wildtypeIds
+		# 	])
+		# self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
 		self.nAvogadro = kb.nAvogadro.magnitude
+
+		self.ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",]
+
+		self.ntpIdxsInWildTypeBiomass = np.array(
+			[np.where(self.wildtypeIds == x)[0][0] for x in self.ntpIds]
+			)
+
+		self.ntpIdxsInContainer = self.bulkMoleculesState.container._namesToIndexes(self.ntpIds)
+
+		ntpIdxsInKb = np.array([
+			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.ntpIds
+			])
+		self.ntpMws = kb.bulkMolecules["mass"][ntpIdxsInKb].magnitude
+
 
 	def calculateRequest(self):
 		self.ppi.requestAll()
@@ -126,6 +140,8 @@ class Metabolism(wholecell.processes.process.Process):
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
 		# ##### Dynamic objective #####
+
+		# For AAs
 		relativeAArequests = normalize(
 			self.bulkMoleculesState._countsRequested[self.aaIdxsInContainer].sum(axis = 1)
 			)
@@ -143,6 +159,27 @@ class Metabolism(wholecell.processes.process.Process):
 					self.nAvogadro
 					) *
 				relativeAArequests *
+				1000 / self.nAvogadro
+				)
+
+		# For NTPs
+		relativeNTPrequests = normalize(
+			self.bulkMoleculesState._countsRequested[self.ntpIdxsInContainer].sum(axis = 1)
+			)
+		if not np.any(np.isnan(relativeNTPrequests)):
+			# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+
+			self.wildtypeBiomassReaction[self.ntpIdxsInWildTypeBiomass] = (
+				countsFromMassAndExpression(
+					np.dot(
+						self.ntpMws / 1000,
+						self.wildtypeBiomassReaction[self.ntpIdxsInWildTypeBiomass]
+						),
+					self.ntpMws,
+					relativeNTPrequests,
+					self.nAvogadro
+					) *
+				relativeNTPrequests *
 				1000 / self.nAvogadro
 				)
 
