@@ -1009,9 +1009,9 @@ class KnowledgeBaseEcoli(object):
 		
 		# Set genes
 		lastGeneIdx = len(self._genes) + lastProteinMonomerIdx
-		self.bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['symbol'] for x in self._genes]
-		self.bulkMolecules['mass'] = [0.] * len(self._genes)
-		self.bulkMolecules['isGene'][lastProteinMonomerIdx:lastGeneIdx] = [True]*len(self._genes)
+		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['symbol'] for x in self._genes]
+		bulkMolecules['mass'] = [0.] * len(self._genes)
+		bulkMolecules['isGene'][lastProteinMonomerIdx:lastGeneIdx] = [True]*len(self._genes)
 
 
 		# Add units to values
@@ -1026,7 +1026,7 @@ class KnowledgeBaseEcoli(object):
 			'isWater'			:	None,
 			'isComplex'			:	None,
 			'isGene'			:	None}
-		self.bulkMolecules = UnitStructArray(self.bulkMolecules, units)
+		self.bulkMolecules = UnitStructArray(bulkMolecules, units)
 
 	def _buildGeneData(self):
 		self.geneData = numpy.zeros(len(self._genes),
@@ -1034,7 +1034,7 @@ class KnowledgeBaseEcoli(object):
 					#('coordinate'			,	'int64'),
 					#('length'				,	'int64'),
 					#('positiveDirection'	,	'bool'),
-					('endCoordinate'			'int64')])
+					('endCoordinate'		,	'int64')])
 
 		self.geneData['name'] = [x['symbol'] for x in self._genes]
 		#self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
