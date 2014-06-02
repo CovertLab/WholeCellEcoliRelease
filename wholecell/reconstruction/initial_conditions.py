@@ -19,7 +19,7 @@ def calcInitialConditions(sim, kb):
 	initializeBulk(bulk.container, kb, randStream)
 
 	# Modify states for specific processes
-	# initializeTranscription(bulk.container, unique.container, kb, randStream)
+	initializeTranscription(bulk.container, unique.container, kb, randStream)
 	initializeTranslation(bulk.container, unique.container, kb, randStream)
 
 
@@ -250,6 +250,163 @@ def initializeBulkWater(kb, bulkContainer, randStream):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
+def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
+	"""
+	initializeTranscription
+
+	Purpose:
+	Initiates transcripts in mid-translation.
+
+	Method:
+	Replaces some RNAP subunits with active RNAP.  These active	RNAPs are in a 
+	random position in the elongation process, and are elongating transcripts 
+	chosen with respect to their initiation probabilities. Transcript counts 
+	are decremented randomly until the RNA mass is approximately its original 
+	value.
+
+	Needs attention:
+	-Interaction with protein complexes
+	-Mass calculations
+
+	"""
+	# Calculate the number of possible RNAPs
+
+	subunits = bulkContainer.countsView(["EG10893-MONOMER[c]",
+		"RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
+
+	subunitStoich = np.array([2, 1, 1, 1])
+
+	activeRnapMax = (subunits.counts() // subunitStoich).min()
+
+	# Calculate the number of RNAPs that should be active
+
+	elngRate = kb.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude
+
+	rnaIds = kb.rnaData["id"]
+	rnas = bulkContainer.countsView(rnaIds)
+	rnaCounts = rnas.counts()
+	rnaLengths = kb.rnaData["length"].to("count").magnitude
+
+	rnaLengthAverage = np.dot(rnaCounts, rnaLengths) / rnaCounts.sum()
+
+	fractionActive = 1 - elngRate/rnaLengthAverage
+
+	activeRnapCount = np.int64(activeRnapMax * fractionActive)
+
+	# Choose RNAs to polymerize
+	rnaCountsPolymerizing = randStream.mnrnd(activeRnapCount,
+		kb.rnaData["synthProb"])
+
+	# Get the RNA masses
+
+	rnaMasses = (kb.rnaData["mw"].to("fg / mole").magnitude /
+		kb.nAvogadro.to("1 / mole").magnitude)
+
+	# Reduce the number of RNAP subunits
+
+	subunits.countsDec(activeRnapCount * subunitStoich)
+
+	# Create the lists of RNA indexes
+
+	rnaIndexes = np.empty(activeRnapCount, np.int64)
+
+	startIndex = 0
+	for rnaIndex, counts in enumerate(rnaCountsPolymerizing):
+		rnaIndexes[startIndex:startIndex+counts] = rnaIndex
+
+		startIndex += counts
+
+	# Choose random RNA lengths
+
+	maxRnaLengths = rnaLengths[rnaIndexes]
+
+	transcriptLengths = (randStream.rand(activeRnapCount) * maxRnaLengths).astype(np.int64)
+
+	# Compute RNA masses
+	maxLen = np.int64(rnaLengths.max() + elngRate)
+
+	sequences = kb.rnaData["sequence"]
+
+	rnaSequences = np.empty((sequences.shape[0], maxLen), np.int64)
+	rnaSequences.fill(-1)
+
+	ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
+
+	for i, sequence in enumerate(sequences):
+		for j, letter in enumerate(sequence):
+			rnaSequences[i, j] = ntMapping[letter]
+
+	# TODO: standardize this logic w/ process
+
+	ntWeights = np.array([
+		345.20, # A
+		321.18, # C
+		361.20, # G
+		322.17, # U
+		]) - 17.01 # weight of a hydroxyl
+
+	# TOKB
+	hydroxylWeight = 17.01 # counted once for the end of the polymer
+
+	ntWeights *= 1e15/6.022e23
+	hydroxylWeight *= 1e15/6.022e23
+
+	transcriptMasses = np.array([
+		ntWeights[rnaSequences[rnaIndex, :length]].sum()
+		for rnaIndex, length in izip(rnaIndexes, transcriptLengths)
+		])
+
+	transcriptMasses[transcriptLengths > 0] += hydroxylWeight
+
+	# Create the unique molecules representations of the ribosomes
+
+	activeRnaPolys = uniqueContainer.objectsNew(
+		"activeRnaPoly",
+		activeRnapCount
+		)
+
+	activeRnaPolys.attrIs(
+		rnaIndex = rnaIndexes,
+		transcriptLength = transcriptLengths,
+		massDiffRna = transcriptMasses
+		)
+
+	# Compute the amount of RNA mass that needs to be removed
+	rnaMassNeeded = transcriptMasses.sum()
+
+	# Using their relative fractions, remove RNAs until the mass is restored
+
+	# TODO: make sure this while-loop isn't too terrible slow
+
+	rnaCountsDecremented = np.zeros_like(rnaCounts)
+
+	while True:
+		rnaFractions = rnaCounts / rnaCounts.sum()
+		rnaFractionsCumulative = rnaFractions.cumsum()
+
+		rnaIndex = np.where( # sample once from a multinomial distribution
+			rnaFractionsCumulative > randStream.rand()
+			)[0][0]
+
+		rnaMass = rnaMasses[rnaIndex]
+
+		if rnaMass < rnaMassNeeded:
+			rnaMassNeeded -= rnaMass
+			rnaCountsDecremented[rnaIndex] += 1
+			rnaCounts[rnaIndex] -= 1
+
+		elif rnaMass / 2 < rnaMassNeeded:
+			rnaMassNeeded -= rnaMass
+			rnaCountsDecremented[rnaIndex] += 1
+			rnaCounts[rnaIndex] -= 1
+
+			break
+
+		else:
+			break
+
+	rnas.countsDec(rnaCountsDecremented)
+
 def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	"""
 	initializeTranslation
@@ -275,7 +432,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 
 	subunitStoich = np.array([1, 1, 1])
 
-	activeRibosomeMax = (subunits.counts() * subunitStoich).min()
+	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
 
 	# Calculate the number of ribosomes that should be active
 
