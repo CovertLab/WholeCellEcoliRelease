@@ -36,8 +36,13 @@ class Test_Simulation(unittest.TestCase):
 
 	def setUp(self):
 		self.sim = cPickle.load(open(os.path.join(TEST_FIXTURE_DIR, "Simulation.cPickle"), "r"))
-		import wholecell.utils.knowledgebase_fixture_manager
-		self.kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(TEST_FIXTURE_DIR)
+		
+		self.kb = cPickle.load(
+			open(os.path.join(
+				wholecell.utils.constants.SERIALIZED_KB_DIR,
+				wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+				), "rb")
+			)
 		
 	def tearDown(self):
 		pass

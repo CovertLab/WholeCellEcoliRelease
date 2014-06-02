@@ -17,7 +17,6 @@ import os
 import copy
 
 import wholecell.states.bulk_molecules
-import wholecell.utils.rand_stream
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 from units.unit_registration import UREG
@@ -514,9 +513,12 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 
 if __name__ == "__main__":
 	import wholecell.utils.constants
-	import wholecell.utils.knowledgebase_fixture_manager
 
-	kbDir = wholecell.utils.constants.SIM_FIXTURE_DIR
-	kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(kbDir)
-	# kbFit = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(kbDir)
+	kb = cPickle.load(
+		open(os.path.join(
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+			), "rb")
+		)
+	
 	fitKb(kb)
