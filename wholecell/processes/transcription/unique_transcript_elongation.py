@@ -70,9 +70,9 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		# TOKB
 		self.ntWeights = np.array([
 			345.20, # A
-			322.17, # U
 			321.18, # C
-			361.20  # G
+			361.20, # G
+			322.17, # U
 			]) - 17.01 # weight of a hydroxyl
 
 		# TOKB
@@ -106,13 +106,14 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			'rnaIndex', 'transcriptLength'
 			)
 
-		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+		# HACK DO NOT COMMIT
+		self.sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
 
 		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-			sequences[i, :] = self.rnaSequences[rnaIndex, transcriptLength:np.int64(transcriptLength + self.elngRate)]
+			self.sequences[i, :] = self.rnaSequences[rnaIndex, transcriptLength:np.int64(transcriptLength + self.elngRate)]
 
 		self.ntps.requestIs(
-			np.bincount(sequences[sequences != PAD_VALUE])
+			np.bincount(self.sequences[self.sequences != PAD_VALUE])
 			)
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
@@ -133,25 +134,26 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+		# HACK DO NOT COMMIT
+		# sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
 
-		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-			sequences[i, :] = self.rnaSequences[
-				rnaIndex,
-				transcriptLength:np.int64(transcriptLength + self.elngRate)
-				]
+		# for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+		# 	sequences[i, :] = self.rnaSequences[
+		# 		rnaIndex,
+		# 		transcriptLength:np.int64(transcriptLength + self.elngRate)
+		# 		]
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
 		sequenceElongation, ntpsUsed, nElongations = polymerize(
-			sequences,
+			self.sequences,
 			ntpCounts,
 			reactionLimit,
 			self.randStream
 			)
 
 		updatedMass = massDiffRna + np.array([
-			self.ntWeights[sequences[i, :elongation]].sum()
+			self.ntWeights[self.sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongation)
 			])
 

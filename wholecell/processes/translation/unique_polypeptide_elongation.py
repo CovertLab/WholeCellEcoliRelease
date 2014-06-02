@@ -95,14 +95,15 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
 			'proteinIndex', 'peptideLength'
 			)
-
-		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+		
+		# HACK DO NOT COMMIT
+		self.sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
 		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+			self.sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
 		self.aas.requestIs(
-			np.bincount(sequences[sequences != PAD_VALUE])
+			np.bincount(self.sequences[self.sequences != PAD_VALUE])
 			)
 
 		# self.aas.requestAll()
@@ -123,24 +124,25 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Build sequence array
 
-		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+		# HACK DO NOT COMMIT
+		# sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
-		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+		# for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
+		# 	sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
 		# Calculate update
 
 		reactionLimit = aaCounts.sum() # TODO: account for energy
 
 		sequenceElongation, aasUsed, nElongations = polymerize(
-			sequences,
+			self.sequences,
 			aaCounts,
 			reactionLimit,
 			self.randStream
 			)
 
 		updatedMass = massDiffProtein + np.array([
-			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+			self.aaWeightsIncorporated[self.sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongation)
 			])
 
@@ -148,7 +150,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		didInitialize = (
 			(sequenceElongation > 1) &
-			(peptideLength == 0)
+			(peptideLengths == 0)
 			)
 
 		activeRibosomes.attrIs(
