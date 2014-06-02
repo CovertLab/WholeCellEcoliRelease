@@ -169,6 +169,9 @@ class RandStream(object):
 	def numpyShuffle(self, *args, **kwargs):
 		self.randStream.shuffle(*args, **kwargs)
 
+	def numpyChoice(self, *args, **kwargs):
+		return self.randStream.choice(*args, **kwargs)
+
 	@property
 	def type(self):
 		return self.randStream.get_state()[0]

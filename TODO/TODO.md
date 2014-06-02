@@ -1,18 +1,19 @@
 
 1. Implement a more accurate model of Replication
-    * Track fork position and update gene copy number
+    * Track fork position (complete) and update gene copy number (in progress)
     * Use gene copy number information in Transcription
 
 2. Fit model including metabolism
-    * Implement Metabolism
-    * Implement Complexation
-        * Track complex submasses (protein/RNA/metabolite)
+    * Fit model (complete)
+        * Growth rate (complete)
+        * Mass fractions (complete)
+        * Observed expression rates (complete)
+    * Implement Metabolism (in progress)
+    * Implement Complexation (complete, needs to be faster)
+        * Track complex submasses (protein/RNA/metabolite) (in progress)
     * Implement modified forms process
     * Handle Feist pseudo metabolites
-    * Fit model
-        * Growth rate
-        * Mass fractions
-        * Observed expression rates
+    * Fit model with metabolism process
 
 3. Model evaluation/validation
     * Genetic perturbations

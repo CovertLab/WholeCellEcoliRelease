@@ -32,7 +32,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 	cellDry = np.array([x["cellDry"] for x in table.iterrows()])
 	protein = np.array([x["protein"] for x in table.iterrows()])
 	rna = np.array([x["rna"] for x in table.iterrows()])
-	rrna = np.array([x["rrna"] for x in table.iterrows()])
+	# rrna = np.array([x["rrna"] for x in table.iterrows()])
 	t = np.array([x["time"] for x in table.iterrows()])
 
 	plt.figure(figsize = (8.5, 11))

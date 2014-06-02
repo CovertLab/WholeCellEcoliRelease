@@ -17,7 +17,6 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-#import wholecell.utils.polymerize
 from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
 
 
@@ -47,27 +46,9 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.proteinIds = kb.monomerData['id']
 
-		# TODO: build this in the KB?
-
-		sequences = kb.monomerData["sequence"]
-
 		self.proteinLengths = kb.monomerData["length"].magnitude
 
-		maxLen = np.int64(self.proteinLengths.max() + self.elngRate)
-
-		self.proteinSequences = np.empty((sequences.shape[0], maxLen), np.int64)
-		self.proteinSequences.fill(PAD_VALUE)
-
-		aaIDs_singleLetter = kb.aaIDs_singleLetter[:]
-		del aaIDs_singleLetter[kb.aaIDs.index("SEC-L[c]")]
-
-		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
-
-		aaMapping["U"] = aaMapping["C"]
-
-		for i, sequence in enumerate(sequences):
-			for j, letter in enumerate(sequence):
-				self.proteinSequences[i, j] = aaMapping[letter]
+		self.proteinSequences = kb.translationSequences
 
 		aaIds = kb.aaIDs[:]
 
@@ -114,7 +95,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
 			'proteinIndex', 'peptideLength'
 			)
-
+		
 		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
 		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
@@ -154,7 +135,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		sequenceElongation, aasUsed, nElongations = polymerize(
 			sequences,
 			aaCounts,
-			reactionLimit
+			reactionLimit,
+			self.randStream
 			)
 
 		updatedMass = massDiffProtein + np.array([
@@ -166,7 +148,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		didInitialize = (
 			(sequenceElongation > 1) &
-			(peptideLength == 0)
+			(peptideLengths == 0)
 			)
 
 		activeRibosomes.attrIs(

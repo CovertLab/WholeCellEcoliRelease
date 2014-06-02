@@ -41,7 +41,6 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
-		self.rnaNtCounts = kb.rnaData['countsACGU'].to('nucleotide').magnitude
 		self.rnaSynthProb = kb.rnaData['synthProb'].to('dimensionless').magnitude
 
 		# Views
@@ -69,16 +68,15 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		nonzeroCount = (nNewRnas > 0)
 
-		for rnaIndex, nNew, ntCounts in itertools.izip(
+		for rnaIndex, nNew in itertools.izip(
 				np.arange(nNewRnas.size)[nonzeroCount],
 				nNewRnas[nonzeroCount],
-				self.rnaNtCounts[nonzeroCount]
 				):
 
 			self.activeRnaPolys.moleculesNew(
-				'activeRnaPoly', nNew,
-				rnaIndex = rnaIndex,
-				requiredACGU = ntCounts
+				'activeRnaPoly',
+				nNew,
+				rnaIndex = rnaIndex
 				)
 
 		self.rnapSubunits.countsDec(

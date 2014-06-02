@@ -17,7 +17,7 @@ python2.7 runscripts/createKbs.py --outputDirectory "out/simOut/${SUBMISSION_TIM
 
 
 ##### Run simulation #####
-python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
+WC_KBLOCATION="\"out/simOut/${SUBMISSION_TIME}/kb/KnowledgeBase_Fit.cPickle\"" python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
 
 # If the simulation didn't complete successfully, don't run analysis
 if [ "$?" -ne "0" ]; then

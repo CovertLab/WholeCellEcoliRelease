@@ -82,6 +82,9 @@ class AAUsage(wholecell.listeners.listener.Listener):
 			self.bulkMolecules._countsAllocatedInitial[
 				self.metaboliteIdxs, self.translationProcessIdx
 				]
+			- self.bulkMolecules._countsAllocatedFinal[
+				self.metaboliteIdxs, self.translationProcessIdx
+				]
 			)
 
 		self.translationAAUsageCumulative += (

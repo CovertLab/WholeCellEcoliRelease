@@ -120,6 +120,8 @@ class KnowledgeBaseEcoli(object):
 		self._buildParameters()
 		self._buildRnaExpression()
 		self._buildBiomassFractions()
+		self._buildTranscription()
+		self._buildTranslation()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		# self._buildComplexationMatrix()
@@ -972,38 +974,38 @@ class KnowledgeBaseEcoli(object):
 
 		# Set metabolites
 		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
-		self.bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = ['{}[{}]'.format(idx,c)
+		bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = ['{}[{}]'.format(idx,c)
 											for c in [x['abbrev'] for x in self._compartmentList]
 											for idx in [x['id'] for x in self._metabolites]
 											]
 
-		self.bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self._metabolites[i]['mw7.2']
+		bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self._metabolites[i]['mw7.2']
 											for j in range(len(self._compartmentList))
 											for i in range(len(self._metabolites))
 											]
 
-		self.bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self._compartmentList)
+		bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self._compartmentList)
 
-		for i,mid in enumerate(self.bulkMolecules['moleculeId']):
+		for i,mid in enumerate(bulkMolecules['moleculeId']):
 			if mid.startswith('H2O['):
-				self.bulkMolecules['isWater'][i] = True
-				self.bulkMolecules['isMetabolite'][i] = False
+				bulkMolecules['isWater'][i] = True
+				bulkMolecules['isMetabolite'][i] = False
 
 		# Set RNA
 		lastRnaIdx = len(self._rnas) + lastMetaboliteIdx
-		self.bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
-		self.bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self._rnas]
-		self.bulkMolecules['isRnaMonomer'][lastMetaboliteIdx:lastRnaIdx] = [False if len(x['composition']) else True for x in self._rnas]
-		self.bulkMolecules['isComplex'][lastMetaboliteIdx:lastRnaIdx] = [True if len(x['composition']) else False for x in self._rnas]
-		self.bulkMolecules['isModified'][lastMetaboliteIdx:lastRnaIdx] = [True if x['unmodifiedForm'] != None else False for x in self._rnas]
+		bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
+		bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self._rnas]
+		bulkMolecules['isRnaMonomer'][lastMetaboliteIdx:lastRnaIdx] = [False if len(x['composition']) else True for x in self._rnas]
+		bulkMolecules['isComplex'][lastMetaboliteIdx:lastRnaIdx] = [True if len(x['composition']) else False for x in self._rnas]
+		bulkMolecules['isModified'][lastMetaboliteIdx:lastRnaIdx] = [True if x['unmodifiedForm'] != None else False for x in self._rnas]
 
 		# Set proteins
 		lastProteinMonomerIdx = len(self._proteins) + lastRnaIdx
-		self.bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = ['{}[{}]'.format(protein['id'],protein['location']) for protein in self._proteins]
-		self.bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx] = [x['mw'] for x in self._proteins]
-		self.bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
-		self.bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
-		self.bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
+		bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = ['{}[{}]'.format(protein['id'],protein['location']) for protein in self._proteins]
+		bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx] = [x['mw'] for x in self._proteins]
+		bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
+		bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
+		bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 		
 		# Set genes
 		lastGeneIdx = len(self._genes) + lastProteinMonomerIdx
@@ -1013,11 +1015,12 @@ class KnowledgeBaseEcoli(object):
 
 
 		# Add units to values
-		units = {"moleculeId"	:	None,
+		units = {
+			"moleculeId"		:	None,
 			"mass"				:	"g / mol",
 			'compartment'		:	None,
 			"isMetabolite"		:	None,
-			"isRnaMonomer" 		:	None,
+			"isRnaMonomer"		:	None,
 			"isProteinMonomer"	:	None,
 			"isModified"		:	None,
 			'isWater'			:	None,
@@ -1047,8 +1050,7 @@ class KnowledgeBaseEcoli(object):
 		self.uniqueMoleculeDefinitions = {
 			'activeRnaPoly' : {
 				'rnaIndex' : 'i8',
-				'requiredACGU' : '4i8',
-				'assignedACGU' : '4i8',
+				'transcriptLength' : 'i8'
 				},
 			'activeRibosome' : {
 				'proteinIndex' : 'i8',
@@ -1272,6 +1274,12 @@ class KnowledgeBaseEcoli(object):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
 				is5S[rnaIndex] = True
 
+		sequences = [rna['seq'] for rna in self._rnas
+			if rna['unmodifiedForm'] is None
+			and len(rna['composition']) == 0]
+
+		maxSequenceLength = max(len(sequence) for sequence in sequences)
+
 		# TODO: Add units
 		self.rnaData = numpy.zeros(
 			size,
@@ -1289,7 +1297,8 @@ class KnowledgeBaseEcoli(object):
 				('isTRna', 'bool'),
 				('isRRna23S', 'bool'),
 				('isRRna16S', 'bool'),
-				('isRRna5S', 'bool')
+				('isRRna5S', 'bool'),
+				('sequence', 'a{}'.format(maxSequenceLength))
 				]
 			)
 
@@ -1314,22 +1323,24 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna23S'] = is23S
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
+		self.rnaData['sequence'] = sequences
 
 		units = {
-		'id'		:	None,
-		'synthProb' :	'dimensionless',
-		'degRate'	:	'1 / s',
-		'length'	:	'nucleotide',
-		'countsACGU':	'nucleotide',
-		'mw'		:	'g / mol',
-		'isMRna'	:	None,
-		'isMiscRna'	:	None,
-		'isRRna'	:	None,
-		'isTRna'	:	None,
-		'isRRna23S'	:	None,
-		'isRRna16S'	:	None,
-		'isRRna5S'	:	None
-		}
+			'id'		:	None,
+			'synthProb' :	'dimensionless',
+			'degRate'	:	'1 / s',
+			'length'	:	'nucleotide',
+			'countsACGU':	'nucleotide',
+			'mw'		:	'g / mol',
+			'isMRna'	:	None,
+			'isMiscRna'	:	None,
+			'isRRna'	:	None,
+			'isTRna'	:	None,
+			'isRRna23S'	:	None,
+			'isRRna16S'	:	None,
+			'isRRna5S'	:	None,
+			'sequence'  :   None,
+			}
 
 
 		self.rnaData = UnitStructArray(self.rnaData, units)
@@ -1385,39 +1396,24 @@ class KnowledgeBaseEcoli(object):
 		nAAs = len(aaCounts[0])
 
 		# Calculate degradation rates based on N-rule
+		# TODO: citation
 		fastRate = (numpy.log(2) / Q_(2, 'min')).to('1 / s')
 		slowRate = (numpy.log(2) / Q_(10, 'hr')).to('1 / s')
 
-		# TODO: Use fastRate properly (this requires more ribosomes in the fitter so that we have sufficient enzymatic capacity)
-		NruleDegRate = {
-			'R' : fastRate,
-			'K' : fastRate,
-			'F' : fastRate,
-			'L' : fastRate,
-			'W' : fastRate,
-			'Y' : fastRate,
-			# 'R' : slowRate,
-			# 'K' : slowRate,
-			# 'F' : slowRate,
-			# 'L' : slowRate,
-			# 'W' : slowRate,
-			# 'Y' : slowRate,
-			'H' : slowRate,
-			'I' : slowRate,
-			'D' : slowRate,
-			'E' : slowRate,
-			'N' : slowRate,
-			'Q' : slowRate,
-			'C' : slowRate,
-			'A' : slowRate,
-			'S' : slowRate,
-			'T' : slowRate,
-			'G' : slowRate,
-			'V' : slowRate,
-			'M' : slowRate,
-			'P' : slowRate, # Assumed slow rate no data
-			'U' : slowRate, # Assumed slow rate no data
-		}
+		fastAAs = ["R", "K", "F", "L", "W", "Y"]
+		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
+		noDataAAs = ["P", "U"]
+
+		NruleDegRate = {}
+		NruleDegRate.update(
+			(fastAA, fastRate) for fastAA in fastAAs
+			)
+		NruleDegRate.update(
+			(slowAA, slowRate) for slowAA in slowAAs
+			)
+		NruleDegRate.update(
+			(noDataAA, slowRate) for noDataAA in noDataAAs
+			) # Assumed slow rate because of no data
 
 		degRate = numpy.zeros(len(monomers))
 		for i,m in enumerate(monomers):
@@ -1664,6 +1660,37 @@ class KnowledgeBaseEcoli(object):
 
 		self.metabolismInternalExchangeReactionIndexes = numpy.array(internalIndexes)
 		self.metabolismInternalExchangeReactionNames = internalNames
+
+
+	def _buildTranscription(self):
+		pass
+
+
+	def _buildTranslation(self):
+		from wholecell.utils.polymerize_new import PAD_VALUE
+
+		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
+
+		self.proteinLengths = self.monomerData["length"].magnitude
+
+		maxLen = numpy.int64(
+			self.monomerData["length"].magnitude.max()
+			+ self.ribosomeElongationRate.to('amino_acid / s').magnitude
+			)
+
+		self.translationSequences = numpy.empty((sequences.shape[0], maxLen), numpy.int8) # TODO: consider smaller dtype
+		self.translationSequences.fill(PAD_VALUE)
+
+		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
+		del aaIDs_singleLetter[self.aaIDs.index("SEC-L[c]")]
+
+		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
+
+		aaMapping["U"] = aaMapping["C"]
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.translationSequences[i, j] = aaMapping[letter]
 
 
 	def _buildConstants(self):

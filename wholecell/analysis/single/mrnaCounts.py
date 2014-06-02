@@ -18,8 +18,9 @@ from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+import cPickle
 
-from wholecell.utils.knowledgebase_fixture_manager import loadKnowledgeBase
+import wholecell.utils.config
 
 # TODO: account for complexation
 
@@ -33,7 +34,12 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	# Get the names of rnas from the KB
 
-	kb = loadKnowledgeBase(simOutDir)
+	kb = cPickle.load(
+		open(os.path.join(
+			wholecell.utils.config.SERIALIZED_KB_DIR,
+			wholecell.utils.config.SERIALIZED_KB_FIT_FILENAME
+			), "rb")
+		)
 
 	isMRna = kb.rnaData["isMRna"]
 
