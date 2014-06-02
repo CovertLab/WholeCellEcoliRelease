@@ -255,7 +255,7 @@ def initializeBulkWater(kb, bulkContainer, randomState):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
-def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState):
+def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep):
 	"""
 	initializeTranscription
 
@@ -412,7 +412,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState):
 
 	rnas.countsDec(rnaCountsDecremented)
 
-def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState):
+def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep):
 	"""
 	initializeTranslation
 
