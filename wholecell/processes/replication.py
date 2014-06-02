@@ -48,7 +48,7 @@ class Replication(wholecell.processes.process.Process):
 		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
 		oricCenter = kb.oriCCenter.to('nucleotide').magnitude
 
-		self.geneIds = kb.geneData['name']
+		geneIds = kb.geneData['name']
 		self.geneEndCoordinate = kb.geneData['endCoordinate']
 		self.bufferedGeneEndCoordinate = np.concatinate(
 			[self.geneEndCoordinate - self.genomeLength, self.geneEndCoordinate, self.geneEndCoordinate + self.genomeLength]
