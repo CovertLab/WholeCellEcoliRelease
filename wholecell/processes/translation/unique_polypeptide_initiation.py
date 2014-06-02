@@ -25,7 +25,16 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
+		# Parameters
+		self.proteinLens = None
+
+		# Views
+
+		self.activeRibosomes = None
+		self.rRna23S = None
+		self.rRna16S = None
+		self.rRna5S = None
+		self.mRnas = None
 
 		super(UniquePolypeptideInitiation, self).__init__()
 
