@@ -960,7 +960,7 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildBulkMolecules(self):
 		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins) + len(self._genes)
-		self.bulkMolecules = numpy.zeros(size,
+		bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
 					("mass",				"float64"),
