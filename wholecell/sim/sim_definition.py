@@ -9,7 +9,7 @@ from __future__ import division
 
 import collections
 import os
-import wholecell.utils.config
+import wholecell.utils.constants
 
 # References to sub-simulation abstractions
 
@@ -140,8 +140,8 @@ DEFAULT_TIME_STEP = 1 # sec
 DEFAULT_SEED = None
 
 DEFAULT_KB_LOCATION = os.path.join(
-	wholecell.utils.config.SERIALIZED_KB_DIR,
-	wholecell.utils.config.SERIALIZED_KB_FIT_FILENAME
+	wholecell.utils.constants.SERIALIZED_KB_DIR,
+	wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
 	)
 
 # TODO: restore KB reconstruction option when available

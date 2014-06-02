@@ -20,7 +20,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
-import wholecell.utils.config
+import wholecell.utils.constants
 
 # TODO: account for complexation
 
@@ -36,8 +36,8 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	kb = cPickle.load(
 		open(os.path.join(
-			wholecell.utils.config.SERIALIZED_KB_DIR,
-			wholecell.utils.config.SERIALIZED_KB_FIT_FILENAME
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
 			), "rb")
 		)
 

@@ -27,7 +27,7 @@ Repository clean-up
 6. wholecell/utils
    * Eliminate alternative polymerize implementations
    * Remove configfile directory (need to fix Hudson scripts)
-   * Move some config options to constants
+   * Move some config options to constants (DONE)
    * Eliminate fixture manager
 
 
@@ -68,9 +68,9 @@ Refactoring
     * Track mass in each state, by subtype/process/pre,post-evolveState/compartment
 
 8. wholecell/utils
-    * Do something about flex_t_fba_model.py
-    * Do something about linear_programming.py
-    * Eliminate rand_stream and use numpy RNG objects
+    * Do something about flex_t_fba_model.py (DONE - Derek is in charge)
+    * Do something about linear_programming.py (DONE - see above)
+    * Eliminate rand_stream and use numpy RNG objects (DONE)
 
 9. Partitioning
     * Change bulk molecules partitioning to the new algorithm
