@@ -30,6 +30,9 @@ Repository clean-up
    * Move some config options to constants (DONE)
    * Eliminate fixture manager (DONE)
 
+7. Repository
+   * Remove/resolve floating branches
+
 
 Refactoring
 -----------
