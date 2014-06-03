@@ -48,6 +48,9 @@ def initializeBulk(bulkContainer, kb, randomState, timeStep):
 	## Set water
 	initializeBulkWater(kb, bulkContainer, randomState)
 
+	## Set genes
+	initializeGenes(kb, bulkContainer, randStream)
+
 
 def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
@@ -254,6 +257,17 @@ def initializeBulkWater(kb, bulkContainer, randomState):
 	h2oView.countIs(
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
+
+def initializeGenes(kb, bulkContainer, randStream):
+	"""
+	initializeGenes
+
+	Purpose:
+	Initalizes the counts of genes in BulkMolecules
+	"""
+
+	geneView = bulkContainer.countsView(kb.geneData['name'])
+	geneView.countsInc(1)
 
 def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep):
 	"""

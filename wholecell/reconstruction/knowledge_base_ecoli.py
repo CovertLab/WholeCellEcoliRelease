@@ -109,6 +109,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildSequence()
 		self._buildCompartments()
 		self._buildBulkMolecules()
+		self._buildGeneData()
 		self._buildUniqueMolecules()
 		self._buildBiomass()
 		self._buildRnaData()
@@ -958,7 +959,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkMolecules(self):
-		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins)
+		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins) + len(self._genes)
 		bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
@@ -968,7 +969,8 @@ class KnowledgeBaseEcoli(object):
 					("isProteinMonomer",	"bool"),
 					("isWater",				"bool"),
 					("isComplex",			"bool"),
-					("isModified",			"bool")])
+					("isModified",			"bool"),
+					("isGene",				"bool")])
 
 		# Set metabolites
 		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
@@ -1005,6 +1007,13 @@ class KnowledgeBaseEcoli(object):
 		bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
 		bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 		
+		# Set genes
+		lastGeneIdx = len(self._genes) + lastProteinMonomerIdx
+		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['id'] for x in self._genes]
+		bulkMolecules['mass'] = [0.] * len(self._genes)
+		bulkMolecules['isGene'][lastProteinMonomerIdx:lastGeneIdx] = [True]*len(self._genes)
+
+
 		# Add units to values
 		units = {
 			"moleculeId"		:	None,
@@ -1015,10 +1024,23 @@ class KnowledgeBaseEcoli(object):
 			"isProteinMonomer"	:	None,
 			"isModified"		:	None,
 			'isWater'			:	None,
-			'isComplex'			:	None
-			}
-
+			'isComplex'			:	None,
+			'isGene'			:	None}
 		self.bulkMolecules = UnitStructArray(bulkMolecules, units)
+
+	def _buildGeneData(self):
+		self.geneData = numpy.zeros(len(self._genes),
+			dtype = [('name'				,	'a50'),
+					#('coordinate'			,	'int64'),
+					#('length'				,	'int64'),
+					#('positiveDirection'	,	'bool'),
+					('endCoordinate'		,	'int64')])
+
+		self.geneData['name'] = [x['id'] for x in self._genes]
+		#self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
+		#self.geneData['length'] = [x['length'] for x in self._genes]
+		#self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
+		self.geneData['endCoordinate'] = [(x['coordinate'] + x['length']) % self.genomeLength if x['direction'] == '+' else (x['coordinate'] - x['length']) % self.genomeLength for x in self._genes]
 
 
 	def _buildUniqueMolecules(self):
