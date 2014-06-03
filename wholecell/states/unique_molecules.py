@@ -87,7 +87,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		if requestNumberVector.sum() == 0:
 			return
 
-		# Don"t calculate on non-requesting views
+		# Don't calculate on non-requesting views
 		doCalculatePartition = (requestNumberVector > 0)
 
 		objectRequestsArray[:, ~doCalculatePartition] = False
@@ -114,7 +114,7 @@ class UniqueMolecules(wholecell.states.state.State):
 				objectRequestsArray[:, doCalculatePartition],
 				requestNumberVector[doCalculatePartition],
 				requestProcessArray[doCalculatePartition, :],
-				self.randStream
+				self.randomState
 				)
 
 		for view in self._views:

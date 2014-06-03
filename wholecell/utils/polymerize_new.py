@@ -18,9 +18,7 @@ PAD_VALUE = -1
 # most expensive operation in the function (alternatively, pass the 
 # sequenceMonomers array as an argument instead of sequences)
 
-# TODO: pass randstream objects
-
-def polymerize(sequences, monomerLimits, reactionLimit, randStream):
+def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	# Sanitize inputs
 	monomerLimits = monomerLimits.copy().astype(np.int64)
 	reactionLimit = np.int64(reactionLimit)
@@ -131,7 +129,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randStream):
 
 			assert nToCull > 0
 
-			culledIndexes = randStream.numpyChoice(
+			culledIndexes = randomState.choice(
 				sequencesWithMonomer,
 				nToCull,
 				replace = False
@@ -149,7 +147,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randStream):
 			nToCull = sequencesWithReaction.size - reactionLimit
 
 			if nToCull > 0:
-				culledIndexes = randStream.numpyChoice(
+				culledIndexes = randomState.choice(
 					sequencesWithReaction,
 					nToCull,
 					replace = False
@@ -181,9 +179,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randStream):
 def _setupExample():
 	# Contrive a scenario which is similar to real conditions
 
-	import wholecell.utils.rand_stream
-
-	randStream = wholecell.utils.rand_stream.RandStream()
+	randomState = np.random.RandomState()
 
 	nMonomers = 36 # number of distinct aa-tRNAs
 	nSequences = 10000 # approximate number of ribosomes
@@ -204,7 +200,7 @@ def _setupExample():
 	monomerLimits = monomerSufficiency * maxReactions/nMonomers*np.ones(nMonomers, np.int64)
 	reactionLimit = energySufficiency * maxReactions
 
-	return sequences, monomerLimits, reactionLimit, randStream
+	return sequences, monomerLimits, reactionLimit, randomState
 
 
 def _simpleProfile():
@@ -212,14 +208,14 @@ def _simpleProfile():
 
 	np.random.seed(0)
 
-	sequences, monomerLimits, reactionLimit, randStream = _setupExample()
+	sequences, monomerLimits, reactionLimit, randomState = _setupExample()
 
 	nSequences, length = sequences.shape
 	nMonomers = monomerLimits.size
 	sequenceLengths = (sequences != PAD_VALUE).sum(1)
 
 	t = time.time()
-	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randStream)
+	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
 	evalTime = time.time() - t
 
 	assert (sequenceElongation <= sequenceLengths+1).all()
@@ -256,7 +252,7 @@ For {} sequences of {} different monomers elongating by at most {}:
 def _fullProfile():
 	np.random.seed(0)
 
-	sequences, monomerLimits, reactionLimit, randStream = _setupExample()
+	sequences, monomerLimits, reactionLimit, randomState = _setupExample()
 
 	# Recipe from https://docs.python.org/2/library/profile.html#module-cProfile
 
@@ -264,7 +260,7 @@ def _fullProfile():
 	pr = cProfile.Profile()
 	pr.enable()
 
-	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randStream)
+	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
 	
 	pr.disable()
 	s = StringIO.StringIO()

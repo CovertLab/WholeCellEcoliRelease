@@ -18,8 +18,7 @@ import matplotlib
 # matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-from wholecell.utils.knowledgebase_fixture_manager import loadKnowledgeBase
-from wholecell.utils.constants import SIM_FIXTURE_DIR
+import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName):
 
@@ -50,7 +49,12 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 			ribosomeStalling["stalls"][np.where(i == inverseProteinIndexes)]
 			)
 
-	kb = loadKnowledgeBase(SIM_FIXTURE_DIR)
+	kb = cPickle.load(
+		open(os.path.join(
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+			), "rb")
+		)
 
 	proteinNames = kb.monomerData["id"]
 	aaCounts = kb.monomerData["aaCounts"].magnitude

@@ -25,7 +25,7 @@ class Test_polymerize(unittest.TestCase):
 		energy = 100
 		
 		# Good calls test
-		polymerize(sequences, baseAmounts, energy)
+		polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 
 
 	@noseAttrib.attr('polymerizeNew')
@@ -36,7 +36,7 @@ class Test_polymerize(unittest.TestCase):
 		energy = 6
 		
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy)
+		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
 		
 		self.assertTrue((np.array([3, 3]) == progress).all())
@@ -55,7 +55,7 @@ class Test_polymerize(unittest.TestCase):
 		energy = 30
 		
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy)
+		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
 		
 		self.assertTrue((np.array([10,9,9,0]) == progress).all())
@@ -74,7 +74,7 @@ class Test_polymerize(unittest.TestCase):
 		energy = 30
 		
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy)
+		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
 		
 		self.assertTrue((np.array([12,9,9,0]) == progress).all())
@@ -93,7 +93,7 @@ class Test_polymerize(unittest.TestCase):
 		energy = 50
 		
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy)
+		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
 		
 		self.assertTrue((np.array([12,12,12,3]) == progress).all())

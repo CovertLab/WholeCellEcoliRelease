@@ -14,7 +14,6 @@ import unittest
 import warnings
 
 import numpy as np
-from wholecell.utils.rand_stream import RandStream
 from wholecell.utils.simple_polymerize import simplePolymerize
 
 import nose.plugins.attrib as noseAttrib
@@ -30,7 +29,7 @@ class Test_simplePolymerize(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.randStream = RandStream(seed = 1)
+		self.randomState = np.random.RandomState(seed = 0)
 
 	def tearDown(self):
 		pass
@@ -64,7 +63,7 @@ class Test_simplePolymerize(unittest.TestCase):
 				enzymaticLimitation,
 				monomerCounts,
 				synthesisProbabilities,
-				self.randStream
+				self.randomState
 				)[1]
 
 			totalPolymerCounts += polymerCounts
@@ -107,7 +106,7 @@ class Test_simplePolymerize(unittest.TestCase):
 				enzymaticLimitation,
 				monomerCounts,
 				synthesisProbabilities,
-				self.randStream
+				self.randomState
 				)[1]
 
 			totalPolymerCounts += polymerCounts

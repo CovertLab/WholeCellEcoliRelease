@@ -23,6 +23,8 @@ EVALUATE_TO_COMPLETION = False # If true, will form as many complexes as possibl
 
 # TODO: evaluate mass balance
 # TODO: speed up by using only the needed portion of the stoich matrix
+# TODO: spedd up by performing basic heuristics (only optimizing where the 
+# problem isn't degenerate)
 
 class Complexation(wholecell.processes.process.Process):
 	""" Complexation """

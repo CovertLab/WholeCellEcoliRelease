@@ -7,28 +7,31 @@ Repository clean-up
     * fixtures - should these all go in out/fixtures?
     * runscripts - break into subdirs
 
-2. wholecell/processes
-    * Remove unneeded/outmoded processes
-    * Clean up old code left in processes
+2. wholecell/processes (DONE)
+    * Remove unneeded/outmoded processes (DONE)
+    * Clean up old code left in processes (DONE)
 
 3. wholecell/reconstruction
     * Move spreadsheet to a better location (kbEcoli repo?)
     * Move model_observations.md to a better location (top-level documentation directory?)
     * Move processes.txt to a better location (top-level documentation directory?)
 
-4. wholecell/sim/hooks.py
-    * Create a separate directory for hooks
-    * Separate file per hook
+4. wholecell/sim/hooks.py (DONE)
+    * Create a separate directory for hooks (DONE)
+    * Separate file per hook (DONE)
 
-5. wholecell/tests
-    * Eliminate deprecation warnings
-    * More/better tags
+5. wholecell/tests (DONE)
+    * Eliminate deprecation warnings (DONE?)
+    * More/better tags (SKIPPING)
 
 6. wholecell/utils
    * Eliminate alternative polymerize implementations
-   * Remove configfile directory (need to fix Hudson scripts)
-   * Move some config options to constants
-   * Eliminate fixture manager
+   * Remove configfile directory (need to fix Hudson scripts) (DONE)
+   * Move some config options to constants (DONE)
+   * Eliminate fixture manager (DONE)
+
+7. Repository
+   * Remove/resolve floating branches (Nick is doing this)
 
 
 Refactoring
@@ -56,7 +59,7 @@ Refactoring
 
 6. wholecell/reconstruction
     * Eliminate redundant/dependent entries from the KB object
-    * Do something about validation
+    * Do something about validation (DONE - removed)
     * Represent arrays as sparse and use methods to access full arrays (created on demand)
     * Move more information out of KB into SQL
     * Move more information into KB from processes
@@ -67,10 +70,10 @@ Refactoring
     * Standardize state/view interaction
     * Track mass in each state, by subtype/process/pre,post-evolveState/compartment
 
-8. wholecell/utils
-    * Do something about flex_t_fba_model.py
-    * Do something about linear_programming.py
-    * Eliminate rand_stream and use numpy RNG objects
+8. wholecell/utils (DONE)
+    * Do something about flex_t_fba_model.py (DONE - Derek is in charge)
+    * Do something about linear_programming.py (DONE - see above)
+    * Eliminate rand_stream and use numpy RNG objects (DONE)
 
 9. Partitioning
     * Change bulk molecules partitioning to the new algorithm
@@ -84,3 +87,6 @@ Refactoring
 10. Mass
     * Need to track more quantities, both for fitting and mass conservation
     * Unified update calculations for unique instances
+
+11. Simulation instantiation
+    * Better ways to call limited sets of objects (i.e. states, processes, listeners)
