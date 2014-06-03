@@ -68,7 +68,6 @@ def fitKb(kb):
 
 	adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb)
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
-	import ipdb; ipdb.set_trace()
 
 	### RNA Mass Fractions ###
 	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
