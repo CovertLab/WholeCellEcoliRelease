@@ -25,6 +25,29 @@ from units.unit_registration import Q_
 import pint
 pint._DEFAULT_REGISTRY = UREG
 
+# Constants (should be moved to KB)
+RRNA23S_MASS_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
+RRNA16S_MASS_FRACTION = 0.271 # This is the fraction of RNA that is 16S rRNA
+RRNA5S_MASS_FRACTION = 0.017 # This is the fraction of RNA that is 5S rRNA
+TRNA_MASS_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
+MRNA_MASS_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
+
+# Correction factors
+EXCESS_RNAP_CAPACITY = 2
+# If RNA-poly capacity exactly matches the amount needed to double RNAs over a 
+# cell cycle, the simulation will be unable to double RNAs since a small number
+# of RNA-polymerases must be turned over following termination.  It may be 
+# possible to choose an excess capacity coefficient rationally based on 
+# diffusive limitations, i.e., one that does not depend on simulation 
+# particulars, but this has yet to be explored.
+
+# Fitter logic 
+# TODO: confirm this with Derek
+# TODO: split off these subroutines in the main fitter function
+# 1) Assign expected quantities based on dry mass composition, expression, and sequences
+# 2) Ensure that there is enough RNAP/ribosome capacity for (1), and adjust if needed
+# 3) Update the metabolism FBA objective based on expression
+
 def fitKb(kb):
 
 	# Construct bulk container
@@ -52,39 +75,36 @@ def fitKb(kb):
 	rnaMass = kb.avgCellDryMassInit.to('DCW_g') * rnaMassFraction
 
 	## 23S rRNA Mass Fractions ##
-	rRna23SMassFraction = 0.525 # TOKB # This is the fraction of RNA that is 23S rRNA
 
 	# Assume all 23S rRNAs are expressed equally
 	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
 
 	nRRna23Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * rRna23SMassFraction,
+		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].to('g/mol').magnitude,
 		rRna23SExpression,
 		kb.nAvogadro.to('1/mol').magnitude
 		)
 	
 	## 16S rRNA Mass Fractions ##
-	rRna16SMassFraction = 0.271 # TOKB # This is the fraction of RNA that is 16S rRNA
 
 	# Assume all 16S rRNAs are expressed equally
 	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
 
 	nRRna16Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * rRna16SMassFraction,
+		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].to('g/mol').magnitude,
 		rRna16SExpression,
 		kb.nAvogadro.to('1/mol').magnitude
 		)
 
 	## 5S rRNA Mass Fractions ##
-	rRna5SMassFraction = 0.017 # TOKB # This is the fraction of RNA that is 5S rRNA
 
 	# Assume all 5S rRNAs are expressed equally
 	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
 
 	nRRna5Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * rRna5SMassFraction,
+		rnaMass.to('DCW_g').magnitude * RRNA5S_MASS_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].to('g/mol').magnitude,
 		rRna5SExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -109,13 +129,12 @@ def fitKb(kb):
 	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
 
 	## tRNA Mass Fractions ##
-	tRnaMassFraction = 0.146 # TOKB # This is the fraction of RNA that is tRNA
 
 	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
 	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
 
 	nTRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * tRnaMassFraction,
+		rnaMass.to('DCW_g').magnitude * TRNA_MASS_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isTRna"]].to('g/mol').magnitude,
 		tRnaExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -124,12 +143,11 @@ def fitKb(kb):
 	tRnaView.countsIs((nTRnas * tRnaExpression))
 
 	## mRNA Mass Fractions ##
-	mRnaMassFraction = 0.041 # TOKB # This is the fraction of RNA that is mRNA
 
 	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
 
 	nMRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * mRnaMassFraction,
+		rnaMass.to('DCW_g').magnitude * MRNA_MASS_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isMRna"]].to('g/mol').magnitude,
 		mRnaExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -210,7 +228,7 @@ def fitKb(kb):
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).to('dimensionless').magnitude
+		).to('dimensionless').magnitude * EXCESS_RNAP_CAPACITY
 
 	minRnapCounts = (
 		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry

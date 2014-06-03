@@ -66,6 +66,11 @@ class AAUsage(wholecell.listeners.listener.Listener):
 			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].magnitude
 			)
 
+		self.relativeAaUsage = normalize(np.dot(
+			kb.monomerData["aaCounts"].T,
+			kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
+			))[np.concatenate([np.arange(19), np.array([20])])]
+
 	# Allocate memory
 	def allocate(self):
 		super(AAUsage, self).allocate()
@@ -117,6 +122,7 @@ class AAUsage(wholecell.listeners.listener.Listener):
 		t.attrs.translationAAUsageCumulative_units = self.usageUnits
 		t.attrs.metaboliteIds = self.metaboliteIds
 		t.attrs.relativeAAProductionBiomass = self.relativeAAProductionBiomass
+		t.attrs.relativeAaUsage = self.relativeAaUsage
 
 
 	def pytablesAppend(self, h5file):

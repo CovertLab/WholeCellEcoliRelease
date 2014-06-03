@@ -28,6 +28,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	metaboliteIds = h.root.NtpUsage._v_attrs["metaboliteIds"]
 	normNtpProductionBiomass = h.root.NtpUsage._v_attrs["relativeNtpProductionBiomass"]
+	relativeNtpUsage = h.root.NtpUsage._v_attrs["relativeNtpUsage"]
 
 	ntpUsage = np.array(
 		[x['transcriptionNtpUsageCurrent'] for x in h.root.NtpUsage.iterrows()]
@@ -48,11 +49,15 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 		plt.subplot(2, 2, idx + 1)
 
-		plt.plot(t / 60., normUsage[:, idx], linewidth = 2)
-		plt.plot([t[0] / 60., t[-1] / 60.], [normNtpProductionBiomass[idx], normNtpProductionBiomass[idx]], "r--")
+		plt.plot(t / 60., normUsage[:, idx], 'k', linewidth = 1)
+		(biomass,) = plt.plot([t[0] / 60., t[-1] / 60.], [normNtpProductionBiomass[idx], normNtpProductionBiomass[idx]], "r--", linewidth = 2)
+		(usages,) = plt.plot([t[0] / 60., t[-1] / 60.], [relativeNtpUsage[idx], relativeNtpUsage[idx]], "b--", linewidth = 2)
 		plt.xlabel("Time (min)")
 		plt.ylabel("Relative usage")
 		plt.title(metaboliteIds[idx])
+
+		if idx == 0:
+			plt.legend([biomass, usages], ["Biomass production", "Expected usage"], loc = "best")
 
 	plt.subplots_adjust(hspace = 0.5)
 
