@@ -7,7 +7,7 @@ Whole-cell knowledge base ecoli
 
 @author: Sajia Akhter
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 04/04/2014
+@date: Created 02/04/2014
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 03/14/2014
@@ -94,7 +94,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadParameters()
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
 		self._loadComputeParameters()
-		
+		'''
 		# Create data structures for simulation
 		self._buildCompartments()
 		self._buildBulkMolecules()
@@ -111,7 +111,7 @@ class KnowledgeBaseEcoli(object):
 
 		self._buildComplexationMatrix()
 		self._buildMetabolism()
-
+		'''
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
@@ -692,7 +692,7 @@ class KnowledgeBaseEcoli(object):
 				#calculate MW
 
 				self._rnaModified.append(rMod)
-				self._allProductType[rMod["id"]] = 'rna' #added
+				#self._allProductType[rMod["id"]] = 'rnaMod' #added
 
 
 		# create Protein modifiend entry
@@ -707,7 +707,7 @@ class KnowledgeBaseEcoli(object):
 					"mw" : -1.0 	# TODO: Need to get this
 				}
 				self._proteinModified.append(pMod)
-				self._allProductType[pMod["id"]] = 'protein' #added			
+				#self._allProductType[pMod["id"]] = 'proteinMod' #added			
 
 	def _loadRelationStoichiometry(self):
 
