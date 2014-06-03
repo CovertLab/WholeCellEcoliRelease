@@ -203,11 +203,12 @@ def fitKb(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = np.sum(kb.rnaData['countsACGU'], axis = 1)
 
+	EXCESS_RNAP_CAPACITY = 2 # need more than 100% to handle time-scale separation of initiation and elongation
 	nRnapsNeeded = np.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).to('dimensionless').magnitude
+		).to('dimensionless').magnitude * EXCESS_RNAP_CAPACITY
 
 	minRnapCounts = (
 		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry
