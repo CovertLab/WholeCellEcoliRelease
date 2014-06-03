@@ -9,7 +9,7 @@ from __future__ import division
 
 import collections
 import os
-import wholecell.utils.config
+import wholecell.utils.constants
 
 # References to sub-simulation abstractions
 
@@ -33,18 +33,11 @@ import wholecell.processes.complexation
 import wholecell.processes.metabolism
 import wholecell.processes.metabolism_fba
 import wholecell.processes.rna_degradation
-import wholecell.processes.transcription.bulk_transcription
-import wholecell.processes.translation.translation
-import wholecell.processes.transcription.toy_transcription
 import wholecell.processes.replication
-import wholecell.processes.transcription.transcription_net
-import wholecell.processes.translation.translation_net
 import wholecell.processes.translation.unique_polypeptide_initiation
 import wholecell.processes.translation.unique_polypeptide_elongation
-import wholecell.processes.translation.unique_polypeptide_elongation_enzlim
 import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
-import wholecell.processes.transcription.unique_transcript_elongation_enzlim
 import wholecell.processes.protein_degradation
 
 PROCESS_CLASSES = (
@@ -52,18 +45,11 @@ PROCESS_CLASSES = (
 	wholecell.processes.metabolism.Metabolism,
 	wholecell.processes.metabolism_fba.MetabolismFba,
 	wholecell.processes.rna_degradation.RnaDegradation,
-	wholecell.processes.transcription.bulk_transcription.BulkTranscription,
-	wholecell.processes.translation.translation.Translation,
-	wholecell.processes.transcription.toy_transcription.ToyTranscription,
 	wholecell.processes.replication.Replication,
-	wholecell.processes.transcription.transcription_net.TranscriptionNet,
-	wholecell.processes.translation.translation_net.TranslationNet,
 	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
 	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
-	wholecell.processes.translation.unique_polypeptide_elongation_enzlim.UniquePolypeptideElongationEnzlim,
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
-	wholecell.processes.transcription.unique_transcript_elongation_enzlim.UniqueTranscriptElongationEnzlim,
 	wholecell.processes.protein_degradation.ProteinDegradation
 	)
 
@@ -95,12 +81,12 @@ import wholecell.loggers.disk
 # TODO: logger logic more consistent with listeners/states/processes
 
 # Hooks
-# TODO: move hooks to their own directory/files
-import wholecell.sim.hooks
+import wholecell.hooks.rnap_count_hook
+import wholecell.hooks.ribosome_count_hook
 
 HOOK_CLASSES = (
-	wholecell.sim.hooks.RnapCountHook,
-	wholecell.sim.hooks.RibosomeCountHook
+	wholecell.hooks.rnap_count_hook.RnapCountHook,
+	wholecell.hooks.ribosome_count_hook.RibosomeCountHook
 	)
 
 HOOKS = {hookClass.name():hookClass for hookClass in HOOK_CLASSES}
@@ -140,8 +126,8 @@ DEFAULT_TIME_STEP = 1 # sec
 DEFAULT_SEED = None
 
 DEFAULT_KB_LOCATION = os.path.join(
-	wholecell.utils.config.SERIALIZED_KB_DIR,
-	wholecell.utils.config.SERIALIZED_KB_FIT_FILENAME
+	wholecell.utils.constants.SERIALIZED_KB_DIR,
+	wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
 	)
 
 # TODO: restore KB reconstruction option when available

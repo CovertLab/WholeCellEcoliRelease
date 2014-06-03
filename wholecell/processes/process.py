@@ -14,6 +14,9 @@ from __future__ import division
 
 import wholecell.views.view
 
+import wholecell.states.bulk_molecules
+import wholecell.states.unique_molecules
+
 class Process(object):
 	""" Process """
 
@@ -29,9 +32,8 @@ class Process(object):
 		self._sim = None
 
 		# Simulation random stream
-		self.randStream = None
-
-		self.seed = None
+		self.randomState = None # set by Simulation
+		self.seed = None # set by Simulation
 
 		# References to state
 		self._states = None
@@ -44,26 +46,21 @@ class Process(object):
 		self.timeStepSec = sim.timeStepSec
 		self._processIndex = sim.processes.keys().index(self._name)
 
-		self.randStream = sim.randStream
-
 		self._states = sim.states
 
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
-		import wholecell.states.bulk_molecules
 		return wholecell.states.bulk_molecules.BulkMoleculesView(
 			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
-		import wholecell.states.bulk_molecules
 		return wholecell.states.bulk_molecules.BulkMoleculeView(
 			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
-		import wholecell.states.unique_molecules
 		return wholecell.states.unique_molecules.UniqueMoleculesView(
 			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
@@ -82,12 +79,14 @@ class Process(object):
 
 	# Calculate requests for a single time step
 	def calculateRequest(self):
+		# Implemented by subclass
 		pass
 
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):
-		return
+		# Implemented by subclass
+		pass
 
 
 	# Basic accessors

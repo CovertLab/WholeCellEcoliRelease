@@ -14,7 +14,7 @@ import warnings
 import cPickle
 import os
 
-from wholecell.utils.constants import TEST_FIXTURE_DIR
+import wholecell.utils.constants
 
 import nose.plugins.attrib as noseAttrib
 
@@ -29,12 +29,12 @@ class Test_KnowledgeBase(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		import wholecell.utils.knowledgebase_fixture_manager
-		self.kb = wholecell.utils.knowledgebase_fixture_manager.loadKnowledgeBase(os.path.join(TEST_FIXTURE_DIR, 'KnowledgeBase.cPickle'))
-
-		# To load from the "raw" data, uncomment the following:
-		# self.kb = wholecell.knowledgebase.knowledgebase.KnowledgeBase(dataFileName = "data/KnowledgeBase.xlsx",
-		# 													 seqFileName = "data/KnowledgeBase.fna")
+		self.kb = kb = cPickle.load(
+			open(os.path.join(
+				wholecell.utils.constants.SERIALIZED_KB_DIR,
+				wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+				), "rb")
+			)
 
 	def tearDown(self):
 		pass

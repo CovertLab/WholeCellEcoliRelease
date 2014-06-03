@@ -165,7 +165,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 							[0,  0, -1, -1,  0,  0, -1, -1,  1,  1,  0,  0,  1,  0,  0,  0],	# Sigma
 							[0,  0, -1,  0,  0,  0, -1,  0,  1,  1,  0,  1,  0,  1, -1,  0]])	# Promoter
 
-		speciesUsedInTransitions = self.randStream.stochasticRound((numpy.dot(numpy.dot(S,Q),m)))
+		speciesUsedInTransitions = self._randStream.stochasticRound((numpy.dot(numpy.dot(S,Q),m)))
 
 
 		## Limit requests by available sigma factors and promoters

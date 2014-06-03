@@ -18,6 +18,8 @@ from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 MAX_SEARCH_ITERATIONS = 1000 # number of times to search for a place to put a transcript before raising an exception
 
+# TODO: rewrite using lists of arrays instead of one large array (profile access times)
+# TODO: store transcripts, other features in a separate unique objects container
 
 class TranscriptsContainerException(Exception):
 	'''
@@ -75,7 +77,7 @@ class TranscriptsContainer(object):
 	_directionBoolToChar = [_positiveChar, _negativeChar]
 	
 
-	def __init__(self, arrayLength, moleculeAttributes, randStream = None):
+	def __init__(self, arrayLength, moleculeAttributes, randomState = None):
 		self._length = arrayLength
 
 		self._array = np.zeros(self._length, dtype = np.int64)
@@ -87,12 +89,10 @@ class TranscriptsContainer(object):
 
 		self._objectsContainer =  UniqueObjectsContainer(molAttrs)
 
-		if randStream is None:
-			import wholecell.utils.rand_stream
+		if randomState is None:
+			randomState = np.random.RandomState()
 
-			randStream = wholecell.utils.rand_stream.RandStream()
-
-		self._randStream = randStream
+		self._randomState = randomState
 
 
 	def transcriptNew(self, chromosomeOrigin, expectedLength = 0):
@@ -168,7 +168,7 @@ class TranscriptsContainer(object):
 		# TODO: explore better heuristics
 
 		for iteration in xrange(MAX_SEARCH_ITERATIONS):
-			position = self._randStream.randi(self._length-extent)
+			position = self._randomState.randint(self._length-extent)
 
 			if (self._array[position:position+extent] == self._unused).all():
 				return position

@@ -521,7 +521,7 @@ class _UniqueObjectSet(object):
 	# TODO: set-like operations (union, intersection, etc.)
 
 
-def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randStream):
+def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randomState):
 	# Arguments:
 	# objectRequestsArray: 2D bool array, (molecule)x(request)
 	# requestNumberVector: number of molecules request, by request
@@ -647,7 +647,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	
 	for moleculeIndex in np.arange(uniqueEntriesStructured.size):
 		indexesOfSelectedObjects = np.where(moleculeIndex == mapping)[0]
-		randStream.numpyShuffle(indexesOfSelectedObjects)
+		randomState.shuffle(indexesOfSelectedObjects)
 
 		for processIndex in np.arange(nProcesses):
 			start = processOffsetsOfSelectedObjects[moleculeIndex, processIndex]

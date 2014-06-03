@@ -28,10 +28,17 @@ class Replication(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
+		# Parameters
 		self.sequence = None
 		self.genomeLength = None
 		self.dnaPolymeraseElongationRate = None
+
+		# Views
+		self.dntps = None
+		self.dnmps = None
+		self.ppi = None
+		self.h2o = None
+		self.dnaPolymerase = None
 
 		super(Replication, self).__init__()
 

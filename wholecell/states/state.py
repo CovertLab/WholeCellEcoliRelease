@@ -29,7 +29,7 @@ class State(object):
 		self._views = []
 
 		# Random number stream
-		self.randStream = None
+		self.randomState = None
 
 		self.seed = None
 

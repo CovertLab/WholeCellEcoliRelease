@@ -10,41 +10,46 @@ from wholecell.reconstruction.fitter import countsFromMassAndExpression
 from wholecell.reconstruction.fitter import normalize
 
 def calcInitialConditions(sim, kb):
-	randStream = sim.randStream
+	randomState = sim.randomState
 
 	bulk = sim.states['BulkMolecules']
 	unique = sim.states["UniqueMolecules"]
 
+	timeStep = sim.timeStepSec # This is a poor solution but will suffice for now
+
+	bulkContainer = bulk.container
+	uniqueContainer = unique.container
+
 	# Set up states
-	initializeBulk(bulk.container, kb, randStream)
+	initializeBulk(bulkContainer, kb, randomState, timeStep)
 
 	# Modify states for specific processes
-	initializeTranscription(bulk.container, unique.container, kb, randStream)
-	initializeTranslation(bulk.container, unique.container, kb, randStream)
+	initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep)
+	initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep)
 
 
-def initializeBulk(bulkContainer, kb, randStream):
+def initializeBulk(bulkContainer, kb, randomState, timeStep):
 
 	## Set protein counts from expression
-	initializeProteinMonomers(bulkContainer, kb, randStream)
+	initializeProteinMonomers(bulkContainer, kb, randomState, timeStep)
 
 	## Set RNA counts from expression
-	initializeRNA(bulkContainer, kb, randStream)
+	initializeRNA(bulkContainer, kb, randomState, timeStep)
 
 	## Set DNA
-	initializeDNA(bulkContainer, kb, randStream)
+	initializeDNA(bulkContainer, kb, randomState, timeStep)
 
 	## Set other biomass components
-	initializeBulkComponents(bulkContainer, kb, randStream)
+	initializeBulkComponents(bulkContainer, kb, randomState, timeStep)
 
 	## Set pools
-	initializePools(bulkContainer, kb, randStream)
+	initializePools(bulkContainer, kb, randomState, timeStep)
 
 	## Set water
-	initializeBulkWater(kb, bulkContainer, randStream)
+	initializeBulkWater(kb, bulkContainer, randomState)
 
 
-def initializeProteinMonomers(bulkContainer, kb, randStream):
+def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60
 		]
@@ -63,13 +68,13 @@ def initializeProteinMonomers(bulkContainer, kb, randStream):
 		)
 
 	monomersView.countsIs(
-		randStream.mnrnd(nMonomers, monomerExpression)
+		randomState.multinomial(nMonomers, monomerExpression)
 		)
 
 	# monomersView.countsIs(nMonomers * monomerExpression)
 
 
-def initializeRNA(bulkContainer, kb, randStream):
+def initializeRNA(bulkContainer, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
 		]
@@ -88,13 +93,13 @@ def initializeRNA(bulkContainer, kb, randStream):
 		)
 
 	rnaView.countsIs(
-		randStream.mnrnd(nRnas, rnaExpression)
+		randomState.multinomial(nRnas, rnaExpression)
 		)
 
 	# rnaView.countsIs(nRnas * rnaExpression)
 
 
-def initializeDNA(bulkContainer, kb, randStream):
+def initializeDNA(bulkContainer, kb, randomState, timeStep):
 
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
@@ -126,11 +131,11 @@ def initializeDNA(bulkContainer, kb, randStream):
 		)
 
 	dnmpsView.countsIs(
-		randStream.mnrnd(nDntps, dnaExpression)
+		randomState.multinomial(nDntps, dnaExpression)
 		)
 
 
-def initializeBulkComponents(bulkContainer, kb, randStream):
+def initializeBulkComponents(bulkContainer, kb, randomState, timeStep):
 	biomassContainer = BulkObjectsContainer(
 		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
 		)
@@ -158,7 +163,7 @@ def initializeBulkComponents(bulkContainer, kb, randStream):
 		))
 
 
-def initializePools(bulkContainer, kb, randStream):
+def initializePools(bulkContainer, kb, randomState, timeStep):
 	# Note: This is adding dry biomass, so the cell will appear heavier
 
 	from wholecell.reconstruction.knowledge_base_ecoli import AMINO_ACID_1_TO_3_ORDERED
@@ -183,7 +188,7 @@ def initializePools(bulkContainer, kb, randStream):
 	dntpsBulkView = bulkContainer.countsView(dntpIds)
 	aasBulkView = bulkContainer.countsView(aaIds)
 
-	dt = kb.timeStep.to("second").magnitude
+	dt = timeStep
 	tau_d = kb.cellCycleLen.to("second").magnitude
 
 	## NTPs
@@ -239,7 +244,7 @@ def initializePools(bulkContainer, kb, randStream):
 	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
 
 
-def initializeBulkWater(kb, bulkContainer, randStream):
+def initializeBulkWater(kb, bulkContainer, randomState):
 	h2oView = bulkContainer.countView('H2O[c]')
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
@@ -250,7 +255,7 @@ def initializeBulkWater(kb, bulkContainer, randStream):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
-def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
+def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep):
 	"""
 	initializeTranscription
 
@@ -289,12 +294,12 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
 
 	rnaLengthAverage = np.dot(rnaCounts, rnaLengths) / rnaCounts.sum()
 
-	fractionActive = 1 - elngRate/rnaLengthAverage
+	fractionActive = 1 - elngRate/rnaLengthAverage * timeStep
 
 	activeRnapCount = np.int64(activeRnapMax * fractionActive)
 
 	# Choose RNAs to polymerize
-	rnaCountsPolymerizing = randStream.mnrnd(activeRnapCount,
+	rnaCountsPolymerizing = randomState.multinomial(activeRnapCount,
 		kb.rnaData["synthProb"])
 
 	# Get the RNA masses
@@ -320,7 +325,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
 
 	maxRnaLengths = rnaLengths[rnaIndexes]
 
-	transcriptLengths = (randStream.rand(activeRnapCount) * maxRnaLengths).astype(np.int64)
+	transcriptLengths = (randomState.rand(activeRnapCount) * maxRnaLengths).astype(np.int64)
 
 	# Compute RNA masses
 	maxLen = np.int64(rnaLengths.max() + elngRate)
@@ -385,7 +390,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
 		rnaFractionsCumulative = rnaFractions.cumsum()
 
 		rnaIndex = np.where( # sample once from a multinomial distribution
-			rnaFractionsCumulative > randStream.rand()
+			rnaFractionsCumulative > randomState.rand()
 			)[0][0]
 
 		rnaMass = rnaMasses[rnaIndex]
@@ -407,7 +412,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randStream):
 
 	rnas.countsDec(rnaCountsDecremented)
 
-def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
+def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep):
 	"""
 	initializeTranslation
 
@@ -445,7 +450,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 
 	monomerLengthAverage = np.dot(monomerCounts, monomerLengths) / monomerCounts.sum()
 
-	fractionActive = 1 - elngRate/monomerLengthAverage
+	fractionActive = 1 - elngRate/monomerLengthAverage * timeStep
 
 	activeRibosomeCount = np.int64(activeRibosomeMax * fractionActive)
 
@@ -453,7 +458,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 	mrnaExpression = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
 	averageMrnaFractions = mrnaExpression/mrnaExpression.sum()
 
-	monomerCountsPolymerizing = randStream.mnrnd(activeRibosomeCount, averageMrnaFractions)
+	monomerCountsPolymerizing = randomState.multinomial(activeRibosomeCount, averageMrnaFractions)
 
 	# Compute the current protein mass
 
@@ -479,7 +484,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 
 	maxPeptideLengths = monomerLengths[proteinIndexes]
 
-	peptideLengths = (randStream.rand(activeRibosomeCount) * maxPeptideLengths).astype(np.int64)
+	peptideLengths = (randomState.rand(activeRibosomeCount) * maxPeptideLengths).astype(np.int64)
 
 	# Compute peptide masses
 	monomerSequences = kb.translationSequences
@@ -537,7 +542,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randStream):
 		monomerFractionsCumulative = monomerFractions.cumsum()
 
 		monomerIndex = np.where( # sample once from a multinomial distribution
-			monomerFractionsCumulative > randStream.rand()
+			monomerFractionsCumulative > randomState.rand()
 			)[0][0]
 
 		monomerMass = monomerMasses[monomerIndex]
