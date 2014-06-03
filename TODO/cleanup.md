@@ -3,7 +3,7 @@ Repository clean-up
 -------------------
 
 1. Top-level directories
-    * Clean up TODO directory
+    * Clean up TODO directory (DONE)
     * fixtures - should these all go in out/fixtures?
     * runscripts - break into subdirs
 
@@ -11,10 +11,10 @@ Repository clean-up
     * Remove unneeded/outmoded processes (DONE)
     * Clean up old code left in processes (DONE)
 
-3. wholecell/reconstruction
-    * Move spreadsheet to a better location (kbEcoli repo?)
-    * Move model_observations.md to a better location (top-level documentation directory?)
-    * Move processes.txt to a better location (top-level documentation directory?)
+3. wholecell/reconstruction (DONE)
+    * Move spreadsheet to a better location (kbEcoli repo?) (DONE - moved to docs directory for now)
+    * Move model_observations.md to a better location (top-level documentation directory?) (DONE)
+    * Move processes.txt to a better location (top-level documentation directory?) (DONE)
 
 4. wholecell/sim/hooks.py (DONE)
     * Create a separate directory for hooks (DONE)
