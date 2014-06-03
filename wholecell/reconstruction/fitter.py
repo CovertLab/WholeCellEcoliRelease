@@ -204,7 +204,8 @@ def fitKb(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = np.sum(kb.rnaData['countsACGU'], axis = 1)
 
-	nRnapsNeeded = np.sum(
+	FUDGE = 2.
+	nRnapsNeeded = FUDGE * np.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
@@ -245,7 +246,7 @@ def fitKb(kb):
 		)
 
 	kb.rnaExpression['expression'] = Q_(rnaExpressionContainer.counts(),'dimensionless')
-	
+
 	# Set number of RNAs based on expression we just set
 	nRnas = countsFromMassAndExpression(
 		rnaMass.to('DCW_g').magnitude,
