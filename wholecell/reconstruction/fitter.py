@@ -26,11 +26,11 @@ import pint
 pint._DEFAULT_REGISTRY = UREG
 
 # Constants (should be moved to KB)
-RRNA23S_MASS_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
-RRNA16S_MASS_FRACTION = 0.271 # This is the fraction of RNA that is 16S rRNA
-RRNA5S_MASS_FRACTION = 0.017 # This is the fraction of RNA that is 5S rRNA
-TRNA_MASS_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
-MRNA_MASS_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
+RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
+RRNA16S_MASS_SUB_FRACTION = 0.271 # This is the fraction of RNA that is 16S rRNA
+RRNA5S_MASS_SUB_FRACTION = 0.017 # This is the fraction of RNA that is 5S rRNA
+TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
+MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 
 # Correction factors
 EXCESS_RNAP_CAPACITY = 2
@@ -68,7 +68,7 @@ def fitKb(kb):
 
 	adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb)
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
-
+	import ipdb; ipdb.set_trace()
 
 	### RNA Mass Fractions ###
 	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
@@ -80,7 +80,7 @@ def fitKb(kb):
 	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
 
 	nRRna23Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_FRACTION,
+		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_SUB_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].to('g/mol').magnitude,
 		rRna23SExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -92,7 +92,7 @@ def fitKb(kb):
 	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
 
 	nRRna16Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_FRACTION,
+		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_SUB_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].to('g/mol').magnitude,
 		rRna16SExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -104,7 +104,7 @@ def fitKb(kb):
 	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
 
 	nRRna5Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA5S_MASS_FRACTION,
+		rnaMass.to('DCW_g').magnitude * RRNA5S_MASS_SUB_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].to('g/mol').magnitude,
 		rRna5SExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -134,7 +134,7 @@ def fitKb(kb):
 	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
 
 	nTRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * TRNA_MASS_FRACTION,
+		rnaMass.to('DCW_g').magnitude * TRNA_MASS_SUB_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isTRna"]].to('g/mol').magnitude,
 		tRnaExpression,
 		kb.nAvogadro.to('1/mol').magnitude
@@ -147,7 +147,7 @@ def fitKb(kb):
 	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
 
 	nMRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * MRNA_MASS_FRACTION,
+		rnaMass.to('DCW_g').magnitude * MRNA_MASS_SUB_FRACTION,
 		kb.rnaData["mw"][kb.rnaData["isMRna"]].to('g/mol').magnitude,
 		mRnaExpression,
 		kb.nAvogadro.to('1/mol').magnitude
