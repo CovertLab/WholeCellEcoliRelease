@@ -49,7 +49,7 @@ def initializeBulk(bulkContainer, kb, randomState, timeStep):
 	initializeBulkWater(kb, bulkContainer, randomState)
 
 	## Set genes
-	initializeGenes(kb, bulkContainer, randStream)
+	initializeGenes(kb, bulkContainer)
 
 
 def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
@@ -258,7 +258,7 @@ def initializeBulkWater(kb, bulkContainer, randomState):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
-def initializeGenes(kb, bulkContainer, randStream):
+def initializeGenes(kb, bulkContainer):
 	"""
 	initializeGenes
 
