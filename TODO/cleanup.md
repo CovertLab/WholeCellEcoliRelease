@@ -45,7 +45,7 @@ Refactoring
 2. wholecell/containers
     * Move saving/loading to bulk_objects_container from bulk_molecules
     * Rewrite Transcripts, Chromosome to use lists-of-arrays instead of single arrays
-    * Rewrite UniqueObjectsContainer to better differentiate the global reference array, improved array expansion logic using numpy built-ins, and a global name parameter that allows for unique object IDs
+    * Rewrite UniqueObjectsContainer to better differentiate the global reference array (DONE), improved array expansion logic using numpy built-ins (DONE), and a global name parameter that allows for unique object IDs
     * Move the data loader into a new directory and rewrite to focus on the container instead of the state
 
 3. wholecell/listeners
