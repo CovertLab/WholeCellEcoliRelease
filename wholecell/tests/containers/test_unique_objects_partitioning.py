@@ -57,8 +57,8 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 			attribute = False,
 			)
 		
-		self.collectionIndex_A = self.container._collectionNameToIndexMapping['A']
-		self.collectionIndex_B = self.container._collectionNameToIndexMapping['B']
+		self.collectionIndex_A = self.container._nameToIndexMapping['A']
+		self.collectionIndex_B = self.container._nameToIndexMapping['B']
 
 		self.randomState = np.random.RandomState()
 
@@ -79,7 +79,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 		requested22 = self.container.objectsInCollection("B")._globalIndexes
 
-		globalRefSize = self.container._collections[self.container._globalRefIndex].size
+		globalRefSize = self.container._globalReference.size
 
 		objectRequestsArray = np.zeros((globalRefSize, 4), np.bool)
 

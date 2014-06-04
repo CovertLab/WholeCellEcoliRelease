@@ -72,7 +72,7 @@ class Test_Simulation(unittest.TestCase):
 		sim = wholecell.sim.simulation.Simulation(
 			seed = 0, lengthSec = 10, logToDisk = True, outputDir = outDir,
 			overwriteExistingFiles = True,
-			states = ['BulkMolecules', 'UniqueMolecules', 'Chromosome', 'Transcripts']
+			states = ['BulkMolecules', 'UniqueMolecules', ] # 'Chromosome', 'Transcripts']
 			)
 
 		sim.run()
@@ -89,15 +89,15 @@ class Test_Simulation(unittest.TestCase):
 			reloadedSim.states['UniqueMolecules'].container,
 			)
 
-		self.assertEqual(
-			sim.states['Transcripts'].container,
-			reloadedSim.states['Transcripts'].container,
-			)
+		# self.assertEqual(
+		# 	sim.states['Transcripts'].container,
+		# 	reloadedSim.states['Transcripts'].container,
+		# 	)
 
-		self.assertEqual(
-			sim.states['Chromosome'].container,
-			reloadedSim.states['Chromosome'].container,
-			)
+		# self.assertEqual(
+		# 	sim.states['Chromosome'].container,
+		# 	reloadedSim.states['Chromosome'].container,
+		# 	)
 
 
 	@noseAttrib.attr('mediumtest', 'simulation')

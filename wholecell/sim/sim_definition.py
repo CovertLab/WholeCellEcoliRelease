@@ -16,14 +16,14 @@ import wholecell.utils.constants
 # States
 import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
-import wholecell.states.chromosome
-import wholecell.states.transcripts
+# import wholecell.states.chromosome
+# import wholecell.states.transcripts
 
 STATE_CLASSES = (
 	wholecell.states.bulk_molecules.BulkMolecules,
 	wholecell.states.unique_molecules.UniqueMolecules,
-	wholecell.states.chromosome.Chromosome,
-	wholecell.states.transcripts.Transcripts,
+	# wholecell.states.chromosome.Chromosome,
+	# wholecell.states.transcripts.Transcripts,
 	)
 
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
