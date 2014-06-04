@@ -194,8 +194,6 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		self._setCollectionTimes()
-
 		return _UniqueObjectSet(self, globalIndexes)
 
 
