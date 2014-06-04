@@ -46,10 +46,10 @@ def initializeBulk(bulkContainer, kb, randomState, timeStep):
 	initializePools(bulkContainer, kb, randomState, timeStep)
 
 	## Set water
-	initializeBulkWater(kb, bulkContainer, randomState)
+	initializeBulkWater(bulkContainer, kb, randomState, timeStep)
 
 	## Set genes
-	initializeGenes(kb, bulkContainer)
+	initializeGenes(bulkContainer, kb, timeStep)
 
 
 def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
@@ -247,7 +247,7 @@ def initializePools(bulkContainer, kb, randomState, timeStep):
 	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
 
 
-def initializeBulkWater(kb, bulkContainer, randomState):
+def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
 	h2oView = bulkContainer.countView('H2O[c]')
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
@@ -258,7 +258,7 @@ def initializeBulkWater(kb, bulkContainer, randomState):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
-def initializeGenes(kb, bulkContainer):
+def initializeGenes(bulkContainer, kb, timeStep):
 	"""
 	initializeGenes
 
@@ -268,6 +268,7 @@ def initializeGenes(kb, bulkContainer):
 
 	geneView = bulkContainer.countsView(kb.geneData['name'])
 	geneView.countsInc(1)
+
 
 def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep):
 	"""

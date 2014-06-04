@@ -28,6 +28,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	metaboliteIds = h.root.AAUsage._v_attrs["metaboliteIds"]
 	normAAProductionBiomass = h.root.AAUsage._v_attrs["relativeAAProductionBiomass"]
+	relativeAaUsage = h.root.AAUsage._v_attrs["relativeAaUsage"]
 
 	aaUsage = np.array(
 		[x['translationAAUsageCurrent'] for x in h.root.AAUsage.iterrows()]
@@ -48,11 +49,16 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 		plt.subplot(5, 4, idx + 1)
 
-		plt.plot(t / 60., normUsage[:, idx], linewidth = 2)
-		plt.plot([t[0] / 60., t[-1] / 60.], [normAAProductionBiomass[idx], normAAProductionBiomass[idx]], "r--")
+		plt.plot(t / 60., normUsage[:, idx], 'k', linewidth = 1)
+		(biomass,) = plt.plot([t[0] / 60., t[-1] / 60.], [normAAProductionBiomass[idx], normAAProductionBiomass[idx]], "r--", linewidth = 2)
+		(usages,) = plt.plot([t[0] / 60., t[-1] / 60.], [relativeAaUsage[idx], relativeAaUsage[idx]], "b--", linewidth = 2)
 		plt.xlabel("Time (min)")
 		plt.ylabel("Relative usage")
 		plt.title(metaboliteIds[idx])
+
+		if idx == 0:
+			# plt.legend([biomass, usages], ["Biomass production", "Expected usage"], loc = "best")
+			pass
 
 	plt.subplots_adjust(hspace = 0.5)
 

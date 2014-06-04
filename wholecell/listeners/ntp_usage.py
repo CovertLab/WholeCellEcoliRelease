@@ -60,6 +60,10 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].magnitude
 			)
 
+		self.relativeNtpUsage = normalize(
+			np.dot(kb.rnaData["countsACGU"].T, kb.rnaData["synthProb"])
+			)
+
 	# Allocate memory
 	def allocate(self):
 		super(NtpUsage, self).allocate()
@@ -111,6 +115,7 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		t.attrs.transcriptionNtpUsageCumulative_units = self.usageUnits
 		t.attrs.metaboliteIds = self.metaboliteIds
 		t.attrs.relativeNtpProductionBiomass = self.relativeNtpProductionBiomass
+		t.attrs.relativeNtpUsage = self.relativeNtpUsage
 
 
 	def pytablesAppend(self, h5file):
