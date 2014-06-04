@@ -27,7 +27,7 @@ import wholecell.utils.config
 sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
 import ecoliwholecellkb_project.ecoliwholecellkb.settings
 
-from ecoliwholecellkb_project.public.models import (Gene, Molecule, Location,
+from ecoliwholecellkb_project.public.models import (MoleculeType, Gene, Molecule, Location,
 Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified,
 ProteinMonomerModified, RnaModified, RelationStoichiometry,
 ProteinComplexReactionRelation,ProteinComplexModifiedReaction,
@@ -152,8 +152,11 @@ class KnowledgeBaseEcoli(object):
 		self._allProducts 	= dict([(i.id, i.product) for i in all_molecules])
 
 		#ADDED for thisType in loadRelationStoichiometry 
-		#updated in RNA, monomer, complex, Metabolite, modifiedForm
-		self._allProductType	= dict([(i.product, '') for i in all_molecules])
+		self._checkDatabaseAccess(MoleculeType)
+		all_types = MoleculeType.objects.all()
+		types  	= dict([(i.id, i.molecule_type) for i in all_types])
+
+		self._allProductType	= dict([(i.product, str(types[i.molecule_type_fk_id])) for i in all_molecules])
 
 
 	def _loadComments(self):		
@@ -255,7 +258,7 @@ class KnowledgeBaseEcoli(object):
 				m["equivEnzIds"] = equ_enz[i.id]		
 			
 			self._metabolites.append(m)
-			self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #added
+			###self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #need to delete
 
 
 	def _loadBiomassFractions(self):
@@ -523,7 +526,7 @@ class KnowledgeBaseEcoli(object):
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			
 			self._rnas.append(r)
-			self._allProductType[r["id"]] = 'rna' #added
+			###self._allProductType[r["id"]] = 'rna' #added
 	
 			# TODO from DEREK: Uncomment when Nick has fixed json formatting
 			# if type(r["halfLife"]) == dict:
@@ -560,7 +563,7 @@ class KnowledgeBaseEcoli(object):
 				r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			
 				self._rnas.append(r)
-				self._allProductType[r["id"]] = 'rna' #added
+				###self._allProductType[r["id"]] = 'rna' #added
 
 
 	def _loadProteinMonomers(self):
@@ -674,7 +677,7 @@ class KnowledgeBaseEcoli(object):
 			for aa in p["seq"]: p["mw"] += aaWeights[aa]
 
 			self._proteins.append(p)
-			self._allProductType[p["id"]] = 'protein' #added
+			###self._allProductType[p["id"]] = 'protein' #added
 
 
 	def _createModifiedForms(self):
