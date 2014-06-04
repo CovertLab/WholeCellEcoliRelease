@@ -11,15 +11,10 @@ interface to a specific molecule"s attributes.
 
 from __future__ import division
 
+from copy import deepcopy
+
 import numpy as np
 import tables
-
-import wholecell.utils.linear_programming as lp
-
-# State descriptions
-_ENTRY_INACTIVE = 0 # a clear entry
-_ENTRY_ACTIVE = 1 # an entry that is in use
-_ENTRY_DELETED = 2 # an entry that was deleted and is waiting to be cleaned up
 
 # TODO: object transfer between UniqueObjectsContainer instances
 # TODO: unique id for each object based on
@@ -38,17 +33,21 @@ class UniqueObjectsContainer(object):
 	molecules state and partitions.
 	"""
 
-	_defaultContainerAttributes = {
-		"_entryState":"int64", # see state descriptions above
-		"_globalIndex":"int64", # index in the _globalReference array (collection)
-		"_time":"int64", # current time (important for saving)
+	# State descriptions
+	_entryInactive = 0 # a clear entry
+	_entryActive = 1 # an entry that is in use
+
+	_defaultSpecification = {
+		"_entryState":np.int64, # see state descriptions above
+		"_globalIndex":np.int64, # index in the _globalReference array (collection)
+		"_time":np.int64, # current time (important for saving) # TODO: handle, set in other classes
 		}
 
-	_defaultCollectionsSpec = {
-		"_globalReference":{ # a table which contains reference to all molecules
-			"_collectionIndex":"int64",
-			"_objectIndex":"int64"
-			}
+	_globalReferenceDtype = {
+		"_entryState":np.int64, # see state descriptions above
+		"_collectionIndex":np.int64,
+		"_objectIndex":np.int64,
+		"_time":np.int64, # current time (important for saving) # TODO: handle, set in other classes
 		}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
@@ -62,74 +61,140 @@ class UniqueObjectsContainer(object):
 		"!=":np.not_equal
 		}
 
-	def __init__(self, collectionsSpec):
+	def __init__(self, specifications):
 		self._time = 0
 
-		self._collectionsSpec = {} # collectionName:{attributeName:type}
-
-		self._collectionNames = [] # sorted list of object names
+		self._names = [] # sorted list of object names
 
 		self._collections = [] # ordered list of collections (which are arrays)
-		self._collectionNameToIndexMapping = {} # collectionName:index of associated structured array
+		self._nameToIndexMapping = {} # collectionName:index of associated structured array
 
 		self._tableNames = [] # collection index:table name
 
-		self._collectionsSpec.update(collectionsSpec)
-		self._collectionsSpec.update(self._defaultCollectionsSpec)
+		self._specifications = deepcopy(specifications) # collectionName:{attributeName:type}
 
-		self._collectionNames = sorted(self._collectionsSpec.keys())
-		self._globalRefIndex = self._collectionNames.index("_globalReference")
+		self._names = sorted(self._specifications.keys())
 
-		for collectionName, attributes in self._collectionsSpec.viewitems():
-			# Add the attributes used internally
-			attributes.update(self._defaultContainerAttributes)
+		defaultSpecKeys = self._defaultSpecification.viewkeys()
 
-		# Global references don"t use global indexes
-		del self._collectionsSpec["_globalReference"]["_globalIndex"]
+		# Add the attributes used internally
+		for name, specification in self._specifications.viewitems():
+			# Make sure there is no overlap in attribute names
+			invalidAttributeNames = (specification.viewkeys() & defaultSpecKeys)
+			if invalidAttributeNames:
+				raise UniqueObjectsContainerException(
+					"Invalid attribute names in specification for {}: {}".format(
+						name,
+						', '.join(invalidAttributeNames)
+						)
+					)
 
-		for collectionIndex, collectionName in enumerate(self._collectionNames):
-			attributes = self._collectionsSpec[collectionName]
+			specification.update(self._defaultSpecification)
+
+		for collectionIndex, collectionName in enumerate(self._names):
+			specification = self._specifications[collectionName]
 
 			# Create the collection (structured array)
-			newArray = np.zeros(
-				1, # start out empty
+			newArray = np.zeros( # start out empty
+				1,
 				dtype = [
 					(attrName, attrType)
-					for attrName, attrType in attributes.viewitems()
+					for attrName, attrType in specification.viewitems()
 					]
 				)
 
 			# Create references to collections
 			self._collections.append(newArray)
-			self._collectionNameToIndexMapping[collectionName] = collectionIndex
+			self._nameToIndexMapping[collectionName] = collectionIndex
 
 			# Give the tables accessible names
 			self._tableNames.append(collectionName.replace(" ", "_"))
 
+		# Create an array which handles global references to objects in all collections
+		self._globalReference = np.zeros(
+			1,
+			dtype = [
+				(attrName, attrType)
+				for attrName, attrType in self._globalReferenceDtype.viewitems()
+				]
+			)
 
-	def objectsNew(self, collectionName, nMolecules, **attributes):
-		# Create multiple objects of the same type and attribute values
-		collectionIndex = self._collectionNameToIndexMapping[collectionName]
-		objectIndexes = self._getFreeIndexes(collectionIndex, nMolecules)
+
+	def _getFreeIndexes(self, collectionIndex, nObjects):
+		# Returns indexes of unoccupied entries, extending the arrays when neccesary
 
 		collection = self._collections[collectionIndex]
 
-		collection["_entryState"][objectIndexes] = _ENTRY_ACTIVE
+		freeCollectionIndexes = np.where(
+			collection["_entryState"] == self._entryInactive
+			)[0]
+
+		nFreeCollectionIndexes = freeCollectionIndexes.size
+
+		if nFreeCollectionIndexes < nObjects:
+			oldSize = collection.size
+			nNewEntries = max(
+				np.int64(oldSize * self._fractionExtendEntries),
+				nObjects - nFreeCollectionIndexes
+				)
+
+			self._collections[collectionIndex] = np.append(
+				collection,
+				np.zeros(nNewEntries, dtype = collection.dtype)
+				)
+
+			freeCollectionIndexes = np.concatenate((
+				freeCollectionIndexes,
+				oldSize + np.arange(nObjects - nFreeCollectionIndexes)
+				))
+
+		freeGlobalIndexes = np.where(
+			self._globalReference["_entryState"] == self._entryInactive
+			)[0]
+
+		nFreeGlobalIndexes = freeGlobalIndexes.size
+
+		if nFreeGlobalIndexes < nObjects:
+			oldSize = self._globalReference.size
+			nNewEntries = max(
+				np.int64(oldSize * self._fractionExtendEntries),
+				nObjects - nFreeGlobalIndexes
+				)
+
+			self._globalReference = np.append(
+				self._globalReference,
+				np.zeros(nNewEntries, dtype = self._globalReference.dtype)
+				)
+
+			freeGlobalIndexes = np.concatenate((
+				freeGlobalIndexes,
+				oldSize + np.arange(nObjects - nFreeGlobalIndexes)
+				))
+
+		self._setCollectionTimes()
+
+		return freeCollectionIndexes, freeGlobalIndexes
+
+
+	def objectsNew(self, collectionName, nObjects, **attributes):
+		collectionIndex = self._nameToIndexMapping[collectionName]
+		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
+
+		collection = self._collections[collectionIndex]
+
+		# TODO: assign unique IDs to each object
+
+		collection["_entryState"][objectIndexes] = self._entryActive
+		collection["_globalIndex"][objectIndexes] = globalIndexes
 
 		for attrName, attrValue in attributes.viewitems():
-			# NOTE: there is probably a non-loop solution to this, but the "obvious" solution creates a copy instead of a view
 			collection[attrName][objectIndexes] = attrValue
 
-		globalIndexes = self._getFreeIndexes(self._globalRefIndex, nMolecules)
+		self._globalReference["_entryState"][globalIndexes] = self._entryActive
+		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
+		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		# In global array, create reference pointing to object
-		globalArray = self._collections[self._globalRefIndex]
-		globalArray["_entryState"][globalIndexes] = _ENTRY_ACTIVE
-		globalArray["_collectionIndex"][globalIndexes] = collectionIndex
-		globalArray["_objectIndex"][globalIndexes] = objectIndexes
-
-		# In collection, for each object, point to global reference
-		collection["_globalIndex"][objectIndexes] = globalIndexes
+		self._setCollectionTimes()
 
 		return _UniqueObjectSet(self, globalIndexes)
 
@@ -140,79 +205,41 @@ class UniqueObjectsContainer(object):
 		return molecule
 
 
-	def _getFreeIndexes(self, collectionIndex, nMolecules):
-		freeIndexes = np.where(
-			self._collections[collectionIndex]["_entryState"] == _ENTRY_INACTIVE
-			)[0]
-
-		if freeIndexes.size < nMolecules:
-			oldArray = self._collections[collectionIndex]
-			oldSize = oldArray.size
-
-			newSize = oldSize + max(int(oldSize * self._fractionExtendEntries), nMolecules)
-
-			self._collections[collectionIndex] = np.zeros(
-				newSize,
-				dtype = oldArray.dtype
-				)
-			
-			self._collections[collectionIndex][:oldSize] = oldArray
-
-			freeIndexes = np.concatenate((freeIndexes, np.arange(oldSize, newSize)))
-
-			self._setCollectionTimes()
-
-		return freeIndexes[:nMolecules]
-
-
 	def objectsDel(self, objects):
 		for obj in objects:
 			self.objectDel(obj)
 
 
 	def objectDel(self, obj):
-		globalIndex = obj.attr("_globalIndex")
+		# TODO: profile this in processes that delete lots of objects
+		collection = self._collections[obj._collectionIndex]
+		collection[obj._objectIndex].fill(0)
 
-		self._collections[obj._collectionIndex][obj._objectIndex]["_entryState"] = _ENTRY_DELETED
-		self._collections[self._globalRefIndex][globalIndex]["_entryState"] = _ENTRY_DELETED
-		# TODO: Assign unique IDs and run _clearEntries() here
-
-
-	def _clearEntries(self, collectionIndex, objectIndexes):
-		collection = self._collections[collectionIndex]
-
-		collection[objectIndexes] = np.zeros(
-			1,
-			dtype = collection.dtype
-			)
+		self._globalReference[obj._globalIndex].fill(0)
 
 
 	def objects(self, **operations):
 		# Return all objects, optionally evaluating a query on !!every!! molecule (generally not what you want to do)
 		if operations:
-			collectionIndexes = set(xrange(len(self._collections)))
-			collectionIndexes.remove(self._globalRefIndex)
-
 			results = []
 
-			for collectionIndex in collectionIndexes:
-				results.append(self._queryObjects(collectionIndex,
-					raiseOnMissingAttribute = False, **operations))
+			for collectionIndex in xrange(len(self._collections)):
+				results.append(self._queryObjects(collectionIndex, **operations))
 
-			return _UniqueObjectSet(self, np.r_[tuple(
+			return _UniqueObjectSet(self, np.concatenate([
 				self._collections[collectionIndex]["_globalIndex"][result]
-				for collectionIndex, result in zip(collectionIndexes, results)
-				)])
+				for collectionIndex, result in enumerate(results)
+				]))
 
 		else:
 			return _UniqueObjectSet(self,
-				np.where(self._collections[self._globalRefIndex]["_entryState"] == _ENTRY_ACTIVE)[0]
+				np.where(self._globalReference["_entryState"] == self._entryActive)[0]
 				)
 
 
 	def objectsInCollection(self, collectionName, **operations):
 		# Return all objects belonging to a collection and that optionally satisfy a set of attribute queries
-		collectionIndex = self._collectionNameToIndexMapping[collectionName]
+		collectionIndex = self._nameToIndexMapping[collectionName]
 
 		result = self._queryObjects(collectionIndex, **operations)
 
@@ -224,40 +251,34 @@ class UniqueObjectsContainer(object):
 	def objectsInCollections(self, collectionNames, **operations):
 		# Return all objects belonging to a set of collections that optionally satisfy a set of attribute queries
 
-		collectionIndexes = [self._collectionNameToIndexMapping[collectionName] for collectionName in collectionNames]
+		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
 
 		for collectionIndex in collectionIndexes:
 			results.append(self._queryObjects(collectionIndex, **operations))
 
-		return _UniqueObjectSet(self, np.r_[tuple(
+		return _UniqueObjectSet(self, np.concatenate([
 			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in zip(collectionIndexes, results)
-			)])
+			]))
 
 
-	def _queryObjects(self, collectionIndex, raiseOnMissingAttribute = True, **operations):
-		operations["_entryState"] = ("==", _ENTRY_ACTIVE)
+	def _queryObjects(self, collectionIndex, **operations):
+		# Performs a series of comparison operations on a collection, and 
+		# returns a boolean-value array that is True where every comparison was True
+		operations["_entryState"] = ("==", self._entryActive)
 		collection = self._collections[collectionIndex]
 
-		try:
-			return reduce(
-				np.logical_and,
-				(
-					self._queryOperations[operator](
-						collection[attrName],
-						queryValue
-						)
-					for attrName, (operator, queryValue) in operations.viewitems()
-				)
+		return reduce(
+			np.logical_and,
+			(
+				self._queryOperations[operator](
+					collection[attrName],
+					queryValue
+					)
+				for attrName, (operator, queryValue) in operations.viewitems()
 			)
-
-		except ValueError:
-			if not raiseOnMissingAttribute and (operations.viewkeys() - set(collection.dtype.names)):
-				return np.zeros(collection.size, np.bool)
-
-			else:
-				raise
+		)
 
 
 	def objectsByGlobalIndex(self, globalIndexes):
@@ -278,22 +299,14 @@ class UniqueObjectsContainer(object):
 		for collection in self._collections:
 			collection["_time"] = self._time
 
-
-	def flushDeleted(self):
-		for collectionIndex, collection in enumerate(self._collections):
-			self._clearEntries(
-				collectionIndex,
-				np.where(collection["_entryState"] == _ENTRY_DELETED)
-				)
-
-		self._setCollectionTimes()
+		self._globalReference["_time"] = self._time
 
 
 	def __eq__(self, other):
 		return np.all(
 			(selfCollection == otherCollection).all()
 			for (selfCollection, otherCollection) in zip(self._collections, other._collections)
-			)
+			) and np.all(self._globalReference == other._globalReference)
 
 
 	def pytablesCreate(self, h5file):
@@ -302,11 +315,19 @@ class UniqueObjectsContainer(object):
 				h5file.root,
 				self._tableNames[collectionIndex],
 				collection.dtype,
-				title = self._collectionNames[collectionIndex],
+				title = self._names[collectionIndex],
 				filters = tables.Filters(complevel = 9, complib = "zlib")
 				)
 
-		h5file.root._globalReference.attrs.collectionNames = self._collectionNames
+		h5file.create_table(
+			h5file.root,
+			"_globalReference",
+			self._globalReference.dtype,
+			title = "_globalReference",
+			filters = tables.Filters(complevel = 9, complib = "zlib")
+			)
+
+		h5file.root._globalReference.attrs.collectionNames = self._names
 
 
 	def pytablesAppend(self, h5file):
@@ -317,6 +338,12 @@ class UniqueObjectsContainer(object):
 
 			entryTable.flush()
 
+		globalTable = h5file.get_node("/", "_globalReference")
+
+		globalTable.append(self._globalReference)
+
+		globalTable.flush()
+
 
 	def pytablesLoad(self, h5file, timePoint):
 		for collectionIndex, tableName in enumerate(self._tableNames):
@@ -325,6 +352,12 @@ class UniqueObjectsContainer(object):
 			entries = entryTable[entryTable.col("_time") == timePoint]
 
 			self._collections[collectionIndex] = entries
+
+		globalTable = h5file.get_node("/", "_globalReference")
+
+		globalEntries = globalTable[globalTable.col("_time") == timePoint]
+
+		self._globalReference = globalEntries
 
 
 class _UniqueObject(object):
@@ -336,13 +369,14 @@ class _UniqueObject(object):
 	object-like interface.
 	"""
 	
-	__slots__ = ("_container", "_collectionIndex", "_objectIndex")
+	__slots__ = ("_container", "_globalIndex", "_collectionIndex", "_objectIndex")
 
 
 	def __init__(self, container, globalIndex):
 		self._container = container
-		self._collectionIndex = container._collections[container._globalRefIndex][globalIndex]["_collectionIndex"]
-		self._objectIndex = container._collections[container._globalRefIndex][globalIndex]["_objectIndex"]
+		self._globalIndex = globalIndex
+		self._collectionIndex = container._globalReference[globalIndex]["_collectionIndex"]
+		self._objectIndex = container._globalReference[globalIndex]["_objectIndex"]
 
 
 	def name(self):
@@ -352,7 +386,7 @@ class _UniqueObject(object):
 	def attr(self, attribute):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry["_entryState"] == _ENTRY_ACTIVE:
+		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
 		if isinstance(entry[attribute], np.ndarray):
@@ -366,7 +400,7 @@ class _UniqueObject(object):
 	def attrs(self, *attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry["_entryState"] == _ENTRY_ACTIVE:
+		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 		
 		# See note in .attr
@@ -379,7 +413,7 @@ class _UniqueObject(object):
 	def attrIs(self, **attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
-		if not entry["_entryState"] == _ENTRY_ACTIVE:
+		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
 		for attribute, value in attributes.viewitems():
@@ -394,6 +428,7 @@ class _UniqueObject(object):
 
 
 	def __hash__(self):
+		# TODO: replace with unique ID
 		return hash((self._collectionIndex, self._objectIndex))
 
 
@@ -404,7 +439,7 @@ class _UniqueObject(object):
 		if not self._container is other._container:
 			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
-		return self._collectionIndex == other._collectionIndex and self._objectIndex == other._objectIndex
+		return self._globalIndex == other._globalIndex
 
 
 	def __ne__(self, other):
@@ -457,17 +492,20 @@ class _UniqueObjectSet(object):
 			)
 
 
+	def __getitem__(self, index):
+		return _UniqueObject(self._container, self._globalIndexes[index])
+
+
 	def attr(self, attribute):
 		if self._globalIndexes.size == 0:
-			return np.zeros(0) # NOTE: this does not enforce dtype; that is difficult!
+			raise UniqueObjectsContainerException("Object set is empty")
 
-		# TODO: consider raising instead of returning a mistyped zero
+		if (self._container._globalReference["_entryState"][self._globalIndexes] == self._container._entryInactive).any():
+			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
 		# TODO: cache these properties? should be static
-		globalRef = self._container._collections[self._container._globalRefIndex]
-
-		collectionIndexes = globalRef["_collectionIndex"][self._globalIndexes]
-		objectIndexes = globalRef["_objectIndex"][self._globalIndexes]
+		collectionIndexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
+		objectIndexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
@@ -495,13 +533,14 @@ class _UniqueObjectSet(object):
 
 	def attrIs(self, **attributes):
 		if self._globalIndexes.size == 0:
-			return
+			raise UniqueObjectsContainerException("Object set is empty")
+
+		if (self._container._globalReference["_entryState"][self._globalIndexes] == self._container._entryInactive).any():
+			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
 		# TODO: cache these properties? should be static
-		globalRef = self._container._collections[self._container._globalRefIndex]
-
-		collectionIndexes = globalRef["_collectionIndex"][self._globalIndexes]
-		objectIndexes = globalRef["_objectIndex"][self._globalIndexes]
+		collectionIndexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
+		objectIndexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
@@ -520,6 +559,8 @@ class _UniqueObjectSet(object):
 
 	# TODO: set-like operations (union, intersection, etc.)
 
+
+import wholecell.utils.linear_programming as lp
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randomState):
 	# Arguments:

@@ -232,33 +232,10 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.assertEqual(allMolecules, newTime)
 
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_deleted_entry_flushing(self):
-		# First, make sure that deleted entries are not overwritten
-		molecules = self.container.objectsInCollection('RNA polymerase')
-		indexes = {molecule._objectIndex for molecule in molecules}
-
-		self.container.objectsDel(molecules)
-
-		newMolecule = self.container.objectNew(
-			'RNA polymerase'
-			)
-
-		self.assertTrue(newMolecule._objectIndex not in indexes)
-
-		# Next, flush the deleted entries and confirm that an old entry is overwritten
-		self.container.flushDeleted()
-		newMolecule = self.container.objectNew(
-			'RNA polymerase'
-			)
-
-		self.assertTrue(newMolecule._objectIndex in indexes)
-
 	# Global references
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_mapping(self):
-		globalArray = self.container._collections[self.container._globalRefIndex]
+		globalArray = self.container._globalReference
 
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
 			globalIndex = molecule.attr('_globalIndex')
@@ -274,7 +251,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_removal(self):
-		globalArray = self.container._collections[self.container._globalRefIndex]
+		globalArray = self.container._globalReference
 
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
 			# Weird logic to get one molecule
@@ -283,7 +260,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		globalIndex = molecule.attr('_globalIndex')
 		
 		self.container.objectDel(molecule)
-		self.container.flushDeleted()
 
 		globalEntry = globalArray[globalIndex]
 
