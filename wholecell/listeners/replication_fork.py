@@ -34,7 +34,6 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 		super(ReplicationForkPosition, self).initialize(sim, kb)
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
-		self.dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('activeDnaPolymerase')
 
 		self.states = sim.states
 
@@ -51,6 +50,7 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 	def update(self):
 		self._resetPositions()
+		self.dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('activeDnaPolymerase')
 
 		for i,polymerase in enumerate(self.dnaPolymerases):
 			if i == 0:
