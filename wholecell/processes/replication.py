@@ -53,7 +53,6 @@ class Replication(wholecell.processes.process.Process):
 		self.sequence = np.array(list(kb.genomeSeq))
 		self.genomeLength = kb.genomeLength
 		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
-		oricCenter = kb.oriCCenter.to('nucleotide').magnitude
 
 		geneIds = kb.geneData['name']
 		self.geneEndCoordinate = kb.geneData['endCoordinate']
@@ -69,19 +68,12 @@ class Replication(wholecell.processes.process.Process):
 		self.genes = self.bulkMoleculesView(geneIds)
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
-		
-		self.dnaPolymerase.moleculeNew(
-			'activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = True
-			)
-		self.dnaPolymerase.moleculeNew(
-			'activeDnaPolymerase', chromosomeLocation = oricCenter, directionIsPositive = False
-			)
 
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
 
 		dnaPolymerase = self.dnaPolymerase.molecules()
-
+		
 		totalNtRequest = np.array([0]*len(_NT_ORDER))
 		for p in dnaPolymerase:
 			totalNtRequest += self.calculateNucleotideRequest(p)

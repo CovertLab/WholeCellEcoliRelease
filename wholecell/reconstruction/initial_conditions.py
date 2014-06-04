@@ -26,6 +26,7 @@ def calcInitialConditions(sim, kb):
 	# Modify states for specific processes
 	initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep)
 	initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep)
+	initializeReplication(uniqueContainer, kb)
 
 
 def initializeBulk(bulkContainer, kb, randomState, timeStep):
@@ -578,3 +579,17 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 			break
 
 	monomers.countsDec(monomerCountsDecremented)
+
+def initializeReplication(uniqueContainer, kb):
+	'''
+	initializeReplication
+
+	Purpose: Create two replication forks represented as unique
+	molecules for now at the center of the oriC
+	'''
+	oricCenter = kb.oriCCenter.to('nucleotide').magnitude
+	dnaPoly = uniqueContainer.objectsNew('activeDnaPolymerase', 2)
+	dnaPoly.attrIs(
+		chromosomeLocation = np.array([oricCenter, oricCenter]),
+		directionIsPositive = np.array([True, False])
+		)
