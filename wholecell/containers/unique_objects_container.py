@@ -145,7 +145,7 @@ class UniqueObjectsContainer(object):
 
 			freeCollectionIndexes = np.concatenate((
 				freeCollectionIndexes,
-				oldSize + np.arange(nObjects - nFreeCollectionIndexes)
+				oldSize + np.arange(nNewEntries)
 				))
 
 		freeGlobalIndexes = np.where(
@@ -168,12 +168,12 @@ class UniqueObjectsContainer(object):
 
 			freeGlobalIndexes = np.concatenate((
 				freeGlobalIndexes,
-				oldSize + np.arange(nObjects - nFreeGlobalIndexes)
+				oldSize + np.arange(nNewEntries)
 				))
 
 		self._setCollectionTimes()
 
-		return freeCollectionIndexes, freeGlobalIndexes
+		return freeCollectionIndexes[:nObjects], freeGlobalIndexes[:nObjects]
 
 
 	def objectsNew(self, collectionName, nObjects, **attributes):

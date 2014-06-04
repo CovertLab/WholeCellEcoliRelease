@@ -62,14 +62,11 @@ class UniqueMolecules(wholecell.states.state.State):
 		# Set the correct time for saving purposes
 		self.container.timeIs(self.timeStep())
 
-		# Clear out any deleted entries to make room for new molecules
-		self.container.flushDeleted()
-
 		# Remove any prior partition assignments
 		self.container.objects().attrIs(_partitionedProcess = UNASSIGNED_PARTITION_VALUE)
 		
 		# Gather requests
-		nMolecules = self.container._collections[self.container._globalRefIndex].size
+		nMolecules = self.container._globalReference.size
 		nViews = len(self._views)
 
 		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)
@@ -122,7 +119,8 @@ class UniqueMolecules(wholecell.states.state.State):
 				np.where(partitionedMolecules[:, view._processIndex])[0]
 				)
 
-			molecules.attrIs(_partitionedProcess = view._processIndex)
+			if len(molecules):
+				molecules.attrIs(_partitionedProcess = view._processIndex)
 
 
 	# TODO: refactor mass calculations as a whole
