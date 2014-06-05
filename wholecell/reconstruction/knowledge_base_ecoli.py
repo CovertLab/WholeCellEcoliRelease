@@ -109,6 +109,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildSequence()
 		self._buildCompartments()
 		self._buildBulkMolecules()
+		self._buildBulkChromosome()
 		self._buildGeneData()
 		self._buildUniqueMolecules()
 		self._buildBiomass()
@@ -959,7 +960,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkMolecules(self):
-		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins) + len(self._genes)
+		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins)
 		bulkMolecules = numpy.zeros(size,
 			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
@@ -970,7 +971,7 @@ class KnowledgeBaseEcoli(object):
 					("isWater",				"bool"),
 					("isComplex",			"bool"),
 					("isModified",			"bool"),
-					("isGene",				"bool")])
+					])
 
 		# Set metabolites
 		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
@@ -1006,13 +1007,6 @@ class KnowledgeBaseEcoli(object):
 		bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
 		bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
 		bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
-		
-		# Set genes
-		lastGeneIdx = len(self._genes) + lastProteinMonomerIdx
-		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastGeneIdx] = [x['id'] for x in self._genes]
-		bulkMolecules['mass'] = [0.] * len(self._genes)
-		bulkMolecules['isGene'][lastProteinMonomerIdx:lastGeneIdx] = [True]*len(self._genes)
-
 
 		# Add units to values
 		units = {
@@ -1025,7 +1019,7 @@ class KnowledgeBaseEcoli(object):
 			"isModified"		:	None,
 			'isWater'			:	None,
 			'isComplex'			:	None,
-			'isGene'			:	None}
+			}
 		self.bulkMolecules = UnitStructArray(bulkMolecules, units)
 
 	def _buildGeneData(self):
@@ -1042,6 +1036,28 @@ class KnowledgeBaseEcoli(object):
 		#self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
 		self.geneData['endCoordinate'] = [(x['coordinate'] + x['length']) % self.genomeLength if x['direction'] == '+' else (x['coordinate'] - x['length']) % self.genomeLength for x in self._genes]
 
+
+	def _buildBulkChromosome(self):
+		size = len(self._genes)
+		bulkChromosome = numpy.zeros(size,
+			dtype = [("id", 				"a50"),
+					('compartment',			"a1"),
+					("mass",				"float64"),
+					("isGene",				"bool")])
+		# Set genes
+		lastGeneIdx = len(self._genes)
+		bulkChromosome['moleculeId'][0:lastGeneIdx] = [x['id'] for x in self._genes]
+		bulkChromosome['mass'][0:lastGeneIdx] = [0.] * len(self._genes)
+		bulkChromosome['isGene'][0:lastGeneIdx] = [True]*len(self._genes)
+
+
+		# Add units to values
+		units = {
+			"moleculeId"		:	None,
+			"mass"				:	"g / mol",
+			'compartment'		:	None,
+			'isGene'			:	None}
+		self.bulkChromosome = UnitStructArray(bulkChromosome, units)
 
 	def _buildUniqueMolecules(self):
 		# TODO: ask Nick about the best way to use the unit struct arrays here
