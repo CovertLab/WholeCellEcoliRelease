@@ -1040,7 +1040,7 @@ class KnowledgeBaseEcoli(object):
 	def _buildBulkChromosome(self):
 		size = len(self._genes)
 		bulkChromosome = numpy.zeros(size,
-			dtype = [("id", 				"a50"),
+			dtype = [("moleculeId", 		"a50"),
 					('compartment',			"a1"),
 					("mass",				"float64"),
 					("isGene",				"bool")])
