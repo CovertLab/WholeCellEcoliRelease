@@ -30,7 +30,10 @@ class ReplicationInitiation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(ReplicationInitiation, self).initialize(sim, kb)
 
-		pass
+		# Load parameters
+
+		# Create views
+
 
 	def calculateRequest(self):
 		pass

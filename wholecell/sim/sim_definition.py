@@ -39,6 +39,7 @@ import wholecell.processes.translation.unique_polypeptide_elongation
 import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 import wholecell.processes.protein_degradation
+import wholecell.processes.replication_initiation
 
 PROCESS_CLASSES = (
 	wholecell.processes.complexation.Complexation,
@@ -50,7 +51,8 @@ PROCESS_CLASSES = (
 	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
-	wholecell.processes.protein_degradation.ProteinDegradation
+	wholecell.processes.protein_degradation.ProteinDegradation,
+	wholecell.processes.replication_initiation.ReplicationInitiation
 	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
