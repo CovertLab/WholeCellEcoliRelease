@@ -21,7 +21,7 @@ import tables
 # TODO: unique id for each object based on
 #	hash(time, collectionIndex, arrayIndex, containerName) at creation time
 
-_MAX_ID_SIZE = 50 # max length of the unique id assigned to objects
+_MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
 
 class UniqueObjectsContainerException(Exception):
 	pass
@@ -191,7 +191,14 @@ class UniqueObjectsContainer(object):
 			for objectIndex in objectIndexes
 			]
 
-		if max(len(uId) for uId in uniqueObjectIds) > _MAX_ID_SIZE:
+		maxObjectIdLength = (
+			len(collectionName)
+			+ np.floor(np.log10(self._time)) + 1
+			+ np.floor(np.log10(objectIndexes.max())) + 1
+			+ 1
+			)
+
+		if maxObjectIdLength > _MAX_ID_SIZE:
 			warnings.warn("Maximum allowable ID size exceeded")
 
 		collection["_entryState"][objectIndexes] = self._entryActive

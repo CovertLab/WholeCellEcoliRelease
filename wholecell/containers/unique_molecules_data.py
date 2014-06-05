@@ -1,4 +1,8 @@
 
+from __future__ import division
+
+from itertools import izip
+
 import tables
 import numpy as np
 
@@ -45,6 +49,41 @@ class UniqueMoleculesData(object):
 			])
 
 
+	def attrsByMolecule(self, moleculeName, attributes):
+		# Return a list of numpy struct arrays, where each array is the history
+		# of a specific molecule
+
+		# TODO: exclude inactive?
+
+		# Load from the h5file
+
+		moleculeTable = getattr(self._h5file.root, moleculeName)
+		activeIndexes = np.where(moleculeTable.col("_entryState") == 1)[0]
+
+		# Collect the unique molecule IDs
+		uniqueIdsCol = moleculeTable.read_coordinates(activeIndexes, "_uniqueId")
+		uniqueIds = np.unique(uniqueIdsCol)
+
+		# allFields = moleculeTable.read_coordinates(activeIndexes)[attributes]
+
+		n = uniqueIds.size
+
+		# Yield the output
+		for i, uniqueId in enumerate(uniqueIds):
+			# if i % 1000 == 0:
+			# 	print 100*i/n
+
+			entriesForMolecule = (uniqueIdsCol == uniqueId)
+
+			entries = moleculeTable.read_coordinates(activeIndexes[entriesForMolecule])
+
+			yield entries[attributes]
+
+			# entries = allFields[entriesForMolecule]
+
+			# yield entries
+
+
 	def attrs(self, moleculeName, attributes, timepoints = None):
 		if timepoints is None:
 			timepoints = self._timepoints
@@ -58,6 +97,7 @@ class UniqueMoleculesData(object):
 		isActive = (moleculeTable.col("_entryState") == 1)
 		times = moleculeTable.col("_time")[isActive]
 
+		# TODO: invert the for-loop order so this doesn't need to be cached
 		entriesForTimepoints = [
 			(times == time) for time in timepoints
 			]
