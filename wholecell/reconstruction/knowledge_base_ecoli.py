@@ -1047,9 +1047,8 @@ class KnowledgeBaseEcoli(object):
 		# Set genes
 		lastGeneIdx = len(self._genes)
 		bulkChromosome['moleculeId'][0:lastGeneIdx] = [x['id'] for x in self._genes]
-		bulkChromosome['mass'][0:lastGeneIdx] = [0.] * len(self._genes)
+		bulkChromosome['mass'][0:lastGeneIdx] = 0.
 		bulkChromosome['isGene'][0:lastGeneIdx] = [True]*len(self._genes)
-
 
 		# Add units to values
 		units = {
