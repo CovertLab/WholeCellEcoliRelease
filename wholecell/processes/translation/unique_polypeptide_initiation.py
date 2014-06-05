@@ -72,7 +72,7 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
-		inactiveRibosomes = np.min([
+		inactiveRibosomeCount = np.min([
 			self.rRna23S.counts().sum(),
 			self.rRna16S.counts().sum(),
 			self.rRna5S.counts().sum()
@@ -84,23 +84,38 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 			).flatten()	# TODO: Is this .flatten() necessary?
 
 		nNewProteins = self.randomState.multinomial(
-			inactiveRibosomes,
+			inactiveRibosomeCount,
 			proteinInitProb
 			)
 
 		nonzeroCount = (nNewProteins > 0)
 
-		#for protIdx, nNew, aaCounts in itertools.izip(
-		for protIdx, nNew in itertools.izip(
+		assert nNewProteins.sum() == inactiveRibosomeCount
+
+		# Build list of protein indexes
+
+		proteinIndexes = np.empty(inactiveRibosomeCount, np.int64)
+
+		startIndex = 0
+		for proteinIndex, counts in itertools.izip(
 				np.arange(nNewProteins.size)[nonzeroCount],
 				nNewProteins[nonzeroCount],
 				):
 
-			self.activeRibosomes.moleculesNew(
-				"activeRibosome",
-				nNew,
-				proteinIndex = protIdx,
-				)
+			proteinIndexes[startIndex:startIndex+counts] = proteinIndex
+
+			startIndex += counts
+
+		# Create the active ribosomes
+
+		activeRibosomes = self.activeRibosomes.moleculesNew(
+			"activeRibosome",
+			inactiveRibosomeCount
+			)
+
+		activeRibosomes.attrIs(
+			proteinIndex = proteinIndexes
+			)
 
 		self.rRna23S.countsDec(nNewProteins.sum())
 		self.rRna16S.countsDec(nNewProteins.sum())
