@@ -193,8 +193,8 @@ class UniqueObjectsContainer(object):
 
 		maxObjectIdLength = (
 			len(collectionName)
-			+ np.floor(np.log10(self._time)) + 1
-			+ np.floor(np.log10(objectIndexes.max())) + 1
+			+ np.floor(np.log10(max(self._time, 1))) + 1
+			+ np.floor(np.log10(max(objectIndexes.max(), 1)))+ 1
 			+ 1
 			)
 
