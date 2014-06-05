@@ -12,6 +12,7 @@ interface to a specific molecule"s attributes.
 from __future__ import division
 
 from copy import deepcopy
+import warnings
 
 import numpy as np
 import tables
@@ -19,6 +20,8 @@ import tables
 # TODO: object transfer between UniqueObjectsContainer instances
 # TODO: unique id for each object based on
 #	hash(time, collectionIndex, arrayIndex, containerName) at creation time
+
+_MAX_ID_SIZE = 50 # max length of the unique id assigned to objects
 
 class UniqueObjectsContainerException(Exception):
 	pass
@@ -41,13 +44,14 @@ class UniqueObjectsContainer(object):
 		"_entryState":np.int64, # see state descriptions above
 		"_globalIndex":np.int64, # index in the _globalReference array (collection)
 		"_time":np.int64, # current time (important for saving) # TODO: handle, set in other classes
+		"_uniqueId":"{}str".format(_MAX_ID_SIZE) # unique ID assigned to each object
 		}
 
 	_globalReferenceDtype = {
 		"_entryState":np.int64, # see state descriptions above
 		"_collectionIndex":np.int64,
 		"_objectIndex":np.int64,
-		"_time":np.int64, # current time (important for saving) # TODO: handle, set in other classes
+		"_time":np.int64,
 		}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
@@ -182,10 +186,17 @@ class UniqueObjectsContainer(object):
 
 		collection = self._collections[collectionIndex]
 
-		# TODO: assign unique IDs to each object
+		uniqueObjectIds = [
+			"{}{}-{}".format(collectionName, self._time, objectIndex)
+			for objectIndex in objectIndexes
+			]
+
+		if max(len(uId) for uId in uniqueObjectIds) > _MAX_ID_SIZE:
+			warnings.warn("Maximum allowable ID size exceeded")
 
 		collection["_entryState"][objectIndexes] = self._entryActive
 		collection["_globalIndex"][objectIndexes] = globalIndexes
+		collection["_uniqueId"][objectIndexes] = uniqueObjectIds
 
 		for attrName, attrValue in attributes.viewitems():
 			collection[attrName][objectIndexes] = attrValue
