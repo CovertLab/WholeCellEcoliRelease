@@ -964,8 +964,6 @@ class KnowledgeBaseEcoli(object):
 				"name": i.name,
 				"modifiedForms": [],
 				"location": self._dbLocationId[i.location_fk_id],
-				"seq": "",
-				"aaCount": numpy.zeros(21),
 				"mw": -1,
 				"comments": self._allComments[i.comment_fk_id]
 			}
