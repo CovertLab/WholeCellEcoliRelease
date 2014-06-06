@@ -21,8 +21,6 @@ import wholecell.sim.simulation
 import wholecell.loggers.disk
 import wholecell.loggers.shell
 
-from wholecell.utils.constants import TEST_FIXTURE_DIR
-
 # TODO: add "short sim" fixture
 
 class Test_Simulation(unittest.TestCase):
@@ -35,8 +33,6 @@ class Test_Simulation(unittest.TestCase):
 		pass
 
 	def setUp(self):
-		self.sim = cPickle.load(open(os.path.join(TEST_FIXTURE_DIR, "Simulation.cPickle"), "r"))
-		
 		self.kb = cPickle.load(
 			open(os.path.join(
 				wholecell.utils.constants.SERIALIZED_KB_DIR,

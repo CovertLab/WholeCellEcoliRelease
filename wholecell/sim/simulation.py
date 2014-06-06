@@ -21,7 +21,6 @@ import tables
 import wholecell.utils.config
 import wholecell.reconstruction.fitter
 import wholecell.sim.sim_definition
-from wholecell.utils.constants import SIM_FIXTURE_DIR
 
 
 class SimulationException(Exception):
