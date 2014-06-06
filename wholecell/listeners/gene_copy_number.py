@@ -33,11 +33,11 @@ class GeneCopyNumber(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, kb):
 		super(GeneCopyNumber, self).initialize(sim, kb)
 
-		self.bulkMolecules = sim.states['BulkMolecules']
+		self.bulkChromosome = sim.states['BulkChromosome']
 
 		self.geneIds = kb.geneData['name']
 
-		self.geneView = self.bulkMolecules.container.countsView(self.geneIds)
+		self.geneView = self.bulkChromosome.container.countsView(self.geneIds)
 
 	# Allocate memory
 	def allocate(self):

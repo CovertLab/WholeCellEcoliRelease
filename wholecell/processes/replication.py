@@ -65,7 +65,8 @@ class Replication(wholecell.processes.process.Process):
 		self.dnmps = self.bulkMoleculesView(dNmpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.genes = self.bulkMoleculesView(geneIds)
+		
+		self.genes = self.bulkChromosomesView(geneIds)
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
 

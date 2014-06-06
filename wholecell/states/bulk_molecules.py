@@ -202,7 +202,8 @@ class BulkMolecules(wholecell.states.state.State):
 			'indexes', 'Indexes for various groups of molecules')
 
 		for type_, indexes in self._typeIdxs.viewitems():
-			h5file.create_array(groupIdxs, type_, indexes)
+			if indexes.size > 0:
+				h5file.create_array(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):
