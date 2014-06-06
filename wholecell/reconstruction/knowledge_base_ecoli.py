@@ -87,6 +87,8 @@ class KnowledgeBaseEcoli(object):
 		self._loadProteinMonomers()
 		self._loadComplexes() 
 		self._loadReactions()
+		#self_createBioMassFromRxn()
+
 
 		## Keep separate
 		self._loadBiomassFractions() # Build hacked constants - need to add these to SQL database still
@@ -115,6 +117,8 @@ class KnowledgeBaseEcoli(object):
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
+		# delete all auxiliary objects
+		self._deleteAuxiliaryVariables()
 
 	def _loadHacked(self):
 		# New parameters
@@ -167,7 +171,6 @@ class KnowledgeBaseEcoli(object):
 		all_comments = Comment.objects.all()
 
 		self._allComments = dict([(i.id, i.comment_str) for i in all_comments])
-
 
 	def _loadCompartments(self):
 		# Check database access
@@ -421,7 +424,7 @@ class KnowledgeBaseEcoli(object):
 	def _loadGenes(self):
 
 		self._genes = []
-		self._geneDbIds = {} # ADDED: for rnas and monomers
+		self._geneDbIds = {} # ADDED: for rnas and monomers: will be deleted at the end of DB loading
 		
 		#genetype
 		genetypes = {}
@@ -474,9 +477,9 @@ class KnowledgeBaseEcoli(object):
 	def _loadModificationReactions(self):
 
 		self._modificationReactions = []
-		self._rnaModReactionDbIds = {} # Added for rnas: will be deleted later	
-		self._proteinModReactionDbIds = {} # Added for monomers: will be deleted later		
-		self._complexModReactionDbIds = {} # Added for complexes: will be deleted later		
+		self._rnaModReactionDbIds = {} # Added for rnas: will be deleted at the end of DB loading	
+		self._proteinModReactionDbIds = {} # Added for monomers: will be deleted at the end of DB loading		
+		self._complexModReactionDbIds = {} # Added for complexes: will be deleted at the end of DB loading		
 
 		# modified RNA rxns		
 		relation = {}
@@ -652,7 +655,7 @@ class KnowledgeBaseEcoli(object):
 				"name": i.name,
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
-				"reactionID" : self._rnaModReactionDbIds[i.id],
+				"reactionId" : self._rnaModReactionDbIds[i.id],
 				"mw" : -1.0, 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_rna_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
@@ -712,6 +715,8 @@ class KnowledgeBaseEcoli(object):
 				}
 		
 			if int(i.is_modified):	
+				if i.id not in rnamodified:
+					raise Exception, "%s RNA has no modified form" % i.frame_id_id
 				r["modifiedForms"] = rnamodified[i.id]
 
 			if r["type"] == "mRNA":
@@ -769,7 +774,6 @@ class KnowledgeBaseEcoli(object):
 
 		self._modifiedProteins = []
 				
-		#RnaModified
 		proteinModified = {}
 		self._checkDatabaseAccess(ProteinMonomerModified)		
 		all_proteinModified = ProteinMonomerModified.objects.all()
@@ -779,13 +783,13 @@ class KnowledgeBaseEcoli(object):
 				"name": i.name,
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
-				"reactionID" : None,
-				"mw" : -1.0, 	# TODO: Need to get this
-				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id] #need to check why gives error!
+				"reactionId" : None,
+				"mw" : -1.0, 	
+				#"unmodifiedForm" : self._allProducts[i.unmodified_protein_monomer_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_protein_monomer_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
 			if i.id in self._proteinModReactionDbIds:
-				pMod["reactionID"] = self._proteinModReactionDbIds[i.id]
+				pMod["reactionId"] = self._proteinModReactionDbIds[i.id]
 			
 			self._modifiedProteins.append(pMod)
 			
@@ -799,7 +803,7 @@ class KnowledgeBaseEcoli(object):
 	def _loadProteinMonomers(self):
 		
 		self._proteins = []
-		proteinModified = self._loadModifiedProteinMonomers()
+		monomermod = self._loadModifiedProteinMonomers()
 		proteinDbIds = {}
 		
 		### geneId -> location index in self._genes
@@ -823,15 +827,6 @@ class KnowledgeBaseEcoli(object):
 		for i in all_genePos:
 			genePos[self._geneDbIds[i.gene_id]] = {'pos':int(i.abs_nt_pos),'old':i.old,'new':i.new}
 
-		#ProteinMonomerModified
-		monomermod = {}
-		self._checkDatabaseAccess(ProteinMonomerModified)		
-		all_monomermod = ProteinMonomerModified.objects.all()
-		for i in all_monomermod:
-			if i.unmodified_protein_monomer_fk_id not in monomermod:
-				monomermod[i.unmodified_protein_monomer_fk_id] = []
-			monomermod[i.unmodified_protein_monomer_fk_id].append(str(self._allProducts[i.protein_monomer_mod_id]))
-
 		#ProteinMonomers
 		self._checkDatabaseAccess(ProteinMonomers)		
 		all_monomers = ProteinMonomers.objects.all()
@@ -847,7 +842,6 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
-				"formationProcess": "",
 				"seq": "",
 				"aaCount": numpy.zeros(21),
 				"mw": -1,
@@ -912,103 +906,107 @@ class KnowledgeBaseEcoli(object):
 			i["unmodifiedForm"] = proteinDbIds[i["unmodifiedForm"]]
 
 
+	def _loadModifiedProteinComplexes(self):
+
+		self._modifiedComplexes = []
+				
+		complexModified = {}
+		self._checkDatabaseAccess(ProteinComplexModified)		
+		all_complexModified = ProteinComplexModified.objects.all()
+		for i in all_complexModified:
+			pMod = {
+				"id": self._allProducts[i.protein_complex_mod_id],
+				"name": i.name,
+				"location": self._dbLocationId[i.location_fk_id],
+				"comments": self._allComments[i.comment_fk_id],
+				"reactionId" : None,
+				"mw" : -1.0, 	
+				#"unmodifiedForm" : self._allProducts[i.unmodified_protein_complex_fk.frame_id_id] #need to check why gives error!
+				"unmodifiedForm" : i.unmodified_protein_complex_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
+				}
+			if i.id in self._complexModReactionDbIds:
+				pMod["reactionId"] = self._complexModReactionDbIds[i.id]
+			
+			self._modifiedComplexes.append(pMod)
+			
+			#store for _proteinComplexes
+			if i.unmodified_protein_complex_fk_id not in complexModified:
+				complexModified[i.unmodified_protein_complex_fk_id] = []
+			complexModified[i.unmodified_protein_complex_fk_id].append(str(self._allProducts[i.protein_complex_mod_id]))	
+			
+		return complexModified
+
 	def _loadComplexes(self):
 		
+		self._complexationReactions = []
+		self._proteinComplexes = []
+		complexMod = self._loadModifiedProteinComplexes()
+		complexDbIds = {}
+
 		##reaction		
 		relation = {}
+		self._checkDatabaseAccess(ProteinComplexReactionRelation)		
 		all_relation = ProteinComplexReactionRelation.objects.all()
-		if len(all_relation) <=0:
-			raise Exception, "Database Access Error: Cannot access public_ProteinComplexReactionRelation table"
 		for i in all_relation:
 			if i.protein_complex_fk_id not in relation:
 				relation[i.protein_complex_fk_id] = []
 			relation[i.protein_complex_fk_id].append(i.reactant_relation_id) 
 
-		#proteinComplexesModified
-		complexMod = {}
-		all_complexMod = ProteinComplexModified.objects.all()
-		if len(all_complexMod) <=0:
-			raise Exception, "Database Access Error: Cannot access public_ProteinComplexModified table"
-		for i in all_complexMod:
-			if i.unmodified_protein_complex_fk_id not in complexMod:
-				complexMod[i.unmodified_protein_complex_fk_id] = []
-			complexMod[i.unmodified_protein_complex_fk_id].append(str(self._allProducts[i.protein_complex_mod_id]))	
-
 		#proteinComplexes
+		self._checkDatabaseAccess(ProteinComplex)		
 		all_complex = ProteinComplex.objects.all()
-		if len(all_complex) <=0:
-			raise Exception, "Database Access Error: Cannot access public_ProteinComplex table"
 
-		protNew = []		
 		for i in all_complex:
+			complexDbIds[i.id] = self._allProducts[i.protein_complex_id]
 			p = {
 				"id": self._allProducts[i.protein_complex_id],
+				"reactionId": self._allProducts[i.protein_complex_id]+'_RXN',
 				"name": i.name,
 				"modifiedForms": [],
-				"unmodifiedForm": None,
 				"location": self._dbLocationId[i.location_fk_id],
-				"composition": [],
-				"dir": int(i.reaction_direction),
-				"formationProcess": "Complexation",
 				"seq": "",
 				"aaCount": numpy.zeros(21),
-				"ntCount": numpy.zeros(4),
 				"mw": -1,
-				"geneId": "",
-				"rnaId": "",
 				"comments": self._allComments[i.comment_fk_id]
 			}
 			if i.modified_form:	
-				p["modifiedForms"] = complexMod[i.id]
+				if i.id in complexMod:				
+					p["modifiedForms"] = complexMod[i.id]
+				else:
+					raise Exception, "modification form absent for complex" 
+			
+			self._proteinComplexes.append(p)
+
+			#reaction
+			r = {
+				"id": p["reactionId"],
+				"process": "complexation",
+				"dir": int(i.reaction_direction),
+				"stoichiometry": []
+				}
 
 			if i.id not in relation:
-				raise Exception, "%s protein complex has no reaction" % i.frame_id
+				raise Exception, "%s RNA has no reaction" % i.protein_complex_id
 			for temp in relation[i.id]:
 				t = self._allRelationStoichiometry[temp]
-				p["composition"].append(t)
+				#t["molecule"] = t["molecule"].upper() # need to check why .upper()
+				r["stoichiometry"].append(t)
 
+			self._complexationReactions.append(r)
 
-			protNew.append(p)
-			self._proteins.append(p)
+		##update FK of modified complexes
+		for i in self._modifiedComplexes:
+			i["unmodifiedForm"] = complexDbIds[i["unmodifiedForm"]]
 
-		'''
-		metDict = dict([(x["id"], x) for x in self._metabolites])
-		rnaDict = dict([(x["id"], x) for x in self._rnas])
-		protDict = dict([(x["id"], x) for x in self._proteins])
-		
-		for p in protNew:
-			p = [x for x in self._proteins if x["id"] == p["id"]][0]
-
-			for stoichComponent in p["composition"]:
-				if stoichComponent["type"] == '': 
-					stoichComponent["type"] = self._check_molecule(stoichComponent["molecule"]) #ADDED
-				if stoichComponent["molecule"] != p["id"]:
-					if stoichComponent["molecule"].upper() in metDict:
-						stoichComponent["molecule"] = stoichComponent["molecule"].upper()
-						subunitMw = metDict[stoichComponent["molecule"]]["mw7.2"]
-					elif stoichComponent["molecule"] in rnaDict:
-						subunitMw = rnaDict[stoichComponent["molecule"]]["mw"]
-						p["ntCount"] -= stoichComponent["coeff"] * rnaDict[stoichComponent["molecule"]]["ntCount"]
-					elif stoichComponent["molecule"] in protDict:
-						subunitMw = protDict[stoichComponent["molecule"]]["mw"]
-						p["aaCount"] -= stoichComponent["coeff"] * protDict[stoichComponent["molecule"]]["aaCount"]
-					else:
-						raise Exception, "Undefined subunit: %s." % stoichComponent["molecule"]
-
-					p["mw"] -= stoichComponent["coeff"] * subunitMw
-		'''
-		#self._proteins.extend(protNew)
 
 	def _loadReactions(self):
 
 		self._reactions = []
-		self._reactionsExchange = []
 		
 		##		
 		relation = {}
+		self._checkDatabaseAccess(MetaboliteReactionRelation)		
 		all_relation = MetaboliteReactionRelation.objects.all()
-		if len(all_relation) <=0:
-			raise Exception, "Database Access Error: Cannot access public_MetaboliteReactionRelation table"
 		for i in all_relation:
 			if i.metabolite_reaction_fk_id not in relation:
 				relation[i.metabolite_reaction_fk_id] = []
@@ -1016,18 +1014,16 @@ class KnowledgeBaseEcoli(object):
 		
 		##
 		enz = {}
+		self._checkDatabaseAccess(MetaboliteReactionEnzyme)		
 		all_enz = MetaboliteReactionEnzyme.objects.all()
-		if len(all_enz) <=0:
-			raise Exception, "Database Access Error: Cannot access public_MetaboliteReactionEnzyme table"
 		for i in all_enz:
 			if i.metabolite_reaction_fk_id not in enz:
 				enz[i.metabolite_reaction_fk_id] = []
 			enz[i.metabolite_reaction_fk_id].append(str(self._allProducts[i.enzyme_fk_id])) 
 		
 		##
+		self._checkDatabaseAccess(MetaboliteReaction)		
 		all_metaboliteReaction = MetaboliteReaction.objects.all()
-		if len(all_metaboliteReaction) <=0:
-			raise Exception, "Database Access Error: Cannot access public_metaboliteReaction table"
 		
 
 		for i in all_metaboliteReaction:
@@ -1055,13 +1051,39 @@ class KnowledgeBaseEcoli(object):
 				raise Exception, "%s Metabolite has no reaction" % i.frame_id
 			for temp in relation[i.id]:
 				t = self._allRelationStoichiometry[temp]
-				if t["type"] == '':
-					t["type"] = self._check_molecule(t["molecule"])
 				t["molecule"] = t["molecule"].upper()
 				r["stoichiometry"].append(t)
 
 			self._reactions.append(r)
 
+
+	def _createBioMassFromRxn(self):
+		'''
+		metDict = dict([(x["id"], x) for x in self._metabolites])
+		rnaDict = dict([(x["id"], x) for x in self._rnas])
+		protDict = dict([(x["id"], x) for x in self._proteins])
+		
+		for p in protNew:
+			p = [x for x in self._proteins if x["id"] == p["id"]][0]
+
+			for stoichComponent in p["composition"]:
+				if stoichComponent["type"] == '': 
+					stoichComponent["type"] = self._check_molecule(stoichComponent["molecule"]) #ADDED
+				if stoichComponent["molecule"] != p["id"]:
+					if stoichComponent["molecule"].upper() in metDict:
+						stoichComponent["molecule"] = stoichComponent["molecule"].upper()
+						subunitMw = metDict[stoichComponent["molecule"]]["mw7.2"]
+					elif stoichComponent["molecule"] in rnaDict:
+						subunitMw = rnaDict[stoichComponent["molecule"]]["mw"]
+						p["ntCount"] -= stoichComponent["coeff"] * rnaDict[stoichComponent["molecule"]]["ntCount"]
+					elif stoichComponent["molecule"] in protDict:
+						subunitMw = protDict[stoichComponent["molecule"]]["mw"]
+						p["aaCount"] -= stoichComponent["coeff"] * protDict[stoichComponent["molecule"]]["aaCount"]
+					else:
+						raise Exception, "Undefined subunit: %s." % stoichComponent["molecule"]
+
+					p["mw"] -= stoichComponent["coeff"] * subunitMw
+		'''
 
 	def _check_molecule(self, mol):
 		thisType = ""
@@ -1114,6 +1136,20 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['avgCellDryMassInit'] = self._parameterData['avgCellDryMass'] / self._parameterData['avgCellToInitalCellConvFactor']
 		self._parameterData['avgCellWaterMass'] = (self._parameterData['avgCellDryMass'] / self._parameterData['cellDryMassFraction']) * self._parameterData['cellWaterMassFraction']
 		self._parameterData['avgCellWaterMassInit'] = self._parameterData['avgCellWaterMass'] / self._parameterData['avgCellToInitalCellConvFactor']
+
+	def _deleteAuxiliaryVariables(self):
+		del self._allComments
+		del self._dbLocationId
+		del self._compIdToAbbrev
+		del self.compartmentList
+		del self._geneDbIds
+		del self._expression
+		del self._half_life
+		del self._rnaModReactionDbIds
+		del self._proteinModReactionDbIds
+		del self._complexModReactionDbIds
+
+
 
 	## -- Build functions -- ##
 
