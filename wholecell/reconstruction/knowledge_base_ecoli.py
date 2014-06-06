@@ -637,6 +637,9 @@ class KnowledgeBaseEcoli(object):
 
 		self._modifiedRnas = []
 		
+		#reactions
+		reactionLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self._modificationReactions)])
+	
 		#RnaModified
 		rnamodified = {}
 		self._checkDatabaseAccess(RnaModified)		
@@ -647,9 +650,10 @@ class KnowledgeBaseEcoli(object):
 				"name": i.name,
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
-				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id], #need to check whether correct or not
-				"reactionID" : [],
-				"mw" : -1.0 	# TODO: Need to get this
+				"reactionID" : reactionLookup[self._modReactionDbIds[i.id]],
+				"mw" : -1.0, 	# TODO: Need to get this
+				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id] #need to check why gives error!
+				"unmodifiedForm" : i.unmodified_rna_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
 			
 			self._modifiedRnas.append(rMod)
@@ -665,7 +669,7 @@ class KnowledgeBaseEcoli(object):
 
 		self._rnas = []
 		rnamodified = self._loadModifiedRnas()
-		
+		rnaDbIds = {}
 		#rna
 		self._checkDatabaseAccess(Rna)		
 		all_rna = Rna.objects.all()
@@ -673,16 +677,15 @@ class KnowledgeBaseEcoli(object):
 		### geneId -> location index in self._genes
 		geneLookup = dict([(x[1]["id"], x[0]) for x in enumerate(self._genes)])
 		
-		# --- need to change: after move expression, half life to RNA table --- #
 		#EntryPositiveFloatData
 		posData = {}
 		self._checkDatabaseAccess(EntryPositiveFloatData)		
 		all_posData = EntryPositiveFloatData.objects.all()
 		for i in all_posData:
 			posData[i.id] = float(i.value)
-		#---#
 
 		for i in all_rna:
+			rnaDbIds[i.id] = self._allProducts[i.frame_id_id]
 			gene_frame_id = self._geneDbIds[i.gene_fk_id]
 
 			# RNA
@@ -718,13 +721,17 @@ class KnowledgeBaseEcoli(object):
 			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			
 			self._rnas.append(r)
-			###self._allProductType[r["id"]] = 'rna' #added
 	
 			# TODO from DEREK: Uncomment when Nick has fixed json formatting
 			# if type(r["halfLife"]) == dict:
 			# 	if r["halfLife"]["units"] != "day":
 			# 		raise Exception, "Unknown unit!"
 			# 	r["halfLife"] = r["halfLife"]["value"] * 24.0 * 60.0 * 60.0
+
+
+		##update FK of modified RNAs
+		for i in self._modifiedRnas:
+			i["unmodifiedForm"] = rnaDbIds[i["unmodifiedForm"]]
 
 		#ADD mRNAs from the GENE table
 		for g in self._genes:
@@ -754,7 +761,6 @@ class KnowledgeBaseEcoli(object):
 				r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			
 				self._rnas.append(r)
-				###self._allProductType[r["id"]] = 'rna' #added
 
 
 	def _loadProteinMonomers(self):
