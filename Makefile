@@ -36,10 +36,3 @@ clobber:
 	rm -fr runSimulation*
 	rm -fr simShellLog*
 	rm -fr analysisSingle*
-
-### Targets for tests are below
-
-.PHONY: testFixtures
-
-testFixtures:
-	python2.7 fixtures/generateTestFixtures.py
