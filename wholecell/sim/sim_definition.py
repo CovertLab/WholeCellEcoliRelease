@@ -18,12 +18,14 @@ import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
 # import wholecell.states.chromosome
 # import wholecell.states.transcripts
+import wholecell.states.bulk_chromosome
 
 STATE_CLASSES = (
 	wholecell.states.bulk_molecules.BulkMolecules,
 	wholecell.states.unique_molecules.UniqueMolecules,
 	# wholecell.states.chromosome.Chromosome,
 	# wholecell.states.transcripts.Transcripts,
+	wholecell.states.bulk_chromosome.BulkChromosome
 	)
 
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
@@ -99,7 +101,8 @@ HOOKS = {hookClass.name():hookClass for hookClass in HOOK_CLASSES}
 
 DEFAULT_STATES = (
 	'BulkMolecules',
-	'UniqueMolecules'
+	'UniqueMolecules',
+	'BulkChromosome'
 	)
 
 DEFAULT_PROCESSES = (

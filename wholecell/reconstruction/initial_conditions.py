@@ -14,14 +14,16 @@ def calcInitialConditions(sim, kb):
 
 	bulk = sim.states['BulkMolecules']
 	unique = sim.states["UniqueMolecules"]
+	bulk_chromosome = sim.states["BulkChromosome"]
 
 	timeStep = sim.timeStepSec # This is a poor solution but will suffice for now
 
 	bulkContainer = bulk.container
 	uniqueContainer = unique.container
+	bulkChromosomeContainer = bulk_chromosome.container
 
 	# Set up states
-	initializeBulk(bulkContainer, kb, randomState, timeStep)
+	initializeBulk(bulkContainer, bulkChromosomeContainer, kb, randomState, timeStep)
 
 	# Modify states for specific processes
 	initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep)
@@ -29,7 +31,7 @@ def calcInitialConditions(sim, kb):
 	initializeReplication(uniqueContainer, kb)
 
 
-def initializeBulk(bulkContainer, kb, randomState, timeStep):
+def initializeBulk(bulkContainer, bulkChromosomeContainer, kb, randomState, timeStep):
 
 	## Set protein counts from expression
 	initializeProteinMonomers(bulkContainer, kb, randomState, timeStep)
@@ -50,7 +52,7 @@ def initializeBulk(bulkContainer, kb, randomState, timeStep):
 	initializeBulkWater(bulkContainer, kb, randomState, timeStep)
 
 	## Set genes
-	initializeGenes(bulkContainer, kb, timeStep)
+	initializeGenes(bulkChromosomeContainer, kb, timeStep)
 
 
 def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
@@ -259,7 +261,7 @@ def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
-def initializeGenes(bulkContainer, kb, timeStep):
+def initializeGenes(bulkChromosomeContainer, kb, timeStep):
 	"""
 	initializeGenes
 
@@ -267,7 +269,7 @@ def initializeGenes(bulkContainer, kb, timeStep):
 	Initalizes the counts of genes in BulkMolecules
 	"""
 
-	geneView = bulkContainer.countsView(kb.geneData['name'])
+	geneView = bulkChromosomeContainer.countsView(kb.geneData['name'])
 	geneView.countsInc(1)
 
 

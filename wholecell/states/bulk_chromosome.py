@@ -10,10 +10,12 @@ State which represents for a class of molecules or chromosome sites by their bul
 """
 
 from __future__ import division
+import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+import wholecell.states.bulk_molecules
 
-class BulkChromosome(wholecell.states.state.bulk_molecules.BulkMolecules):
+class BulkChromosome(wholecell.states.bulk_molecules.BulkMolecules):
 	_name = 'BulkChromosome'
 
 	def initialize(self, sim, kb):
@@ -48,10 +50,10 @@ def moleculeIds(kb):
 def bulkObjectsContainer(kb, dtype = np.int64):
 	return BulkObjectsContainer(moleculeIds(kb), dtype)
 
-class BulkChromosomeViewBase(wholecell.states.bulk_moelcules.BulkMoleculesViewBase):
+class BulkChromosomeViewBase(wholecell.states.bulk_molecules.BulkMoleculesViewBase):
 	_stateID = 'BulkChromosome'
 
-class BulkChromosomeView(BulkChromosomeViewBase):
+class BulkChromosomesView(BulkChromosomeViewBase):
 	pass
 
 class BulkChromosomeView(BulkChromosomeViewBase):

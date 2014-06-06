@@ -15,6 +15,7 @@ from __future__ import division
 import wholecell.views.view
 
 import wholecell.states.bulk_molecules
+import wholecell.states.bulk_chromosome
 import wholecell.states.unique_molecules
 
 class Process(object):
@@ -58,6 +59,15 @@ class Process(object):
 	def bulkMoleculeView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculeView(
 			self._states['BulkMolecules'], self, moleculeIDs)
+
+	def bulkChromosomesView(self, moleculeIDs):
+		return wholecell.states.bulk_chromosome.BulkChromosomesView(
+			self._states['BulkChromosome'], self, moleculeIDs)
+
+
+	def bulkChromosomeView(self, moleculeIDs):
+		return wholecell.states.bulk_chromosome.BulkChromosomeView(
+			self._states['BulkChromosome'], self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
