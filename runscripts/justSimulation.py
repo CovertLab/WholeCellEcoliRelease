@@ -16,14 +16,15 @@ import json
 
 def main():
 
+	# We use this to check if any undefined WC_* environmental variables
+	# were accidentally specified by the user
+	wcEnvVars = [x for x in os.environ if x.startswith("WC_")]
+
 	# Get simulation options from environmental variables
 	seed = 0
 	if os.environ.has_key("WC_SEED") and len(os.environ["WC_SEED"]):
 		seed = int(os.environ["WC_SEED"])
-
-	# We use this to check if any undefined WC_* environmental variables
-	# were accidentally specified by the user
-	wcEnvVars = [x for x in os.environ if x.startswith("WC_")]
+		wcEnvVars.remove("WC_SEED")
 
 	states = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["states"]
 	if os.environ.has_key("WC_STATES") and len(os.environ["WC_STATES"]):

@@ -6,12 +6,13 @@ createKbs.py
 Create unfit and fit knowledgebase fixtures.
 """
 
-import wholecell.reconstruction.knowledge_base_ecoli
-import wholecell.reconstruction.fitter
-import wholecell.utils.constants
 import cPickle
 import os
 import argparse
+
+import wholecell.reconstruction.knowledge_base_ecoli
+import wholecell.reconstruction.fitter
+import wholecell.utils.constants
 
 def main(outputDirectory = None):
 	outputDirectory = outputDirectory or wholecell.utils.constants.SERIALIZED_KB_DIR
