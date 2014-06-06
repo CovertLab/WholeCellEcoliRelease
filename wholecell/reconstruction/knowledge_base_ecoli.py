@@ -81,10 +81,11 @@ class KnowledgeBaseEcoli(object):
 		self._loadMetabolites()
 		self._loadGenome()
 		self._loadGenes()
+		self._loadRelationStoichiometry() #  Need to call before any reaction loading
+		self._loadModificationReactions() # Need to call before rna/protein/complexes modification
 		self._loadRnas()
 		self._loadProteinMonomers() #not dome
 		self._createModifiedForms()
-		self._loadRelationStoichiometry() # ADDED: for accessing info from other table 
 		self._loadComplexes() 
 		self._loadReactions()
 
@@ -260,6 +261,17 @@ class KnowledgeBaseEcoli(object):
 			self._metabolites.append(m)
 			###self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #need to delete
 
+	def _loadRelationStoichiometry(self):
+
+		self._allRelationStoichiometry = {}
+		
+		all_RelationStoichiometry = RelationStoichiometry.objects.all()
+		if len(all_RelationStoichiometry) <=0:
+			raise Exception, "Database Access Error: Cannot access public_RelationStoichiometry table"
+
+		for i in all_RelationStoichiometry:
+			thisType = self._allProductType[self._allProducts[i.reactant_fk_id]]
+			self._allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
 
 	def _loadBiomassFractions(self):
 
@@ -458,21 +470,202 @@ class KnowledgeBaseEcoli(object):
 				g["rnaId"] = self._allProducts[i.productname_id]
 
 			self._genes.append(g)
+	
+
+	def _loadModificationReactions(self):
+
+		self._modificationReactions = []
+		self._modReactionDbIds = {} # ADDED: for rnas and monomers		
+
+		# modified RNA rxns		
+		relation = {}
+		self._checkDatabaseAccess(RnaModifiedReactionRelation)		
+		all_relation = RnaModifiedReactionRelation.objects.all()
+		for i in all_relation:
+			if i.rna_mod_reaction_fk_id not in relation:
+				relation[i.rna_mod_reaction_fk_id] = []
+			relation[i.rna_mod_reaction_fk_id].append(i.reactant_relation_id) 
+		
+		##
+		enz = {}
+		self._checkDatabaseAccess(RnaModReactionEnzyme)		
+		all_enz = RnaModReactionEnzyme.objects.all()
+		for i in all_enz:
+			if i.reaction_fk_id not in enz:
+				enz[i.reaction_fk_id] = []
+			enz[i.reaction_fk_id].append(str(self._allProducts[i.reaction_enzyme_fk_id])) 
+		
+		##
+		self._checkDatabaseAccess(RnaModifiedReaction)		
+		all_reaction = RnaModifiedReaction.objects.all()
+
+		for i in all_reaction:
+
+			self._modReactionDbIds[i.rna_mod_fk_id] = i.reaction_id 
+
+			r = {
+					"id": i.reaction_id,
+					"process": "rna",
+					"ec": i.ec,
+					"dir": int(i.reaction_direction),
+					"stoichiometry": [],
+					"catBy": []
+				}
+
+			if i.id in enz:
+				r["catBy"] = enz[i.id]
+			else:
+				r["catBy"] = None
+
+			if r["ec"] == None: r["ec"] = ""
+			
+			if i.id not in relation:
+				raise Exception, "%s RNA has no reaction" % i.reaction_id
+			for temp in relation[i.id]:
+				t = self._allRelationStoichiometry[temp]
+				#t["molecule"] = t["molecule"].upper() # need to check why .upper()
+				r["stoichiometry"].append(t)
+	
+			self._modificationReactions.append(r)
+
+		# modified monomers rxns		
+		relation = {}
+		self._checkDatabaseAccess(ProteinMonomerModReactionRelation)		
+		all_relation = ProteinMonomerModReactionRelation.objects.all()
+		for i in all_relation:
+			if i.reaction_fk_id not in relation:
+				relation[i.reaction_fk_id] = []
+			relation[i.reaction_fk_id].append(i.reactant_relation_id) 
+		
+		##
+		enz = {}
+		self._checkDatabaseAccess(ProteinMonomerModReactionEnzyme)		
+		all_enz = ProteinMonomerModReactionEnzyme.objects.all()
+		for i in all_enz:
+			if i.reaction_fk_id not in enz:
+				enz[i.reaction_fk_id] = []
+			enz[i.reaction_fk_id].append(str(self._allProducts[i.reaction_enzyme_fk_id])) 
+		
+		##
+		self._checkDatabaseAccess(ProteinMonomerModifiedReaction)		
+		all_reaction = ProteinMonomerModifiedReaction.objects.all()
+
+		for i in all_reaction:
+
+			self._modReactionDbIds[i.protein_monomer_mod_fk_id] = i.reaction_id 
+
+			r = {
+					"id": i.reaction_id,
+					"process": "monomer",
+					"ec": i.ec,
+					"dir": int(i.reaction_direction),
+					"stoichiometry": [],
+					"catBy": []
+				}
+
+			if i.id in enz:
+				r["catBy"] = enz[i.id]
+			else:
+				r["catBy"] = None
+
+			if r["ec"] == None: r["ec"] = ""
+			
+			if i.id not in relation:
+				raise Exception, "%s RNA has no reaction" % i.reaction_id
+			for temp in relation[i.id]:
+				t = self._allRelationStoichiometry[temp]
+				#t["molecule"] = t["molecule"].upper() # need to check why .upper()
+				r["stoichiometry"].append(t)
+	
+			self._modificationReactions.append(r)
+
+		# modified complexes rxns		
+		relation = {}
+		self._checkDatabaseAccess(ProteinComplexModReactionRelation)		
+		all_relation = ProteinComplexModReactionRelation.objects.all()
+		for i in all_relation:
+			if i.complex_mod_reaction_fk_id not in relation:
+				relation[i.complex_mod_reaction_fk_id] = []
+			relation[i.complex_mod_reaction_fk_id].append(i.reactant_relation_id) 
+		
+		##
+		enz = {}
+		self._checkDatabaseAccess(ProteinComplexModReactionEnzyme)		
+		all_enz = ProteinComplexModReactionEnzyme.objects.all()
+		for i in all_enz:
+			if i.complex_mod_reaction_fk_id not in enz:
+				enz[i.complex_mod_reaction_fk_id] = []
+			enz[i.complex_mod_reaction_fk_id].append(str(self._allProducts[i.reaction_enzyme_fk_id])) 
+		
+		##
+		self._checkDatabaseAccess(ProteinComplexModifiedReaction)		
+		all_reaction = ProteinComplexModifiedReaction.objects.all()
+
+		for i in all_reaction:
+
+			self._modReactionDbIds[i.protein_complex_mod_fk_id] = i.reaction_id 
+
+			r = {
+					"id": i.reaction_id,
+					"process": "complex",
+					"ec": i.ec,
+					"dir": int(i.reaction_direction),
+					"stoichiometry": [],
+					"catBy": []
+				}
+
+			if i.id in enz:
+				r["catBy"] = enz[i.id]
+			else:
+				r["catBy"] = None
+
+			if r["ec"] == None: r["ec"] = ""
+			
+			if i.id not in relation:
+				raise Exception, "%s RNA has no reaction" % i.reaction_id
+			for temp in relation[i.id]:
+				t = self._allRelationStoichiometry[temp]
+				#t["molecule"] = t["molecule"].upper() # need to check why .upper()
+				r["stoichiometry"].append(t)
+	
+			self._modificationReactions.append(r)
+		
 
 
-	def _loadRnas(self):
 
-		self._rnas = []
+	def _loadModifiedRnas(self):
 
+		self._modifiedRnas = []
+		
 		#RnaModified
 		rnamodified = {}
 		self._checkDatabaseAccess(RnaModified)		
 		all_rnamodified = RnaModified.objects.all()
 		for i in all_rnamodified:
+			rMod = {
+				"id": self._allProducts[i.rna_mod_id],
+				"name": i.name,
+				"location": self._dbLocationId[i.location_fk_id],
+				"comments": self._allComments[i.comment_fk_id],
+				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id], #need to check whether correct or not
+				"reactionID" : [],
+				"mw" : -1.0 	# TODO: Need to get this
+				}
+			
+			self._modifiedRnas.append(rMod)
+			
+			#store for _rnas
 			if i.unmodified_rna_fk_id not in rnamodified:
 				rnamodified[i.unmodified_rna_fk_id] = []
 			rnamodified[i.unmodified_rna_fk_id].append(str(self._allProducts[i.rna_mod_id]))	
+			
+		return rnamodified
 
+	def _loadRnas(self):
+
+		self._rnas = []
+		rnamodified = self._loadModifiedRnas()
+		
 		#rna
 		self._checkDatabaseAccess(Rna)		
 		all_rna = Rna.objects.all()
@@ -504,7 +697,6 @@ class KnowledgeBaseEcoli(object):
 				"monomerId": None,
 				"geneId": gene_frame_id,
 				"type": self._genes[geneLookup[gene_frame_id]]["type"],
-				"composition": [],				
 				"expression": posData[self._expression[gene_frame_id]], #TODO
 				"halfLife": posData[self._half_life[gene_frame_id]],	#TODO
 								
@@ -548,7 +740,6 @@ class KnowledgeBaseEcoli(object):
 					"monomerId": g["monomerId"],
 					"geneId": g["id"],
 					"type": g["type"],
-					"composition": [],
 					"expression": posData[self._expression[g["id"]]], #TODO
 					"halfLife": posData[self._half_life[g["id"]]],	#TODO
 								
@@ -614,7 +805,6 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
-				"composition": [],
 				"formationProcess": "",
 				"seq": "",
 				"aaCount": numpy.zeros(21),
@@ -690,6 +880,7 @@ class KnowledgeBaseEcoli(object):
 				rMod = {
 					"id": modForm,
 					"unmodifiedForm" : r["id"],
+					"composition" : [],
 					"mw" : -1.0 	# TODO: Need to get this
 				}
 				#calculate MW
@@ -711,18 +902,6 @@ class KnowledgeBaseEcoli(object):
 				}
 				self._proteinModified.append(pMod)
 				#self._allProductType[pMod["id"]] = 'proteinMod' #added			
-
-	def _loadRelationStoichiometry(self):
-
-		self._allRelationStoichiometry = {}
-		
-		all_RelationStoichiometry = RelationStoichiometry.objects.all()
-		if len(all_RelationStoichiometry) <=0:
-			raise Exception, "Database Access Error: Cannot access public_RelationStoichiometry table"
-
-		for i in all_RelationStoichiometry:
-			thisType = self._allProductType[self._allProducts[i.reactant_fk_id]]
-			self._allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
 
 
 	def _loadComplexes(self):
