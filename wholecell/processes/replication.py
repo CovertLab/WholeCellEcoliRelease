@@ -61,10 +61,11 @@ class Replication(wholecell.processes.process.Process):
 			) # Add buffer so indexing with numpy can be taken advantage of
 
 		# Views
-		self.dntps = self.bulkChromosomesView(dNtpIds)
-		self.dnmps = self.bulkChromosomesView(dNmpIds)
-		self.ppi = self.bulkChromosomeView('PPI[c]')
-		self.h2o = self.bulkChromosomeView('H2O[c]')
+		self.dntps = self.bulkMoleculesView(dNtpIds)
+		self.dnmps = self.bulkMoleculesView(dNmpIds)
+		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.h2o = self.bulkMoleculeView('H2O[c]')
+		
 		self.genes = self.bulkChromosomesView(geneIds)
 
 		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')

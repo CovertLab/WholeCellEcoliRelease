@@ -13,23 +13,29 @@ from __future__ import division
 import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-import wholecell.states.bulk_molecules
+from wholecell.states.bulk_molecules import BulkMolecules, BulkMoleculesView, BulkMoleculeView
 
-class BulkChromosome(wholecell.states.bulk_molecules.BulkMolecules):
+class BulkChromosome(BulkMolecules):
 	_name = 'BulkChromosome'
 
 	def initialize(self, sim, kb):
 		super(BulkChromosome, self).initialize(sim, kb)
 
 		# Load constants
-		self._moleculeIDs = moleculeIds(kb)
+		self._moleculeIDs = kb.bulkChromosome['moleculeId']
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
 		self._moleculeMass = kb.bulkChromosome['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
 
 		self._typeIdxs = {
-			'genes'	:	kb.bulkChromosome['isGene']
+			'genes':kb.bulkChromosome['isGene'],
+			# Eventually, when there are "bound" states, these will be non-empty
+			# (the mass refactoring may happen before that, however)
+			'metabolites':np.zeros(0, np.int64),
+			'rnas':np.zeros(0, np.int64),
+			'proteins':np.zeros(0, np.int64),
+			'water':np.zeros(0, np.int64),
 			}
 
 		self._compIndexes = {
@@ -38,23 +44,16 @@ class BulkChromosome(wholecell.states.bulk_molecules.BulkMolecules):
 			}
 
 		# Create the container for molecule counts
-		self.container = bulkObjectsContainer(kb)
+		self.container = BulkObjectsContainer(self._moleculeIDs)
 		
 		# TODO: restore this behavior or replace it with something bettter
 
 		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool)
 
-def moleculeIds(kb):
-	return kb.bulkChromosome['moleculeId']
 
-def bulkObjectsContainer(kb, dtype = np.int64):
-	return BulkObjectsContainer(moleculeIds(kb), dtype)
-
-class BulkChromosomeViewBase(wholecell.states.bulk_molecules.BulkMoleculesViewBase):
+class BulkChromosomesView(BulkMoleculesView):
 	_stateID = 'BulkChromosome'
 
-class BulkChromosomesView(BulkChromosomeViewBase):
-	pass
 
-class BulkChromosomeView(BulkChromosomeViewBase):
-	pass
+class BulkChromosomeView(BulkMoleculeView):
+	_stateID = 'BulkChromosome'
