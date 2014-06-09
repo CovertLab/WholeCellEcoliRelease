@@ -151,9 +151,6 @@ class KnowledgeBaseEcoli(object):
 			self._aaWeights[singleLetterName] = AMINO_ACID_WEIGHTS[singleLetterName]
 
 		self._waterWeight = Q_(18.02, 'g / mol')
-		self._aaWeightsNoWater = collections.OrderedDict([
-			(key, self._aaWeights[key] - self._waterWeight.magnitude) for key in self._aaWeights
-			])
 
 		# Borrowed from BioPython and modified to be at pH 7.2
 		self._ntWeights = collections.OrderedDict({ 
@@ -588,11 +585,7 @@ class KnowledgeBaseEcoli(object):
 								tmp["U"], tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
 								])
 
-				water = 18.02
-				aaWeights = {}
-				for k in self._aaWeights: aaWeights[k] = self._aaWeights[k] - water
-				p["mw"] = water
-				for aa in p["seq"]: p["mw"] += aaWeights[aa]
+				p['mw'] = self._calculatePeptideWeight(p['seq'])
 
 				self._proteins.append(p)
 				self._allProductType[p["id"]] = 'protein' #added
@@ -1730,7 +1723,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _calculatePeptideWeight(self, seq):
-		return sum(self._aaWeightsNoWater[x] for x in seq) + self._waterWeight.to('g/mol').magnitude
+		return sum(self._aaWeights[x] for x in seq) - ((len(seq) - 1) * self._waterWeight.to('g/mol').magnitude)
 
 
 	def _calcNucleotideCount(self, seq):
