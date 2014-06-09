@@ -18,6 +18,8 @@ PAD_VALUE = -1
 # most expensive operation in the function (alternatively, pass the 
 # sequenceMonomers array as an argument instead of sequences)
 
+# TODO: cythonize, since it is starting to look like ~2/3 time is spent in for-loops
+
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	# Sanitize inputs
 	monomerLimits = monomerLimits.copy().astype(np.int64)
