@@ -14,7 +14,7 @@ from __future__ import division
 
 import warnings
 
-import wholecell.views.view
+# import wholecell.views.view
 
 import wholecell.states.bulk_molecules
 import wholecell.states.bulk_chromosome
@@ -77,16 +77,16 @@ class Process(object):
 			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
 
-	def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeForksView(
-			self._states['Chromosome'], self,
-			(extentForward, extentReverse, includeMoleculesOnEnds))
+	# def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
+	# 	return wholecell.views.view.ChromosomeForksView(
+	# 		self._states['Chromosome'], self,
+	# 		(extentForward, extentReverse, includeMoleculesOnEnds))
 
 
-	def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeMoleculesView(
-			self._states['Chromosome'], self,
-			(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+	# def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
+	# 	return wholecell.views.view.ChromosomeMoleculesView(
+	# 		self._states['Chromosome'], self,
+	# 		(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
 
 
 	# Communicate with listeners
