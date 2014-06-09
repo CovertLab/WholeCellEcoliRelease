@@ -142,7 +142,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		reactionLimit = aaCounts.sum() # TODO: account for energy
 
-		sequenceElongation, aasUsed, nElongations = polymerize(
+		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
 			aaCounts,
 			reactionLimit,
@@ -151,15 +151,17 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		updatedMass = massDiffProtein + np.array([
 			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
-			for i, elongation in enumerate(sequenceElongation)
+			for i, elongation in enumerate(sequenceElongations)
 			])
 
-		updatedLengths = peptideLengths + sequenceElongation
+		updatedLengths = peptideLengths + sequenceElongations
 
 		didInitialize = (
-			(sequenceElongation > 1) &
+			(sequenceElongations > 1) &
 			(peptideLengths == 0)
 			)
+
+		# Update active ribosomes, terminating if neccessary
 
 		activeRibosomes.attrIs(
 			peptideLength = updatedLengths,
@@ -178,6 +180,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
 
+		# Update bulk molecules
+
 		self.aas.countsDec(aasUsed)
 
 		self.bulkMonomers.countsIs(terminatedProteins)
@@ -185,6 +189,17 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeSubunits.countsInc(nTerminated)
 
 		self.h2o.countInc(nElongations)
+
+		# Calculate stalling
+
+		expectedElongations = np.fmin(
+			self.elngRate,
+			self.proteinLengths[proteinIndexes] - peptideLengths
+			)
+
+		ribosomeStalls = expectedElongations - sequenceElongations
+
+		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)
 
 
 def getWorkAssignment(dataSize, thisTask, totalTasks):

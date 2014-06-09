@@ -33,77 +33,58 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, kb):
 		super(RibosomeStalling, self).initialize(sim, kb)
 
-		self.monomerLengths = kb.monomerData["length"].magnitude
+		# Computed, saved attributes
+		self.stallingRateTotal = None
+		self.stallingRateMean = None
+		self.stallingRateStd = None
+		self.fractionStalled = None
 
-		self.uniqueMolecules = sim.states["UniqueMolecules"]
-
-		self.elngRate = 16 # TODO: get from KB
-
-		self.ribosomes = None
-		self.initialLengths = None
+		# Attributes broadcast by the UniquePolypeptideElongation process
+		self.ribosomeStalls = None
 
 
 	# Allocate memory
 	def allocate(self):
 		super(RibosomeStalling, self).allocate()
 
-		self.stalledRibosomes = np.zeros(
-				0,
-				dtype = [("t", "i8"), ("stalls", "i8"), ("proteinIndex", "i8")]
-				)
+		# Computed, saved attributes
+		self.stallingRateTotal = np.nan
+		self.stallingRateMean = np.nan
+		self.stallingRateStd = np.nan
+		self.fractionStalled = np.nan
 
-
-	def initialUpdate(self):
-		self._recordAssignments()
+		# Attributes broadcast by the UniquePolypeptideElongation process
+		self.ribosomeStalls = np.zeros(0, np.int64)
 
 
 	def update(self):
-		if len(self.ribosomes):
-			# Find difference in elongation
-			proteinIndexes, peptideLengths = self.ribosomes.attrs(
-				"proteinIndex",
-				"peptideLength"
-				)
+		if self.ribosomeStalls.size:
+			# TODO: divide rates by time step length
+			self.stallingRateTotal = self.ribosomeStalls.sum()
+			self.stallingRateMean = self.ribosomeStalls.mean()
+			self.stallingRateStd = self.ribosomeStalls.std()
+			self.fractionStalled = (self.ribosomeStalls > 0).mean()
 
-			expectedElongations = np.fmin(
-				self.monomerLengths[proteinIndexes] - self.initialLengths,
-				self.elngRate
-				)
-
-			actualElongations = peptideLengths - self.initialLengths
-
-			stalls = expectedElongations - actualElongations
-
-			self.stalledRibosomes = np.zeros(
-				stalls.size,
-				dtype = self.stalledRibosomes.dtype
-				)
-
-			self.stalledRibosomes["t"] = self.timeStep()
-			self.stalledRibosomes["stalls"] = stalls
-			self.stalledRibosomes["proteinIndex"] = proteinIndexes
-
-			if VERBOSE:
-				print (stalls > 0).sum(), stalls.mean(), stalls.std(), stalls.sum()
-
-		self._recordAssignments()
-
-
-	def _recordAssignments(self):
-		# Record new quantities for next simulation step
-		self.ribosomes = self.uniqueMolecules.container.objectsInCollection("activeRibosome")
-
-		if len(self.ribosomes) == 0:
-			return
-
-		self.initialLengths = self.ribosomes.attr("peptideLength")
+		else:
+			self.stallingRateTotal = np.nan
+			self.stallingRateMean = np.nan
+			self.stallingRateStd = np.nan
+			self.fractionStalled = np.nan
 
 
 	def pytablesCreate(self, h5file, expectedRows):
+		dtype = {
+			"timeStep": tables.Int64Col(),
+			"stallingRateTotal": tables.Float64Col(),
+			"stallingRateMean": tables.Float64Col(),
+			"stallingRateStd": tables.Float64Col(),
+			"fractionStalled": tables.Float64Col(),
+			}
+
 		table = h5file.create_table(
 			h5file.root,
 			self._name,
-			self.stalledRibosomes.dtype,
+			dtype,
 			title = self._name,
 			filters = tables.Filters(complevel = 9, complib="zlib"),
 			)
@@ -112,6 +93,16 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 	def pytablesAppend(self, h5file):
 		table = h5file.get_node("/", self._name)
 
-		table.append(self.stalledRibosomes)
+		entry = table.row
+
+		entry["timeStep"] = self.timeStep()
+		entry["stallingRateTotal"] = self.stallingRateTotal
+		entry["stallingRateMean"] = self.stallingRateMean
+		entry["stallingRateStd"] = self.stallingRateStd
+		entry["fractionStalled"] = self.fractionStalled
+
+		entry.append()
 
 		table.flush()
+
+	# TODO: load method

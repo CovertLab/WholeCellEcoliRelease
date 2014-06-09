@@ -121,7 +121,7 @@ DEFAULT_LISTENERS = (
 	'ReplicationForkPosition',
 	'NtpUsage',
 	'AAUsage',
-	# 'RibosomeStalling', # disabled until I handle unique object IDs
+	'RibosomeStalling', # disabled until I handle unique object IDs
 	'GeneCopyNumber'
 	)
 
