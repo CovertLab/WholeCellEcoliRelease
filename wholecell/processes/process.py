@@ -92,7 +92,7 @@ class Process(object):
 	# Communicate with listeners
 
 	# TODO: consider an object-oriented interface to reading/writing to listeners
-	# that way, it could use object handles instead of strings
+	# that way, processes would use object handles instead of strings
 	def writeToListener(self, listenerName, attributeName, value):
 		if listenerName not in self._sim.listeners.viewkeys():
 			warnings.warn("The {} process attempted to write {} to the {} listener, but there is no listener with that name.".format(
