@@ -115,23 +115,26 @@ class Process(object):
 				setattr(listener, attributeName, value)
 
 
-	def readFromListener(self, listener, attributeName):
-		if listener not in self._sim.listeners.viewkeys():
-			warnings.warn("The {} process attempted to read {} from the {} listener, but there is no listener with that name.".format(
+	def readFromListener(self, listenerName, attributeName):
+		if listenerName not in self._sim.listeners.viewkeys():
+			raise Exception("The {} process attempted to read {} from the {} listener, but there is no listener with that name.".format(
 				self._name,
 				attributeName,
-				listener
-				))
-
-		elif not hasattr(listener, attributeName):
-			warnings.warn("The {} process attempted to read {} from the {} listener, but the listener does not have that attribute.".format(
-				self._name,
-				attributeName,
-				listener
+				listenerName
 				))
 
 		else:
-			setattr(listener, attributeName, value)
+			listener = self._sim.listeners[listenerName]
+
+			if not hasattr(listener, attributeName):
+				raise Exception("The {} process attempted to read {} from the {} listener, but the listener does not have that attribute.".format(
+					self._name,
+					attributeName,
+					listenerName
+					))
+
+			else:
+				return getattr(listener, attributeName)
 
 
 	# Calculate requests for a single time step

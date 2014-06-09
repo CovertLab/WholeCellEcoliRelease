@@ -67,6 +67,7 @@ import wholecell.listeners.ntp_usage
 import wholecell.listeners.aa_usage
 import wholecell.listeners.ribosome_stalling
 import wholecell.listeners.gene_copy_number
+import wholecell.listeners.metabolic_demands
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
@@ -76,6 +77,7 @@ LISTENER_CLASSES = (
 	wholecell.listeners.aa_usage.AAUsage,
 	wholecell.listeners.ribosome_stalling.RibosomeStalling,
 	wholecell.listeners.gene_copy_number.GeneCopyNumber,
+	wholecell.listeners.metabolic_demands.MetabolicDemands,
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -121,8 +123,9 @@ DEFAULT_LISTENERS = (
 	'ReplicationForkPosition',
 	'NtpUsage',
 	'AAUsage',
-	'RibosomeStalling', # disabled until I handle unique object IDs
-	'GeneCopyNumber'
+	'RibosomeStalling',
+	'GeneCopyNumber',
+	'MetabolicDemands'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks

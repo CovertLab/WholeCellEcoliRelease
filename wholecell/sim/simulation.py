@@ -171,6 +171,10 @@ class Simulation(object):
 		for process in self.processes.itervalues():
 			process.calculateRequest()
 
+		# Update listeners
+		for listener in self.listeners.itervalues():
+			listener.updatePostRequest()
+
 		# Partition states among processes
 		for state in self.states.itervalues():
 			state.partition()
