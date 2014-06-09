@@ -103,6 +103,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 
 	def _buildSequences(self, proteinIndexes, peptideLengths):
+		# TODO: cythonize
+
 		# Cache the sequences array used for polymerize, rebuilding if neccesary
 		if self._sequences is None or np.any(self._peptideLengths != peptideLengths) or np.any(self._proteinIndexes != proteinIndexes):
 
@@ -165,7 +167,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			self.randomState
 			)
 
-		updatedMass = massDiffProtein + np.array([
+		updatedMass = massDiffProtein + np.array([ # TODO: cythonize
 			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongations)
 			])
@@ -190,10 +192,11 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		didTerminate = (updatedLengths == terminalLengths)
 
-		for moleculeIndex, molecule in enumerate(activeRibosomes):
-			if didTerminate[moleculeIndex]:
-				terminatedProteins[molecule.attr('proteinIndex')] += 1
-				self.activeRibosomes.moleculeDel(molecule)
+		for moleculeIndex in np.where(didTerminate)[0]:
+			molecule = activeRibosomes[moleculeIndex]
+
+			terminatedProteins[molecule.attr('proteinIndex')] += 1
+			self.activeRibosomes.moleculeDel(molecule)
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
