@@ -41,6 +41,11 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = None
 		self.ribosomeSubunits = None
 
+		# Cached values
+		self.sequences = None
+		self.proteinIndexes = None
+		self.proteinLengths = None
+
 		super(UniquePolypeptideElongation, self).__init__()
 
 
@@ -97,6 +102,19 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
 
 
+	def _rebuildSequences(self, proteinIndexes, peptideLengths):
+		# Cache the sequences array used for polymerize, rebuilding if neccesary
+		if self.sequences is None or np.any(self.peptideLengths != peptideLengths) or np.any(self.proteinIndexes != proteinIndexes):
+
+			self.sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+
+			for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
+				self.sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+
+			self.proteinIndexes = proteinIndexes.copy()
+			self.peptideLengths = peptideLengths.copy()
+
+
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
 
@@ -106,16 +124,11 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			'proteinIndex', 'peptideLength'
 			)
 		
-		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
-
-		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+		self._rebuildSequences(proteinIndexes, peptideLengths)
 
 		self.aas.requestIs(
-			np.bincount(sequences[sequences != PAD_VALUE])
+			np.bincount(self.sequences[self.sequences != PAD_VALUE])
 			)
-
-		# self.aas.requestAll()
 
 
 	# Calculate temporal evolution
@@ -133,24 +146,21 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Build sequence array
 
-		sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
-
-		for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-			sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+		self._rebuildSequences(proteinIndexes, peptideLengths)
 
 		# Calculate update
 
 		reactionLimit = aaCounts.sum() # TODO: account for energy
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
-			sequences,
+			self.sequences,
 			aaCounts,
 			reactionLimit,
 			self.randomState
 			)
 
 		updatedMass = massDiffProtein + np.array([
-			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+			self.aaWeightsIncorporated[self.sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongations)
 			])
 
@@ -170,7 +180,9 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		terminatedProteins = np.zeros_like(self.bulkMonomers.counts())
 
-		didTerminate = (updatedLengths == self.proteinLengths[proteinIndexes])
+		terminalLengths = self.proteinLengths[proteinIndexes]
+
+		didTerminate = (updatedLengths == terminalLengths)
 
 		for moleculeIndex, molecule in enumerate(activeRibosomes):
 			if didTerminate[moleculeIndex]:
@@ -190,11 +202,11 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations)
 
-		# Calculate stalling
+		# Report stalling
 
 		expectedElongations = np.fmin(
 			self.elngRate,
-			self.proteinLengths[proteinIndexes] - peptideLengths
+			terminalLengths - peptideLengths
 			)
 
 		ribosomeStalls = expectedElongations - sequenceElongations
