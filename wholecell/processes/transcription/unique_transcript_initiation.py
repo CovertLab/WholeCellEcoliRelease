@@ -61,25 +61,39 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
-		inactiveRnaPolys = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
+		inactiveRnaPolyCount = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
-		nNewRnas = self.randomState.multinomial(inactiveRnaPolys,
+		nNewRnas = self.randomState.multinomial(inactiveRnaPolyCount,
 			self.rnaSynthProb)
-
-		# Create the active RNA polymerases
 
 		nonzeroCount = (nNewRnas > 0)
 
-		for rnaIndex, nNew in itertools.izip(
+		assert nNewRnas.sum() == inactiveRnaPolyCount
+
+		# Build list of RNA indexes
+
+		rnaIndexes = np.empty(inactiveRnaPolyCount, np.int64)
+
+		startIndex = 0
+		for rnaIndex, counts in itertools.izip(
 				np.arange(nNewRnas.size)[nonzeroCount],
-				nNewRnas[nonzeroCount],
+				nNewRnas[nonzeroCount]
 				):
 
-			self.activeRnaPolys.moleculesNew(
-				'activeRnaPoly',
-				nNew,
-				rnaIndex = rnaIndex
-				)
+			rnaIndexes[startIndex:startIndex+counts] = rnaIndex
+
+			startIndex += counts
+
+		# Create the active RNA polymerases
+
+		activeRnaPolys = self.activeRnaPolys.moleculesNew(
+			"activeRnaPoly",
+			inactiveRnaPolyCount
+			)
+
+		activeRnaPolys.attrIs(
+			rnaIndex = rnaIndexes
+			)
 
 		self.rnapSubunits.countsDec(
 			nNewRnas.sum() * np.array([2, 1, 1, 1], np.int)
