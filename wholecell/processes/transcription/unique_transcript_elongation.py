@@ -48,9 +48,9 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.rnapSubunits = None
 
 		# Cached values
-		self.sequences = None
-		self.transcriptLengths = None
-		self.rnaIndexes = None
+		self._sequences = None
+		self._transcriptLengths = None
+		self._rnaIndexes = None
 
 		super(UniqueTranscriptElongation, self).__init__()
 
@@ -111,17 +111,19 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.rnapSubunits = self.bulkMoleculesView(enzIds)
 
 
-	def _rebuildSequences(self, rnaIndexes, transcriptLengths):
+	def _buildSequences(self, rnaIndexes, transcriptLengths):
 		# Cache the sequences array used for polymerize, rebuilding if neccesary
-		if self.sequences is None or np.any(self.transcriptLengths != transcriptLengths) or np.any(self.rnaIndexes != rnaIndexes):
+		if self._sequences is None or np.any(self._transcriptLengths != transcriptLengths) or np.any(self._rnaIndexes != rnaIndexes):
 
-			self.sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+			self._sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
 
 			for i, (rnaIndex, rnaLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-				self.sequences[i, :] = self.rnaSequences[rnaIndex, rnaLength:np.int64(rnaLength + self.elngRate)]
+				self._sequences[i, :] = self.rnaSequences[rnaIndex, rnaLength:np.int64(rnaLength + self.elngRate)]
 
-			self.rnaIndexes = rnaIndexes.copy()
-			self.transcriptLengths = transcriptLengths.copy()
+			self._rnaIndexes = rnaIndexes.copy()
+			self._transcriptLengths = transcriptLengths.copy()
+
+		return self._sequences
 
 
 	def calculateRequest(self):
@@ -136,10 +138,10 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			'rnaIndex', 'transcriptLength'
 			)
 
-		self._rebuildSequences(rnaIndexes, transcriptLengths)
+		sequences = self._buildSequences(rnaIndexes, transcriptLengths)
 
 		self.ntps.requestIs(
-			np.bincount(self.sequences[self.sequences != PAD_VALUE])
+			np.bincount(sequences[sequences != PAD_VALUE])
 			)
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
@@ -160,19 +162,19 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		self._rebuildSequences(rnaIndexes, transcriptLengths)
+		sequences = self._buildSequences(rnaIndexes, transcriptLengths)
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
 		sequenceElongation, ntpsUsed, nElongations = polymerize(
-			self.sequences,
+			sequences,
 			ntpCounts,
 			reactionLimit,
 			self.randomState
 			)
 
 		updatedMass = massDiffRna + np.array([
-			self.ntWeights[self.sequences[i, :elongation]].sum()
+			self.ntWeights[sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongation)
 			])
 

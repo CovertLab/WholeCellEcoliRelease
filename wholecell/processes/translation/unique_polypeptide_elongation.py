@@ -42,9 +42,9 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeSubunits = None
 
 		# Cached values
-		self.sequences = None
-		self.proteinIndexes = None
-		self.proteinLengths = None
+		self._sequences = None
+		self._proteinIndexes = None
+		self._peptideLengths = None
 
 		super(UniquePolypeptideElongation, self).__init__()
 
@@ -102,21 +102,23 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
 
 
-	def _rebuildSequences(self, proteinIndexes, peptideLengths):
+	def _buildSequences(self, proteinIndexes, peptideLengths):
 		# Cache the sequences array used for polymerize, rebuilding if neccesary
-		if self.sequences is None or np.any(self.peptideLengths != peptideLengths) or np.any(self.proteinIndexes != proteinIndexes):
+		if self._sequences is None or np.any(self._peptideLengths != peptideLengths) or np.any(self._proteinIndexes != proteinIndexes):
 
-			self.sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+			self._sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
 
 			for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-				self.sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+				self._sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
 
-			self.proteinIndexes = proteinIndexes.copy()
-			self.peptideLengths = peptideLengths.copy()
+			self._proteinIndexes = proteinIndexes.copy()
+			self._peptideLengths = peptideLengths.copy()
 
 			# TODO: if the arrays don't match, try only recomputing the new values
 			# and culling the missing entries (this will become important if/when
 			# active ribosomes are requested by another process)
+		
+		return self._sequences
 
 
 	def calculateRequest(self):
@@ -128,10 +130,10 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			'proteinIndex', 'peptideLength'
 			)
 		
-		self._rebuildSequences(proteinIndexes, peptideLengths)
+		sequences = self._buildSequences(proteinIndexes, peptideLengths)
 
 		self.aas.requestIs(
-			np.bincount(self.sequences[self.sequences != PAD_VALUE])
+			np.bincount(sequences[sequences != PAD_VALUE])
 			)
 
 
@@ -150,21 +152,21 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Build sequence array
 
-		self._rebuildSequences(proteinIndexes, peptideLengths)
+		sequences = self._buildSequences(proteinIndexes, peptideLengths)
 
 		# Calculate update
 
 		reactionLimit = aaCounts.sum() # TODO: account for energy
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
-			self.sequences,
+			sequences,
 			aaCounts,
 			reactionLimit,
 			self.randomState
 			)
 
 		updatedMass = massDiffProtein + np.array([
-			self.aaWeightsIncorporated[self.sequences[i, :elongation]].sum()
+			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
 			for i, elongation in enumerate(sequenceElongations)
 			])
 
