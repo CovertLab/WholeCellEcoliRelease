@@ -114,6 +114,10 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinIndexes = proteinIndexes.copy()
 			self.peptideLengths = peptideLengths.copy()
 
+			# TODO: if the arrays don't match, try only recomputing the new values
+			# and culling the missing entries (this will become important if/when
+			# active ribosomes are requested by another process)
+
 
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
