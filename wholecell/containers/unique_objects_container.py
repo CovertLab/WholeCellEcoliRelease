@@ -399,6 +399,10 @@ class _UniqueObject(object):
 		return self._container._collectionNames[self._collectionIndex]
 
 
+	def uniqueId(self):
+		return self.attr("_uniqueId")
+
+
 	def attr(self, attribute):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 		
@@ -510,6 +514,10 @@ class _UniqueObjectSet(object):
 
 	def __getitem__(self, index):
 		return _UniqueObject(self._container, self._globalIndexes[index])
+
+
+	def uniqueIds(self):
+		return self.attr("_uniqueId")
 
 
 	def attr(self, attribute):
