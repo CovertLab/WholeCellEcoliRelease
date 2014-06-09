@@ -70,40 +70,30 @@ class Metabolism(wholecell.processes.process.Process):
 			"AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"
 			])
 
-		### A little hacky here. John close your eyes.
-		# TODO: Clean up
+		# Attributes needed for dynamic objective
+
+		self.nAvogadro = kb.nAvogadro.magnitude
 
 		# TODO: Include selenocysteine
-		self.aaIds = [aaId for aaId in kb.aaIDs if aaId != "SEC-L[c]"]
+		aaIds = [aaId for aaId in kb.aaIDs if aaId != "SEC-L[c]"]
 
 		self.aaIdxsInWildTypeBiomass = np.array(
-			[np.where(self.wildtypeIds == x)[0][0] for x in self.aaIds]
+			[np.where(self.wildtypeIds == x)[0][0] for x in aaIds]
 			)
 
-		self.bulkMoleculesState = sim.states["BulkMolecules"]
-		self.aaIdxsInContainer = self.bulkMoleculesState.container._namesToIndexes(self.aaIds)
-
 		aaIdxsInKb = np.array([
-			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.aaIds
+			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in aaIds
 			])
 		self.aaMws = kb.bulkMolecules["mass"][aaIdxsInKb].magnitude
 
-		# bulkMoleculesIdxs = np.array([
-		# 	np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.wildtypeIds
-		# 	])
-		# self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
-		self.nAvogadro = kb.nAvogadro.magnitude
-
-		self.ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",]
+		ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",]
 
 		self.ntpIdxsInWildTypeBiomass = np.array(
-			[np.where(self.wildtypeIds == x)[0][0] for x in self.ntpIds]
+			[np.where(self.wildtypeIds == x)[0][0] for x in ntpIds]
 			)
 
-		self.ntpIdxsInContainer = self.bulkMoleculesState.container._namesToIndexes(self.ntpIds)
-
 		ntpIdxsInKb = np.array([
-			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.ntpIds
+			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in ntpIds
 			])
 		self.ntpMws = kb.bulkMolecules["mass"][ntpIdxsInKb].magnitude
 
@@ -119,10 +109,11 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# ##### Dynamic objective #####
 
+		requests = self.readFromListener("MetabolicDemands", "metaboliteRequests").sum(1)
+
 		# For AAs
-		relativeAArequests = normalize(
-			self.bulkMoleculesState._countsRequested[self.aaIdxsInContainer].sum(axis = 1)
-			)
+		relativeAArequests = normalize(requests[self.aaIdxsInWildTypeBiomass])
+
 		if not np.any(np.isnan(relativeAArequests)):
 			# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
 
@@ -141,9 +132,8 @@ class Metabolism(wholecell.processes.process.Process):
 				)
 
 		# For NTPs
-		relativeNTPrequests = normalize(
-			self.bulkMoleculesState._countsRequested[self.ntpIdxsInContainer].sum(axis = 1)
-			)
+		relativeNTPrequests = normalize(requests[self.ntpIdxsInWildTypeBiomass])
+
 		if not np.any(np.isnan(relativeNTPrequests)):
 			# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
 

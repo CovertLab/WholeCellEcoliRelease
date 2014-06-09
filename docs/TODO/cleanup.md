@@ -44,18 +44,19 @@ Refactoring
 
 2. wholecell/containers
     * Move saving/loading to bulk_objects_container from bulk_molecules
-    * Rewrite Transcripts, Chromosome to use lists-of-arrays instead of single arrays
-    * Rewrite UniqueObjectsContainer to better differentiate the global reference array (DONE), improved array expansion logic using numpy built-ins (DONE), and a global name parameter that allows for unique object IDs
+    * Save values related to requests/allocations/usages in an appropriate listener
+    * Rewrite Transcripts, Chromosome to use lists-of-arrays instead of single arrays (SKIPPING)
+    * Rewrite UniqueObjectsContainer to better differentiate the global reference array (DONE), improved array expansion logic using numpy built-ins (DONE), and a global name parameter that allows for unique object IDs (DONE)
     * Move the data loader into a new directory and rewrite to focus on the container instead of the state
 
 3. wholecell/listeners
     * Saving/loading functionality
 
 4. wholecell/loggers/shell.py
-    * Implement many possible logged attributes and allow passing as a list of strings during simulation instantiation
+    * Implement many possible logged attributes and allow passing as a list of strings during simulation instantiation (have listeners register logged value formatting?)
 
 5. wholecell/processes
-    * Cache request calculations for use in evolveState (esp. elongation processes)
+    * Cache request calculations for use in evolveState (esp. elongation processes) (URGENT)
 
 6. wholecell/reconstruction
     * Eliminate redundant/dependent entries from the KB object

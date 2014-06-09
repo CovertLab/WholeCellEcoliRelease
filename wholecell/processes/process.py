@@ -14,7 +14,7 @@ from __future__ import division
 
 import warnings
 
-import wholecell.views.view
+# import wholecell.views.view
 
 import wholecell.states.bulk_molecules
 import wholecell.states.bulk_chromosome
@@ -77,22 +77,22 @@ class Process(object):
 			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
 
-	def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeForksView(
-			self._states['Chromosome'], self,
-			(extentForward, extentReverse, includeMoleculesOnEnds))
+	# def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
+	# 	return wholecell.views.view.ChromosomeForksView(
+	# 		self._states['Chromosome'], self,
+	# 		(extentForward, extentReverse, includeMoleculesOnEnds))
 
 
-	def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeMoleculesView(
-			self._states['Chromosome'], self,
-			(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+	# def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
+	# 	return wholecell.views.view.ChromosomeMoleculesView(
+	# 		self._states['Chromosome'], self,
+	# 		(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
 
 
 	# Communicate with listeners
 
 	# TODO: consider an object-oriented interface to reading/writing to listeners
-	# that way, it could use object handles instead of strings
+	# that way, processes would use object handles instead of strings
 	def writeToListener(self, listenerName, attributeName, value):
 		if listenerName not in self._sim.listeners.viewkeys():
 			warnings.warn("The {} process attempted to write {} to the {} listener, but there is no listener with that name.".format(
@@ -115,23 +115,26 @@ class Process(object):
 				setattr(listener, attributeName, value)
 
 
-	def readFromListener(self, listener, attributeName):
-		if listener not in self._sim.listeners.viewkeys():
-			warnings.warn("The {} process attempted to read {} from the {} listener, but there is no listener with that name.".format(
+	def readFromListener(self, listenerName, attributeName):
+		if listenerName not in self._sim.listeners.viewkeys():
+			raise Exception("The {} process attempted to read {} from the {} listener, but there is no listener with that name.".format(
 				self._name,
 				attributeName,
-				listener
-				))
-
-		elif not hasattr(listener, attributeName):
-			warnings.warn("The {} process attempted to read {} from the {} listener, but the listener does not have that attribute.".format(
-				self._name,
-				attributeName,
-				listener
+				listenerName
 				))
 
 		else:
-			setattr(listener, attributeName, value)
+			listener = self._sim.listeners[listenerName]
+
+			if not hasattr(listener, attributeName):
+				raise Exception("The {} process attempted to read {} from the {} listener, but the listener does not have that attribute.".format(
+					self._name,
+					attributeName,
+					listenerName
+					))
+
+			else:
+				return getattr(listener, attributeName)
 
 
 	# Calculate requests for a single time step

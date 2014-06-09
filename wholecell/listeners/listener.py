@@ -31,6 +31,10 @@ class Listener(object):
 		self.update()
 
 
+	def updatePostRequest(self):
+		pass
+
+
 	def update(self):
 		pass
 
