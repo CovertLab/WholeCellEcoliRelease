@@ -30,7 +30,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	nMonomers = monomerLimits.size
 
 	# Static data
-	sequenceMonomers = np.zeros((nMonomers, nSequences, sequenceLength), np.bool)
+	sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), np.bool)
 
 	for monomerIndex in xrange(nMonomers):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
