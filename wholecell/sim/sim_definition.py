@@ -68,6 +68,7 @@ import wholecell.listeners.aa_usage
 import wholecell.listeners.ribosome_stalling
 import wholecell.listeners.gene_copy_number
 import wholecell.listeners.metabolic_demands
+import wholecell.listeners.unique_molecule_counts
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
@@ -78,6 +79,7 @@ LISTENER_CLASSES = (
 	wholecell.listeners.ribosome_stalling.RibosomeStalling,
 	wholecell.listeners.gene_copy_number.GeneCopyNumber,
 	wholecell.listeners.metabolic_demands.MetabolicDemands,
+	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -125,7 +127,8 @@ DEFAULT_LISTENERS = (
 	'AAUsage',
 	'RibosomeStalling',
 	'GeneCopyNumber',
-	'MetabolicDemands'
+	'MetabolicDemands',
+	'UniqueMoleculeCounts'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks

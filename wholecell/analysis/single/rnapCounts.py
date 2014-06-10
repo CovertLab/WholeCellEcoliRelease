@@ -42,9 +42,14 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	h.close()
 
-	with UniqueMoleculesData(os.path.join(simOutDir, "UniqueMolecules.hdf")) as uniqueMolecules:
-		time = uniqueMolecules.timepoints()
-		nActive = uniqueMolecules.counts("activeRnaPoly")
+	h = tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf"))
+
+	uniqueMoleculeCounts = h.root.UniqueMoleculeCounts
+	rnapIndex = uniqueMoleculeCounts.attrs.uniqueMoleculeIds.index("activeRnaPoly")
+	time = uniqueMoleculeCounts.col("time")
+	nActive = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, rnapIndex]
+
+	h.close()
 
 	plt.figure(figsize = (8.5, 11))
 
