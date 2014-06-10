@@ -13,7 +13,7 @@ from __future__ import division
 import numpy as np
 
 import pyximport; pyximport.install()
-from _build_sequences import buildSequences
+from _build_sequences import buildSequences, computeMassIncrease
 
 PAD_VALUE = -1
 

@@ -17,7 +17,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import buildSequences, polymerize, PAD_VALUE
+from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
@@ -87,7 +87,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			kb.nAvogadro.to("1 / mole").magnitude
 			for x in kb.aaIDs
 			if len(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == x]["mass"])
-			])
+			]).flatten()
 
 		self.aaWeightsIncorporated = aaWeights - self.h2oWeight
 
@@ -181,10 +181,16 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			self.randomState
 			)
 
-		massIncreaseProtein = np.empty_like(massDiffProtein)
+		# massIncreaseProtein = np.empty_like(massDiffProtein)
 
-		for i, elongation in enumerate(sequenceElongations):
-			massIncreaseProtein[i] = self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+		# for i, elongation in enumerate(sequenceElongations):
+		# 	massIncreaseProtein[i] = self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+
+		massIncreaseProtein = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			self.aaWeightsIncorporated
+			)
 
 		updatedMass = massDiffProtein + massIncreaseProtein
 

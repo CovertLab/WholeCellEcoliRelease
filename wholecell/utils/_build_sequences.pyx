@@ -19,22 +19,19 @@ np.import_array()
 
 cimport cython
 
-DTYPE8 = np.int8
-ctypedef np.int8_t DTYPE8_t
-ctypedef np.int64_t DTYPE64_t
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
-cpdef np.ndarray[DTYPE8_t, ndim=2] buildSequences(
-		np.ndarray[DTYPE8_t, ndim=2] base_sequences,
-		np.ndarray[DTYPE64_t, ndim=1] indexes,
-		np.ndarray[DTYPE64_t, ndim=1] positions,
-		int elng_rate):
+cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
+		np.ndarray[np.int8_t, ndim=2] base_sequences,
+		np.ndarray[np.int64_t, ndim=1] indexes,
+		np.ndarray[np.int64_t, ndim=1] positions,
+		int elng_rate
+		):
 
 	cdef int out_rows = positions.shape[0]
 
-	cdef np.ndarray[DTYPE8_t, ndim=2] out = np.empty((out_rows, elng_rate), DTYPE8)
+	cdef np.ndarray[np.int8_t, ndim=2] out = np.empty((out_rows, elng_rate), np.int8)
 
 	cdef int i, index, position, j
 
@@ -44,5 +41,30 @@ cpdef np.ndarray[DTYPE8_t, ndim=2] buildSequences(
 
 		for j in range(elng_rate):
 			out[i, j] = base_sequences[index, position+j]
+
+	return out
+
+# TODO: move this to a new file?
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+cpdef np.ndarray[np.float64_t, ndim=1] computeMassIncrease(
+		np.ndarray[np.int8_t, ndim=2] sequences,
+		np.ndarray[np.int64_t, ndim=1] elongations,
+		np.ndarray[np.float64_t, ndim=1] monomerMasses
+		):
+
+	cdef int out_size = sequences.shape[0]
+
+	cdef np.ndarray[np.float64_t, ndim=1] out = np.zeros(out_size, np.float64)
+
+	cdef int i, j
+
+	for i in range(out_size):
+		for j in range(elongations[i]):
+			out[i] += monomerMasses[
+				sequences[i, j]
+				]
 
 	return out

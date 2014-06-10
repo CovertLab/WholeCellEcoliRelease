@@ -17,7 +17,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import buildSequences, polymerize, PAD_VALUE
+from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
 # TODO: refactor mass calculations
 # TODO: confirm reaction stoich
@@ -180,21 +180,24 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
-		sequenceElongation, ntpsUsed, nElongations = polymerize(
+		sequenceElongations, ntpsUsed, nElongations = polymerize(
 			sequences,
 			ntpCounts,
 			reactionLimit,
 			self.randomState
 			)
 
-		updatedMass = massDiffRna + np.array([
-			self.ntWeights[sequences[i, :elongation]].sum()
-			for i, elongation in enumerate(sequenceElongation)
-			])
+		massIncreaseRna = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			self.ntWeights
+			)
 
-		didInitialize = (transcriptLengths == 0) & (sequenceElongation > 0)
+		updatedMass = massDiffRna + massIncreaseRna
 
-		updatedLengths = transcriptLengths + sequenceElongation
+		didInitialize = (transcriptLengths == 0) & (sequenceElongations > 0)
+
+		updatedLengths = transcriptLengths + sequenceElongations
 
 		updatedMass[didInitialize] += self.hydroxylWeight
 
