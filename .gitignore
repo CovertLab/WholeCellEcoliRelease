@@ -42,6 +42,10 @@ user/*
 ################
 *.so
 
+# Cython C source #
+###################
+/wholecell/utils/_build_sequences.c
+
 # Misc #
 ########
 
