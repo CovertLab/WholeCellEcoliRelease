@@ -29,5 +29,6 @@ setup(name = "Polymerize",
 
 setup(
 	name = "Build sequences",
-	ext_modules = build_sequences_module
+	ext_modules = build_sequences_module,
+	include_dirs = [np.get_include()]
 	)
