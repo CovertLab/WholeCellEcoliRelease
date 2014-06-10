@@ -87,7 +87,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		nReactions = np.dot(self.proteinLengths, nProteinsToDegrade)
 
 		# Assuming one N-1 H2O is required per peptide chain length N
-		self.h2o.requestIs(nReactions - sum(nProteinsToDegrade))
+		self.h2o.requestIs(nReactions - np.sum(nProteinsToDegrade))
 		self.proteins.requestIs(nProteinsToDegrade)
 		#self.protease.requestAll()
 		
