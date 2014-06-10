@@ -167,10 +167,12 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			self.randomState
 			)
 
-		updatedMass = massDiffProtein + np.array([ # TODO: cythonize
-			self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
-			for i, elongation in enumerate(sequenceElongations)
-			])
+		massIncreaseProtein = np.empty_like(massDiffProtein)
+
+		for i, elongation in enumerate(sequenceElongations):
+			massIncreaseProtein[i] = self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+
+		updatedMass = massDiffProtein + massIncreaseProtein
 
 		updatedLengths = peptideLengths + sequenceElongations
 
