@@ -87,7 +87,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadProteinMonomers()
 		self._loadComplexes() 
 		self._loadReactions()
-		#self_createBioMassFromRxn()
+		self._createBioMassFromRxn()
 
 
 		## Keep separate
@@ -989,7 +989,7 @@ class KnowledgeBaseEcoli(object):
 				t = self._allRelationStoichiometry[temp]
 				#t["molecule"] = t["molecule"].upper() # need to check why .upper()
 				r["stoichiometry"].append(t)
-
+				
 			self._complexationReactions.append(r)
 
 		##update FK of modified complexes
@@ -1053,36 +1053,122 @@ class KnowledgeBaseEcoli(object):
 				r["stoichiometry"].append(t)
 
 			self._reactions.append(r)
-
+					
 
 	def _createBioMassFromRxn(self):
-		'''
-		metDict = dict([(x["id"], x) for x in self._metabolites])
-		rnaDict = dict([(x["id"], x) for x in self._rnas])
-		protDict = dict([(x["id"], x) for x in self._proteins])
 		
-		for p in protNew:
-			p = [x for x in self._proteins if x["id"] == p["id"]][0]
+		productsPosition = {}
+		reactions = {}
+		complexReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._complexationReactions)])
+		modificationReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._modificationReactions)])
+		complexLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._proteinComplexes)])
+		rnaModLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._modifiedRnas)])
 
-			for stoichComponent in p["composition"]:
-				if stoichComponent["type"] == '': 
-					stoichComponent["type"] = self._check_molecule(stoichComponent["molecule"]) #ADDED
-				if stoichComponent["molecule"] != p["id"]:
-					if stoichComponent["molecule"].upper() in metDict:
-						stoichComponent["molecule"] = stoichComponent["molecule"].upper()
-						subunitMw = metDict[stoichComponent["molecule"]]["mw7.2"]
-					elif stoichComponent["molecule"] in rnaDict:
-						subunitMw = rnaDict[stoichComponent["molecule"]]["mw"]
-						p["ntCount"] -= stoichComponent["coeff"] * rnaDict[stoichComponent["molecule"]]["ntCount"]
-					elif stoichComponent["molecule"] in protDict:
-						subunitMw = protDict[stoichComponent["molecule"]]["mw"]
-						p["aaCount"] -= stoichComponent["coeff"] * protDict[stoichComponent["molecule"]]["aaCount"]
-					else:
-						raise Exception, "Undefined subunit: %s." % stoichComponent["molecule"]
-
-					p["mw"] -= stoichComponent["coeff"] * subunitMw
+		# No reaction available for calculating MW
+		notComputableList = ['ACECITLY-CPLX','CPLX0-2','ENTB-CPLX','MONOMER0-2863','TAP-GLN','TAR-GLN','TRG-GLN','TSR-GLN','MONOMER0-1842','MONOMER0-1843','MONOMER0-2','MONOMER0-3','MONOMER0-4119','MONOMER0-4195','MONOMER0-4196','MONOMER0-4198','OCTANOYL-ACP','OX-FERREDOXIN','PGLYCEROLTRANSII-MONOMER','PHOSPHASERDECARB-ALPHA-MONOMER','PHOSPHASERDECARB-BETA-MONOMER','PHOSPHO-CPXR','PHOSPHO-DCUR-MONOMER','PHOSPHO-KDPE','PHOSPHO-OMPR-MONOMER','PHOSPHO-RCSB','PHOSPHO-UHPA','SAMDC-ALPHA-MONOMER','SAMDC-BETA-MONOMER',
+#not possible to calculate without RXN of above
+'PHOSPHO-OMPR','CPLX0-7885','ENTMULTI-CPLX','TRG-GLU','PROTEIN-NRIP','CPLX0-7748','PHOSPHASERDECARB-DIMER','CPLX0-7795','SAMDECARB-CPLX','CPLX0-7754','CPLX0-7884','TAP-GLU','CPLX0-263','CPLX0-2901','TSR-GLU','CPLX0-7721','PHOSPHO-BARA-HIS','PHOSPHASERDECARB-CPLX','CPLX0-7978','TRG-GLUME','TAP-GLUME','TSR-GLUME','MONOMER0-1',
+#loop rxn proteinComplex
+'BCCP-CPLX',
+'ACETYL-COA-CARBOXYLMULTI-CPLX'
+]
+		
+		#order: complex, modComplex, modmonomer, modrna 
+		index = 0
+				
+		for i in self._proteinComplexes:
+			if i['id'] in notComputableList:	continue
+			productsPosition[i['id']] = index
+			reactions[i['id']] = [self._complexationReactions[complexReactionLookUp[i['reactionId']]]['stoichiometry']]
+			index = index + 1	
 		'''
+		for i in self._modifiedComplexes:
+			if i['id'] in notComputableList:	continue
+			productsPosition[i['id']] = index
+			reactions[i['id']] = []
+			r = i['reactionId'][len(i['reactionId'])-1] #last reaction; considering only 1 reaction
+			#for r in i['reactionId']:
+			sch = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
+			reactions[i['id']].append(sch)
+			index = index + 1		
+		'''		
+		#modMonomer needs to calculate for protein complexes
+		monomers_mod = ['AMINOMETHYLDIHYDROLIPOYL-GCVH','LIPOYL-GCVH']
+		for i in self._modifiedProteins:
+			if i['id'] in notComputableList:	continue
+			if i['id'] not in monomers_mod: 	continue
+			productsPosition[i['id']] = index
+			reactions[i['id']] = []
+			r = i['reactionId'][len(i['reactionId'])-1] #last reaction; considering only 1 reaction
+			#for r in i['reactionId']:
+			sch = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
+			reactions[i['id']].append(sch)
+			index = index + 1	
+			
+		for i in self._modifiedRnas:
+			if i['id'] in notComputableList:	continue
+			productsPosition[i['id']] = index
+			reactions[i['id']] = []
+			r = i['reactionId'][len(i['reactionId'])-1] #last reaction; considering only 1 reaction
+			#for r in i['reactionId']:
+			sch = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
+			reactions[i['id']].append(sch)
+			index = index + 1		
+			
 
+		# buld matrix for equations
+		
+		met = dict([(x["id"], x['mw7.2']) for x in self._metabolites])
+		rna = dict([(x["id"], x['mw']) for x in self._rnas])
+		monomer = dict([(x["id"], x['mw']) for x in self._proteins])
+		
+		coefficients = []
+		values = []
+		totalProducts = len(productsPosition)
+
+		for frame_id in productsPosition:	
+			for rxn in reactions[frame_id]: #for a single reaction
+				tmpCoef = numpy.zeros(totalProducts)
+				tmpvalue = 0
+				for i in rxn: #for a molecule in a reaction
+					if i['molecule'] in productsPosition: #coef
+						pos = productsPosition[i['molecule']]
+						tmpCoef[pos] = i['coeff']
+
+					else: #already calculated
+						if i['type'] == 'metabolite':
+							tmpvalue = tmpvalue + met[i['molecule'].upper()] * i['coeff'] * (-1)
+						elif i['type'] == 'rna':
+							tmpvalue = tmpvalue + rna[i['molecule']] * i['coeff'] * (-1)
+						elif i['type'] == 'proteinmonomers':
+							tmpvalue = tmpvalue + monomer[i['molecule']] * i['coeff'] * (-1)
+						else:
+							#print '\''+frame_id+'\',',i['molecule']
+							raise Exception, "%s unknown molecule while calculating MW" % i['molecule']
+				coefficients.append(tmpCoef)
+				values.append(tmpvalue)
+		
+		coefficients = numpy.array(coefficients)
+		values = numpy.array(values)
+		mw = numpy.linalg.solve(coefficients, values)		
+
+		#update the MW for proteinComplexes and modifiedRnas
+		for i in productsPosition:
+			if i in rnaModLookUp:
+				weight = mw[productsPosition[i]]
+				self._modifiedRnas[rnaModLookUp[i]]['mw'] = weight
+		
+		for i in productsPosition:
+			if i in complexLookUp:
+				weight = mw[productsPosition[i]]
+				self._proteinComplexes[complexLookUp[i]]['mw'] = weight
+
+		'''
+		for i in self._proteinComplexes:
+			if i['mw'] <= 0:
+				print i['id'],i['mw']
+		'''
+		
 	def _check_molecule(self, mol):
 		thisType = ""
 		'''		
