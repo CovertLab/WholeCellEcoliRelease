@@ -12,6 +12,9 @@ from __future__ import division
 
 import numpy as np
 
+import pyximport; pyximport.install()
+from _build_sequences import buildSequences
+
 PAD_VALUE = -1
 
 # TODO: consider rewriting as a class to cache sequenceMonomers, which is the

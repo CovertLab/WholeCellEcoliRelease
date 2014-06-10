@@ -17,7 +17,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
+from wholecell.utils.polymerize_new import buildSequences, polymerize, PAD_VALUE
 
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
@@ -132,7 +132,14 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			'proteinIndex', 'peptideLength'
 			)
 		
-		sequences = self._buildSequences(proteinIndexes, peptideLengths)
+		# sequences = self._buildSequences(proteinIndexes, peptideLengths)
+
+		sequences = buildSequences(
+			self.proteinSequences,
+			proteinIndexes,
+			peptideLengths,
+			self.elngRate
+			)
 
 		self.aas.requestIs(
 			np.bincount(sequences[sequences != PAD_VALUE])
@@ -154,7 +161,14 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Build sequence array
 
-		sequences = self._buildSequences(proteinIndexes, peptideLengths)
+		# sequences = self._buildSequences(proteinIndexes, peptideLengths)
+
+		sequences = buildSequences(
+			self.proteinSequences,
+			proteinIndexes,
+			peptideLengths,
+			self.elngRate
+			)
 
 		# Calculate update
 
