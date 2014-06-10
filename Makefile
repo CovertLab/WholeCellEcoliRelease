@@ -1,10 +1,12 @@
 .PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, clean, clobber
 
-all: wholecell/utils/_polymerize.so
-
-wholecell/utils/_polymerize.so: wholecell/utils/polymerize.c wholecell/utils/polymerize.h
+all:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
+
+# wholecell/utils/_polymerize.so: wholecell/utils/polymerize.c wholecell/utils/polymerize.h
+# 	python2.7 setup.py build_ext --inplace
+# 	rm -fr build
 
 runSimulation: all
 	./runscripts/runSimulation.sh
@@ -16,10 +18,10 @@ runSimulationJob: all
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
-justKb:
+justKb: all
 	python2.7 runscripts/createKbs.py
 
-justSimulation:
+justSimulation: all
 	python2.7 runscripts/justSimulation.py
 
 clean:

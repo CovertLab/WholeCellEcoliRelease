@@ -17,7 +17,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
+from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
 # TODO: refactor mass calculations
 # TODO: confirm reaction stoich
@@ -47,6 +47,11 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton = None
 		self.rnapSubunits = None
 
+		# Cached values
+		self._sequences = None
+		self._transcriptLengths = None
+		self._rnaIndexes = None
+
 		super(UniqueTranscriptElongation, self).__init__()
 
 
@@ -70,7 +75,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		maxLen = np.int64(self.rnaLengths.max() + self.elngRate)
 
-		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int64)
+		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int8)
 		self.rnaSequences.fill(PAD_VALUE)
 
 		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
@@ -106,6 +111,21 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.rnapSubunits = self.bulkMoleculesView(enzIds)
 
 
+	def _buildSequences(self, rnaIndexes, transcriptLengths):
+		# Cache the sequences array used for polymerize, rebuilding if neccesary
+		if self._sequences is None or np.any(self._transcriptLengths != transcriptLengths) or np.any(self._rnaIndexes != rnaIndexes):
+
+			self._sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+
+			for i, (rnaIndex, rnaLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+				self._sequences[i, :] = self.rnaSequences[rnaIndex, rnaLength:np.int64(rnaLength + self.elngRate)]
+
+			self._rnaIndexes = rnaIndexes.copy()
+			self._transcriptLengths = transcriptLengths.copy()
+
+		return self._sequences
+
+
 	def calculateRequest(self):
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
 
@@ -118,10 +138,14 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			'rnaIndex', 'transcriptLength'
 			)
 
-		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
 
-		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-			sequences[i, :] = self.rnaSequences[rnaIndex, transcriptLength:np.int64(transcriptLength + self.elngRate)]
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elngRate
+			)
 
 		self.ntps.requestIs(
 			np.bincount(sequences[sequences != PAD_VALUE])
@@ -145,31 +169,35 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
 
-		for i, (rnaIndex, transcriptLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-			sequences[i, :] = self.rnaSequences[
-				rnaIndex,
-				transcriptLength:np.int64(transcriptLength + self.elngRate)
-				]
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elngRate
+			)
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
-		sequenceElongation, ntpsUsed, nElongations = polymerize(
+		sequenceElongations, ntpsUsed, nElongations = polymerize(
 			sequences,
 			ntpCounts,
 			reactionLimit,
 			self.randomState
 			)
 
-		updatedMass = massDiffRna + np.array([
-			self.ntWeights[sequences[i, :elongation]].sum()
-			for i, elongation in enumerate(sequenceElongation)
-			])
+		massIncreaseRna = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			self.ntWeights
+			)
 
-		didInitialize = (transcriptLengths == 0) & (sequenceElongation > 0)
+		updatedMass = massDiffRna + massIncreaseRna
 
-		updatedLengths = transcriptLengths + sequenceElongation
+		didInitialize = (transcriptLengths == 0) & (sequenceElongations > 0)
+
+		updatedLengths = transcriptLengths + sequenceElongations
 
 		updatedMass[didInitialize] += self.hydroxylWeight
 
@@ -182,10 +210,11 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])
 
-		for moleculeIndex, molecule in enumerate(activeRnaPolys):
-			if didTerminate[moleculeIndex]:
-				terminatedRnas[molecule.attr('rnaIndex')] += 1
-				self.activeRnaPolys.moleculeDel(molecule)
+		for moleculeIndex in np.where(didTerminate)[0]:
+			molecule = activeRnaPolys[moleculeIndex]
+
+			terminatedRnas[molecule.attr('rnaIndex')] += 1
+			self.activeRnaPolys.moleculeDel(molecule)
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()

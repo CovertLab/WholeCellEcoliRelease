@@ -12,11 +12,15 @@ from __future__ import division
 
 import numpy as np
 
+from _build_sequences import buildSequences, computeMassIncrease
+
 PAD_VALUE = -1
 
 # TODO: consider rewriting as a class to cache sequenceMonomers, which is the
 # most expensive operation in the function (alternatively, pass the 
 # sequenceMonomers array as an argument instead of sequences)
+
+# TODO: cythonize, since it is starting to look like ~2/3 time is spent in for-loops
 
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	# Sanitize inputs
@@ -28,7 +32,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	nMonomers = monomerLimits.size
 
 	# Static data
-	sequenceMonomers = np.zeros((nMonomers, nSequences, sequenceLength), np.bool)
+	sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), np.bool)
 
 	for monomerIndex in xrange(nMonomers):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
