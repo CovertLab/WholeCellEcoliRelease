@@ -208,17 +208,18 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			massDiffProtein = updatedMass
 			)
 
-		terminatedProteins = np.zeros_like(self.bulkMonomers.counts())
-
 		terminalLengths = self.proteinLengths[proteinIndexes]
 
 		didTerminate = (updatedLengths == terminalLengths)
 
 		for moleculeIndex in np.where(didTerminate)[0]:
 			molecule = activeRibosomes[moleculeIndex]
-
-			terminatedProteins[molecule.attr('proteinIndex')] += 1
 			self.activeRibosomes.moleculeDel(molecule)
+
+		terminatedProteins = np.bincount(
+			proteinIndexes[didTerminate],
+			minlength = self.proteinSequences.shape[0]
+			)
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
