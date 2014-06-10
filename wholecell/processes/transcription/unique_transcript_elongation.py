@@ -17,7 +17,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
+from wholecell.utils.polymerize_new import buildSequences, polymerize, PAD_VALUE
 
 # TODO: refactor mass calculations
 # TODO: confirm reaction stoich
@@ -75,7 +75,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		maxLen = np.int64(self.rnaLengths.max() + self.elngRate)
 
-		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int64)
+		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int8)
 		self.rnaSequences.fill(PAD_VALUE)
 
 		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
@@ -138,7 +138,14 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			'rnaIndex', 'transcriptLength'
 			)
 
-		sequences = self._buildSequences(rnaIndexes, transcriptLengths)
+		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
+
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elngRate
+			)
 
 		self.ntps.requestIs(
 			np.bincount(sequences[sequences != PAD_VALUE])
@@ -162,7 +169,14 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		sequences = self._buildSequences(rnaIndexes, transcriptLengths)
+		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
+
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elngRate
+			)
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
