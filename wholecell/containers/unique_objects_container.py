@@ -13,6 +13,7 @@ from __future__ import division
 
 from copy import deepcopy
 import warnings
+from itertools import izip
 
 import numpy as np
 import tables
@@ -275,7 +276,7 @@ class UniqueObjectsContainer(object):
 
 		return _UniqueObjectSet(self, np.concatenate([
 			self._collections[collectionIndex]["_globalIndex"][result]
-			for collectionIndex, result in zip(collectionIndexes, results)
+			for collectionIndex, result in izip(collectionIndexes, results)
 			]))
 
 
@@ -321,7 +322,7 @@ class UniqueObjectsContainer(object):
 	def __eq__(self, other):
 		return np.all(
 			(selfCollection == otherCollection).all()
-			for (selfCollection, otherCollection) in zip(self._collections, other._collections)
+			for (selfCollection, otherCollection) in izip(self._collections, other._collections)
 			) and np.all(self._globalReference == other._globalReference)
 
 
