@@ -14,6 +14,7 @@ import collections
 import os
 import shutil
 import cPickle
+import time
 
 import numpy as np
 import tables
@@ -119,6 +120,9 @@ class Simulation(object):
 		# Create loggers
 		self.loggers = self._options.createLoggers()
 
+		# Make permanent reference to evaluation time listener
+		self._evalTime = self.listeners["EvaluationTime"]
+
 	# -- Run simulation --
 
 	# Run simulation
@@ -164,28 +168,39 @@ class Simulation(object):
 			hook.preEvolveState(self)
 
 		# Update queries
-		for state in self.states.itervalues():
+		# TODO: context manager/function calls for this logic?
+		for i, state in enumerate(self.states.itervalues()):
+			t = time.time()
 			state.updateQueries()
+			self._evalTime.updateQueries_times[i] = time.time() - t
 
 		# Calculate requests
-		for process in self.processes.itervalues():
+		for i, process in enumerate(self.processes.itervalues()):
+			t = time.time()
 			process.calculateRequest()
+			self._evalTime.calculateRequest_times[i] = time.time() - t
 
 		# Update listeners
 		for listener in self.listeners.itervalues():
 			listener.updatePostRequest()
 
 		# Partition states among processes
-		for state in self.states.itervalues():
+		for i, state in enumerate(self.states.itervalues()):
+			t = time.time()
 			state.partition()
+			self._evalTime.partition_times[i] = time.time() - t
 
 		# Simulate submodels
-		for process in self.processes.itervalues():
+		for i, process in enumerate(self.processes.itervalues()):
+			t = time.time()
 			process.evolveState()
+			self._evalTime.evolveState_times[i] = time.time() - t
 
 		# Merge state
-		for state in self.states.itervalues():
+		for i, state in enumerate(self.states.itervalues()):
+			t = time.time()
 			state.merge()
+			self._evalTime.merge_times[i] = time.time() - t
 
 		# Update listeners
 		for listener in self.listeners.itervalues():

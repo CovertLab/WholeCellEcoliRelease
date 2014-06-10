@@ -69,6 +69,7 @@ import wholecell.listeners.ribosome_stalling
 import wholecell.listeners.gene_copy_number
 import wholecell.listeners.metabolic_demands
 import wholecell.listeners.unique_molecule_counts
+import wholecell.listeners.evaluation_time
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
@@ -79,7 +80,8 @@ LISTENER_CLASSES = (
 	wholecell.listeners.ribosome_stalling.RibosomeStalling,
 	wholecell.listeners.gene_copy_number.GeneCopyNumber,
 	wholecell.listeners.metabolic_demands.MetabolicDemands,
-	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts
+	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts,
+	wholecell.listeners.evaluation_time.EvaluationTime
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -128,7 +130,8 @@ DEFAULT_LISTENERS = (
 	'RibosomeStalling',
 	'GeneCopyNumber',
 	'MetabolicDemands',
-	'UniqueMoleculeCounts'
+	'UniqueMoleculeCounts',
+	'EvaluationTime'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
