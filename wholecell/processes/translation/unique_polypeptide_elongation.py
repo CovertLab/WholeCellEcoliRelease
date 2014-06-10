@@ -223,10 +223,3 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		ribosomeStalls = expectedElongations - sequenceElongations
 
 		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)
-
-
-def getWorkAssignment(dataSize, thisTask, totalTasks):
-	startPos = sum(dataSize // totalTasks + (i < (dataSize % totalTasks)) for i in xrange(thisTask))
-	nElements = dataSize // totalTasks + (thisTask < (dataSize % totalTasks))
-
-	return startPos, nElements
