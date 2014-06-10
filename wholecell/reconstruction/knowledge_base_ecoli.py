@@ -1031,24 +1031,73 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkChromosome(self):
-		size = len(self._genes)
+		count_dnaAbox_at_oriC = 5
+		count_dnaABindingSites_at_oriC = 5
+
+		dnaA_mass = [x['mw'] for x in self._proteins if x['id'] == 'PD03831'][0]
+		atp_mass = [x['mw7.2'] for x in self._metabolites if x['id'] == 'ATP'][0]
+		adp_mass = [x['mw7.2'] for x in self._metabolites if x['id'] == 'ADP'][0]
+		dnaA_atp_mass = dnaA_mass + atp_mass
+		dnaA_adp_mass = dnaA_mass + adp_mass
+
+		size = len(self._genes) + count_dnaABindingSites_at_oriC + count_dnaABindingSites_at_oriC + count_dnaABindingSites_at_oriC
 		bulkChromosome = numpy.zeros(size,
-			dtype = [("moleculeId", 		"a50"),
-					('compartment',			"a1"),
-					("mass",				"float64"),
-					("isGene",				"bool")])
+			dtype = [("moleculeId", 			"a50"),
+					('compartment',				"a1"),
+					("mass",					"float64"),
+					("isGene",					"bool"),
+					("isDnaABox",				"bool"),
+					("isDnaABox_atp_polymer",	"bool"),
+					("isDnaABox_adp_polymer",	"bool")]
+					)
+
 		# Set genes
 		lastGeneIdx = len(self._genes)
 		bulkChromosome['moleculeId'][0:lastGeneIdx] = [x['id'] for x in self._genes]
+		bulkChromosome['compartment'][0:lastGeneIdx] = 'n'
 		bulkChromosome['mass'][0:lastGeneIdx] = 0.
-		bulkChromosome['isGene'][0:lastGeneIdx] = [True]*len(self._genes)
+		bulkChromosome['isGene'][0:lastGeneIdx] = True
+
+		# Set dnaA box
+		lastDnaAIdx = lastGeneIdx + count_dnaAbox_at_oriC
+		bulkChromosome['compartment'][lastGeneIdx:lastDnaAIdx] = 'n'
+		bulkChromosome['moleculeId'][lastGeneIdx:lastDnaAIdx] = ['R1', 'R2', 'R3', 'R4', 'R5']
+		bulkChromosome['mass'][lastGeneIdx:lastDnaAIdx] = 0.
+		bulkChromosome['isDnaABox'][lastGeneIdx:lastDnaAIdx] = True
+
+		# Set dnaA box dnaA-ATP polymer
+		lastDnaAATPSiteIdx = lastDnaAIdx + count_dnaABindingSites_at_oriC
+		bulkChromosome['compartment'][lastDnaAIdx:lastDnaAATPSiteIdx] = 'n'
+		bulkChromosome['moleculeId'][lastDnaAIdx:lastDnaAATPSiteIdx] = ['R1_dnaA_atp_polymer',
+																'R2_dnaA_atp_polymer',
+																'R3_dnaA_atp_polymer',
+																'R4_dnaA_atp_polymer',
+																'R5_dnaA_atp_polymer']
+		bulkChromosome['mass'][lastDnaAIdx:lastDnaAATPSiteIdx] = dnaA_atp_mass
+		bulkChromosome['isDnaABox_atp_polymer'][lastDnaAIdx:lastDnaAATPSiteIdx] = True
+
+		# Set dnaA box dnaA-ADP polymer
+		lastDnaAADPSiteIdx = lastDnaAATPSiteIdx + count_dnaABindingSites_at_oriC
+		bulkChromosome['compartment'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx] = 'n'
+		bulkChromosome['moleculeId'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx] = ['R1_dnaA_adp_polymer',
+																'R2_dnaA_adp_polymer',
+																'R3_dnaA_adp_polymer',
+																'R4_dnaA_adp_polymer',
+																'R5_dnaA_adp_polymer']
+		bulkChromosome['mass'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx] = dnaA_adp_mass
+		bulkChromosome['isDnaABox_adp_polymer'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx] = True
+
 
 		# Add units to values
 		units = {
-			"moleculeId"		:	None,
-			"mass"				:	"g / mol",
-			'compartment'		:	None,
-			'isGene'			:	None}
+			"moleculeId"			:	None,
+			"mass"					:	"g / mol",
+			'compartment'			:	None,
+			'isGene'				:	None,
+			"isDnaABox"				:	None,
+			"isDnaABox_atp_polymer"	:	None,
+			"isDnaABox_adp_polymer"	:	None,
+			}
 		self.bulkChromosome = UnitStructArray(bulkChromosome, units)
 
 	def _buildUniqueMolecules(self):
