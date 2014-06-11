@@ -53,7 +53,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.figure(figsize = (8.5, 11))
 
-	for idx in xrange(20):
+	for idx in xrange(21):
 
 		plt.subplot(5, 4, idx + 1)
 
