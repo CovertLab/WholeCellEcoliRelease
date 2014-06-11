@@ -18,6 +18,12 @@ class Listener(object):
 
 		self._nProcesses = len(sim.processes)
 
+		if self._sim.loggers.has_key("Shell"):
+			self._shellLogger = self._sim.loggers["Shell"]
+
+		else:
+			self._shellLogger = None
+
 
 	# Allocate memory
 	def allocate(self):
@@ -59,6 +65,22 @@ class Listener(object):
 
 	def timeStep(self):
 		return self._sim.timeStep()
+
+
+	# Features for shell logging
+
+	def registerLoggedQuantity(self, header, attribute, format_spec = "f", cell_size = 0):
+		if self._shellLogger is None:
+			return
+
+		self._shellLogger.columnSpecs.append(dict(
+			header = header,
+			target = "Listener:{}".format(self._name),
+			property = attribute,
+			format = format_spec,
+			length = cell_size,
+			sum = False # TODO: get rid of 'sum'
+			))
 
 
 	@classmethod

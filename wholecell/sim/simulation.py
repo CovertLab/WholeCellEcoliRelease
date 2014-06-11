@@ -91,6 +91,7 @@ class Simulation(object):
 		self.processes = self._options.createProcesses()
 		self.listeners = self._options.createListeners()
 		self.hooks = self._options.createHooks()
+		self.loggers = self._options.createLoggers()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -116,9 +117,6 @@ class Simulation(object):
 
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)
-
-		# Create loggers
-		self.loggers = self._options.createLoggers()
 
 		# Make permanent reference to evaluation time listener
 		self._evalTime = self.listeners["EvaluationTime"]

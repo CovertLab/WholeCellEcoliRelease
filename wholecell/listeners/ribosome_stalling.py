@@ -42,6 +42,13 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		# Attributes broadcast by the UniquePolypeptideElongation process
 		self.ribosomeStalls = None
 
+		# Logged quantities
+		self.registerLoggedQuantity(
+			"Fraction\nribosomes\nstalled",
+			"fractionStalled",
+			".3f"
+			)
+
 
 	# Allocate memory
 	def allocate(self):
