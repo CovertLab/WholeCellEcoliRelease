@@ -6,6 +6,8 @@ SUBMISSION_TIME=$(date "+%Y%m%d.%H%M%S.%N")
 WC_SEED=${WC_SEED:-0}
 SEED_DIR=$(printf "%06d" $(($WC_SEED)))
 SIM_OUT_DATA_DIR="out/simOut/${SUBMISSION_TIME}/${SEED_DIR}"
+KB_DIR="out/simOut/${SUBMISSION_TIME}/kb"
+KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
 
 
 ##### Create output directory #####
@@ -13,11 +15,11 @@ mkdir -p "${SIM_OUT_DATA_DIR}"
 
 
 ##### Create knowledgebases (unfit and fit) #####
-python2.7 runscripts/createKbs.py --outputDirectory "out/simOut/${SUBMISSION_TIME}/kb"
+python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
 
 
 ##### Run simulation #####
-WC_KBLOCATION="\"out/simOut/${SUBMISSION_TIME}/kb/KnowledgeBase_Fit.cPickle\"" python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
+WC_KBLOCATION="\"${KB_FIT}\"" python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
 
 # If the simulation didn't complete successfully, don't run analysis
 if [ "$?" -ne "0" ]; then
@@ -44,7 +46,7 @@ for SINGLE_ANALYSIS_SCRIPT in $SINGLE_ANALYSIS_SCRIPTS; do
 
 	echo "Running $(basename $SINGLE_ANALYSIS_SCRIPT)"
 
-	python2.7 $SINGLE_ANALYSIS_SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf
+	python2.7 $SINGLE_ANALYSIS_SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf --kbFile "${KB_FIT}"
 done
 
 echo
