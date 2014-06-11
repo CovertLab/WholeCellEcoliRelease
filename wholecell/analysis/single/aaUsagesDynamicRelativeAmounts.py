@@ -42,14 +42,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	h.close()
 
 	normUsage = aaUsage / np.tile(
-		aaUsage.sum(axis = 1).astype("float64").reshape(-1, 1), (1, 20)
+		aaUsage.sum(axis = 1).astype("float64").reshape(-1, 1), (1, 21)
 		)
 
 	plt.figure(figsize = (8.5, 11))
 
-	for idx in xrange(20):
+	for idx in xrange(21):
 
-		plt.subplot(5, 4, idx + 1)
+		plt.subplot(6, 4, idx + 1)
 
 		plt.plot(t / 60., normUsage[:, idx], 'k', linewidth = 1)
 		(biomass,) = plt.plot([t[0] / 60., t[-1] / 60.], [normAAProductionBiomass[idx], normAAProductionBiomass[idx]], "r--", linewidth = 2)

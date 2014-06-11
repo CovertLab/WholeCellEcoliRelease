@@ -63,7 +63,7 @@ class AAUsage(wholecell.listeners.listener.Listener):
 		self.relativeAaUsage = normalize(np.dot(
 			kb.monomerData["aaCounts"].T,
 			kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
-			))[np.concatenate([np.arange(19), np.array([20])])]
+			))
 
 	# Allocate memory
 	def allocate(self):

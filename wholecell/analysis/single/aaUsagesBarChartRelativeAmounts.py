@@ -41,7 +41,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	h.close()
 
 	normUsage = aaUsage / np.tile(
-		aaUsage.sum(axis = 1).astype("float64").reshape(-1, 1), (1, 20)
+		aaUsage.sum(axis = 1).astype("float64").reshape(-1, 1), (1, 21)
 		)
 
 	plt.figure(figsize = (8.5, 11))
