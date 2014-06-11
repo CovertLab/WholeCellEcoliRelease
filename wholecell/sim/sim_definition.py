@@ -149,7 +149,7 @@ DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
 DEFAULT_LENGTH = 3600 # sec
 DEFAULT_TIME_STEP = 1 # sec
 
-DEFAULT_SEED = None
+DEFAULT_SEED = 0
 
 DEFAULT_KB_LOCATION = os.path.join(
 	wholecell.utils.constants.SERIALIZED_KB_DIR,
