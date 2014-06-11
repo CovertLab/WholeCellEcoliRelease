@@ -65,12 +65,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.proteinSequences = kb.translationSequences
 
-		aaIds = kb.aaIDs[:]
-
-		# TODO: Remove hack of deleting selenocysteine this way
-		selenocysteineIdx = aaIds.index("SEC-L[c]")
-		del aaIds[selenocysteineIdx]
-
 		# # TODO: refactor mass updates
 
 		self.h2oWeight = (
@@ -96,7 +90,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
-		self.aas = self.bulkMoleculesView(aaIds)
+		self.aas = self.bulkMoleculesView(kb.aaIDs)
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
