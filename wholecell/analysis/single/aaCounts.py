@@ -37,7 +37,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		"CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]",
 		"HIS-L[c]", "ILE-L[c]", "LEU-L[c]", "LYS-L[c]",
 		"MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]",
-		"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
+		"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "SEC-L[c]",
+		"VAL-L[c]"
 		]
 	aaIndexes = np.array([moleculeIds.index(aaId) for aaId in AA_IDS], np.int)
 	bulkMolecules = h.root.BulkMolecules
@@ -52,7 +53,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.figure(figsize = (8.5, 11))
 
-	for idx in xrange(20):
+	for idx in xrange(21):
 
 		plt.subplot(5, 4, idx + 1)
 

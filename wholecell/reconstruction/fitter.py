@@ -294,9 +294,7 @@ def fitKb(kb):
 		)
 
 	# Amino acid fraction
-	aaIDs = [aaID for aaID in kb.aaIDs if aaID != "SEC-L[c]"] # TODO: include selenocysteine
-
-	aminoAcidView = biomassContainer.countsView(aaIDs)
+	aminoAcidView = biomassContainer.countsView(kb.aaIDs)
 
 	aaMmolPerGDCW = (
 			np.sum(
@@ -309,9 +307,8 @@ def fitKb(kb):
 			)
 		).to('mmol/DCW_g')
 	
-	# TODO: Skipping selenocystine (U) here. Re add this!
 	aminoAcidView.countsIs(
-		aaMmolPerGDCW[range(19) + [20]].magnitude
+		aaMmolPerGDCW.magnitude
 		)
 
 	# RNA fraction
