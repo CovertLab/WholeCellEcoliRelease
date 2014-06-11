@@ -65,6 +65,7 @@ AMINO_ACID_WEIGHTS = { # TOKB
 	"Y": 181.19
 	}
 
+RNA_TYPE_ORDER = { '23srRNA' : 0, '16srRNA' : 1, '5srRNA' : 2, 'tRNA' : 3, 'mRNA' : 4, 'miscRNA' : 5,'Protein' : 6, 'Metabolite' : 7}
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
@@ -87,7 +88,8 @@ class KnowledgeBaseEcoli(object):
 		self._loadProteinMonomers()
 		self._loadComplexes() 
 		self._loadReactions()
-		self._createBioMassFromRxn()
+
+		self._calcMolecularWeightFromRxn()		
 
 
 		## Keep separate
@@ -656,7 +658,7 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
 				"reactionId" : self._rnaModReactionDbIds[i.id],
-				"mw" : -1.0, 	
+				"mw" : [], 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_rna_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
@@ -711,7 +713,7 @@ class KnowledgeBaseEcoli(object):
 				#need to calculate				
 				"seq": "",
 				"ntCount": [],
-				"mw": -1.0
+				"mw": [0, 0, 0, 0, 0, 0, 0, 0]
 				}
 		
 			if int(i.is_modified):	
@@ -725,8 +727,11 @@ class KnowledgeBaseEcoli(object):
 			gene_seq = self._genes[geneLookup[r["geneId"]]]["seq"]
 			r["seq"] = Bio.Seq.Seq(gene_seq, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
 			r["ntCount"] = numpy.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
-			r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
-			
+			weight = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
+			index = self._whichRna(r['id'], r['type'])
+			r["mw"][index] = weight 
+
+						
 			self._rnas.append(r)
 	
 			# TODO from DEREK: Uncomment when Nick has fixed json formatting
@@ -760,16 +765,32 @@ class KnowledgeBaseEcoli(object):
 					#need to calculate				
 					"seq": "",
 					"ntCount": [],
-					"mw": -1.0
+					"mw": [0, 0, 0, 0, 0, 0, 0, 0]
 				}
 
 				r["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
 				r["ntCount"] = numpy.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
-				r["mw"] = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
+				weight = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
+				index = self._whichRna(r['id'], r['type'])
+				r["mw"][index] = weight 
 			
 				self._rnas.append(r)
 
 
+	def _whichRna(self, rnaId, rnaType):
+		if rnaType == 'miscRNA':
+			return RNA_TYPE_ORDER['miscRNA']
+		if rnaType == 'tRNA':
+			return RNA_TYPE_ORDER['tRNA']
+		if rnaType == 'mRNA':
+			return RNA_TYPE_ORDER['mRNA']
+		if rnaType == "rRNA" and rnaId.startswith("RRL"):
+			return RNA_TYPE_ORDER['23srRNA']
+		if rnaType == "rRNA" and rnaId.startswith("RRS"):
+			return RNA_TYPE_ORDER['16srRNA']
+		if rnaType == "rRNA" and rnaId.startswith("RRF"):
+			return RNA_TYPE_ORDER['5srRNA']
+ 
 	def _loadModifiedProteinMonomers(self):
 
 		self._modifiedProteins = []
@@ -784,7 +805,7 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
 				"reactionId" : None,
-				"mw" : -1.0, 	
+				"mw" : [], 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_protein_monomer_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_protein_monomer_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
@@ -920,7 +941,7 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
 				"reactionId" : None,
-				"mw" : -1.0, 	
+				"mw" : [], 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_protein_complex_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_protein_complex_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
@@ -964,7 +985,7 @@ class KnowledgeBaseEcoli(object):
 				"name": i.name,
 				"modifiedForms": [],
 				"location": self._dbLocationId[i.location_fk_id],
-				"mw": -1,
+				"mw": [],
 				"comments": self._allComments[i.comment_fk_id]
 			}
 			if i.modified_form:	
@@ -1055,7 +1076,7 @@ class KnowledgeBaseEcoli(object):
 			self._reactions.append(r)
 					
 
-	def _createBioMassFromRxn(self):
+	def _calcMolecularWeightFromRxn(self):
 		
 		productsPosition = {}
 		reactions = {}
@@ -1065,13 +1086,22 @@ class KnowledgeBaseEcoli(object):
 		rnaModLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._modifiedRnas)])
 
 		# No reaction available for calculating MW
-		notComputableList = ['ACECITLY-CPLX','CPLX0-2','ENTB-CPLX','MONOMER0-2863','TAP-GLN','TAR-GLN','TRG-GLN','TSR-GLN','MONOMER0-1842','MONOMER0-1843','MONOMER0-2','MONOMER0-3','MONOMER0-4119','MONOMER0-4195','MONOMER0-4196','MONOMER0-4198','OCTANOYL-ACP','OX-FERREDOXIN','PGLYCEROLTRANSII-MONOMER','PHOSPHASERDECARB-ALPHA-MONOMER','PHOSPHASERDECARB-BETA-MONOMER','PHOSPHO-CPXR','PHOSPHO-DCUR-MONOMER','PHOSPHO-KDPE','PHOSPHO-OMPR-MONOMER','PHOSPHO-RCSB','PHOSPHO-UHPA','SAMDC-ALPHA-MONOMER','SAMDC-BETA-MONOMER',
-#not possible to calculate without RXN of above
-'PHOSPHO-OMPR','CPLX0-7885','ENTMULTI-CPLX','TRG-GLU','PROTEIN-NRIP','CPLX0-7748','PHOSPHASERDECARB-DIMER','CPLX0-7795','SAMDECARB-CPLX','CPLX0-7754','CPLX0-7884','TAP-GLU','CPLX0-263','CPLX0-2901','TSR-GLU','CPLX0-7721','PHOSPHO-BARA-HIS','PHOSPHASERDECARB-CPLX','CPLX0-7978','TRG-GLUME','TAP-GLUME','TSR-GLUME','MONOMER0-1',
-#loop rxn proteinComplex
-'BCCP-CPLX',
-'ACETYL-COA-CARBOXYLMULTI-CPLX'
-]
+		notComputableList = ['ACECITLY-CPLX','CPLX0-2','ENTB-CPLX','MONOMER0-2863','TAP-GLN',
+					'TAR-GLN','TRG-GLN','TSR-GLN','MONOMER0-1842','MONOMER0-1843','MONOMER0-2',
+					'MONOMER0-3','MONOMER0-4119','MONOMER0-4195','MONOMER0-4196','MONOMER0-4198',
+					'OCTANOYL-ACP','OX-FERREDOXIN','PGLYCEROLTRANSII-MONOMER','PHOSPHASERDECARB-ALPHA-MONOMER',
+					'PHOSPHASERDECARB-BETA-MONOMER','PHOSPHO-CPXR','PHOSPHO-DCUR-MONOMER','PHOSPHO-KDPE',
+					'PHOSPHO-OMPR-MONOMER','PHOSPHO-RCSB','PHOSPHO-UHPA','SAMDC-ALPHA-MONOMER','SAMDC-BETA-MONOMER',
+					#not possible to calculate without RXN of above
+					'PHOSPHO-OMPR','CPLX0-7885','ENTMULTI-CPLX','TRG-GLU','PROTEIN-NRIP','CPLX0-7748',
+					'PHOSPHASERDECARB-DIMER','CPLX0-7795','SAMDECARB-CPLX','CPLX0-7754','CPLX0-7884','TAP-GLU',
+					'CPLX0-263','CPLX0-2901','TSR-GLU','CPLX0-7721','PHOSPHO-BARA-HIS','PHOSPHASERDECARB-CPLX',
+					'CPLX0-7978','TRG-GLUME','TAP-GLUME','TSR-GLUME','MONOMER0-1',
+					#loop rxn proteinComplex
+					'BCCP-CPLX', 'ACETYL-COA-CARBOXYLMULTI-CPLX',
+					#loop rxn modproteincomplex
+					'PTSI-PHOSPHORYLATED', 'CPLX0-8002', 'CPLX0-8004', 'BCCP-BIOTIN-CO2', 'TAR-GLU', 'TAR-GLUME'
+					]
 		
 		#order: complex, modComplex, modmonomer, modrna 
 		index = 0
@@ -1081,7 +1111,7 @@ class KnowledgeBaseEcoli(object):
 			productsPosition[i['id']] = index
 			reactions[i['id']] = [self._complexationReactions[complexReactionLookUp[i['reactionId']]]['stoichiometry']]
 			index = index + 1	
-		'''
+		
 		for i in self._modifiedComplexes:
 			if i['id'] in notComputableList:	continue
 			productsPosition[i['id']] = index
@@ -1090,10 +1120,10 @@ class KnowledgeBaseEcoli(object):
 			#for r in i['reactionId']:
 			sch = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
 			reactions[i['id']].append(sch)
-			index = index + 1		
-		'''		
+			index = index + 1
+		
 		#modMonomer needs to calculate for protein complexes
-		monomers_mod = ['AMINOMETHYLDIHYDROLIPOYL-GCVH','LIPOYL-GCVH']
+		monomers_mod = ['AMINOMETHYLDIHYDROLIPOYL-GCVH','LIPOYL-GCVH', 'PHOSPHO-TORS850', 'PHOSPHO-TORASP', 'PHOSPHO-TORS']
 		for i in self._modifiedProteins:
 			if i['id'] in notComputableList:	continue
 			if i['id'] not in monomers_mod: 	continue
@@ -1119,7 +1149,7 @@ class KnowledgeBaseEcoli(object):
 		# buld matrix for equations
 		
 		met = dict([(x["id"], x['mw7.2']) for x in self._metabolites])
-		rna = dict([(x["id"], x['mw']) for x in self._rnas])
+		rna = dict([(x["id"], sum(x['mw'])) for x in self._rnas])
 		monomer = dict([(x["id"], x['mw']) for x in self._proteins])
 		
 		coefficients = []
@@ -1143,7 +1173,7 @@ class KnowledgeBaseEcoli(object):
 						elif i['type'] == 'proteinmonomers':
 							tmpvalue = tmpvalue + monomer[i['molecule']] * i['coeff'] * (-1)
 						else:
-							#print '\''+frame_id+'\',',i['molecule']
+							#print '\''+frame_id+'\',',i['molecule'], i['type']
 							raise Exception, "%s unknown molecule while calculating MW" % i['molecule']
 				coefficients.append(tmpCoef)
 				values.append(tmpvalue)
@@ -1156,34 +1186,19 @@ class KnowledgeBaseEcoli(object):
 		for i in productsPosition:
 			if i in rnaModLookUp:
 				weight = mw[productsPosition[i]]
-				self._modifiedRnas[rnaModLookUp[i]]['mw'] = weight
+				self._modifiedRnas[rnaModLookUp[i]]['mw'] = [weight]
 		
 		for i in productsPosition:
 			if i in complexLookUp:
 				weight = mw[productsPosition[i]]
-				self._proteinComplexes[complexLookUp[i]]['mw'] = weight
+				self._proteinComplexes[complexLookUp[i]]['mw'] = [weight]
 
 		'''
 		for i in self._proteinComplexes:
 			if i['mw'] <= 0:
 				print i['id'],i['mw']
 		'''
-		
-	def _check_molecule(self, mol):
-		thisType = ""
-		'''		
-		if any(x["id"] == mol.upper() for x in self._metabolites):
-			thisType = "metabolite"
-		elif any(x["id"] == mol for x in self._rnas):
-			thisType = "rna"
-		el
-		'''
-		if any(x["id"] == mol for x in self._proteins):
-			thisType = "protein"
-		else:
-			raise Exception, "Undefined molecule: %s." % (mol)
-		return thisType
-				
+						
 				
 	def _calcKCat(self, enzId, vMax, units):
 		if enzId == None or vMax == None:
