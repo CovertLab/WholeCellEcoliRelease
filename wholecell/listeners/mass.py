@@ -44,6 +44,56 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
 
+		# Register logged quantities
+
+		self.registerLoggedQuantity(
+			"Dry mass\n(fg)",
+			"cellDry",
+			".2f"
+			)
+
+		self.registerLoggedQuantity(
+			"Dry mass\nfold change",
+			"cellDryFoldChange",
+			".3f"
+			)
+
+		self.registerLoggedQuantity(
+			"Expected\nfold change",
+			"expectedFoldChange",
+			".3f"
+			)
+
+		self.registerLoggedQuantity(
+			"Growth\n(fg/s)",
+			"growth",
+			".4f"
+			)
+
+		self.registerLoggedQuantity(
+			"Protein\nfraction",
+			"proteinFraction",
+			".3f"
+			)
+
+		self.registerLoggedQuantity(
+			"Protein\nfold change",
+			"proteinFoldChange",
+			".3f"
+			)
+
+		self.registerLoggedQuantity(
+			"RNA\nfraction",
+			"rnaFraction",
+			".3f"
+			)
+
+		self.registerLoggedQuantity(
+			"RNA\nfold change",
+			"rnaFoldChange",
+			".3f"
+			)
+
 
 	# Allocate memory
 	def allocate(self):

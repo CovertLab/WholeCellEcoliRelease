@@ -61,6 +61,11 @@ def main():
 		logToShell = json.loads(os.environ["WC_LOGTOSHELL"])
 		wcEnvVars.remove("WC_LOGTOSHELL")
 
+	shellColumnHeaders = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["shellColumnHeaders"]
+	if os.environ.has_key("WC_SHELLCOLUMNSHEADERS") and len(os.environ["WC_SHELLCOLUMNSHEADERS"]):
+		shellColumnHeaders = json.loads(os.environ["WC_SHELLCOLUMNSHEADERS"])
+		wcEnvVars.remove("WC_SHELLCOLUMNSHEADERS")
+
 	logToDisk = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["logToDisk"]
 	if os.environ.has_key("WC_LOGTODISK") and len(os.environ["WC_LOGTODISK"]):
 		logToDisk = int(os.environ["WC_LOGTODISK"])
@@ -100,6 +105,7 @@ def main():
 		timeStepSec = timeStepSec,
 		seed = seed,
 		logToShell = logToShell,
+		shellColumnHeaders = shellColumnHeaders,
 		logToDisk = logToDisk,
 		outputDir = outputDir,
 		overwriteExistingFiles = overwriteExistingFiles,

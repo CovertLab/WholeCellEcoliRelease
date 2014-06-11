@@ -92,6 +92,15 @@ import wholecell.loggers.disk
 
 # TODO: logger logic more consistent with listeners/states/processes
 
+DEFAULT_SHELL_COLUMN_HEADERS = [
+	"Time (s)",
+	"Dry mass (fg)",
+	"Dry mass fold change",
+	"Protein fold change",
+	"RNA fold change",
+	"Expected fold change"
+	]
+
 # Hooks
 import wholecell.hooks.rnap_count_hook
 import wholecell.hooks.ribosome_count_hook
@@ -159,7 +168,7 @@ SIM_KWARG_DEFAULTS = dict(
 	hooks = DEFAULT_HOOKS,
 	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
 	seed = DEFAULT_SEED,
-	logToShell = True,
+	logToShell = True, shellColumnHeaders = DEFAULT_SHELL_COLUMN_HEADERS,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None,
 	kbLocation = DEFAULT_KB_LOCATION
 	)
@@ -221,7 +230,9 @@ class SimDefinition(object):
 		loggers = collections.OrderedDict()
 
 		if self.logToShell:
-			loggers["Shell"] = wholecell.loggers.shell.Shell()
+			loggers["Shell"] = wholecell.loggers.shell.Shell(
+				self.shellColumnHeaders
+				)
 
 		if self.logToDisk:
 			loggers["Disk"] = wholecell.loggers.disk.Disk(
