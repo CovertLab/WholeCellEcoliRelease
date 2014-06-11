@@ -1193,12 +1193,137 @@ class KnowledgeBaseEcoli(object):
 				weight = mw[productsPosition[i]]
 				self._proteinComplexes[complexLookUp[i]]['mw'] = [weight]
 
+		self._calcMolecularWeightFromRxnTS()
 		'''
 		for i in self._proteinComplexes:
 			if i['mw'] <= 0:
 				print i['id'],i['mw']
 		'''
-						
+
+	def _calcMolecularWeightFromRxnTS(self):
+		
+		complexReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._complexationReactions)])
+		modificationReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._modificationReactions)])
+		met = dict([(x["id"], x['mw7.2']) for x in self._metabolites])
+		rna = dict([(x["id"], sum(x['mw'])) for x in self._rnas])
+		monomer = dict([(x["id"], x['mw']) for x in self._proteins])
+
+		# No reaction available for calculating MW
+		notComputableList = ['ACECITLY-CPLX','CPLX0-2','ENTB-CPLX','MONOMER0-2863','TAP-GLN',
+					'TAR-GLN','TRG-GLN','TSR-GLN','MONOMER0-1842','MONOMER0-1843','MONOMER0-2',
+					'MONOMER0-3','MONOMER0-4119','MONOMER0-4195','MONOMER0-4196','MONOMER0-4198',
+					'OCTANOYL-ACP','OX-FERREDOXIN','PGLYCEROLTRANSII-MONOMER','PHOSPHASERDECARB-ALPHA-MONOMER',
+					'PHOSPHASERDECARB-BETA-MONOMER','PHOSPHO-CPXR','PHOSPHO-DCUR-MONOMER','PHOSPHO-KDPE',
+					'PHOSPHO-OMPR-MONOMER','PHOSPHO-RCSB','PHOSPHO-UHPA','SAMDC-ALPHA-MONOMER','SAMDC-BETA-MONOMER',
+					#not possible to calculate without RXN of above
+					'PHOSPHO-OMPR','CPLX0-7885','ENTMULTI-CPLX','TRG-GLU','PROTEIN-NRIP','CPLX0-7748',
+					'PHOSPHASERDECARB-DIMER','CPLX0-7795','SAMDECARB-CPLX','CPLX0-7754','CPLX0-7884','TAP-GLU',
+					'CPLX0-263','CPLX0-2901','TSR-GLU','CPLX0-7721','PHOSPHO-BARA-HIS','PHOSPHASERDECARB-CPLX',
+					'CPLX0-7978','TRG-GLUME','TAP-GLUME','TSR-GLUME','MONOMER0-1',
+					#loop rxn proteinComplex
+					'BCCP-CPLX', 'ACETYL-COA-CARBOXYLMULTI-CPLX',
+					#loop rxn modproteincomplex
+					'PTSI-PHOSPHORYLATED', 'CPLX0-8002', 'CPLX0-8004', 'BCCP-BIOTIN-CO2', 'TAR-GLU', 'TAR-GLUME'
+					]
+		
+		products = {}
+		
+		#order: complex, modComplex, modmonomer, modrna 				
+		for i in self._proteinComplexes:
+			if i['id'] in notComputableList:	continue
+			products[i['id']] = self._complexationReactions[complexReactionLookUp[i['reactionId']]]['stoichiometry']
+		
+		for i in self._modifiedComplexes:
+			if i['id'] in notComputableList:	continue
+			r = i['reactionId'][len(i['reactionId'])-1] #last reaction; considering only 1 reaction
+			products[i['id']] = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
+			
+		#modMonomer needs to calculate for protein complexes
+		monomers_mod = ['AMINOMETHYLDIHYDROLIPOYL-GCVH','LIPOYL-GCVH', 'PHOSPHO-TORS850', 'PHOSPHO-TORASP', 'PHOSPHO-TORS']
+		for i in self._modifiedProteins:
+			if i['id'] in notComputableList:	continue
+			if i['id'] not in monomers_mod: 	continue
+			r = i['reactionId'][len(i['reactionId'])-1] #last reaction; considering only 1 reaction
+			products[i['id']] = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
+			
+		for i in self._modifiedRnas:
+			if i['id'] in notComputableList:	continue
+			r = i['reactionId'][len(i['reactionId'])-1] #last reaction; considering only 1 reaction
+			products[i['id']] = self._modificationReactions[modificationReactionLookUp[r]]['stoichiometry']
+			
+
+		#initialize matrixes		
+		counts = {} # number of uncomputable products in the rxn
+		dependant = dict.fromkeys(products.keys(),[]) # [i][j] where product j depends on product i 
+		queue = [] # list of products which have no dependancy
+	
+		for p in products:
+			tmpCount = 0
+			for r in products[p]: #for a molecule in reaction
+				if r['molecule'] == p: continue 
+				if r['molecule'] in products: 
+					tmpCount = tmpCount + 1
+					if p not in dependant[r['molecule']]:
+						dependant[r['molecule']].append(p)
+			
+				elif r['type'] != 'metabolite' and r['type'] != 'rna' and r['type'] != 'proteinmonomers':
+					#print '\''+frame_id+'\',',i['molecule'], i['type']
+					raise Exception, "%s unknown molecule while calculating MW" % r['molecule']
+							
+			counts[p] = tmpCount
+			if tmpCount == 0:
+				queue.append(p) # can be computable
+		
+		#topological sort
+		totalProducts = 0
+		mw = {} 
+		while (len(queue)):
+			newQueue = []
+			for i in queue:
+				#calculate weight
+				weight = 0
+				sign_wt = 1 
+				for m in products[i]:
+					if m['molecule'] in products: 
+						if i == m['molecule']:
+							sign_wt = m['coeff']
+						else:
+							if m['molecule'] not in mw: print m['molecule'], i ,counts[i],dependant[m['molecule']]
+							weight = weight + mw[m['molecule']] * m['coeff'] 
+					elif m['type'] == 'metabolite':
+						weight = weight + met[m['molecule'].upper()] * m['coeff'] 
+					elif m['type'] == 'rna':
+						weight = weight + rna[m['molecule']] * m['coeff'] 
+					elif m['type'] == 'proteinmonomers':
+						weight = weight + monomer[m['molecule']] * m['coeff']
+					else:
+					 	raise Exception, "%s dependant molecule while calculating MW" % m['molecule']
+				
+				mw[i] = weight/ (sign_wt * (-1.0))
+ 
+				#update dependant and count
+				for j in dependant[i]:
+					counts[j] = counts[j] -1
+					if counts[j] == 0:
+						newQueue.append(j)
+			#update queue
+			totalProducts = totalProducts + len(queue) 			
+			queue = newQueue
+		
+ 		if totalProducts < len(products):
+			print 'there are loops in rxn!', totalProducts,len(products),len(mw)
+
+		#update the MW for proteinComplexes and modifiedRnas
+		'''		
+		for i in self._rnas:
+			if i['mw'] != [mw[i['id']]]:
+				print i['id']
+		
+		for i in self._proteinComplexes:
+			if i['mw'] != [mw[i['id']]]:
+				print i['id']
+		'''
+	
 				
 	def _calcKCat(self, enzId, vMax, units):
 		if enzId == None or vMax == None:
