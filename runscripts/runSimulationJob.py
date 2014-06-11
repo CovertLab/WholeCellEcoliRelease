@@ -19,7 +19,7 @@ import json
 
 def main(submissionTime):
 
-	seed = 0
+	seed = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["seed"]
 	if os.environ.has_key("ARRAY_ID"):
 		seed = int(os.environ["ARRAY_ID"]) - 1
 
