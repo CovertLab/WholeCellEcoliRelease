@@ -183,7 +183,7 @@ def initializePools(bulkContainer, kb, randomState, timeStep):
 
 	ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 	dntpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-	aaIds = [x for x in AMINO_ACID_1_TO_3_ORDERED.values() if x != "SEC-L[c]"]
+	aaIds = kb.aaIds
 
 	ntpsBiomassView = biomassContainer.countsView(ntpIds)
 	dntpsBiomassView = biomassContainer.countsView(dntpIds)
