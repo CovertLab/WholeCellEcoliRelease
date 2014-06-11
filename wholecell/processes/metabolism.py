@@ -74,7 +74,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.nAvogadro = kb.nAvogadro.magnitude
 
-		# TODO: Include selenocysteine
 		self.aaIdxsInWildTypeBiomass = np.array(
 			[np.where(self.wildtypeIds == x)[0][0] for x in kb.aaIDs]
 			)

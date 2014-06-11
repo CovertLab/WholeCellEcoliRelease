@@ -307,7 +307,6 @@ def fitKb(kb):
 			)
 		).to('mmol/DCW_g')
 	
-	# TODO: Skipping selenocystine (U) here. Re add this!
 	aminoAcidView.countsIs(
 		aaMmolPerGDCW.magnitude
 		)
