@@ -39,18 +39,12 @@ class AAUsage(wholecell.listeners.listener.Listener):
 
 		self.sim = sim
 
-		aaIds = kb.aaIDs[:]
-
-		# TODO: Remove hack of deleting selenocysteine this way
-		selenocysteineIdx = aaIds.index("SEC-L[c]")
-		del aaIds[selenocysteineIdx]
-
-		self.metaboliteIds = aaIds
-		self.metaboliteIdxs = [
+		self.metaboliteIds = kb.aaIDs[:]
+		self.metaboliteIdxs = [ # TODO: use a bulk container view?
 			np.where(
 				x == self.bulkMolecules._moleculeIDs
 				)[0][0] for x in self.metaboliteIds
-		]
+			]
 
 		self.translationProcessIdx = sim.processes.keys().index(
 			"UniquePolypeptideElongation"
