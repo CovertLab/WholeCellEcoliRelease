@@ -8,11 +8,26 @@ SEED_DIR=$(printf "%06d" $(($WC_SEED)))
 SIM_OUT_DATA_DIR="out/simOut/${SUBMISSION_TIME}/${SEED_DIR}"
 KB_DIR="out/simOut/${SUBMISSION_TIME}/kb"
 KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
+METADATA_DIR="out/simOut/${SUBMISSION_TIME}/metadata"
 
 
 ##### Create output directory #####
 mkdir -p "${SIM_OUT_DATA_DIR}"
 
+##### Create metadata directory #####
+mkdir -p "${METADATA_DIR}"
+
+##### Save metadata #####
+echo "Adding simulation metadata"
+
+# Git hash
+git rev-parse HEAD > "${METADATA_DIR}/git_hash"
+
+# Git diff
+git diff > "${METADATA_DIR}/git_diff"
+
+# Description
+echo "${DESC}" > "${METADATA_DIR}/description"
 
 ##### Create knowledgebases (unfit and fit) #####
 python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
