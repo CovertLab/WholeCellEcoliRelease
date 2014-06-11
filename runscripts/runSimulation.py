@@ -28,7 +28,7 @@ def main(submissionTime):
 	wcEnvVars = [x for x in os.environ if x.startswith("WC_")]
 
 	# Get simulation options from environmental variables
-	seed = 0
+	seed = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS["seed"]
 	if os.environ.has_key("WC_SEED") and len(os.environ["WC_SEED"]):
 		seed = int(os.environ["WC_SEED"])
 		wcEnvVars.remove("WC_SEED")
