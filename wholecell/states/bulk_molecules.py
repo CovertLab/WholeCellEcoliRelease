@@ -189,13 +189,6 @@ class BulkMolecules(wholecell.states.state.State):
 		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
 		h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
 
-		groupIdxs = h5file.create_group(h5file.root,
-			'indexes', 'Indexes for various groups of molecules')
-
-		for type_, indexes in self._typeIdxs.viewitems():
-			if indexes.size > 0:
-				h5file.create_array(groupIdxs, type_, indexes)
-
 
 	def pytablesAppend(self, h5file):
 		t = h5file.get_node("/", self._name)
