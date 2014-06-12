@@ -110,7 +110,7 @@ class KnowledgeBaseEcoli(object):
 		# Create data structures for simulation
 		self._buildSequence()
 		self._buildCompartments()
-		# self._buildBulkMolecules()
+		self._buildBulkMolecules()
 		self._buildBulkChromosome()
 		self._buildGeneData()
 		# self._buildUniqueMolecules()
@@ -1166,19 +1166,25 @@ class KnowledgeBaseEcoli(object):
 					if m['molecule'] in products: 
 						if i == m['molecule']:
 							sign_wt = m['coeff']
+
 						else:
-							weight = weight + mw[m['molecule']] * m['coeff'] 
+							weight += mw[m['molecule']] * m['coeff'] 
+
 					elif m['type'] == 'metabolite':
 						index = MOLECULAR_WEIGHT_ORDER['Metabolite']
-						weight[index] = weight[index] + met[m['molecule'].upper()] * m['coeff'] 
+						weight[index] += met[m['molecule'].upper()] * m['coeff'] 
+
 					elif m['type'] == 'rna':
-						weight = weight + rna[m['molecule']] * m['coeff'] 
+						weight += rna[m['molecule']] * m['coeff'] 
+
 					elif m['type'] == 'proteinmonomers':
 						index = MOLECULAR_WEIGHT_ORDER['Protein']
-						weight[index] = weight[index] + monomer[m['molecule']] * m['coeff']
+						weight[index] += monomer[m['molecule']] * m['coeff']
+
 					else:
 					 	raise Exception, "%s dependant molecule while calculating MW" % m['molecule']
-				mw[i] = weight/ (sign_wt * (-1.0))
+
+				mw[i] = weight/ (sign_wt * (-1))
  
 				#update dependant and count
 				for j in dependant[i]:
@@ -1269,67 +1275,83 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkMolecules(self):
-		size = len(self._metabolites)*len(self._compartmentList) + len(self._rnas) + len(self._proteins)
-		bulkMolecules = numpy.zeros(size,
-			dtype = [("moleculeId", 		"a50"),
-					('compartment',			"a1"),
-					("mass",				"float64"),
-					("isMetabolite",		"bool"),
-					("isRnaMonomer",		"bool"),
-					("isProteinMonomer",	"bool"),
-					("isWater",				"bool"),
-					("isComplex",			"bool"),
-					("isModified",			"bool"),
-					])
+		size = (
+			len(self._metabolites)*len(self._compartmentList)
+			+ len(self._rnas)
+			+ len(self._proteins)
+			+ len(self._proteinComplexes)
+			)
+
+		bulkMolecules = numpy.zeros(
+			size,
+			dtype = [
+				("moleculeId", "a50"),
+				('compartment',	 "a1"),
+				("mass", "{}f8".format(len(MOLECULAR_WEIGHT_ORDER))),
+				]
+			)
 
 		# Set metabolites
 		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
-		bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = ['{}[{}]'.format(idx,c)
-											for c in [x['abbrev'] for x in self._compartmentList]
-											for idx in [x['id'] for x in self._metabolites]
-											]
 
-		bulkMolecules['mass'][0:lastMetaboliteIdx]		= [self._metabolites[i]['mw7.2']
-											for j in range(len(self._compartmentList))
-											for i in range(len(self._metabolites))
-											]
+		compartmentAbbreviations = [compartment['abbrev'] for compartment in self._compartmentList]
+		metaboliteIds = [metabolite['id'] for metabolite in self._metabolites]
 
-		bulkMolecules['isMetabolite'][0:lastMetaboliteIdx] = [True]*len(self._metabolites) * len(self._compartmentList)
+		bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = [
+			'{}[{}]'.format(metaboliteId, compartmentAbbreviation)
+			for compartmentAbbreviation in compartmentAbbreviations
+			for metaboliteId in metaboliteIds
+			]
 
-		for i,mid in enumerate(bulkMolecules['moleculeId']):
-			if mid.startswith('H2O['):
-				bulkMolecules['isWater'][i] = True
-				bulkMolecules['isMetabolite'][i] = False
+		bulkMolecules['mass'][0:lastMetaboliteIdx, MOLECULAR_WEIGHT_ORDER["Metabolite"]] = [
+			metabolite['mw7.2']
+			for compartmentIndex in range(len(self._compartmentList))
+			for metabolite in self._metabolites
+			]
 
 		# Set RNA
 		lastRnaIdx = len(self._rnas) + lastMetaboliteIdx
-		bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
-		bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx] = [x['mw'] for x in self._rnas]
-		bulkMolecules['isRnaMonomer'][lastMetaboliteIdx:lastRnaIdx] = [False if len(x['composition']) else True for x in self._rnas]
-		bulkMolecules['isComplex'][lastMetaboliteIdx:lastRnaIdx] = [True if len(x['composition']) else False for x in self._rnas]
-		bulkMolecules['isModified'][lastMetaboliteIdx:lastRnaIdx] = [True if x['unmodifiedForm'] != None else False for x in self._rnas]
 
+		bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = [
+			'{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas
+			]
+
+		bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx, :] = [
+			rna['mw'] for rna in self._rnas
+			]
+		
 		# Set proteins
 		lastProteinMonomerIdx = len(self._proteins) + lastRnaIdx
-		bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = ['{}[{}]'.format(protein['id'],protein['location']) for protein in self._proteins]
-		bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx] = [x['mw'] for x in self._proteins]
-		bulkMolecules['isModified'][lastRnaIdx:lastProteinMonomerIdx] = [True if x['unmodifiedForm'] != None else False for x in self._proteins]
-		bulkMolecules['isProteinMonomer'][lastRnaIdx:lastProteinMonomerIdx] = [False if len(x['composition']) else True for x in self._proteins]
-		bulkMolecules['isComplex'][lastRnaIdx:lastProteinMonomerIdx] = [True if len(x['composition']) else False for x in self._proteins]
 
+		bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = [
+			'{}[{}]'.format(protein['id'], protein['location'])
+			for protein in self._proteins
+			]
+
+		bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx, MOLECULAR_WEIGHT_ORDER["Protein"]] = [
+			protein['mw'] for protein in self._proteins
+			]
+		
+		# Set complexes
+		lastComplexIdx = len(self._proteinComplexes) + lastProteinMonomerIdx
+
+		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastComplexIdx] = [
+			'{}[{}]'.format(complex_['id'],complex_['location']) for complex_ in self._proteinComplexes
+			]
+
+		bulkMolecules['mass'][lastProteinMonomerIdx:lastComplexIdx, :] = [
+			complex_['mw'] for complex_ in self._proteinComplexes
+			]
+		
 		# Add units to values
 		units = {
 			"moleculeId"		:	None,
 			"mass"				:	"g / mol",
 			'compartment'		:	None,
-			"isMetabolite"		:	None,
-			"isRnaMonomer"		:	None,
-			"isProteinMonomer"	:	None,
-			"isModified"		:	None,
-			'isWater'			:	None,
-			'isComplex'			:	None,
 			}
+
 		self.bulkMolecules = UnitStructArray(bulkMolecules, units)
+
 
 	def _buildGeneData(self):
 		self.geneData = numpy.zeros(len(self._genes),
