@@ -16,11 +16,7 @@ from _build_sequences import buildSequences, computeMassIncrease
 
 PAD_VALUE = -1
 
-# TODO: consider rewriting as a class to cache sequenceMonomers, which is the
-# most expensive operation in the function (alternatively, pass the 
-# sequenceMonomers array as an argument instead of sequences)
-
-# TODO: cythonize, since it is starting to look like ~2/3 time is spent in for-loops
+# TODO: speed up sequenceMonomers[...].sum(1).cumsum(1) calls
 
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	# Sanitize inputs

@@ -306,6 +306,10 @@ class UniqueObjectsContainer(object):
 		return _UniqueObject(self, globalIndex)
 
 
+	def objectByGlobalIndexDel(self, globalIndex):
+		self.objectsByGlobalIndexDel(np.array(globalIndex))
+
+
 	def timeIs(self, time):
 		self._time = time
 
@@ -581,6 +585,25 @@ class _UniqueObjectSet(object):
 
 				else:
 					self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray[globalObjIndexes]
+
+
+	def delByIndexes(self, indexes):
+
+		globalIndexes = self._globalIndexes[indexes]
+
+		# TODO: cache these properties? should be static
+		collectionIndexes = self._container._globalReference["_collectionIndex"][globalIndexes]
+		objectIndexes = self._container._globalReference["_objectIndex"][globalIndexes]
+
+		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+
+		for i, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = objectIndexes[globalObjIndexes]
+
+			self._container._collections[collectionIndex][objectIndexesInCollection] = np.zeros(1, dtype=self._container._collections[collectionIndex].dtype)
+
+		self._container._globalReference[globalIndexes] = np.zeros(1, dtype=self._container._globalReference.dtype)
 
 	# TODO: set-like operations (union, intersection, etc.)
 

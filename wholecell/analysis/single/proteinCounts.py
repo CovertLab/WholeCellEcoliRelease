@@ -24,7 +24,7 @@ import wholecell.utils.constants
 
 # TODO: account for complexation
 
-def main(simOutDir, plotOutDir, plotOutFileName):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -34,12 +34,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	# Get the names of proteins from the KB
 
-	kb = cPickle.load(
-		open(os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
-			), "rb")
-		)
+	kb = cPickle.load(open(kbFile, "rb"))
 
 	proteinIds = kb.monomerData["id"]
 
@@ -90,11 +85,17 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 
 if __name__ == "__main__":
+	defaultKBFile = os.path.join(
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+			)
+
 	parser = argparse.ArgumentParser()
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])

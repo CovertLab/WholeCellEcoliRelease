@@ -1743,11 +1743,8 @@ class KnowledgeBaseEcoli(object):
 		self.translationSequences.fill(PAD_VALUE)
 
 		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
-		del aaIDs_singleLetter[self.aaIDs.index("SEC-L[c]")]
 
 		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
-
-		aaMapping["U"] = aaMapping["C"]
 
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):

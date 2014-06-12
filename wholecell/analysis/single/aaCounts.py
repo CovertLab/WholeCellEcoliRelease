@@ -16,7 +16,9 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
-def main(simOutDir, plotOutDir, plotOutFileName):
+import wholecell.utils.constants
+
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -35,7 +37,8 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 		"CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]",
 		"HIS-L[c]", "ILE-L[c]", "LEU-L[c]", "LYS-L[c]",
 		"MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]",
-		"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "VAL-L[c]"
+		"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "SEC-L[c]",
+		"VAL-L[c]"
 		]
 	aaIndexes = np.array([moleculeIds.index(aaId) for aaId in AA_IDS], np.int)
 	bulkMolecules = h.root.BulkMolecules
@@ -50,7 +53,7 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 
 	plt.figure(figsize = (8.5, 11))
 
-	for idx in xrange(20):
+	for idx in xrange(21):
 
 		plt.subplot(5, 4, idx + 1)
 
@@ -64,11 +67,17 @@ def main(simOutDir, plotOutDir, plotOutFileName):
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
 if __name__ == "__main__":
+	defaultKBFile = os.path.join(
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+			)
+
 	parser = argparse.ArgumentParser()
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])

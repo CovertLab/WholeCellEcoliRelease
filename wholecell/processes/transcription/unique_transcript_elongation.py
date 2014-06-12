@@ -206,15 +206,14 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			massDiffRna = updatedMass
 			)
 
-		terminatedRnas = np.zeros_like(self.bulkRnas.counts())
-
 		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])
 
-		for moleculeIndex in np.where(didTerminate)[0]:
-			molecule = activeRnaPolys[moleculeIndex]
+		terminatedRnas = np.bincount(
+			rnaIndexes[didTerminate],
+			minlength = self.rnaSequences.shape[0]
+			)
 
-			terminatedRnas[molecule.attr('rnaIndex')] += 1
-			self.activeRnaPolys.moleculeDel(molecule)
+		activeRnaPolys.delByIndexes(np.where(didTerminate)[0])
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()

@@ -46,6 +46,10 @@ user/*
 ###################
 /wholecell/utils/_build_sequences.c
 
+# kernprof.py output #
+######################
+*.lprof
+
 # Misc #
 ########
 

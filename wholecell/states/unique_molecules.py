@@ -186,15 +186,18 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		self.container.pytablesCreate(h5file)
+		# self.container.pytablesCreate(h5file)
+		pass
 
 
 	def pytablesAppend(self, h5file):
-		self.container.pytablesAppend(h5file)
+		# self.container.pytablesAppend(h5file)
+		pass
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		self.container.pytablesLoad(h5file, timePoint)
+		# self.container.pytablesLoad(h5file, timePoint)
+		raise Exception("Unique molecules saving disabled for now")
 
 
 class UniqueMoleculesView(wholecell.views.view.View):

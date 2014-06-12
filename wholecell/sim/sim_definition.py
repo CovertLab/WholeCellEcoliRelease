@@ -11,6 +11,8 @@ import collections
 import os
 import wholecell.utils.constants
 
+import json
+
 # References to sub-simulation abstractions
 
 # States
@@ -68,6 +70,8 @@ import wholecell.listeners.aa_usage
 import wholecell.listeners.ribosome_stalling
 import wholecell.listeners.gene_copy_number
 import wholecell.listeners.metabolic_demands
+import wholecell.listeners.unique_molecule_counts
+import wholecell.listeners.evaluation_time
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
@@ -78,6 +82,8 @@ LISTENER_CLASSES = (
 	wholecell.listeners.ribosome_stalling.RibosomeStalling,
 	wholecell.listeners.gene_copy_number.GeneCopyNumber,
 	wholecell.listeners.metabolic_demands.MetabolicDemands,
+	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts,
+	wholecell.listeners.evaluation_time.EvaluationTime
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -87,6 +93,15 @@ import wholecell.loggers.shell
 import wholecell.loggers.disk
 
 # TODO: logger logic more consistent with listeners/states/processes
+
+DEFAULT_SHELL_COLUMN_HEADERS = [
+	"Time (s)",
+	"Dry mass (fg)",
+	"Dry mass fold change",
+	"Protein fold change",
+	"RNA fold change",
+	"Expected fold change"
+	]
 
 # Hooks
 import wholecell.hooks.rnap_count_hook
@@ -125,7 +140,9 @@ DEFAULT_LISTENERS = (
 	'AAUsage',
 	'RibosomeStalling',
 	'GeneCopyNumber',
-	'MetabolicDemands'
+	'MetabolicDemands',
+	'UniqueMoleculeCounts',
+	'EvaluationTime'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
@@ -134,7 +151,7 @@ DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
 DEFAULT_LENGTH = 3600 # sec
 DEFAULT_TIME_STEP = 1 # sec
 
-DEFAULT_SEED = None
+DEFAULT_SEED = 0
 
 DEFAULT_KB_LOCATION = os.path.join(
 	wholecell.utils.constants.SERIALIZED_KB_DIR,
@@ -153,7 +170,7 @@ SIM_KWARG_DEFAULTS = dict(
 	hooks = DEFAULT_HOOKS,
 	lengthSec = DEFAULT_LENGTH, timeStepSec = DEFAULT_TIME_STEP,
 	seed = DEFAULT_SEED,
-	logToShell = True,
+	logToShell = True, shellColumnHeaders = DEFAULT_SHELL_COLUMN_HEADERS,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None,
 	kbLocation = DEFAULT_KB_LOCATION
 	)
@@ -215,7 +232,9 @@ class SimDefinition(object):
 		loggers = collections.OrderedDict()
 
 		if self.logToShell:
-			loggers["Shell"] = wholecell.loggers.shell.Shell()
+			loggers["Shell"] = wholecell.loggers.shell.Shell(
+				self.shellColumnHeaders
+				)
 
 		if self.logToDisk:
 			loggers["Disk"] = wholecell.loggers.disk.Disk(
@@ -241,3 +260,51 @@ class SimDefinition(object):
 			}
 
 	# TODO: save, load
+
+def getSimOptsFromEnvVars(optionsToNotGetFromEnvVars = None):
+	optionsToNotGetFromEnvVars = optionsToNotGetFromEnvVars or []
+
+	# We use this to check if any undefined WC_* environmental variables
+	# were accidentally specified by the user
+	wcEnvVars = [x for x in os.environ if x.startswith("WC_")]
+
+	optionsAndEnvVars = dict(
+		seed = ("WC_SEED", int),
+		states = ("WC_STATES", json.loads),
+		processes = ("WC_PROCESSES", json.loads),
+		listeners = ("WC_LISTENERS", json.loads),
+		hooks = ("WC_HOOKS", json.loads),
+		lengthSec = ("WC_LENGTHSEC", int),
+		timeStepSec = ("WC_TIMESTEPSEC", float),
+		logToShell = ("WC_LOGTOSHELL", json.loads),
+		shellColumnHeaders = ("WC_SHELLCOLUMNSHEADERS", json.loads),
+		logToDisk = ("WC_LOGTODISK", json.loads),
+		outputDir = ("WC_OUTPUTDIR", json.loads),
+		overwriteExistingFiles = ("WC_OVERWRITEEXISTINGFILES", json.loads),
+		logToDiskEvery = ("WC_LOGTODISKEVERY", int),
+		kbLocation = ("WC_KBLOCATION", json.loads)
+		)
+
+	# These are options that the calling routine might set itself
+	# While it could just overwrite them silently, removing them here
+	# will at least alert the user
+	for opt in optionsToNotGetFromEnvVars:
+		del optionsAndEnvVars[opt]
+
+	simOpts = {}
+
+	# Get simulation options from environmental variables
+	for option, (envVar, handler) in optionsAndEnvVars.iteritems():
+		if os.environ.has_key(envVar) and len(os.environ[envVar]):
+			simOpts[option] = handler(os.environ[envVar])
+			wcEnvVars.remove(envVar)
+		else:
+			simOpts[option] = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS[option]
+
+	# Check for extraneous environmental variables (probably typos by the user)
+	assert (len(wcEnvVars) == 0), (
+		"The following WC_* environmental variables were specified but " +
+		"have no defined function: %s" % wcEnvVars
+		)
+
+	return simOpts
