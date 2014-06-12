@@ -1318,11 +1318,11 @@ class KnowledgeBaseEcoli(object):
 
 		metaboliteMassIdxs.fill(MOLECULAR_WEIGHT_ORDER["metabolite"])
 
-		for index, metaboliteId in enumerate(metaboliteIds):
-			if metaboliteId.startswith("H2O["):
+		for index, metabolite in enumerate(bulkMolecules[0:lastMetaboliteIdx]):
+			if metabolite["moleculeId"].startswith("H2O["):
 				metaboliteMassIdxs[index] = MOLECULAR_WEIGHT_ORDER["water"]
 
-		bulkMolecules['mass'][0:lastMetaboliteIdx, metaboliteMassIdxs] = [
+		bulkMolecules['mass'][numpy.arange(lastMetaboliteIdx), metaboliteMassIdxs] = [
 			metabolite['mw7.2']
 			for compartmentIndex in range(len(self._compartmentList))
 			for metabolite in self._metabolites
