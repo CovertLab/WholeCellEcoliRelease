@@ -117,6 +117,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
 		self._loadComputeParameters()
 
+		loadedAttrs = set(dir(self)) - defaultAttrs
 		
 		# Create data structures for simulation
 		self._buildSequence()
@@ -138,14 +139,14 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranslation()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
-		# self._buildComplexationMatrix()
+		# self._buildComplexation()
 		self._buildMetabolism()
 		
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
-		# delete all auxiliary objects
-		self._deleteAuxiliaryVariables()
+		for attr in loadedAttrs:
+			delattr(self, attr)
 
 
 	def _loadHacked(self):
@@ -1253,19 +1254,6 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['avgCellWaterMass'] = (self._parameterData['avgCellDryMass'] / self._parameterData['cellDryMassFraction']) * self._parameterData['cellWaterMassFraction']
 		self._parameterData['avgCellWaterMassInit'] = self._parameterData['avgCellWaterMass'] / self._parameterData['avgCellToInitalCellConvFactor']
 
-	def _deleteAuxiliaryVariables(self):
-		del self._allComments
-		del self._dbLocationId
-		del self._compIdToAbbrev
-		del self._compartmentList
-		del self._geneDbIds
-		del self._expression
-		del self._half_life
-		del self._rnaModReactionDbIds
-		del self._proteinModReactionDbIds
-		del self._complexModReactionDbIds
-
-
 
 	## -- Build functions -- ##
 
@@ -1849,7 +1837,7 @@ class KnowledgeBaseEcoli(object):
 		self.monomerIndexToRnaMapping = numpy.array([numpy.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(numpy.where(x == self.monomerData["rnaId"])[0])])
 
 
-	def _buildComplexationMatrix(self):
+	def _buildComplexation(self):
 		# Builds a matrix that maps complexes (on the columns) to the correct
 		# stoichiometric ratios of subunits (on the rows)
 
@@ -1911,9 +1899,11 @@ class KnowledgeBaseEcoli(object):
 
 				matrix[subunitIndex, complexIndex] = count
 
-		self.complexationMatrix = matrix
-		self.complexationMatrixComplexIds = complexNames
-		self.complexationMatrixSubunitIds = subunitNames
+		# self.complexationMatrix = matrix
+		# self.complexationMatrixComplexIds = complexNames
+		# self.complexationMatrixSubunitIds = subunitNames
+
+
 
 
 	def _buildMetabolism(self):
