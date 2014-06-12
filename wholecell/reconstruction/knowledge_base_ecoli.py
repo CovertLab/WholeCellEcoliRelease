@@ -1838,71 +1838,11 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildComplexation(self):
-		# Builds a matrix that maps complexes (on the columns) to the correct
-		# stoichiometric ratios of subunits (on the rows)
+		# Build the abstractions needed for complexation
 
-		# Note that this is NOT a valid S matrix for a complexation process; 
-		# it is only a graph
+		# self._complexationReactions
 
-		complexesToSubunits = collections.defaultdict(dict)
-		subunits = set()
-
-		complexes = complexesToSubunits.viewkeys()
-
-		for molecule in self._proteins + self._rnas:
-			composition = molecule['composition']
-
-			if composition:
-				complexName = '{}[{}]'.format(molecule['id'], molecule['location'])
-
-				assert complexName not in complexes, 'Duplicate complex ID'
-
-				for subunit in composition:
-					coeff = subunit['coeff']
-
-					if coeff > 0: # entry is actually the complex itself
-						# Make sure the data makes sense
-						assert molecule['id'] == subunit['molecule']
-						assert molecule['location'] == subunit['location']
-						assert coeff == 1
-
-
-					else: # entry is a true subunit
-						assert coeff % 1 == 0, 'Noninteger subunit stoichiometry'
-
-						assert coeff < 0
-
-						subunitName = '{}[{}]'.format(subunit['molecule'], subunit['location'])
-
-						assert subunitName not in complexesToSubunits[complexName], 'Duplicate subunit ID'
-
-						complexesToSubunits[complexName][subunitName] = -coeff
-
-						subunits.add(subunitName)
-
-		complexNames = sorted(complexes)
-		subunitNames = sorted(subunits)
-
-		nComplexes = len(complexNames)
-		nSubunits = len(subunitNames)
-
-		complexNameToIndex = {complexName:i for i, complexName in enumerate(complexNames)}
-		subunitNameToIndex = {subunitName:i for i, subunitName in enumerate(subunitNames)}
-
-		matrix = numpy.zeros((nSubunits, nComplexes), numpy.int64)
-
-		for complexName, subunits in complexesToSubunits.viewitems():
-			complexIndex = complexNameToIndex[complexName]
-
-			for subunitName, count in subunits.viewitems():
-				subunitIndex = subunitNameToIndex[subunitName]
-
-				matrix[subunitIndex, complexIndex] = count
-
-		# self.complexationMatrix = matrix
-		# self.complexationMatrixComplexIds = complexNames
-		# self.complexationMatrixSubunitIds = subunitNames
-
+		import ipdb; ipdb.set_trace()
 
 
 
@@ -1914,6 +1854,8 @@ class KnowledgeBaseEcoli(object):
 
 		# Collect reaction information
 
+		# allReactionNames = []
+		# allReactionIds = []
 		allEnzymes = []
 		allReversibility = []
 		allReactionStoich = []
@@ -1923,6 +1865,10 @@ class KnowledgeBaseEcoli(object):
 		for reaction in self._reactions:
 			assert reaction["process"] == "Metabolism"
 
+			# reactionName = reaction["name"]
+
+			# reactionId = reaction["id"]
+
 			enzymes = reaction['catBy']
 
 			reversible = (reaction['dir'] == 0)
@@ -1930,8 +1876,11 @@ class KnowledgeBaseEcoli(object):
 			reactionStoich = {
 				'{}[{}]'.format(reactant['molecule'], reactant['location']) : reactant['coeff']
 				for reactant in reaction['stoichiometry']
-				} 
+				}
 
+
+			# allReactionNames.append(reactionName)
+			# allReactionIds.append(reactionId)
 			allEnzymes.append(enzymes)
 			allReversibility.append(reversible)
 			allReactionStoich.append(reactionStoich)
