@@ -55,7 +55,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	for idx in xrange(21):
 
-		plt.subplot(5, 4, idx + 1)
+		plt.subplot(6, 4, idx + 1)
 
 		plt.plot(time / 60., aaCounts[:, idx], linewidth = 2)
 		plt.xlabel("Time (min)")
