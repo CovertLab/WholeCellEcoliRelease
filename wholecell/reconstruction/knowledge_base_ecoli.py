@@ -1061,7 +1061,11 @@ class KnowledgeBaseEcoli(object):
 		# Set dnaA box
 		lastDnaAIdx = lastGeneIdx + count_dnaAbox_at_oriC
 		bulkChromosome['compartment'][lastGeneIdx:lastDnaAIdx] = 'n'
-		bulkChromosome['moleculeId'][lastGeneIdx:lastDnaAIdx] = ['R1', 'R2', 'R3', 'R4', 'R5']
+		bulkChromosome['moleculeId'][lastGeneIdx:lastDnaAIdx] = ['R1_dnaA',
+																'R2_dnaA',
+																'R3_dnaA',
+																'R4_dnaA',
+																'R5_dnaA']
 		bulkChromosome['mass'][lastGeneIdx:lastDnaAIdx] = 0.
 		bulkChromosome['isDnaABox'][lastGeneIdx:lastDnaAIdx] = True
 
