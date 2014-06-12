@@ -28,16 +28,6 @@ class BulkChromosome(BulkMolecules):
 
 		self._moleculeMass = kb.bulkChromosome['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
 
-		self._typeIdxs = {
-			'genes':kb.bulkChromosome['isGene'],
-			# Eventually, when there are "bound" states, these will be non-empty
-			# (the mass refactoring may happen before that, however)
-			'metabolites':np.zeros(0, np.int64),
-			'rnas':np.zeros(0, np.int64),
-			'proteins':np.zeros(0, np.int64),
-			'water':np.zeros(0, np.int64),
-			}
-
 		self._compIndexes = {
 			compartmentKey:(kb.bulkChromosome['compartment'] == compartmentKey)
 			for compartmentKey in kb.compartments['compartmentAbbreviation']

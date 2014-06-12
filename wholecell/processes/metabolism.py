@@ -81,7 +81,7 @@ class Metabolism(wholecell.processes.process.Process):
 		aaIdxsInKb = np.array([
 			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.aaIDs
 			])
-		self.aaMws = kb.bulkMolecules["mass"][aaIdxsInKb].magnitude
+		self.aaMws = kb.bulkMolecules["mass"][aaIdxsInKb].magnitude.sum(1)
 
 		ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",]
 
@@ -92,7 +92,7 @@ class Metabolism(wholecell.processes.process.Process):
 		ntpIdxsInKb = np.array([
 			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in ntpIds
 			])
-		self.ntpMws = kb.bulkMolecules["mass"][ntpIdxsInKb].magnitude
+		self.ntpMws = kb.bulkMolecules["mass"][ntpIdxsInKb].magnitude.sum(1)
 
 
 	def calculateRequest(self):

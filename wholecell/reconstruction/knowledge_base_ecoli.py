@@ -69,11 +69,21 @@ AMINO_ACID_WEIGHTS = { # TOKB
 	"Y": 181.19
 	}
 
-MOLECULAR_WEIGHT_ORDER = { '23srRNA' : 0, '16srRNA' : 1, '5srRNA' : 2, 'tRNA' : 3, 'mRNA' : 4, 'miscRNA' : 5,'Protein' : 6, 'Metabolite' : 7}
+MOLECULAR_WEIGHT_ORDER = {
+	'23srRNA' : 0,
+	'16srRNA' : 1,
+	'5srRNA' : 2,
+	'tRNA' : 3,
+	'mRNA' : 4,
+	'miscRNA' : 5,
+	'protein' : 6,
+	'metabolite' : 7
+	}
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
+	submassNameToIndex = MOLECULAR_WEIGHT_ORDER
 
 	def __init__(self):
 
@@ -1171,14 +1181,14 @@ class KnowledgeBaseEcoli(object):
 							weight += mw[m['molecule']] * m['coeff'] 
 
 					elif m['type'] == 'metabolite':
-						index = MOLECULAR_WEIGHT_ORDER['Metabolite']
+						index = MOLECULAR_WEIGHT_ORDER['metabolite']
 						weight[index] += met[m['molecule'].upper()] * m['coeff'] 
 
 					elif m['type'] == 'rna':
 						weight += rna[m['molecule']] * m['coeff'] 
 
 					elif m['type'] == 'proteinmonomers':
-						index = MOLECULAR_WEIGHT_ORDER['Protein']
+						index = MOLECULAR_WEIGHT_ORDER['protein']
 						weight[index] += monomer[m['molecule']] * m['coeff']
 
 					else:
@@ -1303,7 +1313,7 @@ class KnowledgeBaseEcoli(object):
 			for metaboliteId in metaboliteIds
 			]
 
-		bulkMolecules['mass'][0:lastMetaboliteIdx, MOLECULAR_WEIGHT_ORDER["Metabolite"]] = [
+		bulkMolecules['mass'][0:lastMetaboliteIdx, MOLECULAR_WEIGHT_ORDER["metabolite"]] = [
 			metabolite['mw7.2']
 			for compartmentIndex in range(len(self._compartmentList))
 			for metabolite in self._metabolites
@@ -1328,7 +1338,7 @@ class KnowledgeBaseEcoli(object):
 			for protein in self._proteins
 			]
 
-		bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx, MOLECULAR_WEIGHT_ORDER["Protein"]] = [
+		bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx, MOLECULAR_WEIGHT_ORDER["protein"]] = [
 			protein['mw'] for protein in self._proteins
 			]
 		
@@ -1382,7 +1392,7 @@ class KnowledgeBaseEcoli(object):
 		bulkChromosome = numpy.zeros(size,
 			dtype = [("moleculeId", 			"a50"),
 					('compartment',				"a1"),
-					("mass",					"float64"),
+					("mass", "{}f8".format(len(MOLECULAR_WEIGHT_ORDER))),
 					("isGene",					"bool"),
 					("isDnaABox",				"bool"),
 					("isDnaABox_atp_polymer",	"bool"),
@@ -1393,7 +1403,6 @@ class KnowledgeBaseEcoli(object):
 		lastGeneIdx = len(self._genes)
 		bulkChromosome['moleculeId'][0:lastGeneIdx] = [x['id'] for x in self._genes]
 		bulkChromosome['compartment'][0:lastGeneIdx] = 'n'
-		bulkChromosome['mass'][0:lastGeneIdx] = 0.
 		bulkChromosome['isGene'][0:lastGeneIdx] = True
 
 		# Set dnaA box
@@ -1404,7 +1413,6 @@ class KnowledgeBaseEcoli(object):
 																'R3_dnaA',
 																'R4_dnaA',
 																'R5_dnaA']
-		bulkChromosome['mass'][lastGeneIdx:lastDnaAIdx] = 0.
 		bulkChromosome['isDnaABox'][lastGeneIdx:lastDnaAIdx] = True
 
 		# Set dnaA box dnaA-ATP polymer
@@ -1415,7 +1423,7 @@ class KnowledgeBaseEcoli(object):
 																'R3_dnaA_atp_polymer',
 																'R4_dnaA_atp_polymer',
 																'R5_dnaA_atp_polymer']
-		bulkChromosome['mass'][lastDnaAIdx:lastDnaAATPSiteIdx] = dnaA_atp_mass
+		bulkChromosome['mass'][lastDnaAIdx:lastDnaAATPSiteIdx, MOLECULAR_WEIGHT_ORDER["protein"]] = dnaA_atp_mass
 		bulkChromosome['isDnaABox_atp_polymer'][lastDnaAIdx:lastDnaAATPSiteIdx] = True
 
 		# Set dnaA box dnaA-ADP polymer
@@ -1426,7 +1434,7 @@ class KnowledgeBaseEcoli(object):
 																'R3_dnaA_adp_polymer',
 																'R4_dnaA_adp_polymer',
 																'R5_dnaA_adp_polymer']
-		bulkChromosome['mass'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx] = dnaA_adp_mass
+		bulkChromosome['mass'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx, MOLECULAR_WEIGHT_ORDER["protein"]] = dnaA_adp_mass
 		bulkChromosome['isDnaABox_adp_polymer'][lastDnaAATPSiteIdx:lastDnaAADPSiteIdx] = True
 
 

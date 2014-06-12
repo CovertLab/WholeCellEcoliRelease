@@ -127,7 +127,7 @@ def initializeDNA(bulkContainer, kb, randomState, timeStep):
 
 	mws = np.array([
 		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x][0].magnitude for x in dnmpIds]
-		) # This is a hack. Without a real chromosome, though, it's all a hack
+		).sum(1) # This is a hack. Without a real chromosome, though, it's all a hack
 
 	nDntps = countsFromMassAndExpression(
 		dnaMass,
@@ -254,7 +254,7 @@ def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
 	h2oView = bulkContainer.countView('H2O[c]')
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude
+	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude.sum(1)
 	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
 	h2oView.countIs(

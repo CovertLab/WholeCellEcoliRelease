@@ -70,7 +70,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2oWeight = (
 			kb.bulkMolecules[
 				kb.bulkMolecules["moleculeId"] == "H2O[c]"
-				]["mass"].to("fg / mole").magnitude /
+				]["mass"].to("fg / mole").sum().magnitude /
 			kb.nAvogadro.to("1 / mole").magnitude
 			)
 

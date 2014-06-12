@@ -143,12 +143,19 @@ class Mass(wholecell.listeners.listener.Listener):
 		for stateName, state in self.states.viewitems():
 			self.cell += state.mass()
 
-			self.metabolite += state.massByType('metabolites')
-			self.rna += state.massByType('rnas')
-			self.protein += state.massByType('proteins')
+			self.metabolite += state.massByType('metabolite')
+			self.rna += (
+				state.massByType('23srRNA')
+				+ state.massByType('16srRNA')
+				+ state.massByType('5srRNA')
+				+ state.massByType('tRNA')
+				+ state.massByType('mRNA')
+				+ state.massByType('miscRNA')
+				)
+			self.protein += state.massByType('protein')
 			self.nucleoid += state.massByCompartment('n')
 			
-			self.water += state.massByType('water')
+			self.water += 0 #state.massByType('water')
 		
 		# self.rrna = self.bulkMolecules.massByType('rrnas')
 		# self.rrna23S = self.bulkMolecules.massByType('rrna23Ss')

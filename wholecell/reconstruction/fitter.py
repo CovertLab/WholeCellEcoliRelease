@@ -360,7 +360,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 
 	glycogenMmolPerGDCW = (
 			(
