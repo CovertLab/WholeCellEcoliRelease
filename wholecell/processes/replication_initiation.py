@@ -31,9 +31,31 @@ class ReplicationInitiation(wholecell.processes.process.Process):
 		super(ReplicationInitiation, self).initialize(sim, kb)
 
 		# Load parameters
+		
+
 
 		# Create views
+		self.pi = self.bulkMoleculeView(['PI[c]'])
+		self.atp = self.bulkMoleculeView(['ATP[c]'])
+		self.adp = self.bulkMoleculeView(['ADP[c]'])
 
+		self.dnaA_box = self.bulkChromosomesView(['R1_dnaA',
+												'R2_dnaA',
+												'R3_dnaA',
+												'R4_dnaA',
+												'R5_dnaA'])
+
+		self.dnaA_box_atp_polymer = self.bulkChromosomesView(['R1_dnaA_atp_polymer',
+																'R2_dnaA_atp_polymer',
+																'R3_dnaA_atp_polymer',
+																'R4_dnaA_atp_polymer',
+																'R5_dnaA_atp_polymer'])
+
+		self.dnaA_box_adp_polymer = self.bulkChromosomesView(['R1_dnaA_adp_polymer',
+																'R2_dnaA_adp_polymer',
+																'R3_dnaA_adp_polymer',
+																'R4_dnaA_adp_polymer',
+																'R5_dnaA_adp_polymer'])
 
 	def calculateRequest(self):
 		pass
