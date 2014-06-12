@@ -275,7 +275,12 @@ class KnowledgeBaseEcoli(object):
 
 		for i in all_RelationStoichiometry:
 			thisType = self._allProductType[self._allProducts[i.reactant_fk_id]]
-			self._allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), "location": self._dbLocationId[i.location_fk_id], "molecule": self._allProducts[i.reactant_fk_id], "form": "mature", "type":  thisType}
+			self._allRelationStoichiometry[i.id] = { "coeff": float(i.coefficient), 
+								"location": self._dbLocationId[i.location_fk_id], 
+								"molecule": self._allProducts[i.reactant_fk_id], 
+								"form": "mature", 
+								"type":  thisType
+								}
 
 	def _loadBiomassFractions(self):
 
@@ -717,7 +722,6 @@ class KnowledgeBaseEcoli(object):
 				"ntCount": [],
 				"mw": numpy.zeros(len(MOLECULAR_WEIGHT_ORDER))
 				}
-			#uncomment if need to load modified form			
 			
 			if int(i.is_modified):	
 				if i.id not in rnamodified:
@@ -743,8 +747,6 @@ class KnowledgeBaseEcoli(object):
 			# 		raise Exception, "Unknown unit!"
 			# 	r["halfLife"] = r["halfLife"]["value"] * 24.0 * 60.0 * 60.0
 
-
-		#uncomment if need to load modified form
 		
 		##update FK of modified RNAs
 		for i in self._modifiedRnas:
@@ -974,7 +976,7 @@ class KnowledgeBaseEcoli(object):
 					'CPLX0-7748','CPLX0-7754','CPLX0-7795','CPLX0-7884','CPLX0-7885',
 					'ENTMULTI-CPLX','GCVMULTI-CPLX','PHOSPHASERDECARB-CPLX','PHOSPHASERDECARB-DIMER',
 					'PHOSPHO-OMPR','PROTEIN-NRIP','SAMDECARB-CPLX' 
-					] #requires modified form TODO: need to delete from DB
+					] #requires modified form TODO: need to be deleted from DB
 		complexDbIds = {}
 
 		##reaction		
@@ -1105,7 +1107,6 @@ class KnowledgeBaseEcoli(object):
 
 		products = {}
 		
-		#order: complex, modComplex, modmonomer, modrna 				
 		for i in self._proteinComplexes:
 			products[i['id']] = self._complexationReactions[complexReactionLookUp[i['reactionId']]]['stoichiometry']
 		for i in self._modifiedRnas:
@@ -1122,7 +1123,7 @@ class KnowledgeBaseEcoli(object):
 
 		for p in products:
 			tmpCount = 0
-			for r in products[p]: #for a molecule in reaction
+			for r in products[p]: #for a molecule in the reaction
 				if r['molecule'] == p: continue
 				if r['molecule'] in products: 
 					tmpCount = tmpCount + 1
@@ -1137,7 +1138,7 @@ class KnowledgeBaseEcoli(object):
 			if tmpCount == 0:
 				queue.append(p) # can be computable
 		
-		#topological sort
+		#topological order
 		totalProducts = 0
 		mw = {} 
 		while (len(queue)):
@@ -1174,7 +1175,7 @@ class KnowledgeBaseEcoli(object):
 			queue = newQueue
 		
  		if totalProducts < len(products):
-			print 'there are loops in rxn!', totalProducts,len(products),len(mw)
+			print 'there are cycles in rxn!', totalProducts,len(products),len(mw)
 
 		#update the MW for proteinComplexes and modifiedRnas
 		for i in self._modifiedRnas:
