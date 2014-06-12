@@ -1576,7 +1576,7 @@ class KnowledgeBaseEcoli(object):
 
 		# TODO: actually track/annotate enzymes, k_cats
 
-		self.metabolismMoleculeNames = sorted(molecules)
+		self.metabolismMoleculeNames = numpy.array(sorted(molecules))
 
 		moleculeNameToIndex = {
 			molecule:i
@@ -1618,26 +1618,19 @@ class KnowledgeBaseEcoli(object):
 
 		## Separate intercellular (sink) vs. extracellular (media) exchange fluxes
 
-		sinkIndexes = []
-		sinkNames = []
-
-		externalIndexes = []
-		externalNames = []
+		reactionIsMediaExchange = numpy.zeros(nEdges, numpy.bool)
+		reactionIsSink = numpy.zeros(nEdges, numpy.bool)
 
 		for index, name in itertools.izip(exchangeIndexes, exchangeNames):
 			if name.endswith('[e]'):
-				externalIndexes.append(index)
-				externalNames.append(name)
+				reactionIsMediaExchange[index] = True
 
 			else:
-				sinkIndexes.append(index)
-				sinkNames.append(name)
+				reactionIsSink[index] = True
 
-		self.metabolismSinkExchangeReactionIndexes = numpy.array(sinkIndexes)
-		self.metabolismSinkExchangeReactionNames = sinkNames
-
-		self.metabolismMediaExchangeReactionIndexes = numpy.array(externalIndexes)
-		self.metabolismMediaExchangeReactionNames = externalNames
+		self.metabolismReactionIsSink = reactionIsSink
+		self.metabolismReactionIsMediaExchange = reactionIsMediaExchange
+		self.metabolismReactionIsReversible = numpy.array(allReversibility)
 
 
 	def metabolismStoichMatrix(self):
