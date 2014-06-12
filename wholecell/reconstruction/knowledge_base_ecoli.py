@@ -106,30 +106,30 @@ class KnowledgeBaseEcoli(object):
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
 		self._loadComputeParameters()
 
-		'''
+		
 		# Create data structures for simulation
 		self._buildSequence()
 		self._buildCompartments()
-		self._buildBulkMolecules()
+		# self._buildBulkMolecules()
 		self._buildBulkChromosome()
 		self._buildGeneData()
-		self._buildUniqueMolecules()
+		# self._buildUniqueMolecules()
 		self._buildBiomass()
-		self._buildRnaData()
-		self._buildMonomerData()
-		self._buildRnaIndexToMonomerMapping()
-		self._buildMonomerIndexToRnaMapping()
+		# self._buildRnaData()
+		# self._buildMonomerData()
+		# self._buildRnaIndexToMonomerMapping()
+		# self._buildMonomerIndexToRnaMapping()
 		self._buildConstants()
 		self._buildParameters()
-		self._buildRnaExpression()
+		# self._buildRnaExpression()
 		self._buildBiomassFractions()
 		self._buildTranscription()
-		self._buildTranslation()
+		# self._buildTranslation()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		# self._buildComplexationMatrix()
 		self._buildMetabolism()
-		'''
+		
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
