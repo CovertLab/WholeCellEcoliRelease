@@ -7,10 +7,9 @@ Test polymerize.py
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 1/22/2013
 """
-import wholecell.utils.polymerize as p
+import wholecell.utils.polymerize_matrix as p
 
 import numpy as np
-import pdb
 
 import nose.plugins.attrib as noseAttrib
 import nose.tools as noseTools

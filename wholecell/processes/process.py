@@ -12,7 +12,13 @@ Process submodel base class. Defines interface that processes expose to the simu
 
 from __future__ import division
 
-import wholecell.views.view
+import warnings
+
+# import wholecell.views.view
+
+import wholecell.states.bulk_molecules
+import wholecell.states.bulk_chromosome
+import wholecell.states.unique_molecules
 
 class Process(object):
 	""" Process """
@@ -29,9 +35,8 @@ class Process(object):
 		self._sim = None
 
 		# Simulation random stream
-		self.randStream = None
-
-		self.seed = None
+		self.randomState = None # set by Simulation
+		self.seed = None # set by Simulation
 
 		# References to state
 		self._states = None
@@ -44,50 +49,104 @@ class Process(object):
 		self.timeStepSec = sim.timeStepSec
 		self._processIndex = sim.processes.keys().index(self._name)
 
-		self.randStream = sim.randStream
-
 		self._states = sim.states
 
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
-		import wholecell.states.bulk_molecules
 		return wholecell.states.bulk_molecules.BulkMoleculesView(
 			self._states['BulkMolecules'], self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
-		import wholecell.states.bulk_molecules
 		return wholecell.states.bulk_molecules.BulkMoleculeView(
 			self._states['BulkMolecules'], self, moleculeIDs)
 
+	def bulkChromosomesView(self, moleculeIDs):
+		return wholecell.states.bulk_chromosome.BulkChromosomesView(
+			self._states['BulkChromosome'], self, moleculeIDs)
+
+
+	def bulkChromosomeView(self, moleculeIDs):
+		return wholecell.states.bulk_chromosome.BulkChromosomeView(
+			self._states['BulkChromosome'], self, moleculeIDs)
+
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
-		import wholecell.states.unique_molecules
 		return wholecell.states.unique_molecules.UniqueMoleculesView(
 			self._states['UniqueMolecules'], self, (moleculeName, attributes))
 
 
-	def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeForksView(
-			self._states['Chromosome'], self,
-			(extentForward, extentReverse, includeMoleculesOnEnds))
+	# def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
+	# 	return wholecell.views.view.ChromosomeForksView(
+	# 		self._states['Chromosome'], self,
+	# 		(extentForward, extentReverse, includeMoleculesOnEnds))
 
 
-	def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
-		return wholecell.views.view.ChromosomeMoleculesView(
-			self._states['Chromosome'], self,
-			(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+	# def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
+	# 	return wholecell.views.view.ChromosomeMoleculesView(
+	# 		self._states['Chromosome'], self,
+	# 		(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+
+
+	# Communicate with listeners
+
+	# TODO: consider an object-oriented interface to reading/writing to listeners
+	# that way, processes would use object handles instead of strings
+	def writeToListener(self, listenerName, attributeName, value):
+		if listenerName not in self._sim.listeners.viewkeys():
+			warnings.warn("The {} process attempted to write {} to the {} listener, but there is no listener with that name.".format(
+				self._name,
+				attributeName,
+				listenerName
+				))
+
+		else:
+			listener = self._sim.listeners[listenerName]
+
+			if not hasattr(listener, attributeName):
+				warnings.warn("The {} process attempted to write {} to the {} listener, but the listener does not have that attribute.".format(
+					self._name,
+					attributeName,
+					listenerName
+					))
+
+			else:
+				setattr(listener, attributeName, value)
+
+
+	def readFromListener(self, listenerName, attributeName):
+		if listenerName not in self._sim.listeners.viewkeys():
+			raise Exception("The {} process attempted to read {} from the {} listener, but there is no listener with that name.".format(
+				self._name,
+				attributeName,
+				listenerName
+				))
+
+		else:
+			listener = self._sim.listeners[listenerName]
+
+			if not hasattr(listener, attributeName):
+				raise Exception("The {} process attempted to read {} from the {} listener, but the listener does not have that attribute.".format(
+					self._name,
+					attributeName,
+					listenerName
+					))
+
+			else:
+				return getattr(listener, attributeName)
 
 
 	# Calculate requests for a single time step
 	def calculateRequest(self):
+		# Implemented by subclass
 		pass
 
 
 	# Calculate submodel contribution to temporal evolution of cell
 	def evolveState(self):
-		return
+		# Implemented by subclass
+		pass
 
 
 	# Basic accessors

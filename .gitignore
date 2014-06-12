@@ -26,15 +26,29 @@ nosetests.*.xml
 
 .ipynb_checkpoints
 
-# User machine config file
-##########################
-*.config
-
 # Output files #
 ################
 
 out/*
 !out/out.txt
+
+# User files #
+################
+
+user/*
+!user/user.txt
+
+# C extensions #
+################
+*.so
+
+# Cython C source #
+###################
+/wholecell/utils/_build_sequences.c
+
+# kernprof.py output #
+######################
+*.lprof
 
 # Misc #
 ########

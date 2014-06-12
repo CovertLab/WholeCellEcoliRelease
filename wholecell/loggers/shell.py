@@ -15,30 +15,44 @@ from __future__ import division
 import time
 import sys
 import numpy as np
+from itertools import izip
 
 import wholecell.loggers.logger
+
+SPACER = "  "
 
 class Shell(wholecell.loggers.logger.Logger):
 	""" Shell """
 
-	def __init__(self):
+	def __init__(self, columnHeaders):
 		self.iterFreq = 1
 		self.headerFreq = 50
 
-	def initialize(self, sim):
-		# Array of columns
-		self.columns = [
-			{"header": "Time (s)", "state": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
-			{"header": "Dry mass (fg)", "state": "Mass", "property": "cellDry", "length": 13, "format": ".2f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "cellDryFoldChange", "length": 5, "format": ".3f", "sum": False},
-			{"header": "expected", "state": "Mass", "property": "expectedFoldChange", "length": 8, "format": ".3f", "sum": False},
-			{"header": "Growth (fg/s)", "state": "Mass", "property": "growth", "length": 13, "format": ".4f", "sum": False},
-			{"header": "Protein frac", "state": "Mass", "property": "proteinFraction", "length": 12, "format": ".3f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "proteinFoldChange", "length": 5, "format": ".3f", "sum": False},
-			{"header": "RNA frac", "state": "Mass", "property": "rnaFraction", "length": 8, "format": ".3f", "sum": False},
-			{"header": "fold", "state": "Mass", "property": "rnaFoldChange", "length": 5, "format": ".3f", "sum": False},
-
+		self.columnSpecs = [
+			{"header": "Time (s)", "target": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
 			]
+
+		self.columnHeaders = columnHeaders
+
+		self.columns = None
+		self._header = None
+		self._headerBoundary = None
+
+
+	def initialize(self, sim):
+		self.columns = []
+
+		for header in self.columnHeaders:
+			for spec in self.columnSpecs:
+				if spec["header"].replace("\n", " ") == header:
+					self.columns.append(spec)
+					break
+
+			else:
+				raise Exception("Could not find column named {}".format(header))
+
+		# Build the header
+		self._buildHeader()
 
 		# Collect Metadata
 		self.nLines = -1
@@ -49,32 +63,71 @@ class Shell(wholecell.loggers.logger.Logger):
 
 
 	def printHeaders(self):
-		# Print headers
+		if self.nLines > 0:
+			sys.stdout.write(self._headerBoundary)
 
-		if self.nLines > 0:			
-			for iColumn in xrange(len(self.columns)):
-				if iColumn > 0:
-					sys.stdout.write("  ")
+		sys.stdout.write(self._header)
 
-				sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % ("=" * self.columns[iColumn]["length"]))
+		sys.stdout.write(self._headerBoundary)
 
-			sys.stdout.write("\n")
 
-		for iColumn in xrange(len(self.columns)):
-			if iColumn > 0:
-				sys.stdout.write("  ")
+	def _buildHeader(self):
+		columnHeaders = [columnSpec["header"] for columnSpec in self.columns]
+		cellSizes = [columnSpec["length"] for columnSpec in self.columns]
 
-			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % self.columns[iColumn]["header"])
+		# Break the headers at newline characters
+		columnHeaderLines = [
+			columnHeader.splitlines() for columnHeader in columnHeaders
+			]
 
-		sys.stdout.write("\n")
+		# Update the cell size to be at least the header width
+		cellSizes = [
+			max(cellSize, max(len(line) for line in lines))
+			for cellSize, lines in izip(cellSizes, columnHeaderLines)
+			]
 
-		for iColumn in xrange(len(self.columns)):
-			if iColumn > 0:
-				sys.stdout.write("  ")
+		# Rearrange the header lines
+		headerLines = []
+		for headerLineIndex in xrange(max(len(lines) for lines in columnHeaderLines)):
+			line = []
+			for lines in columnHeaderLines:
+				if len(lines) > headerLineIndex:
+					line.append(lines[headerLineIndex])
 
-			sys.stdout.write(("%" + str(self.columns[iColumn]["length"]) + "s") % ("=" * self.columns[iColumn]["length"]))
+				else:
+					line.append("")
 
-		sys.stdout.write("\n")
+			headerLines.append(line)
+
+		# Build the header
+
+		strings = []
+
+		for headers in headerLines:
+			string = []
+			for columnIndex, (columnSize, columnHeader) in enumerate(izip(cellSizes, headers)):
+				if columnIndex > 0:
+					string.append(SPACER)
+
+				string.append(("%" + str(columnSize) + "s") % columnHeader)
+			
+			strings.append(''.join(string))
+
+		self._header = '\n'.join(strings) + '\n'
+
+		string = []
+		for columnIndex, columnSize in enumerate(cellSizes):
+			if columnIndex > 0:
+				string.append(SPACER)
+
+			string.append(("%" + str(columnSize) + "s") % ("=" * columnSize))
+
+		self._headerBoundary = ''.join(string) + '\n'
+
+		# Update cell sizes
+
+		for columnSpec, cellSize in izip(self.columns, cellSizes):
+			columnSpec["length"] = cellSize
 
 
 	def append(self, sim):
@@ -90,13 +143,19 @@ class Shell(wholecell.loggers.logger.Logger):
 			column = self.columns[iColumn]
 
 			if iColumn > 0:
-				sys.stdout.write("  ")
+				sys.stdout.write(SPACER)
 
-			if column["state"] == "Simulation":
+			if column["target"] == "Simulation":
 				target = sim
 
 			else:
-				target = sim.states[column["state"]]
+				targetType, targetName = column["target"].split(":")
+				
+				target = {
+					"State":sim.states,
+					"Process":sim.processes,
+					"Listener":sim.listeners
+					}[targetType][targetName]
 
 			value = getattr(target, column["property"])
 

@@ -29,7 +29,7 @@ class State(object):
 		self._views = []
 
 		# Random number stream
-		self.randStream = None
+		self.randomState = None
 
 		self.seed = None
 
@@ -65,6 +65,19 @@ class State(object):
 		pass
 
 
+	# Mass calculations
+	def mass(self):
+		return 0
+
+
+	def massByType(self, typeKey):
+		return 0
+
+
+	def massByCompartment(self, compartment):
+		return 0
+
+
 	# Saving and loading
 
 	def pytablesCreate(self, h5file, expectedRows):
@@ -75,13 +88,6 @@ class State(object):
 
 	def pytablesLoad(self, h5file, timePoint):
 		pass
-
-
-	# Calculations
-
-	# Calculate (and cache) any dependent properties
-	def calculate(self):
-		return
 
 
 	# Basic accessors

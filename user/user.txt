@@ -1,0 +1,1 @@
+This is the directory for user-specific files; nothing in this directory should be committed.

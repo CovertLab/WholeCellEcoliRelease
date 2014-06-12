@@ -56,7 +56,6 @@ class View(object):
 	# Request
 
 	def requestIs(self, value):
-		assert (value <= self._totalCount).all(), 'Requested more than exists'
 		self._requestedCount[:] = value
 
 

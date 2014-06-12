@@ -12,11 +12,13 @@ Translation elongation sub-model.
 
 from __future__ import division
 
+from itertools import izip
+
 import numpy as np
 
 import wholecell.processes.process
-import wholecell.utils.polymerize
-from wholecell.states.bulk_molecules import calculatePartition
+from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	""" UniquePolypeptideElongation """
@@ -25,9 +27,24 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
+		# Parameters
 		self.elngRate = None
-		self.proteinIds = None
+		self.proteinLengths = None
+		self.proteinSequences = None
+		self.h2oWeight = None
+		self.aaWeightsIncorporated = None
+
+		# Views
+		self.activeRibosomes = None
+		self.bulkMonomers = None
+		self.aas = None
+		self.h2o = None
+		self.ribosomeSubunits = None
+
+		# Cached values
+		self._sequences = None
+		self._proteinIndexes = None
+		self._peptideLengths = None
 
 		super(UniquePolypeptideElongation, self).__init__()
 
@@ -38,17 +55,15 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
+		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude)
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
-		self.proteinIds = kb.monomerData['id']
+		proteinIds = kb.monomerData['id']
 
-		aaIds = kb.aaIDs[:]
+		self.proteinLengths = kb.monomerData["length"].magnitude
 
-		# TODO: Remove hack of deleting selenocysteine this way
-		selenocysteineIdx = aaIds.index("SEC-L[c]")
-		del aaIds[selenocysteineIdx]
+		self.proteinSequences = kb.translationSequences
 
 		# # TODO: refactor mass updates
 
@@ -59,46 +74,71 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			kb.nAvogadro.to("1 / mole").magnitude
 			)
 
-		self.aaWeights = np.array([
+		aaWeights = np.array([
 			kb.bulkMolecules[
 				kb.bulkMolecules["moleculeId"] == x
 				]["mass"].to("fg / mole").magnitude /
 			kb.nAvogadro.to("1 / mole").magnitude
 			for x in kb.aaIDs
 			if len(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == x]["mass"])
-			])
+			]).flatten()
 
-		self.aaWeightsIncorporated = self.aaWeights - self.h2oWeight
-
-		# # TOKB
-		# self.ntWeights = np.array([
-		# 	345.20, # A
-		# 	322.17, # U
-		# 	321.18, # C
-		# 	361.20  # G
-		# 	]) - 17.01 # weight of a hydroxyl
-
-		# # TOKB
-		# self.hydroxylWeight = 17.01 # counted once for the end of the polymer
-
-		# self.ntWeights *= 1e15/6.022e23
-		# self.hydroxylWeight *= 1e15/6.022e23
+		self.aaWeightsIncorporated = aaWeights - self.h2oWeight
 
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
-		self.bulkMonomers = self.bulkMoleculesView(self.proteinIds)
+		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
-		self.aas = self.bulkMoleculesView(aaIds)
+		self.aas = self.bulkMoleculesView(kb.aaIDs)
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
 
 
+	def _buildSequences(self, proteinIndexes, peptideLengths):
+		# TODO: cythonize
+
+		# Cache the sequences array used for polymerize, rebuilding if neccesary
+		if self._sequences is None or np.any(self._peptideLengths != peptideLengths) or np.any(self._proteinIndexes != proteinIndexes):
+
+			self._sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
+
+			for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
+				self._sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
+
+			self._proteinIndexes = proteinIndexes.copy()
+			self._peptideLengths = peptideLengths.copy()
+
+			# TODO: if the arrays don't match, try only recomputing the new values
+			# and culling the missing entries (this will become important if/when
+			# active ribosomes are requested by another process)
+		
+		return self._sequences
+
+
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
 
-		self.aas.requestAll()
+		activeRibosomes = self.activeRibosomes.allMolecules()
+
+		proteinIndexes, peptideLengths = activeRibosomes.attrs(
+			'proteinIndex', 'peptideLength'
+			)
+		
+		# sequences = self._buildSequences(proteinIndexes, peptideLengths)
+
+		sequences = buildSequences(
+			self.proteinSequences,
+			proteinIndexes,
+			peptideLengths,
+			self.elngRate
+			)
+
+		self.aas.requestIs(
+			np.bincount(sequences[sequences != PAD_VALUE])
+			)
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -109,49 +149,74 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		if len(activeRibosomes) == 0:
 			return
 
-		assignedAAs, requiredAAs, massDiffProtein = activeRibosomes.attrs(
-			'assignedAAs', 'requiredAAs', 'massDiffProtein'
+		proteinIndexes, peptideLengths, massDiffProtein = activeRibosomes.attrs(
+			'proteinIndex', 'peptideLength', 'massDiffProtein'
 			)
 
-		deficitAAs = requiredAAs - assignedAAs
+		# Build sequence array
 
-		updatedAAs = assignedAAs.copy()
-		aasUsed = np.zeros_like(aaCounts)
+		# sequences = self._buildSequences(proteinIndexes, peptideLengths)
 
-		wholecell.utils.polymerize.polymerize(
-			self.elngRate, deficitAAs, requiredAAs, aaCounts,
-			updatedAAs, aasUsed, self.seed
+		sequences = buildSequences(
+			self.proteinSequences,
+			proteinIndexes,
+			peptideLengths,
+			self.elngRate
 			)
 
-		assert np.all(updatedAAs <= requiredAAs), "Polypeptides got elongated more than possible!"
+		# Calculate update
 
-		updatedMass = massDiffProtein + np.dot(
-			(updatedAAs - assignedAAs), self.aaWeightsIncorporated
-			).flatten()
+		reactionLimit = aaCounts.sum() # TODO: account for energy
 
+		sequenceElongations, aasUsed, nElongations = polymerize(
+			sequences,
+			aaCounts,
+			reactionLimit,
+			self.randomState
+			)
+
+		# massIncreaseProtein = np.empty_like(massDiffProtein)
+
+		# for i, elongation in enumerate(sequenceElongations):
+		# 	massIncreaseProtein[i] = self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
+
+		massIncreaseProtein = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			self.aaWeightsIncorporated
+			)
+
+		updatedMass = massDiffProtein + massIncreaseProtein
+
+		updatedLengths = peptideLengths + sequenceElongations
 
 		didInitialize = (
-			(assignedAAs.sum(axis = 1) == 0) &
-			(updatedAAs.sum(axis = 1) > 0)
+			(sequenceElongations > 1) &
+			(peptideLengths == 0)
 			)
 
+		# Update active ribosomes, terminating if neccessary
+
 		activeRibosomes.attrIs(
-			assignedAAs = updatedAAs,
+			peptideLength = updatedLengths,
 			massDiffProtein = updatedMass
 			)
 
-		terminatedProteins = np.zeros_like(self.bulkMonomers.counts())
+		terminalLengths = self.proteinLengths[proteinIndexes]
 
-		didTerminate = (requiredAAs == updatedAAs).all(axis = 1)
+		didTerminate = (updatedLengths == terminalLengths)
 
-		for moleculeIndex, molecule in enumerate(activeRibosomes):
-			if didTerminate[moleculeIndex]:
-				terminatedProteins[molecule.attr('proteinIndex')] += 1
-				self.activeRibosomes.moleculeDel(molecule)
+		terminatedProteins = np.bincount(
+			proteinIndexes[didTerminate],
+			minlength = self.proteinSequences.shape[0]
+			)
+
+		activeRibosomes.delByIndexes(np.where(didTerminate)[0])
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
-		nElongations = aasUsed.sum()
+
+		# Update bulk molecules
 
 		self.aas.countsDec(aasUsed)
 
@@ -161,21 +226,13 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations)
 
-		# # HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
+		# Report stalling
 
-		# totalRnapSubunits = self.rnapSubunits.total()/np.array([2, 1, 1, 1], np.int) + len(activeRnaPolys)
+		expectedElongations = np.fmin(
+			self.elngRate,
+			terminalLengths - peptideLengths
+			)
 
-		# totalRnap = np.min(totalRnapSubunits)
+		ribosomeStalls = expectedElongations - sequenceElongations
 
-		# self.rnapSubunits.countsInc(np.fmax(
-		# 	((440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int)).astype(np.int),
-		# 	0
-		# 	))
-
-
-
-def getWorkAssignment(dataSize, thisTask, totalTasks):
-	startPos = sum(dataSize // totalTasks + (i < (dataSize % totalTasks)) for i in xrange(thisTask))
-	nElements = dataSize // totalTasks + (thisTask < (dataSize % totalTasks))
-
-	return startPos, nElements
+		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)

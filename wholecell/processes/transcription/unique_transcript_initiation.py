@@ -25,10 +25,12 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
-		self.rnaIds = None
-		self.rnaNtCounts = None
+		# Parameters
 		self.rnaSynthProb = None
+
+		# Views
+		self.activeRnaPolys = None
+		self.rnapSubunits = None
 
 		super(UniqueTranscriptInitiation, self).__init__()
 
@@ -41,7 +43,6 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 
-		self.rnaNtCounts = kb.rnaData['countsACGU'].to('nucleotide').magnitude
 		self.rnaSynthProb = kb.rnaData['synthProb'].to('dimensionless').magnitude
 
 		# Views
@@ -60,26 +61,39 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
-		inactiveRnaPolys = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
+		inactiveRnaPolyCount = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
-		nNewRnas = self.randStream.mnrnd(inactiveRnaPolys,
+		nNewRnas = self.randomState.multinomial(inactiveRnaPolyCount,
 			self.rnaSynthProb)
-
-		# Create the active RNA polymerases
 
 		nonzeroCount = (nNewRnas > 0)
 
-		for rnaIndex, nNew, ntCounts in itertools.izip(
+		assert nNewRnas.sum() == inactiveRnaPolyCount
+
+		# Build list of RNA indexes
+
+		rnaIndexes = np.empty(inactiveRnaPolyCount, np.int64)
+
+		startIndex = 0
+		for rnaIndex, counts in itertools.izip(
 				np.arange(nNewRnas.size)[nonzeroCount],
-				nNewRnas[nonzeroCount],
-				self.rnaNtCounts[nonzeroCount]
+				nNewRnas[nonzeroCount]
 				):
 
-			self.activeRnaPolys.moleculesNew(
-				'activeRnaPoly', nNew,
-				rnaIndex = rnaIndex,
-				requiredACGU = ntCounts
-				)
+			rnaIndexes[startIndex:startIndex+counts] = rnaIndex
+
+			startIndex += counts
+
+		# Create the active RNA polymerases
+
+		activeRnaPolys = self.activeRnaPolys.moleculesNew(
+			"activeRnaPoly",
+			inactiveRnaPolyCount
+			)
+
+		activeRnaPolys.attrIs(
+			rnaIndex = rnaIndexes
+			)
 
 		self.rnapSubunits.countsDec(
 			nNewRnas.sum() * np.array([2, 1, 1, 1], np.int)

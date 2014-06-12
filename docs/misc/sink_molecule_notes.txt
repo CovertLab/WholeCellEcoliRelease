@@ -1,0 +1,48 @@
+I'm attempting to curate the identities and functions of "sink" molecules that are part of the Feist metabolic reconstruction, so that we can decide how to handle them in our simulation.
+
+ID: 4HBA[c]
+name: 4-hydroxybenzyl alcohol
+function: unknown
+Feist reactions:
+	product of thiazole phosphate synthesis, catalyzed by ( b2530  and  b3992  and  ( b3990  and  b3991 )  and  b0423  and  b4407 )
+	)
+EcoCyc reactions:
+	export from cytosol to periplasm, no annotated transporter
+
+
+ID: 5DRIB[c]
+name: 5'-deoxyribose
+function: unknown
+Feist reactions:
+	product of 5'-deoxyadenosine nuclosidase, catalyzed by b0159
+EcoCyc reactions:
+	hydrolysis of 5'-deoxyadenosine to form 5-deoxy-D-ribose and adenine (catalyzed by 5'-methylthioadenosine/S-adenosylhomocysteine nucleosidase)
+	nonspecific sugar/phosphate reactions
+
+
+ID: AACALD[c]
+name: Aminoacetaldehyde
+function: product of taurine degradation, occus when sulfur-starved
+Feist reactions:
+	produce of Taurine dioxygenase, catalyzed by b0368
+EcoCyc reactions:
+	product of taurine degradation IV (catalyzed by taurine dioxygenase)
+
+
+ID: HMFURN[c]
+name: 4-hydroxy-5-methyl-3(2H)-furanone
+function: unknown
+Feist reactions:
+	product of 4,5-dihydroxy-2,3-pentanedione cyclization (spontaneous), catalyzed by none (?)
+EcoCyc reactions:
+	none for E. coli; only metabolic pathways seem to be in plants
+
+
+ID: OXAM[c]
+name: Oxamate
+function: 
+Feist reactions:
+	product of oxamate transcarbamoylase, catalyzed by none
+EcoCyc reactions:
+	allantonin degradation (IV) product (catalyzed by oxamate carbamoyltransferase, not studied in E. coli)
+	formation of oxalate by loss of ammonium, no enzyme (oxalate is then used in many other pathways)

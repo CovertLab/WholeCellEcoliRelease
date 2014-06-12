@@ -63,12 +63,12 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
 							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
-							'rrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							'rrna23Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna23S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							'rrna16Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna16S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							'rrna5Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna5S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							'trnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isTRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							'mrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isMRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							# 'rrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							# 'rrna23Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna23S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							# 'rrna16Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna16S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							# 'rrna5Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna5S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							# 'trnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isTRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
+							# 'mrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isMRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
 							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
 							'water'		:	kb.bulkMolecules['isWater']}
 
@@ -85,6 +85,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool)
 		try:
 			self._isRequestAbsolute[sim.processes.keys().index('RnaDegradation')] = True
+			self._isRequestAbsolute[sim.processes.keys().index('ProteinDegradation')] = True
 
 		except ValueError:
 			pass
@@ -201,7 +202,8 @@ class BulkMolecules(wholecell.states.state.State):
 			'indexes', 'Indexes for various groups of molecules')
 
 		for type_, indexes in self._typeIdxs.viewitems():
-			h5file.create_array(groupIdxs, type_, indexes)
+			if indexes.size > 0:
+				h5file.create_array(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):
@@ -306,6 +308,7 @@ class BulkMoleculesView(BulkMoleculesViewBase):
 		super(BulkMoleculesView, self).__init__(*args, **kwargs)
 
 		# State references
+		assert len(set(self._query)) == len(self._query), "Bulk molecules views cannot contain duplicate entries"
 		self.containerIndexes = self._state.container._namesToIndexes(self._query)
 
 

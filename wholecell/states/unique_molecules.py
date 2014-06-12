@@ -1,4 +1,4 @@
-'''
+"""
 unique_molecules.py
 
 The UniqueMolecules State handles the identity and dynamic properties of unique
@@ -7,7 +7,7 @@ from the knowledge base.
 
 The UniqueMolecules State instantiates a UniqueObjectsContainer object, which 
 creates and manages the structured arrays in memory.
-'''
+"""
 
 from __future__ import division
 
@@ -20,27 +20,26 @@ import wholecell.states.state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
-
 DEFAULT_ATTRIBUTES = {
-	'massDiffMetabolite':np.float,
-	'massDiffRna':np.float,
-	'massDiffProtein':np.float,
+	"massDiffMetabolite":np.float,
+	"massDiffRna":np.float,
+	"massDiffProtein":np.float,
+	"_partitionedProcess":np.int64
 	}
 
+UNASSIGNED_PARTITION_VALUE = -1
 
 class UniqueMolecules(wholecell.states.state.State):
-	'''
+	"""
 	UniqueMolecules
 
 	State that tracks unique instances of molecules in the simulation, which 
 	can have special dynamic attributes.
-	'''
+	"""
 
 	_name = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):
-		self.time = None
-
 		self.container = None
 
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
@@ -63,11 +62,11 @@ class UniqueMolecules(wholecell.states.state.State):
 		# Set the correct time for saving purposes
 		self.container.timeIs(self.timeStep())
 
-		# Clear out any deleted entries to make room for new molecules
-		self.container.flushDeleted()
+		# Remove any prior partition assignments
+		self.container.objects().attrIs(_partitionedProcess = UNASSIGNED_PARTITION_VALUE)
 		
 		# Gather requests
-		nMolecules = self.container._collections[self.container._globalRefIndex].size
+		nMolecules = self.container._globalReference.size
 		nViews = len(self._views)
 
 		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)
@@ -85,81 +84,99 @@ class UniqueMolecules(wholecell.states.state.State):
 		if requestNumberVector.sum() == 0:
 			return
 
-		partitionedMolecules = _partition(objectRequestsArray,
-			requestNumberVector, requestProcessArray, self.randStream)
+		# Don't calculate on non-requesting views
+		doCalculatePartition = (requestNumberVector > 0)
+
+		objectRequestsArray[:, ~doCalculatePartition] = False
+
+		partitionedMolecules = np.zeros((nMolecules, self._nProcesses), np.bool)
+
+		# Grant non-overlapping requests all of the relevant molecules
+		overlappingRequests = np.dot(objectRequestsArray.T, objectRequestsArray)
+
+		overlappingRequests[np.identity(nViews, np.bool)] = False
+
+		# TODO: ignore overlapping requests with a process
+
+		noOverlap = ~overlappingRequests.any(0)
+
+		for viewIndex in np.where(noOverlap)[0]:
+			# NOTE: there may be a way to vectorize this
+			partitionedMolecules[:,self._views[viewIndex]._processIndex] |= objectRequestsArray[:, viewIndex]
+
+		doCalculatePartition[noOverlap] = False
+
+		if doCalculatePartition.any():
+			partitionedMolecules |= _partition(
+				objectRequestsArray[:, doCalculatePartition],
+				requestNumberVector[doCalculatePartition],
+				requestProcessArray[doCalculatePartition, :],
+				self.randomState
+				)
 
 		for view in self._views:
 			molecules = self.container.objectsByGlobalIndex(
 				np.where(partitionedMolecules[:, view._processIndex])[0]
 				)
 
-			for molecule in molecules:
-				molecule.attrIs(_partitionedProcess = view._processIndex + 1)
-				# "0", being the default, is reserved for unpartitioned molecules
+			if len(molecules):
+				molecules.attrIs(_partitionedProcess = view._processIndex)
 
 
 	# TODO: refactor mass calculations as a whole
 	def mass(self):
-		# TODO: rework this so it's a faster operation (a dot product)
-
 		totalMass = 0
 		
 		for entry in self._masses:
-			moleculeId = entry['moleculeId']
-			massMetabolite = entry['massMetabolite']
-			massRna = entry['massRna']
-			massProtein = entry['massProtein']
+			moleculeId = entry["moleculeId"]
+			massMetabolite = entry["massMetabolite"]
+			massRna = entry["massRna"]
+			massProtein = entry["massProtein"]
 
 			molecules = self.container.objectsInCollection(moleculeId)
 
-			if len(molecules) == 0:
+			nMolecules = len(molecules)
+
+			if nMolecules == 0:
 				continue
 
-			for molecule in molecules:
-				totalMass += massMetabolite
-				totalMass += massRna
-				totalMass += massProtein
-
-				totalMass += molecule.attr('massDiffMetabolite')
-				totalMass += molecule.attr('massDiffRna')
-				totalMass += molecule.attr('massDiffProtein')
+			totalMass += massMetabolite * nMolecules + molecules.attr("massDiffMetabolite").sum()
+			totalMass += massRna * nMolecules + molecules.attr("massDiffRna").sum()
+			totalMass += massProtein * nMolecules + molecules.attr("massDiffProtein").sum()
 
 		return totalMass
 
 
 	def massByType(self, typeKey):
-		# TODO: rework this so it's a faster operation (a dot product)
-
-		if typeKey in ['rrnas', 'water']:
+		if typeKey in ["rrnas", "water"]:
 			return 0
 
 		submassKey = {
-			'metabolites':'massMetabolite',
-			'rnas':'massRna',
-			'proteins':'massProtein',
+			"metabolites":"massMetabolite",
+			"rnas":"massRna",
+			"proteins":"massProtein",
 			}[typeKey]
 
 		submassDiffKey = {
-			'metabolites':'massDiffMetabolite',
-			'rnas':'massDiffRna',
-			'proteins':'massDiffProtein',
+			"metabolites":"massDiffMetabolite",
+			"rnas":"massDiffRna",
+			"proteins":"massDiffProtein",
 			}[typeKey]
 
 		totalMass = 0
 		
 		for entry in self._masses:
-			moleculeId = entry['moleculeId']
+			moleculeId = entry["moleculeId"]
 			mass = entry[submassKey]
 
 			molecules = self.container.objectsInCollection(moleculeId)
 
-			if len(molecules) == 0:
+			nMolecules = len(molecules)
+
+			if nMolecules == 0:
 				continue
 
-			for molecule in molecules:
-				totalMass += mass
-
-				totalMass += molecule.attr(submassDiffKey)
+			totalMass += mass * nMolecules + molecules.attr(submassDiffKey).sum()
 
 		return totalMass
 
@@ -169,19 +186,22 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def pytablesCreate(self, h5file, expectedRows):
-		self.container.pytablesCreate(h5file)
+		# self.container.pytablesCreate(h5file)
+		pass
 
 
 	def pytablesAppend(self, h5file):
-		self.container.pytablesAppend(h5file)
+		# self.container.pytablesAppend(h5file)
+		pass
 
 
 	def pytablesLoad(self, h5file, timePoint):
-		self.container.pytablesLoad(h5file, timePoint)
+		# self.container.pytablesLoad(h5file, timePoint)
+		raise Exception("Unique molecules saving disabled for now")
 
 
 class UniqueMoleculesView(wholecell.views.view.View):
-	_stateID = 'UniqueMolecules'
+	_stateID = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
@@ -199,11 +219,13 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 		self._totalIs(len(self._queryResult))
 
+	def allMolecules(self):
+		return self._queryResult
 
 	def molecules(self):
 		return self._state.container.objectsInCollection(
 			self._query[0],
-			_partitionedProcess = ('==', self._processIndex + 1),
+			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)
 
@@ -219,17 +241,17 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 
 	def moleculeNew(self, moleculeName, **attributes):
-		self._state.container.objectNew(
+		return self._state.container.objectNew(
 			moleculeName,
-			_partitionedProcess = self._processIndex + 1,
+			_partitionedProcess = self._processIndex,
 			**attributes
 			)
 
 
 	def moleculesNew(self, moleculeName, nMolecules, **attributes):
-		self._state.container.objectsNew(
+		return self._state.container.objectsNew(
 			moleculeName,
 			nMolecules,
-			_partitionedProcess = self._processIndex + 1,
+			_partitionedProcess = self._processIndex,
 			**attributes
 			)

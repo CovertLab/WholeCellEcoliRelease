@@ -50,7 +50,7 @@ def PolymerizeMatrix(sequences, baseAmounts, bases, basePadValue, energy, energy
 	while sequences.size != 0 and energy >= energyCostPerBase:
 		# Eliminate sequences with nothing to polymerize
 		toKeep_tf = progress[activeSeqIdxs] < seqLengths[activeSeqIdxs]
-		activeSeqIdx = activeSeqIdxs[toKeep_tf]
+		activeSeqIdxs = activeSeqIdxs[toKeep_tf]
 		sequences = sequences[toKeep_tf, :]
 		if sequences.size == 0:
 			# Break if no more sequences
@@ -113,7 +113,7 @@ def validatePolymerize(sequences, baseAmounts, bases, basePadValue, energy, ener
 	if not isinstance(sequences, np.matrix):
 		s += 'sequences must be a numpy matrix!\n'
 		furtherValidate = False
-	elif sequences.dtype.type != np.string_:
+	elif sequences.dtype.type != np.string_ and sequences.dtype.type != np.unicode_:
 		s += 'sequences must be matrix of strings!\n'
 		furtherValidate = False
 	
@@ -186,7 +186,7 @@ def validatePolymerize(sequences, baseAmounts, bases, basePadValue, energy, ener
 			s += 'basePadValue has the same value as a base!\n'
 	
 	if len(s):
-		raise polymerizeException, s
+		raise polymerizeMatrixException, s
 
 
 def calculateElongationLimits(sequences, bases, baseAmounts, energy, energyCostPerBase):
@@ -279,7 +279,84 @@ def lengths(sequences, padValue):
 	return result
 
 
-class polymerizeException(Exception):
+class polymerizeMatrixException(Exception):
 	"""
-	polymerizeException
+	polymerizeMatrixException
 	"""
+
+if __name__ == "__main__":
+	import time
+
+	np.random.seed(0)
+
+	characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij_"
+
+	# Contrive a scenario which is similar to real conditions
+
+	nMonomers = 36 # number of distinct aa-tRNAs
+	nSequences = 10000 # approximate number of ribosomes
+	length = 16 # translation rate
+	nTerminating = np.int64(1.* length/300 * nSequences) # estimate for number of ribosomes terminating
+	monomerSufficiency = 0.85
+	energySufficiency = 0.85
+	monomers = np.arange(nMonomers)
+	padValue = -1
+	costPerMonomer = 1
+
+	sequences = np.random.randint(nMonomers, size = (nSequences, length))
+
+	sequenceLengths = length * np.ones(nSequences, np.int64)
+	sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
+
+	sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = padValue
+
+	maxReactions = sequenceLengths.sum()
+
+	monomerLimits = (monomerSufficiency * maxReactions/nMonomers*np.ones(nMonomers)).astype(np.int64)
+	reactionLimit = np.int64(energySufficiency * maxReactions)
+
+	# Cast to types this function supports
+	sequences = np.matrix([[characters[val] for val in row] for row in sequences])
+	monomers = np.array([characters[val] for val in monomers])
+	padValue = characters[padValue]
+
+	t = time.time()
+	sequenceElongation, _, monomerUsages, _, nReactions = PolymerizeMatrix(
+		sequences,
+		monomerLimits.copy(),
+		monomers,
+		padValue,
+		reactionLimit,
+		costPerMonomer
+		)
+	evalTime = time.time() - t
+
+	assert (sequenceElongation <= sequenceLengths+1).all()
+	assert (monomerUsages <= monomerLimits).all()
+	assert nReactions <= reactionLimit
+	assert nReactions == monomerUsages.sum()
+
+	print """
+Polymerize function report:
+
+For {} sequences of {} different monomers elongating by at most {}:
+
+{:0.1f} ms to evaluate
+{} polymerization reactions
+{:0.1f} average elongations per sequence
+{:0.1%} monomer utilization
+{:0.1%} energy utilization
+{:0.1%} fully elongated
+{:0.1%} completion
+""".format(
+		nSequences,
+		nMonomers,
+		length,
+		evalTime * 1000,
+		nReactions,
+		sequenceElongation.mean(),
+		1.*monomerUsages.sum()/monomerLimits.sum(),
+		1.*nReactions/reactionLimit,
+		1.*(sequenceElongation == sequenceLengths).sum()/nSequences,
+		1.*sequenceElongation.sum()/sequenceLengths.sum()
+		)

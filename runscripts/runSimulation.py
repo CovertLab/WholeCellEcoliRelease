@@ -15,29 +15,42 @@ Run a simulation using a provided configuration (JSON) file:
 
 from __future__ import division
 
+import wholecell.sim.sim_definition
 import wholecell.sim.simulation
-import sys
+import argparse
+import os
+import json
 
-DEFAULT_SIM = dict(
-	seed = 10,
-	lengthSec = 3600,
-	reconstructKB = True,
-	)
+def main(submissionTime):
 
-def main():
-	# TODO: argument parsing
+	simOpts = wholecell.sim.sim_definition.getSimOptsFromEnvVars(
+		["outputDir", "logToDisk", "overwriteExistingFiles"]
+		)
 
-	nArgs = len(sys.argv)
+	# Define simulation options specific to this script
+	simOpts["outputDir"] = os.path.join(
+		"out",
+		"simOut",
+		"%s" % submissionTime,
+		"%06d" % simOpts["seed"]
+		)
+	simOpts["logToDisk"] = True
+	simOpts["overwriteExistingFiles"] = False
 
-	if nArgs == 1:
-		# Use default parameters
-		sim = wholecell.sim.simulation.Simulation(**DEFAULT_SIM)
+	# Check that we're setting all arguments (in case more have been added, etc)
+	assert (
+		set(simOpts.keys()) ==
+		set(wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS.keys())
+		), "Need to set all keyword arguments in runSimulation.py"
 
-	elif nArgs == 2:
-		# Attempt to parse from a json file
-		sim = wholecell.sim.simulation.Simulation.initFromFile(sys.argv[1])
+	sim = wholecell.sim.simulation.Simulation(**simOpts)
 
 	sim.run()
 
 if __name__ == '__main__':
-	main()
+	parser = argparse.ArgumentParser()
+	parser.add_argument("submissionTime", help = "Time of job submission", type = str)
+
+	args = parser.parse_args().__dict__
+
+	main(args["submissionTime"])

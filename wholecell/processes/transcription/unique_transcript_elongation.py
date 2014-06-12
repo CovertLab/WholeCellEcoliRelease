@@ -12,18 +12,16 @@ Transcription elongation sub-model.
 
 from __future__ import division
 
+from itertools import izip
+
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_pooled_monomers import polymerizePooledMonomers
+from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
-# TODO: vectorize operations
-# TODO: write ILP solver
 # TODO: refactor mass calculations
 # TODO: confirm reaction stoich
 # TODO: resolve mounting process namespace issues
-# TODO: use more intelligent requests (enzyme/metabolite-limited)
-# TODO: resolve nucleotide pooling (fix biomass function?)
 
 class UniqueTranscriptElongation(wholecell.processes.process.Process):
 	""" UniqueTranscriptElongation """
@@ -35,7 +33,24 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		# Constants
 		self.elngRate = None
 		self.rnaIds = None
-		self.rnaSynthProb = None
+		self.rnaLengths = None
+		self.rnaSequences = None
+		self.ntWeights = None
+		self.hydroxylWeight = None
+
+		# Views
+		self.activeRnaPolys = None
+		self.bulkRnas = None
+		self.ntps = None
+		self.ppi = None
+		self.h2o = None
+		self.proton = None
+		self.rnapSubunits = None
+
+		# Cached values
+		self._sequences = None
+		self._transcriptLengths = None
+		self._rnaIndexes = None
 
 		super(UniqueTranscriptElongation, self).__init__()
 
@@ -54,12 +69,27 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		# TODO: refactor mass updates
 
+		sequences = kb.rnaData["sequence"]
+
+		self.rnaLengths = kb.rnaData["length"].magnitude
+
+		maxLen = np.int64(self.rnaLengths.max() + self.elngRate)
+
+		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int8)
+		self.rnaSequences.fill(PAD_VALUE)
+
+		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.rnaSequences[i, j] = ntMapping[letter]
+
 		# TOKB
 		self.ntWeights = np.array([
 			345.20, # A
-			322.17, # U
 			321.18, # C
-			361.20  # G
+			361.20, # G
+			322.17, # U
 			]) - 17.01 # weight of a hydroxyl
 
 		# TOKB
@@ -81,10 +111,45 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.rnapSubunits = self.bulkMoleculesView(enzIds)
 
 
+	def _buildSequences(self, rnaIndexes, transcriptLengths):
+		# Cache the sequences array used for polymerize, rebuilding if neccesary
+		if self._sequences is None or np.any(self._transcriptLengths != transcriptLengths) or np.any(self._rnaIndexes != rnaIndexes):
+
+			self._sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
+
+			for i, (rnaIndex, rnaLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
+				self._sequences[i, :] = self.rnaSequences[rnaIndex, rnaLength:np.int64(rnaLength + self.elngRate)]
+
+			self._rnaIndexes = rnaIndexes.copy()
+			self._transcriptLengths = transcriptLengths.copy()
+
+		return self._sequences
+
+
 	def calculateRequest(self):
+		activeRnaPolys = self.activeRnaPolys.allMolecules()
+
+		if len(activeRnaPolys) == 0:
+			return
+
 		self.activeRnaPolys.requestAll()
 
-		self.ntps.requestAll()
+		rnaIndexes, transcriptLengths = activeRnaPolys.attrs(
+			'rnaIndex', 'transcriptLength'
+			)
+
+		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
+
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elngRate
+			)
+
+		self.ntps.requestIs(
+			np.bincount(sequences[sequences != PAD_VALUE])
+			)
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
 
@@ -98,58 +163,57 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		if len(activeRnaPolys) == 0:
 			return
 
-		assignedNts, requiredNts, massDiffRna = activeRnaPolys.attrs(
-			'assignedACGU', 'requiredACGU', 'massDiffRna'
+		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs(
+			'rnaIndex', 'transcriptLength', 'massDiffRna'
 			)
- 
-		deficitNts = requiredNts - assignedNts
 
-		updatedNts = assignedNts.copy()
 		ntpsUsed = np.zeros_like(ntpCounts)
 
-		wholecell.utils.polymerize.polymerize(
-			self.elngRate, deficitNts, requiredNts, ntpCounts,
-			updatedNts, ntpsUsed, self.seed
+		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
+
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elngRate
 			)
 
-		assert np.all(updatedNts <= requiredNts)
+		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
-		# newlyAssignedNts = polymerizePooledMonomers(
-		# 	ntpCounts,
-		# 	deficitNts,
-		# 	self.elngRate,
-		# 	self.randStream,
-		# 	useIntegerLinearProgramming = False
-		# 	)
-
-		# ntpsUsed = newlyAssignedNts.sum(axis = 0)
-
-		# updatedNts = newlyAssignedNts + assignedNts
-
-		didInitialize = (
-			(assignedNts.sum(axis = 1) == 0) &
-			(updatedNts.sum(axis = 1) > 0)
+		sequenceElongations, ntpsUsed, nElongations = polymerize(
+			sequences,
+			ntpCounts,
+			reactionLimit,
+			self.randomState
 			)
 
-		updatedMass = massDiffRna + np.dot(
-			(updatedNts - assignedNts), self.ntWeights
+		massIncreaseRna = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			self.ntWeights
 			)
+
+		updatedMass = massDiffRna + massIncreaseRna
+
+		didInitialize = (transcriptLengths == 0) & (sequenceElongations > 0)
+
+		updatedLengths = transcriptLengths + sequenceElongations
 
 		updatedMass[didInitialize] += self.hydroxylWeight
 
 		activeRnaPolys.attrIs(
-			assignedACGU = updatedNts,
+			transcriptLength = updatedLengths,
 			massDiffRna = updatedMass
 			)
 
-		terminatedRnas = np.zeros_like(self.bulkRnas.counts())
+		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])
 
-		didTerminate = (requiredNts == updatedNts).all(axis = 1)
+		terminatedRnas = np.bincount(
+			rnaIndexes[didTerminate],
+			minlength = self.rnaSequences.shape[0]
+			)
 
-		for moleculeIndex, molecule in enumerate(activeRnaPolys):
-			if didTerminate[moleculeIndex]:
-				terminatedRnas[molecule.attr('rnaIndex')] += 1
-				self.activeRnaPolys.moleculeDel(molecule)
+		activeRnaPolys.delByIndexes(np.where(didTerminate)[0])
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
@@ -167,16 +231,3 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton.countInc(nInitialized)
 
 		self.ppi.countInc(nElongations)
-
-		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
-
-		totalRnapSubunits = self.rnapSubunits.total()/np.array([2, 1, 1, 1], np.int) + len(activeRnaPolys)
-
-		totalRnap = np.min(totalRnapSubunits)
-
-		self.rnapSubunits.countsInc(np.fmax(
-			((440*np.exp(np.log(2)/3600*self.time()) - totalRnap) * np.array([2, 1, 1, 1], np.int)).astype(np.int),
-			0
-			))
-
-

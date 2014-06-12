@@ -25,9 +25,16 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
+		# Parameters
+		self.proteinLens = None
 
-		self.proteinAACounts = None
+		# Views
+
+		self.activeRibosomes = None
+		self.rRna23S = None
+		self.rRna16S = None
+		self.rRna5S = None
+		self.mRnas = None
 
 		super(UniquePolypeptideInitiation, self).__init__()
 
@@ -39,16 +46,7 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		# Load parameters
 
 		mrnaIds = kb.monomerData["rnaId"]
-		proteinIds = kb.monomerData["id"]
-		aaIds = kb.aaIDs[:]
-
-		# TODO: Remove hack of deleting selenocysteine this way
-		selenocysteineIdx = aaIds.index("SEC-L[c]")
-		del aaIds[selenocysteineIdx]
-
-		self.proteinAACounts = np.delete(
-			kb.monomerData["aaCounts"].magnitude, selenocysteineIdx, 1
-			)
+		
 		self.proteinLens = kb.monomerData["length"].magnitude
 
 		# Views
@@ -74,7 +72,7 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
-		inactiveRibosomes = np.min([
+		inactiveRibosomeCount = np.min([
 			self.rRna23S.counts().sum(),
 			self.rRna16S.counts().sum(),
 			self.rRna5S.counts().sum()
@@ -85,25 +83,39 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 			self.mRnas.counts().sum()
 			).flatten()	# TODO: Is this .flatten() necessary?
 
-		nNewProteins = self.randStream.mnrnd(
-			inactiveRibosomes,
+		nNewProteins = self.randomState.multinomial(
+			inactiveRibosomeCount,
 			proteinInitProb
 			)
 
 		nonzeroCount = (nNewProteins > 0)
 
-		for protIdx, nNew, aaCounts in itertools.izip(
-			np.arange(nNewProteins.size)[nonzeroCount],
-			nNewProteins[nonzeroCount],
-			self.proteinAACounts[nonzeroCount]
-			):
+		assert nNewProteins.sum() == inactiveRibosomeCount
 
-			self.activeRibosomes.moleculesNew(
-				"activeRibosome",
-				nNew,
-				proteinIndex = protIdx,
-				requiredAAs = aaCounts
-				)
+		# Build list of protein indexes
+
+		proteinIndexes = np.empty(inactiveRibosomeCount, np.int64)
+
+		startIndex = 0
+		for proteinIndex, counts in itertools.izip(
+				np.arange(nNewProteins.size)[nonzeroCount],
+				nNewProteins[nonzeroCount],
+				):
+
+			proteinIndexes[startIndex:startIndex+counts] = proteinIndex
+
+			startIndex += counts
+
+		# Create the active ribosomes
+
+		activeRibosomes = self.activeRibosomes.moleculesNew(
+			"activeRibosome",
+			inactiveRibosomeCount
+			)
+
+		activeRibosomes.attrIs(
+			proteinIndex = proteinIndexes
+			)
 
 		self.rRna23S.countsDec(nNewProteins.sum())
 		self.rRna16S.countsDec(nNewProteins.sum())

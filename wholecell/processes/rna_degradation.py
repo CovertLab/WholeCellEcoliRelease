@@ -24,10 +24,18 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
+		# Parameters
 		self.rnaLens = None			# RNA lengths
 		self.rnaDegRates = None		# RNA degradation rates (1/s)
 		self.rnaDegSMat = None		# RNA degradation stoichiometry matrix [metabolite x rna]
+
+		# Views
+		self.metabolites = None
+		self.nmps = None
+		self.h2o = None
+		self.proton = None
+		self.rnas = None
+		self.rnase = None
 
 		super(RnaDegradation, self).__init__()
 
@@ -38,21 +46,21 @@ class RnaDegradation(wholecell.processes.process.Process):
 		metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
 			"H2O[c]", "H[c]", "ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
 
-		self._nmpIdxs = np.arange(0, 4)
-		self._h2oIdx = metaboliteIds.index('H2O[c]')
-		self._hIdx = metaboliteIds.index('H[c]')
+		nmpIdxs = np.arange(0, 4)
+		h2oIdx = metaboliteIds.index('H2O[c]')
+		hIdx = metaboliteIds.index('H[c]')
 
 		rnaIds = kb.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb.rnaData['degRate']
+		self.rnaDegRates = kb.rnaData['degRate'].magnitude
 
-		self.rnaLens = kb.rnaData['length']
+		self.rnaLens = kb.rnaData['length'].magnitude
 
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
-		self.rnaDegSMat[self._nmpIdxs, :] = np.transpose(kb.rnaData['countsACGU'])
-		self.rnaDegSMat[self._h2oIdx, :]  = -(np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
-		self.rnaDegSMat[self._hIdx, :]    =  (np.sum(self.rnaDegSMat[self._nmpIdxs, :], axis = 0) - 1)
+		self.rnaDegSMat[nmpIdxs, :] = np.transpose(kb.rnaData['countsACGU'])
+		self.rnaDegSMat[h2oIdx, :]  = -(self.rnaLens - 1)
+		self.rnaDegSMat[hIdx, :]    =  (self.rnaLens - 1)
 
 		# Views
 		self.metabolites = self.bulkMoleculesView(metaboliteIds)
@@ -70,11 +78,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nRNAsToDegrade = np.fmin(
-			self.randStream.poissrnd(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
+			self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
 			self.rnas.total()
 			)
 
-		nReactions = np.dot(self.rnaLens, nRNAsToDegrade)
+		nReactions = np.dot(self.rnaLens - 1, nRNAsToDegrade)
 
 		self.h2o.requestIs(nReactions)
 		self.rnas.requestIs(nRNAsToDegrade)

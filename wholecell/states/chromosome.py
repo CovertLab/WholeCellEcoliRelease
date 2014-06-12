@@ -76,8 +76,8 @@ class Chromosome(wholecell.states.state.State):
 			for i in xrange(100)]
 
 		while unboundMolecules:
-			position = self.randStream.randi(N_BASES)
-			orientation = ['+', '-'][self.randStream.randi(1)]
+			position = self.randomState.randint(N_BASES)
+			orientation = ['+', '-'][self.randomState.randint(1)]
 
 			try:
 				self.container.moleculeLocationIs(
@@ -137,11 +137,6 @@ class Chromosome(wholecell.states.state.State):
 				view.allocateRegions(regions)
 
 			allocatedRegions.extend(regions)
-
-
-	def calculate(self):
-		# print 'Chromosome multiplicity is ', (self.container._array != self.container._inactive).sum() / N_BASES
-		pass
 
 
 	def pytablesCreate(self, h5file, expectedRows):

@@ -1,6 +1,8 @@
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_inc
 
+from Cython.Build import cythonize
+
 import numpy as np
 import os
 
@@ -15,8 +17,18 @@ polymerize_module = Extension(
 	extra_compile_args = ["-fPIC"]
 	)
 
+build_sequences_module = cythonize(
+	os.path.join("wholecell", "utils", "_build_sequences.pyx")
+	)
+
 setup(name = "Polymerize",
 	version = "0.0.1",
 	description = "Polymerize module",
 	ext_modules = [polymerize_module]
+	)
+
+setup(
+	name = "Build sequences",
+	ext_modules = build_sequences_module,
+	include_dirs = [np.get_include()]
 	)

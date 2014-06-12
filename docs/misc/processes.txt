@@ -1,0 +1,15 @@
+
+Metabolism	~1200	(flex/t)FBA, enzyme counts limiting fluxes, dynamic-updated objective if necesary
+DNA Replication Initiation	dnaA, seqA, diaA	stochastic cooperative binding
+DNA Replication	dnaE, dnaQ, dnaX, holA, holE, holB, dnaN, dnaB, ssb, holC, holD, dnaC	resource-limited elongation reaction
+Chromosome Segregation	topB	boolean model
+Transcription Initiation	fliA, rpoE, S, N, D, H, fecI	probabilistic binding
+Transcription Elongation	rpoA, rpoB, rpoC, rpoZ		resource-limited elongation
+Transcription Termination	rho				boolean
+Translation Initiation		metV, metY, metW, metZ, infA, infB, infC		probabilistic binding (mRNA counts+RBS sites)
+Translation Elongation		the ribosome (~80 genes)+EFs	resource-limited elongation
+Translation Termination		release/recycling factors (~5)	boolean
+Complexation			spontaneous (0 genes)		S matrix
+Modification			0				S matrix
+tRNA charging			~25 ligases, ~60 tRNAs		
+
