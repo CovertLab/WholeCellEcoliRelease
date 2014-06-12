@@ -261,7 +261,7 @@ class KnowledgeBaseEcoli(object):
 					"feistFormula": i.feist_formula,
 					"formula7.2": i.ph_formula,
 					"charge7.2": int(i.ph_charge),
-					"mw7.2": numpy.zeros(len(MOLECULAR_WEIGHT_ORDER)),
+					"mw7.2": float(i.ph_weight),
 					"mediaConc": float(i.media_concentration),
 					"biomassInfo": {'core' : [], 'wildtype' : []},
 					"maxExchange": float(i.maximum_exchange_rate),
@@ -270,9 +270,6 @@ class KnowledgeBaseEcoli(object):
 					"comments": self._allComments[i.comment_fk_id]
 				}
 			
-			# Set mass
-			m["mw7.2"][MOLECULAR_WEIGHT_ORDER['Metabolite']] = float(i.ph_weight)
-
 			if i.has_biomass:
 				m["biomassInfo"] = biomass[i.id]
 
