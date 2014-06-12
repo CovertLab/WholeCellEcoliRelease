@@ -155,7 +155,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			self.protein += state.massByType('protein')
 			self.nucleoid += state.massByCompartment('n')
 			
-			self.water += 0 #state.massByType('water')
+			self.water += state.massByType('water')
 		
 		# self.rrna = self.bulkMolecules.massByType('rrnas')
 		# self.rrna23S = self.bulkMolecules.massByType('rrna23Ss')

@@ -77,7 +77,8 @@ MOLECULAR_WEIGHT_ORDER = {
 	'mRNA' : 4,
 	'miscRNA' : 5,
 	'protein' : 6,
-	'metabolite' : 7
+	'metabolite' : 7,
+	'water' : 8
 	}
 
 class KnowledgeBaseEcoli(object):
@@ -1313,7 +1314,15 @@ class KnowledgeBaseEcoli(object):
 			for metaboliteId in metaboliteIds
 			]
 
-		bulkMolecules['mass'][0:lastMetaboliteIdx, MOLECULAR_WEIGHT_ORDER["metabolite"]] = [
+		metaboliteMassIdxs = numpy.empty(lastMetaboliteIdx, numpy.int64)
+
+		metaboliteMassIdxs.fill(MOLECULAR_WEIGHT_ORDER["metabolite"])
+
+		for index, metaboliteId in enumerate(metaboliteIds):
+			if metaboliteId.startswith("H2O["):
+				metaboliteMassIdxs[index] = MOLECULAR_WEIGHT_ORDER["water"]
+
+		bulkMolecules['mass'][0:lastMetaboliteIdx, metaboliteMassIdxs] = [
 			metabolite['mw7.2']
 			for compartmentIndex in range(len(self._compartmentList))
 			for metabolite in self._metabolites
