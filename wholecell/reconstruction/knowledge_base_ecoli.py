@@ -126,7 +126,7 @@ class KnowledgeBaseEcoli(object):
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		# self._buildComplexationMatrix()
-		# self._buildMetabolism()
+		self._buildMetabolism()
 
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
@@ -1574,8 +1574,6 @@ class KnowledgeBaseEcoli(object):
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
 
-		stoichMatrix = numpy.zeros((nNodes, nEdges))
-
 		# TODO: actually track/annotate enzymes, k_cats
 
 		self.metabolismMoleculeNames = sorted(molecules)
@@ -1585,23 +1583,35 @@ class KnowledgeBaseEcoli(object):
 			for i, molecule in enumerate(self.metabolismMoleculeNames)
 			}
 
-		# Fill in the basic reaction matrix (as described by Feist)
+		# Build the sparse (coordinate-value) stoich matrix
+
+		stoichMatrixI = []
+		stoichMatrixJ = []
+		stoichMatrixV = []
 
 		for reactionIndex, reactionStoich in enumerate(allReactionStoich):
 			for molecule, stoich in reactionStoich.viewitems():
 				moleculeIndex = moleculeNameToIndex[molecule]
 
-				stoichMatrix[moleculeIndex, reactionIndex] = stoich
+				stoichMatrixI.append(moleculeIndex)
+				stoichMatrixJ.append(reactionIndex)
+				stoichMatrixV.append(stoich)
+
+		self._metStoichMatrixI = numpy.array(stoichMatrixI)
+		self._metStoichMatrixJ = numpy.array(stoichMatrixJ)
+		self._metStoichMatrixV = numpy.array(stoichMatrixV)
 
 		# Collect exchange reactions
 
 		## First, find anything that looks like an exchange reaction
 
-		exchangeIndexes = numpy.where((stoichMatrix != 0).sum(0) == 1)[0]
+		exchangeIndexes = numpy.where(
+			numpy.bincount(self._metStoichMatrixJ) == 1 # exchange reactions only have one stoich coeff in the column
+			)[0]
 
 		exchangeNames = [
 			self.metabolismMoleculeNames[
-				numpy.where(stoichMatrix[:, reactionIndex])[0][0]
+				self._metStoichMatrixI[reactionIndex]
 				]
 			for reactionIndex in exchangeIndexes
 			]
@@ -1629,45 +1639,15 @@ class KnowledgeBaseEcoli(object):
 		self.metabolismMediaExchangeReactionIndexes = numpy.array(externalIndexes)
 		self.metabolismMediaExchangeReactionNames = externalNames
 
-		# Extend stoich matrix to include intercellular exchange fluxes
 
-		# There are a few possible approaches that need to be discussed/tested
-		# Exhaustive: exchange fluxes for every non-extracellular metabolite
-		# Simplified: exchange fluxes for every imported extracellular metabolite
-		# Rational: actually look at the network structure
-		# Empirical: run simulation and see what is used
+	def metabolismStoichMatrix(self):
+		shape = (self._metStoichMatrixI.max()+1, self._metStoichMatrixJ.max()+1)
 
-		# For now, I'm taking the exhaustive approach
+		out = numpy.zeros(shape, numpy.float64)
 
-		internalNames = [
-			moleculeName
-			for moleculeName in self.metabolismMoleculeNames
-			if not moleculeName.endswith('[e]') and moleculeName not in sinkNames
-			]
+		out[self._metStoichMatrixI, self._metStoichMatrixJ] = self._metStoichMatrixV
 
-		internalIndexes = []
-
-		self.metabolismStoichMatrix = numpy.hstack([
-			stoichMatrix,
-			numpy.zeros((nNodes, len(internalNames)))
-			])
-
-		# TODO: decide whether these exchange reactions should be reversible
-		allReversibility.extend([False]*len(internalNames))
-
-		for i, name in enumerate(internalNames):
-			reactionIndex = nEdges + i
-
-			moleculeIndex = moleculeNameToIndex[name]
-
-			self.metabolismStoichMatrix[moleculeIndex, reactionIndex] = +1
-
-			internalIndexes.append(reactionIndex)
-
-		self.metabolismReversibleReactions = numpy.array(allReversibility, numpy.bool)
-
-		self.metabolismInternalExchangeReactionIndexes = numpy.array(internalIndexes)
-		self.metabolismInternalExchangeReactionNames = internalNames
+		return out
 
 
 	def _buildTranscription(self):
@@ -1707,6 +1687,7 @@ class KnowledgeBaseEcoli(object):
 		self.parameters = self._parameterData
 		self.parameters["fracActiveRibosomes"] = Q_(1.0, "dimensionless")
 		self.__dict__.update(self.parameters)
+
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
