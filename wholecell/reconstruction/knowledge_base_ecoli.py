@@ -139,7 +139,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranslation()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
-		# self._buildComplexation()
+		self._buildComplexation()
 		self._buildMetabolism()
 		
 		# Build dependent calculations
@@ -1840,10 +1840,61 @@ class KnowledgeBaseEcoli(object):
 	def _buildComplexation(self):
 		# Build the abstractions needed for complexation
 
-		# self._complexationReactions
+		molecules = []
 
-		import ipdb; ipdb.set_trace()
+		subunits = []
+		complexes = []
 
+		stoichMatrixI = []
+		stoichMatrixJ = []
+		stoichMatrixV = []
+
+		for reactionIndex, reaction in enumerate(self._complexationReactions):
+			assert reaction["process"] == "complexation"
+			assert reaction["dir"] == 1
+
+			for molecule in reaction["stoichiometry"]:
+				moleculeName = molecule["molecule"]
+
+				if moleculeName not in molecules:
+					molecules.append(moleculeName)
+					moleculeIndex = len(molecules) - 1
+
+				else:
+					moleculeIndex = molecules.index(moleculeName)
+
+				coefficient = molecule["coeff"]
+
+				assert coefficient % 1 == 0
+
+				stoichMatrixI.append(moleculeIndex)
+				stoichMatrixJ.append(reactionIndex)
+				stoichMatrixV.append(coefficient)
+
+				if coefficient < 0:
+					subunits.append(moleculeName)
+
+				else:
+					assert molecule["type"] == "proteincomplex"
+					complexes.append(moleculeName)
+
+		self._complexStoichMatrixI = numpy.array(stoichMatrixI)
+		self._complexStoichMatrixJ = numpy.array(stoichMatrixJ)
+		self._complexStoichMatrixV = numpy.array(stoichMatrixV)
+
+		self.complexationMoleculeNames = molecules
+		self.complexationSubunitNames = set(subunits)
+		self.complexationComplexNames = set(complexes)
+
+
+	def complexationStoichMatrix(self):
+		shape = (self._complexStoichMatrixI.max()+1, self._complexStoichMatrixJ.max()+1)
+
+		out = numpy.zeros(shape, numpy.float64)
+
+		out[self._complexStoichMatrixI, self._complexStoichMatrixJ] = self._complexStoichMatrixV
+
+		return out
 
 
 	def _buildMetabolism(self):
