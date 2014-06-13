@@ -107,88 +107,13 @@ class Metabolism(wholecell.processes.process.Process):
 	def evolveState(self):
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
-		##### Dynamic objective #####
-
-		requests = self.readFromListener("MetabolicDemands", "metaboliteRequests").sum(1)
-
-		### For AAs
-		deficitAAs = np.fmax(
-			requests[self.aaIdxsInWildTypeBiomass] - self.aas._totalCount,
-			0
-			)
-		expectedAAs = (
-			np.round(
-				self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass] * 1e-3 *
-				self.nAvogadro * self.initialDryMass
-				) *
-			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-			)
-
-
-		np.set_printoptions(suppress = True)
-		relativeAArequests = normalize(
-			GAIN * deficitAAs + expectedAAs
-			)
-
-		# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
-
-		self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass] = (
-			countsFromMassAndExpression(
-				np.dot(
-					self.aaMws / 1000,
-					self.wildtypeBiomassReaction[self.aaIdxsInWildTypeBiomass]
-					),
-				self.aaMws,
-				relativeAArequests,
-				self.nAvogadro
-				) *
-			relativeAArequests *
-			1000 / self.nAvogadro
-			)
-
-		### For NTPs
-		deficitNTPs = np.fmax(
-			requests[self.ntpIdxsInWildTypeBiomass] - self.nmps.counts() - self.ntps._totalCount,
-			0
-			)
-
-		expectedNTPs = (
-			np.round(
-				self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass] * 1e-3 *
-				self.nAvogadro * self.initialDryMass
-				) *
-			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-			)
-
-		relativeNTPrequests = normalize(
-			GAIN * deficitNTPs + expectedNTPs
-			)
-
-		self.wildtypeBiomassReaction[self.ntpIdxsInWildTypeBiomass] = (
-			countsFromMassAndExpression(
-				np.dot(
-					self.ntpMws / 1000,
-					self.wildtypeBiomassReaction[self.ntpIdxsInWildTypeBiomass]
-					),
-				self.ntpMws,
-				relativeNTPrequests,
-				self.nAvogadro
-				) *
-			relativeNTPrequests *
-			1000 / self.nAvogadro
-			)
-
-		# print "After: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
-
-		# ##### End dynamic objective code #####
+		biomassObjective = self._computeBiomassFromLeftovers()
 
 		deltaMetabolites = np.fmax(
 			stochasticRound(
 				self.randomState,
 				np.round(
-					(self.wildtypeBiomassReaction + atpm) * 1e-3 *
+					(biomassObjective + atpm) * 1e-3 *
 					self.nAvogadro * self.initialDryMass
 					) *
 				np.exp(np.log(2) / self.cellCycleLen * self.time()) *
@@ -208,3 +133,174 @@ class Metabolism(wholecell.processes.process.Process):
 		self.ntps.countsInc(self.nmps.counts())
 		self.nmps.countsIs(0)
 		self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
+
+
+	def _computeBiomassFromRequests(self):
+		"""
+		Computes the biomass objective dynamically as a function of the counts
+		requested by processes, the counts remaining after the last time step,
+		and the steady-state biomass objective.
+		"""
+
+		biomassObjective = self.wildtypeBiomassReactionSS.copy()
+
+		requests = self.readFromListener("MetabolicDemands", "metaboliteRequests").sum(1)
+
+		### For AAs
+
+		expectedAAs = (
+			np.round(
+				self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass] * 1e-3 *
+				self.nAvogadro * self.initialDryMass
+				) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+			)
+
+		deficitAAs = np.fmax(
+			requests[self.aaIdxsInWildTypeBiomass] - self.aas._totalCount,
+			0
+			)
+
+		np.set_printoptions(suppress = True)
+		relativeAArequests = normalize(
+			GAIN * deficitAAs + expectedAAs
+			)
+
+		# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+
+		biomassObjective[self.aaIdxsInWildTypeBiomass] = (
+			countsFromMassAndExpression(
+				np.dot(
+					self.aaMws / 1000,
+					self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass]
+					),
+				self.aaMws,
+				relativeAArequests,
+				self.nAvogadro
+				) *
+			relativeAArequests *
+			1000 / self.nAvogadro
+			)
+
+		### For NTPs
+
+		expectedNTPs = (
+			np.round(
+				self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass] * 1e-3 *
+				self.nAvogadro * self.initialDryMass
+				) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+			)
+
+		deficitNTPs = np.fmax(
+			# requests[self.ntpIdxsInWildTypeBiomass] - self.nmps.counts() - self.ntps._totalCount,
+			2*expectedNTPs - self.nmps.counts() - self.ntps._totalCount,
+			0
+			)
+
+		relativeNTPrequests = normalize(
+			GAIN * deficitNTPs + expectedNTPs
+			)
+
+		biomassObjective[self.ntpIdxsInWildTypeBiomass] = (
+			countsFromMassAndExpression(
+				np.dot(
+					self.ntpMws / 1000,
+					self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass]
+					),
+				self.ntpMws,
+				relativeNTPrequests,
+				self.nAvogadro
+				) *
+			relativeNTPrequests *
+			1000 / self.nAvogadro
+			)
+
+		# print "After: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+
+		return biomassObjective
+
+
+	def _computeBiomassFromLeftovers(self):
+		"""
+		Computes the biomass objective dynamically based on the counts 
+		remaining from the last time step and the steady-state biomass 
+		objective.
+		"""
+
+		biomassObjective = self.wildtypeBiomassReactionSS.copy()
+
+		### For AAs
+
+		expectedAAs = (
+			np.round(
+				self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass] * 1e-3 *
+				self.nAvogadro * self.initialDryMass
+				) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+			)
+
+		deficitAAs = np.fmax(
+			2*expectedAAs - self.aas._totalCount,
+			0
+			)
+
+		np.set_printoptions(suppress = True)
+		relativeAArequests = normalize(
+			GAIN * deficitAAs + expectedAAs
+			)
+
+		# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+
+		biomassObjective[self.aaIdxsInWildTypeBiomass] = (
+			countsFromMassAndExpression(
+				np.dot(
+					self.aaMws / 1000,
+					self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass]
+					),
+				self.aaMws,
+				relativeAArequests,
+				self.nAvogadro
+				) *
+			relativeAArequests *
+			1000 / self.nAvogadro
+			)
+
+		### For NTPs
+
+		expectedNTPs = (
+			np.round(
+				self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass] * 1e-3 *
+				self.nAvogadro * self.initialDryMass
+				) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+			)
+
+		deficitNTPs = np.fmax(
+			2*expectedNTPs - self.nmps.counts() - self.ntps._totalCount,
+			0
+			)
+
+		relativeNTPrequests = normalize(
+			GAIN * deficitNTPs + expectedNTPs
+			)
+
+		biomassObjective[self.ntpIdxsInWildTypeBiomass] = (
+			countsFromMassAndExpression(
+				np.dot(
+					self.ntpMws / 1000,
+					self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass]
+					),
+				self.ntpMws,
+				relativeNTPrequests,
+				self.nAvogadro
+				) *
+			relativeNTPrequests *
+			1000 / self.nAvogadro
+			)
+
+		return biomassObjective
