@@ -148,19 +148,19 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def massByType(self, typeKey):
-		if typeKey in ["rrnas", "water"]:
+		if typeKey in ["16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "water"]:
 			return 0
 
 		submassKey = {
-			"metabolites":"massMetabolite",
-			"rnas":"massRna",
-			"proteins":"massProtein",
+			"metabolite":"massMetabolite",
+			"23srRNA":"massRna", # HACK
+			"protein":"massProtein",
 			}[typeKey]
 
 		submassDiffKey = {
-			"metabolites":"massDiffMetabolite",
-			"rnas":"massDiffRna",
-			"proteins":"massDiffProtein",
+			"metabolite":"massDiffMetabolite",
+			"23srRNA":"massDiffRna",
+			"protein":"massDiffProtein",
 			}[typeKey]
 
 		totalMass = 0

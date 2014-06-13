@@ -61,16 +61,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._moleculeMass = kb.bulkMolecules['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
 
-		self._typeIdxs = {'metabolites'	:	kb.bulkMolecules['isMetabolite'],
-							'rnas'		:	kb.bulkMolecules['isRnaMonomer'],
-							# 'rrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							# 'rrna23Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna23S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							# 'rrna16Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna16S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							# 'rrna5Ss'	:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isRRna5S"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							# 'trnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isTRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							# 'mrnas'		:	np.array([True if x in kb.rnaData["id"][kb.rnaData["isMRna"]] else False for x in kb.bulkMolecules["moleculeId"]]),
-							'proteins'	:	kb.bulkMolecules['isProteinMonomer'],
-							'water'		:	kb.bulkMolecules['isWater']}
+		self._submassNameToIndex = kb.submassNameToIndex
 
 		self._compIndexes = {
 			compartmentKey:(kb.bulkMolecules['compartment'] == compartmentKey)
@@ -123,10 +114,10 @@ class BulkMolecules(wholecell.states.state.State):
 
 			self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
-			self._massAllocatedInitial = (
-				self._countsAllocatedInitial *
-				np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
-				)
+			# self._massAllocatedInitial = (
+			# 	self._countsAllocatedInitial *
+			# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
+			# 	)
 
 		else:
 			self._countsUnallocated = self.container._counts
@@ -136,25 +127,25 @@ class BulkMolecules(wholecell.states.state.State):
 		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
-		self._massAllocatedFinal = (
-			self._countsAllocatedFinal *
-			np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
-			)
+		# self._massAllocatedFinal = (
+		# 	self._countsAllocatedFinal *
+		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
+		# 	)
 
 
 	def mass(self):
 		return np.dot(
-			self._moleculeMass,
+			self._moleculeMass.sum(1),
 			self.container._counts
 			)
 
 
 	def massByType(self, typeKey):
-		indexes = self._typeIdxs[typeKey]
+		typeIndex = self._submassNameToIndex[typeKey]
 
 		return np.dot(
-			self._moleculeMass[indexes],
-			self.container._counts[indexes]
+			self._moleculeMass[:, typeIndex],
+			self.container._counts
 			)
 
 
@@ -162,7 +153,7 @@ class BulkMolecules(wholecell.states.state.State):
 		indexes = self._compIndexes[compartment]
 
 		return np.dot(
-			self._moleculeMass[indexes],
+			self._moleculeMass[indexes, :].sum(1),
 			self.container._counts[indexes]
 			)
 
@@ -197,13 +188,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
 		h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
-
-		groupIdxs = h5file.create_group(h5file.root,
-			'indexes', 'Indexes for various groups of molecules')
-
-		for type_, indexes in self._typeIdxs.viewitems():
-			if indexes.size > 0:
-				h5file.create_array(groupIdxs, type_, indexes)
 
 
 	def pytablesAppend(self, h5file):

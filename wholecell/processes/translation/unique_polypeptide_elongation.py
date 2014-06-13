@@ -70,17 +70,16 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2oWeight = (
 			kb.bulkMolecules[
 				kb.bulkMolecules["moleculeId"] == "H2O[c]"
-				]["mass"].to("fg / mole").magnitude /
+				]["mass"].to("fg / mole").sum(1)[0].magnitude /
 			kb.nAvogadro.to("1 / mole").magnitude
 			)
 
 		aaWeights = np.array([
 			kb.bulkMolecules[
-				kb.bulkMolecules["moleculeId"] == x
-				]["mass"].to("fg / mole").magnitude /
+				kb.bulkMolecules["moleculeId"] == aaId
+				]["mass"].to("fg / mole").magnitude.sum() /
 			kb.nAvogadro.to("1 / mole").magnitude
-			for x in kb.aaIDs
-			if len(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == x]["mass"])
+			for aaId in kb.aaIDs
 			]).flatten()
 
 		self.aaWeightsIncorporated = aaWeights - self.h2oWeight

@@ -192,7 +192,7 @@ def fitKb(kb):
 
 	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNtpIds]
 
-	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs]
+	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs].sum(1)
 
 	nDNtps = countsFromMassAndExpression(
 		dnaMass.to('DCW_g').magnitude,
@@ -360,7 +360,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 
 	glycogenMmolPerGDCW = (
 			(
@@ -386,7 +386,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellMureinFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 
 	mureinMmolPerGDCW = (
 			(
@@ -411,7 +411,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLPSFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 
 	lpsMmolPerGDCW = (
 			(
@@ -436,7 +436,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLipidFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 
 	lipidMmolPerGDCW = (
 			(
@@ -461,7 +461,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellInorganicIonFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 	
 	inorganicIonMmolPerGDCW = (
 			(
@@ -486,7 +486,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellSolublePoolFractionData["metaboliteId"]
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs] # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
 	
 	solublePoolMmolPerGDCW = (
 			(
@@ -504,7 +504,7 @@ def fitKb(kb):
 	bulkMoleculesIdxs = np.array([
 		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in biomassContainer._objectNames
 		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude # TOKB
+	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1).magnitude # TOKB
 	# TODO
 
 	# aaIdxs = np.array([
@@ -530,10 +530,10 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 
 def calcChromosomeMass(seq, kb):
 	weights = collections.OrderedDict({
-		"A": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].magnitude),
-		"C": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].magnitude),
-		"G": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].magnitude),
-		"T": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].magnitude),
+		"A": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude),
+		"C": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude),
+		"G": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude),
+		"T": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude),
 		})
 	return sum(weights[x] for x in seq) - (len(seq)) * 17.01
 

@@ -126,7 +126,7 @@ def initializeDNA(bulkContainer, kb, randomState, timeStep):
 		], dtype = np.float64))
 
 	mws = np.array([
-		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x][0].magnitude for x in dnmpIds]
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in dnmpIds]
 		) # This is a hack. Without a real chromosome, though, it's all a hack
 
 	nDntps = countsFromMassAndExpression(
@@ -254,7 +254,7 @@ def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
 	h2oView = bulkContainer.countView('H2O[c]')
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude
+	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude.sum(1)[0]
 	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
 	h2oView.countIs(
@@ -512,17 +512,16 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 	h2oWeight = (
 		kb.bulkMolecules[
 			kb.bulkMolecules["moleculeId"] == "H2O[c]"
-			]["mass"].to("fg / mole").magnitude /
+			]["mass"].to("fg / mole").sum(1)[0].magnitude /
 		kb.nAvogadro.to("1 / mole").magnitude
 		)
 
 	aaWeights = np.array([
 		kb.bulkMolecules[
-			kb.bulkMolecules["moleculeId"] == x
-			]["mass"].to("fg / mole").magnitude /
+			kb.bulkMolecules["moleculeId"] == aaId
+			]["mass"].to("fg / mole").magnitude.sum() /
 		kb.nAvogadro.to("1 / mole").magnitude
-		for x in kb.aaIDs
-		if len(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == x]["mass"])
+		for aaId in kb.aaIDs
 		])
 
 	aaWeightsIncorporated = aaWeights - h2oWeight

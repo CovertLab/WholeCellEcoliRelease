@@ -18,8 +18,6 @@ import wholecell.processes.process
 
 UNCONSTRAINED_FLUX_VALUE = 10000.0
 
-REQUEST_SIMPLE = False # if True, doesn't run FBA twice, but requests all possible metabolites
-
 # TODO: better requests
 # TODO: flexFBA etc
 # TODO: explore dynamic biomass objectives
@@ -51,47 +49,32 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 		# Must add one entry for the biomass reaction
 
+		basicStoichMatric = kb.metabolismStoichMatrix()
+
 		self.stoichMatrix = np.hstack([
-			kb.metabolismStoichMatrix,
-			np.zeros((kb.metabolismStoichMatrix.shape[0], 1))
+			basicStoichMatric,
+			np.zeros((basicStoichMatric.shape[0], 1))
 			])
 
 		self.nFluxes = self.stoichMatrix.shape[1]
 
-		self.reversibleReactions = np.hstack([
-			kb.metabolismReversibleReactions,
-			np.array([False], np.bool)
-			])
+		self.reactionIsReversible = np.append(kb.metabolismReactionIsReversible, 0)
 
-		indexes = [kb.metabolismMoleculeNames.index(moleculeName) for moleculeName in self.biomassIds]
+		# TODO: bug Nick about adding -> selenocysteine to the metabolic network
+
+		indexes = [np.where(kb.metabolismMoleculeNames == moleculeName)[0][0] for moleculeName in self.biomassIds]
 
 		self.stoichMatrix[indexes, -1] = -self.biomassReaction
 
 		self.objective = np.zeros(self.nFluxes)
 		self.objective[-1] = -1
 
-		self.mediaExchangeMoleculeNames = kb.metabolismMediaExchangeReactionNames
-		self.mediaExchangeIndexes = kb.metabolismMediaExchangeReactionIndexes
-
-		self.sinkExchangeMoleculeNames = kb.metabolismSinkExchangeReactionNames
-		self.sinkExchangeIndexes = kb.metabolismSinkExchangeReactionIndexes
-
-		self.internalExchangeMoleculeNames = kb.metabolismInternalExchangeReactionNames
-		self.internalExchangeIndexes = kb.metabolismInternalExchangeReactionIndexes
-
-		self.biomassInternalExchangeIndexes = np.array([
-			self.internalExchangeIndexes[self.internalExchangeMoleculeNames.index(moleculeId)]
-			for moleculeId in self.biomassIds
-			if moleculeId in self.internalExchangeMoleculeNames
-			])
+		self.reactionIsMediaExchange = np.append(kb.metabolismReactionIsMediaExchange, 0)
+		self.reactionIsSink = np.append(kb.metabolismReactionIsSink, 0)
 
 		# Create views
 
-		self.biomassMolecules = self.bulkMoleculesView(self.biomassIds)
-
-		self.sinkMolecules = self.bulkMoleculesView(self.sinkExchangeMoleculeNames)
-
-		self.internalExchangeMolecules = self.bulkMoleculesView(self.internalExchangeMoleculeNames)
+		self.molecules = self.bulkMoleculesView(kb.metabolismMoleculeNames)
 
 		# Permanent references to evolveState variables for listener
 
@@ -99,49 +82,29 @@ class MetabolismFba(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		if REQUEST_SIMPLE:
-			# Request every internal metabolite
-			self.internalExchangeMolecules.requestAll()
-
-		else:
-			# Compute request assuming all metabolites are allocated
-			totalCounts = self.internalExchangeMolecules.total()
-
-			fluxes = self.computeFluxes(totalCounts)
-
-			internalUsage = np.fmax(
-				(fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int),
-				0
-				)
-
-			self.internalExchangeMolecules.requestIs(internalUsage)
-
-			# print ', '.join(
-			# 	self.internalExchangeMoleculeNames[index]
-			# 	for index in np.where(internalUsage)[0]
-			# 	)
+		pass
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Update metabolite counts based on computed fluxes
 
-		self.fluxes = self.computeFluxes(self.internalExchangeMolecules.counts())
+		self.fluxes = self._computeFluxes(self.internalExchangeMolecules.counts())
 
-		internalUsage = (self.fluxes[self.internalExchangeIndexes] * self.timeStepSec).astype(np.int)
-		sinkProduction = (self.fluxes[self.sinkExchangeIndexes] * self.timeStepSec).astype(np.int)
-		biomassProduction = (self.fluxes[-1] * self.timeStepSec * self.biomassReaction).astype(np.int)
+		deltaMolecules = np.dot(self.stoichMatrix[:, :-1], self.fluxes[:-1])
 
-		self.internalExchangeMolecules.countsDec(internalUsage)
-		self.sinkMolecules.countsInc(sinkProduction)
-		self.biomassMolecules.countsInc(biomassProduction)
+		import ipdb; ipdb.set_trace()
+
+		self.molecules.countsInc(deltaMolecules)
 
 
-	def computeFluxes(self, internalMoleculeCounts):
+	def _computeFluxes(self):
+		# TODO: constrain reactions by enzyme count
+
 		# Set up LP
 
 		lowerBounds = np.zeros(self.nFluxes)
-		lowerBounds[self.reversibleReactions] = -UNCONSTRAINED_FLUX_VALUE
+		lowerBounds[self.reactionIsReversible] = -UNCONSTRAINED_FLUX_VALUE
 
 		upperBounds = np.empty(self.nFluxes)
 		upperBounds.fill(UNCONSTRAINED_FLUX_VALUE)
@@ -149,13 +112,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 		# TODO: find actual media exchange limits
 		upperBounds[self.mediaExchangeIndexes] = UNCONSTRAINED_FLUX_VALUE
 
-		upperBounds[self.internalExchangeIndexes] = internalMoleculeCounts / self.timeStepSec
-
-		# Forbid exchange of biomass components
-		lowerBounds[self.biomassInternalExchangeIndexes] = 0
-		upperBounds[self.biomassInternalExchangeIndexes] = 0
-
-		fluxes, status = fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
+		fluxes, status = _fba(self.stoichMatrix, lowerBounds, upperBounds, self.objective)
 
 		if status != "optimal":
 			warnings.warn("Linear programming did not converge")
@@ -169,7 +126,7 @@ class MetabolismFba(wholecell.processes.process.Process):
 import cvxopt.solvers
 from cvxopt import matrix, sparse, spmatrix
 
-def fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
+def _fba(stoichiometricMatrix, lowerBounds, upperBounds, objective):
 	# Solve the linear program:
 	# 0 = Sv
 	# lb <= v <= ub
