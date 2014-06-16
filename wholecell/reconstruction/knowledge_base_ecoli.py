@@ -1465,7 +1465,8 @@ class KnowledgeBaseEcoli(object):
 				},
 			'dnaPolymerase' : {
 				'chromosomeLocation' : 'i8',
-				'directionIsPositive' : 'bool'
+				'directionIsPositive' : 'bool',
+				'isLeading' : 'bool'
 				},
 			'replicationFork' : {
 				'chromosomeLocation' : 'i8',
