@@ -52,11 +52,10 @@ class Complexation(wholecell.processes.process.Process):
 
 		# Find all reactions that are unique; i.e., orthogonal to all other
 		# composition vectors
-		self.reactionUsesMonomersUnqiuely = ~(
+		self.reactionUsesMonomersUniquely = ~(
 			np.dot(self.compositionMatrix.T, self.compositionMatrix)
 			* ~np.identity(self.compositionMatrix.shape[1], np.bool)
 			).any(0).data # here axis 0 or 1 is valid since the matrix is symmetric
-
 
 		# Build views
 
@@ -83,13 +82,13 @@ class Complexation(wholecell.processes.process.Process):
 
 		# Perform the trivial complexation reactions
 
-		trivialReactionCounts = maxReactions * self.reactionUsesMonomersUnqiuely
+		trivialReactionCounts = maxReactions * self.reactionUsesMonomersUniquely
 
 		moleculeCounts += np.dot(self.stoichMatrix, trivialReactionCounts)
 
 		# For the nontrivial reactions, randomly form complexes to completion
 
-		activeReactions = ~self.reactionUsesMonomersUnqiuely
+		activeReactions = ~self.reactionUsesMonomersUniquely
 
 		while activeReactions.any():
 			reactionIndex = self.randomState.choice(np.where(activeReactions)[0])
