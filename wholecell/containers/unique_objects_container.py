@@ -560,6 +560,44 @@ class _UniqueObjectSet(object):
 			)
 
 
+	def attrsAsStructArray(self, *attributes):
+
+		if self._globalIndexes.size == 0:
+			raise UniqueObjectsContainerException("Object set is empty")
+
+		if (self._container._globalReference["_entryState"][self._globalIndexes] == self._container._entryInactive).any():
+			raise UniqueObjectsContainerException("One or more object was deleted from the set")
+
+		# TODO: cache these properties? should be static
+		collectionIndexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
+		objectIndexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
+
+		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+
+		if len(attributes) == 0:
+			attributes = self._container._collections[uniqueColIndexes[0]].dtype.names
+
+		attributes = list(attributes)
+
+		attributeDtypes = [
+			(attribute, self._container._collections[uniqueColIndexes[0]].dtype[attribute])
+			for attribute in attributes
+			]
+
+		values = np.zeros(
+			self._globalIndexes.size,
+			dtype = attributeDtypes
+			)
+
+		for i, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = objectIndexes[globalObjIndexes]
+			
+			values[globalObjIndexes] = self._container._collections[collectionIndex][attributes][objectIndexesInCollection]
+
+		return values
+
+
 	def attrIs(self, **attributes):
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
