@@ -560,7 +560,7 @@ class _UniqueObjectSet(object):
 			)
 
 
-	def attrsAsStructArray(self, allAttrs = False, *attributes):
+	def attrsAsStructArray(self, *attributes):
 
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
@@ -574,8 +574,7 @@ class _UniqueObjectSet(object):
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
-		if allAttrs:
-			assert len(attributes) == 0
+		if len(attributes) == 0:
 			attributes = self._container._collections[uniqueColIndexes[0]].dtype.names
 
 		attributes = list(attributes)

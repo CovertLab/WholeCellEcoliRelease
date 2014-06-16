@@ -7,6 +7,8 @@ Plot amino acid counts
 @date: Created 5/13/2014
 """
 
+from __future__ import division
+
 import argparse
 import os
 
@@ -18,6 +20,8 @@ from matplotlib import pyplot as plt
 
 import wholecell.utils.constants
 
+from wholecell.containers.unique_molecules_data import bundleByFieldValue
+
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
@@ -27,21 +31,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		os.mkdir(plotOutDir)
 
 	h = tables.open_file(os.path.join(simOutDir, "ReplicationForkPosition.hdf"))
-	fork0position = h.root.ReplicationForkPosition.col('fork0position')
-	fork1position = h.root.ReplicationForkPosition.col('fork1position')
-	h.close()
-
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
-	table = h.root.Mass
-	time = np.array([x["time"] for x in table.iterrows()])
+	data = h.root.ReplicationForkPosition.read()
 	h.close()
 
 	plt.figure(figsize = (8.5, 11))
 
-	plt.plot(time / 60., fork0position, linewidth = 2)
-	plt.plot(time / 60., fork1position, linewidth = 2)
+	legendEntries = []
+
+	for dnaPolyId, dnaPolyHistory in bundleByFieldValue(data, "_uniqueId", ["_time", "chromosomeLocation"]):
+		timeMinutes = dnaPolyHistory["_time"] / 60
+		position = dnaPolyHistory["chromosomeLocation"]
+
+		plt.plot(timeMinutes, position, linewidth = 2)
+
+		legendEntries.append(dnaPolyId)
+
 	plt.xlabel("Time (min)")
 	plt.ylabel("Replication fork position (nt)")
+
+	plt.legend(legendEntries, loc = "best")
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 

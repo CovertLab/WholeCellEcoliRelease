@@ -43,7 +43,11 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 	def update(self):
 		self.dnaPolyData = self.uniqueMolecules.container.objectsInCollection(
-			'activeDnaPolymerase').attrsAsStructArray(allAttrs = True)
+			'activeDnaPolymerase').attrsAsStructArray(
+			"_uniqueId",
+			"_time",
+			"chromosomeLocation"
+			)
 
 
 	def pytablesCreate(self, h5file, expectedRows):

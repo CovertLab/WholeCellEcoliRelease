@@ -139,3 +139,20 @@ class UniqueMoleculesData(object):
 
 	def __exit__(self, *excinfo):
 		self.close()
+
+
+def bundleByFieldValue(structArray, fieldName, outputFields = None):
+	assert outputFields is None or isinstance(outputFields, list) # strict type requirements due to numpy
+	# Collect the unique values for the field
+
+	fieldValues = structArray[fieldName]
+
+	uniqueFieldValues = np.unique(structArray[fieldName])
+
+	# Yield the output
+	for uniqueFieldValue in uniqueFieldValues:
+		entriesForMolecule = (fieldValues == uniqueFieldValue)
+
+		entries = structArray[entriesForMolecule][outputFields]
+
+		yield uniqueFieldValue, entries
