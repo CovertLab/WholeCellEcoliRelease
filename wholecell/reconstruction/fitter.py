@@ -178,6 +178,7 @@ def fitKb(kb):
 
 	### DNA Mass fraction ###
 	dNtpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+	dNmpIds = ["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"]
 	dNtpsView = bulkContainer.countsView(dNtpIds)
 
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
@@ -191,12 +192,15 @@ def fitKb(kb):
 		]))
 
 	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNtpIds]
+	dNmpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNmpIds]
 
-	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs].sum(1)
+
+	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs].sum(axis = 1)
+	dNmpMws = kb.bulkMolecules["mass"][dNmpIdxs].sum(axis = 1)
 
 	nDNtps = countsFromMassAndExpression(
 		dnaMass.to('DCW_g').magnitude,
-		dNtpMws.to('g/mol').magnitude,
+		dNmpMws.to('g/mol').magnitude - 17.01,
 		dNtpRelativeAmounts,
 		kb.nAvogadro.to('1/mol').magnitude
 		)
@@ -222,8 +226,7 @@ def fitKb(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = np.sum(kb.rnaData['countsACGU'], axis = 1)
 
-	FUDGE = 2.
-	nRnapsNeeded = FUDGE * np.sum(
+	nRnapsNeeded = np.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
@@ -530,16 +533,27 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 
 def calcChromosomeMass(seq, kb):
 	weights = collections.OrderedDict({
-		"A": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude),
-		"C": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude),
-		"G": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude),
-		"T": float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude),
+		# Handles reverse complement
+		"A": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude) +
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude)
+			),
+		"C": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude) +
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude)
+			),
+		"G": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude) +
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude)
+			),
+		"T": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude) +
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude)
+			),
 		})
-	return sum(weights[x] for x in seq) - (len(seq)) * 17.01
+	return sum(weights[x] for x in seq) - 2 * (len(seq)) * 17.01 # The "2" is because DNA is double stranded (need to account for both)
 
 def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
-	dNtpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-	dNtpsView = bulkContainer.countsView(dNtpIds)
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
