@@ -24,8 +24,6 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		self.positionUnits = 'nt'
-
 		super(ReplicationForkPosition, self).__init__(*args, **kwargs)
 
 
@@ -35,60 +33,38 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 
-		self.states = sim.states
+		self.dnaPolyData = None
+
 
 	# Allocate memory
 	def allocate(self):
 		super(ReplicationForkPosition, self).allocate()
 
-		self.fork0position = None
-		self.fork1position = None
-
-	def _resetPositions(self):
-		self.fork0position = 0
-		self.fork1position = 0
 
 	def update(self):
-		self._resetPositions()
-		self.dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('activeDnaPolymerase')
-
-		for i,polymerase in enumerate(self.dnaPolymerases):
-			if i == 0:
-				self.fork0position = polymerase.attr('chromosomeLocation')
-			elif i == 1:
-				self.fork1position = polymerase.attr('chromosomeLocation')
-			else:
-				raise Exception, 'This class is a hack and you have exposed it!\n'
+		self.dnaPolyData = self.uniqueMolecules.container.objectsInCollection(
+			'activeDnaPolymerase').attrsAsStructArray(allAttrs = True)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
 		# Columns
-		d = {
-			"fork0position": tables.Int64Col(),
-			"fork1position": tables.Int64Col(),
-			}
+		dtype = self.dnaPolyData.dtype
 
 		# Create table
 		# TODO: Add compression options (using filters)
-		t = h5file.create_table(
+		table = h5file.create_table(
 			h5file.root,
 			self._name,
-			d,
+			dtype,
 			title = self._name,
 			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+			# expectedrows = expectedRows
 			)
 
-		# Store units as metadata
-		t.attrs.position_units = self.positionUnits
 
 	def pytablesAppend(self, h5file):
-		t = h5file.get_node("/", self._name)
-		entry = t.row
+		table = h5file.get_node("/", self._name)
+		
+		table.append(self.dnaPolyData)
 
-		entry["fork0position"] = self.fork0position
-		entry["fork1position"] = self.fork1position
-
-		entry.append()
-
-		t.flush()
+		table.flush()
