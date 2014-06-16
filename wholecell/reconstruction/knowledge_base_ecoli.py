@@ -1463,10 +1463,14 @@ class KnowledgeBaseEcoli(object):
 				'proteinIndex' : 'i8',
 				'peptideLength': 'i8'
 				},
-			'activeDnaPolymerase' : {
+			'dnaPolymerase' : {
 				'chromosomeLocation' : 'i8',
 				'directionIsPositive' : 'bool'
-				}
+				},
+			'replicationFork' : {
+				'chromosomeLocation' : 'i8',
+				'directionIsPositive' : 'bool'
+				},
 			}
 
 		rnaPolyComplexSubunits = [
@@ -1516,7 +1520,13 @@ class KnowledgeBaseEcoli(object):
 			0
 			)
 		self.uniqueMoleculeMasses[2] = (
-			'activeDnaPolymerase',
+			'dnaPolymerase',
+			0,
+			0,
+			0
+			)
+		self.uniqueMoleculeMasses[3] = (
+			'replicationFork',
 			0,
 			0,
 			0
