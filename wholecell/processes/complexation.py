@@ -142,3 +142,14 @@ def formComplexes(moleculeCounts, stoichiometry, randomState): # NOTE: will need
 
 	return moleculeCountsOut
 
+"""
+Monte Carlo complexation function
+
+Calculate what reactions are possible (-> boolean vector)
+(heuristic: only update reactions that changed in the last step)
+Select a random reaction and perform it (-> gillespie-style sampling)
+(heuristic: keep selecting reactions until one is no longer possible)
+Repeat until no more reactions are possible
+
+"""
+
