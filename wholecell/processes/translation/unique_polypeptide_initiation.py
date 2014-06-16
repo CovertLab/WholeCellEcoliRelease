@@ -78,6 +78,9 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 			self.rRna5S.counts().sum()
 			])
 
+		if inactiveRibosomeCount == 0:
+			return
+
 		proteinInitProb = (
 			self.mRnas.counts() /
 			self.mRnas.counts().sum()

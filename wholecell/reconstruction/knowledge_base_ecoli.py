@@ -1854,7 +1854,22 @@ class KnowledgeBaseEcoli(object):
 			assert reaction["dir"] == 1
 
 			for molecule in reaction["stoichiometry"]:
-				moleculeName = molecule["molecule"]
+				if molecule["type"] == "metabolite":
+					moleculeName = "{}[{}]".format(
+						molecule["molecule"].upper(), # this is stupid
+						molecule["location"]
+						)
+
+				else:
+					moleculeName = "{}[{}]".format(
+						molecule["molecule"],
+						molecule["location"]
+						)
+
+
+				warnings.warn("Hack that I need to remove w/ Nick's help")
+				if moleculeName == "modified-charged-selC-tRNA[c]":
+					continue
 
 				if moleculeName not in molecules:
 					molecules.append(moleculeName)

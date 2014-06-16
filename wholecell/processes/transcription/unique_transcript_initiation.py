@@ -63,6 +63,9 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		inactiveRnaPolyCount = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
 
+		if inactiveRnaPolyCount == 0:
+			return
+
 		nNewRnas = self.randomState.multinomial(inactiveRnaPolyCount,
 			self.rnaSynthProb)
 

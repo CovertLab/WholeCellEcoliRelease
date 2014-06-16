@@ -41,33 +41,31 @@ class Complexation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Complexation, self).initialize(sim, kb)
 
-		self.nSubunits = kb.complexationMatrix.shape[0]
-		self.nComplexes = kb.complexationMatrix.shape[1]
+		# Create matrices and vectors
 
-		self.nMolecules = self.nSubunits + self.nComplexes
-		self.nFluxes = self.nSubunits + 2 * self.nComplexes
+		self.stoichMatrix = kb.complexationStoichMatrix()# .astype(np.int64)
+		self.compositionMatrix = np.ma.masked_array(
+			(-self.stoichMatrix) * (self.stoichMatrix < 0),
+			(self.stoichMatrix >= 0)
+			)
+		# self.productMatrix = (self.stoichMatrix ) * (self.stoichMatrix  > 0)
 
-		self.complexationStoichMatrix = np.zeros((self.nMolecules, self.nFluxes), np.float)
+		# Find all reactions that are unique; i.e., orthogonal to all other
+		# composition vectors
+		self.reactionUsesMonomersUnqiuely = ~(
+			np.dot(self.compositionMatrix.T, self.compositionMatrix)
+			* ~np.identity(self.compositionMatrix.shape[1], np.bool)
+			).any(0).data # here axis 0 or 1 is valid since the matrix is symmetric
 
-		self.complexationStoichMatrix[:self.nSubunits, :self.nSubunits] = np.identity(self.nSubunits)
-		self.complexationStoichMatrix[:self.nSubunits, self.nSubunits:self.nSubunits + self.nComplexes] = -kb.complexationMatrix
-		self.complexationStoichMatrix[self.nSubunits:self.nSubunits + self.nComplexes, self.nSubunits:self.nSubunits + self.nComplexes] = np.identity(self.nComplexes)
-		self.complexationStoichMatrix[-self.nComplexes:, -self.nComplexes:] = -np.identity(self.nComplexes)
 
-		self.baseObjective = np.hstack([np.zeros(self.nSubunits + self.nComplexes), -np.ones(self.nComplexes)])
+		# Build views
 
-		self.ilpb = matrix(np.zeros(self.nMolecules))
+		moleculeNames = kb.complexationMoleculeNames
+		subunitNames = kb.complexationSubunitNames
+		# complexNames = kb.complexationComplexNames
 
-		self.ilpG = sparse(matrix(np.vstack([
-			np.identity(self.nFluxes),
-			-np.identity(self.nFluxes)
-			])))
-
-		self.ilpI = set(range(self.nMolecules))
-
-		self.subunits = self.bulkMoleculesView(kb.complexationMatrixSubunitIds)
-
-		self.complexes = self.bulkMoleculesView(kb.complexationMatrixComplexIds)
+		self.molecules = self.bulkMoleculesView(moleculeNames)
+		self.subunits = self.bulkMoleculesView(subunitNames)
 
 
 	def calculateRequest(self):
@@ -75,42 +73,73 @@ class Complexation(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
-		while True:
-			objective = matrix(self.baseObjective) # TODO: add noise
+		moleculeCounts = self.molecules.counts().astype(np.float64) # works with floats to use BLAS
 
-			lb = np.zeros(self.nFluxes)
+		# Compute the max number of reactions
 
-			subunitCounts = self.subunits.counts()
+		# olderr = np.seterr(divide = "ignore", invalid = "ignore")
+		maxReactions = (moleculeCounts // self.compositionMatrix.T).min(1).data
+		# np.seterr(olderr)
 
-			maxPossibleComplexes = subunitCounts.max()
+		# Perform the trivial complexation reactions
 
-			ub = maxPossibleComplexes * np.ones(self.nFluxes)
+		trivialReactionCounts = maxReactions * self.reactionUsesMonomersUnqiuely
 
-			ub[:self.nSubunits] = subunitCounts
+		moleculeCounts += np.dot(self.stoichMatrix, trivialReactionCounts)
 
-			h = matrix(np.hstack([ub, -lb]))
+		# For the nontrivial reactions, randomly form complexes to completion
 
-			A = sparse(matrix(self.complexationStoichMatrix))
+		activeReactions = ~self.reactionUsesMonomersUnqiuely
 
-			# Supress output
-			glpk.options["LPX_K_MSGLEV"] = 0
+		while activeReactions.any():
+			reactionIndex = self.randomState.choice(np.where(activeReactions)[0])
 
-			solution = glpk.ilp(
-				objective,
-				self.ilpG, h,
-				A, self.ilpb,
-				self.ilpI
-				)
+			reactionStoich = self.stoichMatrix[:, reactionIndex]
 
-			assert solution is not None, "Failed to find an optimal solution"
+			if (-reactionStoich <= moleculeCounts).all():
+				moleculeCounts += reactionStoich
+				# print "performed {}".format(reactionIndex)
 
-			fluxes = np.array(solution[1]).flatten()
+			else:
+				activeReactions[reactionIndex] = False
+				# print "culled {}".format(reactionIndex)
 
-			subunitsUsed = fluxes[:self.nSubunits].astype(np.int)
-			complexesMade = fluxes[-self.nComplexes:].astype(np.int)
+		# formComplexes(moleculeCounts, self.stoichMatrix, self.randomState)
 
-			self.subunits.countsDec(subunitsUsed)
-			self.complexes.countsInc(complexesMade)
+		self.molecules.countsIs(moleculeCounts)
 
-			if not EVALUATE_TO_COMPLETION or not fluxes.any():
+
+MAX_ITERATIONS = 10**9
+def formComplexes(moleculeCounts, stoichiometry, randomState): # NOTE: will need to pass a seed and use a library
+	moleculeCountsOut = moleculeCounts.copy()
+
+	nReactions = stoichiometry.shape[1]
+
+	reactionIsActive = np.ones(nReactions, np.bool) # NOTE: may need to be int-typed
+	reactionCumSum = reactionIsActive.cumsum() # NOTE: may need to be explicit
+
+	for i in xrange(MAX_ITERATIONS):
+		value = randomState.rand() * reactionCumSum[-1]
+
+		for reactionIndex in xrange(nReactions):
+			if value <= reactionCumSum[reactionIndex]:
 				break
+
+		else: # NOTE: for-else probably not supported by cython
+			raise Exception("Should have broken out of this for-loop")
+
+		reactionStoich = stoichiometry[:, reactionIndex] # NOTE: matrix ordering is bad
+
+		if (-reactionStoich <= moleculeCountsOut).all(): # NOTE: may need to be explicit
+			moleculeCountsOut += reactionStoich # NOTE: may need to be explicit
+
+		else:
+			reactionIsActive[reactionIndex] = False
+
+			if not reactionIsActive.any(): # NOTE: may need to be explicit
+				break
+
+			reactionCumSum = reactionIsActive.cumsum() # NOTE: may need to be explicit
+
+	return moleculeCountsOut
+
