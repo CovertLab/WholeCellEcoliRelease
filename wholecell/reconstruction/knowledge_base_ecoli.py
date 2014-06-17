@@ -1851,7 +1851,10 @@ class KnowledgeBaseEcoli(object):
 			"RNAPS-CPLX",
 			"RNAP32-CPLX",
 			"RNAP54-CPLX",
-			"RNAP70-CPLX"
+			"RNAP70-CPLX",
+			"RRLA-RRNA",
+			"RRSA-RRNA",
+			"RRFA-RRNA"
 			}
 
 		deleteReactions = []
