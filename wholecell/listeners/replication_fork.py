@@ -43,10 +43,11 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 	def update(self):
 		self.dnaPolyData = self.uniqueMolecules.container.objectsInCollection(
-			'activeDnaPolymerase').attrsAsStructArray(
+			'dnaPolymerase').attrsAsStructArray(
 			"_uniqueId",
 			"_time",
-			"chromosomeLocation"
+			"chromosomeLocation",
+			"isLeading"
 			)
 
 

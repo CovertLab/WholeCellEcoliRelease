@@ -33,7 +33,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	h = tables.open_file(os.path.join(simOutDir, "ReplicationForkPosition.hdf"))
 	data = h.root.ReplicationForkPosition.read()
 	h.close()
-
+	plt.xkcd()
 	plt.figure(figsize = (8.5, 11))
 
 	legendEntries = []

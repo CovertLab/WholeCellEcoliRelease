@@ -1468,10 +1468,6 @@ class KnowledgeBaseEcoli(object):
 				'directionIsPositive' : 'bool',
 				'isLeading' : 'bool'
 				},
-			'replicationFork' : {
-				'chromosomeLocation' : 'i8',
-				'directionIsPositive' : 'bool'
-				},
 			}
 
 		rnaPolyComplexSubunits = [
@@ -1522,12 +1518,6 @@ class KnowledgeBaseEcoli(object):
 			)
 		self.uniqueMoleculeMasses[2] = (
 			'dnaPolymerase',
-			0,
-			0,
-			0
-			)
-		self.uniqueMoleculeMasses[3] = (
-			'replicationFork',
 			0,
 			0,
 			0

@@ -14,12 +14,19 @@ Replication
 from __future__ import division
 
 import numpy as np
+import Bio.Seq
 
 import wholecell.processes.process
 import wholecell.utils.polymerize_matrix
 
 _NT_ORDER = ['A','T','G','C']
 _BASE_PAD_VALUE = ' '
+_REV_COMP = {
+			'A' : 'T',
+			'G' : 'C',
+			'T' : 'A',
+			'C' : 'G'
+			}
 
 class Replication(wholecell.processes.process.Process):
 	""" Replication """
@@ -68,7 +75,7 @@ class Replication(wholecell.processes.process.Process):
 		
 		self.genes = self.bulkChromosomesView(geneIds)
 
-		self.dnaPolymerase = self.uniqueMoleculesView('activeDnaPolymerase')
+		self.dnaPolymerase = self.uniqueMoleculesView('dnaPolymerase')
 
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
@@ -135,13 +142,19 @@ class Replication(wholecell.processes.process.Process):
 
 	def calculateUpcomingSequence(self, dnaPolymerase):
 		'''Wraps actual sequence calculation'''
-		return calculateSequence(
-			dnaPolymerase.attr('chromosomeLocation'),
-			dnaPolymerase.attr('directionIsPositive'),
-			self.dnaPolymeraseElongationRate,
-			self.sequence,
-			self.genomeLength
-			)
+
+		leadingSequence = calculateSequence(
+				dnaPolymerase.attr('chromosomeLocation'),
+				dnaPolymerase.attr('directionIsPositive'),
+				self.dnaPolymeraseElongationRate,
+				self.sequence,
+				self.genomeLength
+				)
+
+		if dnaPolymerase.attr('isLeading'):
+			return leadingSequence
+		elif not dnaPolymerase.attr('isLeading'):
+			return reverseComplement(leadingSequence)
 
 	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
 		''' Wraps actual update calculation'''
@@ -205,3 +218,6 @@ def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, s
 		]
 
 	# TODO: Check for hitting the end of the chromosome!
+
+def reverseComplement(sequenceArray):
+	return np.array([_REV_COMP[x] for x in sequenceArray])
