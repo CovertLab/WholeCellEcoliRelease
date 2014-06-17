@@ -15,16 +15,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-
-from cvxopt import glpk
-from cvxopt import matrix, sparse
-
-EVALUATE_TO_COMPLETION = False # If true, will form as many complexes as possible
-
-# TODO: evaluate mass balance
-# TODO: speed up by using only the needed portion of the stoich matrix
-# TODO: spedd up by performing basic heuristics (only optimizing where the 
-# problem isn't degenerate)
+from wholecell.utils.mc_complexation import monteCarloComplexation
 
 class Complexation(wholecell.processes.process.Process):
 	""" Complexation """
@@ -43,19 +34,7 @@ class Complexation(wholecell.processes.process.Process):
 
 		# Create matrices and vectors
 
-		self.stoichMatrix = kb.complexationStoichMatrix()# .astype(np.int64)
-		self.compositionMatrix = np.ma.masked_array(
-			(-self.stoichMatrix) * (self.stoichMatrix < 0),
-			(self.stoichMatrix >= 0)
-			)
-		# self.productMatrix = (self.stoichMatrix ) * (self.stoichMatrix  > 0)
-
-		# Find all reactions that are unique; i.e., orthogonal to all other
-		# composition vectors
-		self.reactionUsesMonomersUniquely = ~(
-			np.dot(self.compositionMatrix.T, self.compositionMatrix)
-			* ~np.identity(self.compositionMatrix.shape[1], np.bool)
-			).any(0).data # here axis 0 or 1 is valid since the matrix is symmetric
+		self.stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
 
 		# Build views
 
@@ -66,90 +45,20 @@ class Complexation(wholecell.processes.process.Process):
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 		self.subunits = self.bulkMoleculesView(subunitNames)
 
+		self.moleculeNames = moleculeNames
+
 
 	def calculateRequest(self):
 		self.subunits.requestAll()
 
 
 	def evolveState(self):
-		moleculeCounts = self.molecules.counts().astype(np.float64) # works with floats to use BLAS
+		moleculeCounts = self.molecules.counts()
 
-		# Compute the max number of reactions
+		updatedMoleculeCounts = monteCarloComplexation(
+			moleculeCounts,
+			self.stoichMatrix,
+			self.seed
+			)
 
-		# olderr = np.seterr(divide = "ignore", invalid = "ignore")
-		maxReactions = (moleculeCounts // self.compositionMatrix.T).min(1).data
-		# np.seterr(olderr)
-
-		# Perform the trivial complexation reactions
-
-		trivialReactionCounts = maxReactions * self.reactionUsesMonomersUniquely
-
-		moleculeCounts += np.dot(self.stoichMatrix, trivialReactionCounts)
-
-		# For the nontrivial reactions, randomly form complexes to completion
-
-		activeReactions = ~self.reactionUsesMonomersUniquely
-
-		while activeReactions.any():
-			reactionIndex = self.randomState.choice(np.where(activeReactions)[0])
-
-			reactionStoich = self.stoichMatrix[:, reactionIndex]
-
-			if (-reactionStoich <= moleculeCounts).all():
-				moleculeCounts += reactionStoich
-				# print "performed {}".format(reactionIndex)
-
-			else:
-				activeReactions[reactionIndex] = False
-				# print "culled {}".format(reactionIndex)
-
-		# formComplexes(moleculeCounts, self.stoichMatrix, self.randomState)
-
-		self.molecules.countsIs(moleculeCounts)
-
-
-MAX_ITERATIONS = 10**9
-def formComplexes(moleculeCounts, stoichiometry, randomState): # NOTE: will need to pass a seed and use a library
-	moleculeCountsOut = moleculeCounts.copy()
-
-	nReactions = stoichiometry.shape[1]
-
-	reactionIsActive = np.ones(nReactions, np.bool) # NOTE: may need to be int-typed
-	reactionCumSum = reactionIsActive.cumsum() # NOTE: may need to be explicit
-
-	for i in xrange(MAX_ITERATIONS):
-		value = randomState.rand() * reactionCumSum[-1]
-
-		for reactionIndex in xrange(nReactions):
-			if value <= reactionCumSum[reactionIndex]:
-				break
-
-		else: # NOTE: for-else probably not supported by cython
-			raise Exception("Should have broken out of this for-loop")
-
-		reactionStoich = stoichiometry[:, reactionIndex] # NOTE: matrix ordering is bad
-
-		if (-reactionStoich <= moleculeCountsOut).all(): # NOTE: may need to be explicit
-			moleculeCountsOut += reactionStoich # NOTE: may need to be explicit
-
-		else:
-			reactionIsActive[reactionIndex] = False
-
-			if not reactionIsActive.any(): # NOTE: may need to be explicit
-				break
-
-			reactionCumSum = reactionIsActive.cumsum() # NOTE: may need to be explicit
-
-	return moleculeCountsOut
-
-"""
-Monte Carlo complexation function
-
-Calculate what reactions are possible (-> boolean vector)
-(heuristic: only update reactions that changed in the last step)
-Select a random reaction and perform it (-> gillespie-style sampling)
-(heuristic: keep selecting reactions until one is no longer possible)
-Repeat until no more reactions are possible
-
-"""
-
+		self.molecules.countsIs(updatedMoleculeCounts)

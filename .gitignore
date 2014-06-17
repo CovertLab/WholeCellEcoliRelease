@@ -45,6 +45,7 @@ user/*
 # Cython C source #
 ###################
 /wholecell/utils/_build_sequences.c
+/wholecell/utils/mc_complexation.c
 
 # kernprof.py output #
 ######################
