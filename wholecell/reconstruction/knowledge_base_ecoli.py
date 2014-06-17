@@ -1849,6 +1849,20 @@ class KnowledgeBaseEcoli(object):
 		stoichMatrixJ = []
 		stoichMatrixV = []
 
+		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
+		deleteReactions = []
+		for reactionIndex, reaction in enumerate(self._complexationReactions):
+			for molecule in reaction["stoichiometry"]:
+				if molecule["molecule"] == "modified-charged-selC-tRNA":
+					deleteReactions.append(reactionIndex)
+					warnings.warn("Hack that I need to remove w/ Nick's help")
+					break
+
+		for reactionIndex in deleteReactions[::-1]:
+			del self._complexationReactions[reactionIndex]
+
+		#######################################
+
 		for reactionIndex, reaction in enumerate(self._complexationReactions):
 			assert reaction["process"] == "complexation"
 			assert reaction["dir"] == 1
@@ -1865,11 +1879,6 @@ class KnowledgeBaseEcoli(object):
 						molecule["molecule"],
 						molecule["location"]
 						)
-
-
-				warnings.warn("Hack that I need to remove w/ Nick's help")
-				if moleculeName == "modified-charged-selC-tRNA[c]":
-					continue
 
 				if moleculeName not in molecules:
 					molecules.append(moleculeName)

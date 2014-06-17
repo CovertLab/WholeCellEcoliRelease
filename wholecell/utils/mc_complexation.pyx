@@ -22,11 +22,6 @@ cimport cython
 cdef np.int64_t MAX_ITERATIONS = 10**9
 cdef np.int64_t NO_MORE_ENTRIES = -1
 
-# needed for iteration:
-# stoichiometricMatrix, nReactions
-# maxSubunitTypes, subunitIndexes
-# maxReactionOverlap, overlappingReactions
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -38,25 +33,23 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 	cdef int nReactions = stoichiometricMatrix.shape[1]
 
 	# Collect subunit information
-	cdef np.ndarray[np.int64_t, ndim=2] usesSubunit = (stoichiometricMatrix < 0).astype(np.int64)
-	cdef int maxSubunitTypes = np.max(np.sum(usesSubunit, 0))
+	cdef np.ndarray[np.int64_t, ndim=2] usesMolecule = (stoichiometricMatrix != 0).astype(np.int64)
+	cdef int maxMoleculeTypes = np.max(np.sum(usesMolecule, 0))
 
-	cdef np.ndarray[np.int64_t, ndim=2] subunitIndexes = np.empty((nReactions, maxSubunitTypes), np.int64)
-	subunitIndexes.fill(NO_MORE_ENTRIES)
+	cdef np.ndarray[np.int64_t, ndim=2] moleculeIndexes = np.empty((nReactions, maxMoleculeTypes), np.int64)
+	moleculeIndexes.fill(NO_MORE_ENTRIES)
 
 	cdef int reactionIndex, moleculeIndex, nSubunits
 
 	for reactionIndex in range(nReactions):
 		nSubunits = 0
 		for moleculeIndex in range(nMolecules):
-			if usesSubunit[moleculeIndex, reactionIndex]:
-				subunitIndexes[reactionIndex, nSubunits] = moleculeIndex
+			if usesMolecule[moleculeIndex, reactionIndex]:
+				moleculeIndexes[reactionIndex, nSubunits] = moleculeIndex
 				nSubunits = nSubunits + 1
 
 	# Find which reactions overlap in molecule usage/production
-
-	cdef np.ndarray[np.int64_t, ndim=2] usesMolecule = (stoichiometricMatrix != 0).astype(np.int64)
-	cdef int maxReactionOverlap = np.max(np.sum(usesMolecule, 0))
+	cdef int maxReactionOverlap = np.max(np.sum(usesMolecule, 1))
 
 	cdef np.ndarray[np.int64_t, ndim=2] overlappingReactions = np.empty((nReactions, maxReactionOverlap), np.int64)
 	overlappingReactions.fill(NO_MORE_ENTRIES)
@@ -68,8 +61,8 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 		nOverlaps = 0
 		for reactionIndex2 in range(nReactions):
 			doesOverlap = 0
-			for subunitIndex in range(maxSubunitTypes):
-				moleculeIndex = subunitIndexes[reactionIndex, subunitIndex]
+			for subunitIndex in range(maxMoleculeTypes):
+				moleculeIndex = moleculeIndexes[reactionIndex, subunitIndex]
 
 				if moleculeIndex == NO_MORE_ENTRIES:
 					break
@@ -82,7 +75,7 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 				overlappingReactions[reactionIndex, nOverlaps] = reactionIndex2
 				nOverlaps = nOverlaps + 1
 
-	return (subunitIndexes, overlappingReactions)
+	return (moleculeIndexes, overlappingReactions)
 
 
 @cython.boundscheck(False)
@@ -93,7 +86,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 		np.ndarray[np.int64_t, ndim=1] moleculeCounts,
 		int seed,
 		np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix,
-		np.ndarray[np.int64_t, ndim=2] subunitIndexes,
+		np.ndarray[np.int64_t, ndim=2] moleculeIndexes,
 		np.ndarray[np.int64_t, ndim=2] overlappingReactions,
 		):
 
@@ -105,7 +98,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 
 	# Collect matrix size information
 	cdef int nReactions = stoichiometricMatrix.shape[1]
-	cdef int maxSubunitTypes = subunitIndexes.shape[1]
+	cdef int maxMoleculeTypes = moleculeIndexes.shape[1]
 	cdef int maxReactionOverlap = overlappingReactions.shape[1]
 
 	# Create vectors for choosing reactions
@@ -118,8 +111,8 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 
 	for reactionIndex in range(nReactions):
 		reactionPossible = 1
-		for subunitIndex in range(maxSubunitTypes):
-			moleculeIndex = subunitIndexes[reactionIndex, subunitIndex]
+		for subunitIndex in range(maxMoleculeTypes):
+			moleculeIndex = moleculeIndexes[reactionIndex, subunitIndex]
 
 			if moleculeIndex == NO_MORE_ENTRIES:
 				break
@@ -162,8 +155,8 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 				break
 
 		# Perform the reaction
-		for subunitIndex in range(maxSubunitTypes):
-			moleculeIndex = subunitIndexes[reactionIndex, subunitIndex]
+		for subunitIndex in range(maxMoleculeTypes):
+			moleculeIndex = moleculeIndexes[reactionIndex, subunitIndex]
 
 			if moleculeIndex == NO_MORE_ENTRIES:
 				break
@@ -181,8 +174,8 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 				break
 
 			reactionPossible = 1
-			for subunitIndex in range(maxSubunitTypes):
-				moleculeIndex = subunitIndexes[reactionIndex2, subunitIndex]
+			for subunitIndex in range(maxMoleculeTypes):
+				moleculeIndex = moleculeIndexes[reactionIndex2, subunitIndex]
 
 				if moleculeIndex == NO_MORE_ENTRIES:
 					break
@@ -206,16 +199,16 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexes(
 		int seed,
 		):
 
-	cdef np.ndarray[np.int64_t, ndim=2] subunitIndexes, overlappingReactions
+	cdef np.ndarray[np.int64_t, ndim=2] moleculeIndexes, overlappingReactions
 	cdef np.ndarray[np.int64_t, ndim=1] updatedMoleculeCounts
 
-	subunitIndexes, overlappingReactions = mccBuildMatrices(stoichiometricMatrix)
+	moleculeIndexes, overlappingReactions = mccBuildMatrices(stoichiometricMatrix)
 
 	updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 		moleculeCounts,
 		seed,
 		stoichiometricMatrix,
-		subunitIndexes,
+		moleculeIndexes,
 		overlappingReactions
 		)
 

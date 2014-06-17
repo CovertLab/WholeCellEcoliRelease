@@ -36,7 +36,7 @@ class Complexation(wholecell.processes.process.Process):
 
 		self.stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
 
-		self.otherMatrices = mccBuildMatrices(self.stoichMatrix)
+		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
 		# Build views
 
@@ -52,7 +52,7 @@ class Complexation(wholecell.processes.process.Process):
 			moleculeCounts,
 			self.seed,
 			self.stoichMatrix,
-			*self.otherMatrices
+			*self.prebuiltMatrices
 			)
 
 		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
@@ -65,7 +65,7 @@ class Complexation(wholecell.processes.process.Process):
 			moleculeCounts,
 			self.seed,
 			self.stoichMatrix,
-			*self.otherMatrices
+			*self.prebuiltMatrices
 			)
 
 		self.molecules.countsIs(updatedMoleculeCounts)
