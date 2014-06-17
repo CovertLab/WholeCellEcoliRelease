@@ -41,16 +41,22 @@ class Complexation(wholecell.processes.process.Process):
 		# Build views
 
 		moleculeNames = kb.complexationMoleculeNames
-		subunitNames = kb.complexationSubunitNames
-		# complexNames = kb.complexationComplexNames
 
 		self.molecules = self.bulkMoleculesView(moleculeNames)
-		self.subunits = self.bulkMoleculesView(subunitNames)
 
 
 	def calculateRequest(self):
-		self.subunits.requestAll()
+		moleculeCounts = self.molecules.total()
 
+		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			moleculeCounts,
+			self.seed,
+			self.stoichMatrix,
+			*self.otherMatrices
+			)
+
+		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
+		
 
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
