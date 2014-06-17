@@ -1469,13 +1469,6 @@ class KnowledgeBaseEcoli(object):
 				}
 			}
 
-		rnaPolyComplexSubunits = [
-			"EG10893-MONOMER",
-			"RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
-			]
-
-		rnaPolyComplexStoich = [2, 1, 1, 1]
-
 		rnaPolyComplexMass = (
 			self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].to("fg/mole")
 			/ self._constantData["nAvogadro"]
