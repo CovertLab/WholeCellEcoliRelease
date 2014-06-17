@@ -318,12 +318,9 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 	"""
 	# Calculate the number of possible RNAPs
 
-	subunits = bulkContainer.countsView(["EG10893-MONOMER[c]",
-		"RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
+	inactiveRnap = bulkContainer.countView("APORNAP-CPLX[c]")
 
-	subunitStoich = np.array([2, 1, 1, 1])
-
-	activeRnapMax = (subunits.counts() // subunitStoich).min()
+	activeRnapMax = inactiveRnap.count()
 
 	if activeRnapMax == 0:
 		return
@@ -354,7 +351,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 
 	# Reduce the number of RNAP subunits
 
-	subunits.countsDec(activeRnapCount * subunitStoich)
+	inactiveRnap.countDec(activeRnapCount)
 
 	# Create the lists of RNA indexes
 

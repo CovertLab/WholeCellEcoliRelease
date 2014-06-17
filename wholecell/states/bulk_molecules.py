@@ -329,7 +329,7 @@ class BulkMoleculeView(BulkMoleculesViewBase):
 
 
 	def count(self):
-		return self._counts()
+		return self._counts()[0]
 
 
 	def mass(self):

@@ -1476,11 +1476,10 @@ class KnowledgeBaseEcoli(object):
 
 		rnaPolyComplexStoich = [2, 1, 1, 1]
 
-		rnaPolyComplexMass = sum(
-			protein['mw'] * rnaPolyComplexStoich[rnaPolyComplexSubunits.index(protein["id"])]
-			for protein in self._proteins
-			if protein['id'] in rnaPolyComplexSubunits
-			)
+		rnaPolyComplexMass = (
+			self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].to("fg/mole")
+			/ self._constantData["nAvogadro"]
+			).sum().magnitude
 
 		# TODO: This is a bad hack that works because in the fitter
 		# I have forced expression to be these subunits only
@@ -1507,7 +1506,7 @@ class KnowledgeBaseEcoli(object):
 			'activeRnaPoly',
 			0,
 			0,
-			rnaPolyComplexMass * G_PER_MOL_TO_FG_PER_MOLECULE
+			rnaPolyComplexMass
 			)
 		self.uniqueMoleculeMasses[1] = (
 			'activeRibosome',
@@ -1850,10 +1849,21 @@ class KnowledgeBaseEcoli(object):
 		stoichMatrixV = []
 
 		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
+		FORBIDDEN_MOLECULES = {
+			"modified-charged-selC-tRNA",
+			"RNAPE-CPLX",
+			"CPLX0-221",
+			"CPLX0-222",
+			"RNAPS-CPLX",
+			"RNAP32-CPLX",
+			"RNAP54-CPLX",
+			"RNAP70-CPLX"
+			}
+
 		deleteReactions = []
 		for reactionIndex, reaction in enumerate(self._complexationReactions):
 			for molecule in reaction["stoichiometry"]:
-				if molecule["molecule"] == "modified-charged-selC-tRNA":
+				if molecule["molecule"] in FORBIDDEN_MOLECULES:
 					deleteReactions.append(reactionIndex)
 					warnings.warn("Hack that I need to remove w/ Nick's help")
 					break
