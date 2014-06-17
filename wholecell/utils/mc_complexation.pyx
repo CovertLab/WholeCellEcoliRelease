@@ -19,33 +19,27 @@ np.import_array()
 
 cimport cython
 
-cdef np.int64_t DEFAULT_MAX_ITERATIONS = 10**9
+cdef np.int64_t MAX_ITERATIONS = 10**9
 cdef np.int64_t NO_MORE_ENTRIES = -1
+
+# needed for iteration:
+# stoichiometricMatrix, nReactions
+# maxSubunitTypes, subunitIndexes
+# maxReactionOverlap, overlappingReactions
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cpdef np.ndarray[np.int64_t, ndim=1] monteCarloComplexation(
-		np.ndarray[np.int64_t, ndim=1] moleculeCounts,
-		np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix,
-		int seed,
-		np.int64_t maxIterations = DEFAULT_MAX_ITERATIONS,
-		):
-
-	# Set the seed
-	srand(seed)
-	
-	# Copy the molecule counts into a new vector for return
-	cdef np.ndarray[np.int64_t, ndim=1] updatedMoleculeCounts = moleculeCounts.copy()
+cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 
 	# Collect matrix size information
-	cdef np.int64_t nMolecules = stoichiometricMatrix.shape[0]
-	cdef np.int64_t nReactions = stoichiometricMatrix.shape[1]
+	cdef int nMolecules = stoichiometricMatrix.shape[0]
+	cdef int nReactions = stoichiometricMatrix.shape[1]
 
 	# Collect subunit information
 	cdef np.ndarray[np.int64_t, ndim=2] usesSubunit = (stoichiometricMatrix < 0).astype(np.int64)
-	cdef np.int64_t maxSubunitTypes = np.max(np.sum(usesSubunit, 0))
+	cdef int maxSubunitTypes = np.max(np.sum(usesSubunit, 0))
 
 	cdef np.ndarray[np.int64_t, ndim=2] subunitIndexes = np.empty((nReactions, maxSubunitTypes), np.int64)
 	subunitIndexes.fill(NO_MORE_ENTRIES)
@@ -59,12 +53,10 @@ cpdef np.ndarray[np.int64_t, ndim=1] monteCarloComplexation(
 				subunitIndexes[reactionIndex, nSubunits] = moleculeIndex
 				nSubunits = nSubunits + 1
 
-	del usesSubunit
-
 	# Find which reactions overlap in molecule usage/production
 
 	cdef np.ndarray[np.int64_t, ndim=2] usesMolecule = (stoichiometricMatrix != 0).astype(np.int64)
-	cdef np.int64_t maxReactionOverlap = np.max(np.sum(usesMolecule, 0))
+	cdef int maxReactionOverlap = np.max(np.sum(usesMolecule, 0))
 
 	cdef np.ndarray[np.int64_t, ndim=2] overlappingReactions = np.empty((nReactions, maxReactionOverlap), np.int64)
 	overlappingReactions.fill(NO_MORE_ENTRIES)
@@ -90,16 +82,39 @@ cpdef np.ndarray[np.int64_t, ndim=1] monteCarloComplexation(
 				overlappingReactions[reactionIndex, nOverlaps] = reactionIndex2
 				nOverlaps = nOverlaps + 1
 
-				assert nOverlaps < maxReactionOverlap
+	return (subunitIndexes, overlappingReactions)
 
-	del usesMolecule
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
+		np.ndarray[np.int64_t, ndim=1] moleculeCounts,
+		int seed,
+		np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix,
+		np.ndarray[np.int64_t, ndim=2] subunitIndexes,
+		np.ndarray[np.int64_t, ndim=2] overlappingReactions,
+		):
+
+	# Set the seed
+	srand(seed)
+	
+	# Copy the molecule counts into a new vector for return
+	cdef np.ndarray[np.int64_t, ndim=1] updatedMoleculeCounts = moleculeCounts.copy()
+
+	# Collect matrix size information
+	cdef int nReactions = stoichiometricMatrix.shape[1]
+	cdef int maxSubunitTypes = subunitIndexes.shape[1]
+	cdef int maxReactionOverlap = overlappingReactions.shape[1]
 
 	# Create vectors for choosing reactions
 	cdef np.ndarray[np.int64_t, ndim=1] reactionIsPossible = np.empty(nReactions, np.int64)
 	cdef np.ndarray[np.int64_t, ndim=1] reactionCumulative = np.empty_like(reactionIsPossible)
 
 	# Find which reactions are possible
-	cdef int reactionPossible
+	cdef int reactionIndex, subunitIndex, moleculeIndex
+	cdef np.int64_t reactionPossible
 
 	for reactionIndex in range(nReactions):
 		reactionPossible = 1
@@ -117,9 +132,9 @@ cpdef np.ndarray[np.int64_t, ndim=1] monteCarloComplexation(
 
 	# Recursively form complexes
 	cdef np.float64_t random, cutoffValue, maximumValue
-	cdef int iteration, overlapIndex
+	cdef int iteration, overlapIndex, reactionIndex2
 
-	for iteration in range(maxIterations):
+	for iteration in range(MAX_ITERATIONS):
 
 		# Find the total reaction potential
 		for reactionIndex in range(nReactions):
@@ -145,9 +160,6 @@ cpdef np.ndarray[np.int64_t, ndim=1] monteCarloComplexation(
 		for reactionIndex in range(nReactions):
 			if cutoffValue <= reactionCumulative[reactionIndex]:
 				break
-
-		# else:
-		# 	raise Exception("Failed to find a valid reaction - this should never happen")
 
 		# Perform the reaction
 		for subunitIndex in range(maxSubunitTypes):
@@ -181,11 +193,30 @@ cpdef np.ndarray[np.int64_t, ndim=1] monteCarloComplexation(
 
 			reactionIsPossible[reactionIndex2] = reactionPossible
 
-		# if <int>(<float>iteration % 10000.) == 0:
-		# 	print iteration, np.sum(updatedMoleculeCounts), reactionIndex, maximumValue
-		# 	assert (updatedMoleculeCounts >= 0).all()
+	return updatedMoleculeCounts
 
-	# else:
-	# 	raise Exception("Reached maxium iteration limit")
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexes(
+		np.ndarray[np.int64_t, ndim=1] moleculeCounts,
+		np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix,
+		int seed,
+		):
+
+	cdef np.ndarray[np.int64_t, ndim=2] subunitIndexes, overlappingReactions
+	cdef np.ndarray[np.int64_t, ndim=1] updatedMoleculeCounts
+
+	subunitIndexes, overlappingReactions = mccBuildMatrices(stoichiometricMatrix)
+
+	updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		moleculeCounts,
+		seed,
+		stoichiometricMatrix,
+		subunitIndexes,
+		overlappingReactions
+		)
 
 	return updatedMoleculeCounts

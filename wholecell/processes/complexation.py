@@ -15,7 +15,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.mc_complexation import monteCarloComplexation
+from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 class Complexation(wholecell.processes.process.Process):
 	""" Complexation """
@@ -36,6 +36,8 @@ class Complexation(wholecell.processes.process.Process):
 
 		self.stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
 
+		self.otherMatrices = mccBuildMatrices(self.stoichMatrix)
+
 		# Build views
 
 		moleculeNames = kb.complexationMoleculeNames
@@ -45,8 +47,6 @@ class Complexation(wholecell.processes.process.Process):
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 		self.subunits = self.bulkMoleculesView(subunitNames)
 
-		self.moleculeNames = moleculeNames
-
 
 	def calculateRequest(self):
 		self.subunits.requestAll()
@@ -55,10 +55,11 @@ class Complexation(wholecell.processes.process.Process):
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
-		updatedMoleculeCounts = monteCarloComplexation(
+		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
+			self.seed,
 			self.stoichMatrix,
-			self.seed
+			*self.otherMatrices
 			)
 
 		self.molecules.countsIs(updatedMoleculeCounts)
