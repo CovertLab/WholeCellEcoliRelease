@@ -616,8 +616,9 @@ def initializeReplication(uniqueContainer, kb):
 	molecules for now at the center of the oriC
 	'''
 	oricCenter = kb.oriCCenter.to('nucleotide').magnitude
-	dnaPoly = uniqueContainer.objectsNew('activeDnaPolymerase', 2)
+	dnaPoly = uniqueContainer.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
-		chromosomeLocation = np.array([oricCenter, oricCenter]),
-		directionIsPositive = np.array([True, False])
+		chromosomeLocation = np.array([oricCenter, oricCenter, oricCenter, oricCenter]),
+		directionIsPositive = np.array([True, True, False, False]),
+		isLeading = np.array([True, False, True, False])
 		)
