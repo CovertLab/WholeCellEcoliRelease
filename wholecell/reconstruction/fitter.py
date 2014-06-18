@@ -84,20 +84,7 @@ def fitKb(kb):
 
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
-
-	monomerExpression = normalize(
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
-		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
-		)
-
-	nMonomers = countsFromMassAndExpression(
-		monomerMass.to("DCW_g").magnitude,
-		kb.monomerData["mw"].to('g/mol').magnitude,
-		monomerExpression,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	monomersView.countsIs((nMonomers * monomerExpression))
+	setMonomerCounts(kb, monomerMass, monomersView)
 
 	### DNA Mass fraction ###
 	dNtpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
@@ -536,6 +523,22 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 		)
 
 	mRnaView.countsIs((nMRnas * mRnaExpression))
+
+def setMonomerCounts(kb, monomerMass, monomersView):
+
+	monomerExpression = normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
+		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
+		)
+
+	nMonomers = countsFromMassAndExpression(
+		monomerMass.to("DCW_g").magnitude,
+		kb.monomerData["mw"].to('g/mol').magnitude,
+		monomerExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	monomersView.countsIs((nMonomers * monomerExpression))
 
 def calcChromosomeMass(seq, kb):
 	weights = collections.OrderedDict({
