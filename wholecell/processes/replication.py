@@ -19,6 +19,12 @@ import collections
 import wholecell.processes.process
 from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
 
+# NOTE: the ordering here is take advantage of vectorized operations
+NT_SINGLELETTERS = ["A", "C", "G", "T"]
+DNTP_IDS = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
+DNMP_IDS = ["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"]
+N_NT_TYPES = len(NT_SINGLELETTERS)
+
 class Replication(wholecell.processes.process.Process):
 	""" Replication """
 
@@ -47,14 +53,10 @@ class Replication(wholecell.processes.process.Process):
 		## Load parameters
 		# Create genome sequence out of small integers
 		self.sequence = np.empty(len(kb.genomeSeq), np.int8)
-		self.ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(['A','T','G','C'])])
+		self.ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(NT_SINGLELETTERS)])
+		
 		for i,letter in enumerate(kb.genomeSeq):
 			self.sequence[i] = self.ntMapping[letter] # Build genome sequence as small integers
-
-		# Build reverse complement dictionary out of small integers
-		reverseComplementPairs = dict([('A','T'), ('G','C'), ('T','A'), ('C','G')])
-		self._reverseComplement = {self.ntMapping[x]:self.ntMapping[reverseComplementPairs[x]]
-									for x in reverseComplementPairs.iterkeys()}
 
 		# Load modeling parameters
 		self.genomeLength = kb.genomeLength
@@ -68,8 +70,8 @@ class Replication(wholecell.processes.process.Process):
 			) # Add buffer so indexing with numpy can be taken advantage of
 
 		## Views
-		self.dntps = self.bulkMoleculesView(['DATP[c]', 'DTTP[c]', 'DCTP[c]', 'DGTP[c]'])
-		self.dnmps = self.bulkMoleculesView(['DAMP[n]', 'DTMP[n]', 'DCMP[n]', 'DGMP[n]'])
+		self.dntps = self.bulkMoleculesView(DNTP_IDS)
+		self.dnmps = self.bulkMoleculesView(DNMP_IDS)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		
@@ -126,7 +128,7 @@ class Replication(wholecell.processes.process.Process):
 	def calculateNucleotideRequest(self, dnaPolymerase):
 		'''Calculates nucleotide request based on sequence'''
 		seq = self.calculateUpcomingSequence(dnaPolymerase)
-		return np.bincount(seq, minlength = 4)
+		return np.bincount(seq, minlength = N_NT_TYPES)
 
 
 	def buildSequenceMatrix(self, allDnaPolymerase):
@@ -193,6 +195,7 @@ class Replication(wholecell.processes.process.Process):
 			bufferedReplicatedGenes = (
 				self.bufferedGeneEndCoordinate > currentPosition) & (self.bufferedGeneEndCoordinate <= finalLocation
 				)
+
 		else:
 			finalLocation = currentPosition - difference
 			bufferedReplicatedGenes = (
@@ -203,8 +206,8 @@ class Replication(wholecell.processes.process.Process):
 		self.genes.countsInc(actualReplicatedGenes)
 
 
-	def reverseComplement(self, sequenceArray):
-		return np.array([self._reverseComplement[x] for x in sequenceArray])
+	def reverseComplement(self, sequenceVector):
+		return (N_NT_TYPES - 1) - sequenceVector
 
 
 def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, difference, genomeLength):
