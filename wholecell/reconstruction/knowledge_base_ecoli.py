@@ -50,6 +50,8 @@ warnings.simplefilter("ignore", Bio.BiopythonWarning)
 from units.unit_struct_array import UnitStructArray
 from units.unit_registration import Q_
 
+# NOTE: most constants here need to either be moved to the DB or will be 
+# removed as the simulation is developed
 
 AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
 	("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
@@ -59,7 +61,6 @@ AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
 	("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
 	("V", "VAL-L[c]")
 	))
-
 
 AMINO_ACID_WEIGHTS = { # TOKB
 	"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19,
@@ -80,6 +81,18 @@ MOLECULAR_WEIGHT_ORDER = {
 	'metabolite' : 7,
 	'water' : 8
 	}
+
+COMPLEXES_REQUIRE_MODIFIED = ['ACETYL-COA-CARBOXYLMULTI-CPLX', 'BCCP-CPLX',
+	'CPLX0-263', 'CPLX0-2901','CPLX0-7721', 'CPLX0-7748', 'CPLX0-7754',
+	'CPLX0-7795', 'CPLX0-7884','CPLX0-7885', 'ENTMULTI-CPLX', 'GCVMULTI-CPLX', 
+	'PHOSPHASERDECARB-CPLX', 'PHOSPHASERDECARB-DIMER', 'PHOSPHO-OMPR', 
+	'PROTEIN-NRIP', 'SAMDECARB-CPLX']
+
+COMPLEXES_NOT_FORMED = [
+	# RNA poly + sigma factor
+	"RNAPE-CPLX", "CPLX0-221", "CPLX0-222", "RNAPS-CPLX", "RNAP32-CPLX",
+	"RNAP54-CPLX", "RNAP70-CPLX",
+	]
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
@@ -1000,11 +1013,7 @@ class KnowledgeBaseEcoli(object):
 		self._complexationReactions = []
 		self._proteinComplexes = []
 		#complexMod = self._loadModifiedProteinComplexes()
-		deletedComplexes = ['ACETYL-COA-CARBOXYLMULTI-CPLX','BCCP-CPLX','CPLX0-263','CPLX0-2901','CPLX0-7721',
-					'CPLX0-7748','CPLX0-7754','CPLX0-7795','CPLX0-7884','CPLX0-7885',
-					'ENTMULTI-CPLX','GCVMULTI-CPLX','PHOSPHASERDECARB-CPLX','PHOSPHASERDECARB-DIMER',
-					'PHOSPHO-OMPR','PROTEIN-NRIP','SAMDECARB-CPLX' 
-					] #requires modified form TODO: need to be deleted from DB
+		deletedComplexes = COMPLEXES_REQUIRE_MODIFIED + COMPLEXES_NOT_FORMED
 		complexDbIds = {}
 
 		##reaction		
@@ -1846,14 +1855,6 @@ class KnowledgeBaseEcoli(object):
 		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
 		FORBIDDEN_MOLECULES = {
 			"modified-charged-selC-tRNA",
-			"RNAPE-CPLX",
-			"CPLX0-221",
-			"CPLX0-222",
-			"RNAPS-CPLX",
-			"RNAP32-CPLX",
-			"RNAP54-CPLX",
-			"RNAP70-CPLX",
-			"RRLA-RRNA",
 			"RRSA-RRNA",
 			"RRFA-RRNA"
 			}
@@ -1864,6 +1865,7 @@ class KnowledgeBaseEcoli(object):
 				if molecule["molecule"] in FORBIDDEN_MOLECULES:
 					deleteReactions.append(reactionIndex)
 					warnings.warn("Hack that I need to remove w/ Nick's help")
+					print molecule["molecule"]
 					break
 
 		for reactionIndex in deleteReactions[::-1]:
