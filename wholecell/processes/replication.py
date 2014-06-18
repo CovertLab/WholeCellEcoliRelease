@@ -152,14 +152,29 @@ class Replication(wholecell.processes.process.Process):
 	def calculateUpcomingSequence(self, dnaPolymerase):
 		'''Wraps actual sequence calculation'''
 
+		chromosomeLocation = dnaPolymerase.attr('chromosomeLocation')
+		directionIsPositive = dnaPolymerase.attr('directionIsPositive')
+		elongationLength = self.dnaPolymeraseElongationRate
+
+		# Calculate if terC is in next polymerization step and stop polymerase there
+		if directionIsPositive:
+			upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation + self.dnaPolymeraseElongationRate) % self.genomeLength
+		else:
+			upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation - self.dnaPolymeraseElongationRate, -1) % self.genomeLength
+			
+		if self.tercCenter in upcomingPositions:
+				elongationLength = np.where(upcomingPositions == self.tercCenter)[0][0]
+
+		# Calculate sequence
 		leadingSequence = calculateSequence(
-				dnaPolymerase.attr('chromosomeLocation'),
-				dnaPolymerase.attr('directionIsPositive'),
-				self.dnaPolymeraseElongationRate,
+				chromosomeLocation,
+				directionIsPositive,
+				elongationLength,
 				self.sequence,
 				self.genomeLength
 				)
 
+		# Return coding or non-coding strand
 		if dnaPolymerase.attr('isLeading'):
 			return leadingSequence
 
