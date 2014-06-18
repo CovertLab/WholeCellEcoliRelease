@@ -30,7 +30,7 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		# Views
 		self.activeRnaPolys = None
-		self.rnapSubunits = None
+		self.inactiveRnaPolys = None
 
 		super(UniqueTranscriptInitiation, self).__init__()
 
@@ -41,19 +41,17 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
-
 		self.rnaSynthProb = kb.rnaData['synthProb'].to('dimensionless').magnitude
 
 		# Views
 
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 
-		self.rnapSubunits = self.bulkMoleculesView(enzIds)
+		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
 
 	def calculateRequest(self):
-		self.rnapSubunits.requestAll()
+		self.inactiveRnaPolys.requestAll()
 
 
 	# Calculate temporal evolution
@@ -61,7 +59,10 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
-		inactiveRnaPolyCount = (self.rnapSubunits.counts() // [2, 1, 1, 1]).min()
+		inactiveRnaPolyCount = self.inactiveRnaPolys.count()
+
+		if inactiveRnaPolyCount == 0:
+			return
 
 		nNewRnas = self.randomState.multinomial(inactiveRnaPolyCount,
 			self.rnaSynthProb)
@@ -95,6 +96,4 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 			rnaIndex = rnaIndexes
 			)
 
-		self.rnapSubunits.countsDec(
-			nNewRnas.sum() * np.array([2, 1, 1, 1], np.int)
-			)
+		self.inactiveRnaPolys.countDec(nNewRnas.sum())

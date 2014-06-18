@@ -63,8 +63,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.elngRate = kb.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude
 
-		enzIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
-
 		self.rnaIds = kb.rnaData['id']
 
 		# TODO: refactor mass updates
@@ -108,7 +106,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proton = self.bulkMoleculeView('H[c]')
 
-		self.rnapSubunits = self.bulkMoleculesView(enzIds)
+		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
 
 	def _buildSequences(self, rnaIndexes, transcriptLengths):
@@ -223,9 +221,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.bulkRnas.countsIs(terminatedRnas)
 
-		self.rnapSubunits.countsInc(
-			nTerminated * np.array([2, 1, 1, 1], np.int) # complex subunit stoich
-			)
+		self.inactiveRnaPolys.countInc(nTerminated)
 
 		self.h2o.countDec(nInitialized)
 		self.proton.countInc(nInitialized)

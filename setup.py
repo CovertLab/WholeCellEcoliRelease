@@ -17,18 +17,28 @@ polymerize_module = Extension(
 	extra_compile_args = ["-fPIC"]
 	)
 
-build_sequences_module = cythonize(
-	os.path.join("wholecell", "utils", "_build_sequences.pyx")
-	)
-
 setup(name = "Polymerize",
 	version = "0.0.1",
 	description = "Polymerize module",
 	ext_modules = [polymerize_module]
 	)
 
+build_sequences_module = cythonize(
+	os.path.join("wholecell", "utils", "_build_sequences.pyx")
+	)
+
 setup(
 	name = "Build sequences",
 	ext_modules = build_sequences_module,
+	include_dirs = [np.get_include()]
+	)
+
+complexation_module = cythonize(
+	os.path.join("wholecell", "utils", "mc_complexation.pyx")
+	)
+
+setup(
+	name = "Monte-carlo complexation",
+	ext_modules = complexation_module,
 	include_dirs = [np.get_include()]
 	)

@@ -54,6 +54,9 @@ def initializeBulk(bulkContainer, bulkChromosomeContainer, kb, randomState, time
 	## Set genes
 	initializeGenes(bulkChromosomeContainer, kb, timeStep)
 
+	## Form complexes
+	initializeComplexes(bulkContainer, kb, randomState, timeStep)
+
 
 def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
@@ -261,6 +264,7 @@ def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
 		(avgCellWaterMassInit) / mwH2O * nAvogadro
 		)
 
+
 def initializeGenes(bulkChromosomeContainer, kb, timeStep):
 	"""
 	initializeGenes
@@ -271,6 +275,26 @@ def initializeGenes(bulkChromosomeContainer, kb, timeStep):
 
 	geneView = bulkChromosomeContainer.countsView(kb.geneData['name'])
 	geneView.countsInc(1)
+
+
+def initializeComplexes(bulkContainer, kb, randomState, timeStep):
+	from wholecell.utils.mc_complexation import mccFormComplexes
+
+	stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+
+	# Build views
+
+	moleculeNames = kb.complexationMoleculeNames
+
+	molecules = bulkContainer.countsView(moleculeNames)
+
+	moleculeCounts = molecules.counts()
+
+	seed = randomState.randint(8**8)
+
+	updatedMoleculeCounts = mccFormComplexes(moleculeCounts, seed, stoichMatrix)
+
+	molecules.countsIs(updatedMoleculeCounts)
 
 
 def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep):
@@ -294,12 +318,12 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 	"""
 	# Calculate the number of possible RNAPs
 
-	subunits = bulkContainer.countsView(["EG10893-MONOMER[c]",
-		"RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"])
+	inactiveRnap = bulkContainer.countView("APORNAP-CPLX[c]")
 
-	subunitStoich = np.array([2, 1, 1, 1])
+	activeRnapMax = inactiveRnap.count()
 
-	activeRnapMax = (subunits.counts() // subunitStoich).min()
+	if activeRnapMax == 0:
+		return
 
 	# Calculate the number of RNAPs that should be active
 
@@ -327,7 +351,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 
 	# Reduce the number of RNAP subunits
 
-	subunits.countsDec(activeRnapCount * subunitStoich)
+	inactiveRnap.countDec(activeRnapCount)
 
 	# Create the lists of RNA indexes
 
@@ -456,6 +480,9 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 	subunitStoich = np.array([1, 1, 1])
 
 	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
+
+	if activeRibosomeMax == 0:
+		return
 
 	# Calculate the number of ribosomes that should be active
 

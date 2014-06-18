@@ -130,7 +130,8 @@ DEFAULT_PROCESSES = (
 	'UniquePolypeptideInitiation',
 	'UniquePolypeptideElongation',
 	'Replication',
-	'ProteinDegradation'
+	'ProteinDegradation',
+	'Complexation'
 	)
 
 DEFAULT_LISTENERS = (

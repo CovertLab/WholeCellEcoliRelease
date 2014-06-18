@@ -50,6 +50,8 @@ warnings.simplefilter("ignore", Bio.BiopythonWarning)
 from units.unit_struct_array import UnitStructArray
 from units.unit_registration import Q_
 
+# NOTE: most constants here need to either be moved to the DB or will be 
+# removed as the simulation is developed
 
 AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
 	("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
@@ -59,7 +61,6 @@ AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
 	("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
 	("V", "VAL-L[c]")
 	))
-
 
 AMINO_ACID_WEIGHTS = { # TOKB
 	"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19,
@@ -80,6 +81,18 @@ MOLECULAR_WEIGHT_ORDER = {
 	'metabolite' : 7,
 	'water' : 8
 	}
+
+COMPLEXES_REQUIRE_MODIFIED = ['ACETYL-COA-CARBOXYLMULTI-CPLX', 'BCCP-CPLX',
+	'CPLX0-263', 'CPLX0-2901','CPLX0-7721', 'CPLX0-7748', 'CPLX0-7754',
+	'CPLX0-7795', 'CPLX0-7884','CPLX0-7885', 'ENTMULTI-CPLX', 'GCVMULTI-CPLX', 
+	'PHOSPHASERDECARB-CPLX', 'PHOSPHASERDECARB-DIMER', 'PHOSPHO-OMPR', 
+	'PROTEIN-NRIP', 'SAMDECARB-CPLX']
+
+COMPLEXES_NOT_FORMED = [
+	# RNA poly + sigma factor
+	"RNAPE-CPLX", "CPLX0-221", "CPLX0-222", "RNAPS-CPLX", "RNAP32-CPLX",
+	"RNAP54-CPLX", "RNAP70-CPLX",
+	]
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
@@ -1000,11 +1013,7 @@ class KnowledgeBaseEcoli(object):
 		self._complexationReactions = []
 		self._proteinComplexes = []
 		#complexMod = self._loadModifiedProteinComplexes()
-		deletedComplexes = ['ACETYL-COA-CARBOXYLMULTI-CPLX','BCCP-CPLX','CPLX0-263','CPLX0-2901','CPLX0-7721',
-					'CPLX0-7748','CPLX0-7754','CPLX0-7795','CPLX0-7884','CPLX0-7885',
-					'ENTMULTI-CPLX','GCVMULTI-CPLX','PHOSPHASERDECARB-CPLX','PHOSPHASERDECARB-DIMER',
-					'PHOSPHO-OMPR','PROTEIN-NRIP','SAMDECARB-CPLX' 
-					] #requires modified form TODO: need to be deleted from DB
+		deletedComplexes = COMPLEXES_REQUIRE_MODIFIED + COMPLEXES_NOT_FORMED
 		complexDbIds = {}
 
 		##reaction		
@@ -1471,18 +1480,10 @@ class KnowledgeBaseEcoli(object):
 				},
 			}
 
-		rnaPolyComplexSubunits = [
-			"EG10893-MONOMER",
-			"RPOB-MONOMER", "RPOC-MONOMER", "RPOD-MONOMER"
-			]
-
-		rnaPolyComplexStoich = [2, 1, 1, 1]
-
-		rnaPolyComplexMass = sum(
-			protein['mw'] * rnaPolyComplexStoich[rnaPolyComplexSubunits.index(protein["id"])]
-			for protein in self._proteins
-			if protein['id'] in rnaPolyComplexSubunits
-			)
+		rnaPolyComplexMass = (
+			self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].to("fg/mole")
+			/ self._constantData["nAvogadro"]
+			).sum().magnitude
 
 		# TODO: This is a bad hack that works because in the fitter
 		# I have forced expression to be these subunits only
@@ -1509,7 +1510,7 @@ class KnowledgeBaseEcoli(object):
 			'activeRnaPoly',
 			0,
 			0,
-			rnaPolyComplexMass * G_PER_MOL_TO_FG_PER_MOLECULE
+			rnaPolyComplexMass
 			)
 		self.uniqueMoleculeMasses[1] = (
 			'activeRibosome',
@@ -1602,17 +1603,18 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildBiomassFractions(self):
 		units = {
-		'doublingTime' : 'min',
-		'proteinMassFraction' : None,
-		'rnaMassFraction' : None,
-		'dnaMassFraction' : None,
-		'lipidMassFraction' : None,
-		'lpsMassFraction' : None,
-		'mureinMassFraction' : None,
-		'glycogenMassFraction' : None,
-		'solublePoolMassFraction' : None,
-		'inorganicIonMassFraction' : None
-		}
+			'doublingTime' : 'min',
+			'proteinMassFraction' : None,
+			'rnaMassFraction' : None,
+			'dnaMassFraction' : None,
+			'lipidMassFraction' : None,
+			'lpsMassFraction' : None,
+			'mureinMassFraction' : None,
+			'glycogenMassFraction' : None,
+			'solublePoolMassFraction' : None,
+			'inorganicIonMassFraction' : None
+			}
+
 		self.cellDryMassComposition = UnitStructArray(self._cellDryMassCompositionData, units)
 		self.cellLipidFractionData = self._cellLipidFractionData
 		self.cellLPSFractionData = self._cellLPSFractionData
@@ -1723,14 +1725,12 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData = UnitStructArray(self.rnaData, units)
 
 	def _buildMonomerData(self):
-		monomers = [protein for protein in self._proteins]
-
 		ids = ['{}[{}]'.format(protein['id'], protein['location'])
-			for protein in monomers]
+			for protein in self._proteins]
 
 		rnaIds = []
 
-		for protein in monomers:
+		for protein in self._proteins:
 			rnaId = protein['rnaId']
 
 			rnaLocation = None
@@ -1748,7 +1748,7 @@ class KnowledgeBaseEcoli(object):
 		aaCounts = []
 		sequences = []
 
-		for protein in monomers:
+		for protein in self._proteins:
 			sequence = protein['seq']
 
 			counts = []
@@ -1764,7 +1764,7 @@ class KnowledgeBaseEcoli(object):
 
 		maxSequenceLength = max(len(seq) for seq in sequences)
 
-		mws = numpy.array([protein['mw'] for protein in monomers])
+		mws = numpy.array([protein['mw'] for protein in self._proteins])
 
 		size = len(rnaIds)
 
@@ -1790,8 +1790,8 @@ class KnowledgeBaseEcoli(object):
 			(noDataAA, slowRate) for noDataAA in noDataAAs
 			) # Assumed slow rate because of no data
 
-		degRate = numpy.zeros(len(monomers))
-		for i,m in enumerate(monomers):
+		degRate = numpy.zeros(len(self._proteins))
+		for i,m in enumerate(self._proteins):
 			degRate[i] = NruleDegRate[m['seq'][0]].magnitude
 
 		self.monomerData = numpy.zeros(
@@ -1851,12 +1851,42 @@ class KnowledgeBaseEcoli(object):
 		stoichMatrixJ = []
 		stoichMatrixV = []
 
+		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
+		FORBIDDEN_MOLECULES = {
+			"modified-charged-selC-tRNA",
+			"RRSA-RRNA",
+			"RRFA-RRNA"
+			}
+
+		deleteReactions = []
+		for reactionIndex, reaction in enumerate(self._complexationReactions):
+			for molecule in reaction["stoichiometry"]:
+				if molecule["molecule"] in FORBIDDEN_MOLECULES:
+					deleteReactions.append(reactionIndex)
+					warnings.warn("Hack that I need to remove w/ Nick's help")
+					break
+
+		for reactionIndex in deleteReactions[::-1]:
+			del self._complexationReactions[reactionIndex]
+
+		#######################################
+
 		for reactionIndex, reaction in enumerate(self._complexationReactions):
 			assert reaction["process"] == "complexation"
 			assert reaction["dir"] == 1
 
 			for molecule in reaction["stoichiometry"]:
-				moleculeName = molecule["molecule"]
+				if molecule["type"] == "metabolite":
+					moleculeName = "{}[{}]".format(
+						molecule["molecule"].upper(), # this is stupid
+						molecule["location"]
+						)
+
+				else:
+					moleculeName = "{}[{}]".format(
+						molecule["molecule"],
+						molecule["location"]
+						)
 
 				if moleculeName not in molecules:
 					molecules.append(moleculeName)
