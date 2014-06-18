@@ -164,7 +164,7 @@ class Replication(wholecell.processes.process.Process):
 			upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation - self.dnaPolymeraseElongationRate, -1) % self.genomeLength
 			
 		if self.tercCenter in upcomingPositions:
-				elongationLength = np.where(upcomingPositions == self.tercCenter)[0][0]
+			elongationLength = np.where(upcomingPositions == self.tercCenter)[0][0]
 
 		leadingSequence = calculateSequence(
 				chromosomeLocation,
