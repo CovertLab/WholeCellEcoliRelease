@@ -141,7 +141,8 @@ class Replication(wholecell.processes.process.Process):
 		sequenceMatrix.fill(PAD_VALUE)
 
 		for dnaPolyIndex, dnaPolymerase in enumerate(allDnaPolymerase):
-			sequenceMatrix[dnaPolyIndex, :] = self.calculateUpcomingSequence(dnaPolymerase)
+			upcomingSequence = self.calculateUpcomingSequence(dnaPolymerase)
+			sequenceMatrix[dnaPolyIndex, :upcomingSequence.shape[0]] = upcomingSequence
 
 		return sequenceMatrix
 
@@ -164,12 +165,12 @@ class Replication(wholecell.processes.process.Process):
 			upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation - self.dnaPolymeraseElongationRate, -1) % self.genomeLength
 			
 		if self.tercCenter in upcomingPositions:
-				elongationLength = np.where(upcomingPositions == self.tercCenter)[0][0]
+			elongationLength = np.where(upcomingPositions == self.tercCenter)[0][0]
 
 		leadingSequence = calculateSequence(
 				chromosomeLocation,
 				directionIsPositive,
-				self.dnaPolymeraseElongationRate,
+				elongationLength,
 				self.sequence,
 				self.genomeLength
 				)
