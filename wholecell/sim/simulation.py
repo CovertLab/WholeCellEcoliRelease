@@ -178,15 +178,15 @@ class Simulation(object):
 			process.calculateRequest()
 			self._evalTime.calculateRequest_times[i] = time.time() - t
 
-		# Update listeners
-		for listener in self.listeners.itervalues():
-			listener.updatePostRequest()
-
 		# Partition states among processes
 		for i, state in enumerate(self.states.itervalues()):
 			t = time.time()
 			state.partition()
 			self._evalTime.partition_times[i] = time.time() - t
+
+		# Update listeners
+		for listener in self.listeners.itervalues():
+			listener.updatePostRequest()
 
 		# Simulate submodels
 		for i, process in enumerate(self.processes.itervalues()):

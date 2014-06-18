@@ -155,6 +155,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['cellDryMassFraction'] = Q_(0.3, 'DCW_g / cell_g')
 		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
 		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
+		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
 
 
 	def _defineConstants(self):

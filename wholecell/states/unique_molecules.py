@@ -201,12 +201,13 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 class UniqueMoleculesView(wholecell.views.view.View):
+	__slots__ = ("_state", "_processId", "_processIndex", "_query", "_totalCount", "_requestedCount", "_queryResult")
 	_stateID = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
 
-		self._queryResult = None
+		self._queryResult = None # TODO: store query results with the state
 
 
 	def _updateQuery(self):
