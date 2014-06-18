@@ -169,8 +169,11 @@ class Metabolism(wholecell.processes.process.Process):
 
 		requests = self.readFromListener("MetabolicDemands", "metaboliteRequests").sum(1)
 
-		### For AAs
+		# print "Before: %0.10f" % (np.dot(self.biomassMws.sum(axis = 1) / 1000, self.wildtypeBiomassReaction))
 
+		### Expected production
+
+		## AAs
 		expectedAAs = (
 			np.round(
 				self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass] * 1e-3 *
@@ -179,6 +182,53 @@ class Metabolism(wholecell.processes.process.Process):
 			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
 			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
 			)
+
+		aasExpectedMass = np.dot(expectedAAs / self.nAvogadro, self.aaMws)
+
+		## NTPs
+		expectedNTPs = (
+			np.round(
+				self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass] * 1e-3 *
+				self.nAvogadro * self.initialDryMass
+				) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+			)
+
+		ntpsExpectedMass = np.dot(expectedNTPs / self.nAvogadro, self.ntpMws)
+
+
+		## dNTPs
+		expectedDNTPs = (
+			np.round(
+				self.wildtypeBiomassReactionSS[self.dntpIdxsInWildTypeBiomass] * 1e-3 *
+				self.nAvogadro * self.initialDryMass
+				) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+			)
+
+		dntpsExpectedMass = np.dot(expectedDNTPs / self.nAvogadro, self.dntpMws)
+		dntpsRequestedMass = np.dot(requests[self.dntpIdxsInWildTypeBiomass] / self.nAvogadro, self.dntpMws)
+
+		dryMassExpectedProduction = (
+			np.dot(
+				self.biomassMws.sum(axis = 1) / 1000,
+				(
+					self.wildtypeBiomassReactionSS *
+					self.initialDryMass *
+					np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+					(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+				)
+				)
+			)
+
+		# Allocate masses
+		# TODO: Try messing with NTP allocation
+		dntpsAllocatedMass = dntpsRequestedMass
+		aasAllocatedMass = aasExpectedMass + dntpsExpectedMass - dntpsAllocatedMass
+
+		### For AAs
 
 		deficitAAs = np.fmax(
 			requests[self.aaIdxsInWildTypeBiomass] - self.aas._totalCount,
@@ -190,14 +240,15 @@ class Metabolism(wholecell.processes.process.Process):
 			GAIN * deficitAAs + expectedAAs
 			)
 
-		# print "Before: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
-
 		biomassObjective[self.aaIdxsInWildTypeBiomass] = (
 			countsFromMassAndExpression(
-				np.dot(
-					self.aaMws / 1000,
-					self.wildtypeBiomassReactionSS[self.aaIdxsInWildTypeBiomass]
-					),
+				(
+					aasAllocatedMass / dryMassExpectedProduction *
+					np.dot(
+						self.biomassMws.sum(axis = 1) / 1000,
+						self.wildtypeBiomassReactionSS
+						)
+				),
 				self.aaMws,
 				relativeAArequests,
 				self.nAvogadro
@@ -207,15 +258,6 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		### For NTPs
-
-		expectedNTPs = (
-			np.round(
-				self.wildtypeBiomassReactionSS[self.ntpIdxsInWildTypeBiomass] * 1e-3 *
-				self.nAvogadro * self.initialDryMass
-				) *
-			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-			)
 
 		deficitNTPs = np.fmax(
 			requests[self.ntpIdxsInWildTypeBiomass] - self.nmps.counts() - self.ntps._totalCount,
@@ -242,15 +284,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		### For dNTPs
 
-		expectedDNTPs = (
-			np.round(
-				self.wildtypeBiomassReactionSS[self.dntpIdxsInWildTypeBiomass] * 1e-3 *
-				self.nAvogadro * self.initialDryMass
-				) *
-			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-			(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-			)
-
 		deficitDNTPs = np.fmax(
 			requests[self.dntpIdxsInWildTypeBiomass] - self.dntps._totalCount,
 			0
@@ -262,10 +295,13 @@ class Metabolism(wholecell.processes.process.Process):
 
 		biomassObjective[self.dntpIdxsInWildTypeBiomass] = (
 			countsFromMassAndExpression(
-				np.dot(
-					self.dntpMws / 1000,
-					self.wildtypeBiomassReactionSS[self.dntpIdxsInWildTypeBiomass]
-					),
+				(
+					dntpsAllocatedMass / dryMassExpectedProduction *
+					np.dot(
+						self.biomassMws.sum(axis = 1) / 1000,
+						self.wildtypeBiomassReactionSS
+						)
+				),
 				self.dntpMws,
 				relativeDNTPrequests,
 				self.nAvogadro
@@ -274,7 +310,7 @@ class Metabolism(wholecell.processes.process.Process):
 			1000 / self.nAvogadro
 			)
 
-		# print "After: %0.10f" % (np.dot(self.biomassMws / 1000, self.wildtypeBiomassReaction))
+		# print "After: %0.10f" % (np.dot(self.biomassMws.sum(axis = 1) / 1000, self.wildtypeBiomassReaction))
 
 		return biomassObjective
 
