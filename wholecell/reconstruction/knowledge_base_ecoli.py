@@ -1603,17 +1603,18 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildBiomassFractions(self):
 		units = {
-		'doublingTime' : 'min',
-		'proteinMassFraction' : None,
-		'rnaMassFraction' : None,
-		'dnaMassFraction' : None,
-		'lipidMassFraction' : None,
-		'lpsMassFraction' : None,
-		'mureinMassFraction' : None,
-		'glycogenMassFraction' : None,
-		'solublePoolMassFraction' : None,
-		'inorganicIonMassFraction' : None
-		}
+			'doublingTime' : 'min',
+			'proteinMassFraction' : None,
+			'rnaMassFraction' : None,
+			'dnaMassFraction' : None,
+			'lipidMassFraction' : None,
+			'lpsMassFraction' : None,
+			'mureinMassFraction' : None,
+			'glycogenMassFraction' : None,
+			'solublePoolMassFraction' : None,
+			'inorganicIonMassFraction' : None
+			}
+
 		self.cellDryMassComposition = UnitStructArray(self._cellDryMassCompositionData, units)
 		self.cellLipidFractionData = self._cellLipidFractionData
 		self.cellLPSFractionData = self._cellLPSFractionData
@@ -1724,14 +1725,12 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData = UnitStructArray(self.rnaData, units)
 
 	def _buildMonomerData(self):
-		monomers = [protein for protein in self._proteins]
-
 		ids = ['{}[{}]'.format(protein['id'], protein['location'])
-			for protein in monomers]
+			for protein in self._proteins]
 
 		rnaIds = []
 
-		for protein in monomers:
+		for protein in self._proteins:
 			rnaId = protein['rnaId']
 
 			rnaLocation = None
@@ -1749,7 +1748,7 @@ class KnowledgeBaseEcoli(object):
 		aaCounts = []
 		sequences = []
 
-		for protein in monomers:
+		for protein in self._proteins:
 			sequence = protein['seq']
 
 			counts = []
@@ -1765,7 +1764,7 @@ class KnowledgeBaseEcoli(object):
 
 		maxSequenceLength = max(len(seq) for seq in sequences)
 
-		mws = numpy.array([protein['mw'] for protein in monomers])
+		mws = numpy.array([protein['mw'] for protein in self._proteins])
 
 		size = len(rnaIds)
 
@@ -1791,8 +1790,8 @@ class KnowledgeBaseEcoli(object):
 			(noDataAA, slowRate) for noDataAA in noDataAAs
 			) # Assumed slow rate because of no data
 
-		degRate = numpy.zeros(len(monomers))
-		for i,m in enumerate(monomers):
+		degRate = numpy.zeros(len(self._proteins))
+		for i,m in enumerate(self._proteins):
 			degRate[i] = NruleDegRate[m['seq'][0]].magnitude
 
 		self.monomerData = numpy.zeros(
