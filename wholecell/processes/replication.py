@@ -76,10 +76,7 @@ class Replication(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		
-		# self.genes = self.bulkChromosomesView(geneIds)
-		self.geneViews = [
-			self.bulkChromosomeView(geneId) for geneId in geneIds
-			]
+		self.genes = self.bulkChromosomesView(geneIds)
 
 		self.dnaPolymerase = self.uniqueMoleculesView('dnaPolymerase')
 
@@ -222,8 +219,8 @@ class Replication(wholecell.processes.process.Process):
 
 		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
 
-		for geneIndex in np.where(actualReplicatedGenes)[0]:
-			self.geneViews[geneIndex].countInc(1)
+		if actualReplicatedGenes.any():
+			self.genes.countsInc(actualReplicatedGenes)
 
 
 	def reverseComplement(self, sequenceVector):
