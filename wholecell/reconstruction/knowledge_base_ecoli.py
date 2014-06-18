@@ -1864,7 +1864,6 @@ class KnowledgeBaseEcoli(object):
 				if molecule["molecule"] in FORBIDDEN_MOLECULES:
 					deleteReactions.append(reactionIndex)
 					warnings.warn("Hack that I need to remove w/ Nick's help")
-					print molecule["molecule"]
 					break
 
 		for reactionIndex in deleteReactions[::-1]:
