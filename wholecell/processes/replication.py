@@ -47,7 +47,7 @@ class Replication(wholecell.processes.process.Process):
 		## Load parameters
 		# Create genome sequence out of small integers
 		self.sequence = np.empty(len(kb.genomeSeq), np.int8)
-		self.ntMapping = collections.OrderedDict({ntpId:i for i, ntpId in enumerate(['A','T','G','C'])})
+		self.ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(['A','T','G','C'])])
 		for i,letter in enumerate(kb.genomeSeq):
 			self.sequence[i] = self.ntMapping[letter] # Build genome sequence as small integers
 
@@ -77,6 +77,7 @@ class Replication(wholecell.processes.process.Process):
 
 		self.dnaPolymerase = self.uniqueMoleculesView('dnaPolymerase')
 
+
 	def calculateRequest(self):
 		self.dnaPolymerase.requestAll()
 
@@ -90,6 +91,7 @@ class Replication(wholecell.processes.process.Process):
 		# dNTP + H2O --> dNMP + PPi
 		self.dntps.requestIs(totalNtRequest)
 		self.h2o.requestIs(np.sum(totalNtRequest))
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -120,10 +122,12 @@ class Replication(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 		self.h2o.countDec(np.sum(dNtpsUsed))
 
+
 	def calculateNucleotideRequest(self, dnaPolymerase):
 		'''Calculates nucleotide request based on sequence'''
 		seq = self.calculateUpcomingSequence(dnaPolymerase)
-		return np.array([np.sum(seq == nt) for nt in self.ntMapping.values()])
+		return np.bincount(seq, minlength = 4)
+
 
 	def buildSequenceMatrix(self, allDnaPolymerase):
 		'''Builds sequence matrix for polymerize function'''
@@ -141,6 +145,7 @@ class Replication(wholecell.processes.process.Process):
 
 		return np.array(sequenceList, dtype=np.int8)
 
+
 	def calculateUpcomingSequence(self, dnaPolymerase):
 		'''Wraps actual sequence calculation'''
 
@@ -154,8 +159,10 @@ class Replication(wholecell.processes.process.Process):
 
 		if dnaPolymerase.attr('isLeading'):
 			return leadingSequence
+
 		elif not dnaPolymerase.attr('isLeading'):
 			return self.reverseComplement(leadingSequence)
+
 
 	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
 		''' Wraps actual update calculation'''
@@ -174,6 +181,7 @@ class Replication(wholecell.processes.process.Process):
 						self.genomeLength
 					)
 				)
+
 
 	def updateGeneCopynumber(self, currentPosition, directionIsPositive, difference):
 		'''
@@ -194,8 +202,10 @@ class Replication(wholecell.processes.process.Process):
 		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
 		self.genes.countsInc(actualReplicatedGenes)
 
+
 	def reverseComplement(self, sequenceArray):
 		return np.array([self._reverseComplement[x] for x in sequenceArray])
+
 
 def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, difference, genomeLength):
 	if difference < 0:
@@ -203,8 +213,10 @@ def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, diff
 
 	if directionIsPositive:
 		return (currentPosition + difference) % genomeLength
+		
 	else:
 		return (currentPosition - difference) % genomeLength
+
 
 def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, sequence, genomeLength):
 	'''
@@ -214,11 +226,11 @@ def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, s
 
 	if directionIsPositive:
 		return sequence[
-		np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
-		]
+			np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
+			]
 	else:
 		return sequence[
-		np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
-		]
+			np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
+			]
 
 	# TODO: Check for hitting the end of the chromosome!
