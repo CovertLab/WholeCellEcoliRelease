@@ -75,7 +75,10 @@ class Replication(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		
-		self.genes = self.bulkChromosomesView(geneIds)
+		# self.genes = self.bulkChromosomesView(geneIds)
+		self.geneViews = [
+			self.bulkChromosomeView(geneId) for geneId in geneIds
+			]
 
 		self.dnaPolymerase = self.uniqueMoleculesView('dnaPolymerase')
 
@@ -186,7 +189,7 @@ class Replication(wholecell.processes.process.Process):
 					)
 				)
 
-
+	
 	def updateGeneCopynumber(self, currentPosition, directionIsPositive, difference):
 		'''
 		Returns indicies of genes replicated by polymerase based on position and progress of polymerization
@@ -205,7 +208,9 @@ class Replication(wholecell.processes.process.Process):
 				)
 
 		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
-		self.genes.countsInc(actualReplicatedGenes)
+
+		for geneIndex in np.where(actualReplicatedGenes)[0]:
+			self.geneViews[geneIndex].countInc(1)
 
 
 	def reverseComplement(self, sequenceVector):

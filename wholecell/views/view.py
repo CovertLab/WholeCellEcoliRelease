@@ -12,6 +12,7 @@ from __future__ import division
 import numpy as np
 
 class View(object):
+	__slots__ = ("_state", "_processId", "_processIndex", "_query", "_totalCount", "_requestedCount")
 	_stateID = None
 
 	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
