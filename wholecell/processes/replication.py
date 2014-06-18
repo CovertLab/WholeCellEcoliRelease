@@ -147,22 +147,28 @@ class Replication(wholecell.processes.process.Process):
 
 		return np.array(sequenceList, dtype=np.int8)
 
-
+	
 	def calculateUpcomingSequence(self, dnaPolymerase):
 		'''Wraps actual sequence calculation'''
 
+		chromosomeLocation, directionIsPositive, isLeading = dnaPolymerase.attrs(
+			"chromosomeLocation",
+			"directionIsPositive",
+			"isLeading"
+			)
+
 		leadingSequence = calculateSequence(
-				dnaPolymerase.attr('chromosomeLocation'),
-				dnaPolymerase.attr('directionIsPositive'),
+				chromosomeLocation,
+				directionIsPositive,
 				self.dnaPolymeraseElongationRate,
 				self.sequence,
 				self.genomeLength
 				)
 
-		if dnaPolymerase.attr('isLeading'):
+		if isLeading:
 			return leadingSequence
 
-		elif not dnaPolymerase.attr('isLeading'):
+		else:
 			return self.reverseComplement(leadingSequence)
 
 
