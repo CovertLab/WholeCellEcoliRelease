@@ -205,6 +205,8 @@ class Replication(wholecell.processes.process.Process):
 		Returns indicies of genes replicated by polymerase based on position and progress of polymerization
 		'''
 
+		# TODO: update self.genes once per time step, not once per dna poly
+
 		if directionIsPositive:
 			finalLocation = currentPosition + difference
 			bufferedReplicatedGenes = (
