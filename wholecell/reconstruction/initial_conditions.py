@@ -12,58 +12,59 @@ from wholecell.reconstruction.fitter import normalize
 def calcInitialConditions(sim, kb):
 	randomState = sim.randomState
 
-	bulk = sim.states['BulkMolecules']
-	unique = sim.states["UniqueMolecules"]
-	bulk_chromosome = sim.states["BulkChromosome"]
-
 	timeStep = sim.timeStepSec # This is a poor solution but will suffice for now
 
-	bulkContainer = bulk.container
-	uniqueContainer = unique.container
-	bulkChromosomeContainer = bulk_chromosome.container
+	bulkMolCntr = sim.states['BulkMolecules'].container
+	uniqueMolCntr = sim.states["UniqueMolecules"].container
+	bulkChrmCntr = sim.states["BulkChromosome"].container
 
 	# Set up states
-	initializeBulk(bulkContainer, bulkChromosomeContainer, kb, randomState, timeStep)
-
-	# Modify states for specific processes
-	initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep)
-	initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep)
-	initializeReplication(uniqueContainer, kb)
+	initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep)
+	initializeBulkChromosome(bulkChrmCntr, kb, randomState, timeStep)
+	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 
 
-def initializeBulk(bulkContainer, bulkChromosomeContainer, kb, randomState, timeStep):
+def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 
 	## Set protein counts from expression
-	initializeProteinMonomers(bulkContainer, kb, randomState, timeStep)
+	initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set RNA counts from expression
-	initializeRNA(bulkContainer, kb, randomState, timeStep)
+	initializeRNA(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set DNA
-	initializeDNA(bulkContainer, kb, randomState, timeStep)
+	initializeDNA(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set other biomass components
-	initializeBulkComponents(bulkContainer, kb, randomState, timeStep)
+	initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set pools
-	initializePools(bulkContainer, kb, randomState, timeStep)
+	initializePools(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set water
-	initializeBulkWater(bulkContainer, kb, randomState, timeStep)
-
-	## Set genes
-	initializeGenes(bulkChromosomeContainer, kb, timeStep)
+	initializeBulkWater(bulkMolCntr, kb, randomState, timeStep)
 
 	## Form complexes
-	initializeComplexes(bulkContainer, kb, randomState, timeStep)
+	initializeComplexes(bulkMolCntr, kb, randomState, timeStep)
 
 
-def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
+def initializeBulkChromosome(bulkChrmCntr, kb, randomState, timeStep):
+	## Set genes
+	initializeGenes(bulkChrmCntr, kb, timeStep)
+
+
+def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
+	initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
+	initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
+	initializeReplication(uniqueMolCntr, kb)
+
+
+def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60
 		]
 
-	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+	monomersView = bulkMolCntr.countsView(kb.monomerData["id"])
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit.to('DCW_g') * monomerMassFraction
 
@@ -83,12 +84,12 @@ def initializeProteinMonomers(bulkContainer, kb, randomState, timeStep):
 	# monomersView.countsIs(nMonomers * monomerExpression)
 
 
-def initializeRNA(bulkContainer, kb, randomState, timeStep):
+def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
 		]
 
-	rnaView = bulkContainer.countsView(kb.rnaData["id"])
+	rnaView = bulkMolCntr.countsView(kb.rnaData["id"])
 	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
 	rnaMass = kb.avgCellDryMassInit * rnaMassFraction
 
@@ -108,7 +109,7 @@ def initializeRNA(bulkContainer, kb, randomState, timeStep):
 	# rnaView.countsIs(nRnas * rnaExpression)
 
 
-def initializeDNA(bulkContainer, kb, randomState, timeStep):
+def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
@@ -117,7 +118,7 @@ def initializeDNA(bulkContainer, kb, randomState, timeStep):
 	dNTPs = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
 	dnmpIds = ["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"]
 
-	dnmpsView = bulkContainer.countsView(dnmpIds)
+	dnmpsView = bulkMolCntr.countsView(dnmpIds)
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
 
@@ -144,7 +145,7 @@ def initializeDNA(bulkContainer, kb, randomState, timeStep):
 		)
 
 
-def initializeBulkComponents(bulkContainer, kb, randomState, timeStep):
+def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	biomassContainer = BulkObjectsContainer(
 		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
 		)
@@ -161,7 +162,7 @@ def initializeBulkComponents(bulkContainer, kb, randomState, timeStep):
 		list(kb.cellSolublePoolFractionData["metaboliteId"])
 		)
 
-	notPRDBulkView = bulkContainer.countsView(notPRDMetabolites)
+	notPRDBulkView = bulkMolCntr.countsView(notPRDMetabolites)
 
 	notPRDBiomassView = biomassContainer.countsView(notPRDMetabolites)
 
@@ -172,7 +173,7 @@ def initializeBulkComponents(bulkContainer, kb, randomState, timeStep):
 		))
 
 
-def initializePools(bulkContainer, kb, randomState, timeStep):
+def initializePools(bulkMolCntr, kb, randomState, timeStep):
 	# Note: This is adding dry biomass, so the cell will appear heavier
 
 	from wholecell.reconstruction.knowledge_base_ecoli import AMINO_ACID_1_TO_3_ORDERED
@@ -192,10 +193,10 @@ def initializePools(bulkContainer, kb, randomState, timeStep):
 	dntpsBiomassView = biomassContainer.countsView(dntpIds)
 	aasBiomassView = biomassContainer.countsView(aaIds)
 
-	ppiBulkView = bulkContainer.countView("PPI[c]")
-	ntpsBulkView = bulkContainer.countsView(ntpIds)
-	dntpsBulkView = bulkContainer.countsView(dntpIds)
-	aasBulkView = bulkContainer.countsView(aaIds)
+	ppiBulkView = bulkMolCntr.countView("PPI[c]")
+	ntpsBulkView = bulkMolCntr.countsView(ntpIds)
+	dntpsBulkView = bulkMolCntr.countsView(dntpIds)
+	aasBulkView = bulkMolCntr.countsView(aaIds)
 
 	dt = timeStep
 	tau_d = kb.cellCycleLen.to("second").magnitude
@@ -253,8 +254,8 @@ def initializePools(bulkContainer, kb, randomState, timeStep):
 	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
 
 
-def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
-	h2oView = bulkContainer.countView('H2O[c]')
+def initializeBulkWater(bulkMolCntr, kb, randomState, timeStep):
+	h2oView = bulkMolCntr.countView('H2O[c]')
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
 	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude.sum(1)[0]
@@ -265,7 +266,7 @@ def initializeBulkWater(bulkContainer, kb, randomState, timeStep):
 		)
 
 
-def initializeGenes(bulkChromosomeContainer, kb, timeStep):
+def initializeGenes(bulkChrmCntr, kb, timeStep):
 	"""
 	initializeGenes
 
@@ -273,11 +274,11 @@ def initializeGenes(bulkChromosomeContainer, kb, timeStep):
 	Initalizes the counts of genes in BulkMolecules
 	"""
 
-	geneView = bulkChromosomeContainer.countsView(kb.geneData['name'])
+	geneView = bulkChrmCntr.countsView(kb.geneData['name'])
 	geneView.countsInc(1)
 
 
-def initializeComplexes(bulkContainer, kb, randomState, timeStep):
+def initializeComplexes(bulkMolCntr, kb, randomState, timeStep):
 	from wholecell.utils.mc_complexation import mccFormComplexes
 
 	stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
@@ -286,7 +287,7 @@ def initializeComplexes(bulkContainer, kb, randomState, timeStep):
 
 	moleculeNames = kb.complexationMoleculeNames
 
-	molecules = bulkContainer.countsView(moleculeNames)
+	molecules = bulkMolCntr.countsView(moleculeNames)
 
 	moleculeCounts = molecules.counts()
 
@@ -297,7 +298,7 @@ def initializeComplexes(bulkContainer, kb, randomState, timeStep):
 	molecules.countsIs(updatedMoleculeCounts)
 
 
-def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, timeStep):
+def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
 	"""
 	initializeTranscription
 
@@ -318,7 +319,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 	"""
 	# Calculate the number of possible RNAPs
 
-	inactiveRnap = bulkContainer.countView("APORNAP-CPLX[c]")
+	inactiveRnap = bulkMolCntr.countView("APORNAP-CPLX[c]")
 
 	activeRnapMax = inactiveRnap.count()
 
@@ -330,7 +331,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 	elngRate = kb.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude
 
 	rnaIds = kb.rnaData["id"]
-	rnas = bulkContainer.countsView(rnaIds)
+	rnas = bulkMolCntr.countsView(rnaIds)
 	rnaCounts = rnas.counts()
 	rnaLengths = kb.rnaData["length"].to("count").magnitude
 
@@ -407,7 +408,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 
 	# Create the unique molecules representations of the ribosomes
 
-	activeRnaPolys = uniqueContainer.objectsNew(
+	activeRnaPolys = uniqueMolCntr.objectsNew(
 		"activeRnaPoly",
 		activeRnapCount
 		)
@@ -454,7 +455,7 @@ def initializeTranscription(bulkContainer, uniqueContainer, kb, randomState, tim
 
 	rnas.countsDec(rnaCountsDecremented)
 
-def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeStep):
+def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
 	"""
 	initializeTranslation
 
@@ -475,7 +476,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 	"""
 	# Calculate the number of possible ribosomes
 
-	subunits = bulkContainer.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
+	subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
 
 	subunitStoich = np.array([1, 1, 1])
 
@@ -489,7 +490,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 	elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
 
 	monomerIds = kb.monomerData["id"]
-	monomers = bulkContainer.countsView(monomerIds)
+	monomers = bulkMolCntr.countsView(monomerIds)
 	monomerCounts = monomers.counts()
 	monomerLengths = kb.monomerData["length"].to("count").magnitude
 
@@ -561,7 +562,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 
 	# Create the unique molecules representations of the ribosomes
 
-	activeRibosomes = uniqueContainer.objectsNew(
+	activeRibosomes = uniqueMolCntr.objectsNew(
 		"activeRibosome",
 		activeRibosomeCount
 		)
@@ -608,7 +609,7 @@ def initializeTranslation(bulkContainer, uniqueContainer, kb, randomState, timeS
 
 	monomers.countsDec(monomerCountsDecremented)
 
-def initializeReplication(uniqueContainer, kb):
+def initializeReplication(uniqueMolCntr, kb):
 	'''
 	initializeReplication
 
@@ -616,7 +617,7 @@ def initializeReplication(uniqueContainer, kb):
 	molecules for now at the center of the oriC
 	'''
 	oricCenter = kb.oriCCenter.to('nucleotide').magnitude
-	dnaPoly = uniqueContainer.objectsNew('dnaPolymerase', 4)
+	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
 		chromosomeLocation = np.array([oricCenter, oricCenter, oricCenter, oricCenter]),
 		directionIsPositive = np.array([True, True, False, False]),

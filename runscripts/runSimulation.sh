@@ -44,7 +44,7 @@ fi
 ##### Single simulation analysis #####
 
 SINGLE_ANALYSIS_SCRIPTS_DIR="wholecell/analysis/single"
-SINGLE_ANALYSIS_SCRIPTS=$(find $SINGLE_ANALYSIS_SCRIPTS_DIR -name "*.py" | sort)
+SINGLE_ANALYSIS_SCRIPTS=$(find $SINGLE_ANALYSIS_SCRIPTS_DIR -name "*\.py" | sort)
 
 PLOT_OUT_DATA_DIR="out/plotOut/${SUBMISSION_TIME}/${SEED_DIR}"
 
@@ -57,7 +57,7 @@ for SINGLE_ANALYSIS_SCRIPT in $SINGLE_ANALYSIS_SCRIPTS; do
 		continue
 	fi
 
-	OUT_NAME=$(basename $SINGLE_ANALYSIS_SCRIPT | sed 's/.py//g')
+	OUT_NAME=$(basename $SINGLE_ANALYSIS_SCRIPT | sed 's/\.py//g')
 
 	echo "Running $(basename $SINGLE_ANALYSIS_SCRIPT)"
 

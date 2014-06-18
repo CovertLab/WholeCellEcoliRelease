@@ -69,90 +69,13 @@ def fitKb(kb):
 	adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb)
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 
-	### RNA Mass Fractions ###
+	### RNA Mass fraction ###
 	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
 	rnaMass = kb.avgCellDryMassInit.to('DCW_g') * rnaMassFraction
-
-	## 23S rRNA Mass Fractions ##
-
-	# Assume all 23S rRNAs are expressed equally
-	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
-
-	nRRna23Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].to('g/mol').magnitude,
-		rRna23SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+	setRNACounts(
+		kb, rnaMass, mRnaView,
+		rRna23SView, rRna16SView, rRna5SView, tRnaView
 		)
-	
-	## 16S rRNA Mass Fractions ##
-
-	# Assume all 16S rRNAs are expressed equally
-	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
-
-	nRRna16Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].to('g/mol').magnitude,
-		rRna16SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	## 5S rRNA Mass Fractions ##
-
-	# Assume all 5S rRNAs are expressed equally
-	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
-
-	nRRna5Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA5S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].to('g/mol').magnitude,
-		rRna5SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
-	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
-	nRRna23Ss = nRRna16Ss = nRRna5Ss = np.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
-
-	# TODO: Remove this hack once complexation is working
-	rRna23SExpression[:] = 0.
-	rRna23SExpression[0] = 1.
-
-	rRna16SExpression[:] = 0.
-	rRna16SExpression[0] = 1.
-
-	rRna5SExpression[:] = 0.
-	rRna5SExpression[0] = 1.
-
-	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression))
-	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression))
-	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
-
-	## tRNA Mass Fractions ##
-
-	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
-	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
-
-	nTRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * TRNA_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isTRna"]].to('g/mol').magnitude,
-		tRnaExpression,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	tRnaView.countsIs((nTRnas * tRnaExpression))
-
-	## mRNA Mass Fractions ##
-
-	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
-
-	nMRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * MRNA_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isMRna"]].to('g/mol').magnitude,
-		mRnaExpression,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	mRnaView.countsIs((nMRnas * mRnaExpression))
 
 
 	### Protein Mass fraction ###
@@ -530,6 +453,89 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(relativeExpression) != Q_
 	assert type(nAvogadro) != Q_
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
+
+def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tRnaView):
+
+	## 23S rRNA Mass Fractions ##
+
+	# Assume all 23S rRNAs are expressed equally
+	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
+
+	nRRna23Ss = countsFromMassAndExpression(
+		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].to('g/mol').magnitude,
+		rRna23SExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	## 16S rRNA Mass Fractions ##
+
+	# Assume all 16S rRNAs are expressed equally
+	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
+
+	nRRna16Ss = countsFromMassAndExpression(
+		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].to('g/mol').magnitude,
+		rRna16SExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	## 5S rRNA Mass Fractions ##
+
+	# Assume all 5S rRNAs are expressed equally
+	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
+
+	nRRna5Ss = countsFromMassAndExpression(
+		rnaMass.to('DCW_g').magnitude * RRNA5S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].to('g/mol').magnitude,
+		rRna5SExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
+	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
+	nRRna23Ss = nRRna16Ss = nRRna5Ss = np.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
+
+	# TODO: Remove this hack once complexation is working
+	rRna23SExpression[:] = 0.
+	rRna23SExpression[0] = 1.
+
+	rRna16SExpression[:] = 0.
+	rRna16SExpression[0] = 1.
+
+	rRna5SExpression[:] = 0.
+	rRna5SExpression[0] = 1.
+
+	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression))
+	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression))
+	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
+
+	## tRNA Mass Fractions ##
+
+	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
+	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
+
+	nTRnas = countsFromMassAndExpression(
+		rnaMass.to('DCW_g').magnitude * TRNA_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isTRna"]].to('g/mol').magnitude,
+		tRnaExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	tRnaView.countsIs((nTRnas * tRnaExpression))
+
+	## mRNA Mass Fractions ##
+
+	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
+
+	nMRnas = countsFromMassAndExpression(
+		rnaMass.to('DCW_g').magnitude * MRNA_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isMRna"]].to('g/mol').magnitude,
+		mRnaExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	mRnaView.countsIs((nMRnas * mRnaExpression))
 
 def calcChromosomeMass(seq, kb):
 	weights = collections.OrderedDict({
