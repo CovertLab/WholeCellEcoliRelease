@@ -61,6 +61,7 @@ class Replication(wholecell.processes.process.Process):
 		# Load modeling parameters
 		self.genomeLength = kb.genomeLength
 		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
+		self.tercCenter = kb.terCCenter.to('nucleotide').magnitude
 
 		# Load gene data to keep track of copy number
 		geneIds = kb.geneData['name']
