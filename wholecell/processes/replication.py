@@ -130,24 +130,18 @@ class Replication(wholecell.processes.process.Process):
 		seq = self.calculateUpcomingSequence(dnaPolymerase)
 		return np.bincount(seq, minlength = N_NT_TYPES)
 
-
+	
 	def buildSequenceMatrix(self, allDnaPolymerase):
 		'''Builds sequence matrix for polymerize function'''
-		sequenceList = []
-		for dnaPolymerase in allDnaPolymerase:
-			sequenceList.append(self.calculateUpcomingSequence(dnaPolymerase).tolist())
-			# TODO: Do this in numpy don't convert to list
+		sequenceMatrix = np.empty((len(allDnaPolymerase), self.dnaPolymeraseElongationRate), np.int8)
+		sequenceMatrix.fill(PAD_VALUE)
 
-		maxLen = max([len(x) for x in sequenceList])
+		for dnaPolyIndex, dnaPolymerase in enumerate(allDnaPolymerase):
+			sequenceMatrix[dnaPolyIndex, :] = self.calculateUpcomingSequence(dnaPolymerase)
 
-		for s in sequenceList:
-			diff = maxLen - len(s)
-			if diff > 0:
-				s.extend([PAD_VALUE]*diff)
+		return sequenceMatrix
 
-		return np.array(sequenceList, dtype=np.int8)
 
-	
 	def calculateUpcomingSequence(self, dnaPolymerase):
 		'''Wraps actual sequence calculation'''
 
@@ -171,20 +165,22 @@ class Replication(wholecell.processes.process.Process):
 		else:
 			return self.reverseComplement(leadingSequence)
 
-
+	
 	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
 		''' Wraps actual update calculation'''
 
+		chromosomeLocation, directionIsPositive = dnaPolymerase.attrs("chromosomeLocation", "directionIsPositive")
+
 		self.updateGeneCopynumber(
-			dnaPolymerase.attr('chromosomeLocation'),
-			dnaPolymerase.attr('directionIsPositive'),
+			chromosomeLocation,
+			directionIsPositive,
 			polymeraseProgress
 			)
 
 		dnaPolymerase.attrIs(chromosomeLocation = 
 					calculatePolymerasePositionUpdate(
-						dnaPolymerase.attr('chromosomeLocation'),
-						dnaPolymerase.attr('directionIsPositive'),
+						chromosomeLocation,
+						directionIsPositive,
 						polymeraseProgress,
 						self.genomeLength
 					)
