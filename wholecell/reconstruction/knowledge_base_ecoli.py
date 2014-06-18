@@ -171,6 +171,49 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
 
 
+		# Assumed reaction for producing L-selenocysteine without a tRNA
+		# [c]: SER-L + SELNP --> SEC-L + PI + (2)H
+		stoich = [{'coeff': -1.0,
+				'form': 'mature',
+				'location': u'c',
+				'molecule': u'SER-L',
+				'type': 'metabolite'},
+				{'coeff': -1.0,
+				'form': 'mature',
+				'location': u'c',
+				'molecule': u'SELNP',
+				'type': 'metabolite'},
+				{'coeff': 1.0,
+				'form': 'mature',
+				'location': u'c',
+				'molecule': u'SEC-L',
+				'type': 'metabolite'},
+				{'coeff': 1.0,
+				'form': 'mature',
+				'location': u'c',
+				'molecule': u'PI',
+				'type': 'metabolite'},
+				{'coeff': 2.0,
+				'form': 'mature',
+				'location': u'c',
+				'molecule': u'H',
+				'type': 'metabolite'}]
+
+		r = {
+				"id": 'SEC_RXN_HACKED',
+				"name": 'L-selenocysteine production reaction (HACKED)',
+				"process": "Metabolism",
+				"ec": '',
+				"dir": 1.,
+				"stoichiometry": stoich,
+				"catBy": [],
+				"ub": 1000.,
+				"lb": 0.
+			}
+
+		self._reactions.append(r)
+
+
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
 
