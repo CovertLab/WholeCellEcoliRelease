@@ -84,20 +84,7 @@ def fitKb(kb):
 
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
-
-	monomerExpression = normalize(
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
-		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
-		)
-
-	nMonomers = countsFromMassAndExpression(
-		monomerMass.to("DCW_g").magnitude,
-		kb.monomerData["mw"].to('g/mol').magnitude,
-		monomerExpression,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	monomersView.countsIs((nMonomers * monomerExpression))
+	setMonomerCounts(kb, monomerMass, monomersView)
 
 	### DNA Mass fraction ###
 	dNtpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
@@ -443,6 +430,7 @@ def fitKb(kb):
 	# TODO: Unhack this
 	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
+	import ipdb; ipdb.set_trace()
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
 
@@ -537,7 +525,23 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 
 	mRnaView.countsIs((nMRnas * mRnaExpression))
 
-def calcChromosomeMass(seq, kb):
+def setMonomerCounts(kb, monomerMass, monomersView):
+
+	monomerExpression = normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
+		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
+		)
+
+	nMonomers = countsFromMassAndExpression(
+		monomerMass.to("DCW_g").magnitude,
+		kb.monomerData["mw"].to('g/mol').magnitude,
+		monomerExpression,
+		kb.nAvogadro.to('1/mol').magnitude
+		)
+
+	monomersView.countsIs((nMonomers * monomerExpression))
+
+def calcChromosomeMass(numA, numC, numG, numT, kb):
 	weights = collections.OrderedDict({
 		# Handles reverse complement
 		"A": (
@@ -557,14 +561,30 @@ def calcChromosomeMass(seq, kb):
 			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude)
 			),
 		})
-	return sum(weights[x] for x in seq) - 2 * (len(seq)) * 17.01 # The "2" is because DNA is double stranded (need to account for both)
+
+	seqLen = numA + numC + numG + numT
+
+	return (
+		weights["A"] * numA +
+		weights["C"] * numC +
+		weights["G"] * numG +
+		weights["T"] * numT -
+		2 * seqLen * 17.01 # The "2" is because DNA is double stranded (need to account for both)
+		)
+
 
 def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-	dnaMassCalc = calcChromosomeMass(kb.genomeSeq, kb) / kb.nAvogadro.magnitude
+	dnaMassCalc = calcChromosomeMass(
+		kb.genomeSeq.count("A"),
+		kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("T"),
+		kb) / kb.nAvogadro.magnitude
+	calcNumDntps(kb, 60)
 	fracDifference = (dnaMass.magnitude - dnaMassCalc) / kb.avgCellDryMassInit.magnitude
 	if fracDifference < 0:
 		raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
