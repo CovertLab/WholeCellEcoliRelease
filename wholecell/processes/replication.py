@@ -121,15 +121,16 @@ class Replication(wholecell.processes.process.Process):
 				"directionIsPositive",
 				"isLeading"
 				)
-			
+
 			if isLeading:
-				actualReplicatedGenes = self.updateGeneCopynumber(
+				replicatedGenes = calculateReplicatedGenes(
 					chromosomeLocation,
 					directionIsPositive,
-					polymeraseProgress[i]
+					polymeraseProgress[i],
+					self.bufferedGeneEndCoordinate
 					)
-				if actualReplicatedGenes.any():
-					self.genes.countsInc(actualReplicatedGenes)
+				if replicatedGenes.any():
+					self.genes.countsInc(replicatedGenes)
 
 			dnaPolymerase.attrIs(chromosomeLocation = 
 						calculatePolymerasePositionUpdate(
@@ -201,26 +202,26 @@ class Replication(wholecell.processes.process.Process):
 		else:
 			return reverseComplement(leadingSequence)
 	
-	def updateGeneCopynumber(self, currentPosition, directionIsPositive, difference):
-		'''
-		Returns indicies of genes replicated by polymerase based on position and progress of polymerization
-		'''
+def calculateReplicatedGenes(currentPosition, directionIsPositive, difference, bufferedGeneEndCoordinate):
+	'''
+	Returns indicies of genes replicated by polymerase based on position and progress of polymerization
+	'''
 
-		if directionIsPositive:
-			finalLocation = currentPosition + difference
-			bufferedReplicatedGenes = (
-				self.bufferedGeneEndCoordinate > currentPosition) & (self.bufferedGeneEndCoordinate <= finalLocation
-				)
+	if directionIsPositive:
+		finalLocation = currentPosition + difference
+		bufferedReplicatedGenes = (
+			bufferedGeneEndCoordinate > currentPosition) & (bufferedGeneEndCoordinate <= finalLocation
+			)
 
-		else:
-			finalLocation = currentPosition - difference
-			bufferedReplicatedGenes = (
-				self.bufferedGeneEndCoordinate >= finalLocation) & (self.bufferedGeneEndCoordinate < currentPosition
-				)
+	else:
+		finalLocation = currentPosition - difference
+		bufferedReplicatedGenes = (
+			bufferedGeneEndCoordinate >= finalLocation) & (bufferedGeneEndCoordinate < currentPosition
+			)
 
-		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
+	actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
 
-		return actualReplicatedGenes
+	return actualReplicatedGenes
 
 
 def reverseComplement(sequenceVector):
