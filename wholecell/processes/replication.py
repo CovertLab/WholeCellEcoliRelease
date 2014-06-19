@@ -114,9 +114,32 @@ class Replication(wholecell.processes.process.Process):
 			)
 
 		# Update DNA polymerase locations based on polymerization polymeraseProgress
+		# Update gene copy number based on leading strand polymerase position
 		for i,dnaPolymerase in enumerate(allDnaPolymerase):
-			self.updatePolymerasePosition(dnaPolymerase, polymeraseProgress[i])
+			chromosomeLocation, directionIsPositive, isLeading = dnaPolymerase.attrs(
+				"chromosomeLocation",
+				"directionIsPositive",
+				"isLeading"
+				)
 			
+			if isLeading:
+				actualReplicatedGenes = self.updateGeneCopynumber(
+					chromosomeLocation,
+					directionIsPositive,
+					polymeraseProgress[i]
+					)
+				if actualReplicatedGenes.any():
+					self.genes.countsInc(actualReplicatedGenes)
+
+			dnaPolymerase.attrIs(chromosomeLocation = 
+						calculatePolymerasePositionUpdate(
+							chromosomeLocation,
+							directionIsPositive,
+							polymeraseProgress[i],
+							self.genomeLength
+						)
+					)
+				
 		# Update metabolite counts based on polymerization polymeraseProgress
 		# Assumes reaction taking place is:
 		# dNTP + H2O --> dNMP + PPi
@@ -177,37 +200,11 @@ class Replication(wholecell.processes.process.Process):
 			return leadingSequence
 		else:
 			return reverseComplement(leadingSequence)
-
-	
-	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
-		''' Wraps actual update calculation'''
-
-		chromosomeLocation, directionIsPositive, isLeading = dnaPolymerase.attrs(
-			"chromosomeLocation", "directionIsPositive", "isLeading")
-
-		if isLeading:
-			self.updateGeneCopynumber(
-				chromosomeLocation,
-				directionIsPositive,
-				polymeraseProgress
-				)
-
-		dnaPolymerase.attrIs(chromosomeLocation = 
-					calculatePolymerasePositionUpdate(
-						chromosomeLocation,
-						directionIsPositive,
-						polymeraseProgress,
-						self.genomeLength
-					)
-				)
-
 	
 	def updateGeneCopynumber(self, currentPosition, directionIsPositive, difference):
 		'''
 		Returns indicies of genes replicated by polymerase based on position and progress of polymerization
 		'''
-
-		# TODO: update self.genes once per time step, not once per dna poly
 
 		if directionIsPositive:
 			finalLocation = currentPosition + difference
@@ -223,11 +220,10 @@ class Replication(wholecell.processes.process.Process):
 
 		actualReplicatedGenes = bufferedReplicatedGenes.reshape(3,-1).any(0)
 
-		if actualReplicatedGenes.any():
-			self.genes.countsInc(actualReplicatedGenes)
+		return actualReplicatedGenes
 
 
-def reverseComplement(self, sequenceVector):
+def reverseComplement(sequenceVector):
 	return (N_NT_TYPES - 1) - sequenceVector
 
 
