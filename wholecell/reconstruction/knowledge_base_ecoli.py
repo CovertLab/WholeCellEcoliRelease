@@ -199,7 +199,7 @@ class KnowledgeBaseEcoli(object):
 				'molecule': u'H',
 				'type': 'metabolite'}]
 
-		r = {
+		reaction = {
 				"id": 'SEC_RXN_HACKED',
 				"name": 'L-selenocysteine production reaction (HACKED)',
 				"process": "Metabolism",
@@ -208,10 +208,61 @@ class KnowledgeBaseEcoli(object):
 				"stoichiometry": stoich,
 				"catBy": [],
 				"ub": 1000.,
-				"lb": 0.
+				"lb": -1000.
 			}
 
-		self._reactions.append(r)
+		self._reactions.append(reaction)
+
+		# SELNP media exchange
+		stoich = [
+			{'coeff': 1.0,
+			'form': 'mature',
+			'location': u'e',
+			'molecule': u'SELNP',
+			'type': 'metabolite'},
+			]
+
+		reaction = {
+			"id": 'SELNP_MEDIA_EXCHANGE_HACKED',
+			"name": 'Selenium media exchange (HACKED)',
+			"process": "Metabolism",
+			"ec": '',
+			"dir": 0., # presumably reversible
+			"stoichiometry": stoich,
+			"catBy": [],
+			"ub": 1000.,
+			"lb": -1000.
+			}
+
+		self._reactions.append(reaction)
+
+		# SELNP import reaction
+		stoich = [
+			{'coeff': -1.0,
+			'form': 'mature',
+			'location': u'e',
+			'molecule': u'SELNP',
+			'type': 'metabolite'},
+			{'coeff': 1.0,
+			'form': 'mature',
+			'location': u'c',
+			'molecule': u'SELNP',
+			'type': 'metabolite'}
+			]
+
+		reaction = {
+			"id": 'SELNP_IMPORT_HACKED',
+			"name": 'Selenium import reaction (HACKED)',
+			"process": "Metabolism",
+			"ec": '',
+			"dir": 0., # presumably reversible
+			"stoichiometry": stoich,
+			"catBy": [],
+			"ub": 1000.,
+			"lb": -1000.
+			}
+
+		self._reactions.append(reaction)
 
 
 	def _defineConstants(self):
@@ -2072,7 +2123,7 @@ class KnowledgeBaseEcoli(object):
 
 		self.metabolismReactionIsSink = reactionIsSink
 		self.metabolismReactionIsMediaExchange = reactionIsMediaExchange
-		self.metabolismReactionIsReversible = numpy.array(allReversibility)
+		self.metabolismReactionIsReversible = numpy.array(allReversibility, numpy.bool)
 
 
 	def metabolismStoichMatrix(self):
