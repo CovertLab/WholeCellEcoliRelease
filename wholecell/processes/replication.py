@@ -176,19 +176,21 @@ class Replication(wholecell.processes.process.Process):
 		if isLeading:
 			return leadingSequence
 		else:
-			return self.reverseComplement(leadingSequence)
+			return reverseComplement(leadingSequence)
 
 	
 	def updatePolymerasePosition(self, dnaPolymerase, polymeraseProgress):
 		''' Wraps actual update calculation'''
 
-		chromosomeLocation, directionIsPositive = dnaPolymerase.attrs("chromosomeLocation", "directionIsPositive")
+		chromosomeLocation, directionIsPositive, isLeading = dnaPolymerase.attrs(
+			"chromosomeLocation", "directionIsPositive", "isLeading")
 
-		self.updateGeneCopynumber(
-			chromosomeLocation,
-			directionIsPositive,
-			polymeraseProgress
-			)
+		if isLeading:
+			self.updateGeneCopynumber(
+				chromosomeLocation,
+				directionIsPositive,
+				polymeraseProgress
+				)
 
 		dnaPolymerase.attrIs(chromosomeLocation = 
 					calculatePolymerasePositionUpdate(
@@ -225,8 +227,8 @@ class Replication(wholecell.processes.process.Process):
 			self.genes.countsInc(actualReplicatedGenes)
 
 
-	def reverseComplement(self, sequenceVector):
-		return (N_NT_TYPES - 1) - sequenceVector
+def reverseComplement(self, sequenceVector):
+	return (N_NT_TYPES - 1) - sequenceVector
 
 
 def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, difference, genomeLength):
