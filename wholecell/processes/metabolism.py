@@ -174,12 +174,12 @@ class Metabolism(wholecell.processes.process.Process):
 			deltaMetabolitesMass / deltaMetabolitesMassNonzero * np.fmax(deltaMetabolitesNew, 0)
 			)
 
-		effectiveBiomassObjective = deltaMetabolitesNew / (
-			1e-3 * self.nAvogadro * self.initialDryMass
-			* np.exp(np.log(2) / self.cellCycleLen * self.time())
-			* (np.log(2) / self.cellCycleLen)
-			* self.timeStepSec
-			)
+		# effectiveBiomassObjective = deltaMetabolitesNew / (
+		# 	1e-3 * self.nAvogadro * self.initialDryMass
+		# 	* np.exp(np.log(2) / self.cellCycleLen * self.time())
+		# 	* (np.log(2) / self.cellCycleLen)
+		# 	* self.timeStepSec
+		# 	)
 
 		# ADJUSTMENT_RATE = 1
 		# self.wildtypeBiomassReactionSS = (self.wildtypeBiomassReactionSS + ADJUSTMENT_RATE * effectiveBiomassObjective)/(1+ADJUSTMENT_RATE)
