@@ -124,16 +124,24 @@ class Metabolism(wholecell.processes.process.Process):
 			])
 		self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude
 
+
 	def calculateRequest(self):
 		self.ppi.requestAll()
 		self.nmps.requestAll()
+
+		self.biomassMetabolites.requestAll()
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
-		biomassObjective = self._computeBiomassFromRequests()
+		# NOTE: _computeBiomassFromRequests breaks ATM because many biomass
+		# components are requested in multiple processes
+
+		biomassObjective = self._computeBiomassFromLeftovers()
+
+		assert (biomassObjective >= 0).all()
 
 		deltaMetabolites = np.fmax(
 			stochasticRound(
@@ -155,10 +163,11 @@ class Metabolism(wholecell.processes.process.Process):
 		# 	import ipdb; ipdb.set_trace()
 		# 	raise Exception, "Making fewer (d)NTPs than PPi's available"
 
-
 		self.ntps.countsInc(self.nmps.counts())
 		self.nmps.countsIs(0)
-		self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
+		# self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
+
+		# NOTE: disabling PPI usage since it causes counts to go negative
 
 
 	def _computeBiomassFromRequests(self):

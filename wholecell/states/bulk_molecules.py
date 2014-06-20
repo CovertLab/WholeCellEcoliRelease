@@ -27,6 +27,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 from wholecell.utils.constants import REQUEST_PRIORITY_DEFAULT
 
+ASSERT_POSITIVE_COUNTS = True
 
 class BulkMolecules(wholecell.states.state.State):
 	_name = 'BulkMolecules'
@@ -112,12 +113,21 @@ class BulkMolecules(wholecell.states.state.State):
 		for view in self._views:
 			self._countsRequested[view.containerIndexes, view._processIndex] += view._request()
 
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsRequested >= 0).all()
+
 		# Calculate partition
 
 		calculatePartition(self._processPriorities, self._countsRequested, self.container._counts, self._countsAllocatedInitial)
+
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsAllocatedInitial >= 0).all()
 		
 		# Record unpartitioned counts for later merging
 		self._countsUnallocated = self.container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
+		
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsUnallocated >= 0).all()
 
 		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
@@ -129,6 +139,9 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def merge(self):
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsAllocatedFinal >= 0).all()
+
 		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
@@ -136,6 +149,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# 	self._countsAllocatedFinal *
 		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
 		# 	)
+		
 
 
 	def mass(self):
@@ -242,7 +256,10 @@ def calculatePartition(processPriorities, countsRequested, counts, countsPartiti
 			/ totalRequests[totalRequestIsNonzero, np.newaxis]
 			)
 
-		allocations = np.fmin(requests, counts[:, np.newaxis] * fractionalRequests).astype(np.int64)
+		allocations = np.fmin(
+			requests,
+			counts[:, np.newaxis] * fractionalRequests
+			).astype(np.int64)
 
 		countsPartitioned[:, processHasPriority] = allocations
 
