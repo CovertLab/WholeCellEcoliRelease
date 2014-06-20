@@ -140,69 +140,99 @@ class Metabolism(wholecell.processes.process.Process):
 		# objective since they are zero-valued
 		# likewise, recycling needs to get handled
 
-		# metaboliteMasses = self.biomassMws.sum(1) / self.nAvogadro
+		ppiCount = self.ppi.count()
+		nmpCounts = self.nmps.counts()
 
-		# biomassObjective = self.wildtypeBiomassReactionSS
+		self.ppi.countIs(0)
+		self.nmps.countsIs(0)
 
-		# deltaMass = (
-		# 	np.dot(metaboliteMasses, biomassObjective * 1e-3 * self.nAvogadro * self.initialDryMass) *
-		# 	np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-		# 	(np.log(2) / self.cellCycleLen) * 
-		# 	self.timeStepSec
-		# 	)
+		metaboliteMasses = self.biomassMws.sum(1) / self.nAvogadro
 
-		# initialMetaboliteCounts = self.biomassMetabolites.counts()
+		biomassObjective = self.wildtypeBiomassReactionSS
 
-		# nominalBiomassProductionCoeff = (
-		# 	deltaMass + np.dot(metaboliteMasses, initialMetaboliteCounts)
-		# 	) / np.dot(metaboliteMasses, biomassObjective)
-
-		# deltaMetabolitesNew = np.int64(nominalBiomassProductionCoeff * biomassObjective - initialMetaboliteCounts)
-
-		# # print self.wildtypeIds[np.where(nominalBiomassProductionCoeff * biomassObjective < initialMetaboliteCounts)]
-
-		# deltaMetabolitesMass = np.dot(metaboliteMasses, deltaMetabolitesNew)
-		# deltaMetabolitesMassNonzero = np.dot(metaboliteMasses, np.fmax(deltaMetabolitesNew, 0))
-
-		# deltaMetabolitesNew = np.int64(
-		# 	deltaMetabolitesMass / deltaMetabolitesMassNonzero * np.fmax(deltaMetabolitesNew, 0)
-		# 	)
-
-		atpm = np.zeros_like(self.biomassMetabolites.counts())
-
-		# NOTE: _computeBiomassFromRequests breaks ATM because many biomass
-		# components are requested in multiple processes
-
-		biomassObjective = self._computeBiomassFromLeftovers()
-
-		assert (biomassObjective >= 0).all()
-
-		deltaMetabolites = np.fmax(
-			stochasticRound(
-				self.randomState,
-				np.round(
-					(biomassObjective + atpm) * 1e-3 *
-					self.nAvogadro * self.initialDryMass
-					) *
-				np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-				(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-				).astype(np.int64),
-			0
+		deltaMass = (
+			np.dot(metaboliteMasses, biomassObjective * 1e-3 * self.nAvogadro * self.initialDryMass) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.log(2) / self.cellCycleLen) * 
+			self.timeStepSec
 			)
 
-		self.biomassMetabolites.countsInc(deltaMetabolites)
-		# self.biomassMetabolites.countsInc(deltaMetabolitesNew)
+		initialMetaboliteCounts = self.biomassMetabolites.counts()
+
+		nominalBiomassProductionCoeff = (
+			deltaMass + np.dot(metaboliteMasses, initialMetaboliteCounts)
+			) / np.dot(metaboliteMasses, biomassObjective)
+
+		deltaMetabolitesNew = np.int64(nominalBiomassProductionCoeff * biomassObjective - initialMetaboliteCounts)
+
+		# print self.wildtypeIds[np.where(nominalBiomassProductionCoeff * biomassObjective < initialMetaboliteCounts)]
+
+		deltaMetabolitesMass = np.dot(metaboliteMasses, deltaMetabolitesNew)
+		deltaMetabolitesMassNonzero = np.dot(metaboliteMasses, np.fmax(deltaMetabolitesNew, 0))
+
+		deltaMetabolitesNew = np.int64(
+			deltaMetabolitesMass / deltaMetabolitesMassNonzero * np.fmax(deltaMetabolitesNew, 0)
+			)
+
+		effectiveBiomassObjective = deltaMetabolitesNew / (
+			1e-3 * self.nAvogadro * self.initialDryMass
+			* np.exp(np.log(2) / self.cellCycleLen * self.time())
+			* (np.log(2) / self.cellCycleLen)
+			* self.timeStepSec
+			)
+
+		# ADJUSTMENT_RATE = 1
+		# self.wildtypeBiomassReactionSS = (self.wildtypeBiomassReactionSS + ADJUSTMENT_RATE * effectiveBiomassObjective)/(1+ADJUSTMENT_RATE)
+
+		# atpm = np.zeros_like(self.biomassMetabolites.counts())
+
+		# # NOTE: _computeBiomassFromRequests breaks ATM because many biomass
+		# # components are requested in multiple processes
+
+		# biomassObjective = self._computeBiomassFromLeftovers()
+
+		# assert (biomassObjective >= 0).all()
+
+		# deltaMetabolites = np.fmax(
+		# 	stochasticRound(
+		# 		self.randomState,
+		# 		np.round(
+		# 			(biomassObjective + atpm) * 1e-3 *
+		# 			self.nAvogadro * self.initialDryMass
+		# 			) *
+		# 		np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+		# 		(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+		# 		).astype(np.int64),
+		# 	0
+		# 	)
+
+		# self.biomassMetabolites.countsInc(deltaMetabolites)
+		self.biomassMetabolites.countsInc(deltaMetabolitesNew)
 
 		# Fake recycling
 		# if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
 		# 	import ipdb; ipdb.set_trace()
 		# 	raise Exception, "Making fewer (d)NTPs than PPi's available"
 
-		self.ntps.countsInc(self.nmps.counts())
-		self.nmps.countsIs(0)
-		# self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
+		# self.ntps.countsInc(self.nmps.counts())
+		# self.nmps.countsIs(0)
+		# # self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
 
-		# NOTE: disabling PPI usage since it causes counts to go negative
+		# self.ppi.countDec(np.fmin(
+		# 	self.ppi.count(),
+		# 	self.ntpsdntps.counts().sum()
+		# 	))
+		
+		if ppiCount >= nmpCounts.sum():
+			self.ntps.countsInc(nmpCounts)
+			self.ppi.countIs(ppiCount - nmpCounts.sum())
+
+		else:
+			recycledNmps = np.int64(nmpCounts/nmpCounts.sum() * ppiCount)
+
+			self.ntps.countsInc(recycledNmps)
+			self.nmps.countsIs(nmpCounts - recycledNmps)
+			self.ppi.countIs(ppiCount - recycledNmps.sum())
 
 
 	def _computeBiomassFromRequests(self):
