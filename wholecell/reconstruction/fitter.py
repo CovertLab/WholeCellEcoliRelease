@@ -430,7 +430,9 @@ def fitKb(kb):
 	# TODO: Unhack this
 	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
-	import ipdb; ipdb.set_trace()
+	# import ipdb; ipdb.set_trace()
+
+	
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
 
@@ -584,7 +586,7 @@ def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 		kb.genomeSeq.count("G"),
 		kb.genomeSeq.count("T"),
 		kb) / kb.nAvogadro.magnitude
-	calcNumDntps(kb, 60)
+	# calcNumDntps(kb, 60)
 	fracDifference = (dnaMass.magnitude - dnaMassCalc) / kb.avgCellDryMassInit.magnitude
 	if fracDifference < 0:
 		raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
