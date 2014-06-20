@@ -52,6 +52,13 @@ class Process(object):
 		self._states = sim.states
 
 
+	# Set state partitioning options
+	# TODO: make this logic consistent amongst states and allow more options
+	def bulkMoleculesRequestPriorityIs(self, priorityLevel):
+		self._states["BulkMolecules"].processRequestPriorityIs(
+			self._processIndex, priorityLevel)
+
+
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculesView(
