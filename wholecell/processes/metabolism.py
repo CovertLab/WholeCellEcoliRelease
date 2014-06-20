@@ -140,17 +140,18 @@ class Metabolism(wholecell.processes.process.Process):
 		# objective since they are zero-valued
 		# likewise, recycling needs to get handled
 
-		# deltaMass = (
-		# 	self.initialDryMass *
-		# 	np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-		# 	(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-		# 	)
-
 		# metaboliteMasses = self.biomassMws.sum(1) / self.nAvogadro
 
-		# initialMetaboliteCounts = self.biomassMetabolites.counts()
-
 		# biomassObjective = self.wildtypeBiomassReactionSS
+
+		# deltaMass = (
+		# 	np.dot(metaboliteMasses, biomassObjective * 1e-3 * self.nAvogadro * self.initialDryMass) *
+		# 	np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+		# 	(np.log(2) / self.cellCycleLen) * 
+		# 	self.timeStepSec
+		# 	)
+
+		# initialMetaboliteCounts = self.biomassMetabolites.counts()
 
 		# nominalBiomassProductionCoeff = (
 		# 	deltaMass + np.dot(metaboliteMasses, initialMetaboliteCounts)
@@ -158,7 +159,14 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# deltaMetabolitesNew = np.int64(nominalBiomassProductionCoeff * biomassObjective - initialMetaboliteCounts)
 
-		# print self.wildtypeIds[np.where(nominalBiomassProductionCoeff * biomassObjective < initialMetaboliteCounts)]
+		# # print self.wildtypeIds[np.where(nominalBiomassProductionCoeff * biomassObjective < initialMetaboliteCounts)]
+
+		# deltaMetabolitesMass = np.dot(metaboliteMasses, deltaMetabolitesNew)
+		# deltaMetabolitesMassNonzero = np.dot(metaboliteMasses, np.fmax(deltaMetabolitesNew, 0))
+
+		# deltaMetabolitesNew = np.int64(
+		# 	deltaMetabolitesMass / deltaMetabolitesMassNonzero * np.fmax(deltaMetabolitesNew, 0)
+		# 	)
 
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
@@ -183,6 +191,7 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		self.biomassMetabolites.countsInc(deltaMetabolites)
+		# self.biomassMetabolites.countsInc(deltaMetabolitesNew)
 
 		# Fake recycling
 		# if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
