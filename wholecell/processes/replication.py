@@ -221,11 +221,11 @@ def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading
 
 	if directionIsPositive:
 		leadingSequence = genomeSequence[
-			np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
+			np.arange(chromosomeLocation, chromosomeLocation + elongationLength) % genomeLength
 			]
 	else:
 		leadingSequence = genomeSequence[
-			np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
+			np.arange(chromosomeLocation, chromosomeLocation - elongationLength, -1) % genomeLength
 			]
 
 	# Return coding or non-coding strand
