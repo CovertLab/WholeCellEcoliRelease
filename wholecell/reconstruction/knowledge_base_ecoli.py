@@ -208,7 +208,8 @@ class KnowledgeBaseEcoli(object):
 				"stoichiometry": stoich,
 				"catBy": [],
 				"ub": 1000.,
-				"lb": -1000.
+				"lb": -1000.,
+				"kcat": None
 			}
 
 		self._reactions.append(reaction)
@@ -231,7 +232,8 @@ class KnowledgeBaseEcoli(object):
 			"stoichiometry": stoich,
 			"catBy": [],
 			"ub": 1000.,
-			"lb": -1000.
+			"lb": -1000.,
+			"kcat": None
 			}
 
 		self._reactions.append(reaction)
@@ -259,7 +261,8 @@ class KnowledgeBaseEcoli(object):
 			"stoichiometry": stoich,
 			"catBy": [],
 			"ub": 1000.,
-			"lb": -1000.
+			"lb": -1000.,
+			"kcat": None
 			}
 
 		self._reactions.append(reaction)
@@ -1207,7 +1210,8 @@ class KnowledgeBaseEcoli(object):
 					"stoichiometry": [],
 					"catBy": [],
 					"ub": float(i.upper_bound),
-					"lb": float(i.lower_bound)
+					"lb": float(i.lower_bound),
+					"kcat":i.kcat if i.kcat != -1 else None
 				}
 
 			if i.id in enz:
@@ -2034,6 +2038,7 @@ class KnowledgeBaseEcoli(object):
 		# allReactionNames = []
 		# allReactionIds = []
 		allEnzymes = []
+		allKcats = []
 		allReversibility = []
 		allReactionStoich = []
 
@@ -2048,6 +2053,8 @@ class KnowledgeBaseEcoli(object):
 
 			enzymes = reaction['catBy']
 
+			kcat = reaction["kcat"]
+
 			reversible = (reaction['dir'] == 0)
 
 			reactionStoich = {
@@ -2055,14 +2062,20 @@ class KnowledgeBaseEcoli(object):
 				for reactant in reaction['stoichiometry']
 				}
 
-
 			# allReactionNames.append(reactionName)
 			# allReactionIds.append(reactionId)
 			allEnzymes.append(enzymes)
+			allKcats.append(kcat)
 			allReversibility.append(reversible)
 			allReactionStoich.append(reactionStoich)
 
 			molecules |= reactionStoich.viewkeys()
+
+		self.metabolismReactionHasKcat = numpy.array([kcat is not None for kcat in allKcats])
+
+		self.metabolismReactionKcat = numpy.array([kcat if kcat is not None else 0 for kcat in allKcats])
+
+		self.metabolismReactionEnzymes = allEnzymes
 
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
