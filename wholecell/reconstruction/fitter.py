@@ -565,7 +565,7 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 		weights["C"] * numC +
 		weights["G"] * numG +
 		weights["T"] * numT -
-		2 * seqLen * 17.01 # The "2" is because DNA is double stranded (need to account for both)
+		seqLen * 17.01 # Note: no factor of 2 is needed because the num variables account for double-strandedness
 		)
 
 
