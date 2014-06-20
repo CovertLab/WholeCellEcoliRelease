@@ -225,7 +225,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):
 	counts = counts.copy()
-	
+
 	priorityLevels = np.sort(np.unique(processPriorities))[::-1]
 
 	for priorityLevel in priorityLevels:
@@ -242,7 +242,7 @@ def calculatePartition(processPriorities, countsRequested, counts, countsPartiti
 			/ totalRequests[totalRequestIsNonzero, np.newaxis]
 			)
 
-		allocations = np.floor(np.fmin(requests, counts[:, np.newaxis] * fractionalRequests))
+		allocations = np.fmin(requests, counts[:, np.newaxis] * fractionalRequests).astype(np.int64)
 
 		countsPartitioned[:, processHasPriority] = allocations
 
