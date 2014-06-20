@@ -430,9 +430,7 @@ def fitKb(kb):
 	# TODO: Unhack this
 	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
-	# import ipdb; ipdb.set_trace()
 
-	
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
 
@@ -575,21 +573,79 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 		)
 
 
+def calcNumDntpsDnmps(kb, tau_d):
+	if tau_d != 60:
+		raise NotImplementedError, "This function currently only works for the special case of 60 min doubling time."
+
+	nPolymerases = 4
+	k_elng = kb.dnaPolymeraseElongationRate.to("nucleotide / s").magnitude
+
+	seqLen = len(kb.genomeSeq)
+	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
+	tau_d = kb.cellCycleLen.to("s").magnitude # Doubling time
+	N_p = 2 * seqLen	# Number of polymerized dNMPs (DNA is double-stranded, thus the factor of 2)
+	dt = kb.timeStep.to("s").magnitude
+
+	return np.fmax(
+		2 * N_p / np.exp((np.log(2) / tau_d) * t_C),
+		(nPolymerases * k_elng * dt) / (np.exp((np.log(2) / tau_d) * dt) - 1)
+		)
+
+
 def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-	dnaMassCalc = calcChromosomeMass(
+	chromMass = calcChromosomeMass(
 		kb.genomeSeq.count("A"),
 		kb.genomeSeq.count("C"),
 		kb.genomeSeq.count("G"),
 		kb.genomeSeq.count("T"),
 		kb) / kb.nAvogadro.magnitude
-	# calcNumDntps(kb, 60)
+
+	nDnmps = (kb.genomeLength * 2)
+	# nDntps = calcNumDntpsDnmps(kb, 60) - nDnmps
+	k_elng = kb.dnaPolymeraseElongationRate.to("nucleotide / s").magnitude
+	seqLen = len(kb.genomeSeq)
+	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
+	tau_d = kb.cellCycleLen.to("s").magnitude
+	nDntps = (2 * np.exp(-np.log(2)/tau_d * t_C) - 1) * nDnmps
+
+	fracA = float(kb.genomeSeq.count("A") + kb.genomeSeq.count("T")) / (2 * kb.genomeLength)
+	fracC = float(kb.genomeSeq.count("C") + kb.genomeSeq.count("G")) / (2 * kb.genomeLength)
+	fracG = float(kb.genomeSeq.count("G") + kb.genomeSeq.count("C")) / (2 * kb.genomeLength)
+	fracT = float(kb.genomeSeq.count("T") + kb.genomeSeq.count("A")) / (2 * kb.genomeLength)
+
+	nDatp = np.ceil(nDntps * fracA)
+	nDctp = np.ceil(nDntps * fracC)
+	nDgtp = np.ceil(nDntps * fracG)
+	nDttp = np.ceil(nDntps * fracT)
+
+	dNtpMws = collections.OrderedDict({
+		"A": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DATP[c]"]["mass"].sum().magnitude)
+			),
+		"C": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCTP[c]"]["mass"].sum().magnitude)
+			),
+		"G": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGTP[c]"]["mass"].sum().magnitude)
+			),
+		"T": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTTP[c]"]["mass"].sum().magnitude)
+			),
+		})
+
+	dNtpMass = (
+		dNtpMws["A"] * nDatp + dNtpMws["C"] * nDctp +
+		dNtpMws["G"] * nDgtp + dNtpMws["T"] * nDttp
+		) / kb.nAvogadro.magnitude
+	dnaMassCalc = chromMass + dNtpMass
+
 	fracDifference = (dnaMass.magnitude - dnaMassCalc) / kb.avgCellDryMassInit.magnitude
-	if fracDifference < 0:
-		raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
+	# if fracDifference < 0:
+	# 	raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
 	idx60Min = np.where(kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60)
 	dNtpCompositionIdx = 3 # TODO: Get this from code somehow
 	nElems = 9 # TODO: Get this from code somehow
