@@ -117,6 +117,7 @@ class Test_polymerize(unittest.TestCase):
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
 	def test_buildSequences(self):
+		# Base case
 		padding = np.empty((20,10))
 		padding.fill(PAD_VALUE)
 		allSequences =  np.hstack(
@@ -143,3 +144,15 @@ class Test_polymerize(unittest.TestCase):
 		self.assertTrue(np.all(
 			sequences == comparison_sequence
 			))
+
+		# Un-padded case should throw exception
+		allSequences = np.random.randint(3, size=(20,10)).astype(np.int8, copy=False)
+		sequenceIndexes = np.array([0,5,8])
+		polymerizedLengths = np.array([0,4,9])
+		elngRate = 5
+		
+		# NOTE: Define an exeption subclass if you want to check the real message
+		self.assertRaises(
+			Exception,
+			buildSequences, allSequences, sequenceIndexes, polymerizedLengths, elngRate
+			)

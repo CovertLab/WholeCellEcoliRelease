@@ -29,6 +29,9 @@ cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
 		int elng_rate
 		):
 
+	if np.any(positions + elng_rate > base_sequences.shape[1]):
+		raise Exception('Elongation proceeds past end of sequence!')
+
 	cdef int out_rows = positions.shape[0]
 
 	cdef np.ndarray[np.int8_t, ndim=2] out = np.empty((out_rows, elng_rate), np.int8)
