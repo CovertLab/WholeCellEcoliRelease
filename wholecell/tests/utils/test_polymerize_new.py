@@ -7,7 +7,7 @@ Test polymerize_new.py
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 1/22/2013
 """
-from wholecell.utils.polymerize_new import polymerize
+from wholecell.utils.polymerize_new import  buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
 import numpy as np
 
@@ -17,6 +17,21 @@ import unittest
 
 class Test_polymerize(unittest.TestCase):
 	
+
+	@classmethod
+	def setUpClass(cls):
+		pass
+
+	@classmethod
+	def tearDownClass(cls):
+		pass
+
+	def setUp(self):
+		pass
+
+	def tearDown(self):
+		pass
+
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
 	def test_polymerize_functionCall(self):
@@ -97,3 +112,34 @@ class Test_polymerize(unittest.TestCase):
 		np.random.seed()
 		
 		self.assertTrue((np.array([12,12,12,3]) == progress).all())
+
+
+	@noseAttrib.attr('polymerizeNew')
+	@noseAttrib.attr('smalltest')
+	def test_buildSequences(self):
+		padding = np.empty((20,10))
+		padding.fill(PAD_VALUE)
+		allSequences =  np.hstack(
+			(
+				np.random.randint(3, size=(20,10)), padding
+				)
+			).astype(np.int8, copy=False)
+		sequenceIndexes = np.array([0,5,8])
+		polymerizedLengths = np.array([0,4,9])
+		elngRate = 5
+		
+		sequences = buildSequences(
+			allSequences,
+			sequenceIndexes,
+			polymerizedLengths,
+			elngRate
+			)
+
+		comparison_sequence = np.empty((3,elngRate))
+		comparison_sequence[0,:] = allSequences[0,0:elngRate]
+		comparison_sequence[1,:] = allSequences[5,4:4+elngRate]
+		comparison_sequence[2,:] = allSequences[8,9:9+elngRate]
+
+		self.assertTrue(np.all(
+			sequences == comparison_sequence
+			))
