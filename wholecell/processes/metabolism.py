@@ -134,6 +134,32 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		# in-development work
+		# currently misbehaving due to DNTPs, H, and PPI
+		# note: ADP, H, H2O and PPI should probably be removed from the biomass 
+		# objective since they are zero-valued
+		# likewise, recycling needs to get handled
+
+		# deltaMass = (
+		# 	self.initialDryMass *
+		# 	np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+		# 	(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
+		# 	)
+
+		# metaboliteMasses = self.biomassMws.sum(1) / self.nAvogadro
+
+		# initialMetaboliteCounts = self.biomassMetabolites.counts()
+
+		# biomassObjective = self.wildtypeBiomassReactionSS
+
+		# nominalBiomassProductionCoeff = (
+		# 	deltaMass + np.dot(metaboliteMasses, initialMetaboliteCounts)
+		# 	) / np.dot(metaboliteMasses, biomassObjective)
+
+		# deltaMetabolitesNew = np.int64(nominalBiomassProductionCoeff * biomassObjective - initialMetaboliteCounts)
+
+		# print self.wildtypeIds[np.where(nominalBiomassProductionCoeff * biomassObjective < initialMetaboliteCounts)]
+
 		atpm = np.zeros_like(self.biomassMetabolites.counts())
 
 		# NOTE: _computeBiomassFromRequests breaks ATM because many biomass

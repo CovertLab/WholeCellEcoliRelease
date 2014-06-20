@@ -37,7 +37,8 @@ class BiomassInternment(wholecell.processes.process.Process):
 			list(kb.cellLPSFractionData["metaboliteId"]) +
 			list(kb.cellLipidFractionData["metaboliteId"]) +
 			list(kb.cellInorganicIonFractionData["metaboliteId"]) +
-			list(kb.cellSolublePoolFractionData["metaboliteId"])
+			list(kb.cellSolublePoolFractionData["metaboliteId"]) + 
+			["H2O[c]"]
 			)
 
 		self.molecules = self.bulkMoleculesView(moleculeIds)
