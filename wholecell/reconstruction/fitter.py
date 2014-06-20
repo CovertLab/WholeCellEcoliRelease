@@ -545,20 +545,16 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 	weights = collections.OrderedDict({
 		# Handles reverse complement
 		"A": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude) +
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude)
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude)
 			),
 		"C": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude) +
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude)
-			),
-		"G": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude) +
 			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude)
 			),
+		"G": (
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude)
+			),
 		"T": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude) +
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude)
+			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude)
 			),
 		})
 
@@ -598,10 +594,10 @@ def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
 	chromMass = calcChromosomeMass(
-		kb.genomeSeq.count("A"),
-		kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("A"),
 		kb) / kb.nAvogadro.magnitude
 
 	nDnmps = (kb.genomeLength * 2)

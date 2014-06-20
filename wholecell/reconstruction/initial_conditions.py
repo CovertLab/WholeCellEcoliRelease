@@ -118,6 +118,7 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 	dNTPs = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
 	dnmpIds = ["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"]
 
+	dntpsView = bulkMolCntr.countsView(dNTPs)
 	dnmpsView = bulkMolCntr.countsView(dnmpIds)
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
@@ -129,18 +130,33 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		], dtype = np.float64))
 
-	mws = np.array([
+	dnmpMws = np.array([
 		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in dnmpIds]
-		) # This is a hack. Without a real chromosome, though, it's all a hack
+		)
 
+	dntpMws = np.array([
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in dNTPs]
+		)
+
+	dnmpsView.countsIs([
+		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+		])
+
+	chromMass = (
+		np.dot(dnmpsView.counts(), dnmpMws) - 2 * kb.genomeLength * 17.01
+		) / kb.nAvogadro.magnitude
+
+	# dNTP Pools are handled here
 	nDntps = countsFromMassAndExpression(
-		dnaMass,
-		mws,
+		dnaMass - chromMass,
+		dntpMws,
 		dnaExpression,
 		kb.nAvogadro.magnitude
 		)
-
-	dnmpsView.countsIs(
+	dntpsView.countsIs(
 		randomState.multinomial(nDntps, dnaExpression)
 		)
 
@@ -201,6 +217,15 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 	dt = timeStep
 	tau_d = kb.cellCycleLen.to("second").magnitude
 
+	##### dNTPs are handled in DNA initialization because they are special
+	## dNTPs
+	# dntpsFromLastStep = (
+	# 	dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
+	# 	kb.nAvogadro.to("1 / millimole").magnitude *
+	# 	kb.avgCellDryMassInit.to("DCW_gram").magnitude
+	# 	)
+	# dntpsBulkView.countsIs(dntpsFromLastStep)
+
 	## NTPs
 	ntpsFromLastStep = (
 		ntpsBiomassView.counts() *
@@ -209,14 +234,6 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude
 		)
 	ntpsBulkView.countsIs(ntpsFromLastStep)
-
-	## dNTPs
-	dntpsFromLastStep = (
-		dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
-		kb.nAvogadro.to("1 / millimole").magnitude *
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		)
-	dntpsBulkView.countsIs(dntpsFromLastStep)
 
 	## Amino Acids
 	aasFromLastStep = (
@@ -236,6 +253,7 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude
 		)
 
+	# TODO: This is definitely wrong because replication isn't metabolically limited
 	dntpsFromTwoStepsAgo = (
 		dntpsBiomassView.counts() *
 		(np.exp(-np.log(2) / tau_d * dt) - np.exp(-np.log(2) / tau_d * 2 * dt)) *
@@ -247,9 +265,10 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 		ntpsFromLastStep
 		))
 
-	ppiFromDntps = np.round(np.sum(
-		dntpsFromLastStep
-		))
+	# ppiFromDntps = np.round(np.sum(
+	# 	dntpsFromLastStep
+	# 	))
+	ppiFromDntps = 0
 
 	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
 
