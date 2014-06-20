@@ -15,7 +15,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-
+from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
@@ -72,6 +72,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnas = self.bulkMoleculesView(rnaIds)
 
 		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
+
+		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
 
 
 	# Calculate temporal evolution

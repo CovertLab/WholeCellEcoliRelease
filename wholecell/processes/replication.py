@@ -33,9 +33,13 @@ class Replication(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Parameters
-		self.sequence = None
+		self.genomeSequence = None
 		self.genomeLength = None
 		self.dnaPolymeraseElongationRate = None
+		self.ntMapping = None
+		self.tercCenter = None
+		self.geneEndCoordinate = None
+		self.bufferedGeneEndCoordinate = None
 
 		# Views
 		self.dntps = None
@@ -52,11 +56,11 @@ class Replication(wholecell.processes.process.Process):
 
 		## Load parameters
 		# Create genome sequence out of small integers
-		self.sequence = np.empty(len(kb.genomeSeq), np.int8)
+		self.genomeSequence = np.empty(len(kb.genomeSeq), np.int8)
 		self.ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(NT_SINGLELETTERS)])
 		
 		for i,letter in enumerate(kb.genomeSeq):
-			self.sequence[i] = self.ntMapping[letter] # Build genome sequence as small integers
+			self.genomeSequence[i] = self.ntMapping[letter] # Build genome sequence as small integers
 
 		# Load modeling parameters
 		self.genomeLength = kb.genomeLength
@@ -82,13 +86,34 @@ class Replication(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		# Request all dna polymerases
 		self.dnaPolymerase.requestAll()
 
-		dnaPolymerase = self.dnaPolymerase.molecules()
+		# Look at all current polymerase properties and calcualate
+		# dNTP demands based on upcoming sequence
+		allDnaPolymerase = self.dnaPolymerase.molecules()
+		if len(allDnaPolymerase) == 0:
+			return
+		nPolymerase = len(allDnaPolymerase)
+		allChromosomeLocation, allDirectionIsPositive, allIsLeading = allDnaPolymerase.attrs(
+			"chromosomeLocation",
+			"directionIsPositive",
+			"isLeading"
+			)
 		
 		totalNtRequest = np.array([0]*len(self.ntMapping))
-		for p in dnaPolymerase:
-			totalNtRequest += self.calculateNucleotideRequest(p)
+		for i in range(nPolymerase):
+			totalNtRequest += np.bincount(
+				calculateUpcomingSequence(
+					allChromosomeLocation[i],
+					allDirectionIsPositive[i],
+					allIsLeading[i],
+					self.dnaPolymeraseElongationRate,
+					self.genomeLength,
+					self.genomeSequence,
+					self.tercCenter
+					), minlength = N_NT_TYPES
+				)
 
 		# Assumes reaction taking place is:
 		# dNTP + H2O --> dNMP + PPi
@@ -98,12 +123,30 @@ class Replication(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		# Get polymerase properties
 		allDnaPolymerase = self.dnaPolymerase.molecules()
 		if len(allDnaPolymerase) == 0:
 			return
+		nPolymerase = len(allDnaPolymerase)
+		allChromosomeLocation, allDirectionIsPositive, allIsLeading = allDnaPolymerase.attrs(
+			"chromosomeLocation",
+			"directionIsPositive",
+			"isLeading"
+			)
 
 		# Build sequence matrix for polymerize_matrix function
-		sequences = self.buildSequenceMatrix(allDnaPolymerase)
+		sequences = buildSequenceMatrix(
+			nPolymerase,
+			allChromosomeLocation,
+			allDirectionIsPositive,
+			allIsLeading,
+			self.dnaPolymeraseElongationRate,
+			self.genomeLength,
+			self.genomeSequence,
+			self.tercCenter
+			)
+
+		# Calculate polymerase progress
 		dNtpCounts = self.dntps.counts()
 		reactionLimit = self.dntps.counts().sum()
 		polymeraseProgress, dNtpsUsed, nElongations = polymerize(
@@ -115,27 +158,21 @@ class Replication(wholecell.processes.process.Process):
 
 		# Update DNA polymerase locations based on polymerization polymeraseProgress
 		# Update gene copy number based on leading strand polymerase position
-		for i,dnaPolymerase in enumerate(allDnaPolymerase):
-			chromosomeLocation, directionIsPositive, isLeading = dnaPolymerase.attrs(
-				"chromosomeLocation",
-				"directionIsPositive",
-				"isLeading"
-				)
-
-			if isLeading:
+		for i in range(nPolymerase):
+			if allIsLeading[i]:
 				replicatedGenes = calculateReplicatedGenes(
-					chromosomeLocation,
-					directionIsPositive,
+					allChromosomeLocation[i],
+					allDirectionIsPositive[i],
 					polymeraseProgress[i],
 					self.bufferedGeneEndCoordinate
 					)
 				if replicatedGenes.any():
 					self.genes.countsInc(replicatedGenes)
 
-			dnaPolymerase.attrIs(chromosomeLocation = 
+			allDnaPolymerase[i].attrIs(chromosomeLocation = 
 						calculatePolymerasePositionUpdate(
-							chromosomeLocation,
-							directionIsPositive,
+							allChromosomeLocation[i],
+							allDirectionIsPositive[i],
 							polymeraseProgress[i],
 							self.genomeLength
 						)
@@ -149,58 +186,53 @@ class Replication(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 		self.h2o.countDec(np.sum(dNtpsUsed))
 
+def buildSequenceMatrix(nPolymerase, allChromosomeLocation, allDirectionIsPositive, allIsLeading, dnaPolymeraseElongationRate, genomeLength, genomeSequence, tercCenter):
+	'''Builds sequence matrix for polymerize function'''
+	sequenceMatrix = np.empty((nPolymerase, dnaPolymeraseElongationRate), np.int8)
+	sequenceMatrix.fill(PAD_VALUE)
 
-	def calculateNucleotideRequest(self, dnaPolymerase):
-		'''Calculates nucleotide request based on sequence'''
-		seq = self.calculateUpcomingSequence(dnaPolymerase)
-		return np.bincount(seq, minlength = N_NT_TYPES)
-
-	
-	def buildSequenceMatrix(self, allDnaPolymerase):
-		'''Builds sequence matrix for polymerize function'''
-		sequenceMatrix = np.empty((len(allDnaPolymerase), self.dnaPolymeraseElongationRate), np.int8)
-		sequenceMatrix.fill(PAD_VALUE)
-
-		for dnaPolyIndex, dnaPolymerase in enumerate(allDnaPolymerase):
-			upcomingSequence = self.calculateUpcomingSequence(dnaPolymerase)
-			sequenceMatrix[dnaPolyIndex, :upcomingSequence.shape[0]] = upcomingSequence
-
-		return sequenceMatrix
-
-
-	def calculateUpcomingSequence(self, dnaPolymerase):
-		'''Wraps actual sequence calculation'''
-
-		chromosomeLocation, directionIsPositive, isLeading = dnaPolymerase.attrs(
-			"chromosomeLocation",
-			"directionIsPositive",
-			"isLeading"
+	for dnaPolyIndex in range(nPolymerase):
+		upcomingSequence = calculateUpcomingSequence(
+			allChromosomeLocation[dnaPolyIndex],
+			allDirectionIsPositive[dnaPolyIndex],
+			allIsLeading[dnaPolyIndex],
+			dnaPolymeraseElongationRate,
+			genomeLength,
+			genomeSequence,
+			tercCenter
 			)
+		sequenceMatrix[dnaPolyIndex, :upcomingSequence.shape[0]] = upcomingSequence
 
-		elongationLength = self.dnaPolymeraseElongationRate
+	return sequenceMatrix
 
-		# Calculate if terC is in next polymerization step and stop polymerase there
-		if directionIsPositive:
-			upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation + self.dnaPolymeraseElongationRate) % self.genomeLength
-		else:
-			upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation - self.dnaPolymeraseElongationRate, -1) % self.genomeLength
-			
-		if self.tercCenter in upcomingPositions:
-			elongationLength = np.where(upcomingPositions == self.tercCenter)[0][0]
+def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading, elongationRate, genomeLength, genomeSequence, tercCenter):
+	'''Wraps actual sequence calculation'''
 
-		leadingSequence = calculateSequence(
-				chromosomeLocation,
-				directionIsPositive,
-				elongationLength,
-				self.sequence,
-				self.genomeLength
-				)
+	elongationLength = elongationRate
 
-		# Return coding or non-coding strand
-		if isLeading:
-			return leadingSequence
-		else:
-			return reverseComplement(leadingSequence)
+	# Calculate if terC is in next polymerization step and stop polymerase there
+	if directionIsPositive:
+		upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
+	else:
+		upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
+		
+	if tercCenter in upcomingPositions:
+		elongationLength = np.where(upcomingPositions == tercCenter)[0][0]
+
+	if directionIsPositive:
+		return genomeSequence[
+			np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
+			]
+	else:
+		return genomeSequence[
+			np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
+			]
+
+	# Return coding or non-coding strand
+	if isLeading:
+		return leadingSequence
+	else:
+		return reverseComplement(leadingSequence)
 	
 def calculateReplicatedGenes(currentPosition, directionIsPositive, difference, bufferedGeneEndCoordinate):
 	'''
@@ -237,21 +269,3 @@ def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, diff
 		
 	else:
 		return (currentPosition - difference) % genomeLength
-
-
-def calculateSequence(chromosomeLocation, directionIsPositive, elongationRate, sequence, genomeLength):
-	'''
-	Calculates sequence in front of DNA polymerase
-	based on position, direction, and eloncation rate
-	'''
-
-	if directionIsPositive:
-		return sequence[
-			np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
-			]
-	else:
-		return sequence[
-			np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
-			]
-
-	# TODO: Check for hitting the end of the chromosome!

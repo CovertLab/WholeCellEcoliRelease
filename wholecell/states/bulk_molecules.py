@@ -25,6 +25,9 @@ import wholecell.states.state
 import wholecell.views.view
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
+from wholecell.utils.constants import REQUEST_PRIORITY_DEFAULT
+
+ASSERT_POSITIVE_COUNTS = True
 
 class BulkMolecules(wholecell.states.state.State):
 	_name = 'BulkMolecules'
@@ -71,15 +74,15 @@ class BulkMolecules(wholecell.states.state.State):
 		# Create the container for molecule counts
 		self.container = bulkObjectsContainer(kb)
 		
-		# TODO: restore this behavior or replace it with something bettter
+		# TODO: generalize and expand this logic
 
-		self._isRequestAbsolute = np.zeros(self._nProcesses, np.bool)
-		try:
-			self._isRequestAbsolute[sim.processes.keys().index('RnaDegradation')] = True
-			self._isRequestAbsolute[sim.processes.keys().index('ProteinDegradation')] = True
+		self._processPriorities = np.empty(self._nProcesses, np.int64)
+		self._processPriorities.fill(REQUEST_PRIORITY_DEFAULT)
 
-		except ValueError:
-			pass
+
+	def processRequestPriorityIs(self, processIndex, priorityLevel):
+		self._processPriorities[processIndex] = priorityLevel
+		
 
 	def allocate(self):
 		super(BulkMolecules, self).allocate() # Allocates partitions
@@ -100,30 +103,45 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def partition(self):
-		if self._nProcesses:
-			# Calculate and store requests
-			self._countsRequested[:] = 0
-
-			for view in self._views:
-				self._countsRequested[view.containerIndexes, view._processIndex] += view._request()
-
-			calculatePartition(self._isRequestAbsolute, self._countsRequested, self.container._counts, self._countsAllocatedInitial)
-			
-			# Record unpartitioned counts for later merging
-			self._countsUnallocated = self.container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
-
-			self._countsAllocatedFinal[:] = self._countsAllocatedInitial
-
-			# self._massAllocatedInitial = (
-			# 	self._countsAllocatedInitial *
-			# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
-			# 	)
-
-		else:
+		if self._nProcesses == 0:
 			self._countsUnallocated = self.container._counts
+			return
+
+		# Calculate and store requests
+		self._countsRequested[:] = 0
+
+		for view in self._views:
+			self._countsRequested[view.containerIndexes, view._processIndex] += view._request()
+
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsRequested >= 0).all()
+
+		# Calculate partition
+
+		calculatePartition(self._processPriorities, self._countsRequested, self.container._counts, self._countsAllocatedInitial)
+
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsAllocatedInitial >= 0).all()
+		
+		# Record unpartitioned counts for later merging
+		self._countsUnallocated = self.container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
+		
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsUnallocated >= 0).all()
+
+		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
+
+		# self._massAllocatedInitial = (
+		# 	self._countsAllocatedInitial *
+		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
+		# 	)
+
 
 
 	def merge(self):
+		if ASSERT_POSITIVE_COUNTS:
+			assert (self._countsAllocatedFinal >= 0).all()
+
 		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
@@ -131,6 +149,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# 	self._countsAllocatedFinal *
 		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
 		# 	)
+		
 
 
 	def mass(self):
@@ -218,33 +237,33 @@ class BulkMolecules(wholecell.states.state.State):
 			self._countsUnallocated[:] = entry['countsUnallocated']
 
 
-def calculatePartition(isRequestAbsolute, countsBulkRequested, countsBulk, countsBulkPartitioned):
-	requestsAbsolute = np.sum(countsBulkRequested[..., isRequestAbsolute], axis = -1)
-	requestsRelative = np.sum(countsBulkRequested[..., ~isRequestAbsolute], axis = -1)
+def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):
+	counts = counts.copy()
 
-	# TODO: Remove the warnings filter or move it elsewhere
-	# there may also be a way to avoid these warnings by only evaluating 
-	# division "sparsely", which should be faster anyway - JM
-	oldSettings = np.seterr(invalid = 'ignore', divide = 'ignore') # Ignore divides-by-zero errors
+	priorityLevels = np.sort(np.unique(processPriorities))[::-1]
 
-	scaleAbsolute = np.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-		np.minimum(1, # Restrict requests to at most 100% (absolute requests can do strange things)
-			np.minimum(countsBulk, requestsAbsolute) / requestsAbsolute) # Divide requests amongst partitions proportionally
-		)
+	for priorityLevel in priorityLevels:
+		processHasPriority = (priorityLevel == processPriorities)
 
-	scaleRelative = np.fmax(0, # Restrict requests to at least 0% (fmax replaces nan's)
-		np.maximum(0, countsBulk - requestsAbsolute) / requestsRelative # Divide remaining requests amongst partitions proportionally
-		)
+		requests = countsRequested[:, processHasPriority]
 
-	scaleRelative[requestsRelative == 0] = 0 # nan handling?
+		totalRequests = requests.sum(1)
+		totalRequestIsNonzero = (totalRequests > 0)
 
-	np.seterr(**oldSettings) # Restore error handling to the previous state
+		fractionalRequests = np.zeros(requests.shape, np.float64)
+		fractionalRequests[totalRequestIsNonzero, :] = (
+			requests[totalRequestIsNonzero, :]
+			/ totalRequests[totalRequestIsNonzero, np.newaxis]
+			)
 
-	# Compute allocations and assign counts to the partitions
-	for iPartition in range(countsBulkPartitioned.shape[-1]):
-		scale = scaleAbsolute if isRequestAbsolute[iPartition] else scaleRelative
-		allocation = np.floor(countsBulkRequested[..., iPartition] * scale)
-		countsBulkPartitioned[..., iPartition] = allocation
+		allocations = np.fmin(
+			requests,
+			counts[:, np.newaxis] * fractionalRequests
+			).astype(np.int64)
+
+		countsPartitioned[:, processHasPriority] = allocations
+
+		counts -= allocations.sum(1)
 
 
 def moleculeIds(kb):

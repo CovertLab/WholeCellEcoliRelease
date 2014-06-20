@@ -44,6 +44,7 @@ import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 import wholecell.processes.protein_degradation
 import wholecell.processes.replication_initiation
+import wholecell.processes.biomass_internment
 
 PROCESS_CLASSES = (
 	wholecell.processes.complexation.Complexation,
@@ -56,7 +57,8 @@ PROCESS_CLASSES = (
 	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
 	wholecell.processes.protein_degradation.ProteinDegradation,
-	wholecell.processes.replication_initiation.ReplicationInitiation
+	wholecell.processes.replication_initiation.ReplicationInitiation,
+	wholecell.processes.biomass_internment.BiomassInternment
 	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
@@ -131,7 +133,8 @@ DEFAULT_PROCESSES = (
 	'UniquePolypeptideElongation',
 	'Replication',
 	'ProteinDegradation',
-	'Complexation'
+	'Complexation',
+	'BiomassInternment'
 	)
 
 DEFAULT_LISTENERS = (
