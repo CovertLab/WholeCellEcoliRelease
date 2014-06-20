@@ -220,11 +220,11 @@ def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading
 		elongationLength = np.where(upcomingPositions == tercCenter)[0][0]
 
 	if directionIsPositive:
-		return genomeSequence[
+		leadingSequence = genomeSequence[
 			np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
 			]
 	else:
-		return genomeSequence[
+		leadingSequence = genomeSequence[
 			np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
 			]
 
