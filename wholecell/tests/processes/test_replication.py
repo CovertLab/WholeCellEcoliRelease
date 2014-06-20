@@ -40,6 +40,11 @@ class Test_replication(unittest.TestCase):
 		self.allIsLeading = np.array([True, False, True, False])
 		self.tercCenter = self.genomeLength - 2
 
+		geneEndCoordinate = np.array([3,10])
+		self.bufferedGeneEndCoordinate = np.concatenate(
+			[geneEndCoordinate - self.genomeLength, geneEndCoordinate, geneEndCoordinate + self.genomeLength]
+			)
+
 	def tearDown(self):
 		pass
 
@@ -107,7 +112,6 @@ class Test_replication(unittest.TestCase):
 	@noseAttrib.attr('replicationTest')
 	@noseAttrib.attr('smalltest')
 	def	test_buildSequenceMatrix(self):
-		return
 		test_sequenceMatrix = wholecell.processes.replication.buildSequenceMatrix(
 			self.nPolymerase,
 			self.allChromosomeLocation,
@@ -121,13 +125,12 @@ class Test_replication(unittest.TestCase):
 
 		sequenceMatrix = np.empty((self.nPolymerase, self.dnaPolymeraseElongationRate), np.int8)
 		sequenceMatrix.fill(wholecell.processes.replication.PAD_VALUE)
-		sequenceMatrix[0,:] = [2,1]
-		sequenceMatrix[1,:] = [1,2]
-		sequenceMatrix[2,:] = [3,2]
-		sequenceMatrix[3,:] = [0,1]
-		import ipdb; ipdb.set_trace()
+		sequenceMatrix[0,:] = [3,2]
+		sequenceMatrix[1,:] = [0,1]
+		sequenceMatrix[2,:] = [1,3]
+		sequenceMatrix[3,:] = [2,0]
 
-
+		self.assertTrue(np.all(test_sequenceMatrix == sequenceMatrix))
 
 	@noseAttrib.attr('replicationTest')
 	@noseAttrib.attr('smalltest')
@@ -175,3 +178,14 @@ class Test_replication(unittest.TestCase):
 			)
 
 		self.assertEqual(newPos, len(self.genomeSequence) - 1 - 1)
+
+	@noseAttrib.attr('replicationTest')
+	@noseAttrib.attr('smalltest')
+	def test_calculateReplicatedGenes(self):
+		replicatedGenes = wholecell.processes.replication.calculateReplicatedGenes(
+			currentPosition = 0,
+			directionIsPositive = True,
+			difference = 5,
+			bufferedGeneEndCoordinate = self.bufferedGeneEndCoordinate
+			)
+		self.assertTrue(np.all(replicatedGenes == np.array([True, False])))
