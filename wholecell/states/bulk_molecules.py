@@ -102,7 +102,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def partition(self):
-		if len(self._nProcesses) == 0:
+		if self._nProcesses == 0:
 			self._countsUnallocated = self.container._counts
 			return
 
@@ -224,6 +224,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):
+	counts = counts.copy()
+	
 	priorityLevels = np.sort(np.unique(processPriorities))[::-1]
 
 	for priorityLevel in priorityLevels:

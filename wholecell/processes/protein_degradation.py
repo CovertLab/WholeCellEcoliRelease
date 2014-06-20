@@ -15,7 +15,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-
+from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 
 class ProteinDegradation(wholecell.processes.process.Process):
 	""" ProteinDegradation """
@@ -65,6 +65,8 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		self.metabolites = self.bulkMoleculesView(metaboliteIds)
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 		self.proteins = self.bulkMoleculesView(proteinIds)
+
+		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
 
 		# TODO: Curate which proteases to use here
 		# self.protease = self.bulkMoleculeView('EG11259-MONOMER[c]')

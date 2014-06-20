@@ -18,6 +18,7 @@ import wholecell.processes.process
 
 from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
 from wholecell.utils.random import stochasticRound
+from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 GAIN = 10
 
@@ -114,6 +115,8 @@ class Metabolism(wholecell.processes.process.Process):
 			])
 
 		self.dntpMws = kb.bulkMolecules["mass"][dntpIdxsInKb].magnitude.sum(1)
+
+		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
 		# Please don't delete this. It is useful for debugging.
 		bulkMoleculesIdxs = np.array([
