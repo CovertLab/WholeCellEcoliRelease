@@ -33,9 +33,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	moleculeIds = names.moleculeIDs.read()
 
 	DNTP_IDS = ['DATP[c]', 'DCTP[c]', 'DGTP[c]', 'DTTP[c]']
+
 	dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNTP_IDS], np.int)
 	bulkMolecules = h.root.BulkMolecules
 	dntpCounts = bulkMolecules.read(0, None, 1, "counts")[:, dntpIndexes]
+
+
+	DNMP_IDS = ['DAMP[n]', 'DCMP[n]', 'DGMP[n]', 'DTMP[n]']
+	dnmpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNMP_IDS], np.int)
+	bulkMolecules = h.root.BulkMolecules
+	dnmpCounts = bulkMolecules.read(0, None, 1, "counts")[:, dnmpIndexes]
 
 	h.close()
 
@@ -54,6 +61,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		plt.xlabel("Time (min)")
 		plt.ylabel("Counts")
 		plt.title(DNTP_IDS[idx])
+
+		# print float(dntpCounts[-1, idx] + dnmpCounts[-1, idx]) / (dntpCounts[0, idx] + dnmpCounts[0, idx])
+		# print float(dntpCounts[-1, idx]) / (dntpCounts[0, idx])
+
 
 	plt.subplots_adjust(hspace = 0.5)
 
