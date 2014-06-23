@@ -169,6 +169,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
 		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
 		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
+		self._parameterData['gtpPerTranslation'] = Q_(2, '1/nucleotide')
 
 
 		# Assumed reaction for producing L-selenocysteine without a tRNA

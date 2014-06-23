@@ -19,6 +19,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
+USE_GTP_TO_POLYMERIZE = False
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	""" UniquePolypeptideElongation """
@@ -33,6 +34,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.proteinSequences = None
 		self.h2oWeight = None
 		self.aaWeightsIncorporated = None
+		self.gtpPerElongation = None
 
 		# Views
 		self.activeRibosomes = None
@@ -84,6 +86,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aaWeightsIncorporated = aaWeights - self.h2oWeight
 
+		self.gtpPerElongation = kb.gtpPerTranslation
+
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
@@ -92,28 +96,11 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.aas = self.bulkMoleculesView(kb.aaIDs)
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
+		self.gtp = self.bulkMoleculeView("GTP[c]")
+		self.gdp = self.bulkMoleculeView("GDP[c]")
+		self.ppi = self.bulkMoleculeView("PPI[c]")
+
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
-
-
-	def _buildSequences(self, proteinIndexes, peptideLengths):
-		# TODO: cythonize
-
-		# Cache the sequences array used for polymerize, rebuilding if neccesary
-		if self._sequences is None or np.any(self._peptideLengths != peptideLengths) or np.any(self._proteinIndexes != proteinIndexes):
-
-			self._sequences = np.empty((proteinIndexes.size, np.int64(self.elngRate)), np.int64)
-
-			for i, (proteinIndex, peptideLength) in enumerate(izip(proteinIndexes, peptideLengths)):
-				self._sequences[i, :] = self.proteinSequences[proteinIndex, peptideLength:np.int64(peptideLength + self.elngRate)]
-
-			self._proteinIndexes = proteinIndexes.copy()
-			self._peptideLengths = peptideLengths.copy()
-
-			# TODO: if the arrays don't match, try only recomputing the new values
-			# and culling the missing entries (this will become important if/when
-			# active ribosomes are requested by another process)
-		
-		return self._sequences
 
 
 	def calculateRequest(self):
@@ -124,8 +111,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
 			'proteinIndex', 'peptideLength'
 			)
-		
-		# sequences = self._buildSequences(proteinIndexes, peptideLengths)
 
 		sequences = buildSequences(
 			self.proteinSequences,
@@ -134,9 +119,19 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			self.elngRate
 			)
 
+		sequenceHasAA = (sequences != PAD_VALUE)
+
 		self.aas.requestIs(
-			np.bincount(sequences[sequences != PAD_VALUE])
+			np.bincount(sequences[sequenceHasAA])
 			)
+
+		if USE_GTP_TO_POLYMERIZE:
+			self.gtp.requestIs(
+				self.gtpPerElongation * sequenceHasAA.sum()
+				)
+
+			# TODO: request water for GTP hydrolysis
+
 
 
 	# Calculate temporal evolution
@@ -154,8 +149,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Build sequence array
 
-		# sequences = self._buildSequences(proteinIndexes, peptideLengths)
-
 		sequences = buildSequences(
 			self.proteinSequences,
 			proteinIndexes,
@@ -165,7 +158,12 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Calculate update
 
-		reactionLimit = aaCounts.sum() # TODO: account for energy
+		if USE_GTP_TO_POLYMERIZE:
+			# TODO: account for water, ...?
+			reactionLimit = self.gtp.counts() // self.gtpPerElongation
+
+		else:
+			reactionLimit = aaCounts.sum()
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
@@ -173,11 +171,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			reactionLimit,
 			self.randomState
 			)
-
-		# massIncreaseProtein = np.empty_like(massDiffProtein)
-
-		# for i, elongation in enumerate(sequenceElongations):
-		# 	massIncreaseProtein[i] = self.aaWeightsIncorporated[sequences[i, :elongation]].sum()
 
 		massIncreaseProtein = computeMassIncrease(
 			sequences,
@@ -224,6 +217,14 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeSubunits.countsInc(nTerminated)
 
 		self.h2o.countInc(nElongations)
+
+		if USE_GTP_TO_POLYMERIZE:
+			gtpUsed = nElongations * self.gtpPerElongation
+			self.gtp.countDec(gtpUsed)
+			self.gdp.countInc(gtpUsed)
+			self.ppi.countInc(gtpUsed)
+
+			# TODO: use water in GTP hydrolysis
 
 		# Report stalling
 
