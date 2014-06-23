@@ -232,8 +232,16 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 		(1 - np.exp(-np.log(2) / tau_d * dt)) *
 		kb.nAvogadro.to("1 / millimole").magnitude *
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude
+		).astype(np.int64)
+	ntpsBulkView.countsInc(ntpsFromLastStep)
+
+	## NTPs for Translation
+	# TODO: remove magic numbers, make these calculations more sensible
+	gtpInitial = np.int64(242409.87581925251)
+	bulkMolCntr.countsInc(
+		gtpInitial,
+		["GTP[c]", "PPI[c]", "GDP[c]"]
 		)
-	ntpsBulkView.countsIs(ntpsFromLastStep)
 
 	## Amino Acids
 	aasFromLastStep = (
@@ -270,7 +278,7 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 	# 	))
 	ppiFromDntps = 0
 
-	ppiBulkView.countIs(ppiFromNtps + ppiFromDntps)
+	ppiBulkView.countInc(ppiFromNtps + ppiFromDntps)
 
 
 def initializeBulkWater(bulkMolCntr, kb, randomState, timeStep):

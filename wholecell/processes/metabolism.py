@@ -216,7 +216,7 @@ class Metabolism(wholecell.processes.process.Process):
 		deltaMetabolitesNew[dntpIdxs] = deltaDntpsNew
 		deltaMetabolitesNew[notDntpIdxs] = deltaNotDntpsNew
 
-		self.biomassMetabolites.countsInc(deltaMetabolitesNew)
+		self.biomassMetabolites.countsInc(deltaMetabolitesNew.astype(np.int64))
 
 
 		# Fake recycling

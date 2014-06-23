@@ -19,8 +19,6 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
-USE_GTP_TO_POLYMERIZE = False
-
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	""" UniquePolypeptideElongation """
 
@@ -97,7 +95,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
-		self.gdp = self.bulkMoleculeView("GDP[c]")
+		self.gmp = self.bulkMoleculeView("GMP[c]")
 		self.ppi = self.bulkMoleculeView("PPI[c]")
 
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
@@ -125,13 +123,12 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			np.bincount(sequences[sequenceHasAA])
 			)
 
-		if USE_GTP_TO_POLYMERIZE:
-			self.gtp.requestIs(
-				self.gtpPerElongation * sequenceHasAA.sum()
-				)
+		self.gtp.requestIs(self.gtpPerElongation * np.fmin(
+			sequenceHasAA.sum(),
+			self.aas.total().sum()
+			))
 
-			# TODO: request water for GTP hydrolysis
-
+		# TODO: request water for GTP hydrolysis
 
 
 	# Calculate temporal evolution
@@ -158,12 +155,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Calculate update
 
-		if USE_GTP_TO_POLYMERIZE:
-			# TODO: account for water, ...?
-			reactionLimit = self.gtp.counts() // self.gtpPerElongation
-
-		else:
-			reactionLimit = aaCounts.sum()
+		reactionLimit = self.gtp.count() // self.gtpPerElongation
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
@@ -218,13 +210,10 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations)
 
-		if USE_GTP_TO_POLYMERIZE:
-			gtpUsed = nElongations * self.gtpPerElongation
-			self.gtp.countDec(gtpUsed)
-			self.gdp.countInc(gtpUsed)
-			self.ppi.countInc(gtpUsed)
-
-			# TODO: use water in GTP hydrolysis
+		gtpUsed = nElongations * self.gtpPerElongation
+		self.gtp.countDec(gtpUsed)
+		self.gmp.countInc(gtpUsed)
+		self.ppi.countInc(gtpUsed)
 
 		# Report stalling
 

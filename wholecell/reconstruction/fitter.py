@@ -165,8 +165,7 @@ def fitKb(kb):
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
-	kb.parameters["fracActiveRibosomes"] = Q_(float(nRibosomesNeeded) / np.sum(rRna23SView.counts()), "dimensionless")
-	kb.__dict__.update(kb.parameters)
+	kb.fracActiveRibosomes = Q_(float(nRibosomesNeeded) / np.sum(rRna23SView.counts()), "dimensionless")
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
@@ -231,8 +230,23 @@ def fitKb(kb):
 			)
 		).to('mmol/DCW_g')
 	
-	aminoAcidView.countsIs(
+	aminoAcidView.countsInc(
 		aaMmolPerGDCW.magnitude
+		)
+
+	# GTP for translation
+
+	TIME_STEP = 1
+
+	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
+
+	gtpUsedOverCellCycle = kb.gtpPerTranslation * aasUsedOverCellCycle
+
+	gtpPoolIncreaseOverCellCycle = TIME_STEP * (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycle
+
+	biomassContainer.countInc(
+		gtpPoolIncreaseOverCellCycle,
+		"GTP[c]"
 		)
 
 	# RNA fraction
@@ -251,7 +265,7 @@ def fitKb(kb):
 			)
 		).to('mmol/DCW_g')
 
-	ntpView.countsIs(
+	ntpView.countsInc(
 		ntpMmolPerGDCW.magnitude
 		)
 
@@ -268,7 +282,7 @@ def fitKb(kb):
 			)
 		).to('mmol/DCW_g')
 
-	dNtpView.countsIs(
+	dNtpView.countsInc(
 		dNtpMmolPerGDCW.magnitude
 		)
 	
@@ -294,7 +308,7 @@ def fitKb(kb):
 			)
 		).to('mmol/DCW_g')
 	
-	glycogenView.countsIs(
+	glycogenView.countsInc(
 		glycogenMmolPerGDCW.magnitude
 		)
 
@@ -319,7 +333,7 @@ def fitKb(kb):
 			1 / kb.avgCellDryMassInit)
 		).to('mmol/DCW_g')
 
-	mureinView.countsIs(
+	mureinView.countsInc(
 		mureinMmolPerGDCW.magnitude
 		)
 
@@ -344,7 +358,7 @@ def fitKb(kb):
 			1 / kb.avgCellDryMassInit)
 		).to('mmol/DCW_g')
 
-	lpsView.countsIs(
+	lpsView.countsInc(
 		lpsMmolPerGDCW.magnitude
 		)
 
@@ -369,7 +383,7 @@ def fitKb(kb):
 			1 / kb.avgCellDryMassInit)
 		).to('mmol/DCW_g')
 
-	lipidView.countsIs(
+	lipidView.countsInc(
 		lipidMmolPerGDCW.magnitude
 		)
 
@@ -394,7 +408,7 @@ def fitKb(kb):
 			1 / kb.avgCellDryMassInit)
 		).to('mmol/DCW_g')
 
-	inorganicIonView.countsIs(
+	inorganicIonView.countsInc(
 		inorganicIonMmolPerGDCW.magnitude
 		)
 
@@ -419,7 +433,7 @@ def fitKb(kb):
 			1 / kb.avgCellDryMassInit)
 		).to('mmol/DCW_g')
 
-	solublePoolView.countsIs(
+	solublePoolView.countsInc(
 		solublePoolMmolPerGDCW.magnitude
 		)
 	

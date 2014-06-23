@@ -109,21 +109,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
 
-	def _buildSequences(self, rnaIndexes, transcriptLengths):
-		# Cache the sequences array used for polymerize, rebuilding if neccesary
-		if self._sequences is None or np.any(self._transcriptLengths != transcriptLengths) or np.any(self._rnaIndexes != rnaIndexes):
-
-			self._sequences = np.empty((rnaIndexes.size, np.int64(self.elngRate)), np.int64)
-
-			for i, (rnaIndex, rnaLength) in enumerate(izip(rnaIndexes, transcriptLengths)):
-				self._sequences[i, :] = self.rnaSequences[rnaIndex, rnaLength:np.int64(rnaLength + self.elngRate)]
-
-			self._rnaIndexes = rnaIndexes.copy()
-			self._transcriptLengths = transcriptLengths.copy()
-
-		return self._sequences
-
-
 	def calculateRequest(self):
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
 
@@ -136,8 +121,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			'rnaIndex', 'transcriptLength'
 			)
 
-		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
-
 		sequences = buildSequences(
 			self.rnaSequences,
 			rnaIndexes,
@@ -145,9 +128,26 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			self.elngRate
 			)
 
-		self.ntps.requestIs(
-			np.bincount(sequences[sequences != PAD_VALUE])
-			)
+		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
+
+		self.ntps.requestIs(sequenceComposition)
+
+		# totalNtps = self.ntps.total()
+
+		# self.ntps.requestIs(np.floor(
+		# 	min((totalNtps / sequenceComposition).min(), 1) # limiting rate
+		# 	* sequenceComposition # average composition of polymerizable sequences
+		# 	* 1.1# TODO: explore small positive bumps in request, i.e. as a function of sequence variance
+		# 	))
+
+		# print np.floor(
+		# 	min((totalNtps / sequenceComposition).min(), 1) # limiting rate
+		# 	* sequenceComposition # average composition of polymerizable sequences
+		# 	# TODO: explore small positive bumps in request, i.e. as a function of sequence variance
+		# 	)
+
+		# print (totalNtps / sequenceComposition).min()
+		# print (totalNtps / sequenceComposition).min() * sequenceComposition
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
 
@@ -166,8 +166,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			)
 
 		ntpsUsed = np.zeros_like(ntpCounts)
-
-		# sequences = self._buildSequences(rnaIndexes, transcriptLengths)
 
 		sequences = buildSequences(
 			self.rnaSequences,
