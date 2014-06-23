@@ -151,8 +151,28 @@ class Test_polymerize(unittest.TestCase):
 		polymerizedLengths = np.array([0,4,9])
 		elngRate = 5
 		
-		# NOTE: Define an exeption subclass if you want to check the real message
+		# TODO: Define an exeption subclass if you want to check the real message
 		self.assertRaises(
 			Exception,
 			buildSequences, allSequences, sequenceIndexes, polymerizedLengths, elngRate
 			)
+
+
+	@noseAttrib.attr('polymerizeNew')
+	@noseAttrib.attr('smalltest')
+	def test_computeMassIncrease(self):
+		sequences = np.random.randint(4, size=(20,10)).astype(np.int8, copy=False)
+		sequenceElongations = np.random.randint(10, size = (20,)).astype(np.int64, copy=False)
+		monomerWeights = np.array([10., 4., 7., 1.], dtype=np.float64)
+		
+		massIncrease = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			monomerWeights
+			)
+
+		comparison_massIncrease = np.empty(sequences.shape[0], dtype=np.float64)
+		for i in range(sequences.shape[0]):
+			comparison_massIncrease[i] = np.sum(monomerWeights[sequences[i][:sequenceElongations[i]]])
+
+		self.assertTrue(np.all(massIncrease == comparison_massIncrease))
