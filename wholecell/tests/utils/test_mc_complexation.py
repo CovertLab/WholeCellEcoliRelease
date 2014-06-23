@@ -35,9 +35,6 @@ class Test_mc_complexation(unittest.TestCase):
 	@noseAttrib.attr('complexationTest')
 	@noseAttrib.attr('smalltest')
 	def test_mccBuildMatrices(self):
-		stoichMatrix = np.empty((2,1)).astype(np.int64, copy = False)
-		stoichMatrix[0] = -2
-		stoichMatrix[1] = 1
 		stoichMatrix = np.array([[-2, -1,  0,  0],
 								 [ 1,  0, -1,  0],
 								 [ 0,  1, -1,  0],
@@ -64,3 +61,25 @@ class Test_mc_complexation(unittest.TestCase):
 											[ 3,  -1]])
 				)
 			)
+
+
+	@noseAttrib.attr('complexationTest')
+	@noseAttrib.attr('smalltest')
+	def test_mccFormComplexesWithPrebuiltMatrices(self):
+		stoichMatrix = np.array([[-2, -1,  0,  0],
+								 [ 1,  0, -1,  0],
+								 [ 0,  1, -1,  0],
+								 [ 0,  0,  1,  0],
+								 [ 0,  0,  0, -1],
+								 [ 0,  0,  0,  1]], dtype=np.int64)
+		seed = 0
+		# moleculeCounts = np.array([0, 6, 8, 0, 0, 0], dtype=np.int64)
+
+		# prebuiltMatrices = mccBuildMatrices(stoichMatrix)
+
+		# updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		# 	moleculeCounts,
+		# 	seed,
+		# 	stoichMatrix,
+		# 	*prebuiltMatrices
+		# 	)
