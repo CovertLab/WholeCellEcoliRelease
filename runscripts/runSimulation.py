@@ -30,9 +30,9 @@ def main(submissionTime):
 	# Define simulation options specific to this script
 	simOpts["outputDir"] = os.path.join(
 		"out",
-		"simOut",
 		"%s" % submissionTime,
-		"%06d" % simOpts["seed"]
+		"%06d" % simOpts["seed"],
+		"simOut",
 		)
 	simOpts["logToDisk"] = True
 	simOpts["overwriteExistingFiles"] = False
