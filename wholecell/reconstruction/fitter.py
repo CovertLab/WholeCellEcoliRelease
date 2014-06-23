@@ -34,6 +34,7 @@ MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 
 # Correction factors
 EXCESS_RNAP_CAPACITY = 2
+EXCESS_FREE_DNTP_CAPACITY = 1.3
 # If RNA-poly capacity exactly matches the amount needed to double RNAs over a 
 # cell cycle, the simulation will be unable to double RNAs since a small number
 # of RNA-polymerases must be turned over following termination.  It may be 
@@ -617,7 +618,7 @@ def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	seqLen = len(kb.genomeSeq)
 	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
 	tau_d = kb.cellCycleLen.to("s").magnitude
-	nDntps = (2 * np.exp(-np.log(2)/tau_d * t_C) - 1) * nDnmps
+	nDntps = (2 * np.exp(-np.log(2)/tau_d * t_C) - 1) * nDnmps * EXCESS_FREE_DNTP_CAPACITY
 
 	fracA = float(kb.genomeSeq.count("A") + kb.genomeSeq.count("T")) / (2 * kb.genomeLength)
 	fracC = float(kb.genomeSeq.count("C") + kb.genomeSeq.count("G")) / (2 * kb.genomeLength)
