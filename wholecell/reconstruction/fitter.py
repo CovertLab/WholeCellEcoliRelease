@@ -90,6 +90,7 @@ def fitKb(kb):
 	dNtpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
 	dNmpIds = ["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"]
 	dNtpsView = bulkContainer.countsView(dNtpIds)
+	dNmpsView = bulkContainer.countsView(dNmpIds)
 
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
@@ -104,18 +105,28 @@ def fitKb(kb):
 	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNtpIds]
 	dNmpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNmpIds]
 
-
 	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs].sum(axis = 1)
 	dNmpMws = kb.bulkMolecules["mass"][dNmpIdxs].sum(axis = 1)
 
+	dNmpsView.countsIs([
+		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+		])
+
+	chromMass = (
+		np.dot(dNmpsView.counts(), dNmpMws) - 2 * kb.genomeLength * 17.01
+		) / kb.nAvogadro.magnitude
+
 	nDNtps = countsFromMassAndExpression(
-		dnaMass.to('DCW_g').magnitude,
-		dNmpMws.to('g/mol').magnitude - 17.01,
+		dnaMass.to('DCW_g').magnitude - chromMass,
+		dNtpMws.to('g/mol').magnitude,
 		dNtpRelativeAmounts,
 		kb.nAvogadro.to('1/mol').magnitude
 		)
 
-	dNtpsView.countsIs(nDNtps * dNtpRelativeAmounts)
+	dNtpsView.countsIs((2 * kb.genomeLength + nDNtps) * dNtpRelativeAmounts)
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 

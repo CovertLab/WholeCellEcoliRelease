@@ -110,6 +110,10 @@ class Metabolism(wholecell.processes.process.Process):
 			[np.where(self.wildtypeIds == x)[0][0] for x in dntpIds]
 			)
 
+		self.notDntpIdxsInWildTypeBiomass = np.array(
+			[np.where(self.wildtypeIds == x)[0][0] for x in self.wildtypeIds if x not in dntpIds]
+			)
+
 		dntpIdxsInKb = np.array([
 			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in dntpIds
 			])
@@ -123,7 +127,6 @@ class Metabolism(wholecell.processes.process.Process):
 			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.wildtypeIds
 			])
 		self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude
-
 
 	def calculateRequest(self):
 		self.ppi.requestAll()
@@ -146,68 +149,75 @@ class Metabolism(wholecell.processes.process.Process):
 		self.ppi.countIs(0)
 		self.nmps.countsIs(0)
 
-		metaboliteMasses = self.biomassMws.sum(1) / self.nAvogadro
+		metaboliteMasses = self.biomassMws.sum(axis = 1) / self.nAvogadro
 
 		biomassObjective = self.wildtypeBiomassReactionSS
 
-		deltaMass = (
-			np.dot(metaboliteMasses, biomassObjective * 1e-3 * self.nAvogadro * self.initialDryMass) *
-			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-			(np.log(2) / self.cellCycleLen) * 
-			self.timeStepSec
+
+		# Solve for DNTP production
+		dntpIdxs = self.dntpIdxsInWildTypeBiomass
+		deltaDntpMass = (
+			np.dot(
+				metaboliteMasses[dntpIdxs],
+				biomassObjective[dntpIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
+				) * np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
 			)
 
 		initialMetaboliteCounts = self.biomassMetabolites.counts()
 
 		nominalBiomassProductionCoeff = (
-			deltaMass + np.dot(metaboliteMasses, initialMetaboliteCounts)
-			) / np.dot(metaboliteMasses, biomassObjective)
+			deltaDntpMass + np.dot(metaboliteMasses[dntpIdxs], initialMetaboliteCounts[dntpIdxs])
+			) / np.dot(metaboliteMasses[dntpIdxs], biomassObjective[dntpIdxs])
 
-		deltaMetabolitesNew = np.int64(nominalBiomassProductionCoeff * biomassObjective - initialMetaboliteCounts)
-
-		# print self.wildtypeIds[np.where(nominalBiomassProductionCoeff * biomassObjective < initialMetaboliteCounts)]
-
-		deltaMetabolitesMass = np.dot(metaboliteMasses, deltaMetabolitesNew)
-		deltaMetabolitesMassNonzero = np.dot(metaboliteMasses, np.fmax(deltaMetabolitesNew, 0))
-
-		deltaMetabolitesNew = np.int64(
-			deltaMetabolitesMass / deltaMetabolitesMassNonzero * np.fmax(deltaMetabolitesNew, 0)
+		deltaDntpsNew = np.int64(
+			nominalBiomassProductionCoeff * biomassObjective[dntpIdxs] -
+			initialMetaboliteCounts[dntpIdxs]
 			)
 
-		# effectiveBiomassObjective = deltaMetabolitesNew / (
-		# 	1e-3 * self.nAvogadro * self.initialDryMass
-		# 	* np.exp(np.log(2) / self.cellCycleLen * self.time())
-		# 	* (np.log(2) / self.cellCycleLen)
-		# 	* self.timeStepSec
-		# 	)
 
-		# ADJUSTMENT_RATE = 1
-		# self.wildtypeBiomassReactionSS = (self.wildtypeBiomassReactionSS + ADJUSTMENT_RATE * effectiveBiomassObjective)/(1+ADJUSTMENT_RATE)
+		deltaDntpsMass = np.dot(metaboliteMasses[dntpIdxs], deltaDntpsNew)
+		deltaDntpsMassNonzero = np.dot(metaboliteMasses[dntpIdxs], np.fmax(deltaDntpsNew, 0))
 
-		# atpm = np.zeros_like(self.biomassMetabolites.counts())
+		deltaDntpsNew = np.int64(
+			deltaDntpsMass / deltaDntpsMassNonzero * np.fmax(deltaDntpsNew, 0)
+			)
 
-		# # NOTE: _computeBiomassFromRequests breaks ATM because many biomass
-		# # components are requested in multiple processes
+		# Solve for non-DNTP metabolite production
+		notDntpIdxs = self.notDntpIdxsInWildTypeBiomass
+		deltaNotDntpMass = (
+			np.dot(
+				metaboliteMasses[notDntpIdxs],
+				biomassObjective[notDntpIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
+				) * np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
+			)
 
-		# biomassObjective = self._computeBiomassFromLeftovers()
+		initialMetaboliteCounts = self.biomassMetabolites.counts()
 
-		# assert (biomassObjective >= 0).all()
+		nominalBiomassProductionCoeff = (
+			deltaNotDntpMass + np.dot(metaboliteMasses[notDntpIdxs], initialMetaboliteCounts[notDntpIdxs])
+			) / np.dot(metaboliteMasses[notDntpIdxs], biomassObjective[notDntpIdxs])
 
-		# deltaMetabolites = np.fmax(
-		# 	stochasticRound(
-		# 		self.randomState,
-		# 		np.round(
-		# 			(biomassObjective + atpm) * 1e-3 *
-		# 			self.nAvogadro * self.initialDryMass
-		# 			) *
-		# 		np.exp(np.log(2) / self.cellCycleLen * self.time()) *
-		# 		(np.exp(np.log(2) / self.cellCycleLen) - 1.0)
-		# 		).astype(np.int64),
-		# 	0
-		# 	)
+		deltaNotDntpsNew = np.int64(
+			nominalBiomassProductionCoeff * biomassObjective[notDntpIdxs] -
+			initialMetaboliteCounts[notDntpIdxs])
 
-		# self.biomassMetabolites.countsInc(deltaMetabolites)
+
+		deltaNotDntpsMass = np.dot(metaboliteMasses[notDntpIdxs], deltaNotDntpsNew)
+		deltaNotDntpsMassNonzero = np.dot(metaboliteMasses[notDntpIdxs], np.fmax(deltaNotDntpsNew, 0))
+
+		deltaNotDntpsNew = np.int64(
+			deltaNotDntpsMass / deltaNotDntpsMassNonzero * np.fmax(deltaNotDntpsNew, 0)
+			)
+
+		# Aggregate all metabolite production (DNTPs and non-DNTPs)
+		deltaMetabolitesNew = np.zeros_like(biomassObjective)
+		deltaMetabolitesNew[dntpIdxs] = deltaDntpsNew
+		deltaMetabolitesNew[notDntpIdxs] = deltaNotDntpsNew
+
 		self.biomassMetabolites.countsInc(deltaMetabolitesNew)
+
 
 		# Fake recycling
 		# if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
