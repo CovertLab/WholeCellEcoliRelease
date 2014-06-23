@@ -5,10 +5,10 @@ trap "exit 130" 2 9 15
 SUBMISSION_TIME=$(date "+%Y%m%d.%H%M%S.%N")
 WC_SEED=${WC_SEED:-0}
 SEED_DIR=$(printf "%06d" $(($WC_SEED)))
-SIM_OUT_DATA_DIR="out/simOut/${SUBMISSION_TIME}/${SEED_DIR}"
-KB_DIR="out/simOut/${SUBMISSION_TIME}/kb"
+SIM_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/simOut"
+KB_DIR="out/${SUBMISSION_TIME}/kb"
 KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
-METADATA_DIR="out/simOut/${SUBMISSION_TIME}/metadata"
+METADATA_DIR="out/${SUBMISSION_TIME}/metadata"
 
 
 ##### Create output directory #####
@@ -46,7 +46,7 @@ fi
 SINGLE_ANALYSIS_SCRIPTS_DIR="wholecell/analysis/single"
 SINGLE_ANALYSIS_SCRIPTS=$(find $SINGLE_ANALYSIS_SCRIPTS_DIR -name "*\.py" | sort)
 
-PLOT_OUT_DATA_DIR="out/plotOut/${SUBMISSION_TIME}/${SEED_DIR}"
+PLOT_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/plotOut"
 
 mkdir -p $PLOT_OUT_DATA_DIR
 
