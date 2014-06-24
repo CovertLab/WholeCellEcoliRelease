@@ -43,7 +43,7 @@ class Test_mc_complexation(unittest.TestCase):
 								 [ 0,  0,  0,  1]], dtype=np.int64)
 
 		moleculeIndexes, overlappingReactions = mccBuildMatrices(stoichMatrix)
-
+		
 		self.assertTrue(
 			np.all(
 				moleculeIndexes == np.array([[ 0,  1, -1],
@@ -55,10 +55,10 @@ class Test_mc_complexation(unittest.TestCase):
 
 		self.assertTrue(
 			np.all(
-				overlappingReactions == np.array([[ 0,  1],
-											[ 0,  1],
-											[ 0,  1],
-											[ 3,  -1]])
+				overlappingReactions == np.array([[ 0,  1, 2],
+											[ 0,  1, 2],
+											[ 0,  1, 2],
+											[ 3,  -1, -1]])
 				)
 			)
 
