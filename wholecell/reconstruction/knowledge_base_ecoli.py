@@ -150,6 +150,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions()
 		self._buildTranscription()
 		self._buildTranslation()
+		self._buildAllMasses()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -2188,6 +2189,10 @@ class KnowledgeBaseEcoli(object):
 		self.__dict__.update(self._parameterData)
 
 
+	def _buildAllMasses(self):
+		#import ipdb; ipdb.set_trace()
+		pass
+
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
 		if len(table.objects.all()) <= 0:
@@ -2209,3 +2214,7 @@ class KnowledgeBaseEcoli(object):
 
 	def _calculateAminoAcidCount(self, seq):
 		return numpy.array([seq.count(x) for x in self._aaWeights])
+
+
+	def returnMolecularWeight(self, ids):
+		pass
