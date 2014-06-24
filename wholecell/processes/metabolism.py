@@ -233,6 +233,16 @@ class Metabolism(wholecell.processes.process.Process):
 			self.nmps.countsIs(nmpCounts - recycledNmps)
 			self.ppi.countIs(ppiCount - recycledNmps.sum())
 
+		# Write out effective biomass
+
+		effectiveBiomassObjective = deltaMetabolitesNew / (
+			1e-3 * self.nAvogadro * self.initialDryMass
+			* np.exp(np.log(2)/self.cellCycleLen * self.time())
+			* (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
+			)
+
+		self.writeToListener("EffectiveBiomassObjective", "effectiveBiomassObjective", effectiveBiomassObjective)
+
 
 	def _computeBiomassFromRequests(self):
 		"""
