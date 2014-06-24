@@ -13,7 +13,7 @@ Whole-cell knowledge base ecoli
 @date: Created 03/14/2014
 """
 from __future__ import division
-import numpy # TODO: change to import numpy as np
+import numpy as np
 import collections
 from operator import add
 import os
@@ -425,7 +425,7 @@ class KnowledgeBaseEcoli(object):
 
 		doublingTime = [100, 60, 40, 30, 24]
 
-		self._cellDryMassCompositionData = numpy.zeros(len(doublingTime),
+		self._cellDryMassCompositionData = np.zeros(len(doublingTime),
 			dtype = [('doublingTime',				'float64'),
 					('proteinMassFraction',			'float64'),
 					('rnaMassFraction',				'float64'),
@@ -470,7 +470,7 @@ class KnowledgeBaseEcoli(object):
 		if abs(sum(fracOfLipidMass) - 1.0) > 1e-5:
 			raise Exception, 'Fractions do not sum to one!\n'
 
-		self._cellLipidFractionData = numpy.zeros(len(lipidIds),
+		self._cellLipidFractionData = np.zeros(len(lipidIds),
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellLipidFractionData['metaboliteId'] = lipidIds
 		self._cellLipidFractionData['massFraction'] = fracOfLipidMass
@@ -483,7 +483,7 @@ class KnowledgeBaseEcoli(object):
 		if abs(sum(fracOfLPSMass) - 1.0) > 1e-5:
 			raise Exception, 'Fractions do not sum to one!\n'
 
-		self._cellLPSFractionData = numpy.zeros(len(lpsIds), 
+		self._cellLPSFractionData = np.zeros(len(lpsIds), 
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellLPSFractionData['metaboliteId'] = lpsIds
 		self._cellLPSFractionData['massFraction'] = fracOfLPSMass
@@ -498,7 +498,7 @@ class KnowledgeBaseEcoli(object):
 		if abs(sum(fracOfMureinMass) - 1.0) > 1e-5:
 			raise Exception, 'Fractions do not sum to one!\n'
 
-		self._cellMureinFractionData = numpy.zeros(len(mureinIds),
+		self._cellMureinFractionData = np.zeros(len(mureinIds),
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellMureinFractionData['metaboliteId'] = mureinIds
 		self._cellMureinFractionData['massFraction'] = fracOfMureinMass
@@ -511,7 +511,7 @@ class KnowledgeBaseEcoli(object):
 		if abs(sum(fracOfGlycogenMass) - 1.0) > 1e-5:
 			raise Exception, 'Fractions do not sum to one!\n'
 
-		self._cellGlycogenFractionData = numpy.zeros(len(glycogenIds),
+		self._cellGlycogenFractionData = np.zeros(len(glycogenIds),
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellGlycogenFractionData['metaboliteId'] = glycogenIds
 		self._cellGlycogenFractionData['massFraction'] = fracOfGlycogenMass
@@ -534,7 +534,7 @@ class KnowledgeBaseEcoli(object):
 		if abs(sum(fracOfSolublePoolMass) - 1.0) > 1e-5:
 			raise Exception, 'Fractions do not sum to one!\n'
 
-		self._cellSolublePoolFractionData = numpy.zeros(len(solublePoolIds),
+		self._cellSolublePoolFractionData = np.zeros(len(solublePoolIds),
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellSolublePoolFractionData['metaboliteId'] = solublePoolIds
 		self._cellSolublePoolFractionData['massFraction'] = fracOfSolublePoolMass
@@ -551,7 +551,7 @@ class KnowledgeBaseEcoli(object):
 		if abs(sum(fracInorganicIonMass) - 1.0) > 1e-5:
 			raise Exception, 'Fractions do not sum to one!\n'
 
-		self._cellInorganicIonFractionData = numpy.zeros(len(inorganicIonIds),
+		self._cellInorganicIonFractionData = np.zeros(len(inorganicIonIds),
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
@@ -805,7 +805,7 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
 				"reactionId" : self._rnaModReactionDbIds[i.id],
-				"mw" : numpy.zeros(len(MOLECULAR_WEIGHT_ORDER)), 	
+				"mw" : np.zeros(len(MOLECULAR_WEIGHT_ORDER)), 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_rna_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_rna_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
@@ -860,7 +860,7 @@ class KnowledgeBaseEcoli(object):
 				#need to calculate				
 				"seq": "",
 				"ntCount": [],
-				"mw": numpy.zeros(len(MOLECULAR_WEIGHT_ORDER))
+				"mw": np.zeros(len(MOLECULAR_WEIGHT_ORDER))
 				}
 			
 			if int(i.is_modified):	
@@ -873,7 +873,7 @@ class KnowledgeBaseEcoli(object):
 			
 			gene_seq = self._genes[geneLookup[r["geneId"]]]["seq"]
 			r["seq"] = Bio.Seq.Seq(gene_seq, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
-			r["ntCount"] = numpy.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
+			r["ntCount"] = np.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
 			weight = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 			index = self._whichRna(r['id'], r['type'])
 			r["mw"][index] = weight 
@@ -912,11 +912,11 @@ class KnowledgeBaseEcoli(object):
 					#need to calculate				
 					"seq": "",
 					"ntCount": [],
-					"mw": numpy.zeros(len(MOLECULAR_WEIGHT_ORDER))
+					"mw": np.zeros(len(MOLECULAR_WEIGHT_ORDER))
 				}
 
 				r["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
-				r["ntCount"] = numpy.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
+				r["ntCount"] = np.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
 				weight = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
 				index = self._whichRna(r['id'], r['type'])
 				r["mw"][index] = weight 
@@ -952,7 +952,7 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
 				"reactionId" : None,
-				"mw" : numpy.zeros(len(MOLECULAR_WEIGHT_ORDER)), 	
+				"mw" : np.zeros(len(MOLECULAR_WEIGHT_ORDER)), 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_protein_monomer_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_protein_monomer_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
@@ -1011,7 +1011,7 @@ class KnowledgeBaseEcoli(object):
 				#"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
 				"seq": "",
-				"aaCount": numpy.zeros(21),
+				"aaCount": np.zeros(21),
 				"mw": -1,
 				"rnaId": self._genes[geneLookup[gene_frame_id]]["rnaId"]		
 			}
@@ -1056,7 +1056,7 @@ class KnowledgeBaseEcoli(object):
 
 			for aa in tmp: 
 				tmp[aa] = p["seq"].count(aa)
-			p["aaCount"] = numpy.array([tmp["A"], tmp["R"], tmp["N"], tmp["D"], tmp["C"],
+			p["aaCount"] = np.array([tmp["A"], tmp["R"], tmp["N"], tmp["D"], tmp["C"],
 							tmp["E"], tmp["Q"], tmp["G"], tmp["H"], tmp["I"],
 							tmp["L"], tmp["K"], tmp["M"], tmp["F"], tmp["P"],
 							tmp["U"], tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
@@ -1091,7 +1091,7 @@ class KnowledgeBaseEcoli(object):
 				"location": self._dbLocationId[i.location_fk_id],
 				"comments": self._allComments[i.comment_fk_id],
 				"reactionId" : None,
-				"mw" : numpy.zeros(len(MOLECULAR_WEIGHT_ORDER)), 	
+				"mw" : np.zeros(len(MOLECULAR_WEIGHT_ORDER)), 	
 				#"unmodifiedForm" : self._allProducts[i.unmodified_protein_complex_fk.frame_id_id] #need to check why gives error!
 				"unmodifiedForm" : i.unmodified_protein_complex_fk_id # This is the FK of RNA; Will be updated on _loadRnas()
 				}
@@ -1138,7 +1138,7 @@ class KnowledgeBaseEcoli(object):
 				"name": i.name,
 				#"modifiedForms": [],
 				"location": self._dbLocationId[i.location_fk_id],
-				"mw": numpy.zeros(len(MOLECULAR_WEIGHT_ORDER)),
+				"mw": np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
 				"comments": self._allComments[i.comment_fk_id]
 			}
 			#uncomment if need to load modified form
@@ -1282,7 +1282,7 @@ class KnowledgeBaseEcoli(object):
 			newQueue = []
 			for i in queue:
 				#calculate weight
-				weight = numpy.zeros(len(MOLECULAR_WEIGHT_ORDER))
+				weight = np.zeros(len(MOLECULAR_WEIGHT_ORDER))
 				sign_wt = 1 
 				for m in products[i]:
 					if m['molecule'] in products: 
@@ -1330,7 +1330,7 @@ class KnowledgeBaseEcoli(object):
 				
 	def _calcKCat(self, enzId, vMax, units):
 		if enzId == None or vMax == None:
-			return numpy.NaN
+			return np.NaN
 
 		if units == "U/mg":
 			prot = next((x for x in self._proteins if x["id"] == enzId), None)
@@ -1359,7 +1359,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _loadComputeParameters(self):
-		self._parameterData['avgCellToInitalCellConvFactor'] = Q_(numpy.exp(numpy.log(2) * self._parameterData['avgCellCellCycleProgress']), 'dimensionless')
+		self._parameterData['avgCellToInitalCellConvFactor'] = Q_(np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress']), 'dimensionless')
 		self._parameterData['avgCellDryMassInit'] = self._parameterData['avgCellDryMass'] / self._parameterData['avgCellToInitalCellConvFactor']
 		self._parameterData['avgCellWaterMass'] = (self._parameterData['avgCellDryMass'] / self._parameterData['cellDryMassFraction']) * self._parameterData['cellWaterMassFraction']
 		self._parameterData['avgCellWaterMassInit'] = self._parameterData['avgCellWaterMass'] / self._parameterData['avgCellToInitalCellConvFactor']
@@ -1373,7 +1373,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildCompartments(self):
-		self._compartmentData = numpy.zeros(len(self._compartmentList),
+		self._compartmentData = np.zeros(len(self._compartmentList),
 			dtype = [('compartmentId','a20'),('compartmentAbbreviation', 'a1')])
 
 		# Load data into structured array
@@ -1391,7 +1391,7 @@ class KnowledgeBaseEcoli(object):
 			+ len(self._proteinComplexes)
 			)
 
-		bulkMolecules = numpy.zeros(
+		bulkMolecules = np.zeros(
 			size,
 			dtype = [
 				("moleculeId", "a50"),
@@ -1412,7 +1412,7 @@ class KnowledgeBaseEcoli(object):
 			for metaboliteId in metaboliteIds
 			]
 
-		metaboliteMassIdxs = numpy.empty(lastMetaboliteIdx, numpy.int64)
+		metaboliteMassIdxs = np.empty(lastMetaboliteIdx, np.int64)
 
 		metaboliteMassIdxs.fill(MOLECULAR_WEIGHT_ORDER["metabolite"])
 
@@ -1420,7 +1420,7 @@ class KnowledgeBaseEcoli(object):
 			if metabolite["moleculeId"].startswith("H2O["):
 				metaboliteMassIdxs[index] = MOLECULAR_WEIGHT_ORDER["water"]
 
-		bulkMolecules['mass'][numpy.arange(lastMetaboliteIdx), metaboliteMassIdxs] = [
+		bulkMolecules['mass'][np.arange(lastMetaboliteIdx), metaboliteMassIdxs] = [
 			metabolite['mw7.2']
 			for compartmentIndex in range(len(self._compartmentList))
 			for metabolite in self._metabolites
@@ -1471,7 +1471,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildGeneData(self):
-		self.geneData = numpy.zeros(len(self._genes),
+		self.geneData = np.zeros(len(self._genes),
 			dtype = [('name'				,	'a50'),
 					#('coordinate'			,	'int64'),
 					#('length'				,	'int64'),
@@ -1496,7 +1496,7 @@ class KnowledgeBaseEcoli(object):
 		dnaA_adp_mass = dnaA_mass + adp_mass
 
 		size = len(self._genes) + count_dnaABindingSites_at_oriC + count_dnaABindingSites_at_oriC + count_dnaABindingSites_at_oriC
-		bulkChromosome = numpy.zeros(size,
+		bulkChromosome = np.zeros(size,
 			dtype = [("moleculeId", 			"a50"),
 					('compartment',				"a1"),
 					("mass", "{}f8".format(len(MOLECULAR_WEIGHT_ORDER))),
@@ -1596,13 +1596,13 @@ class KnowledgeBaseEcoli(object):
 			if rna['id'] in ribosomeSubunits
 			)
 
-		self.uniqueMoleculeMasses = numpy.zeros(
+		self.uniqueMoleculeMasses = np.zeros(
 			shape = len(self.uniqueMoleculeDefinitions),
 			dtype = [
 				('moleculeId', 'a50'),
-				('massMetabolite', numpy.float),
-				('massRna', numpy.float),
-				('massProtein', numpy.float),
+				('massMetabolite', np.float),
+				('massRna', np.float),
+				('massProtein', np.float),
 				]
 			)
 
@@ -1630,7 +1630,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildRnaExpression(self):
-		normalizedRnaExpression = numpy.zeros(sum(1 for x in self._rnas),
+		normalizedRnaExpression = np.zeros(sum(1 for x in self._rnas),
 			dtype = [('rnaId',		'a50'),
 					('expression',	'float64'),
 					('isMRna',		'bool'),
@@ -1643,7 +1643,7 @@ class KnowledgeBaseEcoli(object):
 
 		normalizedRnaExpression['rnaId'] 		= ['{}[{}]'.format(x['id'], x['location']) for x in self._rnas]
 		normalizedRnaExpression['expression']	= [x['expression'] for x in self._rnas]
-		normalizedRnaExpression['expression']	= normalizedRnaExpression['expression'] / numpy.sum(normalizedRnaExpression['expression'])
+		normalizedRnaExpression['expression']	= normalizedRnaExpression['expression'] / np.sum(normalizedRnaExpression['expression'])
 		normalizedRnaExpression['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas]
 		normalizedRnaExpression['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self._rnas]
 		normalizedRnaExpression['isRRna'] = [rna["type"] == "rRNA" for rna in self._rnas]
@@ -1664,11 +1664,11 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBiomass(self):
-		self._coreBiomassData = numpy.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
+		self._coreBiomassData = np.zeros(sum(len(x['biomassInfo']['core']) for x in self._metabolites if len(x['biomassInfo']['core'])),
 			dtype = [('metaboliteId', 'a50'),
 					('biomassFlux', 	'float64')])
 
-		self._wildtypeBiomassData = numpy.zeros(sum(len(x['biomassInfo']['wildtype']) for x in self._metabolites if len(x['biomassInfo']['wildtype'])),
+		self._wildtypeBiomassData = np.zeros(sum(len(x['biomassInfo']['wildtype']) for x in self._metabolites if len(x['biomassInfo']['wildtype'])),
 			dtype = [('metaboliteId', 'a50'),
 					('biomassFlux',		'float64')])
 
@@ -1726,32 +1726,32 @@ class KnowledgeBaseEcoli(object):
 	def _buildRnaData(self):
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas]
 
-		rnaDegRates = numpy.log(2) / numpy.array([rna['halfLife'] for rna in self._rnas]) # TODO: units
+		rnaDegRates = np.log(2) / np.array([rna['halfLife'] for rna in self._rnas]) # TODO: units
 
-		rnaLens = numpy.array([len(rna['seq']) for rna in self._rnas])
+		rnaLens = np.array([len(rna['seq']) for rna in self._rnas])
 
-		ntCounts = numpy.array([
+		ntCounts = np.array([
 			(rna['seq'].count('A'), rna['seq'].count('C'),
 				rna['seq'].count('G'), rna['seq'].count('U'))
 			for rna in self._rnas
 			])
 
-		expression = numpy.array([rna['expression'] for rna in self._rnas])
+		expression = np.array([rna['expression'] for rna in self._rnas])
 
 		synthProb = expression * (
-			numpy.log(2) / self._parameterData['cellCycleLen'].to('s').magnitude
+			np.log(2) / self._parameterData['cellCycleLen'].to('s').magnitude
 			+ rnaDegRates
 			)
 
 		synthProb /= synthProb.sum()
 
-		mws = numpy.array([rna['mw'] for rna in self._rnas])
+		mws = np.array([rna['mw'] for rna in self._rnas])
 
 		size = len(rnaIds)
 
-		is23S = numpy.zeros(size, dtype = numpy.bool)
-		is16S = numpy.zeros(size, dtype = numpy.bool)
-		is5S = numpy.zeros(size, dtype = numpy.bool)
+		is23S = np.zeros(size, dtype = np.bool)
+		is16S = np.zeros(size, dtype = np.bool)
+		is5S = np.zeros(size, dtype = np.bool)
 
 		for rnaIndex, rna in enumerate(self._rnas):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
@@ -1768,7 +1768,7 @@ class KnowledgeBaseEcoli(object):
 		maxSequenceLength = max(len(sequence) for sequence in sequences)
 
 		# TODO: Add units
-		self.rnaData = numpy.zeros(
+		self.rnaData = np.zeros(
 			size,
 			dtype = [
 				('id', 'a50'),
@@ -1864,7 +1864,7 @@ class KnowledgeBaseEcoli(object):
 
 		maxSequenceLength = max(len(seq) for seq in sequences)
 
-		mws = numpy.array([protein['mw'] for protein in self._proteins])
+		mws = np.array([protein['mw'] for protein in self._proteins])
 
 		size = len(rnaIds)
 
@@ -1872,8 +1872,8 @@ class KnowledgeBaseEcoli(object):
 
 		# Calculate degradation rates based on N-rule
 		# TODO: citation
-		fastRate = (numpy.log(2) / Q_(2, 'min')).to('1 / s')
-		slowRate = (numpy.log(2) / Q_(10, 'hr')).to('1 / s')
+		fastRate = (np.log(2) / Q_(2, 'min')).to('1 / s')
+		slowRate = (np.log(2) / Q_(10, 'hr')).to('1 / s')
 
 		fastAAs = ["R", "K", "F", "L", "W", "Y"]
 		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
@@ -1890,11 +1890,11 @@ class KnowledgeBaseEcoli(object):
 			(noDataAA, slowRate) for noDataAA in noDataAAs
 			) # Assumed slow rate because of no data
 
-		degRate = numpy.zeros(len(self._proteins))
+		degRate = np.zeros(len(self._proteins))
 		for i,m in enumerate(self._proteins):
 			degRate[i] = NruleDegRate[m['seq'][0]].magnitude
 
-		self.monomerData = numpy.zeros(
+		self.monomerData = np.zeros(
 			size,
 			dtype = [
 				('id', 'a50'),
@@ -1932,11 +1932,11 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildRnaIndexToMonomerMapping(self):
-		self.rnaIndexToMonomerMapping = numpy.array([numpy.where(x == self.rnaData["id"])[0][0] for x in self.monomerData["rnaId"]])
+		self.rnaIndexToMonomerMapping = np.array([np.where(x == self.rnaData["id"])[0][0] for x in self.monomerData["rnaId"]])
 
 
 	def _buildMonomerIndexToRnaMapping(self):
-		self.monomerIndexToRnaMapping = numpy.array([numpy.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(numpy.where(x == self.monomerData["rnaId"])[0])])
+		self.monomerIndexToRnaMapping = np.array([np.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(np.where(x == self.monomerData["rnaId"])[0])])
 
 
 	def _buildComplexation(self):
@@ -2010,9 +2010,9 @@ class KnowledgeBaseEcoli(object):
 					assert molecule["type"] == "proteincomplex"
 					complexes.append(moleculeName)
 
-		self._complexStoichMatrixI = numpy.array(stoichMatrixI)
-		self._complexStoichMatrixJ = numpy.array(stoichMatrixJ)
-		self._complexStoichMatrixV = numpy.array(stoichMatrixV)
+		self._complexStoichMatrixI = np.array(stoichMatrixI)
+		self._complexStoichMatrixJ = np.array(stoichMatrixJ)
+		self._complexStoichMatrixV = np.array(stoichMatrixV)
 
 		self.complexationMoleculeNames = molecules
 		self.complexationSubunitNames = set(subunits)
@@ -2022,7 +2022,7 @@ class KnowledgeBaseEcoli(object):
 	def complexationStoichMatrix(self):
 		shape = (self._complexStoichMatrixI.max()+1, self._complexStoichMatrixJ.max()+1)
 
-		out = numpy.zeros(shape, numpy.float64)
+		out = np.zeros(shape, np.float64)
 
 		out[self._complexStoichMatrixI, self._complexStoichMatrixJ] = self._complexStoichMatrixV
 
@@ -2073,9 +2073,9 @@ class KnowledgeBaseEcoli(object):
 
 			molecules |= reactionStoich.viewkeys()
 
-		self.metabolismReactionHasKcat = numpy.array([kcat is not None for kcat in allKcats])
+		self.metabolismReactionHasKcat = np.array([kcat is not None for kcat in allKcats])
 
-		self.metabolismReactionKcat = numpy.array([kcat if kcat is not None else 0 for kcat in allKcats])
+		self.metabolismReactionKcat = np.array([kcat if kcat is not None else 0 for kcat in allKcats])
 
 		self.metabolismReactionEnzymes = allEnzymes
 
@@ -2084,7 +2084,7 @@ class KnowledgeBaseEcoli(object):
 
 		# TODO: actually track/annotate enzymes, k_cats
 
-		self.metabolismMoleculeNames = numpy.array(sorted(molecules))
+		self.metabolismMoleculeNames = np.array(sorted(molecules))
 
 		moleculeNameToIndex = {
 			molecule:i
@@ -2105,16 +2105,16 @@ class KnowledgeBaseEcoli(object):
 				stoichMatrixJ.append(reactionIndex)
 				stoichMatrixV.append(stoich)
 
-		self._metStoichMatrixI = numpy.array(stoichMatrixI)
-		self._metStoichMatrixJ = numpy.array(stoichMatrixJ)
-		self._metStoichMatrixV = numpy.array(stoichMatrixV)
+		self._metStoichMatrixI = np.array(stoichMatrixI)
+		self._metStoichMatrixJ = np.array(stoichMatrixJ)
+		self._metStoichMatrixV = np.array(stoichMatrixV)
 
 		# Collect exchange reactions
 
 		## First, find anything that looks like an exchange reaction
 
-		exchangeIndexes = numpy.where(
-			numpy.bincount(self._metStoichMatrixJ) == 1 # exchange reactions only have one stoich coeff in the column
+		exchangeIndexes = np.where(
+			np.bincount(self._metStoichMatrixJ) == 1 # exchange reactions only have one stoich coeff in the column
 			)[0]
 
 		exchangeNames = [
@@ -2126,8 +2126,8 @@ class KnowledgeBaseEcoli(object):
 
 		## Separate intercellular (sink) vs. extracellular (media) exchange fluxes
 
-		reactionIsMediaExchange = numpy.zeros(nEdges, numpy.bool)
-		reactionIsSink = numpy.zeros(nEdges, numpy.bool)
+		reactionIsMediaExchange = np.zeros(nEdges, np.bool)
+		reactionIsSink = np.zeros(nEdges, np.bool)
 
 		for index, name in itertools.izip(exchangeIndexes, exchangeNames):
 			if name.endswith('[e]'):
@@ -2138,13 +2138,13 @@ class KnowledgeBaseEcoli(object):
 
 		self.metabolismReactionIsSink = reactionIsSink
 		self.metabolismReactionIsMediaExchange = reactionIsMediaExchange
-		self.metabolismReactionIsReversible = numpy.array(allReversibility, numpy.bool)
+		self.metabolismReactionIsReversible = np.array(allReversibility, np.bool)
 
 
 	def metabolismStoichMatrix(self):
 		shape = (self._metStoichMatrixI.max()+1, self._metStoichMatrixJ.max()+1)
 
-		out = numpy.zeros(shape, numpy.float64)
+		out = np.zeros(shape, np.float64)
 
 		out[self._metStoichMatrixI, self._metStoichMatrixJ] = self._metStoichMatrixV
 
@@ -2162,12 +2162,12 @@ class KnowledgeBaseEcoli(object):
 
 		self.proteinLengths = self.monomerData["length"].magnitude
 
-		maxLen = numpy.int64(
+		maxLen = np.int64(
 			self.monomerData["length"].magnitude.max()
 			+ self.ribosomeElongationRate.to('amino_acid / s').magnitude
 			)
 
-		self.translationSequences = numpy.empty((sequences.shape[0], maxLen), numpy.int8) # TODO: consider smaller dtype
+		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8) # TODO: consider smaller dtype
 		self.translationSequences.fill(PAD_VALUE)
 
 		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
@@ -2204,8 +2204,8 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _calcNucleotideCount(self, seq):
-		return numpy.array([seq.count(x) for x in self._ntWeights])
+		return np.array([seq.count(x) for x in self._ntWeights])
 
 
 	def _calculateAminoAcidCount(self, seq):
-		return numpy.array([seq.count(x) for x in self._aaWeights])
+		return np.array([seq.count(x) for x in self._aaWeights])
