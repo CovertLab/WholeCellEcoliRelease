@@ -55,7 +55,10 @@ class Metabolism(wholecell.processes.process.Process):
 		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
 		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
 
-		self.wildtypeBiomassReaction = kb.wildtypeBiomass['biomassFlux'].magnitude
+		self.wildtypeBiomassReaction = (
+			kb.wildtypeBiomass['biomassFlux'].magnitude
+			+ kb.wildtypeBiomassPoolIncreases["biomassFlux"].magnitude * self.timeStepSec
+			)
 		self.wildtypeBiomassReactionSS = self.wildtypeBiomassReaction.copy()
 
 		self.wildtypeIds = kb.wildtypeBiomass['metaboliteId']

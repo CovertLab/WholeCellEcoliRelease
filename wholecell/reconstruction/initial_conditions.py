@@ -237,9 +237,9 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 
 	## NTPs for Translation
 	# TODO: remove magic numbers, make these calculations more sensible
-	gtpInitial = np.int64(242409.87581925251)
+	gtpInitial = kb.gtpPoolSize * dt * kb.nAvogadro.to("1/millimole") * kb.avgCellDryMassInit.to("DCW_gram")
 	bulkMolCntr.countsInc(
-		gtpInitial,
+		gtpInitial.magnitude.astype(np.int64),
 		["GTP[c]", "PPI[c]", "GMP[c]"]
 		)
 

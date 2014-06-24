@@ -235,21 +235,6 @@ def fitKb(kb):
 		aaMmolPerGDCW.magnitude
 		)
 
-	# GTP for translation
-
-	TIME_STEP = 1
-
-	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
-
-	gtpUsedOverCellCycle = kb.gtpPerTranslation * aasUsedOverCellCycle
-
-	gtpPoolIncreaseOverCellCycle = TIME_STEP * (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycle
-
-	biomassContainer.countInc(
-		gtpPoolIncreaseOverCellCycle,
-		"GTP[c]"
-		)
-
 	# RNA fraction
 	ntpView = biomassContainer.countsView(
 		["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
@@ -456,6 +441,37 @@ def fitKb(kb):
 	# TODO: Unhack this
 	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
+	# Initial pool sizes
+	# Pools are used for inter-process communication.  As a consequence, their
+	# size and rate of growth are a function of the time step, which is not 
+	# known until the simulation states running
+
+	# GTPs used for translation (recycled, not incorporated into biomass)
+
+	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
+
+	gtpUsedOverCellCycle = kb.gtpPerTranslation * aasUsedOverCellCycle
+
+	gtpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycle
+
+	# TODO: make this more general and add to KB (default undefined?)
+	kb.gtpPoolSize = Q_(gtpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
+
+	poolIncreasesContainer = BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), np.float64)
+
+	poolIncreasesContainer.countIs(
+		gtpPoolOverCellCyclePerUnitTime,
+		"GTP[c]"
+		)
+
+	# TODO: also add this to the KB
+	kb.wildtypeBiomassPoolIncreases = type(kb.wildtypeBiomass)(
+		np.zeros_like(kb.wildtypeBiomass.fullArray()),
+		{'biomassFlux': 'mmol / (DCW_g) / s', 'metaboliteId': None}
+		)
+
+	kb.wildtypeBiomassPoolIncreases.struct_array["biomassFlux"] = poolIncreasesContainer.counts()
+	
 
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
