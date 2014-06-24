@@ -127,16 +127,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			sequenceHasAA.sum(),
 			self.aas.total().sum()
 			))
-		
-		# sequenceElongations, aasUsed, nElongations = polymerize(
-		# 	sequences,
-		# 	self.aas.total(),
-		# 	self.gtp.total() // self.gtpPerElongation,
-		# 	self.randomState
-		# 	)
-
-		# self.aas.requestIs(aasUsed)
-		# self.gtp.requestIs(nElongations * self.gtpPerElongation)
 
 		# TODO: request water for GTP hydrolysis
 
