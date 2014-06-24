@@ -130,24 +130,13 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
-		self.ntps.requestIs(sequenceComposition)
+		ntpsTotal = self.ntps.total()
 
-		# totalNtps = self.ntps.total()
+		maxFractionalReactionLimit = (np.fmin(1, ntpsTotal/sequenceComposition)).min()
 
-		# self.ntps.requestIs(np.floor(
-		# 	min((totalNtps / sequenceComposition).min(), 1) # limiting rate
-		# 	* sequenceComposition # average composition of polymerizable sequences
-		# 	* 1.1# TODO: explore small positive bumps in request, i.e. as a function of sequence variance
-		# 	))
-
-		# print np.floor(
-		# 	min((totalNtps / sequenceComposition).min(), 1) # limiting rate
-		# 	* sequenceComposition # average composition of polymerizable sequences
-		# 	# TODO: explore small positive bumps in request, i.e. as a function of sequence variance
-		# 	)
-
-		# print (totalNtps / sequenceComposition).min()
-		# print (totalNtps / sequenceComposition).min() * sequenceComposition
+		self.ntps.requestIs(
+			maxFractionalReactionLimit * sequenceComposition
+			)
 
 		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
 
