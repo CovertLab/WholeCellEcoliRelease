@@ -1558,75 +1558,59 @@ class KnowledgeBaseEcoli(object):
 		self.bulkChromosome = UnitStructArray(bulkChromosome, units)
 
 	def _buildUniqueMolecules(self):
-		# TODO: (URGENT) change these molecules to be the actual complexes and
-		# update processes accordingly
 
-		# TODO: ask Nick about the best way to use the unit struct arrays here
-		G_PER_MOL_TO_FG_PER_MOLECULE = 1e15 / 6.022e23
-
-		self.uniqueMoleculeDefinitions = {
-			'activeRnaPoly' : {
+		self.uniqueMoleculeDefinitions = collections.OrderedDict(
+			activeRnaPoly = {
 				'rnaIndex' : 'i8',
 				'transcriptLength' : 'i8'
 				},
-			'activeRibosome' : {
+			activeRibosome = {
 				'proteinIndex' : 'i8',
 				'peptideLength': 'i8'
 				},
-			'dnaPolymerase' : {
+			dnaPolymerase = {
 				'chromosomeLocation' : 'i8',
 				'directionIsPositive' : 'bool',
 				'isLeading' : 'bool'
 				},
-			}
+			)
 
-		rnaPolyComplexMass = (
-			self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].to("fg/mole")
-			/ self._constantData["nAvogadro"]
-			).sum().magnitude
+		rnaPolyComplexMass = self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].magnitude
 
 		# TODO: This is a bad hack that works because in the fitter
 		# I have forced expression to be these subunits only
 		ribosomeSubunits = [
-			"RRLA-RRNA", "RRSA-RRNA", "RRFA-RRNA"
+			"RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"
 			]
 
 		ribosomeMass = sum(
-			rna['mw'].sum() for rna in self._rnas
-			if rna['id'] in ribosomeSubunits
+			entry["mass"] for entry in self.bulkMolecules.struct_array
+			if entry["moleculeId"] in ribosomeSubunits
 			)
 
-		self.uniqueMoleculeMasses = np.zeros(
+		uniqueMoleculeMasses = np.zeros(
 			shape = len(self.uniqueMoleculeDefinitions),
 			dtype = [
 				('moleculeId', 'a50'),
-				('massMetabolite', np.float),
-				('massRna', np.float),
-				('massProtein', np.float),
+				("mass", "{}f8".format(len(MOLECULAR_WEIGHT_ORDER))),
 				]
 			)
 
-		self.uniqueMoleculeMasses[0] = (
-			'activeRnaPoly',
-			0,
-			0,
-			rnaPolyComplexMass
-			)
-		self.uniqueMoleculeMasses[1] = (
-			'activeRibosome',
-			0,
-			ribosomeMass * G_PER_MOL_TO_FG_PER_MOLECULE,
-			0
-			)
-		self.uniqueMoleculeMasses[2] = (
-			'dnaPolymerase',
-			0,
-			0,
-			0
+		uniqueMoleculeMasses["moleculeId"] = self.uniqueMoleculeDefinitions.keys()
+
+		uniqueMoleculeMasses["mass"] = [
+			rnaPolyComplexMass,
+			ribosomeMass,
+			0 # NOTE: dnaPolymerases currently have no mass
+			]
+
+		self.uniqueMoleculeMasses = UnitStructArray(
+			uniqueMoleculeMasses,
+			{"moleculeId":None, "mass":"g/mol"}
 			)
 
-		# TODO: units
-		# TODO: make this logic better overall
+		# TODO: add the ability to "register" a bulk molecule as a unique 
+		# molecule to handle most of the above logic
 
 
 	def _buildRnaExpression(self):
