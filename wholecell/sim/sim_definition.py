@@ -304,6 +304,8 @@ def getSimOptsFromEnvVars(optionsToNotGetFromEnvVars = None):
 			wcEnvVars.remove(envVar)
 		else:
 			simOpts[option] = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS[option]
+			if os.environ.has_key(envVar) and len(os.environ[envVar]) == 0:
+				wcEnvVars.remove(envVar)
 
 	# Check for extraneous environmental variables (probably typos by the user)
 	assert (len(wcEnvVars) == 0), (
