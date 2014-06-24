@@ -150,6 +150,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions()
 		self._buildTranscription()
 		self._buildTranslation()
+		self._buildAllMasses()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -2174,6 +2175,31 @@ class KnowledgeBaseEcoli(object):
 		self.__dict__.update(self._parameterData)
 
 
+	def _buildAllMasses(self):
+		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites)
+		allMass = np.empty(size,
+			dtype = [
+					('id',		'a50'),
+					('mass',	"f8")
+					]
+			)
+
+		listMass = []
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._rnas])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteins])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteinComplexes])
+		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in self._metabolites])
+
+		allMass[:] = listMass
+
+		units = {
+			'id'		:	None,
+			'mass'		:	'g/mol',
+			}
+
+		self._allMass = UnitStructArray(allMass, units)
+
+
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
 		if len(table.objects.all()) <= 0:
@@ -2195,3 +2221,8 @@ class KnowledgeBaseEcoli(object):
 
 	def _calculateAminoAcidCount(self, seq):
 		return np.array([seq.count(x) for x in self._aaWeights])
+
+	def getMass(self, ids):
+		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
+		print idx
+		return self._allMass['mass'][idx]
