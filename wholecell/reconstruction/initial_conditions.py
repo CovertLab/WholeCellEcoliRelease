@@ -240,7 +240,7 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 	gtpInitial = np.int64(242409.87581925251)
 	bulkMolCntr.countsInc(
 		gtpInitial,
-		["GTP[c]", "PPI[c]", "GDP[c]"]
+		["GTP[c]", "PPI[c]", "GMP[c]"]
 		)
 
 	## Amino Acids
