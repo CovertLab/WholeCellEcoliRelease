@@ -137,17 +137,15 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		# in-development work
-		# currently misbehaving due to DNTPs, H, and PPI
-		# note: ADP, H, H2O and PPI should probably be removed from the biomass 
-		# objective since they are zero-valued
-		# likewise, recycling needs to get handled
+		# Store NMP/PPI counts for recycling
 
 		ppiCount = self.ppi.count()
 		nmpCounts = self.nmps.counts()
 
 		self.ppi.countIs(0)
 		self.nmps.countsIs(0)
+
+		# Compute effective biomass objective
 
 		metaboliteMasses = self.biomassMws.sum(axis = 1) / self.nAvogadro
 
@@ -219,19 +217,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.biomassMetabolites.countsInc(deltaMetabolitesNew.astype(np.int64))
 
 
-		# Fake recycling
-		# if np.sum(self.ntpsdntps.counts()) < self.ppi.count():
-		# 	import ipdb; ipdb.set_trace()
-		# 	raise Exception, "Making fewer (d)NTPs than PPi's available"
-
-		# self.ntps.countsInc(self.nmps.counts())
-		# self.nmps.countsIs(0)
-		# # self.ppi.countDec(np.sum(self.ntpsdntps.counts()))
-
-		# self.ppi.countDec(np.fmin(
-		# 	self.ppi.count(),
-		# 	self.ntpsdntps.counts().sum()
-		# 	))
+		# NTP recycling
 		
 		if ppiCount >= nmpCounts.sum():
 			self.ntps.countsInc(nmpCounts)
