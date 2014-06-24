@@ -85,6 +85,7 @@ runprogram()
 	echo "Running"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
+	PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" \
 	WC_SEED=${SEED} \
 	WC_STATES=${WC_STATES} \
 	WC_PROCESSES=${WC_PROCESSES} \
