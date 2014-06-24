@@ -443,7 +443,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	activeRnaPolys.attrIs(
 		rnaIndex = rnaIndexes,
 		transcriptLength = transcriptLengths,
-		massDiffRna = transcriptMasses
+		massDiff_mRNA = transcriptMasses
 		)
 
 	# Compute the amount of RNA mass that needs to be removed
@@ -597,7 +597,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	activeRibosomes.attrIs(
 		proteinIndex = proteinIndexes,
 		peptideLength = peptideLengths,
-		massDiffProtein = peptideMasses
+		massDiff_protein = peptideMasses
 		)
 
 	# Compute the amount of monomer mass that needs to be removed

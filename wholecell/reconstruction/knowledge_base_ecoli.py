@@ -1588,6 +1588,8 @@ class KnowledgeBaseEcoli(object):
 			if entry["moleculeId"] in ribosomeSubunits
 			)
 
+		dnaPolyMass = np.zeros_like(rnaPolyComplexMass) # NOTE: dnaPolymerases currently have no mass
+
 		uniqueMoleculeMasses = np.zeros(
 			shape = len(self.uniqueMoleculeDefinitions),
 			dtype = [
@@ -1598,11 +1600,11 @@ class KnowledgeBaseEcoli(object):
 
 		uniqueMoleculeMasses["moleculeId"] = self.uniqueMoleculeDefinitions.keys()
 
-		uniqueMoleculeMasses["mass"] = [
+		uniqueMoleculeMasses["mass"] = np.vstack([
 			rnaPolyComplexMass,
 			ribosomeMass,
-			0 # NOTE: dnaPolymerases currently have no mass
-			]
+			dnaPolyMass
+			])
 
 		self.uniqueMoleculeMasses = UnitStructArray(
 			uniqueMoleculeMasses,
