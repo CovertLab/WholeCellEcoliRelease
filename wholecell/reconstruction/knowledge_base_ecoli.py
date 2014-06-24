@@ -2190,8 +2190,29 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildAllMasses(self):
-		#import ipdb; ipdb.set_trace()
-		pass
+		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites)
+		allMass = np.empty(size,
+			dtype = [
+					('id',		'a50'),
+					('mass',	"f8")
+					]
+			)
+
+		listMass = []
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._rnas])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteins])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteinComplexes])
+		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in self._metabolites])
+
+		allMass[:] = listMass
+
+		units = {
+			'id'		:	None,
+			'mass'		:	'g/mol',
+			}
+
+		self._allMass = UnitStructArray(allMass, units)
+
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
@@ -2215,5 +2236,7 @@ class KnowledgeBaseEcoli(object):
 	def _calculateAminoAcidCount(self, seq):
 		return np.array([seq.count(x) for x in self._aaWeights])
 
-	def returnMolecularWeight(self, ids):
-		pass
+	def getMass(self, ids):
+		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
+		print idx
+		return self._allMass['mass'][idx]
