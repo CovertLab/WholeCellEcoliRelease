@@ -34,7 +34,7 @@ python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
 
 
 ##### Run simulation #####
-WC_KBLOCATION="\"${KB_FIT}\"" python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
+PYTHONPATH="$PWD:$PYTHONPATH" WC_KBLOCATION="\"${KB_FIT}\"" python2.7 runscripts/runSimulation.py "${SUBMISSION_TIME}"
 
 # If the simulation didn't complete successfully, don't run analysis
 if [ "$?" -ne "0" ]; then
@@ -61,7 +61,7 @@ for SINGLE_ANALYSIS_SCRIPT in $SINGLE_ANALYSIS_SCRIPTS; do
 
 	echo "Running $(basename $SINGLE_ANALYSIS_SCRIPT)"
 
-	python2.7 $SINGLE_ANALYSIS_SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf --kbFile "${KB_FIT}"
+	PYTHONPATH="$PWD:$PYTHONPATH" python2.7 $SINGLE_ANALYSIS_SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf --kbFile "${KB_FIT}"
 done
 
 echo

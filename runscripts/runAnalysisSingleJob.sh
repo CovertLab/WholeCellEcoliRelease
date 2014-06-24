@@ -45,20 +45,29 @@ WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${ARRAY_ID}"
 mkdir -p "$WORK_DIR"
 
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
-RESULTS_DIR="${CODE_DIR}/out/simOut"
-SUBMISSION_RESULTS_DIR="${RESULTS_DIR}/${SUBMISSION_TIME}"
-SPECIFIC_RESULTS_DIR=$(find $SUBMISSION_RESULTS_DIR -name "*.hdf" -print0 | xargs -0 -I {} dirname {} | uniq | sort | head -n $ARRAY_ID | tail -n 1)
+KBECOLI_DIR="${CODE_DIR}/../kbEcoli"
+KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
+KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
 
-PLOTS_DIR="${CODE_DIR}/out/plotOut"
-SUBMISSION_PLOTS_DIR="${PLOTS_DIR}/${SUBMISSION_TIME}"
-SPECIFIC_PLOTS_DIR="${SUBMISSION_PLOTS_DIR}/$(basename $SPECIFIC_RESULTS_DIR)"
+SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
+
+RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}"
+SPECIFIC_RESULTS_DIR="${RESULTS_DIR}/${SEED}/simOut"
+
+# PLOTS_DIR="${CODE_DIR}/out/plotOut"
+# SUBMISSION_PLOTS_DIR="${PLOTS_DIR}/${SUBMISSION_TIME}"
+SPECIFIC_PLOTS_DIR="${RESULTS_DIR}/${SEED}/plotOut"
 
 mkdir -p "$SPECIFIC_PLOTS_DIR"
 
-MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/simOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_RESULTS_DIR)"
-MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/plotOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_PLOTS_DIR)"
+MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${SEED}/simOut"
+MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${SEED}/plotOut"
 
-SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
+
+# MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/simOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_RESULTS_DIR)"
+# MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/plotOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_PLOTS_DIR)"
+
+
 OUTPUT_LOG_BASE_NAME="analysisSingleLog"
 OUTPUT_LOG_FILE="${PBS_O_WORKDIR}/${OUTPUT_LOG_BASE_NAME}.${SUBMISSION_TIME}:$SEED"
 
@@ -77,15 +86,20 @@ stagein()
 
 	cd ${WORK_DIR}
 
+	scp -r ${KBECOLI_DIR} .
+
 	mkdir $(basename $CODE_DIR)
 	cd $(basename $CODE_DIR)
-	scp -r ${CODE_DIR}/fixtures .
 	scp -r ${CODE_DIR}/runscripts .
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
 
-	mkdir -p out/simOut/${SUBMISSION_TIME}
-	cd out/simOut/${SUBMISSION_TIME}
+	mkdir -p "out/${SUBMISSION_TIME}/${SEED}"
+
+	cd "out/${SUBMISSION_TIME}"
+	scp -r "${KB_DIR}" .
+
+	cd "${SEED}"
 	scp -r ${SPECIFIC_RESULTS_DIR} .
 }
 
@@ -108,7 +122,7 @@ runprogram()
 
 		echo "Running $(basename $SCRIPT)"
 
-		python2.7 $SCRIPT $MY_SPECIFIC_RESULTS_DIR $MY_SPECIFIC_PLOTS_DIR ${OUT_NAME}.pdf
+		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 $SCRIPT $MY_SPECIFIC_RESULTS_DIR $MY_SPECIFIC_PLOTS_DIR ${OUT_NAME}.pdf --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/kb/KnowledgeBase_Fit.cPickle"
 	done 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 
@@ -116,8 +130,8 @@ stageout()
 {
 	echo "Transferring files back"
 
-	scp -r $MY_SPECIFIC_PLOTS_DIR $SUBMISSION_PLOTS_DIR
-	mv "${OUTPUT_LOG_FILE}" "${SUBMISSION_PLOTS_DIR}/$(basename $SPECIFIC_PLOTS_DIR)/${OUTPUT_LOG_BASE_NAME}"
+	scp -r $MY_SPECIFIC_PLOTS_DIR "${RESULTS_DIR}/${SEED}"
+	mv "${OUTPUT_LOG_FILE}" "${RESULTS_DIR}/${SEED}/plotOut/${OUTPUT_LOG_BASE_NAME}"
 
 	echo "Cleaning up"
 	cd /

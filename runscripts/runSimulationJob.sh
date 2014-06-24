@@ -45,11 +45,13 @@ WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${ARRAY_ID}"
 mkdir -p "$WORK_DIR"
 
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
-KB_DIR="${CODE_DIR}/../kbEcoli"
+KBECOLI_DIR="${CODE_DIR}/../kbEcoli"
+KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
+KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
 
-RESULTS_DIR="${CODE_DIR}/out/simOut"
+RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}"
 
-mkdir -p "$RESULTS_DIR"
+# mkdir -p "$RESULTS_DIR"
 
 SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
 OUTPUT_LOG_BASE_NAME="simShellLog"
@@ -65,14 +67,16 @@ stagein()
 	echo "Copying files to work directory ${WORK_DIR}"
 
 	cd ${WORK_DIR}
-	scp -r ${KB_DIR} .
+	scp -r ${KBECOLI_DIR} .
 
 	mkdir $(basename $CODE_DIR)
 	cd $(basename $CODE_DIR)
-	scp -r ${CODE_DIR}/fixtures .
+	scp -r ${KB_FIT} .
 	scp -r ${CODE_DIR}/runscripts .
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
+
+	mkdir -p "out/${SUBMISSION_TIME}/${SEED}/simOut"
 
 }
 
@@ -81,6 +85,8 @@ runprogram()
 	echo "Running"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
+	PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" \
+	WC_SEED=${SEED} \
 	WC_STATES=${WC_STATES} \
 	WC_PROCESSES=${WC_PROCESSES} \
 	WC_LISTENERS=${WC_LISTENERS} \
@@ -88,8 +94,9 @@ runprogram()
 	WC_LENGTHSEC=${WC_LENGTHSEC} \
 	WC_TIMESTEPSEC=${WC_TIMESTEPSEC} \
 	WC_LOGTOSHELL=${WC_LOGTOSHELL} \
+	WC_SHELLCOLUMNSHEADERS=${WC_SHELLCOLUMNSHEADERS} \
 	WC_LOGTODISKEVERY=${WC_LOGTODISKEVERY} \
-	WC_REBUILDKB=${WC_REBUILDKB} python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
+	WC_KBLOCATION="\"${WORK_DIR}/$(basename $CODE_DIR)/KnowledgeBase_Fit.cPickle\"" python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 
 stageout()
@@ -97,9 +104,9 @@ stageout()
 	echo "Transferring files back"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	mkdir -p "$RESULTS_DIR/${SUBMISSION_TIME}/${SEED}"
-	scp -r "out/simOut/${SUBMISSION_TIME}/${SEED}" "$RESULTS_DIR/${SUBMISSION_TIME}/"
-	mv "${OUTPUT_LOG_FILE}" "${RESULTS_DIR}/${SUBMISSION_TIME}/${SEED}/${OUTPUT_LOG_BASE_NAME}"
+	mkdir -p "$RESULTS_DIR/${SEED}/simOut"
+	scp -r "out/${SUBMISSION_TIME}/${SEED}/simOut" "$RESULTS_DIR/${SEED}"
+	mv "${OUTPUT_LOG_FILE}" "${RESULTS_DIR}/${SEED}/simOut/${OUTPUT_LOG_BASE_NAME}"
 
 	echo "Cleaning up"
 	cd /

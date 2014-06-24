@@ -29,7 +29,7 @@ for SIM_OUT_DATA_DIR in $SIM_OUT_DATA_DIRS; do
 
 		echo "Running $(basename $SCRIPT)"
 
-		python2.7 $SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf
+		PYTHONPATH="$PWD:$PYTHONPATH" python2.7 $SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf
 	done
 
 	echo
