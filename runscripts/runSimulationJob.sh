@@ -72,7 +72,6 @@ stagein()
 	mkdir $(basename $CODE_DIR)
 	cd $(basename $CODE_DIR)
 	scp -r ${KB_FIT} .
-	# scp -r ${CODE_DIR}/fixtures .
 	scp -r ${CODE_DIR}/runscripts .
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
