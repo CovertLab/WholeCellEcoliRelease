@@ -73,13 +73,27 @@ class Test_mc_complexation(unittest.TestCase):
 								 [ 0,  0,  0, -1],
 								 [ 0,  0,  0,  1]], dtype=np.int64)
 		seed = 0
-		moleculeCounts = np.array([0, 6, 8, 0, 0, 0], dtype=np.int64)
+		test_moleculeCounts = np.array([[0, 6, 8, 0, 0, 0],
+									[10, 0, 0, 0, 0, 0],
+									[0, 0, 0, 3, 3, 0]], dtype=np.int64)
 
-		prebuiltMatrices = mccBuildMatrices(stoichMatrix)
 
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
-			moleculeCounts,
-			seed,
-			stoichMatrix,
-			*prebuiltMatrices
-			)
+		expected_updatedMoleculeCounts = np.array([[0, 0, 2, 6, 0, 0],
+									[0, 0, 1, 3, 0, 0],
+									[0, 0, 0, 3, 0, 3]], dtype=np.int64)
+
+		for i,test_moleculeCount in enumerate(test_moleculeCounts):
+			prebuiltMatrices = mccBuildMatrices(stoichMatrix)
+
+			updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+				test_moleculeCount,
+				seed,
+				stoichMatrix,
+				*prebuiltMatrices
+				)
+
+			self.assertTrue(
+				np.all(
+						updatedMoleculeCounts == expected_updatedMoleculeCounts[i]
+					)
+				)
