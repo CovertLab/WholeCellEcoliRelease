@@ -31,6 +31,7 @@ RRNA16S_MASS_SUB_FRACTION = 0.271 # This is the fraction of RNA that is 16S rRNA
 RRNA5S_MASS_SUB_FRACTION = 0.017 # This is the fraction of RNA that is 5S rRNA
 TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
 MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
+GAM = 59.81 # mmol/gDCW (from Feist)
 
 # Correction factors
 EXCESS_RNAP_CAPACITY = 2
@@ -464,6 +465,17 @@ def fitKb(kb):
 		"GTP[c]"
 		)
 
+	# Account for growth associated maintenance
+	darkATP = GAM - gtpUsedOverCellCycle # This has everything we can't account for
+	atpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * darkATP
+
+	kb.atpPoolSize = Q_(atpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
+
+	poolIncreasesContainer.countIs(
+		atpPoolOverCellCyclePerUnitTime,
+		"ATP[c]"
+		)
+
 	# TODO: also add this to the KB
 	kb.wildtypeBiomassPoolIncreases = type(kb.wildtypeBiomass)(
 		np.zeros_like(kb.wildtypeBiomass.fullArray()),
@@ -471,7 +483,7 @@ def fitKb(kb):
 		)
 
 	kb.wildtypeBiomassPoolIncreases.struct_array["biomassFlux"] = poolIncreasesContainer.counts()
-	
+
 
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
