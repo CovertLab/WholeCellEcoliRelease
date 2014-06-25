@@ -2238,5 +2238,4 @@ class KnowledgeBaseEcoli(object):
 
 	def getMass(self, ids):
 		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
-		print idx
 		return self._allMass['mass'][idx]
