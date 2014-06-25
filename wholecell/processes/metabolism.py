@@ -147,7 +147,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		print self.ntps.total()
 		# Store NMP/PPI counts for recycling
 
 		ppiCount = self.ppi.count()
