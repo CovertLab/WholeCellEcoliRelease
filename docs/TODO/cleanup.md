@@ -31,7 +31,7 @@ Repository clean-up
    * Eliminate fixture manager (DONE)
 
 7. Repository (DONE)
-   * Remove/resolve floating branches (Nick is doing this)
+   * Remove/resolve floating branches (DONE)
 
 
 Refactoring
