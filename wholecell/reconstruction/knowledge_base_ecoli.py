@@ -2178,8 +2178,11 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildMoleculeGroups(self):
 		moleculeGroups = {
-			'ntpIds'			:	['ATP[c]','CTP[c]','GTP[c]','UTP[c]'],
-			'dntpIds'			:	['dATP[c]','dCTP[c]','dGTP[c]','dTTP[c]'],
+			'ntpIds'			:	["ATP[c]","CTP[c]","GTP[c]","UTP[c]"],
+			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
+			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
+			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
+			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 		}
 
 		self.__dict__.update(moleculeGroups)
