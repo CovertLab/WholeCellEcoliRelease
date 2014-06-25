@@ -89,10 +89,8 @@ def fitKb(kb):
 	setMonomerCounts(kb, monomerMass, monomersView)
 
 	### DNA Mass fraction ###
-	dNtpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-	dNmpIds = ["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"]
-	dNtpsView = bulkContainer.countsView(dNtpIds)
-	dNmpsView = bulkContainer.countsView(dNmpIds)
+	dNtpsView = bulkContainer.countsView(kb.dNtpIds)
+	dNmpsView = bulkContainer.countsView(kb.dNmpIds)
 
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
@@ -104,8 +102,8 @@ def fitKb(kb):
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		]))
 
-	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNtpIds]
-	dNmpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in dNmpIds]
+	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in kb.dNtpIds]
+	dNmpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in kb.dNmpIds]
 
 	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs].sum(axis = 1)
 	dNmpMws = kb.bulkMolecules["mass"][dNmpIdxs].sum(axis = 1)
@@ -132,8 +130,7 @@ def fitKb(kb):
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
-	rnapIds = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
-	rnapView = bulkContainer.countsView(rnapIds)
+	rnapView = bulkContainer.countsView(kb.rnapIds)
 
 	## Number of ribosomes needed ##
 	monomerLengths = np.sum(kb.monomerData['aaCounts'], axis = 1)
@@ -237,9 +234,7 @@ def fitKb(kb):
 		)
 
 	# RNA fraction
-	ntpView = biomassContainer.countsView(
-		["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
-		)
+	ntpView = biomassContainer.countsView(kb.ntpIds)
 
 	ntpMmolPerGDCW = (
 			np.sum(
@@ -258,9 +253,7 @@ def fitKb(kb):
 
 	# DNA fraction
 
-	dNtpView = biomassContainer.countsView(		# TODO: Better name so as not to confuse with bulkContainer view
-		["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-		)
+	dNtpView = biomassContainer.countsView(kb.dNtpIds)	# TODO: Better name so as not to confuse with bulkContainer view
 
 	dNtpMmolPerGDCW = (
 			Q_(dNtpsView.counts(),'nucleotide') * (
