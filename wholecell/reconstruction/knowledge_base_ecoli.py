@@ -151,6 +151,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranscription()
 		self._buildTranslation()
 		self._buildAllMasses()
+		self._buildMoleculeGroups()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -2175,6 +2176,14 @@ class KnowledgeBaseEcoli(object):
 		self.__dict__.update(self._parameterData)
 
 
+	def _buildMoleculeGroups(self):
+		moleculeGroups = {
+			'ntpIds'			:	['ATP[c]','CTP[c]','GTP[c]','UTP[c]'],
+			'dntpIds'			:	['dATP[c]','dCTP[c]','dGTP[c]','dTTP[c]'],
+		}
+
+		self.__dict__.update(moleculeGroups)
+
 	def _buildAllMasses(self):
 		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites)
 		allMass = np.empty(size,
@@ -2224,5 +2233,4 @@ class KnowledgeBaseEcoli(object):
 
 	def getMass(self, ids):
 		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
-		print idx
 		return self._allMass['mass'][idx]
