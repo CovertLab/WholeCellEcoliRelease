@@ -151,7 +151,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 			return
 
 		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs(
-			'rnaIndex', 'transcriptLength', 'massDiffRna'
+			'rnaIndex', 'transcriptLength', 'massDiff_mRNA'
 			)
 
 		ntpsUsed = np.zeros_like(ntpCounts)
@@ -188,7 +188,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		activeRnaPolys.attrIs(
 			transcriptLength = updatedLengths,
-			massDiffRna = updatedMass
+			massDiff_mRNA = updatedMass
 			)
 
 		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])

@@ -11,7 +11,7 @@ creates and manages the structured arrays in memory.
 
 from __future__ import division
 
-import itertools
+from itertools import izip
 
 import numpy as np
 import tables
@@ -21,9 +21,6 @@ import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 
 DEFAULT_ATTRIBUTES = {
-	"massDiffMetabolite":np.float,
-	"massDiffRna":np.float,
-	"massDiffProtein":np.float,
 	"_partitionedProcess":np.int64
 	}
 
@@ -42,6 +39,8 @@ class UniqueMolecules(wholecell.states.state.State):
 	def __init__(self, *args, **kwargs):
 		self.container = None
 
+		self._submassNameToProperty = {}
+
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
 
 
@@ -50,12 +49,23 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		molDefs = kb.uniqueMoleculeDefinitions.copy()
 
+		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
+
+		self.submassNameToIndex = kb.submassNameToIndex
+
+		# Add the submass difference attributes for processes to operate
+		for submassName in self.submassNameToIndex.viewkeys():
+			massDiffPropertyName = "massDiff_" + submassName
+			defaultAttributes[massDiffPropertyName] = np.float64
+			self._submassNameToProperty[submassName] = massDiffPropertyName
+
 		for molDef in molDefs.viewvalues():
-			molDef.update(DEFAULT_ATTRIBUTES)
+			molDef.update(defaultAttributes)
 
 		self.container = UniqueObjectsContainer(molDefs)
 
-		self._masses = kb.uniqueMoleculeMasses
+		self._massesIds = kb.uniqueMoleculeMasses["moleculeId"]
+		self._masses = kb.uniqueMoleculeMasses["mass"].to("fg/mole").magnitude / kb.nAvogadro.magnitude
 
 
 	def partition(self):
@@ -126,13 +136,10 @@ class UniqueMolecules(wholecell.states.state.State):
 	# TODO: refactor mass calculations as a whole
 	def mass(self):
 		totalMass = 0
-		
-		for entry in self._masses:
-			moleculeId = entry["moleculeId"]
-			massMetabolite = entry["massMetabolite"]
-			massRna = entry["massRna"]
-			massProtein = entry["massProtein"]
 
+		submassDiffNames = self._submassNameToProperty.values()
+		
+		for moleculeId, masses in izip(self._massesIds, self._masses):
 			molecules = self.container.objectsInCollection(moleculeId)
 
 			nMolecules = len(molecules)
@@ -140,35 +147,23 @@ class UniqueMolecules(wholecell.states.state.State):
 			if nMolecules == 0:
 				continue
 
-			totalMass += massMetabolite * nMolecules + molecules.attr("massDiffMetabolite").sum()
-			totalMass += massRna * nMolecules + molecules.attr("massDiffRna").sum()
-			totalMass += massProtein * nMolecules + molecules.attr("massDiffProtein").sum()
+			totalMass += (
+				masses.sum() * nMolecules
+				+ molecules.attrsAsStructArray(
+					*submassDiffNames
+					).astype(np.float64).sum()
+				)
 
 		return totalMass
 
 
 	def massByType(self, typeKey):
-		if typeKey in ["16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "water"]:
-			return 0
-
-		submassKey = {
-			"metabolite":"massMetabolite",
-			"23srRNA":"massRna", # HACK
-			"protein":"massProtein",
-			}[typeKey]
-
-		submassDiffKey = {
-			"metabolite":"massDiffMetabolite",
-			"23srRNA":"massDiffRna",
-			"protein":"massDiffProtein",
-			}[typeKey]
-
 		totalMass = 0
-		
-		for entry in self._masses:
-			moleculeId = entry["moleculeId"]
-			mass = entry[submassKey]
 
+		submassIndex = self.submassNameToIndex[typeKey]
+		submassDiffName = self._submassNameToProperty[typeKey]
+		
+		for moleculeId, masses in izip(self._massesIds, self._masses):
 			molecules = self.container.objectsInCollection(moleculeId)
 
 			nMolecules = len(molecules)
@@ -176,7 +171,12 @@ class UniqueMolecules(wholecell.states.state.State):
 			if nMolecules == 0:
 				continue
 
-			totalMass += mass * nMolecules + molecules.attr(submassDiffKey).sum()
+			totalMass += (
+				masses[submassIndex] * nMolecules
+				+ molecules.attr(
+					submassDiffName
+					).sum()
+				)
 
 		return totalMass
 
