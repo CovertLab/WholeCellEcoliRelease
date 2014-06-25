@@ -2234,3 +2234,28 @@ class KnowledgeBaseEcoli(object):
 	def getMass(self, ids):
 		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
 		return self._allMass['mass'][idx]
+
+	def getComplexMonomers(self, cplxId):
+		stoichMatrix = self.complexationStoichMatrix()
+		moleculeNames = np.array(self.complexationMoleculeNames)
+		cplxRowIdx = np.where(moleculeNames == cplxId)[0][0]
+
+		monomerIdxList = []
+		self._monomerRecursiveSearch(cplxRowIdx, stoichMatrix, monomerIdxList)
+		return moleculeNames[monomerIdxList]
+
+	def _monomerRecursiveSearch(self, rowSearchIdx, stoichMatrix, monomerIdxList):
+		rxnColIdx = np.where(stoichMatrix[rowSearchIdx,:] == 1)[0]
+		subunitIdx = np.where(stoichMatrix[:,rxnColIdx] == -1)[0]
+		if len(rxnColIdx):
+			rxnColIdx = rxnColIdx[0]
+		else:
+			monomerIdxList.append(rowSearchIdx)
+			return
+
+		if len(subunitIdx) == 0:
+			monomerIdxList.append(rowSearchIdx)
+			return
+		else:
+			for i in subunitIdx:
+				self._monomerRecursiveSearch(i, stoichMatrix, monomerIdxList)
