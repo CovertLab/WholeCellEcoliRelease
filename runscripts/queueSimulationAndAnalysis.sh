@@ -32,7 +32,7 @@ git diff > "${METADATA_DIR}/git_diff"
 echo "${DESC}" > "${METADATA_DIR}/description"
 
 ##### Create knowledgebases (unfit and fit) #####
-PYTHONPATH="$PWD:$PYTHONATPH" python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
+PYTHONPATH="$PWD:$PYTHONPATH" python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
 
 FIRST_SINGLE_ANALYSIS_JOB=""
 LAST_SINGLE_ANALYSIS_JOB=""
