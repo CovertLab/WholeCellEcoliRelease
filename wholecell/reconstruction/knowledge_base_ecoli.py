@@ -2241,21 +2241,28 @@ class KnowledgeBaseEcoli(object):
 		cplxRowIdx = np.where(moleculeNames == cplxId)[0][0]
 
 		monomerIdxList = []
-		self._monomerRecursiveSearch(cplxRowIdx, stoichMatrix, monomerIdxList)
-		return moleculeNames[monomerIdxList]
+		monomerStoichList = []
+		rowStoich = 0
+		self._monomerRecursiveSearch(cplxRowIdx, rowStoich, stoichMatrix, monomerIdxList, monomerStoichList)
+		
+		return moleculeNames[monomerIdxList], np.array(monomerStoichList)
 
-	def _monomerRecursiveSearch(self, rowSearchIdx, stoichMatrix, monomerIdxList):
-		rxnColIdx = np.where(stoichMatrix[rowSearchIdx,:] == 1)[0]
-		subunitIdx = np.where(stoichMatrix[:,rxnColIdx] == -1)[0]
+	def _monomerRecursiveSearch(self, rowSearchIdx, rowStoich, stoichMatrix, monomerIdxList, monomerStoichList):
+		rxnColIdx = np.where(stoichMatrix[rowSearchIdx,:] >= 1)[0]
+		subunitIdx = np.where(stoichMatrix[:,rxnColIdx] <= -1)[0]
+		subunitStoich = stoichMatrix[:, rxnColIdx][subunitIdx]
+		
 		if len(rxnColIdx):
 			rxnColIdx = rxnColIdx[0]
 		else:
 			monomerIdxList.append(rowSearchIdx)
+			monomerStoichList.append(rowStoich)
 			return
 
 		if len(subunitIdx) == 0:
 			monomerIdxList.append(rowSearchIdx)
+			monomerStoichList.append(rowStoich)
 			return
 		else:
-			for i in subunitIdx:
-				self._monomerRecursiveSearch(i, stoichMatrix, monomerIdxList)
+			for i,idx in enumerate(subunitIdx):
+				self._monomerRecursiveSearch(idx, subunitStoich[i][0], stoichMatrix, monomerIdxList, monomerStoichList)
