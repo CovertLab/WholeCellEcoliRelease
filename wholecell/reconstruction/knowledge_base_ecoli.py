@@ -2236,6 +2236,13 @@ class KnowledgeBaseEcoli(object):
 		return self._allMass['mass'][idx]
 
 	def getComplexMonomers(self, cplxId):
+		'''
+		Returns subunits for a complex (or any ID passed).
+		If the ID passed is already a monomer returns the
+		monomer ID again with a stoichiometric coefficient
+		of zero.
+		'''
+
 		stoichMatrix = self.complexationStoichMatrix()
 		moleculeNames = np.array(self.complexationMoleculeNames)
 		cplxRowIdx = np.where(moleculeNames == cplxId)[0][0]
