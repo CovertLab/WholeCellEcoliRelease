@@ -226,7 +226,7 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 	# 	)
 	# dntpsBulkView.countsIs(dntpsFromLastStep)
 
-	## NTPs
+	## NTPs (for Transcription)
 	ntpsFromLastStep = (
 		ntpsBiomassView.counts() *
 		(1 - np.exp(-np.log(2) / tau_d * dt)) *
@@ -235,12 +235,18 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 		).astype(np.int64)
 	ntpsBulkView.countsInc(ntpsFromLastStep)
 
-	## NTPs for Translation
-	# TODO: remove magic numbers, make these calculations more sensible
+	## Small molecules for Translation
 	gtpInitial = kb.gtpPoolSize * dt * kb.nAvogadro.to("1/millimole") * kb.avgCellDryMassInit.to("DCW_gram")
 	bulkMolCntr.countsInc(
 		gtpInitial.magnitude.astype(np.int64),
 		["GTP[c]", "PPI[c]", "GMP[c]"]
+		)
+
+	## Small molecules for GAM
+	atpInitial = kb.atpPoolSize * dt * kb.nAvogadro.to("1/millimole") * kb.avgCellDryMassInit.to("DCW_gram")
+	bulkMolCntr.countsInc(
+		atpInitial.magnitude.astype(np.int64),
+		["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
 		)
 
 	## Amino Acids
@@ -443,7 +449,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	activeRnaPolys.attrIs(
 		rnaIndex = rnaIndexes,
 		transcriptLength = transcriptLengths,
-		massDiffRna = transcriptMasses
+		massDiff_mRNA = transcriptMasses
 		)
 
 	# Compute the amount of RNA mass that needs to be removed
@@ -597,7 +603,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	activeRibosomes.attrIs(
 		proteinIndex = proteinIndexes,
 		peptideLength = peptideLengths,
-		massDiffProtein = peptideMasses
+		massDiff_protein = peptideMasses
 		)
 
 	# Compute the amount of monomer mass that needs to be removed

@@ -141,7 +141,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		proteinIndexes, peptideLengths, massDiffProtein = activeRibosomes.attrs(
-			'proteinIndex', 'peptideLength', 'massDiffProtein'
+			'proteinIndex', 'peptideLength', 'massDiff_protein'
 			)
 
 		# Build sequence array
@@ -183,7 +183,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		activeRibosomes.attrIs(
 			peptideLength = updatedLengths,
-			massDiffProtein = updatedMass
+			massDiff_protein = updatedMass
 			)
 
 		terminalLengths = self.proteinLengths[proteinIndexes]

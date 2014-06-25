@@ -66,6 +66,12 @@ class Metabolism(wholecell.processes.process.Process):
 		# Views
 		self.biomassMetabolites = self.bulkMoleculesView(self.wildtypeIds)
 		self.ppi = self.bulkMoleculeView("PPI[c]")
+		self.atpRecyclingReactants = self.bulkMoleculesView(
+			["ADP[c]", "PI[c]", "H[c]"]
+			)
+		self.atpRecyclingProducts = self.bulkMoleculesView(
+			["ATP[c]", "H2O[c]"]
+			)
 		self.ntpsdntps = self.bulkMoleculesView([
 			"ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]",
 			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"
@@ -134,12 +140,14 @@ class Metabolism(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		self.ppi.requestAll()
 		self.nmps.requestAll()
+		self.atpRecyclingReactants.requestAll()
 
 		self.biomassMetabolites.requestAll()
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		print self.ntps.total()
 		# Store NMP/PPI counts for recycling
 
 		ppiCount = self.ppi.count()
@@ -232,6 +240,12 @@ class Metabolism(wholecell.processes.process.Process):
 			self.ntps.countsInc(recycledNmps)
 			self.nmps.countsIs(nmpCounts - recycledNmps)
 			self.ppi.countIs(ppiCount - recycledNmps.sum())
+
+		adpsToRecycle = np.min(
+			self.atpRecyclingReactants.counts()
+			)
+		self.atpRecyclingReactants.countsDec(adpsToRecycle)
+		self.atpRecyclingProducts.countsInc(adpsToRecycle)
 
 		# Write out effective biomass
 
