@@ -57,7 +57,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.wildtypeBiomassReaction = (
 			kb.wildtypeBiomass['biomassFlux'].magnitude
-			+ kb.wildtypeBiomassPoolIncreases["biomassFlux"].magnitude * self.timeStepSec
+			)
+		self.wildtypeBiomassPoolIncreases = (
+			kb.wildtypeBiomassPoolIncreases["biomassFlux"].magnitude *
+			self.timeStepSec
 			)
 		self.wildtypeBiomassReactionSS = self.wildtypeBiomassReaction.copy()
 
@@ -86,6 +89,10 @@ class Metabolism(wholecell.processes.process.Process):
 		self.dntps = self.bulkMoleculesView([
 			"DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"
 			])
+
+		self.pi = self.bulkMoleculeView("PI[c]")
+		self.h = self.bulkMoleculeView("H[c]")
+		self.h2o = self.bulkMoleculeView("H2O[c]")
 
 		# Attributes needed for dynamic objective
 
@@ -123,6 +130,10 @@ class Metabolism(wholecell.processes.process.Process):
 			[np.where(self.wildtypeIds == x)[0][0] for x in self.wildtypeIds if x not in dntpIds]
 			)
 
+		self.notAADntpNtpIdxsInWildTypeBiomass = np.array(
+			[np.where(self.wildtypeIds == x)[0][0] for x in self.wildtypeIds if x not in dntpIds and x not in ntpIds and x not in kb.aaIDs]
+			)
+
 		dntpIdxsInKb = np.array([
 			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in dntpIds
 			])
@@ -147,14 +158,19 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		print self.ntps.total()
 		# Store NMP/PPI counts for recycling
 
 		ppiCount = self.ppi.count()
 		nmpCounts = self.nmps.counts()
+		hCount = self.h.count()
+		piCount = self.pi.count()
+		h2oCount = self.h2o.count()
 
 		self.ppi.countIs(0)
 		self.nmps.countsIs(0)
+		self.h.countIs(0)
+		self.pi.countIs(0)
+		self.h2o.countIs(0)
 
 		# Compute effective biomass objective
 
@@ -162,6 +178,34 @@ class Metabolism(wholecell.processes.process.Process):
 
 		biomassObjective = self.wildtypeBiomassReactionSS
 
+		# Solve for AA production
+		aaIdxs = self.aaIdxsInWildTypeBiomass
+		deltaAaMass = (
+			np.dot(
+				metaboliteMasses[aaIdxs],
+				biomassObjective[aaIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
+				) * np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
+			)
+
+		initialMetaboliteCounts = self.biomassMetabolites.counts()
+
+		nominalBiomassProductionCoeff = (
+			deltaAaMass + np.dot(metaboliteMasses[aaIdxs], initialMetaboliteCounts[aaIdxs])
+			) / np.dot(metaboliteMasses[aaIdxs], biomassObjective[aaIdxs])
+
+		deltaAaNew = np.int64(
+			nominalBiomassProductionCoeff * biomassObjective[aaIdxs] -
+			initialMetaboliteCounts[aaIdxs]
+			)
+
+
+		deltaAaMass = np.dot(metaboliteMasses[aaIdxs], deltaAaNew)
+		deltaAaMassNonzero = np.dot(metaboliteMasses[aaIdxs], np.fmax(deltaAaNew, 0))
+
+		deltaAaNew = np.int64(
+			deltaAaMass / deltaAaMassNonzero * np.fmax(deltaAaNew, 0)
+			)
 
 		# Solve for DNTP production
 		dntpIdxs = self.dntpIdxsInWildTypeBiomass
@@ -192,12 +236,12 @@ class Metabolism(wholecell.processes.process.Process):
 			deltaDntpsMass / deltaDntpsMassNonzero * np.fmax(deltaDntpsNew, 0)
 			)
 
-		# Solve for non-DNTP metabolite production
-		notDntpIdxs = self.notDntpIdxsInWildTypeBiomass
-		deltaNotDntpMass = (
+		# Solve for NTP production
+		ntpIdxs = self.ntpIdxsInWildTypeBiomass
+		deltaNtpMass = (
 			np.dot(
-				metaboliteMasses[notDntpIdxs],
-				biomassObjective[notDntpIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
+				metaboliteMasses[ntpIdxs],
+				biomassObjective[ntpIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
 				) * np.exp(np.log(2) / self.cellCycleLen * self.time()) *
 			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
 			)
@@ -205,28 +249,103 @@ class Metabolism(wholecell.processes.process.Process):
 		initialMetaboliteCounts = self.biomassMetabolites.counts()
 
 		nominalBiomassProductionCoeff = (
-			deltaNotDntpMass + np.dot(metaboliteMasses[notDntpIdxs], initialMetaboliteCounts[notDntpIdxs])
-			) / np.dot(metaboliteMasses[notDntpIdxs], biomassObjective[notDntpIdxs])
+			deltaNtpMass + np.dot(metaboliteMasses[ntpIdxs], initialMetaboliteCounts[ntpIdxs])
+			) / np.dot(metaboliteMasses[ntpIdxs], biomassObjective[ntpIdxs])
 
-		deltaNotDntpsNew = np.int64(
-			nominalBiomassProductionCoeff * biomassObjective[notDntpIdxs] -
-			initialMetaboliteCounts[notDntpIdxs])
+		deltaNtpsNew = np.int64(
+			nominalBiomassProductionCoeff * biomassObjective[ntpIdxs] -
+			initialMetaboliteCounts[ntpIdxs]
+			)
 
 
-		deltaNotDntpsMass = np.dot(metaboliteMasses[notDntpIdxs], deltaNotDntpsNew)
-		deltaNotDntpsMassNonzero = np.dot(metaboliteMasses[notDntpIdxs], np.fmax(deltaNotDntpsNew, 0))
+		deltaNtpsMass = np.dot(metaboliteMasses[ntpIdxs], deltaNtpsNew)
+		deltaNtpsMassNonzero = np.dot(metaboliteMasses[ntpIdxs], np.fmax(deltaNtpsNew, 0))
 
-		deltaNotDntpsNew = np.int64(
-			deltaNotDntpsMass / deltaNotDntpsMassNonzero * np.fmax(deltaNotDntpsNew, 0)
+		deltaNtpsNew = np.int64(
+			deltaNtpsMass / deltaNtpsMassNonzero * np.fmax(deltaNtpsNew, 0)
+			)
+
+		# Solve for other metabolite production
+		otherIdxs = self.notAADntpNtpIdxsInWildTypeBiomass
+		deltaOtherMass = (
+			np.dot(
+				metaboliteMasses[otherIdxs],
+				biomassObjective[otherIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
+				) * np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
+			)
+
+		initialMetaboliteCounts = self.biomassMetabolites.counts()
+
+		nominalBiomassProductionCoeff = (
+			deltaOtherMass + np.dot(metaboliteMasses[otherIdxs], initialMetaboliteCounts[otherIdxs])
+			) / np.dot(metaboliteMasses[otherIdxs], biomassObjective[otherIdxs])
+
+		deltaOtherNew = np.int64(
+			nominalBiomassProductionCoeff * biomassObjective[otherIdxs] -
+			initialMetaboliteCounts[otherIdxs])
+
+
+		deltaOtherMass = np.dot(metaboliteMasses[otherIdxs], deltaOtherNew)
+		deltaOtherMassNonzero = np.dot(metaboliteMasses[otherIdxs], np.fmax(deltaOtherNew, 0))
+
+		deltaOtherNew = np.int64(
+			deltaOtherMass / deltaOtherMassNonzero * np.fmax(deltaOtherNew, 0)
+			)
+
+		# # Solve for non-DNTP metabolite production
+		# notDntpIdxs = self.notDntpIdxsInWildTypeBiomass
+		# deltaNotDntpMass = (
+		# 	np.dot(
+		# 		metaboliteMasses[notDntpIdxs],
+		# 		biomassObjective[notDntpIdxs] * 1e-3 * self.nAvogadro * self.initialDryMass
+		# 		) * np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+		# 	(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
+		# 	)
+
+		# initialMetaboliteCounts = self.biomassMetabolites.counts()
+
+		# nominalBiomassProductionCoeff = (
+		# 	deltaNotDntpMass + np.dot(metaboliteMasses[notDntpIdxs], initialMetaboliteCounts[notDntpIdxs])
+		# 	) / np.dot(metaboliteMasses[notDntpIdxs], biomassObjective[notDntpIdxs])
+
+		# deltaNotDntpsNew = np.int64(
+		# 	nominalBiomassProductionCoeff * biomassObjective[notDntpIdxs] -
+		# 	initialMetaboliteCounts[notDntpIdxs])
+
+
+		# deltaNotDntpsMass = np.dot(metaboliteMasses[notDntpIdxs], deltaNotDntpsNew)
+		# deltaNotDntpsMassNonzero = np.dot(metaboliteMasses[notDntpIdxs], np.fmax(deltaNotDntpsNew, 0))
+
+		# deltaNotDntpsNew = np.int64(
+		# 	deltaNotDntpsMass / deltaNotDntpsMassNonzero * np.fmax(deltaNotDntpsNew, 0)
+		# 	)
+
+		# Pools
+		deltaPoolMetabolites = (
+			(self.wildtypeBiomassPoolIncreases * 1e-3 * self.nAvogadro * self.initialDryMass) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
+			)
+
+		# Expected production
+		expectedDeltaMetabolitesNew = (
+			(self.wildtypeBiomassReactionSS * 1e-3 * self.nAvogadro * self.initialDryMass) *
+			np.exp(np.log(2) / self.cellCycleLen * self.time()) *
+			(np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1.0)
 			)
 
 		# Aggregate all metabolite production (DNTPs and non-DNTPs)
 		deltaMetabolitesNew = np.zeros_like(biomassObjective)
+		deltaMetabolitesNew[aaIdxs] = deltaAaNew
 		deltaMetabolitesNew[dntpIdxs] = deltaDntpsNew
-		deltaMetabolitesNew[notDntpIdxs] = deltaNotDntpsNew
+		deltaMetabolitesNew[ntpIdxs] = deltaNtpsNew
+		deltaMetabolitesNew[otherIdxs] = deltaOtherNew
+		# deltaMetabolitesNew[notDntpIdxs] = deltaNotDntpsNew
+
+		deltaMetabolitesNew += deltaPoolMetabolites
 
 		self.biomassMetabolites.countsInc(deltaMetabolitesNew.astype(np.int64))
-
 
 		# NTP recycling
 		
@@ -241,6 +360,9 @@ class Metabolism(wholecell.processes.process.Process):
 			self.nmps.countsIs(nmpCounts - recycledNmps)
 			self.ppi.countIs(ppiCount - recycledNmps.sum())
 
+		self.h.countIs(hCount)
+		self.h2o.countIs(h2oCount)
+		self.pi.countIs(piCount)
 		adpsToRecycle = np.min(
 			self.atpRecyclingReactants.counts()
 			)
