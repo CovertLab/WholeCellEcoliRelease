@@ -127,13 +127,9 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		], dtype = np.float64))
 
-	dnmpMws = np.array([
-		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in kb.dNmpNuclearIds]
-		)
+	dnmpMws = kb.getMass(kb.dNmpNuclearIds).magnitude
 
-	dntpMws = np.array([
-		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in kb.dNtpIds]
-		)
+	dntpMws = kb.getMass(kb.dNtpIds).magnitude
 
 	dnmpsView.countsIs([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
@@ -284,7 +280,7 @@ def initializeBulkWater(bulkMolCntr, kb, randomState, timeStep):
 	h2oView = bulkMolCntr.countView('H2O[c]')
 
 	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-	mwH2O = kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == "H2O[c]"].magnitude.sum(1)[0]
+	mwH2O = kb.getMass(['H2O'])[0]
 	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
 
 	h2oView.countIs(
@@ -564,19 +560,11 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	# TODO: standardize this logic w/ process
 
 	h2oWeight = (
-		kb.bulkMolecules[
-			kb.bulkMolecules["moleculeId"] == "H2O[c]"
-			]["mass"].to("fg / mole").sum(1)[0].magnitude /
+		kb.getMass(['H2O']).to("fg/mol")[0].magnitude /
 		kb.nAvogadro.to("1 / mole").magnitude
 		)
 
-	aaWeights = np.array([
-		kb.bulkMolecules[
-			kb.bulkMolecules["moleculeId"] == aaId
-			]["mass"].to("fg / mole").magnitude.sum() /
-		kb.nAvogadro.to("1 / mole").magnitude
-		for aaId in kb.aaIDs
-		])
+	aaWeights = kb.getMass(kb.aaIDs).to("fg / mole").magnitude / kb.nAvogadro.to("1 / mole").magnitude
 
 	aaWeightsIncorporated = aaWeights - h2oWeight
 
