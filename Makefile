@@ -19,10 +19,10 @@ runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
 justKb: all
-	python2.7 runscripts/createKbs.py
+	PYTHONPATH="$PWD:$PYTHONPATH" python2.7 runscripts/createKbs.py
 
 justSimulation: all
-	python2.7 runscripts/justSimulation.py
+	PYTHONPATH="$PWD:$PYTHONPATH" python2.7 runscripts/justSimulation.py
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;
