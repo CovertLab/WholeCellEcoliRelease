@@ -2178,8 +2178,11 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildMoleculeGroups(self):
 		moleculeGroups = {
-			'ntpIds'			:	['ATP[c]','CTP[c]','GTP[c]','UTP[c]'],
-			'dntpIds'			:	['dATP[c]','dCTP[c]','dGTP[c]','dTTP[c]'],
+			'ntpIds'			:	["ATP[c]","CTP[c]","GTP[c]","UTP[c]"],
+			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
+			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
+			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
+			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
 		}
 
 		self.__dict__.update(moleculeGroups)
@@ -2234,3 +2237,42 @@ class KnowledgeBaseEcoli(object):
 	def getMass(self, ids):
 		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
 		return self._allMass['mass'][idx]
+
+	def getComplexMonomers(self, cplxId):
+		'''
+		Returns subunits for a complex (or any ID passed).
+		If the ID passed is already a monomer returns the
+		monomer ID again with a stoichiometric coefficient
+		of zero.
+		'''
+
+		stoichMatrix = self.complexationStoichMatrix()
+		moleculeNames = np.array(self.complexationMoleculeNames)
+		cplxRowIdx = np.where(moleculeNames == cplxId)[0][0]
+
+		monomerIdxList = []
+		monomerStoichList = []
+		rowStoich = 0
+		self._monomerRecursiveSearch(cplxRowIdx, rowStoich, stoichMatrix, monomerIdxList, monomerStoichList)
+		
+		return moleculeNames[monomerIdxList], np.array(monomerStoichList)
+
+	def _monomerRecursiveSearch(self, rowSearchIdx, rowStoich, stoichMatrix, monomerIdxList, monomerStoichList):
+		rxnColIdx = np.where(stoichMatrix[rowSearchIdx,:] >= 1)[0]
+		subunitIdx = np.where(stoichMatrix[:,rxnColIdx] <= -1)[0]
+		subunitStoich = stoichMatrix[:, rxnColIdx][subunitIdx]
+		
+		if len(rxnColIdx):
+			rxnColIdx = rxnColIdx[0]
+		else:
+			monomerIdxList.append(rowSearchIdx)
+			monomerStoichList.append(rowStoich)
+			return
+
+		if len(subunitIdx) == 0:
+			monomerIdxList.append(rowSearchIdx)
+			monomerStoichList.append(rowStoich)
+			return
+		else:
+			for i,idx in enumerate(subunitIdx):
+				self._monomerRecursiveSearch(idx, subunitStoich[i][0], stoichMatrix, monomerIdxList, monomerStoichList)

@@ -115,11 +115,8 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
 		]
 
-	dNTPs = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-	dnmpIds = ["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"]
-
-	dntpsView = bulkMolCntr.countsView(dNTPs)
-	dnmpsView = bulkMolCntr.countsView(dnmpIds)
+	dntpsView = bulkMolCntr.countsView(kb.dNtpIds)
+	dnmpsView = bulkMolCntr.countsView(kb.dNmpNuclearIds)
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
 
@@ -131,11 +128,11 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		], dtype = np.float64))
 
 	dnmpMws = np.array([
-		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in dnmpIds]
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in kb.dNmpNuclearIds]
 		)
 
 	dntpMws = np.array([
-		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in dNTPs]
+		kb.bulkMolecules["mass"][kb.bulkMolecules["moleculeId"] == x].sum().magnitude for x in kb.dNtpIds]
 		)
 
 	dnmpsView.countsIs([
@@ -201,18 +198,14 @@ def initializePools(bulkMolCntr, kb, randomState, timeStep):
 		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
 		)
 
-	ntpIds = ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"]
-	dntpIds = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-	aaIds = kb.aaIDs
-
-	ntpsBiomassView = biomassContainer.countsView(ntpIds)
-	dntpsBiomassView = biomassContainer.countsView(dntpIds)
-	aasBiomassView = biomassContainer.countsView(aaIds)
+	ntpsBiomassView = biomassContainer.countsView(kb.ntpIds)
+	dntpsBiomassView = biomassContainer.countsView(kb.dNtpIds)
+	aasBiomassView = biomassContainer.countsView(kb.aaIDs)
 
 	ppiBulkView = bulkMolCntr.countView("PPI[c]")
-	ntpsBulkView = bulkMolCntr.countsView(ntpIds)
-	dntpsBulkView = bulkMolCntr.countsView(dntpIds)
-	aasBulkView = bulkMolCntr.countsView(aaIds)
+	ntpsBulkView = bulkMolCntr.countsView(kb.ntpIds)
+	dntpsBulkView = bulkMolCntr.countsView(kb.dNtpIds)
+	aasBulkView = bulkMolCntr.countsView(kb.aaIDs)
 
 	dt = timeStep
 	tau_d = kb.cellCycleLen.to("second").magnitude
