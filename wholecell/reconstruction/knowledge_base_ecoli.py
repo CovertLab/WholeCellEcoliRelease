@@ -19,6 +19,7 @@ from operator import add
 import os
 import sys
 import itertools
+import re
 
 # Set Django environmental variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
@@ -2235,7 +2236,7 @@ class KnowledgeBaseEcoli(object):
 		return np.array([seq.count(x) for x in self._aaWeights])
 
 	def getMass(self, ids):
-		idx = [np.where(self._allMass['id'] == i)[0][0] for i in ids]
+		idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
 		return self._allMass['mass'][idx]
 
 	def getComplexMonomers(self, cplxId):
