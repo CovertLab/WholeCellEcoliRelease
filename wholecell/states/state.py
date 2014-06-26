@@ -12,6 +12,8 @@ State variable base class. Defines the interface states expose to the simulation
 
 from __future__ import division
 
+import numpy as np
+
 class State(object):
 	""" State """
 
@@ -40,6 +42,17 @@ class State(object):
 
 		self._nProcesses = len(sim.processes)
 
+		# TODO: include compartment
+		self._masses = np.zeros((
+			2,
+			self._nProcesses + 1,
+			len(kb.submassNameToIndex),
+			), np.float64)
+
+		self._unallocatedMassIndex = self._nProcesses + 1
+		self._preEvolveStateMassIndex = 0
+		self._postEvolveStateMassIndex = 1
+
 
 	# Allocate memory
 	def allocate(self):
@@ -66,16 +79,8 @@ class State(object):
 
 
 	# Mass calculations
-	def mass(self):
-		return 0
-
-
-	def massByType(self, typeKey):
-		return 0
-
-
-	def massByCompartment(self, compartment):
-		return 0
+	def masses(self):
+		return self._masses
 
 
 	# Saving and loading

@@ -64,8 +64,8 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self.container = UniqueObjectsContainer(molDefs)
 
-		self._massesIds = kb.uniqueMoleculeMasses["moleculeId"]
-		self._masses = kb.uniqueMoleculeMasses["mass"].to("fg/mole").magnitude / kb.nAvogadro.magnitude
+		self._moleculeIds = kb.uniqueMoleculeMasses["moleculeId"]
+		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].to("fg/mole").magnitude / kb.nAvogadro.magnitude
 
 
 	def partition(self):
@@ -133,13 +133,20 @@ class UniqueMolecules(wholecell.states.state.State):
 				molecules.attrIs(_partitionedProcess = view._processIndex)
 
 
+	def merge(self):
+		# Operations are performed directly on the container, so there is no
+		# "merge" operation needed
+
+		pass
+
+
 	# TODO: refactor mass calculations as a whole
 	def mass(self):
 		totalMass = 0
 
 		submassDiffNames = self._submassNameToProperty.values()
 		
-		for moleculeId, masses in izip(self._massesIds, self._masses):
+		for moleculeId, masses in izip(self._moleculeIds, self._moleculeMasses):
 			molecules = self.container.objectsInCollection(moleculeId)
 
 			nMolecules = len(molecules)
@@ -163,7 +170,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		submassIndex = self.submassNameToIndex[typeKey]
 		submassDiffName = self._submassNameToProperty[typeKey]
 		
-		for moleculeId, masses in izip(self._massesIds, self._masses):
+		for moleculeId, masses in izip(self._moleculeIds, self._moleculeMasses):
 			molecules = self.container.objectsInCollection(moleculeId)
 
 			nMolecules = len(molecules)

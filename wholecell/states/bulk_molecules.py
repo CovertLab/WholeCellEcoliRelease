@@ -136,6 +136,14 @@ class BulkMolecules(wholecell.states.state.State):
 		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
 		# 	)
 
+		# Compute masses of partitioned molecules
+
+		masses = np.dot(
+			np.hstack([self._countsAllocatedInitial, self._countsUnallocated[:, np.newaxis]]).T,
+			self._moleculeMass
+			)
+
+		self._masses[self._preEvolveStateMassIndex, ...] = masses
 
 
 	def merge(self):
@@ -145,12 +153,16 @@ class BulkMolecules(wholecell.states.state.State):
 		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
-		# self._massAllocatedFinal = (
-		# 	self._countsAllocatedFinal *
-		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
-		# 	)
-		
 
+		# Compute masses of partitioned molecules
+
+		masses = np.dot(
+			np.hstack([self._countsAllocatedFinal, self._countsUnallocated[:, np.newaxis]]).T,
+			self._moleculeMass
+			)
+
+		self._masses[self._postEvolveStateMassIndex, ...] = masses
+		
 
 	def mass(self):
 		return np.dot(
