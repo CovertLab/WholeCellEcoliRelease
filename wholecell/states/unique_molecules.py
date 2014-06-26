@@ -24,8 +24,6 @@ DEFAULT_ATTRIBUTES = {
 	"_partitionedProcess":np.int64
 	}
 
-UNASSIGNED_PARTITION_VALUE = -1
-
 class UniqueMolecules(wholecell.states.state.State):
 	"""
 	UniqueMolecules
@@ -67,13 +65,15 @@ class UniqueMolecules(wholecell.states.state.State):
 		self._moleculeIds = kb.uniqueMoleculeMasses["moleculeId"]
 		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].to("fg/mole").magnitude / kb.nAvogadro.magnitude
 
+		self._unassignedPartitionedValue = self._nProcesses
+
 
 	def partition(self):
 		# Set the correct time for saving purposes
 		self.container.timeIs(self.timeStep())
 
 		# Remove any prior partition assignments
-		self.container.objects().attrIs(_partitionedProcess = UNASSIGNED_PARTITION_VALUE)
+		self.container.objects().attrIs(_partitionedProcess = self._unassignedPartitionedValue)
 		
 		# Gather requests
 		nMolecules = self.container._globalReference.size
@@ -132,12 +132,52 @@ class UniqueMolecules(wholecell.states.state.State):
 			if len(molecules):
 				molecules.attrIs(_partitionedProcess = view._processIndex)
 
+		# Compute partitioned masses
+
+		masses = np.zeros(self._masses.shape[1:], np.float64)
+
+		submassDiffNames = self._submassNameToProperty.values() # TODO: cache
+
+		for moleculeId, moleculeMasses in izip(self._moleculeIds, self._moleculeMasses):
+			molecules = self.container.objectsInCollection(moleculeId)
+
+			processIndexes = molecules.attr("_partitionedProcess")
+
+			countPerProcess = np.bincount(processIndexes, minlength = self._nProcesses + 1)
+
+			masses += np.outer(countPerProcess, moleculeMasses)
+
+			massDiffs = molecules.attrsAsStructArray(*submassDiffNames).view((np.float64, len(submassDiffNames)))
+
+			masses[processIndexes, :] += massDiffs
+
+		self._masses[self._preEvolveStateMassIndex, ...] = masses
+
 
 	def merge(self):
 		# Operations are performed directly on the container, so there is no
 		# "merge" operation needed
 
-		pass
+		# Compute partitioned masses
+
+		masses = np.zeros(self._masses.shape[1:], np.float64)
+
+		submassDiffNames = self._submassNameToProperty.values() # TODO: cache
+
+		for moleculeId, moleculeMasses in izip(self._moleculeIds, self._moleculeMasses):
+			molecules = self.container.objectsInCollection(moleculeId)
+
+			processIndexes = molecules.attr("_partitionedProcess")
+
+			countPerProcess = np.bincount(processIndexes, minlength = self._nProcesses + 1)
+
+			masses += np.outer(countPerProcess, moleculeMasses)
+
+			massDiffs = molecules.attrsAsStructArray(*submassDiffNames).view((np.float64, len(submassDiffNames)))
+
+			masses[processIndexes, :] += massDiffs
+
+		self._masses[self._postEvolveStateMassIndex, ...] = masses
 
 
 	# TODO: refactor mass calculations as a whole
