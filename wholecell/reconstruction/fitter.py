@@ -102,11 +102,8 @@ def fitKb(kb):
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		]))
 
-	dNtpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in kb.dNtpIds]
-	dNmpIdxs = [np.where(kb.bulkMolecules["moleculeId"] == idx)[0][0] for idx in kb.dNmpIds]
-
-	dNtpMws = kb.bulkMolecules["mass"][dNtpIdxs].sum(axis = 1)
-	dNmpMws = kb.bulkMolecules["mass"][dNmpIdxs].sum(axis = 1)
+	dNtpMws = kb.getMass(kb.dNtpIds)
+	dNmpMws = kb.getMass(kb.dNmpIds)
 
 	dNmpsView.countsIs([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
@@ -275,10 +272,7 @@ def fitKb(kb):
 	glycogenMassFraction = float(dryComposition60min["glycogenMassFraction"])
 	glycogenMass = kb.avgCellDryMassInit * glycogenMassFraction
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellGlycogenFractionData["metaboliteId"]
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
+	mws = kb.getMass(kb.cellGlycogenFractionData["metaboliteId"])
 
 	glycogenMmolPerGDCW = (
 			(
@@ -301,10 +295,7 @@ def fitKb(kb):
 	mureinMassFraction = float(dryComposition60min["mureinMassFraction"])
 	mureinMass = kb.avgCellDryMassInit * mureinMassFraction
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellMureinFractionData["metaboliteId"]
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
+	mws = kb.getMass(kb.cellMureinFractionData["metaboliteId"])
 
 	mureinMmolPerGDCW = (
 			(
@@ -326,10 +317,7 @@ def fitKb(kb):
 	lpsMassFraction = float(dryComposition60min["lpsMassFraction"])
 	lpsMass = kb.avgCellDryMassInit * lpsMassFraction
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLPSFractionData["metaboliteId"]
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
+	mws = kb.getMass(kb.cellLPSFractionData["metaboliteId"])
 
 	lpsMmolPerGDCW = (
 			(
@@ -351,10 +339,7 @@ def fitKb(kb):
 	lipidMassFraction = float(dryComposition60min["lipidMassFraction"])
 	lipidMass = kb.avgCellDryMassInit * lipidMassFraction
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellLipidFractionData["metaboliteId"]
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
+	mws = kb.getMass(kb.cellLipidFractionData["metaboliteId"])
 
 	lipidMmolPerGDCW = (
 			(
@@ -376,10 +361,7 @@ def fitKb(kb):
 	inorganicIonMassFraction = float(dryComposition60min["inorganicIonMassFraction"])
 	inorganicIonMass = kb.avgCellDryMassInit * inorganicIonMassFraction
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellInorganicIonFractionData["metaboliteId"]
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
+	mws = kb.getMass(kb.cellInorganicIonFractionData["metaboliteId"])
 	
 	inorganicIonMmolPerGDCW = (
 			(
@@ -401,10 +383,7 @@ def fitKb(kb):
 	solublePoolMassFraction = float(dryComposition60min["solublePoolMassFraction"])
 	solublePoolMass = kb.avgCellDryMassInit * solublePoolMassFraction
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in kb.cellSolublePoolFractionData["metaboliteId"]
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1) # TOKB
+	mws = kb.getMass(kb.cellSolublePoolFractionData["metaboliteId"])
 	
 	solublePoolMmolPerGDCW = (
 			(
@@ -419,10 +398,7 @@ def fitKb(kb):
 	
 	# Validate
 
-	bulkMoleculesIdxs = np.array([
-		np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in biomassContainer._objectNames
-		])
-	mws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].sum(1).magnitude # TOKB
+	mws = kb.getMass(biomassContainer._objectNames)
 	# TODO
 
 	# aaIdxs = np.array([
@@ -592,16 +568,16 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 	weights = collections.OrderedDict({
 		# Handles reverse complement
 		"A": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DAMP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DAMP[c]"]).magnitude)
 			),
 		"C": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCMP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DCMP[c]"]).magnitude)
 			),
 		"G": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGMP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DGMP[c]"]).magnitude)
 			),
 		"T": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTMP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DTMP[c]"]).magnitude)
 			),
 		})
 
@@ -667,16 +643,16 @@ def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dNtpMws = collections.OrderedDict({
 		"A": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DATP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DATP[c]"]).magnitude)
 			),
 		"C": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DCTP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DCTP[c]"]).magnitude)
 			),
 		"G": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DGTP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DGTP[c]"]).magnitude)
 			),
 		"T": (
-			float(kb.bulkMolecules[kb.bulkMolecules["moleculeId"] == "DTTP[c]"]["mass"].sum().magnitude)
+			float(kb.getMass(["DTTP[c]"]).magnitude)
 			),
 		})
 
