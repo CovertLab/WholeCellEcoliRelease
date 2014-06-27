@@ -125,6 +125,11 @@ class Simulation(object):
 
 	# Run simulation
 	def run(self):
+		# Perform initial mass calculations
+		for state in self.states.itervalues():
+			state.calculatePreEvolveStateMass()
+			state.calculatePostEvolveStateMass()
+
 		# Perform initial listener update
 		for listener in self.listeners.itervalues():
 			listener.initialUpdate()
@@ -184,6 +189,10 @@ class Simulation(object):
 			state.partition()
 			self._evalTime.partition_times[i] = time.time() - t
 
+		# Calculate mass of partitioned molecules
+		for state in self.states.itervalues():
+			state.calculatePreEvolveStateMass()
+
 		# Update listeners
 		for listener in self.listeners.itervalues():
 			listener.updatePostRequest()
@@ -199,6 +208,10 @@ class Simulation(object):
 			t = time.time()
 			state.merge()
 			self._evalTime.merge_times[i] = time.time() - t
+
+		# Calculate mass of partitioned molecules, after evolution
+		for state in self.states.itervalues():
+			state.calculatePostEvolveStateMass()
 
 		# Update listeners
 		for listener in self.listeners.itervalues():

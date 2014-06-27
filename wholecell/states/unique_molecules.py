@@ -132,34 +132,32 @@ class UniqueMolecules(wholecell.states.state.State):
 			if len(molecules):
 				molecules.attrIs(_partitionedProcess = view._processIndex)
 
+
+	def calculatePreEvolveStateMass(self):
 		# Compute partitioned masses
 
-		masses = np.zeros(self._masses.shape[1:], np.float64)
+		if self.timeStep() == 0:
+			# Set everything to the "unassigned" value
+			# TODO: consider allowing a default vlaue option for unique objects
+			self.container.objects().attrIs(_partitionedProcess = self._unassignedPartitionedValue)
 
-		submassDiffNames = self._submassNameToProperty.values() # TODO: cache
-
-		for moleculeId, moleculeMasses in izip(self._moleculeIds, self._moleculeMasses):
-			molecules = self.container.objectsInCollection(moleculeId)
-
-			processIndexes = molecules.attr("_partitionedProcess")
-
-			countPerProcess = np.bincount(processIndexes, minlength = self._nProcesses + 1)
-
-			masses += np.outer(countPerProcess, moleculeMasses)
-
-			massDiffs = molecules.attrsAsStructArray(*submassDiffNames).view((np.float64, len(submassDiffNames)))
-
-			masses[processIndexes, :] += massDiffs
-
-		self._masses[self._preEvolveStateMassIndex, ...] = masses
+		self._masses[self._preEvolveStateMassIndex, ...] = self._calculateMass()
 
 
 	def merge(self):
 		# Operations are performed directly on the container, so there is no
 		# "merge" operation needed
 
+		pass
+
+
+	def calculatePostEvolveStateMass(self):
 		# Compute partitioned masses
 
+		self._masses[self._postEvolveStateMassIndex, ...] = self._calculateMass()
+
+
+	def _calculateMass(self):
 		masses = np.zeros(self._masses.shape[1:], np.float64)
 
 		submassDiffNames = self._submassNameToProperty.values() # TODO: cache
@@ -177,59 +175,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 			masses[processIndexes, :] += massDiffs
 
-		self._masses[self._postEvolveStateMassIndex, ...] = masses
-
-
-	# TODO: refactor mass calculations as a whole
-	def mass(self):
-		totalMass = 0
-
-		submassDiffNames = self._submassNameToProperty.values()
-		
-		for moleculeId, masses in izip(self._moleculeIds, self._moleculeMasses):
-			molecules = self.container.objectsInCollection(moleculeId)
-
-			nMolecules = len(molecules)
-
-			if nMolecules == 0:
-				continue
-
-			totalMass += (
-				masses.sum() * nMolecules
-				+ molecules.attrsAsStructArray(
-					*submassDiffNames
-					).astype(np.float64).sum()
-				)
-
-		return totalMass
-
-
-	def massByType(self, typeKey):
-		totalMass = 0
-
-		submassIndex = self.submassNameToIndex[typeKey]
-		submassDiffName = self._submassNameToProperty[typeKey]
-		
-		for moleculeId, masses in izip(self._moleculeIds, self._moleculeMasses):
-			molecules = self.container.objectsInCollection(moleculeId)
-
-			nMolecules = len(molecules)
-
-			if nMolecules == 0:
-				continue
-
-			totalMass += (
-				masses[submassIndex] * nMolecules
-				+ molecules.attr(
-					submassDiffName
-					).sum()
-				)
-
-		return totalMass
-
-
-	def massByCompartment(self, compartment):
-		return 0
+		return masses
 
 
 	def pytablesCreate(self, h5file, expectedRows):

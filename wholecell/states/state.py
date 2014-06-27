@@ -78,8 +78,16 @@ class State(object):
 		pass
 
 
+	def calculatePreEvolveStateMass(self):
+		raise NotImplementedError("Subclass must implement")
+
+
+	def calculatePostEvolveStateMass(self):
+		raise NotImplementedError("Subclass must implement")
+
+
 	# Mass calculations
-	def masses(self):
+	def mass(self):
 		return self._masses
 
 

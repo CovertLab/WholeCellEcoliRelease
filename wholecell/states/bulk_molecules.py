@@ -135,15 +135,18 @@ class BulkMolecules(wholecell.states.state.State):
 		# 	self._countsAllocatedInitial *
 		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
 		# 	)
+	
 
+	def calculatePreEvolveStateMass(self):
 		# Compute masses of partitioned molecules
 
-		masses = np.dot(
+		if self.timeStep() == 0:
+			self._countsUnallocated = self.container._counts
+
+		self._masses[self._preEvolveStateMassIndex, ...] = np.dot(
 			np.hstack([self._countsAllocatedInitial, self._countsUnallocated[:, np.newaxis]]).T,
 			self._moleculeMass
 			)
-
-		self._masses[self._preEvolveStateMassIndex, ...] = masses
 
 
 	def merge(self):
@@ -154,39 +157,21 @@ class BulkMolecules(wholecell.states.state.State):
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
+
+	def calculatePostEvolveStateMass(self):
 		# Compute masses of partitioned molecules
 
-		masses = np.dot(
+		if self.timeStep() == 0:
+			self._countsUnallocated = self.container._counts
+
+		self._masses[self._postEvolveStateMassIndex, ...] = np.dot(
 			np.hstack([self._countsAllocatedFinal, self._countsUnallocated[:, np.newaxis]]).T,
 			self._moleculeMass
 			)
 
-		self._masses[self._postEvolveStateMassIndex, ...] = masses
-		
 
-	def mass(self):
-		return np.dot(
-			self._moleculeMass.sum(1),
-			self.container._counts
-			)
-
-
-	def massByType(self, typeKey):
-		typeIndex = self._submassNameToIndex[typeKey]
-
-		return np.dot(
-			self._moleculeMass[:, typeIndex],
-			self.container._counts
-			)
-
-
-	def massByCompartment(self, compartment):
-		indexes = self._compIndexes[compartment]
-
-		return np.dot(
-			self._moleculeMass[indexes, :].sum(1),
-			self.container._counts[indexes]
-			)
+	def _calculateMass(self):
+		return 
 
 
 	def pytablesCreate(self, h5file, expectedRows):
