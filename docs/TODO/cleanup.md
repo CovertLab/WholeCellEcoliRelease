@@ -24,8 +24,8 @@ Repository clean-up
     * Eliminate deprecation warnings (DONE?)
     * More/better tags (SKIPPING)
 
-6. wholecell/utils
-   * Eliminate alternative polymerize implementations (partially done)
+6. wholecell/utils (DONE)
+   * Eliminate alternative polymerize implementations (DONE)
    * Remove configfile directory (need to fix Hudson scripts) (DONE)
    * Move some config options to constants (DONE)
    * Eliminate fixture manager (DONE)
@@ -52,8 +52,8 @@ Refactoring
 3. wholecell/listeners
     * Saving/loading functionality
 
-4. wholecell/loggers/shell.py
-    * Implement many possible logged attributes and allow passing as a list of strings during simulation instantiation (have listeners register logged value formatting?)
+4. wholecell/loggers/shell.py (DONE)
+    * Implement many possible logged attributes and allow passing as a list of strings during simulation instantiation (have listeners register logged value formatting?) (DONE)
 
 5. wholecell/processes (DONE)
     * Cache request calculations for use in evolveState (esp. elongation processes) (DONE) (but not used)
@@ -61,7 +61,7 @@ Refactoring
 6. wholecell/reconstruction
     * Eliminate redundant/dependent entries from the KB object
     * Do something about validation (DONE - removed)
-    * Represent arrays as sparse and use methods to access full arrays (created on demand)
+    * Represent arrays as sparse and use methods to access full arrays (created on demand) (DONE)
     * Move more information out of KB into SQL
     * Move more information into KB from processes
     * Create unique molecule entries based on attribute lists + names of bulk molecules (as to inherit the proper masses) (partially done)
