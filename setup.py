@@ -1,27 +1,30 @@
-from distutils.core import setup, Extension
-from distutils.sysconfig import get_python_inc
+from distutils.core import setup# , Extension
+# from distutils.sysconfig import get_python_inc
 
 from Cython.Build import cythonize
 
 import numpy as np
 import os
 
-pythonIncDir = get_python_inc()
-numpyIncDir = os.path.join(os.path.dirname(np.__file__), "core", "include", "numpy")
+# The commented out code refers to files that have been removed; I've retained
+# the code for future reference.
 
-polymerize_module = Extension(
-	name = "wholecell.utils._polymerize",
-	sources = ["wholecell/utils/polymerize.c"],
-	include_dirs = [pythonIncDir, numpyIncDir],
-	libraries = ["gsl", "gslcblas"],
-	extra_compile_args = ["-fPIC"]
-	)
+# pythonIncDir = get_python_inc()
+# numpyIncDir = os.path.join(os.path.dirname(np.__file__), "core", "include", "numpy")
 
-setup(name = "Polymerize",
-	version = "0.0.1",
-	description = "Polymerize module",
-	ext_modules = [polymerize_module]
-	)
+# polymerize_module = Extension(
+# 	name = "wholecell.utils._polymerize",
+# 	sources = ["wholecell/utils/polymerize.c"],
+# 	include_dirs = [pythonIncDir, numpyIncDir],
+# 	libraries = ["gsl", "gslcblas"],
+# 	extra_compile_args = ["-fPIC"]
+# 	)
+
+# setup(name = "Polymerize",
+# 	version = "0.0.1",
+# 	description = "Polymerize module",
+# 	ext_modules = [polymerize_module]
+# 	)
 
 build_sequences_module = cythonize(
 	os.path.join("wholecell", "utils", "_build_sequences.pyx")
