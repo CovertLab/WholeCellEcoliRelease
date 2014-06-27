@@ -30,10 +30,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	table = h.root.Mass
 
-	cell = np.array([x["cell"] for x in table.iterrows()])
-	cellDry = np.array([x["cellDry"] for x in table.iterrows()])
-	protein = np.array([x["protein"] for x in table.iterrows()])
-	rna = np.array([x["rna"] for x in table.iterrows()])
+	cell = np.array([x["cellMass"] for x in table.iterrows()])
+	cellDry = np.array([x["dryMass"] for x in table.iterrows()])
+	protein = np.array([x["proteinMass"] for x in table.iterrows()])
+	rna = np.array([x["rnaMass"] for x in table.iterrows()])
 	# rrna = np.array([x["rrna"] for x in table.iterrows()])
 	t = np.array([x["time"] for x in table.iterrows()])
 
