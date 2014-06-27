@@ -4,10 +4,6 @@ all:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
 
-# wholecell/utils/_polymerize.so: wholecell/utils/polymerize.c wholecell/utils/polymerize.h
-# 	python2.7 setup.py build_ext --inplace
-# 	rm -fr build
-
 runSimulation: all
 	./runscripts/runSimulation.sh
 

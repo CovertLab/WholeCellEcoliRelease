@@ -25,7 +25,7 @@ Repository clean-up
     * More/better tags (SKIPPING)
 
 6. wholecell/utils
-   * Eliminate alternative polymerize implementations
+   * Eliminate alternative polymerize implementations (partially done)
    * Remove configfile directory (need to fix Hudson scripts) (DONE)
    * Move some config options to constants (DONE)
    * Eliminate fixture manager (DONE)
@@ -64,12 +64,12 @@ Refactoring
     * Represent arrays as sparse and use methods to access full arrays (created on demand)
     * Move more information out of KB into SQL
     * Move more information into KB from processes
-    * Create unique molecule entries based on attribute lists + names of bulk molecules (as to inherit the proper masses)
+    * Create unique molecule entries based on attribute lists + names of bulk molecules (as to inherit the proper masses) (partially done)
     * Correct any misuse of unit'd values
 
 7. wholecell/states
     * Standardize state/view interaction
-    * Track mass in each state, by subtype/process/pre,post-evolveState/compartment
+    * Track mass in each state, by subtype/process/pre,post-evolveState/compartment (DONE except for compartments)
 
 8. wholecell/utils (DONE)
     * Do something about flex_t_fba_model.py (DONE - Derek is in charge)
@@ -81,12 +81,12 @@ Refactoring
     * Move partitioning calculations to the simulation level
     * Partitioner as a class
     * Coupling options (none, groups within/across states)
-    * Priority options
+    * Priority options (currently implemented for bulk molecules only)
     * Listener for partitioning (requests, satisfaction, etc.)
     * Better heuristics for degenerate cases (see code in UniqueMolecules)
 
 10. Mass
-    * Need to track more quantities, both for fitting and mass conservation
+    * Need to track more quantities, both for fitting and mass conservation (DONE)
     * Unified update calculations for unique instances
 
 11. Simulation instantiation

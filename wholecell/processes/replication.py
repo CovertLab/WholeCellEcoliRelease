@@ -17,7 +17,7 @@ import numpy as np
 import collections
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import polymerize, PAD_VALUE
+from wholecell.utils.polymerize import polymerize, PAD_VALUE
 
 # NOTE: the ordering here is take advantage of vectorized operations
 NT_SINGLELETTERS = ["A", "C", "G", "T"]

@@ -11,7 +11,7 @@
     * Implement Metabolism (in progress)
     * Implement Complexation (complete, needs to be faster)
         * Track complex submasses (protein/RNA/metabolite) (in progress)
-    * Implement modified forms process
+    * Implement modified forms process (deferred)
     * Handle Feist pseudo metabolites
     * Fit model with metabolism process
 

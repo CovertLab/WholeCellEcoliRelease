@@ -2026,8 +2026,8 @@ class KnowledgeBaseEcoli(object):
 
 		# Collect reaction information
 
-		# allReactionNames = []
-		# allReactionIds = []
+		allReactionNames = []
+		allReactionIds = []
 		allEnzymes = []
 		allKcats = []
 		allReversibility = []
@@ -2038,9 +2038,9 @@ class KnowledgeBaseEcoli(object):
 		for reaction in self._reactions:
 			assert reaction["process"] == "Metabolism"
 
-			# reactionName = reaction["name"]
+			reactionName = reaction["name"]
 
-			# reactionId = reaction["id"]
+			reactionId = reaction["id"]
 
 			enzymes = reaction['catBy']
 
@@ -2053,8 +2053,8 @@ class KnowledgeBaseEcoli(object):
 				for reactant in reaction['stoichiometry']
 				}
 
-			# allReactionNames.append(reactionName)
-			# allReactionIds.append(reactionId)
+			allReactionNames.append(reactionName)
+			allReactionIds.append(reactionId)
 			allEnzymes.append(enzymes)
 			allKcats.append(kcat)
 			allReversibility.append(reversible)
@@ -2067,6 +2067,10 @@ class KnowledgeBaseEcoli(object):
 		self.metabolismReactionKcat = np.array([kcat if kcat is not None else 0 for kcat in allKcats])
 
 		self.metabolismReactionEnzymes = allEnzymes
+
+		self.metabolismReactionNames = allReactionNames
+
+		self.metabolismReactionIds = allReactionIds
 
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
@@ -2167,7 +2171,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildTranslation(self):
-		from wholecell.utils.polymerize_new import PAD_VALUE
+		from wholecell.utils.polymerize import PAD_VALUE
 
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
 
