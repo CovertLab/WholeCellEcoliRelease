@@ -18,6 +18,8 @@ from matplotlib import pyplot as plt
 
 import wholecell.utils.constants
 
+THRESHOLD = 1e-9 # roughly, one hundredth of a hydrogen atom
+
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
@@ -34,7 +36,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 		processNames = table.attrs.processNames
 
-	totalProcessMassDifferences = processMassDifferences.sum(0)
+	avgProcessMassDifferences = np.abs(processMassDifferences).sum(0) / len(time)
 
 	index = np.arange(len(processNames))
 	width = 1
@@ -43,17 +45,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	axes = plt.axes()
 
-	r1 = axes.barh(index, np.fmax(totalProcessMassDifferences, 0), width, log = True, color = (0.2, 0.2, 0.9))
-	r2 = axes.barh(index, np.fmax(-totalProcessMassDifferences, 0), width, log = True, color = (0.9, 0.2, 0.2))
+	r1 = axes.barh(index, avgProcessMassDifferences * (avgProcessMassDifferences > THRESHOLD), width, log = True, color = (0.9, 0.2, 0.2))
+	r2 = axes.barh(index, avgProcessMassDifferences * (avgProcessMassDifferences <= THRESHOLD), width, log = True, color = (0.2, 0.2, 0.9))
 
 	axes.set_yticks(index+width/2)
 	axes.set_yticklabels(processNames) #, rotation = -45)
 
-	axes.legend((r1, r2), ("Positive", "Negative"))
+	axes.plot([THRESHOLD, THRESHOLD], [index[0], index[-1]+width], 'k--', linewidth=3)
+
+	# axes.legend((r1, r2), ("Positive", "Negative"))
 
 	plt.xlabel("Mass difference (fg)")
 
-	plt.title("Increase in mass by individual processes,\nsummed over the simulation")
+	plt.title("Average increase in mass by individual processes")
 
 	plt.tight_layout()
 	plt.grid(True, which = "major")
