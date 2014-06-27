@@ -2129,6 +2129,28 @@ class KnowledgeBaseEcoli(object):
 		self.metabolismReactionIsMediaExchange = reactionIsMediaExchange
 		self.metabolismReactionIsReversible = np.array(allReversibility, np.bool)
 
+		# Below is stuff Derek needs
+		exchangeIds = [x["id"] for x in self._reactions if x["id"].startswith("FEIST_EX")]
+		exchangeIds += ["SELNP_MEDIA_EXCHANGE_HACKED"]
+
+		self.metabolismMediaEx = []
+		for exchangeId in exchangeIds:
+			d = {}
+			d["rxnId"] = exchangeId
+
+			rxn = [x for x in self._reactions if x["id"] == exchangeId][0]
+			stoichiometry = rxn["stoichiometry"]
+			if len(stoichiometry) > 1:
+				raise Exception, "You have an export reaction '%s' with more than 1 metabolite getting exported!" % exchangeId
+
+			d["metabolite"] = "%s[%s]" % (stoichiometry[0]["molecule"], stoichiometry[0]["location"])
+			self.metabolismMediaEx.append(d)
+
+		self.metabolismBiochemicalReactions = [x for x in self._reactions if x["id"] not in exchangeIds]
+		for rxn in self.metabolismBiochemicalReactions:
+			if len(rxn["stoichiometry"]) <= 1 and not rxn["id"].startswith("FEIST_DM"):
+				raise Exception, "You have an export reaction '%s' that won't be handled properly in FBA!" % rxn["id"]
+
 
 	def metabolismStoichMatrix(self):
 		shape = (self._metStoichMatrixI.max()+1, self._metStoichMatrixJ.max()+1)
