@@ -17,7 +17,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize_new import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	""" UniquePolypeptideElongation """

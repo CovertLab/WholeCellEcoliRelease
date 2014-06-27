@@ -2145,7 +2145,7 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildTranslation(self):
-		from wholecell.utils.polymerize_new import PAD_VALUE
+		from wholecell.utils.polymerize import PAD_VALUE
 
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
 

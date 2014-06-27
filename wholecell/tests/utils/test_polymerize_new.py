@@ -7,7 +7,7 @@ Test polymerize_new.py
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 1/22/2013
 """
-from wholecell.utils.polymerize_new import  buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils.polymerize import  buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 
 import numpy as np
 
