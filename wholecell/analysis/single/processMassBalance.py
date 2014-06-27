@@ -57,7 +57,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.xlabel("Mass difference (fg)")
 
-	plt.title("Average increase in mass by individual processes")
+	plt.title("Average absolute change in mass by individual processes")
 
 	plt.tight_layout()
 	plt.grid(True, which = "major")
