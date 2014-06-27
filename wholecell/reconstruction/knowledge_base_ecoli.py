@@ -1562,21 +1562,21 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildUniqueMolecules(self):
 
-		self.uniqueMoleculeDefinitions = collections.OrderedDict(
-			activeRnaPoly = {
+		self.uniqueMoleculeDefinitions = collections.OrderedDict([
+			("activeRnaPoly", {
 				'rnaIndex' : 'i8',
 				'transcriptLength' : 'i8'
-				},
-			activeRibosome = {
+				}),
+			("activeRibosome", {
 				'proteinIndex' : 'i8',
 				'peptideLength': 'i8'
-				},
-			dnaPolymerase = {
+				}),
+			("dnaPolymerase", {
 				'chromosomeLocation' : 'i8',
 				'directionIsPositive' : 'bool',
 				'isLeading' : 'bool'
-				},
-			)
+				}),
+			])
 
 		rnaPolyComplexMass = self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].magnitude
 
