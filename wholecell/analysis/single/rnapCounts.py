@@ -34,9 +34,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	bulkMolecules = h.root.BulkMolecules
 
 	moleculeIds = names.moleculeIDs.read()
-	RNAP_IDS = ["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
-	rnapIndexes = np.array([moleculeIds.index(rnapId) for rnapId in RNAP_IDS], np.int)
-	rnapCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnapIndexes]
+	rnapId = "APORNAP-CPLX[c]"
+	rnapIndex = moleculeIds.index(rnapId)
+	rnapCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnapIndex]
 
 	RNAP_RNA_IDS = ["EG10893_RNA[c]", "EG10894_RNA[c]", "EG10895_RNA[c]", "EG10896_RNA[c]"]
 	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
@@ -57,7 +57,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.subplot(5, 1, 1)
 
-	plt.plot(time / 60., nActive + np.min(rnapCountsBulk, axis = 1))
+	plt.plot(time / 60., nActive + rnapCountsBulk)
 	plt.xlabel("Time (min)")
 	plt.ylabel("Protein Counts")
 	plt.title("RNA Polymerase")
