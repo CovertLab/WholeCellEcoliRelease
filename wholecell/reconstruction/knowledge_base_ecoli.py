@@ -2144,7 +2144,7 @@ class KnowledgeBaseEcoli(object):
 			if len(stoichiometry) > 1:
 				raise Exception, "You have an export reaction '%s' with more than 1 metabolite getting exported!" % exchangeId
 
-			d["metabolite"] = "%s[%s]" % (stoichiometry[0]["molecule"], stoichiometry[0]["location"])
+			d["met"] = "%s[%s]" % (stoichiometry[0]["molecule"], stoichiometry[0]["location"])
 			self.metabolismMediaEx.append(d)
 
 		self.metabolismBiochemicalReactions = [x for x in self._reactions if x["id"] not in exchangeIds]
