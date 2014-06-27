@@ -1940,11 +1940,11 @@ class KnowledgeBaseEcoli(object):
 		stoichMatrixJ = []
 		stoichMatrixV = []
 
-		# HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACK
+		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
-			"modified-charged-selC-tRNA",
-			"RRSA-RRNA",
-			"RRFA-RRNA"
+			"modified-charged-selC-tRNA", # molecule does not exist
+			"RRSA-RRNA", # currently not forming ribosomes
+			"RRFA-RRNA" # currently not forming ribosomes
 			}
 
 		deleteReactions = []
@@ -1952,13 +1952,10 @@ class KnowledgeBaseEcoli(object):
 			for molecule in reaction["stoichiometry"]:
 				if molecule["molecule"] in FORBIDDEN_MOLECULES:
 					deleteReactions.append(reactionIndex)
-					warnings.warn("Hack that I need to remove w/ Nick's help")
 					break
 
 		for reactionIndex in deleteReactions[::-1]:
 			del self._complexationReactions[reactionIndex]
-
-		#######################################
 
 		for reactionIndex, reaction in enumerate(self._complexationReactions):
 			assert reaction["process"] == "complexation"
