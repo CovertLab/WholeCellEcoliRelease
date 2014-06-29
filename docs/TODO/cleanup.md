@@ -91,3 +91,7 @@ Refactoring
 
 11. Simulation instantiation
     * Better ways to call limited sets of objects (i.e. states, processes, listeners)
+
+Fitter clean up
+---------------
+1. Build functions for repetitive fitter code

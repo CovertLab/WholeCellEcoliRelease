@@ -35,3 +35,10 @@
     * Parallelize operations
         * Processes
         * States
+
+6. Mass balance
+	* Fix un-balanced reactions in metabolism
+	* Add mass to ACP and other pseudo-metabolties in metabolism
+
+7. tRNA charging
+	* Add reactions for tRNA charging with isoforms to metabolism. Check for codon usage per isoform.
