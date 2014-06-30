@@ -38,9 +38,9 @@ class BulkMolecules(wholecell.states.state.State):
 		self._moleculeMass = None
 
 		self._moleculeIDs = None
-		self._compartmentIDs = None
+		# self._compartmentIDs = None
 
-		self._nCompartments = None
+		# self._nCompartments = None
 
 		self._countsRequested = None
 		self._countsAllocatedInitial = None
@@ -57,17 +57,17 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Load constants
 		self._moleculeIDs = moleculeIds(kb)
-		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
-		self._nCompartments = kb.nCompartments
+		# self._compartmentIDs = kb.compartments['compartmentAbbreviation']
+		# self._nCompartments = kb.nCompartments
 
 		self._moleculeMass = kb.bulkMolecules['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
 
 		self._submassNameToIndex = kb.submassNameToIndex
 
-		self._compIndexes = {
-			compartmentKey:(kb.bulkMolecules['compartment'] == compartmentKey)
-			for compartmentKey in kb.compartments['compartmentAbbreviation']
-			}
+		# self._compIndexes = {
+		# 	compartmentKey:(kb.bulkMolecules['compartment'] == compartmentKey)
+		# 	for compartmentKey in kb.compartments['compartmentAbbreviation']
+		# 	}
 
 		# Create the container for molecule counts
 		self.container = bulkObjectsContainer(kb)
@@ -187,7 +187,7 @@ class BulkMolecules(wholecell.states.state.State):
 			'names', 'Molecule, compartment, and process names')
 
 		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
-		h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
+		# h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
 
 
 	def pytablesAppend(self, h5file):
