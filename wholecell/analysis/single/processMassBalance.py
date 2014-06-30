@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 
 import wholecell.utils.constants
 
-THRESHOLD = 1e-9 # roughly, one hundredth of a hydrogen atom
+THRESHOLD = 1e-13 # roughly, the mass of an electron
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
