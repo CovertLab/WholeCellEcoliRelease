@@ -305,6 +305,15 @@ class FlexTFbaModel(object):
 		return self._v
 
 	def metaboliteProduction(self, metIdxs, solution):
+		# NOTE: Users of this function have to be conscious of units and perform
+		# any necessary unit conversions themselves.
+		P = np.zeros_like(self._S)
+		P[:, self.rxnGroup("mediaEx").idxs()] = self._S[:, self.rxnGroup("mediaEx").idxs()]
+		P[:, self.rxnGroup("f").idxs()] = self._S[:, self.rxnGroup("f").idxs()]
+		P[:, self.rxnGroup("x").idxs()] = self._S[:, self.rxnGroup("x").idxs()]
+
+		# Sign conventions are fun
+		return -np.dot(P, solution)[metIdxs]
 		pass
 
 
