@@ -136,7 +136,8 @@ class FlexTFbaModel(object):
 			rxnIdx = self.rxnIdxs(["rxn_" + rxn["id"]])[0]
 
 			for stoich in rxn["stoichiometry"]:
-				metIdx = self.metIdxs(["%s:%s[%s]" % (stoich["molecule"], stoich["form"], stoich["location"])])[0]
+				# metIdx = self.metIdxs(["%s:%s[%s]" % (stoich["molecule"], stoich["form"], stoich["location"])])[0]
+				metIdx = self.metIdxs(["%s[%s]" % (stoich["molecule"], stoich["location"])])[0]
 
 				self._S[metIdx, rxnIdx] = stoich["coeff"]
 
