@@ -71,16 +71,20 @@ AMINO_ACID_WEIGHTS = { # TOKB
 	"Y": 181.19
 	}
 
+MOLECULAR_WEIGHT_KEYS = [
+	'23srRNA',
+	'16srRNA',
+	'5srRNA',
+	'tRNA',
+	'mRNA',
+	'miscRNA',
+	'protein',
+	'metabolite',
+	'water',
+	]
+
 MOLECULAR_WEIGHT_ORDER = {
-	'23srRNA' : 0,
-	'16srRNA' : 1,
-	'5srRNA' : 2,
-	'tRNA' : 3,
-	'mRNA' : 4,
-	'miscRNA' : 5,
-	'protein' : 6,
-	'metabolite' : 7,
-	'water' : 8
+	key:index for index, key in enumerate(MOLECULAR_WEIGHT_KEYS)
 	}
 
 COMPLEXES_REQUIRE_MODIFIED = ['ACETYL-COA-CARBOXYLMULTI-CPLX', 'BCCP-CPLX',
