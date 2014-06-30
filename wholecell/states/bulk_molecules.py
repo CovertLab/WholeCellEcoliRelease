@@ -47,8 +47,6 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
-		self._typeIdxs = None
-
 		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
@@ -73,7 +71,6 @@ class BulkMolecules(wholecell.states.state.State):
 		self.container = bulkObjectsContainer(kb)
 
 		# Set up vector of process priorities
-
 		self._processPriorities = np.empty(self._nProcesses, np.int64)
 		self._processPriorities.fill(REQUEST_PRIORITY_DEFAULT)
 
@@ -184,7 +181,7 @@ class BulkMolecules(wholecell.states.state.State):
 			)
 	
 		groupNames = h5file.create_group(h5file.root,
-			'names', 'Molecule, compartment, and process names')
+			'names', 'Molecule names')
 
 		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
 		# h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
