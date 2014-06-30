@@ -29,17 +29,17 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		# Modifications:
 		# No external metabolites
 		# R5a and R5b are identical (just different regulatory rules) --> merged to R5
-		cls.metIds = [	"A:m[c]", "B:m[c]", "C:m[c]", "D:m[c]", "E:m[c]", "F:m[c]",
-						"G:m[c]", "H:m[c]", "ATP:m[c]", "NADH:m[c]", "O2:m[c]"
+		cls.metIds = [	"A[c]", "B[c]", "C[c]", "D[c]", "E[c]", "F[c]",
+						"G[c]", "H[c]", "ATP[c]", "NADH[c]", "O2[c]"
 					 ]
 		cls.mediaEx = [
-						{"rxnId": "Tc1", "met": "A:m[c]"},
-						{"rxnId": "Tc2", "met": "A:m[c]"},
-						{"rxnId": "Tf", "met": "F:m[c]"},
-						{"rxnId": "Td", "met": "D:m[c]"},
-						{"rxnId": "Te", "met": "E:m[c]"},
-						{"rxnId": "Th", "met": "H:m[c]"},
-						{"rxnId": "To2", "met": "O2:m[c]"},
+						{"rxnId": "Tc1", "met": "A[c]"},
+						{"rxnId": "Tc2", "met": "A[c]"},
+						{"rxnId": "Tf", "met": "F[c]"},
+						{"rxnId": "Td", "met": "D[c]"},
+						{"rxnId": "Te", "met": "E[c]"},
+						{"rxnId": "Th", "met": "H[c]"},
+						{"rxnId": "To2", "met": "O2[c]"},
 					  ]
 		cls.rxns = [
 						{"id": "R1", "stoichiometry": [
@@ -112,12 +112,12 @@ class Test_FlexTFbaModel(unittest.TestCase):
 						}
 				   ]
 		cls.biomass = [
-						{"id": "C:m[c]", "coeff": -1},
-						{"id": "F:m[c]", "coeff": -1},
-						{"id": "H:m[c]", "coeff": -1},
-						{"id": "ATP:m[c]", "coeff": -10},
+						{"id": "C[c]", "coeff": -1},
+						{"id": "F[c]", "coeff": -1},
+						{"id": "H[c]", "coeff": -1},
+						{"id": "ATP[c]", "coeff": -10},
 					  ]
-		cls.atpId = "ATP:m[c]"
+		cls.atpId = "ATP[c]"
 		cls.params = {"alpha": 10, "beta": 1000, "gamma": -1}
 		
 
@@ -180,13 +180,13 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		sol = m.solution()
 
 		# F production should be zero
-		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_F:m[c]"])], 0, rtol = 0, atol = 1e-8))
+		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_F[c]"])], 0, rtol = 0, atol = 1e-8))
 
 		# Biomass should be zero
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["g_bio"])], 0, rtol = 0, atol = 1e-8))
 
 		# All non-F metabolites should be fine
-		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C:m[c]", "f_H:m[c]", "f_ATP:m[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
+		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C[c]", "f_H[c]", "f_ATP[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
 
 	@noseAttrib.attr('largetest')
 	def test_KO_F(self):
@@ -200,13 +200,13 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		sol = m.solution()
 
 		# F production should be zero
-		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_F:m[c]"])], 0, rtol = 0, atol = 1e-8))
+		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_F[c]"])], 0, rtol = 0, atol = 1e-8))
 
 		# Biomass should be zero
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["g_bio"])], 0, rtol = 0, atol = 1e-8))
 
 		# All non-F metabolites should be fine
-		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C:m[c]", "f_H:m[c]", "f_ATP:m[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
+		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C[c]", "f_H[c]", "f_ATP[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
 
 	@noseAttrib.attr('largetest')
 	def test_KO_C(self):
@@ -236,10 +236,10 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		sol = m.solution()
 
 		# H production should be zero
-		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_H:m[c]"])], 0, rtol = 0, atol = 1e-8))
+		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_H[c]"])], 0, rtol = 0, atol = 1e-8))
 
 		# Biomass should be zero
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["g_bio"])], 0, rtol = 0, atol = 1e-8))
 
 		# All non-F metabolites should be fine
-		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C:m[c]", "f_F:m[c]", "f_ATP:m[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
+		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C[c]", "f_F[c]", "f_ATP[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
