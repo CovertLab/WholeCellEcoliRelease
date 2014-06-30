@@ -194,7 +194,6 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 class UniqueMoleculesView(wholecell.views.view.View):
-	__slots__ = ("_state", "_processId", "_processIndex", "_query", "_totalCount", "_requestedCount", "_queryResult")
 	_stateID = "UniqueMolecules"
 
 	def __init__(self, *args, **kwargs):

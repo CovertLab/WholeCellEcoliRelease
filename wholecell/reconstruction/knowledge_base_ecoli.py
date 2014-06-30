@@ -71,16 +71,20 @@ AMINO_ACID_WEIGHTS = { # TOKB
 	"Y": 181.19
 	}
 
+MOLECULAR_WEIGHT_KEYS = [
+	'23srRNA',
+	'16srRNA',
+	'5srRNA',
+	'tRNA',
+	'mRNA',
+	'miscRNA',
+	'protein',
+	'metabolite',
+	'water',
+	]
+
 MOLECULAR_WEIGHT_ORDER = {
-	'23srRNA' : 0,
-	'16srRNA' : 1,
-	'5srRNA' : 2,
-	'tRNA' : 3,
-	'mRNA' : 4,
-	'miscRNA' : 5,
-	'protein' : 6,
-	'metabolite' : 7,
-	'water' : 8
+	key:index for index, key in enumerate(MOLECULAR_WEIGHT_KEYS)
 	}
 
 COMPLEXES_REQUIRE_MODIFIED = ['ACETYL-COA-CARBOXYLMULTI-CPLX', 'BCCP-CPLX',
@@ -94,6 +98,52 @@ COMPLEXES_NOT_FORMED = [
 	"RNAPE-CPLX", "CPLX0-221", "CPLX0-222", "RNAPS-CPLX", "RNAP32-CPLX",
 	"RNAP54-CPLX", "RNAP70-CPLX",
 	]
+
+REACTION_ENZYME_ASSOCIATIONS = {
+	# problem: multiple associated enzymes
+	## PTS system
+	"FEIST_ACMANAptspp":None,
+	"FEIST_ACMUMptspp":None,
+	"FEIST_ASCBptspp":None,
+	"FEIST_DHAPT":None,
+	"FEIST_FRUpts2pp":None,
+	"FEIST_FRUptspp":None,
+	"FEIST_GALTptspp":None,
+	"FEIST_GAMptspp":None,
+	"FEIST_GTHRDHpp":None,
+	"FEIST_MALTptspp":None,
+	"FEIST_MANGLYCptspp":None,
+	"FEIST_MANptspp":None,
+	"FEIST_MNLptspp":None,
+	"FEIST_SBTptspp":None,
+	"FEIST_TREptspp":None,
+
+	## proenzymes
+	"FEIST_ADMDC":["SPED-MONOMER"],
+	"FEIST_PSD120":["PSD-MONOMER"],
+	"FEIST_PSD140":["PSD-MONOMER"],
+	"FEIST_PSD141":["PSD-MONOMER"],
+	"FEIST_PSD160":["PSD-MONOMER"],
+	"FEIST_PSD161":["PSD-MONOMER"],
+	"FEIST_PSD180":["PSD-MONOMER"],
+	"FEIST_PSD181":["PSD-MONOMER"],
+	"FEIST_ASP1DC":["ASPDECARBOX-MONOMER"],
+
+	## acyl carrier protein
+	"FEIST_CITL":None, # ['ACECITLY-CPLX', 'G6340-MONOMER']
+
+	## multiple enzyme associations, not complexed
+	"FEIST_NO3R2pp":None, # ['NARW-MONOMER', 'NITRATREDUCTZ-CPLX']
+	"FEIST_O16AP1pp":None, # ['EG11982-MONOMER', 'G7090-MONOMER']
+	"FEIST_O16AP2pp":None, # ['EG11982-MONOMER', 'G7090-MONOMER']
+	"FEIST_O16AP3pp":None, # ['EG11982-MONOMER', 'G7090-MONOMER']
+	"FEIST_PDX5PS":None, # ['CPLX0-7847', 'CPLX0-321', 'CPLX0-743']
+
+	## unknown cause
+	"FEIST_RIBabcpp":None, # ['ABC-28-CPLX', 'CPLX0-7646']
+	"FEIST_THZPSN":None, # ['CPLX0-248', 'THIF-MONOMER', 'CPLX-8029', 'THII-MONOMER']
+
+	}
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
@@ -210,7 +260,7 @@ class KnowledgeBaseEcoli(object):
 				"name": 'L-selenocysteine production reaction (HACKED)',
 				"process": "Metabolism",
 				"ec": '',
-				"dir": 1.,
+				"dir": 1,
 				"stoichiometry": stoich,
 				"catBy": [],
 				"ub": 1000.,
@@ -234,7 +284,7 @@ class KnowledgeBaseEcoli(object):
 			"name": 'Selenium media exchange (HACKED)',
 			"process": "Metabolism",
 			"ec": '',
-			"dir": 0., # presumably reversible
+			"dir": 0, # presumably reversible
 			"stoichiometry": stoich,
 			"catBy": [],
 			"ub": 1000.,
@@ -263,7 +313,7 @@ class KnowledgeBaseEcoli(object):
 			"name": 'Selenium import reaction (HACKED)',
 			"process": "Metabolism",
 			"ec": '',
-			"dir": 0., # presumably reversible
+			"dir": 0, # presumably reversible
 			"stoichiometry": stoich,
 			"catBy": [],
 			"ub": 1000.,
@@ -2030,6 +2080,7 @@ class KnowledgeBaseEcoli(object):
 		allKcats = []
 		allReversibility = []
 		allReactionStoich = []
+		allLocations = []
 
 		molecules = set()
 
@@ -2051,12 +2102,17 @@ class KnowledgeBaseEcoli(object):
 				for reactant in reaction['stoichiometry']
 				}
 
+			locations = {
+				reactant["location"] for reactant in reaction["stoichiometry"]
+				}
+
 			allReactionNames.append(reactionName)
 			allReactionIds.append(reactionId)
 			allEnzymes.append(enzymes)
 			allKcats.append(kcat)
 			allReversibility.append(reversible)
 			allReactionStoich.append(reactionStoich)
+			allLocations.append(locations)
 
 			molecules |= reactionStoich.viewkeys()
 
@@ -2064,11 +2120,64 @@ class KnowledgeBaseEcoli(object):
 
 		self.metabolismReactionKcat = np.array([kcat if kcat is not None else 0 for kcat in allKcats])
 
-		self.metabolismReactionEnzymes = allEnzymes
-
 		self.metabolismReactionNames = allReactionNames
 
 		self.metabolismReactionIds = allReactionIds
+
+		# Build enzyme lists
+
+		self.metabolismReactionEnzymes = []
+
+		keys = REACTION_ENZYME_ASSOCIATIONS.viewkeys()
+		for index, reactionId in enumerate(allReactionIds):
+			if reactionId in keys:
+				allEnzymes[index] = REACTION_ENZYME_ASSOCIATIONS[reactionId]
+
+		validEnzymeIds = set(self.bulkMolecules["moleculeId"])
+		validEnzymeCompartments = collections.defaultdict(set)
+
+		for enzymeId in validEnzymeIds:
+			enzyme = enzymeId[:enzymeId.index("[")]
+			location = enzymeId[enzymeId.index("[")+1:enzymeId.index("[")+2]
+
+			validEnzymeCompartments[enzyme].add(location)
+
+		for reactionId, enzymes, locations in itertools.izip(allReactionIds, allEnzymes, allLocations):
+			if enzymes is None or len(enzymes) == 0:
+				self.metabolismReactionEnzymes.append(None)
+
+			else:
+
+				if len(enzymes) > 1:
+					raise Exception("Reaction {} has multiple associated enzymes: {}".format(
+						reactionId, enzymes))
+
+				(enzyme,) = enzymes
+
+				if len(locations) > 1:
+					validLocations = validEnzymeCompartments[enzyme]
+					if len(validLocations) == 1:
+						locations = validLocations
+
+					elif locations == {"p", "e"}: # if reaction is periplasm <-> extracellular
+						locations = {"o"} # assume enzyme is in outer membrane
+
+					elif locations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
+						locations = {"i"} # assume enzyme is in inner membrane
+
+					else:
+						raise Exception("Reaction {} has multiple associated locations: {}".format(
+							reactionId,
+							locations
+							))
+
+					assert locations <= validLocations
+
+				(location,) = locations
+
+				enzymeId = "{}[{}]".format(enzyme, location)
+
+				self.metabolismReactionEnzymes.append(enzymeId)
 
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
