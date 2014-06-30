@@ -396,20 +396,7 @@ def fitKb(kb):
 		solublePoolMmolPerGDCW.magnitude
 		)
 	
-	# Validate
 
-	mws = kb.getMass(biomassContainer._objectNames)
-	# TODO
-
-	# aaIdxs = np.array([
-	# 	np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in aaIDs
-	# 	])
-	# aaMws = kb.bulkMolecules["mass"][aaIdxs].magnitude
-
-	# import ipdb; ipdb.set_trace()
-
-	# TODO: Unhack this
-	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
 	# Initial pool sizes
 	# Pools are used for inter-process communication.  As a consequence, their
@@ -420,9 +407,14 @@ def fitKb(kb):
 
 	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
 
-	gtpUsedOverCellCycle = kb.gtpPerTranslation * aasUsedOverCellCycle
+	gtpUsedOverCellCycleMmolPerGDCW = kb.gtpPerTranslation * aasUsedOverCellCycle
 
-	gtpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycle
+	gtpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycleMmolPerGDCW
+
+	# biomassContainer.countsInc(
+	# 	gtpUsedOverCellCycleMmolPerGDCW,
+	# 	"GTP[c]"
+	# 	)
 
 	# TODO: make this more general and add to KB (default undefined?)
 	kb.gtpPoolSize = Q_(gtpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
@@ -435,8 +427,13 @@ def fitKb(kb):
 		)
 
 	# Account for growth associated maintenance
-	darkATP = GAM - gtpUsedOverCellCycle # This has everything we can't account for
+	darkATP = GAM - gtpUsedOverCellCycleMmolPerGDCW # This has everything we can't account for
 	atpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * darkATP
+
+	# biomassContainer.countsInc(
+	# 	darkATP,
+	# 	"ATP[c]"
+	# 	)
 
 	kb.atpPoolSize = Q_(atpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
 
@@ -445,6 +442,8 @@ def fitKb(kb):
 		"ATP[c]"
 		)
 
+
+
 	# TODO: also add this to the KB
 	kb.wildtypeBiomassPoolIncreases = type(kb.wildtypeBiomass)(
 		np.zeros_like(kb.wildtypeBiomass.fullArray()),
@@ -452,6 +451,15 @@ def fitKb(kb):
 		)
 
 	kb.wildtypeBiomassPoolIncreases.struct_array["biomassFlux"] = poolIncreasesContainer.counts()
+
+	# Validate
+
+	mws = kb.getMass(biomassContainer._objectNames)
+	# TODO
+
+
+	# TODO: Unhack this
+	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
 
 
 def normalize(array):
