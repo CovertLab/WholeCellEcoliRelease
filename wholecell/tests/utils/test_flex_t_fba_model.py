@@ -168,6 +168,9 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		# Assert all f_i fluxes match g_bio (in the wild type case...)
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["g_bio"])], sol[m.rxnGroup("f").idxs()], rtol = 0, atol = 1e-8))
 
+		# Make sure the following has no runtime errors
+		m.metaboliteProduction(m.metIdxs(m.metIds()), m.solution())
+
 	@noseAttrib.attr('smalltest')
 	def test_KO_f(self):
 		m = self.m 
