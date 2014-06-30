@@ -260,7 +260,7 @@ class KnowledgeBaseEcoli(object):
 				"name": 'L-selenocysteine production reaction (HACKED)',
 				"process": "Metabolism",
 				"ec": '',
-				"dir": 1.,
+				"dir": 1,
 				"stoichiometry": stoich,
 				"catBy": [],
 				"ub": 1000.,
@@ -284,7 +284,7 @@ class KnowledgeBaseEcoli(object):
 			"name": 'Selenium media exchange (HACKED)',
 			"process": "Metabolism",
 			"ec": '',
-			"dir": 0., # presumably reversible
+			"dir": 0, # presumably reversible
 			"stoichiometry": stoich,
 			"catBy": [],
 			"ub": 1000.,
@@ -313,7 +313,7 @@ class KnowledgeBaseEcoli(object):
 			"name": 'Selenium import reaction (HACKED)',
 			"process": "Metabolism",
 			"ec": '',
-			"dir": 0., # presumably reversible
+			"dir": 0, # presumably reversible
 			"stoichiometry": stoich,
 			"catBy": [],
 			"ub": 1000.,
