@@ -95,6 +95,48 @@ COMPLEXES_NOT_FORMED = [
 	"RNAP54-CPLX", "RNAP70-CPLX",
 	]
 
+REACTION_ENZYME_ASSOCIATIONS = {
+	# problem: multiple associated enzymes
+	## PTS system
+	"FEIST_ACMANAptspp":None,
+	"FEIST_ACMUMptspp":None,
+	"FEIST_ASCBptspp":None,
+	"FEIST_DHAPT":None,
+	"FEIST_FRUpts2pp":None,
+	"FEIST_FRUptspp":None,
+	"FEIST_GALTptspp":None,
+	"FEIST_GAMptspp":None,
+	"FEIST_GTHRDHpp":None,
+	"FEIST_MALTptspp":None,
+	"FEIST_MANGLYCptspp":None,
+	"FEIST_MANptspp":None,
+	"FEIST_MNLptspp":None,
+	"FEIST_SBTptspp":None,
+	"FEIST_TREptspp":None,
+
+	## proenzymes
+	"FEIST_ADMDC":["SPED-MONOMER"],
+	"FEIST_PSD120":None, # TODO: find proenzyme ID
+	"FEIST_PSD140":None, # TODO: find proenzyme ID
+	"FEIST_PSD141":None, # TODO: find proenzyme ID
+	"FEIST_PSD160":None, # TODO: find proenzyme ID
+	"FEIST_PSD161":None, # TODO: find proenzyme ID
+	"FEIST_PSD180":None, # TODO: find proenzyme ID
+	"FEIST_PSD181":None, # TODO: find proenzyme ID
+
+	## unknown cause (possibly proenzymes/PTS system reactions)
+	"FEIST_CITL":None,
+	"FEIST_NO3R2pp":None,
+	"FEIST_O16AP1pp":None,
+	"FEIST_O16AP2pp":None,
+	"FEIST_O16AP3pp":None,
+	"FEIST_PDX5PS":None,
+	"FEIST_ASP1DC":None,
+	"FEIST_RIBabcpp":None,
+	"FEIST_THZPSN":None,
+
+	}
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -2029,6 +2071,7 @@ class KnowledgeBaseEcoli(object):
 		allKcats = []
 		allReversibility = []
 		allReactionStoich = []
+		allLocations = []
 
 		molecules = set()
 
@@ -2050,12 +2093,17 @@ class KnowledgeBaseEcoli(object):
 				for reactant in reaction['stoichiometry']
 				}
 
+			locations = {
+				reactant["location"] for reactant in reaction["stoichiometry"]
+				}
+
 			allReactionNames.append(reactionName)
 			allReactionIds.append(reactionId)
 			allEnzymes.append(enzymes)
 			allKcats.append(kcat)
 			allReversibility.append(reversible)
 			allReactionStoich.append(reactionStoich)
+			allLocations.append(locations)
 
 			molecules |= reactionStoich.viewkeys()
 
@@ -2063,11 +2111,64 @@ class KnowledgeBaseEcoli(object):
 
 		self.metabolismReactionKcat = np.array([kcat if kcat is not None else 0 for kcat in allKcats])
 
-		self.metabolismReactionEnzymes = allEnzymes
-
 		self.metabolismReactionNames = allReactionNames
 
 		self.metabolismReactionIds = allReactionIds
+
+		# Build enzyme lists
+
+		self.metabolismReactionEnzymes = []
+
+		keys = REACTION_ENZYME_ASSOCIATIONS.viewkeys()
+		for index, reactionId in enumerate(allReactionIds):
+			if reactionId in keys:
+				allEnzymes[index] = REACTION_ENZYME_ASSOCIATIONS[reactionId]
+
+		validEnzymeIds = set(self.bulkMolecules["moleculeId"])
+		validEnzymeCompartments = collections.defaultdict(set)
+
+		for enzymeId in validEnzymeIds:
+			enzyme = enzymeId[:enzymeId.index("[")]
+			location = enzymeId[enzymeId.index("[")+1:enzymeId.index("[")+2]
+
+			validEnzymeCompartments[enzyme].add(location)
+
+		for reactionId, enzymes, locations in itertools.izip(allReactionIds, allEnzymes, allLocations):
+			if enzymes is None or len(enzymes) == 0:
+				self.metabolismReactionEnzymes.append(None)
+
+			else:
+
+				if len(enzymes) > 1:
+					raise Exception("Reaction {} has multiple associated enzymes: {}".format(
+						reactionId, enzymes))
+
+				(enzyme,) = enzymes
+
+				if len(locations) > 1:
+					validLocations = validEnzymeCompartments[enzyme]
+					if len(validLocations) == 1:
+						locations = validLocations
+
+					elif locations == {"p", "e"}: # if reaction is periplasm <-> extracellular
+						locations = {"o"} # assume enzyme is in outer membrane
+
+					elif locations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
+						locations = {"i"} # assume enzyme is in inner membrane
+
+					else:
+						raise Exception("Reaction {} has multiple associated locations: {}".format(
+							reactionId,
+							locations
+							))
+
+					assert locations <= validLocations
+
+				(location,) = locations
+
+				enzymeId = "{}[{}]".format(enzyme, location)
+
+				self.metabolismReactionEnzymes.append(enzymeId)
 
 		nEdges = len(allEnzymes)
 		nNodes = len(molecules)
