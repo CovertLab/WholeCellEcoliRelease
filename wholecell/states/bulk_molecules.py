@@ -97,9 +97,9 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsUnallocated = np.zeros(nMolecules, dtype)
 
 
-	def updateQueries(self):
-		for view in self._views:
-			view._totalIs(self.container._counts[view.containerIndexes])
+	# def updateQueries(self):
+	# 	for view in self._views:
+	# 		view._totalIs(self.container._counts[view.containerIndexes])
 
 
 	def partition(self):
@@ -111,7 +111,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsRequested[:] = 0
 
 		for view in self._views:
-			self._countsRequested[view.containerIndexes, view._processIndex] += view._request()
+			self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
 
 		if ASSERT_POSITIVE_COUNTS:
 			assert (self._countsRequested >= 0).all()
@@ -130,11 +130,6 @@ class BulkMolecules(wholecell.states.state.State):
 			assert (self._countsUnallocated >= 0).all()
 
 		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
-
-		# self._massAllocatedInitial = (
-		# 	self._countsAllocatedInitial *
-		# 	np.tile(self._moleculeMass.reshape(-1, 1), (1, self._nProcesses))
-		# 	)
 	
 
 	def calculatePreEvolveStateMass(self):
@@ -168,10 +163,6 @@ class BulkMolecules(wholecell.states.state.State):
 			np.hstack([self._countsAllocatedFinal, self._countsUnallocated[:, np.newaxis]]).T,
 			self._moleculeMass
 			)
-
-
-	def _calculateMass(self):
-		return 
 
 
 	def pytablesCreate(self, h5file, expectedRows):
@@ -274,33 +265,30 @@ def bulkObjectsContainer(kb, dtype = np.int64):
 class BulkMoleculesViewBase(wholecell.views.view.View):
 	_stateID = 'BulkMolecules'
 
+	def _updateQuery(self):
+		self._totalIs(self._state.container._counts[self._containerIndexes])
+
+
 	def _counts(self):
-		return self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex].copy()
-
-
-	def _mass(self):
-		return np.dot(
-			self._state._moleculeMass[self.containerIndexes],
-			self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex]
-			)
+		return self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex].copy()
 
 
 	def _countsIs(self, values):
-		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
+		assert (np.size(values) == np.size(self._containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
 
-		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] = values
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] = values
 
 
 	def _countsInc(self, values):
-		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
+		assert (np.size(values) == np.size(self._containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
 
-		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] += values
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] += values
 
 
 	def _countsDec(self, values):
-		assert (np.size(values) == np.size(self.containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
+		assert (np.size(values) == np.size(self._containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
 
-		self._state._countsAllocatedFinal[self.containerIndexes, self._processIndex] -= values
+		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] -= values
 
 
 class BulkMoleculesView(BulkMoleculesViewBase):
@@ -309,7 +297,7 @@ class BulkMoleculesView(BulkMoleculesViewBase):
 
 		# State references
 		assert len(set(self._query)) == len(self._query), "Bulk molecules views cannot contain duplicate entries"
-		self.containerIndexes = self._state.container._namesToIndexes(self._query)
+		self._containerIndexes = self._state.container._namesToIndexes(self._query)
 
 
 	def _dataSize(self):
@@ -341,7 +329,7 @@ class BulkMoleculeView(BulkMoleculesViewBase):
 		super(BulkMoleculeView, self).__init__(*args, **kwargs)
 
 		# State references
-		self.containerIndexes = self._state.container._namesToIndexes((self._query,))
+		self._containerIndexes = self._state.container._namesToIndexes((self._query,))
 
 
 	def count(self):
