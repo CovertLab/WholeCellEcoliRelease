@@ -142,7 +142,7 @@ class KnowledgeBaseEcoli(object):
 
 	submassNameToIndex = MOLECULAR_WEIGHT_ORDER
 
-	def __init__(self):
+	def __init__(self, deleteLoadingData = True):
 
 		# Cache attribute names so we can delete those made by the _load* methods
 		defaultAttrs = set(dir(self))
@@ -203,8 +203,9 @@ class KnowledgeBaseEcoli(object):
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
-		for attr in loadedAttrs:
-			delattr(self, attr)
+		if deleteLoadingData:
+			for attr in loadedAttrs:
+				delattr(self, attr)
 
 
 	def _loadHacked(self):

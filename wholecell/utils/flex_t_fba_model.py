@@ -10,7 +10,7 @@ FlexTFbaModel.py
 
 from __future__ import division
 
-import numpy
+import numpy as np
 import copy
 import functools
 import wholecell.utils.linear_programming
@@ -22,12 +22,12 @@ class FlexTFbaModel(object):
 		self._metIds = self._createMetIds(metIds, biomass, atpId)
 		self._rxnIds = self._createRxnIds(rxns, mediaEx, biomass, atpId)
 
-		self._S = numpy.zeros([len(self._metIds), len(self._rxnIds)])
-		self._b = numpy.zeros(len(self._metIds))
-		self._v_upper = numpy.inf * numpy.ones(len(self._rxnIds))
-		self._v_lower = -numpy.inf * numpy.ones(len(self._rxnIds))
-		self._v = numpy.zeros(len(self._rxnIds))
-		self._c = numpy.zeros(len(self._rxnIds))
+		self._S = np.zeros([len(self._metIds), len(self._rxnIds)])
+		self._b = np.zeros(len(self._metIds))
+		self._v_upper = np.inf * np.ones(len(self._rxnIds))
+		self._v_lower = -np.inf * np.ones(len(self._rxnIds))
+		self._v = np.zeros(len(self._rxnIds))
+		self._c = np.zeros(len(self._rxnIds))
 
 		self._metConstTypes = ["S"] * len(self._metIds)
 		self._rxnVarTypes = ["C"] * len(self._rxnIds)
@@ -50,7 +50,7 @@ class FlexTFbaModel(object):
 		self._metGroups = {}
 		self._rxnGroups = {}
 
-		self._scaleFactor = numpy.NaN
+		self._scaleFactor = np.NaN
 
 		self._recalculateSolution = False
 
@@ -127,7 +127,7 @@ class FlexTFbaModel(object):
 		# This occurs in solution().
 		# We do not alert the user to any of this. Instead, we try to handle all of this nicely behind the scenes.
 		# That is, if the user uses the interface properly, they will have no idea that scaling occurred.
-		self._scaleFactor = numpy.exp(numpy.mean(numpy.log(numpy.abs(numpy.array([x["coeff"] for x in biomass])))))
+		self._scaleFactor = np.exp(np.mean(np.log(np.abs(np.array([x["coeff"] for x in biomass])))))
 
 	def _populateS(self, rxns, biomass):
 		
@@ -136,7 +136,8 @@ class FlexTFbaModel(object):
 			rxnIdx = self.rxnIdxs(["rxn_" + rxn["id"]])[0]
 
 			for stoich in rxn["stoichiometry"]:
-				metIdx = self.metIdxs(["%s:%s[%s]" % (stoich["molecule"], stoich["form"], stoich["location"])])[0]
+				# metIdx = self.metIdxs(["%s:%s[%s]" % (stoich["molecule"], stoich["form"], stoich["location"])])[0]
+				metIdx = self.metIdxs(["%s[%s]" % (stoich["molecule"], stoich["location"])])[0]
 
 				self._S[metIdx, rxnIdx] = stoich["coeff"]
 
@@ -144,7 +145,7 @@ class FlexTFbaModel(object):
 		self._S[self.metGroup("mediaEx").idxs(), self.rxnGroup("mediaEx").idxs()] = -1.
 
 		# Populate r reactions
-		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = numpy.array([b["coeff"] for b in biomass]) #/ self._scaleFactor
+		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = np.array([b["coeff"] for b in biomass])
 
 		# Populate x reactions
 		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("x").idxs()] = -1.
@@ -181,10 +182,10 @@ class FlexTFbaModel(object):
 		self._recalculateSolution = True
 
 	def metIdxs(self, metIds):
-		return numpy.array([self._metIdToIdx[x] for x in metIds])
+		return np.array([self._metIdToIdx[x] for x in metIds])
 
 	def rxnIdxs(self, rxnIds):
-		return numpy.array([self._rxnIdToIdx[x] for x in rxnIds])
+		return np.array([self._rxnIdToIdx[x] for x in rxnIds])
 
 	def metIds(self, metIdxs = None):
 		if metIdxs == None:
@@ -257,7 +258,7 @@ class FlexTFbaModel(object):
 		else:
 			self._v_upper[idxs] = values
 
-		if not overrideImmutable and not numpy.all(self._v_upper[self.rxnGroup("upperImmutable").idxs()] == 0):
+		if not overrideImmutable and not np.all(self._v_upper[self.rxnGroup("upperImmutable").idxs()] == 0):
 			import ipdb; ipdb.set_trace()
 			raise Exception, "Attempting to change immutable bound."
 
@@ -278,7 +279,7 @@ class FlexTFbaModel(object):
 		else:
 			self._v_lower[idxs] = values
 
-		if not overrideImmutable and not numpy.all(self._v_lower[self.rxnGroup("lowerImmutable").idxs()] == 0):
+		if not overrideImmutable and not np.all(self._v_lower[self.rxnGroup("lowerImmutable").idxs()] == 0):
 			raise Exception, "Attempting to change immutable bound."
 
 		self._recalculateSolution = True
@@ -286,8 +287,8 @@ class FlexTFbaModel(object):
 	def solution(self):
 		if self._recalculateSolution:
 
-			v_lower = numpy.maximum(self._v_lower / self._scaleFactor, -10000)
-			v_upper = numpy.minimum(self._v_upper / self._scaleFactor,  10000)
+			v_lower = np.maximum(self._v_lower / self._scaleFactor, -10000)
+			v_upper = np.minimum(self._v_upper / self._scaleFactor,  10000)
 
 			self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] /= self._scaleFactor
 
@@ -304,6 +305,15 @@ class FlexTFbaModel(object):
 		return self._v
 
 	def metaboliteProduction(self, metIdxs, solution):
+		# NOTE: Users of this function have to be conscious of units and perform
+		# any necessary unit conversions themselves.
+		P = np.zeros_like(self._S)
+		P[:, self.rxnGroup("mediaEx").idxs()] = self._S[:, self.rxnGroup("mediaEx").idxs()]
+		P[:, self.rxnGroup("f").idxs()] = self._S[:, self.rxnGroup("f").idxs()]
+		P[:, self.rxnGroup("x").idxs()] = self._S[:, self.rxnGroup("x").idxs()]
+
+		# Sign conventions are fun
+		return -np.dot(P, solution)[metIdxs]
 		pass
 
 
@@ -356,14 +366,14 @@ class bounds(object):
 
 	def __init__(self, types, rxnIds, upperBound = True):
 		self._upperBound = upperBound
-		self._defaultValue = numpy.Inf
-		self._mergeFunction = functools.partial(numpy.nanmin, axis = 0)
+		self._defaultValue = np.Inf
+		self._mergeFunction = functools.partial(np.nanmin, axis = 0)
 		if not self._upperBound:
 			self._defaultValue *= -1
-			self._mergeFunction = functools.partial(numpy.nanmax, axis = 0)
+			self._mergeFunction = functools.partial(np.nanmax, axis = 0)
 
-		self._bounds = self._defaultValue * numpy.ones((len(types), len(rxnIds)))
-		self._merged = self._defaultValue * numpy.ones(len(rxnIds))
+		self._bounds = self._defaultValue * np.ones((len(types), len(rxnIds)))
+		self._merged = self._defaultValue * np.ones(len(rxnIds))
 
 		self._typeToIdx = dict((x[1], x[0]) for x in enumerate(types))
 		self._idxToType = dict((x[0], x[1]) for x in enumerate(types))
