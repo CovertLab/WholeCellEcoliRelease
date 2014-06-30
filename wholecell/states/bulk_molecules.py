@@ -42,8 +42,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._nCompartments = None
 
-		self._isRequestAbsolute = None
-
 		self._countsRequested = None
 		self._countsAllocatedInitial = None
 		self._countsAllocatedFinal = None
@@ -73,8 +71,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Create the container for molecule counts
 		self.container = bulkObjectsContainer(kb)
-		
-		# TODO: generalize and expand this logic
+
+		# Set up vector of process priorities
 
 		self._processPriorities = np.empty(self._nProcesses, np.int64)
 		self._processPriorities.fill(REQUEST_PRIORITY_DEFAULT)
@@ -95,11 +93,6 @@ class BulkMolecules(wholecell.states.state.State):
 		self._countsAllocatedInitial = np.zeros((nMolecules, self._nProcesses), dtype)
 		self._countsAllocatedFinal = np.zeros((nMolecules, self._nProcesses), dtype)
 		self._countsUnallocated = np.zeros(nMolecules, dtype)
-
-
-	# def updateQueries(self):
-	# 	for view in self._views:
-	# 		view._totalIs(self.container._counts[view.containerIndexes])
 
 
 	def partition(self):
