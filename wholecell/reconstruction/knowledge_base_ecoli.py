@@ -120,24 +120,28 @@ REACTION_ENZYME_ASSOCIATIONS = {
 
 	## proenzymes
 	"FEIST_ADMDC":["SPED-MONOMER"],
-	"FEIST_PSD120":None, # TODO: find proenzyme ID
-	"FEIST_PSD140":None, # TODO: find proenzyme ID
-	"FEIST_PSD141":None, # TODO: find proenzyme ID
-	"FEIST_PSD160":None, # TODO: find proenzyme ID
-	"FEIST_PSD161":None, # TODO: find proenzyme ID
-	"FEIST_PSD180":None, # TODO: find proenzyme ID
-	"FEIST_PSD181":None, # TODO: find proenzyme ID
+	"FEIST_PSD120":["PSD-MONOMER"],
+	"FEIST_PSD140":["PSD-MONOMER"],
+	"FEIST_PSD141":["PSD-MONOMER"],
+	"FEIST_PSD160":["PSD-MONOMER"],
+	"FEIST_PSD161":["PSD-MONOMER"],
+	"FEIST_PSD180":["PSD-MONOMER"],
+	"FEIST_PSD181":["PSD-MONOMER"],
+	"FEIST_ASP1DC":["ASPDECARBOX-MONOMER"],
 
-	## unknown cause (possibly proenzymes/PTS system reactions)
-	"FEIST_CITL":None,
-	"FEIST_NO3R2pp":None,
-	"FEIST_O16AP1pp":None,
-	"FEIST_O16AP2pp":None,
-	"FEIST_O16AP3pp":None,
-	"FEIST_PDX5PS":None,
-	"FEIST_ASP1DC":None,
-	"FEIST_RIBabcpp":None,
-	"FEIST_THZPSN":None,
+	## acyl carrier protein
+	"FEIST_CITL":None, # ['ACECITLY-CPLX', 'G6340-MONOMER']
+
+	## multiple enzyme associations, not complexed
+	"FEIST_NO3R2pp":None, # ['NARW-MONOMER', 'NITRATREDUCTZ-CPLX']
+	"FEIST_O16AP1pp":None, # ['EG11982-MONOMER', 'G7090-MONOMER']
+	"FEIST_O16AP2pp":None, # ['EG11982-MONOMER', 'G7090-MONOMER']
+	"FEIST_O16AP3pp":None, # ['EG11982-MONOMER', 'G7090-MONOMER']
+	"FEIST_PDX5PS":None, # ['CPLX0-7847', 'CPLX0-321', 'CPLX0-743']
+
+	## unknown cause
+	"FEIST_RIBabcpp":None, # ['ABC-28-CPLX', 'CPLX0-7646']
+	"FEIST_THZPSN":None, # ['CPLX0-248', 'THIF-MONOMER', 'CPLX-8029', 'THII-MONOMER']
 
 	}
 
