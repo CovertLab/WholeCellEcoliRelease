@@ -67,20 +67,9 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		# TODO: refactor mass updates
 
-		sequences = kb.rnaData["sequence"]
-
 		self.rnaLengths = kb.rnaData["length"].magnitude
 
-		maxLen = np.int64(self.rnaLengths.max() + self.elngRate)
-
-		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int8)
-		self.rnaSequences.fill(PAD_VALUE)
-
-		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
-
-		for i, sequence in enumerate(sequences):
-			for j, letter in enumerate(sequence):
-				self.rnaSequences[i, j] = ntMapping[letter]
+		self.rnaSequences = kb.transcriptionSequences
 
 		# TOKB
 		self.ntWeights = np.array([

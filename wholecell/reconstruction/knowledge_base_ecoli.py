@@ -2272,15 +2272,31 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildTranscription(self):
-		pass
+		from wholecell.utils.polymerize import PAD_VALUE
+
+		sequences = self.rnaData["sequence"] # TODO: consider removing sequences
+
+		maxLen = np.int64(
+			self.rnaData["length"].magnitude.max()
+			+ self.rnaPolymeraseElongationRate.to('count / s').magnitude
+			)
+
+		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8) # TODO: consider smaller dtype
+		self.transcriptionSequences.fill(PAD_VALUE)
+
+		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
+
+		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.transcriptionSequences[i, j] = ntMapping[letter]
 
 
 	def _buildTranslation(self):
 		from wholecell.utils.polymerize import PAD_VALUE
 
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
-
-		self.proteinLengths = self.monomerData["length"].magnitude
 
 		maxLen = np.int64(
 			self.monomerData["length"].magnitude.max()
