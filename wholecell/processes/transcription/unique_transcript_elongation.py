@@ -47,11 +47,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton = None
 		self.rnapSubunits = None
 
-		# Cached values
-		self._sequences = None
-		self._transcriptLengths = None
-		self._rnaIndexes = None
-
 		super(UniqueTranscriptElongation, self).__init__()
 
 

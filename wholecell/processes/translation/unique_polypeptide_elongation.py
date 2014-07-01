@@ -41,11 +41,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = None
 		self.ribosomeSubunits = None
 
-		# Cached values
-		self._sequences = None
-		self._proteinIndexes = None
-		self._peptideLengths = None
-
 		super(UniquePolypeptideElongation, self).__init__()
 
 
