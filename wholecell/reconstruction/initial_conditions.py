@@ -393,18 +393,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	transcriptLengths = (randomState.rand(activeRnapCount) * maxRnaLengths).astype(np.int64)
 
 	# Compute RNA masses
-	maxLen = np.int64(rnaLengths.max() + elngRate)
-
-	sequences = kb.rnaData["sequence"]
-
-	rnaSequences = np.empty((sequences.shape[0], maxLen), np.int64)
-	rnaSequences.fill(-1)
-
-	ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
-
-	for i, sequence in enumerate(sequences):
-		for j, letter in enumerate(sequence):
-			rnaSequences[i, j] = ntMapping[letter]
+	rnaSequences = kb.transcriptionSequences
 
 	# TODO: standardize this logic w/ process
 
