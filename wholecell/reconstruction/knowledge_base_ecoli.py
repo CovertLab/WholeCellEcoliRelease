@@ -185,6 +185,9 @@ class KnowledgeBaseEcoli(object):
 		self._countATinPromoters()
 		
 		# Create data structures for simulation
+		self._buildAllMasses() # called early because useful for other builders
+		self._buildMoleculeGroups() # called early because useful for other builders
+
 		self._buildSequence()
 		self._buildCompartments()
 		self._buildBulkMolecules()
@@ -202,8 +205,6 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions()
 		self._buildTranscription()
 		self._buildTranslation()
-		self._buildAllMasses()
-		self._buildMoleculeGroups()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -2357,15 +2358,41 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildTranscription(self):
-		pass
+		from wholecell.utils.polymerize import PAD_VALUE
+
+		sequences = self.rnaData["sequence"] # TODO: consider removing sequences
+
+		maxLen = np.int64(
+			self.rnaData["length"].magnitude.max()
+			+ self.rnaPolymeraseElongationRate.to('count / s').magnitude
+			)
+
+		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8) # TODO: consider smaller dtype
+		self.transcriptionSequences.fill(PAD_VALUE)
+
+		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
+
+		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.transcriptionSequences[i, j] = ntMapping[letter]
+
+		# TODO: (URGENT) unify peptide weight calculations!
+
+		self.transcriptionMonomerWeights = (
+			(
+				self.getMass(self.ntpIds)
+				- self.getMass(["H2O[c]"])
+				)
+			/ self.nAvogadro
+			).to("fg").magnitude
 
 
 	def _buildTranslation(self):
 		from wholecell.utils.polymerize import PAD_VALUE
 
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
-
-		self.proteinLengths = self.monomerData["length"].magnitude
 
 		maxLen = np.int64(
 			self.monomerData["length"].magnitude.max()
@@ -2382,6 +2409,16 @@ class KnowledgeBaseEcoli(object):
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):
 				self.translationSequences[i, j] = aaMapping[letter]
+
+		# TODO: (URGENT) unify peptide weight calculations!
+
+		self.translationMonomerWeights = (
+			(
+				self.getMass(self.aaIDs)
+				- self.getMass(["H2O[c]"])
+				)
+			/ self.nAvogadro
+			).to("fg").magnitude
 
 
 	def _buildConstants(self):

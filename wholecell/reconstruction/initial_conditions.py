@@ -393,32 +393,15 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	transcriptLengths = (randomState.rand(activeRnapCount) * maxRnaLengths).astype(np.int64)
 
 	# Compute RNA masses
-	maxLen = np.int64(rnaLengths.max() + elngRate)
-
-	sequences = kb.rnaData["sequence"]
-
-	rnaSequences = np.empty((sequences.shape[0], maxLen), np.int64)
-	rnaSequences.fill(-1)
-
-	ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
-
-	for i, sequence in enumerate(sequences):
-		for j, letter in enumerate(sequence):
-			rnaSequences[i, j] = ntMapping[letter]
+	rnaSequences = kb.transcriptionSequences
 
 	# TODO: standardize this logic w/ process
 
-	ntWeights = np.array([
-		345.20, # A
-		321.18, # C
-		361.20, # G
-		322.17, # U
-		]) - 17.01 # weight of a hydroxyl
+	ntWeights = kb.transcriptionMonomerWeights
 
 	# TOKB
 	hydroxylWeight = 17.01 # counted once for the end of the polymer
 
-	ntWeights *= 1e15/6.022e23
 	hydroxylWeight *= 1e15/6.022e23
 
 	transcriptMasses = np.array([
@@ -557,16 +540,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	# Compute peptide masses
 	monomerSequences = kb.translationSequences
 
-	# TODO: standardize this logic w/ process
-
-	h2oWeight = (
-		kb.getMass(['H2O']).to("fg/mol")[0].magnitude /
-		kb.nAvogadro.to("1 / mole").magnitude
-		)
-
-	aaWeights = kb.getMass(kb.aaIDs).to("fg / mole").magnitude / kb.nAvogadro.to("1 / mole").magnitude
-
-	aaWeightsIncorporated = aaWeights - h2oWeight
+	aaWeightsIncorporated = kb.translationMonomerWeights
 
 	# TODO: check whether there should be an additional water mass
 	peptideMasses = np.array([

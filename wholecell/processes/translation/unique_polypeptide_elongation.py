@@ -41,11 +41,6 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = None
 		self.ribosomeSubunits = None
 
-		# Cached values
-		self._sequences = None
-		self._proteinIndexes = None
-		self._peptideLengths = None
-
 		super(UniquePolypeptideElongation, self).__init__()
 
 
@@ -65,24 +60,9 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.proteinSequences = kb.translationSequences
 
-		# # TODO: refactor mass updates
+		self.aaWeightsIncorporated = kb.translationMonomerWeights
 
-		self.h2oWeight = (
-			kb.bulkMolecules[
-				kb.bulkMolecules["moleculeId"] == "H2O[c]"
-				]["mass"].to("fg / mole").sum(1)[0].magnitude /
-			kb.nAvogadro.to("1 / mole").magnitude
-			)
-
-		aaWeights = np.array([
-			kb.bulkMolecules[
-				kb.bulkMolecules["moleculeId"] == aaId
-				]["mass"].to("fg / mole").magnitude.sum() /
-			kb.nAvogadro.to("1 / mole").magnitude
-			for aaId in kb.aaIDs
-			]).flatten()
-
-		self.aaWeightsIncorporated = aaWeights - self.h2oWeight
+		# TODO: account for ends of peptides in computing weights
 
 		self.gtpPerElongation = kb.gtpPerTranslation
 
