@@ -182,7 +182,9 @@ class KnowledgeBaseEcoli(object):
 		loadedAttrs = set(dir(self)) - defaultAttrs
 		
 		# Create data structures for simulation
-		self._buildAllMasses()
+		self._buildAllMasses() # called early because useful for other builders
+		self._buildMoleculeGroups() # called early because useful for other builders
+
 		self._buildSequence()
 		self._buildCompartments()
 		self._buildBulkMolecules()
@@ -200,7 +202,6 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions()
 		self._buildTranscription()
 		self._buildTranslation()
-		self._buildMoleculeGroups()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -2291,6 +2292,16 @@ class KnowledgeBaseEcoli(object):
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):
 				self.transcriptionSequences[i, j] = ntMapping[letter]
+
+		# TODO: (URGENT) unify peptide weight calculations!
+
+		self.transcriptionMonomerWeights = (
+			(
+				self.getMass(self.ntpIds)
+				- self.getMass(["H2O[c]"])
+				)
+			/ self.nAvogadro
+			).to("fg").magnitude
 
 
 	def _buildTranslation(self):

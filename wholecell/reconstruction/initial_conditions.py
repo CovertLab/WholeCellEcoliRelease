@@ -397,17 +397,11 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 
 	# TODO: standardize this logic w/ process
 
-	ntWeights = np.array([
-		345.20, # A
-		321.18, # C
-		361.20, # G
-		322.17, # U
-		]) - 17.01 # weight of a hydroxyl
+	ntWeights = kb.transcriptionMonomerWeights
 
 	# TOKB
 	hydroxylWeight = 17.01 # counted once for the end of the polymer
 
-	ntWeights *= 1e15/6.022e23
 	hydroxylWeight *= 1e15/6.022e23
 
 	transcriptMasses = np.array([
