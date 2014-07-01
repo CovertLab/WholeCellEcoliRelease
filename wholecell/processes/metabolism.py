@@ -15,6 +15,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
+import wholecell.utils.flex_t_fba_model
 
 from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
 from wholecell.utils.random import stochasticRound
@@ -147,6 +148,81 @@ class Metabolism(wholecell.processes.process.Process):
 			np.where(kb.bulkMolecules["moleculeId"] == x)[0][0] for x in self.wildtypeIds
 			])
 		self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude
+
+		# metIds = [x for x in kb.metabolismMoleculeNames]
+		# rxns = kb.metabolismBiochemicalReactions
+		# rxnIsIrreversible = np.array([1 - x["dir"] for x in rxns], dtype = np.bool)
+		# mediaEx = kb.metabolismMediaEx
+		# biomass = [{"id": x["metaboliteId"], "coeff": -x["biomassFlux"]} for x in kb.wildtypeBiomass.struct_array]
+		# atpId = "ATP[c]"
+		# self.flexTFbaModel = wholecell.utils.flex_t_fba_model.FlexTFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass, atpId = "ATP[c]", params = None)
+		# self.lb = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), False)
+		# self.ub = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), True)
+
+		# # Thermodynamic bounds
+		# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("real").idxs()[rxnIsIrreversible], "thermodynamic", 0)
+
+		# # Biomass return is zero (for testing)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("x").idxs(), "exchange", 0)
+
+		# # Media exchange
+		# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("mediaEx").idxs(), "exchange", 0)
+		# mediaRxnIds = [
+		# 	"mediaEx_FEIST_EX_ca2(e)",
+		# 	"mediaEx_FEIST_EX_cl(e)",
+		# 	"mediaEx_FEIST_EX_co2(e)",
+		# 	"mediaEx_FEIST_EX_cobalt2(e)",
+		# 	"mediaEx_FEIST_EX_cu2(e)",
+		# 	"mediaEx_FEIST_EX_fe2(e)",
+		# 	"mediaEx_FEIST_EX_fe3(e)",
+		# 	"mediaEx_FEIST_EX_h(e)",
+		# 	"mediaEx_FEIST_EX_h2o(e)",
+		# 	"mediaEx_FEIST_EX_k(e)",
+		# 	"mediaEx_FEIST_EX_mg2(e)",
+		# 	"mediaEx_FEIST_EX_mn2(e)",
+		# 	"mediaEx_FEIST_EX_mobd(e)",
+		# 	"mediaEx_FEIST_EX_na1(e)",
+		# 	"mediaEx_FEIST_EX_nh4(e)",
+		# 	"mediaEx_FEIST_EX_pi(e)",
+		# 	"mediaEx_FEIST_EX_so4(e)",
+		# 	"mediaEx_FEIST_EX_tungs(e)",
+		# 	"mediaEx_FEIST_EX_zn2(e)",
+		# 	"mediaEx_FEIST_EX_cbl1(e)",
+		# 	]
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(mediaRxnIds), "exchange", -np.inf)
+
+		# # Nutrient limitations
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -8.)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -18.5)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -100.)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -100)
+
+		# # Reactions Feist arbitrarily set to 0
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_0"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_0"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_0"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_0"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODMpp"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODMpp"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_0"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_0"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_0"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_0"]), "bs", 0)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
+
+		# self.flexTFbaModel.v_lowerIs(idxs = self.flexTFbaModel.rxnGroup("lowerMutable").idxs(), values = self.lb.mergedValues(self.flexTFbaModel.rxnGroup("lowerMutable").idxs()))
+		# self.flexTFbaModel.v_upperIs(idxs = self.flexTFbaModel.rxnGroup("upperMutable").idxs(), values = self.ub.mergedValues(self.flexTFbaModel.rxnGroup("upperMutable").idxs()))
+
+		# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"])]
+		# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"])]
+		# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["g_bio"])]
 
 	def calculateRequest(self):
 		self.ppi.requestAll()
