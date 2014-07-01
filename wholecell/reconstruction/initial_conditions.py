@@ -546,16 +546,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	# Compute peptide masses
 	monomerSequences = kb.translationSequences
 
-	# TODO: standardize this logic w/ process
-
-	h2oWeight = (
-		kb.getMass(['H2O']).to("fg/mol")[0].magnitude /
-		kb.nAvogadro.to("1 / mole").magnitude
-		)
-
-	aaWeights = kb.getMass(kb.aaIDs).to("fg / mole").magnitude / kb.nAvogadro.to("1 / mole").magnitude
-
-	aaWeightsIncorporated = aaWeights - h2oWeight
+	aaWeightsIncorporated = kb.translationMonomerWeights
 
 	# TODO: check whether there should be an additional water mass
 	peptideMasses = np.array([
