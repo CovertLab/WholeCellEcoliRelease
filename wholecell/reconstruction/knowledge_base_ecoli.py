@@ -38,7 +38,7 @@ ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme,
 RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme,
 MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme,
 Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType,
-Parameter, Constant)
+Parameter, Constant, Promoter, TranscriptionUnit, TranscriptionUnitGene)
 
 # Import Biopython for sequence handling
 import Bio
@@ -168,9 +168,8 @@ class KnowledgeBaseEcoli(object):
 		self._loadProteinMonomers()
 		self._loadComplexes() 
 		self._loadReactions()
-
+		
 		self._calcMolecularWeightFromRxn()		
-
 
 		## Keep separate
 		self._loadBiomassFractions() # Build hacked constants - need to add these to SQL database still
@@ -180,6 +179,10 @@ class KnowledgeBaseEcoli(object):
 		self._loadComputeParameters()
 
 		loadedAttrs = set(dir(self)) - defaultAttrs
+		
+		self._loadPromoters() # Need the attributes; will not be deleted
+		self._loadTranscriptionUnits() # Need the attributes; will not be deleted
+		self._countATinPromoters()
 		
 		# Create data structures for simulation
 		self._buildSequence()
@@ -1286,6 +1289,88 @@ class KnowledgeBaseEcoli(object):
 			self._reactions.append(r)
 					
 
+	def _loadPromoters(self):
+		self._promoters = []
+		self._promoterDbId = {}
+
+		self._checkDatabaseAccess(Promoter)		
+		all_pr = Promoter.objects.all()
+		for i in all_pr:
+			self._promoterDbId[i.id] = i.promoter_id
+			p = {
+				"id":i.promoter_id,
+				"name":str(i.name),
+				"position":int(i.position),
+				"direction":str(i.direction)
+			}
+	
+			self._promoters.append(p)
+
+	def _loadTranscriptionUnits(self):
+		
+		self._transcriptionUnits = []
+				
+		#gene
+		tu_gene = {}
+		self._checkDatabaseAccess(TranscriptionUnitGene)		
+		all_tg = TranscriptionUnitGene.objects.all()
+		for i in all_tg:
+			tu = i.transcriptionunit_id_fk_id
+			gene = self._geneDbIds[i.gene_id_fk_id]
+			if tu in tu_gene:
+				tu_gene[tu].append(gene)
+			else:
+				tu_gene[tu] = [gene]
+	
+	
+		tu_pr = {}
+
+		self._checkDatabaseAccess(TranscriptionUnit)		
+		all_tu = TranscriptionUnit.objects.all()
+		for i in all_tu:
+			t = {
+				"id":i.transcription_unit_id,
+				"name":str(i.name),
+				"left":int(i.left),
+				"right":int(i.right),
+				"direction":str(i.direction),
+				"degradation_rate": float(i.degradation_rate), 
+				"expression_rate": float(i.expression_rate),
+				"promoter_id": self._promoterDbId[i.promoter_id_fk_id],
+				"gene_id": tu_gene[i.id]
+			}
+			if t["promoter_id"] in tu_pr:
+				tu_pr[t["promoter_id"]].append(t["id"])
+			else:
+				tu_pr[t["promoter_id"]] = [t["id"]]
+				
+			self._transcriptionUnits.append(t)
+
+		#Add TU info in promoters
+		for p in self._promoters:
+			p['TU'] = tu_pr[p['id']]
+
+
+	def _countATinPromoters(self):
+		
+		geneLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._genes)])
+		tuLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._transcriptionUnits)])
+		
+		#calculate AT counts for each genes associated with each promoters
+		for p in self._promoters:
+			p['TA_count'] = []
+			allgenes = []
+			for t in p['TU']:
+				genes = self._transcriptionUnits[tuLookUp[t]]['gene_id']
+				for g in genes:
+					if g in allgenes:
+						continue
+					allgenes.append(g)
+					seq = self._genes[geneLookUp[g]]['seq']
+					countAT = (seq.count('A') + seq.count('T'))/float(len(seq)) *100
+					p['TA_count'].append({g:countAT})
+
+		
 	def _calcMolecularWeightFromRxn(self):
 		
 		complexReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._complexationReactions)])
