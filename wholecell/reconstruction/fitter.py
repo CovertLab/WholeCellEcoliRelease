@@ -249,12 +249,6 @@ def fitKb(kb):
 		)
 
 	# DNA fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellGlycogenFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["glycogenMassFraction"],
-		fractionComposition = kb.cellGlycogenFractionData["massFraction"])
-
-
 	dNtpView = biomassContainer.countsView(kb.dNtpIds)	# TODO: Better name so as not to confuse with bulkContainer view
 
 	dNtpMmolPerGDCW = (
