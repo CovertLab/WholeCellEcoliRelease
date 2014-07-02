@@ -66,9 +66,7 @@ def fitKb(kb):
 	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
-	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
-
-	adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb)
+	adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb)
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 
 	### RNA Mass fraction ###
@@ -520,7 +518,7 @@ def calcNumDntpsDnmps(kb, tau_d):
 		)
 
 
-def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
+def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
