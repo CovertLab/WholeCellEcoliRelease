@@ -47,11 +47,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton = None
 		self.rnapSubunits = None
 
-		# Cached values
-		self._sequences = None
-		self._transcriptLengths = None
-		self._rnaIndexes = None
-
 		super(UniqueTranscriptElongation, self).__init__()
 
 
@@ -67,33 +62,15 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		# TODO: refactor mass updates
 
-		sequences = kb.rnaData["sequence"]
-
 		self.rnaLengths = kb.rnaData["length"].magnitude
 
-		maxLen = np.int64(self.rnaLengths.max() + self.elngRate)
+		self.rnaSequences = kb.transcriptionSequences
 
-		self.rnaSequences = np.empty((sequences.shape[0], maxLen), np.int8)
-		self.rnaSequences.fill(PAD_VALUE)
-
-		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
-
-		for i, sequence in enumerate(sequences):
-			for j, letter in enumerate(sequence):
-				self.rnaSequences[i, j] = ntMapping[letter]
-
-		# TOKB
-		self.ntWeights = np.array([
-			345.20, # A
-			321.18, # C
-			361.20, # G
-			322.17, # U
-			]) - 17.01 # weight of a hydroxyl
+		self.ntWeights = kb.transcriptionMonomerWeights
 
 		# TOKB
 		self.hydroxylWeight = 17.01 # counted once for the end of the polymer
 
-		self.ntWeights *= 1e15/6.022e23
 		self.hydroxylWeight *= 1e15/6.022e23
 
 		# Views

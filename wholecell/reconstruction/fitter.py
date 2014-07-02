@@ -249,7 +249,6 @@ def fitKb(kb):
 		)
 
 	# DNA fraction
-
 	dNtpView = biomassContainer.countsView(kb.dNtpIds)	# TODO: Better name so as not to confuse with bulkContainer view
 
 	dNtpMmolPerGDCW = (
@@ -264,139 +263,40 @@ def fitKb(kb):
 		)
 	
 	# Glycogen fraction
-
-	glycogenView = biomassContainer.countsView(
-		list(kb.cellGlycogenFractionData["metaboliteId"])
-		)
-
-	glycogenMassFraction = float(dryComposition60min["glycogenMassFraction"])
-	glycogenMass = kb.avgCellDryMassInit * glycogenMassFraction
-
-	mws = kb.getMass(kb.cellGlycogenFractionData["metaboliteId"])
-
-	glycogenMmolPerGDCW = (
-			(
-				glycogenMass * kb.cellGlycogenFractionData["massFraction"]
-			) / mws.to('DCW_g/mmol') * (
-				1 / kb.avgCellDryMassInit
-			)
-		).to('mmol/DCW_g')
-	
-	glycogenView.countsInc(
-		glycogenMmolPerGDCW.magnitude
-		)
+	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
+		fractionMetaboliteIds = kb.cellGlycogenFractionData["metaboliteId"],
+		fractionOfDryMass = dryComposition60min["glycogenMassFraction"],
+		fractionComposition = kb.cellGlycogenFractionData["massFraction"])
 
 	# Murein fraction
-
-	mureinView = biomassContainer.countsView(
-		list(kb.cellMureinFractionData["metaboliteId"])
-		)
-
-	mureinMassFraction = float(dryComposition60min["mureinMassFraction"])
-	mureinMass = kb.avgCellDryMassInit * mureinMassFraction
-
-	mws = kb.getMass(kb.cellMureinFractionData["metaboliteId"])
-
-	mureinMmolPerGDCW = (
-			(
-			mureinMass * kb.cellMureinFractionData["massFraction"]
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	mureinView.countsInc(
-		mureinMmolPerGDCW.magnitude
-		)
+	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
+		fractionMetaboliteIds = kb.cellMureinFractionData["metaboliteId"],
+		fractionOfDryMass = dryComposition60min["mureinMassFraction"],
+		fractionComposition = kb.cellMureinFractionData["massFraction"])
 
 	# LPS fraction
-
-	lpsView = biomassContainer.countsView(
-		list(kb.cellLPSFractionData["metaboliteId"])
-		)
-
-	lpsMassFraction = float(dryComposition60min["lpsMassFraction"])
-	lpsMass = kb.avgCellDryMassInit * lpsMassFraction
-
-	mws = kb.getMass(kb.cellLPSFractionData["metaboliteId"])
-
-	lpsMmolPerGDCW = (
-			(
-			lpsMass * kb.cellLPSFractionData["massFraction"]
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	lpsView.countsInc(
-		lpsMmolPerGDCW.magnitude
-		)
+	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
+		fractionMetaboliteIds = kb.cellLPSFractionData["metaboliteId"],
+		fractionOfDryMass = dryComposition60min["lpsMassFraction"],
+		fractionComposition = kb.cellLPSFractionData["massFraction"])
 
 	# Lipid fraction
-
-	lipidView = biomassContainer.countsView(
-		list(kb.cellLipidFractionData["metaboliteId"])
-		)
-
-	lipidMassFraction = float(dryComposition60min["lipidMassFraction"])
-	lipidMass = kb.avgCellDryMassInit * lipidMassFraction
-
-	mws = kb.getMass(kb.cellLipidFractionData["metaboliteId"])
-
-	lipidMmolPerGDCW = (
-			(
-			lipidMass * kb.cellLipidFractionData["massFraction"]
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	lipidView.countsInc(
-		lipidMmolPerGDCW.magnitude
-		)
+	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
+		fractionMetaboliteIds = kb.cellLipidFractionData["metaboliteId"],
+		fractionOfDryMass = dryComposition60min["lipidMassFraction"],
+		fractionComposition = kb.cellLipidFractionData["massFraction"])
 
 	# Inorganic ion fraction
-
-	inorganicIonView = biomassContainer.countsView(
-		list(kb.cellInorganicIonFractionData["metaboliteId"])
-		)
-
-	inorganicIonMassFraction = float(dryComposition60min["inorganicIonMassFraction"])
-	inorganicIonMass = kb.avgCellDryMassInit * inorganicIonMassFraction
-
-	mws = kb.getMass(kb.cellInorganicIonFractionData["metaboliteId"])
-	
-	inorganicIonMmolPerGDCW = (
-			(
-			inorganicIonMass * kb.cellInorganicIonFractionData["massFraction"]
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	inorganicIonView.countsInc(
-		inorganicIonMmolPerGDCW.magnitude
-		)
+	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
+		fractionMetaboliteIds = kb.cellInorganicIonFractionData["metaboliteId"],
+		fractionOfDryMass = dryComposition60min["inorganicIonMassFraction"],
+		fractionComposition = kb.cellInorganicIonFractionData["massFraction"])
 
 	# Soluble pool fraction
-
-	solublePoolView = biomassContainer.countsView(
-		list(kb.cellSolublePoolFractionData["metaboliteId"])
-		)
-
-	solublePoolMassFraction = float(dryComposition60min["solublePoolMassFraction"])
-	solublePoolMass = kb.avgCellDryMassInit * solublePoolMassFraction
-
-	mws = kb.getMass(kb.cellSolublePoolFractionData["metaboliteId"])
-	
-	solublePoolMmolPerGDCW = (
-			(
-			solublePoolMass * kb.cellSolublePoolFractionData["massFraction"]
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	solublePoolView.countsInc(
-		solublePoolMmolPerGDCW.magnitude
-		)
-	
-
+	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
+		fractionMetaboliteIds = kb.cellSolublePoolFractionData["metaboliteId"],
+		fractionOfDryMass = dryComposition60min["solublePoolMassFraction"],
+		fractionComposition = kb.cellSolublePoolFractionData["massFraction"])
 
 	# Initial pool sizes
 	# Pools are used for inter-process communication.  As a consequence, their
@@ -682,6 +582,28 @@ def adjustCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, nonDNtpsIdxs] += amountToAdd
 	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = dnaMassCalc / kb.avgCellDryMassInit.magnitude
 	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
+
+
+def setMetaboliteCountsFromBiomassFraction(kb, biomassContainer, fractionMetaboliteIds, fractionOfDryMass, fractionComposition):
+	massFractionView = biomassContainer.countsView(
+		list(fractionMetaboliteIds)
+		)
+
+	fractionOfDryMass = float(fractionOfDryMass)
+	mass = kb.avgCellDryMassInit * fractionOfDryMass
+
+	mws = kb.getMass(fractionMetaboliteIds)
+
+	fractionMmolPerGDCW = (
+			(
+			mass * fractionComposition
+			) / mws.to('DCW_g/mmol') * (
+			1 / kb.avgCellDryMassInit)
+		).to('mmol/DCW_g')
+
+	massFractionView.countsInc(
+		fractionMmolPerGDCW.magnitude
+		)
 
 if __name__ == "__main__":
 	import wholecell.utils.constants
