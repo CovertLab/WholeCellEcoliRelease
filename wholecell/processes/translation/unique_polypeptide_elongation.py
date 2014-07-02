@@ -62,7 +62,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aaWeightsIncorporated = kb.translationMonomerWeights
 
-		# TODO: account for ends of peptides in computing weights
+		self.endWeight = kb.translationEndWeight
 
 		self.gtpPerElongation = kb.gtpPerTranslation
 
@@ -99,16 +99,20 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceHasAA = (sequences != PAD_VALUE)
 
+		aasRequested = np.bincount(sequences[sequenceHasAA])
+
 		self.aas.requestIs(
-			np.bincount(sequences[sequenceHasAA])
+			aasRequested
 			)
 
-		self.gtp.requestIs(self.gtpPerElongation * np.fmin(
+		gtpsHydrolyzed = self.gtpPerElongation * np.fmin(
 			sequenceHasAA.sum(),
 			self.aas.total().sum()
-			))
+			)
 
-		# TODO: request water for GTP hydrolysis
+		self.gtp.requestIs(gtpsHydrolyzed)
+
+		self.h2o.requestIs(gtpsHydrolyzed)
 
 
 	# Calculate temporal evolution
@@ -150,14 +154,16 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			self.aaWeightsIncorporated
 			)
 
-		updatedMass = massDiffProtein + massIncreaseProtein
-
 		updatedLengths = peptideLengths + sequenceElongations
 
 		didInitialize = (
 			(sequenceElongations > 1) &
 			(peptideLengths == 0)
 			)
+
+		updatedMass = massDiffProtein + massIncreaseProtein
+
+		updatedMass[didInitialize] += self.endWeight
 
 		# Update active ribosomes, terminating if neccessary
 
@@ -188,12 +194,14 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.ribosomeSubunits.countsInc(nTerminated)
 
-		self.h2o.countInc(nElongations)
+		self.h2o.countInc(nElongations - nInitialized)
 
 		gtpUsed = nElongations * self.gtpPerElongation
 		self.gtp.countDec(gtpUsed)
 		self.gmp.countInc(gtpUsed)
 		self.ppi.countInc(gtpUsed)
+
+		self.h2o.countDec(gtpUsed)
 
 		# Report stalling
 

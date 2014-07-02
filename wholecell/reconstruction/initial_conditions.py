@@ -400,16 +400,13 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	ntWeights = kb.transcriptionMonomerWeights
 
 	# TOKB
-	hydroxylWeight = 17.01 # counted once for the end of the polymer
-
-	hydroxylWeight *= 1e15/6.022e23
 
 	transcriptMasses = np.array([
 		ntWeights[rnaSequences[rnaIndex, :length]].sum()
 		for rnaIndex, length in izip(rnaIndexes, transcriptLengths)
 		])
 
-	transcriptMasses[transcriptLengths > 0] += hydroxylWeight
+	transcriptMasses[transcriptLengths > 0] += kb.transcriptionEndWeight
 
 	# Create the unique molecules representations of the ribosomes
 
@@ -547,6 +544,8 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 		aaWeightsIncorporated[monomerSequences[proteinIndex, :length]].sum()
 		for proteinIndex, length in izip(proteinIndexes, peptideLengths)
 		])
+
+	peptideMasses[peptideLengths > 0] += kb.translationEndWeight
 
 	# Create the unique molecules representations of the ribosomes
 

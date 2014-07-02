@@ -63,14 +63,6 @@ AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
 	("V", "VAL-L[c]")
 	))
 
-AMINO_ACID_WEIGHTS = { # TOKB
-	"A": 89.09, "C": 121.16, "D": 133.10, "E": 147.13, "F": 165.19,
-	"G": 75.07, "H": 155.16, "I": 131.18, "K": 146.19, "L": 131.18,
-	"M": 149.21, "N": 132.12, "P": 115.13, "Q": 146.15, "R": 174.20,
-	"S": 105.09, "T": 119.12, "U": 168.05, "V": 117.15, "W": 204.23,
-	"Y": 181.19
-	}
-
 MOLECULAR_WEIGHT_KEYS = [
 	'23srRNA',
 	'16srRNA',
@@ -327,20 +319,34 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _defineConstants(self):
+		# self._aaWeights = collections.OrderedDict()
+
+		# for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
+		# 	self._aaWeights[singleLetterName] = AMINO_ACID_WEIGHTS[singleLetterName]
+
+		# self._waterWeight = Q_(18.02, 'g / mol')
+
+		# # Borrowed from BioPython and modified to be at pH 7.2
+		# self._ntWeights = collections.OrderedDict({ 
+		# 	"A": 345.20,
+		# 	"C": 321.18,
+		# 	"G": 361.20,
+		# 	"U": 322.17,
+		# 	})
+
 		self._aaWeights = collections.OrderedDict()
 
 		for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
-			self._aaWeights[singleLetterName] = AMINO_ACID_WEIGHTS[singleLetterName]
+			self._aaWeights[singleLetterName] = None # placeholder
 
-		self._waterWeight = Q_(18.02, 'g / mol')
+		self._waterWeight = None
 
-		# Borrowed from BioPython and modified to be at pH 7.2
-		self._ntWeights = collections.OrderedDict({ 
-			"A": 345.20,
-			"C": 321.18,
-			"G": 361.20,
-			"U": 322.17,
-			})
+		self._ntWeights = collections.OrderedDict([
+			("A", None),
+			("C", None),
+			("G", None),
+			("U", None),
+			])
 
 
 	def _loadProducts(self):
@@ -459,6 +465,47 @@ class KnowledgeBaseEcoli(object):
 			
 			self._metabolites.append(m)
 			###self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #need to delete
+
+		# Load monomer and water weights for calculating polymer weights
+
+		waterName = "H2O"
+		for metabolite in self._metabolites:
+			if metabolite["id"] == waterName:
+				self._waterWeight = metabolite["mw7.2"]
+				break
+
+		else:
+			raise Exception("Could not find a metabolite named {}".format(waterName))
+
+		ppiName = "PPI"
+		for metabolite in self._metabolites:
+			if metabolite["id"] == ppiName:
+				self._ppiWeight = metabolite["mw7.2"]
+				break
+
+		else:
+			raise Exception("Could not find a metabolite named {}".format(ppiName))
+
+		for singleLetter, fullName in AMINO_ACID_1_TO_3_ORDERED.viewitems():
+			fullNameNoCompartment = fullName[:fullName.index("[")]
+
+			for metabolite in self._metabolites:
+				if metabolite["id"] == fullNameNoCompartment:
+					self._aaWeights[singleLetter] = metabolite["mw7.2"] - self._waterWeight
+					break
+
+			else:
+				raise Exception("Could not find a metabolite named {}".format(fullNameNoCompartment))
+
+		for singleLetter, fullName in [("A", "ATP"), ("C", "CTP"), ("G", "GTP"), ("U", "UTP")]:
+			for metabolite in self._metabolites:
+				if metabolite["id"] == fullName:
+					self._ntWeights[singleLetter] = metabolite["mw7.2"] - self._ppiWeight
+					break
+
+			else:
+				raise Exception("Could not find a metabolite named {}".format(fullName))
+
 
 	def _loadRelationStoichiometry(self):
 
@@ -930,7 +977,12 @@ class KnowledgeBaseEcoli(object):
 			gene_seq = self._genes[geneLookup[r["geneId"]]]["seq"]
 			r["seq"] = Bio.Seq.Seq(gene_seq, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
 			r["ntCount"] = np.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
-			weight = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
+			weight = (
+				self._ntWeights["A"] * r["ntCount"][0]
+				+ self._ntWeights["C"] * r["ntCount"][1]
+				+ self._ntWeights["G"] * r["ntCount"][2]
+				+ self._ntWeights["U"] * r["ntCount"][3]
+				) + self._ppiWeight
 			index = self._whichRna(r['id'], r['type'])
 			r["mw"][index] = weight 
 
@@ -973,7 +1025,12 @@ class KnowledgeBaseEcoli(object):
 
 				r["seq"] = Bio.Seq.Seq(g["seq"], Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
 				r["ntCount"] = np.array([r["seq"].count("A"), r["seq"].count("C"), r["seq"].count("G"), r["seq"].count("U")])
-				weight = 345.20 * r["ntCount"][0] + 321.18 * r["ntCount"][1] + 361.20 * r["ntCount"][2] + 322.17 * r["ntCount"][3] - (len(r["seq"]) - 1) * 17.01
+				weight = (
+					self._ntWeights["A"] * r["ntCount"][0]
+					+ self._ntWeights["C"] * r["ntCount"][1]
+					+ self._ntWeights["G"] * r["ntCount"][2]
+					+ self._ntWeights["U"] * r["ntCount"][3]
+					) + self._ppiWeight
 				index = self._whichRna(r['id'], r['type'])
 				r["mw"][index] = weight 
 			
@@ -1118,11 +1175,8 @@ class KnowledgeBaseEcoli(object):
 							tmp["U"], tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
 							])
 
-			water = 18.02
-			aaWeights = {}
-			for k in self._aaWeights: aaWeights[k] = self._aaWeights[k] - water
-			p["mw"] = water
-			for aa in p["seq"]: p["mw"] += aaWeights[aa]
+			p["mw"] = self._waterWeight
+			for aa in p["seq"]: p["mw"] += self._aaWeights[aa]
 
 			self._proteins.append(p)
 
@@ -2366,10 +2420,8 @@ class KnowledgeBaseEcoli(object):
 			+ self.rnaPolymeraseElongationRate.to('count / s').magnitude
 			)
 
-		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8) # TODO: consider smaller dtype
+		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8)
 		self.transcriptionSequences.fill(PAD_VALUE)
-
-		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
 
 		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
 
@@ -2382,10 +2434,12 @@ class KnowledgeBaseEcoli(object):
 		self.transcriptionMonomerWeights = (
 			(
 				self.getMass(self.ntpIds)
-				- self.getMass(["H2O[c]"])
+				- self.getMass(["PPI[c]"])
 				)
 			/ self.nAvogadro
 			).to("fg").magnitude
+
+		self.transcriptionEndWeight = (self.getMass(["PPI[c]"]) / self.nAvogadro).to("fg").magnitude
 
 
 	def _buildTranslation(self):
@@ -2398,7 +2452,7 @@ class KnowledgeBaseEcoli(object):
 			+ self.ribosomeElongationRate.to('amino_acid / s').magnitude
 			)
 
-		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8) # TODO: consider smaller dtype
+		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
 		self.translationSequences.fill(PAD_VALUE)
 
 		aaIDs_singleLetter = self.aaIDs_singleLetter[:]
@@ -2418,6 +2472,8 @@ class KnowledgeBaseEcoli(object):
 				)
 			/ self.nAvogadro
 			).to("fg").magnitude
+
+		self.translationEndWeight = (self.getMass(["H2O[c]"]) / self.nAvogadro).to("fg").magnitude
 
 
 	def _buildConstants(self):
@@ -2471,21 +2527,21 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Database Access Error: Cannot access public_{} table".format(table.__name__.lower())
 
 
-	def _calculateRnaWeight(self, seq):
-		# Starting with NTP molecular weights, subtracting OH for each bond pair
-		return sum(self._ntWeights[x] for x in seq) - (len(seq) - 1) * 17.01
+	# def _calculateRnaWeight(self, seq):
+	# 	# Starting with NTP molecular weights, subtracting OH for each bond pair
+	# 	return sum(self._ntWeights[x] for x in seq) - (len(seq) - 1) * self._hydroxylWeight
 
 
-	def _calculatePeptideWeight(self, seq):
-		return sum(self._aaWeights[x] for x in seq) - ((len(seq) - 1) * self._waterWeight.to('g/mol').magnitude)
+	# def _calculatePeptideWeight(self, seq):
+	# 	return sum(self._aaWeights[x] for x in seq) - ((len(seq) - 1) * self._waterWeight.to('g/mol').magnitude)
 
 
-	def _calcNucleotideCount(self, seq):
-		return np.array([seq.count(x) for x in self._ntWeights])
+	# def _calcNucleotideCount(self, seq):
+	# 	return np.array([seq.count(x) for x in self._ntWeights])
 
 
-	def _calculateAminoAcidCount(self, seq):
-		return np.array([seq.count(x) for x in self._aaWeights])
+	# def _calculateAminoAcidCount(self, seq):
+	# 	return np.array([seq.count(x) for x in self._aaWeights])
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
