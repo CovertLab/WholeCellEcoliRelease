@@ -68,10 +68,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.ntWeights = kb.transcriptionMonomerWeights
 
-		# TOKB
-		self.hydroxylWeight = 17.01 # counted once for the end of the polymer
-
-		self.hydroxylWeight *= 1e15/6.022e23
+		self.endWeight = kb.transcriptionEndWeight
 
 		# Views
 
@@ -161,7 +158,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		updatedLengths = transcriptLengths + sequenceElongations
 
-		updatedMass[didInitialize] += self.hydroxylWeight
+		updatedMass[didInitialize] += self.endWeight
 
 		activeRnaPolys.attrIs(
 			transcriptLength = updatedLengths,
@@ -187,7 +184,7 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.inactiveRnaPolys.countInc(nTerminated)
 
-		self.h2o.countDec(nInitialized)
-		self.proton.countInc(nInitialized)
+		# self.h2o.countDec(nInitialized)
+		# self.proton.countInc(nInitialized)
 
-		self.ppi.countInc(nElongations)
+		self.ppi.countInc(nElongations - nInitialized)

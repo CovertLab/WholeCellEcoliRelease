@@ -113,7 +113,7 @@ def fitKb(kb):
 		])
 
 	chromMass = (
-		np.dot(dNmpsView.counts(), dNmpMws) - 2 * kb.genomeLength * 17.01
+		np.dot(dNmpsView.counts(), dNmpMws) - 2 * kb.genomeLength * 17.01 # TODO: get hydroxyl mass elsewhere
 		) / kb.nAvogadro.magnitude
 
 	nDNtps = countsFromMassAndExpression(
