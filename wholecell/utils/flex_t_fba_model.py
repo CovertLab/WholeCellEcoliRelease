@@ -127,7 +127,9 @@ class FlexTFbaModel(object):
 		# This occurs in solution().
 		# We do not alert the user to any of this. Instead, we try to handle all of this nicely behind the scenes.
 		# That is, if the user uses the interface properly, they will have no idea that scaling occurred.
-		self._scaleFactor = np.exp(np.mean(np.log(np.abs(np.array([x["coeff"] for x in biomass])))))
+		# self._scaleFactor = np.exp(np.mean(np.log(np.abs(np.array([x["coeff"] for x in biomass])))))
+		self._scaleFactor = np.exp(np.mean(np.log(np.abs(np.array([x["coeff"] for x in biomass if np.abs(x["coeff"]) > 1e-9])))))
+		self._scaleFactor = 1.
 
 	def _populateS(self, rxns, biomass):
 		
