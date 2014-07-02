@@ -32,7 +32,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	moleculeIds = names.moleculeIDs.read()
 
-	waterIndex = moleculeIds.index(['H2O[c]'])
+	waterIndex = np.array(moleculeIds.index('H2O[c]'), np.int)
 	bulkMolecules = h.root.BulkMolecules
 	waterCount = bulkMolecules.read(0, None, 1, "counts")[:, waterIndex]
 
