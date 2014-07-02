@@ -1,26 +1,24 @@
 #!/usr/bin/env python
 
 """
-FlexTFbaModel.py
+dFbaModel.py
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/15/2013
+@date: Created 11/8/2013
 """
-
-from __future__ import division
 
 import numpy as np
 import copy
 import functools
 import wholecell.utils.linear_programming
 
-class FlexTFbaModel(object):
+class dFbaModel(object):
 
-	def __init__(self, metIds = None, rxns = None, mediaEx = None, biomass = None, atpId = "ATP:mature[c]", params = None):
+	def __init__(self, metIds = None, rxns = None, mediaEx = None, biomass = None):
 
-		self._metIds = self._createMetIds(metIds, biomass, atpId)
-		self._rxnIds = self._createRxnIds(rxns, mediaEx, biomass, atpId)
+		self._metIds = self._createMetIds(metIds, biomass)
+		self._rxnIds = self._createRxnIds(rxns, mediaEx, biomass)
 
 		self._S = np.zeros([len(self._metIds), len(self._rxnIds)])
 		self._b = np.zeros(len(self._metIds))
@@ -32,14 +30,6 @@ class FlexTFbaModel(object):
 		self._metConstTypes = ["S"] * len(self._metIds)
 		self._rxnVarTypes = ["C"] * len(self._rxnIds)
 
-		try:
-			self._alpha = params["alpha"]
-			self._beta = params["beta"]
-			self._gamma = params["gamma"]
-		except:
-			self._alpha = 10.
-			self._beta = 1000.
-			self._gamma = -1.
 		
 		self._metIdToIdx = dict((x[1], x[0]) for x in enumerate(self._metIds))
 		self._metIdxToId = dict((x[0], x[1]) for x in enumerate(self._metIds))
@@ -54,68 +44,47 @@ class FlexTFbaModel(object):
 
 		self._recalculateSolution = False
 
-		self._createGroups(mediaEx, biomass, atpId)
+		self._createGroups(mediaEx, biomass)
 		self._createScaleFactor(biomass)
 		self._populateS(rxns, biomass)
 		self._populateC()
 		self._populateBounds()
 
-	def _createMetIds(self, metIds, biomass, atpId):
+	def _createMetIds(self, metIds, biomass):
 
 		return \
-			copy.copy(metIds) + \
-			["pseudo_(f_atp-" + b["id"] + ")_" for b in biomass if b["id"] != atpId] + \
-			["pseudo_(g_bio-" + b["id"] + ")_" for b in biomass]
+			copy.copy(metIds)
 
-	def _createRxnIds(self, rxns, mediaEx, biomass, atpId):
+	def _createRxnIds(self, rxns, mediaEx, biomass):
 
 		return \
 			["rxn_" + r["id"] for r in rxns] + \
 			["mediaEx_" + m["rxnId"] for m in mediaEx] + \
-			["f_" + b["id"] for b in biomass] + \
-			["x_" + b["id"] for b in biomass] + \
-			["(f_atp-f_" + b["id"] + ")" for b in biomass if b["id"] != atpId] + \
-			["g_bio"] + \
-			["(g_bio-f_" + b["id"] + ")" for b in biomass]
+			["g_bio"]
 
-	def _createGroups(self, mediaEx, biomass, atpId):
+	def _createGroups(self, mediaEx, biomass):
 		""" Create metabolite and reaction groups that we'll need (e.g., to set up the S matrix) """
 
 		self.metGroupNew("real", [x for x in self._metIds if x[:len("pseudo")] != "pseudo"])
-		self.metGroupNew("pseudo_(f_atp-f_i)", [x for x in self._metIds if x[:len("pseudo_(f_atp-")] == "pseudo_(f_atp-"])
-		self.metGroupNew("pseudo_(g_bio-f_i)", [x for x in self._metIds if x[:len("pseudo_(g_bio-")] == "pseudo_(g_bio-"])
 		self.metGroupNew("mediaEx", [x["met"] for x in mediaEx])
 		self.metGroupNew("biomass", [x["id"] for x in biomass])
-		# self.metGroupNew("biomass_not_atp", [x["id"] for x in biomass if x["id"] != atpId])
-		# self.metGroupNew("atp", [atpId])
 
 		self.rxnGroupNew("real", [x for x in self._rxnIds if x[:len("rnx_")] == "rxn_"])
 		self.rxnGroupNew("mediaEx", [x for x in self._rxnIds if x[:len("mediaEx_")] == "mediaEx_"])
-		self.rxnGroupNew("f", [x for x in self._rxnIds if x[:len("r_")] == "f_"])
-		self.rxnGroupNew("x", [x for x in self._rxnIds if x[:len("x_")] == "x_"])
-		self.rxnGroupNew("(f_atp-f_i)", [x for x in self._rxnIds if x[:len("(f_atp-")] == "(f_atp-"])
 		self.rxnGroupNew("g_bio", ["g_bio"])
-		self.rxnGroupNew("(g_bio-f_i)", [x for x in self._rxnIds if x[:len("(g_bio-f_")] == "(g_bio-f_"])
-		self.rxnGroupNew("f_atp", ["f_" + atpId])
-		self.rxnGroupNew("f_not_atp", [x for x in self.rxnGroup("f").ids() if x != "f_" + atpId])
+
 		self.rxnGroupNew("lowerMutable",
 						self.rxnGroup("real").ids() + 
-						self.rxnGroup("mediaEx").ids() +
-						self.rxnGroup("(g_bio-f_i)").ids() +
-						self.rxnGroup("x").ids())
+						self.rxnGroup("mediaEx").ids())
 		self.rxnGroupNew("lowerImmutable",
-						self.rxnGroup("f").ids() +
-						self.rxnGroup("(f_atp-f_i)").ids() +
 						self.rxnGroup("g_bio").ids())
 		self.rxnGroupNew("upperMutable",
 						self.rxnGroup("real").ids() + 
 						self.rxnGroup("mediaEx").ids() +
-						self.rxnGroup("f").ids() +
-						self.rxnGroup("(f_atp-f_i)").ids() +
 						self.rxnGroup("g_bio").ids())
-		self.rxnGroupNew("upperImmutable",
-						self.rxnGroup("x").ids() +
-						self.rxnGroup("(g_bio-f_i)").ids())
+		# self.rxnGroupNew("upperImmutable",
+		# 				self.rxnGroup("x").ids() +
+		# 				self.rxnGroup("(g_bio-f_i)").ids())
 
 	def _createScaleFactor(self, biomass):
 		# We want our biomass coefficients to be nicely scaled so that they are centered (in a logarithmic sense) around 1
@@ -146,40 +115,19 @@ class FlexTFbaModel(object):
 		# Populate media exchange reactions
 		self._S[self.metGroup("mediaEx").idxs(), self.rxnGroup("mediaEx").idxs()] = -1.
 
-		# Populate r reactions
-		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] = np.array([b["coeff"] for b in biomass])
-
-		# Populate x reactions
-		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("x").idxs()] = -1.
-
-		# Populate (atp-f_i) reactions
-		self._S[self.metGroup("pseudo_(f_atp-f_i)").idxs(), self.rxnGroup("f_atp").idxs()] = 1.
-		self._S[self.metGroup("pseudo_(f_atp-f_i)").idxs(), self.rxnGroup("f_not_atp").idxs()] = -1.
-		self._S[self.metGroup("pseudo_(f_atp-f_i)").idxs(), self.rxnGroup("(f_atp-f_i)").idxs()] = -1.
-
 		# Don't populate g_bio reaction (it should be all zeros)
-
-		# Populate (g_bio-f_i) reactions
-		self._S[self.metGroup("pseudo_(g_bio-f_i)").idxs(), self.rxnGroup("g_bio").idxs()] = 1.
-		self._S[self.metGroup("pseudo_(g_bio-f_i)").idxs(), self.rxnGroup("f").idxs()] = -1.
-		self._S[self.metGroup("pseudo_(g_bio-f_i)").idxs(), self.rxnGroup("(g_bio-f_i)").idxs()] = -1.
+		self._S[self.metGroup("biomass").idxs(), self.rxnGroup("g_bio").idxs()] = np.array([b["coeff"] for b in biomass])
 
 		# S matrix has changed, so any LP solution needs to be (re)calculated
 		self._recalculateSolution = True
 
 	def _populateC(self):
-		self._c[self.rxnGroup("f_atp").idxs()] = self._alpha
-		self._c[self.rxnGroup("g_bio").idxs()] = self._beta
-		self._c[self.rxnGroup("(f_atp-f_i)").idxs()] = self._gamma
+		self._c[self.rxnGroup("g_bio").idxs()] = 1
 
 		self._recalculateSolution = True
 
 	def _populateBounds(self):
-		self.v_lowerIs(self.rxnGroup("f").idxs(), 0, True)
-		self.v_lowerIs(self.rxnGroup("(f_atp-f_i)").idxs(), 0, True)
 		self.v_lowerIs(self.rxnGroup("g_bio").idxs(), 0, True)
-		self.v_upperIs(self.rxnGroup("(g_bio-f_i)").idxs(), 0, True)
-		self.v_upperIs(self.rxnGroup("x").idxs(), 0, True)
 
 		self._recalculateSolution = True
 
@@ -260,9 +208,9 @@ class FlexTFbaModel(object):
 		else:
 			self._v_upper[idxs] = values
 
-		if not overrideImmutable and not np.all(self._v_upper[self.rxnGroup("upperImmutable").idxs()] == 0):
-			import ipdb; ipdb.set_trace()
-			raise Exception, "Attempting to change immutable bound."
+		# if not overrideImmutable and not np.all(self._v_upper[self.rxnGroup("upperImmutable").idxs()] == 0):
+		# 	import ipdb; ipdb.set_trace()
+		# 	raise Exception, "Attempting to change immutable bound."
 
 		self._recalculateSolution = True
 
@@ -289,10 +237,12 @@ class FlexTFbaModel(object):
 	def solution(self):
 		if self._recalculateSolution:
 
-			v_lower = np.maximum(self._v_lower / self._scaleFactor, -10000)
-			v_upper = np.minimum(self._v_upper / self._scaleFactor,  10000)
+			self._scaleFactor = 1.
 
-			self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] /= self._scaleFactor
+			v_lower = np.maximum(self._v_lower / self._scaleFactor, -1000)
+			v_upper = np.minimum(self._v_upper / self._scaleFactor,  1000)
+
+			# self._S[self.metGroup("biomass").idxs(), self.rxnGroup("g_bio").idxs()] /= self._scaleFactor
 
 			self._v, tmp = wholecell.utils.linear_programming.linearProgramming(
 			"maximize", self._c, self._S, self._b,
@@ -300,22 +250,13 @@ class FlexTFbaModel(object):
 			None	# Will use glpk
 			)
 
-			self._S[self.metGroup("biomass").idxs(), self.rxnGroup("f").idxs()] *= self._scaleFactor
+			# self._S[self.metGroup("biomass").idxs(), self.rxnGroup("g_bio").idxs()] *= self._scaleFactor
 
 			self._recalculateSolution = False
 
 		return self._v
 
 	def metaboliteProduction(self, metIdxs, solution):
-		# NOTE: Users of this function have to be conscious of units and perform
-		# any necessary unit conversions themselves.
-		P = np.zeros_like(self._S)
-		P[:, self.rxnGroup("mediaEx").idxs()] = self._S[:, self.rxnGroup("mediaEx").idxs()]
-		P[:, self.rxnGroup("f").idxs()] = self._S[:, self.rxnGroup("f").idxs()]
-		P[:, self.rxnGroup("x").idxs()] = self._S[:, self.rxnGroup("x").idxs()]
-
-		# Sign conventions are fun
-		return -np.dot(P, solution)[metIdxs]
 		pass
 
 

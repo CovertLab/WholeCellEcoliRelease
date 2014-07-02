@@ -16,6 +16,7 @@ import numpy as np
 
 import wholecell.processes.process
 import wholecell.utils.flex_t_fba_model
+import wholecell.utils.d_fba_model
 
 from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
 from wholecell.utils.random import stochasticRound
@@ -149,13 +150,22 @@ class Metabolism(wholecell.processes.process.Process):
 			])
 		self.biomassMws = kb.bulkMolecules["mass"][bulkMoleculesIdxs].magnitude
 
+		# biomass = [{'coeff': -0.000223, 'id': '10fthf[c]'}, {'coeff': -0.000223, 'id': '2ohph[c]'}, {'coeff': 59.810000000000002, 'id': 'adp[c]'}, {'coeff': -0.51370000000000005, 'id': 'ala-L[c]'}, {'coeff': -0.000223, 'id': 'amet[c]'}, {'coeff': -0.29580000000000001, 'id': 'arg-L[c]'}, {'coeff': -0.24110000000000001, 'id': 'asn-L[c]'}, {'coeff': -0.24110000000000001, 'id': 'asp-L[c]'}, {'coeff': -59.984000000000002, 'id': 'atp[c]'}, {'coeff': -0.0047369999999999999, 'id': 'ca2[c]'}, {'coeff': -0.0047369999999999999, 'id': 'cl[c]'}, {'coeff': -0.00057600000000000001, 'id': 'coa[c]'}, {'coeff': -0.0031580000000000002, 'id': 'cobalt2[c]'}, {'coeff': -0.13350000000000001, 'id': 'ctp[c]'}, {'coeff': -0.0031580000000000002, 'id': 'cu2[c]'}, {'coeff': -0.091579999999999995, 'id': 'cys-L[c]'}, {'coeff': -0.026169999999999999, 'id': 'datp[c]'}, {'coeff': -0.027019999999999999, 'id': 'dctp[c]'}, {'coeff': -0.027019999999999999, 'id': 'dgtp[c]'}, {'coeff': -0.026169999999999999, 'id': 'dttp[c]'}, {'coeff': -0.000223, 'id': 'fad[c]'}, {'coeff': -0.0071060000000000003, 'id': 'fe2[c]'}, {'coeff': -0.0071060000000000003, 'id': 'fe3[c]'}, {'coeff': -0.26319999999999999, 'id': 'gln-L[c]'}, {'coeff': -0.26319999999999999, 'id': 'glu-L[c]'}, {'coeff': -0.61260000000000003, 'id': 'gly[c]'}, {'coeff': -0.21510000000000001, 'id': 'gtp[c]'}, {'coeff': -54.462000000000003, 'id': 'h2o[c]'}, {'coeff': 59.810000000000002, 'id': 'h[c]'}, {'coeff': -0.094740000000000005, 'id': 'his-L[c]'}, {'coeff': -0.29049999999999998, 'id': 'ile-L[c]'}, {'coeff': -0.17760000000000001, 'id': 'k[c]'}, {'coeff': -0.019449999999999999, 'id': 'kdo2lipid4[e]'}, {'coeff': -0.45050000000000001, 'id': 'leu-L[c]'}, {'coeff': -0.34320000000000001, 'id': 'lys-L[c]'}, {'coeff': -0.1537, 'id': 'met-L[c]'}, {'coeff': -0.0078949999999999992, 'id': 'mg2[c]'}, {'coeff': -0.000223, 'id': 'mlthf[c]'}, {'coeff': -0.0031580000000000002, 'id': 'mn2[c]'}, {'coeff': -0.0031580000000000002, 'id': 'mobd[c]'}, {'coeff': -0.01389, 'id': 'murein5px4p[p]'}, {'coeff': -0.0018309999999999999, 'id': 'nad[c]'}, {'coeff': -0.00044700000000000002, 'id': 'nadp[c]'}, {'coeff': -0.011842999999999999, 'id': 'nh4[c]'}, {'coeff': -0.022329999999999999, 'id': 'pe160[c]'}, {'coeff': -0.041480000000000003, 'id': 'pe160[p]'}, {'coeff': -0.02632, 'id': 'pe161[c]'}, {'coeff': -0.048890000000000003, 'id': 'pe161[p]'}, {'coeff': -0.1759, 'id': 'phe-L[c]'}, {'coeff': -0.000223, 'id': 'pheme[c]'}, {'coeff': 59.805999999999997, 'id': 'pi[c]'}, {'coeff': 0.77390000000000003, 'id': 'ppi[c]'}, {'coeff': -0.22109999999999999, 'id': 'pro-L[c]'}, {'coeff': -0.000223, 'id': 'pydx5p[c]'}, {'coeff': -0.000223, 'id': 'ribflv[c]'}, {'coeff': -0.21579999999999999, 'id': 'ser-L[c]'}, {'coeff': -0.000223, 'id': 'sheme[c]'}, {'coeff': -0.0039480000000000001, 'id': 'so4[c]'}, {'coeff': -0.000223, 'id': 'thf[c]'}, {'coeff': -0.000223, 'id': 'thmpp[c]'}, {'coeff': -0.25369999999999998, 'id': 'thr-L[c]'}, {'coeff': -0.056840000000000002, 'id': 'trp-L[c]'}, {'coeff': -0.13789999999999999, 'id': 'tyr-L[c]'}, {'coeff': -5.5000000000000002e-05, 'id': 'udcpdp[c]'}, {'coeff': -0.14410000000000001, 'id': 'utp[c]'}, {'coeff': -0.42320000000000002, 'id': 'val-L[c]'}, {'coeff': -0.0031580000000000002, 'id': 'zn2[c]'}]
+		# for x in biomass:
+		# 	x["id"] = x["id"][:-2].upper() + x["id"][-2:]
+		# 	if x["id"] == "KDO2LIPID4[e]":
+		# 		x["id"] = "KDO2LIPID4[o]"
+
+
 		# metIds = [x for x in kb.metabolismMoleculeNames]
-		# rxns = kb.metabolismBiochemicalReactions
-		# rxnIsIrreversible = np.array([1 - x["dir"] for x in rxns], dtype = np.bool)
+		# import re
+		# rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
+		# rxnIsIrreversible = np.array([x["dir"] for x in rxns], dtype = np.bool)
 		# mediaEx = kb.metabolismMediaEx
-		# biomass = [{"id": x["metaboliteId"], "coeff": -x["biomassFlux"]} for x in kb.wildtypeBiomass.struct_array]
+		# # biomass = [{"id": x["metaboliteId"], "coeff": -x["biomassFlux"]} for x in kb.wildtypeBiomass.struct_array]
 		# atpId = "ATP[c]"
-		# self.flexTFbaModel = wholecell.utils.flex_t_fba_model.FlexTFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass, atpId = "ATP[c]", params = None)
+		# # self.flexTFbaModel = wholecell.utils.flex_t_fba_model.FlexTFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass, atpId = "ATP[c]", params = None)
+		# self.flexTFbaModel = wholecell.utils.d_fba_model.dFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass)
 		# self.lb = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), False)
 		# self.ub = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), True)
 
@@ -163,7 +173,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("real").idxs()[rxnIsIrreversible], "thermodynamic", 0)
 
 		# # Biomass return is zero (for testing)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("x").idxs(), "exchange", 0)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnGroup("x").idxs(), "exchange", 0)
 
 		# # Media exchange
 		# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("mediaEx").idxs(), "exchange", 0)
@@ -187,35 +197,41 @@ class Metabolism(wholecell.processes.process.Process):
 		# 	"mediaEx_FEIST_EX_so4(e)",
 		# 	"mediaEx_FEIST_EX_tungs(e)",
 		# 	"mediaEx_FEIST_EX_zn2(e)",
-		# 	"mediaEx_FEIST_EX_cbl1(e)",
+		# 	# "mediaEx_FEIST_EX_cbl1(e)",
+		# 	# "mediaEx_SELNP_MEDIA_EXCHANGE_HACKED",
 		# 	]
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(mediaRxnIds), "exchange", -np.inf)
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_cbl1(e)"]), "exchange", -0.01)
 
 		# # Nutrient limitations
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -8.)
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -18.5)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -100.)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -100)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -100.)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -100)
+
+		# # ATPM
+		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_ATPM"]), "bs", 8.39)
+		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_ATPM"]), "bs", 8.39)
 
 		# # Reactions Feist arbitrarily set to 0
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_0"]), "bs", 0)
 		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_0"]), "bs", 0)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
-		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
+		# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_0"]), "bs", 0)
 		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_0"]), "bs", 0)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
-		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
+		# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODMpp"]), "bs", 0)
 		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODMpp"]), "bs", 0)
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_0"]), "bs", 0)
 		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_0"]), "bs", 0)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
-		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
+		# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
 		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_0"]), "bs", 0)
 		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_0"]), "bs", 0)
-		# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
-		# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
+		# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
+		# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
 
 		# self.flexTFbaModel.v_lowerIs(idxs = self.flexTFbaModel.rxnGroup("lowerMutable").idxs(), values = self.lb.mergedValues(self.flexTFbaModel.rxnGroup("lowerMutable").idxs()))
 		# self.flexTFbaModel.v_upperIs(idxs = self.flexTFbaModel.rxnGroup("upperMutable").idxs(), values = self.ub.mergedValues(self.flexTFbaModel.rxnGroup("upperMutable").idxs()))
@@ -223,6 +239,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"])]
 		# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"])]
 		# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["g_bio"])]
+
+		# import ipdb; ipdb.set_trace()
 
 	def calculateRequest(self):
 		self.ppi.requestAll()
