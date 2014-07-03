@@ -112,7 +112,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtp.requestIs(gtpsHydrolyzed)
 
-		self.h2o.requestIs(gtpsHydrolyzed)
+		self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
 
 
 	# Calculate temporal evolution
@@ -190,7 +190,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aas.countsDec(aasUsed)
 
-		self.bulkMonomers.countsIs(terminatedProteins)
+		self.bulkMonomers.countsInc(terminatedProteins)
 
 		self.ribosomeSubunits.countsInc(nTerminated)
 
