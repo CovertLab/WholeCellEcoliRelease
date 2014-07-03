@@ -1358,6 +1358,12 @@ class KnowledgeBaseEcoli(object):
 				"position":int(i.position),
 				"direction":str(i.direction)
 			}
+			if p["direction"] == "f":
+				p["direction"] = '+'
+				p["seq"] = self._genomeSeq[(p["position"]-100): (p["position"] + 100)]
+			else:
+				p["direction"] = '-'
+				p["seq"] = Bio.Seq.Seq(self._genomeSeq[(p["position"]-100): (p["position"] + 100)]).reverse_complement().tostring()
 	
 			self._promoters.append(p)
 
@@ -1412,8 +1418,12 @@ class KnowledgeBaseEcoli(object):
 		tuLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._transcriptionUnits)])
 		
 		#calculate AT counts for each genes associated with each promoters
+		genes_pr = {}
+		for g in self._genes:
+			genes_pr[g['id']] = []
+
 		for p in self._promoters:
-			p['TA_count'] = []
+			p['TA_count'] = (p['seq'].count('A') + p['seq'].count('T'))/float(len(p['seq'])) *100
 			allgenes = []
 			for t in p['TU']:
 				genes = self._transcriptionUnits[tuLookUp[t]]['gene_id']
@@ -1421,11 +1431,18 @@ class KnowledgeBaseEcoli(object):
 					if g in allgenes:
 						continue
 					allgenes.append(g)
-					seq = self._genes[geneLookUp[g]]['seq']
-					countAT = (seq.count('A') + seq.count('T'))/float(len(seq)) *100
-					p['TA_count'].append({g:countAT})
+					frame_id = self._genes[geneLookUp[g]]['id']
+					genes_pr[frame_id].append(p['TA_count'])
+		total = 0
+		for g in self._genes:
+			if len(genes_pr[g['id']]) == 0:
+				#print g['id']
+				total = total + 1
+				continue
+			x = sum(genes_pr[g['id']])/float(len(genes_pr[g['id']]))
+			#print g['id'],'\t',g['name'],'\t',g['symbol'],'\t',x ,'\t', len(genes_pr[g['id']])
+		#print total
 
-		
 	def _calcMolecularWeightFromRxn(self):
 		
 		complexReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._complexationReactions)])
