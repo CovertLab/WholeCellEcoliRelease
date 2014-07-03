@@ -539,7 +539,6 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 
 	aaWeightsIncorporated = kb.translationMonomerWeights
 
-	# TODO: check whether there should be an additional water mass
 	peptideMasses = np.array([
 		aaWeightsIncorporated[monomerSequences[proteinIndex, :length]].sum()
 		for proteinIndex, length in izip(proteinIndexes, peptideLengths)
