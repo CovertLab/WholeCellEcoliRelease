@@ -50,7 +50,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude)
+		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude) * self.timeStepSec
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
