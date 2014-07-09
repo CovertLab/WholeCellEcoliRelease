@@ -225,10 +225,10 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Bookkeeping attributes
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_time_setting(self):
-		self.container.timeIs(50)
+		self.container.timeStepIs(50)
 
 		allMolecules = self.container.objectsInCollection('RNA polymerase')
-		newTime = self.container.objectsInCollection('RNA polymerase', _time = ('==', 50))
+		newTime = self.container.objectsInCollection('RNA polymerase', _timeStep = ('==', 50))
 
 		self.assertEqual(allMolecules, newTime)
 
@@ -292,7 +292,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.container.pytablesCreate(h5file)
 
-		self.container.timeIs(0)
+		self.container.timeStepIs(0)
 
 		self.container.pytablesAppend(h5file)
 
@@ -326,13 +326,13 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.container.pytablesCreate(h5file)
 
-		self.container.timeIs(0)
+		self.container.timeStepIs(0)
 
 		self.container.pytablesAppend(h5file)
 
 		self.container.objectsNew('DNA polymerase', 5)
 
-		self.container.timeIs(1)
+		self.container.timeStepIs(1)
 
 		self.container.pytablesAppend(h5file)
 
