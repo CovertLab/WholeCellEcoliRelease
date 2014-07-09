@@ -44,7 +44,7 @@ class UniqueObjectsContainer(object):
 	_defaultSpecification = {
 		"_entryState":np.int64, # see state descriptions above
 		"_globalIndex":np.int64, # index in the _globalReference array (collection)
-		"_time":np.int64, # current time (important for saving) # TODO: handle, set in other classes
+		"_timeStep":np.int64, # current time (important for saving) # TODO: handle, set in other classes
 		"_uniqueId":"{}str".format(_MAX_ID_SIZE) # unique ID assigned to each object
 		}
 
@@ -52,7 +52,7 @@ class UniqueObjectsContainer(object):
 		"_entryState":np.int64, # see state descriptions above
 		"_collectionIndex":np.int64,
 		"_objectIndex":np.int64,
-		"_time":np.int64,
+		"_timeStep":np.int64,
 		}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
@@ -67,7 +67,7 @@ class UniqueObjectsContainer(object):
 		}
 
 	def __init__(self, specifications):
-		self._time = 0
+		self._timeStep = 0
 
 		self._names = [] # sorted list of object names
 
@@ -188,13 +188,13 @@ class UniqueObjectsContainer(object):
 		collection = self._collections[collectionIndex]
 
 		uniqueObjectIds = [
-			"{}{}-{}".format(collectionName, self._time, objectIndex)
+			"{}{}-{}".format(collectionName, self._timeStep, objectIndex)
 			for objectIndex in objectIndexes
 			]
 
 		maxObjectIdLength = (
 			len(collectionName)
-			+ np.floor(np.log10(max(self._time, 1))) + 1
+			+ np.floor(np.log10(max(self._timeStep, 1))) + 1
 			+ np.floor(np.log10(max(objectIndexes.max(), 1)))+ 1
 			+ 1
 			)
@@ -310,17 +310,17 @@ class UniqueObjectsContainer(object):
 		self.objectsByGlobalIndexDel(np.array(globalIndex))
 
 
-	def timeIs(self, time):
-		self._time = time
+	def timeStepIs(self, timeStep):
+		self._timeStep = timeStep
 
 		self._setCollectionTimes()
 
 
 	def _setCollectionTimes(self):
 		for collection in self._collections:
-			collection["_time"] = self._time
+			collection["_timeStep"] = self._timeStep
 
-		self._globalReference["_time"] = self._time
+		self._globalReference["_timeStep"] = self._timeStep
 
 
 	def __eq__(self, other):
@@ -370,13 +370,13 @@ class UniqueObjectsContainer(object):
 		for collectionIndex, tableName in enumerate(self._tableNames):
 			entryTable = h5file.get_node("/", tableName)
 
-			entries = entryTable[entryTable.col("_time") == timePoint]
+			entries = entryTable[entryTable.col("_timeStep") == timePoint]
 
 			self._collections[collectionIndex] = entries
 
 		globalTable = h5file.get_node("/", "_globalReference")
 
-		globalEntries = globalTable[globalTable.col("_time") == timePoint]
+		globalEntries = globalTable[globalTable.col("_timeStep") == timePoint]
 
 		self._globalReference = globalEntries
 

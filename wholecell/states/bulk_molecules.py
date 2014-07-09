@@ -161,7 +161,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Columns
 		d = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"counts":tables.UInt64Col(countsShape),
 			"countsRequested":tables.UInt64Col(partitionsShape),
 			"countsAllocatedInitial":tables.UInt64Col(partitionsShape),
@@ -191,7 +192,8 @@ class BulkMolecules(wholecell.states.state.State):
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = self.timeStep()
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry['counts'] = self.container._counts
 		entry['countsRequested'] = self._countsRequested
 		entry['countsAllocatedInitial'] = self._countsAllocatedInitial

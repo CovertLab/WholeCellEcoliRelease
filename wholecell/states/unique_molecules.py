@@ -70,7 +70,7 @@ class UniqueMolecules(wholecell.states.state.State):
 
 	def partition(self):
 		# Set the correct time for saving purposes
-		self.container.timeIs(self.timeStep())
+		self.container.timeStepIs(self.timeStep())
 
 		# Remove any prior partition assignments
 		self.container.objects().attrIs(_partitionedProcess = self._unassignedPartitionedValue)

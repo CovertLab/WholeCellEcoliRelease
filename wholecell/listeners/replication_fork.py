@@ -45,7 +45,7 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 		self.dnaPolyData = self.uniqueMolecules.container.objectsInCollection(
 			'dnaPolymerase').attrsAsStructArray(
 			"_uniqueId",
-			"_time",
+			"_timeStep",
 			"chromosomeLocation",
 			"isLeading"
 			)

@@ -68,7 +68,8 @@ class MetabolicDemands(wholecell.listeners.listener.Listener):
 
 		# Columns
 		dtype = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"metaboliteRequests": tables.UInt64Col(shape),
 			}
 
@@ -91,7 +92,8 @@ class MetabolicDemands(wholecell.listeners.listener.Listener):
 		table = h5file.get_node("/", self._name)
 		entry = table.row
 
-		entry["time"] = self.timeStep()
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry["metaboliteRequests"] = self.metaboliteRequests
 
 		entry.append()

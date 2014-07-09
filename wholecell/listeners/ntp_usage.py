@@ -94,7 +94,8 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		shape = self.transcriptionNtpUsageCurrent.shape
 		# Columns
 		d = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"transcriptionNtpUsageCurrent": tables.UInt64Col(shape),
 			"transcriptionNtpUsageCumulative": tables.UInt64Col(shape),
 			}
@@ -123,7 +124,8 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = self.timeStep()
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry["transcriptionNtpUsageCurrent"] = self.transcriptionNtpUsageCurrent
 		entry["transcriptionNtpUsageCumulative"] = self.transcriptionNtpUsageCumulative
 

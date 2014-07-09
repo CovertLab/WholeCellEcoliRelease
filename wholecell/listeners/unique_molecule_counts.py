@@ -61,7 +61,8 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 		size = self.uniqueMoleculeCounts.size
 		# Columns
 		dtype = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"uniqueMoleculeCounts": tables.UInt64Col(size)
 			}
 
@@ -83,7 +84,8 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 		table = h5file.get_node("/", self._name)
 		entry = table.row
 
-		entry["time"] = self.timeStep()
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry["uniqueMoleculeCounts"] = self.uniqueMoleculeCounts
 
 		entry.append()

@@ -38,8 +38,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	legendEntries = []
 
-	for dnaPolyId, dnaPolyHistory in bundleByFieldValue(data, "_uniqueId", ["_time", "chromosomeLocation"]):
-		timeMinutes = dnaPolyHistory["_time"] / 60
+	for dnaPolyId, dnaPolyHistory in bundleByFieldValue(data, "_uniqueId", ["_timeStep", "chromosomeLocation"]):
+		timeMinutes = dnaPolyHistory["_timeStep"] / 60
 		position = dnaPolyHistory["chromosomeLocation"]
 
 		plt.plot(timeMinutes, position, linewidth = 2)

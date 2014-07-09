@@ -156,7 +156,8 @@ class Mass(wholecell.listeners.listener.Listener):
 	def pytablesCreate(self, h5file, expectedRows):
 		# Columns
 		d = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"cellMass": tables.Float64Col(),
 			"dryMass": tables.Float64Col(),
 			"rnaMass": tables.Float64Col(),
@@ -192,8 +193,8 @@ class Mass(wholecell.listeners.listener.Listener):
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = self.timeStep()
-		entry["cellMass"] = self.cellMass
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry["dryMass"] = self.dryMass
 		entry["rnaMass"] = self.rnaMass
 		entry["proteinMass"] = self.proteinMass

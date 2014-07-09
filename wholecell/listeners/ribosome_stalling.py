@@ -81,6 +81,7 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 
 	def pytablesCreate(self, h5file, expectedRows):
 		dtype = {
+			"time": tables.Float64Col(),
 			"timeStep": tables.Int64Col(),
 			"stallingRateTotal": tables.Float64Col(),
 			"stallingRateMean": tables.Float64Col(),
@@ -102,6 +103,7 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 
 		entry = table.row
 
+		entry["time"] = self.time()
 		entry["timeStep"] = self.timeStep()
 		entry["stallingRateTotal"] = self.stallingRateTotal
 		entry["stallingRateMean"] = self.stallingRateMean

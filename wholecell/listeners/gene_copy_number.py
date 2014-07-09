@@ -54,7 +54,8 @@ class GeneCopyNumber(wholecell.listeners.listener.Listener):
 
 		# Columns
 		d = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"gene_copy_number": tables.UInt64Col(self.gene_copy_number.shape),
 			"total_copy_number": tables.UInt64Col(),
 			}
@@ -80,7 +81,8 @@ class GeneCopyNumber(wholecell.listeners.listener.Listener):
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = self.timeStep()
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry["gene_copy_number"] = self.gene_copy_number
 		entry["total_copy_number"] = self.total_copy_number
 

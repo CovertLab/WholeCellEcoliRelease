@@ -95,7 +95,8 @@ class AAUsage(wholecell.listeners.listener.Listener):
 		shape = self.translationAAUsageCurrent.shape
 		# Columns
 		d = {
-			"time": tables.Int64Col(),
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
 			"translationAAUsageCurrent": tables.UInt64Col(shape),
 			"translationAAUsageCumulative": tables.UInt64Col(shape),
 			}
@@ -124,7 +125,8 @@ class AAUsage(wholecell.listeners.listener.Listener):
 		t = h5file.get_node("/", self._name)
 		entry = t.row
 
-		entry["time"] = self.timeStep()
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
 		entry["translationAAUsageCurrent"] = self.translationAAUsageCurrent
 		entry["translationAAUsageCumulative"] = self.translationAAUsageCumulative
 
