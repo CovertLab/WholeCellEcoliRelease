@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-atpUsage
+AtpUsage
 
 Hydrolyze ATP (for growth associated maintenance)
 
@@ -27,11 +27,11 @@ class AtpUsage(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		super(atpUsage, self).__init__()
+		super(AtpUsage, self).__init__()
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(atpUsage, self).initialize(sim, kb)
+		super(AtpUsage, self).initialize(sim, kb)
 
 		# Load constants
 		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
