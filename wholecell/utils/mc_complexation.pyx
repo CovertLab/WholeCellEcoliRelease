@@ -3,6 +3,9 @@ _complexation.pyx
 
 Forms subunits into complexes using random complexation reaction sampling.
 
+TODO:
+- document algorithm (not terribly complicated)
+
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/17/14

@@ -1,4 +1,14 @@
 
+"""
+
+TODO:
+- document math
+- replace fake metabolite pools with measured metabolite pools
+- raise/warn if physiological metabolite pools appear to be smaller than what
+ is needed at this time step size
+
+"""
+
 from __future__ import division
 
 from itertools import izip

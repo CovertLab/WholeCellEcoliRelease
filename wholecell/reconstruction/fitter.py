@@ -5,6 +5,12 @@ Fitter
 
 Adjust simulation parameters
 
+TODO:
+- document the math
+- compute and use activation rates for RNA poly, ribosomes
+- fit metabolism enzyme expression
+- replace fake metabolite pools with measured metabolite pools
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 7/11/2013
