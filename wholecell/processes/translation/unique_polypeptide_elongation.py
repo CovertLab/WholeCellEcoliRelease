@@ -5,6 +5,9 @@ UniquePolypeptideElongation
 
 Translation elongation sub-model.
 
+TODO:
+- see the initiation process for more TODOs
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/30/14

@@ -5,6 +5,9 @@ UniqueTranscriptElongation
 
 Transcription elongation sub-model.
 
+TODO:
+- use transcription units instead of single genes
+
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/26/14
@@ -18,10 +21,6 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
-
-# TODO: refactor mass calculations
-# TODO: confirm reaction stoich
-# TODO: resolve mounting process namespace issues
 
 class UniqueTranscriptElongation(wholecell.processes.process.Process):
 	""" UniqueTranscriptElongation """
@@ -60,8 +59,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.rnaIds = kb.rnaData['id']
 
-		# TODO: refactor mass updates
-
 		self.rnaLengths = kb.rnaData["length"].magnitude
 
 		self.rnaSequences = kb.transcriptionSequences
@@ -77,8 +74,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.proton = self.bulkMoleculeView('H[c]')
 
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
@@ -111,8 +106,6 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.ntps.requestIs(
 			maxFractionalReactionLimit * sequenceComposition
 			)
-
-		self.h2o.requestIs(self.ntps.total().sum()) # this drastically overestimates water assignment
 
 
 	# Calculate temporal evolution
@@ -183,8 +176,5 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.bulkRnas.countsIs(terminatedRnas)
 
 		self.inactiveRnaPolys.countInc(nTerminated)
-
-		# self.h2o.countDec(nInitialized)
-		# self.proton.countInc(nInitialized)
 
 		self.ppi.countInc(nElongations - nInitialized)

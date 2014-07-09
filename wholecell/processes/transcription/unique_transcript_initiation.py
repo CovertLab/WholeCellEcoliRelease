@@ -5,6 +5,13 @@ UniqueTranscriptInitiation
 
 Transcription initiation sub-model.
 
+TODO:
+- use transcription units instead of single genes
+- match sigma factors to promoters
+- implement transcriptional regulation
+- modulate initiation probabilities as a function of gene copy number
+- match measured levels of active RNA polymerase instead of initiating to completion
+
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/26/14

@@ -5,6 +5,12 @@ Metabolism
 
 Metabolism sub-model. Encodes molecular simulation of microbial metabolism using flux-balance analysis.
 
+TODO:
+- move over to flexFBA
+- implement metabolite pools
+- enzyme-limited reactions (& fit enzyme expression)
+- option to call a reduced form of metabolism (assume optimal)
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/2/2013

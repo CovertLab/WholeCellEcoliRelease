@@ -3,6 +3,9 @@
 """
 MetabolismFba
 
+TODO:
+- eliminate this process once flexFBA is online
+
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/5/2014

@@ -5,6 +5,9 @@ ProteinDegradation
 
 Protein degradation sub-model. Encodes molecular simulation of protein degradation as a Poisson process
 
+TODO:
+- complexes
+
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/16/2013

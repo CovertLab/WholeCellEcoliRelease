@@ -5,6 +5,9 @@ atpUsage
 
 Hydrolyze ATP (for growth associated maintenance)
 
+TODO:
+- scale with a macro cell property (mass or volume) instead of time
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/24/2014
@@ -17,8 +20,8 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_ATP_USAGE
 
-class atpUsage(wholecell.processes.process.Process):
-	""" atpUsage """
+class AtpUsage(wholecell.processes.process.Process):
+	""" AtpUsage """
 
 	_name = "AtpUsage"
 

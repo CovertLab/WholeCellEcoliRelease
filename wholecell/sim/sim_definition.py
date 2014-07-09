@@ -60,7 +60,7 @@ PROCESS_CLASSES = (
 	wholecell.processes.protein_degradation.ProteinDegradation,
 	wholecell.processes.replication_initiation.ReplicationInitiation,
 	wholecell.processes.biomass_internment.BiomassInternment,
-	wholecell.processes.atp_usage.atpUsage,
+	wholecell.processes.atp_usage.AtpUsage,
 	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}

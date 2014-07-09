@@ -5,6 +5,13 @@ UniquePolypeptideInitiation
 
 Polypeptide initiation sub-model.
 
+TODO:
+- translate off of transcribed transcription units
+- co-transcriptional translation
+- retain mRNA while translating
+- match observed active ribosome fraction
+- use actual ribosomes (all isoforms, all subunits) instead of representative rRNAs
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/30/14

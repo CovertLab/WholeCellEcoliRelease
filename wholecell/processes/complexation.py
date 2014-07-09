@@ -5,6 +5,10 @@ Complexation
 
 Macromolecular complexation sub-model. Encodes molecular simulation of macromolecular complexation
 
+TODO:
+- allow for shuffling when appropriate (maybe in another process)
+- handle complex degradation
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/4/2013

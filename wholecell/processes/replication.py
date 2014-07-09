@@ -3,6 +3,9 @@
 """
 Replication
 
+TODO:
+- build actual chromosome molecules
+
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/18/2014

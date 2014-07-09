@@ -6,6 +6,9 @@ BiomassInternment
 A process that only performs requests, interning the molecules over time steps.
 Useful for processes that are sensitive to the metabolic state of the cell.
 
+TODO:
+- eliminate the need for this process once metabolite pools are implemented
+
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/12/2014

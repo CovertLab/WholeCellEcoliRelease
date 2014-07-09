@@ -5,6 +5,9 @@ RnaDegradation
 
 RNA degradation sub-model. Encodes molecular simulation of RNA degradation as a Poisson process
 
+TODO:
+- handle complexes
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/2/2013
