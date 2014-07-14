@@ -279,18 +279,17 @@ class FluxBalanceAnalysis(object):
 
 		# Optimization problem:
 		#
-		# \max_v f^T v
+		# \max_v f^T x
 		# 
 		# subject to
-		# 0 = Sv
-		# l_i <= v_i <= u_i \forall i
+		# b = Ax
+		# h >= Gx TODO: check this
+		#
+		# where b = 0
 
-		# Note that the boundary constraints l and u are defined elsewhere 
-		# since they are dynamic; here we only define f and S
+		## Create A matrix (stoichiometry + other things)
 
-		## Create S matrix (stoichiometry + other things)
-
-		self._S = cvxopt.spmatrix(values, rowIndexes, colIndexes)
+		self._A = cvxopt.spmatrix(values, rowIndexes, colIndexes)
 
 		## Create objective function f
 
@@ -298,12 +297,21 @@ class FluxBalanceAnalysis(object):
 
 		objectiveFunction[objIndexes] = objValues
 
-		self._f = cvxopt.matrix(objectiveFunction)
+		self._f = cvxopt.matrix(-objectiveFunction) # negative, since GLPK minimizes
 
-		## Placeholders
+		self._lowerBound = np.zeros(self._nEdges, np.float64)
+		self._upperBound = np.empty(self._nEdges, np.float64)
 
-		self._lowerBound = None
-		self._upperBound = None
+		self._upperBound.fill(np.inf)
+		# TODO: something analogous for the lower bound
+
+		self._G = cvxopt.matrix(np.concatenate(
+			[np.identity(self._nEdges, np.float64), -np.identity(self._nEdges, np.float64)], axis = 0
+			))
+
+		self._b = cvxopt.matrix(np.zeros(self._nNodes, np.float64))
+
+		# Placeholders for the solution
 
 
 	def _edgeAdd(self, edgeName):
@@ -351,7 +359,7 @@ class FluxBalanceAnalysis(object):
 	# Constraint setup
 
 	def externalMoleculeCountsIs(self, counts):
-		raise NotImplementedError()
+		self._lowerBound[self._externalExchangeIndexes] = -counts
 
 
 	def internalMoleculeCountsIs(self, counts):
@@ -365,7 +373,17 @@ class FluxBalanceAnalysis(object):
 	# Evaluation
 
 	def run(self):
-		raise NotImplementedError()
+		h = cvxopt.matrix(
+			np.concatenate([self._upperBound, -self._lowerBound], axis = 0)
+			)
+
+		oldOptions = cvxopt.solvers.options.copy()
+
+		cvxopt.solvers.options["LPX_K_MSGLEV"] = 0
+
+		solution = cvxopt.solvers.lp(self._f, self._G, h, self._A, self._b, solver = "glpk")
+
+		self._rawSolution = solution
 
 
 	# Output
@@ -407,5 +425,9 @@ if __name__ == "__main__":
 
 	fba = FluxBalanceAnalysis(reactionData, externalExchangedMolecules, objective)
 
-	print fba.outputMoleculeIDs()
+	fba.externalMoleculeCountsIs(10)
+	fba.run()
+
+	print fba._rawSolution
+	print np.array(fba._rawSolution["x"])
 
