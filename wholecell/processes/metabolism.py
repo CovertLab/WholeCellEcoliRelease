@@ -89,10 +89,10 @@ class FluxBalanceAnalysis(object):
 		formulation of FBA desired.
 
 	
-	Optional arguments:
+	Optional arguments (set to None for default behavior):
 
 	- objectiveType, a string
-		None, "standard": standard FBA objective
+		"standard": standard FBA objective (default)
 		"flexible": flexFBA
 		"pools": similar to FBA; optimizes towards desired pool concentrations
 
@@ -138,6 +138,10 @@ class FluxBalanceAnalysis(object):
 		# Set up the objective (implementation varies)
 
 		# Set up enzyme pseudometabolites and constraints
+
+		# Set up mass accumulation column
+
+		# Create cvxopt abstractions
 
 		pass
 
