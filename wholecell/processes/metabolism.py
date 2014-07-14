@@ -454,8 +454,6 @@ if __name__ == "__main__":
 			},
 		}
 
-	# TODO: split up stoichiometry/enzyme association/reversibility into separate arguments
-
 	externalExchangedMolecules = ["A"]
 
 	objective = {"B":20, "C":10}
