@@ -71,6 +71,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 # import numpy as np
 import cvxopt
+from collections import defaultdict
 
 class FBAException(Exception):
 	pass
@@ -84,11 +85,8 @@ class FluxBalanceAnalysis(object):
 	
 	Required arguments:
 
-	- reactionData, a dict of strings:dicts (reactionID:reaction information dict)
-		Each value in the dict is another dict with items
-		- enzymeID : string or None
-		- stoichiometry : dict of molecule ID to stoichiometry pairs
-		- isReversible : bool
+	- reactionStoich, a dict of strings:dicts (reactionID:reaction stoich)
+		Each value in the dict is a dict of molecule ID to stoichiometry pairs
 
 	- externalExchangedMolecules, an iterable of strings (moleculeIDs)
 		Every provided ID will be set up with an exchange flux.
@@ -110,6 +108,10 @@ class FluxBalanceAnalysis(object):
 
 	- internalExchangedMolecules, an iterable of strings (moleculeIDs)
 		Every provided ID will be set up with an exchange flux.
+
+	- reversibleReactions, a list of strings (reactionIDs for reversible reactions)
+
+	- reactionEnzymes, a dict of strings:strings (reactionID:enzymeID)
 	
 	- enzymeRates, a dict of strings:floats (enzymeID:catalytic rate constant * dt)
 		Used to set up the pseudo metabolites and boundary constraints needed
@@ -132,10 +134,10 @@ class FluxBalanceAnalysis(object):
 
 	# Initialization
 
-	def __init__(self, reactionData, externalExchangedMolecules, objective,
+	def __init__(self, reactionStoich, externalExchangedMolecules, objective,
 			objectiveType = None, objectiveParameters = None,
-			internalExchangedMolecules = None, enzymeRates = None,
-			moleculeMasses = None):
+			internalExchangedMolecules = None, reversibleReactions = None, 
+			reactionEnzymes = None, enzymeRates = None, moleculeMasses = None):
 
 		# Set up attributes
 
@@ -149,21 +151,17 @@ class FluxBalanceAnalysis(object):
 		colIndexes = []
 		values = []
 
-		## Map reactions to some limitations (enzymatic, thermodynamic)
-		reactionIndexToEnzyme = {}
-		reactionIndexes = []
-		reactionIsReversible = []
-
 		## Output calculations
 		outputMoleculeIndexes = []
 		outputReactionIndexes = []
 
 		# Parses reaction data
+		reactionIndexes = []
 
-		for reactionID, data in reactionData.viewitems():
+		for reactionID, stoichiometry in reactionStoich.viewitems():
 			colIndex = self._edgeAdd(reactionID)
 
-			for moleculeID, stoichCoeff in data["stoichiometry"].viewitems():
+			for moleculeID, stoichCoeff in stoichiometry.viewitems():
 				rowIndex = self._nodeIndex(moleculeID, True)
 
 				rowIndexes.append(rowIndex)
@@ -172,13 +170,7 @@ class FluxBalanceAnalysis(object):
 
 			reactionIndexes.append(colIndex)
 
-			if data["enzymeID"] is not None:
-				reactionIndexToEnzyme[colIndex] = data["enzyme"]
-
-			reactionIsReversible.append(data["isReversible"])
-
 		self._reactionIndexes = np.array(reactionIndexes)
-		self._reactionIsReversible = np.array(reactionIsReversible)
 
 		# Add external exchange reactions
 
@@ -263,10 +255,36 @@ class FluxBalanceAnalysis(object):
 		if internalExchangedMolecules is not None:
 			raise NotImplementedError()
 
-		# Set up enzyme pseudometabolites and constraints
+		# Set up reaction reversibility
+		reversibleReactionIndexes = []
 
-		if enzymeRates is not None:
-			raise NotImplementedError()
+		if reversibleReactions is not None:
+			for reactionID in reversibleReactions:
+				reversibleReactionIndexes.append(self._edgeIndex(reactionID))
+
+		# Set up enzyme pseudometabolites and constraints
+		enzymeConstrainedReactionIndexes = []
+
+		enzymeToReactionIndex = defaultdict(list)
+
+		if reactionEnzymes is not None:
+			for reactionID, enzymeID in reactionEnzymes.viewitems():
+				enzymeToReactionIndex[enzymeID].append(self._getIndex(reactionID))
+
+		# this is going to be screwy since we have kinetic rates associated with
+		# reactions, not enzymes (since the flow was reaction->EC#->kcat)
+
+		# also need to figure out a way to handle boolean constraints gracefully
+		# i.e. annotated enzyme but no annotated rate
+
+		# solution: two pseudometabolites/fluxes per enzyme
+		# one set for reactions with rate and enzymes -> constrained enzyme equivalent usages
+		# one set for reactions with just enzymes -> always use -1; enzyme col is 0 (not present) or inf (present)
+		# the latter could be used to handle reactions w/ multiple enzymes but that gets kludgy
+
+		# if enzymeRates is not None:
+		# 	for enzymeID, rateConstraint in enzymeRates:
+		# 		# Create a pseudo-molecule 
 
 		# Set up mass accumulation column
 
@@ -281,6 +299,12 @@ class FluxBalanceAnalysis(object):
 		self._outputMoleculeIDs = tuple([self._nodeNames[index] for index in outputMoleculeIndexes])
 
 		self._outputReactionIndexes = np.array(outputReactionIndexes)
+
+		self._reactionIsReversible = np.zeros(self._nEdges, np.bool)
+		self._reactionIsReversible[reversibleReactionIndexes] = True
+
+		self._reactionHasEnzyme = np.zeros(self._nEdges, np.bool)
+		self._reactionHasEnzyme[enzymeConstrainedReactionIndexes] = True
 
 		# Create cvxopt abstractions
 
@@ -310,7 +334,7 @@ class FluxBalanceAnalysis(object):
 		self._upperBound = np.empty(self._nEdges, np.float64)
 
 		self._upperBound.fill(np.inf)
-		# TODO: something analogous for the lower bound
+		self._lowerBound[self._reactionIsReversible] = -np.inf # TODO: only for reactions w/o annotated enzymes
 
 		self._G = cvxopt.matrix(np.concatenate(
 			[np.identity(self._nEdges, np.float64), -np.identity(self._nEdges, np.float64)], axis = 0
@@ -418,23 +442,15 @@ class FluxBalanceAnalysis(object):
 
 
 if __name__ == "__main__":
-	reactionData = {
+	reactionStoich = {
 		"A to B":{
-			"enzymeID":None,
-			"isReversible":False,
-			"stoichiometry":{
 				"A":-1,
 				"B":+1,
-				}
 			},
 		"AB2 to C":{
-			"enzymeID":None,
-			"isReversible":True,
-			"stoichiometry":{
 				"A":-1,
 				"B":-2,
 				"C":+1,
-				}
 			},
 		}
 
@@ -444,7 +460,7 @@ if __name__ == "__main__":
 
 	objective = {"B":20, "C":10}
 
-	fba = FluxBalanceAnalysis(reactionData, externalExchangedMolecules, objective)
+	fba = FluxBalanceAnalysis(reactionStoich, externalExchangedMolecules, objective)
 
 	fba.externalMoleculeCountsIs(10)
 	fba.run()
