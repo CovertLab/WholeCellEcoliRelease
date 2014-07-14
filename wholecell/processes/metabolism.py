@@ -149,11 +149,14 @@ class FluxBalanceAnalysis(object):
 		colIndexes = []
 		values = []
 
+		## Map reactions to some limitations (enzymatic, thermodynamic)
 		reactionIndexToEnzyme = {}
 		reactionIndexes = []
 		reactionIsReversible = []
 
+		## Output calculations
 		outputMoleculeIndexes = []
+		outputReactionIndexes = []
 
 		# Parses reaction data
 
@@ -226,6 +229,8 @@ class FluxBalanceAnalysis(object):
 			outputMoleculeIndexes.append(molecule_rowIndex)
 			objectiveEquivalentIndexes.append(objectiveEquiv_rowIndex)
 
+			outputReactionIndexes.append(colIndex)
+
 		## Next, set up the actual objective function (implementation varies)
 		objIndexes = []
 		objValues = []
@@ -273,7 +278,9 @@ class FluxBalanceAnalysis(object):
 		self._nEdges = len(self._edgeNames)
 		self._nNodes = len(self._nodeNames)
 
-		self._outputMoleculeIndexes = np.array(outputMoleculeIndexes)
+		self._outputMoleculeIDs = tuple([self._nodeNames[index] for index in outputMoleculeIndexes])
+
+		self._outputReactionIndexes = np.array(outputReactionIndexes)
 
 		# Create cvxopt abstractions
 
@@ -311,7 +318,10 @@ class FluxBalanceAnalysis(object):
 
 		self._b = cvxopt.matrix(np.zeros(self._nNodes, np.float64))
 
-		# Placeholders for the solution
+		## Create matrix for computing output
+		self._outputCalcMatrix = -np.array(cvxopt.matrix(
+			self._A[outputMoleculeIndexes, outputReactionIndexes]
+			))
 
 
 	def _edgeAdd(self, edgeName):
@@ -385,15 +395,26 @@ class FluxBalanceAnalysis(object):
 
 		self._rawSolution = solution
 
+		# TODO: raise/return flag on failed optimization
+
+		self._edgeFluxes = np.array(self._rawSolution["x"]).flatten()
+
 
 	# Output
 
 	def outputMoleculeIDs(self):
-		return [self._nodeNames[index] for index in self._outputMoleculeIndexes]
+		return self._outputMoleculeIDs
 
 
 	def outputMoleculeCounts(self):
-		raise NotImplementedError()
+		# Must compute and return two (potentially overlapping) sets of 
+		# molecule counts:
+		# - internal input usage (TODO)
+		# - objective output production
+
+		# TODO: something about noninteger returns
+
+		return np.dot(self._outputCalcMatrix, self._edgeFluxes[self._outputReactionIndexes])
 
 
 if __name__ == "__main__":
@@ -428,6 +449,6 @@ if __name__ == "__main__":
 	fba.externalMoleculeCountsIs(10)
 	fba.run()
 
-	print fba._rawSolution
-	print np.array(fba._rawSolution["x"])
+	print fba.outputMoleculeIDs()
+	print fba.outputMoleculeCounts()
 
