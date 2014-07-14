@@ -67,6 +67,11 @@ class Metabolism(wholecell.processes.process.Process):
 		# TODO: record solution metadata, probably in a listener
 
 
+# TODO: move below to a new file
+
+# import numpy as np
+import cvxopt
+
 class FBAException(Exception):
 	pass
 
@@ -148,12 +153,14 @@ class FluxBalanceAnalysis(object):
 		reactionIndexes = []
 		reactionIsReversible = []
 
+		outputMoleculeIndexes = []
+
 		# Parses reaction data
 
 		for reactionID, data in reactionData.viewitems():
 			colIndex = self._edgeAdd(reactionID)
 
-			for moleculeID, stoichCoeff in data["stoichiometry"]:
+			for moleculeID, stoichCoeff in data["stoichiometry"].viewitems():
 				rowIndex = self._nodeIndex(moleculeID, True)
 
 				rowIndexes.append(rowIndex)
@@ -162,7 +169,7 @@ class FluxBalanceAnalysis(object):
 
 			reactionIndexes.append(colIndex)
 
-			if data["enzyme"] is not None:
+			if data["enzymeID"] is not None:
 				reactionIndexToEnzyme[colIndex] = data["enzyme"]
 
 			reactionIsReversible.append(data["isReversible"])
@@ -202,7 +209,7 @@ class FluxBalanceAnalysis(object):
 		for moleculeID, coeff in objective.viewitems():
 			molecule_rowIndex = self._nodeIndex(moleculeID)
 
-			pseudoFluxID = "{} to fractional objective equivalents".format(moleculeID)
+			pseudoFluxID = "molecules of {} to fractional objective equivalents".format(moleculeID)
 			colIndex = self._edgeAdd(pseudoFluxID)
 
 			objectiveEquivID = "fractional objective equivalent for {}".format(moleculeID)
@@ -216,6 +223,7 @@ class FluxBalanceAnalysis(object):
 			colIndexes.append(colIndex)
 			values.append(+1)
 
+			outputMoleculeIndexes.append(molecule_rowIndex)
 			objectiveEquivalentIndexes.append(objectiveEquiv_rowIndex)
 
 		## Next, set up the actual objective function (implementation varies)
@@ -231,15 +239,15 @@ class FluxBalanceAnalysis(object):
 
 			rowIndexes.extend(objectiveEquivalentIndexes)
 			colIndexes.extend([colIndex]*nObjectiveEquivalents)
-			values.append([-1]*nObjectiveEquivalents)
+			values.extend([-1]*nObjectiveEquivalents)
 
 			objIndexes.append(colIndex)
 			objValues.append(+1)
 
-		elif objectiveType = "flexible":
+		elif objectiveType == "flexible":
 			raise NotImplementedError()
 
-		elif objectiveType = "pools":
+		elif objectiveType == "pools":
 			raise NotImplementedError()
 
 		else:
@@ -257,13 +265,15 @@ class FluxBalanceAnalysis(object):
 
 		# Set up mass accumulation column
 
-		if moleceleMasses is not None:
+		if moleculeMasses is not None:
 			raise NotImplementedError()
 
 		# Finalize some running values
 
 		self._nEdges = len(self._edgeNames)
 		self._nNodes = len(self._nodeNames)
+
+		self._outputMoleculeIndexes = np.array(outputMoleculeIndexes)
 
 		# Create cvxopt abstractions
 
@@ -280,11 +290,11 @@ class FluxBalanceAnalysis(object):
 
 		## Create S matrix (stoichiometry + other things)
 
-		self._S = cvxopt.spmatrix(rowIndexes, colIndexes, values)
+		self._S = cvxopt.spmatrix(values, rowIndexes, colIndexes)
 
 		## Create objective function f
 
-		objectiveFunction = np.zeros(self._nNodes, np.float64)
+		objectiveFunction = np.zeros(self._nEdges, np.float64)
 
 		objectiveFunction[objIndexes] = objValues
 
@@ -360,10 +370,42 @@ class FluxBalanceAnalysis(object):
 
 	# Output
 
-	def outputMoleculeCountIDs(self):
-		raise NotImplementedError()
+	def outputMoleculeIDs(self):
+		return [self._nodeNames[index] for index in self._outputMoleculeIndexes]
 
 
 	def outputMoleculeCounts(self):
 		raise NotImplementedError()
+
+
+if __name__ == "__main__":
+	reactionData = {
+		"A to B":{
+			"enzymeID":None,
+			"isReversible":False,
+			"stoichiometry":{
+				"A":-1,
+				"B":+1,
+				}
+			},
+		"AB2 to C":{
+			"enzymeID":None,
+			"isReversible":True,
+			"stoichiometry":{
+				"A":-1,
+				"B":-2,
+				"C":+1,
+				}
+			},
+		}
+
+	# TODO: split up stoichiometry/enzyme association/reversibility into separate arguments
+
+	externalExchangedMolecules = ["A"]
+
+	objective = {"B":20, "C":10}
+
+	fba = FluxBalanceAnalysis(reactionData, externalExchangedMolecules, objective)
+
+	print fba.outputMoleculeIDs()
 
