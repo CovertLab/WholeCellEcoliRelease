@@ -77,6 +77,14 @@ class FBAException(Exception):
 	pass
 
 
+class EdgeExistsException(FBAException):
+	pass
+
+
+class NodeExistsException(FBAException):
+	pass
+
+
 class FluxBalanceAnalysis(object):
 	""" FluxBalanceAnalysis
 
@@ -113,7 +121,7 @@ class FluxBalanceAnalysis(object):
 
 	- reactionEnzymes, a dict of strings:strings (reactionID:enzymeID)
 	
-	- enzymeRates, a dict of strings:floats (enzymeID:catalytic rate constant * dt)
+	- reactionRates, a dict of strings:floats (reactionID:catalytic rate constant * dt)
 		Used to set up the pseudo metabolites and boundary constraints needed
 		for limiting reactions by enzyme counts.
 
@@ -137,7 +145,7 @@ class FluxBalanceAnalysis(object):
 	def __init__(self, reactionStoich, externalExchangedMolecules, objective,
 			objectiveType = None, objectiveParameters = None,
 			internalExchangedMolecules = None, reversibleReactions = None, 
-			reactionEnzymes = None, enzymeRates = None, moleculeMasses = None):
+			reactionEnzymes = None, reactionRates = None, moleculeMasses = None):
 
 		# Set up attributes
 
@@ -263,28 +271,70 @@ class FluxBalanceAnalysis(object):
 				reversibleReactionIndexes.append(self._edgeIndex(reactionID))
 
 		# Set up enzyme pseudometabolites and constraints
-		enzymeConstrainedReactionIndexes = []
 
-		enzymeToReactionIndex = defaultdict(list)
+		# NOTE: there are two types of enzymatic constraints:
+		# - rate limitations, which constrain by (turnover number)*(enzyme count)
+		# - boolean limitations, which constrain by 0 (enzyme count == 0) or inf (enzyme count > 0)
+
+		enzymeUsageRateConstrainedIndexes = []
+		enzymeUsageBoolConstrainedIndexes = []
 
 		if reactionEnzymes is not None:
+
+			## First create the pseudometabolites and enzyme usage columns
+			self._enzymeIDs = tuple(set(reactionEnzymes.values()))
+
+			for enzymeID in self._enzymeIDs:
+				# Create pseudometabolite and flux for rate-constrained
+				enzymeEquivalentRateID = "{} equivalent (rate-constrained)".format(enzymeID)
+				enzymeEquivalentRate_rowIndex = self._nodeAdd(enzymeEquivalentRateID)
+
+				enzymeUsageRateID = "{} usage (rate-constrained)".format(enzymeID)
+				enzymeUsageRate_colIndex = self._edgeAdd(enzymeUsageRateID)
+
+				rowIndexes.append(enzymeEquivalentRate_rowIndex)
+				colIndexes.append(enzymeUsageRate_colIndex)
+				values.append(+1)
+
+				enzymeUsageRateConstrainedIndexes.append(enzymeUsageRate_colIndex)
+
+				# Create pseudometabolite and flux for bool-constrained
+				enzymeEquivalentBoolID = "{} equivalent (bool-constrained)".format(enzymeID)
+				enzymeEquivalentBool_rowIndex = self._nodeAdd(enzymeEquivalentBoolID)
+
+				enzymeUsageBoolID = "{} usage (bool-constrained)".format(enzymeID)
+				enzymeUsageBool_colIndex = self._edgeAdd(enzymeUsageBoolID)
+
+				rowIndexes.append(enzymeEquivalentBool_rowIndex)
+				colIndexes.append(enzymeUsageBool_colIndex)
+				values.append(+1)
+
+				enzymeUsageBoolConstrainedIndexes.append(enzymeUsageBool_colIndex)
+
+
 			for reactionID, enzymeID in reactionEnzymes.viewitems():
-				enzymeToReactionIndex[enzymeID].append(self._getIndex(reactionID))
+				reaction_colIndex = self._edgeIndex(reactionID)
 
-		# this is going to be screwy since we have kinetic rates associated with
-		# reactions, not enzymes (since the flow was reaction->EC#->kcat)
+				if reactionRates is not None and reactionRates.has_key(reactionID):
+					enzymesPerReaction = -1/reactionRates[reactionID]
+					enzymeEquivalentRateID = "{} equivalent (rate-constrained)".format(enzymeID)
+					enzymeEquivalentRate_rowIndex = self._nodeIndex(enzymeEquivalentRateID)
 
-		# also need to figure out a way to handle boolean constraints gracefully
-		# i.e. annotated enzyme but no annotated rate
+					rowIndexes.append(enzymeEquivalentRate_rowIndex)
+					colIndexes.append(reaction_colIndex)
+					values.append(enzymesPerReaction)
+					
 
-		# solution: two pseudometabolites/fluxes per enzyme
-		# one set for reactions with rate and enzymes -> constrained enzyme equivalent usages
-		# one set for reactions with just enzymes -> always use -1; enzyme col is 0 (not present) or inf (present)
-		# the latter could be used to handle reactions w/ multiple enzymes but that gets kludgy
+				else:
+					enzymeEquivalentBoolID = "{} equivalent (bool-constrained)".format(enzymeID)
+					enzymeEquivalentBool_rowIndex = self._nodeIndex(enzymeEquivalentBoolID)
 
-		# if enzymeRates is not None:
-		# 	for enzymeID, rateConstraint in enzymeRates:
-		# 		# Create a pseudo-molecule 
+					rowIndexes.append(enzymeEquivalentBool_rowIndex)
+					colIndexes.append(reaction_colIndex)
+					values.append(-1)
+
+		self._enzymeUsageRateConstrainedIndexes = np.array(enzymeUsageRateConstrainedIndexes)
+		self._enzymeUsageBoolConstrainedIndexes = np.array(enzymeUsageBoolConstrainedIndexes)
 
 		# Set up mass accumulation column
 
@@ -302,9 +352,6 @@ class FluxBalanceAnalysis(object):
 
 		self._reactionIsReversible = np.zeros(self._nEdges, np.bool)
 		self._reactionIsReversible[reversibleReactionIndexes] = True
-
-		self._reactionHasEnzyme = np.zeros(self._nEdges, np.bool)
-		self._reactionHasEnzyme[enzymeConstrainedReactionIndexes] = True
 
 		# Create cvxopt abstractions
 
@@ -330,11 +377,15 @@ class FluxBalanceAnalysis(object):
 
 		self._f = cvxopt.matrix(-objectiveFunction) # negative, since GLPK minimizes
 
+		# TODO: refactor initial bound setting to be more like the A matrix building
 		self._lowerBound = np.zeros(self._nEdges, np.float64)
 		self._upperBound = np.empty(self._nEdges, np.float64)
 
 		self._upperBound.fill(np.inf)
-		self._lowerBound[self._reactionIsReversible] = -np.inf # TODO: only for reactions w/o annotated enzymes
+		self._lowerBound[self._reactionIsReversible] = -np.inf
+
+		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = 0
+		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = 0
 
 		self._G = cvxopt.matrix(np.concatenate(
 			[np.identity(self._nEdges, np.float64), -np.identity(self._nEdges, np.float64)], axis = 0
@@ -350,7 +401,7 @@ class FluxBalanceAnalysis(object):
 
 	def _edgeAdd(self, edgeName):
 		if edgeName in self._edgeNames:
-			raise FBAException("Edge already exists: {}".format(edgeName))
+			raise EdgeExistsException("Edge already exists: {}".format(edgeName))
 
 		else:
 			self._edgeNames.append(edgeName)
@@ -371,7 +422,7 @@ class FluxBalanceAnalysis(object):
 
 	def _nodeAdd(self, nodeName):
 		if nodeName in self._nodeNames:
-			raise FBAException("Node already exists: {}".format(nodeName))
+			raise NodeExistsException("Node already exists: {}".format(nodeName))
 
 		else:
 			self._nodeNames.append(nodeName)
@@ -393,6 +444,7 @@ class FluxBalanceAnalysis(object):
 	# Constraint setup
 
 	def externalMoleculeCountsIs(self, counts):
+		counts = np.array(counts)
 		self._lowerBound[self._externalExchangeIndexes] = -counts
 
 
@@ -400,8 +452,20 @@ class FluxBalanceAnalysis(object):
 		raise NotImplementedError()
 
 
+	def enzymeIDs(self):
+		return self._enzymeIDs
+
+
 	def enzymeCountsIs(self, counts):
-		raise NotImplementedError()
+		counts = np.array(counts)
+
+		# Rate-constrained
+		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = counts
+
+		# Boolean-constrained (enzyme w/o an annotated rate)
+		boolConstraint = np.zeros(counts.size, np.float64)
+		boolConstraint[counts > 0] = np.inf
+		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = boolConstraint
 
 
 	# Evaluation
@@ -458,9 +522,36 @@ if __name__ == "__main__":
 
 	objective = {"B":20, "C":10}
 
-	fba = FluxBalanceAnalysis(reactionStoich, externalExchangedMolecules, objective)
+	reactionEnzymes = {
+		"A to B":"enzyme 1",
+		"AB2 to C":"enzyme 2",
+		}
 
-	fba.externalMoleculeCountsIs(10)
+	reactionRates = {
+		"AB2 to C":0.1,
+		}
+
+	fba = FluxBalanceAnalysis(
+		reactionStoich,
+		externalExchangedMolecules,
+		objective,
+		reactionEnzymes = reactionEnzymes,
+		reactionRates = reactionRates
+		)
+
+	fba.externalMoleculeCountsIs([10])
+
+	enzymeCounts = []
+
+	for enzymeID in fba.enzymeIDs():
+		if enzymeID == "enzyme 1":
+			enzymeCounts.append(10)
+		
+		elif enzymeID == "enzyme 2":
+			enzymeCounts.append(5)
+
+	fba.enzymeCountsIs(enzymeCounts)
+
 	fba.run()
 
 	print fba.outputMoleculeIDs()
