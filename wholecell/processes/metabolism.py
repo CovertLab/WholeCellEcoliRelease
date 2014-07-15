@@ -168,6 +168,10 @@ class FluxBalanceAnalysis(object):
 	_generatedID_fractionalDifferenceLeadingOut = "difference between fractional objective equivalents of leading molecule and {} out"
 	_generatedID_fractionalDifferenceBiomassOut = "difference between fractional objective equivalents of {} and biomass objective out"
 
+	# Default values, for clarity
+	_lowerBoundDefault = 0
+	_upperBoundDefault = np.inf
+
 
 	# Initialization
 
@@ -280,6 +284,12 @@ class FluxBalanceAnalysis(object):
 		objIndexes = []
 		objValues = []
 
+		lowerBoundIndexes = []
+		lowerBoundValues = []
+
+		upperBoundIndexes = []
+		upperBoundValues = []
+
 		if objectiveType is None or objectiveType == "standard":
 			objectiveID = "Standard FBA objective reaction"
 
@@ -303,13 +313,6 @@ class FluxBalanceAnalysis(object):
 
 			fractionalDifferenceWeight = objectiveParameters["gamma"]
 			biomassSatisfactionWeight = objectiveParameters["beta"]
-
-			# _generatedID_fractionalDifferenceLeading
-			# _generatedID_fractionalDifferenceBiomass
-
-			# _generatedID_fractionsOut
-			# _generatedID_fractionalDifferenceLeadingOut
-			# _generatedID_fractionalDifferenceBiomassOut
 
 			biomass_colIndex = self._edgeAdd("Standard biomass objective")
 
@@ -513,13 +516,13 @@ class FluxBalanceAnalysis(object):
 		self._f = cvxopt.matrix(-objectiveFunction) # negative, since GLPK minimizes
 
 		# TODO: refactor initial bound setting to be more like the A matrix building
-		self._lowerBound = np.zeros(self._nEdges, np.float64)
+		self._lowerBound = np.empty(self._nEdges, np.float64)
+		self._lowerBound.fill(self._lowerBoundDefault)
+		self._lowerBound[lowerBoundIndexes] = lowerBoundValues
+
 		self._upperBound = np.empty(self._nEdges, np.float64)
-
-		self._upperBound.fill(np.inf)
-
-		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = 0
-		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = 0
+		self._upperBound.fill(self._upperBoundDefault)
+		self._upperBound[upperBoundIndexes] = upperBoundValues
 
 		self._G = cvxopt.matrix(np.concatenate(
 			[np.identity(self._nEdges, np.float64), -np.identity(self._nEdges, np.float64)], axis = 0
@@ -531,6 +534,12 @@ class FluxBalanceAnalysis(object):
 		self._outputCalcMatrix = -np.array(cvxopt.matrix(
 			self._A[outputMoleculeIndexes, outputReactionIndexes]
 			))
+
+		# Set up values that will change between runs
+
+		self.externalMoleculeLevelsIs(0)
+		# self.internalMoleculeLevelsIs(0)
+		self.enzymeLevelsIs(0)
 
 
 	def _edgeAdd(self, edgeName):
@@ -679,7 +688,7 @@ if __name__ == "__main__":
 		reactionStoich,
 		externalExchangedMolecules,
 		objective,
-		objectiveType = "flexible",
+		objectiveType = "standard",
 		objectiveParameters = {
 			"gamma":0.5,
 			"beta":0.1,
