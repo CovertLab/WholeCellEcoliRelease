@@ -657,32 +657,110 @@ class FluxBalanceAnalysis(object):
 
 
 if __name__ == "__main__":
+	from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
+	kb = KnowledgeBaseEcoli()
+
+	objectiveRaw = {
+		'10fthf[c]' : -0.000223,
+		'2ohph[c]' : -0.000223,
+		'adp[c]' : 59.810000000000002,
+		'ala-L[c]' : -0.51370000000000005,
+		'amet[c]' : -0.000223,
+		'arg-L[c]' : -0.29580000000000001,
+		'asn-L[c]' : -0.24110000000000001,
+		'asp-L[c]' : -0.24110000000000001,
+		'atp[c]' : -59.984000000000002,
+		'ca2[c]' : -0.0047369999999999999,
+		'cl[c]' : -0.0047369999999999999,
+		'coa[c]' : -0.00057600000000000001,
+		'cobalt2[c]' : -0.0031580000000000002,
+		'ctp[c]' : -0.13350000000000001,
+		'cu2[c]' : -0.0031580000000000002,
+		'cys-L[c]' : -0.091579999999999995,
+		'datp[c]' : -0.026169999999999999,
+		'dctp[c]' : -0.027019999999999999,
+		'dgtp[c]' : -0.027019999999999999,
+		'dttp[c]' : -0.026169999999999999,
+		'fad[c]' : -0.000223,
+		'fe2[c]' : -0.0071060000000000003,
+		'fe3[c]' : -0.0071060000000000003,
+		'gln-L[c]' : -0.26319999999999999,
+		'glu-L[c]' : -0.26319999999999999,
+		'gly[c]' : -0.61260000000000003,
+		'gtp[c]' : -0.21510000000000001,
+		'h2o[c]' : -54.462000000000003,
+		'h[c]' : 59.810000000000002,
+		'his-L[c]' : -0.094740000000000005,
+		'ile-L[c]' : -0.29049999999999998,
+		'k[c]' : -0.17760000000000001,
+		'kdo2lipid4[e]' : -0.019449999999999999,
+		'leu-L[c]' : -0.45050000000000001,
+		'lys-L[c]' : -0.34320000000000001,
+		'met-L[c]' : -0.1537,
+		'mg2[c]' : -0.0078949999999999992,
+		'mlthf[c]' : -0.000223,
+		'mn2[c]' : -0.0031580000000000002,
+		'mobd[c]' : -0.0031580000000000002,
+		'murein5px4p[p]' : -0.01389,
+		'nad[c]' : -0.0018309999999999999,
+		'nadp[c]' : -0.00044700000000000002,
+		'nh4[c]' : -0.011842999999999999,
+		'pe160[c]' : -0.022329999999999999,
+		'pe160[p]' : -0.041480000000000003,
+		'pe161[c]' : -0.02632,
+		'pe161[p]' : -0.048890000000000003,
+		'phe-L[c]' : -0.1759,
+		'pheme[c]' : -0.000223,
+		'pi[c]' : 59.805999999999997,
+		'ppi[c]' : 0.77390000000000003,
+		'pro-L[c]' : -0.22109999999999999,
+		'pydx5p[c]' : -0.000223,
+		'ribflv[c]' : -0.000223,
+		'ser-L[c]' : -0.21579999999999999,
+		'sheme[c]' : -0.000223,
+		'so4[c]' : -0.0039480000000000001,
+		'thf[c]' : -0.000223,
+		'thmpp[c]' : -0.000223,
+		'thr-L[c]' : -0.25369999999999998,
+		'trp-L[c]' : -0.056840000000000002,
+		'tyr-L[c]' : -0.13789999999999999,
+		'udcpdp[c]' : -5.5000000000000002e-05,
+		'utp[c]' : -0.14410000000000001,
+		'val-L[c]' : -0.42320000000000002,
+		'zn2[c]' : -0.0031580000000000002,
+		}
+
+	objective = {}
+	internalMoleculeLevels = {}
+	for moleculeID_raw, coeff in objectiveRaw.viewitems():
+		moleculeID = moleculeID_raw[:-2].upper() + moleculeID_raw[-2:]
+
+		if moleculeID == "KDO2LIPID4[e]":
+			moleculeID = "KDO2LIPID4[o]"
+
+		if coeff < 0:
+			objective[moleculeID] = -coeff
+
+		else:
+			internalMoleculeLevels[moleculeID] = coeff
+
+	import re
+	rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
+
 	reactionStoich = {
-		"B to A":{
-				"A":+1,
-				"B":-1,
-			},
-		"AB2 to C":{
-				"A":-1,
-				"B":-2,
-				"C":+1,
-			},
+		rxn["id"]:
+		{entry["molecule"]+"["+entry["location"]+"]":entry["coeff"] for entry in rxn["stoichiometry"]}
+		for rxn in rxns
+		if len(rxn["stoichiometry"]) > 1 # no exchange reactions!
 		}
 
-	externalExchangedMolecules = ["A"]
+	reversibleReactions = [rxn["id"] for rxn in rxns if not rxn["dir"]]
 
-	objective = {"B":20, "C":10}
+	mediaEx = kb.metabolismMediaEx
 
-	reactionEnzymes = {
-		"B to A":"enzyme 1",
-		"AB2 to C":"enzyme 2",
-		}
+	externalExchangedMolecules = [rxn["met"] for rxn in mediaEx]
 
-	reactionRates = {
-		"AB2 to C":0.1,
-		}
-
-	reversibleReactions = ["B to A"]
+	atpId = "ATP[c]"
 
 	fba = FluxBalanceAnalysis(
 		reactionStoich,
@@ -692,27 +770,12 @@ if __name__ == "__main__":
 		objectiveParameters = {
 			"gamma":0.5,
 			"beta":0.1,
-			"leading molecule ID":"C"
+			"leading molecule ID":atpId
 			},
 		reversibleReactions = reversibleReactions
 		# reactionEnzymes = reactionEnzymes,
 		# reactionRates = reactionRates
 		)
-
-	fba.externalMoleculeLevelsIs([10])
-
-	# enzymeCounts = []
-
-	# for enzymeID in fba.enzymeIDs():
-	# 	if enzymeID == "enzyme 1":
-	# 		enzymeCounts.append(10)
-		
-	# 	elif enzymeID == "enzyme 2":
-	# 		enzymeCounts.append(5)
-
-	# fba.enzymeCountsIs(enzymeCounts)
-
-	np.set_printoptions(linewidth=200)
 
 	fba.run()
 
