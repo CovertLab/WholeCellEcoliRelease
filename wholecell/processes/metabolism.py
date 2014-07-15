@@ -766,10 +766,10 @@ if __name__ == "__main__":
 		reactionStoich,
 		externalExchangedMolecules,
 		objective,
-		objectiveType = "standard",
+		objectiveType = "flexible",
 		objectiveParameters = {
-			"gamma":0.5,
-			"beta":0.1,
+			"gamma":0.1,
+			"beta":100,
 			"leading molecule ID":atpId
 			},
 		reversibleReactions = reversibleReactions
