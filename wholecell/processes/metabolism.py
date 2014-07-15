@@ -77,11 +77,11 @@ class FBAException(Exception):
 	pass
 
 
-class EdgeExistsException(FBAException):
+class AlreadyExistsException(FBAException):
 	pass
 
 
-class NodeExistsException(FBAException):
+class DoesNotExistException(FBAException):
 	pass
 
 
@@ -401,7 +401,7 @@ class FluxBalanceAnalysis(object):
 
 	def _edgeAdd(self, edgeName):
 		if edgeName in self._edgeNames:
-			raise EdgeExistsException("Edge already exists: {}".format(edgeName))
+			raise AlreadyExistsException("Edge already exists: {}".format(edgeName))
 
 		else:
 			self._edgeNames.append(edgeName)
@@ -417,12 +417,12 @@ class FluxBalanceAnalysis(object):
 				return self._edgeAdd(edgeName)
 
 			else:
-				raise FBAException("Edge does not exist: {}".format(edgeName))
+				raise DoesNotExistException("Edge does not exist: {}".format(edgeName))
 
 
 	def _nodeAdd(self, nodeName):
 		if nodeName in self._nodeNames:
-			raise NodeExistsException("Node already exists: {}".format(nodeName))
+			raise AlreadyExistsException("Node already exists: {}".format(nodeName))
 
 		else:
 			self._nodeNames.append(nodeName)
@@ -438,13 +438,16 @@ class FluxBalanceAnalysis(object):
 				return self._nodeAdd(nodeName)
 
 			else:
-				raise FBAException("Node does not exist: {}".format(nodeName))
+				raise DoesNotExistException("Node does not exist: {}".format(nodeName))
 
 
 	# Constraint setup
 
 	def externalMoleculeCountsIs(self, counts):
 		counts = np.array(counts)
+		if (counts < 0).any():
+			raise FBAException("Negative molecule counts not allowed")
+
 		self._lowerBound[self._externalExchangeIndexes] = -counts
 
 
@@ -458,6 +461,8 @@ class FluxBalanceAnalysis(object):
 
 	def enzymeCountsIs(self, counts):
 		counts = np.array(counts)
+		if (counts < 0).any():
+			raise FBAException("Negative enzyme counts not allowed")
 
 		# Rate-constrained
 		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = counts
