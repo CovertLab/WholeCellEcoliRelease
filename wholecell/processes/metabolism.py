@@ -69,9 +69,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 # TODO: move below to a new file
 
+from collections import defaultdict
+
 # import numpy as np
 import cvxopt
-from collections import defaultdict
 
 class FBAException(Exception):
 	pass
@@ -82,6 +83,10 @@ class AlreadyExistsException(FBAException):
 
 
 class DoesNotExistException(FBAException):
+	pass
+
+
+class InvalidBoundaryException(FBAException):
 	pass
 
 
@@ -172,6 +177,8 @@ class FluxBalanceAnalysis(object):
 	# Default values, for clarity
 	_lowerBoundDefault = 0
 	_upperBoundDefault = np.inf
+
+	_standardObjectiveReactionName = "Standard biomass objective reaction"
 
 
 	# Initialization
@@ -295,9 +302,7 @@ class FluxBalanceAnalysis(object):
 		upperBoundValues = []
 
 		if objectiveType is None or objectiveType == "standard":
-			objectiveID = "Standard FBA objective reaction"
-
-			colIndex = self._edgeAdd(objectiveID)
+			colIndex = self._edgeAdd(self._standardObjectiveReactionName)
 
 			nObjectiveEquivalents = len(objectiveEquivalentIndexes)
 
@@ -325,7 +330,7 @@ class FluxBalanceAnalysis(object):
 			if biomassSatisfactionWeight < 0:
 				raise FBAException("flexFBA beta paramter must be nonnegative")
 
-			biomass_colIndex = self._edgeAdd("Standard biomass objective")
+			biomass_colIndex = self._edgeAdd(self._standardObjectiveReactionName)
 
 			# Add biomass to objective
 			objIndexes.append(biomass_colIndex)
@@ -635,7 +640,7 @@ class FluxBalanceAnalysis(object):
 	def externalMoleculeLevelsIs(self, levels):
 		levels = np.array(levels)
 		if (levels < 0).any():
-			raise FBAException("Negative molecule levels not allowed")
+			raise InvalidBoundaryException("Negative molecule levels not allowed")
 
 		self._lowerBound[self._externalExchangeIndexes] = -levels
 
@@ -647,7 +652,7 @@ class FluxBalanceAnalysis(object):
 	def internalMoleculeLevelsIs(self, levels):
 		levels = np.array(levels)
 		if (levels < 0).any():
-			raise FBAException("Negative molecule levels not allowed")
+			raise InvalidBoundaryException("Negative molecule levels not allowed")
 
 		self._lowerBound[self._internalExchangeIndexes] = -levels
 
@@ -662,7 +667,7 @@ class FluxBalanceAnalysis(object):
 
 		levels = np.array(levels)
 		if (levels < 0).any():
-			raise FBAException("Negative enzyme levels not allowed")
+			raise InvalidBoundaryException("Negative enzyme levels not allowed")
 
 		# Rate-constrained
 
@@ -672,6 +677,50 @@ class FluxBalanceAnalysis(object):
 		boolConstraint = np.zeros(self._enzymeUsageBoolConstrainedIndexes.size, np.float64)
 		boolConstraint[levels > 0] = np.inf
 		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = boolConstraint
+
+
+	def maxReactionFluxIs(self, reactionID, maxFlux, raiseForReversible = True):
+		colIndex = self._edgeIndex(reactionID)
+
+		if maxFlux < 0:
+			raise InvalidBoundaryException("Maximum reaction flux must be at least 0")
+
+		if maxFlux < self._lowerBound[colIndex]:
+			raise InvalidBoundaryException("Maximum reaction flux must be greater than or equal to the minimum flux")
+
+		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
+
+		if raiseForReversible and reverseReactionID in self._edgeNames:
+			raise FBAException((
+				"Setting the maximum reaction flux is ambiguous since " +
+				"reaction {} has both a forward [{}] and reverse [{}] " +
+				"component.  Call this method with argument " + 
+				"raiseForReversible = False if this is intended behavior."
+				).format(reactionID, reactionID, reverseReactionID))
+
+		self._upperBound[colIndex] = maxFlux
+
+
+	def minReactionFluxIs(self, reactionID, minFlux, raiseForReversible = True):
+		colIndex = self._edgeIndex(reactionID)
+
+		if minFlux < 0:
+			raise InvalidBoundaryException("Maximum reaction flux must be at least 0")
+
+		if minFlux > self._upperBound[colIndex]:
+			raise InvalidBoundaryException("Minimum reaction flux must be less than or equal to the maximum flux")
+
+		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
+
+		if raiseForReversible and reverseReactionID in self._edgeNames:
+			raise FBAException((
+				"Setting the minimum reaction flux is ambiguous since " +
+				"reaction {} has both a forward [{}] and reverse [{}] " +
+				"component.  Call this method with argument " + 
+				"raiseForReversible = False if this is intended behavior."
+				).format(reactionID, reactionID, reverseReactionID))
+
+		self._lowerBound[colIndex] = minFlux
 
 
 	# Evaluation
@@ -727,7 +776,17 @@ class FluxBalanceAnalysis(object):
 		return self._edgeFluxes[self._edgeIndex(reactionID)]
 
 
-if __name__ == "__main__":
+	def objectiveReactionFlux(self):
+		try:
+			colIndex = self._edgeIndex(self._standardObjectiveReactionName)
+
+		except DoesNotExistException:
+			raise FBAException("No objective reaction flux implemented for this solver type")
+
+		return self._edgeFluxes[colIndex]
+
+
+def runFeistModel():
 	from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
 	kb = KnowledgeBaseEcoli()
 
@@ -802,22 +861,13 @@ if __name__ == "__main__":
 		}
 
 	objective = {}
-	# internalMoleculeLevels = {}
 	for moleculeID_raw, coeff in objectiveRaw.viewitems():
 		moleculeID = moleculeID_raw[:-2].upper() + moleculeID_raw[-2:]
 
 		if moleculeID == "KDO2LIPID4[e]":
 			moleculeID = "KDO2LIPID4[o]"
 
-		# if coeff > 0:
-		# 	objective[moleculeID] = -coeff
-
-		# else:
-		# 	internalMoleculeLevels[moleculeID] = coeff
-
 		objective[moleculeID] = -coeff
-
-	removedReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
 	import re
 	rxns = [
@@ -826,7 +876,6 @@ if __name__ == "__main__":
 			not re.match(".*_[0-9]$", x["id"])
 			or x["id"].endswith("_0")
 			or "PFK_2" in x["id"]
-			or x["id"] in removedReactions
 			)
 		]
 
@@ -849,16 +898,13 @@ if __name__ == "__main__":
 		reactionStoich,
 		externalExchangedMolecules,
 		objective,
-		objectiveType = "standard",
+		objectiveType = "flexible",
 		objectiveParameters = {
 			"gamma":0.1,
 			"beta":100,
 			"leading molecule ID":atpId
 			},
 		reversibleReactions = reversibleReactions,
-		# internalExchangedMolecules = internalMoleculeLevels.keys()
-		# reactionEnzymes = reactionEnzymes,
-		# reactionRates = reactionRates
 		)
 
 	externalMoleculeIDs = fba.externalMoleculeIDs()
@@ -885,20 +931,27 @@ if __name__ == "__main__":
 
 	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
-	# fba.internalMoleculeLevelsIs([
-	# 	internalMoleculeLevels[moleculeID] for moleculeID in fba.internalMoleculeIDs()
-	# 	])
+	# Set Feist's forced reactions
 
-	# Hack for ATP maintenance...
+	## ATP maintenance
+	fba.minReactionFluxIs("FEIST_ATPM", 8.39)
+	fba.maxReactionFluxIs("FEIST_ATPM", 8.39)
 
-	atpMaintenanceIndex = fba._edgeIndex("FEIST_ATPM")
-	fba._lowerBound[atpMaintenanceIndex] = 8.39
-	fba._upperBound[atpMaintenanceIndex] = 8.39
+	## Arbitrarily disabled reactions
+	disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
+	for reactionID in disabledReactions:
+		fba.maxReactionFluxIs(reactionID, 0)
+
+	# Run model
 	fba.run()
 
-	print fba.externalExchangeFlux("GLC-D[e]")
-	print fba.externalExchangeFlux("O2[e]")
-	print fba.reactionFlux("Standard FBA objective reaction")
+	# Output
+	print fba.externalExchangeFlux("GLC-D[e]"), "(expected 8.)"
+	print fba.externalExchangeFlux("O2[e]"), "(expected 16.27631182)"
+	print fba.objectiveReactionFlux(), "(expected 0.73645239)"
 
 	# import ipdb; ipdb.set_trace()
+
+if __name__ == "__main__":
+	runFeistModel()
