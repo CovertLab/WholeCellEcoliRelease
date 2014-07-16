@@ -851,10 +851,15 @@ class FluxBalanceAnalysis(object):
 		return self._edgeFluxes[colIndex]
 
 
-def runFeistModel():
-	# Create the KB and parse into FBA inputs
+# Test data
+
+def loadKB():
 	from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
-	kb = KnowledgeBaseEcoli()
+	return KnowledgeBaseEcoli()
+
+
+def setupFeist(kb):
+	# Create the KB and parse into FBA inputs
 
 	objectiveRaw = {
 		'10fthf[c]' : -0.000223,
@@ -1012,6 +1017,14 @@ def runFeistModel():
 	for reactionID in disabledReactions:
 		fba.maxReactionFluxIs(reactionID, 0)
 
+	return fba
+
+
+def compareFeistToExpected():
+	kb = loadKB()
+
+	fba = setupFeist(kb)
+
 	# Run model
 	fba.run()
 
@@ -1022,4 +1035,4 @@ def runFeistModel():
 
 
 if __name__ == "__main__":
-	runFeistModel()
+	compareFeistToExpected()
