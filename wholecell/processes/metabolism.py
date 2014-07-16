@@ -259,6 +259,9 @@ class FluxBalanceAnalysis(object):
 		objectiveEquivalentIndexes = []
 
 		for moleculeID, coeff in objective.viewitems():
+			if coeff < 0:
+				raise FBAException("Negative coefficients in the objective not permitted ({}, {})".format(moleculeID, coeff))
+
 			molecule_rowIndex = self._nodeIndex(moleculeID)
 
 			pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
@@ -312,7 +315,14 @@ class FluxBalanceAnalysis(object):
 				raise FBAException("flexFBA leading molecule must be in the objective")
 
 			fractionalDifferenceWeight = objectiveParameters["gamma"]
+
+			if fractionalDifferenceWeight < 0:
+				raise FBAException("flexFBA gamma paramter must be nonnegative")
+
 			biomassSatisfactionWeight = objectiveParameters["beta"]
+
+			if biomassSatisfactionWeight < 0:
+				raise FBAException("flexFBA beta paramter must be nonnegative")
 
 			biomass_colIndex = self._edgeAdd("Standard biomass objective")
 
@@ -457,7 +467,12 @@ class FluxBalanceAnalysis(object):
 				reaction_colIndex = self._edgeIndex(reactionID)
 
 				if reactionRates is not None and reactionRates.has_key(reactionID):
-					enzymesPerReaction = -1/reactionRates[reactionID]
+					reactionRate = reactionRates[reactionID]
+
+					if reactionRate <= 0:
+						raise FBAException("Reaction rates must be positive ({}, {})".format(reactionID, reactionRate))
+
+					enzymesPerReaction = -1/reactionRate
 					enzymeEquivalentRateID = self._generatedID_enzymeEquivRateConstrained.format(enzymeID)
 					enzymeEquivalentRate_rowIndex = self._nodeIndex(enzymeEquivalentRateID)
 
