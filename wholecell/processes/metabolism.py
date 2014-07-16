@@ -196,13 +196,23 @@ class FluxBalanceAnalysis(object):
 		# Set up running values for initialization
 
 		## Used for creating the sparse matrix
-		rowIndexes = []
-		colIndexes = []
-		values = []
+		self._nodeIndexs = []
+		self._edgeIndexes = []
+		self._values = []
+
+		## Used for objective and bounds
+		self._objIndexes = []
+		self._objValues = []
+
+		self._lowerBoundIndexes = []
+		self._lowerBoundValues = []
+
+		self._upperBoundIndexes = []
+		self._upperBoundValues = []
 
 		## Output calculations
-		outputMoleculeIndexes = []
-		outputReactionIndexes = []
+		self._outputMoleculeIndexes = []
+		self._outputReactionIndexes = []
 
 		# Set up reversible reactions
 		if reversibleReactions is not None:
@@ -220,7 +230,47 @@ class FluxBalanceAnalysis(object):
 				if reactionRates is not None and reactionRates.has_key(reactionID):
 					reactionRates[reverseReactionID] = reactionRates[reactionID]
 
-		# Parses reaction data
+		# Call indivdual initialization methods
+
+		self._initReactionNetwork(reactionStoich)
+		self._initExternalExchange(externalExchangedMolecules)
+
+		self._initObjectiveEquivalents(objective)
+
+		if objectiveType is None or objectiveType == "standard":
+			self._initObjectiveStandard(objective)
+
+		elif objectiveType == "flexible":
+			self._initObjectiveFlexible(objective, objectiveParameters)
+
+		elif objectiveType == "pools":
+			self._initObjectivePools(objective)
+
+		else:
+			raise FBAException("Unrecognized objectiveType: {}".format(objectiveType))
+
+		self._initInternalExchange(internalExchangedMolecules)
+
+		self._initEnzymeConstraints(reactionEnzymes, reactionRates)
+
+		self._initMass(moleculeMasses)
+
+		# Finalize
+
+		self._finalizeMisc()
+		self._finalizeMatrices()
+
+		# Set up values that will change between runs
+
+		self.externalMoleculeLevelsIs(0)
+		# self.internalMoleculeLevelsIs(0)
+		self.enzymeLevelsIs(0)
+
+
+	def _initReactionNetwork(self, reactionStoich):
+		""" Create the reaction network, initializing molecules and biochemical
+		reactions. """
+		
 		reactionIndexes = []
 
 		for reactionID, stoichiometry in reactionStoich.viewitems():
@@ -229,15 +279,17 @@ class FluxBalanceAnalysis(object):
 			for moleculeID, stoichCoeff in stoichiometry.viewitems():
 				rowIndex = self._nodeIndex(moleculeID, True)
 
-				rowIndexes.append(rowIndex)
-				colIndexes.append(colIndex)
-				values.append(stoichCoeff)
+				self._nodeIndexs.append(rowIndex)
+				self._edgeIndexes.append(colIndex)
+				self._values.append(stoichCoeff)
 
 			reactionIndexes.append(colIndex)
 
 		self._reactionIndexes = np.array(reactionIndexes)
 
-		# Add external exchange reactions
+
+	def _initExternalExchange(self, externalExchangedMolecules):
+		"""Create external (media) exchange reactions."""
 
 		externalExchangeIndexes = []
 		externalMoleculeIDs = []
@@ -253,9 +305,9 @@ class FluxBalanceAnalysis(object):
 			# to think of exchanges as inputs.  Regardless this choice should 
 			# have no impact outside of this class.
 
-			rowIndexes.append(rowIndex)
-			colIndexes.append(colIndex)
-			values.append(-1)
+			self._nodeIndexs.append(rowIndex)
+			self._edgeIndexes.append(colIndex)
+			self._values.append(-1)
 
 			externalExchangeIndexes.append(colIndex)
 			externalMoleculeIDs.append(moleculeID)
@@ -263,9 +315,11 @@ class FluxBalanceAnalysis(object):
 		self._externalExchangeIndexes = np.array(externalExchangeIndexes)
 		self._externalMoleculeIDs = tuple(externalMoleculeIDs)
 
-		# Set up the objective
 
-		## First, set up the molecule count -> objective equivalents flux
+	def _initObjectiveEquivalents(self, objective):
+		"""Create pseudo-reactions that convert molecules into their fractional
+		objective equivalents.  The objectiveType determines how these 
+		fractions are used."""
 
 		objectiveEquivalentIndexes = []
 
@@ -278,150 +332,155 @@ class FluxBalanceAnalysis(object):
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 			objectiveEquiv_rowIndex = self._nodeAdd(objectiveEquivID)
 
-			rowIndexes.append(molecule_rowIndex)
-			colIndexes.append(colIndex)
-			values.append(-coeff)
+			self._nodeIndexs.append(molecule_rowIndex)
+			self._edgeIndexes.append(colIndex)
+			self._values.append(-coeff)
 
-			rowIndexes.append(objectiveEquiv_rowIndex)
-			colIndexes.append(colIndex)
-			values.append(+1)
+			self._nodeIndexs.append(objectiveEquiv_rowIndex)
+			self._edgeIndexes.append(colIndex)
+			self._values.append(+1)
 
-			outputMoleculeIndexes.append(molecule_rowIndex)
+			self._outputMoleculeIndexes.append(molecule_rowIndex)
 			objectiveEquivalentIndexes.append(objectiveEquiv_rowIndex)
 
-			outputReactionIndexes.append(colIndex)
+			self._outputReactionIndexes.append(colIndex)
 
-		## Next, set up the actual objective function (implementation varies)
-		objIndexes = []
-		objValues = []
 
-		lowerBoundIndexes = []
-		lowerBoundValues = []
+	def _initObjectiveStandard(self, objective):
+		"""Create the pseudo-reaction for the standard biomass objective.  In 
+		the standard objective, all molecules must be created/destroyed in 
+		prescribed ratios."""
 
-		upperBoundIndexes = []
-		upperBoundValues = []
+		colIndex = self._edgeAdd(self._standardObjectiveReactionName)
 
-		if objectiveType is None or objectiveType == "standard":
-			colIndex = self._edgeAdd(self._standardObjectiveReactionName)
+		nObjectiveEquivalents = len(objectiveEquivalentIndexes)
 
-			nObjectiveEquivalents = len(objectiveEquivalentIndexes)
+		for moleculeID in objective.viewkeys():
+			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
+			objectiveEquiv_rowIndex = self._nodeAdd(objectiveEquivID)
 
-			rowIndexes.extend(objectiveEquivalentIndexes)
-			colIndexes.extend([colIndex]*nObjectiveEquivalents)
-			values.extend([-1]*nObjectiveEquivalents)
+			self._nodeIndexs.append(objectiveEquiv_rowIndex)
+			self._edgeIndexes.append(colIndex)
+			self._values.append(-1)
 
-			objIndexes.append(colIndex)
-			objValues.append(+1)
+		self._objIndexes.append(colIndex)
+		self._objValues.append(+1)
 
-		elif objectiveType == "flexible":
-			# Load parameters
-			leadingMoleculeID = objectiveParameters["leading molecule ID"]
 
-			if not objective.has_key(leadingMoleculeID):
-				raise FBAException("flexFBA leading molecule must be in the objective")
+	def _initObjectiveFlexible(self, objective, objectiveParameters):
+		"""Create the abstractions needed for the flexFBA objective.  In brief,
+		flexFBA permits partial biomass objective satisfaction for individual
+		molecules if network disruptions inhibit molecule production."""
 
-			fractionalDifferenceWeight = objectiveParameters["gamma"]
+		# Load parameters
+		leadingMoleculeID = objectiveParameters["leading molecule ID"]
 
-			if fractionalDifferenceWeight < 0:
-				raise FBAException("flexFBA gamma paramter must be nonnegative")
+		if not objective.has_key(leadingMoleculeID):
+			raise FBAException("flexFBA leading molecule must be in the objective")
 
-			biomassSatisfactionWeight = objectiveParameters["beta"]
+		fractionalDifferenceWeight = objectiveParameters["gamma"]
 
-			if biomassSatisfactionWeight < 0:
-				raise FBAException("flexFBA beta paramter must be nonnegative")
+		if fractionalDifferenceWeight < 0:
+			raise FBAException("flexFBA gamma paramter must be nonnegative")
 
-			biomass_colIndex = self._edgeAdd(self._standardObjectiveReactionName)
+		biomassSatisfactionWeight = objectiveParameters["beta"]
 
-			# Add biomass to objective
-			objIndexes.append(biomass_colIndex)
-			objValues.append(biomassSatisfactionWeight)
+		if biomassSatisfactionWeight < 0:
+			raise FBAException("flexFBA beta paramter must be nonnegative")
 
-			# Create fraction and biomass outputs
-			for moleculeID in objective.viewkeys():
-				fractionID = self._generatedID_moleculeEquivalents.format(moleculeID)
-				fraction_rowIndex = self._nodeIndex(fractionID)
+		biomass_colIndex = self._edgeAdd(self._standardObjectiveReactionName)
 
-				# Biomass out
-				rowIndexes.append(fraction_rowIndex)
-				colIndexes.append(biomass_colIndex)
-				values.append(-1)
+		# Add biomass to objective
+		self._objIndexes.append(biomass_colIndex)
+		self._objValues.append(biomassSatisfactionWeight)
 
-				# Fraction out
-				fractionOutID = self._generatedID_fractionsOut.format(moleculeID)
-				fractionOut_colIndex = self._edgeAdd(fractionOutID)
+		# Create fraction and biomass outputs
+		for moleculeID in objective.viewkeys():
+			fractionID = self._generatedID_moleculeEquivalents.format(moleculeID)
+			fraction_rowIndex = self._nodeIndex(fractionID)
 
-				rowIndexes.append(fraction_rowIndex)
-				colIndexes.append(fractionOut_colIndex)
-				values.append(-1)
+			# Biomass out
+			self._nodeIndexs.append(fraction_rowIndex)
+			self._edgeIndexes.append(biomass_colIndex)
+			self._values.append(-1)
 
-				if moleculeID == leadingMoleculeID:
-					# Add leading molecule to objective
-					objIndexes.append(fractionOut_colIndex)
-					objValues.append(+1)
+			# Fraction out
+			fractionOutID = self._generatedID_fractionsOut.format(moleculeID)
+			fractionOut_colIndex = self._edgeAdd(fractionOutID)
 
-			# Create fraction differences (leading - other), used in objective and constraints
-			leadingMoleculeToFractionID = self._generatedID_moleculesToEquivalents.format(leadingMoleculeID)
-			leadingMoleculeToFraction_colIndex = self._edgeIndex(leadingMoleculeToFractionID)
+			self._nodeIndexs.append(fraction_rowIndex)
+			self._edgeIndexes.append(fractionOut_colIndex)
+			self._values.append(-1)
 
-			for moleculeID in objective.viewkeys():
-				if moleculeID == leadingMoleculeID:
-					continue
+			if moleculeID == leadingMoleculeID:
+				# Add leading molecule to objective
+				self._objIndexes.append(fractionOut_colIndex)
+				self._objValues.append(+1)
 
-				fractionDifferenceLeadingID = self._generatedID_fractionalDifferenceLeading.format(moleculeID)
-				fractionDifferenceLeading_rowIndex = self._nodeAdd(fractionDifferenceLeadingID)
+		# Create fraction differences (leading - other), used in objective and constraints
+		leadingMoleculeToFractionID = self._generatedID_moleculesToEquivalents.format(leadingMoleculeID)
+		leadingMoleculeToFraction_colIndex = self._edgeIndex(leadingMoleculeToFractionID)
 
-				rowIndexes.append(fractionDifferenceLeading_rowIndex)
-				colIndexes.append(leadingMoleculeToFraction_colIndex)
-				values.append(+1)
-				
-				moleculeToFractionID = self._generatedID_moleculesToEquivalents.format(moleculeID)
-				moleculeToFraction_colIndex = self._edgeIndex(moleculeToFractionID)
+		for moleculeID in objective.viewkeys():
+			if moleculeID == leadingMoleculeID:
+				continue
 
-				rowIndexes.append(fractionDifferenceLeading_rowIndex)
-				colIndexes.append(moleculeToFraction_colIndex)
-				values.append(-1)
+			fractionDifferenceLeadingID = self._generatedID_fractionalDifferenceLeading.format(moleculeID)
+			fractionDifferenceLeading_rowIndex = self._nodeAdd(fractionDifferenceLeadingID)
 
-				fractionDifferenceLeadingOutID = self._generatedID_fractionalDifferenceLeadingOut.format(moleculeID)
-				fractionDifferenceLeadingOut_colIndex = self._edgeAdd(fractionDifferenceLeadingOutID)
+			self._nodeIndexs.append(fractionDifferenceLeading_rowIndex)
+			self._edgeIndexes.append(leadingMoleculeToFraction_colIndex)
+			self._values.append(+1)
+			
+			moleculeToFractionID = self._generatedID_moleculesToEquivalents.format(moleculeID)
+			moleculeToFraction_colIndex = self._edgeIndex(moleculeToFractionID)
 
-				rowIndexes.append(fractionDifferenceLeading_rowIndex)
-				colIndexes.append(fractionDifferenceLeadingOut_colIndex)
-				values.append(-1)
+			self._nodeIndexs.append(fractionDifferenceLeading_rowIndex)
+			self._edgeIndexes.append(moleculeToFraction_colIndex)
+			self._values.append(-1)
 
-				objIndexes.append(fractionDifferenceLeadingOut_colIndex)
-				objValues.append(-fractionalDifferenceWeight)
+			fractionDifferenceLeadingOutID = self._generatedID_fractionalDifferenceLeadingOut.format(moleculeID)
+			fractionDifferenceLeadingOut_colIndex = self._edgeAdd(fractionDifferenceLeadingOutID)
 
-			# Create biomass differences (fraction - biomass), used in constraints
+			self._nodeIndexs.append(fractionDifferenceLeading_rowIndex)
+			self._edgeIndexes.append(fractionDifferenceLeadingOut_colIndex)
+			self._values.append(-1)
 
-			for moleculeID in objective.viewkeys():
-				fractionDifferenceBiomassID = self._generatedID_fractionalDifferenceBiomass.format(moleculeID)
-				fractionDifferenceBiomass_rowIndex = self._nodeAdd(fractionDifferenceBiomassID)
+			self._objIndexes.append(fractionDifferenceLeadingOut_colIndex)
+			self._objValues.append(-fractionalDifferenceWeight)
 
-				moleculeToFractionID = self._generatedID_moleculesToEquivalents.format(moleculeID)
-				moleculeToFraction_colIndex = self._edgeIndex(moleculeToFractionID)
+		# Create biomass differences (fraction - biomass), used in constraints
 
-				rowIndexes.append(fractionDifferenceBiomass_rowIndex)
-				colIndexes.append(moleculeToFraction_colIndex)
-				values.append(+1)
+		for moleculeID in objective.viewkeys():
+			fractionDifferenceBiomassID = self._generatedID_fractionalDifferenceBiomass.format(moleculeID)
+			fractionDifferenceBiomass_rowIndex = self._nodeAdd(fractionDifferenceBiomassID)
 
-				rowIndexes.append(fractionDifferenceBiomass_rowIndex)
-				colIndexes.append(biomass_colIndex)
-				values.append(-1)
+			moleculeToFractionID = self._generatedID_moleculesToEquivalents.format(moleculeID)
+			moleculeToFraction_colIndex = self._edgeIndex(moleculeToFractionID)
 
-				fractionDifferenceBiomassOutID = self._generatedID_fractionalDifferenceBiomassOut.format(moleculeID)
-				fractionDifferenceBiomassOut_colIndex = self._edgeAdd(fractionDifferenceBiomassOutID)
+			self._nodeIndexs.append(fractionDifferenceBiomass_rowIndex)
+			self._edgeIndexes.append(moleculeToFraction_colIndex)
+			self._values.append(+1)
 
-				rowIndexes.append(fractionDifferenceBiomass_rowIndex)
-				colIndexes.append(fractionDifferenceBiomassOut_colIndex)
-				values.append(-1)
+			self._nodeIndexs.append(fractionDifferenceBiomass_rowIndex)
+			self._edgeIndexes.append(biomass_colIndex)
+			self._values.append(-1)
 
-		elif objectiveType == "pools":
-			raise NotImplementedError()
+			fractionDifferenceBiomassOutID = self._generatedID_fractionalDifferenceBiomassOut.format(moleculeID)
+			fractionDifferenceBiomassOut_colIndex = self._edgeAdd(fractionDifferenceBiomassOutID)
 
-		else:
-			raise FBAException("Unrecognized objectiveType: {}".format(objectiveType))
+			self._nodeIndexs.append(fractionDifferenceBiomass_rowIndex)
+			self._edgeIndexes.append(fractionDifferenceBiomassOut_colIndex)
+			self._values.append(-1)
 
-		# Add internal exchange reactions
+
+	def _initObjectivePools(self, objective):
+		"""Not implemented"""
+		raise NotImplementedError()
+
+
+	def _initInternalExchange(self, internalExchangedMolecules):
+		"""Create internal (byproduct) exchange reactions."""
 
 		internalExchangeIndexes = []
 		internalMoleculeIDs = []
@@ -433,26 +492,30 @@ class FluxBalanceAnalysis(object):
 				colIndex = self._edgeAdd(exchangeID)
 				rowIndex = self._nodeIndex(moleculeID)
 
-				rowIndexes.append(rowIndex)
-				colIndexes.append(colIndex)
-				values.append(-1)
+				self._nodeIndexs.append(rowIndex)
+				self._edgeIndexes.append(colIndex)
+				self._values.append(-1)
 
 				internalExchangeIndexes.append(colIndex)
 				internalMoleculeIDs.append(moleculeID)
 
-				outputMoleculeIndexes.append(rowIndex)
-				outputReactionIndexes.append(colIndex)
+				self._outputMoleculeIndexes.append(rowIndex)
+				self._outputReactionIndexes.append(colIndex)
 
 		self._internalExchangeIndexes = np.array(internalExchangeIndexes)
 		self._internalMoleculeIDs = tuple(internalMoleculeIDs)
 
-		# TODO: setup bounds, output calculation matrix
 
-		# Set up enzyme pseudometabolites and constraints
+	def _initEnzymeConstraints(self, reactionEnzymes, reactionRates):
+		"""Create abstractions needed to constrain metabolic reactions by 
+		enzyme availability.
 
-		# NOTE: there are two types of enzymatic constraints:
-		# - rate limitations, which constrain by (turnover number)*(enzyme count)
-		# - boolean limitations, which constrain by 0 (enzyme count == 0) or inf (enzyme count > 0)
+		There are two types of enzyme restrictions.  If the catalytic rate is 
+		unknown, any non-zero level of the enzyme allows the reaction to
+		proceed.  This is a "boolean" constraint.  If the catalytic rate is
+		known, then reactions may proceed up to their kinetic limit.  Reactions
+		can share enzymes.  There is currently no support for reactions with 
+		multiple annotated enzymes."""
 
 		enzymeUsageRateConstrainedIndexes = []
 		enzymeUsageBoolConstrainedIndexes = []
@@ -470,9 +533,9 @@ class FluxBalanceAnalysis(object):
 				enzymeUsageRateID = self._generatedID_enzymeUsageRateConstrained.format(enzymeID)
 				enzymeUsageRate_colIndex = self._edgeAdd(enzymeUsageRateID)
 
-				rowIndexes.append(enzymeEquivalentRate_rowIndex)
-				colIndexes.append(enzymeUsageRate_colIndex)
-				values.append(+1)
+				self._nodeIndexs.append(enzymeEquivalentRate_rowIndex)
+				self._edgeIndexes.append(enzymeUsageRate_colIndex)
+				self._values.append(+1)
 
 				enzymeUsageRateConstrainedIndexes.append(enzymeUsageRate_colIndex)
 
@@ -483,9 +546,9 @@ class FluxBalanceAnalysis(object):
 				enzymeUsageBoolID = self._generatedID_enzymeUsageBoolConstrained.format(enzymeID)
 				enzymeUsageBool_colIndex = self._edgeAdd(enzymeUsageBoolID)
 
-				rowIndexes.append(enzymeEquivalentBool_rowIndex)
-				colIndexes.append(enzymeUsageBool_colIndex)
-				values.append(+1)
+				self._nodeIndexs.append(enzymeEquivalentBool_rowIndex)
+				self._edgeIndexes.append(enzymeUsageBool_colIndex)
+				self._values.append(+1)
 
 				enzymeUsageBoolConstrainedIndexes.append(enzymeUsageBool_colIndex)
 
@@ -503,68 +566,77 @@ class FluxBalanceAnalysis(object):
 					enzymeEquivalentRateID = self._generatedID_enzymeEquivRateConstrained.format(enzymeID)
 					enzymeEquivalentRate_rowIndex = self._nodeIndex(enzymeEquivalentRateID)
 
-					rowIndexes.append(enzymeEquivalentRate_rowIndex)
-					colIndexes.append(reaction_colIndex)
-					values.append(enzymesPerReaction)
+					self._nodeIndexs.append(enzymeEquivalentRate_rowIndex)
+					self._edgeIndexes.append(reaction_colIndex)
+					self._values.append(enzymesPerReaction)
 					
 
 				else:
 					enzymeEquivalentBoolID = self._generatedID_enzymeEquivBoolConstrained.format(enzymeID)
 					enzymeEquivalentBool_rowIndex = self._nodeIndex(enzymeEquivalentBoolID)
 
-					rowIndexes.append(enzymeEquivalentBool_rowIndex)
-					colIndexes.append(reaction_colIndex)
-					values.append(-1)
+					self._nodeIndexs.append(enzymeEquivalentBool_rowIndex)
+					self._edgeIndexes.append(reaction_colIndex)
+					self._values.append(-1)
 
 		self._enzymeUsageRateConstrainedIndexes = np.array(enzymeUsageRateConstrainedIndexes, np.int64)
 		self._enzymeUsageBoolConstrainedIndexes = np.array(enzymeUsageBoolConstrainedIndexes, np.int64)
 
-		# Set up mass accumulation column
+
+	def _initMass(self, moleculeMasses):
+		"""Not implemented.
+
+		Tracking the mass entering the system through metabolism is crucial for
+		insuring closure. It can also be used to constrain the maximal rate of
+		growth."""
 
 		if moleculeMasses is not None:
 			raise NotImplementedError()
 
-		# Finalize some running values
 
+	def _finalizeMisc(self):
+		"""Finalize values accumulated during the various _init* methods."""
 		self._nEdges = len(self._edgeNames)
 		self._nNodes = len(self._nodeNames)
 
-		self._outputMoleculeIDs = tuple([self._nodeNames[index] for index in outputMoleculeIndexes])
+		self._outputMoleculeIDs = tuple([self._nodeNames[index] for index in self._outputMoleculeIndexes])
 
-		self._outputReactionIndexes = np.array(outputReactionIndexes)
+		self._outputReactionIndexes = np.array(self._outputReactionIndexes)
 
-		# Create cvxopt abstractions
 
-		# Optimization problem:
-		#
-		# \max_v f^T x
-		# 
-		# subject to
-		# b = Ax
-		# h >= Gx TODO: check this
-		#
-		# where b = 0
+	def _finalizeMatrices(self):
+		"""Create the abstractions needed for linear programming and for 
+		computing various outputs.
 
-		## Create A matrix (stoichiometry + other things)
+		Optimization problem:
+		
+		\max_v f^T x
+		
+		subject to
+		b = Ax
+		h >= Gx
+		
+		where b = 0"""
 
-		self._A = cvxopt.spmatrix(values, rowIndexes, colIndexes)
+		# Create A matrix (stoichiometry + other things)
 
-		## Create objective function f
+		self._A = cvxopt.spmatrix(self._values, self._nodeIndexs, self._edgeIndexes)
+
+		# Create objective function f
 
 		objectiveFunction = np.zeros(self._nEdges, np.float64)
 
-		objectiveFunction[objIndexes] = objValues
+		objectiveFunction[self._objIndexes] = self._objValues
 
-		self._f = cvxopt.matrix(-objectiveFunction) # negative, since GLPK minimizes
+		self._f = cvxopt.matrix(-objectiveFunction) # negative, since GLPK minimizes (TODO: max/min mode setting)
 
-		# TODO: refactor initial bound setting to be more like the A matrix building
 		self._lowerBound = np.empty(self._nEdges, np.float64)
 		self._lowerBound.fill(self._lowerBoundDefault)
-		self._lowerBound[lowerBoundIndexes] = lowerBoundValues
+		self._lowerBound[self._lowerBoundIndexes] = self._lowerBoundValues
 
 		self._upperBound = np.empty(self._nEdges, np.float64)
 		self._upperBound.fill(self._upperBoundDefault)
-		self._upperBound[upperBoundIndexes] = upperBoundValues
+		self._upperBound[self._upperBoundIndexes] = self._upperBoundValues
 
 		self._G = cvxopt.matrix(np.concatenate(
 			[np.identity(self._nEdges, np.float64), -np.identity(self._nEdges, np.float64)], axis = 0
@@ -572,16 +644,10 @@ class FluxBalanceAnalysis(object):
 
 		self._b = cvxopt.matrix(np.zeros(self._nNodes, np.float64))
 
-		## Create matrix for computing output
-		self._outputCalcMatrix = -np.array(cvxopt.matrix(
-			self._A[outputMoleculeIndexes, outputReactionIndexes]
-			))
-
-		# Set up values that will change between runs
-
-		self.externalMoleculeLevelsIs(0)
-		# self.internalMoleculeLevelsIs(0)
-		self.enzymeLevelsIs(0)
+		# Create matrix for computing output
+		self._outputCalcMatrix = -np.array(cvxopt.matrix(self._A[
+			self._outputMoleculeIndexes, self._outputReactionIndexes.tolist() # NOTE: this type of indexing REQUIRES lists, not arrays
+			]))
 
 
 	def _edgeAdd(self, edgeName):
