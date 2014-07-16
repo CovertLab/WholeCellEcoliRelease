@@ -670,7 +670,6 @@ class FluxBalanceAnalysis(object):
 			raise InvalidBoundaryException("Negative enzyme levels not allowed")
 
 		# Rate-constrained
-
 		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = levels
 
 		# Boolean-constrained (enzyme w/o an annotated rate)
@@ -787,6 +786,7 @@ class FluxBalanceAnalysis(object):
 
 
 def runFeistModel():
+	# Create the KB and parse into FBA inputs
 	from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
 	kb = KnowledgeBaseEcoli()
 
@@ -894,6 +894,7 @@ def runFeistModel():
 
 	atpId = "ATP[c]"
 
+	# Create FBA instance
 	fba = FluxBalanceAnalysis(
 		reactionStoich,
 		externalExchangedMolecules,
@@ -907,6 +908,8 @@ def runFeistModel():
 		reversibleReactions = reversibleReactions,
 		)
 
+	# Set constraints
+	## External molecules
 	externalMoleculeIDs = fba.externalMoleculeIDs()
 
 	unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
@@ -931,13 +934,13 @@ def runFeistModel():
 
 	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
-	# Set Feist's forced reactions
+	## Set Feist's forced reactions
 
-	## ATP maintenance
+	### ATP maintenance
 	fba.minReactionFluxIs("FEIST_ATPM", 8.39)
 	fba.maxReactionFluxIs("FEIST_ATPM", 8.39)
 
-	## Arbitrarily disabled reactions
+	### Arbitrarily disabled reactions
 	disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
 	for reactionID in disabledReactions:
@@ -951,7 +954,6 @@ def runFeistModel():
 	print fba.externalExchangeFlux("O2[e]"), "(expected 16.27631182)"
 	print fba.objectiveReactionFlux(), "(expected 0.73645239)"
 
-	# import ipdb; ipdb.set_trace()
 
 if __name__ == "__main__":
 	runFeistModel()
