@@ -263,7 +263,7 @@ class FluxBalanceAnalysis(object):
 		# Set up values that will change between runs
 
 		self.externalMoleculeLevelsIs(0)
-		# self.internalMoleculeLevelsIs(0)
+		self.internalMoleculeLevelsIs(0)
 		self.enzymeLevelsIs(0)
 
 
@@ -312,7 +312,7 @@ class FluxBalanceAnalysis(object):
 			externalExchangeIndexes.append(colIndex)
 			externalMoleculeIDs.append(moleculeID)
 
-		self._externalExchangeIndexes = np.array(externalExchangeIndexes)
+		self._externalExchangeIndexes = np.array(externalExchangeIndexes, np.int64)
 		self._externalMoleculeIDs = tuple(externalMoleculeIDs)
 
 
@@ -502,7 +502,7 @@ class FluxBalanceAnalysis(object):
 				self._outputMoleculeIndexes.append(rowIndex)
 				self._outputReactionIndexes.append(colIndex)
 
-		self._internalExchangeIndexes = np.array(internalExchangeIndexes)
+		self._internalExchangeIndexes = np.array(internalExchangeIndexes, np.int64)
 		self._internalMoleculeIDs = tuple(internalMoleculeIDs)
 
 
