@@ -70,6 +70,7 @@ class Metabolism(wholecell.processes.process.Process):
 # TODO: move below to a new file
 
 from collections import defaultdict
+from itertools import izip
 
 # import numpy as np
 import cvxopt
@@ -731,16 +732,17 @@ class FluxBalanceAnalysis(object):
 		if self._enzymeUsageRateConstrainedIndexes.size == 0:
 			return
 
-		levels = np.array(levels)
-		if (levels < 0).any():
+		levelsArray = np.zeros(self._enzymeUsageRateConstrainedIndexes.size, np.float64)
+		levelsArray[:] = levels
+		if (levelsArray < 0).any():
 			raise InvalidBoundaryException("Negative enzyme levels not allowed")
 
 		# Rate-constrained
-		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = levels
+		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = levelsArray
 
 		# Boolean-constrained (enzyme w/o an annotated rate)
 		boolConstraint = np.zeros(self._enzymeUsageBoolConstrainedIndexes.size, np.float64)
-		boolConstraint[levels > 0] = np.inf
+		boolConstraint[levelsArray > 0] = np.inf
 		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = boolConstraint
 
 
@@ -965,6 +967,19 @@ def setupFeist(kb):
 
 	atpId = "ATP[c]"
 
+	reactionEnzymes = {
+		reactionID:enzymeID
+		for reactionID, enzymeID in izip(kb.metabolismReactionIds, kb.metabolismReactionEnzymes)
+		if (enzymeID is not None) and reactionStoich.has_key(reactionID)
+		}
+
+	dt = 1
+	reactionRates = {
+		reactionID:rate * dt
+		for reactionID, rate in izip(kb.metabolismReactionIds, kb.metabolismReactionKcat)
+		if reactionStoich.has_key(reactionID) and rate > 0
+		}
+
 	# Create FBA instance
 	fba = FluxBalanceAnalysis(
 		reactionStoich,
@@ -977,6 +992,8 @@ def setupFeist(kb):
 			"leading molecule ID":atpId
 			},
 		reversibleReactions = reversibleReactions,
+		reactionEnzymes = reactionEnzymes,
+		reactionRates = reactionRates
 		)
 
 	# Set constraints
@@ -1017,6 +1034,9 @@ def setupFeist(kb):
 	for reactionID in disabledReactions:
 		fba.maxReactionFluxIs(reactionID, 0)
 
+	# Set enzymes unlimited
+	fba.enzymeLevelsIs(np.inf)
+
 	return fba
 
 
@@ -1032,6 +1052,12 @@ def compareFeistToExpected():
 	print fba.externalExchangeFlux("GLC-D[e]"), "(expected 8.)"
 	print fba.externalExchangeFlux("O2[e]"), "(expected 16.27631182)"
 	print fba.objectiveReactionFlux(), "(expected 0.73645239)"
+
+
+def checkEnzymeLimitations():
+	kb = loadKB()
+
+	fba = setupFeist(kb)
 
 
 if __name__ == "__main__":
