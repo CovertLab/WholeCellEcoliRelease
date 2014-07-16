@@ -80,6 +80,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.gtp = self.bulkMoleculeView("GTP[c]")
 		self.gmp = self.bulkMoleculeView("GMP[c]")
 		self.ppi = self.bulkMoleculeView("PPI[c]")
+		self.h   = self.bulkMoleculeView("H[c]")
 
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
 
@@ -203,6 +204,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.gtp.countDec(gtpUsed)
 		self.gmp.countInc(gtpUsed)
 		self.ppi.countInc(gtpUsed)
+		self.h.countInc(gtpUsed)
 
 		self.h2o.countDec(gtpUsed)
 
