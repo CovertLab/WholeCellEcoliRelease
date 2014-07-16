@@ -147,6 +147,7 @@ class FluxBalanceAnalysis(object):
 
 	## Exchange fluxes
 	_generatedID_externalExchange = "{} external exchange"
+	_generatedID_internalExchange = "{} internal exchange"
 
 	## Objective
 	_generatedID_moleculesToEquivalents = "molecules of {} to fractional objective equivalents"
@@ -232,6 +233,7 @@ class FluxBalanceAnalysis(object):
 		# Add external exchange reactions
 
 		externalExchangeIndexes = []
+		externalMoleculeIDs = []
 
 		for moleculeID in externalExchangedMolecules:
 			exchangeID = self._generatedID_externalExchange.format(moleculeID)
@@ -249,8 +251,10 @@ class FluxBalanceAnalysis(object):
 			values.append(-1)
 
 			externalExchangeIndexes.append(colIndex)
+			externalMoleculeIDs.append(moleculeID)
 
 		self._externalExchangeIndexes = np.array(externalExchangeIndexes)
+		self._externalMoleculeIDs = tuple(externalMoleculeIDs)
 
 		# Set up the objective
 
@@ -259,9 +263,6 @@ class FluxBalanceAnalysis(object):
 		objectiveEquivalentIndexes = []
 
 		for moleculeID, coeff in objective.viewitems():
-			if coeff < 0:
-				raise FBAException("Negative coefficients in the objective not permitted ({}, {})".format(moleculeID, coeff))
-
 			molecule_rowIndex = self._nodeIndex(moleculeID)
 
 			pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
@@ -409,7 +410,6 @@ class FluxBalanceAnalysis(object):
 				colIndexes.append(fractionDifferenceBiomassOut_colIndex)
 				values.append(-1)
 
-
 		elif objectiveType == "pools":
 			raise NotImplementedError()
 
@@ -418,8 +418,30 @@ class FluxBalanceAnalysis(object):
 
 		# Add internal exchange reactions
 
+		internalExchangeIndexes = []
+		internalMoleculeIDs = []
+
 		if internalExchangedMolecules is not None:
-			raise NotImplementedError()
+			for moleculeID in internalExchangedMolecules:
+				exchangeID = self._generatedID_internalExchange.format(moleculeID)
+
+				colIndex = self._edgeAdd(exchangeID)
+				rowIndex = self._nodeIndex(moleculeID)
+
+				rowIndexes.append(rowIndex)
+				colIndexes.append(colIndex)
+				values.append(-1)
+
+				internalExchangeIndexes.append(colIndex)
+				internalMoleculeIDs.append(moleculeID)
+
+				outputMoleculeIndexes.append(rowIndex)
+				outputReactionIndexes.append(colIndex)
+
+		self._internalExchangeIndexes = np.array(internalExchangeIndexes)
+		self._internalMoleculeIDs = tuple(internalMoleculeIDs)
+
+		# TODO: setup bounds, output calculation matrix
 
 		# Set up enzyme pseudometabolites and constraints
 
@@ -606,6 +628,10 @@ class FluxBalanceAnalysis(object):
 	# formulation of the problem.  All that matters is that initialization 
 	# parameters have consistent units.
 
+	def externalMoleculeIDs(self):
+		return self._externalMoleculeIDs
+
+
 	def externalMoleculeLevelsIs(self, levels):
 		levels = np.array(levels)
 		if (levels < 0).any():
@@ -614,8 +640,16 @@ class FluxBalanceAnalysis(object):
 		self._lowerBound[self._externalExchangeIndexes] = -levels
 
 
+	def internalMoleculeIDs(self):
+		return self._internalMoleculeIDs
+
+
 	def internalMoleculeLevelsIs(self, levels):
-		raise NotImplementedError()
+		levels = np.array(levels)
+		if (levels < 0).any():
+			raise FBAException("Negative molecule levels not allowed")
+
+		self._lowerBound[self._internalExchangeIndexes] = -levels
 
 
 	def enzymeIDs(self):
@@ -623,15 +657,19 @@ class FluxBalanceAnalysis(object):
 
 
 	def enzymeLevelsIs(self, levels):
+		if self._enzymeUsageRateConstrainedIndexes.size == 0:
+			return
+
 		levels = np.array(levels)
 		if (levels < 0).any():
 			raise FBAException("Negative enzyme levels not allowed")
 
 		# Rate-constrained
+
 		self._upperBound[self._enzymeUsageRateConstrainedIndexes] = levels
 
 		# Boolean-constrained (enzyme w/o an annotated rate)
-		boolConstraint = np.zeros(levels.size, np.float64)
+		boolConstraint = np.zeros(self._enzymeUsageBoolConstrainedIndexes.size, np.float64)
 		boolConstraint[levels > 0] = np.inf
 		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = boolConstraint
 
@@ -649,6 +687,8 @@ class FluxBalanceAnalysis(object):
 
 		solution = cvxopt.solvers.lp(self._f, self._G, h, self._A, self._b, solver = "glpk")
 
+		cvxopt.solvers.options.update(oldOptions)
+
 		self._rawSolution = solution
 
 		# TODO: raise/return flag on failed optimization
@@ -662,13 +702,29 @@ class FluxBalanceAnalysis(object):
 		return self._outputMoleculeIDs
 
 
-	def outputMoleculeCounts(self):
+	def outputMoleculeLevelsChange(self):
 		# Must compute and return two (potentially overlapping) sets of 
 		# molecule counts:
 		# - internal input usage (TODO)
 		# - objective output production
 
 		return np.dot(self._outputCalcMatrix, self._edgeFluxes[self._outputReactionIndexes])
+
+
+	def externalExchangeFlux(self, moleculeID):
+		return -self._edgeFluxes[
+			self._edgeIndex(self._generatedID_externalExchange.format(moleculeID))
+			]
+
+
+	def internalExchangeFlux(self, moleculeID):
+		return -self._edgeFluxes[
+			self._edgeIndex(self._generatedID_internalExchange.format(moleculeID))
+			]
+
+
+	def reactionFlux(self, reactionID):
+		return self._edgeFluxes[self._edgeIndex(reactionID)]
 
 
 if __name__ == "__main__":
@@ -746,21 +802,33 @@ if __name__ == "__main__":
 		}
 
 	objective = {}
-	internalMoleculeLevels = {}
+	# internalMoleculeLevels = {}
 	for moleculeID_raw, coeff in objectiveRaw.viewitems():
 		moleculeID = moleculeID_raw[:-2].upper() + moleculeID_raw[-2:]
 
 		if moleculeID == "KDO2LIPID4[e]":
 			moleculeID = "KDO2LIPID4[o]"
 
-		if coeff < 0:
-			objective[moleculeID] = -coeff
+		# if coeff > 0:
+		# 	objective[moleculeID] = -coeff
 
-		else:
-			internalMoleculeLevels[moleculeID] = coeff
+		# else:
+		# 	internalMoleculeLevels[moleculeID] = coeff
+
+		objective[moleculeID] = -coeff
+
+	removedReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
 	import re
-	rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
+	rxns = [
+		x for x in kb.metabolismBiochemicalReactions
+		if (
+			not re.match(".*_[0-9]$", x["id"])
+			or x["id"].endswith("_0")
+			or "PFK_2" in x["id"]
+			or x["id"] in removedReactions
+			)
+		]
 
 	reactionStoich = {
 		rxn["id"]:
@@ -781,110 +849,56 @@ if __name__ == "__main__":
 		reactionStoich,
 		externalExchangedMolecules,
 		objective,
-		objectiveType = "flexible",
+		objectiveType = "standard",
 		objectiveParameters = {
 			"gamma":0.1,
 			"beta":100,
 			"leading molecule ID":atpId
 			},
-		reversibleReactions = reversibleReactions
+		reversibleReactions = reversibleReactions,
+		# internalExchangedMolecules = internalMoleculeLevels.keys()
 		# reactionEnzymes = reactionEnzymes,
 		# reactionRates = reactionRates
 		)
 
+	externalMoleculeIDs = fba.externalMoleculeIDs()
+
+	unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
+		"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
+		"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
+		"ZN2[e]")
+
+	constrainedExchange = {
+		"CBL1[e]":0.01,
+		"GLC-D[e]":8,
+		"O2[e]":18.5
+		}
+
+	externalMoleculeLevels = np.zeros(len(externalMoleculeIDs), np.float64)
+
+	for index, moleculeID in enumerate(externalMoleculeIDs):
+		if moleculeID in unconstrainedExchange:
+			externalMoleculeLevels[index] = np.inf
+
+		elif constrainedExchange.has_key(moleculeID):
+			externalMoleculeLevels[index] = constrainedExchange[moleculeID]
+
+	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+
+	# fba.internalMoleculeLevelsIs([
+	# 	internalMoleculeLevels[moleculeID] for moleculeID in fba.internalMoleculeIDs()
+	# 	])
+
+	# Hack for ATP maintenance...
+
+	atpMaintenanceIndex = fba._edgeIndex("FEIST_ATPM")
+	fba._lowerBound[atpMaintenanceIndex] = 8.39
+	fba._upperBound[atpMaintenanceIndex] = 8.39
+
 	fba.run()
 
-	print fba.outputMoleculeIDs()
-	print fba.outputMoleculeCounts()
+	print fba.externalExchangeFlux("GLC-D[e]")
+	print fba.externalExchangeFlux("O2[e]")
+	print fba.reactionFlux("Standard FBA objective reaction")
 
 	# import ipdb; ipdb.set_trace()
-
-# biomass = [{'coeff': -0.000223, 'id': '10fthf[c]'}, {'coeff': -0.000223, 'id': '2ohph[c]'}, {'coeff': 59.810000000000002, 'id': 'adp[c]'}, {'coeff': -0.51370000000000005, 'id': 'ala-L[c]'}, {'coeff': -0.000223, 'id': 'amet[c]'}, {'coeff': -0.29580000000000001, 'id': 'arg-L[c]'}, {'coeff': -0.24110000000000001, 'id': 'asn-L[c]'}, {'coeff': -0.24110000000000001, 'id': 'asp-L[c]'}, {'coeff': -59.984000000000002, 'id': 'atp[c]'}, {'coeff': -0.0047369999999999999, 'id': 'ca2[c]'}, {'coeff': -0.0047369999999999999, 'id': 'cl[c]'}, {'coeff': -0.00057600000000000001, 'id': 'coa[c]'}, {'coeff': -0.0031580000000000002, 'id': 'cobalt2[c]'}, {'coeff': -0.13350000000000001, 'id': 'ctp[c]'}, {'coeff': -0.0031580000000000002, 'id': 'cu2[c]'}, {'coeff': -0.091579999999999995, 'id': 'cys-L[c]'}, {'coeff': -0.026169999999999999, 'id': 'datp[c]'}, {'coeff': -0.027019999999999999, 'id': 'dctp[c]'}, {'coeff': -0.027019999999999999, 'id': 'dgtp[c]'}, {'coeff': -0.026169999999999999, 'id': 'dttp[c]'}, {'coeff': -0.000223, 'id': 'fad[c]'}, {'coeff': -0.0071060000000000003, 'id': 'fe2[c]'}, {'coeff': -0.0071060000000000003, 'id': 'fe3[c]'}, {'coeff': -0.26319999999999999, 'id': 'gln-L[c]'}, {'coeff': -0.26319999999999999, 'id': 'glu-L[c]'}, {'coeff': -0.61260000000000003, 'id': 'gly[c]'}, {'coeff': -0.21510000000000001, 'id': 'gtp[c]'}, {'coeff': -54.462000000000003, 'id': 'h2o[c]'}, {'coeff': 59.810000000000002, 'id': 'h[c]'}, {'coeff': -0.094740000000000005, 'id': 'his-L[c]'}, {'coeff': -0.29049999999999998, 'id': 'ile-L[c]'}, {'coeff': -0.17760000000000001, 'id': 'k[c]'}, {'coeff': -0.019449999999999999, 'id': 'kdo2lipid4[e]'}, {'coeff': -0.45050000000000001, 'id': 'leu-L[c]'}, {'coeff': -0.34320000000000001, 'id': 'lys-L[c]'}, {'coeff': -0.1537, 'id': 'met-L[c]'}, {'coeff': -0.0078949999999999992, 'id': 'mg2[c]'}, {'coeff': -0.000223, 'id': 'mlthf[c]'}, {'coeff': -0.0031580000000000002, 'id': 'mn2[c]'}, {'coeff': -0.0031580000000000002, 'id': 'mobd[c]'}, {'coeff': -0.01389, 'id': 'murein5px4p[p]'}, {'coeff': -0.0018309999999999999, 'id': 'nad[c]'}, {'coeff': -0.00044700000000000002, 'id': 'nadp[c]'}, {'coeff': -0.011842999999999999, 'id': 'nh4[c]'}, {'coeff': -0.022329999999999999, 'id': 'pe160[c]'}, {'coeff': -0.041480000000000003, 'id': 'pe160[p]'}, {'coeff': -0.02632, 'id': 'pe161[c]'}, {'coeff': -0.048890000000000003, 'id': 'pe161[p]'}, {'coeff': -0.1759, 'id': 'phe-L[c]'}, {'coeff': -0.000223, 'id': 'pheme[c]'}, {'coeff': 59.805999999999997, 'id': 'pi[c]'}, {'coeff': 0.77390000000000003, 'id': 'ppi[c]'}, {'coeff': -0.22109999999999999, 'id': 'pro-L[c]'}, {'coeff': -0.000223, 'id': 'pydx5p[c]'}, {'coeff': -0.000223, 'id': 'ribflv[c]'}, {'coeff': -0.21579999999999999, 'id': 'ser-L[c]'}, {'coeff': -0.000223, 'id': 'sheme[c]'}, {'coeff': -0.0039480000000000001, 'id': 'so4[c]'}, {'coeff': -0.000223, 'id': 'thf[c]'}, {'coeff': -0.000223, 'id': 'thmpp[c]'}, {'coeff': -0.25369999999999998, 'id': 'thr-L[c]'}, {'coeff': -0.056840000000000002, 'id': 'trp-L[c]'}, {'coeff': -0.13789999999999999, 'id': 'tyr-L[c]'}, {'coeff': -5.5000000000000002e-05, 'id': 'udcpdp[c]'}, {'coeff': -0.14410000000000001, 'id': 'utp[c]'}, {'coeff': -0.42320000000000002, 'id': 'val-L[c]'}, {'coeff': -0.0031580000000000002, 'id': 'zn2[c]'}]
-# for x in biomass:
-# 	x["id"] = x["id"][:-2].upper() + x["id"][-2:]
-# 	if x["id"] == "KDO2LIPID4[e]":
-# 		x["id"] = "KDO2LIPID4[o]"
-
-
-# metIds = [x for x in kb.metabolismMoleculeNames]
-# import re
-# rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
-# rxnIsIrreversible = np.array([x["dir"] for x in rxns], dtype = np.bool)
-# mediaEx = kb.metabolismMediaEx
-# # biomass = [{"id": x["metaboliteId"], "coeff": -x["biomassFlux"]} for x in kb.wildtypeBiomass.struct_array]
-# atpId = "ATP[c]"
-# # self.flexTFbaModel = wholecell.utils.flex_t_fba_model.FlexTFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass, atpId = "ATP[c]", params = None)
-# self.flexTFbaModel = wholecell.utils.d_fba_model.dFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass)
-# self.lb = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), False)
-# self.ub = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), True)
-
-# # Thermodynamic bounds
-# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("real").idxs()[rxnIsIrreversible], "thermodynamic", 0)
-
-# # Biomass return is zero (for testing)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnGroup("x").idxs(), "exchange", 0)
-
-# # Media exchange
-# self.lb.valuesIs(self.flexTFbaModel.rxnGroup("mediaEx").idxs(), "exchange", 0)
-# mediaRxnIds = [
-# 	"mediaEx_FEIST_EX_ca2(e)",
-# 	"mediaEx_FEIST_EX_cl(e)",
-# 	"mediaEx_FEIST_EX_co2(e)",
-# 	"mediaEx_FEIST_EX_cobalt2(e)",
-# 	"mediaEx_FEIST_EX_cu2(e)",
-# 	"mediaEx_FEIST_EX_fe2(e)",
-# 	"mediaEx_FEIST_EX_fe3(e)",
-# 	"mediaEx_FEIST_EX_h(e)",
-# 	"mediaEx_FEIST_EX_h2o(e)",
-# 	"mediaEx_FEIST_EX_k(e)",
-# 	"mediaEx_FEIST_EX_mg2(e)",
-# 	"mediaEx_FEIST_EX_mn2(e)",
-# 	"mediaEx_FEIST_EX_mobd(e)",
-# 	"mediaEx_FEIST_EX_na1(e)",
-# 	"mediaEx_FEIST_EX_nh4(e)",
-# 	"mediaEx_FEIST_EX_pi(e)",
-# 	"mediaEx_FEIST_EX_so4(e)",
-# 	"mediaEx_FEIST_EX_tungs(e)",
-# 	"mediaEx_FEIST_EX_zn2(e)",
-# 	# "mediaEx_FEIST_EX_cbl1(e)",
-# 	# "mediaEx_SELNP_MEDIA_EXCHANGE_HACKED",
-# 	]
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(mediaRxnIds), "exchange", -np.inf)
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_cbl1(e)"]), "exchange", -0.01)
-
-# # Nutrient limitations
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -8.)
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -18.5)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"]), "exchange", -100.)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"]), "exchange", -100)
-
-# # ATPM
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_ATPM"]), "bs", 8.39)
-# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_ATPM"]), "bs", 8.39)
-
-# # Reactions Feist arbitrarily set to 0
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_0"]), "bs", 0)
-# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_0"]), "bs", 0)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
-# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_CAT_1"]), "bs", 0)
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_0"]), "bs", 0)
-# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_0"]), "bs", 0)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
-# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODM_1"]), "bs", 0)
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODMpp"]), "bs", 0)
-# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_SPODMpp"]), "bs", 0)
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_0"]), "bs", 0)
-# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_0"]), "bs", 0)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
-# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_0_1"]), "bs", 0)
-# self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_0"]), "bs", 0)
-# self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_0"]), "bs", 0)
-# # self.lb.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
-# # self.ub.valuesIs(self.flexTFbaModel.rxnIdxs(["rxn_FEIST_FHL_1_1"]), "bs", 0)
-
-# self.flexTFbaModel.v_lowerIs(idxs = self.flexTFbaModel.rxnGroup("lowerMutable").idxs(), values = self.lb.mergedValues(self.flexTFbaModel.rxnGroup("lowerMutable").idxs()))
-# self.flexTFbaModel.v_upperIs(idxs = self.flexTFbaModel.rxnGroup("upperMutable").idxs(), values = self.ub.mergedValues(self.flexTFbaModel.rxnGroup("upperMutable").idxs()))
-
-# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_glc(e)"])]
-# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["mediaEx_FEIST_EX_o2(e)"])]
-# self.flexTFbaModel.solution()[self.flexTFbaModel.rxnIdxs(["g_bio"])]
