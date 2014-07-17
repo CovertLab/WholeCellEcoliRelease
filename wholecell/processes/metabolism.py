@@ -277,7 +277,7 @@ class FluxBalanceAnalysis(object):
 		reactionIndexes = []
 
 		for reactionID, stoichiometry in reactionStoich.viewitems():
-			colIndex = self._colAdd(reactionID)
+			colIndex = self._colNew(reactionID)
 
 			for moleculeID, stoichCoeff in stoichiometry.viewitems():
 				rowIndex = self._rowIndex(moleculeID, True)
@@ -300,7 +300,7 @@ class FluxBalanceAnalysis(object):
 		for moleculeID in externalExchangedMolecules:
 			exchangeID = self._generatedID_externalExchange.format(moleculeID)
 
-			colIndex = self._colAdd(exchangeID)
+			colIndex = self._colNew(exchangeID)
 			rowIndex = self._rowIndex(moleculeID)
 
 			# NOTE: The convention, if I am not mistaken, is to define 
@@ -330,10 +330,10 @@ class FluxBalanceAnalysis(object):
 			molecule_rowIndex = self._rowIndex(moleculeID)
 
 			pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
-			colIndex = self._colAdd(pseudoFluxID)
+			colIndex = self._colNew(pseudoFluxID)
 
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
-			objectiveEquiv_rowIndex = self._rowAdd(objectiveEquivID)
+			objectiveEquiv_rowIndex = self._rowNew(objectiveEquivID)
 
 			self._rowIndexes.append(molecule_rowIndex)
 			self._colIndexes.append(colIndex)
@@ -354,13 +354,13 @@ class FluxBalanceAnalysis(object):
 		the standard objective, all molecules must be created/destroyed in 
 		prescribed ratios."""
 
-		colIndex = self._colAdd(self._standardObjectiveReactionName)
+		colIndex = self._colNew(self._standardObjectiveReactionName)
 
 		nObjectiveEquivalents = len(objectiveEquivalentIndexes)
 
 		for moleculeID in objective.viewkeys():
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
-			objectiveEquiv_rowIndex = self._rowAdd(objectiveEquivID)
+			objectiveEquiv_rowIndex = self._rowNew(objectiveEquivID)
 
 			self._rowIndexes.append(objectiveEquiv_rowIndex)
 			self._colIndexes.append(colIndex)
@@ -391,7 +391,7 @@ class FluxBalanceAnalysis(object):
 		if biomassSatisfactionWeight < 0:
 			raise FBAException("flexFBA beta paramter must be nonnegative")
 
-		biomass_colIndex = self._colAdd(self._standardObjectiveReactionName)
+		biomass_colIndex = self._colNew(self._standardObjectiveReactionName)
 
 		# Add biomass to objective
 		self._objIndexes.append(biomass_colIndex)
@@ -409,7 +409,7 @@ class FluxBalanceAnalysis(object):
 
 			# Fraction out
 			fractionOutID = self._generatedID_fractionsOut.format(moleculeID)
-			fractionOut_colIndex = self._colAdd(fractionOutID)
+			fractionOut_colIndex = self._colNew(fractionOutID)
 
 			self._rowIndexes.append(fraction_rowIndex)
 			self._colIndexes.append(fractionOut_colIndex)
@@ -429,7 +429,7 @@ class FluxBalanceAnalysis(object):
 				continue
 
 			fractionDifferenceLeadingID = self._generatedID_fractionalDifferenceLeading.format(moleculeID)
-			fractionDifferenceLeading_rowIndex = self._rowAdd(fractionDifferenceLeadingID)
+			fractionDifferenceLeading_rowIndex = self._rowNew(fractionDifferenceLeadingID)
 
 			self._rowIndexes.append(fractionDifferenceLeading_rowIndex)
 			self._colIndexes.append(leadingMoleculeToFraction_colIndex)
@@ -443,7 +443,7 @@ class FluxBalanceAnalysis(object):
 			self._values.append(-1)
 
 			fractionDifferenceLeadingOutID = self._generatedID_fractionalDifferenceLeadingOut.format(moleculeID)
-			fractionDifferenceLeadingOut_colIndex = self._colAdd(fractionDifferenceLeadingOutID)
+			fractionDifferenceLeadingOut_colIndex = self._colNew(fractionDifferenceLeadingOutID)
 
 			self._rowIndexes.append(fractionDifferenceLeading_rowIndex)
 			self._colIndexes.append(fractionDifferenceLeadingOut_colIndex)
@@ -456,7 +456,7 @@ class FluxBalanceAnalysis(object):
 
 		for moleculeID in objective.viewkeys():
 			fractionDifferenceBiomassID = self._generatedID_fractionalDifferenceBiomass.format(moleculeID)
-			fractionDifferenceBiomass_rowIndex = self._rowAdd(fractionDifferenceBiomassID)
+			fractionDifferenceBiomass_rowIndex = self._rowNew(fractionDifferenceBiomassID)
 
 			moleculeToFractionID = self._generatedID_moleculesToEquivalents.format(moleculeID)
 			moleculeToFraction_colIndex = self._colIndex(moleculeToFractionID)
@@ -470,7 +470,7 @@ class FluxBalanceAnalysis(object):
 			self._values.append(-1)
 
 			fractionDifferenceBiomassOutID = self._generatedID_fractionalDifferenceBiomassOut.format(moleculeID)
-			fractionDifferenceBiomassOut_colIndex = self._colAdd(fractionDifferenceBiomassOutID)
+			fractionDifferenceBiomassOut_colIndex = self._colNew(fractionDifferenceBiomassOutID)
 
 			self._rowIndexes.append(fractionDifferenceBiomass_rowIndex)
 			self._colIndexes.append(fractionDifferenceBiomassOut_colIndex)
@@ -492,7 +492,7 @@ class FluxBalanceAnalysis(object):
 			for moleculeID in internalExchangedMolecules:
 				exchangeID = self._generatedID_internalExchange.format(moleculeID)
 
-				colIndex = self._colAdd(exchangeID)
+				colIndex = self._colNew(exchangeID)
 				rowIndex = self._rowIndex(moleculeID)
 
 				self._rowIndexes.append(rowIndex)
@@ -531,10 +531,10 @@ class FluxBalanceAnalysis(object):
 			for enzymeID in self._enzymeIDs:
 				# Create pseudometabolite and flux for rate-constrained
 				enzymeEquivalentRateID = self._generatedID_enzymeEquivRateConstrained.format(enzymeID)
-				enzymeEquivalentRate_rowIndex = self._rowAdd(enzymeEquivalentRateID)
+				enzymeEquivalentRate_rowIndex = self._rowNew(enzymeEquivalentRateID)
 
 				enzymeUsageRateID = self._generatedID_enzymeUsageRateConstrained.format(enzymeID)
-				enzymeUsageRate_colIndex = self._colAdd(enzymeUsageRateID)
+				enzymeUsageRate_colIndex = self._colNew(enzymeUsageRateID)
 
 				self._rowIndexes.append(enzymeEquivalentRate_rowIndex)
 				self._colIndexes.append(enzymeUsageRate_colIndex)
@@ -544,10 +544,10 @@ class FluxBalanceAnalysis(object):
 
 				# Create pseudometabolite and flux for bool-constrained
 				enzymeEquivalentBoolID = self._generatedID_enzymeEquivBoolConstrained.format(enzymeID)
-				enzymeEquivalentBool_rowIndex = self._rowAdd(enzymeEquivalentBoolID)
+				enzymeEquivalentBool_rowIndex = self._rowNew(enzymeEquivalentBoolID)
 
 				enzymeUsageBoolID = self._generatedID_enzymeUsageBoolConstrained.format(enzymeID)
-				enzymeUsageBool_colIndex = self._colAdd(enzymeUsageBoolID)
+				enzymeUsageBool_colIndex = self._colNew(enzymeUsageBoolID)
 
 				self._rowIndexes.append(enzymeEquivalentBool_rowIndex)
 				self._colIndexes.append(enzymeUsageBool_colIndex)
@@ -653,7 +653,7 @@ class FluxBalanceAnalysis(object):
 			]))
 
 
-	def _colAdd(self, colName):
+	def _colNew(self, colName):
 		if colName in self._colNames:
 			raise AlreadyExistsException("Edge already exists: {}".format(colName))
 
@@ -668,13 +668,13 @@ class FluxBalanceAnalysis(object):
 
 		except ValueError:
 			if createIfDoesNotExists:
-				return self._colAdd(colName)
+				return self._colNew(colName)
 
 			else:
 				raise DoesNotExistException("Edge does not exist: {}".format(colName))
 
 
-	def _rowAdd(self, rowName):
+	def _rowNew(self, rowName):
 		if rowName in self._rowNames:
 			raise AlreadyExistsException("Node already exists: {}".format(rowName))
 
@@ -689,7 +689,7 @@ class FluxBalanceAnalysis(object):
 
 		except ValueError:
 			if createIfDoesNotExists:
-				return self._rowAdd(rowName)
+				return self._rowNew(rowName)
 
 			else:
 				raise DoesNotExistException("Node does not exist: {}".format(rowName))
