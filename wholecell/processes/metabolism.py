@@ -180,7 +180,9 @@ class FluxBalanceAnalysis(object):
 	_upperBoundDefault = np.inf
 
 	_standardObjectiveReactionName = "Standard biomass objective reaction"
+	_massOutName = "Mass out"
 
+	_numericalInfinity = 1e6 # used to constrain the solver to finite values
 
 	# Initialization
 
@@ -256,7 +258,7 @@ class FluxBalanceAnalysis(object):
 
 		self._initEnzymeConstraints(reactionEnzymes, reactionRates)
 
-		self._initMass(moleculeMasses)
+		self._initMass(externalExchangedMolecules, moleculeMasses)
 
 		# Finalize
 
@@ -586,15 +588,36 @@ class FluxBalanceAnalysis(object):
 		self._enzymeUsageBoolConstrainedIndexes = np.array(enzymeUsageBoolConstrainedIndexes, np.int64)
 
 
-	def _initMass(self, moleculeMasses):
-		"""Not implemented.
+	def _initMass(self, externalExchangedMolecules, moleculeMasses):
+		"""Create mass accumulation abstractions.
 
 		Tracking the mass entering the system through metabolism is crucial for
 		insuring closure. It can also be used to constrain the maximal rate of
 		growth."""
 
 		if moleculeMasses is not None:
-			raise NotImplementedError()
+			massID = "Mass"
+			massIndex = self._rowNew(massID)
+
+			massOutIndex = self._colNew(self._massOutName)
+
+			self._rowIndexes.append(massIndex)
+			self._colIndexes.append(massOutIndex)
+			self._values.append(-1)
+
+			for moleculeID in externalExchangedMolecules:
+				exchangeFluxName = self._generatedID_externalExchange.format(moleculeID)
+				exchangeFluxIndex = self._colIndex(exchangeFluxName)
+
+				try:
+					moleculeMass = moleculeMasses[moleculeID]
+
+				except KeyError:
+					raise FBAException("You must provide masses for all molecules in externalExchangedMolecules")
+
+				self._rowIndexes.append(massIndex)
+				self._colIndexes.append(exchangeFluxIndex)
+				self._values.append(-moleculeMass) # NOTE: negative because exchange fluxes point out
 
 
 	def _finalizeMisc(self):
@@ -795,9 +818,10 @@ class FluxBalanceAnalysis(object):
 	# Evaluation
 
 	def run(self):
-		h = cvxopt.matrix(
-			np.concatenate([self._upperBound, -self._lowerBound], axis = 0)
-			)
+		h = cvxopt.matrix(np.fmin(
+			np.concatenate([self._upperBound, -self._lowerBound], axis = 0),
+			self._numericalInfinity
+			))
 
 		oldOptions = cvxopt.solvers.options.copy()
 
@@ -857,6 +881,10 @@ class FluxBalanceAnalysis(object):
 
 	def enzymeUsage(self):
 		return self._solutionFluxes[self._enzymeUsageRateConstrainedIndexes]
+
+
+	def massAccumulated(self):
+		return self._solutionFluxes[self._colIndex(self._massOutName)]
 
 
 # Test data
@@ -986,6 +1014,11 @@ def setupFeist(kb):
 		if reactionStoich.has_key(reactionID) and rate > 0
 		}
 
+	masses = kb.getMass(externalExchangedMolecules).to("gram/millimole").magnitude
+
+	moleculeMasses = {moleculeID:masses[index]
+		for index, moleculeID in enumerate(externalExchangedMolecules)}
+
 	# Create FBA instance
 	fba = FluxBalanceAnalysis(
 		reactionStoich,
@@ -999,7 +1032,8 @@ def setupFeist(kb):
 			},
 		reversibleReactions = reversibleReactions,
 		reactionEnzymes = reactionEnzymes,
-		reactionRates = reactionRates
+		reactionRates = reactionRates,
+		moleculeMasses = moleculeMasses
 		)
 
 	# Set constraints
@@ -1058,6 +1092,8 @@ def compareFeistToExpected():
 	print fba.externalExchangeFlux("GLC-D[e]"), "(expected 8.)"
 	print fba.externalExchangeFlux("O2[e]"), "(expected 16.27631182)"
 	print fba.objectiveReactionFlux(), "(expected 0.73645239)"
+
+	print "Imported mass: ", fba.massAccumulated()
 
 
 def checkEnzymeLimitations():
