@@ -853,6 +853,10 @@ class FluxBalanceAnalysis(object):
 		return self._edgeFluxes[colIndex]
 
 
+	def enzymeUsage(self):
+		return self._edgeFluxes[self._enzymeUsageRateConstrainedIndexes]
+
+
 # Test data
 
 def loadKB():
@@ -973,7 +977,7 @@ def setupFeist(kb):
 		if (enzymeID is not None) and reactionStoich.has_key(reactionID)
 		}
 
-	dt = 1
+	dt = 3600
 	reactionRates = {
 		reactionID:rate * dt
 		for reactionID, rate in izip(kb.metabolismReactionIds, kb.metabolismReactionKcat)
@@ -1007,7 +1011,7 @@ def setupFeist(kb):
 
 	constrainedExchange = {
 		"CBL1[e]":0.01,
-		"GLC-D[e]":8,
+		"GLC-D[e]":8, # mmol/gdcw-hr
 		"O2[e]":18.5
 		}
 
@@ -1059,6 +1063,15 @@ def checkEnzymeLimitations():
 
 	fba = setupFeist(kb)
 
+	fba.run()
+
+	cellDryGrams = kb.avgCellDryMassInit.to("gram").magnitude
+	moleculesPerMole = kb.nAvogadro.magnitude
+
+	enzymeUsageMolecules = fba.enzymeUsage() * moleculesPerMole * cellDryGrams
+
+	import ipdb; ipdb.set_trace()
+
 
 if __name__ == "__main__":
-	compareFeistToExpected()
+	checkEnzymeLimitations()
