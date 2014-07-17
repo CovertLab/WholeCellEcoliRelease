@@ -34,9 +34,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Views
 		self.metabolites = None
-		self.nmps = None
-		self.h2o = None
-		self.proton = None
 		self.rnas = None
 		self.rnase = None
 
@@ -47,36 +44,31 @@ class RnaDegradation(wholecell.processes.process.Process):
 		super(RnaDegradation, self).initialize(sim, kb)
 
 		metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
-			"H2O[c]", "PPI[c]"]
+			"H2O[c]", "PPI[c]", "H[c]"]
 
 		nmpIdxs = np.arange(0, 4)
 		h2oIdx = metaboliteIds.index('H2O[c]')
 		ppiIdx = metaboliteIds.index('PPI[c]')
+		hIdx = metaboliteIds.index('H[c]')
 
 		rnaIds = kb.rnaData['id']
 
 		# Rna
 		self.rnaDegRates = kb.rnaData['degRate'].magnitude
-
 		self.rnaLens = kb.rnaData['length'].magnitude
 
+		# Build stoichiometric matrix
 		# TODO: account for NTP on 5' end
-
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
 		self.rnaDegSMat[nmpIdxs, :] = np.transpose(kb.rnaData['countsACGU'])
 		# self.rnaDegSMat[h2oIdx, :]  = -(self.rnaLens - 1)
 		self.rnaDegSMat[h2oIdx, :]  = -self.rnaLens # using one additional water to hydrolyze PPI on 5' end
 		self.rnaDegSMat[ppiIdx, :]    =  1
-
-		# Views
-		self.metabolites = self.bulkMoleculesView(metaboliteIds)
-
-		self.nmps = self.bulkMoleculesView(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
-		self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.rnaDegSMat[hIdx, :] = self.rnaLens
 		
+		# Views
+		self.metabolites = self.bulkMoleculesView(metaboliteIds)		
 		self.rnas = self.bulkMoleculesView(rnaIds)
-
 		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
