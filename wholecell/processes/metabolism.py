@@ -197,6 +197,8 @@ class FluxBalanceAnalysis(object):
 		# Set up running values for initialization
 
 		## Used for creating the sparse matrix
+		# TODO: methods for creating/manipulating rows and cols (and values)
+		# using their names instead of their indexes
 		self._rowIndexes = []
 		self._colIndexes = []
 		self._values = []
