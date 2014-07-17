@@ -82,6 +82,7 @@ class Replication(wholecell.processes.process.Process):
 		self.dnmps = self.bulkMoleculesView(DNMP_IDS)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.h = self.bulkMoleculeView('H[c]')
 		
 		self.genes = self.bulkChromosomesView(geneIds)
 
@@ -119,7 +120,7 @@ class Replication(wholecell.processes.process.Process):
 				)
 
 		# Assumes reaction taking place is:
-		# dNTP + H2O --> dNMP + PPi
+		# dNTP + H2O --> dNMP + PPi + H
 		self.dntps.requestIs(totalNtRequest)
 		self.h2o.requestIs(np.sum(totalNtRequest))
 
@@ -183,11 +184,12 @@ class Replication(wholecell.processes.process.Process):
 				
 		# Update metabolite counts based on polymerization polymeraseProgress
 		# Assumes reaction taking place is:
-		# dNTP + H2O --> dNMP + PPi
+		# dNTP + H2O --> dNMP + PPi + H
 		self.ppi.countInc(np.sum(dNtpsUsed))
 		self.dnmps.countsInc(dNtpsUsed)
 		self.dntps.countsDec(dNtpsUsed)
 		self.h2o.countDec(np.sum(dNtpsUsed))
+		self.h.countInc(np.sum(dNtpsUsed))
 
 def buildSequenceMatrix(nPolymerase, allChromosomeLocation, allDirectionIsPositive, allIsLeading, dnaPolymeraseElongationRate, genomeLength, genomeSequence, tercCenter):
 	'''Builds sequence matrix for polymerize function'''
