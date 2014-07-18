@@ -269,8 +269,6 @@ class FluxBalanceAnalysis(object):
 		objective equivalents.  The objectiveType determines how these 
 		fractions are used."""
 
-		objectiveEquivalentIndexes = []
-
 		for moleculeID, coeff in objective.viewitems():
 			molecule_rowIndex = self._rowIndex(moleculeID)
 
@@ -289,7 +287,6 @@ class FluxBalanceAnalysis(object):
 			self._values.append(+1)
 
 			self._outputMoleculeIndexes.append(molecule_rowIndex)
-			objectiveEquivalentIndexes.append(objectiveEquiv_rowIndex)
 
 			self._outputReactionIndexes.append(colIndex)
 
@@ -301,11 +298,9 @@ class FluxBalanceAnalysis(object):
 
 		colIndex = self._colNew(self._standardObjectiveReactionName)
 
-		nObjectiveEquivalents = len(objectiveEquivalentIndexes)
-
 		for moleculeID in objective.viewkeys():
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
-			objectiveEquiv_rowIndex = self._rowNew(objectiveEquivID)
+			objectiveEquiv_rowIndex = self._rowIndex(objectiveEquivID)
 
 			self._rowIndexes.append(objectiveEquiv_rowIndex)
 			self._colIndexes.append(colIndex)
@@ -758,6 +753,16 @@ class FluxBalanceAnalysis(object):
 		self._lowerBound[colIndex] = minFlux
 
 
+	def objectiveIs(self, objective):
+		for moleculeID, coeff in objective.viewitems():
+			molecule_rowIndex = self._rowIndex(moleculeID)
+
+			pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
+			colIndex = self._colIndex(pseudoFluxID)
+
+			self._A[molecule_rowIndex, colIndex] = -coeff
+
+
 	# Evaluation
 
 	def run(self):
@@ -1017,7 +1022,7 @@ def _setupFeist(kb):
 	for reactionID in disabledReactions:
 		fba.maxReactionFluxIs(reactionID, 0)
 
-	# Set enzymes unlimited
+	## Set enzymes unlimited
 	fba.enzymeLevelsIs(np.inf)
 
 	return fba

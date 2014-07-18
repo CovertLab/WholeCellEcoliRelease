@@ -18,20 +18,20 @@ TODO:
 
 from __future__ import division
 
+from itertools import izip
+
 import numpy as np
 
 import wholecell.processes.process
-import wholecell.utils.flex_t_fba_model
-import wholecell.utils.d_fba_model
+# import wholecell.utils.flex_t_fba_model
+# import wholecell.utils.d_fba_model
 
 from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpression
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
-# from wholecell.utils.modular_fba import FluxBalanceAnalysis
-from wholecell.utils.modular_fba import _setupFeist as setupFeist # TODO: move setup to KB/process
+from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
-GAIN = 10
 ASSUME_OPTIMAL_GROWTH = False
 
 class Metabolism(wholecell.processes.process.Process):
@@ -168,12 +168,12 @@ class Metabolism(wholecell.processes.process.Process):
 
 
 		# metIds = [x for x in kb.metabolismMoleculeNames]
-		# import re
-		# rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
+		import re
+		rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
 		# rxnIsIrreversible = np.array([x["dir"] for x in rxns], dtype = np.bool)
-		# mediaEx = kb.metabolismMediaEx
+		mediaEx = kb.metabolismMediaEx
 		# # biomass = [{"id": x["metaboliteId"], "coeff": -x["biomassFlux"]} for x in kb.wildtypeBiomass.struct_array]
-		# atpId = "ATP[c]"
+		atpId = "ATP[c]"
 		# # self.flexTFbaModel = wholecell.utils.flex_t_fba_model.FlexTFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass, atpId = "ATP[c]", params = None)
 		# self.flexTFbaModel = wholecell.utils.d_fba_model.dFbaModel(metIds = metIds, rxns = rxns, mediaEx = mediaEx, biomass = biomass)
 		# self.lb = wholecell.utils.flex_t_fba_model.bounds(["thermodynamic", "exchange", "bs"], self.flexTFbaModel.rxnIds(), False)
@@ -252,7 +252,97 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# import ipdb; ipdb.set_trace()
 
-		self.fba = setupFeist(kb)
+		reactionStoich = {
+			rxn["id"]:
+			{entry["molecule"]+"["+entry["location"]+"]":entry["coeff"] for entry in rxn["stoichiometry"]}
+			for rxn in rxns
+			if len(rxn["stoichiometry"]) > 1 # no exchange reactions!
+			}
+
+		reversibleReactions = [rxn["id"] for rxn in rxns if not rxn["dir"]]
+
+		externalExchangedMolecules = [rxn["met"] for rxn in mediaEx]
+
+		objective = {
+			moleculeID:coeff for moleculeID, coeff in
+			izip(self.wildtypeIds, self.wildtypeBiomassReactionSS)
+			}
+
+		reactionEnzymes = {
+			reactionID:enzymeID
+			for reactionID, enzymeID in izip(kb.metabolismReactionIds, kb.metabolismReactionEnzymes)
+			if (enzymeID is not None) and reactionStoich.has_key(reactionID)
+			}
+
+		dt = self.timeStepSec # rates are per-second but media exchange fluxes are per-hour
+		reactionRates = {
+			reactionID:rate * dt
+			for reactionID, rate in izip(kb.metabolismReactionIds, kb.metabolismReactionKcat)
+			if reactionStoich.has_key(reactionID) and rate > 0
+			}
+
+		masses = kb.getMass(externalExchangedMolecules).to("gram/millimole").magnitude
+
+		moleculeMasses = {moleculeID:masses[index]
+			for index, moleculeID in enumerate(externalExchangedMolecules)}
+
+		self.fba = FluxBalanceAnalysis(
+			reactionStoich,
+			externalExchangedMolecules,
+			objective,
+			# objectiveType = "standard",
+			objectiveType = "flexible",
+			objectiveParameters = {
+				"gamma":0.1,
+				"beta":100,
+				"leading molecule ID":atpId
+				},
+			reversibleReactions = reversibleReactions,
+			reactionEnzymes = reactionEnzymes,
+			reactionRates = reactionRates,
+			moleculeMasses = moleculeMasses
+			)
+
+		# Set constraints
+		## External molecules
+		externalMoleculeIDs = self.fba.externalMoleculeIDs()
+
+		unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
+			"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
+			"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
+			"ZN2[e]")
+
+		constrainedExchange = {
+			"CBL1[e]":0.01/3600*dt,
+			"GLC-D[e]":8/3600*dt,
+			"O2[e]":18.5/3600*dt
+			}
+
+		externalMoleculeLevels = np.zeros(len(externalMoleculeIDs), np.float64)
+
+		for index, moleculeID in enumerate(externalMoleculeIDs):
+			if moleculeID in unconstrainedExchange:
+				externalMoleculeLevels[index] = np.inf
+
+			elif constrainedExchange.has_key(moleculeID):
+				externalMoleculeLevels[index] = constrainedExchange[moleculeID]
+
+		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+
+		## Set Feist's forced reactions
+
+		### ATP maintenance
+		self.fba.minReactionFluxIs("FEIST_ATPM", 8.39/3600*dt)
+		self.fba.maxReactionFluxIs("FEIST_ATPM", 8.39/3600*dt)
+
+		### Arbitrarily disabled reactions
+		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
+
+		for reactionID in disabledReactions:
+			self.fba.maxReactionFluxIs(reactionID, 0)
+
+		## Set enzymes unlimited
+		self.fba.enzymeLevelsIs(np.inf)
 
 		self.biomassFba = self.bulkMoleculesView(self.fba.outputMoleculeIDs())
 
@@ -295,7 +385,11 @@ class Metabolism(wholecell.processes.process.Process):
 			self.biomassMetabolites.countsInc(deltaMetabolites.astype(np.int64))
 
 		else:
-			# TODO: update biomass objective
+			self.fba.objectiveIs({
+				moleculeID:coeff for moleculeID, coeff in
+				izip(self.wildtypeIds, effectiveBiomassObjective)
+				})
+			
 			self.fba.run()
 
 			deltaMetabolites = self.fba.outputMoleculeLevelsChange() * (
@@ -306,7 +400,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 			self.biomassFba.countsInc(deltaMetabolites.astype(np.int64))
 
-			import ipdb; ipdb.set_trace()
+			# print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
+			# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
+			# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")*3600)
 		
 
 		# NTP recycling
