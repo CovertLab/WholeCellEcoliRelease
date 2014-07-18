@@ -1,79 +1,20 @@
 #!/usr/bin/env python
 
 """
-Metabolism
-
-Metabolism sub-model. Encodes molecular simulation of microbial metabolism using flux-balance analysis.
-
-TODO:
-- move over to flexFBA
-- implement metabolite pools
-- enzyme-limited reactions (& fit enzyme expression)
-- option to call a reduced form of metabolism (assume optimal)
-
-@author: Derek Macklin
+@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/2/2013
+@date: Created 7/14/2014
 """
 
 from __future__ import division
 
-import numpy as np
-
-import wholecell.processes.process
-
-from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
-
-class Metabolism(wholecell.processes.process.Process):
-	""" Metabolism """
-
-	_name = "Metabolism"
-
-	# Constructor
-	def __init__(self):
-		super(Metabolism, self).__init__()
-
-	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Metabolism, self).initialize(sim, kb)
-
-		self.fba = FluxBalanceAnalysis('arguments...')
-
-		self.fba.externalMoleculeCountsIs('max # of molecules that can be used in a time step, defined by media/diffusion')
-
-		self.molecules = self.bulkMoleculesView(self.fba.outputMoleculeIDs())
-
-		self.enzymes = self.bulkMoleculesView('enzyme names')
-
-		self.bulkMoleculeRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
-
-
-	def calculateRequest(self):
-		self.molecules.requestAll()
-
-
-	# Calculate temporal evolution
-	def evolveState(self):
-		# Setup
-		self.fba.internalMoleculeCountsIs(self.molecules.counts())
-		self.fba.enzymeCountsIs(self.enzymes.counts())
-
-		# Run
-		self.fba.run()
-
-		# Finalize
-		self.molecules.countsIs(self.fba.outputMoleculeCounts())
-
-		# TODO: record solution metadata, probably in a listener
-
-
-# TODO: move below to a new file
-
 from collections import defaultdict
 from itertools import izip
 
-# import numpy as np
+import numpy as np
 import cvxopt
+
+# Exceptions
 
 class FBAException(Exception):
 	pass
@@ -90,6 +31,7 @@ class DoesNotExistException(FBAException):
 class InvalidBoundaryException(FBAException):
 	pass
 
+# Classes
 
 class FluxBalanceAnalysis(object):
 	""" FluxBalanceAnalysis
@@ -887,14 +829,14 @@ class FluxBalanceAnalysis(object):
 		return self._solutionFluxes[self._colIndex(self._massOutName)]
 
 
-# Test data
+# Test code
 
-def loadKB():
+def _loadKB():
 	from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
 	return KnowledgeBaseEcoli()
 
 
-def setupFeist(kb):
+def _setupFeist(kb):
 	# Create the KB and parse into FBA inputs
 
 	objectiveRaw = {
@@ -1080,10 +1022,10 @@ def setupFeist(kb):
 	return fba
 
 
-def compareFeistToExpected():
-	kb = loadKB()
+def _compareFeistToExpected():
+	kb = _loadKB()
 
-	fba = setupFeist(kb)
+	fba = _setupFeist(kb)
 
 	# Run model
 	fba.run()
@@ -1096,10 +1038,10 @@ def compareFeistToExpected():
 	print "Imported mass: ", fba.massAccumulated()
 
 
-def checkEnzymeLimitations():
-	kb = loadKB()
+def _checkEnzymeLimitations():
+	kb = _loadKB()
 
-	fba = setupFeist(kb)
+	fba = _setupFeist(kb)
 
 	fba.run()
 
@@ -1112,4 +1054,4 @@ def checkEnzymeLimitations():
 
 
 if __name__ == "__main__":
-	compareFeistToExpected()
+	_compareFeistToExpected()
