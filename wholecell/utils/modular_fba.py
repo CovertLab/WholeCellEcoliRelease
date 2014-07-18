@@ -763,6 +763,10 @@ class FluxBalanceAnalysis(object):
 			self._A[molecule_rowIndex, colIndex] = -coeff
 
 
+	def maxMassAccumulatedIs(self, maxAccumulation):
+		self._upperBound[self._colIndex(self._massOutName)] = maxAccumulation
+
+
 	# Evaluation
 
 	def run(self):
