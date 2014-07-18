@@ -13,6 +13,7 @@ from itertools import izip
 
 import numpy as np
 import cvxopt
+import cvxopt.solvers
 
 # Exceptions
 
@@ -832,8 +833,8 @@ class FluxBalanceAnalysis(object):
 # Test code
 
 def _loadKB():
-	from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
-	return KnowledgeBaseEcoli()
+	import wholecell.reconstruction.knowledge_base_ecoli
+	return wholecell.reconstruction.knowledge_base_ecoli.KnowledgeBaseEcoli()
 
 
 def _setupFeist(kb):
