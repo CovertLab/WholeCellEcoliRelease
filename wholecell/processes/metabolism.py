@@ -29,10 +29,10 @@ from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 # from wholecell.utils.modular_fba import FluxBalanceAnalysis
-from wholcell.utils.modular_fba import _setupFeist as setupFeist # TODO: move setup to KB/process
+from wholecell.utils.modular_fba import _setupFeist as setupFeist # TODO: move setup to KB/process
 
 GAIN = 10
-ASSUME_OPTIMAL_GROWTH = True
+ASSUME_OPTIMAL_GROWTH = False
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -252,7 +252,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# import ipdb; ipdb.set_trace()
 
-		# self.fba = setupFeist()
+		self.fba = setupFeist(kb)
+
+		self.biomassFba = self.bulkMoleculesView(self.fba.outputMoleculeIDs())
 
 
 	def calculateRequest(self):
@@ -284,16 +286,28 @@ class Metabolism(wholecell.processes.process.Process):
 		effectiveBiomassObjective = self._computeEffectiveBiomass()
 
 		if ASSUME_OPTIMAL_GROWTH:
-			deltaMetabolitesNew = effectiveBiomassObjective * (
+			deltaMetabolites = effectiveBiomassObjective * (
 				1e-3 * self.nAvogadro * self.initialDryMass
 				* np.exp(np.log(2)/self.cellCycleLen * self.time())
 				* (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
 				)
 
+			self.biomassMetabolites.countsInc(deltaMetabolites.astype(np.int64))
+
 		else:
-			raise NotImplementedError("Need to implement FBA")
+			# TODO: update biomass objective
+			self.fba.run()
+
+			deltaMetabolites = self.fba.outputMoleculeLevelsChange() * (
+				1e-3 * self.nAvogadro * self.initialDryMass
+				* np.exp(np.log(2)/self.cellCycleLen * self.time())
+				* (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
+				)
+
+			self.biomassFba.countsInc(deltaMetabolites.astype(np.int64))
+
+			import ipdb; ipdb.set_trace()
 		
-		self.biomassMetabolites.countsInc(deltaMetabolitesNew.astype(np.int64))
 
 		# NTP recycling
 		
