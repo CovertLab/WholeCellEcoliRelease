@@ -28,7 +28,11 @@ from wholecell.reconstruction.fitter import normalize, countsFromMassAndExpressi
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
+# from wholecell.utils.modular_fba import FluxBalanceAnalysis
+from wholcell.utils.modular_fba import _setupFeist as setupFeist # TODO: move setup to KB/process
+
 GAIN = 10
+ASSUME_OPTIMAL_GROWTH = True
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -248,6 +252,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# import ipdb; ipdb.set_trace()
 
+		# self.fba = setupFeist()
+
+
 	def calculateRequest(self):
 		self.ppi.requestAll()
 		self.nmps.requestAll()
@@ -272,6 +279,49 @@ class Metabolism(wholecell.processes.process.Process):
 		self.pi.countIs(0)
 		self.h2o.countIs(0)
 
+		# Solve for metabolic fluxes
+
+		effectiveBiomassObjective = self._computeEffectiveBiomass()
+
+		if ASSUME_OPTIMAL_GROWTH:
+			deltaMetabolitesNew = effectiveBiomassObjective * (
+				1e-3 * self.nAvogadro * self.initialDryMass
+				* np.exp(np.log(2)/self.cellCycleLen * self.time())
+				* (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
+				)
+
+		else:
+			raise NotImplementedError("Need to implement FBA")
+		
+		self.biomassMetabolites.countsInc(deltaMetabolitesNew.astype(np.int64))
+
+		# NTP recycling
+		
+		if ppiCount >= nmpCounts.sum():
+			self.ntps.countsInc(nmpCounts)
+			self.ppi.countIs(ppiCount - nmpCounts.sum())
+
+		else:
+			recycledNmps = np.int64(nmpCounts/nmpCounts.sum() * ppiCount)
+
+			self.ntps.countsInc(recycledNmps)
+			self.nmps.countsIs(nmpCounts - recycledNmps)
+			self.ppi.countIs(ppiCount - recycledNmps.sum())
+
+		self.h.countIs(hCount)
+		self.h2o.countIs(h2oCount)
+		self.pi.countIs(piCount)
+		adpsToRecycle = np.min(
+			self.atpRecyclingReactants.counts()
+			)
+		self.atpRecyclingReactants.countsDec(adpsToRecycle)
+		self.atpRecyclingProducts.countsInc(adpsToRecycle)
+
+		# Write out effective biomass
+		self.writeToListener("EffectiveBiomassObjective", "effectiveBiomassObjective", effectiveBiomassObjective)
+
+
+	def _computeEffectiveBiomass(self):
 		# Compute effective biomass objective
 
 		metaboliteMasses = self.biomassMws.sum(axis = 1) / self.nAvogadro
@@ -445,36 +495,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		deltaMetabolitesNew += deltaPoolMetabolites
 
-		self.biomassMetabolites.countsInc(deltaMetabolitesNew.astype(np.int64))
-
-		# NTP recycling
-		
-		if ppiCount >= nmpCounts.sum():
-			self.ntps.countsInc(nmpCounts)
-			self.ppi.countIs(ppiCount - nmpCounts.sum())
-
-		else:
-			recycledNmps = np.int64(nmpCounts/nmpCounts.sum() * ppiCount)
-
-			self.ntps.countsInc(recycledNmps)
-			self.nmps.countsIs(nmpCounts - recycledNmps)
-			self.ppi.countIs(ppiCount - recycledNmps.sum())
-
-		self.h.countIs(hCount)
-		self.h2o.countIs(h2oCount)
-		self.pi.countIs(piCount)
-		adpsToRecycle = np.min(
-			self.atpRecyclingReactants.counts()
-			)
-		self.atpRecyclingReactants.countsDec(adpsToRecycle)
-		self.atpRecyclingProducts.countsInc(adpsToRecycle)
-
-		# Write out effective biomass
-
 		effectiveBiomassObjective = deltaMetabolitesNew / (
 			1e-3 * self.nAvogadro * self.initialDryMass
 			* np.exp(np.log(2)/self.cellCycleLen * self.time())
 			* (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
 			)
 
-		self.writeToListener("EffectiveBiomassObjective", "effectiveBiomassObjective", effectiveBiomassObjective)
+		return effectiveBiomassObjective
