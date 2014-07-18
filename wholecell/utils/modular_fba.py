@@ -10,6 +10,7 @@ from __future__ import division
 
 from collections import defaultdict
 from itertools import izip
+import warnings
 
 import numpy as np
 import cvxopt
@@ -332,6 +333,9 @@ class FluxBalanceAnalysis(object):
 			raise FBAException("flexFBA beta paramter must be nonnegative")
 
 		biomass_colIndex = self._colNew(self._standardObjectiveReactionName)
+
+		if any(coeff < 0 for coeff in objective.viewvalues()):
+			warnings.warn("flexFBA is not designed to use negative biomass coefficient")
 
 		# Add biomass to objective
 		self._objIndexes.append(biomass_colIndex)
