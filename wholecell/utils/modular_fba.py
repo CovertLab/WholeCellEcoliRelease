@@ -119,6 +119,11 @@ class FluxBalanceAnalysis(object):
 	_generatedID_fractionalDifferenceLeadingOut = "difference between fractional objective equivalents of leading molecule and {} out"
 	_generatedID_fractionalDifferenceBiomassOut = "difference between fractional objective equivalents of {} and biomass objective out"
 
+	## Pools FBA
+
+	_generatedID_fractionBelowUnityOut = "fraction {}, 0 <= f <= 1"
+	_generatedID_fractionAboveUnityOut = "fraction {}, f >= 1"
+
 	# Default values, for clarity
 	_lowerBoundDefault = 0
 	_upperBoundDefault = np.inf
@@ -159,6 +164,9 @@ class FluxBalanceAnalysis(object):
 		self._upperBoundIndexes = []
 		self._upperBoundValues = []
 
+		self._maximizeObjective = True
+		self._forceInternalExchange = False
+
 		## Output calculations
 		self._outputMoleculeIndexes = []
 		self._outputReactionIndexes = []
@@ -194,6 +202,13 @@ class FluxBalanceAnalysis(object):
 
 		elif objectiveType == "pools":
 			self._initObjectivePools(objective)
+
+			if internalExchangedMolecules is not None:
+				raise FBAException(
+					"Internal exchange molecules are automatically defined when using objectiveType = \"pools\""
+					)
+
+			internalExchangedMolecules = objective.keys()
 
 		else:
 			raise FBAException("Unrecognized objectiveType: {}".format(objectiveType))
@@ -422,8 +437,47 @@ class FluxBalanceAnalysis(object):
 
 
 	def _initObjectivePools(self, objective):
-		"""Not implemented"""
-		raise NotImplementedError()
+		"""Create the abstractions needed for FBA with pools.  The objective is
+		to minimize the distance between the current metabolite level and some
+		target level, as defined in the objective."""
+
+		self._maximizeObjective = False
+		self._forceInternalExchange = True
+
+		# To set up an absolute value, we need to split the output flux into 
+		# two terms; one below unity, and one above unity.
+
+		for moleculeID in objective.viewkeys():
+			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
+			objectiveEquiv_rowIndex = self._rowIndex(objectiveEquivID)
+
+			belowUnity_colIndex = self._colNew(
+				self._generatedID_fractionBelowUnityOut.format(moleculeID)
+				)
+
+			self._rowIndexes.append(objectiveEquiv_rowIndex)
+			self._colIndexes.append(belowUnity_colIndex)
+			self._values.append(-1)
+
+			self._objIndexes.append(belowUnity_colIndex)
+			self._objValues.append(+1)
+
+			self._upperBoundIndexes.append(belowUnity_colIndex)
+			self._upperBoundValues.append(+1)
+
+			aboveUnity_colIndex = self._colNew(
+				self._generatedID_fractionAboveUnityOut.format(moleculeID)
+				)
+
+			self._rowIndexes.append(objectiveEquiv_rowIndex)
+			self._colIndexes.append(aboveUnity_colIndex)
+			self._values.append(-1)
+
+			self._objIndexes.append(aboveUnity_colIndex)
+			self._objValues.append(+1)
+
+			self._lowerBoundIndexes.append(belowUnity_colIndex)
+			self._lowerBoundValues.append(+1)
 
 
 	def _initInternalExchange(self, internalExchangedMolecules):
@@ -446,8 +500,9 @@ class FluxBalanceAnalysis(object):
 				internalExchangeIndexes.append(colIndex)
 				internalMoleculeIDs.append(moleculeID)
 
-				self._outputMoleculeIndexes.append(rowIndex)
-				self._outputReactionIndexes.append(colIndex)
+				if rowIndex not in self._outputMoleculeIndexes:
+					self._outputMoleculeIndexes.append(rowIndex)
+					self._outputReactionIndexes.append(colIndex)
 
 		self._internalExchangeIndexes = np.array(internalExchangeIndexes, np.int64)
 		self._internalMoleculeIDs = tuple(internalMoleculeIDs)
@@ -596,7 +651,11 @@ class FluxBalanceAnalysis(object):
 
 		objectiveFunction[self._objIndexes] = self._objValues
 
-		self._f = cvxopt.matrix(-objectiveFunction) # negative, since GLPK minimizes (TODO: max/min mode setting)
+		if self._maximizeObjective:
+			self._f = cvxopt.matrix(-objectiveFunction)
+
+		else:
+			self._f = cvxopt.matrix(-objectiveFunction)
 
 		self._lowerBound = np.empty(self._nEdges, np.float64)
 		self._lowerBound.fill(self._lowerBoundDefault)
@@ -689,6 +748,9 @@ class FluxBalanceAnalysis(object):
 			raise InvalidBoundaryException("Negative molecule levels not allowed")
 
 		self._lowerBound[self._internalExchangeIndexes] = -levels
+
+		if self._forceInternalExchange:
+			self._upperBound[self._internalExchangeIndexes] = -levels
 
 
 	def enzymeIDs(self):

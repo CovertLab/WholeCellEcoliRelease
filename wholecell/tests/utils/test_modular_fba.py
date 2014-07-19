@@ -31,6 +31,21 @@ _testStandard = dict(
 		}
 	)
 
+_testPools = dict(
+	reactionStoich = {
+		"A to B":{"A":-1, "B":+1},
+		"2B to C":{"B":-2, "C":+1},
+		"A + D to E":{"A":-1, "D":-1, "E":+1},
+		},
+	externalExchangedMolecules = ["A", "D"],
+	objective = {
+		"B":10,
+		"C":10,
+		"E":20,
+		},
+	objectiveType = "pools"
+	)
+
 class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 	@classmethod
@@ -108,6 +123,74 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			fba.objectiveReactionFlux(),
 			1.0
 			)
+
+		npt.assert_allclose(
+			fba.outputMoleculeLevelsChange(),
+			[10, 10, 20]
+			)
+
+
+	@noseAttrib.attr("smalltest", "fba")
+	def test_pools_noInitial(self):
+		fba = FluxBalanceAnalysis(**_testPools)
+
+		externalMoleculeLevels = {
+			"A":50,
+			"D":20
+			}
+
+		fba.externalMoleculeLevelsIs([
+			externalMoleculeLevels[moleculeID]
+			for moleculeID in fba.externalMoleculeIDs()
+			])
+
+		internalMoleculeLevels = {
+			"B":0,
+			"C":0,
+			"E":0,
+			}
+
+		fba.internalMoleculeLevelsIs([
+			internalMoleculeLevels[moleculeID]
+			for moleculeID in fba.internalMoleculeIDs()
+			])
+
+		fba.run()
+
+		npt.assert_allclose(
+			fba.outputMoleculeLevelsChange(),
+			[10, 10, 20]
+			)
+
+
+	@noseAttrib.attr("smalltest", "fba")
+	def test_pools_atObjective(self):
+		fba = FluxBalanceAnalysis(**_testPools)
+
+		externalMoleculeLevels = {
+			"A":50,
+			"D":20
+			}
+
+		fba.externalMoleculeLevelsIs([
+			externalMoleculeLevels[moleculeID]
+			for moleculeID in fba.externalMoleculeIDs()
+			])
+
+		internalMoleculeLevels = {
+			"B":10,
+			"C":10,
+			"E":20,
+			}
+
+		fba.internalMoleculeLevelsIs([
+			internalMoleculeLevels[moleculeID]
+			for moleculeID in fba.internalMoleculeIDs()
+			])
+
+		fba.run()
+
+		import ipdb; ipdb.set_trace()
 
 		npt.assert_allclose(
 			fba.outputMoleculeLevelsChange(),
