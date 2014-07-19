@@ -335,6 +335,9 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba.minReactionFluxIs("FEIST_ATPM", 8.39/3600*dt)
 		self.fba.maxReactionFluxIs("FEIST_ATPM", 8.39/3600*dt)
 
+		# self.fba.minReactionFluxIs("FEIST_ATPM", (59.81+8.39)/3600*dt)
+		# self.fba.maxReactionFluxIs("FEIST_ATPM", (59.81+8.39)/3600*dt)
+
 		### Arbitrarily disabled reactions
 		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
@@ -385,24 +388,27 @@ class Metabolism(wholecell.processes.process.Process):
 			self.biomassMetabolites.countsInc(deltaMetabolites.astype(np.int64))
 
 		else:
-			self.fba.objectiveIs({
+			objective = {
 				moleculeID:coeff for moleculeID, coeff in
 				izip(self.wildtypeIds, effectiveBiomassObjective)
-				})
+				}
+
+			self.fba.objectiveIs(objective)
 			
 			self.fba.run()
 
 			deltaMetabolites = self.fba.outputMoleculeLevelsChange() * (
 				1e-3 * self.nAvogadro * self.initialDryMass
-				* np.exp(np.log(2)/self.cellCycleLen * self.time())
-				* (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
+				# * np.exp(np.log(2)/self.cellCycleLen * self.time())
+				# * (np.exp(np.log(2)/self.cellCycleLen * self.time()) - 1)
 				)
 
 			self.biomassFba.countsInc(deltaMetabolites.astype(np.int64))
 
-			# print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
-			# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
-			# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")*3600)
+			print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
+			print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
+			print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")*3600)
+			print "cbl1: {:0.2f}".format(self.fba.externalExchangeFlux("CBL1[e]")*3600)
 		
 
 		# NTP recycling
