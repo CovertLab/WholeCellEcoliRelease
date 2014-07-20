@@ -121,8 +121,8 @@ class FluxBalanceAnalysis(object):
 
 	## Pools FBA
 
-	_generatedID_fractionBelowUnityOut = "fraction {}, 0 <= f <= 1"
-	_generatedID_fractionAboveUnityOut = "fraction {}, f >= 1"
+	_generatedID_fractionBelowUnityOut = "fraction {} below unity, out"
+	_generatedID_fractionAboveUnityOut = "fraction {} above unity, out"
 
 	# Default values, for clarity
 	_lowerBoundDefault = 0
@@ -130,6 +130,8 @@ class FluxBalanceAnalysis(object):
 
 	_standardObjectiveReactionName = "Standard biomass objective reaction"
 	_massOutName = "Mass out"
+
+	_forcedUnityColName = "Column forced at unity"
 
 	_numericalInfinity = 1e6 # used to constrain the solver to finite values
 
@@ -444,12 +446,31 @@ class FluxBalanceAnalysis(object):
 		self._maximizeObjective = False
 		self._forceInternalExchange = True
 
-		# To set up an absolute value, we need to split the output flux into 
-		# two terms; one below unity, and one above unity.
+		# By forcing a column to be at unity, we can keep the definition of 
+		# the problem as b=Av where b=0.
+
+		forcedUnity_colIndex = self._colNew(self._forcedUnityColName)
+
+		self._lowerBoundIndexes.append(forcedUnity_colIndex)
+		self._lowerBoundValues.append(+1)
+
+		self._upperBoundIndexes.append(forcedUnity_colIndex)
+		self._upperBoundValues.append(+1)
+
+		# Minimizing an absolute value requires splitting the term into two,
+		# one for the positive values and one for the negative.
 
 		for moleculeID in objective.viewkeys():
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 			objectiveEquiv_rowIndex = self._rowIndex(objectiveEquivID)
+
+			# Add the forced -1 term so that we can define x_i = f_i - 1
+
+			self._rowIndexes.append(objectiveEquiv_rowIndex)
+			self._colIndexes.append(forcedUnity_colIndex)
+			self._values.append(-1)
+
+			# Add the term for when the flux out is below the expected value
 
 			belowUnity_colIndex = self._colNew(
 				self._generatedID_fractionBelowUnityOut.format(moleculeID)
@@ -462,8 +483,7 @@ class FluxBalanceAnalysis(object):
 			self._objIndexes.append(belowUnity_colIndex)
 			self._objValues.append(+1)
 
-			self._upperBoundIndexes.append(belowUnity_colIndex)
-			self._upperBoundValues.append(+1)
+			# Add the term for when the flux out is above the expected value
 
 			aboveUnity_colIndex = self._colNew(
 				self._generatedID_fractionAboveUnityOut.format(moleculeID)
@@ -471,13 +491,10 @@ class FluxBalanceAnalysis(object):
 
 			self._rowIndexes.append(objectiveEquiv_rowIndex)
 			self._colIndexes.append(aboveUnity_colIndex)
-			self._values.append(-1)
+			self._values.append(+1)
 
 			self._objIndexes.append(aboveUnity_colIndex)
 			self._objValues.append(+1)
-
-			self._lowerBoundIndexes.append(belowUnity_colIndex)
-			self._lowerBoundValues.append(+1)
 
 
 	def _initInternalExchange(self, internalExchangedMolecules):

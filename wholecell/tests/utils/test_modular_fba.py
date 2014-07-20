@@ -190,8 +190,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 		fba.run()
 
-		import ipdb; ipdb.set_trace()
-
 		npt.assert_allclose(
 			fba.outputMoleculeLevelsChange(),
 			[10, 10, 20]
