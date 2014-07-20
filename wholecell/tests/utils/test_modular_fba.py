@@ -195,6 +195,108 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			[10, 10, 20]
 			)
 
+
+	@noseAttrib.attr("smalltest", "fba")
+	def test_pools_belowObjective(self):
+		fba = FluxBalanceAnalysis(**_testPools)
+
+		externalMoleculeLevels = {
+			"A":50,
+			"D":20
+			}
+
+		fba.externalMoleculeLevelsIs([
+			externalMoleculeLevels[moleculeID]
+			for moleculeID in fba.externalMoleculeIDs()
+			])
+
+		internalMoleculeLevels = {
+			"B":5,
+			"C":5,
+			"E":10,
+			}
+
+		fba.internalMoleculeLevelsIs([
+			internalMoleculeLevels[moleculeID]
+			for moleculeID in fba.internalMoleculeIDs()
+			])
+
+		fba.run()
+
+		npt.assert_allclose(
+			fba.outputMoleculeLevelsChange(),
+			[10, 10, 20]
+			)
+
+
+	@noseAttrib.attr("smalltest", "fba")
+	def test_pools_singleBelowObjective(self):
+		fba = FluxBalanceAnalysis(**_testPools)
+
+		externalMoleculeLevels = {
+			"A":50,
+			"D":20
+			}
+
+		fba.externalMoleculeLevelsIs([
+			externalMoleculeLevels[moleculeID]
+			for moleculeID in fba.externalMoleculeIDs()
+			])
+
+		internalMoleculeLevels = {
+			"B":5,
+			"C":10,
+			"E":20,
+			}
+
+		fba.internalMoleculeLevelsIs([
+			internalMoleculeLevels[moleculeID]
+			for moleculeID in fba.internalMoleculeIDs()
+			])
+
+		fba.run()
+
+		npt.assert_allclose(
+			fba.outputMoleculeLevelsChange(),
+			[10, 10, 20]
+			)
+
+
+	@noseAttrib.attr("smalltest", "fba")
+	def test_pools_singleAboveObjective(self):
+		fba = FluxBalanceAnalysis(
+			reversibleReactions = _testPools["reactionStoich"].keys(),
+			**_testPools
+			)
+
+		externalMoleculeLevels = {
+			"A":50,
+			"D":20
+			}
+
+		fba.externalMoleculeLevelsIs([
+			externalMoleculeLevels[moleculeID]
+			for moleculeID in fba.externalMoleculeIDs()
+			])
+
+		internalMoleculeLevels = {
+			"B":15,
+			"C":10,
+			"E":20,
+			}
+
+		fba.internalMoleculeLevelsIs([
+			internalMoleculeLevels[moleculeID]
+			for moleculeID in fba.internalMoleculeIDs()
+			])
+
+		fba.run()
+
+		npt.assert_allclose(
+			fba.outputMoleculeLevelsChange(),
+			[10, 10, 20]
+			)
+
 # TODO: tests for enzymes
 # TODO: tests for mass accumulation
 # TODO: tests for flexible FBA
