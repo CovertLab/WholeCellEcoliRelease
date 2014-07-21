@@ -73,12 +73,6 @@ class Metabolism(wholecell.processes.process.Process):
 			izip(self.metabolitePoolIDs, self.targetConcentrations)
 			}
 
-		# HACK: some metabolites aren't in the reaction network despite 
-		# having annotations in Feist
-
-		del objective["GUI[c]"] # guanine
-		del objective["23CAMP[c]"] # cyclic AMP, I think
-
 		reactionEnzymes = {
 			reactionID:enzymeID
 			for reactionID, enzymeID in izip(kb.metabolismReactionIds, kb.metabolismReactionEnzymes)
@@ -198,8 +192,6 @@ class Metabolism(wholecell.processes.process.Process):
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
 		self.metabolites.countsInc(deltaMetabolites.astype(np.int64))
-
-		import ipdb; ipdb.set_trace()
 
 		# print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
