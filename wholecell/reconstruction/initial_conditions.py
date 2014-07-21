@@ -49,10 +49,10 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 	initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set pools
-	initializePools(bulkMolCntr, kb, randomState, timeStep)
+	# initializePools(bulkMolCntr, kb, randomState, timeStep)
 
 	## Set water
-	initializeBulkWater(bulkMolCntr, kb, randomState, timeStep)
+	# initializeBulkWater(bulkMolCntr, kb, randomState, timeStep)
 
 	## Form complexes
 	initializeComplexes(bulkMolCntr, kb, randomState, timeStep)
@@ -165,31 +165,43 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
-	biomassContainer = BulkObjectsContainer(
-		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
+	# biomassContainer = BulkObjectsContainer(
+	# 	list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
+	# 	)
+	# biomassContainer.countsIs(
+	# 	kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
+	# 	)
+
+	# notPRDMetabolites = (
+	# 	list(kb.cellGlycogenFractionData["metaboliteId"]) +
+	# 	list(kb.cellMureinFractionData["metaboliteId"]) +
+	# 	list(kb.cellLPSFractionData["metaboliteId"]) +
+	# 	list(kb.cellLipidFractionData["metaboliteId"]) +
+	# 	list(kb.cellInorganicIonFractionData["metaboliteId"]) +
+	# 	list(kb.cellSolublePoolFractionData["metaboliteId"])
+	# 	)
+
+	# notPRDBulkView = bulkMolCntr.countsView(notPRDMetabolites)
+
+	# notPRDBiomassView = biomassContainer.countsView(notPRDMetabolites)
+
+	# notPRDBulkView.countsIs((
+	# 	kb.avgCellDryMassInit.to("DCW_gram").magnitude *
+	# 	notPRDBiomassView.counts() *
+	# 	kb.nAvogadro.to("1 / millimole").magnitude
+	# 	))
+
+	cellMass = (
+		kb.avgCellDryMassInit.to("DCW_gram").magnitude
+		+ kb.avgCellWaterMassInit.magnitude
 		)
-	biomassContainer.countsIs(
-		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
+
+	cellVolume = cellMass / kb.cellDensity
+
+	bulkMolCntr.countsIs(
+		kb.metabolitePoolConcentrations * cellVolume * kb.nAvogadro,
+		kb.metabolitePoolIDs
 		)
-
-	notPRDMetabolites = (
-		list(kb.cellGlycogenFractionData["metaboliteId"]) +
-		list(kb.cellMureinFractionData["metaboliteId"]) +
-		list(kb.cellLPSFractionData["metaboliteId"]) +
-		list(kb.cellLipidFractionData["metaboliteId"]) +
-		list(kb.cellInorganicIonFractionData["metaboliteId"]) +
-		list(kb.cellSolublePoolFractionData["metaboliteId"])
-		)
-
-	notPRDBulkView = bulkMolCntr.countsView(notPRDMetabolites)
-
-	notPRDBiomassView = biomassContainer.countsView(notPRDMetabolites)
-
-	notPRDBulkView.countsIs((
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude *
-		notPRDBiomassView.counts() *
-		kb.nAvogadro.to("1 / millimole").magnitude
-		))
 
 
 def initializePools(bulkMolCntr, kb, randomState, timeStep):
