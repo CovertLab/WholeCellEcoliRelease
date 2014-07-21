@@ -180,7 +180,7 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
 	"cmp": 3.60e-4,
 	"amp": 2.80e-4,
 	"succoa": 2.30e-4,
-	"gui": 1.90e-4,
+	"gua": 1.90e-4,
 	"pep": 1.80e-4,
 	"amet": 1.80e-4,
 	"thr-L": 1.80e-4,
@@ -2567,6 +2567,11 @@ class KnowledgeBaseEcoli(object):
 					metaboliteID + wildtypeIDtoCompartment[metaboliteID]
 					)
 
+			elif metaboliteID == "23CAMP":
+				metaboliteIDs.append(
+					metaboliteID + "[p]"
+					)
+
 			else:
 				metaboliteIDs.append(
 					metaboliteID + "[c]"
@@ -2579,10 +2584,7 @@ class KnowledgeBaseEcoli(object):
 		initWaterMass = self.avgCellWaterMassInit.to('gram * water_gram / DCW_gram').magnitude
 		initDryMass = self.avgCellDryMassInit.to('gram').magnitude
 
-		initCellMass = (
-			initWaterMass
-			+ initDryMass
-			)
+		initCellMass = initWaterMass + initDryMass
 
 		initCellVolume = initCellMass / CELL_DENSITY # L
 
@@ -2593,77 +2595,125 @@ class KnowledgeBaseEcoli(object):
 		for entry in self.cellGlycogenFractionData:
 			metaboliteID = entry["metaboliteId"]
 
-			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * massFractions["glycogenMassFraction"][0]
-				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			assert metaboliteID not in metaboliteIDs
 
-				massInit = massFrac * initDryMass
-				molesInit = massInit/molWeight
+			massFrac = entry["massFraction"] * massFractions["glycogenMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
 
-				concentration = molesInit / initCellVolume
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
 
-				metaboliteIDs.append(metaboliteID)
-				metaboliteConcentrations.append(concentration)
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
 
 		for entry in self.cellMureinFractionData:
 			metaboliteID = entry["metaboliteId"]
 
-			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * massFractions["mureinMassFraction"][0]
-				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			assert metaboliteID not in metaboliteIDs
 
-				massInit = massFrac * initDryMass
-				molesInit = massInit/molWeight
+			massFrac = entry["massFraction"] * massFractions["mureinMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
 
-				concentration = molesInit / initCellVolume
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
 
-				metaboliteIDs.append(metaboliteID)
-				metaboliteConcentrations.append(concentration)
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
 
 		for entry in self.cellLPSFractionData:
 			metaboliteID = entry["metaboliteId"]
 
-			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * massFractions["lpsMassFraction"][0]
-				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			assert metaboliteID not in metaboliteIDs
 
-				massInit = massFrac * initDryMass
-				molesInit = massInit/molWeight
+			massFrac = entry["massFraction"] * massFractions["lpsMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
 
-				concentration = molesInit / initCellVolume
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
 
-				metaboliteIDs.append(metaboliteID)
-				metaboliteConcentrations.append(concentration)
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
 
 		for entry in self.cellLipidFractionData:
 			metaboliteID = entry["metaboliteId"]
 
-			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * massFractions["lipidMassFraction"][0]
-				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			assert metaboliteID not in metaboliteIDs
 
-				massInit = massFrac * initDryMass
-				molesInit = massInit/molWeight
+			massFrac = entry["massFraction"] * massFractions["lipidMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
 
-				concentration = molesInit / initCellVolume
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
 
-				metaboliteIDs.append(metaboliteID)
-				metaboliteConcentrations.append(concentration)
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
 
 		for entry in self.cellInorganicIonFractionData:
 			metaboliteID = entry["metaboliteId"]
 
-			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * massFractions["inorganicIonMassFraction"][0]
-				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			assert metaboliteID not in metaboliteIDs
 
-				massInit = massFrac * initDryMass
-				molesInit = massInit/molWeight
+			massFrac = entry["massFraction"] * massFractions["inorganicIonMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
 
-				concentration = molesInit / initCellVolume
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
 
-				metaboliteIDs.append(metaboliteID)
-				metaboliteConcentrations.append(concentration)
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		# Soluble pools for which Feist just assigned a conc. of 0.1 mM
+		# 10fthf
+		# thf
+		# mlthf
+		# 5mthf
+		# chor
+		# enter
+		# gthrd
+		# pydx5p
+		# amet
+		# thmpp
+		# adocbl
+		# q8h2
+		# 2dmmql8
+		# mql8
+		# hemeO
+		# pheme
+		# sheme
+		# ribflv
+		# fad
+
+		ARBITRARY_MASS_FRACTION_IDS = ["10FTHF[c]", "THF[c]", "MLTHF[c]",
+			"5MTHF[c]", "CHOR[c]", "ENTER[c]", "GTHRD[c]", "PYDX5P[c]",
+			"AMET[c]", "THMPP[c]", "ADOCBL[c]", "Q8H2[c]", "2DMMQL8[c]",
+			"MQL8[c]", "HEMEO[c]", "PHEME[c]", "SHEME[c]", "RIBFLV[c]",
+			"FAD[c]"]
+
+		totalSolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0]
+		arbitrarySolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0] * sum(
+			entry["massFraction"] for entry in self.cellSolublePoolFractionData
+			if entry["metaboliteId"] in ARBITRARY_MASS_FRACTION_IDS
+			)
+		fixedSolubleMass = totalSolubleMass - arbitrarySolubleMass
+		# mws = self.getMass(self.cellSolublePoolFractionData["metaboliteId"]).to("g/mol").magnitude
+
+		addedMass = sum(
+			concentration * initCellVolume * self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			for metaboliteID, concentration in zip(metaboliteIDs, metaboliteConcentrations)
+			if metaboliteID in self.cellSolublePoolFractionData["metaboliteId"].tolist()
+			)
+
+		import ipdb; ipdb.set_trace()
 
 		for entry in self.cellSolublePoolFractionData:
 			metaboliteID = entry["metaboliteId"]
@@ -2679,6 +2729,7 @@ class KnowledgeBaseEcoli(object):
 
 				metaboliteIDs.append(metaboliteID)
 				metaboliteConcentrations.append(concentration)
+
 
 		# ILE/LEU: split reported concentration according to their relative abundances
 
