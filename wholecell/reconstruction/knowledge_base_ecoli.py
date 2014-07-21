@@ -135,7 +135,7 @@ REACTION_ENZYME_ASSOCIATIONS = {
 
 	}
 
-METABOLITE_CONCENTRATIONS = { # TODO: move to SQL
+METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
 	"glu-L": 9.60e-2,
 	"gthrd": 1.70e-2,
 	"fdp": 1.50e-2,
@@ -2535,6 +2535,12 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildMetabolitePools(self):
+		CELL_DENSITY = 1.1e3 # g/L
+		# from Baldwin WW, Myer R, Powell N, Anderson E, Koch AL. Buoyant
+		# density of Escherichia coli is determined solely by the osmolarity
+		# of the culture medium. Arch Microbiol. 1995 Aug164(2):155-7 p.156
+		# fig.3 & fig.2 (retrieved from Bionumbers)
+
 		# Create vector of metabolite pools (concentrations)
 
 		# Since the data only covers certain metabolites, we need to rationally
@@ -2568,63 +2574,212 @@ class KnowledgeBaseEcoli(object):
 
 			metaboliteConcentrations.append(concentration)
 
-		wildtypeNoConcentration = set(wildtypeIDs) - set(metaboliteIDs)
-
 		# Calculate the following assuming 60 min doubling time
 
-		gid = self.cellGlycogenFractionData["metaboliteId"].tolist() # all (just GLYCOGEN[c])
+		initWaterMass = self.avgCellWaterMassInit.to('gram * water_gram / DCW_gram').magnitude
+		initDryMass = self.avgCellDryMassInit.to('gram').magnitude
 
-		mid = self.cellMureinFractionData["metaboliteId"].tolist() # all 
+		initCellMass = (
+			initWaterMass
+			+ initDryMass
+			)
 
-		lid = self.cellLPSFractionData["metaboliteId"].tolist() # all (just COLIPA[e])
+		initCellVolume = initCellMass / CELL_DENSITY # L
 
-		pid = self.cellLipidFractionData["metaboliteId"].tolist() # all
+		massFractions = self.cellDryMassComposition[
+			self.cellDryMassComposition["doublingTime"].to("minute").magnitude == 60.0
+			].fullArray()
 
-		iid = self.cellInorganicIonFractionData["metaboliteId"].tolist() # all
-		
-		sid = self.cellSolublePoolFractionData["metaboliteId"].tolist() # over half (find out how Feist chose these numbers)
+		for entry in self.cellGlycogenFractionData:
+			metaboliteID = entry["metaboliteId"]
 
-		# total baloney (chosen to be 0.1 mM since no data, from Feist supp.)
-		# ** not all are in conc. data
-		# 10fthf
-		# thf
-		# mlthf
-		# 5mthf
-		# chor
-		# enter
-		# gthrd
-		# pydx5p
-		# amet
-		# thmpp
-		# adocbl
-		# q8h2
-		# 2dmmql8
-		# mql8
-		# hemeO
-		# pheme
-		# sheme
-		# ribflv
-		# fad
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["glycogenMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
 
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
 
-		unaccounted = wildtypeNoConcentration - set(gid) - set(mid) - set(lid) - set(pid) - set(iid) - set(sid)
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellMureinFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["mureinMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellLPSFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["lpsMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellLipidFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["lipidMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellInorganicIonFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["inorganicIonMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellSolublePoolFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["solublePoolMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
 
 		# ILE/LEU: split reported concentration according to their relative abundances
 
-		# CYS/SEC/GLY: fit a relative abundance:concentration line (L1 norm) with other amino acids and solve for these
+		aaAbundances = self.monomerData["aaCounts"].magnitude.sum(0)
+		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
+
+		ileAbundance = aaAbundances[self.aaIDs.index("ILE-L[c]")]
+		leuAbundance = aaAbundances[self.aaIDs.index("LEU-L[c]")]
+
+		ILE_LEU_CONCENTRATION = 3.0e-4 # mmol/L
+
+		ileRelative = ileAbundance / (ileAbundance + leuAbundance)
+		leuRelative = 1 - ileRelative
+
+		metaboliteIDs.append("ILE-L[c]")
+		metaboliteConcentrations.append(ileRelative * ILE_LEU_CONCENTRATION)
+
+		metaboliteIDs.append("LEU-L[c]")
+		metaboliteConcentrations.append(leuRelative * ILE_LEU_CONCENTRATION)
+
+		# CYS/SEC/GLY: fit a relative abundance:concentration line (L1 norm)
+		# with other amino acids and solve for these
+
+		aaConcentrations = []
+		# aaAbundancesWithConcentrations = []
+
+		for aaIndex, aaID in enumerate(self.aaIDs):
+			if aaID in metaboliteIDs:
+				metIndex = metaboliteIDs.index(aaID)
+				aaConcentrations.append(metaboliteConcentrations[metIndex])
+				# aaAbundancesWithConcentrations.append(aaAbundances[aaIndex])
+
+		# TODO: implement L1-norm minimization
+
+		# for now: just choosing and assigning the smallest value
+
+		aaSmallestConc = min(aaConcentrations)
+
+		metaboliteIDs.append("GLY[c]")
+		metaboliteConcentrations.append(aaSmallestConc)
+
+		metaboliteIDs.append("CYS-L[c]")
+		metaboliteConcentrations.append(aaSmallestConc)
+
+		metaboliteIDs.append("SEC-L[c]")
+		metaboliteConcentrations.append(aaSmallestConc)
 
 		# DGTP: set to smallest of all other DNTP concentrations
 
+		dntpConcentrations = []
+		# dntpAbundancesWithConcentrations = []
+
+		for dntpIndex, dntpID in enumerate(self.dNtpIds):
+			if dntpID in metaboliteIDs:
+				metIndex = metaboliteIDs.index(dntpID)
+				dntpConcentrations.append(metaboliteConcentrations[metIndex])
+				# dntpAbundancesWithConcentrations.append(aaAbundances[aaIndex])
+
+		dntpSmallestConc = min(dntpConcentrations)
+
+		metaboliteIDs.append("DGTP[c]")
+		metaboliteConcentrations.append(dntpSmallestConc)
+
 		# H2O: reported water content of E. coli
+
+		h2oMolWeight = self.getMass(["H2O[c]"])[0].to("g/mol").magnitude
+		h2oMoles = initWaterMass/h2oMolWeight
+
+		h2oConcentration = h2oMoles / initCellVolume
+
+		metaboliteIDs.append("H2O[c]")
+		metaboliteConcentrations.append(h2oConcentration)
 
 		# H: reported pH
 
-		# PPI: equivalent to PI?
-		# or: look at some equillibrium properties or reported concentrations
-		# * multiple sources report 0.5 mM
+		ECOLI_PH = 7.2
 
+		hydrogenConcentration = 10**(-ECOLI_PH)
 
-		import ipdb; ipdb.set_trace()
+		metaboliteIDs.append("H[c]")
+		metaboliteConcentrations.append(hydrogenConcentration)
+
+		# PPI: multiple sources report 0.5 mM
+
+		PPI_CONCENTRATION = 0.5e-3 # M, multiple sources
+
+		# NOTE: Nick says that the physiological levels of PPI are very low - investigate this
+
+		metaboliteIDs.append("PPI[c]")
+		metaboliteConcentrations.append(PPI_CONCENTRATION)
+
+		unaccounted = set(wildtypeIDs) - set(metaboliteIDs)
+
+		assert len(unaccounted) == 0
+
+		# Other quantities to consider:
+		# - (d)NTP byproducts not currently included
+
+		self.metabolitePoolIDs = metaboliteIDs
+		self.metabolitePoolConcentrations = Q_(np.array(metaboliteConcentrations), "mol/L")
+		self.cellDensity = Q_(CELL_DENSITY, "g/L")
 
 
 	def _buildTranscription(self):
