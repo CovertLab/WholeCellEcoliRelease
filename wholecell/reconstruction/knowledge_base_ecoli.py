@@ -135,6 +135,102 @@ REACTION_ENZYME_ASSOCIATIONS = {
 
 	}
 
+METABOLITE_CONCENTRATIONS = { # TODO: move to SQL
+	"glu-L": 9.60e-2,
+	"gthrd": 1.70e-2,
+	"fdp": 1.50e-2,
+	"atp": 9.60e-3,
+	"u3aga": 9.20e-3,
+	"utp": 8.30e-3,
+	"gtp": 4.90e-3,
+	"dttp": 4.60e-3,
+	"asp-L": 4.20e-3,
+	"val-L": 4.00e-3,
+	"6pgc": 3.80e-3,
+	"gln-L": 3.80e-3,
+	"ctp": 2.70e-3,
+	"ala-L": 2.60e-3,
+	"nad": 2.60e-3,
+	"udpg": 2.50e-3,
+	"uri": 2.10e-3,
+	"cit": 2.00e-3,
+	"udp": 1.80e-3,
+	"mal-L": 1.70e-3,
+	"3pg": 1.50e-3,
+	"citr-L": 1.40e-3,
+	"coa": 1.40e-3,
+	"glyc-R": 1.40e-3,
+	"gam6p": 1.20e-3,
+	"actp": 1.10e-3,
+	"6pgl": 1.00e-3,
+	"gdp": 6.80e-4,
+	"accoa": 6.10e-4,
+	"cbasp": 5.90e-4,
+	"arg-L": 5.70e-4,
+	"succ": 5.70e-4,
+	"udpglcur": 5.70e-4,
+	"adp": 5.60e-4,
+	"asn-L": 5.10e-4,
+	"akg": 4.40e-4,
+	"lys-L": 4.10e-4,
+	"pro-L": 3.90e-4,
+	"dtdp": 3.80e-4,
+	"dhap": 3.70e-4,
+	"hcys-L": 3.70e-4,
+	"cmp": 3.60e-4,
+	"amp": 2.80e-4,
+	"succoa": 2.30e-4,
+	"gui": 1.90e-4,
+	"pep": 1.80e-4,
+	"amet": 1.80e-4,
+	"thr-L": 1.80e-4,
+	"fad": 1.70e-4,
+	"met-L": 1.50e-4,
+	"23dhb": 1.40e-4,
+	"fum": 1.20e-4,
+	"nadph": 1.20e-4,
+	"phpyr": 9.00e-5,
+	"nadh": 8.30e-5,
+	"acgam1p": 8.20e-5,
+	"his-L": 6.80e-5,
+	"ser-L": 6.80e-5,
+	"4hbz": 5.20e-5,
+	"dgmp": 5.10e-5,
+	"glyc3p": 4.90e-5,
+	"acorn": 4.30e-5,
+	"glcn": 4.20e-5,
+	"23camp": 3.50e-5,
+	"dctp": 3.50e-5,
+	"malcoa": 3.50e-5,
+	"tyr-L": 2.90e-5,
+	"gmp": 2.40e-5,
+	"aacoa": 2.20e-5,
+	"ribflv": 1.90e-5,
+	"phe-L": 1.80e-5,
+	"acon-C": 1.60e-5,
+	"datp": 1.60e-5,
+	"csn": 1.40e-5,
+	"skm": 1.40e-5,
+	"histd": 1.30e-5,
+	"dhor-S": 1.20e-5,
+	"quln": 1.20e-5,
+	"trp-L": 1.20e-5,
+	"orn": 1.00e-5,
+	"damp": 8.80e-6,
+	"aps": 6.60e-6,
+	"inost": 5.70e-6,
+	"ppcoa": 5.30e-6,
+	"adpglc": 4.30e-6,
+	"anth": 3.50e-6,
+	"dad-2": 2.80e-6,
+	"cytd": 2.60e-6,
+	"nadp": 2.10e-6,
+	"gsn": 1.60e-6,
+	"ade": 1.50e-6,
+	"dgsn": 5.20e-7,
+	"adn": 1.30e-7,
+	}
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -160,6 +256,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadProteinMonomers()
 		self._loadComplexes() 
 		self._loadReactions()
+		self._loadMetaboliteConcentrations()
 		
 		self._calcMolecularWeightFromRxn()		
 
@@ -197,6 +294,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions()
 		self._buildTranscription()
 		self._buildTranslation()
+		self._buildMetabolitePools()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -1412,6 +1510,15 @@ class KnowledgeBaseEcoli(object):
 			p['TU'] = tu_pr[p['id']]
 
 
+	def _loadMetaboliteConcentrations(self):
+		# TODO: move data to SQL and load here
+
+		self._metaboliteConcentrations = [
+			(metaboliteID.upper(), concentration)
+			for metaboliteID, concentration in METABOLITE_CONCENTRATIONS.viewitems()
+			]
+
+
 	def _countATinPromoters(self):
 		
 		geneLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._genes)])
@@ -2425,6 +2532,99 @@ class KnowledgeBaseEcoli(object):
 		out[self._metStoichMatrixI, self._metStoichMatrixJ] = self._metStoichMatrixV
 
 		return out
+
+
+	def _buildMetabolitePools(self):
+		# Create vector of metabolite pools (concentrations)
+
+		# Since the data only covers certain metabolites, we need to rationally
+		# expand the dataset to include the other molecules in the biomass
+		# function.
+
+		# First, load in metabolites that do have concentrations, then assign
+		# compartments according to those given in the biomass objective.  Or,
+		# if there is no compartment, assign it to the cytoplasm.
+
+		metaboliteIDs = []
+		metaboliteConcentrations = []
+
+		wildtypeIDs = self._wildtypeBiomassData["metaboliteId"].tolist()
+
+		wildtypeIDtoCompartment = {
+			wildtypeID[:-3] : wildtypeID[-3:]
+			for wildtypeID in wildtypeIDs
+			}
+
+		for metaboliteID, concentration in self._metaboliteConcentrations:
+			if metaboliteID in wildtypeIDtoCompartment:
+				metaboliteIDs.append(
+					metaboliteID + wildtypeIDtoCompartment[metaboliteID]
+					)
+
+			else:
+				metaboliteIDs.append(
+					metaboliteID + "[c]"
+					)
+
+			metaboliteConcentrations.append(concentration)
+
+		wildtypeNoConcentration = set(wildtypeIDs) - set(metaboliteIDs)
+
+		# Calculate the following assuming 60 min doubling time
+
+		gid = self.cellGlycogenFractionData["metaboliteId"].tolist() # all (just GLYCOGEN[c])
+
+		mid = self.cellMureinFractionData["metaboliteId"].tolist() # all 
+
+		lid = self.cellLPSFractionData["metaboliteId"].tolist() # all (just COLIPA[e])
+
+		pid = self.cellLipidFractionData["metaboliteId"].tolist() # all
+
+		iid = self.cellInorganicIonFractionData["metaboliteId"].tolist() # all
+		
+		sid = self.cellSolublePoolFractionData["metaboliteId"].tolist() # over half (find out how Feist chose these numbers)
+
+		# total baloney (chosen to be 0.1 mM since no data, from Feist supp.)
+		# ** not all are in conc. data
+		# 10fthf
+		# thf
+		# mlthf
+		# 5mthf
+		# chor
+		# enter
+		# gthrd
+		# pydx5p
+		# amet
+		# thmpp
+		# adocbl
+		# q8h2
+		# 2dmmql8
+		# mql8
+		# hemeO
+		# pheme
+		# sheme
+		# ribflv
+		# fad
+
+
+		unaccounted = wildtypeNoConcentration - set(gid) - set(mid) - set(lid) - set(pid) - set(iid) - set(sid)
+
+		# ILE/LEU: split reported concentration according to their relative abundances
+
+		# CYS/SEC/GLY: fit a relative abundance:concentration line (L1 norm) with other amino acids and solve for these
+
+		# DGTP: set to smallest of all other DNTP concentrations
+
+		# H2O: reported water content of E. coli
+
+		# H: reported pH
+
+		# PPI: equivalent to PI?
+		# or: look at some equillibrium properties or reported concentrations
+		# * multiple sources report 0.5 mM
+
+
+		import ipdb; ipdb.set_trace()
 
 
 	def _buildTranscription(self):
