@@ -135,6 +135,8 @@ class Metabolism(wholecell.processes.process.Process):
 
 		coeff = 1/3600 * 1e-3 * dt * initDryMass / initCellMass * self.cellDensity
 
+		self._coeff = coeff
+
 		constrainedExchange = {
 			"CBL1[e]":0.01 * coeff,
 			"GLC-D[e]":8 * coeff,
@@ -208,7 +210,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
-		# print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
-		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
-		# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")*3600)
-		# print "cbl1: {:0.2f}".format(self.fba.externalExchangeFlux("CBL1[e]")*3600)
+		# print "mass: {:0.2f}".format(self.fba.massAccumulated()/self._coeff)
+		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")/self._coeff)
+		# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")/self._coeff)
+		# print "cbl1: {:0.2f}".format(self.fba.externalExchangeFlux("CBL1[e]")/self._coeff)
