@@ -172,6 +172,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		assert self.fba.outputMoleculeIDs() == self.fba.internalMoleculeIDs()
 
+		# Set the priority to a low value
+
+		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
+
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()
@@ -181,6 +185,8 @@ class Metabolism(wholecell.processes.process.Process):
 	def evolveState(self):
 		# Solve for metabolic fluxes
 
+		metaboliteCountsInit = self.metabolites.counts()
+
 		cellMass = self.readFromListener("Mass", "cellMass") * 1e-15 # fg to g
 
 		cellVolume = cellMass / self.cellDensity
@@ -188,17 +194,19 @@ class Metabolism(wholecell.processes.process.Process):
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
 		self.fba.internalMoleculeLevelsIs(
-			self.metabolites.counts() * countsToMolar
+			metaboliteCountsInit * countsToMolar
 			)
 			
 		self.fba.run()
 
-		deltaMetabolites = stochasticRound(
-			self.randomState,
-			self.fba.outputMoleculeLevelsChange() / countsToMolar
-			).astype(np.int64)
+		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
-		self.metabolites.countsInc(deltaMetabolites)
+		metaboliteCountsFinal = np.fmax(stochasticRound(
+			self.randomState,
+			metaboliteCountsInit + deltaMetabolites
+			), 0).astype(np.int64)
+
+		self.metabolites.countsIs(metaboliteCountsFinal)
 
 		# print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
