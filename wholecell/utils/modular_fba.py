@@ -519,6 +519,8 @@ class FluxBalanceAnalysis(object):
 
 				if rowIndex not in self._outputMoleculeIndexes:
 					self._outputMoleculeIndexes.append(rowIndex)
+
+				if colIndex not in self._outputReactionIndexes:
 					self._outputReactionIndexes.append(colIndex)
 
 		self._internalExchangeIndexes = np.array(internalExchangeIndexes, np.int64)
