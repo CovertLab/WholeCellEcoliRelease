@@ -2768,8 +2768,11 @@ class KnowledgeBaseEcoli(object):
 
 		aaSmallestConc = min(aaConcentrations)
 
+		# HACK: min conc. doesn't work here
 		metaboliteIDs.append("GLY[c]")
-		metaboliteConcentrations.append(aaSmallestConc)
+		metaboliteConcentrations.append(
+			metaboliteConcentrations[metaboliteIDs.index("ALA-L[c]")]
+			)
 
 		metaboliteIDs.append("CYS-L[c]")
 		metaboliteConcentrations.append(aaSmallestConc)
