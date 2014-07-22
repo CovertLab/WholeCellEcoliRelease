@@ -193,9 +193,12 @@ class Metabolism(wholecell.processes.process.Process):
 			
 		self.fba.run()
 
-		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
+		deltaMetabolites = stochasticRound(
+			self.randomState,
+			self.fba.outputMoleculeLevelsChange() / countsToMolar
+			).astype(np.int64)
 
-		self.metabolites.countsInc(deltaMetabolites.astype(np.int64))
+		self.metabolites.countsInc(deltaMetabolites)
 
 		# print "mass: {:0.2f}".format(self.fba.massAccumulated()*3600)
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")*3600)
