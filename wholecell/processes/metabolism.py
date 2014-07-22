@@ -53,7 +53,14 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set up FBA solver
 
 		import re
-		rxns = rxns = [x for x in kb.metabolismBiochemicalReactions if not re.match(".*_[0-9]$", x["id"]) or x["id"].endswith("_0") or "PFK_2" in x["id"]]
+		rxns = [
+			x for x in kb.metabolismBiochemicalReactions
+			if (
+				not re.match(".*_[0-9]$", x["id"])
+				or x["id"].endswith("_0")
+				or "PFK_2" in x["id"]
+				)
+			]
 
 		mediaEx = kb.metabolismMediaEx
 
@@ -150,9 +157,6 @@ class Metabolism(wholecell.processes.process.Process):
 		### ATP maintenance
 		self.fba.minReactionFluxIs("FEIST_ATPM", 8.39 * coeff)
 		self.fba.maxReactionFluxIs("FEIST_ATPM", 8.39 * coeff)
-
-		# self.fba.minReactionFluxIs("FEIST_ATPM", (59.81+8.39)/3600*dt)
-		# self.fba.maxReactionFluxIs("FEIST_ATPM", (59.81+8.39)/3600*dt)
 
 		### Arbitrarily disabled reactions
 		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
