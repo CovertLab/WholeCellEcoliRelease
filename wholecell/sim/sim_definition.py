@@ -138,7 +138,7 @@ DEFAULT_PROCESSES = (
 	'Replication',
 	'ProteinDegradation',
 	'Complexation',
-	'BiomassInternment',
+	# 'BiomassInternment',
 	'AtpUsage'
 	)
 
@@ -151,7 +151,7 @@ DEFAULT_LISTENERS = (
 	'GeneCopyNumber',
 	'UniqueMoleculeCounts',
 	'EvaluationTime',
-	'EffectiveBiomassObjective'
+	# 'EffectiveBiomassObjective'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
