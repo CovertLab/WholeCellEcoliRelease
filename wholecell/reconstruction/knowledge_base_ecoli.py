@@ -2693,27 +2693,27 @@ class KnowledgeBaseEcoli(object):
 		# ribflv
 		# fad
 
-		ARBITRARY_MASS_FRACTION_IDS = ["10FTHF[c]", "THF[c]", "MLTHF[c]",
-			"5MTHF[c]", "CHOR[c]", "ENTER[c]", "GTHRD[c]", "PYDX5P[c]",
-			"AMET[c]", "THMPP[c]", "ADOCBL[c]", "Q8H2[c]", "2DMMQL8[c]",
-			"MQL8[c]", "HEMEO[c]", "PHEME[c]", "SHEME[c]", "RIBFLV[c]",
-			"FAD[c]"]
+		# ARBITRARY_MASS_FRACTION_IDS = ["10FTHF[c]", "THF[c]", "MLTHF[c]",
+		# 	"5MTHF[c]", "CHOR[c]", "ENTER[c]", "GTHRD[c]", "PYDX5P[c]",
+		# 	"AMET[c]", "THMPP[c]", "ADOCBL[c]", "Q8H2[c]", "2DMMQL8[c]",
+		# 	"MQL8[c]", "HEMEO[c]", "PHEME[c]", "SHEME[c]", "RIBFLV[c]",
+		# 	"FAD[c]"]
 
-		totalSolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0]
-		arbitrarySolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0] * sum(
-			entry["massFraction"] for entry in self.cellSolublePoolFractionData
-			if entry["metaboliteId"] in ARBITRARY_MASS_FRACTION_IDS
-			)
-		fixedSolubleMass = totalSolubleMass - arbitrarySolubleMass
-		# mws = self.getMass(self.cellSolublePoolFractionData["metaboliteId"]).to("g/mol").magnitude
+		# totalSolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0]
+		# arbitrarySolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0] * sum(
+		# 	entry["massFraction"] for entry in self.cellSolublePoolFractionData
+		# 	if entry["metaboliteId"] in ARBITRARY_MASS_FRACTION_IDS
+		# 	)
+		# fixedSolubleMass = totalSolubleMass - arbitrarySolubleMass
+		# # mws = self.getMass(self.cellSolublePoolFractionData["metaboliteId"]).to("g/mol").magnitude
 
-		addedMass = sum(
-			concentration * initCellVolume * self.getMass([metaboliteID])[0].to("g/mol").magnitude
-			for metaboliteID, concentration in zip(metaboliteIDs, metaboliteConcentrations)
-			if metaboliteID in self.cellSolublePoolFractionData["metaboliteId"].tolist()
-			)
+		# addedMass = sum(
+		# 	concentration * initCellVolume * self.getMass([metaboliteID])[0].to("g/mol").magnitude
+		# 	for metaboliteID, concentration in zip(metaboliteIDs, metaboliteConcentrations)
+		# 	if metaboliteID in self.cellSolublePoolFractionData["metaboliteId"].tolist()
+		# 	)
 
-		import ipdb; ipdb.set_trace()
+		# import ipdb; ipdb.set_trace()
 
 		for entry in self.cellSolublePoolFractionData:
 			metaboliteID = entry["metaboliteId"]
