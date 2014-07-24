@@ -674,7 +674,7 @@ class FluxBalanceAnalysis(object):
 			self._f = cvxopt.matrix(-objectiveFunction)
 
 		else:
-			self._f = cvxopt.matrix(-objectiveFunction)
+			self._f = cvxopt.matrix(objectiveFunction)
 
 		self._lowerBound = np.empty(self._nEdges, np.float64)
 		self._lowerBound.fill(self._lowerBoundDefault)
