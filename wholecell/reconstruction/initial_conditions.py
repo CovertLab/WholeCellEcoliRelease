@@ -118,22 +118,7 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
 		]
-
-	dntpsView = bulkMolCntr.countsView(kb.dNtpIds)
 	dnmpsView = bulkMolCntr.countsView(kb.dNmpNuclearIds)
-	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
-	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
-
-	dnaExpression = normalize(np.array([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		], dtype = np.float64))
-
-	dnmpMws = kb.getMass(kb.dNmpNuclearIds).magnitude
-
-	dntpMws = kb.getMass(kb.dNtpIds).magnitude
 
 	dnmpsView.countsIs([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
@@ -141,21 +126,6 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		])
-
-	chromMass = (
-		np.dot(dnmpsView.counts(), dnmpMws) - 2 * kb.genomeLength * 17.01
-		) / kb.nAvogadro.magnitude
-
-	# dNTP Pools are handled here
-	nDntps = countsFromMassAndExpression(
-		dnaMass - chromMass,
-		dntpMws,
-		dnaExpression,
-		kb.nAvogadro.magnitude
-		)
-	dntpsView.countsIs(
-		randomState.multinomial(nDntps, dnaExpression)
-		)
 
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
