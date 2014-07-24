@@ -2828,6 +2828,11 @@ class KnowledgeBaseEcoli(object):
 
 		assert len(unaccounted) == 0
 
+		# Add byproducts with no annotated concentration to force recycling
+
+		metaboliteIDs.append("UMP[c]")
+		metaboliteConcentrations.append(0)
+
 		# Other quantities to consider:
 		# - (d)NTP byproducts not currently included
 
