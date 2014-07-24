@@ -97,10 +97,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			0
 			)
 
-		self.assertEqual(
-			fba.outputMoleculeLevelsChange().tolist(),
-			[0, 0, 0]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(0, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(0, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(0, change)
 
 
 	@noseAttrib.attr("smalltest", "fba")
@@ -124,10 +129,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			1.0
 			)
 
-		npt.assert_allclose(
-			fba.outputMoleculeLevelsChange(),
-			[10, 10, 20]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(10, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(10, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(20, change)
 
 
 	@noseAttrib.attr("smalltest", "fba")
@@ -157,10 +167,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 		fba.run()
 
-		npt.assert_allclose(
-			fba.outputMoleculeLevelsChange(),
-			[10, 10, 20]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(10, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(10, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(20, change)
 
 
 	@noseAttrib.attr("smalltest", "fba")
@@ -190,10 +205,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 		fba.run()
 
-		npt.assert_allclose(
-			fba.outputMoleculeLevelsChange(),
-			[10, 10, 20]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(0, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(0, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(0, change)
 
 
 	@noseAttrib.attr("smalltest", "fba")
@@ -223,10 +243,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 		fba.run()
 
-		npt.assert_allclose(
-			fba.outputMoleculeLevelsChange(),
-			[10, 10, 20]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(5, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(5, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(10, change)
 
 
 	@noseAttrib.attr("smalltest", "fba")
@@ -256,10 +281,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 		fba.run()
 
-		npt.assert_allclose(
-			fba.outputMoleculeLevelsChange(),
-			[10, 10, 20]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(5, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(0, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(0, change)
 
 
 	@noseAttrib.attr("smalltest", "fba")
@@ -292,10 +322,15 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 		fba.run()
 
-		npt.assert_allclose(
-			fba.outputMoleculeLevelsChange(),
-			[10, 10, 20]
-			)
+		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+			if moleculeID == "B":
+				self.assertAlmostEqual(-5, change)
+
+			elif moleculeID == "C":
+				self.assertAlmostEqual(0, change)
+
+			elif moleculeID == "E":
+				self.assertAlmostEqual(0, change)
 
 # TODO: tests for enzymes
 # TODO: tests for mass accumulation
