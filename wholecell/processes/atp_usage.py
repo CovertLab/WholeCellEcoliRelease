@@ -96,8 +96,6 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		expectedReactions = (expectedReactions_growthAssociated
 			+ expectedReactions_nongrowthAssociated)
-
-		import ipdb; ipdb.set_trace()
 		
 		atpsHydrolyzed = np.fmin(
 			self.atp.count(),

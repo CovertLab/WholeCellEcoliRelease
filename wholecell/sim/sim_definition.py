@@ -35,7 +35,6 @@ STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 # Processes
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
-import wholecell.processes.metabolism_fba
 import wholecell.processes.rna_degradation
 import wholecell.processes.replication
 import wholecell.processes.translation.unique_polypeptide_initiation
@@ -44,13 +43,11 @@ import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 import wholecell.processes.protein_degradation
 import wholecell.processes.replication_initiation
-import wholecell.processes.biomass_internment
 import wholecell.processes.atp_usage
 
 PROCESS_CLASSES = (
 	wholecell.processes.complexation.Complexation,
 	wholecell.processes.metabolism.Metabolism,
-	wholecell.processes.metabolism_fba.MetabolismFba,
 	wholecell.processes.rna_degradation.RnaDegradation,
 	wholecell.processes.replication.Replication,
 	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
@@ -59,7 +56,6 @@ PROCESS_CLASSES = (
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
 	wholecell.processes.protein_degradation.ProteinDegradation,
 	wholecell.processes.replication_initiation.ReplicationInitiation,
-	wholecell.processes.biomass_internment.BiomassInternment,
 	wholecell.processes.atp_usage.AtpUsage,
 	)
 
