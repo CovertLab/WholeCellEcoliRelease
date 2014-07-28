@@ -210,7 +210,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
-		# print "mass: {:0.2f}".format(self.fba.massAccumulated()/self._coeff)
+		# print "mass: {:0.2f} fg".format(self.fba.massAccumulated() * cellVolume * 10**15)
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")/self._coeff)
 		# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")/self._coeff)
 		# print "cbl1: {:0.2f}".format(self.fba.externalExchangeFlux("CBL1[e]")/self._coeff)
