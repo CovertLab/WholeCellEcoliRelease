@@ -157,11 +157,13 @@ class Metabolism(wholecell.processes.process.Process):
 		## Set Feist's forced reactions
 
 		### ATP maintenance
-		self.fba.minReactionFluxIs("FEIST_ATPM", 8.39 * coeff)
-		self.fba.maxReactionFluxIs("FEIST_ATPM", 8.39 * coeff)
+		# NOTE: all maintenance is handled in the AtpUsage process
+		self.fba.minReactionFluxIs("FEIST_ATPM", 0)
+		self.fba.maxReactionFluxIs("FEIST_ATPM", 0)
 
 		### Arbitrarily disabled reactions
-		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
+		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp",
+			"FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
 		for reactionID in disabledReactions:
 			self.fba.maxReactionFluxIs(reactionID, 0)
