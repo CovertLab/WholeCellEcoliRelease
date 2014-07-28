@@ -56,6 +56,12 @@ class Mass(wholecell.listeners.listener.Listener):
 		# Register logged quantities
 
 		self.registerLoggedQuantity(
+			"Cell mass\n(fg)",
+			"cellMass",
+			".2f"
+			)
+
+		self.registerLoggedQuantity(
 			"Dry mass\n(fg)",
 			"dryMass",
 			".2f"
