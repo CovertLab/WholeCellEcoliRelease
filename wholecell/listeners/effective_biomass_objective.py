@@ -34,15 +34,14 @@ class EffectiveBiomassObjective(wholecell.listeners.listener.Listener):
 
 		self.effectiveBiomassObjective = None
 		self.biomassObjectiveIds = kb.wildtypeBiomass["metaboliteId"]
-
-		self.metabolism = sim.processes["Metabolism"]
+		self.standardBiomassObjective = kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_g").magnitude
 
 
 	# Allocate memory
 	def allocate(self):
 		super(EffectiveBiomassObjective, self).allocate()
 
-		self.effectiveBiomassObjective = np.zeros(self.biomassObjectiveIds.shape[0], np.float64)
+		self.effectiveBiomassObjective = np.zeros_like(self.standardBiomassObjective)
 		
 
 	def pytablesCreate(self, h5file, expectedRows):
@@ -65,7 +64,7 @@ class EffectiveBiomassObjective(wholecell.listeners.listener.Listener):
 			)
 
 		table.attrs.metaboliteIds = self.biomassObjectiveIds
-		table.attrs.wildtypeBiomass = self.metabolism.wildtypeBiomassReactionSS
+		table.attrs.standardBiomass = self.standardBiomassObjective
 
 
 	def pytablesAppend(self, h5file):

@@ -49,6 +49,8 @@ class Metabolism(wholecell.processes.process.Process):
 		
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
 		self.targetConcentrations = kb.metabolitePoolConcentrations.to("mole/L").magnitude
+
+		self.biomassIDs = kb.wildtypeBiomass["metaboliteId"]
 		
 		# Set up FBA solver
 
@@ -135,7 +137,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		coeff = 1/3600 * 1e-3 * dt * initDryMass / initCellMass * self.cellDensity
 
-		self._coeff = coeff
+		# self._coeff = coeff
 
 		constrainedExchange = {
 			"CBL1[e]":0.01 * coeff,
@@ -173,11 +175,22 @@ class Metabolism(wholecell.processes.process.Process):
 		# Views
 		self.metabolites = self.bulkMoleculesView(self.fba.outputMoleculeIDs())
 
-		assert self.fba.outputMoleculeIDs() == self.fba.internalMoleculeIDs()
+		outputMoleculeIDs = self.fba.outputMoleculeIDs()
+
+		assert outputMoleculeIDs == self.fba.internalMoleculeIDs()
 
 		# Set the priority to a low value
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
+
+		# Properties needed for computing the effective biomass objective (ala standard FBA)
+
+		self.fbaOutputToBiomassMapping = np.array([
+			outputMoleculeIDs.index(metaboliteID)
+			for metaboliteID in self.biomassIDs
+			])
+
+		self.coeff_concentrationToMmolPerGDCW = 1e3 / self.cellDensity
 
 
 	def calculateRequest(self):
@@ -215,3 +228,11 @@ class Metabolism(wholecell.processes.process.Process):
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")/self._coeff)
 		# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")/self._coeff)
 		# print "cbl1: {:0.2f}".format(self.fba.externalExchangeFlux("CBL1[e]")/self._coeff)
+
+		# Report the effective biomass objective
+
+		self.writeToListener(
+			"EffectiveBiomassObjective",
+			"effectiveBiomassObjective",
+			self.fba.outputMoleculeLevelsChange()[self.fbaOutputToBiomassMapping] * self.coeff_concentrationToMmolPerGDCW
+			)
