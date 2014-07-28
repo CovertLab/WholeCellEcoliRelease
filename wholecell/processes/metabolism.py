@@ -158,7 +158,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		### ATP maintenance
 		# NOTE: all maintenance is handled in the AtpUsage process
-		self.fba.minReactionFluxIs("FEIST_ATPM", 0)
 		self.fba.maxReactionFluxIs("FEIST_ATPM", 0)
 
 		### Arbitrarily disabled reactions
