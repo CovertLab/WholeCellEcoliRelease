@@ -102,6 +102,7 @@ import wholecell.loggers.disk
 
 DEFAULT_SHELL_COLUMN_HEADERS = [
 	"Time (s)",
+	"Cell mass (fg)",
 	"Dry mass (fg)",
 	"Dry mass fold change",
 	"Protein fold change",
@@ -138,7 +139,6 @@ DEFAULT_PROCESSES = (
 	'Replication',
 	'ProteinDegradation',
 	'Complexation',
-	# 'BiomassInternment',
 	'AtpUsage'
 	)
 
