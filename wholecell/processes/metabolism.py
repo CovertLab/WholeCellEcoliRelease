@@ -157,11 +157,12 @@ class Metabolism(wholecell.processes.process.Process):
 		## Set Feist's forced reactions
 
 		### ATP maintenance
-		self.fba.minReactionFluxIs("FEIST_ATPM", 8.39 * coeff)
-		self.fba.maxReactionFluxIs("FEIST_ATPM", 8.39 * coeff)
+		# NOTE: all maintenance is handled in the AtpUsage process
+		self.fba.maxReactionFluxIs("FEIST_ATPM", 0)
 
 		### Arbitrarily disabled reactions
-		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp", "FEIST_FHL_0_0", "FEIST_FHL_1_0")
+		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp",
+			"FEIST_FHL_0_0", "FEIST_FHL_1_0")
 
 		for reactionID in disabledReactions:
 			self.fba.maxReactionFluxIs(reactionID, 0)
@@ -215,7 +216,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
-		# print "mass: {:0.2f}".format(self.fba.massAccumulated()/self._coeff)
+		# print "mass: {:0.2f} fg".format(self.fba.massAccumulated() * cellVolume * 10**15)
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")/self._coeff)
 		# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")/self._coeff)
 		# print "cbl1: {:0.2f}".format(self.fba.externalExchangeFlux("CBL1[e]")/self._coeff)

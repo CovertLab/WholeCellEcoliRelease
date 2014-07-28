@@ -342,6 +342,10 @@ def fitKb(kb):
 
 	kb.atpPoolSize = Q_(atpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
 
+	kb.atpUsedPerMassIncrease = Q_(darkATP, "mmol/DCW_g")
+
+	kb.atpUsedPerSecond = Q_(8.39, "mmol/DCW_g/hr")
+
 	poolIncreasesContainer.countIs(
 		atpPoolOverCellCyclePerUnitTime,
 		"ATP[c]"

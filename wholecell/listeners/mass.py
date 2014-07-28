@@ -53,7 +53,21 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.waterIndex = kb.submassNameToIndex["water"]
 
+		# Set initial values
+
+		self.setInitial = False
+
+		self.dryMass = 0
+		# TODO: set initial masses based on some calculations of the expected
+		# mother cell (divided by two) in the last time step
+
 		# Register logged quantities
+
+		self.registerLoggedQuantity(
+			"Cell mass\n(fg)",
+			"cellMass",
+			".2f"
+			)
 
 		self.registerLoggedQuantity(
 			"Dry mass\n(fg)",
@@ -104,15 +118,6 @@ class Mass(wholecell.listeners.listener.Listener):
 			)
 
 
-	# Allocate memory
-	def allocate(self):
-		super(Mass, self).allocate()
-
-		self.setInitial = False
-
-		self.dryMass = 0
-
-
 	def update(self):
 		oldDryMass = self.dryMass
 
@@ -134,7 +139,12 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processMassDifferences = processFinalMass - processInitialMass
 
-		self.growth = self.dryMass - oldDryMass
+		if self.timeStep() > 0:
+			self.growth = self.dryMass - oldDryMass
+
+		else:
+			self.growth = 0
+			# TODO: solve for an expected initial growth rate
 
 		self.proteinMassFraction = self.proteinMass / self.dryMass
 		self.rnaMassFraction = self.rnaMass / self.dryMass
