@@ -171,6 +171,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Views
 		self.metabolites = self.bulkMoleculesView(self.fba.outputMoleculeIDs())
+		self.poolMetabolites = self.bulkMoleculesView(self.metabolitePoolIDs)
 
 		assert self.fba.outputMoleculeIDs() == self.fba.internalMoleculeIDs()
 
@@ -188,10 +189,14 @@ class Metabolism(wholecell.processes.process.Process):
 		# Solve for metabolic fluxes
 
 		metaboliteCountsInit = self.metabolites.counts()
+		poolCounts = self.poolMetabolites.counts()
 
 		cellMass = self.readFromListener("Mass", "cellMass") * 1e-15 # fg to g
 
 		cellVolume = cellMass / self.cellDensity
+
+		# if self.time() < 2:
+		# 	print poolCounts / self.nAvogadro / cellVolume
 
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
