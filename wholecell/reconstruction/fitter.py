@@ -40,7 +40,7 @@ MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 
 # Correction factors
-EXCESS_RNAP_CAPACITY = 2
+EXCESS_RNAP_CAPACITY = 1
 EXCESS_FREE_DNTP_CAPACITY = 1.3
 # If RNA-poly capacity exactly matches the amount needed to double RNAs over a 
 # cell cycle, the simulation will be unable to double RNAs since a small number
