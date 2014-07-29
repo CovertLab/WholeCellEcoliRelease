@@ -483,18 +483,17 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 
 def calcChromosomeMass(numA, numC, numG, numT, kb):
 	weights = collections.OrderedDict({
-		# Handles reverse complement
 		"A": (
-			float(kb.getMass(["DAMP[c]"]).magnitude)
+			float(kb.getMass(["DAMP[n]"]).magnitude)
 			),
 		"C": (
-			float(kb.getMass(["DCMP[c]"]).magnitude)
+			float(kb.getMass(["DCMP[n]"]).magnitude)
 			),
 		"G": (
-			float(kb.getMass(["DGMP[c]"]).magnitude)
+			float(kb.getMass(["DGMP[n]"]).magnitude)
 			),
 		"T": (
-			float(kb.getMass(["DTMP[c]"]).magnitude)
+			float(kb.getMass(["DTMP[n]"]).magnitude)
 			),
 		})
 
@@ -504,8 +503,9 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 		weights["A"] * numA +
 		weights["C"] * numC +
 		weights["G"] * numG +
-		weights["T"] * numT -
-		seqLen * 17.01 # Note: no factor of 2 is needed because the num variables account for double-strandedness
+		weights["T"] * numT# -
+		# TODO: Ask Nick about this line (below)
+		#seqLen * 17.01 # Note: no factor of 2 is needed because the num variables account for double-strandedness
 		)
 
 
@@ -540,44 +540,7 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A"),
 		kb) / kb.nAvogadro.magnitude
 
-	nDnmps = (kb.genomeLength * 2)
-	# nDntps = calcNumDntpsDnmps(kb, 60) - nDnmps
-	k_elng = kb.dnaPolymeraseElongationRate.to("nucleotide / s").magnitude
-	seqLen = len(kb.genomeSeq)
-	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
-	tau_d = kb.cellCycleLen.to("s").magnitude
-	nDntps = (2 * np.exp(-np.log(2)/tau_d * t_C) - 1) * nDnmps * EXCESS_FREE_DNTP_CAPACITY
-
-	fracA = float(kb.genomeSeq.count("A") + kb.genomeSeq.count("T")) / (2 * kb.genomeLength)
-	fracC = float(kb.genomeSeq.count("C") + kb.genomeSeq.count("G")) / (2 * kb.genomeLength)
-	fracG = float(kb.genomeSeq.count("G") + kb.genomeSeq.count("C")) / (2 * kb.genomeLength)
-	fracT = float(kb.genomeSeq.count("T") + kb.genomeSeq.count("A")) / (2 * kb.genomeLength)
-
-	nDatp = np.ceil(nDntps * fracA)
-	nDctp = np.ceil(nDntps * fracC)
-	nDgtp = np.ceil(nDntps * fracG)
-	nDttp = np.ceil(nDntps * fracT)
-
-	dNtpMws = collections.OrderedDict({
-		"A": (
-			float(kb.getMass(["DATP[c]"]).magnitude)
-			),
-		"C": (
-			float(kb.getMass(["DCTP[c]"]).magnitude)
-			),
-		"G": (
-			float(kb.getMass(["DGTP[c]"]).magnitude)
-			),
-		"T": (
-			float(kb.getMass(["DTTP[c]"]).magnitude)
-			),
-		})
-
-	dNtpMass = (
-		dNtpMws["A"] * nDatp + dNtpMws["C"] * nDctp +
-		dNtpMws["G"] * nDgtp + dNtpMws["T"] * nDttp
-		) / kb.nAvogadro.magnitude
-	dnaMassCalc = chromMass + dNtpMass
+	dnaMassCalc = chromMass
 
 	fracDifference = (dnaMass.magnitude - dnaMassCalc) / kb.avgCellDryMassInit.magnitude
 	# if fracDifference < 0:

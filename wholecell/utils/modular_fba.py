@@ -478,7 +478,7 @@ class FluxBalanceAnalysis(object):
 
 			self._rowIndexes.append(objectiveEquiv_rowIndex)
 			self._colIndexes.append(belowUnity_colIndex)
-			self._values.append(-1)
+			self._values.append(+1)
 
 			self._objIndexes.append(belowUnity_colIndex)
 			self._objValues.append(+1)
@@ -491,7 +491,7 @@ class FluxBalanceAnalysis(object):
 
 			self._rowIndexes.append(objectiveEquiv_rowIndex)
 			self._colIndexes.append(aboveUnity_colIndex)
-			self._values.append(+1)
+			self._values.append(-1)
 
 			self._objIndexes.append(aboveUnity_colIndex)
 			self._objValues.append(+1)
