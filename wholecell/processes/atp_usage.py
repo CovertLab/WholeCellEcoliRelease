@@ -74,8 +74,10 @@ class AtpUsage(wholecell.processes.process.Process):
 		expectedReactions_nongrowthAssociated = (mass
 			* self.nongrowthAssociated_reactionsPerTimestep)
 
-		expectedReactions = (expectedReactions_growthAssociated
-			+ expectedReactions_nongrowthAssociated)
+		# expectedReactions = (expectedReactions_growthAssociated
+		# 	+ expectedReactions_nongrowthAssociated)
+
+		expectedReactions = expectedReactions_nongrowthAssociated
 		
 		self.reactants.requestIs(
 			stochasticRound(self.randomState, expectedReactions)
@@ -94,8 +96,10 @@ class AtpUsage(wholecell.processes.process.Process):
 		expectedReactions_nongrowthAssociated = (mass
 			* self.nongrowthAssociated_reactionsPerTimestep)
 
-		expectedReactions = (expectedReactions_growthAssociated
-			+ expectedReactions_nongrowthAssociated)
+		# expectedReactions = (expectedReactions_growthAssociated
+		# 	+ expectedReactions_nongrowthAssociated)
+
+		expectedReactions = expectedReactions_nongrowthAssociated
 		
 		atpsHydrolyzed = np.fmin(
 			self.atp.count(),
@@ -107,6 +111,8 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		if atpsHydrolyzed < np.floor(expectedReactions):
 			warnings.warn("Maintenance not satisfied; the cell may be growing too fast")
+
+			print "did not meet maintenance ({})".format(expectedReactions - atpsHydrolyzed)
 
 			# TODO: flag some sort of listener that tracks phenomenological
 			# observations like cell death/division
