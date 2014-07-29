@@ -315,7 +315,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
 		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
 		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
-		self._parameterData['gtpPerTranslation'] = 2
+		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
 		self._parameterData["fracActiveRibosomes"] = Q_(1.0, "dimensionless")
 
 
