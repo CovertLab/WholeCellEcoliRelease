@@ -21,6 +21,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils.random import stochasticRound
 
 class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	""" UniquePolypeptideElongation """
@@ -78,8 +79,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
-		self.gmp = self.bulkMoleculeView("GMP[c]")
-		self.ppi = self.bulkMoleculeView("PPI[c]")
+		self.gdp = self.bulkMoleculeView("GDP[c]")
+		self.pi = self.bulkMoleculeView("PI[c]")
 		self.h   = self.bulkMoleculeView("H[c]")
 
 		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
@@ -109,10 +110,12 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			aasRequested
 			)
 
-		gtpsHydrolyzed = self.gtpPerElongation * np.fmin(
-			sequenceHasAA.sum(),
-			self.aas.total().sum()
-			)
+		gtpsHydrolyzed = np.int64(np.ceil(
+			self.gtpPerElongation * np.fmin(
+				sequenceHasAA.sum(),
+				self.aas.total().sum()
+				)
+			))
 
 		self.gtp.requestIs(gtpsHydrolyzed)
 
@@ -200,10 +203,14 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations - nInitialized)
 
-		gtpUsed = nElongations * self.gtpPerElongation
+		gtpUsed = np.int64(stochasticRound(
+			self.randomState, 
+			nElongations * self.gtpPerElongation
+			))
+
 		self.gtp.countDec(gtpUsed)
-		self.gmp.countInc(gtpUsed)
-		self.ppi.countInc(gtpUsed)
+		self.gdp.countInc(gtpUsed)
+		self.pi.countInc(gtpUsed)
 		self.h.countInc(gtpUsed)
 
 		self.h2o.countDec(gtpUsed)
