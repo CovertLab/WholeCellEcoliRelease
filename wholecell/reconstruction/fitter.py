@@ -38,6 +38,7 @@ RRNA5S_MASS_SUB_FRACTION = 0.017 # This is the fraction of RNA that is 5S rRNA
 TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
 MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
+NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
 
 # Correction factors
 EXCESS_RNAP_CAPACITY = 2
@@ -303,31 +304,26 @@ def fitKb(kb):
 		fractionComposition = kb.cellSolublePoolFractionData["massFraction"])
 
 
+	## Calculate and set maintenance values
+
+	# ----- Non growth associated maintenance -----
+	kb.NGAM = Q_(NON_GROWTH_ASSOCIATED_MAINTENANCE, "mmol/DCW_g/hr")
+
+	# ----- Growth associated maintenance -----
+
 	# GTPs used for translation (recycled, not incorporated into biomass)
 
 	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
-
 	gtpUsedOverCellCycleMmolPerGDCW = kb.gtpPerTranslation * aasUsedOverCellCycle
 
-	gtpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycleMmolPerGDCW
+	darkATP = ( # This has everything we can't account for
+		GROWTH_ASSOCIATED_MAINTENANCE -
+		gtpUsedOverCellCycleMmolPerGDCW
+		)
 
-	# Account for growth associated maintenance
-	darkATP = GROWTH_ASSOCIATED_MAINTENANCE - gtpUsedOverCellCycleMmolPerGDCW # This has everything we can't account for
-
-	atpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * darkATP
-
-	kb.atpUsedPerSecond = Q_(8.39, "mmol/DCW_g/hr")
-
-
-	# Validate
-
-	mws = kb.getMass(biomassContainer._objectNames)
-	# TODO
-
-
-	# TODO: Unhack this
-	kb.wildtypeBiomass.struct_array["biomassFlux"] = biomassContainer.counts()
-
+	# Assign the growth associated "dark energy" to translation
+	# TODO: Distribute it amongst growth-related processes
+	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.magnitude.sum()
 
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
