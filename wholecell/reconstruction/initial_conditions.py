@@ -209,6 +209,22 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	# import ipdb; ipdb.set_trace()
 
 
+
+	subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
+	subunitStoich = np.array([1, 1, 1])
+	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
+	elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
+	T_d = kb.cellCycleLen.to("s").magnitude
+	dt = kb.timeStep.to("s").magnitude
+
+	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
+	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.gtpPerTranslation
+
+	bulkMolCntr.countsInc(
+		gtpsHydrolyzedLastTimeStep,
+		["GDP[c]"]
+		)
+
 def initializeGenes(bulkChrmCntr, kb, timeStep):
 	"""
 	initializeGenes
