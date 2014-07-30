@@ -40,7 +40,7 @@ MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 
 # Correction factors
-EXCESS_RNAP_CAPACITY = 1
+EXCESS_RNAP_CAPACITY = 2
 EXCESS_FREE_DNTP_CAPACITY = 1.3
 # If RNA-poly capacity exactly matches the amount needed to double RNAs over a 
 # cell cycle, the simulation will be unable to double RNAs since a small number
@@ -302,10 +302,6 @@ def fitKb(kb):
 		fractionOfDryMass = dryComposition60min["solublePoolMassFraction"],
 		fractionComposition = kb.cellSolublePoolFractionData["massFraction"])
 
-	# Initial pool sizes
-	# Pools are used for inter-process communication.  As a consequence, their
-	# size and rate of growth are a function of the time step, which is not 
-	# known until the simulation states running
 
 	# GTPs used for translation (recycled, not incorporated into biomass)
 
@@ -315,51 +311,13 @@ def fitKb(kb):
 
 	gtpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * gtpUsedOverCellCycleMmolPerGDCW
 
-	# biomassContainer.countsInc(
-	# 	gtpUsedOverCellCycleMmolPerGDCW,
-	# 	"GTP[c]"
-	# 	)
-
-	# TODO: make this more general and add to KB (default undefined?)
-	kb.gtpPoolSize = Q_(gtpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
-
-	poolIncreasesContainer = BulkObjectsContainer(list(kb.wildtypeBiomass["metaboliteId"]), np.float64)
-
-	poolIncreasesContainer.countIs(
-		gtpPoolOverCellCyclePerUnitTime,
-		"GTP[c]"
-		)
-
 	# Account for growth associated maintenance
 	darkATP = GROWTH_ASSOCIATED_MAINTENANCE - gtpUsedOverCellCycleMmolPerGDCW # This has everything we can't account for
 
 	atpPoolOverCellCyclePerUnitTime = (np.log(2) / kb.cellCycleLen.magnitude) * darkATP
 
-	# biomassContainer.countsInc(
-	# 	darkATP,
-	# 	"ATP[c]"
-	# 	)
-
-	kb.atpPoolSize = Q_(atpPoolOverCellCyclePerUnitTime, "mmol/DCW_g/s")
-
-	kb.atpUsedPerMassIncrease = Q_(darkATP, "mmol/DCW_g")
-
 	kb.atpUsedPerSecond = Q_(8.39, "mmol/DCW_g/hr")
 
-	poolIncreasesContainer.countIs(
-		atpPoolOverCellCyclePerUnitTime,
-		"ATP[c]"
-		)
-
-
-
-	# TODO: also add this to the KB
-	kb.wildtypeBiomassPoolIncreases = type(kb.wildtypeBiomass)(
-		np.zeros_like(kb.wildtypeBiomass.fullArray()),
-		{'biomassFlux': 'mmol / (DCW_g) / s', 'metaboliteId': None}
-		)
-
-	kb.wildtypeBiomassPoolIncreases.struct_array["biomassFlux"] = poolIncreasesContainer.counts()
 
 	# Validate
 
