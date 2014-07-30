@@ -51,12 +51,8 @@ class AtpUsage(wholecell.processes.process.Process):
 		# self.adp = self.bulkMoleculeView("ADP[c]")
 		# self.h = self.bulkMoleculeView("H[c]")
 
-		self.growthAssociated_reactionsPerFemtogram = (
-			kb.atpUsedPerMassIncrease * kb.nAvogadro
-			).to("1/femtogram").magnitude
-
 		self.nongrowthAssociated_reactionsPerTimestep = (
-			kb.atpUsedPerSecond * kb.nAvogadro
+			kb.NGAM * kb.nAvogadro
 			).to("1/femtogram/s").magnitude * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
@@ -66,16 +62,8 @@ class AtpUsage(wholecell.processes.process.Process):
 		mass = self.readFromListener("Mass", "dryMass")
 		deltaMass = self.readFromListener("Mass", "growth")
 
-		expectedReactions_growthAssociated = np.fmax(
-			deltaMass * self.growthAssociated_reactionsPerFemtogram,
-			0
-			)
-
 		expectedReactions_nongrowthAssociated = (mass
 			* self.nongrowthAssociated_reactionsPerTimestep)
-
-		# expectedReactions = (expectedReactions_growthAssociated
-		# 	+ expectedReactions_nongrowthAssociated)
 
 		expectedReactions = expectedReactions_nongrowthAssociated
 		
@@ -88,16 +76,8 @@ class AtpUsage(wholecell.processes.process.Process):
 		mass = self.readFromListener("Mass", "dryMass")
 		deltaMass = self.readFromListener("Mass", "growth")
 
-		expectedReactions_growthAssociated = np.fmax(
-			deltaMass * self.growthAssociated_reactionsPerFemtogram,
-			0
-			)
-
 		expectedReactions_nongrowthAssociated = (mass
 			* self.nongrowthAssociated_reactionsPerTimestep)
-
-		# expectedReactions = (expectedReactions_growthAssociated
-		# 	+ expectedReactions_nongrowthAssociated)
 
 		expectedReactions = expectedReactions_nongrowthAssociated
 		
