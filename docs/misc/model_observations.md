@@ -29,3 +29,5 @@ In E. coli replicaiton initiation occurs at the end of the cell cycle (doubling 
 (6) Trade off betwen RNAP and Ribosomes. ppGpp
 
 (7) Show that ribosomes control the growth rate with new FBA implementation with pools (pulling instead of pushin)
+
+(8) Cell start to break down glycogen when it was starving. Dry mass decrease. Don't think any other FBA can predict this.
