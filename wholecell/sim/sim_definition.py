@@ -63,26 +63,26 @@ PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSE
 
 # Listeners
 import wholecell.listeners.mass
-import wholecell.listeners.metabolic_flux
+# import wholecell.listeners.metabolic_flux
 import wholecell.listeners.replication_fork
 import wholecell.listeners.ntp_usage
 import wholecell.listeners.aa_usage
 import wholecell.listeners.ribosome_stalling
 import wholecell.listeners.gene_copy_number
-import wholecell.listeners.metabolic_demands
+# import wholecell.listeners.metabolic_demands
 import wholecell.listeners.unique_molecule_counts
 import wholecell.listeners.evaluation_time
 import wholecell.listeners.fba_results
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
-	wholecell.listeners.metabolic_flux.MetabolicFlux,
+	# wholecell.listeners.metabolic_flux.MetabolicFlux,
 	wholecell.listeners.replication_fork.ReplicationForkPosition,
 	wholecell.listeners.ntp_usage.NtpUsage,
 	wholecell.listeners.aa_usage.AAUsage,
 	wholecell.listeners.ribosome_stalling.RibosomeStalling,
 	wholecell.listeners.gene_copy_number.GeneCopyNumber,
-	wholecell.listeners.metabolic_demands.MetabolicDemands,
+	# wholecell.listeners.metabolic_demands.MetabolicDemands,
 	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts,
 	wholecell.listeners.evaluation_time.EvaluationTime,
 	wholecell.listeners.fba_results.FBAResults
