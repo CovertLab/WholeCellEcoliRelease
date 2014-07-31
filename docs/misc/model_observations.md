@@ -27,3 +27,5 @@ In E. coli replicaiton initiation occurs at the end of the cell cycle (doubling 
 (5) <b>Relationship between ribosomes and growth - what that means at the molecular level</b> When ribosomes go up what goes down? Does that lead to whole-cell model predictable growth rates? Can we figure this out based on Javier's expression data.
 
 (6) Trade off betwen RNAP and Ribosomes. ppGpp
+
+(7) Show that ribosomes control the growth rate with new FBA implementation with pools (pulling instead of pushin)
