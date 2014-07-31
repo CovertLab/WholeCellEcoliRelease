@@ -229,6 +229,8 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
+		# print self.fba._rawSolution["primal objective"], self.fba._rawSolution["primal objective"] / deltaMetabolites.size
+
 		# print "mass: {:0.2f} fg".format(self.fba.massAccumulated() * cellVolume * 10**15)
 		# print "glucose: {:0.2f}".format(self.fba.externalExchangeFlux("GLC-D[e]")/self._coeff)
 		# print "oxygen: {:0.2f}".format(self.fba.externalExchangeFlux("O2[e]")/self._coeff)
@@ -241,3 +243,10 @@ class Metabolism(wholecell.processes.process.Process):
 			"effectiveBiomassObjective",
 			self.fba.outputMoleculeLevelsChange()[self.fbaOutputToBiomassMapping] * self.coeff_concentrationToMmolPerGDCW
 			)
+
+		# TODO: FBA performance listener
+		# - all reaction fluxes
+		# - all media exchange fluxes
+		# - effective "biomass" objective
+		# - which media exchanges/reactions are limiting, if any
+		# - objective details (value, component values)
