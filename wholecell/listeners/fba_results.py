@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 """
-EffectiveBiomassObjective
+FBAResults
 
-Records the effective biomass objective as metabolism adapts to the existing 
-cell state.
+Records dynamics of FBA output.
 
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -18,64 +17,68 @@ import tables
 
 import wholecell.listeners.listener
 
-class EffectiveBiomassObjective(wholecell.listeners.listener.Listener):
-	""" EffectiveBiomassObjective """
+class FBAResults(wholecell.listeners.listener.Listener):
+	""" FBAResults """
 
-	_name = "EffectiveBiomassObjective"
+	_name = "FBAResults"
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		super(EffectiveBiomassObjective, self).__init__(*args, **kwargs)
+		super(FBAResults, self).__init__(*args, **kwargs)
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(EffectiveBiomassObjective, self).initialize(sim, kb)
+		super(FBAResults, self).initialize(sim, kb)
 
-		self.effectiveBiomassObjective = None
-		self.biomassObjectiveIds = kb.wildtypeBiomass["metaboliteId"]
-		self.standardBiomassObjective = kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_g").magnitude
+		# self.effectiveBiomassObjective = None
+		# self.biomassObjectiveIds = kb.wildtypeBiomass["metaboliteId"]
+		# self.standardBiomassObjective = kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_g").magnitude
 
 
 	# Allocate memory
 	def allocate(self):
-		super(EffectiveBiomassObjective, self).allocate()
+		super(FBAResults, self).allocate()
 
-		self.effectiveBiomassObjective = np.zeros_like(self.standardBiomassObjective)
+		# self.effectiveBiomassObjective = np.zeros_like(self.standardBiomassObjective)
 		
 
 	def pytablesCreate(self, h5file, expectedRows):
 
-		# Columns
-		dtype = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"effectiveBiomassObjective": tables.Float64Col(self.effectiveBiomassObjective.shape)
-			}
+		# # Columns
+		# dtype = {
+		# 	"time": tables.Float64Col(),
+		# 	"timeStep": tables.Int64Col(),
+		# 	"effectiveBiomassObjective": tables.Float64Col(self.effectiveBiomassObjective.shape)
+		# 	}
 
-		# Create table
-		table = h5file.create_table(
-			h5file.root,
-			self._name,
-			dtype,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
-			)
+		# # Create table
+		# table = h5file.create_table(
+		# 	h5file.root,
+		# 	self._name,
+		# 	dtype,
+		# 	title = self._name,
+		# 	filters = tables.Filters(complevel = 9, complib="zlib"),
+		# 	expectedrows = expectedRows
+		# 	)
 
-		table.attrs.metaboliteIds = self.biomassObjectiveIds
-		table.attrs.standardBiomass = self.standardBiomassObjective
+		# table.attrs.metaboliteIds = self.biomassObjectiveIds
+		# table.attrs.standardBiomass = self.standardBiomassObjective
+
+		pass
 
 
 	def pytablesAppend(self, h5file):
 
-		table = h5file.get_node("/", self._name)
-		entry = table.row
+		# table = h5file.get_node("/", self._name)
+		# entry = table.row
 
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry["effectiveBiomassObjective"] = self.effectiveBiomassObjective
+		# entry["time"] = self.time()
+		# entry["timeStep"] = self.timeStep()
+		# entry["effectiveBiomassObjective"] = self.effectiveBiomassObjective
 
-		entry.append()
+		# entry.append()
 
-		table.flush()
+		# table.flush()
+
+		pass

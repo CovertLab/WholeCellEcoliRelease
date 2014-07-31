@@ -72,7 +72,7 @@ import wholecell.listeners.gene_copy_number
 import wholecell.listeners.metabolic_demands
 import wholecell.listeners.unique_molecule_counts
 import wholecell.listeners.evaluation_time
-import wholecell.listeners.effective_biomass_objective
+import wholecell.listeners.fba_results
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
@@ -85,7 +85,7 @@ LISTENER_CLASSES = (
 	wholecell.listeners.metabolic_demands.MetabolicDemands,
 	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts,
 	wholecell.listeners.evaluation_time.EvaluationTime,
-	wholecell.listeners.effective_biomass_objective.EffectiveBiomassObjective
+	wholecell.listeners.fba_results.FBAResults
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -147,7 +147,7 @@ DEFAULT_LISTENERS = (
 	'GeneCopyNumber',
 	'UniqueMoleculeCounts',
 	'EvaluationTime',
-	'EffectiveBiomassObjective'
+	'FBAResults'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks
