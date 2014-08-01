@@ -51,11 +51,31 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		reactionFluxes = h5file.root.FBAResults.col("reactionFluxes")
 
 		names = h5file.root.names
-		reactionIDs = np.array(names.reactionIDs.read())
+		reactionIDs = names.reactionIDs.read()
 
-	fig = plt.figure(figsize = (36, 48))
+	# TODO: combine forward and reverse reactions (here, for the moment, in the solver later)
+	# TODO: split figure output, perhaps using major clusterings
 
-	grid = gridspec.GridSpec(1,2,wspace=0.1,hspace=0.0,width_ratios=[1,0.1])
+	with open(kbFile, "rb") as f:
+		kb = cPickle.load(f)
+
+	idToName = {
+		reaction["id"]:reaction["name"]
+		for reaction in kb.metabolismBiochemicalReactions
+		}
+
+	REV_STR = " (reverse)"
+
+	reactionNames = np.array([
+		(idToName[reactionID.rstrip(REV_STR)] + (REV_STR if reactionID.endswith(REV_STR) else "")) if reactionID.rstrip(REV_STR) in idToName.viewkeys() else reactionID
+		for reactionID in reactionIDs
+		])
+
+	# fig = plt.figure(figsize = (36, 48))
+	# fig = plt.figure(figsize = (12, 16))
+	fig = plt.figure(figsize = (72, 96))
+
+	grid = gridspec.GridSpec(1,2,wspace=0.0,hspace=0.0,width_ratios=[1,0.05])
 
 	# ax_dendro = fig.add_subplot(grid[0])
 
@@ -101,7 +121,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(reactionIDs[nonzero][np.array(index)], size = 5)
+	ax_mat.set_yticklabels(reactionNames[nonzero][np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
@@ -136,7 +156,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ax_cmap.set_xticks([])
 	ax_cmap.set_yticks([])
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	grid.tight_layout(fig)
+
+	plt.savefig(os.path.join(plotOutDir, plotOutFileName), dpi = 200)
 
 
 if __name__ == "__main__":

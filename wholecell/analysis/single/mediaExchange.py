@@ -61,7 +61,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	fig = plt.figure(figsize = (30, 15))
 
-	grid = gridspec.GridSpec(1,3,wspace=0.1,hspace=0.0,width_ratios=[0.25,1,0.1])
+	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.25,1,0.1])
 
 	ax_dendro = fig.add_subplot(grid[0])
 
@@ -142,6 +142,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	
 	ax_cmap.set_xticks([])
 	ax_cmap.set_yticks([])
+
+	grid.tight_layout(fig)
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
