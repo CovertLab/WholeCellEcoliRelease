@@ -31,54 +31,66 @@ class FBAResults(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, kb):
 		super(FBAResults, self).initialize(sim, kb)
 
-		# self.effectiveBiomassObjective = None
-		# self.biomassObjectiveIds = kb.wildtypeBiomass["metaboliteId"]
-		# self.standardBiomassObjective = kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_g").magnitude
+		self.metabolism = sim.processes["Metabolism"]
+
+		self.objectiveValue = None
 
 
 	# Allocate memory
 	def allocate(self):
 		super(FBAResults, self).allocate()
 
-		# self.effectiveBiomassObjective = np.zeros_like(self.standardBiomassObjective)
-		
+		fba = self.metabolism.fba
+
+		self.reactionIDs = fba.reactionIDs()
+		self.externalMoleculeIDs = fba.externalMoleculeIDs()
+		self.outputMoleculeIDs = fba.outputMoleculeIDs()
+
+		self.reactionFluxes = np.zeros(len(self.reactionIDs), np.float64)
+		self.externalExchangeFluxes = np.zeros(len(self.externalMoleculeIDs), np.float64)
+		self.outputFluxes = np.zeros(len(self.outputMoleculeIDs), np.float64)
+
 
 	def pytablesCreate(self, h5file, expectedRows):
 
-		# # Columns
-		# dtype = {
-		# 	"time": tables.Float64Col(),
-		# 	"timeStep": tables.Int64Col(),
-		# 	"effectiveBiomassObjective": tables.Float64Col(self.effectiveBiomassObjective.shape)
-		# 	}
+		# Columns
+		dtype = {
+			"time": tables.Float64Col(),
+			"timeStep": tables.Int64Col(),
+			"reactionFluxes": tables.Float64Col(self.reactionFluxes.shape),
+			"externalExchangeFluxes": tables.Float64Col(self.externalExchangeFluxes.shape),
+			"outputFluxes": tables.Float64Col(self.outputFluxes.shape)
+			}
 
-		# # Create table
-		# table = h5file.create_table(
-		# 	h5file.root,
-		# 	self._name,
-		# 	dtype,
-		# 	title = self._name,
-		# 	filters = tables.Filters(complevel = 9, complib="zlib"),
-		# 	expectedrows = expectedRows
-		# 	)
+		# Create table
+		table = h5file.create_table(
+			h5file.root,
+			self._name,
+			dtype,
+			title = self._name,
+			filters = tables.Filters(complevel = 9, complib="zlib"),
+			expectedrows = expectedRows
+			)
+	
+		groupNames = h5file.create_group(h5file.root,
+			'names', 'Reaction and molecule names')
 
-		# table.attrs.metaboliteIds = self.biomassObjectiveIds
-		# table.attrs.standardBiomass = self.standardBiomassObjective
-
-		pass
+		h5file.create_array(groupNames, 'reactionIDs', [str(s) for s in self.reactionIDs])
+		h5file.create_array(groupNames, 'externalMoleculeIDs', [str(s) for s in self.externalMoleculeIDs])
+		h5file.create_array(groupNames, 'outputMoleculeIDs', [str(s) for s in self.outputMoleculeIDs])
 
 
 	def pytablesAppend(self, h5file):
 
-		# table = h5file.get_node("/", self._name)
-		# entry = table.row
+		table = h5file.get_node("/", self._name)
+		entry = table.row
 
-		# entry["time"] = self.time()
-		# entry["timeStep"] = self.timeStep()
-		# entry["effectiveBiomassObjective"] = self.effectiveBiomassObjective
+		entry["time"] = self.time()
+		entry["timeStep"] = self.timeStep()
+		entry["reactionFluxes"] = self.reactionFluxes
+		entry["externalExchangeFluxes"] = self.externalExchangeFluxes
+		entry["outputFluxes"] = self.outputFluxes
 
-		# entry.append()
+		entry.append()
 
-		# table.flush()
-
-		pass
+		table.flush()
