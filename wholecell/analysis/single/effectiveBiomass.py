@@ -16,11 +16,32 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+from matplotlib import colors
+from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
+from scipy.spatial import distance
 
 import wholecell.utils.constants
 
 FLUX_UNITS = "M/s"
+
+CMAP_COLORS_255 = [
+	[103,0,31],
+	[178,24,43],
+	[214,96,77],
+	[244,165,130],
+	[253,219,199],
+	[247,247,247],
+	[209,229,240],
+	[146,197,222],
+	[67,147,195],
+	[33,102,172],
+	[5,48,97],
+	]
+
+CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
+CMAP_UNDER = [1, 0.2, 0.75]
+CMAP_OVER = [0, 1, 0.75]
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -31,6 +52,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		os.mkdir(plotOutDir)
 
 	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
+		time = h5file.root.FBAResults.col("time")
 		timeStep = h5file.root.FBAResults.col("timeStep")
 		outputFluxes = h5file.root.FBAResults.col("outputFluxes")
 
@@ -39,23 +61,83 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	fig = plt.figure(figsize = (30, 15))
 
-	normalized = (outputFluxes / np.max(np.abs(outputFluxes[20:, :]), 0)).transpose()
+	grid = gridspec.GridSpec(1,3,wspace=0.1,hspace=0.0,width_ratios=[0.25,1,0.1])
 
-	linkage = sch.linkage(normalized, method = "centroid")
-	dendro = sch.dendrogram(linkage, orientation="right", no_plot=True)
+	ax_dendro = fig.add_subplot(grid[0])
+
+	normalized = (
+		outputFluxes
+		/ (np.mean(np.abs(outputFluxes), 0) + 2 * np.std(np.abs(outputFluxes), 0))
+		).transpose()
+
+	pairwise_distances = distance.squareform(distance.pdist(normalized))
+	linkage = sch.linkage(pairwise_distances)#, method = "complete")
+
+	sch.set_link_color_palette(['black'])
+	
+	dendro = sch.dendrogram(linkage, orientation="right", color_threshold = np.inf)
 	index = dendro["leaves"]
 
-	ax = fig.gca()
+	ax_dendro.set_xticks([])
+	ax_dendro.set_yticks([])
+	ax_dendro.set_axis_off()
 
-	ax.matshow(
-		np.fmax(np.fmin((normalized[index, :]+1)/2, +1), 0), # colormap expects values from 0 to 1
-		cmap = plt.get_cmap("coolwarm")
+	ax_mat = fig.add_subplot(grid[1])
+
+	cmap = colors.LinearSegmentedColormap.from_list(
+		"red to blue with extremes",
+		CMAP_COLORS
 		)
 
-	ax.set_yticks(np.arange(len(index)))
-	ax.set_yticklabels(outputMoleculeIDs[np.array(index)], size = 5)
+	cmap.set_under(CMAP_UNDER)
+	cmap.set_over(CMAP_OVER)
 
-	plt.title("Relative FBA production rates (red = production, blue = consumption)")
+	norm = colors.Normalize(vmin = -1, vmax = +1)
+
+	ax_mat.imshow(
+		normalized[index, :],
+		aspect = "auto",
+		interpolation='nearest',
+		origin = "lower",
+		cmap = cmap,
+		norm = norm
+		)
+
+	ax_mat.set_yticks(np.arange(len(index)))
+	ax_mat.set_yticklabels(outputMoleculeIDs[np.array(index)], size = 5)
+
+	delta_t = time[1] - time[0]
+
+	step_size = np.int64(5*60 / delta_t)
+
+	xticks = np.arange(1, time.size, step_size)
+
+	ax_mat.set_xticks(xticks)
+	ax_mat.set_xticklabels(time[xticks-1]/60)
+
+	ax_mat.set_xlabel("Time (min)")
+
+	plt.title("Relative FBA production rates (red = consumption, blue = production)")
+
+	ax_cmap = fig.add_subplot(grid[2])
+
+	# TODO: better colorbar that shows
+	# extrema as +/- \mu + 2\sigma
+	# over/under colors
+
+	gradient = np.array([-2,]*5 + (np.arange(-100, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
+
+	ax_cmap.imshow(
+		gradient,
+		aspect = "auto",
+		interpolation = "nearest",
+		origin = "lower",
+		cmap = cmap,
+		norm = norm
+		)
+	
+	ax_cmap.set_xticks([])
+	ax_cmap.set_yticks([])
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
