@@ -138,10 +138,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_cmap = fig.add_subplot(grid[1])
 
-	# TODO: better colorbar that shows
-	# extrema as +/- \mu + 2\sigma
-	# over/under colors
-
 	gradient = np.array((np.arange(0, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
 
 	ax_cmap.imshow(

@@ -23,14 +23,7 @@ from scipy.spatial import distance
 
 import wholecell.utils.constants
 
-FLUX_UNITS = "M/s"
-
 CMAP_COLORS_255 = [
-	[103,0,31],
-	[178,24,43],
-	[214,96,77],
-	[244,165,130],
-	[253,219,199],
 	[247,247,247],
 	[209,229,240],
 	[146,197,222],
@@ -40,7 +33,6 @@ CMAP_COLORS_255 = [
 	]
 
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
-CMAP_UNDER = [1, 0.2, 0.75]
 CMAP_OVER = [0, 1, 0.75]
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -54,27 +46,29 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
 		time = h5file.root.FBAResults.col("time")
 		timeStep = h5file.root.FBAResults.col("timeStep")
-		externalExchangeFluxes = h5file.root.FBAResults.col("externalExchangeFluxes")
+		objectiveValue = h5file.root.FBAResults.col("objectiveValue")
+		objectiveComponents = np.append(
+			h5file.root.FBAResults.col("objectiveComponents").T,
+			np.array(objectiveValue, ndmin=2),
+			0)
 
 		names = h5file.root.names
-		externalMoleculeIDs = np.array(names.externalMoleculeIDs.read())
+		outputMoleculeIDs = np.append(
+			np.array(names.outputMoleculeIDs.read()),
+			"Full objective"
+			)
 
 	fig = plt.figure(figsize = (30, 15))
 
-	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.25,1,0.1])
+	grid = gridspec.GridSpec(
+		1, 3,
+		wspace = 0.0, hspace = 0.0,
+		width_ratios = [0.25, 1, 0.05]
+		)
 
 	ax_dendro = fig.add_subplot(grid[0])
 
-	scaling = (np.mean(np.abs(externalExchangeFluxes), 0) + 2 * np.std(np.abs(externalExchangeFluxes), 0))
-
-	nonzero = (scaling != 0)
-
-	normalized = (
-		externalExchangeFluxes[:, nonzero]
-		/ scaling[nonzero]
-		).transpose()
-
-	pairwise_distances = distance.squareform(distance.pdist(normalized))
+	pairwise_distances = distance.squareform(distance.pdist(objectiveComponents))
 	linkage = sch.linkage(pairwise_distances)#, method = "complete")
 
 	sch.set_link_color_palette(['black'])
@@ -89,17 +83,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ax_mat = fig.add_subplot(grid[1])
 
 	cmap = colors.LinearSegmentedColormap.from_list(
-		"red to blue with extremes",
+		"white to blue with upper extreme",
 		CMAP_COLORS
 		)
 
-	cmap.set_under(CMAP_UNDER)
 	cmap.set_over(CMAP_OVER)
 
-	norm = colors.Normalize(vmin = -1, vmax = +1)
+	norm = colors.Normalize(vmin = 0, vmax = +1)
 
 	ax_mat.imshow(
-		normalized[index, :],
+		objectiveComponents[index, :],
 		aspect = "auto",
 		interpolation='nearest',
 		origin = "lower",
@@ -108,7 +101,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(externalMoleculeIDs[nonzero][np.array(index)], size = 5)
+	ax_mat.set_yticklabels(outputMoleculeIDs[np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
@@ -121,11 +114,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("Relative FBA media utilization rates (red = secretion, blue = uptake)")
+	plt.title("FBA objective components")
 
 	ax_cmap = fig.add_subplot(grid[2])
 
-	gradient = np.array([-2,]*5 + (np.arange(-100, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
+	gradient = np.array((np.arange(0, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
 
 	ax_cmap.imshow(
 		gradient,

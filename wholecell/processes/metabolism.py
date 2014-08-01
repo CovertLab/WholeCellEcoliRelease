@@ -228,6 +228,17 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "outputFluxes",
 			self.fba.outputMoleculeLevelsChange() / self.timeStepSec)
 
+		# NOTE: the calculation for the objective components doesn't yet have
+		# an interface, since it will vary in calculation and shape for every
+		# objective type
+
+		objectiveComponents_raw = (np.array(self.fba._f).flatten() * self.fba._solutionFluxes)[self.fba._objIndexes]
+		objectiveComponents = objectiveComponents_raw[::2] + objectiveComponents_raw[1::2]
+
+		self.writeToListener("FBAResults", "objectiveComponents",
+			objectiveComponents
+			)
+
 		# TODO:
 		# - which media exchanges/reactions are limiting, if any
 		# - objective details (value, component values)

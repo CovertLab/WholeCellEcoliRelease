@@ -33,7 +33,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 		self.metabolism = sim.processes["Metabolism"]
 
-		self.objectiveValue = None
+		self.objectiveValue = 0.0
 
 
 	# Allocate memory
@@ -49,6 +49,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.reactionFluxes = np.zeros(len(self.reactionIDs), np.float64)
 		self.externalExchangeFluxes = np.zeros(len(self.externalMoleculeIDs), np.float64)
 		self.outputFluxes = np.zeros(len(self.outputMoleculeIDs), np.float64)
+		self.objectiveComponents = np.zeros_like(self.outputFluxes)
 
 
 	def pytablesCreate(self, h5file, expectedRows):
@@ -59,7 +60,9 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			"timeStep": tables.Int64Col(),
 			"reactionFluxes": tables.Float64Col(self.reactionFluxes.shape),
 			"externalExchangeFluxes": tables.Float64Col(self.externalExchangeFluxes.shape),
-			"outputFluxes": tables.Float64Col(self.outputFluxes.shape)
+			"outputFluxes": tables.Float64Col(self.outputFluxes.shape),
+			"objectiveValue": tables.Float64Col(),
+			"objectiveComponents": tables.Float64Col(self.objectiveComponents.shape),
 			}
 
 		# Create table
@@ -90,6 +93,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		entry["reactionFluxes"] = self.reactionFluxes
 		entry["externalExchangeFluxes"] = self.externalExchangeFluxes
 		entry["outputFluxes"] = self.outputFluxes
+		entry["objectiveValue"] = self.objectiveValue
+		entry["objectiveComponents"] = self.objectiveComponents
 
 		entry.append()
 
