@@ -288,6 +288,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildMonomerData()
 		self._buildRnaIndexToMonomerMapping()
 		self._buildMonomerIndexToRnaMapping()
+		self._buildRnaIndexToGeneMapping()
 		self._buildConstants()
 		self._buildParameters()
 		self._buildRnaExpression()
@@ -1792,9 +1793,11 @@ class KnowledgeBaseEcoli(object):
 					#('coordinate'			,	'int64'),
 					#('length'				,	'int64'),
 					#('positiveDirection'	,	'bool'),
+					('rnaId'                ,   'a50'),
 					('endCoordinate'		,	'int64')])
 
 		self.geneData['name'] = [x['id'] for x in self._genes]
+		self.geneData['rnaId'] = [x['rnaId'] for x in self._genes]
 		#self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
 		#self.geneData['length'] = [x['length'] for x in self._genes]
 		#self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
@@ -2239,6 +2242,10 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildMonomerIndexToRnaMapping(self):
 		self.monomerIndexToRnaMapping = np.array([np.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(np.where(x == self.monomerData["rnaId"])[0])])
+
+
+	def _buildRnaIndexToGeneMapping(self):
+		self.rnaIndexToGeneMapping = np.array([np.where(x + "[c]" == self.rnaData["id"])[0][0] for x in self.geneData["rnaId"]])
 
 
 	def _buildComplexation(self):
