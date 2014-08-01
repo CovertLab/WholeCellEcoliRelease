@@ -2838,7 +2838,7 @@ class KnowledgeBaseEcoli(object):
 		# Add byproducts with no annotated concentration to force recycling
 
 		metaboliteIDs.append("UMP[c]")
-		metaboliteConcentrations.append(0)
+		metaboliteConcentrations.append(2.40e-5)
 
 		# Other quantities to consider:
 		# - (d)NTP byproducts not currently included

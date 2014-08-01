@@ -288,6 +288,9 @@ class FluxBalanceAnalysis(object):
 		fractions are used."""
 
 		for moleculeID, coeff in objective.viewitems():
+			if coeff == 0:
+				raise FBAException("Invalid objective coefficient - must be non-zero")
+
 			molecule_rowIndex = self._rowIndex(moleculeID)
 
 			pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
@@ -352,7 +355,7 @@ class FluxBalanceAnalysis(object):
 		biomass_colIndex = self._colNew(self._standardObjectiveReactionName)
 
 		if any(coeff < 0 for coeff in objective.viewvalues()):
-			warnings.warn("flexFBA is not designed to use negative biomass coefficient")
+			warnings.warn("flexFBA is not designed to use negative biomass coefficients")
 
 		# Add biomass to objective
 		self._objIndexes.append(biomass_colIndex)
@@ -442,6 +445,9 @@ class FluxBalanceAnalysis(object):
 		"""Create the abstractions needed for FBA with pools.  The objective is
 		to minimize the distance between the current metabolite level and some
 		target level, as defined in the objective."""
+
+		if any(coeff < 0 for coeff in objective.viewvalues()):
+			raise FBAException("FBA with pools is not designed to use negative biomass coefficients")
 
 		self._maximizeObjective = False
 		self._forceInternalExchange = True
@@ -794,6 +800,10 @@ class FluxBalanceAnalysis(object):
 		self._upperBound[self._enzymeUsageBoolConstrainedIndexes] = boolConstraint
 
 
+	def reactionIDs(self):
+		return np.array(self._colNames)[self._reactionIndexes]
+
+
 	def maxReactionFluxIs(self, reactionID, maxFlux, raiseForReversible = True):
 		colIndex = self._colIndex(reactionID)
 
@@ -896,6 +906,10 @@ class FluxBalanceAnalysis(object):
 			]
 
 
+	def externalExchangeFluxes(self):
+		return -self._solutionFluxes[self._externalExchangeIndexes]
+
+
 	def internalExchangeFlux(self, moleculeID):
 		return -self._solutionFluxes[
 			self._colIndex(self._generatedID_internalExchange.format(moleculeID))
@@ -906,6 +920,10 @@ class FluxBalanceAnalysis(object):
 		return self._solutionFluxes[self._colIndex(reactionID)]
 
 
+	def reactionFluxes(self):
+		return self._solutionFluxes[self._reactionIndexes]
+
+
 	def objectiveReactionFlux(self):
 		try:
 			colIndex = self._colIndex(self._standardObjectiveReactionName)
@@ -914,6 +932,10 @@ class FluxBalanceAnalysis(object):
 			raise FBAException("No objective reaction flux implemented for this solver type")
 
 		return self._solutionFluxes[colIndex]
+
+
+	def objectiveValue(self):
+		return self._rawSolution["primal objective"]
 
 
 	def enzymeUsage(self):
