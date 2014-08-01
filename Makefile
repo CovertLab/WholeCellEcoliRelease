@@ -5,10 +5,10 @@ all:
 	rm -fr build
 
 runSimulation: all
-	./runscripts/runSimulation.sh
+	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/runSimulation.sh
 
 runSimulationJob: all
-	./runscripts/queueSimulationAndAnalysis.sh 4
+	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh 4
 
 # TODO: Get rid of this target?
 runAnalysisSingle:
