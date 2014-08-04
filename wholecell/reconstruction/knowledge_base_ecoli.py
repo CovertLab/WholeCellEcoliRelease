@@ -387,6 +387,8 @@ class KnowledgeBaseEcoli(object):
 
 		self._reactions.append(reaction)
 
+		# TODO: e->p->c instead of directly to the cytoplasm
+
 		# SELNP import reaction
 		stoich = [
 			{'coeff': -1.0,
