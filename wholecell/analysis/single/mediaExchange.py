@@ -74,8 +74,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		/ scaling[nonzero]
 		).transpose()
 
-	pairwise_distances = distance.squareform(distance.pdist(normalized))
-	linkage = sch.linkage(pairwise_distances)#, method = "complete")
+	linkage = sch.linkage(externalExchangeFluxes[:, nonzero].T, metric = "correlation")
+	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
 	
