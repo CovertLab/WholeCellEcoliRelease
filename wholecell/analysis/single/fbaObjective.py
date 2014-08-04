@@ -68,8 +68,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_dendro = fig.add_subplot(grid[0])
 
-	pairwise_distances = distance.squareform(distance.pdist(objectiveComponents))
-	linkage = sch.linkage(pairwise_distances)#, method = "complete")
+	linkage = sch.linkage(objectiveComponents, metric = "correlation")
+	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
 	
