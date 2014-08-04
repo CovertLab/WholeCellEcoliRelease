@@ -420,21 +420,6 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _defineConstants(self):
-		# self._aaWeights = collections.OrderedDict()
-
-		# for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
-		# 	self._aaWeights[singleLetterName] = AMINO_ACID_WEIGHTS[singleLetterName]
-
-		# self._waterWeight = Q_(18.02, 'g / mol')
-
-		# # Borrowed from BioPython and modified to be at pH 7.2
-		# self._ntWeights = collections.OrderedDict({ 
-		# 	"A": 345.20,
-		# 	"C": 321.18,
-		# 	"G": 361.20,
-		# 	"U": 322.17,
-		# 	})
-
 		self._aaWeights = collections.OrderedDict()
 
 		for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
@@ -565,7 +550,6 @@ class KnowledgeBaseEcoli(object):
 				m["equivEnzIds"] = equ_enz[i.id]		
 			
 			self._metabolites.append(m)
-			###self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #need to delete
 
 		# Load monomer and water weights for calculating polymer weights
 
@@ -2681,49 +2665,6 @@ class KnowledgeBaseEcoli(object):
 			metaboliteIDs.append(metaboliteID)
 			metaboliteConcentrations.append(concentration)
 
-		# Soluble pools for which Feist just assigned a conc. of 0.1 mM
-		# 10fthf
-		# thf
-		# mlthf
-		# 5mthf
-		# chor
-		# enter
-		# gthrd
-		# pydx5p
-		# amet
-		# thmpp
-		# adocbl
-		# q8h2
-		# 2dmmql8
-		# mql8
-		# hemeO
-		# pheme
-		# sheme
-		# ribflv
-		# fad
-
-		# ARBITRARY_MASS_FRACTION_IDS = ["10FTHF[c]", "THF[c]", "MLTHF[c]",
-		# 	"5MTHF[c]", "CHOR[c]", "ENTER[c]", "GTHRD[c]", "PYDX5P[c]",
-		# 	"AMET[c]", "THMPP[c]", "ADOCBL[c]", "Q8H2[c]", "2DMMQL8[c]",
-		# 	"MQL8[c]", "HEMEO[c]", "PHEME[c]", "SHEME[c]", "RIBFLV[c]",
-		# 	"FAD[c]"]
-
-		# totalSolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0]
-		# arbitrarySolubleMass = initDryMass * massFractions["solublePoolMassFraction"][0] * sum(
-		# 	entry["massFraction"] for entry in self.cellSolublePoolFractionData
-		# 	if entry["metaboliteId"] in ARBITRARY_MASS_FRACTION_IDS
-		# 	)
-		# fixedSolubleMass = totalSolubleMass - arbitrarySolubleMass
-		# # mws = self.getMass(self.cellSolublePoolFractionData["metaboliteId"]).to("g/mol").magnitude
-
-		# addedMass = sum(
-		# 	concentration * initCellVolume * self.getMass([metaboliteID])[0].to("g/mol").magnitude
-		# 	for metaboliteID, concentration in zip(metaboliteIDs, metaboliteConcentrations)
-		# 	if metaboliteID in self.cellSolublePoolFractionData["metaboliteId"].tolist()
-		# 	)
-
-		# import ipdb; ipdb.set_trace()
-
 		for entry in self.cellSolublePoolFractionData:
 			metaboliteID = entry["metaboliteId"]
 
@@ -2798,7 +2739,6 @@ class KnowledgeBaseEcoli(object):
 			if dntpID in metaboliteIDs:
 				metIndex = metaboliteIDs.index(dntpID)
 				dntpConcentrations.append(metaboliteConcentrations[metIndex])
-				# dntpAbundancesWithConcentrations.append(aaAbundances[aaIndex])
 
 		dntpSmallestConc = min(dntpConcentrations)
 
@@ -2965,23 +2905,6 @@ class KnowledgeBaseEcoli(object):
 	def _checkDatabaseAccess(self, table):
 		if len(table.objects.all()) <= 0:
 			raise Exception, "Database Access Error: Cannot access public_{} table".format(table.__name__.lower())
-
-
-	# def _calculateRnaWeight(self, seq):
-	# 	# Starting with NTP molecular weights, subtracting OH for each bond pair
-	# 	return sum(self._ntWeights[x] for x in seq) - (len(seq) - 1) * self._hydroxylWeight
-
-
-	# def _calculatePeptideWeight(self, seq):
-	# 	return sum(self._aaWeights[x] for x in seq) - ((len(seq) - 1) * self._waterWeight.to('g/mol').magnitude)
-
-
-	# def _calcNucleotideCount(self, seq):
-	# 	return np.array([seq.count(x) for x in self._ntWeights])
-
-
-	# def _calculateAminoAcidCount(self, seq):
-	# 	return np.array([seq.count(x) for x in self._aaWeights])
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
