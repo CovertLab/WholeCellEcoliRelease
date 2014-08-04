@@ -28,17 +28,7 @@ import wholecell.utils.config
 sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
 import ecoliwholecellkb_project.ecoliwholecellkb.settings
 
-from ecoliwholecellkb_project.public.models import (MoleculeType, Gene, Molecule, Location,
-Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified,
-ProteinMonomerModified, RnaModified, RelationStoichiometry,
-ProteinComplexReactionRelation,ProteinComplexModifiedReaction,
-ProteinComplexModReactionRelation, ProteinComplexModReactionEnzyme,
-ProteinMonomerModifiedReaction, ProteinMonomerModReactionEnzyme,
-ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme,
-RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme,
-MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme,
-Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType,
-Parameter, Constant, Promoter, TranscriptionUnit, TranscriptionUnitGene)
+from ecoliwholecellkb_project.public.models import *
 
 # Import Biopython for sequence handling
 import Bio
