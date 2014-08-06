@@ -1213,6 +1213,7 @@ class KnowledgeBaseEcoli(object):
 				#"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
 				"seq": "",
+				"codingRnaSeq" : "",
 				"aaCount": np.zeros(21),
 				"mw": -1,
 				"rnaId": self._genes[geneLookup[gene_frame_id]]["rnaId"]		
@@ -1240,6 +1241,7 @@ class KnowledgeBaseEcoli(object):
 				baseSequence = self._genes[geneLookup[gene_frame_id]]['seq'] 
 
 			p["seq"] = Bio.Seq.Seq(baseSequence, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self._translationTable).tostring()
+			p["codingRnaSeq"] = Bio.Seq.Seq(baseSequence, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
 			
 			if gene_frame_id in genePos:
 				pos = genePos[gene_frame_id]['pos']
