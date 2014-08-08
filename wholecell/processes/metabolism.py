@@ -116,7 +116,7 @@ class Metabolism(wholecell.processes.process.Process):
 		unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
 			"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
 			"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
-			"ZN2[e]", "INOST[e]", "23CAMP[e]", "SELNP[e]")
+			"ZN2[e]", "SELNP[e]",) #"INOST[e]", "23CAMP[e]", )
 
 		# (flux) mmol/gDCW/hr
 		# * 1 hr / 3600 s = mmol/gDCW/s

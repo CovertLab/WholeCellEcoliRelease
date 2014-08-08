@@ -189,7 +189,7 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
 	"glyc3p": 4.90e-5,
 	"acorn": 4.30e-5,
 	"glcn": 4.20e-5,
-	"23camp": 3.50e-5,
+	# "23camp": 3.50e-5, # can't be formed by the reaction network
 	"dctp": 3.50e-5,
 	"malcoa": 3.50e-5,
 	"tyr-L": 2.90e-5,
@@ -208,7 +208,7 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
 	"orn": 1.00e-5,
 	"damp": 8.80e-6,
 	"aps": 6.60e-6,
-	"inost": 5.70e-6,
+	# "inost": 5.70e-6, # can't be formed by the reaction network
 	"ppcoa": 5.30e-6,
 	"adpglc": 4.30e-6,
 	"anth": 3.50e-6,
