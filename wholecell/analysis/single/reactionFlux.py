@@ -90,7 +90,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	normalized = (
 		reactionFluxes[:, nonzero]
-		/ scaling
+		/ scaling[nonzero]
 		).transpose()
 
 	with open(kbFile, "rb") as f:
