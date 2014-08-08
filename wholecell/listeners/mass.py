@@ -169,6 +169,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			"time": tables.Float64Col(),
 			"timeStep": tables.Int64Col(),
 			"cellMass": tables.Float64Col(),
+			"growth" : tables.Float64Col(),
 			"dryMass": tables.Float64Col(),
 			"rnaMass": tables.Float64Col(),
 			"proteinMass": tables.Float64Col(),
@@ -191,6 +192,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		t.attrs.cell_units = self.massUnits
 		t.attrs.cellDry_units = self.massUnits
 		t.attrs.metabolite_units = self.massUnits
+		t.attrs.growth_units = self.massUnits
 		t.attrs.rna_units = self.massUnits
 		t.attrs.protein_units = self.massUnits
 		t.attrs.water_units = self.massUnits
@@ -206,6 +208,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		entry["time"] = self.time()
 		entry["timeStep"] = self.timeStep()
 		entry["cellMass"] = self.cellMass
+		entry["growth"] = self.growth
 		entry["dryMass"] = self.dryMass
 		entry["rnaMass"] = self.rnaMass
 		entry["proteinMass"] = self.proteinMass
