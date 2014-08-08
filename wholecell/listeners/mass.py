@@ -205,6 +205,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		entry["time"] = self.time()
 		entry["timeStep"] = self.timeStep()
+		entry["cellMass"] = self.cellMass
 		entry["dryMass"] = self.dryMass
 		entry["rnaMass"] = self.rnaMass
 		entry["proteinMass"] = self.proteinMass
