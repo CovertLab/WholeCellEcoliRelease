@@ -26,6 +26,11 @@ import wholecell.utils.constants
 FLUX_UNITS = "M/s"
 
 CMAP_COLORS_255 = [
+	[103,0,31],
+	[178,24,43],
+	[214,96,77],
+	[244,165,130],
+	[253,219,199],
 	[247,247,247],
 	[209,229,240],
 	[146,197,222],
@@ -35,6 +40,7 @@ CMAP_COLORS_255 = [
 	]
 
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
+CMAP_UNDER = [1, 0.2, 0.75]
 CMAP_OVER = [0, 1, 0.75]
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -51,25 +57,36 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		reactionFluxes = h5file.root.FBAResults.col("reactionFluxes")
 
 		names = h5file.root.names
-		reactionIDs = names.reactionIDs.read()
+		reactionIDs = np.array(names.reactionIDs.read())
 
-	# TODO: combine forward and reverse reactions (here, for the moment, in the solver later)
 	# TODO: split figure output, perhaps using major clusterings
-
-	with open(kbFile, "rb") as f:
-		kb = cPickle.load(f)
-
-	idToName = {
-		reaction["id"]:reaction["name"]
-		for reaction in kb.metabolismBiochemicalReactions
-		}
 
 	REV_STR = " (reverse)"
 
-	reactionNames = np.array([
-		(idToName[reactionID.rstrip(REV_STR)] + (REV_STR if reactionID.endswith(REV_STR) else "")) if reactionID.rstrip(REV_STR) in idToName.viewkeys() else reactionID
-		for reactionID in reactionIDs
-		])
+	retainedReactionIndexes = []
+
+	for reactionIndex, reactionID in enumerate(reactionIDs):
+		if reactionID.endswith(REV_STR):
+			forward_reactionID = reactionID.replace(REV_STR, "")
+
+			forward_reactionIndex = np.where(forward_reactionID == reactionIDs)[0][0]
+
+			reactionFluxes[:, forward_reactionIndex] -= reactionFluxes[:, reactionIndex]
+
+		else:
+			retainedReactionIndexes.append(reactionIndex)
+
+	retainedReactionIndexes = np.array(retainedReactionIndexes)
+	reactionFluxes = reactionFluxes[:, retainedReactionIndexes]
+	reactionIDs = reactionIDs[retainedReactionIndexes]
+
+	# with open(kbFile, "rb") as f:
+	# 	kb = cPickle.load(f)
+
+	# idToName = {
+	# 	reaction["id"]:reaction["name"]
+	# 	for reaction in kb.metabolismBiochemicalReactions
+	# 	}
 
 	# fig = plt.figure(figsize = (36, 48))
 	# fig = plt.figure(figsize = (12, 16))
@@ -79,7 +96,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# ax_dendro = fig.add_subplot(grid[0])
 
-	scaling = (np.mean(reactionFluxes, 0) + 2 * np.std(reactionFluxes, 0))
+	scaling = (np.mean(np.abs(reactionFluxes), 0) + 2 * np.std(np.abs(reactionFluxes), 0))
 
 	nonzero = (scaling != 0)
 
@@ -103,13 +120,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ax_mat = fig.add_subplot(grid[0])
 
 	cmap = colors.LinearSegmentedColormap.from_list(
-		"white to red with upper extreme",
+		"red to blue with extremes",
 		CMAP_COLORS
 		)
 
+	cmap.set_under(CMAP_UNDER)
 	cmap.set_over(CMAP_OVER)
 
-	norm = colors.Normalize(vmin = 0, vmax = +1)
+	norm = colors.Normalize(vmin = -1, vmax = +1)
 
 	ax_mat.imshow(
 		normalized[index, :],
@@ -121,7 +139,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(reactionNames[nonzero][np.array(index)], size = 5)
+	ax_mat.set_yticklabels(reactionIDs[nonzero][np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
@@ -138,7 +156,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_cmap = fig.add_subplot(grid[1])
 
-	gradient = np.array((np.arange(0, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
+	gradient = np.array([-2,]*5 + (np.arange(-100, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
 
 	ax_cmap.imshow(
 		gradient,
