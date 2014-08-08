@@ -39,7 +39,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.figure(figsize = (8.5, 11))
 
-	plt.subplot(3, 1, 1)
+	plt.subplot(4, 1, 1)
+
+	plt.plot(t / 60., cell, linewidth = 2)
+	plt.plot([t[0] / 60., t[-1] / 60.], [2 * cell[0], 2 * cell[0]], 'r--')
+	plt.xlabel("Time (min)")
+	plt.ylabel("Total Mass (fg)")
+	plt.title("Total Mass Final:Initial = %0.2f" % (cell[-1] / cell[0]))
+
+	plt.subplot(4, 1, 2)
 
 	plt.plot(t / 60., cellDry, linewidth = 2)
 	plt.plot([t[0] / 60., t[-1] / 60.], [2 * cellDry[0], 2 * cellDry[0]], 'r--')
@@ -47,7 +55,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.ylabel("Dry Mass (fg)")
 	plt.title("Dry Mass Final:Initial = %0.2f" % (cellDry[-1] / cellDry[0]))
 
-	plt.subplot(3, 1, 2)
+	plt.subplot(4, 1, 3)
 
 	plt.plot(t / 60., protein, linewidth = 2)
 	plt.plot([t[0] / 60., t[-1] / 60.], [2 * protein[0], 2 * protein[0]], "r--")
@@ -56,7 +64,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.title("Total Protein Mass Final:Initial = %0.2f" % (protein[-1] / protein[0]))
 	plt.show()
 
-	plt.subplot(3, 1, 3)
+	plt.subplot(4, 1, 4)
 
 	plt.plot(t / 60., rna, linewidth = 2)
 	plt.plot([t[0] / 60., t[-1] / 60.], [2 * rna[0], 2 * rna[0]], "r--")
