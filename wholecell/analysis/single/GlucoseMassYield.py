@@ -44,23 +44,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	with tables.open_file(os.path.join(simOutDir, "Mass.hdf")) as h5file:
 		table = h5file.root.Mass
-		cellMass = np.array([x["cellMass"] for x in table.iterrows()])
-		cellDryMass = np.array([x["dryMass"] for x in table.iterrows()])
-		growth = np.array([x["growth"] for x in table.iterrows()])
+		cellMass = np.array([x["cellMass"] for x in table.iterrows()]) # fg
+		cellDryMass = np.array([x["dryMass"] for x in table.iterrows()]) # fg
+		growth = np.array([x["growth"] for x in table.iterrows()]) # fg
 
 	cellDensity = kb.cellDensity.to('fg/L').magnitude
 	glucoseMW = np.sum(kb.bulkMolecules['mass'][kb.bulkMolecules['moleculeId'] == 'GLU-L[c]']).to('g/mol').magnitude
 
-	glucoseMassFlux = glucoseFlux * glucoseMW * cellMass / cellDensity * 10**15 # fg glucose / s
+	glucoseMassFlux = glucoseFlux * glucoseMW * cellDryMass / cellDensity * 10**15 # fg glucose / s
 
 	massGrowth = growth # fg / s
 
-	glucoseMassYield = glucoseMassFlux / massGrowth
+	glucoseMassYield = massGrowth / glucoseMassFlux
 
 	fig = plt.figure(figsize = (8.5, 11))
 	plt.plot(time, glucoseMassYield)
 	plt.xlabel("Time (s)")
-	plt.ylabel("g glucose / g cell")
+	plt.ylabel("g cell / g glucose")
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
