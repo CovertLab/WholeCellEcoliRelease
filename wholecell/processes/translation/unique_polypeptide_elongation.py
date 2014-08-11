@@ -240,6 +240,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 	def getAvailableTrnaCountsByAminoAcid(self):
 		# TODO: Multiply by turnover kinetic rate eventually
+		# TODO: Limit by synthatase amounts as well?
 		rate = 1
 		return np.array([x.counts().sum() * rate for x in self.trna_groups],dtype = np.int64)
 
