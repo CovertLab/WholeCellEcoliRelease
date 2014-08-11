@@ -215,27 +215,37 @@ TRNA_ANTICODON = {
 }
 
 
-AA_TRNA_GROUPS = collections.OrderedDict([('A', ['tRNA-Ile2', 'alaT-tRNA', 'alaU-tRNA', 'alaV-tRNA', 'alaW-tRNA']),
-		('R', ['alaX-tRNA', 'argQ-tRNA', 'argU-tRNA', 'argV-tRNA', 'argW-tRNA', 'argX-tRNA', 'argY-tRNA']),
-		('N', ['argZ-tRNA', 'asnT-tRNA', 'asnU-tRNA', 'asnV-tRNA']),
-		('D', ['RNA0-304', 'aspT-tRNA', 'aspU-tRNA']),
-		('C', ['aspV-tRNA']),
-		('E', ['glnX-tRNA', 'gltT-tRNA', 'gltU-tRNA', 'gltV-tRNA']),
-		('Q', ['cysT-tRNA', 'glnU-tRNA', 'glnV-tRNA', 'glnW-tRNA']),
-		('G', ['gltW-tRNA', 'glyT-tRNA', 'glyU-tRNA', 'glyV-tRNA', 'glyW-tRNA', 'glyX-tRNA']),
-		('H', ['glyY-tRNA']),
-		('I', ['hisR-tRNA', 'ileT-tRNA', 'ileU-tRNA', 'ileV-tRNA', 'ileX-tRNA']),
-		('L', ['RNA0-305', 'leuP-tRNA', 'leuQ-tRNA', 'leuT-tRNA', 'leuU-tRNA', 'leuV-tRNA', 'leuW-tRNA', 'leuX-tRNA']),
-		('K', ['leuZ-tRNA', 'RNA0-303', 'lysT-tRNA', 'lysV-tRNA', 'lysW-tRNA', 'RNA0-301']),
-		('M', ['RNA0-302', 'metT-tRNA', 'metU-tRNA', 'RNA0-306', 'metW-tRNA', 'metY-tRNA']),
-		('F', ['metZ-tRNA', 'pheU-tRNA']),
-		('P', ['pheV-tRNA', 'proK-tRNA', 'proL-tRNA']),
-		('S', ['selC-tRNA', 'serT-tRNA', 'serU-tRNA', 'serV-tRNA', 'serW-tRNA']),
-		('T', ['serX-tRNA', 'thrT-tRNA', 'thrU-tRNA', 'thrV-tRNA']),
-		('W', ['thrW-tRNA']),
-		('Y', ['trpT-tRNA', 'tyrT-tRNA', 'tyrU-tRNA']),
-		('U', ['proM-tRNA']),
-		('V', ['tyrV-tRNA', 'valT-tRNA', 'valU-tRNA', 'valV-tRNA', 'valW-tRNA', 'valX-tRNA', 'valY-tRNA'])])
+AA_TRNA_GROUPS = collections.OrderedDict([('A', ['alaT-tRNA[c]', 'alaU-tRNA[c]', 'alaV-tRNA[c]', 'alaW-tRNA[c]']),
+		('R', ['alaX-tRNA[c]', 'argQ-tRNA[c]', 'argU-tRNA[c]', 'argV-tRNA[c]', 'argW-tRNA[c]', 'argX-tRNA[c]', 'argY-tRNA[c]']),
+		('N', ['argZ-tRNA[c]', 'asnT-tRNA[c]', 'asnU-tRNA[c]', 'asnV-tRNA[c]']),
+		('D', ['RNA0-304[c]', 'aspT-tRNA[c]', 'aspU-tRNA[c]']),
+		('C', ['aspV-tRNA[c]']),
+		('E', ['glnX-tRNA[c]', 'gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]']),
+		('Q', ['cysT-tRNA[c]', 'glnU-tRNA[c]', 'glnV-tRNA[c]', 'glnW-tRNA[c]']),
+		('G', ['gltW-tRNA[c]', 'glyT-tRNA[c]', 'glyU-tRNA[c]', 'glyV-tRNA[c]', 'glyW-tRNA[c]', 'glyX-tRNA[c]']),
+		('H', ['glyY-tRNA[c]']),
+		('I', ['hisR-tRNA[c]', 'ileT-tRNA[c]', 'ileU-tRNA[c]', 'ileV-tRNA[c]', 'ileX-tRNA[c]']),
+		('L', ['RNA0-305[c]', 'leuP-tRNA[c]', 'leuQ-tRNA[c]', 'leuT-tRNA[c]', 'leuU-tRNA[c]', 'leuV-tRNA[c]', 'leuW-tRNA[c]', 'leuX-tRNA[c]']),
+		('K', ['leuZ-tRNA[c]', 'RNA0-303[c]', 'lysT-tRNA[c]', 'lysV-tRNA[c]', 'lysW-tRNA[c]', 'RNA0-301[c]']),
+		('M', ['RNA0-302[c]', 'metT-tRNA[c]', 'metU-tRNA[c]', 'RNA0-306[c]', 'metW-tRNA[c]', 'metY-tRNA[c]']),
+		('F', ['metZ-tRNA[c]', 'pheU-tRNA[c]']),
+		('P', ['pheV-tRNA[c]', 'proK-tRNA[c]', 'proL-tRNA[c]']),
+		('S', ['selC-tRNA[c]', 'serT-tRNA[c]', 'serU-tRNA[c]', 'serV-tRNA[c]', 'serW-tRNA[c]']),
+		('T', ['serX-tRNA[c]', 'thrT-tRNA[c]', 'thrU-tRNA[c]', 'thrV-tRNA[c]']),
+		('W', ['thrW-tRNA[c]']),
+		('Y', ['trpT-tRNA[c]', 'tyrT-tRNA[c]', 'tyrU-tRNA[c]']),
+		('U', ['proM-tRNA[c]']),
+		('V', ['tyrV-tRNA[c]', 'valT-tRNA[c]', 'valU-tRNA[c]', 'valV-tRNA[c]', 'valW-tRNA[c]', 'valX-tRNA[c]', 'valY-tRNA[c]'])])
+
+TRNA_FRAME_IDS = ['alaT-tRNA[c]','alaU-tRNA[c]','alaV-tRNA[c]','alaW-tRNA[c]','alaX-tRNA[c]','argQ-tRNA[c]','argU-tRNA[c]',
+'argV-tRNA[c]','argW-tRNA[c]','argX-tRNA[c]','argY-tRNA[c]','argZ-tRNA[c]','asnT-tRNA[c]','asnU-tRNA[c]','asnV-tRNA[c]','RNA0-304[c]','aspT-tRNA[c]',
+'aspU-tRNA[c]','aspV-tRNA[c]','cysT-tRNA[c]','glnU-tRNA[c]','glnV-tRNA[c]','glnW-tRNA[c]','glnX-tRNA[c]','gltT-tRNA[c]','gltU-tRNA[c]','gltV-tRNA[c]',
+'gltW-tRNA[c]','glyT-tRNA[c]','glyU-tRNA[c]','glyV-tRNA[c]','glyW-tRNA[c]','glyX-tRNA[c]','glyY-tRNA[c]','hisR-tRNA[c]','ileT-tRNA[c]','ileU-tRNA[c]',
+'ileV-tRNA[c]','ileX-tRNA[c]','RNA0-305[c]','leuP-tRNA[c]','leuQ-tRNA[c]','leuT-tRNA[c]','leuU-tRNA[c]','leuV-tRNA[c]','leuW-tRNA[c]','leuX-tRNA[c]',
+'leuZ-tRNA[c]','RNA0-303[c]','lysT-tRNA[c]','lysV-tRNA[c]','lysW-tRNA[c]','RNA0-301[c]','RNA0-302[c]','metT-tRNA[c]','metU-tRNA[c]','RNA0-306[c]',
+'metW-tRNA[c]','metY-tRNA[c]','metZ-tRNA[c]','pheU-tRNA[c]','pheV-tRNA[c]','proK-tRNA[c]','proL-tRNA[c]','proM-tRNA[c]','selC-tRNA[c]','serT-tRNA[c]',
+'serU-tRNA[c]','serV-tRNA[c]','serW-tRNA[c]','serX-tRNA[c]','thrT-tRNA[c]','thrU-tRNA[c]','thrV-tRNA[c]','thrW-tRNA[c]','trpT-tRNA[c]','tyrT-tRNA[c]',
+'tyrU-tRNA[c]','tyrV-tRNA[c]','valT-tRNA[c]','valU-tRNA[c]','valV-tRNA[c]','valW-tRNA[c]','valX-tRNA[c]','valY-tRNA[c]','RNA0-300[c]']
 
 
 METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
