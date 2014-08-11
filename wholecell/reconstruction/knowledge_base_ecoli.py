@@ -409,6 +409,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranscription()
 		self._buildTranslation()
 		self._buildMetabolitePools()
+		self._buildTrnaData()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -3013,6 +3014,10 @@ class KnowledgeBaseEcoli(object):
 
 		self._allMass = UnitStructArray(allMass, units)
 
+
+	def _buildTrnaData(self):
+		self.aa_trna_groups = AA_TRNA_GROUPS
+		self.trnaIds = TRNA_FRAME_IDS
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
