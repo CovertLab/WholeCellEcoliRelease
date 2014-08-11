@@ -224,6 +224,30 @@ TRNA_ANTICODON = {
 	"tRNAlysV"	:	"UUU",
 }
 
+
+AA_TRNA_GROUPS = collections.OrderedDict([('A', ['tRNA-Ile2', 'alaT-tRNA', 'alaU-tRNA', 'alaV-tRNA', 'alaW-tRNA']),
+		('R', ['alaX-tRNA', 'argQ-tRNA', 'argU-tRNA', 'argV-tRNA', 'argW-tRNA', 'argX-tRNA', 'argY-tRNA']),
+		('N', ['argZ-tRNA', 'asnT-tRNA', 'asnU-tRNA', 'asnV-tRNA']),
+		('D', ['RNA0-304', 'aspT-tRNA', 'aspU-tRNA']),
+		('C', ['aspV-tRNA']),
+		('E', ['glnX-tRNA', 'gltT-tRNA', 'gltU-tRNA', 'gltV-tRNA']),
+		('Q', ['cysT-tRNA', 'glnU-tRNA', 'glnV-tRNA', 'glnW-tRNA']),
+		('G', ['gltW-tRNA', 'glyT-tRNA', 'glyU-tRNA', 'glyV-tRNA', 'glyW-tRNA', 'glyX-tRNA']),
+		('H', ['glyY-tRNA']),
+		('I', ['hisR-tRNA', 'ileT-tRNA', 'ileU-tRNA', 'ileV-tRNA', 'ileX-tRNA']),
+		('L', ['RNA0-305', 'leuP-tRNA', 'leuQ-tRNA', 'leuT-tRNA', 'leuU-tRNA', 'leuV-tRNA', 'leuW-tRNA', 'leuX-tRNA']),
+		('K', ['leuZ-tRNA', 'RNA0-303', 'lysT-tRNA', 'lysV-tRNA', 'lysW-tRNA', 'RNA0-301']),
+		('M', ['RNA0-302', 'metT-tRNA', 'metU-tRNA', 'RNA0-306', 'metW-tRNA', 'metY-tRNA']),
+		('F', ['metZ-tRNA', 'pheU-tRNA']),
+		('P', ['pheV-tRNA', 'proK-tRNA', 'proL-tRNA']),
+		('S', ['selC-tRNA', 'serT-tRNA', 'serU-tRNA', 'serV-tRNA', 'serW-tRNA']),
+		('T', ['serX-tRNA', 'thrT-tRNA', 'thrU-tRNA', 'thrV-tRNA']),
+		('W', ['thrW-tRNA']),
+		('Y', ['trpT-tRNA', 'tyrT-tRNA', 'tyrU-tRNA']),
+		('U', ['proM-tRNA']),
+		('V', ['tyrV-tRNA', 'valT-tRNA', 'valU-tRNA', 'valV-tRNA', 'valW-tRNA', 'valX-tRNA', 'valY-tRNA'])])
+
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
