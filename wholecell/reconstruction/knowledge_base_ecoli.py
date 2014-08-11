@@ -28,17 +28,7 @@ import wholecell.utils.config
 sys.path.append(str(os.path.expanduser(wholecell.utils.config.KNOWLEDGEBASE_PACKAGE_DIR)))
 import ecoliwholecellkb_project.ecoliwholecellkb.settings
 
-from ecoliwholecellkb_project.public.models import (MoleculeType, Gene, Molecule, Location,
-Comment, ProteinMonomers, Rna, Metabolite, ProteinComplex, ProteinComplexModified,
-ProteinMonomerModified, RnaModified, RelationStoichiometry,
-ProteinComplexReactionRelation,ProteinComplexModifiedReaction,
-ProteinComplexModReactionRelation, ProteinComplexModReactionEnzyme,
-ProteinMonomerModifiedReaction, ProteinMonomerModReactionEnzyme,
-ProteinMonomerModReactionRelation, RnaModifiedReaction, RnaModReactionEnzyme,
-RnaModifiedReactionRelation, MetaboliteReaction, MetaboliteReactionEnzyme,
-MetaboliteReactionRelation, MetaboliteBiomass, MetaboliteEquivalentEnzyme,
-Chromosome, GeneSplices, GeneAbsolutentPosition, EntryPositiveFloatData, GeneType,
-Parameter, Constant, Promoter, TranscriptionUnit, TranscriptionUnitGene)
+from ecoliwholecellkb_project.public.models import *
 
 # Import Biopython for sequence handling
 import Bio
@@ -248,6 +238,102 @@ AA_TRNA_GROUPS = collections.OrderedDict([('A', ['tRNA-Ile2', 'alaT-tRNA', 'alaU
 		('V', ['tyrV-tRNA', 'valT-tRNA', 'valU-tRNA', 'valV-tRNA', 'valW-tRNA', 'valX-tRNA', 'valY-tRNA'])])
 
 
+METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
+	"glu-L": 9.60e-2,
+	"gthrd": 1.70e-2,
+	"fdp": 1.50e-2,
+	"atp": 9.60e-3,
+	"u3aga": 9.20e-3,
+	"utp": 8.30e-3,
+	"gtp": 4.90e-3,
+	"dttp": 4.60e-3,
+	"asp-L": 4.20e-3,
+	"val-L": 4.00e-3,
+	"6pgc": 3.80e-3,
+	"gln-L": 3.80e-3,
+	"ctp": 2.70e-3,
+	"ala-L": 2.60e-3,
+	"nad": 2.60e-3,
+	"udpg": 2.50e-3,
+	"uri": 2.10e-3,
+	"cit": 2.00e-3,
+	"udp": 1.80e-3,
+	"mal-L": 1.70e-3,
+	"3pg": 1.50e-3,
+	"citr-L": 1.40e-3,
+	"coa": 1.40e-3,
+	"glyc-R": 1.40e-3,
+	"gam6p": 1.20e-3,
+	"actp": 1.10e-3,
+	"6pgl": 1.00e-3,
+	"gdp": 6.80e-4,
+	"accoa": 6.10e-4,
+	"cbasp": 5.90e-4,
+	"arg-L": 5.70e-4,
+	"succ": 5.70e-4,
+	"udpglcur": 5.70e-4,
+	"adp": 5.60e-4,
+	"asn-L": 5.10e-4,
+	"akg": 4.40e-4,
+	"lys-L": 4.10e-4,
+	"pro-L": 3.90e-4,
+	"dtdp": 3.80e-4,
+	"dhap": 3.70e-4,
+	"hcys-L": 3.70e-4,
+	"cmp": 3.60e-4,
+	"amp": 2.80e-4,
+	"succoa": 2.30e-4,
+	"gua": 1.90e-4,
+	"pep": 1.80e-4,
+	"amet": 1.80e-4,
+	"thr-L": 1.80e-4,
+	"fad": 1.70e-4,
+	"met-L": 1.50e-4,
+	"23dhb": 1.40e-4,
+	"fum": 1.20e-4,
+	"nadph": 1.20e-4,
+	"phpyr": 9.00e-5,
+	"nadh": 8.30e-5,
+	"acgam1p": 8.20e-5,
+	"his-L": 6.80e-5,
+	"ser-L": 6.80e-5,
+	"4hbz": 5.20e-5,
+	"dgmp": 5.10e-5,
+	"glyc3p": 4.90e-5,
+	"acorn": 4.30e-5,
+	"glcn": 4.20e-5,
+	# "23camp": 3.50e-5, # can't be formed by the reaction network
+	"dctp": 3.50e-5,
+	"malcoa": 3.50e-5,
+	"tyr-L": 2.90e-5,
+	"gmp": 2.40e-5,
+	"aacoa": 2.20e-5,
+	"ribflv": 1.90e-5,
+	"phe-L": 1.80e-5,
+	"acon-C": 1.60e-5,
+	"datp": 1.60e-5,
+	"csn": 1.40e-5,
+	"skm": 1.40e-5,
+	"histd": 1.30e-5,
+	"dhor-S": 1.20e-5,
+	"quln": 1.20e-5,
+	"trp-L": 1.20e-5,
+	"orn": 1.00e-5,
+	"damp": 8.80e-6,
+	"aps": 6.60e-6,
+	# "inost": 5.70e-6, # can't be formed by the reaction network
+	"ppcoa": 5.30e-6,
+	"adpglc": 4.30e-6,
+	"anth": 3.50e-6,
+	"dad-2": 2.80e-6,
+	"cytd": 2.60e-6,
+	"nadp": 2.10e-6,
+	"gsn": 1.60e-6,
+	"ade": 1.50e-6,
+	"dgsn": 5.20e-7,
+	"adn": 1.30e-7,
+	}
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -273,6 +359,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadProteinMonomers()
 		self._loadComplexes() 
 		self._loadReactions()
+		self._loadMetaboliteConcentrations()
 		
 		self._calcMolecularWeightFromRxn()		
 
@@ -304,12 +391,14 @@ class KnowledgeBaseEcoli(object):
 		self._buildMonomerData()
 		self._buildRnaIndexToMonomerMapping()
 		self._buildMonomerIndexToRnaMapping()
+		self._buildRnaIndexToGeneMapping()
 		self._buildConstants()
 		self._buildParameters()
 		self._buildRnaExpression()
 		self._buildBiomassFractions()
 		self._buildTranscription()
 		self._buildTranslation()
+		self._buildMetabolitePools()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -330,7 +419,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
 		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
 		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
-		self._parameterData['gtpPerTranslation'] = 2
+		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
 		self._parameterData["fracActiveRibosomes"] = Q_(1.0, "dimensionless")
 
 
@@ -401,6 +490,8 @@ class KnowledgeBaseEcoli(object):
 
 		self._reactions.append(reaction)
 
+		# TODO: e->p->c instead of directly to the cytoplasm
+
 		# SELNP import reaction
 		stoich = [
 			{'coeff': -1.0,
@@ -432,21 +523,6 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _defineConstants(self):
-		# self._aaWeights = collections.OrderedDict()
-
-		# for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
-		# 	self._aaWeights[singleLetterName] = AMINO_ACID_WEIGHTS[singleLetterName]
-
-		# self._waterWeight = Q_(18.02, 'g / mol')
-
-		# # Borrowed from BioPython and modified to be at pH 7.2
-		# self._ntWeights = collections.OrderedDict({ 
-		# 	"A": 345.20,
-		# 	"C": 321.18,
-		# 	"G": 361.20,
-		# 	"U": 322.17,
-		# 	})
-
 		self._aaWeights = collections.OrderedDict()
 
 		for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
@@ -577,7 +653,6 @@ class KnowledgeBaseEcoli(object):
 				m["equivEnzIds"] = equ_enz[i.id]		
 			
 			self._metabolites.append(m)
-			###self._allProductType[self._allProducts[i.metabolite_id_id]] = 'metabolite' #need to delete
 
 		# Load monomer and water weights for calculating polymer weights
 
@@ -1527,6 +1602,15 @@ class KnowledgeBaseEcoli(object):
 			p['TU'] = tu_pr[p['id']]
 
 
+	def _loadMetaboliteConcentrations(self):
+		# TODO: move data to SQL and load here
+
+		self._metaboliteConcentrations = [
+			(metaboliteID.upper(), concentration)
+			for metaboliteID, concentration in METABOLITE_CONCENTRATIONS.viewitems()
+			]
+
+
 	def _countATinPromoters(self):
 		
 		geneLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._genes)])
@@ -1800,9 +1884,11 @@ class KnowledgeBaseEcoli(object):
 					#('coordinate'			,	'int64'),
 					#('length'				,	'int64'),
 					#('positiveDirection'	,	'bool'),
+					('rnaId'                ,   'a50'),
 					('endCoordinate'		,	'int64')])
 
 		self.geneData['name'] = [x['id'] for x in self._genes]
+		self.geneData['rnaId'] = [x['rnaId'] for x in self._genes]
 		#self.geneData['coordinate'] = [x['coordinate'] for x in self._genes]
 		#self.geneData['length'] = [x['length'] for x in self._genes]
 		#self.geneData['positiveDirection'] = [True if x['direction'] == '+' else False for x in self._genes]
@@ -2249,6 +2335,10 @@ class KnowledgeBaseEcoli(object):
 		self.monomerIndexToRnaMapping = np.array([np.where(x == self.monomerData["rnaId"])[0][0] for x in self.rnaData["id"] if len(np.where(x == self.monomerData["rnaId"])[0])])
 
 
+	def _buildRnaIndexToGeneMapping(self):
+		self.rnaIndexToGeneMapping = np.array([np.where(x + "[c]" == self.rnaData["id"])[0][0] for x in self.geneData["rnaId"]])
+
+
 	def _buildComplexation(self):
 		# Build the abstractions needed for complexation
 
@@ -2542,6 +2632,269 @@ class KnowledgeBaseEcoli(object):
 		return out
 
 
+	def _buildMetabolitePools(self):
+		CELL_DENSITY = 1.1e3 # g/L
+		# from Baldwin WW, Myer R, Powell N, Anderson E, Koch AL. Buoyant
+		# density of Escherichia coli is determined solely by the osmolarity
+		# of the culture medium. Arch Microbiol. 1995 Aug164(2):155-7 p.156
+		# fig.3 & fig.2 (retrieved from Bionumbers)
+
+		# Create vector of metabolite pools (concentrations)
+
+		# Since the data only covers certain metabolites, we need to rationally
+		# expand the dataset to include the other molecules in the biomass
+		# function.
+
+		# First, load in metabolites that do have concentrations, then assign
+		# compartments according to those given in the biomass objective.  Or,
+		# if there is no compartment, assign it to the cytoplasm.
+
+		metaboliteIDs = []
+		metaboliteConcentrations = []
+
+		wildtypeIDs = self._wildtypeBiomassData["metaboliteId"].tolist()
+
+		wildtypeIDtoCompartment = {
+			wildtypeID[:-3] : wildtypeID[-3:]
+			for wildtypeID in wildtypeIDs
+			}
+
+		for metaboliteID, concentration in self._metaboliteConcentrations:
+			if metaboliteID in wildtypeIDtoCompartment:
+				metaboliteIDs.append(
+					metaboliteID + wildtypeIDtoCompartment[metaboliteID]
+					)
+
+			elif metaboliteID == "23CAMP":
+				metaboliteIDs.append(
+					metaboliteID + "[p]"
+					)
+
+			else:
+				metaboliteIDs.append(
+					metaboliteID + "[c]"
+					)
+
+			metaboliteConcentrations.append(concentration)
+
+		# Calculate the following assuming 60 min doubling time
+
+		initWaterMass = self.avgCellWaterMassInit.to('gram * water_gram / DCW_gram').magnitude
+		initDryMass = self.avgCellDryMassInit.to('gram').magnitude
+
+		initCellMass = initWaterMass + initDryMass
+
+		initCellVolume = initCellMass / CELL_DENSITY # L
+
+		massFractions = self.cellDryMassComposition[
+			self.cellDryMassComposition["doublingTime"].to("minute").magnitude == 60.0
+			].fullArray()
+
+		for entry in self.cellGlycogenFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs
+
+			massFrac = entry["massFraction"] * massFractions["glycogenMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellMureinFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs
+
+			massFrac = entry["massFraction"] * massFractions["mureinMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellLPSFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs
+
+			massFrac = entry["massFraction"] * massFractions["lpsMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellLipidFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs
+
+			massFrac = entry["massFraction"] * massFractions["lipidMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellInorganicIonFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs
+
+			massFrac = entry["massFraction"] * massFractions["inorganicIonMassFraction"][0]
+			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit/molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self.cellSolublePoolFractionData:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in metaboliteIDs:
+				massFrac = entry["massFraction"] * massFractions["solublePoolMassFraction"][0]
+				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit/molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+
+		# ILE/LEU: split reported concentration according to their relative abundances
+
+		aaAbundances = self.monomerData["aaCounts"].magnitude.sum(0)
+		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
+
+		ileAbundance = aaAbundances[self.aaIDs.index("ILE-L[c]")]
+		leuAbundance = aaAbundances[self.aaIDs.index("LEU-L[c]")]
+
+		ILE_LEU_CONCENTRATION = 3.0e-4 # mmol/L
+
+		ileRelative = ileAbundance / (ileAbundance + leuAbundance)
+		leuRelative = 1 - ileRelative
+
+		metaboliteIDs.append("ILE-L[c]")
+		metaboliteConcentrations.append(ileRelative * ILE_LEU_CONCENTRATION)
+
+		metaboliteIDs.append("LEU-L[c]")
+		metaboliteConcentrations.append(leuRelative * ILE_LEU_CONCENTRATION)
+
+		# CYS/SEC/GLY: fit a relative abundance:concentration line (L1 norm)
+		# with other amino acids and solve for these
+
+		aaConcentrations = []
+		# aaAbundancesWithConcentrations = []
+
+		for aaIndex, aaID in enumerate(self.aaIDs):
+			if aaID in metaboliteIDs:
+				metIndex = metaboliteIDs.index(aaID)
+				aaConcentrations.append(metaboliteConcentrations[metIndex])
+				# aaAbundancesWithConcentrations.append(aaAbundances[aaIndex])
+
+		# TODO: implement L1-norm minimization
+
+		# for now: just choosing and assigning the smallest value
+
+		aaSmallestConc = min(aaConcentrations)
+
+		# HACK: min conc. doesn't work here
+		metaboliteIDs.append("GLY[c]")
+		metaboliteConcentrations.append(
+			metaboliteConcentrations[metaboliteIDs.index("ALA-L[c]")]
+			)
+
+		metaboliteIDs.append("CYS-L[c]")
+		metaboliteConcentrations.append(aaSmallestConc)
+
+		metaboliteIDs.append("SEC-L[c]")
+		metaboliteConcentrations.append(aaSmallestConc)
+
+		# DGTP: set to smallest of all other DNTP concentrations
+
+		dntpConcentrations = []
+		# dntpAbundancesWithConcentrations = []
+
+		for dntpIndex, dntpID in enumerate(self.dNtpIds):
+			if dntpID in metaboliteIDs:
+				metIndex = metaboliteIDs.index(dntpID)
+				dntpConcentrations.append(metaboliteConcentrations[metIndex])
+
+		dntpSmallestConc = min(dntpConcentrations)
+
+		metaboliteIDs.append("DGTP[c]")
+		metaboliteConcentrations.append(dntpSmallestConc)
+
+		# H2O: reported water content of E. coli
+
+		h2oMolWeight = self.getMass(["H2O[c]"])[0].to("g/mol").magnitude
+		h2oMoles = initWaterMass/h2oMolWeight
+
+		h2oConcentration = h2oMoles / initCellVolume
+
+		metaboliteIDs.append("H2O[c]")
+		metaboliteConcentrations.append(h2oConcentration)
+
+		# H: reported pH
+
+		ECOLI_PH = 7.2
+
+		hydrogenConcentration = 10**(-ECOLI_PH)
+
+		metaboliteIDs.append("H[c]")
+		metaboliteConcentrations.append(hydrogenConcentration)
+
+		# PPI: multiple sources report 0.5 mM
+
+		PPI_CONCENTRATION = 0.5e-3 # M, multiple sources
+
+		# NOTE: Nick says that the physiological levels of PPI are very low - investigate this
+
+		metaboliteIDs.append("PPI[c]")
+		metaboliteConcentrations.append(PPI_CONCENTRATION)
+
+		unaccounted = set(wildtypeIDs) - set(metaboliteIDs)
+
+		assert len(unaccounted) == 0
+
+		# Add byproducts with no annotated concentration to force recycling
+
+		metaboliteIDs.append("UMP[c]")
+		metaboliteConcentrations.append(2.40e-5)
+
+		# Other quantities to consider:
+		# - (d)NTP byproducts not currently included
+
+		self.metabolitePoolIDs = metaboliteIDs
+		self.metabolitePoolConcentrations = Q_(np.array(metaboliteConcentrations), "mol/L")
+		self.cellDensity = Q_(CELL_DENSITY, "g/L")
+
+
 	def _buildTranscription(self):
 		from wholecell.utils.polymerize import PAD_VALUE
 
@@ -2655,23 +3008,6 @@ class KnowledgeBaseEcoli(object):
 	def _checkDatabaseAccess(self, table):
 		if len(table.objects.all()) <= 0:
 			raise Exception, "Database Access Error: Cannot access public_{} table".format(table.__name__.lower())
-
-
-	# def _calculateRnaWeight(self, seq):
-	# 	# Starting with NTP molecular weights, subtracting OH for each bond pair
-	# 	return sum(self._ntWeights[x] for x in seq) - (len(seq) - 1) * self._hydroxylWeight
-
-
-	# def _calculatePeptideWeight(self, seq):
-	# 	return sum(self._aaWeights[x] for x in seq) - ((len(seq) - 1) * self._waterWeight.to('g/mol').magnitude)
-
-
-	# def _calcNucleotideCount(self, seq):
-	# 	return np.array([seq.count(x) for x in self._ntWeights])
-
-
-	# def _calculateAminoAcidCount(self, seq):
-	# 	return np.array([seq.count(x) for x in self._aaWeights])
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)

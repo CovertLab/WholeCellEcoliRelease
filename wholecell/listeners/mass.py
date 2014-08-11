@@ -53,7 +53,21 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.waterIndex = kb.submassNameToIndex["water"]
 
+		# Set initial values
+
+		self.setInitial = False
+
+		self.dryMass = 0
+		# TODO: set initial masses based on some calculations of the expected
+		# mother cell (divided by two) in the last time step
+
 		# Register logged quantities
+
+		self.registerLoggedQuantity(
+			"Cell mass\n(fg)",
+			"cellMass",
+			".2f"
+			)
 
 		self.registerLoggedQuantity(
 			"Dry mass\n(fg)",
@@ -104,15 +118,6 @@ class Mass(wholecell.listeners.listener.Listener):
 			)
 
 
-	# Allocate memory
-	def allocate(self):
-		super(Mass, self).allocate()
-
-		self.setInitial = False
-
-		self.dryMass = 0
-
-
 	def update(self):
 		oldDryMass = self.dryMass
 
@@ -134,7 +139,12 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processMassDifferences = processFinalMass - processInitialMass
 
-		self.growth = self.dryMass - oldDryMass
+		if self.timeStep() > 0:
+			self.growth = self.dryMass - oldDryMass
+
+		else:
+			self.growth = 0
+			# TODO: solve for an expected initial growth rate
 
 		self.proteinMassFraction = self.proteinMass / self.dryMass
 		self.rnaMassFraction = self.rnaMass / self.dryMass
@@ -159,6 +169,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			"time": tables.Float64Col(),
 			"timeStep": tables.Int64Col(),
 			"cellMass": tables.Float64Col(),
+			"growth" : tables.Float64Col(),
 			"dryMass": tables.Float64Col(),
 			"rnaMass": tables.Float64Col(),
 			"proteinMass": tables.Float64Col(),
@@ -181,6 +192,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		t.attrs.cell_units = self.massUnits
 		t.attrs.cellDry_units = self.massUnits
 		t.attrs.metabolite_units = self.massUnits
+		t.attrs.growth_units = self.massUnits
 		t.attrs.rna_units = self.massUnits
 		t.attrs.protein_units = self.massUnits
 		t.attrs.water_units = self.massUnits
@@ -195,6 +207,8 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		entry["time"] = self.time()
 		entry["timeStep"] = self.timeStep()
+		entry["cellMass"] = self.cellMass
+		entry["growth"] = self.growth
 		entry["dryMass"] = self.dryMass
 		entry["rnaMass"] = self.rnaMass
 		entry["proteinMass"] = self.proteinMass

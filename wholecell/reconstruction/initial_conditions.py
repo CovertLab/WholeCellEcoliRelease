@@ -48,12 +48,6 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 	## Set other biomass components
 	initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep)
 
-	## Set pools
-	initializePools(bulkMolCntr, kb, randomState, timeStep)
-
-	## Set water
-	initializeBulkWater(bulkMolCntr, kb, randomState, timeStep)
-
 	## Form complexes
 	initializeComplexes(bulkMolCntr, kb, randomState, timeStep)
 
@@ -93,6 +87,12 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
 	# monomersView.countsIs(nMonomers * monomerExpression)
 
+	## Uncomment for debugging
+	# M = kb.getMass([monomersView._container._objectNames[x] for x in monomersView._indexes]).magnitude
+	# initDryMass = kb.avgCellDryMassInit.to("DCW_gram").magnitude
+	# print "Expected Protein Mass: %g" % (initDryMass * dryComposition60min.fullArray()["proteinMassFraction"])[0]
+	# print "Actual Protein Mass: %g" % (monomersView.counts() / kb.nAvogadro.magnitude * M).sum()
+
 
 def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 	dryComposition60min = kb.cellDryMassComposition[
@@ -118,28 +118,20 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	# rnaView.countsIs(nRnas * rnaExpression)
 
+	## Uncomment for debugging
+	# M = kb.getMass([rnaView._container._objectNames[x] for x in rnaView._indexes]).magnitude
+	# initDryMass = kb.avgCellDryMassInit.to("DCW_gram").magnitude
+	# print "Expected RNA Mass: %g" % (initDryMass * dryComposition60min.fullArray()["rnaMassFraction"])[0]
+	# print "Actual RNA Mass: %g" % (rnaView.counts() / kb.nAvogadro.magnitude * M).sum()
+
+
 
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 	dryComposition60min = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].magnitude == 60
 		]
-
-	dntpsView = bulkMolCntr.countsView(kb.dNtpIds)
 	dnmpsView = bulkMolCntr.countsView(kb.dNmpNuclearIds)
-	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
-	dnaMass = kb.avgCellDryMassInit.magnitude * dnaMassFraction
-
-	dnaExpression = normalize(np.array([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		], dtype = np.float64))
-
-	dnmpMws = kb.getMass(kb.dNmpNuclearIds).magnitude
-
-	dntpMws = kb.getMass(kb.dNtpIds).magnitude
 
 	dnmpsView.countsIs([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
@@ -148,155 +140,90 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		])
 
-	chromMass = (
-		np.dot(dnmpsView.counts(), dnmpMws) - 2 * kb.genomeLength * 17.01
-		) / kb.nAvogadro.magnitude
 
-	# dNTP Pools are handled here
-	nDntps = countsFromMassAndExpression(
-		dnaMass - chromMass,
-		dntpMws,
-		dnaExpression,
-		kb.nAvogadro.magnitude
-		)
-	dntpsView.countsIs(
-		randomState.multinomial(nDntps, dnaExpression)
-		)
-
+	## Uncomment for debugging
+	# M = kb.getMass([dnmpsView._container._objectNames[x] for x in dnmpsView._indexes]).magnitude
+	# initDryMass = kb.avgCellDryMassInit.to("DCW_gram").magnitude
+	# print "Expected DNA Mass: %g" % (initDryMass * dryComposition60min.fullArray()["dnaMassFraction"])[0]
+	# print "Actual DNA Mass: %g" % (dnmpsView.counts() / kb.nAvogadro.magnitude * M).sum()
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
-	biomassContainer = BulkObjectsContainer(
-		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
-		)
-	biomassContainer.countsIs(
-		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
-		)
 
-	notPRDMetabolites = (
-		list(kb.cellGlycogenFractionData["metaboliteId"]) +
-		list(kb.cellMureinFractionData["metaboliteId"]) +
-		list(kb.cellLPSFractionData["metaboliteId"]) +
-		list(kb.cellLipidFractionData["metaboliteId"]) +
-		list(kb.cellInorganicIonFractionData["metaboliteId"]) +
-		list(kb.cellSolublePoolFractionData["metaboliteId"])
-		)
+	massFractions = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].to("minute").magnitude == 60.0
+		].fullArray()
 
-	notPRDBulkView = bulkMolCntr.countsView(notPRDMetabolites)
-
-	notPRDBiomassView = biomassContainer.countsView(notPRDMetabolites)
-
-	notPRDBulkView.countsIs((
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude *
-		notPRDBiomassView.counts() *
-		kb.nAvogadro.to("1 / millimole").magnitude
-		))
-
-
-def initializePools(bulkMolCntr, kb, randomState, timeStep):
-	# Note: This is adding dry biomass, so the cell will appear heavier
-
-	from wholecell.reconstruction.knowledge_base_ecoli import AMINO_ACID_1_TO_3_ORDERED
-
-	biomassContainer = BulkObjectsContainer(
-		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
-		)
-	biomassContainer.countsIs(
-		kb.wildtypeBiomass["biomassFlux"].to("millimole/DCW_gram").magnitude
-		)
-
-	ntpsBiomassView = biomassContainer.countsView(kb.ntpIds)
-	dntpsBiomassView = biomassContainer.countsView(kb.dNtpIds)
-	aasBiomassView = biomassContainer.countsView(kb.aaIDs)
-
-	ppiBulkView = bulkMolCntr.countView("PPI[c]")
-	ntpsBulkView = bulkMolCntr.countsView(kb.ntpIds)
-	dntpsBulkView = bulkMolCntr.countsView(kb.dNtpIds)
-	aasBulkView = bulkMolCntr.countsView(kb.aaIDs)
-
-	dt = timeStep
-	tau_d = kb.cellCycleLen.to("second").magnitude
-
-	##### dNTPs are handled in DNA initialization because they are special
-	## dNTPs
-	# dntpsFromLastStep = (
-	# 	dntpsBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
-	# 	kb.nAvogadro.to("1 / millimole").magnitude *
-	# 	kb.avgCellDryMassInit.to("DCW_gram").magnitude
-	# 	)
-	# dntpsBulkView.countsIs(dntpsFromLastStep)
-
-	## NTPs (for Transcription)
-	ntpsFromLastStep = (
-		ntpsBiomassView.counts() *
-		(1 - np.exp(-np.log(2) / tau_d * dt)) *
-		kb.nAvogadro.to("1 / millimole").magnitude *
+	initDryMass = kb.avgCellDryMassInit.to("DCW_gram").magnitude
+	cellMass = (
 		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		).astype(np.int64)
-	ntpsBulkView.countsInc(ntpsFromLastStep)
+		# + kb.avgCellWaterMassInit.magnitude
+		)
 
-	## Small molecules for Translation
-	gtpInitial = kb.gtpPoolSize * dt * kb.nAvogadro.to("1/millimole") * kb.avgCellDryMassInit.to("DCW_gram")
+	poolIds = kb.metabolitePoolIDs[:]
+
+	mass = initDryMass
+	mass -= massFractions["glycogenMassFraction"] * initDryMass
+	mass -= massFractions["mureinMassFraction"] * initDryMass
+	mass -= massFractions["lpsMassFraction"] * initDryMass
+	mass -= massFractions["lipidMassFraction"] * initDryMass
+	mass -= massFractions["inorganicIonMassFraction"] * initDryMass
+	mass -= massFractions["solublePoolMassFraction"] * initDryMass
+
+	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
+	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.magnitude[idx] > 0]
+	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.magnitude if x > 0])
+
+	cellVolume = cellMass / kb.cellDensity
+	cellDensity = kb.cellDensity.to("g / L").magnitude
+	mws = kb.getMass(poolIds).to("g / mol").magnitude
+	concentrations = poolConcentrations.copy()
+
+	diag = cellDensity / (mws * concentrations) - 1
+	A = -1 * np.ones((diag.size, diag.size))
+	A[np.diag_indices(diag.size)] = diag
+	b = mass * np.ones(diag.size)
+
+
+	massesToAdd = np.linalg.solve(A, b)
+	countsToAdd = massesToAdd / mws * kb.nAvogadro.to("1 / mol").magnitude
+
+	V = (mass + massesToAdd.sum()) / cellDensity
+
+	assert np.allclose(countsToAdd / kb.nAvogadro.magnitude / V, poolConcentrations)
+
+	## Uncomment the following if you want to look at how well our two different accountings of mass agree
+	# M = kb.getMass(bulkMolCntr._objectNames)
+	# (bulkMolCntr.counts() / kb.nAvogadro.magnitude * M).sum()
+	# (bulkMolCntr.counts() / kb.nAvogadro.magnitude * M).sum() / (mass)
+	# import ipdb; ipdb.set_trace()
+
+	bulkMolCntr.countsIs(
+		countsToAdd,
+		poolIds
+		)
+
+	## Uncomment the following if you want to look at how well our two different accountings of mass agree
+	# M = kb.getMass(bulkMolCntr._objectNames)
+	# (bulkMolCntr.counts() / kb.nAvogadro.magnitude * M).sum()
+	# (bulkMolCntr.counts() / kb.nAvogadro.magnitude * M).sum() / (mass + massesToAdd.sum())
+	# import ipdb; ipdb.set_trace()
+
+
+
+	subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
+	subunitStoich = np.array([1, 1, 1])
+	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
+	elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
+	T_d = kb.cellCycleLen.to("s").magnitude
+	dt = kb.timeStep.to("s").magnitude
+
+	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
+	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.gtpPerTranslation
+
 	bulkMolCntr.countsInc(
-		gtpInitial.magnitude.astype(np.int64),
-		["GTP[c]", "PPI[c]", "GMP[c]"]
+		gtpsHydrolyzedLastTimeStep,
+		["GDP[c]"]
 		)
-
-	## Small molecules for GAM
-	atpInitial = kb.atpPoolSize * dt * kb.nAvogadro.to("1/millimole") * kb.avgCellDryMassInit.to("DCW_gram")
-	bulkMolCntr.countsInc(
-		atpInitial.magnitude.astype(np.int64),
-		["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
-		)
-
-	## Amino Acids
-	aasFromLastStep = (
-		aasBiomassView.counts() * (1 - np.exp(-np.log(2) / tau_d * dt)) *
-		kb.nAvogadro.to("1 / millimole").magnitude *
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		)
-	aasBulkView.countsIs(aasFromLastStep)
-
-	## PPI
-	# Assumption:
-	# NTPs and dNTPs from two steps ago got completely used up in the last step
-	ntpsFromTwoStepsAgo = (
-		ntpsBiomassView.counts() *
-		(np.exp(-np.log(2) / tau_d * dt) - np.exp(-np.log(2) / tau_d * 2 * dt)) *
-		kb.nAvogadro.to("1 / millimole").magnitude *
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		)
-
-	# TODO: This is definitely wrong because replication isn't metabolically limited
-	dntpsFromTwoStepsAgo = (
-		dntpsBiomassView.counts() *
-		(np.exp(-np.log(2) / tau_d * dt) - np.exp(-np.log(2) / tau_d * 2 * dt)) *
-		kb.nAvogadro.to("1 / millimole").magnitude *
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		)
-
-	ppiFromNtps = np.round(np.sum(
-		ntpsFromLastStep
-		))
-
-	# ppiFromDntps = np.round(np.sum(
-	# 	dntpsFromLastStep
-	# 	))
-	ppiFromDntps = 0
-
-	ppiBulkView.countInc(ppiFromNtps + ppiFromDntps)
-
-
-def initializeBulkWater(bulkMolCntr, kb, randomState, timeStep):
-	h2oView = bulkMolCntr.countView('H2O[c]')
-
-	nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-	mwH2O = kb.getMass(['H2O'])[0]
-	avgCellWaterMassInit = kb.avgCellWaterMassInit.to('water_g').magnitude
-
-	h2oView.countIs(
-		(avgCellWaterMassInit) / mwH2O * nAvogadro
-		)
-
 
 def initializeGenes(bulkChrmCntr, kb, timeStep):
 	"""

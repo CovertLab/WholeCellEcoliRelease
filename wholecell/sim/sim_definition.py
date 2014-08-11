@@ -35,7 +35,6 @@ STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 # Processes
 import wholecell.processes.complexation
 import wholecell.processes.metabolism
-import wholecell.processes.metabolism_fba
 import wholecell.processes.rna_degradation
 import wholecell.processes.replication
 import wholecell.processes.translation.unique_polypeptide_initiation
@@ -44,13 +43,11 @@ import wholecell.processes.transcription.unique_transcript_initiation
 import wholecell.processes.transcription.unique_transcript_elongation
 import wholecell.processes.protein_degradation
 import wholecell.processes.replication_initiation
-import wholecell.processes.biomass_internment
 import wholecell.processes.atp_usage
 
 PROCESS_CLASSES = (
 	wholecell.processes.complexation.Complexation,
 	wholecell.processes.metabolism.Metabolism,
-	wholecell.processes.metabolism_fba.MetabolismFba,
 	wholecell.processes.rna_degradation.RnaDegradation,
 	wholecell.processes.replication.Replication,
 	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
@@ -59,7 +56,6 @@ PROCESS_CLASSES = (
 	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
 	wholecell.processes.protein_degradation.ProteinDegradation,
 	wholecell.processes.replication_initiation.ReplicationInitiation,
-	wholecell.processes.biomass_internment.BiomassInternment,
 	wholecell.processes.atp_usage.AtpUsage,
 	)
 
@@ -67,29 +63,29 @@ PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSE
 
 # Listeners
 import wholecell.listeners.mass
-import wholecell.listeners.metabolic_flux
+# import wholecell.listeners.metabolic_flux
 import wholecell.listeners.replication_fork
 import wholecell.listeners.ntp_usage
 import wholecell.listeners.aa_usage
 import wholecell.listeners.ribosome_stalling
 import wholecell.listeners.gene_copy_number
-import wholecell.listeners.metabolic_demands
+# import wholecell.listeners.metabolic_demands
 import wholecell.listeners.unique_molecule_counts
 import wholecell.listeners.evaluation_time
-import wholecell.listeners.effective_biomass_objective
+import wholecell.listeners.fba_results
 
 LISTENER_CLASSES = (
 	wholecell.listeners.mass.Mass,
-	wholecell.listeners.metabolic_flux.MetabolicFlux,
+	# wholecell.listeners.metabolic_flux.MetabolicFlux,
 	wholecell.listeners.replication_fork.ReplicationForkPosition,
 	wholecell.listeners.ntp_usage.NtpUsage,
 	wholecell.listeners.aa_usage.AAUsage,
 	wholecell.listeners.ribosome_stalling.RibosomeStalling,
 	wholecell.listeners.gene_copy_number.GeneCopyNumber,
-	wholecell.listeners.metabolic_demands.MetabolicDemands,
+	# wholecell.listeners.metabolic_demands.MetabolicDemands,
 	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts,
 	wholecell.listeners.evaluation_time.EvaluationTime,
-	wholecell.listeners.effective_biomass_objective.EffectiveBiomassObjective
+	wholecell.listeners.fba_results.FBAResults
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -102,6 +98,7 @@ import wholecell.loggers.disk
 
 DEFAULT_SHELL_COLUMN_HEADERS = [
 	"Time (s)",
+	"Cell mass (fg)",
 	"Dry mass (fg)",
 	"Dry mass fold change",
 	"Protein fold change",
@@ -138,7 +135,6 @@ DEFAULT_PROCESSES = (
 	'Replication',
 	'ProteinDegradation',
 	'Complexation',
-	'BiomassInternment',
 	'AtpUsage'
 	)
 
@@ -151,7 +147,7 @@ DEFAULT_LISTENERS = (
 	'GeneCopyNumber',
 	'UniqueMoleculeCounts',
 	'EvaluationTime',
-	'EffectiveBiomassObjective'
+	'FBAResults'
 	)
 
 DEFAULT_HOOKS = ( # NOTE: there should probably never be any default hooks

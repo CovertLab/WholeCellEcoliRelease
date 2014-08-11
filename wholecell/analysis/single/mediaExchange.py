@@ -54,10 +54,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
 		time = h5file.root.FBAResults.col("time")
 		timeStep = h5file.root.FBAResults.col("timeStep")
-		outputFluxes = h5file.root.FBAResults.col("outputFluxes")
+		externalExchangeFluxes = h5file.root.FBAResults.col("externalExchangeFluxes")
 
 		names = h5file.root.names
-		outputMoleculeIDs = np.array(names.outputMoleculeIDs.read())
+		externalMoleculeIDs = np.array(names.externalMoleculeIDs.read())
 
 	fig = plt.figure(figsize = (30, 15))
 
@@ -65,12 +65,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_dendro = fig.add_subplot(grid[0])
 
+	scaling = (np.mean(np.abs(externalExchangeFluxes), 0) + 2 * np.std(np.abs(externalExchangeFluxes), 0))
+
+	nonzero = (scaling != 0)
+
 	normalized = (
-		outputFluxes
-		/ (np.mean(np.abs(outputFluxes), 0) + 2 * np.std(np.abs(outputFluxes), 0))
+		externalExchangeFluxes[:, nonzero]
+		/ scaling[nonzero]
 		).transpose()
 
-	linkage = sch.linkage(outputFluxes.T, metric = "correlation")
+	linkage = sch.linkage(externalExchangeFluxes[:, nonzero].T, metric = "correlation")
 	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
@@ -104,7 +108,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(outputMoleculeIDs[np.array(index)], size = 5)
+	ax_mat.set_yticklabels(externalMoleculeIDs[nonzero][np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
@@ -117,7 +121,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("Relative FBA production rates (red = consumption, blue = production)")
+	plt.title("Relative FBA media utilization rates (red = secretion, blue = uptake)")
 
 	ax_cmap = fig.add_subplot(grid[2])
 

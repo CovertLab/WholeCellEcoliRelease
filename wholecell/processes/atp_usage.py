@@ -15,10 +15,13 @@ TODO:
 
 from __future__ import division
 
+import warnings
+
 import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_ATP_USAGE
+from wholecell.utils.random import stochasticRound
 
 class AtpUsage(wholecell.processes.process.Process):
 	""" AtpUsage """
@@ -48,23 +51,54 @@ class AtpUsage(wholecell.processes.process.Process):
 		# self.adp = self.bulkMoleculeView("ADP[c]")
 		# self.h = self.bulkMoleculeView("H[c]")
 
-		self.atpInitialPool = (
-			kb.atpPoolSize * self.timeStepSec *
-			kb.nAvogadro.to("1/millimole") * kb.avgCellDryMassInit.to("DCW_gram")
-			).magnitude
+		self.nongrowthAssociated_reactionsPerTimestep = (
+			kb.NGAM * kb.nAvogadro
+			).to("1/femtogram/s").magnitude * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
 
-	def calculateRequest(self):
 
-		poolToRequest = self.atpInitialPool * np.exp(np.log(2) / self.cellCycleLen * self.time())
-		self.reactants.requestIs(poolToRequest)
+	def calculateRequest(self):
+		mass = self.readFromListener("Mass", "dryMass")
+		deltaMass = self.readFromListener("Mass", "growth")
+
+		expectedReactions_nongrowthAssociated = (mass
+			* self.nongrowthAssociated_reactionsPerTimestep)
+
+		expectedReactions = expectedReactions_nongrowthAssociated
+		
+		self.reactants.requestIs(
+			stochasticRound(self.randomState, expectedReactions)
+			)
+
 
 	def evolveState(self):
+		mass = self.readFromListener("Mass", "dryMass")
+		deltaMass = self.readFromListener("Mass", "growth")
+
+		expectedReactions_nongrowthAssociated = (mass
+			* self.nongrowthAssociated_reactionsPerTimestep)
+
+		expectedReactions = expectedReactions_nongrowthAssociated
 		
 		atpsHydrolyzed = np.fmin(
 			self.atp.count(),
 			self.h2o.count()
 			)
+
 		self.reactants.countsDec(atpsHydrolyzed)
 		self.products.countsInc(atpsHydrolyzed)
+
+		if atpsHydrolyzed < np.floor(expectedReactions):
+			warnings.warn("Maintenance not satisfied; the cell may be growing too fast")
+
+			print "did not meet maintenance ({})".format(expectedReactions - atpsHydrolyzed)
+
+			# TODO: flag some sort of listener that tracks phenomenological
+			# observations like cell death/division
+
+		# TODO: consider implementing (N)GAM as a metabolism constraint
+		# TODO: let (N)GAM roll over to the next time step, just in case
+		# there is some stochasticity (i.e. ATP limiting in one time step, in 
+		# excess in a following time step)
+

@@ -43,6 +43,8 @@ CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_UNDER = [1, 0.2, 0.75]
 CMAP_OVER = [0, 1, 0.75]
 
+NUMERICAL_ZERO = 1e-10 # used to cull very small numbers; could be chosen more rationally (i.e. minimum of one reaction per average cell size)
+
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
@@ -54,33 +56,78 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
 		time = h5file.root.FBAResults.col("time")
 		timeStep = h5file.root.FBAResults.col("timeStep")
-		outputFluxes = h5file.root.FBAResults.col("outputFluxes")
+		reactionFluxes = h5file.root.FBAResults.col("reactionFluxes")
 
 		names = h5file.root.names
-		outputMoleculeIDs = np.array(names.outputMoleculeIDs.read())
+		reactionIDs = np.array(names.reactionIDs.read())
 
-	fig = plt.figure(figsize = (30, 15))
+	# TODO: split figure output, perhaps using major clusterings
 
-	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.25,1,0.1])
+	REV_STR = " (reverse)"
 
-	ax_dendro = fig.add_subplot(grid[0])
+	retainedReactionIndexes = []
+
+	for reactionIndex, reactionID in enumerate(reactionIDs):
+		if reactionID.endswith(REV_STR):
+			forward_reactionID = reactionID.replace(REV_STR, "")
+
+			forward_reactionIndex = np.where(forward_reactionID == reactionIDs)[0][0]
+
+			reactionFluxes[:, forward_reactionIndex] -= reactionFluxes[:, reactionIndex]
+
+		else:
+			retainedReactionIndexes.append(reactionIndex)
+
+	retainedReactionIndexes = np.array(retainedReactionIndexes)
+	reactionFluxes = reactionFluxes[:, retainedReactionIndexes]
+	reactionIDs = reactionIDs[retainedReactionIndexes]
+
+	nonzero = (np.abs(reactionFluxes) >= NUMERICAL_ZERO).any(0)
+
+	scaling = (np.mean(np.abs(reactionFluxes), 0) + 2 * np.std(np.abs(reactionFluxes), 0))
+
+	# scaling = np.sqrt(np.corrcoef(reactionFluxes[:, nonzero].T)[np.identity(nonzero.sum(), np.bool)]) / reactionFluxes.shape[0]
 
 	normalized = (
-		outputFluxes
-		/ (np.mean(np.abs(outputFluxes), 0) + 2 * np.std(np.abs(outputFluxes), 0))
+		reactionFluxes[:, nonzero]
+		/ scaling[nonzero]
 		).transpose()
 
-	linkage = sch.linkage(outputFluxes.T, metric = "correlation")
+	with open(kbFile, "rb") as f:
+		kb = cPickle.load(f)
+
+	idToName = {
+		reaction["id"]:reaction["name"]
+		for reaction in kb.metabolismBiochemicalReactions
+		}
+
+	reactionNames = np.array([
+		idToName[reactionID] for reactionID in reactionIDs
+		])
+
+	# fig = plt.figure(figsize = (36, 48))
+	# fig = plt.figure(figsize = (12, 16))
+
+	linkage = sch.linkage(reactionFluxes[:, nonzero].T, metric = "correlation") #, method = "complete")
 	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
+
+	fig = plt.figure(figsize = (72, 96))
+
+	# grid = gridspec.GridSpec(1,2,wspace=0.0,hspace=0.0,width_ratios=[1,0.05])
+	# dendro = sch.dendrogram(linkage, no_plot = True)
+
+	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.2, 1, 0.05])
+	ax_dendro = fig.add_subplot(grid[0])
 	
 	dendro = sch.dendrogram(linkage, orientation="right", color_threshold = np.inf)
-	index = dendro["leaves"]
 
 	ax_dendro.set_xticks([])
 	ax_dendro.set_yticks([])
 	ax_dendro.set_axis_off()
+
+	index = dendro["leaves"]
 
 	ax_mat = fig.add_subplot(grid[1])
 
@@ -104,7 +151,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(outputMoleculeIDs[np.array(index)], size = 5)
+	ax_mat.set_yticklabels(reactionNames[nonzero][np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
@@ -117,7 +164,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("Relative FBA production rates (red = consumption, blue = production)")
+	plt.title("Relative FBA reaction rates")
 
 	ax_cmap = fig.add_subplot(grid[2])
 
@@ -137,7 +184,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	grid.tight_layout(fig)
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	plt.savefig(os.path.join(plotOutDir, plotOutFileName), dpi = 200)
 
 
 if __name__ == "__main__":
