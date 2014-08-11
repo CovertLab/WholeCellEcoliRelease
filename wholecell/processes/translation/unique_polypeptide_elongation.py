@@ -43,6 +43,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.bulkMonomers = None
 		self.aas = None
 		self.h2o = None
+		self.trna_groups = None
 		self.ribosomeSubunits = None
 
 		super(UniquePolypeptideElongation, self).__init__()
@@ -55,6 +56,8 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		# Load parameters
 
 		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude) * self.timeStepSec
+
+		self.aa_trna_groups = kb.aa_trna_groups
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -76,6 +79,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		self.aas = self.bulkMoleculesView(kb.aaIDs)
+		self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
@@ -110,6 +114,11 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 			aasRequested
 			)
 
+		# TODO: Make more specific
+		trnasRequested = aasRequested
+		for i,group in enumerate(self.trna_groups):
+			group.requestIs(trnasRequested[i])
+
 		gtpsHydrolyzed = np.int64(np.ceil(
 			self.gtpPerElongation * np.fmin(
 				sequenceHasAA.sum(),
@@ -125,7 +134,10 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 		aaCounts = self.aas.counts()
-
+		trnaCountsByAA = self.getAvailableTrnaCountsByAminoAcid()
+		chargedTrnas = np.minimum(aaCounts, trnaCountsByAA)
+		print 'aaCounts: {}'.format(aaCounts)
+		print 'trnaCountsByAA: {}'.format(trnaCountsByAA)
 		activeRibosomes = self.activeRibosomes.molecules()
 
 		if len(activeRibosomes) == 0:
@@ -150,7 +162,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
-			aaCounts,
+			chargedTrnas,
 			reactionLimit,
 			self.randomState
 			)
@@ -225,3 +237,10 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		ribosomeStalls = expectedElongations - sequenceElongations
 
 		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)
+
+	def getAvailableTrnaCountsByAminoAcid(self):
+		# TODO: Multiply by turnover kinetic rate eventually
+		rate = 1
+		return np.array([x.counts().sum() * rate for x in self.trna_groups],dtype = np.int64)
+
+		
