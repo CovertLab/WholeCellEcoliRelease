@@ -3068,18 +3068,18 @@ class KnowledgeBaseEcoli(object):
 			for i,idx in enumerate(subunitIdx):
 				self._monomerRecursiveSearch(idx, subunitStoich[i][0], stoichMatrix, monomerIdxList, monomerStoichList)
 
-	def _translate_rna_to_codon(self, sequence):
-		n = len(sequence)
-		codon_seq = []
-		notHave = []
-		for i in range(0, n - n%3, 3):
-			codon = sequence[i:i+3]
-			try:
-				print str(i) + ' ' + str(CODONS.index(codon))
-				codon_seq.append(CODONS.index(codon))
-			except:
-				notHave.append(codon)
+	# def _translate_rna_to_codon(self, sequence):
+	# 	n = len(sequence)
+	# 	codon_seq = []
+	# 	notHave = []
+	# 	for i in range(0, n - n%3, 3):
+	# 		codon = sequence[i:i+3]
+	# 		try:
+	# 			print str(i) + ' ' + str(CODONS.index(codon))
+	# 			codon_seq.append(CODONS.index(codon))
+	# 		except:
+	# 			notHave.append(codon)
 
-		notHave = set(notHave)
-		print notHave
-		return np.array(codon_seq)
+	# 	notHave = set(notHave)
+	# 	print notHave
+	# 	return np.array(codon_seq)
