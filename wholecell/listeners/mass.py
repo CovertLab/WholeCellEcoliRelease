@@ -127,15 +127,15 @@ class Mass(wholecell.listeners.listener.Listener):
 		postEvolveMasses = masses[1, ...]
 
 		self.cellMass = postEvolveMasses.sum() # sum over all dimensions
-		submasses = postEvolveMasses.sum(0) # sum over the processes
+		submasses = postEvolveMasses.sum(axis = 0) # sum over the processes
 
 		self.waterMass = submasses[self.waterIndex]
 		self.dryMass = self.cellMass - self.waterMass
 		self.rnaMass = submasses[self.rnaIndexes].sum()
 		self.proteinMass = submasses[self.proteinIndex]
 
-		processInitialMass = preEvolveMasses.sum(1)
-		processFinalMass = postEvolveMasses.sum(1)
+		processInitialMass = preEvolveMasses.sum(axis = 1)
+		processFinalMass = postEvolveMasses.sum(axis = 1)
 
 		self.processMassDifferences = processFinalMass - processInitialMass
 
