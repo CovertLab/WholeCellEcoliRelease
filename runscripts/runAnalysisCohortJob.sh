@@ -72,6 +72,8 @@ stagein()
 	scp -r ${CODE_DIR}/runscripts .
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
+	scp -r ${CODE_DIR}/models .
+	scp -r ${CODE_DIR}/reconstruction .
 
 	mkdir -p out/simOut/${SUBMISSION_TIME}
 	scp -r ${SUBMISSION_RESULTS_DIR} out/simOut
@@ -84,7 +86,7 @@ runprogram()
 	mkdir -p "$MY_SUBMISSION_PLOTS_DIR"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	SCRIPTS_DIR="wholecell/analysis/cohort"
+	SCRIPTS_DIR="models/ecoli/analysis/cohort"
 	SCRIPTS=$(find $SCRIPTS_DIR -name "*.py" | sort)
 
 	for SCRIPT in $SCRIPTS; do

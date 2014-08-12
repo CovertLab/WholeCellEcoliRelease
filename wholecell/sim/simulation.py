@@ -53,6 +53,8 @@ class Simulation(object):
 
 		self.randomState = np.random.RandomState(seed = self.seed)
 
+		self.calcInitialConditions = self._options.initialConditionsFunction
+
 		# Load KB
 		kb = cPickle.load(open(self._options.kbLocation, "rb"))
 
@@ -101,9 +103,7 @@ class Simulation(object):
 		for listener in self.listeners.itervalues():
 			listener.allocate()
 		
-		from wholecell.reconstruction.initial_conditions import calcInitialConditions
-
-		calcInitialConditions(self, kb)
+		self.calcInitialConditions(self, kb)
 
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)

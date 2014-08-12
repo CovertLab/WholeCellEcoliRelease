@@ -15,7 +15,7 @@ Run a simulation using a provided configuration (JSON) file:
 
 from __future__ import division
 
-import wholecell.sim.sim_definition
+import models.ecoli.sim.sim_definition
 import wholecell.sim.simulation
 import argparse
 import os
@@ -23,7 +23,7 @@ import json
 
 def main(submissionTime):
 
-	simOpts = wholecell.sim.sim_definition.getSimOptsFromEnvVars(
+	simOpts = models.ecoli.sim.sim_definition.getSimOptsFromEnvVars(
 		["outputDir", "logToDisk", "overwriteExistingFiles"]
 		)
 
@@ -40,10 +40,10 @@ def main(submissionTime):
 	# Check that we're setting all arguments (in case more have been added, etc)
 	assert (
 		set(simOpts.keys()) ==
-		set(wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS.keys())
+		set(models.ecoli.sim.sim_definition.SIM_KWARG_DEFAULTS.keys())
 		), "Need to set all keyword arguments in runSimulation.py"
 
-	sim = wholecell.sim.simulation.Simulation(**simOpts)
+	sim = wholecell.sim.simulation.Simulation(models.ecoli.sim.sim_definition.SimDefinition(**simOpts))
 
 	sim.run()
 

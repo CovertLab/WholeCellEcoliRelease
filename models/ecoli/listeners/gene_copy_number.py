@@ -16,7 +16,7 @@ import numpy as np
 import tables
 
 import wholecell.listeners.listener
-from wholecell.reconstruction.fitter import normalize
+from reconstruction.ecoli.fitter import normalize
 
 class GeneCopyNumber(wholecell.listeners.listener.Listener):
 	""" GeneCopyNumber """

@@ -75,6 +75,8 @@ stagein()
 	scp -r ${CODE_DIR}/runscripts .
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
+	scp -r ${CODE_DIR}/models .
+	scp -r ${CODE_DIR}/reconstruction .
 
 	mkdir -p "out/${SUBMISSION_TIME}/${SEED}/simOut"
 

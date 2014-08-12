@@ -13,6 +13,8 @@ import wholecell.utils.constants
 
 import json
 
+import models.ecoli.sim.initial_conditions
+
 # References to sub-simulation abstractions
 
 # States
@@ -33,59 +35,59 @@ STATE_CLASSES = (
 STATES = {stateClass.name():stateClass for stateClass in STATE_CLASSES}
 
 # Processes
-import wholecell.processes.complexation
-import wholecell.processes.metabolism
-import wholecell.processes.rna_degradation
-import wholecell.processes.replication
-import wholecell.processes.translation.unique_polypeptide_initiation
-import wholecell.processes.translation.unique_polypeptide_elongation
-import wholecell.processes.transcription.unique_transcript_initiation
-import wholecell.processes.transcription.unique_transcript_elongation
-import wholecell.processes.protein_degradation
-import wholecell.processes.replication_initiation
-import wholecell.processes.atp_usage
+import models.ecoli.processes.complexation
+import models.ecoli.processes.metabolism
+import models.ecoli.processes.rna_degradation
+import models.ecoli.processes.replication
+import models.ecoli.processes.translation.unique_polypeptide_initiation
+import models.ecoli.processes.translation.unique_polypeptide_elongation
+import models.ecoli.processes.transcription.unique_transcript_initiation
+import models.ecoli.processes.transcription.unique_transcript_elongation
+import models.ecoli.processes.protein_degradation
+import models.ecoli.processes.replication_initiation
+import models.ecoli.processes.atp_usage
 
 PROCESS_CLASSES = (
-	wholecell.processes.complexation.Complexation,
-	wholecell.processes.metabolism.Metabolism,
-	wholecell.processes.rna_degradation.RnaDegradation,
-	wholecell.processes.replication.Replication,
-	wholecell.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
-	wholecell.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
-	wholecell.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
-	wholecell.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
-	wholecell.processes.protein_degradation.ProteinDegradation,
-	wholecell.processes.replication_initiation.ReplicationInitiation,
-	wholecell.processes.atp_usage.AtpUsage,
+	models.ecoli.processes.complexation.Complexation,
+	models.ecoli.processes.metabolism.Metabolism,
+	models.ecoli.processes.rna_degradation.RnaDegradation,
+	models.ecoli.processes.replication.Replication,
+	models.ecoli.processes.translation.unique_polypeptide_initiation.UniquePolypeptideInitiation,
+	models.ecoli.processes.translation.unique_polypeptide_elongation.UniquePolypeptideElongation,
+	models.ecoli.processes.transcription.unique_transcript_initiation.UniqueTranscriptInitiation,
+	models.ecoli.processes.transcription.unique_transcript_elongation.UniqueTranscriptElongation,
+	models.ecoli.processes.protein_degradation.ProteinDegradation,
+	models.ecoli.processes.replication_initiation.ReplicationInitiation,
+	models.ecoli.processes.atp_usage.AtpUsage,
 	)
 
 PROCESSES = {processClass.name():processClass for processClass in PROCESS_CLASSES}
 
 # Listeners
-import wholecell.listeners.mass
-# import wholecell.listeners.metabolic_flux
-import wholecell.listeners.replication_fork
-import wholecell.listeners.ntp_usage
-import wholecell.listeners.aa_usage
-import wholecell.listeners.ribosome_stalling
-import wholecell.listeners.gene_copy_number
-# import wholecell.listeners.metabolic_demands
-import wholecell.listeners.unique_molecule_counts
+import models.ecoli.listeners.mass
+# import models.ecoli.listeners.metabolic_flux
+import models.ecoli.listeners.replication_fork
+import models.ecoli.listeners.ntp_usage
+import models.ecoli.listeners.aa_usage
+import models.ecoli.listeners.ribosome_stalling
+import models.ecoli.listeners.gene_copy_number
+# import models.ecoli.listeners.metabolic_demands
+import models.ecoli.listeners.unique_molecule_counts
 import wholecell.listeners.evaluation_time
-import wholecell.listeners.fba_results
+import models.ecoli.listeners.fba_results
 
 LISTENER_CLASSES = (
-	wholecell.listeners.mass.Mass,
-	# wholecell.listeners.metabolic_flux.MetabolicFlux,
-	wholecell.listeners.replication_fork.ReplicationForkPosition,
-	wholecell.listeners.ntp_usage.NtpUsage,
-	wholecell.listeners.aa_usage.AAUsage,
-	wholecell.listeners.ribosome_stalling.RibosomeStalling,
-	wholecell.listeners.gene_copy_number.GeneCopyNumber,
-	# wholecell.listeners.metabolic_demands.MetabolicDemands,
-	wholecell.listeners.unique_molecule_counts.UniqueMoleculeCounts,
+	models.ecoli.listeners.mass.Mass,
+	# models.ecoli.listeners.metabolic_flux.MetabolicFlux,
+	models.ecoli.listeners.replication_fork.ReplicationForkPosition,
+	models.ecoli.listeners.ntp_usage.NtpUsage,
+	models.ecoli.listeners.aa_usage.AAUsage,
+	models.ecoli.listeners.ribosome_stalling.RibosomeStalling,
+	models.ecoli.listeners.gene_copy_number.GeneCopyNumber,
+	# models.ecoli.listeners.metabolic_demands.MetabolicDemands,
+	models.ecoli.listeners.unique_molecule_counts.UniqueMoleculeCounts,
 	wholecell.listeners.evaluation_time.EvaluationTime,
-	wholecell.listeners.fba_results.FBAResults
+	models.ecoli.listeners.fba_results.FBAResults
 	)
 
 LISTENERS = {listenerClass.name():listenerClass for listenerClass in LISTENER_CLASSES}
@@ -107,12 +109,8 @@ DEFAULT_SHELL_COLUMN_HEADERS = [
 	]
 
 # Hooks
-import wholecell.hooks.rnap_count_hook
-import wholecell.hooks.ribosome_count_hook
 
 HOOK_CLASSES = (
-	wholecell.hooks.rnap_count_hook.RnapCountHook,
-	wholecell.hooks.ribosome_count_hook.RibosomeCountHook
 	)
 
 HOOKS = {hookClass.name():hookClass for hookClass in HOOK_CLASSES}
@@ -163,6 +161,8 @@ DEFAULT_KB_LOCATION = os.path.join(
 	wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
 	)
 
+DEFAULT_INITIAL_CONDITIONS_FUNCTION = models.ecoli.sim.initial_conditions.calcInitialConditions
+
 # TODO: restore KB reconstruction option when available
 # TODO: define defaults for reconstruction, logging
 
@@ -177,7 +177,8 @@ SIM_KWARG_DEFAULTS = dict(
 	seed = DEFAULT_SEED,
 	logToShell = True, shellColumnHeaders = DEFAULT_SHELL_COLUMN_HEADERS,
 	logToDisk = False, outputDir = None, overwriteExistingFiles = False, logToDiskEvery = None,
-	kbLocation = DEFAULT_KB_LOCATION
+	kbLocation = DEFAULT_KB_LOCATION,
+	initialConditionsFunction = DEFAULT_INITIAL_CONDITIONS_FUNCTION,
 	)
 
 # Exceptions
@@ -287,7 +288,8 @@ def getSimOptsFromEnvVars(optionsToNotGetFromEnvVars = None):
 		outputDir = ("WC_OUTPUTDIR", json.loads),
 		overwriteExistingFiles = ("WC_OVERWRITEEXISTINGFILES", json.loads),
 		logToDiskEvery = ("WC_LOGTODISKEVERY", int),
-		kbLocation = ("WC_KBLOCATION", json.loads)
+		kbLocation = ("WC_KBLOCATION", json.loads),
+		initialConditionsFunction = ("WC_INITIAL_CONDITIONS_FUNCTION", json.loads)
 		)
 
 	# These are options that the calling routine might set itself
@@ -304,7 +306,7 @@ def getSimOptsFromEnvVars(optionsToNotGetFromEnvVars = None):
 			simOpts[option] = handler(os.environ[envVar])
 			wcEnvVars.remove(envVar)
 		else:
-			simOpts[option] = wholecell.sim.sim_definition.SIM_KWARG_DEFAULTS[option]
+			simOpts[option] = models.ecoli.sim.sim_definition.SIM_KWARG_DEFAULTS[option]
 			if os.environ.has_key(envVar) and len(os.environ[envVar]) == 0:
 				wcEnvVars.remove(envVar)
 

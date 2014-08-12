@@ -43,7 +43,7 @@ fi
 
 ##### Single simulation analysis #####
 
-SINGLE_ANALYSIS_SCRIPTS_DIR="wholecell/analysis/single"
+SINGLE_ANALYSIS_SCRIPTS_DIR="models/ecoli/analysis/single"
 SINGLE_ANALYSIS_SCRIPTS=$(find $SINGLE_ANALYSIS_SCRIPTS_DIR -name "*\.py" | sort)
 
 PLOT_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/plotOut"

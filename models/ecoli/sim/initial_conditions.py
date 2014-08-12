@@ -16,8 +16,8 @@ from itertools import izip
 import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.reconstruction.fitter import countsFromMassAndExpression
-from wholecell.reconstruction.fitter import normalize
+from reconstruction.ecoli.fitter import countsFromMassAndExpression
+from reconstruction.ecoli.fitter import normalize
 
 def calcInitialConditions(sim, kb):
 	randomState = sim.randomState
