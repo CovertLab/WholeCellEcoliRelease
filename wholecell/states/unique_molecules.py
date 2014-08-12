@@ -174,7 +174,7 @@ class UniqueMolecules(wholecell.states.state.State):
 			massDiffs = molecules.attrsAsStructArray(*submassDiffNames).view((np.float64, len(submassDiffNames)))
 
 			for processIndex in np.arange(self._nProcesses + 1):
-				masses[processIndex, :] += massDiffs[processIndex == processIndexes, :].sum(0)
+				masses[processIndex, :] += massDiffs[processIndex == processIndexes, :].sum(axis = 0)
 
 		return masses
 
