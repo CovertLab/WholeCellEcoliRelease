@@ -52,7 +52,7 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 				nSubunits = nSubunits + 1
 
 	# Find which reactions overlap in molecule usage/production
-	cdef int maxReactionOverlap = (np.dot(usesMolecule.T, usesMolecule) != 0).sum(1).max()
+	cdef int maxReactionOverlap = (np.dot(usesMolecule.T, usesMolecule) != 0).sum(axis = 1).max()
 
 	cdef np.ndarray[np.int64_t, ndim=2] overlappingReactions = np.empty((nReactions, maxReactionOverlap), np.int64)
 	overlappingReactions.fill(NO_MORE_ENTRIES)
