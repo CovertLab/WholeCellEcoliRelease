@@ -26,8 +26,8 @@ import collections
 import wholecell.states.bulk_molecules
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-from units.unit_registration import UREG
-from units.unit_registration import Q_
+from reconstruction.units.unit_registration import UREG
+from reconstruction.units.unit_registration import Q_
 import pint
 pint._DEFAULT_REGISTRY = UREG
 
