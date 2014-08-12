@@ -38,8 +38,8 @@ import warnings
 warnings.simplefilter("ignore", Bio.BiopythonWarning)
 
 # Load units data from Pint
-from units.unit_struct_array import UnitStructArray
-from units.unit_registration import Q_
+from reconstruction.units.unit_struct_array import UnitStructArray
+from reconstruction.units.unit_registration import Q_
 
 # NOTE: most constants here need to either be moved to the DB or will be 
 # removed as the simulation is developed
