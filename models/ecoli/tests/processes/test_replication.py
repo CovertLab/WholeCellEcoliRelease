@@ -7,7 +7,7 @@ Test replication.py
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 4/6/2014
 """
-import wholecell.processes.replication
+import models.ecoli.processes.replication
 
 import numpy as np
 
@@ -59,13 +59,13 @@ class Test_replication(unittest.TestCase):
 
 		comparison_sequence = [
 			self.genomeSequence[0:5],
-			wholecell.processes.replication.reverseComplement(self.genomeSequence[0:5]),
+			models.ecoli.processes.replication.reverseComplement(self.genomeSequence[0:5]),
 			self.genomeSequence[np.arange(5,-1,-1) % self.genomeLength],
-			wholecell.processes.replication.reverseComplement(self.genomeSequence[np.arange(5,-1,-1) % self.genomeLength]),
+			models.ecoli.processes.replication.reverseComplement(self.genomeSequence[np.arange(5,-1,-1) % self.genomeLength]),
 			]
 
 		for i in range(len(chromosomeLocation)):
-			upcomingSequence = wholecell.processes.replication.calculateUpcomingSequence(
+			upcomingSequence = models.ecoli.processes.replication.calculateUpcomingSequence(
 				chromosomeLocation = chromosomeLocation[i],
 				directionIsPositive = directionIsPositive[i],
 				isLeading = isLeading[i],
@@ -89,7 +89,7 @@ class Test_replication(unittest.TestCase):
 			]
 
 		for i in range(len(chromosomeLocation)):
-			upcomingSequence = wholecell.processes.replication.calculateUpcomingSequence(
+			upcomingSequence = models.ecoli.processes.replication.calculateUpcomingSequence(
 				chromosomeLocation = chromosomeLocation[i],
 				directionIsPositive = directionIsPositive[i],
 				isLeading = isLeading[i],
@@ -105,14 +105,14 @@ class Test_replication(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def	test_reverseComplement(self):
 		self.assertEqual(
-			wholecell.processes.replication.reverseComplement(self.genomeSequence).tolist(),
+			models.ecoli.processes.replication.reverseComplement(self.genomeSequence).tolist(),
 			[3,2,1,0,2,0,1,2,1,0,2,1]
 			)
 
 	@noseAttrib.attr('replicationTest')
 	@noseAttrib.attr('smalltest')
 	def	test_buildSequenceMatrix(self):
-		test_sequenceMatrix = wholecell.processes.replication.buildSequenceMatrix(
+		test_sequenceMatrix = models.ecoli.processes.replication.buildSequenceMatrix(
 			self.nPolymerase,
 			self.allChromosomeLocation,
 			self.allDirectionIsPositive,
@@ -124,7 +124,7 @@ class Test_replication(unittest.TestCase):
 			)
 
 		sequenceMatrix = np.empty((self.nPolymerase, self.dnaPolymeraseElongationRate), np.int8)
-		sequenceMatrix.fill(wholecell.processes.replication.PAD_VALUE)
+		sequenceMatrix.fill(models.ecoli.processes.replication.PAD_VALUE)
 		sequenceMatrix[0,:] = [3,2]
 		sequenceMatrix[1,:] = [0,1]
 		sequenceMatrix[2,:] = [1,3]
@@ -140,7 +140,7 @@ class Test_replication(unittest.TestCase):
 		directionIsPositive = True
 		difference = 4
 
-		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+		newPos = models.ecoli.processes.replication.calculatePolymerasePositionUpdate(
 			currentPosition, directionIsPositive, difference, self.genomeLength
 			)
 
@@ -151,7 +151,7 @@ class Test_replication(unittest.TestCase):
 		directionIsPositive = False
 		difference = 4
 
-		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+		newPos = models.ecoli.processes.replication.calculatePolymerasePositionUpdate(
 			currentPosition, directionIsPositive, difference, self.genomeLength
 			)
 
@@ -162,7 +162,7 @@ class Test_replication(unittest.TestCase):
 		directionIsPositive = True
 		difference = 4
 
-		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+		newPos = models.ecoli.processes.replication.calculatePolymerasePositionUpdate(
 			currentPosition, directionIsPositive, difference, self.genomeLength
 			)
 
@@ -173,7 +173,7 @@ class Test_replication(unittest.TestCase):
 		directionIsPositive = False
 		difference = 4
 
-		newPos = wholecell.processes.replication.calculatePolymerasePositionUpdate(
+		newPos = models.ecoli.processes.replication.calculatePolymerasePositionUpdate(
 			currentPosition, directionIsPositive, difference, self.genomeLength
 			)
 
@@ -182,7 +182,7 @@ class Test_replication(unittest.TestCase):
 	@noseAttrib.attr('replicationTest')
 	@noseAttrib.attr('smalltest')
 	def test_calculateReplicatedGenes(self):
-		replicatedGenes = wholecell.processes.replication.calculateReplicatedGenes(
+		replicatedGenes = models.ecoli.processes.replication.calculateReplicatedGenes(
 			currentPosition = 0,
 			directionIsPositive = True,
 			difference = 5,
