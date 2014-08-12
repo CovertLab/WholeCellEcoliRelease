@@ -20,9 +20,6 @@ import numpy as np
 import tables
 
 import wholecell.utils.config
-import wholecell.reconstruction.fitter
-import wholecell.sim.sim_definition
-
 
 class SimulationException(Exception):
 	pass
@@ -32,15 +29,8 @@ class Simulation(object):
 	""" Simulation """
 
 	# Constructors
-	def __init__(self, simDefinition = None, **kwargs):
+	def __init__(self, simDefinition):
 		# Establish simulation options
-		if simDefinition is not None and kwargs:
-			raise SimulationException(
-				"Simulations cannot be instantiated with both a SimDefinition instance and keyword arguments"
-				)
-
-		elif simDefinition is None:
-			simDefinition = wholecell.sim.sim_definition.SimDefinition(**kwargs)
 
 		self._options = simDefinition
 
