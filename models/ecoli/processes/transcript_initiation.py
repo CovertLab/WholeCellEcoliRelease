@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-UniqueTranscriptInitiation
+TranscriptInitiation
 
 Transcription initiation sub-model.
 
@@ -25,10 +25,10 @@ import wholecell.processes.process
 
 import itertools
 
-class UniqueTranscriptInitiation(wholecell.processes.process.Process):
-	""" UniqueTranscriptInitiation """
+class TranscriptInitiation(wholecell.processes.process.Process):
+	""" TranscriptInitiation """
 
-	_name = "UniqueTranscriptInitiation"
+	_name = "TranscriptInitiation"
 
 	# Constructor
 	def __init__(self):
@@ -39,12 +39,12 @@ class UniqueTranscriptInitiation(wholecell.processes.process.Process):
 		self.activeRnaPolys = None
 		self.inactiveRnaPolys = None
 
-		super(UniqueTranscriptInitiation, self).__init__()
+		super(TranscriptInitiation, self).__init__()
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(UniqueTranscriptInitiation, self).initialize(sim, kb)
+		super(TranscriptInitiation, self).initialize(sim, kb)
 
 		# Load parameters
 

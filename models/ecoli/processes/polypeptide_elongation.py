@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-UniquePolypeptideElongation
+PolypeptideElongation
 
 Translation elongation sub-model.
 
@@ -23,10 +23,10 @@ import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils.random import stochasticRound
 
-class UniquePolypeptideElongation(wholecell.processes.process.Process):
-	""" UniquePolypeptideElongation """
+class PolypeptideElongation(wholecell.processes.process.Process):
+	""" PolypeptideElongation """
 
-	_name = "UniquePolypeptideElongation"
+	_name = "PolypeptideElongation"
 
 	# Constructor
 	def __init__(self):
@@ -45,12 +45,12 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = None
 		self.ribosomeSubunits = None
 
-		super(UniquePolypeptideElongation, self).__init__()
+		super(PolypeptideElongation, self).__init__()
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(UniquePolypeptideElongation, self).initialize(sim, kb)
+		super(PolypeptideElongation, self).initialize(sim, kb)
 
 		# Load parameters
 
