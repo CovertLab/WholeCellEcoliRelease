@@ -1,24 +1,27 @@
-.PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, clean, clobber
+.PHONY: compile, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, buildKb, clean, clobber
 
-all:
+compile:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
 
-runSimulation: all
+runSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/runSimulation.sh
 
-runSimulationJob: all
+runSimulationJob: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh 4
 
 # TODO: Get rid of this target?
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
-justKb: all
+justKb: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/createKbs.py
 
-justSimulation: all
+justSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/justSimulation.py
+
+buildKb: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;
