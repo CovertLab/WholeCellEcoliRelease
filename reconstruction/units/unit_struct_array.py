@@ -53,6 +53,8 @@ class UnitStructArray(object):
 			return UnitStructArray(self.struct_array[key], self.units)
 		elif type(key) == np.ndarray or type(key) == list:
 			return UnitStructArray(self.struct_array[key], self.units)
+		elif type(key) == int:
+			return self.struct_array[key]
 		else:
 			return self._field(key)
 
