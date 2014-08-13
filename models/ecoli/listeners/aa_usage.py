@@ -47,7 +47,7 @@ class AAUsage(wholecell.listeners.listener.Listener):
 			]
 
 		self.translationProcessIdx = sim.processes.keys().index(
-			"UniquePolypeptideElongation"
+			"PolypeptideElongation"
 			)
 
 		biomassMetIdxs = [

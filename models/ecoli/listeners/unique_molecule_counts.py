@@ -56,7 +56,6 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 				).sum()
 
 
-
 	def pytablesCreate(self, h5file, expectedRows):
 		size = self.uniqueMoleculeCounts.size
 		# Columns
