@@ -13,8 +13,8 @@ import unittest
 import numpy as np
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.reconstruction.units.unit_struct_array import UnitStructArray
-from wholecell.reconstruction.units.unit_registration import Q_
+from reconstruction.units.unit_struct_array import UnitStructArray
+from reconstruction.units.unit_registration import Q_
 
 
 class Test_BulkObjectsContainer(unittest.TestCase):
