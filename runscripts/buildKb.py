@@ -39,6 +39,7 @@ def main(outputDirectory = None):
 		protocol = cPickle.HIGHEST_PROTOCOL
 		)
 
+	# Create symlink indicating that this is the unfit knowledgebase
 	symlink = os.path.join(
 		outputDirectory,
 		wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME
