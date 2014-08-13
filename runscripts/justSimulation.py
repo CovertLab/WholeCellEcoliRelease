@@ -9,22 +9,18 @@ Runs a simulation.  Called from justSimulation.sh
 
 from __future__ import division
 
-import models.ecoli.sim.sim_definition
-import wholecell.sim.simulation
+from wholecell.sim.simulation import getSimOptsFromEnvVars
+from models.ecoli.sim.simulation import EcoliSimulation
 import os
 import json
 
 def main():
 
-	simOpts = models.ecoli.sim.sim_definition.getSimOptsFromEnvVars()
+	simOpts = getSimOptsFromEnvVars()
 
-	# Check that we're setting all arguments (in case more have been added, etc)
-	assert (
-		set(simOpts.keys()) ==
-		set(models.ecoli.sim.sim_definition.SIM_KWARG_DEFAULTS.keys())
-		), "Need to set all keyword arguments in justSimulation.py"
+	simOpts["kbLocation"] = os.path.join("fixtures", "kb", "KnowledgeBase_Fit.cPickle")
 
-	sim = wholecell.sim.simulation.Simulation(models.ecoli.sim.sim_definition.SimDefinition(**simOpts))
+	sim = EcoliSimulation(**simOpts)
 
 	sim.run()
 

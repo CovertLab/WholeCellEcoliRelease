@@ -67,8 +67,6 @@ class EcoliSimulation(Simulation):
 
 	_initialConditionsFunction = calcInitialConditions
 
-	_kbLocation = os.path.join("fixtures", "kb", "KnowledgeBase_Fit.cPickle")
-
 	_lengthSec = 3600
 	_timeStepSec = 1
 
