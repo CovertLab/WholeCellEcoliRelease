@@ -158,7 +158,7 @@ DEFAULT_SEED = 0
 
 DEFAULT_KB_LOCATION = os.path.join(
 	wholecell.utils.constants.SERIALIZED_KB_DIR,
-	wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+	wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 	)
 
 DEFAULT_INITIAL_CONDITIONS_FUNCTION = models.ecoli.sim.initial_conditions.calcInitialConditions
