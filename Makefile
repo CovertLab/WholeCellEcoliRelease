@@ -20,10 +20,8 @@ justKb: compile
 justSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/justSimulation.py
 
-fixtures/kb/KnowledgeBase_Fit_0.cPickle: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py	
-
-buildKb: fixtures/kb/KnowledgeBase_Fit_0.cPickle
+buildKb: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;
