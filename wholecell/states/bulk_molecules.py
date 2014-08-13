@@ -227,7 +227,7 @@ def calculatePartition(processPriorities, countsRequested, counts, countsPartiti
 
 		requests = countsRequested[:, processHasPriority]
 
-		totalRequests = requests.sum(1)
+		totalRequests = requests.sum(axis = 1)
 		totalRequestIsNonzero = (totalRequests > 0)
 
 		fractionalRequests = np.zeros(requests.shape, np.float64)
@@ -243,7 +243,7 @@ def calculatePartition(processPriorities, countsRequested, counts, countsPartiti
 
 		countsPartitioned[:, processHasPriority] = allocations
 
-		counts -= allocations.sum(1)
+		counts -= allocations.sum(axis = 1)
 
 
 def moleculeIds(kb):

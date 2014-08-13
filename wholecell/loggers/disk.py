@@ -63,11 +63,14 @@ class Disk(wholecell.loggers.logger.Logger):
 		self.copyData(sim)
 
 		# Save simulation definition
-		json.dump(
-			sim.options().toDict(),
-			open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
-			sort_keys = True, indent=4, separators=(',', ': ')
-			)
+		try:
+			json.dump(
+				sim.options().toDict(),
+				open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
+				sort_keys = True, indent=4, separators=(',', ': ')
+				)
+		except TypeError:
+			pass
 
 
 	def createTables(self, sim):

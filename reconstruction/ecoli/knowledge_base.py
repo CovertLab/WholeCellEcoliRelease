@@ -38,8 +38,8 @@ import warnings
 warnings.simplefilter("ignore", Bio.BiopythonWarning)
 
 # Load units data from Pint
-from units.unit_struct_array import UnitStructArray
-from units.unit_registration import Q_
+from reconstruction.units.unit_struct_array import UnitStructArray
+from reconstruction.units.unit_registration import Q_
 
 # NOTE: most constants here need to either be moved to the DB or will be 
 # removed as the simulation is developed
@@ -2111,7 +2111,7 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['degRate'] = rnaDegRates
 		self.rnaData['length'] = rnaLens
 		self.rnaData['countsACGU'] = ntCounts
-		self.rnaData['mw'] = mws.sum(1)
+		self.rnaData['mw'] = mws.sum(axis = 1)
 		self.rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in self._rnas]
 		self.rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in self._rnas]
 		self.rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in self._rnas]
@@ -2709,7 +2709,7 @@ class KnowledgeBaseEcoli(object):
 
 		# ILE/LEU: split reported concentration according to their relative abundances
 
-		aaAbundances = self.monomerData["aaCounts"].magnitude.sum(0)
+		aaAbundances = self.monomerData["aaCounts"].magnitude.sum(axis = 0)
 		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
 
 		ileAbundance = aaAbundances[self.aaIDs.index("ILE-L[c]")]

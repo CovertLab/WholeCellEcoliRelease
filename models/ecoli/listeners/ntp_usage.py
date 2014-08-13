@@ -16,7 +16,7 @@ import numpy as np
 import tables
 
 import wholecell.listeners.listener
-from wholecell.reconstruction.fitter import normalize
+from reconstruction.ecoli.fitter import normalize
 
 class NtpUsage(wholecell.listeners.listener.Listener):
 	""" NtpUsage """

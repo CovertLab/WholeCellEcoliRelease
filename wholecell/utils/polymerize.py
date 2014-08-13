@@ -19,7 +19,7 @@ from _build_sequences import buildSequences, computeMassIncrease
 
 PAD_VALUE = -1
 
-# TODO: speed up sequenceMonomers[...].sum(1).cumsum(1) calls
+# TODO: speed up sequenceMonomers[...].sum(axis = 1).cumsum(axis = 1) calls
 
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	# Sanitize inputs
@@ -37,7 +37,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
 
 	sequenceReactions = (sequences != PAD_VALUE)
-	sequenceLengths = sequenceReactions.sum(1)
+	sequenceLengths = sequenceReactions.sum(axis = 1)
 
 	# Running values
 	activeSequencesIndexes = np.arange(nSequences)
@@ -46,8 +46,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		sequenceReactions[:, currentStep]
 		]
 
-	totalMonomers = sequenceMonomers.sum(1).cumsum(1)
-	totalReactions = sequenceReactions.sum(0).cumsum(0)
+	totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
+	totalReactions = sequenceReactions.sum(axis = 0).cumsum(axis = 0)
 
 	maxElongation = sequenceLength
 
@@ -167,8 +167,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		if not activeSequencesIndexes.size:
 			break
 
-		totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(1).cumsum(1)
-		totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(0).cumsum(0)
+		totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(axis = 1).cumsum(axis = 1)
+		totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(axis = 0).cumsum(axis = 0)
 
 		maxElongation = sequenceLength - currentStep
 
@@ -215,7 +215,7 @@ def _simpleProfile():
 
 	nSequences, length = sequences.shape
 	nMonomers = monomerLimits.size
-	sequenceLengths = (sequences != PAD_VALUE).sum(1)
+	sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
 
 	t = time.time()
 	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)

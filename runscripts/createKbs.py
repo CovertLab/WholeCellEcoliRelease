@@ -10,8 +10,8 @@ import cPickle
 import os
 import argparse
 
-import wholecell.reconstruction.knowledge_base_ecoli
-import wholecell.reconstruction.fitter
+import reconstruction.ecoli.knowledge_base
+import reconstruction.ecoli.fitter
 import wholecell.utils.constants
 
 def main(outputDirectory = None):
@@ -21,7 +21,7 @@ def main(outputDirectory = None):
 		os.makedirs(outputDirectory)
 
 	print "Instantiating unfit knowledgebase"
-	kb = wholecell.reconstruction.knowledge_base_ecoli.KnowledgeBaseEcoli()
+	kb = reconstruction.ecoli.knowledge_base.KnowledgeBaseEcoli()
 
 	print "Saving unfit knowledgebase"
 	cPickle.dump(
@@ -34,7 +34,7 @@ def main(outputDirectory = None):
 		)
 
 	print "Fitting knowledgebase"
-	wholecell.reconstruction.fitter.fitKb(kb)
+	reconstruction.ecoli.fitter.fitKb(kb)
 
 	print "Saving fit knowledgebase"
 	cPickle.dump(

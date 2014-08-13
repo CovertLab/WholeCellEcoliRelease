@@ -104,7 +104,7 @@ class Test_UniqueMoleculesContainer(unittest.TestCase):
 
 		# Assert that each molecule is partitioned to one state
 
-		self.assertTrue((partitionedMolecules.sum(1) <= 1).all())
+		self.assertTrue((partitionedMolecules.sum(axis = 1) <= 1).all())
 
 		# Assert that unrequested molecules aren't partitioned
 

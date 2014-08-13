@@ -26,8 +26,8 @@ import collections
 import wholecell.states.bulk_molecules
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-from units.unit_registration import UREG
-from units.unit_registration import Q_
+from reconstruction.units.unit_registration import UREG
+from reconstruction.units.unit_registration import Q_
 import pint
 pint._DEFAULT_REGISTRY = UREG
 
@@ -211,14 +211,14 @@ def fitKb(kb):
 	kb.rnaData["synthProb"][:] = synthProb
 
 
-	## Full WT Biomass function ##
+	## Calculate and set maintenance values
 
-	biomassContainer = BulkObjectsContainer(
-		list(kb.wildtypeBiomass["metaboliteId"]), dtype = np.dtype("float64")
-		)
+	# ----- Non growth associated maintenance -----
+	kb.NGAM = Q_(NON_GROWTH_ASSOCIATED_MAINTENANCE, "mmol/DCW_g/hr")
 
-	# Amino acid fraction
-	aminoAcidView = biomassContainer.countsView(kb.aaIDs)
+	# ----- Growth associated maintenance -----
+
+	# GTPs used for translation (recycled, not incorporated into biomass)
 
 	aaMmolPerGDCW = (
 			np.sum(
@@ -230,88 +230,6 @@ def fitKb(kb):
 				(1 / kb.avgCellDryMassInit)
 			)
 		).to('mmol/DCW_g')
-	
-	aminoAcidView.countsInc(
-		aaMmolPerGDCW.magnitude
-		)
-
-	# RNA fraction
-	ntpView = biomassContainer.countsView(kb.ntpIds)
-
-	ntpMmolPerGDCW = (
-			np.sum(
-				kb.rnaData["countsACGU"] *
-				np.tile(rnaView.counts().reshape(-1, 1), (1, 4)),
-				axis = 0
-			) * (
-				(1 / kb.nAvogadro.to('nucleotide / mmol')) *
-				(1 / kb.avgCellDryMassInit)
-			)
-		).to('mmol/DCW_g')
-
-	ntpView.countsInc(
-		ntpMmolPerGDCW.magnitude
-		)
-
-	# DNA fraction
-	dNtpView = biomassContainer.countsView(kb.dNtpIds)	# TODO: Better name so as not to confuse with bulkContainer view
-
-	dNtpMmolPerGDCW = (
-			Q_(dNtpsView.counts(),'nucleotide') * (
-			(1 / kb.nAvogadro.to('nucleotide/mmol')) *
-			(1 / kb.avgCellDryMassInit)
-			)
-		).to('mmol/DCW_g')
-
-	dNtpView.countsInc(
-		dNtpMmolPerGDCW.magnitude
-		)
-	
-	# Glycogen fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellGlycogenFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["glycogenMassFraction"],
-		fractionComposition = kb.cellGlycogenFractionData["massFraction"])
-
-	# Murein fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellMureinFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["mureinMassFraction"],
-		fractionComposition = kb.cellMureinFractionData["massFraction"])
-
-	# LPS fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellLPSFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["lpsMassFraction"],
-		fractionComposition = kb.cellLPSFractionData["massFraction"])
-
-	# Lipid fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellLipidFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["lipidMassFraction"],
-		fractionComposition = kb.cellLipidFractionData["massFraction"])
-
-	# Inorganic ion fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellInorganicIonFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["inorganicIonMassFraction"],
-		fractionComposition = kb.cellInorganicIonFractionData["massFraction"])
-
-	# Soluble pool fraction
-	setMetaboliteCountsFromBiomassFraction(kb, biomassContainer,
-		fractionMetaboliteIds = kb.cellSolublePoolFractionData["metaboliteId"],
-		fractionOfDryMass = dryComposition60min["solublePoolMassFraction"],
-		fractionComposition = kb.cellSolublePoolFractionData["massFraction"])
-
-
-	## Calculate and set maintenance values
-
-	# ----- Non growth associated maintenance -----
-	kb.NGAM = Q_(NON_GROWTH_ASSOCIATED_MAINTENANCE, "mmol/DCW_g/hr")
-
-	# ----- Growth associated maintenance -----
-
-	# GTPs used for translation (recycled, not incorporated into biomass)
 
 	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
 	gtpUsedOverCellCycleMmolPerGDCW = kb.gtpPerTranslation * aasUsedOverCellCycle

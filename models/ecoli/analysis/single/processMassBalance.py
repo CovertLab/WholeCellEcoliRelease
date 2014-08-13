@@ -36,7 +36,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 		processNames = table.attrs.processNames
 
-	avgProcessMassDifferences = np.abs(processMassDifferences).sum(0) / len(time)
+	avgProcessMassDifferences = np.abs(processMassDifferences).sum(axis = 0) / len(time)
 
 	index = np.arange(len(processNames))
 	width = 1

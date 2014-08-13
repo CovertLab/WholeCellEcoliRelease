@@ -20,9 +20,6 @@ import numpy as np
 import tables
 
 import wholecell.utils.config
-import wholecell.reconstruction.fitter
-import wholecell.sim.sim_definition
-
 
 class SimulationException(Exception):
 	pass
@@ -32,15 +29,8 @@ class Simulation(object):
 	""" Simulation """
 
 	# Constructors
-	def __init__(self, simDefinition = None, **kwargs):
+	def __init__(self, simDefinition):
 		# Establish simulation options
-		if simDefinition is not None and kwargs:
-			raise SimulationException(
-				"Simulations cannot be instantiated with both a SimDefinition instance and keyword arguments"
-				)
-
-		elif simDefinition is None:
-			simDefinition = wholecell.sim.sim_definition.SimDefinition(**kwargs)
 
 		self._options = simDefinition
 
@@ -62,6 +52,8 @@ class Simulation(object):
 			self.seed = self._options.seed
 
 		self.randomState = np.random.RandomState(seed = self.seed)
+
+		self.calcInitialConditions = self._options.initialConditionsFunction
 
 		# Load KB
 		kb = cPickle.load(open(self._options.kbLocation, "rb"))
@@ -111,9 +103,7 @@ class Simulation(object):
 		for listener in self.listeners.itervalues():
 			listener.allocate()
 		
-		from wholecell.reconstruction.initial_conditions import calcInitialConditions
-
-		calcInitialConditions(self, kb)
+		self.calcInitialConditions(self, kb)
 
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)
