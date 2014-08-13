@@ -57,6 +57,7 @@ EcoliSimulation = simulationFactory(
 		FBAResults
 	],
 	hooks = [], # same as default
+	initialConditionsFunction = calcInitialConditions,
 	lengthSec = 3600, # same as default
 	timeStepSec = 1, # same as default
 	logToShell = True, # same as default
@@ -69,7 +70,6 @@ EcoliSimulation = simulationFactory(
 		"Expected fold change"
 	],
 	logToDisk = False, # same as default
-	initialConditionsFunction = calcInitialConditions,
 	)
 
 sim = EcoliSimulation() # basic sim
