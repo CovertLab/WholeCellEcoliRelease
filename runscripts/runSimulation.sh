@@ -7,7 +7,7 @@ WC_SEED=${WC_SEED:-0}
 SEED_DIR=$(printf "%06d" $(($WC_SEED)))
 SIM_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/simOut"
 KB_DIR="out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
+KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
 METADATA_DIR="out/${SUBMISSION_TIME}/metadata"
 
 
