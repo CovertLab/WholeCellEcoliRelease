@@ -12,78 +12,110 @@ from __future__ import division
 
 import collections
 import os
-import shutil
 import cPickle
 import time
 
 import numpy as np
 import tables
 
-import wholecell.utils.config
+from wholecell.listeners.evaluation_time import EvaluationTime
+
+import wholecell.loggers.shell
+import wholecell.loggers.disk
+
+
+def _orderedAbstractionReference(iterableOfClasses):
+	return collections.OrderedDict(
+		(cls.name(), cls())
+		for cls in iterableOfClasses
+		)
+
 
 class SimulationException(Exception):
 	pass
 
+DEFAULT_LISTENER_CLASSES = (
+	EvaluationTime,
+	)
 
 class Simulation(object):
 	""" Simulation """
 
+	# Attributes that must be set by a subclass
+	_definedBySubclass = (
+		"_stateClasses",
+		"_processClasses",
+		"_initialConditionsFunction",
+		"_kbLocation"
+		)
+
+	# Attributes that may be optionally overwritten by a subclass
+	_listenerClasses = ()
+	_hookClasses = ()
+	_lengthSec = 3600
+	_timeStepSec = 1
+	_logToShell = True
+	_shellColumnHeaders = ("Time (s)",)
+	_logToDisk = False
+	_logToDiskEvery = 1
+	_overwriteExistingFiles = False
+	_seed = 0
+
+	# Attributes assigned during instantiation
+	_definedOnInit = (
+		"_seed",
+		"_lengthSec",
+		"_logToShell",
+		"_shellColumnHeaders",
+		"_logToDisk",
+		"_logToDiskEvery",
+		"_overwriteExistingFiles",
+		)
+
 	# Constructors
-	def __init__(self, simDefinition):
-		# Establish simulation options
+	def __init__(self, **kwargs):
+		# Validate subclassing
+		for attrName in self._definedBySubclass:
+			if not hasattr(self, attrName):
+				raise SimulationException("Simulation subclasses must define"
+				+ " the {} attribute.".format(attrName))
 
-		self._options = simDefinition
+		for listenerClass in DEFAULT_LISTENER_CLASSES:
+			if listenerClass in self._listenerClasses:
+				raise SimulationException("The {} listener is included by"
+					+ " default in the Simulation class.".format(
+						listenerClass.name())
+					)
 
-		# Set time parameters
-		self.lengthSec = self._options.lengthSec
-		self.timeStepSec = self._options.timeStepSec
+		# Set instance attributes
+		for keyword, value in kwargs.viewitems():
+			attrName = "_" + keyword
+			if attrName not in self._definedOnInit:
+				raise SimulationException("Unknown keyword: {}".format(keyword))
 
+			else:
+				setattr(self, attrName, value)
+
+		# Set time variables
 		self.initialStep = 0
 		self.simulationStep = 0
 
-		# Set random seed
-		if self._options.seed is None:
-			# This is roughly consistent with how NumPy choose a seed if none
-			# is provided
-			import random
-			self.seed = random.SystemRandom().randrange(2**32-1)
-
-		else:
-			self.seed = self._options.seed
-
-		self.randomState = np.random.RandomState(seed = self.seed)
-
-		self.calcInitialConditions = self._options.initialConditionsFunction
+		self.randomState = np.random.RandomState(seed = self._seed)
 
 		# Load KB
-		kb = cPickle.load(open(self._options.kbLocation, "rb"))
+		kb = cPickle.load(open(self._kbLocation, "rb"))
 
 		# Initialize simulation from fit KB
 		self._initialize(kb)
 
 
-	@classmethod
-	def initFromFile(cls, filePath, **kwargs):
-		import json
-
-		try:
-			jsonArgs = json.load(open(filePath))
-
-		except ValueError:
-			raise Exception('Caught ValueError; these can be caused by excess commas in the json file, which may not be caught by the syntax checker in your text editor.')
-
-		jsonArgs.update(kwargs)
-
-		return cls(**jsonArgs)
-
-
 	# Link states and processes
 	def _initialize(self, kb):
-		self.states = self._options.createStates()
-		self.processes = self._options.createProcesses()
-		self.listeners = self._options.createListeners()
-		self.hooks = self._options.createHooks()
-		self.loggers = self._options.createLoggers()
+		self.states = _orderedAbstractionReference(self._stateClasses)
+		self.processes = _orderedAbstractionReference(self._processClasses)
+		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
+		self.hooks = _orderedAbstractionReference(self._hookClasses)
+		self._initLoggers()
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -103,13 +135,30 @@ class Simulation(object):
 		for listener in self.listeners.itervalues():
 			listener.allocate()
 		
-		self.calcInitialConditions(self, kb)
+		self._initialConditionsFunction(kb)
 
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)
 
 		# Make permanent reference to evaluation time listener
 		self._evalTime = self.listeners["EvaluationTime"]
+
+
+	def _initLoggers(self):
+		self.loggers = collections.OrderedDict()
+
+		if self._logToShell:
+			self.loggers["Shell"] = wholecell.loggers.shell.Shell(
+				self._shellColumnHeaders
+				)
+
+		if self._logToDisk:
+			self.loggers["Disk"] = wholecell.loggers.disk.Disk(
+				self._outputDir,
+				self._overwriteExistingFiles,
+				self._logToDiskEvery
+				)
+
 
 	# -- Run simulation --
 
@@ -129,7 +178,7 @@ class Simulation(object):
 			logger.initialize(self)
 
 		# Simulate
-		while self.time() < self.lengthSec:
+		while self.time() < self._lengthSec:
 			self.simulationStep += 1
 
 			self._evolveState()
@@ -217,7 +266,7 @@ class Simulation(object):
 
 
 	def _seedFromName(self, name):
-		return np.uint32(self.seed + self.simulationStep + hash(name))
+		return np.uint32(self._seed + self.simulationStep + hash(name))
 
 
 	# Save to/load from disk
@@ -245,38 +294,38 @@ class Simulation(object):
 		pass
 
 
-	@classmethod
-	def loadSimulation(cls, simDir, timePoint, newDir = None, overwriteExistingFiles = False):
-		newSim = cls.initFromFile(
-			os.path.join(simDir, 'simOpts.json'),
-			logToDisk = newDir is not None,
-			overwriteExistingFiles = overwriteExistingFiles,
-			outputDir = newDir
-			)
+	# @classmethod
+	# def loadSimulation(cls, simDir, timePoint, newDir = None, overwriteExistingFiles = False):
+	# 	newSim = cls.initFromFile(
+	# 		os.path.join(simDir, 'simOpts.json'),
+	# 		logToDisk = newDir is not None,
+	# 		overwriteExistingFiles = overwriteExistingFiles,
+	# 		outputDir = newDir
+	# 		)
 
-		with tables.open_file(os.path.join(simDir, 'Main.hdf')) as h5file:
-			newSim.pytablesLoad(h5file, timePoint)
+	# 	with tables.open_file(os.path.join(simDir, 'Main.hdf')) as h5file:
+	# 		newSim.pytablesLoad(h5file, timePoint)
 
-		for stateName, state in newSim.states.viewitems():
-			with tables.open_file(os.path.join(simDir, stateName + '.hdf')) as h5file:
-				state.pytablesLoad(h5file, timePoint)
+	# 	for stateName, state in newSim.states.viewitems():
+	# 		with tables.open_file(os.path.join(simDir, stateName + '.hdf')) as h5file:
+	# 			state.pytablesLoad(h5file, timePoint)
 
-		for listenerName, listener in newSim.listeners.viewitems():
-			with tables.open_file(os.path.join(simDir, listenerName + '.hdf')) as h5file:
-				listener.pytablesLoad(h5file, timePoint)
+	# 	for listenerName, listener in newSim.listeners.viewitems():
+	# 		with tables.open_file(os.path.join(simDir, listenerName + '.hdf')) as h5file:
+	# 			listener.pytablesLoad(h5file, timePoint)
 
-		newSim.initialStep = timePoint
+	# 	newSim.initialStep = timePoint
 
-		return newSim
-
-
-	def options(self):
-		return self._options
+	# 	return newSim
 
 
 	def time(self):
-		return self.timeStepSec * (self.initialStep + self.simulationStep)
+		return self.timeStepSec() * (self.initialStep + self.simulationStep)
 
 
 	def timeStep(self):
 		return self.initialStep + self.simulationStep
+
+
+	def timeStepSec(self):
+		return self._timeStepSec

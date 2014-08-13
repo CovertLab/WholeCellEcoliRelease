@@ -1,5 +1,7 @@
 
-from wholecell.sim.simulation import simulationFactory
+import os
+
+from wholecell.sim.simulation import Simulation
 
 # States
 from wholecell.states.bulk_molecules import BulkMolecules
@@ -26,14 +28,18 @@ from models.ecoli.listeners.aa_usage import AAUsage
 from models.ecoli.listeners.ribosome_stalling import RibosomeStalling
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
-from wholecell.listeners.evaluation_time import EvaluationTime
 from models.ecoli.listeners.fba_results import FBAResults
 
 from models.ecoli.sim.initial_conditions import calcInitialConditions
 
-EcoliSimulation = simulationFactory(
-	states = [BulkMolecules, UniqueMolecules, BulkChromosome],
-	processes = [
+class EcoliSimulation(Simulation):
+	_stateClasses = (
+		BulkMolecules,
+		UniqueMolecules,
+		BulkChromosome
+		)
+
+	_processClasses = (
 		Metabolism,
 		RnaDegradation,
 		TranscriptInitiation,
@@ -44,8 +50,9 @@ EcoliSimulation = simulationFactory(
 		ProteinDegradation,
 		Complexation,
 		AtpUsage
-	], 
-	listeners = [
+		)
+
+	_listenerClasses = (
 		Mass,
 		ReplicationForkPosition,
 		NtpUsage,
@@ -53,63 +60,26 @@ EcoliSimulation = simulationFactory(
 		RibosomeStalling,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
-		EvaluationTime,
 		FBAResults
-	],
-	hooks = [], # same as default
-	initialConditionsFunction = calcInitialConditions,
-	lengthSec = 3600, # same as default
-	timeStepSec = 1, # same as default
-	logToShell = True, # same as default
-	shellColumnHeaders = [
+		)
+
+	_hookClasses = ()
+
+	_initialConditionsFunction = calcInitialConditions
+
+	_kbLocation = os.path.join("fixtures", "kb", "KnowledgeBase_Fit.cPickle")
+
+	_lengthSec = 3600
+	_timeStepSec = 1
+
+	_logToShell = True
+	_shellColumnHeaders = [
 		"Time (s)",
 		"Dry mass (fg)",
 		"Dry mass fold change",
 		"Protein fold change",
 		"RNA fold change",
 		"Expected fold change"
-	],
-	logToDisk = False, # same as default
-	)
+		]
 
-sim = EcoliSimulation() # basic sim
-
-sim = EcoliSimulation(seed = 1, lengthSec = 100)
-
-sim = EcoliSimulation(logToDisk = True, outputDir = ..., logToDiskEvery = 10)
-
-
-"""
-
-Factory (required):
-
-states
-processes
-listeners
-kbLocation
-initialConditionsFunction
-
-Factory (optional):
-
-hooks (default ())
-lengthSec (default 3600)
-timeStepSec (default 1)
-logToShell (default True)
-shellColumnHeaders (default ?)
-logToDisk (default False)
-outputDir (default None)
-logToDiskEvery (default 1)
-overwriteExistingFiles (default False)
-
-Instantiation (optional):
-
-kbLocation
-seed
-lengthSec
-logToShell
-logToDisk
-outputDir
-logToDiskEvery
-overwriteExistingFiles
-
-"""
+	_logToDisk = False
