@@ -353,25 +353,6 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 		)
 
 
-def calcNumDntpsDnmps(kb, tau_d):
-	if tau_d != 60:
-		raise NotImplementedError, "This function currently only works for the special case of 60 min doubling time."
-
-	nPolymerases = 4
-	k_elng = kb.dnaPolymeraseElongationRate.to("nucleotide / s").magnitude
-
-	seqLen = len(kb.genomeSeq)
-	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
-	tau_d = kb.cellCycleLen.to("s").magnitude # Doubling time
-	N_p = 2 * seqLen	# Number of polymerized dNMPs (DNA is double-stranded, thus the factor of 2)
-	dt = kb.timeStep.to("s").magnitude
-
-	return np.fmax(
-		2 * N_p / np.exp((np.log(2) / tau_d) * t_C),
-		(nPolymerases * k_elng * dt) / (np.exp((np.log(2) / tau_d) * dt) - 1)
-		)
-
-
 def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
