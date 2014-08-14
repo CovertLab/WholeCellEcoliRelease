@@ -29,8 +29,8 @@ git diff > "${METADATA_DIR}/git_diff"
 # Description
 echo "${DESC}" > "${METADATA_DIR}/description"
 
-##### Create knowledgebases (unfit and fit) #####
-python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
+##### Create knowledgebases  #####
+make justKb WC_KBDIR="${KB_DIR}"
 
 
 ##### Run simulation #####
