@@ -14,14 +14,16 @@ runSimulationJob: compile
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
+WC_KBDIR ?= "fixtures/kb"
+
 buildKb: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py $(WC_KBDIR)
 
 fitKb_1: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 1 fixtures/kb
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 1 $(WC_KBDIR)
 
 execModel_1: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 fixtures/kb fixtures/sim
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 $(WC_KBDIR) fixtures/sim
 
 justKb: buildKb fitKb_1
 
