@@ -77,6 +77,10 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.monomerComposition
 			)
 
+		if (ntpsRequested > self.ntps.total()).any():
+			# TODO: flag simulation instead of printing
+			print "{} is metabolically limited".format(self.name())
+
 		self.ntps.requestIs(ntpsRequested)
 
 

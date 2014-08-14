@@ -94,9 +94,20 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.gtpPerElongation * aasRequested.sum()
 			))
 
+		h2oRequested = gtpRequested - aasRequested.sum()
+
+		if (
+			(aasRequested > self.aas.total()).any()
+			or gtpRequested > self.gtp.total()
+			or h2oRequested > self.h2o.total()
+				):
+
+			# TODO: flag simulation instead of printing
+			print "{} is metabolically limited".format(self.name())
+
 		self.aas.requestIs(aasRequested)
 		self.gtp.requestIs(gtpRequested)
-		self.h2o.requestIs(gtpRequested) # NOTE: this is an overestimate
+		self.h2o.requestIs(h2oRequested)
 
 
 	def evolveState(self):
