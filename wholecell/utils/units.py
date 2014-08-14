@@ -11,7 +11,7 @@ Defines/registers custom units for Pint
 """
 
 import scipy.constants
-from unum.units import g, mol, fg, hr, L
+from unum.units import *
 from unum import Unum
 
 count = Unum.unit('count',mol/(scipy.constants.Avogadro))
