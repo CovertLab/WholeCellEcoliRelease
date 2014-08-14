@@ -26,10 +26,7 @@ import collections
 import wholecell.states.bulk_molecules
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-from reconstruction.units.unit_registration import UREG
-from reconstruction.units.unit_registration import Q_
-import pint
-pint._DEFAULT_REGISTRY = UREG
+from wholecell.utils import units
 
 # Constants (should be moved to KB)
 RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
@@ -138,7 +135,7 @@ def fitKb(kb):
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
-	kb.fracActiveRibosomes = Q_(float(nRibosomesNeeded) / np.sum(rRna23SView.counts()), "dimensionless")
+	kb.fracActiveRibosomes = float(nRibosomesNeeded) / np.sum(rRna23SView.counts())
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
@@ -159,7 +156,7 @@ def fitKb(kb):
 		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
 		)
 
-	kb.rnaExpression['expression'] = Q_(rnaExpressionContainer.counts(),'dimensionless')
+	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
 
 	# Set number of RNAs based on expression we just set
 	nRnas = countsFromMassAndExpression(
@@ -174,10 +171,10 @@ def fitKb(kb):
 	## Synthesis probabilities ##
 	synthProb = normalize(
 			(
-			Q_(1, 'second') * (
+			units.s * (
 				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 				) * rnaView.counts()
-			).to('dimensionless').magnitude
+			).asUnits(None).asNumber()
 		)
 
 	kb.rnaData["synthProb"][:] = synthProb
@@ -186,7 +183,7 @@ def fitKb(kb):
 	## Calculate and set maintenance values
 
 	# ----- Non growth associated maintenance -----
-	kb.NGAM = Q_(NON_GROWTH_ASSOCIATED_MAINTENANCE, "mmol/DCW_g/hr")
+	kb.NGAM = NON_GROWTH_ASSOCIATED_MAINTENANCE * units.mmol / units.g / units.h
 
 	# ----- Growth associated maintenance -----
 
@@ -220,10 +217,10 @@ def normalize(array):
 
 def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert np.allclose(np.sum(relativeExpression), 1)
-	assert type(mass) != Q_
-	assert type(mws) != Q_
-	assert type(relativeExpression) != Q_
-	assert type(nAvogadro) != Q_
+	assert type(mass) != unum.Unum
+	assert type(mws) != unum.Unum
+	assert type(relativeExpression) != unum.Unum
+	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
 def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tRnaView):
