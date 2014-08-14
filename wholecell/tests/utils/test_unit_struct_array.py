@@ -42,12 +42,12 @@ class Test_unit_struct_array(unittest.TestCase):
 		self.assertEqual(context.exception.message, 'UnitStructArray must be initalized with a numpy array!\n')
 
 		with self.assertRaises(Exception) as context:
-			UnitStructArray(self.data, 'foo')
+			UnitStructArray(self.struct_array, 'foo')
 		self.assertEqual(context.exception.message, 'UnitStructArray must be initalized with a dict storing units!\n')
 
 		with self.assertRaises(Exception) as context:
 			self.units['hi'] = 'bye'
-			UnitStructArray(self.data, self.units)
+			UnitStructArray(self.struct_array, self.units)
 		self.assertEqual(context.exception.message, 'Struct array fields do not match unit fields!\n')
 
 	@noseAttrib.attr('smalltest','unitstructarray')
@@ -63,14 +63,15 @@ class Test_unit_struct_array(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_fullArray(self):
-		self.assertEqual(
+		self.assertTrue(
 			(self.us_array.fullArray() == self.struct_array).all()
 			)
 
 	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_fullUnits(self):
 		self.assertEqual(
-			self.us_array.fullUnits() == self.units
+			self.us_array.fullUnits(),
+			self.units
 			)
 
 	@noseAttrib.attr('smalltest','unitstructarray')
@@ -111,13 +112,13 @@ class Test_unit_struct_array(unittest.TestCase):
 			(self.us_array['mass'] == g * np.array([1.,2.,3.])).all()
 			)
 
-	with self.assertRaises(Exception) as context:
-		self.us_array['mass'] = fg*np.array([1.,2.,3.])
-	self.assertEqual(context.exception.message, 'Units do not match!\n')
+		with self.assertRaises(Exception) as context:
+			self.us_array['mass'] = fg*np.array([1.,2.,3.])
+		self.assertEqual(context.exception.message, 'Units do not match!\n')
 
-	with self.assertRaises(Exception) as context:
-		self.us_array['mass'] = mol*np.array([1.,2.,3.])
-	self.assertEqual(context.exception.message, 'Units do not match!\n')
+		with self.assertRaises(Exception) as context:
+			self.us_array['mass'] = mol*np.array([1.,2.,3.])
+		self.assertEqual(context.exception.message, 'Units do not match!\n')
 
 
 	@noseAttrib.attr('smalltest','unitstructarray')

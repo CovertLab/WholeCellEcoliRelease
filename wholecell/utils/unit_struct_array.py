@@ -72,7 +72,7 @@ class UnitStructArray(object):
 			value_units._value = 1
 			self.units[key] = value_units
 		elif type(value) == list or type(value) == np.ndarray:
-			if self.units[key] != None:
+			if type(self.units[key]) == unum.Unum:
 				raise Exception, 'Units do not match! Quantity has units your input does not!\n'
 			self.struct_array[key] = value
 			self.units[key] = None
