@@ -30,42 +30,32 @@ from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
 
-from models.ecoli.sim.initial_conditions import calcInitialConditions
-
 class EcoliMetabolismSimulation(Simulation):
 	_stateClasses = (
 		BulkMolecules,
-		UniqueMolecules,
-		BulkChromosome
 		)
 
 	_processClasses = (
-		# Metabolism,
-		# RnaDegradation,
 		# TranscriptInitiation,
 		# TranscriptElongation,
+		# RnaDegradation,
 		# PolypeptideInitiation,
 		# PolypeptideElongation,
-		# Replication,
 		# ProteinDegradation,
-		# Complexation,
+		# Replication,
+		# Metabolism,
 		# AtpUsage
 		)
 
 	_listenerClasses = (
 		Mass,
-		# ReplicationForkPosition,
-		# NtpUsage,
+		# NtpUsage, # restore these in some general sense...
 		# AAUsage,
-		# RibosomeStalling,
-		# GeneCopyNumber,
-		# UniqueMoleculeCounts,
-		# FBAResults
 		)
 
 	_hookClasses = ()
 
-	_initialConditionsFunction = calcInitialConditions
+	_initialConditionsFunction = lambda sim, kb: None
 
 	_lengthSec = 3600
 	_timeStepSec = 1
