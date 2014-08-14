@@ -14,11 +14,10 @@ import reconstruction.ecoli.knowledge_base
 import reconstruction.ecoli.fitter
 import wholecell.utils.constants
 
-def main(outputDirectory = None):
-	outputDirectory = outputDirectory or wholecell.utils.constants.SERIALIZED_KB_DIR
+def main(kbDirectory):
 
-	if not os.path.exists(outputDirectory):
-		os.makedirs(outputDirectory)
+	if not os.path.exists(kbDirectory):
+		os.makedirs(kbDirectory)
 
 	print "Instantiating unfit knowledgebase"
 	kb = reconstruction.ecoli.knowledge_base.KnowledgeBaseEcoli()
@@ -33,7 +32,7 @@ def main(outputDirectory = None):
 	cPickle.dump(
 		kb,
 		open(os.path.join(
-			outputDirectory,
+			kbDirectory,
 			fileName
 			), "wb"),
 		protocol = cPickle.HIGHEST_PROTOCOL
@@ -41,7 +40,7 @@ def main(outputDirectory = None):
 
 	# Create symlink indicating that this is the unfit knowledgebase
 	symlink = os.path.join(
-		outputDirectory,
+		kbDirectory,
 		wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME
 		)
 
@@ -54,10 +53,10 @@ def main(outputDirectory = None):
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
-		"--outputDirectory",
-		help = "Directory containing output",
+		"kbDirectory",
+		help = "Directory containing output kb",
 		type = str)
 
 	args = parser.parse_args().__dict__
 
-	main(args["outputDirectory"])
+	main(args["kbDirectory"])
