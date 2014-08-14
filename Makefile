@@ -1,4 +1,4 @@
-.PHONY: compile, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, buildKb, clean, clobber
+.PHONY: compile, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, buildKb, fitKb_1, execModel_1, clean, clobber
 
 compile:
 	python2.7 setup.py build_ext --inplace
@@ -14,14 +14,18 @@ runSimulationJob: compile
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
-justKb: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/createKbs.py
-
-justSimulation: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/justSimulation.py
-
 buildKb: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py
+
+fitKb_1: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 1 fixtures/kb
+
+execModel_1: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 fixtures/kb fixtures/sim
+
+justKb: buildKb fitKb_1
+
+justSimulation: execModel_1
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;
