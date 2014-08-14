@@ -11,14 +11,17 @@ from __future__ import division
 
 from wholecell.sim.simulation import getSimOptsFromEnvVars
 from models.ecoli.sim.simulation import EcoliSimulation
+from models.ecoli_metabolism.sim.simulation import EcoliMetabolismSimulation
 import wholecell.utils.constants
 import os
 import argparse
 
-def main(modelLevel, kbDirectory, outputDirectory):
+def main(modelLevel, kbDirectory, simDirectory):
 
 	simOpts = getSimOptsFromEnvVars(
-		["outputDir", "kbLocation"]
+		["outputDir", "kbLocation", "logToDisk",
+		"logToShell", "logToDiskEvery", "overwriteExistingFiles"
+		]
 		)
 
 	fitKbFileName = (
@@ -28,9 +31,22 @@ def main(modelLevel, kbDirectory, outputDirectory):
 		)
 
 	simOpts["kbLocation"] = os.path.join(kbDirectory, fitKbFileName)
-	simOpts["outputDir"] = os.path.join(outputDirectory,"model_level_%d" % modelLevel)
+	simOpts["outputDir"] = os.path.join(simDirectory, "model_level_%d" % modelLevel, "simOut")
+	simOpts["logToDisk"] = True
+	simOpts["logToShell"] = False
+	simOpts["logToDiskEvery"] = 10
+	simOpts["overwriteExistingFiles"] = False
 
-	sim = EcoliSimulation(**simOpts)
+	if not os.path.exists(simOpts["outputDir"]):
+		os.makedirs(simOpts["outputDir"])
+
+	if modelLevel == 1:
+		sim = EcoliMetabolismSimulation(**simOpts)
+
+	if modelLevel == 2:
+		simOpts["logToDisk"] = False
+		simOpts["logToShell"] = True
+		sim = EcoliSimulation(**simOpts)
 
 	sim.run()
 
@@ -45,10 +61,10 @@ if __name__ == '__main__':
 		help = "Directory containing kbs",
 		type = str)
 	parser.add_argument(
-		"outputDirectory",
-		help = "Directory containing output",
+		"simDirectory",
+		help = "Directory containing simulations",
 		type = str)
 
 	args = parser.parse_args().__dict__
 
-	main(args["modelLevel"], args["kbDirectory"], args["outputDirectory"])
+	main(args["modelLevel"], args["kbDirectory"], args["simDirectory"])

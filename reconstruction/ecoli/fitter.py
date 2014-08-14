@@ -62,6 +62,10 @@ def fitAtLevel(fitLevel, kb, simOutDir):
 	if fitLevel == 1:
 		fitKb(kb)
 
+	if fitLevel == 2:
+		print simOutDir
+
+
 def fitKb(kb):
 
 	# Construct bulk container
@@ -97,43 +101,6 @@ def fitKb(kb):
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
 	setMonomerCounts(kb, monomerMass, monomersView)
-
-	### DNA Mass fraction ###
-	dNtpsView = bulkContainer.countsView(kb.dNtpIds)
-	dNmpsView = bulkContainer.countsView(kb.dNmpIds)
-
-	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
-	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-
-	dNtpRelativeAmounts = normalize(np.array([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		]))
-
-	dNtpMws = kb.getMass(kb.dNtpIds)
-	dNmpMws = kb.getMass(kb.dNmpIds)
-
-	dNmpsView.countsIs([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		])
-
-	chromMass = (
-		np.dot(dNmpsView.counts(), dNmpMws) - 2 * kb.genomeLength * 17.01 # TODO: get hydroxyl mass elsewhere
-		) / kb.nAvogadro.magnitude
-
-	nDNtps = countsFromMassAndExpression(
-		dnaMass.to('DCW_g').magnitude - chromMass,
-		dNtpMws.to('g/mol').magnitude,
-		dNtpRelativeAmounts,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	dNtpsView.countsIs((2 * kb.genomeLength + nDNtps) * dNtpRelativeAmounts)
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
@@ -386,25 +353,6 @@ def calcChromosomeMass(numA, numC, numG, numT, kb):
 		)
 
 
-def calcNumDntpsDnmps(kb, tau_d):
-	if tau_d != 60:
-		raise NotImplementedError, "This function currently only works for the special case of 60 min doubling time."
-
-	nPolymerases = 4
-	k_elng = kb.dnaPolymeraseElongationRate.to("nucleotide / s").magnitude
-
-	seqLen = len(kb.genomeSeq)
-	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
-	tau_d = kb.cellCycleLen.to("s").magnitude # Doubling time
-	N_p = 2 * seqLen	# Number of polymerized dNMPs (DNA is double-stranded, thus the factor of 2)
-	dt = kb.timeStep.to("s").magnitude
-
-	return np.fmax(
-		2 * N_p / np.exp((np.log(2) / tau_d) * t_C),
-		(nPolymerases * k_elng * dt) / (np.exp((np.log(2) / tau_d) * dt) - 1)
-		)
-
-
 def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
@@ -431,27 +379,6 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = dnaMassCalc / kb.avgCellDryMassInit.magnitude
 	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
 
-
-def setMetaboliteCountsFromBiomassFraction(kb, biomassContainer, fractionMetaboliteIds, fractionOfDryMass, fractionComposition):
-	massFractionView = biomassContainer.countsView(
-		list(fractionMetaboliteIds)
-		)
-
-	fractionOfDryMass = float(fractionOfDryMass)
-	mass = kb.avgCellDryMassInit * fractionOfDryMass
-
-	mws = kb.getMass(fractionMetaboliteIds)
-
-	fractionMmolPerGDCW = (
-			(
-			mass * fractionComposition
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	massFractionView.countsInc(
-		fractionMmolPerGDCW.magnitude
-		)
 
 if __name__ == "__main__":
 	import wholecell.utils.constants
