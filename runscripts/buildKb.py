@@ -45,7 +45,7 @@ def main(outputDirectory = None):
 		wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME
 		)
 
-	if os.path.lexists(symlink):
+	if os.path.exists(symlink):
 		os.unlink(symlink)
 
 	os.symlink(fileName, symlink)
