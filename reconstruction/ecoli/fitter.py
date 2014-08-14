@@ -57,6 +57,11 @@ EXCESS_FREE_DNTP_CAPACITY = 1.3
 # 2) Ensure that there is enough RNAP/ribosome capacity for (1), and adjust if needed
 # 3) Update the metabolism FBA objective based on expression
 
+def fitAtLevel(fitLevel, kb, simOutDir):
+	# TODO: Obviously make this more sophisticated
+	if fitLevel == 1:
+		fitKb(kb)
+
 def fitKb(kb):
 
 	# Construct bulk container
