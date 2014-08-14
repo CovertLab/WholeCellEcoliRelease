@@ -33,7 +33,7 @@ class EcoliMetabolismSimulation(Simulation):
 		PolypeptideElongation,
 		# ProteinDegradation,
 		# Replication,
-		# Metabolism,
+		Metabolism,
 		# Maintenance,
 		)
 
