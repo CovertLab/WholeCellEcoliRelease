@@ -56,7 +56,7 @@ def main(fitLevel, kbDirectory):
 		wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME		
 		)
 
-	if os.path.lexists(symlink):
+	if os.path.exists(symlink):
 		os.unlink(symlink)
 
 	os.symlink(fileName, symlink)
