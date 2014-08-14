@@ -3,10 +3,7 @@
 """
 AtpUsage
 
-Hydrolyze ATP (for growth associated maintenance)
-
-TODO:
-- scale with a macro cell property (mass or volume) instead of time
+Hydrolyze ATP (for non-growth associated maintenance)
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
