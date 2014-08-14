@@ -22,7 +22,7 @@ from reconstruction.ecoli.fitter import normalize
 def calcInitialConditions(sim, kb):
 	randomState = sim.randomState
 
-	timeStep = sim.timeStepSec # This is a poor solution but will suffice for now
+	timeStep = sim.timeStepSec() # This is a poor solution but will suffice for now
 
 	bulkMolCntr = sim.states['BulkMolecules'].container
 	uniqueMolCntr = sim.states["UniqueMolecules"].container

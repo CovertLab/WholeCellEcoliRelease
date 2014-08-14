@@ -1,24 +1,33 @@
-.PHONY: all, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, clean, clobber
+.PHONY: compile, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, buildKb, fitKb_1, execModel_1, clean, clobber
 
-all:
+compile:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
 
-runSimulation: all
+runSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/runSimulation.sh
 
-runSimulationJob: all
+runSimulationJob: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh 4
 
 # TODO: Get rid of this target?
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
-justKb: all
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/createKbs.py
+WC_KBDIR ?= "fixtures/kb"
 
-justSimulation: all
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/justSimulation.py
+buildKb: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py $(WC_KBDIR)
+
+fitKb_1: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 1 $(WC_KBDIR)
+
+execModel_1: compile
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 $(WC_KBDIR) fixtures/sim
+
+justKb: buildKb fitKb_1
+
+justSimulation: execModel_1
 
 clean:
 	find . -name "*.cPickle" -exec rm -fr {} \;

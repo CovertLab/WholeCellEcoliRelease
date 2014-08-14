@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-UniquePolypeptideInitiation
+PolypeptideInitiation
 
 Polypeptide initiation sub-model.
 
@@ -25,10 +25,10 @@ import wholecell.processes.process
 
 import itertools
 
-class UniquePolypeptideInitiation(wholecell.processes.process.Process):
-	""" UniquePolypeptideInitiation """
+class PolypeptideInitiation(wholecell.processes.process.Process):
+	""" PolypeptideInitiation """
 
-	_name = "UniquePolypeptideInitiation"
+	_name = "PolypeptideInitiation"
 
 	# Constructor
 	def __init__(self):
@@ -43,12 +43,12 @@ class UniquePolypeptideInitiation(wholecell.processes.process.Process):
 		self.rRna5S = None
 		self.mRnas = None
 
-		super(UniquePolypeptideInitiation, self).__init__()
+		super(PolypeptideInitiation, self).__init__()
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(UniquePolypeptideInitiation, self).initialize(sim, kb)
+		super(PolypeptideInitiation, self).initialize(sim, kb)
 
 		# Load parameters
 

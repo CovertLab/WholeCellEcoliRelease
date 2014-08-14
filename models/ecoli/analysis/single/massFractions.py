@@ -81,7 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
 
 	parser = argparse.ArgumentParser()

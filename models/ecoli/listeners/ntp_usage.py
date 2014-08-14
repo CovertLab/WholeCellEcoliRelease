@@ -47,7 +47,7 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		]
 
 		self.transcriptionProcessIdx = sim.processes.keys().index(
-			"UniqueTranscriptElongation"
+			"TranscriptElongation"
 			)
 
 		biomassMetIdxs = [
