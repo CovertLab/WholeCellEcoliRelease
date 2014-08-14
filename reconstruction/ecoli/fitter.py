@@ -399,27 +399,6 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
 
 
-def setMetaboliteCountsFromBiomassFraction(kb, biomassContainer, fractionMetaboliteIds, fractionOfDryMass, fractionComposition):
-	massFractionView = biomassContainer.countsView(
-		list(fractionMetaboliteIds)
-		)
-
-	fractionOfDryMass = float(fractionOfDryMass)
-	mass = kb.avgCellDryMassInit * fractionOfDryMass
-
-	mws = kb.getMass(fractionMetaboliteIds)
-
-	fractionMmolPerGDCW = (
-			(
-			mass * fractionComposition
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	massFractionView.countsInc(
-		fractionMmolPerGDCW.magnitude
-		)
-
 if __name__ == "__main__":
 	import wholecell.utils.constants
 
