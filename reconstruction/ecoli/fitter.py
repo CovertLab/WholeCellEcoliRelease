@@ -62,6 +62,10 @@ def fitAtLevel(fitLevel, kb, simOutDir):
 	if fitLevel == 1:
 		fitKb(kb)
 
+	if fitLevel == 2:
+		print simOutDir
+
+
 def fitKb(kb):
 
 	# Construct bulk container

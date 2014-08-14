@@ -14,7 +14,7 @@ import reconstruction.ecoli.knowledge_base
 import reconstruction.ecoli.fitter
 import wholecell.utils.constants
 
-def main(fitLevel, kbDirectory):
+def main(fitLevel, kbDirectory, simDirectory):
 	kbDirectory = kbDirectory
 
 	prevFitLevel = fitLevel - 1
@@ -27,7 +27,7 @@ def main(fitLevel, kbDirectory):
 
 	kb = cPickle.load(open(os.path.join(kbDirectory, prevFitKbFileName), "rb"))
 
-	simOutDir = None
+	simOutDir = os.path.join(simDirectory, "model_level_%d" % prevFitLevel, "simOut")
 
 	print "Fitting knowledgebase (Level %d)" % fitLevel
 
@@ -71,7 +71,11 @@ if __name__ == "__main__":
 		"kbDirectory",
 		help = "Directory containing output",
 		type = str)
+	parser.add_argument(
+		"simDirectory",
+		help = "Directory containing simulations",
+		type = str)
 
 	args = parser.parse_args().__dict__
 
-	main(args["fitLevel"], args["kbDirectory"])
+	main(args["fitLevel"], args["kbDirectory"], args["simDirectory"])
