@@ -11,8 +11,8 @@ being used while loading constants.
 @date: Created 4/31/2014
 """
 
-from unit_registration import Q_
 import numpy as np
+import unum
 
 
 # TODO: Write test!
@@ -37,10 +37,13 @@ class UnitStructArray(object):
 			raise Exception, s
 
 	def _field(self, fieldname):
-		if self.units[fieldname] == None:
-			return self.struct_array[fieldname]
+		if type(self.units[fieldname]) != unum.Unum:
+			if self.units[fieldname] == None:
+				return self.struct_array[fieldname]
+			else:
+				raise Exception, 'Field has incorrect units or unitless designation!\n'
 		else:
-			return Q_(self.struct_array[fieldname], self.units[fieldname])
+			return self.units[fieldname] * self.struct_array[fieldname]
 
 	def fullArray(self):
 		return self.struct_array
@@ -59,20 +62,22 @@ class UnitStructArray(object):
 			return self._field(key)
 
 	def __setitem__(self, key, value):
-		if type(value) == Q_:
-			# NOTE: This is a bit of a hack but there is no clean way to create
-			# a pint UnitContainer that I can find.
-			if Q_(0, self.units[key]).units != value.units:
+		if type(value) == unum.Unum:
+			if self.units[key].strUnit() != value.strUnit():
 				raise Exception, 'Units do not match!\n'
-			self.struct_array[key] = value.magnitude
-			self.units[key] = value.units
+			self.struct_array[key] = value.asNumber()
+			# This is a bit of a hack but I couldn't figure out a
+			# method to get just the units object out of a Unum
+			value_units = value.copy()
+			value_units._value = 1
+			self.units[key] = value_units
 		elif type(value) == list or type(value) == np.ndarray:
 			if self.units[key] != None:
 				raise Exception, 'Units do not match! Quantity has units your input does not!\n'
 			self.struct_array[key] = value
 			self.units[key] = None
 		else:
-			raise Exception, 'Cant assign data-type other than pint Quantitiy or list/numpy array!\n'
+			raise Exception, 'Cant assign data-type other than unum datatype or list/numpy array!\n'
 
 	def __len__(self):
 		return len(self.struct_array)
