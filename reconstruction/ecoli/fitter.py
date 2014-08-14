@@ -102,43 +102,6 @@ def fitKb(kb):
 	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
 	setMonomerCounts(kb, monomerMass, monomersView)
 
-	### DNA Mass fraction ###
-	dNtpsView = bulkContainer.countsView(kb.dNtpIds)
-	dNmpsView = bulkContainer.countsView(kb.dNmpIds)
-
-	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
-	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-
-	dNtpRelativeAmounts = normalize(np.array([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		]))
-
-	dNtpMws = kb.getMass(kb.dNtpIds)
-	dNmpMws = kb.getMass(kb.dNmpIds)
-
-	dNmpsView.countsIs([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		])
-
-	chromMass = (
-		np.dot(dNmpsView.counts(), dNmpMws) - 2 * kb.genomeLength * 17.01 # TODO: get hydroxyl mass elsewhere
-		) / kb.nAvogadro.magnitude
-
-	nDNtps = countsFromMassAndExpression(
-		dnaMass.to('DCW_g').magnitude - chromMass,
-		dNtpMws.to('g/mol').magnitude,
-		dNtpRelativeAmounts,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	dNtpsView.countsIs((2 * kb.genomeLength + nDNtps) * dNtpRelativeAmounts)
-
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnapView = bulkContainer.countsView(kb.rnapIds)
