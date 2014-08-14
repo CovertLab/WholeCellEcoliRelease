@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-createKbs.py
+buildKb.py
 
-Create unfit and fit knowledgebase fixtures.
+Create unfit knowledgebase fixture.
 """
 
 import cPickle
