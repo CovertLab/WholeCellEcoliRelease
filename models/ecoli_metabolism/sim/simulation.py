@@ -7,6 +7,13 @@ from wholecell.sim.simulation import Simulation
 from wholecell.states.bulk_molecules import BulkMolecules
 
 # Processes
+# from models.ecoli_metabolism.processes.transcript_elongation import TranscriptElongation
+# from models.ecoli_metabolism.processes.rna_degradation import RnaDegradation
+# from models.ecoli_metabolism.processes.polypeptide_elongation import PolypeptideElongation
+# from models.ecoli_metabolism.processes.protein_degradation import ProteinDegradation
+# from models.ecoli_metabolism.processes.replication import Replication
+# from models.ecoli_metabolism.processes.metabolism import Metabolism
+# from models.ecoli_metabolism.processes.maintenance import Maintenance
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
@@ -18,15 +25,13 @@ class EcoliMetabolismSimulation(Simulation):
 		)
 
 	_processClasses = (
-		# TranscriptInitiation,
 		# TranscriptElongation,
 		# RnaDegradation,
-		# PolypeptideInitiation,
 		# PolypeptideElongation,
 		# ProteinDegradation,
 		# Replication,
 		# Metabolism,
-		# AtpUsage
+		# Maintenance,
 		)
 
 	_listenerClasses = (
