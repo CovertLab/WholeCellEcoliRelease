@@ -11,7 +11,9 @@ Defines/registers custom units for Pint
 """
 
 import scipy.constants
-from unum.units import g, mol, mmol, fg
+from unum.units import g, mol, fg, hr, L
 from unum import Unum
 
 count = Unum.unit('count',mol/(scipy.constants.Avogadro))
+nt = Unum.unit('nucleotide', count)
+aa = Unum.unit('amino_acid', count)

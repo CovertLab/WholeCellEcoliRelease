@@ -37,9 +37,10 @@ import Bio.Seq
 import warnings
 warnings.simplefilter("ignore", Bio.BiopythonWarning)
 
-# Load units data from Pint
-from reconstruction.units.unit_struct_array import UnitStructArray
-from reconstruction.units.unit_registration import Q_
+# Load units data
+from wholecell.utils.unit_struct_array import UnitStructArray
+from wholecell.utils.units import fg, mol, nt, s, aa, hr, L
+import scipy.constants
 
 # NOTE: most constants here need to either be moved to the DB or will be 
 # removed as the simulation is developed
@@ -301,13 +302,13 @@ class KnowledgeBaseEcoli(object):
 
 	def _loadHacked(self):
 		# New parameters
-		self._parameterData['cellWaterMassFraction'] = Q_(0.7, 'water_g / cell_g')
-		self._parameterData['cellDryMassFraction'] = Q_(0.3, 'DCW_g / cell_g')
-		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
-		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
-		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
+		self._parameterData['cellWaterMassFraction'] = 0.7
+		self._parameterData['cellDryMassFraction'] = 0.3
+		self._parameterData['dnaPolymeraseElongationRate'] = 750*nt/s
+		self._parameterData['oriCCenter'] = 3923882*nt
+		self._parameterData['terCCenter'] = 1607192*nt
 		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
-		self._parameterData["fracActiveRibosomes"] = Q_(1.0, "dimensionless")
+		self._parameterData["fracActiveRibosomes"] = 1.0
 
 
 		# Assumed reaction for producing L-selenocysteine without a tRNA
@@ -1636,23 +1637,20 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Invalid kCat units: %s." % (units)
 
 	def _loadConstants(self):
-		self._checkDatabaseAccess(Constant)
-		all_constant = Constant.objects.all()
-		self._constantData = {}
-		for c in all_constant:
-			self._constantData[c.name] = Q_(c.value, c.units)
-
+		self._constantData['nAvogadro'] = scipy.constants.Avogadro * count
 
 	def _loadParameters(self):
-		self._checkDatabaseAccess(Parameter)
-		all_parameter = Parameter.objects.all()
-		self._parameterData = {}
-		for p in all_parameter:
-			self._parameterData[p.name] = Q_(p.value, p.units)
-
+		self._parameterData['cellCycleLen'] = 3600*s
+		self._parameterData['avgCellDryMass'] = 258*fg
+		self._parameterData['rnaPolymeraseElongationRate'] = 42*nt/s
+		self._parameterData['ribosomeElongationRate'] = 16*aa/s
+		self._parameterData['fracInitFreeNTPs'] = 0.0015
+		self._parameterData['fracInitFreeAAs'] = 0.001
+		self._parameterData['avgCellCellCycleProgress'] = 0.44
+		self._parameterData['timeStep'] = 1*s
 
 	def _loadComputeParameters(self):
-		self._parameterData['avgCellToInitalCellConvFactor'] = Q_(np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress']), 'dimensionless')
+		self._parameterData['avgCellToInitalCellConvFactor'] = np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress'])
 		self._parameterData['avgCellDryMassInit'] = self._parameterData['avgCellDryMass'] / self._parameterData['avgCellToInitalCellConvFactor']
 		self._parameterData['avgCellWaterMass'] = (self._parameterData['avgCellDryMass'] / self._parameterData['cellDryMassFraction']) * self._parameterData['cellWaterMassFraction']
 		self._parameterData['avgCellWaterMassInit'] = self._parameterData['avgCellWaterMass'] / self._parameterData['avgCellToInitalCellConvFactor']
@@ -2153,8 +2151,8 @@ class KnowledgeBaseEcoli(object):
 
 		# Calculate degradation rates based on N-rule
 		# TODO: citation
-		fastRate = (np.log(2) / Q_(2, 'min')).to('1 / s')
-		slowRate = (np.log(2) / Q_(10, 'hr')).to('1 / s')
+		fastRate = (np.log(2) / (2/60)*minutes).to('1 / s')
+		slowRate = (np.log(2) / 10*hr).to('1 / s')
 
 		fastAAs = ["R", "K", "F", "L", "W", "Y"]
 		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
@@ -2776,8 +2774,8 @@ class KnowledgeBaseEcoli(object):
 		# - (d)NTP byproducts not currently included
 
 		self.metabolitePoolIDs = metaboliteIDs
-		self.metabolitePoolConcentrations = Q_(np.array(metaboliteConcentrations), "mol/L")
-		self.cellDensity = Q_(CELL_DENSITY, "g/L")
+		self.metabolitePoolConcentrations = mol/L * np.array(metaboliteConcentrations)
+		self.cellDensity = g/L * CELL_DENSITY
 
 
 	def _buildTranscription(self):
