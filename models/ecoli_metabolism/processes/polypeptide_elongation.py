@@ -28,6 +28,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		## Molecule IDs
 
 		aaIDs = kb.aaIDs
+		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
 
 		## Find the average RNA composition
 
@@ -65,6 +66,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.gtpPerElongation = kb.gtpPerTranslation
 
 		# Create views on state
+
+		self.polymerized = self.bulkMoleculesView(polymerizedIDs)
 
 		self.aas = self.bulkMoleculesView(aaIDs)
 		self.h2o = self.bulkMoleculeView("H2O[c]")
@@ -112,13 +115,19 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
-		self.h2o.countInc(self.aas.counts().sum())
+		aaCounts = self.aas.counts()
 
-		self.gdp.countInc(self.gtp.count())
-		self.pi.countInc(self.gtp.count())
-		self.h.countInc(self.gtp.count())
+		self.polymerized.countsInc(aaCounts)
 
-		self.h2o.countDec(self.gtp.count())
+		self.h2o.countInc(aaCounts.sum())
+
+		gtpCount = self.gtp.count()
+
+		self.gdp.countInc(gtpCount)
+		self.pi.countInc(gtpCount)
+		self.h.countInc(gtpCount)
+
+		self.h2o.countDec(gtpCount)
 
 		self.aas.countsIs(0)
 		self.gtp.countIs(0)

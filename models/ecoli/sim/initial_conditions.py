@@ -129,12 +129,9 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
-	dryComposition60min = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asNumber() == 60
-		]
-	dnmpsView = bulkMolCntr.countsView(kb.dNmpNuclearIds)
+	polymerizedView = bulkMolCntr.countsView([id_ + "[c]" for id_ in kb.polymerizedDNT_IDs])
 
-	dnmpsView.countsIs([
+	polymerizedView.countsIs([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
 		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
 		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),

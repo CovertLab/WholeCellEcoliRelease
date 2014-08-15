@@ -27,6 +27,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		## Molecule IDs
 
 		ntpIDs = kb.ntpIds
+		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedNT_IDs]
 
 		## Find the average RNA composition
 
@@ -59,10 +60,10 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Create views on state
 
+		self.polymerized = self.bulkMoleculesView(polymerizedIDs)
+
 		self.ntps = self.bulkMoleculesView(ntpIDs)
 		self.ppi = self.bulkMoleculeView("PPI[c]")
-
-		# TODO: incorporated nucleotides
 
 
 	def calculateRequest(self):
@@ -86,6 +87,10 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
-		self.ppi.countInc(self.ntps.counts().sum())
+		ntpCounts = self.ntps.counts()
+
+		self.polymerized.countsInc(ntpCounts)
+
+		self.ppi.countInc(ntpCounts.sum())
 
 		self.ntps.countsIs(0)

@@ -23,6 +23,7 @@ class Replication(wholecell.processes.process.Process):
 		# Load constants
 
 		dNtpIDs = kb.dNtpIds
+		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedDNT_IDs]
 
 		sequence = kb.genomeSeq
 
@@ -36,15 +37,17 @@ class Replication(wholecell.processes.process.Process):
 
 		# Create views on state
 
+		self.polymerized = self.bulkMoleculesView(polymerizedIDs)
+
 		self.dntps = self.bulkMoleculesView(dNtpIDs)
 
 		self.ppi = self.bulkMoleculeView("PPI[c]")
 
 
 	def calculateRequest(self):
-		monomersIncoporated = 0 # TODO: constrain elongation by self.maxIncorporated
+		monomersIncoporated = self.polymerized.total().sum()
 
-		monomersRemaining = self.maxIncorporated - monomersIncoporated
+		monomersRemaining = max(self.maxIncorporated - monomersIncoporated, 0)
 
 		totalMonomers = min(monomersRemaining, self.maxPolymerizationRate)
 
@@ -61,5 +64,9 @@ class Replication(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
-		self.ppi.countInc(self.dntps.counts().sum())
+		dntpCounts = self.dntps.counts()
+
+		self.polymerized.countsInc(dntpCounts)
+
+		self.ppi.countInc(dntpCounts.sum())
 		self.dntps.countsIs(0)

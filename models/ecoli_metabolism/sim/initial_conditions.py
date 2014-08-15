@@ -1,14 +1,4 @@
 
-"""
-
-TODO:
-- document math
-- replace fake metabolite pools with measured metabolite pools
-- raise/warn if physiological metabolite pools appear to be smaller than what
- is needed at this time step size
-
-"""
-
 from __future__ import division
 
 from itertools import izip
@@ -33,8 +23,111 @@ def calcInitialConditions(sim, kb):
 
 def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 
-	## Set other biomass components
+	# Initialize protein
+	initializeProtein(bulkMolCntr, kb, randomState, timeStep)
+
+	# Initialize RNA
+	initializeRNA(bulkMolCntr, kb, randomState, timeStep)
+
+	# Initialize DNA
+	initializeDNA(bulkMolCntr, kb, randomState, timeStep)
+
+	# Set other biomass components
 	initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep)
+
+
+def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
+	# TODO: move duplicate logic to the KB
+
+	polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
+
+	## Find the average protein composition
+
+	synthProbUnnormed = kb.rnaExpression["expression"].magnitude[kb.rnaIndexToMonomerMapping]
+
+	synthProb = synthProbUnnormed / synthProbUnnormed.sum()
+	compositionAll = kb.monomerData["aaCounts"].magnitude
+
+	# TODO: better model the variance of this distribution
+
+	compositionUnnormed = np.dot(compositionAll.T, synthProb)
+
+	monomerComposition = compositionUnnormed / compositionUnnormed.sum()
+
+	## Find the average total transcription rate with respect to cell age
+
+	initialDryMass = kb.avgCellDryMassInit.to("fg").magnitude
+
+	proteinMassFraction = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].to("min").magnitude == 60.0
+		]["proteinMassFraction"]
+
+	initialProteinMass = initialDryMass * proteinMassFraction
+
+	monomerMWs = kb.translationMonomerWeights
+
+	initialMonomerCounts = np.int64(
+		initialProteinMass * monomerComposition / monomerMWs
+		)
+	
+	bulkMolCntr.countsIs(
+		initialMonomerCounts,
+		polymerizedIDs
+		)
+
+
+def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
+	# TODO: move duplicate logic to the KB
+
+	polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedNT_IDs]
+
+	## Find the average RNA composition
+
+	synthProb = kb.rnaData["synthProb"].magnitude
+	compositionAll = kb.rnaData["countsACGU"].magnitude
+
+	# TODO: better model the variance of this distribution
+
+	compositionUnnormed = np.dot(compositionAll.T, synthProb)
+
+	monomerComposition = compositionUnnormed / compositionUnnormed.sum()
+
+	## Find the average total transcription rate with respect to cell age
+
+	initialDryMass = kb.avgCellDryMassInit.to("fg").magnitude
+
+	rnaMassFraction = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].to("min").magnitude == 60.0
+		]["rnaMassFraction"]
+
+	initialRnaMass = initialDryMass * rnaMassFraction
+
+	monomerMWs = kb.transcriptionMonomerWeights
+
+	initialMonomerCounts = np.int64(
+		initialRnaMass * monomerComposition / monomerMWs
+		)
+	
+	bulkMolCntr.countsIs(
+		initialMonomerCounts,
+		polymerizedIDs
+		)
+
+
+def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
+	# TODO: move duplicate logic to the KB
+	
+	polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedDNT_IDs]
+
+	bulkMolCntr.countsIs(
+		[
+			kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+			kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+			kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+			kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+		],
+		polymerizedIDs
+		)
 
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
@@ -44,10 +137,6 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 		].fullArray()
 
 	initDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
-	cellMass = (
-		kb.avgCellDryMassInit.asUnit(units.g).asNumber()
-		# + kb.avgCellWaterMassInit.asNumber()
-		)
 
 	poolIds = kb.metabolitePoolIDs[:]
 
@@ -63,7 +152,6 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.asNumber()[idx] > 0]
 	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellVolume = cellMass / kb.cellDensity
 	cellDensity = kb.cellDensity.asUnit(units.g / units.L).asNumber()
 	mws = kb.getMass(poolIds).asUnit(units.g / units.mol).asNumber()
 	concentrations = poolConcentrations.copy()
@@ -72,7 +160,6 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	A = -1 * np.ones((diag.size, diag.size))
 	A[np.diag_indices(diag.size)] = diag
 	b = mass * np.ones(diag.size)
-
 
 	massesToAdd = np.linalg.solve(A, b)
 	countsToAdd = massesToAdd / mws * kb.nAvogadro.asUnit(1 / units.mol).asNumber()
@@ -85,20 +172,3 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 		countsToAdd,
 		poolIds
 		)
-
-	# Hoping to remove the need for this code...
-
-	# subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
-	# subunitStoich = np.array([1, 1, 1])
-	# activeRibosomeMax = (subunits.counts() // subunitStoich).min()
-	# elngRate = kb.ribosomeElongationRate.to('amino_acid / s').asNumber()
-	# T_d = kb.cellCycleLen.to("s").asNumber()
-	# dt = kb.timeStep.to("s").asNumber()
-
-	# activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
-	# gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.gtpPerTranslation
-
-	# bulkMolCntr.countsInc(
-	# 	gtpsHydrolyzedLastTimeStep,
-	# 	["GDP[c]"]
-	# 	)

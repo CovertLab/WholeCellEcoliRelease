@@ -64,6 +64,8 @@ MOLECULAR_WEIGHT_KEYS = [
 	'protein',
 	'metabolite',
 	'water',
+	'DNA',
+	'RNA' # nonspecific RNA
 	]
 
 MOLECULAR_WEIGHT_ORDER = {
@@ -222,6 +224,48 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
 	"adn": 1.30e-7,
 	}
 
+POLYMERIZED_AMINO_ACID_WEIGHTS = [
+	{"base molecule":"ALA-L",	"frame id":"Polymerized ALA-L",	"mw":71.0785},
+	{"base molecule":"ARG-L",	"frame id":"Polymerized ARG-L",	"mw":157.1957},
+	{"base molecule":"ASN-L",	"frame id":"Polymerized ASN-L",	"mw":114.1034},
+	{"base molecule":"ASP-L",	"frame id":"Polymerized ASP-L",	"mw":114.0796},
+	{"base molecule":"CYS-L",	"frame id":"Polymerized CYS-L",	"mw":103.1385},
+	{"base molecule":"GLU-L",	"frame id":"Polymerized GLU-L",	"mw":128.1064},
+	{"base molecule":"GLN-L",	"frame id":"Polymerized GLN-L",	"mw":128.1302},
+	{"base molecule":"GLY",	"frame id":"Polymerized GLY",	"mw":57.0517},
+	{"base molecule":"HIS-L",	"frame id":"Polymerized HIS-L",	"mw":137.1413},
+	{"base molecule":"ILE-L",	"frame id":"Polymerized ILE-L",	"mw":113.1589},
+	{"base molecule":"LEU-L",	"frame id":"Polymerized LEU-L",	"mw":113.1589},
+	{"base molecule":"LYS-L",	"frame id":"Polymerized LYS-L",	"mw":129.1817},
+	{"base molecule":"MET-L",	"frame id":"Polymerized MET-L",	"mw":131.1921},
+	{"base molecule":"PHE-L",	"frame id":"Polymerized PHE-L",	"mw":147.1761},
+	{"base molecule":"PRO-L",	"frame id":"Polymerized PRO-L",	"mw":97.1163},
+	{"base molecule":"SER-L",	"frame id":"Polymerized SER-L",	"mw":87.0775},
+	{"base molecule":"THR-L",	"frame id":"Polymerized THR-L",	"mw":101.1043},
+	{"base molecule":"TRP-L",	"frame id":"Polymerized TRP-L",	"mw":186.213},
+	{"base molecule":"TYR-L",	"frame id":"Polymerized TYR-L",	"mw":163.1751},
+	{"base molecule":"SEC-L",	"frame id":"Polymerized SEC-L",	"mw":149.0252},
+	{"base molecule":"VAL-L",	"frame id":"Polymerized VAL-L",	"mw":99.1321},
+	]
+
+POLYPEPTIDE_END_WEIGHT = {"base molecule":"H2O",	"frame id":"Polypeptide terminal hydroxyl",	"mw":18.0148}
+
+POLYMERIZED_NUCLEOTIDE_WEIGHTS = [
+	{"base molecule":"ATP",	"frame id":"Polymerized ADN",	"mw":328.1999},
+	{"base molecule":"CTP",	"frame id":"Polymerized CYTD",	"mw":304.1739},
+	{"base molecule":"GTP",	"frame id":"Polymerized GSN",	"mw":344.1989},
+	{"base molecule":"UTP",	"frame id":"Polymerized URI",	"mw":305.158},
+	]
+
+POLYMERIZED_DEOXY_NUCLEOTIDE_WEIGHTS = [
+	{"base molecule":"DATP",	"frame id":"Polymerized DAD-2",	"mw":312.2009},
+	{"base molecule":"DCTP",	"frame id":"Polymerized DCYT",	"mw":288.1749},
+	{"base molecule":"DGTP",	"frame id":"Polymerized DGSN",	"mw":328.1999},
+	{"base molecule":"DTTP",	"frame id":"Polymerized THYMD",	"mw":303.1858},
+	]
+
+RNA_END_WEIGHT = {"base molecule":"PPI",	"frame id":"Nucleic acid terminal pyrophosphate",	"mw":174.9489}
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -239,6 +283,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadComments() # ADDED: for accessing info from other table 
 		self._loadCompartments()
 		self._loadMetabolites()
+		self._loadPolymerized()
 		self._loadGenome()
 		self._loadGenes()
 		self._loadRelationStoichiometry() #  Need to be called before any reaction loading
@@ -416,13 +461,20 @@ class KnowledgeBaseEcoli(object):
 		for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
 			self._aaWeights[singleLetterName] = None # placeholder
 
-		self._waterWeight = None
+		self._polypeptideEndWeight = None
 
 		self._ntWeights = collections.OrderedDict([
 			("A", None),
 			("C", None),
 			("G", None),
 			("U", None),
+			])
+
+		self._dntWeights = collections.OrderedDict([
+			("A", None),
+			("C", None),
+			("G", None),
+			("T", None),
 			])
 
 
@@ -542,45 +594,140 @@ class KnowledgeBaseEcoli(object):
 			
 			self._metabolites.append(m)
 
-		# Load monomer and water weights for calculating polymer weights
 
-		waterName = "H2O"
-		for metabolite in self._metabolites:
-			if metabolite["id"] == waterName:
-				self._waterWeight = metabolite["mw7.2"]
-				break
+	def _loadPolymerized(self):
+		self._polymerized = []
 
-		else:
-			raise Exception("Could not find a metabolite named {}".format(waterName))
+		# Load AAs
 
-		ppiName = "PPI"
-		for metabolite in self._metabolites:
-			if metabolite["id"] == ppiName:
-				self._ppiWeight = metabolite["mw7.2"]
-				break
+		aminoAcidIDtoSingleLetter = {
+			value.replace("[c]", ""):key
+			for key, value in AMINO_ACID_1_TO_3_ORDERED.viewitems()
+			}
 
-		else:
-			raise Exception("Could not find a metabolite named {}".format(ppiName))
+		aminoAcidIDtoSortedIndex = {
+			value.replace("[c]", ""):index
+			for index, value in enumerate(AMINO_ACID_1_TO_3_ORDERED.viewvalues())
+			}
 
-		for singleLetter, fullName in AMINO_ACID_1_TO_3_ORDERED.viewitems():
-			fullNameNoCompartment = fullName[:fullName.index("[")]
+		self._polymerizedAA_IDs = [None] * len(aminoAcidIDtoSortedIndex)
 
-			for metabolite in self._metabolites:
-				if metabolite["id"] == fullNameNoCompartment:
-					self._aaWeights[singleLetter] = metabolite["mw7.2"] - self._waterWeight
-					break
+		proteinMassKey = MOLECULAR_WEIGHT_KEYS.index("protein")
 
-			else:
-				raise Exception("Could not find a metabolite named {}".format(fullNameNoCompartment))
+		for monomer in POLYMERIZED_AMINO_ACID_WEIGHTS:
+			entry = {
+				"id":monomer["frame id"],
+				"mw":monomer["mw"],
+				"mass key":proteinMassKey
+				}
 
-		for singleLetter, fullName in [("A", "ATP"), ("C", "CTP"), ("G", "GTP"), ("U", "UTP")]:
-			for metabolite in self._metabolites:
-				if metabolite["id"] == fullName:
-					self._ntWeights[singleLetter] = metabolite["mw7.2"] - self._ppiWeight
-					break
+			self._polymerized.append(entry)
 
-			else:
-				raise Exception("Could not find a metabolite named {}".format(fullName))
+			singleLetter = aminoAcidIDtoSingleLetter[monomer["base molecule"]]
+
+			self._aaWeights[singleLetter] = monomer["mw"]
+
+			index = aminoAcidIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedAA_IDs[index] = monomer["frame id"]
+
+		# Load peptide end weight (= 1 water)
+
+		entry = {
+			"id":POLYPEPTIDE_END_WEIGHT["frame id"],
+			"mw":POLYPEPTIDE_END_WEIGHT["mw"],
+			"mass key":proteinMassKey,
+			}
+
+		self._polymerized.append(entry)
+
+		self._polypeptideEndWeight = POLYPEPTIDE_END_WEIGHT["mw"] # TODO: rename this attribute
+
+		# Load nucleotides
+
+		ntpIDtoSingleLetter = {
+			"ATP":"A",
+			"CTP":"C",
+			"GTP":"G",
+			"UTP":"U",
+			}
+
+		ntpIDtoSortedIndex = {
+			"ATP":0,
+			"CTP":1,
+			"GTP":2,
+			"UTP":3,
+			}
+
+		self._polymerizedNT_IDs = [None] * len(ntpIDtoSortedIndex)
+
+		rnaMassKey = MOLECULAR_WEIGHT_KEYS.index("RNA")
+
+		for monomer in POLYMERIZED_NUCLEOTIDE_WEIGHTS:
+			entry = {
+				"id":monomer["frame id"],
+				"mw":monomer["mw"],
+				"mass key":rnaMassKey
+				}
+
+			self._polymerized.append(entry)
+
+			singleLetter = ntpIDtoSingleLetter[monomer["base molecule"]]
+
+			self._ntWeights[singleLetter] = monomer["mw"]
+
+			index = ntpIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedNT_IDs[index] = monomer["frame id"]
+
+		# Load RNA end weight (= 1 PPi)
+
+		entry = {
+			"id":RNA_END_WEIGHT["frame id"],
+			"mw":RNA_END_WEIGHT["mw"],
+			"mass key":rnaMassKey,
+			}
+
+		self._polymerized.append(entry)
+
+		self._rnaEndWeight = RNA_END_WEIGHT["mw"] # TODO: rename this attribute
+
+		# Load deoxynucleotides
+
+		dntpIDtoSingleLetter = {
+			"DATP":"A",
+			"DCTP":"C",
+			"DGTP":"G",
+			"DTTP":"T",
+			}
+
+		dntpIDtoSortedIndex = {
+			"DATP":0,
+			"DCTP":1,
+			"DGTP":2,
+			"DTTP":3,
+			}
+
+		self._polymerizedDNT_IDs = [None] * len(dntpIDtoSortedIndex)
+
+		dnaMassKey = MOLECULAR_WEIGHT_KEYS.index("DNA")
+
+		for monomer in POLYMERIZED_DEOXY_NUCLEOTIDE_WEIGHTS:
+			entry = {
+				"id":monomer["frame id"],
+				"mw":monomer["mw"],
+				"mass key":dnaMassKey
+				}
+
+			self._polymerized.append(entry)
+
+			singleLetter = dntpIDtoSingleLetter[monomer["base molecule"]]
+
+			self._dntWeights[singleLetter] = monomer["mw"]
+
+			index = dntpIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedDNT_IDs[index] = monomer["frame id"]
 
 
 	def _loadRelationStoichiometry(self):
@@ -1058,7 +1205,7 @@ class KnowledgeBaseEcoli(object):
 				+ self._ntWeights["C"] * r["ntCount"][1]
 				+ self._ntWeights["G"] * r["ntCount"][2]
 				+ self._ntWeights["U"] * r["ntCount"][3]
-				) + self._ppiWeight
+				) + self._rnaEndWeight
 			index = self._whichRna(r['id'], r['type'])
 			r["mw"][index] = weight 
 
@@ -1106,7 +1253,7 @@ class KnowledgeBaseEcoli(object):
 					+ self._ntWeights["C"] * r["ntCount"][1]
 					+ self._ntWeights["G"] * r["ntCount"][2]
 					+ self._ntWeights["U"] * r["ntCount"][3]
-					) + self._ppiWeight
+					) + self._rnaEndWeight
 				index = self._whichRna(r['id'], r['type'])
 				r["mw"][index] = weight 
 			
@@ -1251,7 +1398,7 @@ class KnowledgeBaseEcoli(object):
 							tmp["U"], tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
 							])
 
-			p["mw"] = self._waterWeight
+			p["mw"] = self._polypeptideEndWeight
 			for aa in p["seq"]: p["mw"] += self._aaWeights[aa]
 
 			self._proteins.append(p)
@@ -1677,11 +1824,14 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkMolecules(self):
+		# TODO: modularize this logic
+
 		size = (
 			len(self._metabolites)*len(self._compartmentList)
 			+ len(self._rnas)
 			+ len(self._proteins)
 			+ len(self._proteinComplexes)
+			+ len(self._polymerized)*len(self._compartmentList)
 			)
 
 		bulkMolecules = np.zeros(
@@ -1752,6 +1902,33 @@ class KnowledgeBaseEcoli(object):
 		bulkMolecules['mass'][lastProteinMonomerIdx:lastComplexIdx, :] = [
 			complex_['mw'] for complex_ in self._proteinComplexes
 			]
+
+		# Set polymerized
+
+		lastPolymerizedIndex = len(self._polymerized)*len(self._compartmentList) + lastComplexIdx
+
+		polymerizedIDs = [entry["id"] for entry in self._polymerized]
+
+		bulkMolecules["moleculeId"][lastComplexIdx:lastPolymerizedIndex] = [
+			'{}[{}]'.format(polymerizedID, compartmentAbbreviation)
+			for compartmentAbbreviation in compartmentAbbreviations
+			for polymerizedID in polymerizedIDs
+			]
+
+		masses = [
+			entry["mw"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._polymerized
+			]
+
+		massIndexes = [
+			entry["mass key"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._polymerized
+			]
+
+		bulkMolecules["mass"][range(lastComplexIdx, lastPolymerizedIndex), massIndexes] = masses
+		# NOTE: the use of range above is intentional
 		
 		# Add units to values
 		field_units = {
@@ -2860,13 +3037,16 @@ class KnowledgeBaseEcoli(object):
 			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
 			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
 			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
-			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
+			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"],
+			'polymerizedAA_IDs'	:	self._polymerizedAA_IDs, # TODO: end weight
+			'polymerizedNT_IDs'	:	self._polymerizedNT_IDs, # TODO: end weight
+			'polymerizedDNT_IDs':	self._polymerizedDNT_IDs,
 		}
 
 		self.__dict__.update(moleculeGroups)
 
 	def _buildAllMasses(self):
-		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites)
+		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites) + len(self._polymerized)
 		allMass = np.empty(size,
 			dtype = [
 					('id',		'a50'),
@@ -2879,6 +3059,7 @@ class KnowledgeBaseEcoli(object):
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteins])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteinComplexes])
 		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in self._metabolites])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._polymerized])
 
 		allMass[:] = listMass
 
