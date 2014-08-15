@@ -22,6 +22,7 @@ class Replication(wholecell.processes.process.Process):
 		# Load constants
 
 		dNtpIDs = kb.dNtpIds
+		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedDNT_IDs]
 
 		sequence = kb.genomeSeq
 
@@ -34,6 +35,8 @@ class Replication(wholecell.processes.process.Process):
 		self.maxIncorporated = 2 * len(sequence)
 
 		# Create views on state
+
+		self.polymerized = self.bulkMoleculesView(polymerizedIDs)
 
 		self.dntps = self.bulkMoleculesView(dNtpIDs)
 
@@ -60,5 +63,9 @@ class Replication(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
-		self.ppi.countInc(self.dntps.counts().sum())
+		dntpCounts = self.dntps.counts()
+
+		self.polymerized.countsInc(dntpCounts)
+
+		self.ppi.countInc(dntpCounts.sum())
 		self.dntps.countsIs(0)
