@@ -18,6 +18,7 @@ import numpy as np
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.fitter import countsFromMassAndExpression
 from reconstruction.ecoli.fitter import normalize
+from wholecell.utils import units
 
 def calcInitialConditions(sim, kb):
 	randomState = sim.randomState
@@ -39,13 +40,13 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 
 	massFractions = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].to("minute").magnitude == 60.0
+		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
 		].fullArray()
 
-	initDryMass = kb.avgCellDryMassInit.to("DCW_gram").magnitude
+	initDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
 	cellMass = (
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		# + kb.avgCellWaterMassInit.magnitude
+		kb.avgCellDryMassInit.asUnit(units.g).asNumber()
+		# + kb.avgCellWaterMassInit.asNumber()
 		)
 
 	poolIds = kb.metabolitePoolIDs[:]
@@ -59,12 +60,12 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	mass -= massFractions["solublePoolMassFraction"] * initDryMass
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.magnitude[idx] > 0]
-	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.magnitude if x > 0])
+	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
 
 	cellVolume = cellMass / kb.cellDensity
-	cellDensity = kb.cellDensity.to("g / L").magnitude
-	mws = kb.getMass(poolIds).to("g / mol").magnitude
+	cellDensity = kb.cellDensity.asUnit(units.g / units.L).asNumber()
+	mws = kb.getMass(poolIds).asUnit(units.g / units.mol).asNumber()
 	concentrations = poolConcentrations.copy()
 
 	diag = cellDensity / (mws * concentrations) - 1
@@ -74,11 +75,11 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 
 
 	massesToAdd = np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.nAvogadro.to("1 / mol").magnitude
+	countsToAdd = massesToAdd / mws * kb.nAvogadro.asUnit(1 / units.mol).asNumber()
 
 	V = (mass + massesToAdd.sum()) / cellDensity
 
-	assert np.allclose(countsToAdd / kb.nAvogadro.magnitude / V, poolConcentrations)
+	assert np.allclose(countsToAdd / kb.nAvogadro.asNumber() / V, poolConcentrations)
 
 	bulkMolCntr.countsIs(
 		countsToAdd,
@@ -90,9 +91,9 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	# subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
 	# subunitStoich = np.array([1, 1, 1])
 	# activeRibosomeMax = (subunits.counts() // subunitStoich).min()
-	# elngRate = kb.ribosomeElongationRate.to('amino_acid / s').magnitude
-	# T_d = kb.cellCycleLen.to("s").magnitude
-	# dt = kb.timeStep.to("s").magnitude
+	# elngRate = kb.ribosomeElongationRate.to('amino_acid / s').asNumber()
+	# T_d = kb.cellCycleLen.to("s").asNumber()
+	# dt = kb.timeStep.to("s").asNumber()
 
 	# activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
 	# gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.gtpPerTranslation

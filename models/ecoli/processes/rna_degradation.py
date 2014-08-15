@@ -19,6 +19,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
+from wholecell.utils import units
 
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
@@ -54,8 +55,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		rnaIds = kb.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb.rnaData['degRate'].magnitude
-		self.rnaLens = kb.rnaData['length'].magnitude
+		self.rnaDegRates = kb.rnaData['degRate'].asNumber()
+		self.rnaLens = kb.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
 		# TODO: account for NTP on 5' end

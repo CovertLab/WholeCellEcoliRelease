@@ -18,6 +18,7 @@ import numpy as np
 import tables
 
 import wholecell.listeners.listener
+from wholecell.utils import units
 
 class Mass(wholecell.listeners.listener.Listener):
 	""" Mass """
@@ -44,7 +45,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
-		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
+		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
 
 		self.rnaIndexes = np.array([
 			kb.submassNameToIndex[name]

@@ -10,6 +10,7 @@ import wholecell.processes.process
 
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
+from wholecell.utils import units
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -26,11 +27,11 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Load constants
 
-		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-		self.cellDensity = kb.cellDensity.to("g/L").magnitude
+		self.nAvogadro = kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+		self.cellDensity = kb.cellDensity.asUnit(units.g/units.L).asNumber()
 		
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
-		self.targetConcentrations = kb.metabolitePoolConcentrations.to("mole/L").magnitude
+		self.targetConcentrations = kb.metabolitePoolConcentrations.asUnit(units.mol/units.L).asNumber()
 		
 		# Create views on state
 

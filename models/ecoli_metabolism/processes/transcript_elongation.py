@@ -6,6 +6,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
+from wholecell.utils import units
 
 class TranscriptElongation(wholecell.processes.process.Process):
 	""" TranscriptElongation """
@@ -29,8 +30,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		## Find the average RNA composition
 
-		synthProb = kb.rnaData["synthProb"].magnitude
-		compositionAll = kb.rnaData["countsACGU"].magnitude
+		synthProb = kb.rnaData["synthProb"]
+		compositionAll = kb.rnaData["countsACGU"].asNumber()
 
 		# TODO: better model the variance of this distribution
 
@@ -40,12 +41,12 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		## Find the average total transcription rate with respect to cell age
 
-		self.cellCycleLen = kb.cellCycleLen.to("s").magnitude
+		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
 
-		initialDryMass = kb.avgCellDryMassInit.to("fg").magnitude
+		initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
 
 		rnaMassFraction = kb.cellDryMassComposition[
-			kb.cellDryMassComposition["doublingTime"].to("min").magnitude == 60.0
+			kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
 			]["rnaMassFraction"]
 
 		initialRnaMass = initialDryMass * rnaMassFraction

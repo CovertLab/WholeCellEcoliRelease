@@ -21,6 +21,7 @@ import collections
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import polymerize, PAD_VALUE
+from wholecell.utils import units
 
 # NOTE: the ordering here is take advantage of vectorized operations
 NT_SINGLELETTERS = ["A", "C", "G", "T"]
@@ -67,8 +68,8 @@ class Replication(wholecell.processes.process.Process):
 
 		# Load modeling parameters
 		self.genomeLength = kb.genomeLength
-		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
-		self.tercCenter = kb.terCCenter.to('nucleotide').magnitude
+		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.asUnit(units.nt / units.s).asNumber() * self.timeStepSec
+		self.tercCenter = kb.terCCenter.asUnit(units.nt).asNumber()
 
 		# Load gene data to keep track of copy number
 		geneIds = kb.geneData['name']

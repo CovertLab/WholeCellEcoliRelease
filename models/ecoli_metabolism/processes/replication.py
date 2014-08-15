@@ -5,6 +5,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
+from wholecell.utils import units
 
 class Replication(wholecell.processes.process.Process):
 	""" Replication """
@@ -29,7 +30,7 @@ class Replication(wholecell.processes.process.Process):
 
 		self.monomerComposition = monomerCounts / monomerCounts.sum()
 
-		self.maxPolymerizationRate = 2 * kb.dnaPolymeraseElongationRate.magnitude * self.timeStepSec
+		self.maxPolymerizationRate = 2 * kb.dnaPolymeraseElongationRate.asNumber() * self.timeStepSec
 
 		self.maxIncorporated = 2 * len(sequence)
 

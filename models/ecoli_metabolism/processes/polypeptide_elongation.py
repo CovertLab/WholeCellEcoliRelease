@@ -6,6 +6,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
+from wholecell.utils import units
 
 class PolypeptideElongation(wholecell.processes.process.Process):
 	""" PolypeptideElongation """
@@ -30,10 +31,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		## Find the average RNA composition
 
-		synthProbUnnormed = kb.rnaExpression["expression"].magnitude[kb.rnaIndexToMonomerMapping]
+		synthProbUnnormed = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
 
 		synthProb = synthProbUnnormed / synthProbUnnormed.sum()
-		compositionAll = kb.monomerData["aaCounts"].magnitude
+		compositionAll = kb.monomerData["aaCounts"].asNumber()
 
 		# TODO: better model the variance of this distribution
 
@@ -43,12 +44,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		## Find the average total transcription rate with respect to cell age
 
-		self.cellCycleLen = kb.cellCycleLen.to("s").magnitude
+		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
 
-		initialDryMass = kb.avgCellDryMassInit.to("fg").magnitude
+		initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
 
 		proteinMassFraction = kb.cellDryMassComposition[
-			kb.cellDryMassComposition["doublingTime"].to("min").magnitude == 60.0
+			kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
 			]["proteinMassFraction"]
 
 		initialProteinMass = initialDryMass * proteinMassFraction
