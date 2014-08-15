@@ -23,6 +23,7 @@ from itertools import izip
 import numpy as np
 
 import wholecell.processes.process
+from wholecell.utils import units
 
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
@@ -44,11 +45,11 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-		self.cellDensity = kb.cellDensity.to("g/L").magnitude
+		self.nAvogadro = kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+		self.cellDensity = kb.cellDensity.asUnit(units.g/units.L).asNumber()
 		
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
-		self.targetConcentrations = kb.metabolitePoolConcentrations.to("mole/L").magnitude
+		self.targetConcentrations = kb.metabolitePoolConcentrations.asUnit(units.mol/units.L).asNumber()
 		
 		# Set up FBA solver
 
@@ -93,7 +94,7 @@ class Metabolism(wholecell.processes.process.Process):
 			if reactionStoich.has_key(reactionID) and rate > 0
 			}
 
-		masses = kb.getMass(externalExchangedMolecules).to("gram/mole").magnitude
+		masses = kb.getMass(externalExchangedMolecules).asUnit(units.g/units.mol).asNumber()
 
 		moleculeMasses = {moleculeID:masses[index]
 			for index, moleculeID in enumerate(externalExchangedMolecules)}
@@ -125,8 +126,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# * initDry/initTotal = mol/g
 		# * cellDensity = mol/L = M
 
-		initWaterMass = kb.avgCellWaterMassInit.to('gram * water_gram / DCW_gram').magnitude
-		initDryMass = kb.avgCellDryMassInit.to('gram').magnitude
+		initWaterMass = kb.avgCellWaterMassInit.asUnit(units.g).asNumber()
+		initDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
 
 		initCellMass = (
 			initWaterMass

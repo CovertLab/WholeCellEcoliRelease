@@ -25,6 +25,8 @@ import wholecell.states.state
 import wholecell.views.view
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
+from wholecell.utils import units
+
 from wholecell.utils.constants import REQUEST_PRIORITY_DEFAULT
 
 ASSERT_POSITIVE_COUNTS = True
@@ -58,7 +60,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		# self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkMolecules['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
+		self._moleculeMass = kb.bulkMolecules['mass'].asUnit(units.fg / units.mol).asNumber() / kb.nAvogadro.asUnit(1 / units.mol).asNumber()
 
 		self._submassNameToIndex = kb.submassNameToIndex
 

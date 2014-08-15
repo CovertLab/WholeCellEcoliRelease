@@ -55,7 +55,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = kb.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
+		self.elngRate = kb.rnaPolymeraseElongationRate.asUnit(units.nt / units.s).asNumber * self.timeStepSec
 
 		self.rnaIds = kb.rnaData['id']
 

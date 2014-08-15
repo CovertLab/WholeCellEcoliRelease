@@ -14,6 +14,7 @@ import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.states.bulk_molecules import BulkMolecules, BulkMoleculesView, BulkMoleculeView
+from wholecell.utils import units
 
 class BulkChromosome(BulkMolecules):
 	_name = 'BulkChromosome'
@@ -26,7 +27,7 @@ class BulkChromosome(BulkMolecules):
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkChromosome['mass'].to('fg / mol').magnitude / kb.nAvogadro.to('1 / mole').magnitude
+		self._moleculeMass = kb.bulkChromosome['mass'].asUnit(units.fg / units.mol).asNumber() / kb.nAvogadro.asUnit(1 / units.mol).asNumber()
 
 		self._compIndexes = {
 			compartmentKey:(kb.bulkChromosome['compartment'] == compartmentKey)

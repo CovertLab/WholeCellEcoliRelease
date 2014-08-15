@@ -19,6 +19,7 @@ import tables
 import wholecell.states.state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
+from wholecell.utils import units
 
 DEFAULT_ATTRIBUTES = {
 	"_partitionedProcess":np.int64
@@ -63,7 +64,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container = UniqueObjectsContainer(molDefs)
 
 		self._moleculeIds = kb.uniqueMoleculeMasses["moleculeId"]
-		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].to("fg/mole").magnitude / kb.nAvogadro.magnitude
+		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].asUnit(units.fg/ units.mol).asNumber() / kb.nAvogadro.asNumber()
 
 		self._unassignedPartitionedValue = self._nProcesses
 
