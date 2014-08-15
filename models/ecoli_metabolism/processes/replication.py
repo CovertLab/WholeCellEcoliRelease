@@ -21,12 +21,44 @@ class Replication(wholecell.processes.process.Process):
 
 		# Load constants
 
+		dNtpIDs = kb.dNtpIds
+
+		sequence = kb.genomeSeq
+
+		monomerCounts = np.array([sequence.count(s) for s in ("A", "C", "G", "T")], np.float64)
+
+		self.monomerComposition = monomerCounts / monomerCounts.sum()
+
+		self.maxPolymerizationRate = 2 * kb.dnaPolymeraseElongationRate.magnitude * self.timeStepSec
+
+		self.maxIncorporated = 2 * len(sequence)
+
 		# Create views on state
+
+		self.dntps = self.bulkMoleculesView(dNtpIDs)
+
+		self.ppi = self.bulkMoleculeView("PPI[c]")
 
 
 	def calculateRequest(self):
-		pass
+		monomersIncoporated = 0 # TODO: constrain elongation by self.maxIncorporated
+
+		monomersRemaining = self.maxIncorporated - monomersIncoporated
+
+		totalMonomers = min(monomersRemaining, self.maxPolymerizationRate)
+
+		dntpsRequested = self.randomState.multinomial(
+			totalMonomers,
+			self.monomerComposition
+			)
+
+		if (dntpsRequested > self.dntps.total()).any():
+			# TODO: flag simulation instead of printing
+			print "{} is metabolically limited".format(self.name())
+
+		self.dntps.requestIs(dntpsRequested)
 
 
 	def evolveState(self):
-		pass
+		self.ppi.countInc(self.dntps.counts().sum())
+		self.dntps.countsIs(0)

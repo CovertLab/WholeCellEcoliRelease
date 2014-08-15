@@ -7,16 +7,19 @@ from wholecell.sim.simulation import Simulation
 from wholecell.states.bulk_molecules import BulkMolecules
 
 # Processes
-# from models.ecoli_metabolism.processes.transcript_elongation import TranscriptElongation
-# from models.ecoli_metabolism.processes.rna_degradation import RnaDegradation
-# from models.ecoli_metabolism.processes.polypeptide_elongation import PolypeptideElongation
-# from models.ecoli_metabolism.processes.protein_degradation import ProteinDegradation
-# from models.ecoli_metabolism.processes.replication import Replication
-# from models.ecoli_metabolism.processes.metabolism import Metabolism
-# from models.ecoli_metabolism.processes.maintenance import Maintenance
+from models.ecoli_metabolism.processes.transcript_elongation import TranscriptElongation
+from models.ecoli_metabolism.processes.rna_degradation import RnaDegradation
+from models.ecoli_metabolism.processes.polypeptide_elongation import PolypeptideElongation
+from models.ecoli_metabolism.processes.protein_degradation import ProteinDegradation
+from models.ecoli_metabolism.processes.replication import Replication
+from models.ecoli_metabolism.processes.metabolism import Metabolism
+from models.ecoli_metabolism.processes.maintenance import Maintenance
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
+
+# Initialization
+from models.ecoli_metabolism.sim.initial_conditions import calcInitialConditions
 
 
 class EcoliMetabolismSimulation(Simulation):
@@ -25,12 +28,12 @@ class EcoliMetabolismSimulation(Simulation):
 		)
 
 	_processClasses = (
-		# TranscriptElongation,
+		TranscriptElongation,
 		# RnaDegradation,
-		# PolypeptideElongation,
+		PolypeptideElongation,
 		# ProteinDegradation,
-		# Replication,
-		# Metabolism,
+		Replication,
+		Metabolism,
 		# Maintenance,
 		)
 
@@ -42,7 +45,7 @@ class EcoliMetabolismSimulation(Simulation):
 
 	_hookClasses = ()
 
-	_initialConditionsFunction = lambda sim, kb: None
+	_initialConditionsFunction = calcInitialConditions
 
 	_lengthSec = 3600
 	_timeStepSec = 1
