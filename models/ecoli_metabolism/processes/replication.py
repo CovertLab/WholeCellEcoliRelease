@@ -69,5 +69,3 @@ class Replication(wholecell.processes.process.Process):
 
 		self.ppi.countInc(dntpCounts.sum())
 		self.dntps.countsIs(0)
-
-		print dntpCounts.sum()
