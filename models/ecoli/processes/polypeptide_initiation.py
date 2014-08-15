@@ -22,6 +22,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
+from wholecell.utils import units
 
 import itertools
 
@@ -54,7 +55,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		mrnaIds = kb.monomerData["rnaId"]
 		
-		self.proteinLens = kb.monomerData["length"].magnitude
+		self.proteinLens = kb.monomerData["length"].asNumber()
 
 		# Views
 

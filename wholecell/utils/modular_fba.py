@@ -16,6 +16,8 @@ import numpy as np
 import cvxopt
 import cvxopt.solvers
 
+from wholecell.utils import units
+
 # Exceptions
 
 class FBAException(Exception):
@@ -1073,7 +1075,7 @@ def _setupFeist(kb):
 		if reactionStoich.has_key(reactionID) and rate > 0
 		}
 
-	masses = kb.getMass(externalExchangedMolecules).to("gram/millimole").magnitude
+	masses = kb.getMass(externalExchangedMolecules).asUnit(units.g / units.mmol).asNumber()
 
 	moleculeMasses = {moleculeID:masses[index]
 		for index, moleculeID in enumerate(externalExchangedMolecules)}
@@ -1162,8 +1164,8 @@ def _checkEnzymeLimitations():
 
 	fba.run()
 
-	cellDryGrams = kb.avgCellDryMassInit.to("gram").magnitude
-	moleculesPerMole = kb.nAvogadro.magnitude
+	cellDryGrams = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
+	moleculesPerMole = kb.nAvogadro.asNumber()
 
 	enzymeUsageMolecules = fba.enzymeUsage() * moleculesPerMole * cellDryGrams
 

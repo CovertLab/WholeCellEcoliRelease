@@ -22,6 +22,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils.random import stochasticRound
+from wholecell.utils import units
 
 class PolypeptideElongation(wholecell.processes.process.Process):
 	""" PolypeptideElongation """
@@ -54,13 +55,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude) * self.timeStepSec
+		self.elngRate = float(kb.ribosomeElongationRate.asUnit(units.aa / units.s).asNumber()) * self.timeStepSec
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
 		proteinIds = kb.monomerData['id']
 
-		self.proteinLengths = kb.monomerData["length"].magnitude
+		self.proteinLengths = kb.monomerData["length"].asNumber()
 
 		self.proteinSequences = kb.translationSequences
 

@@ -17,6 +17,7 @@ import tables
 
 import wholecell.listeners.listener
 from reconstruction.ecoli.fitter import normalize
+from wholecell.utils import units
 
 class NtpUsage(wholecell.listeners.listener.Listener):
 	""" NtpUsage """
@@ -57,11 +58,11 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 		]
 
 		self.relativeNtpProductionBiomass = normalize(
-			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].magnitude
+			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].asNumber()
 			)
 
 		self.relativeNtpUsage = normalize(
-			np.dot(kb.rnaData["countsACGU"].T, kb.rnaData["synthProb"])
+			np.dot(kb.rnaData["countsACGU"].asNumber().T, kb.rnaData["synthProb"])
 			)
 
 	# Allocate memory

@@ -19,6 +19,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
+from wholecell.utils import units
 
 class ProteinDegradation(wholecell.processes.process.Process):
 	""" ProteinDegradation """
@@ -56,12 +57,12 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		proteinIds = kb.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = kb.monomerData['degRate'].to('1 / s').magnitude
+		self.proteinDegRates = kb.monomerData['degRate'].asUnit(1 / units.s).asNumber()
 
 		self.proteinLengths = kb.monomerData['length']
 
 		self.proteinDegSMatrix = np.zeros((len(metaboliteIds), len(proteinIds)), np.int64)
-		self.proteinDegSMatrix[aaIdxs, :] = np.transpose(kb.monomerData["aaCounts"].magnitude)
+		self.proteinDegSMatrix[aaIdxs, :] = np.transpose(kb.monomerData["aaCounts"].asNumber())
 		self.proteinDegSMatrix[h2oIdx, :]  = -(np.sum(self.proteinDegSMatrix[aaIdxs, :], axis = 0) - 1)
 
 		# Views
@@ -80,7 +81,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 			self.proteins.total()
 			)
 
-		nReactions = np.dot(self.proteinLengths, nProteinsToDegrade)
+		nReactions = np.dot(self.proteinLengths.asNumber(), nProteinsToDegrade)
 
 		# Assuming one N-1 H2O is required per peptide chain length N
 		self.h2o.requestIs(nReactions - np.sum(nProteinsToDegrade))

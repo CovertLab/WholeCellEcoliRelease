@@ -17,6 +17,7 @@ import tables
 
 import wholecell.listeners.listener
 from reconstruction.ecoli.fitter import normalize
+from wholecell.utils import units
 
 class AAUsage(wholecell.listeners.listener.Listener):
 	""" AAUsage """
@@ -57,11 +58,11 @@ class AAUsage(wholecell.listeners.listener.Listener):
 		]
 
 		self.relativeAAProductionBiomass = normalize(
-			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].magnitude
+			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].asNumber()
 			)
 
 		self.relativeAaUsage = normalize(np.dot(
-			kb.monomerData["aaCounts"].T,
+			kb.monomerData["aaCounts"].asNumber().T,
 			kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
 			))
 

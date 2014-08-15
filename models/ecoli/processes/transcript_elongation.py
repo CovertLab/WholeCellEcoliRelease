@@ -21,6 +21,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils import units
 
 class TranscriptElongation(wholecell.processes.process.Process):
 	""" TranscriptElongation """
@@ -55,11 +56,11 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = kb.rnaPolymeraseElongationRate.asUnit(units.nt / units.s).asNumber * self.timeStepSec
+		self.elngRate = kb.rnaPolymeraseElongationRate.asUnit(units.nt / units.s).asNumber() * self.timeStepSec
 
 		self.rnaIds = kb.rnaData['id']
 
-		self.rnaLengths = kb.rnaData["length"].magnitude
+		self.rnaLengths = kb.rnaData["length"].asNumber()
 
 		self.rnaSequences = kb.transcriptionSequences
 

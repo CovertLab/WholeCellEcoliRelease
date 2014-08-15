@@ -22,6 +22,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
+from wholecell.utils import units
 
 import itertools
 
@@ -48,7 +49,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.rnaSynthProb = kb.rnaData['synthProb'].to('dimensionless').magnitude
+		self.rnaSynthProb = kb.rnaData['synthProb']
 
 		# Views
 

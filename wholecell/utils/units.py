@@ -34,4 +34,13 @@ def dot(a, b, out):
 	a_units._value = 1
 	b_units = b.copy()
 	b_units._value = 1
-	return a_units * b_units * np.dot(a,b,out)
+	return a_units * b_units * np.dot(a.asNumber(),b.asNumber(),out)
+
+def transpose(array,axis=None):
+	if type(a) != Unum or type(b) != Unum:
+		raise Exception, 'Only works on Unum!\n'
+
+	units = array.copy()
+	units._value = 1
+
+	return units * np.transpose(array.asNumber(), axis)

@@ -19,6 +19,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_ATP_USAGE
 from wholecell.utils.random import stochasticRound
+from wholecell.utils import units
 
 class AtpUsage(wholecell.processes.process.Process):
 	""" AtpUsage """
@@ -34,9 +35,9 @@ class AtpUsage(wholecell.processes.process.Process):
 		super(AtpUsage, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
-		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
+		self.nAvogadro = kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+		self.initialDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
+		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
 
 		moleculeIds = ["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)
@@ -50,7 +51,7 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		self.nongrowthAssociated_reactionsPerTimestep = (
 			kb.NGAM * kb.nAvogadro
-			).to("1/femtogram/s").magnitude * self.timeStepSec
+			).asUnit(1/units.fg/units.s).asNumber() * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
 
