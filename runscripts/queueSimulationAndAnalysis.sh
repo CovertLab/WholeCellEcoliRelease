@@ -32,7 +32,7 @@ git diff > "${METADATA_DIR}/git_diff"
 echo "${DESC}" > "${METADATA_DIR}/description"
 
 ##### Create knowledgebases (unfit and fit) #####
-make justKb WC_KBDIR="${KB_DIR}"
+make justKb FIXTURES_KBDIR="${KB_DIR}"
 
 FIRST_SINGLE_ANALYSIS_JOB=""
 LAST_SINGLE_ANALYSIS_JOB=""
