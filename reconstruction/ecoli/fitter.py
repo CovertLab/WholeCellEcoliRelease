@@ -231,10 +231,10 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
 
 	nRRna23Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].to('g/mol').magnitude,
+		rnaMass.asUnit(units.g).asNumber() * RRNA23S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].asUnit(units.g / units.mol).asNumber(),
 		rRna23SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asUnit(1 / units.mol).asNumber()
 		)
 
 	## 16S rRNA Mass Fractions ##
@@ -243,10 +243,10 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
 
 	nRRna16Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].to('g/mol').magnitude,
+		rnaMass.asUnit(units.g).magnitude * RRNA16S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].asUnit(units.g / units.mol).asNumber(),
 		rRna16SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asUnit(1 / units.mol).magnitude
 		)
 
 	## 5S rRNA Mass Fractions ##
