@@ -29,8 +29,8 @@ git diff > "${METADATA_DIR}/git_diff"
 # Description
 echo "${DESC}" > "${METADATA_DIR}/description"
 
-##### Create knowledgebases  #####
-make justKb WC_KBDIR="${KB_DIR}"
+##### Create knowledgebases #####
+make justKb FIXTURES_KBDIR="${KB_DIR}"
 
 
 ##### Run simulation #####

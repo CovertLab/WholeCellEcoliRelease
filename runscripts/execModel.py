@@ -18,11 +18,7 @@ import argparse
 
 def main(modelLevel, kbDirectory, simDirectory):
 
-	simOpts = getSimOptsFromEnvVars(
-		["outputDir", "kbLocation", "logToDisk",
-		"logToShell", "logToDiskEvery", "overwriteExistingFiles"
-		]
-		)
+	simOpts = getSimOptsFromEnvVars()
 
 	fitKbFileName = (
 		wholecell.utils.constants.SERIALIZED_KB_PREFIX +
@@ -30,6 +26,7 @@ def main(modelLevel, kbDirectory, simDirectory):
 		wholecell.utils.constants.SERIALIZED_KB_SUFFIX
 		)
 
+	simOpts["seed"] = 0
 	simOpts["kbLocation"] = os.path.join(kbDirectory, fitKbFileName)
 	simOpts["outputDir"] = os.path.join(simDirectory, "model_level_%d" % modelLevel, "simOut")
 	simOpts["logToDisk"] = True

@@ -14,23 +14,23 @@ runSimulationJob: compile
 runAnalysisSingle:
 	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
 
-WC_FIXTURES_KBDIR ?= "fixtures/kb"
-WC_FIXTURES_SIMDIR ?= "fixtures/sim"
+FIXTURES_KBDIR ?= "fixtures/kb"
+FIXTURES_SIMDIR ?= "fixtures/sim"
 
 buildKb: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py $(WC_FIXTURES_KBDIR)
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/buildKb.py $(FIXTURES_KBDIR)
 
 fitKb_1: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 1 $(WC_FIXTURES_KBDIR) $(WC_FIXTURES_SIMDIR)
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
 execModel_1: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 $(WC_FIXTURES_KBDIR) $(WC_FIXTURES_SIMDIR)
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
 fitKb_2: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 2 $(WC_FIXTURES_KBDIR) $(WC_FIXTURES_SIMDIR)
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
 execModel_2: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 2 $(WC_FIXTURES_KBDIR) $(WC_FIXTURES_SIMDIR)
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
 justKb: buildKb fitKb_1 execModel_1 fitKb_2
 
