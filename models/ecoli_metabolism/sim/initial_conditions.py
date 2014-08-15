@@ -1,14 +1,4 @@
 
-"""
-
-TODO:
-- document math
-- replace fake metabolite pools with measured metabolite pools
-- raise/warn if physiological metabolite pools appear to be smaller than what
- is needed at this time step size
-
-"""
-
 from __future__ import division
 
 from itertools import izip
@@ -43,10 +33,6 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 		].fullArray()
 
 	initDryMass = kb.avgCellDryMassInit.to("DCW_gram").magnitude
-	cellMass = (
-		kb.avgCellDryMassInit.to("DCW_gram").magnitude
-		# + kb.avgCellWaterMassInit.magnitude
-		)
 
 	poolIds = kb.metabolitePoolIDs[:]
 
@@ -62,7 +48,6 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.magnitude[idx] > 0]
 	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.magnitude if x > 0])
 
-	cellVolume = cellMass / kb.cellDensity
 	cellDensity = kb.cellDensity.to("g / L").magnitude
 	mws = kb.getMass(poolIds).to("g / mol").magnitude
 	concentrations = poolConcentrations.copy()

@@ -3047,7 +3047,7 @@ class KnowledgeBaseEcoli(object):
 		self.__dict__.update(moleculeGroups)
 
 	def _buildAllMasses(self):
-		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites)
+		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites) + len(self._polymerized)
 		allMass = np.empty(size,
 			dtype = [
 					('id',		'a50'),
@@ -3060,6 +3060,7 @@ class KnowledgeBaseEcoli(object):
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteins])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteinComplexes])
 		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in self._metabolites])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._polymerized])
 
 		allMass[:] = listMass
 

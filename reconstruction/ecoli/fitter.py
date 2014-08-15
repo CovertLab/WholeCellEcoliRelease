@@ -325,49 +325,25 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 
 	monomersView.countsIs((nMonomers * monomerExpression))
 
-def calcChromosomeMass(numA, numC, numG, numT, kb):
-	weights = collections.OrderedDict({
-		"A": (
-			float(kb.getMass(["DAMP[n]"]).magnitude)
-			),
-		"C": (
-			float(kb.getMass(["DCMP[n]"]).magnitude)
-			),
-		"G": (
-			float(kb.getMass(["DGMP[n]"]).magnitude)
-			),
-		"T": (
-			float(kb.getMass(["DTMP[n]"]).magnitude)
-			),
-		})
-
-	seqLen = numA + numC + numG + numT
-
-	return (
-		weights["A"] * numA +
-		weights["C"] * numC +
-		weights["G"] * numG +
-		weights["T"] * numT# -
-		# TODO: Ask Nick about this line (below)
-		#seqLen * 17.01 # Note: no factor of 2 is needed because the num variables account for double-strandedness
-		)
-
 
 def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
 	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-	chromMass = calcChromosomeMass(
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A"),
-		kb) / kb.nAvogadro.magnitude
 
-	dnaMassCalc = chromMass
+	dntCounts = 2 * np.array([
+		kb.genomeSeq.count("A"),
+		kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("T")
+		])
 
-	fracDifference = (dnaMass.magnitude - dnaMassCalc) / kb.avgCellDryMassInit.magnitude
+	dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).to("g")
+
+	chromMass = np.dot(dntCounts, dntMasses)
+
+	fracDifference = (dnaMass.magnitude - chromMass) / kb.avgCellDryMassInit.magnitude
 	# if fracDifference < 0:
 	# 	raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
 	idx60Min = np.where(kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60)
@@ -376,7 +352,7 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	nonDNtpsIdxs = [x for x in range(1, nElems + 1) if x != dNtpCompositionIdx]
 	amountToAdd = fracDifference / len(nonDNtpsIdxs)
 	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, nonDNtpsIdxs] += amountToAdd
-	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = dnaMassCalc / kb.avgCellDryMassInit.magnitude
+	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = chromMass / kb.avgCellDryMassInit.magnitude
 	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
 
 

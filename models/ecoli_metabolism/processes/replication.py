@@ -44,9 +44,9 @@ class Replication(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		monomersIncoporated = 0 # TODO: constrain elongation by self.maxIncorporated
+		monomersIncoporated = self.polymerized.total().sum()
 
-		monomersRemaining = self.maxIncorporated - monomersIncoporated
+		monomersRemaining = max(self.maxIncorporated - monomersIncoporated, 0)
 
 		totalMonomers = min(monomersRemaining, self.maxPolymerizationRate)
 
@@ -69,3 +69,5 @@ class Replication(wholecell.processes.process.Process):
 
 		self.ppi.countInc(dntpCounts.sum())
 		self.dntps.countsIs(0)
+
+		print dntpCounts.sum()
