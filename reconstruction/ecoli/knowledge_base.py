@@ -599,12 +599,17 @@ class KnowledgeBaseEcoli(object):
 
 		# Load AAs
 
-		self._polymerizedAA_IDs = []
-
 		aminoAcidIDtoSingleLetter = {
 			value.replace("[c]", ""):key
 			for key, value in AMINO_ACID_1_TO_3_ORDERED.viewitems()
 			}
+
+		aminoAcidIDtoSortedIndex = {
+			value.replace("[c]", ""):index
+			for index, value in enumerate(AMINO_ACID_1_TO_3_ORDERED.viewvalues())
+			}
+
+		self._polymerizedAA_IDs = [None] * len(aminoAcidIDtoSortedIndex)
 
 		proteinMassKey = MOLECULAR_WEIGHT_KEYS.index("protein")
 
@@ -621,7 +626,9 @@ class KnowledgeBaseEcoli(object):
 
 			self._aaWeights[singleLetter] = monomer["mw"]
 
-			self._polymerizedAA_IDs.append(monomer["frame id"])
+			index = aminoAcidIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedAA_IDs[index] = monomer["frame id"]
 
 		# Load peptide end weight (= 1 water)
 
@@ -637,14 +644,21 @@ class KnowledgeBaseEcoli(object):
 
 		# Load nucleotides
 
-		self._polymerizedNT_IDs = []
-
 		ntpIDtoSingleLetter = {
 			"ATP":"A",
 			"CTP":"C",
 			"GTP":"G",
 			"UTP":"U",
 			}
+
+		ntpIDtoSortedIndex = {
+			"ATP":0,
+			"CTP":1,
+			"GTP":2,
+			"UTP":3,
+			}
+
+		self._polymerizedNT_IDs = [None] * len(ntpIDtoSortedIndex)
 
 		rnaMassKey = MOLECULAR_WEIGHT_KEYS.index("RNA")
 
@@ -661,7 +675,9 @@ class KnowledgeBaseEcoli(object):
 
 			self._ntWeights[singleLetter] = monomer["mw"]
 
-			self._polymerizedNT_IDs.append(monomer["frame id"])
+			index = ntpIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedNT_IDs[index] = monomer["frame id"]
 
 		# Load RNA end weight (= 1 PPi)
 
@@ -677,14 +693,21 @@ class KnowledgeBaseEcoli(object):
 
 		# Load deoxynucleotides
 
-		self._polymerizedDNT_IDs = []
-
 		dntpIDtoSingleLetter = {
 			"DATP":"A",
 			"DCTP":"C",
 			"DGTP":"G",
 			"DTTP":"T",
 			}
+
+		dntpIDtoSortedIndex = {
+			"DATP":0,
+			"DCTP":1,
+			"DGTP":2,
+			"DTTP":3,
+			}
+
+		self._polymerizedDNT_IDs = [None] * len(dntpIDtoSortedIndex)
 
 		dnaMassKey = MOLECULAR_WEIGHT_KEYS.index("DNA")
 
@@ -701,7 +724,9 @@ class KnowledgeBaseEcoli(object):
 
 			self._dntWeights[singleLetter] = monomer["mw"]
 
-			self._polymerizedDNT_IDs.append(monomer["frame id"])
+			index = dntpIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedDNT_IDs[index] = monomer["frame id"]
 
 
 	def _loadRelationStoichiometry(self):
