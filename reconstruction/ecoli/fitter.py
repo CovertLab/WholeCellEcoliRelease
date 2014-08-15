@@ -335,11 +335,13 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 		kb.genomeSeq.count("T")
 		])
 
-	dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).to("g")
+	dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
 
-	chromMass = np.dot(dntCounts, dntMasses)
+	chromMass = units.dot(dntCounts, dntMasses)
 
-	fracDifference = (dnaMass.asNumber() - chromMass) / kb.avgCellDryMassInit.asNumber()
+	dnaMassErrorRatio = ((dnaMass - chromMass) / kb.avgCellDryMassInit)
+	dnaMassErrorRatio.checkNoUnit()
+	fracDifference = dnaMassErrorRatio.asNumber()
 
 	# if fracDifference < 0:
 	# 	raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
@@ -349,7 +351,7 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	nonDNtpsIdxs = [x for x in range(1, nElems + 1) if x != dNtpCompositionIdx]
 	amountToAdd = fracDifference / len(nonDNtpsIdxs)
 	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, nonDNtpsIdxs] += amountToAdd
-	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = chromMass / kb.avgCellDryMassInit.asNumber()
+	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = chromMass.asUnit(units.fg).asNumber() / kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
 	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
 
 

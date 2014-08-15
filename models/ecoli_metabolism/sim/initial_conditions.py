@@ -43,10 +43,10 @@ def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average protein composition
 
-	synthProbUnnormed = kb.rnaExpression["expression"].magnitude[kb.rnaIndexToMonomerMapping]
+	synthProbUnnormed = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
 
 	synthProb = synthProbUnnormed / synthProbUnnormed.sum()
-	compositionAll = kb.monomerData["aaCounts"].magnitude
+	compositionAll = kb.monomerData["aaCounts"].asNumber()
 
 	# TODO: better model the variance of this distribution
 
@@ -56,10 +56,10 @@ def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average total transcription rate with respect to cell age
 
-	initialDryMass = kb.avgCellDryMassInit.to("fg").magnitude
+	initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
 
 	proteinMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].to("min").magnitude == 60.0
+		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
 		]["proteinMassFraction"]
 
 	initialProteinMass = initialDryMass * proteinMassFraction
@@ -83,8 +83,8 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average RNA composition
 
-	synthProb = kb.rnaData["synthProb"].magnitude
-	compositionAll = kb.rnaData["countsACGU"].magnitude
+	synthProb = kb.rnaData["synthProb"]
+	compositionAll = kb.rnaData["countsACGU"].asNumber()
 
 	# TODO: better model the variance of this distribution
 
@@ -94,10 +94,10 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average total transcription rate with respect to cell age
 
-	initialDryMass = kb.avgCellDryMassInit.to("fg").magnitude
+	initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
 
 	rnaMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].to("min").magnitude == 60.0
+		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
 		]["rnaMassFraction"]
 
 	initialRnaMass = initialDryMass * rnaMassFraction

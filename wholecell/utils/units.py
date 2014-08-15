@@ -27,14 +27,22 @@ def sum(array, axis = None, dtype=None, out=None, keepdims=False):
 	units._value = 1
 	return units * np.sum(array.asNumber(), axis, dtype, out, keepdims)
 
-def dot(a, b, out):
-	if type(a) != Unum or type(b) != Unum:
-		raise Exception, 'Only works on Unum!\n'
-	a_units = a.copy()
-	a_units._value = 1
-	b_units = b.copy()
-	b_units._value = 1
-	return a_units * b_units * np.dot(a.asNumber(),b.asNumber(),out)
+def dot(a, b, out=None):
+	if type(a) != Unum:
+		a_units = 1
+	else:
+		a_units = a.copy()
+		a_units._value = 1
+		a = a.asNumber()
+
+	if type(b) != Unum:
+		b_units = 1
+	else:
+		b_units = b.copy()
+		b_units._value = 1
+		b  = b.asNumber()
+	
+	return a_units * b_units * np.dot(a,b,out)
 
 def transpose(array,axis=None):
 	if type(a) != Unum or type(b) != Unum:
