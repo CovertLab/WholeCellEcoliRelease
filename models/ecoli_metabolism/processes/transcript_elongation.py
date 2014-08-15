@@ -60,11 +60,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Create views on state
 
 		self.polymerized = self.bulkMoleculesView(polymerizedIDs)
-		
+
 		self.ntps = self.bulkMoleculesView(ntpIDs)
 		self.ppi = self.bulkMoleculeView("PPI[c]")
-
-		# TODO: incorporated nucleotides
 
 
 	def calculateRequest(self):

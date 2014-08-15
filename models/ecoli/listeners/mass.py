@@ -48,7 +48,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.rnaIndexes = np.array([
 			kb.submassNameToIndex[name]
-			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA"]
+			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "RNA"]
 			])
 
 		self.proteinIndex = kb.submassNameToIndex["protein"]
