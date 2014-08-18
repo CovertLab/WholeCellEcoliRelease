@@ -31,7 +31,7 @@ class EcoliMetabolismSimulation(Simulation):
 		TranscriptElongation,
 		# RnaDegradation,
 		PolypeptideElongation,
-		# ProteinDegradation,
+		ProteinDegradation,
 		Replication,
 		Metabolism,
 		# Maintenance,

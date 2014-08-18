@@ -7,6 +7,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
+
 from reconstruction.ecoli.fitter import calcProteinCounts
 
 class PolypeptideElongation(wholecell.processes.process.Process):
