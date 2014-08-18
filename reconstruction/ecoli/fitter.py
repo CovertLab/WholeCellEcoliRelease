@@ -306,8 +306,27 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 
 	mRnaView.countsIs((nMRnas * mRnaExpression))
 
+
 def setMonomerCounts(kb, monomerMass, monomersView):
 
+	# TODO: further refactor
+
+	# monomerExpression = normalize(
+	# 	kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+	# 	(np.log(2) / kb.cellCycleLen.asUnit(units.s).asNumber() + kb.monomerData["degRate"].asUnit(1 / units.s).asNumber())
+	# 	)
+
+	# nMonomers = countsFromMassAndExpression(
+	# 	monomerMass.asUnit(units.g).asNumber(),
+	# 	kb.monomerData["mw"].asUnit(units.g / units.mol).asNumber(),
+	# 	monomerExpression,
+	# 	kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+	# 	)
+
+	monomersView.countsIs(calcProteinCounts(kb, monomerMass))
+
+
+def calcProteinCounts(kb, monomerMass):
 	monomerExpression = normalize(
 		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
 		(np.log(2) / kb.cellCycleLen.asUnit(units.s).asNumber() + kb.monomerData["degRate"].asUnit(1 / units.s).asNumber())
@@ -320,7 +339,8 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 		kb.nAvogadro.asUnit(1 / units.mol).asNumber()
 		)
 
-	monomersView.countsIs((nMonomers * monomerExpression))
+	return nMonomers * monomerExpression
+
 
 def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 

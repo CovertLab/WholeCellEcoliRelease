@@ -7,6 +7,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
+from reconstruction.ecoli.fitter import calcProteinCounts
 
 class PolypeptideElongation(wholecell.processes.process.Process):
 	""" PolypeptideElongation """
@@ -30,24 +31,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		aaIDs = kb.aaIDs
 		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
 
-		## Find the average RNA composition
-
-		synthProbUnnormed = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
-
-		synthProb = synthProbUnnormed / synthProbUnnormed.sum()
-		compositionAll = kb.monomerData["aaCounts"].asNumber()
-
-		# TODO: better model the variance of this distribution
-
-		compositionUnnormed = np.dot(compositionAll.T, synthProb)
-
-		self.monomerComposition = compositionUnnormed / compositionUnnormed.sum()
-
-		## Find the average total transcription rate with respect to cell age
+		## Find the average protein composition and initial number of polymerized AAs
 
 		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
 
-		initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
+		proteinComposition = kb.monomerData["aaCounts"].asNumber()
+
+		initialDryMass = kb.avgCellDryMassInit
 
 		proteinMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
@@ -55,11 +45,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		initialProteinMass = initialDryMass * proteinMassFraction
 
-		monomerMWs = kb.translationMonomerWeights
+		proteinCounts = calcProteinCounts(kb, initialProteinMass)
 
-		monomerAverageMW = np.dot(monomerMWs, self.monomerComposition) # average MW weighted by transcript composition
+		polymerizedCounts = np.dot(proteinComposition.T, proteinCounts)
 
-		self.initialAverageMonomerCounts = initialProteinMass / monomerAverageMW
+		self.monomerComposition = polymerizedCounts / polymerizedCounts.sum()
+
+		self.initialAverageMonomerCounts = polymerizedCounts.sum()
 
 		## Energy costs
 
@@ -76,8 +68,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.gdp = self.bulkMoleculeView("GDP[c]")
 		self.pi = self.bulkMoleculeView("PI[c]")
 		self.h = self.bulkMoleculeView("H[c]")
-
-		# TODO: incorporated AAs
 
 
 	def calculateRequest(self):
