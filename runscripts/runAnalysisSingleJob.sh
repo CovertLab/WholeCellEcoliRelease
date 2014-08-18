@@ -112,8 +112,7 @@ runprogram()
 	mkdir -p "$MY_SPECIFIC_PLOTS_DIR"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	SCRIPTS_DIR="models/ecoli/analysis/single"
-	SCRIPTS=$(find $SCRIPTS_DIR -name "*.py" | sort)
+	SCRIPTS=$(PYTHONPATH="$PWD:$PYTHONPATH" python2.7 -c "from models.ecoli.sim.simulation import EcoliSimulation; EcoliSimulation.printAnalysisSingleFiles()")
 
 	for SCRIPT in $SCRIPTS; do
 		if [ "$(basename $SCRIPT)" = "__init__.py" ]; then

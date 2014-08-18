@@ -378,3 +378,11 @@ class Simulation(object):
 
 	def lengthSec(self):
 		return self._lengthSec
+
+	@classmethod
+	def printAnalysisSingleFiles(cls):
+		raise NotImplementedError
+
+	@classmethod
+	def printAnalysisCohortFiles(cls):
+		raise NotImplementedError
