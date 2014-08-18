@@ -43,8 +43,7 @@ fi
 
 ##### Single simulation analysis #####
 
-SINGLE_ANALYSIS_SCRIPTS_DIR="models/ecoli/analysis/single"
-SINGLE_ANALYSIS_SCRIPTS=$(find $SINGLE_ANALYSIS_SCRIPTS_DIR -name "*\.py" | sort)
+SINGLE_ANALYSIS_SCRIPTS=$(PYTHONPATH="$PWD:$PYTHONPATH" python2.7 -c "from models.ecoli.sim.simulation import EcoliSimulation; EcoliSimulation.printAnalysisSingleFiles()")
 
 PLOT_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/plotOut"
 
