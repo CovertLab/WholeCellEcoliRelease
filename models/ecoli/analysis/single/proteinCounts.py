@@ -21,6 +21,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 import wholecell.utils.constants
+from wholecell.utils import units
 
 # TODO: account for complexation
 
@@ -56,8 +57,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	counts = proteinCountsBulk[-1, :]
 
 	expectedCountsArbitrary = (
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
-		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1/units.s))
 		) * counts.sum()
 
 	expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()
