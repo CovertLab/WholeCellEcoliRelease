@@ -29,12 +29,12 @@ class EcoliMetabolismSimulation(Simulation):
 
 	_processClasses = (
 		TranscriptElongation,
-		# RnaDegradation,
+		RnaDegradation,
 		PolypeptideElongation,
 		ProteinDegradation,
 		Replication,
 		Metabolism,
-		# Maintenance,
+		Maintenance,
 		)
 
 	_listenerClasses = (

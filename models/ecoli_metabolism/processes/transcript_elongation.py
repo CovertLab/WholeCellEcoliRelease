@@ -31,7 +31,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		ntpIDs = kb.ntpIds
 		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedNT_IDs]
 
-
 		## Find the magnitude and composition of transcription
 
 		rnaComposition = kb.rnaData["countsACGU"].asNumber()
@@ -49,7 +48,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			kb.rnaData["mw"].asNumber(units.g / units.mol),
 			kb.rnaExpression["expression"],
 			kb.nAvogadro.asNumber(1 / units.mol)
-			)
+			) * kb.rnaExpression["expression"]
 
 		initialRnaTranscriptionRate = initialRnaCounts * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]

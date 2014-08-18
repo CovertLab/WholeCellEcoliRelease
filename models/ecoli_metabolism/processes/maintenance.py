@@ -5,6 +5,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
+from wholecell.utils import units
 
 class Maintenance(wholecell.processes.process.Process):
 	""" Maintenance """
@@ -21,12 +22,30 @@ class Maintenance(wholecell.processes.process.Process):
 
 		# Load constants
 
+		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
+
+		self.initialMaintenanceReactions = (
+			kb.NGAM * kb.nAvogadro * kb.avgCellDryMassInit
+			).asNumber(1 / units.s) * self.timeStepSec
+
 		# Create views on state
+		self.reactants = self.bulkMoleculesView(["ATP[c]", "H2O[c]"])
+		self.products = self.bulkMoleculesView(["ADP[c]", "PI[c]", "H[c]"])
 
 
 	def calculateRequest(self):
-		pass
+		nReactions = self.initialMaintenanceReactions * np.exp(
+			np.log(2) / self.cellCycleLen * self.time()
+			)
+
+		self.reactants.requestIs(nReactions)
 
 
 	def evolveState(self):
-		pass
+		reactantCounts = self.reactants.counts()
+
+		assert np.all(reactantCounts == reactantCounts[0])
+
+		self.products.countsInc(reactantCounts[0])
+
+		self.reactants.countsIs(0)
