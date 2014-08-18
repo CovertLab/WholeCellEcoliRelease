@@ -59,11 +59,12 @@ class Metabolism(wholecell.processes.process.Process):
 
 		metConcInit = metCountsInit * countsToMolar
 
-		metConcChange = self.targetConcentrations - metConcInit # log this value
-
 		metCountsFinal = self.targetConcentrations / countsToMolar
 
 		self.metabolites.countsIs(np.int64(stochasticRound(
 			self.randomState,
 			metCountsFinal
 			)))
+
+		self.writeToListener("ConcentrationChange", "concentrationChange", 
+			self.targetConcentrations - metConcInit)
