@@ -8,6 +8,7 @@ import numpy as np
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.fitter import countsFromMassAndExpression
 from reconstruction.ecoli.fitter import normalize
+from reconstruction.ecoli.fitter import calcProteinCounts
 from wholecell.utils import units
 
 def calcInitialConditions(sim, kb):
@@ -37,26 +38,11 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 
 
 def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
-	# TODO: move duplicate logic to the KB
-
 	polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
 
-	## Find the average protein composition
+	proteinComposition = kb.monomerData["aaCounts"].asNumber()
 
-	synthProbUnnormed = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
-
-	synthProb = synthProbUnnormed / synthProbUnnormed.sum()
-	compositionAll = kb.monomerData["aaCounts"].asNumber()
-
-	# TODO: better model the variance of this distribution
-
-	compositionUnnormed = np.dot(compositionAll.T, synthProb)
-
-	monomerComposition = compositionUnnormed / compositionUnnormed.sum()
-
-	## Find the average total transcription rate with respect to cell age
-
-	initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
+	initialDryMass = kb.avgCellDryMassInit
 
 	proteinMassFraction = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
@@ -64,14 +50,12 @@ def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
 
 	initialProteinMass = initialDryMass * proteinMassFraction
 
-	monomerMWs = kb.translationMonomerWeights
+	proteinCounts = calcProteinCounts(kb, initialProteinMass)
 
-	initialMonomerCounts = np.int64(
-		initialProteinMass * monomerComposition / monomerMWs
-		)
+	polymerizedCounts = np.dot(proteinComposition.T, proteinCounts)
 	
 	bulkMolCntr.countsIs(
-		initialMonomerCounts,
+		np.int64(polymerizedCounts),
 		polymerizedIDs
 		)
 

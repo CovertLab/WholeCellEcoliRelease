@@ -18,6 +18,8 @@ from models.ecoli_metabolism.processes.maintenance import Maintenance
 # Listeners
 from models.ecoli.listeners.mass import Mass
 
+from models.ecoli_metabolism.listeners.concentration_change import ConcentrationChange
+
 # Initialization
 from models.ecoli_metabolism.sim.initial_conditions import calcInitialConditions
 
@@ -29,16 +31,17 @@ class EcoliMetabolismSimulation(Simulation):
 
 	_processClasses = (
 		TranscriptElongation,
-		# RnaDegradation,
+		RnaDegradation,
 		PolypeptideElongation,
-		# ProteinDegradation,
+		ProteinDegradation,
 		Replication,
 		Metabolism,
-		# Maintenance,
+		Maintenance,
 		)
 
 	_listenerClasses = (
 		Mass,
+		ConcentrationChange
 		# NtpUsage, # restore these in some general sense...
 		# AAUsage,
 		)

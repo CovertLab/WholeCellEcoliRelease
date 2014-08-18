@@ -73,7 +73,13 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
 	monomerMass = kb.avgCellDryMassInit.asUnit(units.g) * monomerMassFraction
 
-	monomerExpression = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
+	# TODO: unify this logic with the fitter so it doesn't fall out of step 
+	# again (look at the calcProteinCounts function)
+
+	monomerExpression = normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asUnit(units.s).asNumber() + kb.monomerData["degRate"].asUnit(1 / units.s).asNumber())
+		)
 
 	nMonomers = countsFromMassAndExpression(
 		monomerMass.asUnit(units.g).asNumber(),

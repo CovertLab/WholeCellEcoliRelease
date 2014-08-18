@@ -8,6 +8,8 @@ import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
 
+from reconstruction.ecoli.fitter import countsFromMassAndExpression
+
 class TranscriptElongation(wholecell.processes.process.Process):
 	""" TranscriptElongation """
 
@@ -29,22 +31,11 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		ntpIDs = kb.ntpIds
 		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedNT_IDs]
 
-		## Find the average RNA composition
+		## Find the magnitude and composition of transcription
 
-		synthProb = kb.rnaData["synthProb"]
-		compositionAll = kb.rnaData["countsACGU"].asNumber()
+		rnaComposition = kb.rnaData["countsACGU"].asNumber()
 
-		# TODO: better model the variance of this distribution
-
-		compositionUnnormed = np.dot(compositionAll.T, synthProb)
-
-		self.monomerComposition = compositionUnnormed / compositionUnnormed.sum()
-
-		## Find the average total transcription rate with respect to cell age
-
-		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
-
-		initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
+		initialDryMass = kb.avgCellDryMassInit
 
 		rnaMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
@@ -52,11 +43,24 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		initialRnaMass = initialDryMass * rnaMassFraction
 
-		monomerMWs = kb.transcriptionMonomerWeights
+		initialRnaCounts = countsFromMassAndExpression(
+			initialRnaMass.asNumber(units.g),
+			kb.rnaData["mw"].asNumber(units.g / units.mol),
+			kb.rnaExpression["expression"],
+			kb.nAvogadro.asNumber(1 / units.mol)
+			) * kb.rnaExpression["expression"]
 
-		monomerAverageMW = np.dot(monomerMWs, self.monomerComposition) # average MW weighted by transcript composition
+		initialRnaTranscriptionRate = initialRnaCounts * (
+			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
+			).asNumber(1 / units.s)
 
-		self.initialAverageMonomerCounts = initialRnaMass / monomerAverageMW
+		initialPolymerizing = np.dot(rnaComposition.T, initialRnaTranscriptionRate)
+
+		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
+
+		self.initialPolymerizingTotal = initialPolymerizing.sum()
+
+		self.monomerComposition = initialPolymerizing / initialPolymerizing.sum()
 
 		# Create views on state
 
@@ -69,9 +73,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		totalMonomers = np.int64(stochasticRound(
 			self.randomState,
-			self.initialAverageMonomerCounts
+			self.initialPolymerizingTotal
 			* np.exp(np.log(2) / self.cellCycleLen * self.time())
-			* (np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1)
 			))
 
 		ntpsRequested = self.randomState.multinomial(
