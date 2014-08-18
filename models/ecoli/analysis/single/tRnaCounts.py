@@ -61,7 +61,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	counts = rnaCountsBulk[-1, :]
 
-	expectedCountsArbitrary = kb.rnaExpression['expression'][isTRna].magnitude
+	expectedCountsArbitrary = kb.rnaExpression['expression'][isTRna]
 
 	expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
