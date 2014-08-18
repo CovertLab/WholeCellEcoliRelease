@@ -45,13 +45,17 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		initialProteinMass = initialDryMass * proteinMassFraction
 
-		proteinCounts = calcProteinCounts(kb, initialProteinMass)
+		initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
 
-		polymerizedCounts = np.dot(proteinComposition.T, proteinCounts)
+		initialProteinTranslationRate = initialProteinCounts * (
+			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
+			).asNumber(1 / units.s)
 
-		self.monomerComposition = polymerizedCounts / polymerizedCounts.sum()
+		initialPolymerizing = np.dot(proteinComposition.T, initialProteinTranslationRate)
 
-		self.initialAverageMonomerCounts = polymerizedCounts.sum()
+		self.initialPolymerizingTotal = initialPolymerizing.sum()
+
+		self.monomerComposition = initialPolymerizing / initialPolymerizing.sum()
 
 		## Energy costs
 
@@ -73,9 +77,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		totalMonomers = np.int64(stochasticRound(
 			self.randomState,
-			self.initialAverageMonomerCounts
+			self.initialPolymerizingTotal
 			* np.exp(np.log(2) / self.cellCycleLen * self.time())
-			* (np.exp(np.log(2) / self.cellCycleLen * self.timeStepSec) - 1)
 			))
 
 		aasRequested = self.randomState.multinomial(
