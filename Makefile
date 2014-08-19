@@ -10,10 +10,6 @@ runSimulation: compile
 runSimulationJob: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh 4
 
-# TODO: Get rid of this target?
-runAnalysisSingle:
-	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
-
 FIXTURES_KBDIR ?= "fixtures/kb"
 FIXTURES_SIMDIR ?= "fixtures/sim"
 
