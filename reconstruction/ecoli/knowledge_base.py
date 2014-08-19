@@ -298,6 +298,7 @@ class KnowledgeBaseEcoli(object):
 
 		## Keep separate
 		self._loadBiomassFractions() # Build hacked constants - need to add these to SQL database still
+		self._loadTrnaData() # Build hacked trna counts - need to add this to SQL database still
 		self._loadConstants()
 		self._loadParameters()
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
@@ -354,6 +355,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['terCCenter'] = 1607192*units.nt
 		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
 		self._parameterData["fracActiveRibosomes"] = 1.0
+		self._parameterData["fractionChargedTrna"] = 0.8
 
 
 		# Assumed reaction for producing L-selenocysteine without a tRNA
@@ -881,6 +883,20 @@ class KnowledgeBaseEcoli(object):
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
+
+	def _loadTrnaData(self):
+		# 
+
+
+		# Organize counts data from Jakubowski et al.
+		countsTrna = np.zeros(20, dtype = [('tRnaType','a3'),('count',np.int64)])
+		countsTrna['tRnaType'] = ['Ala','Arg','Asn','Asp','Cys','Gln','Glu',
+									'Gly','His','Ile','Leu','Lys','Met','Phe',
+									'Pro','Ser','Thr','Trp','Tyr','Val']
+		countsTrna['count'] = [4000,2480,1230,3670,2000,730,880,4370,1900,4930,5330,
+									4300,4020,1830,2620,6270,4700,790,1030,7910]
+		self._countsTrna = UnitStructArray(countsTrna, {'tRnaType':None, 'count' : units.count})
+		
 
 	def _loadGenome(self):
 		self._translationTable = 11 # E. coli is 11
