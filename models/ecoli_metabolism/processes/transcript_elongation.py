@@ -38,7 +38,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		initialDryMass = kb.avgCellDryMassInit
 
 		rnaMassFraction = kb.cellDryMassComposition[
-			kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
+			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
 			]["rnaMassFraction"]
 
 		initialRnaMass = initialDryMass * rnaMassFraction

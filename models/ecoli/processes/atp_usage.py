@@ -35,9 +35,9 @@ class AtpUsage(wholecell.processes.process.Process):
 		super(AtpUsage, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.asUnit(1 / units.mol).asNumber()
-		self.initialDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
-		self.cellCycleLen = kb.cellCycleLen.asUnit(units.s).asNumber()
+		self.nAvogadro = kb.nAvogadro.asNumber(1 / units.mol)
+		self.initialDryMass = kb.avgCellDryMassInit.asNumber(units.g)
+		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
 
 		moleculeIds = ["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)
@@ -51,7 +51,7 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		self.nongrowthAssociated_reactionsPerTimestep = (
 			kb.NGAM * kb.nAvogadro
-			).asUnit(1/units.fg/units.s).asNumber() * self.timeStepSec
+			).asNumber(1/units.fg/units.s) * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
 

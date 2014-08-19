@@ -27,7 +27,7 @@ class BulkChromosome(BulkMolecules):
 		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkChromosome['mass'].asUnit(units.fg / units.mol).asNumber() / kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+		self._moleculeMass = kb.bulkChromosome['mass'].asNumber(units.fg / units.mol) / kb.nAvogadro.asNumber(1 / units.mol)
 
 		self._compIndexes = {
 			compartmentKey:(kb.bulkChromosome['compartment'] == compartmentKey)

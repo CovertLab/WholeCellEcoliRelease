@@ -55,7 +55,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = float(kb.ribosomeElongationRate.asUnit(units.aa / units.s).asNumber()) * self.timeStepSec
+		self.elngRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
