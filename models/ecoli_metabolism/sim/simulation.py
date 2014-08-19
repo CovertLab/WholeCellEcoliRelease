@@ -24,6 +24,7 @@ from models.ecoli_metabolism.listeners.concentration_change import Concentration
 from models.ecoli.analysis.single import massFractions
 from models.ecoli.analysis.single import evaluationTime
 from models.ecoli.analysis.single import processMassBalance
+from models.ecoli_metabolism.analysis.single import effectiveBiomass
 
 # Initialization
 from models.ecoli_metabolism.sim.initial_conditions import calcInitialConditions
@@ -55,6 +56,7 @@ class EcoliMetabolismSimulation(Simulation):
 		massFractions.__file__,
 		evaluationTime.__file__,
 		processMassBalance.__file__,
+		effectiveBiomass.__file__
 		)
 
 	_hookClasses = ()
