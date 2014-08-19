@@ -362,11 +362,11 @@ def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
 
-	dntCounts = 2 * np.array([
-		kb.genomeSeq.count("A"),
-		kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("T")
+	dntCounts = np.array([
+		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
+		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
+		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("T")
 		])
 
 	dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
