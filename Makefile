@@ -10,10 +10,6 @@ runSimulation: compile
 runSimulationJob: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh 4
 
-# TODO: Get rid of this target?
-runAnalysisSingle:
-	./runscripts/runAnalysisSingle.sh out/simOut out/plotOut wholecell/analysis/single/
-
 FIXTURES_KBDIR ?= "fixtures/kb"
 FIXTURES_SIMDIR ?= "fixtures/sim"
 
@@ -26,13 +22,16 @@ fitKb_1: compile
 execModel_1: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
+execAnalysis_1: compile
+	runscripts/execAnalysis.sh 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
+
 fitKb_2: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
 execModel_2: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
-justKb: buildKb fitKb_1 execModel_1 fitKb_2
+justKb: buildKb fitKb_1 execModel_1 execAnalysis_1 fitKb_2
 
 justSimulation: execModel_2
 
