@@ -35,16 +35,24 @@ def main(modelLevel, kbDirectory, simDirectory):
 	simOpts["logToDiskEvery"] = 10
 	simOpts["overwriteExistingFiles"] = False
 
+	metadataDir = os.path.join(simDirectory, "model_level_%d" % modelLevel, "metadata")
+
 	if not os.path.exists(simOpts["outputDir"]):
 		os.makedirs(simOpts["outputDir"])
 
+	if not os.path.exists(metadataDir):
+		os.makedirs(metadataDir)
+
 	if modelLevel == 1:
 		sim = EcoliMetabolismSimulation(**simOpts)
+		EcoliMetabolismSimulation.printAnalysisSingleFiles(fileName = os.path.join(metadataDir, "singleAnalysis.list"))
 
 	if modelLevel == 2:
 		simOpts["logToDisk"] = False
 		simOpts["logToShell"] = True
 		sim = EcoliSimulation(**simOpts)
+		EcoliSimulation.printAnalysisSingleFiles(fileName = os.path.join(metadataDir, "singleAnalysis.list"))
+
 
 	sim.run()
 
