@@ -22,6 +22,8 @@ from models.ecoli_metabolism.listeners.concentration_change import Concentration
 
 # Analysis
 from models.ecoli.analysis.single import massFractions
+from models.ecoli.analysis.single import evaluationTime
+from models.ecoli.analysis.single import processMassBalance
 
 # Initialization
 from models.ecoli_metabolism.sim.initial_conditions import calcInitialConditions
@@ -51,6 +53,8 @@ class EcoliMetabolismSimulation(Simulation):
 
 	_analysisSingleFiles = (
 		massFractions.__file__,
+		evaluationTime.__file__,
+		processMassBalance.__file__,
 		)
 
 	_hookClasses = ()
@@ -87,7 +91,7 @@ class EcoliMetabolismSimulation(Simulation):
 				if f.endswith(".pyc") or f == "__init__.py":
 					h.write(f[:-1] + "\n")
 				else:
-					h.write( + "\n")
+					h.write(f + "\n")
 			h.close()
 
 	@classmethod
@@ -105,5 +109,5 @@ class EcoliMetabolismSimulation(Simulation):
 				if f.endswith(".pyc") or f == "__init__.py":
 					h.write(f[:-1] + "\n")
 				else:
-					h.write( + "\n")
+					h.write(f + "\n")
 			h.close()
