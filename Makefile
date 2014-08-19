@@ -26,6 +26,9 @@ fitKb_1: compile
 execModel_1: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
+execAnalysis_1: compile
+	runscripts/execAnalysis.sh 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
+
 fitKb_2: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
