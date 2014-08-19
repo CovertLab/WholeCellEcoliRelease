@@ -57,7 +57,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		proteinIds = kb.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = kb.monomerData['degRate'].asUnit(1 / units.s).asNumber()
+		self.proteinDegRates = kb.monomerData['degRate'].asNumber(1 / units.s)
 
 		self.proteinLengths = kb.monomerData['length']
 

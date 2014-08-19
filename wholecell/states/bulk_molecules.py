@@ -60,7 +60,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		# self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkMolecules['mass'].asUnit(units.fg / units.mol).asNumber() / kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+		self._moleculeMass = kb.bulkMolecules['mass'].asNumber(units.fg / units.mol) / kb.nAvogadro.asNumber(1 / units.mol)
 
 		self._submassNameToIndex = kb.submassNameToIndex
 

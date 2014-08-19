@@ -49,8 +49,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		cellDryMass = np.array([x["dryMass"] for x in table.iterrows()]) # fg
 		growth = np.array([x["growth"] for x in table.iterrows()]) # fg
 
-	cellDensity = kb.cellDensity.asUnit(units.fg/units.L).asNumber()
-	glucoseMW = np.sum(kb.bulkMolecules['mass'][kb.bulkMolecules['moleculeId'] == 'GLU-L[c]']).asUnit(units.g/units.mol).asNumber()
+	cellDensity = kb.cellDensity.asNumber(units.fg/units.L)
+	glucoseMW = np.sum(kb.bulkMolecules['mass'][kb.bulkMolecules['moleculeId'] == 'GLU-L[c]']).asNumber(units.g/units.mol)
 
 	glucoseMassFlux = glucoseFlux * glucoseMW * cellDryMass / cellDensity * 10**15 # fg glucose / s
 

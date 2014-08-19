@@ -1075,7 +1075,7 @@ def _setupFeist(kb):
 		if reactionStoich.has_key(reactionID) and rate > 0
 		}
 
-	masses = kb.getMass(externalExchangedMolecules).asUnit(units.g / units.mmol).asNumber()
+	masses = kb.getMass(externalExchangedMolecules).asNumber(units.g / units.mmol)
 
 	moleculeMasses = {moleculeID:masses[index]
 		for index, moleculeID in enumerate(externalExchangedMolecules)}
@@ -1164,7 +1164,7 @@ def _checkEnzymeLimitations():
 
 	fba.run()
 
-	cellDryGrams = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
+	cellDryGrams = kb.avgCellDryMassInit.asNumber(units.g)
 	moleculesPerMole = kb.nAvogadro.asNumber()
 
 	enzymeUsageMolecules = fba.enzymeUsage() * moleculesPerMole * cellDryGrams
