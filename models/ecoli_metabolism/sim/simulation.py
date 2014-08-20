@@ -20,6 +20,12 @@ from models.ecoli.listeners.mass import Mass
 
 from models.ecoli_metabolism.listeners.concentration_change import ConcentrationChange
 
+# Analysis
+from models.ecoli.analysis.single import massFractions
+from models.ecoli.analysis.single import evaluationTime
+from models.ecoli.analysis.single import processMassBalance
+from models.ecoli_metabolism.analysis.single import effectiveBiomass
+
 # Initialization
 from models.ecoli_metabolism.sim.initial_conditions import calcInitialConditions
 
@@ -46,6 +52,13 @@ class EcoliMetabolismSimulation(Simulation):
 		# AAUsage,
 		)
 
+	_analysisSingleFiles = (
+		massFractions.__file__,
+		evaluationTime.__file__,
+		processMassBalance.__file__,
+		effectiveBiomass.__file__
+		)
+
 	_hookClasses = ()
 
 	_initialConditionsFunction = calcInitialConditions
@@ -64,3 +77,39 @@ class EcoliMetabolismSimulation(Simulation):
 		]
 
 	_logToDisk = False
+
+	@classmethod
+	def printAnalysisSingleFiles(cls, fileName = None):
+		fileList = sorted(cls._analysisSingleFiles)
+		if fileName == None:
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					print f[:-1]
+				else:
+					print f
+		else:
+			h = open(fileName, "w")
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					h.write(f[:-1] + "\n")
+				else:
+					h.write(f + "\n")
+			h.close()
+
+	@classmethod
+	def printAnalysisCohortFiles(cls, fileName = None):
+		fileList = []
+		if fileName == None:
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					print f[:-1]
+				else:
+					print f
+		else:
+			h = open(fileName, "w")
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					h.write(f[:-1] + "\n")
+				else:
+					h.write(f + "\n")
+			h.close()

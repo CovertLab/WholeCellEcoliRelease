@@ -45,7 +45,7 @@ def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
 	initialDryMass = kb.avgCellDryMassInit
 
 	proteinMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
+		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
 		]["proteinMassFraction"]
 
 	initialProteinMass = initialDryMass * proteinMassFraction
@@ -78,10 +78,10 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average total transcription rate with respect to cell age
 
-	initialDryMass = kb.avgCellDryMassInit.asUnit(units.fg).asNumber()
+	initialDryMass = kb.avgCellDryMassInit.asNumber(units.fg)
 
 	rnaMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
+		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
 		]["rnaMassFraction"]
 
 	initialRnaMass = initialDryMass * rnaMassFraction
@@ -117,10 +117,10 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 
 	massFractions = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asUnit(units.min).asNumber() == 60.0
+		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
 		].fullArray()
 
-	initDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
+	initDryMass = kb.avgCellDryMassInit.asNumber(units.g)
 
 	poolIds = kb.metabolitePoolIDs[:]
 
@@ -136,8 +136,8 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.asNumber()[idx] > 0]
 	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellDensity = kb.cellDensity.asUnit(units.g / units.L).asNumber()
-	mws = kb.getMass(poolIds).asUnit(units.g / units.mol).asNumber()
+	cellDensity = kb.cellDensity.asNumber(units.g / units.L)
+	mws = kb.getMass(poolIds).asNumber(units.g / units.mol)
 	concentrations = poolConcentrations.copy()
 
 	diag = cellDensity / (mws * concentrations) - 1
@@ -146,7 +146,7 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	b = mass * np.ones(diag.size)
 
 	massesToAdd = np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.nAvogadro.asUnit(1 / units.mol).asNumber()
+	countsToAdd = massesToAdd / mws * kb.nAvogadro.asNumber(1 / units.mol)
 
 	V = (mass + massesToAdd.sum()) / cellDensity
 

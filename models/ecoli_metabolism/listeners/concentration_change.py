@@ -29,8 +29,6 @@ class ConcentrationChange(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, kb):
 		super(ConcentrationChange, self).initialize(sim, kb)
 
-		self.metabolism = sim.processes["Metabolism"]
-
 		self.moleculeIDs = kb.metabolitePoolIDs
 
 

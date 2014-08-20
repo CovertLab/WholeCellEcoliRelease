@@ -45,11 +45,11 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.asUnit(1 / units.mol).asNumber()
-		self.cellDensity = kb.cellDensity.asUnit(units.g/units.L).asNumber()
+		self.nAvogadro = kb.nAvogadro.asNumber(1 / units.mol)
+		self.cellDensity = kb.cellDensity.asNumber(units.g/units.L)
 		
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
-		self.targetConcentrations = kb.metabolitePoolConcentrations.asUnit(units.mol/units.L).asNumber()
+		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(units.mol/units.L)
 		
 		# Set up FBA solver
 
@@ -94,7 +94,7 @@ class Metabolism(wholecell.processes.process.Process):
 			if reactionStoich.has_key(reactionID) and rate > 0
 			}
 
-		masses = kb.getMass(externalExchangedMolecules).asUnit(units.g/units.mol).asNumber()
+		masses = kb.getMass(externalExchangedMolecules).asNumber(units.g/units.mol)
 
 		moleculeMasses = {moleculeID:masses[index]
 			for index, moleculeID in enumerate(externalExchangedMolecules)}
@@ -126,8 +126,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# * initDry/initTotal = mol/g
 		# * cellDensity = mol/L = M
 
-		initWaterMass = kb.avgCellWaterMassInit.asUnit(units.g).asNumber()
-		initDryMass = kb.avgCellDryMassInit.asUnit(units.g).asNumber()
+		initWaterMass = kb.avgCellWaterMassInit.asNumber(units.g)
+		initDryMass = kb.avgCellDryMassInit.asNumber(units.g)
 
 		initCellMass = (
 			initWaterMass

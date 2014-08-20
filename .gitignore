@@ -32,6 +32,13 @@ nosetests.*.xml
 out/*
 !out/out.txt
 
+# Fixtures #
+############
+
+fixtures/sim/*
+fixtures/kb/*
+fixtures/test/*
+
 # User files #
 ################
 
