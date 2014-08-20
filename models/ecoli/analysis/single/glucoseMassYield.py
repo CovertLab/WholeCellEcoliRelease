@@ -14,13 +14,17 @@ import cPickle
 import tables
 import numpy as np
 import matplotlib
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 import wholecell.utils.constants
 from wholecell.utils import units
 
-FLUX_UNITS = "M/s"
+GLUCOSE_ID = "GLC-D[e]"
+
+FLUX_UNITS = units.mol / units.L / units.s
+MASS_UNITS = units.fg
+GROWTH_UNITS = units.fg / units.s
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -35,28 +39,26 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
 		time = h5file.root.FBAResults.col("time")
 		timeStep = h5file.root.FBAResults.col("timeStep")
-		outputFluxes = h5file.root.FBAResults.col("outputFluxes")
+		externalExchangeFluxes = h5file.root.FBAResults.col("externalExchangeFluxes")
 
 		names = h5file.root.names
-		outputMoleculeIDs = np.array(names.outputMoleculeIDs.read())
+		externalMoleculeIDs = np.array(names.externalMoleculeIDs.read())
 
-	glucoseIdx = np.where(outputMoleculeIDs == 'GLU-L[c]')[0][0]
-	glucoseFlux = outputFluxes[:,glucoseIdx] #mol/L/s
+	glucoseIdx = np.where(externalMoleculeIDs == GLUCOSE_ID)[0][0]
+	glucoseFlux = FLUX_UNITS * externalExchangeFluxes[:, glucoseIdx]
 
 	with tables.open_file(os.path.join(simOutDir, "Mass.hdf")) as h5file:
 		table = h5file.root.Mass
-		cellMass = np.array([x["cellMass"] for x in table.iterrows()]) # fg
-		cellDryMass = np.array([x["dryMass"] for x in table.iterrows()]) # fg
-		growth = np.array([x["growth"] for x in table.iterrows()]) # fg
+		cellMass = MASS_UNITS * table.read(0, None, 1, "cellMass")
+		cellDryMass = MASS_UNITS * table.read(0, None, 1, "dryMass")
+		growth = GROWTH_UNITS * table.read(0, None, 1, "growth")
 
-	cellDensity = kb.cellDensity.asNumber(units.fg/units.L)
-	glucoseMW = np.sum(kb.bulkMolecules['mass'][kb.bulkMolecules['moleculeId'] == 'GLU-L[c]']).asNumber(units.g/units.mol)
+	cellDensity = kb.cellDensity
+	glucoseMW = kb.getMass([GLUCOSE_ID])[0]
 
-	glucoseMassFlux = glucoseFlux * glucoseMW * cellDryMass / cellDensity * 10**15 # fg glucose / s
+	glucoseMassFlux = glucoseFlux * glucoseMW * cellMass / cellDensity
 
-	massGrowth = growth / cellMass # fg / s
-
-	glucoseMassYield = massGrowth / glucoseMassFlux
+	glucoseMassYield = growth / glucoseMassFlux
 
 	fig = plt.figure(figsize = (8.5, 11))
 	plt.plot(time, glucoseMassYield)
