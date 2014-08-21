@@ -50,123 +50,46 @@ class Metabolism(wholecell.processes.process.Process):
 		
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
 		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(units.mol/units.L)
-		
-		# Set up FBA solver
-
-		import re
-		rxns = [
-			x for x in kb.metabolismBiochemicalReactions
-			if (
-				not re.match(".*_[0-9]$", x["id"])
-				or x["id"].endswith("_0")
-				or "PFK_2" in x["id"]
-				)
-			]
-
-		mediaEx = kb.metabolismMediaEx
-
-		reactionStoich = {
-			rxn["id"]:
-			{entry["molecule"]+"["+entry["location"]+"]":entry["coeff"] for entry in rxn["stoichiometry"]}
-			for rxn in rxns
-			if len(rxn["stoichiometry"]) > 1 # no exchange reactions!
-			}
-
-		reversibleReactions = [rxn["id"] for rxn in rxns if not rxn["dir"]]
-
-		externalExchangedMolecules = [rxn["met"] for rxn in mediaEx]
 
 		objective = {
 			moleculeID:coeff for moleculeID, coeff in
 			izip(self.metabolitePoolIDs, self.targetConcentrations)
 			}
-
-		reactionEnzymes = {
-			reactionID:enzymeID
-			for reactionID, enzymeID in izip(kb.metabolismReactionIds, kb.metabolismReactionEnzymes)
-			if (enzymeID is not None) and reactionStoich.has_key(reactionID)
-			}
-
-		dt = self.timeStepSec # rates are per-second but media exchange fluxes are per-hour
-		reactionRates = {
-			reactionID:rate * dt
-			for reactionID, rate in izip(kb.metabolismReactionIds, kb.metabolismReactionKcat)
-			if reactionStoich.has_key(reactionID) and rate > 0
-			}
-
-		masses = kb.getMass(externalExchangedMolecules).asNumber(units.g/units.mol)
-
-		moleculeMasses = {moleculeID:masses[index]
-			for index, moleculeID in enumerate(externalExchangedMolecules)}
+		
+		# Set up FBA solver
 
 		self.fba = FluxBalanceAnalysis(
-			reactionStoich,
-			externalExchangedMolecules,
+			kb.metabolismReactionStoich.copy(), # TODO: copy in class
+			kb.metabolismExternalExchangeMolecules,
 			objective,
 			objectiveType = "pools",
-			reversibleReactions = reversibleReactions,
-			reactionEnzymes = reactionEnzymes,
-			reactionRates = reactionRates,
-			moleculeMasses = moleculeMasses
+			reversibleReactions = kb.metabolismReversibleReactions,
+			reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
+			# reactionRates = kb.metabolismReactionRates(self.timeStepSec * units.s),
+			# moleculeMasses = kb.metabolismExchangeMasses(units.g / units.mol)
 			)
 
 		# Set constraints
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
-		unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
-			"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
-			"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
-			"ZN2[e]", "SELNP[e]",) #"INOST[e]", "23CAMP[e]", )
-
-		# (flux) mmol/gDCW/hr
-		# * 1 hr / 3600 s = mmol/gDCW/s
-		# * 1 mol / 1000 mmol = mol/gDCW/s
-		# * dt = mol/gDCW
-		# * initDry/initTotal = mol/g
-		# * cellDensity = mol/L = M
-
-		initWaterMass = kb.avgCellWaterMassInit.asNumber(units.g)
-		initDryMass = kb.avgCellDryMassInit.asNumber(units.g)
+		initWaterMass = kb.avgCellWaterMassInit
+		initDryMass = kb.avgCellDryMassInit
 
 		initCellMass = (
 			initWaterMass
 			+ initDryMass
 			)
 
-		coeff = 1/3600 * 1e-3 * dt * initDryMass / initCellMass * self.cellDensity
+		coefficient = initDryMass / initCellMass * kb.cellDensity * (self.timeStepSec * units.s)
 
-		# self._coeff = coeff
-
-		constrainedExchange = {
-			"CBL1[e]":0.01 * coeff,
-			"GLC-D[e]":8 * coeff,
-			"O2[e]":18.5 * coeff
-			}
-
-		externalMoleculeLevels = np.zeros(len(externalMoleculeIDs), np.float64)
-
-		for index, moleculeID in enumerate(externalMoleculeIDs):
-			if moleculeID in unconstrainedExchange:
-				externalMoleculeLevels[index] = np.inf
-
-			elif constrainedExchange.has_key(moleculeID):
-				externalMoleculeLevels[index] = constrainedExchange[moleculeID]
+		externalMoleculeLevels = kb.metabolismExchangeConstraints(
+			externalMoleculeIDs,
+			coefficient,
+			units.mol / units.L
+			)
 
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
-
-		## Set Feist's forced reactions
-
-		### ATP maintenance
-		# NOTE: all maintenance is handled in the AtpUsage process
-		self.fba.maxReactionFluxIs("FEIST_ATPM", 0)
-
-		### Arbitrarily disabled reactions
-		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp",
-			"FEIST_FHL_0_0", "FEIST_FHL_1_0")
-
-		for reactionID in disabledReactions:
-			self.fba.maxReactionFluxIs(reactionID, 0)
 
 		## Set enzymes unlimited
 		self.fba.enzymeLevelsIs(np.inf)
