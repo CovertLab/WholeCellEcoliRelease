@@ -87,8 +87,8 @@ class GrowthData(object):
 
 		tau_d = self._clipTau_d(tau_d)
 
-		D["proteinMass"] = exp2(tau_d, *self.proteinMassParams)
-		D["rnaMass"] = exp2(tau_d, *self.rnaMassParams)
+		D["proteinMass"] = units.fg * exp2(tau_d, *self.proteinMassParams)
+		D["rnaMass"] = units.fg * exp2(tau_d, *self.rnaMassParams)
 		D["rRna23SMass"] = D["rnaMass"] * self.RRNA23S_MASS_SUB_FRACTION
 		D["rRna16SMass"] = D["rnaMass"] * self.RRNA16S_MASS_SUB_FRACTION
 		D["rRna5SMass"] = D["rnaMass"] * self.RRNA5S_MASS_SUB_FRACTION
