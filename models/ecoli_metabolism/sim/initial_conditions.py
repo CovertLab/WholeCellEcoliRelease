@@ -9,6 +9,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.fitter import countsFromMassAndExpression
 from reconstruction.ecoli.fitter import normalize
 from reconstruction.ecoli.fitter import calcProteinCounts
+from reconstruction.ecoli.compendium import growth_data
 from wholecell.utils import units
 
 def calcInitialConditions(sim, kb):
@@ -42,13 +43,8 @@ def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
 
 	proteinComposition = kb.monomerData["aaCounts"].asNumber()
 
-	initialDryMass = kb.avgCellDryMassInit
-
-	proteinMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
-		]["proteinMassFraction"]
-
-	initialProteinMass = initialDryMass * proteinMassFraction
+	g = growth_data.GrowthData(kb)
+	initialProteinMass = g.massFractions(60)["proteinMass"]
 
 	proteinCounts = calcProteinCounts(kb, initialProteinMass)
 
@@ -78,13 +74,8 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average total transcription rate with respect to cell age
 
-	initialDryMass = kb.avgCellDryMassInit.asNumber(units.fg)
-
-	rnaMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
-		]["rnaMassFraction"]
-
-	initialRnaMass = initialDryMass * rnaMassFraction
+	g = growth_data.GrowthData(kb)
+	initialRnaMass = g.massFractions(60)["rnaMass"].asNumber(units.fg)
 
 	monomerMWs = kb.transcriptionMonomerWeights
 
@@ -116,41 +107,33 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 
-	massFractions = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
-		].fullArray()
+	g = growth_data.GrowthData(kb)
+	massFractions60 = g.massFractions(60)
 
-	initDryMass = kb.avgCellDryMassInit.asNumber(units.g)
-
-	poolIds = kb.metabolitePoolIDs[:]
-
-	mass = initDryMass
-	mass -= massFractions["glycogenMassFraction"] * initDryMass
-	mass -= massFractions["mureinMassFraction"] * initDryMass
-	mass -= massFractions["lpsMassFraction"] * initDryMass
-	mass -= massFractions["lipidMassFraction"] * initDryMass
-	mass -= massFractions["inorganicIonMassFraction"] * initDryMass
-	mass -= massFractions["solublePoolMassFraction"] * initDryMass
+	mass = massFractions60["proteinMass"] + massFractions60["rnaMass"] + massFractions60["dnaMass"]
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
 	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellDensity = kb.cellDensity.asNumber(units.g / units.L)
-	mws = kb.getMass(poolIds).asNumber(units.g / units.mol)
+	cellDensity = kb.cellDensity
+	mws = kb.getMass(poolIds)
 	concentrations = poolConcentrations.copy()
 
-	diag = cellDensity / (mws * concentrations) - 1
+	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
 	A = -1 * np.ones((diag.size, diag.size))
 	A[np.diag_indices(diag.size)] = diag
-	b = mass * np.ones(diag.size)
+	b = mass.asNumber(units.g) * np.ones(diag.size)
 
-	massesToAdd = np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.nAvogadro.asNumber(1 / units.mol)
+	massesToAdd = units.g * np.linalg.solve(A, b)
+	countsToAdd = massesToAdd / mws * kb.nAvogadro
 
-	V = (mass + massesToAdd.sum()) / cellDensity
+	V = (mass + units.sum(massesToAdd)) / cellDensity
 
-	assert np.allclose(countsToAdd / kb.nAvogadro.asNumber() / V, poolConcentrations)
+	assert np.allclose(
+		(countsToAdd / kb.nAvogadro / V).asNumber(units.mol / units.L),
+		(poolConcentrations).asNumber(units.mol / units.L)
+		)
 
 	bulkMolCntr.countsIs(
 		countsToAdd,
