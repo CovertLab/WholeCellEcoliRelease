@@ -47,7 +47,7 @@ mkdir -p "$WORK_DIR"
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
 KBECOLI_DIR="${CODE_DIR}/../kbEcoli"
 KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
+KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
 
 SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
 
@@ -112,8 +112,7 @@ runprogram()
 	mkdir -p "$MY_SPECIFIC_PLOTS_DIR"
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
-	SCRIPTS_DIR="models/ecoli/analysis/single"
-	SCRIPTS=$(find $SCRIPTS_DIR -name "*.py" | sort)
+	SCRIPTS=$(PYTHONPATH="$PWD:$PYTHONPATH" python2.7 -c "from models.ecoli.sim.simulation import EcoliSimulation; EcoliSimulation.printAnalysisSingleFiles()")
 
 	for SCRIPT in $SCRIPTS; do
 		if [ "$(basename $SCRIPT)" = "__init__.py" ]; then
@@ -124,7 +123,7 @@ runprogram()
 
 		echo "Running $(basename $SCRIPT)"
 
-		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 $SCRIPT $MY_SPECIFIC_RESULTS_DIR $MY_SPECIFIC_PLOTS_DIR ${OUT_NAME}.pdf --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/kb/KnowledgeBase_Fit.cPickle"
+		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 $SCRIPT $MY_SPECIFIC_RESULTS_DIR $MY_SPECIFIC_PLOTS_DIR ${OUT_NAME}.pdf --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/kb/KnowledgeBase_Most_Fit.cPickle"
 	done 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 

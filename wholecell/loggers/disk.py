@@ -54,7 +54,7 @@ class Disk(wholecell.loggers.logger.Logger):
 		
 		# Metadata
 		self.mainFile.root._v_attrs.startTime = currentTimeAsString()
-		self.mainFile.root._v_attrs.timeStepSec = sim.timeStepSec
+		self.mainFile.root._v_attrs.timeStepSec = sim.timeStepSec()
 
 		# Create tables
 		self.createTables(sim)
@@ -62,19 +62,11 @@ class Disk(wholecell.loggers.logger.Logger):
 		# Save initial state
 		self.copyData(sim)
 
-		# Save simulation definition
-		try:
-			json.dump(
-				sim.options().toDict(),
-				open(os.path.join(self.outDir, 'simOpts.json'), 'w'),
-				sort_keys = True, indent=4, separators=(',', ': ')
-				)
-		except TypeError:
-			pass
+		# TODO: save simulation settings
 
 
 	def createTables(self, sim):
-		expectedRows = int(sim.lengthSec/sim.timeStepSec)
+		expectedRows = int(sim.lengthSec()/sim.timeStepSec())
 
 		sim.pytablesCreate(self.mainFile, expectedRows)
 

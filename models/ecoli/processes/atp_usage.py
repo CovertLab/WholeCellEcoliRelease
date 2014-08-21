@@ -3,10 +3,7 @@
 """
 AtpUsage
 
-Hydrolyze ATP (for growth associated maintenance)
-
-TODO:
-- scale with a macro cell property (mass or volume) instead of time
+Hydrolyze ATP (for non-growth associated maintenance)
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -22,6 +19,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_ATP_USAGE
 from wholecell.utils.random import stochasticRound
+from wholecell.utils import units
 
 class AtpUsage(wholecell.processes.process.Process):
 	""" AtpUsage """
@@ -37,9 +35,9 @@ class AtpUsage(wholecell.processes.process.Process):
 		super(AtpUsage, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.to('1 / mole').magnitude
-		self.initialDryMass = kb.avgCellDryMassInit.to('g').magnitude
-		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
+		self.nAvogadro = kb.nAvogadro.asNumber(1 / units.mol)
+		self.initialDryMass = kb.avgCellDryMassInit.asNumber(units.g)
+		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
 
 		moleculeIds = ["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)
@@ -53,7 +51,7 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		self.nongrowthAssociated_reactionsPerTimestep = (
 			kb.NGAM * kb.nAvogadro
-			).to("1/femtogram/s").magnitude * self.timeStepSec
+			).asNumber(1/units.fg/units.s) * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
 

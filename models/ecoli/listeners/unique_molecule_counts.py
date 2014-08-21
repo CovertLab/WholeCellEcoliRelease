@@ -8,6 +8,9 @@ UniqueMoleculeCounts
 @date: Created 6/10/2014
 """
 
+# TODO: move to the wholecell package & write interface such that it will 
+# function without requiring the state (will save an empty file)
+
 from __future__ import division
 
 import numpy as np
@@ -54,7 +57,6 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 				self.uniqueMolecules.container._collections[i]["_entryState"]
 				== self.uniqueMolecules.container._entryActive
 				).sum()
-
 
 
 	def pytablesCreate(self, h5file, expectedRows):

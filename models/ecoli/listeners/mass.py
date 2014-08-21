@@ -10,12 +10,15 @@ Mass listener. Represents the total cellular mass.
 @date: Created 3/29/2013
 """
 
+# TODO: generalize this logic for use with a generic simulation
+
 from __future__ import division
 
 import numpy as np
 import tables
 
 import wholecell.listeners.listener
+from wholecell.utils import units
 
 class Mass(wholecell.listeners.listener.Listener):
 	""" Mass """
@@ -42,11 +45,11 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
-		self.cellCycleLen = kb.cellCycleLen.to('s').magnitude
+		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
 
 		self.rnaIndexes = np.array([
 			kb.submassNameToIndex[name]
-			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA"]
+			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "RNA"]
 			])
 
 		self.proteinIndex = kb.submassNameToIndex["protein"]

@@ -21,11 +21,10 @@ import collections
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import polymerize, PAD_VALUE
+from wholecell.utils import units
 
 # NOTE: the ordering here is take advantage of vectorized operations
 NT_SINGLELETTERS = ["A", "C", "G", "T"]
-DNTP_IDS = ["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"]
-DNMP_IDS = ["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"]
 N_NT_TYPES = len(NT_SINGLELETTERS)
 
 class Replication(wholecell.processes.process.Process):
@@ -46,9 +45,8 @@ class Replication(wholecell.processes.process.Process):
 
 		# Views
 		self.dntps = None
-		self.dnmps = None
+		self.polymerized = None
 		self.ppi = None
-		self.h2o = None
 		self.dnaPolymerase = None
 
 		super(Replication, self).__init__()
@@ -67,8 +65,8 @@ class Replication(wholecell.processes.process.Process):
 
 		# Load modeling parameters
 		self.genomeLength = kb.genomeLength
-		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
-		self.tercCenter = kb.terCCenter.to('nucleotide').magnitude
+		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.tercCenter = kb.terCCenter.asNumber(units.nt)
 
 		# Load gene data to keep track of copy number
 		geneIds = kb.geneData['name']
@@ -78,11 +76,9 @@ class Replication(wholecell.processes.process.Process):
 			) # Add buffer so indexing with numpy can be taken advantage of
 
 		## Views
-		self.dntps = self.bulkMoleculesView(DNTP_IDS)
-		self.dnmps = self.bulkMoleculesView(DNMP_IDS)
+		self.dntps = self.bulkMoleculesView(kb.dNtpIds)
+		self.polymerized = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.polymerizedDNT_IDs])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.h2o = self.bulkMoleculeView('H2O[c]')
-		self.h = self.bulkMoleculeView('H[c]')
 		
 		self.genes = self.bulkChromosomesView(geneIds)
 
@@ -122,7 +118,6 @@ class Replication(wholecell.processes.process.Process):
 		# Assumes reaction taking place is:
 		# dNTP + H2O --> dNMP + PPi + H
 		self.dntps.requestIs(totalNtRequest)
-		self.h2o.requestIs(np.sum(totalNtRequest))
 
 
 	# Calculate temporal evolution
@@ -186,10 +181,8 @@ class Replication(wholecell.processes.process.Process):
 		# Assumes reaction taking place is:
 		# dNTP + H2O --> dNMP + PPi + H
 		self.ppi.countInc(np.sum(dNtpsUsed))
-		self.dnmps.countsInc(dNtpsUsed)
+		self.polymerized.countsInc(dNtpsUsed)
 		self.dntps.countsDec(dNtpsUsed)
-		self.h2o.countDec(np.sum(dNtpsUsed))
-		self.h.countInc(np.sum(dNtpsUsed))
 
 def buildSequenceMatrix(nPolymerase, allChromosomeLocation, allDirectionIsPositive, allIsLeading, dnaPolymeraseElongationRate, genomeLength, genomeSequence, tercCenter):
 	'''Builds sequence matrix for polymerize function'''

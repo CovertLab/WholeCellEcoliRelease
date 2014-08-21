@@ -46,7 +46,7 @@ class Process(object):
 	def initialize(self, sim, kb):
 		self._sim = sim
 
-		self.timeStepSec = sim.timeStepSec
+		self.timeStepSec = sim.timeStepSec()
 		self._processIndex = sim.processes.keys().index(self._name)
 
 		self._states = sim.states

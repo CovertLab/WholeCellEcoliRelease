@@ -32,7 +32,7 @@ git diff > "${METADATA_DIR}/git_diff"
 echo "${DESC}" > "${METADATA_DIR}/description"
 
 ##### Create knowledgebases (unfit and fit) #####
-PYTHONPATH="$PWD:$PYTHONPATH" python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
+make justKb FIXTURES_KBDIR="${KB_DIR}"
 
 FIRST_SINGLE_ANALYSIS_JOB=""
 LAST_SINGLE_ANALYSIS_JOB=""
@@ -40,14 +40,8 @@ LAST_SINGLE_ANALYSIS_JOB=""
 for (( i=1; i<=$NSIMS; i++ )); do
 	THIS_SIMULATION_JOB=$(qsub -v SUBMISSION_TIME=${SUBMISSION_TIME},\
 ARRAY_ID=${i},\
-WC_STATES=${WC_STATES},\
-WC_PROCESSES=${WC_PROCESSES},\
-WC_LISTENERS=${WC_LISTENERS},\
-WC_HOOKS=${WC_HOOKS},\
 WC_LENGTHSEC=${WC_LENGTHSEC},\
-WC_TIMESTEPSEC=${WC_TIMESTEPSEC},\
 WC_LOGTOSHELL=${WC_LOGTOSHELL},\
-WC_SHELLCOLUMNSHEADERS=${WC_SHELLCOLUMNSHEADERS},\
 WC_LOGTODISKEVERY=${WC_LOGTODISKEVERY} ./runscripts/runSimulationJob.sh)
 
 	THIS_SINGLE_ANALYSIS_JOB=$(qsub -W depend="afterok:${THIS_SIMULATION_JOB}" -v SUBMISSION_TIME=${SUBMISSION_TIME},ARRAY_ID=${i} ./runscripts/runAnalysisSingleJob.sh)

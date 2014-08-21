@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-UniqueTranscriptElongation
+TranscriptElongation
 
 Transcription elongation sub-model.
 
@@ -21,11 +21,12 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils import units
 
-class UniqueTranscriptElongation(wholecell.processes.process.Process):
-	""" UniqueTranscriptElongation """
+class TranscriptElongation(wholecell.processes.process.Process):
+	""" TranscriptElongation """
 
-	_name = "UniqueTranscriptElongation"
+	_name = "TranscriptElongation"
 
 	# Constructor
 	def __init__(self):
@@ -46,20 +47,20 @@ class UniqueTranscriptElongation(wholecell.processes.process.Process):
 		self.proton = None
 		self.rnapSubunits = None
 
-		super(UniqueTranscriptElongation, self).__init__()
+		super(TranscriptElongation, self).__init__()
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(UniqueTranscriptElongation, self).initialize(sim, kb)
+		super(TranscriptElongation, self).initialize(sim, kb)
 
 		# Load parameters
 
-		self.elngRate = kb.rnaPolymeraseElongationRate.to('nucleotide / s').magnitude * self.timeStepSec
+		self.elngRate = kb.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 
 		self.rnaIds = kb.rnaData['id']
 
-		self.rnaLengths = kb.rnaData["length"].magnitude
+		self.rnaLengths = kb.rnaData["length"].asNumber()
 
 		self.rnaSequences = kb.transcriptionSequences
 

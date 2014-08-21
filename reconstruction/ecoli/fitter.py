@@ -26,10 +26,8 @@ import collections
 import wholecell.states.bulk_molecules
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-from reconstruction.units.unit_registration import UREG
-from reconstruction.units.unit_registration import Q_
-import pint
-pint._DEFAULT_REGISTRY = UREG
+from wholecell.utils import units
+import unum
 
 # Constants (should be moved to KB)
 RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
@@ -57,6 +55,15 @@ EXCESS_FREE_DNTP_CAPACITY = 1.3
 # 2) Ensure that there is enough RNAP/ribosome capacity for (1), and adjust if needed
 # 3) Update the metabolism FBA objective based on expression
 
+def fitAtLevel(fitLevel, kb, simOutDir):
+	# TODO: Obviously make this more sophisticated
+	if fitLevel == 1:
+		fitKb(kb)
+
+	if fitLevel == 2:
+		print simOutDir
+
+
 def fitKb(kb):
 
 	# Construct bulk container
@@ -74,11 +81,11 @@ def fitKb(kb):
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
 	adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb)
-	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
+	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60]
 
 	### RNA Mass fraction ###
 	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
-	rnaMass = kb.avgCellDryMassInit.to('DCW_g') * rnaMassFraction
+	rnaMass = kb.avgCellDryMassInit.asUnit(units.g) * rnaMassFraction
 	setRNACounts(
 		kb, rnaMass, mRnaView,
 		rRna23SView, rRna16SView, rRna5SView, tRnaView
@@ -93,66 +100,29 @@ def fitKb(kb):
 	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
 	setMonomerCounts(kb, monomerMass, monomersView)
 
-	### DNA Mass fraction ###
-	dNtpsView = bulkContainer.countsView(kb.dNtpIds)
-	dNmpsView = bulkContainer.countsView(kb.dNmpIds)
-
-	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
-	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-
-	dNtpRelativeAmounts = normalize(np.array([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		]))
-
-	dNtpMws = kb.getMass(kb.dNtpIds)
-	dNmpMws = kb.getMass(kb.dNmpIds)
-
-	dNmpsView.countsIs([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
-		])
-
-	chromMass = (
-		np.dot(dNmpsView.counts(), dNmpMws) - 2 * kb.genomeLength * 17.01 # TODO: get hydroxyl mass elsewhere
-		) / kb.nAvogadro.magnitude
-
-	nDNtps = countsFromMassAndExpression(
-		dnaMass.to('DCW_g').magnitude - chromMass,
-		dNtpMws.to('g/mol').magnitude,
-		dNtpRelativeAmounts,
-		kb.nAvogadro.to('1/mol').magnitude
-		)
-
-	dNtpsView.countsIs((2 * kb.genomeLength + nDNtps) * dNtpRelativeAmounts)
-
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnapView = bulkContainer.countsView(kb.rnapIds)
 
 	## Number of ribosomes needed ##
-	monomerLengths = np.sum(kb.monomerData['aaCounts'], axis = 1)
-	nRibosomesNeeded = np.sum(
+	monomerLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
+	nRibosomesNeeded = units.sum(
 		monomerLengths / kb.ribosomeElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
 			) * monomersView.counts()
-		).to('dimensionless').magnitude
+		).asNumber()
 	
 	if np.sum(rRna23SView.counts()) < nRibosomesNeeded:
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	## Number of RNA Polymerases ##
-	rnaLengths = np.sum(kb.rnaData['countsACGU'], axis = 1)
+	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
 
-	nRnapsNeeded = np.sum(
+	nRnapsNeeded = units.sum(
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).to('dimensionless').magnitude * EXCESS_RNAP_CAPACITY
+		).asNumber() * EXCESS_RNAP_CAPACITY
 
 	minRnapCounts = (
 		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry
@@ -166,7 +136,7 @@ def fitKb(kb):
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
-	kb.fracActiveRibosomes = Q_(float(nRibosomesNeeded) / np.sum(rRna23SView.counts()), "dimensionless")
+	kb.fracActiveRibosomes = float(nRibosomesNeeded) / np.sum(rRna23SView.counts())
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
@@ -187,25 +157,25 @@ def fitKb(kb):
 		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
 		)
 
-	kb.rnaExpression['expression'] = Q_(rnaExpressionContainer.counts(),'dimensionless')
+	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
 
 	# Set number of RNAs based on expression we just set
 	nRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude,
-		kb.rnaData["mw"].to('g/mol').magnitude,
-		kb.rnaExpression['expression'].to('dimensionless').magnitude,
-		kb.nAvogadro.to('1/mol').magnitude
+		rnaMass.asNumber(units.g),
+		kb.rnaData["mw"].asNumber(units.g / units.mol),
+		kb.rnaExpression['expression'],
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
-	rnaView.countsIs(nRnas * kb.rnaExpression['expression'].to('dimensionless').magnitude)
+	rnaView.countsIs(nRnas * kb.rnaExpression['expression'])
 
 	## Synthesis probabilities ##
 	synthProb = normalize(
 			(
-			Q_(1, 'second') * (
+			units.s * (
 				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 				) * rnaView.counts()
-			).to('dimensionless').magnitude
+			).asNumber()
 		)
 
 	kb.rnaData["synthProb"][:] = synthProb
@@ -214,24 +184,23 @@ def fitKb(kb):
 	## Calculate and set maintenance values
 
 	# ----- Non growth associated maintenance -----
-	kb.NGAM = Q_(NON_GROWTH_ASSOCIATED_MAINTENANCE, "mmol/DCW_g/hr")
+	kb.NGAM = NON_GROWTH_ASSOCIATED_MAINTENANCE * units.mmol / units.g / units.h
 
 	# ----- Growth associated maintenance -----
 
 	# GTPs used for translation (recycled, not incorporated into biomass)
-
 	aaMmolPerGDCW = (
-			np.sum(
+			units.sum(
 				kb.monomerData["aaCounts"] *
 				np.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
 				axis = 0
 			) * (
-				(1 / kb.nAvogadro.to('amino_acid/mmol')) *
+				(1 / (units.aa * kb.nAvogadro.asUnit(1 / units.mmol))) *
 				(1 / kb.avgCellDryMassInit)
 			)
-		).to('mmol/DCW_g')
+		).asUnit(units.mmol / units.g)
 
-	aasUsedOverCellCycle = aaMmolPerGDCW.magnitude.sum()
+	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber().sum()
 	gtpUsedOverCellCycleMmolPerGDCW = kb.gtpPerTranslation * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
@@ -241,17 +210,31 @@ def fitKb(kb):
 
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
-	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.magnitude.sum()
+	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
 
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
 
 def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
+	"""
+	countsFromMassAndExpression
+
+	mass 				- float -				Total mass you want counts to sum to
+	mws					- ndarray of floats -	Molecular weights of each species
+	relativeExpression	- ndarray of floats	-	Relative expression of each species
+	nAvogadro 			- float -				Avogadro's number
+
+	Example:
+		mass = 10.
+		mws = [10., 5.]
+		relativeExpression = [0.33, 0.66]
+		countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro) = 1.93e23
+	"""
 	assert np.allclose(np.sum(relativeExpression), 1)
-	assert type(mass) != Q_
-	assert type(mws) != Q_
-	assert type(relativeExpression) != Q_
-	assert type(nAvogadro) != Q_
+	assert type(mass) != unum.Unum
+	assert type(mws) != unum.Unum
+	assert type(relativeExpression) != unum.Unum
+	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
 def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tRnaView):
@@ -262,10 +245,10 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
 
 	nRRna23Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA23S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].to('g/mol').magnitude,
+		rnaMass.asNumber(units.g) * RRNA23S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].asNumber(units.g / units.mol),
 		rRna23SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
 	## 16S rRNA Mass Fractions ##
@@ -274,10 +257,10 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
 
 	nRRna16Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA16S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].to('g/mol').magnitude,
+		rnaMass.asNumber(units.g) * RRNA16S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].asNumber(units.g / units.mol),
 		rRna16SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
 	## 5S rRNA Mass Fractions ##
@@ -286,10 +269,10 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
 
 	nRRna5Ss = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * RRNA5S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].to('g/mol').magnitude,
+		rnaMass.asNumber(units.g) * RRNA5S_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].asNumber(units.g / units.mol),
 		rRna5SExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
 	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
@@ -316,10 +299,10 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
 
 	nTRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * TRNA_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isTRna"]].to('g/mol').magnitude,
+		rnaMass.asNumber(units.g) * TRNA_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isTRna"]].asNumber(units.g / units.mol),
 		tRnaExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
 	tRnaView.countsIs((nTRnas * tRnaExpression))
@@ -329,124 +312,82 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
 
 	nMRnas = countsFromMassAndExpression(
-		rnaMass.to('DCW_g').magnitude * MRNA_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isMRna"]].to('g/mol').magnitude,
+		rnaMass.asNumber(units.g) * MRNA_MASS_SUB_FRACTION,
+		kb.rnaData["mw"][kb.rnaData["isMRna"]].asNumber(units.g / units.mol),
 		mRnaExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
 	mRnaView.countsIs((nMRnas * mRnaExpression))
 
+
 def setMonomerCounts(kb, monomerMass, monomersView):
 
+	# TODO: further refactor
+
+	# monomerExpression = normalize(
+	# 	kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+	# 	(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+	# 	)
+
+	# nMonomers = countsFromMassAndExpression(
+	# 	monomerMass.asNumber(units.g),
+	# 	kb.monomerData["mw"].asNumber(units.g / units.mol),
+	# 	monomerExpression,
+	# 	kb.nAvogadro.asNumber(1 / units.mol)
+	# 	)
+
+	monomersView.countsIs(calcProteinCounts(kb, monomerMass))
+
+
+def calcProteinCounts(kb, monomerMass):
 	monomerExpression = normalize(
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping].magnitude /
-		(np.log(2) / kb.cellCycleLen.to("s").magnitude + kb.monomerData["degRate"].to("1/s").magnitude)
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
 	nMonomers = countsFromMassAndExpression(
-		monomerMass.to("DCW_g").magnitude,
-		kb.monomerData["mw"].to('g/mol').magnitude,
+		monomerMass.asNumber(units.g),
+		kb.monomerData["mw"].asNumber(units.g / units.mol),
 		monomerExpression,
-		kb.nAvogadro.to('1/mol').magnitude
+		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
-	monomersView.countsIs((nMonomers * monomerExpression))
-
-def calcChromosomeMass(numA, numC, numG, numT, kb):
-	weights = collections.OrderedDict({
-		"A": (
-			float(kb.getMass(["DAMP[n]"]).magnitude)
-			),
-		"C": (
-			float(kb.getMass(["DCMP[n]"]).magnitude)
-			),
-		"G": (
-			float(kb.getMass(["DGMP[n]"]).magnitude)
-			),
-		"T": (
-			float(kb.getMass(["DTMP[n]"]).magnitude)
-			),
-		})
-
-	seqLen = numA + numC + numG + numT
-
-	return (
-		weights["A"] * numA +
-		weights["C"] * numC +
-		weights["G"] * numG +
-		weights["T"] * numT# -
-		# TODO: Ask Nick about this line (below)
-		#seqLen * 17.01 # Note: no factor of 2 is needed because the num variables account for double-strandedness
-		)
-
-
-def calcNumDntpsDnmps(kb, tau_d):
-	if tau_d != 60:
-		raise NotImplementedError, "This function currently only works for the special case of 60 min doubling time."
-
-	nPolymerases = 4
-	k_elng = kb.dnaPolymeraseElongationRate.to("nucleotide / s").magnitude
-
-	seqLen = len(kb.genomeSeq)
-	t_C = seqLen / 2. / k_elng # Length of C period (approximate)
-	tau_d = kb.cellCycleLen.to("s").magnitude # Doubling time
-	N_p = 2 * seqLen	# Number of polymerized dNMPs (DNA is double-stranded, thus the factor of 2)
-	dt = kb.timeStep.to("s").magnitude
-
-	return np.fmax(
-		2 * N_p / np.exp((np.log(2) / tau_d) * t_C),
-		(nPolymerases * k_elng * dt) / (np.exp((np.log(2) / tau_d) * dt) - 1)
-		)
+	return nMonomers * monomerExpression
 
 
 def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
 
-	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60]
+	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60]
 	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
 	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-	chromMass = calcChromosomeMass(
+
+	dntCounts = np.array([
 		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
 		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
 		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A"),
-		kb) / kb.nAvogadro.magnitude
+		kb.genomeSeq.count("T") + kb.genomeSeq.count("T")
+		])
 
-	dnaMassCalc = chromMass
+	dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
 
-	fracDifference = (dnaMass.magnitude - dnaMassCalc) / kb.avgCellDryMassInit.magnitude
+	chromMass = units.dot(dntCounts, dntMasses)
+
+	dnaMassErrorRatio = ((dnaMass - chromMass) / kb.avgCellDryMassInit)
+	dnaMassErrorRatio.checkNoUnit()
+	fracDifference = dnaMassErrorRatio.asNumber()
+
 	# if fracDifference < 0:
 	# 	raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
-	idx60Min = np.where(kb.cellDryMassComposition["doublingTime"].to('min').magnitude == 60)
+	idx60Min = np.where(kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60)
 	dNtpCompositionIdx = 3 # TODO: Get this from code somehow
 	nElems = 9 # TODO: Get this from code somehow
 	nonDNtpsIdxs = [x for x in range(1, nElems + 1) if x != dNtpCompositionIdx]
 	amountToAdd = fracDifference / len(nonDNtpsIdxs)
 	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, nonDNtpsIdxs] += amountToAdd
-	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = dnaMassCalc / kb.avgCellDryMassInit.magnitude
+	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = chromMass.asNumber(units.fg) / kb.avgCellDryMassInit.asNumber(units.fg)
 	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
 
-
-def setMetaboliteCountsFromBiomassFraction(kb, biomassContainer, fractionMetaboliteIds, fractionOfDryMass, fractionComposition):
-	massFractionView = biomassContainer.countsView(
-		list(fractionMetaboliteIds)
-		)
-
-	fractionOfDryMass = float(fractionOfDryMass)
-	mass = kb.avgCellDryMassInit * fractionOfDryMass
-
-	mws = kb.getMass(fractionMetaboliteIds)
-
-	fractionMmolPerGDCW = (
-			(
-			mass * fractionComposition
-			) / mws.to('DCW_g/mmol') * (
-			1 / kb.avgCellDryMassInit)
-		).to('mmol/DCW_g')
-
-	massFractionView.countsInc(
-		fractionMmolPerGDCW.magnitude
-		)
 
 if __name__ == "__main__":
 	import wholecell.utils.constants

@@ -85,6 +85,9 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 		
 
 	def pytablesCreate(self, h5file, expectedRows):
+		# Handle the edge case of a simulation with no processes
+		if self.nProcesses == 0:
+			return
 
 		# Columns
 		dtype = {
@@ -117,6 +120,9 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 
 
 	def pytablesAppend(self, h5file):
+		# Handle the edge case of a simulation with no processes
+		if self.nProcesses == 0:
+			return
 
 		table = h5file.get_node("/", self._name)
 		entry = table.row

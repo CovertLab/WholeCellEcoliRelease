@@ -19,6 +19,7 @@ import tables
 import wholecell.states.state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
+from wholecell.utils import units
 
 DEFAULT_ATTRIBUTES = {
 	"_partitionedProcess":np.int64
@@ -63,7 +64,7 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container = UniqueObjectsContainer(molDefs)
 
 		self._moleculeIds = kb.uniqueMoleculeMasses["moleculeId"]
-		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].to("fg/mole").magnitude / kb.nAvogadro.magnitude
+		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].asNumber(units.fg/ units.mol) / kb.nAvogadro.asNumber()
 
 		self._unassignedPartitionedValue = self._nProcesses
 
@@ -73,7 +74,9 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container.timeStepIs(self.timeStep())
 
 		# Remove any prior partition assignments
-		self.container.objects().attrIs(_partitionedProcess = self._unassignedPartitionedValue)
+		objects = self.container.objects()
+		if len(objects) > 0:
+			objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
 		
 		# Gather requests
 		nMolecules = self.container._globalReference.size
@@ -138,8 +141,11 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		if self.timeStep() == 0:
 			# Set everything to the "unassigned" value
-			# TODO: consider allowing a default vlaue option for unique objects
-			self.container.objects().attrIs(_partitionedProcess = self._unassignedPartitionedValue)
+			# TODO: consider allowing a default value option for unique objects
+			objects = self.container.objects()
+
+			if len(objects) > 0:
+				objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
 
 		self._masses[self._preEvolveStateMassIndex, ...] = self._calculateMass()
 
@@ -164,6 +170,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		for moleculeId, moleculeMasses in izip(self._moleculeIds, self._moleculeMasses):
 			molecules = self.container.objectsInCollection(moleculeId)
+
+			if len(molecules) == 0:
+				continue
 
 			processIndexes = molecules.attr("_partitionedProcess")
 

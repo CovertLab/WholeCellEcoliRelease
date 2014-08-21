@@ -19,6 +19,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
+from wholecell.utils import units
 
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
@@ -54,13 +55,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 		rnaIds = kb.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb.rnaData['degRate'].magnitude
-		self.rnaLens = kb.rnaData['length'].magnitude
+		self.rnaDegRates = kb.rnaData['degRate'].asNumber()
+		self.rnaLens = kb.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
 		# TODO: account for NTP on 5' end
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
-		self.rnaDegSMat[nmpIdxs, :] = np.transpose(kb.rnaData['countsACGU'])
+		self.rnaDegSMat[nmpIdxs, :] = units.transpose(kb.rnaData['countsACGU']).asNumber()
 		# self.rnaDegSMat[h2oIdx, :]  = -(self.rnaLens - 1)
 		self.rnaDegSMat[h2oIdx, :]  = -self.rnaLens # using one additional water to hydrolyze PPI on 5' end
 		self.rnaDegSMat[ppiIdx, :]    =  1

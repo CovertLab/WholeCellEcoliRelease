@@ -37,9 +37,10 @@ import Bio.Seq
 import warnings
 warnings.simplefilter("ignore", Bio.BiopythonWarning)
 
-# Load units data from Pint
-from reconstruction.units.unit_struct_array import UnitStructArray
-from reconstruction.units.unit_registration import Q_
+# Load units data
+from wholecell.utils.unit_struct_array import UnitStructArray
+from wholecell.utils import units
+import scipy.constants
 
 # NOTE: most constants here need to either be moved to the DB or will be 
 # removed as the simulation is developed
@@ -63,6 +64,8 @@ MOLECULAR_WEIGHT_KEYS = [
 	'protein',
 	'metabolite',
 	'water',
+	'DNA',
+	'RNA' # nonspecific RNA
 	]
 
 MOLECULAR_WEIGHT_ORDER = {
@@ -254,6 +257,48 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL
 	"adn": 1.30e-7,
 	}
 
+POLYMERIZED_AMINO_ACID_WEIGHTS = [
+	{"base molecule":"ALA-L",	"frame id":"Polymerized ALA-L",	"mw":71.0785},
+	{"base molecule":"ARG-L",	"frame id":"Polymerized ARG-L",	"mw":157.1957},
+	{"base molecule":"ASN-L",	"frame id":"Polymerized ASN-L",	"mw":114.1034},
+	{"base molecule":"ASP-L",	"frame id":"Polymerized ASP-L",	"mw":114.0796},
+	{"base molecule":"CYS-L",	"frame id":"Polymerized CYS-L",	"mw":103.1385},
+	{"base molecule":"GLU-L",	"frame id":"Polymerized GLU-L",	"mw":128.1064},
+	{"base molecule":"GLN-L",	"frame id":"Polymerized GLN-L",	"mw":128.1302},
+	{"base molecule":"GLY",	"frame id":"Polymerized GLY",	"mw":57.0517},
+	{"base molecule":"HIS-L",	"frame id":"Polymerized HIS-L",	"mw":137.1413},
+	{"base molecule":"ILE-L",	"frame id":"Polymerized ILE-L",	"mw":113.1589},
+	{"base molecule":"LEU-L",	"frame id":"Polymerized LEU-L",	"mw":113.1589},
+	{"base molecule":"LYS-L",	"frame id":"Polymerized LYS-L",	"mw":129.1817},
+	{"base molecule":"MET-L",	"frame id":"Polymerized MET-L",	"mw":131.1921},
+	{"base molecule":"PHE-L",	"frame id":"Polymerized PHE-L",	"mw":147.1761},
+	{"base molecule":"PRO-L",	"frame id":"Polymerized PRO-L",	"mw":97.1163},
+	{"base molecule":"SER-L",	"frame id":"Polymerized SER-L",	"mw":87.0775},
+	{"base molecule":"THR-L",	"frame id":"Polymerized THR-L",	"mw":101.1043},
+	{"base molecule":"TRP-L",	"frame id":"Polymerized TRP-L",	"mw":186.213},
+	{"base molecule":"TYR-L",	"frame id":"Polymerized TYR-L",	"mw":163.1751},
+	{"base molecule":"SEC-L",	"frame id":"Polymerized SEC-L",	"mw":149.0252},
+	{"base molecule":"VAL-L",	"frame id":"Polymerized VAL-L",	"mw":99.1321},
+	]
+
+POLYPEPTIDE_END_WEIGHT = {"base molecule":"H2O",	"frame id":"Polypeptide terminal hydroxyl",	"mw":18.0148}
+
+POLYMERIZED_NUCLEOTIDE_WEIGHTS = [
+	{"base molecule":"ATP",	"frame id":"Polymerized ADN",	"mw":328.1999},
+	{"base molecule":"CTP",	"frame id":"Polymerized CYTD",	"mw":304.1739},
+	{"base molecule":"GTP",	"frame id":"Polymerized GSN",	"mw":344.1989},
+	{"base molecule":"UTP",	"frame id":"Polymerized URI",	"mw":305.158},
+	]
+
+POLYMERIZED_DEOXY_NUCLEOTIDE_WEIGHTS = [
+	{"base molecule":"DATP",	"frame id":"Polymerized DAD-2",	"mw":312.2009},
+	{"base molecule":"DCTP",	"frame id":"Polymerized DCYT",	"mw":288.1749},
+	{"base molecule":"DGTP",	"frame id":"Polymerized DGSN",	"mw":328.1999},
+	{"base molecule":"DTTP",	"frame id":"Polymerized THYMD",	"mw":303.1858},
+	]
+
+RNA_END_WEIGHT = {"base molecule":"PPI",	"frame id":"Nucleic acid terminal pyrophosphate",	"mw":174.9489}
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -271,6 +316,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadComments() # ADDED: for accessing info from other table 
 		self._loadCompartments()
 		self._loadMetabolites()
+		self._loadPolymerized()
 		self._loadGenome()
 		self._loadGenes()
 		self._loadRelationStoichiometry() #  Need to be called before any reaction loading
@@ -285,6 +331,7 @@ class KnowledgeBaseEcoli(object):
 
 		## Keep separate
 		self._loadBiomassFractions() # Build hacked constants - need to add these to SQL database still
+		self._loadTrnaData() # Build hacked trna counts - need to add this to SQL database still
 		self._loadConstants()
 		self._loadParameters()
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
@@ -335,13 +382,14 @@ class KnowledgeBaseEcoli(object):
 
 	def _loadHacked(self):
 		# New parameters
-		self._parameterData['cellWaterMassFraction'] = Q_(0.7, 'water_g / cell_g')
-		self._parameterData['cellDryMassFraction'] = Q_(0.3, 'DCW_g / cell_g')
-		self._parameterData['dnaPolymeraseElongationRate'] = Q_(750, 'nucleotide / s')
-		self._parameterData['oriCCenter'] = Q_(3923882, 'nucleotide')
-		self._parameterData['terCCenter'] = Q_(1607192, 'nucleotide')
+		self._parameterData['cellWaterMassFraction'] = 0.7
+		self._parameterData['cellDryMassFraction'] = 0.3
+		self._parameterData['dnaPolymeraseElongationRate'] = 750*units.nt/units.s
+		self._parameterData['oriCCenter'] = 3923882*units.nt
+		self._parameterData['terCCenter'] = 1607192*units.nt
 		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
-		self._parameterData["fracActiveRibosomes"] = Q_(1.0, "dimensionless")
+		self._parameterData["fracActiveRibosomes"] = 1.0
+		self._parameterData["fractionChargedTrna"] = 0.8
 
 
 		# Assumed reaction for producing L-selenocysteine without a tRNA
@@ -449,13 +497,20 @@ class KnowledgeBaseEcoli(object):
 		for singleLetterName in AMINO_ACID_1_TO_3_ORDERED.viewkeys():
 			self._aaWeights[singleLetterName] = None # placeholder
 
-		self._waterWeight = None
+		self._polypeptideEndWeight = None
 
 		self._ntWeights = collections.OrderedDict([
 			("A", None),
 			("C", None),
 			("G", None),
 			("U", None),
+			])
+
+		self._dntWeights = collections.OrderedDict([
+			("A", None),
+			("C", None),
+			("G", None),
+			("T", None),
 			])
 
 
@@ -575,45 +630,140 @@ class KnowledgeBaseEcoli(object):
 			
 			self._metabolites.append(m)
 
-		# Load monomer and water weights for calculating polymer weights
 
-		waterName = "H2O"
-		for metabolite in self._metabolites:
-			if metabolite["id"] == waterName:
-				self._waterWeight = metabolite["mw7.2"]
-				break
+	def _loadPolymerized(self):
+		self._polymerized = []
 
-		else:
-			raise Exception("Could not find a metabolite named {}".format(waterName))
+		# Load AAs
 
-		ppiName = "PPI"
-		for metabolite in self._metabolites:
-			if metabolite["id"] == ppiName:
-				self._ppiWeight = metabolite["mw7.2"]
-				break
+		aminoAcidIDtoSingleLetter = {
+			value.replace("[c]", ""):key
+			for key, value in AMINO_ACID_1_TO_3_ORDERED.viewitems()
+			}
 
-		else:
-			raise Exception("Could not find a metabolite named {}".format(ppiName))
+		aminoAcidIDtoSortedIndex = {
+			value.replace("[c]", ""):index
+			for index, value in enumerate(AMINO_ACID_1_TO_3_ORDERED.viewvalues())
+			}
 
-		for singleLetter, fullName in AMINO_ACID_1_TO_3_ORDERED.viewitems():
-			fullNameNoCompartment = fullName[:fullName.index("[")]
+		self._polymerizedAA_IDs = [None] * len(aminoAcidIDtoSortedIndex)
 
-			for metabolite in self._metabolites:
-				if metabolite["id"] == fullNameNoCompartment:
-					self._aaWeights[singleLetter] = metabolite["mw7.2"] - self._waterWeight
-					break
+		proteinMassKey = MOLECULAR_WEIGHT_KEYS.index("protein")
 
-			else:
-				raise Exception("Could not find a metabolite named {}".format(fullNameNoCompartment))
+		for monomer in POLYMERIZED_AMINO_ACID_WEIGHTS:
+			entry = {
+				"id":monomer["frame id"],
+				"mw":monomer["mw"],
+				"mass key":proteinMassKey
+				}
 
-		for singleLetter, fullName in [("A", "ATP"), ("C", "CTP"), ("G", "GTP"), ("U", "UTP")]:
-			for metabolite in self._metabolites:
-				if metabolite["id"] == fullName:
-					self._ntWeights[singleLetter] = metabolite["mw7.2"] - self._ppiWeight
-					break
+			self._polymerized.append(entry)
 
-			else:
-				raise Exception("Could not find a metabolite named {}".format(fullName))
+			singleLetter = aminoAcidIDtoSingleLetter[monomer["base molecule"]]
+
+			self._aaWeights[singleLetter] = monomer["mw"]
+
+			index = aminoAcidIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedAA_IDs[index] = monomer["frame id"]
+
+		# Load peptide end weight (= 1 water)
+
+		entry = {
+			"id":POLYPEPTIDE_END_WEIGHT["frame id"],
+			"mw":POLYPEPTIDE_END_WEIGHT["mw"],
+			"mass key":proteinMassKey,
+			}
+
+		self._polymerized.append(entry)
+
+		self._polypeptideEndWeight = POLYPEPTIDE_END_WEIGHT["mw"] # TODO: rename this attribute
+
+		# Load nucleotides
+
+		ntpIDtoSingleLetter = {
+			"ATP":"A",
+			"CTP":"C",
+			"GTP":"G",
+			"UTP":"U",
+			}
+
+		ntpIDtoSortedIndex = {
+			"ATP":0,
+			"CTP":1,
+			"GTP":2,
+			"UTP":3,
+			}
+
+		self._polymerizedNT_IDs = [None] * len(ntpIDtoSortedIndex)
+
+		rnaMassKey = MOLECULAR_WEIGHT_KEYS.index("RNA")
+
+		for monomer in POLYMERIZED_NUCLEOTIDE_WEIGHTS:
+			entry = {
+				"id":monomer["frame id"],
+				"mw":monomer["mw"],
+				"mass key":rnaMassKey
+				}
+
+			self._polymerized.append(entry)
+
+			singleLetter = ntpIDtoSingleLetter[monomer["base molecule"]]
+
+			self._ntWeights[singleLetter] = monomer["mw"]
+
+			index = ntpIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedNT_IDs[index] = monomer["frame id"]
+
+		# Load RNA end weight (= 1 PPi)
+
+		entry = {
+			"id":RNA_END_WEIGHT["frame id"],
+			"mw":RNA_END_WEIGHT["mw"],
+			"mass key":rnaMassKey,
+			}
+
+		self._polymerized.append(entry)
+
+		self._rnaEndWeight = RNA_END_WEIGHT["mw"] # TODO: rename this attribute
+
+		# Load deoxynucleotides
+
+		dntpIDtoSingleLetter = {
+			"DATP":"A",
+			"DCTP":"C",
+			"DGTP":"G",
+			"DTTP":"T",
+			}
+
+		dntpIDtoSortedIndex = {
+			"DATP":0,
+			"DCTP":1,
+			"DGTP":2,
+			"DTTP":3,
+			}
+
+		self._polymerizedDNT_IDs = [None] * len(dntpIDtoSortedIndex)
+
+		dnaMassKey = MOLECULAR_WEIGHT_KEYS.index("DNA")
+
+		for monomer in POLYMERIZED_DEOXY_NUCLEOTIDE_WEIGHTS:
+			entry = {
+				"id":monomer["frame id"],
+				"mw":monomer["mw"],
+				"mass key":dnaMassKey
+				}
+
+			self._polymerized.append(entry)
+
+			singleLetter = dntpIDtoSingleLetter[monomer["base molecule"]]
+
+			self._dntWeights[singleLetter] = monomer["mw"]
+
+			index = dntpIDtoSortedIndex[monomer["base molecule"]]
+
+			self._polymerizedDNT_IDs[index] = monomer["frame id"]
 
 
 	def _loadRelationStoichiometry(self):
@@ -767,6 +917,54 @@ class KnowledgeBaseEcoli(object):
 			dtype = [('metaboliteId', 'a50'), ('massFraction', 'float64')])
 		self._cellInorganicIonFractionData['metaboliteId'] = inorganicIonIds
 		self._cellInorganicIonFractionData['massFraction'] = fracInorganicIonMass
+
+	def _loadTrnaData(self):
+		# Organize tRNA id data
+		self._trna_aa_sets = collections.OrderedDict([('A', ['alaT-tRNA[c]', 'alaU-tRNA[c]', 'alaV-tRNA[c]', 'alaW-tRNA[c]']),
+				('R', ['alaX-tRNA[c]', 'argQ-tRNA[c]', 'argU-tRNA[c]', 'argV-tRNA[c]', 'argW-tRNA[c]', 'argX-tRNA[c]', 'argY-tRNA[c]']),
+				('N', ['argZ-tRNA[c]', 'asnT-tRNA[c]', 'asnU-tRNA[c]', 'asnV-tRNA[c]']),
+				('D', ['RNA0-304[c]', 'aspT-tRNA[c]', 'aspU-tRNA[c]']),
+				('C', ['aspV-tRNA[c]']),
+				('E', ['glnX-tRNA[c]', 'gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]']),
+				('Q', ['cysT-tRNA[c]', 'glnU-tRNA[c]', 'glnV-tRNA[c]', 'glnW-tRNA[c]']),
+				('G', ['gltW-tRNA[c]', 'glyT-tRNA[c]', 'glyU-tRNA[c]', 'glyV-tRNA[c]', 'glyW-tRNA[c]', 'glyX-tRNA[c]']),
+				('H', ['glyY-tRNA[c]']),
+				('I', ['hisR-tRNA[c]', 'ileT-tRNA[c]', 'ileU-tRNA[c]', 'ileV-tRNA[c]', 'ileX-tRNA[c]']),
+				('L', ['RNA0-305[c]', 'leuP-tRNA[c]', 'leuQ-tRNA[c]', 'leuT-tRNA[c]', 'leuU-tRNA[c]', 'leuV-tRNA[c]', 'leuW-tRNA[c]', 'leuX-tRNA[c]']),
+				('K', ['leuZ-tRNA[c]', 'RNA0-303[c]', 'lysT-tRNA[c]', 'lysV-tRNA[c]', 'lysW-tRNA[c]', 'RNA0-301[c]']),
+				('M', ['RNA0-302[c]', 'metT-tRNA[c]', 'metU-tRNA[c]', 'RNA0-306[c]', 'metW-tRNA[c]', 'metY-tRNA[c]']),
+				('F', ['metZ-tRNA[c]', 'pheU-tRNA[c]']),
+				('P', ['pheV-tRNA[c]', 'proK-tRNA[c]', 'proL-tRNA[c]']),
+				('S', ['selC-tRNA[c]', 'serT-tRNA[c]', 'serU-tRNA[c]', 'serV-tRNA[c]', 'serW-tRNA[c]']),
+				('T', ['serX-tRNA[c]', 'thrT-tRNA[c]', 'thrU-tRNA[c]', 'thrV-tRNA[c]']),
+				('W', ['thrW-tRNA[c]']),
+				('Y', ['trpT-tRNA[c]', 'tyrT-tRNA[c]', 'tyrU-tRNA[c]']),
+				('U', ['proM-tRNA[c]']),
+				('V', ['tyrV-tRNA[c]', 'valT-tRNA[c]', 'valU-tRNA[c]', 'valV-tRNA[c]', 'valW-tRNA[c]', 'valX-tRNA[c]', 'valY-tRNA[c]'])])
+
+		self._trna_frame_ids = ['alaT-tRNA[c]','alaU-tRNA[c]','alaV-tRNA[c]','alaW-tRNA[c]','alaX-tRNA[c]','argQ-tRNA[c]','argU-tRNA[c]',
+		'argV-tRNA[c]','argW-tRNA[c]','argX-tRNA[c]','argY-tRNA[c]','argZ-tRNA[c]','asnT-tRNA[c]','asnU-tRNA[c]','asnV-tRNA[c]','RNA0-304[c]','aspT-tRNA[c]',
+		'aspU-tRNA[c]','aspV-tRNA[c]','cysT-tRNA[c]','glnU-tRNA[c]','glnV-tRNA[c]','glnW-tRNA[c]','glnX-tRNA[c]','gltT-tRNA[c]','gltU-tRNA[c]','gltV-tRNA[c]',
+		'gltW-tRNA[c]','glyT-tRNA[c]','glyU-tRNA[c]','glyV-tRNA[c]','glyW-tRNA[c]','glyX-tRNA[c]','glyY-tRNA[c]','hisR-tRNA[c]','ileT-tRNA[c]','ileU-tRNA[c]',
+		'ileV-tRNA[c]','ileX-tRNA[c]','RNA0-305[c]','leuP-tRNA[c]','leuQ-tRNA[c]','leuT-tRNA[c]','leuU-tRNA[c]','leuV-tRNA[c]','leuW-tRNA[c]','leuX-tRNA[c]',
+		'leuZ-tRNA[c]','RNA0-303[c]','lysT-tRNA[c]','lysV-tRNA[c]','lysW-tRNA[c]','RNA0-301[c]','RNA0-302[c]','metT-tRNA[c]','metU-tRNA[c]','RNA0-306[c]',
+		'metW-tRNA[c]','metY-tRNA[c]','metZ-tRNA[c]','pheU-tRNA[c]','pheV-tRNA[c]','proK-tRNA[c]','proL-tRNA[c]','proM-tRNA[c]','selC-tRNA[c]','serT-tRNA[c]',
+		'serU-tRNA[c]','serV-tRNA[c]','serW-tRNA[c]','serX-tRNA[c]','thrT-tRNA[c]','thrU-tRNA[c]','thrV-tRNA[c]','thrW-tRNA[c]','trpT-tRNA[c]','tyrT-tRNA[c]',
+		'tyrU-tRNA[c]','tyrV-tRNA[c]','valT-tRNA[c]','valU-tRNA[c]','valV-tRNA[c]','valW-tRNA[c]','valX-tRNA[c]','valY-tRNA[c]','RNA0-300[c]']
+
+
+
+
+
+		# Organize counts data from Jakubowski et al.
+		countsTrna = np.zeros(20, dtype = [('tRnaType','a3'),('count',np.int64)])
+		countsTrna['tRnaType'] = ['Ala','Arg','Asn','Asp','Cys','Gln','Glu',
+									'Gly','His','Ile','Leu','Lys','Met','Phe',
+									'Pro','Ser','Thr','Trp','Tyr','Val']
+		countsTrna['count'] = [4000,2480,1230,3670,2000,730,880,4370,1900,4930,5330,
+									4300,4020,1830,2620,6270,4700,790,1030,7910]
+		self._countsTrna = UnitStructArray(countsTrna, {'tRnaType':None, 'count' : units.count})
+		
 
 	def _loadGenome(self):
 		self._translationTable = 11 # E. coli is 11
@@ -1091,7 +1289,7 @@ class KnowledgeBaseEcoli(object):
 				+ self._ntWeights["C"] * r["ntCount"][1]
 				+ self._ntWeights["G"] * r["ntCount"][2]
 				+ self._ntWeights["U"] * r["ntCount"][3]
-				) + self._ppiWeight
+				) + self._rnaEndWeight
 			index = self._whichRna(r['id'], r['type'])
 			r["mw"][index] = weight 
 
@@ -1139,7 +1337,7 @@ class KnowledgeBaseEcoli(object):
 					+ self._ntWeights["C"] * r["ntCount"][1]
 					+ self._ntWeights["G"] * r["ntCount"][2]
 					+ self._ntWeights["U"] * r["ntCount"][3]
-					) + self._ppiWeight
+					) + self._rnaEndWeight
 				index = self._whichRna(r['id'], r['type'])
 				r["mw"][index] = weight 
 			
@@ -1286,7 +1484,7 @@ class KnowledgeBaseEcoli(object):
 							tmp["U"], tmp["S"], tmp["T"], tmp["W"], tmp["Y"], tmp["V"]
 							])
 
-			p["mw"] = self._waterWeight
+			p["mw"] = self._polypeptideEndWeight
 			for aa in p["seq"]: p["mw"] += self._aaWeights[aa]
 
 			self._proteins.append(p)
@@ -1672,23 +1870,22 @@ class KnowledgeBaseEcoli(object):
 			raise Exception, "Invalid kCat units: %s." % (units)
 
 	def _loadConstants(self):
-		self._checkDatabaseAccess(Constant)
-		all_constant = Constant.objects.all()
 		self._constantData = {}
-		for c in all_constant:
-			self._constantData[c.name] = Q_(c.value, c.units)
-
+		self._constantData['nAvogadro'] = scipy.constants.Avogadro * 1 / units.mol
 
 	def _loadParameters(self):
-		self._checkDatabaseAccess(Parameter)
-		all_parameter = Parameter.objects.all()
 		self._parameterData = {}
-		for p in all_parameter:
-			self._parameterData[p.name] = Q_(p.value, p.units)
-
+		self._parameterData['cellCycleLen'] = 3600*units.s
+		self._parameterData['avgCellDryMass'] = 258*units.fg
+		self._parameterData['rnaPolymeraseElongationRate'] = 42*units.nt/units.s
+		self._parameterData['ribosomeElongationRate'] = 16*units.aa/units.s
+		self._parameterData['fracInitFreeNTPs'] = 0.0015
+		self._parameterData['fracInitFreeAAs'] = 0.001
+		self._parameterData['avgCellCellCycleProgress'] = 0.44
+		self._parameterData['timeStep'] = 1*units.s
 
 	def _loadComputeParameters(self):
-		self._parameterData['avgCellToInitalCellConvFactor'] = Q_(np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress']), 'dimensionless')
+		self._parameterData['avgCellToInitalCellConvFactor'] = np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress'])
 		self._parameterData['avgCellDryMassInit'] = self._parameterData['avgCellDryMass'] / self._parameterData['avgCellToInitalCellConvFactor']
 		self._parameterData['avgCellWaterMass'] = (self._parameterData['avgCellDryMass'] / self._parameterData['cellDryMassFraction']) * self._parameterData['cellWaterMassFraction']
 		self._parameterData['avgCellWaterMassInit'] = self._parameterData['avgCellWaterMass'] / self._parameterData['avgCellToInitalCellConvFactor']
@@ -1713,11 +1910,14 @@ class KnowledgeBaseEcoli(object):
 
 
 	def _buildBulkMolecules(self):
+		# TODO: modularize this logic
+
 		size = (
 			len(self._metabolites)*len(self._compartmentList)
 			+ len(self._rnas)
 			+ len(self._proteins)
 			+ len(self._proteinComplexes)
+			+ len(self._polymerized)*len(self._compartmentList)
 			)
 
 		bulkMolecules = np.zeros(
@@ -1788,15 +1988,42 @@ class KnowledgeBaseEcoli(object):
 		bulkMolecules['mass'][lastProteinMonomerIdx:lastComplexIdx, :] = [
 			complex_['mw'] for complex_ in self._proteinComplexes
 			]
+
+		# Set polymerized
+
+		lastPolymerizedIndex = len(self._polymerized)*len(self._compartmentList) + lastComplexIdx
+
+		polymerizedIDs = [entry["id"] for entry in self._polymerized]
+
+		bulkMolecules["moleculeId"][lastComplexIdx:lastPolymerizedIndex] = [
+			'{}[{}]'.format(polymerizedID, compartmentAbbreviation)
+			for compartmentAbbreviation in compartmentAbbreviations
+			for polymerizedID in polymerizedIDs
+			]
+
+		masses = [
+			entry["mw"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._polymerized
+			]
+
+		massIndexes = [
+			entry["mass key"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._polymerized
+			]
+
+		bulkMolecules["mass"][range(lastComplexIdx, lastPolymerizedIndex), massIndexes] = masses
+		# NOTE: the use of range above is intentional
 		
 		# Add units to values
-		units = {
+		field_units = {
 			"moleculeId"		:	None,
-			"mass"				:	"g / mol",
+			"mass"				:	units.g / units.mol,
 			'compartment'		:	None,
 			}
 
-		self.bulkMolecules = UnitStructArray(bulkMolecules, units)
+		self.bulkMolecules = UnitStructArray(bulkMolecules, field_units)
 
 
 	def _buildGeneData(self):
@@ -1877,16 +2104,16 @@ class KnowledgeBaseEcoli(object):
 
 
 		# Add units to values
-		units = {
+		field_units = {
 			"moleculeId"			:	None,
-			"mass"					:	"g / mol",
+			"mass"					:	units.g / units.mol,
 			'compartment'			:	None,
 			'isGene'				:	None,
 			"isDnaABox"				:	None,
 			"isDnaABox_atp_polymer"	:	None,
 			"isDnaABox_adp_polymer"	:	None,
 			}
-		self.bulkChromosome = UnitStructArray(bulkChromosome, units)
+		self.bulkChromosome = UnitStructArray(bulkChromosome, field_units)
 
 	def _buildUniqueMolecules(self):
 
@@ -1906,7 +2133,7 @@ class KnowledgeBaseEcoli(object):
 				}),
 			])
 
-		rnaPolyComplexMass = self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].magnitude
+		rnaPolyComplexMass = self.bulkMolecules["mass"][self.bulkMolecules["moleculeId"] == "APORNAP-CPLX[c]"].asNumber()
 
 		# TODO: This is a bad hack that works because in the fitter
 		# I have forced expression to be these subunits only
@@ -1939,7 +2166,7 @@ class KnowledgeBaseEcoli(object):
 
 		self.uniqueMoleculeMasses = UnitStructArray(
 			uniqueMoleculeMasses,
-			{"moleculeId":None, "mass":"g/mol"}
+			{"moleculeId":None, "mass":units.g / units.mol}
 			)
 
 		# TODO: add the ability to "register" a bulk molecule as a unique 
@@ -1969,7 +2196,7 @@ class KnowledgeBaseEcoli(object):
 		self.rnaExpression = UnitStructArray(normalizedRnaExpression,
 			{
 			'rnaId'		:	None,
-			'expression':	'dimensionless',
+			'expression':	None,
 			'isMRna'	:	None,
 			'isMiscRna'	:	None,
 			'isRRna'	:	None,
@@ -2013,14 +2240,14 @@ class KnowledgeBaseEcoli(object):
 		for i in range(len(x['biomassInfo']['wildtype']))
 		]
 
-		units = {'metaboliteId' : None,
-				'biomassFlux' : 'mmol / (DCW_g)'}
-		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, units)
-		self.wildtypeBiomass 	= UnitStructArray(self._wildtypeBiomassData, units)
+		field_units = {'metaboliteId' : None,
+				'biomassFlux' : units.mmol / units.g}
+		self.coreBiomass 		= UnitStructArray(self._coreBiomassData, field_units)
+		self.wildtypeBiomass 	= UnitStructArray(self._wildtypeBiomassData, field_units)
 
 	def _buildBiomassFractions(self):
-		units = {
-			'doublingTime' : 'min',
+		field_units = {
+			'doublingTime' : units.min,
 			'proteinMassFraction' : None,
 			'rnaMassFraction' : None,
 			'dnaMassFraction' : None,
@@ -2032,7 +2259,7 @@ class KnowledgeBaseEcoli(object):
 			'inorganicIonMassFraction' : None
 			}
 
-		self.cellDryMassComposition = UnitStructArray(self._cellDryMassCompositionData, units)
+		self.cellDryMassComposition = UnitStructArray(self._cellDryMassCompositionData, field_units)
 		self.cellLipidFractionData = self._cellLipidFractionData
 		self.cellLPSFractionData = self._cellLPSFractionData
 		self.cellMureinFractionData = self._cellMureinFractionData
@@ -2056,7 +2283,7 @@ class KnowledgeBaseEcoli(object):
 		expression = np.array([rna['expression'] for rna in self._rnas])
 
 		synthProb = expression * (
-			np.log(2) / self._parameterData['cellCycleLen'].to('s').magnitude
+			np.log(2) / self._parameterData['cellCycleLen'].asNumber(units.s)
 			+ rnaDegRates
 			)
 
@@ -2121,13 +2348,13 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna5S'] = is5S
 		self.rnaData['sequence'] = sequences
 
-		units = {
+		field_units = {
 			'id'		:	None,
-			'synthProb' :	'dimensionless',
-			'degRate'	:	'1 / s',
-			'length'	:	'nucleotide',
-			'countsACGU':	'nucleotide',
-			'mw'		:	'g / mol',
+			'synthProb' :	None,
+			'degRate'	:	1 / units.s,
+			'length'	:	units.nt,
+			'countsACGU':	units.nt,
+			'mw'		:	units.g / units.mol,
 			'isMRna'	:	None,
 			'isMiscRna'	:	None,
 			'isRRna'	:	None,
@@ -2139,7 +2366,7 @@ class KnowledgeBaseEcoli(object):
 			}
 
 
-		self.rnaData = UnitStructArray(self.rnaData, units)
+		self.rnaData = UnitStructArray(self.rnaData, field_units)
 
 	def _buildMonomerData(self):
 		ids = ['{}[{}]'.format(protein['id'], protein['location'])
@@ -2189,8 +2416,8 @@ class KnowledgeBaseEcoli(object):
 
 		# Calculate degradation rates based on N-rule
 		# TODO: citation
-		fastRate = (np.log(2) / Q_(2, 'min')).to('1 / s')
-		slowRate = (np.log(2) / Q_(10, 'hr')).to('1 / s')
+		fastRate = (np.log(2) / (2*units.min)).asUnit(1 / units.s)
+		slowRate = (np.log(2) / (10*60*units.min)).asUnit(1 / units.s)
 
 		fastAAs = ["R", "K", "F", "L", "W", "Y"]
 		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
@@ -2209,7 +2436,7 @@ class KnowledgeBaseEcoli(object):
 
 		degRate = np.zeros(len(self._proteins))
 		for i,m in enumerate(self._proteins):
-			degRate[i] = NruleDegRate[m['seq'][0]].magnitude
+			degRate[i] = NruleDegRate[m['seq'][0]].asNumber()
 
 		self.monomerData = np.zeros(
 			size,
@@ -2235,17 +2462,17 @@ class KnowledgeBaseEcoli(object):
 		self.aaIDs = AMINO_ACID_1_TO_3_ORDERED.values()
 		self.aaIDs_singleLetter = AMINO_ACID_1_TO_3_ORDERED.keys()
 
-		units = {
+		field_units = {
 			'id'		:	None,
 			'rnaId'		:	None,
-			'degRate'	:	'1 / s',
-			'length'	:	'count',
-			'aaCounts'	:	'count',
-			'mw'		:	'g / mol',
+			'degRate'	:	1 / units.s,
+			'length'	:	units.aa,
+			'aaCounts'	:	units.aa,
+			'mw'		:	units.g / units.mol,
 			'sequence'  :   None
 			}
 
-		self.monomerData = UnitStructArray(self.monomerData, units)
+		self.monomerData = UnitStructArray(self.monomerData, field_units)
 
 
 	def _buildRnaIndexToMonomerMapping(self):
@@ -2600,15 +2827,15 @@ class KnowledgeBaseEcoli(object):
 
 		# Calculate the following assuming 60 min doubling time
 
-		initWaterMass = self.avgCellWaterMassInit.to('gram * water_gram / DCW_gram').magnitude
-		initDryMass = self.avgCellDryMassInit.to('gram').magnitude
+		initWaterMass = self.avgCellWaterMassInit.asNumber(units.g)
+		initDryMass = self.avgCellDryMassInit.asNumber(units.g)
 
 		initCellMass = initWaterMass + initDryMass
 
 		initCellVolume = initCellMass / CELL_DENSITY # L
 
 		massFractions = self.cellDryMassComposition[
-			self.cellDryMassComposition["doublingTime"].to("minute").magnitude == 60.0
+			self.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
 			].fullArray()
 
 		for entry in self.cellGlycogenFractionData:
@@ -2617,7 +2844,7 @@ class KnowledgeBaseEcoli(object):
 			assert metaboliteID not in metaboliteIDs
 
 			massFrac = entry["massFraction"] * massFractions["glycogenMassFraction"][0]
-			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			molWeight = self.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
 			molesInit = massInit/molWeight
@@ -2633,7 +2860,7 @@ class KnowledgeBaseEcoli(object):
 			assert metaboliteID not in metaboliteIDs
 
 			massFrac = entry["massFraction"] * massFractions["mureinMassFraction"][0]
-			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			molWeight = self.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
 			molesInit = massInit/molWeight
@@ -2649,7 +2876,7 @@ class KnowledgeBaseEcoli(object):
 			assert metaboliteID not in metaboliteIDs
 
 			massFrac = entry["massFraction"] * massFractions["lpsMassFraction"][0]
-			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			molWeight = self.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
 			molesInit = massInit/molWeight
@@ -2665,7 +2892,7 @@ class KnowledgeBaseEcoli(object):
 			assert metaboliteID not in metaboliteIDs
 
 			massFrac = entry["massFraction"] * massFractions["lipidMassFraction"][0]
-			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			molWeight = self.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
 			molesInit = massInit/molWeight
@@ -2681,7 +2908,7 @@ class KnowledgeBaseEcoli(object):
 			assert metaboliteID not in metaboliteIDs
 
 			massFrac = entry["massFraction"] * massFractions["inorganicIonMassFraction"][0]
-			molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+			molWeight = self.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
 			molesInit = massInit/molWeight
@@ -2696,7 +2923,7 @@ class KnowledgeBaseEcoli(object):
 
 			if metaboliteID not in metaboliteIDs:
 				massFrac = entry["massFraction"] * massFractions["solublePoolMassFraction"][0]
-				molWeight = self.getMass([metaboliteID])[0].to("g/mol").magnitude
+				molWeight = self.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 				massInit = massFrac * initDryMass
 				molesInit = massInit/molWeight
@@ -2709,7 +2936,7 @@ class KnowledgeBaseEcoli(object):
 
 		# ILE/LEU: split reported concentration according to their relative abundances
 
-		aaAbundances = self.monomerData["aaCounts"].magnitude.sum(axis = 0)
+		aaAbundances = self.monomerData["aaCounts"].asNumber().sum(axis = 0)
 		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
 
 		ileAbundance = aaAbundances[self.aaIDs.index("ILE-L[c]")]
@@ -2773,7 +3000,7 @@ class KnowledgeBaseEcoli(object):
 
 		# H2O: reported water content of E. coli
 
-		h2oMolWeight = self.getMass(["H2O[c]"])[0].to("g/mol").magnitude
+		h2oMolWeight = self.getMass(["H2O[c]"])[0].asNumber(units.g / units.mol)
 		h2oMoles = initWaterMass/h2oMolWeight
 
 		h2oConcentration = h2oMoles / initCellVolume
@@ -2812,8 +3039,8 @@ class KnowledgeBaseEcoli(object):
 		# - (d)NTP byproducts not currently included
 
 		self.metabolitePoolIDs = metaboliteIDs
-		self.metabolitePoolConcentrations = Q_(np.array(metaboliteConcentrations), "mol/L")
-		self.cellDensity = Q_(CELL_DENSITY, "g/L")
+		self.metabolitePoolConcentrations = units.mol/units.L * np.array(metaboliteConcentrations)
+		self.cellDensity = units.g/units.L * CELL_DENSITY
 
 
 	def _buildTranscription(self):
@@ -2822,8 +3049,8 @@ class KnowledgeBaseEcoli(object):
 		sequences = self.rnaData["sequence"] # TODO: consider removing sequences
 
 		maxLen = np.int64(
-			self.rnaData["length"].magnitude.max()
-			+ self.rnaPolymeraseElongationRate.to('count / s').magnitude
+			self.rnaData["length"].asNumber().max()
+			+ self.rnaPolymeraseElongationRate.asNumber(units.nt / units.s)
 			)
 
 		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8)
@@ -2836,16 +3063,15 @@ class KnowledgeBaseEcoli(object):
 				self.transcriptionSequences[i, j] = ntMapping[letter]
 
 		# TODO: (URGENT) unify peptide weight calculations!
-
 		self.transcriptionMonomerWeights = (
 			(
 				self.getMass(self.ntpIds)
 				- self.getMass(["PPI[c]"])
 				)
 			/ self.nAvogadro
-			).to("fg").magnitude
+			).asNumber(units.fg)
 
-		self.transcriptionEndWeight = (self.getMass(["PPI[c]"]) / self.nAvogadro).to("fg").magnitude
+		self.transcriptionEndWeight = (self.getMass(["PPI[c]"]) / self.nAvogadro).asNumber(units.fg)
 
 
 	def _buildTranslation(self):
@@ -2854,8 +3080,8 @@ class KnowledgeBaseEcoli(object):
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
 
 		maxLen = np.int64(
-			self.monomerData["length"].magnitude.max()
-			+ self.ribosomeElongationRate.to('amino_acid / s').magnitude
+			self.monomerData["length"].asNumber().max()
+			+ self.ribosomeElongationRate.asNumber(units.aa / units.s)
 			)
 
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
@@ -2875,9 +3101,9 @@ class KnowledgeBaseEcoli(object):
 				- self.getMass(["H2O[c]"])
 				)
 			/ self.nAvogadro
-			).to("fg").magnitude
+			).asNumber(units.fg)
 
-		self.translationEndWeight = (self.getMass(["H2O[c]"]) / self.nAvogadro).to("fg").magnitude
+		self.translationEndWeight = (self.getMass(["H2O[c]"]) / self.nAvogadro).asNumber(units.fg)
 
 
 	def _buildConstants(self):
@@ -2895,13 +3121,16 @@ class KnowledgeBaseEcoli(object):
 			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
 			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
 			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
-			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"]
+			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"],
+			'polymerizedAA_IDs'	:	self._polymerizedAA_IDs, # TODO: end weight
+			'polymerizedNT_IDs'	:	self._polymerizedNT_IDs, # TODO: end weight
+			'polymerizedDNT_IDs':	self._polymerizedDNT_IDs,
 		}
 
 		self.__dict__.update(moleculeGroups)
 
 	def _buildAllMasses(self):
-		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites)
+		size = len(self._rnas) + len(self._proteins) + len(self._proteinComplexes) + len(self._metabolites) + len(self._polymerized)
 		allMass = np.empty(size,
 			dtype = [
 					('id',		'a50'),
@@ -2914,15 +3143,16 @@ class KnowledgeBaseEcoli(object):
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteins])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._proteinComplexes])
 		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in self._metabolites])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self._polymerized])
 
 		allMass[:] = listMass
 
-		units = {
+		field_units = {
 			'id'		:	None,
-			'mass'		:	'g/mol',
+			'mass'		:	units.g / units.mol,
 			}
 
-		self._allMass = UnitStructArray(allMass, units)
+		self._allMass = UnitStructArray(allMass, field_units)
 
 
 	def _buildTrnaData(self):

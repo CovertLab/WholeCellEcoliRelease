@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-UniquePolypeptideElongation
+PolypeptideElongation
 
 Translation elongation sub-model.
 
@@ -22,11 +22,12 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils.random import stochasticRound
+from wholecell.utils import units
 
-class UniquePolypeptideElongation(wholecell.processes.process.Process):
-	""" UniquePolypeptideElongation """
+class PolypeptideElongation(wholecell.processes.process.Process):
+	""" PolypeptideElongation """
 
-	_name = "UniquePolypeptideElongation"
+	_name = "PolypeptideElongation"
 
 	# Constructor
 	def __init__(self):
@@ -46,16 +47,16 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 		self.trna_groups = None
 		self.ribosomeSubunits = None
 
-		super(UniquePolypeptideElongation, self).__init__()
+		super(PolypeptideElongation, self).__init__()
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(UniquePolypeptideElongation, self).initialize(sim, kb)
+		super(PolypeptideElongation, self).initialize(sim, kb)
 
 		# Load parameters
 
-		self.elngRate = float(kb.ribosomeElongationRate.to('amino_acid / s').magnitude) * self.timeStepSec
+		self.elngRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 
 		self.aa_trna_groups = kb.aa_trna_groups
 
@@ -63,7 +64,7 @@ class UniquePolypeptideElongation(wholecell.processes.process.Process):
 
 		proteinIds = kb.monomerData['id']
 
-		self.proteinLengths = kb.monomerData["length"].magnitude
+		self.proteinLengths = kb.monomerData["length"].asNumber()
 
 		self.proteinSequences = kb.translationSequences
 

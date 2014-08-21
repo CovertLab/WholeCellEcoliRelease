@@ -47,7 +47,7 @@ mkdir -p "$WORK_DIR"
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
 KBECOLI_DIR="${CODE_DIR}/../kbEcoli"
 KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
+KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
 
 RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}"
 
@@ -71,7 +71,7 @@ stagein()
 
 	mkdir $(basename $CODE_DIR)
 	cd $(basename $CODE_DIR)
-	scp -r ${KB_FIT} .
+	rsync -aL ${KB_FIT} .
 	scp -r ${CODE_DIR}/runscripts .
 	scp -r ${CODE_DIR}/user .
 	scp -r ${CODE_DIR}/wholecell .
@@ -89,16 +89,10 @@ runprogram()
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
 	PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" \
 	WC_SEED=${SEED} \
-	WC_STATES=${WC_STATES} \
-	WC_PROCESSES=${WC_PROCESSES} \
-	WC_LISTENERS=${WC_LISTENERS} \
-	WC_HOOKS=${WC_HOOKS} \
 	WC_LENGTHSEC=${WC_LENGTHSEC} \
-	WC_TIMESTEPSEC=${WC_TIMESTEPSEC} \
 	WC_LOGTOSHELL=${WC_LOGTOSHELL} \
-	WC_SHELLCOLUMNSHEADERS=${WC_SHELLCOLUMNSHEADERS} \
 	WC_LOGTODISKEVERY=${WC_LOGTODISKEVERY} \
-	WC_KBLOCATION="\"${WORK_DIR}/$(basename $CODE_DIR)/KnowledgeBase_Fit.cPickle\"" python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
+	WC_KBLOCATION="\"${WORK_DIR}/$(basename $CODE_DIR)/KnowledgeBase_Most_Fit.cPickle\"" python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 
 stageout()

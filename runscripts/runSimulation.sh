@@ -7,7 +7,7 @@ WC_SEED=${WC_SEED:-0}
 SEED_DIR=$(printf "%06d" $(($WC_SEED)))
 SIM_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/simOut"
 KB_DIR="out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Fit.cPickle"
+KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
 METADATA_DIR="out/${SUBMISSION_TIME}/metadata"
 
 
@@ -29,8 +29,8 @@ git diff > "${METADATA_DIR}/git_diff"
 # Description
 echo "${DESC}" > "${METADATA_DIR}/description"
 
-##### Create knowledgebases (unfit and fit) #####
-python2.7 runscripts/createKbs.py --outputDirectory "${KB_DIR}"
+##### Create knowledgebases #####
+make justKb FIXTURES_KBDIR="${KB_DIR}"
 
 
 ##### Run simulation #####
@@ -43,8 +43,7 @@ fi
 
 ##### Single simulation analysis #####
 
-SINGLE_ANALYSIS_SCRIPTS_DIR="models/ecoli/analysis/single"
-SINGLE_ANALYSIS_SCRIPTS=$(find $SINGLE_ANALYSIS_SCRIPTS_DIR -name "*\.py" | sort)
+SINGLE_ANALYSIS_SCRIPTS=$(PYTHONPATH="$PWD:$PYTHONPATH" python2.7 -c "from models.ecoli.sim.simulation import EcoliSimulation; EcoliSimulation.printAnalysisSingleFiles()")
 
 PLOT_OUT_DATA_DIR="out/${SUBMISSION_TIME}/${SEED_DIR}/plotOut"
 
