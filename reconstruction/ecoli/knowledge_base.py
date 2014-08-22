@@ -2062,6 +2062,7 @@ class KnowledgeBaseEcoli(object):
 
 
 		self.rnaData = UnitStructArray(self.rnaData, field_units)
+		self.getTrnaAbundanceData = getTrnaAbundanceAtGrowthRate
 
 	def _buildMonomerData(self):
 		ids = ['{}[{}]'.format(protein['id'], protein['location'])
