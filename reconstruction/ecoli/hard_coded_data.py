@@ -343,24 +343,56 @@ def getTrnaAbundanceAtGrowthRate(growth_rate):
 	abundance['molar_ratio_to_16SrRNA'] = [x(growth_rate) for x in TRNA_ABUNDANCE_INTERPOLATION_FUNCTIONS]
 	return abundance
 
-AA_TRNA_GROUPS = collections.OrderedDict([('A', ['alaT-tRNA[c]', 'alaU-tRNA[c]', 'alaV-tRNA[c]', 'alaW-tRNA[c]']),
-		('R', ['alaX-tRNA[c]', 'argQ-tRNA[c]', 'argU-tRNA[c]', 'argV-tRNA[c]', 'argW-tRNA[c]', 'argX-tRNA[c]', 'argY-tRNA[c]']),
-		('N', ['argZ-tRNA[c]', 'asnT-tRNA[c]', 'asnU-tRNA[c]', 'asnV-tRNA[c]']),
-		('D', ['RNA0-304[c]', 'aspT-tRNA[c]', 'aspU-tRNA[c]']),
-		('C', ['aspV-tRNA[c]']),
-		('E', ['glnX-tRNA[c]', 'gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]']),
-		('Q', ['cysT-tRNA[c]', 'glnU-tRNA[c]', 'glnV-tRNA[c]', 'glnW-tRNA[c]']),
-		('G', ['gltW-tRNA[c]', 'glyT-tRNA[c]', 'glyU-tRNA[c]', 'glyV-tRNA[c]', 'glyW-tRNA[c]', 'glyX-tRNA[c]']),
-		('H', ['glyY-tRNA[c]']),
-		('I', ['hisR-tRNA[c]', 'ileT-tRNA[c]', 'ileU-tRNA[c]', 'ileV-tRNA[c]', 'ileX-tRNA[c]']),
-		('L', ['RNA0-305[c]', 'leuP-tRNA[c]', 'leuQ-tRNA[c]', 'leuT-tRNA[c]', 'leuU-tRNA[c]', 'leuV-tRNA[c]', 'leuW-tRNA[c]', 'leuX-tRNA[c]']),
-		('K', ['leuZ-tRNA[c]', 'RNA0-303[c]', 'lysT-tRNA[c]', 'lysV-tRNA[c]', 'lysW-tRNA[c]', 'RNA0-301[c]']),
-		('M', ['RNA0-302[c]', 'metT-tRNA[c]', 'metU-tRNA[c]', 'RNA0-306[c]', 'metW-tRNA[c]', 'metY-tRNA[c]']),
-		('F', ['metZ-tRNA[c]', 'pheU-tRNA[c]']),
-		('P', ['pheV-tRNA[c]', 'proK-tRNA[c]', 'proL-tRNA[c]']),
-		('S', ['selC-tRNA[c]', 'serT-tRNA[c]', 'serU-tRNA[c]', 'serV-tRNA[c]', 'serW-tRNA[c]']),
-		('T', ['serX-tRNA[c]', 'thrT-tRNA[c]', 'thrU-tRNA[c]', 'thrV-tRNA[c]']),
-		('W', ['thrW-tRNA[c]']),
-		('Y', ['trpT-tRNA[c]', 'tyrT-tRNA[c]', 'tyrU-tRNA[c]']),
-		('U', ['proM-tRNA[c]']),
-		('V', ['tyrV-tRNA[c]', 'valT-tRNA[c]', 'valU-tRNA[c]', 'valV-tRNA[c]', 'valW-tRNA[c]', 'valX-tRNA[c]', 'valY-tRNA[c]'])])
+AA_TRNA_GROUPS = collections.OrderedDict([
+		('A', ['alaT-tRNA[c]', 'alaU-tRNA[c]', 'alaV-tRNA[c]', 'alaW-tRNA[c]', 'alaX-tRNA[c]']),
+		('R', ['argQ-tRNA[c]', 'argU-tRNA[c]', 'argV-tRNA[c]', 'argW-tRNA[c]', 'argX-tRNA[c]', 'argY-tRNA[c]', 'argZ-tRNA[c]']),
+		('N', ['asnT-tRNA[c]', 'asnU-tRNA[c]', 'asnV-tRNA[c]', 'RNA0-304[c]']),
+		('D', ['aspT-tRNA[c]', 'aspU-tRNA[c]', 'aspV-tRNA[c]']),
+		('C', ['cysT-tRNA[c]']),
+		('E', ['gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]', 'gltW-tRNA[c]']),
+		('Q', ['glnU-tRNA[c]', 'glnV-tRNA[c]', 'glnW-tRNA[c]', 'glnX-tRNA[c]']),
+		('G', ['glyT-tRNA[c]', 'glyU-tRNA[c]', 'glyV-tRNA[c]', 'glyW-tRNA[c]', 'glyX-tRNA[c]', 'glyY-tRNA[c]']),
+		('H', ['hisR-tRNA[c]']),
+		('I', ['ileT-tRNA[c]', 'ileU-tRNA[c]', 'ileV-tRNA[c]', 'ileX-tRNA[c]', 'RNA0-305[c]']),
+		('L', ['leuP-tRNA[c]', 'leuQ-tRNA[c]', 'leuT-tRNA[c]', 'leuU-tRNA[c]', 'leuV-tRNA[c]', 'leuW-tRNA[c]', 'leuX-tRNA[c]', 'leuZ-tRNA[c]']),
+		('K', ['RNA0-303[c]', 'lysT-tRNA[c]', 'lysV-tRNA[c]', 'lysW-tRNA[c]', 'RNA0-301[c]', 'RNA0-302[c]']),
+		('M', ['metT-tRNA[c]', 'metU-tRNA[c]', 'RNA0-306[c]', 'metW-tRNA[c]', 'metY-tRNA[c]', 'metZ-tRNA[c]']),
+		('F', ['pheU-tRNA[c]', 'pheV-tRNA[c]']),
+		('P', ['proK-tRNA[c]', 'proL-tRNA[c]', 'proM-tRNA[c]']),
+		('S', ['serT-tRNA[c]', 'serU-tRNA[c]', 'serV-tRNA[c]', 'serW-tRNA[c]', 'serX-tRNA[c]']),
+		('T', ['thrT-tRNA[c]', 'thrU-tRNA[c]', 'thrV-tRNA[c]','thrW-tRNA[c]']),
+		('W', ['trpT-tRNA[c]']),
+		('Y', ['tyrT-tRNA[c]', 'tyrU-tRNA[c]', 'tyrV-tRNA[c]',]),
+		('U', ['selC-tRNA[c]']),
+		('V', ['valT-tRNA[c]', 'valU-tRNA[c]', 'valV-tRNA[c]', 'valW-tRNA[c]', 'valX-tRNA[c]', 'valY-tRNA[c]'])
+		])
+
+AA_SYNTHETASE_GROUPS = collections.OrderedDict([
+		('A', ['ALAS-CPLX[c]']),
+		('R', ['ARGS-MONOMER[c]']),
+		('N', ['ASNS-CPLX[c]']),
+		('D', ['ASPS-CPLX[c]']),
+		('C', ['CYSS-MONOMER[c]']),
+		('E', ['GLURS-MONOMER[c]']),
+		('Q', ['GLNS-MONOMER[c]']),
+		('G', ['GLYS-CPLX[c]']),
+		('H', ['HISS-CPLX[c]']),
+		('I', ['ILES-MONOMER[c]']),
+		('L', ['LEUS-MONOMER[c]']),
+		('K', ['LYSS-CPLX[c], LYSU-CPLX[c]']),
+		('M', ['METG-CPLX[c]']),
+		('F', ['PHES-CPLX[c]']),
+		('P', ['PROS-CPLX[c]']),
+		('S', ['SERS-CPLX[c]']),
+		('T', ['THRS-CPLX[c]']),
+		('W', ['TRPS-CPLX[c]']),
+		('Y', ['TYRS-CPLX[c]']),
+		('U', ['CPLX0-1141[c]']), # NOTE: Approximate enzyme here...
+		('V', ['VALS-MONOMER[c]'])
+		])
+
+# TODO: Still need to somehow implement selenocyst formation
+#		and fMet formation into genetic code!
+# Enzymes to include
+# fmet	['EG11268-MONOMER[c]']
+# [ser] ['SERS-CPLX[c]']
