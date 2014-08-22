@@ -220,6 +220,8 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):
+	# TODO: reduce the arrays to elements where counts != 0
+
 	counts = counts.copy()
 
 	priorityLevels = np.sort(np.unique(processPriorities))[::-1]

@@ -2276,204 +2276,185 @@ class KnowledgeBaseEcoli(object):
 		# These may be modified/extended later, but should provide the basic
 		# data structures
 
-		# Collect reaction information
+		exchangeReactions = [x["id"] for x in self._reactions if x["id"].startswith("FEIST_EX") or x["id"].startswith("FEIST_DM_")]
+		exchangeReactions += ["SELNP_MEDIA_EXCHANGE_HACKED"]
 
-		allReactionNames = []
-		allReactionIds = []
-		allEnzymes = []
-		allKcats = []
-		allReversibility = []
-		allReactionStoich = []
-		allLocations = []
+		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp",
+			"FEIST_FHL_0_0", "FEIST_FHL_1_0", "FEIST_ATPM")
+		# NOTE: the first five were disabled by Feist, the last is NGAM which model explictly elsewhere
 
-		molecules = set()
+		reactionStoich = {}
+		externalExchangeMolecules = []
+		reversibleReactions = []
+		reactionEnzymes = {}
+		reactionRates = {}
 
-		for reaction in self._reactions:
-			assert reaction["process"] == "Metabolism"
+		unconstrainedExchangeMolecules = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
+			"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
+			"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
+			"ZN2[e]", "SELNP[e]",)
 
-			reactionName = reaction["name"]
+		exchangeUnits = units.mmol / units.g / units.h
 
-			reactionId = reaction["id"]
+		constrainedExchangeMolecules = {
+			"CBL1[e]": exchangeUnits * 0.01, # TODO: try removing this constraint
+			"GLC-D[e]": exchangeUnits * 8,
+			"O2[e]": exchangeUnits * 18.5
+			}
 
-			enzymes = reaction['catBy']
+		catalysisUnits = 1 / units.s
 
-			kcat = reaction["kcat"]
-
-			reversible = (reaction['dir'] == 0)
-
-			reactionStoich = {
-				'{}[{}]'.format(reactant['molecule'], reactant['location']) : reactant['coeff']
-				for reactant in reaction['stoichiometry']
-				}
-
-			locations = {
-				reactant["location"] for reactant in reaction["stoichiometry"]
-				}
-
-			allReactionNames.append(reactionName)
-			allReactionIds.append(reactionId)
-			allEnzymes.append(enzymes)
-			allKcats.append(kcat)
-			allReversibility.append(reversible)
-			allReactionStoich.append(reactionStoich)
-			allLocations.append(locations)
-
-			molecules |= reactionStoich.viewkeys()
-
-		self.metabolismReactionHasKcat = np.array([kcat is not None for kcat in allKcats])
-
-		self.metabolismReactionKcat = np.array([kcat if kcat is not None else 0 for kcat in allKcats])
-
-		self.metabolismReactionNames = allReactionNames
-
-		self.metabolismReactionIds = allReactionIds
-
-		# Build enzyme lists
-
-		self.metabolismReactionEnzymes = []
-
-		keys = REACTION_ENZYME_ASSOCIATIONS.viewkeys()
-		for index, reactionId in enumerate(allReactionIds):
-			if reactionId in keys:
-				allEnzymes[index] = REACTION_ENZYME_ASSOCIATIONS[reactionId]
-
-		validEnzymeIds = set(self.bulkMolecules["moleculeId"])
+		validEnzymeIDs = set(self.bulkMolecules["moleculeId"])
 		validEnzymeCompartments = collections.defaultdict(set)
 
-		for enzymeId in validEnzymeIds:
+		for enzymeId in validEnzymeIDs:
 			enzyme = enzymeId[:enzymeId.index("[")]
 			location = enzymeId[enzymeId.index("[")+1:enzymeId.index("[")+2]
 
 			validEnzymeCompartments[enzyme].add(location)
 
-		for reactionId, enzymes, locations in itertools.izip(allReactionIds, allEnzymes, allLocations):
-			if enzymes is None or len(enzymes) == 0:
-				self.metabolismReactionEnzymes.append(None)
+		for reaction in self._reactions:
+			reactionID = reaction["id"]
+			stoich = reaction["stoichiometry"]
+
+			if reactionID in disabledReactions:
+				continue
+
+			elif reactionID in exchangeReactions:
+				if len(stoich) != 1:
+					raise Exception("Invalid exchange reaction")
+
+				externalExchangeMolecules.append("{}[{}]".format(
+					stoich[0]["molecule"], stoich[0]["location"]
+					))
 
 			else:
+				if len(stoich) <= 1:
+					raise Exception("Invalid biochemical reaction")
 
-				if len(enzymes) > 1:
-					raise Exception("Reaction {} has multiple associated enzymes: {}".format(
-						reactionId, enzymes))
+				reducedStoich = {
+					"{}[{}]".format(
+						entry["molecule"], entry["location"]
+						): entry["coeff"]
+					for entry in stoich
+					}
 
-				(enzyme,) = enzymes
+				reactionStoich[reactionID] = reducedStoich
 
-				if len(locations) > 1:
-					validLocations = validEnzymeCompartments[enzyme]
-					if len(validLocations) == 1:
-						locations = validLocations
+				# Assign reversibilty
 
-					elif locations == {"p", "e"}: # if reaction is periplasm <-> extracellular
-						locations = {"o"} # assume enzyme is in outer membrane
+				if reaction["dir"] == 0:
+					reversibleReactions.append(reactionID)
 
-					elif locations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
-						locations = {"i"} # assume enzyme is in inner membrane
+				# Assign k_cat, if known
 
-					else:
-						raise Exception("Reaction {} has multiple associated locations: {}".format(
-							reactionId,
-							locations
-							))
+				kcat = reaction["kcat"]
 
-					assert locations <= validLocations
+				if kcat is not None:
+					reactionRates[reactionID] = kcat * catalysisUnits
 
-				(location,) = locations
+				# Assign enzyme, if any
 
-				enzymeId = "{}[{}]".format(enzyme, location)
+				if reactionID in REACTION_ENZYME_ASSOCIATIONS.viewkeys():
+					enzymes = REACTION_ENZYME_ASSOCIATIONS[reactionID]
 
-				self.metabolismReactionEnzymes.append(enzymeId)
+				else:
+					enzymes = reaction['catBy']
 
-		nEdges = len(allEnzymes)
-		nNodes = len(molecules)
+				locations = {reactant["location"]
+					for reactant in reaction["stoichiometry"]}
 
-		# TODO: actually track/annotate enzymes, k_cats
+				if enzymes is not None and len(enzymes) > 0:
+					if len(enzymes) > 1:
+						raise Exception("Reaction {} has multiple associated enzymes: {}".format(
+							reactionID, enzymes))
 
-		self.metabolismMoleculeNames = np.array(sorted(molecules))
+					(enzyme,) = enzymes
 
-		moleculeNameToIndex = {
-			molecule:i
-			for i, molecule in enumerate(self.metabolismMoleculeNames)
+					if len(locations) > 1:
+						validLocations = validEnzymeCompartments[enzyme]
+						if len(validLocations) == 1:
+							locations = validLocations
+
+						elif locations == {"p", "e"}: # if reaction is periplasm <-> extracellular
+							locations = {"o"} # assume enzyme is in outer membrane
+
+						elif locations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
+							locations = {"i"} # assume enzyme is in inner membrane
+
+						else:
+							raise Exception("Reaction {} has multiple associated locations: {}".format(
+								reactionID,
+								locations
+								))
+
+						assert locations <= validLocations
+
+					(location,) = locations
+
+					enzymeID = "{}[{}]".format(enzyme, location)
+
+					reactionEnzymes[reactionID] = enzymeID
+
+		mws = self.getMass(externalExchangeMolecules)
+
+		exchangeMasses = {moleculeID:mws[index]
+			for index, moleculeID in enumerate(externalExchangeMolecules)}
+
+		# HACK - must remove when studying knockouts!
+
+		# Having many reaction/enzyme associations really slows down the solver
+		# as the matrix can increase 2n rows and 2n columns for every n enzymes.
+		# Since we're not studying knockouts, reactions with enzymes but without
+		# rates are currently not meaningful.  The solver can be changed to 
+		# automatically map boolean constraints, or these can be retained to be
+		# used to predict catalytic rates in post-simulation analysis.
+
+		reactionEnzymes = {
+			reactionID:enzymeID
+			for reactionID, enzymeID in reactionEnzymes.viewitems()
+			if reactionID in reactionRates.viewkeys()
 			}
 
-		# Build the sparse (coordinate-value) stoich matrix
+		# END HACK
 
-		stoichMatrixI = []
-		stoichMatrixJ = []
-		stoichMatrixV = []
+		self.metabolismReactionStoich = reactionStoich
+		self.metabolismExternalExchangeMolecules = externalExchangeMolecules
+		self._metabolismExchangeMasses = exchangeMasses
+		self.metabolismReversibleReactions = reversibleReactions
+		self.metabolismReactionEnzymes = reactionEnzymes
+		self._metabolismReactionRates = reactionRates
+		self._metabolismUnconstrainedExchangeMolecules = unconstrainedExchangeMolecules
+		self._metabolismConstrainedExchangeMolecules = constrainedExchangeMolecules
 
-		for reactionIndex, reactionStoich in enumerate(allReactionStoich):
-			for molecule, stoich in reactionStoich.viewitems():
-				moleculeIndex = moleculeNameToIndex[molecule]
 
-				stoichMatrixI.append(moleculeIndex)
-				stoichMatrixJ.append(reactionIndex)
-				stoichMatrixV.append(stoich)
+	def metabolismReactionRates(self, timeStep):
+		return {
+			reactionID:(reactionRate * timeStep).asNumber()
+			for reactionID, reactionRate in self._metabolismReactionRates.viewitems()
+			}
 
-		self._metStoichMatrixI = np.array(stoichMatrixI)
-		self._metStoichMatrixJ = np.array(stoichMatrixJ)
-		self._metStoichMatrixV = np.array(stoichMatrixV)
 
-		# Collect exchange reactions
+	def metabolismExchangeMasses(self, targetUnits):
+		return {
+			moleculeID:mass.asNumber(targetUnits)
+			for moleculeID, mass in self._metabolismExchangeMasses.viewitems()
+			}
 
-		## First, find anything that looks like an exchange reaction
 
-		exchangeIndexes = np.where(
-			np.bincount(self._metStoichMatrixJ) == 1 # exchange reactions only have one stoich coeff in the column
-			)[0]
+	def metabolismExchangeConstraints(self, exchangeIDs, coefficient, targetUnits):
+		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
-		exchangeNames = [
-			self.metabolismMoleculeNames[
-				self._metStoichMatrixI[reactionIndex]
-				]
-			for reactionIndex in exchangeIndexes
-			]
+		for index, moleculeID in enumerate(exchangeIDs):
+			if moleculeID in self._metabolismUnconstrainedExchangeMolecules:
+				externalMoleculeLevels[index] = np.inf
 
-		## Separate intercellular (sink) vs. extracellular (media) exchange fluxes
+			elif moleculeID in self._metabolismConstrainedExchangeMolecules.viewkeys():
+				externalMoleculeLevels[index] = (
+					self._metabolismConstrainedExchangeMolecules[moleculeID] * coefficient
+					).asNumber(targetUnits)
 
-		reactionIsMediaExchange = np.zeros(nEdges, np.bool)
-		reactionIsSink = np.zeros(nEdges, np.bool)
-
-		for index, name in itertools.izip(exchangeIndexes, exchangeNames):
-			if name.endswith('[e]'):
-				reactionIsMediaExchange[index] = True
-
-			else:
-				reactionIsSink[index] = True
-
-		self.metabolismReactionIsSink = reactionIsSink
-		self.metabolismReactionIsMediaExchange = reactionIsMediaExchange
-		self.metabolismReactionIsReversible = np.array(allReversibility, np.bool)
-
-		# Below is stuff Derek needs
-		exchangeIds = [x["id"] for x in self._reactions if x["id"].startswith("FEIST_EX") or x["id"].startswith("FEIST_DM_")]
-		exchangeIds += ["SELNP_MEDIA_EXCHANGE_HACKED"]
-
-		self.metabolismMediaEx = []
-		for exchangeId in exchangeIds:
-			d = {}
-			d["rxnId"] = exchangeId
-
-			rxn = [x for x in self._reactions if x["id"] == exchangeId][0]
-			stoichiometry = rxn["stoichiometry"]
-			if len(stoichiometry) > 1:
-				raise Exception, "You have an export reaction '%s' with more than 1 metabolite getting exported!" % exchangeId
-
-			d["met"] = "%s[%s]" % (stoichiometry[0]["molecule"], stoichiometry[0]["location"])
-			self.metabolismMediaEx.append(d)
-
-		self.metabolismBiochemicalReactions = [x for x in self._reactions if x["id"] not in exchangeIds]
-		for rxn in self.metabolismBiochemicalReactions:
-			if len(rxn["stoichiometry"]) <= 1:
-				raise Exception, "You have an export reaction '%s' that won't be handled properly in FBA!" % rxn["id"]
-
-	def metabolismStoichMatrix(self):
-		shape = (self._metStoichMatrixI.max()+1, self._metStoichMatrixJ.max()+1)
-
-		out = np.zeros(shape, np.float64)
-
-		out[self._metStoichMatrixI, self._metStoichMatrixJ] = self._metStoichMatrixV
-
-		return out
+		return externalMoleculeLevels
 
 
 	def _buildMetabolitePools(self):
