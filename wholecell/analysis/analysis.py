@@ -13,10 +13,12 @@ class AnalysisException(Exception):
 class Analysis(object):
 	_interactiveOnly = False
 
+	_name = None
+
 	def __init__(self, simOutDir, plotOutDir = None, interactiveMode = False):
 		if interactiveMode is False and self._interactiveOnly:
 			raise AnalysisException(
-				"{} must be ran in interactive mode.".format(self.__name__)
+				"{} must be ran in interactive mode.".format(self.name())
 				)
 
 		if plotOutDir is None and interactiveMode is False:
@@ -63,6 +65,15 @@ class Analysis(object):
 
 	def figureFilenames(self):
 		return self._filenamesUsed
+
+
+	@classmethod
+	def name(cls):
+		if cls._name is not None:
+			return cls._name
+
+		else:
+			return cls.__name__
 
 
 class AnalysisSingle(Analysis):
