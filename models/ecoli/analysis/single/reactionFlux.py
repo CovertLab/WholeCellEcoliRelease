@@ -93,17 +93,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		/ scaling[nonzero]
 		).transpose()
 
-	with open(kbFile, "rb") as f:
-		kb = cPickle.load(f)
+	# with open(kbFile, "rb") as f:
+	# 	kb = cPickle.load(f)
 
-	idToName = {
-		reaction["id"]:reaction["name"]
-		for reaction in kb.metabolismBiochemicalReactions
-		}
+	# idToName = {
+	# 	reaction["id"]:reaction["name"]
+	# 	for reaction in kb.metabolismBiochemicalReactions
+	# 	}
 
-	reactionNames = np.array([
-		idToName[reactionID] for reactionID in reactionIDs
-		])
+	# reactionNames = np.array([
+	# 	idToName[reactionID] for reactionID in reactionIDs
+	# 	])
 
 	# fig = plt.figure(figsize = (36, 48))
 	# fig = plt.figure(figsize = (12, 16))
@@ -151,7 +151,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(reactionNames[nonzero][np.array(index)], size = 5)
+	ax_mat.set_yticklabels(reactionIDs[nonzero][np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
