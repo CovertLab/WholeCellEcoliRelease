@@ -5,6 +5,8 @@ Hard coded data file
 """
 import collections
 import numpy as np
+import unum
+from wholecell.utils import units
 
 AMINO_ACID_1_TO_3_ORDERED = collections.OrderedDict(( # TOKB
 	("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
@@ -334,6 +336,8 @@ from scipy.interpolate import interp1d
 TRNA_ABUNDANCE_INTERPOLATION_FUNCTIONS = [interp1d(TRNA_GROWTH_RATES, TRNA_MOLAR_RATIO_TO_RIBOSOME[i,:]) for i in range(TRNA_MOLAR_RATIO_TO_RIBOSOME.shape[0])]
 
 def getTrnaAbundanceAtGrowthRate(growth_rate):
+	assert type(growth_rate) == unum.Unum
+	growth_rate = growth_rate.asNumber(1/units.h)
 	abundance = np.zeros(len(TRNA_IDS), dtype = [('id','a50'),('molar_ratio_to_16SrRNA', np.float64)])
 	abundance['id'] = TRNA_IDS
 	abundance['molar_ratio_to_16SrRNA'] = [x(growth_rate) for x in TRNA_ABUNDANCE_INTERPOLATION_FUNCTIONS]
