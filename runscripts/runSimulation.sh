@@ -63,4 +63,18 @@ for SINGLE_ANALYSIS_SCRIPT in $SINGLE_ANALYSIS_SCRIPTS; do
 	PYTHONPATH="$PWD:$PYTHONPATH" python2.7 $SINGLE_ANALYSIS_SCRIPT $SIM_OUT_DATA_DIR $PLOT_OUT_DATA_DIR ${OUT_NAME}.pdf --kbFile "${KB_FIT}"
 done
 
+##### Compress kb fixtures to save space #####
+
+echo "+++++ Compressing KB files +++++"
+
+KB_FILES=$(find ${KB_DIR} -type f | sort)
+
+# TODO: Decide if you want to do this (might be good to leave the links for documentation?)
+# Remove symlinks (their targets won't exist anymore)
+#find ${KB_DIR} -type l -exec unlink {} \;
+
+for KB_FILE in $KB_FILES; do
+	bzip2 "${KB_FILE}"
+done
+
 echo
