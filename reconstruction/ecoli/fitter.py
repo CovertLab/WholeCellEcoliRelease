@@ -25,6 +25,7 @@ import collections
 
 import wholecell.states.bulk_molecules
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+from reconstruction.ecoli.compendium import growth_data
 
 from wholecell.utils import units
 import unum
@@ -80,12 +81,13 @@ def fitKb(kb):
 	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
-	adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb)
-	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60]
+	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+
+	g = growth_data.GrowthData(kb)
+	massFractions60 = g.massFractions(60)
 
 	### RNA Mass fraction ###
-	rnaMassFraction = float(dryComposition60min["rnaMassFraction"])
-	rnaMass = kb.avgCellDryMassInit.asUnit(units.g) * rnaMassFraction
+	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
 	setRNACounts(
 		kb, rnaMass, mRnaView,
 		rRna23SView, rRna16SView, rRna5SView, tRnaView
@@ -93,11 +95,7 @@ def fitKb(kb):
 
 
 	### Protein Mass fraction ###
-
-	monomersView = bulkContainer.countsView(kb.monomerData["id"])
-
-	monomerMassFraction = float(dryComposition60min["proteinMassFraction"])
-	monomerMass = kb.avgCellDryMassInit * monomerMassFraction
+	monomerMass = massFractions60["proteinMass"].asUnit(units.g)
 	setMonomerCounts(kb, monomerMass, monomersView)
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
@@ -295,8 +293,8 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 
 	## tRNA Mass Fractions ##
 
-	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
-	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
+	# tRNA expression set based on data from Dong 1996
+	tRnaExpression = normalize(kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA'])
 
 	nTRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g) * TRNA_MASS_SUB_FRACTION,
@@ -306,7 +304,7 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 		)
 
 	tRnaView.countsIs((nTRnas * tRnaExpression))
-
+	
 	## mRNA Mass Fractions ##
 
 	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
@@ -354,39 +352,6 @@ def calcProteinCounts(kb, monomerMass):
 		)
 
 	return nMonomers * monomerExpression
-
-
-def adjustDryCompositionBasedOnChromosomeSeq(bulkContainer, kb):
-
-	dryComposition60min = kb.cellDryMassComposition[kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60]
-	dnaMassFraction = float(dryComposition60min["dnaMassFraction"])
-	dnaMass = kb.avgCellDryMassInit * dnaMassFraction
-
-	dntCounts = np.array([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("T")
-		])
-
-	dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
-
-	chromMass = units.dot(dntCounts, dntMasses)
-
-	dnaMassErrorRatio = ((dnaMass - chromMass) / kb.avgCellDryMassInit)
-	dnaMassErrorRatio.checkNoUnit()
-	fracDifference = dnaMassErrorRatio.asNumber()
-
-	# if fracDifference < 0:
-	# 	raise NotImplementedError, "Have to add DNA mass. Make sure you want to do this."
-	idx60Min = np.where(kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60)
-	dNtpCompositionIdx = 3 # TODO: Get this from code somehow
-	nElems = 9 # TODO: Get this from code somehow
-	nonDNtpsIdxs = [x for x in range(1, nElems + 1) if x != dNtpCompositionIdx]
-	amountToAdd = fracDifference / len(nonDNtpsIdxs)
-	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, nonDNtpsIdxs] += amountToAdd
-	kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, dNtpCompositionIdx] = chromMass.asNumber(units.fg) / kb.avgCellDryMassInit.asNumber(units.fg)
-	assert np.allclose(1, kb.cellDryMassComposition.struct_array.view((np.float, 10))[idx60Min, 1:].sum()), "Composition fractions must sum to 1!"
 
 
 if __name__ == "__main__":
