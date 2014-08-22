@@ -2,6 +2,8 @@
 # TODO: port analysis scripts to this class
 # TODO: simulation class method that calls analysis
 # TODO: defaults for figure sizes, formatting, ...?
+# TODO: ways to set up and call runners for interactive plots
+# TODO: CSV saving interface
 
 class AnalysisException(Exception):
 	pass
