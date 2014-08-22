@@ -2772,8 +2772,6 @@ class KnowledgeBaseEcoli(object):
 			for j, letter in enumerate(sequence):
 				self.translationSequences[i, j] = aaMapping[letter]
 
-		# TODO: (URGENT) unify peptide weight calculations!
-
 		self.translationMonomerWeights = (
 			(
 				self.getMass(self.aaIDs)
