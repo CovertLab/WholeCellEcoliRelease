@@ -401,8 +401,8 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 
 	## tRNA Mass Fractions ##
 
-	# Assume all tRNAs are expressed equally (TODO: Change this based on monomer expression!)
-	tRnaExpression = normalize(np.ones(tRnaView.counts().size))
+	# tRNA expression set based on data from Dong 1996
+	tRnaExpression = normalize(kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA'])
 
 	nTRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g) * TRNA_MASS_SUB_FRACTION,
@@ -412,7 +412,7 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 		)
 
 	tRnaView.countsIs((nTRnas * tRnaExpression))
-
+	
 	## mRNA Mass Fractions ##
 
 	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])

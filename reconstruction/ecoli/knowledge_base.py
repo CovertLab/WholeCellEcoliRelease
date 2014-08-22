@@ -2062,6 +2062,7 @@ class KnowledgeBaseEcoli(object):
 
 
 		self.rnaData = UnitStructArray(self.rnaData, field_units)
+		self.getTrnaAbundanceData = getTrnaAbundanceAtGrowthRate
 
 	def _buildMonomerData(self):
 		ids = ['{}[{}]'.format(protein['id'], protein['location'])
@@ -2770,8 +2771,6 @@ class KnowledgeBaseEcoli(object):
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):
 				self.translationSequences[i, j] = aaMapping[letter]
-
-		# TODO: (URGENT) unify peptide weight calculations!
 
 		self.translationMonomerWeights = (
 			(
