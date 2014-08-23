@@ -2307,9 +2307,9 @@ class KnowledgeBaseEcoli(object):
 		validEnzymeIDs = set(self.bulkMolecules["moleculeId"])
 		validEnzymeCompartments = collections.defaultdict(set)
 
-		for enzymeId in validEnzymeIDs:
-			enzyme = enzymeId[:enzymeId.index("[")]
-			location = enzymeId[enzymeId.index("[")+1:enzymeId.index("[")+2]
+		for enzymeID in validEnzymeIDs:
+			enzyme = enzymeID[:enzymeID.index("[")]
+			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
 
 			validEnzymeCompartments[enzyme].add(location)
 
@@ -2361,7 +2361,7 @@ class KnowledgeBaseEcoli(object):
 				else:
 					enzymes = reaction['catBy']
 
-				locations = {reactant["location"]
+				reactantLocations = {reactant["location"]
 					for reactant in reaction["stoichiometry"]}
 
 				if enzymes is not None and len(enzymes) > 0:
@@ -2371,26 +2371,33 @@ class KnowledgeBaseEcoli(object):
 
 					(enzyme,) = enzymes
 
-					if len(locations) > 1:
-						validLocations = validEnzymeCompartments[enzyme]
-						if len(validLocations) == 1:
-							locations = validLocations
+					validLocations = validEnzymeCompartments[enzyme]
 
-						elif locations == {"p", "e"}: # if reaction is periplasm <-> extracellular
-							locations = {"o"} # assume enzyme is in outer membrane
+					if len(validLocations) == 0:
+						raise Exception("Reaction {} uses enzyme {} but this enzyme does not exist.".format(
+							reactionID,
+							enzyme
+							))
 
-						elif locations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
-							locations = {"i"} # assume enzyme is in inner membrane
+					if len(validLocations) == 1:
+						(location,) = validLocations
 
-						else:
-							raise Exception("Reaction {} has multiple associated locations: {}".format(
-								reactionID,
-								locations
-								))
+					elif len(reactantLocations) == 1:
+						(location,) = reactantLocations
 
-						assert locations <= validLocations
+					elif reactantLocations == {"p", "e"}: # if reaction is periplasm <-> extracellular
+						(location,) = {"o"} # assume enzyme is in outer membrane
 
-					(location,) = locations
+					elif reactantLocations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
+						(location,) = {"i"} # assume enzyme is in inner membrane
+
+					else:
+						raise Exception("Reaction {} has multiple associated locations: {}".format(
+							reactionID,
+							reactantLocations
+							))
+
+					assert location in validLocations
 
 					enzymeID = "{}[{}]".format(enzyme, location)
 
