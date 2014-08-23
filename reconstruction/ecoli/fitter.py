@@ -158,9 +158,15 @@ def fitKb2(kb, simOutDir):
 		))
 
 	enzymeConc = np.array([
-		proteinConc[enzymeID] if enzymeID in proteinConc.viewkeys() else np.inf # TODO: determine why some proteins have invalid locations
+		proteinConc[enzymeID] if enzymeID in proteinConc.viewkeys() else np.inf
 		for enzymeID in fba.enzymeIDs()
 		])
+
+	unaccountedEnzymes = [
+		enzymeID for enzymeID in fba.enzymeIDs() if enzymeID not in proteinConc
+		] # these should all be complexes, need to handle
+
+	# TODO: compute complex concentrations
 
 	# TODO: scaling factor in FBA solver
 
