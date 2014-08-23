@@ -429,20 +429,6 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 
 def setMonomerCounts(kb, monomerMass, monomersView):
 
-	# TODO: further refactor
-
-	# monomerExpression = normalize(
-	# 	kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
-	# 	(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
-	# 	)
-
-	# nMonomers = countsFromMassAndExpression(
-	# 	monomerMass.asNumber(units.g),
-	# 	kb.monomerData["mw"].asNumber(units.g / units.mol),
-	# 	monomerExpression,
-	# 	kb.nAvogadro.asNumber(1 / units.mol)
-	# 	)
-
 	monomersView.countsIs(calcProteinCounts(kb, monomerMass))
 
 
