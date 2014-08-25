@@ -38,6 +38,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.h2oWeight = None
 		self.aaWeightsIncorporated = None
 		self.gtpPerElongation = None
+		self.synthetase_turnover = None
 
 		# Views
 		self.activeRibosomes = None
@@ -61,6 +62,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aa_trna_groups = kb.aa_trna_groups
 		self.aa_synthetase_groups = kb.aa_synthetase_groups
+		self.synthetase_turnover = kb.trna_synthetase_rates.asNumber(1/units.s)
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -242,8 +244,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)
 
 	def trnaMachineryCapacity(self):
-		# TODO: Multiply by turnover kinetic rate eventually
-		rate = 10000
+		rate = self.synthetase_turnover
 		trnas = np.array([x.counts().sum() * rate for x in self.trna_groups],dtype = np.int64)
 		synthetases = np.array([x.counts().sum() * rate for x in self.synthetase_groups],dtype = np.int64)
 		return rate*np.minimum(trnas,synthetases)
