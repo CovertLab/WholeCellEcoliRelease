@@ -62,7 +62,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aa_trna_groups = kb.aa_trna_groups
 		self.aa_synthetase_groups = kb.aa_synthetase_groups
-		self.synthetase_turnover = kb.trna_synthetase_rates.asNumber(1/units.s)
+		self.synthetase_turnover = kb.trna_synthetase_rates.asNumber(units.aa/units.s)
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
