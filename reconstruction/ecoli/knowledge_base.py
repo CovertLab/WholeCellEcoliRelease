@@ -1687,6 +1687,10 @@ class KnowledgeBaseEcoli(object):
 			complex_['mw'] for complex_ in self._proteinComplexes
 			]
 
+
+		# TODO: UNDO THIS HACK!!
+		bulkMolecules['moleculeId'][np.where(bulkMolecules['moleculeId'] == 'METG-CPLX[o]')[0][0]] = 'METG-CPLX[c]'
+
 		# Set polymerized
 
 		lastPolymerizedIndex = len(self._polymerized)*len(self._compartmentList) + lastComplexIdx
