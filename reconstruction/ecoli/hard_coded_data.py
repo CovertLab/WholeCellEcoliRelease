@@ -257,6 +257,7 @@ TRNA_IDS = ['alaX-tRNA[c]','valV-tRNA[c]','trpT-tRNA[c]','metY-tRNA[c]','glyV-tR
 'selC-tRNA[c]','glyT-tRNA[c]','aspV-tRNA[c]','serT-tRNA[c]','ileT-tRNA[c]','pheV-tRNA[c]','tyrV-tRNA[c]',
 'ileU-tRNA[c]','leuP-tRNA[c]','thrV-tRNA[c]'] # In the same order they would come out of rnaData
 
+# Curated from Dong 1996
 TRNA_MOLAR_RATIO_TO_RIBOSOME = np.array([[0.154,	0.11,	0.072,	0.096,	0.078],
 [0.0633,	0.0517,	0.04,	0.0367,	0.0333],
 [0.0633,	0.0517,	0.04,	0.0367,	0.0333],
@@ -404,6 +405,32 @@ AA_SYNTHETASE_GROUPS = collections.OrderedDict([
 		('U', ['CPLX0-1141[c]']), # NOTE: Approximate enzyme here...
 		('V', ['VALS-MONOMER[c]'])
 		])
+
+# Curated from Jakubowski 1984
+SYNTHETASE_RATE = collections.OrderedDict([ # Units 1/s
+		('A', None),
+		('R', 9.2),
+		('N', None),
+		('D', None),
+		('C', None),
+		('E', 2.0),
+		('Q', 4.9),
+		('G', 14.7),
+		('H', None),
+		('I', 12.4),
+		('L', 23.2),
+		('K', 28.3),
+		('M', None),
+		('F', 10.0),
+		('P', None),
+		('S', None),
+		('T', 48.0),
+		('W', None),
+		('Y', None),
+		('U', None),
+		('V', 26.6)
+	])
+
 
 # TODO: Still need to somehow implement selenocyst formation
 #		and fMet formation into genetic code!
