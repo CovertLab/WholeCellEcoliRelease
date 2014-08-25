@@ -380,7 +380,7 @@ AA_SYNTHETASE_GROUPS = collections.OrderedDict([
 		('I', ['ILES-MONOMER[c]']),
 		('L', ['LEUS-MONOMER[c]']),
 		('K', ['LYSS-CPLX[c]', 'LYSU-CPLX[c]']),
-		('M', ['METG-CPLX[c]']),
+		('M', ['METG-CPLX[o]']), # TODO: URGENT! Fix this in the KB so that the synthetase is located in the cytosol!
 		('F', ['PHES-CPLX[c]']),
 		('P', ['PROS-CPLX[c]']),
 		('S', ['SERS-CPLX[c]']),
