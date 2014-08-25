@@ -2841,7 +2841,7 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildTrnaData(self):
 		self.aa_trna_groups = AA_TRNA_GROUPS
-		self.trnaIds = TRNA_FRAME_IDS
+		self.aa_synthetase_groups = AA_SYNTHETASE_GROUPS
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
