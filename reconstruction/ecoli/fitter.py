@@ -65,18 +65,59 @@ def fitAtLevel(fitLevel, kb, simOutDir):
 		fitKb(kb)
 
 	if fitLevel == 2:
-		pass
-		# fitKb2(kb, simOutDir)
+		# pass
+		fitKb2(kb, simOutDir)
 
 import tables
 
-from wholecell.utils.modular_fba import FluxBalanceAnalysis
+from wholecell.utils.mc_complexation import mccFormComplexes
 
 def fitKb2(kb, simOutDir):
 
+	growthData = growth_data.GrowthData(kb)
+	massFractions60 = growthData.massFractions(60)
+	proteinMass = massFractions60["proteinMass"].asUnit(units.g)
+	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
+
+	# Construct bulk container
+
+	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
+	rnaView = bulkContainer.countsView(kb.rnaData["id"])
+	proteinView = bulkContainer.countsView(kb.monomerData["id"])
+	complexationMoleculesView = bulkContainer.countsView(kb.complexationMoleculeNames)
+
+	rnaCounts = countsFromMassAndExpression(
+		rnaMass.asNumber(units.g),
+		kb.rnaData["mw"].asNumber(units.g / units.mol),
+		kb.rnaExpression['expression'],
+		kb.nAvogadro.asNumber(1 / units.mol)
+		)
+
+	rnaView.countsIs(np.int64(rnaCounts * kb.rnaExpression['expression'])) # TODO: stoch round
+
+	proteinView.countsIs(np.int64(calcProteinCounts(kb, proteinMass))) # TODO: stoch round
+
+	complexationMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+
+	# Build views
+
+	moleculeCounts = complexationMoleculesView.counts()
+
+	seed = 0 # WARNING: deterministic!
+
+	updatedMoleculeCounts = mccFormComplexes(moleculeCounts, seed, complexationMatrix)
+
+	complexationMoleculesView.countsIs(updatedMoleculeCounts)
+
+	# NICK: fill in your stuff here
+
+
+from wholecell.utils.modular_fba import FluxBalanceAnalysis
+def fitKb2_metabolism(kb, simOutDir):
+
 	# Load the simulation output
 
-	## Effective biomass reactuib
+	## Effective biomass reaction
 	with tables.open_file(os.path.join(simOutDir, "ConcentrationChange.hdf")) as h5file:
 		time = h5file.root.ConcentrationChange.col("time")
 		timeStep = h5file.root.ConcentrationChange.col("timeStep")
@@ -111,8 +152,6 @@ def fitKb2(kb, simOutDir):
 	objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T*10**3))
 
 	reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
-	for reactionID, reactionRate in reactionRates.viewitems():
-		reactionRates[reactionID] = max(reactionRate, 500) # TODO: remove this hack
 
 	fba = FluxBalanceAnalysis(
 		kb.metabolismReactionStoich.copy(),
@@ -121,7 +160,7 @@ def fitKb2(kb, simOutDir):
 		objectiveType = "standard",
 		reversibleReactions = kb.metabolismReversibleReactions,
 		reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-		reactionRates = reactionRates,
+		reactionRates = reactionRates.copy(),
 		)
 
 	externalMoleculeIDs = fba.externalMoleculeIDs()
@@ -157,26 +196,60 @@ def fitKb2(kb, simOutDir):
 		calcProteinCounts(kb, proteinMass) / kb.nAvogadro.asNumber(1 / units.mmol) / initCellVolume.asNumber(units.L)
 		))
 
+	enzymeIDs = np.array(fba.enzymeIDs())
+
+	# Hack for enzymes with bad k_cat values
 	enzymeConc = np.array([
 		proteinConc[enzymeID] if enzymeID in proteinConc.viewkeys() else np.inf
-		for enzymeID in fba.enzymeIDs()
+		for enzymeID in enzymeIDs
 		])
 
 	unaccountedEnzymes = [
-		enzymeID for enzymeID in fba.enzymeIDs() if enzymeID not in proteinConc
+		enzymeID for enzymeID in enzymeIDs if enzymeID not in proteinConc
 		] # these should all be complexes, need to handle
 
 	# TODO: compute complex concentrations
 
 	# TODO: scaling factor in FBA solver
 
-	fba.enzymeLevelsIs(enzymeConc)
+	from collections import defaultdict
+	enzymeID_toRate = defaultdict(set)
 
-	fba.run()
+	for reactionID, enzymeID in kb.metabolismReactionEnzymes.viewitems():
+		enzymeID_toRate[enzymeID].add(reactionRates[reactionID])
 
-	print fba.objectiveReactionFlux()
+	# Iteratively run FBA, relaxing constraints until output matches expected
 
-	import ipdb; ipdb.set_trace()
+	filteredEnzymes = []
+
+	enzymeRates = np.array([
+		min(enzymeID_toRate[enzymeID]) for enzymeID in enzymeIDs
+		])
+
+	while True:
+		fba.enzymeLevelsIs(enzymeConc)
+
+		fba.run()
+
+		objectiveValue = fba.objectiveReactionFlux()
+
+		if objectiveValue >= 1:
+			break
+
+		isLimiting = (fba.enzymeUsage() / enzymeConc >= 1 - 1e-9)
+
+		# Find the limiting enzyme with the lowest k_cat, and remove the constraint
+
+		limitingIndex = np.where(isLimiting)[0][np.argmin(enzymeRates[isLimiting])]
+
+		enzymeConc[limitingIndex] = np.inf
+
+		filteredEnzymes.append(enzymeIDs[limitingIndex])
+
+		print objectiveValue
+
+	for enzymeID in filteredEnzymes:
+		print "{}: {}".format(enzymeID, min(enzymeID_toRate[enzymeID]))
 
 
 def fitKb(kb):
