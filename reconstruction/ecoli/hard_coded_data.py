@@ -379,7 +379,7 @@ AA_SYNTHETASE_GROUPS = collections.OrderedDict([
 		('H', ['HISS-CPLX[c]']),
 		('I', ['ILES-MONOMER[c]']),
 		('L', ['LEUS-MONOMER[c]']),
-		('K', ['LYSS-CPLX[c], LYSU-CPLX[c]']),
+		('K', ['LYSS-CPLX[c]', 'LYSU-CPLX[c]']),
 		('M', ['METG-CPLX[c]']),
 		('F', ['PHES-CPLX[c]']),
 		('P', ['PROS-CPLX[c]']),
