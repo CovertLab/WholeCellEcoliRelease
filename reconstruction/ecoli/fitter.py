@@ -324,6 +324,48 @@ def fitKb(kb):
 	# TODO: Distribute it amongst growth-related processes
 	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
 
+
+	# ----- tRNA synthetase ------
+	# Fit tRNA synthetase kcat values based on expected rates of translation
+	# compute values at initial time point
+
+	## Compute rate of AA incorperation
+	proteinComposition = kb.monomerData["aaCounts"]
+	initialDryMass = kb.avgCellDryMassInit
+
+	proteinMassFraction = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
+		]["proteinMassFraction"]
+
+	initialProteinMass = initialDryMass * proteinMassFraction
+
+	initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
+
+	initialProteinTranslationRate = (
+		(np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]) * initialProteinCounts
+		).asUnit(1 / units.s)
+
+	initialAAPolymerizationRate = units.dot(
+		units.transpose(proteinComposition), initialProteinTranslationRate
+		).asUnit(units.aa / units.s)
+
+	## Compute expression of tRNA synthetases
+	synthetase_counts_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float64)
+	for idx, synthetase_group in enumerate(kb.aa_synthetase_groups.itervalues()):
+		group_count = 0.
+		for synthetase in synthetase_group:
+			try:
+				subunits, stoich = kb.getComplexMonomers(synthetase)
+				subunitCounts = bulkContainer.countsView(subunits).counts()
+				group_count += np.min(subunitCounts / (-1*stoich))
+			except IndexError:
+				counts = bulkContainer.countsView([synthetase]).counts()
+				group_count += counts
+			synthetase_counts_by_group[idx] = group_count
+	
+	predicted_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
+	kb.trna_synthetase_rates = predicted_trna_synthetase_rates
+
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
 
