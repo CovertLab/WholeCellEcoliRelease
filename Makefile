@@ -7,8 +7,10 @@ compile:
 runSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/runSimulation.sh
 
+NSIMS ?= "4"
+
 runSimulationJob: compile
-	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh 4
+	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/queueSimulationAndAnalysis.sh $(NSIMS)
 
 FIXTURES_KBDIR ?= "fixtures/kb"
 FIXTURES_SIMDIR ?= "fixtures/sim"
