@@ -89,6 +89,20 @@ REACTION_ENZYME_ASSOCIATIONS = {
 	"FEIST_RIBabcpp":None, # ['ABC-28-CPLX', 'CPLX0-7646']
 	"FEIST_THZPSN":None, # ['CPLX0-248', 'THIF-MONOMER', 'CPLX-8029', 'THII-MONOMER']
 
+	# problem: modified form complexes
+	"FEIST_ACCOAC":None,
+	"FEIST_GLYCL":None,
+	"FEIST_OBTFL_0_0":None,
+	"FEIST_OBTFL_1":None,
+	"FEIST_PFL_0_0":None,
+	"FEIST_PFL_1":None,
+
+	# problem: unknown
+	"FEIST_ASNN_0_0":None,
+	"FEIST_ASNN_0_1":None,
+	"FEIST_OBTFL_2":None,
+	"FEIST_PFL_2":None,
+
 	}
 
 METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL # TODO: Add units!

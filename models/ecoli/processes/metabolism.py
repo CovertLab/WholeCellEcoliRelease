@@ -65,7 +65,7 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools",
 			reversibleReactions = kb.metabolismReversibleReactions,
 			reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-			# reactionRates = kb.metabolismReactionRates(self.timeStepSec * units.s),
+			reactionRates = kb.metabolismReactionRates(self.timeStepSec * units.s),
 			# moleculeMasses = kb.metabolismExchangeMasses(units.g / units.mol)
 			)
 

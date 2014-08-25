@@ -56,13 +56,127 @@ EXCESS_FREE_DNTP_CAPACITY = 1.3
 # 2) Ensure that there is enough RNAP/ribosome capacity for (1), and adjust if needed
 # 3) Update the metabolism FBA objective based on expression
 
+# TODO: move many of these functions into another module
+
+
 def fitAtLevel(fitLevel, kb, simOutDir):
 	# TODO: Obviously make this more sophisticated
 	if fitLevel == 1:
 		fitKb(kb)
 
 	if fitLevel == 2:
-		print simOutDir
+		pass
+		# fitKb2(kb, simOutDir)
+
+import tables
+
+from wholecell.utils.modular_fba import FluxBalanceAnalysis
+
+def fitKb2(kb, simOutDir):
+
+	# Load the simulation output
+
+	## Effective biomass reactuib
+	with tables.open_file(os.path.join(simOutDir, "ConcentrationChange.hdf")) as h5file:
+		time = h5file.root.ConcentrationChange.col("time")
+		timeStep = h5file.root.ConcentrationChange.col("timeStep")
+
+		# NOTE: units are M/s
+		concentrationChange = h5file.root.ConcentrationChange.col("concentrationChange")
+
+		names = h5file.root.names
+		moleculeIDs = np.array(names.moleculeIDs.read())
+
+	## Find the most extreme concentration flux, after removing the first few time steps
+
+	# TODO: intelligent filtering - use the correlation coefficient?
+
+	concentrationChange = concentrationChange[3:, :] # NOTE: magic number
+
+	concentrationChangeMostPositive = concentrationChange.max(0)
+	concentrationChangeMostNegative = concentrationChange.min(0)
+
+	effectiveBiomassReaction = concentrationChangeMostPositive.copy()
+
+	negativeIsMostExtreme = (np.abs(concentrationChangeMostNegative)
+		> concentrationChangeMostPositive)
+
+	effectiveBiomassReaction[negativeIsMostExtreme] = concentrationChangeMostNegative[negativeIsMostExtreme]
+
+	## Build the standard FBA problem and the MOMA problem
+
+	DELTA_T = 1 # use a time-step of one-second (doesn't really matter)
+
+	# objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T))
+	objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T*10**3))
+
+	reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
+	for reactionID, reactionRate in reactionRates.viewitems():
+		reactionRates[reactionID] = max(reactionRate, 500) # TODO: remove this hack
+
+	fba = FluxBalanceAnalysis(
+		kb.metabolismReactionStoich.copy(),
+		kb.metabolismExternalExchangeMolecules,
+		objective,
+		objectiveType = "standard",
+		reversibleReactions = kb.metabolismReversibleReactions,
+		reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
+		reactionRates = reactionRates,
+		)
+
+	externalMoleculeIDs = fba.externalMoleculeIDs()
+
+	initWaterMass = kb.avgCellWaterMassInit
+	initDryMass = kb.avgCellDryMassInit
+
+	initCellMass = (
+		initWaterMass
+		+ initDryMass
+		)
+
+	initCellVolume = initCellMass / kb.cellDensity
+
+	coefficient = initDryMass / initCellVolume * (DELTA_T * units.s)
+
+	externalMoleculeLevels = kb.metabolismExchangeConstraints(
+		externalMoleculeIDs,
+		coefficient,
+		# units.mol / units.L
+		units.mmol / units.L
+		)
+
+	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+
+	## Calculate protein concentrations and assign enzymatic limits
+	growthData = growth_data.GrowthData(kb)
+	massFractions60 = growthData.massFractions(60)
+	proteinMass = massFractions60["proteinMass"].asUnit(units.g)
+
+	proteinConc = dict(zip(
+		kb.monomerData["id"],
+		calcProteinCounts(kb, proteinMass) / kb.nAvogadro.asNumber(1 / units.mmol) / initCellVolume.asNumber(units.L)
+		))
+
+	enzymeConc = np.array([
+		proteinConc[enzymeID] if enzymeID in proteinConc.viewkeys() else np.inf
+		for enzymeID in fba.enzymeIDs()
+		])
+
+	unaccountedEnzymes = [
+		enzymeID for enzymeID in fba.enzymeIDs() if enzymeID not in proteinConc
+		] # these should all be complexes, need to handle
+
+	# TODO: compute complex concentrations
+
+	# TODO: scaling factor in FBA solver
+
+	fba.enzymeLevelsIs(enzymeConc)
+
+	fba.run()
+
+	print fba.objectiveReactionFlux()
+
+	import ipdb; ipdb.set_trace()
 
 
 def fitKb(kb):
@@ -320,20 +434,6 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 
 
 def setMonomerCounts(kb, monomerMass, monomersView):
-
-	# TODO: further refactor
-
-	# monomerExpression = normalize(
-	# 	kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
-	# 	(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
-	# 	)
-
-	# nMonomers = countsFromMassAndExpression(
-	# 	monomerMass.asNumber(units.g),
-	# 	kb.monomerData["mw"].asNumber(units.g / units.mol),
-	# 	monomerExpression,
-	# 	kb.nAvogadro.asNumber(1 / units.mol)
-	# 	)
 
 	monomersView.countsIs(calcProteinCounts(kb, monomerMass))
 

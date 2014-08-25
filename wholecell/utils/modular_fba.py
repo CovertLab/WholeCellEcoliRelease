@@ -926,7 +926,7 @@ class FluxBalanceAnalysis(object):
 		return self._solutionFluxes[self._reactionIndexes]
 
 
-	def objectiveReactionFlux(self):
+	def objectiveReactionFlux(self): # TODO: rename to biomassReactionFlux
 		try:
 			colIndex = self._colIndex(self._standardObjectiveReactionName)
 
