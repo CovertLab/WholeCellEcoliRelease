@@ -45,6 +45,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.aas = None
 		self.h2o = None
 		self.trna_groups = None
+		self.synthetase_groups = None
 		self.ribosomeSubunits = None
 
 		super(PolypeptideElongation, self).__init__()
@@ -59,6 +60,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.elngRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 
 		self.aa_trna_groups = kb.aa_trna_groups
+		self.aa_synthetase_groups = kb.aa_synthetase_groups
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -81,6 +83,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.aas = self.bulkMoleculesView(kb.aaIDs)
 		self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
+		self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
@@ -115,10 +118,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			aasRequested
 			)
 
-		# TODO: Make more specific
 		trnasRequested = aasRequested
 		for i,group in enumerate(self.trna_groups):
 			group.requestIs(trnasRequested[i])
+		synthetaseRequested = aasRequested
+		for i,group in enumerate(self.synthetase_groups):
+			group.requestIs(synthetaseRequested[i])
 
 		gtpsHydrolyzed = np.int64(np.ceil(
 			self.gtpPerElongation * np.fmin(
@@ -135,10 +140,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 		aaCounts = self.aas.counts()
-		trnaCountsByAA = self.getAvailableTrnaCountsByAminoAcid()
-		chargedTrnas = np.minimum(aaCounts, trnaCountsByAA)
-		print 'aaCounts: {}'.format(aaCounts)
-		print 'trnaCountsByAA: {}'.format(trnaCountsByAA)
+		elongationResourceCapacity = np.minimum(aaCounts, self.trnaMachineryCapacity())
 		activeRibosomes = self.activeRibosomes.molecules()
 
 		if len(activeRibosomes) == 0:
@@ -163,7 +165,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
-			chargedTrnas,
+			elongationResourceCapacity,
 			reactionLimit,
 			self.randomState
 			)
@@ -239,10 +241,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)
 
-	def getAvailableTrnaCountsByAminoAcid(self):
+	def trnaMachineryCapacity(self):
 		# TODO: Multiply by turnover kinetic rate eventually
-		# TODO: Limit by synthatase amounts as well?
-		rate = 1
-		return np.array([x.counts().sum() * rate for x in self.trna_groups],dtype = np.int64)
+		rate = 10000
+		trnas = np.array([x.counts().sum() * rate for x in self.trna_groups],dtype = np.int64)
+		synthetases = np.array([x.counts().sum() * rate for x in self.synthetase_groups],dtype = np.int64)
+		return rate*np.minimum(trnas,synthetases)
 
 		
