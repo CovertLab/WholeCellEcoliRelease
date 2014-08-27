@@ -95,7 +95,7 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 			"stallingRateStd": tables.Float64Col(),
 			"fractionStalled": tables.Float64Col(),
 			"aaCountInSequence": tables.Float64Col(self.aaCountInSequence.size),
-			"aaCounts": tables.Float64Col(self.(aaCounts.size),
+			"aaCounts": tables.Float64Col(self.aaCounts.size),
 			"trnasCapacity": tables.Float64Col(self.trnasCapacity.size),
 			"synthetaseCapacity": tables.Float64Col(self.synthetaseCapacity.size),
 			}
