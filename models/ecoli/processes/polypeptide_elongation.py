@@ -245,8 +245,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	def trnaMachineryCapacity(self):
 		rate = self.synthetase_turnover
-		trnas = np.array([x.counts().sum() * rate for x in self.trna_groups],dtype = np.int64)
-		synthetases = np.array([x.counts().sum() * rate for x in self.synthetase_groups],dtype = np.int64)
+		trnas = np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
+		synthetases = np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
 		return rate*np.minimum(trnas,synthetases)
 
 		
