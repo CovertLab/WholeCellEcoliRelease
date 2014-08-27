@@ -2408,23 +2408,6 @@ class KnowledgeBaseEcoli(object):
 		exchangeMasses = {moleculeID:mws[index]
 			for index, moleculeID in enumerate(externalExchangeMolecules)}
 
-		# HACK - must remove when studying knockouts!
-
-		# Having many reaction/enzyme associations really slows down the solver
-		# as the matrix can increase 2n rows and 2n columns for every n enzymes.
-		# Since we're not studying knockouts, reactions with enzymes but without
-		# rates are currently not meaningful.  The solver can be changed to 
-		# automatically map boolean constraints, or these can be retained to be
-		# used to predict catalytic rates in post-simulation analysis.
-
-		reactionEnzymes = {
-			reactionID:enzymeID
-			for reactionID, enzymeID in reactionEnzymes.viewitems()
-			if reactionID in reactionRates.viewkeys()
-			}
-
-		# END HACK
-
 		self.metabolismReactionStoich = reactionStoich
 		self.metabolismExternalExchangeMolecules = externalExchangeMolecules
 		self._metabolismExchangeMasses = exchangeMasses
@@ -2433,6 +2416,38 @@ class KnowledgeBaseEcoli(object):
 		self._metabolismReactionRates = reactionRates
 		self._metabolismUnconstrainedExchangeMolecules = unconstrainedExchangeMolecules
 		self._metabolismConstrainedExchangeMolecules = constrainedExchangeMolecules
+
+		# subunitComplexes = collections.defaultdict(set)
+
+		# for complexID in self.complexationComplexNames:
+		# 	for subunitID in self.getComplexMonomers(complexID)[0]:
+		# 		subunitComplexes[subunitID].add(complexID)
+
+		# ids = set()
+
+		# for reactionID, enzymeID in reactionEnzymes.viewitems():
+		# 	if enzymeID in self.complexationSubunitNames:
+		# 		ids.add(enzymeID)
+
+		# homopolymer = []
+		# heteropolymer = []
+
+		# for enzID in ids:
+		# 	if len(subunitComplexes[enzID]) == 1:
+		# 		homopolymer.append(enzID)
+
+		# 	else:
+		# 		heteropolymer.append(enzID)
+
+		# hpReactions = {
+		# 	reactionID:None
+		# 	for reactionID, subunitID in reactionEnzymes.viewitems()
+		# 	if subunitID in heteropolymer
+		# 	}
+
+		# print "\n".join('"{}":None, # {}'.format(reactionID, enzymeID) for reactionID, enzymeID in reactionEnzymes.viewitems() if enzymeID in heteropolymer)
+		
+		# import ipdb; ipdb.set_trace()
 
 
 	def metabolismReactionRates(self, timeStep):
