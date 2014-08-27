@@ -34,13 +34,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		# stallingRateMean = h5file.root.RibosomeStalling.col("stallingRateMean")
 		# stallingRateStd = h5file.root.RibosomeStalling.col("stallingRateStd")
 		fractionStalled = h5file.root.RibosomeStalling.col("fractionStalled")
+		aaCountInSequence = h5file.root.RibosomeStalling.col("aaCountInSequence")
+		aaCounts = h5file.root.RibosomeStalling.col("aaCounts")
+		trnasCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
+		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
 
 	plt.figure(figsize = (8.5, 11))
-
+	plt.subplot(2,1,1)
 	plt.plot(timeStep / 60, fractionStalled)
 
 	plt.xlabel("Time (min)")
 	plt.ylabel("Fraction of ribosomes stalled")
+
+
+	plt.subplot(2,1,2)
+
+	plt.xlabel("Time (min)")
+	plt.ylabel("Stalling caused by fraction")
+
+	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
