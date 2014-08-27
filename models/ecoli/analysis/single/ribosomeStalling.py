@@ -39,6 +39,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		trnasCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
 		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
 
+
+	import ipdb; ipdb.set_trace()
+	
 	plt.figure(figsize = (8.5, 11))
 	plt.subplot(2,1,1)
 	plt.plot(timeStep / 60, fractionStalled)
