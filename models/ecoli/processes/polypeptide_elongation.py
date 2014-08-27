@@ -120,6 +120,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			aasRequested
 			)
 
+		# Should essentially request all tRNAs
+		# and all synthetases
 		trnasRequested = aasRequested
 		for i,group in enumerate(self.trna_groups):
 			group.requestIs(trnasRequested[i])
@@ -141,8 +143,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		aaCounts = self.aas.counts()
-		elongationResourceCapacity = np.minimum(aaCounts, self.trnaMachineryCapacity())
 		activeRibosomes = self.activeRibosomes.molecules()
 
 		if len(activeRibosomes) == 0:
@@ -160,6 +160,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			peptideLengths,
 			self.elngRate
 			)
+
+		# Calculate elongation resource capacity
+
+		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
+		aaCounts = self.aas.counts()
+		trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
+		synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
+		elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
 
 		# Calculate update
 
@@ -232,7 +240,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countDec(gtpUsed)
 
-		# Report stalling
+		# Report stalling information
 
 		expectedElongations = np.fmin(
 			self.elngRate,
@@ -242,11 +250,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		ribosomeStalls = expectedElongations - sequenceElongations
 
 		self.writeToListener("RibosomeStalling", "ribosomeStalls", ribosomeStalls)
-
-	def trnaMachineryCapacity(self):
-		rate = self.synthetase_turnover
-		trnas = np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
-		synthetases = np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
-		return rate*np.minimum(trnas,synthetases)
-
-		
+		self.writeToListener("RibosomeStalling", "aaCountInSequence", aaCountInSequence)
+		self.writeToListener("RibosomeStalling", "aaCounts", aaCounts)
+		self.writeToListener("RibosomeStalling", "trnasCapacity", trnasCapacity)
+		self.writeToListener("RibosomeStalling", "synthetaseCapacity", synthetaseCapacity)
