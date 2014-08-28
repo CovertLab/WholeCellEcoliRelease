@@ -112,6 +112,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranscription()
 		self._buildTranslation()
 		self._buildMetabolitePools()
+		self._buildTrnaData()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -1128,6 +1129,7 @@ class KnowledgeBaseEcoli(object):
 				#"modifiedForms": [],
 				"comments": self._allComments[i.comment_fk_id],
 				"seq": "",
+				"codingRnaSeq" : "",
 				"aaCount": np.zeros(21),
 				"mw": -1,
 				"rnaId": self._genes[geneLookup[gene_frame_id]]["rnaId"]		
@@ -1155,6 +1157,7 @@ class KnowledgeBaseEcoli(object):
 				baseSequence = self._genes[geneLookup[gene_frame_id]]['seq'] 
 
 			p["seq"] = Bio.Seq.Seq(baseSequence, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).translate(table = self._translationTable).tostring()
+			p["codingRnaSeq"] = Bio.Seq.Seq(baseSequence, Bio.Alphabet.IUPAC.IUPACUnambiguousDNA()).transcribe().tostring()
 			
 			if gene_frame_id in genePos:
 				pos = genePos[gene_frame_id]['pos']
@@ -2812,7 +2815,6 @@ class KnowledgeBaseEcoli(object):
 
 		self.translationEndWeight = (self.getMass(["H2O[c]"]) / self.nAvogadro).asNumber(units.fg)
 
-
 	def _buildConstants(self):
 		self.constants = self._constantData
 		self.__dict__.update(self.constants)
@@ -2861,6 +2863,19 @@ class KnowledgeBaseEcoli(object):
 
 		self._allMass = UnitStructArray(allMass, field_units)
 
+
+	def _buildTrnaData(self):
+		self.aa_trna_groups = AA_TRNA_GROUPS
+		self.aa_synthetase_groups = AA_SYNTHETASE_GROUPS
+
+		# tRNA synthetase rates
+		trna_synthetase_rates = SYNTHETASE_RATE
+		## If no rate curated fill in with average non-zero rate
+		# mean_rate = np.mean([x for x in trna_synthetase_rates.itervalues() if x != None])
+		# for x in trna_synthetase_rates.iterkeys():
+		# 	if trna_synthetase_rates[x] == None:
+		# 		trna_synthetase_rates[x] = mean_rate
+		self.trna_synthetase_rates = trna_synthetase_rates.values()
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):

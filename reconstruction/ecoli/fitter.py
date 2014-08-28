@@ -158,11 +158,44 @@ def fitKb2(kb, simOutDir):
 	# TODO: make this more functional; one function for returning average & distribution
 	del allMoleculeCounts
 	del bulkContainer
+	
+	# ----- tRNA synthetase turnover rates ------
+	# Fit tRNA synthetase kcat values based on expected rates of translation
+	# compute values at initial time point
 
-	# NICK: fill in your stuff here
+	## Compute rate of AA incorperation
+	proteinComposition = kb.monomerData["aaCounts"]
+	initialDryMass = kb.avgCellDryMassInit
+
+	proteinMassFraction = kb.cellDryMassComposition[
+		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
+		]["proteinMassFraction"]
+
+	initialProteinMass = initialDryMass * proteinMassFraction
+
+	initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
+
+	initialProteinTranslationRate = (
+		(np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]) * initialProteinCounts
+		).asUnit(1 / units.s)
+
+	initialAAPolymerizationRate = units.dot(
+		units.transpose(proteinComposition), initialProteinTranslationRate
+		).asUnit(units.aa / units.s)
+
+	## Compute expression of tRNA synthetases
+	synthetase_counts_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float64)
+	for idx, synthetase_group in enumerate(kb.aa_synthetase_groups.itervalues()):
+		group_count = 0.
+		for synthetase in synthetase_group:
+			counts = bulkContainer.countsView([synthetase]).counts()
+			group_count += counts
+			synthetase_counts_by_group[idx] = group_count
+	
+	predicted_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
+	kb.trna_synthetase_rates = 2*predicted_trna_synthetase_rates
 
 	# fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
-
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer):

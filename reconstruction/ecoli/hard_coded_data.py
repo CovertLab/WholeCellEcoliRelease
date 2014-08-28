@@ -1928,6 +1928,7 @@ TRNA_IDS = ['alaX-tRNA[c]','valV-tRNA[c]','trpT-tRNA[c]','metY-tRNA[c]','glyV-tR
 'selC-tRNA[c]','glyT-tRNA[c]','aspV-tRNA[c]','serT-tRNA[c]','ileT-tRNA[c]','pheV-tRNA[c]','tyrV-tRNA[c]',
 'ileU-tRNA[c]','leuP-tRNA[c]','thrV-tRNA[c]'] # In the same order they would come out of rnaData
 
+# Curated from Dong 1996
 TRNA_MOLAR_RATIO_TO_RIBOSOME = np.array([[0.154,	0.11,	0.072,	0.096,	0.078],
 [0.0633,	0.0517,	0.04,	0.0367,	0.0333],
 [0.0633,	0.0517,	0.04,	0.0367,	0.0333],
@@ -2027,3 +2028,83 @@ def getTrnaAbundanceAtGrowthRate(growth_rate):
 	abundance['id'] = TRNA_IDS
 	abundance['molar_ratio_to_16SrRNA'] = [x(growth_rate) for x in TRNA_ABUNDANCE_INTERPOLATION_FUNCTIONS]
 	return abundance
+
+AA_TRNA_GROUPS = collections.OrderedDict([
+		('A', ['alaT-tRNA[c]', 'alaU-tRNA[c]', 'alaV-tRNA[c]', 'alaW-tRNA[c]', 'alaX-tRNA[c]']),
+		('R', ['argQ-tRNA[c]', 'argU-tRNA[c]', 'argV-tRNA[c]', 'argW-tRNA[c]', 'argX-tRNA[c]', 'argY-tRNA[c]', 'argZ-tRNA[c]']),
+		('N', ['asnT-tRNA[c]', 'asnU-tRNA[c]', 'asnV-tRNA[c]', 'RNA0-304[c]']),
+		('D', ['aspT-tRNA[c]', 'aspU-tRNA[c]', 'aspV-tRNA[c]']),
+		('C', ['cysT-tRNA[c]']),
+		('E', ['gltT-tRNA[c]', 'gltU-tRNA[c]', 'gltV-tRNA[c]', 'gltW-tRNA[c]']),
+		('Q', ['glnU-tRNA[c]', 'glnV-tRNA[c]', 'glnW-tRNA[c]', 'glnX-tRNA[c]']),
+		('G', ['glyT-tRNA[c]', 'glyU-tRNA[c]', 'glyV-tRNA[c]', 'glyW-tRNA[c]', 'glyX-tRNA[c]', 'glyY-tRNA[c]']),
+		('H', ['hisR-tRNA[c]']),
+		('I', ['ileT-tRNA[c]', 'ileU-tRNA[c]', 'ileV-tRNA[c]', 'ileX-tRNA[c]', 'RNA0-305[c]']),
+		('L', ['leuP-tRNA[c]', 'leuQ-tRNA[c]', 'leuT-tRNA[c]', 'leuU-tRNA[c]', 'leuV-tRNA[c]', 'leuW-tRNA[c]', 'leuX-tRNA[c]', 'leuZ-tRNA[c]']),
+		('K', ['RNA0-303[c]', 'lysT-tRNA[c]', 'lysV-tRNA[c]', 'lysW-tRNA[c]', 'RNA0-301[c]', 'RNA0-302[c]']),
+		('M', ['metT-tRNA[c]', 'metU-tRNA[c]', 'RNA0-306[c]', 'metW-tRNA[c]', 'metY-tRNA[c]', 'metZ-tRNA[c]']),
+		('F', ['pheU-tRNA[c]', 'pheV-tRNA[c]']),
+		('P', ['proK-tRNA[c]', 'proL-tRNA[c]', 'proM-tRNA[c]']),
+		('S', ['serT-tRNA[c]', 'serU-tRNA[c]', 'serV-tRNA[c]', 'serW-tRNA[c]', 'serX-tRNA[c]']),
+		('T', ['thrT-tRNA[c]', 'thrU-tRNA[c]', 'thrV-tRNA[c]','thrW-tRNA[c]']),
+		('W', ['trpT-tRNA[c]']),
+		('Y', ['tyrT-tRNA[c]', 'tyrU-tRNA[c]', 'tyrV-tRNA[c]',]),
+		('U', ['selC-tRNA[c]']),
+		('V', ['valT-tRNA[c]', 'valU-tRNA[c]', 'valV-tRNA[c]', 'valW-tRNA[c]', 'valX-tRNA[c]', 'valY-tRNA[c]'])
+		])
+
+AA_SYNTHETASE_GROUPS = collections.OrderedDict([
+		('A', ['ALAS-CPLX[c]']),
+		('R', ['ARGS-MONOMER[c]']),
+		('N', ['ASNS-CPLX[c]']),
+		('D', ['ASPS-CPLX[c]']),
+		('C', ['CYSS-MONOMER[c]']),
+		('E', ['GLURS-MONOMER[c]']),
+		('Q', ['GLNS-MONOMER[c]']),
+		('G', ['GLYS-CPLX[c]']),
+		('H', ['HISS-CPLX[c]']),
+		('I', ['ILES-MONOMER[c]']),
+		('L', ['LEUS-MONOMER[c]']),
+		('K', ['LYSS-CPLX[c]', 'LYSU-CPLX[c]']),
+		('M', ['METG-CPLX[o]']), # TODO: URGENT! Fix this in the KB so that the synthetase is located in the cytosol!
+		('F', ['PHES-CPLX[c]']),
+		('P', ['PROS-CPLX[c]']),
+		('S', ['SERS-CPLX[c]']),
+		('T', ['THRS-CPLX[c]']),
+		('W', ['TRPS-CPLX[c]']),
+		('Y', ['TYRS-CPLX[c]']),
+		('U', ['CPLX0-1141[c]']), # NOTE: Approximate enzyme here...
+		('V', ['VALS-MONOMER[c]'])
+		])
+
+# Curated from Jakubowski 1984
+SYNTHETASE_RATE = collections.OrderedDict([ # Units 1/s
+		('A', None),
+		('R', 9.2),
+		('N', None),
+		('D', None),
+		('C', None),
+		('E', 2.0),
+		('Q', 4.9),
+		('G', 14.7),
+		('H', None),
+		('I', 12.4),
+		('L', 23.2),
+		('K', 28.3),
+		('M', None),
+		('F', 10.0),
+		('P', None),
+		('S', None),
+		('T', 48.0),
+		('W', None),
+		('Y', None),
+		('U', None),
+		('V', 26.6)
+	])
+
+
+# TODO: Still need to somehow implement selenocyst formation
+#		and fMet formation into genetic code!
+# Enzymes to include
+# fmet	['EG11268-MONOMER[c]']
+# [ser] ['SERS-CPLX[c]']

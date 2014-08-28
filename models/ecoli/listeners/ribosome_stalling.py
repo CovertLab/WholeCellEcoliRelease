@@ -39,8 +39,12 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		self.stallingRateStd = None
 		self.fractionStalled = None
 
-		# Attributes broadcast by the UniquePolypeptideElongation process
+		# Attributes broadcast by the PolypeptideElongation process
 		self.ribosomeStalls = None
+		self.aaCountInSequence = None
+		self.aaCounts = None
+		self.trnasCapacity = None
+		self.synthetaseCapacity = None
 
 		# Logged quantities
 		self.registerLoggedQuantity(
@@ -60,9 +64,12 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		self.stallingRateStd = np.nan
 		self.fractionStalled = np.nan
 
-		# Attributes broadcast by the UniquePolypeptideElongation process
+		# Attributes broadcast by the PolypeptideElongation process
 		self.ribosomeStalls = np.zeros(0, np.int64)
-
+		self.aaCountInSequence = np.zeros(21, np.int64)
+		self.aaCounts = np.zeros(21, np.int64)
+		self.trnasCapacity = np.zeros(21, np.int64)
+		self.synthetaseCapacity = np.zeros(21, np.int64)
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -87,6 +94,10 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 			"stallingRateMean": tables.Float64Col(),
 			"stallingRateStd": tables.Float64Col(),
 			"fractionStalled": tables.Float64Col(),
+			"aaCountInSequence": tables.Float64Col(self.aaCountInSequence.size),
+			"aaCounts": tables.Float64Col(self.aaCounts.size),
+			"trnasCapacity": tables.Float64Col(self.trnasCapacity.size),
+			"synthetaseCapacity": tables.Float64Col(self.synthetaseCapacity.size),
 			}
 
 		table = h5file.create_table(
@@ -109,6 +120,10 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		entry["stallingRateMean"] = self.stallingRateMean
 		entry["stallingRateStd"] = self.stallingRateStd
 		entry["fractionStalled"] = self.fractionStalled
+		entry["aaCountInSequence"] = self.aaCountInSequence
+		entry["aaCounts"] = self.aaCounts
+		entry["trnasCapacity"] = self.trnasCapacity
+		entry["synthetaseCapacity"] = self.synthetaseCapacity
 
 		entry.append()
 
