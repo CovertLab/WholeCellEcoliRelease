@@ -66,10 +66,10 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 
 		# Attributes broadcast by the PolypeptideElongation process
 		self.ribosomeStalls = np.zeros(0, np.int64)
-		self.aaCountInSequence = np.zeros(0, np.int64)
-		self.aaCounts = np.zeros(0, np.int64)
-		self.trnasCapacity = np.zeros(0, np.int64)
-		self.synthetaseCapacity = np.zeros(0, np.int64)
+		self.aaCountInSequence = np.zeros(21, np.int64)
+		self.aaCounts = np.zeros(21, np.int64)
+		self.trnasCapacity = np.zeros(21, np.int64)
+		self.synthetaseCapacity = np.zeros(21, np.int64)
 
 	def update(self):
 		if self.ribosomeStalls.size:
