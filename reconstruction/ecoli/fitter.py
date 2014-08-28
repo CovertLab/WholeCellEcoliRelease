@@ -188,7 +188,7 @@ def fitKb2(kb, simOutDir):
 	for idx, synthetase_group in enumerate(kb.aa_synthetase_groups.itervalues()):
 		group_count = 0.
 		for synthetase in synthetase_group:
-			counts = bulkContainer.countsView([synthetase]).counts()
+			counts = bulkAverageContainer.countsView([synthetase]).counts()
 			group_count += counts
 			synthetase_counts_by_group[idx] = group_count
 	
