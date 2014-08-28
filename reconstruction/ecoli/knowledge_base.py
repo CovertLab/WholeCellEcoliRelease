@@ -2408,6 +2408,14 @@ class KnowledgeBaseEcoli(object):
 		exchangeMasses = {moleculeID:mws[index]
 			for index, moleculeID in enumerate(externalExchangeMolecules)}
 
+		# Filter out reaction-enzyme associations that lack rates
+
+		reactionEnzymes = {
+			reactionID:enzymeID
+			for reactionID, enzymeID in reactionEnzymes.viewitems()
+			if reactionRates.has_key(reactionID)
+			}
+
 		self.metabolismReactionStoich = reactionStoich
 		self.metabolismExternalExchangeMolecules = externalExchangeMolecules
 		self._metabolismExchangeMasses = exchangeMasses
