@@ -184,16 +184,26 @@ def fitKb2(kb, simOutDir):
 		).asUnit(units.aa / units.s)
 
 	## Compute expression of tRNA synthetases
+	## Assuming independence in variance
 	synthetase_counts_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float64)
+	synthetase_variance_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float)
 	for idx, synthetase_group in enumerate(kb.aa_synthetase_groups.itervalues()):
 		group_count = 0.
+		group_variance = 0.
 		for synthetase in synthetase_group:
 			counts = bulkAverageContainer.countsView([synthetase]).counts()
+			variance = bulkDeviationContainer.countsView([synthetase]).counts()
 			group_count += counts
-			synthetase_counts_by_group[idx] = group_count
+			group_variance += variance
+		synthetase_counts_by_group[idx] = group_count
+		synthetase_variance_by_group[idx] = group_variance
 	
-	predicted_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
-	kb.trna_synthetase_rates = 2*predicted_trna_synthetase_rates
+	## Scaling synthetase counts by -2*variance so that rates will be high enough
+	## to accomodate stochastic behavior in the model without translation stalling.
+	scaled_synthetase_counts = synthetase_counts_by_group - (2 * synthetase_variance_by_group)
+
+	predicted_trna_synthetase_rates = initialAAPolymerizationRate / scaled_synthetase_counts
+	kb.trna_synthetase_rates = predicted_trna_synthetase_rates
 
 	# fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
 
