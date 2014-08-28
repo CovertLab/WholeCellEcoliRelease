@@ -154,7 +154,7 @@ def fitKb2(kb, simOutDir):
 			synthetase_counts_by_group[idx] = group_count
 	
 	predicted_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
-	kb.trna_synthetase_rates = predicted_trna_synthetase_rates
+	kb.trna_synthetase_rates = 2*predicted_trna_synthetase_rates
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 def fitKb2_metabolism(kb, simOutDir, bulkContainer):
