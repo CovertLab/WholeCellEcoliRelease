@@ -70,7 +70,9 @@ def fitAtLevel(fitLevel, kb, simOutDir):
 
 import tables
 
-from wholecell.utils.mc_complexation import mccFormComplexes
+from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
+
+N_SEEDS = 20
 
 def fitKb2(kb, simOutDir):
 
@@ -97,36 +99,73 @@ def fitKb2(kb, simOutDir):
 		)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
-	rnaCounts = countsFromMassAndExpression(
+	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
+
+	complexationStoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+
+	complexationPrebuiltMatrices = mccBuildMatrices(
+		complexationStoichMatrix
+		)
+
+	rnaDistribution = kb.rnaExpression['expression']
+
+	rnaTotalCounts = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
 		kb.rnaData["mw"].asNumber(units.g / units.mol),
-		kb.rnaExpression['expression'],
+		rnaDistribution,
 		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
-	rnaView.countsIs(np.int64(rnaCounts * kb.rnaExpression['expression'])) # TODO: stoch round
+	proteinDistribution = calcProteinDistribution(kb)
 
-	proteinView.countsIs(np.int64(calcProteinCounts(kb, proteinMass))) # TODO: stoch round
+	proteinTotalCounts = calcProteinTotalCounts(kb, proteinMass, proteinDistribution)
+	
+	for seed in xrange(N_SEEDS):
+		randomState = np.random.RandomState(seed)
 
-	complexationMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+		allMoleculesView.countsIs(0)
 
-	# Build views
+		rnaView.countsIs(randomState.multinomial(
+			rnaTotalCounts,
+			rnaDistribution
+			))
 
-	moleculeCounts = complexationMoleculesView.counts()
+		proteinView.countsIs(randomState.multinomial(
+			proteinTotalCounts,
+			proteinDistribution
+			))
 
-	seed = 0 # WARNING: deterministic!
+		complexationMoleculeCounts = complexationMoleculesView.counts()
 
-	updatedMoleculeCounts = mccFormComplexes(moleculeCounts, seed, complexationMatrix)
+		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			complexationMoleculeCounts,
+			seed,
+			complexationStoichMatrix,
+			*complexationPrebuiltMatrices
+			)
 
-	complexationMoleculesView.countsIs(updatedMoleculeCounts)
+		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
+
+		allMoleculeCounts[seed, :] = allMoleculesView.counts()
+
+	bulkAverageContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, np.float64)
+	bulkDeviationContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, np.float64)
+
+	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
+	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
+
+	# Free up memory
+	# TODO: make this more functional; one function for returning average & distribution
+	del allMoleculeCounts
+	del bulkContainer
 
 	# NICK: fill in your stuff here
 
-	# fitKb2_metabolism(kb, simOutDir, bulkContainer)
+	# fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
 
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
-def fitKb2_metabolism(kb, simOutDir, bulkContainer):
+def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer):
 
 	# Load the simulation output
 
@@ -164,7 +203,7 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 	# objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T))
 	objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T*10**3))
 
-	# reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
+	reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
 
 	fba = FluxBalanceAnalysis(
 		kb.metabolismReactionStoich.copy(),
@@ -173,7 +212,7 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 		objectiveType = "standard",
 		reversibleReactions = kb.metabolismReversibleReactions,
 		reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-		# reactionRates = reactionRates.copy(),
+		reactionRates = reactionRates.copy(),
 		)
 
 	externalMoleculeIDs = fba.externalMoleculeIDs()
@@ -200,8 +239,13 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
 	## Calculate protein concentrations and assign enzymatic limits
+	minimalEnzymeCounts = np.fmax(
+		bulkAverageContainer.counts(fba.enzymeIDs()) - 2 * bulkDeviationContainer.counts(fba.enzymeIDs()),
+		1 # TODO: change when we are more confident in our expression #s
+		)
+
 	enzymeConc = (
-		1 / kb.nAvogadro / initCellVolume * bulkContainer.counts(fba.enzymeIDs())
+		1 / kb.nAvogadro / initCellVolume * minimalEnzymeCounts
 		).asNumber(units.mmol / units.L)
 
 	fba.enzymeLevelsIs(enzymeConc)
@@ -209,6 +253,12 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 	fba.maxReactionFluxIs(fba._standardObjectiveReactionName, 1)
 
 	fba.run()
+
+	print fba.objectiveReactionFlux()
+
+	import matplotlib.pyplot as plt
+
+	import ipdb; ipdb.set_trace()
 
 	enzymeUsage = fba.enzymeUsage()
 
@@ -250,11 +300,6 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 
 			else:
 				cplxNotSubunit.append(enzymeID)
-
-
-	import matplotlib.pyplot as plt
-
-	import ipdb; ipdb.set_trace()
 
 	while True:
 		fba.enzymeLevelsIs(enzymeConc)
@@ -542,19 +587,26 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 
 
 def calcProteinCounts(kb, monomerMass):
-	monomerExpression = normalize(
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
-		)
+	monomerExpression = calcProteinDistribution(kb)
 
-	nMonomers = countsFromMassAndExpression(
+	nMonomers = calcProteinTotalCounts(kb, monomerMass, monomerExpression)
+
+	return nMonomers * monomerExpression
+
+
+def calcProteinTotalCounts(kb, monomerMass, monomerExpression):
+	return countsFromMassAndExpression(
 		monomerMass.asNumber(units.g),
 		kb.monomerData["mw"].asNumber(units.g / units.mol),
 		monomerExpression,
 		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
-	return nMonomers * monomerExpression
+def calcProteinDistribution(kb):
+	return normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+		)
 
 
 if __name__ == "__main__":
