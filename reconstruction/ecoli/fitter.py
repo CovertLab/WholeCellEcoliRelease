@@ -80,11 +80,22 @@ def fitKb2(kb, simOutDir):
 	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
 
 	# Construct bulk container
+	
+	# We want to know something about the distribution of the copy numbers of 
+	# macromolecules in the cell.  While RNA and protein expression can be
+	# approximated using well-described statistical distributions, we need
+	# absolute copy numbers to form complexes.  To get a distribution, we must
+	# instantiate many cells, form complexes, and finally compute the 
+	# statistics we will use in the fitting operations.
 
 	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	proteinView = bulkContainer.countsView(kb.monomerData["id"])
 	complexationMoleculesView = bulkContainer.countsView(kb.complexationMoleculeNames)
+	allMoleculesIDs = list(
+		set(kb.rnaData["id"]) | set(kb.monomerData["id"]) | set(kb.complexationMoleculeNames)
+		)
+	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	rnaCounts = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
@@ -146,7 +157,7 @@ def fitKb2(kb, simOutDir):
 	kb.trna_synthetase_rates = predicted_trna_synthetase_rates
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
-def fitKb2_metabolism(kb, simOutDir):
+def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 
 	# Load the simulation output
 
@@ -184,7 +195,7 @@ def fitKb2_metabolism(kb, simOutDir):
 	# objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T))
 	objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T*10**3))
 
-	reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
+	# reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
 
 	fba = FluxBalanceAnalysis(
 		kb.metabolismReactionStoich.copy(),
@@ -193,7 +204,7 @@ def fitKb2_metabolism(kb, simOutDir):
 		objectiveType = "standard",
 		reversibleReactions = kb.metabolismReversibleReactions,
 		reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-		reactionRates = reactionRates.copy(),
+		# reactionRates = reactionRates.copy(),
 		)
 
 	externalMoleculeIDs = fba.externalMoleculeIDs()
@@ -220,44 +231,61 @@ def fitKb2_metabolism(kb, simOutDir):
 	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
 	## Calculate protein concentrations and assign enzymatic limits
-	growthData = growth_data.GrowthData(kb)
-	massFractions60 = growthData.massFractions(60)
-	proteinMass = massFractions60["proteinMass"].asUnit(units.g)
+	enzymeConc = (
+		1 / kb.nAvogadro / initCellVolume * bulkContainer.counts(fba.enzymeIDs())
+		).asNumber(units.mmol / units.L)
 
-	proteinConc = dict(zip(
-		kb.monomerData["id"],
-		calcProteinCounts(kb, proteinMass) / kb.nAvogadro.asNumber(1 / units.mmol) / initCellVolume.asNumber(units.L)
-		))
+	fba.enzymeLevelsIs(enzymeConc)
+
+	fba.maxReactionFluxIs(fba._standardObjectiveReactionName, 1)
+
+	fba.run()
+
+	enzymeUsage = fba.enzymeUsage()
+
+	assert fba.objectiveReactionFlux() == 0
+
+	unavailableEnzymes = (enzymeConc == 0)
 
 	enzymeIDs = np.array(fba.enzymeIDs())
 
-	# Hack for enzymes with bad k_cat values
-	enzymeConc = np.array([
-		proteinConc[enzymeID] if enzymeID in proteinConc.viewkeys() else np.inf
-		for enzymeID in enzymeIDs
-		])
+	monomerIsSubunit = []
+	monomerNotSubunit = []
+	cplxIsSubunit = []
+	cplxNotSubunit = []
 
-	unaccountedEnzymes = [
-		enzymeID for enzymeID in enzymeIDs if enzymeID not in proteinConc
-		] # these should all be complexes, need to handle
+	for index in np.where(unavailableEnzymes)[0]:
+		# newEnzConc = enzymeConc.copy()
 
-	# TODO: compute complex concentrations
+		# newEnzConc[index] = np.inf
 
-	# TODO: scaling factor in FBA solver
+		# fba.enzymeLevelsIs(newEnzConc)
 
-	from collections import defaultdict
-	enzymeID_toRate = defaultdict(set)
+		# fba.run()
 
-	for reactionID, enzymeID in kb.metabolismReactionEnzymes.viewitems():
-		enzymeID_toRate[enzymeID].add(reactionRates[reactionID])
+		# if fba.objectiveReactionFlux() > 0:
+		# 	print enzymeIDs[index]
 
-	# Iteratively run FBA, relaxing constraints until output matches expected
+		enzymeID = enzymeIDs[index]
 
-	filteredEnzymes = []
+		if enzymeID in kb.complexationSubunitNames:
+			if enzymeID not in kb.complexationComplexNames:
+				monomerIsSubunit.append(enzymeID)
 
-	enzymeRates = np.array([
-		min(enzymeID_toRate[enzymeID]) for enzymeID in enzymeIDs
-		])
+			else:
+				cplxIsSubunit.append(enzymeID)
+
+		else:
+			if enzymeID not in kb.complexationComplexNames:
+				monomerNotSubunit.append(enzymeID)
+
+			else:
+				cplxNotSubunit.append(enzymeID)
+
+
+	import matplotlib.pyplot as plt
+
+	import ipdb; ipdb.set_trace()
 
 	while True:
 		fba.enzymeLevelsIs(enzymeConc)
