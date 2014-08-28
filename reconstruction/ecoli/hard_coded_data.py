@@ -358,11 +358,16 @@ REACTION_ENZYME_ASSOCIATIONS = {
 	"FEIST_CBIuabcpp":None, # ABC-5-CPLX[i]
 	"FEIST_ADOCBLabcpp":None, # ABC-5-CPLX[i]
 	"FEIST_CBL1abcpp":None, # ABC-5-CPLX[i]
+	## Vitamin B12 transport supercomplex subunit BtuB, TonB, ExbB/D
+	"FEIST_CBL1tonex":None, # CPLX0-1924[i]
+	"FEIST_CBItonex":None, # CPLX0-1924[i]
+	"FEIST_ADOCBLtonex":None, # CPLX0-1924[i]
 	## Ferric dicitrate transport supercomplex subunit
 	"FEIST_FE3DCITabcpp":None, # ABC-9-CPLX[i]
 	## Ferric enterobaction transport supercomplex subunit
 	"FEIST_FE3DHBZSabcpp":None, # ABC-10-CPLX[i]
 	"FEIST_FEENTERabcpp":None, # ABC-10-CPLX[i]
+	"FEIST_FEENTERtonex":None, # CPLX0-1941[i]
 	## Ferric coprogen, ferric chrome transport supercomplex subunit
 	"FEIST_CPGNabcpp":None, # ABC-11-CPLX[i]
 	"FEIST_FE3HOXabcpp":None, # ABC-11-CPLX[i]
@@ -443,6 +448,7 @@ REACTION_ENZYME_ASSOCIATIONS = {
 	## PABA synthase supercomplex
 	"FEIST_ADCL":None, # ADCLY-MONOMER[c]
 	"FEIST_ADCS":None, # PABASYN-CPLX[c]
+	"FEIST_GLUN_0":None, # PABASYN-COMPI-MONOMER[c]
 	## gamma-glutamyl... supercomplex subunit
 	"FEIST_G5SD":None, # GLUTSEMIALDEHYDROG-MONOMER[c]
 	"FEIST_GLU5K":None, # GLUTKIN-MONOMER[c]
@@ -450,20 +456,17 @@ REACTION_ENZYME_ASSOCIATIONS = {
 	"FEIST_GLUSy":None, # GLUTAMATESYN-DIMER[c]
 	## alternatively dimerizes with alanine?
 	"FEIST_ALATRS":None, # ALAS-MONOMER[c]
-
-	## TBD
+	## general ferric transport supercomplex subunit
 	"FEIST_FE3DHBZStonex_1_0":None, # CPLX0-1923[i]
 	"FEIST_FE3DHBZStonex_0_0":None, # CPLX0-1923[i]
-	"FEIST_FEENTERtonex":None, # CPLX0-1941[i]
-	"FEIST_CBL1tonex":None, # CPLX0-1924[i]
-	"FEIST_CBItonex":None, # CPLX0-1924[i]
-	"FEIST_ADOCBLtonex":None, # CPLX0-1924[i]
+	## ferrichrome transport
 	"FEIST_FE3HOXtonex":None, # CPLX0-1942[i]
 	"FEIST_FEOXAMtonex":None, # CPLX0-1942[i]
 	"FEIST_FECRMtonex":None, # CPLX0-1942[i]
+	## ferric citrate transport
 	"FEIST_FE3DCITtonex":None, # CPLX0-1943[i]
+	## ferric coprogen
 	"FEIST_CPGNtonex":None, # CPLX0-7952[i]
-	"FEIST_GLUN_0":None, # PABASYN-COMPI-MONOMER[c]
 
 	# problem: homopolymer
 	"FEIST_GLCNtex_0":["CPLX0-7530"],
