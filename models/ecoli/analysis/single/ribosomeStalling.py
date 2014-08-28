@@ -36,7 +36,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		fractionStalled = h5file.root.RibosomeStalling.col("fractionStalled")
 		aaCountInSequence = h5file.root.RibosomeStalling.col("aaCountInSequence")
 		aaCounts = h5file.root.RibosomeStalling.col("aaCounts")
-		trnasCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
+		trnaCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
 		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
 
 	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0).sum(axis = 1)
@@ -57,16 +57,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.subplot(2,1,2)
 
-	plt.plot(timeStep / 60, aaLimitation, label = 'aa limitation')
-	plt.plot(timeStep / 60, trnaCapacityLimitation, label = 'trna capacity limitation')
-	plt.plot(timeStep / 60, synthetaseCapacityLimitation, label = 'synthetase capacity limitation')
+	plt.plot(timeStep / 60, aaLimitation, '--', label = 'aa limit')
+	plt.plot(timeStep / 60, trnaCapacityLimitation, '--', label = 'trna limit')
+	plt.plot(timeStep / 60, synthetaseCapacityLimitation, '--', label = 'synthetase limit')
 
 	plt.plot(timeStep / 60, aaExcess, label = 'aa excess')
-	plt.plot(timeStep / 60, trnaCapacityExcess, label = 'trna capacity excess')
-	plt.plot(timeStep / 60, synthetaseCapacityExcess, label = 'synthetase capacity excess')
-	plt.legend()
+	plt.plot(timeStep / 60, trnaCapacityExcess, label = 'trna excess')
+	plt.plot(timeStep / 60, synthetaseCapacityExcess, label = 'synthetase excess')
+	plt.legend(prop={'size':7})
 	plt.xlabel("Time (min)")
-	plt.ylabel("Stalling caused by fraction")
+	plt.ylabel("Magnitude of capacity/demand mismatch (elongations)")
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
