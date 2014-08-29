@@ -47,60 +47,22 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 	amino_acid_labels = kb.aa_trna_groups.keys()
 
-	for idx in xrange(21):
-			plt.subplot(6, 4, idx + 1)
-
-			plt.plot(timeStep / 60., aaLimitation[:,idx])
-			plt.plot(timeStep / 60., trnaCapacityLimitation[:,idx])
-			plt.plot(timeStep / 60., synthetaseCapacityLimitation[:,idx])
-			plt.plot(timeStep / 60., aaExcess[:,idx])
-			plt.plot(timeStep / 60., trnaCapacityExcess[:,idx])
-			plt.plot(timeStep / 60., synthetaseCapacityExcess[:,idx])
-
-			plt.xlabel("Time (min)")
-			plt.ylabel("Mismatch magnitude")
-			plt.title(amino_acid_labels[idx])
-
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	plt.figure(figsize = (8.5, 11))
-	plt.subplot(2,1,1)
-	plt.plot(timeStep / 60, fractionStalled)
 
-	plt.xlabel("Time (min)")
-	plt.ylabel("Fraction of ribosomes stalled")
+	for idx in xrange(21):
+		plt.subplot(6, 4, idx + 1)
 
-	plt.subplot(2,1,2)
+		plt.plot(timeStep / 60., aaLimitation[:,idx])
+		plt.plot(timeStep / 60., trnaCapacityLimitation[:,idx])
+		plt.plot(timeStep / 60., synthetaseCapacityLimitation[:,idx])
+		plt.plot(timeStep / 60., aaExcess[:,idx])
+		plt.plot(timeStep / 60., trnaCapacityExcess[:,idx])
+		plt.plot(timeStep / 60., synthetaseCapacityExcess[:,idx])
 
-	plt.plot(timeStep / 60, aaLimitation, '--', label = 'aa limit')
-	plt.plot(timeStep / 60, trnaCapacityLimitation, '--', label = 'trna limit')
-	plt.plot(timeStep / 60, synthetaseCapacityLimitation, '--', label = 'synthetase limit')
-
-	plt.plot(timeStep / 60, aaExcess, label = 'aa excess')
-	plt.plot(timeStep / 60, trnaCapacityExcess, label = 'trna excess')
-	plt.plot(timeStep / 60, synthetaseCapacityExcess, label = 'synthetase excess')
-	plt.legend(prop={'size':7})
-	plt.xlabel("Time (min)")
-	plt.ylabel("Magnitude of capacity/demand mismatch (elongations)")
+		plt.title(amino_acid_labels[idx])
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
-
+	plt.tight_layout()
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
 
