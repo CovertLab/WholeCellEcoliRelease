@@ -36,30 +36,32 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		trnaCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
 		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
 
-	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0)
-	trnaCapacityLimitation = -1 * (aaCountInSequence - trnaCapacity).clip(min = 0)
-	synthetaseCapacityLimitation = -1 * (aaCountInSequence - synthetaseCapacity).clip(min = 0)
-
-	aaExcess = -1 * (aaCountInSequence - aaCounts).clip(max = 0)
-	trnaCapacityExcess = -1 * (aaCountInSequence - trnaCapacity).clip(max = 0)
-	synthetaseCapacityExcess = -1 * (aaCountInSequence - synthetaseCapacity).clip(max = 0)
+	aaCapacity = -1 * (aaCountInSequence - aaCounts)
+	trnaCapacity = -1 * (aaCountInSequence - trnaCapacity)
+	synthetaseCapacity = -1 * (aaCountInSequence - synthetaseCapacity)
 
 	kb = cPickle.load(open(kbFile, "rb"))
-	amino_acid_labels = kb.aa_trna_groups.keys()
+
+	amino_acid_labels = [
+		"ALA", "ARG", "ASN", "ASP",
+		"CYS", "GLU", "GLN", "GLY",
+		"HIS", "ILE", "LEU", "LYS",
+		"MET", "PHE", "PRO", "SER",
+		"THR", "TRP", "TYR", "SEC",
+		"VAL"
+		]
 
 	plt.figure(figsize = (8.5, 11))
 
 	for idx in xrange(21):
 		plt.subplot(6, 4, idx + 1)
 
-		plt.plot(timeStep / 60., aaLimitation[:,idx])
-		plt.plot(timeStep / 60., trnaCapacityLimitation[:,idx])
-		plt.plot(timeStep / 60., synthetaseCapacityLimitation[:,idx])
-		plt.plot(timeStep / 60., aaExcess[:,idx])
-		plt.plot(timeStep / 60., trnaCapacityExcess[:,idx])
-		plt.plot(timeStep / 60., synthetaseCapacityExcess[:,idx])
+		plt.plot(timeStep / 60., aaCapacity[:,idx], linewidth = 2,label = 'aa limit')
+		plt.plot(timeStep / 60., trnaCapacity[:,idx], '--', label = 'trna limit')
+		plt.plot(timeStep / 60., synthetaseCapacity[:,idx], label = 'synthetase limit')
 
 		plt.title(amino_acid_labels[idx])
+	plt.legend(bbox_to_anchor=(1.02, 0.5, 4., .102), loc=5, ncol=2, mode="expand")
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 	plt.tight_layout()

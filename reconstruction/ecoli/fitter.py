@@ -198,6 +198,12 @@ def fitKb2(kb, simOutDir):
 		synthetase_counts_by_group[idx] = group_count
 		synthetase_variance_by_group[idx] = group_variance
 	
+	## Saved for plotting
+	kb.synthetase_counts = synthetase_counts_by_group
+	kb.synthetase_variance = synthetase_variance_by_group
+	kb.initial_aa_polymerization_rate = initialAAPolymerizationRate
+	kb.minimum_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
+
 	## Scaling synthetase counts by -2*variance so that rates will be high enough
 	## to accomodate stochastic behavior in the model without translation stalling.
 	scaled_synthetase_counts = synthetase_counts_by_group - (2 * synthetase_variance_by_group)
@@ -205,8 +211,6 @@ def fitKb2(kb, simOutDir):
 
 	predicted_trna_synthetase_rates = initialAAPolymerizationRate / scaled_synthetase_counts
 	kb.trna_synthetase_rates = predicted_trna_synthetase_rates
-
-	# fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer):

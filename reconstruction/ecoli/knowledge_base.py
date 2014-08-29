@@ -2876,6 +2876,11 @@ class KnowledgeBaseEcoli(object):
 		# 	if trna_synthetase_rates[x] == None:
 		# 		trna_synthetase_rates[x] = mean_rate
 		self.trna_synthetase_rates = trna_synthetase_rates.values()
+		# TODO: Remove here only for fitting
+		self.synthetase_counts = None
+		self.synthetase_variance = None
+		self.initial_aa_polymerization_rate = None
+		self.minimum_trna_synthetase_rates = None
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
