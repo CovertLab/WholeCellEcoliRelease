@@ -13,6 +13,7 @@ import argparse
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+import numpy as np
 
 import wholecell.utils.constants
 
@@ -37,9 +38,11 @@ def main(plotOutDir, plotOutFileName, kbDirectory):
 	plt.xlabel('amino acid')
 	plt.ylabel('1/s')
 	plt.title('trna synthetase turnover rates')
-	plt.legend()
+	plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=5, ncol=2, mode="expand")
+	plt.xticks(np.arange(0,21), amino_acid_labels)
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	#plt.show()
 
 
 if __name__ == "__main__":

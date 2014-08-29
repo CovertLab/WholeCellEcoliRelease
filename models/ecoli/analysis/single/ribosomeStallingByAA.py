@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 """
-Plot ribosome stalling
+Plot ribosome stalling on a per amino acid basis
 
-@author: John Mason
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/22/2014
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 8/27/2014
 """
 
 from __future__ import division
@@ -19,6 +17,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+import cPickle
 
 import wholecell.utils.constants
 
@@ -32,45 +31,38 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	with tables.open_file(os.path.join(simOutDir, "RibosomeStalling.hdf")) as h5file:
 		timeStep = h5file.root.RibosomeStalling.col("timeStep")
-		# stallingRateTotal = h5file.root.RibosomeStalling.col("stallingRateTotal")
-		# stallingRateMean = h5file.root.RibosomeStalling.col("stallingRateMean")
-		# stallingRateStd = h5file.root.RibosomeStalling.col("stallingRateStd")
-		fractionStalled = h5file.root.RibosomeStalling.col("fractionStalled")
 		aaCountInSequence = h5file.root.RibosomeStalling.col("aaCountInSequence")
 		aaCounts = h5file.root.RibosomeStalling.col("aaCounts")
 		trnaCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
 		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
 
-	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0).sum(axis = 1)
-	trnaCapacityLimitation = -1 * (aaCountInSequence - trnaCapacity).clip(min = 0).sum(axis = 1)
-	synthetaseCapacityLimitation = -1 * (aaCountInSequence - synthetaseCapacity).clip(min = 0).sum(axis = 1)
+	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0)
+	trnaCapacityLimitation = -1 * (aaCountInSequence - trnaCapacity).clip(min = 0)
+	synthetaseCapacityLimitation = -1 * (aaCountInSequence - synthetaseCapacity).clip(min = 0)
 
-	aaExcess = -1 * (aaCountInSequence - aaCounts).clip(max = 0).sum(axis = 1)
-	trnaCapacityExcess = -1 * (aaCountInSequence - trnaCapacity).clip(max = 0).sum(axis = 1)
-	synthetaseCapacityExcess = -1 * (aaCountInSequence - synthetaseCapacity).clip(max = 0).sum(axis = 1)
+	aaExcess = -1 * (aaCountInSequence - aaCounts).clip(max = 0)
+	trnaCapacityExcess = -1 * (aaCountInSequence - trnaCapacity).clip(max = 0)
+	synthetaseCapacityExcess = -1 * (aaCountInSequence - synthetaseCapacity).clip(max = 0)
+
+	kb = cPickle.load(open(kbFile, "rb"))
+	amino_acid_labels = kb.aa_trna_groups.keys()
 
 	plt.figure(figsize = (8.5, 11))
-	plt.subplot(2,1,1)
-	plt.plot(timeStep / 60, fractionStalled)
 
-	plt.xlabel("Time (min)")
-	plt.ylabel("Fraction of ribosomes stalled")
+	for idx in xrange(21):
+		plt.subplot(6, 4, idx + 1)
 
-	plt.subplot(2,1,2)
+		plt.plot(timeStep / 60., aaLimitation[:,idx])
+		plt.plot(timeStep / 60., trnaCapacityLimitation[:,idx])
+		plt.plot(timeStep / 60., synthetaseCapacityLimitation[:,idx])
+		plt.plot(timeStep / 60., aaExcess[:,idx])
+		plt.plot(timeStep / 60., trnaCapacityExcess[:,idx])
+		plt.plot(timeStep / 60., synthetaseCapacityExcess[:,idx])
 
-	plt.plot(timeStep / 60, aaLimitation, '--', label = 'aa limit')
-	plt.plot(timeStep / 60, trnaCapacityLimitation, '--', label = 'trna limit')
-	plt.plot(timeStep / 60, synthetaseCapacityLimitation, '--', label = 'synthetase limit')
-
-	plt.plot(timeStep / 60, aaExcess, label = 'aa excess')
-	plt.plot(timeStep / 60, trnaCapacityExcess, label = 'trna excess')
-	plt.plot(timeStep / 60, synthetaseCapacityExcess, label = 'synthetase excess')
-	plt.legend(prop={'size':7})
-	plt.xlabel("Time (min)")
-	plt.ylabel("Magnitude of capacity/demand mismatch (elongations)")
+		plt.title(amino_acid_labels[idx])
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
-
+	plt.tight_layout()
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
 
