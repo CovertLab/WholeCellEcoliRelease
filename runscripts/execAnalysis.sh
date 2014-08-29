@@ -20,6 +20,8 @@ mkdir -p $PLOT_OUT_DATA_DIR
 
 echo "+++++ Processing $SIM_OUT_DATA_DIR +++++"
 
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
 for SINGLE_ANALYSIS_SCRIPT in $SINGLE_ANALYSIS_SCRIPTS; do
 	if [ "$(basename $SINGLE_ANALYSIS_SCRIPT)" = "__init__.py" ]; then
 		continue
@@ -31,3 +33,4 @@ for SINGLE_ANALYSIS_SCRIPT in $SINGLE_ANALYSIS_SCRIPTS; do
 
 	PYTHONPATH="$PWD:$PYTHONPATH" python2.7 "$SINGLE_ANALYSIS_SCRIPT" "$SIM_OUT_DATA_DIR" "$PLOT_OUT_DATA_DIR" "${OUT_NAME}.pdf" --kbFile "${KB_FIT}"
 done
+IFS=$SAVEIFS
