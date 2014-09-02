@@ -52,6 +52,17 @@ class Mass(wholecell.listeners.listener.Listener):
 			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "RNA"]
 			])
 
+		self.rRnaIndexes = np.array([
+			kb.submassNameToIndex[name]
+			for name in ["23srRNA", "16srRNA", "5srRNA"]
+			])
+
+		self.tRnaIndex = kb.submassNameToIndex["tRNA"]
+
+		self.mRnaIndex = kb.submassNameToIndex["mRNA"]
+
+		self.dnaIndex = kb.submassNameToIndex["DNA"]
+
 		self.proteinIndex = kb.submassNameToIndex["protein"]
 
 		self.waterIndex = kb.submassNameToIndex["water"]
@@ -135,6 +146,10 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.waterMass = submasses[self.waterIndex]
 		self.dryMass = self.cellMass - self.waterMass
 		self.rnaMass = submasses[self.rnaIndexes].sum()
+		self.rRnaMass = submasses[self.rRnaIndexes].sum()
+		self.tRnaMass = submasses[self.tRnaIndex]
+		self.mRnaMass = submasses[self.mRnaIndex]
+		self.dnaMass = submasses[self.dnaIndex]
 		self.proteinMass = submasses[self.proteinIndex]
 
 		processInitialMass = preEvolveMasses.sum(axis = 1)
@@ -175,6 +190,10 @@ class Mass(wholecell.listeners.listener.Listener):
 			"growth" : tables.Float64Col(),
 			"dryMass": tables.Float64Col(),
 			"rnaMass": tables.Float64Col(),
+			"rRnaMass": tables.Float64Col(),
+			"tRnaMass": tables.Float64Col(),
+			"mRnaMass": tables.Float64Col(),
+			"dnaMass": tables.Float64Col(),
 			"proteinMass": tables.Float64Col(),
 			"waterMass": tables.Float64Col(),
 			"processMassDifferences": tables.Float64Col(len(self.processNames)),
@@ -214,6 +233,10 @@ class Mass(wholecell.listeners.listener.Listener):
 		entry["growth"] = self.growth
 		entry["dryMass"] = self.dryMass
 		entry["rnaMass"] = self.rnaMass
+		entry["rRnaMass"] = self.rRnaMass
+		entry["tRnaMass"] = self.tRnaMass
+		entry["mRnaMass"] = self.mRnaMass
+		entry["dnaMass"] = self.dnaMass
 		entry["proteinMass"] = self.proteinMass
 		entry["waterMass"] = self.waterMass
 		entry["processMassDifferences"] = self.processMassDifferences
