@@ -91,7 +91,7 @@ class Replication(wholecell.processes.process.Process):
 
 		# Look at all current polymerase properties and calcualate
 		# dNTP demands based on upcoming sequence
-		allDnaPolymerase = self.dnaPolymerase.molecules()
+		allDnaPolymerase = self.dnaPolymerase.allMolecules()
 		if len(allDnaPolymerase) == 0:
 			return
 		nPolymerase = len(allDnaPolymerase)
