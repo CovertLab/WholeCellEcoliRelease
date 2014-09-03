@@ -30,10 +30,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	table = h.root.Mass
 
-	cell = table.col("cellMass")
-	cellDry = table.col("dryMass")
+	# cell = table.col("cellMass")
+	# cellDry = table.col("dryMass")
 	protein = table.col("proteinMass")
-	rna = table.col("rnaMass")
+	# rna = table.col("rnaMass")
 	tRna = table.col("tRnaMass")
 	rRna = table.col("rRnaMass")
 	mRna = table.col("mRnaMass")
