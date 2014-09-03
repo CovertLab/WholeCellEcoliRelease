@@ -204,9 +204,12 @@ def fitKb2(kb, simOutDir):
 	kb.initial_aa_polymerization_rate = initialAAPolymerizationRate
 	kb.minimum_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
 
+	# TODO: Reimplement this with better fit taking into account the variance in aa
+	#		utilization.
 	## Scaling synthetase counts by -2*variance so that rates will be high enough
 	## to accomodate stochastic behavior in the model without translation stalling.
-	scaled_synthetase_counts = synthetase_counts_by_group - (2 * synthetase_variance_by_group)
+	# scaled_synthetase_counts = synthetase_counts_by_group - (2 * synthetase_variance_by_group)
+	scaled_synthetase_counts = 2 * synthetase_counts_by_group
 	assert all(scaled_synthetase_counts > 0)
 
 	predicted_trna_synthetase_rates = initialAAPolymerizationRate / scaled_synthetase_counts
