@@ -31,9 +31,9 @@ MOLECULAR_WEIGHT_KEYS = [
 	'RNA' # nonspecific RNA
 	]
 
-MOLECULAR_WEIGHT_ORDER = {
-	key:index for index, key in enumerate(MOLECULAR_WEIGHT_KEYS)
-	}
+MOLECULAR_WEIGHT_ORDER = collections.OrderedDict([
+	(key, index) for index, key in enumerate(MOLECULAR_WEIGHT_KEYS)
+	])
 
 COMPLEXES_REQUIRE_MODIFIED = ['ACETYL-COA-CARBOXYLMULTI-CPLX', 'BCCP-CPLX',
 	'CPLX0-263', 'CPLX0-2901','CPLX0-7721', 'CPLX0-7748', 'CPLX0-7754',
