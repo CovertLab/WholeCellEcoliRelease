@@ -113,6 +113,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranslation()
 		self._buildMetabolitePools()
 		self._buildTrnaData()
+		self._buildRibosomeData()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -2291,6 +2292,13 @@ class KnowledgeBaseEcoli(object):
 
 		return out
 
+	def _buildRibosomeData(self):
+		self.s30_proteins = S30_PROTEINS
+		self.s30_16sRRNA = [S30_16S_RRNAS[0]] # Only using A operon
+		self.s50_proteins = S50_PROTEINS
+		self.s50_proteinComplexes = S50_PROTEIN_COMPLEXES
+		self.s50_20sRRNA = [S50_20S_RRNAS[0]] # Only using A operon
+		self.s50_5sRRNA = [S50_5S_RRNAS[0]] # Only using A operon
 
 	def _buildMetabolism(self):
 		# Build the matrices/vectors for metabolism (FBA)
