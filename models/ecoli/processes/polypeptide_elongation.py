@@ -175,7 +175,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
-			elongationResourceCapacity,
+			aaCounts, # elongationResourceCapacity,
 			reactionLimit,
 			self.randomState
 			)

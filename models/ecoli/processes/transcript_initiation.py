@@ -51,6 +51,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb = kb.rnaData['synthProb']
 
+		self.activationProb = kb.transcriptionActivationRate.asNumber(1/units.s) * self.timeStepSec # TODO: consider the validity of this math
+
 		# Views
 
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -69,19 +71,21 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		inactiveRnaPolyCount = self.inactiveRnaPolys.count()
 
-		if inactiveRnaPolyCount == 0:
+		rnaPolyToActivate = np.int64(self.activationProb * inactiveRnaPolyCount)
+
+		if rnaPolyToActivate == 0:
 			return
 
-		nNewRnas = self.randomState.multinomial(inactiveRnaPolyCount,
+		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
 
 		nonzeroCount = (nNewRnas > 0)
 
-		assert nNewRnas.sum() == inactiveRnaPolyCount
+		assert nNewRnas.sum() == rnaPolyToActivate
 
 		# Build list of RNA indexes
 
-		rnaIndexes = np.empty(inactiveRnaPolyCount, np.int64)
+		rnaIndexes = np.empty(rnaPolyToActivate, np.int64)
 
 		startIndex = 0
 		for rnaIndex, counts in itertools.izip(
@@ -97,7 +101,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		activeRnaPolys = self.activeRnaPolys.moleculesNew(
 			"activeRnaPoly",
-			inactiveRnaPolyCount
+			rnaPolyToActivate
 			)
 
 		activeRnaPolys.attrIs(
