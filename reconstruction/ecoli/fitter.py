@@ -38,23 +38,7 @@ TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
 MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
-
-# Correction factors
-EXCESS_RNAP_CAPACITY = 1.
-EXCESS_FREE_DNTP_CAPACITY = 1.3
-# If RNA-poly capacity exactly matches the amount needed to double RNAs over a 
-# cell cycle, the simulation will be unable to double RNAs since a small number
-# of RNA-polymerases must be turned over following termination.  It may be 
-# possible to choose an excess capacity coefficient rationally based on 
-# diffusive limitations, i.e., one that does not depend on simulation 
-# particulars, but this has yet to be explored.
-
-# Fitter logic 
-# TODO: confirm this with Derek
-# TODO: split off these subroutines in the main fitter function
-# 1) Assign expected quantities based on dry mass composition, expression, and sequences
-# 2) Ensure that there is enough RNAP/ribosome capacity for (1), and adjust if needed
-# 3) Update the metabolism FBA objective based on expression
+FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100% to 20% depending on the growth rate
 
 # TODO: move many of these functions into another module
 
@@ -433,17 +417,16 @@ def fitKb(kb):
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).asNumber() * EXCESS_RNAP_CAPACITY
+		).asNumber() / FRACTION_ACTIVE_RNAP
 
 	minRnapCounts = (
-		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry
+		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
 		)
 
 	rnapView.countsIs(
 		np.fmax(rnapView.counts(), minRnapCounts)
 		)
 
-	
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
@@ -491,6 +474,21 @@ def fitKb(kb):
 
 	kb.rnaData["synthProb"][:] = synthProb
 
+	## Transcription activation rate
+
+	# In our simplified model of RNA polymerase state transition, RNAp can be
+	# active (transcribing) or inactive (free-floating).  To solve for the
+	# rate of activation, we need to calculate the average rate of termination,
+	# which is a function of the average transcript length and the 
+	# transcription rate.
+
+	averageTranscriptLength = units.dot(synthProb, rnaLengths)
+
+	expectedTerminationRate = kb.rnaPolymeraseElongationRate / averageTranscriptLength
+
+	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
+
+	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
 
 	## Calculate and set maintenance values
 

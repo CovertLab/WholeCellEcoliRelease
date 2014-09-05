@@ -246,7 +246,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 
 	inactiveRnap = bulkMolCntr.countView("APORNAP-CPLX[c]")
 
-	activeRnapMax = inactiveRnap.count()
+	activeRnapMax = inactiveRnap.count() * kb.fracActiveRnap
 
 	if activeRnapMax == 0:
 		return
