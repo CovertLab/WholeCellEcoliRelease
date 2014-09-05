@@ -236,6 +236,25 @@ class KnowledgeBaseEcoli(object):
 
 		self._reactions.append(reaction)
 
+		# Fixing localizations for two ribosomal proteins and the complexes they are in
+		for prot in self._proteins:
+			if prot['id'] == 'EG10877-MONOMER':
+				prot['location'] == u'c'
+			elif prot['id'] == 'EG10876-MONOMER':
+				prot['location'] == u'c'
+
+		for comp in self._proteinComplexes:
+			if comp['id'] == 'CPLX0-3962':
+				comp['location'] = u'c'
+
+		for rxn in self._complexationReactions:
+			for molecule in rxn['stoichiometry']:
+				if molecule['molecule'] == 'CPLX0-3962':
+					molecule['location'] = u'c'
+				elif molecule['molecule'] == 'EG10877-MONOMER':
+					molecule['location'] = u'c'
+				elif molecule['molecule'] == 'EG10876-MONOMER':
+					molecule['location'] == u'c'
 
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
@@ -2222,7 +2241,7 @@ class KnowledgeBaseEcoli(object):
 			for molecule in reaction["stoichiometry"]:
 				if molecule["type"] == "metabolite":
 					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(), # this is stupid
+						molecule["molecule"].upper(), # this is stupid # agreed
 						molecule["location"]
 						)
 
