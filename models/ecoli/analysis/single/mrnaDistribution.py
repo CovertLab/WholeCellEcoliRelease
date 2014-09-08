@@ -94,8 +94,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 			alpha = 0.1,
 			# markersize = 2,
 			markerfacecolor = color,
-			markeredgecolor = "black",
-			markeredgewidth = 0.15
+			markeredgecolor = "none"
+			# markeredgecolor = "black",
+			# markeredgewidth = 0.15
+			)
+
+	for rnaIndex, expected in enumerate(expectedFrequency):
+
+		plt.plot(
+			expected, actualFrequency[rnaIndex, -1],
+			'o',
+			markerfacecolor = "none",
+			markeredgecolor = "k"
 			)
 
 	plt.xlabel("Expected mRNA frequency")
