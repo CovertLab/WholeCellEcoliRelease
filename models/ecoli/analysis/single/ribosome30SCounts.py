@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Plots counts of rRNA, associated proteins, and complexes
+Plots counts of 30S rRNA, associated proteins, and complexes
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -52,8 +52,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 	proteinIds = kb.s30_proteins
 	rnaIds = [kb.monomerData['rnaId'][np.where(kb.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
-	#rRnaIds = 
-	#S30Id = 
+	rRnaIds = kb.s30_16sRRNA
+	complexIds = [kb.s30_fullComplex]
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
@@ -61,17 +61,21 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		moleculeIds = bulkMoleculesFile.root.names.moleculeIDs.read()
 		proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
 		rnaIndexes = np.array([moleculeIds.index(rna) for rna in rnaIds], np.int)
+		rRnaIndexes = np.array([moleculeIds.index(rRna) for rRna in rRnaIds], np.int)
+		complexIndexes = np.array([moleculeIds.index(comp) for comp in complexIds], np.int)
 
 		# Load data
 		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
 		time = bulkMolecules.col("time")
 		proteinCounts = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
 		rnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
+		rRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rRnaIndexes]
+		complexCounts = bulkMolecules.read(0, None, 1, "counts")[:, complexIndexes]
 
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
 
-	for idx in xrange(len(kb.s30_proteins)):
+	for idx in xrange(len(proteinIds)):
 		rna_axis = plt.subplot(9, 3, idx + 1)
 
 		rna_axis.step(time / 60., rnaCounts[:, idx], 'b', linewidth = 2)
@@ -84,9 +88,27 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		setAxisMaxMin(protein_axis, proteinCounts[:, idx])
 
 		# Component label
-		rna_axis.set_xlabel(kb.s30_proteins[idx][:-3])
+		rna_axis.set_xlabel(proteinIds[idx][:-3])
 
-		#import ipdb; ipdb.set_trace()
+	for idx in xrange(len(rRnaIds)):
+		rna_axis = plt.subplot(9, 3, idx + len(proteinIds) + 1)
+
+		rna_axis.step(time / 60., rRnaCounts[:, idx], 'b', linewidth = 2)
+		sparklineAxis(rna_axis, 'left')
+		setAxisMaxMin(rna_axis, rRnaCounts[:, idx])
+
+		# Component label
+		rna_axis.set_xlabel(rRnaIds[idx][:-3])
+
+	for idx in xrange(len(complexIds)):
+		complex_axis = plt.subplot(9, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
+
+		complex_axis.step(time / 60., complexCounts[:, idx], 'r', linewidth = 2)
+		sparklineAxis(complex_axis, 'left')
+		setAxisMaxMin(complex_axis, complexCounts[:, idx])
+
+		# Component label
+		complex_axis.set_xlabel(rRnaIds[idx][:-3])
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
