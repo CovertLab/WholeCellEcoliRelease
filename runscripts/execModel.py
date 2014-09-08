@@ -27,7 +27,6 @@ def main(modelLevel, kbDirectory, simDirectory):
 		)
 
 	simOpts["seed"] = 0
-	simOpts["lengthSec"] = 3600
 	simOpts["kbLocation"] = os.path.join(kbDirectory, fitKbFileName)
 	simOpts["outputDir"] = os.path.join(simDirectory, "model_level_%d" % modelLevel, "simOut")
 	simOpts["logToDisk"] = True
@@ -44,6 +43,7 @@ def main(modelLevel, kbDirectory, simDirectory):
 		os.makedirs(metadataDir)
 
 	if modelLevel == 1:
+		simOpts["lengthSec"] = 3600
 		sim = EcoliMetabolismSimulation(**simOpts)
 		EcoliMetabolismSimulation.printAnalysisSingleFiles(fileName = os.path.join(metadataDir, "singleAnalysis.list"))
 
