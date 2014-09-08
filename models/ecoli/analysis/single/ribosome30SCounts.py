@@ -108,7 +108,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		setAxisMaxMin(complex_axis, complexCounts[:, idx])
 
 		# Component label
-		complex_axis.set_xlabel(rRnaIds[idx][:-3])
+		complex_axis.set_xlabel(complexIds[idx][:-3])
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
