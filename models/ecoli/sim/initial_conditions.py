@@ -174,10 +174,14 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum() / (mass + massesToAdd.sum())
 	# import ipdb; ipdb.set_trace()
 
-
-
-	subunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
-	subunitStoich = np.array([1, 1])
+	subunits = bulkMolCntr.countsView(
+		np.hstack(
+			(kb.getComplexSubunits(kb.s30_fullComplex)[0], kb.getComplexSubunits(kb.s50_fullComplex)[0])
+			)
+		)
+	subunitStoich = np.hstack(
+			(kb.getComplexSubunits(kb.s30_fullComplex)[1], kb.getComplexSubunits(kb.s50_fullComplex)[1])
+			)
 	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
 	elngRate = kb.ribosomeElongationRate.asNumber(units.aa / units.s)
 	T_d = kb.cellCycleLen.asNumber(units.s)
@@ -381,9 +385,14 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	"""
 	# Calculate the number of possible ribosomes
 
-	subunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
-
-	subunitStoich = np.array([1, 1])
+	subunits = bulkMolCntr.countsView(
+		np.hstack(
+			(kb.getComplexSubunits(kb.s30_fullComplex)[0], kb.getComplexSubunits(kb.s50_fullComplex)[0])
+			)
+		)
+	subunitStoich = np.hstack(
+			(kb.getComplexSubunits(kb.s30_fullComplex)[1], kb.getComplexSubunits(kb.s50_fullComplex)[1])
+			)
 
 	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
 
