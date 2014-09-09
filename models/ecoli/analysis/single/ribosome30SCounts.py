@@ -32,12 +32,16 @@ def setAxisMaxMin(axis, data):
 	else:
 		axis.set_yticks([ymin, ymax])
 
-def sparklineAxis(axis, tickPos):
+def sparklineAxis(axis, x, y, tickPos, color):
+	axis.step(x, y, color, linewidth = 2)
 	axis.spines['top'].set_visible(False)
+	axis.spines['bottom'].set_visible(False)
 	axis.yaxis.set_ticks_position(tickPos)
 	axis.xaxis.set_ticks_position('none')
 	axis.tick_params(which = 'both', direction = 'out')
 	axis.tick_params(labelbottom = 'off')
+	for tl in axis.get_yticklabels():
+		tl.set_color(color)
 
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -76,35 +80,31 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	matplotlib.rc('font', **FONT)
 
 	for idx in xrange(len(proteinIds)):
-		rna_axis = plt.subplot(9, 3, idx + 1)
+		rna_axis = plt.subplot(12, 3, idx + 1)
 
-		rna_axis.step(time / 60., rnaCounts[:, idx], 'b', linewidth = 2)
-		sparklineAxis(rna_axis, 'left')
+		sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', 'b')
 		setAxisMaxMin(rna_axis, rnaCounts[:, idx])
 
 		protein_axis = rna_axis.twinx()
-		protein_axis.step(time / 60., proteinCounts[:, idx], 'r', linewidth = 2)
-		sparklineAxis(protein_axis, 'right')		
+		sparklineAxis(protein_axis, time / 60., proteinCounts[:, idx], 'right', 'r')		
 		setAxisMaxMin(protein_axis, proteinCounts[:, idx])
 
 		# Component label
 		rna_axis.set_xlabel(proteinIds[idx][:-3])
 
 	for idx in xrange(len(rRnaIds)):
-		rna_axis = plt.subplot(9, 3, idx + len(proteinIds) + 1)
+		rna_axis = plt.subplot(12, 3, idx + len(proteinIds) + 1)
 
-		rna_axis.step(time / 60., rRnaCounts[:, idx], 'b', linewidth = 2)
-		sparklineAxis(rna_axis, 'left')
+		sparklineAxis(rna_axis, time / 60., rRnaCounts[:, idx], 'left', 'b')
 		setAxisMaxMin(rna_axis, rRnaCounts[:, idx])
 
 		# Component label
 		rna_axis.set_xlabel(rRnaIds[idx][:-3])
 
 	for idx in xrange(len(complexIds)):
-		complex_axis = plt.subplot(9, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
+		complex_axis = plt.subplot(12, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
 
-		complex_axis.step(time / 60., complexCounts[:, idx], 'r', linewidth = 2)
-		sparklineAxis(complex_axis, 'left')
+		sparklineAxis(complex_axis, time / 60., complexCounts[:, idx], 'left', 'r')
 		setAxisMaxMin(complex_axis, complexCounts[:, idx])
 
 		# Component label
