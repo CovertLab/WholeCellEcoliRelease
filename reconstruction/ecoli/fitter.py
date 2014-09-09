@@ -38,23 +38,7 @@ TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
 MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
-
-# Correction factors
-EXCESS_RNAP_CAPACITY = 1.
-EXCESS_FREE_DNTP_CAPACITY = 1.3
-# If RNA-poly capacity exactly matches the amount needed to double RNAs over a 
-# cell cycle, the simulation will be unable to double RNAs since a small number
-# of RNA-polymerases must be turned over following termination.  It may be 
-# possible to choose an excess capacity coefficient rationally based on 
-# diffusive limitations, i.e., one that does not depend on simulation 
-# particulars, but this has yet to be explored.
-
-# Fitter logic 
-# TODO: confirm this with Derek
-# TODO: split off these subroutines in the main fitter function
-# 1) Assign expected quantities based on dry mass composition, expression, and sequences
-# 2) Ensure that there is enough RNAP/ribosome capacity for (1), and adjust if needed
-# 3) Update the metabolism FBA objective based on expression
+FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100% to 20% depending on the growth rate
 
 # TODO: move many of these functions into another module
 
@@ -70,7 +54,9 @@ def fitAtLevel(fitLevel, kb, simOutDir):
 
 import tables
 
-from wholecell.utils.mc_complexation import mccFormComplexes
+from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
+
+N_SEEDS = 20
 
 def fitKb2(kb, simOutDir):
 
@@ -97,29 +83,66 @@ def fitKb2(kb, simOutDir):
 		)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
-	rnaCounts = countsFromMassAndExpression(
+	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
+
+	complexationStoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+
+	complexationPrebuiltMatrices = mccBuildMatrices(
+		complexationStoichMatrix
+		)
+
+	rnaDistribution = kb.rnaExpression['expression']
+
+	rnaTotalCounts = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
 		kb.rnaData["mw"].asNumber(units.g / units.mol),
-		kb.rnaExpression['expression'],
+		rnaDistribution,
 		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
-	rnaView.countsIs(np.int64(rnaCounts * kb.rnaExpression['expression'])) # TODO: stoch round
+	proteinDistribution = calcProteinDistribution(kb)
 
-	proteinView.countsIs(np.int64(calcProteinCounts(kb, proteinMass))) # TODO: stoch round
+	proteinTotalCounts = calcProteinTotalCounts(kb, proteinMass, proteinDistribution)
+	
+	for seed in xrange(N_SEEDS):
+		randomState = np.random.RandomState(seed)
 
-	complexationMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+		allMoleculesView.countsIs(0)
 
-	# Build views
+		rnaView.countsIs(randomState.multinomial(
+			rnaTotalCounts,
+			rnaDistribution
+			))
 
-	moleculeCounts = complexationMoleculesView.counts()
+		proteinView.countsIs(randomState.multinomial(
+			proteinTotalCounts,
+			proteinDistribution
+			))
 
-	seed = 0 # WARNING: deterministic!
+		complexationMoleculeCounts = complexationMoleculesView.counts()
 
-	updatedMoleculeCounts = mccFormComplexes(moleculeCounts, seed, complexationMatrix)
+		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			complexationMoleculeCounts,
+			seed,
+			complexationStoichMatrix,
+			*complexationPrebuiltMatrices
+			)
 
-	complexationMoleculesView.countsIs(updatedMoleculeCounts)
+		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
 
+		allMoleculeCounts[seed, :] = allMoleculesView.counts()
+
+	bulkAverageContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, np.float64)
+	bulkDeviationContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, np.float64)
+
+	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
+	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
+
+	# Free up memory
+	# TODO: make this more functional; one function for returning average & distribution
+	del allMoleculeCounts
+	del bulkContainer
+	
 	# ----- tRNA synthetase turnover rates ------
 	# Fit tRNA synthetase kcat values based on expected rates of translation
 	# compute values at initial time point
@@ -145,19 +168,39 @@ def fitKb2(kb, simOutDir):
 		).asUnit(units.aa / units.s)
 
 	## Compute expression of tRNA synthetases
+	## Assuming independence in variance
 	synthetase_counts_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float64)
+	synthetase_variance_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float)
 	for idx, synthetase_group in enumerate(kb.aa_synthetase_groups.itervalues()):
 		group_count = 0.
+		group_variance = 0.
 		for synthetase in synthetase_group:
-			counts = bulkContainer.countsView([synthetase]).counts()
+			counts = bulkAverageContainer.countsView([synthetase]).counts()
+			variance = bulkDeviationContainer.countsView([synthetase]).counts()
 			group_count += counts
-			synthetase_counts_by_group[idx] = group_count
+			group_variance += variance
+		synthetase_counts_by_group[idx] = group_count
+		synthetase_variance_by_group[idx] = group_variance
 	
-	predicted_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
-	kb.trna_synthetase_rates = 2*predicted_trna_synthetase_rates
+	## Saved for plotting
+	kb.synthetase_counts = synthetase_counts_by_group
+	kb.synthetase_variance = synthetase_variance_by_group
+	kb.initial_aa_polymerization_rate = initialAAPolymerizationRate
+	kb.minimum_trna_synthetase_rates = initialAAPolymerizationRate / synthetase_counts_by_group
+
+	# TODO: Reimplement this with better fit taking into account the variance in aa
+	#		utilization.
+	## Scaling synthetase counts by -2*variance so that rates will be high enough
+	## to accomodate stochastic behavior in the model without translation stalling.
+	# scaled_synthetase_counts = synthetase_counts_by_group - (2 * synthetase_variance_by_group)
+	scaled_synthetase_counts = 2 * synthetase_counts_by_group
+	assert all(scaled_synthetase_counts > 0)
+
+	predicted_trna_synthetase_rates = initialAAPolymerizationRate / scaled_synthetase_counts
+	kb.trna_synthetase_rates = predicted_trna_synthetase_rates
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
-def fitKb2_metabolism(kb, simOutDir, bulkContainer):
+def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer):
 
 	# Load the simulation output
 
@@ -195,7 +238,7 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 	# objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T))
 	objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T*10**3))
 
-	# reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
+	reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
 
 	fba = FluxBalanceAnalysis(
 		kb.metabolismReactionStoich.copy(),
@@ -204,7 +247,7 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 		objectiveType = "standard",
 		reversibleReactions = kb.metabolismReversibleReactions,
 		reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-		# reactionRates = reactionRates.copy(),
+		reactionRates = reactionRates.copy(),
 		)
 
 	externalMoleculeIDs = fba.externalMoleculeIDs()
@@ -231,8 +274,13 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
 	## Calculate protein concentrations and assign enzymatic limits
+	minimalEnzymeCounts = np.fmax(
+		bulkAverageContainer.counts(fba.enzymeIDs()) - 2 * bulkDeviationContainer.counts(fba.enzymeIDs()),
+		1 # TODO: change when we are more confident in our expression #s
+		)
+
 	enzymeConc = (
-		1 / kb.nAvogadro / initCellVolume * bulkContainer.counts(fba.enzymeIDs())
+		1 / kb.nAvogadro / initCellVolume * minimalEnzymeCounts
 		).asNumber(units.mmol / units.L)
 
 	fba.enzymeLevelsIs(enzymeConc)
@@ -240,6 +288,12 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 	fba.maxReactionFluxIs(fba._standardObjectiveReactionName, 1)
 
 	fba.run()
+
+	print fba.objectiveReactionFlux()
+
+	import matplotlib.pyplot as plt
+
+	import ipdb; ipdb.set_trace()
 
 	enzymeUsage = fba.enzymeUsage()
 
@@ -281,11 +335,6 @@ def fitKb2_metabolism(kb, simOutDir, bulkContainer):
 
 			else:
 				cplxNotSubunit.append(enzymeID)
-
-
-	import matplotlib.pyplot as plt
-
-	import ipdb; ipdb.set_trace()
 
 	while True:
 		fba.enzymeLevelsIs(enzymeConc)
@@ -368,17 +417,16 @@ def fitKb(kb):
 		rnaLengths / kb.rnaPolymeraseElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
 			) * rnaView.counts()
-		).asNumber() * EXCESS_RNAP_CAPACITY
+		).asNumber() / FRACTION_ACTIVE_RNAP
 
 	minRnapCounts = (
-		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry
+		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
 		)
 
 	rnapView.countsIs(
 		np.fmax(rnapView.counts(), minRnapCounts)
 		)
 
-	
 	### Modify kbFit to reflect our bulk container ###
 
 	## Fraction of active Ribosomes ##
@@ -426,6 +474,21 @@ def fitKb(kb):
 
 	kb.rnaData["synthProb"][:] = synthProb
 
+	## Transcription activation rate
+
+	# In our simplified model of RNA polymerase state transition, RNAp can be
+	# active (transcribing) or inactive (free-floating).  To solve for the
+	# rate of activation, we need to calculate the average rate of termination,
+	# which is a function of the average transcript length and the 
+	# transcription rate.
+
+	averageTranscriptLength = units.dot(synthProb, rnaLengths)
+
+	expectedTerminationRate = kb.rnaPolymeraseElongationRate / averageTranscriptLength
+
+	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
+
+	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
 
 	## Calculate and set maintenance values
 
@@ -573,19 +636,26 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 
 
 def calcProteinCounts(kb, monomerMass):
-	monomerExpression = normalize(
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
-		)
+	monomerExpression = calcProteinDistribution(kb)
 
-	nMonomers = countsFromMassAndExpression(
+	nMonomers = calcProteinTotalCounts(kb, monomerMass, monomerExpression)
+
+	return nMonomers * monomerExpression
+
+
+def calcProteinTotalCounts(kb, monomerMass, monomerExpression):
+	return countsFromMassAndExpression(
 		monomerMass.asNumber(units.g),
 		kb.monomerData["mw"].asNumber(units.g / units.mol),
 		monomerExpression,
 		kb.nAvogadro.asNumber(1 / units.mol)
 		)
 
-	return nMonomers * monomerExpression
+def calcProteinDistribution(kb):
+	return normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+		)
 
 
 if __name__ == "__main__":

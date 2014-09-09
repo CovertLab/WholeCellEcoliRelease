@@ -174,8 +174,6 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum() / (mass + massesToAdd.sum())
 	# import ipdb; ipdb.set_trace()
 
-
-
 	subunits = bulkMolCntr.countsView(
 		np.hstack(
 			(kb.getComplexMonomers(kb.s30_fullComplex)[0], kb.getComplexMonomers(kb.s50_fullComplex)[0])
@@ -253,7 +251,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 
 	inactiveRnap = bulkMolCntr.countView("APORNAP-CPLX[c]")
 
-	activeRnapMax = inactiveRnap.count()
+	activeRnapMax = inactiveRnap.count() * kb.fracActiveRnap
 
 	if activeRnapMax == 0:
 		return
@@ -388,9 +386,14 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	"""
 	# Calculate the number of possible ribosomes
 
-	subunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
-
-	subunitStoich = np.array([1, 1])
+	subunits = bulkMolCntr.countsView(
+		np.hstack(
+			(kb.getComplexSubunits(kb.s30_fullComplex)[0], kb.getComplexSubunits(kb.s50_fullComplex)[0])
+			)
+		)
+	subunitStoich = np.hstack(
+			(kb.getComplexSubunits(kb.s30_fullComplex)[1], kb.getComplexSubunits(kb.s50_fullComplex)[1])
+			)
 
 	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
 
