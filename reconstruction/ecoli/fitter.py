@@ -398,6 +398,8 @@ def fitKb(kb):
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnapView = bulkContainer.countsView(kb.rnapIds)
+	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
+	ribosome50SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s50_fullComplex)[0])
 
 	## Number of ribosomes needed ##
 	monomerLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
@@ -407,7 +409,23 @@ def fitKb(kb):
 			) * monomersView.counts()
 		).asNumber()
 	
-	if np.sum(rRna23SView.counts()) < nRibosomesNeeded:
+	min30SCounts = (
+		nRibosomesNeeded * -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
+		)
+
+	min50SCounts = (
+		nRibosomesNeeded * -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+		)
+
+	ribosome30SView.countsIs(
+		np.fmax(ribosome30SView.counts(), min30SCounts)
+		)
+
+	ribosome50SView.countsIs(
+		np.fmax(ribosome50SView.counts(), min50SCounts)
+		)
+
+	if np.any(ribosome30SView.counts() < nRibosomesNeeded) or np.any(ribosome50SView.counts() < nRibosomesNeeded):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	## Number of RNA Polymerases ##
@@ -434,7 +452,7 @@ def fitKb(kb):
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
-
+	
 	rnaExpressionContainer.countsIs(
 		normalize(rnaView.counts())
 		)
