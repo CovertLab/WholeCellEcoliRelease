@@ -12,6 +12,7 @@ creates and manages the structured arrays in memory.
 from __future__ import division
 
 from itertools import izip
+import collections
 
 import numpy as np
 import tables
@@ -38,7 +39,7 @@ class UniqueMolecules(wholecell.states.state.State):
 	def __init__(self, *args, **kwargs):
 		self.container = None
 
-		self._submassNameToProperty = {}
+		self._submassNameToProperty = collections.OrderedDict()
 
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
 
