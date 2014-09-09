@@ -255,7 +255,7 @@ class KnowledgeBaseEcoli(object):
 				elif molecule['molecule'] == 'EG10877-MONOMER':
 					molecule['location'] = u'c'
 				elif molecule['molecule'] == 'EG10876-MONOMER':
-					molecule['location'] == u'c'
+					molecule['location'] = u'c'
 
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
@@ -2221,8 +2221,6 @@ class KnowledgeBaseEcoli(object):
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
 			"modified-charged-selC-tRNA", # molecule does not exist
-			"RRSA-RRNA", # currently not forming ribosomes
-			"RRFA-RRNA" # currently not forming ribosomes
 			}
 
 		deleteReactions = []
