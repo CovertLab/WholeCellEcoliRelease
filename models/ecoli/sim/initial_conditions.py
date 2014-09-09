@@ -176,8 +176,8 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 
 
 
-	subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
-	subunitStoich = np.array([1, 1, 1])
+	subunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
+	subunitStoich = np.array([1, 1])
 	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
 	elngRate = kb.ribosomeElongationRate.asNumber(units.aa / units.s)
 	T_d = kb.cellCycleLen.asNumber(units.s)
@@ -381,9 +381,9 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	"""
 	# Calculate the number of possible ribosomes
 
-	subunits = bulkMolCntr.countsView(["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"])
+	subunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
 
-	subunitStoich = np.array([1, 1, 1])
+	subunitStoich = np.array([1, 1])
 
 	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
 
