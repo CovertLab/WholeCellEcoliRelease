@@ -409,21 +409,37 @@ def fitKb(kb):
 			) * monomersView.counts()
 		).asNumber()
 	
-	min30SCounts = (
+	# Minimum number of ribosomes needed
+	sequencePredicted_min30SSubunitCounts = (
 		nRibosomesNeeded * -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
 		)
 
-	min50SCounts = (
+	sequencePredicted_min50SSubunitCounts = (
 		nRibosomesNeeded * -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
 		)
 
+	# Number of ribosomes predicted from rRNA mass fractions
+	# 16S rRNA is in the 30S subunit
+	# 23S and 5S rRNA are in the 50S subunit
+	massFracPredicted_30SCount = rRna16SView.counts().sum()
+	massFracPredicted_50SCount = min(rRna23SView.counts().sum(), rRna5SView.counts().sum())
+	massFracPrecicted_30SSubunitCounts = massFracPredicted_30SCount * -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
+	massFracPredicted_50SSubunitCounts = massFracPredicted_50SCount * -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+
+	# Set ribosome subunit counts such that they are the maximum number from
+	# (1) what is already in the container,
+	# (2) what is predicted as needed based on sequence/elongation rate,
+	# (3) what is predicted based on the rRNA mass fraction data
 	ribosome30SView.countsIs(
-		np.fmax(ribosome30SView.counts(), min30SCounts)
+		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts)
 		)
 
 	ribosome50SView.countsIs(
-		np.fmax(ribosome50SView.counts(), min50SCounts)
+		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)
 		)
+
+	# if rRna23SView.counts().sum() < nRibosomesNeeded:
+	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 	if np.any(ribosome30SView.counts() < nRibosomesNeeded) or np.any(ribosome50SView.counts() < nRibosomesNeeded):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
@@ -446,9 +462,6 @@ def fitKb(kb):
 		)
 
 	### Modify kbFit to reflect our bulk container ###
-
-	## Fraction of active Ribosomes ##
-	kb.fracActiveRibosomes = float(nRibosomesNeeded) / np.sum(rRna23SView.counts())
 
 	## RNA and monomer expression ##
 	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
@@ -491,7 +504,7 @@ def fitKb(kb):
 		)
 
 	kb.rnaData["synthProb"][:] = synthProb
-
+	import ipdb; ipdb.set_trace()
 	## Transcription activation rate
 
 	# In our simplified model of RNA polymerase state transition, RNAp can be

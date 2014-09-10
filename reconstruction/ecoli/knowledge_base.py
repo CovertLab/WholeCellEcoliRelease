@@ -135,7 +135,6 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['oriCCenter'] = 3923882*units.nt
 		self._parameterData['terCCenter'] = 1607192*units.nt
 		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
-		self._parameterData["fracActiveRibosomes"] = 1.0
 		self._parameterData["fractionChargedTrna"] = 0.8
 
 

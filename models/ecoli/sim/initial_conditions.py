@@ -92,6 +92,16 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
 	# monomersView.countsIs(nMonomers * monomerExpression)
 
+	subunits = bulkMolCntr.countsView(
+		np.hstack(
+			(kb.getComplexMonomers(kb.s30_fullComplex)[0], kb.getComplexMonomers(kb.s50_fullComplex)[0])
+			)
+		)
+	subunitStoich = -1*np.hstack(
+			(kb.getComplexMonomers(kb.s30_fullComplex)[1], kb.getComplexMonomers(kb.s50_fullComplex)[1])
+			)
+	import ipdb; ipdb.set_trace()
+
 
 def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
