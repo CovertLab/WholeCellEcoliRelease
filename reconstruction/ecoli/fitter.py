@@ -479,7 +479,10 @@ def fitKb(kb):
 	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
 
 	mRnaExpressionView.countsIs(
-		mRnaExpressionFrac * normalize(monomersView.counts()[kb.monomerIndexToRnaMapping])
+		mRnaExpressionFrac * normalize(
+			monomersView.counts() *
+			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+			)[kb.monomerIndexToRnaMapping]
 		)
 
 	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
