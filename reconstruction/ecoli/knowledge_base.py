@@ -2887,33 +2887,40 @@ class KnowledgeBaseEcoli(object):
 		of zero.
 		'''
 
-		stoichMatrix = self.complexationStoichMatrix()
-		moleculeNames = np.array(self.complexationMoleculeNames)
-		cplxRowIdx = np.where(moleculeNames == cplxId)[0][0]
+		info = self._moleculeRecursiveSearch(cplxId, self.complexationStoichMatrix(), np.array(self.complexationMoleculeNames))
 
-		monomerIdxList = []
-		monomerStoichList = []
-		rowStoich = 0
-		self._monomerRecursiveSearch(cplxRowIdx, rowStoich, stoichMatrix, monomerIdxList, monomerStoichList)
-		
-		return moleculeNames[monomerIdxList], np.array(monomerStoichList)
+		return info.keys(), info.values()
 
-	def _monomerRecursiveSearch(self, rowSearchIdx, rowStoich, stoichMatrix, monomerIdxList, monomerStoichList):
-		rxnColIdx = np.where(stoichMatrix[rowSearchIdx,:] >= 1)[0]
-		subunitIdx = np.where(stoichMatrix[:,rxnColIdx] <= -1)[0]
-		subunitStoich = stoichMatrix[:, rxnColIdx][subunitIdx]
-		
-		if len(rxnColIdx):
-			rxnColIdx = rxnColIdx[0]
-		else:
-			monomerIdxList.append(rowSearchIdx)
-			monomerStoichList.append(rowStoich)
-			return
+	def _findRow(self, product,speciesList):
+	
+		for sp in range(0, len(speciesList)):
+			if speciesList[sp] == product: return sp
+		return -1 
 
-		if len(subunitIdx) == 0:
-			monomerIdxList.append(rowSearchIdx)
-			monomerStoichList.append(rowStoich)
-			return
-		else:
-			for i,idx in enumerate(subunitIdx):
-				self._monomerRecursiveSearch(idx, subunitStoich[i][0], stoichMatrix, monomerIdxList, monomerStoichList)
+	def _findColumn(self, stoichMatrixRow, row):
+	
+		for i in range(0,len(stoichMatrixRow)): 
+			if int(stoichMatrixRow[i]) == 1: return i
+		return -1
+
+	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList, flag = 0):
+		row = self.findRow(product,speciesList)
+		if row == -1: return []
+
+		col = self.findColumn(stoichMatrix[row,:], row)
+		if col == -1: 
+			if flag == 0: return []
+			else: return {product: -1}
+
+		total = {}
+		for i in range(0, len(speciesList)):
+			if i == row: continue
+			val = stoichMatrix[i][col]
+			sp = speciesList[i]
+			
+			if val:
+				x = self.moleculeRecursiveSearch(sp, stoichMatrix, speciesList, 1)
+				for j in x:
+					if j in total: total[j] += x[j]*(abs(val))
+					else: total[j] = x[j]*(abs(val))
+		return total
