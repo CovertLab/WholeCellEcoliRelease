@@ -400,6 +400,8 @@ def fitKb(kb):
 	rnapView = bulkContainer.countsView(kb.rnapIds)
 	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
 	ribosome50SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s50_fullComplex)[0])
+	ribosome30SStoich = -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
+	ribosome50SStoich = -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
 
 	## Number of ribosomes needed ##
 	monomerLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
@@ -411,11 +413,11 @@ def fitKb(kb):
 	
 	# Minimum number of ribosomes needed
 	sequencePredicted_min30SSubunitCounts = (
-		nRibosomesNeeded * -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
+		nRibosomesNeeded * -1 * ribosome30SStoich
 		)
 
 	sequencePredicted_min50SSubunitCounts = (
-		nRibosomesNeeded * -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+		nRibosomesNeeded * -1 * ribosome50SStoich
 		)
 
 	# Number of ribosomes predicted from rRNA mass fractions
@@ -423,8 +425,8 @@ def fitKb(kb):
 	# 23S and 5S rRNA are in the 50S subunit
 	massFracPredicted_30SCount = rRna16SView.counts().sum()
 	massFracPredicted_50SCount = min(rRna23SView.counts().sum(), rRna5SView.counts().sum())
-	massFracPrecicted_30SSubunitCounts = massFracPredicted_30SCount * -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
-	massFracPredicted_50SSubunitCounts = massFracPredicted_50SCount * -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+	massFracPrecicted_30SSubunitCounts = massFracPredicted_30SCount * ribosome30SStoich
+	massFracPredicted_50SSubunitCounts = massFracPredicted_50SCount * ribosome50SStoich
 
 	# Set ribosome subunit counts such that they are the maximum number from
 	# (1) what is already in the container,
@@ -438,12 +440,10 @@ def fitKb(kb):
 		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)
 		)
 
-	# if rRna23SView.counts().sum() < nRibosomesNeeded:
-	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
-
-	if np.any(ribosome30SView.counts() < nRibosomesNeeded) or np.any(ribosome50SView.counts() < nRibosomesNeeded):
+	
+	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
-
+	
 	## Number of RNA Polymerases ##
 	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
 
@@ -507,7 +507,7 @@ def fitKb(kb):
 		)
 
 	kb.rnaData["synthProb"][:] = synthProb
-	import ipdb; ipdb.set_trace()
+	
 	## Transcription activation rate
 
 	# In our simplified model of RNA polymerase state transition, RNAp can be
