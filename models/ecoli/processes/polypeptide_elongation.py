@@ -47,7 +47,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o = None
 		self.trna_groups = None
 		self.synthetase_groups = None
-		self.ribosomeSubunits = None
+		self.ribosome30S = None
+		self.ribosome50S = None
 
 		super(PolypeptideElongation, self).__init__()
 
@@ -93,7 +94,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.pi = self.bulkMoleculeView("PI[c]")
 		self.h   = self.bulkMoleculeView("H[c]")
 
-		self.ribosomeSubunits = self.bulkMoleculesView(enzIds)
+		self.ribosome30S = self.bulkMoleculeView(kb.s30_fullComplex)
+		self.ribosome50S = self.bulkMoleculeView(kb.s50_fullComplex)
 
 
 	def calculateRequest(self):
@@ -224,7 +226,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.bulkMonomers.countsInc(terminatedProteins)
 
-		self.ribosomeSubunits.countsInc(nTerminated)
+		self.ribosome30S.countInc(nTerminated)
+		self.ribosome50S.countInc(nTerminated)
 
 		self.h2o.countInc(nElongations - nInitialized)
 
