@@ -39,9 +39,8 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# Views
 
 		self.activeRibosomes = None
-		self.rRna23S = None
-		self.rRna16S = None
-		self.rRna5S = None
+		self.ribosome30S = None
+		self.ribosome50S = None
 		self.mRnas = None
 
 		super(PolypeptideInitiation, self).__init__()
@@ -61,17 +60,15 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
-		self.rRna23S = self.bulkMoleculesView([rib23S_IDs[0]])
-		self.rRna16S = self.bulkMoleculesView([rib16S_IDs[0]])
-		self.rRna5S = self.bulkMoleculesView([rib5S_IDs[0]])
+		self.ribosome30S = self.bulkMoleculeView(kb.s30_fullComplex)
+		self.ribosome50S = self.bulkMoleculeView(kb.s50_fullComplex)
 
 		self.mRnas = self.bulkMoleculesView(mrnaIds)
 
 
 	def calculateRequest(self):
-		self.rRna23S.requestAll()
-		self.rRna16S.requestAll()
-		self.rRna5S.requestAll()
+		self.ribosome30S.requestAll()
+		self.ribosome50S.requestAll()
 
 		self.mRnas.requestAll()
 
@@ -81,9 +78,8 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# determine what molecules are initialized
 
 		inactiveRibosomeCount = np.min([
-			self.rRna23S.counts().sum(),
-			self.rRna16S.counts().sum(),
-			self.rRna5S.counts().sum()
+			self.ribosome30S.counts().sum(),
+			self.ribosome50S.counts().sum(),
 			])
 
 		if inactiveRibosomeCount == 0:
@@ -128,22 +124,5 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			proteinIndex = proteinIndexes
 			)
 
-		self.rRna23S.countsDec(nNewProteins.sum())
-		self.rRna16S.countsDec(nNewProteins.sum())
-		self.rRna5S.countsDec(nNewProteins.sum())
-
-# TODO: To kb
-rib23S_IDs = [
-	"RRLA-RRNA[c]", "RRLB-RRNA[c]", "RRLC-RRNA[c]","RRLD-RRNA[c]",
-	"RRLE-RRNA[c]", "RRLG-RRNA[c]", "RRLH-RRNA[c]"
-	]
-
-rib16S_IDs = [
-	"RRSA-RRNA[c]", "RRSB-RRNA[c]", "RRSC-RRNA[c]", "RRSD-RRNA[c]",
-	"RRSE-RRNA[c]", "RRSG-RRNA[c]", "RRSH-RRNA[c]"
-	]
-
-rib5S_IDs = [
-	"RRFA-RRNA[c]", "RRFB-RRNA[c]", "RRFC-RRNA[c]", "RRFD-RRNA[c]",
-	"RRFE-RRNA[c]", "RRFF-RRNA[c]", "RRFG-RRNA[c]", "RRFH-RRNA[c]"
-	]
+		self.ribosome30S.countsDec(nNewProteins.sum())
+		self.ribosome50S.countsDec(nNewProteins.sum())
