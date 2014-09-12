@@ -388,10 +388,10 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	"""
 	# Calculate the number of possible ribosomes
 
-	subunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
-	subunitStoich = np.array([1,1])
-	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
-	import ipdb; ipdb.set_trace()
+	ribosomeSubunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
+	ribosomeSubunitstoich = np.array([1,1])
+	activeRibosomeMax = (ribosomeSubunits.counts() // subunitStoich).min()
+	
 	if activeRibosomeMax == 0:
 		return
 
