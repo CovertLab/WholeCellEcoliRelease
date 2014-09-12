@@ -68,7 +68,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.figure(figsize = (8.5, 11))
 
-	plt.rc('axes', color_cycle=COLORS)
+	# plt.rc('axes', color_cycle=COLORS)
+	plt.gca().set_color_cycle(COLORS)
 
 	plt.plot(t / 60., masses, linewidth = 2)
 	plt.xlabel("Time (min)")
