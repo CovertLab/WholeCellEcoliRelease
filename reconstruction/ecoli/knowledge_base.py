@@ -98,6 +98,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildBulkMolecules()
 		self._buildBulkChromosome()
 		self._buildGeneData()
+		self._buildRibosomeData()
 		self._buildUniqueMolecules()
 		self._buildBiomass()
 		self._buildRnaData()
@@ -113,7 +114,6 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranslation()
 		self._buildMetabolitePools()
 		self._buildTrnaData()
-		self._buildRibosomeData()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -1854,9 +1854,7 @@ class KnowledgeBaseEcoli(object):
 
 		# TODO: This is a bad hack that works because in the fitter
 		# I have forced expression to be these subunits only
-		ribosomeSubunits = [
-			"RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"
-			]
+		ribosomeSubunits = [self.s30_fullComplex, self.s50_fullComplex]
 
 		ribosomeMass = sum(
 			entry["mass"] for entry in self.bulkMolecules.struct_array
