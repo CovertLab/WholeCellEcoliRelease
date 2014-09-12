@@ -389,8 +389,8 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	# Calculate the number of possible ribosomes
 
 	ribosomeSubunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
-	ribosomeSubunitstoich = np.array([1,1])
-	activeRibosomeMax = (ribosomeSubunits.counts() // subunitStoich).min()
+	ribosomeSubunitStoich = np.array([1,1])
+	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
 	
 	if activeRibosomeMax == 0:
 		return
@@ -424,7 +424,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 
 	# Reduce the number of ribosome subunits
 
-	subunits.countsDec(activeRibosomeCount * subunitStoich)
+	ribosomeSubunits.countsDec(activeRibosomeCount * ribosomeSubunitStoich)
 
 	# Create the lists of protein indexes
 
