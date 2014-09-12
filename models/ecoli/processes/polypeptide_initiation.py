@@ -78,8 +78,8 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# determine what molecules are initialized
 
 		inactiveRibosomeCount = np.min([
-			self.ribosome30S.counts().sum(),
-			self.ribosome50S.counts().sum(),
+			self.ribosome30S.count().sum(),
+			self.ribosome50S.count().sum(),
 			])
 
 		if inactiveRibosomeCount == 0:
@@ -124,5 +124,5 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			proteinIndex = proteinIndexes
 			)
 
-		self.ribosome30S.countsDec(nNewProteins.sum())
-		self.ribosome50S.countsDec(nNewProteins.sum())
+		self.ribosome30S.countDec(nNewProteins.sum())
+		self.ribosome50S.countDec(nNewProteins.sum())
