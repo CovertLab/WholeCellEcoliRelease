@@ -27,6 +27,9 @@ execModel_1: compile
 execAnalysis_1: compile
 	runscripts/execAnalysis.sh 1 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
+execAnalysis_2: compile
+	runscripts/execAnalysis.sh 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
+
 fitKb_2: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/fit.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 

@@ -30,52 +30,37 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	table = h.root.Mass
 
-	cell = table.col("cellMass")
-	cellDry = table.col("dryMass")
+	# cell = table.col("cellMass")
+	# cellDry = table.col("dryMass")
 	protein = table.col("proteinMass")
-	rna = table.col("rnaMass")
-	# tRna = table.col("tRnaMass")
-	# rRna = table.col("rRnaMass")
-	# mRna = table.col("mRnaMass")
-	# dna = table.col("dnaMass")
+	# rna = table.col("rnaMass")
+	tRna = table.col("tRnaMass")
+	rRna = table.col("rRnaMass")
+	mRna = table.col("mRnaMass")
+	dna = table.col("dnaMass")
 	t = table.col("time")
+
+	masses = np.vstack([
+		protein/protein[0],
+		rRna/rRna[0],
+		tRna/tRna[0],
+		mRna/mRna[0],
+		dna/dna[0]
+		]).T
+
+	massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA"]
 
 	plt.figure(figsize = (8.5, 11))
 
-	plt.subplot(4, 1, 1)
-
-	plt.plot(t / 60., cell, linewidth = 2)
-	plt.plot([t[0] / 60., t[-1] / 60.], [2 * cell[0], 2 * cell[0]], 'r--')
+	plt.plot(t / 60., masses, linewidth = 2)
 	plt.xlabel("Time (min)")
-	plt.ylabel("Total Mass (fg)")
-	plt.title("Total Mass Final:Initial = %0.2f" % (cell[-1] / cell[0]))
+	plt.ylabel("Mass (normalized by t = 0 min)")
+	plt.title("Biomass components")
+	plt.axis([0, 60, 0.5, 2.5])
 
-	plt.subplot(4, 1, 2)
+	plt.legend(massLabels, loc = "best")
 
-	plt.plot(t / 60., cellDry, linewidth = 2)
-	plt.plot([t[0] / 60., t[-1] / 60.], [2 * cellDry[0], 2 * cellDry[0]], 'r--')
-	plt.xlabel("Time (min)")
-	plt.ylabel("Dry Mass (fg)")
-	plt.title("Dry Mass Final:Initial = %0.2f" % (cellDry[-1] / cellDry[0]))
-
-	plt.subplot(4, 1, 3)
-
-	plt.plot(t / 60., protein, linewidth = 2)
-	plt.plot([t[0] / 60., t[-1] / 60.], [2 * protein[0], 2 * protein[0]], "r--")
-	plt.xlabel("Time (min)")
-	plt.ylabel("Protein Mass (fg)")
-	plt.title("Total Protein Mass Final:Initial = %0.2f" % (protein[-1] / protein[0]))
-	plt.show()
-
-	plt.subplot(4, 1, 4)
-
-	plt.plot(t / 60., rna, linewidth = 2)
-	plt.plot([t[0] / 60., t[-1] / 60.], [2 * rna[0], 2 * rna[0]], "r--")
-	plt.xlabel("Time (min)")
-	plt.ylabel("RNA Mass (fg)")
-	plt.title("Total RNA Mass Final:Initial = %0.2f" % (rna[-1] / rna[0]))
-
-	plt.subplots_adjust(hspace = 0.5)
+	# plt.show()
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 

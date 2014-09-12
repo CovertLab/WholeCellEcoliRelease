@@ -113,6 +113,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranslation()
 		self._buildMetabolitePools()
 		self._buildTrnaData()
+		self._buildRibosomeData()
 
 		# TODO: enable these and rewrite them as sparse matrix definitions (coordinate:value pairs)
 		self._buildComplexation()
@@ -134,7 +135,6 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['oriCCenter'] = 3923882*units.nt
 		self._parameterData['terCCenter'] = 1607192*units.nt
 		self._parameterData['gtpPerTranslation'] = 4.2 # TODO: find a real number
-		self._parameterData["fracActiveRibosomes"] = 1.0
 		self._parameterData["fractionChargedTrna"] = 0.8
 
 
@@ -236,6 +236,25 @@ class KnowledgeBaseEcoli(object):
 
 		self._reactions.append(reaction)
 
+		# Fixing localizations for two ribosomal proteins and the complexes they are in
+		for prot in self._proteins:
+			if prot['id'] == 'EG10877-MONOMER':
+				prot['location'] = u'c'
+			if prot['id'] == 'EG10876-MONOMER':
+				prot['location'] = u'c'
+
+		for comp in self._proteinComplexes:
+			if comp['id'] == 'CPLX0-3962':
+				comp['location'] = u'c'
+
+		for rxn in self._complexationReactions:
+			for molecule in rxn['stoichiometry']:
+				if molecule['molecule'] == 'CPLX0-3962':
+					molecule['location'] = u'c'
+				elif molecule['molecule'] == 'EG10877-MONOMER':
+					molecule['location'] = u'c'
+				elif molecule['molecule'] == 'EG10876-MONOMER':
+					molecule['location'] = u'c'
 
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
@@ -2201,8 +2220,6 @@ class KnowledgeBaseEcoli(object):
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
 			"modified-charged-selC-tRNA", # molecule does not exist
-			"RRSA-RRNA", # currently not forming ribosomes
-			"RRFA-RRNA" # currently not forming ribosomes
 			}
 
 		deleteReactions = []
@@ -2222,7 +2239,7 @@ class KnowledgeBaseEcoli(object):
 			for molecule in reaction["stoichiometry"]:
 				if molecule["type"] == "metabolite":
 					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(), # this is stupid
+						molecule["molecule"].upper(), # this is stupid # agreed
 						molecule["location"]
 						)
 
@@ -2272,6 +2289,15 @@ class KnowledgeBaseEcoli(object):
 
 		return out
 
+	def _buildRibosomeData(self):
+		self.s30_proteins = S30_PROTEINS
+		self.s30_16sRRNA = [S30_16S_RRNAS[0]] # Only using A operon
+		self.s30_fullComplex = S30_FULLCOMPLEX
+		self.s50_proteins = S50_PROTEINS
+		self.s50_proteinComplexes = S50_PROTEIN_COMPLEXES
+		self.s50_20sRRNA = [S50_20S_RRNAS[0]] # Only using A operon
+		self.s50_5sRRNA = [S50_5S_RRNAS[0]] # Only using A operon
+		self.s50_fullComplex = S50_FULLCOMPLEX
 
 	def _buildMetabolism(self):
 		# Build the matrices/vectors for metabolism (FBA)
@@ -2410,6 +2436,14 @@ class KnowledgeBaseEcoli(object):
 
 		exchangeMasses = {moleculeID:mws[index]
 			for index, moleculeID in enumerate(externalExchangeMolecules)}
+
+		# Filter out reaction-enzyme associations that lack rates
+
+		reactionEnzymes = {
+			reactionID:enzymeID
+			for reactionID, enzymeID in reactionEnzymes.viewitems()
+			if reactionRates.has_key(reactionID)
+			}
 
 		self.metabolismReactionStoich = reactionStoich
 		self.metabolismExternalExchangeMolecules = externalExchangeMolecules
@@ -2868,6 +2902,11 @@ class KnowledgeBaseEcoli(object):
 		# 	if trna_synthetase_rates[x] == None:
 		# 		trna_synthetase_rates[x] = mean_rate
 		self.trna_synthetase_rates = trna_synthetase_rates.values()
+		# TODO: Remove here only for fitting
+		self.synthetase_counts = None
+		self.synthetase_variance = None
+		self.initial_aa_polymerization_rate = None
+		self.minimum_trna_synthetase_rates = None
 
 ## -- Utility functions -- ##
 	def _checkDatabaseAccess(self, table):
