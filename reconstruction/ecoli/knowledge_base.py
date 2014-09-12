@@ -2928,7 +2928,7 @@ class KnowledgeBaseEcoli(object):
 
 		info = self._moleculeRecursiveSearch(cplxId, self.complexationStoichMatrix(), np.array(self.complexationMoleculeNames))
 
-		return info.keys(), info.values()
+		return np.array(info.keys()), np.array(info.values())
 
 	def _findRow(self, product,speciesList):
 	
@@ -2943,10 +2943,10 @@ class KnowledgeBaseEcoli(object):
 		return -1
 
 	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList, flag = 0):
-		row = self.findRow(product,speciesList)
+		row = self._findRow(product,speciesList)
 		if row == -1: return []
 
-		col = self.findColumn(stoichMatrix[row,:], row)
+		col = self._findColumn(stoichMatrix[row,:], row)
 		if col == -1: 
 			if flag == 0: return []
 			else: return {product: -1}
@@ -2958,7 +2958,7 @@ class KnowledgeBaseEcoli(object):
 			sp = speciesList[i]
 			
 			if val:
-				x = self.moleculeRecursiveSearch(sp, stoichMatrix, speciesList, 1)
+				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList, 1)
 				for j in x:
 					if j in total: total[j] += x[j]*(abs(val))
 					else: total[j] = x[j]*(abs(val))
