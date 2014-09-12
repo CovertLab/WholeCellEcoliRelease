@@ -174,16 +174,16 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum() / (mass + massesToAdd.sum())
 	# import ipdb; ipdb.set_trace()
 
-	subunits = bulkMolCntr.countsView(
+	ribosomeSubunits = bulkMolCntr.countsView(
 		np.hstack(
 			(kb.getComplexMonomers(kb.s30_fullComplex)[0], kb.getComplexMonomers(kb.s50_fullComplex)[0])
 			)
 		)
-	subunitStoich = -1*np.hstack(
+	ribosomeSubunitStoich = -1*np.hstack(
 			(kb.getComplexMonomers(kb.s30_fullComplex)[1], kb.getComplexMonomers(kb.s50_fullComplex)[1])
 			)
 	
-	activeRibosomeMax = (subunits.counts() // subunitStoich).min()
+	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
 	elngRate = kb.ribosomeElongationRate.asNumber(units.aa / units.s)
 	T_d = kb.cellCycleLen.asNumber(units.s)
 	dt = kb.timeStep.asNumber(units.s)
