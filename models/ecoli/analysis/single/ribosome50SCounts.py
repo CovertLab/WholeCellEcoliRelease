@@ -19,8 +19,7 @@ import cPickle
 
 import wholecell.utils.constants
 
-FONT = {'family' : 'normal',
-		'weight':	'normal',
+FONT = {
 		'size'	:	8
 		}
 
@@ -32,8 +31,8 @@ def setAxisMaxMin(axis, data):
 	else:
 		axis.set_yticks([ymin, ymax])
 
-def sparklineAxis(axis, x, y, tickPos, color):
-	axis.step(x, y, color, linewidth = 2)
+def sparklineAxis(axis, x, y, tickPos, lineType, color):
+	axis.plot(x, y, linestyle = 'steps' + lineType, color = color, linewidth = 2)
 	axis.spines['top'].set_visible(False)
 	axis.spines['bottom'].set_visible(False)
 	axis.yaxis.set_ticks_position(tickPos)
@@ -72,10 +71,26 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		# Load data
 		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
 		time = bulkMolecules.col("time")
-		proteinCounts = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
+		freeProteinCounts = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
 		rnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
-		rRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rRnaIndexes]
+		freeRRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rRnaIndexes]
 		complexCounts = bulkMolecules.read(0, None, 1, "counts")[:, complexIndexes]
+
+	# Calculate total protein and rRNA counts (in complex + free)
+	complexMonomers, monomerStoich = kb.getComplexMonomers(kb.s50_fullComplex)
+
+	complexedProteinCounts = np.zeros((time.size,len(proteinIds)), np.int)
+	for idx, pId in enumerate(proteinIds):
+		try:
+			complexedProteinCounts[:,idx] = (complexCounts[:,1] * -1. * monomerStoich[np.where(complexMonomers == pId)[0][0]]).reshape(time.size,)
+		except:
+			import ipdb; ipdb.set_trace()
+	totalProteinCounts = complexedProteinCounts + freeProteinCounts
+
+	complexedRnaCounts = np.zeros((time.size,len(rRnaIds)), np.int)
+	for idx, rId in enumerate(rRnaIds):
+		complexedRnaCounts[:,idx] = (complexCounts[:,1] * -1. * monomerStoich[np.where(complexMonomers == rId)[0][0]]).reshape(time.size,)
+	totalRRnaCounts = complexedRnaCounts + freeRRnaCounts
 
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
@@ -83,12 +98,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	for idx in xrange(len(proteinIds)):
 		rna_axis = plt.subplot(12, 3, idx + 1)
 
-		sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', 'b')
+		sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', '-', 'b')
 		setAxisMaxMin(rna_axis, rnaCounts[:, idx])
 
 		protein_axis = rna_axis.twinx()
-		sparklineAxis(protein_axis, time / 60., proteinCounts[:, idx], 'right', 'r')		
-		setAxisMaxMin(protein_axis, proteinCounts[:, idx])
+		sparklineAxis(protein_axis, time / 60., freeProteinCounts[:, idx], 'right', '--', 'r')
+		sparklineAxis(protein_axis, time / 60., totalProteinCounts[:, idx], 'right', '-', 'r')
+		setAxisMaxMin(protein_axis, totalProteinCounts[:, idx])
 
 		# Component label
 		rna_axis.set_xlabel(proteinIds[idx][:-3])
@@ -96,8 +112,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	for idx in xrange(len(rRnaIds)):
 		rna_axis = plt.subplot(12, 3, idx + len(proteinIds) + 1)
 
-		sparklineAxis(rna_axis, time / 60., rRnaCounts[:, idx], 'left', 'b')
-		setAxisMaxMin(rna_axis, rRnaCounts[:, idx])
+		sparklineAxis(rna_axis, time / 60., freeRRnaCounts[:, idx], 'left', '--', 'b')
+		sparklineAxis(rna_axis, time / 60., totalRRnaCounts[:, idx], 'left', '-', 'b')
+		setAxisMaxMin(rna_axis, totalRRnaCounts[:, idx])
 
 		# Component label
 		rna_axis.set_xlabel(rRnaIds[idx][:-3])
@@ -105,7 +122,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	for idx in xrange(len(complexIds)):
 		complex_axis = plt.subplot(12, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
 
-		sparklineAxis(complex_axis, time / 60., complexCounts[:, idx], 'left', 'r')
+		sparklineAxis(complex_axis, time / 60., complexCounts[:, idx], 'left', '-', 'r')
 		setAxisMaxMin(complex_axis, complexCounts[:, idx])
 
 		# Component label
