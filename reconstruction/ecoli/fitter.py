@@ -433,11 +433,11 @@ def fitKb(kb):
 	# (2) what is predicted as needed based on sequence/elongation rate,
 	# (3) what is predicted based on the rRNA mass fraction data
 	ribosome30SView.countsIs(
-		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts) + (1000 * ribosome30SStoich)
+		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts) + (1000 * ribosome30SStoich) # Added fudge factr of 1000
 		)
 
 	ribosome50SView.countsIs(
-		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts) + (1000 * ribosome50SStoich)
+		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts) + (1000 * ribosome50SStoich) # Added fudge factr of 1000
 		)
 
 	
