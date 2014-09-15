@@ -199,6 +199,9 @@ def fitKb2(kb, simOutDir):
 	predicted_trna_synthetase_rates = initialAAPolymerizationRate / scaled_synthetase_counts
 	kb.trna_synthetase_rates = 2 * predicted_trna_synthetase_rates
 
+	# fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
+
+
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer):
 
@@ -213,7 +216,7 @@ def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContaine
 		concentrationChange = h5file.root.ConcentrationChange.col("concentrationChange")
 
 		names = h5file.root.names
-		moleculeIDs = np.array(names.moleculeIDs.read())
+		biomassMoleculeIDs = np.array(names.moleculeIDs.read())
 
 	## Find the most extreme concentration flux, after removing the first few time steps
 
@@ -231,135 +234,234 @@ def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContaine
 
 	effectiveBiomassReaction[negativeIsMostExtreme] = concentrationChangeMostNegative[negativeIsMostExtreme]
 
-	## Build the standard FBA problem and the MOMA problem
+	## Build the enzyme-fitting problem
 
-	DELTA_T = 1 # use a time-step of one-second (doesn't really matter)
+	# TODO: write a class for setting up LP problems
 
-	# objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T))
-	objective = dict(zip(moleculeIDs, effectiveBiomassReaction*DELTA_T*10**3))
+	values = []
+	rowIndexes = []
+	colIndexes = []
 
-	reactionRates = kb.metabolismReactionRates(DELTA_T * units.s)
+	lowerValues = []
+	lowerIndexes = []
 
-	fba = FluxBalanceAnalysis(
-		kb.metabolismReactionStoich.copy(),
-		kb.metabolismExternalExchangeMolecules,
-		objective,
-		objectiveType = "standard",
-		reversibleReactions = kb.metabolismReversibleReactions,
-		reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-		reactionRates = reactionRates.copy(),
-		)
+	upperValues = []
+	upperIndexes = []
 
-	externalMoleculeIDs = fba.externalMoleculeIDs()
+	objValues = []
+	objIndexes = []
+
+	rowNames = []
+	colNames = []
+
+	### Set up reverse reactions
+
+	dt = 1 * units.s
+
+	reactionStoich = kb.metabolismReactionStoich.copy()
+	reactionEnzymes = kb.metabolismReactionEnzymes.copy()
+	reactionRates = kb.metabolismReactionRates(dt)
+
+	for reactionID in kb.metabolismReversibleReactions:
+		reverseReactionID = "{} (reverse)".format(reactionID)
+		assert reverseReactionID not in reactionStoich.viewkeys()
+		reactionStoich[reverseReactionID] = {
+			moleculeID:-coeff
+			for moleculeID, coeff in reactionStoich[reactionID].viewitems()
+			}
+
+		if reactionID in reactionEnzymes.viewkeys():
+			reactionEnzymes[reverseReactionID] = reactionEnzymes[reactionID]
+
+		if reactionID in reactionRates.viewkeys():
+			reactionRates[reverseReactionID] = reactionRates[reactionID]
+
+	### Set up metabolites and biochemical reactions
+
+	for reactionID, stoich in reactionStoich.viewitems():
+		assert reactionID not in colNames
+		reactionIndex = len(colNames)
+		colNames.append(reactionID)
+
+		for moleculeID, coeff in stoich.viewitems():
+			try:
+				moleculeIndex = rowNames.index(moleculeID)
+
+			except ValueError:
+				moleculeIndex = len(rowNames)
+				rowNames.append(moleculeID)
+			
+			rowIndexes.append(moleculeIndex)
+			colIndexes.append(reactionIndex)
+			values.append(coeff)
+
+	### Set up exchange reactions
 
 	initWaterMass = kb.avgCellWaterMassInit
 	initDryMass = kb.avgCellDryMassInit
 
-	initCellMass = (
-		initWaterMass
-		+ initDryMass
-		)
+	initCellMass = initWaterMass + initDryMass
 
 	initCellVolume = initCellMass / kb.cellDensity
 
-	coefficient = initDryMass / initCellVolume * (DELTA_T * units.s)
+	coefficient = initDryMass / initCellVolume * dt
 
-	externalMoleculeLevels = kb.metabolismExchangeConstraints(
-		externalMoleculeIDs,
+	exchangeConstraints = kb.metabolismExchangeConstraints(
+		kb.metabolismExternalExchangeMolecules,
 		coefficient,
-		# units.mol / units.L
 		units.mmol / units.L
 		)
 
-	fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+	for moleculeID, constraint in zip(kb.metabolismExternalExchangeMolecules, exchangeConstraints):
+		exchangeID = "{} exchange".format(moleculeID)
 
-	## Calculate protein concentrations and assign enzymatic limits
+		assert exchangeID not in colNames
+		exchangeIndex = len(colNames)
+		colNames.append(exchangeID)
+
+		moleculeIndex = rowNames.index(moleculeID)
+
+		rowIndexes.append(moleculeIndex)
+		colIndexes.append(exchangeIndex)
+		values.append(-1.0)
+
+		lowerIndexes.append(exchangeIndex)
+		lowerValues.append(-min(constraint, 1e6))
+
+	### Set up biomass reaction
+
+	biomassID = "biomass reaction"
+	assert biomassID not in colNames
+	biomassIndex = len(colNames)
+	colNames.append(biomassID)
+
+	effectiveBiomassReaction *= 10**3 # change to mmol
+
+	for moleculeID, coeff in zip(biomassMoleculeIDs, effectiveBiomassReaction):
+		moleculeIndex = rowNames.index(moleculeID)
+
+		rowIndexes.append(moleculeIndex)
+		colIndexes.append(biomassIndex)
+		values.append(-coeff)
+
+		lowerIndexes.append(biomassIndex)
+		lowerValues.append(+1) # must be capable of producing 100% of the biomass in a step
+
+	### Set up enzyme usage
+
+	enzymeRatesAll = collections.defaultdict(set)
+
+	for reactionID, enzymeID in reactionEnzymes.viewitems():
+		reactionRate = reactionRates[reactionID]
+
+		enzymeRatesAll[enzymeID].add(reactionRate)
+
+	enzymeIDs = enzymeRatesAll.keys()
+	perEnzymeRates = {
+		enzymeID:max(enzymeRates)
+		for enzymeID, enzymeRates in enzymeRatesAll.viewitems()
+		}
+
 	minimalEnzymeCounts = np.fmax(
-		bulkAverageContainer.counts(fba.enzymeIDs()) - 2 * bulkDeviationContainer.counts(fba.enzymeIDs()),
-		1 # TODO: change when we are more confident in our expression #s
+		bulkAverageContainer.counts(enzymeIDs) - 2 * bulkDeviationContainer.counts(enzymeIDs),
+		0
 		)
 
 	enzymeConc = (
 		1 / kb.nAvogadro / initCellVolume * minimalEnzymeCounts
 		).asNumber(units.mmol / units.L)
 
-	fba.enzymeLevelsIs(enzymeConc)
+	fullEnzymeRates = {
+		enzymeID:perEnzymeRates[enzymeID] * enzymeConc[index]
+		for index, enzymeID in enumerate(enzymeIDs)
+		}
 
-	fba.maxReactionFluxIs(fba._standardObjectiveReactionName, 1)
+	for enzymeID, rateConstraint in fullEnzymeRates.viewitems():
+		assert enzymeID not in rowNames
+		enzymeIndex = len(rowNames)
+		rowNames.append(enzymeID)
 
-	fba.run()
+		constraintID = "{} constraint".format(enzymeID)
+		assert constraintID not in colNames
+		constraintIndex = len(colNames)
+		colNames.append(constraintID)
 
-	print fba.objectiveReactionFlux()
+		excessID = "{} excess capacity".format(enzymeID)
+		assert excessID not in colNames
+		excessIndex = len(colNames)
+		colNames.append(excessID)
 
-	import matplotlib.pyplot as plt
+		rowIndexes.append(enzymeIndex)
+		colIndexes.append(constraintIndex)
+		values.append(+1.0)
+
+		upperIndexes.append(constraintIndex)
+		upperValues.append(rateConstraint)
+
+		rowIndexes.append(enzymeIndex)
+		colIndexes.append(excessIndex)
+		values.append(+1.0)
+
+		objIndexes.append(excessIndex)
+		objValues.append(+1.0) # TODO: weighting
+
+	for reactionID, enzymeID in reactionEnzymes.viewitems():
+		if reactionID not in reactionRates.viewkeys():
+			raise Exception("This code was not designed to handle enzymatic constraints without annotated rates.")
+
+		reactionIndex = colNames.index(reactionID)
+		enzymeIndex = rowNames.index(enzymeID)
+
+		rowIndexes.append(enzymeIndex)
+		colIndexes.append(reactionIndex)
+		values.append(-1)
+
+	import cvxopt
+	import cvxopt.solvers
+
+	nRows = max(rowIndexes) + 1
+	nCols = max(colIndexes) + 1
+
+	assert len(values) == len(rowIndexes) == len(colIndexes)
+
+	A = cvxopt.spmatrix(values, rowIndexes, colIndexes)
+
+	b = cvxopt.matrix(np.zeros(nRows, np.float64))
+
+	assert len(objIndexes) == len(objValues)
+
+	objectiveFunction = np.zeros(nCols, np.float64)
+	objectiveFunction[objIndexes] = objValues
+
+	f = cvxopt.matrix(objectiveFunction)
+
+	G = cvxopt.matrix(np.concatenate(
+		[np.identity(nCols, np.float64), -np.identity(nCols, np.float64)]
+		))
+
+	assert len(upperIndexes) == len(upperValues)
+
+	upperBound = np.empty(nCols, np.float64)
+	upperBound.fill(1e6)
+	upperBound[upperIndexes] = upperValues
+
+	assert len(lowerIndexes) == len(lowerValues)
+
+	lowerBound = np.empty(nCols, np.float64)
+	lowerBound.fill(0)
+	lowerBound[lowerIndexes] = lowerValues
+
+	h = cvxopt.matrix(np.concatenate([upperBound, -lowerBound], axis = 0))
+
+	oldOptions = cvxopt.solvers.options.copy()
+
+	cvxopt.solvers.options["LPX_K_MSGLEV"] = 0
+
+	solution = cvxopt.solvers.lp(f, G, h, A, b, solver = "glpk")
+
+	cvxopt.solvers.options.update(oldOptions)
 
 	import ipdb; ipdb.set_trace()
-
-	enzymeUsage = fba.enzymeUsage()
-
-	assert fba.objectiveReactionFlux() == 0
-
-	unavailableEnzymes = (enzymeConc == 0)
-
-	enzymeIDs = np.array(fba.enzymeIDs())
-
-	monomerIsSubunit = []
-	monomerNotSubunit = []
-	cplxIsSubunit = []
-	cplxNotSubunit = []
-
-	for index in np.where(unavailableEnzymes)[0]:
-		# newEnzConc = enzymeConc.copy()
-
-		# newEnzConc[index] = np.inf
-
-		# fba.enzymeLevelsIs(newEnzConc)
-
-		# fba.run()
-
-		# if fba.objectiveReactionFlux() > 0:
-		# 	print enzymeIDs[index]
-
-		enzymeID = enzymeIDs[index]
-
-		if enzymeID in kb.complexationSubunitNames:
-			if enzymeID not in kb.complexationComplexNames:
-				monomerIsSubunit.append(enzymeID)
-
-			else:
-				cplxIsSubunit.append(enzymeID)
-
-		else:
-			if enzymeID not in kb.complexationComplexNames:
-				monomerNotSubunit.append(enzymeID)
-
-			else:
-				cplxNotSubunit.append(enzymeID)
-
-	while True:
-		fba.enzymeLevelsIs(enzymeConc)
-
-		fba.run()
-
-		objectiveValue = fba.objectiveReactionFlux()
-
-		if objectiveValue >= 1:
-			break
-
-		isLimiting = (fba.enzymeUsage() / enzymeConc >= 1 - 1e-9)
-
-		# Find the limiting enzyme with the lowest k_cat, and remove the constraint
-
-		limitingIndex = np.where(isLimiting)[0][np.argmin(enzymeRates[isLimiting])]
-
-		enzymeConc[limitingIndex] = np.inf
-
-		filteredEnzymes.append(enzymeIDs[limitingIndex])
-
-		print objectiveValue
-
-	for enzymeID in filteredEnzymes:
-		print "{}: {}".format(enzymeID, min(enzymeID_toRate[enzymeID]))
 
 
 def fitKb(kb):

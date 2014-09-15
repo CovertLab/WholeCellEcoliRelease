@@ -30,6 +30,10 @@ from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
+COUNTS_UNITS = units.mmol
+VOLUME_UNITS = units.L
+MASS_UNITS = units.g
+
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
 
@@ -45,11 +49,11 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.asNumber(1 / units.mol)
-		self.cellDensity = kb.cellDensity.asNumber(units.g/units.L)
+		self.nAvogadro = kb.nAvogadro.asNumber(1 / COUNTS_UNITS)
+		self.cellDensity = kb.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
 		
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
-		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(units.mol/units.L)
+		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
 		objective = {
 			moleculeID:coeff for moleculeID, coeff in
@@ -66,7 +70,7 @@ class Metabolism(wholecell.processes.process.Process):
 			reversibleReactions = kb.metabolismReversibleReactions,
 			# reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
 			# reactionRates = kb.metabolismReactionRates(self.timeStepSec * units.s),
-			# moleculeMasses = kb.metabolismExchangeMasses(units.g / units.mol)
+			# moleculeMasses = kb.metabolismExchangeMasses(MASS_UNITS / COUNTS_UNITS)
 			)
 
 		# Set constraints
@@ -86,7 +90,7 @@ class Metabolism(wholecell.processes.process.Process):
 		externalMoleculeLevels = kb.metabolismExchangeConstraints(
 			externalMoleculeIDs,
 			coefficient,
-			units.mol / units.L
+			COUNTS_UNITS / VOLUME_UNITS
 			)
 
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
@@ -118,7 +122,7 @@ class Metabolism(wholecell.processes.process.Process):
 		metaboliteCountsInit = self.metabolites.counts()
 		poolCounts = self.poolMetabolites.counts()
 
-		cellMass = self.readFromListener("Mass", "cellMass") * 1e-15 # fg to g
+		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
 
 		cellVolume = cellMass / self.cellDensity
 

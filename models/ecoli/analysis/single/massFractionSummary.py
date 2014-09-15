@@ -18,6 +18,22 @@ from matplotlib import pyplot as plt
 
 import wholecell.utils.constants
 
+COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
+	[228,26,28],
+	[55,126,184],
+	[77,175,74],
+	[152,78,163],
+	[255,127,0],
+	[255,255,51],
+	[166,86,40],
+	[247,129,191]
+	]
+
+COLORS = [
+	[colorValue/255. for colorValue in color]
+	for color in COLORS_256
+	]
+
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
@@ -51,6 +67,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA"]
 
 	plt.figure(figsize = (8.5, 11))
+
+	# plt.rc('axes', color_cycle=COLORS)
+	plt.gca().set_color_cycle(COLORS)
 
 	plt.plot(t / 60., masses, linewidth = 2)
 	plt.xlabel("Time (min)")

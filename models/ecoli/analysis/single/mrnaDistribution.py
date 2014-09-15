@@ -84,29 +84,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	# Plot style inspired by the prettyplotlib package (see:
 	# http://blog.olgabotvinnik.com/post/58941062205/prettyplotlib-painlessly-create-beautiful-matplotlib)
 
-	for rnaIndex, expected in enumerate(expectedFrequency):
-		color = COLORS[rnaIndex % nColors]
+	colors = np.array(
+		(COLORS*(expectedFrequency.size // len(COLORS) + 1))[:expectedFrequency.size]
+		).repeat(actualFrequency.shape[1], 0)
 
-		plt.plot(
-			expected*onesVector,
-			actualFrequency[rnaIndex, :],
-			'o',
-			alpha = 0.1,
-			# markersize = 2,
-			markerfacecolor = color,
-			markeredgecolor = "none"
-			# markeredgecolor = "black",
-			# markeredgewidth = 0.15
-			)
+	plt.scatter(
+		expectedFrequency.repeat(actualFrequency.shape[1]),
+		actualFrequency.reshape(-1),
+		c = colors,
+		edgecolors = "none",
+		rasterized = True,
+		alpha = 0.1
+		)
 
-	for rnaIndex, expected in enumerate(expectedFrequency):
-
-		plt.plot(
-			expected, actualFrequency[rnaIndex, -1],
-			'o',
-			markerfacecolor = "none",
-			markeredgecolor = "k"
-			)
+	plt.scatter(
+		expectedFrequency, actualFrequency[:, -1],
+		c = "none",
+		edgecolors = "k",
+		rasterized = True
+		)
 
 	plt.xlabel("Expected mRNA frequency")
 	plt.ylabel("Actual mRNA frequency (all time steps)")
@@ -117,7 +113,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# plt.show()
 
-	plotOutFileName = plotOutFileName[:plotOutFileName.index(".")] + ".png" # hack to save this as raster
+	# plotOutFileName = plotOutFileName[:plotOutFileName.index(".")] + ".png" # hack to save this as raster
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 

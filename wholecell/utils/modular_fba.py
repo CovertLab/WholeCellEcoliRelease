@@ -878,6 +878,10 @@ class FluxBalanceAnalysis(object):
 
 		solution = cvxopt.solvers.lp(self._f, self._G, h, self._A, self._b, solver = "glpk")
 
+		# TODO: call glpk using this binding
+		# from cvxopt import glpk
+		# solution = glpk.lp(self._f, self._G, h, self._A, self._b)
+
 		cvxopt.solvers.options.update(oldOptions)
 
 		self._rawSolution = solution
