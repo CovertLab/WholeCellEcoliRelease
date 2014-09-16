@@ -2150,9 +2150,26 @@ class KnowledgeBaseEcoli(object):
 			(noDataAA, slowRate) for noDataAA in noDataAAs
 			) # Assumed slow rate because of no data
 
+		# Build list of ribosomal proteins
+		ribosomalProteins = set([])
+		ribosomalProteins.update(S30_ALL_PROTEINS)
+		ribosomalProteins.update(S50_ALL_PROTEINS)
+		ribosomalRNA = set([])
+		ribosomalRNA.update(S30_16S_RRNAS)
+		ribosomalRNA.update(S50_5S_RRNAS)
+		ribosomalRNA.update(S50_20S_RRNAS)
+		ribosomalProteins = ribosomalProteins.difference(ribosomalRNA)
+		ribosomalProteins = list(ribosomalProteins)
+
 		degRate = np.zeros(len(self._proteins))
 		for i,m in enumerate(self._proteins):
-			degRate[i] = NruleDegRate[m['seq'][0]].asNumber()
+			if m not in ribosomalProteins:
+				degRate[i] = NruleDegRate[m['seq'][0]].asNumber()
+			else:
+				degRate[i] = slowRate.asNumber()
+
+		# Give all ribosomal proteins the slowAA rule
+
 
 		self.monomerData = np.zeros(
 			size,
