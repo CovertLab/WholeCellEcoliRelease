@@ -35,7 +35,6 @@ def calcInitialConditions(sim, kb):
 	initializeBulkChromosome(bulkChrmCntr, kb, randomState, timeStep)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 
-
 def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 
 	## Set protein counts from expression
@@ -53,17 +52,14 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 	## Form complexes
 	initializeComplexes(bulkMolCntr, kb, randomState, timeStep)
 
-
 def initializeBulkChromosome(bulkChrmCntr, kb, randomState, timeStep):
 	## Set genes
 	initializeGenes(bulkChrmCntr, kb, timeStep)
-
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
 	initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	initializeReplication(uniqueMolCntr, kb)
-
 
 def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
@@ -90,9 +86,6 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 		randomState.multinomial(nMonomers, monomerExpression)
 		)
 
-	# monomersView.countsIs(nMonomers * monomerExpression)
-
-
 def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	rnaView = bulkMolCntr.countsView(kb.rnaData["id"])
@@ -112,9 +105,6 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 		randomState.multinomial(nRnas, rnaExpression)
 		)
 
-	# rnaView.countsIs(nRnas * rnaExpression)
-
-
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 	polymerizedView = bulkMolCntr.countsView([id_ + "[c]" for id_ in kb.polymerizedDNT_IDs])
@@ -125,7 +115,6 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
 		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
 		])
-
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 
@@ -157,23 +146,12 @@ def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
 		(poolConcentrations).asNumber(units.mol / units.L)
 		)
 
-	## Uncomment the following if you want to look at how well our two different accountings of mass agree
-	# M = kb.getMass(bulkMolCntr._objectNames)
-	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum()
-	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum() / (mass)
-	# import ipdb; ipdb.set_trace()
-
 	bulkMolCntr.countsIs(
 		countsToAdd,
 		poolIds
 		)
 
-	## Uncomment the following if you want to look at how well our two different accountings of mass agree
-	# M = kb.getMass(bulkMolCntr._objectNames)
-	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum()
-	# (bulkMolCntr.counts() / kb.nAvogadro.asNumber() * M).sum() / (mass + massesToAdd.sum())
-	# import ipdb; ipdb.set_trace()
-
+	# GDP POOL
 	ribosomeSubunits = bulkMolCntr.countsView(
 		np.hstack(
 			(kb.getComplexMonomers(kb.s30_fullComplex)[0], kb.getComplexMonomers(kb.s50_fullComplex)[0])
@@ -201,12 +179,11 @@ def initializeGenes(bulkChrmCntr, kb, timeStep):
 	initializeGenes
 
 	Purpose:
-	Initalizes the counts of genes in BulkMolecules
+	Initializes the counts of genes in BulkChromosome
 	"""
 
 	geneView = bulkChrmCntr.countsView(kb.geneData['name'])
 	geneView.countsInc(1)
-
 
 def initializeComplexes(bulkMolCntr, kb, randomState, timeStep):
 	from wholecell.utils.mc_complexation import mccFormComplexes
@@ -219,8 +196,6 @@ def initializeComplexes(bulkMolCntr, kb, randomState, timeStep):
 
 	molecules = bulkMolCntr.countsView(moleculeNames)
 
-	s30container = bulkMolCntr.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
-
 	moleculeCounts = molecules.counts()
 
 	seed = randomState.randint(8**8)
@@ -228,7 +203,6 @@ def initializeComplexes(bulkMolCntr, kb, randomState, timeStep):
 	updatedMoleculeCounts = mccFormComplexes(moleculeCounts, seed, stoichMatrix)
 
 	molecules.countsIs(updatedMoleculeCounts)
-
 
 def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
 	"""

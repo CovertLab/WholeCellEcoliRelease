@@ -541,7 +541,7 @@ def fitKb(kb):
 	ribosome50SView.countsIs(
 		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)# + (1000 * ribosome50SStoich) # Added fudge factr of 1000
 		)
-	
+
 	
 	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
