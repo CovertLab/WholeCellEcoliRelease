@@ -25,6 +25,9 @@ echo "Adding simulation metadata"
 # Git hash
 git rev-parse HEAD > "${METADATA_DIR}/git_hash"
 
+# Git branch
+git symbolic-ref --short HEAD > "${METADATA_DIR}/git_branch"
+
 # Git diff
 git diff > "${METADATA_DIR}/git_diff"
 
