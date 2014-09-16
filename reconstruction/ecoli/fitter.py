@@ -461,7 +461,7 @@ def fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContaine
 
 	cvxopt.solvers.options.update(oldOptions)
 
-	import ipdb; ipdb.set_trace()
+	
 
 
 def fitKb(kb):
@@ -515,11 +515,11 @@ def fitKb(kb):
 	
 	# Minimum number of ribosomes needed
 	sequencePredicted_min30SSubunitCounts = (
-		nRibosomesNeeded * -1 * ribosome30SStoich
+		nRibosomesNeeded * ribosome30SStoich
 		)
 
 	sequencePredicted_min50SSubunitCounts = (
-		nRibosomesNeeded * -1 * ribosome50SStoich
+		nRibosomesNeeded * ribosome50SStoich
 		)
 
 	# Number of ribosomes predicted from rRNA mass fractions
@@ -535,13 +535,13 @@ def fitKb(kb):
 	# (2) what is predicted as needed based on sequence/elongation rate,
 	# (3) what is predicted based on the rRNA mass fraction data
 	ribosome30SView.countsIs(
-		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts) + (1000 * ribosome30SStoich) # Added fudge factr of 1000
+		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts)# + (1000 * ribosome30SStoich) # Added fudge factr of 1000
 		)
 
 	ribosome50SView.countsIs(
-		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts) + (1000 * ribosome50SStoich) # Added fudge factr of 1000
+		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)# + (1000 * ribosome50SStoich) # Added fudge factr of 1000
 		)
-
+	
 	
 	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
