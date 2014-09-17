@@ -110,10 +110,10 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 	polymerizedView = bulkMolCntr.countsView([id_ + "[c]" for id_ in kb.polymerizedDNT_IDs])
 
 	polymerizedView.countsIs([
-		kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-		kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-		kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-		kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+		kb.genome_A_count + kb.genome_T_count,
+		kb.genome_C_count + kb.genome_G_count,
+		kb.genome_G_count + kb.genome_C_count,
+		kb.genome_T_count + kb.genome_A_count
 		])
 
 def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):

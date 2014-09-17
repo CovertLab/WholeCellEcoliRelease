@@ -96,10 +96,10 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 	bulkMolCntr.countsIs(
 		[
-			kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-			kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-			kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-			kb.genomeSeq.count("T") + kb.genomeSeq.count("A")
+			kb.genome_A_count + kb.genome_T_count,
+			kb.genome_C_count + kb.genome_G_count,
+			kb.genome_G_count + kb.genome_C_count,
+			kb.genome_T_count + kb.genome_A_count
 		],
 		polymerizedIDs
 		)

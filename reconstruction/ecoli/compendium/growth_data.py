@@ -39,10 +39,10 @@ class GrowthData(object):
 
 	def _chromMass(self, kb):
 		dntCounts = np.array([
-			kb.genomeSeq.count("A") + kb.genomeSeq.count("T"),
-			kb.genomeSeq.count("C") + kb.genomeSeq.count("G"),
-			kb.genomeSeq.count("G") + kb.genomeSeq.count("C"),
-			kb.genomeSeq.count("T") + kb.genomeSeq.count("T")
+			kb.genome_A_count + kb.genome_T_count,
+			kb.genome_C_count + kb.genome_G_count,
+			kb.genome_G_count + kb.genome_C_count,
+			kb.genome_T_count + kb.genome_A_count
 		])
 
 		dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)

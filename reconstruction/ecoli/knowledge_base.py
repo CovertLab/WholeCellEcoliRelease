@@ -1613,6 +1613,10 @@ class KnowledgeBaseEcoli(object):
 	def _buildSequence(self):
 		self.genomeSeq = self._genomeSeq
 		self.genomeLength = self._genomeLength
+		self.genome_A_count = self.genomeSeq.count("A")
+		self.genome_T_count = self.genomeSeq.count("T")
+		self.genome_G_count = self.genomeSeq.count("G")
+		self.genome_C_count = self.genomeSeq.count("C")
 
 
 	def _buildCompartments(self):

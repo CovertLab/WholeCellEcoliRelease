@@ -16,7 +16,7 @@ Initial Conditions
 
 (2) Break initial_conditions/fitter functions into their own separate files or groups of functions into groups of files.
 
-(3) Precompute A,T,G,C content of genome and store it in the KB
+(3) DONE - Precompute A,T,G,C content of genome and store it in the KB
 
 (4) Change initializeBulkComponents to initializeSmallMolecules
 
