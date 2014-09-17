@@ -18,7 +18,7 @@ Initial Conditions
 
 (3) DONE - Precompute A,T,G,C content of genome and store it in the KB
 
-(4) Change initializeBulkComponents to initializeSmallMolecules
+(4) DONE - Change initializeBulkComponents to initializeSmallMolecules
 
 (5) Address this comment in initial conditions: "We have to remove things with zero concentration because taking the inverse of zero isn't so nice."
 
