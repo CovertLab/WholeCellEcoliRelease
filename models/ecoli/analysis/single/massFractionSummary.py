@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-"""
-Plot mass fractions
-
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/8/2014
-"""
 
 import argparse
 import os
