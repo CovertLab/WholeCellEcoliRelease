@@ -56,7 +56,7 @@ class BulkMolecules(wholecell.states.state.State):
 		super(BulkMolecules, self).initialize(sim, kb)
 
 		# Load constants
-		self._moleculeIDs = moleculeIds(kb)
+		self._moleculeIDs = kb.bulkMolecules['moleculeId']
 		# self._compartmentIDs = kb.compartments['compartmentAbbreviation']
 		# self._nCompartments = kb.nCompartments
 
@@ -70,7 +70,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# 	}
 
 		# Create the container for molecule counts
-		self.container = BulkObjectsContainer(kb.bulkMolecules['moleculeId'])
+		self.container = BulkObjectsContainer(self._moleculeIDs)
 
 		# Set up vector of process priorities
 		self._processPriorities = np.empty(self._nProcesses, np.int64)

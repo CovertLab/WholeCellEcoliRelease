@@ -8,7 +8,7 @@ import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
 
-from reconstruction.ecoli.fitter import countsFromMassAndExpression
+from wholecell.utils.fitting import countsFromMassAndExpression
 
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """

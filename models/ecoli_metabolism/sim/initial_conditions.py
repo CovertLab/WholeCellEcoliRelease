@@ -6,8 +6,7 @@ from itertools import izip
 import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from reconstruction.ecoli.fitter import countsFromMassAndExpression
-from reconstruction.ecoli.fitter import normalize
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression
 from reconstruction.ecoli.fitter import calcProteinCounts
 from reconstruction.ecoli.compendium import growth_data
 from wholecell.utils import units
