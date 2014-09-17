@@ -70,7 +70,7 @@ class BulkMolecules(wholecell.states.state.State):
 		# 	}
 
 		# Create the container for molecule counts
-		self.container = bulkObjectsContainer(kb)
+		self.container = BulkObjectsContainer(kb.bulkMolecules['moleculeId'])
 
 		# Set up vector of process priorities
 		self._processPriorities = np.empty(self._nProcesses, np.int64)
@@ -248,15 +248,6 @@ def calculatePartition(processPriorities, countsRequested, counts, countsPartiti
 		countsPartitioned[:, processHasPriority] = allocations
 
 		counts -= allocations.sum(axis = 1)
-
-
-def moleculeIds(kb):
-	return kb.bulkMolecules['moleculeId']
-
-
-def bulkObjectsContainer(kb, dtype = np.int64):
-	return BulkObjectsContainer(moleculeIds(kb), dtype)
-
 
 class BulkMoleculesViewBase(wholecell.views.view.View):
 	_stateID = 'BulkMolecules'

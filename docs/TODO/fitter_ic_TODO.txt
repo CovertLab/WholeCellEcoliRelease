@@ -39,3 +39,13 @@ Fitter
 
 (2) Compute this early in the fitter and reuse:
 		np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
+
+(3) Break setRNACounts into separate functions per RNA type
+
+(4) Counts from mass and expression should have its math documented. Remove units checking and let units carry through.
+
+(5) Counts from mass and exp and normalize should be moved somewhere else - to utils in wholecell.
+
+(6) Don't pass views or the KB object only fundamental types.
+
+(7) Move hard coded data in fitter into hard coded constants in the KB

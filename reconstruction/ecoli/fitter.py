@@ -20,15 +20,13 @@ from __future__ import division
 
 import numpy as np
 import os
-import copy
 import collections
 
-import wholecell.states.bulk_molecules
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.compendium import growth_data
 
 from wholecell.utils import units
-import unum
+import unum # Imported here to be used in getCountsFromMassAndExpression assertions
 
 # Constants (should be moved to KB)
 RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
@@ -74,7 +72,7 @@ def fitKb2(kb, simOutDir):
 	# instantiate many cells, form complexes, and finally compute the 
 	# statistics we will use in the fitting operations.
 
-	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb)
+	bulkContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'])
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	proteinView = bulkContainer.countsView(kb.monomerData["id"])
 	complexationMoleculesView = bulkContainer.countsView(kb.complexationMoleculeNames)
@@ -132,8 +130,8 @@ def fitKb2(kb, simOutDir):
 
 		allMoleculeCounts[seed, :] = allMoleculesView.counts()
 
-	bulkAverageContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, np.float64)
-	bulkDeviationContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, np.float64)
+	bulkAverageContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], np.float64)
+	bulkDeviationContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], np.float64)
 
 	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
 	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
@@ -468,7 +466,7 @@ def fitKb(kb):
 
 	# Construct bulk container
 
-	bulkContainer = wholecell.states.bulk_molecules.bulkObjectsContainer(kb, dtype = np.dtype("float64"))
+	bulkContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], dtype = np.float64)
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
@@ -487,11 +485,9 @@ def fitKb(kb):
 
 	### RNA Mass fraction ###
 	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
-	setRNACounts(
-		kb, rnaMass, mRnaView,
-		rRna23SView, rRna16SView, rRna5SView, tRnaView
-		)
-
+	setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView)
+	setTRNACounts(kb, rnaMass, tRnaView)
+	setMRNACounts(kb, rnaMass, mRnaView)
 
 	### Protein Mass fraction ###
 	monomerMass = massFractions60["proteinMass"].asUnit(units.g)
@@ -566,7 +562,7 @@ def fitKb(kb):
 	### Modify kbFit to reflect our bulk container ###
 
 	## RNA and monomer expression ##
-	rnaExpressionContainer = wholecell.containers.bulk_objects_container.BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
+	rnaExpressionContainer = BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
 	
 	rnaExpressionContainer.countsIs(
 		normalize(rnaView.counts())
@@ -682,7 +678,7 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
-def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tRnaView):
+def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 
 	## 23S rRNA Mass Fractions ##
 
@@ -738,6 +734,9 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression))
 	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
 
+
+def setTRNACounts(kb, rnaMass, tRnaView):
+
 	## tRNA Mass Fractions ##
 
 	# tRNA expression set based on data from Dong 1996
@@ -751,7 +750,9 @@ def setRNACounts(kb, rnaMass, mRnaView, rRna23SView, rRna16SView, rRna5SView, tR
 		)
 
 	tRnaView.countsIs((nTRnas * tRnaExpression))
-	
+
+def setMRNACounts(kb, rnaMass, mRnaView):
+
 	## mRNA Mass Fractions ##
 
 	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
