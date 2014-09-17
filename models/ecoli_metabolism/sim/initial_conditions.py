@@ -35,7 +35,7 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 	initializeDNA(bulkMolCntr, kb, randomState, timeStep)
 
 	# Set other biomass components
-	initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep)
+	initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep)
 
 
 def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
@@ -105,7 +105,7 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		)
 
 
-def initializeBulkComponents(bulkMolCntr, kb, randomState, timeStep):
+def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
 	g = growth_data.GrowthData(kb)
 	massFractions60 = g.massFractions(60)
