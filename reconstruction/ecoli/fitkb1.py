@@ -46,13 +46,21 @@ def fitKb_1(kb):
 
 	### RNA Mass fraction ###
 	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
-	setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView)
-	setTRNACounts(kb, rnaMass, tRnaView)
-	setMRNACounts(kb, rnaMass, mRnaView)
+
+	rRna23SCounts, rRna16SCounts, rRna5SCounts = setRRNACounts(kb, rnaMass)
+	tRnaCounts = setTRNACounts(kb, rnaMass)
+	mRnaCounts = setMRNACounts(kb, rnaMass)
+
+	rRna23SView.countsIs(rRna23SCounts)
+	rRna16SView.countsIs(rRna16SCounts)
+	rRna5SView.countsIs(rRna5SCounts)
+	tRnaView.countsIs(tRnaCounts)
+	mRnaView.countsIs(mRnaCounts)
 
 	### Protein Mass fraction ###
 	monomerMass = massFractions60["proteinMass"].asUnit(units.g)
-	setMonomerCounts(kb, monomerMass, monomersView)
+	monomerCounts = setMonomerCounts(kb, monomerMass)
+	monomersView.countsIs(monomerCounts)
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
@@ -220,7 +228,7 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	return totalMass / units.dot(individualMasses, distribution)
 
 
-def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
+def setRRNACounts(kb, rnaMass):
 
 	## 23S rRNA Mass Fractions ##
 
@@ -280,14 +288,11 @@ def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	totalCount_rRNA_average = np.mean((totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S))
 
-	# Set counts
-
-	rRna23SView.countsIs(totalCount_rRNA_average * distribution_rRNA23S)
-	rRna16SView.countsIs(totalCount_rRNA_average * distribution_rRNA16S)
-	rRna5SView.countsIs(totalCount_rRNA_average * distribution_rRNA5S)
+	# Return counts
+	return totalCount_rRNA_average * distribution_rRNA23S, totalCount_rRNA_average * distribution_rRNA16S, totalCount_rRNA_average * distribution_rRNA5S
 
 
-def setTRNACounts(kb, rnaMass, tRnaView):
+def setTRNACounts(kb, rnaMass):
 
 	nAvogadro = kb.nAvogadro
 
@@ -306,10 +311,9 @@ def setTRNACounts(kb, rnaMass, tRnaView):
 
 	totalCount_tRNA.checkNoUnit()
 
-	tRnaView.countsIs(totalCount_tRNA * distribution_tRNA)
+	return totalCount_tRNA * distribution_tRNA
 
-
-def setMRNACounts(kb, rnaMass, mRnaView):
+def setMRNACounts(kb, rnaMass):
 
 	nAvogadro = kb.nAvogadro
 
@@ -326,7 +330,7 @@ def setMRNACounts(kb, rnaMass, mRnaView):
 
 	totalCount_mRNA.checkNoUnit()
 
-	mRnaView.countsIs(totalCount_mRNA * distribution_mRNA)
+	return totalCount_mRNA * distribution_mRNA
 
 
 def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
@@ -335,7 +339,7 @@ def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
 	return distributionUnnormed / units.sum(distributionUnnormed)
 
 
-def setMonomerCounts(kb, monomerMass, monomersView):
+def setMonomerCounts(kb, monomerMass):
 
 	nAvogadro = kb.nAvogadro
 
@@ -362,5 +366,5 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 		)
 
 	totalCount_protein.checkNoUnit()
-
-	monomersView.countsIs(totalCount_protein * distribution_protein)
+	
+	return totalCount_protein * distribution_protein
