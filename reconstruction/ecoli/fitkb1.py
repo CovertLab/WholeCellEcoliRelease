@@ -9,7 +9,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.compendium import growth_data
 
 from wholecell.utils import units
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, calcProteinTotalCounts, calcProteinDistribution
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression
 
 # Constants (should be moved to KB)
 RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
@@ -329,6 +329,38 @@ def setMRNACounts(kb, rnaMass, mRnaView):
 	mRnaView.countsIs(totalCount_mRNA * distribution_mRNA)
 
 
+def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
+	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA
+
+	return distributionUnnormed / units.sum(distributionUnnormed)
+
+
 def setMonomerCounts(kb, monomerMass, monomersView):
 
-	monomersView.countsIs(calcProteinCounts(kb, monomerMass))
+	nAvogadro = kb.nAvogadro
+
+	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
+	doublingTime = kb.cellCycleLen
+	degradationRates = kb.monomerData["degRate"]
+
+	totalMass_protein = monomerMass
+	individualMasses_protein = kb.monomerData["mw"] / nAvogadro
+	distribution_protein = proteinDistribution(
+		distribution_mRNA,
+		doublingTime,
+		degradationRates
+		)
+
+	distribution_protein.checkNoUnit()
+
+	distribution_protein = distribution_protein.asNumber()
+
+	totalCount_protein = totalCountFromMassesAndRatios(
+		totalMass_protein,
+		individualMasses_protein,
+		distribution_protein
+		)
+
+	totalCount_protein.checkNoUnit()
+
+	monomersView.countsIs(totalCount_protein * distribution_protein)
