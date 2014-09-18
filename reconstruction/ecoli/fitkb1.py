@@ -214,61 +214,71 @@ def fitKb_1(kb):
 	# TODO: Distribute it amongst growth-related processes
 	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
 
+
+def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
+	assert np.allclose(np.sum(distribution), 1)
+	return totalMass / units.dot(individualMasses, distribution)
+
+
 def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 
 	## 23S rRNA Mass Fractions ##
 
 	# Assume all 23S rRNAs are expressed equally
-	rRna23SExpression = normalize(np.ones(rRna23SView.counts().size))
+	nAvogadro = kb.nAvogadro
 
-	nRRna23Ss = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g) * RRNA23S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna23S"]].asNumber(units.g / units.mol),
-		rRna23SExpression,
-		kb.nAvogadro.asNumber(1 / units.mol)
+	nTypes_rRNA23S = kb.rnaData["isRRna23S"].sum()
+
+	totalMass_rRNA23S = rnaMass * RRNA23S_MASS_SUB_FRACTION
+	individualMasses_rRNA23S = kb.rnaData["mw"][kb.rnaData["isRRna23S"]] / nAvogadro # TODO: remove mws from rna data
+	distribution_rRNA23S = np.array([1.] + [0.] * (nTypes_rRNA23S-1)) # currently only expressing first rRNA operon
+
+	totalCount_rRNA23S = totalCountFromMassesAndRatios(
+		totalMass_rRNA23S,
+		individualMasses_rRNA23S,
+		distribution_rRNA23S
 		)
 
 	## 16S rRNA Mass Fractions ##
 
 	# Assume all 16S rRNAs are expressed equally
-	rRna16SExpression = normalize(np.ones(rRna16SView.counts().size))
+	nTypes_rRNA16S = kb.rnaData["isRRna16S"].sum()
 
-	nRRna16Ss = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g) * RRNA16S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna16S"]].asNumber(units.g / units.mol),
-		rRna16SExpression,
-		kb.nAvogadro.asNumber(1 / units.mol)
+	totalMass_rRNA16S = rnaMass * RRNA16S_MASS_SUB_FRACTION
+	individualMasses_rRNA16S = kb.rnaData["mw"][kb.rnaData["isRRna16S"]] / nAvogadro # TODO: remove mws from rna data
+	distribution_rRNA16S = np.array([1.] + [0.] * (nTypes_rRNA16S-1)) # currently only expressing first rRNA operon
+
+	totalCount_rRNA16S = totalCountFromMassesAndRatios(
+		totalMass_rRNA16S,
+		individualMasses_rRNA16S,
+		distribution_rRNA16S
 		)
 
 	## 5S rRNA Mass Fractions ##
 
 	# Assume all 5S rRNAs are expressed equally
-	rRna5SExpression = normalize(np.ones(rRna5SView.counts().size))
 
-	nRRna5Ss = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g) * RRNA5S_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isRRna5S"]].asNumber(units.g / units.mol),
-		rRna5SExpression,
-		kb.nAvogadro.asNumber(1 / units.mol)
+	nTypes_rRNA5S = kb.rnaData["isRRna5S"].sum()
+
+	totalMass_rRNA5S = rnaMass * RRNA5S_MASS_SUB_FRACTION
+	individualMasses_rRNA5S = kb.rnaData["mw"][kb.rnaData["isRRna5S"]] / nAvogadro # TODO: remove mws from rna data
+	distribution_rRNA5S = np.array([1.] + [0.] * (nTypes_rRNA5S-1)) # currently only expressing first rRNA operon
+
+	totalCount_rRNA5S = totalCountFromMassesAndRatios(
+		totalMass_rRNA5S,
+		individualMasses_rRNA5S,
+		distribution_rRNA5S
 		)
 
 	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
-	nRRna23Ss = nRRna16Ss = nRRna5Ss = np.mean((nRRna23Ss, nRRna16Ss, nRRna5Ss))
+	totalCount_rRNA_average = np.mean((totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S))
 
-	# TODO: Remove this hack once complexation is working
-	rRna23SExpression[:] = 0.
-	rRna23SExpression[0] = 1.
+	# Set counts
 
-	rRna16SExpression[:] = 0.
-	rRna16SExpression[0] = 1.
-
-	rRna5SExpression[:] = 0.
-	rRna5SExpression[0] = 1.
-
-	rRna23SView.countsIs((nRRna23Ss * rRna23SExpression))
-	rRna16SView.countsIs((nRRna16Ss * rRna16SExpression))
-	rRna5SView.countsIs((nRRna5Ss * rRna5SExpression))
+	rRna23SView.countsIs(totalCount_rRNA_average * distribution_rRNA23S)
+	rRna16SView.countsIs(totalCount_rRNA_average * distribution_rRNA16S)
+	rRna5SView.countsIs(totalCount_rRNA_average * distribution_rRNA5S)
 
 
 def setTRNACounts(kb, rnaMass, tRnaView):
