@@ -239,6 +239,8 @@ def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 		distribution_rRNA23S
 		)
 
+	totalCount_rRNA23S.checkNoUnit()
+
 	## 16S rRNA Mass Fractions ##
 
 	# Assume all 16S rRNAs are expressed equally
@@ -253,6 +255,8 @@ def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 		individualMasses_rRNA16S,
 		distribution_rRNA16S
 		)
+
+	totalCount_rRNA16S.checkNoUnit()
 
 	## 5S rRNA Mass Fractions ##
 
@@ -270,6 +274,8 @@ def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 		distribution_rRNA5S
 		)
 
+	totalCount_rRNA5S.checkNoUnit()
+
 	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
 	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	totalCount_rRNA_average = np.mean((totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S))
@@ -283,19 +289,25 @@ def setRRNACounts(kb, rnaMass, rRna23SView, rRna16SView, rRna5SView):
 
 def setTRNACounts(kb, rnaMass, tRnaView):
 
+	nAvogadro = kb.nAvogadro
+
 	## tRNA Mass Fractions ##
 
 	# tRNA expression set based on data from Dong 1996
-	tRnaExpression = normalize(kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA'])
+	totalMass_tRNA = rnaMass * TRNA_MASS_SUB_FRACTION
+	individualMasses_tRNA = kb.rnaData["mw"][kb.rnaData["isTRna"]] / nAvogadro
+	distribution_tRNA = normalize(kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA'])
 
-	nTRnas = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g) * TRNA_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isTRna"]].asNumber(units.g / units.mol),
-		tRnaExpression,
-		kb.nAvogadro.asNumber(1 / units.mol)
+	totalCount_tRNA = totalCountFromMassesAndRatios(
+		totalMass_tRNA,
+		individualMasses_tRNA,
+		distribution_tRNA
 		)
 
-	tRnaView.countsIs((nTRnas * tRnaExpression))
+	totalCount_tRNA.checkNoUnit()
+
+	tRnaView.countsIs(totalCount_tRNA * distribution_tRNA)
+
 
 def setMRNACounts(kb, rnaMass, mRnaView):
 
