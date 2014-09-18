@@ -1,5 +1,6 @@
 import numpy as np
 import unum # Imported here to be used in getCountsFromMassAndExpression assertions
+from wholecell.utils import units
 
 def normalize(array):
 	return np.array(array).astype("float") / np.linalg.norm(array, 1)
@@ -25,3 +26,25 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(relativeExpression) != unum.Unum
 	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
+
+def calcProteinCounts(kb, monomerMass):
+	monomerExpression = calcProteinDistribution(kb)
+
+	nMonomers = calcProteinTotalCounts(kb, monomerMass, monomerExpression)
+
+	return nMonomers * monomerExpression
+
+
+def calcProteinTotalCounts(kb, monomerMass, monomerExpression):
+	return countsFromMassAndExpression(
+		monomerMass.asNumber(units.g),
+		kb.monomerData["mw"].asNumber(units.g / units.mol),
+		monomerExpression,
+		kb.nAvogadro.asNumber(1 / units.mol)
+		)
+
+def calcProteinDistribution(kb):
+	return normalize(
+		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+		)
