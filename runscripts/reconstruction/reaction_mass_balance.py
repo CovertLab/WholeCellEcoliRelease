@@ -1,7 +1,7 @@
 
 THRESHOLD = 1e-9
 
-from wholecell.reconstruction.knowledge_base_ecoli import KnowledgeBaseEcoli
+from reconstruction.ecoli.knowledge_base import KnowledgeBaseEcoli
 
 import numpy as np
 
@@ -11,7 +11,7 @@ S = kb.metabolismStoichMatrix()
 
 masses = kb.getMass(kb.metabolismMoleculeNames)
 
-reactionNetMass = np.dot(S.T, masses)
+reactionNetMass = np.dot(S.T, masses.asNumber())
 
 reactionIds = kb.metabolismReactionIds
 
