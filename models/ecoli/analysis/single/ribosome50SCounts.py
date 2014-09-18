@@ -76,20 +76,28 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		freeRRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rRnaIndexes]
 		complexCounts = bulkMolecules.read(0, None, 1, "counts")[:, complexIndexes]
 
+	with tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf")) as uniqueMoleculesFile:
+		uniqueMoleculeCounts = uniqueMoleculesFile.root.UniqueMoleculeCounts
+		ribosomeIndex = uniqueMoleculeCounts.attrs.uniqueMoleculeIds.index("activeRibosome")
+		activeRibosome = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, ribosomeIndex]
+
 	# Calculate total protein and rRNA counts (in complex + free)
 	complexMonomers, monomerStoich = kb.getComplexMonomers(kb.s50_fullComplex)
 
 	complexedProteinCounts = np.zeros((time.size,len(proteinIds)), np.int)
 	for idx, pId in enumerate(proteinIds):
-		try:
-			complexedProteinCounts[:,idx] = (complexCounts[:,1] * -1. * monomerStoich[np.where(complexMonomers == pId)[0][0]]).reshape(time.size,)
-		except:
-			import ipdb; ipdb.set_trace()
+		freeCounts = complexCounts[:,1]
+		activeCounts = activeRibosome
+		fullComplexCounts = freeCounts + activeCounts
+		complexedProteinCounts[:,idx] = (fullComplexCounts * -1. * monomerStoich[np.where(complexMonomers == pId)[0][0]]).reshape(time.size,)
 	totalProteinCounts = complexedProteinCounts + freeProteinCounts
 
 	complexedRnaCounts = np.zeros((time.size,len(rRnaIds)), np.int)
 	for idx, rId in enumerate(rRnaIds):
-		complexedRnaCounts[:,idx] = (complexCounts[:,1] * -1. * monomerStoich[np.where(complexMonomers == rId)[0][0]]).reshape(time.size,)
+		freeCounts = complexCounts[:,1]
+		activeCounts = activeRibosome
+		fullComplexCounts = freeCounts + activeCounts
+		complexedRnaCounts[:,idx] = (fullComplexCounts * -1. * monomerStoich[np.where(complexMonomers == rId)[0][0]]).reshape(time.size,)
 	totalRRnaCounts = complexedRnaCounts + freeRRnaCounts
 
 	plt.figure(figsize = (8.5, 11))
