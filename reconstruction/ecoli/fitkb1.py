@@ -339,7 +339,7 @@ def setMonomerCounts(kb, monomerMass, monomersView):
 
 	nAvogadro = kb.nAvogadro
 
-	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
+	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
 	doublingTime = kb.cellCycleLen
 	degradationRates = kb.monomerData["degRate"]
 
