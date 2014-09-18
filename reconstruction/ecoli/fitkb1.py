@@ -311,18 +311,22 @@ def setTRNACounts(kb, rnaMass, tRnaView):
 
 def setMRNACounts(kb, rnaMass, mRnaView):
 
+	nAvogadro = kb.nAvogadro
+
 	## mRNA Mass Fractions ##
+	totalMass_mRNA = rnaMass * MRNA_MASS_SUB_FRACTION
+	individualMasses_mRNA = kb.rnaData["mw"][kb.rnaData["isMRna"]] / nAvogadro
+	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
 
-	mRnaExpression = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
-
-	nMRnas = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g) * MRNA_MASS_SUB_FRACTION,
-		kb.rnaData["mw"][kb.rnaData["isMRna"]].asNumber(units.g / units.mol),
-		mRnaExpression,
-		kb.nAvogadro.asNumber(1 / units.mol)
+	totalCount_mRNA = totalCountFromMassesAndRatios(
+		totalMass_mRNA,
+		individualMasses_mRNA,
+		distribution_mRNA
 		)
 
-	mRnaView.countsIs((nMRnas * mRnaExpression))
+	totalCount_mRNA.checkNoUnit()
+
+	mRnaView.countsIs(totalCount_mRNA * distribution_mRNA)
 
 
 def setMonomerCounts(kb, monomerMass, monomersView):
