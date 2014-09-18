@@ -25,31 +25,74 @@ FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100%
 
 def fitKb_1(kb):
 
-	# Construct bulk container
+	# Load KB parameters
 
-	bulkContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], dtype = np.float64)
+	## IDs
 
-	rnaView = bulkContainer.countsView(kb.rnaData["id"])
-	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
-	miscRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMiscRna"]])
-	rRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna"]])
-	tRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isTRna"]])
+	ids_bulkMolecules = kb.bulkMolecules['moleculeId']
+	ids_RNA = kb.rnaData["id"]
+	ids_rRNA23S = kb.rnaData["id"][kb.rnaData["isRRna23S"]]
+	ids_rRNA16S = kb.rnaData["id"][kb.rnaData["isRRna16S"]]
+	ids_rRNA5S = kb.rnaData["id"][kb.rnaData["isRRna5S"]]
+	ids_tRNA = kb.rnaData["id"][kb.rnaData["isTRna"]]
+	ids_mRNA = kb.rnaData["id"][kb.rnaData["isMRna"]]
+	ids_protein = kb.monomerData["id"]
 
-	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
-	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
-	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
-
-	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+	## Mass fractions
 
 	g = growth_data.GrowthData(kb)
 	massFractions60 = g.massFractions(60)
+	totalMass_RNA = massFractions60["rnaMass"].asUnit(units.g)
+	totalMass_rRNA23S = totalMass_RNA * RRNA23S_MASS_SUB_FRACTION
+	totalMass_rRNA16S = totalMass_RNA * RRNA16S_MASS_SUB_FRACTION
+	totalMass_rRNA5S = totalMass_RNA * RRNA5S_MASS_SUB_FRACTION
+	totalMass_tRNA = totalMass_RNA * TRNA_MASS_SUB_FRACTION
+	totalMass_mRNA = totalMass_RNA * MRNA_MASS_SUB_FRACTION
+
+	totalMass_protein = massFractions60["proteinMass"].asUnit(units.g)
+
+	## Molecular weights
+
+	individualMasses_rRNA23S = kb.getMass(ids_rRNA23S) / kb.nAvogadro
+	individualMasses_rRNA16S = kb.getMass(ids_rRNA16S) / kb.nAvogadro
+	individualMasses_rRNA5S = kb.getMass(ids_rRNA5S) / kb.nAvogadro
+	individualMasses_tRNA = kb.getMass(ids_tRNA) / kb.nAvogadro
+	individualMasses_mRNA = kb.getMass(ids_mRNA) / kb.nAvogadro
+	individualMasses_protein = kb.getMass(ids_protein) / kb.nAvogadro
+
+	## Molecule distributions
+
+	tRNA_molarRatioTo16S = kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA']
+	mRNA_relativeAbundanceUnnormed = kb.rnaExpression['expression'][kb.rnaExpression['isMRna']]
+	protein_mRNA_relativeAbundanceUnnormed = kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping]
+
+	## Rates
+
+	degradationRates_protein = kb.monomerData["degRate"]
+
+	## Misc
+
+	nAvogadro = kb.nAvogadro
+	doublingTime = kb.cellCycleLen
+
+	# Construct bulk container to hold counts
+
+	bulkContainer = BulkObjectsContainer(ids_bulkMolecules, dtype = np.float64)
+
+	rnaView = bulkContainer.countsView(ids_RNA)
+	rRna23SView = bulkContainer.countsView(ids_rRNA23S)
+	rRna16SView = bulkContainer.countsView(ids_rRNA16S)
+	rRna5SView = bulkContainer.countsView(ids_rRNA5S)
+	tRnaView = bulkContainer.countsView(ids_tRNA)
+	mRnaView = bulkContainer.countsView(ids_mRNA)
+
+	proteinView = bulkContainer.countsView(ids_protein)
 
 	### RNA Mass fraction ###
-	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
 
-	rRna23SCounts, rRna16SCounts, rRna5SCounts = setRRNACounts(kb, rnaMass)
-	tRnaCounts = setTRNACounts(kb, rnaMass)
-	mRnaCounts = setMRNACounts(kb, rnaMass)
+	rRna23SCounts, rRna16SCounts, rRna5SCounts = setRRNACounts(kb, totalMass_RNA)
+	tRnaCounts = setTRNACounts(kb, totalMass_RNA)
+	mRnaCounts = setMRNACounts(kb, totalMass_RNA)
 
 	rRna23SView.countsIs(rRna23SCounts)
 	rRna16SView.countsIs(rRna16SCounts)
@@ -58,9 +101,8 @@ def fitKb_1(kb):
 	mRnaView.countsIs(mRnaCounts)
 
 	### Protein Mass fraction ###
-	monomerMass = massFractions60["proteinMass"].asUnit(units.g)
-	monomerCounts = setMonomerCounts(kb, monomerMass)
-	monomersView.countsIs(monomerCounts)
+	monomerCounts = setMonomerCounts(kb, totalMass_protein)
+	proteinView.countsIs(monomerCounts)
 
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
@@ -75,7 +117,7 @@ def fitKb_1(kb):
 	nRibosomesNeeded = units.sum(
 		monomerLengths / kb.ribosomeElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
-			) * monomersView.counts()
+			) * proteinView.counts()
 		).asNumber()
 	
 	# Minimum number of ribosomes needed
@@ -147,7 +189,7 @@ def fitKb_1(kb):
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * normalize(
-			monomersView.counts() *
+			proteinView.counts() *
 			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
 			)[kb.monomerIndexToRnaMapping]
 		)
@@ -156,7 +198,7 @@ def fitKb_1(kb):
 
 	# Set number of RNAs based on expression we just set
 	nRnas = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g),
+		totalMass_RNA.asNumber(units.g),
 		kb.rnaData["mw"].asNumber(units.g / units.mol),
 		kb.rnaExpression['expression'],
 		kb.nAvogadro.asNumber(1 / units.mol)
@@ -202,7 +244,7 @@ def fitKb_1(kb):
 	aaMmolPerGDCW = (
 			units.sum(
 				kb.monomerData["aaCounts"] *
-				np.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
+				np.tile(proteinView.counts().reshape(-1, 1), (1, 21)),
 				axis = 0
 			) * (
 				(1 / (units.aa * kb.nAvogadro.asUnit(1 / units.mmol))) *
@@ -339,7 +381,7 @@ def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
 	return distributionUnnormed / units.sum(distributionUnnormed)
 
 
-def setMonomerCounts(kb, monomerMass):
+def setMonomerCounts(kb, totalMass_protein):
 
 	nAvogadro = kb.nAvogadro
 
@@ -347,7 +389,7 @@ def setMonomerCounts(kb, monomerMass):
 	doublingTime = kb.cellCycleLen
 	degradationRates = kb.monomerData["degRate"]
 
-	totalMass_protein = monomerMass
+	totalMass_protein = totalMass_protein
 	individualMasses_protein = kb.monomerData["mw"] / nAvogadro
 	distribution_protein = proteinDistribution(
 		distribution_mRNA,
