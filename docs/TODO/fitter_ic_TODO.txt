@@ -16,9 +16,9 @@ Initial Conditions
 
 (2) Break initial_conditions/fitter functions into their own separate files or groups of functions into groups of files.
 
-(3) DONE - Precompute A,T,G,C content of genome and store it in the KB
+DONE (3) Precompute A,T,G,C content of genome and store it in the KB
 
-(4) DONE - Change initializeBulkComponents to initializeSmallMolecules
+DONE (4) Change initializeBulkComponents to initializeSmallMolecules
 
 (5) Address this comment in initial conditions: "We have to remove things with zero concentration because taking the inverse of zero isn't so nice."
 
@@ -35,12 +35,12 @@ Initial Conditions
 Fitter
 ======
 
-(1) Move fitKb, fitKb2 into their own files and rename fitKb to fitKb1
+DONE (1) Move fitKb, fitKb2 into their own files and rename fitKb to fitKb1
 
 (2) Compute this early in the fitter and reuse:
 		np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
 
-(3) Break setRNACounts into separate functions per RNA type
+DONE (3) Break setRNACounts into separate functions per RNA type
 
 (4) Counts from mass and expression should have its math documented. Remove units checking and let units carry through.
 
