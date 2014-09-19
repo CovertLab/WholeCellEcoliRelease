@@ -150,7 +150,7 @@ def createBulkContainer(kb):
 	totalCount_rRNA5S.normalize()
 	totalCount_rRNA5S.checkNoUnit()
 
-	totalCount_rRNA_average = np.mean((totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S))
+	totalCount_rRNA_average = sum([totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S]) / 3
 
 	counts_rRNA23S = totalCount_rRNA_average * distribution_rRNA23S
 	counts_rRNA16S = totalCount_rRNA_average * distribution_rRNA16S
