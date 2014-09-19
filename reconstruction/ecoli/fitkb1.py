@@ -9,7 +9,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.compendium import growth_data
 
 from wholecell.utils import units
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression
+from wholecell.utils.fitting import normalize
 
 # Constants (should be moved to KB)
 RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
@@ -350,12 +350,14 @@ def fitExpression(kb, bulkContainer):
 	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
 
 	# Set number of RNAs based on expression we just set
-	nRnas = countsFromMassAndExpression(
-		totalMass_RNA.asNumber(units.g),
-		kb.rnaData["mw"].asNumber(units.g / units.mol),
-		kb.rnaExpression['expression'],
-		kb.nAvogadro.asNumber(1 / units.mol)
+	nRnas = totalCountFromMassesAndRatios(
+		totalMass_RNA,
+		kb.rnaData["mw"] / kb.nAvogadro,
+		kb.rnaExpression['expression']
 		)
+
+	nRnas.normalize()
+	nRnas.checkNoUnit()
 
 	view_RNA.countsIs(nRnas * kb.rnaExpression['expression'])
 
