@@ -34,12 +34,6 @@ def fitKb_1(kb):
 
 		bulkContainer = createBulkContainer(kb)
 
-		# Mass
-
-		g = growth_data.GrowthData(kb)
-		massFractions60 = g.massFractions(60)
-		rnaMass = massFractions60["rnaMass"]
-
 		setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer)
 
 		setRNAPCountsConstrainedByPhysiology(kb, bulkContainer)
