@@ -293,9 +293,6 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 		np.fmax(np.fmax(ribosome50SCounts, constraint1_ribosome50SCounts), constraint2_ribosome50SCounts),
 		ribosome50SSubunits
 		)
-	
-	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
-	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 def fitExpression(kb, bulkContainer):
 
