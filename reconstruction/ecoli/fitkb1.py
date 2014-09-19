@@ -155,22 +155,8 @@ def fitKb_1(kb):
 		)
 
 	kb.rnaData["synthProb"][:] = synthProb
-	
-	## Transcription activation rate
 
-	# In our simplified model of RNA polymerase state transition, RNAp can be
-	# active (transcribing) or inactive (free-floating).  To solve for the
-	# rate of activation, we need to calculate the average rate of termination,
-	# which is a function of the average transcript length and the 
-	# transcription rate.
-
-	averageTranscriptLength = units.dot(synthProb, rnaLengths)
-
-	expectedTerminationRate = kb.rnaPolymeraseElongationRate / averageTranscriptLength
-
-	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
-
-	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+	fitRNAPolyTransitionRates(kb)
 
 	## Calculate and set maintenance values
 
@@ -203,6 +189,7 @@ def fitKb_1(kb):
 	# TODO: Distribute it amongst growth-related processes
 	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
 
+# Sub-fitting functions
 
 def createBulkContainer(kb):
 
@@ -353,6 +340,31 @@ def createBulkContainer(kb):
 
 	return bulkContainer
 
+
+def fitRNAPolyTransitionRates(kb):
+	## Transcription activation rate
+
+	synthProb = kb.rnaData["synthProb"]
+	rnaLengths = kb.rnaData["length"]
+
+	elngRate = kb.rnaPolymeraseElongationRate
+
+	# In our simplified model of RNA polymerase state transition, RNAp can be
+	# active (transcribing) or inactive (free-floating).  To solve for the
+	# rate of activation, we need to calculate the average rate of termination,
+	# which is a function of the average transcript length and the 
+	# transcription rate.
+
+	averageTranscriptLength = units.dot(synthProb, rnaLengths)
+
+	expectedTerminationRate = elngRate / averageTranscriptLength
+
+	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
+
+	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+
+
+# Math functions
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	assert np.allclose(np.sum(distribution), 1)
