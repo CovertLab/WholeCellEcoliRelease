@@ -297,15 +297,6 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
-
-def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, degradationRates, productCounts, cellCycleLen):
-	nPolymerizingEnzymeNeeded = units.sum(
-		productLengths / elongationRate * (
-			np.log(2) / cellCycleLen + degradationRates
-			) * productCounts
-		)
-	return nPolymerizingEnzymeNeeded
-
 def fitExpression(kb, bulkContainer):
 
 	view_RNA = bulkContainer.countsView(kb.rnaData["id"])
@@ -427,3 +418,11 @@ def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
 	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA
 
 	return distributionUnnormed / units.sum(distributionUnnormed)
+
+def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, degradationRates, productCounts, cellCycleLen):
+	nPolymerizingEnzymeNeeded = units.sum(
+		productLengths / elongationRate * (
+			np.log(2) / cellCycleLen + degradationRates
+			) * productCounts
+		)
+	return nPolymerizingEnzymeNeeded
