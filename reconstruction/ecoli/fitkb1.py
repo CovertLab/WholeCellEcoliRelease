@@ -59,52 +59,11 @@ def fitKb_1(kb):
 		np.fmax(rnapView.counts(), minRnapCounts)
 		)
 
-	### Modify kbFit to reflect our bulk container ###
+	## Normalize expression and write out changes
 
-	## RNA and monomer expression ##
-	rnaExpressionContainer = BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
-	
-	rnaExpressionContainer.countsIs(
-		normalize(rnaView.counts())
-		)
+	fitExpression(kb, bulkContainer)
 
-	# Update mRNA expression to reflect monomer counts
-	assert np.all(
-		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
-		), "Cannot properly map monomer ids to RNA ids"
-
-	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
-	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
-
-	mRnaExpressionView.countsIs(
-		mRnaExpressionFrac * normalize(
-			proteinView.counts() *
-			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
-			)[kb.monomerIndexToRnaMapping]
-		)
-
-	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
-
-	# Set number of RNAs based on expression we just set
-	nRnas = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g),
-		kb.rnaData["mw"].asNumber(units.g / units.mol),
-		kb.rnaExpression['expression'],
-		kb.nAvogadro.asNumber(1 / units.mol)
-		)
-
-	rnaView.countsIs(nRnas * kb.rnaExpression['expression'])
-
-	## Synthesis probabilities ##
-	synthProb = normalize(
-			(
-			units.s * (
-				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
-				) * rnaView.counts()
-			).asNumber()
-		)
-
-	kb.rnaData["synthProb"][:] = synthProb
+	# Modify other properties
 
 	fitRNAPolyTransitionRates(kb)
 
@@ -325,6 +284,63 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	
 	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 		raise NotImplementedError, "Cannot handle having too few ribosomes"
+
+
+def fitExpression(kb, bulkContainer):
+
+	view_RNA = bulkContainer.countsView(kb.rnaData["id"])
+	counts_protein = bulkContainer.counts(kb.monomerData["id"])
+
+	g = growth_data.GrowthData(kb)
+	massFractions60 = g.massFractions(60)
+	totalMass_RNA = massFractions60["rnaMass"]
+
+	### Modify kbFit to reflect our bulk container ###
+
+	## RNA and monomer expression ##
+	rnaExpressionContainer = BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
+
+	rnaExpressionContainer.countsIs(
+		normalize(view_RNA.counts())
+		)
+
+	# Update mRNA expression to reflect monomer counts
+	assert np.all(
+		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
+		), "Cannot properly map monomer ids to RNA ids" # TODO: move to KB tests
+
+	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
+	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
+
+	mRnaExpressionView.countsIs(
+		mRnaExpressionFrac * normalize(
+			counts_protein *
+			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+			)[kb.monomerIndexToRnaMapping]
+		)
+
+	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
+
+	# Set number of RNAs based on expression we just set
+	nRnas = countsFromMassAndExpression(
+		totalMass_RNA.asNumber(units.g),
+		kb.rnaData["mw"].asNumber(units.g / units.mol),
+		kb.rnaExpression['expression'],
+		kb.nAvogadro.asNumber(1 / units.mol)
+		)
+
+	view_RNA.countsIs(nRnas * kb.rnaExpression['expression'])
+
+	## Synthesis probabilities ##
+	synthProb = normalize(
+			(
+			units.s * (
+				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
+				) * view_RNA.counts()
+			).asNumber()
+		)
+
+	kb.rnaData["synthProb"][:] = synthProb
 
 
 def fitRNAPolyTransitionRates(kb):
