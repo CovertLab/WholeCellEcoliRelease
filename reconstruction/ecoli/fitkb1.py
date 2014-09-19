@@ -23,47 +23,62 @@ FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100%
 
 # TODO: move many of these functions into another module
 
+FITNESS_THRESHOLD = 1e-6
+MAX_FITTING_ITERATIONS = 100
+
 def fitKb_1(kb):
 
-	# Load KB parameters
+	for iteration in xrange(MAX_FITTING_ITERATIONS):
 
-	bulkContainer = createBulkContainer(kb)
+		initialExpression = kb.rnaExpression["expression"].copy()
 
-	# Mass
-	
-	g = growth_data.GrowthData(kb)
-	massFractions60 = g.massFractions(60)
-	rnaMass = massFractions60["rnaMass"]
+		bulkContainer = createBulkContainer(kb)
 
-	setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer)
-	
+		# Mass
 
-	rnaView = bulkContainer.countsView(kb.rnaData["id"])
-	rnapView = bulkContainer.countsView(kb.rnapIds)
-	proteinView = bulkContainer.countsView(kb.monomerData["id"])
+		g = growth_data.GrowthData(kb)
+		massFractions60 = g.massFractions(60)
+		rnaMass = massFractions60["rnaMass"]
 
-	## Number of RNA Polymerases ##
-	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
+		setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer)
 
-	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
 
-	nRnapsNeeded = units.sum(
-		rnaLengths / kb.rnaPolymeraseElongationRate
-			* rnaLossRate
-			* rnaView.counts()
-		).asNumber() / FRACTION_ACTIVE_RNAP
+		rnaView = bulkContainer.countsView(kb.rnaData["id"])
+		rnapView = bulkContainer.countsView(kb.rnapIds)
+		proteinView = bulkContainer.countsView(kb.monomerData["id"])
 
-	minRnapCounts = (
-		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
-		)
+		## Number of RNA Polymerases ##
+		rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
 
-	rnapView.countsIs(
-		np.fmax(rnapView.counts(), minRnapCounts)
-		)
+		rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
 
-	## Normalize expression and write out changes
+		nRnapsNeeded = units.sum(
+			rnaLengths / kb.rnaPolymeraseElongationRate
+				* rnaLossRate
+				* rnaView.counts()
+			).asNumber() / FRACTION_ACTIVE_RNAP
 
-	fitExpression(kb, bulkContainer)
+		minRnapCounts = (
+			nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
+			)
+
+		rnapView.countsIs(
+			np.fmax(rnapView.counts(), minRnapCounts)
+			)
+
+		## Normalize expression and write out changes
+
+		fitExpression(kb, bulkContainer)
+
+		finalExpression = kb.rnaExpression["expression"]
+
+		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - finalExpression)))
+
+		if degreeOfFit < FITNESS_THRESHOLD:
+			break
+
+	else:
+		raise Exception("Fitting did not converge")
 
 	# Modify other properties
 
