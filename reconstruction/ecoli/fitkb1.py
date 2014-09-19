@@ -165,29 +165,7 @@ def fitKb_1(kb):
 
 	# ----- Growth associated maintenance -----
 
-	# GTPs used for translation (recycled, not incorporated into biomass)
-	aaMmolPerGDCW = (
-			units.sum(
-				kb.monomerData["aaCounts"] *
-				np.tile(proteinView.counts().reshape(-1, 1), (1, 21)),
-				axis = 0
-			) * (
-				(1 / (units.aa * kb.nAvogadro.asUnit(1 / units.mmol))) *
-				(1 / kb.avgCellDryMassInit)
-			)
-		).asUnit(units.mmol / units.g)
-
-	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber().sum()
-	gtpUsedOverCellCycleMmolPerGDCW = kb.gtpPerTranslation * aasUsedOverCellCycle
-
-	darkATP = ( # This has everything we can't account for
-		GROWTH_ASSOCIATED_MAINTENANCE -
-		gtpUsedOverCellCycleMmolPerGDCW
-		)
-
-	# Assign the growth associated "dark energy" to translation
-	# TODO: Distribute it amongst growth-related processes
-	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
+	fitMaintenanceCosts(kb, bulkContainer)
 
 # Sub-fitting functions
 
@@ -362,6 +340,38 @@ def fitRNAPolyTransitionRates(kb):
 	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
 
 	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+
+
+def fitMaintenanceCosts(kb, bulkContainer):
+	aaCounts = kb.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(kb.monomerData["id"])
+	nAvogadro = kb.nAvogadro
+	avgCellDryMassInit = kb.avgCellDryMassInit
+	gtpPerTranslation = kb.gtpPerTranslation
+
+	# GTPs used for translation (recycled, not incorporated into biomass)
+	aaMmolPerGDCW = (
+			units.sum(
+				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
+				axis = 0
+			) * (
+				(1 / (units.aa * nAvogadro)) *
+				(1 / avgCellDryMassInit)
+			)
+		)
+
+	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber(units.mmol/units.g).sum()
+	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
+
+	darkATP = ( # This has everything we can't account for
+		GROWTH_ASSOCIATED_MAINTENANCE -
+		gtpUsedOverCellCycleMmolPerGDCW
+		)
+
+	# Assign the growth associated "dark energy" to translation
+	# TODO: Distribute it amongst growth-related processes
+	kb.gtpPerTranslation += darkATP / aasUsedOverCellCycle
+
 
 
 # Math functions
