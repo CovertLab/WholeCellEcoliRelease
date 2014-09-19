@@ -59,68 +59,13 @@ def fitKb_1(kb):
 		np.fmax(rnapView.counts(), minRnapCounts)
 		)
 
-	### Modify kbFit to reflect our bulk container ###
+	## Normalize expression and write out changes
 
-	## RNA and monomer expression ##
-	rnaExpressionContainer = BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
-	
-	rnaExpressionContainer.countsIs(
-		normalize(rnaView.counts())
-		)
+	fitExpression(kb, bulkContainer)
 
-	# Update mRNA expression to reflect monomer counts
-	assert np.all(
-		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
-		), "Cannot properly map monomer ids to RNA ids"
+	# Modify other properties
 
-	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
-	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
-
-	mRnaExpressionView.countsIs(
-		mRnaExpressionFrac * normalize(
-			proteinView.counts() *
-			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
-			)[kb.monomerIndexToRnaMapping]
-		)
-
-	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
-
-	# Set number of RNAs based on expression we just set
-	nRnas = countsFromMassAndExpression(
-		rnaMass.asNumber(units.g),
-		kb.rnaData["mw"].asNumber(units.g / units.mol),
-		kb.rnaExpression['expression'],
-		kb.nAvogadro.asNumber(1 / units.mol)
-		)
-
-	rnaView.countsIs(nRnas * kb.rnaExpression['expression'])
-
-	## Synthesis probabilities ##
-	synthProb = normalize(
-			(
-			units.s * (
-				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
-				) * rnaView.counts()
-			).asNumber()
-		)
-
-	kb.rnaData["synthProb"][:] = synthProb
-	
-	## Transcription activation rate
-
-	# In our simplified model of RNA polymerase state transition, RNAp can be
-	# active (transcribing) or inactive (free-floating).  To solve for the
-	# rate of activation, we need to calculate the average rate of termination,
-	# which is a function of the average transcript length and the 
-	# transcription rate.
-
-	averageTranscriptLength = units.dot(synthProb, rnaLengths)
-
-	expectedTerminationRate = kb.rnaPolymeraseElongationRate / averageTranscriptLength
-
-	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
-
-	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+	fitRNAPolyTransitionRates(kb)
 
 	## Calculate and set maintenance values
 
@@ -129,30 +74,9 @@ def fitKb_1(kb):
 
 	# ----- Growth associated maintenance -----
 
-	# GTPs used for translation (recycled, not incorporated into biomass)
-	aaMmolPerGDCW = (
-			units.sum(
-				kb.monomerData["aaCounts"] *
-				np.tile(proteinView.counts().reshape(-1, 1), (1, 21)),
-				axis = 0
-			) * (
-				(1 / (units.aa * kb.nAvogadro.asUnit(1 / units.mmol))) *
-				(1 / kb.avgCellDryMassInit)
-			)
-		).asUnit(units.mmol / units.g)
+	fitMaintenanceCosts(kb, bulkContainer)
 
-	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber().sum()
-	gtpUsedOverCellCycleMmolPerGDCW = kb.gtpPerTranslation * aasUsedOverCellCycle
-
-	darkATP = ( # This has everything we can't account for
-		GROWTH_ASSOCIATED_MAINTENANCE -
-		gtpUsedOverCellCycleMmolPerGDCW
-		)
-
-	# Assign the growth associated "dark energy" to translation
-	# TODO: Distribute it amongst growth-related processes
-	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
-
+# Sub-fitting functions
 
 def createBulkContainer(kb):
 
@@ -381,6 +305,118 @@ def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongati
 			) * productCounts
 		)
 	return nPolymerizingEnzymeNeeded
+
+def fitExpression(kb, bulkContainer):
+
+	view_RNA = bulkContainer.countsView(kb.rnaData["id"])
+	counts_protein = bulkContainer.counts(kb.monomerData["id"])
+
+	g = growth_data.GrowthData(kb)
+	massFractions60 = g.massFractions(60)
+	totalMass_RNA = massFractions60["rnaMass"]
+
+	### Modify kbFit to reflect our bulk container ###
+
+	## RNA and monomer expression ##
+	rnaExpressionContainer = BulkObjectsContainer(list(kb.rnaData["id"]), dtype = np.dtype("float64"))
+
+	rnaExpressionContainer.countsIs(
+		normalize(view_RNA.counts())
+		)
+
+	# Update mRNA expression to reflect monomer counts
+	assert np.all(
+		kb.monomerData["rnaId"][kb.monomerIndexToRnaMapping] == kb.rnaData["id"][kb.rnaData["isMRna"]]
+		), "Cannot properly map monomer ids to RNA ids" # TODO: move to KB tests
+
+	mRnaExpressionView = rnaExpressionContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
+	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
+
+	mRnaExpressionView.countsIs(
+		mRnaExpressionFrac * normalize(
+			counts_protein *
+			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+			)[kb.monomerIndexToRnaMapping]
+		)
+
+	kb.rnaExpression['expression'] = rnaExpressionContainer.counts()
+
+	# Set number of RNAs based on expression we just set
+	nRnas = countsFromMassAndExpression(
+		totalMass_RNA.asNumber(units.g),
+		kb.rnaData["mw"].asNumber(units.g / units.mol),
+		kb.rnaExpression['expression'],
+		kb.nAvogadro.asNumber(1 / units.mol)
+		)
+
+	view_RNA.countsIs(nRnas * kb.rnaExpression['expression'])
+
+	## Synthesis probabilities ##
+	synthProb = normalize(
+			(
+			units.s * (
+				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
+				) * view_RNA.counts()
+			).asNumber()
+		)
+
+	kb.rnaData["synthProb"][:] = synthProb
+
+
+def fitRNAPolyTransitionRates(kb):
+	## Transcription activation rate
+
+	synthProb = kb.rnaData["synthProb"]
+	rnaLengths = kb.rnaData["length"]
+
+	elngRate = kb.rnaPolymeraseElongationRate
+
+	# In our simplified model of RNA polymerase state transition, RNAp can be
+	# active (transcribing) or inactive (free-floating).  To solve for the
+	# rate of activation, we need to calculate the average rate of termination,
+	# which is a function of the average transcript length and the 
+	# transcription rate.
+
+	averageTranscriptLength = units.dot(synthProb, rnaLengths)
+
+	expectedTerminationRate = elngRate / averageTranscriptLength
+
+	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
+
+	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+
+
+def fitMaintenanceCosts(kb, bulkContainer):
+	aaCounts = kb.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(kb.monomerData["id"])
+	nAvogadro = kb.nAvogadro
+	avgCellDryMassInit = kb.avgCellDryMassInit
+	gtpPerTranslation = kb.gtpPerTranslation
+
+	# GTPs used for translation (recycled, not incorporated into biomass)
+	aaMmolPerGDCW = (
+			units.sum(
+				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
+				axis = 0
+			) * (
+				(1 / (units.aa * nAvogadro)) *
+				(1 / avgCellDryMassInit)
+			)
+		)
+
+	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber(units.mmol/units.g).sum()
+	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
+
+	darkATP = ( # This has everything we can't account for
+		GROWTH_ASSOCIATED_MAINTENANCE -
+		gtpUsedOverCellCycleMmolPerGDCW
+		)
+
+	# Assign the growth associated "dark energy" to translation
+	# TODO: Distribute it amongst growth-related processes
+	kb.gtpPerTranslation += darkATP / aasUsedOverCellCycle
+
+# Math functions
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	assert np.allclose(np.sum(distribution), 1)
