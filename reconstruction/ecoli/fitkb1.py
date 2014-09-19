@@ -23,7 +23,7 @@ FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100%
 
 # TODO: move many of these functions into another module
 
-FITNESS_THRESHOLD = 1e-6
+FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
 def fitKb_1(kb):
