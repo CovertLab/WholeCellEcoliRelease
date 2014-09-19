@@ -27,42 +27,23 @@ def fitKb_1(kb):
 
 	# Construct bulk container
 
-	bulkContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], dtype = np.float64)
+	bulkContainer = createBulkContainer(kb)
+
+	# Mass
+	
+	g = growth_data.GrowthData(kb)
+	massFractions60 = g.massFractions(60)
+	rnaMass = massFractions60["rnaMass"]
+
+	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
-	mRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMRna"]])
-	miscRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isMiscRna"]])
-	rRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna"]])
-	tRnaView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isTRna"]])
 
 	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
 	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
 	monomersView = bulkContainer.countsView(kb.monomerData["id"])
-
-	g = growth_data.GrowthData(kb)
-	massFractions60 = g.massFractions(60)
-
-	### RNA Mass fraction ###
-	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
-
-	rRna23SCounts, rRna16SCounts, rRna5SCounts = setRRNACounts(kb, rnaMass)
-	tRnaCounts = setTRNACounts(kb, rnaMass)
-	mRnaCounts = setMRNACounts(kb, rnaMass)
-
-	rRna23SView.countsIs(rRna23SCounts)
-	rRna16SView.countsIs(rRna16SCounts)
-	rRna5SView.countsIs(rRna5SCounts)
-	tRnaView.countsIs(tRnaCounts)
-	mRnaView.countsIs(mRnaCounts)
-
-	### Protein Mass fraction ###
-	monomerMass = massFractions60["proteinMass"].asUnit(units.g)
-	monomerCounts = setMonomerCounts(kb, monomerMass)
-	monomersView.countsIs(monomerCounts)
-
-	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnapView = bulkContainer.countsView(kb.rnapIds)
 	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
@@ -223,23 +204,61 @@ def fitKb_1(kb):
 	kb.gtpPerTranslation += darkATP / aaMmolPerGDCW.asNumber().sum()
 
 
-def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
-	assert np.allclose(np.sum(distribution), 1)
-	return totalMass / units.dot(individualMasses, distribution)
+def createBulkContainer(kb):
 
+	# Load from KB
 
-def setRRNACounts(kb, rnaMass):
+	## IDs
 
-	## 23S rRNA Mass Fractions ##
+	ids_molecules = kb.bulkMolecules['moleculeId']
+	ids_rRNA23S = kb.rnaData["id"][kb.rnaData["isRRna23S"]]
+	ids_rRNA16S = kb.rnaData["id"][kb.rnaData["isRRna16S"]]
+	ids_rRNA5S = kb.rnaData["id"][kb.rnaData["isRRna5S"]]
+	ids_tRNA = kb.rnaData["id"][kb.rnaData["isTRna"]]
+	ids_mRNA = kb.rnaData["id"][kb.rnaData["isMRna"]]
+	ids_protein = kb.monomerData["id"]
 
-	# Assume all 23S rRNAs are expressed equally
-	nAvogadro = kb.nAvogadro
+	## Mass fractions
+	
+	g = growth_data.GrowthData(kb)
+	massFractions60 = g.massFractions(60)
+	totalMass_RNA = massFractions60["rnaMass"]
+	totalMass_protein = massFractions60["proteinMass"]
 
-	nTypes_rRNA23S = kb.rnaData["isRRna23S"].sum()
+	totalMass_rRNA23S = totalMass_RNA * RRNA23S_MASS_SUB_FRACTION
+	totalMass_rRNA16S = totalMass_RNA * RRNA16S_MASS_SUB_FRACTION
+	totalMass_rRNA5S = totalMass_RNA * RRNA5S_MASS_SUB_FRACTION
+	totalMass_tRNA = totalMass_RNA * TRNA_MASS_SUB_FRACTION
+	totalMass_mRNA = totalMass_RNA * MRNA_MASS_SUB_FRACTION
 
-	totalMass_rRNA23S = rnaMass * RRNA23S_MASS_SUB_FRACTION
-	individualMasses_rRNA23S = kb.rnaData["mw"][kb.rnaData["isRRna23S"]] / nAvogadro # TODO: remove mws from rna data
-	distribution_rRNA23S = np.array([1.] + [0.] * (nTypes_rRNA23S-1)) # currently only expressing first rRNA operon
+	## Molecular weights
+
+	individualMasses_rRNA23S = kb.getMass(ids_rRNA23S) / kb.nAvogadro
+	individualMasses_rRNA16S = kb.getMass(ids_rRNA16S) / kb.nAvogadro
+	individualMasses_rRNA5S = kb.getMass(ids_rRNA5S) / kb.nAvogadro
+	individualMasses_tRNA = kb.rnaData["mw"][kb.rnaData["isTRna"]] / kb.nAvogadro
+	individualMasses_mRNA = kb.rnaData["mw"][kb.rnaData["isMRna"]] / kb.nAvogadro
+	individualMasses_protein = kb.monomerData["mw"] / kb.nAvogadro
+
+	## Molecule distributions
+
+	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # currently only expressing first rRNA operon
+	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
+	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
+	distribution_tRNA = normalize(kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA'])
+	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
+	distribution_transcriptsByProtein = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
+
+	## Rates/times
+
+	degradationRates = kb.monomerData["degRate"]
+	doublingTime = kb.cellCycleLen
+
+	# Construct bulk container
+
+	bulkContainer = BulkObjectsContainer(ids_molecules, dtype = np.float64)
+
+	## Assign rRNA counts based on mass
 
 	totalCount_rRNA23S = totalCountFromMassesAndRatios(
 		totalMass_rRNA23S,
@@ -247,16 +266,8 @@ def setRRNACounts(kb, rnaMass):
 		distribution_rRNA23S
 		)
 
+	totalCount_rRNA23S.normalize()
 	totalCount_rRNA23S.checkNoUnit()
-
-	## 16S rRNA Mass Fractions ##
-
-	# Assume all 16S rRNAs are expressed equally
-	nTypes_rRNA16S = kb.rnaData["isRRna16S"].sum()
-
-	totalMass_rRNA16S = rnaMass * RRNA16S_MASS_SUB_FRACTION
-	individualMasses_rRNA16S = kb.rnaData["mw"][kb.rnaData["isRRna16S"]] / nAvogadro # TODO: remove mws from rna data
-	distribution_rRNA16S = np.array([1.] + [0.] * (nTypes_rRNA16S-1)) # currently only expressing first rRNA operon
 
 	totalCount_rRNA16S = totalCountFromMassesAndRatios(
 		totalMass_rRNA16S,
@@ -264,17 +275,8 @@ def setRRNACounts(kb, rnaMass):
 		distribution_rRNA16S
 		)
 
+	totalCount_rRNA16S.normalize()
 	totalCount_rRNA16S.checkNoUnit()
-
-	## 5S rRNA Mass Fractions ##
-
-	# Assume all 5S rRNAs are expressed equally
-
-	nTypes_rRNA5S = kb.rnaData["isRRna5S"].sum()
-
-	totalMass_rRNA5S = rnaMass * RRNA5S_MASS_SUB_FRACTION
-	individualMasses_rRNA5S = kb.rnaData["mw"][kb.rnaData["isRRna5S"]] / nAvogadro # TODO: remove mws from rna data
-	distribution_rRNA5S = np.array([1.] + [0.] * (nTypes_rRNA5S-1)) # currently only expressing first rRNA operon
 
 	totalCount_rRNA5S = totalCountFromMassesAndRatios(
 		totalMass_rRNA5S,
@@ -282,26 +284,20 @@ def setRRNACounts(kb, rnaMass):
 		distribution_rRNA5S
 		)
 
+	totalCount_rRNA5S.normalize()
 	totalCount_rRNA5S.checkNoUnit()
 
-	# ## Correct numbers of 23S, 16S, 5S rRNAs so that they are all equal
-	# # TODO: Maybe don't need to do this at some point (i.e., when the model is more sophisticated)
 	totalCount_rRNA_average = np.mean((totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S))
 
-	# Return counts
-	return totalCount_rRNA_average * distribution_rRNA23S, totalCount_rRNA_average * distribution_rRNA16S, totalCount_rRNA_average * distribution_rRNA5S
+	counts_rRNA23S = totalCount_rRNA_average * distribution_rRNA23S
+	counts_rRNA16S = totalCount_rRNA_average * distribution_rRNA16S
+	counts_rRNA5S = totalCount_rRNA_average * distribution_rRNA5S
 
+	bulkContainer.countsIs(counts_rRNA23S, ids_rRNA23S)
+	bulkContainer.countsIs(counts_rRNA16S, ids_rRNA16S)
+	bulkContainer.countsIs(counts_rRNA5S, ids_rRNA5S)
 
-def setTRNACounts(kb, rnaMass):
-
-	nAvogadro = kb.nAvogadro
-
-	## tRNA Mass Fractions ##
-
-	# tRNA expression set based on data from Dong 1996
-	totalMass_tRNA = rnaMass * TRNA_MASS_SUB_FRACTION
-	individualMasses_tRNA = kb.rnaData["mw"][kb.rnaData["isTRna"]] / nAvogadro
-	distribution_tRNA = normalize(kb.getTrnaAbundanceData(1 / units.h)['molar_ratio_to_16SrRNA'])
+	## Assign tRNA counts based on mass and relative abundances (see Dong 1996)
 
 	totalCount_tRNA = totalCountFromMassesAndRatios(
 		totalMass_tRNA,
@@ -309,18 +305,14 @@ def setTRNACounts(kb, rnaMass):
 		distribution_tRNA
 		)
 
+	totalCount_tRNA.normalize()
 	totalCount_tRNA.checkNoUnit()
 
-	return totalCount_tRNA * distribution_tRNA
+	counts_tRNA = totalCount_tRNA * distribution_tRNA
 
-def setMRNACounts(kb, rnaMass):
+	bulkContainer.countsIs(counts_tRNA, ids_tRNA)
 
-	nAvogadro = kb.nAvogadro
-
-	## mRNA Mass Fractions ##
-	totalMass_mRNA = rnaMass * MRNA_MASS_SUB_FRACTION
-	individualMasses_mRNA = kb.rnaData["mw"][kb.rnaData["isMRna"]] / nAvogadro
-	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaExpression['isMRna']])
+	## Assign mRNA counts based on mass and relative abundances (microarrays)
 
 	totalCount_mRNA = totalCountFromMassesAndRatios(
 		totalMass_mRNA,
@@ -328,36 +320,23 @@ def setMRNACounts(kb, rnaMass):
 		distribution_mRNA
 		)
 
+	totalCount_mRNA.normalize()
 	totalCount_mRNA.checkNoUnit()
 
-	return totalCount_mRNA * distribution_mRNA
+	counts_mRNA = totalCount_mRNA * distribution_mRNA
 
+	bulkContainer.countsIs(counts_mRNA, ids_mRNA)
 
-def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
-	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA
-
-	return distributionUnnormed / units.sum(distributionUnnormed)
-
-
-def setMonomerCounts(kb, monomerMass):
-
-	nAvogadro = kb.nAvogadro
-
-	distribution_mRNA = normalize(kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping])
-	doublingTime = kb.cellCycleLen
-	degradationRates = kb.monomerData["degRate"]
-
-	totalMass_protein = monomerMass
-	individualMasses_protein = kb.monomerData["mw"] / nAvogadro
+	## Assign protein counts based on mass and mRNA counts
 	distribution_protein = proteinDistribution(
-		distribution_mRNA,
+		distribution_transcriptsByProtein,
 		doublingTime,
 		degradationRates
 		)
 
 	distribution_protein.checkNoUnit()
 
-	distribution_protein = distribution_protein.asNumber()
+	distribution_protein = distribution_protein.asNumber() # remove units
 
 	totalCount_protein = totalCountFromMassesAndRatios(
 		totalMass_protein,
@@ -365,6 +344,22 @@ def setMonomerCounts(kb, monomerMass):
 		distribution_protein
 		)
 
+	totalCount_protein.normalize()
 	totalCount_protein.checkNoUnit()
 	
-	return totalCount_protein * distribution_protein
+	counts_protein = totalCount_protein * distribution_protein
+
+	bulkContainer.countsIs(counts_protein, ids_protein)
+
+	return bulkContainer
+
+
+def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
+	assert np.allclose(np.sum(distribution), 1)
+	return 1 / units.dot(individualMasses, distribution) * totalMass
+
+
+def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
+	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA
+
+	return distributionUnnormed / units.sum(distributionUnnormed)
