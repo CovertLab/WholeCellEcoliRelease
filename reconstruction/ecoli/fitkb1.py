@@ -305,62 +305,82 @@ def createBulkContainer(kb):
 
 
 def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
+	'''
+	setRibosomeCountsConstrainedByPhysiology
 
-	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
-
-	proteinView = bulkContainer.countsView(kb.monomerData["id"])
-	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
-	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
-	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
-
-	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
-
-	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
-	ribosome50SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s50_fullComplex)[0])
+	Methodology: Set counts of ribosomal subunits based on three constraints.
+	(1) Expected protein distribution doubles in one cell cycle
+	(2) Measured rRNA mass fractions
+	(3) Expected ribosomal subunit counts based on expression
+	'''
+	ribosome30SSubunits = kb.getComplexMonomers(kb.s30_fullComplex)[0]
+	ribosome50SSubunits = kb.getComplexMonomers(kb.s50_fullComplex)[0]
 	ribosome30SStoich = -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
 	ribosome50SStoich = -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
 
-	## Number of ribosomes needed ##
-	monomerLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
-	nRibosomesNeeded = units.sum(
-		monomerLengths / kb.ribosomeElongationRate * (
-			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
-			) * proteinView.counts()
-		).asNumber()
-	
+	# -- CONSTRAINT 1: Expected protien distribution doubling -- #
+	## Calculate minimium number of 30S and 50S subunits required in order to double our expected
+	## protein distribution in one cell cycle
+	proteinLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
+	proteinDegradationRates =  kb.monomerData["degRate"]
+	proteinCounts =  bulkContainer.counts(kb.monomerData["id"])
+
+	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
+	proteinLengths, kb.ribosomeElongationRate, proteinDegradationRates, proteinCounts, kb.cellCycleLen)
+	nRibosomesNeeded.checkNoUnit()
+
 	# Minimum number of ribosomes needed
-	sequencePredicted_min30SSubunitCounts = (
+	constraint1_ribosome30SCounts = (
 		nRibosomesNeeded * ribosome30SStoich
 		)
 
-	sequencePredicted_min50SSubunitCounts = (
+	constraint1_ribosome50SCounts = (
 		nRibosomesNeeded * ribosome50SStoich
 		)
 
-	# Number of ribosomes predicted from rRNA mass fractions
-	# 16S rRNA is in the 30S subunit
-	# 23S and 5S rRNA are in the 50S subunit
-	massFracPredicted_30SCount = rRna16SView.counts().sum()
-	massFracPredicted_50SCount = min(rRna23SView.counts().sum(), rRna5SView.counts().sum())
-	massFracPrecicted_30SSubunitCounts = massFracPredicted_30SCount * ribosome30SStoich
-	massFracPredicted_50SSubunitCounts = massFracPredicted_50SCount * ribosome50SStoich
+	# -- CONSTRAINT 2: Measured rRNA mass fraction -- #
+	## Calculate minimum number of 30S and 50S subunits based on measured mass fractions of
+	## 16S, 23S, and 5S rRNA.
+	rRna23SCounts = bulkContainer.counts(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
+	rRna16SCounts = bulkContainer.counts(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
+	rRna5SCounts = bulkContainer.counts(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
-	# Set ribosome subunit counts such that they are the maximum number from
-	# (1) what is already in the container,
-	# (2) what is predicted as needed based on sequence/elongation rate,
-	# (3) what is predicted based on the rRNA mass fraction data
-	ribosome30SView.countsIs(
-		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts)# + (1000 * ribosome30SStoich) # Added fudge factr of 1000
+	## 16S rRNA is in the 30S subunit
+	massFracPredicted_30SCount = rRna16SCounts.sum()
+	## 23S and 5S rRNA are in the 50S subunit
+	massFracPredicted_50SCount = min(rRna23SCounts.sum(), rRna5SCounts.sum())
+
+	constraint2_ribosome30SCounts = massFracPredicted_30SCount * ribosome30SStoich
+	constraint2_ribosome50SCounts = massFracPredicted_50SCount * ribosome50SStoich
+
+	# -- CONSTRAINT 3: Expected ribosomal subunit counts based distribution
+	## Calculate fundamental ribosomal subunit count distribution based on RNA expression data
+	## Already calculated and stored in bulkContainer
+	ribosome30SCounts = bulkContainer.counts(ribosome30SSubunits)
+	ribosome50SCounts = bulkContainer.counts(ribosome50SSubunits)
+
+	# -- SET RIBOSOME FUNDAMENTAL SUBUNIT COUNTS TO MAXIMUM CONSTRAINT -- #
+	bulkContainer.countsIs(
+		np.fmax(np.fmax(ribosome30SCounts, constraint1_ribosome30SCounts), constraint2_ribosome30SCounts),
+		ribosome30SSubunits
 		)
 
-	ribosome50SView.countsIs(
-		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)# + (1000 * ribosome50SStoich) # Added fudge factr of 1000
+	bulkContainer.countsIs(
+		np.fmax(np.fmax(ribosome50SCounts, constraint1_ribosome50SCounts), constraint2_ribosome50SCounts),
+		ribosome50SSubunits
 		)
-
 	
-	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
-		raise NotImplementedError, "Cannot handle having too few ribosomes"
+	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
+	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
+
+def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, degradationRates, productCounts, cellCycleLen):
+	nPolymerizingEnzymeNeeded = units.sum(
+		productLengths / elongationRate * (
+			np.log(2) / cellCycleLen + degradationRates
+			) * productCounts
+		)
+	return nPolymerizingEnzymeNeeded
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	assert np.allclose(np.sum(distribution), 1)
