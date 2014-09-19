@@ -35,63 +35,13 @@ def fitKb_1(kb):
 	massFractions60 = g.massFractions(60)
 	rnaMass = massFractions60["rnaMass"]
 
-	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
+	setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer)
+	
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
-	proteinView = bulkContainer.countsView(kb.monomerData["id"])
-	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
-	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
-	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
-
-	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
-
 	rnapView = bulkContainer.countsView(kb.rnapIds)
-	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
-	ribosome50SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s50_fullComplex)[0])
-	ribosome30SStoich = -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
-	ribosome50SStoich = -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+	proteinView = bulkContainer.countsView(kb.monomerData["id"])
 
-	## Number of ribosomes needed ##
-	monomerLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
-	nRibosomesNeeded = units.sum(
-		monomerLengths / kb.ribosomeElongationRate * (
-			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
-			) * proteinView.counts()
-		).asNumber()
-	
-	# Minimum number of ribosomes needed
-	sequencePredicted_min30SSubunitCounts = (
-		nRibosomesNeeded * ribosome30SStoich
-		)
-
-	sequencePredicted_min50SSubunitCounts = (
-		nRibosomesNeeded * ribosome50SStoich
-		)
-
-	# Number of ribosomes predicted from rRNA mass fractions
-	# 16S rRNA is in the 30S subunit
-	# 23S and 5S rRNA are in the 50S subunit
-	massFracPredicted_30SCount = rRna16SView.counts().sum()
-	massFracPredicted_50SCount = min(rRna23SView.counts().sum(), rRna5SView.counts().sum())
-	massFracPrecicted_30SSubunitCounts = massFracPredicted_30SCount * ribosome30SStoich
-	massFracPredicted_50SSubunitCounts = massFracPredicted_50SCount * ribosome50SStoich
-
-	# Set ribosome subunit counts such that they are the maximum number from
-	# (1) what is already in the container,
-	# (2) what is predicted as needed based on sequence/elongation rate,
-	# (3) what is predicted based on the rRNA mass fraction data
-	ribosome30SView.countsIs(
-		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts)# + (1000 * ribosome30SStoich) # Added fudge factr of 1000
-		)
-
-	ribosome50SView.countsIs(
-		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)# + (1000 * ribosome50SStoich) # Added fudge factr of 1000
-		)
-
-	
-	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
-		raise NotImplementedError, "Cannot handle having too few ribosomes"
-	
 	## Number of RNA Polymerases ##
 	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
 
@@ -319,6 +269,64 @@ def createBulkContainer(kb):
 	return bulkContainer
 
 
+def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
+
+	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
+
+	proteinView = bulkContainer.countsView(kb.monomerData["id"])
+	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
+	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
+	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
+
+	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
+
+	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
+	ribosome50SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s50_fullComplex)[0])
+	ribosome30SStoich = -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
+	ribosome50SStoich = -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+
+	## Number of ribosomes needed ##
+	monomerLengths = units.sum(kb.monomerData['aaCounts'], axis = 1)
+	nRibosomesNeeded = units.sum(
+		monomerLengths / kb.ribosomeElongationRate * (
+			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
+			) * proteinView.counts()
+		).asNumber()
+	
+	# Minimum number of ribosomes needed
+	sequencePredicted_min30SSubunitCounts = (
+		nRibosomesNeeded * ribosome30SStoich
+		)
+
+	sequencePredicted_min50SSubunitCounts = (
+		nRibosomesNeeded * ribosome50SStoich
+		)
+
+	# Number of ribosomes predicted from rRNA mass fractions
+	# 16S rRNA is in the 30S subunit
+	# 23S and 5S rRNA are in the 50S subunit
+	massFracPredicted_30SCount = rRna16SView.counts().sum()
+	massFracPredicted_50SCount = min(rRna23SView.counts().sum(), rRna5SView.counts().sum())
+	massFracPrecicted_30SSubunitCounts = massFracPredicted_30SCount * ribosome30SStoich
+	massFracPredicted_50SSubunitCounts = massFracPredicted_50SCount * ribosome50SStoich
+
+	# Set ribosome subunit counts such that they are the maximum number from
+	# (1) what is already in the container,
+	# (2) what is predicted as needed based on sequence/elongation rate,
+	# (3) what is predicted based on the rRNA mass fraction data
+	ribosome30SView.countsIs(
+		np.fmax(np.fmax(ribosome30SView.counts(), sequencePredicted_min30SSubunitCounts), massFracPrecicted_30SSubunitCounts)# + (1000 * ribosome30SStoich) # Added fudge factr of 1000
+		)
+
+	ribosome50SView.countsIs(
+		np.fmax(np.fmax(ribosome50SView.counts(), sequencePredicted_min50SSubunitCounts), massFracPredicted_50SSubunitCounts)# + (1000 * ribosome50SStoich) # Added fudge factr of 1000
+		)
+
+	
+	if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
+		raise NotImplementedError, "Cannot handle having too few ribosomes"
+
+
 def fitRNAPolyTransitionRates(kb):
 	## Transcription activation rate
 
@@ -371,8 +379,6 @@ def fitMaintenanceCosts(kb, bulkContainer):
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
 	kb.gtpPerTranslation += darkATP / aasUsedOverCellCycle
-
-
 
 # Math functions
 
