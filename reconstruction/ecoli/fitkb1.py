@@ -42,29 +42,7 @@ def fitKb_1(kb):
 
 		setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer)
 
-
-		rnaView = bulkContainer.countsView(kb.rnaData["id"])
-		rnapView = bulkContainer.countsView(kb.rnapIds)
-		proteinView = bulkContainer.countsView(kb.monomerData["id"])
-
-		## Number of RNA Polymerases ##
-		rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
-
-		rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
-
-		nRnapsNeeded = units.sum(
-			rnaLengths / kb.rnaPolymeraseElongationRate
-				* rnaLossRate
-				* rnaView.counts()
-			).asNumber() / FRACTION_ACTIVE_RNAP
-
-		minRnapCounts = (
-			nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
-			)
-
-		rnapView.countsIs(
-			np.fmax(rnapView.counts(), minRnapCounts)
-			)
+		setRNAPCountsConstrainedByPhysiology(kb, bulkContainer)
 
 		## Normalize expression and write out changes
 
@@ -324,6 +302,27 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
+
+def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
+	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
+	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
+	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
+	rnaCounts = bulkContainer.counts(kb.rnaData['id'])
+
+	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
+		rnaLengths, kb.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
+	nActiveRnapNeeded.checkNoUnit()
+	nRnapsNeeded = nActiveRnapNeeded / FRACTION_ACTIVE_RNAP
+
+	minRnapSubunitCounts = (
+		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
+		)
+
+	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
+	rnapCounts = bulkContainer.counts(kb.rnapIds)
+
+	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
+	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), kb.rnapIds)
 
 def fitExpression(kb, bulkContainer):
 
