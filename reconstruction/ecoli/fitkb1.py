@@ -262,8 +262,10 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 		nRibosomesNeeded * ribosome50SStoich
 		)
 
+
+
 	# -- CONSTRAINT 2: Measured rRNA mass fraction -- #
-	## Calculate minimum number of 30S and 50S subunits based on measured mass fractions of
+	## Calculate exact number of 30S and 50S subunits based on measured mass fractions of
 	## 16S, 23S, and 5S rRNA.
 	rRna23SCounts = bulkContainer.counts(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
 	rRna16SCounts = bulkContainer.counts(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
@@ -276,6 +278,8 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	constraint2_ribosome30SCounts = massFracPredicted_30SCount * ribosome30SStoich
 	constraint2_ribosome50SCounts = massFracPredicted_50SCount * ribosome50SStoich
+
+
 
 	# -- CONSTRAINT 3: Expected ribosomal subunit counts based distribution
 	## Calculate fundamental ribosomal subunit count distribution based on RNA expression data
@@ -293,6 +297,9 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 		np.fmax(np.fmax(ribosome50SCounts, constraint1_ribosome50SCounts), constraint2_ribosome50SCounts),
 		ribosome50SSubunits
 		)
+
+	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
+	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
 def fitExpression(kb, bulkContainer):
 
