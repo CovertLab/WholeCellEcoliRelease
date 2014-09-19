@@ -45,10 +45,12 @@ def fitKb_1(kb):
 	## Number of RNA Polymerases ##
 	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
 
+	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
+
 	nRnapsNeeded = units.sum(
-		rnaLengths / kb.rnaPolymeraseElongationRate * (
-			np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
-			) * rnaView.counts()
+		rnaLengths / kb.rnaPolymeraseElongationRate
+			* rnaLossRate
+			* rnaView.counts()
 		).asNumber() / FRACTION_ACTIVE_RNAP
 
 	minRnapCounts = (
@@ -202,10 +204,11 @@ def createBulkContainer(kb):
 	bulkContainer.countsIs(counts_mRNA, ids_mRNA)
 
 	## Assign protein counts based on mass and mRNA counts
+	netLossRate_protein = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates)
+
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
-		doublingTime,
-		degradationRates
+		netLossRate_protein
 		)
 
 	distribution_protein.checkNoUnit()
@@ -249,8 +252,13 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	proteinDegradationRates =  kb.monomerData["degRate"]
 	proteinCounts =  bulkContainer.counts(kb.monomerData["id"])
 
+	netLossRate_protein = netLossRateFromDilutionAndDegradation(
+		kb.cellCycleLen,
+		proteinDegradationRates
+		)
+
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, kb.ribosomeElongationRate, proteinDegradationRates, proteinCounts, kb.cellCycleLen)
+	proteinLengths, kb.ribosomeElongationRate, netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.checkNoUnit()
 
 	# Minimum number of ribosomes needed
@@ -312,7 +320,9 @@ def fitExpression(kb, bulkContainer):
 	totalMass_RNA = massFractions60["rnaMass"]
 
 	doublingTime = kb.cellCycleLen
-	degradationRates = kb.monomerData["degRate"]
+	degradationRates_protein = kb.monomerData["degRate"]
+
+	netLossRate_protein = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates_protein)
 
 	### Modify kbFit to reflect our bulk container ###
 
@@ -333,7 +343,7 @@ def fitExpression(kb, bulkContainer):
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * mRNADistributionFromProtein(
-			normalize(counts_protein), doublingTime, degradationRates
+			normalize(counts_protein), netLossRate_protein
 			)[kb.monomerIndexToRnaMapping]
 		)
 
@@ -350,11 +360,16 @@ def fitExpression(kb, bulkContainer):
 	view_RNA.countsIs(nRnas * kb.rnaExpression['expression'])
 
 	## Synthesis probabilities ##
+	netLossRate_RNA = netLossRateFromDilutionAndDegradation(
+		doublingTime,
+		kb.rnaData["degRate"]
+		)
+
 	synthProb = normalize(
 			(
-			units.s * (
-				np.log(2) / kb.cellCycleLen + kb.rnaData["degRate"]
-				) * view_RNA.counts()
+			units.s
+				* netLossRate_RNA
+				* view_RNA.counts()
 			).asNumber()
 		)
 
@@ -422,23 +437,28 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
 
-def proteinDistributionFrommRNA(distribution_mRNA, doublingTime, degradationRates):
+def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
 	assert np.allclose(np.sum(distribution_mRNA), 1)
-	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA # TODO: function for dilution + degradation term
+	distributionUnnormed = 1 / netLossRate * distribution_mRNA
 
 	return distributionUnnormed / units.sum(distributionUnnormed)
 
 
-def mRNADistributionFromProtein(distribution_protein, doublingTime, degradationRates):
+def mRNADistributionFromProtein(distribution_protein, netLossRate):
 	assert np.allclose(np.sum(distribution_protein), 1)
-	distributionUnnormed = (np.log(2) / doublingTime + degradationRates) * distribution_protein # TODO: function for dilution + degradation term
+	distributionUnnormed = netLossRate * distribution_protein
 
 	return distributionUnnormed / units.sum(distributionUnnormed)
 
-def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, degradationRates, productCounts, cellCycleLen):
+
+def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts):
 	nPolymerizingEnzymeNeeded = units.sum(
-		productLengths / elongationRate * (
-			np.log(2) / cellCycleLen + degradationRates
-			) * productCounts
+		productLengths / elongationRate
+			* netLossRate
+			* productCounts
 		)
 	return nPolymerizingEnzymeNeeded
+
+
+def netLossRateFromDilutionAndDegradation(doublingTime, degradationRates):
+	return np.log(2) / doublingTime + degradationRates
