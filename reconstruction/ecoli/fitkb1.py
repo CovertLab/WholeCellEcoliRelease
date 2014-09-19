@@ -202,7 +202,7 @@ def createBulkContainer(kb):
 	bulkContainer.countsIs(counts_mRNA, ids_mRNA)
 
 	## Assign protein counts based on mass and mRNA counts
-	distribution_protein = proteinDistribution(
+	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
 		doublingTime,
 		degradationRates
@@ -301,6 +301,7 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
 	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
 
+
 def fitExpression(kb, bulkContainer):
 
 	view_RNA = bulkContainer.countsView(kb.rnaData["id"])
@@ -309,6 +310,9 @@ def fitExpression(kb, bulkContainer):
 	g = growth_data.GrowthData(kb)
 	massFractions60 = g.massFractions(60)
 	totalMass_RNA = massFractions60["rnaMass"]
+
+	doublingTime = kb.cellCycleLen
+	degradationRates = kb.monomerData["degRate"]
 
 	### Modify kbFit to reflect our bulk container ###
 
@@ -328,9 +332,8 @@ def fitExpression(kb, bulkContainer):
 	mRnaExpressionFrac = np.sum(mRnaExpressionView.counts())
 
 	mRnaExpressionView.countsIs(
-		mRnaExpressionFrac * normalize(
-			counts_protein *
-			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+		mRnaExpressionFrac * mRNADistributionFromProtein(
+			normalize(counts_protein), doublingTime, degradationRates
 			)[kb.monomerIndexToRnaMapping]
 		)
 
@@ -411,6 +414,7 @@ def fitMaintenanceCosts(kb, bulkContainer):
 	# TODO: Distribute it amongst growth-related processes
 	kb.gtpPerTranslation += darkATP / aasUsedOverCellCycle
 
+
 # Math functions
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
@@ -418,8 +422,16 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
 
-def proteinDistribution(distribution_mRNA, doublingTime, degradationRates):
-	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA
+def proteinDistributionFrommRNA(distribution_mRNA, doublingTime, degradationRates):
+	assert np.allclose(np.sum(distribution_mRNA), 1)
+	distributionUnnormed = 1 / (np.log(2) / doublingTime + degradationRates) * distribution_mRNA # TODO: function for dilution + degradation term
+
+	return distributionUnnormed / units.sum(distributionUnnormed)
+
+
+def mRNADistributionFromProtein(distribution_protein, doublingTime, degradationRates):
+	assert np.allclose(np.sum(distribution_protein), 1)
+	distributionUnnormed = (np.log(2) / doublingTime + degradationRates) * distribution_protein # TODO: function for dilution + degradation term
 
 	return distributionUnnormed / units.sum(distributionUnnormed)
 
