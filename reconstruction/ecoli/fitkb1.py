@@ -25,7 +25,7 @@ FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100%
 
 def fitKb_1(kb):
 
-	# Construct bulk container
+	# Load KB parameters
 
 	bulkContainer = createBulkContainer(kb)
 
@@ -38,12 +38,12 @@ def fitKb_1(kb):
 	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
-
+	proteinView = bulkContainer.countsView(kb.monomerData["id"])
 	rRna23SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna23S"]])
 	rRna16SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna16S"]])
 	rRna5SView = bulkContainer.countsView(kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
-	monomersView = bulkContainer.countsView(kb.monomerData["id"])
+	### Ensure minimum numbers of enzymes critical for macromolecular synthesis ###
 
 	rnapView = bulkContainer.countsView(kb.rnapIds)
 	ribosome30SView = bulkContainer.countsView(kb.getComplexMonomers(kb.s30_fullComplex)[0])
@@ -56,7 +56,7 @@ def fitKb_1(kb):
 	nRibosomesNeeded = units.sum(
 		monomerLengths / kb.ribosomeElongationRate * (
 			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
-			) * monomersView.counts()
+			) * proteinView.counts()
 		).asNumber()
 	
 	# Minimum number of ribosomes needed
@@ -128,7 +128,7 @@ def fitKb_1(kb):
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * normalize(
-			monomersView.counts() *
+			proteinView.counts() *
 			(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
 			)[kb.monomerIndexToRnaMapping]
 		)
@@ -183,7 +183,7 @@ def fitKb_1(kb):
 	aaMmolPerGDCW = (
 			units.sum(
 				kb.monomerData["aaCounts"] *
-				np.tile(monomersView.counts().reshape(-1, 1), (1, 21)),
+				np.tile(proteinView.counts().reshape(-1, 1), (1, 21)),
 				axis = 0
 			) * (
 				(1 / (units.aa * kb.nAvogadro.asUnit(1 / units.mmol))) *
