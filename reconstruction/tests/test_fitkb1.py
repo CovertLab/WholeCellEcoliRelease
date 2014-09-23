@@ -17,7 +17,7 @@ import os
 import wholecell.utils.constants
 from reconstruction.ecoli.fitkb1 import (totalCountFromMassesAndRatios,
 proteinDistributionFrommRNA, mRNADistributionFromProtein,
-calculateMinPolymerizingEnzymeByProductDistribution)
+calculateMinPolymerizingEnzymeByProductDistribution, netLossRateFromDilutionAndDegradation)
 
 import numpy as np
 from wholecell.utils import units
@@ -123,3 +123,14 @@ class Test_fitkb1(unittest.TestCase):
 		self.assertEqual(nMin, 980)
 
 
+	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('fitkb1test')
+	def test_netLossRateFromDilutionAndDegradation(self):
+		doublingTime = 60 * units.min
+		degradationRates = (1 / units.s) * np.array([10, 20, 100])
+		net = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates)
+		net.asUnit(1/units.h) # Check units are 1/time
+		self.assertEqual(
+			net.asNumber(1/units.min).tolist(),
+			((np.log(2) / doublingTime).asNumber(1/units.min) + degradationRates.asNumber(1/units.min)).tolist()
+			)
