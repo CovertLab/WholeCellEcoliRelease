@@ -21,7 +21,7 @@ GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
 FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100% to 20% depending on the growth rate
 
-# TODO: move many of these functions into another module
+# TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
@@ -317,6 +317,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
 	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), kb.rnapIds)
+
 
 def fitExpression(kb, bulkContainer):
 

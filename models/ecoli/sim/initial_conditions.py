@@ -226,34 +226,25 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 
 	inactiveRnap = bulkMolCntr.countView("APORNAP-CPLX[c]")
 
-	activeRnapMax = inactiveRnap.count() * kb.fracActiveRnap
+	activeRnapMax = inactiveRnap.count()
 
 	if activeRnapMax == 0:
 		return
 
-	# Calculate the number of RNAPs that should be active
+	activeRnapCount = np.int64(activeRnapMax * kb.fracActiveRnap)
 
-	elngRate = kb.rnaPolymeraseElongationRate.asNumber(units.nt / units.s)
-
+	# Load RNA data
 	rnaIds = kb.rnaData["id"]
 	rnas = bulkMolCntr.countsView(rnaIds)
 	rnaCounts = rnas.counts()
 	rnaLengths = kb.rnaData["length"].asNumber(units.count)
 
-	rnaLengthAverage = np.dot(rnaCounts, rnaLengths) / rnaCounts.sum()
-
-	fractionActive = 1 - elngRate/rnaLengthAverage * timeStep
-
-	activeRnapCount = np.int64(activeRnapMax * fractionActive)
+	rnaMasses = (kb.rnaData["mw"].asNumber(units.fg / units.mol) /
+		kb.nAvogadro.asNumber(1 / units.mol))
 
 	# Choose RNAs to polymerize
 	rnaCountsPolymerizing = randomState.multinomial(activeRnapCount,
 		kb.rnaData["synthProb"])
-
-	# Get the RNA masses
-
-	rnaMasses = (kb.rnaData["mw"].asNumber(units.fg / units.mol) /
-		kb.nAvogadro.asNumber(1 / units.mol))
 
 	# Reduce the number of RNAP subunits
 
