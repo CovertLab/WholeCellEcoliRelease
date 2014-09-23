@@ -15,7 +15,10 @@ import cPickle
 import os
 
 import wholecell.utils.constants
-from reconstruction.ecoli.fitkb1 import totalCountFromMassesAndRatios, proteinDistributionFrommRNA, mRNADistributionFromProtein
+from reconstruction.ecoli.fitkb1 import (totalCountFromMassesAndRatios,
+proteinDistributionFrommRNA, mRNADistributionFromProtein,
+calculateMinPolymerizingEnzymeByProductDistribution)
+
 import numpy as np
 from wholecell.utils import units
 
@@ -106,3 +109,17 @@ class Test_fitkb1(unittest.TestCase):
 		distribution_mRNA = np.array([0.25, 0.25, 0.25])
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		self.assertRaises(AssertionError, mRNADistributionFromProtein, distribution_mRNA, netLossRate)
+
+	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('fitkb1test')
+	def test_calculateMinPolymerizingEnzymeByProductDistribution(self):
+		productLengths = units.nt * np.array([1000, 2000, 3000])
+		elongationRate = 50 * units.nt / units.s
+		netLossRate = (1 / units.s) * np.array([3, 2, 1])
+		productCounts = np.array([5,1,10])
+
+		nMin = calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts)
+		nMin.checkNoUnit()
+		self.assertEqual(nMin, 980)
+
+
