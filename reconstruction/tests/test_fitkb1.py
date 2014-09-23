@@ -15,7 +15,7 @@ import cPickle
 import os
 
 import wholecell.utils.constants
-from reconstruction.ecoli.fitkb1 import totalCountFromMassesAndRatios, proteinDistributionFrommRNA
+from reconstruction.ecoli.fitkb1 import totalCountFromMassesAndRatios, proteinDistributionFrommRNA, mRNADistributionFromProtein
 import numpy as np
 from wholecell.utils import units
 
@@ -83,3 +83,26 @@ class Test_fitkb1(unittest.TestCase):
 		distribution_mRNA = np.array([0.25, 0.25, 0.25])
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		self.assertRaises(AssertionError, proteinDistributionFrommRNA, distribution_mRNA, netLossRate)
+
+	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('fitkb1test')
+	def test_mRNADistributionFromProtein(self):
+		# Test normal call
+		distribution_mRNA = np.array([0.5, 0.25, 0.25])
+		netLossRate = np.array([1, 2, 3])
+		proteinDist = mRNADistributionFromProtein(distribution_mRNA, netLossRate)
+		distributionUnnormed = netLossRate * distribution_mRNA
+		self.assertEqual(proteinDist.tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).tolist())
+
+		# Test normal call with units
+		distribution_mRNA = np.array([0.5, 0.25, 0.25])
+		netLossRate = (1 / units.s) * np.array([1, 2, 3])
+		proteinDist = mRNADistributionFromProtein(distribution_mRNA, netLossRate)
+		proteinDist.checkNoUnit()
+		distributionUnnormed = netLossRate * distribution_mRNA
+		self.assertEqual(proteinDist.asNumber().tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).asNumber().tolist())
+
+		# Test assertion in function
+		distribution_mRNA = np.array([0.25, 0.25, 0.25])
+		netLossRate = (1 / units.s) * np.array([1, 2, 3])
+		self.assertRaises(AssertionError, mRNADistributionFromProtein, distribution_mRNA, netLossRate)
