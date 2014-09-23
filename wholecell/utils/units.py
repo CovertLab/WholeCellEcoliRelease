@@ -21,11 +21,13 @@ aa = Unum.unit('amino_acid', count)
 
 
 def sum(array, axis = None, dtype=None, out=None, keepdims=False):
-	if type(array) != Unum:
-		raise Exception, 'Only works on Unum!\n'
-	units = array.copy()
-	units._value = 1
-	return units * np.sum(array.asNumber(), axis, dtype, out, keepdims)
+	if type(array) == Unum:
+		units = array.copy()
+		units._value = 1
+		return units * np.sum(array.asNumber(), axis, dtype, out, keepdims)
+	else:
+		return np.sum(array, axis, dtype, out, keepdims)
+
 
 def dot(a, b, out=None):
 	if type(a) != Unum:
