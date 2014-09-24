@@ -65,7 +65,9 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container = UniqueObjectsContainer(molDefs)
 
 		self._moleculeIds = kb.uniqueMoleculeMasses["moleculeId"]
-		self._moleculeMasses = kb.uniqueMoleculeMasses["mass"].asNumber(units.fg/ units.mol) / kb.nAvogadro.asNumber()
+		self._moleculeMasses = (
+			kb.uniqueMoleculeMasses["mass"] / kb.nAvogadro
+			).asNumber(units.fg)
 
 		self._unassignedPartitionedValue = self._nProcesses
 
