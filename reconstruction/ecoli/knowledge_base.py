@@ -256,6 +256,27 @@ class KnowledgeBaseEcoli(object):
 				elif molecule['molecule'] == 'EG10876-MONOMER':
 					molecule['location'] = u'c'
 
+		# Changing ids of 30S and 50S ribosomal complexes
+		for comp in self._proteinComplexes:
+			if comp['id'] == 'CPLX0-3953':
+				comp['id'] = 'CPLX-30SA'
+			elif comp['id'] == 'CPLX0-3962':
+				comp['id'] = 'CPLX-50SA'
+
+		for rxn in self._complexationReactions:
+			for molecule in rxn['stoichiometry']:
+				if molecule['molecule'] == 'CPLX0-3953':
+					molecule['molecule'] = 'CPLX-30SA'
+				elif molecule['molecule'] == 'CPLX0-3962':
+					molecule['molecule'] = 'CPLX-50SA'
+
+		for rxn in self._complexationReactions:
+			if rxn['id'] == 'CPLX0-3953_RXN':
+				rxn['id'] = 'CPLX-30SA_RXN'
+			elif rxn['id'] == 'CPLX0-3962_RXN':
+				rxn['id'] = 'CPLX-50SA_RXN'
+
+
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
 
@@ -1847,6 +1868,7 @@ class KnowledgeBaseEcoli(object):
 				'proteinIndex' : 'i8',
 				'peptideLength': 'i8'
 				}),
+
 			("dnaPolymerase", {
 				'chromosomeLocation' : 'i8',
 				'directionIsPositive' : 'bool',
@@ -2010,6 +2032,8 @@ class KnowledgeBaseEcoli(object):
 
 		mws = np.array([rna['mw'] for rna in self._rnas])
 
+		geneIds = np.array([rna['geneId'] for rna in self._rnas])
+
 		size = len(rnaIds)
 
 		is23S = np.zeros(size, dtype = np.bool)
@@ -2048,7 +2072,8 @@ class KnowledgeBaseEcoli(object):
 				('isRRna23S', 'bool'),
 				('isRRna16S', 'bool'),
 				('isRRna5S', 'bool'),
-				('sequence', 'a{}'.format(maxSequenceLength))
+				('sequence', 'a{}'.format(maxSequenceLength)),
+				('geneId', 'a50')
 				]
 			)
 
@@ -2066,6 +2091,7 @@ class KnowledgeBaseEcoli(object):
 		self.rnaData['isRRna16S'] = is16S
 		self.rnaData['isRRna5S'] = is5S
 		self.rnaData['sequence'] = sequences
+		self.rnaData['geneId'] = geneIds
 
 		field_units = {
 			'id'		:	None,
@@ -2082,6 +2108,7 @@ class KnowledgeBaseEcoli(object):
 			'isRRna16S'	:	None,
 			'isRRna5S'	:	None,
 			'sequence'  :   None,
+			'geneId'	:	None,
 			}
 
 
@@ -2302,12 +2329,12 @@ class KnowledgeBaseEcoli(object):
 
 	def _buildRibosomeData(self):
 		self.s30_proteins = S30_PROTEINS
-		self.s30_16sRRNA = [S30_16S_RRNAS[0]] # Only using A operon
+		self.s30_16sRRNA = S30_16S_RRNAS
 		self.s30_fullComplex = S30_FULLCOMPLEX
 		self.s50_proteins = S50_PROTEINS
 		self.s50_proteinComplexes = S50_PROTEIN_COMPLEXES
-		self.s50_20sRRNA = [S50_20S_RRNAS[0]] # Only using A operon
-		self.s50_5sRRNA = [S50_5S_RRNAS[0]] # Only using A operon
+		self.s50_20sRRNA = S50_20S_RRNAS
+		self.s50_5sRRNA = S50_5S_RRNAS
 		self.s50_fullComplex = S50_FULLCOMPLEX
 
 	def _buildMetabolism(self):
