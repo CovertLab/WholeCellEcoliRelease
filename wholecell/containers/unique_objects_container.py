@@ -14,6 +14,7 @@ from __future__ import division
 from copy import deepcopy
 import warnings
 from itertools import izip
+from functools import partial
 
 import numpy as np
 import tables
@@ -63,7 +64,9 @@ class UniqueObjectsContainer(object):
 		"<":np.less,
 		"<=":np.less_equal,
 		"==":np.equal,
-		"!=":np.not_equal
+		"!=":np.not_equal,
+		"in":np.lib.arraysetops.in1d,
+		"not in":partial(np.lib.arraysetops.in1d, invert = True)
 		}
 
 	def __init__(self, specifications):
