@@ -177,13 +177,13 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		molecules = self.container.objectsInCollection(
 			'RNA polymerase',
 			boundToChromosome = ("==", True),
-			chromosomeLocation = ('in', invalidLocations)
+			chromosomeLocation = ('not in', invalidLocations)
 			)
 
 		self.assertEqual(len(molecules), 5)
 
 		for molecule in molecules:
-			self.assertIn(
+			self.assertNotIn(
 				molecule.attr('chromosomeLocation'),
 				invalidLocations
 				)
