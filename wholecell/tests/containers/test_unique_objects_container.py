@@ -150,6 +150,44 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				0
 				)
 
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_contains_query(self):
+		validLocations = np.array([0, 50])
+
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase',
+			boundToChromosome = ("==", True),
+			chromosomeLocation = ('in', validLocations)
+			)
+
+		self.assertEqual(len(molecules), 10)
+
+		for molecule in molecules:
+			self.assertIn(
+				molecule.attr('chromosomeLocation'),
+				validLocations
+				)
+
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_not_contains_query(self):
+		invalidLocations = np.array([0])
+
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase',
+			boundToChromosome = ("==", True),
+			chromosomeLocation = ('in', invalidLocations)
+			)
+
+		self.assertEqual(len(molecules), 5)
+
+		for molecule in molecules:
+			self.assertIn(
+				molecule.attr('chromosomeLocation'),
+				invalidLocations
+				)
+
 	# Attribute access
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
