@@ -280,10 +280,11 @@ class KnowledgeBaseEcoli(object):
 			elif rxn['id'] == 'CPLX0-3962_RXN':
 				rxn['id'] = 'CPLX-50SA_RXN'
 
-		# Add other rrn operons
+		# Add other rrn operons and their formation reactions
+		# Ignoring extra 5S rRNA
 		remaining16SrRNA = S30_16S_RRNAS[1:]
 		letters = [x[3] for x in remaining16SrRNA]
-		formationReaction30S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-50SA_RXN'][0]
+		formationReaction30S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-30SA_RXN'][0]
 		for idx,rRNA in enumerate(remaining16SrRNA):
 			newComplex = {
 				'comments': u'',
@@ -297,20 +298,50 @@ class KnowledgeBaseEcoli(object):
 
 			newComplexationReaction = {
 				'dir' : 1,
-				'id': u'',
+				'id': u'CPLX-30S{}_RXN'.format(letters[idx]),
+				'process' : 'complexation',
+				'stoichiometry' : copy.copy(formationReaction30S)
+				}
+
+			for molecule in newComplexationReaction['stoichiometry']:
+				if molecule['molecule'] == 'RRSA-RRNA':
+					molecule['molecule'] = rRNA[:-3]
+				if molecule['molecule'] == 'CPLX-30SA':
+					molecule['molecule'] = 'CPLX-30S{}'.format(letters[idx])
+
+			self._complexationReactions.append(newComplexationReaction)
+
+		remaining5SrRNA = S50_5S_RRNAS[1:]
+		remaining23SrRNA = S50_23S_RRNAS[1:]
+		letters = [x[3] for x in remaining23SrRNA]
+		formationReaction50S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-50SA_RXN'][0]
+		for idx in range(len(remaining23SrRNA)):
+			newComplex = {
+				'comments': u'',
+				'id': u'CPLX-50S{}'.format(letters[idx]),
+				'location': u'c',
+				'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
+				'name': u'50S ribosomal subunit rrn{}'.format(letters[idx]),
+				'reactionId': u'CPLX-50S{}_RXN'.format(letters[idx])}
+
+			self._proteinComplexes.append(newComplex)
+
+			newComplexationReaction = {
+				'dir' : 1,
+				'id': u'CPLX-50S{}_RXN'.format(letters[idx]),
 				'process' : 'complexation',
 				'stoichiometry' : copy.copy(formationReaction30S)
 				}
 
 			for molecule in newComplexationReaction['stoichiometry']:
 				if molecule['molecule'] == 'RRLA-RRNA':
-					molecule['molecule'] = rRNA[:-3]
+					molecule['molecule'] = remaining23SrRNA[idx][:-3]
+				if molecule['molecule'] == 'RRFA-RRNA':
+					molecule['molecule'] = remaining5SrRNA[idx][:-3]
+				if molecule['molecule'] == 'CPLX-50SA':
+					molecule['molecule'] = 'CPLX-50S{}'.format(letters[idx])
 
 			self._complexationReactions.append(newComplexationReaction)
-
-		remaining5SrRNA = S50_5S_RRNAS[1:]
-		remaining23SrRNA = S50_23S_RRNA[1:]
-
 
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
