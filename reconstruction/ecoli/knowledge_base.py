@@ -20,6 +20,7 @@ import os
 import sys
 import itertools
 import re
+import copy
 
 # Set Django environmental variable
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ecoliwholecellkb_project.ecoliwholecellkb.settings'
@@ -280,8 +281,9 @@ class KnowledgeBaseEcoli(object):
 				rxn['id'] = 'CPLX-50SA_RXN'
 
 		# Add other rrn operons
-		letters = ['B','C','D','G','H']
 		remaining16SrRNA = S30_16S_RRNAS[1:]
+		letters = [x[3] for x in remaining16SrRNA]
+		formationReaction30S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-50SA_RXN'][0]
 		for idx,rRNA in enumerate(remaining16SrRNA):
 			newComplex = {
 				'comments': u'',
@@ -297,10 +299,17 @@ class KnowledgeBaseEcoli(object):
 				'dir' : 1,
 				'id': u'',
 				'process' : 'complexation',
-				'stoichiometry' : []
+				'stoichiometry' : copy.copy(formationReaction30S)
 				}
 
+			for molecule in newComplexationReaction['stoichiometry']:
+				if molecule['molecule'] == 'RRLA-RRNA':
+					molecule['molecule'] = rRNA[:-3]
 
+			self._complexationReactions.append(newComplexationReaction)
+
+		remaining5SrRNA = S50_5S_RRNAS[1:]
+		remaining23SrRNA = S50_23S_RRNA[1:]
 
 
 	def _defineConstants(self):
@@ -2359,7 +2368,7 @@ class KnowledgeBaseEcoli(object):
 		self.s30_fullComplex = S30_FULLCOMPLEX
 		self.s50_proteins = S50_PROTEINS
 		self.s50_proteinComplexes = S50_PROTEIN_COMPLEXES
-		self.s50_20sRRNA = S50_20S_RRNAS
+		self.s50_23sRRNA = S50_23S_RRNAS
 		self.s50_5sRRNA = S50_5S_RRNAS
 		self.s50_fullComplex = S50_FULLCOMPLEX
 
