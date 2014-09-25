@@ -82,7 +82,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		activeRibosome = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 	# Calculate total protein and rRNA counts (in complex + free)
-	complexMonomers, monomerStoich = kb.getComplexMonomers(kb.s50_fullComplex)
+	complexMonomers = kb.getComplexMonomers(kb.s50_fullComplex)['subunitIds']
+	monomerStoich = kb.getComplexMonomers(kb.s50_fullComplex)['subunitStoich']
 
 	complexedProteinCounts = np.zeros((time.size,len(proteinIds)), np.int)
 	for idx, pId in enumerate(proteinIds):
