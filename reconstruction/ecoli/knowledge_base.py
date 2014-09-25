@@ -81,6 +81,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadConstants()
 		self._loadParameters()
 		self._loadHacked() 		# Build hacked constants - need to add these to the SQL database still
+		#self._calcMolecularWeightFromRxn() # Have to call again to calculate MWs of hacked complexes
 		self._loadComputeParameters()
 
 		loadedAttrs = set(dir(self)) - defaultAttrs
@@ -267,14 +268,39 @@ class KnowledgeBaseEcoli(object):
 			for molecule in rxn['stoichiometry']:
 				if molecule['molecule'] == 'CPLX0-3953':
 					molecule['molecule'] = 'CPLX-30SA'
+					molecule['name'] = '30S ribosomal subunit rrnA'
 				elif molecule['molecule'] == 'CPLX0-3962':
 					molecule['molecule'] = 'CPLX-50SA'
+					molecule['name'] = '50S ribosomal subunit rrnA'
 
 		for rxn in self._complexationReactions:
 			if rxn['id'] == 'CPLX0-3953_RXN':
 				rxn['id'] = 'CPLX-30SA_RXN'
 			elif rxn['id'] == 'CPLX0-3962_RXN':
 				rxn['id'] = 'CPLX-50SA_RXN'
+
+		# Add other rrn operons
+		letters = ['B','C','D','G','H']
+		remaining16SrRNA = S30_16S_RRNAS[1:]
+		for idx,rRNA in enumerate(remaining16SrRNA):
+			newComplex = {
+				'comments': u'',
+				'id': u'CPLX-30S{}'.format(letters[idx]),
+				'location': u'c',
+				'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
+				'name': u'30S ribosomal subunit rrn{}'.format(letters[idx]),
+				'reactionId': u'CPLX-30S{}_RXN'.format(letters[idx])}
+
+			self._proteinComplexes.append(newComplex)
+
+			newComplexationReaction = {
+				'dir' : 1,
+				'id': u'',
+				'process' : 'complexation',
+				'stoichiometry' : []
+				}
+
+
 
 
 	def _defineConstants(self):
