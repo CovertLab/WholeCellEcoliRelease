@@ -227,10 +227,10 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	(2) Measured rRNA mass fractions
 	(3) Expected ribosomal subunit counts based on expression
 	'''
-	ribosome30SSubunits = kb.getComplexMonomers(kb.s30_fullComplex)[0]
-	ribosome50SSubunits = kb.getComplexMonomers(kb.s50_fullComplex)[0]
-	ribosome30SStoich = -1 * kb.getComplexMonomers(kb.s30_fullComplex)[1]
-	ribosome50SStoich = -1 * kb.getComplexMonomers(kb.s50_fullComplex)[1]
+	ribosome30SSubunits = kb.getComplexMonomers(kb.s30_fullComplex)['subunitIds']
+	ribosome50SSubunits = kb.getComplexMonomers(kb.s50_fullComplex)['subunitIds']
+	ribosome30SStoich = kb.getComplexMonomers(kb.s30_fullComplex)['subunitStoich']
+	ribosome50SStoich = kb.getComplexMonomers(kb.s50_fullComplex)['subunitStoich']
 
 	# -- CONSTRAINT 1: Expected protien distribution doubling -- #
 	## Calculate minimium number of 30S and 50S subunits required in order to double our expected

@@ -153,11 +153,11 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	# GDP POOL
 	ribosomeSubunits = bulkMolCntr.countsView(
 		np.hstack(
-			(kb.getComplexMonomers(kb.s30_fullComplex)[0], kb.getComplexMonomers(kb.s50_fullComplex)[0])
+			(kb.getComplexMonomers(kb.s30_fullComplex)['subunitIds'], kb.getComplexMonomers(kb.s50_fullComplex)['subunitIds'])
 			)
 		)
-	ribosomeSubunitStoich = -1*np.hstack(
-			(kb.getComplexMonomers(kb.s30_fullComplex)[1], kb.getComplexMonomers(kb.s50_fullComplex)[1])
+	ribosomeSubunitStoich = np.hstack(
+			(kb.getComplexMonomers(kb.s30_fullComplex)['subunitStoich'], kb.getComplexMonomers(kb.s50_fullComplex)['subunitStoich'])
 			)
 	
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()

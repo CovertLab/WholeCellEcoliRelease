@@ -2561,7 +2561,7 @@ class KnowledgeBaseEcoli(object):
 		# subunitComplexes = collections.defaultdict(set)
 
 		# for complexID in self.complexationComplexNames:
-		# 	for subunitID in self.getComplexMonomers(complexID)[0]:
+		# 	for subunitID in self.getComplexMonomers(complexID)['subunitIds']:
 		# 		subunitComplexes[subunitID].add(complexID)
 
 		# ids = set()
@@ -3032,7 +3032,7 @@ class KnowledgeBaseEcoli(object):
 
 		info = self._moleculeRecursiveSearch(cplxId, self.complexationStoichMatrix(), np.array(self.complexationMoleculeNames))
 
-		return np.array(info.keys()), np.array(info.values())
+		return {'subunitIds' : np.array(info.keys()), 'subunitStoich' : -1 * np.array(info.values())}
 
 	def _findRow(self, product,speciesList):
 	
