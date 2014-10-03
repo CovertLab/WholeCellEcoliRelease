@@ -290,7 +290,7 @@ class KnowledgeBaseEcoli(object):
 				'id': u'CPLX-30S{}'.format(letters[idx]),
 				'location': u'c',
 				'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
-				'name': u'30S ribosomal subunit rrn{}'.format(letters[idx]),
+				#'name': u'30S ribosomal subunit rrn{}'.format(letters[idx]),
 				'reactionId': u'CPLX-30S{}_RXN'.format(letters[idx])}
 
 			self._proteinComplexes.append(newComplex)
@@ -311,7 +311,7 @@ class KnowledgeBaseEcoli(object):
 					'form': 'mature',
 					'location': u'c',
 					'molecule': rRNA[:-3],
-					'type': 'proteinmonomers'
+					'type': 'rna'
 					})
 
 			newStoichiometry.append({
@@ -331,37 +331,74 @@ class KnowledgeBaseEcoli(object):
 
 			self._complexationReactions.append(newComplexationReaction)
 
-		# remaining5SrRNA = S50_5S_RRNAS[1:]
-		# remaining23SrRNA = S50_23S_RRNAS[1:]
-		# letters = [x[3] for x in remaining23SrRNA]
-		# formationReaction50S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-50SA_RXN'][0]
-		# for idx in range(len(remaining23SrRNA)):
-		# 	newComplex = {
-		# 		'comments': u'',
-		# 		'id': u'CPLX-50S{}'.format(letters[idx]),
-		# 		'location': u'c',
-		# 		'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
-		# 		'name': u'50S ribosomal subunit rrn{}'.format(letters[idx]),
-		# 		'reactionId': u'CPLX-50S{}_RXN'.format(letters[idx])}
+		remaining5SrRNA = S50_5S_RRNAS[1:]
+		remaining23SrRNA = S50_23S_RRNAS[1:]
+		letters = [x[3] for x in remaining23SrRNA]
+		for idx in range(len(remaining23SrRNA)):
+			newComplex = {
+				'comments': u'',
+				'id': u'CPLX-50S{}'.format(letters[idx]),
+				'location': u'c',
+				'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
+				#'name': u'50S ribosomal subunit rrn{}'.format(letters[idx]),
+				'reactionId': u'CPLX-50S{}_RXN'.format(letters[idx])}
 
-		# 	self._proteinComplexes.append(newComplex)
+			self._proteinComplexes.append(newComplex)
 
-		# 	newComplexationReaction = {
-		# 		'dir' : 1,
-		# 		'id': u'CPLX-50S{}_RXN'.format(letters[idx]),
-		# 		'process' : 'complexation',
-		# 		'stoichiometry' : copy.copy(formationReaction30S)
-		# 		}
+			newStoichiometry = []
+			for protein_idx,protein in enumerate(S50_PROTEINS):
+				newSubunit = {
+					'coeff': -1.*S50_PROTEINS_STOICHIOMETRY[protein_idx],
+					'form': 'mature',
+					'location': u'c',
+					'molecule': protein[:-3],
+					'type': 'proteinmonomers'
+					}
+				newStoichiometry.append(newSubunit)
 
-		# 	for molecule in newComplexationReaction['stoichiometry']:
-		# 		if molecule['molecule'] == 'RRLA-RRNA':
-		# 			molecule['molecule'] = remaining23SrRNA[idx][:-3]
-		# 		if molecule['molecule'] == 'RRFA-RRNA':
-		# 			molecule['molecule'] = remaining5SrRNA[idx][:-3]
-		# 		if molecule['molecule'] == 'CPLX-50SA':
-		# 			molecule['molecule'] = 'CPLX-50S{}'.format(letters[idx])
 
-		# 	self._complexationReactions.append(newComplexationReaction)
+			for cplx_idx,cplx in enumerate(S50_PROTEIN_COMPLEXES):
+				newSubunit = {
+					'coeff': -1.*S50_PROTEIN_COMPLEXES_STOICHIOMETRY[cplx_idx],
+					'form': 'mature',
+					'location': u'c',
+					'molecule': cplx[:-3],
+					'type': 'proteincomplex'
+					}
+				newStoichiometry.append(newSubunit)
+
+			newStoichiometry.append({
+					'coeff': -1.*S50_23S_RRNAS_STOICHIOMETRY[idx],
+					'form': 'mature',
+					'location': u'c',
+					'molecule': remaining23SrRNA[idx][:-3],
+					'type': 'rna'
+					})
+
+			newStoichiometry.append({
+					'coeff': -1.*S50_5S_RRNAS_STOICHIOMETRY[idx],
+					'form': 'mature',
+					'location': u'c',
+					'molecule': remaining5SrRNA[idx][:-3],
+					'type': 'rna'
+					})
+
+			newStoichiometry.append({
+					'coeff': 1.,
+					'form': 'mature',
+					'location': u'c',
+					'molecule': 'CPLX-50S{}'.format(letters[idx]),
+					'type': 'proteincomplex'
+					})
+
+			newComplexationReaction = {
+				'dir' : 1,
+				'id': u'CPLX-30S{}_RXN'.format(letters[idx]),
+				'process' : 'complexation',
+				'stoichiometry' : newStoichiometry
+				}
+
+			self._complexationReactions.append(newComplexationReaction)
 
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
