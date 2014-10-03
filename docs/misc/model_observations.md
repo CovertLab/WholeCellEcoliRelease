@@ -31,3 +31,5 @@ In E. coli replicaiton initiation occurs at the end of the cell cycle (doubling 
 (7) Show that ribosomes control the growth rate with new FBA implementation with pools (pulling instead of pushin)
 
 (8) Cell start to break down glycogen when it was starving. Dry mass decrease. Don't think any other FBA can predict this.
+
+(9) When elongation rate was increased from ~40 nt/s to ~80 nt/s for rRNA the fraction active of RNAP dropped 5% due to the increase in termination of RNAP on rRNAs. This caused the total rate of growth of major mass fractions to remain relativly invariant. Pretty cool.
