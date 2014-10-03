@@ -284,7 +284,6 @@ class KnowledgeBaseEcoli(object):
 		# Ignoring extra 5S rRNA
 		remaining16SrRNA = S30_16S_RRNAS[1:]
 		letters = [x[3] for x in remaining16SrRNA]
-		formationReaction30S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-30SA_RXN'][0]
 		for idx,rRNA in enumerate(remaining16SrRNA):
 			newComplex = {
 				'comments': u'',
@@ -296,52 +295,73 @@ class KnowledgeBaseEcoli(object):
 
 			self._proteinComplexes.append(newComplex)
 
+			newStoichiometry = []
+			for protein_idx,protein in enumerate(S30_PROTEINS):
+				newSubunit = {
+					'coeff': -1.*S30_PROTEINS_STOICHIOMETRY[protein_idx],
+					'form': 'mature',
+					'location': u'c',
+					'molecule': protein[:-3],
+					'type': 'proteinmonomers'
+					}
+				newStoichiometry.append(newSubunit)
+
+			newStoichiometry.append({
+					'coeff': -1.*S30_16S_RRNAS_STOICHIOMETRY[idx],
+					'form': 'mature',
+					'location': u'c',
+					'molecule': rRNA[:-3],
+					'type': 'proteinmonomers'
+					})
+
+			newStoichiometry.append({
+					'coeff': 1.,
+					'form': 'mature',
+					'location': u'c',
+					'molecule': 'CPLX-30S{}'.format(letters[idx]),
+					'type': 'proteincomplex'
+					})
+
 			newComplexationReaction = {
 				'dir' : 1,
 				'id': u'CPLX-30S{}_RXN'.format(letters[idx]),
 				'process' : 'complexation',
-				'stoichiometry' : copy.copy(formationReaction30S)
+				'stoichiometry' : newStoichiometry
 				}
-
-			for molecule in newComplexationReaction['stoichiometry']:
-				if molecule['molecule'] == 'RRSA-RRNA':
-					molecule['molecule'] = rRNA[:-3]
-				if molecule['molecule'] == 'CPLX-30SA':
-					molecule['molecule'] = 'CPLX-30S{}'.format(letters[idx])
 
 			self._complexationReactions.append(newComplexationReaction)
 
-		remaining5SrRNA = S50_5S_RRNAS[1:]
-		remaining23SrRNA = S50_23S_RRNAS[1:]
-		letters = [x[3] for x in remaining23SrRNA]
-		formationReaction50S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-50SA_RXN'][0]
-		for idx in range(len(remaining23SrRNA)):
-			newComplex = {
-				'comments': u'',
-				'id': u'CPLX-50S{}'.format(letters[idx]),
-				'location': u'c',
-				'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
-				'name': u'50S ribosomal subunit rrn{}'.format(letters[idx]),
-				'reactionId': u'CPLX-50S{}_RXN'.format(letters[idx])}
+		# remaining5SrRNA = S50_5S_RRNAS[1:]
+		# remaining23SrRNA = S50_23S_RRNAS[1:]
+		# letters = [x[3] for x in remaining23SrRNA]
+		# formationReaction50S = [x['stoichiometry'] for x in self._complexationReactions if x['id'] == 'CPLX-50SA_RXN'][0]
+		# for idx in range(len(remaining23SrRNA)):
+		# 	newComplex = {
+		# 		'comments': u'',
+		# 		'id': u'CPLX-50S{}'.format(letters[idx]),
+		# 		'location': u'c',
+		# 		'mw': np.zeros(len(MOLECULAR_WEIGHT_ORDER)),
+		# 		'name': u'50S ribosomal subunit rrn{}'.format(letters[idx]),
+		# 		'reactionId': u'CPLX-50S{}_RXN'.format(letters[idx])}
 
-			self._proteinComplexes.append(newComplex)
+		# 	self._proteinComplexes.append(newComplex)
 
-			newComplexationReaction = {
-				'dir' : 1,
-				'id': u'CPLX-50S{}_RXN'.format(letters[idx]),
-				'process' : 'complexation',
-				'stoichiometry' : copy.copy(formationReaction30S)
-				}
+		# 	newComplexationReaction = {
+		# 		'dir' : 1,
+		# 		'id': u'CPLX-50S{}_RXN'.format(letters[idx]),
+		# 		'process' : 'complexation',
+		# 		'stoichiometry' : copy.copy(formationReaction30S)
+		# 		}
 
-			for molecule in newComplexationReaction['stoichiometry']:
-				if molecule['molecule'] == 'RRLA-RRNA':
-					molecule['molecule'] = remaining23SrRNA[idx][:-3]
-				if molecule['molecule'] == 'RRFA-RRNA':
-					molecule['molecule'] = remaining5SrRNA[idx][:-3]
-				if molecule['molecule'] == 'CPLX-50SA':
-					molecule['molecule'] = 'CPLX-50S{}'.format(letters[idx])
+		# 	for molecule in newComplexationReaction['stoichiometry']:
+		# 		if molecule['molecule'] == 'RRLA-RRNA':
+		# 			molecule['molecule'] = remaining23SrRNA[idx][:-3]
+		# 		if molecule['molecule'] == 'RRFA-RRNA':
+		# 			molecule['molecule'] = remaining5SrRNA[idx][:-3]
+		# 		if molecule['molecule'] == 'CPLX-50SA':
+		# 			molecule['molecule'] = 'CPLX-50S{}'.format(letters[idx])
 
-			self._complexationReactions.append(newComplexationReaction)
+		# 	self._complexationReactions.append(newComplexationReaction)
 
 	def _defineConstants(self):
 		self._aaWeights = collections.OrderedDict()
