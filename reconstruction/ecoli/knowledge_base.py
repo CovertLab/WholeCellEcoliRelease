@@ -87,9 +87,10 @@ class KnowledgeBaseEcoli(object):
 
 		loadedAttrs = set(dir(self)) - defaultAttrs
 		
-		self._loadPromoters() # Need the attributes; will not be deleted
-		self._loadTranscriptionUnits() # Need the attributes; will not be deleted
-		self._countATinPromoters()
+		self._loadPromoters() 
+		self._loadTerminators()
+		self._loadTranscriptionUnits() 
+		#self._countATinPromoters()
 		
 		# Create data structures for simulation
 		self._buildAllMasses() # called early because useful for other builders
@@ -691,6 +692,94 @@ class KnowledgeBaseEcoli(object):
 								"form": "mature", 
 								"type":  thisType
 								}
+
+	def _loadPromoters(self):
+		self._promoters = []
+		self._promoterDbId = {}
+
+		self._checkDatabaseAccess(Promoter)		
+		all_pr = Promoter.objects.all()
+		for i in all_pr:
+			self._promoterDbId[i.id] = i.promoter_id
+			p = {
+				"id":i.promoter_id,
+				"name":str(i.name),
+				"position":int(i.position),
+				"direction":str(i.direction)
+			}
+			if p["direction"] == "f":
+				p["direction"] = '+'
+			else:
+				p["direction"] = '-'
+	
+			self._promoters.append(p)
+
+	def _loadTerminators(self):
+		self._terminators = []
+		self._terminatorDbId = {}
+
+		self._checkDatabaseAccess(Terminator)		
+		all_tr = Terminator.objects.all()
+		for i in all_tr:
+			self._terminatorDbId[i.id] = i.terminator_id
+			t = {
+				"id":i.terminator_id,
+				"name":str(i.name),
+				"left":int(i.left),
+				"right":int(i.right),
+				"rho":str(i.rho_dependent)
+			}
+			
+			self._terminators.append(t)
+
+	def _loadTranscriptionUnits(self):
+		
+		self._transcriptionUnits = []
+				
+		#gene
+		tu_gene = {}
+		self._checkDatabaseAccess(TranscriptionUnitGene)		
+		all_tg = TranscriptionUnitGene.objects.all()
+		for i in all_tg:
+			tu = i.transcriptionunit_id_fk_id
+			gene = self._geneDbIds[i.gene_id_fk_id]
+			if tu in tu_gene:
+				tu_gene[tu].append(gene)
+			else:
+				tu_gene[tu] = [gene]
+	
+		#terminator 
+		tu_tr = {}
+		self._checkDatabaseAccess(TranscriptionUnitTerminator)		
+		all_tt = TranscriptionUnitTerminator.objects.all()
+		for i in all_tt:
+			tu = i.transcription_unit_id_fk_id
+			tr = self._terminatorDbId[i.terminator_id_fk_id]
+			if tu in tu_tr:
+				tu_tr[tu].append(tr)
+			else:
+				tu_tr[tu] = [tr]
+	
+
+		self._checkDatabaseAccess(TranscriptionUnit)		
+		all_tu = TranscriptionUnit.objects.all()
+		for i in all_tu:
+			t = {
+				"id":i.transcription_unit_id,
+				"name":str(i.name),
+				"left":int(i.left),
+				"right":int(i.right),
+				"direction":str(i.direction),
+				"degradation_rate": float(i.degradation_rate), 
+				"expression_rate": float(i.expression_rate),
+				"promoter_id": self._promoterDbId[i.promoter_id_fk_id],
+				"gene_id": tu_gene[i.id],
+				"terminator_id": tu_tr[i.id],
+			}
+				
+			self._transcriptionUnits.append(t)
+
+
 
 	def _loadBiomassFractions(self):
 
@@ -1513,30 +1602,7 @@ class KnowledgeBaseEcoli(object):
 
 			self._reactions.append(r)
 					
-
-	def _loadPromoters(self):
-		self._promoters = []
-		self._promoterDbId = {}
-
-		self._checkDatabaseAccess(Promoter)		
-		all_pr = Promoter.objects.all()
-		for i in all_pr:
-			self._promoterDbId[i.id] = i.promoter_id
-			p = {
-				"id":i.promoter_id,
-				"name":str(i.name),
-				"position":int(i.position),
-				"direction":str(i.direction)
-			}
-			if p["direction"] == "f":
-				p["direction"] = '+'
-				p["seq"] = self._genomeSeq[(p["position"]-100): (p["position"] + 100)]
-			else:
-				p["direction"] = '-'
-				p["seq"] = Bio.Seq.Seq(self._genomeSeq[(p["position"]-100): (p["position"] + 100)]).reverse_complement().tostring()
-	
-			self._promoters.append(p)
-
+	'''
 	def _loadTranscriptionUnits(self):
 		
 		self._transcriptionUnits = []
@@ -1581,16 +1647,6 @@ class KnowledgeBaseEcoli(object):
 		for p in self._promoters:
 			p['TU'] = tu_pr[p['id']]
 
-
-	def _loadMetaboliteConcentrations(self):
-		# TODO: move data to SQL and load here
-
-		self._metaboliteConcentrations = [
-			(metaboliteID.upper(), concentration)
-			for metaboliteID, concentration in METABOLITE_CONCENTRATIONS.viewitems()
-			]
-
-
 	def _countATinPromoters(self):
 		
 		geneLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._genes)])
@@ -1621,7 +1677,17 @@ class KnowledgeBaseEcoli(object):
 			x = sum(genes_pr[g['id']])/float(len(genes_pr[g['id']]))
 			#print g['id'],'\t',g['name'],'\t',g['symbol'],'\t',x ,'\t', len(genes_pr[g['id']])
 		#print total
+	'''
 
+	def _loadMetaboliteConcentrations(self):
+		# TODO: move data to SQL and load here
+
+		self._metaboliteConcentrations = [
+			(metaboliteID.upper(), concentration)
+			for metaboliteID, concentration in METABOLITE_CONCENTRATIONS.viewitems()
+			]
+	
+	
 	def _calcMolecularWeightFromRxn(self):
 		
 		complexReactionLookUp = dict([(x[1]["id"], x[0]) for x in enumerate(self._complexationReactions)])
