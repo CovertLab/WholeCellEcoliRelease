@@ -2065,7 +2065,7 @@ AA_SYNTHETASE_GROUPS = collections.OrderedDict([
 		('H', ['HISS-CPLX[c]']),
 		('I', ['ILES-MONOMER[c]']),
 		('L', ['LEUS-MONOMER[c]']),
-		('K', ['LYSS-CPLX[c]', 'LYSU-CPLX[c]']),
+		('K', ['LYSS-CPLX[c]', 'LYSU-CPLX[c]']), # TODO: LysU only expressed under head shock response - check this!
 		('M', ['METG-CPLX[o]']), # TODO: URGENT! Fix this in the KB so that the synthetase is located in the cytosol!
 		('F', ['PHES-CPLX[c]']),
 		('P', ['PROS-CPLX[c]']),
