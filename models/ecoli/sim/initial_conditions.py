@@ -231,7 +231,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	if activeRnapMax == 0:
 		return
 
-	activeRnapCount = np.int64(activeRnapMax * kb.fracActiveRnap)
+	activeRnapCount = np.int64(activeRnapMax * kb.fracActiveRnap * 2) # HACK
 
 	# Load RNA data
 	rnaIds = kb.rnaData["id"]

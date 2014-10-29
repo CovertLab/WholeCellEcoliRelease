@@ -23,6 +23,7 @@ FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100%
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
+FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
 
 # TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
@@ -43,6 +44,12 @@ def fitKb_1(kb):
 	mRNA_indexes = kb.rnaIndexToMonomerMapping[subunitIndexes]
 
 	kb.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
+
+	# nRNAs = kb.rnaExpression["expression"].size
+	# kb.rnaExpression["expression"] = np.ones(nRNAs) / nRNAs
+	# # WARNING - this doesn't update synthesis probabilities; for the moment, it doesn't need to
+
+	# e = kb.rnaExpression["expression"].copy()
 
 	# Fit synthesis probabilities for RNA
 
@@ -69,6 +76,10 @@ def fitKb_1(kb):
 
 	else:
 		raise Exception("Fitting did not converge")
+
+	# print np.linalg.norm(
+	# 	e[kb.rnaData["isMRna"]] - kb.rnaExpression["expression"][kb.rnaData["isMRna"]],
+	# 	2)
 
 	# Modify other properties
 
@@ -269,12 +280,11 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	# Minimum number of ribosomes needed
 	constraint1_ribosome30SCounts = (
 		nRibosomesNeeded * ribosome30SStoich
-		)
+		) * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
 
 	constraint1_ribosome50SCounts = (
 		nRibosomesNeeded * ribosome50SStoich
-		)
-
+		) * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
 
 
 	# -- CONSTRAINT 2: Measured rRNA mass fraction -- #
@@ -311,8 +321,10 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 		ribosome50SSubunits
 		)
 
-	# if np.any(ribosome30SView.counts() / ribosome30SStoich < nRibosomesNeeded) or np.any(ribosome50SView.counts() / ribosome50SStoich < nRibosomesNeeded):
-	# 	raise NotImplementedError, "Cannot handle having too few ribosomes"
+	# Fix rRNA counts
+	bulkContainer.countsIs(rRna23SCounts, kb.rnaData["id"][kb.rnaData["isRRna23S"]])
+	bulkContainer.countsIs(rRna16SCounts, kb.rnaData["id"][kb.rnaData["isRRna16S"]])
+	bulkContainer.countsIs(rRna5SCounts, kb.rnaData["id"][kb.rnaData["isRRna5S"]])
 
 
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):

@@ -51,7 +51,28 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb = kb.rnaData['synthProb']
 
-		self.activationProb = kb.transcriptionActivationRate.asNumber(1/units.s) * self.timeStepSec # TODO: consider the validity of this math
+		# self.activationProb = kb.transcriptionActivationRate.asNumber(1/units.s) * self.timeStepSec # TODO: consider the validity of this math
+
+		rnaLengths = kb.rnaData["length"]
+
+		expectedTranscriptionTime = 1./kb.rnaPolymeraseElongationRate * rnaLengths
+
+		expectedTranscriptionTimesteps = np.ceil(
+			(1/(self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber()
+			)
+
+		averageTranscriptionTimesteps = np.dot(kb.rnaData["synthProb"], expectedTranscriptionTimesteps)
+
+		expectedTerminationRate = 1./averageTranscriptionTimesteps
+
+		expectedFractionTimeInactive = np.dot(
+			1 - (1/(self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
+			kb.rnaData["synthProb"]
+			)
+
+		effectiveFractionActive = kb.fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
+
+		self.activationProb = effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
 
 		# Views
 
