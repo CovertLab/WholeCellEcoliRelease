@@ -21,12 +21,30 @@ GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
 FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100% to 20% depending on the growth rate
 
+# Hacks
+RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
+
 # TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
 def fitKb_1(kb):
+
+	# Increase RNA poly mRNA deg rates
+	# TODO: move to function
+	# TODO: set this based on transcription unit structure
+	# i.e. same synthesis prob. but different deg rates
+
+	rnaPolySubunits = kb.getComplexMonomers("APORNAP-CPLX[c]")["subunitIds"]
+
+	subunitIndexes = np.array([np.where(kb.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
+
+	mRNA_indexes = kb.rnaIndexToMonomerMapping[subunitIndexes]
+
+	kb.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
+
+	# Fit synthesis probabilities for RNA
 
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 
@@ -38,7 +56,7 @@ def fitKb_1(kb):
 
 		setRNAPCountsConstrainedByPhysiology(kb, bulkContainer)
 
-		## Normalize expression and write out changes
+		# Normalize expression and write out changes
 
 		fitExpression(kb, bulkContainer)
 
