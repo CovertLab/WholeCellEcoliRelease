@@ -191,7 +191,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		updatedLengths = peptideLengths + sequenceElongations
 
 		didInitialize = (
-			(sequenceElongations > 1) &
+			(sequenceElongations > 0) &
 			(peptideLengths == 0)
 			)
 
