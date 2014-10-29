@@ -20,6 +20,17 @@ import wholecell.utils.constants
 
 THRESHOLD = 1e-13 # roughly, the mass of an electron
 
+FG_PER_DALTON = 1.6605402e-9
+
+# TODO: get these from the KB
+REPRESENTATIVE_MASSES = {
+	"proton":1.007 * FG_PER_DALTON,
+	"amino acid":109 * FG_PER_DALTON,
+	"ATP":551 * FG_PER_DALTON,
+	"protein":40e3 * FG_PER_DALTON,
+	"ribosome":2700e3 * FG_PER_DALTON
+	}
+
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	if not os.path.isdir(simOutDir):
@@ -53,7 +64,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	axes.plot([THRESHOLD, THRESHOLD], [index[0], index[-1]+width], 'k--', linewidth=3)
 
-	# axes.legend((r1, r2), ("Positive", "Negative"))
+	plt.text(THRESHOLD, index[-1], "electron", rotation = "vertical", va = "center", ha = "right")
+
+	for name, mass in REPRESENTATIVE_MASSES.viewitems():
+		plt.axvline(mass, color = "k")
+		plt.text(mass, index[-1], name, rotation = "vertical", va = "center", ha = "right")
 
 	plt.xlabel("Mass difference (fg)")
 
