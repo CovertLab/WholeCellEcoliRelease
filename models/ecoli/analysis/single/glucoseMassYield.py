@@ -22,7 +22,7 @@ from wholecell.utils import units
 
 GLUCOSE_ID = "GLC-D[e]"
 
-FLUX_UNITS = units.mol / units.L / units.s
+FLUX_UNITS = units.mmol / units.L / units.s
 MASS_UNITS = units.fg
 GROWTH_UNITS = units.fg / units.s
 
