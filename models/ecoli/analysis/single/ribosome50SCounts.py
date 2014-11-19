@@ -18,30 +18,11 @@ from matplotlib import pyplot as plt
 import cPickle
 
 import wholecell.utils.constants
+from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
 
 FONT = {
 		'size'	:	8
 		}
-
-def setAxisMaxMin(axis, data):
-	ymax = np.max(data)
-	ymin = 0
-	if ymin == ymax:
-		axis.set_yticks([ymin])
-	else:
-		axis.set_yticks([ymin, ymax])
-
-def sparklineAxis(axis, x, y, tickPos, lineType, color):
-	axis.plot(x, y, linestyle = 'steps' + lineType, color = color, linewidth = 2)
-	axis.spines['top'].set_visible(False)
-	axis.spines['bottom'].set_visible(False)
-	axis.yaxis.set_ticks_position(tickPos)
-	axis.xaxis.set_ticks_position('none')
-	axis.tick_params(which = 'both', direction = 'out')
-	axis.tick_params(labelbottom = 'off')
-	for tl in axis.get_yticklabels():
-		tl.set_color(color)
-
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.isdir(simOutDir):
@@ -88,11 +69,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		rna_axis = plt.subplot(17, 3, idx + 1)
 
 		sparklineAxis(rna_axis, time / 60., rnaCounts[:, idx], 'left', '-', 'b')
-		setAxisMaxMin(rna_axis, rnaCounts[:, idx])
+		setAxisMaxMinY(rna_axis, rnaCounts[:, idx])
 
 		protein_axis = rna_axis.twinx()
 		sparklineAxis(protein_axis, time / 60., freeProteinCounts[:, idx], 'right', '-', 'r')
-		setAxisMaxMin(protein_axis, freeProteinCounts[:, idx])
+		setAxisMaxMinY(protein_axis, freeProteinCounts[:, idx])
 
 		# Component label
 		rna_axis.set_xlabel(proteinIds[idx][:-3])
@@ -102,7 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 		sparklineAxis(rna_axis, time / 60., freeRRnaCounts[:, idx], 'left', '-', 'b')
 
-		setAxisMaxMin(rna_axis, freeRRnaCounts[:, idx])
+		setAxisMaxMinY(rna_axis, freeRRnaCounts[:, idx])
 
 		# Component label
 		rna_axis.set_xlabel(rRnaIds[idx][:-3])
@@ -111,7 +92,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		complex_axis = plt.subplot(17, 3, idx + len(proteinIds) + len(rRnaIds) + 1)
 
 		sparklineAxis(complex_axis, time / 60., complexCounts[:, idx], 'left', '-', 'r')
-		setAxisMaxMin(complex_axis, complexCounts[:, idx])
+		setAxisMaxMinY(complex_axis, complexCounts[:, idx])
 
 		# Component label
 		complex_axis.set_xlabel(complexIds[idx][:-3])
@@ -119,7 +100,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	# Plot number of ribosomes
 	ribosome_axis = plt.subplot(17, 3, 1 + len(proteinIds) + len(rRnaIds) + len(complexIds) + 1)
 	sparklineAxis(ribosome_axis, time / 60., activeRibosome, 'left', '-', 'r')
-	setAxisMaxMin(ribosome_axis, activeRibosome)
+	setAxisMaxMinY(ribosome_axis, activeRibosome)
 	ribosome_axis.set_xlabel('Active ribosome')
 
 	# Save
