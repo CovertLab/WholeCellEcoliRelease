@@ -259,4 +259,4 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "synthetaseCapacity", synthetaseCapacity)
 
 		self.writeToListener("RibosomeData", "expectedElongations", expectedElongations)
-		self.writeToListener("RibosomeData", "sequenceElongations", sequenceElongations)
+		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations)

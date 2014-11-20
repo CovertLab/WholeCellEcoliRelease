@@ -45,7 +45,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.aaCounts = None
 		self.trnasCapacity = None
 		self.synthetaseCapacity = None
-		self.sequenceElongations = None
+		self.actualElongations = None
 
 
 		# Logged quantities
@@ -72,7 +72,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.aaCounts = np.zeros(21, np.int64)
 		self.trnasCapacity = np.zeros(21, np.int64)
 		self.synthetaseCapacity = np.zeros(21, np.int64)
-		self.sequenceElongations = np.nan
+		self.actualElongations = np.nan
+		self.expectedElongations = np.nan
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -101,7 +102,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			"aaCounts": tables.Float64Col(self.aaCounts.size),
 			"trnasCapacity": tables.Float64Col(self.trnasCapacity.size),
 			"synthetaseCapacity": tables.Float64Col(self.synthetaseCapacity.size),
-			"sequenceElongations": tables.Float64Col(),
+			"actualElongations": tables.Float64Col(),
+			"expectedElongations": tables.Float64Col(),
 			}
 
 		table = h5file.create_table(
@@ -128,7 +130,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		entry["aaCounts"] = self.aaCounts
 		entry["trnasCapacity"] = self.trnasCapacity
 		entry["synthetaseCapacity"] = self.synthetaseCapacity
-		entry["sequenceElongations"] = self.spoT_saturation
+		entry["actualElongations"] = self.actualElongations
+		entry["expectedElongations"] = self.expectedElongations
 
 		entry.append()
 
