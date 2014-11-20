@@ -46,6 +46,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.trnasCapacity = None
 		self.synthetaseCapacity = None
 		self.actualElongations = None
+		self.expectedElongations = None
 
 
 		# Logged quantities

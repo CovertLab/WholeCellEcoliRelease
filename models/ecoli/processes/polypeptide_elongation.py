@@ -258,5 +258,5 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "trnasCapacity", trnasCapacity)
 		self.writeToListener("RibosomeData", "synthetaseCapacity", synthetaseCapacity)
 
-		self.writeToListener("RibosomeData", "expectedElongations", expectedElongations)
-		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations)
+		self.writeToListener("RibosomeData", "expectedElongations", expectedElongations.sum())
+		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())

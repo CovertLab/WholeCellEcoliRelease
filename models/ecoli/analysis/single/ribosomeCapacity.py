@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 import wholecell.utils.constants
+from wholecell.utils import units
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
 
 FONT = {
@@ -37,14 +38,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	elongationRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s))
 	
 	# Load ribosome data
-	with tables.open_file(os.path.join(simOutDir, "GrowthRateControl.hdf")) as massFile:
-		table = massFile.root.GrowthRateControl
+	with tables.open_file(os.path.join(simOutDir, "RibosomeData.hdf")) as massFile:
+		table = massFile.root.RibosomeData
 		actualElongations = table.col("actualElongations")
 		expectedElongations_recorded = table.col("expectedElongations")
 		time = table.col("time")
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+
 		# Get indexes
 		moleculeIds = bulkMoleculesFile.root.names.moleculeIDs.read()
 		ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
@@ -64,15 +67,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
 
-	activeRibosomeCapacity_axis = plt.subplot(2,1,1)
-	sparklineAxis(activeRibosomeCapacity_axis, time / 60., activeRibosomeCapacity, 'left', '-', 'b')
-	setAxisMaxMinY(activeRibosomeCapacity_axis, activeRibosomeCapacity)
-	activeRibosomeCapacity_axis.set_ylabel("Active ribosome capacity (aa)")
+	totalRibosomeCapacity_axis = plt.subplot(2,1,1)
+	sparklineAxis(totalRibosomeCapacity_axis, time / 60., totalRibosomeCapacity, 'left', '-', 'b')
+	setAxisMaxMinY(totalRibosomeCapacity_axis, totalRibosomeCapacity)
+	totalRibosomeCapacity_axis.set_ylabel("Total ribosome capacity (aa)")
 
-	actualElongation_axis = activeRibosomeCapacity.twinx()
-	sparklineAxis(actualElongation_axis, time / 60., actualElongations, 'right', '-', 'r')
-	setAxisMaxMinY(actualElongation_axis, actualElongation)
-	actualElongation_axis.set_ylabel("Actual elongations (aa)")
+	actualElongations_axis = totalRibosomeCapacity_axis.twinx()
+	sparklineAxis(actualElongations_axis, time / 60., actualElongations, 'right', '-', 'r')
+	setAxisMaxMinY(actualElongations_axis, actualElongations)
+	actualElongations_axis.set_ylabel("Actual elongations (aa)")
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
