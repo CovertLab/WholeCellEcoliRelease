@@ -74,7 +74,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	actualElongations_axis = totalRibosomeCapacity_axis.twinx()
 	sparklineAxis(actualElongations_axis, time / 60., actualElongations, 'right', '-', 'r')
-	setAxisMaxMinY(actualElongations_axis, actualElongations)
+	setAxisMaxMinY(actualElongations_axis, totalRibosomeCapacity)
 	actualElongations_axis.set_ylabel("Actual elongations (aa)")
 
 	# Save
