@@ -67,15 +67,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
 
-	totalRibosomeCapacity_axis = plt.subplot(2,1,1)
-	sparklineAxis(totalRibosomeCapacity_axis, time / 60., totalRibosomeCapacity, 'left', '-', 'b')
-	setAxisMaxMinY(totalRibosomeCapacity_axis, totalRibosomeCapacity)
-	totalRibosomeCapacity_axis.set_ylabel("Total ribosome capacity (aa)")
+	ribosomeCapacity_axis = plt.subplot(2,1,1)
+	ribosomeCapacity_axis.plot(time / 60., totalRibosomeCapacity, label="Total ribosome capacity", linewidth=2, color='b')
+	ribosomeCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
+	ribosomeCapacity_axis.set_ylabel("amino acids polymerized")
+	ribosomeCapacity_axis.legend(ncol=2)
 
-	actualElongations_axis = totalRibosomeCapacity_axis.twinx()
-	sparklineAxis(actualElongations_axis, time / 60., actualElongations, 'right', '-', 'r')
-	setAxisMaxMinY(actualElongations_axis, totalRibosomeCapacity)
-	actualElongations_axis.set_ylabel("Actual elongations (aa)")
+
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
