@@ -4,7 +4,7 @@ CONTROL_OUTPUT = dict(
 	desc = "Control simulation"
 	)
 
-def variant_prototype_KO(kb, index):
+def variantPrototypeKO(kb, index):
 	# Knocks-out genes in order
 
 	nGenes = kb.rnaData.fullArray().size
