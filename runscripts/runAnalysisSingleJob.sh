@@ -125,7 +125,7 @@ runprogram()
 
 		echo "Running $(basename $SCRIPT)"
 
-		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 "$SCRIPT" "$MY_SPECIFIC_RESULTS_DIR" "$MY_SPECIFIC_PLOTS_DIR" "${OUT_NAME}.pdf" --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/kb/KnowledgeBase_Most_Fit.cPickle"
+		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 "$SCRIPT" "$MY_SPECIFIC_RESULTS_DIR" "$MY_SPECIFIC_PLOTS_DIR" "${OUT_NAME}.svg" --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/kb/KnowledgeBase_Most_Fit.cPickle"
 	done 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 	IFS=$SAVEIFS
 }
