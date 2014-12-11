@@ -1,0 +1,54 @@
+<!doctype html>
+
+<html>
+<head>
+	<title>WholeCell Model - E. coli Images</title>
+</head>
+
+<body>		
+
+	<p id="fileContents"></p>
+	<div id="table_container"></div>
+
+	<script>
+		var cont = getUrlVars()["content"];
+		document.getElementById("fileContents").innerHTML = cont;
+	
+		//show images
+		var files = getUrlVars()["var1"];
+		var directory = getUrlVars()["dir"];
+
+		var myPhoto = files.split(',');
+		for (var i=0, len = myPhoto.length; i < len; ++i){ 
+			var x = directory.concat("plotOut/");
+			var x = x.concat(myPhoto[i]);
+			myPhoto[i] = x;
+		}
+		var names = myPhoto;
+
+		var alldata = "<p></p>";
+		for (var i=0, len = names.length; i < len; ++i) {
+			var onlyName = names[i].split('/');
+			onlyName = onlyName[onlyName.length-1];
+
+			var cont = "<a href=\"".concat(myPhoto[i]);
+			cont = cont.concat("\" target=\"_blank\"><img class=\"thumbnail\" src=");
+			cont = cont.concat(myPhoto[i]);
+			cont = cont.concat(" width=\"107\" height=\"90\"></a>");
+			alldata = alldata.concat(cont);
+		}
+		document.getElementById("table_container").innerHTML = alldata;
+
+		function getUrlVars() {
+		    var vars = {};
+		
+			var url = window.location.href; //get current url
+			var decodedUrl = decodeURIComponent(url);
+			var parts = decodedUrl.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		        vars[key] = value;
+		    });
+		    return vars;
+		}
+	</script>
+</body>
+</html>
