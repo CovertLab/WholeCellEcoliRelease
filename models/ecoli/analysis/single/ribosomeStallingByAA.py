@@ -29,12 +29,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "RibosomeStalling.hdf")) as h5file:
-		timeStep = h5file.root.RibosomeStalling.col("timeStep")
-		aaCountInSequence = h5file.root.RibosomeStalling.col("aaCountInSequence")
-		aaCounts = h5file.root.RibosomeStalling.col("aaCounts")
-		trnaCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
-		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
+	with tables.open_file(os.path.join(simOutDir, "RibosomeData.hdf")) as h5file:
+		timeStep = h5file.root.RibosomeData.col("timeStep")
+		aaCountInSequence = h5file.root.RibosomeData.col("aaCountInSequence")
+		aaCounts = h5file.root.RibosomeData.col("aaCounts")
+		trnaCapacity = h5file.root.RibosomeData.col("trnasCapacity")
+		synthetaseCapacity = h5file.root.RibosomeData.col("synthetaseCapacity")
 
 	aaCapacity = -1 * (aaCountInSequence - aaCounts)
 	trnaCapacity = -1 * (aaCountInSequence - trnaCapacity)
