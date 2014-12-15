@@ -11,7 +11,7 @@ def geneKnockout(kb, index):
 
 	nConditions = nGenes + 1
 
-	if (index + nGenes) % nConditions == 0:
+	if index % nConditions == 0:
 		return CONTROL_OUTPUT
 
 	geneIndex = (index - 1) % nConditions
