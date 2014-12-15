@@ -45,7 +45,9 @@ def getAlldata(directory):
 
 	f = open(os.path.join(directory,'metadata/git_diff'))
 	for line in f: data['diff'] = data['diff'] + line
-	data['diff'] = data['diff'].strip()
+	data['diff'] = data['diff'].strip().replace('\n','<br>').replace('\t',4*'&nbsp;')
+	if data['diff'] == '':
+		data['diff'] = 'NO DIFF'
 	f.close()
 	
 	f = open(os.path.join(directory,'metadata/git_hash'))
@@ -59,6 +61,7 @@ def makeHeader(fw, simData):
 	fw.write('<html>\n\n')
 	fw.write('<head>\n')
 	fw.write('	<title>WholeCell E. coli - Output files</title>\n')
+	# Format table style
 	fw.write('	<style>\n')
 	fw.write('	table, th, td {\n')
 	fw.write('	    border: 1px solid black;\n')
@@ -68,6 +71,18 @@ def makeHeader(fw, simData):
 	fw.write('	    padding: 15px;\n')
 	fw.write('	}\n')
 	fw.write('	</style>\n')
+
+	# Format collapsable text style
+	fw.write('<style type="text/css">\n')
+	fw.write(' .row { vertical-align: top; height:auto !important; }\n')
+	fw.write(' .text {display:none; }\n')
+	fw.write(' .show {display: none; }\n')
+	fw.write(' .hide:target + .show {display: inline; }\n')
+	fw.write(' .hide:target {display: none; }\n')
+	fw.write(' .hide:target ~ .text {display:inline; }\n')
+	fw.write(' @media print { .hide, .show { display: none; } }\n')
+	fw.write(' </style>\n')
+
 	fw.write('</head>\n\n')
 
 	fw.write('<script>\n\n')
@@ -98,6 +113,7 @@ def makeHeader(fw, simData):
 
 def makeBody(fw, simData):
 	fw.write('<body>\n')
+
 	fw.write('<table style="width:100%">\n')
 	fw.write('  <tr>\n')
 	fw.write('    <td>Description</td>\n')
@@ -107,13 +123,23 @@ def makeBody(fw, simData):
 	fw.write('    <td>Simulations</td>\n')
 	fw.write('  </tr>\n')
 
-	for i in simData:
+	for idx,i in enumerate(simData):
 		if len(simData[i]) == 0: continue
 		getDescriptionData = getAlldata(i) 
 		fw.write('  <tr>\n')
 		fw.write('    <td>'+getDescriptionData['description']+'</td>\n')
 		fw.write('    <td>'+getDescriptionData['branch']+'</td> \n')
-		fw.write('    <td><font size="1">'+getDescriptionData['diff']+'</font></td>\n')
+
+		# Create expand/collapse function for diff
+		fw.write('		<td>\n')
+		fw.write('		<div class="row">\n')
+		fw.write('		 <a href="#hide' + str(idx) + '" class="hide" id="hide' + str(idx) + '">Expand</a>\n')
+		fw.write('		 <a href="#show' + str(idx) + '" class="show" id="show' + str(idx) + '">Collapse</a>\n')
+		fw.write('		 <div class="text">\n')
+		fw.write('			'+getDescriptionData['diff']+'\n')
+		fw.write('		</div>\n</div>\n')
+		fw.write('		</td>\n')
+
 		fw.write('    <td>'+getDescriptionData['hash']+'</td>\n')
 		fw.write('    <td>')
 		for j in simData[i]:
