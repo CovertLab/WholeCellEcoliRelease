@@ -97,7 +97,7 @@ runprogram()
 
 		echo "Running $(basename $SCRIPT)"
 
-		python2.7 $SCRIPT $MY_SUBMISSION_RESULTS_DIR $MY_SUBMISSION_PLOTS_DIR ${OUT_NAME}.pdf
+		python2.7 $SCRIPT $MY_SUBMISSION_RESULTS_DIR $MY_SUBMISSION_PLOTS_DIR ${OUT_NAME}.svg
 	done 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 

@@ -31,6 +31,8 @@ nosetests.*.xml
 
 out/*
 !out/out.txt
+!out/images.html
+!out/makeHtml.py
 
 # Fixtures #
 ############
