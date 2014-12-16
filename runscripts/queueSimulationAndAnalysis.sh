@@ -50,8 +50,9 @@ if [ -z "${LAST_VARIANT_INDEX}" ]; then
 	LAST_VARIANT_INDEX="0"
 fi
 if [ "${LAST_VARIANT_INDEX}" = "-1" ]; then
-	LAST_VARIANT_INDEX="$(PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 ./runscripts/getNumVariants.py "${VARIANT}" "${KB_FIT}")"
+	LAST_VARIANT_INDEX="$(($(PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 ./runscripts/getNumVariants.py "${VARIANT}" "${KB_FIT}") - 1))"
 fi
+echo LAST_VARIANT_INDEX $LAST_VARIANT_INDEX
 
 for (( i=${FIRST_VARIANT_INDEX}; i<=${LAST_VARIANT_INDEX}; i++ )); do
 	VARIANT_DIR="out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${i})"

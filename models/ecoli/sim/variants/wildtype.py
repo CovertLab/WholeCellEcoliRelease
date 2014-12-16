@@ -5,12 +5,9 @@ CONTROL_OUTPUT = dict(
 	)
 
 def wildtypeTotalIndices(kb):
-	return 0
+	return 1
 
 
 def wildtype(kb, index):
 
-	return dict(
-		shortName = "{}_KO".format(geneID),
-		desc = "Complete knockout of {}.".format(geneID)
-		)
+	return CONTROL_OUTPUT
