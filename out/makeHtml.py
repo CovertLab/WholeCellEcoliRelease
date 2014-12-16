@@ -137,7 +137,9 @@ def makeBody(fw, simData):
 		fw.write('		 <a href="#hide' + str(idx) + '" class="hide" id="hide' + str(idx) + '">Expand</a>\n')
 		fw.write('		 <a href="#show' + str(idx) + '" class="show" id="show' + str(idx) + '">Collapse</a>\n')
 		fw.write('		 <div class="text">\n')
+		fw.write('		 <font size="1" face="Courier"><br>')
 		fw.write('			'+getDescriptionData['diff']+'\n')
+		fw.write('		 </font>')
 		fw.write('		</div>\n</div>\n')
 		fw.write('		</td>\n')
 
