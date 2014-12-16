@@ -31,8 +31,16 @@ fi
 
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
 
-KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
+if [ -z "${VARIANT}" ]; then
+	KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
+else
+	if [ -z "${VARIANT_ID}" ]; then
+		echo "VARIANT_ID environmental variable must be set" >&2
+		exit 1
+	fi
+	KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/kb"
+fi
+
 
 echo KB_DIR ${KB_DIR}
 
