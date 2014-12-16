@@ -1,5 +1,6 @@
 import os
 import re
+import argparse
 
 def findFiles(directory,typeFile):
 	if os.path.isdir(directory) == False: return []
@@ -154,9 +155,9 @@ def makeBody(fw, simData):
 	fw.write('</html>\n')
 
 
-def makeHtmlFiles():
+def main(out_directory):
 		
-	outDirectory = os.getcwd()
+	outDirectory = out_directory
 	
 	allSimulations = findDirectories(outDirectory)
 
@@ -182,5 +183,10 @@ def makeHtmlFiles():
 	makeHeader(fw, allSimulationsData)
 	makeBody(fw, allSimulationsData)
 
-####### call functions ############
-makeHtmlFiles()
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("out_directory", type = str)
+
+	args = parser.parse_args().__dict__
+
+	main(args["out_directory"])
