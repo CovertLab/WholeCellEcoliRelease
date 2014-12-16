@@ -4,12 +4,16 @@ CONTROL_OUTPUT = dict(
 	desc = "Control simulation"
 	)
 
+def geneKnockoutTotalIndices(kb):
+	nGenes = kb.rnaData.fullArray().size
+	nConditions = nGenes + 1
+	return nConditions
+
+
 def geneKnockout(kb, index):
 	# Knocks-out genes in order
 
-	nGenes = kb.rnaData.fullArray().size
-
-	nConditions = nGenes + 1
+	nConditions = geneKnockoutTotalIndices(kb)
 
 	if index % nConditions == 0:
 		return CONTROL_OUTPUT
