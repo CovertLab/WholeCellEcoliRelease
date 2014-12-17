@@ -65,7 +65,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 	plt.tight_layout()
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 
 if __name__ == "__main__":

@@ -71,7 +71,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	
 	plt.title("Active Ribosomes")
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 	h.close()
 

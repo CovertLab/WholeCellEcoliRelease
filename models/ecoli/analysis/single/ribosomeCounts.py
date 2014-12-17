@@ -60,7 +60,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.ylabel("Counts")
 	plt.title("Active Ribosomes Final:Initial = %0.2f" % (nActive[-1] / float(nActive[0])))
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 	h.close()
 

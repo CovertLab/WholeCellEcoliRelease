@@ -65,7 +65,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.xlabel("Time (s)")
 	plt.ylabel("g cell / g glucose")
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 
 if __name__ == "__main__":

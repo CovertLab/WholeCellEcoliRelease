@@ -66,7 +66,8 @@ def main(plotOutDir, plotOutFileName, kbDirectory):
 	plt.ylabel('initial rate of aa polymerization (aa/s)')
 	plt.xticks(np.arange(0,21) + 0.4, amino_acid_labels)
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 
 if __name__ == "__main__":
