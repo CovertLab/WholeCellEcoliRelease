@@ -47,8 +47,12 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 				)[0][0] for x in self.metaboliteIds
 		]
 
-		self.transcriptionProcessIdx = sim.processes.keys().index(
-			"TranscriptElongation"
+		self.transcriptionProcessSlowIdx = sim.processes.keys().index(
+			"TranscriptElongationSlow"
+			)
+
+		self.transcriptionProcessFastIdx = sim.processes.keys().index(
+			"TranscriptElongationFast"
 			)
 
 		biomassMetIdxs = [
@@ -79,10 +83,16 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 	def update(self):
 		self.transcriptionNtpUsageCurrent = (
 			self.bulkMolecules._countsAllocatedInitial[
-				self.metaboliteIdxs, self.transcriptionProcessIdx
+				self.metaboliteIdxs, self.transcriptionProcessSlowIdx
+				]
+			+ self.bulkMolecules._countsAllocatedInitial[
+				self.metaboliteIdxs, self.transcriptionProcessFastIdx
 				]
 			- self.bulkMolecules._countsAllocatedFinal[
-				self.metaboliteIdxs, self.transcriptionProcessIdx
+				self.metaboliteIdxs, self.transcriptionProcessSlowIdx
+				]
+			- self.bulkMolecules._countsAllocatedFinal[
+				self.metaboliteIdxs, self.transcriptionProcessFastIdx
 				]
 			)
 

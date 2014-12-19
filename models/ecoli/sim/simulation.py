@@ -16,7 +16,8 @@ from models.ecoli.processes.replication import Replication
 from models.ecoli.processes.polypeptide_initiation import PolypeptideInitiation
 from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
-from models.ecoli.processes.transcript_elongation import TranscriptElongation
+from models.ecoli.processes.transcript_elongation_slow import TranscriptElongationSlow
+from models.ecoli.processes.transcript_elongation_fast import TranscriptElongationFast
 from models.ecoli.processes.protein_degradation import ProteinDegradation
 from models.ecoli.processes.atp_usage import AtpUsage
 
@@ -47,7 +48,8 @@ class EcoliSimulation(Simulation):
 		Metabolism,
 		RnaDegradation,
 		TranscriptInitiation,
-		TranscriptElongation,
+		TranscriptElongationSlow,
+		TranscriptElongationFast,
 		PolypeptideInitiation,
 		PolypeptideElongation,
 		Replication,
