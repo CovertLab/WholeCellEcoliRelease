@@ -30,16 +30,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "RibosomeStalling.hdf")) as h5file:
-		timeStep = h5file.root.RibosomeStalling.col("timeStep")
-		# stallingRateTotal = h5file.root.RibosomeStalling.col("stallingRateTotal")
-		# stallingRateMean = h5file.root.RibosomeStalling.col("stallingRateMean")
-		# stallingRateStd = h5file.root.RibosomeStalling.col("stallingRateStd")
-		fractionStalled = h5file.root.RibosomeStalling.col("fractionStalled")
-		aaCountInSequence = h5file.root.RibosomeStalling.col("aaCountInSequence")
-		aaCounts = h5file.root.RibosomeStalling.col("aaCounts")
-		trnaCapacity = h5file.root.RibosomeStalling.col("trnasCapacity")
-		synthetaseCapacity = h5file.root.RibosomeStalling.col("synthetaseCapacity")
+	with tables.open_file(os.path.join(simOutDir, "RibosomeData.hdf")) as h5file:
+		timeStep = h5file.root.RibosomeData.col("timeStep")
+		# stallingRateTotal = h5file.root.RibosomeData.col("stallingRateTotal")
+		# stallingRateMean = h5file.root.RibosomeData.col("stallingRateMean")
+		# stallingRateStd = h5file.root.RibosomeData.col("stallingRateStd")
+		fractionStalled = h5file.root.RibosomeData.col("fractionStalled")
+		aaCountInSequence = h5file.root.RibosomeData.col("aaCountInSequence")
+		aaCounts = h5file.root.RibosomeData.col("aaCounts")
+		trnaCapacity = h5file.root.RibosomeData.col("trnasCapacity")
+		synthetaseCapacity = h5file.root.RibosomeData.col("synthetaseCapacity")
 
 	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0).sum(axis = 1)
 	trnaCapacityLimitation = -1 * (aaCountInSequence - trnaCapacity).clip(min = 0).sum(axis = 1)
@@ -71,7 +71,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 
 if __name__ == "__main__":

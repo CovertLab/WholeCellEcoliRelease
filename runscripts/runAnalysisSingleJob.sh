@@ -29,8 +29,18 @@ if [ -z "$SUBMISSION_TIME" ]; then
 	exit 1
 fi
 
-if [ -z "$ARRAY_ID" ]; then
-	echo "ARRAY_ID environmental variable must be set" >&2
+if [ -z "$SIM_ID" ]; then
+	echo "SIM_ID environmental variable must be set" >&2
+	exit 1
+fi
+
+if [ -z "$VARIANT" ]; then
+	echo "VARIANT environmental variable must be set" >&2
+	exit 1
+fi
+
+if [ -z "$VARIANT_ID" ]; then
+	echo "VARIANT_ID environmental variable must be set" >&2
 	exit 1
 fi
 
@@ -40,18 +50,18 @@ else
 	WORK_DIR="/tmp"
 fi
 
-WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${ARRAY_ID}"
+WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${VARIANT}.$(printf "%06d" ${VARIANT_ID}).${SIM_ID}"
 
 mkdir -p "$WORK_DIR"
 
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
 KBECOLI_DIR="${CODE_DIR}/../kbEcoli"
-KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
+KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/kb"
+KB_FIT="${KB_DIR}/KnowledgeBase_Modified.cPickle"
 
-SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
+SEED=$(printf "%06d" $(($SIM_ID - 1)))
 
-RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}"
+RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})"
 SPECIFIC_RESULTS_DIR="${RESULTS_DIR}/${SEED}/simOut"
 
 # PLOTS_DIR="${CODE_DIR}/out/plotOut"
@@ -60,16 +70,12 @@ SPECIFIC_PLOTS_DIR="${RESULTS_DIR}/${SEED}/plotOut"
 
 mkdir -p "$SPECIFIC_PLOTS_DIR"
 
-MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${SEED}/simOut"
-MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${SEED}/plotOut"
-
-
-# MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/simOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_RESULTS_DIR)"
-# MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/plotOut/${SUBMISSION_TIME}/$(basename $SPECIFIC_PLOTS_DIR)"
+MY_SPECIFIC_RESULTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/${SEED}/simOut"
+MY_SPECIFIC_PLOTS_DIR="${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/${SEED}/plotOut"
 
 
 OUTPUT_LOG_BASE_NAME="analysisSingleLog"
-OUTPUT_LOG_FILE="${PBS_O_WORKDIR}/${OUTPUT_LOG_BASE_NAME}.${SUBMISSION_TIME}:$SEED"
+OUTPUT_LOG_FILE="${PBS_O_WORKDIR}/${OUTPUT_LOG_BASE_NAME}.${SUBMISSION_TIME}:${VARIANT}.$(printf "%06d" ${VARIANT_ID}).$SEED"
 
 echo WORK_DIR $WORK_DIR
 echo CODE_DIR $CODE_DIR
@@ -96,9 +102,9 @@ stagein()
 	scp -r ${CODE_DIR}/models .
 	scp -r ${CODE_DIR}/reconstruction .
 
-	mkdir -p "out/${SUBMISSION_TIME}/${SEED}"
+	mkdir -p "out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/${SEED}"
 
-	cd "out/${SUBMISSION_TIME}"
+	cd "out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})"
 	scp -r "${KB_DIR}" .
 
 	cd "${SEED}"
@@ -125,7 +131,8 @@ runprogram()
 
 		echo "Running $(basename $SCRIPT)"
 
-		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 "$SCRIPT" "$MY_SPECIFIC_RESULTS_DIR" "$MY_SPECIFIC_PLOTS_DIR" "${OUT_NAME}.pdf" --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/kb/KnowledgeBase_Most_Fit.cPickle"
+		PYTHONPATH="${WORK_DIR}/$(basename $CODE_DIR):$PYTHONPATH" python2.7 "$SCRIPT" "$MY_SPECIFIC_RESULTS_DIR" "$MY_SPECIFIC_PLOTS_DIR" "${OUT_NAME}" --kbFile "${WORK_DIR}/$(basename $CODE_DIR)/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/kb/KnowledgeBase_Modified.cPickle"
+
 	done 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 	IFS=$SAVEIFS
 }

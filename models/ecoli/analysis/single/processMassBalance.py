@@ -77,7 +77,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.tight_layout()
 	plt.grid(True, which = "major")
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 
 if __name__ == "__main__":

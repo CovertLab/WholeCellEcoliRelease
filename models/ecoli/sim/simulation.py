@@ -25,7 +25,7 @@ from models.ecoli.listeners.mass import Mass
 from models.ecoli.listeners.replication_fork import ReplicationForkPosition
 from models.ecoli.listeners.ntp_usage import NtpUsage
 from models.ecoli.listeners.aa_usage import AAUsage
-from models.ecoli.listeners.ribosome_stalling import RibosomeStalling
+from models.ecoli.listeners.ribosome_data import RibosomeData
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
@@ -61,7 +61,7 @@ class EcoliSimulation(Simulation):
 		ReplicationForkPosition,
 		NtpUsage,
 		AAUsage,
-		RibosomeStalling,
+		RibosomeData,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
 		FBAResults

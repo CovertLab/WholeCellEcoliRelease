@@ -29,8 +29,18 @@ if [ -z "$SUBMISSION_TIME" ]; then
 	exit 1
 fi
 
-if [ -z "$ARRAY_ID" ]; then
-	echo "ARRAY_ID environmental variable must be set" >&2
+if [ -z "$SIM_ID" ]; then
+	echo "SIM_ID environmental variable must be set" >&2
+	exit 1
+fi
+
+if [ -z "$VARIANT" ]; then
+	echo "VARIANT environmental variable must be set" >&2
+	exit 1
+fi
+
+if [ -z "$VARIANT_ID" ]; then
+	echo "VARIANT_ID environmental variable must be set" >&2
 	exit 1
 fi
 
@@ -40,22 +50,22 @@ else
 	WORK_DIR="/tmp"
 fi
 
-WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${ARRAY_ID}"
+WORK_DIR="${WORK_DIR}/${SUBMISSION_TIME}.${PBS_JOBID}.${VARIANT}.$(printf "%06d" ${VARIANT_ID}).${SIM_ID}"
 
 mkdir -p "$WORK_DIR"
 
 CODE_DIR="$PBS_O_WORKDIR" # Assumes job submission from wcEcoli
 KBECOLI_DIR="${CODE_DIR}/../kbEcoli"
-KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/kb"
-KB_FIT="${KB_DIR}/KnowledgeBase_Most_Fit.cPickle"
+KB_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/kb"
+KB_FIT="${KB_DIR}/KnowledgeBase_Modified.cPickle"
 
-RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}"
+RESULTS_DIR="${CODE_DIR}/out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})"
 
 # mkdir -p "$RESULTS_DIR"
 
-SEED=$(printf "%06d" $(($ARRAY_ID - 1)))
+SEED=$(printf "%06d" $(($SIM_ID - 1)))
 OUTPUT_LOG_BASE_NAME="simShellLog"
-OUTPUT_LOG_FILE="${PBS_O_WORKDIR}/${OUTPUT_LOG_BASE_NAME}.${SUBMISSION_TIME}:$SEED"
+OUTPUT_LOG_FILE="${PBS_O_WORKDIR}/${OUTPUT_LOG_BASE_NAME}.${SUBMISSION_TIME}:${VARIANT}.$(printf "%06d" ${VARIANT_ID}).$SEED"
 
 echo WORK_DIR $WORK_DIR
 echo CODE_DIR $CODE_DIR
@@ -78,7 +88,7 @@ stagein()
 	scp -r ${CODE_DIR}/models .
 	scp -r ${CODE_DIR}/reconstruction .
 
-	mkdir -p "out/${SUBMISSION_TIME}/${SEED}/simOut"
+	mkdir -p "out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/${SEED}/simOut"
 
 }
 
@@ -92,7 +102,7 @@ runprogram()
 	WC_LENGTHSEC=${WC_LENGTHSEC} \
 	WC_LOGTOSHELL=${WC_LOGTOSHELL} \
 	WC_LOGTODISKEVERY=${WC_LOGTODISKEVERY} \
-	WC_KBLOCATION="\"${WORK_DIR}/$(basename $CODE_DIR)/KnowledgeBase_Most_Fit.cPickle\"" python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
+	WC_KBLOCATION="\"${WORK_DIR}/$(basename $CODE_DIR)/KnowledgeBase_Modified.cPickle\"" python2.7 runscripts/runSimulationJob.py "${SUBMISSION_TIME}" "${VARIANT}" "${VARIANT_ID}" 2>&1 | tee -a "${OUTPUT_LOG_FILE}"
 }
 
 stageout()
@@ -101,7 +111,7 @@ stageout()
 
 	cd ${WORK_DIR}/$(basename $CODE_DIR)
 	mkdir -p "$RESULTS_DIR/${SEED}/simOut"
-	scp -r "out/${SUBMISSION_TIME}/${SEED}/simOut" "$RESULTS_DIR/${SEED}"
+	scp -r "out/${SUBMISSION_TIME}/${VARIANT}_$(printf "%06d" ${VARIANT_ID})/${SEED}/simOut" "$RESULTS_DIR/${SEED}"
 	mv "${OUTPUT_LOG_FILE}" "${RESULTS_DIR}/${SEED}/simOut/${OUTPUT_LOG_BASE_NAME}"
 
 	echo "Cleaning up"

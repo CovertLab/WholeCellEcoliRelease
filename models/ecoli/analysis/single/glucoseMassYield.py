@@ -22,7 +22,7 @@ from wholecell.utils import units
 
 GLUCOSE_ID = "GLC-D[e]"
 
-FLUX_UNITS = units.mol / units.L / units.s
+FLUX_UNITS = units.mmol / units.L / units.s
 MASS_UNITS = units.fg
 GROWTH_UNITS = units.fg / units.s
 
@@ -65,7 +65,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.xlabel("Time (s)")
 	plt.ylabel("g cell / g glucose")
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 
 if __name__ == "__main__":

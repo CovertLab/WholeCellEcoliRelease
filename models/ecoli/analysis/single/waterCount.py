@@ -50,7 +50,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.ylabel("H2O[c] counts")
 	plt.title("Counts of water")
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

@@ -17,7 +17,7 @@ import argparse
 import os
 import json
 
-def main(submissionTime):
+def main(submissionTime, variant, variantId):
 
 	simOpts = getSimOptsFromEnvVars(
 			["outputDir", "logToDisk", "overwriteExistingFiles"]
@@ -27,6 +27,7 @@ def main(submissionTime):
 	simOpts["outputDir"] = os.path.join(
 		"out",
 		"%s" % submissionTime,
+		"%s_%06d" % (variant, variantId),
 		"%06d" % simOpts["seed"],
 		"simOut",
 		)
@@ -40,7 +41,10 @@ def main(submissionTime):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("submissionTime", help = "Time of job submission", type = str)
+	parser.add_argument("variant", help = "Variant", type = str)
+	parser.add_argument("variantId", help = "Variant id", type = int)
+
 
 	args = parser.parse_args().__dict__
 
-	main(args["submissionTime"])
+	main(args["submissionTime"], args["variant"], args["variantId"])

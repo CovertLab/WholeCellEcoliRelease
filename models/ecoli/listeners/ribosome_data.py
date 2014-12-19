@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-RibosomeStalling
+RibosomeData
 
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -19,19 +19,19 @@ import wholecell.listeners.listener
 
 VERBOSE = False
 
-class RibosomeStalling(wholecell.listeners.listener.Listener):
-	""" RibosomeStalling """
+class RibosomeData(wholecell.listeners.listener.Listener):
+	""" RibosomeData """
 
-	_name = 'RibosomeStalling'
+	_name = 'RibosomeData'
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		super(RibosomeStalling, self).__init__(*args, **kwargs)
+		super(RibosomeData, self).__init__(*args, **kwargs)
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(RibosomeStalling, self).initialize(sim, kb)
+		super(RibosomeData, self).initialize(sim, kb)
 
 		# Computed, saved attributes
 		self.stallingRateTotal = None
@@ -45,6 +45,9 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		self.aaCounts = None
 		self.trnasCapacity = None
 		self.synthetaseCapacity = None
+		self.actualElongations = None
+		self.expectedElongations = None
+
 
 		# Logged quantities
 		self.registerLoggedQuantity(
@@ -56,7 +59,7 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 
 	# Allocate memory
 	def allocate(self):
-		super(RibosomeStalling, self).allocate()
+		super(RibosomeData, self).allocate()
 
 		# Computed, saved attributes
 		self.stallingRateTotal = np.nan
@@ -70,6 +73,8 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		self.aaCounts = np.zeros(21, np.int64)
 		self.trnasCapacity = np.zeros(21, np.int64)
 		self.synthetaseCapacity = np.zeros(21, np.int64)
+		self.actualElongations = np.nan
+		self.expectedElongations = np.nan
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -98,6 +103,8 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 			"aaCounts": tables.Float64Col(self.aaCounts.size),
 			"trnasCapacity": tables.Float64Col(self.trnasCapacity.size),
 			"synthetaseCapacity": tables.Float64Col(self.synthetaseCapacity.size),
+			"actualElongations": tables.Float64Col(),
+			"expectedElongations": tables.Float64Col(),
 			}
 
 		table = h5file.create_table(
@@ -124,6 +131,8 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		entry["aaCounts"] = self.aaCounts
 		entry["trnasCapacity"] = self.trnasCapacity
 		entry["synthetaseCapacity"] = self.synthetaseCapacity
+		entry["actualElongations"] = self.actualElongations
+		entry["expectedElongations"] = self.expectedElongations
 
 		entry.append()
 

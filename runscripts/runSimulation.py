@@ -31,6 +31,7 @@ def main(submissionTime):
 	simOpts["outputDir"] = os.path.join(
 		"out",
 		"%s" % submissionTime,
+		"wildtype_000000",
 		"%06d" % simOpts["seed"],
 		"simOut",
 		)
