@@ -1,6 +1,7 @@
 import os
 import re
 import argparse
+from collections import OrderedDict
 
 def findFiles(directory,typeFile):
 	if os.path.isdir(directory) == False: return []
@@ -19,6 +20,8 @@ def findDirectories(directory):
 	for f in allFiles:	
 		temp = os.path.join(directory,f)
 		if os.path.isdir(temp): onlyDirs.append(temp) 
+	onlyDirs.sort()
+	onlyDirs.reverse()
 	return onlyDirs
 
 def justName(mystr):
@@ -163,7 +166,7 @@ def main(out_directory):
 	
 	allSimulations = findDirectories(outDirectory)
 
-	allSimulationsData = {}	
+	allSimulationsData = OrderedDict({})	
 	for i in allSimulations:
 		dirs = findDirectories(i)
 		if dirs == []: continue
