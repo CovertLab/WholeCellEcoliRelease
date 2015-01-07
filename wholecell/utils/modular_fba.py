@@ -42,7 +42,7 @@ class FluxBalanceAnalysis(object):
 
 	Solver for various FBA implementations.
 
-	
+
 	Required arguments:
 
 	- reactionStoich, a dict of strings:dicts (reactionID:reaction stoich)
@@ -52,10 +52,10 @@ class FluxBalanceAnalysis(object):
 		Every provided ID will be set up with an exchange flux.
 
 	- objective, a dict of strings:floats (moleculeID:objective value)
-		The meaning and usage of the objective will vary depending on the 
+		The meaning and usage of the objective will vary depending on the
 		formulation of FBA desired.
 
-	
+
 	Optional arguments (set to None for default behavior):
 
 	- objectiveType, a string
@@ -72,22 +72,22 @@ class FluxBalanceAnalysis(object):
 	- reversibleReactions, a list of strings (reactionIDs for reversible reactions)
 
 	- reactionEnzymes, a dict of strings:strings (reactionID:enzymeID)
-	
+
 	- reactionRates, a dict of strings:floats (reactionID:catalytic rate constant * dt)
 		Used to set up the pseudo metabolites and boundary constraints needed
 		for limiting reactions by enzyme counts.
 
 	- moleculeMasses, a dict of floats (moleculeID:mass)
-		Used in computing the net mass into the system.  Only needed and used 
+		Used in computing the net mass into the system.  Only needed and used
 		for moleculeIDs in externalExchangedMolecules.
 
-	
+
 	Caveats:
-	
+
 	There is no strict type checking, despite what the above may imply.
 
-	During initialization, an exception will be raised if a reference is made 
-	to an unutilized metabolite/enzyme/etc as described by the reaction 
+	During initialization, an exception will be raised if a reference is made
+	to an unutilized metabolite/enzyme/etc as described by the reaction
 	network.
 
 	"""
@@ -141,7 +141,7 @@ class FluxBalanceAnalysis(object):
 
 	def __init__(self, reactionStoich, externalExchangedMolecules, objective,
 			objectiveType = None, objectiveParameters = None,
-			internalExchangedMolecules = None, reversibleReactions = None, 
+			internalExchangedMolecules = None, reversibleReactions = None,
 			reactionEnzymes = None, reactionRates = None, moleculeMasses = None):
 
 		# Set up attributes
@@ -179,7 +179,7 @@ class FluxBalanceAnalysis(object):
 		if reversibleReactions is not None:
 			for reactionID in reversibleReactions:
 				reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
-				
+
 				reactionStoich[reverseReactionID] = {
 					moleculeID:-stoichCoeff
 					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()
@@ -238,7 +238,7 @@ class FluxBalanceAnalysis(object):
 	def _initReactionNetwork(self, reactionStoich):
 		""" Create the reaction network, initializing molecules and biochemical
 		reactions. """
-		
+
 		reactionIndexes = []
 
 		for reactionID, stoichiometry in reactionStoich.viewitems():
@@ -268,9 +268,9 @@ class FluxBalanceAnalysis(object):
 			colIndex = self._colNew(exchangeID)
 			rowIndex = self._rowIndex(moleculeID)
 
-			# NOTE: The convention, if I am not mistaken, is to define 
+			# NOTE: The convention, if I am not mistaken, is to define
 			# exchanges as pointing out of the system, even though it is common
-			# to think of exchanges as inputs.  Regardless this choice should 
+			# to think of exchanges as inputs.  Regardless this choice should
 			# have no impact outside of this class.
 
 			self._rowIndexes.append(rowIndex)
@@ -286,7 +286,7 @@ class FluxBalanceAnalysis(object):
 
 	def _initObjectiveEquivalents(self, objective):
 		"""Create pseudo-reactions that convert molecules into their fractional
-		objective equivalents.  The objectiveType determines how these 
+		objective equivalents.  The objectiveType determines how these
 		fractions are used."""
 
 		for moleculeID, coeff in objective.viewitems():
@@ -315,8 +315,8 @@ class FluxBalanceAnalysis(object):
 
 
 	def _initObjectiveStandard(self, objective):
-		"""Create the pseudo-reaction for the standard biomass objective.  In 
-		the standard objective, all molecules must be created/destroyed in 
+		"""Create the pseudo-reaction for the standard biomass objective.  In
+		the standard objective, all molecules must be created/destroyed in
 		prescribed ratios."""
 
 		colIndex = self._colNew(self._standardObjectiveReactionName)
@@ -400,7 +400,7 @@ class FluxBalanceAnalysis(object):
 			self._rowIndexes.append(fractionDifferenceLeading_rowIndex)
 			self._colIndexes.append(leadingMoleculeToFraction_colIndex)
 			self._values.append(+1)
-			
+
 			moleculeToFractionID = self._generatedID_moleculesToEquivalents.format(moleculeID)
 			moleculeToFraction_colIndex = self._colIndex(moleculeToFractionID)
 
@@ -454,7 +454,7 @@ class FluxBalanceAnalysis(object):
 		self._maximizeObjective = False
 		self._forceInternalExchange = True
 
-		# By forcing a column to be at unity, we can keep the definition of 
+		# By forcing a column to be at unity, we can keep the definition of
 		# the problem as b=Av where b=0.
 
 		forcedUnity_colIndex = self._colNew(self._forcedUnityColName)
@@ -536,14 +536,14 @@ class FluxBalanceAnalysis(object):
 
 
 	def _initEnzymeConstraints(self, reactionEnzymes, reactionRates):
-		"""Create abstractions needed to constrain metabolic reactions by 
+		"""Create abstractions needed to constrain metabolic reactions by
 		enzyme availability.
 
-		There are two types of enzyme restrictions.  If the catalytic rate is 
+		There are two types of enzyme restrictions.  If the catalytic rate is
 		unknown, any non-zero level of the enzyme allows the reaction to
 		proceed.  This is a "boolean" constraint.  If the catalytic rate is
 		known, then reactions may proceed up to their kinetic limit.  Reactions
-		can share enzymes.  There is currently no support for reactions with 
+		can share enzymes.  There is currently no support for reactions with
 		multiple annotated enzymes."""
 
 		enzymeUsageRateConstrainedIndexes = []
@@ -598,7 +598,7 @@ class FluxBalanceAnalysis(object):
 					self._rowIndexes.append(enzymeEquivalentRate_rowIndex)
 					self._colIndexes.append(reaction_colIndex)
 					self._values.append(enzymesPerReaction)
-					
+
 
 				else:
 					enzymeEquivalentBoolID = self._generatedID_enzymeEquivBoolConstrained.format(enzymeID)
@@ -655,17 +655,17 @@ class FluxBalanceAnalysis(object):
 
 
 	def _finalizeMatrices(self):
-		"""Create the abstractions needed for linear programming and for 
+		"""Create the abstractions needed for linear programming and for
 		computing various outputs.
 
 		Optimization problem:
-		
+
 		\max_v f^T x
-		
+
 		subject to
 		b = Ax
 		h >= Gx
-		
+
 		where b = 0"""
 
 		# Create A matrix (stoichiometry + other things)
@@ -749,8 +749,8 @@ class FluxBalanceAnalysis(object):
 	# Constraint setup
 
 	# NOTE: I've used the nonspecific term "levels" since these could be
-	# mole-concentration, number-concentration, or counts, depending on the 
-	# formulation of the problem.  All that matters is that initialization 
+	# mole-concentration, number-concentration, or counts, depending on the
+	# formulation of the problem.  All that matters is that initialization
 	# parameters have consistent units.
 
 	def externalMoleculeIDs(self):
@@ -821,7 +821,7 @@ class FluxBalanceAnalysis(object):
 			raise FBAException((
 				"Setting the maximum reaction flux is ambiguous since " +
 				"reaction {} has both a forward [{}] and reverse [{}] " +
-				"component.  Call this method with argument " + 
+				"component.  Call this method with argument " +
 				"raiseForReversible = False if this is intended behavior."
 				).format(reactionID, reactionID, reverseReactionID))
 
@@ -843,7 +843,7 @@ class FluxBalanceAnalysis(object):
 			raise FBAException((
 				"Setting the minimum reaction flux is ambiguous since " +
 				"reaction {} has both a forward [{}] and reverse [{}] " +
-				"component.  Call this method with argument " + 
+				"component.  Call this method with argument " +
 				"raiseForReversible = False if this is intended behavior."
 				).format(reactionID, reactionID, reverseReactionID))
 
@@ -898,7 +898,7 @@ class FluxBalanceAnalysis(object):
 
 
 	def outputMoleculeLevelsChange(self):
-		# Must compute and return two (potentially overlapping) sets of 
+		# Must compute and return two (potentially overlapping) sets of
 		# molecule counts:
 		# - internal input usage (TODO)
 		# - objective output production
@@ -1043,7 +1043,7 @@ def _setupFeist(kb):
 
 	import re
 	rxns = [
-		x for x in kb.metabolismBiochemicalReactions
+		x for x in kb.metabolism.biochemicalReactions
 		if (
 			not re.match(".*_[0-9]$", x["id"])
 			or x["id"].endswith("_0")
@@ -1060,7 +1060,7 @@ def _setupFeist(kb):
 
 	reversibleReactions = [rxn["id"] for rxn in rxns if not rxn["dir"]]
 
-	mediaEx = kb.metabolismMediaEx
+	mediaEx = kb.metabolism.mediaEx
 
 	externalExchangedMolecules = [rxn["met"] for rxn in mediaEx]
 
@@ -1068,14 +1068,14 @@ def _setupFeist(kb):
 
 	reactionEnzymes = {
 		reactionID:enzymeID
-		for reactionID, enzymeID in izip(kb.metabolismReactionIds, kb.metabolismReactionEnzymes)
+		for reactionID, enzymeID in izip(kb.metabolism.reactionIds, kb.metabolism.reactionEnzymes)
 		if (enzymeID is not None) and reactionStoich.has_key(reactionID)
 		}
 
 	dt = 3600
 	reactionRates = {
 		reactionID:rate * dt
-		for reactionID, rate in izip(kb.metabolismReactionIds, kb.metabolismReactionKcat)
+		for reactionID, rate in izip(kb.metabolism.reactionIds, kb.metabolism.reactionKcat)
 		if reactionStoich.has_key(reactionID) and rate > 0
 		}
 
@@ -1105,7 +1105,7 @@ def _setupFeist(kb):
 	## External molecules
 	externalMoleculeIDs = fba.externalMoleculeIDs()
 
-	unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]", 
+	unconstrainedExchange = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]",
 		"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
 		"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
 		"ZN2[e]")
