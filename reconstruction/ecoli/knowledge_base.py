@@ -93,32 +93,33 @@ class KnowledgeBaseEcoli(object):
 		#self._countATinPromoters()
 
 		# Create data structures for simulation
-		self._buildAllMasses() # called early because useful for other builders
-		self._buildMoleculeGroups() # called early because useful for other builders
+		self._buildAllMasses() # called early because useful for other builders # Mass
+		self._buildMoleculeGroups() # called early because useful for other builders # State (?)
 
-		self._buildSequence()
-		self._buildCompartments()
-		self._buildBulkMolecules()
-		self._buildBulkChromosome()
-		self._buildGeneData()
-		self._buildRibosomeData()
-		self._buildUniqueMolecules()
-		self._buildBiomass()
-		self._buildRnaData()
-		self._buildMonomerData()
-		self._buildRnaIndexToMonomerMapping()
-		self._buildMonomerIndexToRnaMapping()
-		self._buildRnaIndexToGeneMapping()
-		self._buildConstants()
-		self._buildParameters()
-		self._buildRnaExpression()
-		self._buildBiomassFractions()
-		self._buildTranscription()
-		self._buildTranslation()
-		self._buildMetabolitePools()
-		self._buildTrnaData()
+		self._buildSequence() # Replication
+		self._buildCompartments() # State (?)
+		self._buildBulkMolecules() # State (?)
+		self._buildBulkChromosome() # State (?)
+		self._buildGeneData() # Replication
+		self._buildRibosomeData() # Translation
+		self._buildUniqueMolecules() # State (?)
+		self._buildBiomass() # Metabolism (?)
+		self._buildRnaData() # Transcription
+		self._buildMonomerData() # Translation
+		self._buildRnaIndexToMonomerMapping() # Translation (?)
+		self._buildMonomerIndexToRnaMapping() # Translation (?)
+		self._buildRnaIndexToGeneMapping() # Transcription (?)
+		self._buildConstants() # Constants
+		self._buildParameters() # Constants
+		self._buildRnaExpression() # Transcription (*actually goes to raw data)
+		self._buildBiomassFractions() # Metabolism (?)
+		self._buildTranscription() # Transcription
+		self._buildTranslation() # Translation
+		self._buildMetabolitePools() # Metabolism (?)
+		self._buildTrnaData() # Translation (?)
 
-		self._buildComplexation()
+		from .complexation import Complexation
+		self.complexation = Complexation(self)
 
 		from .metabolism import Metabolism
 		self.metabolism = Metabolism(self)
@@ -2433,90 +2434,6 @@ class KnowledgeBaseEcoli(object):
 		self.rnaIndexToGeneMapping = np.array([np.where(x + "[c]" == self.rnaData["id"])[0][0] for x in self.geneData["rnaId"]])
 
 
-	def _buildComplexation(self):
-		# Build the abstractions needed for complexation
-
-		molecules = []
-
-		subunits = []
-		complexes = []
-
-		stoichMatrixI = []
-		stoichMatrixJ = []
-		stoichMatrixV = []
-
-		# Remove complexes that are currently not simulated
-		FORBIDDEN_MOLECULES = {
-			"modified-charged-selC-tRNA", # molecule does not exist
-			}
-
-		deleteReactions = []
-		for reactionIndex, reaction in enumerate(self._complexationReactions):
-			for molecule in reaction["stoichiometry"]:
-				if molecule["molecule"] in FORBIDDEN_MOLECULES:
-					deleteReactions.append(reactionIndex)
-					break
-
-		for reactionIndex in deleteReactions[::-1]:
-			del self._complexationReactions[reactionIndex]
-
-		for reactionIndex, reaction in enumerate(self._complexationReactions):
-			assert reaction["process"] == "complexation"
-			assert reaction["dir"] == 1
-
-			for molecule in reaction["stoichiometry"]:
-				if molecule["type"] == "metabolite":
-					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(), # this is stupid # agreed
-						molecule["location"]
-						)
-
-				else:
-					moleculeName = "{}[{}]".format(
-						molecule["molecule"],
-						molecule["location"]
-						)
-
-				if moleculeName not in molecules:
-					molecules.append(moleculeName)
-					moleculeIndex = len(molecules) - 1
-
-				else:
-					moleculeIndex = molecules.index(moleculeName)
-
-				coefficient = molecule["coeff"]
-
-				assert coefficient % 1 == 0
-
-				stoichMatrixI.append(moleculeIndex)
-				stoichMatrixJ.append(reactionIndex)
-				stoichMatrixV.append(coefficient)
-
-				if coefficient < 0:
-					subunits.append(moleculeName)
-
-				else:
-					assert molecule["type"] == "proteincomplex"
-					complexes.append(moleculeName)
-
-		self._complexStoichMatrixI = np.array(stoichMatrixI)
-		self._complexStoichMatrixJ = np.array(stoichMatrixJ)
-		self._complexStoichMatrixV = np.array(stoichMatrixV)
-
-		self.complexationMoleculeNames = molecules
-		self.complexationSubunitNames = set(subunits)
-		self.complexationComplexNames = set(complexes)
-
-
-	def complexationStoichMatrix(self):
-		shape = (self._complexStoichMatrixI.max()+1, self._complexStoichMatrixJ.max()+1)
-
-		out = np.zeros(shape, np.float64)
-
-		out[self._complexStoichMatrixI, self._complexStoichMatrixJ] = self._complexStoichMatrixV
-
-		return out
-
 	def _buildRibosomeData(self):
 		self.s30_proteins = S30_PROTEINS
 		self.s30_16sRRNA = S30_16S_RRNAS
@@ -2527,7 +2444,6 @@ class KnowledgeBaseEcoli(object):
 		self.s50_5sRRNA = S50_5S_RRNAS
 		self.s50_fullComplex = S50_FULLCOMPLEX
 
-	# LOAD METABOLISM HERE...
 
 	def _buildMetabolitePools(self):
 		CELL_DENSITY = 1.1e3 # g/L
@@ -2930,49 +2846,3 @@ class KnowledgeBaseEcoli(object):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
 		idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
 		return self._allMass['mass'][idx]
-
-	def getComplexMonomers(self, cplxId):
-		'''
-		Returns subunits for a complex (or any ID passed).
-		If the ID passed is already a monomer returns the
-		monomer ID again with a stoichiometric coefficient
-		of zero.
-		'''
-
-		info = self._moleculeRecursiveSearch(cplxId, self.complexationStoichMatrix(), np.array(self.complexationMoleculeNames))
-
-		return {'subunitIds' : np.array(info.keys()), 'subunitStoich' : -1 * np.array(info.values())}
-
-	def _findRow(self, product,speciesList):
-
-		for sp in range(0, len(speciesList)):
-			if speciesList[sp] == product: return sp
-		return -1
-
-	def _findColumn(self, stoichMatrixRow, row):
-
-		for i in range(0,len(stoichMatrixRow)):
-			if int(stoichMatrixRow[i]) == 1: return i
-		return -1
-
-	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList, flag = 0):
-		row = self._findRow(product,speciesList)
-		if row == -1: return []
-
-		col = self._findColumn(stoichMatrix[row,:], row)
-		if col == -1:
-			if flag == 0: return []
-			else: return {product: -1}
-
-		total = {}
-		for i in range(0, len(speciesList)):
-			if i == row: continue
-			val = stoichMatrix[i][col]
-			sp = speciesList[i]
-
-			if val:
-				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList, 1)
-				for j in x:
-					if j in total: total[j] += x[j]*(abs(val))
-					else: total[j] = x[j]*(abs(val))
-		return total

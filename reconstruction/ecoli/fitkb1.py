@@ -37,7 +37,7 @@ def fitKb_1(kb):
 	# TODO: set this based on transcription unit structure
 	# i.e. same synthesis prob. but different deg rates
 
-	rnaPolySubunits = kb.getComplexMonomers("APORNAP-CPLX[c]")["subunitIds"]
+	rnaPolySubunits = kb.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"]
 
 	subunitIndexes = np.array([np.where(kb.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
 
@@ -111,7 +111,7 @@ def createBulkContainer(kb):
 	ids_protein = kb.monomerData["id"]
 
 	## Mass fractions
-	
+
 	g = growth_data.GrowthData(kb)
 	massFractions60 = g.massFractions(60)
 	totalMass_RNA = massFractions60["rnaMass"]
@@ -239,7 +239,7 @@ def createBulkContainer(kb):
 
 	totalCount_protein.normalize()
 	totalCount_protein.checkNoUnit()
-	
+
 	counts_protein = totalCount_protein * distribution_protein
 
 	bulkContainer.countsIs(counts_protein, ids_protein)
@@ -256,10 +256,10 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	(2) Measured rRNA mass fractions
 	(3) Expected ribosomal subunit counts based on expression
 	'''
-	ribosome30SSubunits = kb.getComplexMonomers(kb.s30_fullComplex)['subunitIds']
-	ribosome50SSubunits = kb.getComplexMonomers(kb.s50_fullComplex)['subunitIds']
-	ribosome30SStoich = kb.getComplexMonomers(kb.s30_fullComplex)['subunitStoich']
-	ribosome50SStoich = kb.getComplexMonomers(kb.s50_fullComplex)['subunitStoich']
+	ribosome30SSubunits = kb.complexation.getMonomers(kb.s30_fullComplex)['subunitIds']
+	ribosome50SSubunits = kb.complexation.getMonomers(kb.s50_fullComplex)['subunitIds']
+	ribosome30SStoich = kb.complexation.getMonomers(kb.s30_fullComplex)['subunitStoich']
+	ribosome50SStoich = kb.complexation.getMonomers(kb.s50_fullComplex)['subunitStoich']
 
 	# -- CONSTRAINT 1: Expected protien distribution doubling -- #
 	## Calculate minimium number of 30S and 50S subunits required in order to double our expected
@@ -428,7 +428,7 @@ def fitRNAPolyTransitionRates(kb):
 	# In our simplified model of RNA polymerase state transition, RNAp can be
 	# active (transcribing) or inactive (free-floating).  To solve for the
 	# rate of activation, we need to calculate the average rate of termination,
-	# which is a function of the average transcript length and the 
+	# which is a function of the average transcript length and the
 	# transcription rate.
 
 	averageTranscriptLength = units.dot(synthProb, rnaLengths)
