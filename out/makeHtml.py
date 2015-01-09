@@ -1,7 +1,7 @@
 import os
 import re
-import argparse
 from collections import OrderedDict
+import argparse
 
 def findFiles(directory,typeFile):
 	if os.path.isdir(directory) == False: return []
@@ -18,6 +18,7 @@ def findDirectories(directory):
 	allFiles = os.listdir(directory)
 	onlyDirs = []
 	for f in allFiles:	
+		if f == 'kb' or f == 'metadata': continue
 		temp = os.path.join(directory,f)
 		if os.path.isdir(temp): onlyDirs.append(temp) 
 	onlyDirs.sort()
@@ -30,8 +31,8 @@ def justName(mystr):
 	name = name.replace('.','_')
 	return name
 
-def getAlldata(directory):
-	data = {'description':'', 'branch': '', 'diff':'', 'hash':''}
+def getAlldata(directory, flag):
+	data = {'description':'', 'branch': '', 'diff':'', 'hash':'', 'short_name': ''}
 	if directory[len(directory)-1] != '/': directory = directory + '/'
 
 	try:
@@ -41,6 +42,17 @@ def getAlldata(directory):
 	for line in f: data['description'] = data['description'] + line
 	data['description'] = data['description'].strip()
 	f.close()
+
+	if flag:
+		try:
+			f = open(directory+'metadata/short_name')
+		except:
+			return data
+		for line in f: data['short_name'] = data['short_name'] + line
+		data['short_name'] = data['short_name'].strip()
+		f.close()
+
+		return data
 
 	f = open(os.path.join(directory,'metadata/git_branch'))
 	for line in f: data['branch'] = data['branch'] + line
@@ -92,26 +104,29 @@ def makeHeader(fw, simData):
 	fw.write('<script>\n\n')
 	
 	for i in simData:
-		getDescriptionData = getAlldata(i) 
-		cont = 'description:'+ getDescriptionData['description']+'<br>branch: '+getDescriptionData['branch']+'<br>'
-		for j in simData[i]:
-			namei = justName(i)
-			fw.write('function getUrl_'+namei+ '_'+j+'()\n')
-			fw.write('{\n')
-	 		#all img file names
-	 		fw.write('	var fileNames = ["'+simData[i][j]['files'][0]+'"')
-	 		for k in range(1,len(simData[i][j]['files'])):
-	 			fw.write(',"'+simData[i][j]['files'][k]+'"')
-	 		fw.write('];\n')
-	 		fw.write('	var directory = "'+simData[i][j]['dir']+'";\n')
-	 		fw.write('	var contents= "'+cont+'";\n')
+		for k in simData[i]:
+			getDescriptionData = getAlldata(i+'/'+k,1) 
+			cont = 'description: '+ getDescriptionData['description']+'<br>short_name: '+getDescriptionData['short_name']+'<br>'
 
-	 		fw.write('	directory = encodeURIComponent(directory);\n')
-	 		fw.write('	fileNames = encodeURIComponent(fileNames);\n')
-	 		fw.write('	contents = encodeURIComponent(contents);\n')
+			for j in simData[i][k]:
+				namei = justName(i)
+				namek = justName(k)
+				fw.write('function getUrl_'+namei+ '_'+namek+'_'+j+'()\n')
+				fw.write('{\n')
+		 		#all img file names
+		 		fw.write('	var fileNames = ["'+simData[i][k][j]['files'][0]+'"')
+		 		for l in range(1,len(simData[i][k][j]['files'])):
+		 			fw.write(',"'+simData[i][k][j]['files'][l]+'"')
+		 		fw.write('];\n')
+		 		fw.write('	var directory = "'+simData[i][k][j]['dir']+'";\n')
+		 		fw.write('	var contents= "'+cont+'";\n')
 
-			fw.write('	return \"images.html?var1=\" + fileNames + \"&dir=\" + directory + \"&content=\" + contents;\n')
-			fw.write('}\n\n')
+		 		fw.write('	directory = encodeURIComponent(directory);\n')
+		 		fw.write('	fileNames = encodeURIComponent(fileNames);\n')
+		 		fw.write('	contents = encodeURIComponent(contents);\n')
+
+				fw.write('	return \"images.html?var1=\" + fileNames + \"&dir=\" + directory + \"&content=\" + contents;\n')
+				fw.write('}\n\n')
     
 	fw.write('</script>\n\n')
 
@@ -129,7 +144,7 @@ def makeBody(fw, simData):
 
 	for idx,i in enumerate(simData):
 		if len(simData[i]) == 0: continue
-		getDescriptionData = getAlldata(i) 
+		getDescriptionData = getAlldata(i,0) 
 		fw.write('  <tr>\n')
 		fw.write('    <td>'+getDescriptionData['description']+'</td>\n')
 		fw.write('    <td>'+getDescriptionData['branch']+'</td> \n')
@@ -148,10 +163,30 @@ def makeBody(fw, simData):
 
 		fw.write('    <td>'+getDescriptionData['hash']+'</td>\n')
 		fw.write('    <td>')
-		for j in simData[i]:
-			namei = justName(i)
-			url = 'getUrl_'+namei+ '_'+j+'()'
-			fw.write('        <a href=\"javascript:document.location.href='+url+';\" target=\"_blank\">'+namei+'_'+j+'</a><br>\n')
+
+		fw.write('        <table style="width:100%">\n')
+		fw.write('        <tr>\n')
+		fw.write('            <td>Description</td>\n')
+		fw.write('            <td>short_name</td> \n')
+		fw.write('            <td>Links</td>\n')
+		fw.write('        </tr>\n')
+	
+		for k in simData[i]:
+			desc = getAlldata(i+'/'+k,1)
+			namek = justName(k)
+			fw.write('        <tr>\n')
+			fw.write('            <td>'+desc['description']+'</td>\n')
+			fw.write('            <td>'+desc['short_name']+'</td> \n')
+	
+			fw.write('    		  <td>')
+			for j in simData[i][k]:
+				namei = justName(i)
+				url = 'getUrl_'+namei+ '_'+namek+ '_'+j+'()'
+				fw.write('        <a href=\"javascript:document.location.href='+url+';\" target=\"_blank\">'+namei+'_'+namek+'_'+j+'</a><br>\n')
+			fw.write('            </td>\n')
+			fw.write('        <tr>\n')
+		fw.write('        </table>\n')
+
 		fw.write('    </td>\n')
 		fw.write('  </tr>\n')
 
@@ -172,21 +207,30 @@ def main(out_directory):
 		if dirs == []: continue
 		allSimulationsData[i] = {}
 		for j in dirs:
-			files = findFiles(os.path.join(j,'plotOut'), '.svg')
-			if files == []: continue
-			myDir = j
-			if '/' != j[len(j)-1]: myDir = j + '/'
-			myDir = myDir.replace('home/users','Volumes')
+			subDirs = findDirectories(j)
+			if subDirs == []: continue
+			allData = OrderedDict({})
+			for k in subDirs:
+				files = findFiles(os.path.join(k,'plotOut'), '.svg')
+				if files == []: continue
+				
+				myDir = k
+				if '/' != k[len(k)-1]: myDir = k + '/'
+				myDir = myDir.replace('home/users','Volumes')
+				namek = justName(k)
+				allData[namek] = {'files': files, 'dir': myDir}
 			namej = justName(j)
-			allSimulationsData[i][namej] = {'files': files, 'dir': myDir}
-
+			allSimulationsData[i][namej] = allData
 
 	#make htmlfile 
 	if '/' != outDirectory[len(outDirectory)-1]: outDirectory = outDirectory + '/'
 	htmlFile = outDirectory+'index.html'
+	import ipdb; ipdb.set_trace()
 	fw = open(htmlFile, 'w')
 	makeHeader(fw, allSimulationsData)
 	makeBody(fw, allSimulationsData)
+	fw.close()
+
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
