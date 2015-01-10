@@ -225,7 +225,6 @@ def main(out_directory):
 	#make htmlfile 
 	if '/' != outDirectory[len(outDirectory)-1]: outDirectory = outDirectory + '/'
 	htmlFile = outDirectory+'index.html'
-	import ipdb; ipdb.set_trace()
 	fw = open(htmlFile, 'w')
 	makeHeader(fw, allSimulationsData)
 	makeBody(fw, allSimulationsData)
