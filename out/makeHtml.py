@@ -251,6 +251,8 @@ def main(out_directory):
 	fw = open(htmlFile, 'w')
 	makeHeader(fw, allSimulationsData)
 	makeBody(fw, allSimulationsData)
+	fw.close()
+
 
 
 if __name__ == "__main__":
