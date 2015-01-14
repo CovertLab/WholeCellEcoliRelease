@@ -121,8 +121,9 @@ def makeHeader(fw, simData):
 	
 	for i in simData:
 		comparisonDesc = ''
-		for k in simData[i]:
-			comparisonDesc=comparisonDesc+getDescription(i+'/'+k)+','
+		for k in range(0,len(simData[i])):
+			dirName = re.split('_',simData[i].keys()[0])[0]+'_'+str(k).zfill(6) 
+			comparisonDesc=comparisonDesc+getDescription(i+'/'+dirName)+','
 		for k in simData[i]:
 			getDescriptionData = getAlldata(i+'/'+k,1)
 			cont = 'description: '+ getDescriptionData['description']+'<br>short_name: '+getDescriptionData['short_name']+'<br>'
