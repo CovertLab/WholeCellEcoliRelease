@@ -1,6 +1,9 @@
 import os
 import re
 from collections import OrderedDict
+#import sys
+#sys.path.append('/home/users/sajia/.local/lib/python2.7/site-packages/')
+#from ordereddict import OrderedDict
 import argparse
 
 def findFiles(directory,typeFile):
@@ -30,6 +33,19 @@ def justName(mystr):
 	name = t[len(t)-1]
 	name = name.replace('.','_')
 	return name
+
+def getDescription(directory):
+	data = ''
+	if directory[len(directory)-1] != '/': directory = directory + '/'
+
+	try:
+		f = open(directory+'metadata/description')
+	except:
+		return data
+
+	for line in f: data= data + line
+	data = data.strip()
+	return data
 
 def getAlldata(directory, flag):
 	data = {'description':'', 'branch': '', 'diff':'', 'hash':'', 'short_name': ''}
@@ -104,8 +120,12 @@ def makeHeader(fw, simData):
 	fw.write('<script>\n\n')
 	
 	for i in simData:
+		comparisonDesc = ''
+		for k in range(0,len(simData[i])):
+			dirName = re.split('_',simData[i].keys()[0])[0]+'_'+str(k).zfill(6) 
+			comparisonDesc=comparisonDesc+getDescription(i+'/'+dirName)+','
 		for k in simData[i]:
-			getDescriptionData = getAlldata(i+'/'+k,1) 
+			getDescriptionData = getAlldata(i+'/'+k,1)
 			cont = 'description: '+ getDescriptionData['description']+'<br>short_name: '+getDescriptionData['short_name']+'<br>'
 
 			for j in simData[i][k]:
@@ -120,12 +140,18 @@ def makeHeader(fw, simData):
 		 		fw.write('];\n')
 		 		fw.write('	var directory = "'+simData[i][k][j]['dir']+'";\n')
 		 		fw.write('	var contents= "'+cont+'";\n')
+				fw.write('	var variants= "'+str(len(simData[i]))+'";\n')
+		 		fw.write('	var seeds= "'+str(len(simData[i][k]))+'";\n')
+		 		fw.write('	var comparisonDesc= "'+comparisonDesc+'";\n')
 
 		 		fw.write('	directory = encodeURIComponent(directory);\n')
 		 		fw.write('	fileNames = encodeURIComponent(fileNames);\n')
 		 		fw.write('	contents = encodeURIComponent(contents);\n')
+				fw.write('	variants = encodeURIComponent(variants);\n')
+		 		fw.write('	seeds = encodeURIComponent(seeds);\n')
+		 		fw.write('	comparisonDesc = encodeURIComponent(comparisonDesc);\n')
 
-				fw.write('	return \"images.html?var1=\" + fileNames + \"&dir=\" + directory + \"&content=\" + contents;\n')
+				fw.write('	return \"images.html?var1=\" + fileNames + \"&dir=\" + directory + \"&content=\" + contents + \"&variants=\" + variants + \"&seeds=\" + seeds + \"&comparisonDesc=\" + comparisonDesc;\n')
 				fw.write('}\n\n')
     
 	fw.write('</script>\n\n')
@@ -136,9 +162,8 @@ def makeBody(fw, simData):
 	fw.write('<table style="width:100%">\n')
 	fw.write('  <tr>\n')
 	fw.write('    <td>Description</td>\n')
-	fw.write('    <td>Branch</td> \n')
+	fw.write('    <td>Branch, Hash</td> \n')
 	fw.write('    <td>Difference</td>\n')
-	fw.write('    <td>Hash</td>\n')
 	fw.write('    <td>Simulations</td>\n')
 	fw.write('  </tr>\n')
 
@@ -147,7 +172,7 @@ def makeBody(fw, simData):
 		getDescriptionData = getAlldata(i,0) 
 		fw.write('  <tr>\n')
 		fw.write('    <td>'+getDescriptionData['description']+'</td>\n')
-		fw.write('    <td>'+getDescriptionData['branch']+'</td> \n')
+		fw.write('    <td>'+getDescriptionData['branch']+'<br>'+getDescriptionData['hash']+'</td> \n')
 
 		# Create expand/collapse function for diff
 		fw.write('		<td>\n')
@@ -161,7 +186,6 @@ def makeBody(fw, simData):
 		fw.write('		</div>\n</div>\n')
 		fw.write('		</td>\n')
 
-		fw.write('    <td>'+getDescriptionData['hash']+'</td>\n')
 		fw.write('    <td>')
 
 		fw.write('        <table style="width:100%">\n')
@@ -229,6 +253,7 @@ def main(out_directory):
 	makeHeader(fw, allSimulationsData)
 	makeBody(fw, allSimulationsData)
 	fw.close()
+
 
 
 if __name__ == "__main__":
