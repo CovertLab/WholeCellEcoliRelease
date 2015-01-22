@@ -13,6 +13,11 @@ import reconstruction.ecoli.fitkb1
 from models.ecoli_metabolism.sim.simulation import EcoliMetabolismSimulation
 import wholecell.utils.constants
 
+from models.ecoli.analysis.single import massFractions
+from models.ecoli.analysis.single import evaluationTime
+from models.ecoli.analysis.single import processMassBalance
+from models.ecoli_metabolism.analysis.single import effectiveBiomass
+
 def submissionTime():
 	now = datetime.datetime.now()
 	return "%s%02d%02d.%02d%02d%02d.%d" % (now.year, now.month, now.day, now.hour, now.minute, now.second, now.microsecond)
@@ -75,11 +80,11 @@ def main(**kwargs):
 	sim.run()
 
 	plotDir = os.path.join(baseDir, "%06d" % kwargs["seed"], "plotOut")
-	for analysisScript in EcoliMetabolismSimulation.printAnalysisSingleFiles(fileName = "/dev/null"):
-		noExtension = os.path.basename(analysisScript)[:-len(".py")]
 
-		print "Running %s" % noExtension
-		subprocess.call(["python2.7", analysisScript, kwargs["outputDir"], plotDir, noExtension, "--kbFile", kbLocation])
+	massFractions.main(kwargs["outputDir"], plotDir, "massFractions", kbLocation)
+	evaluationTime.main(kwargs["outputDir"], plotDir, "evaluationTime", kbLocation)
+	processMassBalance.main(kwargs["outputDir"], plotDir, "processMassBalance", kbLocation)
+	effectiveBiomass.main(kwargs["outputDir"], plotDir, "effectiveBiomass", kbLocation)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
