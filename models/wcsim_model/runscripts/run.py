@@ -103,7 +103,7 @@ if __name__ == "__main__":
 			type = argType
 			)
 
-	parser.add_argument("--description", type = str)
+	parser.add_argument("--description", default = "", type = str)
 
 	args = parser.parse_args().__dict__
 
