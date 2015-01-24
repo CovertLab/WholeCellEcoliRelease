@@ -9,6 +9,11 @@ import numpy as np
 
 from . import tablewriter
 
+# TODO: tests
+# TODO: load a single time point
+# TODO: handle/warn/raise on inconsistent data shapes
+# TODO: downsampling options
+
 __all__ = [
 	"TableReader",
 	]
