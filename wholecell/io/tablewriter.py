@@ -20,9 +20,6 @@ FILENAME_DATA = "data"
 FILENAME_METADATA = "metadata"
 FILENAME_OFFSETS = "offsets"
 
-ATTRNAME_STARTINDEX = "startIndex"
-ATTRNAME_STEPSIZE = "stepSize"
-
 class TableWriterError(Exception):
 	pass
 
@@ -42,7 +39,7 @@ class AttributeTypeError(TableWriterError):
 	pass
 
 class TableWriter(object):
-	def __init__(self, path, stepSize = 1, startIndex = 0):
+	def __init__(self, path):
 
 		os.mkdir(path)
 
@@ -50,18 +47,10 @@ class TableWriter(object):
 		self._metadata = open(os.path.join(path, FILENAME_METADATA), "w")
 		self._offsets = open(os.path.join(path, FILENAME_OFFSETS), "w")
 
-		self._stepSize = stepSize
-		self._index = startIndex
-
 		self._fieldNames = None
 		self._attributeNames = []
 
 		self._closed = False
-
-		self.writeAttributes(**{
-			ATTRNAME_STARTINDEX:self._index,
-			ATTRNAME_STEPSIZE:self._stepSize
-			})
 
 
 	def append(self, **fieldsAndValues):
@@ -97,8 +86,6 @@ class TableWriter(object):
 		self._offsets.write(
 			"\t".join("{}".format(offset) for offset in offsets) + "\n"
 			)
-
-		self._index += self._stepSize
 
 
 	def writeAttributes(self, **namesAndValues):
