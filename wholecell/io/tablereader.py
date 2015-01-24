@@ -18,6 +18,10 @@ class TableReaderError(Exception):
 	pass
 
 
+class FilesClosedError(TableReaderError):
+	pass
+
+
 class TableReader(object):
 	def __init__(self, path):
 		self._data = open(os.path.join(path, tablewriter.FILENAME_DATA))
@@ -46,8 +50,7 @@ class TableReader(object):
 
 		self._nEntries = self._offsets.shape[0]
 
-		self._startIndex = self.readAttribute(tablewriter.ATTRNAME_STARTINDEX)
-		self._stepSize = self.readAttribute(tablewriter.ATTRNAME_STEPSIZE)
+		self._closed = False
 
 
 	def readAttribute(self, name):
@@ -55,6 +58,9 @@ class TableReader(object):
 
 
 	def readColumn(self, fieldName):
+		if self._closed:
+			raise FilesClosedError()
+
 		return np.array([
 			self._loadData(fieldName, i) for i in xrange(self._nEntries)
 			])
@@ -74,3 +80,10 @@ class TableReader(object):
 
 	def fieldNames(self):
 		return self._fieldNames
+
+
+	def close(self):
+		if not self._closed:
+			self._data.close()
+
+			self._closed = True
