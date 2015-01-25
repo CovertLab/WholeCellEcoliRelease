@@ -15,7 +15,6 @@ Mass listener. Represents the total cellular mass.
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 from wholecell.utils import units
@@ -181,66 +180,34 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.expectedMassFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
 
 
-	def pytablesCreate(self, h5file, expectedRows):
-		# Columns
-		d = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"cellMass": tables.Float64Col(),
-			"growth" : tables.Float64Col(),
-			"dryMass": tables.Float64Col(),
-			"rnaMass": tables.Float64Col(),
-			"rRnaMass": tables.Float64Col(),
-			"tRnaMass": tables.Float64Col(),
-			"mRnaMass": tables.Float64Col(),
-			"dnaMass": tables.Float64Col(),
-			"proteinMass": tables.Float64Col(),
-			"waterMass": tables.Float64Col(),
-			"processMassDifferences": tables.Float64Col(len(self.processNames)),
-			}
-
-		# Create table
-		# TODO: Add compression options (using filters)
-		t = h5file.create_table(
-			h5file.root,
-			self._name,
-			d,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+	def tableCreate(self, tableWriter):
+		# Store units as metadata
+		tableWriter.writeAttributes(
+			cell_units = self.massUnits,
+			cellDry_units = self.massUnits,
+			metabolite_units = self.massUnits,
+			growth_units = self.massUnits,
+			rna_units = self.massUnits,
+			protein_units = self.massUnits,
+			water_units = self.massUnits,
+			nucleoid_units = self.massUnits,
+			processNames = self.processNames
 			)
 
-		# Store units as metadata
-		t.attrs.cell_units = self.massUnits
-		t.attrs.cellDry_units = self.massUnits
-		t.attrs.metabolite_units = self.massUnits
-		t.attrs.growth_units = self.massUnits
-		t.attrs.rna_units = self.massUnits
-		t.attrs.protein_units = self.massUnits
-		t.attrs.water_units = self.massUnits
-		t.attrs.nucleoid_units = self.massUnits
 
-		t.attrs.processNames = self.processNames
-
-
-	def pytablesAppend(self, h5file):
-		t = h5file.get_node("/", self._name)
-		entry = t.row
-
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry["cellMass"] = self.cellMass
-		entry["growth"] = self.growth
-		entry["dryMass"] = self.dryMass
-		entry["rnaMass"] = self.rnaMass
-		entry["rRnaMass"] = self.rRnaMass
-		entry["tRnaMass"] = self.tRnaMass
-		entry["mRnaMass"] = self.mRnaMass
-		entry["dnaMass"] = self.dnaMass
-		entry["proteinMass"] = self.proteinMass
-		entry["waterMass"] = self.waterMass
-		entry["processMassDifferences"] = self.processMassDifferences
-
-		entry.append()
-
-		t.flush()
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep(),
+			cellMass = self.cellMass,
+			growth = self.growth,
+			dryMass = self.dryMass,
+			rnaMass = self.rnaMass,
+			rRnaMass = self.rRnaMass,
+			tRnaMass = self.tRnaMass,
+			mRnaMass = self.mRnaMass,
+			dnaMass = self.dnaMass,
+			proteinMass = self.proteinMass,
+			waterMass = self.waterMass,
+			processMassDifferences = self.processMassDifferences,
+			)
