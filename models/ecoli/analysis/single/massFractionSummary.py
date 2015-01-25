@@ -3,12 +3,12 @@
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1

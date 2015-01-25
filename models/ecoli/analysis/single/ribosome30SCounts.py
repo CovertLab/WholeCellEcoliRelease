@@ -10,13 +10,13 @@ Plots counts of 30S rRNA, associated proteins, and complexes
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
 

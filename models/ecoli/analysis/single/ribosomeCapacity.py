@@ -10,13 +10,13 @@ Plots ribosome capacity
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
@@ -36,7 +36,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 	ribosomeSubunitIds = [kb.s50_fullComplex, kb.s30_fullComplex]
 	elongationRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s))
-	
+
 	# Load ribosome data
 	with tables.open_file(os.path.join(simOutDir, "RibosomeData.hdf")) as massFile:
 		table = massFile.root.RibosomeData

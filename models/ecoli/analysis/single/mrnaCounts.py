@@ -12,7 +12,6 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -20,6 +19,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 # TODO: account for complexation
@@ -66,7 +66,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
 	maxLine = 1.1 * max(expectedCounts.max(), counts.max())
-	plt.plot([0, maxLine], [0, maxLine], '--r')	
+	plt.plot([0, maxLine], [0, maxLine], '--r')
 	plt.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 
 	plt.xlabel("Expected RNA count (scaled to total)")

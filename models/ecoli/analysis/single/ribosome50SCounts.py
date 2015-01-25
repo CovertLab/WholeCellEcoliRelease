@@ -10,13 +10,13 @@ Plots counts of 50S rRNA, associated proteins, and complexes
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
 
@@ -39,7 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	rRnaIds.extend(kb.s50_5sRRNA)
 	complexIds = kb.s50_proteinComplexes
 	complexIds.append(kb.s50_fullComplex)
-	
+
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
 		# Get indexes

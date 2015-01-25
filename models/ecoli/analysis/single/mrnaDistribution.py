@@ -5,7 +5,6 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -13,6 +12,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
@@ -59,7 +59,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
 		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
-	
+
 	expectedCountsArbitrary = kb.rnaExpression['expression'][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()

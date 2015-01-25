@@ -10,15 +10,13 @@ Plot RNA polymerase counts and counts of mRNA precursors
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
-
-from wholecell.containers.unique_molecules_data import UniqueMoleculesData
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -64,7 +62,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	for subplotIdx in xrange(2, 6):
 		rnapRnaCountsIdx = subplotIdx - 2
-	
+
 		plt.subplot(5, 1, subplotIdx)
 
 		plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])

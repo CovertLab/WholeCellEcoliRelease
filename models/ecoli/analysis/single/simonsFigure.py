@@ -14,13 +14,13 @@ import argparse
 import os
 import cPickle
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 CATEGORICAL_COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
@@ -152,7 +152,7 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
 		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
-	
+
 	expectedCountsArbitrary = kb.rnaExpression['expression'][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()

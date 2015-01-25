@@ -11,7 +11,6 @@ import argparse
 import os
 import cPickle
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -21,6 +20,7 @@ from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
 from scipy.spatial import distance
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 FLUX_UNITS = "M/s"

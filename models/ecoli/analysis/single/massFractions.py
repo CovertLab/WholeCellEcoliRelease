@@ -10,12 +10,12 @@ Plot mass fractions
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -26,19 +26,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
+	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-	table = h.root.Mass
+	cell = mass.readColumn("cellMass")
+	cellDry = mass.readColumn("dryMass")
+	protein = mass.readColumn("proteinMass")
+	rna = mass.readColumn("rnaMass")
+	# tRna = mass.readColumn("tRnaMass")
+	# rRna = mass.readColumn("rRnaMass")
+	# mRna = mass.readColumn("mRnaMass")
+	# dna = mass.readColumn("dnaMass")
+	t = mass.readColumn("time")
 
-	cell = table.col("cellMass")
-	cellDry = table.col("dryMass")
-	protein = table.col("proteinMass")
-	rna = table.col("rnaMass")
-	# tRna = table.col("tRnaMass")
-	# rRna = table.col("rRnaMass")
-	# mRna = table.col("mRnaMass")
-	# dna = table.col("dnaMass")
-	t = table.col("time")
+	mass.close()
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -80,7 +80,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 
-	h.close()
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

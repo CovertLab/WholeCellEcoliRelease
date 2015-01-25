@@ -10,12 +10,12 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -26,27 +26,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "EvaluationTime.hdf"))
+	evaluationTime = TableReader(os.path.join(simOutDir, "EvaluationTime"))
 
-	evalTimes = h.root.EvaluationTime
+	stateNames = evaluationTime.readAttribute("stateNames")
+	processNames = evaluationTime.readAttribute("processNames")
 
-	stateNames = evalTimes.attrs.stateNames
-	processNames = evalTimes.attrs.processNames
+	time = evaluationTime.readColumn("time")
 
-	time = evalTimes.col("time")
+	updateQueries_times = evaluationTime.readColumn("updateQueries_times")
+	partition_times = evaluationTime.readColumn("partition_times")
+	merge_times = evaluationTime.readColumn("merge_times")
+	calculateRequest_times = evaluationTime.readColumn("calculateRequest_times")
+	evolveState_times = evaluationTime.readColumn("evolveState_times")
+	# updateQueries_total = evaluationTime.readColumn("updateQueries_total")
+	# partition_total = evaluationTime.readColumn("partition_total")
+	# merge_total = evaluationTime.readColumn("merge_total")
+	# calculateRequest_total = evaluationTime.readColumn("calculateRequest_total")
+	# evolveState_total = evaluationTime.readColumn("evolveState_total")
 
-	updateQueries_times = evalTimes.col("updateQueries_times")
-	partition_times = evalTimes.col("partition_times")
-	merge_times = evalTimes.col("merge_times")
-	calculateRequest_times = evalTimes.col("calculateRequest_times")
-	evolveState_times = evalTimes.col("evolveState_times")
-	# updateQueries_total = evalTimes.col("updateQueries_total")
-	# partition_total = evalTimes.col("partition_total")
-	# merge_total = evalTimes.col("merge_total")
-	# calculateRequest_total = evalTimes.col("calculateRequest_total")
-	# evolveState_total = evalTimes.col("evolveState_total")
-
-	h.close()
+	evaluationTime.close()
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -100,7 +98,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 
-	h.close()
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
