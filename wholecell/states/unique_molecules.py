@@ -72,9 +72,6 @@ class UniqueMolecules(wholecell.states.state.State):
 
 
 	def partition(self):
-		# Set the correct time for saving purposes
-		self.container.timeStepIs(self.timeStep())
-
 		# Remove any prior partition assignments
 		objects = self.container.objects()
 		if len(objects) > 0:

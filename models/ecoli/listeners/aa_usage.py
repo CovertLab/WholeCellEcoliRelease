@@ -95,8 +95,8 @@ class AAUsage(wholecell.listeners.listener.Listener):
 			translationAAUsageCurrent_units = self.usageUnits,
 			translationAAUsageCumulative_units = self.usageUnits,
 			metaboliteIds = self.metaboliteIds,
-			relativeAAProductionBiomass = self.relativeAAProductionBiomass,
-			relativeAaUsage = self.relativeAaUsage
+			relativeAAProductionBiomass = self.relativeAAProductionBiomass.tolist(),
+			relativeAaUsage = self.relativeAaUsage.tolist()
 			)
 
 

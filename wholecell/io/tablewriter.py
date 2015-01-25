@@ -70,12 +70,12 @@ class TableWriter(object):
 
 			if missingFields:
 				raise MissingFieldError(
-					"Missing fields: {}".format(missingFields)
+					"Missing fields: {}".format(", ".join(missingFields))
 					)
 
 			if unrecognizedFields:
 				raise UnrecognizedFieldError(
-					"Unrecognized fields: {}".format(unrecognizedFields)
+					"Unrecognized fields: {}".format(", ".join(unrecognizedFields))
 					)
 
 		offsets = []
@@ -97,15 +97,21 @@ class TableWriter(object):
 		for name, value in namesAndValues.viewitems():
 			if name in self._attributeNames:
 				raise AttributeAlreadyExistsError(
-					"An attribute named {} already exists.".format(name)
+					"An attribute named '{}' already exists.".format(name)
 					)
 
 			try:
+				if isinstance(value, np.ndarray):
+					print "Warning - converting '{}' attribute from ndarray to list for JSON serialization.".format(name)
+
+					value = value.tolist()
+
 				serialized = json.dumps(value)
 
 			except TypeError:
+
 				raise AttributeTypeError(
-					"Attribute {} value ({}) was not JSON serializable.".format(
+					"Attribute '{}' value ({}) was not JSON serializable.".format(
 						name, value # TODO: repr for value instead of str
 						)
 					)

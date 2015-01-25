@@ -321,7 +321,7 @@ class UniqueObjectsContainer(object):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			**dict(
-				zip(self._collectionNames, self._collections)
+				zip(self._names, self._collections)
 				+ [("_globalReference", self._globalReference)]
 				) # TODO: consider caching this dict
 			)

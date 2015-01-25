@@ -51,8 +51,8 @@ class GeneCopyNumber(wholecell.listeners.listener.Listener):
 	def tableCreate(self, tableWriter):
 		# Store units as metadata
 		tableWriter.writeAttributes( # TODO: reconsider attribute names
-			self.gene_copy_number = self.countUnits,
-			self.total_copy_number = self.countUnits
+			gene_copy_number = self.countUnits,
+			total_copy_number = self.countUnits
 			)
 
 

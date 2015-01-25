@@ -315,8 +315,8 @@ class Simulation(object):
 	# Save to/load from disk
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
-			states = self.states.viewkeys(),
-			processes = self.processes.viewkeys()
+			states = self.states.keys(),
+			processes = self.processes.keys()
 			)
 
 

@@ -94,13 +94,13 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 			transcriptionNtpUsageCurrent_units = self.usageUnits,
 			transcriptionNtpUsageCumulative_units = self.usageUnits,
 			metaboliteIds = self.metaboliteIds,
-			relativeNtpProductionBiomass = self.relativeNtpProductionBiomass,
-			relativeNtpUsage = self.relativeNtpUsage,
+			relativeNtpProductionBiomass = self.relativeNtpProductionBiomass.tolist(),
+			relativeNtpUsage = self.relativeNtpUsage.tolist(),
 			)
 
 
 	def tableAppend(self, tableWriter):
-		tableWriter(
+		tableWriter.append(
 			time = self.time(),
 			timeStep = self.timeStep(),
 			transcriptionNtpUsageCurrent = self.transcriptionNtpUsageCurrent,

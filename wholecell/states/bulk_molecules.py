@@ -167,10 +167,11 @@ class BulkMolecules(wholecell.states.state.State):
 			time = self.time(),
 			timeStep = self.timeStep(),
 			counts = self.container._counts,
-			countsRequested = self._countsRequested,
-			countsAllocatedInitial = self._countsAllocatedInitial,
-			countsAllocatedFinal = self._countsAllocatedFinal,
-			countsUnallocated = self._countsUnallocated,
+			# TODO: better logging for requests i.e. not GBs of data
+			# countsRequested = self._countsRequested,
+			# countsAllocatedInitial = self._countsAllocatedInitial,
+			# countsAllocatedFinal = self._countsAllocatedFinal,
+			# countsUnallocated = self._countsUnallocated,
 			)
 
 

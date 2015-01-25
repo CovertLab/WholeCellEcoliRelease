@@ -44,7 +44,7 @@ class ConcentrationChange(wholecell.listeners.listener.Listener):
 			)
 
 
-	def tableAppend(self, h5file):
+	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
 			timeStep = self.timeStep(),
