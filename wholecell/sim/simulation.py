@@ -325,7 +325,7 @@ class Simulation(object):
 		pass
 
 
-	def tableLoad(self, tableReader):
+	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 	# TODO: rewrite simulation loading
