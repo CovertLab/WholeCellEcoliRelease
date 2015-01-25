@@ -9,14 +9,17 @@ Executes a model.
 
 from __future__ import division
 
+import os
+import argparse
+import shutil
+
 from wholecell.sim.simulation import getSimOptsFromEnvVars
 from models.ecoli.sim.simulation import EcoliSimulation
 from models.ecoli_metabolism.sim.simulation import EcoliMetabolismSimulation
 import wholecell.utils.constants
-import os
-import argparse
 
 def main(modelLevel, kbDirectory, simDirectory):
+	# TODO: bitch at Derek about all the wacky assumptions in this script
 
 	simOpts = getSimOptsFromEnvVars()
 
@@ -33,6 +36,9 @@ def main(modelLevel, kbDirectory, simDirectory):
 	simOpts["logToShell"] = False
 	simOpts["logToDiskEvery"] = 10
 	simOpts["overwriteExistingFiles"] = False
+
+	# Clear out old directory, if it exists
+	shutil.rmtree(simOpts["outputDir"], ignore_errors = True)
 
 	metadataDir = os.path.join(simDirectory, "model_level_%d" % modelLevel, "metadata")
 
