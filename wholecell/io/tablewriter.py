@@ -6,6 +6,8 @@ import json
 
 import numpy as np
 
+# TODO: tests
+
 __all__ = [
 	"TableWriter",
 	# "TableWriterError",
