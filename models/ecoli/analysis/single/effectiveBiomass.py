@@ -57,7 +57,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	timeStep = fbaResults.readColumn("timeStep")
 	outputFluxes = fbaResults.readColumn("outputFluxes")
 
-	names = h5file.root.names
 	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
 
 	fbaResults.close()

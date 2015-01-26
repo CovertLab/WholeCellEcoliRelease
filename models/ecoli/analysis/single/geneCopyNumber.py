@@ -28,8 +28,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	geneCopyNumberFile = TableReader(os.path.join(simOutDir, "GeneCopyNumber"))
 
-	table = h.root.GeneCopyNumber
-
 	# geneCopyNumber = geneCopyNumberFile.readColumn('gene_copy_number')
 	totalCopyNumber = geneCopyNumberFile.readColumn('total_copy_number')
 	time = geneCopyNumberFile.readColumn('time')

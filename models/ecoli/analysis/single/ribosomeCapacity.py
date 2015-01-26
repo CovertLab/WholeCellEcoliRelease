@@ -38,7 +38,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	elongationRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 	# Load ribosome data
-	massFile = TableReader(os.path.join("RibosomeData"))
+	massFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 
 	actualElongations = massFile.readColumn("actualElongations")
 	expectedElongations_recorded = massFile.readColumn("expectedElongations")
@@ -47,7 +47,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	massFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	# Get indexes
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
@@ -58,7 +58,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules.close()
 
-	uniqueMoleculeCounts = TableReader(os.path.join("UniqueMoleculeCounts"))
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
 	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
 	activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]

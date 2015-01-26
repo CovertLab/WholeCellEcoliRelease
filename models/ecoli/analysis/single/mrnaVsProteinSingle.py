@@ -49,7 +49,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinIds = kb.monomerData["id"]
 
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
@@ -61,7 +61,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = bulkMolecules.read(0, None, 1, "time")
+	time = bulkMolecules.readColumn("time")
 
 	bulkMolecules.close()
 

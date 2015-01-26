@@ -40,7 +40,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	rnaIds = kb.rnaData["id"][isTRna]
 
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 

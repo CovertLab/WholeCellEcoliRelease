@@ -39,7 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinIds = kb.monomerData["id"]
 
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 

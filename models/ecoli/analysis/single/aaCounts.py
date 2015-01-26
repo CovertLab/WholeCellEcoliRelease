@@ -26,9 +26,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules.hdf"))
-
-	names = bulkMolecules.readAttribute("names")
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 

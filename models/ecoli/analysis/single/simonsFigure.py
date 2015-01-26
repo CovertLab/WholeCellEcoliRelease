@@ -91,7 +91,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 
 def plotMassFractions(grids, simOutDir, kbFile):
-	mass = TableReader(os.path.join(simOutDir, "Mass.hdf"))
+	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
 	# cell = mass.readColumn("cellMass")
 	# cellDry = mass.readColumn("dryMass")
@@ -140,7 +140,7 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 
 	rnaIds = kb.rnaData["id"][isMRna]
 
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
@@ -225,7 +225,7 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	proteinIds = kb.monomerData["id"]
 
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 

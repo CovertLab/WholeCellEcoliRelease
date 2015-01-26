@@ -40,7 +40,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	complexIds = [kb.s30_fullComplex]
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
-	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	# Get indexes
 	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 	proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
@@ -57,7 +57,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules.close()
 
-	uniqueMoleculeCounts = TableReader(os.path.join("UniqueMoleculeCounts"))
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
 	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
 	activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]

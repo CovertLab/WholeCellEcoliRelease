@@ -53,7 +53,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		np.array(objectiveValue, ndmin=2),
 		0)
 
-	names = h5file.root.names
 	outputMoleculeIDs = np.append(
 		np.array(fbaResults.readAttribute("outputMoleculeIDs")),
 		"Full objective"
@@ -83,7 +82,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ax_dendro.set_yticks([])
 	ax_dendro.set_axis_off()
 
-	ax_mat = fig.add_subplot(grid[1]fbaResults)
+	ax_mat = fig.add_subplot(grid[1])
 
 	cmap = colors.LinearSegmentedColormap.from_list(
 		"white to blue with upper extreme",

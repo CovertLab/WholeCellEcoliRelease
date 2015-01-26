@@ -32,8 +32,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	normAAProductionBiomass = aaUsageFile.readAttribute("relativeAAProductionBiomass")
 	relativeAaUsage = aaUsageFile.readAttribute("relativeAaUsage")
 
-	aaUsage = aaUsageFile.readColumn("aaUsage")[1:, :]	# Ignore time point 0
-	t = aaUsageFile.readColumn("time")[1: ]	# Ignore time point 0
+	aaUsage = aaUsageFile.readColumn("translationAAUsageCurrent")[1:, :]	# Ignore time point 0
+	t = aaUsageFile.readColumn("time")[1:]	# Ignore time point 0
 
 	aaUsageFile.close()
 

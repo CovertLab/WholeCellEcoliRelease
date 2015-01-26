@@ -39,6 +39,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	dnmpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNMP_IDS], np.int)
 	dnmpCounts = bulkMolecules.readColumn("counts")[:, dnmpIndexes]
 
+	time = bulkMolecules.readColumn("time")
+
 	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
