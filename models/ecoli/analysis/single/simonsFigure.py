@@ -91,21 +91,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 
 def plotMassFractions(grids, simOutDir, kbFile):
-	hdfFile = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
+	mass = TableReader(os.path.join(simOutDir, "Mass.hdf"))
 
-	table = hdfFile.root.Mass
+	# cell = mass.readColumn("cellMass")
+	# cellDry = mass.readColumn("dryMass")
+	protein = mass.readColumn("proteinMass")
+	# rna = mass.readColumn("rnaMass")
+	tRna = mass.readColumn("tRnaMass")
+	rRna = mass.readColumn("rRnaMass")
+	mRna = mass.readColumn("mRnaMass")
+	dna = mass.readColumn("dnaMass")
+	t = mass.readColumn("time")
 
-	# cell = table.col("cellMass")
-	# cellDry = table.col("dryMass")
-	protein = table.col("proteinMass")
-	# rna = table.col("rnaMass")
-	tRna = table.col("tRnaMass")
-	rRna = table.col("rRnaMass")
-	mRna = table.col("mRnaMass")
-	dna = table.col("dnaMass")
-	t = table.col("time")
-
-	hdfFile.close()
+	mass.close()
 
 	masses = np.vstack([
 		protein/protein[0],
@@ -142,16 +140,15 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 
 	rnaIds = kb.rnaData["id"][isMRna]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
-		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
+	bulkMolecules.close()
 
 	expectedCountsArbitrary = kb.rnaExpression['expression'][isMRna]
 
@@ -228,22 +225,21 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	proteinIds = kb.monomerData["id"]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
-		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
+	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
 
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
+	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-		proteinCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
+	time = bulkMolecules.read(0, None, 1, "time")
 
-		time = bulkMolecules.read(0, None, 1, "time")
+	bulkMolecules.close()
 
 	time /= 60.
 

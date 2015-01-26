@@ -53,13 +53,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
-		time = h5file.root.FBAResults.col("time")
-		timeStep = h5file.root.FBAResults.col("timeStep")
-		reactionFluxes = h5file.root.FBAResults.col("reactionFluxes")
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	time = fbaResults.readColumn("time")
+	timeStep = fbaResults.readColumn("timeStep")
+	reactionFluxes = fbaResults.readColumn("reactionFluxes")
 
-		names = h5file.root.names
-		reactionIDs = np.array(names.reactionIDs.read())
+	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+
+	fbaResults.close()
 
 	# TODO: split figure output, perhaps using major clusterings
 

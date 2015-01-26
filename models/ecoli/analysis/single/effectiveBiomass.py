@@ -51,13 +51,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
-		time = h5file.root.FBAResults.col("time")
-		timeStep = h5file.root.FBAResults.col("timeStep")
-		outputFluxes = h5file.root.FBAResults.col("outputFluxes")
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-		names = h5file.root.names
-		outputMoleculeIDs = np.array(names.outputMoleculeIDs.read())
+	time = fbaResults.readColumn("time")
+	timeStep = fbaResults.readColumn("timeStep")
+	outputFluxes = fbaResults.readColumn("outputFluxes")
+
+	names = h5file.root.names
+	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
+
+	fbaResults.close()
 
 	fig = plt.figure(figsize = (30, 15))
 

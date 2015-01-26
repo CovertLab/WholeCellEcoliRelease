@@ -26,23 +26,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	names = h.root.names
-
-	moleculeIds = names.moleculeIDs.read()
+	names = bulkMolecules.readAttribute("names")
 
 	NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
 	ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
 	bulkMolecules = h.root.BulkMolecules
-	ntpCounts = bulkMolecules.read(0, None, 1, "counts")[:, ntpIndexes]
+	ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
+	time = bulkMolecules.readColumn("time")
 
-	h.close()
-
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
-	table = h.root.Mass
-	time = np.array([x["time"] for x in table.iterrows()])
-	h.close()
+	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
 

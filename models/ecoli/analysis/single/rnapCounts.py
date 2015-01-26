@@ -26,30 +26,26 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	names = h.root.names
-	bulkMolecules = h.root.BulkMolecules
-
-	moleculeIds = names.moleculeIDs.read()
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 	rnapId = "APORNAP-CPLX[c]"
 	rnapIndex = moleculeIds.index(rnapId)
-	rnapCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnapIndex]
+	rnapCountsBulk = bulkMolecules.readColumn("counts")[:, rnapIndex]
 
 	RNAP_RNA_IDS = ["EG10893_RNA[c]", "EG10894_RNA[c]", "EG10895_RNA[c]", "EG10896_RNA[c]"]
 	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-	rnapRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rnapRnaIndexes]
+	rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
 
-	h.close()
+	bulkMolecules.close()
 
-	h = tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf"))
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-	uniqueMoleculeCounts = h.root.UniqueMoleculeCounts
-	rnapIndex = uniqueMoleculeCounts.attrs.uniqueMoleculeIds.index("activeRnaPoly")
-	time = uniqueMoleculeCounts.col("time")
-	nActive = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, rnapIndex]
+	rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+	time = uniqueMoleculeCounts.readColumn("time")
+	nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 
-	h.close()
+	uniqueMoleculeCounts.close()
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -74,7 +70,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 
-	# h.close()
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

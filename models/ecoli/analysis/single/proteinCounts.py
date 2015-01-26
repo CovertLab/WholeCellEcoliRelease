@@ -39,16 +39,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinIds = kb.monomerData["id"]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
 
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
+	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-		proteinCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
+	bulkMolecules.close()
 
 	# avgCounts = proteinCountsBulk.mean(0)
 

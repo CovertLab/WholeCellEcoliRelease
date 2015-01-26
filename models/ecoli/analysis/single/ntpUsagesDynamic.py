@@ -26,20 +26,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "NtpUsage.hdf"))
+	ntpUsageFile = TableReader(os.path.join(simOutDir, "NtpUsage"))
 
-	metaboliteIds = h.root.NtpUsage._v_attrs["metaboliteIds"]
-	normNtpProductionBiomass = h.root.NtpUsage._v_attrs["relativeNtpProductionBiomass"]
-	relativeNtpUsage = h.root.NtpUsage._v_attrs["relativeNtpUsage"]
+	metaboliteIds = ntpUsageFile.readAttribute("metaboliteIds")
+	normNtpProductionBiomass = ntpUsageFile.readAttribute("relativeNtpProductionBiomass")
+	relativeNtpUsage = ntpUsageFile.readAttribute("relativeNtpUsage")
 
-	ntpUsage = np.array(
-		[x['transcriptionNtpUsageCurrent'] for x in h.root.NtpUsage.iterrows()]
-		)[1:, :]	# Ignore time point 0
-	t = np.array(
-		[x["time"] for x in h.root.NtpUsage.iterrows()]
-		)[1: ]	# Ignore time point 0
+	ntpUsage = ntpUsageFile.readColumn('transcriptionNtpUsageCurrent')[1:, :]	# Ignore time point 0
+	t = ntpUsageFile.readColumn("time")[1: ]	# Ignore time point 0
 
-	h.close()
+	ntpUsageFile.close()
 
 	plt.figure(figsize = (8.5, 11))
 

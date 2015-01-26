@@ -40,22 +40,21 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	rnaIds = kb.rnaData["id"][isMRna]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join("BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-
-		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
 	# avgCounts = rnaCountsBulk.mean(0)
 
 	# relativeCounts = avgCounts / avgCounts.sum()
 
 	# relativeCounts = rnaCountsBulk[-1, :] / rnaCountsBulk[-1, :].sum()
+
+	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
 

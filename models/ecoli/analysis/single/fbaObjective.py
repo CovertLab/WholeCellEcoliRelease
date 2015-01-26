@@ -43,20 +43,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
-		time = h5file.root.FBAResults.col("time")
-		timeStep = h5file.root.FBAResults.col("timeStep")
-		objectiveValue = h5file.root.FBAResults.col("objectiveValue")
-		objectiveComponents = np.append(
-			h5file.root.FBAResults.col("objectiveComponents").T,
-			np.array(objectiveValue, ndmin=2),
-			0)
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-		names = h5file.root.names
-		outputMoleculeIDs = np.append(
-			np.array(names.outputMoleculeIDs.read()),
-			"Full objective"
-			)
+	time = fbaResults.readColumn("time")
+	timeStep = fbaResults.readColumn("timeStep")
+	objectiveValue = fbaResults.readColumn("objectiveValue")
+	objectiveComponents = np.append(
+		fbaResults.readColumn("objectiveComponents").T,
+		np.array(objectiveValue, ndmin=2),
+		0)
+
+	names = h5file.root.names
+	outputMoleculeIDs = np.append(
+		np.array(fbaResults.readAttribute("outputMoleculeIDs")),
+		"Full objective"
+		)
+
+	fbaResults.close()
 
 	fig = plt.figure(figsize = (30, 15))
 
@@ -80,7 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ax_dendro.set_yticks([])
 	ax_dendro.set_axis_off()
 
-	ax_mat = fig.add_subplot(grid[1])
+	ax_mat = fig.add_subplot(grid[1]fbaResults)
 
 	cmap = colors.LinearSegmentedColormap.from_list(
 		"white to blue with upper extreme",

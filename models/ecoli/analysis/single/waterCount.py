@@ -26,22 +26,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	names = h.root.names
-
-	moleculeIds = names.moleculeIDs.read()
+	names = bulkMolecules.readAttribute("names")
 
 	waterIndex = np.array(moleculeIds.index('H2O[c]'), np.int)
 	bulkMolecules = h.root.BulkMolecules
-	waterCount = bulkMolecules.read(0, None, 1, "counts")[:, waterIndex]
+	waterCount = bulkMolecules.readColumn("counts")[:, waterIndex]
+	time = bulkMolecules.readColumn("time")
 
-	h.close()
-
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
-	table = h.root.Mass
-	time = np.array([x["time"] for x in table.iterrows()])
-	h.close()
+	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
 
