@@ -237,7 +237,7 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = bulkMolecules.read(0, None, 1, "time")
+	time = bulkMolecules.readColumn("time")
 
 	bulkMolecules.close()
 
