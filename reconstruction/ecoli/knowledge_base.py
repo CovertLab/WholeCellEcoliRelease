@@ -1849,6 +1849,7 @@ class KnowledgeBaseEcoli(object):
 			+ len(self._proteins)
 			+ len(self._proteinComplexes)
 			+ len(self._polymerized)*len(self._compartmentList)
+			+ 4*len(self._compartmentList)
 			)
 
 		bulkMolecules = np.zeros(
@@ -1947,6 +1948,39 @@ class KnowledgeBaseEcoli(object):
 		bulkMolecules["mass"][range(lastComplexIdx, lastPolymerizedIndex), massIndexes] = masses
 		# NOTE: the use of range above is intentional
 		
+		# Set fragmented RNA ids
+		# TODO: UNHACK THIS!!!! MASS MAY NOT BE BALANCED!!!!
+		samePolymerizedIDs = ['Polymerized ADN', 'Polymerized CYTD', 'Polymerized GSN', 'Polymerized URI']
+
+		fragmentData = [x for x in self._polymerized if x['id'] in samePolymerizedIDs]
+		for x in fragmentData:
+			x['id'] = x['id'].replace('Polymerized', 'Fragment')
+			x['mass key'] = MOLECULAR_WEIGHT_KEYS.index("RNA")
+
+		fragmentIDs = [entry["id"] for entry in fragmentData]
+
+		lastFragmentedIndex = len(fragmentIDs)*len(self._compartmentList) + lastPolymerizedIndex
+
+		bulkMolecules["moleculeId"][lastPolymerizedIndex:lastFragmentedIndex] = [
+			'{}[{}]'.format(fragmentID, compartmentAbbreviation)
+			for compartmentAbbreviation in compartmentAbbreviations
+			for fragmentID in fragmentIDs
+			]
+
+		fragmentMasses = [
+			entry["mw"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in fragmentData
+			]
+
+		fragmentMassIndexes = [
+			entry["mass key"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in fragmentData
+			] 
+
+		bulkMolecules["mass"][range(lastPolymerizedIndex, lastFragmentedIndex), fragmentMassIndexes] = fragmentMasses
+
 		# Add units to values
 		field_units = {
 			"moleculeId"		:	None,
