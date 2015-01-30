@@ -34,6 +34,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 		super(RnaDegradationListener, self).initialize(sim, kb)
 
 		# Computed, saved attributes
+		self.numberRnas = kb.rnaData.fullArray().shape[0]
 
 		# Attributes broadcast by the RnaDegradation process
 		self.countRnaDegraded = None
@@ -77,7 +78,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 		dtype = {
 			"time": tables.Float64Col(),
 			"timeStep": tables.Int64Col(),
-			"countRnaDegraded": tables.Float64Col(),
+			"countRnaDegraded": tables.Float64Col(self.numberRnas),
 			"nucleotidesFromDegradation": tables.Float64Col(),
 			}
 

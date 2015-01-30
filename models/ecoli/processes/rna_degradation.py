@@ -108,7 +108,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 			self.rnas.counts()
 			))
 
-		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts().sum())
+		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
 		self.writeToListener("RnaDegradationListener", "nucleotidesFromDegradation", (self.rnas.counts() * self.rnaLens).sum())
 
 		self.rnas.countsIs(0)
