@@ -71,6 +71,14 @@ class TableReader(object):
 			])
 
 
+	def iterColumn(self, fieldName):
+		for i in xrange(self._nEntries):
+			if self._closed:
+				raise FilesClosedError()
+
+			yield self._loadData(fieldName, i)
+
+
 	def _loadData(self, fieldName, index):
 		self._data.seek(
 			self._offsets[index, self._fieldNames.index(fieldName)]
