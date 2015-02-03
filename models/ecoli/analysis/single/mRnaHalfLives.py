@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 """
-Plot mRNA half lives
+Plot mRNA half lives (expected vs. predicted)
 
+@author: Javier Carrera
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 1/30/2015
 """
 
 from __future__ import division
@@ -41,15 +44,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		countRnaDegraded = rnaDegradationListenerFile.root.RnaDegradationListener.col('countRnaDegraded')
 
 	plt.figure(figsize = (8.5, 11))
-	import ipdb; ipdb.set_trace()
+	
 
 	rnaDegradationRate = countRnaDegraded[1:,:].sum(axis = 0)[isMRna] / 3600.
 
 	expectedDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
 
 	maxLine = 1.1 * max(expectedDegradationRate.max(), rnaDegradationRate.max())
+	#import ipdb; ipdb.set_trace()
 	plt.plot([0, maxLine], [0, maxLine], '--r')	
 	plt.plot(expectedDegradationRate, rnaDegradationRate, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
+	Correlation_ExpPred = np.corrcoef(expectedDegradationRate, rnaDegradationRate)[0][1]
+	print "Correlation expected and predicted half-lives = %.3f" % Correlation_ExpPred
 
 	plt.xlabel("Expected RNA half life")
 	plt.ylabel("Actual RNA half life (at final time step)")
