@@ -55,46 +55,85 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 	RnaseIds = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]",
 	"EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]",
-	"G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]"]
-	
+	"G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
+	exoRnaseIds = ["EG11620-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]",  "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "EG10743-MONOMER[c]", "G7842-MONOMER[c]"]
+	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
 		# Get indexes
 		moleculeIds = bulkMoleculesFile.root.names.moleculeIDs.read()
 		proteinIndexes = np.array([moleculeIds.index(protein) for protein in RnaseIds], np.int)
+		exoproteinIndexes = np.array([moleculeIds.index(protein) for protein in exoRnaseIds], np.int)
+		endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
 
 		# Load data
 		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
 		time = bulkMolecules.col("time")
 		RnaseCounts = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
+		exoRnaseCounts = bulkMolecules.read(0, None, 1, "counts")[:, exoproteinIndexes]
+		endoRnaseCounts = bulkMolecules.read(0, None, 1, "counts")[:, endoproteinIndexes]
 
 	with tables.open_file(os.path.join(simOutDir, "RnaDegradationListener.hdf")) as rnaDegradationListenerFile:
 		time = rnaDegradationListenerFile.root.RnaDegradationListener.col('time')
 		countRnaDegraded = rnaDegradationListenerFile.root.RnaDegradationListener.col('countRnaDegraded')
 		nucleotidesFromDegradation = rnaDegradationListenerFile.root.RnaDegradationListener.col('nucleotidesFromDegradation')
+	#import ipdb; ipdb.set_trace()
 
 	# Computation
 	totalRnaseCounts = RnaseCounts.sum(axis = 1)
 	requiredRnaseTurnover = nucleotidesFromDegradation / RnaseCounts.sum(axis = 1)
 
+	totalexoRnaseCounts = exoRnaseCounts.sum(axis = 1)
+	totalendoRnaseCounts = endoRnaseCounts.sum(axis = 1)
+	kcatExoRnase = nucleotidesFromDegradation / exoRnaseCounts.sum(axis = 1)
+	kcatEndoRnase = countRnaDegraded.sum(axis = 1) / endoRnaseCounts.sum(axis = 1)
+
 	# Plotting
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
 
-	countRnaDegraded_axis = plt.subplot(4,1,1)
-	countRnaDegraded_axis.plot(time / 60, countRnaDegraded)
+	countRnaDegraded_axis = plt.subplot(8,1,1)
+	countRnaDegraded_axis.plot(time / 60, countRnaDegraded.sum(axis = 1))
+	plt.ylabel("Counts of RNA degraded", fontsize = 7)
+	plt.xlabel("Time (min)")
 
-	nucleotidesFromDegradation_axis = plt.subplot(4,1,2)
+	nucleotidesFromDegradation_axis = plt.subplot(8,1,2)
 	nucleotidesFromDegradation_axis.plot(time / 60, nucleotidesFromDegradation)
+	plt.ylabel("Nucleotides from RNA degraded", fontsize = 7)
+	plt.xlabel("Time (min)")
 
-	totalRnaseCounts_axis = plt.subplot(4,1,3)
+	totalRnaseCounts_axis = plt.subplot(8,1,3)
 	totalRnaseCounts_axis.plot(time / 60, totalRnaseCounts)
+	plt.ylabel("Total RNAse counts", fontsize = 7)
+	plt.xlabel("Time (min)")
 
-	requiredRnaseTurnover_axis = plt.subplot(4,1,4)
+	requiredRnaseTurnover_axis = plt.subplot(8,1,4)
 	requiredRnaseTurnover_axis.plot(time / 60, requiredRnaseTurnover)
+	plt.ylabel("RNase turnover required (nt/s)", fontsize = 7)
+	plt.xlabel("Time (min)")
 
-	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
+	totalexoRnaseCounts_axis = plt.subplot(8,1,5)
+	totalexoRnaseCounts_axis.plot(time / 60, totalexoRnaseCounts)
+	plt.ylabel("Counts of exoRNase", fontsize = 7)
+	plt.xlabel("Time (min)")
+
+	totalendoRnaseCounts_axis = plt.subplot(8,1,6)
+	totalendoRnaseCounts_axis.plot(time / 60, totalendoRnaseCounts)
+	plt.ylabel("Counts of endoRNase", fontsize = 7)
+	plt.xlabel("Time (min)")
+
+	kcatExoRnase_axis = plt.subplot(8,1,7)
+	kcatExoRnase_axis.plot(time / 60, kcatExoRnase)
+	plt.ylabel("ExoRNase turnover required", fontsize = 7)
+	plt.xlabel("Time (min)")
+
+	kcatEndoRnase_axis = plt.subplot(8,1,8)
+	kcatEndoRnase_axis.plot(time / 60, kcatEndoRnase)
+	plt.ylabel("EndoRNase turnover required", fontsize = 7)
+	plt.xlabel("Time (min)")
+
+	plt.subplots_adjust(hspace = 0.9, wspace = 0.5)
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
