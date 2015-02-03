@@ -107,10 +107,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * sum(nEndoRNases)
 		#nRNAsTotalToDegrade = math.floor(KcatEndoRNaseFullRNA * sum(nEndoRNases)) # Do not use all endoRNases
 
-		nRNAsToDegrade_old =  np.fmin(
-			self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
-			self.rnas.total()
-			)
+		# nRNAsToDegrade_old =  np.fmin(
+		# 	self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
+		# 	self.rnas.total()
+		# 	)
 
 		if nRNAsTotalToDegrade == 0:
 			return
