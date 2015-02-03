@@ -1957,7 +1957,7 @@ class KnowledgeBaseEcoli(object):
 			x['id'] = x['id'].replace('Polymerized', 'Fragment')
 			x['mass key'] = MOLECULAR_WEIGHT_KEYS.index("RNA")
 
-		fragmentIDs = [entry["id"] for entry in fragmentData]
+		fragmentIDs = [entry["id"] for entry in fragmentData]   
 
 		lastFragmentedIndex = len(fragmentIDs)*len(self._compartmentList) + lastPolymerizedIndex
 
