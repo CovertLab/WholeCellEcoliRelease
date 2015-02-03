@@ -61,7 +61,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 		rnaIds = kb.rnaData['id']
 
 		#RNase
-		RnaseIds = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
 		exoRnaseIds = ["EG11620-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]",  "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "EG10743-MONOMER[c]", "G7842-MONOMER[c]"]
 		endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
 
@@ -85,7 +84,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self.fragmentBases = self.bulkMoleculesView(['Fragment ADN[c]', 'Fragment CYTD[c]', 'Fragment GSN[c]', 'Fragment URI[c]'])
 
-		self.rnases = self.bulkMoleculesView(RnaseIds)
 		self.endoRnases = self.bulkMoleculesView(endoRnaseIds)
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
 
