@@ -148,6 +148,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# PO4H(-)-Base-PO4(-)-Base-PO4(-)-BaseOH + 2 H2O
 		#			==>
 		#			3 PO4H(-)-Base-OH
+		# So in general you need N-1 waters
 
 		kcatExoRNase = 50 # nucleotides/s
 		nExoRNases = self.exoRnases.counts()
