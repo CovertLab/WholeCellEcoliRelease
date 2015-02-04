@@ -65,6 +65,7 @@ class KnowledgeBaseEcoli(object):
 		self._loadCompartments()
 		self._loadMetabolites()
 		self._loadPolymerized()
+		self._loadFragments()
 		self._loadGenome()
 		self._loadGenes()
 		self._loadRelationStoichiometry() #  Need to be called before any reaction loading
@@ -675,6 +676,12 @@ class KnowledgeBaseEcoli(object):
 
 			self._polymerizedDNT_IDs[index] = monomer["frame id"]
 
+	def _loadFragments(self):
+		self._fragmentNT_IDs = [x.replace('Polymerized','Fragment') for x in self._polymerizedNT_IDs]
+		import copy
+		self._fragment = [copy.copy(x) for x in self._polymerized if x['id'] in self._polymerizedNT_IDs]
+		for x in self._fragment:
+			x['id'] = x['id'].replace('Polymerized','Fragment')
 
 	def _loadRelationStoichiometry(self):
 
@@ -1849,6 +1856,7 @@ class KnowledgeBaseEcoli(object):
 			+ len(self._proteins)
 			+ len(self._proteinComplexes)
 			+ len(self._polymerized)*len(self._compartmentList)
+			+ len(self._fragment)*len(self._compartmentList)
 			)
 
 		bulkMolecules = np.zeros(
@@ -1946,7 +1954,34 @@ class KnowledgeBaseEcoli(object):
 
 		bulkMolecules["mass"][range(lastComplexIdx, lastPolymerizedIndex), massIndexes] = masses
 		# NOTE: the use of range above is intentional
-		
+
+		# Set fragments
+
+		lastFragmentIndex = len(self._fragment)*len(self._compartmentList) + lastPolymerizedIndex
+
+		fragmentIDs = [entry["id"] for entry in self._fragment]
+
+		bulkMolecules["moleculeId"][lastPolymerizedIndex:lastFragmentIndex] = [
+			'{}[{}]'.format(polymerizedID, compartmentAbbreviation)
+			for compartmentAbbreviation in compartmentAbbreviations
+			for polymerizedID in fragmentIDs
+			]
+
+		masses = [
+			entry["mw"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._fragment
+			]
+
+		massIndexes = [
+			entry["mass key"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._fragment
+			]
+
+		bulkMolecules["mass"][range(lastPolymerizedIndex, lastFragmentIndex), massIndexes] = masses
+		# NOTE: the use of range above is intentional
+
 		# Add units to values
 		field_units = {
 			"moleculeId"		:	None,
@@ -3087,6 +3122,7 @@ class KnowledgeBaseEcoli(object):
 			'polymerizedAA_IDs'	:	self._polymerizedAA_IDs, # TODO: end weight
 			'polymerizedNT_IDs'	:	self._polymerizedNT_IDs, # TODO: end weight
 			'polymerizedDNT_IDs':	self._polymerizedDNT_IDs,
+			'fragmentNT_IDs'	:	self._fragmentNT_IDs,
 		}
 
 		self.__dict__.update(moleculeGroups)
