@@ -52,10 +52,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnaLens = kb.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
-		# TODO: account for NTP on 5' end
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
 		self.rnaDegSMat[nmpIdxs, :] = units.transpose(kb.rnaData['countsACGU']).asNumber()
-		# self.rnaDegSMat[h2oIdx, :] = -(self.rnaLens - 1)
 		self.rnaDegSMat[h2oIdx, :] = -self.rnaLens # using one additional water to hydrolyze PPI on 5' end
 		self.rnaDegSMat[ppiIdx, :] = 1
 		self.rnaDegSMat[hIdx, :] = self.rnaLens
