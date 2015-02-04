@@ -100,11 +100,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 		KcatEndoRNaseFragmentMin = 0.005 # cleavages/s
 		KcatEndoRNaseFragmentMax = 0.231 # cleavages/s
 
-		RNAspecificity = self.rnaDegRates / sum(self.rnaDegRates)
+		RNAspecificity = self.rnaDegRates / self.rnaDegRates.sum()
 
 		nEndoRNases = self.endoRnases.total()
 
-		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * sum(nEndoRNases)
+		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * nEndoRNases.sum()
 
 		if nRNAsTotalToDegrade == 0:
 			return
@@ -151,15 +151,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 
 		# Check if can happen exonucleolytic digestion
-		if sum(fragmentACGUCount) == 0:
+		if fragmentACGUCount.sum() == 0:
 			return
 
 		# # Compute exoRNases capacity and fragment specificity
 		kcatExoRNase = 50 # nucleotides/s
 		nExoRNases = self.exoRnases.counts()
-		exoCapacity = sum(nExoRNases) * kcatExoRNase
+		exoCapacity = nExoRNases.sum() * kcatExoRNase
 
-		fragmentSpecificity = fragmentACGUCount / sum(fragmentACGUCount)
+		fragmentSpecificity = fragmentACGUCount / fragmentACGUCount.sum()
 
 		# # Use exoRNases capacity to degrade fragmentACGUCount
 		fragmentExoCapacity = self.randomState.multinomial(exoCapacity, 
@@ -194,7 +194,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# # Count hydrolysis co-factors related to the exonucleolytic digestion
 		H2Oconsumption = -sum(fragmentACGUDigested)
 		PPIconsumption = 0 # check!
-		Hproduction = sum(fragmentACGUDigested)
+		Hproduction = fragmentACGUDigested.sum()
 		cofactorHidrolysis = np.array((H2Oconsumption, PPIconsumption, Hproduction))
 
 		
