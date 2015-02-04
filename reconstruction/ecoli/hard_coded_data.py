@@ -1898,6 +1898,7 @@ POLYMERIZED_AMINO_ACID_WEIGHTS = [
 
 POLYPEPTIDE_END_WEIGHT = {"base molecule":"H2O",	"frame id":"Polypeptide terminal hydroxyl",	"mw":18.0148}
 
+# Weight of the NMP minus the weight of an -OH
 POLYMERIZED_NUCLEOTIDE_WEIGHTS = [
 	{"base molecule":"ATP",	"frame id":"Polymerized ADN",	"mw":328.1999},
 	{"base molecule":"CTP",	"frame id":"Polymerized CYTD",	"mw":304.1739},
