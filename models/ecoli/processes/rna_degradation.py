@@ -105,12 +105,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 		nEndoRNases = self.endoRnases.total()
 
 		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * sum(nEndoRNases)
-		#nRNAsTotalToDegrade = math.floor(KcatEndoRNaseFullRNA * sum(nEndoRNases)) # Do not use all endoRNases
-
-		# nRNAsToDegrade_old =  np.fmin(
-		# 	self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
-		# 	self.rnas.total()
-		# 	)
 
 		if nRNAsTotalToDegrade == 0:
 			return
@@ -120,39 +114,18 @@ class RnaDegradation(wholecell.processes.process.Process):
 			self.rnas.total()
 			)
 
-		# import ipdb
-		# ipdb.set_trace()
-		# nReactions = np.dot(self.rnaLens, nRNAsToDegrade_old)
-
-		# self.h2o.requestIs(nReactions)
 		self.rnas.requestIs(nRNAsToDegrade)
 		self.rnase.requestAll()
 		self.endoRnases.requestAll()
 		self.exoRnases.requestAll()
 		self.fragmentBases.requestAll()
 
-		print sum(nRNAsToDegrade)
-		#print -np.dot(self.rnaDegSMat, nRNAsToDegrade)
 		metaboliteUsage = np.fmax(
 			-np.dot(self.rnaDegSMat, nRNAsToDegrade),
 			0
 			)
 
-		#print metaboliteUsage
-
-		# TODO: check H2O, PPI and H usage
-		#print metaboliteUsage[4] 
-
-		#print metaboliteUsage
-		metaboliteUsage[4] = metaboliteUsage[4] + sum(self.fragmentBases.counts()) # H20
-		#print metaboliteUsage[4] 
-		#import ipdb
-		#ipdb.set_trace()
-
-		print metaboliteUsage
 		self.metabolites.requestIs(metaboliteUsage)
-		#import ipdb
-		#ipdb.set_trace()
 
 	def evolveState(self):
 
@@ -169,13 +142,12 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Add ACGU content of fragments from endonucleolytic cleavages to the previous pull of fragments
 		metabolitesEndoCleavage = np.dot(self.rnaDegSMat, self.rnas.counts())
-		print sum(self.rnas.counts())
+		#print sum(self.rnas.counts())
 		#print -np.dot(self.rnaDegSMat, self.rnas.counts())
 
 		fragmentACGUCount = metabolitesEndoCleavage[0:4] # TODO according to number of rnas.counts allocated
-
 		fragmentACGUCount = fragmentACGUCount + self.fragmentBases.counts()
-		print fragmentACGUCount
+		#print fragmentACGUCount
 
 
 		# Check if can happen exonucleolytic digestion
@@ -188,7 +160,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 		exoCapacity = sum(nExoRNases) * kcatExoRNase
 
 		fragmentSpecificity = fragmentACGUCount / sum(fragmentACGUCount)
-
 
 		# # Use exoRNases capacity to degrade fragmentACGUCount
 		fragmentExoCapacity = self.randomState.multinomial(exoCapacity, 
