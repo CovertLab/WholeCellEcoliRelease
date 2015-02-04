@@ -140,7 +140,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 		if fragmentACGUCount.sum() == 0:
 			return
 
-		# # Compute exoRNases capacity and fragment specificity
+		# Calculate exolytic cleavage events
+		# Modeling assumption: We are assuming that there are no 5' phosphate groups on
+		# fragments. We are also assuming that there is no sequence specificity or bias
+		# towards which nucleotides are hydrolyzed.
+		# Example
+		# PO4H(-)-Base-PO4(-)-Base-PO4(-)-BaseOH + 2 H2O
+		#			==>
+		#			3 PO4H(-)-Base-OH
+
 		kcatExoRNase = 50 # nucleotides/s
 		nExoRNases = self.exoRnases.counts()
 		exoCapacity = nExoRNases.sum() * kcatExoRNase
