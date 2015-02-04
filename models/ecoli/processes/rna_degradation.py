@@ -102,15 +102,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		RNAspecificity = self.rnaDegRates / self.rnaDegRates.sum()
 
-		nEndoRNases = self.endoRnases.total()
-
-		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * nEndoRNases.sum()
+		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * self.endoRnases.total().sum()
 
 		if nRNAsTotalToDegrade == 0:
 			return
 
-		nRNAsToDegrade = np.fmin(self.randomState.multinomial(nRNAsTotalToDegrade, 
-			RNAspecificity),
+		nRNAsToDegrade = np.fmin(
+			self.randomState.multinomial(nRNAsTotalToDegrade, RNAspecificity),
 			self.rnas.total()
 			)
 
@@ -120,6 +118,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.exoRnases.requestAll()
 		self.fragmentBases.requestAll()
 
+		# Calculating amount of water required for total RNA hydrolysis by endo and
+		# exonucleases. Assuming complete hydrolysis for now.
 		metaboliteUsage = np.fmax(
 			-np.dot(self.rnaDegSMat, nRNAsToDegrade),
 			0
