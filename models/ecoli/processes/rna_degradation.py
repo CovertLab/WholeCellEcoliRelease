@@ -27,23 +27,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Parameters
-		self.rnaLens = None			# RNA lengths
-		self.rnaDegRates = None		# RNA degradation rates (1/s)
-		self.rnaDegSMat = None		# RNA degradation stoichiometry matrix [metabolite x rna]
-
-		# Views
-		self.metabolites = None
-		self.rnas = None
-		self.rnase = None
-
-		self.Rnases = None
-		self.endoRnases = None
-		self.exoRnases = None
-		self.fragmentBases = None
-
-		self.rnaSequences = None
-
 		super(RnaDegradation, self).__init__()
 
 	# Construct object graph
