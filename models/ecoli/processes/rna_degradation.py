@@ -110,9 +110,25 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	def evolveState(self):
 
-		# Check if RNAse R expressed
-		#if self.rnase.count() == 0:
-		#	return
+		# Calculate endolytic cleavage events
+		# Modeling assumption: Once a RNA is cleaved by an endonuclease it's resulting nucleotides
+		# are lumped together as "polymerized fragments". These fragments can carry over from
+		# previous timesteps. We are also assuming that during endonucleolytic cleavage the 5'
+		# terminal phosphate is removed.
+
+		# Example:
+		# Step 1: Hydrolyze the endo bond
+		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH + H2O
+		#			==>
+		# 			PPi-Base-PO4(-)-Base-OH + PO4H(-)-Base-PO4(-)-Base-OH
+		# Step 2: Remove 5' phosphate of left fragment
+		# PPi-Base-PO4(-)-Base-OH + H2O
+		#			==>
+		#			Pi-Base-PO4(-)-Base-OH + HO4P + H(+)
+		# Net reaction:
+		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH + 2 H2O
+		#			==>
+		#			Pi-Base-PO4(-)-Base-OH + HO4P + H(+) + PO4H(-)-Base-PO4(-)-Base-OH
 
 		# Degrade RNA
 		#self.metabolites.countsInc(np.dot(self.rnaDegSMat, self.rnas.counts()))
