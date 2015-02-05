@@ -33,14 +33,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(RnaDegradation, self).initialize(sim, kb)
 
-		metaboliteIds = ["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]",
-			"H2O[c]", "PPI[c]", "H[c]"]
-
-		nmpIdxs = np.arange(0, 4)
-		h2oIdx = metaboliteIds.index('H2O[c]')
-		ppiIdx = metaboliteIds.index('PPI[c]')
-		hIdx = metaboliteIds.index('H[c]')
-
 		rnaIds = kb.rnaData['id']
 
 		#RNase
@@ -52,31 +44,34 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnaLens = kb.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
-		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
-		self.rnaDegSMat[nmpIdxs, :] = units.transpose(kb.rnaData['countsACGU']).asNumber()
-		self.rnaDegSMat[h2oIdx, :] = -self.rnaLens # using one additional water to hydrolyze PPI on 5' end
-		self.rnaDegSMat[ppiIdx, :] = 1
-		self.rnaDegSMat[hIdx, :] = self.rnaLens
+		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in kb.fragmentNT_IDs]
+		endCleavageMetaboliteIds.extend(["H2O[c]", "PPI[c]", "H[c]"])
+		nmpIdxs = range(4)
+		h2oIdx = endCleavageMetaboliteIds.index("H2O[c]")
+		ppiIdx = endCleavageMetaboliteIds.index("PPI[c]")
+		hIdx = endCleavageMetaboliteIds.index("H[c]")
+		self.endoDegradationSMatrix = np.zeros((len(endCleavageMetaboliteIds), len(rnaIds)), np.int64)
+		self.endoDegradationSMatrix[nmpIdxs, :] = units.transpose(kb.rnaData['countsACGU']).asNumber()
+		self.endoDegradationSMatrix[h2oIdx, :] = 0
+		self.endoDegradationSMatrix[ppiIdx, :] = 1
+		self.endoDegradationSMatrix[hIdx, :] = 0
 		
 		# Views
-		self.metabolites = self.bulkMoleculesView(metaboliteIds)		
 		self.rnas = self.bulkMoleculesView(rnaIds)
-		self.rnase = self.bulkMoleculeView('EG11259-MONOMER[c]')
+		self.h2o = self.bulkMoleculesView(['H2O[c]'])
+		self.nmps = self.bulkMoleculesView(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
 
-		self.fragmentBases = self.bulkMoleculesView(['Fragment ADN[c]', 'Fragment CYTD[c]', 'Fragment GSN[c]', 'Fragment URI[c]'])
+		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
+		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.fragmentNT_IDs])
 
 		self.endoRnases = self.bulkMoleculesView(endoRnaseIds)
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
-
-		self.rnaSequences = kb.transcriptionSequences
-
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
 
 
 	# Calculate temporal evolution
 
 	def calculateRequest(self):
-
 		KcatEndoRNaseFullRNA = 0.002 # cleavages/s
 		KcatEndoRNaseFragmentMin = 0.005 # cleavages/s
 		KcatEndoRNaseFragmentMax = 0.231 # cleavages/s
@@ -94,21 +89,18 @@ class RnaDegradation(wholecell.processes.process.Process):
 			)
 
 		self.rnas.requestIs(nRNAsToDegrade)
-		self.rnase.requestAll()
 		self.endoRnases.requestAll()
 		self.exoRnases.requestAll()
 		self.fragmentBases.requestAll()
 
 		# Calculating amount of water required for total RNA hydrolysis by endo and
-		# exonucleases. Assuming complete hydrolysis for now.
-		metaboliteUsage = np.fmax(
-			-np.dot(self.rnaDegSMat, nRNAsToDegrade),
-			0
-			)
-
-		self.metabolites.requestIs(metaboliteUsage)
+		# exonucleases. Assuming complete hydrolysis for now. One additional water
+		# for each RNA to hydrolyze the 5' diphosphate.
+		self.h2o.requestIs((nRNAsToDegrade * (self.rnaLens - 1)).sum() + nRNAsToDegrade.sum())
 
 	def evolveState(self):
+		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
+		self.writeToListener("RnaDegradationListener", "nucleotidesFromDegradation", (self.rnas.counts() * self.rnaLens).sum())
 
 		# Calculate endolytic cleavage events
 		# Modeling assumption: Once a RNA is cleaved by an endonuclease it's resulting nucleotides
@@ -129,15 +121,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH + 2 H2O
 		#			==>
 		#			Pi-Base-PO4(-)-Base-OH + HO4P + H(+) + PO4H(-)-Base-PO4(-)-Base-OH
-
-		metabolitesEndoCleavage = np.dot(self.rnaDegSMat, self.rnas.counts())
-		import ipdb; ipdb.set_trace()
-		fragmentACGUCount = metabolitesEndoCleavage[0:4] # TODO according to number of rnas.counts allocated
-		fragmentACGUCount = fragmentACGUCount + self.fragmentBases.counts()
-
+		metabolitesEndoCleavage = np.dot(self.endoDegradationSMatrix, self.rnas.counts())
+		rnasDegraded = self.rnas.counts().sum()
+		self.rnas.countsIs(0)
+		self.fragmentMetabolites.countsInc(metabolitesEndoCleavage)
 
 		# Check if can happen exonucleolytic digestion
-		if fragmentACGUCount.sum() == 0:
+		if self.fragmentBases.counts().sum() == 0:
 			return
 
 		# Calculate exolytic cleavage events
@@ -149,45 +139,17 @@ class RnaDegradation(wholecell.processes.process.Process):
 		#			==>
 		#			3 PO4H(-)-Base-OH
 		# So in general you need N-1 waters
-
+		
 		kcatExoRNase = 50 # nucleotides/s
 		nExoRNases = self.exoRnases.counts()
 		exoCapacity = nExoRNases.sum() * kcatExoRNase
+		if exoCapacity > self.fragmentBases.counts().sum():
+			self.nmps.countsInc(self.fragmentBases.counts())
+			self.h2o.countsDec(self.fragmentBases.counts().sum() - 1)
+			self.fragmentBases.countsIs(0)
+			#import ipdb; ipdb.set_trace()
+		else:
+			print 'HEADS UP!'
+			fragmentSpecificity = self.fragmentBases.counts() / self.fragmentBases.counts().sum()
+			fragmentBasesDigested = self.randomState.multinomial(exoCapacity, fragmentSpecificity)
 
-		fragmentSpecificity = fragmentACGUCount / fragmentACGUCount.sum()
-
-		# # Use exoRNases capacity to degrade fragmentACGUCount
-		fragmentExoCapacity = self.randomState.multinomial(exoCapacity, 
-			fragmentSpecificity)
-
-		fragmentACGUDigested = fragmentACGUCount
-
-		fragmentACGUCount = fragmentACGUCount - fragmentExoCapacity
-
-		for x in range(0, len(fragmentACGUCount)):
-
-			if fragmentACGUCount[x] > 0:
-				fragmentACGUDigested[x] = fragmentExoCapacity[x]
-			
-			fragmentACGUCount[x] = 0
-
-		# # Balance of ACGUs generated by endonucleolytic cleavages (new fragments) and exonucleolytic digestion
-		self.fragmentBases.countsIs(fragmentACGUCount)
-
-		# # Count hydrolysis co-factors related to the exonucleolytic digestion
-		H2Oconsumption = -fragmentACGUDigested.sum()
-		PPIconsumption = 0 # check!
-		Hproduction = fragmentACGUDigested.sum()
-		cofactorHidrolysis = np.array((H2Oconsumption, PPIconsumption, Hproduction))
-
-		
-		# # Concatenate ACGU content digested and H2O, PPI and H produced/needed
-		balanceMetabolites = numpy.concatenate((fragmentACGUDigested, cofactorHidrolysis))
-		
-		self.metabolites.countsInc(balanceMetabolites)
-
-
-		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
-		self.writeToListener("RnaDegradationListener", "nucleotidesFromDegradation", (self.rnas.counts() * self.rnaLens).sum())
-
-		self.rnas.countsIs(0) # Is that correct?
