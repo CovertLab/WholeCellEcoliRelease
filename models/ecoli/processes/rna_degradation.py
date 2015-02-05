@@ -60,6 +60,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnas = self.bulkMoleculesView(rnaIds)
 		self.h2o = self.bulkMoleculesView(['H2O[c]'])
 		self.nmps = self.bulkMoleculesView(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
+		self.h = self.bulkMoleculesView(['H[c]'])
 
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
 		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.fragmentNT_IDs])
@@ -145,9 +146,9 @@ class RnaDegradation(wholecell.processes.process.Process):
 		exoCapacity = nExoRNases.sum() * kcatExoRNase
 		if exoCapacity > self.fragmentBases.counts().sum():
 			self.nmps.countsInc(self.fragmentBases.counts())
-			self.h2o.countsDec(self.fragmentBases.counts().sum() - 1)
+			self.h2o.countsDec(self.fragmentBases.counts().sum())
+			self.h.countsInc(self.fragmentBases.counts().sum())
 			self.fragmentBases.countsIs(0)
-			#import ipdb; ipdb.set_trace()
 		else:
 			print 'HEADS UP!'
 			fragmentSpecificity = self.fragmentBases.counts() / self.fragmentBases.counts().sum()
