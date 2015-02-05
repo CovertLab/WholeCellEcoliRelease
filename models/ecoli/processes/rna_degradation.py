@@ -212,7 +212,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
 		self.writeToListener("RnaDegradationListener", "nucleotidesFromDegradation", (self.rnas.counts() * self.rnaLens).sum())
-
+		
+		import ipdb; ipdb.set_trace()
+		
 		self.rnas.countsIs(0)
-
-		#import ipdb; ipdb.set_trace()
