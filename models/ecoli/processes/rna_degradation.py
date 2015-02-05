@@ -97,7 +97,9 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Calculating amount of water required for total RNA hydrolysis by endo and
 		# exonucleases. Assuming complete hydrolysis for now. One additional water
 		# for each RNA to hydrolyze the 5' diphosphate.
-		self.h2o.requestIs((nRNAsToDegrade * (self.rnaLens - 1)).sum() + nRNAsToDegrade.sum())
+		waterForNewRnas = (nRNAsToDegrade * (self.rnaLens - 1)).sum() + nRNAsToDegrade.sum()
+		waterForLeftOverFragments = self.fragmentBases.total().sum()
+		self.h2o.requestIs(waterForNewRnas + waterForLeftOverFragments)
 
 	def evolveState(self):
 		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
@@ -107,23 +109,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Modeling assumption: Once a RNA is cleaved by an endonuclease it's resulting nucleotides
 		# are lumped together as "polymerized fragments". These fragments can carry over from
 		# previous timesteps. We are also assuming that during endonucleolytic cleavage the 5'
-		# terminal phosphate is removed.
-
+		# terminal phosphate is removed. This is modeled as all of the fragments being one
+		# long linear chain of "fragment bases".
 		# Example:
-		# Step 1: Hydrolyze the endo bond
-		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH + H2O
+		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH
 		#			==>
-		# 			PPi-Base-PO4(-)-Base-OH + PO4H(-)-Base-PO4(-)-Base-OH
-		# Step 2: Remove 5' phosphate of left fragment
-		# PPi-Base-PO4(-)-Base-OH + H2O
-		#			==>
-		#			Pi-Base-PO4(-)-Base-OH + HO4P + H(+)
-		# Net reaction:
-		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH + 2 H2O
-		#			==>
-		#			Pi-Base-PO4(-)-Base-OH + HO4P + H(+) + PO4H(-)-Base-PO4(-)-Base-OH
+		#			Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + PPi
+		# Note: Lack of -OH on 3' end of chain
 		metabolitesEndoCleavage = np.dot(self.endoDegradationSMatrix, self.rnas.counts())
-		rnasDegraded = self.rnas.counts().sum()
 		self.rnas.countsIs(0)
 		self.fragmentMetabolites.countsInc(metabolitesEndoCleavage)
 
@@ -132,25 +125,28 @@ class RnaDegradation(wholecell.processes.process.Process):
 			return
 
 		# Calculate exolytic cleavage events
-		# Modeling assumption: We are assuming that there are no 5' phosphate groups on
-		# fragments. We are also assuming that there is no sequence specificity or bias
-		# towards which nucleotides are hydrolyzed.
+		# Modeling assumption: We model fragments as one long fragment chain of polymerized nucleotides.
+		# We are also assuming that there is no sequence specificity or bias towards which nucleotides
+		# are hydrolyzed.
 		# Example
-		# PO4H(-)-Base-PO4(-)-Base-PO4(-)-BaseOH + 2 H2O
+		# Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + 4 H2O
 		#			==>
-		#			3 PO4H(-)-Base-OH
-		# So in general you need N-1 waters
+		#			3 NMP + 3 H(+)
+		# Note: Lack of -OH on 3' end of chain
 		
 		kcatExoRNase = 50 # nucleotides/s
 		nExoRNases = self.exoRnases.counts()
 		exoCapacity = nExoRNases.sum() * kcatExoRNase
-		if exoCapacity > self.fragmentBases.counts().sum():
+		if exoCapacity >= self.fragmentBases.counts().sum():
 			self.nmps.countsInc(self.fragmentBases.counts())
 			self.h2o.countsDec(self.fragmentBases.counts().sum())
 			self.h.countsInc(self.fragmentBases.counts().sum())
 			self.fragmentBases.countsIs(0)
 		else:
-			print 'HEADS UP!'
 			fragmentSpecificity = self.fragmentBases.counts() / self.fragmentBases.counts().sum()
-			fragmentBasesDigested = self.randomState.multinomial(exoCapacity, fragmentSpecificity)
-
+			possibleBasesToDigest = self.randomState.multinomial(exoCapacity, fragmentSpecificity)
+			fragmentBasesDigested = self.fragmentBases.counts() - np.fmax(self.fragmentBases.counts() - possibleBasesToDigest, 0)
+			self.nmps.countsInc(fragmentBasesDigested)
+			self.h2o.countsDec(fragmentBasesDigested.sum())
+			self.h.countsInc(fragmentBasesDigested.sum())
+			self.fragmentBases.countsDec(fragmentBasesDigested)
