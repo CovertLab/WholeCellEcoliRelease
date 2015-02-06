@@ -11,7 +11,6 @@ import argparse
 import os
 import cPickle
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -21,6 +20,7 @@ from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
 from scipy.spatial import distance
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 CMAP_COLORS_255 = [
@@ -43,20 +43,22 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
-		time = h5file.root.FBAResults.col("time")
-		timeStep = h5file.root.FBAResults.col("timeStep")
-		objectiveValue = h5file.root.FBAResults.col("objectiveValue")
-		objectiveComponents = np.append(
-			h5file.root.FBAResults.col("objectiveComponents").T,
-			np.array(objectiveValue, ndmin=2),
-			0)
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-		names = h5file.root.names
-		outputMoleculeIDs = np.append(
-			np.array(names.outputMoleculeIDs.read()),
-			"Full objective"
-			)
+	time = fbaResults.readColumn("time")
+	timeStep = fbaResults.readColumn("timeStep")
+	objectiveValue = fbaResults.readColumn("objectiveValue")
+	objectiveComponents = np.append(
+		fbaResults.readColumn("objectiveComponents").T,
+		np.array(objectiveValue, ndmin=2),
+		0)
+
+	outputMoleculeIDs = np.append(
+		np.array(fbaResults.readAttribute("outputMoleculeIDs")),
+		"Full objective"
+		)
+
+	fbaResults.close()
 
 	fig = plt.figure(figsize = (30, 15))
 
@@ -72,7 +74,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
-	
+
 	dendro = sch.dendrogram(linkage, orientation="right", color_threshold = np.inf)
 	index = dendro["leaves"]
 
@@ -128,7 +130,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		cmap = cmap,
 		norm = norm
 		)
-	
+
 	ax_cmap.set_xticks([])
 	ax_cmap.set_yticks([])
 

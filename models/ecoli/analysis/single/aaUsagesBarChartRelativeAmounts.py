@@ -10,12 +10,12 @@ Plot NTP usages
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -26,19 +26,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "AAUsage.hdf"))
+	aaUsageFile = TableReader(os.path.join(simOutDir, "AAUsage"))
 
-	metaboliteIds = h.root.AAUsage._v_attrs["metaboliteIds"]
-	normNtpProductionBiomass = h.root.AAUsage._v_attrs["relativeAAProductionBiomass"]
+	metaboliteIds = aaUsageFile.readAttribute("metaboliteIds")
+	normNtpProductionBiomass = aaUsageFile.readAttribute("relativeAAProductionBiomass")
 
-	aaUsage = np.array(
-		[x['translationAAUsageCurrent'] for x in h.root.AAUsage.iterrows()]
-		)[1:, :]	# Ignore time point 0
-	t = np.array(
-		[x["time"] for x in h.root.AAUsage.iterrows()]
-		)[1: ]	# Ignore time point 0
+	aaUsage = aaUsageFile.readColumn("translationAAUsageCurrent")[1:, :]
+	t = aaUsageFile.readColumn("time")[1:]
 
-	h.close()
+	aaUsageFile.close()
 
 	normUsage = aaUsage / np.tile(
 		aaUsage.sum(axis = 1).astype("float64").reshape(-1, 1), (1, 21)

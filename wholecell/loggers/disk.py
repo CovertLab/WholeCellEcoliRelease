@@ -3,8 +3,7 @@
 """
 Disk
 
-Logs whole-cell simulations and metadata to disk using pytables.
-Also provides a function (load) for reading stored simulation data
+Logs whole-cell simulations and metadata to disk.
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -17,15 +16,10 @@ from __future__ import division
 
 import os
 import time
-import json
-import shutil
 import itertools
 
-import tables
-from numpy import log10
-
 import wholecell.loggers.logger
-from wholecell.utils.constants import OUTPUT_DIRECTORY
+from wholecell.io.tablewriter import TableWriter
 
 # TODO: let loaded simulation resume logging in a copied file
 
@@ -46,15 +40,13 @@ class Disk(wholecell.loggers.logger.Logger):
 
 
 	def initialize(self, sim):
-		self.mainFile = tables.open_file(
-			os.path.join(self.outDir, 'Main.hdf'),
-			mode = "w",
-			title = "Main simulation file"
-			)
-		
+		self.mainFile = TableWriter(os.path.join(self.outDir, "Main"))
+
 		# Metadata
-		self.mainFile.root._v_attrs.startTime = currentTimeAsString()
-		self.mainFile.root._v_attrs.timeStepSec = sim.timeStepSec()
+		self.mainFile.writeAttributes(
+			startTime = currentTimeAsString(),
+			timeStepSec = sim.timeStepSec()
+			)
 
 		# Create tables
 		self.createTables(sim)
@@ -66,18 +58,13 @@ class Disk(wholecell.loggers.logger.Logger):
 
 
 	def createTables(self, sim):
-		expectedRows = int(sim.lengthSec()/sim.timeStepSec())
+		sim.tableCreate(self.mainFile)
 
-		sim.pytablesCreate(self.mainFile, expectedRows)
-
+		# TODO: separate checkpointing and logging
 		for name, obj in itertools.chain(sim.states.viewitems(), sim.listeners.viewitems()):
-			saveFile = tables.open_file(
-				os.path.join(self.outDir, name + '.hdf'),
-				mode = "w",
-				title = name + " simulation data file"
-				)
+			saveFile = TableWriter(os.path.join(self.outDir, name))
 
-			obj.pytablesCreate(saveFile, expectedRows)
+			obj.tableCreate(saveFile)
 
 			self.saveFiles[obj] = saveFile
 
@@ -91,10 +78,12 @@ class Disk(wholecell.loggers.logger.Logger):
 
 	def finalize(self, sim):
 		# Metadata
-		self.mainFile.root._v_attrs.lengthSec = sim.time()
-		self.mainFile.root._v_attrs.endTime = currentTimeAsString()
+		self.mainFile.writeAttributes(
+			lengthSec = sim.time(),
+			endTime = currentTimeAsString()
+			)
 
-		# Close file
+		# Close files
 		self.mainFile.close()
 
 		for saveFile in self.saveFiles.viewvalues():
@@ -102,10 +91,10 @@ class Disk(wholecell.loggers.logger.Logger):
 
 
 	def copyData(self, sim):
-		sim.pytablesAppend(self.mainFile)
+		sim.tableAppend(self.mainFile)
 
 		for obj, saveFile in self.saveFiles.viewitems():
-			obj.pytablesAppend(saveFile)
+			obj.tableAppend(saveFile)
 
 
 def currentTimeAsString():

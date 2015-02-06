@@ -11,7 +11,6 @@ import argparse
 import os
 import cPickle
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -21,6 +20,7 @@ from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
 from scipy.spatial import distance
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 FLUX_UNITS = "M/s"
@@ -53,13 +53,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
-		time = h5file.root.FBAResults.col("time")
-		timeStep = h5file.root.FBAResults.col("timeStep")
-		reactionFluxes = h5file.root.FBAResults.col("reactionFluxes")
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	time = fbaResults.readColumn("time")
+	timeStep = fbaResults.readColumn("timeStep")
+	reactionFluxes = fbaResults.readColumn("reactionFluxes")
 
-		names = h5file.root.names
-		reactionIDs = np.array(names.reactionIDs.read())
+	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+
+	fbaResults.close()
 
 	# TODO: split figure output, perhaps using major clusterings
 
@@ -98,7 +99,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# idToName = {
 	# 	reaction["id"]:reaction["name"]
-	# 	for reaction in kb.metabolismBiochemicalReactions
+	# 	for reaction in kb.metabolism.biochemicalReactions
 	# 	}
 
 	# reactionNames = np.array([
@@ -120,7 +121,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.2, 1, 0.05])
 	ax_dendro = fig.add_subplot(grid[0])
-	
+
 	dendro = sch.dendrogram(linkage, orientation="right", color_threshold = np.inf)
 
 	ax_dendro.set_xticks([])
@@ -178,7 +179,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		cmap = cmap,
 		norm = norm
 		)
-	
+
 	ax_cmap.set_xticks([])
 	ax_cmap.set_yticks([])
 
@@ -188,17 +189,21 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
+	# defaultKBFile = os.path.join(
+	# 		wholecell.utils.constants.SERIALIZED_KB_DIR,
+	# 		wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
+	# 		)
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	# parser = argparse.ArgumentParser()
+	# parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
+	# parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
+	# parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	# parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
 
-	args = parser.parse_args().__dict__
+	# args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	# main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+
+	# Disabled until someone cares
+
+	pass

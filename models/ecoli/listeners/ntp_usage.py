@@ -13,7 +13,6 @@ NtpUsage listener. Tracks NTP usages.
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 from wholecell.utils.fitting import normalize
@@ -90,46 +89,20 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 			self.transcriptionNtpUsageCurrent
 			)
 
-	def pytablesCreate(self, h5file, expectedRows):
-
-		shape = self.transcriptionNtpUsageCurrent.shape
-		# Columns
-		d = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"transcriptionNtpUsageCurrent": tables.UInt64Col(shape),
-			"transcriptionNtpUsageCumulative": tables.UInt64Col(shape),
-			}
-
-		# Create table
-		# TODO: Add compression options (using filters)
-		t = h5file.create_table(
-			h5file.root,
-			self._name,
-			d,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			transcriptionNtpUsageCurrent_units = self.usageUnits,
+			transcriptionNtpUsageCumulative_units = self.usageUnits,
+			metaboliteIds = self.metaboliteIds,
+			relativeNtpProductionBiomass = self.relativeNtpProductionBiomass.tolist(),
+			relativeNtpUsage = self.relativeNtpUsage.tolist(),
 			)
 
-		# Store units as metadata
-		t.attrs.transcriptionNtpUsageCurrent_units = self.usageUnits
-		t.attrs.transcriptionNtpUsageCumulative_units = self.usageUnits
-		t.attrs.metaboliteIds = self.metaboliteIds
-		t.attrs.relativeNtpProductionBiomass = self.relativeNtpProductionBiomass
-		t.attrs.relativeNtpUsage = self.relativeNtpUsage
 
-
-	def pytablesAppend(self, h5file):
-
-		t = h5file.get_node("/", self._name)
-		entry = t.row
-
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry["transcriptionNtpUsageCurrent"] = self.transcriptionNtpUsageCurrent
-		entry["transcriptionNtpUsageCumulative"] = self.transcriptionNtpUsageCumulative
-
-		entry.append()
-
-		t.flush()
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep(),
+			transcriptionNtpUsageCurrent = self.transcriptionNtpUsageCurrent,
+			transcriptionNtpUsageCumulative = self.transcriptionNtpUsageCumulative,
+			)

@@ -17,7 +17,6 @@ import cPickle
 import time
 
 import numpy as np
-import tables
 
 from wholecell.listeners.evaluation_time import EvaluationTime
 
@@ -178,7 +177,7 @@ class Simulation(object):
 
 		for listener in self.listeners.itervalues():
 			listener.allocate()
-		
+
 		self._initialConditionsFunction(kb)
 
 		for hook in self.hooks.itervalues():
@@ -314,27 +313,19 @@ class Simulation(object):
 
 
 	# Save to/load from disk
-	def pytablesCreate(self, h5file, expectedRows):
-		groupNames = h5file.create_group(
-			h5file.root,
-			'names',
-			'State and process names'
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			states = self.states.keys(),
+			processes = self.processes.keys()
 			)
 
-		# Note: the '.encode("ascii")' is necessary because if a json file was parsed
-		# for simulation options, it reads things in as unicode (which pytables doesn't like)
-		h5file.create_array(groupNames, 'states', [s.encode("ascii") for s in self.states.viewkeys()])
-		
-		if self.processes:
-			h5file.create_array(groupNames, 'processes', [s.encode("ascii") for s in self.processes.viewkeys()])
 
-
-	def pytablesAppend(self, h5file):
+	def tableAppend(self, tableWriter):
 		# Included for consistency, eventual features...
 		pass
 
 
-	def pytablesLoad(self, h5file, timePoint):
+	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 	# TODO: rewrite simulation loading

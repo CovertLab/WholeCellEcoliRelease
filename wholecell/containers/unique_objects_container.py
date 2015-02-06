@@ -2,10 +2,10 @@
 unqiue_objects_container.py
 
 UniqueObjectsContainer is a object that tracks the attributes of unique
-objects, which are typically molecules.  It supports saving and loading by 
+objects, which are typically molecules.  It supports saving and loading by
 appending entries in a structured array to tables with the same sets of fields.
 
-The UniqueObjectsContainer uses _UniqueObject objects to present a clean 
+The UniqueObjectsContainer uses _UniqueObject objects to present a clean
 interface to a specific molecule"s attributes.
 """
 
@@ -17,7 +17,6 @@ from itertools import izip
 from functools import partial
 
 import numpy as np
-import tables
 
 # TODO: object transfer between UniqueObjectsContainer instances
 # TODO: unique id for each object based on
@@ -45,7 +44,6 @@ class UniqueObjectsContainer(object):
 	_defaultSpecification = {
 		"_entryState":np.int64, # see state descriptions above
 		"_globalIndex":np.int64, # index in the _globalReference array (collection)
-		"_timeStep":np.int64, # current time (important for saving) # TODO: handle, set in other classes
 		"_uniqueId":"{}str".format(_MAX_ID_SIZE) # unique ID assigned to each object
 		}
 
@@ -53,7 +51,6 @@ class UniqueObjectsContainer(object):
 		"_entryState":np.int64, # see state descriptions above
 		"_collectionIndex":np.int64,
 		"_objectIndex":np.int64,
-		"_timeStep":np.int64,
 		}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
@@ -70,8 +67,6 @@ class UniqueObjectsContainer(object):
 		}
 
 	def __init__(self, specifications):
-		self._timeStep = 0
-
 		self._names = [] # sorted list of object names
 
 		self._collections = [] # ordered list of collections (which are arrays)
@@ -114,9 +109,6 @@ class UniqueObjectsContainer(object):
 			# Create references to collections
 			self._collections.append(newArray)
 			self._nameToIndexMapping[collectionName] = collectionIndex
-
-			# Give the tables accessible names
-			self._tableNames.append(collectionName.replace(" ", "_"))
 
 		# Create an array which handles global references to objects in all collections
 		self._globalReference = np.zeros(
@@ -179,8 +171,6 @@ class UniqueObjectsContainer(object):
 				oldSize + np.arange(nNewEntries)
 				))
 
-		self._setCollectionTimes()
-
 		return freeCollectionIndexes[:nObjects], freeGlobalIndexes[:nObjects]
 
 
@@ -190,24 +180,26 @@ class UniqueObjectsContainer(object):
 
 		collection = self._collections[collectionIndex]
 
-		uniqueObjectIds = [
-			"{}{}-{}".format(collectionName, self._timeStep, objectIndex)
-			for objectIndex in objectIndexes
-			]
+		# TODO: restore unique object IDs
 
-		maxObjectIdLength = (
-			len(collectionName)
-			+ np.floor(np.log10(max(self._timeStep, 1))) + 1
-			+ np.floor(np.log10(max(objectIndexes.max(), 1)))+ 1
-			+ 1
-			)
+		# uniqueObjectIds = [
+		# 	"{}{}-{}".format(collectionName, self._timeStep, objectIndex)
+		# 	for objectIndex in objectIndexes
+		# 	]
 
-		if maxObjectIdLength > _MAX_ID_SIZE:
-			warnings.warn("Maximum allowable ID size exceeded")
+		# maxObjectIdLength = (
+		# 	len(collectionName)
+		# 	+ np.floor(np.log10(max(self._timeStep, 1))) + 1
+		# 	+ np.floor(np.log10(max(objectIndexes.max(), 1)))+ 1
+		# 	+ 1
+		# 	)
+
+		# if maxObjectIdLength > _MAX_ID_SIZE:
+		# 	warnings.warn("Maximum allowable ID size exceeded")
 
 		collection["_entryState"][objectIndexes] = self._entryActive
 		collection["_globalIndex"][objectIndexes] = globalIndexes
-		collection["_uniqueId"][objectIndexes] = uniqueObjectIds
+		# collection["_uniqueId"][objectIndexes] = uniqueObjectIds
 
 		for attrName, attrValue in attributes.viewitems():
 			collection[attrName][objectIndexes] = attrValue
@@ -284,7 +276,7 @@ class UniqueObjectsContainer(object):
 
 
 	def _queryObjects(self, collectionIndex, **operations):
-		# Performs a series of comparison operations on a collection, and 
+		# Performs a series of comparison operations on a collection, and
 		# returns a boolean-value array that is True where every comparison was True
 		operations["_entryState"] = ("==", self._entryActive)
 		collection = self._collections[collectionIndex]
@@ -313,19 +305,6 @@ class UniqueObjectsContainer(object):
 		self.objectsByGlobalIndexDel(np.array(globalIndex))
 
 
-	def timeStepIs(self, timeStep):
-		self._timeStep = timeStep
-
-		self._setCollectionTimes()
-
-
-	def _setCollectionTimes(self):
-		for collection in self._collections:
-			collection["_timeStep"] = self._timeStep
-
-		self._globalReference["_timeStep"] = self._timeStep
-
-
 	def __eq__(self, other):
 		return np.all(
 			(selfCollection == otherCollection).all()
@@ -333,55 +312,36 @@ class UniqueObjectsContainer(object):
 			) and np.all(self._globalReference == other._globalReference)
 
 
-	def pytablesCreate(self, h5file):
-		for collectionIndex, collection in enumerate(self._collections):
-			h5file.create_table(
-				h5file.root,
-				self._tableNames[collectionIndex],
-				collection.dtype,
-				title = self._names[collectionIndex],
-				filters = tables.Filters(complevel = 9, complib = "zlib")
-				)
-
-		h5file.create_table(
-			h5file.root,
-			"_globalReference",
-			self._globalReference.dtype,
-			title = "_globalReference",
-			filters = tables.Filters(complevel = 9, complib = "zlib")
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			collectionNames = self._names
 			)
 
-		h5file.root._globalReference.attrs.collectionNames = self._names
+
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			**dict(
+				zip(self._names, self._collections)
+				+ [("_globalReference", self._globalReference)]
+				) # TODO: consider caching this dict
+			)
 
 
-	def pytablesAppend(self, h5file):
-		for collectionIndex, collection in enumerate(self._collections):
-			entryTable = h5file.get_node("/", self._tableNames[collectionIndex])
 
-			entryTable.append(collection)
+	def tableLoad(self, tableReader, tableIndex):
+		# for collectionIndex, tableName in enumerate(self._tableNames):
+		# 	entryTable = h5file.get_node("/", tableName)
 
-			entryTable.flush()
+		# 	entries = entryTable[entryTable.col("_timeStep") == timePoint]
 
-		globalTable = h5file.get_node("/", "_globalReference")
+		# 	self._collections[collectionIndex] = entries
 
-		globalTable.append(self._globalReference)
+		# globalTable = h5file.get_node("/", "_globalReference")
 
-		globalTable.flush()
+		# globalEntries = globalTable[globalTable.col("_timeStep") == timePoint]
 
-
-	def pytablesLoad(self, h5file, timePoint):
-		for collectionIndex, tableName in enumerate(self._tableNames):
-			entryTable = h5file.get_node("/", tableName)
-
-			entries = entryTable[entryTable.col("_timeStep") == timePoint]
-
-			self._collections[collectionIndex] = entries
-
-		globalTable = h5file.get_node("/", "_globalReference")
-
-		globalEntries = globalTable[globalTable.col("_timeStep") == timePoint]
-
-		self._globalReference = globalEntries
+		# self._globalReference = globalEntries
+		raise NotImplementedError()
 
 
 class _UniqueObject(object):
@@ -392,7 +352,7 @@ class _UniqueObject(object):
 	Primarily used as a way to manipulate individual molecules with a python
 	object-like interface.
 	"""
-	
+
 	__slots__ = ("_container", "_globalIndex", "_collectionIndex", "_objectIndex")
 
 
@@ -413,7 +373,7 @@ class _UniqueObject(object):
 
 	def attr(self, attribute):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
-		
+
 		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
@@ -427,10 +387,10 @@ class _UniqueObject(object):
 
 	def attrs(self, *attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
-		
+
 		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
-		
+
 		# See note in .attr
 		return tuple(
 			entry[attribute].copy() if isinstance(entry[attribute], np.ndarray) else entry[attribute]
@@ -440,14 +400,14 @@ class _UniqueObject(object):
 
 	def attrIs(self, **attributes):
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
-		
+
 		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
 		for attribute, value in attributes.viewitems():
 			if isinstance(entry[attribute], np.ndarray):
-				# Fix for the circumstance that the attribute is an ndarray - 
-				# without the [:] assignment, only the first value will be 
+				# Fix for the circumstance that the attribute is an ndarray -
+				# without the [:] assignment, only the first value will be
 				# assigned (probably a NumPy bug)
 				entry[attribute][:] = value
 
@@ -463,7 +423,7 @@ class _UniqueObject(object):
 	def __eq__(self, other):
 		if not isinstance(other, _UniqueObject):
 			return False
-			
+
 		if not self._container is other._container:
 			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
@@ -551,7 +511,7 @@ class _UniqueObjectSet(object):
 		for i, collectionIndex in enumerate(uniqueColIndexes):
 			globalObjIndexes = np.where(inverse == i)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
-			
+
 			values[globalObjIndexes] = self._container._collections[collectionIndex][attribute][objectIndexesInCollection]
 
 		return values
@@ -595,7 +555,7 @@ class _UniqueObjectSet(object):
 		for i, collectionIndex in enumerate(uniqueColIndexes):
 			globalObjIndexes = np.where(inverse == i)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
-			
+
 			values[globalObjIndexes] = self._container._collections[collectionIndex][attributes][objectIndexesInCollection]
 
 		return values
@@ -660,7 +620,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 	# partitionedMolecules: 2D bool array, (molecule)x(process)
 
 	# TODO: full documentation/writeup, better docstring
-	
+
 	# Build matrix for optimization
 
 	nObjects = objectRequestsArray.shape[0]
@@ -774,7 +734,7 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 
 	# TODO: find a way to eliminate the for-loops!
 	partitionedMolecules = np.zeros((nObjects, nProcesses), np.bool)
-	
+
 	for moleculeIndex in np.arange(uniqueEntriesStructured.size):
 		indexesOfSelectedObjects = np.where(moleculeIndex == mapping)[0]
 		randomState.shuffle(indexesOfSelectedObjects)
@@ -787,5 +747,5 @@ def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, ra
 			partitionedMolecules[
 				selectedIndexes,
 				processIndex] = True
-	
+
 	return partitionedMolecules

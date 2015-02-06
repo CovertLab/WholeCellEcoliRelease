@@ -10,13 +10,13 @@ Plots ribosome capacity
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
@@ -36,29 +36,34 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 	ribosomeSubunitIds = [kb.s50_fullComplex, kb.s30_fullComplex]
 	elongationRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s))
-	
+
 	# Load ribosome data
-	with tables.open_file(os.path.join(simOutDir, "RibosomeData.hdf")) as massFile:
-		table = massFile.root.RibosomeData
-		actualElongations = table.col("actualElongations")
-		expectedElongations_recorded = table.col("expectedElongations")
-		time = table.col("time")
+	massFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
+
+	actualElongations = massFile.readColumn("actualElongations")
+	expectedElongations_recorded = massFile.readColumn("expectedElongations")
+	time = massFile.readColumn("time")
+
+	massFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		# Get indexes
-		moleculeIds = bulkMoleculesFile.root.names.moleculeIDs.read()
-		ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
+	# Get indexes
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
 
-		# Load data
-		ribosomeSubunitCounts = bulkMolecules.read(0, None, 1, "counts")[:, ribosomeSubunitIndexes]
+	# Load data
+	ribosomeSubunitCounts = bulkMolecules.readColumn("counts")[:, ribosomeSubunitIndexes]
 
-	with tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf")) as uniqueMoleculesFile:
-		uniqueMoleculeCounts = uniqueMoleculesFile.root.UniqueMoleculeCounts
-		ribosomeIndex = uniqueMoleculeCounts.attrs.uniqueMoleculeIds.index("activeRibosome")
-		activeRibosome = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, ribosomeIndex]
+	bulkMolecules.close()
+
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+
+	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+	activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+
+	uniqueMoleculeCounts.close()
 
 	# Calculate total ribosome elongation capacity
 	activeRibosomeCapacity = activeRibosome * elongationRate

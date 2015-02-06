@@ -55,11 +55,11 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 
 	dt = 1 * units.s
 
-	reactionStoich = kb.metabolismReactionStoich.copy()
-	reactionEnzymes = kb.metabolismReactionEnzymes.copy()
-	reactionRates = kb.metabolismReactionRates(dt)
+	reactionStoich = kb.metabolism.reactionStoich.copy()
+	reactionEnzymes = kb.metabolism.reactionEnzymes.copy()
+	reactionRates = kb.metabolism.reactionRates(dt)
 
-	for reactionID in kb.metabolismReversibleReactions:
+	for reactionID in kb.metabolism.reversibleReactions:
 		reverseReactionID = "{} (reverse)".format(reactionID)
 		assert reverseReactionID not in reactionStoich.viewkeys()
 		reactionStoich[reverseReactionID] = {
@@ -87,7 +87,7 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 			except ValueError:
 				moleculeIndex = len(rowNames)
 				rowNames.append(moleculeID)
-			
+
 			rowIndexes.append(moleculeIndex)
 			colIndexes.append(reactionIndex)
 			values.append(coeff)
@@ -103,13 +103,13 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 
 	coefficient = initDryMass / initCellVolume * dt
 
-	exchangeConstraints = kb.metabolismExchangeConstraints(
-		kb.metabolismExternalExchangeMolecules,
+	exchangeConstraints = kb.metabolism.exchangeConstraints(
+		kb.metabolism.externalExchangeMolecules,
 		coefficient,
 		units.mmol / units.L
 		)
 
-	for moleculeID, constraint in zip(kb.metabolismExternalExchangeMolecules, exchangeConstraints):
+	for moleculeID, constraint in zip(kb.metabolism.externalExchangeMolecules, exchangeConstraints):
 		exchangeID = "{} exchange".format(moleculeID)
 
 		assert exchangeID not in colNames

@@ -19,7 +19,6 @@ from __future__ import division
 import re
 
 import numpy as np
-import tables
 
 import wholecell.states.state
 import wholecell.views.view
@@ -79,7 +78,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel
-		
+
 
 	def allocate(self):
 		super(BulkMolecules, self).allocate() # Allocates partitions
@@ -114,15 +113,15 @@ class BulkMolecules(wholecell.states.state.State):
 
 		if ASSERT_POSITIVE_COUNTS:
 			assert (self._countsAllocatedInitial >= 0).all()
-		
+
 		# Record unpartitioned counts for later merging
 		self._countsUnallocated = self.container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
-		
+
 		if ASSERT_POSITIVE_COUNTS:
 			assert (self._countsUnallocated >= 0).all()
 
 		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
-	
+
 
 	def calculatePreEvolveStateMass(self):
 		# Compute masses of partitioned molecules
@@ -157,66 +156,37 @@ class BulkMolecules(wholecell.states.state.State):
 			)
 
 
-	def pytablesCreate(self, h5file, expectedRows):
-		countsShape = self.container._counts.shape
-		partitionsShape = self._countsRequested.shape
-
-		# Columns
-		d = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"counts":tables.UInt64Col(countsShape),
-			"countsRequested":tables.UInt64Col(partitionsShape),
-			"countsAllocatedInitial":tables.UInt64Col(partitionsShape),
-			"countsAllocatedFinal":tables.UInt64Col(partitionsShape),
-			"countsUnallocated":tables.UInt64Col(countsShape),
-			}
-
-		# Create table
-		# TODO: Add compression options (using filters)
-		t = h5file.create_table(
-			h5file.root,
-			self._name,
-			d,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			moleculeIDs = self._moleculeIDs
 			)
-	
-		groupNames = h5file.create_group(h5file.root,
-			'names', 'Molecule names')
-
-		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self._moleculeIDs]) # pytables doesn't support unicode
-		# h5file.create_array(groupNames, 'compartmentIDs', [str(s) for s in self._compartmentIDs])
 
 
-	def pytablesAppend(self, h5file):
-		t = h5file.get_node("/", self._name)
-		entry = t.row
-
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry['counts'] = self.container._counts
-		entry['countsRequested'] = self._countsRequested
-		entry['countsAllocatedInitial'] = self._countsAllocatedInitial
-		entry['countsAllocatedFinal'] = self._countsAllocatedFinal
-		entry['countsUnallocated'] = self._countsUnallocated
-		
-		entry.append()
-
-		t.flush()
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep(),
+			counts = self.container._counts,
+			# TODO: better logging for requests i.e. not GBs of data
+			# countsRequested = self._countsRequested,
+			# countsAllocatedInitial = self._countsAllocatedInitial,
+			# countsAllocatedFinal = self._countsAllocatedFinal,
+			# countsUnallocated = self._countsUnallocated,
+			)
 
 
-	def pytablesLoad(self, h5file, timePoint):
-		entry = h5file.get_node('/', self._name)[timePoint]
+	def tableLoad(self, tableReader, tableIndex):
+		# entry = h5file.get_node('/', self._name)[timePoint]
 
-		self.container.countsIs(entry['counts'])
-		
-		if self._nProcesses:
-			self._countsRequested[:] = entry['countsRequested']
-			self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
-			self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
-			self._countsUnallocated[:] = entry['countsUnallocated']
+		# self.container.countsIs(entry['counts'])
+
+		# if self._nProcesses:
+		# 	self._countsRequested[:] = entry['countsRequested']
+		# 	self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
+		# 	self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
+		# 	self._countsUnallocated[:] = entry['countsUnallocated']
+
+		raise NotImplementedError()
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):

@@ -11,7 +11,6 @@ ConcentrationChange
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 
@@ -35,44 +34,19 @@ class ConcentrationChange(wholecell.listeners.listener.Listener):
 	# Allocate memory
 	def allocate(self):
 		super(ConcentrationChange, self).allocate()
-		
+
 		self.concentrationChange = np.zeros(len(self.moleculeIDs), np.float64)
 
 
-	def pytablesCreate(self, h5file, expectedRows):
-
-		# Columns
-		dtype = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"concentrationChange": tables.Float64Col(self.concentrationChange.shape),
-			}
-
-		# Create table
-		table = h5file.create_table(
-			h5file.root,
-			self._name,
-			dtype,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			moleculeIDs = self.moleculeIDs
 			)
-	
-		groupNames = h5file.create_group(h5file.root,
-			'names', 'Molecule names')
-
-		h5file.create_array(groupNames, 'moleculeIDs', [str(s) for s in self.moleculeIDs])
 
 
-	def pytablesAppend(self, h5file):
-
-		table = h5file.get_node("/", self._name)
-		entry = table.row
-
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry["concentrationChange"] = self.concentrationChange
-
-		entry.append()
-
-		table.flush()
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep(),
+			concentrationChange = self.concentrationChange,
+			)

@@ -28,7 +28,7 @@ class Complexation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		
+
 		super(Complexation, self).__init__()
 
 
@@ -38,13 +38,13 @@ class Complexation(wholecell.processes.process.Process):
 
 		# Create matrices and vectors
 
-		self.stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+		self.stoichMatrix = kb.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
 		# Build views
 
-		moleculeNames = kb.complexationMoleculeNames
+		moleculeNames = kb.complexation.moleculeNames
 
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 
@@ -60,7 +60,7 @@ class Complexation(wholecell.processes.process.Process):
 			)
 
 		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
-		
+
 
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()

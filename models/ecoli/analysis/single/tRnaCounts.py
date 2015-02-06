@@ -12,7 +12,6 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -20,6 +19,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 # TODO: account for complexation
@@ -40,16 +40,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	rnaIds = kb.rnaData["id"][isTRna]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
-		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
+	bulkMolecules.close()
 
 	# avgCounts = rnaCountsBulk.mean(0)
 
@@ -66,7 +65,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
 	maxLine = 1.1 * max(expectedCounts.max(), counts.max())
-	plt.plot([0, maxLine], [0, maxLine], '--r')	
+	plt.plot([0, maxLine], [0, maxLine], '--r')
 	plt.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 
 	plt.xlabel("Expected tRNA count (scaled to total)")

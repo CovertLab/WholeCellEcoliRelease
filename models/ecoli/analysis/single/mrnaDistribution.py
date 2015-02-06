@@ -5,7 +5,6 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -13,6 +12,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
@@ -49,17 +49,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	rnaIds = kb.rnaData["id"][isMRna]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
-		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
-	
+	bulkMolecules.close()
+
 	expectedCountsArbitrary = kb.rnaExpression['expression'][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()
@@ -120,17 +119,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
+	# defaultKBFile = os.path.join(
+	# 		wholecell.utils.constants.SERIALIZED_KB_DIR,
+	# 		wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
+	# 		)
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	# parser = argparse.ArgumentParser()
+	# parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
+	# parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
+	# parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	# parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
 
-	args = parser.parse_args().__dict__
+	# args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	# main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+
+	print "Disabled because it's slow"

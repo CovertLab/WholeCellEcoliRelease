@@ -11,7 +11,6 @@ import os
 import argparse
 
 import reconstruction.ecoli.knowledge_base
-import reconstruction.ecoli.fitter
 import wholecell.utils.constants
 
 def main(kbDirectory):

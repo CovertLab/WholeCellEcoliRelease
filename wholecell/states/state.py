@@ -93,13 +93,15 @@ class State(object):
 
 	# Saving and loading
 
-	def pytablesCreate(self, h5file, expectedRows):
+	def tableCreate(self, tableWriter):
 		pass
 
-	def pytablesAppend(self, h5file):
+
+	def tableAppend(self, tableWriter):
 		pass
 
-	def pytablesLoad(self, h5file, timePoint):
+
+	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 

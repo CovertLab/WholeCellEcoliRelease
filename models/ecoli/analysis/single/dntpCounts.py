@@ -10,13 +10,16 @@ Plot NTP counts
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+
+DNTP_IDS = ['DATP[c]', 'DCTP[c]', 'DGTP[c]', 'DTTP[c]']
+DNMP_IDS = ['DAMP[n]', 'DCMP[n]', 'DGMP[n]', 'DTMP[n]']
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -26,30 +29,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	names = h.root.names
-
-	moleculeIds = names.moleculeIDs.read()
-
-	DNTP_IDS = ['DATP[c]', 'DCTP[c]', 'DGTP[c]', 'DTTP[c]']
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
 	dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNTP_IDS], np.int)
-	bulkMolecules = h.root.BulkMolecules
-	dntpCounts = bulkMolecules.read(0, None, 1, "counts")[:, dntpIndexes]
+	dntpCounts = bulkMolecules.readColumn("counts")[:, dntpIndexes]
 
-
-	DNMP_IDS = ['DAMP[n]', 'DCMP[n]', 'DGMP[n]', 'DTMP[n]']
 	dnmpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNMP_IDS], np.int)
-	bulkMolecules = h.root.BulkMolecules
-	dnmpCounts = bulkMolecules.read(0, None, 1, "counts")[:, dnmpIndexes]
+	dnmpCounts = bulkMolecules.readColumn("counts")[:, dnmpIndexes]
 
-	h.close()
+	time = bulkMolecules.readColumn("time")
 
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
-	table = h.root.Mass
-	time = np.array([x["time"] for x in table.iterrows()])
-	h.close()
+	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
 
