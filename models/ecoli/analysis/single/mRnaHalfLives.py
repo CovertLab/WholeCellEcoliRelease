@@ -52,7 +52,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	expectedDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
 
 	maxLine = 1.1 * max(expectedDegradationRate.max(), rnaDegradationRate.max())
-	#import ipdb; ipdb.set_trace()
+	
 	plt.plot([0, maxLine], [0, maxLine], '--r')	
 	plt.plot(expectedDegradationRate, rnaDegradationRate, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 	Correlation_ExpPred = np.corrcoef(expectedDegradationRate, rnaDegradationRate)[0][1]

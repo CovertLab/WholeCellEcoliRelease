@@ -28,13 +28,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with TableReader(os.path.join(simOutDir, "BulkMolecules")) as bulkMolecules:
-		moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		RNAP_RNA_IDS = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
-		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-		rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
-		time = bulkMolecules.readColumn("time")
+	RNAP_RNA_IDS = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
+	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
+	rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
+	time = bulkMolecules.readColumn("time")
+	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
 	plt.rc('xtick', labelsize=5) 
