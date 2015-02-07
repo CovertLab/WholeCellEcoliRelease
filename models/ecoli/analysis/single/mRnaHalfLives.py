@@ -21,6 +21,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 import wholecell.utils.constants
+from wholecell.io.tablereader import TableReader
 
 # TODO: account for complexation
 
@@ -39,12 +40,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	isMRna = kb.rnaData["isMRna"]
 	rnaIds = kb.rnaData["id"][isMRna]
 
-	with tables.open_file(os.path.join(simOutDir, "RnaDegradationListener.hdf")) as rnaDegradationListenerFile:
-		time = rnaDegradationListenerFile.root.RnaDegradationListener.col('time')
-		countRnaDegraded = rnaDegradationListenerFile.root.RnaDegradationListener.col('countRnaDegraded')
+	rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
+	time = rnaDegradationListenerFile.readColumn("time")
+	countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
+	rnaDegradationListenerFile.close()
 
 	plt.figure(figsize = (8.5, 11))
-	
 
 	rnaDegradationRate = countRnaDegraded[1:,:].sum(axis = 0)[isMRna] / 3600.
 

@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 
 import wholecell.utils.constants
 
-from wholecell.containers.unique_molecules_data import UniqueMoleculesData
+from wholecell.io.tablereader import TableReader
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -28,30 +28,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	with TableReader(os.path.join(simOutDir, "BulkMolecules")) as bulkMolecules:
+		moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-	names = h.root.names
-	bulkMolecules = h.root.BulkMolecules
-
-	moleculeIds = names.moleculeIDs.read()
-	#rnapId = "EG12146-MONOMER[c]"
-	#rnapIndex = moleculeIds.index(rnapId)
-	#rnapCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnapIndex]
-
-	RNAP_RNA_IDS = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
-	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-	rnapRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rnapRnaIndexes]
-	#import ipdb
-	#ipdb.set_trace()
-
-	h.close()
-
-	h = tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf"))
-
-	uniqueMoleculeCounts = h.root.UniqueMoleculeCounts
-	time = uniqueMoleculeCounts.col("time")
-
-	h.close()
+		RNAP_RNA_IDS = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
+		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
+		rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
+		time = bulkMolecules.readColumn("time")
 
 	plt.figure(figsize = (8.5, 11))
 	plt.rc('xtick', labelsize=5) 
