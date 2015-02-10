@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Plot mRNA half lives (expected vs. predicted)
+Plot mRNA half lives (observed vs. actual)
 
 @author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -46,7 +46,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.figure(figsize = (8.5, 11))
 	
 
+	# Assuming that decay rates are the average of instantaneous degradation rates (simulation time points)
 	rnaDegradationRate = countRnaDegraded[1:,:].sum(axis = 0)[isMRna] / 3600.
+	# Assuming that decay rates are the median of instantaneous degradation rates (simulation time points)
+	# rnaDegradationRate = countRnaDegraded[1:,:].median(axis = 0)[isMRna]
+
+	rnaDegradationRateStd = countRnaDegraded[1:,:].std(axis = 0)[isMRna]
+
 
 	expectedDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
 
@@ -54,6 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	#import ipdb; ipdb.set_trace()
 	plt.plot([0, maxLine], [0, maxLine], '--r')	
 	plt.plot(expectedDegradationRate, rnaDegradationRate, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
+	#plt.errorbar(expectedDegradationRate, rnaDegradationRate, rnaDegradationRateStd)
 	Correlation_ExpPred = np.corrcoef(expectedDegradationRate, rnaDegradationRate)[0][1]
 	print "Correlation expected and predicted half-lives = %.3f" % Correlation_ExpPred
 

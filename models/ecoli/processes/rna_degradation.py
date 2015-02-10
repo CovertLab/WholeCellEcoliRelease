@@ -39,6 +39,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		exoRnaseIds = ["EG11620-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]",  "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "EG10743-MONOMER[c]", "G7842-MONOMER[c]"]
 		endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
 
+		self.KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * self.timeStepSec
+
 		# Rna
 		self.rnaDegRates = kb.rnaData['degRate'].asNumber()
 		self.rnaLens = kb.rnaData['length'].asNumber()
@@ -73,13 +75,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 
 	def calculateRequest(self):
-		KcatEndoRNaseFullRNA = 0.002 # cleavages/s
+		
 		KcatEndoRNaseFragmentMin = 0.005 # cleavages/s
 		KcatEndoRNaseFragmentMax = 0.231 # cleavages/s
 
 		RNAspecificity = self.rnaDegRates / self.rnaDegRates.sum()
 
-		nRNAsTotalToDegrade = KcatEndoRNaseFullRNA * self.endoRnases.total().sum()
+		nRNAsTotalToDegrade = self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum()
 
 		if nRNAsTotalToDegrade == 0:
 			return
