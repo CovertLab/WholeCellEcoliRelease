@@ -12,7 +12,6 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -20,6 +19,7 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 # TODO: account for complexation
@@ -40,20 +40,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinIds = kb.monomerData["id"]
 
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		names = bulkMoleculesFile.root.names
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		moleculeIds = names.moleculeIDs.read()
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
-		rnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
+	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
 
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
+	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-		proteinCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
+	bulkMolecules.close()
 
 	relativeMRnaCounts = rnaCountsBulk[-1, :] #/ rnaCountsBulk[-1, :].sum()
 	relativeProteinCounts = proteinCountsBulk[-1, :] #/ proteinCountsBulk[-1, :].sum()

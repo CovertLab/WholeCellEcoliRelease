@@ -8,13 +8,12 @@ UniqueMoleculeCounts
 @date: Created 6/10/2014
 """
 
-# TODO: move to the wholecell package & write interface such that it will 
+# TODO: move to the wholecell package & write interface such that it will
 # function without requiring the state (will save an empty file)
 
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 
@@ -35,7 +34,6 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 
 		self.uniqueMoleculeCounts = None
-
 
 
 	# Allocate memory
@@ -59,37 +57,15 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 				).sum()
 
 
-	def pytablesCreate(self, h5file, expectedRows):
-		size = self.uniqueMoleculeCounts.size
-		# Columns
-		dtype = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"uniqueMoleculeCounts": tables.UInt64Col(size)
-			}
-
-		# Create table
-		# TODO: Add compression options (using filters)
-		table = h5file.create_table(
-			h5file.root,
-			self._name,
-			dtype,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			uniqueMoleculeIds = self.uniqueMolecules.container._names
 			)
 
-		table.attrs.uniqueMoleculeIds = self.uniqueMolecules.container._names
 
-
-	def pytablesAppend(self, h5file):
-		table = h5file.get_node("/", self._name)
-		entry = table.row
-
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry["uniqueMoleculeCounts"] = self.uniqueMoleculeCounts
-
-		entry.append()
-
-		table.flush()
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep(),
+			uniqueMoleculeCounts = self.uniqueMoleculeCounts,
+			)

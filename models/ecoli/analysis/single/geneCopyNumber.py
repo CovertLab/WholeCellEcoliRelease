@@ -10,12 +10,12 @@ Plots gene copy number
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -26,19 +26,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "GeneCopyNumber.hdf"))
+	geneCopyNumberFile = TableReader(os.path.join(simOutDir, "GeneCopyNumber"))
 
-	table = h.root.GeneCopyNumber
+	# geneCopyNumber = geneCopyNumberFile.readColumn('gene_copy_number')
+	totalCopyNumber = geneCopyNumberFile.readColumn('total_copy_number')
+	time = geneCopyNumberFile.readColumn('time')
 
-	# geneCopyNumber = table.read(0, None, 1, 'gene_copy_number')
-	totalCopyNumber = table.read(0, None, 1, 'total_copy_number')
-
-	h.close()
-
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
-	table = h.root.Mass
-	time = np.array([x["time"] for x in table.iterrows()])
-	h.close()
+	geneCopyNumberFile.close()
 
 	plt.figure(figsize = (8.5, 11))
 

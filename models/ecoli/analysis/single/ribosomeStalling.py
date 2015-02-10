@@ -14,12 +14,12 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -30,16 +30,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "RibosomeData.hdf")) as h5file:
-		timeStep = h5file.root.RibosomeData.col("timeStep")
-		# stallingRateTotal = h5file.root.RibosomeData.col("stallingRateTotal")
-		# stallingRateMean = h5file.root.RibosomeData.col("stallingRateMean")
-		# stallingRateStd = h5file.root.RibosomeData.col("stallingRateStd")
-		fractionStalled = h5file.root.RibosomeData.col("fractionStalled")
-		aaCountInSequence = h5file.root.RibosomeData.col("aaCountInSequence")
-		aaCounts = h5file.root.RibosomeData.col("aaCounts")
-		trnaCapacity = h5file.root.RibosomeData.col("trnasCapacity")
-		synthetaseCapacity = h5file.root.RibosomeData.col("synthetaseCapacity")
+	ribosomeData = TableReader(os.path.join(simOutDir, "RibosomeData"))
+
+	timeStep = ribosomeData.readColumn("timeStep")
+	# stallingRateTotal = ribosomeData.readColumn("stallingRateTotal")
+	# stallingRateMean = ribosomeData.readColumn("stallingRateMean")
+	# stallingRateStd = ribosomeData.readColumn("stallingRateStd")
+	fractionStalled = ribosomeData.readColumn("fractionStalled")
+	aaCountInSequence = ribosomeData.readColumn("aaCountInSequence")
+	aaCounts = ribosomeData.readColumn("aaCounts")
+	trnaCapacity = ribosomeData.readColumn("trnasCapacity")
+	synthetaseCapacity = ribosomeData.readColumn("synthetaseCapacity")
+
+	ribosomeData.close()
 
 	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0).sum(axis = 1)
 	trnaCapacityLimitation = -1 * (aaCountInSequence - trnaCapacity).clip(min = 0).sum(axis = 1)

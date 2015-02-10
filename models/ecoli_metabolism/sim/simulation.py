@@ -80,21 +80,28 @@ class EcoliMetabolismSimulation(Simulation):
 
 	@classmethod
 	def printAnalysisSingleFiles(cls, fileName = None):
+		L = []
 		fileList = sorted(cls._analysisSingleFiles)
 		if fileName == None:
 			for f in fileList:
 				if f.endswith(".pyc") or f == "__init__.py":
 					print f[:-1]
+					L.append(f[:-1])
 				else:
 					print f
+					L.append(f)
 		else:
 			h = open(fileName, "w")
 			for f in fileList:
 				if f.endswith(".pyc") or f == "__init__.py":
 					h.write(f[:-1] + "\n")
+					L.append(f[:-1])
 				else:
 					h.write(f + "\n")
+					L.append(f)
 			h.close()
+
+		return L
 
 	@classmethod
 	def printAnalysisCohortFiles(cls, fileName = None):

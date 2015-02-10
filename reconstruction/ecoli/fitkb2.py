@@ -20,26 +20,26 @@ def fitKb_2(kb, simOutDir):
 	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
 
 	# Construct bulk container
-	
-	# We want to know something about the distribution of the copy numbers of 
+
+	# We want to know something about the distribution of the copy numbers of
 	# macromolecules in the cell.  While RNA and protein expression can be
 	# approximated using well-described statistical distributions, we need
 	# absolute copy numbers to form complexes.  To get a distribution, we must
-	# instantiate many cells, form complexes, and finally compute the 
+	# instantiate many cells, form complexes, and finally compute the
 	# statistics we will use in the fitting operations.
 
 	bulkContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'])
 	rnaView = bulkContainer.countsView(kb.rnaData["id"])
 	proteinView = bulkContainer.countsView(kb.monomerData["id"])
-	complexationMoleculesView = bulkContainer.countsView(kb.complexationMoleculeNames)
+	complexationMoleculesView = bulkContainer.countsView(kb.complexation.moleculeNames)
 	allMoleculesIDs = list(
-		set(kb.rnaData["id"]) | set(kb.monomerData["id"]) | set(kb.complexationMoleculeNames)
+		set(kb.rnaData["id"]) | set(kb.monomerData["id"]) | set(kb.complexation.moleculeNames)
 		)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
 
-	complexationStoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+	complexationStoichMatrix = kb.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 	complexationPrebuiltMatrices = mccBuildMatrices(
 		complexationStoichMatrix
@@ -57,7 +57,7 @@ def fitKb_2(kb, simOutDir):
 	proteinDistribution = calcProteinDistribution(kb)
 
 	proteinTotalCounts = calcProteinTotalCounts(kb, proteinMass, proteinDistribution)
-	
+
 	for seed in xrange(N_SEEDS):
 		randomState = np.random.RandomState(seed)
 
@@ -96,7 +96,7 @@ def fitKb_2(kb, simOutDir):
 	# TODO: make this more functional; one function for returning average & distribution
 	del allMoleculeCounts
 	del bulkContainer
-	
+
 	# ----- tRNA synthetase turnover rates ------
 	# Fit tRNA synthetase kcat values based on expected rates of translation
 	# compute values at initial time point
@@ -135,7 +135,7 @@ def fitKb_2(kb, simOutDir):
 			group_variance += variance
 		synthetase_counts_by_group[idx] = group_count
 		synthetase_variance_by_group[idx] = group_variance
-	
+
 	## Saved for plotting
 	kb.synthetase_counts = synthetase_counts_by_group
 	kb.synthetase_variance = synthetase_variance_by_group

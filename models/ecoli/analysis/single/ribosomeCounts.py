@@ -12,12 +12,12 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 # from wholecell.containers.unique_molecules_data import UniqueMoleculesData
@@ -30,27 +30,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	names = h.root.names
-	bulkMolecules = h.root.BulkMolecules
-
-	moleculeIds = names.moleculeIDs.read()
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
 	RIBOSOME_RNA_IDS = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 	ribosomeRnaIndexes = np.array([moleculeIds.index(rRnaId) for rRnaId in RIBOSOME_RNA_IDS], np.int)
-	ribosomeRnaCountsBulk = bulkMolecules.read(0, None, 1, "counts")[:, ribosomeRnaIndexes]
+	ribosomeRnaCountsBulk = bulkMolecules.readColumn("counts")[:, ribosomeRnaIndexes]
 
-	h.close()
+	bulkMolecules.close()
 
-	h = tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf"))
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-	uniqueMoleculeCounts = h.root.UniqueMoleculeCounts
-	ribosomeIndex = uniqueMoleculeCounts.attrs.uniqueMoleculeIds.index("activeRibosome")
-	time = uniqueMoleculeCounts.col("time")
-	nActive = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, ribosomeIndex]
+	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+	time = uniqueMoleculeCounts.readColumn("time")
+	nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
-	h.close()
+	uniqueMoleculeCounts.close()
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -63,7 +59,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 
-	h.close()
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

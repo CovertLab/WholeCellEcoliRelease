@@ -12,15 +12,15 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-from wholecell.containers.unique_molecules_data import bundleByFieldValue
+# TODO: better support for tracking individual molecules
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -30,26 +30,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "ReplicationForkPosition.hdf"))
-	data = h.root.ReplicationForkPosition.read()
-	h.close()
+	repForkData = TableReader(os.path.join(simOutDir, "ReplicationForkPosition"))
 
 	plt.figure(figsize = (8.5, 11))
 
-	legendEntries = []
+	for i, table in enumerate(repForkData.iterColumn("dnaPolyData")):
+		# assuming 1 step == 1 sec
+		plt.plot([i /60.]*table.size, table["chromosomeLocation"], "k.")
 
-	for dnaPolyId, dnaPolyHistory in bundleByFieldValue(data, "_uniqueId", ["_timeStep", "chromosomeLocation"]):
-		timeMinutes = dnaPolyHistory["_timeStep"] / 60
-		position = dnaPolyHistory["chromosomeLocation"]
-
-		plt.plot(timeMinutes, position, linewidth = 2)
-
-		legendEntries.append(dnaPolyId)
+	repForkData.close()
 
 	plt.xlabel("Time (min)")
 	plt.ylabel("Replication fork position (nt)")
-
-	plt.legend(legendEntries, loc = "best")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)

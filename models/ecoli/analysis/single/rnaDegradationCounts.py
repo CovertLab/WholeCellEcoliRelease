@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 import wholecell.utils.constants
+from wholecell.io.tablereader import TableReader
 
 FONT = {
 		'size'	:	8
@@ -60,25 +61,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
-		# Get indexes
-		moleculeIds = bulkMoleculesFile.root.names.moleculeIDs.read()
-		proteinIndexes = np.array([moleculeIds.index(protein) for protein in RnaseIds], np.int)
-		exoproteinIndexes = np.array([moleculeIds.index(protein) for protein in exoRnaseIds], np.int)
-		endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
-		# Load data
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
-		time = bulkMolecules.col("time")
-		RnaseCounts = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
-		exoRnaseCounts = bulkMolecules.read(0, None, 1, "counts")[:, exoproteinIndexes]
-		endoRnaseCounts = bulkMolecules.read(0, None, 1, "counts")[:, endoproteinIndexes]
+	# Get indexes
+	proteinIndexes = np.array([moleculeIds.index(protein) for protein in RnaseIds], np.int)
+	exoproteinIndexes = np.array([moleculeIds.index(protein) for protein in exoRnaseIds], np.int)
+	endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
 
-	with tables.open_file(os.path.join(simOutDir, "RnaDegradationListener.hdf")) as rnaDegradationListenerFile:
-		time = rnaDegradationListenerFile.root.RnaDegradationListener.col('time')
-		countRnaDegraded = rnaDegradationListenerFile.root.RnaDegradationListener.col('countRnaDegraded')
-		nucleotidesFromDegradation = rnaDegradationListenerFile.root.RnaDegradationListener.col('nucleotidesFromDegradation')
-	#import ipdb; ipdb.set_trace()
+	# Load data
+	time = bulkMolecules.readColumn("time")
+	RnaseCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+	exoRnaseCounts = bulkMolecules.readColumn("counts")[:, exoproteinIndexes]
+	endoRnaseCounts = bulkMolecules.readColumn("counts")[:, endoproteinIndexes]
+	bulkMolecules.close()
+
+	rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
+	countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
+	nucleotidesFromDegradation = rnaDegradationListenerFile.readColumn('nucleotidesFromDegradation')
+	rnaDegradationListenerFile.close()
 
 	# Computation
 	totalRnaseCounts = RnaseCounts.sum(axis = 1)

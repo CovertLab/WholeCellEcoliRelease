@@ -51,7 +51,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Load constants
 		self.nAvogadro = kb.nAvogadro.asNumber(1 / COUNTS_UNITS)
 		self.cellDensity = kb.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
-		
+
 		self.metabolitePoolIDs = kb.metabolitePoolIDs
 		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
@@ -59,18 +59,18 @@ class Metabolism(wholecell.processes.process.Process):
 			moleculeID:coeff for moleculeID, coeff in
 			izip(self.metabolitePoolIDs, self.targetConcentrations)
 			}
-		
+
 		# Set up FBA solver
 
 		self.fba = FluxBalanceAnalysis(
-			kb.metabolismReactionStoich.copy(), # TODO: copy in class
-			kb.metabolismExternalExchangeMolecules,
+			kb.metabolism.reactionStoich.copy(), # TODO: copy in class
+			kb.metabolism.externalExchangeMolecules,
 			objective,
 			objectiveType = "pools",
-			reversibleReactions = kb.metabolismReversibleReactions,
-			# reactionEnzymes = kb.metabolismReactionEnzymes.copy(), # TODO: copy in class
-			# reactionRates = kb.metabolismReactionRates(self.timeStepSec * units.s),
-			# moleculeMasses = kb.metabolismExchangeMasses(MASS_UNITS / COUNTS_UNITS)
+			reversibleReactions = kb.metabolism.reversibleReactions,
+			# reactionEnzymes = kb.metabolism.reactionEnzymes.copy(), # TODO: copy in class
+			# reactionRates = kb.metabolism.reactionRates(self.timeStepSec * units.s),
+			# moleculeMasses = kb.metabolism.exchangeMasses(MASS_UNITS / COUNTS_UNITS)
 			)
 
 		# Set constraints
@@ -87,7 +87,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		coefficient = initDryMass / initCellMass * kb.cellDensity * (self.timeStepSec * units.s)
 
-		externalMoleculeLevels = kb.metabolismExchangeConstraints(
+		externalMoleculeLevels = kb.metabolism.exchangeConstraints(
 			externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS
@@ -134,7 +134,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba.internalMoleculeLevelsIs(
 			metaboliteCountsInit * countsToMolar
 			)
-			
+
 		self.fba.run()
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar

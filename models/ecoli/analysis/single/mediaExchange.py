@@ -11,7 +11,6 @@ import argparse
 import os
 import cPickle
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -21,6 +20,7 @@ from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
 from scipy.spatial import distance
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 FLUX_UNITS = "M/s"
@@ -51,13 +51,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "FBAResults.hdf")) as h5file:
-		time = h5file.root.FBAResults.col("time")
-		timeStep = h5file.root.FBAResults.col("timeStep")
-		externalExchangeFluxes = h5file.root.FBAResults.col("externalExchangeFluxes")
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	time = fbaResults.readColumn("time")
+	timeStep = fbaResults.readColumn("timeStep")
+	externalExchangeFluxes = fbaResults.readColumn("externalExchangeFluxes")
 
-		names = h5file.root.names
-		externalMoleculeIDs = np.array(names.externalMoleculeIDs.read())
+	externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))
+
+	fbaResults.close()
 
 	fig = plt.figure(figsize = (30, 15))
 
@@ -78,7 +79,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
-	
+
 	dendro = sch.dendrogram(linkage, orientation="right", color_threshold = np.inf)
 	index = dendro["leaves"]
 
@@ -135,7 +136,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		cmap = cmap,
 		norm = norm
 		)
-	
+
 	ax_cmap.set_xticks([])
 	ax_cmap.set_yticks([])
 

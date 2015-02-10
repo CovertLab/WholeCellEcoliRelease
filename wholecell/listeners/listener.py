@@ -33,7 +33,7 @@ class Listener(object):
 	# Calculate (and cache) any dependent properties
 	def initialUpdate(self):
 		# Default behavior is to call the normal update method
-		
+
 		self.update()
 
 
@@ -47,13 +47,13 @@ class Listener(object):
 
 	# Saving and loading
 
-	def pytablesCreate(self, h5file, expectedRows):
+	def tableCreate(self, tableWriter):
 		pass
 
-	def pytablesAppend(self, h5file):
+	def tableAppend(self, tableWriter):
 		pass
 
-	def pytablesLoad(self, h5file, timePoint):
+	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 

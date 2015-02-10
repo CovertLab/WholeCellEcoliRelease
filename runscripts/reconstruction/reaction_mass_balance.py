@@ -7,15 +7,15 @@ import numpy as np
 
 kb = KnowledgeBaseEcoli(deleteLoadingData = False)
 
-S = kb.metabolismStoichMatrix()
+S = kb.metabolism.stoichMatrix()
 
-masses = kb.getMass(kb.metabolismMoleculeNames)
+masses = kb.getMass(kb.metabolism.moleculeNames)
 
 reactionNetMass = np.dot(S.T, masses.asNumber())
 
-reactionIds = kb.metabolismReactionIds
+reactionIds = kb.metabolism.reactionIds
 
-reactionNames = kb.metabolismReactionNames
+reactionNames = kb.metabolism.reactionNames
 
 sorting = np.argsort(np.abs(reactionNetMass))[::-1]
 

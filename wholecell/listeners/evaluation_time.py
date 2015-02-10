@@ -13,7 +13,6 @@ Large-scale, low-overhead evaluation time tracker for process/state operations.
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 
@@ -82,64 +81,35 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 
 		self.calculateRequest_total = self.calculateRequest_times.sum()
 		self.evolveState_total = self.evolveState_times.sum()
-		
 
-	def pytablesCreate(self, h5file, expectedRows):
+
+	def tableCreate(self, tableWriter):
 		# Handle the edge case of a simulation with no processes
 		if self.nProcesses == 0:
 			return
 
-		# Columns
-		dtype = {
-			"time": tables.Float64Col(),
-			"timeStep": tables.Int64Col(),
-			"updateQueries_times": tables.Float64Col(self.nStates),
-			"partition_times": tables.Float64Col(self.nStates),
-			"merge_times": tables.Float64Col(self.nStates),
-			"calculateRequest_times": tables.Float64Col(self.nProcesses),
-			"evolveState_times": tables.Float64Col(self.nProcesses),
-			"updateQueries_total": tables.Float64Col(),
-			"partition_total": tables.Float64Col(),
-			"merge_total": tables.Float64Col(),
-			"calculateRequest_total": tables.Float64Col(),
-			"evolveState_total": tables.Float64Col(),
-			}
-
-		# Create table
-		table = h5file.create_table(
-			h5file.root,
-			self._name,
-			dtype,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			expectedrows = expectedRows
+		tableWriter.writeAttributes(
+			stateNames = self.stateNames,
+			processNames = self.processNames
 			)
 
-		table.attrs.stateNames = self.stateNames
-		table.attrs.processNames = self.processNames
 
-
-	def pytablesAppend(self, h5file):
+	def tableAppend(self, tableWriter):
 		# Handle the edge case of a simulation with no processes
 		if self.nProcesses == 0:
 			return
 
-		table = h5file.get_node("/", self._name)
-		entry = table.row
-
-		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
-		entry["updateQueries_times"] = self.updateQueries_times
-		entry["partition_times"] = self.partition_times
-		entry["merge_times"] = self.merge_times
-		entry["calculateRequest_times"] = self.calculateRequest_times
-		entry["evolveState_times"] = self.evolveState_times
-		entry["updateQueries_total"] = self.updateQueries_total
-		entry["partition_total"] = self.partition_total
-		entry["merge_total"] = self.merge_total
-		entry["calculateRequest_total"] = self.calculateRequest_total
-		entry["evolveState_total"] = self.evolveState_total
-
-		entry.append()
-
-		table.flush()
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep(),
+			updateQueries_times = self.updateQueries_times,
+			partition_times = self.partition_times,
+			merge_times = self.merge_times,
+			calculateRequest_times = self.calculateRequest_times,
+			evolveState_times = self.evolveState_times,
+			updateQueries_total = self.updateQueries_total,
+			partition_total = self.partition_total,
+			merge_total = self.merge_total,
+			calculateRequest_total = self.calculateRequest_total,
+			evolveState_total = self.evolveState_total,
+			)

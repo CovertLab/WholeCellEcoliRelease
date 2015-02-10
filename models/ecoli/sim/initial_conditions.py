@@ -66,7 +66,7 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 	g = growth_data.GrowthData(kb)
 	monomerMass = g.massFractions(60)["proteinMass"]
 
-	# TODO: unify this logic with the fitter so it doesn't fall out of step 
+	# TODO: unify this logic with the fitter so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(
@@ -153,13 +153,13 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	# GDP POOL
 	ribosomeSubunits = bulkMolCntr.countsView(
 		np.hstack(
-			(kb.getComplexMonomers(kb.s30_fullComplex)['subunitIds'], kb.getComplexMonomers(kb.s50_fullComplex)['subunitIds'])
+			(kb.complexation.getMonomers(kb.s30_fullComplex)['subunitIds'], kb.complexation.getMonomers(kb.s50_fullComplex)['subunitIds'])
 			)
 		)
 	ribosomeSubunitStoich = np.hstack(
-			(kb.getComplexMonomers(kb.s30_fullComplex)['subunitStoich'], kb.getComplexMonomers(kb.s50_fullComplex)['subunitStoich'])
+			(kb.complexation.getMonomers(kb.s30_fullComplex)['subunitStoich'], kb.complexation.getMonomers(kb.s50_fullComplex)['subunitStoich'])
 			)
-	
+
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
 	elngRate = kb.ribosomeElongationRate.asNumber(units.aa / units.s)
 	T_d = kb.cellCycleLen.asNumber(units.s)
@@ -187,11 +187,11 @@ def initializeGenes(bulkChrmCntr, kb, timeStep):
 def initializeComplexes(bulkMolCntr, kb, randomState, timeStep):
 	from wholecell.utils.mc_complexation import mccFormComplexes
 
-	stoichMatrix = kb.complexationStoichMatrix().astype(np.int64, order = "F")
+	stoichMatrix = kb.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 	# Build views
 
-	moleculeNames = kb.complexationMoleculeNames
+	moleculeNames = kb.complexation.moleculeNames
 
 	molecules = bulkMolCntr.countsView(moleculeNames)
 
@@ -211,10 +211,10 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	Initiates transcripts in mid-transcription.
 
 	Method:
-	Replaces some RNAP subunits with active RNAP.  These active	RNAPs are in a 
-	random position in the elongation process, and are elongating transcripts 
-	chosen with respect to their initiation probabilities. Transcript counts 
-	are decremented randomly until the RNA mass is approximately its original 
+	Replaces some RNAP subunits with active RNAP.  These active	RNAPs are in a
+	random position in the elongation process, and are elongating transcripts
+	chosen with respect to their initiation probabilities. Transcript counts
+	are decremented randomly until the RNA mass is approximately its original
 	value.
 
 	Needs attention:
@@ -340,9 +340,9 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 
 	Method:
 	Replaces some ribosomal subunits with active ribosomes.  These active
-	ribosomes are in a random position in the elongation process, and are 
+	ribosomes are in a random position in the elongation process, and are
 	elongating peptides chosen with respect to the steady-state mRNA
-	expression. Protein monomer counts are decremented randomly until the 
+	expression. Protein monomer counts are decremented randomly until the
 	protein mass is approximately its original value.
 
 	Needs attention:
@@ -355,7 +355,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	ribosomeSubunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
 	ribosomeSubunitStoich = np.array([1,1])
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
-	
+
 	if activeRibosomeMax == 0:
 		return
 

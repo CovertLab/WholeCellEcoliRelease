@@ -10,13 +10,13 @@ Plots counts of 50S rRNA, associated proteins, and complexes
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
 
@@ -39,28 +39,31 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	rRnaIds.extend(kb.s50_5sRRNA)
 	complexIds = kb.s50_proteinComplexes
 	complexIds.append(kb.s50_fullComplex)
-	
+
 	# Load count data for s30 proteins, rRNA, and final 30S complex
-	with tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf")) as bulkMoleculesFile:
-		# Get indexes
-		moleculeIds = bulkMoleculesFile.root.names.moleculeIDs.read()
-		proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
-		rnaIndexes = np.array([moleculeIds.index(rna) for rna in rnaIds], np.int)
-		rRnaIndexes = np.array([moleculeIds.index(rRna) for rRna in rRnaIds], np.int)
-		complexIndexes = np.array([moleculeIds.index(comp) for comp in complexIds], np.int)
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	# Get indexes
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
+	rnaIndexes = np.array([moleculeIds.index(rna) for rna in rnaIds], np.int)
+	rRnaIndexes = np.array([moleculeIds.index(rRna) for rRna in rRnaIds], np.int)
+	complexIndexes = np.array([moleculeIds.index(comp) for comp in complexIds], np.int)
 
-		# Load data
-		bulkMolecules = bulkMoleculesFile.root.BulkMolecules
-		time = bulkMolecules.col("time")
-		freeProteinCounts = bulkMolecules.read(0, None, 1, "counts")[:, proteinIndexes]
-		rnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rnaIndexes]
-		freeRRnaCounts = bulkMolecules.read(0, None, 1, "counts")[:, rRnaIndexes]
-		complexCounts = bulkMolecules.read(0, None, 1, "counts")[:, complexIndexes]
+	# Load data
+	time = bulkMolecules.readColumn("time")
+	freeProteinCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+	rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+	freeRRnaCounts = bulkMolecules.readColumn("counts")[:, rRnaIndexes]
+	complexCounts = bulkMolecules.readColumn("counts")[:, complexIndexes]
 
-	with tables.open_file(os.path.join(simOutDir, "UniqueMoleculeCounts.hdf")) as uniqueMoleculesFile:
-		uniqueMoleculeCounts = uniqueMoleculesFile.root.UniqueMoleculeCounts
-		ribosomeIndex = uniqueMoleculeCounts.attrs.uniqueMoleculeIds.index("activeRibosome")
-		activeRibosome = uniqueMoleculeCounts.col("uniqueMoleculeCounts")[:, ribosomeIndex]
+	bulkMolecules.close()
+
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+
+	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+	activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+
+	uniqueMoleculeCounts.close()
 
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)

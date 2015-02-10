@@ -13,7 +13,6 @@ Replication fork position listener. Represents position of replication forks ove
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 
@@ -45,31 +44,16 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 		self.dnaPolyData = self.uniqueMolecules.container.objectsInCollection(
 			'dnaPolymerase').attrsAsStructArray(
 			"_uniqueId",
-			"_timeStep",
 			"chromosomeLocation",
 			"isLeading"
 			)
 
 
-	def pytablesCreate(self, h5file, expectedRows):
-		# Columns
-		dtype = self.dnaPolyData.dtype
+	def tableCreate(self, tableWriter):
+		pass
 
-		# Create table
-		# TODO: Add compression options (using filters)
-		table = h5file.create_table(
-			h5file.root,
-			self._name,
-			dtype,
-			title = self._name,
-			filters = tables.Filters(complevel = 9, complib="zlib"),
-			# expectedrows = expectedRows
+
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			dnaPolyData = self.dnaPolyData
 			)
-
-
-	def pytablesAppend(self, h5file):
-		table = h5file.get_node("/", self._name)
-		
-		table.append(self.dnaPolyData)
-
-		table.flush()

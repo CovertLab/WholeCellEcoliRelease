@@ -10,12 +10,12 @@ from __future__ import division
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 THRESHOLD = 1e-13 # roughly, the mass of an electron
@@ -39,13 +39,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	with tables.open_file(os.path.join(simOutDir, "Mass.hdf")) as h5file:
-		table = h5file.root.Mass
+	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-		time = table.col("time")
-		processMassDifferences = table.col("processMassDifferences")
+	time = mass.readColumn("time")
+	processMassDifferences = mass.readColumn("processMassDifferences")
 
-		processNames = table.attrs.processNames
+	processNames = mass.readAttribute("processNames")
+
+	mass.close()
 
 	avgProcessMassDifferences = np.abs(processMassDifferences).sum(axis = 0) / len(time)
 

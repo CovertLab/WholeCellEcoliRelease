@@ -10,12 +10,12 @@ Plot amino acid counts
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
@@ -26,11 +26,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	h = tables.open_file(os.path.join(simOutDir, "BulkMolecules.hdf"))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	names = h.root.names
-
-	moleculeIds = names.moleculeIDs.read()
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
 
 	AA_IDS = [
 		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]",
@@ -41,15 +39,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		"VAL-L[c]"
 		]
 	aaIndexes = np.array([moleculeIds.index(aaId) for aaId in AA_IDS], np.int)
-	bulkMolecules = h.root.BulkMolecules
-	aaCounts = bulkMolecules.read(0, None, 1, "counts")[:, aaIndexes]
+	aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
 
-	h.close()
+	time = bulkMolecules.readColumn("time")
 
-	h = tables.open_file(os.path.join(simOutDir, "Mass.hdf"))
-	table = h.root.Mass
-	time = np.array([x["time"] for x in table.iterrows()])
-	h.close()
+	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
 
