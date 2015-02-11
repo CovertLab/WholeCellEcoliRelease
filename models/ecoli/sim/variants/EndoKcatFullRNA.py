@@ -4,6 +4,8 @@ CONTROL_OUTPUT = dict(
 	desc = "Sensitivity analysis Kcat"
 	)
 
+from wholecell.utils import units
+
 def EndoKcatFullRNATotalIndices(kb):
 	return 1
 
