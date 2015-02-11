@@ -11,7 +11,7 @@ def EndoKcatFullRNA(kb, index):
 
 	KcatEndoRNaseFullRNA = index * 0.001
 
-
-	kb.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA
+	kb._parameterData["KcatEndoRNaseFullRNA"] = KcatEndoRNaseFullRNA
+	#kb.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA
 
 	return CONTROL_OUTPUT
