@@ -48,7 +48,7 @@ for attr_name in candidates:
 
 		fieldnames = attr[0].keys()
 
-		outfile = open(os.path.join(OUTPUT_DIR, attr_name.lstrip("_")), "w")
+		outfile = open(os.path.join(OUTPUT_DIR, attr_name.lstrip("_")) + ".tsv", "w")
 
 		writer = csv.DictWriter(outfile, fieldnames, dialect = DIALECT)
 
