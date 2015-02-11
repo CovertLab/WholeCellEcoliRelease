@@ -474,6 +474,18 @@ def fitMaintenanceCosts(kb, bulkContainer):
 # Math functions
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
+	"""
+	Total mass = dot(mass, count)
+
+	Fraction of i:
+	f = count / Total counts
+
+	Substituting:
+	Total mass = dot(mass, f * Total counts)
+	Total mass = Total counts * dot(mass, f)
+
+	Total counts = Total mass / dot(mass, f)
+	"""
 	assert np.allclose(np.sum(distribution), 1)
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
