@@ -1,0 +1,253 @@
+ignored because of pattern: __class__
+ignored because of pattern: __delattr__
+ignored because of pattern: __dict__
+ignored because of pattern: __doc__
+ignored because of pattern: __format__
+ignored because of pattern: __getattribute__
+ignored because of pattern: __hash__
+ignored because of pattern: __init__
+ignored because of pattern: __module__
+ignored because of pattern: __new__
+ignored because of pattern: __reduce__
+ignored because of pattern: __reduce_ex__
+ignored because of pattern: __repr__
+ignored because of pattern: __setattr__
+ignored because of pattern: __sizeof__
+ignored because of pattern: __str__
+ignored because of pattern: __subclasshook__
+ignored because of pattern: __weakref__
+ignored because not a list: _aaWeights
+ignored because not a list: _allComments
+ignored because not a list: _allMass
+ignored because not a list: _allProductType
+ignored because not a list: _allProducts
+ignored because not a list: _allRelationStoichiometry
+ignored because callable: _buildAllMasses
+ignored because callable: _buildBiomass
+ignored because callable: _buildBiomassFractions
+ignored because callable: _buildBulkChromosome
+ignored because callable: _buildBulkMolecules
+ignored because callable: _buildCompartments
+ignored because callable: _buildComplexation
+ignored because callable: _buildConstants
+ignored because callable: _buildGeneData
+ignored because callable: _buildMetabolism
+ignored because callable: _buildMetabolitePools
+ignored because callable: _buildMoleculeGroups
+ignored because callable: _buildMonomerData
+ignored because callable: _buildMonomerIndexToRnaMapping
+ignored because callable: _buildParameters
+ignored because callable: _buildRibosomeData
+ignored because callable: _buildRnaData
+ignored because callable: _buildRnaExpression
+ignored because callable: _buildRnaIndexToGeneMapping
+ignored because callable: _buildRnaIndexToMonomerMapping
+ignored because callable: _buildSequence
+ignored because callable: _buildTranscription
+ignored because callable: _buildTranslation
+ignored because callable: _buildTrnaData
+ignored because callable: _buildUniqueMolecules
+ignored because callable: _calcKCat
+ignored because callable: _calcMolecularWeightFromRxn
+ignored because not a list: _cellDryMassCompositionData
+ignored because not a list: _cellGlycogenFractionData
+ignored because not a list: _cellInorganicIonFractionData
+ignored because not a list: _cellLPSFractionData
+ignored because not a list: _cellLipidFractionData
+ignored because not a list: _cellMureinFractionData
+ignored because not a list: _cellSolublePoolFractionData
+ignored because callable: _checkDatabaseAccess
+ignored because not a list: _compIdToAbbrev
+ignored because not a list: _compartmentData
+added as candidate: _compartmentList
+ignored because not a list: _complexModReactionDbIds
+ignored because not a list: _complexStoichMatrixI
+ignored because not a list: _complexStoichMatrixJ
+ignored because not a list: _complexStoichMatrixV
+added as candidate: _complexationReactions
+ignored because not a list: _constantData
+ignored because not a list: _coreBiomassData
+ignored because not a list: _dbLocationId
+ignored because callable: _defineConstants
+ignored because not a list: _dntWeights
+ignored because not a list: _expression
+ignored because callable: _findColumn
+ignored because callable: _findRow
+added as candidate: _fragment
+ignored because values are not dicts: _fragmentNT_IDs
+ignored because not a list: _geneDbIds
+added as candidate: _genes
+ignored because not a list: _genomeLength
+ignored because not a list: _genomeSeq
+ignored because not a list: _half_life
+ignored because callable: _loadBiomassFractions
+ignored because callable: _loadComments
+ignored because callable: _loadCompartments
+ignored because callable: _loadComplexes
+ignored because callable: _loadComputeParameters
+ignored because callable: _loadConstants
+ignored because callable: _loadFragments
+ignored because callable: _loadGenes
+ignored because callable: _loadGenome
+ignored because callable: _loadHacked
+ignored because callable: _loadMetaboliteConcentrations
+ignored because callable: _loadMetabolites
+ignored because callable: _loadModificationReactions
+ignored because callable: _loadModifiedProteinComplexes
+ignored because callable: _loadModifiedProteinMonomers
+ignored because callable: _loadModifiedRnas
+ignored because callable: _loadParameters
+ignored because callable: _loadPolymerized
+ignored because callable: _loadProducts
+ignored because callable: _loadPromoters
+ignored because callable: _loadProteinMonomers
+ignored because callable: _loadReactions
+ignored because callable: _loadRelationStoichiometry
+ignored because callable: _loadRnas
+ignored because callable: _loadTerminators
+ignored because callable: _loadTranscriptionUnits
+ignored because not a list: _metabolismConstrainedExchangeMolecules
+ignored because not a list: _metabolismExchangeMasses
+ignored because not a list: _metabolismReactionRates
+ignored because not a list: _metabolismUnconstrainedExchangeMolecules
+ignored because values are not dicts: _metaboliteConcentrations
+added as candidate: _metabolites
+added as candidate: _modificationReactions
+added as candidate: _modifiedRnas
+ignored because callable: _moleculeRecursiveSearch
+ignored because not a list: _ntWeights
+ignored because not a list: _parameterData
+added as candidate: _polymerized
+ignored because values are not dicts: _polymerizedAA_IDs
+ignored because values are not dicts: _polymerizedDNT_IDs
+ignored because values are not dicts: _polymerizedNT_IDs
+ignored because not a list: _polypeptideEndWeight
+ignored because not a list: _promoterDbId
+added as candidate: _promoters
+added as candidate: _proteinComplexes
+ignored because not a list: _proteinModReactionDbIds
+added as candidate: _proteins
+added as candidate: _reactions
+ignored because not a list: _rnaEndWeight
+ignored because not a list: _rnaModReactionDbIds
+added as candidate: _rnas
+ignored because not a list: _terminatorDbId
+added as candidate: _terminators
+added as candidate: _transcriptionUnits
+ignored because not a list: _translationTable
+ignored because callable: _whichRna
+ignored because not a list: _wildtypeBiomassData
+ignored because of pattern: aaIDs
+ignored because of pattern: aaIDs_singleLetter
+ignored because of pattern: aa_synthetase_groups
+ignored because of pattern: aa_trna_groups
+ignored because of pattern: avgCellCellCycleProgress
+ignored because of pattern: avgCellDryMass
+ignored because of pattern: avgCellDryMassInit
+ignored because of pattern: avgCellToInitalCellConvFactor
+ignored because of pattern: avgCellWaterMass
+ignored because of pattern: avgCellWaterMassInit
+ignored because of pattern: bulkChromosome
+ignored because of pattern: bulkMolecules
+ignored because of pattern: cellCycleLen
+ignored because of pattern: cellDensity
+ignored because of pattern: cellDryMassComposition
+ignored because of pattern: cellDryMassFraction
+ignored because of pattern: cellGlycogenFractionData
+ignored because of pattern: cellInorganicIonFractionData
+ignored because of pattern: cellLPSFractionData
+ignored because of pattern: cellLipidFractionData
+ignored because of pattern: cellMureinFractionData
+ignored because of pattern: cellSolublePoolFractionData
+ignored because of pattern: cellWaterMassFraction
+ignored because of pattern: compartments
+ignored because of pattern: complexationComplexNames
+ignored because of pattern: complexationMoleculeNames
+ignored because of pattern: complexationStoichMatrix
+ignored because of pattern: complexationSubunitNames
+ignored because of pattern: constants
+ignored because of pattern: coreBiomass
+ignored because of pattern: dNmpIds
+ignored because of pattern: dNmpNuclearIds
+ignored because of pattern: dNtpIds
+ignored because of pattern: dnaPolymeraseElongationRate
+ignored because of pattern: fracInitFreeAAs
+ignored because of pattern: fracInitFreeNTPs
+ignored because of pattern: fractionChargedTrna
+ignored because of pattern: fragmentNT_IDs
+ignored because of pattern: geneData
+ignored because of pattern: genomeLength
+ignored because of pattern: genomeSeq
+ignored because of pattern: genome_A_count
+ignored because of pattern: genome_C_count
+ignored because of pattern: genome_G_count
+ignored because of pattern: genome_T_count
+ignored because of pattern: getComplexMonomers
+ignored because of pattern: getMass
+ignored because of pattern: getTrnaAbundanceData
+ignored because of pattern: gtpPerTranslation
+ignored because of pattern: initial_aa_polymerization_rate
+ignored because of pattern: metabolismExchangeConstraints
+ignored because of pattern: metabolismExchangeMasses
+ignored because of pattern: metabolismExternalExchangeMolecules
+ignored because of pattern: metabolismReactionEnzymes
+ignored because of pattern: metabolismReactionRates
+ignored because of pattern: metabolismReactionStoich
+ignored because of pattern: metabolismReversibleReactions
+ignored because of pattern: metabolitePoolConcentrations
+ignored because of pattern: metabolitePoolIDs
+ignored because of pattern: minimum_trna_synthetase_rates
+ignored because of pattern: monomerData
+ignored because of pattern: monomerIndexToRnaMapping
+ignored because of pattern: nAvogadro
+ignored because of pattern: nCompartments
+ignored because of pattern: ntpIds
+ignored because of pattern: oriCCenter
+ignored because of pattern: polymerizedAA_IDs
+ignored because of pattern: polymerizedDNT_IDs
+ignored because of pattern: polymerizedNT_IDs
+ignored because of pattern: ribosomeElongationRate
+ignored because of pattern: rnaData
+ignored because of pattern: rnaExpression
+ignored because of pattern: rnaIndexToGeneMapping
+ignored because of pattern: rnaIndexToMonomerMapping
+ignored because of pattern: rnaPolymeraseElongationRate
+ignored because of pattern: rnapIds
+ignored because of pattern: s30_16sRRNA
+ignored because of pattern: s30_fullComplex
+ignored because of pattern: s30_proteins
+ignored because of pattern: s50_23sRRNA
+ignored because of pattern: s50_5sRRNA
+ignored because of pattern: s50_fullComplex
+ignored because of pattern: s50_proteinComplexes
+ignored because of pattern: s50_proteins
+ignored because of pattern: submassNameToIndex
+ignored because of pattern: synthetase_counts
+ignored because of pattern: synthetase_variance
+ignored because of pattern: terCCenter
+ignored because of pattern: timeStep
+ignored because of pattern: transcriptionEndWeight
+ignored because of pattern: transcriptionMonomerWeights
+ignored because of pattern: transcriptionSequences
+ignored because of pattern: translationEndWeight
+ignored because of pattern: translationMonomerWeights
+ignored because of pattern: translationSequences
+ignored because of pattern: trna_synthetase_rates
+ignored because of pattern: uniqueMoleculeDefinitions
+ignored because of pattern: uniqueMoleculeMasses
+ignored because of pattern: wildtypeBiomass
+wrote _compartmentList to file
+wrote _complexationReactions to file
+wrote _fragment to file
+wrote _genes to file
+wrote _metabolites to file
+wrote _modificationReactions to file
+wrote _modifiedRnas to file
+wrote _polymerized to file
+wrote _promoters to file
+wrote _proteinComplexes to file
+wrote _proteins to file
+wrote _reactions to file
+wrote _rnas to file
+wrote _terminators to file
+wrote _transcriptionUnits to file
