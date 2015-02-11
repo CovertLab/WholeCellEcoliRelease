@@ -15,6 +15,8 @@ def EndoKcatFullRNA(kb, index):
 
 	#kb._parameterData["KcatEndoRNaseFullRNA"] = KcatEndoRNaseFullRNA
 	
+	timeStepSec = 1
+	
 	KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * timeStepSec
 	KcatEndoRNaseFullRNA = index * 0.001
 
