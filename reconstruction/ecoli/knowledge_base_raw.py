@@ -10,15 +10,33 @@ directly from CSV flat files.
 """
 from __future__ import division
 
-import os
+from os import listdir
+from os.path import isfile, join
 import csv
+
+CSV_DIALECT = csv.excel_tab
+FLAT_DIR = '/home/users/nruggero/Repos/wcEcoli/reconstruction/ecoli/flat'
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
 	def __init__(self):
-		pass
+		raw_file_paths = self.find_tsv(FLAT_DIR)
+		for file_path in raw_file_paths:
+			self.load_tsv(file_path)
+
+		import ipdb; ipdb.set_trace()
+		
+
+	def find_tsv(self, file_path):
+		return [join(file_path,f) for f in listdir(file_path) if isfile(join(file_path,f)) and f[-4:] == '.tsv']
 
 	def load_tsv(self, file_name):
+		attrName = file_name[file_name.rfind('/') + 1 : -4]
+		setattr(self, attrName, [])
+
 		with open(file_name) as csvfile:
-			reader = csv.DictReader(csvfile)
+			reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+			dtypes = reader.next()
+			for row in reader:
+				getattr(self, attrName).append(dict([(x, eval(dtypes[x])(y)) for x,y in row.iteritems()]))
