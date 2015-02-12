@@ -25,8 +25,6 @@ class KnowledgeBaseEcoli(object):
 		raw_file_paths = self.find_tsv(FLAT_DIR)
 		for file_path in raw_file_paths:
 			self.load_tsv(file_path)
-
-		import ipdb; ipdb.set_trace()
 		
 	def find_tsv(self, file_path):
 		return [join(file_path,f) for f in listdir(file_path) if isfile(join(file_path,f)) and f[-4:] == '.tsv']
@@ -39,8 +37,4 @@ class KnowledgeBaseEcoli(object):
 			print file_name
 			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
 			for row in reader:
-				try:
-					getattr(self, attrName).append(dict([(x, y) for x,y in row.iteritems()]))
-				except:
-					import ipdb; ipdb.set_trace()
-				
+				getattr(self, attrName).append(dict([(x, y) for x,y in row.iteritems()]))
