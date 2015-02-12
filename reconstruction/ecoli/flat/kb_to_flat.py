@@ -54,16 +54,6 @@ for attr_name in candidates:
 
 		writer.writeheader()
 
-		for x in attr[0].itervalues():
-			if type(x) == unicode:
-				dtype = 'unicode'
-			elif type(x) == str:
-				dtype = 'str'
-			elif type(x) == float:
-				dtype = 'float'
-			elif type(x) == int:
-				dtype = 'int'
-
 		writer.writerow(dict([(x, y.__class__.__name__) for x,y in attr[0].iteritems()]))
 
 		writer.writerows(attr)
