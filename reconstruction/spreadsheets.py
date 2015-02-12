@@ -40,8 +40,8 @@ class JsonReader(csv.DictReader):
 		self.fieldnames # called for side effect
 
 		self._fieldnames = [
-		fieldname.strip('"') for fieldname in self._fieldnames
-		]
+			fieldname.strip('"') for fieldname in self._fieldnames
+			]
 
 	def next(self):
 		return {

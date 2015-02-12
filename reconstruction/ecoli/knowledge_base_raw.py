@@ -12,6 +12,7 @@ from __future__ import division
 
 import os
 import csv
+from reconstruction.spreadsheets import JsonReader
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
@@ -20,5 +21,8 @@ class KnowledgeBaseEcoli(object):
 		pass
 
 	def load_tsv(self, file_name):
+		# Nick: you probably don't need to make this a method, since the
+		# JsonReader class handles most of the parsing.  But the pattern below
+		# should work. - John
 		with open(file_name) as csvfile:
-			reader = csv.DictReader(csvfile)
+			reader = JsonReader(csvfile, dialect = csv.excel_tab)
