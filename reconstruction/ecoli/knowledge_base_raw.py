@@ -19,5 +19,6 @@ class KnowledgeBaseEcoli(object):
 	def __init__(self):
 		pass
 
-	def load_tsv(self):
-		pass
+	def load_tsv(self, file_name):
+		with open(file_name) as csvfile:
+			reader = csv.DictReader(csvfile)
