@@ -1,4 +1,5 @@
 maxExchange	biomassInfo	fakeMet	id	formula7.2	name	mw7.2	mediaConc	comments	feistFormula	charge7.2	equivEnzIds
+float	dict	bool	unicode	unicode	unicode	float	float	unicode	unicode	int	list
 0.0	{'core': [{'mmol/gDCW': 0.000223, 'location': u'c'}], 'wildtype': [{'mmol/gDCW': 0.000223, 'location': u'c'}]}	False	10FTHF		10-Formyltetrahydrofolate	471.4279	0.0		C20H21N7O7	-2	[]
 0.0	{'core': [], 'wildtype': []}	False	12DGR120		1,2-Diacyl-sn-glycerol (didodecanoyl, n-C12:0)	456.7028	0.0		C27H52O5	0	[]
 0.0	{'core': [], 'wildtype': []}	False	12DGR140		1,2-Diacyl-sn-glycerol (ditetradecanoyl, n-C14:0)	512.81	0.0		C31H60O5	0	[]

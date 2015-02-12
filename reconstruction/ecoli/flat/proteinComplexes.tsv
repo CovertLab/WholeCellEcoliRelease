@@ -1,4 +1,5 @@
 name	comments	mw	location	reactionId	id
+unicode	unicode	ndarray	unicode	unicode	unicode
 1-phosphofructokinase		"[    -0.         -0.         -0.         -0.         -0.         -0.
   67498.9778     -0.         -0.         -0.         -0.    ]"	c	1-PFK_RXN	1-PFK
 2-oxoglutarate dehydrogenase complex		"[      -0.           -0.           -0.           -0.           -0.

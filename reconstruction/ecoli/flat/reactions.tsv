@@ -1,4 +1,5 @@
 catBy	kcat	dir	name	process	lb	stoichiometry	id	ec	ub
+NoneType	NoneType	int	unicode	str	float	list	unicode	unicode	float
 		1	1,2 diacylglycerol transport via flipping (periplasm to cytoplasm, n-C12:0)	Metabolism	-1000.0	[{'type': 'metabolite', 'coeff': -1.0, 'molecule': u'12DGR120', 'location': u'p', 'form': 'mature'}, {'type': 'metabolite', 'coeff': 1.0, 'molecule': u'12DGR120', 'location': u'c', 'form': 'mature'}]	FEIST_12DGR120tipp		1000.0
 		1	1,2 diacylglycerol transport via flipping (periplasm to cytoplasm, n-C14:0)	Metabolism	-1000.0	[{'type': 'metabolite', 'coeff': -1.0, 'molecule': u'12DGR140', 'location': u'p', 'form': 'mature'}, {'type': 'metabolite', 'coeff': 1.0, 'molecule': u'12DGR140', 'location': u'c', 'form': 'mature'}]	FEIST_12DGR140tipp		1000.0
 		1	1,2 diacylglycerol transport via flipping (periplasm to cytoplasm, n-C14:1)	Metabolism	-1000.0	[{'type': 'metabolite', 'coeff': -1.0, 'molecule': u'12DGR141', 'location': u'p', 'form': 'mature'}, {'type': 'metabolite', 'coeff': 1.0, 'molecule': u'12DGR141', 'location': u'c', 'form': 'mature'}]	FEIST_12DGR141tipp		1000.0

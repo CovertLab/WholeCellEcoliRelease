@@ -1,4 +1,5 @@
 mw	id	mass key
+float	str	int
 71.0785	Polymerized ALA-L	6
 157.1957	Polymerized ARG-L	6
 114.1034	Polymerized ASN-L	6

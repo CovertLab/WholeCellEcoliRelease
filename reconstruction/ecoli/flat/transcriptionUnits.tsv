@@ -1,4 +1,5 @@
 expression_rate	direction	right	terminator_id	name	promoter_id	degradation_rate	id	gene_id	left
+float	str	int	list	str	unicode	float	unicode	list	int
 28.1469099543	r	1823712	[u'SPY-TERMINATOR']	spy	PM-8764	0.0855737259951	TU-8381	[u'G6939']	1823081
 68.373280834	r	944780	[u'TERM_WC-2659']	ycaC	PM_WC-363	0.121617361853	TU-8382	[u'EG11241']	944152
 22.5020780162	f	2536507	[u'TERM_WC-3162']	yfeKS	PM-8766	0.126026760102	TU-8383	[u'G7260', u'G7261']	2535337

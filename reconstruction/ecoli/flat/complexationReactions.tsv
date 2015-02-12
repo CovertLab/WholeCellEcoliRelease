@@ -1,4 +1,5 @@
 process	stoichiometry	id	dir
+str	list	unicode	int
 complexation	[{'type': 'proteinmonomers', 'coeff': -2.0, 'molecule': u'1-PFK-MONOMER', 'location': u'c', 'form': 'mature'}, {'type': 'proteincomplex', 'coeff': 1.0, 'molecule': u'1-PFK', 'location': u'c', 'form': 'mature'}]	1-PFK_RXN	1
 complexation	[{'type': 'proteincomplex', 'coeff': -1.0, 'molecule': u'E2O', 'location': u'c', 'form': 'mature'}, {'type': 'proteincomplex', 'coeff': -1.0, 'molecule': u'E3-CPLX', 'location': u'c', 'form': 'mature'}, {'type': 'proteincomplex', 'coeff': -1.0, 'molecule': u'E1O', 'location': u'c', 'form': 'mature'}, {'type': 'proteincomplex', 'coeff': 1.0, 'molecule': u'2OXOGLUTARATEDEH-CPLX', 'location': u'c', 'form': 'mature'}]	2OXOGLUTARATEDEH-CPLX_RXN	1
 complexation	[{'type': 'proteinmonomers', 'coeff': -2.0, 'molecule': u'3-ISOPROPYLMALDEHYDROG-MONOMER', 'location': u'c', 'form': 'mature'}, {'type': 'proteincomplex', 'coeff': 1.0, 'molecule': u'3-ISOPROPYLMALDEHYDROG-CPLX', 'location': u'c', 'form': 'mature'}]	3-ISOPROPYLMALDEHYDROG-CPLX_RXN	1

@@ -1,4 +1,5 @@
 name	unmodifiedForm	comments	mw	location	reactionId	id
+unicode	unicode	unicode	ndarray	unicode	list	unicode
 tRNAmetV	RNA0-306	Manually curated from Ecocyc.	"[    -0.         -0.         -0.      24945.1374     -0.         -0.
      -0.         28.01       -0.         -0.         -0.    ]"	c	[u'RX_WC_METHIONYL-TRNA-FORMYLTRANSFERASE-RXN1']	CHARGED-FMETV-TRNA
 tRNAmetW	metW-tRNA	Manually curated from Ecocyc.	"[    -0.         -0.         -0.      24945.1374     -0.         -0.
