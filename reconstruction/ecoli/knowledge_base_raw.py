@@ -36,8 +36,11 @@ class KnowledgeBaseEcoli(object):
 		setattr(self, attrName, [])
 
 		with open(file_name) as csvfile:
+			print file_name
 			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
-			dtypes = reader.next()
 			for row in reader:
-				getattr(self, attrName).append(dict([(x, eval(dtypes[x])(y)) for x,y in row.iteritems()]))
+				try:
+					getattr(self, attrName).append(dict([(x, y) for x,y in row.iteritems()]))
+				except:
+					import ipdb; ipdb.set_trace()
 				
