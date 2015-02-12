@@ -13,6 +13,7 @@ from __future__ import division
 from os import listdir
 from os.path import isfile, join
 import csv
+from reconstruction.spreadsheets import JsonReader
 
 CSV_DIALECT = csv.excel_tab
 FLAT_DIR = '/home/users/nruggero/Repos/wcEcoli/reconstruction/ecoli/flat'
@@ -27,7 +28,6 @@ class KnowledgeBaseEcoli(object):
 
 		import ipdb; ipdb.set_trace()
 		
-
 	def find_tsv(self, file_path):
 		return [join(file_path,f) for f in listdir(file_path) if isfile(join(file_path,f)) and f[-4:] == '.tsv']
 
@@ -36,7 +36,8 @@ class KnowledgeBaseEcoli(object):
 		setattr(self, attrName, [])
 
 		with open(file_name) as csvfile:
-			reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
 			dtypes = reader.next()
 			for row in reader:
 				getattr(self, attrName).append(dict([(x, eval(dtypes[x])(y)) for x,y in row.iteritems()]))
+				
