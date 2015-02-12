@@ -45,6 +45,6 @@ class JsonReader(csv.DictReader):
 
 	def next(self):
 		return {
-			key:json.loads(value)
+			key:json.loads(value) if value else "" # catch for empty field
 			for key, value in csv.DictReader.next(self).viewitems()
 			}
