@@ -4,7 +4,10 @@ import re
 import csv
 import sys
 
+import numpy as np
+
 from reconstruction.ecoli.knowledge_base import KnowledgeBaseEcoli
+from reconstruction.spreadsheets import JsonWriter
 
 OUTPUT_DIR = sys.argv[1]
 REPORT_FILENAME = os.path.join(OUTPUT_DIR, "generated_file_report.txt")
@@ -50,19 +53,18 @@ for attr_name in candidates:
 
 		outfile = open(os.path.join(OUTPUT_DIR, attr_name.lstrip("_")) + ".tsv", "w")
 
-		writer = csv.DictWriter(outfile, fieldnames, dialect = DIALECT)
+		writer = JsonWriter(outfile, fieldnames, dialect = DIALECT)
 
 		writer.writeheader()
-
-		writer.writerow(dict([(x, y.__class__.__name__) for x,y in attr[0].iteritems()]))
 
 		writer.writerows(attr)
 
 	except Exception as e:
-		report_file.write("failed to write {} with exception {}\n".format(
-			attr_name,
-			e.message
-			))
+		# report_file.write("failed to write {} with exception {}\n".format(
+		# 	attr_name,
+		# 	e.message
+		# 	))
+		raise
 
 	else:
 		report_file.write("wrote {} to file\n".format(attr_name))
