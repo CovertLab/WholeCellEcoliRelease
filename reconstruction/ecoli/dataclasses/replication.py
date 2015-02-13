@@ -8,14 +8,13 @@ SimulationData for replication process
 
 from __future__ import division
 
-import re
-import numpy as np
+import reconstruction.ecoli.dataclasses
 
-class Replication(object):
+class Replication(DataClass.DataClass):
 	""" Replication """
 
 	def __init__(self, simData):
-		self._simData = simData
+		super(Replication, self).__init__(simData)
 		self._buildSequence()
 
 	def _buildSequence(self):

@@ -8,14 +8,13 @@ SimulationData molecule groups
 
 from __future__ import division
 
-import re
-import numpy as np
+import reconstruction.ecoli.dataclasses
 
-class moleculeGroups(object):
+class moleculeGroups(DataClass.DataClass):
 	""" moleculeGroups """
 
 	def __init__(self, simData):
-		self._simData = simData
+		super(moleculeGroups, self, simData).__init__()
 		self._buildMoleculeGroups()
 
 	def _buildMoleculeGroups(self):
@@ -25,9 +24,9 @@ class moleculeGroups(object):
 			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
 			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
 			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"],
-			#'polymerizedAA_IDs'	:	self._polymerizedAA_IDs, # TODO: end weight
-			#'polymerizedNT_IDs'	:	self._polymerizedNT_IDs, # TODO: end weight
-			#'polymerizedDNT_IDs':	self._polymerizedDNT_IDs,
+			#'polymerizedAA_IDs'	:	self._polymerizedAA_IDs, # TODO: end weight # TODO: Add these groups!
+			#'polymerizedNT_IDs'	:	self._polymerizedNT_IDs, # TODO: end weight # TODO: Add these groups!
+			#'polymerizedDNT_IDs':	self._polymerizedDNT_IDs, # TODO: Add these groups!
 		}
 
 		self.__dict__.update(moleculeGroups)
