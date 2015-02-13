@@ -11,11 +11,16 @@ from __future__ import division
 
 import numpy as np
 
+# Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+
+# Data classes
 from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
 from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
 from reconstruction.ecoli.dataclasses.replication import Replication
+from reconstruction.ecoli.dataclasses.state import State
 
+# Unit imports
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
@@ -30,6 +35,7 @@ class SimulationDataEcoli(object):
 		self.getter = getterFunctions(self)
 		self.moleculeGroups = moleculeGroups(self)
 		self.replication = Replication(self)
+		self.state = State(self)
 
 		# Functions
 		self._calculateUsefulParameters()

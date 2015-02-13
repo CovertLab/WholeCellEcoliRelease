@@ -8,12 +8,12 @@ SimulationData getter functions
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses
+import reconstruction.ecoli.dataclasses.dataclass
 
 import re
 import numpy as np
 
-class getterFunctions(DataClass.DataClass):
+class getterFunctions(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 	""" getterFunctions """
 
 	def __init__(self, simData):

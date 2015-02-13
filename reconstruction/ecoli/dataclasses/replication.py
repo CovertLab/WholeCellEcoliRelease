@@ -8,9 +8,9 @@ SimulationData for replication process
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses
+import reconstruction.ecoli.dataclasses.dataclass
 
-class Replication(DataClass.DataClass):
+class Replication(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 	""" Replication """
 
 	def __init__(self, simData):
