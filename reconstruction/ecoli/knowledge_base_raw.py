@@ -17,14 +17,18 @@ from reconstruction.spreadsheets import JsonReader
 
 CSV_DIALECT = csv.excel_tab
 FLAT_DIR = '/home/users/nruggero/Repos/wcEcoli/reconstruction/ecoli/flat'
+SEQUENCE_FILE = 'sequence.fasta'
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
 	def __init__(self):
+		# Load raw data from TSV files
 		raw_file_paths = self.find_tsv(FLAT_DIR)
 		for file_path in raw_file_paths:
 			self.load_tsv(file_path)
+		self.genome_sequence = self.load_sequence(join(FLAT_DIR, SEQUENCE_FILE))
+
 		
 	def find_tsv(self, file_path):
 		return [join(file_path,f) for f in listdir(file_path) if isfile(join(file_path,f)) and f[-4:] == '.tsv']
@@ -34,7 +38,12 @@ class KnowledgeBaseEcoli(object):
 		setattr(self, attrName, [])
 
 		with open(file_name) as csvfile:
-			print file_name
 			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
 			for row in reader:
 				getattr(self, attrName).append(dict([(x, y) for x,y in row.iteritems()]))
+
+	def load_sequence(self, file_path):
+		from Bio import SeqIO
+		with open(file_path, "rU") as handle:
+			for record in SeqIO.parse(handle, "fasta"):
+				return record.seq
