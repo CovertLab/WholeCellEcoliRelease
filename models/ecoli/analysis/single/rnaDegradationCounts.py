@@ -7,6 +7,8 @@ Plots counts of rna degraded and the resulting free NMPs
 @date: Created 1/15/2015
 """
 
+from __future__ import division
+
 import argparse
 import os
 
@@ -23,6 +25,7 @@ from wholecell.io.tablereader import TableReader
 FONT = {
 		'size'	:	8
 		}
+
 
 def setAxisMaxMin(axis, data):
 	ymax = np.max(data)
@@ -70,8 +73,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
 
 	# Load data
-	time = bulkMolecules.readColumn("time")
+	time = bulkMolecules.readColumn("time").astype(np.float64)
 	RnaseCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+
 	exoRnaseCounts = bulkMolecules.readColumn("counts")[:, exoproteinIndexes]
 	endoRnaseCounts = bulkMolecules.readColumn("counts")[:, endoproteinIndexes]
 	bulkMolecules.close()
@@ -95,48 +99,49 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	matplotlib.rc('font', **FONT)
 
 	countRnaDegraded_axis = plt.subplot(8,1,1)
-	countRnaDegraded_axis.plot(time / 60, countRnaDegraded.sum(axis = 1))
+	countRnaDegraded_axis.plot(time / 60., countRnaDegraded.sum(axis = 1))
 	plt.ylabel("Counts of RNA degraded", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	nucleotidesFromDegradation_axis = plt.subplot(8,1,2)
-	nucleotidesFromDegradation_axis.plot(time / 60, nucleotidesFromDegradation)
+	nucleotidesFromDegradation_axis.plot(time / 60., nucleotidesFromDegradation)
 	plt.ylabel("Nucleotides from RNA degraded", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	totalRnaseCounts_axis = plt.subplot(8,1,3)
-	totalRnaseCounts_axis.plot(time / 60, totalRnaseCounts)
+	totalRnaseCounts_axis.plot(time / 60., totalRnaseCounts)
 	plt.ylabel("Total RNAse counts", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	requiredRnaseTurnover_axis = plt.subplot(8,1,4)
-	requiredRnaseTurnover_axis.plot(time / 60, requiredRnaseTurnover)
+	requiredRnaseTurnover_axis.plot(time / 60., requiredRnaseTurnover)
 	plt.ylabel("RNase turnover required (nt/s)", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	totalexoRnaseCounts_axis = plt.subplot(8,1,5)
-	totalexoRnaseCounts_axis.plot(time / 60, totalexoRnaseCounts)
+	totalexoRnaseCounts_axis.plot(time / 60., totalexoRnaseCounts)
 	plt.ylabel("Counts of exoRNase", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	totalendoRnaseCounts_axis = plt.subplot(8,1,6)
-	totalendoRnaseCounts_axis.plot(time / 60, totalendoRnaseCounts)
+	totalendoRnaseCounts_axis.plot(time / 60., totalendoRnaseCounts)
 	plt.ylabel("Counts of endoRNase", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	kcatExoRnase_axis = plt.subplot(8,1,7)
-	kcatExoRnase_axis.plot(time / 60, kcatExoRnase)
+	kcatExoRnase_axis.plot(time / 60., kcatExoRnase)
 	plt.ylabel("ExoRNase turnover required", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	kcatEndoRnase_axis = plt.subplot(8,1,8)
-	kcatEndoRnase_axis.plot(time / 60, kcatEndoRnase)
+	kcatEndoRnase_axis.plot(time / 60., kcatEndoRnase)
 	plt.ylabel("EndoRNase turnover required", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	plt.subplots_adjust(hspace = 0.9, wspace = 0.5)
 
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName)
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
