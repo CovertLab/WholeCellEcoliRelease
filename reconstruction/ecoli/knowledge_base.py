@@ -1819,7 +1819,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['fracInitFreeAAs'] = 0.001
 		self._parameterData['avgCellCellCycleProgress'] = 0.44
 		self._parameterData['timeStep'] = 1*units.s
-		self._parameterData['KcatEndoRNaseFullRNA'] = 0.1/units.s
+		self._parameterData['KcatEndoRNaseFullRNA'] = 0.008/units.s
 
 	def _loadComputeParameters(self):
 		self._parameterData['avgCellToInitalCellConvFactor'] = np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress'])
