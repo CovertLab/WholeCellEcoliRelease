@@ -8,32 +8,29 @@ SimulationData state associated data
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses.dataclass
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
 from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
 from reconstruction.ecoli.dataclasses.state.bulkChromosome import BulkChromosome
 
-
 import re
 import numpy as np
 
-class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+class State(object):
 	""" State """
 
-	def __init__(self, simData):
-		super(State, self).__init__(simData)
+	def __init__(self, raw_data, sim_data):
 
-		self.bulkMolecules = BulkMolecules(simData)
-		self.bulkChromosome = BulkChromosome(simData)
-		self._buildCompartments()
+		self.bulkMolecules = BulkMolecules(raw_data, sim_data)
+		self.bulkChromosome = BulkChromosome(raw_data, sim_data)
+		self._buildCompartments(raw_data, sim_data)
 
 
-	def _buildCompartments(self):
-		compartmentData = np.empty(len(self._simData.raw_data.compartments),
+	def _buildCompartments(self, raw_data, sim_data):
+		compartmentData = np.empty(len(raw_data.compartments),
 			dtype = [('id','a20'),('compartmentAbbreviation', 'a1')])
 
-		compartmentData['id'] = [x['id'] for x in self._simData.raw_data.compartments]
-		compartmentData['compartmentAbbreviation'] = [x['abbrev'] for x in self._simData.raw_data.compartments]
+		compartmentData['id'] = [x['id'] for x in raw_data.compartments]
+		compartmentData['compartmentAbbreviation'] = [x['abbrev'] for x in raw_data.compartments]
 		self.compartments = compartmentData

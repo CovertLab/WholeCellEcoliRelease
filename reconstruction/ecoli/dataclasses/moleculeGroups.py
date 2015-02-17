@@ -8,13 +8,11 @@ SimulationData molecule groups
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses.dataclass
 
-class moleculeGroups(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+class moleculeGroups(object):
 	""" moleculeGroups """
 
-	def __init__(self, simData):
-		super(moleculeGroups, self).__init__(simData)
+	def __init__(self, raw_data, sim_data):
 		self._buildMoleculeGroups()
 
 	def _buildMoleculeGroups(self):

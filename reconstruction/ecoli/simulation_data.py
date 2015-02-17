@@ -30,24 +30,21 @@ class SimulationDataEcoli(object):
 
 	def __init__(self):
 		# Raw data
-		self.raw_data = KnowledgeBaseEcoli()
+		raw_data = KnowledgeBaseEcoli()
 		self._addHardCodedAttributes()
 
 		# Data classes
-		self.getter = getterFunctions(self)
-		self.moleculeGroups = moleculeGroups(self)
-		self.process = Process(self)
-		self.state = State(self)
+		self.getter = getterFunctions(raw_data, self)
+		self.moleculeGroups = moleculeGroups(raw_data, self)
+		self.process = Process(raw_data, self)
+		self.state = State(raw_data, self)
 
 		# Functions
-		self._calculateUsefulParameters()
-		self._buildAllMasses()
-		
-	def _calculateUsefulParameters(self):
-		self.sizeBulkMolecules = len(self.raw_data.rnas) + len(self.raw_data.proteins) + len(self.raw_data.proteinComplexes) + len(self.raw_data.metabolites) + len(self.raw_data.polymerized)
+		self._buildAllMasses(raw_data)
 
-	def _buildAllMasses(self):
-		allMass = np.empty(self.sizeBulkMolecules,
+	def _buildAllMasses(self, raw_data):
+		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.polymerized)
+		allMass = np.empty(size,
 			dtype = [
 					('id',		'a50'),
 					('mass',	"f8")
@@ -55,11 +52,11 @@ class SimulationDataEcoli(object):
 			)
 
 		listMass = []
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self.raw_data.rnas])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self.raw_data.proteins])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self.raw_data.proteinComplexes])
-		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in self.raw_data.metabolites])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in self.raw_data.polymerized])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.rnas])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteins])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteinComplexes])
+		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.metabolites])
+		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.polymerized])
 
 		allMass[:] = listMass
 

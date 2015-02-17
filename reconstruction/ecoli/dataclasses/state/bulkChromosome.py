@@ -10,27 +10,25 @@ from __future__ import division
 
 import numpy as np
 
-import reconstruction.ecoli.dataclasses.dataclass
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
-class BulkChromosome(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+class BulkChromosome(object):
 	""" BulkChromosome """
 
-	def __init__(self, simData):
-		super(BulkChromosome, self).__init__(simData)
-		self._buildBulkChromosome()
+	def __init__(self, raw_data, sim_data):
+		self._buildBulkChromosome(raw_data, sim_data)
 
-	def _buildBulkChromosome(self):
+	def _buildBulkChromosome(self, raw_data, sim_data):
 		bulkChromosome = np.zeros(0,
 			dtype = [("id", 			"a50"),
-					("mass", "{}f8".format(len(self._simData.molecular_weight_order)))
+					("mass", "{}f8".format(len(sim_data.molecular_weight_order)))
 					]
 					)
 
 		# Set genes
-		geneIds = [x['id'] for x in self._simData.raw_data.genes]
-		geneMasses = np.zeros((len(geneIds), len(self._simData.molecular_weight_order)), np.float64)
+		geneIds = [x['id'] for x in raw_data.genes]
+		geneMasses = np.zeros((len(geneIds), len(sim_data.molecular_weight_order)), np.float64)
 
 		bulkChromosome = self._addToBulkState(bulkChromosome, geneIds, geneMasses)
 
@@ -48,7 +46,7 @@ class BulkChromosome(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 			len(ids),
 			dtype = [
 				("id", "a50"),
-				("mass", "{}f8".format(len(self._simData.molecular_weight_order))),
+				("mass", "{}f8".format(masses.shape[1])), # TODO: Make this better
 				]
 			)
 
@@ -63,3 +61,4 @@ class BulkChromosome(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 			for i in ids
 			]
 		return np.array(idsByCompartment)
+

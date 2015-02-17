@@ -8,17 +8,14 @@ SimulationData for replication process
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses.dataclass
-
-class Replication(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+class Replication(object):
 	""" Replication """
 
-	def __init__(self, simData):
-		super(Replication, self).__init__(simData)
-		self._buildSequence()
+	def __init__(self, raw_data, sim_data):
+		self._buildSequence(raw_data, sim_data)
 
-	def _buildSequence(self):
-		self.genome_sequence = self._simData.raw_data.genome_sequence
+	def _buildSequence(self, raw_data, sim_data):
+		self.genome_sequence = raw_data.genome_sequence
 		self.genome_length = len(self.genome_sequence)
 		self.genome_A_count = self.genome_sequence.count("A")
 		self.genome_T_count = self.genome_sequence.count("T")

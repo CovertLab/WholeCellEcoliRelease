@@ -8,16 +8,14 @@ SimulationData getter functions
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses.dataclass
-
 import re
 import numpy as np
 
-class getterFunctions(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+class getterFunctions(object):
 	""" getterFunctions """
 
-	def __init__(self, simData):
-		super(getterFunctions, self).__init__(simData)
+	def __init__(self, raw_data, sim_data):
+		pass
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)

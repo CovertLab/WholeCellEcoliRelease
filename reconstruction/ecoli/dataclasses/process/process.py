@@ -8,7 +8,6 @@ SimulationData process associated data
 
 from __future__ import division
 
-import reconstruction.ecoli.dataclasses.dataclass
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
@@ -17,10 +16,9 @@ from reconstruction.ecoli.dataclasses.process.replication import Replication
 import re
 import numpy as np
 
-class Process(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+class Process(object):
 	""" Process """
 
-	def __init__(self, simData):
-		super(Process, self).__init__(simData)
+	def __init__(self, raw_data, sim_data):
 
-		self.replication = Replication(self._simData)
+		self.replication = Replication(raw_data, sim_data)
