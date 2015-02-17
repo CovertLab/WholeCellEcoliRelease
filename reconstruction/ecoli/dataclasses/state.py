@@ -9,6 +9,8 @@ SimulationData state associated data
 from __future__ import division
 
 import reconstruction.ecoli.dataclasses.dataclass
+from wholecell.utils import units
+from wholecell.utils.unit_struct_array import UnitStructArray
 
 import re
 import numpy as np
@@ -20,6 +22,7 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 		super(State, self).__init__(simData)
 
 		self._buildCompartments()
+		self._buildBulkMolecules()
 
 
 	def _buildCompartments(self):
@@ -31,118 +34,108 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 		self.compartments = compartmentData
 		self.n_compartments = compartmentData.size
 
-	def _buildBulkMolecules(self):
-		# TODO: modularize this logic
 
-		size = (
-			len(self._metabolites)*len(self._compartmentList)
-			+ len(self._rnas)
-			+ len(self._proteins)
-			+ len(self._proteinComplexes)
-			+ len(self._polymerized)*len(self._compartmentList)
-			)
-
-		bulkMolecules = np.zeros(
-			size,
+	def _addToBulkMolecules(self, bulkMolecules, ids, masses):
+		newAddition = np.zeros(
+			len(ids),
 			dtype = [
-				("moleculeId", "a50"),
-				('compartment',	 "a1"),
-				("mass", "{}f8".format(len(MOLECULAR_WEIGHT_ORDER))),
+				("id", "a50"),
+				("mass", "{}f8".format(len(self._simData.molecular_weight_order))),
 				]
 			)
 
+		newAddition["id"] = ids
+		newAddition["mass"] = masses
+		return np.hstack((bulkMolecules, newAddition))
+
+	def _createIdsInAllCompartments(self, ids, compartments):
+		idsByCompartment = [
+			'{}[{}]'.format(i, c)
+			for c in compartments
+			for i in ids
+			]
+		return np.array(idsByCompartment)
+
+	def _buildBulkMolecules(self):
+
+		# Instantiate bulkMolecules
+		bulkMolecules = np.zeros(
+			0,
+			dtype = [
+				("id", "a50"),
+				("mass", "{}f8".format(len(self._simData.molecular_weight_order))),
+				]
+			)
+
+		# Save compartment abbreviations
+		compartmentAbbreviations = np.array([compartment['abbrev'] for compartment in self._simData.raw_data.compartments])
+
 		# Set metabolites
-		lastMetaboliteIdx = len(self._metabolites) * len(self._compartmentList)
+		metaboliteIds = np.array([metabolite['id'] for metabolite in self._simData.raw_data.metabolites])
+		metaboliteIdsByCompartment = self._createIdsInAllCompartments(metaboliteIds, compartmentAbbreviations)
 
-		compartmentAbbreviations = [compartment['abbrev'] for compartment in self._compartmentList]
-		metaboliteIds = [metabolite['id'] for metabolite in self._metabolites]
+		metaboliteMassIdxs = np.empty(metaboliteIdsByCompartment.size, np.int64)
+		metaboliteMassIdxs.fill(self._simData.molecular_weight_order["metabolite"])
+		for index, metabolite in enumerate(metaboliteIdsByCompartment):
+			if metabolite.startswith("H2O["):
+				metaboliteMassIdxs[index] = self._simData.molecular_weight_order["water"]
 
-		bulkMolecules['moleculeId'][0:lastMetaboliteIdx] = [
-			'{}[{}]'.format(metaboliteId, compartmentAbbreviation)
-			for compartmentAbbreviation in compartmentAbbreviations
-			for metaboliteId in metaboliteIds
-			]
-
-		metaboliteMassIdxs = np.empty(lastMetaboliteIdx, np.int64)
-
-		metaboliteMassIdxs.fill(MOLECULAR_WEIGHT_ORDER["metabolite"])
-
-		for index, metabolite in enumerate(bulkMolecules[0:lastMetaboliteIdx]):
-			if metabolite["moleculeId"].startswith("H2O["):
-				metaboliteMassIdxs[index] = MOLECULAR_WEIGHT_ORDER["water"]
-
-		bulkMolecules['mass'][np.arange(lastMetaboliteIdx), metaboliteMassIdxs] = [
+		metaboliteMasses = np.zeros((metaboliteIdsByCompartment.size, len(self._simData.molecular_weight_order)), np.float64)
+		metaboliteMasses[np.arange(metaboliteIdsByCompartment.size), metaboliteMassIdxs] = [
 			metabolite['mw7.2']
-			for compartmentIndex in range(len(self._compartmentList))
-			for metabolite in self._metabolites
+			for compartmentIndex in range(compartmentAbbreviations.size)
+			for metabolite in self._simData.raw_data.metabolites
 			]
+
+		bulkMolecules = self._addToBulkMolecules(bulkMolecules, metaboliteIdsByCompartment, metaboliteMasses)
 
 		# Set RNA
-		lastRnaIdx = len(self._rnas) + lastMetaboliteIdx
+		rnaIds = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._simData.raw_data.rnas]
+		rnaMasses = [rna['mw'] for rna in self._simData.raw_data.rnas]
 
-		bulkMolecules['moleculeId'][lastMetaboliteIdx:lastRnaIdx] = [
-			'{}[{}]'.format(rna['id'], rna['location']) for rna in self._rnas
-			]
-
-		bulkMolecules['mass'][lastMetaboliteIdx:lastRnaIdx, :] = [
-			rna['mw'] for rna in self._rnas
-			]
+		bulkMolecules = self._addToBulkMolecules(bulkMolecules, rnaIds, rnaMasses)
 
 		# Set proteins
-		lastProteinMonomerIdx = len(self._proteins) + lastRnaIdx
+		# TODO: Change protein masses to be a vector in the flat TSV file like RNA masses
+		proteinIds = ['{}[{}]'.format(protein['id'], protein['location']) for protein in self._simData.raw_data.proteins]
+		proteinMasses = np.zeros((len(proteinIds), len(self._simData.molecular_weight_order)), np.float64)
+		proteinMasses[np.arange(len(proteinIds)), self._simData.molecular_weight_order["protein"]] = [protein['mw'] for protein in self._simData.raw_data.proteins]
 
-		bulkMolecules['moleculeId'][lastRnaIdx:lastProteinMonomerIdx] = [
-			'{}[{}]'.format(protein['id'], protein['location'])
-			for protein in self._proteins
-			]
-
-		bulkMolecules['mass'][lastRnaIdx:lastProteinMonomerIdx, MOLECULAR_WEIGHT_ORDER["protein"]] = [
-			protein['mw'] for protein in self._proteins
-			]
+		bulkMolecules = self._addToBulkMolecules(bulkMolecules, proteinIds, proteinMasses)
 
 		# Set complexes
-		lastComplexIdx = len(self._proteinComplexes) + lastProteinMonomerIdx
+		complexIds = ['{}[{}]'.format(complex_['id'],complex_['location']) for complex_ in self._simData.raw_data.proteinComplexes]
+		complexMasses = [complex_['mw'] for complex_ in self._simData.raw_data.proteinComplexes]
 
-		bulkMolecules['moleculeId'][lastProteinMonomerIdx:lastComplexIdx] = [
-			'{}[{}]'.format(complex_['id'],complex_['location']) for complex_ in self._proteinComplexes
-			]
-
-		bulkMolecules['mass'][lastProteinMonomerIdx:lastComplexIdx, :] = [
-			complex_['mw'] for complex_ in self._proteinComplexes
-			]
-
+		bulkMolecules = self._addToBulkMolecules(bulkMolecules, complexIds, complexMasses)
+		
 		# Set polymerized
+		polymerizedIDs = [entry["id"] for entry in self._simData.raw_data.polymerized]
 
-		lastPolymerizedIndex = len(self._polymerized)*len(self._compartmentList) + lastComplexIdx
-
-		polymerizedIDs = [entry["id"] for entry in self._polymerized]
-
-		bulkMolecules["moleculeId"][lastComplexIdx:lastPolymerizedIndex] = [
+		polymerizedIDsByCompartment = [
 			'{}[{}]'.format(polymerizedID, compartmentAbbreviation)
 			for compartmentAbbreviation in compartmentAbbreviations
 			for polymerizedID in polymerizedIDs
 			]
 
-		masses = [
-			entry["mw"]
-			for compartmentAbbreviation in compartmentAbbreviations
-			for entry in self._polymerized
-			]
-
-		massIndexes = [
+		polymerizedMasses = np.zeros((len(polymerizedIDsByCompartment), len(self._simData.molecular_weight_order)), np.int64)
+		polymerizedMassesIndexes = [
 			entry["mass key"]
 			for compartmentAbbreviation in compartmentAbbreviations
-			for entry in self._polymerized
+			for entry in self._simData.raw_data.polymerized
+			]
+		polymerizedMasses[np.arange(len(polymerizedIDsByCompartment)), polymerizedMassesIndexes] = [
+			entry["mw"]
+			for compartmentAbbreviation in compartmentAbbreviations
+			for entry in self._simData.raw_data.polymerized
 			]
 
-		bulkMolecules["mass"][range(lastComplexIdx, lastPolymerizedIndex), massIndexes] = masses
-		# NOTE: the use of range above is intentional
+		bulkMolecules = self._addToBulkMolecules(bulkMolecules, polymerizedIDsByCompartment, polymerizedMasses)
 
 		# Add units to values
 		field_units = {
-			"moleculeId"		:	None,
+			"id"		:	None,
 			"mass"				:	units.g / units.mol,
-			'compartment'		:	None,
 			}
 
 		self.bulkMolecules = UnitStructArray(bulkMolecules, field_units)
