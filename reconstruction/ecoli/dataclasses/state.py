@@ -23,6 +23,7 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 
 		self._buildCompartments()
 		self._buildBulkMolecules()
+		self._buildBulkChromosome()
 
 
 	def _buildCompartments(self):
@@ -35,7 +36,7 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 		self.n_compartments = compartmentData.size
 
 
-	def _addToBulkMolecules(self, bulkMolecules, ids, masses):
+	def _addToBulkState(self, bulkState, ids, masses):
 		newAddition = np.zeros(
 			len(ids),
 			dtype = [
@@ -46,7 +47,7 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 
 		newAddition["id"] = ids
 		newAddition["mass"] = masses
-		return np.hstack((bulkMolecules, newAddition))
+		return np.hstack((bulkState, newAddition))
 
 	def _createIdsInAllCompartments(self, ids, compartments):
 		idsByCompartment = [
@@ -87,13 +88,13 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 			for metabolite in self._simData.raw_data.metabolites
 			]
 
-		bulkMolecules = self._addToBulkMolecules(bulkMolecules, metaboliteIdsByCompartment, metaboliteMasses)
+		bulkMolecules = self._addToBulkState(bulkMolecules, metaboliteIdsByCompartment, metaboliteMasses)
 
 		# Set RNA
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location']) for rna in self._simData.raw_data.rnas]
 		rnaMasses = [rna['mw'] for rna in self._simData.raw_data.rnas]
 
-		bulkMolecules = self._addToBulkMolecules(bulkMolecules, rnaIds, rnaMasses)
+		bulkMolecules = self._addToBulkState(bulkMolecules, rnaIds, rnaMasses)
 
 		# Set proteins
 		# TODO: Change protein masses to be a vector in the flat TSV file like RNA masses
@@ -101,13 +102,13 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 		proteinMasses = np.zeros((len(proteinIds), len(self._simData.molecular_weight_order)), np.float64)
 		proteinMasses[np.arange(len(proteinIds)), self._simData.molecular_weight_order["protein"]] = [protein['mw'] for protein in self._simData.raw_data.proteins]
 
-		bulkMolecules = self._addToBulkMolecules(bulkMolecules, proteinIds, proteinMasses)
+		bulkMolecules = self._addToBulkState(bulkMolecules, proteinIds, proteinMasses)
 
 		# Set complexes
 		complexIds = ['{}[{}]'.format(complex_['id'],complex_['location']) for complex_ in self._simData.raw_data.proteinComplexes]
 		complexMasses = [complex_['mw'] for complex_ in self._simData.raw_data.proteinComplexes]
 
-		bulkMolecules = self._addToBulkMolecules(bulkMolecules, complexIds, complexMasses)
+		bulkMolecules = self._addToBulkState(bulkMolecules, complexIds, complexMasses)
 		
 		# Set polymerized
 		polymerizedIDs = [entry["id"] for entry in self._simData.raw_data.polymerized]
@@ -130,7 +131,7 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 			for entry in self._simData.raw_data.polymerized
 			]
 
-		bulkMolecules = self._addToBulkMolecules(bulkMolecules, polymerizedIDsByCompartment, polymerizedMasses)
+		bulkMolecules = self._addToBulkState(bulkMolecules, polymerizedIDsByCompartment, polymerizedMasses)
 
 		# Add units to values
 		field_units = {
@@ -139,3 +140,24 @@ class State(reconstruction.ecoli.dataclasses.dataclass.DataClass):
 			}
 
 		self.bulkMolecules = UnitStructArray(bulkMolecules, field_units)
+
+
+	def _buildBulkChromosome(self):
+		bulkChromosome = np.zeros(0,
+			dtype = [("id", 			"a50"),
+					("mass", "{}f8".format(len(self._simData.molecular_weight_order)))
+					]
+					)
+
+		# Set genes
+		geneIds = [x['id'] for x in self._simData.raw_data.genes]
+		geneMasses = np.zeros((len(geneIds), len(self._simData.molecular_weight_order)), np.float64)
+
+		bulkChromosome = self._addToBulkState(bulkChromosome, geneIds, geneMasses)
+
+		# Add units to values
+		field_units = {
+			"id"			:	None,
+			"mass"					:	units.g / units.mol,
+			}
+		self.bulkChromosome = UnitStructArray(bulkChromosome, field_units)
