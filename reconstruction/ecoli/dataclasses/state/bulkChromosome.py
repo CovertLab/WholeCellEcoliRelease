@@ -1,0 +1,65 @@
+"""
+SimulationData for bulk chromosome state
+
+@author: Nick Ruggero
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 02/13/2015
+"""
+
+from __future__ import division
+
+import numpy as np
+
+import reconstruction.ecoli.dataclasses.dataclass
+from wholecell.utils import units
+from wholecell.utils.unit_struct_array import UnitStructArray
+
+class BulkChromosome(reconstruction.ecoli.dataclasses.dataclass.DataClass):
+	""" BulkChromosome """
+
+	def __init__(self, simData):
+		super(BulkChromosome, self).__init__(simData)
+		self._buildBulkChromosome()
+
+	def _buildBulkChromosome(self):
+		bulkChromosome = np.zeros(0,
+			dtype = [("id", 			"a50"),
+					("mass", "{}f8".format(len(self._simData.molecular_weight_order)))
+					]
+					)
+
+		# Set genes
+		geneIds = [x['id'] for x in self._simData.raw_data.genes]
+		geneMasses = np.zeros((len(geneIds), len(self._simData.molecular_weight_order)), np.float64)
+
+		bulkChromosome = self._addToBulkState(bulkChromosome, geneIds, geneMasses)
+
+		# Add units to values
+		field_units = {
+			"id"			:	None,
+			"mass"					:	units.g / units.mol,
+			}
+		self.bulkChromosome = UnitStructArray(bulkChromosome, field_units)
+
+
+	## Helper Functions ##
+	def _addToBulkState(self, bulkState, ids, masses):
+		newAddition = np.zeros(
+			len(ids),
+			dtype = [
+				("id", "a50"),
+				("mass", "{}f8".format(len(self._simData.molecular_weight_order))),
+				]
+			)
+
+		newAddition["id"] = ids
+		newAddition["mass"] = masses
+		return np.hstack((bulkState, newAddition))
+
+	def _createIdsInAllCompartments(self, ids, compartments):
+		idsByCompartment = [
+			'{}[{}]'.format(i, c)
+			for c in compartments
+			for i in ids
+			]
+		return np.array(idsByCompartment)
