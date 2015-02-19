@@ -10,13 +10,28 @@ directly from CSV flat files.
 """
 from __future__ import division
 
-from os import listdir
-from os.path import isfile, join
+import os
 import csv
 from reconstruction.spreadsheets import JsonReader
 
 CSV_DIALECT = csv.excel_tab
-FLAT_DIR = '/home/users/nruggero/Repos/wcEcoli/reconstruction/ecoli/flat'
+FLAT_DIR = os.path.join("reconstruction", "ecoli", "flat")
+FILENAMES = (
+	"compartments.tsv",
+	"complexationReactions.tsv",
+	"genes.tsv",
+	"metabolites.tsv",
+	"modificationReactions.tsv",
+	"modifiedRnas.tsv",
+	"polymerized.tsv",
+	"promoters.tsv",
+	"proteinComplexes.tsv",
+	"proteins.tsv",
+	"reactions.tsv",
+	"rnas.tsv",
+	"terminators.tsv",
+	"transcriptionUnits.tsv",
+	)
 SEQUENCE_FILE = 'sequence.fasta'
 
 class KnowledgeBaseEcoli(object):
@@ -24,17 +39,14 @@ class KnowledgeBaseEcoli(object):
 
 	def __init__(self):
 		# Load raw data from TSV files
-		raw_file_paths = self._find_tsv(FLAT_DIR)
-		for file_path in raw_file_paths:
-			self._load_tsv(file_path)
-		self.genome_sequence = self._load_sequence(join(FLAT_DIR, SEQUENCE_FILE))
+		for filename in FILENAMES:
+			self._load_tsv(os.path.join(FLAT_DIR, filename))
 
-		
-	def _find_tsv(self, file_path):
-		return [join(file_path,f) for f in listdir(file_path) if isfile(join(file_path,f)) and f[-4:] == '.tsv']
+		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))
+
 
 	def _load_tsv(self, file_name):
-		attrName = file_name[file_name.rfind('/') + 1 : -4]
+		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 		setattr(self, attrName, [])
 
 		with open(file_name) as csvfile:
