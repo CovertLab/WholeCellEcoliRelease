@@ -128,7 +128,8 @@ class KnowledgeBaseEcoli(object):
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
 
-		if deleteLoadingData:
+		# WARNING: this part is commented to run VARIANT code
+		if deleteLoadingData:   
 			for attr in loadedAttrs:
 				delattr(self, attr)
 

@@ -19,7 +19,10 @@ def EndoKcatFullRNA(kb, index):
 
 	KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * timeStepSec
 	KcatEndoRNaseFullRNA = index * 0.001
-	# kb.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA
-	kb._parameterData['KcatEndoRNaseFullRNA'] = KcatEndoRNaseFullRNA
+	kb.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA
+
+	# import ipdb; ipdb.set_trace()
+
+	# kb._parameterData['KcatEndoRNaseFullRNA'] = KcatEndoRNaseFullRNA
 
 	return CONTROL_OUTPUT
