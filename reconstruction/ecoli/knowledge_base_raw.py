@@ -24,16 +24,16 @@ class KnowledgeBaseEcoli(object):
 
 	def __init__(self):
 		# Load raw data from TSV files
-		raw_file_paths = self.find_tsv(FLAT_DIR)
+		raw_file_paths = self._find_tsv(FLAT_DIR)
 		for file_path in raw_file_paths:
-			self.load_tsv(file_path)
-		self.genome_sequence = self.load_sequence(join(FLAT_DIR, SEQUENCE_FILE))
+			self._load_tsv(file_path)
+		self.genome_sequence = self._load_sequence(join(FLAT_DIR, SEQUENCE_FILE))
 
 		
-	def find_tsv(self, file_path):
+	def _find_tsv(self, file_path):
 		return [join(file_path,f) for f in listdir(file_path) if isfile(join(file_path,f)) and f[-4:] == '.tsv']
 
-	def load_tsv(self, file_name):
+	def _load_tsv(self, file_name):
 		attrName = file_name[file_name.rfind('/') + 1 : -4]
 		setattr(self, attrName, [])
 
@@ -42,7 +42,7 @@ class KnowledgeBaseEcoli(object):
 			for row in reader:
 				getattr(self, attrName).append(dict([(x, y) for x,y in row.iteritems()]))
 
-	def load_sequence(self, file_path):
+	def _load_sequence(self, file_path):
 		from Bio import SeqIO
 		with open(file_path, "rU") as handle:
 			for record in SeqIO.parse(handle, "fasta"):
