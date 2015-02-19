@@ -55,22 +55,30 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		plt.xlabel("Time (min)", fontsize = 5)
 		plt.ylabel("Protein counts", fontsize = 5)
 		plt.title(RNase_IDS[rnapRnaCountsIdx], fontsize = 5)
+		
 
-		# identifying periodic signals
+		# identifying periodicity on RNA and protein copy numbers
 		signal = rnapRnaCounts[:, rnapRnaCountsIdx]
 		fourier = np.fft.fft(signal)
+
+		# copmuting mean and std values of the power spectral density
 		M = np.mean(abs(fourier))
 		S = np.std(abs(fourier))
+
+		# computing frequencies 
 		n = signal.size
 		timestep = 1 # second
 		freq = np.fft.fftfreq(n, d=timestep)
 		fft_freq = sorted(zip(abs(fourier),freq))[n-6:n]
 		# import ipdb; ipdb.set_trace()
+
+		# identifing peaks (frequency and period) with maximum PSD
 		for i in xrange(0,len(fft_freq)):
 			if fft_freq[i][1] > 0.: # only positive frequencies
 				if 1. / fft_freq[i][1] < 3600.: # only periods lower than the doubling time
 					if abs(fft_freq[i][0] - M) / S > 5: # strong and significant fft
 						print RNase_IDS[rnapRnaCountsIdx], 1. / fft_freq[i][1] / 60.
+
 
 	plt.subplots_adjust(hspace = 1.2, top = 0.95, bottom = 0.05)
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))

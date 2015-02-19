@@ -49,7 +49,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# expectedRRnaDegradationRate = kb.rnaData['degRate'][isRRna].asNumber()
 		# isTRna = kb.rnaData["isRRna"]
 		# expectedTRnaDegradationRate = kb.rnaData['degRate'][isTRna].asNumber()
+<<<<<<< HEAD
 		# import ipdb; ipdb.set_trace()
+=======
+		
+>>>>>>> fad47ced070974de83d1dde7441763ca486c2c22
 		self.rnaLens = kb.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix

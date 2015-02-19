@@ -1,28 +1,36 @@
 
 CONTROL_OUTPUT = dict(
-	shortName = "EndoKcatFullRNA",
-	desc = "Sensitivity analysis Kcat"
+	shortName = "control",
+	desc = "Control simulation"
 	)
 
 from wholecell.utils import units
 
 def EndoKcatFullRNATotalIndices(kb):
-	return 1
+	n_variants = 3
+	return n_variants + 1
 
 def EndoKcatFullRNA(kb, index):
 
-	#KcatEndoRNaseFullRNA = index * 0.001
+	# This code is not really needed but I put it here for reference
+	# KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA * kb.timeStep
+	# KcatEndoRNaseFullRNA.checkNoUnit()
+	# KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA.asNumber()
 
-	#kb._parameterData["KcatEndoRNaseFullRNA"] = KcatEndoRNaseFullRNA
-	
-	timeStepSec = 1 # TODO
+	if index == 0:
+		return CONTROL_OUTPUT
 
-	KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * timeStepSec
 	KcatEndoRNaseFullRNA = index * 0.001
+
 	kb.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA
 
 	# import ipdb; ipdb.set_trace()
 
 	# kb._parameterData['KcatEndoRNaseFullRNA'] = KcatEndoRNaseFullRNA
 
-	return CONTROL_OUTPUT
+	kb.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA * 1 / units.s
+
+	return dict(
+		shortName = "{} s^-1".format(KcatEndoRNaseFullRNA),
+		desc = "KcatEndoRNaseFullRNA = {} s^-1.".format(KcatEndoRNaseFullRNA)
+		)
