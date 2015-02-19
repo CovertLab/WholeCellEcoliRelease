@@ -30,7 +30,7 @@ class BulkChromosome(object):
 		geneIds = [x['id'] for x in raw_data.genes]
 		geneMasses = np.zeros((len(geneIds), len(sim_data.molecular_weight_order)), np.float64)
 
-		bulkChromosome = self._addToBulkState(bulkChromosome, geneIds, geneMasses)
+		bulkChromosome = self.addToBulkState(bulkChromosome, geneIds, geneMasses)
 
 		# Add units to values
 		field_units = {
@@ -41,7 +41,7 @@ class BulkChromosome(object):
 
 
 	## Helper Functions ##
-	def _addToBulkState(self, bulkState, ids, masses):
+	def addToBulkState(self, bulkState, ids, masses):
 		newAddition = np.zeros(
 			len(ids),
 			dtype = [

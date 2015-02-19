@@ -51,13 +51,13 @@ class BulkMolecules(object):
 			for metabolite in raw_data.metabolites
 			]
 
-		bulkMolecules = self._addToBulkState(bulkMolecules, metaboliteIdsByCompartment, metaboliteMasses)
+		bulkMolecules = self.addToBulkState(bulkMolecules, metaboliteIdsByCompartment, metaboliteMasses)
 
 		# Set RNA
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location']) for rna in raw_data.rnas]
 		rnaMasses = np.array([rna['mw'] for rna in raw_data.rnas])
 
-		bulkMolecules = self._addToBulkState(bulkMolecules, rnaIds, rnaMasses)
+		bulkMolecules = self.addToBulkState(bulkMolecules, rnaIds, rnaMasses)
 
 		# Set proteins
 		# TODO: Change protein masses to be a vector in the flat TSV file like RNA masses
@@ -65,13 +65,13 @@ class BulkMolecules(object):
 		proteinMasses = np.zeros((len(proteinIds), len(sim_data.molecular_weight_order)), np.float64)
 		proteinMasses[np.arange(len(proteinIds)), sim_data.molecular_weight_order["protein"]] = [protein['mw'] for protein in raw_data.proteins]
 
-		bulkMolecules = self._addToBulkState(bulkMolecules, proteinIds, proteinMasses)
+		bulkMolecules = self.addToBulkState(bulkMolecules, proteinIds, proteinMasses)
 
 		# Set complexes
 		complexIds = ['{}[{}]'.format(complex_['id'],complex_['location']) for complex_ in raw_data.proteinComplexes]
 		complexMasses = np.array([complex_['mw'] for complex_ in raw_data.proteinComplexes])
 
-		bulkMolecules = self._addToBulkState(bulkMolecules, complexIds, complexMasses)
+		bulkMolecules = self.addToBulkState(bulkMolecules, complexIds, complexMasses)
 		
 		# Set polymerized
 		polymerizedIDs = [entry["id"] for entry in raw_data.polymerized]
@@ -94,7 +94,7 @@ class BulkMolecules(object):
 			for entry in raw_data.polymerized
 			]
 
-		bulkMolecules = self._addToBulkState(bulkMolecules, polymerizedIDsByCompartment, polymerizedMasses)
+		bulkMolecules = self.addToBulkState(bulkMolecules, polymerizedIDsByCompartment, polymerizedMasses)
 
 		# Add units to values
 		field_units = {
@@ -106,7 +106,7 @@ class BulkMolecules(object):
 
 
 	## Helper Functions ##
-	def _addToBulkState(self, bulkState, ids, masses):
+	def addToBulkState(self, bulkState, ids, masses):
 		newAddition = np.zeros(
 			len(ids),
 			dtype = [
