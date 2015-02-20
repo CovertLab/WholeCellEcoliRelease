@@ -1,6 +1,6 @@
 import numpy as np
 
-def addToBulkState(bulkState, ids, masses):
+def addToBulkStateCommon(bulkState, ids, masses):
 	newAddition = np.zeros(
 		len(ids),
 		dtype = [
@@ -21,3 +21,14 @@ def createIdsInAllCompartments(ids, compartments):
 		]
 	return np.array(idsByCompartment)
 
+def createIdsWithCompartments(dictList):
+	return ['{}[{}]'.format(x['id'], c)
+			for x in dictList
+			for c in x['location']
+			]
+
+def createMassesByCompartments(dictList):
+	return np.array([x['mw']
+			for x in dictList
+			for c in x['location']
+			], dtype = np.float64)
