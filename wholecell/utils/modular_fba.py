@@ -23,7 +23,7 @@ _SOLVER_PREFERENCE = (
 	)
 
 try:
-	from ._netflow.gurobi import NetworkFlowGurobi
+	from ._netflow.nf_gurobi import NetworkFlowGurobi
 
 except ImportError:
 	pass
@@ -32,7 +32,7 @@ else:
 	SOLVERS[S_GUROBI] = NetworkFlowGurobi
 
 try:
-	from ._netflow.cvxopt import NetworkFlowCvxopt
+	from ._netflow.nf_cvxopt import NetworkFlowCvxopt
 
 except ImportError:
 	pass
