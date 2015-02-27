@@ -193,7 +193,8 @@ class FluxBalanceAnalysis(object):
 		self._forceInternalExchange = False
 
 		# Output calculations
-		self._output = defaultdict(dict)
+		self._outputMoleculeIDs = []
+		self._outputMoleculeCoeffs = []
 
 		# Set up reversible reactions
 		if reversibleReactions is not None:
@@ -243,10 +244,6 @@ class FluxBalanceAnalysis(object):
 
 		self._initMass(externalExchangedMolecules, moleculeMasses)
 
-		# Finalize
-
-		self._outputMoleculeIDs = sorted(self._output.keys())
-
 		# Set up values that will change between runs
 
 		self.externalMoleculeLevelsIs(0)
@@ -277,6 +274,7 @@ class FluxBalanceAnalysis(object):
 		"""Create external (media) exchange reactions."""
 
 		externalMoleculeIDs = []
+		externalExchangeIDs = []
 
 		for moleculeID in externalExchangedMolecules:
 			exchangeID = self._generatedID_externalExchange.format(moleculeID)
@@ -293,8 +291,10 @@ class FluxBalanceAnalysis(object):
 				)
 
 			externalMoleculeIDs.append(moleculeID)
+			externalExchangeIDs.append(exchangeID)
 
 		self._externalMoleculeIDs = tuple(externalMoleculeIDs)
+		self._externalExchangeIDs = tuple(externalExchangeIDs)
 
 
 	def _initObjectiveEquivalents(self, objective):
@@ -322,11 +322,16 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-			# self._outputMoleculeIndexes.append(molecule_materialIndex)
+			# TODO: functionalize
+			try:
+				i = self._outputMoleculeIDs.index(moleculeID)
 
-			# self._outputReactionIndexes.append(colIndex)
+			except ValueError:
+				self._outputMoleculeIDs.append(moleculeID)
+				self._outputMoleculeCoeffs.append(dict())
+				i = len(self._outputMoleculeIDs) - 1
 
-			self._output[moleculeID][pseudoFluxID] = -coeff
+			self._outputMoleculeCoeffs[i][pseudoFluxID] = -coeff
 
 
 	def _initObjectiveStandard(self, objective):
@@ -556,7 +561,16 @@ class FluxBalanceAnalysis(object):
 
 				internalMoleculeIDs.append(moleculeID)
 
-				self._output[moleculeID][exchangeID] = -1
+				# TODO: functionalize
+				try:
+					i = self._outputMoleculeIDs.index(moleculeID)
+
+				except ValueError:
+					self._outputMoleculeIDs.append(moleculeID)
+					self._outputMoleculeCoeffs.append(dict())
+					i = len(self._outputMoleculeIDs) - 1
+
+				self._outputMoleculeCoeffs[i][exchangeID] = -1
 
 		self._internalMoleculeIDs = tuple(internalMoleculeIDs)
 
@@ -818,7 +832,7 @@ class FluxBalanceAnalysis(object):
 	# Output
 
 	def outputMoleculeIDs(self):
-		return self._outputMoleculeIDs
+		return tuple(self._outputMoleculeIDs)
 
 
 	def outputMoleculeLevelsChange(self):
@@ -828,7 +842,7 @@ class FluxBalanceAnalysis(object):
 		change = np.zeros(len(self._outputMoleculeIDs))
 
 		for i, outputMoleculeID in enumerate(self._outputMoleculeIDs):
-			for reactionID, coeff in self._output[outputMoleculeID].viewitems():
+			for reactionID, coeff in self._outputMoleculeCoeffs[i].viewitems():
 				change[i] += self._solver.flowRates(reactionID) * coeff
 
 		return -change
