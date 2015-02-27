@@ -188,7 +188,7 @@ class FluxBalanceAnalysis(object):
 				"Unrecognized or unavailable solver: {}".format(solver)
 				)
 
-		self._solver = SOLVERS[solver]
+		self._solver = SOLVERS[solver]()
 
 		self._forceInternalExchange = False
 
@@ -245,8 +245,7 @@ class FluxBalanceAnalysis(object):
 
 		# Finalize
 
-		self._finalizeMisc()
-		self._finalizeMatrices()
+		self._outputMoleculeIDs = sorted(self._output.keys())
 
 		# Set up values that will change between runs
 
@@ -340,7 +339,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowMaterialCoeffIs(
 				self._standardObjectiveReactionName,
-				objectiveEquiv_materialIndex,
+				objectiveEquivID,
 				-1
 				)
 
@@ -674,11 +673,13 @@ class FluxBalanceAnalysis(object):
 
 
 	def externalMoleculeLevelsIs(self, levels):
-		levels = np.array(levels)
-		if (levels < 0).any():
+		levels_array = np.empty(len(self._externalMoleculeIDs))
+		levels_array[:] = levels
+
+		if (levels_array < 0).any():
 			raise InvalidBoundaryError("Negative molecule levels not allowed")
 
-		for moleculeID, level in izip(self._externalMoleculeIDs, levels):
+		for moleculeID, level in izip(self._externalMoleculeIDs, levels_array):
 			flowID = self._generatedID_externalExchange.format(moleculeID)
 
 			self._solver.flowLowerBoundIs(
@@ -692,11 +693,13 @@ class FluxBalanceAnalysis(object):
 
 
 	def internalMoleculeLevelsIs(self, levels):
-		levels = np.array(levels)
-		if (levels < 0).any():
+		levels_array = np.empty(len(self._internalMoleculeIDs))
+		levels_array[:] = levels
+
+		if (levels_array < 0).any():
 			raise InvalidBoundaryError("Negative molecule levels not allowed")
 
-		for moleculeID, level in izip(self._internalMoleculeIDs, levels):
+		for moleculeID, level in izip(self._internalMoleculeIDs, levels_array):
 			flowID = self._generatedID_internalExchange.format(moleculeID)
 
 			self._solver.flowLowerBoundIs(
@@ -716,10 +719,16 @@ class FluxBalanceAnalysis(object):
 
 
 	def enzymeLevelsIs(self, levels):
-		if (levels < 0).any():
+		if not hasattr(self, "_enzymeIDs"):
+			return
+
+		levels_array = np.empty(len(self._enzymeIDs))
+		levels_array[:] = levels
+
+		if (levels_array < 0).any():
 			raise InvalidBoundaryError("Negative enzyme levels not allowed")
 
-		for enzymeID, level in izip(self._enzymeIDs, levels):
+		for enzymeID, level in izip(self._enzymeIDs, levels_array):
 			if enzymeID in self._rateConstrainedEnzymeIDs:
 				# Rate-constrained
 				flowID = self._generatedID_enzymeUsageRateConstrained.format(enzymeID)

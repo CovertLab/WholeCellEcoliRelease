@@ -29,13 +29,13 @@ class NetworkFlowGurobi(NetworkFlowProblemBase):
 			var = self._flows[flow]
 
 		except KeyError:
-			var = model.addVar(
+			var = self._model.addVar(
 				name = flow,
 				lb = self._lowerBoundDefault,
-				ub = _upperBoundDefault
+				ub = self._upperBoundDefault
 				)
 
-			model.update()
+			self._model.update()
 
 			self._flows[flow] = var
 
@@ -81,7 +81,7 @@ class NetworkFlowGurobi(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._getvar(flow).getValue() for flow in flows]
+			[self._getVar(flow).X for flow in flows]
 			)
 
 
@@ -92,18 +92,20 @@ class NetworkFlowGurobi(NetworkFlowProblemBase):
 		if not self._eqConstFixed:
 			# avoid creating duplicate constraints
 			for material, pairs in self._materialCoeffs.viewitems():
-				model.addConstr(
+				self._model.addConstr(
 					grb.LinExpr(pairs) == 0,
 					material
 					)
 
 			self._eqConstFixed = True
 
-		model.setObjective(
+		self._model.setObjective(
 			grb.LinExpr(self._objectiveCoefficients),
 			grb.GRB.MAXIMIZE if self._maximize else grb.GRB.MINIMIZE
 			)
 
-		model.update()
+		self._model.update()
+
+		self._model.optimize()
 
 		self._solved = True
