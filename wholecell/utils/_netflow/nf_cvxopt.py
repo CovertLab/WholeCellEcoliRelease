@@ -41,7 +41,7 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 
 		except ValueError:
 			self._materialNames.append(material)
-			return len(self._materialNames - 1)
+			return len(self._materialNames) - 1
 
 
 	def _getFlowIndex(self, flow):
@@ -50,7 +50,7 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 
 		except ValueError:
 			self._flowNames.append(flow)
-			return len(self._flowNames - 1)
+			return len(self._flowNames) - 1
 
 
 	def flowMaterialCoeffIs(self, flow, material, coefficient):
@@ -104,7 +104,7 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 		oldOptions = cvxopt.solvers.options.copy()
 		cvxopt.solvers.options["LPX_K_MSGLEV"] = 0
 
-		solution = cvxopt.solvers.lp(self._f, self._G, h, self._A, self._b, solver = "glpk")
+		solution = cvxopt.solvers.lp(self._f, self._G, self._h, self._A, self._b, solver = "glpk")
 
 		cvxopt.solvers.options.update(oldOptions)
 
@@ -142,8 +142,8 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 
 		np.clip(h, -self._numericalInfinity, self._numericalInfinity, h)
 
-		h[self._upperBoundIndexes] = self._upperBoundValues
-		h[np.array(self._lowerBoundIndexes) + self._nFlows()] = -self._lowerBoundValues
+		h[self._upperBoundIndexes] = np.array(self._upperBoundValues)
+		h[np.array(self._lowerBoundIndexes) + self._nFlows()] = -np.array(self._lowerBoundValues)
 
 		self._h = cvxopt.matrix(h)
 

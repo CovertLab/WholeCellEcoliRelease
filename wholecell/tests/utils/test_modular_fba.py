@@ -17,6 +17,8 @@ from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 import nose.plugins.attrib as noseAttrib
 
+# TODO: test all solvers
+
 _testStandard = dict(
 	reactionStoich = {
 		"A to B":{"A":-1, "B":+1},
