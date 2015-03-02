@@ -39,55 +39,40 @@ class State(object):
 
 		# Set metabolites
 		metaboliteIds = createIdsWithCompartments(raw_data.metabolites)
-		metaboliteMasses = createMassesByCompartments(raw_data.metabolites)
+		metaboliteMasses = units.g / units.mol * createMassesByCompartments(raw_data.metabolites)
 		
 		self.bulkMolecules.addToBulkState(metaboliteIds, metaboliteMasses)
 		
 		# Set RNA
 		rnaIds = createIdsWithCompartments(raw_data.rnas)
-		rnaMasses = createMassesByCompartments(raw_data.rnas)
+		rnaMasses = units.g / units.mol * createMassesByCompartments(raw_data.rnas)
 
 		self.bulkMolecules.addToBulkState(rnaIds, rnaMasses)
 
 		# Set proteins
 		proteinIds = createIdsWithCompartments(raw_data.proteins)
-		proteinMasses = createMassesByCompartments(raw_data.proteins)
+		proteinMasses = units.g / units.mol * createMassesByCompartments(raw_data.proteins)
 
 		self.bulkMolecules.addToBulkState(proteinIds, proteinMasses)
 
 		# Set complexes
 		complexIds = createIdsWithCompartments(raw_data.proteinComplexes)
-		complexMasses = createMassesByCompartments(raw_data.proteinComplexes)
+		complexMasses = units.g / units.mol * createMassesByCompartments(raw_data.proteinComplexes)
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
 		
 		# Set polymerized
 		polymerizedIds = createIdsWithCompartments(raw_data.polymerized)
-		polymerizedMasses = createMassesByCompartments(raw_data.polymerized)
+		polymerizedMasses = units.g / units.mol * createMassesByCompartments(raw_data.polymerized)
 
 		self.bulkMolecules.addToBulkState(polymerizedIds, polymerizedMasses)
-
-		# Add units to values
-		field_units = {
-			"id"		:	None,
-			"mass"				:	units.g / units.mol,
-			}
-
-		self.bulkMolecules.bulkData = UnitStructArray(self.bulkMolecules.bulkData, field_units)
 
 	def _buildBulkChromosome(self, raw_data, sim_data):
 		# Set genes
 		geneIds = [x['id'] for x in raw_data.genes]
-		geneMasses = np.zeros((len(geneIds), len(sim_data.molecular_weight_order)), np.float64)
+		geneMasses = units.g / units.mol * np.zeros((len(geneIds), len(sim_data.molecular_weight_order)), np.float64)
 
 		self.bulkChromosome.addToBulkState(geneIds, geneMasses)
-
-		# Add units to values
-		field_units = {
-			"id"			:	None,
-			"mass"					:	units.g / units.mol,
-			}
-		self.bulkChromosome.bulkData = UnitStructArray(self.bulkChromosome.bulkData, field_units)
 
 	def _buildUniqueMolecules(self, raw_data, sim_data):
 		pass

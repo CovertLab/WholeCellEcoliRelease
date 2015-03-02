@@ -19,13 +19,21 @@ class BulkMolecules(object):
 	""" BulkMolecules """
 
 	def __init__(self, raw_data, sim_data):
-		self.bulkData = np.zeros(
+		bulkData = np.zeros(
 			0,
 			dtype = [
 				("id", "a50"),
 				("mass", "{}f8".format(len(sim_data.molecular_weight_order))),
 				]
 			)
+
+		# Add units to values
+		field_units = {
+			"id"		:	None,
+			"mass"				:	units.g / units.mol,
+			}
+
+		self.bulkData = UnitStructArray(bulkData, field_units)
 
 	def addToBulkState(self, ids, masses):
 		self.bulkData = addToBulkStateCommon(self.bulkData, ids, masses)
