@@ -13,7 +13,7 @@ import numpy as np
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
-from reconstruction.ecoli.dataclasses.state.bulkStateFunctions import addToBulkStateCommon
+from reconstruction.ecoli.dataclasses.state.bulkStateFunctions import addToStateCommon
 
 class BulkChromosome(object):
 	""" BulkChromosome """
@@ -35,4 +35,4 @@ class BulkChromosome(object):
 		self.bulkData = UnitStructArray(bulkData, field_units)
 
 	def addToBulkState(self, ids, masses):
-		self.bulkData = addToBulkStateCommon(self.bulkData, ids, masses)
+		self.bulkData = addToStateCommon(self.bulkData, ids, masses)

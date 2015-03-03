@@ -27,11 +27,11 @@ class State(object):
 
 		self.bulkMolecules = BulkMolecules(raw_data, sim_data)
 		self.bulkChromosome = BulkChromosome(raw_data, sim_data)
-		#self.uniqueMolecules = UniqueMolecules(raw_data, sim_data)
+		self.uniqueMolecules = UniqueMolecules(raw_data, sim_data)
 
 		self._buildBulkMolecules(raw_data, sim_data)
 		self._buildBulkChromosome(raw_data, sim_data)
-		#self._buildUniqueMolecules(raw_data, sim_data)
+		self._buildUniqueMolecules(raw_data, sim_data)
 		self._buildCompartments(raw_data, sim_data)
 
 
@@ -75,7 +75,38 @@ class State(object):
 		self.bulkChromosome.addToBulkState(geneIds, geneMasses)
 
 	def _buildUniqueMolecules(self, raw_data, sim_data):
-		pass
+		# Add active RNA polymerase
+		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][self.bulkMolecules.bulkData["id"] == "APORNAP-CPLX[c]"]
+		rnaPolyAttributes = {
+				'rnaIndex' : 'i8',
+				'transcriptLength' : 'i8'
+				}
+		self.uniqueMolecules.addToUniqueState('activeRnaPoly', rnaPolyAttributes, rnaPolyComplexMass)
+
+		# Add active ribosome
+		# TODO: This is a bad hack that works because in the fitter
+		# I have forced expression to be these subunits only
+		ribosome30SMass = self.bulkMolecules.bulkData["mass"][
+		self.bulkMolecules.bulkData["id"] == sim_data.moleculeGroups.s30_fullComplex[0]
+			]
+		ribosome50SMass = self.bulkMolecules.bulkData["mass"][
+		self.bulkMolecules.bulkData["id"] == sim_data.moleculeGroups.s50_fullComplex[0]
+			]
+		ribosomeMass = ribosome30SMass + ribosome50SMass
+		ribosomeAttributes = {
+				'proteinIndex' : 'i8',
+				'peptideLength': 'i8'
+				}
+		self.uniqueMolecules.addToUniqueState('activeRibosome', ribosomeAttributes, ribosomeMass)
+
+		# Add active DNA polymerase
+		dnaPolyMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: dnaPolymerases currently have no mass
+		dnaPolymeraseAttributes = {
+				'chromosomeLocation' : 'i8',
+				'directionIsPositive' : 'bool',
+				'isLeading' : 'bool'
+				}
+		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),

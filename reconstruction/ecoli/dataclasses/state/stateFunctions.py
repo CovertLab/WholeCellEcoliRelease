@@ -1,7 +1,7 @@
 import numpy as np
 from wholecell.utils.unit_struct_array import UnitStructArray
 
-def addToBulkStateCommon(bulkState, ids, masses):
+def addToStateCommon(bulkState, ids, masses):
 	newAddition = np.zeros(
 		len(ids),
 		dtype = [
@@ -16,26 +16,6 @@ def addToBulkStateCommon(bulkState, ids, masses):
 	newAddition["mass"] = masses.asNumber()
 
 	return UnitStructArray(np.hstack((bulkState.fullArray(), newAddition)), bulkState.units)
-
-def addToUniqueStateMass(uniqueState, uniqueId, attributeDef, mass):
-	newAddition = np.zeros(
-		1,
-		dtype = [
-			("id", "a50"),
-			("mass", "{}f8".format(mass.asNumber().shape[1])), # TODO: Make this better
-			]
-		)
-
-	uniqueState.uniqueMoleculeMasses.units['mass'].matchUnits(masses)
-
-	newAddition["id"] = uniqueId
-	newAddition["mass"] = mass.asNumber()
-
-	return UnitStructArray(
-			np.vstack((uniqueState.uniqueMoleculeMasses.fullArray(), newAddition)),
-			uniqueState.uniqueMoleculeMasses.units
-		)
-
 
 def createIdsInAllCompartments(ids, compartments):
 	idsByCompartment = [
