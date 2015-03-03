@@ -1820,7 +1820,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['fracInitFreeAAs'] = 0.001
 		self._parameterData['avgCellCellCycleProgress'] = 0.44
 		self._parameterData['timeStep'] = 1*units.s
-		self._parameterData['KcatEndoRNaseFullRNA'] = 0.008/units.s
+		self._parameterData['KcatEndoRNaseFullRNA'] = 0.0015/units.s # 0.00198/units.s
 
 	def _loadComputeParameters(self):
 		self._parameterData['avgCellToInitalCellConvFactor'] = np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress'])
@@ -2251,6 +2251,7 @@ class KnowledgeBaseEcoli(object):
 
 		expression = np.array([rna['expression'] for rna in self._rnas])
 
+		# old model: kb - (kd + ln(2)/tau) * r = 0
 		synthProb = expression * (
 			np.log(2) / self._parameterData['cellCycleLen'].asNumber(units.s)
 			+ rnaDegRates
@@ -2393,7 +2394,9 @@ class KnowledgeBaseEcoli(object):
 		# TODO: citation
 		fastRate = (np.log(2) / (2*units.min)).asUnit(1 / units.s)
 		slowRate = (np.log(2) / (10*60*units.min)).asUnit(1 / units.s)
-
+		midRate = (np.log(2) / (30*units.min)).asUnit(1 / units.s)
+		midfastRate = (np.log(2) / (10*units.min)).asUnit(1 / units.s)
+		
 		fastAAs = ["R", "K", "F", "L", "W", "Y"]
 		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
 		noDataAAs = ["P", "U"]
@@ -2415,12 +2418,21 @@ class KnowledgeBaseEcoli(object):
 		ribosomalProteins.extend([x[:-3] for x in S30_ALL_PROTEINS])
 		ribosomalProteins.extend([x[:-3] for x in S50_ALL_PROTEINS])
 
+		RNaseOscillator = ["EG10743-MONOMER"]
 		degRate = np.zeros(len(self._proteins))
 		for i,m in enumerate(self._proteins):
 			if m['id'] not in ribosomalProteins:
 				degRate[i] = NruleDegRate[m['seq'][0]].asNumber()
+				# print m['id']
 			else:
 				degRate[i] = slowRate.asNumber()
+
+			if m['id'] in RNaseOscillator:
+				# print degRate[i], m['id']
+				# degRate[i] = midfastRate.asNumber() #slowRate.asNumber()
+				print degRate[i], m['id']
+
+		# import ipdb; ipdb.set_trace()
 
 		self.monomerData = np.zeros(
 			size,

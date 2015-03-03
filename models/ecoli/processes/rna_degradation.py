@@ -49,11 +49,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# expectedRRnaDegradationRate = kb.rnaData['degRate'][isRRna].asNumber()
 		# isTRna = kb.rnaData["isRRna"]
 		# expectedTRnaDegradationRate = kb.rnaData['degRate'][isTRna].asNumber()
-<<<<<<< HEAD
+
 		# import ipdb; ipdb.set_trace()
-=======
-		
->>>>>>> fad47ced070974de83d1dde7441763ca486c2c22
+
+
 		self.rnaLens = kb.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
@@ -90,17 +89,33 @@ class RnaDegradation(wholecell.processes.process.Process):
 		KcatEndoRNaseFragmentMin = 0.005 # cleavages/s
 		KcatEndoRNaseFragmentMax = 0.231 # cleavages/s
 
-		RNAspecificity = self.rnaDegRates / self.rnaDegRates.sum()
+		nRNAsTotalToDegrade = np.round(self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum())
 
-		nRNAsTotalToDegrade = self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum()
+		TotalDegradationRate = self.rnaDegRates * self.rnas.total() * self.timeStepSec
+		RNAspecificity = TotalDegradationRate / TotalDegradationRate.sum()
+
+		# RNAspecificity = self.rnaDegRates / self.rnaDegRates.sum()
 
 		if nRNAsTotalToDegrade == 0:
 			return
+		
+		# print 'initial number of RNAs to degrade = %f' % nRNAsTotalToDegrade
+		# import ipdb; ipdb.set_trace()
+		nRNAsToDegrade = np.zeros(len(RNAspecificity))
+		while nRNAsToDegrade.sum() < nRNAsTotalToDegrade:
+			nRNAsToDegrade += np.fmin(
+				self.randomState.multinomial(nRNAsTotalToDegrade - nRNAsToDegrade.sum(), RNAspecificity),
+				self.rnas.total() # TODO: check nRNAsTotalToDegrade are completely degradaded by a loop of selections
+				)
+		# print 'real number of RNAs degraded = %f' % nRNAsToDegrade.sum()
 
-		nRNAsToDegrade = np.fmin(
-			self.randomState.multinomial(nRNAsTotalToDegrade, RNAspecificity),
-			self.rnas.total()
-			)
+		# old method
+		# ODE model: dr/dt = kb - kcatEndo * TotalEndoRNases * kd*r/sum_g(kd*r)
+		# endoRnasesRelative = self.endoRnases.total().sum() * RNAspecificity
+		# nRNAsToDegrade = np.fmin(
+		# 	self.randomState.poisson(self.KcatEndoRNaseFullRNA * self.timeStepSec * endoRnasesRelative),
+		# 	self.rnas.total()
+		# 	)
 
 		self.rnas.requestIs(nRNAsToDegrade)
 		self.endoRnases.requestAll()

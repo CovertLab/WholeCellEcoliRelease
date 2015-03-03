@@ -65,8 +65,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	Correlation_ExpPred = np.corrcoef(expectedDegradationRate, rnaDegradationRate)[0][1]
 	print "Correlation expected and predicted half-lives = %.3f" % Correlation_ExpPred
 
-	plt.xlabel("Expected RNA half life")
-	plt.ylabel("Actual RNA half life (at final time step)")
+	plt.xlabel("Expected RNA decay")
+	plt.ylabel("Actual RNA decay (at final time step)")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)

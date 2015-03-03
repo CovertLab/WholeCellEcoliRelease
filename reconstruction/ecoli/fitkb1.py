@@ -83,7 +83,7 @@ def fitKb_1(kb):
 
 	# Modify other properties
 
-	fitRNAPolyTransitionRates(kb)
+	fitRNAPolyTransitionRates(kb, bulkContainer)
 
 	## Calculate and set maintenance values
 
@@ -417,10 +417,43 @@ def fitExpression(kb, bulkContainer):
 	kb.rnaData["synthProb"][:] = synthProb
 
 
-def fitRNAPolyTransitionRates(kb):
+def fitRNAPolyTransitionRates(kb, bulkContainer):
 	## Transcription activation rate
 
-	synthProb = kb.rnaData["synthProb"]
+	synthProb_old = kb.rnaData["synthProb"]
+
+	# new RNA decay model: kb - kcatEndoRN * EndoRN * ( ln(2)/tau + kd/(Sum_g kd*r) ) * r = 0 
+	KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s)
+	print KcatEndoRNaseFullRNA
+	cellCycleLen = kb.cellCycleLen.asNumber(units.s)
+	rnaDegRates = kb.rnaData['degRate'].asNumber()
+	Expression = synthProb_old / (
+		np.log(2) / cellCycleLen
+		+ rnaDegRates 
+		)
+	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
+	proteinCounts = bulkContainer.counts(kb.monomerData["id"])
+	endoRnaseCounts = np.zeros(len(endoRnaseIds))
+	proteinIds = kb.monomerData["id"]
+	count_endoRN = 0
+
+	for p in range (len(proteinIds)):
+		if proteinIds[p] in endoRnaseIds:
+			endoRnaseCounts[count_endoRN] = proteinCounts[p]
+			count_endoRN += 1
+	print sum(endoRnaseCounts)
+
+	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
+	synthProb = Expression * (
+		(np.log(2) / cellCycleLen) +
+		(KcatEndoRNaseFullRNA * sum(endoRnaseCounts) * rnaDegRates / sum(rnaDegRates * Expression))
+		)
+
+	# RNA decay considering only RNase specificity (RNA lifetimes measured)
+	# synthProb = (KcatEndoRNaseFullRNA * sum(endoRnaseCounts) * rnaDegRates / sum(rnaDegRates)) + (Expression * np.log(2) / cellCycleLen)
+
+	# import ipdb; ipdb.set_trace()
+
 	rnaLengths = kb.rnaData["length"]
 
 	elngRate = kb.rnaPolymeraseElongationRate
