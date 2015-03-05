@@ -101,21 +101,22 @@ class RnaDegradation(wholecell.processes.process.Process):
 		
 		# print 'initial number of RNAs to degrade = %f' % nRNAsTotalToDegrade
 		# import ipdb; ipdb.set_trace()
-		nRNAsToDegrade = np.zeros(len(RNAspecificity))
-		while nRNAsToDegrade.sum() < nRNAsTotalToDegrade:
-			nRNAsToDegrade += np.fmin(
-				self.randomState.multinomial(nRNAsTotalToDegrade - nRNAsToDegrade.sum(), RNAspecificity),
-				self.rnas.total() # TODO: check nRNAsTotalToDegrade are completely degradaded by a loop of selections
-				)
+		# nRNAsToDegrade = np.zeros(len(RNAspecificity))
+		# while nRNAsToDegrade.sum() < nRNAsTotalToDegrade:
+		# 	nRNAsToDegrade += np.fmin(
+		# 		self.randomState.multinomial(nRNAsTotalToDegrade - nRNAsToDegrade.sum(), RNAspecificity),
+		# 		self.rnas.total() # TODO: check nRNAsTotalToDegrade are completely degradaded by a loop of selections
+		# 		)
 		# print 'real number of RNAs degraded = %f' % nRNAsToDegrade.sum()
 
 		# old method
 		# ODE model: dr/dt = kb - kcatEndo * TotalEndoRNases * kd*r/sum_g(kd*r)
-		# endoRnasesRelative = self.endoRnases.total().sum() * RNAspecificity
-		# nRNAsToDegrade = np.fmin(
-		# 	self.randomState.poisson(self.KcatEndoRNaseFullRNA * self.timeStepSec * endoRnasesRelative),
-		# 	self.rnas.total()
-		# 	)
+		endoRnasesRelative = self.endoRnases.total().sum() * RNAspecificity
+		nRNAsToDegrade = np.fmin(
+			self.randomState.poisson(self.KcatEndoRNaseFullRNA * self.timeStepSec * endoRnasesRelative),
+			# self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
+			self.rnas.total()
+			)
 
 		self.rnas.requestIs(nRNAsToDegrade)
 		self.endoRnases.requestAll()

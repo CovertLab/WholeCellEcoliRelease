@@ -330,11 +330,39 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.rnaData['countsACGU'], axis = 1)
-	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
 	rnaCounts = bulkContainer.counts(kb.rnaData['id'])
+	## Number of endoRNases
+	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
+	proteinCounts = bulkContainer.counts(kb.monomerData["id"])
+	endoRnaseCounts = np.zeros(len(endoRnaseIds))
+	proteinIds = kb.monomerData["id"]
+	count_endoRN = 0
 
-	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths, kb.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
+	for p in range (len(proteinIds)):
+		if proteinIds[p] in endoRnaseIds:
+			endoRnaseCounts[count_endoRN] = proteinCounts[p]
+			count_endoRN += 1
+	print sum(endoRnaseCounts)
+
+
+
+	# rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.rnaData["degRate"])
+	# import ipdb; ipdb.set_trace()
+	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
+		kb.cellCycleLen,
+		kb.rnaData["degRate"],
+		kb.KcatEndoRNaseFullRNA, 
+		rnaCounts, 
+		np.sum(endoRnaseCounts)
+		)
+	
+	# nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths, kb.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
+	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
+		rnaLengths, kb.rnaPolymeraseElongationRate, rnaLossRate)
+
+
+
+
 	nActiveRnapNeeded.checkNoUnit()
 	nRnapsNeeded = nActiveRnapNeeded / FRACTION_ACTIVE_RNAP
 
@@ -400,37 +428,7 @@ def fitExpression(kb, bulkContainer):
 
 	view_RNA.countsIs(nRnas * kb.rnaExpression['expression'])
 
-	## Synthesis probabilities ##
-	netLossRate_RNA = netLossRateFromDilutionAndDegradation(
-		doublingTime,
-		kb.rnaData["degRate"]
-		)
-
-	synthProb = normalize(
-			(
-			units.s
-				* netLossRate_RNA
-				* view_RNA.counts()
-			).asNumber()
-		)
-
-	kb.rnaData["synthProb"][:] = synthProb
-
-
-def fitRNAPolyTransitionRates(kb, bulkContainer):
-	## Transcription activation rate
-
-	synthProb_old = kb.rnaData["synthProb"]
-
-	# new RNA decay model: kb - kcatEndoRN * EndoRN * ( ln(2)/tau + kd/(Sum_g kd*r) ) * r = 0 
-	KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s)
-	print KcatEndoRNaseFullRNA
-	cellCycleLen = kb.cellCycleLen.asNumber(units.s)
-	rnaDegRates = kb.rnaData['degRate'].asNumber()
-	Expression = synthProb_old / (
-		np.log(2) / cellCycleLen
-		+ rnaDegRates 
-		)
+	## Number of endoRNases
 	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
 	proteinCounts = bulkContainer.counts(kb.monomerData["id"])
 	endoRnaseCounts = np.zeros(len(endoRnaseIds))
@@ -441,18 +439,43 @@ def fitRNAPolyTransitionRates(kb, bulkContainer):
 		if proteinIds[p] in endoRnaseIds:
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
-	print sum(endoRnaseCounts)
+	print np.sum(endoRnaseCounts)
 
-	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
-	synthProb = Expression * (
-		(np.log(2) / cellCycleLen) +
-		(KcatEndoRNaseFullRNA * sum(endoRnaseCounts) * rnaDegRates / sum(rnaDegRates * Expression))
+	## Synthesis probabilities ##
+	# netLossRate_RNA = netLossRateFromDilutionAndDegradation(
+	# 		doublingTime,
+	# 		kb.rnaData["degRate"]
+	# 	)
+	# synthProb = normalize(
+	# 		(
+	# 		units.s
+	# 			* netLossRate_RNA
+	# 			* view_RNA.counts()
+	# 		).asNumber()
+	# 	)
+
+
+
+
+
+
+	netLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
+		(doublingTime / units.s).asNumber(),
+		(kb.rnaData["degRate"] * units.s).asNumber(),
+		(kb.KcatEndoRNaseFullRNA * units.s).asNumber(),
+		view_RNA.counts(), 
+		np.sum(endoRnaseCounts)
 		)
-
-	# RNA decay considering only RNase specificity (RNA lifetimes measured)
-	# synthProb = (KcatEndoRNaseFullRNA * sum(endoRnaseCounts) * rnaDegRates / sum(rnaDegRates)) + (Expression * np.log(2) / cellCycleLen)
-
 	# import ipdb; ipdb.set_trace()
+	synthProb = normalize(netLossRate_RNA)
+
+	kb.rnaData["synthProb"][:] = synthProb
+
+
+def fitRNAPolyTransitionRates(kb, bulkContainer):
+	## Transcription activation rate
+
+	synthProb = kb.rnaData["synthProb"]
 
 	rnaLengths = kb.rnaData["length"]
 
@@ -533,6 +556,27 @@ def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongati
 		)
 	return nPolymerizingEnzymeNeeded
 
+def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elongationRate, netLossRate):
+	nPolymerizingEnzymeNeeded = units.sum(
+		productLengths / elongationRate
+			* netLossRate
+		)
+	return nPolymerizingEnzymeNeeded
+
 
 def netLossRateFromDilutionAndDegradation(doublingTime, degradationRates):
 	return np.log(2) / doublingTime + degradationRates
+
+
+def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts):
+	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
+	# new RNA decay model: kb - r ( ln(2)/tau + kcatEndoRN * EndoRN * kd / (Sum_g kd * r) ) = 0 
+	# import ipdb; ipdb.set_trace()
+	netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
+	
+	# RNA decay considering only RNase specificity (RNA lifetimes measured)
+	# new RNA decay model: kb - kcatEndoRN * EndoRN * kd / (Sum_g kd * r) - r * ln(2) / tau = 0 
+	# netRate = (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates)) + (np.log(2) / doublingTime * RNACounts)
+
+	return netRate
+	
