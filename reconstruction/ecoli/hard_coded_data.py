@@ -45,13 +45,13 @@ COMPLEXES_NOT_FORMED = [
 	# RNA poly + sigma factor
 	"RNAPE-CPLX", "CPLX0-221", "CPLX0-222", "RNAPS-CPLX", "RNAP32-CPLX",
 	"RNAP54-CPLX", "RNAP70-CPLX",'CPLX0-3964',
-	"CPLX0-3461[c]", # Removing these complexes because they contain RNAses
-	"CPLX0-3281[c]",
-	"CPLX0-2381[c]",
-	"CPLX0-7909[m]",
-	"CPLX0-3601[c]",
-	"CPLX0-1382[c]",
-	"CPLX0-1621[c]"
+	"CPLX0-3461", # Removing these complexes because they contain RNAses
+	"CPLX0-3281",
+	"CPLX0-2381",
+	"CPLX0-7909",
+	"CPLX0-3601",
+	"CPLX0-1382",
+	"CPLX0-1621"
 	]
 
 REACTION_ENZYME_ASSOCIATIONS = {
