@@ -111,6 +111,8 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 		self._rawSolution = solution
 		self._flowRates = np.array(self._rawSolution["x"]).flatten()
 
+		self._solved = True
+
 
 	def _formEqConst(self):
 		if not self._changedEqConst:
