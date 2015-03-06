@@ -13,8 +13,8 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 	_numericalInfinity = 1e6
 
 	def __init__(self):
-		self._materialNames = []
-		self._flowNames = []
+		self._materialNames = {}
+		self._flowNames = {}
 
 		self._materialIndexes = []
 		self._flowIndexes = []
@@ -37,19 +37,19 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 
 	def _getMaterialIndex(self, material):
 		try:
-			return self._materialNames.index(material)
+			return self._materialNames[material]
 
-		except ValueError:
-			self._materialNames.append(material)
+		except KeyError:
+			self._materialNames[material] = len(self._materialNames)
 			return len(self._materialNames) - 1
 
 
 	def _getFlowIndex(self, flow):
 		try:
-			return self._flowNames.index(flow)
+			return self._flowNames[flow]
 
-		except ValueError:
-			self._flowNames.append(flow)
+		except KeyError:
+			self._flowNames[flow] = len(self._flowNames)
 			return len(self._flowNames) - 1
 
 
