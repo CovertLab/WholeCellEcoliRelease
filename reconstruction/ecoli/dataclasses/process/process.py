@@ -10,6 +10,8 @@ from __future__ import division
 
 from reconstruction.ecoli.dataclasses.process.replication import Replication
 from reconstruction.ecoli.dataclasses.process.metabolism import Metabolism
+from reconstruction.ecoli.dataclasses.process.transcription import Transcription
+
 
 import re
 import numpy as np
@@ -21,3 +23,4 @@ class Process(object):
 
 		self.replication = Replication(raw_data, sim_data)
 		self.metabolism = Metabolism(raw_data, sim_data)
+		self.transcription = Transcription(raw_data, sim_data)
