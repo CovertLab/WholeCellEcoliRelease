@@ -149,9 +149,11 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 
 		self._h = cvxopt.matrix(h)
 
-		self._G = cvxopt.matrix(np.concatenate([
-			np.identity(self._nFlows()), -np.identity(self._nFlows())
-			]))
+		self._G = cvxopt.spmatrix(
+			[+1]*self._nFlows() + [-1]*self._nFlows(),
+			range(2*self._nFlows()),
+			range(self._nFlows()) + range(self._nFlows())
+			)
 
 		self._changedIneqConst = False
 		self._solved = False
