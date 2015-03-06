@@ -8,10 +8,8 @@ SimulationData process associated data
 
 from __future__ import division
 
-from wholecell.utils import units
-from wholecell.utils.unit_struct_array import UnitStructArray
-
 from reconstruction.ecoli.dataclasses.process.replication import Replication
+from reconstruction.ecoli.dataclasses.process.metabolism import Metabolism
 
 import re
 import numpy as np
@@ -22,3 +20,4 @@ class Process(object):
 	def __init__(self, raw_data, sim_data):
 
 		self.replication = Replication(raw_data, sim_data)
+		self.metabolism = Metabolism(raw_data, sim_data)
