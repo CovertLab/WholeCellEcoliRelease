@@ -36,6 +36,8 @@ class Transcription(object):
 		
 		synthProb /= synthProb.sum()
 
+		expression = [x['expression'] for x in self._rnas]
+
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 
 		geneIds = np.array([rna['geneId'] for rna in raw_data.rnas])
@@ -67,6 +69,7 @@ class Transcription(object):
 				('id', 'a50'),
 				# TODO: add expression to this table
 				('synthProb', 'f8'),
+				('expression', 'float64'),xs
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('countsACGU', '4i8'),
@@ -85,6 +88,7 @@ class Transcription(object):
 
 		rnaData['id'] = rnaIds
 		rnaData['synthProb'] = synthProb
+		rnaData['expression'] = expression
 		rnaData['degRate'] = rnaDegRates
 		rnaData['length'] = rnaLens
 		rnaData['countsACGU'] = ntCounts
@@ -102,6 +106,7 @@ class Transcription(object):
 		field_units = {
 			'id'		:	None,
 			'synthProb' :	None,
+			'expression':	None,
 			'degRate'	:	1 / units.s,
 			'length'	:	units.nt,
 			'countsACGU':	units.nt,
