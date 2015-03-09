@@ -53,3 +53,12 @@ class SimulationDataEcoli(object):
 		self.molecular_weight_order = collections.OrderedDict([
 			(key, index) for index, key in enumerate(self.molecular_weight_keys)
 			])
+
+		self.amino_acid_1_to_3_ordered = collections.OrderedDict((
+			("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),
+			("C", "CYS-L[c]"), ("E", "GLU-L[c]"), ("Q", "GLN-L[c]"), ("G", "GLY[c]"),
+			("H", "HIS-L[c]"), ("I", "ILE-L[c]"), ("L", "LEU-L[c]"), ("K", "LYS-L[c]"),
+			("M", "MET-L[c]"), ("F", "PHE-L[c]"), ("P", "PRO-L[c]"), ("S", "SER-L[c]"),
+			("T", "THR-L[c]"), ("W", "TRP-L[c]"), ("Y", "TYR-L[c]"), ("U", "SEC-L[c]"),
+			("V", "VAL-L[c]")
+			))
