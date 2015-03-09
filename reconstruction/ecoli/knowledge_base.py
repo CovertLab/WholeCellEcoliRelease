@@ -110,8 +110,8 @@ class KnowledgeBaseEcoli(object):
 		self._buildMonomerIndexToRnaMapping() # Translation (?)
 		self._buildRnaIndexToGeneMapping() # Transcription (?)
 		self._buildConstants() # Constants # DONE
-		self._buildParameters() # Constants
-		self._buildRnaExpression() # Transcription (*actually goes to raw data)
+		self._buildParameters() # Constants # DONE
+		self._buildRnaExpression() # Transcription (*actually goes to raw data)# DONE
 		self._buildBiomassFractions() # Metabolism (?)# TODO: move to new KB
 		self._buildTranscription() # Transcription
 		self._buildTranslation() # Translation
