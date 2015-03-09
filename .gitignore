@@ -60,6 +60,10 @@ user/*
 ######################
 *.lprof
 
+# pyenv python version #
+########################
+.python-version
+
 # Misc #
 ########
 
