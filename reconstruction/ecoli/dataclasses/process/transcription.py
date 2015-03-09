@@ -36,7 +36,7 @@ class Transcription(object):
 		
 		synthProb /= synthProb.sum()
 
-		mws = np.array([rna['mw'] for rna in raw_data.rnas])
+		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 
 		geneIds = np.array([rna['geneId'] for rna in raw_data.rnas])
 
@@ -88,7 +88,7 @@ class Transcription(object):
 		rnaData['degRate'] = rnaDegRates
 		rnaData['length'] = rnaLens
 		rnaData['countsACGU'] = ntCounts
-		rnaData['mw'] = mws.sum(axis = 1)
+		rnaData['mw'] = mws
 		rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in raw_data.rnas]
 		rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in raw_data.rnas]
 		rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in raw_data.rnas]
