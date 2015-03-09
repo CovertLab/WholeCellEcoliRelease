@@ -36,7 +36,7 @@ class Transcription(object):
 		
 		synthProb /= synthProb.sum()
 
-		expression = [x['expression'] for x in self._rnas]
+		expression = [x['expression'] for x in raw_data.rnas]
 
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 
@@ -69,7 +69,7 @@ class Transcription(object):
 				('id', 'a50'),
 				# TODO: add expression to this table
 				('synthProb', 'f8'),
-				('expression', 'float64'),xs
+				('expression', 'float64'),
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('countsACGU', '4i8'),
