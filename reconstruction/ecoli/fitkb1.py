@@ -342,6 +342,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 		if proteinIds[p] in endoRnaseIds:
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
+	# print endoRnaseCounts
 	print sum(endoRnaseCounts)
 
 
@@ -430,7 +431,7 @@ def fitExpression(kb, bulkContainer):
 
 	## Number of endoRNases
 	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
-	proteinCounts = bulkContainer.counts(kb.monomerData["id"])
+	proteinCounts = counts_protein  # bulkContainer.counts(kb.monomerData["id"])
 	endoRnaseCounts = np.zeros(len(endoRnaseIds))
 	proteinIds = kb.monomerData["id"]
 	count_endoRN = 0
@@ -439,7 +440,9 @@ def fitExpression(kb, bulkContainer):
 		if proteinIds[p] in endoRnaseIds:
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
+	#print endoRnaseCounts
 	print np.sum(endoRnaseCounts)
+	# import ipdb; ipdb.set_trace()
 
 	## Synthesis probabilities ##
 	# netLossRate_RNA = netLossRateFromDilutionAndDegradation(
@@ -569,10 +572,12 @@ def netLossRateFromDilutionAndDegradation(doublingTime, degradationRates):
 
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts):
+	netRate = RNACounts * ( (np.log(2) / doublingTime) + degradationRates )
+
 	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
 	# new RNA decay model: kb - r ( ln(2)/tau + kcatEndoRN * EndoRN * kd / (Sum_g kd * r) ) = 0 
 	# import ipdb; ipdb.set_trace()
-	netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
+	# netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
 	
 	# RNA decay considering only RNase specificity (RNA lifetimes measured)
 	# new RNA decay model: kb - kcatEndoRN * EndoRN * kd / (Sum_g kd * r) - r * ln(2) / tau = 0 
