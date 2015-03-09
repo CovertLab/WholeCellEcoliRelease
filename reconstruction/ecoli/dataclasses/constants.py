@@ -16,8 +16,5 @@ class Constants(object):
 		self._buildConstants(raw_data, sim_data)
 
 	def _buildConstants(self, raw_data, sim_data):
-		constants = {
-			'nAvogadro' : raw_data.constants['nAvogadro']
-		}
-
+		constants = raw_data.constants
 		self.__dict__.update(constants)
