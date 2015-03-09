@@ -96,26 +96,26 @@ class KnowledgeBaseEcoli(object):
 		self._buildAllMasses() # called early because useful for other builders # Mass
 		self._buildMoleculeGroups() # called early because useful for other builders # State (?)
 
-		self._buildSequence() # Replication
-		self._buildCompartments() # State (?)
-		self._buildBulkMolecules() # State (?)
-		self._buildBulkChromosome() # State (?)
-		self._buildGeneData() # Replication
-		self._buildRibosomeData() # Translation
-		self._buildUniqueMolecules() # State (?)
-		self._buildBiomass() # Metabolism (?)
-		self._buildRnaData() # Transcription
-		self._buildMonomerData() # Translation
+		self._buildSequence() # Replication # DONE
+		self._buildCompartments() # State (?) # DONE
+		self._buildBulkMolecules() # State (?) # DONE
+		self._buildBulkChromosome() # State (?) # DONE
+		self._buildGeneData() # Replication # TODO: move to new KB
+		self._buildRibosomeData() # Translation # TODO: move to new KB
+		self._buildUniqueMolecules() # State (?) # DONE
+		self._buildBiomass() # Metabolism (?) # DONE
+		self._buildRnaData() # Transcription # DONE
+		self._buildMonomerData() # Translation # DONE
 		self._buildRnaIndexToMonomerMapping() # Translation (?)
 		self._buildMonomerIndexToRnaMapping() # Translation (?)
 		self._buildRnaIndexToGeneMapping() # Transcription (?)
 		self._buildConstants() # Constants
 		self._buildParameters() # Constants
 		self._buildRnaExpression() # Transcription (*actually goes to raw data)
-		self._buildBiomassFractions() # Metabolism (?)
+		self._buildBiomassFractions() # Metabolism (?)# TODO: move to new KB
 		self._buildTranscription() # Transcription
 		self._buildTranslation() # Translation
-		self._buildMetabolitePools() # Metabolism (?)
+		self._buildMetabolitePools() # Metabolism (?)# TODO: move to new KB
 		self._buildTrnaData() # Translation (?)
 
 		from .complexation import Complexation
