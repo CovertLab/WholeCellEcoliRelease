@@ -18,6 +18,7 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 # Data classes
 from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
 from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
+from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.state import State
 from reconstruction.ecoli.dataclasses.process.process import Process
 
@@ -32,6 +33,7 @@ class SimulationDataEcoli(object):
 		# Data classes
 		self.getter = getterFunctions(raw_data, self)
 		self.moleculeGroups = moleculeGroups(raw_data, self)
+		self.constants = Constants(raw_data, self)
 		self.process = Process(raw_data, self)
 		self.state = State(raw_data, self)
 

@@ -36,6 +36,7 @@ LIST_OF_DICT_FILENAMES = (
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 PARAMETER_FILENAME = "parameters.tsv"
+CONSTANTS_FILENAME = "constants.tsv"
 
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
@@ -46,6 +47,7 @@ class KnowledgeBaseEcoli(object):
 			self._load_tsv(os.path.join(FLAT_DIR, filename))
 
 		self._load_parameters(os.path.join(FLAT_DIR, PARAMETER_FILENAME))
+		self._load_parameters(os.path.join(FLAT_DIR, CONSTANTS_FILENAME))
 
 		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))
 
