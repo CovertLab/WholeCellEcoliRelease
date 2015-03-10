@@ -114,7 +114,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildRnaExpression() # Transcription (*actually goes to raw data)# DONE
 		self._buildBiomassFractions() # Metabolism (?)# TODO: move to new KB
 		self._buildTranscription() # Transcription # DONE
-		self._buildTranslation() # Translation
+		self._buildTranslation() # Translation # DONE
 		self._buildMetabolitePools() # Metabolism (?)# TODO: move to new KB
 		self._buildTrnaData() # Translation (?)
 
