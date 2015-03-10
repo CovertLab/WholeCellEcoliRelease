@@ -100,7 +100,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildCompartments() # State (?) # DONE
 		self._buildBulkMolecules() # State (?) # DONE
 		self._buildBulkChromosome() # State (?) # DONE
-		self._buildGeneData() # Replication # TODO: SKIP
+		self._buildGeneData() # Replication # DONE
 		self._buildRibosomeData() # Translation # SKIP
 		self._buildUniqueMolecules() # State (?) # DONE
 		self._buildBiomass() # Metabolism (?) # DONE
