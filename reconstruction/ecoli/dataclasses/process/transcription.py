@@ -17,6 +17,7 @@ class Transcription(object):
 
 	def __init__(self, raw_data, sim_data):
 		self._buildRnaData(raw_data, sim_data)
+		self._buildTranscription(raw_data, sim_data)
 
 	def _buildRnaData(self, raw_data, sim_data):
 		assert all([len(rna['location']) == 1 for rna in raw_data.rnas])
@@ -125,3 +126,32 @@ class Transcription(object):
 
 		self.rnaData = UnitStructArray(rnaData, field_units)
 		#self.getTrnaAbundanceData = getTrnaAbundanceAtGrowthRate
+
+	def _buildTranscription(self, raw_data, sim_data):
+		from wholecell.utils.polymerize import PAD_VALUE
+
+		sequences = self.rnaData["sequence"] # TODO: consider removing sequences
+
+		maxLen = np.int64(
+			self.rnaData["length"].asNumber().max()
+			+ raw_data.parameters['rnaPolymeraseElongationRate'].asNumber(units.nt / units.s)
+			)
+
+		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8)
+		self.transcriptionSequences.fill(PAD_VALUE)
+
+		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.transcriptionSequences[i, j] = ntMapping[letter]
+
+		self.transcriptionMonomerWeights = (
+			(
+				sim_data.getter.getMass(sim_data.moleculeGroups.ntpIds)
+				- sim_data.getter.getMass(["PPI[c]"])
+				)
+			/ raw_data.constants['nAvogadro']
+			).asNumber(units.fg)
+
+		self.transcriptionEndWeight = (sim_data.getter.getMass(["PPI[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)

@@ -30,9 +30,11 @@ class SimulationDataEcoli(object):
 		raw_data = KnowledgeBaseEcoli()
 		self._addHardCodedAttributes()
 
-		# Data classes
+		# Helper functions (have no dependencies)
 		self.getter = getterFunctions(raw_data, self)
 		self.moleculeGroups = moleculeGroups(raw_data, self)
+
+		# Data classes (can depend on helper functions)
 		self.constants = Constants(raw_data, self)
 		self.process = Process(raw_data, self)
 		self.state = State(raw_data, self)

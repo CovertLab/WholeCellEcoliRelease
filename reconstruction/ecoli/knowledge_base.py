@@ -93,8 +93,8 @@ class KnowledgeBaseEcoli(object):
 		#self._countATinPromoters()
 
 		# Create data structures for simulation
-		self._buildAllMasses() # called early because useful for other builders # Mass
-		self._buildMoleculeGroups() # called early because useful for other builders # State (?)
+		self._buildAllMasses() # called early because useful for other builders # Mass # DONE
+		self._buildMoleculeGroups() # called early because useful for other builders # State (?) # DONE
 
 		self._buildSequence() # Replication # DONE
 		self._buildCompartments() # State (?) # DONE
