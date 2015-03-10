@@ -17,6 +17,7 @@ class Translation(object):
 
 	def __init__(self, raw_data, sim_data):
 		self._buildMonomerData(raw_data, sim_data)
+		self._buildTranslation(raw_data, sim_data)
 
 	def _buildMonomerData(self, raw_data, sim_data):
 		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])
@@ -130,3 +131,36 @@ class Translation(object):
 			}
 
 		self.monomerData = UnitStructArray(monomerData, field_units)
+
+	def _buildTranslation(self, raw_data, sim_data):
+		from wholecell.utils.polymerize import PAD_VALUE
+
+		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
+
+		maxLen = np.int64(
+			self.monomerData["length"].asNumber().max()
+			+ raw_data.parameters['ribosomeElongationRate'].asNumber(units.aa / units.s)
+			)
+
+		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
+		self.translationSequences.fill(PAD_VALUE)
+
+		aaIDs_singleLetter = sim_data.amino_acid_1_to_3_ordered.keys()
+
+		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
+
+		for i, sequence in enumerate(sequences):
+			for j, letter in enumerate(sequence):
+				self.translationSequences[i, j] = aaMapping[letter]
+
+		aaIDs = sim_data.amino_acid_1_to_3_ordered.values()
+
+		self.translationMonomerWeights = (
+			(
+				sim_data.getter.getMass(aaIDs)
+				- sim_data.getter.getMass(["H2O[c]"])
+				)
+			/ raw_data.constants['nAvogadro']
+			).asNumber(units.fg)
+
+		self.translationEndWeight = (sim_data.getter.getMass(["H2O[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)
