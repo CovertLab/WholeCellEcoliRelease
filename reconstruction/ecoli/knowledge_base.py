@@ -100,8 +100,8 @@ class KnowledgeBaseEcoli(object):
 		self._buildCompartments() # State (?) # DONE
 		self._buildBulkMolecules() # State (?) # DONE
 		self._buildBulkChromosome() # State (?) # DONE
-		self._buildGeneData() # Replication # TODO: move to new KB
-		self._buildRibosomeData() # Translation # TODO: move to new KB
+		self._buildGeneData() # Replication # TODO: SKIP
+		self._buildRibosomeData() # Translation # SKIP
 		self._buildUniqueMolecules() # State (?) # DONE
 		self._buildBiomass() # Metabolism (?) # DONE
 		self._buildRnaData() # Transcription # DONE
@@ -116,7 +116,7 @@ class KnowledgeBaseEcoli(object):
 		self._buildTranscription() # Transcription # DONE
 		self._buildTranslation() # Translation # DONE
 		self._buildMetabolitePools() # Metabolism (?)# TODO: move to new KB
-		self._buildTrnaData() # Translation (?)
+		self._buildTrnaData() # Translation (?) # SKIP
 
 		from .complexation import Complexation
 		self.complexation = Complexation(self)
