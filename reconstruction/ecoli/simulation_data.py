@@ -21,6 +21,7 @@ from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.state import State
 from reconstruction.ecoli.dataclasses.process.process import Process
+from reconstruction.ecoli.dataclasses.relation import Relation
 
 class SimulationDataEcoli(object):
 	""" SimulationDataEcoli """
@@ -35,9 +36,15 @@ class SimulationDataEcoli(object):
 		self.moleculeGroups = moleculeGroups(raw_data, self)
 
 		# Data classes (can depend on helper functions)
+		# Data classes cannot depend on each other
 		self.constants = Constants(raw_data, self)
 		self.process = Process(raw_data, self)
 		self.state = State(raw_data, self)
+
+		# Relations between data classes (can depend on data classes)
+		# Relations cannot depend on each other
+		self.relation = Relation(raw_data, self)
+
 
 	def _addHardCodedAttributes(self):
 		self.molecular_weight_keys = [
