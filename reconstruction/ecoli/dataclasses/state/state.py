@@ -15,7 +15,7 @@ from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
 from reconstruction.ecoli.dataclasses.state.bulkChromosome import BulkChromosome
 from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecules
 
-from reconstruction.ecoli.dataclasses.state.bulkStateFunctions import createIdsWithCompartments, createMassesByCompartments
+from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments, createMassesByCompartments
 
 import re
 import numpy as np
@@ -40,9 +40,9 @@ class State(object):
 		# Set metabolites
 		metaboliteIds = createIdsWithCompartments(raw_data.metabolites)
 		metaboliteMasses = units.g / units.mol * createMassesByCompartments(raw_data.metabolites)
-		
+
 		self.bulkMolecules.addToBulkState(metaboliteIds, metaboliteMasses)
-		
+
 		# Set RNA
 		rnaIds = createIdsWithCompartments(raw_data.rnas)
 		rnaMasses = units.g / units.mol * createMassesByCompartments(raw_data.rnas)
@@ -60,7 +60,7 @@ class State(object):
 		complexMasses = units.g / units.mol * createMassesByCompartments(raw_data.proteinComplexes)
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
-		
+
 		# Set polymerized
 		polymerizedIds = createIdsWithCompartments(raw_data.polymerized)
 		polymerizedMasses = units.g / units.mol * createMassesByCompartments(raw_data.polymerized)
