@@ -65,8 +65,7 @@ class KnowledgeBaseEcoli(object):
 
 		with open(file_name) as csvfile:
 			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
-			for row in reader:
-				getattr(self, attrName).append(dict([(x, y) for x,y in row.iteritems()]))
+			setattr(self, attrName, [row for row in reader])
 
 	def _load_sequence(self, file_path):
 		from Bio import SeqIO
