@@ -13,7 +13,7 @@ import numpy as np
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
-from reconstruction.ecoli.dataclasses.state.bulkStateFunctions import addToStateCommon
+from reconstruction.ecoli.dataclasses.state.stateFunctions import addToStateCommon
 
 class BulkChromosome(object):
 	""" BulkChromosome """
