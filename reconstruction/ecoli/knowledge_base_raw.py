@@ -33,6 +33,13 @@ LIST_OF_DICT_FILENAMES = (
 	"rnas.tsv",
 	"terminators.tsv",
 	"transcriptionUnits.tsv",
+	"dryMassComposition.tsv",
+	os.path.join("massFractions", "glycogenFractions.tsv"),
+	os.path.join("massFractions", "ionFractions.tsv"),
+	os.path.join("massFractions", "LPSFractions.tsv"),
+	os.path.join("massFractions", "lipidFractions.tsv"),
+	os.path.join("massFractions", "mureinFractions.tsv"),
+	os.path.join("massFractions", "solubleFractions.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 PARAMETER_FILENAME = "parameters.tsv"
