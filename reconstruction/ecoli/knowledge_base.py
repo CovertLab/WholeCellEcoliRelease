@@ -115,14 +115,14 @@ class KnowledgeBaseEcoli(object):
 		self._buildBiomassFractions() # Metabolism (?)# TODO: move to new KB
 		self._buildTranscription() # Transcription # DONE
 		self._buildTranslation() # Translation # DONE
-		self._buildMetabolitePools() # Metabolism (?)# TODO: move to new KB
+		self._buildMetabolitePools() # Metabolism (?)# DONE
 		self._buildTrnaData() # Translation (?) # SKIP
 
 		from .complexation import Complexation
-		self.complexation = Complexation(self)
+		self.complexation = Complexation(self) # DONE
 
 		from .metabolism import Metabolism
-		self.metabolism = Metabolism(self)
+		self.metabolism = Metabolism(self) # DONE
 
 		# Build dependent calculations
 		#self._calculateDependentCompartments()
