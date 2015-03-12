@@ -12,6 +12,7 @@ from reconstruction.ecoli.dataclasses.process.replication import Replication
 from reconstruction.ecoli.dataclasses.process.metabolism import Metabolism
 from reconstruction.ecoli.dataclasses.process.transcription import Transcription
 from reconstruction.ecoli.dataclasses.process.translation import Translation
+from reconstruction.ecoli.dataclasses.process.complexation import Complexation
 
 
 
@@ -27,3 +28,4 @@ class Process(object):
 		self.metabolism = Metabolism(raw_data, sim_data)
 		self.transcription = Transcription(raw_data, sim_data)
 		self.translation = Translation(raw_data, sim_data)
+		self.complexation = Complexation(raw_data, sim_data)
