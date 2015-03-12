@@ -1283,6 +1283,7 @@ class KnowledgeBaseEcoli(object):
 					"type": g["type"],
 					"expression": posData[self._expression[g["id"]]], #TODO
 					"halfLife": posData[self._half_life[g["id"]]],	#TODO
+					"PendingForDegradation": 0, # number of RNAs pending of being degraded
 
 					#need to calculate
 					"seq": "",
@@ -1820,7 +1821,18 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['fracInitFreeAAs'] = 0.001
 		self._parameterData['avgCellCellCycleProgress'] = 0.44
 		self._parameterData['timeStep'] = 1*units.s
-		self._parameterData['KcatEndoRNaseFullRNA'] = 0.0017/units.s # 0.00198/units.s
+		self._parameterData['KcatEndoRNaseFullRNA'] = 0.0017/units.s
+		
+		# import ipdb; ipdb.set_trace()	
+		# literature data
+		# endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", 
+		# "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
+		self._parameterData['KcatEndoRNasesFullRNA'] = 0.002/units.s * np.ones(9)
+		self._parameterData['KcatEndoRNasesFullRNA'][3] = 0.183/units.s
+		self._parameterData['KcatEndoRNasesFullRNA'][4] = 0.023/units.s
+		self._parameterData['KcatEndoRNasesFullRNA'][5] = 0.233/units.s 
+		self._parameterData['KcatEndoRNasesFullRNA'][8] = 0.007/units.s
+		
 
 	def _loadComputeParameters(self):
 		self._parameterData['avgCellToInitalCellConvFactor'] = np.exp(np.log(2) * self._parameterData['avgCellCellCycleProgress'])
