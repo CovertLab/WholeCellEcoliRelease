@@ -94,30 +94,30 @@ class KnowledgeBaseEcoli(object):
 		#self._countATinPromoters()
 
 		# Create data structures for simulation
-		self._buildAllMasses() # called early because useful for other builders # Mass
-		self._buildMoleculeGroups() # called early because useful for other builders # State (?)
+		self._buildAllMasses() # called early because useful for other builders # Mass # DONE
+		self._buildMoleculeGroups() # called early because useful for other builders # State (?) # DONE
 
-		self._buildSequence() # Replication
-		self._buildCompartments() # State (?)
-		self._buildBulkMolecules() # State (?)
-		self._buildBulkChromosome() # State (?)
-		self._buildGeneData() # Replication
-		self._buildRibosomeData() # Translation
-		self._buildUniqueMolecules() # State (?)
-		self._buildBiomass() # Metabolism (?)
-		self._buildRnaData() # Transcription
-		self._buildMonomerData() # Translation
-		self._buildRnaIndexToMonomerMapping() # Translation (?)
-		self._buildMonomerIndexToRnaMapping() # Translation (?)
-		self._buildRnaIndexToGeneMapping() # Transcription (?)
-		self._buildConstants() # Constants
-		self._buildParameters() # Constants
-		self._buildRnaExpression() # Transcription (*actually goes to raw data)
-		self._buildBiomassFractions() # Metabolism (?)
-		self._buildTranscription() # Transcription
-		self._buildTranslation() # Translation
-		self._buildMetabolitePools() # Metabolism (?)
-		self._buildTrnaData() # Translation (?)
+		self._buildSequence() # Replication # DONE
+		self._buildCompartments() # State (?) # DONE
+		self._buildBulkMolecules() # State (?) # DONE
+		self._buildBulkChromosome() # State (?) # DONE
+		self._buildGeneData() # Replication # DONE
+		self._buildRibosomeData() # Translation # SKIP
+		self._buildUniqueMolecules() # State (?) # DONE
+		self._buildBiomass() # Metabolism (?) # DONE
+		self._buildRnaData() # Transcription # DONE
+		self._buildMonomerData() # Translation # DONE
+		self._buildRnaIndexToMonomerMapping() # Translation (?) # DONE
+		self._buildMonomerIndexToRnaMapping() # Translation (?) # DONE
+		self._buildRnaIndexToGeneMapping() # Transcription (?) # DONE
+		self._buildConstants() # Constants # DONE
+		self._buildParameters() # Constants # DONE
+		self._buildRnaExpression() # Transcription (*actually goes to raw data)# DONE
+		self._buildBiomassFractions() # Metabolism (?)# TODO: move to new KB
+		self._buildTranscription() # Transcription # DONE
+		self._buildTranslation() # Translation # DONE
+		self._buildMetabolitePools() # Metabolism (?)# TODO: move to new KB
+		self._buildTrnaData() # Translation (?) # SKIP
 
 		from .complexation import Complexation
 		self.complexation = Complexation(self)

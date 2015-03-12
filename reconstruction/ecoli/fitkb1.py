@@ -533,11 +533,39 @@ def fitMaintenanceCosts(kb, bulkContainer):
 # Math functions
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
+	"""
+	Total mass = dot(mass, count)
+
+	Fraction of i:
+	f = count / Total counts
+
+	Substituting:
+	Total mass = dot(mass, f * Total counts)
+	Total mass = Total counts * dot(mass, f)
+
+	Total counts = Total mass / dot(mass, f)
+	"""
 	assert np.allclose(np.sum(distribution), 1)
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
 
 def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
+	"""
+	dP_i / dt = k * M_i - P_i * Loss_i
+
+	At steady state:
+	P_i = k * M_i / Loss_i
+
+	Fraction of mRNA for ith gene is defined as:
+	f_i = M_i / M_total
+
+	Substituting in:
+	P_i = k * f_i * M_total / Loss_i
+
+	Normalizing P_i by summing over all i cancels out k and M_total
+	assuming constant translation rate.
+	"""
+
 	assert np.allclose(np.sum(distribution_mRNA), 1)
 	distributionUnnormed = 1 / netLossRate * distribution_mRNA
 
@@ -545,6 +573,22 @@ def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
 
 
 def mRNADistributionFromProtein(distribution_protein, netLossRate):
+	"""
+	dP_i / dt = k * M_i - P_i * Loss_i
+
+	At steady state:
+	M_i = Loss_i * P_i / k
+
+	Fraction of protein for ith gene is defined as:
+	f_i = P_i / P_total
+
+	Substituting in:
+	M_i = Loss_i * f_i * P_total / k
+
+	Normalizing M_i by summing over all i cancles out k and P_total
+	assuming a constant translation rate.
+
+	"""
 	assert np.allclose(np.sum(distribution_protein), 1)
 	distributionUnnormed = netLossRate * distribution_protein
 

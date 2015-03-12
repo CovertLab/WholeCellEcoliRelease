@@ -61,9 +61,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.elngRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 
-		self.aa_trna_groups = kb.aa_trna_groups
-		self.aa_synthetase_groups = kb.aa_synthetase_groups
-		self.synthetase_turnover = kb.trna_synthetase_rates.asNumber(units.aa/units.s)
+		# self.aa_trna_groups = kb.aa_trna_groups
+		# self.aa_synthetase_groups = kb.aa_synthetase_groups
+		# self.synthetase_turnover = kb.trna_synthetase_rates.asNumber(units.aa/units.s)
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -85,8 +85,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		self.aas = self.bulkMoleculesView(kb.aaIDs)
-		self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
-		self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
+		# self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
+		# self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
 		self.h2o = self.bulkMoleculeView('H2O[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
@@ -124,12 +124,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Should essentially request all tRNAs
 		# and all synthetases
-		trnasRequested = aasRequested
-		for i,group in enumerate(self.trna_groups):
-			group.requestIs(trnasRequested[i])
-		synthetaseRequested = aasRequested
-		for i,group in enumerate(self.synthetase_groups):
-			group.requestIs(synthetaseRequested[i])
+		# trnasRequested = aasRequested
+		# for i,group in enumerate(self.trna_groups):
+		# 	group.requestIs(trnasRequested[i])
+		# synthetaseRequested = aasRequested
+		# for i,group in enumerate(self.synthetase_groups):
+		# 	group.requestIs(synthetaseRequested[i])
 
 		gtpsHydrolyzed = np.int64(np.ceil(
 			self.gtpPerElongation * np.fmin(
@@ -167,9 +167,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
 		aaCounts = self.aas.counts()
-		trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
-		synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
-		elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
+		# trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
+		# synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
+		# elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
 
 		# Calculate update
 
@@ -255,8 +255,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "ribosomeStalls", ribosomeStalls)
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aaCounts)
-		self.writeToListener("RibosomeData", "trnasCapacity", trnasCapacity)
-		self.writeToListener("RibosomeData", "synthetaseCapacity", synthetaseCapacity)
+		# self.writeToListener("RibosomeData", "trnasCapacity", trnasCapacity)
+		# self.writeToListener("RibosomeData", "synthetaseCapacity", synthetaseCapacity)
 
 		self.writeToListener("RibosomeData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())

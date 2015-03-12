@@ -17,6 +17,8 @@ from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 import nose.plugins.attrib as noseAttrib
 
+# TODO: test all solvers
+
 _testStandard = dict(
 	reactionStoich = {
 		"A to B":{"A":-1, "B":+1},
@@ -51,7 +53,7 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
 		pass
-		
+
 
 	@classmethod
 	def tearDownClass(cls):
@@ -90,8 +92,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 	def test_standard_noInput(self):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
-		fba.run()
-
 		self.assertEqual(
 			fba.objectiveReactionFlux(),
 			0
@@ -121,8 +121,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			externalMoleculeLevels[moleculeID]
 			for moleculeID in fba.externalMoleculeIDs()
 			])
-
-		fba.run()
 
 		self.assertEqual(
 			fba.objectiveReactionFlux(),
@@ -165,8 +163,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			for moleculeID in fba.internalMoleculeIDs()
 			])
 
-		fba.run()
-
 		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(10, change)
@@ -202,8 +198,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			internalMoleculeLevels[moleculeID]
 			for moleculeID in fba.internalMoleculeIDs()
 			])
-
-		fba.run()
 
 		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
 			if moleculeID == "B":
@@ -241,8 +235,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			for moleculeID in fba.internalMoleculeIDs()
 			])
 
-		fba.run()
-
 		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(5, change)
@@ -278,8 +270,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			internalMoleculeLevels[moleculeID]
 			for moleculeID in fba.internalMoleculeIDs()
 			])
-
-		fba.run()
 
 		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
 			if moleculeID == "B":
@@ -319,8 +309,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			internalMoleculeLevels[moleculeID]
 			for moleculeID in fba.internalMoleculeIDs()
 			])
-
-		fba.run()
 
 		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
 			if moleculeID == "B":
