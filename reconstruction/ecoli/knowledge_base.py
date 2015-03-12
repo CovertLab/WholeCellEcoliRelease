@@ -2845,4 +2845,4 @@ class KnowledgeBaseEcoli(object):
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
 		idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
-		return self._allMass['mass'][idx]
+		return self._allMass
