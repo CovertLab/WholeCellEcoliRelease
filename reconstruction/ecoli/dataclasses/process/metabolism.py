@@ -206,7 +206,7 @@ class Metabolism(object):
 
 		initCellVolume = initCellMass / CELL_DENSITY # L
 
-		(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0]
+		(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0 * units.min]
 
 		for entry in raw_data.glycogenFractions:
 			metaboliteID = entry["metaboliteId"]
