@@ -19,7 +19,7 @@ class MassFractions(object):
 		self._buildMassFractions(raw_data, sim_data)
 
 	def _buildMassFractions(self, raw_data, sim_data):
-		self.tau_d = np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
+		self.tau_d = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
 
 		avgToBeginningConvFactor = raw_data.parameters['avgCellToInitalCellConvFactor']
 		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / avgToBeginningConvFactor
@@ -35,10 +35,10 @@ class MassFractions(object):
 		self.TRNA_MASS_SUB_FRACTION = raw_data.parameters['trna_mass_sub_fraction']
 		self.MRNA_MASS_SUB_FRACTION = raw_data.parameters['mrna_mass_sub_fraction']
 
-		self.dryMassParams, _ = curve_fit(self._exp2, self.tau_d, self._dryMass, p0 = (0, 0, 0, 0))
-		self.proteinMassParams, _ = curve_fit(self._exp2, self.tau_d, self._proteinMass, p0 = (0, 0, 0, 0))
-		self.rnaMassParams, _ = curve_fit(self._exp2, self.tau_d, self._rnaMass, p0 = (0, 0, 0, 0))
-		self.dnaMassParams, _ = curve_fit(self._exp2, self.tau_d, self._dnaMass, p0 = (0, 0, 0, 0))
+		self.dryMassParams, _ = curve_fit(self._exp2, self.tau_d.asNumber(units.min), self._dryMass, p0 = (0, 0, 0, 0))
+		self.proteinMassParams, _ = curve_fit(self._exp2, self.tau_d.asNumber(units.min), self._proteinMass, p0 = (0, 0, 0, 0))
+		self.rnaMassParams, _ = curve_fit(self._exp2, self.tau_d.asNumber(units.min), self._rnaMass, p0 = (0, 0, 0, 0))
+		self.dnaMassParams, _ = curve_fit(self._exp2, self.tau_d.asNumber(units.min), self._dnaMass, p0 = (0, 0, 0, 0))
 
 		self.chromMass = self._chromMass(raw_data, sim_data)
 
@@ -88,7 +88,6 @@ class MassFractions(object):
 		])
 
 		dntMasses = (sim_data.getter.getMass(sim_data.moleculeGroups.polymerizedDNT_IDs) / raw_data.constants['nAvogadro']).asUnit(units.g)
-
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass
 
