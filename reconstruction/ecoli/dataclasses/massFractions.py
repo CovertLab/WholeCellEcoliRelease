@@ -52,12 +52,12 @@ class MassFractions(object):
 		"""
 
 		D = {}
-		D["dnaMass"] = self.dnaMass(tau_d)
+		D["dnaMass"] = self._calculateDnaMass(tau_d)
 
 		tau_d = self._clipTau_d(tau_d)
 
-		D["proteinMass"] = units.fg * self._exp2(tau_d, *self.proteinMassParams)
-		D["rnaMass"] = units.fg * self._exp2(tau_d, *self.rnaMassParams)
+		D["proteinMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self.proteinMassParams)
+		D["rnaMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self.rnaMassParams)
 		D["rRna23SMass"] = D["rnaMass"] * self.RRNA23S_MASS_SUB_FRACTION
 		D["rRna16SMass"] = D["rnaMass"] * self.RRNA16S_MASS_SUB_FRACTION
 		D["rRna5SMass"] = D["rnaMass"] * self.RRNA5S_MASS_SUB_FRACTION
@@ -66,17 +66,19 @@ class MassFractions(object):
 
 		return D
 
-	def _dnaMass(self, tau_d):
+	def _calculateDnaMass(self, tau_d):
 		if tau_d < self.D_PERIOD:
 			raise Exception, "Can't have doubling time shorter than cytokinesis time!"
+
+		tau_d_unit = units.getUnit(tau_d)
 
 		# TODO: If you really care, this should be a loop.
 		# It is optimized to run quickly over the range of T_d
 		# and C and D periods that we have.
 		return self.chromMass * (1 +
-			1 * (np.maximum(0., self.CD_PERIOD - tau_d) / self.C_PERIOD) +
-			2 * (np.maximum(0., self.CD_PERIOD - 2 * tau_d) / self.C_PERIOD) +
-			4 * (np.maximum(0., self.CD_PERIOD - 4 * tau_d) / self.C_PERIOD)
+			1 * (np.maximum(0. * tau_d_unit, self.CD_PERIOD - tau_d) / self.C_PERIOD) +
+			2 * (np.maximum(0. * tau_d_unit, self.CD_PERIOD - 2 * tau_d) / self.C_PERIOD) +
+			4 * (np.maximum(0. * tau_d_unit, self.CD_PERIOD - 4 * tau_d) / self.C_PERIOD)
 			)
 
 	def _chromMass(self, raw_data, sim_data):
@@ -94,13 +96,13 @@ class MassFractions(object):
 	def _clipTau_d(self, tau_d):
 		# Clip values to be in the range that we have data for
 		if hasattr(tau_d, "dtype"):
-			tau_d[tau_d > self.tau_d.max()] = self.tau_d.max()
-			tau_d[tau_d < self.tau_d.min()] = self.tau_d.min()
+			tau_d[tau_d > max(self.tau_d)] = max(self.tau_d)
+			tau_d[tau_d < min(self.tau_d)] = min(self.tau_d)
 		else:
-			if tau_d > self.tau_d.max():
-				tau_d = self.tau_d.max()
-			elif tau_d < self.tau_d.min():
-				tau_d = self.tau_d.min()
+			if tau_d > max(self.tau_d):
+				tau_d = max(self.tau_d)
+			elif tau_d < min(self.tau_d):
+				tau_d = min(self.tau_d)
 		return tau_d
 
 	def _exp2(self, x, a, b, c, d):
