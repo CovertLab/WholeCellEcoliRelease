@@ -40,6 +40,12 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("massFractions", "lipidFractions.tsv"),
 	os.path.join("massFractions", "mureinFractions.tsv"),
 	os.path.join("massFractions", "solubleFractions.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_0p4.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_0p7.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p6.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p07.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_2p5.tsv"),
+	os.path.join("trnaData","trna_growth_rates.tsv")
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 PARAMETER_FILENAME = "parameters.tsv"
