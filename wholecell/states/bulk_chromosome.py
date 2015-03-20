@@ -23,16 +23,12 @@ class BulkChromosome(BulkMolecules):
 		super(BulkChromosome, self).initialize(sim, kb)
 
 		# Load constants
-		self._moleculeIDs = kb.bulkChromosome['moleculeId']
-		self._compartmentIDs = kb.compartments['compartmentAbbreviation']
-		self._nCompartments = kb.nCompartments
+		self._moleculeIDs = kb.state.bulkChromosome.bulkData['id']
+		self._compartmentIDs = kb.state.compartments['compartmentAbbreviation']
 
-		self._moleculeMass = kb.bulkChromosome['mass'].asNumber(units.fg / units.mol) / kb.nAvogadro.asNumber(1 / units.mol)
+		self._moleculeMass = kb.state.bulkChromosome.bulkData['mass'].asNumber(units.fg / units.mol) / kb.constants.nAvogadro.asNumber(1 / units.mol)
 
-		self._compIndexes = {
-			compartmentKey:(kb.bulkChromosome['compartment'] == compartmentKey)
-			for compartmentKey in kb.compartments['compartmentAbbreviation']
-			}
+		#self._compIndexes = {compartmentKey:(kb.state.bulkChromosome.bulkData['compartment'] == compartmentKey) for compartmentKey in kb.state.compartments['compartmentAbbreviation']}
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)

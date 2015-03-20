@@ -52,16 +52,16 @@ class RnaDegradation(wholecell.processes.process.Process):
 		ppiIdx = metaboliteIds.index('PPI[c]')
 		hIdx = metaboliteIds.index('H[c]')
 
-		rnaIds = kb.rnaData['id']
+		rnaIds = kb.process.transcription.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb.rnaData['degRate'].asNumber()
-		self.rnaLens = kb.rnaData['length'].asNumber()
+		self.rnaDegRates = kb.process.transcription.rnaData['degRate'].asNumber()
+		self.rnaLens = kb.process.transcription.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
 		# TODO: account for NTP on 5' end
 		self.rnaDegSMat = np.zeros((len(metaboliteIds), len(rnaIds)), np.int64)
-		self.rnaDegSMat[nmpIdxs, :] = units.transpose(kb.rnaData['countsACGU']).asNumber()
+		self.rnaDegSMat[nmpIdxs, :] = units.transpose(kb.process.transcription.rnaData['countsACGU']).asNumber()
 		# self.rnaDegSMat[h2oIdx, :]  = -(self.rnaLens - 1)
 		self.rnaDegSMat[h2oIdx, :]  = -self.rnaLens # using one additional water to hydrolyze PPI on 5' end
 		self.rnaDegSMat[ppiIdx, :]    =  1

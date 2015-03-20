@@ -57,27 +57,27 @@ class Replication(wholecell.processes.process.Process):
 
 		## Load parameters
 		# Create genome sequence out of small integers
-		self.genomeSequence = np.empty(len(kb.genomeSeq), np.int8)
+		self.genomeSequence = np.empty(len(kb.process.replication.genome_sequence), np.int8)
 		self.ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(NT_SINGLELETTERS)])
 		
-		for i,letter in enumerate(kb.genomeSeq):
+		for i,letter in enumerate(kb.process.replication.genome_sequence):
 			self.genomeSequence[i] = self.ntMapping[letter] # Build genome sequence as small integers
 
 		# Load modeling parameters
-		self.genomeLength = kb.genomeLength
-		self.dnaPolymeraseElongationRate = kb.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
-		self.tercCenter = kb.terCCenter.asNumber(units.nt)
+		self.genomeLength = len(kb.process.replication.genome_sequence)
+		self.dnaPolymeraseElongationRate = kb.constants.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.tercCenter = kb.constants.terCCenter.asNumber(units.nt)
 
 		# Load gene data to keep track of copy number
-		geneIds = kb.geneData['name']
-		self.geneEndCoordinate = kb.geneData['endCoordinate']
+		geneIds = kb.process.replication.geneData['name']
+		self.geneEndCoordinate = kb.process.replication.geneData['endCoordinate']
 		self.bufferedGeneEndCoordinate = np.concatenate(
 			[self.geneEndCoordinate - self.genomeLength, self.geneEndCoordinate, self.geneEndCoordinate + self.genomeLength]
 			) # Add buffer so indexing with numpy can be taken advantage of
 
 		## Views
-		self.dntps = self.bulkMoleculesView(kb.dNtpIds)
-		self.polymerized = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.polymerizedDNT_IDs])
+		self.dntps = self.bulkMoleculesView(kb.moleculeGroups.dNtpIds)
+		self.polymerized = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.moleculeGroups.polymerizedDNT_IDs])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		
 		self.genes = self.bulkChromosomesView(geneIds)
@@ -218,9 +218,12 @@ def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading
 		elongationLength = np.where(upcomingPositions == tercCenter)[0][0]
 
 	if directionIsPositive:
-		leadingSequence = genomeSequence[
-			np.arange(chromosomeLocation, chromosomeLocation + elongationLength) % genomeLength
-			]
+		try:
+			leadingSequence = genomeSequence[
+				np.arange(chromosomeLocation, chromosomeLocation + elongationLength) % genomeLength
+				]
+		except:
+			import ipdb; ipdb.set_trace()
 	else:
 		leadingSequence = genomeSequence[
 			np.arange(chromosomeLocation, chromosomeLocation - elongationLength, -1) % genomeLength

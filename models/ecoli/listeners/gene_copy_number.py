@@ -33,7 +33,7 @@ class GeneCopyNumber(wholecell.listeners.listener.Listener):
 
 		self.bulkChromosome = sim.states['BulkChromosome']
 
-		self.geneIds = kb.geneData['name']
+		self.geneIds = kb.process.replication.geneData['name']
 
 		self.geneView = self.bulkChromosome.container.countsView(self.geneIds)
 

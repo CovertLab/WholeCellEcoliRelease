@@ -38,13 +38,13 @@ class Complexation(wholecell.processes.process.Process):
 
 		# Create matrices and vectors
 
-		self.stoichMatrix = kb.complexation.stoichMatrix().astype(np.int64, order = "F")
+		self.stoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
 		# Build views
 
-		moleculeNames = kb.complexation.moleculeNames
+		moleculeNames = kb.process.complexation.moleculeNames
 
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 

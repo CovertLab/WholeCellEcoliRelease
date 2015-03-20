@@ -5,7 +5,7 @@ CONTROL_OUTPUT = dict(
 	)
 
 def geneKnockoutTotalIndices(kb):
-	nGenes = kb.rnaData.fullArray().size
+	nGenes = kb.process.transcription.rnaData.fullArray().size
 	nConditions = nGenes + 1
 	return nConditions
 
@@ -20,15 +20,15 @@ def geneKnockout(kb, index):
 
 	geneIndex = (index - 1) % nConditions
 
-	synthProb = kb.rnaData["synthProb"]
+	synthProb = kb.process.transcription.rnaData["synthProb"]
 
 	synthProb[geneIndex] = 0.0
 
 	synthProb /= synthProb.sum()
 
-	kb.rnaData["synthProb"] = synthProb
+	kb.process.transcription.rnaData["synthProb"] = synthProb
 
-	geneID = kb.rnaData["id"][geneIndex]
+	geneID = kb.process.transcription.rnaData["id"][geneIndex]
 
 	return dict(
 		shortName = "{}_KO".format(geneID),

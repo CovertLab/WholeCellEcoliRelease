@@ -45,7 +45,7 @@ class GrowthData(object):
 			kb.genome_T_count + kb.genome_A_count
 		])
 
-		dntMasses = (kb.getMass(kb.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
+		dntMasses = (kb.getMass(kb.moleculeGroups.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
 
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass

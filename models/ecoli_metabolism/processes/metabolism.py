@@ -27,11 +27,11 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Load constants
 
-		self.nAvogadro = kb.nAvogadro.asNumber(1 / units.mol)
-		self.cellDensity = kb.cellDensity.asNumber(units.g/units.L)
+		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self.cellDensity = kb.constants.cellDensity.asNumber(units.g/units.L)
 		
-		self.metabolitePoolIDs = kb.metabolitePoolIDs
-		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(units.mol/units.L)
+		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
+		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(units.mol/units.L)
 		
 		# Create views on state
 

@@ -13,6 +13,7 @@ from __future__ import division
 import os
 import csv
 from reconstruction.spreadsheets import JsonReader
+import json
 
 from wholecell.utils import units
 
@@ -86,7 +87,7 @@ class KnowledgeBaseEcoli(object):
 			reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
 			for row in reader:
 				if row['units'] != '':
-					paramDict[row['name']] = float(row['value']) * eval(row['units'])
+					paramDict[row['name']] = json.loads(row['value']) * eval(row['units'])
 				else:
-					paramDict[row['name']] = float(row['value'])
+					paramDict[row['name']] = json.loads(row['value'])
 		setattr(self, attrName, paramDict)

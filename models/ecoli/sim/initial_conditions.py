@@ -17,7 +17,6 @@ import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
-from reconstruction.ecoli.compendium import growth_data
 from wholecell.utils import units
 
 def calcInitialConditions(sim, kb):
@@ -62,23 +61,21 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomStat
 
 def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
-	monomersView = bulkMolCntr.countsView(kb.monomerData["id"])
-	g = growth_data.GrowthData(kb)
-	monomerMass = g.massFractions(60)["proteinMass"]
-
+	monomersView = bulkMolCntr.countsView(kb.process.translation.monomerData["id"])
+	monomerMass = kb.massFractions.massFractions(60 * units.min)["proteinMass"]
 	# TODO: unify this logic with the fitter so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1 / units.s))
+		kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.constants.cellCycleLen.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
 	nMonomers = countsFromMassAndExpression(
 		monomerMass.asNumber(units.g),
-		kb.monomerData["mw"].asNumber(units.g/units.mol),
+		kb.process.translation.monomerData["mw"].asNumber(units.g/units.mol),
 		monomerExpression,
-		kb.nAvogadro.asNumber(1/units.mol)
+		kb.constants.nAvogadro.asNumber(1/units.mol)
 		)
 
 	monomersView.countsIs(
@@ -87,17 +84,16 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
-	rnaView = bulkMolCntr.countsView(kb.rnaData["id"])
-	g = growth_data.GrowthData(kb)
-	rnaMass = g.massFractions(60)["rnaMass"]
+	rnaView = bulkMolCntr.countsView(kb.process.transcription.rnaData["id"])
+	rnaMass = kb.massFractions.massFractions(60 * units.min)["rnaMass"]
 
-	rnaExpression = normalize(kb.rnaExpression['expression'])
+	rnaExpression = normalize(kb.process.transcription.rnaData['expression'])
 
 	nRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
-		kb.rnaData["mw"].asNumber(units.g/units.mol),
+		kb.process.transcription.rnaData["mw"].asNumber(units.g/units.mol),
 		rnaExpression,
-		kb.nAvogadro.asNumber(1/units.mol)
+		kb.constants.nAvogadro.asNumber(1/units.mol)
 		)
 
 	rnaView.countsIs(
@@ -106,28 +102,27 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
-	polymerizedView = bulkMolCntr.countsView([id_ + "[c]" for id_ in kb.polymerizedDNT_IDs])
+	polymerizedView = bulkMolCntr.countsView([id_ + "[c]" for id_ in kb.moleculeGroups.polymerizedDNT_IDs])
 
 	polymerizedView.countsIs([
-		kb.genome_A_count + kb.genome_T_count,
-		kb.genome_C_count + kb.genome_G_count,
-		kb.genome_G_count + kb.genome_C_count,
-		kb.genome_T_count + kb.genome_A_count
+		kb.process.replication.genome_A_count + kb.process.replication.genome_T_count,
+		kb.process.replication.genome_C_count + kb.process.replication.genome_G_count,
+		kb.process.replication.genome_G_count + kb.process.replication.genome_C_count,
+		kb.process.replication.genome_T_count + kb.process.replication.genome_A_count
 		])
 
 def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
-	g = growth_data.GrowthData(kb)
-	massFractions60 = g.massFractions(60)
+	massFractions60 = kb.massFractions.massFractions(60 * units.min)
 
 	mass = massFractions60["proteinMass"] + massFractions60["rnaMass"] + massFractions60["dnaMass"]
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellDensity = kb.cellDensity
-	mws = kb.getMass(poolIds)
+	cellDensity = kb.constants.cellDensity
+	mws = kb.getter.getMass(poolIds)
 	concentrations = poolConcentrations.copy()
 
 	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
@@ -136,12 +131,12 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	b = mass.asNumber(units.g) * np.ones(diag.size)
 
 	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.nAvogadro
+	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
 
 	V = (mass + units.sum(massesToAdd)) / cellDensity
 
 	assert np.allclose(
-		(countsToAdd / kb.nAvogadro / V).asNumber(units.mol / units.L),
+		(countsToAdd / kb.constants.nAvogadro / V).asNumber(units.mol / units.L),
 		(poolConcentrations).asNumber(units.mol / units.L)
 		)
 
@@ -153,20 +148,20 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	# GDP POOL
 	ribosomeSubunits = bulkMolCntr.countsView(
 		np.hstack(
-			(kb.complexation.getMonomers(kb.s30_fullComplex)['subunitIds'], kb.complexation.getMonomers(kb.s50_fullComplex)['subunitIds'])
+			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
 			)
 		)
 	ribosomeSubunitStoich = np.hstack(
-			(kb.complexation.getMonomers(kb.s30_fullComplex)['subunitStoich'], kb.complexation.getMonomers(kb.s50_fullComplex)['subunitStoich'])
+			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitStoich'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitStoich'])
 			)
 
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
-	elngRate = kb.ribosomeElongationRate.asNumber(units.aa / units.s)
-	T_d = kb.cellCycleLen.asNumber(units.s)
-	dt = kb.timeStep.asNumber(units.s)
+	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
+	T_d = kb.constants.cellCycleLen.asNumber(units.s)
+	dt = kb.constants.timeStep.asNumber(units.s)
 
 	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
-	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.gtpPerTranslation
+	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.constants.gtpPerTranslation
 
 	bulkMolCntr.countsInc(
 		gtpsHydrolyzedLastTimeStep,
@@ -181,17 +176,17 @@ def initializeGenes(bulkChrmCntr, kb, timeStep):
 	Initializes the counts of genes in BulkChromosome
 	"""
 
-	geneView = bulkChrmCntr.countsView(kb.geneData['name'])
+	geneView = bulkChrmCntr.countsView(kb.process.replication.geneData['name'])
 	geneView.countsInc(1)
 
 def initializeComplexes(bulkMolCntr, kb, randomState, timeStep):
 	from wholecell.utils.mc_complexation import mccFormComplexes
 
-	stoichMatrix = kb.complexation.stoichMatrix().astype(np.int64, order = "F")
+	stoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 	# Build views
 
-	moleculeNames = kb.complexation.moleculeNames
+	moleculeNames = kb.process.complexation.moleculeNames
 
 	molecules = bulkMolCntr.countsView(moleculeNames)
 
@@ -234,17 +229,17 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	activeRnapCount = np.int64(activeRnapMax * kb.fracActiveRnap * 2) # HACK
 
 	# Load RNA data
-	rnaIds = kb.rnaData["id"]
+	rnaIds = kb.process.transcription.rnaData["id"]
 	rnas = bulkMolCntr.countsView(rnaIds)
 	rnaCounts = rnas.counts()
-	rnaLengths = kb.rnaData["length"].asNumber(units.count)
+	rnaLengths = kb.process.transcription.rnaData["length"].asNumber(units.count)
 
-	rnaMasses = (kb.rnaData["mw"].asNumber(units.fg / units.mol) /
-		kb.nAvogadro.asNumber(1 / units.mol))
+	rnaMasses = (kb.process.transcription.rnaData["mw"].asNumber(units.fg / units.mol) /
+		kb.constants.nAvogadro.asNumber(1 / units.mol))
 
 	# Choose RNAs to polymerize
 	rnaCountsPolymerizing = randomState.multinomial(activeRnapCount,
-		kb.rnaData["synthProb"])
+		kb.process.transcription.rnaData["synthProb"])
 
 	# Reduce the number of RNAP subunits
 
@@ -267,11 +262,11 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	transcriptLengths = (randomState.rand(activeRnapCount) * maxRnaLengths).astype(np.int64)
 
 	# Compute RNA masses
-	rnaSequences = kb.transcriptionSequences
+	rnaSequences = kb.process.transcription.transcriptionSequences
 
 	# TODO: standardize this logic w/ process
 
-	ntWeights = kb.transcriptionMonomerWeights
+	ntWeights = kb.process.transcription.transcriptionMonomerWeights
 
 	# TOKB
 
@@ -280,7 +275,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 		for rnaIndex, length in izip(rnaIndexes, transcriptLengths)
 		])
 
-	transcriptMasses[transcriptLengths > 0] += kb.transcriptionEndWeight
+	transcriptMasses[transcriptLengths > 0] += kb.process.transcription.transcriptionEndWeight
 
 	# Create the unique molecules representations of the ribosomes
 
@@ -352,7 +347,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	"""
 	# Calculate the number of possible ribosomes
 
-	ribosomeSubunits = bulkMolCntr.countsView([kb.s30_fullComplex, kb.s50_fullComplex])
+	ribosomeSubunits = bulkMolCntr.countsView([kb.moleculeGroups.s30_fullComplex[0], kb.moleculeGroups.s50_fullComplex[0]])
 	ribosomeSubunitStoich = np.array([1,1])
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
 
@@ -361,12 +356,12 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 
 	# Calculate the number of ribosomes that should be active
 
-	elngRate = kb.ribosomeElongationRate.asNumber(units.aa / units.s)
+	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
 
-	monomerIds = kb.monomerData["id"]
+	monomerIds = kb.process.translation.monomerData["id"]
 	monomers = bulkMolCntr.countsView(monomerIds)
 	monomerCounts = monomers.counts()
-	monomerLengths = kb.monomerData["length"].asNumber(units.count)
+	monomerLengths = kb.process.translation.monomerData["length"].asNumber(units.count)
 
 	monomerLengthAverage = np.dot(monomerCounts, monomerLengths) / monomerCounts.sum()
 
@@ -375,15 +370,15 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	activeRibosomeCount = np.int64(activeRibosomeMax * fractionActive)
 
 	# Choose proteins to polymerize
-	mrnaExpression = kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
+	mrnaExpression = kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping]
 	averageMrnaFractions = mrnaExpression/mrnaExpression.sum()
 
 	monomerCountsPolymerizing = randomState.multinomial(activeRibosomeCount, averageMrnaFractions)
 
 	# Compute the current protein mass
 
-	monomerMasses = (kb.monomerData["mw"].asNumber(units.fg / units.mol) /
-		kb.nAvogadro.asNumber(1 / units.mol))
+	monomerMasses = (kb.process.translation.monomerData["mw"].asNumber(units.fg / units.mol) /
+		kb.constants.nAvogadro.asNumber(1 / units.mol))
 	monomerMassTotal = np.dot(monomerCounts, monomerMasses)
 
 	# Reduce the number of ribosome subunits
@@ -407,16 +402,16 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	peptideLengths = (randomState.rand(activeRibosomeCount) * maxPeptideLengths).astype(np.int64)
 
 	# Compute peptide masses
-	monomerSequences = kb.translationSequences
+	monomerSequences = kb.process.translation.translationSequences
 
-	aaWeightsIncorporated = kb.translationMonomerWeights
+	aaWeightsIncorporated = kb.process.translation.translationMonomerWeights
 
 	peptideMasses = np.array([
 		aaWeightsIncorporated[monomerSequences[proteinIndex, :length]].sum()
 		for proteinIndex, length in izip(proteinIndexes, peptideLengths)
 		])
 
-	peptideMasses[peptideLengths > 0] += kb.translationEndWeight
+	peptideMasses[peptideLengths > 0] += kb.process.translation.translationEndWeight
 
 	# Create the unique molecules representations of the ribosomes
 
@@ -474,7 +469,7 @@ def initializeReplication(uniqueMolCntr, kb):
 	Purpose: Create two replication forks represented as unique
 	molecules for now at the center of the oriC
 	'''
-	oricCenter = kb.oriCCenter.asNumber(units.nt)
+	oricCenter = kb.constants.oriCCenter.asNumber(units.nt)
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
 		chromosomeLocation = np.array([oricCenter, oricCenter, oricCenter, oricCenter]),

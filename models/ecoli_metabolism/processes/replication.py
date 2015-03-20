@@ -22,16 +22,16 @@ class Replication(wholecell.processes.process.Process):
 
 		# Load constants
 
-		dNtpIDs = kb.dNtpIds
-		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedDNT_IDs]
+		dNtpIDs = kb.moleculeGroups.dNtpIds
+		polymerizedIDs = [id_ + "[c]" for id_ in kb.moleculeGroups.polymerizedDNT_IDs]
 
-		sequence = kb.genomeSeq
+		sequence = kb.process.replication.genome_sequence
 
 		monomerCounts = np.array([sequence.count(s) for s in ("A", "C", "G", "T")], np.float64)
 
 		self.monomerComposition = monomerCounts / monomerCounts.sum()
 
-		self.maxPolymerizationRate = 4 * kb.dnaPolymeraseElongationRate.asNumber() * self.timeStepSec
+		self.maxPolymerizationRate = 4 * kb.constants.dnaPolymeraseElongationRate.asNumber() * self.timeStepSec
 
 		self.maxIncorporated = 2 * 2 * len(sequence)
 

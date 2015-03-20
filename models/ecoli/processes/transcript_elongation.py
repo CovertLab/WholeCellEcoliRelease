@@ -56,17 +56,17 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = kb.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.elngRate = kb.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 
-		self.rnaIds = kb.rnaData['id']
+		self.rnaIds = kb.process.transcription.rnaData['id']
 
-		self.rnaLengths = kb.rnaData["length"].asNumber()
+		self.rnaLengths = kb.process.transcription.rnaData["length"].asNumber()
 
-		self.rnaSequences = kb.transcriptionSequences
+		self.rnaSequences = kb.process.transcription.transcriptionSequences
 
-		self.ntWeights = kb.transcriptionMonomerWeights
+		self.ntWeights = kb.process.transcription.transcriptionMonomerWeights
 
-		self.endWeight = kb.transcriptionEndWeight
+		self.endWeight = kb.process.transcription.transcriptionEndWeight
 
 		# Views
 

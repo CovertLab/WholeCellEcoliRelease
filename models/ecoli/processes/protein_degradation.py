@@ -48,21 +48,21 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		h2oId = ["H2O[c]"]
 
-		metaboliteIds = kb.aaIDs + h2oId
+		metaboliteIds = kb.moleculeGroups.aaIDs + h2oId
 
-		aaIdxs = np.arange(0, len(kb.aaIDs))
+		aaIdxs = np.arange(0, len(kb.moleculeGroups.aaIDs))
 		h2oIdx = metaboliteIds.index('H2O[c]')
 
 		# Protein IDs for S matrix
-		proteinIds = kb.monomerData['id']
+		proteinIds = kb.process.translation.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = kb.monomerData['degRate'].asNumber(1 / units.s)
+		self.proteinDegRates = kb.process.translation.monomerData['degRate'].asNumber(1 / units.s)
 
-		self.proteinLengths = kb.monomerData['length']
+		self.proteinLengths = kb.process.translation.monomerData['length']
 
 		self.proteinDegSMatrix = np.zeros((len(metaboliteIds), len(proteinIds)), np.int64)
-		self.proteinDegSMatrix[aaIdxs, :] = np.transpose(kb.monomerData["aaCounts"].asNumber())
+		self.proteinDegSMatrix[aaIdxs, :] = np.transpose(kb.process.translation.monomerData["aaCounts"].asNumber())
 		self.proteinDegSMatrix[h2oIdx, :]  = -(np.sum(self.proteinDegSMatrix[aaIdxs, :], axis = 0) - 1)
 
 		# Views

@@ -37,7 +37,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	proteinIds = kb.monomerData["id"]
+	proteinIds = kb.process.translation.monomerData["id"]
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
@@ -56,8 +56,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	counts = proteinCountsBulk[-1, :]
 
 	expectedCountsArbitrary = (
-		kb.rnaExpression['expression'][kb.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.cellCycleLen.asNumber(units.s) + kb.monomerData["degRate"].asNumber(1/units.s))
+		kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping] /
+		(np.log(2) / kb.constants.cellCycleLen.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1/units.s))
 		) * counts.sum()
 
 	expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()

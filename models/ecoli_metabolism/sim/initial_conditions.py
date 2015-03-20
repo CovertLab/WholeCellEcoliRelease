@@ -39,7 +39,7 @@ def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
 def initializeProtein(bulkMolCntr, kb, randomState, timeStep):
 	polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
 
-	proteinComposition = kb.monomerData["aaCounts"].asNumber()
+	proteinComposition = kb.process.translation.monomerData["aaCounts"].asNumber()
 
 	g = growth_data.GrowthData(kb)
 	initialProteinMass = g.massFractions(60)["proteinMass"]
@@ -61,8 +61,8 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	## Find the average RNA composition
 
-	synthProb = kb.rnaData["synthProb"]
-	compositionAll = kb.rnaData["countsACGU"].asNumber()
+	synthProb = kb.process.transcription.rnaData["synthProb"]
+	compositionAll = kb.process.transcription.rnaData["countsACGU"].asNumber()
 
 	# TODO: better model the variance of this distribution
 
@@ -75,7 +75,7 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 	g = growth_data.GrowthData(kb)
 	initialRnaMass = g.massFractions(60)["rnaMass"].asNumber(units.fg)
 
-	monomerMWs = kb.transcriptionMonomerWeights
+	monomerMWs = kb.process.transcription.transcriptionMonomerWeights
 
 	initialMonomerCounts = np.int64(
 		initialRnaMass * monomerComposition / monomerMWs
@@ -90,7 +90,7 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 	# TODO: move duplicate logic to the KB
 	
-	polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedDNT_IDs]
+	polymerizedIDs = [id_ + "[c]" for id_ in kb.moleculeGroups.polymerizedDNT_IDs]
 
 	bulkMolCntr.countsIs(
 		[
@@ -105,17 +105,16 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
-	g = growth_data.GrowthData(kb)
-	massFractions60 = g.massFractions(60)
+	massFractions60 = kb.massFractions.massFractions(60 * units.min)
 
 	mass = massFractions60["proteinMass"] + massFractions60["rnaMass"] + massFractions60["dnaMass"]
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(kb.metabolitePoolIDs) if kb.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellDensity = kb.cellDensity
-	mws = kb.getMass(poolIds)
+	cellDensity = kb.constants.cellDensity
+	mws = kb.getter.getMass(poolIds)
 	concentrations = poolConcentrations.copy()
 
 	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
@@ -124,12 +123,12 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	b = mass.asNumber(units.g) * np.ones(diag.size)
 
 	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.nAvogadro
+	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
 
 	V = (mass + units.sum(massesToAdd)) / cellDensity
 
 	assert np.allclose(
-		(countsToAdd / kb.nAvogadro / V).asNumber(units.mol / units.L),
+		(countsToAdd / kb.constants.nAvogadro / V).asNumber(units.mol / units.L),
 		(poolConcentrations).asNumber(units.mol / units.L)
 		)
 

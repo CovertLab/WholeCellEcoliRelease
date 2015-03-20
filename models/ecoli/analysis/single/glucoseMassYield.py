@@ -55,8 +55,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	mass.close()
 
-	cellDensity = kb.cellDensity
-	glucoseMW = kb.getMass([GLUCOSE_ID])[0]
+	cellDensity = kb.constants.cellDensity
+	glucoseMW = kb.getter.getMass([GLUCOSE_ID])[0]
 
 	glucoseMassFlux = glucoseFlux * glucoseMW * cellMass / cellDensity
 

@@ -54,6 +54,7 @@ class moleculeGroups(object):
 			's50_5sRRNA'			:	['RRFA-RRNA[c]','RRFB-RRNA[c]','RRFC-RRNA[c]','RRFD-RRNA[c]',
 										'RRFE-RRNA[c]','RRFG-RRNA[c]','RRFH-RRNA[c]'],
 			's50_fullComplex'		:	['CPLX-50SA[c]'],
+			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values()
 		}
 
 		self.__dict__.update(moleculeGroups)

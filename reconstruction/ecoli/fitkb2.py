@@ -28,30 +28,30 @@ def fitKb_2(kb, simOutDir):
 	# instantiate many cells, form complexes, and finally compute the
 	# statistics we will use in the fitting operations.
 
-	bulkContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'])
-	rnaView = bulkContainer.countsView(kb.rnaData["id"])
-	proteinView = bulkContainer.countsView(kb.monomerData["id"])
-	complexationMoleculesView = bulkContainer.countsView(kb.complexation.moleculeNames)
+	bulkContainer = BulkObjectsContainer(kb.state.bulkMolecules.bulkData['id'])
+	rnaView = bulkContainer.countsView(kb.process.transcription.rnaData["id"])
+	proteinView = bulkContainer.countsView(kb.process.translation.monomerData["id"])
+	complexationMoleculesView = bulkContainer.countsView(kb.process.complexation.moleculeNames)
 	allMoleculesIDs = list(
-		set(kb.rnaData["id"]) | set(kb.monomerData["id"]) | set(kb.complexation.moleculeNames)
+		set(kb.process.transcription.rnaData["id"]) | set(kb.process.translation.monomerData["id"]) | set(kb.process.complexation.moleculeNames)
 		)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
 
-	complexationStoichMatrix = kb.complexation.stoichMatrix().astype(np.int64, order = "F")
+	complexationStoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 	complexationPrebuiltMatrices = mccBuildMatrices(
 		complexationStoichMatrix
 		)
 
-	rnaDistribution = kb.rnaExpression['expression']
+	rnaDistribution = kb.process.transcription.rnaData['expression']
 
 	rnaTotalCounts = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
-		kb.rnaData["mw"].asNumber(units.g / units.mol),
+		kb.process.transcription.rnaData["mw"].asNumber(units.g / units.mol),
 		rnaDistribution,
-		kb.nAvogadro.asNumber(1 / units.mol)
+		kb.constants.nAvogadro.asNumber(1 / units.mol)
 		)
 
 	proteinDistribution = calcProteinDistribution(kb)
@@ -86,8 +86,8 @@ def fitKb_2(kb, simOutDir):
 
 		allMoleculeCounts[seed, :] = allMoleculesView.counts()
 
-	bulkAverageContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], np.float64)
-	bulkDeviationContainer = BulkObjectsContainer(kb.bulkMolecules['moleculeId'], np.float64)
+	bulkAverageContainer = BulkObjectsContainer(kb.state.bulkMolecules.bulkData['id'], np.float64)
+	bulkDeviationContainer = BulkObjectsContainer(kb.state.bulkMolecules.bulkData['id'], np.float64)
 
 	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
 	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
@@ -102,8 +102,8 @@ def fitKb_2(kb, simOutDir):
 	# compute values at initial time point
 
 	## Compute rate of AA incorperation
-	proteinComposition = kb.monomerData["aaCounts"]
-	initialDryMass = kb.avgCellDryMassInit
+	proteinComposition = kb.process.translation.monomerData["aaCounts"]
+	initialDryMass = kb.constants.avgCellDryMassInit
 
 	proteinMassFraction = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
@@ -114,7 +114,7 @@ def fitKb_2(kb, simOutDir):
 	initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
 
 	initialProteinTranslationRate = (
-		(np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]) * initialProteinCounts
+		(np.log(2) / kb.constants.cellCycleLen + kb.process.translation.monomerData["degRate"]) * initialProteinCounts
 		).asUnit(1 / units.s)
 
 	initialAAPolymerizationRate = units.dot(

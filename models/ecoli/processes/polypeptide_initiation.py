@@ -52,16 +52,16 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		mrnaIds = kb.monomerData["rnaId"]
+		mrnaIds = kb.process.translation.monomerData["rnaId"]
 		
-		self.proteinLens = kb.monomerData["length"].asNumber()
+		self.proteinLens = kb.process.translation.monomerData["length"].asNumber()
 
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
-		self.ribosome30S = self.bulkMoleculeView(kb.s30_fullComplex)
-		self.ribosome50S = self.bulkMoleculeView(kb.s50_fullComplex)
+		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
+		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
 
 		self.mRnas = self.bulkMoleculesView(mrnaIds)
 

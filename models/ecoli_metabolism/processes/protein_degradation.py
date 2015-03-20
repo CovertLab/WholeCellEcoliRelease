@@ -27,16 +27,16 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		## Molecule IDs
 
-		aaIDs = kb.aaIDs
+		aaIDs = kb.moleculeGroups.aaIDs
 		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
 
 		## Find the magnitude and distribution of amino acids recovered by degradation
 
-		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
 
-		proteinComposition = kb.monomerData["aaCounts"].asNumber()
+		proteinComposition = kb.process.translation.monomerData["aaCounts"].asNumber()
 
-		initialDryMass = kb.avgCellDryMassInit
+		initialDryMass = kb.constants.avgCellDryMassInit
 
 		proteinMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
@@ -47,7 +47,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
 
 		initialProteinDegradationRate = initialProteinCounts * (
-			kb.monomerData["degRate"] # NOTE: constrast this with the translation submodel, which accounts for degradation AND dilution
+			kb.process.translation.monomerData["degRate"] # NOTE: constrast this with the translation submodel, which accounts for degradation AND dilution
 			).asNumber(1 / units.s)
 
 		initialDegrading = np.dot(proteinComposition.T, initialProteinDegradationRate)

@@ -33,12 +33,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# Load data from KB
 	kb = cPickle.load(open(kbFile, "rb"))
-	proteinIds = kb.s50_proteins
-	rnaIds = [kb.monomerData['rnaId'][np.where(kb.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
-	rRnaIds = kb.s50_23sRRNA
-	rRnaIds.extend(kb.s50_5sRRNA)
-	complexIds = kb.s50_proteinComplexes
-	complexIds.append(kb.s50_fullComplex)
+	proteinIds = kb.moleculeGroups.s50_proteins
+	rnaIds = [kb.process.translation.monomerData['rnaId'][np.where(kb.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
+	rRnaIds = kb.moleculeGroups.s50_23sRRNA
+	rRnaIds.extend(kb.moleculeGroups.s50_5sRRNA)
+	complexIds = kb.moleculeGroups.s50_proteinComplexes
+	complexIds.append(kb.moleculeGroups.s50_fullComplex[0])
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

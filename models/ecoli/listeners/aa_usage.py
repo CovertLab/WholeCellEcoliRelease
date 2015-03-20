@@ -39,7 +39,7 @@ class AAUsage(wholecell.listeners.listener.Listener):
 
 		self.sim = sim
 
-		self.metaboliteIds = kb.aaIDs[:]
+		self.metaboliteIds = kb.moleculeGroups.aaIDs[:]
 		self.metaboliteIdxs = [ # TODO: use a bulk container view?
 			np.where(
 				x == self.bulkMolecules._moleculeIDs
@@ -52,17 +52,17 @@ class AAUsage(wholecell.listeners.listener.Listener):
 
 		biomassMetIdxs = [
 		np.where(
-			kb.wildtypeBiomass["metaboliteId"] == x
+			kb.process.metabolism.wildtypeBiomass["id"] == x
 			)[0][0] for x in self.metaboliteIds
 		]
 
 		self.relativeAAProductionBiomass = normalize(
-			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].asNumber()
+			kb.process.metabolism.wildtypeBiomass["biomassFlux"][biomassMetIdxs].asNumber()
 			)
 
 		self.relativeAaUsage = normalize(np.dot(
-			kb.monomerData["aaCounts"].asNumber().T,
-			kb.rnaExpression["expression"][kb.rnaIndexToMonomerMapping]
+			kb.process.translation.monomerData["aaCounts"].asNumber().T,
+			kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping]
 			))
 
 	# Allocate memory

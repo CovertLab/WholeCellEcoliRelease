@@ -36,9 +36,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	isTRna = kb.rnaData["isTRna"]
+	isTRna = kb.process.transcription.rnaData["isTRna"]
 
-	rnaIds = kb.rnaData["id"][isTRna]
+	rnaIds = kb.process.transcription.rnaData["id"][isTRna]
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
@@ -60,7 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	counts = rnaCountsBulk[-1, :]
 
-	expectedCountsArbitrary = kb.rnaExpression['expression'][isTRna]
+	expectedCountsArbitrary = kb.process.transcription.rnaData['expression'][isTRna]
 
 	expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
