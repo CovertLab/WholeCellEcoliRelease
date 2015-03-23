@@ -49,11 +49,11 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, kb)
 
 		# Load constants
-		self.nAvogadro = kb.nAvogadro.asNumber(1 / COUNTS_UNITS)
-		self.cellDensity = kb.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
+		self.cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
 
-		self.metabolitePoolIDs = kb.metabolitePoolIDs
-		self.targetConcentrations = kb.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
+		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
+		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
 		objective = {
 			moleculeID:coeff for moleculeID, coeff in
@@ -63,31 +63,31 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set up FBA solver
 
 		self.fba = FluxBalanceAnalysis(
-			kb.metabolism.reactionStoich.copy(), # TODO: copy in class
-			kb.metabolism.externalExchangeMolecules,
+			kb.process.metabolism.reactionStoich.copy(), # TODO: copy in class
+			kb.process.metabolism.externalExchangeMolecules,
 			objective,
 			objectiveType = "pools",
-			reversibleReactions = kb.metabolism.reversibleReactions,
-			# reactionEnzymes = kb.metabolism.reactionEnzymes.copy(), # TODO: copy in class
-			# reactionRates = kb.metabolism.reactionRates(self.timeStepSec * units.s),
-			# moleculeMasses = kb.metabolism.exchangeMasses(MASS_UNITS / COUNTS_UNITS)
+			reversibleReactions = kb.process.metabolism.reversibleReactions,
+			# reactionEnzymes = kb.process.metabolism.reactionEnzymes.copy(), # TODO: copy in class
+			# reactionRates = kb.process.metabolism.reactionRates(self.timeStepSec * units.s),
+			# moleculeMasses = kb.process.metabolism.exchangeMasses(MASS_UNITS / COUNTS_UNITS)
 			)
 
 		# Set constraints
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
-		initWaterMass = kb.avgCellWaterMassInit
-		initDryMass = kb.avgCellDryMassInit
+		initWaterMass = kb.constants.avgCellWaterMassInit
+		initDryMass = kb.constants.avgCellDryMassInit
 
 		initCellMass = (
 			initWaterMass
 			+ initDryMass
 			)
 
-		coefficient = initDryMass / initCellMass * kb.cellDensity * (self.timeStepSec * units.s)
+		coefficient = initDryMass / initCellMass * kb.constants.cellDensity * (self.timeStepSec * units.s)
 
-		externalMoleculeLevels = kb.metabolism.exchangeConstraints(
+		externalMoleculeLevels = kb.process.metabolism.exchangeConstraints(
 			externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS

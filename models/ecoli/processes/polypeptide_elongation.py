@@ -59,7 +59,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
+		self.elngRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 
 		# self.aa_trna_groups = kb.aa_trna_groups
 		# self.aa_synthetase_groups = kb.aa_synthetase_groups
@@ -67,24 +67,24 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
-		proteinIds = kb.monomerData['id']
+		proteinIds = kb.process.translation.monomerData['id']
 
-		self.proteinLengths = kb.monomerData["length"].asNumber()
+		self.proteinLengths = kb.process.translation.monomerData["length"].asNumber()
 
-		self.proteinSequences = kb.translationSequences
+		self.proteinSequences = kb.process.translation.translationSequences
 
-		self.aaWeightsIncorporated = kb.translationMonomerWeights
+		self.aaWeightsIncorporated = kb.process.translation.translationMonomerWeights
 
-		self.endWeight = kb.translationEndWeight
+		self.endWeight = kb.process.translation.translationEndWeight
 
-		self.gtpPerElongation = kb.gtpPerTranslation
+		self.gtpPerElongation = kb.constants.gtpPerTranslation
 
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
-		self.aas = self.bulkMoleculesView(kb.aaIDs)
+		self.aas = self.bulkMoleculesView(kb.moleculeGroups.aaIDs)
 		# self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
 		# self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
 		self.h2o = self.bulkMoleculeView('H2O[c]')
@@ -94,8 +94,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.pi = self.bulkMoleculeView("PI[c]")
 		self.h   = self.bulkMoleculeView("H[c]")
 
-		self.ribosome30S = self.bulkMoleculeView(kb.s30_fullComplex)
-		self.ribosome50S = self.bulkMoleculeView(kb.s50_fullComplex)
+		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
+		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
 
 
 	def calculateRequest(self):

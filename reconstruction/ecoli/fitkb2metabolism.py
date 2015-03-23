@@ -55,11 +55,11 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 
 	dt = 1 * units.s
 
-	reactionStoich = kb.metabolism.reactionStoich.copy()
-	reactionEnzymes = kb.metabolism.reactionEnzymes.copy()
-	reactionRates = kb.metabolism.reactionRates(dt)
+	reactionStoich = kb.process.metabolism.reactionStoich.copy()
+	reactionEnzymes = kb.process.metabolism.reactionEnzymes.copy()
+	reactionRates = kb.process.metabolism.reactionRates(dt)
 
-	for reactionID in kb.metabolism.reversibleReactions:
+	for reactionID in kb.process.metabolism.reversibleReactions:
 		reverseReactionID = "{} (reverse)".format(reactionID)
 		assert reverseReactionID not in reactionStoich.viewkeys()
 		reactionStoich[reverseReactionID] = {
@@ -94,22 +94,22 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 
 	### Set up exchange reactions
 
-	initWaterMass = kb.avgCellWaterMassInit
-	initDryMass = kb.avgCellDryMassInit
+	initWaterMass = kb.constants.avgCellWaterMassInit
+	initDryMass = kb.constants.avgCellDryMassInit
 
 	initCellMass = initWaterMass + initDryMass
 
-	initCellVolume = initCellMass / kb.cellDensity
+	initCellVolume = initCellMass / kb.constants.cellDensity
 
 	coefficient = initDryMass / initCellVolume * dt
 
-	exchangeConstraints = kb.metabolism.exchangeConstraints(
-		kb.metabolism.externalExchangeMolecules,
+	exchangeConstraints = kb.process.metabolism.exchangeConstraints(
+		kb.process.metabolism.externalExchangeMolecules,
 		coefficient,
 		units.mmol / units.L
 		)
 
-	for moleculeID, constraint in zip(kb.metabolism.externalExchangeMolecules, exchangeConstraints):
+	for moleculeID, constraint in zip(kb.process.metabolism.externalExchangeMolecules, exchangeConstraints):
 		exchangeID = "{} exchange".format(moleculeID)
 
 		assert exchangeID not in colNames
@@ -165,7 +165,7 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 		)
 
 	enzymeConc = (
-		1 / kb.nAvogadro / initCellVolume * minimalEnzymeCounts
+		1 / kb.constants.nAvogadro / initCellVolume * minimalEnzymeCounts
 		).asNumber(units.mmol / units.L)
 
 	fullEnzymeRates = {

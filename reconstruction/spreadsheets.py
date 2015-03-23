@@ -5,8 +5,10 @@ allowing for basic type parsing and fields that are dictionaries or lists.
 
 import csv
 import json
-
+import re
 import numpy as np
+
+from wholecell.utils import units
 
 def array_to_list(value):
 	if isinstance(value, np.ndarray):
@@ -36,7 +38,6 @@ class JsonReader(csv.DictReader):
 
 		# This is a hack to strip extra quotes from the field names
 		# Not proud of it, but it works.
-
 		self.fieldnames # called for side effect
 
 		self._fieldnames = [
@@ -44,7 +45,18 @@ class JsonReader(csv.DictReader):
 			]
 
 	def next(self):
-		return {
-			key:json.loads(value) if value else "" # catch for empty field
-			for key, value in csv.DictReader.next(self).viewitems()
-			}
+		attributeDict = {}
+		for key,value in csv.DictReader.next(self).viewitems():
+			value = value or ""
+			try:
+				attribute = re.search('(.*?) \(', key).group(1)
+				value_units =  eval(re.search('\((.*?)\)',key).group(1))
+				attributeDict[attribute] = json.loads(value) * value_units
+			except AttributeError:
+				attributeDict[key] = json.loads(value)
+		return attributeDict
+
+		# return {
+		# 	key:json.loads(value) if value else "" # catch for empty field
+		# 	for key, value in csv.DictReader.next(self).viewitems()
+		# 	}

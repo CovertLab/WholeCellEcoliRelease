@@ -36,9 +36,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	rnaIds = kb.rnaData["id"][kb.rnaIndexToMonomerMapping]
+	rnaIds = kb.process.transcription.rnaData["id"][kb.relation.rnaIndexToMonomerMapping]
 
-	proteinIds = kb.monomerData["id"]
+	proteinIds = kb.process.translation.monomerData["id"]
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 

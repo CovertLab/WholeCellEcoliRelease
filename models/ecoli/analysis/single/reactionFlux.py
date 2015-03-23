@@ -99,7 +99,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# idToName = {
 	# 	reaction["id"]:reaction["name"]
-	# 	for reaction in kb.metabolism.biochemicalReactions
+	# 	for reaction in kb.process.metabolism.biochemicalReactions
 	# 	}
 
 	# reactionNames = np.array([

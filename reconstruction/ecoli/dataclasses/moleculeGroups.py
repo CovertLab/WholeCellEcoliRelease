@@ -13,18 +13,18 @@ class moleculeGroups(object):
 	""" moleculeGroups """
 
 	def __init__(self, raw_data, sim_data):
-		self._buildMoleculeGroups()
+		self._buildMoleculeGroups(raw_data, sim_data)
 
-	def _buildMoleculeGroups(self):
+	def _buildMoleculeGroups(self, raw_data, sim_data):
 		moleculeGroups = {
 			'ntpIds'			:	["ATP[c]","CTP[c]","GTP[c]","UTP[c]"],
 			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
 			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
 			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
 			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"],
-			#'polymerizedAA_IDs'	:	self._polymerizedAA_IDs, # TODO: end weight # TODO: Add these groups!
-			#'polymerizedNT_IDs'	:	self._polymerizedNT_IDs, # TODO: end weight # TODO: Add these groups!
-			#'polymerizedDNT_IDs':	self._polymerizedDNT_IDs, # TODO: Add these groups!
+			'polymerizedAA_IDs'	:	[x['id'] for x in raw_data.polymerized if x['is_aa'] and not x['is_end']], # TODO: end weight
+			'polymerizedNT_IDs'	:	[x['id'] for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']], # TODO: end weight
+			'polymerizedDNT_IDs':	[x['id'] for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']], # TODO: end weight
 			's30_proteins'			:	['EG10912-MONOMER[c]', 'EG10916-MONOMER[c]', 'EG10906-MONOMER[c]',
 										'EG10914-MONOMER[c]', 'EG10909-MONOMER[c]', 'EG10903-MONOMER[c]',
 										'EG10911-MONOMER[c]', 'EG10904-MONOMER[c]', 'EG10900-MONOMER[c]',
@@ -54,6 +54,7 @@ class moleculeGroups(object):
 			's50_5sRRNA'			:	['RRFA-RRNA[c]','RRFB-RRNA[c]','RRFC-RRNA[c]','RRFD-RRNA[c]',
 										'RRFE-RRNA[c]','RRFG-RRNA[c]','RRFH-RRNA[c]'],
 			's50_fullComplex'		:	['CPLX-50SA[c]'],
+			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values()
 		}
 
 		self.__dict__.update(moleculeGroups)

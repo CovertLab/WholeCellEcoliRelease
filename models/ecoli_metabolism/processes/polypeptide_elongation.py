@@ -29,16 +29,16 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		## Molecule IDs
 
-		aaIDs = kb.aaIDs
+		aaIDs = kb.moleculeGroups.aaIDs
 		polymerizedIDs = [id_ + "[c]" for id_ in kb.polymerizedAA_IDs]
 
 		## Find the average protein composition and initial number of polymerized AAs
 
-		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
 
-		proteinComposition = kb.monomerData["aaCounts"].asNumber()
+		proteinComposition = kb.process.translation.monomerData["aaCounts"].asNumber()
 
-		initialDryMass = kb.avgCellDryMassInit
+		initialDryMass = kb.constants.avgCellDryMassInit
 
 		proteinMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
@@ -49,7 +49,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
 
 		initialProteinTranslationRate = initialProteinCounts * (
-			np.log(2) / kb.cellCycleLen + kb.monomerData["degRate"]
+			np.log(2) / kb.constants.cellCycleLen + kb.process.translation.monomerData["degRate"]
 			).asNumber(1 / units.s)
 
 		initialPolymerizing = np.dot(proteinComposition.T, initialProteinTranslationRate)
@@ -60,7 +60,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		## Energy costs
 
-		self.gtpPerElongation = kb.gtpPerTranslation
+		self.gtpPerElongation = kb.constants.gtpPerTranslation
 
 		# Create views on state
 

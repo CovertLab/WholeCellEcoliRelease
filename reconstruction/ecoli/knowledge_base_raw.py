@@ -13,6 +13,7 @@ from __future__ import division
 import os
 import csv
 from reconstruction.spreadsheets import JsonReader
+import json
 
 from wholecell.utils import units
 
@@ -40,6 +41,12 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("massFractions", "lipidFractions.tsv"),
 	os.path.join("massFractions", "mureinFractions.tsv"),
 	os.path.join("massFractions", "solubleFractions.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_0p4.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_0p7.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p6.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p07.tsv"),
+	os.path.join("trnaData","trna_ratio_to_16SrRNA_2p5.tsv"),
+	os.path.join("trnaData","trna_growth_rates.tsv")
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 PARAMETER_FILENAME = "parameters.tsv"
@@ -63,7 +70,7 @@ class KnowledgeBaseEcoli(object):
 		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 		setattr(self, attrName, [])
 
-		with open(file_name) as csvfile:
+		with open(file_name, 'rU') as csvfile:
 			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
 			setattr(self, attrName, [row for row in reader])
 
@@ -80,7 +87,7 @@ class KnowledgeBaseEcoli(object):
 			reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
 			for row in reader:
 				if row['units'] != '':
-					paramDict[row['name']] = float(row['value']) * eval(row['units'])
+					paramDict[row['name']] = json.loads(row['value']) * eval(row['units'])
 				else:
-					paramDict[row['name']] = float(row['value'])
+					paramDict[row['name']] = json.loads(row['value'])
 		setattr(self, attrName, paramDict)

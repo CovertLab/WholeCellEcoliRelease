@@ -54,3 +54,8 @@ def transpose(array,axis=None):
 	units._value = 1
 
 	return units * np.transpose(array.asNumber(), axis)
+
+def getUnit(value):
+	value_units = value.copy()
+	value_units._value = 1
+	return value_units

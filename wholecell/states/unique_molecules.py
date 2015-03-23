@@ -46,7 +46,7 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
-		molDefs = kb.uniqueMoleculeDefinitions.copy()
+		molDefs = kb.state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
 
 		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
 
@@ -63,9 +63,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self.container = UniqueObjectsContainer(molDefs)
 
-		self._moleculeIds = kb.uniqueMoleculeMasses["moleculeId"]
+		self._moleculeIds = kb.state.uniqueMolecules.uniqueMoleculeMasses["id"]
 		self._moleculeMasses = (
-			kb.uniqueMoleculeMasses["mass"] / kb.nAvogadro
+			kb.state.uniqueMolecules.uniqueMoleculeMasses["mass"] / kb.constants.nAvogadro
 			).asNumber(units.fg)
 
 		self._unassignedPartitionedValue = self._nProcesses

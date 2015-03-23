@@ -136,9 +136,9 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	isMRna = kb.rnaData["isMRna"]
+	isMRna = kb.process.transcription.rnaData["isMRna"]
 
-	rnaIds = kb.rnaData["id"][isMRna]
+	rnaIds = kb.process.transcription.rnaData["id"][isMRna]
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
@@ -150,7 +150,7 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 
 	bulkMolecules.close()
 
-	expectedCountsArbitrary = kb.rnaExpression['expression'][isMRna]
+	expectedCountsArbitrary = kb.process.transcription.rnaData['expression'][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()
 
@@ -221,9 +221,9 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	rnaIds = kb.rnaData["id"][kb.rnaIndexToMonomerMapping]
+	rnaIds = kb.process.transcription.rnaData["id"][kb.relation.rnaIndexToMonomerMapping]
 
-	proteinIds = kb.monomerData["id"]
+	proteinIds = kb.process.translation.monomerData["id"]
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 

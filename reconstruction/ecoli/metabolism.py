@@ -142,7 +142,7 @@ class Metabolism(object):
 
 					reactionEnzymes[reactionID] = enzymeID
 
-		mws = kb.getMass(externalExchangeMolecules)
+		mws = kb.getter.getMass(externalExchangeMolecules)
 
 		exchangeMasses = {moleculeID:mws[index]
 			for index, moleculeID in enumerate(externalExchangeMolecules)}

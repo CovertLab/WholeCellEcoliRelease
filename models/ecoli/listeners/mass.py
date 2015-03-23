@@ -44,7 +44,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
-		self.cellCycleLen = kb.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
 
 		self.rnaIndexes = np.array([
 			kb.submassNameToIndex[name]

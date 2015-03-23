@@ -52,16 +52,16 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 
 		biomassMetIdxs = [
 		np.where(
-			kb.wildtypeBiomass["metaboliteId"] == x
+			kb.process.metabolism.wildtypeBiomass["id"] == x
 			)[0][0] for x in self.metaboliteIds
 		]
 
 		self.relativeNtpProductionBiomass = normalize(
-			kb.wildtypeBiomass["biomassFlux"][biomassMetIdxs].asNumber()
+			kb.process.metabolism.wildtypeBiomass["biomassFlux"][biomassMetIdxs].asNumber()
 			)
 
 		self.relativeNtpUsage = normalize(
-			np.dot(kb.rnaData["countsACGU"].asNumber().T, kb.rnaData["synthProb"])
+			np.dot(kb.process.transcription.rnaData["countsACGU"].asNumber().T, kb.process.transcription.rnaData["synthProb"])
 			)
 
 	# Allocate memory

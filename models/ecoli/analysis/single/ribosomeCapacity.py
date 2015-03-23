@@ -34,8 +34,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# Load data from KB
 	kb = cPickle.load(open(kbFile, "rb"))
-	ribosomeSubunitIds = [kb.s50_fullComplex, kb.s30_fullComplex]
-	elongationRate = float(kb.ribosomeElongationRate.asNumber(units.aa / units.s))
+	ribosomeSubunitIds = [kb.moleculeGroups.s50_fullComplex[0], kb.moleculeGroups.s30_fullComplex[0]]
+	elongationRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 	# Load ribosome data
 	massFile = TableReader(os.path.join(simOutDir, "RibosomeData"))

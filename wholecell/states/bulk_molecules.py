@@ -55,17 +55,17 @@ class BulkMolecules(wholecell.states.state.State):
 		super(BulkMolecules, self).initialize(sim, kb)
 
 		# Load constants
-		self._moleculeIDs = kb.bulkMolecules['moleculeId']
-		# self._compartmentIDs = kb.compartments['compartmentAbbreviation']
+		self._moleculeIDs = kb.state.bulkMolecules.bulkData['id']
+		# self._compartmentIDs = kb.state.compartments['compartmentAbbreviation']
 		# self._nCompartments = kb.nCompartments
 
-		self._moleculeMass = kb.bulkMolecules['mass'].asNumber(units.fg / units.mol) / kb.nAvogadro.asNumber(1 / units.mol)
+		self._moleculeMass = kb.state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / kb.constants.nAvogadro.asNumber(1 / units.mol)
 
 		self._submassNameToIndex = kb.submassNameToIndex
 
 		# self._compIndexes = {
-		# 	compartmentKey:(kb.bulkMolecules['compartment'] == compartmentKey)
-		# 	for compartmentKey in kb.compartments['compartmentAbbreviation']
+		# 	compartmentKey:(kb.state.bulkMolecules.bulkData['compartment'] == compartmentKey)
+		# 	for compartmentKey in kb.state.compartments['compartmentAbbreviation']
 		# 	}
 
 		# Create the container for molecule counts

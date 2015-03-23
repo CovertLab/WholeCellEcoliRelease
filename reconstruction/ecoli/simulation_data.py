@@ -21,6 +21,7 @@ from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.state import State
 from reconstruction.ecoli.dataclasses.process.process import Process
+from reconstruction.ecoli.dataclasses.massFractions import MassFractions
 from reconstruction.ecoli.dataclasses.relation import Relation
 
 class SimulationDataEcoli(object):
@@ -34,12 +35,13 @@ class SimulationDataEcoli(object):
 		# Helper functions (have no dependencies)
 		self.getter = getterFunctions(raw_data, self)
 		self.moleculeGroups = moleculeGroups(raw_data, self)
+		self.constants = Constants(raw_data, self)
 
 		# Data classes (can depend on helper functions)
 		# Data classes cannot depend on each other
-		self.constants = Constants(raw_data, self)
 		self.process = Process(raw_data, self)
 		self.state = State(raw_data, self)
+		self.massFractions = MassFractions(raw_data, self)
 
 		# Relations between data classes (can depend on data classes)
 		# Relations cannot depend on each other
@@ -64,6 +66,8 @@ class SimulationDataEcoli(object):
 		self.molecular_weight_order = collections.OrderedDict([
 			(key, index) for index, key in enumerate(self.molecular_weight_keys)
 			])
+
+		self.submassNameToIndex = self.molecular_weight_order
 
 		self.amino_acid_1_to_3_ordered = collections.OrderedDict((
 			("A", "ALA-L[c]"), ("R", "ARG-L[c]"), ("N", "ASN-L[c]"), ("D", "ASP-L[c]"),

@@ -10,7 +10,7 @@ import cPickle
 import os
 import argparse
 
-import reconstruction.ecoli.knowledge_base
+import reconstruction.ecoli.simulation_data
 import wholecell.utils.constants
 
 def main(kbDirectory):
@@ -19,7 +19,7 @@ def main(kbDirectory):
 		os.makedirs(kbDirectory)
 
 	print "Instantiating unfit knowledgebase"
-	kb = reconstruction.ecoli.knowledge_base.KnowledgeBaseEcoli()
+	kb = reconstruction.ecoli.simulation_data.SimulationDataEcoli()
 
 	print "Saving unfit knowledgebase"
 	fileName = (

@@ -8,7 +8,6 @@ SimulationData constants
 
 from __future__ import division
 
-
 class Constants(object):
 	""" Constants """
 
@@ -18,3 +17,6 @@ class Constants(object):
 	def _buildConstants(self, raw_data, sim_data):
 		constants = raw_data.constants
 		self.__dict__.update(constants)
+
+		parameters = raw_data.parameters
+		self.__dict__.update(parameters)
