@@ -2431,6 +2431,7 @@ class KnowledgeBaseEcoli(object):
 		ribosomalProteins.extend([x[:-3] for x in S50_ALL_PROTEINS])
 
 		RNaseOscillator = ["EG10743-MONOMER"]
+		endoRnaseIds = ["EG10856-MONOMER", "EG10857-MONOMER", "G7175-MONOMER", "EG10859-MONOMER", "EG11299-MONOMER", "EG10860-MONOMER", "EG10861-MONOMER", "G7365-MONOMER", "EG10862-MONOMER"]
 		degRate = np.zeros(len(self._proteins))
 		for i,m in enumerate(self._proteins):
 			if m['id'] not in ribosomalProteins:
@@ -2439,10 +2440,15 @@ class KnowledgeBaseEcoli(object):
 			else:
 				degRate[i] = slowRate.asNumber()
 
-			if m['id'] in RNaseOscillator:
-				# print degRate[i], m['id']
+			## HACK CODE: this code change RNase dynamics 
+			# if m['id'] in RNaseOscillator:
+			# if m['id'] in endoRnaseIds:
+				# sprint m['id']
+				# print degRate[i]
+				# degRate[i] *= 10
 				# degRate[i] = midfastRate.asNumber() #slowRate.asNumber()
-				print degRate[i], m['id']
+				# print degRate[i]
+			## HACK CODE
 
 		# import ipdb; ipdb.set_trace()
 

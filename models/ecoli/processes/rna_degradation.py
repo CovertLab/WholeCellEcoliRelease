@@ -15,6 +15,7 @@ from __future__ import division
 import numpy as np
 import math
 import numpy
+import random
 
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
@@ -49,7 +50,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# expectedMRnaDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
 		# isRRna = kb.rnaData["isRRna"]
 		# expectedRRnaDegradationRate = kb.rnaData['degRate'][isRRna].asNumber()
-		# isTRna = kb.rnaData["isRRna"]
+		# isTRna = kb.rnaData["isTRna"]
 		# expectedTRnaDegradationRate = kb.rnaData['degRate'][isTRna].asNumber()
 
 		# import ipdb; ipdb.set_trace()
@@ -87,14 +88,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 
 	def calculateRequest(self):
-		
-		KcatEndoRNaseFragmentMin = 0.005 # cleavages/s
-		KcatEndoRNaseFragmentMax = 0.231 # cleavages/s
 
 		# Computing RNA specificity according to the measured RNA decays 
 		# and accessibility (amount of RNAs)
-		# TotalDegradationRate = self.rnaDegRates * self.rnas.total() * self.timeStepSec
-		TotalDegradationRate = self.rnaDegRates * self.timeStepSec
+		TotalDegradationRate = self.rnaDegRates * self.rnas.total() * self.timeStepSec
+		# TotalDegradationRate = self.rnaDegRates * self.timeStepSec
 		RNAspecificity = TotalDegradationRate / TotalDegradationRate.sum()
 
 
@@ -103,38 +101,41 @@ class RnaDegradation(wholecell.processes.process.Process):
 		print self.endoRnases.total().sum() 
 		print TotalDegradationRate.sum()
 		FractionActiveEndoRNases = 1
-		# if TotalDegradationRate.sum() < self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum():
-		# 	FractionActiveEndoRNases = TotalDegradationRate.sum() / (
-		# 			self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum()
-		# 		)
+		if TotalDegradationRate.sum() < self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum():
+			FractionActiveEndoRNases = TotalDegradationRate.sum() / (
+					self.KcatEndoRNaseFullRNA * self.endoRnases.total().sum()
+				)
 		print FractionActiveEndoRNases
 
-				
-		import ipdb; ipdb.set_trace()
+
+
+		# Calculating the total number of RNAs to degrade according to
+		# the total number of "active" endoRNases and their cleavage activity
 		nRNAsTotalToDegrade = np.round(self.KcatEndoRNaseFullRNA * 
 				self.endoRnases.total().sum() * 
 				FractionActiveEndoRNases
 			)
-		
-		# TODO: add bulkMolecule array of RNAs to indicate how many RNAs are still pending of being degraded
-		# nRNAsToDegrade = np.zeros(len(RNAspecificity))
-		# while nRNAsToDegrade.sum() < nRNAsTotalToDegrade:
-		# 	nRNAsToDegrade += np.fmin(
-		# 			self.randomState.multinomial(nRNAsTotalToDegrade - nRNAsToDegrade.sum(), RNAspecificity),
-		# 			self.rnas.total()
-		# 		)
-		# 	print nRNAsToDegrade.sum() / nRNAsTotalToDegrade * 100
+		nRNAsToDegrade = np.zeros(len(RNAspecificity))
+		while nRNAsToDegrade.sum() < nRNAsTotalToDegrade:
+			nRNAsToDegrade += np.fmin(
+					self.randomState.multinomial(nRNAsTotalToDegrade - nRNAsToDegrade.sum(), RNAspecificity),
+					self.rnas.total()
+				)
+		# print nRNAsToDegrade.sum() / nRNAsTotalToDegrade * 100
+		# import ipdb; ipdb.set_trace()
 		# print 'real number of RNAs degraded = %f' % nRNAsToDegrade.sum()
 
 
 		# old method
 		# ODE model: dr/dt = kb - kcatEndo * TotalEndoRNases * kd*r/sum_g(kd*r)
-		endoRnasesRelative = self.endoRnases.total().sum() * FractionActiveEndoRNases * RNAspecificity
-		nRNAsToDegrade = np.fmin(
-			self.randomState.poisson(self.KcatEndoRNaseFullRNA * self.timeStepSec * endoRnasesRelative),
-			# self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec)
-			self.rnas.total()
-			)
+		# endoRnasesRelative = self.endoRnases.total().sum() * FractionActiveEndoRNases * RNAspecificity
+		# nRNAsToDegrade = np.fmin(
+		# 	# self.randomState.poisson(self.KcatEndoRNaseFullRNA * self.timeStepSec * endoRnasesRelative),
+		# 	self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
+		# 	self.rnas.total()
+		# 	)
+		# import ipdb; ipdb.set_trace()
+
 
 		self.rnas.requestIs(nRNAsToDegrade)
 		self.endoRnases.requestAll()
@@ -150,11 +151,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", FractionActiveEndoRNases)
 
 	def evolveState(self):
+		print "RNAs degraded = %.3f" % sum(self.rnas.counts())
+		for i in range(0,len(self.rnas.counts())):
+			if self.rnas.counts()[i] != 0:
+				print i
+
 		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
 		self.writeToListener("RnaDegradationListener", "nucleotidesFromDegradation", (self.rnas.counts() * self.rnaLens).sum())
-
-		KcatEndoRNaseFragmentMin = 0.005 # cleavages/s
-		KcatEndoRNaseFragmentMax = 0.231 # cleavages/s
 
 		# Calculate endolytic cleavage events
 		# Modeling assumption: Once a RNA is cleaved by an endonuclease it's resulting nucleotides

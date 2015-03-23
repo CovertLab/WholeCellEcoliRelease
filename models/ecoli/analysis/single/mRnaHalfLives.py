@@ -40,25 +40,155 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 
 	isMRna = kb.rnaData["isMRna"]
+	isRRna = kb.rnaData["isRRna"]
+	isTRna = kb.rnaData["isTRna"]
 	rnaIds = kb.rnaData["id"][isMRna]
 
+	expectedDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
+
+
+	# counts = RNA(t)
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+	rnaCounts = rnaCountsBulk[1:,:]
+	rnaCountsTotal = rnaCounts.sum(axis = 0)
+
+	AllrnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in kb.rnaData["id"]], np.int)
+	AllrnaCountsBulk = bulkMolecules.readColumn("counts")[:, AllrnaIndexes]
+	AllCounts = AllrnaCountsBulk[1:,:]
+	TotalRnaDegraded = (AllCounts * kb.rnaData['degRate'].asNumber()).sum(axis = 1)
+	np.savetxt(os.path.join(plotOutDir, 'TotalKdRNA.txt'), TotalRnaDegraded)
+
+	# import ipdb; ipdb.set_trace()
+
+	MrnaCounts = AllrnaCountsBulk[1:,isMRna]
+	print kb.rnaData['degRate'][isMRna].asNumber().mean()
+	print kb.rnaData['degRate'][isMRna].asNumber().std()	
+	print len(kb.rnaData['degRate'][isMRna].asNumber())
+	np.savetxt(os.path.join(plotOutDir, 'MRNA.txt'), MrnaCounts.sum(axis = 1))
+	TotalMRnaDegraded = (MrnaCounts * kb.rnaData['degRate'][isMRna].asNumber()).sum(axis = 1)
+	np.savetxt(os.path.join(plotOutDir, 'TotalKdMRNA.txt'), TotalMRnaDegraded)
+
+	RrnaCounts = AllrnaCountsBulk[1:,isRRna]
+	print kb.rnaData['degRate'][isRRna].asNumber().mean()
+	print kb.rnaData['degRate'][isRRna].asNumber().std()
+	print len(kb.rnaData['degRate'][isRRna].asNumber())
+	np.savetxt(os.path.join(plotOutDir, 'RRNA.txt'), RrnaCounts.sum(axis = 1))
+	TotalRRnaDegraded = (RrnaCounts * kb.rnaData['degRate'][isRRna].asNumber()).sum(axis = 1)
+	np.savetxt(os.path.join(plotOutDir, 'TotalKdRRNA.txt'), TotalRRnaDegraded)
+
+	TrnaCounts = AllrnaCountsBulk[1:,isTRna] 
+	print kb.rnaData['degRate'][isTRna].asNumber().mean()
+	print kb.rnaData['degRate'][isTRna].asNumber().std()
+	print len(kb.rnaData['degRate'][isTRna].asNumber())
+	np.savetxt(os.path.join(plotOutDir, 'TRNA.txt'), TrnaCounts.sum(axis = 1))
+	TotalTRnaDegraded = (TrnaCounts * kb.rnaData['degRate'][isTRna].asNumber()).sum(axis = 1)
+	np.savetxt(os.path.join(plotOutDir, 'TotalKdTRNA.txt'), TotalTRnaDegraded)
+
+
+
+	
+
+	# degradation = kd*r(t)
 	rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 	time = rnaDegradationListenerFile.readColumn("time")
 	countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
 	rnaDegradationListenerFile.close()
+	rnaDegraded = countRnaDegraded[1:,:]
+	rnaDegradedTotal = rnaDegraded.sum(axis = 0)[isMRna]
+	rnaDegradationRate = rnaDegradedTotal / 3600. # TODO: this is not true
+	np.savetxt(os.path.join(plotOutDir, 'TotalDegradedMRNA.txt'), rnaDegraded[:, isMRna].sum(axis = 1))
+	np.savetxt(os.path.join(plotOutDir, 'TotalDegradedRRNA.txt'), rnaDegraded[:, isRRna].sum(axis = 1))
+	np.savetxt(os.path.join(plotOutDir, 'TotalDegradedTRNA.txt'), rnaDegraded[:, isTRna].sum(axis = 1))
+
+	# production = kb(t)
+	rnaSynthesizedListenerFile = TableReader(os.path.join(simOutDir, "TranscriptElongationListener"))
+	countRnaSynthesized = rnaSynthesizedListenerFile.readColumn('countRnaSynthesized')
+	rnaSynthesizedListenerFile.close()
+	rnaSynthesized = countRnaSynthesized[1:,:]
+	rnaSynthesizedTotal = rnaSynthesized.sum(axis = 0)[isMRna]
+	rnaSynthesizedTotalRate = rnaSynthesizedTotal / 3600.
+	np.savetxt(os.path.join(plotOutDir, 'TotalSynthesizedMRNA.txt'), rnaSynthesized[:, isMRna].sum(axis = 1))
+	np.savetxt(os.path.join(plotOutDir, 'TotalSynthesizedRRNA.txt'), rnaSynthesized[:, isRRna].sum(axis = 1))
+	np.savetxt(os.path.join(plotOutDir, 'TotalSynthesizedTRNA.txt'), rnaSynthesized[:, isTRna].sum(axis = 1))
+
+	#import ipdb; ipdb.set_trace()
+	
+
+	
+	rnaDegradationRate1 = []
+	rnaDegradationRate2 = []
+	rnaDegradationRate3 = []
+	rnaDegradationRate4 = []
+	rnaDegradationRate5 = []
+	expectedDegradationRateSubset = []
+	expectedDegradationRateSubset4 = []
+	expectedDegradationRateSubset5 = []
+
+	for i in range(0, len(rnaCountsTotal)): # loop for genes
+		if rnaCountsTotal[i] != 0:
+			rnaDegradationRate1.append(rnaDegradedTotal[i] / rnaCountsTotal[i]) # Sum_tau(kd*r) / Sum_tau(r)
+
+			rnaDegradationRate2.append(rnaSynthesizedTotal[i] / rnaCountsTotal[i]) # Sum_tau(kb) / Sum_tau(r)
+
+			rnaDegradationRate3.append( (rnaSynthesizedTotal[i] - rnaCounts[0,i]) / rnaCountsTotal[i]) # (Sum_tau(kb) - r) / Sum_tau(r)
+
+			rnaDegradationRate4_t = []
+			rnaDegradationRate5_t = []
+			for j in range(0, len(rnaDegraded[:,i]) - 1): # loop for timepoints
+				if rnaCounts[j,i] != 0:
+					if rnaDegraded[j,i] > 0:
+						rnaDegradationRate4_t.append(rnaDegraded[j,i] / rnaCounts[j,i]) # Average_t(kd*r / r)
+					if (rnaSynthesized[j,i] - (rnaCounts[j+1,i] - rnaCounts[j,i])) > 0:
+						rnaDegradationRate5_t.append((rnaSynthesized[j,i] - (rnaCounts[j+1,i] - rnaCounts[j,i])) / rnaCounts[j,i]) # Average_t(kd*r / r)
+			
+			if len(rnaDegradationRate4_t) > 0:
+				rnaDegradationRate4.append(np.mean(rnaDegradationRate4_t))	
+				expectedDegradationRateSubset4.append(expectedDegradationRate[i])
+			if len(rnaDegradationRate4_t) <= 0:
+				rnaDegradationRate4.append(-1)	
+				expectedDegradationRateSubset4.append(-1)
+
+
+			if len(rnaDegradationRate5_t) > 0:
+				rnaDegradationRate5.append(np.mean(rnaDegradationRate5_t))
+				expectedDegradationRateSubset5.append(expectedDegradationRate[i])	
+			if len(rnaDegradationRate5_t) <= 0:
+				rnaDegradationRate5.append(-1)	
+				expectedDegradationRateSubset5.append(-1)
+
+			expectedDegradationRateSubset.append(expectedDegradationRate[i])
+
+		if rnaCountsTotal[i] == 0:
+			rnaDegradationRate1.append(-1)	
+			rnaDegradationRate2.append(-1)	
+			rnaDegradationRate3.append(-1)	
+			expectedDegradationRateSubset.append(-1)
+			rnaDegradationRate4.append(-1)	
+			expectedDegradationRateSubset4.append(-1)
+			rnaDegradationRate5.append(-1)	
+			expectedDegradationRateSubset5.append(-1)
+
+	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted1.txt'), rnaDegradationRate1)
+	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted2.txt'), rnaDegradationRate2)
+	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted3.txt'), rnaDegradationRate3)
+	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted4.txt'), rnaDegradationRate4)
+	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted5.txt'), rnaDegradationRate5)
+
+	print np.corrcoef(expectedDegradationRateSubset, rnaDegradationRate1)[0][1]
+	print np.corrcoef(expectedDegradationRateSubset, rnaDegradationRate2)[0][1]
+	print np.corrcoef(expectedDegradationRateSubset, rnaDegradationRate3)[0][1]
+	print np.corrcoef(expectedDegradationRateSubset4, rnaDegradationRate4)[0][1]
+	print np.corrcoef(expectedDegradationRateSubset5, rnaDegradationRate5)[0][1]
+
+	#import ipdb; ipdb.set_trace()
+
+	
+	
 
 	plt.figure(figsize = (8.5, 11))
-
-	# Assuming that decay rates are the average of instantaneous degradation rates (simulation time points)
-	rnaDegradationRate = countRnaDegraded[1:,:].sum(axis = 0)[isMRna] / 3600.
-	# Assuming that decay rates are the median of instantaneous degradation rates (simulation time points)
-	# rnaDegradationRate = countRnaDegraded[1:,:].median(axis = 0)[isMRna]
-
-	rnaDegradationRateStd = countRnaDegraded[1:,:].std(axis = 0)[isMRna]
-
-
-	expectedDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
-
 	maxLine = 1.1 * max(expectedDegradationRate.max(), rnaDegradationRate.max())
 	
 	plt.plot([0, maxLine], [0, maxLine], '--r')	

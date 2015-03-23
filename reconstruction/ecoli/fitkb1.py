@@ -244,6 +244,19 @@ def createBulkContainer(kb):
 
 	bulkContainer.countsIs(counts_protein, ids_protein)
 
+	## HACK CODE: this code changes manually the number of EndoRNasess
+	# endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
+	# countsEndoRnase = bulkContainer.counts(endoRnaseIds)
+	# normalizeDist = countsEndoRnase / countsEndoRnase.sum()
+	# totalCounts = 6000.
+	# newTotalCounts = totalCounts * normalizeDist
+	# bulkContainer.countsIs(newTotalCounts, endoRnaseIds)
+	## HACK CODE
+
+
+
+
+
 	return bulkContainer
 
 
@@ -616,12 +629,12 @@ def netLossRateFromDilutionAndDegradation(doublingTime, degradationRates):
 
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts):
-	netRate = RNACounts * ( (np.log(2) / doublingTime) + degradationRates )
+	# netRate = RNACounts * ( (np.log(2) / doublingTime) + degradationRates )
 
 	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
 	# new RNA decay model: kb - r ( ln(2)/tau + kcatEndoRN * EndoRN * kd / (Sum_g kd * r) ) = 0 
 	# import ipdb; ipdb.set_trace()
-	# netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
+	netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
 	
 	# RNA decay considering only RNase specificity (RNA lifetimes measured)
 	# new RNA decay model: kb - kcatEndoRN * EndoRN * kd / (Sum_g kd * r) - r * ln(2) / tau = 0 

@@ -128,6 +128,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	totalendoRnaseCounts_axis.plot(time / 60., totalendoRnaseCounts)
 	plt.ylabel("Counts of endoRNase", fontsize = 7)
 	plt.xlabel("Time (min)")
+	np.savetxt(os.path.join(plotOutDir, 'TotalEndoRNaseCounts-MONOMER[c].txt'), totalendoRnaseCounts)
 
 	kcatExoRnase_axis = plt.subplot(9,1,7)
 	kcatExoRnase_axis.plot(time / 60., kcatExoRnase)
