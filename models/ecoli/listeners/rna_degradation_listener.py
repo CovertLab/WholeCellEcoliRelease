@@ -29,7 +29,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, kb):
 		super(RnaDegradationListener, self).initialize(sim, kb)
 
-		self.countRnaDegraded = np.zeros(kb.rnaData.fullArray().size, np.int64)
+		self.countRnaDegraded = np.zeros(kb.process.transcription.rnaData.fullArray().size, np.int64)
 		self.nucleotidesFromDegradation = 0
 		self.FractionActiveEndoRNases = 0
 

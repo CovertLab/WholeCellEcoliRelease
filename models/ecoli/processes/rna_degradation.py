@@ -34,39 +34,39 @@ class RnaDegradation(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(RnaDegradation, self).initialize(sim, kb)
 
-		rnaIds = kb.rnaData['id']
+		rnaIds = kb.process.transcription.rnaData['id']
 
 		#RNase
 		exoRnaseIds = ["EG11620-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]",  "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "EG10743-MONOMER[c]", "G7842-MONOMER[c]"]
 		endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
 
-		# import ipdb; ipdb.set_trace()
-		self.KcatEndoRNaseFullRNA = kb.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * self.timeStepSec
+		import ipdb; ipdb.set_trace()
+		self.KcatEndoRNaseFullRNA = kb.constants.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * self.timeStepSec
 		# self.KcatEndoRNasesFullRNA = kb.KcatEndoRNasesFullRNA.asNumber(1 / units.s) * self.timeStepSec
 
 		# Rna
-		self.rnaDegRates = kb.rnaData['degRate'].asNumber()
-		# isMRna = kb.rnaData["isMRna"]
-		# expectedMRnaDegradationRate = kb.rnaData['degRate'][isMRna].asNumber()
-		# isRRna = kb.rnaData["isRRna"]
-		# expectedRRnaDegradationRate = kb.rnaData['degRate'][isRRna].asNumber()
-		# isTRna = kb.rnaData["isTRna"]
-		# expectedTRnaDegradationRate = kb.rnaData['degRate'][isTRna].asNumber()
+		self.rnaDegRates = kb.process.transcription.rnaData['degRate'].asNumber()
+		# isMRna = kb.process.transcription.rnaData["isMRna"]
+		# expectedMRnaDegradationRate = kb.process.transcription.rnaData['degRate'][isMRna].asNumber()
+		# isRRna = kb.process.transcription.rnaData["isRRna"]
+		# expectedRRnaDegradationRate = kb.process.transcription.rnaData['degRate'][isRRna].asNumber()
+		# isTRna = kb.process.transcription.rnaData["isTRna"]
+		# expectedTRnaDegradationRate = kb.process.transcription.rnaData['degRate'][isTRna].asNumber()
 
 		# import ipdb; ipdb.set_trace()
 
 
-		self.rnaLens = kb.rnaData['length'].asNumber()
+		self.rnaLens = kb.process.transcription.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
-		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in kb.fragmentNT_IDs]
+		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in kb.moleculeGroups.fragmentNT_IDs]
 		endCleavageMetaboliteIds.extend(["H2O[c]", "PPI[c]", "H[c]"])
 		nmpIdxs = range(4)
 		h2oIdx = endCleavageMetaboliteIds.index("H2O[c]")
 		ppiIdx = endCleavageMetaboliteIds.index("PPI[c]")
 		hIdx = endCleavageMetaboliteIds.index("H[c]")
 		self.endoDegradationSMatrix = np.zeros((len(endCleavageMetaboliteIds), len(rnaIds)), np.int64)
-		self.endoDegradationSMatrix[nmpIdxs, :] = units.transpose(kb.rnaData['countsACGU']).asNumber()
+		self.endoDegradationSMatrix[nmpIdxs, :] = units.transpose(kb.process.transcription.rnaData['countsACGU']).asNumber()
 		self.endoDegradationSMatrix[h2oIdx, :] = 0
 		self.endoDegradationSMatrix[ppiIdx, :] = 1
 		self.endoDegradationSMatrix[hIdx, :] = 0
@@ -78,7 +78,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.h = self.bulkMoleculesView(['H[c]'])
 
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
-		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.fragmentNT_IDs])
+		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.moleculeGroups.fragmentNT_IDs])
 
 		self.endoRnases = self.bulkMoleculesView(endoRnaseIds)
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
