@@ -1,4 +1,6 @@
-# MongoDB Setup
+# One-time setup
+
+## MongoDB
 
 * Create an account at mongolab.com
 
@@ -21,3 +23,7 @@
 * Choose a username and password.  Note that in fireworks, the password is stored in plaintext.
 
 * Note that the information shown at the top ("To connect using the shell") contains the database hostname and database port (the part after the colon is the port).
+
+## Config files for Fireworks
+
+* Run `python fireworks/initialize.py`
