@@ -9,7 +9,7 @@ def main():
 
 	logdir_launchpad = raw_input("Launchpad logging directory (e.g. %s): " % os.path.join(home, "fw", "logs", "launchpad"))
 	db_host = raw_input("Database host (e.g., x.mongolab.com): ")
-	db_name = raw_input("Database name (e.g., wcEcoli): ")
+	db_name = raw_input("Database name (e.g., wc_ecoli): ")
 	db_username = raw_input("Database username (e.g., fireworks): ")
 	db_password = raw_input("Database password (stored in plaintext, unfortunately): ")
 	db_port = raw_input("Database port: ")
