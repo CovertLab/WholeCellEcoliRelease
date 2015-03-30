@@ -26,4 +26,4 @@
 
 ## Config files for Fireworks
 
-* Run `python fireworks/initialize.py`
+* Run `python wholecell/fireworks/initialize.py`
