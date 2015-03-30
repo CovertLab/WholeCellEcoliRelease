@@ -17,8 +17,8 @@ def main():
 	logdir_qadapter = raw_input("Launchpad logging directory (e.g. %s): " % os.path.join(home, "fw", "logs", "qadapter"))
 	wcecoli_path = raw_input("wcEcoli path (e.g., %s): " % os.path.join(home, "wcEcoli"))
 
-	template_my_launchpad = os.path.join(wcecoli_path, "fireworks", "templates", "my_launchpad.yaml")
-	my_launchpad = os.path.join(wcecoli_path, "fireworks", "my_launchpad.yaml")
+	template_my_launchpad = os.path.join(wcecoli_path, "wholecell", "fireworks", "templates", "my_launchpad.yaml")
+	my_launchpad = os.path.join(wcecoli_path, "my_launchpad.yaml")
 
 	h = open(template_my_launchpad, "r")
 	t = Template(h.read())
@@ -37,8 +37,8 @@ def main():
 	h.write(my_launchpad_text)
 	h.close()
 
-	template_my_qadapter = os.path.join(wcecoli_path, "fireworks", "templates", "my_qadapter.yaml")
-	my_qadapter = os.path.join(wcecoli_path, "fireworks", "my_qadapter.yaml")
+	template_my_qadapter = os.path.join(wcecoli_path, "wholecell", "fireworks", "templates", "my_qadapter.yaml")
+	my_qadapter = os.path.join(wcecoli_path, "my_qadapter.yaml")
 
 	h = open(template_my_qadapter, "r")
 	t = Template(h.read())
