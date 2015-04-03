@@ -1,0 +1,277 @@
+#!/usr/bin/env python
+
+from fireworks import Firework, LaunchPad, Workflow, ScriptTask
+from wholecell.fireworks.firetasks import InitKbTask
+from wholecell.fireworks.firetasks import SymlinkTask
+from wholecell.fireworks.firetasks import FitKbTask
+from wholecell.fireworks.firetasks import VariantKbTask
+from wholecell.fireworks.firetasks import SimulationTask
+from wholecell.fireworks.firetasks import AnalysisSingleTask
+from jinja2 import Template
+
+import wholecell.utils.constants
+import yaml
+import os
+import datetime
+import subprocess
+
+def run_cmd(cmd):
+	environ = {
+	"PATH": os.environ["PATH"],
+	"LANG": "C",
+	"LC_ALL": "C",
+	}
+	out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=environ).communicate()[0]
+	return out
+
+def write_file(filename, content):
+	h = open(filename, "w")
+	h.write(content)
+	h.close()
+
+#### Initial setup ###
+
+### Set path variables
+
+dirname = os.path.dirname
+WC_ECOLI_DIRECTORY = dirname(dirname(os.path.abspath(__file__)))
+OUT_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "out")
+
+now = datetime.datetime.now()
+SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
+	now.year, now.month, now.day,
+	now.hour, now.minute, now.second,
+	now.microsecond)
+KB_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, "kb")
+METADATA_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, "metadata")
+
+### Set variant variables
+
+VARIANT = os.environ.get("VARIANT", "wildtype")
+FIRST_VARIANT_INDEX = int(os.environ.get("FIRST_VARIANT_INDEX", "0"))
+LAST_VARIANT_INDEX = int(os.environ.get("LAST_VARIANT_INDEX", "0"))
+
+if LAST_VARIANT_INDEX == -1:
+	from models.ecoli.sim.variants import nameToNumIndicesMapping
+	LAST_VARIANT_INDEX = nameToNumIndicesMapping[VARIANT]
+
+# This variable gets iterated over in multiple places
+# So be careful if you change it to xrange
+VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
+
+### Set other environment variables
+
+N_SIMS = int(os.environ.get("N_SIMS", "1"))
+
+### Create directories
+
+if not os.path.exists(OUT_DIRECTORY):
+	os.makedirs(OUT_DIRECTORY)
+
+if not os.path.exists(KB_DIRECTORY):
+	os.makedirs(KB_DIRECTORY)
+
+if not os.path.exists(METADATA_DIRECTORY):
+	os.makedirs(METADATA_DIRECTORY)
+
+for i in VARIANTS_TO_RUN:
+	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
+	VARIANT_KB_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
+	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
+
+	if not os.path.exists(VARIANT_DIRECTORY):
+		os.makedirs(VARIANT_DIRECTORY)
+
+	if not os.path.exists(VARIANT_KB_DIRECTORY):
+		os.makedirs(VARIANT_KB_DIRECTORY)
+
+	if not os.path.exists(VARIANT_METADATA_DIRECTORY):
+		os.makedirs(VARIANT_METADATA_DIRECTORY)
+
+	for j in xrange(N_SIMS):
+		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
+		SIM_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "simOut")
+		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
+
+		if not os.path.exists(SEED_DIRECTORY):
+			os.makedirs(SEED_DIRECTORY)
+
+		if not os.path.exists(SIM_OUT_DIRECTORY):
+			os.makedirs(SIM_OUT_DIRECTORY)
+
+		if not os.path.exists(PLOT_OUT_DIRECTORY):
+			os.makedirs(PLOT_OUT_DIRECTORY)
+
+
+
+
+### Write metadata
+
+write_file(
+	os.path.join(METADATA_DIRECTORY, "git_hash"),
+	run_cmd(["git", "rev-parse", "HEAD"])
+	)
+
+write_file(
+	os.path.join(METADATA_DIRECTORY, "git_branch"),
+	run_cmd(["git", "symbolic-ref", "--short", "HEAD"])
+	)
+
+write_file(
+	os.path.join(METADATA_DIRECTORY, "git_diff"),
+	run_cmd(["git", "diff"])
+	)
+
+write_file(
+	os.path.join(METADATA_DIRECTORY, "description"),
+	os.environ.get("DESC", "")
+	)
+
+
+#### Create workflow
+
+# Create launchpad
+lpad = LaunchPad(**yaml.load(open("my_launchpad.yaml")))
+
+# Store list of FireWorks
+wf_fws = []
+
+# Store links defining parent/child relationships of FireWorks
+wf_links = {}
+
+
+### Initialize KB
+
+filename_kb_fit_0 = (
+			wholecell.utils.constants.SERIALIZED_KB_PREFIX +
+			"_Fit_0" +
+			wholecell.utils.constants.SERIALIZED_KB_SUFFIX
+			)
+
+fw_initKb = Firework(InitKbTask(
+	output = os.path.join(KB_DIRECTORY, filename_kb_fit_0)
+	))
+
+wf_fws.append(fw_initKb)
+
+# Unfit KB compression
+fw_kb_fit_0_compression = Firework(ScriptTask(
+	script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_0)
+	))
+
+wf_fws.append(fw_kb_fit_0_compression)
+
+## Create symlink to unfit KB
+
+fw_symlink_unfit = Firework(SymlinkTask(
+	to = filename_kb_fit_0,
+	link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME),
+	overwrite_if_exists = True
+	))
+
+wf_fws.append(fw_symlink_unfit)
+
+wf_links[fw_initKb] = fw_symlink_unfit
+
+
+### Fit (Level 1)
+
+filename_kb_fit_1 = (
+			wholecell.utils.constants.SERIALIZED_KB_PREFIX +
+			"_Fit_1" +
+			wholecell.utils.constants.SERIALIZED_KB_SUFFIX
+			)
+
+fw_fit_level_1 = Firework(FitKbTask(
+	fit_level = 1,
+	input_kb = os.path.join(KB_DIRECTORY, filename_kb_fit_0),
+	output_kb = os.path.join(KB_DIRECTORY, filename_kb_fit_1),
+	))
+
+wf_fws.append(fw_fit_level_1)
+wf_links[fw_symlink_unfit] = fw_fit_level_1
+
+# Fit Level 1 KB compression
+fw_kb_fit_1_compression = Firework(ScriptTask(
+	script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_1)
+	))
+
+wf_fws.append(fw_kb_fit_1_compression)
+
+## Create symlink to most fit KB
+# (when more fitting stages are implemented, move this down)
+
+fw_symlink_most_fit = Firework(SymlinkTask(
+	to = filename_kb_fit_1,
+	link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME),
+	overwrite_if_exists = True
+	))
+
+wf_fws.append(fw_symlink_most_fit)
+
+wf_links[fw_fit_level_1] = fw_symlink_most_fit
+
+
+### Create variants and simulations
+for i in VARIANTS_TO_RUN:
+	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
+	VARIANT_KB_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
+	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
+
+	# Variant KB creation task
+	fw_this_variant_kb = Firework(VariantKbTask(
+		variant_function = VARIANT,
+		variant_index = i,
+		input_kb = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME),
+		output_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+		variant_metadata_directory = VARIANT_METADATA_DIRECTORY,
+		))
+
+	wf_fws.append(fw_this_variant_kb)
+
+	wf_links[fw_symlink_most_fit] = fw_this_variant_kb
+
+	# Variant KB compression
+	fw_this_variant_kb_compression = Firework(ScriptTask(
+		script = "bzip2 " + os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle")
+		))
+
+	wf_fws.append(fw_this_variant_kb_compression)
+
+	for j in xrange(N_SIMS):
+		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
+		SIM_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "simOut")
+		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
+
+		# Simulation task
+		fw_this_variant_this_sim = Firework(SimulationTask(
+			input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+			output_directory = SIM_OUT_DIRECTORY,
+			seed = j,
+			))
+
+		wf_fws.append(fw_this_variant_this_sim)
+
+		wf_links[fw_this_variant_kb] = fw_this_variant_this_sim
+
+		# AnalysisSingle task
+		fw_this_variant_this_sim_analysis = Firework(AnalysisSingleTask(
+			input_results_directory = SIM_OUT_DIRECTORY,
+			input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+			output_plots_directory = PLOT_OUT_DIRECTORY,
+			))
+
+		wf_fws.append(fw_this_variant_this_sim_analysis)
+
+		wf_links[fw_this_variant_this_sim] = fw_this_variant_this_sim_analysis
+
+		wf_links[fw_this_variant_this_sim_analysis] = [fw_this_variant_kb_compression]
+
+		wf_links[fw_this_variant_this_sim_analysis].append(fw_kb_fit_0_compression)
+		wf_links[fw_this_variant_this_sim_analysis].append(fw_kb_fit_1_compression)
+
+### Create workflow
+
+workflow = Workflow(wf_fws, links_dict = wf_links)
+
+lpad.add_wf(workflow)
