@@ -111,6 +111,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

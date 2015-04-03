@@ -70,6 +70,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.tight_layout()
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":
