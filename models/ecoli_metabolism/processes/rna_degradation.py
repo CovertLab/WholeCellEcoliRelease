@@ -36,7 +36,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		rnaComposition = kb.process.transcription.rnaData["countsACGU"].asNumber()
 
-		initialDryMass = kb.constants.avgCellDryMassInit
+		initialDryMass = kb.constants.mass_constants.avgCellDryMassInit
 
 		rnaMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0

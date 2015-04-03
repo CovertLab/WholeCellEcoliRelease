@@ -94,8 +94,8 @@ def fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContain
 
 	### Set up exchange reactions
 
-	initWaterMass = kb.constants.avgCellWaterMassInit
-	initDryMass = kb.constants.avgCellDryMassInit
+	initWaterMass = kb.constants.mass_constants.avgCellWaterMassInit
+	initDryMass = kb.constants.mass_constants.avgCellDryMassInit
 
 	initCellMass = initWaterMass + initDryMass
 
