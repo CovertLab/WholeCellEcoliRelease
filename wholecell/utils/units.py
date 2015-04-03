@@ -55,6 +55,17 @@ def transpose(array,axis=None):
 
 	return units * np.transpose(array.asNumber(), axis)
 
+def hstack(tup):
+	unit = getUnit(tup[0])
+	value = []
+	for array in tup:
+		if type(array) != Unum:
+			raise Exception, 'Only works on Unum!\n'
+		else:
+			value.append(array.matchUnits(unit)[0].asNumber())
+	value = tuple(value)
+	return unit * np.hstack(value)
+
 def getUnit(value):
 	value_units = value.copy()
 	value_units._value = 1
