@@ -148,26 +148,35 @@ filename_kb_fit_0 = (
 			wholecell.utils.constants.SERIALIZED_KB_SUFFIX
 			)
 
-fw_initKb = Firework(InitKbTask(
-	output = os.path.join(KB_DIRECTORY, filename_kb_fit_0)
-	))
+fw_initKb = Firework(
+	InitKbTask(
+		output = os.path.join(KB_DIRECTORY, filename_kb_fit_0)
+		),
+	spec = {"_queueadapter": {"job_name": "InitKbTask"}}
+	)
 
 wf_fws.append(fw_initKb)
 
 # Unfit KB compression
-fw_kb_fit_0_compression = Firework(ScriptTask(
-	script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_0)
-	))
+fw_kb_fit_0_compression = Firework(
+	ScriptTask(
+		script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_0)
+		),
+	spec = {"_queueadapter": {"job_name": "ScriptTask_compression_fit_0_KB"}}
+	)
 
 wf_fws.append(fw_kb_fit_0_compression)
 
 ## Create symlink to unfit KB
 
-fw_symlink_unfit = Firework(SymlinkTask(
-	to = filename_kb_fit_0,
-	link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME),
-	overwrite_if_exists = True
-	))
+fw_symlink_unfit = Firework(
+	SymlinkTask(
+		to = filename_kb_fit_0,
+		link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME),
+		overwrite_if_exists = True
+		),
+	spec = {"_queueadapter": {"job_name": "SymlinkTask_KB_Unfit"}}
+	)
 
 wf_fws.append(fw_symlink_unfit)
 
@@ -182,30 +191,39 @@ filename_kb_fit_1 = (
 			wholecell.utils.constants.SERIALIZED_KB_SUFFIX
 			)
 
-fw_fit_level_1 = Firework(FitKbTask(
-	fit_level = 1,
-	input_kb = os.path.join(KB_DIRECTORY, filename_kb_fit_0),
-	output_kb = os.path.join(KB_DIRECTORY, filename_kb_fit_1),
-	))
+fw_fit_level_1 = Firework(
+	FitKbTask(
+		fit_level = 1,
+		input_kb = os.path.join(KB_DIRECTORY, filename_kb_fit_0),
+		output_kb = os.path.join(KB_DIRECTORY, filename_kb_fit_1),
+		),
+	spec = {"_queueadapter": {"job_name": "FitKbTask_Level_1"}}
+	)
 
 wf_fws.append(fw_fit_level_1)
 wf_links[fw_symlink_unfit] = fw_fit_level_1
 
 # Fit Level 1 KB compression
-fw_kb_fit_1_compression = Firework(ScriptTask(
-	script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_1)
-	))
+fw_kb_fit_1_compression = Firework(
+	ScriptTask(
+		script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_1)
+		),
+	spec = {"_queueadapter": {"job_name": "ScriptTask_compression_fit_1_KB"}}
+	)
 
 wf_fws.append(fw_kb_fit_1_compression)
 
 ## Create symlink to most fit KB
 # (when more fitting stages are implemented, move this down)
 
-fw_symlink_most_fit = Firework(SymlinkTask(
-	to = filename_kb_fit_1,
-	link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME),
-	overwrite_if_exists = True
-	))
+fw_symlink_most_fit = Firework(
+	SymlinkTask(
+		to = filename_kb_fit_1,
+		link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME),
+		overwrite_if_exists = True
+		),
+	spec = {"_queueadapter": {"job_name": "SymlinkTask_KB_Most_Fit"}}
+	)
 
 wf_fws.append(fw_symlink_most_fit)
 
@@ -219,24 +237,32 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
 
 	# Variant KB creation task
-	fw_this_variant_kb = Firework(VariantKbTask(
-		variant_function = VARIANT,
-		variant_index = i,
-		input_kb = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME),
-		output_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-		variant_metadata_directory = VARIANT_METADATA_DIRECTORY,
-		))
+	fw_this_variant_kb = Firework(
+		VariantKbTask(
+			variant_function = VARIANT,
+			variant_index = i,
+			input_kb = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME),
+			output_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+			variant_metadata_directory = VARIANT_METADATA_DIRECTORY,
+			),
+		spec = {"_queueadapter": {"job_name": "VariantKbTask"}}
+		)
 
 	wf_fws.append(fw_this_variant_kb)
 
 	wf_links[fw_symlink_most_fit] = fw_this_variant_kb
 
 	# Variant KB compression
-	fw_this_variant_kb_compression = Firework(ScriptTask(
-		script = "bzip2 " + os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle")
-		))
+	fw_this_variant_kb_compression = Firework(
+		ScriptTask(
+			script = "bzip2 " + os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle")
+			),
+		spec = {"_queueadapter": {"job_name": "ScriptTask_compression_variant_KB"}}
+		)
 
 	wf_fws.append(fw_this_variant_kb_compression)
+
+	wf_links[fw_this_variant_kb] = []
 
 	for j in xrange(N_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
@@ -244,22 +270,28 @@ for i in VARIANTS_TO_RUN:
 		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
 
 		# Simulation task
-		fw_this_variant_this_sim = Firework(SimulationTask(
-			input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-			output_directory = SIM_OUT_DIRECTORY,
-			seed = j,
-			))
+		fw_this_variant_this_sim = Firework(
+			SimulationTask(
+				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+				output_directory = SIM_OUT_DIRECTORY,
+				seed = j,
+				),
+			spec = {"_queueadapter": {"job_name": "SimulationTask"}}
+			)
 
 		wf_fws.append(fw_this_variant_this_sim)
 
-		wf_links[fw_this_variant_kb] = fw_this_variant_this_sim
+		wf_links[fw_this_variant_kb].append(fw_this_variant_this_sim)
 
 		# AnalysisSingle task
-		fw_this_variant_this_sim_analysis = Firework(AnalysisSingleTask(
-			input_results_directory = SIM_OUT_DIRECTORY,
-			input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-			output_plots_directory = PLOT_OUT_DIRECTORY,
-			))
+		fw_this_variant_this_sim_analysis = Firework(
+			AnalysisSingleTask(
+				input_results_directory = SIM_OUT_DIRECTORY,
+				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+				output_plots_directory = PLOT_OUT_DIRECTORY,
+				),
+			spec = {"_queueadapter": {"job_name": "AnalysisSingleTask"}}
+			)
 
 		wf_fws.append(fw_this_variant_this_sim_analysis)
 
