@@ -23,18 +23,6 @@ from wholecell.listeners.evaluation_time import EvaluationTime
 import wholecell.loggers.shell
 import wholecell.loggers.disk
 
-# TODO: merge these two dicts?
-OPTIONS_AND_ENVIRON_VARS = dict(
-	seed = ("WC_SEED", int),
-	lengthSec = ("WC_LENGTHSEC", int),
-	logToShell = ("WC_LOGTOSHELL", json.loads),
-	logToDisk = ("WC_LOGTODISK", json.loads),
-	outputDir = ("WC_OUTPUTDIR", json.loads),
-	overwriteExistingFiles = ("WC_OVERWRITEEXISTINGFILES", json.loads),
-	logToDiskEvery = ("WC_LOGTODISKEVERY", int),
-	kbLocation = ("WC_KBLOCATION", json.loads)
-	)
-
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3600,
@@ -45,41 +33,6 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	logToDiskEvery = 1,
 	kbLocation = None
 	)
-
-def getSimOptsFromEnvVars(optionsToNotGetFromEnvVars = None):
-	optionsToNotGetFromEnvVars = optionsToNotGetFromEnvVars or []
-
-	# We use this to check if any undefined WC_* environmental variables
-	# were accidentally specified by the user
-	wcEnvVars = [x for x in os.environ if x.startswith("WC_")]
-
-	# These are options that the calling routine might set itself
-	# While it could just overwrite them silently, removing them here
-	# will at least alert the user
-	for opt in optionsToNotGetFromEnvVars:
-		del OPTIONS_AND_ENVIRON_VARS[opt]
-
-	simOpts = {}
-
-	# Get simulation options from environmental variables
-	for option, (envVar, handler) in OPTIONS_AND_ENVIRON_VARS.iteritems():
-		if os.environ.has_key(envVar) and len(os.environ[envVar]):
-			simOpts[option] = handler(os.environ[envVar])
-			wcEnvVars.remove(envVar)
-
-		else:
-			if os.environ.has_key(envVar) and len(os.environ[envVar]) == 0:
-				wcEnvVars.remove(envVar)
-
-			simOpts[option] = DEFAULT_SIMULATION_KWARGS[option]
-
-	# Check for extraneous environmental variables (probably typos by the user)
-	assert (len(wcEnvVars) == 0), (
-		"The following WC_* environmental variables were specified but " +
-		"have no defined function: %s" % wcEnvVars
-		)
-
-	return simOpts
 
 def _orderedAbstractionReference(iterableOfClasses):
 	return collections.OrderedDict(
