@@ -71,7 +71,7 @@ class EcoliSimulation(Simulation):
 
 	_initialConditionsFunction = calcInitialConditions
 
-	_lengthSec = 3600
+	_lengthSec = 3600 * 4
 	_timeStepSec = 1
 
 	_logToShell = True

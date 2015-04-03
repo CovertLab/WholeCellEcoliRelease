@@ -159,6 +159,7 @@ class Simulation(object):
 		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
 		self.hooks = _orderedAbstractionReference(self._hookClasses)
 		self._initLoggers()
+		self._cellCycleComplete = False
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -222,6 +223,9 @@ class Simulation(object):
 
 		# Simulate
 		while self.time() < self._lengthSec:
+			if self._cellCycleComplete:
+				break
+
 			self.simulationStep += 1
 
 			self._evolveState()
@@ -369,6 +373,9 @@ class Simulation(object):
 
 	def lengthSec(self):
 		return self._lengthSec
+
+	def cellCycleComplete(self):
+		self._cellCycleComplete = True
 
 	@classmethod
 	def printAnalysisSingleFiles(cls):
