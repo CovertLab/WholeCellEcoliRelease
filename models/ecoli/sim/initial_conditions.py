@@ -68,7 +68,7 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
 	monomerExpression = normalize(
 		kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.constants.cellCycleLen.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
 	nMonomers = countsFromMassAndExpression(
@@ -156,7 +156,7 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
 	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	T_d = kb.constants.cellCycleLen.asNumber(units.s)
+	T_d = kb.doubling_time.asNumber(units.s)
 	dt = kb.constants.timeStep.asNumber(units.s)
 
 	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2

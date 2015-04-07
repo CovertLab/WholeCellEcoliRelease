@@ -44,7 +44,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		self.rnaIndexes = np.array([
 			kb.submassNameToIndex[name]
@@ -68,7 +68,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		# Set total mass that should be added to cell
 		# This is an approximation for length
-		self.expectedMassIncrease = kb.constants.mass_constants.avgCellDryMassInit
+		self.expectedMassIncrease = kb.mass.avgCellDryMassInit
 
 		# Set initial values
 

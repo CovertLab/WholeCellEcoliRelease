@@ -31,7 +31,7 @@ class Transcription(object):
 			])
 		expression = np.array([rna['expression'] for rna in raw_data.rnas])
 		synthProb = expression * (
-			np.log(2) / raw_data.parameters['cellCycleLen'].asNumber(units.s)
+			np.log(2) / sim_data.doubling_time.asNumber(units.s)
 			+ rnaDegRates
 			)
 		

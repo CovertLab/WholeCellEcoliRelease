@@ -22,10 +22,10 @@ class Maintenance(wholecell.processes.process.Process):
 
 		# Load constants
 
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		self.initialMaintenanceReactions = (
-			kb.NGAM * kb.constants.nAvogadro * kb.constants.mass_constants.avgCellDryMassInit
+			kb.NGAM * kb.constants.nAvogadro * kb.mass.avgCellDryMassInit
 			).asNumber(1 / units.s) * self.timeStepSec
 
 		# Create views on state

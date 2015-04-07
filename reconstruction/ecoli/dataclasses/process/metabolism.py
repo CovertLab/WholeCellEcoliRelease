@@ -1931,8 +1931,8 @@ class Metabolism(object):
 
 		# Calculate the following assuming 60 min doubling time
 
-		initWaterMass = sim_data.constants.mass_constants.avgCellWaterMassInit.asNumber(units.g)
-		initDryMass = sim_data.constants.mass_constants.avgCellDryMassInit.asNumber(units.g)
+		initWaterMass = sim_data.mass.avgCellWaterMassInit.asNumber(units.g)
+		initDryMass = sim_data.mass.avgCellDryMassInit.asNumber(units.g)
 
 		initCellMass = initWaterMass + initDryMass
 

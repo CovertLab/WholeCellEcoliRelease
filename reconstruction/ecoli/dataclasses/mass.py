@@ -17,28 +17,43 @@ class Mass(object):
 	""" Mass """
 
 	def __init__(self, raw_data, sim_data):
-		self.tau_d = sim_data._doubling_time
-		self.massFractions = None
+		self._tau_d = sim_data.doubling_time
 
+		self._buildConstants(raw_data, sim_data)
 		self._buildMassFractions(raw_data, sim_data)
+
+		self.massFractions = self._massFractions()
+		self._buildDependentConstants()
+
 		self._buildTrnaData(raw_data, sim_data)
+
+	def _buildConstants(self, raw_data, sim_data):
+		mass_parameters = raw_data.mass_parameters
+		self.__dict__.update(mass_parameters)
+
+		self.cellDryMassFraction = 1. - self.cellWaterMassFraction
+		self.avgCellToInitalCellConvFactor = np.exp(np.log(2) * self.avgCellCellCycleProgress)
+
+	def _buildDependentConstants(self):
+		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitalCellConvFactor
+		avgCellWaterMass = (self.avgCellDryMass / self.cellDryMassFraction) * self.cellWaterMassFraction
+		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitalCellConvFactor
 
 	def _buildMassFractions(self, raw_data, sim_data):
 		self._tau_d_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
 
-		avgToBeginningConvFactor = sim_data.constants.mass_constants.avgCellToInitalCellConvFactor
-		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / avgToBeginningConvFactor
+		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitalCellConvFactor
 		self._proteinMass = self._dryMass * np.array([float(x['proteinMassFraction']) for x in raw_data.dryMassComposition])
 		self._rnaMass = self._dryMass * np.array([float(x['rnaMassFraction']) for x in raw_data.dryMassComposition])
 		self._dnaMass = self._dryMass * np.array([float(x['dnaMassFraction']) for x in raw_data.dryMassComposition])
 		
 		# We are assuming these are constant over all growth rates
 		# (probably not be true...)
-		self._RRNA23S_MASS_SUB_FRACTION = sim_data.constants.mass_constants.rrna23s_mass_sub_fraction
-		self._RRNA16S_MASS_SUB_FRACTION = sim_data.constants.mass_constants.rrna16s_mass_sub_fraction
-		self._RRNA5S_MASS_SUB_FRACTION = sim_data.constants.mass_constants.rrna5s_mass_sub_fraction
-		self._TRNA_MASS_SUB_FRACTION = sim_data.constants.mass_constants.trna_mass_sub_fraction
-		self._MRNA_MASS_SUB_FRACTION = sim_data.constants.mass_constants.mrna_mass_sub_fraction
+		self._RRNA23S_MASS_SUB_FRACTION = self.rrna23s_mass_sub_fraction
+		self._RRNA16S_MASS_SUB_FRACTION = self.rrna16s_mass_sub_fraction
+		self._RRNA5S_MASS_SUB_FRACTION = self.rrna5s_mass_sub_fraction
+		self._TRNA_MASS_SUB_FRACTION = self.trna_mass_sub_fraction
+		self._MRNA_MASS_SUB_FRACTION = self.mrna_mass_sub_fraction
 
 		self._dryMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._dryMass, p0 = (0, 0, 0, 0))
 		self._proteinMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._proteinMass, p0 = (0, 0, 0, 0))
@@ -56,16 +71,17 @@ class Mass(object):
 		Given an input doubling time in minutes, output mass fractions in fg
 		"""
 
-		if type(self.tau_d) != unum.Unum:
+		if type(self._tau_d) != unum.Unum:
 			raise Exception("Doubling time was not set!")
 
-		tau_d = self.tau_d
+		tau_d = self._tau_d
 
 		D = {}
 		D["dnaMass"] = self._calculateDnaMass(tau_d)
 
 		tau_d = self._clipTau_d(tau_d)
 
+		self.avgCellDryMass = units.fg * self._exp2(tau_d.asNumber(units.min), *self._dryMassParams) * self.avgCellToInitalCellConvFactor
 		D["proteinMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self._proteinMassParams)
 		D["rnaMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self._rnaMassParams)
 		D["rRna23SMass"] = D["rnaMass"] * self._RRNA23S_MASS_SUB_FRACTION
