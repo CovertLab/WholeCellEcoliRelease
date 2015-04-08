@@ -21,7 +21,7 @@ aa = Unum.unit('amino_acid', count)
 
 
 def sum(array, axis = None, dtype=None, out=None, keepdims=False):
-	if type(array) == Unum:
+	if isinstance(array,Unum):
 		array.normalize()
 		units = array.copy()
 		units._value = 1
@@ -31,16 +31,18 @@ def sum(array, axis = None, dtype=None, out=None, keepdims=False):
 
 
 def dot(a, b, out=None):
-	if type(a) != Unum:
+	if not isinstance(a, Unum):
 		a_units = 1
 	else:
+		a.normalize()
 		a_units = a.copy()
 		a_units._value = 1
 		a = a.asNumber()
 
-	if type(b) != Unum:
+	if not isinstance(b,Unum):
 		b_units = 1
 	else:
+		b.normalize()
 		b_units = b.copy()
 		b_units._value = 1
 		b  = b.asNumber()
@@ -48,9 +50,12 @@ def dot(a, b, out=None):
 	return a_units * b_units * np.dot(a,b,out)
 
 def transpose(array,axis=None):
-	if type(a) != Unum or type(b) != Unum:
-		raise Exception, 'Only works on Unum!\n'
+	if not isinstance(a,Unum):
+		raise Exception('Only works on Unum!')
+	if not isinstance(b,Unum):
+		raise Exception('Only works on Unum!')
 
+	array.normalize()
 	units = array.copy()
 	units._value = 1
 
@@ -60,14 +65,18 @@ def hstack(tup):
 	unit = getUnit(tup[0])
 	value = []
 	for array in tup:
-		if type(array) != Unum:
-			raise Exception, 'Only works on Unum!\n'
+		if not isinstance(array,Unum):
+			raise Exception('Only works on Unum!')
 		else:
 			value.append(array.matchUnits(unit)[0].asNumber())
 	value = tuple(value)
 	return unit * np.hstack(value)
 
 def getUnit(value):
+	if not isinstance(value, Unum):
+		raise Exception("Only works on Unum!")
+		
+	value.normalize()
 	value_units = value.copy()
 	value_units._value = 1
 	return value_units
