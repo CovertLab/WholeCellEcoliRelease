@@ -92,7 +92,7 @@ class Test_fitkb1(unittest.TestCase):
 	def test_mRNADistributionFromProtein(self):
 		# Test normal call
 		distribution_mRNA = np.array([0.5, 0.25, 0.25])
-		netLossRate = np.array([1, 2, 3])
+		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		proteinDist = mRNADistributionFromProtein(distribution_mRNA, netLossRate)
 		distributionUnnormed = netLossRate * distribution_mRNA
 		self.assertEqual(proteinDist.tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).tolist())
