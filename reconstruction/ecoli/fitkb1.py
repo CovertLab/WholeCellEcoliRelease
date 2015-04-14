@@ -364,9 +364,11 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.constants.cellCycleLen,
 		kb.process.transcription.rnaData["degRate"],
-		kb.constants.KcatEndoRNaseFullRNA, 
+		#kb.constants.KcatEndoRNaseFullRNA, 
+		kb.constants.KcatEndoRNasesFullRNA, 
 		rnaCounts, 
-		np.sum(endoRnaseCounts)
+		#np.sum(endoRnaseCounts)
+		endoRnaseCounts
 		)
 	
 	# nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths, kb.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
@@ -473,9 +475,11 @@ def fitExpression(kb, bulkContainer):
 	netLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
 		(doublingTime / units.s).asNumber(),
 		(kb.process.transcription.rnaData["degRate"] * units.s).asNumber(),
-		(kb.constants.KcatEndoRNaseFullRNA * units.s).asNumber(),
+		#(kb.constants.KcatEndoRNaseFullRNA * units.s).asNumber(),
+		(kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber(),
 		view_RNA.counts(), 
-		np.sum(endoRnaseCounts)
+		#np.sum(endoRnaseCounts)
+		endoRnaseCounts
 		)
 	# import ipdb; ipdb.set_trace()
 	synthProb = normalize(netLossRate_RNA)
@@ -629,12 +633,14 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kca
 
 	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
 	# new RNA decay model: kb - r ( ln(2)/tau + kcatEndoRN * EndoRN * kd / (Sum_g kd * r) ) = 0 
+	# netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
 	# import ipdb; ipdb.set_trace()
-	netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
+	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
+	netRate = RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )
 	
 	# RNA decay considering only RNase specificity (RNA lifetimes measured)
 	# new RNA decay model: kb - kcatEndoRN * EndoRN * kd / (Sum_g kd * r) - r * ln(2) / tau = 0 
-	# netRate = (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates)) + (np.log(2) / doublingTime * RNACounts)
+	# netRate = (sum(kcatEndoRNase * endoRNaseCounts) * degradationRates / np.sum(degradationRates)) + (np.log(2) / doublingTime * RNACounts)
 
 	return netRate
 	
