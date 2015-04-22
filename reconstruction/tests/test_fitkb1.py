@@ -72,15 +72,20 @@ class Test_fitkb1(unittest.TestCase):
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		proteinDist = proteinDistributionFrommRNA(distribution_mRNA, netLossRate)
 		distributionUnnormed = 1 / netLossRate * distribution_mRNA
-		self.assertEqual(proteinDist.tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).tolist())
+		expectedDistribution = (distributionUnnormed / units.sum(distributionUnnormed))
+		expectedDistribution.normalize()
+		expectedDistribution.checkNoUnit()
+		self.assertEqual(proteinDist.tolist(), expectedDistribution.asNumber().tolist())
 
 		# Test normal call with units
 		distribution_mRNA = np.array([0.5, 0.25, 0.25])
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		proteinDist = proteinDistributionFrommRNA(distribution_mRNA, netLossRate)
-		proteinDist.checkNoUnit()
 		distributionUnnormed = 1 / netLossRate * distribution_mRNA
-		self.assertEqual(proteinDist.asNumber().tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).asNumber().tolist())
+		expectedDistribution = (distributionUnnormed / units.sum(distributionUnnormed))
+		expectedDistribution.normalize()
+		expectedDistribution.checkNoUnit()
+		self.assertEqual(proteinDist.tolist(), expectedDistribution.asNumber().tolist())
 
 		# Test assertion in function
 		distribution_mRNA = np.array([0.25, 0.25, 0.25])
@@ -95,15 +100,20 @@ class Test_fitkb1(unittest.TestCase):
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		proteinDist = mRNADistributionFromProtein(distribution_mRNA, netLossRate)
 		distributionUnnormed = netLossRate * distribution_mRNA
-		self.assertEqual(proteinDist.tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).tolist())
+		expectedDistribution = (distributionUnnormed / units.sum(distributionUnnormed))
+		expectedDistribution.normalize()
+		expectedDistribution.checkNoUnit()
+		self.assertEqual(proteinDist.tolist(), expectedDistribution.asNumber().tolist())
 
 		# Test normal call with units
 		distribution_mRNA = np.array([0.5, 0.25, 0.25])
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		proteinDist = mRNADistributionFromProtein(distribution_mRNA, netLossRate)
-		proteinDist.checkNoUnit()
 		distributionUnnormed = netLossRate * distribution_mRNA
-		self.assertEqual(proteinDist.asNumber().tolist(), (distributionUnnormed / units.sum(distributionUnnormed)).asNumber().tolist())
+		expectedDistribution = (distributionUnnormed / units.sum(distributionUnnormed))
+		expectedDistribution.normalize()
+		expectedDistribution.checkNoUnit()
+		self.assertEqual(proteinDist.tolist(), expectedDistribution.asNumber().tolist())
 
 		# Test assertion in function
 		distribution_mRNA = np.array([0.25, 0.25, 0.25])

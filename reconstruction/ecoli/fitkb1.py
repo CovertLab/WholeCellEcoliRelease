@@ -284,10 +284,6 @@ def createBulkContainer(kb):
 		netLossRate_protein
 		)
 
-	distribution_protein.checkNoUnit()
-
-	distribution_protein = distribution_protein.asNumber() # remove units
-
 	totalCount_protein = totalCountFromMassesAndRatios(
 		totalMass_protein,
 		individualMasses_protein,
@@ -568,8 +564,10 @@ def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
 
 	assert np.allclose(np.sum(distribution_mRNA), 1)
 	distributionUnnormed = 1 / netLossRate * distribution_mRNA
-
-	return distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed.normalize()
+	distributionNormed.checkNoUnit()
+	return distributionNormed.asNumber()
 
 
 def mRNADistributionFromProtein(distribution_protein, netLossRate):
@@ -591,8 +589,10 @@ def mRNADistributionFromProtein(distribution_protein, netLossRate):
 	"""
 	assert np.allclose(np.sum(distribution_protein), 1)
 	distributionUnnormed = netLossRate * distribution_protein
-
-	return distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed.normalize()
+	distributionNormed.checkNoUnit()
+	return distributionNormed.asNumber()
 
 
 def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts):
