@@ -105,7 +105,7 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
-	massFractions60 = kb.massFractions.massFractions(60 * units.min)
+	massFractions60 = kb.mass.massFractions
 
 	mass = massFractions60["proteinMass"] + massFractions60["rnaMass"] + massFractions60["dnaMass"]
 

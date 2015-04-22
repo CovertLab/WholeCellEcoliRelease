@@ -11,6 +11,7 @@ from __future__ import division
 
 import numpy as np
 import collections
+from unum import Unum
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -21,15 +22,21 @@ from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.state import State
 from reconstruction.ecoli.dataclasses.process.process import Process
-from reconstruction.ecoli.dataclasses.massFractions import MassFractions
+from reconstruction.ecoli.dataclasses.mass import Mass
 from reconstruction.ecoli.dataclasses.relation import Relation
 
 class SimulationDataEcoli(object):
 	""" SimulationDataEcoli """
 
 	def __init__(self):
-		# Raw data
-		raw_data = KnowledgeBaseEcoli()
+		# Doubling time (used in fitting)
+		self.doubling_time = None
+
+	def initalize(self, doubling_time, raw_data):
+		if type(doubling_time) != Unum:
+			raise Exception("Doubling time is not a Unum object!")
+		self.doubling_time = doubling_time
+
 		self._addHardCodedAttributes()
 
 		# Helper functions (have no dependencies)
@@ -37,16 +44,16 @@ class SimulationDataEcoli(object):
 		self.moleculeGroups = moleculeGroups(raw_data, self)
 		self.constants = Constants(raw_data, self)
 
+		self.mass = Mass(raw_data, self)
+
 		# Data classes (can depend on helper functions)
 		# Data classes cannot depend on each other
 		self.process = Process(raw_data, self)
 		self.state = State(raw_data, self)
-		self.massFractions = MassFractions(raw_data, self)
 
 		# Relations between data classes (can depend on data classes)
 		# Relations cannot depend on each other
 		self.relation = Relation(raw_data, self)
-
 
 	def _addHardCodedAttributes(self):
 		self.molecular_weight_keys = [

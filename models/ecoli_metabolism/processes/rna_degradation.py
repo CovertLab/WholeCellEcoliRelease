@@ -32,11 +32,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		## Find the magnitude and distribution of amino acids recovered by degradation
 
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		rnaComposition = kb.process.transcription.rnaData["countsACGU"].asNumber()
 
-		initialDryMass = kb.constants.avgCellDryMassInit
+		initialDryMass = kb.mass.avgCellDryMassInit
 
 		rnaMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0

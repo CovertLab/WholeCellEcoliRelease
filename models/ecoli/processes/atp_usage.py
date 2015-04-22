@@ -36,8 +36,8 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		# Load constants
 		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
-		self.initialDryMass = kb.constants.avgCellDryMassInit.asNumber(units.g)
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.initialDryMass = kb.mass.avgCellDryMassInit.asNumber(units.g)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		moleculeIds = ["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)

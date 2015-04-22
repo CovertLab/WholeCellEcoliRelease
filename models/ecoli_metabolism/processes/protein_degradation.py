@@ -32,11 +32,11 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		## Find the magnitude and distribution of amino acids recovered by degradation
 
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		proteinComposition = kb.process.translation.monomerData["aaCounts"].asNumber()
 
-		initialDryMass = kb.constants.avgCellDryMassInit
+		initialDryMass = kb.mass.avgCellDryMassInit
 
 		proteinMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0

@@ -103,7 +103,7 @@ def fitKb_2(kb, simOutDir):
 
 	## Compute rate of AA incorperation
 	proteinComposition = kb.process.translation.monomerData["aaCounts"]
-	initialDryMass = kb.constants.avgCellDryMassInit
+	initialDryMass = kb.mass.avgCellDryMassInit
 
 	proteinMassFraction = kb.cellDryMassComposition[
 		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
@@ -114,7 +114,7 @@ def fitKb_2(kb, simOutDir):
 	initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
 
 	initialProteinTranslationRate = (
-		(np.log(2) / kb.constants.cellCycleLen + kb.process.translation.monomerData["degRate"]) * initialProteinCounts
+		(np.log(2) / kb.doubling_time + kb.process.translation.monomerData["degRate"]) * initialProteinCounts
 		).asUnit(1 / units.s)
 
 	initialAAPolymerizationRate = units.dot(

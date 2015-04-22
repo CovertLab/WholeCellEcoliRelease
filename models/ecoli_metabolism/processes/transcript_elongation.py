@@ -35,7 +35,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		rnaComposition = kb.process.transcription.rnaData["countsACGU"].asNumber()
 
-		initialDryMass = kb.constants.avgCellDryMassInit
+		initialDryMass = kb.mass.avgCellDryMassInit
 
 		rnaMassFraction = kb.cellDryMassComposition[
 			kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
@@ -51,12 +51,12 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			) * kb.process.transcription.rnaData["expression"]
 
 		initialRnaTranscriptionRate = initialRnaCounts * (
-			np.log(2) / kb.constants.cellCycleLen + kb.process.transcription.rnaData["degRate"]
+			np.log(2) / kb.doubling_time + kb.process.transcription.rnaData["degRate"]
 			).asNumber(1 / units.s)
 
 		initialPolymerizing = np.dot(rnaComposition.T, initialRnaTranscriptionRate)
 
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		self.initialPolymerizingTotal = initialPolymerizing.sum()
 

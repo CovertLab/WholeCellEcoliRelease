@@ -1,5 +1,5 @@
 """
-SimulationData mass fraction data
+SimulationData mass data
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -13,51 +13,75 @@ from scipy.optimize import curve_fit
 from wholecell.utils import units
 import unum
 
-class MassFractions(object):
-	""" MassFractions """
+class Mass(object):
+	""" Mass """
 
 	def __init__(self, raw_data, sim_data):
+		self._tau_d = sim_data.doubling_time
+
+		self._buildConstants(raw_data, sim_data)
 		self._buildMassFractions(raw_data, sim_data)
+
+		self.massFractions = self._massFractions()
+		self._buildDependentConstants()
+
 		self._buildTrnaData(raw_data, sim_data)
 
-	def _buildMassFractions(self, raw_data, sim_data):
-		self._tau_d = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
+	def _buildConstants(self, raw_data, sim_data):
+		mass_parameters = raw_data.mass_parameters
+		self.__dict__.update(mass_parameters)
 
-		avgToBeginningConvFactor = raw_data.parameters['avgCellToInitalCellConvFactor']
-		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / avgToBeginningConvFactor
+		self.cellDryMassFraction = 1. - self.cellWaterMassFraction
+		self.avgCellToInitalCellConvFactor = np.exp(np.log(2) * self.avgCellCellCycleProgress)
+
+	def _buildDependentConstants(self):
+		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitalCellConvFactor
+		avgCellWaterMass = (self.avgCellDryMass / self.cellDryMassFraction) * self.cellWaterMassFraction
+		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitalCellConvFactor
+
+	def _buildMassFractions(self, raw_data, sim_data):
+		self._tau_d_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
+
+		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitalCellConvFactor
 		self._proteinMass = self._dryMass * np.array([float(x['proteinMassFraction']) for x in raw_data.dryMassComposition])
 		self._rnaMass = self._dryMass * np.array([float(x['rnaMassFraction']) for x in raw_data.dryMassComposition])
 		self._dnaMass = self._dryMass * np.array([float(x['dnaMassFraction']) for x in raw_data.dryMassComposition])
-
+		
 		# We are assuming these are constant over all growth rates
 		# (probably not be true...)
-		self._RRNA23S_MASS_SUB_FRACTION = raw_data.parameters['rrna23s_mass_sub_fraction']
-		self._RRNA16S_MASS_SUB_FRACTION = raw_data.parameters['rrna16s_mass_sub_fraction']
-		self._RRNA5S_MASS_SUB_FRACTION = raw_data.parameters['rrna5s_mass_sub_fraction']
-		self._TRNA_MASS_SUB_FRACTION = raw_data.parameters['trna_mass_sub_fraction']
-		self._MRNA_MASS_SUB_FRACTION = raw_data.parameters['mrna_mass_sub_fraction']
+		self._RRNA23S_MASS_SUB_FRACTION = self.rrna23s_mass_sub_fraction
+		self._RRNA16S_MASS_SUB_FRACTION = self.rrna16s_mass_sub_fraction
+		self._RRNA5S_MASS_SUB_FRACTION = self.rrna5s_mass_sub_fraction
+		self._TRNA_MASS_SUB_FRACTION = self.trna_mass_sub_fraction
+		self._MRNA_MASS_SUB_FRACTION = self.mrna_mass_sub_fraction
 
-		self._dryMassParams, _ = curve_fit(self._exp2, self._tau_d.asNumber(units.min), self._dryMass, p0 = (0, 0, 0, 0))
-		self._proteinMassParams, _ = curve_fit(self._exp2, self._tau_d.asNumber(units.min), self._proteinMass, p0 = (0, 0, 0, 0))
-		self._rnaMassParams, _ = curve_fit(self._exp2, self._tau_d.asNumber(units.min), self._rnaMass, p0 = (0, 0, 0, 0))
-		self._dnaMassParams, _ = curve_fit(self._exp2, self._tau_d.asNumber(units.min), self._dnaMass, p0 = (0, 0, 0, 0))
+		self._dryMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._dryMass, p0 = (0, 0, 0, 0))
+		self._proteinMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._proteinMass, p0 = (0, 0, 0, 0))
+		self._rnaMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._rnaMass, p0 = (0, 0, 0, 0))
+		self._dnaMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._dnaMass, p0 = (0, 0, 0, 0))
 
 		self.chromMass = self._chromMass(raw_data, sim_data)
 
-		self._C_PERIOD = raw_data.parameters['c_period']
-		self._D_PERIOD = raw_data.parameters['d_period']
+		self._C_PERIOD = sim_data.constants.c_period
+		self._D_PERIOD = sim_data.constants.d_period
 		self._CD_PERIOD = self._C_PERIOD + self._D_PERIOD
 
-	def massFractions(self, tau_d):
+	def _massFractions(self):
 		"""
 		Given an input doubling time in minutes, output mass fractions in fg
 		"""
+
+		if type(self._tau_d) != unum.Unum:
+			raise Exception("Doubling time was not set!")
+
+		tau_d = self._tau_d
 
 		D = {}
 		D["dnaMass"] = self._calculateDnaMass(tau_d)
 
 		tau_d = self._clipTau_d(tau_d)
 
+		self.avgCellDryMass = units.fg * self._exp2(tau_d.asNumber(units.min), *self._dryMassParams) * self.avgCellToInitalCellConvFactor
 		D["proteinMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self._proteinMassParams)
 		D["rnaMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self._rnaMassParams)
 		D["rRna23SMass"] = D["rnaMass"] * self._RRNA23S_MASS_SUB_FRACTION
@@ -98,13 +122,13 @@ class MassFractions(object):
 	def _clipTau_d(self, tau_d):
 		# Clip values to be in the range that we have data for
 		if hasattr(tau_d, "dtype"):
-			tau_d[tau_d > max(self._tau_d)] = max(self._tau_d)
-			tau_d[tau_d < min(self._tau_d)] = min(self._tau_d)
+			tau_d[tau_d > max(self._tau_d_vector)] = max(self._tau_d_vector)
+			tau_d[tau_d < min(self._tau_d_vector)] = min(self._tau_d_vector)
 		else:
-			if tau_d > max(self._tau_d):
-				tau_d = max(self._tau_d)
-			elif tau_d < min(self._tau_d):
-				tau_d = min(self._tau_d)
+			if tau_d > max(self._tau_d_vector):
+				tau_d = max(self._tau_d_vector)
+			elif tau_d < min(self._tau_d_vector):
+				tau_d = min(self._tau_d_vector)
 		return tau_d
 
 	def _exp2(self, x, a, b, c, d):

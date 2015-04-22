@@ -21,41 +21,54 @@ aa = Unum.unit('amino_acid', count)
 
 
 def sum(array, axis = None, dtype=None, out=None, keepdims=False):
-	if type(array) == Unum:
-		units = array.copy()
-		units._value = 1
-		return units * np.sum(array.asNumber(), axis, dtype, out, keepdims)
-	else:
-		return np.sum(array, axis, dtype, out, keepdims)
+	if not isinstance(array,Unum):
+		raise Exception("Only works on Unum!")
 
+	units = getUnit(array)
+	return units * np.sum(array.asNumber(), axis, dtype, out, keepdims)		
 
 def dot(a, b, out=None):
-	if type(a) != Unum:
+	if not isinstance(a, Unum):
 		a_units = 1
 	else:
-		a_units = a.copy()
-		a_units._value = 1
+		a_units = getUnit(a)
 		a = a.asNumber()
 
-	if type(b) != Unum:
+	if not isinstance(b,Unum):
 		b_units = 1
 	else:
-		b_units = b.copy()
-		b_units._value = 1
+		b_units = getUnit(b)
 		b  = b.asNumber()
 	
 	return a_units * b_units * np.dot(a,b,out)
 
 def transpose(array,axis=None):
-	if type(a) != Unum or type(b) != Unum:
-		raise Exception, 'Only works on Unum!\n'
+	if not isinstance(a,Unum):
+		raise Exception('Only works on Unum!')
+	if not isinstance(b,Unum):
+		raise Exception('Only works on Unum!')
 
-	units = array.copy()
-	units._value = 1
+	units = getUnit(array)
 
 	return units * np.transpose(array.asNumber(), axis)
 
+def hstack(tup):
+	unit = getUnit(tup[0])
+	value = []
+	for array in tup:
+		if not isinstance(array,Unum):
+			raise Exception('Only works on Unum!')
+		else:
+			array.normalize()
+			value.append(array.matchUnits(unit)[0].asNumber())
+	value = tuple(value)
+	return unit * np.hstack(value)
+
 def getUnit(value):
+	if not isinstance(value, Unum):
+		raise Exception("Only works on Unum!")
+
+	value.normalize()
 	value_units = value.copy()
 	value_units._value = 1
 	return value_units
