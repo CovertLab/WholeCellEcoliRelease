@@ -157,11 +157,11 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def tableCreate(self, tableWriter):
-		self._container.tableCreate(tableWriter)
+		self.container.tableCreate(tableWriter)
 
 
 	def tableAppend(self, tableWriter):
-		self._container.tableAppend(tableWriter)
+		self.container.tableAppend(tableWriter)
 
 
 	def tableLoad(self, tableReader, tableIndex):
