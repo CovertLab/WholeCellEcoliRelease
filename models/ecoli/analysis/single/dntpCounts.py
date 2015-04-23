@@ -31,7 +31,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNTP_IDS], np.int)
 	dntpCounts = bulkMolecules.readColumn("counts")[:, dntpIndexes]
@@ -39,7 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	dnmpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNMP_IDS], np.int)
 	dnmpCounts = bulkMolecules.readColumn("counts")[:, dnmpIndexes]
 
-	time = bulkMolecules.readColumn("time")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 	bulkMolecules.close()
 

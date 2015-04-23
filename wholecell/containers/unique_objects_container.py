@@ -338,21 +338,13 @@ class UniqueObjectsContainer(object):
 			)
 
 
-
 	def tableLoad(self, tableReader, tableIndex):
-		# for collectionIndex, tableName in enumerate(self._tableNames):
-		# 	entryTable = h5file.get_node("/", tableName)
+		for fieldName, value in tableReader.readRow(tableIndex).viewitems():
+			if fieldName == "_globalReference":
+				self._globalReference = value
 
-		# 	entries = entryTable[entryTable.col("_timeStep") == timePoint]
-
-		# 	self._collections[collectionIndex] = entries
-
-		# globalTable = h5file.get_node("/", "_globalReference")
-
-		# globalEntries = globalTable[globalTable.col("_timeStep") == timePoint]
-
-		# self._globalReference = globalEntries
-		raise NotImplementedError()
+			else:
+				self._collections[self._names.index(fieldName)] = value
 
 
 class _UniqueObject(object):

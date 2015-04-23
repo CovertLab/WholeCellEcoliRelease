@@ -157,22 +157,11 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def tableCreate(self, tableWriter):
-		tableWriter.writeAttributes(
-			moleculeIDs = self._moleculeIDs
-			)
+		self.container.tableCreate(tableWriter)
 
 
 	def tableAppend(self, tableWriter):
-		tableWriter.append(
-			time = self.time(),
-			timeStep = self.timeStep(),
-			counts = self.container._counts,
-			# TODO: better logging for requests i.e. not GBs of data
-			# countsRequested = self._countsRequested,
-			# countsAllocatedInitial = self._countsAllocatedInitial,
-			# countsAllocatedFinal = self._countsAllocatedFinal,
-			# countsUnallocated = self._countsUnallocated,
-			)
+		self.container.tableAppend(tableWriter)
 
 
 	def tableLoad(self, tableReader, tableIndex):
