@@ -79,6 +79,13 @@ class TableReader(object):
 			yield self._loadData(fieldName, i)
 
 
+	def readRow(self, index):
+		return {
+			fieldName: self._loadData(fieldName, index)
+			for fieldName in self._fieldNames
+			}
+
+
 	def _loadData(self, fieldName, index):
 		self._data.seek(
 			self._offsets[index, self._fieldNames.index(fieldName)]

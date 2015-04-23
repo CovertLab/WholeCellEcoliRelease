@@ -43,7 +43,7 @@ class BulkObjectsContainer(object):
 			self._counts[self._namesToIndexes(names)] = values
 
 
-	def countsInc(self, values, names = None): 
+	def countsInc(self, values, names = None):
 		if names is None:
 			self._counts[:] += values
 
@@ -90,9 +90,27 @@ class BulkObjectsContainer(object):
 	def _namesToIndexes(self, names):
 		return np.array([self._objectIndex[name] for name in names])
 
-	
+
 	def __eq__(self, other):
 		return (self._counts == other._counts).all()
+
+
+	def tableCreate(self, tableWriter):
+		tableWriter.writeAttributes(
+			objectNames = self._objectNames
+			)
+
+
+	def tableAppend(self, tableWriter):
+		tableWriter.append(
+			counts = self._counts
+			)
+
+
+	def tableLoad(self, tableReader, tableIndex):
+		assert self._objectNames == tableReader.readAttribute("objectNames")
+
+		self._counts = tableReader.readRow(tableIndex)["counts"]
 
 
 class _BulkObjectsView(object):
@@ -115,7 +133,7 @@ class _BulkObjectsView(object):
 		self._container._counts[self._indexes] = values
 
 
-	def countsInc(self, values): 
+	def countsInc(self, values):
 		self._container._counts[self._indexes] += values
 
 
@@ -143,7 +161,7 @@ class _BulkObjectView(object):
 		self._container._counts[self._index] = values
 
 
-	def countInc(self, values): 
+	def countInc(self, values):
 		self._container._counts[self._index] += values
 
 
