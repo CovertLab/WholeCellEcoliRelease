@@ -43,7 +43,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	# Get indexes
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
 	rnaIndexes = np.array([moleculeIds.index(rna) for rna in rnaIds], np.int)
 	rRnaIndexes = np.array([moleculeIds.index(rRna) for rRna in rRnaIds], np.int)

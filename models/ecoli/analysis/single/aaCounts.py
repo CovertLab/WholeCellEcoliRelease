@@ -28,7 +28,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	AA_IDS = [
 		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]",

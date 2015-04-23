@@ -31,7 +31,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNTP_IDS], np.int)
 	dntpCounts = bulkMolecules.readColumn("counts")[:, dntpIndexes]
