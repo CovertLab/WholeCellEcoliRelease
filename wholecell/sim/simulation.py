@@ -278,8 +278,10 @@ class Simulation(object):
 
 
 	def tableAppend(self, tableWriter):
-		# Included for consistency, eventual features...
-		pass
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep()
+			)
 
 
 	def tableLoad(self, tableReader, tableIndex):

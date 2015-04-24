@@ -28,12 +28,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	waterIndex = np.array(moleculeIds.index('H2O[c]'), np.int)
 
 	waterCount = bulkMolecules.readColumn("counts")[:, waterIndex]
-	time = bulkMolecules.readColumn("time")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 	bulkMolecules.close()
 

@@ -28,13 +28,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
 	ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
 
 	ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
-	time = bulkMolecules.readColumn("time")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 	bulkMolecules.close()
 

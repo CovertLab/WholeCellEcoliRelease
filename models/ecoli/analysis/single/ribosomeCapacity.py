@@ -50,7 +50,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	# Get indexes
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
 
 	# Load data

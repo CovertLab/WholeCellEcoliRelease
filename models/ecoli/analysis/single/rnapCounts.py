@@ -28,7 +28,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	rnapId = "APORNAP-CPLX[c]"
 	rnapIndex = moleculeIds.index(rnapId)
 	rnapCountsBulk = bulkMolecules.readColumn("counts")[:, rnapIndex]

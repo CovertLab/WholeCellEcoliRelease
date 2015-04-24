@@ -51,7 +51,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
@@ -61,7 +61,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = bulkMolecules.readColumn("time")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 	bulkMolecules.close()
 
