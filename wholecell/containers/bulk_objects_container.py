@@ -86,6 +86,13 @@ class BulkObjectsContainer(object):
 	def countView(self, name):
 		return _BulkObjectView(self, self._objectIndex[name])
 
+	def objectNames(self):
+		return tuple(self._objectNames)
+
+	def emptyLike(self):
+		names = self.objectNames()
+		new_copy = BulkObjectsContainer(names)
+		return new_copy
 
 	def _namesToIndexes(self, names):
 		return np.array([self._objectIndex[name] for name in names])

@@ -304,6 +304,17 @@ class UniqueObjectsContainer(object):
 	def objectByGlobalIndexDel(self, globalIndex):
 		self.objectsByGlobalIndexDel(np.array(globalIndex))
 
+	def objectNames(self):
+		return tuple(self._names)
+
+	def emptyLike(self):
+		specifications = deepcopy(self._specifications)
+		specs_to_remove = self._defaultSpecification.keys()
+		for moleculeName, moleculeSpecs in specifications.iteritems():
+			for spec in specs_to_remove:
+				moleculeSpecs.pop(spec)
+		new_copy = UniqueObjectsContainer(specifications)
+		return new_copy
 
 	def __eq__(self, other):
 		return np.all(

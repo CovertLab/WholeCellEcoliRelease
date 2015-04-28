@@ -35,6 +35,7 @@ import models.ecoli.analysis.single
 import models.ecoli.analysis.cohort
 
 from models.ecoli.sim.initial_conditions import calcInitialConditions
+from models.ecoli.sim.initial_conditions import initalizeDaughter
 
 class EcoliSimulation(Simulation):
 	_stateClasses = (
