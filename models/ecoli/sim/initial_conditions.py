@@ -475,3 +475,8 @@ def initializeReplication(uniqueMolCntr, kb):
 		directionIsPositive = np.array([True, True, False, False]),
 		isLeading = np.array([True, False, True, False])
 		)
+
+def initalizeDaughter(sim, kb):
+	pass
+
+

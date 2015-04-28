@@ -13,6 +13,7 @@ from __future__ import division
 
 from itertools import izip
 import collections
+from copy import deepcopy
 
 import numpy as np
 
@@ -46,6 +47,7 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
+		self.uniqueMoleculeDefinitions = deepcopy(kb.state.uniqueMolecules.uniqueMoleculeDefinitions)
 		molDefs = kb.state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
 
 		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
