@@ -14,11 +14,13 @@ def main():
 	db_password = raw_input("Database password (stored in plaintext, unfortunately): ")
 	db_port = raw_input("Database port: ")
 
-	logdir_qadapter = raw_input("Launchpad logging directory (e.g. %s): " % os.path.join(home, "fw", "logs", "qadapter"))
+	logdir_qadapter = raw_input("Queue adapter logging directory (e.g. %s): " % os.path.join(home, "fw", "logs", "qadapter"))
 	wcecoli_path = raw_input("wcEcoli path (e.g., %s): " % os.path.join(home, "wcEcoli"))
 
 	template_my_launchpad = os.path.join(wcecoli_path, "wholecell", "fireworks", "templates", "my_launchpad.yaml")
 	my_launchpad = os.path.join(wcecoli_path, "my_launchpad.yaml")
+
+	os.makedirs(logdir_launchpad)
 
 	h = open(template_my_launchpad, "r")
 	t = Template(h.read())
