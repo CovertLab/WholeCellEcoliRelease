@@ -21,6 +21,7 @@ def main():
 	my_launchpad = os.path.join(wcecoli_path, "my_launchpad.yaml")
 
 	os.makedirs(logdir_launchpad)
+	os.makedirs(logdir_qadapter)
 
 	h = open(template_my_launchpad, "r")
 	t = Template(h.read())
