@@ -89,7 +89,7 @@ for i in VARIANTS_TO_RUN:
 	if not os.path.exists(VARIANT_METADATA_DIRECTORY):
 		os.makedirs(VARIANT_METADATA_DIRECTORY)
 
-	for j in xrange(N_SIMS):
+	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SIM_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "simOut")
 		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
@@ -281,7 +281,7 @@ for i in VARIANTS_TO_RUN:
 
 	wf_fws.append(fw_this_variant_kb_compression)
 
-	for j in xrange(N_SIMS):
+	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SIM_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "simOut")
 		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
