@@ -30,7 +30,7 @@ Multiple simulations
 To queue multiple simulations (in this case 4 simulations) in fireworks:
 
 ```bash
-DESC="Example run of multiple simulations." N_SIMS=4 python runscripts/fw_queue.py
+DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fw_queue.py
 ```
 
 Using an interactive node to run simulations
