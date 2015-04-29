@@ -166,17 +166,7 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def tableLoad(self, tableReader, tableIndex):
-		# entry = h5file.get_node('/', self._name)[timePoint]
-
-		# self.container.countsIs(entry['counts'])
-
-		# if self._nProcesses:
-		# 	self._countsRequested[:] = entry['countsRequested']
-		# 	self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
-		# 	self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
-		# 	self._countsUnallocated[:] = entry['countsUnallocated']
-
-		raise NotImplementedError()
+		self.container.tableLoad(tableReader, tableIndex)
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):

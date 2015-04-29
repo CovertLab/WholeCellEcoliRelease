@@ -35,7 +35,8 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	outputDir = None,
 	overwriteExistingFiles = False,
 	logToDiskEvery = 1,
-	kbLocation = None
+	kbLocation = None,
+	inheritedStatePath = None,
 	)
 
 def _orderedAbstractionReference(iterableOfClasses):

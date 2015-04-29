@@ -14,12 +14,16 @@ from __future__ import division
 from itertools import izip
 
 import numpy as np
+import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
 from wholecell.utils import units
 
+from wholecell.io.tablereader import TableReader
+
 def calcInitialConditions(sim, kb):
+	assert sim._inheritedStatePath == None
 	randomState = sim.randomState
 
 	timeStep = sim.timeStepSec() # This is a poor solution but will suffice for now
@@ -476,7 +480,15 @@ def initializeReplication(uniqueMolCntr, kb):
 		isLeading = np.array([True, False, True, False])
 		)
 
-def initalizeDaughter(sim, kb):
-	pass
+def setDaughterInitialConditions(sim, kb):
+	assert sim._inheritedStatePath != None
 
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
+	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
+
+	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
+	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
+
+	# TODO: This is a hack until we actually get the chromosome division working
+	initializeReplication(sim.states["UniqueMolecules"].container, kb)
 
