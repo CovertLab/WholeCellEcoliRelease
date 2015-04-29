@@ -14,6 +14,7 @@ import yaml
 import os
 import datetime
 import subprocess
+import collections
 
 def run_cmd(cmd):
 	environ = {
@@ -137,7 +138,7 @@ lpad = LaunchPad(**yaml.load(open("my_launchpad.yaml")))
 wf_fws = []
 
 # Store links defining parent/child relationships of FireWorks
-wf_links = {}
+wf_links = collections.defaultdict(list)
 
 
 ### Initialize KB
@@ -187,7 +188,7 @@ fw_symlink_unfit = Firework(
 
 wf_fws.append(fw_symlink_unfit)
 
-wf_links[fw_initKb] = fw_symlink_unfit
+wf_links[fw_initKb].append(fw_symlink_unfit)
 
 
 ### Fit (Level 1)
@@ -210,7 +211,7 @@ fw_fit_level_1 = Firework(
 	)
 
 wf_fws.append(fw_fit_level_1)
-wf_links[fw_symlink_unfit] = fw_fit_level_1
+wf_links[fw_symlink_unfit].append(fw_fit_level_1)
 
 # Fit Level 1 KB compression
 
@@ -241,7 +242,7 @@ fw_symlink_most_fit = Firework(
 
 wf_fws.append(fw_symlink_most_fit)
 
-wf_links[fw_fit_level_1] = fw_symlink_most_fit
+wf_links[fw_fit_level_1].append(fw_symlink_most_fit)
 
 
 ### Create variants and simulations
@@ -266,7 +267,7 @@ for i in VARIANTS_TO_RUN:
 
 	wf_fws.append(fw_this_variant_kb)
 
-	wf_links[fw_symlink_most_fit] = fw_this_variant_kb
+	wf_links[fw_symlink_most_fit].append(fw_this_variant_kb)
 
 	# Variant KB compression
 	fw_name = "ScriptTask_compression_variant_KB"
@@ -279,8 +280,6 @@ for i in VARIANTS_TO_RUN:
 		)
 
 	wf_fws.append(fw_this_variant_kb_compression)
-
-	wf_links[fw_this_variant_kb] = []
 
 	for j in xrange(N_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
@@ -317,10 +316,9 @@ for i in VARIANTS_TO_RUN:
 
 		wf_fws.append(fw_this_variant_this_sim_analysis)
 
-		wf_links[fw_this_variant_this_sim] = fw_this_variant_this_sim_analysis
+		wf_links[fw_this_variant_this_sim].append(fw_this_variant_this_sim_analysis)
 
-		wf_links[fw_this_variant_this_sim_analysis] = [fw_this_variant_kb_compression]
-
+		wf_links[fw_this_variant_this_sim_analysis].append(fw_this_variant_kb_compression)
 		wf_links[fw_this_variant_this_sim_analysis].append(fw_kb_fit_0_compression)
 		wf_links[fw_this_variant_this_sim_analysis].append(fw_kb_fit_1_compression)
 
