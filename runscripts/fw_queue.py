@@ -7,6 +7,7 @@ from wholecell.fireworks.firetasks import FitKbTask
 from wholecell.fireworks.firetasks import VariantKbTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
+from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from jinja2 import Template
 
 import wholecell.utils.constants
@@ -62,6 +63,7 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
 ### Set other environment variables
 
+WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 
 ### Create directories
@@ -293,6 +295,7 @@ for i in VARIANTS_TO_RUN:
 				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
 				output_directory = SIM_OUT_DIRECTORY,
 				seed = j,
+				length_sec = WC_LENGTHSEC,
 				),
 			name = fw_name,
 			spec = {"_queueadapter": {"job_name": fw_name}}
