@@ -27,3 +27,5 @@
 ## Config files for Fireworks
 
 * Run `python wholecell/fireworks/initialize.py`
+
+* Run `lpad reset` and choose `Y`es if prompted
