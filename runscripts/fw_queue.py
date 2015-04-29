@@ -62,7 +62,7 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
 ### Set other environment variables
 
-N_SIMS = int(os.environ.get("N_SIMS", "1"))
+N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 
 ### Create directories
 
