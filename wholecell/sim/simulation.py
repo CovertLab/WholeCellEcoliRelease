@@ -421,11 +421,3 @@ class Simulation(object):
 
 	def cellCycleComplete(self):
 		self._cellCycleComplete = True
-
-	@classmethod
-	def printAnalysisSingleFiles(cls):
-		raise NotImplementedError
-
-	@classmethod
-	def printAnalysisCohortFiles(cls):
-		raise NotImplementedError
