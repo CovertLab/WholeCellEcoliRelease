@@ -91,6 +91,8 @@ Within each generation sub-directory are numbered individual simulation director
 
 A family tree for 3 generations showing the relationship between numbered individual simulations is shown here:
 
+```
 gen 0:                 0
 gen 1:         0               1
 gen 2:     0       1       2       3
+```
