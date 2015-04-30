@@ -33,6 +33,22 @@ To queue multiple simulations (in this case 4 simulations) in fireworks:
 DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fw_queue.py
 ```
 
+Multiple generations
+--------------------
+
+To queue multiple generations (in this case 4 generations) from a single mother cell:
+
+```bash
+DESC="Example run of multiple generations." N_GENS=4 python runscripts/fw_queue.py
+```
+
+To queue multiple generations (in this case 3 generations) from multiple mother cells (in this case 2 mother cells:
+
+```bash
+DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fw_queue.py
+```
+
+
 Using an interactive node to run simulations
 --------------------------------------------
 
@@ -49,7 +65,7 @@ Don't do this on a login node.
 Using the scheduler (SLURM) to run simulations
 -----------------------------------------------
 
-To run simulations using the cluster, run:
+To run simulations using the cluster (you'll probably want to do this if you're running more than one simulation and/or more than one generation), run:
 
 ```bash
 qlaunch -r rapidfire --nlaunches infinite --sleep 5
