@@ -6,6 +6,7 @@ from wholecell.fireworks.firetasks import SymlinkTask
 from wholecell.fireworks.firetasks import FitKbTask
 from wholecell.fireworks.firetasks import VariantKbTask
 from wholecell.fireworks.firetasks import SimulationTask
+from wholecell.fireworks.firetasks import SimulationDaughterTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from jinja2 import Template
@@ -65,6 +66,7 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
 WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
+N_GENS = int(os.environ.get("N_GENS", "1"))
 
 ### Create directories
 
@@ -93,18 +95,29 @@ for i in VARIANTS_TO_RUN:
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
-		SIM_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "simOut")
-		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
 
 		if not os.path.exists(SEED_DIRECTORY):
 			os.makedirs(SEED_DIRECTORY)
 
-		if not os.path.exists(SIM_OUT_DIRECTORY):
-			os.makedirs(SIM_OUT_DIRECTORY)
+		for k in xrange(N_GENS):
+			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 
-		if not os.path.exists(PLOT_OUT_DIRECTORY):
-			os.makedirs(PLOT_OUT_DIRECTORY)
+			if not os.path.exists(GEN_DIRECTORY):
+				os.makedirs(GEN_DIRECTORY)
 
+			for l in xrange(2**k):
+				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
+				SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
+				PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
+
+				if not os.path.exists(CELL_DIRECTORY):
+					os.makedirs(CELL_DIRECTORY)
+
+				if not os.path.exists(SIM_OUT_DIRECTORY):
+					os.makedirs(SIM_OUT_DIRECTORY)
+
+				if not os.path.exists(PLOT_OUT_DIRECTORY):
+					os.makedirs(PLOT_OUT_DIRECTORY)
 
 
 
@@ -285,45 +298,81 @@ for i in VARIANTS_TO_RUN:
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
-		SIM_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "simOut")
-		PLOT_OUT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
 
-		# Simulation task
-		fw_name = "SimulationTask"
-		fw_this_variant_this_sim = Firework(
-			SimulationTask(
-				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-				output_directory = SIM_OUT_DIRECTORY,
-				seed = j,
-				length_sec = WC_LENGTHSEC,
-				),
-			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}}
-			)
+		sims_this_seed = collections.defaultdict(list)
 
-		wf_fws.append(fw_this_variant_this_sim)
+		for k in xrange(N_GENS):
+			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 
-		wf_links[fw_this_variant_kb].append(fw_this_variant_this_sim)
+			for l in xrange(2**k):
+				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)		
+				SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
+				PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
 
-		# AnalysisSingle task
-		fw_name = "AnalysisSingleTask"
-		fw_this_variant_this_sim_analysis = Firework(
-			AnalysisSingleTask(
-				input_results_directory = SIM_OUT_DIRECTORY,
-				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-				output_plots_directory = PLOT_OUT_DIRECTORY,
-				),
-			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}}
-			)
+				# TODO: Add conditional logic here for mother vs daughter cells
+				# Simulation task
+				fw_name = "SimulationTask__Gen_%d__Cell_%d" % (k, l)
 
-		wf_fws.append(fw_this_variant_this_sim_analysis)
+				if k == 0:
+					fw_this_variant_this_gen_this_sim = Firework(
+						SimulationTask(
+							input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+							output_directory = SIM_OUT_DIRECTORY,
+							seed = j,
+							length_sec = WC_LENGTHSEC,
+							),
+						name = fw_name,
+						spec = {"_queueadapter": {"job_name": fw_name}}
+						)
+				elif k > 0:
+					PARENT_GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % (k - 1))
+					PARENT_CELL_DIRECTORY = os.path.join(PARENT_GEN_DIRECTORY, "%06d" % (l // 2))
+					PARENT_SIM_OUT_DIRECTORY = os.path.join(PARENT_CELL_DIRECTORY, "simOut")
+					DAUGHTER_STATE_DIRECTORY = os.path.join(PARENT_SIM_OUT_DIRECTORY, "Daughter%d" % (l % 2 + 1))
 
-		wf_links[fw_this_variant_this_sim].append(fw_this_variant_this_sim_analysis)
+					fw_this_variant_this_gen_this_sim = Firework(
+						SimulationDaughterTask(
+							input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+							output_directory = SIM_OUT_DIRECTORY,
+							inherited_state_path = DAUGHTER_STATE_DIRECTORY,
+							seed = (j + 1) * ((2**k - 1) + l),
+							length_sec = WC_LENGTHSEC,
+							),
+						name = fw_name,
+						spec = {"_queueadapter": {"job_name": fw_name}}
+						)
 
-		wf_links[fw_this_variant_this_sim_analysis].append(fw_this_variant_kb_compression)
-		wf_links[fw_this_variant_this_sim_analysis].append(fw_kb_fit_0_compression)
-		wf_links[fw_this_variant_this_sim_analysis].append(fw_kb_fit_1_compression)
+				wf_fws.append(fw_this_variant_this_gen_this_sim)
+
+				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
+
+				if k == 0:
+					wf_links[fw_this_variant_kb].append(fw_this_variant_this_gen_this_sim)
+
+				elif k > 0:
+					fw_parent_sim = sims_this_seed[k - 1][l // 2]
+					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
+
+				# AnalysisSingle task
+				fw_name = "AnalysisSingleTask__Gen_%d__Cell_%d" % (k, l)
+				fw_this_variant_this_gen_this_sim_analysis = Firework(
+					AnalysisSingleTask(
+						input_results_directory = SIM_OUT_DIRECTORY,
+						input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+						output_plots_directory = PLOT_OUT_DIRECTORY,
+						),
+					name = fw_name,
+					spec = {"_queueadapter": {"job_name": fw_name}}
+					)
+
+				wf_fws.append(fw_this_variant_this_gen_this_sim_analysis)
+
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
+
+				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_kb_compression)
+				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression)
+				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_1_compression)
+
 
 ### Create workflow
 
