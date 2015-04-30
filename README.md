@@ -80,6 +80,17 @@ Output
 ------
 
 The output is stored as a time-stamped sub-directory of the `out` directory, for example `out/20140825.095758.954820584`.
-Within this directory, there is a `metadata` sub-directory which stores the git revision information as well as the description provided by the `DESC` variable, a `kb` sub-directory which stores kb objects (after the simulations and analysis are done the objects are compressed using bzip2), and sub-directories (maybe only a single sub-directory) containing different variants (e.g., gene knockouts or other perturbations).
-Within variant sub-directories, there are numbered sub-directories such as `000000` which contain individual simulation output including data (in `simOut`) and plots (in `plotOut`).
 
+Within this directory, there is a `metadata` sub-directory which stores the git revision information as well as the description provided by the `DESC` variable, a `kb` sub-directory which stores kb objects (after the simulations and analysis are done the objects are compressed using bzip2), and sub-directories (maybe only a single sub-directory) containing different variants (e.g., gene knockouts or other perturbations).
+
+Within variant sub-directories, there are `N_INIT_SIMS` (which defaults to 1) numbered sub-directories such as `000000` corresponding to "family trees".
+
+Within each "family tree" sub-directory are generation sub-directories such as `generation_000000`.
+
+Within each generation sub-directory are numbered individual simulation directories that contain `simOut` (for simulation data) and `plotOut` (for plots) sub-directories.
+
+A family tree for 3 generations showing the relationship between numbered individual simulations is shown here:
+
+gen 0:                 0
+gen 1:         0               1
+gen 2:     0       1       2       3
