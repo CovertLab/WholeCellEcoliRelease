@@ -71,6 +71,12 @@ user/*
 my_launchpad.yaml
 my_qadapter.yaml
 
+
+# Fireworks output #
+####################
+launcher_*
+block_*
+
 # Misc #
 ########
 
