@@ -19,6 +19,10 @@
 		)
 	)
 
-; example call
-; $ ./pathway-tools -lisp
-; : (load "~/sherlock/scratch/users/jmason42/wcEcoli/reconstruction/ecoli/flat/metabolism/met_weights.lisp")
+; Example run
+; 1) call Pathway Tools in command-line mode
+; ./pathway-tools -lisp
+; 2) from the command line, load this file
+; (load "~/sherlock/scratch/users/jmason42/wcEcoli/reconstruction/ecoli/flat/metabolism/met_weights.lisp")
+; 3) quit Pathway Tools (yes, leading colon is needed)
+; :exit
