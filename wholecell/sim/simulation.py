@@ -98,7 +98,6 @@ class Simulation(object):
 			raise SimulationException("Unknown keyword arguments: {}".format(unknownKeywords))
 
 		# Set time variables
-		self.initialStep = 0
 		self.simulationStep = 0
 
 		self.randomState = np.random.RandomState(seed = self._seed)
@@ -379,11 +378,11 @@ class Simulation(object):
 
 
 	def time(self):
-		return self.timeStepSec() * (self.initialStep + self.simulationStep)
+		return self.timeStepSec() * self.simulationStep
 
 
 	def timeStep(self):
-		return self.initialStep + self.simulationStep
+		return self.simulationStep
 
 
 	def timeStepSec(self):
