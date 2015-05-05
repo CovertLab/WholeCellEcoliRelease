@@ -41,7 +41,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-	time = mass.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
 	processMassDifferences = mass.readColumn("processMassDifferences")
 
 	processNames = mass.readAttribute("processNames")

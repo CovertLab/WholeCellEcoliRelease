@@ -45,8 +45,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
+
 	objectiveValue = fbaResults.readColumn("objectiveValue")
 	objectiveComponents = np.append(
 		fbaResults.readColumn("objectiveComponents").T,

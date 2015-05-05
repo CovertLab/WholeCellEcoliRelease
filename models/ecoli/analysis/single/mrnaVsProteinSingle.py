@@ -61,7 +61,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime	
 
 	bulkMolecules.close()
 

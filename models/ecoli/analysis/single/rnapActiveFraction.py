@@ -38,7 +38,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
 	rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-	time = uniqueMoleculeCounts.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime	
 	nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 
 	uniqueMoleculeCounts.close()

@@ -30,7 +30,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# geneCopyNumber = geneCopyNumberFile.readColumn('gene_copy_number')
 	totalCopyNumber = geneCopyNumberFile.readColumn('total_copy_number')
-	time = geneCopyNumberFile.readColumn('time')
+
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	geneCopyNumberFile.close()
 

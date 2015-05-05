@@ -102,7 +102,8 @@ def plotMassFractions(grids, simOutDir, kbFile):
 	rRna = mass.readColumn("rRnaMass")
 	mRna = mass.readColumn("mRnaMass")
 	dna = mass.readColumn("dnaMass")
-	t = mass.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	mass.close()
 
@@ -238,7 +239,8 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 

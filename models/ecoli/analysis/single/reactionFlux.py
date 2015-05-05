@@ -56,8 +56,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		os.mkdir(plotOutDir)
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
 	reactionFluxes = fbaResults.readColumn("reactionFluxes")
 
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
