@@ -77,8 +77,8 @@ class Metabolism(wholecell.processes.process.Process):
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
-		initWaterMass = kb.constants.mass_constants.avgCellWaterMassInit
-		initDryMass = kb.constants.mass_constants.avgCellDryMassInit
+		initWaterMass = kb.mass.avgCellWaterMassInit
+		initDryMass = kb.mass.avgCellDryMassInit
 
 		initCellMass = (
 			initWaterMass

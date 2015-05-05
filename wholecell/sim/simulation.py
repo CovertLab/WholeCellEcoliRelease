@@ -19,67 +19,26 @@ import time
 import numpy as np
 
 from wholecell.listeners.evaluation_time import EvaluationTime
+from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 import wholecell.loggers.shell
 import wholecell.loggers.disk
 
-# TODO: merge these two dicts?
-OPTIONS_AND_ENVIRON_VARS = dict(
-	seed = ("WC_SEED", int),
-	lengthSec = ("WC_LENGTHSEC", int),
-	logToShell = ("WC_LOGTOSHELL", json.loads),
-	logToDisk = ("WC_LOGTODISK", json.loads),
-	outputDir = ("WC_OUTPUTDIR", json.loads),
-	overwriteExistingFiles = ("WC_OVERWRITEEXISTINGFILES", json.loads),
-	logToDiskEvery = ("WC_LOGTODISKEVERY", int),
-	kbLocation = ("WC_KBLOCATION", json.loads)
-	)
+from wholecell.io.tablewriter import TableWriter
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3600,
+	initialTime = 0,
 	logToShell = True,
 	logToDisk = False,
 	outputDir = None,
 	overwriteExistingFiles = False,
 	logToDiskEvery = 1,
-	kbLocation = None
+	kbLocation = None,
+	inheritedStatePath = None,
 	)
-
-def getSimOptsFromEnvVars(optionsToNotGetFromEnvVars = None):
-	optionsToNotGetFromEnvVars = optionsToNotGetFromEnvVars or []
-
-	# We use this to check if any undefined WC_* environmental variables
-	# were accidentally specified by the user
-	wcEnvVars = [x for x in os.environ if x.startswith("WC_")]
-
-	# These are options that the calling routine might set itself
-	# While it could just overwrite them silently, removing them here
-	# will at least alert the user
-	for opt in optionsToNotGetFromEnvVars:
-		del OPTIONS_AND_ENVIRON_VARS[opt]
-
-	simOpts = {}
-
-	# Get simulation options from environmental variables
-	for option, (envVar, handler) in OPTIONS_AND_ENVIRON_VARS.iteritems():
-		if os.environ.has_key(envVar) and len(os.environ[envVar]):
-			simOpts[option] = handler(os.environ[envVar])
-			wcEnvVars.remove(envVar)
-
-		else:
-			if os.environ.has_key(envVar) and len(os.environ[envVar]) == 0:
-				wcEnvVars.remove(envVar)
-
-			simOpts[option] = DEFAULT_SIMULATION_KWARGS[option]
-
-	# Check for extraneous environmental variables (probably typos by the user)
-	assert (len(wcEnvVars) == 0), (
-		"The following WC_* environmental variables were specified but " +
-		"have no defined function: %s" % wcEnvVars
-		)
-
-	return simOpts
 
 def _orderedAbstractionReference(iterableOfClasses):
 	return collections.OrderedDict(
@@ -140,7 +99,6 @@ class Simulation(object):
 			raise SimulationException("Unknown keyword arguments: {}".format(unknownKeywords))
 
 		# Set time variables
-		self.initialStep = 0
 		self.simulationStep = 0
 
 		self.randomState = np.random.RandomState(seed = self._seed)
@@ -187,7 +145,6 @@ class Simulation(object):
 		# Make permanent reference to evaluation time listener
 		self._evalTime = self.listeners["EvaluationTime"]
 
-
 	def _initLoggers(self):
 		self.loggers = collections.OrderedDict()
 
@@ -222,7 +179,7 @@ class Simulation(object):
 			logger.initialize(self)
 
 		# Simulate
-		while self.time() < self._lengthSec:
+		while self.time() < self._lengthSec + self.initialTime():
 			if self._cellCycleComplete:
 				break
 
@@ -233,6 +190,9 @@ class Simulation(object):
 		# Run post-simulation hooks
 		for hook in self.hooks.itervalues():
 			hook.finalize(self)
+
+		# Divide mother into daughter cells
+		self._divideDaughter()
 
 		# Finish logging
 		for logger in self.loggers.itervalues():
@@ -311,9 +271,96 @@ class Simulation(object):
 		for logger in self.loggers.itervalues():
 			logger.append(self)
 
+	def _divideDaughter(self):
+		# Divide bulk molecules
+		molecule_counts = self.states['BulkMolecules'].container.counts()
+		d1_bulk_molecules_container = self.states['BulkMolecules'].container.emptyLike()
+		d2_bulk_molecules_container = self.states['BulkMolecules'].container.emptyLike()
+
+		d1_counts = self.randomState.binomial(molecule_counts, p = 0.5)
+		d2_counts = molecule_counts - d1_counts
+
+		assert all(d1_counts + d2_counts == molecule_counts)
+
+		d1_bulk_molecules_container.countsIs(d1_counts)
+		d2_bulk_molecules_container.countsIs(d2_counts)
+
+		# Ensure that special molecules that should not be divded binomially
+		# are divided equally between daughter cells
+		# TODO: Divide chromosome in some way better!
+
+		# Save data
+		os.mkdir(os.path.join(self._outputDir, "Daughter1"))
+		os.mkdir(os.path.join(self._outputDir, "Daughter2"))
+		d1_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter1", "BulkMolecules"))
+		d1_bulk_molecules_container.tableCreate(d1_table_writer)
+		d1_bulk_molecules_container.tableAppend(d1_table_writer)
+
+		d2_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter2", "BulkMolecules"))
+		d2_bulk_molecules_container.tableCreate(d2_table_writer)
+		d2_bulk_molecules_container.tableAppend(d2_table_writer)
+
+		# Divide bulk chromosome
+		# chromosome_location_counts = self.states['BulkChromosome'].container.counts()
+		# d1_bulk_molecules_container = self.states['BulkChromosome'].container.emptyLike()
+		# d2_bulk_molecules_container = self.states['BulkChromosome'].container.emptyLike()
+		# import ipdb; ipdb.set_trace()
+		# assert all(chromosome_location_counts == 2)
+
+		# d1_counts = chromosome_location_counts / 2
+		# d2_counts = chromosome_location_counts / 2
+
+		# assert all(d1_counts + d2_counts == chromosome_location_counts)
+
+		# d1_bulk_chromosome_container.countsIs(d1_counts)
+		# d2_bulk_chromosome_container.countsIs(d2_counts)
+
+		# Divide unique molecules
+		d1_unique_molecules_container = self.states['UniqueMolecules'].container.emptyLike()
+		d2_unique_molecules_container = self.states['UniqueMolecules'].container.emptyLike()
+
+		uniqueMoleculesToDivide = self.states['UniqueMolecules'].uniqueMoleculeDefinitions
+		# TODO: We are not dividing dna polymerase!
+		uniqueMoleculesToDivide.pop('dnaPolymerase')
+
+		for moleculeName, moleculeAttributeDict in uniqueMoleculesToDivide.iteritems():
+			# Get set of molecules to divide and calculate number going to daugher one and daughter two
+			moleculeSet = self.states['UniqueMolecules'].container.objectsInCollection(moleculeName)
+			n_d1 = self.randomState.binomial(len(moleculeSet), p = 0.5)
+			n_d2 = len(moleculeSet) - n_d1
+			assert n_d1 + n_d2 == len(moleculeSet)
+
+			# Randomly boolean index molecules in mother such that each daugher gets amount calculated above
+			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
+			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
+			d1_indexes = self.randomState.choice(range(len(moleculeSet)), size = n_d1, replace = False)
+			d1_bool[d1_indexes] = True
+			d2_bool = np.logical_not(d1_bool)
+
+			d1_dividedAttributesDict = {}
+			d2_dividedAttributesDict = {}
+			for moleculeAttribute in moleculeAttributeDict.iterkeys():
+				d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
+				d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
+
+			d1_unique_molecules_container.objectsNew(moleculeName, n_d1, **d1_dividedAttributesDict)
+			d2_unique_molecules_container.objectsNew(moleculeName, n_d2, **d2_dividedAttributesDict)
+
+		# Save data
+		d1_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter1", "UniqueMolecules"))
+		d1_unique_molecules_container.tableCreate(d1_table_writer)
+		d1_unique_molecules_container.tableAppend(d1_table_writer)
+
+		d2_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter2", "UniqueMolecules"))
+		d2_unique_molecules_container.tableCreate(d2_table_writer)
+		d2_unique_molecules_container.tableAppend(d2_table_writer)
 
 	def _seedFromName(self, name):
 		return np.uint32(self._seed + self.simulationStep + hash(name))
+
+
+	def initialTime(self):
+		return self._initialTime
 
 
 	# Save to/load from disk
@@ -325,46 +372,22 @@ class Simulation(object):
 
 
 	def tableAppend(self, tableWriter):
-		# Included for consistency, eventual features...
-		pass
+		tableWriter.append(
+			time = self.time(),
+			timeStep = self.timeStep()
+			)
 
 
 	def tableLoad(self, tableReader, tableIndex):
 		pass
 
-	# TODO: rewrite simulation loading
-
-	# @classmethod
-	# def loadSimulation(cls, simDir, timePoint, newDir = None, overwriteExistingFiles = False):
-	# 	newSim = cls.initFromFile(
-	# 		os.path.join(simDir, 'simOpts.json'),
-	# 		logToDisk = newDir is not None,
-	# 		overwriteExistingFiles = overwriteExistingFiles,
-	# 		outputDir = newDir
-	# 		)
-
-	# 	with tables.open_file(os.path.join(simDir, 'Main.hdf')) as h5file:
-	# 		newSim.pytablesLoad(h5file, timePoint)
-
-	# 	for stateName, state in newSim.states.viewitems():
-	# 		with tables.open_file(os.path.join(simDir, stateName + '.hdf')) as h5file:
-	# 			state.pytablesLoad(h5file, timePoint)
-
-	# 	for listenerName, listener in newSim.listeners.viewitems():
-	# 		with tables.open_file(os.path.join(simDir, listenerName + '.hdf')) as h5file:
-	# 			listener.pytablesLoad(h5file, timePoint)
-
-	# 	newSim.initialStep = timePoint
-
-	# 	return newSim
-
 
 	def time(self):
-		return self.timeStepSec() * (self.initialStep + self.simulationStep)
+		return self.timeStepSec() * self.simulationStep + self.initialTime()
 
 
 	def timeStep(self):
-		return self.initialStep + self.simulationStep
+		return self.simulationStep
 
 
 	def timeStepSec(self):
@@ -374,13 +397,6 @@ class Simulation(object):
 	def lengthSec(self):
 		return self._lengthSec
 
+
 	def cellCycleComplete(self):
 		self._cellCycleComplete = True
-
-	@classmethod
-	def printAnalysisSingleFiles(cls):
-		raise NotImplementedError
-
-	@classmethod
-	def printAnalysisCohortFiles(cls):
-		raise NotImplementedError

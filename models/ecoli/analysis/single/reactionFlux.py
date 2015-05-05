@@ -46,6 +46,8 @@ CMAP_OVER = [0, 1, 0.75]
 NUMERICAL_ZERO = 1e-10 # used to cull very small numbers; could be chosen more rationally (i.e. minimum of one reaction per average cell size)
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+	# Disabled
+	return
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -54,8 +56,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		os.mkdir(plotOutDir)
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
 	reactionFluxes = fbaResults.readColumn("reactionFluxes")
 
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
@@ -186,6 +189,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	grid.tight_layout(fig)
 
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName), dpi = 200)
+	plt.close("all")
 
 
 if __name__ == "__main__":

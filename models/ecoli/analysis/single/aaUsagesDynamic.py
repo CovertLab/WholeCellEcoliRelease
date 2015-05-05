@@ -31,9 +31,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	metaboliteIds = aaUsageFile.readAttribute("metaboliteIds")
 
 	aaUsage = aaUsageFile.readColumn("translationAAUsageCurrent")[1:, :]	# Ignore time point 0
-	t = aaUsageFile.readColumn("time")[1:]	# Ignore time point 0
 
 	aaUsageFile.close()
+
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[1:] - initialTime
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -50,6 +52,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

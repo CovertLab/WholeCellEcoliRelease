@@ -30,7 +30,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# geneCopyNumber = geneCopyNumberFile.readColumn('gene_copy_number')
 	totalCopyNumber = geneCopyNumberFile.readColumn('total_copy_number')
-	time = geneCopyNumberFile.readColumn('time')
+
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	geneCopyNumberFile.close()
 
@@ -53,6 +55,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

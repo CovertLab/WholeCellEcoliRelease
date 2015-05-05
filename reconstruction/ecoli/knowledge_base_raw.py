@@ -18,7 +18,7 @@ import json
 from wholecell.utils import units
 
 CSV_DIALECT = csv.excel_tab
-FLAT_DIR = os.path.join("reconstruction", "ecoli", "flat")
+FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"compartments.tsv",
 	"complexationReactions.tsv",

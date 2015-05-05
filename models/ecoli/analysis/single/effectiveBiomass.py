@@ -53,8 +53,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
+
 	outputFluxes = fbaResults.readColumn("outputFluxes")
 
 	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
@@ -141,6 +143,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

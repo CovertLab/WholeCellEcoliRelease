@@ -32,9 +32,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	normNtpProductionBiomass = aaUsageFile.readAttribute("relativeAAProductionBiomass")
 
 	aaUsage = aaUsageFile.readColumn("translationAAUsageCurrent")[1:, :]
-	t = aaUsageFile.readColumn("time")[1:]
 
 	aaUsageFile.close()
+
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[1:] - initialTime
 
 	normUsage = aaUsage / np.tile(
 		aaUsage.sum(axis = 1).astype("float64").reshape(-1, 1), (1, 21)
@@ -52,6 +54,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

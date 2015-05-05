@@ -45,7 +45,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	rRna = mass.readColumn("rRnaMass")
 	mRna = mass.readColumn("mRnaMass")
 	dna = mass.readColumn("dnaMass")
-	t = mass.readColumn("time")
+
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
 
 	masses = np.vstack([
 		protein/protein[0],
@@ -74,6 +77,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

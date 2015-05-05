@@ -13,6 +13,7 @@ from __future__ import division
 
 from itertools import izip
 import collections
+from copy import deepcopy
 
 import numpy as np
 
@@ -46,6 +47,12 @@ class UniqueMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(UniqueMolecules, self).initialize(sim, kb)
 
+		# Used to store information for cell division
+		# Should not contain DEFAULT_ATTRIBUTES
+		self.uniqueMoleculeDefinitions = deepcopy(kb.state.uniqueMolecules.uniqueMoleculeDefinitions)
+
+		# Used to send information to the container
+		# Should contain DEFAULT_ATTRIBUTES
 		molDefs = kb.state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
 
 		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
@@ -53,13 +60,18 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.submassNameToIndex = kb.submassNameToIndex
 
 		# Add the submass difference attributes for processes to operate
+		defaultMassAttributes = {}
 		for submassName in self.submassNameToIndex.viewkeys():
 			massDiffPropertyName = "massDiff_" + submassName
-			defaultAttributes[massDiffPropertyName] = np.float64
+			defaultMassAttributes[massDiffPropertyName] = np.float64
 			self._submassNameToProperty[submassName] = massDiffPropertyName
+
+		for molDef in self.uniqueMoleculeDefinitions.viewvalues():
+			molDef.update(defaultMassAttributes)
 
 		for molDef in molDefs.viewvalues():
 			molDef.update(defaultAttributes)
+			molDef.update(defaultMassAttributes)
 
 		self.container = UniqueObjectsContainer(molDefs)
 

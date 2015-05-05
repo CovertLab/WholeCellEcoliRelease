@@ -32,7 +32,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	normNtpProductionBiomass = ntpUsageFile.readAttribute("relativeNtpProductionBiomass")
 
 	ntpUsage = ntpUsageFile.readColumn('transcriptionNtpUsageCurrent')[1:, :]	# Ignore time point 0
-	t = ntpUsageFile.readColumn("time")[1: ]	# Ignore time point 0
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[1:] - initialTime
 
 	ntpUsageFile.close()
 
@@ -52,6 +53,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

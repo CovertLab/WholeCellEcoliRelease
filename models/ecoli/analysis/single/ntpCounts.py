@@ -28,13 +28,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
 	ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
 
 	ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
-	time = bulkMolecules.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 
@@ -53,6 +54,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

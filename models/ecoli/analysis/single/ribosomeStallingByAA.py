@@ -31,7 +31,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ribosomeData = TableReader(os.path.join(simOutDir, "RibosomeData"))
 
-	timeStep = ribosomeData.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	aaCountInSequence = ribosomeData.readColumn("aaCountInSequence")
 	aaCounts = ribosomeData.readColumn("aaCounts")
 	trnaCapacity = ribosomeData.readColumn("trnasCapacity")
@@ -59,9 +60,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	for idx in xrange(21):
 		plt.subplot(6, 4, idx + 1)
 
-		plt.plot(timeStep / 60., aaCapacity[:,idx], linewidth = 2,label = 'aa limit')
-		plt.plot(timeStep / 60., trnaCapacity[:,idx], '--', label = 'trna limit')
-		plt.plot(timeStep / 60., synthetaseCapacity[:,idx], label = 'synthetase limit')
+		plt.plot(time / 60., aaCapacity[:,idx], linewidth = 2,label = 'aa limit')
+		plt.plot(time / 60., trnaCapacity[:,idx], '--', label = 'trna limit')
+		plt.plot(time / 60., synthetaseCapacity[:,idx], label = 'synthetase limit')
 
 		plt.title(amino_acid_labels[idx])
 	plt.legend(bbox_to_anchor=(1.02, 0.5, 4., .102), loc=5, ncol=2, mode="expand")
@@ -70,6 +71,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.tight_layout()
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

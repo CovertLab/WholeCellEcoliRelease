@@ -31,7 +31,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	stateNames = evaluationTime.readAttribute("stateNames")
 	processNames = evaluationTime.readAttribute("processNames")
 
-	time = evaluationTime.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	updateQueries_times = evaluationTime.readColumn("updateQueries_times")
 	partition_times = evaluationTime.readColumn("partition_times")
@@ -97,7 +98,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
-
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

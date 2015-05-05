@@ -12,7 +12,6 @@ class Constants(object):
 	""" Constants """
 
 	def __init__(self, raw_data, sim_data):
-		self.mass_constants = MassConstants(raw_data, sim_data)
 		self._buildConstants(raw_data, sim_data)
 
 	def _buildConstants(self, raw_data, sim_data):
@@ -21,11 +20,3 @@ class Constants(object):
 
 		parameters = raw_data.parameters
 		self.__dict__.update(parameters)
-
-class MassConstants(object):
-	def __init__(self, raw_data, sim_data):
-		self._buildConstants(raw_data, sim_data)
-
-	def _buildConstants(self, raw_data, sim_data):
-		mass_parameters = raw_data.mass_parameters
-		self.__dict__.update(mass_parameters)

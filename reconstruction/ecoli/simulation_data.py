@@ -29,37 +29,31 @@ class SimulationDataEcoli(object):
 	""" SimulationDataEcoli """
 
 	def __init__(self):
-		# Raw data
-		raw_data = KnowledgeBaseEcoli()
-		self._addHardCodedAttributes()
-
 		# Doubling time (used in fitting)
-		self._doubling_time = None
+		self.doubling_time = None
+
+	def initalize(self, doubling_time, raw_data):
+		if type(doubling_time) != Unum:
+			raise Exception("Doubling time is not a Unum object!")
+		self.doubling_time = doubling_time
+
+		self._addHardCodedAttributes()
 
 		# Helper functions (have no dependencies)
 		self.getter = getterFunctions(raw_data, self)
 		self.moleculeGroups = moleculeGroups(raw_data, self)
 		self.constants = Constants(raw_data, self)
 
+		self.mass = Mass(raw_data, self)
+
 		# Data classes (can depend on helper functions)
 		# Data classes cannot depend on each other
 		self.process = Process(raw_data, self)
 		self.state = State(raw_data, self)
-		self.mass = Mass(raw_data, self)
 
 		# Relations between data classes (can depend on data classes)
 		# Relations cannot depend on each other
 		self.relation = Relation(raw_data, self)
-
-	def doublingTime(self):
-		return self._doubling_time
-
-	def setDoublingTime(self, tau_d):
-		if type(tau_d) != Unum:
-			raise Exception("Doubling time is not a Unum object!")
-		self._doubling_time = tau_d
-		self.mass.tau_d = tau_d
-		self.mass.massFractions = self.mass._massFractions()
 
 	def _addHardCodedAttributes(self):
 		self.molecular_weight_keys = [

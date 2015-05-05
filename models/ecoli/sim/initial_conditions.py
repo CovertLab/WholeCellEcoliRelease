@@ -14,12 +14,16 @@ from __future__ import division
 from itertools import izip
 
 import numpy as np
+import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
 from wholecell.utils import units
 
+from wholecell.io.tablereader import TableReader
+
 def calcInitialConditions(sim, kb):
+	assert sim._inheritedStatePath == None
 	randomState = sim.randomState
 
 	timeStep = sim.timeStepSec() # This is a poor solution but will suffice for now
@@ -68,7 +72,7 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
 	monomerExpression = normalize(
 		kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.constants.cellCycleLen.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
 	nMonomers = countsFromMassAndExpression(
@@ -156,7 +160,7 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
 	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
 	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	T_d = kb.constants.cellCycleLen.asNumber(units.s)
+	T_d = kb.doubling_time.asNumber(units.s)
 	dt = kb.constants.timeStep.asNumber(units.s)
 
 	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
@@ -475,3 +479,16 @@ def initializeReplication(uniqueMolCntr, kb):
 		directionIsPositive = np.array([True, True, False, False]),
 		isLeading = np.array([True, False, True, False])
 		)
+
+def setDaughterInitialConditions(sim, kb):
+	assert sim._inheritedStatePath != None
+
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
+	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
+
+	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
+	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
+
+	# TODO: This is a hack until we actually get the chromosome division working
+	initializeReplication(sim.states["UniqueMolecules"].container, kb)
+

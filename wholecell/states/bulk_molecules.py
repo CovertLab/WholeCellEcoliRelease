@@ -75,6 +75,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self._processPriorities = np.empty(self._nProcesses, np.int64)
 		self._processPriorities.fill(REQUEST_PRIORITY_DEFAULT)
 
+		self.moleculesToDivideEqually = ['{}[{}]'.format(x,y) for y in kb.state.compartments['compartmentAbbreviation'] for x in kb.moleculeGroups.polymerizedDNT_IDs]
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel
@@ -157,36 +158,15 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def tableCreate(self, tableWriter):
-		tableWriter.writeAttributes(
-			moleculeIDs = self._moleculeIDs
-			)
+		self.container.tableCreate(tableWriter)
 
 
 	def tableAppend(self, tableWriter):
-		tableWriter.append(
-			time = self.time(),
-			timeStep = self.timeStep(),
-			counts = self.container._counts,
-			# TODO: better logging for requests i.e. not GBs of data
-			# countsRequested = self._countsRequested,
-			# countsAllocatedInitial = self._countsAllocatedInitial,
-			# countsAllocatedFinal = self._countsAllocatedFinal,
-			# countsUnallocated = self._countsUnallocated,
-			)
+		self.container.tableAppend(tableWriter)
 
 
 	def tableLoad(self, tableReader, tableIndex):
-		# entry = h5file.get_node('/', self._name)[timePoint]
-
-		# self.container.countsIs(entry['counts'])
-
-		# if self._nProcesses:
-		# 	self._countsRequested[:] = entry['countsRequested']
-		# 	self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
-		# 	self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
-		# 	self._countsUnallocated[:] = entry['countsUnallocated']
-
-		raise NotImplementedError()
+		self.container.tableLoad(tableReader, tableIndex)
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):

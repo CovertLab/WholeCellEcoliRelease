@@ -41,7 +41,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
 
@@ -57,7 +57,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	expectedCountsArbitrary = (
 		kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.constants.cellCycleLen.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1/units.s))
+		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1/units.s))
 		) * counts.sum()
 
 	expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()
@@ -83,6 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

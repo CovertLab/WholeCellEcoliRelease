@@ -30,6 +30,7 @@ nosetests.*.xml
 # Output files #
 ################
 
+out
 out/*
 !out/out.txt
 !out/images.html
@@ -64,6 +65,17 @@ user/*
 # pyenv python version #
 ########################
 .python-version
+
+# files created from templates #
+################################
+my_launchpad.yaml
+my_qadapter.yaml
+
+
+# Fireworks output #
+####################
+launcher_*
+block_*
 
 # Misc #
 ########

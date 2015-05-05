@@ -46,5 +46,5 @@ def calcProteinTotalCounts(kb, monomerMass, monomerExpression):
 def calcProteinDistribution(kb):
 	return normalize(
 		kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.constants.cellCycleLen.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)

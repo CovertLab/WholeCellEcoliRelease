@@ -42,7 +42,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	actualElongations = massFile.readColumn("actualElongations")
 	expectedElongations_recorded = massFile.readColumn("expectedElongations")
-	time = massFile.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
 
 	massFile.close()
 
@@ -50,7 +52,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	# Get indexes
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
 
 	# Load data
@@ -85,6 +87,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
