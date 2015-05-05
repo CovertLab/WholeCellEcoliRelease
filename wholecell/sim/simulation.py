@@ -30,6 +30,7 @@ from wholecell.io.tablewriter import TableWriter
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3600,
+	initialTime = 0,
 	logToShell = True,
 	logToDisk = False,
 	outputDir = None,
@@ -178,7 +179,7 @@ class Simulation(object):
 			logger.initialize(self)
 
 		# Simulate
-		while self.time() < self._lengthSec:
+		while self.time() < self._lengthSec + self.initialTime():
 			if self._cellCycleComplete:
 				break
 
@@ -358,6 +359,10 @@ class Simulation(object):
 		return np.uint32(self._seed + self.simulationStep + hash(name))
 
 
+	def initialTime(self):
+		return self._initialTime
+
+
 	# Save to/load from disk
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
@@ -378,7 +383,7 @@ class Simulation(object):
 
 
 	def time(self):
-		return self.timeStepSec() * self.simulationStep
+		return self.timeStepSec() * self.simulationStep + self.initialTime()
 
 
 	def timeStep(self):
