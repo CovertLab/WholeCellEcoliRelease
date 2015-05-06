@@ -39,7 +39,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	dnmpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in DNMP_IDS], np.int)
 	dnmpCounts = bulkMolecules.readColumn("counts")[:, dnmpIndexes]
 
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 

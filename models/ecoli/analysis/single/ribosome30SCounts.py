@@ -49,7 +49,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	complexIndexes = np.array([moleculeIds.index(comp) for comp in complexIds], np.int)
 
 	# Load data
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	freeProteinCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 	rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 	freeRRnaCounts = bulkMolecules.readColumn("counts")[:, rRnaIndexes]

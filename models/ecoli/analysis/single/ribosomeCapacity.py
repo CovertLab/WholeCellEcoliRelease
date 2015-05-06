@@ -42,7 +42,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	actualElongations = massFile.readColumn("actualElongations")
 	expectedElongations_recorded = massFile.readColumn("expectedElongations")
-	time = massFile.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
 
 	massFile.close()
 

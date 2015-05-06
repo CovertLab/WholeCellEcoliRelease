@@ -37,8 +37,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
 	externalExchangeFluxes = fbaResults.readColumn("externalExchangeFluxes")
 
 	externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))

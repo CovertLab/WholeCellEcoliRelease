@@ -41,7 +41,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	aaIndexes = np.array([moleculeIds.index(aaId) for aaId in AA_IDS], np.int)
 	aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
 
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 

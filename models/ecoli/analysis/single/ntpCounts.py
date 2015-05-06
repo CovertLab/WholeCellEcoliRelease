@@ -34,7 +34,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
 
 	ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 

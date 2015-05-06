@@ -29,6 +29,7 @@ import wholecell.loggers.disk
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3600,
+	initialTime = 0,
 	logToShell = True,
 	logToDisk = False,
 	outputDir = None,
@@ -97,7 +98,6 @@ class Simulation(object):
 			raise SimulationException("Unknown keyword arguments: {}".format(unknownKeywords))
 
 		# Set time variables
-		self.initialStep = 0
 		self.simulationStep = 0
 
 		self.randomState = np.random.RandomState(seed = self._seed)
@@ -179,7 +179,7 @@ class Simulation(object):
 			logger.initialize(self)
 
 		# Simulate
-		while self.time() < self._lengthSec:
+		while self.time() < self._lengthSec + self.initialTime():
 			if self._cellCycleComplete:
 				break
 
@@ -275,6 +275,10 @@ class Simulation(object):
 		return np.uint32(self._seed + self.simulationStep + hash(name))
 
 
+	def initialTime(self):
+		return self._initialTime
+
+
 	# Save to/load from disk
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
@@ -293,39 +297,13 @@ class Simulation(object):
 	def tableLoad(self, tableReader, tableIndex):
 		pass
 
-	# TODO: rewrite simulation loading
-
-	# @classmethod
-	# def loadSimulation(cls, simDir, timePoint, newDir = None, overwriteExistingFiles = False):
-	# 	newSim = cls.initFromFile(
-	# 		os.path.join(simDir, 'simOpts.json'),
-	# 		logToDisk = newDir is not None,
-	# 		overwriteExistingFiles = overwriteExistingFiles,
-	# 		outputDir = newDir
-	# 		)
-
-	# 	with tables.open_file(os.path.join(simDir, 'Main.hdf')) as h5file:
-	# 		newSim.pytablesLoad(h5file, timePoint)
-
-	# 	for stateName, state in newSim.states.viewitems():
-	# 		with tables.open_file(os.path.join(simDir, stateName + '.hdf')) as h5file:
-	# 			state.pytablesLoad(h5file, timePoint)
-
-	# 	for listenerName, listener in newSim.listeners.viewitems():
-	# 		with tables.open_file(os.path.join(simDir, listenerName + '.hdf')) as h5file:
-	# 			listener.pytablesLoad(h5file, timePoint)
-
-	# 	newSim.initialStep = timePoint
-
-	# 	return newSim
-
 
 	def time(self):
-		return self.timeStepSec() * (self.initialStep + self.simulationStep)
+		return self.timeStepSec() * self.simulationStep + self.initialTime()
 
 
 	def timeStep(self):
-		return self.initialStep + self.simulationStep
+		return self.simulationStep
 
 
 	def timeStepSec(self):
@@ -334,6 +312,7 @@ class Simulation(object):
 
 	def lengthSec(self):
 		return self._lengthSec
+
 
 	def cellCycleComplete(self):
 		self._cellCycleComplete = True

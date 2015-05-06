@@ -53,8 +53,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
+
 	outputFluxes = fbaResults.readColumn("outputFluxes")
 
 	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))

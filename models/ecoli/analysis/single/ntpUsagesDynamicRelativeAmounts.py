@@ -33,7 +33,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	relativeNtpUsage = ntpUsageFile.readAttribute("relativeNtpUsage")
 
 	ntpUsage = ntpUsageFile.readColumn('transcriptionNtpUsageCurrent')[1:, :]	# Ignore time point 0
-	t = ntpUsageFile.readColumn("time")[1: ]	# Ignore time point 0
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[1:] - initialTime
+
 
 	ntpUsageFile.close()
 

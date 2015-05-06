@@ -31,7 +31,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	stateNames = evaluationTime.readAttribute("stateNames")
 	processNames = evaluationTime.readAttribute("processNames")
 
-	time = evaluationTime.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	updateQueries_times = evaluationTime.readColumn("updateQueries_times")
 	partition_times = evaluationTime.readColumn("partition_times")
