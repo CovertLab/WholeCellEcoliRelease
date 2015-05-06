@@ -58,7 +58,8 @@ class moleculeGroups(object):
 			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values(),
 		}
 
-		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.rnas)
+		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.rnas))
 		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteins))
 		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteinComplexes))
 		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_aa'] and not x['is_end']]))
