@@ -44,6 +44,10 @@ def divide_cell(sim):
 	saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
 	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
 
+	# Save daughter cell initial time steps
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
+
 def divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chromosomeToDaughter1):
 	d1_bulk_molecules_container = bulkMolecules.container.emptyLike()
 	d2_bulk_molecules_container = bulkMolecules.container.emptyLike()
@@ -59,7 +63,7 @@ def divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chro
 
 	d1_bulk_molecules_container.countsIs(d1_counts, bulkMolecules.divisionIds['binomial'])
 	d2_bulk_molecules_container.countsIs(d2_counts, bulkMolecules.divisionIds['binomial'])
-
+	import ipdb; ipdb.set_trace()
 	# Handle special cases for chromosome separation. If chromosome is decatinated then all
 	# chromosome associated bulk molecules will divide equally. Otherwise will parition with
 	# one or the other daughter.
@@ -142,33 +146,36 @@ def divideUniqueMolecules(uniqueMolecules, randomState, dnaReplicationComplete, 
 		d2_unique_molecules_container.objectsNew(moleculeName, n_d2, **d2_dividedAttributesDict)
 
 	# Divide dna polymerase with chromosome
+	if not dnaReplicationComplete:
+		# Get set of molecules to divide and calculate number going to daugher one and daughter two
+		moleculeSet = uniqueMolecules.container.objectsInCollection('dnaPolymerase')
+		if len(moleculeSet) == 0:
+			raise Exception("No dna polymerase exist even though dna replication has not finished!")
 
-	# Get set of molecules to divide and calculate number going to daugher one and daughter two
-	moleculeSet = uniqueMolecules.container.objectsInCollection('dnaPolymerase')
-	if chromosomeToDaughter1:
-		n_d1 = len(moleculeSet)
-	else:
-		n_d1 = 0
-	n_d2 = len(moleculeSet) - n_d1
-	assert n_d1 + n_d2 == len(moleculeSet)
+		if chromosomeToDaughter1:
+			n_d1 = len(moleculeSet)
+		else:
+			n_d1 = 0
+		n_d2 = len(moleculeSet) - n_d1
+		assert n_d1 + n_d2 == len(moleculeSet)
 
-	# Randomly boolean index molecules in mother such that each daugher gets amount calculated above
-	d1_bool = np.zeros(len(moleculeSet), dtype = bool)
-	d2_bool = np.zeros(len(moleculeSet), dtype = bool)
-	if chromosomeToDaughter1:
-		d1_bool[:] = True
-	else:
-		d1_bool[:] = False
-	d2_bool = np.logical_not(d1_bool)
+		# Randomly boolean index molecules in mother such that each daugher gets amount calculated above
+		d1_bool = np.zeros(len(moleculeSet), dtype = bool)
+		d2_bool = np.zeros(len(moleculeSet), dtype = bool)
+		if chromosomeToDaughter1:
+			d1_bool[:] = True
+		else:
+			d1_bool[:] = False
+		d2_bool = np.logical_not(d1_bool)
 
-	d1_dividedAttributesDict = {}
-	d2_dividedAttributesDict = {}
-	for moleculeAttribute in moleculeAttributeDict.iterkeys():
-		d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
-		d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
+		d1_dividedAttributesDict = {}
+		d2_dividedAttributesDict = {}
+		for moleculeAttribute in moleculeAttributeDict.iterkeys():
+			d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
+			d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
 
-	d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
-	d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
+		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
+		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
 
 	return d1_unique_molecules_container, d2_unique_molecules_container
 
@@ -176,3 +183,13 @@ def saveContainer(container, path):
 	table_writer = TableWriter(path)
 	container.tableCreate(table_writer)
 	container.tableAppend(table_writer)
+
+def saveTime(finalTime, path):
+	timeFile = TableWriter(path)
+
+	# Metadata
+	timeFile.writeAttributes(
+		initialTime = finalTime + 1
+		)
+
+	timeFile.close()

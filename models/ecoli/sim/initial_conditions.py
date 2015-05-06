@@ -492,6 +492,12 @@ def setDaughterInitialConditions(sim, kb):
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
 
-	# TODO: This is a hack until we actually get the chromosome division working
-	initializeReplication(sim.states["UniqueMolecules"].container, kb)
+	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
+	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
+	sim._initialTime = initialTime
+
+	import ipdb; ipdb.set_trace()
+
+	# # TODO: This is a hack until we actually get the chromosome division working
+	# initializeReplication(sim.states["UniqueMolecules"].container, kb)
 
