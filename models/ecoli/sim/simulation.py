@@ -35,6 +35,7 @@ import models.ecoli.analysis.single
 import models.ecoli.analysis.cohort
 
 from models.ecoli.sim.initial_conditions import calcInitialConditions
+from wholecell.sim.divide_cell import divide_cell
 from models.ecoli.sim.initial_conditions import setDaughterInitialConditions
 
 class EcoliSimulation(Simulation):
@@ -71,6 +72,8 @@ class EcoliSimulation(Simulation):
 	_hookClasses = ()
 
 	_initialConditionsFunction = calcInitialConditions
+
+	_divideCellFunction = divide_cell
 
 	_lengthSec = 3600 * 4
 	_timeStepSec = 1

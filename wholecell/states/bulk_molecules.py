@@ -75,7 +75,11 @@ class BulkMolecules(wholecell.states.state.State):
 		self._processPriorities = np.empty(self._nProcesses, np.int64)
 		self._processPriorities.fill(REQUEST_PRIORITY_DEFAULT)
 
-		self.moleculesToDivideEqually = ['{}[{}]'.format(x,y) for y in kb.state.compartments['compartmentAbbreviation'] for x in kb.moleculeGroups.polymerizedDNT_IDs]
+		# Set up ids for division into daughter cells
+		self.divisionIds = {}
+		self.divisionIds['binomial'] = kb.moleculeGroups.bulkMoleculesBinomialDivision
+		self.divisionIds['equally'] = kb.moleculeGroups.bulkMoleculesEqualDivision
+		self.divisionIds['with_chromosome'] = kb.moleculeGroups.bulkMoleculesWithChromosomeDivision
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel

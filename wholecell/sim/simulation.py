@@ -17,6 +17,7 @@ import cPickle
 import time
 
 import numpy as np
+from copy import deepcopy
 
 from wholecell.listeners.evaluation_time import EvaluationTime
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
@@ -24,8 +25,6 @@ from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 
 import wholecell.loggers.shell
 import wholecell.loggers.disk
-
-from wholecell.io.tablewriter import TableWriter
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
@@ -118,6 +117,7 @@ class Simulation(object):
 		self.hooks = _orderedAbstractionReference(self._hookClasses)
 		self._initLoggers()
 		self._cellCycleComplete = False
+		self._dnaReplicationComplete = False
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -192,7 +192,7 @@ class Simulation(object):
 			hook.finalize(self)
 
 		# Divide mother into daughter cells
-		self._divideDaughter()
+		self._divideCellFunction()
 
 		# Finish logging
 		for logger in self.loggers.itervalues():
@@ -271,90 +271,6 @@ class Simulation(object):
 		for logger in self.loggers.itervalues():
 			logger.append(self)
 
-	def _divideDaughter(self):
-		# Divide bulk molecules
-		molecule_counts = self.states['BulkMolecules'].container.counts()
-		d1_bulk_molecules_container = self.states['BulkMolecules'].container.emptyLike()
-		d2_bulk_molecules_container = self.states['BulkMolecules'].container.emptyLike()
-
-		d1_counts = self.randomState.binomial(molecule_counts, p = 0.5)
-		d2_counts = molecule_counts - d1_counts
-
-		assert all(d1_counts + d2_counts == molecule_counts)
-
-		d1_bulk_molecules_container.countsIs(d1_counts)
-		d2_bulk_molecules_container.countsIs(d2_counts)
-
-		# Ensure that special molecules that should not be divded binomially
-		# are divided equally between daughter cells
-		# TODO: Divide chromosome in some way better!
-
-		# Save data
-		os.mkdir(os.path.join(self._outputDir, "Daughter1"))
-		os.mkdir(os.path.join(self._outputDir, "Daughter2"))
-		d1_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter1", "BulkMolecules"))
-		d1_bulk_molecules_container.tableCreate(d1_table_writer)
-		d1_bulk_molecules_container.tableAppend(d1_table_writer)
-
-		d2_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter2", "BulkMolecules"))
-		d2_bulk_molecules_container.tableCreate(d2_table_writer)
-		d2_bulk_molecules_container.tableAppend(d2_table_writer)
-
-		# Divide bulk chromosome
-		# chromosome_location_counts = self.states['BulkChromosome'].container.counts()
-		# d1_bulk_molecules_container = self.states['BulkChromosome'].container.emptyLike()
-		# d2_bulk_molecules_container = self.states['BulkChromosome'].container.emptyLike()
-		# import ipdb; ipdb.set_trace()
-		# assert all(chromosome_location_counts == 2)
-
-		# d1_counts = chromosome_location_counts / 2
-		# d2_counts = chromosome_location_counts / 2
-
-		# assert all(d1_counts + d2_counts == chromosome_location_counts)
-
-		# d1_bulk_chromosome_container.countsIs(d1_counts)
-		# d2_bulk_chromosome_container.countsIs(d2_counts)
-
-		# Divide unique molecules
-		d1_unique_molecules_container = self.states['UniqueMolecules'].container.emptyLike()
-		d2_unique_molecules_container = self.states['UniqueMolecules'].container.emptyLike()
-
-		uniqueMoleculesToDivide = self.states['UniqueMolecules'].uniqueMoleculeDefinitions
-		# TODO: We are not dividing dna polymerase!
-		uniqueMoleculesToDivide.pop('dnaPolymerase')
-
-		for moleculeName, moleculeAttributeDict in uniqueMoleculesToDivide.iteritems():
-			# Get set of molecules to divide and calculate number going to daugher one and daughter two
-			moleculeSet = self.states['UniqueMolecules'].container.objectsInCollection(moleculeName)
-			n_d1 = self.randomState.binomial(len(moleculeSet), p = 0.5)
-			n_d2 = len(moleculeSet) - n_d1
-			assert n_d1 + n_d2 == len(moleculeSet)
-
-			# Randomly boolean index molecules in mother such that each daugher gets amount calculated above
-			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
-			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
-			d1_indexes = self.randomState.choice(range(len(moleculeSet)), size = n_d1, replace = False)
-			d1_bool[d1_indexes] = True
-			d2_bool = np.logical_not(d1_bool)
-
-			d1_dividedAttributesDict = {}
-			d2_dividedAttributesDict = {}
-			for moleculeAttribute in moleculeAttributeDict.iterkeys():
-				d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
-				d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
-
-			d1_unique_molecules_container.objectsNew(moleculeName, n_d1, **d1_dividedAttributesDict)
-			d2_unique_molecules_container.objectsNew(moleculeName, n_d2, **d2_dividedAttributesDict)
-
-		# Save data
-		d1_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter1", "UniqueMolecules"))
-		d1_unique_molecules_container.tableCreate(d1_table_writer)
-		d1_unique_molecules_container.tableAppend(d1_table_writer)
-
-		d2_table_writer = TableWriter(os.path.join(self._outputDir, "Daughter2", "UniqueMolecules"))
-		d2_unique_molecules_container.tableCreate(d2_table_writer)
-		d2_unique_molecules_container.tableAppend(d2_table_writer)
-
 	def _seedFromName(self, name):
 		return np.uint32(self._seed + self.simulationStep + hash(name))
 
@@ -421,3 +337,6 @@ class Simulation(object):
 
 	def cellCycleComplete(self):
 		self._cellCycleComplete = True
+
+	def dnaReplicationComplete(self):
+		self._dnaReplicationComplete = True

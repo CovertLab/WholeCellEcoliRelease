@@ -67,6 +67,7 @@ class Replication(wholecell.processes.process.Process):
 		self.genomeLength = len(kb.process.replication.genome_sequence)
 		self.dnaPolymeraseElongationRate = kb.constants.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.tercCenter = kb.constants.terCCenter.asNumber(units.nt)
+		self.n_completed_dnaPolymerases = 0
 
 		# Load gene data to keep track of copy number
 		geneIds = kb.process.replication.geneData['name']
@@ -119,13 +120,21 @@ class Replication(wholecell.processes.process.Process):
 		# dNTP + H2O --> dNMP + PPi + H
 		self.dntps.requestIs(totalNtRequest)
 
-
 	# Calculate temporal evolution
 	def evolveState(self):
 		# Get polymerase properties
+		for dnaPolymerase in self.dnaPolymerase.molecules():
+			if dnaPolymerase.attr('chromosomeLocation') == self.tercCenter:
+				self.dnaPolymerase.moleculeDel(dnaPolymerase)
+				self.n_completed_dnaPolymerases += 1
+
 		allDnaPolymerase = self.dnaPolymerase.molecules()
 		if len(allDnaPolymerase) == 0:
+			# TODO: This assumes we only have one round of replication going on!
+			if self.n_completed_dnaPolymerases == 4:
+				self._sim.dnaReplicationComplete()
 			return
+
 		nPolymerase = len(allDnaPolymerase)
 		allChromosomeLocation, allDirectionIsPositive, allIsLeading = allDnaPolymerase.attrs(
 			"chromosomeLocation",
@@ -218,12 +227,9 @@ def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading
 		elongationLength = np.where(upcomingPositions == tercCenter)[0][0]
 
 	if directionIsPositive:
-		try:
-			leadingSequence = genomeSequence[
-				np.arange(chromosomeLocation, chromosomeLocation + elongationLength) % genomeLength
-				]
-		except:
-			import ipdb; ipdb.set_trace()
+		leadingSequence = genomeSequence[
+			np.arange(chromosomeLocation, chromosomeLocation + elongationLength) % genomeLength
+			]
 	else:
 		leadingSequence = genomeSequence[
 			np.arange(chromosomeLocation, chromosomeLocation - elongationLength, -1) % genomeLength

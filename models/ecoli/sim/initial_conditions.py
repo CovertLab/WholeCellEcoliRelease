@@ -486,6 +486,9 @@ def setDaughterInitialConditions(sim, kb):
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
 	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
 
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
+	sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
+
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
 
