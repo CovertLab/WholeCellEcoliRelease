@@ -142,8 +142,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def merge(self):
 		if ASSERT_POSITIVE_COUNTS:
-			if not (self._countsAllocatedFinal >= 0).all():
-				import ipdb; ipdb.set_trace()
 			assert (self._countsAllocatedFinal >= 0).all()
 
 		self.container.countsIs(

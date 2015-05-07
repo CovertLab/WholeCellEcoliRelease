@@ -63,7 +63,7 @@ def divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chro
 
 	d1_bulk_molecules_container.countsIs(d1_counts, bulkMolecules.divisionIds['binomial'])
 	d2_bulk_molecules_container.countsIs(d2_counts, bulkMolecules.divisionIds['binomial'])
-	# import ipdb; ipdb.set_trace()
+
 	# Handle special cases for chromosome separation. If chromosome is decatinated then all
 	# chromosome associated bulk molecules will divide equally. Otherwise will parition with
 	# one or the other daughter.
