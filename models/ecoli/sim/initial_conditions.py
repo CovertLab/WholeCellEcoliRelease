@@ -496,6 +496,7 @@ def setDaughterInitialConditions(sim, kb):
 	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
 	sim._initialTime = initialTime
 
-	# # TODO: This is a hack until we actually get the chromosome division working
-	# initializeReplication(sim.states["UniqueMolecules"].container, kb)
+	# TODO: This is a hack until we actually get a replication initialization process working
+	if len(sim.states['UniqueMolecules'].container.objectsInCollection('dnaPolymerase')) == 0:
+		initializeReplication(sim.states["UniqueMolecules"].container, kb)
 
