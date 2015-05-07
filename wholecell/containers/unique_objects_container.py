@@ -563,7 +563,6 @@ class _UniqueObjectSet(object):
 
 		return values
 
-
 	def attrIs(self, **attributes):
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")

@@ -486,9 +486,17 @@ def setDaughterInitialConditions(sim, kb):
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
 	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
 
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
+	sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
+
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
 
-	# TODO: This is a hack until we actually get the chromosome division working
-	initializeReplication(sim.states["UniqueMolecules"].container, kb)
+	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
+	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
+	sim._initialTime = initialTime
+
+	# TODO: This is a hack until we actually get a replication initialization process working
+	if len(sim.states['UniqueMolecules'].container.objectsInCollection('dnaPolymerase')) == 0:
+		initializeReplication(sim.states["UniqueMolecules"].container, kb)
 

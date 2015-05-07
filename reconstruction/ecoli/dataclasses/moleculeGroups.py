@@ -8,6 +8,7 @@ SimulationData molecule groups
 
 from __future__ import division
 
+from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments
 
 class moleculeGroups(object):
 	""" moleculeGroups """
@@ -54,7 +55,18 @@ class moleculeGroups(object):
 			's50_5sRRNA'			:	['RRFA-RRNA[c]','RRFB-RRNA[c]','RRFC-RRNA[c]','RRFD-RRNA[c]',
 										'RRFE-RRNA[c]','RRFG-RRNA[c]','RRFH-RRNA[c]'],
 			's50_fullComplex'		:	['CPLX-50SA[c]'],
-			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values()
+			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values(),
 		}
+
+		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.rnas))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteins))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteinComplexes))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_aa'] and not x['is_end']]))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']]))
+		moleculeGroups['bulkMoleculesBinomialDivision'] = bulkMoleculesBinomialDivision
+
+		moleculeGroups['bulkMoleculesEqualDivision'] = createIdsWithCompartments([x for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']])
+		moleculeGroups['bulkMoleculesWithChromosomeDivision'] = createIdsWithCompartments([x for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']])
 
 		self.__dict__.update(moleculeGroups)
