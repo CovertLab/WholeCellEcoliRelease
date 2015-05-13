@@ -115,6 +115,8 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 		kb.process.replication.genome_T_count + kb.process.replication.genome_A_count
 		])
 
+# TODO: remove checks for zero concentrations (change to assertion)
+# TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	massFractions60 = kb.mass.massFractions
 
@@ -146,29 +148,6 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	bulkMolCntr.countsIs(
 		countsToAdd,
 		poolIds
-		)
-
-	# GDP POOL
-	ribosomeSubunits = bulkMolCntr.countsView(
-		np.hstack(
-			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
-			)
-		)
-	ribosomeSubunitStoich = np.hstack(
-			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitStoich'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitStoich'])
-			)
-
-	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
-	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	T_d = kb.doubling_time.asNumber(units.s)
-	dt = kb.constants.timeStep.asNumber(units.s)
-
-	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
-	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.constants.gtpPerTranslation
-
-	bulkMolCntr.countsInc(
-		gtpsHydrolyzedLastTimeStep,
-		["GDP[c]"]
 		)
 
 def initializeGenes(bulkChrmCntr, kb, timeStep):
@@ -211,9 +190,8 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	Method:
 	Replaces some RNAP subunits with active RNAP.  These active	RNAPs are in a
 	random position in the elongation process, and are elongating transcripts
-	chosen with respect to their initiation probabilities. Transcript counts
-	are decremented randomly until the RNA mass is approximately its original
-	value.
+	chosen with respect to their initiation probabilities. This function adds
+	mass to the cell.
 
 	Needs attention:
 	-Interaction with protein complexes
@@ -232,13 +210,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 	activeRnapCount = np.int64(activeRnapMax * kb.fracActiveRnap * 2) # HACK
 
 	# Load RNA data
-	rnaIds = kb.process.transcription.rnaData["id"]
-	rnas = bulkMolCntr.countsView(rnaIds)
-	rnaCounts = rnas.counts()
 	rnaLengths = kb.process.transcription.rnaData["length"].asNumber(units.count)
-
-	rnaMasses = (kb.process.transcription.rnaData["mw"].asNumber(units.fg / units.mol) /
-		kb.constants.nAvogadro.asNumber(1 / units.mol))
 
 	# Choose RNAs to polymerize
 	rnaCountsPolymerizing = randomState.multinomial(activeRnapCount,
@@ -280,7 +252,7 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 
 	transcriptMasses[transcriptLengths > 0] += kb.process.transcription.transcriptionEndWeight
 
-	# Create the unique molecules representations of the ribosomes
+	# Create the unique molecules representations of the RNA polymerases
 
 	activeRnaPolys = uniqueMolCntr.objectsNew(
 		"activeRnaPoly",
@@ -293,42 +265,6 @@ def initializeTranscription(bulkMolCntr, uniqueMolCntr, kb, randomState, timeSte
 		massDiff_mRNA = transcriptMasses
 		)
 
-	# Compute the amount of RNA mass that needs to be removed
-	rnaMassNeeded = transcriptMasses.sum()
-
-	# Using their relative fractions, remove RNAs until the mass is restored
-
-	# TODO: make sure this while-loop isn't too terrible slow
-
-	rnaCountsDecremented = np.zeros_like(rnaCounts)
-
-	while True:
-		rnaFractions = rnaCounts / rnaCounts.sum()
-		rnaFractionsCumulative = rnaFractions.cumsum()
-
-		rnaIndex = np.where( # sample once from a multinomial distribution
-			rnaFractionsCumulative > randomState.rand()
-			)[0][0]
-
-		rnaMass = rnaMasses[rnaIndex]
-
-		if rnaMass < rnaMassNeeded:
-			rnaMassNeeded -= rnaMass
-			rnaCountsDecremented[rnaIndex] += 1
-			rnaCounts[rnaIndex] -= 1
-
-		elif rnaMass / 2 < rnaMassNeeded:
-			rnaMassNeeded -= rnaMass
-			rnaCountsDecremented[rnaIndex] += 1
-			rnaCounts[rnaIndex] -= 1
-
-			break
-
-		else:
-			break
-
-	rnas.countsDec(rnaCountsDecremented)
-
 def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
 	"""
 	initializeTranslation
@@ -340,8 +276,7 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	Replaces some ribosomal subunits with active ribosomes.  These active
 	ribosomes are in a random position in the elongation process, and are
 	elongating peptides chosen with respect to the steady-state mRNA
-	expression. Protein monomer counts are decremented randomly until the
-	protein mass is approximately its original value.
+	expression.  This function adds mass to the cell.
 
 	Needs attention:
 	-Interaction with protein complexes
@@ -377,12 +312,6 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 	averageMrnaFractions = mrnaExpression/mrnaExpression.sum()
 
 	monomerCountsPolymerizing = randomState.multinomial(activeRibosomeCount, averageMrnaFractions)
-
-	# Compute the current protein mass
-
-	monomerMasses = (kb.process.translation.monomerData["mw"].asNumber(units.fg / units.mol) /
-		kb.constants.nAvogadro.asNumber(1 / units.mol))
-	monomerMassTotal = np.dot(monomerCounts, monomerMasses)
 
 	# Reduce the number of ribosome subunits
 
@@ -428,42 +357,6 @@ def initializeTranslation(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
 		peptideLength = peptideLengths,
 		massDiff_protein = peptideMasses
 		)
-
-	# Compute the amount of monomer mass that needs to be removed
-	monomerMassNeeded = peptideMasses.sum()
-
-	# Using their relative fractions, remove monomers until the mass is restored
-
-	# TODO: make sure this while-loop isn't too terrible slow
-
-	monomerCountsDecremented = np.zeros_like(monomerCounts)
-
-	while True:
-		monomerFractions = monomerCounts / monomerCounts.sum()
-		monomerFractionsCumulative = monomerFractions.cumsum()
-
-		monomerIndex = np.where( # sample once from a multinomial distribution
-			monomerFractionsCumulative > randomState.rand()
-			)[0][0]
-
-		monomerMass = monomerMasses[monomerIndex]
-
-		if monomerMass < monomerMassNeeded:
-			monomerMassNeeded -= monomerMass
-			monomerCountsDecremented[monomerIndex] += 1
-			monomerCounts[monomerIndex] -= 1
-
-		elif monomerMass / 2 < monomerMassNeeded:
-			monomerMassNeeded -= monomerMass
-			monomerCountsDecremented[monomerIndex] += 1
-			monomerCounts[monomerIndex] -= 1
-
-			break
-
-		else:
-			break
-
-	monomers.countsDec(monomerCountsDecremented)
 
 def initializeReplication(uniqueMolCntr, kb):
 	'''
