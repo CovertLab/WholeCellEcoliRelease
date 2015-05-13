@@ -37,26 +37,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile):
 
 		for idx2, massType in enumerate(massNames):
 			massToPlot = mass.readColumn(massNames[idx2])
-			massToPlot = massToPlot / massToPlot[0]
-			# dryMass = mass.readColumn("dryMass")
-			# protein = mass.readColumn("proteinMass")
-			# tRna = mass.readColumn("tRnaMass")
-			# rRna = mass.readColumn("rRnaMass")
-			# mRna = mass.readColumn("mRnaMass")
-			# dna = mass.readColumn("dnaMass")
-
-			# dryMass = dryMass / dryMass [0]
-			# protein = protein / protein[0]
-			# tRna = tRna / tRna[0]
-			# rRna = rRna / rRna[0]
-			# mRna = mRna / mRna[0]
-			# dna = dna / dna[0]
+			# massToPlot = massToPlot / massToPlot[0]
 
 			plt.subplot(6,1,idx2+1)
 			plt.plot(time / 60., massToPlot, linewidth = 2)
 			plt.ylabel(massNames[idx2])
 			if idx2 == 0:
-				plt.title("Cell mass fractions (normalized by t = 0 min)")
+				plt.title("Cell mass fractions (fg)")
 
 	plt.xlabel("Time (min)")
 
