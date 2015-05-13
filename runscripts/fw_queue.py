@@ -67,6 +67,7 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
+SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
 
 ### Create directories
 
@@ -105,7 +106,7 @@ for i in VARIANTS_TO_RUN:
 			if not os.path.exists(GEN_DIRECTORY):
 				os.makedirs(GEN_DIRECTORY)
 
-			for l in xrange(2**k):
+			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
 				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
 				SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
 				PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
@@ -304,8 +305,8 @@ for i in VARIANTS_TO_RUN:
 		for k in xrange(N_GENS):
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 
-			for l in xrange(2**k):
-				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)		
+			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
+				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
 				SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
 				PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
 
