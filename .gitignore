@@ -76,6 +76,7 @@ my_qadapter.yaml
 ####################
 launcher_*
 block_*
+FW.json
 
 # Misc #
 ########

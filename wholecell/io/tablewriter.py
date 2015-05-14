@@ -43,7 +43,11 @@ class AttributeTypeError(TableWriterError):
 class TableWriter(object):
 	def __init__(self, path):
 
-		os.mkdir(path)
+		try:
+			os.mkdir(path)
+
+		except OSError: # Directory probably already exists, continue
+			pass
 
 		self._data = open(os.path.join(path, FILENAME_DATA), "w")
 		self._metadata = open(os.path.join(path, FILENAME_METADATA), "w")

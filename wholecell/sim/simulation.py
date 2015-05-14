@@ -28,7 +28,7 @@ import wholecell.loggers.disk
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
-	lengthSec = 3600,
+	lengthSec = 3*60*60, # 3 hours max
 	initialTime = 0,
 	logToShell = True,
 	logToDisk = False,
