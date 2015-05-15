@@ -7,7 +7,7 @@ class AnalysisPaths(object):
 		self._lineage_tree = self._get_lineage(seed_dir)
 
 	def _get_generations(self, directory):
-		generation_files = [join(directory,f) for f in listdir(directory) if isdir(join(directory,f))]
+		generation_files = [join(directory,f) for f in listdir(directory) if isdir(join(directory,f)) and 'generation' in f]
 		generations = [None] * len(generation_files)
 		for gen_file in generation_files:
 			generations[int(gen_file[gen_file.rfind('_') + 1:])] = self._get_individuals(gen_file)

@@ -22,30 +22,54 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	ap = AnalysisPaths(seedOutDir)
 
+	# TODO: Declutter Y-axis
+
 	# Get all cells
 	allDir = ap.getAll()
 
-	massNames = ["dryMass","proteinMass","tRnaMass","rRnaMass",'mRnaMass',"dnaMass"]
+	massNames = [
+				"dryMass",
+				"proteinMass",
+				#"tRnaMass",
+				"rRnaMass",
+				'mRnaMass',
+				"dnaMass"
+				]
 
-	plt.figure(figsize = (8.5, 11))
+	cleanNames = [
+				"Dry\nmass",
+				"Protein\nmass",
+				#"tRNA\nmass",
+				"rRNA\nmass",
+				"mRNA\nmass",
+				"DNA\nmass"
+				]
 
-	for idx, simDir in enumerate(allDir):
+	#plt.figure(figsize = (8.5, 11))
+	fig, axesList = plt.subplots(len(massNames), sharex = True)
+
+	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
 		#initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-		for idx2, massType in enumerate(massNames):
-			massToPlot = mass.readColumn(massNames[idx2])
+		for idx, massType in enumerate(massNames):
+			massToPlot = mass.readColumn(massNames[idx])
 			# massToPlot = massToPlot / massToPlot[0]
 
-			plt.subplot(6,1,idx2+1)
-			plt.plot(time / 60., massToPlot, linewidth = 2)
-			plt.ylabel(massNames[idx2])
-			if idx2 == 0:
-				plt.title("Cell mass fractions (fg)")
+			axesList[idx].plot(time / 60. / 60., massToPlot, linewidth = 2)
+			axesList[idx].set_xlim(0, 5.1)
+			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
-	plt.xlabel("Time (min)")
+	for axes in axesList:
+		axes.get_ylim()
+		axes.set_yticks(list(axes.get_ylim()))
+
+	axesList[0].set_title("Cell mass fractions")
+	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
+
+	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
