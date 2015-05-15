@@ -18,7 +18,7 @@ class AnalysisSingleTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running analysis" % time.ctime()
+		print "%s: Running single simulation analysis" % time.ctime()
 
 		directory = os.path.dirname(models.ecoli.analysis.single.__file__)
 
