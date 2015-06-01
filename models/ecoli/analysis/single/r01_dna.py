@@ -49,17 +49,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-
-	masses = np.vstack([
-		protein/protein[0],
-		rRna/rRna[0],
-		tRna/tRna[0],
-		mRna/mRna[0],
-		dna/dna[0]
-		]).T
-
-	massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA"]
-
 	f = plt.figure(figsize = (1.25, 0.78), frameon = False)
 	ax = f.add_axes([0, 0, 1, 1])
 	ax.axis("off")
