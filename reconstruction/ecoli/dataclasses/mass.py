@@ -17,7 +17,7 @@ class Mass(object):
 	""" Mass """
 
 	def __init__(self, raw_data, sim_data):
-		self._tau_d = sim_data.doubling_time
+		self._doubling_time = sim_data.doubling_time
 
 		self._buildConstants(raw_data, sim_data)
 		self._buildMassFractions(raw_data, sim_data)
@@ -40,7 +40,7 @@ class Mass(object):
 		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitalCellConvFactor
 
 	def _buildMassFractions(self, raw_data, sim_data):
-		self._tau_d_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
+		self._doubling_time_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
 
 		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitalCellConvFactor
 		self._proteinMass = self._dryMass * np.array([float(x['proteinMassFraction']) for x in raw_data.dryMassComposition])
@@ -55,10 +55,10 @@ class Mass(object):
 		self._TRNA_MASS_SUB_FRACTION = self.trna_mass_sub_fraction
 		self._MRNA_MASS_SUB_FRACTION = self.mrna_mass_sub_fraction
 
-		self._dryMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._dryMass, p0 = (0, 0, 0, 0))
-		self._proteinMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._proteinMass, p0 = (0, 0, 0, 0))
-		self._rnaMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._rnaMass, p0 = (0, 0, 0, 0))
-		self._dnaMassParams, _ = curve_fit(self._exp2, self._tau_d_vector.asNumber(units.min), self._dnaMass, p0 = (0, 0, 0, 0))
+		self._dryMassParams, _ = curve_fit(self._exp2, self._doubling_time_vector.asNumber(units.min), self._dryMass, p0 = (0, 0, 0, 0))
+		self._proteinMassParams, _ = curve_fit(self._exp2, self._doubling_time_vector.asNumber(units.min), self._proteinMass, p0 = (0, 0, 0, 0))
+		self._rnaMassParams, _ = curve_fit(self._exp2, self._doubling_time_vector.asNumber(units.min), self._rnaMass, p0 = (0, 0, 0, 0))
+		self._dnaMassParams, _ = curve_fit(self._exp2, self._doubling_time_vector.asNumber(units.min), self._dnaMass, p0 = (0, 0, 0, 0))
 
 		self.chromMass = self._chromMass(raw_data, sim_data)
 
@@ -71,19 +71,19 @@ class Mass(object):
 		Given an input doubling time in minutes, output mass fractions in fg
 		"""
 
-		if type(self._tau_d) != unum.Unum:
+		if type(self._doubling_time) != unum.Unum:
 			raise Exception("Doubling time was not set!")
 
-		tau_d = self._tau_d
+		doubling_time = self._doubling_time
 
 		D = {}
-		D["dnaMass"] = self._calculateDnaMass(tau_d)
+		D["dnaMass"] = self._calculateDnaMass(doubling_time)
 
-		tau_d = self._clipTau_d(tau_d)
+		doubling_time = self._clipTau_d(doubling_time)
 
-		self.avgCellDryMass = units.fg * self._exp2(tau_d.asNumber(units.min), *self._dryMassParams) * self.avgCellToInitalCellConvFactor
-		D["proteinMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self._proteinMassParams)
-		D["rnaMass"] = units.fg * self._exp2(tau_d.asNumber(units.min), *self._rnaMassParams)
+		self.avgCellDryMass = units.fg * self._exp2(doubling_time.asNumber(units.min), *self._dryMassParams) * self.avgCellToInitalCellConvFactor
+		D["proteinMass"] = units.fg * self._exp2(doubling_time.asNumber(units.min), *self._proteinMassParams)
+		D["rnaMass"] = units.fg * self._exp2(doubling_time.asNumber(units.min), *self._rnaMassParams)
 		D["rRna23SMass"] = D["rnaMass"] * self._RRNA23S_MASS_SUB_FRACTION
 		D["rRna16SMass"] = D["rnaMass"] * self._RRNA16S_MASS_SUB_FRACTION
 		D["rRna5SMass"] = D["rnaMass"] * self._RRNA5S_MASS_SUB_FRACTION
@@ -92,19 +92,19 @@ class Mass(object):
 
 		return D
 
-	def _calculateDnaMass(self, tau_d):
-		if tau_d < self._D_PERIOD:
+	def _calculateDnaMass(self, doubling_time):
+		if doubling_time < self._D_PERIOD:
 			raise Exception, "Can't have doubling time shorter than cytokinesis time!"
 
-		tau_d_unit = units.getUnit(tau_d)
+		doubling_time_unit = units.getUnit(doubling_time)
 
 		# TODO: If you really care, this should be a loop.
 		# It is optimized to run quickly over the range of T_d
 		# and C and D periods that we have.
 		return self.chromMass * (1 +
-			1 * (np.maximum(0. * tau_d_unit, self._CD_PERIOD - tau_d) / self._C_PERIOD) +
-			2 * (np.maximum(0. * tau_d_unit, self._CD_PERIOD - 2 * tau_d) / self._C_PERIOD) +
-			4 * (np.maximum(0. * tau_d_unit, self._CD_PERIOD - 4 * tau_d) / self._C_PERIOD)
+			1 * (np.maximum(0. * doubling_time_unit, self._CD_PERIOD - doubling_time) / self._C_PERIOD) +
+			2 * (np.maximum(0. * doubling_time_unit, self._CD_PERIOD - 2 * doubling_time) / self._C_PERIOD) +
+			4 * (np.maximum(0. * doubling_time_unit, self._CD_PERIOD - 4 * doubling_time) / self._C_PERIOD)
 			)
 
 	def _chromMass(self, raw_data, sim_data):
@@ -119,17 +119,17 @@ class Mass(object):
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass
 
-	def _clipTau_d(self, tau_d):
+	def _clipTau_d(self, doubling_time):
 		# Clip values to be in the range that we have data for
-		if hasattr(tau_d, "dtype"):
-			tau_d[tau_d > max(self._tau_d_vector)] = max(self._tau_d_vector)
-			tau_d[tau_d < min(self._tau_d_vector)] = min(self._tau_d_vector)
+		if hasattr(doubling_time, "dtype"):
+			doubling_time[doubling_time > max(self._doubling_time_vector)] = max(self._doubling_time_vector)
+			doubling_time[doubling_time < min(self._doubling_time_vector)] = min(self._doubling_time_vector)
 		else:
-			if tau_d > max(self._tau_d_vector):
-				tau_d = max(self._tau_d_vector)
-			elif tau_d < min(self._tau_d_vector):
-				tau_d = min(self._tau_d_vector)
-		return tau_d
+			if doubling_time > max(self._doubling_time_vector):
+				doubling_time = max(self._doubling_time_vector)
+			elif doubling_time < min(self._doubling_time_vector):
+				doubling_time = min(self._doubling_time_vector)
+		return doubling_time
 
 	def _exp2(self, x, a, b, c, d):
 		return a * np.exp(b * x) + c * np.exp(d * x)
@@ -147,12 +147,12 @@ class Mass(object):
 		self._trna_ids = [x['rna id'] for x in raw_data.trna_ratio_to_16SrRNA_0p4]
 
 	def getTrnaDistribution(self):
-		return self._getTrnaAbundanceAtGrowthRate(self._tau_d)
+		return self._getTrnaAbundanceAtGrowthRate(self._doubling_time)
 
-	def _getTrnaAbundanceAtGrowthRate(self, tau_d):
-		assert type(tau_d) == unum.Unum
-		assert type(tau_d.asNumber()) == float
-		growth_rate = 1 / tau_d
+	def _getTrnaAbundanceAtGrowthRate(self, doubling_time):
+		assert type(doubling_time) == unum.Unum
+		assert type(doubling_time.asNumber()) == float
+		growth_rate = 1 / doubling_time
 		growth_rate = growth_rate.asNumber(1/units.h)
 
 		from scipy.interpolate import interp1d
