@@ -20,7 +20,7 @@ class Mass(object):
 		self._doubling_time = sim_data.doubling_time
 
 		self._buildConstants(raw_data, sim_data)
-		self._buildMassFractions(raw_data, sim_data)
+		self._buildSubMasses(raw_data, sim_data)
 
 		self.subMass = self._subMass()
 		self._buildDependentConstants()
@@ -39,7 +39,7 @@ class Mass(object):
 		avgCellWaterMass = (self.avgCellDryMass / self.cellDryMassFraction) * self.cellWaterMassFraction
 		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitalCellConvFactor
 
-	def _buildMassFractions(self, raw_data, sim_data):
+	def _buildSubMasses(self, raw_data, sim_data):
 		self._doubling_time_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
 
 		self._dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitalCellConvFactor
