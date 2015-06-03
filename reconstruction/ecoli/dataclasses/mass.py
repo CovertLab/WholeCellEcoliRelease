@@ -146,7 +146,10 @@ class Mass(object):
 
 		self._trna_ids = [x['rna id'] for x in raw_data.trna_ratio_to_16SrRNA_0p4]
 
-	def getTrnaAbundanceAtGrowthRate(self, tau_d):
+	def getTrnaDistribution(self):
+		return self._getTrnaAbundanceAtGrowthRate(self._tau_d)
+
+	def _getTrnaAbundanceAtGrowthRate(self, tau_d):
 		assert type(tau_d) == unum.Unum
 		assert type(tau_d.asNumber()) == float
 		growth_rate = 1 / tau_d
@@ -159,8 +162,3 @@ class Mass(object):
 		abundance['id'] = self._trna_ids
 		abundance['molar_ratio_to_16SrRNA'] = [x(growth_rate) for x in trna_abundance_interpolation_functions]
 		return abundance
-
-
-
-
-

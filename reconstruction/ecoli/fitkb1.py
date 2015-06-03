@@ -194,7 +194,7 @@ def createBulkContainer(kb):
 	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
-	distribution_tRNA = normalize(kb.mass.getTrnaAbundanceAtGrowthRate(60. * units.min)['molar_ratio_to_16SrRNA'])
+	distribution_tRNA = normalize(kb.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
 	distribution_mRNA = normalize(kb.process.transcription.rnaData['expression'][kb.process.transcription.rnaData['isMRna']])
 	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping])
 
