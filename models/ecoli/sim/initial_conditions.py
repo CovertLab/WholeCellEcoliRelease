@@ -61,7 +61,7 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomStat
 def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 
 	monomersView = bulkMolCntr.countsView(kb.process.translation.monomerData["id"])
-	monomerMass = kb.mass.massFractions["proteinMass"]
+	monomerMass = kb.mass.subMass["proteinMass"]
 	# TODO: unify this logic with the fitter so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
@@ -84,7 +84,7 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 	rnaView = bulkMolCntr.countsView(kb.process.transcription.rnaData["id"])
-	rnaMass = kb.mass.massFractions["rnaMass"]
+	rnaMass = kb.mass.subMass["rnaMass"]
 
 	rnaExpression = normalize(kb.process.transcription.rnaData['expression'])
 
@@ -113,9 +113,9 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
-	massFractions60 = kb.mass.massFractions
+	subMass = kb.mass.subMass
 
-	mass = massFractions60["proteinMass"] + massFractions60["rnaMass"] + massFractions60["dnaMass"]
+	mass = subMass["proteinMass"] + subMass["rnaMass"] + subMass["dnaMass"]
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
 	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]

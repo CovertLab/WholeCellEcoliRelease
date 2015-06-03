@@ -105,9 +105,9 @@ def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 
-	massFractions60 = kb.mass.massFractions
+	massFractions = kb.mass.subMass
 
-	mass = massFractions60["proteinMass"] + massFractions60["rnaMass"] + massFractions60["dnaMass"]
+	mass = massFractions["proteinMass"] + massFractions["rnaMass"] + massFractions["dnaMass"]
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
 	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]

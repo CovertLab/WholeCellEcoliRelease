@@ -22,7 +22,7 @@ class Mass(object):
 		self._buildConstants(raw_data, sim_data)
 		self._buildMassFractions(raw_data, sim_data)
 
-		self.massFractions = self._massFractions()
+		self.subMass = self._subMass()
 		self._buildDependentConstants()
 
 		self._buildTrnaData(raw_data, sim_data)
@@ -66,7 +66,7 @@ class Mass(object):
 		self._D_PERIOD = sim_data.constants.d_period
 		self._CD_PERIOD = self._C_PERIOD + self._D_PERIOD
 
-	def _massFractions(self):
+	def _subMass(self):
 		"""
 		Given an input doubling time in minutes, output mass fractions in fg
 		"""
