@@ -18,14 +18,25 @@ __all__ = [
 	# "AttributeTypeError"
 	]
 
-FILENAME_DATA = "data"
-FILENAME_METADATA = "metadata"
-FILENAME_OFFSETS = "offsets"
+VERSION = 2
+
+DIR_METADATA = "metadata"
+DIR_ATTRIBUTES = "attributes"
+DIR_COLUMNS = "columns"
+FILE_VERSION = "version"
+FILE_DATA = "data"
+FILE_OFFSETS = "offsets"
+
+def _silent_makedirs(path):
+	try:
+		os.makedirs(path)
+
+	except OSError: # thrown if folders exist
+		pass
+
+	return path
 
 class TableWriterError(Exception):
-	pass
-
-class FilesClosedError(TableWriterError):
 	pass
 
 class MissingFieldError(TableWriterError):
@@ -40,37 +51,58 @@ class AttributeAlreadyExistsError(TableWriterError):
 class AttributeTypeError(TableWriterError):
 	pass
 
+class DtypeError(TableWriterError):
+	pass
+
+
+class _Column(object):
+	def __init__(self, path):
+		_silent_makedirs(path)
+
+		self._data = open(os.path.join(path, FILE_DATA), "w")
+		self._offsets = open(os.path.join(path, FILE_OFFSETS), "w")
+
+		self._dtype = None
+
+
+	def append(self, value):
+		if self._dtype is None:
+			self._dtype = value.dtype
+
+			self._data.write(json.dumps(dict(self._dtype.descr)) + "\n")
+			self._offsets.write(str(self._data.tell()) + "\n")
+
+		elif self._dtype != value.dtype:
+			raise DtypeError("Inconsistent dtype (got {}, expected {})".format(value.dtype, self._dtype))
+
+		self._data.write(value.tobytes())
+		self._offsets.write(str(self._data.tell()) + "\n")
+
+
 class TableWriter(object):
 	def __init__(self, path):
 
-		try:
-			os.mkdir(path)
+		dirMetadata = _silent_makedirs(os.path.join(path, DIR_METADATA))
 
-		except OSError: # Directory probably already exists, continue
-			pass
+		open(os.path.join(dirMetadata, FILE_VERSION), "w").write(str(VERSION))
 
-		self._data = open(os.path.join(path, FILENAME_DATA), "w")
-		self._metadata = open(os.path.join(path, FILENAME_METADATA), "w")
-		self._offsets = open(os.path.join(path, FILENAME_OFFSETS), "w")
-
-		self._fieldNames = None
+		self._dirAttributes = _silent_makedirs(os.path.join(path, DIR_ATTRIBUTES))
 		self._attributeNames = []
 
-		self._closed = False
+		self._dirColumns = _silent_makedirs(os.path.join(path, DIR_COLUMNS))
+		self._columns = None
 
 
-	def append(self, **fieldsAndValues):
-		if self._closed:
-			raise FilesClosedError()
-
-		if self._fieldNames is None:
-			self._fieldNames = tuple(sorted(fieldsAndValues.keys()))
-
-			self._offsets.write("\t".join(self._fieldNames) + "\n")
+	def append(self, **namesAndValues):
+		if self._columns is None:
+			self._columns = {
+				name:_Column(os.path.join(self._dirColumns, name))
+				for name in namesAndValues.viewkeys()
+				}
 
 		else:
-			missingFields = set(self._fieldNames) - fieldsAndValues.viewkeys()
-			unrecognizedFields = fieldsAndValues.viewkeys() - set(self._fieldNames)
+			missingFields = self._columns.viewkeys() - namesAndValues.viewkeys()
+			unrecognizedFields = namesAndValues.viewkeys() - self._columns.viewkeys()
 
 			if missingFields:
 				raise MissingFieldError(
@@ -82,22 +114,11 @@ class TableWriter(object):
 					"Unrecognized fields: {}".format(", ".join(unrecognizedFields))
 					)
 
-		offsets = []
-
-		for field in self._fieldNames:
-			offsets.append(self._data.tell())
-
-			np.save(self._data, fieldsAndValues[field])
-
-		self._offsets.write(
-			"\t".join("{}".format(offset) for offset in offsets) + "\n"
-			)
+		for name, value in namesAndValues.viewitems():
+			self._columns[name].append(value)
 
 
 	def writeAttributes(self, **namesAndValues):
-		if self._closed:
-			raise FilesClosedError()
-
 		for name, value in namesAndValues.viewitems():
 			if name in self._attributeNames:
 				raise AttributeAlreadyExistsError(
@@ -120,17 +141,6 @@ class TableWriter(object):
 						)
 					)
 
-			self._metadata.write(
-				"{}\t{}\n".format(name, serialized)
-				)
+			open(os.path.join(self._dirAttributes, name), "w").write(serialized)
 
 			self._attributeNames.append(name)
-
-
-	def close(self):
-		if not self._closed:
-			self._data.close()
-			self._metadata.close()
-			self._offsets.close()
-
-			self._closed = True
