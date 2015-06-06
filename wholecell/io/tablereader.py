@@ -7,7 +7,7 @@ import re
 
 import numpy as np
 
-from . import tablewriter
+from . import tablewriter as tw
 
 # TODO: tests
 # TODO: load a single time point
@@ -18,92 +18,117 @@ __all__ = [
 	"TableReader",
 	]
 
-
 class TableReaderError(Exception):
 	pass
 
 
-class FilesClosedError(TableReaderError):
+class VersionError(TableReaderError):
+	pass
+
+
+class DoesNotExistError(TableReaderError):
+	pass
+
+
+class VariableWidthError(TableReaderError):
 	pass
 
 
 class TableReader(object):
 	def __init__(self, path):
-		self._data = open(os.path.join(path, tablewriter.FILENAME_DATA))
 
-		self._attributeDict = {}
+		try:
+			version = open(os.path.join(path, tw.DIR_METADATA, tw.FILE_VERSION)).read()
 
-		with open(os.path.join(path, tablewriter.FILENAME_METADATA)) as metadata:
-			for line in metadata:
-				name, serialized = re.split("\t", line.strip())
+		except IOError:
+			raise VersionError("Could not open table ({}); may be wrong version".format(path))
 
-				value = json.loads(serialized)
+		if version != tw.VERSION:
+			raise VersionError("Expected version {} but found version {}".format(tw.VERSION, version))
 
-				self._attributeDict[name] = value
 
-		with open(os.path.join(path, tablewriter.FILENAME_OFFSETS)) as offsets:
-			self._fieldNames = tuple(re.split("\t", offsets.readline().strip()))
+		self._dirAttributes = os.path.join(path, tw.DIR_ATTRIBUTES)
+		self._attributeNames = os.listdir(self._dirAttributes)
 
-			offset_values = []
-
-			for line in offsets:
-				offset_values.append(
-					re.split("\t", line.strip())
-					)
-
-		self._offsets = np.array(offset_values, np.int64)
-
-		self._nEntries = self._offsets.shape[0]
-
-		self._closed = False
+		self._dirColumns = os.path.join(path, tw.DIR_COLUMNS)
+		self._columnNames = os.listdir(self._dirColumns)
 
 
 	def readAttribute(self, name):
-		return self._attributeDict[name]
+		if name not in self._attributeNames:
+			raise DoesNotExistError("No such attribute: {}".format(name))
+
+		return json.loads(
+			open(os.path.join(self._dirAttributes, name))
+			)
 
 
-	def readColumn(self, fieldName):
-		if self._closed:
-			raise FilesClosedError()
+	def readColumn(self, name):
+		if name not in self._columnNames:
+			raise DoesNotExistError("No such column: {}".format(name))
 
-		return np.array([
-			self._loadData(fieldName, i) for i in xrange(self._nEntries)
-			])
+		with open(os.path.join(self._dirColumns, name, tw.FILE_OFFSETS)) as offsetsFile:
+			offsets = np.array([int(i.strip()) for i in offsetsFile])
 
+		offsets, dtype = self._loadOffsets(name)
 
-	def iterColumn(self, fieldName):
-		for i in xrange(self._nEntries):
-			if self._closed:
-				raise FilesClosedError()
+		sizes = np.diff(offsets)
 
-			yield self._loadData(fieldName, i)
+		if len(set(sizes)) > 1:
+			raise VariableWidthError("Cannot load full column; data size varies")
+
+		nEntries = sizes.size
+
+		with open(os.path.join(self._dirColumns, name, tw.FILE_DATA)) as dataFile:
+			dataFile.seek(offsets[0])
+
+			return np.fromstring(
+				dataFile.read(), dtype
+				).reshape(nEntries, -1)
 
 
 	def readRow(self, index):
 		return {
-			fieldName: self._loadData(fieldName, index)
-			for fieldName in self._fieldNames
+			name: self._loadEntry(name, index)
+			for name in self._columnNames
 			}
 
 
-	def _loadData(self, fieldName, index):
-		self._data.seek(
-			self._offsets[index, self._fieldNames.index(fieldName)]
-			)
+	def _loadEntry(self, name, index):
+		offsets, dtype = self._loadOffsets(name)
 
-		return np.load(self._data)
+		size = offsets[index+1] - offsets[index]
+
+		with open(os.path.join(self._dirColumns, name, tw.FILE_DATA)) as dataFile:
+			dataFile.seek(offsets[index])
+
+			return np.fromstring(
+				dataFile.read(size), dtype
+				)
+
+
+	def _loadOffsets(self, name):
+		with open(os.path.join(self._dirColumns, name, tw.FILE_OFFSETS)) as offsetsFile:
+			offsets = np.array([int(i.strip()) for i in offsetsFile])
+
+		with open(os.path.join(self._dirColumns, name, tw.FILE_DATA)) as dataFile:
+			raw_dtype = json.loads(dataFile.read(offsets[0]))
+
+			if isinstance(raw_dtype, basestring):
+				dtype = str(raw_dtype)
+
+			else:
+				dtype = [ # numpy requires list-of-tuples-of-strings
+					(str(n), str(t))
+					for n, t in raw_dtype
+					]
+
+		return offsets, dtype
 
 
 	def attributeNames(self):
-		return self._attributeDict.keys()
+		return self._attributeNames
 
 
-	def fieldNames(self):
-		return self._fieldNames
-
-
-	def close(self):
-		if not self._closed:
-			self._data.close()
-
-			self._closed = True
+	def columnNames(self):
+		return self._columnNames

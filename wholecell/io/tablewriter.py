@@ -18,7 +18,7 @@ __all__ = [
 	# "AttributeTypeError"
 	]
 
-VERSION = 2
+VERSION = "2" # should update this any time there is a spec-breaking change
 
 DIR_METADATA = "metadata"
 DIR_ATTRIBUTES = "attributes"
@@ -69,7 +69,11 @@ class _Column(object):
 		if self._dtype is None:
 			self._dtype = value.dtype
 
-			self._data.write(json.dumps(dict(self._dtype.descr)) + "\n")
+			descr = self._dtype.descr
+			if len(descr) == 1 and descr[0][0] == "":
+				descr = descr[0][1]
+
+			self._data.write(json.dumps(descr) + "\n")
 			self._offsets.write(str(self._data.tell()) + "\n")
 
 		elif self._dtype != value.dtype:
@@ -84,7 +88,7 @@ class TableWriter(object):
 
 		dirMetadata = _silent_makedirs(os.path.join(path, DIR_METADATA))
 
-		open(os.path.join(dirMetadata, FILE_VERSION), "w").write(str(VERSION))
+		open(os.path.join(dirMetadata, FILE_VERSION), "w").write(VERSION)
 
 		self._dirAttributes = _silent_makedirs(os.path.join(path, DIR_ATTRIBUTES))
 		self._attributeNames = []
