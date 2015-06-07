@@ -51,9 +51,6 @@ class AttributeAlreadyExistsError(TableWriterError):
 class AttributeTypeError(TableWriterError):
 	pass
 
-class DtypeError(TableWriterError):
-	pass
-
 
 class _Column(object):
 	def __init__(self, path):
@@ -66,6 +63,8 @@ class _Column(object):
 
 
 	def append(self, value):
+		value = np.asarray(value, self._dtype)
+
 		if self._dtype is None:
 			self._dtype = value.dtype
 
@@ -75,9 +74,6 @@ class _Column(object):
 
 			self._data.write(json.dumps(descr) + "\n")
 			self._offsets.write(str(self._data.tell()) + "\n")
-
-		elif self._dtype != value.dtype:
-			raise DtypeError("Inconsistent dtype (got {}, expected {})".format(value.dtype, self._dtype))
 
 		self._data.write(value.tobytes())
 		self._offsets.write(str(self._data.tell()) + "\n")
@@ -148,3 +144,7 @@ class TableWriter(object):
 			open(os.path.join(self._dirAttributes, name), "w").write(serialized)
 
 			self._attributeNames.append(name)
+
+
+	def close(self): # TODO: reimplement?
+		pass

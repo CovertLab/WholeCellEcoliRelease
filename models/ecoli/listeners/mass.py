@@ -74,7 +74,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.setInitial = False
 
-		self.dryMass = 0
+		self.dryMass = 0.0
 		# TODO: set initial masses based on some calculations of the expected
 		# mother cell (divided by two) in the last time step
 
@@ -164,8 +164,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			self.growth = self.dryMass - oldDryMass
 
 		else:
-			self.growth = 0
-			# TODO: solve for an expected initial growth rate
+			self.growth = np.nan
 
 		self.proteinMassFraction = self.proteinMass / self.dryMass
 		self.rnaMassFraction = self.rnaMass / self.dryMass
@@ -218,5 +217,5 @@ class Mass(wholecell.listeners.listener.Listener):
 			dnaMass = self.dnaMass,
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
-			processMassDifferences = self.processMassDifferences,
+			processMassDifferences = self.processMassDifferences.astype(np.float64),
 			)

@@ -21,8 +21,17 @@ def divide_cell(sim):
 	uniqueMolecules = sim.states['UniqueMolecules']
 
 	# Create output directories
-	os.mkdir(os.path.join(sim._outputDir, "Daughter1"))
-	os.mkdir(os.path.join(sim._outputDir, "Daughter2"))
+	try:
+		os.mkdir(os.path.join(sim._outputDir, "Daughter1"))
+
+	except OSError:
+		pass
+
+	try:
+		os.mkdir(os.path.join(sim._outputDir, "Daughter2"))
+
+	except OSError:
+		pass
 
 	# Determine where chromosome associated components go
 	# if chromosome has not segregated

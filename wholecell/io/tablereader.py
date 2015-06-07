@@ -5,6 +5,8 @@ import os
 import json
 import re
 
+from itertools import izip
+
 import numpy as np
 
 from . import tablewriter as tw
@@ -59,16 +61,13 @@ class TableReader(object):
 			raise DoesNotExistError("No such attribute: {}".format(name))
 
 		return json.loads(
-			open(os.path.join(self._dirAttributes, name))
+			open(os.path.join(self._dirAttributes, name)).read()
 			)
 
 
 	def readColumn(self, name):
 		if name not in self._columnNames:
 			raise DoesNotExistError("No such column: {}".format(name))
-
-		with open(os.path.join(self._dirColumns, name, tw.FILE_OFFSETS)) as offsetsFile:
-			offsets = np.array([int(i.strip()) for i in offsetsFile])
 
 		offsets, dtype = self._loadOffsets(name)
 
@@ -84,7 +83,24 @@ class TableReader(object):
 
 			return np.fromstring(
 				dataFile.read(), dtype
-				).reshape(nEntries, -1)
+				).reshape(nEntries, -1).squeeze()
+
+
+	def iterColumn(self, name):
+		if name not in self._columnNames:
+			raise DoesNotExistError("No such column: {}".format(name))
+
+		offsets, dtype = self._loadOffsets(name)
+
+		sizes = np.diff(offsets)
+
+		with open(os.path.join(self._dirColumns, name, tw.FILE_DATA)) as dataFile:
+			dataFile.seek(offsets[0])
+
+			for size in sizes:
+				yield np.fromstring(
+					dataFile.read(size), dtype
+					)
 
 
 	def readRow(self, index):
@@ -112,15 +128,15 @@ class TableReader(object):
 			offsets = np.array([int(i.strip()) for i in offsetsFile])
 
 		with open(os.path.join(self._dirColumns, name, tw.FILE_DATA)) as dataFile:
-			raw_dtype = json.loads(dataFile.read(offsets[0]))
+			rawDtype = json.loads(dataFile.read(offsets[0]))
 
-			if isinstance(raw_dtype, basestring):
-				dtype = str(raw_dtype)
+			if isinstance(rawDtype, basestring):
+				dtype = str(rawDtype)
 
 			else:
 				dtype = [ # numpy requires list-of-tuples-of-strings
 					(str(n), str(t))
-					for n, t in raw_dtype
+					for n, t in rawDtype
 					]
 
 		return offsets, dtype
@@ -132,3 +148,7 @@ class TableReader(object):
 
 	def columnNames(self):
 		return self._columnNames
+
+
+	def close(self): # TODO: reimplement?
+		pass
