@@ -173,15 +173,14 @@ class Metabolism(object):
 
 		initCellVolume = initCellMass / CELL_DENSITY # L
 
-		(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0 * units.min]
+		#(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0 * units.min]
 
 		for entry in raw_data.glycogenFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			assert metaboliteID not in metaboliteIDs
 
-			massFrac = entry["massFraction"] * massFractions["glycogenMassFraction"]
-			print metaboliteID
+			massFrac = entry["massFraction"] * sim_data.mass.massFraction["glycogen"]
 			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
@@ -197,7 +196,7 @@ class Metabolism(object):
 
 			assert metaboliteID not in metaboliteIDs
 
-			massFrac = entry["massFraction"] * massFractions["mureinMassFraction"]
+			massFrac = entry["massFraction"] * sim_data.mass.massFraction["murein"]
 			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
@@ -213,7 +212,7 @@ class Metabolism(object):
 
 			assert metaboliteID not in metaboliteIDs
 
-			massFrac = entry["massFraction"] * massFractions["lpsMassFraction"]
+			massFrac = entry["massFraction"] * sim_data.mass.massFraction["lps"]
 			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
@@ -229,7 +228,7 @@ class Metabolism(object):
 
 			assert metaboliteID not in metaboliteIDs
 
-			massFrac = entry["massFraction"] * massFractions["lipidMassFraction"]
+			massFrac = entry["massFraction"] * sim_data.mass.massFraction["lipid"]
 			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
@@ -245,7 +244,7 @@ class Metabolism(object):
 
 			assert metaboliteID not in metaboliteIDs
 
-			massFrac = entry["massFraction"] * massFractions["inorganicIonMassFraction"]
+			massFrac = entry["massFraction"] * sim_data.mass.massFraction["inorganicIon"]
 			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 			massInit = massFrac * initDryMass
@@ -260,7 +259,7 @@ class Metabolism(object):
 			metaboliteID = entry["metaboliteId"]
 
 			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * massFractions["solublePoolMassFraction"]
+				massFrac = entry["massFraction"] * sim_data.mass.massFraction["solublePool"]
 				molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
 
 				massInit = massFrac * initDryMass

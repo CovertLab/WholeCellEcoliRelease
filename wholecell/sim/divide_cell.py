@@ -10,6 +10,8 @@ from copy import deepcopy
 
 from wholecell.io.tablewriter import TableWriter
 
+BINOMIAL_COEFF = 0.5
+
 def divide_cell(sim):
 	# Assign data from simulation required
 	randomState = sim.randomState
@@ -19,8 +21,17 @@ def divide_cell(sim):
 	uniqueMolecules = sim.states['UniqueMolecules']
 
 	# Create output directories
-	os.mkdir(os.path.join(sim._outputDir, "Daughter1"))
-	os.mkdir(os.path.join(sim._outputDir, "Daughter2"))
+	try:
+		os.mkdir(os.path.join(sim._outputDir, "Daughter1"))
+
+	except OSError:
+		pass
+
+	try:
+		os.mkdir(os.path.join(sim._outputDir, "Daughter2"))
+
+	except OSError:
+		pass
 
 	# Determine where chromosome associated components go
 	# if chromosome has not segregated
@@ -28,7 +39,7 @@ def divide_cell(sim):
 	chromosomeToDaughter1 = None
 	if not dnaReplicationComplete:
 		chromosomeToDaughter1 = False
-		if randomState.binomial(1, p = 0.5) == 0:
+		if randomState.binomial(1, p = BINOMIAL_COEFF) == 0:
 			chromosomeToDaughter1 = True
 
 	# Create divded containers
@@ -56,7 +67,7 @@ def divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chro
 
 	molecule_counts = bulkMolecules.container.counts(bulkMolecules.divisionIds['binomial'])
 
-	d1_counts = randomState.binomial(molecule_counts, p = 0.5)
+	d1_counts = randomState.binomial(molecule_counts, p = BINOMIAL_COEFF)
 	d2_counts = molecule_counts - d1_counts
 
 	assert all(d1_counts + d2_counts == molecule_counts)
@@ -125,7 +136,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState, dnaReplicationComplete, 
 
 		# Get set of molecules to divide and calculate number going to daugher one and daughter two
 		moleculeSet = uniqueMolecules.container.objectsInCollection(moleculeName)
-		n_d1 = randomState.binomial(len(moleculeSet), p = 0.5)
+		n_d1 = randomState.binomial(len(moleculeSet), p = BINOMIAL_COEFF)
 		n_d2 = len(moleculeSet) - n_d1
 		assert n_d1 + n_d2 == len(moleculeSet)
 

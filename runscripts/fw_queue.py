@@ -8,6 +8,7 @@ from wholecell.fireworks.firetasks import VariantKbTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
+from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from jinja2 import Template
 
@@ -67,6 +68,7 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
+SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
 
 ### Create directories
 
@@ -95,9 +97,13 @@ for i in VARIANTS_TO_RUN:
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
+		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
 
 		if not os.path.exists(SEED_DIRECTORY):
 			os.makedirs(SEED_DIRECTORY)
+
+		if not os.path.exists(SEED_PLOT_DIRECTORY):
+			os.makedirs(SEED_PLOT_DIRECTORY)
 
 		for k in xrange(N_GENS):
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
@@ -105,19 +111,19 @@ for i in VARIANTS_TO_RUN:
 			if not os.path.exists(GEN_DIRECTORY):
 				os.makedirs(GEN_DIRECTORY)
 
-			for l in xrange(2**k):
+			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
 				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
-				SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
-				PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
+				CELL_SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
+				CELL_PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
 
 				if not os.path.exists(CELL_DIRECTORY):
 					os.makedirs(CELL_DIRECTORY)
 
-				if not os.path.exists(SIM_OUT_DIRECTORY):
-					os.makedirs(SIM_OUT_DIRECTORY)
+				if not os.path.exists(CELL_SIM_OUT_DIRECTORY):
+					os.makedirs(CELL_SIM_OUT_DIRECTORY)
 
-				if not os.path.exists(PLOT_OUT_DIRECTORY):
-					os.makedirs(PLOT_OUT_DIRECTORY)
+				if not os.path.exists(CELL_PLOT_OUT_DIRECTORY):
+					os.makedirs(CELL_PLOT_OUT_DIRECTORY)
 
 
 
@@ -298,16 +304,33 @@ for i in VARIANTS_TO_RUN:
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
+		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
+
+		fw_name = "AnalysisMultiGenTask__Seed_%06d" % (j)
+		fw_this_variant_this_seed_this_analysis = Firework(
+			AnalysisMultiGenTask(
+				input_seed_directory = SEED_DIRECTORY,
+				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+				output_plots_directory = SEED_PLOT_DIRECTORY,
+				),
+			name = fw_name,
+			spec = {"_queueadapter": {"job_name": fw_name}}
+			)
+		wf_fws.append(fw_this_variant_this_seed_this_analysis)
+
+		wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_kb_compression)
+		wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
+		wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
 
 		sims_this_seed = collections.defaultdict(list)
 
 		for k in xrange(N_GENS):
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 
-			for l in xrange(2**k):
-				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)		
-				SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
-				PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
+			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
+				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
+				CELL_SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
+				CELL_PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
 
 				# TODO: Add conditional logic here for mother vs daughter cells
 				# Simulation task
@@ -317,7 +340,7 @@ for i in VARIANTS_TO_RUN:
 					fw_this_variant_this_gen_this_sim = Firework(
 						SimulationTask(
 							input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-							output_directory = SIM_OUT_DIRECTORY,
+							output_directory = CELL_SIM_OUT_DIRECTORY,
 							seed = j,
 							length_sec = WC_LENGTHSEC,
 							),
@@ -327,13 +350,13 @@ for i in VARIANTS_TO_RUN:
 				elif k > 0:
 					PARENT_GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % (k - 1))
 					PARENT_CELL_DIRECTORY = os.path.join(PARENT_GEN_DIRECTORY, "%06d" % (l // 2))
-					PARENT_SIM_OUT_DIRECTORY = os.path.join(PARENT_CELL_DIRECTORY, "simOut")
-					DAUGHTER_STATE_DIRECTORY = os.path.join(PARENT_SIM_OUT_DIRECTORY, "Daughter%d" % (l % 2 + 1))
+					PARENT_CELL_SIM_OUT_DIRECTORY = os.path.join(PARENT_CELL_DIRECTORY, "simOut")
+					DAUGHTER_STATE_DIRECTORY = os.path.join(PARENT_CELL_SIM_OUT_DIRECTORY, "Daughter%d" % (l % 2 + 1))
 
 					fw_this_variant_this_gen_this_sim = Firework(
 						SimulationDaughterTask(
 							input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-							output_directory = SIM_OUT_DIRECTORY,
+							output_directory = CELL_SIM_OUT_DIRECTORY,
 							inherited_state_path = DAUGHTER_STATE_DIRECTORY,
 							seed = (j + 1) * ((2**k - 1) + l),
 							length_sec = WC_LENGTHSEC,
@@ -343,6 +366,7 @@ for i in VARIANTS_TO_RUN:
 						)
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
 
 				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
 
@@ -357,9 +381,9 @@ for i in VARIANTS_TO_RUN:
 				fw_name = "AnalysisSingleTask__Gen_%d__Cell_%d" % (k, l)
 				fw_this_variant_this_gen_this_sim_analysis = Firework(
 					AnalysisSingleTask(
-						input_results_directory = SIM_OUT_DIRECTORY,
+						input_results_directory = CELL_SIM_OUT_DIRECTORY,
 						input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
-						output_plots_directory = PLOT_OUT_DIRECTORY,
+						output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
 						),
 					name = fw_name,
 					spec = {"_queueadapter": {"job_name": fw_name}}
@@ -369,9 +393,14 @@ for i in VARIANTS_TO_RUN:
 
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
+				# NOTE: Change the following line if you are debugging and want to skip analysis
+				# For example, make it:
+				# last_fw_that_needs_kbs = fw_this_variant_this_gen_this_sim
+				last_fw_that_needs_kbs = fw_this_variant_this_gen_this_sim_analysis
+
 				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_kb_compression)
-				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression)
-				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_1_compression)
+				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
+				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
 
 
 ### Create workflow

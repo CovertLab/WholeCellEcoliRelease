@@ -84,36 +84,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	totalRibosomeMass = freeSubunitMass + activeRibosomeMass
 	massFractionActive = activeRibosomeMass / totalRibosomeMass
 
-	plt.figure(figsize = (8.5, 11))
-	matplotlib.rc('font', **FONT)
+	f = plt.figure(figsize = (1.25, 1.))
+	#f = plt.figure(figsize = (6.25, 6.))
+	ax = f.add_axes([0, 0, 1, 1])
+	ax.axis("off")
 
-	ribosomeCapacity_axis = plt.subplot(4,1,1)
-	ribosomeCapacity_axis.plot(time / 60., totalRibosomeCapacity, label="Theoretical total ribosome capacity", linewidth=2, color='b')
-	ribosomeCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
-	ribosomeCapacity_axis.set_ylabel("Amino acids polymerized")
-	ribosomeCapacity_axis.legend(ncol=2)
-
-	fractionalCapacity_axis = plt.subplot(4,1,2)
-	fractionalCapacity_axis.plot(time / 60., actualElongations / totalRibosomeCapacity, label="Fraction of ribosome capacity used", linewidth=2, color='k')
-	fractionalCapacity_axis.set_ylabel("Fraction of ribosome capacity used")
-	fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
-	#fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
-	fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
-
-	effectiveElongationRate_axis = plt.subplot(4,1,3)
-	effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRibosome, label="Effective elongation rate", linewidth=2, color='k')
-	effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
-
-	fractionActive_axis = plt.subplot(4,1,4)
-	fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
-	fractionActive_axis.set_ylabel("Mass fraction of active ribosomes")
-	fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
-
-	# Save
-	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
+	eff_elng_rate = actualElongations / activeRibosome
+	ax.plot(time, eff_elng_rate, label="Effective elongation rate", linewidth=1, color='k')
+	ax.set_ylim([np.nanmin(eff_elng_rate) - 0.5, np.nanmax(eff_elng_rate) + 0.5])
+	print np.nanmean(eff_elng_rate)
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, "R01_effective_ribosome_elongation_rate")
 	plt.close("all")
 
 if __name__ == "__main__":

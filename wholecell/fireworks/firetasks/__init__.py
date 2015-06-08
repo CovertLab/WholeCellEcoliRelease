@@ -5,3 +5,4 @@ from variantKb import VariantKbTask
 from simulation import SimulationTask
 from simulationDaughter import SimulationDaughterTask
 from analysisSingle import AnalysisSingleTask
+from analysisMultiGen import AnalysisMultiGenTask

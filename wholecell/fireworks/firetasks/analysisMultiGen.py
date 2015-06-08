@@ -3,24 +3,24 @@ import time
 import os
 
 from fireworks import FireTaskBase, explicit_serialize
-import models.ecoli.analysis.single
+import models.ecoli.analysis.multigen
 import importlib
 
 @explicit_serialize
-class AnalysisSingleTask(FireTaskBase):
+class AnalysisMultiGenTask(FireTaskBase):
 
-	_fw_name = "AnalysisSingleTask"
+	_fw_name = "AnalysisMultiGenTask"
 	required_params = [
-		"input_results_directory",
+		"input_seed_directory",
 		"input_kb",
 		"output_plots_directory",
 		]
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running single simulation analysis" % time.ctime()
+		print "%s: Running multiple generation analysis" % time.ctime()
 
-		directory = os.path.dirname(models.ecoli.analysis.single.__file__)
+		directory = os.path.dirname(models.ecoli.analysis.multigen.__file__)
 
 		fileList = sorted(os.listdir(directory))
 
@@ -30,9 +30,9 @@ class AnalysisSingleTask(FireTaskBase):
 
 			print "%s: Running %s" % (time.ctime(), f)
 
-			mod = importlib.import_module("models.ecoli.analysis.single." + f[:-3])
+			mod = importlib.import_module("models.ecoli.analysis.multigen." + f[:-3])
 			mod.main(
-				self["input_results_directory"],
+				self["input_seed_directory"],
 				self["output_plots_directory"],
 				f[:-3],
 				self["input_kb"],
