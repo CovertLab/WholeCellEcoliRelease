@@ -65,10 +65,16 @@ def hstack(tup):
 	return unit * np.hstack(value)
 
 def getUnit(value):
-	if not isinstance(value, Unum):
+	if not hasUnit(value):
 		raise Exception("Only works on Unum!")
 
 	value.normalize()
 	value_units = value.copy()
 	value_units._value = 1
 	return value_units
+
+def hasUnit(value):
+	if isinstance(value, Unum):
+		return True
+	else:
+		return False

@@ -46,7 +46,8 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p6.tsv"),
 	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p07.tsv"),
 	os.path.join("trnaData","trna_ratio_to_16SrRNA_2p5.tsv"),
-	os.path.join("trnaData","trna_growth_rates.tsv")
+	os.path.join("trnaData","trna_growth_rates.tsv"),
+	"growthRateDependentParameters.tsv"
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
