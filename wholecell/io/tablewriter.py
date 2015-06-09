@@ -78,6 +78,9 @@ class _Column(object):
 		self._data.write(value.tobytes())
 		self._offsets.write(str(self._data.tell()) + "\n")
 
+		self._data.flush()
+		self._offsets.flush()
+
 
 class TableWriter(object):
 	def __init__(self, path):
