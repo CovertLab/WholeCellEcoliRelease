@@ -15,7 +15,6 @@ from wholecell.utils.fitting import normalize
 # Constants (should be moved to KB)
 GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
 NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
-FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100% to 20% depending on the growth rate # TODO: Throw this into growth data
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
@@ -394,7 +393,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	nActiveRnapNeeded.normalize()
 
 	nActiveRnapNeeded.checkNoUnit()
-	nRnapsNeeded = nActiveRnapNeeded / FRACTION_ACTIVE_RNAP
+	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
 
 	minRnapSubunitCounts = (
 		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
@@ -492,9 +491,9 @@ def fitRNAPolyTransitionRates(kb):
 
 	expectedTerminationRate = elngRate / averageTranscriptLength
 
-	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
+	kb.transcriptionActivationRate = expectedTerminationRate * kb.constants.fractionActiveRnap / (1 - kb.constants.fractionActiveRnap)
 
-	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+	kb.fracActiveRnap = kb.constants.fractionActiveRnap
 
 
 def fitMaintenanceCosts(kb, bulkContainer):
