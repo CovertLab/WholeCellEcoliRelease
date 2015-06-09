@@ -78,8 +78,14 @@ class _Column(object):
 		self._data.write(value.tobytes())
 		self._offsets.write(str(self._data.tell()) + "\n")
 
-		self._data.flush()
-		self._offsets.flush()
+
+	def close(self):
+		self._data.close()
+		self._offsets.close()
+
+
+	def __del__(self):
+		self.close()
 
 
 class TableWriter(object):
@@ -149,5 +155,11 @@ class TableWriter(object):
 			self._attributeNames.append(name)
 
 
-	def close(self): # TODO: reimplement?
-		pass
+	def close(self):
+		if self._columns is not None:
+			for column in self._columns.viewvalues():
+				column.close()
+
+
+	def __del__(self):
+		self.close()
