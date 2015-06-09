@@ -4,9 +4,12 @@ from __future__ import division
 import os
 import re
 
+from itertools import izip
 from collections import defaultdict
 
-from reconstruction.spreadsheets import JsonWriter
+from reconstruction.spreadsheets import JsonWriter, JsonReader
+
+import numpy as np
 
 _DIR = os.path.join("reconstruction", "ecoli", "flat", "metabolism")
 _FBA_FILE = os.path.join(_DIR, "ecocyc-full-biomass.fba") # biomass stoich, nutrients, secretions
@@ -236,6 +239,78 @@ with open(os.path.join("reconstruction", "ecoli", "flat", "biomass.tsv"), "w") a
 
 	writer.writeheader()
 	writer.writerows(data["biomass"])
+
+# Writer the tables for the mass fractions:
+# metabolite name, mass fraction
+
+# TODO: decide where this code really belongs
+
+_MASS_CATEGORIES = {
+	"LPS":"LPS",
+	"glycogen":"glycogen",
+	"ion":"metal-ions",
+	"lipid":"lipids",
+	"murein":"murein",
+	"soluble":"cofactors"
+	}
+
+_MASS_MISC = {
+	"glycogen":{"ADP-GLUCOSE[c]"},
+	"soluble":{"PYRIDOXAL_PHOSPHATE[c]", "CPD-9956[c]"}
+	}
+
+_DEBUG_NO_MASS = {
+	"ADP-GLUCOSE[c]", # should this be ADP-D-GLUCOSE? need to talk to Dan
+	"CPD-17063[c]" # relatively new, not in the current Pathway Tools distro?
+	}
+
+masses = {}
+
+biomassCoeffs = {
+	entry["molecule id"]:entry["coefficient"]
+	for entry in data["biomass"]
+	}
+
+biomassIDs = {mid[:-3] for mid in biomassCoeffs.viewkeys()}
+
+with open(os.path.join("reconstruction", "ecoli", "flat", "metabolites.tsv")) as massFile:
+	for entry in JsonReader(massFile, dialect = "excel-tab"):
+		if entry["id"] in biomassIDs:
+			for c in entry["location"]:
+				masses[entry["id"] + "[{}]".format(c)] = entry["mw7.2"]
+
+for outName, groupName in _MASS_CATEGORIES.viewitems():
+	moleculeIDs = {
+		entry["molecule id"]
+		for entry in data["biomass"]
+		if entry["group id"] == groupName
+		}
+
+	if outName in _MASS_MISC:
+		moleculeIDs |= _MASS_MISC[outName]
+
+	moleculeIDs -= _DEBUG_NO_MASS
+
+	massVec = np.array([masses[mid] for mid in moleculeIDs])
+	compositionVec = np.array([biomassCoeffs[mid] for mid in moleculeIDs])
+
+	fractions = massVec * compositionVec / np.dot(massVec, compositionVec)
+
+	out = [
+		{"metaboliteId":mid, "massFraction":frac}
+		for mid, frac in izip(moleculeIDs, fractions)
+		]
+
+	with open(os.path.join("reconstruction", "ecoli", "flat", "massFractions", outName + "Fractions.tsv"), "w") as outfile:
+		writer = JsonWriter(
+			outfile,
+			["metaboliteId", "massFraction"],
+			dialect = "excel-tab"
+			)
+
+		writer.writeheader()
+		writer.writerows(out)
+
 
 # Write a table of exchanges and constraints:
 # metabolite name, is_ngam, lb, ub
