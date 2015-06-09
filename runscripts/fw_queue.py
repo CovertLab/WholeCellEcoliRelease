@@ -405,10 +405,6 @@ for i in VARIANTS_TO_RUN:
 
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
-				# NOTE: Change the following line if you are debugging and want to skip analysis
-				# For example, make it:
-				# last_fw_that_needs_kbs = fw_this_variant_this_gen_this_sim
-				last_fw_that_needs_kbs = fw_this_variant_this_gen_this_sim_analysis
 
 				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_kb_compression)
 				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
