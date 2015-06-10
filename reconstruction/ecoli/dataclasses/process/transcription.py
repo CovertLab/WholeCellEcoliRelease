@@ -134,7 +134,7 @@ class Transcription(object):
 
 		maxLen = np.int64(
 			self.rnaData["length"].asNumber().max()
-			+ raw_data.parameters['rnaPolymeraseElongationRate'].asNumber(units.nt / units.s)
+			+ sim_data.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s)
 			)
 
 		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8)
