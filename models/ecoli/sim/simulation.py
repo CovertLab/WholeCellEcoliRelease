@@ -23,8 +23,6 @@ from models.ecoli.processes.atp_usage import AtpUsage
 # Listeners
 from models.ecoli.listeners.mass import Mass
 from models.ecoli.listeners.replication_fork import ReplicationForkPosition
-from models.ecoli.listeners.ntp_usage import NtpUsage
-from models.ecoli.listeners.aa_usage import AAUsage
 from models.ecoli.listeners.ribosome_data import RibosomeData
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
@@ -37,6 +35,9 @@ import models.ecoli.analysis.cohort
 from models.ecoli.sim.initial_conditions import calcInitialConditions
 from wholecell.sim.divide_cell import divide_cell
 from models.ecoli.sim.initial_conditions import setDaughterInitialConditions
+
+def hack(*args, **kwargs):
+	import ipdb; ipdb.set_trace()
 
 class EcoliSimulation(Simulation):
 	_stateClasses = (
@@ -61,8 +62,6 @@ class EcoliSimulation(Simulation):
 	_listenerClasses = (
 		Mass,
 		ReplicationForkPosition,
-		NtpUsage,
-		AAUsage,
 		RibosomeData,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,

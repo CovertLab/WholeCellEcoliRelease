@@ -59,7 +59,7 @@ class Replication(wholecell.processes.process.Process):
 		# Create genome sequence out of small integers
 		self.genomeSequence = np.empty(len(kb.process.replication.genome_sequence), np.int8)
 		self.ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(NT_SINGLELETTERS)])
-		
+
 		for i,letter in enumerate(kb.process.replication.genome_sequence):
 			self.genomeSequence[i] = self.ntMapping[letter] # Build genome sequence as small integers
 
@@ -80,7 +80,7 @@ class Replication(wholecell.processes.process.Process):
 		self.dntps = self.bulkMoleculesView(kb.moleculeGroups.dNtpIds)
 		self.polymerized = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.moleculeGroups.polymerizedDNT_IDs])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		
+
 		self.genes = self.bulkChromosomesView(geneIds)
 
 		self.dnaPolymerase = self.uniqueMoleculesView('dnaPolymerase')
@@ -101,7 +101,7 @@ class Replication(wholecell.processes.process.Process):
 			"directionIsPositive",
 			"isLeading"
 			)
-		
+
 		totalNtRequest = np.array([0]*len(self.ntMapping))
 		for i in range(nPolymerase):
 			totalNtRequest += np.bincount(
@@ -177,7 +177,7 @@ class Replication(wholecell.processes.process.Process):
 				if replicatedGenes.any():
 					self.genes.countsInc(replicatedGenes)
 
-			allDnaPolymerase[i].attrIs(chromosomeLocation = 
+			allDnaPolymerase[i].attrIs(chromosomeLocation =
 						calculatePolymerasePositionUpdate(
 							allChromosomeLocation[i],
 							allDirectionIsPositive[i],
@@ -185,7 +185,7 @@ class Replication(wholecell.processes.process.Process):
 							self.genomeLength
 						)
 					)
-				
+
 		# Update metabolite counts based on polymerization polymeraseProgress
 		# Assumes reaction taking place is:
 		# dNTP + H2O --> dNMP + PPi + H
@@ -222,7 +222,7 @@ def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading
 		upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation + elongationRate) % genomeLength
 	else:
 		upcomingPositions = np.arange(chromosomeLocation, chromosomeLocation - elongationRate, -1) % genomeLength
-		
+
 	if tercCenter in upcomingPositions:
 		elongationLength = np.where(upcomingPositions == tercCenter)[0][0]
 
@@ -240,7 +240,7 @@ def calculateUpcomingSequence(chromosomeLocation, directionIsPositive, isLeading
 		return leadingSequence
 	else:
 		return reverseComplement(leadingSequence)
-	
+
 def calculateReplicatedGenes(currentPosition, directionIsPositive, difference, bufferedGeneEndCoordinate):
 	'''
 	Returns indicies of genes replicated by polymerase based on position and progress of polymerization
@@ -273,6 +273,6 @@ def calculatePolymerasePositionUpdate(currentPosition, directionIsPositive, diff
 
 	if directionIsPositive:
 		return (currentPosition + difference) % genomeLength
-		
+
 	else:
 		return (currentPosition - difference) % genomeLength

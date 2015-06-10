@@ -87,12 +87,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.aas = self.bulkMoleculesView(kb.moleculeGroups.aaIDs)
 		# self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
 		# self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
-		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.h2o = self.bulkMoleculeView('WATER[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
 		self.gdp = self.bulkMoleculeView("GDP[c]")
-		self.pi = self.bulkMoleculeView("PI[c]")
-		self.h   = self.bulkMoleculeView("H[c]")
+		self.pi = self.bulkMoleculeView("Pi[c]")
+		self.h   = self.bulkMoleculeView("PROTON[c]")
 
 		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
