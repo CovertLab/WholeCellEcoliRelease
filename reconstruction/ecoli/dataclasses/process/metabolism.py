@@ -35,7 +35,7 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL # TODO: Add units!
 	"CPD-2961": 3.80e-3, # D-gluconate 6-phosphate
 	"GLN": 3.80e-3,
 	"CTP": 2.70e-3,
-	"ALA": 2.60e-3,
+	"L-ALPHA-ALANINE": 2.60e-3,
 	"NAD": 2.60e-3,
 	"CPD-12575": 2.50e-3, # UDP-glucose
 	"URIDINE": 2.10e-3,
@@ -60,7 +60,7 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL # TODO: Add units!
 	"2-KETOGLUTARATE": 4.40e-4,
 	"LYS": 4.10e-4,
 	"PRO": 3.90e-4,
-	"DTDP": 3.80e-4,
+	"TDP": 3.80e-4,
 	"DIHYDROXY-ACETONE-PHOSPHATE": 3.70e-4,
 	"HOMO-CYS": 3.70e-4,
 	"CMP": 3.60e-4,
@@ -104,7 +104,7 @@ METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL # TODO: Add units!
 	"L-ORNITHINE": 1.00e-5,
 	"DAMP": 8.80e-6,
 	"APS": 6.60e-6,
-	# "MYO-INOSITOL": 5.70e-6, # can't be formed by the reaction network
+	# "MYO-INOSITOL": 5.70e-6, # can't be formed by the reaction network (is this still true?)
 	"PROPIONYL-COA": 5.30e-6,
 	"ADP-D-GLUCOSE": 4.30e-6,
 	"ANTHRANILATE": 3.50e-6,
@@ -158,12 +158,12 @@ class Metabolism(object):
 		for metaboliteID, concentration in METABOLITE_CONCENTRATIONS.viewitems():
 			if metaboliteID in wildtypeIDtoCompartment:
 				metaboliteIDs.append(
-					metaboliteID.upper() + wildtypeIDtoCompartment[metaboliteID]
+					metaboliteID + wildtypeIDtoCompartment[metaboliteID]
 					)
 
 			else:
 				metaboliteIDs.append(
-					metaboliteID.upper() + "[c]"
+					metaboliteID + "[c]"
 					)
 
 			metaboliteConcentrations.append(concentration)
@@ -306,13 +306,13 @@ class Metabolism(object):
 		# HACK: min conc. doesn't work here
 		metaboliteIDs.append("GLY[c]")
 		metaboliteConcentrations.append(
-			metaboliteConcentrations[metaboliteIDs.index("ALA[c]")]
+			metaboliteConcentrations[metaboliteIDs.index("L-ALPHA-ALANINE[c]")]
 			)
 
 		metaboliteIDs.append("CYS[c]")
 		metaboliteConcentrations.append(aaSmallestConc)
 
-		metaboliteIDs.append("SEC[c]")
+		metaboliteIDs.append("L-SELENOCYSTEINE[c]")
 		metaboliteConcentrations.append(aaSmallestConc)
 
 		# DGTP: set to smallest of all other DNTP concentrations
