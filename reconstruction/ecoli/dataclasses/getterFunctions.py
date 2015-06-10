@@ -23,7 +23,16 @@ class getterFunctions(object):
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
-		idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
+		try:
+			idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
+
+		except IndexError:
+			if i not in self._allMass["id"]:
+				raise Exception("Unrecognized id: {}".format(i))
+
+			else:
+				raise
+
 		return self._allMass['mass'][idx]
 
 	def _buildAllMasses(self, raw_data, sim_data):
@@ -49,4 +58,4 @@ class getterFunctions(object):
 			'mass'		:	units.g / units.mol,
 			}
 
-		self._allMass = UnitStructArray(allMass, field_units)
+		self._allMass = UnitStructArray(allMass, field_units) # TODO: change to dict?
