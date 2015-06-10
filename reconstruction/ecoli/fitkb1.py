@@ -146,7 +146,7 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	# 	)
 
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
-	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('H2O[c]')], massesToAdd[poolIds.index('H2O[c]') + 1:]))
+	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))
 	#gtpPoolDryMass = gtpsHydrolyzedLastTimeStep * kb.getter.getMass(['GTP'])[0] / kb.constants.nAvogadro
 	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)# + units.sum(gtpPoolDryMass)
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
