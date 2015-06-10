@@ -8,6 +8,8 @@ SimulationData for metabolism process
 
 from __future__ import division
 
+from itertools import chain
+
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 import numpy as np
@@ -120,6 +122,8 @@ ILE_FRACTION = 0.360 # the fraction of iso/leucine that is isoleucine; computed 
 ECOLI_PH = 7.2
 
 PPI_CONCENTRATION = 0.5e-3 # M, multiple sources
+
+EXCHANGE_UNITS = units.mmol / units.g / units.h
 
 class Metabolism(object):
 	""" Metabolism """
@@ -373,176 +377,62 @@ class Metabolism(object):
 		# These may be modified/extended later, but should provide the basic
 		# data structures
 
-		exchangeReactions = [x["id"] for x in raw_data.reactions if x["id"].startswith("FEIST_EX") or x["id"].startswith("FEIST_DM_")]
-		exchangeReactions += ["SELNP_MEDIA_EXCHANGE_HACKED"]
-
-		disabledReactions = ("FEIST_CAT_0", "FEIST_SPODM_0", "FEIST_SPODMpp",
-			"FEIST_FHL_0_0", "FEIST_FHL_1_0", "FEIST_ATPM")
-		# NOTE: the first five were disabled by Feist, the last is NGAM which model explictly elsewhere
-
 		reactionStoich = {}
 		externalExchangeMolecules = []
 		reversibleReactions = []
 		reactionEnzymes = {}
 		reactionRates = {}
 
-		unconstrainedExchangeMolecules = ("CA2[e]", "CL[e]", "CO2[e]", "COBALT2[e]",
-			"CU2[e]", "FE2[e]", "FE3[e]", "H[e]", "H2O[e]", "K[e]", "MG2[e]",
-			"MN2[e]", "MOBD[e]", "NA1[e]", "NH4[e]", "PI[e]", "SO4[e]", "TUNGS[e]",
-			"ZN2[e]", "SELNP[e]",)
+		unconstrainedExchangeMolecules = []
+		constrainedExchangeMolecules = {}
 
-		exchangeUnits = units.mmol / units.g / units.h
-
-		constrainedExchangeMolecules = {
-			"CBL1[e]": exchangeUnits * 0.01, # TODO: try removing this constraint
-			"GLC-D[e]": exchangeUnits * 8,
-			"O2[e]": exchangeUnits * 18.5
-			}
-
-		catalysisUnits = 1 / units.s
-
-		validEnzymeIDs = set([])
-		validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
-		validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
-		validEnzymeIDs.update(validProteinIDs)
-		validEnzymeIDs.update(validProteinComplexIDs)
-		validEnzymeCompartments = collections.defaultdict(set)
-
-		for enzymeID in validEnzymeIDs:
-			enzyme = enzymeID[:enzymeID.index("[")]
-			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
-
-			validEnzymeCompartments[enzyme].add(location)
-
-		for reaction in raw_data.reactions:
-			reactionID = reaction["id"]
-			stoich = reaction["stoichiometry"]
-
-			if reactionID in disabledReactions:
+		for nutrient in chain(raw_data.nutrients, raw_data.secretions):
+			if nutrient["lower bound"] and nutrient["upper bound"]:
+				# "non-growth associated maintenance", not included in our metabolic model
 				continue
 
-			elif reactionID in exchangeReactions:
-				if len(stoich) != 1:
-					raise Exception("Invalid exchange reaction")
-
-				externalExchangeMolecules.append("{}[{}]".format(
-					stoich[0]["molecule"], stoich[0]["location"]
-					))
+			elif nutrient["upper bound"]:
+				constrainedExchangeMolecules[nutrient["molecule id"]] = EXCHANGE_UNITS * nutrient["upper bound"]
 
 			else:
-				if len(stoich) <= 1:
-					raise Exception("Invalid biochemical reaction")
+				unconstrainedExchangeMolecules.append(nutrient["molecule id"])
 
-				reducedStoich = {
-					"{}[{}]".format(
-						entry["molecule"], entry["location"]
-						): entry["coeff"]
-					for entry in stoich
-					}
+		externalExchangeMolecules = constrainedExchangeMolecules.keys() + unconstrainedExchangeMolecules
 
-				reactionStoich[reactionID] = reducedStoich
+		# there's nothing wrong with the code below, to my knowledge, but it's not currently needed
 
-				# Assign reversibilty
+		# validEnzymeIDs = set([])
+		# validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
+		# validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
+		# validEnzymeIDs.update(validProteinIDs)
+		# validEnzymeIDs.update(validProteinComplexIDs)
+		# validEnzymeCompartments = collections.defaultdict(set)
 
-				if reaction["dir"] == 0:
-					reversibleReactions.append(reactionID)
+		# for enzymeID in validEnzymeIDs:
+		# 	enzyme = enzymeID[:enzymeID.index("[")]
+		# 	location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
 
-				# Assign k_cat, if known
+		# 	validEnzymeCompartments[enzyme].add(location)
 
-				kcat = reaction["kcat"]
+		for reaction in raw_data.reactions:
+			reactionID = reaction["reaction id"]
+			stoich = reaction["stoichiometry"]
 
-				if kcat is not None:
-					reactionRates[reactionID] = kcat * catalysisUnits
+			if len(stoich) <= 1:
+				raise Exception("Invalid biochemical reaction")
 
-				# Assign enzyme, if any
+			reactionStoich[reactionID] = stoich
 
-				if reactionID in REACTION_ENZYME_ASSOCIATIONS.viewkeys():
-					enzymes = REACTION_ENZYME_ASSOCIATIONS[reactionID]
+			# Assign reversibilty
 
-				else:
-					enzymes = reaction['catBy']
-
-				reactantLocations = {reactant["location"]
-					for reactant in reaction["stoichiometry"]}
-
-				if enzymes is not None and len(enzymes) > 0:
-					if len(enzymes) > 1:
-						raise Exception("Reaction {} has multiple associated enzymes: {}".format(
-							reactionID, enzymes))
-
-					(enzyme,) = enzymes
-
-					validLocations = validEnzymeCompartments[enzyme]
-
-					# TODO: Commenting this so that I don't have to worry about enzymatic complexes. Fix this John.
-					# if len(validLocations) == 0:
-					# 	raise Exception("Reaction {} uses enzyme {} but this enzyme does not exist.".format(
-					# 		reactionID,
-					# 		enzyme
-					# 		))
-
-					if len(validLocations) == 1:
-						(location,) = validLocations
-
-					elif len(reactantLocations) == 1:
-						(location,) = reactantLocations
-
-					elif reactantLocations == {"p", "e"}: # if reaction is periplasm <-> extracellular
-						(location,) = {"o"} # assume enzyme is in outer membrane
-
-					elif reactantLocations == {"c", "p"}: # if reaction is cytoplasm <-> periplasm
-						(location,) = {"i"} # assume enzyme is in inner membrane
-
-					else:
-						pass
-						# TODO: Commenting this so that I don't have to worry about enzymatic complexes. Fix this John.
-						# raise Exception("Reaction {} has multiple associated locations: {}".format(
-						# 	reactionID,
-						# 	reactantLocations
-						# 	))
-
-					# TODO: Commenting this so that I don't have to worry about enzymatic complexes. Fix this John.
-					# assert location in validLocations
-
-					enzymeID = "{}[{}]".format(enzyme, location)
-
-					reactionEnzymes[reactionID] = enzymeID
-
-		mws = sim_data.getter.getMass(externalExchangeMolecules)
-
-		exchangeMasses = {moleculeID:mws[index]
-			for index, moleculeID in enumerate(externalExchangeMolecules)}
-
-		# Filter out reaction-enzyme associations that lack rates
-
-		reactionEnzymes = {
-			reactionID:enzymeID
-			for reactionID, enzymeID in reactionEnzymes.viewitems()
-			if reactionRates.has_key(reactionID)
-			}
+			if reaction["is reversible"]:
+				reversibleReactions.append(reactionID)
 
 		self.reactionStoich = reactionStoich
 		self.externalExchangeMolecules = externalExchangeMolecules
-		self._exchangeMasses = exchangeMasses
 		self.reversibleReactions = reversibleReactions
-		self.reactionEnzymes = reactionEnzymes
-		self._reactionRates = reactionRates
 		self._unconstrainedExchangeMolecules = unconstrainedExchangeMolecules
 		self._constrainedExchangeMolecules = constrainedExchangeMolecules
-
-
-	# def reactionRates(self, timeStep):
-	# 	return {
-	# 		reactionID:(reactionRate * timeStep).asNumber()
-	# 		for reactionID, reactionRate in self._reactionRates.viewitems()
-	# 		}
-
-
-	# def exchangeMasses(self, targetUnits):
-	# 	return {
-	# 		moleculeID:mass.asNumber(targetUnits)
-	# 		for moleculeID, mass in self._exchangeMasses.viewitems()
-	# 		}
 
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits):
