@@ -47,7 +47,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.figure(figsize = (8.5, 11))
 
 	plt.plot(time / 60., nActive*100. / ( nActive + rnapCountsBulk))
-	plt.axis([0,60,0,25])
+	#plt.axis([0,60,0,25])
 	plt.xlabel("Time (min)")
 	plt.ylabel("Percent of RNA Polymerase Molecules that are Active")
 	plt.title("Active RNA Polymerase Percentage")
