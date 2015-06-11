@@ -115,22 +115,16 @@ class Metabolism(wholecell.processes.process.Process):
 		# Solve for metabolic fluxes
 
 		metaboliteCountsInit = self.metabolites.counts()
-		poolCounts = self.poolMetabolites.counts()
 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
 
 		cellVolume = cellMass / self.cellDensity
-
-		# if self.time() < 2:
-		# 	print poolCounts / self.nAvogadro / cellVolume
 
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
 		self.fba.internalMoleculeLevelsIs(
 			metaboliteCountsInit * countsToMolar
 			)
-
-		# self.fba.run()
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 

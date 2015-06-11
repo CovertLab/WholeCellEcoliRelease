@@ -1837,3 +1837,4 @@
 "RXN-4821"	{"WATER[c]": -1, "L-ALPHA-AMINO-EPSILON-KETO-PIMELATE[c]": 1, "PROTON[c]": -1, "DELTA1-PIPERIDEINE-2-6-DICARBOXYLATE[c]": -1}	false
 "LCYSDESULF-RXN"	{"WATER[c]": -1, "CYS[c]": -1, "PYRUVATE[c]": 1, "AMMONIUM[c]": 1, "HS[c]": 1}	false
 "ACYLGPEACYLTRANS-RXN"	{"ACYL-ACP[c]": -1, "2-ACYL-GPE[c]": -1, "ACP[c]": 1, "L-1-PHOSPHATIDYL-ETHANOLAMINE[c]": 1}	false
+"glycogen-monomer-extension"	{"ADP-D-GLUCOSE[c]": -1, "ADP[c]": 1, "glycogen-monomer[c]": 1}	false
