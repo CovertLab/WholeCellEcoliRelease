@@ -378,7 +378,7 @@ class Metabolism(object):
 		# data structures
 
 		reactionStoich = {}
-		externalExchangeMolecules = []
+		externalExchangeMolecules = set()
 		reversibleReactions = []
 		reactionEnzymes = {}
 		reactionRates = {}
@@ -386,18 +386,26 @@ class Metabolism(object):
 		unconstrainedExchangeMolecules = []
 		constrainedExchangeMolecules = {}
 
-		for nutrient in chain(raw_data.nutrients, raw_data.secretions):
+		for nutrient in raw_data.nutrients:
 			if nutrient["lower bound"] and nutrient["upper bound"]:
 				# "non-growth associated maintenance", not included in our metabolic model
 				continue
 
 			elif nutrient["upper bound"]:
 				constrainedExchangeMolecules[nutrient["molecule id"]] = EXCHANGE_UNITS * nutrient["upper bound"]
+				externalExchangeMolecules.add(nutrient["molecule id"])
 
 			else:
 				unconstrainedExchangeMolecules.append(nutrient["molecule id"])
+				externalExchangeMolecules.add(nutrient["molecule id"])
 
-		externalExchangeMolecules = constrainedExchangeMolecules.keys() + unconstrainedExchangeMolecules
+		for secretion in raw_data.secretions:
+			if secretion["lower bound"] and secretion["upper bound"]:
+				# "non-growth associated maintenance", not included in our metabolic model
+				continue
+
+			else:
+				externalExchangeMolecules.add(secretion["molecule id"])
 
 		# there's nothing wrong with the code below, to my knowledge, but it's not currently needed
 
@@ -429,7 +437,7 @@ class Metabolism(object):
 				reversibleReactions.append(reactionID)
 
 		self.reactionStoich = reactionStoich
-		self.externalExchangeMolecules = externalExchangeMolecules
+		self.externalExchangeMolecules = sorted(externalExchangeMolecules)
 		self.reversibleReactions = reversibleReactions
 		self._unconstrainedExchangeMolecules = unconstrainedExchangeMolecules
 		self._constrainedExchangeMolecules = constrainedExchangeMolecules
