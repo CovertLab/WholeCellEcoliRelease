@@ -377,6 +377,18 @@ for i in VARIANTS_TO_RUN:
 					fw_parent_sim = sims_this_seed[k - 1][l // 2]
 					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
 
+				# Output compression job
+				fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
+				fw_this_variant_this_gen_this_sim_compression = Firework(
+					ScriptTask(
+						script = "find %s -type f | xargs bzip2" % CELL_SIM_OUT_DIRECTORY
+						),
+					name = fw_name,
+					spec = {"_queueadapter": {"job_name": fw_name}}
+					)
+
+				wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
+
 				# AnalysisSingle task
 				fw_name = "AnalysisSingleTask__Gen_%d__Cell_%d" % (k, l)
 				fw_this_variant_this_gen_this_sim_analysis = Firework(
@@ -393,14 +405,12 @@ for i in VARIANTS_TO_RUN:
 
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
-				# NOTE: Change the following line if you are debugging and want to skip analysis
-				# For example, make it:
-				# last_fw_that_needs_kbs = fw_this_variant_this_gen_this_sim
-				last_fw_that_needs_kbs = fw_this_variant_this_gen_this_sim_analysis
 
 				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_kb_compression)
 				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
 				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
+				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+				wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 
 
 ### Create workflow

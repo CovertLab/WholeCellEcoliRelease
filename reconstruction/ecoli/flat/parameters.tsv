@@ -1,1 +1,1 @@
-name	value	units	source	commentsdnaPolymeraseElongationRate	750	units.nt/units.sgtpPerTranslation	4.2	oriCCenter	3923882	units.ntribosomeElongationRate	16	units.aa/units.srnaPolymeraseElongationRate	42	units.nt/units.sterCCenter	1607192	units.nttimeStep	1	units.sc_period	40	units.mind_period	20	units.mincellDensity	1100	units.g/units.L
+name	value	units	source	commentsgtpPerTranslation	4.2	oriCCenter	3923882	units.ntterCCenter	1607192	units.nttimeStep	1	units.scellDensity	1100	units.g/units.L

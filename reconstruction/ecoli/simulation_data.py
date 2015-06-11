@@ -22,7 +22,7 @@ from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.state import State
 from reconstruction.ecoli.dataclasses.process.process import Process
-from reconstruction.ecoli.dataclasses.mass import Mass
+from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
 class SimulationDataEcoli(object):
@@ -44,6 +44,8 @@ class SimulationDataEcoli(object):
 		self.moleculeGroups = moleculeGroups(raw_data, self)
 		self.constants = Constants(raw_data, self)
 
+		# Growth rate dependent parameters are set first
+		self.growthgrowthRateParameters = GrowthRateParameters(raw_data, self)
 		self.mass = Mass(raw_data, self)
 
 		# Data classes (can depend on helper functions)
