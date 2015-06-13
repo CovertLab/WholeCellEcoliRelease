@@ -427,7 +427,7 @@ class Metabolism(object):
 			stoich = reaction["stoichiometry"]
 
 			if len(stoich) <= 1:
-				raise Exception("Invalid biochemical reaction")
+				raise Exception("Invalid biochemical reaction: {}, {}".format(reactionID, stoich))
 
 			reactionStoich[reactionID] = stoich
 
