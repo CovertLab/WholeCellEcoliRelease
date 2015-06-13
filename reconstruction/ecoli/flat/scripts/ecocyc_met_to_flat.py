@@ -55,10 +55,10 @@ for line in open(_LPLOG_FILE):
 		reaction_id_to_name[lp_id] = name
 
 		if lp_id.endswith("a") or lp_id.endswith("b"):
-			reversible_reactions.add(lp_id)
+			reversible_reactions.add(name)
 
 		if lp_id.endswith("_e"):
-			exchange_reactions.add(lp_id)
+			exchange_reactions.add(name)
 
 	elif lp_id.startswith("c"):
 		compound_id_to_name[lp_id] = reduce_compartment(name)
@@ -116,12 +116,6 @@ for line in open(_LP_FILE):
 		if re.findall("= 0", line):
 			compound_id = None
 
-# Check that all singleton "reactions" are exchange reactions
-assert all(
-	(rxn_id in exchange_reactions)
-	for rxn_id, stoich in reaction_stoich.viewitems()
-	if len(stoich) == 1
-	)
 
 # Transform stoich from LP IDs to Ecocyc IDs
 
@@ -133,6 +127,13 @@ reaction_stoich = {
 	for reaction_id, stoich in reaction_stoich.viewitems()
 	if reaction_id not in exchange_reactions
 	}
+
+# Check that all singleton "reactions" are exchange reactions
+assert all(
+	(rxn_id in exchange_reactions)
+	for rxn_id, stoich in reaction_stoich.viewitems()
+	if len(stoich) == 1
+	)
 
 # Write a table of true reactions:
 # reaction name, stoich, is_reversible
