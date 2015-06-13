@@ -41,10 +41,9 @@
 "PSERTRANSAM-RXN"	{"GLT[c]": -1, "3-P-SERINE[c]": 1, "3-P-HYDROXYPYRUVATE[c]": -1, "2-KETOGLUTARATE[c]": 1}	true
 "RXN-11483-Pimeloyl-ACP-methyl-esters/WATER//Pimeloyl-ACPs/METOH/PROTON.61."	{"WATER[c]": -1, "METOH[c]": 1, "PROTON[c]": 1, "Pimeloyl-ACPs[c]": 1, "Pimeloyl-ACP-methyl-esters[c]": -1}	false
 "ASPARTATE-SEMIALDEHYDE-DEHYDROGENASE-RXN"	{"Pi[c]": -1, "NADP[c]": -1, "PROTON[c]": 1, "L-ASPARTATE-SEMIALDEHYDE[c]": -1, "L-BETA-ASPARTYL-P[c]": 1, "NADPH[c]": 1}	true
-"NUCLEOSIDE-DIPHOSPHATASE-RXN-CDP/WATER//CMP/Pi/PROTON.25."	{"WATER[c]": -1, "CMP[c]": 1, "PROTON[c]": 1, "CDP[c]": -1, "Pi[c]": 1}	false
+"RXN-11109"	{"WATER[c]": -1, "Pi[c]": 1, "PROTON[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
 "TRANS-RXN-40-CPD-12045/PROTON//CPD-12045/PROTON.35."	{"PROTON[c]": 1, "CPD-12045[p]": 1, "CPD-12045[c]": -1, "PROTON[p]": -1}	false
 "DTDPGLUCOSEPP-RXN"	{"DTDP-D-GLUCOSE[c]": -1, "GLC-1-P[c]": 1, "PROTON[c]": 1, "PPI[c]": -1, "TTP[c]": 1}	true
-"THYMINE"	{"THYMINE[p]": -1}	false
 "TRANS-RXN0-569-L-ALPHA-ALANINE//L-ALPHA-ALANINE.33."	{"L-ALPHA-ALANINE[p]": 1, "L-ALPHA-ALANINE[c]": -1}	false
 "HOMSUCTRAN-RXN"	{"SUC-COA[c]": -1, "CO-A[c]": 1, "O-SUCCINYL-L-HOMOSERINE[c]": 1, "HOMO-SER[c]": -1}	false
 "1.2.99.7-RXN-BENZALDEHYDE/FAD/WATER//BENZOATE/FADH2.39."	{"WATER[p]": 1, "BENZALDEHYDE[p]": 1, "FADH2[p]": -1, "FAD[p]": 1, "BENZOATE[p]": -1}	true
@@ -72,7 +71,6 @@
 "RXN0-1132"	{"NADH[c]": 1, "PROTON[c]": 1, "NAD[c]": -1, "Pyruvate-dehydrogenase-dihydrolipoate[c]": -1, "Pyruvate-dehydrogenase-lipoate[c]": 1}	false
 "NAG1P-URIDYLTRANS-RXN"	{"UTP[c]": -1, "PPI[c]": 1, "PROTON[c]": -1, "UDP-N-ACETYL-D-GLUCOSAMINE[c]": 1, "N-ACETYL-D-GLUCOSAMINE-1-P[c]": -1}	false
 "RXN0-1134"	{"CARBON-DIOXIDE[c]": 1, "PROTON[c]": -1, "PYRUVATE[c]": -1, "Pyruvate-dehydrogenase-acetylDHlipoyl[c]": 1, "Pyruvate-dehydrogenase-lipoate[c]": -1}	false
-"OXYGEN-MOLECULE"	{"OXYGEN-MOLECULE[p]": 1}	false
 "RXN0-1138"	{"PROTON[c]": -1, "Gcv-H[c]": 1, "PROTEIN-LIPOYLLYSINE[c]": -1, "Lipoyl-ACPs[c]": 1, "ACP[c]": -1}	true
 "RXN-6423"	{"WATER[c]": 1, "CPD-6124[c]": 1, "4-AMINO-BUTYRALDEHYDE[c]": -1}	true
 "RXN-7682"	{"NADH[c]": 1, "NAD[c]": -1, "PROTON[c]": 1, "XANTHINE[c]": 1, "WATER[c]": -1, "HYPOXANTHINE[c]": -1}	false
@@ -116,7 +114,7 @@
 "HISTIDPHOS-RXN[CCO-CYTOSOL]-L-HISTIDINOL-P/WATER//HISTIDINOL/Pi.49."	{"WATER[c]": -1, "Pi[c]": 1, "L-HISTIDINOL-P[c]": -1, "HISTIDINOL[c]": 1}	false
 "OCTAPRENYL-METHYL-METHOXY-BENZOQ-OH-RXN"	{"Donor-H2[c]": -1, "OXYGEN-MOLECULE[c]": -1, "OCTAPRENYL-METHYL-OH-METHOXY-BENZQ[c]": 1, "OCTAPRENYL-METHYL-METHOXY-BENZQ[c]": -1, "WATER[c]": 1, "Acceptor[c]": 1}	false
 "3-OXOACYL-ACP-SYNTH-RXN-MALONYL-ACP/Myristoyl-ACPs/PROTON//ACP/3-oxo-palmitoyl-ACPs/CARBON-DIOXIDE.75."	{"PROTON[c]": -1, "ACP[c]": 1, "Myristoyl-ACPs[c]": -1, "CARBON-DIOXIDE[c]": 1, "3-oxo-palmitoyl-ACPs[c]": 1, "MALONYL-ACP[c]": -1}	false
-"RXN0-6987"	{"WATER[c]": -1, "GLY[c]": 1, "CPD-13406[c]": -1, "L-ASPARTATE[c]": 1}	false
+"3-DEHYDROQUINATE-DEHYDRATASE-RXN"	{"3-DEHYDRO-SHIKIMATE[c]": -1, "WATER[c]": -1, "DEHYDROQUINATE[c]": 1}	true
 "ACYLCOASYN-RXN-PALMITATE/CO-A/ATP//PALMITYL-COA/PPI/AMP.41."	{"PALMITATE[c]": -1, "PALMITYL-COA[c]": 1, "AMP[c]": 1, "CO-A[c]": -1, "PPI[c]": 1, "ATP[c]": -1}	false
 "2.3.1.118-RXN"	{"CO-A[c]": 1, "ACETYL-COA[c]": -1, "N-Acetoxy-Arylamines[c]": 1, "N-Hydroxy-Arylamines[c]": -1}	true
 "O-SUCCINYLBENZOATE-COA-LIG-RXN"	{"CPD-6972[c]": 1, "CO-A[c]": -1, "AMP[c]": 1, "O-SUCCINYLBENZOATE[c]": -1, "PPI[c]": 1, "ATP[c]": -1}	false
@@ -138,7 +136,7 @@
 "RXN-15129"	{"PROTON[c]": 1, "CYS[c]": -1, "2-AMINOACRYLATE[c]": 1, "HS[c]": 1}	false
 "RXN0-2142-b-Hydroxy-cis-D5-dodecenoyl-ACPs/NADP//b-Keto-cis-D5-dodecenoyl-ACPs/NADPH/PROTON.82."	{"b-Keto-cis-D5-dodecenoyl-ACPs[c]": -1, "NADPH[c]": -1, "PROTON[c]": -1, "NADP[c]": 1, "b-Hydroxy-cis-D5-dodecenoyl-ACPs[c]": 1}	false
 "TRANS-RXN-237-CPD0-1051//CPD0-1051.21."	{"CPD0-1051[c]": -1, "CPD0-1051[e]": 1}	false
-"CPD-108"	{"CPD-108[p]": -1}	false
+"3.6.1.19-RXN-DITP/WATER//DIMP/PPI/PROTON.28."	{"WATER[c]": -1, "PPI[c]": 1, "DITP[c]": -1, "PROTON[c]": 1, "DIMP[c]": 1}	false
 "ALDEHYDE-DEHYDROGENASE-NADP+-RXN-CPD-371/NADP/WATER//CPD-195/NADPH/PROTON.41."	{"CPD-371[c]": -1, "NADP[c]": -1, "PROTON[c]": 2, "CPD-195[c]": 1, "WATER[c]": -1, "NADPH[c]": 1}	false
 "PROPIONATE--COA-LIGASE-RXN"	{"PROPIONATE[c]": -1, "AMP[c]": 1, "CO-A[c]": -1, "PPI[c]": 1, "ATP[c]": -1, "PROPIONYL-COA[c]": 1}	false
 "TRANS-RXN0-569-CPD0-1224//CPD0-1224.21."	{"CPD0-1224[c]": -1, "CPD0-1224[p]": 1}	false
@@ -200,7 +198,6 @@
 "ASPARAGHYD-RXN[CCO-PERI-BAC]-ASN/WATER//L-ASPARTATE/AMMONIUM.46."	{"AMMONIUM[p]": 1, "WATER[p]": -1, "ASN[p]": -1, "L-ASPARTATE[p]": 1}	false
 "R15-RXN-MET/GLYOX//CPD-479/GLY.23."	{"CPD-479[c]": 1, "GLYOX[c]": -1, "MET[c]": -1, "GLY[c]": 1}	true
 "TRE6PHYDRO-RXN"	{"TREHALOSE-6P[c]": -1, "WATER[c]": -1, "Glucopyranose[c]": 1, "GLC-6-P[c]": 1}	false
-"HYDROGEN-MOLECULE"	{"HYDROGEN-MOLECULE[c]": -1}	false
 "RXN0-4841"	{"FRUCTOSELYSINE[c]": -1, "PSICOSELYSINE[c]": 1}	true
 "NUCLEOSIDE-DIPHOSPHATASE-RXN-IDP/WATER//IMP/Pi/PROTON.25."	{"WATER[c]": -1, "Pi[c]": 1, "PROTON[c]": 1, "IDP[c]": -1, "IMP[c]": 1}	false
 "RXN-10462-GLYCEROL-3P/Palmitoyl-ACPs//1-PALMITOYLGLYCEROL-3-PHOSPHATE/ACP.64."	{"1-PALMITOYLGLYCEROL-3-PHOSPHATE[c]": 1, "GLYCEROL-3P[c]": -1, "ACP[c]": 1, "Palmitoyl-ACPs[c]": -1}	false
@@ -214,6 +211,7 @@
 "UDPHYDROXYMYRGLUCOSAMNACETYLTRANS-RXN-R-3-hydroxymyristoyl-ACPs/UDP-OHMYR-GLUCOSAMINE//OH-MYRISTOYL/ACP/PROTON.73."	{"PROTON[c]": 1, "UDP-OHMYR-GLUCOSAMINE[c]": -1, "R-3-hydroxymyristoyl-ACPs[c]": -1, "OH-MYRISTOYL[c]": 1, "ACP[c]": 1}	false
 "2.7.1.148-RXN"	{"2-PHOSPHO-4-CYTIDINE-5-DIPHOSPHO-2-C-MET[c]": 1, "4-CYTIDINE-5-DIPHOSPHO-2-C[c]": -1, "PROTON[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
 "CARBAMATE-KINASE-RXN"	{"ADP[c]": -1, "PROTON[c]": -2, "AMMONIUM[c]": 1, "ATP[c]": 1, "CARBON-DIOXIDE[c]": 1, "CARBAMOYL-P[c]": -1}	false
+"RXN0-5304"	{"CPD0-1110[c]": 1, "CPD0-1108[c]": -1}	true
 "DTDPDEHYDRHAMEPIM-RXN"	{"DTDP-DEOH-DEOXY-GLUCOSE[c]": -1, "DTDP-DEOH-DEOXY-MANNOSE[c]": 1}	false
 "TRANS-RXN0-288-ALA-GLY/PROTON//ALA-GLY/PROTON.31."	{"PROTON[c]": 1, "ALA-GLY[p]": -1, "ALA-GLY[c]": 1, "PROTON[p]": -1}	false
 "RXN0-1802-CPD-9247//CPD-9247.19."	{"CPD-9247[e]": -1, "CPD-9247[p]": 1}	false
@@ -240,7 +238,6 @@
 "RIB5PISOM-RXN"	{"RIBOSE-5P[c]": -1, "RIBULOSE-5P[c]": 1}	true
 "TAGAALDOL-RXN"	{"DIHYDROXY-ACETONE-PHOSPHATE[c]": 1, "TAGATOSE-1-6-DIPHOSPHATE[c]": -1, "GAP[c]": 1}	true
 "GUANYL-KIN-RXN"	{"ADP[c]": 1, "GDP[c]": 1, "GMP[c]": -1, "ATP[c]": -1}	false
-"RXN-11109"	{"WATER[c]": -1, "Pi[c]": 1, "PROTON[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
 "RXN0-6371"	{"WATER[p]": -1, "Acceptor[p]": -1, "Aldoses[p]": -1, "Aldonic-Acids[p]": 1, "Donor-H2[p]": 1, "PROTON[p]": 1}	true
 "UDPNACETYLMURAMATEDEHYDROG-RXN"	{"NADPH[c]": -1, "UDP-ACETYL-CARBOXYVINYL-GLUCOSAMINE[c]": -1, "PROTON[c]": -1, "UDP-N-ACETYLMURAMATE[c]": 1, "NADP[c]": 1}	false
 "KDGALDOL-RXN"	{"5-KETO-4-DEOXY-D-GLUCARATE[c]": -1, "PYRUVATE[c]": 1, "TARTRONATE-S-ALD[c]": 1}	true
@@ -297,12 +294,12 @@
 "ADOMET-DMK-METHYLTRANSFER-RXN"	{"PROTON[c]": 1, "S-ADENOSYLMETHIONINE[c]": -1, "REDUCED-MENAQUINONE[c]": 1, "ADENOSYL-HOMO-CYS[c]": 1, "CPD-12115[c]": -1}	false
 "ABC-63-RXN"	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "WATER[c]": -1, "ZN+2[c]": 1, "ATP[c]": -1, "ZN+2[p]": -1}	false
 "ASPARTATEKIN-RXN"	{"ADP[c]": 1, "L-BETA-ASPARTYL-P[c]": 1, "ATP[c]": -1, "L-ASPARTATE[c]": -1}	false
+"NUCLEOSIDE-DIPHOSPHATASE-RXN-CDP/WATER//CMP/Pi/PROTON.25."	{"WATER[c]": -1, "CMP[c]": 1, "PROTON[c]": 1, "CDP[c]": -1, "Pi[c]": 1}	false
 "H2NEOPTERINP3PYROPHOSPHOHYDRO-RXN"	{"WATER[c]": -1, "PPI[c]": 1, "DIHYDRONEOPTERIN-P[c]": 1, "PROTON[c]": 1, "DIHYDRONEOPTERIN-P3[c]": -1}	false
 "DSERDEAM-RXN"	{"PYRUVATE[c]": -1, "AMMONIUM[c]": -1, "D-SERINE[c]": 1}	true
 "1.5.1.20-RXN-CPD-1302/NAD//CPD-12996/NADH/PROTON.36."	{"NADH[c]": -1, "CPD-1302[c]": 1, "NAD[c]": 1, "PROTON[c]": -1, "CPD-12996[c]": -1}	false
 "PROLINE--TRNA-LIGASE-RXN-PRO-tRNAs/PRO/ATP/PROTON//Charged-PRO-tRNAs/AMP/PPI.52."	{"PPI[c]": 1, "PROTON[c]": -1, "PRO-tRNAs[c]": -1, "AMP[c]": 1, "PRO[c]": -1, "ATP[c]": -1, "Charged-PRO-tRNAs[c]": 1}	false
 "RXN0-884-CPD-4211/NADP/WATER//HYDROXY-METHYL-BUTENYL-DIP/NADPH/PROTON.61."	{"CPD-4211[c]": 1, "HYDROXY-METHYL-BUTENYL-DIP[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "WATER[c]": 1, "NADPH[c]": -1}	false
-"FE+2"	{"FE+2[p]": 1}	false
 "3.6.3.39-RXN-PHOSPHATIDYLETHANOLAMINE-KDO2/ATP/WATER//PHOSPHATIDYLETHANOLAMINE-KDO2/ADP/Pi/PROTON.85."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "PHOSPHATIDYLETHANOLAMINE-KDO2[p]": 1, "PHOSPHATIDYLETHANOLAMINE-KDO2[c]": -1, "ATP[c]": -1, "WATER[c]": -1}	false
 "TRANS-RXN0-468-CPD0-1311//CPD0-1311.21."	{"CPD0-1311[p]": 1, "CPD0-1311[e]": -1}	false
 "ABC-8-RXN-ATP/CPD-13401/WATER//ADP/CPD-13401/Pi/PROTON.45."	{"Pi[c]": 1, "CPD-13401[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD-13401[c]": 1}	false
@@ -310,7 +307,6 @@
 "RXN-9662-Myristoyl-ACPs/NAD//Tetradec-2-enoyl-ACPs/NADH/PROTON.54."	{"Tetradec-2-enoyl-ACPs[c]": -1, "NADH[c]": -1, "PROTON[c]": -1, "Myristoyl-ACPs[c]": 1, "NAD[c]": 1}	false
 "GLUTATHIONE-REDUCT-NADPH-RXN"	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "GLUTATHIONE[c]": 2, "OXIDIZED-GLUTATHIONE[c]": -1}	false
 "ACETOOHBUTSYN-RXN"	{"PYRUVATE[c]": -1, "PROTON[c]": -1, "2-OXOBUTANOATE[c]": -1, "CARBON-DIOXIDE[c]": 1, "2-ACETO-2-HYDROXY-BUTYRATE[c]": 1}	false
-"RXN0-7050"	{"PROTON[c]": 1, "MET[c]": -1, "MET[p]": 1, "PROTON[p]": -1}	false
 "TRANS-RXN0-573-L-1-GLYCEROPHOSPHORYLETHANOL-AMINE/ATP/WATER//L-1-GLYCEROPHOSPHORYLETHANOL-AMINE/ADP/Pi/PROTON.95."	{"Pi[c]": 1, "L-1-GLYCEROPHOSPHORYLETHANOL-AMINE[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "L-1-GLYCEROPHOSPHORYLETHANOL-AMINE[c]": 1}	false
 "PANTOATE-BETA-ALANINE-LIG-RXN"	{"PROTON[c]": 1, "AMP[c]": 1, "PPI[c]": 1, "L-PANTOATE[c]": -1, "ATP[c]": -1, "B-ALANINE[c]": -1, "PANTOTHENATE[c]": 1}	false
 "AICARSYN-RXN"	{"AICAR[c]": 1, "P-RIBOSYL-4-SUCCCARB-AMINOIMIDAZOLE[c]": -1, "FUM[c]": 1}	false
@@ -355,7 +351,6 @@
 "TRANS-RXN-237-KDO2-LIPID-IVA-COLD//KDO2-LIPID-IVA-COLD.41."	{"KDO2-LIPID-IVA-COLD[c]": -1, "KDO2-LIPID-IVA-COLD[e]": 1}	false
 "RXN0-1461"	{"OXYGEN-MOLECULE[c]": -1, "PROTOPORPHYRINOGEN[c]": 1, "PROTON[c]": -2, "COPROPORPHYRINOGEN_III[c]": -1, "WATER[c]": 2, "CARBON-DIOXIDE[c]": 2}	false
 "RXN0-5330-NADH/UBIQUINONE-8/PROTON//NAD/CPD-9956.39."	{"NADH[c]": -1, "PROTON[c]": -1, "NAD[c]": 1, "UBIQUINONE-8[i]": -1, "CPD-9956[i]": 1}	false
-"GLYCEROL"	{"GLYCEROL[p]": -1}	false
 "TRANS-RXN0-569-CPD-424//CPD-424.17."	{"CPD-424[p]": 1, "CPD-424[c]": -1}	false
 "TRANS-RXN-237-CPD0-1283//CPD0-1283.21."	{"CPD0-1283[e]": 1, "CPD0-1283[c]": -1}	false
 "TRANS-RXN-126B"	{"LEU[p]": -1, "LEU[c]": 1, "NA+[p]": -1, "NA+[c]": 1}	false
@@ -399,13 +394,13 @@
 "RXN-9536-R-3-hydroxymyristoyl-ACPs/NADP//3-oxo-myristoyl-ACPs/NADPH/PROTON.66."	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "R-3-hydroxymyristoyl-ACPs[c]": 1, "3-oxo-myristoyl-ACPs[c]": -1}	false
 "ABC-27-RXN"	{"Pi[c]": 2, "ADP[c]": 1, "PROTON[c]": 1, "WATER[c]": -1, "ATP[c]": -1, "Pi[p]": -1}	false
 "URIDINEKIN-RXN"	{"URIDINE[c]": -1, "PROTON[c]": 1, "UMP[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
-"RXN0-5304"	{"CPD0-1110[c]": 1, "CPD0-1108[c]": -1}	true
+"ENOYL-COA-DELTA-ISOM-RXN-CPD-7221//CPD-7222.19."	{"CPD-7221[c]": -1, "CPD-7222[c]": 1}	true
 "RXN-15147"	{"SUC[c]": 1, "CPD-15056[c]": 1, "O-SUCCINYL-L-HOMOSERINE[c]": -1, "PROTON[c]": 2}	false
 "RXN0-5190[CCI-PERI-BAC-GN]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.113."	{"NAcMur-Peptide-NAcGlc-Undecaprenols[3]": 1, "GLUTATHIONE[c]": -1, "GlcNAc-1-6-anhydro-MurNAc-pentapeptide[3]": 1}	true
 "TRANS-RXN0-569-CARBAMYUL-L-ASPARTATE//CARBAMYUL-L-ASPARTATE.45."	{"CARBAMYUL-L-ASPARTATE[c]": -1, "CARBAMYUL-L-ASPARTATE[p]": 1}	false
 "PYRIMSYN1-RXN"	{"CH33ADO[c]": 1, "PROTON[c]": 3, "S-ADENOSYLMETHIONINE[c]": -1, "5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE[c]": -1, "MET[c]": 1, "CARBON-MONOXIDE[c]": 1, "AMINO-HYDROXYMETHYL-METHYL-PYR-P[c]": 1, "FORMATE[c]": 1}	false
 "SERINE-O-ACETTRAN-RXN"	{"CO-A[c]": 1, "ACETYLSERINE[c]": 1, "ACETYL-COA[c]": -1, "SER[c]": -1}	false
-"SUC"	{"SUC[p]": -1}	false
+"MANNPDEHYDROG-RXN"	{"NADH[c]": -1, "PROTON[c]": -1, "FRUCTOSE-6P[c]": -1, "NAD[c]": 1, "MANNITOL-1P[c]": 1}	true
 "TRANS-RXN0-443-CPD-7836//CPD-7836.19."	{"CPD-7836[c]": 1, "CPD-7836[p]": -1}	false
 "RXN-14382"	{"Cysteine-Desulfurase-L-cysteine[c]": 1, "L-Cysteine-Desulfurase-persulfide[c]": -1, "Sulfur-Carrier-Proteins-ThiI[c]": -1, "Sulfurylated-ThiI[c]": 1}	false
 "TRANS-RXN0-554"	{"L-ASPARTATE[p]": -1, "L-ASPARTATE[c]": 1}	false
@@ -428,7 +423,6 @@
 "RXN0-1802-CPD-9245//CPD-9245.19."	{"CPD-9245[e]": -1, "CPD-9245[p]": 1}	false
 "TRANS-RXN-237-CPD0-1048//CPD0-1048.21."	{"CPD0-1048[c]": -1, "CPD0-1048[e]": 1}	false
 "ENOYL-COA-HYDRAT-RXN-CPD0-2107//CPD-7222/WATER.26."	{"WATER[c]": -1, "CPD-7222[c]": -1, "CPD0-2107[c]": 1}	false
-"ADP"	{"ADP[c]": 1}	false
 "RXN-10658-Cis-Delta7-tetradecenoyl-ACPs/MALONYL-ACP/PROTON//3-oxo-cis-D9-hexadecenoyl-ACPs/ACP/CARBON-DIOXIDE.100."	{"PROTON[c]": -1, "ACP[c]": 1, "Cis-Delta7-tetradecenoyl-ACPs[c]": -1, "3-oxo-cis-D9-hexadecenoyl-ACPs[c]": 1, "CARBON-DIOXIDE[c]": 1, "MALONYL-ACP[c]": -1}	false
 "GLYOXII-RXN"	{"WATER[c]": -1, "PROTON[c]": 1, "S-LACTOYL-GLUTATHIONE[c]": -1, "GLUTATHIONE[c]": 1, "D-LACTATE[c]": 1}	false
 "MMUM-RXN"	{"HOMO-CYS[c]": -1, "PROTON[c]": 1, "CPD-397[c]": -1, "MET[c]": 2}	true
@@ -451,7 +445,6 @@
 "ABC-2-RXN-ATP/CPD-12045/WATER//ADP/CPD-12045/Pi/PROTON.45."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "CPD-12045[p]": -1, "ATP[c]": -1, "WATER[c]": -1, "CPD-12045[c]": 1}	false
 "PGPPHOSPHA-RXN-CPD-12820/WATER//CPD-12822/Pi.30."	{"WATER[c]": -1, "CPD-12820[c]": -1, "CPD-12822[c]": 1, "Pi[c]": 1}	false
 "RXN-9658-Hexanoyl-ACPs/NAD//Hex-2-enoyl-ACPs/NADH/PROTON.48."	{"Hex-2-enoyl-ACPs[c]": -1, "NADH[c]": -1, "PROTON[c]": -1, "Hexanoyl-ACPs[c]": 1, "NAD[c]": 1}	false
-"GLYCOLLATE"	{"GLYCOLLATE[c]": -1}	false
 "HOLO-ACP-SYNTH-RXN-Apo-PigJ/CO-A//3-5-ADP/PigJ/PROTON.35."	{"CO-A[c]": -1, "PROTON[c]": 1, "Apo-PigJ[c]": -1, "3-5-ADP[c]": 1, "PigJ[c]": 1}	false
 "5-FORMYL-THF-CYCLO-LIGASE-RXN-5-FORMYL-THF/ATP//5-10-METHENYL-THF/ADP/Pi.43."	{"5-FORMYL-THF[c]": -1, "Pi[c]": 1, "5-10-METHENYL-THF[c]": 1, "ATP[c]": -1, "ADP[c]": 1}	false
 "UGD-RXN"	{"NADH[c]": 2, "NAD[c]": -2, "PROTON[c]": 3, "UDP-GLUCURONATE[c]": 1, "CPD-12575[c]": -1, "WATER[c]": -1}	false
@@ -465,12 +458,10 @@
 "5.4.2.10-RXN-GLUCOSAMINE-1P//CPD-13469.26."	{"GLUCOSAMINE-1P[c]": -1, "CPD-13469[c]": 1}	true
 "INOSINE-NUCLEOSIDASE-RXN"	{"WATER[c]": -1, "INOSINE[c]": -1, "D-Ribofuranose[c]": 1, "HYPOXANTHINE[c]": 1}	false
 "UDP-NACMURALGLDAPLIG-RXN"	{"Pi[c]": 1, "UDP-AAGM-DIAMINOHEPTANEDIOATE[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "MESO-DIAMINOPIMELATE[c]": -1, "UDP-AA-GLUTAMATE[c]": -1, "ATP[c]": -1}	false
-"CPD0-2167"	{"CPD0-2167[c]": -1}	false
 "TRANS-RXN0-468-DEOXYURIDINE//DEOXYURIDINE.27."	{"DEOXYURIDINE[p]": 1, "DEOXYURIDINE[e]": -1}	false
 "HISTPRATPHYD-RXN"	{"WATER[c]": -1, "PPI[c]": 1, "PROTON[c]": 2, "PHOSPHORIBOSYL-AMP[c]": 1, "PHOSPHORIBOSYL-ATP[c]": -1}	false
 "TRANS-RXN0-569-CPD-404//CPD-404.17."	{"CPD-404[c]": -1, "CPD-404[p]": 1}	false
 "PALMITOTRANS-RXN-Palmitoleoyl-ACPs/KDO2-LIPID-IVA//KDO2-PALMITOLEOYL-LIPID-IVA/ACP.66."	{"KDO2-PALMITOLEOYL-LIPID-IVA[c]": 1, "Palmitoleoyl-ACPs[c]": -1, "ACP[c]": 1, "KDO2-LIPID-IVA[c]": -1}	false
-"MN+2"	{"MN+2[p]": 1}	false
 "TRANS-RXN0-265-TYR//TYR.9."	{"TYR[c]": -1, "TYR[p]": 1}	false
 "RXN0-1483[CCO-PERI-BAC]-FE+2/PROTON/OXYGEN-MOLECULE//FE+3/WATER.54."	{"WATER[p]": 2, "FE+2[p]": -4, "OXYGEN-MOLECULE[p]": -1, "FE+3[p]": 4, "PROTON[p]": -4}	false
 "2-OCTAPRENYLPHENOL-HYDROX-RXN"	{"OXYGEN-MOLECULE[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "WATER[c]": 1, "2-OCTAPRENYLPHENOL[c]": -1, "NADPH[c]": -1, "2-OCTAPRENYL-6-HYDROXYPHENOL[c]": 1}	false
@@ -489,13 +480,11 @@
 "TRANS-RXN0-468-DEOXYCYTIDINE//DEOXYCYTIDINE.29."	{"DEOXYCYTIDINE[p]": 1, "DEOXYCYTIDINE[e]": -1}	false
 "DTDPDEHYRHAMREDUCT-RXN"	{"NADPH[c]": -1, "NADP[c]": 1, "DTDP-DEOH-DEOXY-MANNOSE[c]": -1, "DTDP-RHAMNOSE[c]": 1, "PROTON[c]": -1}	false
 "PEROXID-RXN[CCO-PERI-BAC]-Phenolic-Donors/HYDROGEN-PEROXIDE//Phenoxyl-rad-of-phenolic-donors/WATER.87."	{"WATER[p]": 2, "Phenolic-Donors[p]": -2, "Phenoxyl-rad-of-phenolic-donors[p]": 2, "HYDROGEN-PEROXIDE[p]": -1}	true
-"D-LACTATE"	{"D-LACTATE[p]": -1}	false
 "RXN0-6435-CARBAMOYL-P/HypE-Proteins/ATP/WATER//HypE-S-carboxamide/AMP/PPI/Pi.67."	{"Pi[c]": 1, "HypE-Proteins[c]": -1, "CARBAMOYL-P[c]": -1, "AMP[c]": 1, "PPI[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "HypE-S-carboxamide[c]": 1}	false
 "PGLYCEROLTRANSI-RXN"	{"L-1-PHOSPHATIDYL-GLYCEROL[p]": 1, "MDO-D-Glucoses[p]": 1, "DIACYLGLYCEROL[p]": -1, "CPD-16400[p]": -1, "PROTON[p]": -1}	true
 "RXN0-5190[CCO-CYTOSOL]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.109."	{"NAcMur-Peptide-NAcGlc-Undecaprenols[c]": -1, "Peptidoglycan-dimer[c]": 1, "GlcNAc-1-6-anhydro-MurNAc-pentapeptide[c]": -1}	true
 "RXN0-4641-CPD0-881/WATER//CPD-16168/D-LACTATE.36."	{"WATER[c]": -1, "CPD-16168[c]": 1, "CPD0-881[c]": -1, "D-LACTATE[c]": 1}	true
 "GLYCINE--TRNA-LIGASE-RXN-GLY-tRNAs/GLY/ATP/PROTON//Charged-GLY-tRNAs/AMP/PPI.52."	{"Charged-GLY-tRNAs[c]": 1, "PROTON[c]": -1, "AMP[c]": 1, "PPI[c]": 1, "GLY-tRNAs[c]": -1, "ATP[c]": -1, "GLY[c]": -1}	false
-"S-ADENOSYL-4-METHYLTHIO-2-OXOBUTANOATE"	{"S-ADENOSYL-4-METHYLTHIO-2-OXOBUTANOATE[c]": -1}	false
 "TRANS-RXN0-288-CARNOSINE/PROTON//CARNOSINE/PROTON.35."	{"CARNOSINE[p]": -1, "CARNOSINE[c]": 1, "PROTON[c]": 1, "PROTON[p]": -1}	false
 "ACYLCOASYN-RXN-STEARIC_ACID/CO-A/ATP//STEAROYL-COA/PPI/AMP.44."	{"AMP[c]": 1, "CO-A[c]": -1, "PPI[c]": 1, "ATP[c]": -1, "STEARIC_ACID[c]": -1, "STEAROYL-COA[c]": 1}	false
 "OHACYL-COA-DEHYDROG-RXN-NAD/CPD0-2253//NADH/CPD-10260/PROTON.37."	{"CPD0-2253[c]": -1, "PROTON[c]": 1, "CPD-10260[c]": 1, "NAD[c]": -1, "NADH[c]": 1}	false
@@ -517,7 +506,6 @@
 "1TRANSKETO-RXN"	{"XYLULOSE-5-PHOSPHATE[c]": 1, "GAP[c]": -1, "RIBOSE-5P[c]": 1, "D-SEDOHEPTULOSE-7-P[c]": -1}	true
 "PYRIDOXKIN-RXN"	{"PROTON[c]": 1, "PYRIDOXAL[c]": -1, "PYRIDOXAL_PHOSPHATE[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
 "3-HYDROXYDECANOYL-ACP-DEHYDR-RXN-R-3-hydroxydodecanoyl-ACPs//Dodec-2-enoyl-ACPs/WATER.53."	{"WATER[c]": 1, "Dodec-2-enoyl-ACPs[c]": 1, "R-3-hydroxydodecanoyl-ACPs[c]": -1}	false
-"SULFATE"	{"SULFATE[p]": 1}	false
 "TRANS-RXN0-288-CPD0-2190/PROTON//CPD0-2190/PROTON.35."	{"PROTON[c]": 1, "CPD0-2190[p]": -1, "CPD0-2190[c]": 1, "PROTON[p]": -1}	false
 "CHORISMATEMUT-RXN"	{"PREPHENATE[c]": 1, "CHORISMATE[c]": -1}	false
 "3.6.3.39-RXN-CPD0-930/ATP/WATER//CPD0-930/ADP/Pi/PROTON.43."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "CPD0-930[p]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD0-930[c]": -1}	false
@@ -526,7 +514,6 @@
 "RXN-12754"	{"WATER[c]": -1, "NADH[c]": -1, "CPD0-2472[c]": 1}	false
 "NAPHTHOATE-SYN-RXN"	{"WATER[c]": 1, "CPD-6972[c]": -1, "PROTON[c]": -1, "CPD-9925[c]": 1}	false
 "RXN-12752"	{"CPD0-2472[c]": -1, "CPD-653[c]": 1}	true
-"CL-"	{"CL-[p]": 1}	false
 "KETOACYLCOATHIOL-RXN-PALMITYL-COA/ACETYL-COA//CPD-10260/CO-A.40."	{"CO-A[c]": -1, "CPD-10260[c]": -1, "ACETYL-COA[c]": 1, "PALMITYL-COA[c]": 1}	false
 "RXN0-5329"	{"CPD0-1123[c]": 1, "CPD0-1122[c]": -1}	true
 "DUDPKIN-RXN"	{"DUDP[c]": -1, "ADP[c]": 1, "ATP[c]": -1, "DUTP[c]": 1}	false
@@ -537,16 +524,14 @@
 "TRANS-RXN0-545"	{"CARBON-DIOXIDE[c]": 1, "CARBON-DIOXIDE[p]": -1}	true
 "TRANS-RXN0-544"	{"AMMONIA[p]": 1, "AMMONIA[c]": -1}	true
 "HOLO-ACP-SYNTH-RXN-CmaA-peptidyl-carrier-protein/CO-A//3-5-ADP/Holo-CmaA-peptidyl-carrier-protein/PROTON.86."	{"CO-A[c]": -1, "Holo-CmaA-peptidyl-carrier-protein[c]": 1, "3-5-ADP[c]": 1, "PROTON[c]": 1, "CmaA-peptidyl-carrier-protein[c]": -1}	false
-"URACIL"	{"URACIL[p]": -1}	false
 "ACYLCOADEHYDROG-RXN-STEAROYL-COA/ETF-Oxidized/PROTON//CPD-10262/ETF-Reduced.56."	{"CPD-10262[c]": 1, "STEAROYL-COA[c]": -1, "ETF-Oxidized[c]": -1, "PROTON[c]": -1, "ETF-Reduced[c]": 1}	false
 "MANNONDEHYDRAT-RXN"	{"WATER[c]": 1, "D-MANNONATE[c]": -1, "2-DEHYDRO-3-DEOXY-D-GLUCONATE[c]": 1}	false
 "DIHYDRODIPICSYN-RXN"	{"WATER[c]": 1, "CPD-14443[c]": 1, "PROTON[c]": 1, "PYRUVATE[c]": -1, "L-ASPARTATE-SEMIALDEHYDE[c]": -1}	false
 "THREONINE-ALDOLASE-RXN"	{"ACETALD[c]": 1, "THR[c]": -1, "GLY[c]": 1}	false
-"ENOYL-COA-DELTA-ISOM-RXN-CPD-7221//CPD-7222.19."	{"CPD-7221[c]": -1, "CPD-7222[c]": 1}	true
 "RXN-15578"	{"PROTON[c]": 1, "TRP[c]": -1, "2-AMINOACRYLATE[c]": 1, "INDOLE[c]": 1}	false
 "ACYLCOADEHYDROG-RXN-TETRADECANOYL-COA/ETF-Oxidized/PROTON//POLYMER-INST-TRANS-D2-ENOYL-COA-C10-H20/ETF-Reduced.91."	{"POLYMER-INST-TRANS-D2-ENOYL-COA-C10-H20[c]": 1, "TETRADECANOYL-COA[c]": -1, "ETF-Oxidized[c]": -1, "PROTON[c]": -1, "ETF-Reduced[c]": 1}	false
 "RXN-14116"	{"NADH[c]": 1, "NAD[c]": -1, "GLT[c]": 1, "PROTON[c]": 2, "L-GLUTAMATE_GAMMA-SEMIALDEHYDE[c]": -1, "WATER[c]": -1}	false
-"Glucopyranose"	{"Glucopyranose[p]": -1}	false
+"RXN-11482-Pimeloyl-ACP-methyl-esters/NAD//Enoylpimeloyl-ACP-methyl-esters/NADH/PROTON.76."	{"NADH[c]": -1, "PROTON[c]": -1, "Pimeloyl-ACP-methyl-esters[c]": 1, "NAD[c]": 1, "Enoylpimeloyl-ACP-methyl-esters[c]": -1}	false
 "GLYOXIII-RXN"	{"METHYL-GLYOXAL[c]": -1, "WATER[c]": -1, "PROTON[c]": 1, "D-LACTATE[c]": 1}	false
 "RXN-14285"	{"Pi[c]": 1, "GLC-1-P[c]": -1, "MALTOHEXAOSE[c]": 1, "MALTOPENTAOSE[c]": -1}	true
 "RXN-14284"	{"MALTOTETRAOSE[c]": 1, "GLC-1-P[c]": 1, "MALTOPENTAOSE[c]": -1, "Pi[c]": -1}	true
@@ -578,7 +563,6 @@
 "RXN-9659-Octanoyl-ACPs/NAD//2-Octenoyl-ACPs/NADH/PROTON.47."	{"NADH[c]": -1, "PROTON[c]": -1, "Octanoyl-ACPs[c]": 1, "2-Octenoyl-ACPs[c]": -1, "NAD[c]": 1}	false
 "3.6.3.39-RXN-CPD0-1050/ATP/WATER//CPD0-1050/ADP/Pi/PROTON.45."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "CPD0-1050[p]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD0-1050[c]": -1}	false
 "TRANS-RXN0-288-CPD-13398/PROTON//CPD-13398/PROTON.35."	{"PROTON[c]": 1, "CPD-13398[c]": 1, "CPD-13398[p]": -1, "PROTON[p]": -1}	false
-"MANNPDEHYDROG-RXN"	{"NADH[c]": -1, "PROTON[c]": -1, "FRUCTOSE-6P[c]": -1, "NAD[c]": 1, "MANNITOL-1P[c]": 1}	true
 "2.6.1.82-RXN"	{"WATER[c]": -1, "GLT[c]": -1, "CPD-6124[c]": -1, "2-KETOGLUTARATE[c]": 1, "PUTRESCINE[c]": 1}	true
 "KETOBUTFORMLY-RXN"	{"CO-A[c]": -1, "PROPIONYL-COA[c]": 1, "2-OXOBUTANOATE[c]": -1, "FORMATE[c]": 1}	false
 "ALTRODEHYDRAT-RXN"	{"WATER[c]": 1, "2-DEHYDRO-3-DEOXY-D-GLUCONATE[c]": 1, "D-ALTRONATE[c]": -1}	false
@@ -629,26 +613,23 @@
 "PPENTOMUT-RXN"	{"RIBOSE-5P[c]": -1, "RIBOSE-1P[c]": 1}	true
 "3-HYDROXYDECANOYL-ACP-DEHYDR-RXN-R-3-Hydroxypalmitoyl-ACPs//2-Hexadecenoyl-ACPs/WATER.53."	{"WATER[c]": 1, "R-3-Hydroxypalmitoyl-ACPs[c]": -1, "2-Hexadecenoyl-ACPs[c]": 1}	false
 "METHYLMALONYL-COA-MUT-RXN"	{"SUC-COA[c]": 1, "METHYL-MALONYL-COA[c]": -1}	true
-"BUTANAL"	{"BUTANAL[c]": -1}	false
 "INOPHOSPHOR-RXN"	{"Pi[c]": -1, "INOSINE[c]": -1, "HYPOXANTHINE[c]": 1, "RIBOSE-1P[c]": 1}	true
 "TRANS-RXN-106A"	{"SUC[c]": -1, "SUC[p]": 1, "L-ASPARTATE[p]": -1, "L-ASPARTATE[c]": 1}	false
 "RXN0-5364"	{"OXYGEN-MOLECULE[c]": -1, "CPD-381[c]": -1, "HYDROGEN-PEROXIDE[c]": 1, "2-KETOGLUTARATE[c]": 1}	false
 "TRANS-RXN-106B"	{"SUC[c]": -1, "MAL[p]": -1, "MAL[c]": 1, "SUC[p]": 1}	false
 "RXN0-5363"	{"Alpha-lactose[c]": 1, "ALLOLACTOSE[c]": -1}	true
 "TRANS-RXN-76"	{"PROTON[c]": 1, "TRP[c]": 1, "TRP[p]": -1, "PROTON[p]": -1}	false
-"UREA"	{"UREA[p]": -1}	false
 "TRANS-RXN0-265-HIS//HIS.9."	{"HIS[p]": 1, "HIS[c]": -1}	false
 "RXN0-6988"	{"WATER[c]": -1, "PRO[c]": 1, "CPD-10814[c]": -1, "GLY[c]": 1}	false
-"CPD-564"	{"CPD-564[c]": -1}	false
+"RXN0-6987"	{"WATER[c]": -1, "GLY[c]": 1, "CPD-13406[c]": -1, "L-ASPARTATE[c]": 1}	false
 "RXN-5822[CCO-PERI-BAC]-NADP/WATER//NAD/Pi.33."	{"Pi[p]": 1, "WATER[p]": -1, "NADP[p]": -1, "NAD[p]": 1}	false
 "RXN0-6985"	{"WATER[c]": -1, "MET[c]": 1, "L-ALPHA-ALANINE[c]": 1, "CPD-13390[c]": -1}	false
 "RXN0-6984"	{"WATER[c]": -1, "GLT[c]": 1, "CPD-3569[c]": -1, "GLY[c]": 1}	false
-"CPD-560"	{"CPD-560[p]": -1}	false
+"RXN0-6983"	{"WATER[c]": -1, "CPD-13394[c]": -1, "GLN[c]": 1, "GLY[c]": 1}	false
 "MALIC-NADP-RXN"	{"NADPH[c]": 1, "NADP[c]": -1, "CARBON-DIOXIDE[c]": 1, "MAL[c]": -1, "PYRUVATE[c]": 1}	false
 "RXN0-6981"	{"WATER[c]": -1, "GLT[c]": 1, "L-ALPHA-ALANINE[c]": 1, "CPD0-1445[c]": -1}	false
 "RXN0-6980"	{"WATER[c]": -1, "CPD-13397[c]": -1, "THR[c]": 1, "L-ALPHA-ALANINE[c]": 1}	false
 "TRANS-RXN-157"	{"GLC[p]": -1, "PTSH-PHOSPHORYLATED[c]": -1, "GLC-6-P[c]": 1, "PTSH-MONOMER[c]": 1}	false
-"ATP"	{"ATP[c]": -1}	false
 "TRANS-RXN0-468-CPD0-1312//CPD0-1312.21."	{"CPD0-1312[e]": -1, "CPD0-1312[p]": 1}	false
 "DARABALDOL-RXN"	{"DIHYDROXY-ACETONE-PHOSPHATE[c]": -1, "GLYCOLALDEHYDE[c]": -1, "D-RIBULOSE-1-P[c]": 1}	true
 "FPPSYN-RXN"	{"GERANYL-PP[c]": -1, "PPI[c]": 1, "DELTA3-ISOPENTENYL-PP[c]": -1, "FARNESYL-PP[c]": 1}	false
@@ -657,7 +638,6 @@
 "HISTOLDEHYD-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "HISTIDINAL[c]": 1, "NAD[c]": -1, "HISTIDINOL[c]": -1}	false
 "RXN0-5182"	{"MALTOTRIOSE[c]": -1, "MALTOTETRAOSE[c]": 1, "GLC-1-P[c]": -1, "Pi[c]": 1}	true
 "RXN0-5183"	{"WATER[c]": -1, "MALTOTRIOSE[c]": -1, "Glucopyranose[c]": 1, "MALTOSE[c]": 1}	false
-"CARBON-MONOXIDE"	{"CARBON-MONOXIDE[p]": -1}	false
 "DMK-RXN"	{"CPD-12115[c]": 1, "OCTAPRENYL-DIPHOSPHATE[c]": -1, "PROTON[c]": -1, "PPI[c]": 1, "CARBON-DIOXIDE[c]": 1, "DIHYDROXYNAPHTHOATE[c]": -1}	false
 "RXN0-5391"	{"CPD0-1162[c]": -1, "CPD0-1158[c]": 1}	true
 "RXN0-5185"	{"CPD-2961[c]": -1, "WATER[c]": -1, "Pi[c]": 1, "GLUCONATE[c]": 1}	false
@@ -676,7 +656,7 @@
 "HISTIDINE--TRNA-LIGASE-RXN-HIS-tRNAs/HIS/ATP/PROTON//Charged-HIS-tRNAs/AMP/PPI.52."	{"PROTON[c]": -1, "HIS[c]": -1, "AMP[c]": 1, "PPI[c]": 1, "Charged-HIS-tRNAs[c]": 1, "ATP[c]": -1, "HIS-tRNAs[c]": -1}	false
 "TRANS-RXN0-573-CPD-12822/ATP/WATER//CPD-12822/ADP/Pi/PROTON.45."	{"Pi[c]": 1, "CPD-12822[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD-12822[p]": -1}	false
 "ALLANTOINASE-RXN"	{"WATER[c]": -1, "ALLANTOATE[c]": 1, "PROTON[c]": 1, "S-ALLANTOIN[c]": -1}	false
-"ACYL-COA-HYDROLASE-RXN-LAUROYLCOA-CPD/WATER//DODECANOATE/CO-A/PROTON.46."	{"WATER[c]": -1, "CO-A[c]": 1, "PROTON[c]": 1, "DODECANOATE[c]": 1, "LAUROYLCOA-CPD[c]": -1}	false
+"RXN0-7050"	{"PROTON[c]": 1, "MET[c]": -1, "MET[p]": 1, "PROTON[p]": -1}	false
 "TRANS-RXN-237-CPD0-937//CPD0-937.19."	{"CPD0-937[c]": -1, "CPD0-937[e]": 1}	false
 "RXN0-884-CPD-4211/NAD/WATER//HYDROXY-METHYL-BUTENYL-DIP/NADH/PROTON.59."	{"CPD-4211[c]": 1, "NADH[c]": -1, "NAD[c]": 1, "HYDROXY-METHYL-BUTENYL-DIP[c]": -1, "PROTON[c]": -1, "WATER[c]": 1}	false
 "TRANS-RXN0-200"	{"ZN+2[p]": 1, "PROTON[c]": 1, "ZN+2[c]": -1, "PROTON[p]": -1}	false
@@ -717,7 +697,6 @@
 "VALINE--TRNA-LIGASE-RXN-VAL-tRNAs/VAL/ATP/PROTON//Charged-VAL-tRNAs/AMP/PPI.52."	{"VAL[c]": -1, "PROTON[c]": -1, "Charged-VAL-tRNAs[c]": 1, "AMP[c]": 1, "PPI[c]": 1, "ATP[c]": -1, "VAL-tRNAs[c]": -1}	false
 "THREOSPON-RXN"	{"AMINO-OXOBUT[c]": -1, "PROTON[c]": -1, "CARBON-DIOXIDE[c]": 1, "AMINO-ACETONE[c]": 1}	false
 "RXN-12587"	{"Unsulfurated-Sulfur-Acceptors[c]": 1, "Cysteine-Desulfurase-L-cysteine[c]": -1, "L-Cysteine-Desulfurase-persulfide[c]": 1, "Sulfurated-Sulfur-Acceptors[c]": -1}	true
-"METOH"	{"METOH[p]": -1}	false
 "TRANS-RXN-29A"	{"BETAINE[c]": 1, "PROTON[c]": 1, "BETAINE[p]": -1, "PROTON[p]": -1}	false
 "TRANS-RXN0-569-L-2-AMINOPENTANOIC-ACID//L-2-AMINOPENTANOIC-ACID.49."	{"L-2-AMINOPENTANOIC-ACID[c]": -1, "L-2-AMINOPENTANOIC-ACID[p]": 1}	false
 "OXALYL-COA-DECARBOXYLASE-RXN"	{"OXALYL-COA[c]": -1, "PROTON[c]": -1, "CARBON-DIOXIDE[c]": 1, "FORMYL-COA[c]": 1}	true
@@ -747,9 +726,9 @@
 "NADH-DEHYDROGENASE-QUINONE-RXN"	{"NADH[c]": -1, "CPD-3766[c]": -1, "MENADIOL[c]": 1, "PROTON[c]": -1, "NAD[c]": 1}	true
 "DADPKIN-RXN"	{"DADP[c]": -1, "DATP[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
 "RXN-9952"	{"CPD-2961[c]": -1, "NADPH[c]": 1, "CARBON-DIOXIDE[c]": 1, "RIBULOSE-5P[c]": 1, "NADP[c]": -1}	false
-"HISTALDEHYD-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "PROTON[c]": 2, "HIS[c]": 1, "WATER[c]": -1, "HISTIDINAL[c]": -1}	false
-"3-ISOPROPYLMALDEHYDROG-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "CPD-7100[c]": 1, "NAD[c]": -1, "2-D-THREO-HYDROXY-3-CARBOXY-ISOCAPROATE[c]": -1}	true
 "OHACYL-COA-DEHYDROG-RXN-NAD/CPD0-2224//NADH/CPD0-2106/PROTON.37."	{"NADH[c]": 1, "PROTON[c]": 1, "CPD0-2224[c]": -1, "NAD[c]": -1, "CPD0-2106[c]": 1}	false
+"3-ISOPROPYLMALDEHYDROG-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "CPD-7100[c]": 1, "NAD[c]": -1, "2-D-THREO-HYDROXY-3-CARBOXY-ISOCAPROATE[c]": -1}	true
+"HISTALDEHYD-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "PROTON[c]": 2, "HIS[c]": 1, "WATER[c]": -1, "HISTIDINAL[c]": -1}	false
 "RXN-9524-3-Hydroxy-octanoyl-ACPs/NADP//3-Oxo-octanoyl-ACPs/NADPH/PROTON.63."	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "3-Hydroxy-octanoyl-ACPs[c]": 1, "3-Oxo-octanoyl-ACPs[c]": -1}	false
 "PRTRANS-RXN"	{"PPI[c]": 1, "N-5-PHOSPHORIBOSYL-ANTHRANILATE[c]": 1, "PRPP[c]": -1, "ANTHRANILATE[c]": -1}	false
 "TRANS-RXN0-569-N-ALPHA-ACETYLORNITHINE//N-ALPHA-ACETYLORNITHINE.49."	{"N-ALPHA-ACETYLORNITHINE[c]": -1, "N-ALPHA-ACETYLORNITHINE[p]": 1}	false
@@ -770,7 +749,6 @@
 "RXN0-5220"	{"WATER[c]": -1, "PROTON[c]": 1, "OH[c]": 1}	true
 "TRANS-RXN-237-KDO2-LAUROYL-LIPID-IVA//KDO2-LAUROYL-LIPID-IVA.47."	{"KDO2-LAUROYL-LIPID-IVA[c]": -1, "KDO2-LAUROYL-LIPID-IVA[e]": 1}	false
 "RXN-7968-SHIKIMATE/NADP//3-DEHYDRO-SHIKIMATE/NADPH/PROTON.49."	{"NADPH[c]": -1, "3-DEHYDRO-SHIKIMATE[c]": -1, "PROTON[c]": -1, "SHIKIMATE[c]": 1, "NADP[c]": 1}	false
-"CARBON-DIOXIDE"	{"CARBON-DIOXIDE[p]": -1}	false
 "RXN0-1981"	{"ACET[p]": -1, "ACET[c]": 1}	false
 "RXN-12197"	{"WATER[c]": -1, "Pi[c]": 1, "UDP[c]": -1, "UMP[c]": 1, "PROTON[c]": 1}	false
 "RXN-12195"	{"CTP[c]": -1, "WATER[c]": -1, "PROTON[c]": 1, "CDP[c]": 1, "Pi[c]": 1}	false
@@ -838,13 +816,11 @@
 "TRANS-RXN0-459"	{"METOH[c]": -1, "METOH[p]": 1}	false
 "TRANS-RXN-114"	{"Pi[p]": -1, "Pi[c]": 1, "PROTON[c]": 1, "PROTON[p]": -1}	false
 "TRANS-RXN0-569-GLN//GLN.9."	{"GLN[c]": -1, "GLN[p]": 1}	false
-"CPD0-1958"	{"CPD0-1958[p]": 1}	false
 "TRANS-RXN-118"	{"PRO[c]": 1, "PRO[p]": -1, "NA+[p]": -1, "NA+[c]": 1}	false
 "TSA-REDUCT-RXN-GLYCERATE/NADP//TARTRONATE-S-ALD/NADPH/PROTON.46."	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "GLYCERATE[c]": 1, "TARTRONATE-S-ALD[c]": -1}	false
 "HOMOSERKIN-RXN"	{"ADP[c]": 1, "HOMO-SER[c]": -1, "PROTON[c]": 1, "O-PHOSPHO-L-HOMOSERINE[c]": 1, "ATP[c]": -1}	false
 "THYM-PHOSPH-RXN"	{"THYMIDINE[c]": -1, "DEOXY-D-RIBOSE-1-PHOSPHATE[c]": 1, "THYMINE[c]": 1, "Pi[c]": -1}	true
 "RXN0-5228"	{"CPD0-2190[c]": 1, "CPD0-1445[c]": -1}	true
-"RXN0-1802-PALMITATE//PALMITATE.21."	{"PALMITATE[e]": -1, "PALMITATE[p]": 1}	false
 "DIMETHUROPORDEHYDROG-RXN"	{"DIHYDROSIROHYDROCHLORIN[c]": 1, "NADH[c]": -1, "SIROHYDROCHLORIN[c]": -1, "PROTON[c]": -2, "NAD[c]": 1}	true
 "FUCULOKIN-RXN"	{"ADP[c]": 1, "PROTON[c]": 1, "L-FUCULOSE[c]": -1, "ATP[c]": -1, "FUCULOSE-1P[c]": 1}	false
 "RXN-14139"	{"WATER[c]": -1, "UTP[c]": -1, "PPI[c]": 1, "UMP[c]": 1, "PROTON[c]": 1}	false
@@ -878,6 +854,7 @@
 "RIBONUCLEOSIDE-DIP-REDUCTI-RXN-Ox-Thioredoxin/CPD0-2231/WATER//Red-Thioredoxin/IDP.52."	{"WATER[c]": 1, "Red-Thioredoxin[c]": -1, "Ox-Thioredoxin[c]": 1, "CPD0-2231[c]": 1, "IDP[c]": -1}	false
 "TRANS-RXN-238-CPD0-2521/ATP/WATER//CPD0-2521/ADP/Pi/PROTON.45."	{"Pi[c]": 1, "CPD0-2521[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "CPD0-2521[c]": 1, "ATP[c]": -1, "WATER[c]": -1}	false
 "ACYLCOASYN-RXN-CPD-3617/CO-A/ATP//CPD-10267/PPI/AMP.37."	{"CPD-3617[c]": -1, "CPD-10267[c]": 1, "AMP[c]": 1, "CO-A[c]": -1, "PPI[c]": 1, "ATP[c]": -1}	false
+"AMYLOMALT-RXN"	{"MALTOTRIOSE[c]": -1, "MALTOTETRAOSE[c]": 1, "Glucopyranose[c]": 1, "MALTOSE[c]": -1}	false
 "3-HYDROXYDECANOYL-ACP-DEHYDR-RXN-Beta-hydroxydecanoyl-ACPs//Trans-D2-decenoyl-ACPs/WATER.56."	{"WATER[c]": 1, "Trans-D2-decenoyl-ACPs[c]": 1, "Beta-hydroxydecanoyl-ACPs[c]": -1}	false
 "THREONINE--TRNA-LIGASE-RXN-THR-tRNAs/THR/ATP/PROTON//Charged-THR-tRNAs/AMP/PPI.52."	{"THR-tRNAs[c]": -1, "Charged-THR-tRNAs[c]": 1, "PROTON[c]": -1, "THR[c]": -1, "AMP[c]": 1, "PPI[c]": 1, "ATP[c]": -1}	false
 "TRANS-RXN0-517-CPD-660/PROTON//CPD-660/PROTON.31."	{"CPD-660[p]": -1, "PROTON[c]": 2, "CPD-660[c]": 1, "PROTON[p]": -2}	false
@@ -898,12 +875,11 @@
 "RXN-10856"	{"DIHYDRO-NEO-PTERIN[c]": 1, "CPD-11770[c]": -1}	true
 "3.6.3.39-RXN-CPD0-2239/ATP/WATER//CPD0-2239/ADP/Pi/PROTON.45."	{"Pi[c]": 1, "CPD0-2239[c]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD0-2239[p]": 1}	false
 "RXN-13859"	{"WATER[c]": -1, "NIACINAMIDE[c]": 1, "PROTON[c]": 1, "ADENOSINE_DIPHOSPHATE_RIBOSE[c]": 1, "NAD[c]": -1}	false
-"3.6.1.19-RXN-DITP/WATER//DIMP/PPI/PROTON.28."	{"WATER[c]": -1, "PPI[c]": 1, "DITP[c]": -1, "PROTON[c]": 1, "DIMP[c]": 1}	false
 "RXN0-5121"	{"CPD0-932[c]": -1, "PROTON[c]": 1, "ADP[c]": 1, "ATP[c]": -1, "CPD0-933[c]": 1}	false
 "PRPPSYN-RXN"	{"PROTON[c]": 1, "RIBOSE-5P[c]": -1, "PRPP[c]": 1, "ATP[c]": -1, "AMP[c]": 1}	false
 "LACTALDDEHYDROG-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "L-LACTATE[c]": 1, "PROTON[c]": 2, "LACTALD[c]": -1, "WATER[c]": -1}	false
 "RXN-15743"	{"NADPH[c]": 1, "PROTON[c]": 1, "CPD-8891[c]": -1, "CPD-358[c]": 1, "NADP[c]": -1}	true
-"RXN-12583"	{"THIAMINE-PYROPHOSPHATE[c]": 1, "PROTON[c]": 1, "PYRUVATE[c]": 1, "2-ALPHA-HYDROXYETHYL-THPP[c]": -1, "CARBON-DIOXIDE[c]": -1}	true
+"RXN0-5123"	{"ADP[c]": 1, "PROTON[c]": 1, "CPD0-934[c]": -1, "ATP[c]": -1, "CPD0-935[c]": 1}	false
 "RXN-15744"	{"NADPH[c]": 1, "NADP[c]": -1, "PROTON[c]": 1, "LACTALD[c]": 1, "PROPANE-1-2-DIOL[c]": -1}	true
 "TRANS-RXN-68"	{"LYS[c]": 1, "CADAVERINE[c]": -1, "CADAVERINE[p]": 1, "LYS[p]": -1}	false
 "TRANS-RXN-69"	{"PROTON[c]": 1, "PUTRESCINE[p]": -1, "PUTRESCINE[c]": 1, "PROTON[p]": -1}	false
@@ -946,7 +922,6 @@
 "GUANYLCYC-RXN"	{"PPI[c]": -1, "GTP[c]": 1, "CGMP[c]": -1}	true
 "TRANS-RXN0-268"	{"Pi[c]": 1, "L-ALA-GAMMA-D-GLU-DAP[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "L-ALA-GAMMA-D-GLU-DAP[c]": 1}	false
 "TRANS-RXN0-269"	{"VAL[c]": -1, "VAL[p]": 1}	false
-"ACET"	{"ACET[p]": -1}	false
 "TRANS-RXN0-267-L-ALA-GAMMA-D-GLU-DAP/PROTON//L-ALA-GAMMA-D-GLU-DAP/PROTON.59."	{"PROTON[c]": 1, "L-ALA-GAMMA-D-GLU-DAP[c]": 1, "L-ALA-GAMMA-D-GLU-DAP[p]": -1, "PROTON[p]": -1}	false
 "RXN-8629"	{"DIHYDROLIPOYL-GCVH[c]": 1, "PROTON[c]": -1, "PROTEIN-LIPOYLLYSINE[c]": -1, "NAD[c]": 1, "NADH[c]": -1}	true
 "ADENYLYLSULFKIN-RXN"	{"PROTON[c]": -1, "PAPS[c]": -1, "ADP[c]": -1, "ATP[c]": 1, "APS[c]": 1}	true
@@ -1016,7 +991,6 @@
 "PYROXALTRANSAM-RXN"	{"OXALACETIC_ACID[c]": -1, "PYRIDOXAMINE[c]": -1, "PYRIDOXAL[c]": 1, "L-ASPARTATE[c]": 1}	true
 "GCVMULTI-RXN-GLY/CPD-1301/NAD//CPD-12996/AMMONIUM/CARBON-DIOXIDE/NADH.57."	{"NADH[c]": 1, "NAD[c]": -1, "CPD-1301[c]": -1, "AMMONIUM[c]": 1, "GLY[c]": -1, "CARBON-DIOXIDE[c]": 1, "CPD-12996[c]": 1}	false
 "GLYCOLALD-DEHYDROG-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "PROTON[c]": 2, "GLYCOLLATE[c]": 1, "GLYCOLALDEHYDE[c]": -1, "WATER[c]": -1}	false
-"ZN+2"	{"ZN+2[p]": 1}	false
 "2-DEHYDROPANTOATE-REDUCT-RXN"	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "L-PANTOATE[c]": 1, "2-DEHYDROPANTOATE[c]": -1}	false
 "ACETOLACTREDUCTOISOM-RXN"	{"NADPH[c]": -1, "2-ACETO-LACTATE[c]": -1, "PROTON[c]": -1, "CPD-13357[c]": 1, "NADP[c]": 1}	true
 "2OXOGLUTDECARB-RXN"	{"CARBON-DIOXIDE[c]": 1, "PROTON[c]": -1, "Oxo-glutarate-dehydro-suc-DH-lipoyl[c]": 1, "Oxo-glutarate-dehydrogenase-lipoyl[c]": -1, "2-KETOGLUTARATE[c]": -1}	false
@@ -1081,7 +1055,6 @@
 "RXN0-1941"	{"NADPH[c]": 1, "ETHYL-2-METHYLACETOACETATE[c]": 1, "PROTON[c]": 1, "ETHYL-2R-METHYL-3S-HYDROXYBUTANOATE[c]": -1, "NADP[c]": -1}	true
 "RXN-15356"	{"CPD-16566[c]": -1, "CPD-16567[c]": 1}	false
 "ABC-8-RXN-ATP/CPD-13404/WATER//ADP/CPD-13404/Pi/PROTON.45."	{"Pi[c]": 1, "CPD-13404[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "CPD-13404[c]": 1, "WATER[c]": -1}	false
-"CPD-534"	{"CPD-534[p]": -1}	false
 "SUCCINYLDIAMINOPIMTRANS-RXN"	{"GLT[c]": -1, "2-KETOGLUTARATE[c]": 1, "N-SUCCINYLLL-2-6-DIAMINOPIMELATE[c]": 1, "N-SUCCINYL-2-AMINO-6-KETOPIMELATE[c]": -1}	true
 "6PGLUCONOLACT-RXN"	{"CPD-2961[c]": 1, "WATER[c]": -1, "PROTON[c]": 1, "D-6-P-GLUCONO-DELTA-LACTONE[c]": -1}	false
 "TRANS-RXN0-589"	{"DEOXYCHOLATE[c]": -1, "PROTON[c]": 1, "DEOXYCHOLATE[p]": 1, "PROTON[p]": -1}	false
@@ -1106,13 +1079,11 @@
 "NUCLEOSIDE-DIPHOSPHATASE-RXN-GDP/WATER//GMP/Pi/PROTON.25."	{"WATER[c]": -1, "Pi[c]": 1, "PROTON[c]": 1, "GDP[c]": -1, "GMP[c]": 1}	false
 "1.8.4.13-RXN-MET/Ox-Thioredoxin/WATER//CPD-8989/Red-Thioredoxin.51."	{"WATER[c]": 1, "Red-Thioredoxin[c]": -1, "Ox-Thioredoxin[c]": 1, "CPD-8989[c]": -1, "MET[c]": 1}	false
 "CHORISMATE-SYNTHASE-RXN"	{"CHORISMATE[c]": 1, "Pi[c]": 1, "3-ENOLPYRUVYL-SHIKIMATE-5P[c]": -1}	false
-"ETOH"	{"ETOH[p]": -1}	false
 "THYMIDYLATESYN-RXN-METHYLENE-THF/DUMP//TMP/DIHYDROFOLATE.38."	{"DIHYDROFOLATE[c]": 1, "TMP[c]": 1, "DUMP[c]": -1, "METHYLENE-THF[c]": -1}	false
 "RXN0-271-NADPH/UBIQUINONE-8/PROTON//NADP/CPD-9956.41."	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "UBIQUINONE-8[i]": -1, "CPD-9956[i]": 1}	false
 "TRANS-RXN0-470"	{"Pi[p]": 1, "Pi[c]": -1}	false
 "TRANS-RXN0-474"	{"OXYGEN-MOLECULE[c]": 1, "OXYGEN-MOLECULE[p]": -1}	true
 "TRANS-RXN-106D-FUM/PROTON//FUM/PROTON.23."	{"FUM[p]": -1, "PROTON[c]": 3, "FUM[c]": 1, "PROTON[p]": -3}	false
-"3.6.1.19-RXN-ITP/WATER//IMP/PPI/PROTON.26."	{"WATER[c]": -1, "PPI[c]": 1, "PROTON[c]": 1, "ITP[c]": -1, "IMP[c]": 1}	false
 "3.1.4.14-RXN-Holo-CmaA-peptidyl-carrier-protein/WATER//PANTETHEINE-P/CmaA-peptidyl-carrier-protein/PROTON.93."	{"WATER[c]": -1, "PANTETHEINE-P[c]": 1, "Holo-CmaA-peptidyl-carrier-protein[c]": -1, "PROTON[c]": 1, "CmaA-peptidyl-carrier-protein[c]": 1}	false
 "RXN0-268"	{"SUC-COA[c]": -1, "PROPIONATE[c]": -1, "SUC[c]": 1, "PROPIONYL-COA[c]": 1}	true
 "TRANS-RXN0-265-D-TYROSINE//D-TYROSINE.23."	{"D-TYROSINE[c]": -1, "D-TYROSINE[p]": 1}	false
@@ -1149,11 +1120,9 @@
 "ENOYL-COA-HYDRAT-RXN-CPD0-2171//POLYMER-INST-TRANS-D2-ENOYL-COA-C10-H20/WATER.57."	{"WATER[c]": -1, "CPD0-2171[c]": 1, "POLYMER-INST-TRANS-D2-ENOYL-COA-C10-H20[c]": -1}	false
 "NQOR-RXN-UBIQUINONE-8/NADPH/PROTON//CPD-9956/NADP.41."	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "UBIQUINONE-8[i]": -1, "CPD-9956[i]": 1}	false
 "RXN0-2145-Cis-Delta5-dodecenoyl-ACPs/NAD//Trans-D3-cis-D5-dodecenoyl-ACPs/NADH/PROTON.76."	{"NADH[c]": -1, "Trans-D3-cis-D5-dodecenoyl-ACPs[c]": -1, "Cis-Delta5-dodecenoyl-ACPs[c]": 1, "PROTON[c]": -1, "NAD[c]": 1}	false
-"ENOYL-COA-HYDRAT-RXN-CPD0-2253//CPD-10262/WATER.27."	{"WATER[c]": -1, "CPD0-2253[c]": 1, "CPD-10262[c]": -1}	false
 "ENOYL-COA-HYDRAT-RXN-CPD0-2224//CPD0-2108/WATER.27."	{"WATER[c]": -1, "CPD0-2224[c]": 1, "CPD0-2108[c]": -1}	false
 "RIBOFLAVINSYNREDUC-RXN"	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "CPD-1086[c]": 1, "CPD-602[c]": -1}	false
 "GLY3KIN-RXN"	{"PROTON[c]": 1, "GLYCERATE[c]": -1, "ADP[c]": 1, "ATP[c]": -1, "G3P[c]": 1}	false
-"D-ALANINE"	{"D-ALANINE[p]": -1}	false
 "RXN-11496-PYRUVATE/UBIQUINONE-8/WATER//CARBON-DIOXIDE/ACET/CPD-9956.58."	{"PYRUVATE[c]": -1, "CPD-9956[i]": 1, "ACET[c]": 1, "WATER[c]": -1, "CARBON-DIOXIDE[c]": 1, "UBIQUINONE-8[i]": -1}	false
 "RXN-10015"	{"CPD-10773[c]": 1, "DIHYDROXYPENTANEDIONE[c]": -1}	false
 "RXN-10017"	{"WATER[c]": -1, "CPD-10773[c]": -1, "CPD-10774[c]": 1}	false
@@ -1183,9 +1152,8 @@
 "TRANS-RXN0-468-CYTIDINE//CYTIDINE.19."	{"CYTIDINE[p]": 1, "CYTIDINE[e]": -1}	false
 "LAUROYLACYLTRAN-RXN-Dodecanoyl-ACPs/KDO2-LIPID-IVA//KDO2-LAUROYL-LIPID-IVA/ACP.59."	{"KDO2-LAUROYL-LIPID-IVA[c]": 1, "ACP[c]": 1, "KDO2-LIPID-IVA[c]": -1, "Dodecanoyl-ACPs[c]": -1}	false
 "ENOYL-ACP-REDUCT-NADPH-RXN-POLYMER-INST-Saturated-Fatty-Acyl-ACPs-C0-H0/NADP//NADPH/Crotonyl-ACPs/PROTON.78."	{"NADPH[c]": -1, "POLYMER-INST-Saturated-Fatty-Acyl-ACPs-C0-H0[c]": 1, "PROTON[c]": -1, "Crotonyl-ACPs[c]": -1, "NADP[c]": 1}	false
-"1.1.1.127-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "2-DEHYDRO-3-DEOXY-D-GLUCONATE[c]": -1, "CPD-343[c]": 1, "NAD[c]": -1}	true
+"ENOYL-COA-HYDRAT-RXN-CPD0-2253//CPD-10262/WATER.27."	{"WATER[c]": -1, "CPD0-2253[c]": 1, "CPD-10262[c]": -1}	false
 "GUANINE-DEAMINASE-RXN"	{"WATER[c]": -1, "PROTON[c]": -1, "XANTHINE[c]": 1, "AMMONIUM[c]": 1, "GUANINE[c]": -1}	false
-"CH33ADO"	{"CH33ADO[c]": -1}	false
 "PORPHOBILSYNTH-RXN"	{"WATER[c]": 2, "PROTON[c]": 1, "5-AMINO-LEVULINATE[c]": -2, "PORPHOBILINOGEN[c]": 1}	false
 "TRANS-RXN0-569-LEU//LEU.9."	{"LEU[p]": 1, "LEU[c]": -1}	false
 "R170-RXN"	{"CU+[c]": 1, "CU+2[c]": -1, "NAD[c]": 1, "NADH[c]": -1}	true
@@ -1203,11 +1171,9 @@
 "RXN-9514-Acetoacetyl-ACPs/NADPH/PROTON//Beta-3-hydroxybutyryl-ACPs/NADP.63."	{"NADPH[c]": -1, "Beta-3-hydroxybutyryl-ACPs[c]": 1, "PROTON[c]": -1, "Acetoacetyl-ACPs[c]": -1, "NADP[c]": 1}	false
 "ATPPHOSPHORIBOSYLTRANS-RXN"	{"PPI[c]": -1, "ATP[c]": 1, "PROTON[c]": 1, "PRPP[c]": 1, "PHOSPHORIBOSYL-ATP[c]": -1}	true
 "RXN0-5387"	{"NADPH[c]": -2, "NADP[c]": 2, "PROTON[c]": -2, "CPD0-1157[c]": 1, "CPD0-1156[c]": -1}	true
-"MANNPISOM-RXN"	{"MANNOSE-6P[c]": -1, "FRUCTOSE-6P[c]": 1}	true
 "2.7.7.1-RXN"	{"PROTON[c]": -1, "PPI[c]": 1, "NAD[c]": 1, "NICOTINAMIDE_NUCLEOTIDE[c]": -1, "ATP[c]": -1}	false
 "RXN0-5223-CPD0-2330/ATP//CPD0-2230/ADP/PROTON.36."	{"ADP[c]": 1, "PROTON[c]": 1, "CPD0-2230[c]": 1, "CPD0-2330[c]": -1, "ATP[c]": -1}	false
 "RHAMNULOKIN-RXN"	{"ADP[c]": 1, "CPD-16567[c]": -1, "PROTON[c]": 1, "ATP[c]": -1, "RHAMNULOSE-1P[c]": 1}	false
-"3-DEHYDROQUINATE-DEHYDRATASE-RXN"	{"3-DEHYDRO-SHIKIMATE[c]": -1, "WATER[c]": -1, "DEHYDROQUINATE[c]": 1}	true
 "TRANS-RXN-108G"	{"INOSINE[p]": -1, "PROTON[c]": 1, "INOSINE[c]": 1, "PROTON[p]": -1}	false
 "TRANS-RXN-108F"	{"DEOXYURIDINE[c]": 1, "PROTON[c]": 1, "DEOXYURIDINE[p]": -1, "PROTON[p]": -1}	false
 "TRANS-RXN-108E"	{"DEOXYINOSINE[c]": 1, "PROTON[c]": 1, "DEOXYINOSINE[p]": -1, "PROTON[p]": -1}	false
@@ -1222,7 +1188,6 @@
 "QUINOLINATE-SYNTHA-RXN"	{"WATER[c]": 2, "DIHYDROXY-ACETONE-PHOSPHATE[c]": -1, "QUINOLINATE[c]": 1, "IMINOASPARTATE[c]": -1, "Pi[c]": 1}	false
 "RXN-13418"	{"OXYGEN-MOLECULE[c]": -1, "PROTON[c]": 2, "GLYCOLALDEHYDE[c]": 1, "FMN[c]": 1, "CPD-3745[c]": -1, "WATER[c]": 1, "FMNH2[c]": -1, "SO3[c]": 1}	false
 "RXN-12149"	{"L-rhamnopyranose[c]": -1, "L-RHAMNOFURANOSE[c]": 1}	true
-"MI-PENTAKISPHOSPHATE"	{"MI-PENTAKISPHOSPHATE[p]": -1}	false
 "ABC-35-RXN"	{"Pi[c]": 1, "LEU[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "LEU[p]": -1}	false
 "TRANS-RXN0-517-MALEATE/PROTON//MALEATE/PROTON.31."	{"MALEATE[c]": 1, "MALEATE[p]": -1, "PROTON[c]": 2, "PROTON[p]": -2}	false
 "TRANS-RXN0-244"	{"CD+2[c]": -1, "CD+2[p]": 1, "PROTON[c]": 1, "PROTON[p]": -1}	false
@@ -1243,7 +1208,6 @@
 "XANPRIBOSYLTRAN-RXN"	{"PPI[c]": 1, "XANTHINE[c]": -1, "XANTHOSINE-5-PHOSPHATE[c]": 1, "PRPP[c]": -1}	false
 "OHACYL-COA-DEHYDROG-RXN-NAD/CPD0-2171//NADH/CPD-10284/PROTON.37."	{"CPD0-2171[c]": -1, "NADH[c]": 1, "CPD-10284[c]": 1, "PROTON[c]": 1, "NAD[c]": -1}	false
 "RXN0-3741[CCO-CYTOSOL]-DCMP/WATER//DEOXYCYTIDINE/Pi.42."	{"WATER[c]": -1, "Pi[c]": 1, "DCMP[c]": -1, "DEOXYCYTIDINE[c]": 1}	false
-"RXN0-6983"	{"WATER[c]": -1, "CPD-13394[c]": -1, "GLN[c]": 1, "GLY[c]": 1}	false
 "RIBONUCLEOSIDE-DIP-REDUCTI-RXN-Ox-Thioredoxin/DCDP/WATER//Red-Thioredoxin/CDP.47."	{"WATER[c]": 1, "Red-Thioredoxin[c]": -1, "Ox-Thioredoxin[c]": 1, "CDP[c]": -1, "DCDP[c]": 1}	false
 "SAICARSYN-RXN"	{"Pi[c]": 1, "P-RIBOSYL-4-SUCCCARB-AMINOIMIDAZOLE[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "PHOSPHORIBOSYL-CARBOXY-AMINOIMIDAZOLE[c]": -1, "ATP[c]": -1, "L-ASPARTATE[c]": -1}	false
 "TAGAKIN-RXN"	{"ADP[c]": 1, "TAGATOSE-1-6-DIPHOSPHATE[c]": 1, "PROTON[c]": 1, "TAGATOSE-6-PHOSPHATE[c]": -1, "ATP[c]": -1}	false
@@ -1266,7 +1230,6 @@
 "RXN-14073"	{"WATER[c]": -1, "GLYCEROL-3P[c]": 1, "PROTON[c]": 1, "GLYCEROL[c]": 1, "GLYCEROPHOSPHOGLYCEROL[c]": -1}	false
 "RXN0-6565"	{"NADH[c]": 1, "PROTON[c]": 1, "DIHYDRO-THYMINE[c]": -1, "THYMINE[c]": 1, "NAD[c]": -1}	true
 "ACETATEKIN-RXN"	{"ADP[c]": -1, "ACETYL-P[c]": -1, "ACET[c]": 1, "ATP[c]": 1}	true
-"UNDECAPRENYL-DIPHOSPHATE"	{"UNDECAPRENYL-DIPHOSPHATE[p]": -1}	false
 "DTDPKIN-RXN"	{"ADP[c]": 1, "TDP[c]": -1, "ATP[c]": -1, "TTP[c]": 1}	false
 "RXN0-6564"	{"ADP[c]": 1, "PROTON[c]": 1, "CPD0-2189[c]": -1, "4-PHOSPHONOOXY-THREONINE[c]": 1, "ATP[c]": -1}	false
 "5-NUCLEOTID-RXN[CCO-CYTOSOL]-CMP/WATER//CYTIDINE/Pi.36."	{"WATER[c]": -1, "CMP[c]": -1, "CYTIDINE[c]": 1, "Pi[c]": 1}	false
@@ -1322,7 +1285,6 @@
 "TRANS-RXN0-573-L-1-GLYCERO-PHOSPHORYLCHOLINE/ATP/WATER//L-1-GLYCERO-PHOSPHORYLCHOLINE/ADP/Pi/PROTON.85."	{"Pi[c]": 1, "ADP[c]": 1, "L-1-GLYCERO-PHOSPHORYLCHOLINE[p]": -1, "PROTON[c]": 1, "L-1-GLYCERO-PHOSPHORYLCHOLINE[c]": 1, "ATP[c]": -1, "WATER[c]": -1}	false
 "TRANS-RXN0-468-ADENOSINE5TRIPHOSPHO5ADENOSINE//ADENOSINE5TRIPHOSPHO5ADENOSINE.63."	{"ADENOSINE5TRIPHOSPHO5ADENOSINE[p]": 1, "ADENOSINE5TRIPHOSPHO5ADENOSINE[e]": -1}	false
 "RXN-14808-CPD-15699//ARABINOSE.21."	{"CPD-15699[c]": -1, "ARABINOSE[c]": 1}	true
-"FORMATE"	{"FORMATE[p]": -1}	false
 "RXN0-5065"	{"WATER[c]": 1, "CO-A[c]": -1, "CPD-782[c]": -1, "34-DIHYDROXYPHENYLACETYL-COA[c]": 1, "PROTON[c]": -1}	true
 "IMPCYCLOHYDROLASE-RXN"	{"WATER[c]": 1, "PHOSPHORIBOSYL-FORMAMIDO-CARBOXAMIDE[c]": -1, "IMP[c]": 1}	true
 "DEOXYADENPHOSPHOR-RXN"	{"ADENINE[c]": 1, "DEOXY-D-RIBOSE-1-PHOSPHATE[c]": 1, "Pi[c]": -1, "DEOXYADENOSINE[c]": -1}	true
@@ -1371,7 +1333,6 @@
 "TRANS-RXN0-288-CPD-13394/PROTON//CPD-13394/PROTON.35."	{"PROTON[c]": 1, "CPD-13394[c]": 1, "CPD-13394[p]": -1, "PROTON[p]": -1}	false
 "TRANS-RXN0-517-SUC/PROTON//SUC/PROTON.23."	{"SUC[c]": 1, "PROTON[c]": 2, "SUC[p]": -1, "PROTON[p]": -2}	false
 "3-HYDROXYDECANOYL-ACP-DEHYDR-RXN-Beta-3-hydroxybutyryl-ACPs//Crotonyl-ACPs/WATER.48."	{"WATER[c]": 1, "Beta-3-hydroxybutyryl-ACPs[c]": -1, "Crotonyl-ACPs[c]": 1}	false
-"XANTHINE"	{"XANTHINE[p]": -1}	false
 "ENOYL-ACP-REDUCT-NADPH-RXN-Octanoyl-ACPs/NADP//NADPH/2-Octenoyl-ACPs/PROTON.49."	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "Octanoyl-ACPs[c]": 1, "2-Octenoyl-ACPs[c]": -1}	false
 "CHD-RXN"	{"Donor-H2[c]": 1, "CHOLINE[c]": -1, "Acceptor[c]": -1, "BETAINE_ALDEHYDE[c]": 1}	false
 "TRANS-RXN-121B"	{"FUM[p]": -1, "PROTON[c]": 2, "FUM[c]": 1, "PROTON[p]": -2}	false
@@ -1414,7 +1375,7 @@
 "RXN-9533-R-3-hydroxydodecanoyl-ACPs//Dodec-2-enoyl-ACPs/WATER.53."	{"WATER[c]": 1, "Dodec-2-enoyl-ACPs[c]": 1, "R-3-hydroxydodecanoyl-ACPs[c]": -1}	false
 "RXN0-2301-ISOVALERYL-COA/ETF-Oxidized/PROTON//3-METHYL-CROTONYL-COA/ETF-Reduced.70."	{"ISOVALERYL-COA[c]": -1, "PROTON[c]": -1, "ETF-Reduced[c]": 1, "ETF-Oxidized[c]": -1, "3-METHYL-CROTONYL-COA[c]": 1}	true
 "RXNMETA-12671"	{"WATER[c]": -1, "CPDMETA-13650[c]": 1, "CPD0-2363[c]": -1}	false
-"MG+2"	{"MG+2[p]": 1}	false
+"RXN0-1802-PALMITATE//PALMITATE.21."	{"PALMITATE[e]": -1, "PALMITATE[p]": 1}	false
 "RXNMETA-12672"	{"CPD0-2364[c]": 1, "NADP[c]": -1, "PROTON[c]": 2, "WATER[c]": -1, "NADPH[c]": 1, "CPDMETA-13650[c]": -1}	false
 "3.1.2.21-RXN-Dodecanoyl-ACPs/WATER//ACP/DODECANOATE/PROTON.46."	{"WATER[c]": -1, "DODECANOATE[c]": 1, "PROTON[c]": 1, "ACP[c]": 1, "Dodecanoyl-ACPs[c]": -1}	false
 "ABC-8-RXN-ATP/CPD-13395/WATER//ADP/CPD-13395/Pi/PROTON.45."	{"Pi[c]": 1, "CPD-13395[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD-13395[c]": 1}	false
@@ -1429,7 +1390,6 @@
 "DIAMINOPIMEPIM-RXN"	{"LL-DIAMINOPIMELATE[c]": -1, "MESO-DIAMINOPIMELATE[c]": 1}	true
 "GALACTUROISOM-RXN"	{"CPD-15633[c]": 1, "D-TAGATURONATE[c]": -1}	true
 "DEPHOSPHOCOAKIN-RXN"	{"CO-A[c]": 1, "DEPHOSPHO-COA[c]": -1, "PROTON[c]": 1, "ADP[c]": 1, "ATP[c]": -1}	false
-"AMMONIUM"	{"AMMONIUM[c]": 1}	false
 "RXN-13142"	{"CPD0-2474[c]": 1, "CPD-14133[c]": -1}	true
 "RXN-13141"	{"CPD0-2474[c]": -1, "Pi[c]": 1, "ADP[c]": -1, "PROTON[c]": 1, "AMP[c]": 1, "NADPH[c]": 1}	false
 "TRANS-RXN-108-5-METHYLAMINOMETHYL-2-SELENOURIDINE/PROTON//5-METHYLAMINOMETHYL-2-SELENOURIDINE/PROTON.87."	{"5-METHYLAMINOMETHYL-2-SELENOURIDINE[p]": -1, "PROTON[c]": 1, "5-METHYLAMINOMETHYL-2-SELENOURIDINE[c]": 1, "PROTON[p]": -1}	false
@@ -1454,7 +1414,7 @@
 "RXN-10661-Palmitoleoyl-ACPs/NAD//Trans-D3-cis-D9-hexadecenoyl-ACPs/NADH/PROTON.69."	{"NADH[c]": -1, "PROTON[c]": -1, "Trans-D3-cis-D9-hexadecenoyl-ACPs[c]": -1, "Palmitoleoyl-ACPs[c]": 1, "NAD[c]": 1}	false
 "RXN0-3741[CCO-CYTOSOL]-DIMP/WATER//DEOXYINOSINE/Pi.41."	{"DEOXYINOSINE[c]": 1, "WATER[c]": -1, "DIMP[c]": -1, "Pi[c]": 1}	false
 "GLUTAMINESYN-RXN"	{"Pi[c]": 1, "GLN[c]": 1, "ADP[c]": 1, "GLT[c]": -1, "PROTON[c]": 1, "AMMONIUM[c]": -1, "ATP[c]": -1}	false
-"WATER"	{"WATER[p]": 1}	false
+"3.6.1.19-RXN-ITP/WATER//IMP/PPI/PROTON.26."	{"WATER[c]": -1, "PPI[c]": 1, "PROTON[c]": 1, "ITP[c]": -1, "IMP[c]": 1}	false
 "RXN0-5383"	{"PROTON[c]": -1, "UNDECAPRENYL-DIPHOSPHATE[c]": -1, "CPD0-939[c]": -1, "CPD0-1151[c]": 1, "CPD-9646[c]": 1}	true
 "ENOYL-COA-HYDRAT-RXN-CPD0-2244//T2-DECENOYL-COA/WATER.33."	{"WATER[c]": -1, "CPD0-2244[c]": 1, "T2-DECENOYL-COA[c]": -1}	false
 "ENOYL-COA-HYDRAT-RXN-OH-HEXANOYL-COA//CPD0-2121/WATER.33."	{"WATER[c]": -1, "CPD0-2121[c]": -1, "OH-HEXANOYL-COA[c]": 1}	false
@@ -1463,13 +1423,11 @@
 "RXN0-1602"	{"WATER[c]": -1, "PPI[c]": 1, "DITP[c]": -1, "PROTON[c]": 1, "DIMP[c]": 1}	false
 "3.6.3.39-RXN-CPD0-933/ATP/WATER//CPD0-933/ADP/Pi/PROTON.43."	{"Pi[c]": 1, "ADP[c]": 1, "CPD0-933[c]": -1, "PROTON[c]": 1, "CPD0-933[p]": 1, "ATP[c]": -1, "WATER[c]": -1}	false
 "TRANS-RXN-10-CPD-12045/PROTON//CPD-12045/PROTON.35."	{"PROTON[c]": 1, "CPD-12045[p]": -1, "CPD-12045[c]": 1, "PROTON[p]": -1}	false
-"CO+2"	{"CO+2[p]": 1}	false
-"HYPOXANTHINE"	{"HYPOXANTHINE[p]": -1}	false
+"1.1.1.127-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "2-DEHYDRO-3-DEOXY-D-GLUCONATE[c]": -1, "CPD-343[c]": 1, "NAD[c]": -1}	true
+"ACYL-COA-HYDROLASE-RXN-LAUROYLCOA-CPD/WATER//DODECANOATE/CO-A/PROTON.46."	{"WATER[c]": -1, "CO-A[c]": 1, "PROTON[c]": 1, "DODECANOATE[c]": 1, "LAUROYLCOA-CPD[c]": -1}	false
 "RXN-13329"	{"WATER[c]": -1, "GLYOX[c]": 1, "CPD-12279[c]": -1, "PROTON[c]": -1, "AMMONIUM[c]": 1}	false
 "TRANS-RXN0-569-PRO//PRO.9."	{"PRO[c]": -1, "PRO[p]": 1}	false
 "GSAAMINOTRANS-RXN"	{"5-AMINO-LEVULINATE[c]": 1, "GLUTAMATE-1-SEMIALDEHYDE[c]": -1}	false
-"CA+2"	{"CA+2[p]": 1}	false
-"NI+2"	{"NI+2[p]": 1}	false
 "ALDEHYDE-DEHYDROGENASE-NADP+-RXN-CPD-665/NADP/WATER//PROPIONATE/NADPH/PROTON.44."	{"NADP[c]": -1, "PROTON[c]": 2, "WATER[c]": -1, "PROPIONATE[c]": 1, "NADPH[c]": 1, "CPD-665[c]": -1}	false
 "RXN0-280-CPD-3746/FMNH2/OXYGEN-MOLECULE//FORMALDEHYDE/SO3/FMN/WATER/PROTON.66."	{"OXYGEN-MOLECULE[c]": -1, "PROTON[c]": 2, "CPD-3746[c]": -1, "FMN[c]": 1, "WATER[c]": 1, "FMNH2[c]": -1, "FORMALDEHYDE[c]": 1, "SO3[c]": 1}	false
 "SUCCORNTRANSAM-RXN"	{"GLT[c]": 1, "N2-SUCCINYLORNITHINE[c]": -1, "CPD-822[c]": 1, "2-KETOGLUTARATE[c]": -1}	true
@@ -1553,7 +1511,7 @@
 "3.6.3.39-RXN-CPD-17530/ATP/WATER//CPD-17530/ADP/Pi/PROTON.45."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD-17530[p]": 1, "CPD-17530[c]": -1}	false
 "XYLISOM-RXN"	{"D-Xylopyranose[c]": 1, "D-XYLULOSE[c]": -1}	true
 "ALTRO-OXIDOREDUCT-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "D-TAGATURONATE[c]": 1, "D-ALTRONATE[c]": -1, "NAD[c]": -1}	true
-"IMP-DEHYDROG-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "PROTON[c]": 1, "XANTHOSINE-5-PHOSPHATE[c]": 1, "IMP[c]": -1, "WATER[c]": -1}	false
+"MANNPISOM-RXN"	{"MANNOSE-6P[c]": -1, "FRUCTOSE-6P[c]": 1}	true
 "PHENYLSERINE-ALDOLASE-RXN"	{"BENZALDEHYDE[c]": 1, "CPD-644[c]": -1, "GLY[c]": 1}	true
 "RXN0-961"	{"WATER[c]": -1, "L-ALA-GAMMA-D-GLU-DAP[c]": -1, "CPD0-2190[c]": 1, "MESO-DIAMINOPIMELATE[c]": 1}	false
 "RXN0-962"	{"ADP[c]": 1, "PROTON[c]": 1, "FRUCTOSELYSINE-6-PHOSPHATE[c]": 1, "ATP[c]": -1, "FRUCTOSELYSINE[c]": -1}	false
@@ -1563,7 +1521,6 @@
 "DARABISOM-RXN"	{"D-RIBULOSE[c]": -1, "D-arabinopyranose[c]": 1}	true
 "ABC-8-RXN-ATP/CPD-13394/WATER//ADP/CPD-13394/Pi/PROTON.45."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "CPD-13394[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "CPD-13394[p]": -1}	false
 "CDPDIGLYSYN-RXN-CTP/CPD0-1423/PROTON//CPD-12814/PPI.36."	{"CTP[c]": -1, "PPI[c]": 1, "CPD-12814[c]": 1, "PROTON[c]": -1, "CPD0-1423[c]": -1}	false
-"GLYCOLALDEHYDE"	{"GLYCOLALDEHYDE[c]": -1}	false
 "RXN-11484-Pimeloyl-ACPs/L-ALPHA-ALANINE/PROTON//8-AMINO-7-OXONONANOATE/CARBON-DIOXIDE/ACP.80."	{"8-AMINO-7-OXONONANOATE[c]": 1, "PROTON[c]": -1, "L-ALPHA-ALANINE[c]": -1, "Pimeloyl-ACPs[c]": -1, "CARBON-DIOXIDE[c]": 1, "ACP[c]": 1}	false
 "TRANS-RXN0-569-TRP//TRP.9."	{"TRP[p]": 1, "TRP[c]": -1}	false
 "PDXJ-RXN"	{"1-AMINO-PROPAN-2-ONE-3-PHOSPHATE[c]": -1, "Pi[c]": 1, "DEOXYXYLULOSE-5P[c]": -1, "PROTON[c]": 1, "WATER[c]": 2, "PYRIDOXINE-5P[c]": 1}	false
@@ -1596,7 +1553,6 @@
 "RXN0-6442-CPD-62/Holo-EntB//23DHB-EntB/AMP/PROTON.40."	{"PROTON[c]": 1, "CPD-62[c]": -1, "23DHB-EntB[c]": 1, "Holo-EntB[c]": -1, "AMP[c]": 1}	false
 "TRANS-RXN0-468-CPD-15544//CPD-15544.21."	{"CPD-15544[e]": -1, "CPD-15544[p]": 1}	false
 "TMAOREDUCT-RXN"	{"NADH[c]": -1, "NAD[c]": 1, "PROTON[c]": -2, "TRIMETHYLAMINE[c]": 1, "WATER[c]": 1, "TRIMENTHLAMINE-N-O[c]": -1}	false
-"K+"	{"K+[p]": 1}	false
 "SPERMIDINESYN-RXN"	{"5-METHYLTHIOADENOSINE[c]": 1, "SPERMIDINE[c]": 1, "S-ADENOSYLMETHIONINAMINE[c]": -1, "PROTON[c]": 1, "PUTRESCINE[c]": -1}	false
 "PGLUCISOM-RXN"	{"GLC-6-P[c]": 1, "FRUCTOSE-6P[c]": -1}	true
 "TRANS-RXN0-573-CPD-8260/ATP/WATER//CPD-8260/ADP/Pi/PROTON.43."	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "CPD-8260[p]": -1, "WATER[c]": -1, "ATP[c]": -1, "CPD-8260[c]": 1}	false
@@ -1616,10 +1572,8 @@
 "RHAMNISOM-RXN"	{"CPD-16566[c]": 1, "CPD0-1112[c]": -1}	true
 "PRPPAMIDOTRANS-RXN"	{"5-P-BETA-D-RIBOSYL-AMINE[c]": 1, "GLN[c]": -1, "GLT[c]": 1, "PPI[c]": 1, "PRPP[c]": -1, "WATER[c]": -1}	false
 "ACYL-COA-HYDROLASE-RXN-STEAROYL-COA/WATER//STEARIC_ACID/CO-A/PROTON.45."	{"WATER[c]": -1, "CO-A[c]": 1, "PROTON[c]": 1, "STEAROYL-COA[c]": -1, "STEARIC_ACID[c]": 1}	false
-"INDOLE"	{"INDOLE[p]": -1}	false
 "IGPSYN-RXN"	{"WATER[c]": 1, "CARBOXYPHENYLAMINO-DEOXYRIBULOSE-P[c]": -1, "INDOLE-3-GLYCEROL-P[c]": 1, "PROTON[c]": -1, "CARBON-DIOXIDE[c]": 1}	false
 "CDPDIGLYSYN-RXN-CTP/CPD0-1422/PROTON//CPD-12815/PPI.36."	{"CTP[c]": -1, "CPD0-1422[c]": -1, "PPI[c]": 1, "CPD-12815[c]": 1, "PROTON[c]": -1}	false
-"CPD-1772"	{"CPD-1772[c]": -1}	false
 "RXN-9540-R-3-Hydroxypalmitoyl-ACPs/NADP//3-oxo-palmitoyl-ACPs/NADPH/PROTON.66."	{"NADPH[c]": -1, "NADP[c]": 1, "R-3-Hydroxypalmitoyl-ACPs[c]": 1, "3-oxo-palmitoyl-ACPs[c]": -1, "PROTON[c]": -1}	false
 "RXN-10660-3-hydroxy-cis-D9-hexaecenoyl-ACPs//Trans-D3-cis-D9-hexadecenoyl-ACPs/WATER.75."	{"WATER[c]": 1, "3-hydroxy-cis-D9-hexaecenoyl-ACPs[c]": -1, "Trans-D3-cis-D9-hexadecenoyl-ACPs[c]": 1}	false
 "GMP-SYN-NH3-RXN"	{"PROTON[c]": 2, "AMMONIUM[c]": -1, "XANTHOSINE-5-PHOSPHATE[c]": -1, "AMP[c]": 1, "PPI[c]": 1, "GMP[c]": 1, "ATP[c]": -1}	false
@@ -1657,7 +1611,7 @@
 "DCYSDESULF-RXN"	{"WATER[c]": -1, "PYRUVATE[c]": 1, "D-CYSTEINE[c]": -1, "AMMONIUM[c]": 1, "HS[c]": 1}	false
 "TRANS-RXN-108-CPD0-1320/PROTON//CPD0-1320/PROTON.35."	{"PROTON[c]": 1, "CPD0-1320[c]": 1, "CPD0-1320[p]": -1, "PROTON[p]": -1}	false
 "RXN-12445-CPD-316/NAD//RIBOFLAVIN/NADH/PROTON.36."	{"NADH[c]": 1, "PROTON[c]": 2, "RIBOFLAVIN[c]": 1, "NAD[c]": -1, "CPD-316[c]": -1}	true
-"LYSDECARBOX-RXN"	{"LYS[c]": -1, "PROTON[c]": -1, "CADAVERINE[c]": 1, "CARBON-DIOXIDE[c]": 1}	false
+"AIRS-RXN"	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "5-PHOSPHORIBOSYL-N-FORMYLGLYCINEAMIDINE[c]": -1, "5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE[c]": 1, "ATP[c]": -1}	false
 "RXN0-385"	{"WATER[c]": -1, "DGTP[c]": -1, "PPI[c]": 1, "DGMP[c]": 1, "PROTON[c]": 1}	false
 "ABC-37-RXN"	{"Pi[c]": 1, "L-ORNITHINE[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "L-ORNITHINE[p]": -1, "ATP[c]": -1, "WATER[c]": -1}	false
 "TRANSENOYLCOARED-RXN-PALMITYL-COA/NADP//CPD0-2117/NADPH/PROTON.42."	{"NADPH[c]": 1, "PALMITYL-COA[c]": -1, "PROTON[c]": 1, "CPD0-2117[c]": 1, "NADP[c]": -1}	false
@@ -1679,21 +1633,17 @@
 "METBALT-RXN"	{"SUC[c]": 1, "2-OXOBUTANOATE[c]": 1, "PROTON[c]": 1, "O-SUCCINYL-L-HOMOSERINE[c]": -1, "AMMONIUM[c]": 1, "WATER[c]": -1}	false
 "GLUTSEMIALDEHYDROG-RXN"	{"Pi[c]": 1, "L-GLUTAMATE-5-P[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "L-GLUTAMATE_GAMMA-SEMIALDEHYDE[c]": 1, "NADPH[c]": -1}	false
 "N-ACETYLGLUTPREDUCT-RXN"	{"Pi[c]": -1, "N-ACETYL-GLUTAMYL-P[c]": 1, "NADP[c]": -1, "PROTON[c]": 1, "CPD-469[c]": -1, "NADPH[c]": 1}	true
-"AMYLOMALT-RXN"	{"MALTOTRIOSE[c]": -1, "MALTOTETRAOSE[c]": 1, "Glucopyranose[c]": 1, "MALTOSE[c]": -1}	false
+"IMP-DEHYDROG-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "PROTON[c]": 1, "XANTHOSINE-5-PHOSPHATE[c]": 1, "IMP[c]": -1, "WATER[c]": -1}	false
 "PHOSGLYPHOS-RXN"	{"DPG[c]": -1, "ADP[c]": -1, "ATP[c]": 1, "G3P[c]": 1}	true
 "RXN-8645-CPD-381/NAD//2-KETOGLUTARATE/NADH/PROTON.41."	{"NADH[c]": 1, "PROTON[c]": 1, "CPD-381[c]": -1, "NAD[c]": -1, "2-KETOGLUTARATE[c]": 1}	true
 "ABC-12-RXN"	{"Pi[c]": 1, "GLN[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "WATER[c]": -1, "GLN[p]": -1}	false
-"RXN-11482-Pimeloyl-ACP-methyl-esters/NAD//Enoylpimeloyl-ACP-methyl-esters/NADH/PROTON.76."	{"NADH[c]": -1, "PROTON[c]": -1, "Pimeloyl-ACP-methyl-esters[c]": 1, "NAD[c]": 1, "Enoylpimeloyl-ACP-methyl-esters[c]": -1}	false
 "ACETYL-COA-CARBOXYLTRANSFER-RXN"	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "HCO3[c]": -1, "ATP[c]": -1, "MALONYL-COA[c]": 1, "ACETYL-COA[c]": -1}	false
 "HISTCYCLOHYD-RXN"	{"WATER[c]": -1, "PHOSPHORIBOSYL-FORMIMINO-AICAR-P[c]": 1, "PHOSPHORIBOSYL-AMP[c]": -1}	false
 "RXN-16165-Initiation-tRNAmet/MET/ATP/PROTON//L-methionyl-tRNAfmet/AMP/PPI.64."	{"L-methionyl-tRNAfmet[c]": -1, "Initiation-tRNAmet[c]": 1, "PROTON[c]": 1, "AMP[c]": -1, "PPI[c]": -1, "ATP[c]": 1, "MET[c]": 1}	true
 "3-OXOACYL-ACP-REDUCT-RXN-Beta-3-hydroxybutyryl-ACPs/NADP//Acetoacetyl-ACPs/NADPH/PROTON.63."	{"NADPH[c]": -1, "Beta-3-hydroxybutyryl-ACPs[c]": 1, "PROTON[c]": -1, "Acetoacetyl-ACPs[c]": -1, "NADP[c]": 1}	false
 "3.1.4.14-RXN-Holo-CmaD-peptidyl-carrier-protein/WATER//PANTETHEINE-P/CmaD-peptidyl-carrier-protein/PROTON.93."	{"WATER[c]": -1, "PANTETHEINE-P[c]": 1, "PROTON[c]": 1, "Holo-CmaD-peptidyl-carrier-protein[c]": -1, "CmaD-peptidyl-carrier-protein[c]": 1}	false
-"PROTON"	{"PROTON[c]": 1}	false
 "ABC-8-RXN-ATP/CPD-13390/WATER//ADP/CPD-13390/Pi/PROTON.45."	{"Pi[c]": 1, "CPD-13390[p]": -1, "ADP[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "CPD-13390[c]": 1, "WATER[c]": -1}	false
 "ABC-4-RXN"	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "ARG[p]": -1, "ATP[c]": -1, "WATER[c]": -1, "ARG[c]": 1}	false
-"GLC"	{"GLC[p]": 1}	false
-"Pi"	{"Pi[p]": 1}	false
 "AMP-NUCLEOSID-RXN"	{"WATER[c]": -1, "ADENINE[c]": 1, "CPD-15317[c]": 1, "AMP[c]": -1}	false
 "ENOYL-COA-DELTA-ISOM-RXN-POLYMER-INST-CIS-DELTA3-ENOYL-COA-C4-H8//CPD0-2108.51."	{"CPD0-2108[c]": 1, "POLYMER-INST-CIS-DELTA3-ENOYL-COA-C4-H8[c]": -1}	true
 "TRANS-RXN0-288-CYS-GLY/PROTON//CYS-GLY/PROTON.31."	{"PROTON[c]": 1, "CYS-GLY[c]": 1, "CYS-GLY[p]": -1, "PROTON[p]": -1}	false
@@ -1732,7 +1682,7 @@
 "RXN0-5120"	{"CPD0-932[c]": 1, "CPD0-930[c]": -1, "UDP[c]": 1, "PROTON[c]": 1, "CPD-12575[c]": -1}	false
 "RXN0-6550"	{"WATER[c]": -1, "ADENINE[c]": 1, "CPD0-2167[c]": 1, "CH33ADO[c]": -1}	false
 "RXN0-5122"	{"PROTON[c]": 1, "ADP-L-GLYCERO-D-MANNO-HEPTOSE[c]": -1, "ADP[c]": 1, "CPD0-934[c]": 1, "CPD0-933[c]": -1}	false
-"RXN0-5123"	{"ADP[c]": 1, "PROTON[c]": 1, "CPD0-934[c]": -1, "ATP[c]": -1, "CPD0-935[c]": 1}	false
+"RXN-12583"	{"THIAMINE-PYROPHOSPHATE[c]": 1, "PROTON[c]": 1, "PYRUVATE[c]": 1, "2-ALPHA-HYDROXYETHYL-THPP[c]": -1, "CARBON-DIOXIDE[c]": -1}	true
 "RXN0-5124"	{"UDP[c]": 1, "PROTON[c]": 1, "CPD-14553[c]": -1, "CPD0-936[c]": 1, "CPD0-935[c]": -1}	false
 "RXN0-5125"	{"UDP[c]": 1, "CPD0-937[c]": 1, "CPD0-936[c]": -1, "PROTON[c]": 1, "CPD-12575[c]": -1}	false
 "RXN0-5126"	{"CPD0-938[c]": 1, "UDP[c]": 1, "CPD0-937[c]": -1, "PROTON[c]": 1, "CPD-12575[c]": -1}	false
@@ -1759,7 +1709,6 @@
 "3.5.1.88-RXN"	{"WATER[c]": -1, "METHIONYL-PEPTIDE[c]": 1, "FORMYL-L-METHIONYL-PEPTIDE[c]": -1, "FORMATE[c]": 1}	false
 "GDPPYPHOSKIN-RXN"	{"GDP[c]": -1, "GUANOSINE-5DP-3DP[c]": 1, "ATP[c]": -1, "AMP[c]": 1}	false
 "TRANS-RXN0-286"	{"C6[c]": -1, "C6[p]": 1}	false
-"CPD-10774"	{"CPD-10774[c]": -1}	false
 "4.2.1.58-RXN-Beta-3-hydroxybutyryl-ACPs//Crotonyl-ACPs/WATER.48."	{"WATER[c]": 1, "Beta-3-hydroxybutyryl-ACPs[c]": -1, "Crotonyl-ACPs[c]": 1}	false
 "RXN0-2044"	{"3-HYDROXYADIPYL-COA[c]": 1, "PROTON[c]": -1, "NAD[c]": 1, "3-KETO-ADIPYL-COA[c]": -1, "NADH[c]": -1}	true
 "RXN0-2042"	{"OXYGEN-MOLECULE[c]": -1, "CPD0-2362[c]": 1, "NADP[c]": 1, "PROTON[c]": -1, "WATER[c]": 1, "NADPH[c]": -1, "CPD-207[c]": -1}	false
@@ -1772,7 +1721,6 @@
 "DAPASYN-RXN"	{"8-AMINO-7-OXONONANOATE[c]": -1, "S-ADENOSYL-4-METHYLTHIO-2-OXOBUTANOATE[c]": 1, "S-ADENOSYLMETHIONINE[c]": -1, "DIAMINONONANOATE[c]": 1}	true
 "LUMAZINESYN-RXN"	{"Pi[c]": 1, "DIMETHYL-D-RIBITYL-LUMAZINE[c]": 1, "AMINO-RIBOSYLAMINO-1H-3H-PYR-DIONE[c]": -1, "PROTON[c]": 1, "DIHYDROXY-BUTANONE-P[c]": -1, "WATER[c]": 2}	false
 "1.2.99.7-RXN-CPD-665/FAD/WATER//PROPIONATE/FADH2.36."	{"PROPIONATE[p]": 1, "WATER[p]": -1, "CPD-665[p]": -1, "FADH2[p]": 1, "FAD[p]": -1}	true
-"CPD-239"	{"CPD-239[p]": -1}	false
 "TRANSENOYLCOARED-RXN-STEAROYL-COA/NADP//CPD-10262/NADPH/PROTON.42."	{"NADPH[c]": 1, "NADP[c]": -1, "CPD-10262[c]": 1, "PROTON[c]": 1, "STEAROYL-COA[c]": -1}	false
 "TRANS-RXN-162"	{"GLT[c]": 1, "PROTON[c]": 2, "GLT[p]": -1, "PROTON[p]": -2}	false
 "ACYLCOADEHYDROG-RXN-CPD-10267/ETF-Oxidized/PROTON//T2-DECENOYL-COA/ETF-Reduced.59."	{"PROTON[c]": -1, "T2-DECENOYL-COA[c]": 1, "ETF-Oxidized[c]": -1, "CPD-10267[c]": -1, "ETF-Reduced[c]": 1}	false
@@ -1852,9 +1800,8 @@
 "3.6.1.19-RXN-TTP/WATER//TMP/PPI/PROTON.26."	{"WATER[c]": -1, "PPI[c]": 1, "TMP[c]": 1, "PROTON[c]": 1, "TTP[c]": -1}	false
 "NUCLEOSIDE-DIPHOSPHATASE-RXN-DUDP/WATER//DUMP/Pi/PROTON.27."	{"WATER[c]": -1, "Pi[c]": 1, "PROTON[c]": 1, "DUMP[c]": 1, "DUDP[c]": -1}	false
 "PANTOTHENATE-KIN-RXN"	{"PROTON[c]": 1, "4-P-PANTOTHENATE[c]": 1, "ADP[c]": 1, "ATP[c]": -1, "PANTOTHENATE[c]": -1}	false
-"BETAINE"	{"BETAINE[p]": -1}	false
 "TRYPSYN-RXN"	{"WATER[c]": 1, "GAP[c]": 1, "SER[c]": -1, "TRP[c]": 1, "INDOLE-3-GLYCEROL-P[c]": -1}	false
-"AIRS-RXN"	{"Pi[c]": 1, "ADP[c]": 1, "PROTON[c]": 1, "5-PHOSPHORIBOSYL-N-FORMYLGLYCINEAMIDINE[c]": -1, "5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE[c]": 1, "ATP[c]": -1}	false
+"LYSDECARBOX-RXN"	{"LYS[c]": -1, "PROTON[c]": -1, "CADAVERINE[c]": 1, "CARBON-DIOXIDE[c]": 1}	false
 "3-HYDROXYDECANOYL-ACP-DEHYDR-RXN-3-Hydroxy-octanoyl-ACPs//2-Octenoyl-ACPs/WATER.47."	{"WATER[c]": 1, "2-Octenoyl-ACPs[c]": 1, "3-Hydroxy-octanoyl-ACPs[c]": -1}	false
 "RXN-10654-Cis-Delta5-dodecenoyl-ACPs/MALONYL-ACP/PROTON//3-oxo-cis-D7-tetradecenoyl-ACPs/ACP/CARBON-DIOXIDE.98."	{"PROTON[c]": -1, "ACP[c]": 1, "3-oxo-cis-D7-tetradecenoyl-ACPs[c]": 1, "Cis-Delta5-dodecenoyl-ACPs[c]": -1, "CARBON-DIOXIDE[c]": 1, "MALONYL-ACP[c]": -1}	false
 "RXN0-10"	{"CD+2[c]": 1, "CD+2[p]": -1}	false

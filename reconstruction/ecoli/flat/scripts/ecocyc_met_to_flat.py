@@ -125,15 +125,8 @@ reaction_stoich = {
 		for compound_id, coeff in stoich.viewitems()
 		}
 	for reaction_id, stoich in reaction_stoich.viewitems()
-	if reaction_id not in exchange_reactions
+	if len(stoich) > 1
 	}
-
-# Check that all singleton "reactions" are exchange reactions
-assert all(
-	(rxn_id in exchange_reactions)
-	for rxn_id, stoich in reaction_stoich.viewitems()
-	if len(stoich) == 1
-	)
 
 # Write a table of true reactions:
 # reaction name, stoich, is_reversible
