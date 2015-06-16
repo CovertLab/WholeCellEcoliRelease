@@ -354,6 +354,9 @@ class Metabolism(object):
 		metaboliteIDs.append("PPI[c]")
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
+		metaboliteIDs.append("Pi[c]") # TODO: find a real number
+		metaboliteConcentrations.append(PPI_CONCENTRATION)
+
 		# NOTE: this assertion is thrown since there are many biomass things not in the (metabolic) model
 		# unaccounted = set(wildtypeIDs) - set(metaboliteIDs)
 		# assert len(unaccounted) == 0
