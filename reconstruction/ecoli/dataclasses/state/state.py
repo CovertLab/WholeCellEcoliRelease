@@ -43,6 +43,12 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(metaboliteIds, metaboliteMasses)
 
+		# Set water
+		waterIds = sf.createIdsWithCompartments(raw_data.water)
+		waterMasses = units.g / units.mol * sf.createMetaboliteMassesByCompartments(raw_data.water, 8, 11)
+
+		self.bulkMolecules.addToBulkState(waterIds, waterMasses)
+
 		# Set RNA
 		rnaIds = sf.createIdsWithCompartments(raw_data.rnas)
 		rnaMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.rnas)
