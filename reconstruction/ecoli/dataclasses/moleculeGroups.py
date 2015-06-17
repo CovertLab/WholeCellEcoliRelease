@@ -62,6 +62,7 @@ class moleculeGroups(object):
 		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteinComplexes))
 		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_aa'] and not x['is_end']]))
 		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']]))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.water))
 		moleculeGroups['bulkMoleculesBinomialDivision'] = bulkMoleculesBinomialDivision
 
 		moleculeGroups['bulkMoleculesEqualDivision'] = createIdsWithCompartments([x for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']])
