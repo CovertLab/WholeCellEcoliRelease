@@ -26,11 +26,12 @@ FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
 DOUBLING_TIME = 60. * units.min
+MEDIA_CONDITIONS = "M9 Glucose minus AAs"
 
 def fitKb_1(kb):
 	# Initalize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
-	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data)
+	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
