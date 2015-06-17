@@ -43,7 +43,7 @@ def fitKb_2(kb, simOutDir):
 		complexationStoichMatrix
 		)
 
-	rnaDistribution = kb.process.transcription.rnaData['expression']
+	rnaDistribution = kb.process.transcription.rnaData["expression"]
 
 	rnaTotalCounts = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),

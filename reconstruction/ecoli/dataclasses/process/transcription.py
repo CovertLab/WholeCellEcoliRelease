@@ -12,6 +12,9 @@ from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 import numpy as np
 
+#EXPRESSION_TO_USE = 'microarray expression'
+EXPRESSION_TO_USE = 'mRNA expression in M9 Glucose minus AAs'
+
 class Transcription(object):
 	""" Transcription """
 
@@ -29,7 +32,7 @@ class Transcription(object):
 				rna['seq'].count('G'), rna['seq'].count('U'))
 			for rna in raw_data.rnas
 			])
-		expression = np.array([rna['expression'] for rna in raw_data.rnas])
+		expression = np.array([rna[EXPRESSION_TO_USE] for rna in raw_data.rnas])
 		synthProb = expression * (
 			np.log(2) / sim_data.doubling_time.asNumber(units.s)
 			+ rnaDegRates
@@ -37,7 +40,7 @@ class Transcription(object):
 		
 		synthProb /= synthProb.sum()
 
-		expression = [x['expression'] for x in raw_data.rnas]
+		expression = [x[EXPRESSION_TO_USE] for x in raw_data.rnas]
 
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 
@@ -88,8 +91,8 @@ class Transcription(object):
 			)
 
 		rnaData['id'] = rnaIds
-		rnaData['synthProb'] = synthProb
-		rnaData['expression'] = expression
+		rnaData["synthProb"] = synthProb
+		rnaData["expression"] = expression
 		rnaData['degRate'] = rnaDegRates
 		rnaData['length'] = rnaLens
 		rnaData['countsACGU'] = ntCounts

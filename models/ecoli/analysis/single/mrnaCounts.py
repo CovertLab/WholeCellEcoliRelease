@@ -60,7 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	counts = rnaCountsBulk[-1, :]
 
-	expectedCountsArbitrary = kb.process.transcription.rnaData['expression'][isMRna]
+	expectedCountsArbitrary = kb.process.transcription.rnaData["expression"][isMRna]
 
 	expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 

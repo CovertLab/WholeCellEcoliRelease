@@ -196,8 +196,8 @@ def createBulkContainer(kb):
 	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
 	distribution_tRNA = normalize(kb.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
-	distribution_mRNA = normalize(kb.process.transcription.rnaData['expression'][kb.process.transcription.rnaData['isMRna']])
-	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping])
+	distribution_mRNA = normalize(kb.process.transcription.rnaData["expression"][kb.process.transcription.rnaData['isMRna']])
+	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
 
 	## Rates/times
 
@@ -442,19 +442,19 @@ def fitExpression(kb, bulkContainer):
 			)[kb.relation.monomerIndexToRnaMapping]
 		)
 
-	kb.process.transcription.rnaData['expression'] = rnaExpressionContainer.counts()
+	kb.process.transcription.rnaData["expression"] = rnaExpressionContainer.counts()
 
 	# Set number of RNAs based on expression we just set
 	nRnas = totalCountFromMassesAndRatios(
 		totalMass_RNA,
 		kb.process.transcription.rnaData["mw"] / kb.constants.nAvogadro,
-		kb.process.transcription.rnaData['expression']
+		kb.process.transcription.rnaData["expression"]
 		)
 
 	nRnas.normalize()
 	nRnas.checkNoUnit()
 
-	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData['expression'])
+	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData["expression"])
 
 	## Synthesis probabilities ##
 	netLossRate_RNA = netLossRateFromDilutionAndDegradation(
