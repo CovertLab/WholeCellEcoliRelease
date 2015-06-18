@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Plots ribosome capacity
+Plots rnap capacity
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 11/20/2014
+@date: Created 6/18/2015
 """
 
 import argparse
@@ -35,78 +35,75 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	# Load data from KB
 	kb = cPickle.load(open(kbFile, "rb"))
 	nAvogadro = kb.constants.nAvogadro
-	ribosomeSubunitIds = []
-	ribosomeSubunitIds.extend(kb.moleculeGroups.s50_fullComplex)
-	ribosomeSubunitIds.extend(kb.moleculeGroups.s30_fullComplex)
-	ribosomeSubunitIds.extend(kb.moleculeGroups.s50_proteinComplexes)
-	ribosomeSubunitIds.extend(kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
-	ribosomeSubunitIds.extend(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'])
-	ribosomeSubunitMasses = kb.getter.getMass(ribosomeSubunitIds)
-	mass70s = (kb.getter.getMass(kb.moleculeGroups.s50_fullComplex) + kb.getter.getMass(kb.moleculeGroups.s30_fullComplex))[0]
 
-	elongationRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
+	rnapSubunitIds = kb.process.complexation.getMonomers("APORNAP-CPLX[c]")['subunitIds']
+	rnapSubunitStoich = kb.process.complexation.getMonomers("APORNAP-CPLX[c]")['subunitStoich']
+	massFullRnapComplex = kb.getter.getMass(["APORNAP-CPLX[c]"])[0]
+	rnapSubunitMasses = kb.getter.getMass(rnapSubunitIds)
 
-	# Load ribosome data
-	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
+	elongationRate = float(kb.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s))
 
-	actualElongations = ribosomeDataFile.readColumn("actualElongations")
-	expectedElongations_recorded = ribosomeDataFile.readColumn("expectedElongations")
+	# Load rnap data
+	rnapDataFile = TableReader(os.path.join(simOutDir, "RnapData"))
+
+	actualElongations = rnapDataFile.readColumn("actualElongations")
+	expectedElongations_recorded = rnapDataFile.readColumn("expectedElongations")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-	ribosomeDataFile.close()
+	rnapDataFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	# Get indexes
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
-	ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
+	rnapSubunitIndexes = np.array([moleculeIds.index(comp) for comp in rnapSubunitIds], np.int)
 
 	# Load data
-	ribosomeSubunitCounts = bulkMolecules.readColumn("counts")[:, ribosomeSubunitIndexes]
+	rnapSubunitCounts = bulkMolecules.readColumn("counts")[:, rnapSubunitIndexes]
 
 	bulkMolecules.close()
 
 	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-	activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+	rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+	activeRnap = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 
 	uniqueMoleculeCounts.close()
 
 	# Calculate statistics
-	totalRibosome = (activeRibosome + np.min(ribosomeSubunitCounts))
-	totalRibosomeCapacity = totalRibosome * elongationRate
+	totalRnap = (activeRnap + np.min(rnapSubunitCounts / rnapSubunitStoich))
+	totalRnapCapacity = totalRnap * elongationRate
 
-	freeSubunitMass = (ribosomeSubunitMasses * ribosomeSubunitCounts / nAvogadro).asNumber(units.fg).sum(axis = 1)
-	activeRibosomeMass = (mass70s * activeRibosome / nAvogadro).asNumber(units.fg)
-	totalRibosomeMass = freeSubunitMass + activeRibosomeMass
-	massFractionActive = activeRibosomeMass / totalRibosomeMass
+	freeSubunitMass = (rnapSubunitMasses * rnapSubunitCounts / nAvogadro).asNumber(units.fg).sum(axis = 1)
+	activeRnapMass = (massFullRnapComplex * activeRnap / nAvogadro).asNumber(units.fg)
+	totalRnapMass = freeSubunitMass + activeRnapMass
+	massFractionActive = activeRnapMass / totalRnapMass
 
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
 
-	ribosomeCapacity_axis = plt.subplot(4,1,1)
-	ribosomeCapacity_axis.plot(time / 60., totalRibosomeCapacity, label="Theoretical total ribosome capacity", linewidth=2, color='b')
-	ribosomeCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
-	ribosomeCapacity_axis.set_ylabel("Amino acids polymerized")
-	ribosomeCapacity_axis.legend(ncol=2)
+	rnapCapacity_axis = plt.subplot(4,1,1)
+	rnapCapacity_axis.plot(time / 60., totalRnapCapacity, label="Theoretical total rnap capacity", linewidth=2, color='b')
+	rnapCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
+	rnapCapacity_axis.set_ylabel("Amino acids polymerized")
+	rnapCapacity_axis.legend(ncol=2)
 
 	fractionalCapacity_axis = plt.subplot(4,1,2)
-	fractionalCapacity_axis.plot(time / 60., actualElongations / totalRibosomeCapacity, label="Fraction of ribosome capacity used", linewidth=2, color='k')
-	fractionalCapacity_axis.set_ylabel("Fraction of ribosome capacity used")
+	fractionalCapacity_axis.plot(time / 60., actualElongations / totalRnapCapacity, label="Fraction of rnap capacity used", linewidth=2, color='k')
+	fractionalCapacity_axis.set_ylabel("Fraction of rnap capacity used")
 	fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
 	#fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
 	fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
 
 	effectiveElongationRate_axis = plt.subplot(4,1,3)
-	effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRibosome, label="Effective elongation rate", linewidth=2, color='k')
-	effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
+	effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRnap, label="Effective elongation rate", linewidth=2, color='k')
+	effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/rnap)")
 
 	fractionActive_axis = plt.subplot(4,1,4)
 	fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
-	fractionActive_axis.set_ylabel("Mass fraction of active ribosomes")
+	fractionActive_axis.set_ylabel("Mass fraction of active rnaps")
 	fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
 
 	# Save

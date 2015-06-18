@@ -29,6 +29,7 @@ from models.ecoli.listeners.ribosome_data import RibosomeData
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
+from models.ecoli.listeners.rnap_data import RnapData
 
 # Analysis
 import models.ecoli.analysis.single
@@ -66,7 +67,8 @@ class EcoliSimulation(Simulation):
 		RibosomeData,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
-		FBAResults
+		FBAResults,
+		RnapData
 		)
 
 	_hookClasses = ()

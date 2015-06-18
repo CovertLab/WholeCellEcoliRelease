@@ -131,6 +131,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.elngRate
 			)
 
+		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
+
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
 		sequenceElongations, ntpsUsed, nElongations = polymerize(
@@ -159,7 +161,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			massDiff_mRNA = updatedMass
 			)
 
-		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])
+		terminalLengths = self.rnaLengths[rnaIndexes]
+
+		didTerminate = (updatedLengths == terminalLengths)
 
 		terminatedRnas = np.bincount(
 			rnaIndexes[didTerminate],
@@ -179,3 +183,17 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countInc(nTerminated)
 
 		self.ppi.countInc(nElongations - nInitialized)
+
+		expectedElongations = np.fmin(
+			self.elngRate,
+			terminalLengths - transcriptLengths
+			)
+
+		rnapStalls = expectedElongations - sequenceElongations
+
+		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
+		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
+		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
+
+		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
+		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
