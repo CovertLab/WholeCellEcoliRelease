@@ -62,7 +62,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules.close()
 
-	expectedCountsArbitrary = kb.process.transcription.rnaData['expression'][isMRna]
+	expectedCountsArbitrary = kb.process.transcription.rnaData["expression"][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()
 

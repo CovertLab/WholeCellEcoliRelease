@@ -47,14 +47,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	elongationRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 	# Load ribosome data
-	massFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
+	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 
-	actualElongations = massFile.readColumn("actualElongations")
-	expectedElongations_recorded = massFile.readColumn("expectedElongations")
+	actualElongations = ribosomeDataFile.readColumn("actualElongations")
+	expectedElongations_recorded = ribosomeDataFile.readColumn("expectedElongations")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-	massFile.close()
+	ribosomeDataFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

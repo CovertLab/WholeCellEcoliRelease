@@ -12,6 +12,9 @@ from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 import numpy as np
 
+#RNA_SEQ_ANALYSIS = "seal_rpkm"
+RNA_SEQ_ANALYSIS = "rsem_tpm"
+
 class Transcription(object):
 	""" Transcription """
 
@@ -29,15 +32,28 @@ class Transcription(object):
 				rna['seq'].count('G'), rna['seq'].count('U'))
 			for rna in raw_data.rnas
 			])
-		expression = np.array([rna['expression'] for rna in raw_data.rnas])
+
+		# Load expression from RNA-seq data
+		expression = []
+		for rna in raw_data.rnas:
+			arb_exp = [x[sim_data.media_conditions] for x in eval("raw_data.rnaseq_{}_mean".format(RNA_SEQ_ANALYSIS)) if x['Gene'] == rna['geneId']]
+			if len(arb_exp):
+				expression.append(arb_exp[0])
+			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
+				import ipdb; ipdb.set_trace()
+				raise Exception('No RNA-seq data found for {}'.format(rna['id']))
+			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
+				expression.append(0.)
+			else:
+				raise Exception('Unknonw RNA {}'.format(rna['id']))
+
+		expression = np.array(expression)
 		synthProb = expression * (
 			np.log(2) / sim_data.doubling_time.asNumber(units.s)
 			+ rnaDegRates
 			)
 		
 		synthProb /= synthProb.sum()
-
-		expression = [x['expression'] for x in raw_data.rnas]
 
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 
@@ -88,8 +104,8 @@ class Transcription(object):
 			)
 
 		rnaData['id'] = rnaIds
-		rnaData['synthProb'] = synthProb
-		rnaData['expression'] = expression
+		rnaData["synthProb"] = synthProb
+		rnaData["expression"] = expression
 		rnaData['degRate'] = rnaDegRates
 		rnaData['length'] = rnaLens
 		rnaData['countsACGU'] = ntCounts

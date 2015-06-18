@@ -26,11 +26,12 @@ FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
 DOUBLING_TIME = 60. * units.min
+MEDIA_CONDITIONS = "M9 Glucose minus AAs"
 
 def fitKb_1(kb):
 	# Initalize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
-	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data)
+	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
@@ -196,8 +197,8 @@ def createBulkContainer(kb):
 	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
 	distribution_tRNA = normalize(kb.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
-	distribution_mRNA = normalize(kb.process.transcription.rnaData['expression'][kb.process.transcription.rnaData['isMRna']])
-	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping])
+	distribution_mRNA = normalize(kb.process.transcription.rnaData["expression"][kb.process.transcription.rnaData['isMRna']])
+	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
 
 	## Rates/times
 
@@ -442,19 +443,19 @@ def fitExpression(kb, bulkContainer):
 			)[kb.relation.monomerIndexToRnaMapping]
 		)
 
-	kb.process.transcription.rnaData['expression'] = rnaExpressionContainer.counts()
+	kb.process.transcription.rnaData["expression"] = rnaExpressionContainer.counts()
 
 	# Set number of RNAs based on expression we just set
 	nRnas = totalCountFromMassesAndRatios(
 		totalMass_RNA,
 		kb.process.transcription.rnaData["mw"] / kb.constants.nAvogadro,
-		kb.process.transcription.rnaData['expression']
+		kb.process.transcription.rnaData["expression"]
 		)
 
 	nRnas.normalize()
 	nRnas.checkNoUnit()
 
-	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData['expression'])
+	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData["expression"])
 
 	## Synthesis probabilities ##
 	netLossRate_RNA = netLossRateFromDilutionAndDegradation(
