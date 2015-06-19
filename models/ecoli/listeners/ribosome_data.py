@@ -38,14 +38,14 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.stallingRateStd = None
 		self.fractionStalled = None
 
-		# Attributes broadcast by the PolypeptideElongation process
+		# Attributes broadcast by the processes
 		self.ribosomeStalls = None
 		self.aaCountInSequence = None
 		self.aaCounts = None
-		self.trnasCapacity = None
-		self.synthetaseCapacity = None
 		self.actualElongations = None
 		self.expectedElongations = None
+		self.didTerminate = None
+		self.didInitalize = None
 
 
 		# Logged quantities
@@ -70,10 +70,10 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.ribosomeStalls = np.zeros(0, np.int64)
 		self.aaCountInSequence = np.zeros(21, np.int64)
 		self.aaCounts = np.zeros(21, np.int64)
-		self.trnasCapacity = np.zeros(21, np.int64)
-		self.synthetaseCapacity = np.zeros(21, np.int64)
 		self.actualElongations = 0
 		self.expectedElongations = 0
+		self.didTerminate = 0
+		self.didInitalize = 0
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -104,10 +104,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			fractionStalled = self.fractionStalled,
 			aaCountInSequence = self.aaCountInSequence,
 			aaCounts = self.aaCounts,
-			trnasCapacity = self.trnasCapacity,
-			synthetaseCapacity = self.synthetaseCapacity,
 			actualElongations = self.actualElongations,
 			expectedElongations = self.expectedElongations,
+			didTerminate = self.didTerminate,
+			didInitalize = self.didInitalize,
 			)
-
-	# TODO: load method
