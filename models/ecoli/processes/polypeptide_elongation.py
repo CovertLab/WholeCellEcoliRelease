@@ -119,7 +119,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceHasAA = (sequences != PAD_VALUE)
 
-		aasRequested = np.bincount(sequences[sequenceHasAA])
+		aasRequested = np.bincount(sequences[sequenceHasAA], minlength=21)
 
 		self.aas.requestIs(
 			aasRequested
