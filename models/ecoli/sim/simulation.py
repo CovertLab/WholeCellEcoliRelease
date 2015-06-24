@@ -94,5 +94,36 @@ class EcoliSimulation(Simulation):
 
 	_logToDisk = False
 
-class EcoliDaughterSimulation(EcoliSimulation):
-	_initialConditionsFunction = setDaughterInitialConditions
+	@classmethod
+	def printAnalysisSingleFiles(cls, fileName = None):
+		directory = os.path.dirname(models.ecoli.analysis.single.__file__)
+		fileList = sorted(os.listdir(directory))
+		if fileName == None:
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					continue
+				print os.path.join(directory, f)
+		else:
+			h = open(fileName, "w")
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					continue
+				h.write(os.path.join(directory, f) + "\n")
+			h.close()
+
+	@classmethod
+	def printAnalysisCohortFiles(cls, fileName = None):
+		directory = os.path.dirname(models.ecoli.analysis.cohort.__file__)
+		fileList = sorted(os.listdir(directory))
+		if fileName == None:
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					continue
+				print os.path.join(directory, f)
+		else:
+			h = open(fileName, "w")
+			for f in fileList:
+				if f.endswith(".pyc") or f == "__init__.py":
+					continue
+				h.write(os.path.join(directory, f) + "\n")
+			h.close()

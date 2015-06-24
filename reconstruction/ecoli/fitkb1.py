@@ -377,6 +377,9 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 
 
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
+
+	slowRnaBool = ~(kb.rnaData["isRRna5S"] | kb.rnaData["isRRna16S"] | kb.rnaData["isRRna23S"] | kb.rnaData["isTRna"])
+	fastRnaBool = kb.rnaData["isRRna5S"] | kb.rnaData["isRRna16S"] | kb.rnaData["isRRna23S"] | kb.rnaData["isTRna"]
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.process.transcription.rnaData['countsACGU'], axis = 1)
 	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.doubling_time, kb.process.transcription.rnaData["degRate"])
@@ -394,6 +397,13 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	nActiveRnapNeeded.normalize()
 
+	nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(
+		rnaLengths[slowRnaBool], kb.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
+	nActiveRnapNeededforFast = calculateMinPolymerizingEnzymeByProductDistribution(
+		rnaLengths[fastRnaBool], kb.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
+
+	nActiveRnapNeeded = nActiveRnapNeededforFast + nActiveRnapNeededforSlow
+ 
 	nActiveRnapNeeded.checkNoUnit()
 	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
 
@@ -486,6 +496,7 @@ def fitRNAPolyTransitionRates(kb):
 
 	elngRateVector = slowRnaBool*kb.growthRateParameters.rnaPolymeraseElongationRate + fastRnaBool*kb.growthRateParameters.rnaPolymeraseElongationRateFast
 
+
 	# In our simplified model of RNA polymerase state transition, RNAp can be
 	# active (transcribing) or inactive (free-floating).  To solve for the
 	# rate of activation, we need to calculate the average rate of termination,
@@ -495,7 +506,6 @@ def fitRNAPolyTransitionRates(kb):
 	expectedTranscriptionTime = rnaLengths/elngRateVector
 
 	weightedExpectedTranscriptionTime = units.dot(expectedTranscriptionTime, synthProb)
-
 	expectedTerminationRate = 1/weightedExpectedTranscriptionTime
 
 

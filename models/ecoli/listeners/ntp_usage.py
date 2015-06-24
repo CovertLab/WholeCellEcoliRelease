@@ -86,7 +86,7 @@ class NtpUsage(wholecell.listeners.listener.Listener):
 				]
 			+ self.bulkMolecules._countsAllocatedInitial[
 				self.metaboliteIdxs, self.transcriptionProcessFastIdx
-				]	
+				]
 			- self.bulkMolecules._countsAllocatedFinal[
 				self.metaboliteIdxs, self.transcriptionProcessSlowIdx
 				]

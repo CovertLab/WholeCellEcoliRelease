@@ -1807,6 +1807,7 @@ class KnowledgeBaseEcoli(object):
 		self._parameterData['cellCycleLen'] = 3600*units.s
 		self._parameterData['avgCellDryMass'] = 258*units.fg
 		self._parameterData['rnaPolymeraseElongationRate'] = 42*units.nt/units.s
+		self._parameterData['rnaPolymeraseElongationRateFast'] = 80*units.nt/units.s
 		self._parameterData['ribosomeElongationRate'] = 16*units.aa/units.s
 		self._parameterData['fracInitFreeNTPs'] = 0.0015
 		self._parameterData['fracInitFreeAAs'] = 0.001
