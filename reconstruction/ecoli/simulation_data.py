@@ -47,7 +47,7 @@ class SimulationDataEcoli(object):
 		self.constants = Constants(raw_data, self)
 
 		# Growth rate dependent parameters are set first
-		self.growthgrowthRateParameters = GrowthRateParameters(raw_data, self)
+		self.growthRateParameters = GrowthRateParameters(raw_data, self)
 		self.mass = Mass(raw_data, self)
 
 		# Data classes (can depend on helper functions)
