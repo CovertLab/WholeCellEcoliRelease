@@ -34,10 +34,12 @@
 
 \section{Basics}
 
-The knowledge base and the code that fits the knowledge base is located in the wcEcoli/reconstruction/ecoli/ directory. The input information files are in wcEcoli/reconstruction/ecoli/flat, and the code that loads it into an object is in knowledge\_base\_raw.py.
+This document is an introduction to running the whole-cell E.coli model on the Sherlock computing cluster. In addition to setup and a tutorial on modifying the model, it will include a brief primer on some of model knowledge base fitting in later sections.
+\par
+First a basic note on file locations. The knowledge base and the code that fits the knowledge base is located in the wcEcoli/reconstruction/ecoli/ directory. The input information files are in wcEcoli/reconstruction/ecoli/flat, and the code that loads it into an object is in knowledge\_base\_raw.py.
 \par
 
-Processes are located in wcEcoli/models/ecoli/processes/
+Processes are located in wcEcoli/models/ecoli/processes/. Each process represents one part of the cell's function, and they are modeled separately in short time steps and then the results of each time step are integrated between modules before initiating the next time step. RNA polymerase elongation is the processed used below as an example in this tutorial. Other processes include translation elongation, transciption initiation, and metabolism.
 \par
 Each process has three components: initialize (called only once at the beginning of a simulation), calculateRequest (called at the beginning of each timestep), and evolveState (called after resources are allocated at each timestep).
 \par
@@ -47,23 +49,13 @@ Each process has three components: initialize (called only once at the beginning
 \par
 \emph{In evolveState}: resources have been allocated, perform the process, update counts, and update masses (mass must be conserved between steps).
 \par
-If you need new output, you must write this out as a listener. To add a listener, add the file to wcEcoli/models/ecoli/listeners/, and both add an import statement and add the listener to \_listenerClasses in wcEcoli/models/ecoli/sim/simulation.py.
+If you need new output, you must write this out as a listener. Listeners are programs which record information during the simulation. To add a listener, add the file to wcEcoli/models/ecoli/listeners/, and both add an import statement and add the listener to \_listenerClasses in wcEcoli/models/ecoli/sim/simulation.py.
 \par
 To change the cell’s initial conditions, change wcEcoli/models/ecoli/sim/initial\_conditions.py
 \par
-To load the knowledge base into ipython:
-\par
-
-\begin{lstlisting}
-ipython
-import reconstruction.ecoli.knowledge_base_raw as kbr
-kb=kbr.KnowledgeBaseEcoli()
-\end{lstlisting}
-
-The kb object now contains all the values in the knowledge base. The code reading and constructing the KnowledgeBaseEcoli object is in knowledge\_base\_raw.py.
-
 
 \section{Setup}
+\label{sec:setup}
 
 This tutorial assumes you have setup access to the Sherlock cluster. If necessary before following the proceeding steps, do the following setup:
 
@@ -94,6 +86,18 @@ The code has inevitably evolved since I wrote this tutorial, so let’s get on t
 \begin{lstlisting}
 git checkout –b tutorial b16293cb008135425
 \end{lstlisting}
+
+
+To begin, let's load the knowledge base into ipython:
+\par
+
+\begin{lstlisting}
+ipython
+import reconstruction.ecoli.knowledge_base_raw as kbr
+kb=kbr.KnowledgeBaseEcoli()
+\end{lstlisting}
+
+The kb object now contains all the values in the knowledge base. The code reading and constructing the KnowledgeBaseEcoli object is in knowledge\_base\_raw.py.
 
 
 \subsection{Add a new parameter to the model}
@@ -195,7 +199,7 @@ Now let’s modify the new processes. Open models/ecoli/processes/transcript\_el
 :%s/TranscriptElongation/TranscriptElongationSlow/g
 \end{lstlisting}
 
-Now, let’s create a Boolean vector that is True at the indices of transcripts that should be elongated at the slow rate and False at the indices of transcripts that should be elongated at the fast rate. In the initialize function add the following line (after line 70):
+Next create a Boolean vector that is True at the indices of transcripts that should be elongated at the slow rate and False at the indices of transcripts that should be elongated at the fast rate. In the initialize function add the following line (after line 70):
 
 \lstset{language=Python}
 \begin{lstlisting}
@@ -266,7 +270,7 @@ However, the simulation would be initialized the same way as before. This is a p
 
 \par
 
-We calculate the number of RNA polymerases that we need initially by writing an equation for the rate of change of some RNA Ri (rate of synthesis – rate of degradation = rate of dilution due to growth):
+We calculate the number of RNA polymerases that we need initially by writing an equation for the rate of change of some RNA $R_i$ (rate of synthesis – rate of degradation = rate of dilution due to growth):
 
 $$
 \frac{d R_i}{dt} = \frac{k_{elong}}{L_i}P_i(t) - \frac{\ln(2)}{h_i}R_i(t) = \frac{\ln(2)}{\tau_d}R_i(t)
@@ -281,8 +285,6 @@ slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transc
 
 fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
 \end{lstlisting}
-
-
 
 Let’s break up the calculation of nActiveRnapNeeded into nActiveRnapNeededforFast and nActiveRnapNeededforSlow. Change the nActiveRnapNeeded calculation to read:
 
@@ -307,19 +309,32 @@ Now let’s change the calculation of the RNA polymerase activation rate. In the
 \includegraphics{img.png}
 
 
-To calculate the rate of activation, kactivate, we write an equation for the rate of change of the number of RNAP active at steady state:
+To calculate the rate of activation, $k_{activate}$, we write an equation for the rate of change of the number of RNAP active at steady state:
 
 $$
 \frac{dA}{dt}=k_{activate}I - k_{inactivate}A=0
 $$
 
-We know the experimentally determined fraction of RNA polymerases that are active, factive:
+This gives us that
 
 $$
-f_{active}=\frac{A}{A+1}
+k_{activate} = k_{inactivate}\frac{A}{I}
 $$
 
-Rearranging and solving for the rate of activation:
+
+We know from experiments the fraction of RNA polymerases that are active, $f_{active}$:
+
+$$
+f_{active}=\frac{A}{A+I}
+$$
+
+Using that 
+
+$$
+f_{active} = 1 - f_{inactive}
+$$
+
+We can rearrange and solve for the rate of activation:
 
 $$
 k_{activate}=k_{inactivate}\left(\frac{f_{active}}{1-f_{active}} \right)
@@ -337,7 +352,7 @@ $$
 k_{inactivate}=\frac{k_{elong,i}}{L_i}\cdot \frac{1}{p_{synth}}
 $$
 
-Now let’s do this in the code. In reconstruction/ecoli/fitkb1.py, in the fitRNAPolyTransitionRates function (on line 483), at the top add these lines:
+Now let’s do this in the code. In reconstruction/ecoli/fitkb1.py, in the fitRNAPolyTransitionRates function (on line 483), at the top add the following lines. The tilde operator inverts the booleans.
 
 \begin{lstlisting}
 slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"])
@@ -368,14 +383,16 @@ We’re done editing this file now. Now the fitting of the initial number of RNA
 
 \subsection{Running simulations}
 
-Now we can run some simulations. First, if you haven't alreadt, log in to a sherlock node. Replace 'username' with your username in the command below:
+Now we can run some simulations. Be sure to complete the setup section (\ref{sec:setup}) if you haven't already.
+\par
+First log in to a sherlock node. Replace 'username' with your username in the command below:
 
 \lstset{language=bash}
 \begin{lstlisting}
 ssh username@sherlock
 \end{lstlisting}
 
-Now log in to a non-login node, so that the simulation can be run in interactive mode (running in interactive mode on a login node can result in getting booted from the cluster).
+Now log in to a non-login node, so that the simulation can be run in interactive mode (running in interactive mode on a login node can result in getting booted from the cluster). These nodes are covert-lab specific and it's ok to do more serious computation on them.
 
 \begin{lstlisting}
 srun -p mcovert --ntasks-per-node=1 --time=12:00:00 --pty bash
