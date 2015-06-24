@@ -170,6 +170,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
 		aaCounts = self.aas.counts()
+
 		# trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
 		# synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
 		# elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
@@ -224,6 +225,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		nInitialized = didInitialize.sum()
 
 		# Update bulk molecules
+		self.writeToListener("RibosomeData", "fractionAAsUsed", aasUsed.sum() / self.aas.counts().sum())
 
 		self.aas.countsDec(aasUsed)
 
@@ -263,3 +265,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
+		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
+
+		self.writeToListener("RibosomeData", "fractionGtpLimit", sequenceElongations.sum() / reactionLimit)
