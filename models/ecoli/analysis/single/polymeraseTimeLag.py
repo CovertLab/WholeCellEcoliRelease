@@ -50,8 +50,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ribosomesTerminated = ribosomeDataFile.readColumn("didTerminate")
 	ribosomesInitalized = ribosomeDataFile.readColumn("didInitalize")
 	ribosomeTerminationLoss = ribosomeDataFile.readColumn("terminationLoss")
-	fracGtpLimit = ribosomeDataFile.readColumn("fractionGtpLimit")
-	fracAAsUsed = ribosomeDataFile.readColumn("fractionAAsUsed")
 	ribosomeDataFile.close()
 
 	# Load RNAP data
@@ -120,16 +118,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ribosomeTermLoss_axis.plot(time / 60., rnapTerminationLoss, label="Lost capacity due to termination", linewidth=2, color='r')
 	ribosomeTermLoss_axis.set_ylabel("lost ntp capacity")
 	ribosomeTermLoss_axis.legend()#ncol=2)
-
-	fracGtpLimit_axis = plt.subplot(8,1,7)
-	fracGtpLimit_axis.plot(time / 60., fracGtpLimit, label="Fraction of GTP limit used", linewidth=2, color='r')
-	fracGtpLimit_axis.set_ylabel("# rxn / # gtp")
-	fracGtpLimit_axis.legend()#ncol=2)
-
-	fracAAsUsed_axis = plt.subplot(8,1,8)
-	fracAAsUsed_axis.plot(time / 60., fracAAsUsed, label="Fraction of AAs allocated used", linewidth=2, color='r')
-	fracAAsUsed_axis.set_ylabel("aas / aas")
-	fracAAsUsed_axis.legend()#ncol=2)
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)

@@ -141,6 +141,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 				)
 			))
 
+		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
+		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
+
 		self.gtp.requestIs(gtpsHydrolyzed)
 
 		self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
@@ -148,6 +151,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		self.writeToListener("GrowthLimits", "gtpAllocated", self.gtp.count())
+		self.writeToListener("GrowthLimits", "gtpPerElongation", self.gtpPerElongation)
+
 		activeRibosomes = self.activeRibosomes.molecules()
 
 		if len(activeRibosomes) == 0:
@@ -225,7 +231,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		nInitialized = didInitialize.sum()
 
 		# Update bulk molecules
-		self.writeToListener("RibosomeData", "fractionAAsUsed", aasUsed.sum() / self.aas.counts().sum())
+		self.writeToListener("GrowthLimits", "fractionAAsUsed", aasUsed.sum() / self.aas.counts().sum())
 
 		self.aas.countsDec(aasUsed)
 
@@ -267,4 +273,4 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
 
-		self.writeToListener("RibosomeData", "fractionGtpLimit", sequenceElongations.sum() / reactionLimit)
+		self.writeToListener("GrowthLimits", "fractionGtpLimit", sequenceElongations.sum() / reactionLimit)

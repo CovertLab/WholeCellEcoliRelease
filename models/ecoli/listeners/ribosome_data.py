@@ -48,10 +48,6 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.didInitalize = None
 		self.terminationLoss = None
 
-		self.fractionAAsUsed = None
-		self.fractionGtpLimit = None
-
-
 		# Logged quantities
 		self.registerLoggedQuantity(
 			"Fraction\nribosomes\nstalled",
@@ -79,9 +75,6 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.didTerminate = 0
 		self.didInitalize = 0
 		self.terminationLoss = 0
-
-		self.fractionAAsUsed = 0.
-		self.fractionGtpLimit = 0.
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -117,6 +110,4 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			didTerminate = self.didTerminate,
 			didInitalize = self.didInitalize,
 			terminationLoss = self.terminationLoss,
-			fractionAAsUsed = self.fractionAAsUsed,
-			fractionGtpLimit = self.fractionGtpLimit,
 			)
