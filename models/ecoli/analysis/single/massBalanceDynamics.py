@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+THRESHOLD = 1e-5
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
@@ -25,9 +26,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	time = (
+		TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		) / 60.
 
-	relProcessMassDifferences = np.abs(mass.readColumn("relProcessMassDifferences"))
+	relProcessMassDifferences = mass.readColumn("relProcessMassDifferences")
 
 	relProcessMassDifferences[relProcessMassDifferences == 0] = np.nan
 
@@ -42,18 +45,40 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	n_cols = int(np.sqrt(n_processes))
 	n_rows = int(np.ceil(n_processes/n_cols))
 
-	axis = [time.min()/60., time.max()/60., np.nanmin(relProcessMassDifferences), np.nanmax(relProcessMassDifferences)]
+	axis = [time.min(), time.max(), np.nanmin(np.abs(relProcessMassDifferences)), np.nanmax(np.abs(relProcessMassDifferences))]
 
 	for i, processName in enumerate(processNames):
 		plt.subplot(n_rows, n_cols, i+1)
 
-		if np.any(relProcessMassDifferences[:, i] > 0):
-			plt.semilogy(time/60., relProcessMassDifferences[:, i], 'k.')
+		series = relProcessMassDifferences[:, i].copy()
+		t = time.copy()
+
+		t = t[series != 0]
+		series = series[series != 0]
+
+		if np.any(series > 0):
+			colors = np.zeros((series.size, 3), np.float64)
+
+			colors[np.abs(series) > THRESHOLD, :] = (1.0, 0.0, 0.0)
+
+			# markers = ["^" if value > 0 else "v" for value in series]
+
+			plt.scatter(
+				t,
+				np.abs(series),
+				color = colors,
+				marker = '.'
+				# marker = markers
+				)
+
+		plt.hlines(THRESHOLD,  axis[0], axis[1], "r", "dashed")
 
 		plt.title(processName)
 
 		# plt.xlabel("time (min)")
 		# plt.ylabel("mass diff ($|(m_f - m_i)/(m_i)|$)")
+
+		plt.yscale("log")
 
 		plt.axis(axis)
 
