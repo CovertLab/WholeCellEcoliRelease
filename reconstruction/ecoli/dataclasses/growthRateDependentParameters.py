@@ -116,11 +116,11 @@ class Mass(object):
 		for key, value in self.massFraction.iteritems():
 			D[key + "Mass"] = value * self.avgCellDryMass
 
-		D["rRna23SMass"] = D['rnaMass'] * self.rrna23s_mass_sub_fraction
-		D["rRna16SMass"] = D['rnaMass'] * self.rrna16s_mass_sub_fraction
-		D["rRna5SMass"] = D['rnaMass'] * self.rrna5s_mass_sub_fraction
-		D["tRnaMass"] = D['rnaMass'] * self.trna_mass_sub_fraction
-		D["mRnaMass"] = D['rnaMass'] * self.mrna_mass_sub_fraction
+		D["rRna23SMass"] = D['rnaMass'] * self._rrna23s_mass_sub_fraction
+		D["rRna16SMass"] = D['rnaMass'] * self._rrna16s_mass_sub_fraction
+		D["rRna5SMass"] = D['rnaMass'] * self._rrna5s_mass_sub_fraction
+		D["tRnaMass"] = D['rnaMass'] * self._trna_mass_sub_fraction
+		D["mRnaMass"] = D['rnaMass'] * self._mrna_mass_sub_fraction
 
 		return D
 

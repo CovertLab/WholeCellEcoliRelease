@@ -22,7 +22,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -34,44 +34,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	# stallingRateTotal = ribosomeData.readColumn("stallingRateTotal")
-	# stallingRateMean = ribosomeData.readColumn("stallingRateMean")
-	# stallingRateStd = ribosomeData.readColumn("stallingRateStd")
 	fractionStalled = ribosomeData.readColumn("fractionStalled")
-	aaCountInSequence = ribosomeData.readColumn("aaCountInSequence")
-	aaCounts = ribosomeData.readColumn("aaCounts")
-	trnaCapacity = ribosomeData.readColumn("trnasCapacity")
-	synthetaseCapacity = ribosomeData.readColumn("synthetaseCapacity")
 
 	ribosomeData.close()
 
-	aaLimitation = -1 * (aaCountInSequence - aaCounts).clip(min = 0).sum(axis = 1)
-	trnaCapacityLimitation = -1 * (aaCountInSequence - trnaCapacity).clip(min = 0).sum(axis = 1)
-	synthetaseCapacityLimitation = -1 * (aaCountInSequence - synthetaseCapacity).clip(min = 0).sum(axis = 1)
-
-	aaExcess = -1 * (aaCountInSequence - aaCounts).clip(max = 0).sum(axis = 1)
-	trnaCapacityExcess = -1 * (aaCountInSequence - trnaCapacity).clip(max = 0).sum(axis = 1)
-	synthetaseCapacityExcess = -1 * (aaCountInSequence - synthetaseCapacity).clip(max = 0).sum(axis = 1)
-
 	plt.figure(figsize = (8.5, 11))
-	plt.subplot(2,1,1)
 	plt.plot(time / 60, fractionStalled)
 
 	plt.xlabel("Time (min)")
 	plt.ylabel("Fraction of ribosomes stalled")
-
-	plt.subplot(2,1,2)
-
-	plt.plot(time / 60, aaLimitation, '--', label = 'aa limit')
-	plt.plot(time / 60, trnaCapacityLimitation, '--', label = 'trna limit')
-	plt.plot(time / 60, synthetaseCapacityLimitation, '--', label = 'synthetase limit')
-
-	plt.plot(time / 60, aaExcess, label = 'aa excess')
-	plt.plot(time / 60, trnaCapacityExcess, label = 'trna excess')
-	plt.plot(time / 60, synthetaseCapacityExcess, label = 'synthetase excess')
-	plt.legend(prop={'size':7})
-	plt.xlabel("Time (min)")
-	plt.ylabel("Magnitude of capacity/demand mismatch (elongations)")
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 

@@ -45,7 +45,7 @@ CMAP_OVER = [0, 1, 0.75]
 
 NUMERICAL_ZERO = 1e-10 # used to cull very small numbers; could be chosen more rationally (i.e. minimum of one reaction per average cell size)
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# Disabled
 	return
 

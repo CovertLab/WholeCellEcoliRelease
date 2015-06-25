@@ -150,11 +150,6 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	#gtpPoolDryMass = gtpsHydrolyzedLastTimeStep * kb.getter.getMass(['GTP'])[0] / kb.constants.nAvogadro
 	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)# + units.sum(gtpPoolDryMass)
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
-	kb.mass.mrna_mass_sub_fraction = kb.mass.subMass['mRnaMass'] / newAvgCellDryMassInit
-	kb.mass.rrna16s_mass_sub_fraction = kb.mass.subMass['rRna16SMass'] / newAvgCellDryMassInit
-	kb.mass.rrna23s_mass_sub_fraction = kb.mass.subMass['rRna23SMass'] / newAvgCellDryMassInit
-	kb.mass.rrna5s_mass_sub_fraction = kb.mass.subMass['rRna5SMass'] / newAvgCellDryMassInit
-	kb.mass.trna_mass_sub_fraction = kb.mass.subMass['tRnaMass'] / newAvgCellDryMassInit
 
 def createBulkContainer(kb):
 
@@ -173,14 +168,12 @@ def createBulkContainer(kb):
 	## Mass fractions
 	subMass = kb.mass.subMass
 
-	totalMass_RNA = subMass["rnaMass"]
 	totalMass_protein = subMass["proteinMass"]
-
-	totalMass_rRNA23S = totalMass_RNA * kb.mass.rrna23s_mass_sub_fraction
-	totalMass_rRNA16S = totalMass_RNA * kb.mass.rrna16s_mass_sub_fraction
-	totalMass_rRNA5S = totalMass_RNA * kb.mass.rrna5s_mass_sub_fraction
-	totalMass_tRNA = totalMass_RNA * kb.mass.trna_mass_sub_fraction
-	totalMass_mRNA = totalMass_RNA * kb.mass.mrna_mass_sub_fraction
+	totalMass_rRNA23S = subMass["rRna23SMass"]
+	totalMass_rRNA16S = subMass["rRna16SMass"]
+	totalMass_rRNA5S = subMass["rRna5SMass"]
+	totalMass_tRNA = subMass["tRnaMass"]
+	totalMass_mRNA = subMass["mRnaMass"]
 
 	## Molecular weights
 

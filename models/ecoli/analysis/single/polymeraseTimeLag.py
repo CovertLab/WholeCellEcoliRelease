@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Plots ribosome capacity
+Plots time-step effects on polymerization
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 11/20/2014
+@date: Created 6/18/2015
 """
 
 import argparse
@@ -19,11 +19,6 @@ import cPickle
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
-from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
-
-FONT = {
-		'size'	:	8
-		}
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.isdir(simOutDir):
@@ -46,15 +41,21 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	elongationRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
 
-	# Load ribosome data
-	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
-
-	actualElongations = ribosomeDataFile.readColumn("actualElongations")
-	expectedElongations_recorded = ribosomeDataFile.readColumn("expectedElongations")
+	# Load time
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
+	# Load ribosome data
+	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
+	ribosomesTerminated = ribosomeDataFile.readColumn("didTerminate")
+	ribosomesInitalized = ribosomeDataFile.readColumn("didInitalize")
 	ribosomeDataFile.close()
+
+	# Load RNAP data
+	rnapDataFile = TableReader(os.path.join(simOutDir, "RnapData"))
+	rnapsTerminated = rnapDataFile.readColumn("didTerminate")
+	rnapsInitalized = rnapDataFile.readColumn("didInitalize")
+	rnapDataFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -85,29 +86,32 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	massFractionActive = activeRibosomeMass / totalRibosomeMass
 
 	plt.figure(figsize = (8.5, 11))
-	matplotlib.rc('font', **FONT)
 
-	ribosomeCapacity_axis = plt.subplot(4,1,1)
-	ribosomeCapacity_axis.plot(time / 60., totalRibosomeCapacity, label="Theoretical total ribosome capacity", linewidth=2, color='b')
-	ribosomeCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
-	ribosomeCapacity_axis.set_ylabel("Amino acids polymerized")
-	ribosomeCapacity_axis.legend(ncol=2)
+	ribosomeCapacity_axis = plt.subplot(2,1,1)
+	ribosomeCapacity_axis.plot(time / 60., ribosomesInitalized, label="Number of ribosomes initalized", linewidth=2, color='b')
+	ribosomeCapacity_axis.set_ylabel("ribosomes")
+	ribosomeCapacity_axis.legend()#ncol=2)
 
-	fractionalCapacity_axis = plt.subplot(4,1,2)
-	fractionalCapacity_axis.plot(time / 60., actualElongations / totalRibosomeCapacity, label="Fraction of ribosome capacity used", linewidth=2, color='k')
-	fractionalCapacity_axis.set_ylabel("Fraction of ribosome capacity used")
-	fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
-	#fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
-	fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
+	ribosomeCapacity_axis = plt.subplot(2,1,2)
+	ribosomeCapacity_axis.plot(time / 60., ribosomesTerminated, label="Number of ribosomes terminated", linewidth=2, color='r')
+	ribosomeCapacity_axis.set_ylabel("ribosomes")
+	ribosomeCapacity_axis.legend()#ncol=2)
 
-	effectiveElongationRate_axis = plt.subplot(4,1,3)
-	effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRibosome, label="Effective elongation rate", linewidth=2, color='k')
-	effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
+	# fractionalCapacity_axis = plt.subplot(4,1,2)
+	# fractionalCapacity_axis.plot(time / 60., actualElongations / totalRibosomeCapacity, label="Fraction of ribosome capacity used", linewidth=2, color='k')
+	# fractionalCapacity_axis.set_ylabel("Fraction of ribosome capacity used")
+	# fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
+	# #fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
+	# fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
 
-	fractionActive_axis = plt.subplot(4,1,4)
-	fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
-	fractionActive_axis.set_ylabel("Mass fraction of active ribosomes")
-	fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
+	# effectiveElongationRate_axis = plt.subplot(4,1,3)
+	# effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRibosome, label="Effective elongation rate", linewidth=2, color='k')
+	# effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
+
+	# fractionActive_axis = plt.subplot(4,1,4)
+	# fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
+	# fractionActive_axis.set_ylabel("Mass fraction of active ribosomes")
+	# fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)

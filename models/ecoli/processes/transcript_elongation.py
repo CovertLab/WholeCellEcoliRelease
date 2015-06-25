@@ -197,3 +197,5 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
+
+		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())

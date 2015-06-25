@@ -7,25 +7,27 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+import cPickle
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
-	[228,26,28],
-	[55,126,184],
-	[77,175,74],
-	[152,78,163],
-	[255,127,0],
-	[255,255,51],
-	[166,86,40],
-	[247,129,191]
+CMAP_COLORS_255 = [
+	[103,0,31],
+	[178,24,43],
+	[214,96,77],
+	[244,165,130],
+	[253,219,199],
+	[247,247,247],
+	[209,229,240],
+	[146,197,222],
+	[67,147,195],
+	[33,102,172],
+	[5,48,97],
 	]
 
-COLORS = [
-	[colorValue/255. for colorValue in color]
-	for color in COLORS_256
-	]
+CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
+
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
@@ -35,29 +37,55 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	mass = TableReader(os.path.join(simOutDir, "Mass"))
+	kb = cPickle.load(open(kbFile, "rb"))
 
-	# cell = mass.readColumn("cellMass")
-	# cellDry = mass.readColumn("dryMass")
-	protein = mass.readColumn("proteinMass")
-	# rna = mass.readColumn("rnaMass")
-	tRna = mass.readColumn("tRnaMass")
-	rRna = mass.readColumn("rRnaMass")
-	mRna = mass.readColumn("mRnaMass")
-	dna = mass.readColumn("dnaMass")
+	rnaIds = kb.process.transcription.rnaData["id"][kb.relation.rnaIndexToMonomerMapping]
+
+	proteinIds = kb.process.translation.monomerData["id"]
+
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
+
+	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+
+	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime	
+
+	bulkMolecules.close()
+
+	time /= 60.
+
+	index = 611
+	name = "DNA polymerase"
+
+	stepTime = np.roll(np.repeat(time, 2), +1)[1:]
+
+	stepRna = np.repeat(rnaCountsBulk[:, index], 2)[1:]
+
+	lineRna = np.vstack([stepTime, stepRna]).T
+
+
+
 
 	f = plt.figure(figsize = (1.25, 0.78), frameon = False)
 	ax = f.add_axes([0, 0, 1, 1])
 	ax.axis("off")
 
-	ax.set_color_cycle(COLORS)
+	ax.add_patch(plt.Polygon(
+		lineRna,
+		facecolor = "none",
+		edgecolor = CMAP_COLORS[-2],
+		closed = False,
+		linewidth = 2
+		))
+	ax.set_ylim([lineRna[:, 1].min(), lineRna[:, 1].max()])
+	ax.set_xlim([stepTime[1:].min(), stepTime.max()])
 
-	ax.plot(t / 60., dna, linewidth = 2)
-	ax.set_ylim([dna.min(), dna.max()])
-
+	print lineRna[:, 1].min(), lineRna[:, 1].max()
+	
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 	plt.close("all")
