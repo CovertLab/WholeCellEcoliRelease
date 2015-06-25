@@ -21,7 +21,7 @@ import wholecell.utils.constants
 DNTP_IDS = ['DATP[c]', 'DCTP[c]', 'DGTP[c]', 'DTTP[c]']
 DNMP_IDS = ['DAMP[n]', 'DCMP[n]', 'DGMP[n]', 'DTMP[n]']
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
