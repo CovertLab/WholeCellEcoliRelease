@@ -159,6 +159,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		processFinalMass = postEvolveMasses.sum(axis = 1)
 
 		self.processMassDifferences = processFinalMass - processInitialMass
+		self.relProcessMassDifferences = np.nan_to_num(self.processMassDifferences / processInitialMass)
 
 		if self.timeStep() > 0:
 			self.growth = self.dryMass - oldDryMass
@@ -218,4 +219,5 @@ class Mass(wholecell.listeners.listener.Listener):
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
+			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64)
 			)
