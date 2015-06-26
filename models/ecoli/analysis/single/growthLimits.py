@@ -45,36 +45,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	gtpPerElongation = growthLimitsDataFile.readColumn("gtpPerElongation")
 	growthLimitsDataFile.close()
 
+	# bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	# bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
+	# bulkMolecules.close()
 
-	# Calculate concentration data
-	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-	bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
-
-	mass = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = units.fg * mass.readColumn("cellMass")
-
-	cellDensity = kb.constants.cellDensity
-
-	concentrationSetpoints = kb.process.metabolism.metabolitePoolConcentrations
-
-	poolIds = np.array(kb.process.metabolism.metabolitePoolIDs)
-	poolIndexes = np.array([bulkMoleculeIds.index(x) for x in poolIds])
-	poolCounts = bulkMolecules.readColumn("counts")[:, poolIndexes]
-	poolMols = 1/nAvogadro * poolCounts
-	volume = cellMass / cellDensity
-	poolConcentrations = poolMols * 1/volume[:,np.newaxis]
-
-	# Compare
-	common_units = units.mmol / units.L
-	concSetpoint = np.tile(concentrationSetpoints.asNumber(common_units),(time.size,1))
-	poolConc = poolConcentrations.asNumber(common_units)
-	comp = np.isclose(concSetpoint, poolConc)
-	concentrations_that_shift = np.logical_not(np.all(comp, axis = 0))
-
-	bulkMolecules.close()
-
-
-	fig = plt.figure(figsize = (8.5, 11))
+	# Plot
+	
+	fig = plt.figure(figsize = (11, 11))
 	ax = plt.subplot(6,1,1)
 	ax.plot(time / 60., fractionGtpLimit, linewidth=2, color='b')
 	ax.set_ylabel("gtp used /\n gtp allocated")
@@ -92,12 +69,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	ax.plot(time / 60., gtpAllocated, linewidth=2, label="allocated", color='r', linestyle='--')
 	ax.legend()
 	ax.set_ylabel("GTP")
-
-	ax = plt.subplot(6,1,4)
-	idx = 3
-	ax.plot(time / 60., poolConc[:,idx], linewidth=2, label="pool size", color='k')
-	ax.plot(time / 60., concSetpoint[:,idx], linewidth=2)
-	ax.set_ylabel('{} mmol / L'.format(poolIds[idx]))
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
