@@ -30,6 +30,7 @@ from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
 from models.ecoli.listeners.rnap_data import RnapData
+from models.ecoli.listeners.growth_limits import GrowthLimits
 
 # Analysis
 import models.ecoli.analysis.single
@@ -68,7 +69,8 @@ class EcoliSimulation(Simulation):
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
 		FBAResults,
-		RnapData
+		RnapData,
+		GrowthLimits
 		)
 
 	_hookClasses = ()
