@@ -31,7 +31,7 @@ REPRESENTATIVE_MASSES = {
 	"ribosome":2700e3 * FG_PER_DALTON
 	}
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

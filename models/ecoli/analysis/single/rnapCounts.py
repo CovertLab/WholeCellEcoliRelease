@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
