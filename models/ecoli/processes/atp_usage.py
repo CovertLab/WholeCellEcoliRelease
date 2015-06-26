@@ -50,7 +50,7 @@ class AtpUsage(wholecell.processes.process.Process):
 		# self.h = self.bulkMoleculeView("H[c]")
 
 		self.nongrowthAssociated_reactionsPerTimestep = (
-			kb.NGAM * kb.constants.nAvogadro
+			kb.constants.nonGrowthAssociatedMaintenance * kb.constants.nAvogadro
 			).asNumber(1/units.fg/units.s) * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)

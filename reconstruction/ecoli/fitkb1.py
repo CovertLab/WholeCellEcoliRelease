@@ -12,10 +12,6 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize
 
-# Constants (should be moved to KB)
-GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
-NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
-
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
@@ -68,9 +64,6 @@ def fitKb_1(kb):
 	fitRNAPolyTransitionRates(kb)
 
 	## Calculate and set maintenance values
-
-	# ----- Non growth associated maintenance -----
-	kb.NGAM = NON_GROWTH_ASSOCIATED_MAINTENANCE * units.mmol / units.g / units.h
 
 	# ----- Growth associated maintenance -----
 
@@ -508,17 +501,22 @@ def fitMaintenanceCosts(kb, bulkContainer):
 			)
 		)
 
-	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber(units.mmol/units.g).sum()
+	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW) / kb.doubling_time
 	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
-		GROWTH_ASSOCIATED_MAINTENANCE -
+		kb.constants.growthAssociatedMaintenance -
 		gtpUsedOverCellCycleMmolPerGDCW
 		)
 
+	additionalGtpPerTranslation = darkATP / aasUsedOverCellCycle
+	additionalGtpPerTranslation.normalize()
+	additionalGtpPerTranslation.checkNoUnit()
+	additionalGtpPerTranslation = additionalGtpPerTranslation.asNumber()
+
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
-	kb.constants.gtpPerTranslation += darkATP / aasUsedOverCellCycle
+	kb.constants.gtpPerTranslation += additionalGtpPerTranslation
 
 
 # Math functions
