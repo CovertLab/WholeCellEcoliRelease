@@ -46,7 +46,7 @@ def choose_appearance(deviation):
 	else:
 		return (2, COLOR_CHOICES[3])
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
