@@ -122,33 +122,33 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 		poolIds
 		)
 
-	# # GDP POOL
-	# ribosomeSubunits = bulkMolCntr.countsView(
-	# 	np.hstack(
-	# 		(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
-	# 		)
-	# 	)
-	# ribosomeSubunitStoich = np.hstack(
-	# 		(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitStoich'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitStoich'])
-	# 		)
+	# GDP POOL
+	ribosomeSubunits = bulkMolCntr.countsView(
+		np.hstack(
+			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
+			)
+		)
+	ribosomeSubunitStoich = np.hstack(
+			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitStoich'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitStoich'])
+			)
 
-	# activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
-	# elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	# T_d = kb.doubling_time.asNumber(units.s)
-	# dt = kb.constants.timeStep.asNumber(units.s)
+	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
+	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
+	T_d = kb.doubling_time.asNumber(units.s)
+	dt = kb.constants.timeStep.asNumber(units.s)
 
-	# activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
-	# gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.constants.gtpPerTranslation
+	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
+	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.constants.gtpPerTranslation
 
-	# bulkMolCntr.countsInc(
-	# 	gtpsHydrolyzedLastTimeStep,
-	# 	["GDP[c]"]
-	# 	)
+	bulkMolCntr.countsInc(
+		gtpsHydrolyzedLastTimeStep,
+		["GDP[c]"]
+		)
 
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
 	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('H2O[c]')], massesToAdd[poolIds.index('H2O[c]') + 1:]))
-	#gtpPoolDryMass = gtpsHydrolyzedLastTimeStep * kb.getter.getMass(['GTP'])[0] / kb.constants.nAvogadro
-	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)# + units.sum(gtpPoolDryMass)
+	gtpPoolDryMass = gtpsHydrolyzedLastTimeStep * kb.getter.getMass(['GTP'])[0] / kb.constants.nAvogadro
+	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass) + units.sum(gtpPoolDryMass)
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
 
 def createBulkContainer(kb):
