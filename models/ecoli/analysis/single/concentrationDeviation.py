@@ -88,7 +88,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	concSetpoint = np.tile(concentrationSetpoints.asNumber(common_units),(time.size,1))
 	poolConc = poolConcentrations.asNumber(common_units)
 	
-	fig = plt.figure(figsize = (11, 11))\
+	fig = plt.figure(figsize = (11, 11))
 	rows = 13
 	cols = 12
 	idx = 0
