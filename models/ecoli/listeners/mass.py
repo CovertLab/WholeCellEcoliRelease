@@ -56,6 +56,11 @@ class Mass(wholecell.listeners.listener.Listener):
 			for name in ["23srRNA", "16srRNA", "5srRNA"]
 			])
 
+		self.smallMoleculeIndexes = np.array([
+			kb.submassNameToIndex[name]
+			for name in ["metabolite"]
+			])
+
 		self.tRnaIndex = kb.submassNameToIndex["tRNA"]
 
 		self.mRnaIndex = kb.submassNameToIndex["mRNA"]
@@ -154,6 +159,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.mRnaMass = submasses[self.mRnaIndex]
 		self.dnaMass = submasses[self.dnaIndex]
 		self.proteinMass = submasses[self.proteinIndex]
+		self.smallMoleculeMass = submasses[self.smallMoleculeIndexes]
 
 		processInitialMass = preEvolveMasses.sum(axis = 1)
 		processFinalMass = postEvolveMasses.sum(axis = 1)
@@ -200,7 +206,8 @@ class Mass(wholecell.listeners.listener.Listener):
 			protein_units = self.massUnits,
 			water_units = self.massUnits,
 			nucleoid_units = self.massUnits,
-			processNames = self.processNames
+			processNames = self.processNames,
+			smallMoleculeMass = self.smallMoleculeMass,
 			)
 
 
@@ -219,5 +226,6 @@ class Mass(wholecell.listeners.listener.Listener):
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
-			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64)
+			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64),
+			smallMoleculeMass = self.smallMoleculeMass,
 			)

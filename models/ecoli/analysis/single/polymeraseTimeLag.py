@@ -49,12 +49,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 	ribosomesTerminated = ribosomeDataFile.readColumn("didTerminate")
 	ribosomesInitalized = ribosomeDataFile.readColumn("didInitalize")
+	ribosomeTerminationLoss = ribosomeDataFile.readColumn("terminationLoss")
 	ribosomeDataFile.close()
 
 	# Load RNAP data
 	rnapDataFile = TableReader(os.path.join(simOutDir, "RnapData"))
 	rnapsTerminated = rnapDataFile.readColumn("didTerminate")
 	rnapsInitalized = rnapDataFile.readColumn("didInitalize")
+	rnapTerminationLoss = rnapDataFile.readColumn("terminationLoss")
 	rnapDataFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
@@ -87,31 +89,35 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	plt.figure(figsize = (8.5, 11))
 
-	ribosomeCapacity_axis = plt.subplot(2,1,1)
-	ribosomeCapacity_axis.plot(time / 60., ribosomesInitalized, label="Number of ribosomes initalized", linewidth=2, color='b')
-	ribosomeCapacity_axis.set_ylabel("ribosomes")
-	ribosomeCapacity_axis.legend()#ncol=2)
+	ribosomeInit_axis = plt.subplot(8,1,1)
+	ribosomeInit_axis.plot(time / 60., ribosomesInitalized, label="Number of ribosomes initalized", linewidth=2, color='b')
+	ribosomeInit_axis.set_ylabel("ribosomes")
+	ribosomeInit_axis.legend()#ncol=2)
 
-	ribosomeCapacity_axis = plt.subplot(2,1,2)
-	ribosomeCapacity_axis.plot(time / 60., ribosomesTerminated, label="Number of ribosomes terminated", linewidth=2, color='r')
-	ribosomeCapacity_axis.set_ylabel("ribosomes")
-	ribosomeCapacity_axis.legend()#ncol=2)
+	ribosomeTerm_axis = plt.subplot(8,1,2)
+	ribosomeTerm_axis.plot(time / 60., ribosomesTerminated, label="Number of ribosomes terminated", linewidth=2, color='r')
+	ribosomeTerm_axis.set_ylabel("ribosomes")
+	ribosomeTerm_axis.legend()#ncol=2)
 
-	# fractionalCapacity_axis = plt.subplot(4,1,2)
-	# fractionalCapacity_axis.plot(time / 60., actualElongations / totalRibosomeCapacity, label="Fraction of ribosome capacity used", linewidth=2, color='k')
-	# fractionalCapacity_axis.set_ylabel("Fraction of ribosome capacity used")
-	# fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
-	# #fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
-	# fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
+	ribosomeTermLoss_axis = plt.subplot(8,1,3)
+	ribosomeTermLoss_axis.plot(time / 60., ribosomeTerminationLoss, label="Lost capacity due to termination", linewidth=2, color='r')
+	ribosomeTermLoss_axis.set_ylabel("lost aa capacity")
+	ribosomeTermLoss_axis.legend()#ncol=2)
 
-	# effectiveElongationRate_axis = plt.subplot(4,1,3)
-	# effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRibosome, label="Effective elongation rate", linewidth=2, color='k')
-	# effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
+	rnapInit_axis = plt.subplot(8,1,4)
+	rnapInit_axis.plot(time / 60., rnapsInitalized, label="Number of rnap initalized", linewidth=2, color='r')
+	rnapInit_axis.set_ylabel("rnap")
+	rnapInit_axis.legend()#ncol=2)
 
-	# fractionActive_axis = plt.subplot(4,1,4)
-	# fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
-	# fractionActive_axis.set_ylabel("Mass fraction of active ribosomes")
-	# fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
+	rnapTerm_axis = plt.subplot(8,1,5)
+	rnapTerm_axis.plot(time / 60., rnapsTerminated, label="Number of rnap terminated", linewidth=2, color='r')
+	rnapTerm_axis.set_ylabel("rnap")
+	rnapTerm_axis.legend()#ncol=2)
+
+	ribosomeTermLoss_axis = plt.subplot(8,1,6)
+	ribosomeTermLoss_axis.plot(time / 60., rnapTerminationLoss, label="Lost capacity due to termination", linewidth=2, color='r')
+	ribosomeTermLoss_axis.set_ylabel("lost ntp capacity")
+	ribosomeTermLoss_axis.legend()#ncol=2)
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)

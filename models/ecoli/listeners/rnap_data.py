@@ -46,6 +46,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.expectedElongations = None
 		self.didTerminate = None
 		self.didInitalize = None
+		self.terminationLoss = None
 
 
 		# Logged quantities
@@ -74,6 +75,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.expectedElongations = 0
 		self.didTerminate = 0
 		self.didInitalize = 0
+		self.terminationLoss = 0
 
 	def update(self):
 		if self.rnapStalls.size:
@@ -108,4 +110,5 @@ class RnapData(wholecell.listeners.listener.Listener):
 			expectedElongations = self.expectedElongations,
 			didTerminate = self.didTerminate,
 			didInitalize = self.didInitalize,
+			terminationLoss = self.terminationLoss
 			)
