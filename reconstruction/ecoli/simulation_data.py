@@ -29,13 +29,19 @@ class SimulationDataEcoli(object):
 	""" SimulationDataEcoli """
 
 	def __init__(self):
+		# Simulation time step
+		self.timeStepSec = None
+
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initalize(self, doubling_time, raw_data, media_conditions="M9 Glucose minus AAs"):
+	def initalize(self, doubling_time, raw_data, time_step_sec = 1, media_conditions="M9 Glucose minus AAs"):
+		self.timeStepSec = time_step_sec
+
 		if type(doubling_time) != Unum:
 			raise Exception("Doubling time is not a Unum object!")
 		self.doubling_time = doubling_time
+
 		# TODO: Check that media condition is valid
 		self.media_conditions = media_conditions
 

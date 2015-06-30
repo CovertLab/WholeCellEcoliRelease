@@ -55,7 +55,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		rnaIds = kb.process.transcription.rnaData['id']
 
 		# Rna
-		self.rnaDegRates = kb.process.transcription.rnaData['degRate'].asNumber()
+		self.rnaDegRates = kb.process.transcription.rnaData['degRate'].asNumber(1 / units.s) * self.timeStepSec
 		self.rnaLens = kb.process.transcription.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
@@ -79,7 +79,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nRNAsToDegrade = np.fmin(
-			self.randomState.poisson(self.rnaDegRates * self.rnas.total() * self.timeStepSec),
+			self.randomState.poisson(self.rnaDegRates * self.rnas.total()),
 			self.rnas.total()
 			)
 

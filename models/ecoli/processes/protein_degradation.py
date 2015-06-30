@@ -57,7 +57,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		proteinIds = kb.process.translation.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = kb.process.translation.monomerData['degRate'].asNumber(1 / units.s)
+		self.proteinDegRates = kb.process.translation.monomerData['degRate'].asNumber(1 / units.s) * self.timeStepSec
 
 		self.proteinLengths = kb.process.translation.monomerData['length']
 
@@ -77,7 +77,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nProteinsToDegrade = np.fmin(
-			self.randomState.poisson(self.proteinDegRates * self.proteins.total() * self.timeStepSec),
+			self.randomState.poisson(self.proteinDegRates * self.proteins.total()),
 			self.proteins.total()
 			)
 

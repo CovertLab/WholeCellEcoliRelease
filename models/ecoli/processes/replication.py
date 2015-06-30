@@ -66,6 +66,7 @@ class Replication(wholecell.processes.process.Process):
 		# Load modeling parameters
 		self.genomeLength = len(kb.process.replication.genome_sequence)
 		self.dnaPolymeraseElongationRate = kb.constants.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 		self.tercCenter = kb.constants.terCCenter.asNumber(units.nt)
 		self.n_completed_dnaPolymerases = 0
 

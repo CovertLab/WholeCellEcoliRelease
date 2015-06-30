@@ -21,13 +21,14 @@ FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
-DOUBLING_TIME = 60. * units.min
+DOUBLING_TIME = 30. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
+TIME_STEP_SEC = 1.
 
 def fitKb_1(kb):
 	# Initalize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
-	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
+	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
