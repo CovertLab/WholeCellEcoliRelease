@@ -21,7 +21,7 @@ FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
-DOUBLING_TIME = 30. * units.min
+DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
 TIME_STEP_SEC = 1.
 
@@ -479,7 +479,7 @@ def fitMaintenanceCosts(kb, bulkContainer):
 			)
 		)
 
-	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW) / kb.doubling_time
+	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW)
 	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
