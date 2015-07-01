@@ -109,10 +109,14 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			maxFractionalReactionLimit * sequenceComposition
 			)
 
+		self.writeToListener("GrowthLimits", "ntpPoolSize", self.ntps.total())
+		self.writeToListener("GrowthLimits", "ntpRequestSize", maxFractionalReactionLimit * sequenceComposition)
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		ntpCounts = self.ntps.counts()
+
+		self.writeToListener("GrowthLimits", "ntpAllocated", self.ntps.counts())
 
 		activeRnaPolys = self.activeRnaPolys.molecules()
 
@@ -191,6 +195,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			)
 
 		rnapStalls = expectedElongations - sequenceElongations
+
+		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
 
 		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
 		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
