@@ -33,15 +33,18 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		super(GrowthLimits, self).initialize(sim, kb)
 
 		# Computed, saved attributes
+		self.aaIds = kb.moleculeGroups.aaIDs
 
-		# Attributes broadcast by the processes
-		self.fractionAAsUsed = None
-		self.fractionGtpLimit = None
+		# For transcription
 		self.gtpPoolSize = None
 		self.gtpRequestSize = None
 		self.gtpAllocated = None
-		self.gtpPerElongation = None
+		self.gtpUsed = None
 
+		self.aaPoolSize = None
+		self.aaRequestSize = None
+		self.aaAllocated = None
+		self.aasUsed = None
 
 	# Allocate memory
 	def allocate(self):
@@ -52,7 +55,12 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.gtpPoolSize = 0
 		self.gtpRequestSize = 0
 		self.gtpAllocated = 0
-		self.gtpPerElongation = 0
+		self.gtpUsed = 0
+
+		self.aaPoolSize = np.zeros(len(self.aaIds), np.float64)
+		self.aaRequestSize = np.zeros(len(self.aaIds), np.float64)
+		self.aaAllocated = np.zeros(len(self.aaIds), np.float64)
+		self.aasUsed = np.zeros(len(self.aaIds), np.float64)
 
 	def update(self):
 		pass
@@ -69,5 +77,9 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			gtpPoolSize = self.gtpPoolSize,
 			gtpRequestSize = self.gtpRequestSize,
 			gtpAllocated = self.gtpAllocated,
-			gtpPerElongation = self.gtpPerElongation,
+			gtpUsed = self.gtpUsed,
+			aaPoolSize = self.aaPoolSize,
+			aaRequestSize = self.aaRequestSize,
+			aaAllocated = self.aaAllocated,
+			aasUsed = self.aasUsed,
 			)
