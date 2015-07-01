@@ -1,4 +1,4 @@
-TIME_STEPS = [0.1, 0.25, 0.5, 0.75]
+TIME_STEPS = [0.25, 0.5, 0.75]
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
