@@ -38,9 +38,6 @@ from models.ecoli.sim.initial_conditions import calcInitialConditions
 from wholecell.sim.divide_cell import divide_cell
 from models.ecoli.sim.initial_conditions import setDaughterInitialConditions
 
-def hack(*args, **kwargs):
-	import ipdb; ipdb.set_trace()
-
 class EcoliSimulation(Simulation):
 	_stateClasses = (
 		BulkMolecules,
