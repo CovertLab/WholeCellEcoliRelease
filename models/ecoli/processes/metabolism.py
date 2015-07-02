@@ -53,10 +53,18 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
 		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
-		objective = {
-			moleculeID:coeff for moleculeID, coeff in
-			izip(self.metabolitePoolIDs, self.targetConcentrations)
-			}
+		objective = dict(zip(
+			self.metabolitePoolIDs,
+			self.targetConcentrations
+			))
+
+		# TODO: make kb method?
+		extIDs = kb.process.metabolism.externalExchangeMolecules
+
+		moleculeMasses = dict(zip(
+			extIDs,
+			kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+			))
 
 		# Set up FBA solver
 
@@ -66,6 +74,11 @@ class Metabolism(wholecell.processes.process.Process):
 			objective,
 			objectiveType = "pools",
 			reversibleReactions = kb.process.metabolism.reversibleReactions,
+			moleculeMasses = moleculeMasses,
+			maintenanceCost = kb.constants.darkATP.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
+			maintenanceReaction = {
+				"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
+				} # TODO: move to KB TODO: check reaction stoich
 			)
 
 		# Set constraints
