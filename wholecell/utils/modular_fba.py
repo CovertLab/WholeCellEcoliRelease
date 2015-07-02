@@ -160,7 +160,6 @@ class FluxBalanceAnalysis(object):
 	_generatedID_fractionalDifferenceBiomassOut = "difference between fractional objective equivalents of {} and biomass objective out"
 
 	## Pools FBA
-
 	_generatedID_fractionBelowUnityOut = "fraction {} below unity, out"
 	_generatedID_fractionAboveUnityOut = "fraction {} above unity, out"
 
@@ -169,11 +168,10 @@ class FluxBalanceAnalysis(object):
 	_upperBoundDefault = np.inf
 
 	_standardObjectiveReactionName = "Standard biomass objective reaction"
+	_massID = "Mass"
 	_massOutName = "Mass out"
 
 	_forcedUnityColName = "Column forced at unity"
-
-	_numericalInfinity = 1e6 # used to constrain the solver to finite values
 
 	# Initialization
 
@@ -181,7 +179,9 @@ class FluxBalanceAnalysis(object):
 			objectiveType = None, objectiveParameters = None,
 			internalExchangedMolecules = None, reversibleReactions = None,
 			reactionEnzymes = None, reactionRates = None,
-			moleculeMasses = None, solver = DEFAULT_SOLVER):
+			moleculeMasses = None, maintenanceCost = None,
+			maintenanceReaction = None,
+			solver = DEFAULT_SOLVER):
 
 		if solver not in SOLVERS:
 			raise SolverUnavailableError(
@@ -243,6 +243,8 @@ class FluxBalanceAnalysis(object):
 		self._initEnzymeConstraints(reactionEnzymes, reactionRates)
 
 		self._initMass(externalExchangedMolecules, moleculeMasses)
+
+		self._initMaintenance(maintenanceCost, maintenanceReaction)
 
 		# Set up values that will change between runs
 
@@ -652,11 +654,9 @@ class FluxBalanceAnalysis(object):
 		growth."""
 
 		if moleculeMasses is not None:
-			massID = "Mass" # TODO: move to class def
-
 			self._solver.flowMaterialCoeffIs(
 				self._massOutName,
-				massID,
+				self._massID,
 				-1
 				)
 
@@ -671,9 +671,54 @@ class FluxBalanceAnalysis(object):
 
 				self._solver.flowMaterialCoeffIs(
 					exchangeFluxID,
-					massID,
+					self._massID,
 					-moleculeMass # NOTE: negative because exchange fluxes point out
 					)
+
+
+	def _initMaintenance(self, maintenanceCost, maintenanceReaction):
+		"""Create growth-associated maintenance abstractions.
+
+		Two maintenance costs are typically associated with FBA; growth-
+		associated maintenance is the energetic cost of increasing cell mass by
+		a certain amount.  (Contrast non-growth-associated maintenance, which
+		is a fixed energetic cost regardless of mass accumulation.)
+		"""
+
+		if (maintenanceCost is None) and (maintenanceReaction is None):
+			return
+
+		if (maintenanceCost is None) ^ (maintenanceReaction is None):
+			raise FBAError("Must pass all or none of maintenanceCost, maintenanceReaction")
+
+
+		# TODO: check that the mass flux stuff exists
+
+		# computed mass output produces "GAM reactions"...
+		reactionsNeededID = "GAM reactions" # TODO: move to class def
+
+		self._solver.flowMaterialCoeffIs(
+			self._massOutName,
+			reactionsNeededID,
+			maintenanceCost
+			)
+
+		# ... which are consumed in a seperate flux
+		maintenanceReactionID = "Growth-associated maintenance" # TODO: move to class def
+
+		self._solver.flowMaterialCoeffIs(
+			maintenanceReactionID,
+			reactionsNeededID,
+			-1
+			)
+
+		for moleculeID, stoichCoeff in maintenanceReaction.viewitems():
+			self._solver.flowMaterialCoeffIs(
+				maintenanceReactionID,
+				moleculeID,
+				stoichCoeff
+				)
+
 
 	# Constraint setup
 
