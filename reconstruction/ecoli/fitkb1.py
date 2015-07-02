@@ -494,7 +494,7 @@ def fitMaintenanceCosts(kb, bulkContainer):
 
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
-	# kb.constants.gtpPerTranslation += additionalGtpPerTranslation
+	kb.constants.gtpPerTranslation += additionalGtpPerTranslation
 
 	kb.constants.darkATP = darkATP
 

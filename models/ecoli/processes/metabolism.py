@@ -66,6 +66,16 @@ class Metabolism(wholecell.processes.process.Process):
 			kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 			))
 
+		initWaterMass = kb.mass.avgCellWaterMassInit
+		initDryMass = kb.mass.avgCellDryMassInit
+
+		initCellMass = (
+			initWaterMass
+			+ initDryMass
+			)
+
+		energyCostPerWetMass = kb.constants.darkATP * initDryMass / initCellMass
+
 		# Set up FBA solver
 
 		self.fba = FluxBalanceAnalysis(
@@ -75,23 +85,15 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools",
 			reversibleReactions = kb.process.metabolism.reversibleReactions,
 			moleculeMasses = moleculeMasses,
-			maintenanceCost = kb.constants.darkATP.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
-			maintenanceReaction = {
-				"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
-				} # TODO: move to KB TODO: check reaction stoich
+			# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
+			# maintenanceReaction = {
+			# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
+			# 	} # TODO: move to KB TODO: check reaction stoich
 			)
 
 		# Set constraints
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
-
-		initWaterMass = kb.mass.avgCellWaterMassInit
-		initDryMass = kb.mass.avgCellDryMassInit
-
-		initCellMass = (
-			initWaterMass
-			+ initDryMass
-			)
 
 		coefficient = initDryMass / initCellMass * kb.constants.cellDensity * (self.timeStepSec * units.s)
 
