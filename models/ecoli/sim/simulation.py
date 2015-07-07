@@ -1,4 +1,3 @@
-
 import os
 
 from wholecell.sim.simulation import Simulation
@@ -31,6 +30,7 @@ from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
 from models.ecoli.listeners.rnap_data import RnapData
+from models.ecoli.listeners.enzyme_kinetics import EnzymeKinetics
 
 # Analysis
 import models.ecoli.analysis.single
@@ -70,7 +70,8 @@ class EcoliSimulation(Simulation):
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
 		FBAResults,
-		RnapData
+		RnapData,
+		EnzymeKinetics
 		)
 
 	_hookClasses = ()
@@ -94,36 +95,5 @@ class EcoliSimulation(Simulation):
 
 	_logToDisk = False
 
-	@classmethod
-	def printAnalysisSingleFiles(cls, fileName = None):
-		directory = os.path.dirname(models.ecoli.analysis.single.__file__)
-		fileList = sorted(os.listdir(directory))
-		if fileName == None:
-			for f in fileList:
-				if f.endswith(".pyc") or f == "__init__.py":
-					continue
-				print os.path.join(directory, f)
-		else:
-			h = open(fileName, "w")
-			for f in fileList:
-				if f.endswith(".pyc") or f == "__init__.py":
-					continue
-				h.write(os.path.join(directory, f) + "\n")
-			h.close()
-
-	@classmethod
-	def printAnalysisCohortFiles(cls, fileName = None):
-		directory = os.path.dirname(models.ecoli.analysis.cohort.__file__)
-		fileList = sorted(os.listdir(directory))
-		if fileName == None:
-			for f in fileList:
-				if f.endswith(".pyc") or f == "__init__.py":
-					continue
-				print os.path.join(directory, f)
-		else:
-			h = open(fileName, "w")
-			for f in fileList:
-				if f.endswith(".pyc") or f == "__init__.py":
-					continue
-				h.write(os.path.join(directory, f) + "\n")
-			h.close()
+class EcoliDaughterSimulation(EcoliSimulation):
+	_initialConditionsFunction = setDaughterInitialConditions
