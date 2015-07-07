@@ -23,11 +23,12 @@ MAX_FITTING_ITERATIONS = 100
 
 DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
+TIME_STEP_SEC = 1.0
 
 def fitKb_1(kb):
 	# Initialize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
-	kb.initialize(doubling_time = DOUBLING_TIME, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
+	kb.initialize(doubling_time = DOUBLING_TIME, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
@@ -115,33 +116,10 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 		poolIds
 		)
 
-	# GDP POOL
-	ribosomeSubunits = bulkMolCntr.countsView(
-		np.hstack(
-			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
-			)
-		)
-	ribosomeSubunitStoich = np.hstack(
-			(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitStoich'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitStoich'])
-			)
-
-	activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
-	elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	T_d = kb.doubling_time.asNumber(units.s)
-	dt = kb.constants.timeStep.asNumber(units.s)
-
-	activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
-	gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.constants.gtpPerTranslation
-
-	bulkMolCntr.countsInc(
-		gtpsHydrolyzedLastTimeStep,
-		["GDP[c]"]
-		)
-
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
-	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('H2O[c]')], massesToAdd[poolIds.index('H2O[c]') + 1:]))
-	gtpPoolDryMass = gtpsHydrolyzedLastTimeStep * kb.getter.getMass(['GTP'])[0] / kb.constants.nAvogadro
-	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass) + units.sum(gtpPoolDryMass)
+	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))
+	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
+
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
 
 def createBulkContainer(kb):
@@ -501,7 +479,7 @@ def fitMaintenanceCosts(kb, bulkContainer):
 			)
 		)
 
-	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW) / kb.doubling_time
+	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW)
 	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
@@ -517,6 +495,8 @@ def fitMaintenanceCosts(kb, bulkContainer):
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
 	kb.constants.gtpPerTranslation += additionalGtpPerTranslation
+
+	kb.constants.darkATP = darkATP
 
 
 # Math functions

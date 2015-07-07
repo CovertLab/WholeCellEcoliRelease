@@ -158,9 +158,9 @@ class Translation(object):
 		self.translationMonomerWeights = (
 			(
 				sim_data.getter.getMass(aaIDs)
-				- sim_data.getter.getMass(["H2O[c]"])
+				- sim_data.getter.getMass(["WATER[c]"])
 				)
 			/ raw_data.constants['nAvogadro']
 			).asNumber(units.fg)
 
-		self.translationEndWeight = (sim_data.getter.getMass(["H2O[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)
+		self.translationEndWeight = (sim_data.getter.getMass(["WATER[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)

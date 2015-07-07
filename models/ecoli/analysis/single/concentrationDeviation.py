@@ -35,17 +35,6 @@ def round_to_1(x):
 		x = x*-1
 	return -1*round(x, -int(floor(log10(x))))
 
-def choose_appearance(deviation):
-	deviation = abs(deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].min())
-	if deviation < 0.15:
-		return (0.5, COLOR_CHOICES[0])
-	#elif deviation < 0.25:
-	#	return (3, COLOR_CHOICES[1])
-	#elif deviation < 0.5:
-	#	return (3, COLOR_CHOICES[2])
-	else:
-		return (2, COLOR_CHOICES[3])
-
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -95,19 +84,40 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	for idx in range(len(poolIds)):
 		ax = plt.subplot(rows, cols, idx+1)
 		deviation = 1-poolConc[:,idx]/concSetpoint[:,idx]
-		linewidth, color = choose_appearance(deviation)
-		ax.plot(time / 60., deviation, linewidth=linewidth, label="pool size", color=color)
+		ax.plot(time / 60., deviation, linewidth=1, label="pool size", color='k')
+
+		# Highlights >15% deviation
+		flag_deviation = abs(deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].min())
+		bbox = None
+		if flag_deviation > 0.15:
+			bbox = {'facecolor':'red', 'alpha':0.5, 'pad':1}
+		ax.set_title('{}\n{} mmol/L'.format(poolIds[idx][:-3], -1 * round_to_1(concentrationSetpoints[idx].asNumber(units.mmol / units.L))), fontsize=6, bbox=bbox)
+
+		# Sets ticks so that they look pretty
 		ax.spines['top'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
 		ax.xaxis.set_ticks_position('none')
 		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
 		ax.set_xticks([])
 		ymin = deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].min()
-		ymax = deviation.max()
+		ymax = deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].max()
 		ax.set_ylim([ymin, ymax])
-		ax.set_yticks([ymin])
-		ax.set_yticklabels([str(round_to_1(deviation.min()))])
-		ax.set_title('{}\n{} mmol/L'.format(poolIds[idx][:-3], -1 * round_to_1(concentrationSetpoints[idx].asNumber(units.mmol / units.L))), fontsize=6)
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels([str(round_to_1(deviation.min())), str(round_to_1(deviation.max()))])
+
+	# Create legend
+	ax = plt.subplot(rows, cols,len(poolIds) + 1)
+	ax.plot(0, 0, linewidth=2, label="1 - c/c_o", color='k')
+	ax.legend(loc = 10,prop={'size':10})
+	ax.spines['top'].set_visible(False)
+	ax.spines['bottom'].set_visible(False)
+	ax.spines['left'].set_visible(False)
+	ax.spines['right'].set_visible(False)
+	ax.xaxis.set_ticks_position('none')
+	ax.yaxis.set_ticks_position('none')
+	ax.set_xticks([])
+	ax.set_yticks([])
+	ax.set_title("Highlights >0.15 deviation", fontsize=12, bbox={'facecolor':'red', 'alpha':0.5, 'pad':1})
 
 	# Save
 	plt.subplots_adjust(hspace = 1, wspace = 1)

@@ -30,7 +30,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-	waterIndex = np.array(moleculeIds.index('H2O[c]'), np.int)
+	waterIndex = np.array(moleculeIds.index('WATER[c]'), np.int)
 
 	waterCount = bulkMolecules.readColumn("counts")[:, waterIndex]
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -42,7 +42,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	plt.plot(time / 60., waterCount, linewidth = 2)
 	plt.xlabel("Time (min)")
-	plt.ylabel("H2O[c] counts")
+	plt.ylabel("WATER[c] counts")
 	plt.title("Counts of water")
 
 	from wholecell.analysis.analysis_tools import exportFigure

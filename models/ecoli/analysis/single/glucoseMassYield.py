@@ -20,7 +20,7 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 
-GLUCOSE_ID = "GLC-D[e]"
+GLUCOSE_ID = "GLC[p]"
 
 FLUX_UNITS = units.mmol / units.L / units.s
 MASS_UNITS = units.fg

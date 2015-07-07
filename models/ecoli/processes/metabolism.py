@@ -6,8 +6,6 @@ Metabolism
 Metabolism sub-model. Encodes molecular simulation of microbial metabolism using flux-balance analysis.
 
 TODO:
-- move over to flexFBA
-- implement metabolite pools
 - enzyme-limited reactions (& fit enzyme expression)
 - option to call a reduced form of metabolism (assume optimal)
 
@@ -55,10 +53,28 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
 		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
-		objective = {
-			moleculeID:coeff for moleculeID, coeff in
-			izip(self.metabolitePoolIDs, self.targetConcentrations)
-			}
+		objective = dict(zip(
+			self.metabolitePoolIDs,
+			self.targetConcentrations
+			))
+
+		# TODO: make kb method?
+		extIDs = kb.process.metabolism.externalExchangeMolecules
+
+		moleculeMasses = dict(zip(
+			extIDs,
+			kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+			))
+
+		initWaterMass = kb.mass.avgCellWaterMassInit
+		initDryMass = kb.mass.avgCellDryMassInit
+
+		initCellMass = (
+			initWaterMass
+			+ initDryMass
+			)
+
+		energyCostPerWetMass = kb.constants.darkATP * initDryMass / initCellMass
 
 		# Set up FBA solver
 
@@ -68,22 +84,16 @@ class Metabolism(wholecell.processes.process.Process):
 			objective,
 			objectiveType = "pools",
 			reversibleReactions = kb.process.metabolism.reversibleReactions,
-			# reactionEnzymes = kb.process.metabolism.reactionEnzymes.copy(), # TODO: copy in class
-			# reactionRates = kb.process.metabolism.reactionRates(self.timeStepSec * units.s),
-			# moleculeMasses = kb.process.metabolism.exchangeMasses(MASS_UNITS / COUNTS_UNITS)
+			moleculeMasses = moleculeMasses,
+			# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
+			# maintenanceReaction = {
+			# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
+			# 	} # TODO: move to KB TODO: check reaction stoich
 			)
 
 		# Set constraints
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
-
-		initWaterMass = kb.mass.avgCellWaterMassInit
-		initDryMass = kb.mass.avgCellDryMassInit
-
-		initCellMass = (
-			initWaterMass
-			+ initDryMass
-			)
 
 		coefficient = initDryMass / initCellMass * kb.constants.cellDensity * (self.timeStepSec * units.s)
 
@@ -120,22 +130,16 @@ class Metabolism(wholecell.processes.process.Process):
 		# Solve for metabolic fluxes
 
 		metaboliteCountsInit = self.metabolites.counts()
-		poolCounts = self.poolMetabolites.counts()
 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
 
 		cellVolume = cellMass / self.cellDensity
-
-		# if self.time() < 2:
-		# 	print poolCounts / self.nAvogadro / cellVolume
 
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
 		self.fba.internalMoleculeLevelsIs(
 			metaboliteCountsInit * countsToMolar
 			)
-
-		# self.fba.run()
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 

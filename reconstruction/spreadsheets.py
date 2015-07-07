@@ -46,14 +46,19 @@ class JsonReader(csv.DictReader):
 
 	def next(self):
 		attributeDict = {}
-		for key,value in csv.DictReader.next(self).viewitems():
-			value = value or ""
+		for key, raw_value in csv.DictReader.next(self).viewitems():
+			try:
+				value = json.loads(raw_value) if raw_value else ""
+
+			except ValueError:
+				raise Exception("failed to parse json string:{}".format(raw_value))
+
 			try:
 				attribute = re.search('(.*?) \(', key).group(1)
 				value_units =  eval(re.search('\((.*?)\)',key).group(1))
-				attributeDict[attribute] = json.loads(value) * value_units
+				attributeDict[attribute] = value * value_units
 			except AttributeError:
-				attributeDict[key] = json.loads(value)
+				attributeDict[key] = value
 		return attributeDict
 
 		# return {

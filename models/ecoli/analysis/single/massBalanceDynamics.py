@@ -1,11 +1,6 @@
 #!/usr/bin/env python
-"""
-Plot NTP usages
 
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/21/2014
-"""
+from __future__ import division
 
 import argparse
 import os
@@ -18,6 +13,8 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+THRESHOLD = 1e-5
+
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
@@ -26,35 +23,69 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	ntpUsageFile = TableReader(os.path.join(simOutDir, "NtpUsage"))
+	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-	metaboliteIds = ntpUsageFile.readAttribute("metaboliteIds")
-	normNtpProductionBiomass = ntpUsageFile.readAttribute("relativeNtpProductionBiomass")
-	relativeNtpUsage = ntpUsageFile.readAttribute("relativeNtpUsage")
-
-	ntpUsage = ntpUsageFile.readColumn('transcriptionNtpUsageCurrent')[1:, :]	# Ignore time point 0
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[1:] - initialTime
+	time = (
+		TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		) / 60.
 
+	relProcessMassDifferences = mass.readColumn("relProcessMassDifferences")
 
-	ntpUsageFile.close()
+	relProcessMassDifferences[relProcessMassDifferences == 0] = np.nan
+
+	processNames = mass.readAttribute("processNames")
+
+	mass.close()
 
 	plt.figure(figsize = (8.5, 11))
 
-	for idx in xrange(4):
+	n_processes = len(processNames)
 
-		plt.subplot(2, 2, idx + 1)
+	n_cols = int(np.sqrt(n_processes))
+	n_rows = int(np.ceil(n_processes/n_cols))
 
-		plt.plot(t / 60., ntpUsage[:, idx], 'k', linewidth = 1)
-		plt.xlabel("Time (min)")
-		plt.ylabel("Usage")
-		plt.title(metaboliteIds[idx])
+	axis = [time.min(), time.max(), np.nanmin(np.abs(relProcessMassDifferences)), np.nanmax(np.abs(relProcessMassDifferences))]
 
-	plt.subplots_adjust(hspace = 0.5)
+	for i, processName in enumerate(processNames):
+		plt.subplot(n_rows, n_cols, i+1)
+
+		series = relProcessMassDifferences[:, i].copy()
+		t = time.copy()
+
+		t = t[series != 0]
+		series = series[series != 0]
+
+		if np.any(series > 0):
+			colors = np.zeros((series.size, 3), np.float64)
+
+			colors[np.abs(series) > THRESHOLD, :] = (1.0, 0.0, 0.0)
+
+			# markers = ["^" if value > 0 else "v" for value in series]
+
+			plt.scatter(
+				t,
+				np.abs(series),
+				color = colors,
+				marker = '.'
+				# marker = markers
+				)
+
+		plt.hlines(THRESHOLD,  axis[0], axis[1], "r", "dashed")
+
+		plt.title(processName)
+
+		# plt.xlabel("time (min)")
+		# plt.ylabel("mass diff ($|(m_f - m_i)/(m_i)|$)")
+
+		plt.yscale("log")
+
+		plt.axis(axis)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 	plt.close("all")
+
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
