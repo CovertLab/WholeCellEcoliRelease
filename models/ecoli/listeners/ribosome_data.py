@@ -45,7 +45,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.actualElongations = None
 		self.expectedElongations = None
 		self.didTerminate = None
-		self.didInitalize = None
+		self.didInitialize = None
 		self.terminationLoss = None
 
 		# Logged quantities
@@ -73,7 +73,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.actualElongations = 0
 		self.expectedElongations = 0
 		self.didTerminate = 0
-		self.didInitalize = 0
+		self.didInitialize = 0
 		self.terminationLoss = 0
 
 	def update(self):
@@ -108,6 +108,6 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			actualElongations = self.actualElongations,
 			expectedElongations = self.expectedElongations,
 			didTerminate = self.didTerminate,
-			didInitalize = self.didInitalize,
+			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss,
 			)

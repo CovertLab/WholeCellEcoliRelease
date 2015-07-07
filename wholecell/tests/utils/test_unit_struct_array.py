@@ -39,11 +39,11 @@ class Test_unit_struct_array(unittest.TestCase):
 	def test_init(self):
 		with self.assertRaises(Exception) as context:
 			UnitStructArray(1., {'hello' : 'goodbye'})
-		self.assertEqual(context.exception.message, 'UnitStructArray must be initalized with a numpy array!\n')
+		self.assertEqual(context.exception.message, 'UnitStructArray must be initialized with a numpy array!\n')
 
 		with self.assertRaises(Exception) as context:
 			UnitStructArray(self.struct_array, 'foo')
-		self.assertEqual(context.exception.message, 'UnitStructArray must be initalized with a dict storing units!\n')
+		self.assertEqual(context.exception.message, 'UnitStructArray must be initialized with a dict storing units!\n')
 
 		with self.assertRaises(Exception) as context:
 			self.units['hi'] = 'bye'

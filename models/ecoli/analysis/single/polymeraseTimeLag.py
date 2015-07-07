@@ -48,14 +48,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# Load ribosome data
 	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 	ribosomesTerminated = ribosomeDataFile.readColumn("didTerminate")
-	ribosomesInitalized = ribosomeDataFile.readColumn("didInitalize")
+	ribosomesInitialized = ribosomeDataFile.readColumn("didInitialize")
 	ribosomeTerminationLoss = ribosomeDataFile.readColumn("terminationLoss")
 	ribosomeDataFile.close()
 
 	# Load RNAP data
 	rnapDataFile = TableReader(os.path.join(simOutDir, "RnapData"))
 	rnapsTerminated = rnapDataFile.readColumn("didTerminate")
-	rnapsInitalized = rnapDataFile.readColumn("didInitalize")
+	rnapsInitialized = rnapDataFile.readColumn("didInitialize")
 	rnapTerminationLoss = rnapDataFile.readColumn("terminationLoss")
 	rnapDataFile.close()
 
@@ -90,7 +90,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.figure(figsize = (8.5, 11))
 
 	ribosomeInit_axis = plt.subplot(8,1,1)
-	ribosomeInit_axis.plot(time / 60., ribosomesInitalized, label="Number of ribosomes initalized", linewidth=2, color='b')
+	ribosomeInit_axis.plot(time / 60., ribosomesInitialized, label="Number of ribosomes initialized", linewidth=2, color='b')
 	ribosomeInit_axis.set_ylabel("ribosomes")
 	ribosomeInit_axis.legend()#ncol=2)
 
@@ -105,7 +105,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ribosomeTermLoss_axis.legend()#ncol=2)
 
 	rnapInit_axis = plt.subplot(8,1,4)
-	rnapInit_axis.plot(time / 60., rnapsInitalized, label="Number of rnap initalized", linewidth=2, color='r')
+	rnapInit_axis.plot(time / 60., rnapsInitialized, label="Number of rnap initialized", linewidth=2, color='r')
 	rnapInit_axis.set_ylabel("rnap")
 	rnapInit_axis.legend()#ncol=2)
 

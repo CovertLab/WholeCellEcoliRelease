@@ -32,7 +32,7 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initalize(self, doubling_time, raw_data, media_conditions="M9 Glucose minus AAs"):
+	def initialize(self, doubling_time, raw_data, media_conditions="M9 Glucose minus AAs"):
 		if type(doubling_time) != Unum:
 			raise Exception("Doubling time is not a Unum object!")
 		self.doubling_time = doubling_time
