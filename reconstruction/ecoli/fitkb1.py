@@ -32,7 +32,7 @@ def fitKb_1(kb):
 	# Initalize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
 	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
-
+	
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
 
@@ -378,8 +378,6 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
-	slowRnaBool = ~(kb.rnaData["isRRna5S"] | kb.rnaData["isRRna16S"] | kb.rnaData["isRRna23S"] | kb.rnaData["isTRna"])
-	fastRnaBool = kb.rnaData["isRRna5S"] | kb.rnaData["isRRna16S"] | kb.rnaData["isRRna23S"] | kb.rnaData["isTRna"]
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.process.transcription.rnaData['countsACGU'], axis = 1)
 	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.doubling_time, kb.process.transcription.rnaData["degRate"])
@@ -389,7 +387,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
 
-	##import ipdb; ipdb.set_trace()
+	#import ipdb; ipdb.set_trace()
 	nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[slowRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
 	nActiveRnapNeededforFast = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[fastRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
 
@@ -398,9 +396,9 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	nActiveRnapNeeded.normalize()
 
 	nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths[slowRnaBool], kb.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
+		rnaLengths[slowRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
 	nActiveRnapNeededforFast = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths[fastRnaBool], kb.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
+		rnaLengths[fastRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
 
 	nActiveRnapNeeded = nActiveRnapNeededforFast + nActiveRnapNeededforSlow
  

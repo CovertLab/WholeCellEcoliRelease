@@ -39,11 +39,14 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.fractionStalled = None
 
 		# Attributes broadcast by the processes
-		self.rnapStalls = None
+		self.rnapStallsFast = None
+		self.rnapStallsSlow = None		
 		self.ntpCountInSequence = None
 		self.ntpCounts = None
 		self.actualElongations = None
 		self.expectedElongations = None
+		self.nTerminatedFast = None
+		self.nTerminatedSlow = None
 		self.didTerminate = None
 		self.didInitalize = None
 
@@ -67,27 +70,43 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.fractionStalled = 0
 
 		# Attributes broadcast by the PolypeptideElongation process
-		self.rnapStalls = np.zeros(0, np.int64)
+		self.rnapStallsFast = np.zeros(0, np.int64)
+		self.rnapStallsSlow = np.zeros(0, np.int64)
 		self.ntpCountInSequence = np.zeros(21, np.int64)
 		self.ntpCounts = np.zeros(21, np.int64)
 		self.actualElongations = 0
 		self.expectedElongations = 0
+		self.nTerminatedFast = 0
+		self.nTerminatedSlow = 0
 		self.didTerminate = 0
 		self.didInitalize = 0
 
 	def update(self):
-		if self.rnapStalls.size:
+		if self.rnapStallsFast.size:
 			# TODO: divide rates by time step length
-			self.stallingRateTotal = self.rnapStalls.sum()
-			self.stallingRateMean = self.rnapStalls.mean()
-			self.stallingRateStd = self.rnapStalls.std()
-			self.fractionStalled = (self.rnapStalls > 0).mean()
+			self.stallingRateFastTotal = self.rnapStallsFast.sum()
+			self.stallingRateFastMean = self.rnapStallsFast.mean()
+			self.stallingRateFastStd = self.rnapStallsFast.std()
+			self.fractionStalledFast = (self.rnapStallsFast > 0).mean()
 
 		else:
-			self.stallingRateTotal = 0
-			self.stallingRateMean = 0
-			self.stallingRateStd = 0
-			self.fractionStalled = 0
+			self.stallingRateFastTotal = 0
+			self.stallingRateFastMean = 0
+			self.stallingRateFastStd = 0
+			self.fractionStalledFast = 0
+
+		if self.rnapStallsSlow.size:
+			# TODO: divide rates by time step length
+			self.stallingRateSlowTotal = self.rnapStallsSlow.sum()
+			self.stallingRateSlowMean = self.rnapStallsSlow.mean()
+			self.stallingRateSlowStd = self.rnapStallsSlow.std()
+			self.fractionStalledSlow = (self.rnapStallsSlow > 0).mean()
+
+		else:
+			self.stallingRateSlowTotal = 0
+			self.stallingRateSlowMean = 0
+			self.stallingRateSlowStd = 0
+			self.fractionStalledSlow = 0
 
 
 	def tableCreate(self, tableWriter):
@@ -98,14 +117,20 @@ class RnapData(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			timeStep = self.timeStep(),
-			stallingRateTotal = self.stallingRateTotal,
-			stallingRateMean = self.stallingRateMean,
-			stallingRateStd = self.stallingRateStd,
-			fractionStalled = self.fractionStalled,
+			stallingRateFastTotal = self.stallingRateFastTotal,
+			stallingRateFastMean = self.stallingRateFastMean,
+			stallingRateFastStd = self.stallingRateFastStd,
+			fractionStalledFast = self.fractionStalledFast,
+			stallingRateSlowTotal = self.stallingRateSlowTotal,
+			stallingRateSlowMean = self.stallingRateSlowMean,
+			stallingRateSlowStd = self.stallingRateSlowStd,
+			fractionStalledSlow = self.fractionStalledFast,
 			ntpCountInSequence = self.ntpCountInSequence,
 			ntpCounts = self.ntpCounts,
 			actualElongations = self.actualElongations,
 			expectedElongations = self.expectedElongations,
+			nTerminatedFast = self.nTerminatedFast,
+			nTerminatedSlow = self.nTerminatedSlow,
 			didTerminate = self.didTerminate,
 			didInitalize = self.didInitalize,
 			)

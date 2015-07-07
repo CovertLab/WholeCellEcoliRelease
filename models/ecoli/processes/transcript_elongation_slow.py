@@ -195,13 +195,13 @@ class TranscriptElongationSlow(wholecell.processes.process.Process):
 			terminalLengths - transcriptLengths
 			)
 
-		rnapStalls = expectedElongations - sequenceElongations
+		rnapStallsSlow = expectedElongations - sequenceElongations
 
-		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
+		self.writeToListener("RnapData", "rnapStallsSlow", rnapStallsSlow)
 		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
 		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
 
 		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
 
-		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
+		self.writeToListener("RnapData", "nTerminatedSlow", nTerminated)

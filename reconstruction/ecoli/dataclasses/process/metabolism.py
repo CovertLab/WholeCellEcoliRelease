@@ -2286,6 +2286,19 @@ class Metabolism(object):
 			if reactionRates.has_key(reactionID)
 			}
 
+		reactionRateInfo = {}
+		enzymesWithKineticInfo = set()
+		enzymesWithKineticInfoDict = {}
+
+		# Enzyme kinetics data
+		for reaction in raw_data.enzymeKinetics:
+			reactionID = reaction["reactionID"]
+			reactionRateInfo[reactionID] = reaction
+			for enzymeID in reaction["enzymeIDs"]:
+				enzymesWithKineticInfo.add(enzymeID)
+		
+		enzymesWithKineticInfoDict["enzymes"] = list(enzymesWithKineticInfo)
+
 		self.reactionStoich = reactionStoich
 		self.externalExchangeMolecules = externalExchangeMolecules
 		self._exchangeMasses = exchangeMasses
@@ -2294,7 +2307,8 @@ class Metabolism(object):
 		self._reactionRates = reactionRates
 		self._unconstrainedExchangeMolecules = unconstrainedExchangeMolecules
 		self._constrainedExchangeMolecules = constrainedExchangeMolecules
-
+		self.reactionRateInfo = reactionRateInfo
+		self.enzymesWithKineticInfo = enzymesWithKineticInfoDict
 
 	# def reactionRates(self, timeStep):
 	# 	return {
