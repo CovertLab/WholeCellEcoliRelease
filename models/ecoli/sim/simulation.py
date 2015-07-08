@@ -15,22 +15,21 @@ from models.ecoli.processes.replication import Replication
 from models.ecoli.processes.polypeptide_initiation import PolypeptideInitiation
 from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
-from models.ecoli.processes.transcript_elongation_slow import TranscriptElongationSlow
-from models.ecoli.processes.transcript_elongation_fast import TranscriptElongationFast
+from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
 from models.ecoli.processes.atp_usage import AtpUsage
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
 from models.ecoli.listeners.replication_fork import ReplicationForkPosition
-from models.ecoli.listeners.ntp_usage import NtpUsage
-from models.ecoli.listeners.aa_usage import AAUsage
 from models.ecoli.listeners.ribosome_data import RibosomeData
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
 from models.ecoli.listeners.rnap_data import RnapData
 from models.ecoli.listeners.enzyme_kinetics import EnzymeKinetics
+from models.ecoli.listeners.growth_limits import GrowthLimits
+
 
 # Analysis
 import models.ecoli.analysis.single
@@ -51,8 +50,7 @@ class EcoliSimulation(Simulation):
 		Metabolism,
 		RnaDegradation,
 		TranscriptInitiation,
-		TranscriptElongationSlow,
-		TranscriptElongationFast,
+		TranscriptElongation,
 		PolypeptideInitiation,
 		PolypeptideElongation,
 		Replication,
@@ -64,14 +62,13 @@ class EcoliSimulation(Simulation):
 	_listenerClasses = (
 		Mass,
 		ReplicationForkPosition,
-		NtpUsage,
-		AAUsage,
 		RibosomeData,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
 		FBAResults,
 		RnapData,
-		EnzymeKinetics
+		EnzymeKinetics,
+		GrowthLimits
 		)
 
 	_hookClasses = ()
@@ -79,9 +76,6 @@ class EcoliSimulation(Simulation):
 	_initialConditionsFunction = calcInitialConditions
 
 	_divideCellFunction = divide_cell
-
-	_lengthSec = 3600 * 4
-	_timeStepSec = 1
 
 	_logToShell = True
 	_shellColumnHeaders = [

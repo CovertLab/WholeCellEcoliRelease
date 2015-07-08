@@ -128,27 +128,15 @@ for i in VARIANTS_TO_RUN:
 
 
 ### Write metadata
+metadata = {
+	"git_hash": run_cmd(["git", "rev-parse", "HEAD"]),
+	"git_branch": run_cmd(["git", "symbolic-ref", "--short", "HEAD"]),
+	"git_diff": run_cmd(["git", "diff"]),
+	"description": os.environ.get("DESC", ""),
+	}
 
-write_file(
-	os.path.join(METADATA_DIRECTORY, "git_hash"),
-	run_cmd(["git", "rev-parse", "HEAD"])
-	)
-
-write_file(
-	os.path.join(METADATA_DIRECTORY, "git_branch"),
-	run_cmd(["git", "symbolic-ref", "--short", "HEAD"])
-	)
-
-write_file(
-	os.path.join(METADATA_DIRECTORY, "git_diff"),
-	run_cmd(["git", "diff"])
-	)
-
-write_file(
-	os.path.join(METADATA_DIRECTORY, "description"),
-	os.environ.get("DESC", "")
-	)
-
+for key, value in metadata.iteritems():
+	write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
 #### Create workflow
 
@@ -312,6 +300,7 @@ for i in VARIANTS_TO_RUN:
 				input_seed_directory = SEED_DIRECTORY,
 				input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
 				output_plots_directory = SEED_PLOT_DIRECTORY,
+				metadata = metadata,
 				),
 			name = fw_name,
 			spec = {"_queueadapter": {"job_name": fw_name}}
@@ -381,7 +370,8 @@ for i in VARIANTS_TO_RUN:
 				fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
 				fw_this_variant_this_gen_this_sim_compression = Firework(
 					ScriptTask(
-						script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+						# script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+						script = "Output zipping DISABLED: fw_queue.py line 373."
 						),
 					name = fw_name,
 					spec = {"_queueadapter": {"job_name": fw_name}}
@@ -396,6 +386,7 @@ for i in VARIANTS_TO_RUN:
 						input_results_directory = CELL_SIM_OUT_DIRECTORY,
 						input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
 						output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
+						metadata = metadata,
 						),
 					name = fw_name,
 					spec = {"_queueadapter": {"job_name": fw_name}}

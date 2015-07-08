@@ -128,7 +128,6 @@ def enzymeRateApproximate(enzyme_conc, k_cat, substrate_conc_array, k_M_array, i
 # 				not that they are in the right order.
 # 			Function does NOT check for validity of the equation passed in in eq_string.
 def enzymeRateCustom(eq_string, parameter_definition_array, parameters_array):
-
 	# Check that there are equal numbers of parameter values and parameter definitions
 	assert (len(parameters_array) == len(parameter_definition_array))
 
@@ -185,38 +184,3 @@ def enzymeRate(reactionInfo, enzymeConcArray, substrateConcArray, inhibitorConcA
 		rate = enzymeRateCustom(equationString, parameterDefinitionArray, parametersArray)
 
 	return rate
-
-
-
-
-# DEFUNCT
-# def enzymeRateValuesNeededLookup(reactionInfo):
-# 	""" Returns arrays of enzyme IDs and substrate IDs needed to run enzymeRate().
-		
-# 		Inputs: 	reactionInfo (Dict of info for reaction whose rate limit is
-# 						to be calculated)
-# 		Returns: 	A tuple of arrays:
-# 					one of enzyme IDs whose concentrations
-# 						are needed to run enzymeRate()
-# 					one of substrate IDs whose concentrations
-# 						are needed to run enzymeRate()
-# 		Notes:	
-# 				Returns these ID arrays in the same order as they appear in
-# 				EnzymeKinetics.tsv. This should be the order needed for
-# 				enzymeRate(), but there is no guarantee of this.
-# 	"""
-# 	# reactionInfo = kb.process.metabolism.reactionRateInfo[reactionID]
-	
-# 	enzymeIDsArray = reactionInfo["enzymeID"]
-# 	substrateConcArray = reactionInfo["substrateIDs"]
-
-# 	return enzymeIDsArray, substrateConcArray
-
-
-
-
-	# Look up the reaction kinetics data for this reactionID in the kb
-	# save on init
-	# Save all substrate ids in same order as will be in view
-	# .getrates() gives a vector of all of the rates
-	# cache concentrations and only recalc if needed (maybe)

@@ -12,10 +12,6 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize
 
-# Constants (should be moved to KB)
-GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
-NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
-
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
@@ -27,12 +23,13 @@ MAX_FITTING_ITERATIONS = 100
 
 DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
+TIME_STEP_SEC = 1.0
 
 def fitKb_1(kb):
 	# Initalize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
-	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
-	
+	kb.initalize(doubling_time = DOUBLING_TIME, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
+
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
 
@@ -68,9 +65,6 @@ def fitKb_1(kb):
 	fitRNAPolyTransitionRates(kb)
 
 	## Calculate and set maintenance values
-
-	# ----- Non growth associated maintenance -----
-	kb.NGAM = NON_GROWTH_ASSOCIATED_MAINTENANCE * units.mmol / units.g / units.h
 
 	# ----- Growth associated maintenance -----
 
@@ -122,33 +116,10 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 		poolIds
 		)
 
-	# # GDP POOL
-	# ribosomeSubunits = bulkMolCntr.countsView(
-	# 	np.hstack(
-	# 		(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitIds'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitIds'])
-	# 		)
-	# 	)
-	# ribosomeSubunitStoich = np.hstack(
-	# 		(kb.process.complexation.getMonomers(kb.moleculeGroups.s30_fullComplex[0])['subunitStoich'], kb.process.complexation.getMonomers(kb.moleculeGroups.s50_fullComplex[0])['subunitStoich'])
-	# 		)
-
-	# activeRibosomeMax = (ribosomeSubunits.counts() // ribosomeSubunitStoich).min()
-	# elngRate = kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	# T_d = kb.doubling_time.asNumber(units.s)
-	# dt = kb.constants.timeStep.asNumber(units.s)
-
-	# activeRibosomesLastTimeStep = activeRibosomeMax * np.exp( np.log(2) / T_d * (T_d - dt)) / 2
-	# gtpsHydrolyzedLastTimeStep = activeRibosomesLastTimeStep * elngRate * kb.constants.gtpPerTranslation
-
-	# bulkMolCntr.countsInc(
-	# 	gtpsHydrolyzedLastTimeStep,
-	# 	["GDP[c]"]
-	# 	)
-
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
-	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('H2O[c]')], massesToAdd[poolIds.index('H2O[c]') + 1:]))
-	#gtpPoolDryMass = gtpsHydrolyzedLastTimeStep * kb.getter.getMass(['GTP'])[0] / kb.constants.nAvogadro
-	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)# + units.sum(gtpPoolDryMass)
+	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))
+	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
+
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
 
 def createBulkContainer(kb):
@@ -377,31 +348,15 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 
 
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
-
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.process.transcription.rnaData['countsACGU'], axis = 1)
 	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.doubling_time, kb.process.transcription.rnaData["degRate"])
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
 
-	slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"])
-
-	fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
-
-	#import ipdb; ipdb.set_trace()
-	nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[slowRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
-	nActiveRnapNeededforFast = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[fastRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
-
-	nActiveRnapNeeded = nActiveRnapNeededforFast + nActiveRnapNeededforSlow
-
+	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
+		rnaLengths, kb.constants.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
 	nActiveRnapNeeded.normalize()
 
-	nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths[slowRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
-	nActiveRnapNeededforFast = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths[fastRnaBool], kb.growthRateParameters.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
-
-	nActiveRnapNeeded = nActiveRnapNeededforFast + nActiveRnapNeededforSlow
- 
 	nActiveRnapNeeded.checkNoUnit()
 	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
 
@@ -414,6 +369,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
 	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), kb.moleculeGroups.rnapIds)
+
 
 
 def fitExpression(kb, bulkContainer):
@@ -486,14 +442,10 @@ def fitExpression(kb, bulkContainer):
 def fitRNAPolyTransitionRates(kb):
 	## Transcription activation rate
 
-	slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"])
-	fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
-
 	synthProb = kb.process.transcription.rnaData["synthProb"]
 	rnaLengths = kb.process.transcription.rnaData["length"]
 
-	elngRateVector = slowRnaBool*kb.growthRateParameters.rnaPolymeraseElongationRate + fastRnaBool*kb.growthRateParameters.rnaPolymeraseElongationRateFast
-
+	elngRate = kb.constants.rnaPolymeraseElongationRate
 
 	# In our simplified model of RNA polymerase state transition, RNAp can be
 	# active (transcribing) or inactive (free-floating).  To solve for the
@@ -501,15 +453,15 @@ def fitRNAPolyTransitionRates(kb):
 	# which is a function of the average transcript length and the
 	# transcription rate.
 
-	expectedTranscriptionTime = rnaLengths/elngRateVector
+	averageTranscriptLength = units.dot(synthProb, rnaLengths)
 
-	weightedExpectedTranscriptionTime = units.dot(expectedTranscriptionTime, synthProb)
-	expectedTerminationRate = 1/weightedExpectedTranscriptionTime
-
+	expectedTerminationRate = elngRate / averageTranscriptLength
 
 	kb.transcriptionActivationRate = expectedTerminationRate * kb.constants.fractionActiveRnap / (1 - kb.constants.fractionActiveRnap)
 
 	kb.fracActiveRnap = kb.constants.fractionActiveRnap
+
+
 
 
 def fitMaintenanceCosts(kb, bulkContainer):
@@ -530,17 +482,24 @@ def fitMaintenanceCosts(kb, bulkContainer):
 			)
 		)
 
-	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber(units.mmol/units.g).sum()
+	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW)
 	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
-		GROWTH_ASSOCIATED_MAINTENANCE -
+		kb.constants.growthAssociatedMaintenance -
 		gtpUsedOverCellCycleMmolPerGDCW
 		)
 
+	additionalGtpPerTranslation = darkATP / aasUsedOverCellCycle
+	additionalGtpPerTranslation.normalize()
+	additionalGtpPerTranslation.checkNoUnit()
+	additionalGtpPerTranslation = additionalGtpPerTranslation.asNumber()
+
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
-	kb.constants.gtpPerTranslation += darkATP / aasUsedOverCellCycle
+	kb.constants.gtpPerTranslation += additionalGtpPerTranslation
+
+	kb.constants.darkATP = darkATP
 
 
 # Math functions

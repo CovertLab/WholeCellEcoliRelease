@@ -9,6 +9,7 @@ Plot amino acid counts
 
 import argparse
 import os
+import cPickle
 
 import numpy as np
 import matplotlib
@@ -18,7 +19,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -30,15 +31,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-	AA_IDS = [
-		"ALA-L[c]", "ARG-L[c]", "ASN-L[c]", "ASP-L[c]",
-		"CYS-L[c]", "GLU-L[c]", "GLN-L[c]", "GLY[c]",
-		"HIS-L[c]", "ILE-L[c]", "LEU-L[c]", "LYS-L[c]",
-		"MET-L[c]", "PHE-L[c]", "PRO-L[c]", "SER-L[c]",
-		"THR-L[c]", "TRP-L[c]", "TYR-L[c]", "SEC-L[c]",
-		"VAL-L[c]"
-		]
-	aaIndexes = np.array([moleculeIds.index(aaId) for aaId in AA_IDS], np.int)
+	kb = cPickle.load(open(kbFile))
+
+	aaIDs = kb.moleculeGroups.aaIDs
+	aaIndexes = np.array([moleculeIds.index(aaId) for aaId in aaIDs], np.int)
 	aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -55,7 +51,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		plt.plot(time / 60., aaCounts[:, idx], linewidth = 2)
 		plt.xlabel("Time (min)")
 		plt.ylabel("Counts")
-		plt.title(AA_IDS[idx])
+		plt.title(aaIDs[idx])
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 

@@ -46,18 +46,18 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		# Metabolite IDs for S matrix
 
-		h2oId = ["H2O[c]"]
+		h2oId = ["WATER[c]"]
 
 		metaboliteIds = kb.moleculeGroups.aaIDs + h2oId
 
 		aaIdxs = np.arange(0, len(kb.moleculeGroups.aaIDs))
-		h2oIdx = metaboliteIds.index('H2O[c]')
+		h2oIdx = metaboliteIds.index('WATER[c]')
 
 		# Protein IDs for S matrix
 		proteinIds = kb.process.translation.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = kb.process.translation.monomerData['degRate'].asNumber(1 / units.s)
+		self.proteinDegRates = kb.process.translation.monomerData['degRate'].asNumber(1 / units.s) * self.timeStepSec
 
 		self.proteinLengths = kb.process.translation.monomerData['length']
 
@@ -67,7 +67,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		# Views
 		self.metabolites = self.bulkMoleculesView(metaboliteIds)
-		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.h2o = self.bulkMoleculeView('WATER[c]')
 		self.proteins = self.bulkMoleculesView(proteinIds)
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
@@ -77,7 +77,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nProteinsToDegrade = np.fmin(
-			self.randomState.poisson(self.proteinDegRates * self.proteins.total() * self.timeStepSec),
+			self.randomState.poisson(self.proteinDegRates * self.proteins.total()),
 			self.proteins.total()
 			)
 
@@ -87,7 +87,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		self.h2o.requestIs(nReactions - np.sum(nProteinsToDegrade))
 		self.proteins.requestIs(nProteinsToDegrade)
 		#self.protease.requestAll()
-		
+
 
 	def evolveState(self):
 		# Check if protease expressed

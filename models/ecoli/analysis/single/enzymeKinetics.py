@@ -20,8 +20,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
-
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -29,43 +28,73 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		os.mkdir(plotOutDir)
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-
+	
 	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionRates")
-	reactionIDs = enzymeKineticsdata.readColumn("reactionIDs")[0]
+	perEnzymeRates = enzymeKineticsdata.readColumn("perEnzymeRates")
+	enzymeConc = enzymeKineticsdata.readColumn("enzymeConc")
 
+	reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
+	
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
+	
 	enzymeKineticsdata.close()
 
-	timeCourseArray = np.transpose(enzymeKineticsArray)
+	reactionRateArray = np.transpose(enzymeKineticsArray)
+	perEnzymeRateArray = np.transpose(perEnzymeRates)
+	enzymeConcArray = np.transpose(enzymeConc)
 
 	plt.figure(figsize = (8.5, 11))
-	plt.title("Enzyme Kinetics Predicted Rate")
+	# Reaction rate
+	plt.subplot(3,1,1)
+
+	plt.title("Enzyme Kinetics")
 
 	lineLabels = []
 
 	i = 0
-
-	for timeCourse in timeCourseArray:
+	for timeCourse in reactionRateArray:
 		if (np.amax(timeCourse) < np.inf) and (i < len(reactionIDs)):
 			plt.plot(time / 60, timeCourse)
-			lineLabels.append(reactionIDs[i])
+			lineLabels.append(reactionIDs[i][:15])
 		i += 1
 
-
-	import ipdb; ipdb.set_trace()
-
 	plt.xlabel("Time (min)")
-	plt.ylabel("Predicted Enzyme Rate (reactions/second)")
+	plt.ylabel("Reaction Rate (reactions/second)")
 	plt.legend(lineLabels)
 
+	# Per-enzyme reaction rate
+	
+	lineLabels = []
+	i = 0
+	plt.subplot(3,1,2)
+	for timeCourse in perEnzymeRateArray:
+		if (np.amax(timeCourse) < np.inf) and (i < len(reactionIDs)):
+			plt.plot(time / 60, timeCourse)
+			lineLabels.append(reactionIDs[i][:15])
+		i += 1
+
+	plt.xlabel("Time (min)")
+	plt.ylabel("Per Enzyme Rate (reactions/enzyme-second)")
+	plt.legend(lineLabels)
+
+
+	# Per-enzyme reaction rate
+	i = 0
+	plt.subplot(3,1,3)
+	for timeCourse in enzymeConcArray:
+		if (np.amax(timeCourse) < np.inf) and (i < len(reactionIDs)):
+			plt.plot(time / 60, timeCourse)
+		i += 1
+
+	plt.xlabel("Time (min)")
+	plt.ylabel("Concentration of Limiting Enzyme")
+	plt.legend(lineLabels)
 
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 	plt.close("all")
-
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
@@ -80,7 +109,5 @@ if __name__ == "__main__":
 	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
 
 	args = parser.parse_args().__dict__
-
-	import ipdb; ipdb.set_trace()
 	
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])

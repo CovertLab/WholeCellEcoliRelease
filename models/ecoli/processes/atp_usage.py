@@ -36,21 +36,19 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		# Load constants
 		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
-		self.initialDryMass = kb.mass.avgCellDryMassInit.asNumber(units.g)
-		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
-		moleculeIds = ["ATP[c]", "H2O[c]", "PI[c]", "ADP[c]", "H[c]"]
+		moleculeIds = ["ATP[c]", "WATER[c]", "Pi[c]", "ADP[c]", "PROTON[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)
-		self.reactants = self.bulkMoleculesView(["ATP[c]", "H2O[c]"])
-		self.products = self.bulkMoleculesView(["ADP[c]", "PI[c]", "H[c]"])
+		self.reactants = self.bulkMoleculesView(["ATP[c]", "WATER[c]"])
+		self.products = self.bulkMoleculesView(["ADP[c]", "Pi[c]", "PROTON[c]"])
 		self.atp = self.bulkMoleculeView("ATP[c]")
-		self.h2o = self.bulkMoleculeView("H2O[c]")
-		# self.pi = self.bulkMoleculeView("PI[c]")
+		self.h2o = self.bulkMoleculeView("WATER[c]")
+		# self.pi = self.bulkMoleculeView("Pi[c]")
 		# self.adp = self.bulkMoleculeView("ADP[c]")
-		# self.h = self.bulkMoleculeView("H[c]")
+		# self.h = self.bulkMoleculeView("PROTON[c]")
 
 		self.nongrowthAssociated_reactionsPerTimestep = (
-			kb.NGAM * kb.constants.nAvogadro
+			kb.constants.nonGrowthAssociatedMaintenance * kb.constants.nAvogadro
 			).asNumber(1/units.fg/units.s) * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
@@ -64,7 +62,7 @@ class AtpUsage(wholecell.processes.process.Process):
 			* self.nongrowthAssociated_reactionsPerTimestep)
 
 		expectedReactions = expectedReactions_nongrowthAssociated
-		
+
 		self.reactants.requestIs(
 			stochasticRound(self.randomState, expectedReactions)
 			)
@@ -78,7 +76,7 @@ class AtpUsage(wholecell.processes.process.Process):
 			* self.nongrowthAssociated_reactionsPerTimestep)
 
 		expectedReactions = expectedReactions_nongrowthAssociated
-		
+
 		atpsHydrolyzed = np.fmin(
 			self.atp.count(),
 			self.h2o.count()
@@ -97,6 +95,6 @@ class AtpUsage(wholecell.processes.process.Process):
 
 		# TODO: consider implementing (N)GAM as a metabolism constraint
 		# TODO: let (N)GAM roll over to the next time step, just in case
-		# there is some stochasticity (i.e. ATP limiting in one time step, in 
+		# there is some stochasticity (i.e. ATP limiting in one time step, in
 		# excess in a following time step)
 

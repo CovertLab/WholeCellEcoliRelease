@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-TranscriptElongationFast
+TranscriptElongation
 
 Transcription elongation sub-model.
 
@@ -23,10 +23,10 @@ import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils import units
 
-class TranscriptElongationFast(wholecell.processes.process.Process):
-	""" TranscriptElongationFast """
+class TranscriptElongation(wholecell.processes.process.Process):
+	""" TranscriptElongation """
 
-	_name = "TranscriptElongationFast"
+	_name = "TranscriptElongation"
 
 	# Constructor
 	def __init__(self):
@@ -47,16 +47,17 @@ class TranscriptElongationFast(wholecell.processes.process.Process):
 		self.proton = None
 		self.rnapSubunits = None
 
-		super(TranscriptElongationFast, self).__init__()
+		super(TranscriptElongation, self).__init__()
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(TranscriptElongationFast, self).initialize(sim, kb)
+		super(TranscriptElongation, self).initialize(sim, kb)
 
 		# Load parameters
 
 		self.elngRate = kb.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
 		self.rnaIds = kb.process.transcription.rnaData['id']
 
@@ -68,10 +69,9 @@ class TranscriptElongationFast(wholecell.processes.process.Process):
 
 		self.endWeight = kb.process.transcription.transcriptionEndWeight
 
-		self.fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
-
 		# Views
-		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly',rnaIndex = ("in", np.where(self.fastRnaBool)[0]))
+
+		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.bulkRnas = self.bulkMoleculesView(self.rnaIds)
 
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
@@ -109,10 +109,14 @@ class TranscriptElongationFast(wholecell.processes.process.Process):
 			maxFractionalReactionLimit * sequenceComposition
 			)
 
+		self.writeToListener("GrowthLimits", "ntpPoolSize", self.ntps.total())
+		self.writeToListener("GrowthLimits", "ntpRequestSize", maxFractionalReactionLimit * sequenceComposition)
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		ntpCounts = self.ntps.counts()
+
+		self.writeToListener("GrowthLimits", "ntpAllocated", self.ntps.counts())
 
 		activeRnaPolys = self.activeRnaPolys.molecules()
 
@@ -190,15 +194,16 @@ class TranscriptElongationFast(wholecell.processes.process.Process):
 			terminalLengths - transcriptLengths
 			)
 
-		rnapStallsFast = expectedElongations - sequenceElongations
+		rnapStalls = expectedElongations - sequenceElongations
 
+		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
 
-
-		self.writeToListener("RnapData", "rnapStallsFast", rnapStallsFast)
+		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
 		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
 		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
 
 		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
 
-		self.writeToListener("RnapData", "nTerminatedFast", nTerminated)
+		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
+		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())

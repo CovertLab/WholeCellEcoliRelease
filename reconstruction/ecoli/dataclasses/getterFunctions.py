@@ -23,11 +23,20 @@ class getterFunctions(object):
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
-		idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
+		try:
+			idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
+
+		except IndexError:
+			if i not in self._allMass["id"]:
+				raise Exception("Unrecognized id: {}".format(i))
+
+			else:
+				raise
+
 		return self._allMass['mass'][idx]
 
 	def _buildAllMasses(self, raw_data, sim_data):
-		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.polymerized)
+		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.polymerized) + len(raw_data.water)
 		allMass = np.empty(size,
 			dtype = [
 					('id',		'a50'),
@@ -41,6 +50,7 @@ class getterFunctions(object):
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteinComplexes])
 		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.metabolites])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.polymerized])
+		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.water])
 
 		allMass[:] = listMass
 
@@ -49,4 +59,4 @@ class getterFunctions(object):
 			'mass'		:	units.g / units.mol,
 			}
 
-		self._allMass = UnitStructArray(allMass, field_units)
+		self._allMass = UnitStructArray(allMass, field_units) # TODO: change to dict?

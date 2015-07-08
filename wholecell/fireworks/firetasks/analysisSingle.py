@@ -14,6 +14,7 @@ class AnalysisSingleTask(FireTaskBase):
 		"input_results_directory",
 		"input_kb",
 		"output_plots_directory",
+		"metadata",
 		]
 
 	def run_task(self, fw_spec):
@@ -36,4 +37,5 @@ class AnalysisSingleTask(FireTaskBase):
 				self["output_plots_directory"],
 				f[:-3],
 				self["input_kb"],
+				self["metadata"],
 				)
