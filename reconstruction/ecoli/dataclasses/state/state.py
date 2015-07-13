@@ -108,11 +108,17 @@ class State(object):
 		# Add active DNA polymerase
 		dnaPolyMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: dnaPolymerases currently have no mass
 		dnaPolymeraseAttributes = {
-				'chromosomeLocation' : 'i8',
-				'directionIsPositive' : 'bool',
-				'isLeading' : 'bool'
+				'sequenceIdx' : 'i8',
+				'sequenceLength' : 'i8',
 				}
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
+
+		# Add chromosome
+		chromosomeMass = units.g / units.mol * 0.
+		chromosomeAttributes = {
+			'forward' : 'bool',
+			'complement' : 'bool',
+		}
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),

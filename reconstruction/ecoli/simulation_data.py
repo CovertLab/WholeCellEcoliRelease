@@ -95,3 +95,5 @@ class SimulationDataEcoli(object):
 			("T", "THR[c]"), ("W", "TRP[c]"), ("Y", "TYR[c]"), ("U", "L-SELENOCYSTEINE[c]"),
 			("V", "VAL[c]")
 			))
+
+		self.dNtpOrder = ["A", "C", "G", "T"]
