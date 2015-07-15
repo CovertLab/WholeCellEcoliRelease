@@ -74,13 +74,13 @@ class Replication(object):
 			)
 
 		from wholecell.utils.polymerize import PAD_VALUE
-		self.replicaiton_sequences = np.empty((4, maxLen), np.int8)
-		self.replicaiton_sequences.fill(PAD_VALUE)
+		self.replication_sequences = np.empty((4, maxLen), np.int8)
+		self.replication_sequences.fill(PAD_VALUE)
 
-		self.replicaiton_sequences[0, :self.forward_sequence.size] = self.forward_sequence
-		self.replicaiton_sequences[1, :self.reverse_sequence.size] = self.reverse_sequence
-		self.replicaiton_sequences[2, :self.forward_complement_sequence.size] = self.forward_complement_sequence
-		self.replicaiton_sequences[3, :self.reverse_complement_sequence.size] = self.reverse_complement_sequence
+		self.replication_sequences[0, :self.forward_sequence.size] = self.forward_sequence
+		self.replication_sequences[1, :self.reverse_sequence.size] = self.reverse_sequence
+		self.replication_sequences[2, :self.forward_complement_sequence.size] = self.forward_complement_sequence
+		self.replication_sequences[3, :self.reverse_complement_sequence.size] = self.reverse_complement_sequence
 
 		# Get polymeriezd nucleotide weights
 		self.replicationMonomerWeights = (
@@ -90,8 +90,6 @@ class Replication(object):
 				)
 			/ raw_data.constants['nAvogadro']
 			)
-
-		#import ipdb; ipdb.set_trace()
 
 	def _reverseComplement(self, sequenceVector):
 		return (self._n_nt_types - 1) - sequenceVector
