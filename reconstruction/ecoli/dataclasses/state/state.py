@@ -73,6 +73,13 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(polymerizedIds, polymerizedMasses)
 
+		# Set chromosome
+		chromosomeIds = sf.createIdsWithCompartments(raw_data.chromosome)
+		chromosomeMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.chromosome)
+
+		self.bulkMolecules.addToBulkState(chromosomeIds, chromosomeMasses)
+
+
 	def _buildBulkChromosome(self, raw_data, sim_data):
 		# Set genes
 		geneIds = [x['id'] for x in raw_data.genes]
@@ -112,13 +119,6 @@ class State(object):
 				'sequenceLength' : 'i8',
 				}
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
-
-		# Add chromosome
-		chromosomeMass = units.g / units.mol * 0.
-		chromosomeAttributes = {
-			'forward' : 'bool',
-			'complement' : 'bool',
-		}
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),
