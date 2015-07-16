@@ -33,19 +33,10 @@ def divide_cell(sim):
 	except OSError:
 		pass
 
-	# Determine where chromosome associated components go
-	# if chromosome has not segregated
-	dnaReplicationComplete = sim._dnaReplicationComplete
-	chromosomeToDaughter1 = None
-	if not dnaReplicationComplete:
-		chromosomeToDaughter1 = False
-		if randomState.binomial(1, p = BINOMIAL_COEFF) == 0:
-			chromosomeToDaughter1 = True
-
 	# Create divded containers
-	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chromosomeToDaughter1)
-	d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState, dnaReplicationComplete, chromosomeToDaughter1)
-	d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, dnaReplicationComplete, chromosomeToDaughter1)
+	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState)
+	d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
+	d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState)
 
 	# Save divded containers
 	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
@@ -59,7 +50,7 @@ def divide_cell(sim):
 	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
 	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
 
-def divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chromosomeToDaughter1):
+def divideBulkMolecules(bulkMolecules, randomState):
 	d1_bulk_molecules_container = bulkMolecules.container.emptyLike()
 	d2_bulk_molecules_container = bulkMolecules.container.emptyLike()
 
@@ -98,7 +89,7 @@ def divideBulkMolecules(bulkMolecules, randomState, dnaReplicationComplete, chro
 
 	return d1_bulk_molecules_container, d2_bulk_molecules_container
 
-def divideBulkChromosome(bulkChromosome, randomState, dnaReplicationComplete, chromosomeToDaughter1):
+def divideBulkChromosome(bulkChromosome, randomState):
 	chromosome_location_counts = bulkChromosome.container.counts()
 	d1_bulk_chromosome_container = bulkChromosome.container.emptyLike()
 	d2_bulk_chromosome_container = bulkChromosome.container.emptyLike()
@@ -120,7 +111,7 @@ def divideBulkChromosome(bulkChromosome, randomState, dnaReplicationComplete, ch
 
 	return d1_bulk_chromosome_container, d2_bulk_chromosome_container
 
-def divideUniqueMolecules(uniqueMolecules, randomState, dnaReplicationComplete, chromosomeToDaughter1):
+def divideUniqueMolecules(uniqueMolecules, randomState):
 	d1_unique_molecules_container = uniqueMolecules.container.emptyLike()
 	d2_unique_molecules_container = uniqueMolecules.container.emptyLike()
 

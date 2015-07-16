@@ -67,12 +67,6 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
 
-		# Set polymerized
-		polymerizedIds = sf.createIdsWithCompartments(raw_data.polymerized)
-		polymerizedMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.polymerized)
-
-		self.bulkMolecules.addToBulkState(polymerizedIds, polymerizedMasses)
-
 		# Set chromosome
 		chromosomeIds = sf.createIdsWithCompartments(raw_data.chromosome)
 		chromosomeMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.chromosome)

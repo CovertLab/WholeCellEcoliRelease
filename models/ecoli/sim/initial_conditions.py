@@ -101,14 +101,8 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
-	polymerizedView = bulkMolCntr.countsView([id_ + "[c]" for id_ in kb.moleculeGroups.polymerizedDNT_IDs])
-
-	polymerizedView.countsIs([
-		kb.process.replication.genome_A_count + kb.process.replication.genome_T_count,
-		kb.process.replication.genome_C_count + kb.process.replication.genome_G_count,
-		kb.process.replication.genome_G_count + kb.process.replication.genome_C_count,
-		kb.process.replication.genome_T_count + kb.process.replication.genome_A_count
-		])
+	chromosomeView = bulkMolCntr.countsView(kb.moleculeGroups.fullChromosome)
+	chromosomeView.countsIs([1])
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
@@ -166,9 +160,9 @@ def initializeReplication(uniqueMolCntr, kb):
 	oricCenter = kb.constants.oriCCenter.asNumber(units.nt)
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
-		chromosomeLocation = np.array([oricCenter, oricCenter, oricCenter, oricCenter]),
-		directionIsPositive = np.array([True, True, False, False]),
-		isLeading = np.array([True, False, True, False])
+		sequenceIdx = np.array([0, 1, 2, 3]),
+		sequenceLength = np.array([0, 0, 0, 0]),
+		#sequenceLength = np.array([2295000.0, 2295000.0, 2295000.0, 2295000.0]),
 		)
 
 def setDaughterInitialConditions(sim, kb):

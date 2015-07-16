@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Replication
+ReplicationElongation
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -13,35 +13,36 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize import polymerize, PAD_VALUE
+from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils import units
 
-class Replication(wholecell.processes.process.Process):
-	""" Replication """
+class ReplicationElongation(wholecell.processes.process.Process):
+	""" ReplicationElongation """
 
-	_name = "Replication"
+	_name = "ReplicationElongation"
 
 	# Constructor
 	def __init__(self):
-		super(Replication, self).__init__()
+		super(ReplicationElongation, self).__init__()
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(Replication, self).initialize(sim, kb)
+		super(ReplicationElongation, self).initialize(sim, kb)
 
 		# Load parameters
 		self.dnaPolymeraseElongationRate = kb.constants.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 
 		self.sequenceLengths = kb.process.replication.sequence_lengths
-		self.sequences = kb.process.replication.replicaiton_sequences
-		self.ntWeights = kb.process.transcription.replicationMonomerWeights
+		self.sequences = kb.process.replication.replication_sequences
+		self.polymerized_dntp_weights = kb.process.replication.replicationMonomerWeights
 
 		# Views
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
 
 		self.dntps = self.bulkMoleculesView(kb.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.chromosomeHalves = self.bulkMoleculesView(kb.moleculeGroups.chromosomeHalves)
 
 	def calculateRequest(self):
 		activeDnaPoly = self.activeDnaPoly.allMolecules()
@@ -103,10 +104,11 @@ class Replication(wholecell.processes.process.Process):
 			self.randomState
 			)
 
+		# Compute mass increase for each polymerizing chromosome half
 		massIncreaseDna = computeMassIncrease(
 			sequences,
 			sequenceElongations,
-			self.ntWeights.asUnit(units.fg)
+			self.polymerized_dntp_weights.asNumber(units.fg)
 			)
 
 		updatedMass = massDiffDna + massIncreaseDna
@@ -120,7 +122,9 @@ class Replication(wholecell.processes.process.Process):
 			massDiff_DNA = updatedMass
 			)
 
-		terminalLengths = self.sequence_lengths[sequenceIdx]
+		# Determine if any chromosome half finshed polymerizing
+		# and create new unique chromosomes
+		terminalLengths = self.sequenceLengths[sequenceIdx]
 
 		didTerminate = (updatedLengths == terminalLengths)
 
@@ -129,17 +133,17 @@ class Replication(wholecell.processes.process.Process):
 			minlength = self.sequences.shape[0]
 			)
 
+		newUniqueChromosomeHalves = sequenceIdx[np.where(didTerminate)[0]]
+
 		activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
 		nElongations = dNtpsUsed.sum()
 
+		self.chromosomeHalves.countsInc(terminatedChromosomes)
+
 		self.dntps.countsDec(dNtpsUsed)
-
-		self.bulkChromosomes.countsIs(terminatedChromosomes)
-
-		self.inactiveRnaPolys.countInc(nTerminated)
 
 		self.ppi.countInc(nElongations - nInitialized)
 

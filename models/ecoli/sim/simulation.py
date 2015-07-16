@@ -12,7 +12,7 @@ from wholecell.states.bulk_chromosome import BulkChromosome
 from models.ecoli.processes.complexation import Complexation
 from models.ecoli.processes.metabolism import Metabolism
 from models.ecoli.processes.rna_degradation import RnaDegradation
-from models.ecoli.processes.replication import Replication
+from models.ecoli.processes.replication_elongation import ReplicationElongation
 from models.ecoli.processes.polypeptide_initiation import PolypeptideInitiation
 from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
@@ -52,7 +52,7 @@ class EcoliSimulation(Simulation):
 		TranscriptElongation,
 		PolypeptideInitiation,
 		PolypeptideElongation,
-		Replication,
+		ReplicationElongation,
 		ProteinDegradation,
 		Complexation,
 		AtpUsage

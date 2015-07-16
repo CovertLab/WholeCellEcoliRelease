@@ -54,6 +54,8 @@ class moleculeGroups(object):
 										'RRFE-RRNA[c]','RRFG-RRNA[c]','RRFH-RRNA[c]'],
 			's50_fullComplex'		:	['CPLX-50SA[c]'],
 			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values(),
+			'chromosomeHalves'		:	["CHROM_FORWARD[c]", "CHROM_REVERSE[c]", "CHROM_FORWARD_COMPLEMENT[c]", "CHROM_REVERSE_COMPLEMENT[c]"],
+			'fullChromosome'		:	["CHROM_FULL[c]"],
 		}
 
 		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)
