@@ -167,13 +167,14 @@ def enzymeRate(reactionInfo, enzymeConcArray, substrateConcArray, inhibitorConcA
 				For standard rate laws: the reaction is assumed to have only
 					one enzyme, and only the first enzyme in enzymeConcArray
 					is considered.
+				Currently uses ONLY the higest kcat value, if multiple are available.
 	"""
 	# reactionInfo = kb.process.metabolism.reactionRateInfo[reactionID]
 
 	# Standard or custom reaction rate law?
 	if(reactionInfo["rateEquationType"] == "standard"):
 		# Standard rate law
-		rate = enzymeRateApproximate(enzymeConcArray[0], reactionInfo["kcat"], substrateConcArray, reactionInfo["kM"], inhibitorConcArray, reactionInfo["kI"])
+		rate = enzymeRateApproximate(enzymeConcArray[0], np.amax(reactionInfo["kcat"]), substrateConcArray, reactionInfo["kM"], inhibitorConcArray, reactionInfo["kI"])
 	
 	elif(reactionInfo["rateEquationType"] == "custom"):
 		# Custom rate law

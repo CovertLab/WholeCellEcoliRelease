@@ -185,7 +185,8 @@ class Metabolism(wholecell.processes.process.Process):
 			except:
 				continue
 
-			# enzymes, substrates = enzymeRateValuesNeededLookup(rateInfo)
+
+			import ipdb; ipdb.set_trace()
 
 			substrateIDs = rateInfo["substrateIDs"]
 			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
