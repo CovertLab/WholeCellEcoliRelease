@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Replication
+ReplicationData
 
 Replication fork position listener. Represents position of replication forks over time.
 
@@ -16,19 +16,19 @@ import numpy as np
 
 import wholecell.listeners.listener
 
-class Replication(wholecell.listeners.listener.Listener):
-	""" Replication """
+class ReplicationData(wholecell.listeners.listener.Listener):
+	""" ReplicationData """
 
-	_name = 'Replication'
+	_name = 'ReplicationData'
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		super(Replication, self).__init__(*args, **kwargs)
+		super(ReplicationData, self).__init__(*args, **kwargs)
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(Replication, self).initialize(sim, kb)
+		super(ReplicationData, self).initialize(sim, kb)
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 
@@ -37,7 +37,7 @@ class Replication(wholecell.listeners.listener.Listener):
 
 	# Allocate memory
 	def allocate(self):
-		super(Replication, self).allocate()
+		super(ReplicationData, self).allocate()
 
 
 	def update(self):

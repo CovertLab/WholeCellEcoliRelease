@@ -22,7 +22,7 @@ from models.ecoli.processes.atp_usage import AtpUsage
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
-from models.ecoli.listeners.replication_fork import ReplicationForkPosition
+from models.ecoli.listeners.replication_data import ReplicationData
 from models.ecoli.listeners.ribosome_data import RibosomeData
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
@@ -60,7 +60,7 @@ class EcoliSimulation(Simulation):
 
 	_listenerClasses = (
 		Mass,
-		ReplicationForkPosition,
+		ReplicationData,
 		RibosomeData,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
