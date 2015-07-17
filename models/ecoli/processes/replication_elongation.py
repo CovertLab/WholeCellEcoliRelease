@@ -42,7 +42,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		self.dntps = self.bulkMoleculesView(kb.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.chromosomeHalves = self.bulkMoleculesView(kb.moleculeGroups.chromosomeHalves)
+		self.chromosomeHalves = self.bulkMoleculesView(kb.moleculeGroups.partialChromosome)
 
 	def calculateRequest(self):
 		activeDnaPoly = self.activeDnaPoly.allMolecules()
@@ -82,7 +82,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		if len(activeDnaPoly) == 0:
 			return
 
-		sequenceIdx, sequeneLengths, massDiffDna = activeDnaPoly.attrs(
+		sequenceIdx, sequenceLengths, massDiffDna = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength', 'massDiff_DNA'
 			)
 
@@ -91,7 +91,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		sequences = buildSequences(
 			self.sequences,
 			sequenceIdx,
-			sequeneLengths,
+			sequenceLengths,
 			self.dnaPolymeraseElongationRate
 			)
 
@@ -113,9 +113,9 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		updatedMass = massDiffDna + massIncreaseDna
 
-		didInitialize = (sequeneLengths == 0) & (sequenceElongations > 0)
+		didInitialize = (sequenceLengths == 0) & (sequenceElongations > 0)
 
-		updatedLengths = sequeneLengths + sequenceElongations
+		updatedLengths = sequenceLengths + sequenceElongations
 
 		activeDnaPoly.attrIs(
 			sequenceLength = updatedLengths,
@@ -149,7 +149,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		# expectedElongations = np.fmin(
 		# 	self.elngRate,
-		# 	terminalLengths - sequeneLengths
+		# 	terminalLengths - sequenceLengths
 		# 	)
 
 		#dnaPolymeraseStalls = expectedElongations - sequenceElongations

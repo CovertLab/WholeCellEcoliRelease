@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-ReplicationForkPosition
+Replication
 
 Replication fork position listener. Represents position of replication forks over time.
 
@@ -16,19 +16,19 @@ import numpy as np
 
 import wholecell.listeners.listener
 
-class ReplicationForkPosition(wholecell.listeners.listener.Listener):
-	""" ReplicationForkPosition """
+class Replication(wholecell.listeners.listener.Listener):
+	""" Replication """
 
-	_name = 'ReplicationForkPosition'
+	_name = 'Replication'
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		super(ReplicationForkPosition, self).__init__(*args, **kwargs)
+		super(Replication, self).__init__(*args, **kwargs)
 
 
 	# Construct object graph
 	def initialize(self, sim, kb):
-		super(ReplicationForkPosition, self).initialize(sim, kb)
+		super(Replication, self).initialize(sim, kb)
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 
@@ -37,7 +37,7 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 	# Allocate memory
 	def allocate(self):
-		super(ReplicationForkPosition, self).allocate()
+		super(Replication, self).allocate()
 
 
 	def update(self):
@@ -47,7 +47,9 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 			self.dnaPolyData = dnaPolymerases.attrsAsStructArray(
 				"_uniqueId",
 				"sequenceIdx",
-				"sequenceLength"
+				"sequenceLength",
+				"replicationRound",
+				"replicationDivision"
 				)
 		else:
 			# TODO: John rewrite this attrsAsStructArray function to build the struct array with
