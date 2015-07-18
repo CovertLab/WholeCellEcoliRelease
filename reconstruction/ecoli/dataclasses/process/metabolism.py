@@ -446,6 +446,13 @@ class Metabolism(object):
 		# Enzyme kinetics data
 		for reaction in raw_data.enzymeKinetics:
 			reactionID = reaction["reactionID"]
+
+			# If the enzymes don't already have a compartment tag, add [c] (cytosol) as a default
+			reaction["enzymeIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["enzymeIDs"]]
+
+			# If the substrates don't already have a compartment tag, add [c] (cytosol) as a default
+			reaction["substrateIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["substrateIDs"]]
+
 			reactionRateInfo[reactionID] = reaction
 			for enzymeID in reaction["enzymeIDs"]:
 				enzymesWithKineticInfo.add(enzymeID)

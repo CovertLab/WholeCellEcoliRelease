@@ -185,9 +185,6 @@ class Metabolism(wholecell.processes.process.Process):
 			except:
 				continue
 
-
-			import ipdb; ipdb.set_trace()
-
 			substrateIDs = rateInfo["substrateIDs"]
 			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
 			substrateConcArray = [metaboliteConcentrations[i] for i in substrateIXs]
@@ -205,8 +202,6 @@ class Metabolism(wholecell.processes.process.Process):
 			self.perEnzymeRates[index] = rate / np.amin(enzymeConcArray)
 
 			self.enzymeConc[index] = np.amin(enzymeConcArray)
-
-
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
