@@ -19,6 +19,7 @@ from models.ecoli.processes.transcript_initiation import TranscriptInitiation
 from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
 from models.ecoli.processes.atp_usage import AtpUsage
+from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
@@ -55,7 +56,8 @@ class EcoliSimulation(Simulation):
 		ReplicationElongation,
 		ProteinDegradation,
 		Complexation,
-		AtpUsage
+		AtpUsage,
+		ChromosomeFormation
 		)
 
 	_listenerClasses = (
