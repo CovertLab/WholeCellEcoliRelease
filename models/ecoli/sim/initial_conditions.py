@@ -102,7 +102,7 @@ def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
 def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
 
 	chromosomeView = bulkMolCntr.countsView(kb.moleculeGroups.fullChromosome)
-	chromosomeView.countsIs([2])
+	chromosomeView.countsIs([1])
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
@@ -158,29 +158,31 @@ def initializeReplication(uniqueMolCntr, kb):
 	molecules for now at the center of the oriC
 	'''
 	oricCenter = kb.constants.oriCCenter.asNumber(units.nt)
-	# dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
-	# dnaPoly.attrIs(
-	# 	sequenceIdx = np.array([0, 1, 2, 3]),
-	# 	sequenceLength = np.array([0, 0, 0, 0]),
-	# 	)
+	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
+	dnaPoly.attrIs(
+		sequenceIdx = np.array([0, 1, 2, 3]),
+		sequenceLength = np.array([0, 0, 0, 0]),
+		replicationRound = np.array([0, 0, 0, 0]),
+		replicationDivision = np.array([0, 0, 0, 0])
+		)
 	# TODO: DELETE!
-	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 8)
-	dnaPoly.attrIs(
-		sequenceIdx = np.array([0, 1, 2, 3, 0, 1, 2, 3]),
-		#sequenceLength = np.array([0, 0, 0, 0]),
-		sequenceLength = np.array([229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0]),
-		replicationRound = np.array([1, 1, 1, 1, 1, 1, 1, 1]),
-		replicationDivision = np.array([0, 0, 0, 0, 1, 1, 1, 1])
-		)
+	# dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 8)
+	# dnaPoly.attrIs(
+	# 	sequenceIdx = np.array([0, 1, 2, 3, 0, 1, 2, 3]),
+	# 	#sequenceLength = np.array([0, 0, 0, 0]),
+	# 	sequenceLength = np.array([229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0]),
+	# 	replicationRound = np.array([1, 1, 1, 1, 1, 1, 1, 1]),
+	# 	replicationDivision = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+	# 	)
 
-	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 16)
-	dnaPoly.attrIs(
-		sequenceIdx = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]),
-		#sequenceLength = np.array([0, 0, 0, 0]),
-		sequenceLength = np.array([22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0]),
-		replicationRound = np.array([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]),
-		replicationDivision = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
-		)
+	# dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 16)
+	# dnaPoly.attrIs(
+	# 	sequenceIdx = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]),
+	# 	#sequenceLength = np.array([0, 0, 0, 0]),
+	# 	sequenceLength = np.array([22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0]),
+	# 	replicationRound = np.array([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]),
+	# 	replicationDivision = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
+	# 	)
 
 def setDaughterInitialConditions(sim, kb):
 	assert sim._inheritedStatePath != None
