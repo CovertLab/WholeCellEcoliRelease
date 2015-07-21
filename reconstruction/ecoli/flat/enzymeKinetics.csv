@@ -1,4 +1,0 @@
-reactionID	enzymeID	substrateIDs	rateEquationType	kcat	k_M	k_I	customRateEquation	customParameters	customParameterConstants	customParameterConstantValues	customParameterVariables
-RXN-16420	FORMHYDROGI-CPLX	[10FTHF]	MM	3	[1.2]	[]	null	null			
-RXN0-2141	FABB-CPLX	[MALONYL-ACP]	Custom	6	[.09]	[]	'k_cat*E*((some_parameter)/(k_M + S_1))	[k_cat, some_parameter, k_M, E, S_1]	[k_cat, some_parameter, k_M]	[6.0, 10.0, .09]	{“E”:”FABB-CPLX”, “S_1”:”MALONYL-ACP”}
-CTPSYN-RXN	CTPSYN-CPLX	[UTP, GLN, ATP]	Custom	1	[.09,1.3,8.0]	[]	'k_cat*E*((some_parameter)/(k_M_1 + S_1))*((1)/(k_M_2 + S_2))*((1)/(k_M_3 + S_3))	[k_cat, some_parameter, k_M_1, k_M_2, k_M_3, E, S_1, S_2, S_3]	[k_cat, some_parameter, k_M_1, k_M_2, k_M_3]	[1, 12, .09, 1.3, 9.0]	{“E”:”FABB-CPLX”, “S_1”:”UTP”, “S_2”:”GLN”,“S_3”:”ATP”}
