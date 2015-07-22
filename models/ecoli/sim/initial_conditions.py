@@ -154,10 +154,59 @@ def initializeReplication(uniqueMolCntr, kb):
 	'''
 	initializeReplication
 
-	Purpose: Create two replication forks represented as unique
-	molecules for now at the center of the oriC
+	Purpose: Create the appropriate number of replication forks given the cell growth rate.
 	'''
-	oricCenter = kb.constants.oriCCenter.asNumber(units.nt)
+
+	## Determine the number and location of replication forks at the start of the cell cycle
+	# Find growth rate constants
+	C = kb.constants.c_period
+	D = kb.constants.d_period
+	tau = kb.doubling_time
+	genome_length = kb.process.replication.genome_length
+
+	C = C
+	D = D
+	tau = tau*.5
+
+
+	# The number of active replication events
+	limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
+
+	sequenceIdx = []
+	sequenceLength = []
+	replicationRound = []
+	replicationDivision = []
+
+	n = 1;
+	while n < limit:
+		# Determine at what base each strand of a given replication event should start
+		# Replication forks should be at (1 - (n*tau - D)/(C))(basepairs in the genome)
+		fork_location = np.floor((1 - ((n*tau.asNumber() - D.asNumber())/(C.asNumber())))*(genome_length))
+
+		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
+		num_events = 2^(n-1)
+		# sequenceIdx refers to the type of elongation - ie forward and
+		# reverse, lagging and leading strands.
+		sequenceIdx += [0,1,2,3]*num_events
+		# sequenceLength refers to how far along in the replication process 
+		# this event already is - at what basepair currently. All four are
+		# assumed to be equally far along.
+		sequenceLength += [fork_location]*4*num_events
+		# replicationRound is defined the same way as n - each time a
+		# replication round starts, all origins in the cell fire, and are then
+		# of the same generation and round number
+		replicationRound += [(n-1)]*4*num_events
+		# WITHIN each round, replicationDivision uniquely identifies individual
+		# origin initaion points. Loop through each intiation event in this 
+		# generation (2 forks, 4 polymerases each), assign it an increaing,
+		# unique number, starting at zero.
+		for initiation_event in xrange(0,num_events-1):
+			replicationDivision += [initiation_event]*4
+
+
+	import ipdb; ipdb.set_trace()
+
+	oricCenter = kb.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
 		sequenceIdx = np.array([0, 1, 2, 3]),
