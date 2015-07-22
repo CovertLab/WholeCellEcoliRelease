@@ -164,10 +164,6 @@ def initializeReplication(uniqueMolCntr, kb):
 	tau = kb.doubling_time
 	genome_length = kb.process.replication.genome_length
 
-	C = C
-	D = D
-	tau = tau*.5
-
 
 	# The number of active replication events
 	limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
@@ -178,13 +174,13 @@ def initializeReplication(uniqueMolCntr, kb):
 	replicationDivision = []
 
 	n = 1;
-	while n < limit:
+	while n <= limit:
 		# Determine at what base each strand of a given replication event should start
 		# Replication forks should be at (1 - (n*tau - D)/(C))(basepairs in the genome)
 		fork_location = np.floor((1 - ((n*tau.asNumber() - D.asNumber())/(C.asNumber())))*(genome_length))
 
 		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
-		num_events = 2^(n-1)
+		num_events = 2 ** (n-1)
 		# sequenceIdx refers to the type of elongation - ie forward and
 		# reverse, lagging and leading strands.
 		sequenceIdx += [0,1,2,3]*num_events
@@ -200,19 +196,19 @@ def initializeReplication(uniqueMolCntr, kb):
 		# origin initaion points. Loop through each intiation event in this 
 		# generation (2 forks, 4 polymerases each), assign it an increaing,
 		# unique number, starting at zero.
-		for initiation_event in xrange(0,num_events-1):
+		for initiation_event in xrange(0,num_events):
 			replicationDivision += [initiation_event]*4
 
+		n += 1
 
-	import ipdb; ipdb.set_trace()
 
 	oricCenter = kb.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
-		sequenceIdx = np.array([0, 1, 2, 3]),
-		sequenceLength = np.array([0, 0, 0, 0]),
-		replicationRound = np.array([0, 0, 0, 0]),
-		replicationDivision = np.array([0, 0, 0, 0])
+		sequenceIdx = np.array(sequenceIdx),
+		sequenceLength = np.array(sequenceLength),
+		replicationRound = np.array(replicationRound),
+		replicationDivision = np.array(replicationDivision)
 		)
 	# TODO: DELETE!
 	# dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 8)
