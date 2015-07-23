@@ -93,8 +93,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	ax = plt.subplot(4,1,3, sharex=ax)
 	ax.plot(time / 60., pairsOfForks)
-	ax.scatter(initiationEvent / 60., pairsOfForks[initiationEvent] - 0.5, color = "black")
-	ax.scatter(terminationEvent / 60., pairsOfForks[terminationEvent] - 0.5, color = "blue")
+	ax.scatter(initiationEvent / 60., (pairsOfForks[initiationEvent + 1] + pairsOfForks[initiationEvent]) / 2., color = "black")
+	ax.scatter(terminationEvent / 60., (pairsOfForks[terminationEvent + 1] + pairsOfForks[terminationEvent]) / 2., color = "blue")
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks(np.arange(0,7))
 	ax.set_ylim([0, 6])
