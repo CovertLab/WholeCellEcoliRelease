@@ -211,24 +211,6 @@ def initializeReplication(uniqueMolCntr, kb):
 		replicationRound = np.array(replicationRound),
 		replicationDivision = np.array(replicationDivision)
 		)
-	# TODO: DELETE!
-	# dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 8)
-	# dnaPoly.attrIs(
-	# 	sequenceIdx = np.array([0, 1, 2, 3, 0, 1, 2, 3]),
-	# 	#sequenceLength = np.array([0, 0, 0, 0]),
-	# 	sequenceLength = np.array([229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0, 229500.0]),
-	# 	replicationRound = np.array([1, 1, 1, 1, 1, 1, 1, 1]),
-	# 	replicationDivision = np.array([0, 0, 0, 0, 1, 1, 1, 1])
-	# 	)
-
-	# dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 16)
-	# dnaPoly.attrIs(
-	# 	sequenceIdx = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]),
-	# 	#sequenceLength = np.array([0, 0, 0, 0]),
-	# 	sequenceLength = np.array([22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0, 22950.0]),
-	# 	replicationRound = np.array([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]),
-	# 	replicationDivision = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
-	# 	)
 
 def setDaughterInitialConditions(sim, kb):
 	assert sim._inheritedStatePath != None
