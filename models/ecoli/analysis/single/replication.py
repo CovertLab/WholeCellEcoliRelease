@@ -72,7 +72,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	chromEquivalents = dnaMass / chromMass
 
 	# Count 60 min doubling time mass equivalents
-	avgCell60MinDoublingTimeTotalMassInit = kb.mass.avgCell60MinDoublingTimeTotalMassInit
+	avgCell60MinDoublingTimeTotalMassInit = kb.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
 	sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
 
 	# Plot stuff
