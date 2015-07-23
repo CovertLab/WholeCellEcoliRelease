@@ -164,6 +164,7 @@ def initializeReplication(uniqueMolCntr, kb):
 	tau = kb.doubling_time
 	genome_length = kb.process.replication.genome_length
 
+	tau = tau*.2
 
 	# The number of active replication events
 	limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
@@ -196,11 +197,13 @@ def initializeReplication(uniqueMolCntr, kb):
 		# origin initaion points. Loop through each intiation event in this 
 		# generation (2 forks, 4 polymerases each), assign it an increaing,
 		# unique number, starting at zero.
-		for initiation_event in xrange(0,num_events):
-			replicationDivision += [initiation_event]*4
+		replicationDivision += [0]*2*num_events + [1]*2*num_events
 
 		n += 1
 
+	# The first replication generation should not be divid, so set all values
+	# to 0 (effectively NaN, the first four values are not used)
+	replicationDivision[:4] = [0,0,0,0]
 
 	oricCenter = kb.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
