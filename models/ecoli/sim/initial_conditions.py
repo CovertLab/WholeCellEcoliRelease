@@ -164,19 +164,117 @@ def initializeReplication(uniqueMolCntr, kb):
 	tau = kb.doubling_time
 	genome_length = kb.process.replication.genome_length
 
+	# Generate arrays specifying appropriate replication conditions
+	sequenceIdx, sequenceLength, replicationRound, replicationDivision = determineChromosomeState(C, D, tau, genome_length)
+
+	# Check if any replication should be occuring at all
+	# if(sequenceIdx)
+
+	oricCenter = kb.constants
+	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
+	dnaPoly.attrIs(
+		sequenceIdx = np.array(sequenceIdx),
+		sequenceLength = np.array(sequenceLength),
+		replicationRound = np.array(replicationRound),
+		replicationDivision = np.array(replicationDivision)
+		)
+
+def setDaughterInitialConditions(sim, kb):
+	assert sim._inheritedStatePath != None
+
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
+	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
+
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
+	sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
+
+	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
+	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
+
+	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
+	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
+	sim._initialTime = initialTime
+
+
+def determineChromosomeState(C, D, tau, genome_length):
+	"""
+	determineChromosomeState
+
+	Purpose: calculates the number and position of replicating DNA polymerases
+			 at the beginning of the cell cycle.
+
+	Inputs: C  - the C period of the cell, the length of time between
+			replication initiation and replication completion.
+			D  - the D period of the cell, the length of time between
+			completing replication of the chromosome and division of the cell.
+			tau - the doubling time of the cell
+			genome_length - the length of the genome, in base-pairs.
+
+	Outputs: a tuple of vectors for input into the dnaPoly.attrIs() function
+			of the initializeReplication() function in initial_conditions.py.
+			These  vectors are, in order:
+			sequenceIdx - an index for each of the four types/directions of DNA
+						replication - leading and lagging strand of the forward
+						and the reverse fork = 4 total. This vector is always
+						simply [0,1,2,3] repeated once for each replication
+						event. Ie for three active replication events (6 forks,
+						12 polymerases) sequenceIdx = [0,1,2,3,0,1,2,3,0,1,2,3]
+			sequenceLength - the position in the genome that each polymerase 
+						referenced in sequenceIdx has reached, in base-pairs.
+						This is handled such that even though in reality some 
+						polymerases are replicating in different directions all
+						inputs here are as though each starts at 0 and goes up
+						the the number of base-pairs in the genome.
+			replicationRound - a unique integer stating in which replication 
+						generation the polymerase referenced by sequenceIdx.
+						Each time all origins of replication in the cell fire,
+						a new replication generation has started. This array 
+						is integer-valued, and counts from 0 (the oldest
+						generation) up to n (the most recent initiation) event.
+			replicationDivision - indicator variable for which daughter cell 
+						should inherit which polymerase at division. This
+						array is only relevant to draw distinctions within a 
+						generaation of replicationRound, now between rounds.
+						Within each generation in replicationRound (run of
+						numbers with the same value), half should have
+						replicationDivision = 0, and half replicationDivision
+						= 1. This should be contiguous halves, ie
+						[0,0,0,0,1,1,1,1], NOT interspersed like
+						[0,1,0,1,0,1,0,1]. The half-and-half rule is excepted
+						for any replication generation with only 4 polymerases
+						(the oldest replication generation should be the only
+						one	with fewer than 8 polymerases). In this case 
+						replicationDivision doesn't matter/is effectively NaN,
+						but is set to all 0's to prevent conceptually dividing
+						a single chromosome between two daughter cells.
+
+	Notes: if NO polymerases are active at the start of the cell cycle,
+			equivalent to the C + D periods being shorter than the doubling
+			rate tau, then this function returns empty lists. dnaPoly.attrIs()
+			should not be run in this case, as no DNA replication will be
+			underway.
+	"""
+	
 	# Number active replication generations (can be many initiations per gen.)
 	limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 
+	# Initialize arrays to be returned
 	sequenceIdx = []
 	sequenceLength = []
 	replicationRound = []
 	replicationDivision = []
 
+	# Loop through the generations of replication which are active (if limit = 0
+	# skips loop entirely --> no active replication generations)
 	n = 1;
 	while n <= limit:
 		# Determine at what base each strand of a given replication event should start
 		# Replication forks should be at base (1 - (n*tau - D)/(C))(basepairs in the genome)
-		fork_location = np.floor((1 - ((n*tau.asNumber() - D.asNumber())/(C.asNumber())))*(genome_length))
+		ratio = (1 - ((n*tau - D)/(C)))
+		ratio = units.convertNoUnitsToNumber(ratio)
+		fork_location = np.floor(ratio*(genome_length))
+
+		import ipdb; ipdb.set_trace()
 
 		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
 		num_events = 2 ** (n-1)
@@ -203,27 +301,4 @@ def initializeReplication(uniqueMolCntr, kb):
 	# to 0 (effectively NaN, the first four values are not used)
 	replicationDivision[:4] = [0,0,0,0]
 
-	oricCenter = kb.constants
-	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
-	dnaPoly.attrIs(
-		sequenceIdx = np.array(sequenceIdx),
-		sequenceLength = np.array(sequenceLength),
-		replicationRound = np.array(replicationRound),
-		replicationDivision = np.array(replicationDivision)
-		)
-
-def setDaughterInitialConditions(sim, kb):
-	assert sim._inheritedStatePath != None
-
-	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
-	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
-
-	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
-	sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
-
-	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
-	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
-
-	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
-	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
-	sim._initialTime = initialTime
+	return (sequenceIdx, sequenceLength, replicationRound, replicationDivision)
