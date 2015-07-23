@@ -24,7 +24,7 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self._setAvgCellDryMass()
-		self.avgCell60MinDoublingTimeDryMassInit = self._set60minDryMass()
+		self.avgCell60MinDoublingTimeTotalMassInit = 813.248540675
 		self.massFraction = self._setMassFraction()
 		self.subMass = self._setSubMass()
 
@@ -82,10 +82,6 @@ class Mass(object):
 		doubling_time = self._clipTau_d(self._doubling_time)
 		avgCellDryMass = units.fg * float(interpolate.splev(doubling_time.asNumber(units.min), self._dryMassParams))
 		return avgCellDryMass
-
-	def _set60minDryMass(self):
-		avgCellDryMass60MinInit = units.fg * float(interpolate.splev(60., self._dryMassParams))/ self.avgCellToInitalCellConvFactor
-		return avgCellDryMass60MinInit
 
 	# Set mass fractions based on growth rate
 	def _setMassFraction(self):

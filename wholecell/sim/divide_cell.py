@@ -10,7 +10,7 @@ from copy import deepcopy
 
 from wholecell.io.tablewriter import TableWriter
 
-BINOMIAL_COEFF = 0.55
+BINOMIAL_COEFF = 0.5
 
 def divide_cell(sim):
 	# Assign data from simulation required
@@ -192,13 +192,13 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 			'sequenceIdx', 'sequenceLength', 'replicationRound', 'replicationDivision'
 			)
 
-		if d1_chromosome_count + d1_chromosome_count < 2:
+		if d1_chromosome_count + d2_chromosome_count < 2:
 			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
 			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
 
 			d1_bool[:] = d1_chromosome_count
 			d2_bool[:] = d2_chromosome_count
-		else:
+		elif d1_chromosome_count + d2_chromosome_count == 2:
 			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
 			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
 			for roundIdx in np.unique(replicationRound):
@@ -212,6 +212,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 					np.logical_and(replicationRound == roundIdx, replicationDivision == 1),
 					d2_bool
 					)
+		else:
+			raise Exception("Too may chromosomes!")
 				
 		n_d1 = d1_bool.sum()
 		n_d2 = d2_bool.sum()

@@ -16,6 +16,8 @@ import numpy as np
 
 import wholecell.listeners.listener
 
+PLACE_HOLDER = -1
+
 class ReplicationData(wholecell.listeners.listener.Listener):
 	""" ReplicationData """
 
@@ -32,30 +34,29 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 
-		self.dnaPolyData = None
-
-
 	# Allocate memory
 	def allocate(self):
 		super(ReplicationData, self).allocate()
+
+		self.sequenceIdx = np.zeros(50, np.float64)
+		self.sequenceIdx.fill(PLACE_HOLDER)
+		self.sequenceLength = np.zeros(50, np.float64)
+		self.sequenceLength.fill(PLACE_HOLDER)
 
 
 	def update(self):
 		dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('dnaPolymerase')
 
 		if len(dnaPolymerases) > 0:
-			self.dnaPolyData = dnaPolymerases.attrsAsStructArray(
-				"_uniqueId",
-				"sequenceIdx",
-				"sequenceLength",
-				"replicationRound",
-				"replicationDivision"
+			sequenceIdx, sequenceLength = dnaPolymerases.attrs(
+				"sequenceIdx", "sequenceLength"
 				)
-		else:
-			# TODO: John rewrite this attrsAsStructArray function to build the struct array with
-			# cached data and then populate it in a second functin. Then we can just save the 
-			# empty one here.
-			self.dnaPolyData = np.zeros(0, dtype = [('_uniqueId', 'S40'), ('sequenceIdx', '<i8'), ('sequenceLength', '?')])
+			self.sequenceIdx[:sequenceIdx.size] = sequenceIdx
+			self.sequenceLength[:sequenceLength.size] = sequenceLength
+		elif len(dnaPolymerases) == 0:
+			# NOT SURE WHY THIS IS NECESSARY BUT WHATEVER
+			self.sequenceIdx[:] = PLACE_HOLDER
+			self.sequenceLength[:] = PLACE_HOLDER
 
 	def tableCreate(self, tableWriter):
 		pass
@@ -63,5 +64,6 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			dnaPolyData = self.dnaPolyData
+			sequenceIdx = self.sequenceIdx,
+			sequenceLength = self.sequenceLength,
 			)
