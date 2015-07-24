@@ -85,24 +85,22 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		# TODO: Figure out what to do if the chromosome has already divided but more initialization is required!
 
 		activeDnaPoly = self.activeDnaPoly.molecules()
-		if len(activeDnaPoly):
+		activePolymerasePresent = len(activeDnaPoly) > 0
+
+		if activePolymerasePresent:
 			sequenceLength, replicationRound = activeDnaPoly.attrs('sequenceLength', 'replicationRound')
-			activePolymerasePresent = True
-		else:
-			activePolymerasePresent = False
 
 		# Get cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
-		refractionOver = False
+		refractionOver = True
 		if activePolymerasePresent:
-			if sequenceLength.min() > 5000:
-				refractionOver = True
-		else:
-			refactionOver = True
+			refractionOver = sequenceLength.min() > 5000
 
 		initiate = False
-		if (cellMass > self.criticalInitiationMass) and np.abs((cellMass - self.criticalInitiationMass).asNumber(units.fg)) < 0.1 and refractionOver:
+		diffFactor = 0.2
+		# TODO: Might need to vary diff factor by growth rate
+		if (cellMass > self.criticalInitiationMass) and np.abs((cellMass - self.criticalInitiationMass).asNumber(units.fg)) < diffFactor and refractionOver:
 			initiate = True
 
 		if initiate:
@@ -111,6 +109,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 				numOric = 2 * np.unique(replicationRound).size
 			else:
 				numOric = 1
+				replicationRound = np.array([0])
 			
 			numberOfNewPolymerase = 4 * numOric
 
