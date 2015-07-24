@@ -75,12 +75,71 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-		dNtpCounts = self.dntps.counts()
 
 		activeDnaPoly = self.activeDnaPoly.molecules()
 
+		##########################################
+		# Perform replication initiation process #
+		##########################################
+
+		# TODO: Figure out what to do if the chromosome has already divided but more initialization is required!
+
+		activeDnaPoly = self.activeDnaPoly.molecules()
+		if len(activeDnaPoly):
+			sequenceLength, replicationRound = activeDnaPoly.attrs('sequenceLength', 'replicationRound')
+			activePolymerasePresent = True
+		else:
+			activePolymerasePresent = False
+
+		# Get cell mass
+		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
+
+		refractionOver = False
+		if activePolymerasePresent:
+			if sequenceLength.min() > 5000:
+				refractionOver = True
+		else:
+			refactionOver = True
+
+		initiate = False
+		if (cellMass > self.criticalInitiationMass) and np.abs((cellMass - self.criticalInitiationMass).asNumber(units.fg)) < 0.1 and refractionOver:
+			initiate = True
+
+		if initiate:
+			# Number of oriC the cell has
+			if activePolymerasePresent:
+				numOric = 2 * np.unique(replicationRound).size
+			else:
+				numOric = 1
+			
+			numberOfNewPolymerase = 4 * numOric
+
+			activeDnaPoly = self.activeDnaPoly.moleculesNew(
+				"dnaPolymerase",
+				numberOfNewPolymerase
+				)
+
+			sequenceIdx = np.tile(np.array([0,1,2,3], dtype=np.int8), numOric)
+			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
+			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
+			replicationDivision = np.zeros(numberOfNewPolymerase, dtype=np.int8)
+			replicationDivision[numberOfNewPolymerase / 2:] = 1.
+
+			activeDnaPoly.attrIs(
+				sequenceIdx = sequenceIdx,
+				sequenceLength = sequenceLength,
+				replicationRound = replicationRound,
+				replicationDivision = replicationDivision,
+				)
+
+		##########################################
+		# Perform replication elongation process #
+		##########################################
+
 		if len(activeDnaPoly) == 0:
 			return
+		
+		dNtpCounts = self.dntps.counts()
 
 		sequenceIdx, sequenceLengths, massDiffDna = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength', 'massDiff_DNA'
@@ -146,10 +205,3 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 
 		self.ppi.countInc(nElongations - nInitialized)
-
-		# expectedElongations = np.fmin(
-		# 	self.elngRate,
-		# 	terminalLengths - sequenceLengths
-		# 	)
-
-		#dnaPolymeraseStalls = expectedElongations - sequenceElongations
