@@ -181,19 +181,13 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	## Update polymerases mass to account for already completed DNA
 	# Determine the sequences of already-replicated DNA
-	sequences = buildSequences(
-		kb.process.replication.replication_sequences,
-		sequenceIdx,
-		sequenceLength,
-		self.dnaPolymeraseElongationRate
-		)
-
-	# Compute the mass associated with these polymerases
+	sequences = kb.process.replication.replication_sequences
+	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
 	massIncreaseDna = computeMassIncrease(
-					sequences,
-					sequenceElongations,
-					kb.process.replicationMonomerWeights.asNumber(units.fg)
-					)
+			sequences,
+			sequenceElongations,
+			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)
+			)
 
 	# Update the attributes of replicating DNA polymerases
 	oricCenter = kb.constants

@@ -33,24 +33,25 @@ def divide_cell(sim):
 
 	# Calculate chromosome division
 	# Used in dividing both bulk molecules and unique molecules
-	chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
 
-	# Create divded containers
-	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
-	d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
-	d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts)
+	# chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
 
-	# Save divded containers
-	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
-	saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
-	saveContainer(d1_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter1", "BulkChromosome"))
-	saveContainer(d2_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter2", "BulkChromosome"))
-	saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
-	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
+	# # Create divded containers
+	# d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
+	# d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
+	# d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts)
 
-	# Save daughter cell initial time steps
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
+	# # Save divded containers
+	# saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
+	# saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
+	# saveContainer(d1_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter1", "BulkChromosome"))
+	# saveContainer(d2_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter2", "BulkChromosome"))
+	# saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
+	# saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
+
+	# # Save daughter cell initial time steps
+	# saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
+	# saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
 
 def chromosomeDivision(bulkMolecules, randomState):
 	partial_chromosome_counts = bulkMolecules.container.counts(bulkMolecules.divisionIds['partialChromosome'])
