@@ -18,7 +18,10 @@ import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
+from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
+
+
 
 from wholecell.io.tablereader import TableReader
 
@@ -163,20 +166,44 @@ def initializeReplication(uniqueMolCntr, kb):
 	D = kb.constants.d_period
 	tau = kb.doubling_time
 	genome_length = kb.process.replication.genome_length
+	replication_length = .5*genome_length
 
 	# Generate arrays specifying appropriate replication conditions
-	sequenceIdx, sequenceLength, replicationRound, replicationDivision = determineChromosomeState(C, D, tau, genome_length)
+	sequenceIdx, sequenceLength, replicationRound, replicationDivision = determineChromosomeState(C, D, tau, replication_length)
 
-	# Check if any replication should be occuring at all
-	# if(sequenceIdx)
+	# Return if no replication is occuring at all
+	if(len(sequenceIdx) == 0):
+		return
 
+	# Check that sequenceIdx, sequenceLength, replicationRound, and
+	# replicationDivision are equal length
+	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(replicationDivision))
+
+	## Update polymerases mass to account for already completed DNA
+	# Determine the sequences of already-replicated DNA
+	sequences = buildSequences(
+		kb.process.replication.replication_sequences,
+		sequenceIdx,
+		sequenceLength,
+		self.dnaPolymeraseElongationRate
+		)
+
+	# Compute the mass associated with these polymerases
+	massIncreaseDna = computeMassIncrease(
+					sequences,
+					sequenceElongations,
+					kb.process.replicationMonomerWeights.asNumber(units.fg)
+					)
+
+	# Update the attributes of replicating DNA polymerases
 	oricCenter = kb.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
 	dnaPoly.attrIs(
 		sequenceIdx = np.array(sequenceIdx),
 		sequenceLength = np.array(sequenceLength),
 		replicationRound = np.array(replicationRound),
-		replicationDivision = np.array(replicationDivision)
+		replicationDivision = np.array(replicationDivision),
+		massDiff_DNA = massIncreaseDna,
 		)
 
 def setDaughterInitialConditions(sim, kb):
@@ -196,7 +223,7 @@ def setDaughterInitialConditions(sim, kb):
 	sim._initialTime = initialTime
 
 
-def determineChromosomeState(C, D, tau, genome_length):
+def determineChromosomeState(C, D, tau, replication_length):
 	"""
 	determineChromosomeState
 
@@ -208,7 +235,8 @@ def determineChromosomeState(C, D, tau, genome_length):
 			D  - the D period of the cell, the length of time between
 			completing replication of the chromosome and division of the cell.
 			tau - the doubling time of the cell
-			genome_length - the length of the genome, in base-pairs.
+			replication_length - the amount of DNA to be replicated per fork,
+			usually half of the genome, in base-pairs
 
 	Outputs: a tuple of vectors for input into the dnaPoly.attrIs() function
 			of the initializeReplication() function in initial_conditions.py.
@@ -224,7 +252,7 @@ def determineChromosomeState(C, D, tau, genome_length):
 						This is handled such that even though in reality some 
 						polymerases are replicating in different directions all
 						inputs here are as though each starts at 0 and goes up
-						the the number of base-pairs in the genome.
+						the the number of base-pairs to be replicated.
 			replicationRound - a unique integer stating in which replication 
 						generation the polymerase referenced by sequenceIdx.
 						Each time all origins of replication in the cell fire,
@@ -269,11 +297,11 @@ def determineChromosomeState(C, D, tau, genome_length):
 	n = 1;
 	while n <= limit:
 		# Determine at what base each strand of a given replication event should start
-		# Replication forks should be at base (1 - (n*tau - D)/(C))(basepairs in the genome)
+		# Replication forks should be at base (1 - (n*tau - D)/(C))(basepairs to be replicated)
 
 		ratio = (1 - ((n*tau - D)/(C)))
-		ratio = units.convertNoUnitsToNumber(ratio)
-		fork_location = np.floor(ratio*(genome_length * 0.5))
+		ratio = units.convertNoUnitToNumber(ratio)
+		fork_location = np.floor(ratio*(replication_length))
 
 		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
 		num_events = 2 ** (n-1)
