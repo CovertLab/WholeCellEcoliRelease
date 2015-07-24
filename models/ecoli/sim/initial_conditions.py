@@ -176,7 +176,7 @@ def initializeReplication(uniqueMolCntr, kb):
 	while n <= limit:
 		# Determine at what base each strand of a given replication event should start
 		# Replication forks should be at base (1 - (n*tau - D)/(C))(basepairs in the genome)
-		fork_location = np.floor((1 - ((n*tau.asNumber() - D.asNumber())/(C.asNumber())))*(genome_length))
+		fork_location = np.floor((1 - ((n*tau.asNumber() - D.asNumber())/(C.asNumber())))*(genome_length * 0.5))
 
 		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
 		num_events = 2 ** (n-1)
