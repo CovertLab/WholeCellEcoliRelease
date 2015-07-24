@@ -33,6 +33,8 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.dnaPolymeraseElongationRate = kb.constants.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 
+		self.criticalInitiationMass = kb.mass.avgCell60MinDoublingTimeTotalMassInit
+
 		self.sequenceLengths = kb.process.replication.sequence_lengths
 		self.sequences = kb.process.replication.replication_sequences
 		self.polymerized_dntp_weights = kb.process.replication.replicationMonomerWeights

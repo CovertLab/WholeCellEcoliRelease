@@ -170,13 +170,7 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	# Check if any replication should be occuring at all
 	# if(sequenceIdx)
-	# sequences = buildSequences(
-	# 		kb.process.replication.replication_sequences,
-	# 		sequenceIdx,
-	# 		sequenceLength,
-	# 		kb.growthgrowthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
-	# 		)
-
+	
 	sequences = kb.process.replication.replication_sequences
 	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
 	massIncreaseDna = computeMassIncrease(
