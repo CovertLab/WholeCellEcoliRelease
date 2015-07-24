@@ -18,6 +18,7 @@ import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
+from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
 
 from wholecell.io.tablereader import TableReader
@@ -169,6 +170,20 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	# Check if any replication should be occuring at all
 	# if(sequenceIdx)
+	# sequences = buildSequences(
+	# 		kb.process.replication.replication_sequences,
+	# 		sequenceIdx,
+	# 		sequenceLength,
+	# 		kb.growthgrowthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+	# 		)
+
+	sequences = kb.process.replication.replication_sequences
+	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
+	massIncreaseDna = computeMassIncrease(
+			sequences,
+			sequenceElongations,
+			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)
+			)
 
 	oricCenter = kb.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
@@ -176,7 +191,8 @@ def initializeReplication(uniqueMolCntr, kb):
 		sequenceIdx = np.array(sequenceIdx),
 		sequenceLength = np.array(sequenceLength),
 		replicationRound = np.array(replicationRound),
-		replicationDivision = np.array(replicationDivision)
+		replicationDivision = np.array(replicationDivision),
+		massDiff_DNA = massIncreaseDna,
 		)
 
 def setDaughterInitialConditions(sim, kb):
@@ -272,7 +288,7 @@ def determineChromosomeState(C, D, tau, genome_length):
 		# Replication forks should be at base (1 - (n*tau - D)/(C))(basepairs in the genome)
 
 		ratio = (1 - ((n*tau - D)/(C)))
-		ratio = units.convertNoUnitsToNumber(ratio)
+		ratio = units.convertNoUnitToNumber(ratio)
 		fork_location = np.floor(ratio*(genome_length * 0.5))
 
 		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
