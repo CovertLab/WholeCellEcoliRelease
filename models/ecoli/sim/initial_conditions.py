@@ -318,7 +318,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 
 		n += 1
 
-	# The first replication generation should not be divid, so set all values
+	# The first replication generation should not be divided, so set all values
 	# to 0 (effectively NaN, the first four values are not used)
 	replicationDivision[:4] = [0,0,0,0]
 
