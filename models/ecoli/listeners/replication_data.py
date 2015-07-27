@@ -38,7 +38,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.sequenceIdx = np.zeros(50, np.float64)
+		self.sequenceIdx = np.zeros(50, np.int64)
 		self.sequenceIdx.fill(PLACE_HOLDER)
 		self.sequenceLength = np.zeros(50, np.float64)
 		self.sequenceLength.fill(PLACE_HOLDER)
@@ -55,7 +55,6 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			self.sequenceLength[:] = np.NAN
 			self.sequenceLength[:sequenceLength.size] = sequenceLength
 		elif len(dnaPolymerases) == 0:
-			# NOT SURE WHY THIS IS NECESSARY BUT WHATEVER
 			self.sequenceIdx[:] = PLACE_HOLDER
 			self.sequenceLength[:] = PLACE_HOLDER
 
