@@ -6,8 +6,67 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 from wholecell.utils import units
 
+import theano.tensor as T
+
 # Equation string interpreter
 from Equation import Expression
+
+
+
+
+class EnzymeKinetics(object):
+	"""
+	EnzymeKinetics
+
+	Stores a compiled theano function determining any reaction kinetics known
+	"""
+
+
+
+	def __init__(self, kb):
+		self.reactions = [] # sorted list of reactions with known kinetics
+		self.rateFunctions = [] # sorted list of rate functions
+
+		# Load rate functions from enzymeKinetics.tsv flat file
+		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
+		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
+
+		# Load info on all reactions in the model
+		self.allReactions = kb.process.metabolism.reactionStoich
+
+
+		# find reaction rate limits
+
+		# This list will hold the limits - default limit to infinity
+		self.reactionRates = np.ones(len(self.fba.reactionIDs()))*np.inf
+		self.perEnzymeRates = np.ones(len(self.fba.reactionIDs()))*np.inf
+		self.enzymeConc = np.zeros(len(self.fba.reactionIDs()))
+
+		for index, reactionID in enumerate(self.fba.reactionIDs()):
+			rateInfo = {}
+			try:
+				rateInfo = self.reactionRateInfo[reactionID]
+			except:
+				continue
+
+			substrateIDs = rateInfo["substrateIDs"]
+			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
+			substrateConcArray = [metaboliteConcentrations[i] for i in substrateIXs]
+
+			enzymeIDs = rateInfo["enzymeIDs"]
+			enzymeIXs = [self.enzymeIndexDict[x] for x in enzymeIDs]
+			enzymeConcArray = [enzymeConcentrations[i] for i in enzymeIXs]
+
+			rate = enzymeRate(rateInfo, enzymeConcArray, substrateConcArray)
+
+			self.reactionRates[index] = rate
+
+			# Assumes the least concentrated enzyme limit rate, if multiple
+			# (Almost always this will be the single enzyme in the rate law)
+			self.perEnzymeRates[index] = rate / np.amin(enzymeConcArray)
+
+			self.enzymeConc[index] = np.amin(enzymeConcArray)
+
 
 
 def michaelisMenton(enzyme_conc, substrate_conc, k_cat, k_M):
