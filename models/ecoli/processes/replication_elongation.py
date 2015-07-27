@@ -34,6 +34,8 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 
 		self.criticalInitiationMass = kb.mass.avgCell60MinDoublingTimeTotalMassInit
+		self.criticalFactors = np.array([1., 2., 4., 8.]) # TODO: Move to KB
+		self.criticalMasses = (self.criticalInitiationMass * self.criticalFactors)
 
 		self.sequenceLengths = kb.process.replication.sequence_lengths
 		self.sequences = kb.process.replication.replication_sequences
@@ -46,7 +48,11 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.chromosomeHalves = self.bulkMoleculesView(kb.moleculeGroups.partialChromosome)
 
+		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
+
 	def calculateRequest(self):
+		self.full_chromosome.requestAll()
+
 		activeDnaPoly = self.activeDnaPoly.allMolecules()
 
 		if len(activeDnaPoly) == 0:
@@ -84,8 +90,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		# Perform replication initiation process #
 		##########################################
 
-		# TODO: Figure out what to do if the chromosome has already divided but more initialization is required!
-
 		activeDnaPoly = self.activeDnaPoly.molecules()
 		activePolymerasePresent = len(activeDnaPoly) > 0
 
@@ -101,16 +105,19 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		initiate = False
 		diffFactor = 0.2
-		# TODO: Might need to vary diff factor by growth rate
-		if (cellMass > self.criticalInitiationMass) and np.abs((cellMass - self.criticalInitiationMass).asNumber(units.fg)) < diffFactor and refractionOver:
-			initiate = True
+		# TODO: Might need to vary diff factor by growth rate/time step
+		passedCriticalMasses = np.where(cellMass > self.criticalMasses)[0]
+		if passedCriticalMasses.size:
+			lastPassedCriticalMass = self.criticalMasses[passedCriticalMasses[-1]]
+			if np.abs((cellMass - lastPassedCriticalMass).asNumber(units.fg)) < diffFactor and refractionOver:
+				initiate = True
 
 		if initiate:
 			# Number of oriC the cell has
 			if activePolymerasePresent:
-				numOric = 2 * np.unique(replicationRound).size
+				numOric = 2 * np.unique(replicationRound).size * self.full_chromosome.count()
 			else:
-				numOric = 1
+				numOric = 1 * self.full_chromosome.count()
 				replicationRound = np.array([0])
 			
 			numberOfNewPolymerase = 4 * numOric
