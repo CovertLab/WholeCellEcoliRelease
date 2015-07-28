@@ -14,58 +14,58 @@ from Equation import Expression
 
 
 
-class EnzymeKinetics(object):
-	"""
-	EnzymeKinetics
+# class EnzymeKinetics(object):
+# 	"""
+# 	EnzymeKinetics
 
-	Stores a compiled theano function determining any reaction kinetics known
-	"""
-
-
-
-	def __init__(self, kb):
-		self.reactions = [] # sorted list of reactions with known kinetics
-		self.rateFunctions = [] # sorted list of rate functions
-
-		# Load rate functions from enzymeKinetics.tsv flat file
-		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
-		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
-
-		# Load info on all reactions in the model
-		self.allReactions = kb.process.metabolism.reactionStoich
+# 	Stores a compiled theano function determining any reaction kinetics known
+# 	"""
 
 
-		# find reaction rate limits
 
-		# This list will hold the limits - default limit to infinity
-		self.reactionRates = np.ones(len(self.fba.reactionIDs()))*np.inf
-		self.perEnzymeRates = np.ones(len(self.fba.reactionIDs()))*np.inf
-		self.enzymeConc = np.zeros(len(self.fba.reactionIDs()))
+# 	def __init__(self, kb):
+# 		self.reactions = [] # sorted list of reactions with known kinetics
+# 		self.rateFunctions = [] # sorted list of rate functions
 
-		for index, reactionID in enumerate(self.fba.reactionIDs()):
-			rateInfo = {}
-			try:
-				rateInfo = self.reactionRateInfo[reactionID]
-			except:
-				continue
+# 		# Load rate functions from enzymeKinetics.tsv flat file
+# 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
+# 		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
 
-			substrateIDs = rateInfo["substrateIDs"]
-			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
-			substrateConcArray = [metaboliteConcentrations[i] for i in substrateIXs]
+# 		# Load info on all reactions in the model
+# 		self.allReactions = kb.process.metabolism.reactionStoich
 
-			enzymeIDs = rateInfo["enzymeIDs"]
-			enzymeIXs = [self.enzymeIndexDict[x] for x in enzymeIDs]
-			enzymeConcArray = [enzymeConcentrations[i] for i in enzymeIXs]
 
-			rate = enzymeRate(rateInfo, enzymeConcArray, substrateConcArray)
+# 		# find reaction rate limits
 
-			self.reactionRates[index] = rate
+# 		# This list will hold the limits - default limit to infinity
+# 		self.reactionRates = np.ones(len(self.fba.reactionIDs()))*np.inf
+# 		self.perEnzymeRates = np.ones(len(self.fba.reactionIDs()))*np.inf
+# 		self.enzymeConc = np.zeros(len(self.fba.reactionIDs()))
 
-			# Assumes the least concentrated enzyme limit rate, if multiple
-			# (Almost always this will be the single enzyme in the rate law)
-			self.perEnzymeRates[index] = rate / np.amin(enzymeConcArray)
+# 		for index, reactionID in enumerate(self.fba.reactionIDs()):
+# 			rateInfo = {}
+# 			try:
+# 				rateInfo = self.reactionRateInfo[reactionID]
+# 			except:
+# 				continue
 
-			self.enzymeConc[index] = np.amin(enzymeConcArray)
+# 			substrateIDs = rateInfo["substrateIDs"]
+# 			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
+# 			substrateConcArray = [metaboliteConcentrations[i] for i in substrateIXs]
+
+# 			enzymeIDs = rateInfo["enzymeIDs"]
+# 			enzymeIXs = [self.enzymeIndexDict[x] for x in enzymeIDs]
+# 			enzymeConcArray = [enzymeConcentrations[i] for i in enzymeIXs]
+
+# 			rate = enzymeRate(rateInfo, enzymeConcArray, substrateConcArray)
+
+# 			self.reactionRates[index] = rate
+
+# 			# Assumes the least concentrated enzyme limit rate, if multiple
+# 			# (Almost always this will be the single enzyme in the rate law)
+# 			self.perEnzymeRates[index] = rate / np.amin(enzymeConcArray)
+
+# 			self.enzymeConc[index] = np.amin(enzymeConcArray)
 
 
 
@@ -156,6 +156,8 @@ def enzymeRateCustom(eq_string, parameter_definition_array, parameters_array):
 					not that they are in the right order.
 			Function does NOT check for validity of the equation passed in in eq_string.
 	"""
+
+	import ipdb; ipdb.set_trace()
 
 	# Check that there are equal numbers of parameter values and parameter definitions
 	assert (len(parameters_array) == len(parameter_definition_array))

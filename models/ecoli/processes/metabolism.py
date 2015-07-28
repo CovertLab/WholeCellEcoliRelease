@@ -27,7 +27,7 @@ from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
-from wholecell.utils.enzymeKinetics import EnzymeKinetics
+# from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
 from wholecell.utils.enzymeKinetics import *
 
@@ -58,13 +58,11 @@ class Metabolism(wholecell.processes.process.Process):
 
 
 		# Set up enzyme kinetics object
-		self.enzymeKinetics = EnzymeKinetics(kb)
+		# self.enzymeKinetics = EnzymeKinetics(kb)
 
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
 		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
-
-		import ipdb; ipdb.set_trace()
 
 		objective = dict(zip(
 			self.metabolitePoolIDs,

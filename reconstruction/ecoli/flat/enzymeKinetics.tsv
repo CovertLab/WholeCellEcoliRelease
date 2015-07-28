@@ -6,7 +6,6 @@
 	["LEUS-MONOMER"]	[]	"standard"	[167]	[]	[]	null	null	null	null	null
 "FORMATEDEHYDROG-RXN"	["LEUS-MONOMER"]	["FORMATE"]	"standard"	[563.3]	[120]	[]	null	null	null	null	null
 "ENTMULTI-RXN"	["LEUS-MONOMER"]	["SER"]	"standard"	[12.7]	[260000]	[]	null	null	null	null	null
-"6PFRUCTPHOS-RXN"	["LEUS-MONOMER"]	["ATP"]	"custom"	[111]	[110]	[]	"k_cat*E*(S_1^H/(S_1^H+k_M_1^H))*(S_2/(S_2+k_M_2))"	["k_cat","k_M_1","H","k_M_2","E","S_1","S_2"]	["k_cat","k_M_1","H","k_M_2"]	[110.7,90,2.11,110]	{"E":"6PFK-1-CPX","S_1":"FRUCTOSE-6P","S_2":"ATP"}
 "CITSYN-RXN"	["LEUS-MONOMER"]	["OXALACETIC_ACID","ACETYL-COA"]	"standard"	[81]	[20,700]	[]	null	null	null	null	null
 "ASPARAGINE--TRNA-LIGASE-RXN-ASN-tRNAs/ASN/ATP/PROTON//Charged-ASN-tRNAs/AMP/PPI.52."	["LEUS-MONOMER"]	["ASN","ATP"]	"standard"	[1.6,1.3]	[32,76]	[]	null	null	null	null	null
 "RXN0-3281"	["LEUS-MONOMER"]	["FORMATE"]	"standard"	[2833]	[26000]	[]	null	null	null	null	null
@@ -20,7 +19,6 @@
 "GART-RXN"	["GART-MONOMER"]	[]	"standard"	[40]	[]	[]	null	null	null	null	null
 "L-ASPARTATE-OXID-RXN"	["L-ASPARTATE-OXID-MONOMER"]	["L-ASPARTATE"]	"standard"	[0.5333]	[0.5]	[]	null	null	null	null	null
 "THIOREDOXIN-REDUCT-NADPH-RXN"	["LEUS-MONOMER"]	["Ox-Thioredoxin"]	"standard"	[22.8]	[2]	[]	null	null	null	null	null
-"ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["2-ACETO-LACTATE","NADPH"]	"standard"	[1.8]	[14,2]	[]	null	null	null	null	null
 "ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["CPD-13357"]	"standard"	[4.2]	[]	[]	null	null	null	null	null
 "O-SUCCHOMOSERLYASE-RXN"	["LEUS-MONOMER"]	["CYS","O-SUCCINYL-L-HOMOSERINE"]	"standard"	[11.67]	[50,1000]	[]	null	null	null	null	null
 "TRNA-URACIL-5--METHYLTRANSFERASE-RXN"	["EG11022-MONOMER"]	["Uracil-54-in-tRNA","S-ADENOSYLMETHIONINE"]	"standard"	[0.317]	[0.08,17]	[]	null	null	null	null	null
@@ -44,7 +42,7 @@
 "RXN-16701"	["LEUS-MONOMER"]	["2-KETOGLUTARATE","SER"]	"standard"	[7.7]	[42]	[5]	null	null	null	null	null
 "3-ISOPROPYLMALDEHYDROG-RXN"	["LEUS-MONOMER"]	["2-D-THREO-HYDROXY-3-CARBOXY-ISOCAPROATE","NAD"]	"standard"	[69]	[105,321]	[]	null	null	null	null	null
 "ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["NADPH"]	"standard"	[0.12]	[7.3]	[]	null	null	null	null	null
-"ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["NADP","NADPH"]	"custom"	[0.052]	[4.2]	[1.2]	"k_cat*E*(S_1/(S_1+k_M*(1+S_2/k_i_1))"	["k_cat","k_M","k_i_1","E","S_1","S_2"]	["k_cat","k_M","k_i_1"]	[0.052,4.2,1.2]	{"E":"CPLX0-7643","S_1":"NADP","S_2":"NADPH"}
+"ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["NADP","NADPH"]	"custom"	[0.052]	[4.2]	[1.2]	"k_cat*E*(S_1/(S_1+k_M*(1+S_2/k_i_1)))"	["k_cat","k_M","k_i_1","E","S_1","S_2"]	["k_cat","k_M","k_i_1"]	[0.052,4.2,1.2]	{"E":"CPLX0-7643","S_1":"NADP","S_2":"NADPH"}
 "HISTIDINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["HIS-tRNAs"]	"standard"	[2.6]	[1.4]	[]	null	null	null	null	null
 "ASPARTATE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ASP-tRNAs","ATP","L-ASPARTATE"]	"standard"	[18]	[0.6,90,60]	[]	null	null	null	null	null
 "ERYTH4PDEHYDROG-RXN"	["LEUS-MONOMER"]	["ERYTHROSE-4P","NAD"]	"standard"	[20]	[510,800]	[]	null	null	null	null	null
@@ -69,14 +67,13 @@
 "METHIONYL-TRNA-FORMYLTRANSFERASE-RXN"	["EG11268-MONOMER"]	["MET-tRNAs"]	"standard"	[13.9]	[0.51]	[]	null	null	null	null	null
 "TYROSINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["TYR"]	"standard"	[0.74]	[3.3]	[]	null	null	null	null	null
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU","ATP","LEU-tRNAs"]	"standard"	[5.2,5,5.1]	[15,280,2.2]	[]	null	null	null	null	null
-"2-DEHYDROPANTOATE-REDUCT-RXN"	["LEUS-MONOMER"]	["2-DEHYDROPANTOATE","NADPH"]	"standard"	[40]	[60,20]	[]	null	null	null	null	null
 "ARGININE--TRNA-LIGASE-RXN"	["ARGS-MONOMER"]	["ARG-tRNAs"]	"standard"	[17]	[1]	[]	null	null	null	null	null
 "TYROSINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["TYR"]	"standard"	[12]	[5.3]	[]	null	null	null	null	null
 "GLUTRNAREDUCT-RXN"	["LEUS-MONOMER"]	["Charged-GLT-tRNAs","NADPH"]	"standard"	[0.13,0.15]	[24,39]	[]	null	null	null	null	null
 "RXN-16165"	["LEUS-MONOMER"]	["MET-tRNAs"]	"standard"	[2.8]	[4.4]	[]	null	null	null	null	null
 "VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	["VAL-tRNAs"]	"standard"	[1.7]	[0.008]	[]	null	null	null	null	null
 "TRYPTOPHAN--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["TRP","TRP-tRNAs"]	"standard"	[150.6,13.9]	[16.81,0.62]	[]	null	null	null	null	null
-"RXN0-2201"	["LEUS-MONOMER"]	["SER,NADP"]	"standard"	[4.2]	[40000,540]	[]	null	null	null	null	null
+"RXN0-2201"	["LEUS-MONOMER"]	["SER","NADP"]	"standard"	[4.2]	[40000,540]	[]	null	null	null	null	null
 "RXN-16000"	["LEUS-MONOMER"]	["L-ALLO-THREONINE"]	"standard"	[5.76]	[]	[]	null	null	null	null	null
 "CYSTEINE--TRNA-LIGASE-RXN"	["CYSS-MONOMER"]	["CYS-tRNAs","ATP","CYS"]	"standard"	[0.9,91,79]	[0.35,290,22]	[]	null	null	null	null	null
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU","ATP","LEU-tRNAs"]	"standard"	[5.1,4.9,5.0]	[15,260,2.5]	[]	null	null	null	null	null
@@ -96,8 +93,6 @@
 "CYSTEINE--TRNA-LIGASE-RXN"	["CYSS-MONOMER"]	["CYS-tRNAs"]	"standard"	[2.46]	[1.16]	[]	null	null	null	null	null
 "THREONINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["THR"]	"standard"	[33]	[0.11]	[]	null	null	null	null	null
 "PHENYLALANINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["PHE"]	"standard"	[1.72]	[10.3]	[]	null	null	null	null	null
-"ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["2-ACETO-LACTATE","NADPH"]	"standard"	[2.231]	[247,2.53]	[]	null	null	null	null	null
-"2-DEHYDROPANTOATE-REDUCT-RXN"	["LEUS-MONOMER"]	["2-DEHYDROPANTOATE"]	"standard"	[0.194]	[170]	[]	null	null	null	null	null
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU"]	"standard"	[11]	[15]	[]	null	null	null	null	null
 "ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.1]	[250]	[]	null	null	null	null	null
 "HISTIDINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["HIS-tRNAs"]	"standard"	[2.02]	[0.34]	[]	null	null	null	null	null
@@ -105,14 +100,9 @@
 "CYSTEINE--TRNA-LIGASE-RXN"	["CYSS-MONOMER"]	["CYS-tRNAs"]	"standard"	[2.46]	[1.16]	[]	null	null	null	null	null
 "DXPREDISOM-RXN"	["LEUS-MONOMER"]	["DEOXYXYLULOSE-5P","NADPH"]	"standard"	[29]	[45,0.5]	[]	null	null	null	null	null
 "AMINOBUTDEHYDROG-RXN"	["LEUS-MONOMER"]	["4-AMINO-BUTYRALDEHYDE","NAD"]	"standard"	[7.68,5.65]	[41,54]	[]	null	null	null	null	null
-"RXN0-4281"	["G6967-MONOMER"]	["METHYL-GLYOXAL"]	"standard"	[2.85]	[2090]	[]	null	null	null	null	null
-"RXN0-4281"	["MONOMER0-148"]	["METHYL-GLYOXAL"]	"standard"	[27.62]	[2050]	[]	null	null	null	null	null
-"RXN0-4281"	["MONOMER0-149"]	["METHYL-GLYOXAL"]	"standard"	[29.15]	[2460]	[]	null	null	null	null	null
-"RXN0-4281"	["G7558-MONOMER"]	["METHYL-GLYOXAL"]	"standard"	[11]	[6910]	[]	null	null	null	null	null
 "DXPREDISOM-RXN"	["LEUS-MONOMER"]	["DEOXYXYLULOSE-5P"]	"standard"	[33]	[81]	[]	null	null	null	null	null
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU-tRNAs"]	"standard"	[3.2]	[1.3]	[]	null	null	null	null	null
 "RXN-16701"	["LEUS-MONOMER"]	["2-KETOGLUTARATE"]	"standard"	[13.5]	[490]	[]	null	null	null	null	null
-"PHENDEHYD-RXN"	["LEUS-MONOMER"]	["PHENYLACETALDEHYDE"]	"standard"	[96.83]	[11.6]	[]	null	null	null	null	null
 "GLYCOLALD-DEHYDROG-RXN"	["LEUS-MONOMER"]	["GLYCOLALDEHYDE"]	"standard"	[18.33]	[140]	[]	null	null	null	null	null
 "HISTIDINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["HIS-tRNAs"]	"standard"	[1.71]	[0.34]	[]	null	null	null	null	null
 "ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	["LEUS-MONOMER"]	["ALA-tRNAs"]	"standard"	[2]	[]	[]	null	null	null	null	null
@@ -122,7 +112,6 @@
 "RXN0-6371"	["LEUS-MONOMER"]	["MALTOSE"]	"standard"	[2870]	[170000]	[]	null	null	null	null	null
 "RXN0-6371"	["LEUS-MONOMER"]	["D-Glucose"]	"standard"	[3360]	[400000]	[]	null	null	null	null	null
 "PHENYLALANINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["PHE-tRNAs"]	"standard"	[0.817]	[2.7]	[]	null	null	null	null	null
-"2-DEHYDROPANTOATE-REDUCT-RXN"	["LEUS-MONOMER"]	["2-DEHYDROPANTOATE","NADPH"]	"standard"	[25]	[30,7.3]	[]	null	null	null	null	null
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU-tRNAs"]	"standard"	[0.12]	[0.7]	[]	null	null	null	null	null
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU-tRNAs"]	"standard"	[29]	[13]	[]	null	null	null	null	null
 "ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.51]	[140]	[]	null	null	null	null	null
@@ -149,8 +138,6 @@
 "RXN0-6565"	["LEUS-MONOMER"]	["DIHYDRO-THYMINE"]	"standard"	[0.28]	[130]	[]	null	null	null	null	null
 "RXN0-6565"	["LEUS-MONOMER"]	["THYMINE"]	"standard"	[0.39]	[87]	[]	null	null	null	null	null
 "RXN-16165"	["LEUS-MONOMER"]	["MET-tRNAs"]	"standard"	[1]	[3.9]	[]	null	null	null	null	null
-"GLU6PDEHYDROG-RXN"	["LEUS-MONOMER"]	["GLC-6-P","NADP"]	"custom"	[174]	[178,11]	[38]	"k_cat*E*S_1*(S_2/S_3)/(k_M_1+S_1)/(k_M_2/S_3+k_M_2/k_i_1+(S_2/S_3))"	["k_cat","k_M_1","k_M_2","k_i_1","E","S_1","S_2","S_3"]	["k_cat","k_M_1","k_M_2","k_i_1"]	[174,178,11,38]	{"E":"GLU6PDEHYDROG-MONOMER","S_1":"GLC-6-P","S_2":"NADP","S_3":"NADPH"}
-"GLU6PDEHYDROG-RXN"	["LEUS-MONOMER"]	["GLC-6-P","NAD"]	"custom"	[240]	[1245,3389]	[2120]	"k_cat*E*S_1*(S_2/S_3)/(k_M_1+S_1)/(k_M_2/S_3+k_M_2/k_i_1+(S_2/S_3))"	["k_cat","k_M_1","k_M_2","k_i_1","E","S_1","S_2","S_3"]	["k_cat","k_M_1","k_M_2","k_i_1"]	[240,1245,3389,2120]	{"E":"GLU6PDEHYDROG-MONOMER","S_1":"GLC-6-P","S_2":"NAD","S_3":"NADH"}
 "ACETALD-DEHYDROG-RXN"	["MHPF-MONOMER"]	["ACETALD","CO-A","NAD"]	"custom"	[17.5]	[38000,90000,250]	[265000]	"k_cat*E*(S_1/(k_M_1*(1+S_1/k_i_1)+S_1)*(S_2/(k_M_2+S_2)*(S_3/(k_M_3+S_3)"	["k_cat","k_M_1","k_M_2","k_M_3","k_i_1","E","S_1","S_2","S_3"]	["k_cat","k_M_1","k_M_2","k_M_3","k_i_1"]	[17.5,38000,90000,250,265000]	{"E":"MHPF-MONOMER","S_1":"ACETALD","S_2":"CO-A","S_3":"NAD"}
 "RXN0-7024"	["LEUS-MONOMER"]	["CPD-1091","NAD"]	"standard"	[57.06,62.39]	[1060,560]	[]	null	null	null	null	null
 "RXN0-6373"	["LEUS-MONOMER"]	["D-Galactose"]	"standard"	[232]	[5300]	[]	null	null	null	null	null
