@@ -51,6 +51,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			sequenceIdx, sequenceLength = dnaPolymerases.attrs(
 				"sequenceIdx", "sequenceLength"
 				)
+			self.sequenceIdx[:] = PLACE_HOLDER
 			self.sequenceIdx[:sequenceIdx.size] = sequenceIdx
 			self.sequenceLength[:] = np.NAN
 			self.sequenceLength[:sequenceLength.size] = sequenceLength
