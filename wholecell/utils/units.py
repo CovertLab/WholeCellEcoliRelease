@@ -78,3 +78,11 @@ def hasUnit(value):
 		return True
 	else:
 		return False
+
+def convertNoUnitToNumber(value):
+	if not hasUnit(value):
+		raise Exception("Only works on Unum!")
+
+	value.normalize()
+	value.checkNoUnit()
+	return value.asNumber()

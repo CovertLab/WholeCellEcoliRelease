@@ -10,7 +10,7 @@ from copy import deepcopy
 
 from wholecell.io.tablewriter import TableWriter
 
-BINOMIAL_COEFF = 0.5
+BINOMIAL_COEFF = 0.55
 
 def divide_cell(sim):
 	# Assign data from simulation required
@@ -103,20 +103,20 @@ def divideBulkChromosome(bulkChromosome, randomState, dnaReplicationComplete, ch
 	d1_bulk_chromosome_container = bulkChromosome.container.emptyLike()
 	d2_bulk_chromosome_container = bulkChromosome.container.emptyLike()
 
-	if dnaReplicationComplete:
-		assert all(chromosome_location_counts == 2)
+	# if dnaReplicationComplete:
+	# 	assert all(chromosome_location_counts == 2)
 
-		d1_counts = chromosome_location_counts / 2
-		d2_counts = chromosome_location_counts / 2
+	# 	d1_counts = chromosome_location_counts / 2
+	# 	d2_counts = chromosome_location_counts / 2
 
-		assert all(d1_counts + d2_counts == chromosome_location_counts)
+	# 	assert all(d1_counts + d2_counts == chromosome_location_counts)
 
-		d1_bulk_chromosome_container.countsIs(d1_counts)
-		d2_bulk_chromosome_container.countsIs(d2_counts)
-	elif chromosomeToDaughter1:
-		d1_bulk_chromosome_container.countsIs(chromosome_location_counts)
-	else:
-		d2_bulk_chromosome_container.countsIs(chromosome_location_counts)
+	# 	d1_bulk_chromosome_container.countsIs(d1_counts)
+	# 	d2_bulk_chromosome_container.countsIs(d2_counts)
+	# elif chromosomeToDaughter1:
+	# 	d1_bulk_chromosome_container.countsIs(chromosome_location_counts)
+	# else:
+	# 	d2_bulk_chromosome_container.countsIs(chromosome_location_counts)
 
 	return d1_bulk_chromosome_container, d2_bulk_chromosome_container
 

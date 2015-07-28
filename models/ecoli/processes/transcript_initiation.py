@@ -131,4 +131,4 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.inactiveRnaPolys.countDec(nNewRnas.sum())
 
-		self.writeToListener("RnapData", "didInitalize", nNewRnas.sum())
+		self.writeToListener("RnapData", "didInitialize", nNewRnas.sum())

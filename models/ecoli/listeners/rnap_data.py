@@ -46,7 +46,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.expectedElongations = None
 		self.nTerminated = None
 		self.didTerminate = None
-		self.didInitalize = None
+		self.didInitialize = None
 		self.terminationLoss = None
 
 
@@ -76,7 +76,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.expectedElongations = 0
 		self.nTerminated = 0
 		self.didTerminate = 0
-		self.didInitalize = 0
+		self.didInitialize = 0
 		self.terminationLoss = 0
 
 	def update(self):
@@ -112,6 +112,6 @@ class RnapData(wholecell.listeners.listener.Listener):
 			expectedElongations = self.expectedElongations,
 			nTerminated = self.nTerminated,
 			didTerminate = self.didTerminate,
-			didInitalize = self.didInitalize,
+			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss
 			)

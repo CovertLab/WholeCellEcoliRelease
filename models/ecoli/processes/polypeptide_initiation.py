@@ -127,4 +127,4 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.ribosome30S.countDec(nNewProteins.sum())
 		self.ribosome50S.countDec(nNewProteins.sum())
 
-		self.writeToListener("RibosomeData", "didInitalize", nNewProteins.sum())
+		self.writeToListener("RibosomeData", "didInitialize", nNewProteins.sum())

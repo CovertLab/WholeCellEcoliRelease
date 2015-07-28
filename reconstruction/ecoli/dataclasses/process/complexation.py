@@ -2,6 +2,7 @@
 from __future__ import division
 
 import numpy as np
+from wholecell.utils import units
 
 class Complexation(object):
 	def __init__(self, raw_data, sim_data):
@@ -15,6 +16,8 @@ class Complexation(object):
 		stoichMatrixI = []
 		stoichMatrixJ = []
 		stoichMatrixV = []
+
+		stoichMatrixMass = []
 
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
@@ -59,6 +62,7 @@ class Complexation(object):
 
 				assert coefficient % 1 == 0
 
+
 				stoichMatrixI.append(moleculeIndex)
 				stoichMatrixJ.append(reactionIndex)
 				stoichMatrixV.append(coefficient)
@@ -70,6 +74,11 @@ class Complexation(object):
 					assert molecule["type"] == "proteincomplex"
 					complexes.append(moleculeName)
 
+				# Find molecular mass
+				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
+				stoichMatrixMass.append(molecularMass)
+
+
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
@@ -78,6 +87,15 @@ class Complexation(object):
 		self.subunitNames = set(subunits)
 		self.complexNames = set(complexes)
 
+		# Mass balance matrix
+		self._stoichMatrixMass = np.array(stoichMatrixMass)
+		self.balanceMatrix = self.stoichMatrix()*self.massMatrix()
+
+		# Find the mass balance of each equation in the balanceMatrix
+		massBalanceArray = self.massBalance()
+
+		# The stoichometric matrix should balance out to numerical zero.
+		assert np.max([abs(x) for x in massBalanceArray]) < 10e-9
 
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
@@ -87,6 +105,28 @@ class Complexation(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
 
 		return out
+
+	def massMatrix(self):
+		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
+
+		out = np.zeros(shape, np.float64)
+
+		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
+
+		return out
+
+	def massBalance(self):
+		'''
+		Sum along the columns of the massBalance matrix to check for reaction
+		mass balance
+		'''
+
+		reactionSumsArray = []
+		
+		for index, column in enumerate(self.balanceMatrix.T):
+			reactionSumsArray.append(sum(column))
+
+		return reactionSumsArray
 
 	# TODO: redesign this so it doesn't need to create a stoich matrix
 	def getMonomers(self, cplxId):
