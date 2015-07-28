@@ -184,14 +184,14 @@ def initializeReplication(uniqueMolCntr, kb):
 	sequences = kb.process.replication.replication_sequences
 	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
 	massIncreaseDna = computeMassIncrease(
-			sequences,
+			np.tile(sequences,(len(sequenceIdx) / 4,1)),
 			sequenceElongations,
 			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)
 			)
-
+	
 	# Update the attributes of replicating DNA polymerases
 	oricCenter = kb.constants
-	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', 4)
+	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', len(sequenceIdx))
 	dnaPoly.attrIs(
 		sequenceIdx = np.array(sequenceIdx),
 		sequenceLength = np.array(sequenceLength),
