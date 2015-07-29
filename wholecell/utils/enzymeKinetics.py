@@ -6,7 +6,7 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 from wholecell.utils import units
 
-import theano.tensor as T
+# import theano.tensor as T
 
 # Equation string interpreter
 from Equation import Expression
@@ -112,9 +112,6 @@ def enzymeRateApproximate(enzyme_conc, k_cat, substrate_conc_array, k_M_array, k
 	"""
 	
 	rate = enzyme_conc*k_cat
-
-	if (len(substrate_conc_array) != len(k_M_array)):
-		import ipdb; ipdb.set_trace()
 	
 	#  Require that at least one substrate be used
 	assert (len(substrate_conc_array) > 0)
@@ -158,8 +155,6 @@ def enzymeRateCustom(eq_string, parameter_definition_array, parameters_array):
 					not that they are in the right order.
 			Function does NOT check for validity of the equation passed in in eq_string.
 	"""
-
-	import ipdb; ipdb.set_trace()
 
 	# Check that there are equal numbers of parameter values and parameter definitions
 	assert (len(parameters_array) == len(parameter_definition_array))
