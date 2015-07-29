@@ -93,44 +93,46 @@ def maxReactionRate(enzyme_conc, k_cat):
 	return k_cat*enzyme_conc
 
 
-def enzymeRateApproximate(enzyme_conc, k_cat, substrate_conc_array, k_M_array, inhibitor_conc_array = [], k_I_array = []):
+def enzymeRateApproximate(enzyme_conc, k_cat, substrate_conc_array, k_M_array, k_I_array = []):
 
 	""" Returns the approximated rate of a reaction with 1 or more substrates and 0 or more inhibitors.
 		
 		Inputs: 	enzyme_conc (concentration of the enzyme)
 			k_cat (max catalytic rate of the enzyme)
-			substrate_conc_array (array of concentrations of each reaction substrate/metabolite)
+			substrate_conc_array (array of concentrations of each reaction substrate/metabolite/inhibitor)
 			k_M_array (array of Michaelis-Menton constants for the enzyme with each substrate)
-			inhibitor_conc_array (array of concentrations of each reaction inhibitor)
 			k_I_array (array of Michaelis-Menton constants for the enzyme with each inhibitor)
 		Returns: 	predicted rate of the reaction.
-		Notes: 	Assumes that substrate_conc_array and inhibitor_conc_array are 1-to-1 with k_M_array
-			and k_I_array respectively, and are in the same order.
-			If no inhibitor is to be used, input an empty array for inhibitor_conc_array and k_I_array.
-			If no inputs given for inhibitor_conc_array and k_I_array, function defaults to this behavior.
+		Notes: 	Assumes that substrate_conc_array is in the same order as k_M_array followed by k_I_array.
+			In other words, if two k_M's are given and one k_I, then the substrate_conc_array must be in
+			the order corresponding to: [k_M_1, k_M_2, k_I_1]. 
+			If no inhibitor is to be used, input an empty array for k_I_array.
 			Must have at least one substrate, throws an error if no substrates in substrate_conc_array.
 			Inhibitors are noncompetitive in this function.
 	"""
 	
 	rate = enzyme_conc*k_cat
+
+	if (len(substrate_conc_array) != len(k_M_array)):
+		import ipdb; ipdb.set_trace()
 	
 	#  Require that at least one substrate be used
 	assert (len(substrate_conc_array) > 0)
 
 	# Check that the same number of substrates and Michaelis-Menton constants are given
-	assert (len(substrate_conc_array) == len(k_M_array))
+	assert (len(substrate_conc_array) == len(k_M_array) + len(k_I_array))
 
-	# Check that the same number of inhibitors and inhibitor Michaelis-Menton constants are given
-	assert (len(inhibitor_conc_array) == len(k_I_array))
-
+	n = 0
 	# Adjust rate for all substrates
-	for i, k_M in enumerate(k_M_array):
-		rate *= ((substrate_conc_array[i])/(k_M + substrate_conc_array[i]))
+	for k_M in k_M_array:
+		rate *= ((substrate_conc_array[n])/(k_M + substrate_conc_array[n]))
+		n += 1
 
-	# Adjust rate for all inhibitors
-	for i, k_I in enumerate(k_I_array):
-		rate *= ((1)/(1 + (inhibitor_conc_array[i]/k_I)))
-	
+	# Adjust rate for any/all inhibitors
+	for k_I in k_I_array:
+		rate *= ((1)/(1 + (substrate_conc_array[n]/k_I)))
+		n += 1
+
 	return rate	
 
 def enzymeRateCustom(eq_string, parameter_definition_array, parameters_array):
@@ -169,7 +171,7 @@ def enzymeRateCustom(eq_string, parameter_definition_array, parameters_array):
 	return customRateLaw(*parameters_array)
 
 
-def enzymeRate(reactionInfo, enzymeConcArray, substrateConcArray, inhibitorConcArray = []):
+def enzymeRate(reactionInfo, enzymeConcArray, substrateConcArray):
 	""" Returns the approximated rate of a reaction.
 		
 		Inputs: 	reactionInfo (Dict of info for reaction whose rate limit is
@@ -204,8 +206,14 @@ def enzymeRate(reactionInfo, enzymeConcArray, substrateConcArray, inhibitorConcA
 	# Standard or custom reaction rate law?
 	if(reactionInfo["rateEquationType"] == "standard"):
 		# Standard rate law
-		rate = enzymeRateApproximate(enzymeConcArray[0], np.amax(reactionInfo["kcat"]), substrateConcArray, reactionInfo["kM"], inhibitorConcArray, reactionInfo["kI"])
-	
+
+		# Check if K_M or K_I given
+		if(len(reactionInfo["kM"]) + len(reactionInfo["kI"])>1):		
+			# Use michaelis-menton kinetics
+			rate = enzymeRateApproximate(enzymeConcArray[0], np.amax(reactionInfo["kcat"]), substrateConcArray, reactionInfo["kM"], reactionInfo["kI"])
+		else:
+			# Use only the kcat
+			rate = maxReactionRate(enzymeConcArray[0], np.amax(reactionInfo["kcat"]))
 	elif(reactionInfo["rateEquationType"] == "custom"):
 		# Custom rate law
 		equationString = reactionInfo["customRateEquation"]
