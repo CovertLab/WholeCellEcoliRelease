@@ -113,6 +113,7 @@ class State(object):
 				'sequenceLength' : 'i8',
 				'replicationRound' : 'i8',
 				'replicationDivision' : 'i8',
+				'replicationMass' : 'i8',
 				}
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
 
