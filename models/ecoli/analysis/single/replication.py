@@ -64,6 +64,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	# Count pairs of forks, initation, and termination events
 	pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
+	zero_count = (sequenceIdx == 0).sum(axis = 1)
+	one_count = (sequenceIdx == 1).sum(axis = 1)
+	two_count = (sequenceIdx == 2).sum(axis = 1)
+	three_count = (sequenceIdx == 3).sum(axis = 1)
 	terminationEvent = np.where(np.diff(pairsOfForks) < 0)[0]
 	initiationEvent = np.where(np.diff(pairsOfForks) > 0)[0]
 
@@ -79,6 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.figure(figsize = (8.5, 11))
 
 	ax = plt.subplot(4,1,1)
+	#ax = plt.subplot(7,1,1)
 	ax.plot(time / 60., sequenceLength, marker='.', markersize=1, linewidth=0)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
@@ -91,7 +96,33 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ax.set_yticks(np.arange(chromEquivalents.min(), chromEquivalents.max() + 0.5, 0.5))
 	ax.set_ylabel("Chromosome equivalents")
 
+	# ax = plt.subplot(4,1,2, sharex=ax)
+	# ax = plt.subplot(7,1,2)
+	# ax.plot(time / 60., zero_count, label='0')
+	# ax.legend()
+	# ax.set_ylim([0, 5])
+	# ax.set_yticks([0, 1, 2, 3, 4, 5])
+
+	# ax = plt.subplot(7,1,3)
+	# ax.plot(time / 60., one_count, label='1')
+	# ax.legend()
+	# ax.set_ylim([0, 5])
+	# ax.set_yticks([0, 1, 2, 3, 4, 5])
+
+	# ax = plt.subplot(7,1,4)
+	# ax.plot(time / 60., two_count, label='2')
+	# ax.legend()
+	# ax.set_ylim([0, 5])
+	# ax.set_yticks([0, 1, 2, 3, 4, 5])
+
+	# ax = plt.subplot(7,1,5)
+	# ax.plot(time / 60., three_count, label='3')
+	# ax.legend()
+	# ax.set_ylim([0, 5])
+	# ax.set_yticks([0, 1, 2, 3, 4, 5])
+
 	ax = plt.subplot(4,1,3, sharex=ax)
+	#ax = plt.subplot(7,1,6)
 	ax.plot(time / 60., pairsOfForks)
 	ax.scatter(initiationEvent / 60., (pairsOfForks[initiationEvent + 1] + pairsOfForks[initiationEvent]) / 2., color = "black")
 	ax.scatter(terminationEvent / 60., (pairsOfForks[terminationEvent + 1] + pairsOfForks[terminationEvent]) / 2., color = "blue")
@@ -102,6 +133,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ax.set_ylabel("Pairs of forks")
 
 	ax = plt.subplot(4,1,4, sharex=ax)
+	#ax = plt.subplot(7,1,7)
 	ax.plot(time / 60., sixtyMinDoublingInitMassEquivalents)
 	ax.scatter(initiationEvent / 60., sixtyMinDoublingInitMassEquivalents[initiationEvent], color="black")
 	ax.set_xticks([0, time.max() / 60])
