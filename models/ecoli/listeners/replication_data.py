@@ -43,6 +43,10 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.sequenceLength = np.zeros(50, np.float64)
 		self.sequenceLength.fill(PLACE_HOLDER)
 
+		self.refractionOver = True
+		self.diffFactorActive = False
+		self.lastPassedCriticalMass = 0.
+
 
 	def update(self):
 		dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('dnaPolymerase')
@@ -67,4 +71,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			sequenceIdx = self.sequenceIdx,
 			sequenceLength = self.sequenceLength,
+			refractionOver = self.refractionOver,
+			diffFactorActive = self.diffFactorActive,
+			lastPassedCriticalMass = self.lastPassedCriticalMass,
 			)

@@ -101,7 +101,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		refractionOver = True
 		if activePolymerasePresent:
-			refractionOver = sequenceLength.min() > 5000
+			refractionOver = sequenceLength.min() > 900000
 
 		initiate = False
 		diffFactor = 0.2
@@ -111,6 +111,10 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			lastPassedCriticalMass = self.criticalMasses[passedCriticalMasses[-1]]
 			if np.abs((cellMass - lastPassedCriticalMass).asNumber(units.fg)) < diffFactor and refractionOver:
 				initiate = True
+			self.writeToListener("ReplicationData", "lastPassedCriticalMass", lastPassedCriticalMass.asNumber())
+		self.writeToListener("ReplicationData", "refractionOver", refractionOver)
+		self.writeToListener("ReplicationData", "diffFactorActive", np.abs((cellMass - lastPassedCriticalMass).asNumber(units.fg)) < diffFactor)
+
 
 		if initiate:
 			# Number of oriC the cell has
