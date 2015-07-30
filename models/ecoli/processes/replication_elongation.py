@@ -99,9 +99,23 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		# Get cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
+		# Don't initialize replication immediately after another replication event
 		refractionOver = True
 		if activePolymerasePresent:
 			refractionOver = sequenceLength.min() > 5000
+
+
+		# If at an appropriate mass to initiate replication, it's ok to start if there are no currently replicating chromosomes.
+		# It's also ok to start if there is one which started at that mass if there should be 2 replication events happening at
+		# this doubling rate. Condition: don't start replication if number of replication events would go over the 'limit' number
+		# used in replication initiation code, which is a function of C, D and tau. (It equals C+D/tau in fact).
+		# Access this information how? No longer have access to C and D or tau. Only know mass of initiation of any existing replication
+		# events, from their DNA polys. Well, (1) go ahead an initiate if no DNA polys present and a critical mass is reached. (2) if DNA
+		# Polys present an a critical mass is reached, ensure that none of the DNA polys which initiated at the same mass are closeby in
+		# in sequence.
+		# To determine 'closeby', take the closest two forks would ever be (for example at a hypothetical 10 minute doubling time)
+		# and say 'no closer than that'.
+
 
 		initiate = False
 		diffFactor = 0.2

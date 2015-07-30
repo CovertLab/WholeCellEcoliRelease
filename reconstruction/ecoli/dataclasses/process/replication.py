@@ -22,6 +22,7 @@ class Replication(object):
 		self._buildSequence(raw_data, sim_data)
 		self._buildGeneData(raw_data, sim_data)
 		self._buildReplication(raw_data, sim_data)
+		self._determineIniationCellMasses(raw_data, sim_data)
 
 	def _buildSequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
@@ -93,3 +94,11 @@ class Replication(object):
 
 	def _reverseComplement(self, sequenceVector):
 		return (self._n_nt_types - 1) - sequenceVector
+
+
+	def _determineIniationCellMasses(self, raw_data, sim_data):
+		# Enforce that these entries are in ascending order of doubling time
+		cellMassReplicationInitiation = []
+		for entry in raw_data.massAtReplicationInitiation:
+			cellMassReplicationInitiation.append((entry['doublingTime'], entry['relativeCellMass']))
+		self.cellMassReplicationInitiation = sorted(cellMassReplicationInitiation)
