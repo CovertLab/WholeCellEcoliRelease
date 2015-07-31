@@ -179,8 +179,9 @@ def initializeReplication(uniqueMolCntr, kb):
 		return
 
 	# Check that sequenceIdx, sequenceLength, replicationRound, and
-	# replicationDivision are equal length
-	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(replicationDivision) == len(replicationMass))
+	# replicationDivision are equal length, replicationMass should be half the
+	# size (4 DNAP/fork, only 2 oriC/fork)
+	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(replicationDivision) == 2*len(replicationMass))
 
 	## Update polymerases mass to account for already completed DNA
 	# Determine the sequences of already-replicated DNA
@@ -201,7 +202,12 @@ def initializeReplication(uniqueMolCntr, kb):
 		replicationRound = np.array(replicationRound),
 		replicationDivision = np.array(replicationDivision),
 		massDiff_DNA = massIncreaseDna,
-		replicationMass = np.array(replicationMass),
+		)
+
+	# Update the attributes of the partially-replicated origins of replication
+	oriC = uniqueMolCntr.objectsNew('originOfReplication', len(replicationMass))
+	oriC.attrIs(
+		replicationMass = replicationMass,
 		)
 
 def setDaughterInitialConditions(sim, kb):
@@ -210,8 +216,8 @@ def setDaughterInitialConditions(sim, kb):
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
 	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
 
-	# bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
-	# sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
+	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
+	sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
 
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
@@ -277,7 +283,9 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 			replicationMass - indicates the cell mass of the cell at the time
 						this DNA polymerase began replication. For use in
 						determining when to initiate future rounds of
-						replication.
+						replication. Is as long as the number of oriC's, ie
+						half the length of the others (four DNAP/fork, two 
+						oriC/fork)
 
 	Notes: if NO polymerases are active at the start of the cell cycle,
 			equivalent to the C + D periods being shorter than the doubling
@@ -326,7 +334,7 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 		# unique number, starting at zero.
 		replicationDivision += [0]*2*num_events + [1]*2*num_events
 		# Identifies the cell mass at which this replication event occured
-		replicationMass += [determineCellMassAtInitiation(tau,kb)]*4*num_events
+		replicationMass += [determineCellMassAtInitiation(tau,kb)]*2*num_events
 
 		n += 1
 

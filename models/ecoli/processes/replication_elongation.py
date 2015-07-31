@@ -44,6 +44,8 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		# Views
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
 
+		self.oriCs = self.uniqueMoleculesView('originOfReplication')
+
 		self.dntps = self.bulkMoleculesView(kb.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.chromosomeHalves = self.bulkMoleculesView(kb.moleculeGroups.partialChromosome)
@@ -51,6 +53,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
 
 	def calculateRequest(self):
+		
 		self.full_chromosome.requestAll()
 
 		activeDnaPoly = self.activeDnaPoly.allMolecules()
@@ -59,7 +62,10 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			return
 
 		self.activeDnaPoly.requestAll()
+		
+		self.oriCs.requestAll()
 
+		
 		sequenceIdx, sequenceLength = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength'
 			)
@@ -93,38 +99,35 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		activeDnaPoly = self.activeDnaPoly.molecules()
 		activePolymerasePresent = len(activeDnaPoly) > 0
 
+		oriCs = self.oriCs.molecules()
+
+		try:
+			oriCsInitMasses = oriCs.attrs('replicationMass')
+		except:
+			import ipdb; ipdb.set_trace()
+
 		if activePolymerasePresent:
 			sequenceLength, replicationRound = activeDnaPoly.attrs('sequenceLength', 'replicationRound')
 
 		# Get cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
-		# Don't initialize replication immediately after another replication event
-		refractionOver = True
-		if activePolymerasePresent:
-			refractionOver = sequenceLength.min() > 5000
-
-
-		# If at an appropriate mass to initiate replication, it's ok to start if there are no currently replicating chromosomes.
-		# It's also ok to start if there is one which started at that mass if there should be 2 replication events happening at
-		# this doubling rate. Condition: don't start replication if number of replication events would go over the 'limit' number
-		# used in replication initiation code, which is a function of C, D and tau. (It equals C+D/tau in fact).
-		# Access this information how? No longer have access to C and D or tau. Only know mass of initiation of any existing replication
-		# events, from their DNA polys. Well, (1) go ahead an initiate if no DNA polys present and a critical mass is reached. (2) if DNA
-		# Polys present an a critical mass is reached, ensure that none of the DNA polys which initiated at the same mass are closeby in
-		# in sequence.
-		# To determine 'closeby', take the closest two forks would ever be (for example at a hypothetical 10 minute doubling time)
-		# and say 'no closer than that'.
-
-
+		# Initiate if over a critical mass threshold, and no oriC currently exists which was initiated at that same critical mass.
 		initiate = False
-		diffFactor = 0.2
-		# TODO: Might need to vary diff factor by growth rate/time step
 		passedCriticalMasses = np.where(cellMass > self.criticalMasses)[0]
 		if passedCriticalMasses.size:
+			initiate = False
+
 			lastPassedCriticalMass = self.criticalMasses[passedCriticalMasses[-1]]
-			if np.abs((cellMass - lastPassedCriticalMass).asNumber(units.fg)) < diffFactor and refractionOver:
-				initiate = True
+			
+			# Radius within which a mass is considered the same (percent of cell mass)
+			boundsize = .01
+
+			# Is an OriC which started at this cell mass already present?
+			for previousMass in oriCsInitMasses:
+				previousMass = previousMass[0]
+				if ( ( lastPassedCriticalMass.asNumber(units.fg) > previousMass*(1 - boundsize) ) and ( lastPassedCriticalMass.asNumber(units.fg) < previousMass*(1 + boundsize) ) ):
+					initiate = False
 
 		if initiate:
 			# Number of oriC the cell has
@@ -133,13 +136,23 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			else:
 				numOric = 1 * self.full_chromosome.count()
 				replicationRound = np.array([0])
-			
+		
 			numberOfNewPolymerase = 4 * numOric
 
+			# Initialize 4 DNA polymerases per oriC
 			activeDnaPoly = self.activeDnaPoly.moleculesNew(
 				"dnaPolymerase",
 				numberOfNewPolymerase
 				)
+
+			# Generate a new oriC for each old oriC
+			oriCs = self.activeDnaPoly.moleculesNew(
+				"originOfReplication",
+				numOric
+				)
+
+			# Determine current cell mass, to associate with the new oriCs.
+			replicationMass = [cellMass] * numOric
 
 			sequenceIdx = np.tile(np.array([0,1,2,3], dtype=np.int8), numOric)
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
@@ -152,6 +165,10 @@ class ReplicationElongation(wholecell.processes.process.Process):
 				sequenceLength = sequenceLength,
 				replicationRound = replicationRound,
 				replicationDivision = replicationDivision,
+				)
+
+			oriCs.attrIs(
+				replicationMass = replicationMass,
 				)
 
 		##########################################

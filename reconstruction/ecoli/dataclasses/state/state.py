@@ -113,9 +113,15 @@ class State(object):
 				'sequenceLength' : 'i8',
 				'replicationRound' : 'i8',
 				'replicationDivision' : 'i8',
-				'replicationMass' : 'i8',
 				}
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
+
+		# Origin of replication
+		originMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
+		originAttributes = {
+		        'replicationMass' : 'i8'
+		        }
+		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),
