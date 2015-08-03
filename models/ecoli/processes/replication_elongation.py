@@ -141,7 +141,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 				)
 
 			# Generate a new oriC for each old oriC
-			oriCs = self.activeDnaPoly.moleculesNew(
+			oriCs = self.oriCs.moleculesNew(
 				"originOfReplication",
 				numOric
 				)
