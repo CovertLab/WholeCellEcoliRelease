@@ -55,6 +55,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		
 		self.full_chromosome.requestAll()
+		self.oriCs.requestAll()
 
 		activeDnaPoly = self.activeDnaPoly.allMolecules()
 
@@ -62,9 +63,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			return
 
 		self.activeDnaPoly.requestAll()
-		
-		self.oriCs.requestAll()
-
 		
 		sequenceIdx, sequenceLength = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength'
@@ -101,10 +99,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		oriCs = self.oriCs.molecules()
 
-		try:
-			oriCsInitMasses = oriCs.attrs('replicationMass')
-		except:
-			import ipdb; ipdb.set_trace()
+		oriCsInitMasses = oriCs.attrs('replicationMass')
 
 		if activePolymerasePresent:
 			sequenceLength, replicationRound = activeDnaPoly.attrs('sequenceLength', 'replicationRound')
