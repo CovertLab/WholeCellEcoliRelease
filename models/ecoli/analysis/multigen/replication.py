@@ -37,8 +37,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# Get all cells
 	allDir = ap.getAll()
 
-	#plt.figure(figsize = (8.5, 11))
-	fig, axesList = plt.subplots(6, sharex = True)
+	fig, axesList = plt.subplots(5, sharex = True)
 
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
@@ -72,32 +71,29 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		axesList[1].plot([time.max(), time.max()], axesList[1].get_ylim(), 'k')
 		axesList[1].set_ylabel("Pairs of\nforks")
 
-		# Refraction/critical cell mass
-		refractionOver = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("refractionOver")
-		diffFactorActive = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("diffFactorActive")
-		lastPassedCriticalMass = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("lastPassedCriticalMass")
-		
-		axesList[2].plot(time, refractionOver, label='refraction over', marker='x')
-		axesList[3].plot(time, diffFactorActive, label="diff factor active", marker='x')
-
 		# Factors of critical initiation mass
 		totalMass = mass.readColumn("cellMass")
 		sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
 
-		axesList[4].plot(time, sixtyMinDoublingInitMassEquivalents, linewidth=2)
+		axesList[2].plot(time, sixtyMinDoublingInitMassEquivalents, linewidth=2)
 		for N in CRITICAL_N:
-			axesList[4].plot([0, time.max()], [N]*2, 'k', linestyle='--')
-		axesList[4].set_ylabel("Factors of critical\ninitiation mass")
-		axesList[4].set_xlim([0, time.max()])
+			axesList[2].plot([0, time.max()], [N]*2, 'k', linestyle='--')
+		axesList[2].set_ylabel("Factors of critical\ninitiation mass")
+		axesList[2].set_xlim([0, time.max()])
 
 		# Dry mass
 		dryMass = mass.readColumn("dryMass")
-		axesList[5].plot(time, dryMass, linewidth = 2)
-		axesList[5].set_ylabel("Dry mass (fg)")
-		axesList[5].set_xlim([0, time.max()])
-
+		axesList[3].plot(time, dryMass, linewidth = 2)
+		axesList[3].set_ylabel("Dry mass (fg)")
+		axesList[3].set_xlim([0, time.max()])
 		mass.close()
 
+		# Mass per oriC
+		numberOfOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
+		massPerOric = sixtyMinDoublingInitMassEquivalents / numberOfOric
+		axesList[4].plot(time, massPerOric, linewidth=2)
+		axesList[4].set_ylabel("Critical mass\nper oriC")
+		axesList[4].set_xlim([0, time.max()])
 
 	axesList[0].set_title("Replication plots")
 	axesList[-1].set_xlabel("Time (hr)")

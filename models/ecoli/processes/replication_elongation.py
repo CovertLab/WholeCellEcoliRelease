@@ -34,8 +34,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 
 		self.criticalInitiationMass = kb.mass.avgCell60MinDoublingTimeTotalMassInit
-		self.criticalFactors = np.array([1., 2., 4., 8.]) # TODO: Move to KB
-		self.criticalMasses = (self.criticalInitiationMass * self.criticalFactors)
 
 		self.sequenceLengths = kb.process.replication.sequence_lengths
 		self.sequences = kb.process.replication.replication_sequences
@@ -99,8 +97,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		oriCs = self.oriCs.molecules()
 
-		oriCsInitMasses = oriCs.attrs('replicationMass')
-
 		if activePolymerasePresent:
 			sequenceLength, replicationRound = activeDnaPoly.attrs('sequenceLength', 'replicationRound')
 
@@ -109,20 +105,10 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		# Initiate if over a critical mass threshold, and no oriC currently exists which was initiated at that same critical mass.
 		initiate = False
-		passedCriticalMasses = np.where(cellMass > self.criticalMasses)[0]
-		if passedCriticalMasses.size:
-			initiate = False
-
-			lastPassedCriticalMass = self.criticalMasses[passedCriticalMasses[-1]]
-			
-			# Radius within which a mass is considered the same (percent of cell mass)
-			boundsize = .01
-
-			# Is an OriC which started at this cell mass already present?
-			for previousMass in oriCsInitMasses:
-				previousMass = previousMass[0]
-				if ( ( lastPassedCriticalMass.asNumber(units.fg) > previousMass*(1 - boundsize) ) and ( lastPassedCriticalMass.asNumber(units.fg) < previousMass*(1 + boundsize) ) ):
-					initiate = False
+		massFactor = cellMass / self.criticalInitiationMass
+		massPerOrigin = massFactor / len(oriCs)
+		if massPerOrigin >= 1.0:
+			initiate = True
 
 		if initiate:
 			# Number of oriC the cell has
@@ -146,9 +132,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 				numOric
 				)
 
-			# Determine current cell mass, to associate with the new oriCs.
-			replicationMass = [cellMass] * numOric
-
 			sequenceIdx = np.tile(np.array([0,1,2,3], dtype=np.int8), numOric)
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
 			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
@@ -160,10 +143,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 				sequenceLength = sequenceLength,
 				replicationRound = replicationRound,
 				replicationDivision = replicationDivision,
-				)
-
-			oriCs.attrIs(
-				replicationMass = replicationMass,
 				)
 
 		##########################################

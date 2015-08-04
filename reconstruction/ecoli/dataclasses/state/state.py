@@ -118,9 +118,7 @@ class State(object):
 
 		# Origin of replication
 		originMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
-		originAttributes = {
-		        'replicationMass' : 'i8'
-		        }
+		originAttributes = {}
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
 	def _buildCompartments(self, raw_data, sim_data):

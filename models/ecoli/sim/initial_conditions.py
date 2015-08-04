@@ -169,19 +169,16 @@ def initializeReplication(uniqueMolCntr, kb):
 	replication_length = .5*genome_length
 
 	# Generate arrays specifying appropriate replication conditions
-	sequenceIdx, sequenceLength, replicationRound, replicationDivision, replicationMass = determineChromosomeState(C, D, tau, replication_length, kb)
-
-	# Convert the replicationMass entries to numbers
-	replicationMass = [x.asNumber(units.fg) for x in replicationMass]
+	sequenceIdx, sequenceLength, replicationRound, replicationDivision, numOric = determineChromosomeState(C, D, tau, replication_length, kb)
 
 	# Return if no replication is occuring at all
 	if(len(sequenceIdx) == 0):
 		return
 
 	# Check that sequenceIdx, sequenceLength, replicationRound, and
-	# replicationDivision are equal length, replicationMass should be half the
+	# replicationDivision are equal length, numOric should be half the
 	# size (4 DNAP/fork, only 2 oriC/fork)
-	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(replicationDivision) == 2*len(replicationMass))
+	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(replicationDivision) == 2*numOric)
 
 	## Update polymerases mass to account for already completed DNA
 	# Determine the sequences of already-replicated DNA
@@ -205,10 +202,7 @@ def initializeReplication(uniqueMolCntr, kb):
 		)
 
 	# Update the attributes of the partially-replicated origins of replication
-	oriC = uniqueMolCntr.objectsNew('originOfReplication', len(replicationMass))
-	oriC.attrIs(
-		replicationMass = replicationMass,
-		)
+	oriC = uniqueMolCntr.objectsNew('originOfReplication', numOric)
 
 def setDaughterInitialConditions(sim, kb):
 	assert sim._inheritedStatePath != None
@@ -280,12 +274,6 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 						replicationDivision doesn't matter/is effectively NaN,
 						but is set to all 0's to prevent conceptually dividing
 						a single chromosome between two daughter cells.
-			replicationMass - indicates the cell mass of the cell at the time
-						this DNA polymerase began replication. For use in
-						determining when to initiate future rounds of
-						replication. Is as long as the number of oriC's, ie
-						half the length of the others (four DNAP/fork, two 
-						oriC/fork)
 
 	Notes: if NO polymerases are active at the start of the cell cycle,
 			equivalent to the C + D periods being shorter than the doubling
@@ -302,7 +290,7 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 	sequenceLength = []
 	replicationRound = []
 	replicationDivision = []
-	replicationMass = []
+	numOric = 0
 
 	# Loop through the generations of replication which are active (if limit = 0
 	# skips loop entirely --> no active replication generations)
@@ -334,7 +322,7 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 		# unique number, starting at zero.
 		replicationDivision += [0]*2*num_events + [1]*2*num_events
 		# Identifies the cell mass at which this replication event occured
-		replicationMass += [determineCellMassAtInitiation(tau,kb)]*2*num_events
+		numOric += 2*num_events
 
 		n += 1
 
@@ -342,41 +330,4 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 	# to 0 (effectively NaN, the first four values are not used)
 	replicationDivision[:4] = [0,0,0,0]
 
-	return (sequenceIdx, sequenceLength, replicationRound, replicationDivision, replicationMass)
-
-def determineCellMassAtInitiation(tau, kb):
-	"""
-	determineCellMassAtInitiation
-
-	Determines the mass at which a cell of a certain growth rate initializes replication.
-
-	Inputs: 	tau - The doubling time of the cell.
-				kb - The knowledge base object.
-
-	Returns: 	cellMass - The mass at which that cell will initate DNA replication.
-	"""
-
-	# Doubling time in minutes
-	tau = tau.asNumber(units.min)
-
-	# Load the relative masses table from the kb
-	relative_masses = kb.process.replication.cellMassReplicationInitiation
-
-	final_relative_mass = 0
-
-	# Determine betwen which entry in the relative mass table our doubling time occurs
-	for rate, relative_mass in relative_masses:
-
-		# Assumes the the rate_objects come out in ascending order of doubling time.
-		if tau >= rate.asNumber(units.min):
-			final_relative_mass = relative_mass
-
-	# If the rate is not set, then the massAtReplicationInitiation table
-	# doesn't have values fast enough for the current doubling rate.
-	assert (final_relative_mass > 0)
-
-	# Generic mass of a cell initialized at the current growth rate
-	absolute_cell_mass = kb.mass.avgCellDryMassInit * ( 1 / kb.mass.cellDryMassFraction )
-
-	# Mass at which replication would init in a cell of this doubling time
-	return  final_relative_mass * absolute_cell_mass
+	return (sequenceIdx, sequenceLength, replicationRound, replicationDivision, numOric)

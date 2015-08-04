@@ -97,8 +97,11 @@ class Replication(object):
 
 
 	def _determineIniationCellMasses(self, raw_data, sim_data):
-		# Enforce that these entries are in ascending order of doubling time
-		cellMassReplicationInitiation = []
-		for entry in raw_data.massAtReplicationInitiation:
-			cellMassReplicationInitiation.append((entry['doublingTime'], entry['relativeCellMass']))
-		self.cellMassReplicationInitiation = sorted(cellMassReplicationInitiation)
+		if sim_data.doubling_time >= 60. * units.min:
+			self.cellMassReplicationInitiation = 1 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
+		elif sim_data.doubling_time >= 30. * units.min:
+			self.cellMassReplicationInitiation = 2 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
+		elif sim_data.doubling_time >= 20. * units.min:
+			self.cellMassReplicationInitiation = 4 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
+		else:
+			raise Exception("Un-expected doubling time!")

@@ -46,10 +46,14 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.refractionOver = True
 		self.diffFactorActive = False
 		self.lastPassedCriticalMass = 0.
+		self.numberOfOric = 0.
 
 
 	def update(self):
 		dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('dnaPolymerase')
+		oriCs = self.uniqueMolecules.container.objectsInCollection('originOfReplication')
+
+		self.numberOfOric = len(oriCs)
 
 		if len(dnaPolymerases) > 0:
 			sequenceIdx, sequenceLength = dnaPolymerases.attrs(
@@ -74,4 +78,5 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			refractionOver = self.refractionOver,
 			diffFactorActive = self.diffFactorActive,
 			lastPassedCriticalMass = self.lastPassedCriticalMass,
+			numberOfOric = self.numberOfOric,
 			)
