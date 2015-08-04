@@ -27,9 +27,7 @@ from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
-# from wholecell.utils.enzymeKinetics import EnzymeKinetics
-
-from wholecell.utils.enzymeKinetics import *
+from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
@@ -55,10 +53,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
 		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
-
-
-		# Set up enzyme kinetics object
-		# self.enzymeKinetics = EnzymeKinetics(kb)
 
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
@@ -102,6 +96,11 @@ class Metabolism(wholecell.processes.process.Process):
 			# 	} # TODO: move to KB TODO: check reaction stoich
 			)
 
+
+		# Set up enzyme kinetics object
+		self.enzymeKinetics = EnzymeKinetics(kb, reactionIDs = self.fba.reactionIDs(), metaboliteIDs = self.fba.outputMoleculeIDs())
+
+
 		# Set constraints
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
@@ -133,15 +132,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
-		# Make a dictionary mapping a substrate ID to it's index in self.metabolites()
-		self.metaboliteIndexDict = {}
-		for index,name in enumerate(self.metaboliteNames):
-			self.metaboliteIndexDict[name] = index
-
-		# Make a dictionary mapping an enzyme ID to it's index in self.enzymes()
-		self.enzymeIndexDict = {}
-		for index,name in enumerate(self.enzymesWithKineticInfo):
-			self.enzymeIndexDict[name] = index
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()
@@ -176,37 +166,14 @@ class Metabolism(wholecell.processes.process.Process):
 		enzymeConcentrations = enzymeCountsInit * countsToMolar
 
 
-		# find reaction rate limits
+		defaultRate = self.enzymeKinetics.defaultRate
 
-		# This list will hold the limits - default limit to infinity
-		self.reactionRates = np.ones(len(self.fba.reactionIDs()))*np.inf
-		self.perEnzymeRates = np.ones(len(self.fba.reactionIDs()))*np.inf
-		self.enzymeConc = np.zeros(len(self.fba.reactionIDs()))
+		# Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
+		inputConcentrations = np.concatenate((enzymeConcentrations,metaboliteConcentrations,[defaultRate]), axis=1)
 
-		for index, reactionID in enumerate(self.fba.reactionIDs()):
-			rateInfo = {}
-			try:
-				rateInfo = self.reactionRateInfo[reactionID]
-			except:
-				continue
+		# Find reaction rate limits
+		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
-			substrateIDs = rateInfo["substrateIDs"]
-			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
-			substrateConcArray = [metaboliteConcentrations[i] for i in substrateIXs]
-
-			enzymeIDs = rateInfo["enzymeIDs"]
-			enzymeIXs = [self.enzymeIndexDict[x] for x in enzymeIDs]
-			enzymeConcArray = [enzymeConcentrations[i] for i in enzymeIXs]
-
-			rate = enzymeRate(rateInfo, enzymeConcArray, substrateConcArray)
-
-			self.reactionRates[index] = rate
-
-			# Assumes the least concentrated enzyme limit rate, if multiple
-			# (Almost always this will be the single enzyme in the rate law)
-			self.perEnzymeRates[index] = rate / np.amin(enzymeConcArray)
-
-			self.enzymeConc[index] = np.amin(enzymeConcArray)
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
@@ -232,13 +199,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "reactionRates",
 			self.reactionRates)
-
-		self.writeToListener("EnzymeKinetics", "perEnzymeRates",
-			self.perEnzymeRates)
-
-		self.writeToListener("EnzymeKinetics", "enzymeConc",
-			self.enzymeConc)
-
 
 
 

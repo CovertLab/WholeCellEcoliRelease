@@ -6,7 +6,11 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 from wholecell.utils import units
 
-# import theano.tensor as T
+import theano.tensor as T
+from theano import function
+
+import re
+
 
 # Equation string interpreter
 from Equation import Expression
@@ -14,207 +18,178 @@ from Equation import Expression
 
 
 
-# class EnzymeKinetics(object):
-# 	"""
-# 	EnzymeKinetics
-
-# 	Stores a compiled theano function determining any reaction kinetics known
-# 	"""
-
-
-
-# 	def __init__(self, kb):
-# 		self.reactions = [] # sorted list of reactions with known kinetics
-# 		self.rateFunctions = [] # sorted list of rate functions
-
-# 		# Load rate functions from enzymeKinetics.tsv flat file
-# 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
-# 		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
-
-# 		# Load info on all reactions in the model
-# 		self.allReactions = kb.process.metabolism.reactionStoich
-
-
-# 		# find reaction rate limits
-
-# 		# This list will hold the limits - default limit to infinity
-# 		self.reactionRates = np.ones(len(self.fba.reactionIDs()))*np.inf
-# 		self.perEnzymeRates = np.ones(len(self.fba.reactionIDs()))*np.inf
-# 		self.enzymeConc = np.zeros(len(self.fba.reactionIDs()))
-
-# 		for index, reactionID in enumerate(self.fba.reactionIDs()):
-# 			rateInfo = {}
-# 			try:
-# 				rateInfo = self.reactionRateInfo[reactionID]
-# 			except:
-# 				continue
-
-# 			substrateIDs = rateInfo["substrateIDs"]
-# 			substrateIXs = [self.metaboliteIndexDict[x] for x in substrateIDs]
-# 			substrateConcArray = [metaboliteConcentrations[i] for i in substrateIXs]
-
-# 			enzymeIDs = rateInfo["enzymeIDs"]
-# 			enzymeIXs = [self.enzymeIndexDict[x] for x in enzymeIDs]
-# 			enzymeConcArray = [enzymeConcentrations[i] for i in enzymeIXs]
-
-# 			rate = enzymeRate(rateInfo, enzymeConcArray, substrateConcArray)
-
-# 			self.reactionRates[index] = rate
-
-# 			# Assumes the least concentrated enzyme limit rate, if multiple
-# 			# (Almost always this will be the single enzyme in the rate law)
-# 			self.perEnzymeRates[index] = rate / np.amin(enzymeConcArray)
-
-# 			self.enzymeConc[index] = np.amin(enzymeConcArray)
-
-
-
-def michaelisMenton(enzyme_conc, substrate_conc, k_cat, k_M):
-	""" Returns the michaelis-Menton predicted rate of a reaction.
-		
-		Inputs: enzyme_conc (concentration of the enzyme)
-				substrate_conc (concentration of the reaction substrate/metabolite)
-				k_cat (max catalytic rate of the enzyme)
-				k_M (Michaelis-Menton constant for the enzyme (substrate concentration at which half of max rate is reached))
-		Returns: 	predicted rate of the reaction
+class EnzymeKinetics(object):
 	"""
-	
-	return (k_cat*enzyme_conc)*((substrate_conc)/(k_M + substrate_conc))
+	EnzymeKinetics
 
-
-def maxReactionRate(enzyme_conc, k_cat):
-	""" Returns the theoretical maximum catalytic rate of an enzymatic reaction, for use in jFBA as an upper bound.
-		
-		Inputs:  enzyme_conc (concentration of the enzyme)
-				 k_cat (max catalytic rate of the enzyme)
-		Returns: Maximum theoretical rate of the reaction
-	"""
-	
-	return k_cat*enzyme_conc
-
-
-def enzymeRateApproximate(enzyme_conc, k_cat, substrate_conc_array, k_M_array, k_I_array = []):
-
-	""" Returns the approximated rate of a reaction with 1 or more substrates and 0 or more inhibitors.
-		
-		Inputs: 	enzyme_conc (concentration of the enzyme)
-			k_cat (max catalytic rate of the enzyme)
-			substrate_conc_array (array of concentrations of each reaction substrate/metabolite/inhibitor)
-			k_M_array (array of Michaelis-Menton constants for the enzyme with each substrate)
-			k_I_array (array of Michaelis-Menton constants for the enzyme with each inhibitor)
-		Returns: 	predicted rate of the reaction.
-		Notes: 	Assumes that substrate_conc_array is in the same order as k_M_array followed by k_I_array.
-			In other words, if two k_M's are given and one k_I, then the substrate_conc_array must be in
-			the order corresponding to: [k_M_1, k_M_2, k_I_1]. 
-			If no inhibitor is to be used, input an empty array for k_I_array.
-			Must have at least one substrate, throws an error if no substrates in substrate_conc_array.
-			Inhibitors are noncompetitive in this function.
-	"""
-	
-	rate = enzyme_conc*k_cat
-	
-	#  Require that at least one substrate be used
-	assert (len(substrate_conc_array) > 0)
-
-	# Check that the same number of substrates and Michaelis-Menton constants are given
-	assert (len(substrate_conc_array) == len(k_M_array) + len(k_I_array))
-
-	n = 0
-	# Adjust rate for all substrates
-	for k_M in k_M_array:
-		rate *= ((substrate_conc_array[n])/(k_M + substrate_conc_array[n]))
-		n += 1
-
-	# Adjust rate for any/all inhibitors
-	for k_I in k_I_array:
-		rate *= ((1)/(1 + (substrate_conc_array[n]/k_I)))
-		n += 1
-
-	return rate	
-
-def enzymeRateCustom(eq_string, parameter_definition_array, parameters_array):
-	""" Returns the approximated rate of a reaction using a rate equation passed in as a string.
-		
-		Inputs: 	enzyme_conc (concentration of the enzyme)
-				k_cat (max catalytic rate of the enzyme)
-				eq_string (a string corresponding to the rate equation of the
-							reaction - see notes for formatting)
-				parameter_definition_array (an array of strings of the variables appearing in eq_string)
-				parameters_array (an array of the parameters to be plugged in to the rate 
-								equation, in the same order in which they appear in parameter_definition_array)
-		Returns: 	predicted rate of the reaction.
-		Notes: 	This function should only be used if none of the others are able to define the rate equation!
-					In particular, enzymeRateApproximate() can flexibly define many rate laws, try that one first.
-				Formatting of eq_string is as a valid python mathematical expression, for example:
-					"k_cat*E*((substrate_conc)/(substrate_conc + k_M))"
-				Formatting of parameter_definition_array must match the variables in eq_string, eg:
-					"["E","k_cat","substrate_conc","k_M"]"
-				Then parameters_array must match the order of parameter_definition_array, eg:
-					"["2.0",".0343","3.9",".7"]" --> E is 2.0, k_cat is .0343, etc
-				Function checks that there are equal numbers of parameters and parameter definitions, but
-					not that they are in the right order.
-			Function does NOT check for validity of the equation passed in in eq_string.
+	Stores a compiled theano function determining any reaction kinetics known.
 	"""
 
-	# Check that there are equal numbers of parameter values and parameter definitions
-	assert (len(parameters_array) == len(parameter_definition_array))
+	def __init__(self, kb, reactionIDs, metaboliteIDs):
 
-	# Set up the custom function
-	customRateLaw = Expression(eq_string, parameter_definition_array)
+		# Set default reaction rate limit, to which reactions are set absent other information
+		self.defaultRate = np.inf
 
-	# Evaluate the custom function
-	return customRateLaw(*parameters_array)
+		# Load rate functions from enzymeKinetics.tsv flat file
+		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
+		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
+
+		# Load info on all reactions in the model
+		self.allReactions = kb.process.metabolism.reactionStoich
+
+		# Make a dictionary mapping a substrate ID to it's index in self.metabolites()
+		self.metaboliteIndexDict = {}
+		substrate_vars_array = [0]*len(metaboliteIDs)
+		for index,name in enumerate(metaboliteIDs):
+			self.metaboliteIndexDict[name] = index
+			substrate_vars_array[index] = T.dscalar(name + '_concentration')
+
+		# Make a dictionary mapping an enzyme ID to it's index in self.enzymes()
+		self.enzymeIndexDict = {}
+		enzyme_vars_array = [0]*len(self.enzymesWithKineticInfo)
+		for index,name in enumerate(self.enzymesWithKineticInfo):
+			self.enzymeIndexDict[name] = index
+			enzyme_vars_array[index] = T.dscalar(name + '_concentration')
+
+		noRate = T.dscalar('noRate')
+		rateExpressionsArray = [noRate]*len(reactionIDs)
+
+		for index, reactionID in enumerate(reactionIDs):
+			rateInfo = {}
+			try:
+				rateInfo = self.reactionRateInfo[reactionID]
+			except:
+				continue
+
+			rateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict)
+
+		## Compile a theano function for the enzyme kinetics
+		# Inputs: the concentrations of every enzyme in enzymesWIthKineticInfo,
+		# 			the concentration of every substrate in metaboliteIDs, and 
+		# 			then the default rate for reactions without kinetic info,
+		# 			in that order
+		# Outputs: an array of kinetic rates of reactions ordered as in
+		#			reactionIDs
+		self.rateFunction = function(enzyme_vars_array + substrate_vars_array + [noRate], T.stack(rateExpressionsArray), on_unused_input='ignore')
 
 
-def enzymeRate(reactionInfo, enzymeConcArray, substrateConcArray):
-	""" Returns the approximated rate of a reaction.
-		
-		Inputs: 	reactionInfo (Dict of info for reaction whose rate limit is
-						to be calculated)
-					enzymeConcArray (array of concentrations of enzymes)
-						NOTE: if using custom rate law: these must be in the
-						same order as they appear in the "customParameters"
-						array of the reactionInfo dictionary
-					substrateConcArray (array of concentrations of substrates)
-						NOTE: if using custom rate law: these must be in the
-						same order as they appear in the "customParameters"
-						array of the reactionInfo dictionary
-					inhibitorConcArray (array of concentrations of inhibitors)
-						NOTE: Only us for standard rate law. Must be in the
-						same order as their corresponding kIs in the in the
-						"kI" array of the reactionInfo dictionary
-		Returns: predicted rate of the reaction.
-		Notes:	
-				This function has very different behavior for custom and for
-					standard rate laws (determined by the "rateEquationType"
-					field of reactionInfo)
-				For custom rate laws: the order of
-					reactionInfo["customParameters"] is assumed to be enzyme
-					concentrations followed by substrate concentrations (in the
-					same order passed in as substrateConcArray.
-				For standard rate laws: the reaction is assumed to have only
-					one enzyme, and only the first enzyme in enzymeConcArray
-					is considered.
-				Currently uses ONLY the higest kcat value, if multiple are available.
-	"""
 
-	# Standard or custom reaction rate law?
-	if(reactionInfo["rateEquationType"] == "standard"):
-		# Standard rate law
+	def buildRateExpression(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict):
 
-		# Check if K_M or K_I given
-		if(len(reactionInfo["kM"]) + len(reactionInfo["kI"])>1):		
-			# Use michaelis-menton kinetics
-			rate = enzymeRateApproximate(enzymeConcArray[0], np.amax(reactionInfo["kcat"]), substrateConcArray, reactionInfo["kM"], reactionInfo["kI"])
-		else:
-			# Use only the kcat
-			rate = maxReactionRate(enzymeConcArray[0], np.amax(reactionInfo["kcat"]))
-	elif(reactionInfo["rateEquationType"] == "custom"):
-		# Custom rate law
-		equationString = reactionInfo["customRateEquation"]
-		parameterDefinitionArray = reactionInfo["customParameters"]
-		parametersArray = reactionInfo["customParameterConstantValues"] + enzymeConcArray + substrateConcArray
+		# Find the enzyme variable for this reaction.
+		# Only uses the first enzyme if there are more than one.
+		enzyme_var = enzyme_vars_array[enzymeIndexDict[rateInfo["enzymeIDs"][0]]]
 
-		rate = enzymeRateCustom(equationString, parameterDefinitionArray, parametersArray)
+		# Standard or custom reaction rate law?
+		if(rateInfo["rateEquationType"] == "standard"):
+			# Standard rate law
 
-	return rate
+			# Check if K_M or K_I given
+			if(len(rateInfo["kM"]) + len(rateInfo["kI"])>1):		
+				# Use michaelis-menton kinetics
+
+
+				# Build a list of substrates vars for this reaction.
+				# Input data must be in same order as [k_M's] then [k_I's]
+				specific_substrate_vars_array = []
+				for substrate_name in rateInfo["substrateIDs"]:
+					specific_substrate_vars_array.append(substrate_vars_array[metaboliteIndexDict[substrate_name]])
+
+				# Find the rate function
+				rateExpression = self.enzymeRateApproximate(rateInfo, enzyme_var, specific_substrate_vars_array)
+
+
+			else:
+				# Use only the kcat
+				rateExpression = self.maxReactionRate(enzyme_var, np.amax(rateInfo["kcat"]))
+
+		elif(rateInfo["rateEquationType"] == "custom"):
+			# Custom rate law
+			rateExpression = self.enzymeRateCustom(rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict)
+
+		return rateExpression
+
+
+	def maxReactionRate(self, enzyme_var, k_cat):
+		"""
+		Returns the theoretical maximum catalytic rate of an enzymatic reaction, to be compiled into a theano function.
+
+		The k_cat is compiled into the function, the enzyme_var is a thenao tensor
+			and left as an input to the function.
+		"""
+
+		return k_cat * enzyme_var
+
+
+	def enzymeRateApproximate(self, rateInfo, enzyme_var, substrate_vars_array):
+
+		""" 
+		Returns the approximated rate of a reaction with 1 or more substrates and 0 or more inhibitors.
+
+		Inputs: rateInfo - the object defining the enzyme kinetics of this reaction.
+				enzyme_vars_array - theano tensor corresponding to the enzyme used
+					in this reaction.
+				substrate_vars_array - array of theano tensors corresponding to the
+					substrates used in this reaction. Must be in the same order as
+					the k_M_array and k_I_array defined in rateInfo, and must be
+					in order: k_M substrates followed by k_I substrates.
+
+		Returns: an expression for the kinetics of this reaction, which can be
+					turned into a theano function later. Uses Michaelis-Menton
+					like kinetics, with each substrate either saturating or
+					inhibiting with respect to it's k_M or k_I respoectively.
+		"""
+
+		k_cat = np.amax(rateInfo["kcat"])
+
+		rate = k_cat * enzyme_var
+
+		n = 0
+		# Adjust rate for all substrates
+		for k_M in rateInfo["kM"]:
+			rate *= ((substrate_vars_array[n])/(k_M + substrate_vars_array[n]))
+			n += 1
+
+		# Adjust rate for any/all inhibitors
+		for k_I in rateInfo["kI"]:
+			rate *= ((1)/(1 + (substrate_vars_array[n]/k_I)))
+			n += 1
+
+		return rate
+
+	def enzymeRateCustom(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict):
+		"""
+		Given an equation string, returns that expression with theano variables substituted in.
+		"""
+
+		# Make a dictionary mapping from given user-defined variable to theano var
+		D = {}
+		placeholder_dict = rateInfo["customParameterVariables"]
+		for placeholder in placeholder_dict:
+			ID = placeholder_dict[placeholder]
+			if ID in metaboliteIndexDict:
+				D[placeholder] = substrate_vars_array[metaboliteIndexDict[ID]]
+			if ID in enzymeIndexDict:
+				D[placeholder] = enzyme_vars_array[enzymeIndexDict[ID]]
+
+		# Make a dictionary mapping from symbols for constants to their values.
+		constants_dict = {}
+		symbol_constants = rateInfo["customParameterConstants"]
+		constant_values = rateInfo["customParameterConstantValues"]
+
+		for index, value in enumerate(symbol_constants):
+			constants_dict[value] = constant_values[index]
+
+		# Build the rate expression
+		rate = rateInfo["customRateEquation"]
+
+		for variable in rateInfo["customParameters"]:
+			# if it should be a theano variable
+			if variable in D:
+				rate = re.sub(r"\b%s\b" % variable, "D['" + variable + "']", rate)
+
+			# If it is a constant
+			if variable in constants_dict:
+				rate = re.sub(r"\b%s\b" % variable, '(' + str(constants_dict[variable]) + ')', rate)
+
+		return eval(rate)

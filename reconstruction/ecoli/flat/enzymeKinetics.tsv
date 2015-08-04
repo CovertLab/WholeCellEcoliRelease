@@ -6,7 +6,7 @@
 "ADENYLOSUCCINATE-SYNTHASE-RXN"	["LEUS-MONOMER"]	["GTP"]	"standard"	[1.4]	[]	[]	null	null	null	null	null
 "ASPARAGINE--TRNA-LIGASE-RXN-ASN-tRNAs/ASN/ATP/PROTON//Charged-ASN-tRNAs/AMP/PPI.52."	["LEUS-MONOMER"]	["ASN","ATP"]	"standard"	[1.6,1.3]	[32.3,76]	[]	null	null	null	null	null
 "PHEAMINOTRANS-RXN"	["LEUS-MONOMER"]	["PHE"]	"standard"	[13.73]	[8000]	[]	null	null	null	null	null
-"POLYPHOSPHATE-KINASE-RXN"	["LEUS-MONOMER"]	["ATP","ADP"]	"custom"	[59]	[2000]	[90]	"k_cat*E*(S_1/(S_1+k_M_1*(1+S_2/k_i_1)))"	["k_cat","k_M_1","k_i","E","S_1","S_2"]	["k_cat","k_M_1","k_i"]	[59,2000,90]	{"E":"PPK-CPLX","S_1":"ATP","S_2":"ADP"}
+"POLYPHOSPHATE-KINASE-RXN"	["LEUS-MONOMER"]	["ATP","ADP"]	"custom"	[59]	[2000]	[90]	"k_cat*E*(S_1/(S_1+k_M_1*(1+S_2/k_i_1)))"	["k_cat","k_M_1","k_i","E","S_1","S_2"]	["k_cat","k_M_1","k_i"]	[59,2000,90]	{"E":"LEUS-MONOMER[c]","S_1":"ATP[c]","S_2":"ADP[c]"}
 "CHORPYRLY-RXN"	["CHORPYRLY-MONOMER"]	["CHORISMATE"]	"standard"	[0.82]	[9.7]	[]	null	null	null	null	null
 "ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[2.88]	[14]	[]	null	null	null	null	null
 "GART-RXN"	["GART-MONOMER"]	[]	"standard"	[40]	[]	[]	null	null	null	null	null
@@ -16,14 +16,14 @@
 "ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64."	["LEUS-MONOMER"]	["L-ALPHA-ALANINE","ATP"]	"standard"	[84]	[340, 83]	[]	null	null	null	null	null
 "ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE","ATP"]	"standard"	[27.7]	[5.2,540]	[]	null	null	null	null	null
 "CYTDEAM-RXN"	["LEUS-MONOMER"]	["CYTOSINE"]	"standard"	[185]	[220]	[]	null	null	null	null	null
-"PGLYCDEHYDROG-RXN"	["LEUS-MONOMER"]	["G3P","SER"]	"custom"	[0.55]	[1200]	[3.8]	"k_cat*E*(S_1/(S_1*(1+S_2/k_i_1)+k_M))"	["k_cat","k_M","k_i_1","E","S_1","S_2"]	["k_cat","k_M","k_i_1"]	[0.55,1200,3.8]	{"E":"PGLYCDEHYDROG-CPLX","S_1":"G3P","S_2":"SER"}
+"PGLYCDEHYDROG-RXN"	["LEUS-MONOMER"]	["G3P","SER"]	"custom"	[0.55]	[1200]	[3.8]	"k_cat*E*(S_1/(S_1*(1+S_2/k_i_1)+k_M))"	["k_cat","k_M","k_i_1","E","S_1","S_2"]	["k_cat","k_M","k_i_1"]	[0.55,1200,3.8]	{"E":"LEUS-MONOMER[c]","S_1":"G3P[c]","S_2":"SER[c]"}
 "FUMHYDR-RXN"	["LEUS-MONOMER"]	["FUM"]	"standard"	[3000]	[600]	[]	null	null	null	null	null
 "F16ALDOLASE-RXN"	["LEUS-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[10.333333]	[240]	[]	null	null	null	null	null
 "ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE","ATP"]	"standard"	[80.4]	[3.6,280]	[]	null	null	null	null	null
 "RXN-16701"	["LEUS-MONOMER"]	["2-KETOGLUTARATE","SER"]	"standard"	[7.7]	[42]	[5]	null	null	null	null	null
 "INORGPYROPHOSPHAT-RXN"	["LEUS-MONOMER"]	["PPI"]	"standard"	[389]	[130]	[]	null	null	null	null	null
 "ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["NADPH"]	"standard"	[0.12]	[7.3]	[]	null	null	null	null	null
-"ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["NADP","NADPH"]	"custom"	[0.052]	[4.2]	[1.2]	"k_cat*E*(S_1/(S_1+k_M*(1+S_2/k_i_1)))"	["k_cat","k_M","k_i_1","E","S_1","S_2"]	["k_cat","k_M","k_i_1"]	[0.052,4.2,1.2]	{"E":"CPLX0-7643","S_1":"NADP","S_2":"NADPH"}
+"ACETOLACTREDUCTOISOM-RXN"	["LEUS-MONOMER"]	["NADP","NADPH"]	"custom"	[0.052]	[4.2]	[1.2]	"k_cat*E*(S_1/(S_1+k_M*(1+S_2/k_i_1)))"	["k_cat","k_M","k_i_1","E","S_1","S_2"]	["k_cat","k_M","k_i_1"]	[0.052,4.2,1.2]	{"E":"LEUS-MONOMER[c]","S_1":"NADP[c]","S_2":"NADPH[c]"}
 "ASPDECARBOX-RXN"	["LEUS-MONOMER"]	["L-ASPARTATE"]	"standard"	[0.57]	[151]	[]	null	null	null	null	null
 "HISTIDINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["HIS","ATP"]	"standard"	[7,34]	[8,560]	[]	null	null	null	null	null
 "GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN","ATP"]	"standard"	[2.62,2.8]	[114,110]	[]	null	null	null	null	null
