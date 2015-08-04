@@ -154,11 +154,11 @@ def initializeGenes(bulkChrmCntr, kb, timeStep):
 	geneView.countsInc(1)
 
 def initializeReplication(uniqueMolCntr, kb):
-	'''
+	"""
 	initializeReplication
 
 	Purpose: Create the appropriate number of replication forks given the cell growth rate.
-	'''
+	"""
 
 	## Determine the number and location of replication forks at the start of the cell cycle
 	# Find growth rate constants
@@ -166,10 +166,10 @@ def initializeReplication(uniqueMolCntr, kb):
 	D = kb.constants.d_period
 	tau = kb.doubling_time
 	genome_length = kb.process.replication.genome_length
-	replication_length = .5*genome_length
+	replication_length = np.ceil(.5*genome_length) * units.nt
 
 	# Generate arrays specifying appropriate replication conditions
-	sequenceIdx, sequenceLength, replicationRound, replicationDivision, numOric = determineChromosomeState(C, D, tau, replication_length, kb)
+	sequenceIdx, sequenceLength, replicationRound, replicationDivision, numOric = determineChromosomeState(C, D, tau, replication_length)
 
 	# Return if no replication is occuring at all
 	if(len(sequenceIdx) == 0):
@@ -187,7 +187,7 @@ def initializeReplication(uniqueMolCntr, kb):
 	massIncreaseDna = computeMassIncrease(
 			np.tile(sequences,(len(sequenceIdx) / 4,1)),
 			sequenceElongations,
-			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)
+			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)	
 			)
 	
 	# Update the attributes of replicating DNA polymerases
@@ -221,7 +221,7 @@ def setDaughterInitialConditions(sim, kb):
 	sim._initialTime = initialTime
 
 
-def determineChromosomeState(C, D, tau, replication_length, kb):
+def determineChromosomeState(C, D, tau, replication_length):
 	"""
 	determineChromosomeState
 
@@ -235,7 +235,6 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 			tau - the doubling time of the cell
 			replication_length - the amount of DNA to be replicated per fork,
 			usually half of the genome, in base-pairs
-			kb - the knowledge base object.
 
 	Outputs: a tuple of vectors for input into the dnaPoly.attrIs() function
 			of the initializeReplication() function in initial_conditions.py.
@@ -281,7 +280,7 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 			should not be run in this case, as no DNA replication will be
 			underway.
 	"""
-	
+
 	# Number active replication generations (can be many initiations per gen.)
 	limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 
@@ -301,7 +300,7 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 
 		ratio = (1 - ((n*tau - D)/(C)))
 		ratio = units.convertNoUnitToNumber(ratio)
-		fork_location = np.floor(ratio*(replication_length))
+		fork_location = np.floor(ratio*(replication_length.asNumber()))
 
 		# Add 2^(n-1) replication events (two forks, four strands per inintiaion event)
 		num_events = 2 ** (n-1)
