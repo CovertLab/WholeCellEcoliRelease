@@ -31,7 +31,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	
 	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionRates")
 	perEnzymeRates = enzymeKineticsdata.readColumn("perEnzymeRates")
-	enzymeConc = enzymeKineticsdata.readColumn("enzymeConc")
 
 	reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
 	
@@ -42,11 +41,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	reactionRateArray = np.transpose(enzymeKineticsArray)
 	perEnzymeRateArray = np.transpose(perEnzymeRates)
-	enzymeConcArray = np.transpose(enzymeConc)
 
 	plt.figure(figsize = (8.5, 11))
 	# Reaction rate
-	plt.subplot(3,1,1)
+	plt.subplot(2,1,1)
 
 	plt.title("Enzyme Kinetics")
 
@@ -61,13 +59,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	plt.xlabel("Time (min)")
 	plt.ylabel("Reaction Rate (reactions/second)")
-	plt.legend(lineLabels)
-
+	plt.legend(lineLabels, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 	# Per-enzyme reaction rate
 	
 	lineLabels = []
 	i = 0
-	plt.subplot(3,1,2)
+	plt.subplot(2,1,2)
 	for timeCourse in perEnzymeRateArray:
 		if (np.amax(timeCourse) < np.inf) and (i < len(reactionIDs)):
 			plt.plot(time / 60, timeCourse)
@@ -76,21 +73,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	plt.xlabel("Time (min)")
 	plt.ylabel("Per Enzyme Rate (reactions/enzyme-second)")
-	plt.legend(lineLabels)
 
-
-	# Per-enzyme reaction rate
-	i = 0
-	plt.subplot(3,1,3)
-	for timeCourse in enzymeConcArray:
-		if (np.amax(timeCourse) < np.inf) and (i < len(reactionIDs)):
-			plt.plot(time / 60, timeCourse)
-		i += 1
-
-	plt.xlabel("Time (min)")
-	plt.ylabel("Concentration of Limiting Enzyme")
-	plt.legend(lineLabels)
-
+	plt.subplots_adjust(left=.1, right=.64, top=0.9, bottom=0.1)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)

@@ -453,15 +453,16 @@ class Metabolism(object):
 			# If the substrates don't already have a compartment tag, add [c] (cytosol) as a default
 			reaction["substrateIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["substrateIDs"]]
 
-			# If the enzymes and substrates mentioned in the
-			# customParameterVariables dict lack a compartment tag, add [c]
-			# (cytosol) as a default
-			parametersDict = reaction["customParameterVariables"]
-			for key in parametersDict:
-				value = parametersDict[key]
-				if value[-3:-2] != '[':
-					parametersDict[key] = value + '[c]'
-			reaction["customParameterVariables"] = parametersDict
+			if reaction["rateEquationType"] == 'custom':
+				# If the enzymes and substrates mentioned in the
+				# customParameterVariables dict lack a compartment tag, add [c]
+				# (cytosol) as a default
+				parametersDict = reaction["customParameterVariables"]
+				for key in parametersDict:
+					value = parametersDict[key]
+					if value[-3:-2] != '[':
+						parametersDict[key] = value + '[c]'
+				reaction["customParameterVariables"] = parametersDict
 
 
 			reactionRateInfo[reactionID] = reaction

@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+"""
+EnzymeKinetics
+
+Compiles a theano function which can be called to determine the rates of all reactions in a metabolic model.
+
+@author: Morgan Paull
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 8/4/2015
+"""
+
 import numpy as np
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -10,12 +20,6 @@ import theano.tensor as T
 from theano import function
 
 import re
-
-
-# Equation string interpreter
-from Equation import Expression
-
-
 
 
 class EnzymeKinetics(object):
@@ -85,9 +89,8 @@ class EnzymeKinetics(object):
 			# Standard rate law
 
 			# Check if K_M or K_I given
-			if(len(rateInfo["kM"]) + len(rateInfo["kI"])>1):		
+			if(len(rateInfo["kM"]) + len(rateInfo["kI"])>0):		
 				# Use michaelis-menton kinetics
-
 
 				# Build a list of substrates vars for this reaction.
 				# Input data must be in same order as [k_M's] then [k_I's]

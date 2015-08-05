@@ -174,6 +174,11 @@ class Metabolism(wholecell.processes.process.Process):
 		# Find reaction rate limits
 		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
+		# Find per-enzyme reaction rates
+		inputConcentrations = np.concatenate((([1]*len(enzymeConcentrations)),metaboliteConcentrations,[defaultRate]), axis=1)
+		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
+
+
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
@@ -199,6 +204,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "reactionRates",
 			self.reactionRates)
+
+		self.writeToListener("EnzymeKinetics", "perEnzymeRates",
+			self.perEnzymeRates)
 
 
 

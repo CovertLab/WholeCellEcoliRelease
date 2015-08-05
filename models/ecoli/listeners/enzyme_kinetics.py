@@ -43,7 +43,6 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		self.reactionRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.perEnzymeRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
-		self.enzymeConc = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
 
 	def update(self):
@@ -62,5 +61,4 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			timeStep = self.timeStep(),
 			reactionRates = self.reactionRates,
 			perEnzymeRates = self.perEnzymeRates,
-			enzymeConc = self.enzymeConc,
 			)
