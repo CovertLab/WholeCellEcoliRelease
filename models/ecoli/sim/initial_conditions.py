@@ -285,7 +285,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 	"""
 
 	## Error check inputs
-	
+
 	# Check that all inputs have units
 	assert (units.hasUnit(C)) and (units.getUnit(C).strUnit() == units.min.strUnit()), 'C must have units of units.min.'
 	assert (units.hasUnit(D)) and (units.getUnit(D).strUnit() == units.min.strUnit()), 'D must have units of units.min.'
@@ -374,4 +374,4 @@ def determineNumOriC(C, D, tau):
 	# Number active replication generations (can be many initiations per gen.)
 	total_active_initiations = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 
-	return 2 ** (total_active_initiations)
+	return int(2 ** (total_active_initiations))
