@@ -285,7 +285,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 	"""
 
 	## Error check inputs
-	
+
 	# Check that all inputs have units
 	assert (units.hasUnit(C)) and (units.getUnit(C).strUnit() == units.min.strUnit()), 'C must have units of units.min.'
 	assert (units.hasUnit(D)) and (units.getUnit(D).strUnit() == units.min.strUnit()), 'D must have units of units.min.'
@@ -357,8 +357,7 @@ def determineNumOriC(C, D, tau):
 	"""
 	determineNumOriC
 
-	Purpose: calculates the number and position of replicating DNA polymerases
-			 at the beginning of the cell cycle.
+	Purpose: calculates the number of OriC's in a cell upon initiation, determined by the replication state of the chromosome.
 
 	Inputs: C  - the C period of the cell, the length of time between
 			replication initiation and replication completion.
@@ -374,4 +373,4 @@ def determineNumOriC(C, D, tau):
 	# Number active replication generations (can be many initiations per gen.)
 	total_active_initiations = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 
-	return 2 ** (total_active_initiations)
+	return int(2 ** (total_active_initiations))
