@@ -107,6 +107,8 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		initiate = False
 		massFactor = cellMass / self.criticalInitiationMass
 		massPerOrigin = massFactor / len(oriCs)
+
+		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
 		if massPerOrigin >= 1.0:
 			initiate = True
 

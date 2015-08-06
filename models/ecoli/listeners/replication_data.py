@@ -47,6 +47,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.diffFactorActive = False
 		self.lastPassedCriticalMass = 0.
 		self.numberOfOric = 0.
+		self.criticalMassPerOriC = 0.
 
 
 	def update(self):
@@ -79,4 +80,5 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			diffFactorActive = self.diffFactorActive,
 			lastPassedCriticalMass = self.lastPassedCriticalMass,
 			numberOfOric = self.numberOfOric,
+			criticalMassPerOriC = self.criticalMassPerOriC,
 			)

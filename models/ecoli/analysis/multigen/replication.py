@@ -37,8 +37,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# Get all cells
 	allDir = ap.getAll()
 
-	fig, axesList = plt.subplots(5, sharex = True)
-
+	fig, axesList = plt.subplots(6, sharex = True)
+	fig.set_size_inches(11, 11)
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") / 60. / 60.
@@ -88,12 +88,17 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		axesList[3].set_xlim([0, time.max()])
 		mass.close()
 
-		# Mass per oriC
+		# Number of oriC
 		numberOfOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
-		massPerOric = sixtyMinDoublingInitMassEquivalents / numberOfOric
-		axesList[4].plot(time, massPerOric, linewidth=2)
-		axesList[4].set_ylabel("Critical mass\nper oriC")
+		axesList[4].plot(time, numberOfOric, linewidth=2)
+		axesList[4].set_ylabel("Number of\noriC")
 		axesList[4].set_xlim([0, time.max()])
+
+		# Mass per oriC
+		criticalMassPerOriC = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalMassPerOriC")
+		axesList[5].plot(time, criticalMassPerOriC, linewidth=2)
+		axesList[5].set_ylabel("Critical mass\nper oriC")
+		axesList[5].set_xlim([0, time.max()])
 
 	axesList[0].set_title("Replication plots")
 	axesList[-1].set_xlabel("Time (hr)")

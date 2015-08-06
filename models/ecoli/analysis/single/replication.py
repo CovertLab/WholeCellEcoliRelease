@@ -48,6 +48,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	sequenceIdx = dnaPolyFile.readColumn("sequenceIdx")
 	sequenceLength = dnaPolyFile.readColumn("sequenceLength")
 	numberOfOric = dnaPolyFile.readColumn("numberOfOric")
+	criticalMassPerOriC = dnaPolyFile.readColumn("criticalMassPerOriC")
 	dnaPolyFile.close()
 
 	# Load dna mass data
@@ -70,57 +71,82 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	chromMass = (kb.getter.getMass(['CHROM_FULL[c]'])[0] / kb.constants.nAvogadro).asNumber(units.fg)
 	chromEquivalents = dnaMass / chromMass
 
+	# Count full chromosomes
+	bulkMoleculesFile = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	bulkIds = bulkMoleculesFile.readAttribute("objectNames")
+	chromIdx = bulkIds.index("CHROM_FULL[c]")
+	fullChromosomeCounts = bulkMoleculesFile.readColumn("counts")[:,chromIdx]
+
 	# Count 60 min doubling time mass equivalents
 	avgCell60MinDoublingTimeTotalMassInit = kb.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
 	sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
 
-	# Count mass per oriC
-	massPerOric = sixtyMinDoublingInitMassEquivalents / numberOfOric
-
 	# Plot stuff
 	plt.figure(figsize = (8.5, 11))
 
-	ax = plt.subplot(5,1,1)
+	ax = plt.subplot(7,1,1)
 	ax.plot(time / 60., sequenceLength, marker='.', markersize=1, linewidth=0)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 	ax.set_yticklabels(['-terC', 'oriC', '+terC'])
 	ax.set_ylabel("DNA polymerase\nposition (nt)")
 
-	ax = plt.subplot(5,1,2, sharex=ax)
-	ax.plot(time / 60., chromEquivalents)
+	ax = plt.subplot(7,1,2, sharex=ax)
+	ax.plot(time / 60., chromEquivalents, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks(np.arange(chromEquivalents.min(), chromEquivalents.max() + 0.5, 0.5))
-	ax.set_ylabel("Chromosome equivalents")
+	ax.set_ylabel("Chromosome\nequivalents")
 
-	ax = plt.subplot(5,1,3, sharex=ax)
-	ax.plot(time / 60., pairsOfForks)
+	ax = plt.subplot(7,1,3, sharex=ax)
+	ax.plot(time / 60., pairsOfForks, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks(np.arange(0,7))
 	ax.set_ylim([0, 6])
-	ax.set_xlim([0, time.max() / 60])
 	ax.set_ylabel("Pairs of forks")
 
-	ax = plt.subplot(5,1,4, sharex=ax)
-	ax.plot(time / 60., sixtyMinDoublingInitMassEquivalents)
+	ax = plt.subplot(7,1,4, sharex=ax)
+	ax.plot(time / 60., sixtyMinDoublingInitMassEquivalents, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks(np.arange(1., 8., 0.5))
 	ax.set_ylim([np.around(sixtyMinDoublingInitMassEquivalents.min(), decimals=1) - 0.1, np.around(sixtyMinDoublingInitMassEquivalents.max(), decimals=1) + 0.1])
 	ax.set_ylabel("Equivalents of initial\nmass for $t_d=60$ min")
-	ax.set_xlim([0, time.max() / 60])
 	
-	ax = plt.subplot(5,1,5, sharex=ax)
-	ax.plot(time / 60., massPerOric)
+	ax = plt.subplot(7,1,5, sharex=ax)
+	ax.plot(time / 60., criticalMassPerOriC, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_yticks([0.5, 1.0])
-	ax.set_ylim([0.4, 1.1])
+	# ax.set_ylim([0.4, 1.1])
 	ax.set_ylabel("Critical mass\nper oriC")
-	ax.set_xlim([0, time.max() / 60])
 
+	ax = plt.subplot(7,1,6, sharex=ax)
+	ax.plot(time / 60., numberOfOric, linewidth=2)
+	ax.set_xticks([0, time.max() / 60])
+	ax.set_ylabel("Number of\noriC")
+	ax.set_ylim([0, numberOfOric.max() + 1])
+
+	ax = plt.subplot(7,1,6, sharex=ax)
+	ax.plot(time / 60., fullChromosomeCounts, linewidth=2)
+	ax.set_xticks([0, time.max() / 60])
+	ax.set_ylabel("Full\nchromosomes")
+	ax.set_ylim([0, fullChromosomeCounts.max() + 1])	
+
+	ax.set_xlim([0, time.max() / 60])
 	ax.set_xlabel("Time (min)")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
+
+	plt.figure(figsize = (8.5, 11))
+
+	for idx in [0,1,2,3]:
+		ax = plt.subplot(4,1,idx+1)
+		data = (sequenceIdx == idx).sum(axis=1)
+		ax.plot(time / 60., data)
+		ax.set_ylim([0, data.max()+1])
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, 'replicationSequenceIdx')
 	plt.close("all")
 
 if __name__ == "__main__":
