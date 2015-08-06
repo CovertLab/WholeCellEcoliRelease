@@ -74,7 +74,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.xlabel("Time (min)")
 	plt.ylabel("Per Enzyme Rate (reactions/enzyme-second)")
 
-	plt.subplots_adjust(left=.1, right=.64, top=0.9, bottom=0.1)
+	plt.subplots_adjust(left=.12, right=.65, top=0.9, bottom=0.1)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)

@@ -169,13 +169,13 @@ class Metabolism(wholecell.processes.process.Process):
 		defaultRate = self.enzymeKinetics.defaultRate
 
 		# Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
-		inputConcentrations = np.concatenate((enzymeConcentrations,metaboliteConcentrations,[defaultRate]), axis=1)
+		inputConcentrations = np.concatenate((enzymeCountsInit,metaboliteCountsInit,[defaultRate]), axis=1)
 
 		# Find reaction rate limits
 		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
 		# Find per-enzyme reaction rates
-		inputConcentrations = np.concatenate((([1]*len(enzymeConcentrations)),metaboliteConcentrations,[defaultRate]), axis=1)
+		inputConcentrations = np.concatenate((([1]*len(enzymeCountsInit)),metaboliteCountsInit,[defaultRate]), axis=1)
 		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
 
