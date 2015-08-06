@@ -31,9 +31,9 @@ def divide_cell(sim):
 	except OSError:
 		pass
 
-	# Calculate chromosome division
-	# Used in dividing both bulk molecules and unique molecules
 	try:
+		# Calculate chromosome division
+		# Used in dividing both bulk molecules and unique molecules
 		chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
 
 		# Create divded containers
@@ -158,35 +158,37 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 	# Divide unique molecules binomially
 	for moleculeName, moleculeAttributeDict in uniqueMoleculesToDivide.iteritems():
-		if moleculeName == 'dnaPolymerase':
+		if moleculeName == 'dnaPolymerase' or moleculeName == 'originOfReplication':
 			# NOTE: We are not dividing dna polymerase binomially!
 			continue
 
 		# Get set of molecules to divide and calculate number going to daugher one and daughter two
 		moleculeSet = uniqueMolecules.container.objectsInCollection(moleculeName)
-		n_d1 = randomState.binomial(len(moleculeSet), p = BINOMIAL_COEFF)
-		n_d2 = len(moleculeSet) - n_d1
-		assert n_d1 + n_d2 == len(moleculeSet)
+		if len(moleculeSet) > 0:
+			n_d1 = randomState.binomial(len(moleculeSet), p = BINOMIAL_COEFF)
+			n_d2 = len(moleculeSet) - n_d1
+			assert n_d1 + n_d2 == len(moleculeSet)
 
-		# Randomly boolean index molecules in mother such that each daugher gets amount calculated above
-		d1_bool = np.zeros(len(moleculeSet), dtype = bool)
-		d2_bool = np.zeros(len(moleculeSet), dtype = bool)
-		d1_indexes = randomState.choice(range(len(moleculeSet)), size = n_d1, replace = False)
-		d1_bool[d1_indexes] = True
-		d2_bool = np.logical_not(d1_bool)
+			# Randomly boolean index molecules in mother such that each daugher gets amount calculated above
+			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
+			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
+			d1_indexes = randomState.choice(range(len(moleculeSet)), size = n_d1, replace = False)
+			d1_bool[d1_indexes] = True
+			d2_bool = np.logical_not(d1_bool)
 
-		d1_dividedAttributesDict = {}
-		d2_dividedAttributesDict = {}
-		for moleculeAttribute in moleculeAttributeDict.iterkeys():
-			d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
-			d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
+			d1_dividedAttributesDict = {}
+			d2_dividedAttributesDict = {}
+			for moleculeAttribute in moleculeAttributeDict.iterkeys():
+				d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
+				d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
 
-		d1_unique_molecules_container.objectsNew(moleculeName, n_d1, **d1_dividedAttributesDict)
-		d2_unique_molecules_container.objectsNew(moleculeName, n_d2, **d2_dividedAttributesDict)
+			d1_unique_molecules_container.objectsNew(moleculeName, n_d1, **d1_dividedAttributesDict)
+			d2_unique_molecules_container.objectsNew(moleculeName, n_d2, **d2_dividedAttributesDict)
 
 	# Divide dna polymerase with chromosome
 	# Get set of molecules to divide and calculate number going to daugher one and daughter two
 	moleculeSet = uniqueMolecules.container.objectsInCollection('dnaPolymerase')
+	moleculeAttributeDict = uniqueMoleculesToDivide['dnaPolymerase']
 	if len(moleculeSet) > 0:
 		d1_chromosome_count = chromosome_counts['d1_chromosome_count']
 		d2_chromosome_count = chromosome_counts['d2_chromosome_count']
@@ -229,6 +231,38 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
+
+		# Divide oriCs with chromosome
+		moleculeSet = uniqueMolecules.container.objectsInCollection('originOfReplication')
+		moleculeAttributeDict = uniqueMoleculesToDivide['originOfReplication']
+		if len(moleculeSet) > 0:
+			d1_chromosome_count = chromosome_counts['d1_chromosome_count']
+			d2_chromosome_count = chromosome_counts['d2_chromosome_count']
+
+			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
+			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
+			if d1_chromosome_count + d2_chromosome_count < 2:
+				d1_bool[:] = d1_chromosome_count
+				d2_bool[:] = d2_chromosome_count
+
+			elif d1_chromosome_count + d2_chromosome_count == 2:
+				d1_bool[:len(moleculeSet) / 2.] = 1
+				d2_bool = np.logical_not(d1_bool)
+
+			else:
+				raise Exception("Too may chromosomes!")
+					
+			n_d1 = d1_bool.sum()
+			n_d2 = d2_bool.sum()
+
+			d1_dividedAttributesDict = {}
+			d2_dividedAttributesDict = {}
+			for moleculeAttribute in moleculeAttributeDict.iterkeys():
+				d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
+				d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
+
+			d1_unique_molecules_container.objectsNew('originOfReplication', n_d1, **d1_dividedAttributesDict)
+			d2_unique_molecules_container.objectsNew('originOfReplication', n_d2, **d2_dividedAttributesDict)
 
 	return d1_unique_molecules_container, d2_unique_molecules_container
 
