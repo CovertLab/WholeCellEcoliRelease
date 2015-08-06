@@ -33,6 +33,9 @@ def fitKb_1(kb):
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
 
+	# Set C-period
+	setCPeriod(kb)
+
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 
@@ -82,6 +85,9 @@ def setRnaPolymeraseCodingRnaDegradationRates(kb):
 	mRNA_indexes = kb.relation.rnaIndexToMonomerMapping[subunitIndexes]
 	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
+
+def setCPeriod(kb):
+	kb.constants.c_period = kb.process.replication.genome_length * units.nt / kb.constants.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	subMass = kb.mass.subMass
