@@ -189,7 +189,7 @@ def initializeReplication(uniqueMolCntr, kb):
 			sequenceElongations,
 			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)
 			)
-	
+
 	# Update the attributes of replicating DNA polymerases
 	oricCenter = kb.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', len(sequenceIdx))
@@ -210,8 +210,8 @@ def setDaughterInitialConditions(sim, kb):
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
 	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
 
-	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
-	sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
+	# bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
+	# sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
 
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
@@ -283,7 +283,7 @@ def determineChromosomeState(C, D, tau, replication_length, kb):
 	"""
 	
 	# Number active replication generations (can be many initiations per gen.)
-	limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
+	limit = np.floor((C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min))
 
 	# Initialize arrays to be returned
 	sequenceIdx = []
