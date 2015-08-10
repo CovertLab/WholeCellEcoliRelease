@@ -815,8 +815,8 @@ class FluxBalanceAnalysis(object):
 		if maxFlux < 0:
 			raise InvalidBoundaryError("Maximum reaction flux must be at least 0")
 
-		if maxFlux < self._lowerBound[colIndex]:
-			raise InvalidBoundaryError("Maximum reaction flux must be greater than or equal to the minimum flux")
+		# if maxFlux < self._lowerBound[colIndex]:
+		# 	raise InvalidBoundaryError("Maximum reaction flux must be greater than or equal to the minimum flux")
 
 		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
 

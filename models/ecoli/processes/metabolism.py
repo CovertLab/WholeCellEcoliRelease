@@ -178,7 +178,9 @@ class Metabolism(wholecell.processes.process.Process):
 		inputConcentrations = np.concatenate((([1]*len(enzymeCountsInit)),metaboliteCountsInit,[defaultRate]), axis=1)
 		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
-
+		# Set max reaction fluxes for enzymes for which kinetics are known
+		for index, reactionID in enumerate(self.fba.reactionIDs()):
+			self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
