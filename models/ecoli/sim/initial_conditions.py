@@ -162,14 +162,14 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	## Determine the number and location of replication forks at the start of the cell cycle
 	# Find growth rate constants
-	C = kb.constants.c_period
-	D = kb.constants.d_period
-	tau = kb.doubling_time
+	C = kb.constants.c_period.asUnit(units.min)
+	D = kb.constants.d_period.asUnit(units.min)
+	tau = kb.doubling_time.asUnit(units.min)
 	genome_length = kb.process.replication.genome_length
 	replication_length = np.ceil(.5*genome_length) * units.nt
 
 	# Generate arrays specifying appropriate replication conditions
-	sequenceIdx, sequenceLength, replicationRound, replicationDivision = determineChromosomeState(C, D, tau, replication_length)
+	sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 	# Determine the number of OriC's currently present in the cell
 	numOric = determineNumOriC(C, D, tau)
@@ -179,9 +179,9 @@ def initializeReplication(uniqueMolCntr, kb):
 		return
 
 	# Check that sequenceIdx, sequenceLength, replicationRound, and
-	# replicationDivision are equal length, numOric should be half the
+	# chromosomeIndex are equal length, numOric should be half the
 	# size (4 DNAP/fork, only 2 oriC/fork)
-	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(replicationDivision) == 2*numOric)
+	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 4*(numOric - 1))
 
 	## Update polymerases mass to account for already completed DNA
 	# Determine the sequences of already-replicated DNA
@@ -200,7 +200,7 @@ def initializeReplication(uniqueMolCntr, kb):
 		sequenceIdx = np.array(sequenceIdx),
 		sequenceLength = np.array(sequenceLength),
 		replicationRound = np.array(replicationRound),
-		replicationDivision = np.array(replicationDivision),
+		chromosomeIndex = np.array(chromosomeIndex),
 		massDiff_DNA = massIncreaseDna,
 		)
 
@@ -260,20 +260,20 @@ def determineChromosomeState(C, D, tau, replication_length):
 						a new replication generation has started. This array 
 						is integer-valued, and counts from 0 (the oldest
 						generation) up to n (the most recent initiation) event.
-			replicationDivision - indicator variable for which daughter cell 
+			chromosomeIndex - indicator variable for which daughter cell 
 						should inherit which polymerase at division. This
 						array is only relevant to draw distinctions within a 
 						generaation of replicationRound, now between rounds.
 						Within each generation in replicationRound (run of
 						numbers with the same value), half should have
-						replicationDivision = 0, and half replicationDivision
+						chromosomeIndex = 0, and half chromosomeIndex
 						= 1. This should be contiguous halves, ie
 						[0,0,0,0,1,1,1,1], NOT interspersed like
 						[0,1,0,1,0,1,0,1]. The half-and-half rule is excepted
 						for any replication generation with only 4 polymerases
 						(the oldest replication generation should be the only
 						one	with fewer than 8 polymerases). In this case 
-						replicationDivision doesn't matter/is effectively NaN,
+						chromosomeIndex doesn't matter/is effectively NaN,
 						but is set to all 0's to prevent conceptually dividing
 						a single chromosome between two daughter cells.
 
@@ -287,9 +287,9 @@ def determineChromosomeState(C, D, tau, replication_length):
 	## Error check inputs
 
 	# Check that all inputs have units
-	assert (units.hasUnit(C)) and (units.getUnit(C).strUnit() == units.min.strUnit()), 'C must have units of units.min.'
-	assert (units.hasUnit(D)) and (units.getUnit(D).strUnit() == units.min.strUnit()), 'D must have units of units.min.'
-	assert (units.hasUnit(tau)) and (units.getUnit(tau).strUnit() == units.min.strUnit()), 'tau must have units of units.min.'
+	assert (units.hasUnit(C)), 'C must have units'
+	assert (units.hasUnit(D)), 'D must have units'
+	assert (units.hasUnit(tau)), 'tau must have units'
 	assert (units.hasUnit(replication_length)) and (units.getUnit(replication_length).strUnit() == units.nt.strUnit()), 'replication_length must have units of units.nt.'
 
 	# All inputs must be positive numbers
@@ -310,7 +310,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 	sequenceIdx = []
 	sequenceLength = []
 	replicationRound = []
-	replicationDivision = []
+	chromosomeIndex = []
 
 	# Loop through the generations of replication which are active (if limit = 0
 	# skips loop entirely --> no active replication generations)
@@ -336,20 +336,20 @@ def determineChromosomeState(C, D, tau, replication_length):
 		# replication round starts, all origins in the cell fire, and are then
 		# of the same generation and round number
 		replicationRound += [(n-1)]*4*num_events
-		# WITHIN each round, replicationDivision uniquely identifies individual
+		# WITHIN each round, chromosomeIndex uniquely identifies individual
 		# origin initaion points. Loop through each intiation event in this 
 		# generation (2 forks, 4 polymerases each), assign it an increaing,
 		# unique number, starting at zero.
-		replicationDivision += [0]*2*num_events + [1]*2*num_events
+		chromosomeIndex += [0]*2*num_events + [1]*2*num_events
 
 		n += 1
 
 	# The first replication generation should not be divided, so set all values
 	# to 0 (effectively NaN, the first four values are not used)
-	if len(replicationDivision):
-		replicationDivision[:4] = [0,0,0,0]
+	if len(chromosomeIndex):
+		chromosomeIndex[:4] = [0,0,0,0]
 
-	return (sequenceIdx, sequenceLength, replicationRound, replicationDivision)
+	return (sequenceIdx, sequenceLength, replicationRound, chromosomeIndex)
 
 
 

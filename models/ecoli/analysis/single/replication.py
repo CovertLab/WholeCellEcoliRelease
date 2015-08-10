@@ -124,7 +124,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ax.set_ylabel("Number of\noriC")
 	ax.set_ylim([0, numberOfOric.max() + 1])
 
-	ax = plt.subplot(7,1,6, sharex=ax)
+	ax = plt.subplot(7,1,7, sharex=ax)
 	ax.plot(time / 60., fullChromosomeCounts, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_ylabel("Full\nchromosomes")

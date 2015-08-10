@@ -98,7 +98,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		oriCs = self.oriCs.molecules()
 
 		if activePolymerasePresent:
-			sequenceLength, replicationRound = activeDnaPoly.attrs('sequenceLength', 'replicationRound')
+			replicationRound = activeDnaPoly.attr('replicationRound')
 
 		# Get cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
@@ -137,14 +137,14 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			sequenceIdx = np.tile(np.array([0,1,2,3], dtype=np.int8), numOric)
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
 			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
-			replicationDivision = np.zeros(numberOfNewPolymerase, dtype=np.int8)
-			replicationDivision[numberOfNewPolymerase / 2:] = 1.
+			chromosomeIndex = np.zeros(numberOfNewPolymerase, dtype=np.int8)
+			chromosomeIndex[numberOfNewPolymerase / 2:] = 1.
 
 			activeDnaPoly.attrIs(
 				sequenceIdx = sequenceIdx,
 				sequenceLength = sequenceLength,
 				replicationRound = replicationRound,
-				replicationDivision = replicationDivision,
+				chromosomeIndex = chromosomeIndex,
 				)
 
 		##########################################

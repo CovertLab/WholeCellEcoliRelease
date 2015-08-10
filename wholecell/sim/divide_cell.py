@@ -193,8 +193,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 		d1_chromosome_count = chromosome_counts['d1_chromosome_count']
 		d2_chromosome_count = chromosome_counts['d2_chromosome_count']
 
-		sequenceIdx, sequenceLengths, replicationRound, replicationDivision = moleculeSet.attrs(
-			'sequenceIdx', 'sequenceLength', 'replicationRound', 'replicationDivision'
+		sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = moleculeSet.attrs(
+			'sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex'
 			)
 
 		if d1_chromosome_count + d2_chromosome_count < 2:
@@ -208,13 +208,13 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
 			for roundIdx in np.unique(replicationRound):
 				# replicationRound indexes all dna polymerases started at the same time across all oriC
-				# replicationDivision indexes all dna polymerases started at the same time at EACH oriC (i.e. one should go to d1, one to d2)
+				# chromosomeIndex indexes all dna polymerases started at the same time at EACH oriC (i.e. one should go to d1, one to d2)
 				d1_bool = np.logical_or(
-					np.logical_and(replicationRound == roundIdx, replicationDivision == 0),
+					np.logical_and(replicationRound == roundIdx, chromosomeIndex == 0),
 					d1_bool
 					)
 				d2_bool = np.logical_or(
-					np.logical_and(replicationRound == roundIdx, replicationDivision == 1),
+					np.logical_and(replicationRound == roundIdx, chromosomeIndex == 1),
 					d2_bool
 					)
 		else:
