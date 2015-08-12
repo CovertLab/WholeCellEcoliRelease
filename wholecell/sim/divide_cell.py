@@ -229,6 +229,34 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 			d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
 			d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
 
+		# Reset chromosomeIndex for next cell cycle in all forks that are divided
+		for replicationRound in np.unique(d1_dividedAttributesDict['replicationRound']):
+			replicationRoundIndexes = d1_dividedAttributesDict['replicationRound'] == replicationRound
+			if replicationRoundIndexes.sum() >= 8:
+				for index in [0,1,2,3]:
+					num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					new_value = np.zeros(num_index.sum())
+					new_value[:new_value.size / 2] = 1
+					d1_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
+
+				# zero_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 0
+				# one_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 1
+				# two_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 2
+				# three_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 3
+
+				# new_value = np.zeros(zero_index.sum())
+				# new_value[:new_value.size / 2] = 1
+				# d1_dividedAttributesDict['chromosomeIndex'][zero_index] = new_value
+
+		for replicationRound in np.unique(d2_dividedAttributesDict['replicationRound']):
+			replicationRoundIndexes = d2_dividedAttributesDict['replicationRound'] == replicationRound
+			if replicationRoundIndexes.sum() >= 8:
+				for index in [0,1,2,3]:
+					num_index = d2_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					new_value = np.zeros(num_index.sum())
+					new_value[:new_value.size / 2] = 0
+					d2_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
+
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
 
