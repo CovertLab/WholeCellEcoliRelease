@@ -36,6 +36,9 @@ def fitKb_1(kb):
 	# Set C-period
 	setCPeriod(kb)
 
+	# Set D-period
+	setDPeriod(kb)
+
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 
@@ -90,6 +93,9 @@ def setRnaPolymeraseCodingRnaDegradationRates(kb):
 
 def setCPeriod(kb):
 	kb.constants.c_period = kb.process.replication.genome_length * units.nt / kb.constants.dnaPolymeraseElongationRate / 2
+
+def setDPeriod(kb):
+	kb.constants.d_period = 24. * units.min # TODO: TOKB
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	subMass = kb.mass.subMass
