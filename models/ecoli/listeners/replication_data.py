@@ -46,7 +46,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.refractionOver = True
 		self.diffFactorActive = False
 		self.lastPassedCriticalMass = 0.
-		self.numberOfOric = 0.
+		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
 
 
