@@ -29,9 +29,6 @@ class AnalysisSingleTask(FireTaskBase):
 			if f.endswith(".pyc") or f == "__init__.py":
 				continue
 
-			if not f.startswith("replication"):
-				continue
-
 			print "%s: Running %s" % (time.ctime(), f)
 
 			mod = importlib.import_module("models.ecoli.analysis.single." + f[:-3])
