@@ -55,7 +55,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		sequenceLength[reverseSequences] = -1 * sequenceLength[reverseSequences]
 		sequenceLength[sequenceLength == PLACE_HOLDER] = np.nan
 
-		axesList[0].plot(time, sequenceLength, marker='.', markersize=1, linewidth=0)
+		# Down sample dna polymerase position, every position is only plotted once here
+		# using numpy ninja-ness
+		unique, index, value = np.unique(sequenceLength, return_index=True, return_inverse=True)
+		m = np.zeros_like(value, dtype=bool)
+		m[index] = True
+		m = m.reshape(sequenceLength.shape)
+		sequenceLength[~m] = np.nan
+
+		axesList[0].plot(time, sequenceLength, marker=',', markersize=1, linewidth=0)
 		axesList[0].set_xlim([0, time.max()])
 		axesList[0].set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 		axesList[0].set_yticklabels(['-terC', 'oriC', '+terC'])
