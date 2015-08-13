@@ -31,29 +31,26 @@ def divide_cell(sim):
 	except OSError:
 		pass
 
-	try:
-		# Calculate chromosome division
-		# Used in dividing both bulk molecules and unique molecules
-		chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
+	# Calculate chromosome division
+	# Used in dividing both bulk molecules and unique molecules
+	chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
 
-		# Create divded containers
-		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
-		# d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
-		d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts)
+	# Create divded containers
+	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
+	# d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
+	d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts)
 
-		# Save divded containers
-		saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
-		saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
-		# saveContainer(d1_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter1", "BulkChromosome"))
-		# saveContainer(d2_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter2", "BulkChromosome"))
-		saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
-		saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
+	# Save divded containers
+	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
+	saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
+	# saveContainer(d1_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter1", "BulkChromosome"))
+	# saveContainer(d2_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter2", "BulkChromosome"))
+	saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
+	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
 
-		# Save daughter cell initial time steps
-		saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
-		saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
-	except:
-		pass
+	# Save daughter cell initial time steps
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
 
 def chromosomeDivision(bulkMolecules, randomState):
 	partial_chromosome_counts = bulkMolecules.container.counts(bulkMolecules.divisionIds['partialChromosome'])
@@ -261,36 +258,38 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
 
 		# Divide oriCs with chromosome
-		moleculeSet = uniqueMolecules.container.objectsInCollection('originOfReplication')
-		moleculeAttributeDict = uniqueMoleculesToDivide['originOfReplication']
-		if len(moleculeSet) > 0:
-			d1_chromosome_count = chromosome_counts['d1_chromosome_count']
-			d2_chromosome_count = chromosome_counts['d2_chromosome_count']
 
-			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
-			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
-			if d1_chromosome_count + d2_chromosome_count < 2:
-				d1_bool[:] = d1_chromosome_count
-				d2_bool[:] = d2_chromosome_count
+	moleculeSet = uniqueMolecules.container.objectsInCollection('originOfReplication')
+	moleculeAttributeDict = uniqueMoleculesToDivide['originOfReplication']
+	if len(moleculeSet) > 0:
+		d1_chromosome_count = chromosome_counts['d1_chromosome_count']
+		d2_chromosome_count = chromosome_counts['d2_chromosome_count']
 
-			elif d1_chromosome_count + d2_chromosome_count == 2:
-				d1_bool[:len(moleculeSet) / 2.] = 1
-				d2_bool = np.logical_not(d1_bool)
+		d1_bool = np.zeros(len(moleculeSet), dtype = bool)
+		d2_bool = np.zeros(len(moleculeSet), dtype = bool)
+		if d1_chromosome_count + d2_chromosome_count < 2:
+			d1_bool[:] = d1_chromosome_count
+			d2_bool[:] = d2_chromosome_count
 
-			else:
-				raise Exception("Too may chromosomes!")
-					
-			n_d1 = d1_bool.sum()
-			n_d2 = d2_bool.sum()
+		elif d1_chromosome_count + d2_chromosome_count == 2:
+			d1_bool[:len(moleculeSet) / 2.] = 1
+			d2_bool = np.logical_not(d1_bool)
 
-			d1_dividedAttributesDict = {}
-			d2_dividedAttributesDict = {}
-			for moleculeAttribute in moleculeAttributeDict.iterkeys():
-				d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
-				d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
+		else:
+			raise Exception("Too may chromosomes!")
+				
+		n_d1 = d1_bool.sum()
+		n_d2 = d2_bool.sum()
 
-			d1_unique_molecules_container.objectsNew('originOfReplication', n_d1, **d1_dividedAttributesDict)
-			d2_unique_molecules_container.objectsNew('originOfReplication', n_d2, **d2_dividedAttributesDict)
+		d1_dividedAttributesDict = {}
+		d2_dividedAttributesDict = {}
+		for moleculeAttribute in moleculeAttributeDict.iterkeys():
+			d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
+			d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
+
+		d1_unique_molecules_container.objectsNew('originOfReplication', n_d1, **d1_dividedAttributesDict)
+		d2_unique_molecules_container.objectsNew('originOfReplication', n_d2, **d2_dividedAttributesDict)
+
 
 	return d1_unique_molecules_container, d2_unique_molecules_container
 
