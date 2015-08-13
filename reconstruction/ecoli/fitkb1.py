@@ -23,7 +23,7 @@ MAX_FITTING_ITERATIONS = 100
 
 DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
-TIME_STEP_SEC = 1.0
+TIME_STEP_SEC = None # If this is None the time step will be fit for the simulation in fitTimeStep
 
 def fitKb_1(kb):
 	# Initialize simulation data with growth rate
@@ -32,6 +32,12 @@ def fitKb_1(kb):
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
+
+	# Set C-period
+	setCPeriod(kb)
+
+	# Set D-period
+	setDPeriod(kb)
 
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
@@ -70,6 +76,8 @@ def fitKb_1(kb):
 
 	fitMaintenanceCosts(kb, bulkContainer)
 
+	fitTimeStep(kb, bulkContainer)
+
 # Sub-fitting functions
 
 def setRnaPolymeraseCodingRnaDegradationRates(kb):
@@ -82,6 +90,12 @@ def setRnaPolymeraseCodingRnaDegradationRates(kb):
 	mRNA_indexes = kb.relation.rnaIndexToMonomerMapping[subunitIndexes]
 	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
+
+def setCPeriod(kb):
+	kb.constants.c_period = kb.process.replication.genome_length * units.nt / kb.constants.dnaPolymeraseElongationRate / 2
+
+def setDPeriod(kb):
+	kb.constants.d_period = 24. * units.min # TODO: TOKB
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	subMass = kb.mass.subMass
@@ -498,6 +512,42 @@ def fitMaintenanceCosts(kb, bulkContainer):
 
 	kb.constants.darkATP = darkATP
 
+def fitTimeStep(kb, bulkContainer):
+	'''
+	Assumes that major limitor of growth will be translation associated
+	resources, specifically AAs or GTP.
+
+	Basic idea is that the rate of usage scales at the same rate as the size of the
+	pool of resources.
+
+	[Polymerized resource] * ln(2) * dt / doubling_time < [Pool of resource]
+
+	'''
+	aaCounts = kb.process.translation.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
+	aasInProteins = units.sum(aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)), axis = 0)
+
+	# USE IF AA LIMITING - When metabolism is implementing GAM
+	# aaPools = units.aa * bulkContainer.counts(kb.moleculeGroups.aaIDs)
+	# avgCellDryMassInit = kb.mass.avgCellDryMassInit
+	# cellDensity = kb.constants.cellDensity
+	# cellVolume = avgCellDryMassInit / cellDensity
+
+	# aaPoolConcentration = aaPools / cellVolume
+	# aaPolymerizedConcentration = aasInProteins / cellVolume
+
+	# time_step = (aaPoolConcentration / aaPolymerizedConcentration) * kb.doubling_time / np.log(2)
+
+	# USE IF GTP LIMITING - When GAM is incorperated into GTP/aa polymerized
+	gtpPool = bulkContainer.counts(['GTP[c]'])
+	gtpPolymerizedPool = (aasInProteins.asNumber(units.aa) * kb.constants.gtpPerTranslation).sum()
+	timeStep = ((gtpPool / gtpPolymerizedPool) * kb.doubling_time.asNumber(units.s) / np.log(2))[0]
+	timeStep = np.floor(timeStep * 100) / 100.0 # Round down to 2nd decimal
+
+	if kb.timeStepSec != None:
+		raise Exception("timeStepSec was set to a specific value!")
+	else:
+		kb.timeStepSec = timeStep * 0.7
 
 # Math functions
 

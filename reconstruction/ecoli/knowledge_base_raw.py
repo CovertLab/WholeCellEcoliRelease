@@ -39,6 +39,8 @@ LIST_OF_DICT_FILENAMES = (
 	"nutrients.tsv",
 	"secretions.tsv",
 	"water.tsv",
+	"chromosome.tsv",
+	"massAtReplicationInitiation.tsv",
 	os.path.join("massFractions", "glycogenFractions.tsv"),
 	os.path.join("massFractions", "ionFractions.tsv"),
 	os.path.join("massFractions", "LPSFractions.tsv"),

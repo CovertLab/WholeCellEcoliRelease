@@ -24,13 +24,13 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self._setAvgCellDryMass()
+		self.avgCell60MinDoublingTimeTotalMassInit = 813.248540675 * units.fg
 		self.massFraction = self._setMassFraction()
 		self.subMass = self._setSubMass()
 
 		self._buildDependentConstants()
 
 		self._buildTrnaData(raw_data, sim_data)
-
 
 	## Setup constants
 	def _buildConstants(self, raw_data, sim_data):

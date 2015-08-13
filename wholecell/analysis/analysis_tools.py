@@ -9,7 +9,7 @@ import wholecell.utils.constants
 
 LOW_RES_DIR = 'low_res_plots'
 PDF_DIR = 'pdf_plots'
-LOW_RES_DPI = 30
+LOW_RES_DPI = 120
 DEFAULT_IMAGE_TYPE = '.svg'
 
 def exportFigure(plt, plotOutDir, plotOutFileName):

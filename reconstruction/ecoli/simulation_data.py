@@ -35,8 +35,8 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, doubling_time, raw_data, time_step_sec = 1., media_conditions="M9 Glucose minus AAs"):
-		assert type(time_step_sec) == float
+	def initialize(self, doubling_time, raw_data, time_step_sec = None, media_conditions="M9 Glucose minus AAs"):
+		assert type(time_step_sec) == float or time_step_sec == None
 		self.timeStepSec = time_step_sec
 
 		if type(doubling_time) != Unum:
@@ -95,3 +95,5 @@ class SimulationDataEcoli(object):
 			("T", "THR[c]"), ("W", "TRP[c]"), ("Y", "TYR[c]"), ("U", "L-SELENOCYSTEINE[c]"),
 			("V", "VAL[c]")
 			))
+
+		self.dNtpOrder = ["A", "C", "G", "T"]
