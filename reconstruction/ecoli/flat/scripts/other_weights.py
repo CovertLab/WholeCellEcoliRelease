@@ -45,9 +45,14 @@ SYMBOL_TO_ID = OrderedDict((
 	("V", "VAL[c]")
 	))
 
+AA_SYM_ORDER = {
+	key:ind
+	for ind, key in enumerate(SYMBOL_TO_ID.keys())
+	}
+
 AA_ORDER = {
 	value[:-3]:ind
-	for ind, value in enumerate(SYMBOL_TO_ID.viewvalues())
+	for ind, value in enumerate(SYMBOL_TO_ID.values())
 	}
 
 NTP_ORDER = {
@@ -263,7 +268,12 @@ with open(PROT_FILE, "r") as f:
 	prot_data = lod_to_dod(reader, KEY)
 
 for prot_id, prot_entry in prot_data.viewitems():
-	new_weight = aa_terminal_weight + np.dot(aa_weights, prot_entry["aaCount"])
+	aa_counts = np.zeros(aa_weights.size, np.int64)
+	for c in prot_entry["seq"]:
+		aa_counts[AA_SYM_ORDER[c]] += 1
+
+	prot_entry["aaCount"] = aa_counts.tolist()
+	new_weight = aa_terminal_weight + np.dot(aa_weights, aa_counts)
 
 	mw = prot_entry["mw"]
 	weight_index = np.where(mw)[0]
