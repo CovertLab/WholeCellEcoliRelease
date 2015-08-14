@@ -27,13 +27,9 @@
 "1.8.4.14-RXN"	["G7005-MONOMER"]	["CPD-8990","Red-Thioredoxin"]	"standard"	[6.9]	[3900,9.8]	[]	null	null	null	null	null
 "RXN0-384"	["H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER"]	["DATP"]	"standard"	[4.59]	[790]	[]	null	null	null	null	null
 "DIENOYLCOAREDUCT-RXN"	["DIENOYLCOAREDUCT-MONOMER"]	["NADPH"]	"standard"	[9.5]	[0.8]	[]	null	null	null	null	null
-"RXN0-3741"	["G7230-MONOMER"]	["TMP"]	"standard"	[1.19]	[129.4]	[]	null	null	null	null	null
 "RXN0-3741"	["G7230-MONOMER"]	["GMP"]	"standard"	[0.69]	[379.8]	[]	null	null	null	null	null
-"RXN0-3741"	["G7230-MONOMER"]	["DCMP"]	"standard"	[0.84]	[78.5]	[]	null	null	null	null	null
-"RXN0-3741"	["G7230-MONOMER"]	["DUMP"]	"standard"	[1.36]	[310.5]	[]	null	null	null	null	null
 "RXN0-3741"	["G7230-MONOMER"]	["DGMP"]	"standard"	[1.6]	[64.7]	[]	null	null	null	null	null
-"RXN0-3741"	["G7230-MONOMER"]	["DAMP"]	"standard"	[2.28]	[118.9]	[]	null	null	null	null	null
-"RXN0-3741"	["G7230-MONOMER"]	["DIMP"]	"standard"	[0.61]	[47.5]	[]	null	null	null	null	null
+"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	["G7230-MONOMER"]	["DAMP"]	"standard"	[2.28]	[118.9]	[]	null	null	null	null	null
 "RXN-14161"	["G7185-MONOMER"]	["DAMP"]	"standard"	[0.14]	[17]	[]	null	null	null	null	null
 "GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN"]	"standard"	[3.2]	[260]	[]	null	null	null	null	null
 "2.5.1.19-RXN"	["AROA-MONOMER"]	["PHOSPHO-ENOL-PYRUVATE"]	"standard"	[26.4]	[100]	[]	null	null	null	null	null
@@ -43,6 +39,7 @@
 "ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[0.617]	[7]	[]	null	null	null	null	null
 "VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	["ATP"]	"standard"	[12.9]	[9400]	[]	null	null	null	null	null
 "RXN-11837"	["EG12098-MONOMER"]	["23S-rRNA-uridine1911-1915-1917"]	"standard"	[0.032833334]	[0.98]	[]	null	null	null	null	null
+"RXN0-6549"	["G6438-MONOMER"]	["BROMOACETATE"]	"standard"	[27]	[5000]	[]	null	null	null	null	null
 "RXN0-5144"	["G7199-MONOMER"]	["tRNA-Containing-5AminoMe-2-ThioUrdines"]	"standard"	[0.31]	[0.07]	[]	null	null	null	null	null
 "RXN0-7081"	["G7199-MONOMER"]	["tRNA-containing-5-CarbMeAminome-2-ThioU"]	"standard"	[0.34]	[0.6]	[]	null	null	null	null	null
 "RXN0-7079"	["EG11438-MONOMER"]	["CPD0-2552"]	"standard"	[1.2]	[32.8]	[]	null	null	null	null	null

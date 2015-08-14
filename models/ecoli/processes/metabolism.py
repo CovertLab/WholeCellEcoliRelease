@@ -82,7 +82,6 @@ class Metabolism(wholecell.processes.process.Process):
 		energyCostPerWetMass = kb.constants.darkATP * initDryMass / initCellMass
 
 		# Set up FBA solver
-
 		self.fba = FluxBalanceAnalysis(
 			kb.process.metabolism.reactionStoich.copy(), # TODO: copy in class
 			kb.process.metabolism.externalExchangeMolecules,
@@ -96,10 +95,13 @@ class Metabolism(wholecell.processes.process.Process):
 			# 	} # TODO: move to KB TODO: check reaction stoich
 			)
 
-
 		# Set up enzyme kinetics object
-		self.enzymeKinetics = EnzymeKinetics(kb, reactionIDs = self.fba.reactionIDs(), metaboliteIDs = self.fba.outputMoleculeIDs())
+		self.enzymeKinetics = EnzymeKinetics(kb, reactionIDs = self.fba.reactionIDs(), metaboliteIDs = self.fba.outputMoleculeIDs(), kcatOnly=True)
 
+		# Determine which kinetic limits to use
+		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
+
+		# self.reactionsWithKineticLimits = 
 
 		# Set constraints
 		## External molecules
@@ -165,22 +167,25 @@ class Metabolism(wholecell.processes.process.Process):
 
 		enzymeConcentrations = enzymeCountsInit * countsToMolar
 
-
 		defaultRate = self.enzymeKinetics.defaultRate
 
 		# Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
-		inputConcentrations = np.concatenate((enzymeCountsInit,metaboliteCountsInit,[defaultRate]), axis=1)
+		inputConcentrations = np.concatenate((enzymeConcentrations,metaboliteConcentrations,[defaultRate]), axis=1)
 
 		# Find reaction rate limits
 		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
 		# Find per-enzyme reaction rates
-		inputConcentrations = np.concatenate((([1]*len(enzymeCountsInit)),metaboliteCountsInit,[defaultRate]), axis=1)
+		inputConcentrations = np.concatenate((([1]*len(enzymeConcentrations)),metaboliteConcentrations,[defaultRate]), axis=1)
 		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
 		# Set max reaction fluxes for enzymes for which kinetics are known
 		for index, reactionID in enumerate(self.fba.reactionIDs()):
-			self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
+			# Only use this kinetic limit if it's enabled
+			if self.reactionsWithKineticLimits[index]:
+				self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
+			else:
+				self.fba.maxReactionFluxIs(reactionID, defaultRate, raiseForReversible = False)
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 

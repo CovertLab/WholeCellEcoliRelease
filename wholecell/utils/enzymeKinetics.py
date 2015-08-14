@@ -29,7 +29,7 @@ class EnzymeKinetics(object):
 	Stores a compiled theano function determining any reaction kinetics known.
 	"""
 
-	def __init__(self, kb, reactionIDs, metaboliteIDs):
+	def __init__(self, kb, reactionIDs, metaboliteIDs, kcatOnly=False):
 
 		# Set default reaction rate limit, to which reactions are set absent other information
 		self.defaultRate = np.inf
@@ -65,7 +65,8 @@ class EnzymeKinetics(object):
 			except:
 				continue
 
-			rateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict)
+			rateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict, kcatOnly)
+
 
 		## Compile a theano function for the enzyme kinetics
 		# Inputs: the concentrations of every enzyme in enzymesWIthKineticInfo,
@@ -78,7 +79,7 @@ class EnzymeKinetics(object):
 
 
 
-	def buildRateExpression(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict):
+	def buildRateExpression(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict, kcatOnly):
 
 		# Find the enzyme variable for this reaction.
 		# Only uses the first enzyme if there are more than one.
@@ -89,7 +90,7 @@ class EnzymeKinetics(object):
 			# Standard rate law
 
 			# Check if K_M or K_I given
-			if(len(rateInfo["kM"]) + len(rateInfo["kI"])>0):		
+			if(len(rateInfo["kM"]) + len(rateInfo["kI"])>0) and (kcatOnly==False):		
 				# Use michaelis-menton kinetics
 
 				# Build a list of substrates vars for this reaction.
@@ -100,8 +101,6 @@ class EnzymeKinetics(object):
 
 				# Find the rate function
 				rateExpression = self.enzymeRateApproximate(rateInfo, enzyme_var, specific_substrate_vars_array)
-
-
 			else:
 				# Use only the kcat
 				rateExpression = self.maxReactionRate(enzyme_var, np.amax(rateInfo["kcat"]))
@@ -174,6 +173,12 @@ class EnzymeKinetics(object):
 				D[placeholder] = substrate_vars_array[metaboliteIndexDict[ID]]
 			if ID in enzymeIndexDict:
 				D[placeholder] = enzyme_vars_array[enzymeIndexDict[ID]]
+
+
+		# If the D dict is not the same size as the placeholder dict, then some
+		# enzyme or substrate was not recognized by the model.
+		if len(D) != len(placeholder_dict):
+			raise NameError("One or more enzymes or substrates is not known to the model: %s" % str(placeholder_dict) )
 
 		# Make a dictionary mapping from symbols for constants to their values.
 		constants_dict = {}
