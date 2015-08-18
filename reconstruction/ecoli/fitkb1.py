@@ -21,7 +21,7 @@ FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
-DOUBLING_TIME = 24. * units.min
+DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
 TIME_STEP_SEC = None # If this is None the time step will be fit for the simulation in fitTimeStep
 
@@ -37,9 +37,6 @@ def fitKb_1(kb):
 
 	# Set C-period
 	setCPeriod(kb)
-
-	# Set D-period
-	setDPeriod(kb)
 
 	unfitExpression = kb.process.transcription.rnaData["expression"].copy()
 
@@ -96,12 +93,8 @@ def setRnaPolymeraseCodingRnaDegradationRates(kb):
 	mRNA_indexes = kb.relation.rnaIndexToMonomerMapping[subunitIndexes]
 	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
-
 def setCPeriod(kb):
 	kb.constants.c_period = kb.process.replication.genome_length * units.nt / kb.constants.dnaPolymeraseElongationRate / 2
-
-def setDPeriod(kb):
-	kb.constants.d_period = 24. * units.min # TODO: TOKB
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	subMass = kb.mass.subMass
