@@ -19,7 +19,7 @@ You will also need to add the following to your `$HOME/.bash_profile` (using the
 export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
 ```
 
-In your cloned `wcEcoli` directory, to set up the proper python environment, run:
+In your cloned `wcEcoli` directory, to compile cython plugins and any C functions with python bindings, run:
 
 ```bash
 make compile
