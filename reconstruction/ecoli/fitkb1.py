@@ -21,9 +21,11 @@ FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
-DOUBLING_TIME = 60. * units.min
+DOUBLING_TIME = 24. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
 TIME_STEP_SEC = None # If this is None the time step will be fit for the simulation in fitTimeStep
+
+VERBOSE = False
 
 def fitKb_1(kb):
 	# Initialize simulation data with growth rate
@@ -39,8 +41,11 @@ def fitKb_1(kb):
 	# Set D-period
 	setDPeriod(kb)
 
+	unfitExpression = kb.process.transcription.rnaData["expression"].copy()
+
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
+		if VERBOSE: print 'Iteration: {}'.format(iteration)
 
 		initialExpression = kb.process.transcription.rnaData["expression"].copy()
 
@@ -59,6 +64,7 @@ def fitKb_1(kb):
 		finalExpression = kb.process.transcription.rnaData["expression"]
 
 		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - finalExpression)))
+		if VERBOSE: print 'degree of fit: {}'.format(degreeOfFit)
 
 		if degreeOfFit < FITNESS_THRESHOLD:
 			break
@@ -310,6 +316,7 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	proteinLengths, kb.constants.ribosomeElongationRate, netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
+	nRibosomesNeeded = nRibosomesNeeded.asNumber()
 
 	# Minimum number of ribosomes needed
 	constraint1_ribosome30SCounts = (
@@ -345,6 +352,17 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	ribosome50SCounts = bulkContainer.counts(ribosome50SSubunits)
 
 	# -- SET RIBOSOME FUNDAMENTAL SUBUNIT COUNTS TO MAXIMUM CONSTRAINT -- #
+	constraint_names = np.array(["Insufficient to double protein counts", "Too small for mass fraction", "Current level OK"])
+	nRibosomesNeeded = nRibosomesNeeded * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
+	rib30lims = np.array([nRibosomesNeeded, massFracPredicted_30SCount, (ribosome30SCounts / ribosome30SStoich).min()])
+	rib50lims = np.array([nRibosomesNeeded, massFracPredicted_50SCount, (ribosome50SCounts / ribosome50SStoich).min()])
+	if VERBOSE: print '30S limit: {}'.format(constraint_names[np.where(rib30lims.max() == rib30lims)[0]][0])
+	if VERBOSE: print '30S actual count: {}'.format((ribosome30SCounts / ribosome30SStoich).min())
+	if VERBOSE: print '30S count set to: {}'.format(rib30lims[np.where(rib30lims.max() == rib30lims)[0]][0])
+	if VERBOSE: print '50S limit: {}'.format(constraint_names[np.where(rib50lims.max() == rib50lims)[0]][0])
+	if VERBOSE: print '50S actual count: {}'.format((ribosome50SCounts / ribosome50SStoich).min())
+	if VERBOSE: print '50S count set to: {}'.format(rib50lims[np.where(rib50lims.max() == rib50lims)[0]][0])
+
 	bulkContainer.countsIs(
 		np.fmax(np.fmax(ribosome30SCounts, constraint1_ribosome30SCounts), constraint2_ribosome30SCounts),
 		ribosome30SSubunits
@@ -370,19 +388,28 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
 		rnaLengths, kb.constants.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
 	nActiveRnapNeeded.normalize()
-
 	nActiveRnapNeeded.checkNoUnit()
+	nActiveRnapNeeded = nActiveRnapNeeded.asNumber()
 	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
 
+	rnapIds = kb.process.complexation.getMonomers(kb.moleculeGroups.rnapFull[0])['subunitIds']
+	rnapStoich = kb.process.complexation.getMonomers(kb.moleculeGroups.rnapFull[0])['subunitStoich']
+
 	minRnapSubunitCounts = (
-		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
+		nRnapsNeeded * rnapStoich # Subunit stoichiometry
 		)
 
 	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
-	rnapCounts = bulkContainer.counts(kb.moleculeGroups.rnapIds)
+	rnapCounts = bulkContainer.counts(rnapIds)
 
 	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
-	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), kb.moleculeGroups.rnapIds)
+	constraint_names = np.array(["Current level OK", "Insufficient to double RNA distribution"])
+	rnapLims = np.array([(rnapCounts / rnapStoich).min(), (minRnapSubunitCounts / rnapStoich).min()])
+	if VERBOSE: print 'rnap limit: {}'.format(constraint_names[np.where(rnapLims.max() == rnapLims)[0]][0])
+	if VERBOSE: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
+	if VERBOSE: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
+
+	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
 
 
 def fitExpression(kb, bulkContainer):

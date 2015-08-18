@@ -20,7 +20,8 @@ class moleculeGroups(object):
 		moleculeGroups = {
 			'ntpIds'			:	["ATP[c]","CTP[c]","GTP[c]","UTP[c]"],
 			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "TTP[c]"],
-			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"],
+			'rnapFull'			:	['APORNAP-CPLX[c]'],
+			'rnapIds'			:	['RPOB-MONOMER[c]', 'RPOC-MONOMER[c]', 'EG10893-MONOMER[c]'],
 			'polymerizedAA_IDs'	:	[x['id'] for x in raw_data.polymerized if x['is_aa'] and not x['is_end']], # TODO: end weight
 			'polymerizedNT_IDs'	:	[x['id'] for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']], # TODO: end weight
 			'polymerizedDNT_IDs':	[x['id'] for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']], # TODO: end weight
