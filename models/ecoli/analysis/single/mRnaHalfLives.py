@@ -12,13 +12,6 @@ from __future__ import division
 import argparse
 import os
 
-<<<<<<< HEAD
-
-=======
-# import ecocyc_utils
-
-# import tables
->>>>>>> 1aea0f80b54f6c663a190389407300b8011865fe
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -41,10 +34,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	# Get the names of rnas from the KB
 
-<<<<<<< HEAD
-=======
-	# kb = cPickle.load(open(kbFile, "rb"))
->>>>>>> 1aea0f80b54f6c663a190389407300b8011865fe
 	kb = cPickle.load(open(kbFile))
 
 	isMRna = kb.process.transcription.rnaData["isMRna"]
@@ -58,11 +47,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 	# Note that MoleculeIDs is replaced by objectNames
-<<<<<<< HEAD
 
-=======
-	# import ipdb; ipdb.set_trace()
->>>>>>> 1aea0f80b54f6c663a190389407300b8011865fe
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]

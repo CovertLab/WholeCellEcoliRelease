@@ -85,7 +85,8 @@ class BulkMolecules(wholecell.states.state.State):
 		self.divisionIds = {}
 		self.divisionIds['binomial'] = kb.moleculeGroups.bulkMoleculesBinomialDivision
 		self.divisionIds['equally'] = kb.moleculeGroups.bulkMoleculesEqualDivision
-		self.divisionIds['with_chromosome'] = kb.moleculeGroups.bulkMoleculesWithChromosomeDivision
+		self.divisionIds['fullChromosome'] = kb.moleculeGroups.fullChromosome
+		self.divisionIds['partialChromosome'] = kb.moleculeGroups.partialChromosome
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel

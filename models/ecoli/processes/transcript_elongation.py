@@ -56,7 +56,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = kb.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.elngRate = kb.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
 		self.rnaIds = kb.process.transcription.rnaData['id']

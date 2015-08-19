@@ -19,6 +19,12 @@ You will also need to add the following to your `$HOME/.bash_profile` (using the
 export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
 ```
 
+In your cloned `wcEcoli` directory, to compile cython plugins and any C functions with python bindings, run:
+
+```bash
+make compile
+```
+
 To import the necessary shared libraries, you will need to execute the following *each time* after you log in to Sherlock (alternatively, you can add it as a line to your `$HOME/.bash_profile`):
 
 ```bash

@@ -12,17 +12,18 @@ from wholecell.states.bulk_chromosome import BulkChromosome
 from models.ecoli.processes.complexation import Complexation
 from models.ecoli.processes.metabolism import Metabolism
 from models.ecoli.processes.rna_degradation import RnaDegradation
-from models.ecoli.processes.replication import Replication
+from models.ecoli.processes.replication_elongation import ReplicationElongation
 from models.ecoli.processes.polypeptide_initiation import PolypeptideInitiation
 from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
 from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
 from models.ecoli.processes.atp_usage import AtpUsage
+from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
-from models.ecoli.listeners.replication_fork import ReplicationForkPosition
+from models.ecoli.listeners.replication_data import ReplicationData
 from models.ecoli.listeners.ribosome_data import RibosomeData
 from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
@@ -54,15 +55,16 @@ class EcoliSimulation(Simulation):
 		TranscriptElongation,
 		PolypeptideInitiation,
 		PolypeptideElongation,
-		Replication,
+		ReplicationElongation,
 		ProteinDegradation,
 		Complexation,
-		AtpUsage
+		AtpUsage,
+		ChromosomeFormation
 		)
 
 	_listenerClasses = (
 		Mass,
-		ReplicationForkPosition,
+		ReplicationData,
 		RibosomeData,
 		GeneCopyNumber,
 		UniqueMoleculeCounts,
