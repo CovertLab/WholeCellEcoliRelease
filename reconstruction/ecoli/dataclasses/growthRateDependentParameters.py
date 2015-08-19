@@ -74,8 +74,8 @@ class Mass(object):
 		return massParams
 
 	def _buildCDPeriod(self, raw_data, sim_data):
-		self.c_period = sim_data.constants.c_period
-		self.d_period = sim_data.constants.d_period
+		self.c_period = sim_data.growthRateParameters.c_period
+		self.d_period = sim_data.growthRateParameters.d_period
 
 	# Set based on growth rate avgCellDryMass
 	def _setAvgCellDryMass(self):
@@ -204,9 +204,9 @@ class GrowthRateParameters(object):
 	def __init__(self, raw_data, sim_data):
 		self._doubling_time = sim_data.doubling_time
 		_loadTableIntoObjectGivenDoublingTime(self, raw_data.growthRateDependentParameters)
-		thingsToSet = [x for x in dir(self) if x[0] != '_']
-		for x in thingsToSet:
-			setattr(sim_data.constants, x, getattr(self, x))
+		# thingsToSet = [x for x in dir(self) if x[0] != '_']
+		# for x in thingsToSet:
+		# 	setattr(sim_data.constants, x, getattr(self, x))
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data

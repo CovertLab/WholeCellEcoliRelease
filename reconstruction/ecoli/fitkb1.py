@@ -94,7 +94,7 @@ def setRnaPolymeraseCodingRnaDegradationRates(kb):
 	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
 def setCPeriod(kb):
-	kb.constants.c_period = kb.process.replication.genome_length * units.nt / kb.constants.dnaPolymeraseElongationRate / 2
+	kb.growthRateParameters.c_period = kb.process.replication.genome_length * units.nt / kb.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	subMass = kb.mass.subMass
@@ -306,7 +306,7 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, kb.constants.ribosomeElongationRate, netLossRate_protein, proteinCounts)
+	proteinLengths, kb.growthRateParameters.ribosomeElongationRate, netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
 	nRibosomesNeeded = nRibosomesNeeded.asNumber()
@@ -379,11 +379,11 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
 
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths, kb.constants.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
+		rnaLengths, kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
 	nActiveRnapNeeded.normalize()
 	nActiveRnapNeeded.checkNoUnit()
 	nActiveRnapNeeded = nActiveRnapNeeded.asNumber()
-	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
+	nRnapsNeeded = nActiveRnapNeeded / kb.growthRateParameters.fractionActiveRnap
 
 	rnapIds = kb.process.complexation.getMonomers(kb.moleculeGroups.rnapFull[0])['subunitIds']
 	rnapStoich = kb.process.complexation.getMonomers(kb.moleculeGroups.rnapFull[0])['subunitStoich']
@@ -478,7 +478,7 @@ def fitRNAPolyTransitionRates(kb):
 	synthProb = kb.process.transcription.rnaData["synthProb"]
 	rnaLengths = kb.process.transcription.rnaData["length"]
 
-	elngRate = kb.constants.rnaPolymeraseElongationRate
+	elngRate = kb.growthRateParameters.rnaPolymeraseElongationRate
 
 	# In our simplified model of RNA polymerase state transition, RNAp can be
 	# active (transcribing) or inactive (free-floating).  To solve for the
@@ -490,9 +490,9 @@ def fitRNAPolyTransitionRates(kb):
 
 	expectedTerminationRate = elngRate / averageTranscriptLength
 
-	kb.transcriptionActivationRate = expectedTerminationRate * kb.constants.fractionActiveRnap / (1 - kb.constants.fractionActiveRnap)
+	kb.transcriptionActivationRate = expectedTerminationRate * kb.growthRateParameters.fractionActiveRnap / (1 - kb.growthRateParameters.fractionActiveRnap)
 
-	kb.fracActiveRnap = kb.constants.fractionActiveRnap
+	kb.fracActiveRnap = kb.growthRateParameters.fractionActiveRnap
 
 
 def fitMaintenanceCosts(kb, bulkContainer):

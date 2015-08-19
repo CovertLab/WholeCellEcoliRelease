@@ -30,7 +30,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		super(ReplicationElongation, self).initialize(sim, kb)
 
 		# Load parameters
-		self.dnaPolymeraseElongationRate = kb.constants.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.dnaPolymeraseElongationRate = kb.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 
 		self.criticalInitiationMass = kb.mass.avgCell60MinDoublingTimeTotalMassInit
