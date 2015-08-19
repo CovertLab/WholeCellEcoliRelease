@@ -10,7 +10,6 @@ Plot RNAse counts
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -22,7 +21,7 @@ import wholecell.utils.constants
 
 from wholecell.io.tablereader import TableReader
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -31,16 +30,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 		os.mkdir(plotOutDir)
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
-
-	RNase_IDS = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]", "EG10743_RNA[c]"]
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	kb = cPickle.load(open(kbFile, "rb"))
-	# import ipdb; ipdb.set_trace()
+
+	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
+	RNase_IDS = np.concatenate((endoRnaseIds, exoRnaseIds))
 
 	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNase_IDS], np.int)
 	rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
-	time = bulkMolecules.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
@@ -87,7 +88,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.subplots_adjust(hspace = 1.2, top = 0.95, bottom = 0.05)
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
-	# h.close()
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(
