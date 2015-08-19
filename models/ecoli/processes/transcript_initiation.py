@@ -55,7 +55,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		rnaLengths = kb.process.transcription.rnaData["length"]
 
-		expectedTranscriptionTime = 1./kb.constants.rnaPolymeraseElongationRate * rnaLengths
+		expectedTranscriptionTime = 1./kb.growthRateParameters.rnaPolymeraseElongationRate * rnaLengths
 
 		expectedTranscriptionTimesteps = np.ceil(
 			(1/(self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber()

@@ -44,7 +44,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ribosomeSubunitMasses = kb.getter.getMass(ribosomeSubunitIds)
 	mass70s = (kb.getter.getMass(kb.moleculeGroups.s50_fullComplex) + kb.getter.getMass(kb.moleculeGroups.s30_fullComplex))[0]
 
-	elongationRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
+	elongationRate = float(kb.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 	# Load ribosome data
 	massFile = TableReader(os.path.join(simOutDir, "RibosomeData"))

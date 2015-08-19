@@ -162,8 +162,8 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	## Determine the number and location of replication forks at the start of the cell cycle
 	# Find growth rate constants
-	C = kb.constants.c_period.asUnit(units.min)
-	D = kb.constants.d_period.asUnit(units.min)
+	C = kb.growthRateParameters.c_period.asUnit(units.min)
+	D = kb.growthRateParameters.d_period.asUnit(units.min)
 	tau = kb.doubling_time.asUnit(units.min)
 	genome_length = kb.process.replication.genome_length
 	replication_length = np.ceil(.5*genome_length) * units.nt
