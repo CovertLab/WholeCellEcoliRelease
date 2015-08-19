@@ -15,12 +15,6 @@ from wholecell.utils.unit_struct_array import UnitStructArray
 import numpy as np
 import collections
 
-CELL_DENSITY = 1.1e3 # g/L
-# from Baldwin WW, Myer R, Powell N, Anderson E, Koch AL. Buoyant
-# density of Escherichia coli is determined solely by the osmolarity
-# of the culture medium. Arch Microbiol. 1995 Aug164(2):155-7 p.156
-# fig.3 & fig.2 (retrieved from Bionumbers)
-
 METABOLITE_CONCENTRATIONS = { # mol / L # TODO: move to SQL # TODO: Add units!
 	"GLT": 9.60e-2,
 	"GLUTATHIONE": 1.70e-2,
@@ -175,7 +169,7 @@ class Metabolism(object):
 
 		initCellMass = initWaterMass + initDryMass
 
-		initCellVolume = initCellMass / CELL_DENSITY # L
+		initCellVolume = initCellMass / sim_data.constants.cellDensity.asNumber(units.g / units.L) # L
 
 		#(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0 * units.min]
 
@@ -371,8 +365,6 @@ class Metabolism(object):
 
 		self.metabolitePoolIDs = metaboliteIDs
 		self.metabolitePoolConcentrations = units.mol/units.L * np.array(metaboliteConcentrations)
-		self.cellDensity = units.g/units.L * CELL_DENSITY
-
 
 	def _buildMetabolism(self, raw_data, sim_data):
 		# Build the matrices/vectors for metabolism (FBA)
