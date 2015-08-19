@@ -49,7 +49,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.rnaSynthProb = kb.process.transcription.rnaData['synthProb']
+		self.rnaSynthProb = kb.process.transcription.rnaData["synthProb"]
 
 		# self.activationProb = kb.transcriptionActivationRate.asNumber(1/units.s) * self.timeStepSec # TODO: consider the validity of this math
 
@@ -130,3 +130,5 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			)
 
 		self.inactiveRnaPolys.countDec(nNewRnas.sum())
+
+		self.writeToListener("RnapData", "didInitialize", nNewRnas.sum())

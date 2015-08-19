@@ -11,7 +11,6 @@ RnaDegradationListener
 from __future__ import division
 
 import numpy as np
-import tables
 
 import wholecell.listeners.listener
 

@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -28,7 +28,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	rnapId = "APORNAP-CPLX[c]"
 	rnapIndex = moleculeIds.index(rnapId)
 	rnapCountsBulk = bulkMolecules.readColumn("counts")[:, rnapIndex]
@@ -38,7 +38,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
 	rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-	time = uniqueMoleculeCounts.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime	
 	nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 
 	uniqueMoleculeCounts.close()
@@ -46,13 +47,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.figure(figsize = (8.5, 11))
 
 	plt.plot(time / 60., nActive*100. / ( nActive + rnapCountsBulk))
-	plt.axis([0,60,0,25])
+	#plt.axis([0,60,0,25])
 	plt.xlabel("Time (min)")
 	plt.ylabel("Percent of RNA Polymerase Molecules that are Active")
 	plt.title("Active RNA Polymerase Percentage")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

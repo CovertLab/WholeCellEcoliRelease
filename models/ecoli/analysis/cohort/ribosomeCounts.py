@@ -23,7 +23,7 @@ from wholecell.containers.unique_molecules_data import UniqueMoleculesData
 
 import wholecell.utils.constants
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

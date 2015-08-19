@@ -27,7 +27,7 @@ COLORS = [
 	for color in COLORS_256
 	]
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -45,7 +45,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	rRna = mass.readColumn("rRnaMass")
 	mRna = mass.readColumn("mRnaMass")
 	dna = mass.readColumn("dnaMass")
-	t = mass.readColumn("time")
+
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
 
 	masses = np.vstack([
 		protein/protein[0],
@@ -66,7 +69,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	plt.xlabel("Time (min)")
 	plt.ylabel("Mass (normalized by t = 0 min)")
 	plt.title("Biomass components")
-	plt.axis([0, 60, 0.5, 2.5])
+	#plt.axis([0, 60, 0.5, 2.5])
 
 	plt.legend(massLabels, loc = "best")
 
@@ -74,6 +77,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

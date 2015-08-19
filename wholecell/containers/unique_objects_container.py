@@ -304,6 +304,17 @@ class UniqueObjectsContainer(object):
 	def objectByGlobalIndexDel(self, globalIndex):
 		self.objectsByGlobalIndexDel(np.array(globalIndex))
 
+	def objectNames(self):
+		return tuple(self._names)
+
+	def emptyLike(self):
+		specifications = deepcopy(self._specifications)
+		specs_to_remove = self._defaultSpecification.keys()
+		for moleculeName, moleculeSpecs in specifications.iteritems():
+			for spec in specs_to_remove:
+				moleculeSpecs.pop(spec)
+		new_copy = UniqueObjectsContainer(specifications)
+		return new_copy
 
 	def __eq__(self, other):
 		return np.all(
@@ -327,21 +338,13 @@ class UniqueObjectsContainer(object):
 			)
 
 
-
 	def tableLoad(self, tableReader, tableIndex):
-		# for collectionIndex, tableName in enumerate(self._tableNames):
-		# 	entryTable = h5file.get_node("/", tableName)
+		for fieldName, value in tableReader.readRow(tableIndex).viewitems():
+			if fieldName == "_globalReference":
+				self._globalReference = value
 
-		# 	entries = entryTable[entryTable.col("_timeStep") == timePoint]
-
-		# 	self._collections[collectionIndex] = entries
-
-		# globalTable = h5file.get_node("/", "_globalReference")
-
-		# globalEntries = globalTable[globalTable.col("_timeStep") == timePoint]
-
-		# self._globalReference = globalEntries
-		raise NotImplementedError()
+			else:
+				self._collections[self._names.index(fieldName)] = value
 
 
 class _UniqueObject(object):
@@ -559,7 +562,6 @@ class _UniqueObjectSet(object):
 			values[globalObjIndexes] = self._container._collections[collectionIndex][attributes][objectIndexesInCollection]
 
 		return values
-
 
 	def attrIs(self, **attributes):
 		if self._globalIndexes.size == 0:

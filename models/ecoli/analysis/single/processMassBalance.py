@@ -31,7 +31,7 @@ REPRESENTATIVE_MASSES = {
 	"ribosome":2700e3 * FG_PER_DALTON
 	}
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -41,7 +41,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-	time = mass.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
 	processMassDifferences = mass.readColumn("processMassDifferences")
 
 	processNames = mass.readAttribute("processNames")
@@ -80,6 +82,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

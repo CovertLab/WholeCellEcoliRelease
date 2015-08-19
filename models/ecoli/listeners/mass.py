@@ -44,7 +44,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
-		self.cellCycleLen = kb.constants.cellCycleLen.asNumber(units.s)
+		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
 
 		self.rnaIndexes = np.array([
 			kb.submassNameToIndex[name]
@@ -54,6 +54,11 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.rRnaIndexes = np.array([
 			kb.submassNameToIndex[name]
 			for name in ["23srRNA", "16srRNA", "5srRNA"]
+			])
+
+		self.smallMoleculeIndexes = np.array([
+			kb.submassNameToIndex[name]
+			for name in ["metabolite"]
 			])
 
 		self.tRnaIndex = kb.submassNameToIndex["tRNA"]
@@ -66,11 +71,15 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.waterIndex = kb.submassNameToIndex["water"]
 
+		# Set total mass that should be added to cell
+		# This is an approximation for length
+		self.expectedMassIncrease = kb.mass.avgCellDryMassInit
+
 		# Set initial values
 
 		self.setInitial = False
 
-		self.dryMass = 0
+		self.dryMass = 0.0
 		# TODO: set initial masses based on some calculations of the expected
 		# mother cell (divided by two) in the last time step
 
@@ -150,18 +159,19 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.mRnaMass = submasses[self.mRnaIndex]
 		self.dnaMass = submasses[self.dnaIndex]
 		self.proteinMass = submasses[self.proteinIndex]
+		self.smallMoleculeMass = submasses[self.smallMoleculeIndexes]
 
 		processInitialMass = preEvolveMasses.sum(axis = 1)
 		processFinalMass = postEvolveMasses.sum(axis = 1)
 
 		self.processMassDifferences = processFinalMass - processInitialMass
+		self.relProcessMassDifferences = np.nan_to_num(self.processMassDifferences / processInitialMass)
 
 		if self.timeStep() > 0:
 			self.growth = self.dryMass - oldDryMass
 
 		else:
-			self.growth = 0
-			# TODO: solve for an expected initial growth rate
+			self.growth = np.nan
 
 		self.proteinMassFraction = self.proteinMass / self.dryMass
 		self.rnaMassFraction = self.rnaMass / self.dryMass
@@ -179,6 +189,11 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.expectedMassFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
 
+		# End simulation once the mass of an average cell is
+		# added to current cell.
+		if self.dryMass - self.dryMassInitial >= self.expectedMassIncrease.asNumber(units.fg):
+			self._sim.cellCycleComplete()
+
 
 	def tableCreate(self, tableWriter):
 		# Store units as metadata
@@ -191,7 +206,8 @@ class Mass(wholecell.listeners.listener.Listener):
 			protein_units = self.massUnits,
 			water_units = self.massUnits,
 			nucleoid_units = self.massUnits,
-			processNames = self.processNames
+			processNames = self.processNames,
+			smallMoleculeMass = self.smallMoleculeMass,
 			)
 
 
@@ -209,5 +225,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			dnaMass = self.dnaMass,
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
-			processMassDifferences = self.processMassDifferences,
+			processMassDifferences = self.processMassDifferences.astype(np.float64),
+			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64),
+			smallMoleculeMass = self.smallMoleculeMass,
 			)

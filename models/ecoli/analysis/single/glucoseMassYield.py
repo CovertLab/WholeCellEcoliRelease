@@ -20,13 +20,13 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 
-GLUCOSE_ID = "GLC-D[e]"
+GLUCOSE_ID = "GLC[p]"
 
 FLUX_UNITS = units.mmol / units.L / units.s
 MASS_UNITS = units.fg
 GROWTH_UNITS = units.fg / units.s
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -37,8 +37,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	kb = cPickle.load(open(kbFile, "rb"))
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
 	externalExchangeFluxes = fbaResults.readColumn("externalExchangeFluxes")
 
 	externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))
@@ -69,6 +70,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

@@ -12,9 +12,9 @@ from __future__ import division
 import argparse
 import os
 
-import ecocyc_utils
+# import ecocyc_utils
 
-import tables
+# import tables
 import numpy as np
 from scipy import stats
 import matplotlib
@@ -27,7 +27,7 @@ from wholecell.io.tablereader import TableReader
 
 # TODO: account for complexation
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -37,7 +37,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# Get the names of rnas from the KB
 
-	kb = cPickle.load(open(kbFile, "rb"))
+	# kb = cPickle.load(open(kbFile, "rb"))
+	kb = cPickle.load(open(kbFile))
 
 	isMRna = kb.process.transcription.rnaData["isMRna"]
 	isRRna = kb.process.transcription.rnaData["isRRna"]
@@ -49,7 +50,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# counts = RNA(t)
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+
+	# Note that MoleculeIDs is replaced by objectNames
+	# import ipdb; ipdb.set_trace()
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 	rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 	rnaCounts = rnaCountsBulk[1:,:]

@@ -57,6 +57,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Load parameters
 
 		self.elngRate = kb.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
 		self.rnaIds = kb.process.transcription.rnaData['id']
 
@@ -77,6 +78,10 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
+
+		self.isMRna = kb.process.transcription.rnaData["isMRna"]
+		self.isRRna = kb.process.transcription.rnaData["isRRna"]
+		self.isTRna = kb.process.transcription.rnaData["isTRna"]
 
 
 	def calculateRequest(self):
@@ -108,10 +113,14 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			maxFractionalReactionLimit * sequenceComposition
 			)
 
+		self.writeToListener("GrowthLimits", "ntpPoolSize", self.ntps.total())
+		self.writeToListener("GrowthLimits", "ntpRequestSize", maxFractionalReactionLimit * sequenceComposition)
 
 	# Calculate temporal evolution
 	def evolveState(self):
 		ntpCounts = self.ntps.counts()
+
+		self.writeToListener("GrowthLimits", "ntpAllocated", self.ntps.counts())
 
 		activeRnaPolys = self.activeRnaPolys.molecules()
 
@@ -130,6 +139,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			transcriptLengths,
 			self.elngRate
 			)
+
+		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
 		reactionLimit = ntpCounts.sum() # TODO: account for energy
 
@@ -159,14 +170,14 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			massDiff_mRNA = updatedMass
 			)
 
-		didTerminate = (updatedLengths == self.rnaLengths[rnaIndexes])
+		terminalLengths = self.rnaLengths[rnaIndexes]
+
+		didTerminate = (updatedLengths == terminalLengths)
 
 		terminatedRnas = np.bincount(
 			rnaIndexes[didTerminate],
 			minlength = self.rnaSequences.shape[0]
 			)
-		print "RNAs synthesized = %.3f" % sum(terminatedRnas)
-		# import ipdb; ipdb.set_trace()
 
 		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
 
@@ -183,3 +194,22 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countInc(nTerminated)
 
 		self.ppi.countInc(nElongations - nInitialized)
+
+		expectedElongations = np.fmin(
+			self.elngRate,
+			terminalLengths - transcriptLengths
+			)
+
+		rnapStalls = expectedElongations - sequenceElongations
+
+		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
+
+		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
+		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
+		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
+
+		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
+		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
+
+		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
+		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())

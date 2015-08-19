@@ -22,7 +22,7 @@ import wholecell.utils.constants
 
 # from wholecell.containers.unique_molecules_data import UniqueMoleculesData
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -32,7 +32,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	RIBOSOME_RNA_IDS = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 	ribosomeRnaIndexes = np.array([moleculeIds.index(rRnaId) for rRnaId in RIBOSOME_RNA_IDS], np.int)
@@ -43,7 +43,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
 	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-	time = uniqueMoleculeCounts.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 	uniqueMoleculeCounts.close()
@@ -58,6 +59,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

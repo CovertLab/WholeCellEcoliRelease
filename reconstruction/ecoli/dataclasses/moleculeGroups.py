@@ -8,6 +8,7 @@ SimulationData molecule groups
 
 from __future__ import division
 
+from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments
 
 class moleculeGroups(object):
 	""" moleculeGroups """
@@ -18,9 +19,7 @@ class moleculeGroups(object):
 	def _buildMoleculeGroups(self, raw_data, sim_data):
 		moleculeGroups = {
 			'ntpIds'			:	["ATP[c]","CTP[c]","GTP[c]","UTP[c]"],
-			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "DTTP[c]"],
-			'dNmpIds'			:	["DAMP[c]", "DCMP[c]", "DGMP[c]", "DTMP[c]"],
-			'dNmpNuclearIds'	:	["DAMP[n]", "DCMP[n]", "DGMP[n]", "DTMP[n]"],
+			'dNtpIds'			:	["DATP[c]", "DCTP[c]", "DGTP[c]", "TTP[c]"],
 			'rnapIds'			:	["EG10893-MONOMER[c]", "RPOB-MONOMER[c]", "RPOC-MONOMER[c]", "RPOD-MONOMER[c]"],
 			'polymerizedAA_IDs'	:	[x['id'] for x in raw_data.polymerized if x['is_aa'] and not x['is_end']], # TODO: end weight
 			'polymerizedNT_IDs'	:	[x['id'] for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']], # TODO: end weight
@@ -55,8 +54,21 @@ class moleculeGroups(object):
 										'RRFE-RRNA[c]','RRFG-RRNA[c]','RRFH-RRNA[c]'],
 			's50_fullComplex'		:	['CPLX-50SA[c]'],
 			'aaIDs'					:	sim_data.amino_acid_1_to_3_ordered.values(),
-			'fragmentNT_IDs'		:	[x['id'].replace('Polymerized','Fragment') for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']], 
-
+			'fragmentNT_IDs'		:	[x['id'].replace('Polymerized','Fragment') for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']],
+			'endoRnaseIds' 			:	['EG10856-MONOMER[p]', 'EG10857-MONOMER[c]', 'G7175-MONOMER[c]', 'EG10859-MONOMER[c]', 'EG11299-MONOMER[c]', 'EG10860-MONOMER[c]', 'EG10861-MONOMER[c]', 'G7365-MONOMER[c]', 'EG10862-MONOMER[c]'],
+			'exoRnaseIds' 			:	['EG11620-MONOMER[c]', 'G7175-MONOMER[c]', 'EG10858-MONOMER[c]', 'EG10863-MONOMER[c]', 'EG11259-MONOMER[c]', 'EG11547-MONOMER[c]', 'EG10746-MONOMER[c]', 'EG10743-MONOMER[c]', 'G7842-MONOMER[c]'],
 		}
+
+		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.rnas))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteins))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteinComplexes))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_aa'] and not x['is_end']]))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments([x for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']]))
+		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.water))
+		moleculeGroups['bulkMoleculesBinomialDivision'] = bulkMoleculesBinomialDivision
+
+		moleculeGroups['bulkMoleculesEqualDivision'] = createIdsWithCompartments([x for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']])
+		moleculeGroups['bulkMoleculesWithChromosomeDivision'] = createIdsWithCompartments([x for x in raw_data.polymerized if x['is_dntp'] and not x['is_end']])
 
 		self.__dict__.update(moleculeGroups)

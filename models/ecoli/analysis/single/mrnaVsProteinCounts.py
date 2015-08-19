@@ -24,7 +24,7 @@ import wholecell.utils.constants
 
 # TODO: account for complexation
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -42,7 +42,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
@@ -68,6 +68,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

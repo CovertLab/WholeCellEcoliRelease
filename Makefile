@@ -36,6 +36,9 @@ fitKb_2: compile
 execModel_2: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 runscripts/execModel.py 2 $(FIXTURES_KBDIR) $(FIXTURES_SIMDIR)
 
+website:
+	PYTHONPATH="${PWD}:${PYTHONPATH}" python2.7 out/makeHtml.py ${PWD}/out
+
 justKb: buildKb fitKb_1 # execModel_1 execAnalysis_1 fitKb_2
 
 justSimulation: execModel_2

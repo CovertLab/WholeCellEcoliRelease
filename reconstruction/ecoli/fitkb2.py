@@ -3,7 +3,6 @@ from __future__ import division
 import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from reconstruction.ecoli.compendium import growth_data
 
 from wholecell.utils import units
 from wholecell.utils.fitting import countsFromMassAndExpression, calcProteinCounts, calcProteinDistribution, calcProteinTotalCounts
@@ -14,10 +13,9 @@ N_SEEDS = 20
 
 def fitKb_2(kb, simOutDir):
 
-	growthData = growth_data.GrowthData(kb)
-	massFractions60 = growthData.massFractions(60)
-	proteinMass = massFractions60["proteinMass"].asUnit(units.g)
-	rnaMass = massFractions60["rnaMass"].asUnit(units.g)
+	subMass = kb.mass.subMass
+	proteinMass = subMass["proteinMass"].asUnit(units.g)
+	rnaMass = subMass["rnaMass"].asUnit(units.g)
 
 	# Construct bulk container
 
@@ -45,7 +43,7 @@ def fitKb_2(kb, simOutDir):
 		complexationStoichMatrix
 		)
 
-	rnaDistribution = kb.process.transcription.rnaData['expression']
+	rnaDistribution = kb.process.transcription.rnaData["expression"]
 
 	rnaTotalCounts = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
@@ -96,6 +94,37 @@ def fitKb_2(kb, simOutDir):
 	# TODO: make this more functional; one function for returning average & distribution
 	del allMoleculeCounts
 	del bulkContainer
+	
+	# ----- Calculate ppGpp concentration ----- #
+	aminoAcidsInProtein = (bulkAverageContainer.counts(kb.process.translation.monomerData['id']) * kb.process.translation.monomerData['length'].asNumber()).sum()
+	aminoAcidsInComplex = 0.
+	for cplx in list(kb.process.complexation.complexNames):
+		cplx_data = kb.process.complexation.getMonomers(cplx)
+		cplx_subunit = cplx_data['subunitIds']
+		cplx_stoich = cplx_data['subunitStoich']
+
+		subunit_idxs = []
+		subunit_idxs_to_delete = []
+		for idx, subunit in enumerate(cplx_subunit):
+			try:
+				subunit_idxs.append(np.where(kb.process.translation.monomerData['id'] == subunit)[0][0])
+			except IndexError:
+				subunit_idxs_to_delete.append(idx)
+		cplx_stoich = np.delete(cplx_stoich, subunit_idxs_to_delete)
+
+		subunit_length = kb.process.translation.monomerData['length'][subunit_idxs].asNumber()
+		aminoAcidsInComplex += (bulkAverageContainer.count(cplx) * subunit_length * cplx_stoich).sum()
+
+	totalAminoAcidsInMacromolecules = (aminoAcidsInComplex + aminoAcidsInProtein)
+	totalAAInSolublePool = totalAminoAcidsInMacromolecules * 0.08 # Approximatly correct for one time calculature.
+	# TODO: Calculate soluble pools here too!
+	totalAminoAcidsInCell = totalAminoAcidsInMacromolecules + totalAAInSolublePool
+
+	ppGpp_per_cell = (totalAminoAcidsInCell * kb.constants.ppGpp_base_concentration).asUnit(units.count)
+	cellVolume = kb.mass.avgCellDryMassInit / kb.constants.cellDensity
+	ppGpp_concentration = (ppGpp_per_cell.asUnit(units.mol) / cellVolume).asUnit(units.mol / units.L)
+	# Finally set ppGpp concentration to maintain
+	kb.process.metabolism.metabolitePoolConcentrations[kb.process.metabolism.metabolitePoolIDs.index('PPGPP[c]')] = ppGpp_concentration
 
 	# ----- tRNA synthetase turnover rates ------
 	# Fit tRNA synthetase kcat values based on expected rates of translation
@@ -103,18 +132,13 @@ def fitKb_2(kb, simOutDir):
 
 	## Compute rate of AA incorperation
 	proteinComposition = kb.process.translation.monomerData["aaCounts"]
-	initialDryMass = kb.constants.avgCellDryMassInit
 
-	proteinMassFraction = kb.cellDryMassComposition[
-		kb.cellDryMassComposition["doublingTime"].asNumber(units.min) == 60.0
-		]["proteinMassFraction"]
-
-	initialProteinMass = initialDryMass * proteinMassFraction
+	initialProteinMass = kb.mass.subMass['proteinMass']
 
 	initialProteinCounts = calcProteinCounts(kb, initialProteinMass)
 
 	initialProteinTranslationRate = (
-		(np.log(2) / kb.constants.cellCycleLen + kb.process.translation.monomerData["degRate"]) * initialProteinCounts
+		(np.log(2) / kb.doubling_time + kb.process.translation.monomerData["degRate"]) * initialProteinCounts
 		).asUnit(1 / units.s)
 
 	initialAAPolymerizationRate = units.dot(
@@ -123,9 +147,9 @@ def fitKb_2(kb, simOutDir):
 
 	## Compute expression of tRNA synthetases
 	## Assuming independence in variance
-	synthetase_counts_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float64)
-	synthetase_variance_by_group = np.zeros(len(kb.aa_synthetase_groups), dtype = np.float)
-	for idx, synthetase_group in enumerate(kb.aa_synthetase_groups.itervalues()):
+	synthetase_counts_by_group = np.zeros(len(kb.process.translation.AA_SYNTHETASE_GROUPS), dtype = np.float64)
+	synthetase_variance_by_group = np.zeros(len(kb.process.translation.AA_SYNTHETASE_GROUPS), dtype = np.float)
+	for idx, synthetase_group in enumerate(kb.process.translation.AA_SYNTHETASE_GROUPS.itervalues()):
 		group_count = 0.
 		group_variance = 0.
 		for synthetase in synthetase_group:
@@ -153,4 +177,10 @@ def fitKb_2(kb, simOutDir):
 	predicted_trna_synthetase_rates = initialAAPolymerizationRate / scaled_synthetase_counts
 	kb.trna_synthetase_rates = 2 * predicted_trna_synthetase_rates
 
-	# fitKb2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
+	# fitKb_2_metabolism(kb, simOutDir, bulkAverageContainer, bulkDeviationContainer)
+
+	# KB perturbations should go here to avoid perturbing fitting
+	# Eventually this will be part of our pipeline
+
+	# Example: half glucose
+	# kb._metabolismConstrainedExchangeMolecules["GLC-D[e]"] = 0.8*8.0 * units.mmol/units.g/units.h

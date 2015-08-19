@@ -2,9 +2,9 @@
 """
 Plots counts of rna degraded and the resulting free NMPs
 
-@author: Nick Ruggero
+@author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/15/2015
+@date: Created 1/15/2015 - Updated 8/10/2015
 """
 
 from __future__ import division
@@ -12,7 +12,7 @@ from __future__ import division
 import argparse
 import os
 
-import tables
+# import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -47,7 +47,7 @@ def sparklineAxis(axis, x, y, tickPos, lineType, color):
 		tl.set_color(color)
 
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -57,15 +57,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	# Load data from KB
 	kb = cPickle.load(open(kbFile, "rb"))
-	RnaseIds = ["EG10856-MONOMER[p]", "EG11620-MONOMER[c]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]",
-	"EG10858-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]",
-	"G7365-MONOMER[c]", "EG10862-MONOMER[c]", "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "G7842-MONOMER[c]", "EG10743-MONOMER[c]"]
-	exoRnaseIds = ["EG11620-MONOMER[c]", "G7175-MONOMER[c]", "EG10858-MONOMER[c]",  "EG10863-MONOMER[c]", "EG11259-MONOMER[c]", "EG11547-MONOMER[c]", "EG10746-MONOMER[c]", "EG10743-MONOMER[c]", "G7842-MONOMER[c]"]
-	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
-
+	
+	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
+	RnaseIds = np.concatenate((endoRnaseIds, exoRnaseIds))
+	
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	# Get indexes
 	proteinIndexes = np.array([moleculeIds.index(protein) for protein in RnaseIds], np.int)
@@ -73,7 +72,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 	endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
 
 	# Load data
-	time = bulkMolecules.readColumn("time").astype(np.float64)
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	RnaseCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
 	exoRnaseCounts = bulkMolecules.readColumn("counts")[:, exoproteinIndexes]

@@ -7,19 +7,10 @@ import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.compendium import growth_data
+from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize
-
-# Constants (should be moved to KB)
-RRNA23S_MASS_SUB_FRACTION = 0.525 # This is the fraction of RNA that is 23S rRNA
-RRNA16S_MASS_SUB_FRACTION = 0.271 # This is the fraction of RNA that is 16S rRNA
-RRNA5S_MASS_SUB_FRACTION = 0.017 # This is the fraction of RNA that is 5S rRNA
-TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
-MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
-GROWTH_ASSOCIATED_MAINTENANCE = 59.81 # mmol/gDCW (from Feist)
-NON_GROWTH_ASSOCIATED_MAINTENANCE = 8.39 # mmol/gDCW/hr (from Feist)
-FRACTION_ACTIVE_RNAP = 0.20 # from Dennis&Bremer; figure ranges from almost 100% to 20% depending on the growth rate
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
@@ -30,34 +21,26 @@ FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 
+DOUBLING_TIME = 60. * units.min
+MEDIA_CONDITIONS = "M9 Glucose minus AAs"
+TIME_STEP_SEC = 1.0
+
 def fitKb_1(kb):
+	# Initialize simulation data with growth rate
+	raw_data = KnowledgeBaseEcoli()
+	kb.initialize(doubling_time = DOUBLING_TIME, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
-	# TODO: move to function
-	# TODO: set this based on transcription unit structure
-	# i.e. same synthesis prob. but different deg rates
-
-	rnaPolySubunits = kb.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"]
-
-	subunitIndexes = np.array([np.where(kb.process.translation.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
-
-	mRNA_indexes = kb.relation.rnaIndexToMonomerMapping[subunitIndexes]
-
-	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
-
-	# nRNAs = kb.process.transcription.rnaData["expression"].size
-	# kb.process.transcription.rnaData["expression"] = np.ones(nRNAs) / nRNAs
-	# # WARNING - this doesn't update synthesis probabilities; for the moment, it doesn't need to
-
-	# e = kb.process.transcription.rnaData["expression"].copy()
+	setRnaPolymeraseCodingRnaDegradationRates(kb)
 
 	# Fit synthesis probabilities for RNA
-
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 
 		initialExpression = kb.process.transcription.rnaData["expression"].copy()
 
 		bulkContainer = createBulkContainer(kb)
+
+		rescaleMassForSoluableMetabolites(kb, bulkContainer)
 
 		setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer)
 
@@ -77,24 +60,67 @@ def fitKb_1(kb):
 	else:
 		raise Exception("Fitting did not converge")
 
-	# print np.linalg.norm(
-	# 	e[kb.process.transcription.rnaData["isMRna"]] - kb.process.transcription.rnaData["expression"][kb.process.transcription.rnaData["isMRna"]],
-	# 	2)
-
 	# Modify other properties
 
 	fitRNAPolyTransitionRates(kb, bulkContainer)
 
 	## Calculate and set maintenance values
 
-	# ----- Non growth associated maintenance -----
-	kb.NGAM = NON_GROWTH_ASSOCIATED_MAINTENANCE * units.mmol / units.g / units.h
-
 	# ----- Growth associated maintenance -----
 
 	fitMaintenanceCosts(kb, bulkContainer)
 
 # Sub-fitting functions
+
+def setRnaPolymeraseCodingRnaDegradationRates(kb):
+	# Increase RNA poly mRNA deg rates
+	# TODO: set this based on transcription unit structure
+	# i.e. same synthesis prob. but different deg rates
+
+	rnaPolySubunits = kb.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"]
+	subunitIndexes = np.array([np.where(kb.process.translation.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
+	mRNA_indexes = kb.relation.rnaIndexToMonomerMapping[subunitIndexes]
+	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
+
+
+def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
+	subMass = kb.mass.subMass
+
+	mass = subMass["proteinMass"] + subMass["rnaMass"] + subMass["dnaMass"]
+
+	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
+	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+
+	cellDensity = kb.constants.cellDensity
+	mws = kb.getter.getMass(poolIds)
+	concentrations = poolConcentrations.copy()
+
+	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
+	A = -1 * np.ones((diag.size, diag.size))
+	A[np.diag_indices(diag.size)] = diag
+	b = mass.asNumber(units.g) * np.ones(diag.size)
+
+	massesToAdd = units.g * np.linalg.solve(A, b)
+	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
+
+	V = (mass + units.sum(massesToAdd)) / cellDensity
+
+	assert np.allclose(
+		(countsToAdd / kb.constants.nAvogadro / V).asNumber(units.mol / units.L),
+		(poolConcentrations).asNumber(units.mol / units.L)
+		)
+
+	bulkMolCntr.countsIs(
+		countsToAdd,
+		poolIds
+		)
+
+	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
+	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))
+	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
+
+	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
 
 def createBulkContainer(kb):
 
@@ -111,16 +137,14 @@ def createBulkContainer(kb):
 	ids_protein = kb.process.translation.monomerData["id"]
 
 	## Mass fractions
-	massFractions60 = kb.massFractions.massFractions(60 * units.min)
+	subMass = kb.mass.subMass
 
-	totalMass_RNA = massFractions60["rnaMass"]
-	totalMass_protein = massFractions60["proteinMass"]
-
-	totalMass_rRNA23S = totalMass_RNA * RRNA23S_MASS_SUB_FRACTION
-	totalMass_rRNA16S = totalMass_RNA * RRNA16S_MASS_SUB_FRACTION
-	totalMass_rRNA5S = totalMass_RNA * RRNA5S_MASS_SUB_FRACTION
-	totalMass_tRNA = totalMass_RNA * TRNA_MASS_SUB_FRACTION
-	totalMass_mRNA = totalMass_RNA * MRNA_MASS_SUB_FRACTION
+	totalMass_protein = subMass["proteinMass"]
+	totalMass_rRNA23S = subMass["rRna23SMass"]
+	totalMass_rRNA16S = subMass["rRna16SMass"]
+	totalMass_rRNA5S = subMass["rRna5SMass"]
+	totalMass_tRNA = subMass["tRnaMass"]
+	totalMass_mRNA = subMass["mRnaMass"]
 
 	## Molecular weights
 
@@ -136,14 +160,14 @@ def createBulkContainer(kb):
 	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
-	distribution_tRNA = normalize(kb.massFractions.getTrnaAbundanceAtGrowthRate(60. * units.min)['molar_ratio_to_16SrRNA'])
-	distribution_mRNA = normalize(kb.process.transcription.rnaData['expression'][kb.process.transcription.rnaData['isMRna']])
-	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData['expression'][kb.relation.rnaIndexToMonomerMapping])
+	distribution_tRNA = normalize(kb.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
+	distribution_mRNA = normalize(kb.process.transcription.rnaData["expression"][kb.process.transcription.rnaData['isMRna']])
+	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
 
 	## Rates/times
 
 	degradationRates = kb.process.translation.monomerData["degRate"]
-	doublingTime = kb.constants.cellCycleLen
+	doublingTime = kb.doubling_time
 
 	# Construct bulk container
 
@@ -219,16 +243,12 @@ def createBulkContainer(kb):
 	bulkContainer.countsIs(counts_mRNA, ids_mRNA)
 
 	## Assign protein counts based on mass and mRNA counts
-	netLossRate_protein = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates)
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
 		netLossRate_protein
 		)
-
-	distribution_protein.checkNoUnit()
-
-	distribution_protein = distribution_protein.asNumber() # remove units
 
 	totalCount_protein = totalCountFromMassesAndRatios(
 		totalMass_protein,
@@ -242,19 +262,6 @@ def createBulkContainer(kb):
 	counts_protein = totalCount_protein * distribution_protein
 
 	bulkContainer.countsIs(counts_protein, ids_protein)
-
-	## HACK CODE: this code changes manually the number of EndoRNasess
-	# endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
-	# countsEndoRnase = bulkContainer.counts(endoRnaseIds)
-	# normalizeDist = countsEndoRnase / countsEndoRnase.sum()
-	# totalCounts = 6000.
-	# newTotalCounts = totalCounts * normalizeDist
-	# bulkContainer.countsIs(newTotalCounts, endoRnaseIds)
-	## HACK CODE
-
-
-
-
 
 	return bulkContainer
 
@@ -280,13 +287,14 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	proteinDegradationRates =  kb.process.translation.monomerData["degRate"]
 	proteinCounts =  bulkContainer.counts(kb.process.translation.monomerData["id"])
 
-	netLossRate_protein = netLossRateFromDilutionAndDegradation(
-		kb.constants.cellCycleLen,
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(
+		kb.doubling_time,
 		proteinDegradationRates
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
 	proteinLengths, kb.constants.ribosomeElongationRate, netLossRate_protein, proteinCounts)
+	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
 
 	# Minimum number of ribosomes needed
@@ -342,42 +350,33 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.process.transcription.rnaData['countsACGU'], axis = 1)
+
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
-	## Number of endoRNases
-	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
+	
+	# Compute counts of endoRNases
+	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
 	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
 	endoRnaseCounts = np.zeros(len(endoRnaseIds))
 	proteinIds = kb.process.translation.monomerData["id"]
 	count_endoRN = 0
-
 	for p in range (len(proteinIds)):
 		if proteinIds[p] in endoRnaseIds:
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
-	# print endoRnaseCounts
-	print sum(endoRnaseCounts)
 
-
-
-	# rnaLossRate = netLossRateFromDilutionAndDegradation(kb.cellCycleLen, kb.process.transcription.rnaData["degRate"])
-	# import ipdb; ipdb.set_trace()
-	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
-		kb.constants.cellCycleLen,
+	rnaLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
+		kb.doubling_time,
 		kb.process.transcription.rnaData["degRate"],
-		#kb.constants.KcatEndoRNaseFullRNA, 
 		kb.constants.KcatEndoRNasesFullRNA, 
 		rnaCounts, 
-		#np.sum(endoRnaseCounts)
 		endoRnaseCounts
 		)
 	
-	# nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths, kb.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
-		rnaLengths, kb.constants.rnaPolymeraseElongationRate, rnaLossRate)
+		rnaLengths, kb.constants.rnaPolymeraseElongationRate, rnaLossRate_RNA)
 
-
-	nActiveRnapNeeded.checkNoUnit()
-	nRnapsNeeded = nActiveRnapNeeded / FRACTION_ACTIVE_RNAP
+	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
+	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
 
 	minRnapSubunitCounts = (
 		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
@@ -395,13 +394,13 @@ def fitExpression(kb, bulkContainer):
 	view_RNA = bulkContainer.countsView(kb.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(kb.process.translation.monomerData["id"])
 
-	massFractions60 = kb.massFractions.massFractions(60 * units.min)
-	totalMass_RNA = massFractions60["rnaMass"]
+	subMass = kb.mass.subMass
+	totalMass_RNA = subMass["rnaMass"]
 
-	doublingTime = kb.constants.cellCycleLen
+	doublingTime = kb.doubling_time
 	degradationRates_protein = kb.process.translation.monomerData["degRate"]
 
-	netLossRate_protein = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates_protein)
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates_protein)
 
 	### Modify kbFit to reflect our bulk container ###
 
@@ -426,62 +425,40 @@ def fitExpression(kb, bulkContainer):
 			)[kb.relation.monomerIndexToRnaMapping]
 		)
 
-	kb.process.transcription.rnaData['expression'] = rnaExpressionContainer.counts()
+	kb.process.transcription.rnaData["expression"] = rnaExpressionContainer.counts()
 
 	# Set number of RNAs based on expression we just set
 	nRnas = totalCountFromMassesAndRatios(
 		totalMass_RNA,
 		kb.process.transcription.rnaData["mw"] / kb.constants.nAvogadro,
-		kb.process.transcription.rnaData['expression']
+		kb.process.transcription.rnaData["expression"]
 		)
 
 	nRnas.normalize()
 	nRnas.checkNoUnit()
 
-	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData['expression'])
+	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData["expression"])
 
-	## Number of endoRNases
-	endoRnaseIds = ["EG10856-MONOMER[p]", "EG10857-MONOMER[c]", "G7175-MONOMER[c]", "EG10859-MONOMER[c]", "EG11299-MONOMER[c]", "EG10860-MONOMER[c]", "EG10861-MONOMER[c]", "G7365-MONOMER[c]", "EG10862-MONOMER[c]"]
-	proteinCounts = counts_protein  # bulkContainer.counts(kb.process.translation.monomerDataData["id"])
+	# Compute counts of endoRNases
+	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	proteinCounts = counts_protein 
 	endoRnaseCounts = np.zeros(len(endoRnaseIds))
 	proteinIds = kb.process.translation.monomerData["id"]
 	count_endoRN = 0
-
 	for p in range (len(proteinIds)):
 		if proteinIds[p] in endoRnaseIds:
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
-	#print endoRnaseCounts
-	print np.sum(endoRnaseCounts)
-	# import ipdb; ipdb.set_trace()
-
-	## Synthesis probabilities ##
-	# netLossRate_RNA = netLossRateFromDilutionAndDegradation(
-	# 		doublingTime,
-	# 		kb.process.transcription.rnaData["degRate"]
-	# 	)
-	# synthProb = normalize(
-	# 		(
-	# 		units.s
-	# 			* netLossRate_RNA
-	# 			* view_RNA.counts()
-	# 		).asNumber()
-	# 	)
-
-
-
 
 
 	netLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
 		(doublingTime / units.s).asNumber(),
 		(kb.process.transcription.rnaData["degRate"] * units.s).asNumber(),
-		#(kb.constants.KcatEndoRNaseFullRNA * units.s).asNumber(),
 		(kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber(),
 		view_RNA.counts(), 
-		#np.sum(endoRnaseCounts)
 		endoRnaseCounts
 		)
-	# import ipdb; ipdb.set_trace()
+
 	synthProb = normalize(netLossRate_RNA)
 
 	kb.process.transcription.rnaData["synthProb"][:] = synthProb
@@ -507,16 +484,16 @@ def fitRNAPolyTransitionRates(kb, bulkContainer):
 
 	expectedTerminationRate = elngRate / averageTranscriptLength
 
-	kb.transcriptionActivationRate = expectedTerminationRate * FRACTION_ACTIVE_RNAP / (1 - FRACTION_ACTIVE_RNAP)
+	kb.transcriptionActivationRate = expectedTerminationRate * kb.constants.fractionActiveRnap / (1 - kb.constants.fractionActiveRnap)
 
-	kb.fracActiveRnap = FRACTION_ACTIVE_RNAP
+	kb.fracActiveRnap = kb.constants.fractionActiveRnap
 
 
 def fitMaintenanceCosts(kb, bulkContainer):
 	aaCounts = kb.process.translation.monomerData["aaCounts"]
 	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
 	nAvogadro = kb.constants.nAvogadro
-	avgCellDryMassInit = kb.constants.avgCellDryMassInit
+	avgCellDryMassInit = kb.mass.avgCellDryMassInit
 	gtpPerTranslation = kb.constants.gtpPerTranslation
 
 	# GTPs used for translation (recycled, not incorporated into biomass)
@@ -530,17 +507,24 @@ def fitMaintenanceCosts(kb, bulkContainer):
 			)
 		)
 
-	aasUsedOverCellCycle = aaMmolPerGDCW.asNumber(units.mmol/units.g).sum()
+	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW)
 	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
-		GROWTH_ASSOCIATED_MAINTENANCE -
+		kb.constants.growthAssociatedMaintenance -
 		gtpUsedOverCellCycleMmolPerGDCW
 		)
 
+	additionalGtpPerTranslation = darkATP / aasUsedOverCellCycle
+	additionalGtpPerTranslation.normalize()
+	additionalGtpPerTranslation.checkNoUnit()
+	additionalGtpPerTranslation = additionalGtpPerTranslation.asNumber()
+
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
-	kb.constants.gtpPerTranslation += darkATP / aasUsedOverCellCycle
+	kb.constants.gtpPerTranslation += additionalGtpPerTranslation
+
+	kb.constants.darkATP = darkATP
 
 
 # Math functions
@@ -581,8 +565,10 @@ def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
 
 	assert np.allclose(np.sum(distribution_mRNA), 1)
 	distributionUnnormed = 1 / netLossRate * distribution_mRNA
-
-	return distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed.normalize()
+	distributionNormed.checkNoUnit()
+	return distributionNormed.asNumber()
 
 
 def mRNADistributionFromProtein(distribution_protein, netLossRate):
@@ -604,8 +590,10 @@ def mRNADistributionFromProtein(distribution_protein, netLossRate):
 	"""
 	assert np.allclose(np.sum(distribution_protein), 1)
 	distributionUnnormed = netLossRate * distribution_protein
-
-	return distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
+	distributionNormed.normalize()
+	distributionNormed.checkNoUnit()
+	return distributionNormed.asNumber()
 
 
 def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts):
@@ -624,23 +612,11 @@ def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elong
 	return nPolymerizingEnzymeNeeded
 
 
-def netLossRateFromDilutionAndDegradation(doublingTime, degradationRates):
+def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates):
 	return np.log(2) / doublingTime + degradationRates
 
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts):
-	# netRate = RNACounts * ( (np.log(2) / doublingTime) + degradationRates )
-
-	# RNA decay considering RNase specificity (RNA lifetimes measured) and RNA accessibility (RNA counts)
-	# new RNA decay model: kb - r ( ln(2)/tau + kcatEndoRN * EndoRN * kd / (Sum_g kd * r) ) = 0 
-	# netRate = RNACounts * ( (np.log(2) / doublingTime) + (kcatEndoRNase * endoRNaseCounts * degradationRates / np.sum(degradationRates * RNACounts)) )
-	# import ipdb; ipdb.set_trace()
 	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
-	netRate = RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )
-	
-	# RNA decay considering only RNase specificity (RNA lifetimes measured)
-	# new RNA decay model: kb - kcatEndoRN * EndoRN * kd / (Sum_g kd * r) - r * ln(2) / tau = 0 
-	# netRate = (sum(kcatEndoRNase * endoRNaseCounts) * degradationRates / np.sum(degradationRates)) + (np.log(2) / doublingTime * RNACounts)
-
-	return netRate
-	
+	# How RNases target specific RNAs is not explicitly accounted for fitting purpose because of the low copy number of RNases that can  target specific species
+	return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )
