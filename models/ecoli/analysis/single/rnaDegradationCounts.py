@@ -12,7 +12,7 @@ from __future__ import division
 import argparse
 import os
 
-# import tables
+
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -57,11 +57,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	# Load data from KB
 	kb = cPickle.load(open(kbFile, "rb"))
-	
+
 	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
 	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
 	RnaseIds = np.concatenate((endoRnaseIds, exoRnaseIds))
-	
+
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
