@@ -13,6 +13,8 @@ from reconstruction.ecoli.dataclasses.process.metabolism import Metabolism
 from reconstruction.ecoli.dataclasses.process.transcription import Transcription
 from reconstruction.ecoli.dataclasses.process.translation import Translation
 from reconstruction.ecoli.dataclasses.process.complexation import Complexation
+from reconstruction.ecoli.dataclasses.process.rna_decay import RnaDecay
+
 
 
 
@@ -29,3 +31,4 @@ class Process(object):
 		self.transcription = Transcription(raw_data, sim_data)
 		self.translation = Translation(raw_data, sim_data)
 		self.complexation = Complexation(raw_data, sim_data)
+		self.rna_decay = RnaDecay(raw_data, sim_data)
