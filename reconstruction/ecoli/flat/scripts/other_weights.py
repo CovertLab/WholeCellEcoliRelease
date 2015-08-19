@@ -28,8 +28,8 @@ WATER_FILE = os.path.join(FLAT_DIR, "water.tsv")
 POLY_FILE = os.path.join(FLAT_DIR, "polymerized.tsv")
 PROT_FILE = os.path.join(FLAT_DIR, "proteins.tsv")
 RNA_FILE = os.path.join(FLAT_DIR, "rnas.tsv")
-COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes.tsv")
-COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions.tsv")
+COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes_large.tsv")
+COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions_large.tsv")
 
 ID_DIR = os.path.join(FLAT_DIR, "ids")
 NTPS_FILE = os.path.join(ID_DIR, "ntps.txt")
@@ -326,7 +326,14 @@ while comp_rxns:
 	for rxn_id in to_remove:
 		del comp_rxns[rxn_id]
 
-	print to_remove
+	if len(to_remove) == 0:
+		unrecognized = {
+			s["molecule"]
+			for comp_rxn in comp_rxns.viewvalues()
+			for s in comp_rxn["stoichiometry"]
+			} - species_weights.viewkeys() - comp_data.viewkeys()
+
+		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized), ",".join(unrecognized)))
 
 with open(COMP_FILE, "w") as f:
 	writer = JsonWriter(f, fieldnames)
