@@ -121,7 +121,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 					sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total())
 				)
 
-
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
 		nRNAsTotalToDegrade = np.round(sum(self.KcatEndoRNasesFullRNA * 
@@ -169,7 +168,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 			)
 		if nRNAsTotalToDegrade != nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade:
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
-
 
 		# initialize array containing RNAs to be degraded
 		nRNAsToDegrade = np.zeros(len(RNAspecificity))
