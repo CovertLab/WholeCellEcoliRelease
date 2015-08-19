@@ -28,9 +28,9 @@ class UnitStructArray(object):
 	def _validate(self, struct_array, units):
 		s = ''
 		if type(struct_array) != np.ndarray:
-			s += 'UnitStructArray must be initalized with a numpy array!\n'
+			s += 'UnitStructArray must be initialized with a numpy array!\n'
 		elif type(units) != dict:
-			s += 'UnitStructArray must be initalized with a dict storing units!\n'
+			s += 'UnitStructArray must be initialized with a dict storing units!\n'
 		elif set([x[0] for x in struct_array.dtype.descr]) != set(units.keys()):
 			s += 'Struct array fields do not match unit fields!\n'
 		if len(s):

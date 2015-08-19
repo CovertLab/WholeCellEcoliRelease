@@ -60,6 +60,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Load parameters
 
 		self.elngRate = float(kb.constants.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
+		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
 		# self.aa_trna_groups = kb.aa_trna_groups
 		# self.aa_synthetase_groups = kb.aa_synthetase_groups
@@ -87,12 +88,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.aas = self.bulkMoleculesView(kb.moleculeGroups.aaIDs)
 		# self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
 		# self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
-		self.h2o = self.bulkMoleculeView('H2O[c]')
+		self.h2o = self.bulkMoleculeView('WATER[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
 		self.gdp = self.bulkMoleculeView("GDP[c]")
-		self.pi = self.bulkMoleculeView("PI[c]")
-		self.h   = self.bulkMoleculeView("H[c]")
+		self.pi = self.bulkMoleculeView("Pi[c]")
+		self.h   = self.bulkMoleculeView("PROTON[c]")
 
 		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
@@ -102,6 +103,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.activeRibosomes.requestAll()
 
 		activeRibosomes = self.activeRibosomes.allMolecules()
+
+		if len(activeRibosomes) == 0:
+			return
 
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
 			'proteinIndex', 'peptideLength'
@@ -116,11 +120,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceHasAA = (sequences != PAD_VALUE)
 
-		aasRequested = np.bincount(sequences[sequenceHasAA])
+		aasRequested = np.bincount(sequences[sequenceHasAA], minlength=21)
 
 		self.aas.requestIs(
 			aasRequested
 			)
+
+		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total())
+		self.writeToListener("GrowthLimits", "aaRequestSize", aasRequested)
 
 		# Should essentially request all tRNAs
 		# and all synthetases
@@ -138,6 +145,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 				)
 			))
 
+		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
+		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
+
 		self.gtp.requestIs(gtpsHydrolyzed)
 
 		self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
@@ -145,6 +155,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+		self.writeToListener("GrowthLimits", "gtpAllocated", self.gtp.count())
+		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
+
 		activeRibosomes = self.activeRibosomes.molecules()
 
 		if len(activeRibosomes) == 0:
@@ -167,6 +180,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
 		aaCounts = self.aas.counts()
+
 		# trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
 		# synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
 		# elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
@@ -232,7 +246,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.h2o.countInc(nElongations - nInitialized)
 
 		gtpUsed = np.int64(stochasticRound(
-			self.randomState, 
+			self.randomState,
 			nElongations * self.gtpPerElongation
 			))
 
@@ -252,11 +266,15 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		ribosomeStalls = expectedElongations - sequenceElongations
 
+		self.writeToListener("GrowthLimits", "aasUsed", aasUsed)
+		self.writeToListener("GrowthLimits", "gtpUsed", gtpUsed)
+
 		self.writeToListener("RibosomeData", "ribosomeStalls", ribosomeStalls)
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aaCounts)
-		# self.writeToListener("RibosomeData", "trnasCapacity", trnasCapacity)
-		# self.writeToListener("RibosomeData", "synthetaseCapacity", synthetaseCapacity)
 
 		self.writeToListener("RibosomeData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())
+
+		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
+		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())

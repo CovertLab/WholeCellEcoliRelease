@@ -33,7 +33,7 @@ CMAP_COLORS_255 = [
 
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -51,7 +51,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
@@ -61,7 +61,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = bulkMolecules.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime	
 
 	bulkMolecules.close()
 
@@ -146,6 +147,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

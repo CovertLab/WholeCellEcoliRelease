@@ -41,13 +41,19 @@ class ReplicationForkPosition(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
-		self.dnaPolyData = self.uniqueMolecules.container.objectsInCollection(
-			'dnaPolymerase').attrsAsStructArray(
-			"_uniqueId",
-			"chromosomeLocation",
-			"isLeading"
-			)
+		dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('dnaPolymerase')
 
+		if len(dnaPolymerases) > 0:
+			self.dnaPolyData = dnaPolymerases.attrsAsStructArray(
+				"_uniqueId",
+				"chromosomeLocation",
+				"isLeading"
+				)
+		else:
+			# TODO: John rewrite this attrsAsStructArray function to build the struct array with
+			# cached data and then populate it in a second functin. Then we can just save the 
+			# empty one here.
+			self.dnaPolyData = np.zeros(0, dtype = [('_uniqueId', 'S40'), ('chromosomeLocation', '<i8'), ('isLeading', '?')])
 
 	def tableCreate(self, tableWriter):
 		pass

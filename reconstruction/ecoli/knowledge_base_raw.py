@@ -18,7 +18,7 @@ import json
 from wholecell.utils import units
 
 CSV_DIALECT = csv.excel_tab
-FLAT_DIR = os.path.join("reconstruction", "ecoli", "flat")
+FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"compartments.tsv",
 	"complexationReactions.tsv",
@@ -35,6 +35,10 @@ LIST_OF_DICT_FILENAMES = (
 	"terminators.tsv",
 	"transcriptionUnits.tsv",
 	"dryMassComposition.tsv",
+	"biomass.tsv",
+	"nutrients.tsv",
+	"secretions.tsv",
+	"water.tsv",
 	os.path.join("massFractions", "glycogenFractions.tsv"),
 	os.path.join("massFractions", "ionFractions.tsv"),
 	os.path.join("massFractions", "LPSFractions.tsv"),
@@ -46,10 +50,15 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p6.tsv"),
 	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p07.tsv"),
 	os.path.join("trnaData","trna_ratio_to_16SrRNA_2p5.tsv"),
-	os.path.join("trnaData","trna_growth_rates.tsv")
+	os.path.join("trnaData","trna_growth_rates.tsv"),
+	"growthRateDependentParameters.tsv",
+	os.path.join("rna_seq_data","rnaseq_rsem_tpm_mean.tsv"),
+	os.path.join("rna_seq_data","rnaseq_rsem_tpm_std.tsv"),
+	os.path.join("rna_seq_data","rnaseq_seal_rpkm_mean.tsv"),
+	os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
-PARAMETER_FILENAME = "parameters.tsv"
+LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
 CONSTANTS_FILENAME = "constants.tsv"
 
 class KnowledgeBaseEcoli(object):
@@ -60,7 +69,8 @@ class KnowledgeBaseEcoli(object):
 		for filename in LIST_OF_DICT_FILENAMES:
 			self._load_tsv(os.path.join(FLAT_DIR, filename))
 
-		self._load_parameters(os.path.join(FLAT_DIR, PARAMETER_FILENAME))
+		for filename in LIST_OF_PARAMETER_FILENAMES:
+			self._load_parameters(os.path.join(FLAT_DIR, filename))
 		self._load_parameters(os.path.join(FLAT_DIR, CONSTANTS_FILENAME))
 
 		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))

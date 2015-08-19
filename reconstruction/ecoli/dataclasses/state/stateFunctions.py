@@ -36,3 +36,12 @@ def createMassesByCompartments(dictList):
 			for x in dictList
 			for c in x['location']
 			], dtype = np.float64)
+
+def createMetaboliteMassesByCompartments(dictList, metAt, total):
+	leading = metAt
+	trailing = total - metAt - 1
+
+	return np.array([[0.0]*leading + [x['mw7.2']] + [0.0]*trailing
+			for x in dictList
+			for c in x['location']
+			], dtype = np.float64)

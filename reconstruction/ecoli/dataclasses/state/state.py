@@ -15,7 +15,7 @@ from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
 from reconstruction.ecoli.dataclasses.state.bulkChromosome import BulkChromosome
 from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecules
 
-from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments, createMassesByCompartments
+from reconstruction.ecoli.dataclasses.state import stateFunctions as sf
 
 import re
 import numpy as np
@@ -38,32 +38,38 @@ class State(object):
 	def _buildBulkMolecules(self, raw_data, sim_data):
 
 		# Set metabolites
-		metaboliteIds = createIdsWithCompartments(raw_data.metabolites)
-		metaboliteMasses = units.g / units.mol * createMassesByCompartments(raw_data.metabolites)
+		metaboliteIds = sf.createIdsWithCompartments(raw_data.metabolites)
+		metaboliteMasses = units.g / units.mol * sf.createMetaboliteMassesByCompartments(raw_data.metabolites, 7, 11)
 
 		self.bulkMolecules.addToBulkState(metaboliteIds, metaboliteMasses)
 
+		# Set water
+		waterIds = sf.createIdsWithCompartments(raw_data.water)
+		waterMasses = units.g / units.mol * sf.createMetaboliteMassesByCompartments(raw_data.water, 8, 11)
+
+		self.bulkMolecules.addToBulkState(waterIds, waterMasses)
+
 		# Set RNA
-		rnaIds = createIdsWithCompartments(raw_data.rnas)
-		rnaMasses = units.g / units.mol * createMassesByCompartments(raw_data.rnas)
+		rnaIds = sf.createIdsWithCompartments(raw_data.rnas)
+		rnaMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.rnas)
 
 		self.bulkMolecules.addToBulkState(rnaIds, rnaMasses)
 
 		# Set proteins
-		proteinIds = createIdsWithCompartments(raw_data.proteins)
-		proteinMasses = units.g / units.mol * createMassesByCompartments(raw_data.proteins)
+		proteinIds = sf.createIdsWithCompartments(raw_data.proteins)
+		proteinMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.proteins)
 
 		self.bulkMolecules.addToBulkState(proteinIds, proteinMasses)
 
 		# Set complexes
-		complexIds = createIdsWithCompartments(raw_data.proteinComplexes)
-		complexMasses = units.g / units.mol * createMassesByCompartments(raw_data.proteinComplexes)
+		complexIds = sf.createIdsWithCompartments(raw_data.proteinComplexes)
+		complexMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.proteinComplexes)
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
 
 		# Set polymerized
-		polymerizedIds = createIdsWithCompartments(raw_data.polymerized)
-		polymerizedMasses = units.g / units.mol * createMassesByCompartments(raw_data.polymerized)
+		polymerizedIds = sf.createIdsWithCompartments(raw_data.polymerized)
+		polymerizedMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.polymerized)
 
 		self.bulkMolecules.addToBulkState(polymerizedIds, polymerizedMasses)
 

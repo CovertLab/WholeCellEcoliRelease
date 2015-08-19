@@ -139,7 +139,7 @@ class Translation(object):
 
 		maxLen = np.int64(
 			self.monomerData["length"].asNumber().max()
-			+ raw_data.parameters['ribosomeElongationRate'].asNumber(units.aa / units.s)
+			+ sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
 			)
 
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
@@ -158,9 +158,9 @@ class Translation(object):
 		self.translationMonomerWeights = (
 			(
 				sim_data.getter.getMass(aaIDs)
-				- sim_data.getter.getMass(["H2O[c]"])
+				- sim_data.getter.getMass(["WATER[c]"])
 				)
 			/ raw_data.constants['nAvogadro']
 			).asNumber(units.fg)
 
-		self.translationEndWeight = (sim_data.getter.getMass(["H2O[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)
+		self.translationEndWeight = (sim_data.getter.getMass(["WATER[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)

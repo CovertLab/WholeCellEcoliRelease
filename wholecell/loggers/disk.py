@@ -44,8 +44,9 @@ class Disk(wholecell.loggers.logger.Logger):
 
 		# Metadata
 		self.mainFile.writeAttributes(
+			initialTime = sim.initialTime(),
 			startTime = currentTimeAsString(),
-			timeStepSec = sim.timeStepSec()
+			timeStepSec = sim.timeStepSec(),
 			)
 
 		# Create tables

@@ -60,7 +60,7 @@ FIGURE_DIMENSIONS = (1.5*3, 1.5)
 TICK_PAD = 2
 LABEL_PAD = 2
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -88,6 +88,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 def plotMassFractions(grids, simOutDir, kbFile):
@@ -101,7 +102,8 @@ def plotMassFractions(grids, simOutDir, kbFile):
 	rRna = mass.readColumn("rRnaMass")
 	mRna = mass.readColumn("mRnaMass")
 	dna = mass.readColumn("dnaMass")
-	t = mass.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	mass.close()
 
@@ -142,7 +144,7 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
@@ -150,7 +152,7 @@ def plotRnaDistribution(grids, simOutDir, kbFile):
 
 	bulkMolecules.close()
 
-	expectedCountsArbitrary = kb.process.transcription.rnaData['expression'][isMRna]
+	expectedCountsArbitrary = kb.process.transcription.rnaData["expression"][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()
 
@@ -227,7 +229,7 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-	moleculeIds = bulkMolecules.readAttribute("moleculeIDs")
+	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
@@ -237,7 +239,8 @@ def plotRnaAndProtein(grids, simOutDir, kbFile):
 
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
-	time = bulkMolecules.readColumn("time")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 

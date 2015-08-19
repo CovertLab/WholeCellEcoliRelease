@@ -35,7 +35,7 @@ CMAP_COLORS_255 = [
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -45,8 +45,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-	time = fbaResults.readColumn("time")
-	timeStep = fbaResults.readColumn("timeStep")
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
+
 	objectiveValue = fbaResults.readColumn("objectiveValue")
 	objectiveComponents = np.append(
 		fbaResults.readColumn("objectiveComponents").T,
@@ -138,6 +140,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":

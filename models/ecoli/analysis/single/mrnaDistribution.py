@@ -33,7 +33,10 @@ COLORS = [
 
 AXIS_PADDING = 0.1
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
+def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+
+	print "Disabled because it's slow"
+	return
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -59,7 +62,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	bulkMolecules.close()
 
-	expectedCountsArbitrary = kb.process.transcription.rnaData['expression'][isMRna]
+	expectedCountsArbitrary = kb.process.transcription.rnaData["expression"][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()
 
@@ -116,22 +119,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile):
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+	plt.close("all")
 
 
 if __name__ == "__main__":
-	# defaultKBFile = os.path.join(
-	# 		wholecell.utils.constants.SERIALIZED_KB_DIR,
-	# 		wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-	# 		)
+	defaultKBFile = os.path.join(
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
+			)
 
-	# parser = argparse.ArgumentParser()
-	# parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	# parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	# parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	# parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
+	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
+	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
 
-	# args = parser.parse_args().__dict__
+	args = parser.parse_args().__dict__
 
-	# main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
 
-	print "Disabled because it's slow"
+

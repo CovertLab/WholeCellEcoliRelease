@@ -1,0 +1,355 @@
+# ----------------------------------------------------------------------
+# ecocyc-full-biomass.fba
+# EcoCyc v19.0 FBA example file
+#
+# Full biomass function
+# Glucose feed (10 mmol/gDW/hr)
+# Aerobic conditions (unlimited O2 uptake allowed)
+# 
+# Author: Dan Weaver (weaver@ai.sri.com)
+# ----------------------------------------------------------------------
+
+pgdb: ecoli :version 19.0
+minimize-fluxes: yes
+
+reactions:
+metab-all
+transport-all
+
+remove-reactions:
+### problematic reactions
+6PGLUCONDEHYDROG-RXN		     # not physiologically reversible, use the L2R instance reaction RXN-9952 instead (EC 1.1.1.44)
+
+### aerobically/anaerobically removed reactions
+## reactions to remove aerobically
+FHLMULTI-RXN			     # turn on if you prefer hydrogen gas formation instead of formate
+RIBONUCLEOSIDE-TRIP-REDUCT-RXN	     # active anaerobically
+PYRUVFORMLY-RXN			     # active anaerobically
+
+## reactions to remove anaerobically
+#PYFLAVOXRE-RXN		     	     # results in incorrect flux to formate under anaerobic conditions
+#RIBONUCLEOSIDE-DIP-REDUCTI-RXN	     # active aerobically
+
+### feedstock-based removed reactions
+MALSYN-RXN			     # glyoxylate bypass off on aerobic glucose
+ISOCIT-CLEAV-RXN		     # glyoxylate bypass off on aerobic glucose
+GLUCOSAMINE-6-P-DEAMIN-RXN   	     # results in futile cycle when glucosamine is not used as feedstock
+RXN0-313		     	     # fsa alternate fructose 6-phosphate aldolase pathway off by default
+TRANS-RXN0-574   	     # malX permease allows bypass of PTS system
+TRANS-RXN0-575   	     # malX permease allows bypass of PTS system
+
+### surplus instanced aerobic NDP reductase activity
+CDPREDUCT-RXN
+GDPREDUCT-RXN
+UDPREDUCT-RXN
+ADPREDUCT-RXN
+### surplus instanced anaerobic NTP reductase activity
+RXN0-746
+RXN0-723
+RXN0-724
+RXN0-745
+
+## removed in BW25113 strain (KEIO collection) only
+#RHAMNULOKIN-RXN   # rhaB
+#RHAMNISOM-RXN   # rhaA
+#LYXISOM-RXN   # rhaA
+#RHAMNULPALDOL-RXN   # rhaD
+#RXN0-5116   # araB
+#ARABISOM-RXN   # araA
+#RIBULPEPIM-RXN   # araD
+#RXN0-5363   # lacZ
+#BETAGALACTOSID-RXN   # lacZ
+
+
+biomass:
+
+### Charged protein tRNAs
+:group charged-tRNAs
+Charged-VAL-tRNAs[CCO-CYTOSOL]               0.411184
+VAL-tRNAs[CCO-CYTOSOL]                      -0.411184
+Charged-TYR-tRNAs[CCO-CYTOSOL]               0.133993
+TYR-tRNAs[CCO-CYTOSOL]                      -0.133993
+Charged-TRP-tRNAs[CCO-CYTOSOL]               0.055234
+TRP-tRNAs[CCO-CYTOSOL]                      -0.055234
+Charged-THR-tRNAs[CCO-CYTOSOL]               0.246506
+THR-tRNAs[CCO-CYTOSOL]                      -0.246506
+Charged-SER-tRNAs[CCO-CYTOSOL]               0.209684
+SER-tRNAs[CCO-CYTOSOL]                      -0.209684
+Charged-PRO-tRNAs[CCO-CYTOSOL]               0.214798
+PRO-tRNAs[CCO-CYTOSOL]                      -0.214798
+Charged-PHE-tRNAs[CCO-CYTOSOL]               0.180021
+PHE-tRNAs[CCO-CYTOSOL]                      -0.180021
+Charged-MET-tRNAs[CCO-CYTOSOL]               0.149336
+Elongation-tRNAMet[CCO-CYTOSOL]             -0.149336	# new in 19.0
+Charged-LYS-tRNAs[CCO-CYTOSOL]               0.333448
+LYS-tRNAs[CCO-CYTOSOL]                      -0.333448
+Charged-LEU-tRNAs[CCO-CYTOSOL]               0.437778
+LEU-tRNAs[CCO-CYTOSOL]                      -0.437778
+Charged-ILE-tRNAs[CCO-CYTOSOL]               0.282306
+ILE-tRNAs[CCO-CYTOSOL]                      -0.282306
+Charged-HIS-tRNAs[CCO-CYTOSOL]               0.092056
+HIS-tRNAs[CCO-CYTOSOL]                      -0.092056
+Charged-GLY-tRNAs[CCO-CYTOSOL]               0.595297
+GLY-tRNAs[CCO-CYTOSOL]                      -0.595297
+Charged-GLT-tRNAs[CCO-CYTOSOL]               0.255712
+GLT-tRNAs[CCO-CYTOSOL]                      -0.255712
+Charged-GLN-tRNAs[CCO-CYTOSOL]               0.255712
+GLN-tRNAs[CCO-CYTOSOL]                      -0.255712
+Charged-CYS-tRNAs[CCO-CYTOSOL]               0.088988
+CYS-tRNAs[CCO-CYTOSOL]                      -0.088988
+Charged-ASP-tRNAs[CCO-CYTOSOL]               0.234232
+ASP-tRNAs[CCO-CYTOSOL]                      -0.234232
+Charged-ASN-tRNAs[CCO-CYTOSOL]               0.234232
+ASN-tRNAs[CCO-CYTOSOL]                      -0.234232
+Charged-ARG-tRNAs[CCO-CYTOSOL]               0.287420
+ARG-tRNAs[CCO-CYTOSOL]                      -0.287420
+Charged-ALA-tRNAs[CCO-CYTOSOL]               0.499149
+ALA-tRNAs[CCO-CYTOSOL]                      -0.499149
+### compensating iJO1366 GAM number (see below) for the additional cost of tRNA charging by 
+### demanding AMP+PPi and refunding ATP; these coefficients should == the total mmol/gDW/hr of charged tRNA
+### demanded up above
+AMP[CCO-CYTOSOL]			    5.197084
+PPI[CCO-CYTOSOL]			    5.197084
+ATP[CCO-CYTOSOL]			    -5.197084
+WATER[CCO-CYTOSOL]			    -5.197084
+PROTON[CCO-CYTOSOL]			    -5.197084
+:end-group
+
+### RNA and DNA
+:group RNA
+ATP[CCO-CYTOSOL]			     0.169975
+CTP[CCO-CYTOSOL]                             0.129799
+UTP[CCO-CYTOSOL]                             0.140101
+GTP[CCO-CYTOSOL]                             0.209121
+PPI[CCO-CYTOSOL]			     -0.648996
+:end-group
+
+### DNA
+:group DNA
+TTP[CCO-CYTOSOL]                             0.024805 ## represents dTTP
+DGTP[CCO-CYTOSOL]                            0.025612
+DCTP[CCO-CYTOSOL]                            0.025612
+DATP[CCO-CYTOSOL]                            0.024805
+PPI[CCO-CYTOSOL]			     -0.100834
+:end-group
+
+### GAM - Growth associated maintenance 53.95 mmol/gDW/hr ATP hydrolysis
+:group GAM
+ATP[CCO-CYTOSOL]                            53.950000
+WATER[CCO-CYTOSOL]                          53.950000
+ADP[CCO-CYTOSOL]                            -53.950000
+Pi[CCO-CYTOSOL]                             -53.950000
+PROTON[CCO-CYTOSOL]                         -53.950000 
+:end-group
+
+### Lipids
+:group lipids
+CPD-8260[CCO-CYTOSOL]			  0.023092  ## phosphatidylglycerol
+CPD-12819[CCO-CYTOSOL]                    0.096225  ## phosphatidylethanolamine
+CPD-12824[CCO-CYTOSOL]                    0.006414  ## cardiolipin
+
+:end-group
+
+### Glycogen
+ADP-GLUCOSE[CCO-CYTOSOL]		    0.154187
+ADP[CCO-CYTOSOL]			    -0.154187
+
+### LPS
+:group LPS
+CPD0-939[CCO-CYTOSOL]			    0.008151
+:end-group
+
+### Murein
+:group murein
+CPD-12261[CCO-PERI-BAC]                     0.013452
+:end-group
+
+### Metal ions
+:group metal-ions
+K+[CCO-CYTOSOL]                             0.185690
+FE+2[CCO-CYTOSOL]                           0.006388
+CA+2[CCO-CYTOSOL]                           0.004952
+CL-[CCO-CYTOSOL]                            0.004952
+CO+2[CCO-CYTOSOL]                           0.000024
+MG+2[CCO-CYTOSOL]                           0.008253
+MN+2[CCO-CYTOSOL]                           0.000658
+NI+2[CCO-CYTOSOL]                           0.000307
+ZN+2[CCO-CYTOSOL]                           0.000324
+:end-group
+
+### Cofactors
+## these small cofactor coefficients all have slightly different numbers 
+## to better distinguish blocks of fluxes in the text output
+:group cofactors
+10-FORMYL-THF[CCO-CYTOSOL]                  0.000210
+CPD-12115[CCO-CYTOSOL]                      0.000223	# demethylmenaquinol-8
+5-METHYL-THF[CCO-CYTOSOL]                   0.000223
+ACETYL-COA[CCO-CYTOSOL]                     0.000279
+S-ADENOSYLMETHIONINE[CCO-CYTOSOL]           0.000212
+BIOTIN[CCO-CYTOSOL]                         0.000045
+CHORISMATE[CCO-CYTOSOL]                     0.000223
+CO-A[CCO-CYTOSOL]                           0.000576
+ENTEROBACTIN[CCO-CYTOSOL]                   0.000223
+FAD[CCO-CYTOSOL]                            0.000208
+GLUTATHIONE[CCO-CYTOSOL]                    0.000223
+CPD-17063[CCO-CYTOSOL]			    0.000223	# ferroheme o new in 19.0
+MALONYL-COA[CCO-CYTOSOL]                    0.000031
+METHYLENE-THF[CCO-CYTOSOL]                  0.000209
+REDUCED-MENAQUINONE[CCO-CYTOSOL]            0.000223
+NAD[CCO-CYTOSOL]                            0.001831
+NADP[CCO-CYTOSOL]                           0.000447
+PROTOHEME[CCO-CYTOSOL]			    0.000223	# ferroheme b, anaerobic heme new in 19.0
+PUTRESCINE[CCO-CYTOSOL]                     0.033270
+RIBOFLAVIN[CCO-CYTOSOL]                     0.000205
+SIROHEME[CCO-CYTOSOL]			    0.000223	# anaerobic heme new in 19.0
+SPERMIDINE[CCO-CYTOSOL]                     0.006744
+SUC-COA[CCO-CYTOSOL]                        0.000098
+THF[CCO-CYTOSOL]                            0.000207
+THIAMINE-PYROPHOSPHATE[CCO-CYTOSOL]	    0.000203
+UNDECAPRENYL-DIPHOSPHATE[CCO-CYTOSOL]       0.000055
+:end-group
+
+#:group o2-cofactors
+## comment out PYRIDOXAL_PHOSPHATE during anaerobic growth
+PYRIDOXAL_PHOSPHATE[CCO-CYTOSOL]            0.000202
+CPD-9956[CCO-CYTOSOL]                       0.000223   # ubiquinol-8 currently requires oxygen
+#:end-group
+
+:group tRNA-formylation
+L-methionyl-tRNAfmet[CCO-CYTOSOL]           -0.000010
+N-formyl-L-methionyl-tRNAfmet[CCO-CYTOSOL]  0.000010
+FORMYL-L-METHIONYL-PEPTIDE[CCO-CYTOSOL]     -0.000010
+METHIONYL-PEPTIDE[CCO-CYTOSOL]              0.000010
+:end-group
+
+:group lipoate
+Octanoylated-domains[CCO-CYTOSOL]	     -0.000010
+Lipoyl-Protein-N6-lipoyllysine[CCO-CYTOSOL]  0.000010
+:end-group
+
+:group carboxybiotin-BCCP-dimers
+BCCP-monomers[CCO-CYTOSOL]                  -0.000020
+Carboxybiotin-BCCP[CCO-CYTOSOL]		     0.000010
+:end-group
+
+:group tRNA-Ile-modification
+Cytidine-34-tRNAIle2[CCO-CYTOSOL]           -0.000010
+Lysidine-tRNA-Ile2[CCO-CYTOSOL]             0.000010
+:end-group
+
+:group tRNA-Arg-modification
+tRNA-Arg-adenosine34[CCO-CYTOSOL]           -0.000010
+tRNA-Arg-inosine34[CCO-CYTOSOL]             0.000010
+:end-group
+
+:group tRNA-m1G37-modification
+Guanine37-in-tRNA[CCO-CYTOSOL]				-0.000010
+tRNA-Containing-N1-Methylguanine-37[CCO-CYTOSOL]        0.000010
+:end-group
+
+:group release-factor-modification
+Release-factor-L-glutamine[CCO-CYTOSOL]           	-0.000010
+Release-factor-N5-Methyl-L-glutamine[CCO-CYTOSOL]      	0.000010
+:end-group
+
+:group 16s-rRNA-methylation
+16S-rRNA-cytidine1402[CCO-CYTOSOL]           		-0.000010
+16S-rRNA-2-O-methylcytidine1402[CCO-CYTOSOL]           	0.000010
+:end-group
+
+
+
+nutrients:
+### NGAM
+ADP[CCO-CYTOSOL] :lower-bound 3.15 :upper-bound 3.15
+Pi[CCO-CYTOSOL] :lower-bound 3.15 :upper-bound 3.15
+PROTON[CCO-CYTOSOL] :lower-bound 3.15 :upper-bound 3.15
+
+### Nutrients
+GLC[CCO-PERI-BAC] :upper-bound 10.
+OXYGEN-MOLECULE[CCO-PERI-BAC] #:upper-bound 0.0
+AMMONIUM[CCO-CYTOSOL]
+Pi[CCO-PERI-BAC]
+K+[CCO-PERI-BAC]
+SULFATE[CCO-PERI-BAC]
+FE+2[CCO-PERI-BAC]
+CA+2[CCO-PERI-BAC]
+CL-[CCO-PERI-BAC]
+CO+2[CCO-PERI-BAC]
+MG+2[CCO-PERI-BAC]
+MN+2[CCO-PERI-BAC]
+NI+2[CCO-PERI-BAC]
+ZN+2[CCO-PERI-BAC]
+WATER[CCO-PERI-BAC]
+CARBON-DIOXIDE[CCO-PERI-BAC]
+CPD0-1958[CCO-PERI-BAC]
+
+
+
+secretions:
+### NGAM
+ATP[CCO-CYTOSOL] :lower-bound 3.15 :upper-bound 3.15
+WATER[CCO-CYTOSOL] :lower-bound 3.15 :upper-bound 3.15
+
+### Secretions
+## General secretions
+CARBON-DIOXIDE[CCO-PERI-BAC]
+WATER[CCO-PERI-BAC]
+Pi[CCO-PERI-BAC]
+
+## Fermentation products
+PROTON[CCO-PERI-BAC]
+FORMATE[CCO-PERI-BAC]
+ACET[CCO-PERI-BAC]
+ETOH[CCO-PERI-BAC]
+SUC[CCO-PERI-BAC]
+D-LACTATE[CCO-PERI-BAC]
+GLYCEROL[CCO-PERI-BAC]
+#PYRUVATE[CCO-PERI-BAC]
+
+## Hydrogen gas
+HYDROGEN-MOLECULE[CCO-CYTOSOL]
+
+## Nucleobases
+URACIL[CCO-PERI-BAC]
+XANTHINE[CCO-PERI-BAC]
+HYPOXANTHINE[CCO-PERI-BAC]
+THYMINE[CCO-PERI-BAC]
+
+## Other byproducts
+INDOLE[CCO-PERI-BAC]
+UREA[CCO-PERI-BAC]
+
+## Peptidoglycan byproducts
+D-ALANINE[CCO-PERI-BAC]
+UNDECAPRENYL-DIPHOSPHATE[CCO-PERI-BAC]
+
+## SAM cycle byproducts
+CPD-560[CCO-PERI-BAC] # S-methyl-5-thio-D-ribose
+CPD-108[CCO-PERI-BAC] # 4-methylphenol
+MI-PENTAKISPHOSPHATE[CCO-PERI-BAC]
+CPD-534[CCO-PERI-BAC] # another myo-inositol pentakisphosphate
+
+## CO secretion for thiamin diphosphate pathway
+CARBON-MONOXIDE[CCO-PERI-BAC]
+
+## Methanol produced in biotin synthesis
+METOH[CCO-PERI-BAC]
+CPD-10774[CCO-PERI-BAC] # auto-inducer 2
+BETAINE[CCO-PERI-BAC] # for phosphocholine
+CPD-239[CCO-PERI-BAC] # for cysteamine phosphate
+Glucopyranose[CCO-PERI-BAC] # for a-D-glucose 1-phosphate
+
+### SAM cycle byproducts with unclear resolution
+CPD-564[CCO-CYTOSOL]	 # S-ribosyl-L-homocysteine
+CPD0-2167[CCO-CYTOSOL] # 5-deoxy-D-ribose
+CH33ADO[CCO-CYTOSOL] #5'-deoxyadenosine
+CPD-1772[CCO-CYTOSOL] # aminoacetaldehyde
+S-ADENOSYL-4-METHYLTHIO-2-OXOBUTANOATE[CCO-CYTOSOL]
+BUTANAL[CCO-CYTOSOL]
+GLYCOLALDEHYDE[CCO-CYTOSOL]
+GLYCOLLATE[CCO-CYTOSOL]
+CPD-10774[CCO-CYTOSOL] # the metabolic fate of DPD is unknown
+
+
+

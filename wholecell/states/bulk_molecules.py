@@ -17,6 +17,7 @@ State which represents for a class of molecules the bulk copy numbers.
 from __future__ import division
 
 import re
+from itertools import izip
 
 import numpy as np
 
@@ -29,6 +30,9 @@ from wholecell.utils import units
 from wholecell.utils.constants import REQUEST_PRIORITY_DEFAULT
 
 ASSERT_POSITIVE_COUNTS = True
+
+class NegativeCountsError(Exception):
+	pass
 
 class BulkMolecules(wholecell.states.state.State):
 	_name = 'BulkMolecules'
@@ -54,6 +58,8 @@ class BulkMolecules(wholecell.states.state.State):
 	def initialize(self, sim, kb):
 		super(BulkMolecules, self).initialize(sim, kb)
 
+		self._processIDs = sim.processes.keys()
+
 		# Load constants
 		self._moleculeIDs = kb.state.bulkMolecules.bulkData['id']
 		# self._compartmentIDs = kb.state.compartments['compartmentAbbreviation']
@@ -75,6 +81,11 @@ class BulkMolecules(wholecell.states.state.State):
 		self._processPriorities = np.empty(self._nProcesses, np.int64)
 		self._processPriorities.fill(REQUEST_PRIORITY_DEFAULT)
 
+		# Set up ids for division into daughter cells
+		self.divisionIds = {}
+		self.divisionIds['binomial'] = kb.moleculeGroups.bulkMoleculesBinomialDivision
+		self.divisionIds['equally'] = kb.moleculeGroups.bulkMoleculesEqualDivision
+		self.divisionIds['with_chromosome'] = kb.moleculeGroups.bulkMoleculesWithChromosomeDivision
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel
@@ -104,21 +115,50 @@ class BulkMolecules(wholecell.states.state.State):
 		for view in self._views:
 			self._countsRequested[view._containerIndexes, view._processIndex] += view._request()
 
-		if ASSERT_POSITIVE_COUNTS:
-			assert (self._countsRequested >= 0).all()
+		if ASSERT_POSITIVE_COUNTS and not (self._countsRequested >= 0).all():
+			raise NegativeCountsError(
+				"Negative value(s) in self._countsRequested:\n"
+				+ "\n".join(
+					"{} in {} ({})".format(
+						self._moleculeIDs[molIndex],
+						self._processIDs[processIndex],
+						self._countsRequested[molIndex, processIndex]
+						)
+					for molIndex, processIndex in izip(*np.where(self._countsRequested < 0))
+					)
+				)
 
 		# Calculate partition
 
 		calculatePartition(self._processPriorities, self._countsRequested, self.container._counts, self._countsAllocatedInitial)
 
-		if ASSERT_POSITIVE_COUNTS:
-			assert (self._countsAllocatedInitial >= 0).all()
+		if ASSERT_POSITIVE_COUNTS and not (self._countsAllocatedInitial >= 0).all():
+			raise NegativeCountsError(
+					"Negative value(s) in self._countsAllocatedInitial:\n"
+					+ "\n".join(
+					"{} in {} ({})".format(
+						self._moleculeIDs[molIndex],
+						self._processIDs[processIndex],
+						self._countsAllocatedInitial[molIndex, processIndex]
+						)
+					for molIndex, processIndex in izip(*np.where(self._countsAllocatedInitial < 0))
+					)
+				)
 
 		# Record unpartitioned counts for later merging
 		self._countsUnallocated = self.container._counts - np.sum(self._countsAllocatedInitial, axis = -1)
 
-		if ASSERT_POSITIVE_COUNTS:
-			assert (self._countsUnallocated >= 0).all()
+		if ASSERT_POSITIVE_COUNTS and not (self._countsUnallocated >= 0).all():
+			raise NegativeCountsError(
+					"Negative value(s) in self._countsUnallocated:\n"
+					+ "\n".join(
+					"{} ({})".format(
+						self._moleculeIDs[molIndex],
+						self._countsUnallocated[molIndex]
+						)
+					for molIndex in np.where(self._countsUnallocated < 0)[0]
+					)
+				)
 
 		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
@@ -136,8 +176,18 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def merge(self):
-		if ASSERT_POSITIVE_COUNTS:
-			assert (self._countsAllocatedFinal >= 0).all()
+		if ASSERT_POSITIVE_COUNTS and not (self._countsAllocatedFinal >= 0).all():
+			raise NegativeCountsError(
+					"Negative value(s) in self._countsAllocatedFinal:\n"
+					+ "\n".join(
+					"{} in {} ({})".format(
+						self._moleculeIDs[molIndex],
+						self._processIDs[processIndex],
+						self._countsAllocatedFinal[molIndex, processIndex]
+						)
+					for molIndex, processIndex in izip(*np.where(self._countsAllocatedFinal < 0))
+					)
+				)
 
 		self.container.countsIs(
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
@@ -157,36 +207,15 @@ class BulkMolecules(wholecell.states.state.State):
 
 
 	def tableCreate(self, tableWriter):
-		tableWriter.writeAttributes(
-			moleculeIDs = self._moleculeIDs
-			)
+		self.container.tableCreate(tableWriter)
 
 
 	def tableAppend(self, tableWriter):
-		tableWriter.append(
-			time = self.time(),
-			timeStep = self.timeStep(),
-			counts = self.container._counts,
-			# TODO: better logging for requests i.e. not GBs of data
-			# countsRequested = self._countsRequested,
-			# countsAllocatedInitial = self._countsAllocatedInitial,
-			# countsAllocatedFinal = self._countsAllocatedFinal,
-			# countsUnallocated = self._countsUnallocated,
-			)
+		self.container.tableAppend(tableWriter)
 
 
 	def tableLoad(self, tableReader, tableIndex):
-		# entry = h5file.get_node('/', self._name)[timePoint]
-
-		# self.container.countsIs(entry['counts'])
-
-		# if self._nProcesses:
-		# 	self._countsRequested[:] = entry['countsRequested']
-		# 	self._countsAllocatedInitial[:] = entry['countsAllocatedInitial']
-		# 	self._countsAllocatedFinal[:] = entry['countsAllocatedFinal']
-		# 	self._countsUnallocated[:] = entry['countsUnallocated']
-
-		raise NotImplementedError()
+		self.container.tableLoad(tableReader, tableIndex)
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):
