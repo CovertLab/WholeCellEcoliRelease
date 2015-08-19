@@ -81,8 +81,8 @@ class State(object):
 					temp = x
 					temp['id'] = x['id'].replace('Polymerized','Fragment')
 					test.append(temp)
-		fragmentsIds = createIdsWithCompartments(test)
-		fragmentsMasses = units.g / units.mol * createMassesByCompartments(test)
+		fragmentsIds = sf.createIdsWithCompartments(test)
+		fragmentsMasses = units.g / units.mol * sf.createMassesByCompartments(test)
 
 		self.bulkMolecules.addToBulkState(fragmentsIds, fragmentsMasses)
 
