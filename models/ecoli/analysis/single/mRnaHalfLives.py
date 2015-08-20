@@ -138,7 +138,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 			rnaDegradationRate5.append(-1)	
 			expectedDegradationRateSubset5.append(-1)
 
-	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted3.txt'), rnaDegradationRate3)
+	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted.txt'), rnaDegradationRate3)
 	np.savetxt(os.path.join(plotOutDir, 'RNAdecayExpected.txt'), expectedDegradationRate)
 
 	# reduction of genes

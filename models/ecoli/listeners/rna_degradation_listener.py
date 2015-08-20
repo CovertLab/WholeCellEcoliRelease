@@ -30,7 +30,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 
 		self.countRnaDegraded = np.zeros(kb.process.transcription.rnaData.fullArray().size, np.int64)
 		self.nucleotidesFromDegradation = 0
-		self.FractionActiveEndoRNases = 0
+		self.FractionActiveEndoRNases = 0.
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes( # TODO: reconsider attribute names
