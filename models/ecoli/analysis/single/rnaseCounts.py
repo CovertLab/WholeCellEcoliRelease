@@ -38,6 +38,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
 	RNase_IDS = np.concatenate((endoRnaseIds, exoRnaseIds))
 
+	# add mRNA PNPase
+	PNP_RNA = ["EG10743_RNA[c]"]
+	RNase_IDS = np.concatenate((RNase_IDS, PNP_RNA))	
+
 	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNase_IDS], np.int)
 	rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -48,10 +52,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.rc('xtick', labelsize=5) 
 	plt.rc('ytick', labelsize=5)
 
-	for subplotIdx in xrange(0, 18):
+	for subplotIdx in xrange(0, 19):
 		rnapRnaCountsIdx = subplotIdx
 	
-		plt.subplot(18, 1, 1 + subplotIdx)
+		plt.subplot(19, 1, 1 + subplotIdx)
 
 		plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])
 		plt.xlabel("Time (min)", fontsize = 5)
@@ -59,9 +63,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		plt.title(RNase_IDS[rnapRnaCountsIdx], fontsize = 5)
 
 		signal = rnapRnaCounts[:, rnapRnaCountsIdx]
-		if subplotIdx == 16:
-			np.savetxt(os.path.join(plotOutDir, 'PNPase-MONOMER[c].txt'), signal)
 		if subplotIdx == 17:
+			np.savetxt(os.path.join(plotOutDir, 'PNPase-MONOMER[c].txt'), signal)
+		if subplotIdx == 18:
 			np.savetxt(os.path.join(plotOutDir, 'PNPase-RNA[c].txt'), signal)
 
 		# identifying periodicity on RNA and protein copy numbers
