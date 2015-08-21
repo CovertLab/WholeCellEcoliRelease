@@ -32,6 +32,7 @@ from wholecell.utils.enzymeKinetics import EnzymeKinetics
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
+USE_RATELIMITS = True # Enable/disable kinetic rate limits in the model
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -57,6 +58,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
 		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
+		self.constraintIDs = kb.process.metabolism.constraintIDs
+		self.constraintToReactionDict = kb.process.metabolism.constraintToReactionDict
 
 		objective = dict(zip(
 			self.metabolitePoolIDs,
@@ -96,12 +99,10 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		# Set up enzyme kinetics object
-		self.enzymeKinetics = EnzymeKinetics(kb, reactionIDs = self.fba.reactionIDs(), metaboliteIDs = self.fba.outputMoleculeIDs(), kcatOnly=True)
+		self.enzymeKinetics = EnzymeKinetics(kb, reactionIDs = self.fba.reactionIDs(), metaboliteIDs = self.fba.outputMoleculeIDs(), kcatOnly=False)
 
 		# Determine which kinetic limits to use
 		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
-
-		# self.reactionsWithKineticLimits = 
 
 		# Set constraints
 		## External molecules
@@ -121,10 +122,11 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba.enzymeLevelsIs(np.inf)
 
 		# Views
-		self.metabolites = self.bulkMoleculesView(self.fba.outputMoleculeIDs())
 		self.metaboliteNames = self.fba.outputMoleculeIDs()
+		self.metabolites = self.bulkMoleculesView(self.metaboliteNames)
 		self.poolMetabolites = self.bulkMoleculesView(self.metabolitePoolIDs)
-		self.enzymes = self.bulkMoleculesView(self.enzymesWithKineticInfo)
+		self.enzymeNames = self.enzymesWithKineticInfo
+		self.enzymes = self.bulkMoleculesView(self.enzymeNames)
 
 		outputMoleculeIDs = self.fba.outputMoleculeIDs()
 
@@ -175,17 +177,26 @@ class Metabolism(wholecell.processes.process.Process):
 		# Find reaction rate limits
 		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
 
-		# Find per-enzyme reaction rates
-		inputConcentrations = np.concatenate((([1]*len(enzymeConcentrations)),metaboliteConcentrations,[defaultRate]), axis=1)
-		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
+		# Find rate limits for all constraints
+		self.allConstraintsLimits = self.enzymeKinetics.allRatesFunction(*inputConcentrations)
 
-		# Set max reaction fluxes for enzymes for which kinetics are known
-		for index, reactionID in enumerate(self.fba.reactionIDs()):
-			# Only use this kinetic limit if it's enabled
-			if self.reactionsWithKineticLimits[index]:
-				self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
-			else:
-				self.fba.maxReactionFluxIs(reactionID, defaultRate, raiseForReversible = False)
+		# Find per-enzyme reaction rates
+		perEnzymeInputConcentrations = np.concatenate((([1]*len(enzymeConcentrations)),metaboliteConcentrations,[defaultRate]), axis=1)
+		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*perEnzymeInputConcentrations)
+
+		# Set the rate limits only if the option flag is enabled
+		if USE_RATELIMITS:
+			# Set max reaction fluxes for enzymes for which kinetics are known
+			for index, reactionID in enumerate(self.fba.reactionIDs()):
+				# Only use this kinetic limit if it's enabled
+				if self.reactionsWithKineticLimits[index]:
+					# Make sure to never set negative maximum rates
+					assert (self.reactionRates[0][index] >= 0 and self.reactionRates[0][index] != np.nan)
+					# Set the max reaction rate for this reaction
+					self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
+				else:
+					self.fba.maxReactionFluxIs(reactionID, defaultRate, raiseForReversible = False)
+
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
 
@@ -214,6 +225,19 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "perEnzymeRates",
 			self.perEnzymeRates)
+
+		self.writeToListener("EnzymeKinetics", "allConstraintsLimits",
+			self.allConstraintsLimits)
+
+		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
+			metaboliteCountsInit)
+
+		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations",
+			metaboliteConcentrations)
+
+		self.writeToListener("EnzymeKinetics", "countsToMolar",
+			countsToMolar)
+
 
 
 

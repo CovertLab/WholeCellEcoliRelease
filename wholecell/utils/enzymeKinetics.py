@@ -40,6 +40,7 @@ class EnzymeKinetics(object):
 
 		# Load info on all reactions in the model
 		self.allReactions = kb.process.metabolism.reactionStoich
+		self.constraintIDs = kb.process.metabolism.constraintIDs
 
 		# Make a dictionary mapping a substrate ID to it's index in self.metabolites()
 		self.metaboliteIndexDict = {}
@@ -55,9 +56,10 @@ class EnzymeKinetics(object):
 			self.enzymeIndexDict[name] = index
 			enzyme_vars_array[index] = T.dscalar(name + '_concentration')
 
+
+		# Build a function to determine the rate of reactions known to the model
 		noRate = T.dscalar('noRate')
 		rateExpressionsArray = [noRate]*len(reactionIDs)
-
 		for index, reactionID in enumerate(reactionIDs):
 			rateInfo = {}
 			try:
@@ -66,6 +68,13 @@ class EnzymeKinetics(object):
 				continue
 
 			rateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict, kcatOnly)
+
+		# Build a function to determine the rate of all possible constraints
+		longRateExpressionsArray = [noRate]*len(self.reactionRateInfo)
+		for index, constraintID in enumerate(self.constraintIDs):
+			rateInfo = self.reactionRateInfo[constraintID]
+			longRateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict, kcatOnly)
+
 
 
 		## Compile a theano function for the enzyme kinetics
@@ -77,6 +86,8 @@ class EnzymeKinetics(object):
 		#			reactionIDs
 		self.rateFunction = function(enzyme_vars_array + substrate_vars_array + [noRate], T.stack(rateExpressionsArray), on_unused_input='ignore')
 
+
+		self.allRatesFunction = function(enzyme_vars_array + substrate_vars_array + [noRate], T.stack(longRateExpressionsArray), on_unused_input='ignore')
 
 
 	def buildRateExpression(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict, kcatOnly):

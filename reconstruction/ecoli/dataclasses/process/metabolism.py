@@ -435,17 +435,21 @@ class Metabolism(object):
 			reactionStoich[reactionID] = stoich
 
 			# Assign reversibilty
-
 			if reaction["is reversible"]:
 				reversibleReactions.append(reactionID)
 
 		reactionRateInfo = {}
+		constraintIDs = []
+		constraintToReactionDict = {}
 		enzymesWithKineticInfo = set()
 		enzymesWithKineticInfoDict = {}
 
 		# Enzyme kinetics data
 		for reaction in raw_data.enzymeKinetics:
-			reactionID = reaction["reactionID"]
+			constraintID = reaction["constraintID"]
+			constraintIDs.append(constraintID)
+
+			constraintToReactionDict[constraintID] = reaction["reactionID"]
 
 			# If the enzymes don't already have a compartment tag, add [c] (cytosol) as a default
 			reaction["enzymeIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["enzymeIDs"]]
@@ -465,10 +469,11 @@ class Metabolism(object):
 				reaction["customParameterVariables"] = parametersDict
 
 
-			reactionRateInfo[reactionID] = reaction
+			reactionRateInfo[constraintID] = reaction
 			for enzymeID in reaction["enzymeIDs"]:
 				enzymesWithKineticInfo.add(enzymeID)
-		
+
+
 		enzymesWithKineticInfoDict["enzymes"] = list(enzymesWithKineticInfo)
 
 		self.reactionStoich = reactionStoich
@@ -478,6 +483,8 @@ class Metabolism(object):
 		self._constrainedExchangeMolecules = constrainedExchangeMolecules
 		self.reactionRateInfo = reactionRateInfo
 		self.enzymesWithKineticInfo = enzymesWithKineticInfoDict
+		self.constraintIDs = constraintIDs
+		self.constraintToReactionDict = constraintToReactionDict
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits):
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
