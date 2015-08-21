@@ -132,6 +132,7 @@ class Equilibrium(object):
 
 		return reactionSumsArray
 
+	# TODO: These methods might not be necessary, consider deleting if that's the case
 	# TODO: redesign this so it doesn't need to create a stoich matrix
 	def getMonomers(self, cplxId):
 		'''
