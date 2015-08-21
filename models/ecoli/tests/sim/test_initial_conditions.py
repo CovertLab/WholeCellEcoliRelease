@@ -298,7 +298,7 @@ class Test_InitialConditions(unittest.TestCase):
 			tau = 90  * units.min
 			replication_length = 2319838  * units.nt
 			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "C must have units of units.min.")
+		self.assertEqual(context.exception.message, "C must have units")
 
 		with self.assertRaises(AssertionError) as context:
 			C = 50 * units.min
@@ -306,7 +306,7 @@ class Test_InitialConditions(unittest.TestCase):
 			tau = 90  * units.min
 			replication_length = 2319838  * units.nt
 			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "D must have units of units.min.")
+		self.assertEqual(context.exception.message, "D must have units")
 
 		with self.assertRaises(AssertionError) as context:
 			C = 50 * units.min
@@ -314,7 +314,7 @@ class Test_InitialConditions(unittest.TestCase):
 			tau = 90
 			replication_length = 2319838  * units.nt
 			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "tau must have units of units.min.")
+		self.assertEqual(context.exception.message, "tau must have units")
 
 		with self.assertRaises(AssertionError) as context:
 			C = 50 * units.min
@@ -326,54 +326,6 @@ class Test_InitialConditions(unittest.TestCase):
 
 
 		# Inputs with incorrect units (expect an error)
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.s
-			D = 27  * units.min
-			tau = 90  * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "C must have units of units.min.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.nt
-			D = 27  * units.min
-			tau = 90  * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "C must have units of units.min.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27 * units.s
-			tau = 90  * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "D must have units of units.min.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27 * units.nt
-			tau = 90  * units.min
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "D must have units of units.min.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27  * units.min
-			tau = 90  * units.s
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "tau must have units of units.min.")
-
-		with self.assertRaises(AssertionError) as context:
-			C = 50 * units.min
-			D = 27  * units.min
-			tau = 90  * units.nt
-			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-		self.assertEqual(context.exception.message, "tau must have units of units.min.")
-
 		with self.assertRaises(AssertionError) as context:
 			C = 50 * units.min
 			D = 27  * units.min
@@ -393,6 +345,14 @@ class Test_InitialConditions(unittest.TestCase):
 
 	@noseAttrib.attr('replicationTest')
 	def test_num_oriCs(self):
+
+		# When (C + D) / tau is less than one, no replication will have started
+		C = 50 * units.min
+		D = 27 * units.min
+		tau = 100 * units.min
+		numOric = determineNumOriC(C, D, tau)
+
+		assert(numOric == 1)
 
 		# When (C + D) / tau is less than one, no replication will have started
 		C = 50 * units.min

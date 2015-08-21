@@ -173,6 +173,7 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	# Determine the number of OriC's currently present in the cell
 	numOric = determineNumOriC(C, D, tau)
+	oriC = uniqueMolCntr.objectsNew('originOfReplication', numOric)
 
 	# Return if no replication is occuring at all
 	if(len(sequenceIdx) == 0):
@@ -203,9 +204,6 @@ def initializeReplication(uniqueMolCntr, kb):
 		chromosomeIndex = np.array(chromosomeIndex),
 		massDiff_DNA = massIncreaseDna,
 		)
-
-	# Update the attributes of the partially-replicated origins of replication
-	oriC = uniqueMolCntr.objectsNew('originOfReplication', numOric)
 
 def setDaughterInitialConditions(sim, kb):
 	assert sim._inheritedStatePath != None

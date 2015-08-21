@@ -51,7 +51,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
 
 	def calculateRequest(self):
-		
 		self.full_chromosome.requestAll()
 		self.oriCs.requestAll()
 
