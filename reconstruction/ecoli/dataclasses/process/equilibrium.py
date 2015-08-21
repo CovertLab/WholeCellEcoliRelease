@@ -10,12 +10,15 @@ class Equilibrium(object):
 
 		molecules = []
 
-		subunits = []
-		complexes = []
+		ratesFwd = []
+		ratesRev = []
+		rxnIds = []
 
 		stoichMatrixI = []
 		stoichMatrixJ = []
 		stoichMatrixV = []
+
+		rxnIds = []
 
 		stoichMatrixMass = []
 
@@ -25,7 +28,7 @@ class Equilibrium(object):
 			}
 
 		deleteReactions = []
-		for reactionIndex, reaction in enumerate(raw_data.complexationReactions):
+		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
 			for molecule in reaction["stoichiometry"]:
 				if molecule["molecule"] in FORBIDDEN_MOLECULES:
 					deleteReactions.append(reactionIndex)
@@ -34,14 +37,18 @@ class Equilibrium(object):
 		for reactionIndex in deleteReactions[::-1]:
 			del raw_data.complexationReactions[reactionIndex]
 
-		for reactionIndex, reaction in enumerate(raw_data.complexationReactions):
-			assert reaction["process"] == "complexation"
+		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
+			assert reaction["process"] == "equilibrium"
 			assert reaction["dir"] == 1
+
+			ratesFwd.append(reaction["forward rate"])
+			ratesRev.append(reaction["reverse rate"])
+			rxnIds.append(reaction["id"])
 
 			for molecule in reaction["stoichiometry"]:
 				if molecule["type"] == "metabolite":
 					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(), # this is stupid # agreed
+						molecule["molecule"].upper(),
 						molecule["location"]
 						)
 
@@ -67,12 +74,8 @@ class Equilibrium(object):
 				stoichMatrixJ.append(reactionIndex)
 				stoichMatrixV.append(coefficient)
 
-				if coefficient < 0:
-					subunits.append(moleculeName)
-
-				else:
+				if coefficient > 0:
 					assert molecule["type"] == "proteincomplex"
-					complexes.append(moleculeName)
 
 				# Find molecular mass
 				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
@@ -84,8 +87,9 @@ class Equilibrium(object):
 		self._stoichMatrixV = np.array(stoichMatrixV)
 
 		self.moleculeNames = molecules
-		self.subunitNames = set(subunits)
-		self.complexNames = set(complexes)
+		self.rxnIds = rxnIds
+		self.ratesFwd = np.array(ratesFwd)
+		self.ratesRev = np.array(ratesRev)
 
 		# Mass balance matrix
 		self._stoichMatrixMass = np.array(stoichMatrixMass)
@@ -95,7 +99,7 @@ class Equilibrium(object):
 		massBalanceArray = self.massBalance()
 
 		# The stoichometric matrix should balance out to numerical zero.
-		assert np.max([abs(x) for x in massBalanceArray]) < 10e-9
+		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
