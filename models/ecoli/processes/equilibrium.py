@@ -13,6 +13,8 @@ Equilibrium binding sub-model
 from __future__ import division
 
 import numpy as np
+import scipy.integrate
+from wholecell.utils import units
 
 import wholecell.processes.process
 
@@ -34,7 +36,13 @@ class Equilibrium(wholecell.processes.process.Process):
 		# Create matrices and vectors
 
 		self.stoichMatrix = kb.process.equilibrium.stoichMatrix().astype(np.int64)
+		self.ratesFwd = kb.process.equilibrium.ratesFwd
+		self.ratesRev = kb.process.equilibrium.ratesRev
+
 		self._makeMatrices()
+
+		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self.cellDensity = kb.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Build views
 
@@ -46,13 +54,34 @@ class Equilibrium(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		moleculeCounts = self.molecules.total()
 
-		self.molecules.requestIs(np.zeros_like(moleculeCounts))
+		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
+		cellVolume = cellMass / self.cellDensity
 
+		y = scipy.integrate.odeint(self._derivatives, moleculeCounts / (self.nAvogadro * cellVolume), t = [0, 1000])
+		yMolecules = y * (self.nAvogadro * cellVolume)
+
+		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
+		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
+		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
+		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
+
+		self.req = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
+		self.rxnFluxes = rxnFluxes
+
+		self.molecules.requestIs(self.req)
 
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
-		self.molecules.countsIs(moleculeCounts)
+		# Don't do anything this time step if you don't get all the molecules requested
+		if not np.all(self.req.astype(np.int) == moleculeCounts):
+			return
+
+		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, self.rxnFluxes) >= 0))
+
+		self.molecules.countsInc(
+			np.dot(self.stoichMatrix, self.rxnFluxes)
+			)
 
 	def _makeMatrices(self):
 		EPS = 1e-9
@@ -71,8 +100,8 @@ class Equilibrium(wholecell.processes.process.Process):
 		Pn = -1. * (S1 > 0)
 
 		self.S1 = S1
-		self.R = R
-		self.P = P
+		self.R = scipy.sparse.csr_matrix(R)
+		self.P = scipy.sparse.csr_matrix(P)
 		self.Rp = Rp
 		self.Rn = Rn
 		self.Pp = Pp
@@ -89,13 +118,14 @@ class Equilibrium(wholecell.processes.process.Process):
 			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
 			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
 
-		self.metsToRxnFluxes = metsToRxnFluxes
+		self.metsToRxnFluxes = metsToRxnFluxes.T
 
 	def _derivatives(self, v, t):
-
+		v[v < 0] = 0
 		vLog = np.log(v)
-		fluxReactant = self.ratesFwd * np.exp(np.dot(self.R, vLog))
-		fluxProduct = self.ratesRev * np.exp(np.dot(self.P, vLog))
+		fluxReactant = self.ratesFwd * np.exp(self.R.dot(vLog))
+		fluxProduct = self.ratesRev * np.exp(self.P.dot(vLog))
+
 		return (
 		 np.dot(self.Rn, fluxReactant) + np.dot(self.Rp, fluxProduct) +
 		 np.dot(self.Pp, fluxReactant) + np.dot(self.Pn, fluxProduct)
