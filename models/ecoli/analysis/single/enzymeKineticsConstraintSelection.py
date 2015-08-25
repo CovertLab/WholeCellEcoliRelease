@@ -22,7 +22,14 @@ from wholecell.utils.modular_fba import FluxBalanceAnalysis
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-DISABLED = True
+DISABLED = False
+
+# Control which analyses to run
+FIND_SINGLE_CONSTRAINTS = True
+FIND_DOUBLE_CONSTRAINTS = False
+FIND_ALL_BUT_ONE_CONSTRAINTS = False
+FIND_RANDOM_RXN_ZERO = False
+
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.isdir(simOutDir):
@@ -31,114 +38,93 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-
 	if DISABLED:
 		print "Currently disabled because it's slow."
-	else:
 
-		# Control which analyses to run
-		findSingleConstraints = False
-		findDoubleConstraints = False
-		findAllButOneConstraint = False
-		findRandomRxnZero = False
+		return
 
+	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 
-		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
+	# Read constraints and metabolite concentrations from the listener
+	allConstraints = enzymeKineticsdata.readColumn("allConstraintsLimits")
+	constraintIDs = enzymeKineticsdata.readAttribute("constraintIDs")
+	metaboliteCountsInitRaw = enzymeKineticsdata.readColumn("metaboliteCountsInit")
+	countsToMolarArray = enzymeKineticsdata.readColumn("countsToMolar")
+	reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
+	constraintToReactionDict = enzymeKineticsdata.readAttribute("constraintToReactionDict")
 
-		# Read constraints and metabolite concentrations from the listener
-		allConstraints = enzymeKineticsdata.readColumn("allConstraintsLimits")
-		constraintIDs = enzymeKineticsdata.readAttribute("constraintIDs")
-		metaboliteCountsInitRaw = enzymeKineticsdata.readColumn("metaboliteCountsInit")
-		countsToMolarArray = enzymeKineticsdata.readColumn("countsToMolar")
-		reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
-		constraintToReactionDict = enzymeKineticsdata.readAttribute("constraintToReactionDict")
+	# Data needed to reconstruct the FBA object in analysis
+	reactionStoich = enzymeKineticsdata.readAttribute("reactionStoich")
+	externalExchangeMolecules = enzymeKineticsdata.readAttribute("externalExchangeMolecules")
+	objective = enzymeKineticsdata.readAttribute("objective")
+	reversibleReactions = enzymeKineticsdata.readAttribute("reversibleReactions")
+	moleculeMasses = enzymeKineticsdata.readAttribute("moleculeMasses")
+	metabolitePoolIDs = enzymeKineticsdata.readAttribute("metabolitePoolIDs")
+	targetConcentrations = enzymeKineticsdata.readAttribute("targetConcentrations")
 
-		# Data needed to reconstruct the FBA object in analysis
-		reactionStoich = enzymeKineticsdata.readAttribute("reactionStoich")
-		externalExchangeMolecules = enzymeKineticsdata.readAttribute("externalExchangeMolecules")
-		objective = enzymeKineticsdata.readAttribute("objective")
-		reversibleReactions = enzymeKineticsdata.readAttribute("reversibleReactions")
-		moleculeMasses = enzymeKineticsdata.readAttribute("moleculeMasses")
-		metabolitePoolIDs = enzymeKineticsdata.readAttribute("metabolitePoolIDs")
-		targetConcentrations = enzymeKineticsdata.readAttribute("targetConcentrations")
-		
-		# Read time info from the listener
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	# Read time info from the listener
+	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-		enzymeKineticsdata.close()
+	enzymeKineticsdata.close()
 
-		# Transpose the constraints and metabolites matrices
-		allConstraints = np.transpose(allConstraints)
-		metaboliteCountsInitRaw = np.transpose(metaboliteCountsInitRaw)
+	# Transpose the constraints and metabolites matrices
+	allConstraints = np.transpose(allConstraints)
+	metaboliteCountsInitRaw = np.transpose(metaboliteCountsInitRaw)
 
 
-		# Set up FBA solver
-		fba = FluxBalanceAnalysis(
-			reactionStoich, # TODO: copy in class
-			externalExchangeMolecules,
-			objective,
-			objectiveType = "pools",
-			reversibleReactions = reversibleReactions,
-			moleculeMasses = moleculeMasses,
-			)
+	# Set up FBA solver
+	fba = FluxBalanceAnalysis(
+		reactionStoich, # TODO: copy in class
+		externalExchangeMolecules,
+		objective,
+		objectiveType = "pools",
+		reversibleReactions = reversibleReactions,
+		moleculeMasses = moleculeMasses,
+		)
 
-		# FBA analysis on finished timepoints
-		# timepoints = [100, 1000, 2000, allConstraints.shape[1]-1]
-		timepoints = [2000]
+	# TODO: add external molecule levels (line 128 in models/ecoli/processes/metabolism.py)
 
-		for timepoint in timepoints:
-			# Constraints at one arbitrary time point, fairly far into the simulation
-			constraints = allConstraints[:,timepoint]
+	# TODO: make this not-a-hack
+	for i, mid in enumerate(fba.outputMoleculeIDs()):
+		targetConcentrations[i] = objective[mid]
 
-			# Metabolite concentrations
-			metaboliteCountsInit = metaboliteCountsInitRaw[:,timepoint]
+	# FBA analysis on finished timepoints
+	# timepoints = [100, 1000, 2000, allConstraints.shape[1]-1]
+	timepoints = [2000]
 
-			# Relationship between molecule counts and concentrations at this time point
-			countsToMolar = countsToMolarArray[timepoint]
+	for timepoint in timepoints:
+		# Constraints at one arbitrary time point, fairly far into the simulation
+		constraints = allConstraints[:,timepoint]
 
-			oneConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-single_constraints.tsv'
-			twoConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-double_constraints.tsv'
-			allbutOneConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-single_dropout_constraints.tsv'
-			reactionIDsPositiveNegativeErrors = plotOutDir + '/' + plotOutFileName + '-reactionIDsPositiveNegativeErrors.tsv'
+		# Metabolite concentrations
+		metaboliteCountsInit = metaboliteCountsInitRaw[:,timepoint]
 
-			if findSingleConstraints:
-				determineOneConstraintErrors(oneConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
+		# Relationship between molecule counts and concentrations at this time point
+		countsToMolar = countsToMolarArray[timepoint]
 
-			if findDoubleConstraints:
-				determineTwoConstraintErrors(twoConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
+		oneConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-single_constraints.tsv'
+		twoConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-double_constraints.tsv'
+		allbutOneConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-single_dropout_constraints.tsv'
+		reactionIDsPositiveNegativeErrors = plotOutDir + '/' + plotOutFileName + '-reactionIDsPositiveNegativeErrors.tsv'
 
-			# Find errors for all constraints and set of all constraints except one
-			if findAllButOneConstraint:
-				determineAllButOneConstraints(allbutOneConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
+		if FIND_SINGLE_CONSTRAINTS:
+			determineOneConstraintErrors(oneConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
 
-			# Find errors for a random assortment of N reactions set to zero flux (From ALL reactions, not just kinetic reactions)
-			if findRandomRxnZero:
-				plotNumConstraintsVersusError(reactionIDsPositiveNegativeErrors, fba, 30, 15, plotOutDir, plotOutFileName, reactionIDs, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+		if FIND_DOUBLE_CONSTRAINTS:
+			determineTwoConstraintErrors(twoConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
 
+		# Find errors for all constraints and set of all constraints except one
+		if FIND_ALL_BUT_ONE_CONSTRAINTS:
+			determineAllButOneConstraints(allbutOneConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
 
-
-if __name__ == "__main__":
-	defaultKBFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
-
-	args = parser.parse_args().__dict__
-	
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
-
-
+		# Find errors for a random assortment of N reactions set to zero flux (From ALL reactions, not just kinetic reactions)
+		if FIND_RANDOM_RXN_ZERO:
+			plotNumConstraintsVersusError(reactionIDsPositiveNegativeErrors, fba, 30, 15, plotOutDir, plotOutFileName, reactionIDs, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
 
 
 def evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar):
-		
+
 	metaboliteConcentrations = metaboliteCountsInit * countsToMolar
 
 	fba.internalMoleculeLevelsIs(
@@ -164,7 +150,7 @@ def determineOneConstraintErrors(outputFileName, fba, constraints, constraintIDs
 		output_file.write("\t".join(headers))
 
 		# Find the unconstrained deviation from the target metabolite concentrations
-		baseIndiviualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
+		baseIndividualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 		for index, constraint in enumerate(constraintIDs):
 
@@ -175,15 +161,17 @@ def determineOneConstraintErrors(outputFileName, fba, constraints, constraintIDs
 			individualErrors, totalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 			# Find the error relative to the unconstrained solution
-			indiviualRelativeErrors = individualErrors - baseIndiviualErrors
+			individualRelativeErrors = individualErrors - baseIndividualErrors
 			totalRelativeError = totalError - baseTotalError
 
-			row = [str(timepoint), constraint, str(constraintToReactionDict[constraint]), str(constraints[index]), str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in indiviualRelativeErrors]
+			row = [str(timepoint), constraint, str(constraintToReactionDict[constraint]), str(constraints[index]), str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in individualRelativeErrors]
 
 			output_file.write("\n" + "\t".join(row))
 
 			# Reset the rate limit
 			fba.maxReactionFluxIs(constraintToReactionDict[constraint], np.inf, raiseForReversible = False)
+
+			import ipdb; ipdb.set_trace()
 
 
 
@@ -195,7 +183,7 @@ def determineTwoConstraintErrors(outputFileName, fba, constraints, constraintIDs
 		output_file.write("\t".join(headers))
 
 		# Find the unconstrained deviation from the target metabolite concentrations
-		baseIndiviualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
+		baseIndividualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 		for index1, constraint1 in enumerate(constraintIDs):
 			# Set the first constraint
@@ -218,10 +206,10 @@ def determineTwoConstraintErrors(outputFileName, fba, constraints, constraintIDs
 				individualErrors, totalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 				# Find the error relative to the unconstrained solution
-				indiviualRelativeErrors = individualErrors - baseIndiviualErrors
+				individualRelativeErrors = individualErrors - baseIndividualErrors
 				totalRelativeError = totalError - baseTotalError
 
-				row = [str(timepoint), constraint1, constraint2, str(constraintToReactionDict[constraint1]), str(constraintToReactionDict[constraint2]), str(constraints[index1]), str(constraints[index2]), str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in indiviualRelativeErrors]
+				row = [str(timepoint), constraint1, constraint2, str(constraintToReactionDict[constraint1]), str(constraintToReactionDict[constraint2]), str(constraints[index1]), str(constraints[index2]), str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in individualRelativeErrors]
 
 				output_file.write("\n" + "\t".join(row))
 
@@ -239,7 +227,7 @@ def determineAllButOneConstraints(outputFileName, fba, constraints, constraintID
 		output_file.write("\t".join(headers))
 
 		# Find the unconstrained deviation from the target metabolite concentrations
-		baseIndiviualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
+		baseIndividualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 		# Apply all constraints
 		for index, constraint in enumerate(constraintIDs):
@@ -250,10 +238,10 @@ def determineAllButOneConstraints(outputFileName, fba, constraints, constraintID
 		individualErrors, totalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 		# Find the error relative to the unconstrained solution
-		indiviualRelativeErrors = individualErrors - baseIndiviualErrors
+		individualRelativeErrors = individualErrors - baseIndividualErrors
 		totalRelativeError = totalError - baseTotalError
 
-		row = [str(timepoint), "All constraints", "All Reactions", "No constraints removed", str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in indiviualRelativeErrors]
+		row = [str(timepoint), "All constraints", "All Reactions", "No constraints removed", str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in individualRelativeErrors]
 
 		output_file.write("\n" + "\t".join(row))
 
@@ -266,10 +254,10 @@ def determineAllButOneConstraints(outputFileName, fba, constraints, constraintID
 			individualErrors, totalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 			# Find the error relative to the unconstrained solution
-			indiviualRelativeErrors = individualErrors - baseIndiviualErrors
+			individualRelativeErrors = individualErrors - baseIndividualErrors
 			totalRelativeError = totalError - baseTotalError
 
-			row = [str(timepoint), constraint, str(constraintToReactionDict[constraint]), str(constraints[index]), str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in indiviualRelativeErrors]
+			row = [str(timepoint), constraint, str(constraintToReactionDict[constraint]), str(constraints[index]), str(totalError), str(totalRelativeError)] + [str(x) for x in individualErrors] + [str(x) for x in individualRelativeErrors]
 
 			output_file.write("\n" + "\t".join(row))
 
@@ -318,7 +306,7 @@ def plotNumConstraintsVersusError(outputFileName, fba, samplesPerPoint, numPoint
 	pointsToSample = np.arange(1,len(reactionIDs),len(reactionIDs)/numPointsToSample)
 
 	# Find the unconstrained deviation from the target metabolite concentrations
-	baseIndiviualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
+	baseIndividualErrors, baseTotalError = evaluatePoint(fba, metaboliteCountsInit, targetConcentrations, countsToMolar)
 
 	positiveErrorReactions = set()
 	negativeErrorReactions = set()
@@ -329,7 +317,7 @@ def plotNumConstraintsVersusError(outputFileName, fba, samplesPerPoint, numPoint
 			individualErrors, totalError, constrainedReactions = determineErrorNRandomFluxesZero(fba, point, 0, reactionIDs, metaboliteCountsInit, targetConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
 
 			# Find the error relative to the unconstrained solution
-			indiviualRelativeErrors = individualErrors - baseIndiviualErrors
+			individualRelativeErrors = individualErrors - baseIndividualErrors
 			totalRelativeError = totalError - baseTotalError
 
 			# Record this point
@@ -402,4 +390,21 @@ def plotNumConstraintsVersusError(outputFileName, fba, samplesPerPoint, numPoint
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
 	plt.close("all")
+
+
+if __name__ == "__main__":
+	defaultKBFile = os.path.join(
+			wholecell.utils.constants.SERIALIZED_KB_DIR,
+			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
+			)
+
+	parser = argparse.ArgumentParser()
+	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
+	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
+	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
+	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+
+	args = parser.parse_args().__dict__
+
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
 
