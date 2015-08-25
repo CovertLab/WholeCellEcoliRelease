@@ -371,11 +371,13 @@ for i in VARIANTS_TO_RUN:
 				fw_this_variant_this_gen_this_sim_compression = Firework(
 					ScriptTask(
 						# script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
-						script = "Output zipping DISABLED: fw_queue.py line 373."
+						script = 'echo Output zipping DISABLED: fw_queue.py line 373.'
 						),
 					name = fw_name,
 					spec = {"_queueadapter": {"job_name": fw_name}}
 					)
+
+				print "Warning!  Simulation output will not be compressed."
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
 
