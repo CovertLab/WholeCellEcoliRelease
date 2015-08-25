@@ -118,7 +118,6 @@ class Simulation(object):
 		self.hooks = _orderedAbstractionReference(self._hookClasses)
 		self._initLoggers()
 		self._cellCycleComplete = False
-		self._dnaReplicationComplete = False
 
 		for state in self.states.itervalues():
 			state.initialize(self, kb)
@@ -317,6 +316,3 @@ class Simulation(object):
 
 	def cellCycleComplete(self):
 		self._cellCycleComplete = True
-
-	def dnaReplicationComplete(self):
-		self._dnaReplicationComplete = True

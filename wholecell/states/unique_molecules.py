@@ -203,8 +203,8 @@ class UniqueMolecules(wholecell.states.state.State):
 		self.container.tableCreate(tableWriter)
 
 
-	def tableAppend(self, tableWriter):
-		self.container.tableAppend(tableWriter)
+	#def tableAppend(self, tableWriter):
+		#self.container.tableAppend(tableWriter)
 
 
 	def tableLoad(self, tableReader, tableIndex):

@@ -139,7 +139,7 @@ class Translation(object):
 
 		maxLen = np.int64(
 			self.monomerData["length"].asNumber().max()
-			+ sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
+			+ sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)
 			)
 
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)

@@ -95,7 +95,7 @@ class Complexation(object):
 		massBalanceArray = self.massBalance()
 
 		# The stoichometric matrix should balance out to numerical zero.
-		assert np.max([abs(x) for x in massBalanceArray]) < 10e-9
+		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)

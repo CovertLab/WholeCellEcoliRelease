@@ -44,7 +44,14 @@ COMPLEXES_REQUIRE_MODIFIED = ['ACETYL-COA-CARBOXYLMULTI-CPLX', 'BCCP-CPLX',
 COMPLEXES_NOT_FORMED = [
 	# RNA poly + sigma factor
 	"RNAPE-CPLX", "CPLX0-221", "CPLX0-222", "RNAPS-CPLX", "RNAP32-CPLX",
-	"RNAP54-CPLX", "RNAP70-CPLX",'CPLX0-3964'
+	"RNAP54-CPLX", "RNAP70-CPLX",'CPLX0-3964',
+	"CPLX0-3461", # Removing these complexes because they contain RNAses
+	"CPLX0-3281",
+	"CPLX0-2381",
+	"CPLX0-7909",
+	"CPLX0-3601",
+	"CPLX0-1382",
+	"CPLX0-1621"
 	]
 
 REACTION_ENZYME_ASSOCIATIONS = {
@@ -1898,6 +1905,7 @@ POLYMERIZED_AMINO_ACID_WEIGHTS = [
 
 POLYPEPTIDE_END_WEIGHT = {"base molecule":"H2O",	"frame id":"Polypeptide terminal hydroxyl",	"mw":18.0148}
 
+# Weight of the NMP minus the weight of an -OH
 POLYMERIZED_NUCLEOTIDE_WEIGHTS = [
 	{"base molecule":"ATP",	"frame id":"Polymerized ADN",	"mw":328.1999},
 	{"base molecule":"CTP",	"frame id":"Polymerized CYTD",	"mw":304.1739},

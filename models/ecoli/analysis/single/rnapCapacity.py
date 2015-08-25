@@ -41,7 +41,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	massFullRnapComplex = kb.getter.getMass(["APORNAP-CPLX[c]"])[0]
 	rnapSubunitMasses = kb.getter.getMass(rnapSubunitIds)
 
-	elongationRate = float(kb.constants.rnaPolymeraseElongationRate.asNumber(units.nt / units.s))
+	elongationRate = float(kb.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s))
 
 	# Load rnap data
 	rnapDataFile = TableReader(os.path.join(simOutDir, "RnapData"))

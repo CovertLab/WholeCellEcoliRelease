@@ -23,7 +23,9 @@ MAX_FITTING_ITERATIONS = 100
 
 DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
-TIME_STEP_SEC = 1.0
+TIME_STEP_SEC = None # If this is None the time step will be fit for the simulation in fitTimeStep
+
+VERBOSE = False
 
 def fitKb_1(kb):
 	# Initialize simulation data with growth rate
@@ -33,8 +35,14 @@ def fitKb_1(kb):
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(kb)
 
+	# Set C-period
+	setCPeriod(kb)
+
+	unfitExpression = kb.process.transcription.rnaData["expression"].copy()
+
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
+		if VERBOSE: print 'Iteration: {}'.format(iteration)
 
 		initialExpression = kb.process.transcription.rnaData["expression"].copy()
 
@@ -53,6 +61,7 @@ def fitKb_1(kb):
 		finalExpression = kb.process.transcription.rnaData["expression"]
 
 		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - finalExpression)))
+		if VERBOSE: print 'degree of fit: {}'.format(degreeOfFit)
 
 		if degreeOfFit < FITNESS_THRESHOLD:
 			break
@@ -62,13 +71,15 @@ def fitKb_1(kb):
 
 	# Modify other properties
 
-	fitRNAPolyTransitionRates(kb)
+	fitRNAPolyTransitionRates(kb, bulkContainer)
 
 	## Calculate and set maintenance values
 
 	# ----- Growth associated maintenance -----
 
 	fitMaintenanceCosts(kb, bulkContainer)
+
+	fitTimeStep(kb, bulkContainer)
 
 # Sub-fitting functions
 
@@ -82,6 +93,8 @@ def setRnaPolymeraseCodingRnaDegradationRates(kb):
 	mRNA_indexes = kb.relation.rnaIndexToMonomerMapping[subunitIndexes]
 	kb.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
+def setCPeriod(kb):
+	kb.growthRateParameters.c_period = kb.process.replication.genome_length * units.nt / kb.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	subMass = kb.mass.subMass
@@ -243,7 +256,7 @@ def createBulkContainer(kb):
 	bulkContainer.countsIs(counts_mRNA, ids_mRNA)
 
 	## Assign protein counts based on mass and mRNA counts
-	netLossRate_protein = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates)
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
@@ -287,15 +300,16 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	proteinDegradationRates =  kb.process.translation.monomerData["degRate"]
 	proteinCounts =  bulkContainer.counts(kb.process.translation.monomerData["id"])
 
-	netLossRate_protein = netLossRateFromDilutionAndDegradation(
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(
 		kb.doubling_time,
 		proteinDegradationRates
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, kb.constants.ribosomeElongationRate, netLossRate_protein, proteinCounts)
+	proteinLengths, kb.growthRateParameters.ribosomeElongationRate, netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
+	nRibosomesNeeded = nRibosomesNeeded.asNumber()
 
 	# Minimum number of ribosomes needed
 	constraint1_ribosome30SCounts = (
@@ -331,6 +345,17 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 	ribosome50SCounts = bulkContainer.counts(ribosome50SSubunits)
 
 	# -- SET RIBOSOME FUNDAMENTAL SUBUNIT COUNTS TO MAXIMUM CONSTRAINT -- #
+	constraint_names = np.array(["Insufficient to double protein counts", "Too small for mass fraction", "Current level OK"])
+	nRibosomesNeeded = nRibosomesNeeded * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
+	rib30lims = np.array([nRibosomesNeeded, massFracPredicted_30SCount, (ribosome30SCounts / ribosome30SStoich).min()])
+	rib50lims = np.array([nRibosomesNeeded, massFracPredicted_50SCount, (ribosome50SCounts / ribosome50SStoich).min()])
+	if VERBOSE: print '30S limit: {}'.format(constraint_names[np.where(rib30lims.max() == rib30lims)[0]][0])
+	if VERBOSE: print '30S actual count: {}'.format((ribosome30SCounts / ribosome30SStoich).min())
+	if VERBOSE: print '30S count set to: {}'.format(rib30lims[np.where(rib30lims.max() == rib30lims)[0]][0])
+	if VERBOSE: print '50S limit: {}'.format(constraint_names[np.where(rib50lims.max() == rib50lims)[0]][0])
+	if VERBOSE: print '50S actual count: {}'.format((ribosome50SCounts / ribosome50SStoich).min())
+	if VERBOSE: print '50S count set to: {}'.format(rib50lims[np.where(rib50lims.max() == rib50lims)[0]][0])
+
 	bulkContainer.countsIs(
 		np.fmax(np.fmax(ribosome30SCounts, constraint1_ribosome30SCounts), constraint2_ribosome30SCounts),
 		ribosome30SSubunits
@@ -350,25 +375,52 @@ def setRibosomeCountsConstrainedByPhysiology(kb, bulkContainer):
 def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.process.transcription.rnaData['countsACGU'], axis = 1)
-	rnaLossRate = netLossRateFromDilutionAndDegradation(kb.doubling_time, kb.process.transcription.rnaData["degRate"])
+
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
+	
+	# Compute counts of endoRNases
+	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
+	endoRnaseCounts = np.zeros(len(endoRnaseIds))
+	proteinIds = kb.process.translation.monomerData["id"]
+	count_endoRN = 0
+	for p in range (len(proteinIds)):
+		if proteinIds[p] in endoRnaseIds:
+			endoRnaseCounts[count_endoRN] = proteinCounts[p]
+			count_endoRN += 1
 
-	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-		rnaLengths, kb.constants.rnaPolymeraseElongationRate, rnaLossRate, rnaCounts)
-	nActiveRnapNeeded.normalize()
+	rnaLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
+		kb.doubling_time,
+		kb.process.transcription.rnaData["degRate"],
+		kb.constants.KcatEndoRNasesFullRNA, 
+		rnaCounts, 
+		endoRnaseCounts
+		)
+	
+	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
+		rnaLengths, kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate_RNA)
 
-	nActiveRnapNeeded.checkNoUnit()
-	nRnapsNeeded = nActiveRnapNeeded / kb.constants.fractionActiveRnap
+	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
+	nRnapsNeeded = nActiveRnapNeeded / kb.growthRateParameters.fractionActiveRnap
+
+	rnapIds = kb.process.complexation.getMonomers(kb.moleculeGroups.rnapFull[0])['subunitIds']
+	rnapStoich = kb.process.complexation.getMonomers(kb.moleculeGroups.rnapFull[0])['subunitStoich']
 
 	minRnapSubunitCounts = (
-		nRnapsNeeded * np.array([2, 1, 1, 1]) # Subunit stoichiometry # TODO: obtain automatically
+		nRnapsNeeded * rnapStoich # Subunit stoichiometry
 		)
 
 	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
-	rnapCounts = bulkContainer.counts(kb.moleculeGroups.rnapIds)
+	rnapCounts = bulkContainer.counts(rnapIds)
 
 	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
-	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), kb.moleculeGroups.rnapIds)
+	constraint_names = np.array(["Current level OK", "Insufficient to double RNA distribution"])
+	rnapLims = np.array([(rnapCounts / rnapStoich).min(), (minRnapSubunitCounts / rnapStoich).min()])
+	if VERBOSE: print 'rnap limit: {}'.format(constraint_names[np.where(rnapLims.max() == rnapLims)[0]][0])
+	if VERBOSE: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
+	if VERBOSE: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
+
+	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
 
 
 
@@ -383,7 +435,7 @@ def fitExpression(kb, bulkContainer):
 	doublingTime = kb.doubling_time
 	degradationRates_protein = kb.process.translation.monomerData["degRate"]
 
-	netLossRate_protein = netLossRateFromDilutionAndDegradation(doublingTime, degradationRates_protein)
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates_protein)
 
 	### Modify kbFit to reflect our bulk container ###
 
@@ -422,30 +474,39 @@ def fitExpression(kb, bulkContainer):
 
 	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData["expression"])
 
-	## Synthesis probabilities ##
-	netLossRate_RNA = netLossRateFromDilutionAndDegradation(
-		doublingTime,
-		kb.process.transcription.rnaData["degRate"]
+	# Compute counts of endoRNases
+	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	proteinCounts = counts_protein 
+	endoRnaseCounts = np.zeros(len(endoRnaseIds))
+	proteinIds = kb.process.translation.monomerData["id"]
+	count_endoRN = 0
+	for p in range (len(proteinIds)):
+		if proteinIds[p] in endoRnaseIds:
+			endoRnaseCounts[count_endoRN] = proteinCounts[p]
+			count_endoRN += 1
+
+
+	netLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
+		(doublingTime / units.s).asNumber(),
+		(kb.process.transcription.rnaData["degRate"] * units.s).asNumber(),
+		(kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber(),
+		view_RNA.counts(), 
+		endoRnaseCounts
 		)
 
-	synthProb = normalize(
-			(
-			units.s
-				* netLossRate_RNA
-				* view_RNA.counts()
-			).asNumber()
-		)
+	synthProb = normalize(netLossRate_RNA)
 
 	kb.process.transcription.rnaData["synthProb"][:] = synthProb
 
 
-def fitRNAPolyTransitionRates(kb):
+def fitRNAPolyTransitionRates(kb, bulkContainer):
 	## Transcription activation rate
 
 	synthProb = kb.process.transcription.rnaData["synthProb"]
+
 	rnaLengths = kb.process.transcription.rnaData["length"]
 
-	elngRate = kb.constants.rnaPolymeraseElongationRate
+	elngRate = kb.growthRateParameters.rnaPolymeraseElongationRate
 
 	# In our simplified model of RNA polymerase state transition, RNAp can be
 	# active (transcribing) or inactive (free-floating).  To solve for the
@@ -457,9 +518,9 @@ def fitRNAPolyTransitionRates(kb):
 
 	expectedTerminationRate = elngRate / averageTranscriptLength
 
-	kb.transcriptionActivationRate = expectedTerminationRate * kb.constants.fractionActiveRnap / (1 - kb.constants.fractionActiveRnap)
+	kb.transcriptionActivationRate = expectedTerminationRate * kb.growthRateParameters.fractionActiveRnap / (1 - kb.growthRateParameters.fractionActiveRnap)
 
-	kb.fracActiveRnap = kb.constants.fractionActiveRnap
+	kb.fracActiveRnap = kb.growthRateParameters.fractionActiveRnap
 
 
 
@@ -501,6 +562,42 @@ def fitMaintenanceCosts(kb, bulkContainer):
 
 	kb.constants.darkATP = darkATP
 
+def fitTimeStep(kb, bulkContainer):
+	'''
+	Assumes that major limitor of growth will be translation associated
+	resources, specifically AAs or GTP.
+
+	Basic idea is that the rate of usage scales at the same rate as the size of the
+	pool of resources.
+
+	[Polymerized resource] * ln(2) * dt / doubling_time < [Pool of resource]
+
+	'''
+	aaCounts = kb.process.translation.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
+	aasInProteins = units.sum(aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)), axis = 0)
+
+	# USE IF AA LIMITING - When metabolism is implementing GAM
+	# aaPools = units.aa * bulkContainer.counts(kb.moleculeGroups.aaIDs)
+	# avgCellDryMassInit = kb.mass.avgCellDryMassInit
+	# cellDensity = kb.constants.cellDensity
+	# cellVolume = avgCellDryMassInit / cellDensity
+
+	# aaPoolConcentration = aaPools / cellVolume
+	# aaPolymerizedConcentration = aasInProteins / cellVolume
+
+	# time_step = (aaPoolConcentration / aaPolymerizedConcentration) * kb.doubling_time / np.log(2)
+
+	# USE IF GTP LIMITING - When GAM is incorperated into GTP/aa polymerized
+	gtpPool = bulkContainer.counts(['GTP[c]'])
+	gtpPolymerizedPool = (aasInProteins.asNumber(units.aa) * kb.constants.gtpPerTranslation).sum()
+	timeStep = ((gtpPool / gtpPolymerizedPool) * kb.doubling_time.asNumber(units.s) / np.log(2))[0]
+	timeStep = np.floor(timeStep * 100) / 100.0 # Round down to 2nd decimal
+
+	if kb.timeStepSec != None:
+		raise Exception("timeStepSec was set to a specific value!")
+	else:
+		kb.timeStepSec = timeStep * 0.7
 
 # Math functions
 
@@ -579,6 +676,19 @@ def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongati
 		)
 	return nPolymerizingEnzymeNeeded
 
+def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elongationRate, netLossRate):
+	nPolymerizingEnzymeNeeded = units.sum(
+		productLengths / elongationRate
+			* netLossRate
+		)
+	return nPolymerizingEnzymeNeeded
 
-def netLossRateFromDilutionAndDegradation(doublingTime, degradationRates):
+
+def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates):
 	return np.log(2) / doublingTime + degradationRates
+
+
+def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts):
+	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
+	# How RNases target specific RNAs is not explicitly accounted for fitting purpose because of the low copy number of RNases that can  target specific species
+	return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )

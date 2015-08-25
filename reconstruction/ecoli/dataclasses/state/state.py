@@ -67,11 +67,26 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
 
-		# Set polymerized
-		polymerizedIds = sf.createIdsWithCompartments(raw_data.polymerized)
-		polymerizedMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.polymerized)
+		# Set chromosome
+		chromosomeIds = sf.createIdsWithCompartments(raw_data.chromosome)
+		chromosomeMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.chromosome)
 
-		self.bulkMolecules.addToBulkState(polymerizedIds, polymerizedMasses)
+		self.bulkMolecules.addToBulkState(chromosomeIds, chromosomeMasses)
+
+
+		# Set fragments
+		test = []
+		for x in raw_data.polymerized:
+			if x['is_ntp']:
+				if not x['is_end']:
+					temp = x
+					temp['id'] = x['id'].replace('Polymerized','Fragment')
+					test.append(temp)
+		fragmentsIds = sf.createIdsWithCompartments(test)
+		fragmentsMasses = units.g / units.mol * sf.createMassesByCompartments(test)
+
+		self.bulkMolecules.addToBulkState(fragmentsIds, fragmentsMasses)
+
 
 	def _buildBulkChromosome(self, raw_data, sim_data):
 		# Set genes
@@ -108,11 +123,17 @@ class State(object):
 		# Add active DNA polymerase
 		dnaPolyMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: dnaPolymerases currently have no mass
 		dnaPolymeraseAttributes = {
-				'chromosomeLocation' : 'i8',
-				'directionIsPositive' : 'bool',
-				'isLeading' : 'bool'
+				'sequenceIdx' : 'i8',
+				'sequenceLength' : 'i8',
+				'replicationRound' : 'i8',
+				'chromosomeIndex' : 'i8',
 				}
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
+
+		# Origin of replication
+		originMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
+		originAttributes = {}
+		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),
