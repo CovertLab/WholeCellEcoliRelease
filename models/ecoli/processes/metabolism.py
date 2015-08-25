@@ -32,7 +32,7 @@ from wholecell.utils.enzymeKinetics import EnzymeKinetics
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
-USE_RATELIMITS = True # Enable/disable kinetic rate limits in the model
+USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -103,6 +103,21 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Determine which kinetic limits to use
 		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
+
+		# halfPoint = int(np.floor(len(self.fba.reactionIDs())/2))
+		# quarterPoint = int(np.floor(len(self.fba.reactionIDs())/4))
+		# eigthPoint = int(np.floor(len(self.fba.reactionIDs())/8))
+		# sixteenthPoint = int(np.floor(len(self.fba.reactionIDs())/16))
+		# thirtysecondPoint = int(np.floor(len(self.fba.reactionIDs())/32))
+		# sixtyfourthPoint = int(np.floor(len(self.fba.reactionIDs())/64))
+		# a128thPoint = int(np.floor(len(self.fba.reactionIDs())/128))
+		# a256thPoint = int(np.floor(len(self.fba.reactionIDs())/256))
+
+		# start = 0 
+		# end = start + 3*eigthPoint
+
+		# for index in xrange(start,end):
+		# 	self.reactionsWithKineticLimits[index] = True
 
 		# Set constraints
 		## External molecules
