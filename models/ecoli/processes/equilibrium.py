@@ -15,8 +15,11 @@ from __future__ import division
 import numpy as np
 import scipy.integrate
 from wholecell.utils import units
+import theano.tensor as T
+import theano
 
 import wholecell.processes.process
+
 
 class Equilibrium(wholecell.processes.process.Process):
 	""" Equilibrium """
@@ -33,16 +36,17 @@ class Equilibrium(wholecell.processes.process.Process):
 	def initialize(self, sim, kb):
 		super(Equilibrium, self).initialize(sim, kb)
 
+		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self.cellDensity = kb.constants.cellDensity.asNumber(units.g / units.L)
+
 		# Create matrices and vectors
 
 		self.stoichMatrix = kb.process.equilibrium.stoichMatrix().astype(np.int64)
 		self.ratesFwd = kb.process.equilibrium.ratesFwd
 		self.ratesRev = kb.process.equilibrium.ratesRev
 
+		self._makeDerivative()
 		self._makeMatrices()
-
-		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
-		self.cellDensity = kb.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Build views
 
@@ -57,8 +61,12 @@ class Equilibrium(wholecell.processes.process.Process):
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
 		cellVolume = cellMass / self.cellDensity
 
-		y = scipy.integrate.odeint(self._derivatives, moleculeCounts / (self.nAvogadro * cellVolume), t = [0, 1000])
-		yMolecules = y * (self.nAvogadro * cellVolume)
+		y = scipy.integrate.odeint(self._derivatives, moleculeCounts / (cellVolume * self.nAvogadro), t = [0, 1e4])# mxstep = 100000, Dfun = self._jacobian)
+		if np.any(y[-1, :] < 0):
+			raise Exception, "Have negative values -- probably due to numerical instability"
+		if np.linalg.norm(self._derivatives(y[-1, :], 0), np.inf) * (cellVolume * self.nAvogadro) > 1:
+			raise Exception, "Didn't reach steady state"
+		yMolecules = y * (cellVolume * self.nAvogadro)
 
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
@@ -73,15 +81,56 @@ class Equilibrium(wholecell.processes.process.Process):
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
-		# Don't do anything this time step if you don't get all the molecules requested
-		if not np.all(self.req.astype(np.int) == moleculeCounts):
-			return
+		rxnFluxes = self.rxnFluxes.copy()
 
-		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, self.rxnFluxes) >= 0))
+		# Kill reactions where we have insufficient metabolites
+		for badMetIdx in np.where(self.req > moleculeCounts)[0]:
+			rxnFluxes[self.stoichMatrix[badMetIdx, :]!= 0] = 0
+
+		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
 
 		self.molecules.countsInc(
-			np.dot(self.stoichMatrix, self.rxnFluxes)
+			np.dot(self.stoichMatrix, rxnFluxes)
 			)
+
+	def _terminate(self, f):
+		def termFunc(u, t, step_no):
+			return np.linalg.norm(f(u[step_no, :], t)) < 1e-12
+		return termFunc
+
+	def _makeDerivative(self):
+
+		S = self.stoichMatrix
+
+		y = T.dvector()
+		dy = [0 * y[0] for _ in xrange(S.shape[0])]
+		for colIdx in xrange(S.shape[1]):
+			negIdxs = np.where(S[:, colIdx] < 0)[0]
+			posIdxs = np.where(S[:, colIdx] > 0)[0]
+
+			reactantFlux = self.ratesFwd[colIdx]
+			for negIdx in negIdxs:
+				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
+
+			productFlux = self.ratesRev[colIdx]
+			for posIdx in posIdxs:
+				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
+
+			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
+			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
+
+			for thisIdx in negIdxs:
+				dy[thisIdx] += fluxForNegIdxs
+			for thisIdx in posIdxs:
+				dy[thisIdx] += fluxForPosIdxs
+
+		t = T.dscalar()
+		dy = T.stack(*dy)
+		self._derivatives = theano.function([y, t], dy, on_unused_input = "ignore")
+
+		# import ipdb; ipdb.set_trace()
+		# J, updates = theano.scan(lambda i, dy, y: T.grad(dy[i], y), sequences = T.arange(dy.shape[0]), non_sequences = [dy, y])
+		# self._derivativesJacobian = theano.function([y, t], J, updates = updates)
 
 	def _makeMatrices(self):
 		EPS = 1e-9
@@ -119,14 +168,3 @@ class Equilibrium(wholecell.processes.process.Process):
 			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
 
 		self.metsToRxnFluxes = metsToRxnFluxes.T
-
-	def _derivatives(self, v, t):
-		v[v < 0] = 0
-		vLog = np.log(v)
-		fluxReactant = self.ratesFwd * np.exp(self.R.dot(vLog))
-		fluxProduct = self.ratesRev * np.exp(self.P.dot(vLog))
-
-		return (
-		 np.dot(self.Rn, fluxReactant) + np.dot(self.Rp, fluxProduct) +
-		 np.dot(self.Pp, fluxReactant) + np.dot(self.Pn, fluxProduct)
-		)
