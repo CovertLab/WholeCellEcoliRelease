@@ -61,11 +61,14 @@ class Equilibrium(wholecell.processes.process.Process):
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
 		cellVolume = cellMass / self.cellDensity
 
-		y = scipy.integrate.odeint(self._derivatives, moleculeCounts / (cellVolume * self.nAvogadro), t = [0, 1e4])# mxstep = 100000, Dfun = self._jacobian)
-		if np.any(y[-1, :] < 0):
+		y_init = moleculeCounts / (cellVolume * self.nAvogadro)
+		y = scipy.integrate.odeint(self._derivatives, y_init, t = [0, 1e4], Dfun = self._derivativesJacobian)
+
+		if np.any(y[-1, :] * (cellVolume * self.nAvogadro) <= -1):
 			raise Exception, "Have negative values -- probably due to numerical instability"
 		if np.linalg.norm(self._derivatives(y[-1, :], 0), np.inf) * (cellVolume * self.nAvogadro) > 1:
 			raise Exception, "Didn't reach steady state"
+		y[y < 0] = 0
 		yMolecules = y * (cellVolume * self.nAvogadro)
 
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
@@ -83,7 +86,7 @@ class Equilibrium(wholecell.processes.process.Process):
 
 		rxnFluxes = self.rxnFluxes.copy()
 
-		# Kill reactions where we have insufficient metabolites
+		# Kill "bad" reactions where we have insufficient metabolites
 		for badMetIdx in np.where(self.req > moleculeCounts)[0]:
 			rxnFluxes[self.stoichMatrix[badMetIdx, :]!= 0] = 0
 
@@ -92,11 +95,6 @@ class Equilibrium(wholecell.processes.process.Process):
 		self.molecules.countsInc(
 			np.dot(self.stoichMatrix, rxnFluxes)
 			)
-
-	def _terminate(self, f):
-		def termFunc(u, t, step_no):
-			return np.linalg.norm(f(u[step_no, :], t)) < 1e-12
-		return termFunc
 
 	def _makeDerivative(self):
 
@@ -125,12 +123,11 @@ class Equilibrium(wholecell.processes.process.Process):
 				dy[thisIdx] += fluxForPosIdxs
 
 		t = T.dscalar()
-		dy = T.stack(*dy)
-		self._derivatives = theano.function([y, t], dy, on_unused_input = "ignore")
 
-		# import ipdb; ipdb.set_trace()
-		# J, updates = theano.scan(lambda i, dy, y: T.grad(dy[i], y), sequences = T.arange(dy.shape[0]), non_sequences = [dy, y])
-		# self._derivativesJacobian = theano.function([y, t], J, updates = updates)
+		J = [T.grad(dy[i], y) for i in xrange(len(dy))]
+
+		self._derivativesJacobian = theano.function([y, t], T.stack(*J), on_unused_input = "ignore")
+		self._derivatives = theano.function([y, t], T.stack(*dy), on_unused_input = "ignore")
 
 	def _makeMatrices(self):
 		EPS = 1e-9
@@ -140,21 +137,11 @@ class Equilibrium(wholecell.processes.process.Process):
 		S1[S < -1 * EPS] = -1
 		S1[S > EPS] = 1
 
-		R = (-1 * (S < 0) * S).T
-		P = (	  (S > 0) * S).T
-
 		Rp =  1. * (S1 < 0)
-		Rn = -1. * (S1 < 0)
 		Pp =  1. * (S1 > 0)
-		Pn = -1. * (S1 > 0)
 
-		self.S1 = S1
-		self.R = scipy.sparse.csr_matrix(R)
-		self.P = scipy.sparse.csr_matrix(P)
 		self.Rp = Rp
-		self.Rn = Rn
 		self.Pp = Pp
-		self.Pn = Pn
 
 		metsToRxnFluxes = self.stoichMatrix.copy()
 
