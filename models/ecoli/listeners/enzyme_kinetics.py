@@ -34,25 +34,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metabolism = sim.processes["Metabolism"]
 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
 		self.metaboliteIDs = kb.process.metabolism.metabolitePoolIDs
-		self.reactionStoich = kb.process.metabolism.reactionStoich.copy()
-		self.externalExchangeMolecules = kb.process.metabolism.externalExchangeMolecules
-		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
-		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(units.mmol/units.L)
 		self.constraintToReactionDict = kb.process.metabolism.constraintToReactionDict
-
-		self.objective = dict(zip(
-			kb.process.metabolism.metabolitePoolIDs,
-			self.targetConcentrations
-			))
-
-		self.reversibleReactions = kb.process.metabolism.reversibleReactions
-
-		extIDs = kb.process.metabolism.externalExchangeMolecules
-		
-		self.moleculeMasses = dict(zip(
-			extIDs,
-			kb.getter.getMass(extIDs).asNumber(units.g/units.mmol)
-			))
 
 	# Allocate memory
 	# In case things are of unknown size, write them here
@@ -68,8 +50,12 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
 		self.constraintIDs = self.metabolism.constraintIDs
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteIDs), np.float64)
+		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.metaboliteConcentrations = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
+		self.counts_units = "                                          " # Placeholder string longer than any unit name
+		self.mass_units = "                                          " # Placeholder string longer than any unit name
+		self.volume_units = "                                          " # Placeholder string longer than any unit name
 
 
 	def update(self):
@@ -79,13 +65,6 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.writeAttributes(
 			reactionIDs = self.reactionIDs,
 			constraintIDs = self.constraintIDs,
-			reactionStoich = self.reactionStoich,
-			externalExchangeMolecules = self.externalExchangeMolecules,
-			objective = self.objective,
-			reversibleReactions = self.reversibleReactions,
-			moleculeMasses = self.moleculeMasses,
-			metabolitePoolIDs = self.metabolitePoolIDs,
-			targetConcentrations = self.targetConcentrations,
 			constraintToReactionDict = self.constraintToReactionDict,
 			)
 
@@ -98,6 +77,10 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			perEnzymeRates = self.perEnzymeRates,
 			allConstraintsLimits = self.allConstraintsLimits,
 			metaboliteCountsInit = self.metaboliteCountsInit,
+			metaboliteCountsFinal = self.metaboliteCountsFinal,
 			metaboliteConcentrations = self.metaboliteConcentrations,
 			countsToMolar = self.countsToMolar,
+			counts_units = self.counts_units,
+			mass_units = self.mass_units,
+			volume_units = self.volume_units,
 			)

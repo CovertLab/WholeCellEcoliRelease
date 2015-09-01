@@ -19,28 +19,6 @@
 											
 											
 											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
 "CHORPYRLY-RXN"	["CHORPYRLY-MONOMER"]	["CHORISMATE"]	"standard"	[0.82]	[9.7]	[]	null	null	null	null	null
 											
 											
@@ -52,9 +30,23 @@
 											
 											
 											
+											
+											
+											
+											
+											
+											
 "ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[2.88]	[14]	[]	null	null	null	null	null
+											
+											
+											
 "GART-RXN"	["GART-MONOMER"]	[]	"standard"	[40]	[]	[]	null	null	null	null	null
 "L-ASPARTATE-OXID-RXN"	["L-ASPARTATE-OXID-MONOMER"]	["L-ASPARTATE"]	"standard"	[0.5333]	[0.5]	[]	null	null	null	null	null
+											
+											
+											
+											
+											
 											
 											
 											
@@ -85,7 +77,15 @@
 											
 											
 											
-
+											
+											
+											
+											
+											
+									
+											
+											
+											
 											
 											
 											
@@ -136,6 +136,8 @@
 											
 											
 											
+											
+											
 "ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE"]	"standard"	[104]	[1.3]	[]	null	null	null	null	null
 											
 											
@@ -143,9 +145,9 @@
 											
 											
 											
+											
+											
 "RXN0-5462"	["EG10484-MONOMER"]	["GTP"]	"standard"	[0.003]	[4]	[]	null	null	null	null	null
-											
-											
 											
 											
 											
@@ -266,9 +268,10 @@
 											
 											
 											
-											
-											
 "MMUM-RXN"	["MMUM-MONOMER"]	["HOMO-CYS"]	"standard"	[0.38]	[45]	[]	null	null	null	null	null
+											
+											
+											
 											
 											
 											
@@ -426,6 +429,20 @@
 											
 											
 											
+"RXN-11601"	["EG11247-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[0.06]	[26]	[]	null	null	null	null	null
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
 											
 											
 											
@@ -477,7 +494,9 @@
 											
 											
 											
+											
 "SHIKIMATE-5-DEHYDROGENASE-RXN"	["AROE-MONOMER"]	["SHIKIMATE","NADP"]	"standard"	[236.67]	[65,56]	[]	null	null	null	null	null
+											
 											
 											
 											
@@ -591,6 +610,7 @@
 											
 											
 											
+											
 "5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["UMP"]	"standard"	[34.2]	[660]	[]	null	null	null	null	null
 											
 											
@@ -641,6 +661,7 @@
 											
 											
 											
+											
 "LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU"]	"standard"	[11]	[15]	[]	null	null	null	null	null
 "ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.1]	[250]	[]	null	null	null	null	null
 											
@@ -651,6 +672,7 @@
 											
 "TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	["EG11779-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[3.6]	[6]	[]	null	null	null	null	null
 											
+"ALARACECAT-RXN"	["ALARACEBIOSYN-MONOMER"]	["L-ALPHA-ALANINE"]	"standard"	[27.6]	[290]	[]	null	null	null	null	null
 											
 											
 											
@@ -678,6 +700,7 @@
 											
 											
 											
+"RXN-1961"	["G6096-MONOMER"]	["ATP","LYS"]	"standard"	[0.0153,0.0702]	[220,380]	[]	null	null	null	null	null
 											
 											
 											
@@ -729,6 +752,10 @@
 											
 											
 											
+											
+											
+											
+"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"	[6]	[170]	[]	null	null	null	null	null
 											
 											
 											
@@ -780,6 +807,67 @@
 											
 											
 											
+"GLUCOSE-1-PHOSPHAT-RXN"	["EG11850-MONOMER"]	["ACETYL-P"]	"standard"	[2.7]	[3600]	[]	null	null	null	null	null
+											
+"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["UMP"]	"standard"	[25]	[2400]	[]	null	null	null	null	null
+											
+"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["AMP"]	"standard"	[1.3]	[1800]	[]	null	null	null	null	null
+"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["DGMP"]	"standard"	[2.1]	[2800]	[]	null	null	null	null	null
+											
+											
+											
+											
+											
+											
+"RXN-7609"	["G7742-MONOMER"]	["GMP"]	"standard"	[5.5]	[1900]	[]	null	null	null	null	null
+											
+"RXN0-5114"	["PSERPHOSPHA-MONOMER"]	["ACETYL-P"]	"standard"	[76]	[6200]	[]	null	null	null	null	null
+											
+"GPH-RXN"	["GPH-MONOMER"]	["ACETYL-P"]	"standard"	[8.9]	[8900]	[]	null	null	null	null	null
+											
+											
+											
+											
+"SUGAR-PHOSPHATASE-RXN"	["G6425-MONOMER"]	["ACETYL-P"]	"standard"	[101]	[4900]	[]	null	null	null	null	null
+											
+											
+											
+											
+											
+											
+											
+											
+											
+"SUGAR-PHOSPHATASE-RXN"	["EG11195-MONOMER"]	["ACETYL-P"]	"standard"	[24]	[3900]	[]	null	null	null	null	null
+"3.1.3.74-RXN"	["EG11239-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[1]	[370]	[]	null	null	null	null	null
+"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[5.3]	[2400]	[]	null	null	null	null	null
+											
+											
+"3.1.3.74-RXN"	["EG11470-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[12]	[1500]	[]	null	null	null	null	null
+											
+											
+											
+"3.1.3.74-RXN"	["G6246-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[0.58]	[680]	[]	null	null	null	null	null
+											
+"RXN0-4361"	["EG11736-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[0.19]	[420]	[]	null	null	null	null	null
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
 											
 											
 											
@@ -813,6 +901,9 @@
 											
 											
 											
+"GLUTRACE-RXN"	["GLUTRACE-MONOMER"]	["GLT"]	"standard"	[12.17]	[1200]	[]	null	null	null	null	null
+											
+											
 											
 											
 											
@@ -823,6 +914,7 @@
 											
 											
 "RXN0-384"	["H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER"]	["DATP"]	"standard"	[4.59]	[790]	[]	null	null	null	null	null
+											
 											
 											
 											
@@ -891,7 +983,7 @@
 											
 											
 											
-											
+"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"	[34.2]	[65.6]	[]	null	null	null	null	null
 											
 											
 											
@@ -899,6 +991,7 @@
 											
 											
 "2.5.1.19-RXN"	["AROA-MONOMER"]	["PHOSPHO-ENOL-PYRUVATE"]	"standard"	[26.4]	[100]	[]	null	null	null	null	null
+											
 											
 											
 											
@@ -959,7 +1052,14 @@
 											
 											
 											
+											
+											
+											
+											
+											
 "MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	["MALONYL-COA"]	"standard"	[0.00047]	[49]	[]	null	null	null	null	null
+											
+											
 											
 											
 											
@@ -1077,6 +1177,16 @@
 											
 											
 											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
 "UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	["UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER"]	["UDP-N-ACETYL-D-GLUCOSAMINE","PHOSPHO-ENOL-PYRUVATE"]	"standard"	[3.8]	[15,0.4]	[]	null	null	null	null	null
 											
 											
@@ -1084,6 +1194,29 @@
 											
 											
 											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+"RXN0-5462"	["EG12104-MONOMER"]	["GTP"]	"standard"	[0.0053]	[49]	[]	null	null	null	null	null
 											
 											
 											
@@ -1147,134 +1280,6 @@
 "RXN0-5462"	["EG10021-MONOMER"]	["GTP"]	"standard"	[0.0006]	[50]	[]	null	null	null	null	null
 											
 "RXN0-7101"	["KDUD-MONOMER"]	["GLUCONATE","NAD"]	"standard"	[0.9716667,0.21]	[544800,285]	[]	null	null	null	null	null
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
-											
 											
 											
 											

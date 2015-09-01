@@ -68,6 +68,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# TODO: make kb method?
 		extIDs = kb.process.metabolism.externalExchangeMolecules
+		self.extMoleculeMasses = kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 
 		moleculeMasses = dict(zip(
 			extIDs,
@@ -103,21 +104,18 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Determine which kinetic limits to use
 		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
+		self.activeConstraints = [True]*len(self.constraintIDs)
+		
+		# 195 --> grows just fine
+		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-		# halfPoint = int(np.floor(len(self.fba.reactionIDs())/2))
-		# quarterPoint = int(np.floor(len(self.fba.reactionIDs())/4))
-		# eigthPoint = int(np.floor(len(self.fba.reactionIDs())/8))
-		# sixteenthPoint = int(np.floor(len(self.fba.reactionIDs())/16))
-		# thirtysecondPoint = int(np.floor(len(self.fba.reactionIDs())/32))
-		# sixtyfourthPoint = int(np.floor(len(self.fba.reactionIDs())/64))
-		# a128thPoint = int(np.floor(len(self.fba.reactionIDs())/128))
-		# a256thPoint = int(np.floor(len(self.fba.reactionIDs())/256))
+		# 203 --> grows, maybe a hair slower
+		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-		# start = 0 
-		# end = start + 3*eigthPoint
+		# 205 --> grows, a small amount slower, but clearly grows (took 1:06:58 to double instead of the expected 1:00:00)
+		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-		# for index in xrange(start,end):
-		# 	self.reactionsWithKineticLimits[index] = True
+
 
 		# Set constraints
 		## External molecules
@@ -131,6 +129,7 @@ class Metabolism(wholecell.processes.process.Process):
 			COUNTS_UNITS / VOLUME_UNITS
 			)
 
+		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
 		## Set enzymes unlimited
@@ -148,7 +147,6 @@ class Metabolism(wholecell.processes.process.Process):
 		assert outputMoleculeIDs == self.fba.internalMoleculeIDs()
 
 		# Set the priority to a low value
-
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
 
@@ -160,7 +158,6 @@ class Metabolism(wholecell.processes.process.Process):
 	def evolveState(self):
 
 		# Solve for metabolic fluxes
-
 		metaboliteCountsInit = self.metabolites.counts()
 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
@@ -171,7 +168,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 
 		#  Find metabolite concentrations from metabolite counts
-
 		metaboliteConcentrations = metaboliteCountsInit * countsToMolar
 
 		self.fba.internalMoleculeLevelsIs(
@@ -179,7 +175,6 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		#  Find enzyme concentrations from enzyme counts
-
 		enzymeCountsInit = self.enzymes.counts()
 
 		enzymeConcentrations = enzymeCountsInit * countsToMolar
@@ -201,16 +196,42 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Set the rate limits only if the option flag is enabled
 		if USE_RATELIMITS:
-			# Set max reaction fluxes for enzymes for which kinetics are known
-			for index, reactionID in enumerate(self.fba.reactionIDs()):
+			# # Set max reaction fluxes for enzymes for which kinetics are known
+			# for index, reactionID in enumerate(self.fba.reactionIDs()):
+			# 	# Only use this kinetic limit if it's enabled
+			# 	if self.reactionsWithKineticLimits[index]:
+			# 		# Make sure to never set negative maximum rates
+			# 		assert (self.reactionRates[0][index] >= 0 and self.reactionRates[0][index] != np.nan)
+			# 		# Set the max reaction rate for this reaction
+			# 		self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
+			# 	else:
+			# 		self.fba.maxReactionFluxIs(reactionID, defaultRate, raiseForReversible = False)
+			
+
+			# # Set max reaction fluxes for enzymes for which kinetics are known
+			# for index, constraintID in enumerate(self.constraintIDs):
+			# 	# Only use this kinetic limit if it's enabled
+			# 	if self.activeConstraints[index]:
+			# 		# Make sure to never set negative maximum rates
+			# 		assert (self.allConstraintsLimits[0][index] >= 0 and self.allConstraintsLimits[0][index] != np.nan)
+			# 		# Set the max reaction rate for this reaction
+			# 		self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index], raiseForReversible = False)
+			# 	else:
+			# 		self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
+
+			# Set reaction fluxes to be between .5 and 1.5 of the predicted rate
+			for index, constraintID in enumerate(self.constraintIDs):
 				# Only use this kinetic limit if it's enabled
-				if self.reactionsWithKineticLimits[index]:
+				if self.activeConstraints[index]:
 					# Make sure to never set negative maximum rates
-					assert (self.reactionRates[0][index] >= 0 and self.reactionRates[0][index] != np.nan)
+					assert (self.allConstraintsLimits[0][index] >= 0 and self.allConstraintsLimits[0][index] != np.nan)
 					# Set the max reaction rate for this reaction
-					self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
+					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index]*1.5, raiseForReversible = False)
+					# Set the minimum reaction rate for this reaction
+					self.fba.minReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index]*0.5, raiseForReversible = False)
 				else:
-					self.fba.maxReactionFluxIs(reactionID, defaultRate, raiseForReversible = False)
+					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
+
 
 
 		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
@@ -221,6 +242,7 @@ class Metabolism(wholecell.processes.process.Process):
 			), 0).astype(np.int64)
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
+
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
 		self.writeToListener("FBAResults", "reactionFluxes",
@@ -247,11 +269,25 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)
 
+		self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal",
+			metaboliteCountsFinal)
+
 		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations",
 			metaboliteConcentrations)
 
 		self.writeToListener("EnzymeKinetics", "countsToMolar",
 			countsToMolar)
+
+		self.writeToListener("EnzymeKinetics", "counts_units",
+			str(COUNTS_UNITS))
+
+		self.writeToListener("EnzymeKinetics", "mass_units",
+			str(MASS_UNITS))
+
+		self.writeToListener("EnzymeKinetics", "volume_units",
+			str(VOLUME_UNITS))
+
+
 
 
 

@@ -89,7 +89,6 @@ class EnzymeKinetics(object):
 
 		self.allRatesFunction = function(enzyme_vars_array + substrate_vars_array + [noRate], T.stack(longRateExpressionsArray), on_unused_input='ignore')
 
-
 	def buildRateExpression(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict, kcatOnly):
 
 		# Find the enzyme variable for this reaction.
@@ -120,6 +119,10 @@ class EnzymeKinetics(object):
 			# Custom rate law
 			rateExpression = self.enzymeRateCustom(rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict)
 
+		try:
+			return rateExpression
+		except:
+			import ipdb; ipdb.set_trace()
 		return rateExpression
 
 
@@ -167,6 +170,7 @@ class EnzymeKinetics(object):
 		for k_I in rateInfo["kI"]:
 			rate *= ((1)/(1 + (substrate_vars_array[n]/k_I)))
 			n += 1
+
 
 		return rate
 
