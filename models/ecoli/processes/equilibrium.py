@@ -42,11 +42,11 @@ class Equilibrium(wholecell.processes.process.Process):
 		# Create matrices and vectors
 
 		self.stoichMatrix = kb.process.equilibrium.stoichMatrix().astype(np.int64)
-		self.ratesFwd = kb.process.equilibrium.ratesFwd
-		self.ratesRev = kb.process.equilibrium.ratesRev
-
-		self._makeDerivative()
-		self._makeMatrices()
+		self.Rp = kb.process.equilibrium.Rp
+		self.Pp = kb.process.equilibrium.Pp
+		self.derivatives = kb.process.equilibrium.derivatives
+		self.derivativesJacobian = kb.process.equilibrium.derivativesJacobian
+		self.metsToRxnFluxes = kb.process.equilibrium.metsToRxnFluxes
 
 		# Build views
 
@@ -62,11 +62,11 @@ class Equilibrium(wholecell.processes.process.Process):
 		cellVolume = cellMass / self.cellDensity
 
 		y_init = moleculeCounts / (cellVolume * self.nAvogadro)
-		y = scipy.integrate.odeint(self._derivatives, y_init, t = [0, 1e4], Dfun = self._derivativesJacobian)
+		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e4], Dfun = self.derivativesJacobian)
 
 		if np.any(y[-1, :] * (cellVolume * self.nAvogadro) <= -1):
 			raise Exception, "Have negative values -- probably due to numerical instability"
-		if np.linalg.norm(self._derivatives(y[-1, :], 0), np.inf) * (cellVolume * self.nAvogadro) > 1:
+		if np.linalg.norm(self.derivatives(y[-1, :], 0), np.inf) * (cellVolume * self.nAvogadro) > 1:
 			raise Exception, "Didn't reach steady state"
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * self.nAvogadro)
@@ -96,62 +96,5 @@ class Equilibrium(wholecell.processes.process.Process):
 			np.dot(self.stoichMatrix, rxnFluxes)
 			)
 
-	def _makeDerivative(self):
 
-		S = self.stoichMatrix
 
-		y = T.dvector()
-		dy = [0 * y[0] for _ in xrange(S.shape[0])]
-		for colIdx in xrange(S.shape[1]):
-			negIdxs = np.where(S[:, colIdx] < 0)[0]
-			posIdxs = np.where(S[:, colIdx] > 0)[0]
-
-			reactantFlux = self.ratesFwd[colIdx]
-			for negIdx in negIdxs:
-				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
-
-			productFlux = self.ratesRev[colIdx]
-			for posIdx in posIdxs:
-				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
-
-			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
-			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
-
-			for thisIdx in negIdxs:
-				dy[thisIdx] += fluxForNegIdxs
-			for thisIdx in posIdxs:
-				dy[thisIdx] += fluxForPosIdxs
-
-		t = T.dscalar()
-
-		J = [T.grad(dy[i], y) for i in xrange(len(dy))]
-
-		self._derivativesJacobian = theano.function([y, t], T.stack(*J), on_unused_input = "ignore")
-		self._derivatives = theano.function([y, t], T.stack(*dy), on_unused_input = "ignore")
-
-	def _makeMatrices(self):
-		EPS = 1e-9
-
-		S = self.stoichMatrix
-		S1 = np.zeros_like(S)
-		S1[S < -1 * EPS] = -1
-		S1[S > EPS] = 1
-
-		Rp =  1. * (S1 < 0)
-		Pp =  1. * (S1 > 0)
-
-		self.Rp = Rp
-		self.Pp = Pp
-
-		metsToRxnFluxes = self.stoichMatrix.copy()
-
-		metsToRxnFluxes[(np.abs(metsToRxnFluxes) > EPS).sum(axis = 1) > 1, : ] = 0
-		for colIdx in xrange(metsToRxnFluxes.shape[1]):
-			try:
-				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
-			except IndexError:
-				raise Exception, "Column %d of S matrix not linearly independent!" % colIdx
-			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
-			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
-
-		self.metsToRxnFluxes = metsToRxnFluxes.T
