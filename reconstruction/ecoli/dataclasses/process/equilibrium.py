@@ -28,6 +28,13 @@ class Equilibrium(object):
 
 		stoichMatrixMass = []
 
+		# Make sure reactions aren't duplicated in complexationReactions and equilibriumReactions
+		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibriumReactions])
+		complexationReactionIds = set([x["id"] for x in raw_data.complexationReactions])
+
+		if equilibriumReactionIds.intersection(complexationReactionIds) != set():
+			raise Exception, "The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (equilibriumReactionIds.intersection(complexationReactionIds))
+
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
 			"modified-charged-selC-tRNA", # molecule does not exist
