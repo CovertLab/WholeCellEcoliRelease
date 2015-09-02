@@ -2,7 +2,13 @@
 from __future__ import division
 
 import numpy as np
+import os
+import theano.tensor as T
+import theano
+import cPickle
+import wholecell
 from wholecell.utils import units
+from . import metabolism
 
 class Equilibrium(object):
 	def __init__(self, raw_data, sim_data):
@@ -27,15 +33,17 @@ class Equilibrium(object):
 			"modified-charged-selC-tRNA", # molecule does not exist
 			}
 
+		# Remove reactions that we know won't occur (e.g., don't do computations on metabolites that have zero counts)
+		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = metabolism.METABOLITE_CONCENTRATIONS
 		deleteReactions = []
 		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
 			for molecule in reaction["stoichiometry"]:
-				if molecule["molecule"] in FORBIDDEN_MOLECULES:
+				if molecule["molecule"] in FORBIDDEN_MOLECULES or (molecule["type"] == "metabolite" and molecule["molecule"] not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
 					deleteReactions.append(reactionIndex)
 					break
 
 		for reactionIndex in deleteReactions[::-1]:
-			del raw_data.complexationReactions[reactionIndex]
+			del raw_data.equilibriumReactions[reactionIndex]
 
 		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
 			assert reaction["process"] == "equilibrium"
@@ -101,6 +109,9 @@ class Equilibrium(object):
 		# The stoichometric matrix should balance out to numerical zero.
 		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
+		self._makeMatrices()
+		self._populateDerivativeAndJacobian()
+
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
 
@@ -131,6 +142,113 @@ class Equilibrium(object):
 			reactionSumsArray.append(sum(column))
 
 		return reactionSumsArray
+
+	def _populateDerivativeAndJacobian(self):
+		# TODO: Decide if this caching is worthwhile
+		# TODO: Unhack this--this assumes a directory structure
+		fixturesDir = os.path.join(
+			os.path.dirname(os.path.dirname(wholecell.__file__)),
+			"fixtures",
+			"equilibrium"
+			)
+
+		needToCreate = False
+
+		if not os.path.exists(fixturesDir):
+			os.makedirs(fixturesDir)
+
+		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
+			S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))
+			if not np.all(S == self.stoichMatrix()):
+				needToCreate = True
+		else:
+			needToCreate = True
+
+		if os.path.exists(os.path.join(fixturesDir, "ratesFwd.cPickle")):
+			ratesFwd =  cPickle.load(open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "rb"))
+			if not np.all(ratesFwd == self.ratesFwd):
+				needToCreate = True
+		else:
+			needToCreate = True
+
+		if os.path.exists(os.path.join(fixturesDir, "ratesRev.cPickle")):
+			ratesRev =  cPickle.load(open(os.path.join(fixturesDir, "ratesRev.cPickle"), "rb"))
+			if not np.all(ratesRev == self.ratesRev):
+				needToCreate = True
+		else:
+			needToCreate = True
+
+		if needToCreate:
+			self._makeMatrices()
+			self._makeDerivative()
+			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(self.derivatives, open(os.path.join(fixturesDir, "derivatives.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(self.derivativesJacobian, open(os.path.join(fixturesDir, "jacobian.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+		else:
+			self.derivatives = cPickle.load(open(os.path.join(fixturesDir, "derivatives.cPickle"), "rb"))
+			self.derivativesJacobian = cPickle.load(open(os.path.join(fixturesDir, "jacobian.cPickle"), "rb"))
+
+	def _makeMatrices(self):
+		EPS = 1e-9
+
+		S = self.stoichMatrix()
+		S1 = np.zeros_like(S)
+		S1[S < -1 * EPS] = -1
+		S1[S > EPS] = 1
+
+		Rp =  1. * (S1 < 0)
+		Pp =  1. * (S1 > 0)
+
+		self.Rp = Rp
+		self.Pp = Pp
+
+		metsToRxnFluxes = self.stoichMatrix().copy()
+
+		metsToRxnFluxes[(np.abs(metsToRxnFluxes) > EPS).sum(axis = 1) > 1, : ] = 0
+		for colIdx in xrange(metsToRxnFluxes.shape[1]):
+			try:
+				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
+			except IndexError:
+				raise Exception, "Column %d of S matrix not linearly independent!" % colIdx
+			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
+			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
+
+		self.metsToRxnFluxes = metsToRxnFluxes.T
+
+	def _makeDerivative(self):
+
+		S = self.stoichMatrix()
+
+		y = T.dvector()
+		dy = [0 * y[0] for _ in xrange(S.shape[0])]
+		for colIdx in xrange(S.shape[1]):
+			negIdxs = np.where(S[:, colIdx] < 0)[0]
+			posIdxs = np.where(S[:, colIdx] > 0)[0]
+
+			reactantFlux = self.ratesFwd[colIdx]
+			for negIdx in negIdxs:
+				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
+
+			productFlux = self.ratesRev[colIdx]
+			for posIdx in posIdxs:
+				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
+
+			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
+			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
+
+			for thisIdx in negIdxs:
+				dy[thisIdx] += fluxForNegIdxs
+			for thisIdx in posIdxs:
+				dy[thisIdx] += fluxForPosIdxs
+
+		t = T.dscalar()
+
+		J = [T.grad(dy[i], y) for i in xrange(len(dy))]
+
+		self.derivativesJacobian = theano.function([y, t], T.stack(*J), on_unused_input = "ignore")
+		self.derivatives = theano.function([y, t], T.stack(*dy), on_unused_input = "ignore")
 
 	# TODO: These methods might not be necessary, consider deleting if that's the case
 	# TODO: redesign this so it doesn't need to create a stoich matrix
