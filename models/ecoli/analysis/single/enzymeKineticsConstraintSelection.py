@@ -50,6 +50,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		findMaxConstraintsGreedy = False
 		findMinMaxConstraintsGreedy = True
 
+		# Check that only one plotting script is active.
+		if (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy) > 1:
+			print "Can only run one of %s, %s, %s at a time." % (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy)
+			assert False
 
 		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 
@@ -207,7 +211,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 				# Constraint subset with which to start
 				alreadyConstrained = np.zeros(len(constraints))
 				# Select additional constraints
-				selectMinMaxConstraintsSubset(greedyConstraintSelection, plotOutDir, plotOutFileName, fba, 0.5, 1.5, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+				selectMinMaxConstraintsSubset(greedyConstraintSelection, plotOutDir, plotOutFileName, fba, 0, 1000000, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
 
 
 
