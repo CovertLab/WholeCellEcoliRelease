@@ -62,6 +62,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	idx = 0
 	for idx in xrange(stoichMatrix.shape[1]):
 
+		grid_loc = idx + 1 + (9)*( idx / cols)
+
 		reactantIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] < 0)[0]]
 		reactantIdxs = np.array([bulkMoleculeIds.index(x) for x in reactantIds], dtype = np.int64)
 		reactantCounts = bulkMolecules.readColumn("counts")[:, reactantIdxs]
@@ -76,8 +78,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		empiricalKd[np.isinf(empiricalKd)] = np.nan
 		expectedKd = ratesRev[idx] / ratesFwd[idx]
 
-
-		ax = plt.subplot(rows, cols, idx+1)
+		ax = plt.subplot(rows*4, cols, grid_loc)
 
 		ax.plot(time[1:] / 60., empiricalKd[1:], linewidth=1, label="Empirical K_d")
 		ax.plot([time[1] / 60, time[-1] / 60], [expectedKd, expectedKd], linestyle="--")
@@ -101,6 +102,53 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
 		ax.set_xticks([])
 
+
+		ax = plt.subplot(rows*4, cols, grid_loc+3)
+
+		ax.plot(time[1:] / 60., reactantConcentrations[1:,0], linewidth=1, label="Reactant concentration")
+
+		bbox = None
+		ax.set_title("%s" % reactantIds[0], fontsize = 6, bbox = bbox)
+
+		# Sets ticks so that they look pretty
+		# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+		# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+		# if np.any(np.isnan(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])):
+		ymin = np.amax(reactantConcentrations[1:,0]*1.1)
+		ymax = np.amin(reactantConcentrations[1:,0]*.9)
+		ax.set_ylim([ymin, ymax])
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
+		ax.set_xticks([])
+
+
+		ax = plt.subplot(rows*4, cols, grid_loc+6)
+
+		ax.plot(time[1:] / 60., reactantConcentrations[1:,1], linewidth=1, label="Reactant concentration")
+
+		bbox = None
+		ax.set_title("%s" % reactantIds[1], fontsize = 6, bbox = bbox)
+
+		# Sets ticks so that they look pretty
+		# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+		# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+		# if np.any(np.isnan(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])):
+		ymin = np.amax(reactantConcentrations[1:,1]*1.1)
+		ymax = np.amin(reactantConcentrations[1:,1]*.9)
+		ax.set_ylim([ymin, ymax])
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
+		ax.set_xticks([])
+
+
 	# Create legend
 	# ax = plt.subplot(rows, cols, stoichMatrix.shape[1] + 2)
 	# ax.plot(0, 0, linewidth=2, label="count", color='k')
@@ -119,10 +167,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.subplots_adjust(hspace = 1, wspace = 1)
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	try:
-		exportFigure(plt, plotOutDir, plotOutFileName)
-	except:
-		import ipdb; ipdb.set_trace()
+
+	exportFigure(plt, plotOutDir, plotOutFileName)
+
 	plt.close("all")
 
 	bulkMolecules.close()
