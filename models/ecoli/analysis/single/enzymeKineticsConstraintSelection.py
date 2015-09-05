@@ -52,7 +52,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 		# Check that only one plotting script is active.
 		if (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy) > 1:
-			print "Can only run one of %s, %s, %s at a time." % (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy)
+			print "Can only run one of %s, %s, %s at a time." % (str(findRandomRxnZero) + str(findMaxConstraintsGreedy) + str(findMinMaxConstraintsGreedy))
 			assert False
 
 		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
@@ -211,7 +211,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 				# Constraint subset with which to start
 				alreadyConstrained = np.zeros(len(constraints))
 				# Select additional constraints
-				selectMinMaxConstraintsSubset(greedyConstraintSelection, plotOutDir, plotOutFileName, fba, 0, 1000000, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+				selectMinMaxConstraintsSubset(greedyConstraintSelection, plotOutDir, plotOutFileName, fba, .9, 1.1, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
 
 
 
@@ -693,7 +693,7 @@ def selectMinMaxConstraintsSubset(outputFileName, plotOutDir, plotOutFileName, f
 
 		# Greedily add constraints one by one
 		for point in range(np.amin(len(constraints))):
-			alreadyConstrained, newConstraintIndex, additionalError = determineNextConstraint(fba, alreadyConstrained, metaboliteCountsInit, 0.5, 1.5, constraints, constraintIDs, constraintToReactionDict, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint='none')
+			alreadyConstrained, newConstraintIndex, additionalError = determineNextConstraint(fba, alreadyConstrained, metaboliteCountsInit, minConstraintMultiple, maxConstraintMultiple, constraints, constraintIDs, constraintToReactionDict, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint='none')
 
 			newConstraint = constraintIDs[newConstraintIndex]
 
