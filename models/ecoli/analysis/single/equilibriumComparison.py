@@ -56,13 +56,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	cellVolume = cellMass / cellDensity
 
-	fig = plt.figure(figsize = (15, 15))
+	fig = plt.figure(figsize = (20, 20))
 	rows = 6
 	cols = 3
-	idx = 0
+	num_subentries = 3
+
+
 	for idx in xrange(stoichMatrix.shape[1]):
 
-		grid_loc = idx + 1 + (9)*( idx / cols)
+		grid_loc = idx + 1 + (cols*(num_subentries + 1))*( idx / cols)
 
 		reactantIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] < 0)[0]]
 		reactantIdxs = np.array([bulkMoleculeIds.index(x) for x in reactantIds], dtype = np.int64)
@@ -78,7 +80,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		empiricalKd[np.isinf(empiricalKd)] = np.nan
 		expectedKd = ratesRev[idx] / ratesFwd[idx]
 
-		ax = plt.subplot(rows*4, cols, grid_loc)
+		try:
+			ax = plt.subplot(rows*(num_subentries + 2), cols, grid_loc)
+		except:
+			import ipdb; ipdb.set_trace()
 
 		ax.plot(time[1:] / 60., empiricalKd[1:], linewidth=1, label="Empirical K_d")
 		ax.plot([time[1] / 60, time[-1] / 60], [expectedKd, expectedKd], linestyle="--")
@@ -86,7 +91,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		bbox = None
 		ax.set_title("%s" % productIds, fontsize = 6, bbox = bbox)
 
-			
 		# Sets ticks so that they look pretty
 		# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
 		# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
@@ -103,50 +107,57 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		ax.set_xticks([])
 
 
-		ax = plt.subplot(rows*4, cols, grid_loc+3)
+		# Plot all reactant concentrations for this reaction
+		for reactantIndex in xrange(0,np.amin([reactantConcentrations.shape[1]]+[2])):
+			
+			# import ipdb; ipdb.set_trace()
 
-		ax.plot(time[1:] / 60., reactantConcentrations[1:,0], linewidth=1, label="Reactant concentration")
+			ax = plt.subplot(rows*(num_subentries + 2), cols, grid_loc+((cols)*(reactantIndex+1)))
 
-		bbox = None
-		ax.set_title("%s" % reactantIds[0], fontsize = 6, bbox = bbox)
+			ax.plot(time[1:] / 60., reactantConcentrations[1:,reactantIndex], linewidth=1, label="Reactant concentration", color="g")
 
-		# Sets ticks so that they look pretty
-		# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
-		# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
-		# if np.any(np.isnan(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])):
-		ymin = np.amax(reactantConcentrations[1:,0]*1.1)
-		ymax = np.amin(reactantConcentrations[1:,0]*.9)
-		ax.set_ylim([ymin, ymax])
-		ax.set_yticks([ymin, ymax])
-		ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
-		ax.spines['top'].set_visible(False)
-		ax.spines['bottom'].set_visible(False)
-		ax.xaxis.set_ticks_position('none')
-		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
-		ax.set_xticks([])
+			bbox = None
+			ax.set_title("%s" % reactantIds[reactantIndex], fontsize = 6, bbox = bbox)
+
+			# Sets ticks so that they look pretty
+			# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+			# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+			# if np.any(np.isnan(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])):
+			ymin = np.amin(reactantConcentrations[1:,reactantIndex]*.9)
+			ymax = np.amax(reactantConcentrations[1:,reactantIndex]*1.1)
+			ax.set_ylim([ymin, ymax])
+			ax.set_yticks([ymin, ymax])
+			ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
+			ax.spines['top'].set_visible(False)
+			ax.spines['bottom'].set_visible(False)
+			ax.xaxis.set_ticks_position('none')
+			ax.tick_params(which = 'both', direction = 'out', labelsize=6)
+			ax.set_xticks([])
 
 
-		ax = plt.subplot(rows*4, cols, grid_loc+6)
+		# Plot all product concentrations for this reaction
+		for productIndex in xrange(0,np.amin([productConcentrations.shape[1]]+[2])):
+			ax = plt.subplot(rows*(num_subentries + 2), cols, grid_loc+((cols)*(productIndex+reactantIndex+2)))
 
-		ax.plot(time[1:] / 60., reactantConcentrations[1:,1], linewidth=1, label="Reactant concentration")
+			ax.plot(time[1:] / 60., productConcentrations[1:,productIndex], linewidth=1, label="Product concentration", color="r")
 
-		bbox = None
-		ax.set_title("%s" % reactantIds[1], fontsize = 6, bbox = bbox)
+			bbox = None
+			ax.set_title("%s" % productIds[productIndex], fontsize = 6, bbox = bbox)
 
-		# Sets ticks so that they look pretty
-		# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
-		# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
-		# if np.any(np.isnan(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])):
-		ymin = np.amax(reactantConcentrations[1:,1]*1.1)
-		ymax = np.amin(reactantConcentrations[1:,1]*.9)
-		ax.set_ylim([ymin, ymax])
-		ax.set_yticks([ymin, ymax])
-		ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
-		ax.spines['top'].set_visible(False)
-		ax.spines['bottom'].set_visible(False)
-		ax.xaxis.set_ticks_position('none')
-		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
-		ax.set_xticks([])
+			# Sets ticks so that they look pretty
+			# ymin = np.nanmin(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+			# ymax = np.nanmax(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])
+			# if np.any(np.isnan(empiricalKd[empiricalKd.shape[0] * IGNORE_FIRST_PERCENTAGE:])):
+			ymin = np.amin(productConcentrations[1:,productIndex]*.9)
+			ymax = np.amax(productConcentrations[1:,productIndex]*1.1)
+			ax.set_ylim([ymin, ymax])
+			ax.set_yticks([ymin, ymax])
+			ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
+			ax.spines['top'].set_visible(False)
+			ax.spines['bottom'].set_visible(False)
+			ax.xaxis.set_ticks_position('none')
+			ax.tick_params(which = 'both', direction = 'out', labelsize=6)
+			ax.set_xticks([])
 
 
 	# Create legend
