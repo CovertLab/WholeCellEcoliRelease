@@ -59,6 +59,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
 		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
 		self.constraintIDs = kb.process.metabolism.constraintIDs
+		self.activeConstraintsDict = kb.process.metabolism.activeConstraintsDict
 		self.constraintToReactionDict = kb.process.metabolism.constraintToReactionDict
 
 		objective = dict(zip(
@@ -104,7 +105,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Determine which kinetic limits to use
 		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
-		self.activeConstraints = [True]*len(self.constraintIDs)
+		self.activeConstraints = [self.activeConstraintsDict[x] for x in self.constraintIDs]
 		
 		# 195 --> grows just fine
 		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -226,9 +227,9 @@ class Metabolism(wholecell.processes.process.Process):
 					# Make sure to never set negative maximum rates
 					assert (self.allConstraintsLimits[0][index] >= 0 and self.allConstraintsLimits[0][index] != np.nan)
 					# Set the max reaction rate for this reaction
-					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index]*1.5, raiseForReversible = False)
+					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index]*1.1, raiseForReversible = False)
 					# Set the minimum reaction rate for this reaction
-					self.fba.minReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index]*0.5, raiseForReversible = False)
+					self.fba.minReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[0][index]*0.9, raiseForReversible = False)
 				else:
 					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
 

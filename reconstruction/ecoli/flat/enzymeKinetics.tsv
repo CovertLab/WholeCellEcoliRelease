@@ -1,138 +1,144 @@
-"constraintID"	"reactionID"	"enzymeIDs"	"substrateIDs"	"rateEquationType"	"kcat"	"kM"	"kI"	"customRateEquation"	"customParameters"	"customParameterConstants"	"customParameterConstantValues"	"customParameterVariables"
-"ISOLEUCINE--TRNA-LIGASE-RXN"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE"]	"standard"	[1.46]	[5.69]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_kcat_1.46"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[1.46]	[]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_2"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ATP"]	"standard"	[1.37]	[30]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_2_kcat_1.37"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[1.37]	[]	[]	null	null	null	null	null
-"CHORPYRLY-RXN"	"CHORPYRLY-RXN"	["CHORPYRLY-MONOMER"]	["CHORISMATE"]	"standard"	[0.82]	[9.7]	[]	null	null	null	null	null
-"CHORPYRLY-RXN_kcat_0.82"	"CHORPYRLY-RXN"	["CHORPYRLY-MONOMER"]	[]	"standard"	[0.82]	[]	[]	null	null	null	null	null
-"ISOCHORSYN-RXN"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[2.88]	[14]	[]	null	null	null	null	null
-"ISOCHORSYN-RXN_kcat_2.88"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	[]	"standard"	[2.88]	[]	[]	null	null	null	null	null
-"GART-RXN"	"GART-RXN"	["GART-MONOMER"]	[]	"standard"	[40]	[]	[]	null	null	null	null	null
-"L-ASPARTATE-OXID-RXN"	"L-ASPARTATE-OXID-RXN"	["L-ASPARTATE-OXID-MONOMER"]	["L-ASPARTATE"]	"standard"	[0.5333]	[0.5]	[]	null	null	null	null	null
-"L-ASPARTATE-OXID-RXN_kcat_0.5333"	"L-ASPARTATE-OXID-RXN"	["L-ASPARTATE-OXID-MONOMER"]	[]	"standard"	[0.5333]	[]	[]	null	null	null	null	null
-"DIHYDROFOLATEREDUCT-RXN"	"DIHYDROFOLATEREDUCT-RXN"	["DIHYDROFOLATEREDUCT-MONOMER"]	["NADPH"]	"standard"	[11]	[]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_3"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE","ATP"]	"standard"	[27.7]	[5.2,540]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_3_kcat_27.7"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[27.7]	[]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_4"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE"]	"standard"	[104]	[1.3]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_4_kcat_104"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[104]	[]	[]	null	null	null	null	null
-"RXN0-5462"	"RXN0-5462"	["EG10484-MONOMER"]	["GTP"]	"standard"	[0.003]	[4]	[]	null	null	null	null	null
-"RXN0-5462_kcat_0.003"	"RXN0-5462"	["EG10484-MONOMER"]	[]	"standard"	[0.003]	[]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_5"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE","ATP"]	"standard"	[80.4]	[3.6,280]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_5_kcat_80.4"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[80.4]	[]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN","ATP"]	"standard"	[2.62,2.8]	[114,110]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN_kcat_2.62"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[2.62]	[]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN_kcat_2.8"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[2.8]	[]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN_2"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN"]	"standard"	[3.2]	[260]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN_2_kcat_3.2"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[3.2]	[]	[]	null	null	null	null	null
-"GKI-RXN"	"GKI-RXN"	["GKI-MONOMER"]	["ATP","GLYCERATE"]	"standard"	[2.5]	[61,51]	[]	null	null	null	null	null
-"GKI-RXN_kcat_2.5"	"GKI-RXN"	["GKI-MONOMER"]	[]	"standard"	[2.5]	[]	[]	null	null	null	null	null
-"MMUM-RXN"	"MMUM-RXN"	["MMUM-MONOMER"]	["HOMO-CYS"]	"standard"	[0.38]	[45]	[]	null	null	null	null	null
-"MMUM-RXN_kcat_0.38"	"MMUM-RXN"	["MMUM-MONOMER"]	[]	"standard"	[0.38]	[]	[]	null	null	null	null	null
-"RXN0-268"	"RXN0-268"	["G7517-MONOMER"]	["PROPIONYL-COA"]	"standard"	[0.72]	[7.1]	[]	null	null	null	null	null
-"RXN0-268_kcat_0.72"	"RXN0-268"	["G7517-MONOMER"]	[]	"standard"	[0.72]	[]	[]	null	null	null	null	null
-"RXN-11601"	"RXN-11601"	["EG11247-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[0.06]	[26]	[]	null	null	null	null	null
-"RXN-11601_kcat_0.06"	"RXN-11601"	["EG11247-MONOMER"]	[]	"standard"	[0.06]	[]	[]	null	null	null	null	null
-"RXN-11845"	"RXN-11845"	["EG11507-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[0.001]	[3.7]	[]	null	null	null	null	null
-"RXN-11845_kcat_0.001"	"RXN-11845"	["EG11507-MONOMER"]	[]	"standard"	[0.001]	[]	[]	null	null	null	null	null
-"RXN0-5462_2"	"RXN0-5462"	["G7841-MONOMER"]	["GTP"]	"standard"	[0.002616667]	[120]	[]	null	null	null	null	null
-"RXN0-5462_2_kcat_0.002616667"	"RXN0-5462"	["G7841-MONOMER"]	[]	"standard"	[0.002616667]	[]	[]	null	null	null	null	null
-"SHIKIMATE-5-DEHYDROGENASE-RXN"	"SHIKIMATE-5-DEHYDROGENASE-RXN"	["AROE-MONOMER"]	["SHIKIMATE","NADP"]	"standard"	[236.67]	[65,56]	[]	null	null	null	null	null
-"SHIKIMATE-5-DEHYDROGENASE-RXN_kcat_236.67"	"SHIKIMATE-5-DEHYDROGENASE-RXN"	["AROE-MONOMER"]	[]	"standard"	[236.67]	[]	[]	null	null	null	null	null
-"VALINE--TRNA-LIGASE-RXN"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	["VAL"]	"standard"	[13.9]	[4.3]	[]	null	null	null	null	null
-"VALINE--TRNA-LIGASE-RXN_kcat_13.9"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	[]	"standard"	[13.9]	[]	[]	null	null	null	null	null
-"RXN-15125"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	["SER"]	"standard"	[436]	[2670]	[]	null	null	null	null	null
-"RXN-15125_kcat_436"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	[]	"standard"	[436]	[]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["UMP"]	"standard"	[34.2]	[660]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_kcat_34.2"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[34.2]	[]	[]	null	null	null	null	null
-"RXN-14142"	"RXN-14142"	["EG11817-MONOMER"]	["DGMP"]	"standard"	[8.04]	[280]	[]	null	null	null	null	null
-"RXN-14142_kcat_8.04"	"RXN-14142"	["EG11817-MONOMER"]	[]	"standard"	[8.04]	[]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_2"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	["GMP"]	"standard"	[11]	[260]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_2_kcat_11"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	[]	"standard"	[11]	[]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_3"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	["AMP"]	"standard"	[4.9]	[320]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_3_kcat_4.9"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	[]	"standard"	[4.9]	[]	[]	null	null	null	null	null
-"RXN-15125_2"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	["SER"]	"standard"	[436]	[2670]	[]	null	null	null	null	null
-"RXN-15125_2_kcat_436"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	[]	"standard"	[436]	[]	[]	null	null	null	null	null
-"LEUCINE--TRNA-LIGASE-RXN"	"LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU"]	"standard"	[11]	[15]	[]	null	null	null	null	null
-"LEUCINE--TRNA-LIGASE-RXN_kcat_11"	"LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	[]	"standard"	[11]	[]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_6"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.1]	[250]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_6_kcat_0.1"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	[]	"standard"	[0.1]	[]	[]	null	null	null	null	null
-"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	["EG11779-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[3.6]	[6]	[]	null	null	null	null	null
-"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN_kcat_3.6"	"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	["EG11779-MONOMER"]	[]	"standard"	[3.6]	[]	[]	null	null	null	null	null
-"ALARACECAT-RXN"	"ALARACECAT-RXN"	["ALARACEBIOSYN-MONOMER"]	["L-ALPHA-ALANINE"]	"standard"	[27.6]	[290]	[]	null	null	null	null	null
-"ALARACECAT-RXN_kcat_27.6"	"ALARACECAT-RXN"	["ALARACEBIOSYN-MONOMER"]	[]	"standard"	[27.6]	[]	[]	null	null	null	null	null
-"RXN-1961"	"RXN-1961"	["G6096-MONOMER"]	["ATP","LYS"]	"standard"	[0.0153,0.0702]	[220,380]	[]	null	null	null	null	null
-"RXN-1961_kcat_0.0153"	"RXN-1961"	["G6096-MONOMER"]	[]	"standard"	[0.0153]	[]	[]	null	null	null	null	null
-"RXN-1961_kcat_0.0702"	"RXN-1961"	["G6096-MONOMER"]	[]	"standard"	[0.0702]	[]	[]	null	null	null	null	null
-"RXN0-5387"	"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"	[6]	[170]	[]	null	null	null	null	null
-"RXN0-5387_kcat_6"	"RXN0-5387"	["G7868-MONOMER"]	[]	"standard"	[6]	[]	[]	null	null	null	null	null
-"GUANOSINE-DIPHOSPHATASE-RXN"	"GUANOSINE-DIPHOSPHATASE-RXN"	["G6580-MONOMER"]	["GDP"]	"standard"	[3.4]	[640]	[]	null	null	null	null	null
-"GUANOSINE-DIPHOSPHATASE-RXN_kcat_3.4"	"GUANOSINE-DIPHOSPHATASE-RXN"	["G6580-MONOMER"]	[]	"standard"	[3.4]	[]	[]	null	null	null	null	null
-"GLUCOSE-1-PHOSPHAT-RXN"	"GLUCOSE-1-PHOSPHAT-RXN"	["EG11850-MONOMER"]	["ACETYL-P"]	"standard"	[2.7]	[3600]	[]	null	null	null	null	null
-"GLUCOSE-1-PHOSPHAT-RXN_kcat_2.7"	"GLUCOSE-1-PHOSPHAT-RXN"	["EG11850-MONOMER"]	[]	"standard"	[2.7]	[]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_4"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["UMP"]	"standard"	[25]	[2400]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_4_kcat_25"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[25]	[]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_5"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["AMP"]	"standard"	[1.3]	[1800]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_5_kcat_1.3"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[1.3]	[]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_6"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["DGMP"]	"standard"	[2.1]	[2800]	[]	null	null	null	null	null
-"5-NUCLEOTID-RXN_6_kcat_2.1"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[2.1]	[]	[]	null	null	null	null	null
-"RXN-7609"	"RXN-7609"	["G7742-MONOMER"]	["GMP"]	"standard"	[5.5]	[1900]	[]	null	null	null	null	null
-"RXN-7609_kcat_5.5"	"RXN-7609"	["G7742-MONOMER"]	[]	"standard"	[5.5]	[]	[]	null	null	null	null	null
-"RXN0-5114"	"RXN0-5114"	["PSERPHOSPHA-MONOMER"]	["ACETYL-P"]	"standard"	[76]	[6200]	[]	null	null	null	null	null
-"RXN0-5114_kcat_76"	"RXN0-5114"	["PSERPHOSPHA-MONOMER"]	[]	"standard"	[76]	[]	[]	null	null	null	null	null
-"GPH-RXN"	"GPH-RXN"	["GPH-MONOMER"]	["ACETYL-P"]	"standard"	[8.9]	[8900]	[]	null	null	null	null	null
-"GPH-RXN_kcat_8.9"	"GPH-RXN"	["GPH-MONOMER"]	[]	"standard"	[8.9]	[]	[]	null	null	null	null	null
-"SUGAR-PHOSPHATASE-RXN"	"SUGAR-PHOSPHATASE-RXN"	["G6425-MONOMER"]	["ACETYL-P"]	"standard"	[101]	[4900]	[]	null	null	null	null	null
-"SUGAR-PHOSPHATASE-RXN_kcat_101"	"SUGAR-PHOSPHATASE-RXN"	["G6425-MONOMER"]	[]	"standard"	[101]	[]	[]	null	null	null	null	null
-"SUGAR-PHOSPHATASE-RXN_2"	"SUGAR-PHOSPHATASE-RXN"	["EG11195-MONOMER"]	["ACETYL-P"]	"standard"	[24]	[3900]	[]	null	null	null	null	null
-"SUGAR-PHOSPHATASE-RXN_2_kcat_24"	"SUGAR-PHOSPHATASE-RXN"	["EG11195-MONOMER"]	[]	"standard"	[24]	[]	[]	null	null	null	null	null
-"3.1.3.74-RXN"	"3.1.3.74-RXN"	["EG11239-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[1]	[370]	[]	null	null	null	null	null
-"3.1.3.74-RXN_kcat_1"	"3.1.3.74-RXN"	["EG11239-MONOMER"]	[]	"standard"	[1]	[]	[]	null	null	null	null	null
-"F16BDEPHOS-RXN"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[5.3]	[2400]	[]	null	null	null	null	null
-"F16BDEPHOS-RXN_kcat_5.3"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	[]	"standard"	[5.3]	[]	[]	null	null	null	null	null
-"3.1.3.74-RXN_2"	"3.1.3.74-RXN"	["EG11470-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[12]	[1500]	[]	null	null	null	null	null
-"3.1.3.74-RXN_2_kcat_12"	"3.1.3.74-RXN"	["EG11470-MONOMER"]	[]	"standard"	[12]	[]	[]	null	null	null	null	null
-"3.1.3.74-RXN_3"	"3.1.3.74-RXN"	["G6246-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[0.58]	[680]	[]	null	null	null	null	null
-"3.1.3.74-RXN_3_kcat_0.58"	"3.1.3.74-RXN"	["G6246-MONOMER"]	[]	"standard"	[0.58]	[]	[]	null	null	null	null	null
-"RXN0-4361"	"RXN0-4361"	["EG11736-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[0.19]	[420]	[]	null	null	null	null	null
-"RXN0-4361_kcat_0.19"	"RXN0-4361"	["EG11736-MONOMER"]	[]	"standard"	[0.19]	[]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_7"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.51]	[140]	[]	null	null	null	null	null
-"ISOLEUCINE--TRNA-LIGASE-RXN_7_kcat_0.51"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	[]	"standard"	[0.51]	[]	[]	null	null	null	null	null
-"GLUTRACE-RXN"	"GLUTRACE-RXN"	["GLUTRACE-MONOMER"]	["GLT"]	"standard"	[12.17]	[1200]	[]	null	null	null	null	null
-"GLUTRACE-RXN_kcat_12.17"	"GLUTRACE-RXN"	["GLUTRACE-MONOMER"]	[]	"standard"	[12.17]	[]	[]	null	null	null	null	null
-"RXN0-384"	"RXN0-384"	["H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER"]	["DATP"]	"standard"	[4.59]	[790]	[]	null	null	null	null	null
-"RXN0-384_kcat_4.59"	"RXN0-384"	["H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER"]	[]	"standard"	[4.59]	[]	[]	null	null	null	null	null
-"DIENOYLCOAREDUCT-RXN"	"DIENOYLCOAREDUCT-RXN"	["DIENOYLCOAREDUCT-MONOMER"]	["NADPH"]	"standard"	[9.5]	[0.8]	[]	null	null	null	null	null
-"DIENOYLCOAREDUCT-RXN_kcat_9.5"	"DIENOYLCOAREDUCT-RXN"	["DIENOYLCOAREDUCT-MONOMER"]	[]	"standard"	[9.5]	[]	[]	null	null	null	null	null
-"RXN0-3741"	"RXN0-3741"	["G7230-MONOMER"]	["GMP"]	"standard"	[0.69]	[379.8]	[]	null	null	null	null	null
-"RXN0-3741_kcat_0.69"	"RXN0-3741"	["G7230-MONOMER"]	[]	"standard"	[0.69]	[]	[]	null	null	null	null	null
-"RXN0-3741_2"	"RXN0-3741"	["G7230-MONOMER"]	["DGMP"]	"standard"	[1.6]	[64.7]	[]	null	null	null	null	null
-"RXN0-3741_2_kcat_1.6"	"RXN0-3741"	["G7230-MONOMER"]	[]	"standard"	[1.6]	[]	[]	null	null	null	null	null
-"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	["G7230-MONOMER"]	["DAMP"]	"standard"	[2.28]	[118.9]	[]	null	null	null	null	null
-"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43._kcat_2.28"	"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	["G7230-MONOMER"]	[]	"standard"	[2.28]	[]	[]	null	null	null	null	null
-"RXN-14161"	"RXN-14161"	["G7185-MONOMER"]	["DAMP"]	"standard"	[0.14]	[17]	[]	null	null	null	null	null
-"RXN-14161_kcat_0.14"	"RXN-14161"	["G7185-MONOMER"]	[]	"standard"	[0.14]	[]	[]	null	null	null	null	null
-"RXN0-5387_2"	"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"	[34.2]	[65.6]	[]	null	null	null	null	null
-"RXN0-5387_2_kcat_34.2"	"RXN0-5387"	["G7868-MONOMER"]	[]	"standard"	[34.2]	[]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN_3"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN"]	"standard"	[3.2]	[260]	[]	null	null	null	null	null
-"GLUTAMINE--TRNA-LIGASE-RXN_3_kcat_3.2"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[3.2]	[]	[]	null	null	null	null	null
-"2.5.1.19-RXN"	"2.5.1.19-RXN"	["AROA-MONOMER"]	["PHOSPHO-ENOL-PYRUVATE"]	"standard"	[26.4]	[100]	[]	null	null	null	null	null
-"2.5.1.19-RXN_kcat_26.4"	"2.5.1.19-RXN"	["AROA-MONOMER"]	[]	"standard"	[26.4]	[]	[]	null	null	null	null	null
-"F16BDEPHOS-RXN_2"	"F16BDEPHOS-RXN"	["EG11736-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[0.2]	[400]	[]	null	null	null	null	null
-"F16BDEPHOS-RXN_2_kcat_0.2"	"F16BDEPHOS-RXN"	["EG11736-MONOMER"]	[]	"standard"	[0.2]	[]	[]	null	null	null	null	null
-"F16BDEPHOS-RXN_3"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[5.3]	[2400]	[]	null	null	null	null	null
-"F16BDEPHOS-RXN_3_kcat_5.3"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	[]	"standard"	[5.3]	[]	[]	null	null	null	null	null
-"MALONYL-COA-ACP-TRANSACYL-RXN"	"MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	["MALONYL-COA"]	"standard"	[0.00047]	[49]	[]	null	null	null	null	null
-"MALONYL-COA-ACP-TRANSACYL-RXN_kcat_0.00047"	"MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	[]	"standard"	[0.00047]	[]	[]	null	null	null	null	null
-"ISOCHORSYN-RXN_2"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[0.617]	[7]	[]	null	null	null	null	null
-"ISOCHORSYN-RXN_2_kcat_0.617"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	[]	"standard"	[0.617]	[]	[]	null	null	null	null	null
-"VALINE--TRNA-LIGASE-RXN_2"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	["ATP"]	"standard"	[12.9]	[9400]	[]	null	null	null	null	null
-"VALINE--TRNA-LIGASE-RXN_2_kcat_12.9"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	[]	"standard"	[12.9]	[]	[]	null	null	null	null	null
-"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	["UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER"]	["UDP-N-ACETYL-D-GLUCOSAMINE","PHOSPHO-ENOL-PYRUVATE"]	"standard"	[3.8]	[15,0.4]	[]	null	null	null	null	null
-"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN_kcat_3.8"	"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	["UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER"]	[]	"standard"	[3.8]	[]	[]	null	null	null	null	null
-"RXN0-5462_3"	"RXN0-5462"	["EG12104-MONOMER"]	["GTP"]	"standard"	[0.0053]	[49]	[]	null	null	null	null	null
-"RXN0-5462_3_kcat_0.0053"	"RXN0-5462"	["EG12104-MONOMER"]	[]	"standard"	[0.0053]	[]	[]	null	null	null	null	null
-"RXN0-5462_4"	"RXN0-5462"	["EG10021-MONOMER"]	["GTP"]	"standard"	[0.0006]	[50]	[]	null	null	null	null	null
-"RXN0-5462_4_kcat_0.0006"	"RXN0-5462"	["EG10021-MONOMER"]	[]	"standard"	[0.0006]	[]	[]	null	null	null	null	null
-"RXN0-7101"	"RXN0-7101"	["KDUD-MONOMER"]	["GLUCONATE","NAD"]	"standard"	[0.9716667,0.21]	[544800,285]	[]	null	null	null	null	null
-"RXN0-7101_kcat_0.9716667"	"RXN0-7101"	["KDUD-MONOMER"]	[]	"standard"	[0.9716667]	[]	[]	null	null	null	null	null
-"RXN0-7101_kcat_0.21"	"RXN0-7101"	["KDUD-MONOMER"]	[]	"standard"	[0.21]	[]	[]	null	null	null	null	null
+"constraintID"	"reactionID"	"enzymeIDs"	"substrateIDs"	"rateEquationType"	"kcat"	"kM"	"kI"	"customRateEquation"	"customParameters"	"customParameterConstants"	"customParameterConstantValues"	"customParameterVariables"	"constraintActive"
+"ISOLEUCINE--TRNA-LIGASE-RXN"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE"]	"standard"	[1.46]	[5.69]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_kcat_1.46"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[1.46]	[]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_2"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ATP"]	"standard"	[1.37]	[30]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_2_kcat_1.37"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[1.37]	[]	[]	null	null	null	null	null	1
+"CHORPYRLY-RXN"	"CHORPYRLY-RXN"	["CHORPYRLY-MONOMER"]	["CHORISMATE"]	"standard"	[0.82]	[9.7]	[]	null	null	null	null	null	1
+"CHORPYRLY-RXN_kcat_0.82"	"CHORPYRLY-RXN"	["CHORPYRLY-MONOMER"]	[]	"standard"	[0.82]	[]	[]	null	null	null	null	null	1
+"ISOCHORSYN-RXN"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[2.88]	[14]	[]	null	null	null	null	null	1
+"ISOCHORSYN-RXN_kcat_2.88"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	[]	"standard"	[2.88]	[]	[]	null	null	null	null	null	1
+"GART-RXN"	"GART-RXN"	["GART-MONOMER"]	[]	"standard"	[40]	[]	[]	null	null	null	null	null	1
+"L-ASPARTATE-OXID-RXN"	"L-ASPARTATE-OXID-RXN"	["L-ASPARTATE-OXID-MONOMER"]	["L-ASPARTATE"]	"standard"	[0.5333]	[0.5]	[]	null	null	null	null	null	1
+"L-ASPARTATE-OXID-RXN_kcat_0.5333"	"L-ASPARTATE-OXID-RXN"	["L-ASPARTATE-OXID-MONOMER"]	[]	"standard"	[0.5333]	[]	[]	null	null	null	null	null	1
+"DIHYDROFOLATEREDUCT-RXN"	"DIHYDROFOLATEREDUCT-RXN"	["DIHYDROFOLATEREDUCT-MONOMER"]	["NADPH"]	"standard"	[11]	[]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_3"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE","ATP"]	"standard"	[27.7]	[5.2,540]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_3_kcat_27.7"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[27.7]	[]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_4"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE"]	"standard"	[104]	[1.3]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_4_kcat_104"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[104]	[]	[]	null	null	null	null	null	1
+"RXN0-5462"	"RXN0-5462"	["EG10484-MONOMER"]	["GTP"]	"standard"	[0.003]	[4]	[]	null	null	null	null	null	1
+"RXN0-5462_kcat_0.003"	"RXN0-5462"	["EG10484-MONOMER"]	[]	"standard"	[0.003]	[]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_5"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	["ILE","ATP"]	"standard"	[80.4]	[3.6,280]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_5_kcat_80.4"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["ILES-MONOMER"]	[]	"standard"	[80.4]	[]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN","ATP"]	"standard"	[2.62,2.8]	[114,110]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_kcat_2.62"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[2.62]	[]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_kcat_2.8"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[2.8]	[]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_full_kcat_2.62"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN","ATP"]	"standard"	[2.62]	[114,110]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_full_kcat_2.8"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN","ATP"]	"standard"	[2.8]	[114,110]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_2"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN"]	"standard"	[3.2]	[260]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_2_kcat_3.2"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[3.2]	[]	[]	null	null	null	null	null	1
+"GKI-RXN"	"GKI-RXN"	["GKI-MONOMER"]	["ATP","GLYCERATE"]	"standard"	[2.5]	[61,51]	[]	null	null	null	null	null	1
+"GKI-RXN_kcat_2.5"	"GKI-RXN"	["GKI-MONOMER"]	[]	"standard"	[2.5]	[]	[]	null	null	null	null	null	1
+"MMUM-RXN"	"MMUM-RXN"	["MMUM-MONOMER"]	["HOMO-CYS"]	"standard"	[0.38]	[45]	[]	null	null	null	null	null	1
+"MMUM-RXN_kcat_0.38"	"MMUM-RXN"	["MMUM-MONOMER"]	[]	"standard"	[0.38]	[]	[]	null	null	null	null	null	1
+"RXN0-268"	"RXN0-268"	["G7517-MONOMER"]	["PROPIONYL-COA"]	"standard"	[0.72]	[7.1]	[]	null	null	null	null	null	1
+"RXN0-268_kcat_0.72"	"RXN0-268"	["G7517-MONOMER"]	[]	"standard"	[0.72]	[]	[]	null	null	null	null	null	1
+"RXN-11601"	"RXN-11601"	["EG11247-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[0.06]	[26]	[]	null	null	null	null	null	1
+"RXN-11601_kcat_0.06"	"RXN-11601"	["EG11247-MONOMER"]	[]	"standard"	[0.06]	[]	[]	null	null	null	null	null	1
+"RXN-11845"	"RXN-11845"	["EG11507-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[0.001]	[3.7]	[]	null	null	null	null	null	1
+"RXN-11845_kcat_0.001"	"RXN-11845"	["EG11507-MONOMER"]	[]	"standard"	[0.001]	[]	[]	null	null	null	null	null	1
+"RXN0-5462_2"	"RXN0-5462"	["G7841-MONOMER"]	["GTP"]	"standard"	[0.002616667]	[120]	[]	null	null	null	null	null	1
+"RXN0-5462_2_kcat_0.002616667"	"RXN0-5462"	["G7841-MONOMER"]	[]	"standard"	[0.002616667]	[]	[]	null	null	null	null	null	1
+"SHIKIMATE-5-DEHYDROGENASE-RXN"	"SHIKIMATE-5-DEHYDROGENASE-RXN"	["AROE-MONOMER"]	["SHIKIMATE","NADP"]	"standard"	[236.67]	[65,56]	[]	null	null	null	null	null	1
+"SHIKIMATE-5-DEHYDROGENASE-RXN_kcat_236.67"	"SHIKIMATE-5-DEHYDROGENASE-RXN"	["AROE-MONOMER"]	[]	"standard"	[236.67]	[]	[]	null	null	null	null	null	1
+"VALINE--TRNA-LIGASE-RXN"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	["VAL"]	"standard"	[13.9]	[4.3]	[]	null	null	null	null	null	1
+"VALINE--TRNA-LIGASE-RXN_kcat_13.9"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	[]	"standard"	[13.9]	[]	[]	null	null	null	null	null	1
+"RXN-15125"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	["SER"]	"standard"	[436]	[2670]	[]	null	null	null	null	null	1
+"RXN-15125_kcat_436"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	[]	"standard"	[436]	[]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["UMP"]	"standard"	[34.2]	[660]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_kcat_34.2"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[34.2]	[]	[]	null	null	null	null	null	1
+"RXN-14142"	"RXN-14142"	["EG11817-MONOMER"]	["DGMP"]	"standard"	[8.04]	[280]	[]	null	null	null	null	null	1
+"RXN-14142_kcat_8.04"	"RXN-14142"	["EG11817-MONOMER"]	[]	"standard"	[8.04]	[]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_2"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	["GMP"]	"standard"	[11]	[260]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_2_kcat_11"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	[]	"standard"	[11]	[]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_3"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	["AMP"]	"standard"	[4.9]	[320]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_3_kcat_4.9"	"5-NUCLEOTID-RXN"	["EG11817-MONOMER"]	[]	"standard"	[4.9]	[]	[]	null	null	null	null	null	1
+"RXN-15125_2"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	["SER"]	"standard"	[436]	[2670]	[]	null	null	null	null	null	1
+"RXN-15125_2_kcat_436"	"RXN-15125"	["LSERINEDEAM1-MONOMER"]	[]	"standard"	[436]	[]	[]	null	null	null	null	null	1
+"LEUCINE--TRNA-LIGASE-RXN"	"LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["LEU"]	"standard"	[11]	[15]	[]	null	null	null	null	null	1
+"LEUCINE--TRNA-LIGASE-RXN_kcat_11"	"LEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	[]	"standard"	[11]	[]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_6"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.1]	[250]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_6_kcat_0.1"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	[]	"standard"	[0.1]	[]	[]	null	null	null	null	null	1
+"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	["EG11779-MONOMER"]	["S-ADENOSYLMETHIONINE"]	"standard"	[3.6]	[6]	[]	null	null	null	null	null	1
+"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN_kcat_3.6"	"TRNA-GUANINE-N7--METHYLTRANSFERASE-RXN"	["EG11779-MONOMER"]	[]	"standard"	[3.6]	[]	[]	null	null	null	null	null	1
+"ALARACECAT-RXN"	"ALARACECAT-RXN"	["ALARACEBIOSYN-MONOMER"]	["L-ALPHA-ALANINE"]	"standard"	[27.6]	[290]	[]	null	null	null	null	null	1
+"ALARACECAT-RXN_kcat_27.6"	"ALARACECAT-RXN"	["ALARACEBIOSYN-MONOMER"]	[]	"standard"	[27.6]	[]	[]	null	null	null	null	null	1
+"RXN-1961"	"RXN-1961"	["G6096-MONOMER"]	["ATP","LYS"]	"standard"	[0.0153,0.0702]	[220,380]	[]	null	null	null	null	null	1
+"RXN-1961_kcat_0.0153"	"RXN-1961"	["G6096-MONOMER"]	[]	"standard"	[0.0153]	[]	[]	null	null	null	null	null	1
+"RXN-1961_kcat_0.0702"	"RXN-1961"	["G6096-MONOMER"]	[]	"standard"	[0.0702]	[]	[]	null	null	null	null	null	1
+"RXN-1961_full_kcat_0.0153"	"RXN-1961"	["G6096-MONOMER"]	["ATP","LYS"]	"standard"	[0.0153]	[220,380]	[]	null	null	null	null	null	1
+"RXN-1961_full_kcat_0.0702"	"RXN-1961"	["G6096-MONOMER"]	["ATP","LYS"]	"standard"	[0.0702]	[220,380]	[]	null	null	null	null	null	1
+"RXN0-5387"	"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"	[6]	[170]	[]	null	null	null	null	null	1
+"RXN0-5387_kcat_6"	"RXN0-5387"	["G7868-MONOMER"]	[]	"standard"	[6]	[]	[]	null	null	null	null	null	1
+"GUANOSINE-DIPHOSPHATASE-RXN"	"GUANOSINE-DIPHOSPHATASE-RXN"	["G6580-MONOMER"]	["GDP"]	"standard"	[3.4]	[640]	[]	null	null	null	null	null	1
+"GUANOSINE-DIPHOSPHATASE-RXN_kcat_3.4"	"GUANOSINE-DIPHOSPHATASE-RXN"	["G6580-MONOMER"]	[]	"standard"	[3.4]	[]	[]	null	null	null	null	null	1
+"GLUCOSE-1-PHOSPHAT-RXN"	"GLUCOSE-1-PHOSPHAT-RXN"	["EG11850-MONOMER"]	["ACETYL-P"]	"standard"	[2.7]	[3600]	[]	null	null	null	null	null	1
+"GLUCOSE-1-PHOSPHAT-RXN_kcat_2.7"	"GLUCOSE-1-PHOSPHAT-RXN"	["EG11850-MONOMER"]	[]	"standard"	[2.7]	[]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_4"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["UMP"]	"standard"	[25]	[2400]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_4_kcat_25"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[25]	[]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_5"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["AMP"]	"standard"	[1.3]	[1800]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_5_kcat_1.3"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[1.3]	[]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_6"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	["DGMP"]	"standard"	[2.1]	[2800]	[]	null	null	null	null	null	1
+"5-NUCLEOTID-RXN_6_kcat_2.1"	"5-NUCLEOTID-RXN"	["EG12115-MONOMER"]	[]	"standard"	[2.1]	[]	[]	null	null	null	null	null	1
+"RXN-7609"	"RXN-7609"	["G7742-MONOMER"]	["GMP"]	"standard"	[5.5]	[1900]	[]	null	null	null	null	null	1
+"RXN-7609_kcat_5.5"	"RXN-7609"	["G7742-MONOMER"]	[]	"standard"	[5.5]	[]	[]	null	null	null	null	null	1
+"RXN0-5114"	"RXN0-5114"	["PSERPHOSPHA-MONOMER"]	["ACETYL-P"]	"standard"	[76]	[6200]	[]	null	null	null	null	null	1
+"RXN0-5114_kcat_76"	"RXN0-5114"	["PSERPHOSPHA-MONOMER"]	[]	"standard"	[76]	[]	[]	null	null	null	null	null	1
+"GPH-RXN"	"GPH-RXN"	["GPH-MONOMER"]	["ACETYL-P"]	"standard"	[8.9]	[8900]	[]	null	null	null	null	null	1
+"GPH-RXN_kcat_8.9"	"GPH-RXN"	["GPH-MONOMER"]	[]	"standard"	[8.9]	[]	[]	null	null	null	null	null	1
+"SUGAR-PHOSPHATASE-RXN"	"SUGAR-PHOSPHATASE-RXN"	["G6425-MONOMER"]	["ACETYL-P"]	"standard"	[101]	[4900]	[]	null	null	null	null	null	1
+"SUGAR-PHOSPHATASE-RXN_kcat_101"	"SUGAR-PHOSPHATASE-RXN"	["G6425-MONOMER"]	[]	"standard"	[101]	[]	[]	null	null	null	null	null	1
+"SUGAR-PHOSPHATASE-RXN_2"	"SUGAR-PHOSPHATASE-RXN"	["EG11195-MONOMER"]	["ACETYL-P"]	"standard"	[24]	[3900]	[]	null	null	null	null	null	1
+"SUGAR-PHOSPHATASE-RXN_2_kcat_24"	"SUGAR-PHOSPHATASE-RXN"	["EG11195-MONOMER"]	[]	"standard"	[24]	[]	[]	null	null	null	null	null	1
+"3.1.3.74-RXN"	"3.1.3.74-RXN"	["EG11239-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[1]	[370]	[]	null	null	null	null	null	1
+"3.1.3.74-RXN_kcat_1"	"3.1.3.74-RXN"	["EG11239-MONOMER"]	[]	"standard"	[1]	[]	[]	null	null	null	null	null	1
+"F16BDEPHOS-RXN"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[5.3]	[2400]	[]	null	null	null	null	null	1
+"F16BDEPHOS-RXN_kcat_5.3"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	[]	"standard"	[5.3]	[]	[]	null	null	null	null	null	1
+"3.1.3.74-RXN_2"	"3.1.3.74-RXN"	["EG11470-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[12]	[1500]	[]	null	null	null	null	null	1
+"3.1.3.74-RXN_2_kcat_12"	"3.1.3.74-RXN"	["EG11470-MONOMER"]	[]	"standard"	[12]	[]	[]	null	null	null	null	null	1
+"3.1.3.74-RXN_3"	"3.1.3.74-RXN"	["G6246-MONOMER"]	["PYRIDOXAL_PHOSPHATE"]	"standard"	[0.58]	[680]	[]	null	null	null	null	null	1
+"3.1.3.74-RXN_3_kcat_0.58"	"3.1.3.74-RXN"	["G6246-MONOMER"]	[]	"standard"	[0.58]	[]	[]	null	null	null	null	null	1
+"RXN0-4361"	"RXN0-4361"	["EG11736-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[0.19]	[420]	[]	null	null	null	null	null	1
+"RXN0-4361_kcat_0.19"	"RXN0-4361"	["EG11736-MONOMER"]	[]	"standard"	[0.19]	[]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_7"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	["ILE"]	"standard"	[0.51]	[140]	[]	null	null	null	null	null	1
+"ISOLEUCINE--TRNA-LIGASE-RXN_7_kcat_0.51"	"ISOLEUCINE--TRNA-LIGASE-RXN"	["LEUS-MONOMER"]	[]	"standard"	[0.51]	[]	[]	null	null	null	null	null	1
+"GLUTRACE-RXN"	"GLUTRACE-RXN"	["GLUTRACE-MONOMER"]	["GLT"]	"standard"	[12.17]	[1200]	[]	null	null	null	null	null	1
+"GLUTRACE-RXN_kcat_12.17"	"GLUTRACE-RXN"	["GLUTRACE-MONOMER"]	[]	"standard"	[12.17]	[]	[]	null	null	null	null	null	1
+"RXN0-384"	"RXN0-384"	["H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER"]	["DATP"]	"standard"	[4.59]	[790]	[]	null	null	null	null	null	1
+"RXN0-384_kcat_4.59"	"RXN0-384"	["H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER"]	[]	"standard"	[4.59]	[]	[]	null	null	null	null	null	1
+"DIENOYLCOAREDUCT-RXN"	"DIENOYLCOAREDUCT-RXN"	["DIENOYLCOAREDUCT-MONOMER"]	["NADPH"]	"standard"	[9.5]	[0.8]	[]	null	null	null	null	null	1
+"DIENOYLCOAREDUCT-RXN_kcat_9.5"	"DIENOYLCOAREDUCT-RXN"	["DIENOYLCOAREDUCT-MONOMER"]	[]	"standard"	[9.5]	[]	[]	null	null	null	null	null	1
+"RXN0-3741"	"RXN0-3741"	["G7230-MONOMER"]	["GMP"]	"standard"	[0.69]	[379.8]	[]	null	null	null	null	null	1
+"RXN0-3741_kcat_0.69"	"RXN0-3741"	["G7230-MONOMER"]	[]	"standard"	[0.69]	[]	[]	null	null	null	null	null	1
+"RXN0-3741_2"	"RXN0-3741"	["G7230-MONOMER"]	["DGMP"]	"standard"	[1.6]	[64.7]	[]	null	null	null	null	null	1
+"RXN0-3741_2_kcat_1.6"	"RXN0-3741"	["G7230-MONOMER"]	[]	"standard"	[1.6]	[]	[]	null	null	null	null	null	1
+"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	["G7230-MONOMER"]	["DAMP"]	"standard"	[2.28]	[118.9]	[]	null	null	null	null	null	1
+"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43._kcat_2.28"	"RXN0-3741[CCO-CYTOSOL]-DAMP/WATER//DEOXYADENOSINE/Pi.43."	["G7230-MONOMER"]	[]	"standard"	[2.28]	[]	[]	null	null	null	null	null	1
+"RXN-14161"	"RXN-14161"	["G7185-MONOMER"]	["DAMP"]	"standard"	[0.14]	[17]	[]	null	null	null	null	null	1
+"RXN-14161_kcat_0.14"	"RXN-14161"	["G7185-MONOMER"]	[]	"standard"	[0.14]	[]	[]	null	null	null	null	null	1
+"RXN0-5387_2"	"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"	[34.2]	[65.6]	[]	null	null	null	null	null	1
+"RXN0-5387_2_kcat_34.2"	"RXN0-5387"	["G7868-MONOMER"]	[]	"standard"	[34.2]	[]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_3"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	["GLN"]	"standard"	[3.2]	[260]	[]	null	null	null	null	null	1
+"GLUTAMINE--TRNA-LIGASE-RXN_3_kcat_3.2"	"GLUTAMINE--TRNA-LIGASE-RXN"	["GLNS-MONOMER"]	[]	"standard"	[3.2]	[]	[]	null	null	null	null	null	1
+"2.5.1.19-RXN"	"2.5.1.19-RXN"	["AROA-MONOMER"]	["PHOSPHO-ENOL-PYRUVATE"]	"standard"	[26.4]	[100]	[]	null	null	null	null	null	1
+"2.5.1.19-RXN_kcat_26.4"	"2.5.1.19-RXN"	["AROA-MONOMER"]	[]	"standard"	[26.4]	[]	[]	null	null	null	null	null	1
+"F16BDEPHOS-RXN_2"	"F16BDEPHOS-RXN"	["EG11736-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[0.2]	[400]	[]	null	null	null	null	null	1
+"F16BDEPHOS-RXN_2_kcat_0.2"	"F16BDEPHOS-RXN"	["EG11736-MONOMER"]	[]	"standard"	[0.2]	[]	[]	null	null	null	null	null	1
+"F16BDEPHOS-RXN_3"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	["FRUCTOSE-16-DIPHOSPHATE"]	"standard"	[5.3]	[2400]	[]	null	null	null	null	null	1
+"F16BDEPHOS-RXN_3_kcat_5.3"	"F16BDEPHOS-RXN"	["EG11239-MONOMER"]	[]	"standard"	[5.3]	[]	[]	null	null	null	null	null	1
+"MALONYL-COA-ACP-TRANSACYL-RXN"	"MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	["MALONYL-COA"]	"standard"	[0.00047]	[49]	[]	null	null	null	null	null	1
+"MALONYL-COA-ACP-TRANSACYL-RXN_kcat_0.00047"	"MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	[]	"standard"	[0.00047]	[]	[]	null	null	null	null	null	1
+"ISOCHORSYN-RXN_2"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	["CHORISMATE"]	"standard"	[0.617]	[7]	[]	null	null	null	null	null	1
+"ISOCHORSYN-RXN_2_kcat_0.617"	"ISOCHORSYN-RXN"	["ENTC-MONOMER"]	[]	"standard"	[0.617]	[]	[]	null	null	null	null	null	1
+"VALINE--TRNA-LIGASE-RXN_2"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	["ATP"]	"standard"	[12.9]	[9400]	[]	null	null	null	null	null	1
+"VALINE--TRNA-LIGASE-RXN_2_kcat_12.9"	"VALINE--TRNA-LIGASE-RXN"	["VALS-MONOMER"]	[]	"standard"	[12.9]	[]	[]	null	null	null	null	null	1
+"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	["UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER"]	["UDP-N-ACETYL-D-GLUCOSAMINE","PHOSPHO-ENOL-PYRUVATE"]	"standard"	[3.8]	[15,0.4]	[]	null	null	null	null	null	1
+"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN_kcat_3.8"	"UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN"	["UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER"]	[]	"standard"	[3.8]	[]	[]	null	null	null	null	null	1
+"RXN0-5462_3"	"RXN0-5462"	["EG12104-MONOMER"]	["GTP"]	"standard"	[0.0053]	[49]	[]	null	null	null	null	null	1
+"RXN0-5462_3_kcat_0.0053"	"RXN0-5462"	["EG12104-MONOMER"]	[]	"standard"	[0.0053]	[]	[]	null	null	null	null	null	1
+"RXN0-5462_4"	"RXN0-5462"	["EG10021-MONOMER"]	["GTP"]	"standard"	[0.0006]	[50]	[]	null	null	null	null	null	1
+"RXN0-5462_4_kcat_0.0006"	"RXN0-5462"	["EG10021-MONOMER"]	[]	"standard"	[0.0006]	[]	[]	null	null	null	null	null	1
+"RXN0-7101"	"RXN0-7101"	["KDUD-MONOMER"]	["GLUCONATE","NAD"]	"standard"	[0.9716667,0.21]	[544800,285]	[]	null	null	null	null	null	1
+"RXN0-7101_kcat_0.9716667"	"RXN0-7101"	["KDUD-MONOMER"]	[]	"standard"	[0.9716667]	[]	[]	null	null	null	null	null	1
+"RXN0-7101_kcat_0.21"	"RXN0-7101"	["KDUD-MONOMER"]	[]	"standard"	[0.21]	[]	[]	null	null	null	null	null	1
+"RXN0-7101_full_kcat_0.9716667"	"RXN0-7101"	["KDUD-MONOMER"]	["GLUCONATE","NAD"]	"standard"	[0.9716667]	[544800,285]	[]	null	null	null	null	null	1
+"RXN0-7101_full_kcat_0.21"	"RXN0-7101"	["KDUD-MONOMER"]	["GLUCONATE","NAD"]	"standard"	[0.21]	[544800,285]	[]	null	null	null	null	null	1

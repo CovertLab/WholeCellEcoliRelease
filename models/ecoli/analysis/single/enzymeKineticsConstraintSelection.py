@@ -16,10 +16,12 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+from random import random
 
 from wholecell.utils import units
 import cPickle
 import ast
+import itertools
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
@@ -29,6 +31,32 @@ import wholecell.utils.constants
 NUMERICAL_ZERO = 1e-8
 
 DISABLED = False
+
+COLORS_LARGE = ["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
+        "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
+        "#5A0007", "#809693", "#FEFFE6", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80",
+        "#61615A", "#BA0900", "#6B7900", "#00C2A0", "#FFAA92", "#FF90C9", "#B903AA", "#D16100",
+        "#DDEFFF", "#000035", "#7B4F4B", "#A1C299", "#300018", "#0AA6D8", "#013349", "#00846F",
+        "#372101", "#FFB500", "#C2FFED", "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09",
+        "#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66",
+        "#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C",
+
+        "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81",
+        "#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00",
+        "#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700",
+        "#549E79", "#FFF69F", "#201625", "#72418F", "#BC23FF", "#99ADC0", "#3A2465", "#922329",
+        "#5B4534", "#FDE8DC", "#404E55", "#0089A3", "#CB7E98", "#A4E804", "#324E72", "#6A3A4C",
+        "#83AB58", "#001C1E", "#D1F7CE", "#004B28", "#C8D0F6", "#A3A489", "#806C66", "#222800",
+        "#BF5650", "#E83000", "#66796D", "#DA007C", "#FF1A59", "#8ADBB4", "#1E0200", "#5B4E51",
+        "#C895C5", "#320033", "#FF6832", "#66E1D3", "#CFCDAC", "#D0AC94", "#7ED379", "#012C58"]
+
+COLORS_SMALL = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#00FFFF", "#000000", "#007FFF",
+		"#236B8E", "#70DB93", "#B5A642", "#5F9F9F", "#B87333", "#2F4F2F", "#9932CD", "#871F78", "#855E42",
+		"#545454", "#8E2323", "#238E23", "#CD7F32", "#527F76",
+		"#9F9F5F", "#8E236B", "#2F2F4F", "#CFB53B", "#FF7F00", "#DB70DB",
+		"#5959AB", "#8C1717", "#238E68", "#6B4226", "#8E6B23", "#00FF7F",
+		"#38B0DE", "#DB9370", "#5C4033", "#4F2F4F", "#CC3299", "#99CC32"]
+
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.isdir(simOutDir):
@@ -48,11 +76,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		findAllButOneConstraint = False
 		findRandomRxnZero = False
 		findMaxConstraintsGreedy = False
-		findMinMaxConstraintsGreedy = True
+		findMinMaxConstraintsGreedy = False
+		findTimeCourseError = True
 
 		# Check that only one plotting script is active.
-		if (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy) > 1:
-			print "Can only run one of %s, %s, %s at a time." % (str(findRandomRxnZero) + str(findMaxConstraintsGreedy) + str(findMinMaxConstraintsGreedy))
+		if (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy + findTimeCourseError) > 1:
+			print "Can only run one of %s, %s, %s, %s at a time." % ("findRandomRxnZero" + "findMaxConstraintsGreedy" + "findMinMaxConstraintsGreedy" + "findTimeCourseError")
 			assert False
 
 		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
@@ -152,8 +181,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
 		# targetConcentrations in same order as fba output (targetConcentrations is ordered differently)
-		desiredConcentrations = [objective[name] for name in fba.outputMoleculeIDs()]
-
+		metaboliteNames = fba.outputMoleculeIDs()
+		desiredConcentrations = [objective[name] for name in metaboliteNames]
 
 		# Transpose the constraints and metabolites matrices
 		allConstraints = np.transpose(allConstraints)
@@ -166,9 +195,21 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		# External molecules constraint
 		fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
+		# Build map from metabolites to colors, reusing as few as possible
+		colorMap = dict(itertools.izip(metaboliteNames, itertools.cycle(COLORS_SMALL)))
+		# Build map from metabolites to linestyles
+		linestyles = ['-', '--', '-.',':']
+		linestyles_subset = linestyles[:3]
+		n_repeats = len(metaboliteNames)//len(linestyles_subset)
+		linestylesLong = []
+		for linestyle in linestyles_subset:
+			linestylesLong.extend([linestyle]*n_repeats)
+		linestyleMap = dict(itertools.izip(metaboliteNames, itertools.cycle(linestylesLong)))
+
 		# FBA analysis on finished timepoints
 		# timepoints = [100, 1000, 2000, allConstraints.shape[1]-1]
 		timepoints = [2000]
+		# timepoints = np.arange(allConstraints.shape[1])
 
 		for timepoint in timepoints:
 			# Constraints at one arbitrary time point, fairly far into the simulation
@@ -183,8 +224,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 			oneConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-single_constraints.tsv'
 			twoConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-double_constraints.tsv'
 			allbutOneConstraintOutputFilename = plotOutDir + '/' + plotOutFileName + '-single_dropout_constraints.tsv'
-			reactionIDsPositiveNegativeErrors = plotOutDir + '/' + plotOutFileName + '-reactionIDsPositiveNegativeErrors.tsv'
-			greedyConstraintSelection = plotOutDir + '/' + plotOutFileName + '-greedyConstraintSelection'
+			reactionIDsPositiveNegativeErrorsFilename = plotOutDir + '/' + plotOutFileName + '-reactionIDsPositiveNegativeErrors.tsv'
+			greedyConstraintSelectionFilename = plotOutDir + '/' + plotOutFileName + '-greedyConstraintSelection'
 
 			if findSingleConstraints:
 				determineOneConstraintErrors(oneConstraintOutputFilename, fba, constraints, constraintIDs, constraintToReactionDict, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint)
@@ -198,20 +239,44 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 			# Find errors for a random assortment of N reactions set to zero flux (From ALL reactions, not just kinetic reactions)
 			if findRandomRxnZero:
-				plotNumConstraintsVersusError(reactionIDsPositiveNegativeErrors, fba, 35, 20, .5, plotOutDir, plotOutFileName, reactionIDs, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+				plotNumConstraintsVersusError(reactionIDsPositiveNegativeErrorsFilename, fba, 35, 20, .5, plotOutDir, plotOutFileName, reactionIDs, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
 
 			## Greedy subset selection
 			if findMaxConstraintsGreedy:
 				# Constraint subset with which to start
 				alreadyConstrained = np.zeros(len(constraints))
 				# Select additional constraints
-				selectMaxConstraintsSubset(greedyConstraintSelection, plotOutDir, plotOutFileName, fba, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+				selectMaxConstraintsSubset(greedyConstraintSelectionFilename, plotOutDir, plotOutFileName, fba, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
 
 			if findMinMaxConstraintsGreedy:
 				# Constraint subset with which to start
 				alreadyConstrained = np.zeros(len(constraints))
 				# Select additional constraints
-				selectMinMaxConstraintsSubset(greedyConstraintSelection, plotOutDir, plotOutFileName, fba, .9, 1.1, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+				selectMinMaxConstraintsSubset(greedyConstraintSelectionFilename, plotOutDir, plotOutFileName, metadata, fba, .9, 1.1, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint=timepoint)
+
+		timepoints = np.arange(allConstraints.shape[1])[1:]
+
+		if findTimeCourseError:
+
+			# Constraint subset with which to start
+			alreadyConstrained = np.zeros(len(constraints))
+			# alreadyConstrained = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+			alreadyConstrainedLength = alreadyConstrained.shape[0]
+
+			np.random.seed(3)
+			alreadyConstrained = (np.random.random(alreadyConstrainedLength) < .1)
+
+			# alreadyConstrained.fill(1)
+			# alreadyConstrained[(alreadyConstrainedLength/4):(alreadyConstrainedLength/3)] = 1
+			
+
+			# alreadyConstrained[63] = 1
+
+			# alreadyConstrained[39:44] = 0
+			# # alreadyConstrained[:(alreadyConstrainedLength/4)] = 1
+			# alreadyConstrained[(alreadyConstrainedLength/2):] = 1
+
+			plotSingleConditionTimeCourse(plotOutDir, plotOutFileName, metadata, fba, .9, 1.1, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInitRaw, desiredConcentrations, metaboliteNames, countsToMolar, timepoints, colorMap, linestyleMap)
 
 
 
@@ -240,7 +305,10 @@ def evaluatePoint(fba, metaboliteCountsInit, desiredConcentrations, countsToMola
 			metaboliteConcentrations
 			)
 
-	deltaMetabolites = fba.outputMoleculeLevelsChange() / countsToMolar
+	try:
+		deltaMetabolites = fba.outputMoleculeLevelsChange() / countsToMolar
+	except:
+		import ipdb; ipdb.set_trace()
 
 	metaboliteCountsFinal = metaboliteCountsInit + deltaMetabolites
 
@@ -530,7 +598,7 @@ def plotNumConstraintsVersusError(outputFileName, fba, samplesPerPoint, numPoint
 
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 
@@ -574,7 +642,6 @@ def determineNextConstraint(fba, alreadyConstrained, metaboliteCountsInit, minCo
 
 		# Reset the rate limit
 		fba.maxReactionFluxIs(constraintToReactionDict[constraint], np.inf, raiseForReversible = False)
-
 
 	alreadyConstrained[currentBestConstraintIndex] = True
 	additionalError = currentMin - baseTotalError
@@ -652,11 +719,11 @@ def selectMaxConstraintsSubset(outputFileName, plotOutDir, plotOutFileName, fba,
 
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 
-def selectMinMaxConstraintsSubset(outputFileName, plotOutDir, plotOutFileName, fba, minConstraintMultiple, maxConstraintMultiple, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint='none'):
+def selectMinMaxConstraintsSubset(outputFileName, plotOutDir, plotOutFileName, metadata, fba, minConstraintMultiple, maxConstraintMultiple, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInit, desiredConcentrations, metabolitePoolIDs, countsToMolar, timepoint='none'):
 	"""
 		selectMinMaxConstraintsSubset
 
@@ -728,7 +795,75 @@ def selectMinMaxConstraintsSubset(outputFileName, plotOutDir, plotOutFileName, f
 	plt.ylabel("Additional jFBA Error per New Constraint")
 	plt.xlabel("Number of Constraints Added")
 
-
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	plt.close("all")
+
+
+def plotSingleConditionTimeCourse(plotOutDir, plotOutFileName, metadata, fba, minConstraintMultiple, maxConstraintMultiple, constraints, constraintIDs, constraintToReactionDict, alreadyConstrained, metaboliteCountsInitRaw, desiredConcentrations, metaboliteNames, countsToMolar, timepoints, colorMap, linestyleMap):
+
+	# Constrain those reactions marked in alreadyConstrained, remove any others
+	for index, constraint in enumerate(constraintIDs):
+		if alreadyConstrained[index]:
+			fba.maxReactionFluxIs(constraintToReactionDict[constraint], constraints[index]*maxConstraintMultiple, raiseForReversible = False)
+			fba.minReactionFluxIs(constraintToReactionDict[constraint], constraints[index]*minConstraintMultiple, raiseForReversible = False)			
+		else:
+			fba.maxReactionFluxIs(constraintToReactionDict[constraint], np.inf, raiseForReversible = False)
+			fba.minReactionFluxIs(constraintToReactionDict[constraint], 0, raiseForReversible = False)			
+
+
+	errorsTimeCourse = np.zeros((timepoints.shape[0],metaboliteCountsInitRaw.shape[0] + 1))
+	# Loop through all timepoints, determine the jFBA error for each
+	for index, timepoint in enumerate(timepoints):
+
+		# Find the deviation from the target metabolite concentrations
+		individualErrors, totalError = evaluatePoint(fba, metaboliteCountsInitRaw[:,timepoint], desiredConcentrations, countsToMolar)
+
+		if totalError < 0:
+			import ipdb; ipdb.set_trace()
+
+		errorsTimeCourse[index][0] = totalError
+
+		errorsTimeCourse[index][1:] = individualErrors
+
+	# Plot the results
+	plt.figure(figsize = (10, 15))
+
+	ax0 = plt.subplot(4,1,1)
+	plt.title("jFBA Error Time Course, %i constraints" % (alreadyConstrained.sum()))
+	plt.scatter(timepoints, np.transpose(errorsTimeCourse)[0], c='b')
+	plt.ylabel("jFBA Total Error")
+	plt.xlabel("Time (timeStepSec)")
+
+	ax1 = plt.subplot(4,1,2)
+	plt.scatter(timepoints, np.transpose(errorsTimeCourse)[0], c='b')
+	plt.ylabel("jFBA Total Error")
+	plt.xlabel("Time (timeStepSec)")
+	ax1.set_ylim([0,1000])
+
+	lineLabelsTop = []
+	plt.subplot(4,1,3)
+	plt.hold(True)
+	for index, timeCourse in enumerate(np.transpose(errorsTimeCourse)[1:]):
+		if np.amax(np.abs(timeCourse)) > .01:
+			plt.plot(timeCourse, label=metaboliteNames[index], color=colorMap[metaboliteNames[index]], linestyle=linestyleMap[metaboliteNames[index]])
+			lineLabelsTop.append(metaboliteNames[index])
+	plt.hold(False)
+	plt.ylabel("jFBA individual Errors")
+	plt.xlabel("Time (timeStepSec)")
+	plt.legend(lineLabelsTop, bbox_to_anchor=(1.05, 3.66), loc=2, borderaxespad=0.)	
+
+	ax = plt.subplot(4,1,4)
+	plt.hold(True)
+	for index, timeCourse in enumerate(np.transpose(errorsTimeCourse)[1:]):
+		if np.amax(np.abs(timeCourse)) > .01:
+			plt.plot(timeCourse, label=metaboliteNames[index], color=colorMap[metaboliteNames[index]], linestyle=linestyleMap[metaboliteNames[index]])
+	plt.hold(False)
+	plt.ylabel("jFBA individual Errors")
+	plt.xlabel("Time (timeStepSec)")
+	ax.set_ylim([-.1,.02])
+
+	plt.subplots_adjust(left=.12, right=.65, top=0.9, bottom=0.1)
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
