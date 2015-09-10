@@ -89,7 +89,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.subplots_adjust(hspace = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 

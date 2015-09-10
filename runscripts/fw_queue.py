@@ -133,6 +133,7 @@ metadata = {
 	"git_branch": run_cmd(["git", "symbolic-ref", "--short", "HEAD"]),
 	"git_diff": run_cmd(["git", "diff"]),
 	"description": os.environ.get("DESC", ""),
+	"time": SUBMISSION_TIME,
 	}
 
 for key, value in metadata.iteritems():
@@ -259,6 +260,8 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
 	VARIANT_KB_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
+	metadata["variant_function"] = VARIANT
+	metadata["variant_index"] = i
 
 	# Variant KB creation task
 	fw_name = "VariantKbTask"
@@ -315,6 +318,7 @@ for i in VARIANTS_TO_RUN:
 
 		for k in xrange(N_GENS):
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
+			metadata["gen"] = k
 
 			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
 				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
@@ -370,11 +374,14 @@ for i in VARIANTS_TO_RUN:
 				fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
 				fw_this_variant_this_gen_this_sim_compression = Firework(
 					ScriptTask(
-						script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+						# script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+						script = 'echo Output zipping DISABLED: fw_queue.py line 373.'
 						),
 					name = fw_name,
 					spec = {"_queueadapter": {"job_name": fw_name}}
 					)
+
+				print "Warning!  Simulation output will not be compressed."
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
 

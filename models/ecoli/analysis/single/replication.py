@@ -134,7 +134,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	ax.set_xlabel("Time (min)")
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 	plt.figure(figsize = (8.5, 11))

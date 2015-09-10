@@ -87,7 +87,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	print lineRna[:, 1].min(), lineRna[:, 1].max()
 	
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 

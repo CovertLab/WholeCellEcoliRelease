@@ -118,7 +118,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# plotOutFileName = plotOutFileName[:plotOutFileName.index(".")] + ".png" # hack to save this as raster
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 
