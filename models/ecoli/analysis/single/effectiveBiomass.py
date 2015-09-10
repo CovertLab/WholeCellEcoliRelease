@@ -142,7 +142,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	grid.tight_layout(fig)
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 

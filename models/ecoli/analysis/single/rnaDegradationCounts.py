@@ -146,7 +146,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.subplots_adjust(hspace = 0.9, wspace = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

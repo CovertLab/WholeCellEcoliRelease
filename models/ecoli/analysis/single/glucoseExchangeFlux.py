@@ -36,7 +36,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata=None):
 	axes.set_ylabel("External\nglucose\n(mmol/L/s)")
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 
