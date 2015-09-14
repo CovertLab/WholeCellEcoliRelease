@@ -52,6 +52,8 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.metaboliteConcentrations = np.zeros(len(self.metaboliteIDs), np.float64)
+		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymesWithKineticInfo), np.float64)
+
 		self.countsToMolar = np.zeros(1, np.float64)
 		self.counts_units = "                                          " # Placeholder string longer than any unit name
 		self.mass_units = "                                          " # Placeholder string longer than any unit name
@@ -83,4 +85,5 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			counts_units = self.counts_units,
 			mass_units = self.mass_units,
 			volume_units = self.volume_units,
+			enzymeCountsInit = self.enzymeCountsInit
 			)

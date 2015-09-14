@@ -131,6 +131,9 @@ class Metabolism(object):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 		# TODO: unjank this
 
+		# Load the biomass function flat file as a dict
+		biomassFunction = {entry['molecule id']:entry['coefficient'] for entry in raw_data.biomass}
+
 		# Create vector of metabolite pools (concentrations)
 
 		# Since the data only covers certain metabolites, we need to rationally
@@ -364,6 +367,7 @@ class Metabolism(object):
 		# - (d)NTP byproducts not currently included
 
 		self.metabolitePoolIDs = metaboliteIDs
+		self.biomassFunction = biomassFunction
 		self.metabolitePoolConcentrations = units.mol/units.L * np.array(metaboliteConcentrations)
 
 	def _buildMetabolism(self, raw_data, sim_data):

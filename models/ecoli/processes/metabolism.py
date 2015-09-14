@@ -273,6 +273,9 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal",
 			metaboliteCountsFinal)
 
+		self.writeToListener("EnzymeKinetics", "enzymeCountsInit",
+			enzymeCountsInit)
+
 		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations",
 			metaboliteConcentrations)
 

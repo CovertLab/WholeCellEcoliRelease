@@ -30,7 +30,7 @@ import wholecell.utils.constants
 
 NUMERICAL_ZERO = 1e-8
 
-DISABLED = False
+DISABLED = True
 
 COLORS_LARGE = ["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
         "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
@@ -305,10 +305,7 @@ def evaluatePoint(fba, metaboliteCountsInit, desiredConcentrations, countsToMola
 			metaboliteConcentrations
 			)
 
-	try:
-		deltaMetabolites = fba.outputMoleculeLevelsChange() / countsToMolar
-	except:
-		import ipdb; ipdb.set_trace()
+	deltaMetabolites = fba.outputMoleculeLevelsChange() / countsToMolar
 
 	metaboliteCountsFinal = metaboliteCountsInit + deltaMetabolites
 
@@ -818,9 +815,6 @@ def plotSingleConditionTimeCourse(plotOutDir, plotOutFileName, metadata, fba, mi
 
 		# Find the deviation from the target metabolite concentrations
 		individualErrors, totalError = evaluatePoint(fba, metaboliteCountsInitRaw[:,timepoint], desiredConcentrations, countsToMolar)
-
-		if totalError < 0:
-			import ipdb; ipdb.set_trace()
 
 		errorsTimeCourse[index][0] = totalError
 

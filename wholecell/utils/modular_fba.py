@@ -213,7 +213,6 @@ class FluxBalanceAnalysis(object):
 					reactionRates[reverseReactionID] = reactionRates[reactionID]
 
 		# Call indivdual initialization methods
-
 		self._initReactionNetwork(reactionStoich)
 		self._initExternalExchange(externalExchangedMolecules)
 
