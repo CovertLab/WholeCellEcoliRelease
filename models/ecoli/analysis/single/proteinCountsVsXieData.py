@@ -33,6 +33,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
+	timeStep = 2000
+
 	# Get the names of proteins from the KB
 	kb = cPickle.load(open(kbFile, "rb"))
 
@@ -48,21 +50,35 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	bulkMolecules.close()
 
-	import ipdb; ipdb.set_trace()
-
 	# Load the Taniguichi Xie Science 2010 data from an outside file
-	with open("reconstruction/ecoli/flat/taniguichi_xie_table_6.tsv",'r') as f:
-		# Dict mapping b-number of gene to taniguichi average count
-		xieAveCounts = {}
+	with open("../reconstruction/ecoli/flat/taniguichi_xie_table_6.tsv",'r') as f:
+		# Dict mapping gene symbol to taniguichi average count
+		xieAveCountsDict = {}
 		# Read the flat file line by line
 		for line in f:
-			columns = line.split()
-			xieAveCounts[columns[1]] = columns[4]
+			columns = line.split('\t')
+			xieAveCountsDict[columns[0]] = columns[4]
+
+	trimmedIds = [x[:-3] if x[-3] is '[' else x for x in proteinIds]
+	prepedIds = []
+	for proteinId in trimmedIds:
+		if proteinId == "PROTEIN-CHEA":
+			prepedIds.append("null")
+		else:
+			prepedIds.append(proteinId)
 
 
-	import ipdb; ipdb.set_trace()
 
+	xieAveCounts = []
+	for prepedId in prepedIds:
+		if prepedId != "null" and prepedId in kb.moleculeGroups.frameIDGeneSymbol_Dict:
+			if kb.moleculeGroups.frameIDGeneSymbol_Dict[prepedId] in xieAveCountsDict:
+				xieAveCounts.append(xieAveCountsDict[kb.moleculeGroups.frameIDGeneSymbol_Dict[prepedId]])
+				continue
+			continue
+		xieAveCounts.append("null")
 
+	# xieAveCounts = [xieAveCountsDict[kb.moleculeGroups.frameIDGeneSymbol_Dict[x]] if kb.moleculeGroups.frameIDGeneSymbol_Dict[x] in xieAveCountsDict else "null" for x in prepedIds]
 
 
 
@@ -70,25 +86,30 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	# relativeCounts = avgCounts / avgCounts.sum()
 
-	counts = proteinCountsBulk[-1, :]
+	proteinCounts = proteinCountsBulk[timeStep, :]
+	xieAveCountsFinal = []
+	proteinCountsFinal = []
+	for index, xieAveCount in enumerate(xieAveCounts):
+		if xieAveCount != "null":
+			xieAveCountsFinal.append(xieAveCount)
+			proteinCountsFinal.append(proteinCounts[index])
 
-	expectedCountsArbitrary = (
-		kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1/units.s))
-		) * counts.sum()
 
-	expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()
+	# expectedCountsArbitrary = (
+	# 	kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] /
+	# 	(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1/units.s))
+	# 	) * counts.sum()
 
-	expectedCounts = expectedCountsRelative * counts.sum()
+	# expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()
+
+	# expectedCounts = expectedCountsRelative * counts.sum()
 
 	plt.figure(figsize = (8.5, 11))
 
-	maxLine = 1.1 * max(expectedCounts.max(), counts.max())
-	plt.plot([0, maxLine], [0, maxLine], '--r')
-	plt.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
+	plt.scatter(xieAveCountsFinal, proteinCountsFinal)
 
-	plt.xlabel("Expected protein count (scaled to total)")
-	plt.ylabel("Actual protein count (at final time step)")
+	plt.xlabel("Taniguichi Xie Observed Protein Count")
+	plt.ylabel("WCM protein count (at time step %d)" % timeStep)
 
 
 	from wholecell.analysis.analysis_tools import exportFigure
