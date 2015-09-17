@@ -33,7 +33,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	timeStep = 2000
 
 	# Get the names of proteins from the KB
 	kb = cPickle.load(open(kbFile, "rb"))
@@ -67,51 +66,55 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		else:
 			prepedIds.append(proteinId)
 
-
-
 	xieAveCounts = []
 	for prepedId in prepedIds:
 		if prepedId != "null" and prepedId in kb.moleculeGroups.frameIDGeneSymbol_Dict:
 			if kb.moleculeGroups.frameIDGeneSymbol_Dict[prepedId] in xieAveCountsDict:
 				xieAveCounts.append(xieAveCountsDict[kb.moleculeGroups.frameIDGeneSymbol_Dict[prepedId]])
 				continue
-			continue
 		xieAveCounts.append("null")
 
-	# xieAveCounts = [xieAveCountsDict[kb.moleculeGroups.frameIDGeneSymbol_Dict[x]] if kb.moleculeGroups.frameIDGeneSymbol_Dict[x] in xieAveCountsDict else "null" for x in prepedIds]
+	plt.figure(figsize= (20,15))
+
+	# Number of whole cell model time points to plot
+	timePoints = [100, 1000, 2000, 3000]
+	# Number of plots to display zoomed in by an order of magnitude each
+	num_orders_of_magnitude = 3
+
+	for idx, timePoint in enumerate(timePoints):
+
+		proteinCounts = proteinCountsBulk[timePoint, :]
+		xieAveCountsFinal = []
+		proteinCountsFinal = []
+		for index, xieAveCount in enumerate(xieAveCounts):
+			if xieAveCount != "null":
+				xieAveCountsFinal.append(float(xieAveCount))
+				proteinCountsFinal.append(proteinCounts[index])
+
+		for filterRound in xrange(0,num_orders_of_magnitude):
+
+			subplot_index = (3*idx)+filterRound+1
+
+			# Order of magnitude filtering
+			magnitudeFilterWCM = (proteinCountsFinal < (np.amax(proteinCountsFinal)/(10**filterRound))) 
+			magnitudeFilterXie = (xieAveCountsFinal < (np.amax(xieAveCountsFinal)/(10**filterRound)))
+			magnitudeFilter = np.logical_and(magnitudeFilterWCM,magnitudeFilterXie)
+
+			proteinCountsFinalZoomed = np.array(proteinCountsFinal)[magnitudeFilter]
+			xieAveCountsFinalZoomed = np.array(xieAveCountsFinal)[magnitudeFilter]
+
+			corr_coef, pValue = stats.pearsonr(proteinCountsFinalZoomed, xieAveCountsFinalZoomed)
+			
+			plt.subplot(len(timePoints),num_orders_of_magnitude,subplot_index)
+			plt.scatter(xieAveCountsFinalZoomed, proteinCountsFinalZoomed)
+			plt.text(1.1*np.amax(xieAveCountsFinalZoomed),1.1*np.amax(proteinCountsFinalZoomed),"r = %.4f" % (corr_coef), verticalalignment='top', horizontalalignment='right')
+
+			plt.xlabel("Taniguichi Xie Observed Protein Count")
+			plt.ylabel("WCM Protein Count (timestep %d)" % timePoint)
 
 
-
-	# avgCounts = proteinCountsBulk.mean(0)
-
-	# relativeCounts = avgCounts / avgCounts.sum()
-
-	proteinCounts = proteinCountsBulk[timeStep, :]
-	xieAveCountsFinal = []
-	proteinCountsFinal = []
-	for index, xieAveCount in enumerate(xieAveCounts):
-		if xieAveCount != "null":
-			xieAveCountsFinal.append(xieAveCount)
-			proteinCountsFinal.append(proteinCounts[index])
-
-
-	# expectedCountsArbitrary = (
-	# 	kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] /
-	# 	(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1/units.s))
-	# 	) * counts.sum()
-
-	# expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()
-
-	# expectedCounts = expectedCountsRelative * counts.sum()
-
-	plt.figure(figsize = (8.5, 11))
-
-	plt.scatter(xieAveCountsFinal, proteinCountsFinal)
-
-	plt.xlabel("Taniguichi Xie Observed Protein Count")
-	plt.ylabel("WCM protein count (at time step %d)" % timeStep)
-
-
+	plt.subplots_adjust(wspace = .7, hspace= .7)
+	
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
