@@ -406,20 +406,18 @@ class Metabolism(object):
 			else:
 				externalExchangeMolecules.add(secretion["molecule id"])
 
-		# there's nothing wrong with the code below, to my knowledge, but it's not currently needed
+		validEnzymeIDs = set([])
+		validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
+		validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
+		validEnzymeIDs.update(validProteinIDs)
+		validEnzymeIDs.update(validProteinComplexIDs)
+		validEnzymeCompartments = collections.defaultdict(set)
 
-		# validEnzymeIDs = set([])
-		# validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
-		# validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
-		# validEnzymeIDs.update(validProteinIDs)
-		# validEnzymeIDs.update(validProteinComplexIDs)
-		# validEnzymeCompartments = collections.defaultdict(set)
+		for enzymeID in validEnzymeIDs:
+			enzyme = enzymeID[:enzymeID.index("[")]
+			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
 
-		# for enzymeID in validEnzymeIDs:
-		# 	enzyme = enzymeID[:enzymeID.index("[")]
-		# 	location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
-
-		# 	validEnzymeCompartments[enzyme].add(location)
+			validEnzymeCompartments[enzyme].add(location)
 
 		for reaction in raw_data.reactions:
 			reactionID = reaction["reaction id"]
@@ -449,8 +447,18 @@ class Metabolism(object):
 			constraintToReactionDict[constraintID] = reaction["reactionID"]
 			activeConstraintsDict[constraintID] = reaction["constraintActive"]
 
-			# If the enzymes don't already have a compartment tag, add [c] (cytosol) as a default
-			reaction["enzymeIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["enzymeIDs"]]
+			# If the enzymes don't already have a compartment tag, add one from the valid compartment list or [c] (cytosol) as a default
+			new_reaction_enzymes = []
+			for reactionEnzyme in reaction["enzymeIDs"]:
+				if reactionEnzyme[-3:-2] !='[':
+					if len(validEnzymeCompartments[reactionEnzyme]) > 0:
+						new_reaction_enzymes.append(reactionEnzyme +'['+str(validEnzymeCompartments[reactionEnzyme].pop())+']')
+					else:
+						new_reaction_enzymes.append(reactionEnzyme + '[c]')
+				else:
+					new_reaction_enzymes.append(reactionEnzyme)
+
+			reaction["enzymeIDs"] = new_reaction_enzymes
 
 			# If the substrates don't already have a compartment tag, add [c] (cytosol) as a default
 			reaction["substrateIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["substrateIDs"]]
