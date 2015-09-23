@@ -76,6 +76,9 @@ MW_KEYS = [ # TODO: add flat file for this, and load here/in sim data
 	'RNA'
 	]
 
+
+# all of these dicts/sets of IDs are later used to ignore forming certain
+# complexes, though at some point they should be incorporated
 SUBUNIT_PROENZYME = {
 	# CPLX0-7885
 	'MONOMER0-4195':'EG10374-MONOMER',
@@ -439,6 +442,8 @@ while comp_rxns:
 
 			except KeyError:
 				loc = [s["location"] for s in comp_rxn["stoichiometry"] if s["coeff"] > 0]
+
+				assert len(loc) == 1
 
 				new_entry = {
 					'name':'', # not sure where names came from in the first place
