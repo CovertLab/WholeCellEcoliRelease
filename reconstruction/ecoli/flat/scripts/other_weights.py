@@ -418,6 +418,7 @@ with open(COMP_RXN_FILE, "r") as f:
 	reader = JsonReader(f)
 	comp_rxns = lod_to_dod(reader, KEY)
 
+bad_rxns = set()
 while comp_rxns:
 	to_remove = set()
 
@@ -429,6 +430,7 @@ while comp_rxns:
 		(comp_id,) = [mid for mid, c in stoich.viewitems() if c > 0]
 
 		if (subunits & IGNORED) or comp_id in IGNORED:
+			bad_rxns.add(comp_rxn_id)
 			to_remove.add(comp_rxn_id)
 			continue
 
@@ -494,4 +496,5 @@ with open(COMP_RXN_OUT, "w") as f:
 	writer.writeheader()
 
 	for key in sorted(comp_rxns.keys()):
-		writer.writerow(comp_rxns[key])
+		if key not in bad_rxns:
+			writer.writerow(comp_rxns[key])
