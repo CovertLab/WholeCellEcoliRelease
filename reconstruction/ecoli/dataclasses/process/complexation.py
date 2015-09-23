@@ -95,7 +95,7 @@ class Complexation(object):
 		massBalanceArray = self.massBalance()
 
 		# The stoichometric matrix should balance out to numerical zero.
-		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
+		assert np.max([abs(x) for x in massBalanceArray]) < 1e-8 # had to bump this up to 1e-8 because of flagella supercomplex
 
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
@@ -122,7 +122,7 @@ class Complexation(object):
 		'''
 
 		reactionSumsArray = []
-		
+
 		for index, column in enumerate(self.balanceMatrix.T):
 			reactionSumsArray.append(sum(column))
 
