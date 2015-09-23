@@ -31,6 +31,8 @@ RNA_FILE = os.path.join(FLAT_DIR, "rnas.tsv")
 COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes_large.tsv")
 COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions_large.tsv")
 
+COMP_RXN_OUT = os.path.join(FLAT_DIR, "complexationReactions.tsv") # this is used in sim, other is used to generate
+
 ID_DIR = os.path.join(FLAT_DIR, "ids")
 NTPS_FILE = os.path.join(ID_DIR, "ntps.txt")
 DNTPS_FILE = os.path.join(ID_DIR, "dntps.txt")
@@ -479,4 +481,17 @@ with open(COMP_FILE, "w") as f:
 	for key in sorted(comp_data.keys()):
 		writer.writerow(comp_data[key])
 
-del comp_data
+# a sane person would not structure code this way
+
+with open(COMP_RXN_FILE, "r") as f:
+	reader = JsonReader(f)
+	rxn_fieldnames = reader.fieldnames
+
+	comp_rxns = lod_to_dod(reader, KEY)
+
+with open(COMP_RXN_OUT, "w") as f:
+	writer = JsonWriter(f, rxn_fieldnames)
+	writer.writeheader()
+
+	for key in sorted(comp_rxns.keys()):
+		writer.writerow(comp_rxns[key])
