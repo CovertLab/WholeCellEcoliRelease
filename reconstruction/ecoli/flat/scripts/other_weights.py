@@ -76,6 +76,115 @@ MW_KEYS = [ # TODO: add flat file for this, and load here/in sim data
 	'RNA'
 	]
 
+SUBUNIT_PROENZYME = {
+	# CPLX0-7885
+	'MONOMER0-4195':'EG10374-MONOMER',
+	'MONOMER0-4196':'EG10374-MONOMER',
+
+	'SAMDC-ALPHA-MONOMER':'SPED-MONOMER',
+	'SAMDC-BETA-MONOMER':'SPED-MONOMER',
+
+	# PHOSPHASERDECARB-DIMER, PHOSPHASERDECARB-CPLX
+	'PHOSPHASERDECARB-ALPHA-MONOMER':'PSD-MONOMER',
+	'PHOSPHASERDECARB-BETA-MONOMER':'PSD-MONOMER',
+
+	# CPLX0-263
+	'MONOMER0-2':'EG12407-MONOMER',
+	'MONOMER0-3':'EG12407-MONOMER',
+
+	# CPLX0-2901
+	'MONOMER0-1842':'ASPDECARBOX-MONOMER',
+	'MONOMER0-1843':'ASPDECARBOX-MONOMER',
+	}
+
+MODIFIED_FORM = {
+	'ENTF-PANT':'ENTF-MONOMER',
+	'PHOSPHO-OMPR':'OMPR-MONOMER',
+	'PD01520':'MONOMER-51', # may be circular reference
+	'G7678-MONOMER':'MONOMER0-2341',
+	}
+
+NONSPECIFIC_METABOLITES = {
+	"ALLOSE",
+	"N-ACETYL-D-GLUCOSAMINE-6-P",
+	'RIBOSE',
+	'ACYL-COA',
+	'N-ACETYLNEURAMINATE',
+	'FRUCTURONATE',
+	'ALLANTOIN', # CPLX0-8071 (also glyxoylate)
+	}
+
+UNIDENTIFIED_GENE = {
+	"TRANSENOYLCOARED-MONOMER",
+
+	"GLUTAMINA-MONOMER",
+	'GLUTAMINA-CPLX',
+
+	"GLUTAMINB-MONOMER",
+	'GLUTAMINB-CPLX',
+
+	'TRANSENOYLCOARED-MONOMER',
+	'TRANSENOYLCOARED-CPLX',
+
+	'NQOR-MONOMER',
+	'NQOR-CPLX',
+	}
+
+MISC_OR_UNEXPLAINED = {
+	"ACETYL-COA-CARBOXYLMULTI-CPLX", # biotinylated, many subunits
+	'GCVMULTI-CPLX', # many subunits
+	'CPLX0-7754', # modified form for one subunit (phos'd)
+	'CPLX0-7849', # proenzymes and modified forms, many forms
+	'EG10245-MONOMER', # DNA poly III
+	'modified-charged-selC-tRNA', #
+
+	# biotin carrier protein
+	'BCCP-BIOTIN',
+	'BCCP-CPLX'
+
+	# FadR plus CoA, met id not recognized
+	"MONOMER-51-CPD-18346",
+	'MONOMER-51-CPD-10269',
+
+	# enterobactin multicomplex (also see modified forms)
+	'ENTB-CPLX',
+	'HOL-ENTB',
+	'ENTMULTI-CPLX',
+
+	# no idea
+	'CPD-10269',
+	'CPD-18346',
+
+	# RcsB phosphorylated transcription factor, many forms
+	'PHOSPHO-RCSB',
+	'CPLX0-7884',
+	'CPLX0-7978',
+
+	# phos'd TF
+	'CPLX0-7795',
+	'PROTEIN-NRIP',
+	'PHOSPHO-UHPA',
+	'PHOSPHO-KDPE',
+	'CPLX0-7721',
+	'MONOMER0-4198',
+	'CPLX0-7748',
+	'PHOSPHO-CPXR',
+
+	# weird orphan metabolite, might actually be a protein
+	'CPD0-2342',
+
+	# modified form?
+	'LIPOYL-GCVH',
+	}
+
+IGNORED = (
+	SUBUNIT_PROENZYME.viewkeys()
+	| MODIFIED_FORM.viewkeys()
+	| NONSPECIFIC_METABOLITES
+	| UNIDENTIFIED_GENE
+	| MISC_OR_UNEXPLAINED
+	)
+
 N_MW = len(MW_KEYS)
 
 COMPARTMENTS = ["n", "j", "w", "c", "e", "m", "o", "p", "l", "i"] # TODO: also to flat file
@@ -314,26 +423,49 @@ while comp_rxns:
 
 		(comp_id,) = [mid for mid, c in stoich.viewitems() if c > 0]
 
+		if (subunits & IGNORED) or comp_id in IGNORED:
+			to_remove.add(comp_rxn_id)
+			continue
+
 		if subunits <= set(species_weights.viewkeys()):
 			weight = np.zeros(N_MW)
 			for subunit in subunits:
 				weight += -stoich[subunit] * species_weights[subunit]
 
 			species_weights[comp_id] = weight
-			comp_data[comp_id]["mw"] = weight.tolist()
+			# TODO: catch nonexistant complexes, build an appropriate entry
+			try:
+				comp_data[comp_id]["mw"] = weight.tolist()
+
+			except KeyError:
+				loc = [s["location"] for s in comp_rxn["stoichiometry"] if s["coeff"] > 0]
+
+				new_entry = {
+					'name':'', # not sure where names came from in the first place
+					'comments':'',
+					'mw': weight.tolist(),
+					'location':loc,
+					'reactionId':comp_rxn_id,
+					'id':comp_id,
+					}
+
+				comp_data[comp_id] = new_entry
+
 			to_remove.add(comp_rxn_id)
 
 	for rxn_id in to_remove:
 		del comp_rxns[rxn_id]
 
 	if len(to_remove) == 0:
-		unrecognized = {
+		unrecognized_subunits = {
 			s["molecule"]
 			for comp_rxn in comp_rxns.viewvalues()
 			for s in comp_rxn["stoichiometry"]
 			} - species_weights.viewkeys() - comp_data.viewkeys()
 
-		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized), ",".join(unrecognized)))
+		import ipdb; ipdb.set_trace()
+
+		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized_subunits), "\n".join(unrecognized_subunits)))
 
 with open(COMP_FILE, "w") as f:
 	writer = JsonWriter(f, fieldnames)
