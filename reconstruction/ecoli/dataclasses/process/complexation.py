@@ -155,11 +155,11 @@ class Complexation(object):
 
 	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList, flag = 0):
 		row = self._findRow(product,speciesList)
-		if row == -1: return []
+		if row == -1: return [] # TODO: figure out what the hell this does, returning a list shouldn't work
 
 		col = self._findColumn(stoichMatrix[row,:], row)
 		if col == -1:
-			if flag == 0: return []
+			if flag == 0: return [] # TODO: see above
 			else: return {product: -1}
 
 		total = {}

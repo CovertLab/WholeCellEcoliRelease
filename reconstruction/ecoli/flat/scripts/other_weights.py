@@ -30,6 +30,7 @@ PROT_FILE = os.path.join(FLAT_DIR, "proteins.tsv")
 RNA_FILE = os.path.join(FLAT_DIR, "rnas.tsv")
 COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes_large.tsv")
 COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions_large.tsv")
+EQUI_RXNS_FILE = os.path.join(FLAT_DIR, "equilibriumReactions.tsv")
 
 COMP_RXN_OUT = os.path.join(FLAT_DIR, "complexationReactions.tsv") # this is used in sim, other is used to generate
 
@@ -491,10 +492,15 @@ with open(COMP_RXN_FILE, "r") as f:
 
 	comp_rxns = lod_to_dod(reader, KEY)
 
+with open(EQUI_RXNS_FILE, "r") as f:
+	reader = JsonReader(f)
+
+	equi_rxns = lod_to_dod(reader, KEY)
+
 with open(COMP_RXN_OUT, "w") as f:
 	writer = JsonWriter(f, rxn_fieldnames)
 	writer.writeheader()
 
 	for key in sorted(comp_rxns.keys()):
-		if key not in bad_rxns:
+		if key not in bad_rxns and key not in equi_rxns:
 			writer.writerow(comp_rxns[key])
