@@ -28,8 +28,11 @@ WATER_FILE = os.path.join(FLAT_DIR, "water.tsv")
 POLY_FILE = os.path.join(FLAT_DIR, "polymerized.tsv")
 PROT_FILE = os.path.join(FLAT_DIR, "proteins.tsv")
 RNA_FILE = os.path.join(FLAT_DIR, "rnas.tsv")
-COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes_large.tsv")
+COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes.tsv")
 COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions_large.tsv")
+EQUI_RXNS_FILE = os.path.join(FLAT_DIR, "equilibriumReactions.tsv")
+
+COMP_RXN_OUT = os.path.join(FLAT_DIR, "complexationReactions.tsv") # this is used in sim, other is used to generate
 
 ID_DIR = os.path.join(FLAT_DIR, "ids")
 NTPS_FILE = os.path.join(ID_DIR, "ntps.txt")
@@ -75,6 +78,136 @@ MW_KEYS = [ # TODO: add flat file for this, and load here/in sim data
 	'DNA',
 	'RNA'
 	]
+
+
+# all of these dicts/sets of IDs are later used to ignore forming certain
+# complexes, though at some point they should be incorporated
+SUBUNIT_PROENZYME = {
+	# CPLX0-7885
+	'MONOMER0-4195':'EG10374-MONOMER',
+	'MONOMER0-4196':'EG10374-MONOMER',
+
+	'SAMDC-ALPHA-MONOMER':'SPED-MONOMER',
+	'SAMDC-BETA-MONOMER':'SPED-MONOMER',
+
+	# PHOSPHASERDECARB-DIMER, PHOSPHASERDECARB-CPLX
+	'PHOSPHASERDECARB-ALPHA-MONOMER':'PSD-MONOMER',
+	'PHOSPHASERDECARB-BETA-MONOMER':'PSD-MONOMER',
+
+	# CPLX0-263
+	'MONOMER0-2':'EG12407-MONOMER',
+	'MONOMER0-3':'EG12407-MONOMER',
+
+	# CPLX0-2901
+	'MONOMER0-1842':'ASPDECARBOX-MONOMER',
+	'MONOMER0-1843':'ASPDECARBOX-MONOMER',
+	}
+
+MODIFIED_FORM = {
+	'ENTF-PANT':'ENTF-MONOMER',
+	'PHOSPHO-OMPR':'OMPR-MONOMER',
+	'PD01520':'MONOMER-51', # may be circular reference
+	'G7678-MONOMER':'MONOMER0-2341',
+	}
+
+NONSPECIFIC_METABOLITES = {
+	"ALLOSE",
+	"N-ACETYL-D-GLUCOSAMINE-6-P",
+	'RIBOSE',
+	'ACYL-COA',
+	'N-ACETYLNEURAMINATE',
+	'FRUCTURONATE',
+	'ALLANTOIN', # CPLX0-8071 (also glyxoylate)
+	}
+
+UNIDENTIFIED_GENE = {
+	"TRANSENOYLCOARED-MONOMER",
+
+	"GLUTAMINA-MONOMER",
+	'GLUTAMINA-CPLX',
+
+	"GLUTAMINB-MONOMER",
+	'GLUTAMINB-CPLX',
+
+	'TRANSENOYLCOARED-MONOMER',
+	'TRANSENOYLCOARED-CPLX',
+
+	'NQOR-MONOMER',
+	'NQOR-CPLX',
+	}
+
+MISC_OR_UNEXPLAINED = {
+	"ACETYL-COA-CARBOXYLMULTI-CPLX", # biotinylated, many subunits
+	'GCVMULTI-CPLX', # many subunits
+	'CPLX0-7754', # modified form for one subunit (phos'd)
+	'CPLX0-7849', # proenzymes and modified forms, many forms
+	'EG10245-MONOMER', # DNA poly III
+	'modified-charged-selC-tRNA', #
+
+	# biotin carrier protein
+	'BCCP-BIOTIN',
+	'BCCP-CPLX'
+
+	# FadR plus CoA, met id not recognized
+	"MONOMER-51-CPD-18346",
+	'MONOMER-51-CPD-10269',
+
+	# enterobactin multicomplex (also see modified forms)
+	'ENTB-CPLX',
+	'HOL-ENTB',
+	'ENTMULTI-CPLX',
+
+	# no idea
+	'CPD-10269',
+	'CPD-18346',
+
+	# RcsB phosphorylated transcription factor, many forms
+	'PHOSPHO-RCSB',
+	'CPLX0-7884',
+	'CPLX0-7978',
+
+	# phos'd TF
+	'CPLX0-7795',
+	'PROTEIN-NRIP',
+	'PHOSPHO-UHPA',
+	'PHOSPHO-KDPE',
+	'CPLX0-7721',
+	'MONOMER0-4198',
+	'CPLX0-7748',
+	'PHOSPHO-CPXR',
+
+	# weird orphan metabolite, might actually be a protein
+	'CPD0-2342',
+
+	# modified form?
+	'LIPOYL-GCVH',
+	}
+
+DISABLED = { # complexes we don't form for modeling reasons
+	"CPLX0-3964", # full ribosome
+
+	# 50S subcomplex (can't procede to full complex)
+	"CPLX0-3956",
+	"CPLX0-3955",
+
+	# non-apo RNA polymerase complexes
+	"CPLX0-221",
+	"RNAP54-CPLX",
+	"RNAPS-CPLX",
+	"RNAP32-CPLX",
+	"RNAPE-CPLX",
+	"CPLX0-222",
+	"RNAP70-CPLX",
+	}
+
+IGNORED = (
+	SUBUNIT_PROENZYME.viewkeys()
+	| MODIFIED_FORM.viewkeys()
+	| NONSPECIFIC_METABOLITES
+	| UNIDENTIFIED_GENE
+	| MISC_OR_UNEXPLAINED
+	| DISABLED
+	)
 
 N_MW = len(MW_KEYS)
 
@@ -267,6 +400,8 @@ with open(PROT_FILE, "r") as f:
 
 	prot_data = lod_to_dod(reader, KEY)
 
+prot_loc = {}
+
 for prot_id, prot_entry in prot_data.viewitems():
 	aa_counts = np.zeros(aa_weights.size, np.int64)
 	for c in prot_entry["seq"]:
@@ -282,6 +417,8 @@ for prot_id, prot_entry in prot_data.viewitems():
 
 	mw[weight_index] = new_weight
 	species_weights[prot_id] = np.array(mw)
+
+	prot_loc[prot_id] = prot_entry["location"][0]
 
 with open(PROT_FILE, "w") as f:
 	writer = JsonWriter(f, fieldnames)
@@ -304,6 +441,7 @@ with open(COMP_RXN_FILE, "r") as f:
 	reader = JsonReader(f)
 	comp_rxns = lod_to_dod(reader, KEY)
 
+bad_rxns = set()
 while comp_rxns:
 	to_remove = set()
 
@@ -314,26 +452,58 @@ while comp_rxns:
 
 		(comp_id,) = [mid for mid, c in stoich.viewitems() if c > 0]
 
+		if (subunits & IGNORED) or comp_id in IGNORED:
+			bad_rxns.add(comp_rxn_id)
+			to_remove.add(comp_rxn_id)
+			continue
+
 		if subunits <= set(species_weights.viewkeys()):
 			weight = np.zeros(N_MW)
 			for subunit in subunits:
 				weight += -stoich[subunit] * species_weights[subunit]
 
 			species_weights[comp_id] = weight
-			comp_data[comp_id]["mw"] = weight.tolist()
+
+			try:
+				comp_data[comp_id]["mw"] = weight.tolist()
+
+			except KeyError:
+
+				new_entry = {
+					'name':'', # not sure where names came from in the first place
+					'comments':'',
+					'mw': weight.tolist(),
+					'location':None, # placeholder
+					'reactionId':comp_rxn_id,
+					'id':comp_id,
+					}
+
+				comp_data[comp_id] = new_entry
+
+			# add/fix location
+			loc = [s["location"] for s in comp_rxn["stoichiometry"] if s["coeff"] > 0]
+
+			assert len(loc) == 1
+
+			if loc[0] == "x":
+				loc[0] = "c" # set unknown locations (x) to cytoplasmic (c)
+
+			comp_data[comp_id]["location"] = loc
+
+			# remove the resolved complexation reaction
 			to_remove.add(comp_rxn_id)
 
 	for rxn_id in to_remove:
 		del comp_rxns[rxn_id]
 
 	if len(to_remove) == 0:
-		unrecognized = {
+		unrecognized_subunits = {
 			s["molecule"]
 			for comp_rxn in comp_rxns.viewvalues()
 			for s in comp_rxn["stoichiometry"]
 			} - species_weights.viewkeys() - comp_data.viewkeys()
 
-		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized), ",".join(unrecognized)))
+		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized_subunits), "\n".join(unrecognized_subunits)))
 
 with open(COMP_FILE, "w") as f:
 	writer = JsonWriter(f, fieldnames)
@@ -342,4 +512,58 @@ with open(COMP_FILE, "w") as f:
 	for key in sorted(comp_data.keys()):
 		writer.writerow(comp_data[key])
 
-del comp_data
+# a sane person would not structure code this way
+
+with open(COMP_RXN_FILE, "r") as f:
+	reader = JsonReader(f)
+	rxn_fieldnames = reader.fieldnames
+
+	comp_rxns = lod_to_dod(reader, KEY)
+
+with open(EQUI_RXNS_FILE, "r") as f:
+	reader = JsonReader(f)
+
+	fn = reader.fieldnames
+	equi_rxns = lod_to_dod(reader, KEY)
+
+with open(COMP_RXN_OUT, "w") as f:
+	writer = JsonWriter(f, rxn_fieldnames)
+	writer.writeheader()
+
+	for key in sorted(comp_rxns.keys()):
+		if key not in bad_rxns and key not in equi_rxns:
+			for molecule in comp_rxns[key]["stoichiometry"]:
+				try:
+					molecule["location"] = prot_loc[molecule["molecule"]]
+
+				except KeyError:
+					if molecule["location"] == "x":
+						molecule["location"] = "c"
+
+			writer.writerow(comp_rxns[key])
+
+with open(EQUI_RXNS_FILE, "w") as f:
+	writer = JsonWriter(f, fn)
+	writer.writeheader()
+
+	for rxn_id in sorted(equi_rxns.keys()):
+		entry = equi_rxns[rxn_id]
+
+		try:
+			original_rxn = comp_rxns[rxn_id]
+
+		except KeyError:
+			pass
+
+		finally:
+			entry["stoichiometry"] = original_rxn["stoichiometry"]
+
+		for molecule in entry["stoichiometry"]:
+			try:
+				molecule["location"] = prot_loc[molecule["molecule"]]
+
+			except KeyError:
+				if molecule["location"] == "x":
+					molecule["location"] = "c"
+
+		writer.writerow(entry)
