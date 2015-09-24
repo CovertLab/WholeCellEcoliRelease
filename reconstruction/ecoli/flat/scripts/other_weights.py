@@ -183,12 +183,30 @@ MISC_OR_UNEXPLAINED = {
 	'LIPOYL-GCVH',
 	}
 
+DISABLED = { # complexes we don't form for modeling reasons
+	"CPLX0-3964", # full ribosome
+
+	# 50S subcomplex (can't procede to full complex)
+	"CPLX0-3956",
+	"CPLX0-3955",
+
+	# non-apo RNA polymerase complexes
+	"CPLX0-221",
+	"RNAP54-CPLX",
+	"RNAPS-CPLX",
+	"RNAP32-CPLX",
+	"RNAPE-CPLX",
+	"CPLX0-222",
+	"RNAP70-CPLX",
+	}
+
 IGNORED = (
 	SUBUNIT_PROENZYME.viewkeys()
 	| MODIFIED_FORM.viewkeys()
 	| NONSPECIFIC_METABOLITES
 	| UNIDENTIFIED_GENE
 	| MISC_OR_UNEXPLAINED
+	| DISABLED
 	)
 
 N_MW = len(MW_KEYS)
