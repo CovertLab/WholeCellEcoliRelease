@@ -4,9 +4,7 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -22,53 +20,25 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	ap = AnalysisPaths(seedOutDir)
 
+
 	# Get all cells
 	allDir = ap.getAll()
 
-	massNames = [
-				"dryMass",
-				"proteinMass",
-				#"tRnaMass",
-				"rRnaMass",
-				'mRnaMass',
-				"dnaMass"
-				]
-
-	cleanNames = [
-				"Dry\nmass",
-				"Protein\nmass",
-				#"tRNA\nmass",
-				"rRNA\nmass",
-				"mRNA\nmass",
-				"DNA\nmass"
-				]
-
-	#plt.figure(figsize = (8.5, 11))
-	fig, axesList = plt.subplots(len(massNames), sharex = True)
-
-	for simDir in allDir:
+	cellCycleLengths = []
+	generations = []
+	for idx, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
-		#initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-		for idx, massType in enumerate(massNames):
-			massToPlot = mass.readColumn(massNames[idx])
-			# massToPlot = massToPlot / massToPlot[0]
+		cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
+		generations.append(idx)
 
-			axesList[idx].plot(time / 60. / 60., massToPlot, linewidth = 2)
-			# set axes to size that shows all generations
-			axesList[idx].set_xlim(0, ((time[-1] - time[0]) / 60. / 60. )*len(allDir)*1.1)
-			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
-
-	for axes in axesList:
-		axes.get_ylim()
-		axes.set_yticks(list(axes.get_ylim()))
-
-	axesList[0].set_title("Cell mass fractions")
-	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
-
-	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+	plt.scatter(generations, cellCycleLengths)
+	plt.xlabel('Generation')
+	plt.ylabel('Time (hours)')
+	plt.title('Cell Cycle Lengths')
+	plt.xticks(generations)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
