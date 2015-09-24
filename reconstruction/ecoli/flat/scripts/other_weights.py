@@ -28,7 +28,7 @@ WATER_FILE = os.path.join(FLAT_DIR, "water.tsv")
 POLY_FILE = os.path.join(FLAT_DIR, "polymerized.tsv")
 PROT_FILE = os.path.join(FLAT_DIR, "proteins.tsv")
 RNA_FILE = os.path.join(FLAT_DIR, "rnas.tsv")
-COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes_large.tsv")
+COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes.tsv")
 COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions_large.tsv")
 EQUI_RXNS_FILE = os.path.join(FLAT_DIR, "equilibriumReactions.tsv")
 
@@ -382,6 +382,8 @@ with open(PROT_FILE, "r") as f:
 
 	prot_data = lod_to_dod(reader, KEY)
 
+prot_loc = {}
+
 for prot_id, prot_entry in prot_data.viewitems():
 	aa_counts = np.zeros(aa_weights.size, np.int64)
 	for c in prot_entry["seq"]:
@@ -397,6 +399,8 @@ for prot_id, prot_entry in prot_data.viewitems():
 
 	mw[weight_index] = new_weight
 	species_weights[prot_id] = np.array(mw)
+
+	prot_loc[prot_id] = prot_entry["location"][0]
 
 with open(PROT_FILE, "w") as f:
 	writer = JsonWriter(f, fieldnames)
@@ -441,32 +445,34 @@ while comp_rxns:
 				weight += -stoich[subunit] * species_weights[subunit]
 
 			species_weights[comp_id] = weight
-			# TODO: catch nonexistant complexes, build an appropriate entry
+
 			try:
 				comp_data[comp_id]["mw"] = weight.tolist()
 
-				if comp_data[comp_id]["location"][0] == "x":
-					comp_data[comp_id]["location"][0] = "x"
-
 			except KeyError:
-				loc = [s["location"] for s in comp_rxn["stoichiometry"] if s["coeff"] > 0]
-
-				assert len(loc) == 1
-
-				if loc[0] == "x":
-					loc[0] = "c" # set unknown locations (x) to cytoplasmic (c)
 
 				new_entry = {
 					'name':'', # not sure where names came from in the first place
 					'comments':'',
 					'mw': weight.tolist(),
-					'location':loc,
+					'location':None, # placeholder
 					'reactionId':comp_rxn_id,
 					'id':comp_id,
 					}
 
 				comp_data[comp_id] = new_entry
 
+			# add/fix location
+			loc = [s["location"] for s in comp_rxn["stoichiometry"] if s["coeff"] > 0]
+
+			assert len(loc) == 1
+
+			if loc[0] == "x":
+				loc[0] = "c" # set unknown locations (x) to cytoplasmic (c)
+
+			comp_data[comp_id]["location"] = loc
+
+			# remove the resolved complexation reaction
 			to_remove.add(comp_rxn_id)
 
 	for rxn_id in to_remove:
@@ -478,8 +484,6 @@ while comp_rxns:
 			for comp_rxn in comp_rxns.viewvalues()
 			for s in comp_rxn["stoichiometry"]
 			} - species_weights.viewkeys() - comp_data.viewkeys()
-
-		import ipdb; ipdb.set_trace()
 
 		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized_subunits), "\n".join(unrecognized_subunits)))
 
@@ -501,6 +505,7 @@ with open(COMP_RXN_FILE, "r") as f:
 with open(EQUI_RXNS_FILE, "r") as f:
 	reader = JsonReader(f)
 
+	fn = reader.fieldnames
 	equi_rxns = lod_to_dod(reader, KEY)
 
 with open(COMP_RXN_OUT, "w") as f:
@@ -510,7 +515,37 @@ with open(COMP_RXN_OUT, "w") as f:
 	for key in sorted(comp_rxns.keys()):
 		if key not in bad_rxns and key not in equi_rxns:
 			for molecule in comp_rxns[key]["stoichiometry"]:
-				if molecule["location"][0] == "x":
-					molecule["location"] = "c"
+				try:
+					molecule["location"] = prot_loc[molecule["molecule"]]
+
+				except KeyError:
+					if molecule["location"] == "x":
+						molecule["location"] = "c"
 
 			writer.writerow(comp_rxns[key])
+
+with open(EQUI_RXNS_FILE, "w") as f:
+	writer = JsonWriter(f, fn)
+	writer.writeheader()
+
+	for rxn_id in sorted(equi_rxns.keys()):
+		entry = equi_rxns[rxn_id]
+
+		try:
+			original_rxn = comp_rxns[rxn_id]
+
+		except KeyError:
+			pass
+
+		finally:
+			entry["stoichiometry"] = original_rxn["stoichiometry"]
+
+		for molecule in entry["stoichiometry"]:
+			try:
+				molecule["location"] = prot_loc[molecule["molecule"]]
+
+			except KeyError:
+				if molecule["location"] == "x":
+					molecule["location"] = "c"
+
+		writer.writerow(entry)
