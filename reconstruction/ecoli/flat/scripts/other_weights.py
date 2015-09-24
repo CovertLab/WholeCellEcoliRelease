@@ -445,10 +445,16 @@ while comp_rxns:
 			try:
 				comp_data[comp_id]["mw"] = weight.tolist()
 
+				if comp_data[comp_id]["location"][0] == "x":
+					comp_data[comp_id]["location"][0] = "x"
+
 			except KeyError:
 				loc = [s["location"] for s in comp_rxn["stoichiometry"] if s["coeff"] > 0]
 
 				assert len(loc) == 1
+
+				if loc[0] == "x":
+					loc[0] = "c" # set unknown locations (x) to cytoplasmic (c)
 
 				new_entry = {
 					'name':'', # not sure where names came from in the first place
@@ -503,4 +509,8 @@ with open(COMP_RXN_OUT, "w") as f:
 
 	for key in sorted(comp_rxns.keys()):
 		if key not in bad_rxns and key not in equi_rxns:
+			for molecule in comp_rxns[key]["stoichiometry"]:
+				if molecule["location"][0] == "x":
+					molecule["location"] = "c"
+
 			writer.writerow(comp_rxns[key])
