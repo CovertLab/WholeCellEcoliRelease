@@ -64,8 +64,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 			if cellCycleTime > currentMaxTime:
 				currentMaxTime = cellCycleTime
 
-			axesList[idx].set_xlim(0, (currentMaxTime*(len(allDir))*1.1))
-			#axesList[idx].set_xlim(0, currentMaxTime*metadata["total_gens"]*1.1)
+			axesList[idx].set_xlim(0, currentMaxTime*metadata["total_gens"]*1.1)
 			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
 	for axes in axesList:

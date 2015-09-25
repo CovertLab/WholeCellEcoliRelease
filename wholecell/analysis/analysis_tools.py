@@ -28,7 +28,7 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata="none"):
 			metadata_signature = "_".join([str(metadata["time"])[:14],
 					str(metadata["variant_function"]),
 					str(metadata["variant_index"]),
-					# "Total_gens", str(metadata["total_gens"]),
+					"Total_gens", str(metadata["total_gens"]),
 					"Githash", str(metadata["git_hash"])[:12],
 					"Desc", str(metadata["description"])])
 		

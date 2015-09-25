@@ -31,37 +31,41 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# Get all cells
 	allDir = ap.getAll()
 
+	plt.figure(figsize = (10, 10))
+
 	cellCycleLengths = []
-	generations = []
 	for idx, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 		cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
-		generations.append(idx)
 
-	differences = [1, 2, 3]
-	for difference in differences:
+	differences = [1, 2, 3, 8]
+	for idx, difference in enumerate(differences):
 		xArray = cellCycleLengths[0:-difference]
 		yArray = cellCycleLengths[difference:]
 		coefficient, pValue = scipy.stats.pearsonr(xArray, yArray)
 		
 		try:
-			plt.subplot(1, len(differences), difference, sharey=axis)
+			plt.subplot(1, len(differences), idx+1, sharey=axis)
 		except NameError:
-			axis = plt.subplot(1, len(differences), difference)
+			axis = plt.subplot(1, len(differences), idx+1)
 
+		xMin = np.amin(xArray)
+		xMax = np.amax(xArray)
+		yMin = np.amin(yArray)
+		yMax = np.amax(yArray)
 		plt.scatter(xArray, yArray)
-		plt.xlabel('Cell cycle length of Generation n')
 		plt.ylabel('Cell cycle length of Generation n+%i' % (difference))
-		plt.text(np.amin(xArray), np.amax(yArray),'r = %.4f' % (coefficient))
-		plt.xticks([np.amin(xArray), (np.amin(xArray) + np.amax(xArray)) / 2. ,np.amax(xArray)])
-		plt.yticks([np.amin(yArray), (np.amin(yArray) + np.amax(yArray)) / 2. ,np.amax(yArray)])
+		plt.text(xMin, yMax,'r = %.4f' % (coefficient))
+		plt.xticks([xMin, (xMin + xMax) / 2. ,xMax], [str(round(xMin,4)), str(round((xMin + xMax) / 2.,4)), str(round(xMax,4))], rotation='vertical')
+		plt.yticks([yMin, (yMin + yMax) / 2. ,yMax])
 		
-		
-	plt.title('Correlation of cell cycle lengths')	
-	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+
+	plt.xlabel('Cell cycle length of Generation n')
+	plt.suptitle('Correlation of cell cycle lengths')
+	plt.subplots_adjust(hspace = 0.9, wspace = 0.8, bottom = 0.2)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
