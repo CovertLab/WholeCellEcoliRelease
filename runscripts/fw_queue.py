@@ -134,7 +134,7 @@ metadata = {
 	"git_diff": run_cmd(["git", "diff"]),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
-	"total_gens": N_GENS
+	"total_gens": str(N_GENS),
 	}
 
 for key, value in metadata.iteritems():
