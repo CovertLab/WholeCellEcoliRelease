@@ -12,6 +12,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
+import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -41,34 +42,42 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 		cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
 
-	differences = [1, 2, 3, 8]
+	totalTimeAverage = np.average(cellCycleLengths)
+	#differences = np.arange(1, int(metadata["total_gens"])-1,2)
+	differences = np.arange(1, len(allDir),2)
+
 	for idx, difference in enumerate(differences):
 		xArray = cellCycleLengths[0:-difference]
 		yArray = cellCycleLengths[difference:]
 		coefficient, pValue = scipy.stats.pearsonr(xArray, yArray)
 		
+		xMin = np.amin(xArray)
+		xMax = np.amax(xArray)
+		yMin = np.amin(yArray)
+		yMax = np.amax(yArray)
+
 		try:
 			plt.subplot(1, len(differences), idx+1, sharey=axis)
 		except NameError:
 			axis = plt.subplot(1, len(differences), idx+1)
 
-		xMin = np.amin(xArray)
-		xMax = np.amax(xArray)
-		yMin = np.amin(yArray)
-		yMax = np.amax(yArray)
 		plt.scatter(xArray, yArray)
 		plt.ylabel('Cell cycle length of Generation n+%i' % (difference))
 		plt.text(xMin, yMax,'r = %.4f' % (coefficient))
-		plt.xticks([xMin, (xMin + xMax) / 2. ,xMax], [str(round(xMin,4)), str(round((xMin + xMax) / 2.,4)), str(round(xMax,4))], rotation='vertical')
-		plt.yticks([yMin, (yMin + yMax) / 2. ,yMax])
-		
+		plt.xticks([xMin, (xMin + xMax) / 2., xMax], 
+			[str(round(xMin,4)), str(round((xMin + xMax) / 2.,4)), str(round(xMax,4))],
+			rotation='vertical')
+		plt.yticks([yMin, (yMin + yMax) / 2., yMax])
+
 
 	plt.xlabel('Cell cycle length of Generation n')
 	plt.suptitle('Correlation of cell cycle lengths')
 	plt.subplots_adjust(hspace = 0.9, wspace = 0.8, bottom = 0.2)
 
+
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
 
 	plt.close("all")
 
