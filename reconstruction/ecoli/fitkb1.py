@@ -141,6 +141,7 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
 
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
+	kb.mass.avgCellDryMass = kb.mass.avgCellDryMassInit * kb.mass.avgCellToInitialCellConvFactor
 
 def setInitialRnaExpression(kb):
 	# Set expression for all of the noncoding RNAs
@@ -422,6 +423,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
 	
+
 	# Compute counts of endoRNases
 	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
 	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
@@ -641,14 +643,27 @@ def fitTimeStep(kb, bulkContainer):
 		kb.timeStepSec = timeStep * 0.7
 
 def calculateBulkDistributions(kb):
-	subMass = kb.mass.subMass
-	proteinMass = subMass["proteinMass"].asUnit(units.g)
-	rnaMass = subMass["rnaMass"].asUnit(units.g)
 
+	# Ids
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(kb)
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(kb)
 	ids_complex = kb.process.complexation.moleculeNames
+	ids_equilibrium = kb.process.equilibrium.moleculeNames
+	allMoleculesIDs = sorted(
+		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium)
+		)
 
+	# Data for complexation
+
+	complexationStoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+
+	complexationPrebuiltMatrices = mccBuildMatrices(
+		complexationStoichMatrix
+		)
+
+	# Data for equilibrium binding
+	equilibriumDerivatives = kb.process.equilibrium.derivatives
+	equilibriumDerivativesJacobian = kb.process.equilibrium.derivativesJacobian
 
 	# Construct bulk container
 
@@ -663,18 +678,10 @@ def calculateBulkDistributions(kb):
 	rnaView = bulkContainer.countsView(ids_rnas)
 	proteinView = bulkContainer.countsView(ids_protein)
 	complexationMoleculesView = bulkContainer.countsView(ids_complex)
-	allMoleculesIDs = sorted(
-		set(ids_rnas) | set(ids_protein) | set(ids_complex)
-		)
+	equilibriumMoleculesView = bulkContainer.countsView(ids_equilibrium)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
-
-	complexationStoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
-
-	complexationPrebuiltMatrices = mccBuildMatrices(
-		complexationStoichMatrix
-		)
 
 
 	for seed in xrange(N_SEEDS):
