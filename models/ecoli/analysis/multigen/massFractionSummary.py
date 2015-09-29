@@ -75,11 +75,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
-
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
-
 
 if __name__ == "__main__":
 	defaultKBFile = os.path.join(

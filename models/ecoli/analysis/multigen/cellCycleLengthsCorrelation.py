@@ -43,8 +43,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
 
 	totalTimeAverage = np.average(cellCycleLengths)
-	#differences = np.arange(1, int(metadata["total_gens"])-1,2)
-	differences = np.arange(1, len(allDir),2)
+	totalGens = int(metadata["total_gens"])
+	
+	if totalGens > 8:
+		differences = [1,2] + np.arange(4, totalGens, totalGens//4)
+	elif totalGens < 4:
+		return
+	else:
+		differences = [1,2]
 
 	for idx, difference in enumerate(differences):
 		xArray = cellCycleLengths[0:-difference]
