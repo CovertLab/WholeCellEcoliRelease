@@ -12,8 +12,6 @@ Compiles a theano function which can be called to determine the rates of all rea
 
 import numpy as np
 
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
-
 from wholecell.utils import units
 
 import theano.tensor as T
@@ -29,17 +27,22 @@ class EnzymeKinetics(object):
 	Stores a compiled theano function determining any reaction kinetics known.
 	"""
 
-	def __init__(self, kb, reactionIDs, metaboliteIDs, kcatOnly=False):
+	def __init__(self, reactionRateInfo, reactionIDs, metaboliteIDs, kcatOnly=False):
 
 		# Set default reaction rate limit, to which reactions are set absent other information
 		self.defaultRate = np.inf
 
 		# Load rate functions from enzymeKinetics.tsv flat file
-		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
-		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
+		self.reactionRateInfo = reactionRateInfo
 
+		self.enzymesWithKineticInfo = []
+
+		for reaction in self.reactionRateInfo:
+			import ipdb; ipdb.set_trace()
+			self.enzymesWithKineticInfo.extend([x for x in reaction["enzymes"]])
+
+		
 		# Load info on all reactions in the model
-		self.allReactions = kb.process.metabolism.reactionStoich
 		self.constraintIDs = kb.process.metabolism.constraintIDs
 
 		# Make a dictionary mapping a substrate ID to it's index in self.metabolites()
@@ -214,5 +217,10 @@ class EnzymeKinetics(object):
 			# If it is a constant
 			if variable in constants_dict:
 				rate = re.sub(r"\b%s\b" % variable, '(' + str(constants_dict[variable]) + ')', rate)
+
+		try:
+			eval(rate)
+		except:
+			import ipdb; ipdb.set_trace()
 
 		return eval(rate)
