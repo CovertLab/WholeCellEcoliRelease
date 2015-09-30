@@ -69,6 +69,7 @@ WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["len
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
+LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
 
 ### Create directories
 
@@ -142,7 +143,7 @@ for key, value in metadata.iteritems():
 #### Create workflow
 
 # Create launchpad
-lpad = LaunchPad(**yaml.load(open("my_launchpad.yaml")))
+lpad = LaunchPad(**yaml.load(open(LAUNCHPAD_FILE)))
 
 # Store list of FireWorks
 wf_fws = []
