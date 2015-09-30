@@ -46,7 +46,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	totalGens = int(metadata["total_gens"])
 	
 	if totalGens > 8:
-		differences = [1,2] + np.arange(4, totalGens, totalGens//4)
+		differences = [1,2]
+		for value in np.arange(4, totalGens, totalGens//4):
+			differences.append(value)
 	elif totalGens < 4:
 		return
 	else:
