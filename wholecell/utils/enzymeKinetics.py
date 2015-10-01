@@ -27,23 +27,15 @@ class EnzymeKinetics(object):
 	Stores a compiled theano function determining any reaction kinetics known.
 	"""
 
-	def __init__(self, reactionRateInfo, reactionIDs, metaboliteIDs, kcatOnly=False):
+	def __init__(self, enzymesWithKineticInfo, constraintIDs, reactionRateInfo, reactionIDs, metaboliteIDs, kcatOnly=False):
 
 		# Set default reaction rate limit, to which reactions are set absent other information
 		self.defaultRate = np.inf
 
 		# Load rate functions from enzymeKinetics.tsv flat file
 		self.reactionRateInfo = reactionRateInfo
-
-		self.enzymesWithKineticInfo = []
-
-		for reaction in self.reactionRateInfo:
-			import ipdb; ipdb.set_trace()
-			self.enzymesWithKineticInfo.extend([x for x in reaction["enzymes"]])
-
-		
-		# Load info on all reactions in the model
-		self.constraintIDs = kb.process.metabolism.constraintIDs
+		self.constraintIDs = constraintIDs
+		self.enzymesWithKineticInfo = enzymesWithKineticInfo
 
 		# Make a dictionary mapping a substrate ID to it's index in self.metabolites()
 		self.metaboliteIndexDict = {}
@@ -58,7 +50,6 @@ class EnzymeKinetics(object):
 		for index,name in enumerate(self.enzymesWithKineticInfo):
 			self.enzymeIndexDict[name] = index
 			enzyme_vars_array[index] = T.dscalar(name + '_concentration')
-
 
 		# Build a function to determine the rate of reactions known to the model
 		noRate = T.dscalar('noRate')

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Plot protein monomer counts
+Plot WCM protein counts against the data found by the Xie lab in Taniguichi et al Science 2010
 
-@author: John Mason
+@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/27/2014
+@date: Created 9/14/2015
 """
 
 from __future__ import division

@@ -109,7 +109,14 @@ class Metabolism(wholecell.processes.process.Process):
 		# self.constraintIDs = kb.process.metabolism.constraintIDs
 
 		# Set up enzyme kinetics object
-		self.enzymeKinetics = EnzymeKinetics(reactionRateInfo = kb.process.metabolism.reactionRateInfo, reactionIDs = self.fba.reactionIDs(), metaboliteIDs = self.fba.outputMoleculeIDs(), kcatOnly=False)
+		self.enzymeKinetics = EnzymeKinetics(
+			enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"],
+			reactionRateInfo = kb.process.metabolism.reactionRateInfo,
+			constraintIDs = kb.process.metabolism.constraintIDs,
+			reactionIDs = self.fba.reactionIDs(),
+			metaboliteIDs = self.fba.outputMoleculeIDs(),
+			kcatOnly=False
+			)
 
 		# Determine which kinetic limits to use
 		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
