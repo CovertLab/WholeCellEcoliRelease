@@ -113,10 +113,6 @@ class EnzymeKinetics(object):
 			# Custom rate law
 			rateExpression = self.enzymeRateCustom(rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict)
 
-		try:
-			return rateExpression
-		except:
-			import ipdb; ipdb.set_trace()
 		return rateExpression
 
 
@@ -208,10 +204,5 @@ class EnzymeKinetics(object):
 			# If it is a constant
 			if variable in constants_dict:
 				rate = re.sub(r"\b%s\b" % variable, '(' + str(constants_dict[variable]) + ')', rate)
-
-		try:
-			eval(rate)
-		except:
-			import ipdb; ipdb.set_trace()
 
 		return eval(rate)
