@@ -28,6 +28,14 @@ try:
 except ImportError:
 	pass
 
+except Exception as e:
+	# If this is a GurobiError, proceed without using gurobi, warning the user.
+	if str(type(e)) == "<class 'gurobipy.GurobiError'>":
+		print "GurobiError - gurobi will not be used."
+	# Otherwise, raise the exception as normal
+	else:
+		raise e
+
 else:
 	SOLVERS[S_GUROBI] = NetworkFlowGurobi
 
@@ -213,7 +221,6 @@ class FluxBalanceAnalysis(object):
 					reactionRates[reverseReactionID] = reactionRates[reactionID]
 
 		# Call indivdual initialization methods
-
 		self._initReactionNetwork(reactionStoich)
 		self._initExternalExchange(externalExchangedMolecules)
 
@@ -815,8 +822,8 @@ class FluxBalanceAnalysis(object):
 		if maxFlux < 0:
 			raise InvalidBoundaryError("Maximum reaction flux must be at least 0")
 
-		if maxFlux < self._lowerBound[colIndex]:
-			raise InvalidBoundaryError("Maximum reaction flux must be greater than or equal to the minimum flux")
+		# if maxFlux < self._lowerBound[colIndex]:
+		# 	raise InvalidBoundaryError("Maximum reaction flux must be greater than or equal to the minimum flux")
 
 		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
 
@@ -836,10 +843,10 @@ class FluxBalanceAnalysis(object):
 
 	def minReactionFluxIs(self, reactionID, minFlux, raiseForReversible = True):
 		if minFlux < 0:
-			raise InvalidBoundaryError("Maximum reaction flux must be at least 0")
+			raise InvalidBoundaryError("Minimum reaction flux must be at least 0")
 
-		if minFlux > self._upperBound[colIndex]:
-			raise InvalidBoundaryError("Minimum reaction flux must be less than or equal to the maximum flux")
+		# if minFlux > self._upperBound[colIndex]:
+		# 	raise InvalidBoundaryError("Minimum reaction flux must be less than or equal to the maximum flux")
 
 		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
 
