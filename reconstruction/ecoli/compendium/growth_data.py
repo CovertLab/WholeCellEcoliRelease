@@ -12,7 +12,7 @@ class GrowthData(object):
 	def __init__(self, kb):
 		self.tau_d = np.array(kb.cellDryMassComposition["doublingTime"].asNumber(units.min))
 
-		avgToBeginningConvFactor = kb.avgCellToInitalCellConvFactor
+		avgToBeginningConvFactor = kb.avgCellToInitialCellConvFactor
 		self._dryMass = np.array([148., 258., 433., 641., 865.]) / avgToBeginningConvFactor # TOKB
 		self._proteinMass = self._dryMass * kb.cellDryMassComposition["proteinMassFraction"]
 		self._rnaMass = self._dryMass * kb.cellDryMassComposition["rnaMassFraction"]

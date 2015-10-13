@@ -135,6 +135,7 @@ metadata = {
 	"git_diff": run_cmd(["git", "diff"]),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
+	"total_gens": str(N_GENS),
 	}
 
 for key, value in metadata.iteritems():
@@ -375,14 +376,11 @@ for i in VARIANTS_TO_RUN:
 				fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
 				fw_this_variant_this_gen_this_sim_compression = Firework(
 					ScriptTask(
-						# script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
-						script = 'echo Output zipping DISABLED: fw_queue.py line 373.'
+						script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
 						),
 					name = fw_name,
 					spec = {"_queueadapter": {"job_name": fw_name}}
 					)
-
-				print "Warning!  Simulation output will not be compressed."
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
 

@@ -8,18 +8,20 @@ import os
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.compendium import growth_data
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
-FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
+FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0  # reduce stochasticity from protein expression
 
 # TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
+N_SEEDS = 20
 
 DOUBLING_TIME = 60. * units.min
 MEDIA_CONDITIONS = "M9 Glucose minus AAs"
@@ -45,6 +47,8 @@ def fitKb_1(kb):
 		if VERBOSE: print 'Iteration: {}'.format(iteration)
 
 		initialExpression = kb.process.transcription.rnaData["expression"].copy()
+
+		setInitialRnaExpression(kb)
 
 		bulkContainer = createBulkContainer(kb)
 
@@ -80,6 +84,9 @@ def fitKb_1(kb):
 	fitMaintenanceCosts(kb, bulkContainer)
 
 	fitTimeStep(kb, bulkContainer)
+
+
+	calculateBulkDistributions(kb)
 
 # Sub-fitting functions
 
@@ -134,25 +141,24 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
 
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
+	kb.mass.avgCellDryMass = kb.mass.avgCellDryMassInit * kb.mass.avgCellToInitialCellConvFactor
 
-def createBulkContainer(kb):
+def setInitialRnaExpression(kb):
+	# Set expression for all of the noncoding RNAs
 
 	# Load from KB
 
 	## IDs
-
-	ids_molecules = kb.state.bulkMolecules.bulkData['id']
+	ids_rnas = kb.process.transcription.rnaData["id"]
 	ids_rRNA23S = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isRRna23S"]]
 	ids_rRNA16S = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isRRna16S"]]
 	ids_rRNA5S = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isRRna5S"]]
 	ids_tRNA = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isTRna"]]
 	ids_mRNA = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isMRna"]]
-	ids_protein = kb.process.translation.monomerData["id"]
 
-	## Mass fractions
 	subMass = kb.mass.subMass
 
-	totalMass_protein = subMass["proteinMass"]
+	## Mass fractions
 	totalMass_rRNA23S = subMass["rRna23SMass"]
 	totalMass_rRNA16S = subMass["rRna16SMass"]
 	totalMass_rRNA5S = subMass["rRna5SMass"]
@@ -160,31 +166,23 @@ def createBulkContainer(kb):
 	totalMass_mRNA = subMass["mRnaMass"]
 
 	## Molecular weights
-
+	individualMasses_RNA = kb.getter.getMass(ids_rnas) / kb.constants.nAvogadro
 	individualMasses_rRNA23S = kb.getter.getMass(ids_rRNA23S) / kb.constants.nAvogadro
 	individualMasses_rRNA16S = kb.getter.getMass(ids_rRNA16S) / kb.constants.nAvogadro
 	individualMasses_rRNA5S = kb.getter.getMass(ids_rRNA5S) / kb.constants.nAvogadro
 	individualMasses_tRNA = kb.process.transcription.rnaData["mw"][kb.process.transcription.rnaData["isTRna"]] / kb.constants.nAvogadro
 	individualMasses_mRNA = kb.process.transcription.rnaData["mw"][kb.process.transcription.rnaData["isMRna"]] / kb.constants.nAvogadro
-	individualMasses_protein = kb.process.translation.monomerData["mw"] / kb.constants.nAvogadro
 
-	## Molecule distributions
-
+	## Molecule expression distributions
 	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
 	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
 	distribution_tRNA = normalize(kb.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
 	distribution_mRNA = normalize(kb.process.transcription.rnaData["expression"][kb.process.transcription.rnaData['isMRna']])
-	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
-
-	## Rates/times
-
-	degradationRates = kb.process.translation.monomerData["degRate"]
-	doublingTime = kb.doubling_time
 
 	# Construct bulk container
 
-	bulkContainer = BulkObjectsContainer(ids_molecules, dtype = np.float64)
+	rnaExpressionContainer = BulkObjectsContainer(ids_rnas, dtype = np.float64)
 
 	## Assign rRNA counts based on mass
 
@@ -221,9 +219,9 @@ def createBulkContainer(kb):
 	counts_rRNA16S = totalCount_rRNA_average * distribution_rRNA16S
 	counts_rRNA5S = totalCount_rRNA_average * distribution_rRNA5S
 
-	bulkContainer.countsIs(counts_rRNA23S, ids_rRNA23S)
-	bulkContainer.countsIs(counts_rRNA16S, ids_rRNA16S)
-	bulkContainer.countsIs(counts_rRNA5S, ids_rRNA5S)
+	rnaExpressionContainer.countsIs(counts_rRNA23S, ids_rRNA23S)
+	rnaExpressionContainer.countsIs(counts_rRNA16S, ids_rRNA16S)
+	rnaExpressionContainer.countsIs(counts_rRNA5S, ids_rRNA5S)
 
 	## Assign tRNA counts based on mass and relative abundances (see Dong 1996)
 
@@ -238,7 +236,7 @@ def createBulkContainer(kb):
 
 	counts_tRNA = totalCount_tRNA * distribution_tRNA
 
-	bulkContainer.countsIs(counts_tRNA, ids_tRNA)
+	rnaExpressionContainer.countsIs(counts_tRNA, ids_tRNA)
 
 	## Assign mRNA counts based on mass and relative abundances (microarrays)
 
@@ -253,10 +251,20 @@ def createBulkContainer(kb):
 
 	counts_mRNA = totalCount_mRNA * distribution_mRNA
 
-	bulkContainer.countsIs(counts_mRNA, ids_mRNA)
+	rnaExpressionContainer.countsIs(counts_mRNA, ids_mRNA)
 
-	## Assign protein counts based on mass and mRNA counts
-	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
+	kb.process.transcription.rnaData["expression"] = normalize(rnaExpressionContainer.counts())
+	# Note that now rnaData["synthProb"] does not match rnaData["expression"]
+
+def totalCountIdDistributionProtein(kb):
+	ids_protein = kb.process.translation.monomerData["id"]
+	totalMass_protein = kb.mass.subMass["proteinMass"]
+	individualMasses_protein = kb.process.translation.monomerData["mw"] / kb.constants.nAvogadro
+	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
+
+	degradationRates = kb.process.translation.monomerData["degRate"]
+
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(kb.doubling_time, degradationRates)
 
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
@@ -271,6 +279,43 @@ def createBulkContainer(kb):
 
 	totalCount_protein.normalize()
 	totalCount_protein.checkNoUnit()
+
+	return totalCount_protein, ids_protein, distribution_protein
+
+def totalCountIdDistributionRNA(kb):
+	ids_rnas = kb.process.transcription.rnaData["id"]
+	totalMass_RNA = kb.mass.subMass["rnaMass"]
+	individualMasses_RNA = kb.process.transcription.rnaData["mw"] / kb.constants.nAvogadro
+
+	distribution_RNA = normalize(kb.process.transcription.rnaData["expression"])
+
+	totalCount_RNA = totalCountFromMassesAndRatios(
+		totalMass_RNA,
+		individualMasses_RNA,
+		distribution_RNA
+		)
+	totalCount_RNA.normalize()
+	totalCount_RNA.checkNoUnit()
+
+	return totalCount_RNA, ids_rnas, distribution_RNA
+
+def createBulkContainer(kb):
+
+	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(kb)
+	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(kb)
+	ids_molecules = kb.state.bulkMolecules.bulkData["id"]
+
+	## Construct bulk container
+
+	bulkContainer = BulkObjectsContainer(ids_molecules, dtype = np.float64)
+
+	## Assign RNA counts based on mass and expression distribution
+
+	counts_RNA = totalCount_RNA * distribution_RNA
+
+	bulkContainer.countsIs(counts_RNA, ids_rnas)
+
+	## Assign protein counts based on mass and mRNA counts
 
 	counts_protein = totalCount_protein * distribution_protein
 
@@ -378,6 +423,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
 	
+
 	# Compute counts of endoRNases
 	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
 	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
@@ -595,6 +641,85 @@ def fitTimeStep(kb, bulkContainer):
 		raise Exception("timeStepSec was set to a specific value!")
 	else:
 		kb.timeStepSec = timeStep * 0.7
+
+def calculateBulkDistributions(kb):
+
+	# Ids
+	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(kb)
+	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(kb)
+	ids_complex = kb.process.complexation.moleculeNames
+	ids_equilibrium = kb.process.equilibrium.moleculeNames
+	allMoleculesIDs = sorted(
+		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium)
+		)
+
+	# Data for complexation
+
+	complexationStoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+
+	complexationPrebuiltMatrices = mccBuildMatrices(
+		complexationStoichMatrix
+		)
+
+	# Data for equilibrium binding
+	equilibriumDerivatives = kb.process.equilibrium.derivatives
+	equilibriumDerivativesJacobian = kb.process.equilibrium.derivativesJacobian
+
+	# Construct bulk container
+
+	# We want to know something about the distribution of the copy numbers of
+	# macromolecules in the cell.  While RNA and protein expression can be
+	# approximated using well-described statistical distributions, we need
+	# absolute copy numbers to form complexes.  To get a distribution, we must
+	# instantiate many cells, form complexes, and finally compute the
+	# statistics we will use in the fitting operations.
+
+	bulkContainer = BulkObjectsContainer(kb.state.bulkMolecules.bulkData['id'])
+	rnaView = bulkContainer.countsView(ids_rnas)
+	proteinView = bulkContainer.countsView(ids_protein)
+	complexationMoleculesView = bulkContainer.countsView(ids_complex)
+	equilibriumMoleculesView = bulkContainer.countsView(ids_equilibrium)
+	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
+
+	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
+
+
+	for seed in xrange(N_SEEDS):
+		randomState = np.random.RandomState(seed)
+
+		allMoleculesView.countsIs(0)
+
+		rnaView.countsIs(randomState.multinomial(
+			totalCount_RNA,
+			distribution_RNA
+			))
+
+		proteinView.countsIs(randomState.multinomial(
+			totalCount_protein,
+			distribution_protein
+			))
+
+		complexationMoleculeCounts = complexationMoleculesView.counts()
+
+		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			complexationMoleculeCounts,
+			seed,
+			complexationStoichMatrix,
+			*complexationPrebuiltMatrices
+			)
+
+		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
+
+		allMoleculeCounts[seed, :] = allMoleculesView.counts()
+
+	bulkAverageContainer = BulkObjectsContainer(kb.state.bulkMolecules.bulkData['id'], np.float64)
+	bulkDeviationContainer = BulkObjectsContainer(kb.state.bulkMolecules.bulkData['id'], np.float64)
+
+	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
+	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
+
+	return bulkAverageContainer, bulkDeviationContainer
+
 
 # Math functions
 
