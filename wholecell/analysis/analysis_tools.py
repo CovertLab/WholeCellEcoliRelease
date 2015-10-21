@@ -15,20 +15,22 @@ DEFAULT_IMAGE_TYPE = '.pdf'
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None):
 
 	if metadata != None:
-		if "gen" in metadata:
-			# Format metadata signature for single gen figure
-			metadata_signature = "_".join([str(metadata["time"])[:14],
-					str(metadata["variant_function"]),
-					str(metadata["variant_index"]),
-					"Gen", str(metadata["gen"])+'/'+str(metadata["total_gens"]),
-					"Githash", str(metadata["git_hash"])[:12],
-					"Desc", str(metadata["description"])])
-		else:
+		if metadata["multigen"] == '1':
 			# Format metadata signature for multi gen figure
 			metadata_signature = "_".join([str(metadata["time"][:14]),
 					str(metadata["variant_function"]),
 					str(metadata["variant_index"]),
+					"Seed", str(metadata["seed"]),
 					"Total_gens", str(metadata["total_gens"]),
+					"Githash", str(metadata["git_hash"])[:12],
+					"Desc", str(metadata["description"])])
+		else:
+			# Format metadata signature for single gen figure
+			metadata_signature = "_".join([str(metadata["time"])[:14],
+					str(metadata["variant_function"]),
+					str(metadata["variant_index"]),
+					"Seed", str(metadata["seed"]),
+					"Gen", str(metadata["gen"])+'/'+str(metadata["total_gens"]-1),
 					"Githash", str(metadata["git_hash"])[:12],
 					"Desc", str(metadata["description"])])
 			
