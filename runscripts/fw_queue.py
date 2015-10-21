@@ -70,6 +70,7 @@ N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
 LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
+COMPRESS_OUTPUT = str(os.environ.get("COMPRESS_OUTPUT", "1"))
 
 ### Create directories
 
@@ -298,6 +299,7 @@ for i in VARIANTS_TO_RUN:
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
+		metadata["seed"] = j
 
 		fw_name = "AnalysisMultiGenTask__Seed_%06d" % (j)
 		fw_this_variant_this_seed_this_analysis = Firework(
@@ -372,17 +374,19 @@ for i in VARIANTS_TO_RUN:
 					fw_parent_sim = sims_this_seed[k - 1][l // 2]
 					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
 
-				# Output compression job
-				fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
-				fw_this_variant_this_gen_this_sim_compression = Firework(
-					ScriptTask(
-						script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
-						),
-					name = fw_name,
-					spec = {"_queueadapter": {"job_name": fw_name}}
-					)
+				if COMPRESS_OUTPUT:
+					# Output compression job
+					fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
+					fw_this_variant_this_gen_this_sim_compression = Firework(
+						ScriptTask(
+							script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+							),
+						name = fw_name,
+						spec = {"_queueadapter": {"job_name": fw_name}}
+						)
 
-				wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
+					wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
+
 
 				# AnalysisSingle task
 				fw_name = "AnalysisSingleTask__Gen_%d__Cell_%d" % (k, l)
