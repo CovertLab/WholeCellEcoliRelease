@@ -56,7 +56,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 		endoRnaseIds = kb.moleculeGroups.endoRnaseIds
 		exoRnaseIds = kb.moleculeGroups.exoRnaseIds
 		self.KcatExoRNase = kb.constants.KcatExoRNase.asNumber(1 / units.s) * self.timeStepSec
-		self.KcatEndoRNaseFullRNA = kb.constants.KcatEndoRNaseFullRNA.asNumber(1 / units.s) * self.timeStepSec
 		self.KcatEndoRNasesFullRNA = kb.constants.KcatEndoRNasesFullRNA.asNumber() 
 		self.KcatEndoRNasesFullRNA = np.array(self.KcatEndoRNasesFullRNA) * self.timeStepSec
 

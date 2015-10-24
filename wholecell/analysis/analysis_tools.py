@@ -17,21 +17,21 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None):
 	if metadata != None:
 		if metadata["multigen"] == '1':
 			# Format metadata signature for multi gen figure
-			metadata_signature = "_".join([str(metadata["time"][:14]),
+			metadata_signature = "_".join([str(metadata["time"][:13]),
 					str(metadata["variant_function"]),
 					str(metadata["variant_index"]),
 					"Seed", str(metadata["seed"]),
-					"Total_gens", str(metadata["total_gens"]),
-					"Githash", str(metadata["git_hash"])[:12],
+					str(metadata["total_gens"]), "gens",
+					"Githash", str(metadata["git_hash"])[:10],
 					"Desc", str(metadata["description"])])
 		else:
 			# Format metadata signature for single gen figure
-			metadata_signature = "_".join([str(metadata["time"])[:14],
+			metadata_signature = "_".join([str(metadata["time"])[:13],
 					str(metadata["variant_function"]),
 					str(metadata["variant_index"]),
 					"Seed", str(metadata["seed"]),
-					"Gen", str(metadata["gen"])+'/'+str(metadata["total_gens"]-1),
-					"Githash", str(metadata["git_hash"])[:12],
+					"Gen", str(metadata["gen"])+'/'+str(int(metadata["total_gens"])-1),
+					"Githash", str(metadata["git_hash"])[:10],
 					"Desc", str(metadata["description"])])
 			
 		# Add metadata signature to the bottom of the plot
