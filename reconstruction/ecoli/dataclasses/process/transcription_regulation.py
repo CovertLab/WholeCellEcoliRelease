@@ -14,8 +14,10 @@ class TranscriptionRegulation(object):
 
 		self.tfs = sorted(set([x["TF"].encode("utf-8") for x in raw_data.foldChanges]))
 		self.tfTargets = collections.defaultdict(list)
+		self.tfKd = {}
 		for D in raw_data.foldChanges:
 			self.tfTargets[D["TF"].encode("utf-8")].append(D["Target"].encode("utf-8"))
+			self.tfKd[D["TF"].encode("utf-8")] = D["kd"]
 		self.tfNTargets = dict([(key, len(val)) for key,val in self.tfTargets.iteritems()])
 		return
 
