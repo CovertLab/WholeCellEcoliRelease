@@ -20,6 +20,7 @@ class getterFunctions(object):
 
 	def __init__(self, raw_data, sim_data):
 		self._buildAllMasses(raw_data, sim_data)
+		self._buildLocations(raw_data, sim_data)
 
 	def getMass(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
@@ -34,6 +35,10 @@ class getterFunctions(object):
 				raise
 
 		return self._allMass['mass'][idx]
+
+	def getLocation(self, ids):
+		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
+		return [self._locationDict[x] for x in ids]
 
 	def _buildAllMasses(self, raw_data, sim_data):
 		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.polymerized) + len(raw_data.water) + len(raw_data.chromosome)
@@ -61,3 +66,20 @@ class getterFunctions(object):
 			}
 
 		self._allMass = UnitStructArray(allMass, field_units) # TODO: change to dict?
+
+	def _buildLocations(self, raw_data, sim_data):
+		locationDict = {}
+		for item in raw_data.rnas:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+		for item in raw_data.proteins:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+		for item in raw_data.proteinComplexes:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+		for item in raw_data.metabolites:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+		for item in raw_data.polymerized:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+		for item in raw_data.water:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+
+		self._locationDict = locationDict
