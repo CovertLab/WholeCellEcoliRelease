@@ -57,14 +57,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb = kb.process.transcription.rnaData["synthProb"]
 
-		self.activationProb = self._calculateActivationProb(
-			self.fracActiveRnap,
-			self.rnaLengths,
-			self.rnaPolymeraseElongationRate,
-			self.rnaSynthProb,
-			)
-
-
 		# Views
 
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -78,6 +70,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+
+		self.activationProb = self._calculateActivationProb(
+			self.fracActiveRnap,
+			self.rnaLengths,
+			self.rnaPolymeraseElongationRate,
+			self.rnaSynthProb,
+			)
+
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
@@ -134,7 +134,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		averageTranscriptionTimesteps = np.dot(synthProb, expectedTranscriptionTimesteps)
 
-		expectedTerminationRate = 1./averageTranscriptionTimesteps
+		expectedTerminationRate = 1. / averageTranscriptionTimesteps
 
 		expectedFractionTimeInactive = np.dot(
 			1 - ( 1. / (self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
