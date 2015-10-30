@@ -435,12 +435,26 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
 
+	# Compute Km's
+	RNACounts = rnaCounts
+	degradationRates = (kb.process.transcription.rnaData["degRate"] * units.s).asNumber()
+	print degradationRates
+	endoRNaseCounts = endoRnaseCounts
+	kcatEndoRNase = (kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber()
+	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
+	Km = ( TotalEndoRNases.sum() / degradationRates ) - RNACounts
+	# import ipdb; ipdb.set_trace()
+
+	# Set Km's
+	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km
+
 	rnaLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
 		kb.process.transcription.rnaData["degRate"],
 		kb.constants.KcatEndoRNasesFullRNA, 
 		rnaCounts, 
-		endoRnaseCounts
+		endoRnaseCounts,
+		kb
 		)
 	
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
@@ -530,13 +544,13 @@ def fitExpression(kb, bulkContainer):
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
 
-
 	netLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
 		(doublingTime / units.s).asNumber(),
 		(kb.process.transcription.rnaData["degRate"] * units.s).asNumber(),
 		(kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber(),
 		view_RNA.counts(), 
-		endoRnaseCounts
+		endoRnaseCounts,
+		kb
 		)
 
 	synthProb = normalize(netLossRate_RNA)
@@ -810,7 +824,19 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 	return np.log(2) / doublingTime + degradationRates
 
 
-def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts):
+def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts, kb):
 	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
+
+	# Km = (TotalEndoRNases.sum() - (degradationRates * RNACounts)) / degradationRates
+	#Km = ( TotalEndoRNases.sum() / (degradationRates - (np.log(2) / doublingTime)) ) - RNACounts
+	#kb.process.transcription.rnaData["KmEndoRNase"][:] = Km
+	Km = kb.process.transcription.rnaData["KmEndoRNase"]
+
 	# How RNases target specific RNAs is not explicitly accounted for fitting purpose because of the low copy number of RNases that can  target specific species
-	return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )
+	#return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )
+	# print "netlosscalc"
+	# import ipdb; ipdb.set_trace()
+	# print degradationRates.asNumber().sum()
+	# print (TotalEndoRNases.sum() / (Km + RNACounts)).asNumber().sum()
+	# return RNACounts * ( (np.log(2) / doublingTime) + degradationRates)
+	return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() / (Km + RNACounts)) )

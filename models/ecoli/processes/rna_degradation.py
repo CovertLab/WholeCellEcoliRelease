@@ -103,6 +103,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
 
+		self.Km = kb.process.transcription.rnaData["KmEndoRNase"]
+
 
 	# Calculate temporal evolution
 
@@ -111,22 +113,38 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Compute RNA specificity according to the measured RNA decays 
 		# and accessibility (number of RNAs)
 		TotalDegradationRate = self.rnaDegRates * self.rnas.total() * self.timeStepSec
-		RNAspecificity = TotalDegradationRate / TotalDegradationRate.sum()
+		#RNAspecificity = TotalDegradationRate / TotalDegradationRate.sum()
 
+		# RNA specificity: Michaelis-Menten kinetics
+		#import ipdb
+		#ipdb.set_trace()
+		# Km_aux = (sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total()) - TotalDegradationRate) / self.rnaDegRates
+		RNAspecificity = self.rnas.total() / (self.Km + self.rnas.total())
 
 		# Calculate fraction of EndoRNases needed 
 		FractionActiveEndoRNases = 1
-		if TotalDegradationRate.sum() < sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total()):
-			FractionActiveEndoRNases = TotalDegradationRate.sum() / (
-					sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total())
-				)
+		# FractionActiveEndoRNases = RNAspecificity.sum()
+		# if FractionActiveEndoRNases > 1:
+		# 	FractionActiveEndoRNases = 1
+
+		print np.abs(self.Km.sum())
+		print self.rnas.total().sum()
+		print FractionActiveEndoRNases
+
+		# if TotalDegradationRate.sum() < sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total()):
+		# 	FractionActiveEndoRNases = TotalDegradationRate.sum() / (
+		#  			sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total())
+		#  		)
+
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
-		nRNAsTotalToDegrade = np.round(sum(self.KcatEndoRNasesFullRNA * 
-				self.endoRnases.total()) * 
+		nRNAsTotalToDegrade = np.round((sum(self.KcatEndoRNasesFullRNA * 
+						self.endoRnases.total()) * RNAspecificity).sum() * 
 				FractionActiveEndoRNases
 			)
+		print "degrade %f" % nRNAsTotalToDegrade
+		print "first order %f" % TotalDegradationRate.sum()
 
 		# Dissect RNA specificity into mRNA, tRNA, and rRNA as well as specific RNases
 		MrnaSpec = sum(RNAspecificity * self.isMRna)

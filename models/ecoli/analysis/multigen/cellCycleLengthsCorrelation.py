@@ -63,6 +63,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		xMax = np.amax(xArray)
 		yMin = np.amin(yArray)
 		yMax = np.amax(yArray)
+		yMax = np.fmax(yMax, 1.1 * yMin)
 
 		try:
 			plt.subplot(1, len(differences), idx+1, sharey=axis)
