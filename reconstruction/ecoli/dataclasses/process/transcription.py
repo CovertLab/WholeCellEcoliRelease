@@ -55,7 +55,7 @@ class Transcription(object):
 		
 		synthProb /= synthProb.sum()
 
-		KcatEndoRNase = 0.00001
+		KcatEndoRNase = 0.001
 		EstimateEndoRNases = 5000
 
 		Km = (KcatEndoRNase * EstimateEndoRNases / rnaDegRates) - expression
