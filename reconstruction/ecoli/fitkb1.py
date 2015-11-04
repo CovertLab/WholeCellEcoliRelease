@@ -104,9 +104,9 @@ def setCPeriod(kb):
 	kb.growthRateParameters.c_period = kb.process.replication.genome_length * units.nt / kb.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
-	subMass = kb.mass.subMass
+	avgCellSubMass = kb.mass.avgCellSubMass
 
-	mass = subMass["proteinMass"] + subMass["rnaMass"] + subMass["dnaMass"]
+	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
 	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
@@ -156,14 +156,14 @@ def setInitialRnaExpression(kb):
 	ids_tRNA = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isTRna"]]
 	ids_mRNA = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isMRna"]]
 
-	subMass = kb.mass.subMass
+	avgCellSubMass = kb.mass.avgCellSubMass
 
 	## Mass fractions
-	totalMass_rRNA23S = subMass["rRna23SMass"]
-	totalMass_rRNA16S = subMass["rRna16SMass"]
-	totalMass_rRNA5S = subMass["rRna5SMass"]
-	totalMass_tRNA = subMass["tRnaMass"]
-	totalMass_mRNA = subMass["mRnaMass"]
+	totalMass_rRNA23S = avgCellSubMass["rRna23SMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA16S = avgCellSubMass["rRna16SMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA5S = avgCellSubMass["rRna5SMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_tRNA = avgCellSubMass["tRnaMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_mRNA = avgCellSubMass["mRnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 
 	## Molecular weights
 	individualMasses_RNA = kb.getter.getMass(ids_rnas) / kb.constants.nAvogadro
@@ -258,7 +258,7 @@ def setInitialRnaExpression(kb):
 
 def totalCountIdDistributionProtein(kb):
 	ids_protein = kb.process.translation.monomerData["id"]
-	totalMass_protein = kb.mass.subMass["proteinMass"]
+	totalMass_protein = kb.mass.avgCellSubMass["proteinMass"] / kb.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = kb.process.translation.monomerData["mw"] / kb.constants.nAvogadro
 	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
 
@@ -284,7 +284,7 @@ def totalCountIdDistributionProtein(kb):
 
 def totalCountIdDistributionRNA(kb):
 	ids_rnas = kb.process.transcription.rnaData["id"]
-	totalMass_RNA = kb.mass.subMass["rnaMass"]
+	totalMass_RNA = kb.mass.avgCellSubMass["rnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 	individualMasses_RNA = kb.process.transcription.rnaData["mw"] / kb.constants.nAvogadro
 
 	distribution_RNA = normalize(kb.process.transcription.rnaData["expression"])
@@ -488,8 +488,8 @@ def fitExpression(kb, bulkContainer):
 	view_RNA = bulkContainer.countsView(kb.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(kb.process.translation.monomerData["id"])
 
-	subMass = kb.mass.subMass
-	totalMass_RNA = subMass["rnaMass"]
+	avgCellSubMass = kb.mass.avgCellSubMass
+	totalMass_RNA = avgCellSubMass["rnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 
 	doublingTime = kb.doubling_time
 	degradationRates_protein = kb.process.translation.monomerData["degRate"]
