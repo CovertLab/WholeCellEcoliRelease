@@ -721,6 +721,8 @@ def calculateBulkDistributions(kb):
 		nIters = 0
 
 		while(np.linalg.norm(metDiffs, np.inf) > 1):
+			# Metabolite concentrations were measured as steady-state values (not initial values)
+			# So we run this until we get to steady state
 			metCounts = conc_metabolites * cellVolume * kb.constants.nAvogadro
 			metCounts.normalize()
 			metCounts.checkNoUnit()
