@@ -23,7 +23,7 @@ class SimulationDaughterTask(FireTaskBase):
 		options["overwriteExistingFiles"] = False
 		options["inheritedStatePath"] = self["inherited_state_path"]
 
-		options["seed"] = self.get("seed", DEFAULT_SIMULATION_KWARGS["seed"])
+		options["seed"] = int(self.get("seed", DEFAULT_SIMULATION_KWARGS["seed"]))
 		options["lengthSec"] = self.get("length_sec", DEFAULT_SIMULATION_KWARGS["lengthSec"])
 		options["logToShell"] = self.get("log_to_shell", DEFAULT_SIMULATION_KWARGS["logToShell"])
 		options["logToDiskEvery"] = self.get("log_to_disk_every", DEFAULT_SIMULATION_KWARGS["logToDiskEvery"])

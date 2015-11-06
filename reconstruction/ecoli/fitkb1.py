@@ -104,9 +104,9 @@ def setCPeriod(kb):
 	kb.growthRateParameters.c_period = kb.process.replication.genome_length * units.nt / kb.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
-	subMass = kb.mass.subMass
+	avgCellSubMass = kb.mass.avgCellSubMass
 
-	mass = subMass["proteinMass"] + subMass["rnaMass"] + subMass["dnaMass"]
+	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
 	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
@@ -141,6 +141,7 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
 
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
+	kb.mass.avgCellDryMass = kb.mass.avgCellDryMassInit * kb.mass.avgCellToInitialCellConvFactor
 
 def setInitialRnaExpression(kb):
 	# Set expression for all of the noncoding RNAs
@@ -155,14 +156,14 @@ def setInitialRnaExpression(kb):
 	ids_tRNA = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isTRna"]]
 	ids_mRNA = kb.process.transcription.rnaData["id"][kb.process.transcription.rnaData["isMRna"]]
 
-	subMass = kb.mass.subMass
+	avgCellSubMass = kb.mass.avgCellSubMass
 
 	## Mass fractions
-	totalMass_rRNA23S = subMass["rRna23SMass"]
-	totalMass_rRNA16S = subMass["rRna16SMass"]
-	totalMass_rRNA5S = subMass["rRna5SMass"]
-	totalMass_tRNA = subMass["tRnaMass"]
-	totalMass_mRNA = subMass["mRnaMass"]
+	totalMass_rRNA23S = avgCellSubMass["rRna23SMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA16S = avgCellSubMass["rRna16SMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA5S = avgCellSubMass["rRna5SMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_tRNA = avgCellSubMass["tRnaMass"] / kb.mass.avgCellToInitialCellConvFactor
+	totalMass_mRNA = avgCellSubMass["mRnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 
 	## Molecular weights
 	individualMasses_RNA = kb.getter.getMass(ids_rnas) / kb.constants.nAvogadro
@@ -257,7 +258,7 @@ def setInitialRnaExpression(kb):
 
 def totalCountIdDistributionProtein(kb):
 	ids_protein = kb.process.translation.monomerData["id"]
-	totalMass_protein = kb.mass.subMass["proteinMass"]
+	totalMass_protein = kb.mass.avgCellSubMass["proteinMass"] / kb.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = kb.process.translation.monomerData["mw"] / kb.constants.nAvogadro
 	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
 
@@ -283,7 +284,7 @@ def totalCountIdDistributionProtein(kb):
 
 def totalCountIdDistributionRNA(kb):
 	ids_rnas = kb.process.transcription.rnaData["id"]
-	totalMass_RNA = kb.mass.subMass["rnaMass"]
+	totalMass_RNA = kb.mass.avgCellSubMass["rnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 	individualMasses_RNA = kb.process.transcription.rnaData["mw"] / kb.constants.nAvogadro
 
 	distribution_RNA = normalize(kb.process.transcription.rnaData["expression"])
@@ -422,6 +423,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
 	
+
 	# Compute counts of endoRNases
 	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
 	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
@@ -472,8 +474,8 @@ def fitExpression(kb, bulkContainer):
 	view_RNA = bulkContainer.countsView(kb.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(kb.process.translation.monomerData["id"])
 
-	subMass = kb.mass.subMass
-	totalMass_RNA = subMass["rnaMass"]
+	avgCellSubMass = kb.mass.avgCellSubMass
+	totalMass_RNA = avgCellSubMass["rnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 
 	doublingTime = kb.doubling_time
 	degradationRates_protein = kb.process.translation.monomerData["degRate"]
@@ -641,14 +643,33 @@ def fitTimeStep(kb, bulkContainer):
 		kb.timeStepSec = timeStep * 0.7
 
 def calculateBulkDistributions(kb):
-	subMass = kb.mass.subMass
-	proteinMass = subMass["proteinMass"].asUnit(units.g)
-	rnaMass = subMass["rnaMass"].asUnit(units.g)
 
+	# Ids
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(kb)
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(kb)
 	ids_complex = kb.process.complexation.moleculeNames
+	ids_equilibrium = kb.process.equilibrium.moleculeNames
+	ids_metabolites = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	conc_metabolites = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+	allMoleculesIDs = sorted(
+		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium) | set(ids_metabolites)
+		)
 
+	# Data for complexation
+
+	complexationStoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+
+	complexationPrebuiltMatrices = mccBuildMatrices(
+		complexationStoichMatrix
+		)
+
+	# Data for equilibrium binding
+	equilibriumDerivatives = kb.process.equilibrium.derivatives
+	equilibriumDerivativesJacobian = kb.process.equilibrium.derivativesJacobian
+
+	# Data for metabolites
+	cellDensity = kb.constants.cellDensity
+	cellVolume = kb.mass.avgCellDryMassInit / cellDensity
 
 	# Construct bulk container
 
@@ -663,18 +684,11 @@ def calculateBulkDistributions(kb):
 	rnaView = bulkContainer.countsView(ids_rnas)
 	proteinView = bulkContainer.countsView(ids_protein)
 	complexationMoleculesView = bulkContainer.countsView(ids_complex)
-	allMoleculesIDs = sorted(
-		set(ids_rnas) | set(ids_protein) | set(ids_complex)
-		)
+	equilibriumMoleculesView = bulkContainer.countsView(ids_equilibrium)
+	metabolitesView = bulkContainer.countsView(ids_metabolites)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
-
-	complexationStoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
-
-	complexationPrebuiltMatrices = mccBuildMatrices(
-		complexationStoichMatrix
-		)
 
 
 	for seed in xrange(N_SEEDS):
@@ -702,6 +716,37 @@ def calculateBulkDistributions(kb):
 			)
 
 		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
+
+		metDiffs = np.inf * np.ones_like(metabolitesView.counts())
+		nIters = 0
+
+		while(np.linalg.norm(metDiffs, np.inf) > 1):
+			# Metabolite concentrations were measured as steady-state values (not initial values)
+			# So we run this until we get to steady state
+			metCounts = conc_metabolites * cellVolume * kb.constants.nAvogadro
+			metCounts.normalize()
+			metCounts.checkNoUnit()
+
+			metabolitesView.countsIs(
+				metCounts.asNumber().round()
+				)
+
+			rxnFluxes, _ = kb.process.equilibrium.fluxesAndMoleculesToSS(
+				equilibriumMoleculesView.counts(),
+				cellVolume.asNumber(units.L),
+				kb.constants.nAvogadro.asNumber(1 / units.mol),
+				)
+
+			equilibriumMoleculesView.countsInc(
+				np.dot(kb.process.equilibrium.stoichMatrix().astype(np.int64), rxnFluxes)
+				)
+
+			assert np.all(equilibriumMoleculesView.counts() >= 0)
+			metDiffs = metabolitesView.counts() - metCounts.asNumber().round()
+
+			nIters += 1
+			if nIters > 100:
+				raise Exception, "Equilibrium reactions are not converging!"
 
 		allMoleculeCounts[seed, :] = allMoleculesView.counts()
 

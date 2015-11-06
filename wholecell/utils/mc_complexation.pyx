@@ -87,7 +87,7 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 @cython.cdivision(True)
 cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 		np.ndarray[np.int64_t, ndim=1] moleculeCounts,
-		int seed,
+		unsigned int seed,
 		np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix,
 		np.ndarray[np.int64_t, ndim=2] moleculeIndexes,
 		np.ndarray[np.int64_t, ndim=2] overlappingReactions,

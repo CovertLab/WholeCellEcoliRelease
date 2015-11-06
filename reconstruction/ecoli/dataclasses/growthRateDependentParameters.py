@@ -24,9 +24,9 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self._setAvgCellDryMass()
-		self.avgCell60MinDoublingTimeTotalMassInit = 813.248540675 * units.fg
+		self.avgCell60MinDoublingTimeTotalMassInit = 605.33333 * units.fg
 		self.massFraction = self._setMassFraction()
-		self.subMass = self._setSubMass()
+		self.avgCellSubMass = self._setSubMass()
 
 		self._buildDependentConstants()
 
@@ -38,19 +38,19 @@ class Mass(object):
 		self.__dict__.update(mass_parameters)
 
 		self.cellDryMassFraction = 1. - self.cellWaterMassFraction
-		self.avgCellToInitalCellConvFactor = np.exp(np.log(2) * self.avgCellCellCycleProgress)
+		self.avgCellToInitialCellConvFactor = np.exp(np.log(2) * self.avgCellCellCycleProgress)
 
 	def _buildDependentConstants(self):
-		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitalCellConvFactor
+		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitialCellConvFactor
 		avgCellWaterMass = (self.avgCellDryMass / self.cellDryMassFraction) * self.cellWaterMassFraction
-		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitalCellConvFactor
+		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitialCellConvFactor
 
 	# Setup sub-masses
 	def _buildSubMasses(self, raw_data, sim_data):
 		self._doubling_time_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
 
 		# TODO: Use helper functions written for growthRateDependent parameters to make this better!
-		dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitalCellConvFactor
+		dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitialCellConvFactor
 		self._dryMassParams = interpolate.splrep(self._doubling_time_vector.asNumber(units.min)[::-1], dryMass[::-1])
 
 		self._proteinMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'proteinMassFraction')
@@ -108,7 +108,7 @@ class Mass(object):
 		for key, value in D.iteritems():
 			if key != 'dna':
 				D[key] = value / total
-		assert np.absolute(np.sum([x for x in D.itervalues()]) - 1.) < 1e3
+		assert np.absolute(np.sum([x for x in D.itervalues()]) - 1.) < 1e-3
 		return D
 
 	def _setSubMass(self):
