@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Plot WCM protein counts against the data found by the Xie lab in Taniguichi et al Science 2010
+Plot WCM protein counts against the data found by Houser et al PLoS CB 2015
 
 @author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/17/2015
+@date: Created 11/6/2015
 """
 
 from __future__ import division
@@ -22,8 +22,6 @@ import cPickle
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
-
-# TODO: account for complexation
 
 def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
@@ -49,6 +47,31 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	bulkMolecules.close()
 
+	trimmedIds = [x[:-3] if x[-3] is '[' else x for x in proteinIds]
+	prepedIds = []
+	for proteinId in trimmedIds:
+		if proteinId == "PROTEIN-CHEA":
+			prepedIds.append("null")
+		else:
+			prepedIds.append(proteinId)
+
+	# Load the Houser Wilke PLoS CB 2015 data from an outside file
+	with open("../reconstruction/ecoli/flat/houser_protein_counts.tsv",'r') as f:
+		# Dict mapping gene symbol to houser average count
+		houserAveCountsDict = {}
+		# Read the flat file line by line
+		for line in f:
+			columns = line.split('\t')
+			houserAveCountsDict[columns[0]] = columns[1]
+
+	houserAveCounts = []
+	for prepedId in prepedIds:
+		if prepedId != "null" and prepedId in kb.moleculeGroups.frameIDGeneSymbol_Dict:
+			if kb.moleculeGroups.frameIDGeneSymbol_Dict[prepedId] in houserAveCountsDict:
+				houserAveCounts.append(houserAveCountsDict[kb.moleculeGroups.frameIDGeneSymbol_Dict[prepedId]])
+				continue
+		houserAveCounts.append("null")
+
 	# Load the Taniguichi Xie Science 2010 data from an outside file
 	with open("../reconstruction/ecoli/flat/taniguichi_protein_counts.tsv",'r') as f:
 		# Dict mapping gene symbol to taniguichi average count
@@ -58,14 +81,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 			columns = line.split('\t')
 			xieAveCountsDict[columns[0]] = columns[1]
 
-	trimmedIds = [x[:-3] if x[-3] is '[' else x for x in proteinIds]
-	prepedIds = []
-	for proteinId in trimmedIds:
-		if proteinId == "PROTEIN-CHEA":
-			prepedIds.append("null")
-		else:
-			prepedIds.append(proteinId)
-
 	xieAveCounts = []
 	for prepedId in prepedIds:
 		if prepedId != "null" and prepedId in kb.moleculeGroups.frameIDGeneSymbol_Dict:
@@ -74,46 +89,37 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 				continue
 		xieAveCounts.append("null")
 
+	proteinDatasets = [[],[]]
+
+	for idx, houserCount in enumerate(houserAveCounts):
+		if houserCount != "null" and xieAveCounts[idx] != "null":
+			proteinDatasets[0].append(float(houserCount.strip("\n")))
+			proteinDatasets[1].append(float(xieAveCounts[idx].strip("\n")))
+
+	names = ["Houser Wilke", "Taniguichi Xie"]
+
 	plt.figure(figsize= (20,15))
 
 	# Number of whole cell model time points to plot
 	timePoints = [100, 1000, 3000]
-	num_entries = len(timePoints)+1
-	proteinCountsMultiTimeStep = []
-	names = []
-
 	for idx, timePoint in enumerate(timePoints):
-
+		wcm_dataset = []
 		proteinCounts = proteinCountsBulk[timePoint, :]
-		xieAveCountsFinal = []
-		proteinCountsFinal = []
-		for index, xieAveCount in enumerate(xieAveCounts):
-			if xieAveCount != "null":
-				xieAveCountsFinal.append(float(xieAveCount))
-				proteinCountsFinal.append(proteinCounts[index])
-		
-		proteinCountsMultiTimeStep.append(proteinCountsFinal)
+		for idx, houserAveCount in enumerate(houserAveCounts):
+			if houserAveCount != "null" and xieAveCounts[idx] != "null":
+				wcm_dataset.append(proteinCounts[idx])
+
+		proteinDatasets.append(wcm_dataset)		
 		names.append("WCM Protein Count (timestep %d)" % timePoint)
 
-	proteinCountsMultiTimeStep.insert(0,xieAveCountsFinal)
-	names.insert(0,"Taniguichi Xie Observed Protein Count")
+	# datasets = [[1,2,3],[1,1,1],[4,5,6],[6,5,4]]
+	# names = ['one','two','three','four']
 
-	plottingIndex = 1
-	for rowNum in xrange(1,num_entries+1):
-		for colNum in xrange(1,num_entries+1):
-			if colNum < plottingIndex:
-				continue
 
-			corr_coef, pValue = stats.pearsonr(proteinCountsMultiTimeStep[colNum-1], proteinCountsMultiTimeStep[rowNum-1])
-
-			plt.subplot(num_entries,num_entries,num_entries*(rowNum-1)+(colNum))
-			plt.scatter(proteinCountsMultiTimeStep[colNum-1], proteinCountsMultiTimeStep[rowNum-1])
-			plt.text(0,.9*np.amax(proteinCountsMultiTimeStep[rowNum-1]),"r = %.4f" % (corr_coef), verticalalignment='top', horizontalalignment='left')
-
-			plt.xlabel(names[colNum-1])
-			plt.ylabel(names[rowNum-1])
-
-		plottingIndex += 1
+	import ipdb; ipdb.set_trace()
+	
+	from wholecell.analysis.plotting_tools import plotSplom
+	plotSplom(proteinDatasets,names)
 
 	
 	plt.subplots_adjust(wspace = .7, hspace= .7)
