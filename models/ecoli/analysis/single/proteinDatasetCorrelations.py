@@ -111,12 +111,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 		proteinDatasets.append(wcm_dataset)		
 		names.append("WCM Protein Count (timestep %d)" % timePoint)
-
-	# datasets = [[1,2,3],[1,1,1],[4,5,6],[6,5,4]]
-	# names = ['one','two','three','four']
-
-
-	import ipdb; ipdb.set_trace()
 	
 	from wholecell.analysis.plotting_tools import plotSplom
 	plotSplom(proteinDatasets,names)
