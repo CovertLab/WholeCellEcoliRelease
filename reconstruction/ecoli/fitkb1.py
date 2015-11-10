@@ -142,6 +142,7 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
 	kb.mass.avgCellDryMass = kb.mass.avgCellDryMassInit * kb.mass.avgCellToInitialCellConvFactor
+	kb.mass.avgCellWaterMassInit = kb.mass.avgCellDryMass / 0.3 * 0.7
 
 def setInitialRnaExpression(kb):
 	# Set expression for all of the noncoding RNAs
