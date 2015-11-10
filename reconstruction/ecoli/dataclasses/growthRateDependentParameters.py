@@ -24,7 +24,7 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self._setAvgCellDryMass()
-		self.avgCell60MinDoublingTimeTotalMassInit = 605.33333 * units.fg
+		self.avgCell60MinDoublingTimeTotalMassInit = 813.542227072 * units.fg
 		self.massFraction = self._setMassFraction()
 		self.avgCellSubMass = self._setSubMass()
 
@@ -50,7 +50,7 @@ class Mass(object):
 		self._doubling_time_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
 
 		# TODO: Use helper functions written for growthRateDependent parameters to make this better!
-		dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition]) / self.avgCellToInitialCellConvFactor
+		dryMass = np.array([float(x['averageDryMass'].asNumber(units.fg)) for x in raw_data.dryMassComposition])
 		self._dryMassParams = interpolate.splrep(self._doubling_time_vector.asNumber(units.min)[::-1], dryMass[::-1])
 
 		self._proteinMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'proteinMassFraction')
