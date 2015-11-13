@@ -37,6 +37,10 @@ import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 from wholecell.utils import units
 
+COUNTS_UNITS = units.mmol
+VOLUME_UNITS = units.L
+MASS_UNITS = units.g
+
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
 
@@ -51,6 +55,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		super(RnaDegradation, self).initialize(sim, kb)
 
 		rnaIds = kb.process.transcription.rnaData['id']
+
+		# Load constants
+		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
+		self.cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
 
 		#RNase
 		endoRnaseIds = kb.moleculeGroups.endoRnaseIds
@@ -110,16 +118,32 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 
+		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
+
+		cellVolume = cellMass / self.cellDensity
+
+		countsToMolar = 1 / (self.nAvogadro * cellVolume)
+
 		# Compute RNA specificity according to the measured RNA decays 
 		# and accessibility (number of RNAs)
 		TotalDegradationRate = self.rnaDegRates * self.rnas.total() * self.timeStepSec
 		#RNAspecificity = TotalDegradationRate / TotalDegradationRate.sum()
 
 		# RNA specificity: Michaelis-Menten kinetics
-		#import ipdb
-		#ipdb.set_trace()
-		# Km_aux = (sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total()) - TotalDegradationRate) / self.rnaDegRates
-		RNAspecificity = self.rnas.total() / (self.Km + self.rnas.total())
+		# import ipdb; ipdb.set_trace();
+		RNAspecificity = self.rnas.total() * countsToMolar / (self.Km + (self.rnas.total() * countsToMolar))
+		RNAspecificity_aux = RNAspecificity.sum()
+		print "RNAspecificity_aux %f" % RNAspecificity_aux
+
+		Kd = self.rnaDegRates
+		Kcat = self.KcatEndoRNasesFullRNA 
+		EndoR = sum(self.endoRnases.total())
+		KM = self.Km
+		RNA = self.rnas.total() 
+		diffRNAdecay = sum( self.isMRna * (Kd - ( Kcat.mean()*EndoR / ((KM/countsToMolar) - RNA) )) )
+		diffRNAdecay_mean = ( self.isMRna * (Kd - ( Kcat.mean()*EndoR / ((KM/countsToMolar) - RNA) )) ).mean()
+		print "difference Kd vs RNAdecay sum %f" % diffRNAdecay
+		print "difference Kd vs RNAdecay mean %f" % diffRNAdecay_aux		
 
 		# Calculate fraction of EndoRNases needed 
 		FractionActiveEndoRNases = 1
@@ -127,15 +151,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# if FractionActiveEndoRNases > 1:
 		# 	FractionActiveEndoRNases = 1
 
-		print np.abs(self.Km.sum())
-		print self.rnas.total().sum()
-		print FractionActiveEndoRNases
-
 		# if TotalDegradationRate.sum() < sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total()):
 		# 	FractionActiveEndoRNases = TotalDegradationRate.sum() / (
 		#  			sum(self.KcatEndoRNasesFullRNA * self.endoRnases.total())
 		#  		)
-
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
@@ -147,9 +166,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		print "first order %f" % TotalDegradationRate.sum()
 
 		# Dissect RNA specificity into mRNA, tRNA, and rRNA as well as specific RNases
-		MrnaSpec = sum(RNAspecificity * self.isMRna)
-		TrnaSpec = sum(RNAspecificity * self.isTRna)
+		MrnaSpec = sum(RNAspecificity * self.isMRna) 
+		TrnaSpec = sum(RNAspecificity * self.isTRna) 
 		RrnaSpec = sum(RNAspecificity * self.isRRna) 
+		
 
 		TargetEndoRNasesFullMRNA = np.zeros_like(self.TargetEndoRNasesFullMRNA_indexes)
 		TargetEndoRNasesFullMRNA[self.TargetEndoRNasesFullMRNA_indexes == self.mrna_index] = MrnaSpec
@@ -169,6 +189,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 
 		# Dissect total counts of RNA degraded into mRNA, tRNA, and rRNA 
+		# TODO: check 
+		TargetEndoRNasesFullMRNA = MrnaSpec
+		TargetEndoRNasesFullTRNA = TrnaSpec
+		TargetEndoRNasesFullRRNA = RrnaSpec
+
 		nMRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullMRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNasesFullRNA) *
@@ -184,10 +209,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 				self.KcatEndoRNasesFullRNA) * 
 				FractionActiveEndoRNases
 			)
+
 		if nRNAsTotalToDegrade != nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade:
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
 
 		# initialize array containing RNAs to be degraded
+		# TODO: check re-scale RNAspecificity
+		aux = RNAspecificity.sum()
+		RNAspecificity = RNAspecificity / aux
+
 		nRNAsToDegrade = np.zeros(len(RNAspecificity))
 		nMRNAsToDegrade = np.zeros(len(RNAspecificity))
 		nTRNAsToDegrade = np.zeros(len(RNAspecificity))
@@ -220,6 +250,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		nRNAsToDegrade = nMRNAsToDegrade + nTRNAsToDegrade + nRRNAsToDegrade
 
+		print "mRNA degraded %f" % sum(nMRNAsToDegrade)
+
 
 		self.rnas.requestIs(nRNAsToDegrade)
 		self.endoRnases.requestAll()
@@ -232,7 +264,9 @@ class RnaDegradation(wholecell.processes.process.Process):
 		waterForNewRnas = (nRNAsToDegrade * (self.rnaLens - 1)).sum() + nRNAsToDegrade.sum()
 		waterForLeftOverFragments = self.fragmentBases.total().sum()
 		self.h2o.requestIs(waterForNewRnas + waterForLeftOverFragments)
-		self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", FractionActiveEndoRNases)
+
+		# self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", FractionActiveEndoRNases)
+		self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", diffRNAdecay_mean)
 
 	def evolveState(self):
 

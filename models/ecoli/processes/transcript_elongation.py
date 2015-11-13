@@ -180,6 +180,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			)
 
 		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
+		# import ipdb; ipdb.set_trace()
+		# print "synthesis total %f" % terminatedRnas.sum()
+		# print "synthesis mRNA %f" % (terminatedRnas * self.isMRna).sum()
 
 		activeRnaPolys.delByIndexes(np.where(didTerminate)[0])
 

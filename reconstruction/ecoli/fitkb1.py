@@ -29,6 +29,10 @@ TIME_STEP_SEC = None # If this is None the time step will be fit for the simulat
 
 VERBOSE = False
 
+COUNTS_UNITS = units.mmol
+VOLUME_UNITS = units.L
+MASS_UNITS = units.g
+
 def fitKb_1(kb):
 	# Initialize simulation data with growth rate
 	raw_data = KnowledgeBaseEcoli()
@@ -435,18 +439,52 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 			endoRnaseCounts[count_endoRN] = proteinCounts[p]
 			count_endoRN += 1
 
+
+	# Load constants
+	nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
+	cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+
+	avgCellSubMass = kb.mass.avgCellSubMass
+
+	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
+
+	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
+	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+
+	cellDensity = kb.constants.cellDensity
+	mws = kb.getter.getMass(poolIds)
+	concentrations = poolConcentrations.copy()
+
+	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
+	A = -1 * np.ones((diag.size, diag.size))
+	A[np.diag_indices(diag.size)] = diag
+	b = mass.asNumber(units.g) * np.ones(diag.size)
+
+	massesToAdd = units.g * np.linalg.solve(A, b)
+	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
+
+	cellMass = mass + units.sum(massesToAdd)
+
+	cellVolume = cellMass / cellDensity
+
+	countsToMolar = 1 / (nAvogadro * cellVolume)
+
+
 	# Compute Km's
-	RNACounts = rnaCounts
+	RNACounts = rnaCounts * countsToMolar
 	degradationRates = (kb.process.transcription.rnaData["degRate"] * units.s).asNumber()
-	print degradationRates
-	endoRNaseCounts = endoRnaseCounts
+	endoRNaseCounts = endoRnaseCounts * countsToMolar
 	kcatEndoRNase = (kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber()
 	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
-	Km = ( TotalEndoRNases.sum() / degradationRates ) - RNACounts
+	Km = ( 1 / degradationRates * TotalEndoRNases.sum() ) - RNACounts
+	
 	# import ipdb; ipdb.set_trace()
+	# print "Km mean %f" % Km.mean().asNumber()
+	# print "Km sum %f" % Km.sum().asNumber()
 
 	# Set Km's
-	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km
+	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km * units.L
 
 	rnaLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
@@ -825,11 +863,39 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts, kb):
+	# Load constants
+	nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
+	cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+
+	avgCellSubMass = kb.mass.avgCellSubMass
+
+	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
+
+	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
+	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+
+	cellDensity = kb.constants.cellDensity
+	mws = kb.getter.getMass(poolIds)
+	concentrations = poolConcentrations.copy()
+
+	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
+	A = -1 * np.ones((diag.size, diag.size))
+	A[np.diag_indices(diag.size)] = diag
+	b = mass.asNumber(units.g) * np.ones(diag.size)
+
+	massesToAdd = units.g * np.linalg.solve(A, b)
+	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
+
+	cellMass = mass + units.sum(massesToAdd)
+
+	cellVolume = cellMass / cellDensity
+
+	countsToMolar = 1 / (nAvogadro * cellVolume)
+
+
 	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
 
-	# Km = (TotalEndoRNases.sum() - (degradationRates * RNACounts)) / degradationRates
-	#Km = ( TotalEndoRNases.sum() / (degradationRates - (np.log(2) / doublingTime)) ) - RNACounts
-	#kb.process.transcription.rnaData["KmEndoRNase"][:] = Km
 	Km = kb.process.transcription.rnaData["KmEndoRNase"]
 
 	# How RNases target specific RNAs is not explicitly accounted for fitting purpose because of the low copy number of RNases that can  target specific species
@@ -839,4 +905,6 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kca
 	# print degradationRates.asNumber().sum()
 	# print (TotalEndoRNases.sum() / (Km + RNACounts)).asNumber().sum()
 	# return RNACounts * ( (np.log(2) / doublingTime) + degradationRates)
-	return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() / (Km + RNACounts)) )
+
+	# return RNACounts * (np.log(2) / doublingTime) + ( TotalEndoRNases.sum() / (Km + RNACounts) )
+	return (np.log(2) / doublingTime) * RNACounts + countsToMolar *TotalEndoRNases.sum() * RNACounts / ((1 / units.L) * Km  + (countsToMolar * RNACounts))
