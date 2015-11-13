@@ -425,78 +425,32 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(kb.process.transcription.rnaData['countsACGU'], axis = 1)
 
-	rnaCounts = bulkContainer.counts(kb.process.transcription.rnaData['id'])
-	
-
-	# Compute counts of endoRNases
-	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
-	proteinCounts = bulkContainer.counts(kb.process.translation.monomerData["id"])
-	endoRnaseCounts = np.zeros(len(endoRnaseIds))
-	proteinIds = kb.process.translation.monomerData["id"]
-	count_endoRN = 0
-	for p in range (len(proteinIds)):
-		if proteinIds[p] in endoRnaseIds:
-			endoRnaseCounts[count_endoRN] = proteinCounts[p]
-			count_endoRN += 1
-
-
-	# Load constants
-	nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-	cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
-
-	avgCellSubMass = kb.mass.avgCellSubMass
-
-	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
-
-	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
-
+	# Get constants to compute countsToMolar factor
 	cellDensity = kb.constants.cellDensity
-	mws = kb.getter.getMass(poolIds)
-	concentrations = poolConcentrations.copy()
-
-	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
-	A = -1 * np.ones((diag.size, diag.size))
-	A[np.diag_indices(diag.size)] = diag
-	b = mass.asNumber(units.g) * np.ones(diag.size)
-
-	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
-
-	cellMass = mass + units.sum(massesToAdd)
-
-	cellVolume = cellMass / cellDensity
-
-	countsToMolar = 1 / (nAvogadro * cellVolume)
-
+	cellVolume = kb.mass.avgCellDryMassInit / cellDensity
+	countsToMolar = 1 / (kb.constants.nAvogadro * cellVolume)
 
 	# Compute Km's
-	RNACounts = rnaCounts * countsToMolar
-	degradationRates = (kb.process.transcription.rnaData["degRate"] * units.s).asNumber()
-	endoRNaseCounts = endoRnaseCounts * countsToMolar
-	kcatEndoRNase = (kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber()
-	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
-	Km = ( 1 / degradationRates * TotalEndoRNases.sum() ) - RNACounts
+	rnaConc = countsToMolar * bulkContainer.counts(kb.process.transcription.rnaData['id'])
+	degradationRates = kb.process.transcription.rnaData["degRate"]
+	endoRNaseConc = countsToMolar * bulkContainer.counts(kb.process.rna_decay.endoRnaseIds)
+	kcatEndoRNase = kb.process.rna_decay.kcats
+	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
+	Km = ( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc
 	
-	# import ipdb; ipdb.set_trace()
-	# print "Km mean %f" % Km.mean().asNumber()
-	# print "Km sum %f" % Km.sum().asNumber()
-
 	# Set Km's
-	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km * units.L
+	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km
 
-	rnaLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
+	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
-		kb.process.transcription.rnaData["degRate"],
-		kb.constants.KcatEndoRNasesFullRNA, 
-		rnaCounts, 
-		endoRnaseCounts,
-		kb
+		(1 / countsToMolar) * totalEndoRnaseCapacity,
+		Km, 
+		rnaConc,
+		countsToMolar,
 		)
 	
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
-		rnaLengths, kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate_RNA)
+		rnaLengths, kb.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate)
 
 	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
 	nRnapsNeeded = nActiveRnapNeeded / kb.growthRateParameters.fractionActiveRnap
@@ -571,27 +525,25 @@ def fitExpression(kb, bulkContainer):
 
 	view_RNA.countsIs(nRnas * kb.process.transcription.rnaData["expression"])
 
-	# Compute counts of endoRNases
-	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
-	proteinCounts = counts_protein 
-	endoRnaseCounts = np.zeros(len(endoRnaseIds))
-	proteinIds = kb.process.translation.monomerData["id"]
-	count_endoRN = 0
-	for p in range (len(proteinIds)):
-		if proteinIds[p] in endoRnaseIds:
-			endoRnaseCounts[count_endoRN] = proteinCounts[p]
-			count_endoRN += 1
+	# Get constants to compute countsToMolar factor
+	cellDensity = kb.constants.cellDensity
+	cellVolume = kb.mass.avgCellDryMassInit / cellDensity
+	countsToMolar = 1 / (kb.constants.nAvogadro * cellVolume)
 
-	netLossRate_RNA = netLossRateFromDilutionAndDegradationRNA(
-		(doublingTime / units.s).asNumber(),
-		(kb.process.transcription.rnaData["degRate"] * units.s).asNumber(),
-		(kb.constants.KcatEndoRNasesFullRNA * units.s).asNumber(),
-		view_RNA.counts(), 
-		endoRnaseCounts,
-		kb
+	# Compute total endornase maximum capacity
+	endoRNaseConc = countsToMolar * bulkContainer.counts(kb.process.rna_decay.endoRnaseIds)
+	kcatEndoRNase = kb.process.rna_decay.kcats
+	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
+
+	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
+		kb.doubling_time,
+		(1 / countsToMolar) * totalEndoRnaseCapacity,
+		kb.process.transcription.rnaData["KmEndoRNase"], 
+		countsToMolar * view_RNA.counts(),
+		countsToMolar,
 		)
 
-	synthProb = normalize(netLossRate_RNA)
+	synthProb = normalize(rnaLossRate.asNumber(1 / units.min))
 
 	kb.process.transcription.rnaData["synthProb"][:] = synthProb
 
@@ -862,49 +814,8 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 	return np.log(2) / doublingTime + degradationRates
 
 
-def netLossRateFromDilutionAndDegradationRNA(doublingTime, degradationRates, kcatEndoRNase, RNACounts, endoRNaseCounts, kb):
-	# Load constants
-	nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-	cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsCapacity, Km, rnaConc, countsToMolar):
+	fracSaturated = rnaConc / (Km + rnaConc)
+	rnaCounts = (1 / countsToMolar) * rnaConc
+	return ((np.log(2) / doublingTime) + totalEndoRnaseCountsCapacity * fracSaturated) * rnaCounts
 
-	avgCellSubMass = kb.mass.avgCellSubMass
-
-	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
-
-	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
-
-	cellDensity = kb.constants.cellDensity
-	mws = kb.getter.getMass(poolIds)
-	concentrations = poolConcentrations.copy()
-
-	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
-	A = -1 * np.ones((diag.size, diag.size))
-	A[np.diag_indices(diag.size)] = diag
-	b = mass.asNumber(units.g) * np.ones(diag.size)
-
-	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
-
-	cellMass = mass + units.sum(massesToAdd)
-
-	cellVolume = cellMass / cellDensity
-
-	countsToMolar = 1 / (nAvogadro * cellVolume)
-
-
-	TotalEndoRNases = endoRNaseCounts * kcatEndoRNase
-
-	Km = kb.process.transcription.rnaData["KmEndoRNase"]
-
-	# How RNases target specific RNAs is not explicitly accounted for fitting purpose because of the low copy number of RNases that can  target specific species
-	#return RNACounts * ( (np.log(2) / doublingTime) + (TotalEndoRNases.sum() * degradationRates / np.sum(degradationRates * RNACounts)) )
-	# print "netlosscalc"
-	# import ipdb; ipdb.set_trace()
-	# print degradationRates.asNumber().sum()
-	# print (TotalEndoRNases.sum() / (Km + RNACounts)).asNumber().sum()
-	# return RNACounts * ( (np.log(2) / doublingTime) + degradationRates)
-
-	# return RNACounts * (np.log(2) / doublingTime) + ( TotalEndoRNases.sum() / (Km + RNACounts) )
-	return (np.log(2) / doublingTime) * RNACounts + countsToMolar *TotalEndoRNases.sum() * RNACounts / ((1 / units.L) * Km  + (countsToMolar * RNACounts))
