@@ -6,12 +6,13 @@ RnaDegradation
 RNA degradation sub-model. 
 
 Mathematical formulation:
-dr/dt = kb - r ( ln(2)/tau + kcatEndoRNase * EndoRNase * kd / (Sum_g kd * r) )
+dr/dt = kb - kcatEndoRNase * EndoRNase * r / (Km + r) = r * ln(2)/tau
 	where	r = RNA counts
 			kb = RNAP synthesis rate 
 			tau = doubling time
 			kcatEndoRNase = enzymatic activity for EndoRNases
 			kd = RNA degradation rates 
+			Km = Michaelis-Menten constants fitted to recapitulate first-order RNA decay ( kd * r = kcatEndoRNase * EndoRNase * r / (Km + r) )
 
 This sub-model encodes molecular simulation of RNA degradation as two main steps guided by RNases, "endonucleolytic cleavage" and "exonucleolytic digestion":
 1. Compute total counts of RNA to be degraded (D) and total capacity for endo-cleavage (C) at each time point
@@ -143,7 +144,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		diffRNAdecay = sum( self.isMRna * (Kd - ( Kcat.mean()*EndoR / ((KM/countsToMolar) - RNA) )) )
 		diffRNAdecay_mean = ( self.isMRna * (Kd - ( Kcat.mean()*EndoR / ((KM/countsToMolar) - RNA) )) ).mean()
 		print "difference Kd vs RNAdecay sum %f" % diffRNAdecay
-		print "difference Kd vs RNAdecay mean %f" % diffRNAdecay_aux		
+		print "difference Kd vs RNAdecay mean %f" % diffRNAdecay_mean		
 
 		# Calculate fraction of EndoRNases needed 
 		FractionActiveEndoRNases = 1
@@ -213,10 +214,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		if nRNAsTotalToDegrade != nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade:
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
 
-		# initialize array containing RNAs to be degraded
-		# TODO: check re-scale RNAspecificity
-		aux = RNAspecificity.sum()
-		RNAspecificity = RNAspecificity / aux
+		# re-scale RNAspecificity across genes
+		# import ipdb; ipdb.set_trace();
+		RNAspecificity = RNAspecificity / RNAspecificity.sum()
+		
 
 		nRNAsToDegrade = np.zeros(len(RNAspecificity))
 		nMRNAsToDegrade = np.zeros(len(RNAspecificity))
