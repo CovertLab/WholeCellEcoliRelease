@@ -144,7 +144,7 @@ class Transcription(object):
 			'isRRna5S'		:	None,
 			'sequence'		:   None,
 			'geneId'		:	None,
-			'KmEndoRNase'	:	units.mol / units.L,
+			'KmEndoRNase'	:	None,
 			}
 
 
