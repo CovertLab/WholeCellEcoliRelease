@@ -538,7 +538,7 @@ def fitExpression(kb, bulkContainer):
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
 		(1 / countsToMolar) * totalEndoRnaseCapacity,
-		(units.mol / units.L) * kb.process.transcription.rnaData["KmEndoRNase"], 
+		(units.mol / units.L) * kb.process.transcription.rnaData["KmEndoRNase"],
 		countsToMolar * view_RNA.counts(),
 		countsToMolar,
 		)
@@ -816,7 +816,6 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsCapacity, Km, rnaConc, countsToMolar):
 	fracSaturated = rnaConc / (Km + rnaConc)
-	print units.sum(fracSaturated)
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 

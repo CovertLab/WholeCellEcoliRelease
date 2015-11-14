@@ -56,6 +56,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Load constants
 		self.nAvogadro = kb.constants.nAvogadro
 		self.cellDensity = kb.constants.cellDensity
+
 		#RNase
 		endoRnaseIds = kb.process.rna_decay.endoRnaseIds
 		exoRnaseIds = kb.moleculeGroups.exoRnaseIds
@@ -72,7 +73,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rtrna_index = kb.process.rna_decay.rtrna_index
 
 		# Rna
-		self.rnaDegRates = kb.process.transcription.rnaData['degRate'].asNumber()
+		self.rnaDegRates = kb.process.transcription.rnaData['degRate']
 		self.isMRna = kb.process.transcription.rnaData["isMRna"]
 		self.isRRna = kb.process.transcription.rnaData["isRRna"]
 		self.isTRna = kb.process.transcription.rnaData["isTRna"]
@@ -111,43 +112,24 @@ class RnaDegradation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 
 	def calculateRequest(self):
-		import time
 
+		# load constants 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
-
 		cellVolume = cellMass / self.cellDensity
-
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
-		# Compute RNA specificity according to the measured RNA decays 
-		# and accessibility (number of RNAs)
-		# TotalDegradationRate = self.rnaDegRates * self.rnas.total() * self.timeStepSec
-		#RNAspecificity = TotalDegradationRate / TotalDegradationRate.sum()
-
-		# RNA specificity: Michaelis-Menten kinetics
-		# import ipdb; ipdb.set_trace();
+		# fraction saturated based on Michaelis-Menten kinetics
 		fracEndoRnaseSaturated = countsToMolar * self.rnas.total() / (self.Km + (countsToMolar * self.rnas.total()))
-		# RNAspecificity_aux = RNAspecificity.sum()
-		# print "RNAspecificity_aux %f" % RNAspecificity_aux
-
-		# Kd = self.rnaDegRates
-		# Kcat = self.KcatEndoRNases
-		# EndoR = sum(self.endoRnases.total())
-		# KM = self.Km
-		# RNA = self.rnas.total()
-		# diffRNAdecay = sum( self.isMRna * (Kd - ( Kcat.mean()*EndoR / ((KM/countsToMolar) - RNA) )) )
-		# diffRNAdecay_mean = ( self.isMRna * (Kd - ( Kcat.mean()*EndoR / ((KM/countsToMolar) - RNA) )) ).mean()
-		# print "difference Kd vs RNAdecay sum %f" % diffRNAdecay
-		# print "difference Kd vs RNAdecay mean %f" % diffRNAdecay_mean
-
+		Kd = self.rnaDegRates
+		Kcat = self.KcatEndoRNases
+		EndoR = sum(self.endoRnases.total())
+		KM = self.Km
+		RNA = self.rnas.total()
+		FractDiffRNAdecay = ( (  Kd - (units.sum(self.KcatEndoRNases * self.endoRnases.total()) / ((KM / countsToMolar) - RNA))  ) / Kd * self.isMRna ).asNumber().mean()
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
-
-		nRNAsTotalToDegrade = np.round((units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec)).asNumber().sum()
-			)
-		print "degrade %f" % nRNAsTotalToDegrade
-		# print "first order %f" % TotalDegradationRate.sum()
+		nRNAsTotalToDegrade = np.round((units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec)).asNumber().sum())
 		
 		# Dissect RNA specificity into mRNA, tRNA, and rRNA as well as specific RNases
 		MrnaSpec = units.sum(fracEndoRnaseSaturated * self.isMRna)
@@ -193,9 +175,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
 
 		# define RNA specificity across genes
-		# import ipdb; ipdb.set_trace();
 		RNAspecificity = (fracEndoRnaseSaturated / units.sum(fracEndoRnaseSaturated)).asNumber()
-		
 
 		nRNAsToDegrade = np.zeros(len(RNAspecificity))
 		nMRNAsToDegrade = np.zeros(len(RNAspecificity))
@@ -239,7 +219,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		waterForLeftOverFragments = self.fragmentBases.total().sum()
 		self.h2o.requestIs(waterForNewRnas + waterForLeftOverFragments)
 
-		# self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", diffRNAdecay_mean)
+		self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", FractDiffRNAdecay)
 
 	def evolveState(self):
 
