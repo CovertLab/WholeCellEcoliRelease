@@ -427,7 +427,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 
 	# Get constants to compute countsToMolar factor
 	cellDensity = kb.constants.cellDensity
-	cellVolume = kb.mass.avgCellDryMassInit / cellDensity
+	cellVolume = kb.mass.avgCellDryMassInit / cellDensity / 0.3
 	countsToMolar = 1 / (kb.constants.nAvogadro * cellVolume)
 
 	# Compute Km's
@@ -439,7 +439,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	Km = ( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc
 	
 	# Set Km's
-	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km
+	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km.asNumber(units.mol / units.L)
 
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
@@ -527,7 +527,7 @@ def fitExpression(kb, bulkContainer):
 
 	# Get constants to compute countsToMolar factor
 	cellDensity = kb.constants.cellDensity
-	cellVolume = kb.mass.avgCellDryMassInit / cellDensity
+	cellVolume = kb.mass.avgCellDryMassInit / cellDensity / 0.3
 	countsToMolar = 1 / (kb.constants.nAvogadro * cellVolume)
 
 	# Compute total endornase maximum capacity
@@ -538,7 +538,7 @@ def fitExpression(kb, bulkContainer):
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
 		(1 / countsToMolar) * totalEndoRnaseCapacity,
-		kb.process.transcription.rnaData["KmEndoRNase"], 
+		(units.mol / units.L) * kb.process.transcription.rnaData["KmEndoRNase"], 
 		countsToMolar * view_RNA.counts(),
 		countsToMolar,
 		)
@@ -816,6 +816,7 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsCapacity, Km, rnaConc, countsToMolar):
 	fracSaturated = rnaConc / (Km + rnaConc)
+	print units.sum(fracSaturated)
 	rnaCounts = (1 / countsToMolar) * rnaConc
-	return ((np.log(2) / doublingTime) + totalEndoRnaseCountsCapacity * fracSaturated) * rnaCounts
+	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
