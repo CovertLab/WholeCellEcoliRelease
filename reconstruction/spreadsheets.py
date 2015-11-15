@@ -20,7 +20,7 @@ def array_to_list(value):
 class JsonWriter(csv.DictWriter):
 	def __init__(self, *args, **kwargs):
 		csv.DictWriter.__init__(
-			self, quotechar = "'", quoting = csv.QUOTE_MINIMAL, *args, **kwargs
+			self, quotechar = "'", quoting = csv.QUOTE_MINIMAL, lineterminator="\n", *args, **kwargs
 			)
 
 	def _dict_to_list(self, rowdict):

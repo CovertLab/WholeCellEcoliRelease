@@ -48,6 +48,8 @@ class Equilibrium(wholecell.processes.process.Process):
 		self.derivativesJacobian = kb.process.equilibrium.derivativesJacobian
 		self.metsToRxnFluxes = kb.process.equilibrium.metsToRxnFluxes
 
+		self.fluxesAndMoleculesToSS = kb.process.equilibrium.fluxesAndMoleculesToSS
+
 		# Build views
 
 		moleculeNames = kb.process.equilibrium.moleculeNames
@@ -61,23 +63,7 @@ class Equilibrium(wholecell.processes.process.Process):
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
 		cellVolume = cellMass / self.cellDensity
 
-		y_init = moleculeCounts / (cellVolume * self.nAvogadro)
-		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e4], Dfun = self.derivativesJacobian)
-
-		if np.any(y[-1, :] * (cellVolume * self.nAvogadro) <= -1):
-			raise Exception, "Have negative values -- probably due to numerical instability"
-		if np.linalg.norm(self.derivatives(y[-1, :], 0), np.inf) * (cellVolume * self.nAvogadro) > 1:
-			raise Exception, "Didn't reach steady state"
-		y[y < 0] = 0
-		yMolecules = y * (cellVolume * self.nAvogadro)
-
-		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
-		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
-		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
-		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
-
-		self.req = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
-		self.rxnFluxes = rxnFluxes
+		self.rxnFluxes, self.req = self.fluxesAndMoleculesToSS(moleculeCounts, cellVolume, self.nAvogadro)
 
 		self.molecules.requestIs(self.req)
 

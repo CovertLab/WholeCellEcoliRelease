@@ -9,6 +9,7 @@ import cPickle
 import wholecell
 from wholecell.utils import units
 from . import metabolism
+import scipy
 
 class Equilibrium(object):
 	def __init__(self, raw_data, sim_data):
@@ -256,6 +257,29 @@ class Equilibrium(object):
 
 		self.derivativesJacobian = theano.function([y, t], T.stack(*J), on_unused_input = "ignore")
 		self.derivatives = theano.function([y, t], T.stack(*dy), on_unused_input = "ignore")
+
+
+	# TODO: Should this method be here?
+	# It could be useful in both the fitter and in the simulations
+	# But it isn't just data
+	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
+		y_init = moleculeCounts / (cellVolume * nAvogadro)
+		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e4], Dfun = self.derivativesJacobian)
+
+		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
+			raise Exception, "Have negative values -- probably due to numerical instability"
+		if np.linalg.norm(self.derivatives(y[-1, :], 0), np.inf) * (cellVolume * nAvogadro) > 1:
+			raise Exception, "Didn't reach steady state"
+		y[y < 0] = 0
+		yMolecules = y * (cellVolume * nAvogadro)
+
+		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
+		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
+		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
+		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
+		moleculesNeeded = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
+		return rxnFluxes, moleculesNeeded
+
 
 	# TODO: These methods might not be necessary, consider deleting if that's the case
 	# TODO: redesign this so it doesn't need to create a stoich matrix

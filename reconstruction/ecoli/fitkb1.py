@@ -146,6 +146,7 @@ def rescaleMassForSoluableMetabolites(kb, bulkMolCntr):
 
 	kb.mass.avgCellDryMassInit = newAvgCellDryMassInit
 	kb.mass.avgCellDryMass = kb.mass.avgCellDryMassInit * kb.mass.avgCellToInitialCellConvFactor
+	kb.mass.avgCellWaterMassInit = kb.mass.avgCellDryMass / 0.3 * 0.7
 
 def setInitialRnaExpression(kb):
 	# Set expression for all of the noncoding RNAs
@@ -653,8 +654,10 @@ def calculateBulkDistributions(kb):
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(kb)
 	ids_complex = kb.process.complexation.moleculeNames
 	ids_equilibrium = kb.process.equilibrium.moleculeNames
+	ids_metabolites = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	conc_metabolites = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
 	allMoleculesIDs = sorted(
-		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium)
+		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium) | set(ids_metabolites)
 		)
 
 	# Data for complexation
@@ -668,6 +671,10 @@ def calculateBulkDistributions(kb):
 	# Data for equilibrium binding
 	equilibriumDerivatives = kb.process.equilibrium.derivatives
 	equilibriumDerivativesJacobian = kb.process.equilibrium.derivativesJacobian
+
+	# Data for metabolites
+	cellDensity = kb.constants.cellDensity
+	cellVolume = kb.mass.avgCellDryMassInit / cellDensity
 
 	# Construct bulk container
 
@@ -683,6 +690,7 @@ def calculateBulkDistributions(kb):
 	proteinView = bulkContainer.countsView(ids_protein)
 	complexationMoleculesView = bulkContainer.countsView(ids_complex)
 	equilibriumMoleculesView = bulkContainer.countsView(ids_equilibrium)
+	metabolitesView = bulkContainer.countsView(ids_metabolites)
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
@@ -713,6 +721,37 @@ def calculateBulkDistributions(kb):
 			)
 
 		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
+
+		metDiffs = np.inf * np.ones_like(metabolitesView.counts())
+		nIters = 0
+
+		while(np.linalg.norm(metDiffs, np.inf) > 1):
+			# Metabolite concentrations were measured as steady-state values (not initial values)
+			# So we run this until we get to steady state
+			metCounts = conc_metabolites * cellVolume * kb.constants.nAvogadro
+			metCounts.normalize()
+			metCounts.checkNoUnit()
+
+			metabolitesView.countsIs(
+				metCounts.asNumber().round()
+				)
+
+			rxnFluxes, _ = kb.process.equilibrium.fluxesAndMoleculesToSS(
+				equilibriumMoleculesView.counts(),
+				cellVolume.asNumber(units.L),
+				kb.constants.nAvogadro.asNumber(1 / units.mol),
+				)
+
+			equilibriumMoleculesView.countsInc(
+				np.dot(kb.process.equilibrium.stoichMatrix().astype(np.int64), rxnFluxes)
+				)
+
+			assert np.all(equilibriumMoleculesView.counts() >= 0)
+			metDiffs = metabolitesView.counts() - metCounts.asNumber().round()
+
+			nIters += 1
+			if nIters > 100:
+				raise Exception, "Equilibrium reactions are not converging!"
 
 		allMoleculeCounts[seed, :] = allMoleculesView.counts()
 
