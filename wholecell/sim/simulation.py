@@ -100,7 +100,7 @@ class Simulation(object):
 		# Set time variables
 		self.simulationStep = 0
 
-		self.randomState = np.random.RandomState(seed = self._seed)
+		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
 		# Load KB
 		kb = cPickle.load(open(self._kbLocation, "rb"))
@@ -272,7 +272,7 @@ class Simulation(object):
 			logger.append(self)
 
 	def _seedFromName(self, name):
-		return np.uint32(self._seed + self.simulationStep + hash(name))
+		return np.uint32((self._seed + self.simulationStep + hash(name)) % np.iinfo(np.uint64).max)
 
 
 	def initialTime(self):

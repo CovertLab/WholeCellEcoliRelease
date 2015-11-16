@@ -553,9 +553,9 @@ with open(EQUI_RXNS_FILE, "w") as f:
 			original_rxn = comp_rxns[rxn_id]
 
 		except KeyError:
-			pass
+			raise
 
-		finally:
+		else:
 			entry["stoichiometry"] = original_rxn["stoichiometry"]
 
 		for molecule in entry["stoichiometry"]:

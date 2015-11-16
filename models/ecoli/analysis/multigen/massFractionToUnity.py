@@ -71,7 +71,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	axesList[-1].set_xlabel('Time (min)')
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
 
 

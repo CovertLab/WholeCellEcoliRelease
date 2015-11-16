@@ -57,7 +57,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	# Load data from KB
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	endoRnaseIds = kb.process.rna_decay.endoRnaseIds
 	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
 	RnaseIds = np.concatenate((endoRnaseIds, exoRnaseIds))
 
@@ -140,7 +140,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	FractionActiveEndoRNases_axis = plt.subplot(9,1,9)
 	FractionActiveEndoRNases_axis.plot(time / 60., FractionActiveEndoRNases)
-	plt.ylabel("Fraction of active EndoRNases", fontsize = 7)
+	plt.ylabel("Relative difference Kd first-order and MM", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	plt.subplots_adjust(hspace = 0.9, wspace = 0.5)

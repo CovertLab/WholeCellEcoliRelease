@@ -15,6 +15,7 @@ from reconstruction.ecoli.dataclasses.process.translation import Translation
 from reconstruction.ecoli.dataclasses.process.complexation import Complexation
 from reconstruction.ecoli.dataclasses.process.rna_decay import RnaDecay
 from reconstruction.ecoli.dataclasses.process.equilibrium import Equilibrium
+from reconstruction.ecoli.dataclasses.process.transcription_regulation import TranscriptionRegulation
 
 
 import re
@@ -32,3 +33,4 @@ class Process(object):
 		self.complexation = Complexation(raw_data, sim_data)
 		self.rna_decay = RnaDecay(raw_data, sim_data)
 		self.equilibrium = Equilibrium(raw_data, sim_data)
+		self.transcription_regulation = TranscriptionRegulation(raw_data, sim_data)

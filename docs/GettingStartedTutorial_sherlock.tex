@@ -77,32 +77,74 @@ Once done with setup and these basic tutorials on Sherlock and the cluster, retu
 
 \subsection{Background}
 
-Genes encoding for stable RNA are transcribed at a faster rate in E. Coli. In the model (prior to this tutorial), all genes were transcribed at the same rate of 42nt/s. In this tutorial, we will change the model so that genes for rRNA and tRNA are transcribed at 80nt/s while everything else is still transcribed at 80nt/s. 
+Genes encoding for stable RNA are transcribed at a faster rate in E. Coli. In the model (prior to this tutorial), all genes were transcribed at the same rate of 42nt/s. In this tutorial, we will change the model so that genes for rRNA and tRNA are transcribed at 80nt/s while everything else is still transcribed at 42nt/s. 
 \par
 
 The code has inevitably evolved since I wrote this tutorial, so let’s get on the same page by going back to an older version of the code. Let’s do this tutorial on a new branch. cd into your wcEcoli directory and type:
 
 \lstset{language=bash}
 \begin{lstlisting}
-git checkout –b tutorial b16293cb008135425
+git checkout -b tutorial b16293cb008135425
+\end{lstlisting}
+
+We need to make sure the output from the model goes to the SCRATCH filesystem (whcih is larger) rather than SHERLOCK\_HOME. We'll need to make a symbolic link between the output directory of your wcEcoli directory and a directory in SCRATCH. Within your wcEcoli diretory, there should be a folder named out/. The model puts its outputput in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead.
+
+First go to SCRATCH and create a folder in which to place the output. Run the following command:
+
+\lstset{language=bash}
+\begin{lstlisting}
+cd $SCRATCH
+\end{lstlisting}
+
+Now make a directory to hold the output. You can call it whatever you want, here is one option:
+
+\lstset{language=bash}
+\begin{lstlisting}
+mkdir wcEcoli_out
+\end{lstlisting}
+
+Return to wcEcoli home with
+
+\lstset{language=bash}
+\begin{lstlisting}
+cd $HOME/wcEcoli
+\end{lstlisting}
+
+To create the symbolic link, we first need to delete the existing out/ directory. Do this with:
+
+\lstset{language=bash}
+\begin{lstlisting}
+rmdir out/
+\end{lstlisting}
+
+Now run this command to make the symbolic link. Change the name of the directory to the one you made on SCRATCH if it's different.
+
+\lstset{language=bash}
+\begin{lstlisting}
+ln -s $SCRATCH/wcEcoli_out out
 \end{lstlisting}
 
 
-To begin, let's load the knowledge base into ipython:
-\par
+Now let's try running the unmodified model to make sure it works. From within your wcEcoli directory in Sherlock, queue up a simple run of the model.
+
+\lstset{language=bash}
+\begin{lstlisting}
+DESC="Tutorial run, starting code with unmodified parameters." python runscripts/fw_queue.py
+\end{lstlisting}
+
+Run the tasks in the queue until finished:
 
 \begin{lstlisting}
-ipython
-import reconstruction.ecoli.knowledge_base_raw as kbr
-kb=kbr.KnowledgeBaseEcoli()
+rlaunch rapidfire
 \end{lstlisting}
 
-The kb object now contains all the values in the knowledge base. The code reading and constructing the KnowledgeBaseEcoli object is in knowledge\_base\_raw.py.
 
 
 \subsection{Add a new parameter to the model}
 
 First, let’s add a new elongation rate to the knowledge base. In reconstruction/ecoli/flat is a tsv called growthRateDependentParameters.tsv. Add a new column for the fast rna polymerase rate (estimate that it is double the normal rate). The normal rate at each growth rate is stored in the column 'rnaPolymeraseElongationRate'. This command will generate the file with the new column appended, or edit the file in a different way if desired.
+
+\pagebreak
 
 \begin{lstlisting}
 awk '{if(NR==1){print $0 "\t" "rnaPolymeraseElongationRateFast (units.nt/units.min)"}else{print $0 "\t" ($9*2)}}' growthRateDependentParameters.tsv > temp && mv temp growthRateDependentParameters.tsv  
@@ -210,10 +252,10 @@ self.slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.t
 Now let’s change the view onto the active rna polymerases to a view onto only the active rna polymerases that are on transcripts that should be elongated at the slow rate. Change the definition of self.activeRnaPolys (line 75) to read:
 
 \begin{lstlisting}
-		self.activeRnaPolys = self.uniqueMoleculesView(
-			'activeRnaPoly',
-			rnaIndex = ("in", np.where(self.slowRnaBool)[0])
-			)
+    self.activeRnaPolys = self.uniqueMoleculesView(
+      'activeRnaPoly',
+      rnaIndex = ("in", np.where(self.slowRnaBool)[0])
+      )
 \end{lstlisting}
 
 This is all we need to change in this file. Now let’s open the fast transcript elongation file models/ecoli/processes/transcript\_elongation\_fast.py. Similarly to what we did in the slow elongation file, let’s change all references of TranscriptElongation to TranscriptElongationFast. If you’re using vi you can do this with the following command:
@@ -259,10 +301,10 @@ DESC="Tutorial run, adding different RNA polymerization rate for r- and t- RNAs.
 Run the tasks in the queue until finished:
 
 \begin{lstlisting}
-qlaunch -r rapidfire --nlaunches infinite --sleep 5
+rlaunch rapidfire
 \end{lstlisting}
 
-To check if the success of your simulation, open the /out/ folder, and the folder timestamped to the simulation just run, then click through to the output plots. Specifically look at the rnapActiveFraction plot. This should be around 20\%. Is it?
+To check for the success of your simulation, open the /out/ folder, and the folder timestamped to the simulation just run, then click through to the output plots. Specifically look at the rnapActiveFraction plot. This should be around 20\%. Is it? Also look at the massFractionSummary plot. Does everything roughly double in one cell cycle? If not, why might that be?
 
 \subsection{Changing the fitting}
 
@@ -277,7 +319,7 @@ $$
 $$
 
 
-$L_i$ is the length of transcript $i$; $P_i$ is the number of RNA polymerases actively transcribing $R_i$ at time $t$; $h_i$ is the half life of $R_i$; $\tau_d$ is the length of the cell cycle; $k_{elong}$ is the transcript elongation rate. Right now this is a constant value for all transcripts. We want to change this to be different for rRNA and tRNA. Let’s change this in the code. Open the file reconstruction/ecoli/fitkb1.py and go to the setRNAPCountsConstrainedByPhysiology function. This is what we need to change. Let’s add the Boolean vectors for fast and slow transcripts. After line 300 add these two lines:
+$L_i$ is the length of transcript $i$; $P_i$ is the number of RNA polymerases actively transcribing $R_i$ at time $t$; $h_i$ is the half life of $R_i$; $\tau_d$ is the length of the cell cycle; $k_{elong}$ is the transcript elongation rate. Right now this is a constant value for all transcripts. We want to change this to be different for rRNA and tRNA. Let’s change this in the code. Open the file reconstruction/ecoli/fitkb1.py and go to the setRNAPCountsConstrainedByPhysiology function. This is what we need to change. Let’s add the Boolean vectors for fast and slow transcripts. Right at the beginning of this function definition (after the docstring), add these two lines:
 
 \lstset{language=Python}
 \begin{lstlisting}
@@ -289,7 +331,7 @@ fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcri
 Let’s break up the calculation of nActiveRnapNeeded into nActiveRnapNeededforFast and nActiveRnapNeededforSlow. Change the nActiveRnapNeeded calculation to read:
 
 \begin{lstlisting}
-nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[slowRnaBool], kb.rnaPolymeraseElongationRateSlow, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
+nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[slowRnaBool], kb.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
 \end{lstlisting}
 
 Add a line under this for the calculation for the fast transcripts:

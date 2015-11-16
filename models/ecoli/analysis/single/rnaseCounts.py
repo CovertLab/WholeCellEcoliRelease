@@ -34,7 +34,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 
-	endoRnaseIds = kb.moleculeGroups.endoRnaseIds
+	endoRnaseIds = kb.process.rna_decay.endoRnaseIds
 	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
 	RNase_IDS = np.concatenate((endoRnaseIds, exoRnaseIds))
 

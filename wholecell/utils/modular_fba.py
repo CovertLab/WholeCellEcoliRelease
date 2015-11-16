@@ -28,6 +28,14 @@ try:
 except ImportError:
 	pass
 
+except Exception as e:
+	# If this is a GurobiError, proceed without using gurobi, warning the user.
+	if str(type(e)) == "<class 'gurobipy.GurobiError'>":
+		print "GurobiError - gurobi will not be used."
+	# Otherwise, raise the exception as normal
+	else:
+		raise e
+
 else:
 	SOLVERS[S_GUROBI] = NetworkFlowGurobi
 

@@ -49,30 +49,13 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
+		self.fracActiveRnap = kb.fracActiveRnap
+
+		self.rnaLengths = kb.process.transcription.rnaData["length"]
+
+		self.rnaPolymeraseElongationRate = kb.growthRateParameters.rnaPolymeraseElongationRate
+
 		self.rnaSynthProb = kb.process.transcription.rnaData["synthProb"]
-
-		# self.activationProb = kb.transcriptionActivationRate.asNumber(1/units.s) * self.timeStepSec # TODO: consider the validity of this math
-
-		rnaLengths = kb.process.transcription.rnaData["length"]
-
-		expectedTranscriptionTime = 1./kb.growthRateParameters.rnaPolymeraseElongationRate * rnaLengths
-
-		expectedTranscriptionTimesteps = np.ceil(
-			(1/(self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber()
-			)
-
-		averageTranscriptionTimesteps = np.dot(kb.process.transcription.rnaData["synthProb"], expectedTranscriptionTimesteps)
-
-		expectedTerminationRate = 1./averageTranscriptionTimesteps
-
-		expectedFractionTimeInactive = np.dot(
-			1 - (1/(self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
-			kb.process.transcription.rnaData["synthProb"]
-			)
-
-		effectiveFractionActive = kb.fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
-
-		self.activationProb = effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
 
 		# Views
 
@@ -87,6 +70,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+
+		self.activationProb = self._calculateActivationProb(
+			self.fracActiveRnap,
+			self.rnaLengths,
+			self.rnaPolymeraseElongationRate,
+			self.rnaSynthProb,
+			)
+
 		# Sample a multinomial distribution of synthesis probabilities to 
 		# determine what molecules are initialized
 
@@ -132,3 +123,24 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countDec(nNewRnas.sum())
 
 		self.writeToListener("RnapData", "didInitialize", nNewRnas.sum())
+
+
+	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
+		expectedTranscriptionTime = 1. / rnaPolymeraseElongationRate * rnaLengths
+
+		expectedTranscriptionTimesteps = np.ceil(
+			(1. / (self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber()
+			)
+
+		averageTranscriptionTimesteps = np.dot(synthProb, expectedTranscriptionTimesteps)
+
+		expectedTerminationRate = 1. / averageTranscriptionTimesteps
+
+		expectedFractionTimeInactive = np.dot(
+			1 - ( 1. / (self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
+			synthProb
+			)
+
+		effectiveFractionActive = fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
+
+		return effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
