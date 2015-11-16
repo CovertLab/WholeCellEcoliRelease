@@ -440,7 +440,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	Km = ( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc
 	
 	# Set Km's
-	kb.process.transcription.rnaData["KmEndoRNase"][:] = Km.asNumber(units.mol / units.L)
+	kb.process.transcription.rnaData["KmEndoRNase"] = Km
 
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
@@ -539,7 +539,7 @@ def fitExpression(kb, bulkContainer):
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 		kb.doubling_time,
 		(1 / countsToMolar) * totalEndoRnaseCapacity,
-		(units.mol / units.L) * kb.process.transcription.rnaData["KmEndoRNase"],
+		kb.process.transcription.rnaData["KmEndoRNase"],
 		countsToMolar * view_RNA.counts(),
 		countsToMolar,
 		)
