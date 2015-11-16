@@ -32,7 +32,7 @@ from wholecell.utils.enzymeKinetics import EnzymeKinetics
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
-USE_RATELIMITS = True # Enable/disable kinetic rate limits in the model
+USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
 MAX_FLUX_COEFF = 2 # Multiple of predicted rate at which to set the max fluxes
 MIN_FLUX_COEFF = 0 # Multiple of predicted rate at which to set the min fluxes
 
