@@ -476,6 +476,7 @@ def setRNAPCountsConstrainedByPhysiology(kb, bulkContainer):
 	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
 
 
+
 def fitExpression(kb, bulkContainer):
 
 	view_RNA = bulkContainer.countsView(kb.process.transcription.rnaData["id"])
@@ -571,6 +572,8 @@ def fitRNAPolyTransitionRates(kb, bulkContainer):
 	kb.transcriptionActivationRate = expectedTerminationRate * kb.growthRateParameters.fractionActiveRnap / (1 - kb.growthRateParameters.fractionActiveRnap)
 
 	kb.fracActiveRnap = kb.growthRateParameters.fractionActiveRnap
+
+
 
 
 def fitMaintenanceCosts(kb, bulkContainer):

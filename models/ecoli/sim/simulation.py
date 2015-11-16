@@ -1,4 +1,3 @@
-
 import os
 
 from wholecell.sim.simulation import Simulation
@@ -32,7 +31,9 @@ from models.ecoli.listeners.fba_results import FBAResults
 from models.ecoli.listeners.rna_degradation_listener import RnaDegradationListener
 from models.ecoli.listeners.transcript_elongation_listener import TranscriptElongationListener
 from models.ecoli.listeners.rnap_data import RnapData
+from models.ecoli.listeners.enzyme_kinetics import EnzymeKinetics
 from models.ecoli.listeners.growth_limits import GrowthLimits
+
 
 # Analysis
 import models.ecoli.analysis.single
@@ -74,6 +75,7 @@ class EcoliSimulation(Simulation):
 		RnaDegradationListener,
 		TranscriptElongationListener,
 		RnapData,
+		EnzymeKinetics,
 		GrowthLimits
 		)
 

@@ -40,7 +40,7 @@ class Transcription(object):
 			if len(arb_exp):
 				expression.append(arb_exp[0])
 			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
-				import ipdb; ipdb.set_trace()
+				#import ipdb; ipdb.set_trace()
 				raise Exception('No RNA-seq data found for {}'.format(rna['id']))
 			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
 				expression.append(0.)

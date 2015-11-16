@@ -131,6 +131,9 @@ class Metabolism(object):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 		# TODO: unjank this
 
+		# Load the biomass function flat file as a dict
+		biomassFunction = {entry['molecule id']:entry['coefficient'] for entry in raw_data.biomass}
+
 		# Create vector of metabolite pools (concentrations)
 
 		# Since the data only covers certain metabolites, we need to rationally
@@ -364,6 +367,7 @@ class Metabolism(object):
 		# - (d)NTP byproducts not currently included
 
 		self.metabolitePoolIDs = metaboliteIDs
+		self.biomassFunction = biomassFunction
 		self.metabolitePoolConcentrations = units.mol/units.L * np.array(metaboliteConcentrations)
 
 	def _buildMetabolism(self, raw_data, sim_data):
@@ -402,20 +406,18 @@ class Metabolism(object):
 			else:
 				externalExchangeMolecules.add(secretion["molecule id"])
 
-		# there's nothing wrong with the code below, to my knowledge, but it's not currently needed
+		validEnzymeIDs = set([])
+		validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
+		validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
+		validEnzymeIDs.update(validProteinIDs)
+		validEnzymeIDs.update(validProteinComplexIDs)
+		validEnzymeCompartments = collections.defaultdict(set)
 
-		# validEnzymeIDs = set([])
-		# validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
-		# validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
-		# validEnzymeIDs.update(validProteinIDs)
-		# validEnzymeIDs.update(validProteinComplexIDs)
-		# validEnzymeCompartments = collections.defaultdict(set)
+		for enzymeID in validEnzymeIDs:
+			enzyme = enzymeID[:enzymeID.index("[")]
+			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
 
-		# for enzymeID in validEnzymeIDs:
-		# 	enzyme = enzymeID[:enzymeID.index("[")]
-		# 	location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
-
-		# 	validEnzymeCompartments[enzyme].add(location)
+			validEnzymeCompartments[enzyme].add(location)
 
 		for reaction in raw_data.reactions:
 			reactionID = reaction["reaction id"]
@@ -427,16 +429,69 @@ class Metabolism(object):
 			reactionStoich[reactionID] = stoich
 
 			# Assign reversibilty
-
 			if reaction["is reversible"]:
 				reversibleReactions.append(reactionID)
+
+		reactionRateInfo = {}
+		constraintIDs = []
+		constraintToReactionDict = {}
+		activeConstraintsDict = {}
+		enzymesWithKineticInfo = set()
+		enzymesWithKineticInfoDict = {}
+
+		# Enzyme kinetics data
+		for reaction in raw_data.enzymeKinetics:
+			constraintID = reaction["constraintID"]
+			constraintIDs.append(constraintID)
+
+			constraintToReactionDict[constraintID] = reaction["reactionID"]
+			activeConstraintsDict[constraintID] = reaction["constraintActive"]
+
+			# If the enzymes don't already have a compartment tag, add one from the valid compartment list or [c] (cytosol) as a default
+			new_reaction_enzymes = []
+			for reactionEnzyme in reaction["enzymeIDs"]:
+				if reactionEnzyme[-3:-2] !='[':
+					if len(validEnzymeCompartments[reactionEnzyme]) > 0:
+						new_reaction_enzymes.append(reactionEnzyme +'['+str(validEnzymeCompartments[reactionEnzyme].pop())+']')
+					else:
+						new_reaction_enzymes.append(reactionEnzyme + '[c]')
+				else:
+					new_reaction_enzymes.append(reactionEnzyme)
+
+			reaction["enzymeIDs"] = new_reaction_enzymes
+
+			# If the substrates don't already have a compartment tag, add [c] (cytosol) as a default
+			reaction["substrateIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["substrateIDs"]]
+
+			if reaction["rateEquationType"] == 'custom':
+				# If the enzymes and substrates mentioned in the
+				# customParameterVariables dict lack a compartment tag, add [c]
+				# (cytosol) as a default
+				parametersDict = reaction["customParameterVariables"]
+				for key in parametersDict:
+					value = parametersDict[key]
+					if value[-3:-2] != '[':
+						parametersDict[key] = value + '[c]'
+				reaction["customParameterVariables"] = parametersDict
+
+
+			reactionRateInfo[constraintID] = reaction
+			for enzymeID in reaction["enzymeIDs"]:
+				enzymesWithKineticInfo.add(enzymeID)
+
+
+		enzymesWithKineticInfoDict["enzymes"] = list(enzymesWithKineticInfo)
 
 		self.reactionStoich = reactionStoich
 		self.externalExchangeMolecules = sorted(externalExchangeMolecules)
 		self.reversibleReactions = reversibleReactions
 		self._unconstrainedExchangeMolecules = unconstrainedExchangeMolecules
 		self._constrainedExchangeMolecules = constrainedExchangeMolecules
-
+		self.reactionRateInfo = reactionRateInfo
+		self.enzymesWithKineticInfo = enzymesWithKineticInfoDict
+		self.constraintIDs = constraintIDs
+		self.constraintToReactionDict = constraintToReactionDict
+		self.activeConstraintsDict = activeConstraintsDict
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits):
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)

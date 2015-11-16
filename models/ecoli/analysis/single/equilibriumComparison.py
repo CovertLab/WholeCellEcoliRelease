@@ -80,10 +80,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		empiricalKd[np.isinf(empiricalKd)] = np.nan
 		expectedKd = ratesRev[idx] / ratesFwd[idx]
 
-		try:
-			ax = plt.subplot(rows*(num_subentries + 2), cols, grid_loc)
-		except:
-			import ipdb; ipdb.set_trace()
+		ax = plt.subplot(rows*(num_subentries + 2), cols, grid_loc)
 
 		ax.plot(time[1:] / 60., empiricalKd[1:], linewidth=1, label="Empirical K_d")
 		ax.plot([time[1] / 60, time[-1] / 60], [expectedKd, expectedKd], linestyle="--")
