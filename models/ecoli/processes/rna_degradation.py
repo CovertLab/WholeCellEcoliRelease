@@ -106,7 +106,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
 
-		self.Km = (units.mol / units.L) * kb.process.transcription.rnaData["KmEndoRNase"]
+		self.Km = kb.process.transcription.rnaData["KmEndoRNase"]
 
 
 	# Calculate temporal evolution
