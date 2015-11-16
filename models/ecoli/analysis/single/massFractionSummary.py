@@ -45,6 +45,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	rRna = mass.readColumn("rRnaMass")
 	mRna = mass.readColumn("mRnaMass")
 	dna = mass.readColumn("dnaMass")
+	smallMolecules = mass.readColumn("smallMoleculeMass")
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
@@ -55,10 +56,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		rRna/rRna[0],
 		tRna/tRna[0],
 		mRna/mRna[0],
-		dna/dna[0]
+		dna/dna[0],
+		smallMolecules/smallMolecules[0],
 		]).T
 
-	massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA"]
+	massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA", "Small Mol.s"]
 
 	plt.figure(figsize = (8.5, 11))
 
