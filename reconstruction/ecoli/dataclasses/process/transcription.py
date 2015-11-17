@@ -40,7 +40,7 @@ class Transcription(object):
 			if len(arb_exp):
 				expression.append(arb_exp[0])
 			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
-				import ipdb; ipdb.set_trace()
+				#import ipdb; ipdb.set_trace()
 				raise Exception('No RNA-seq data found for {}'.format(rna['id']))
 			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
 				expression.append(0.)
@@ -54,6 +54,11 @@ class Transcription(object):
 			)
 		
 		synthProb /= synthProb.sum()
+
+		KcatEndoRNase = 0.001
+		EstimateEndoRNases = 5000
+
+		Km = (KcatEndoRNase * EstimateEndoRNases / rnaDegRates) - expression
 
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 
@@ -99,7 +104,8 @@ class Transcription(object):
 				('isRRna16S', 'bool'),
 				('isRRna5S', 'bool'),
 				('sequence', 'a{}'.format(maxSequenceLength)),
-				('geneId', 'a50')
+				('geneId', 'a50'),
+				('KmEndoRNase', 'f8'),
 				]
 			)
 
@@ -119,24 +125,26 @@ class Transcription(object):
 		rnaData['isRRna5S'] = is5S
 		rnaData['sequence'] = sequences
 		rnaData['geneId'] = geneIds
+		rnaData['KmEndoRNase'] = Km
 
 		field_units = {
-			'id'		:	None,
-			'synthProb' :	None,
-			'expression':	None,
-			'degRate'	:	1 / units.s,
-			'length'	:	units.nt,
-			'countsACGU':	units.nt,
-			'mw'		:	units.g / units.mol,
-			'isMRna'	:	None,
-			'isMiscRna'	:	None,
-			'isRRna'	:	None,
-			'isTRna'	:	None,
-			'isRRna23S'	:	None,
-			'isRRna16S'	:	None,
-			'isRRna5S'	:	None,
-			'sequence'  :   None,
-			'geneId'	:	None,
+			'id'			:	None,
+			'synthProb' 	:	None,
+			'expression'	:	None,
+			'degRate'		:	1 / units.s,
+			'length'		:	units.nt,
+			'countsACGU'	:	units.nt,
+			'mw'			:	units.g / units.mol,
+			'isMRna'		:	None,
+			'isMiscRna'		:	None,
+			'isRRna'		:	None,
+			'isTRna'		:	None,
+			'isRRna23S'		:	None,
+			'isRRna16S'		:	None,
+			'isRRna5S'		:	None,
+			'sequence'		:   None,
+			'geneId'		:	None,
+			'KmEndoRNase'	:	units.mol / units.L,
 			}
 
 

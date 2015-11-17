@@ -81,19 +81,16 @@ class Metabolism(object):
 				reactionStoich[reactionID] = reducedStoich
 
 				# Assign reversibilty
-
 				if reaction["dir"] == 0:
 					reversibleReactions.append(reactionID)
 
 				# Assign k_cat, if known
-
 				kcat = reaction["kcat"]
 
 				if kcat is not None:
 					reactionRates[reactionID] = kcat * catalysisUnits
 
 				# Assign enzyme, if any
-
 				if reactionID in REACTION_ENZYME_ASSOCIATIONS.viewkeys():
 					enzymes = REACTION_ENZYME_ASSOCIATIONS[reactionID]
 

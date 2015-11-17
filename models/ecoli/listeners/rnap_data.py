@@ -39,11 +39,12 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.fractionStalled = None
 
 		# Attributes broadcast by the processes
-		self.rnapStalls = None
+		self.rnapStalls = None		
 		self.ntpCountInSequence = None
 		self.ntpCounts = None
 		self.actualElongations = None
 		self.expectedElongations = None
+		self.nTerminated = None
 		self.didTerminate = None
 		self.didInitialize = None
 		self.terminationLoss = None
@@ -73,6 +74,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.ntpCounts = np.zeros(21, np.int64)
 		self.actualElongations = 0
 		self.expectedElongations = 0
+		self.nTerminated = 0
 		self.didTerminate = 0
 		self.didInitialize = 0
 		self.terminationLoss = 0
@@ -108,6 +110,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 			ntpCounts = self.ntpCounts,
 			actualElongations = self.actualElongations,
 			expectedElongations = self.expectedElongations,
+			nTerminated = self.nTerminated,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss

@@ -70,6 +70,9 @@ user/*
 ################################
 my_launchpad*.yaml
 my_qadapter*.yaml
+=======
+*my_launchpad*.yaml
+*my_qadapter*.yaml
 
 
 # Fireworks output #
@@ -77,6 +80,7 @@ my_qadapter*.yaml
 launcher_*
 block_*
 FW.json
+
 
 # Misc #
 ########
