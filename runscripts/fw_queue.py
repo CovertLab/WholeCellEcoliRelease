@@ -69,6 +69,8 @@ WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["len
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
+LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
+COMPRESS_OUTPUT = str(os.environ.get("COMPRESS_OUTPUT", "1"))
 
 ### Create directories
 
@@ -135,6 +137,7 @@ metadata = {
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
+	"multigen": '0',
 	}
 
 for key, value in metadata.iteritems():
@@ -143,7 +146,7 @@ for key, value in metadata.iteritems():
 #### Create workflow
 
 # Create launchpad
-lpad = LaunchPad(**yaml.load(open("my_launchpad.yaml")))
+lpad = LaunchPad(**yaml.load(open(LAUNCHPAD_FILE)))
 
 # Store list of FireWorks
 wf_fws = []
@@ -172,17 +175,17 @@ fw_initKb = Firework(
 wf_fws.append(fw_initKb)
 
 # Unfit KB compression
+if COMPRESS_OUTPUT:
+	fw_name = "ScriptTask_compression_fit_0_KB"
+	fw_kb_fit_0_compression = Firework(
+		ScriptTask(
+			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_0)
+			),
+		name = fw_name,
+		spec = {"_queueadapter": {"job_name": fw_name}}
+		)
 
-fw_name = "ScriptTask_compression_fit_0_KB"
-fw_kb_fit_0_compression = Firework(
-	ScriptTask(
-		script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_0)
-		),
-	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
-	)
-
-wf_fws.append(fw_kb_fit_0_compression)
+	wf_fws.append(fw_kb_fit_0_compression)
 
 ## Create symlink to unfit KB
 
@@ -226,16 +229,17 @@ wf_links[fw_symlink_unfit].append(fw_fit_level_1)
 
 # Fit Level 1 KB compression
 
-fw_name = "ScriptTask_compression_fit_1_KB"
-fw_kb_fit_1_compression = Firework(
-	ScriptTask(
-		script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_1)
-		),
-	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
-	)
+if COMPRESS_OUTPUT:
+	fw_name = "ScriptTask_compression_fit_1_KB"
+	fw_kb_fit_1_compression = Firework(
+		ScriptTask(
+			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_kb_fit_1)
+			),
+		name = fw_name,
+		spec = {"_queueadapter": {"job_name": fw_name}}
+		)
 
-wf_fws.append(fw_kb_fit_1_compression)
+	wf_fws.append(fw_kb_fit_1_compression)
 
 ## Create symlink to most fit KB
 # (when more fitting stages are implemented, move this down)
@@ -282,21 +286,24 @@ for i in VARIANTS_TO_RUN:
 
 	wf_links[fw_symlink_most_fit].append(fw_this_variant_kb)
 
-	# Variant KB compression
-	fw_name = "ScriptTask_compression_variant_KB"
-	fw_this_variant_kb_compression = Firework(
-		ScriptTask(
-			script = "bzip2 " + os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle")
-			),
-		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
-		)
+	if COMPRESS_OUTPUT:
+		# Variant KB compression
+		fw_name = "ScriptTask_compression_variant_KB"
+		fw_this_variant_kb_compression = Firework(
+			ScriptTask(
+				script = "bzip2 " + os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle")
+				),
+			name = fw_name,
+			spec = {"_queueadapter": {"job_name": fw_name}}
+			)
 
-	wf_fws.append(fw_this_variant_kb_compression)
+		wf_fws.append(fw_this_variant_kb_compression)
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
+		metadata["seed"] = j
+		metadata["multigen"] = '1'
 
 		fw_name = "AnalysisMultiGenTask__Seed_%06d" % (j)
 		fw_this_variant_this_seed_this_analysis = Firework(
@@ -311,9 +318,12 @@ for i in VARIANTS_TO_RUN:
 			)
 		wf_fws.append(fw_this_variant_this_seed_this_analysis)
 
-		wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_kb_compression)
-		wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
-		wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
+		metadata["multigen"] = '0'
+
+		if COMPRESS_OUTPUT:
+			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_kb_compression)
+			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
+			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
 
 		sims_this_seed = collections.defaultdict(list)
 
@@ -371,17 +381,19 @@ for i in VARIANTS_TO_RUN:
 					fw_parent_sim = sims_this_seed[k - 1][l // 2]
 					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
 
-				# Output compression job
-				fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
-				fw_this_variant_this_gen_this_sim_compression = Firework(
-					ScriptTask(
-						script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
-						),
-					name = fw_name,
-					spec = {"_queueadapter": {"job_name": fw_name}}
-					)
+				if COMPRESS_OUTPUT:
+					# Output compression job
+					fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
+					fw_this_variant_this_gen_this_sim_compression = Firework(
+						ScriptTask(
+							script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+							),
+						name = fw_name,
+						spec = {"_queueadapter": {"job_name": fw_name}}
+						)
 
-				wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
+					wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
+
 
 				# AnalysisSingle task
 				fw_name = "AnalysisSingleTask__Gen_%d__Cell_%d" % (k, l)
@@ -401,11 +413,12 @@ for i in VARIANTS_TO_RUN:
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
 
-				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_kb_compression)
-				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
-				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
-				wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
-				wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+				if COMPRESS_OUTPUT:
+					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_kb_compression)
+					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
+					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
+					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 
 
 ### Create workflow

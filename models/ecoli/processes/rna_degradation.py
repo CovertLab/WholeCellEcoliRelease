@@ -2,9 +2,7 @@
 
 """
 RnaDegradation
-
 RNA degradation sub-model. 
-
 Mathematical formulation:
 dr/dt = kb - kcatEndoRNase * EndoRNase * r / (Km + r) = r * ln(2)/tau
 	where	r = RNA counts
@@ -13,7 +11,6 @@ dr/dt = kb - kcatEndoRNase * EndoRNase * r / (Km + r) = r * ln(2)/tau
 			kcatEndoRNase = enzymatic activity for EndoRNases
 			kd = RNA degradation rates 
 			Km = Michaelis-Menten constants fitted to recapitulate first-order RNA decay ( kd * r = kcatEndoRNase * EndoRNase * r / (Km + r) )
-
 This sub-model encodes molecular simulation of RNA degradation as two main steps guided by RNases, "endonucleolytic cleavage" and "exonucleolytic digestion":
 1. Compute total counts of RNA to be degraded (D) and total capacity for endo-cleavage (C) at each time point
 2. Evaluate C and D. If C > D, then define a fraction of active endoRNases 
@@ -21,7 +18,6 @@ This sub-model encodes molecular simulation of RNA degradation as two main steps
 4. Update RNA fragments (assumption: fragments are represented as a pull of nucleotides) because of endonucleolytic cleavage
 5. Compute total capacity of exoRNases and determine fraction of nucleotides that can be diggested
 6. Update pull of metabolites (H and H2O) because of exonucleolytic digestion
-
 @author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/26/2015 - Updated 8/10/2015
