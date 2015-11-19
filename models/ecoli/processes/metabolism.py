@@ -166,6 +166,10 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set the priority to a low value
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
+		###### VARIANT CODE #######
+		self.externalMoleculeLevelsSave = externalMoleculeLevels.copy()
+		###### VARIANT CODE #######
+
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()
@@ -176,6 +180,16 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Solve for metabolic fluxes
 		metaboliteCountsInit = self.metabolites.counts()
+
+		###### VARIANT CODE #######
+		# APPLY METABOLIC LIMITATION AT TIME POINT
+		if self.time() >= 2: #self.time() >= 10*60:
+			glc_idx = self.fba.externalMoleculeIDs().index('GLC[p]')
+			tempExternalMoleculeLevels = self.externalMoleculeLevelsSave.copy()
+			tempExternalMoleculeLevels[glc_idx] = tempExternalMoleculeLevels[glc_idx] * 0.5
+			#tempExternalMoleculeLevels[glc_idx] = tempExternalMoleculeLevels[glc_idx] * 1.3
+			self.fba.externalMoleculeLevelsIs(tempExternalMoleculeLevels)
+		###### VARIANT CODE #######
 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
 
